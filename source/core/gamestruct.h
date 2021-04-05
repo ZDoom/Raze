@@ -47,6 +47,19 @@ struct MapRecord;
 
 extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 
+struct GeoEffect
+{
+	int* geosectorwarp;
+	int* geosectorwarp2;
+	int* geosector;
+	int* geox;
+	int* geoy;
+	int* geox2;
+	int* geoy2;
+	int geocnt;
+
+};
+
 struct GameInterface
 {
 	virtual const char* Name() { return "$"; }
@@ -103,10 +116,12 @@ struct GameInterface
 	virtual int chaseCamX(binangle ang) { return 0; }
 	virtual int chaseCamY(binangle ang) { return 0; }
 	virtual int chaseCamZ(fixedhoriz horiz) { return 0; }
-	virtual void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) = 0;
+	virtual void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) = 0;
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(spritetype* viewer, int type) {}
 	virtual void LeavePortal(spritetype* viewer, int type) {}
+	virtual bool GetGeoEffect(GeoEffect* eff, int viewsector) { return false; }
+	virtual bool Voxelize(int sprnum) { return false; }
 
 	virtual FString statFPS()
 	{

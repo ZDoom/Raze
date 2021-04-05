@@ -225,15 +225,21 @@ static bool System_DisableTextureFilter()
 
 static IntRect System_GetSceneRect()
 {
-	// Special handling so the view with a visible status bar displays properly
-	int height = windowxy2.y - windowxy1.y + 1, width = windowxy2.x - windowxy1.x + 1;
-	int bottomspace = screen->GetHeight() - windowxy2.y;
+	int viewbottom = windowxy2.y + 1;
+	int viewheight = viewbottom - windowxy1.y;
+	int viewright = windowxy2.x + 1;
+	int viewwidth = viewright - windowxy1.x;
+
+	int renderheight;
+	
+	if (viewheight == screen->GetHeight()) renderheight = viewheight;
+	else renderheight = (viewwidth * screen->GetHeight() / screen->GetWidth()) & ~7;
 
 	IntRect mSceneViewport;
 	mSceneViewport.left = windowxy1.x;
-	mSceneViewport.top = (bottomspace - windowxy1.y/2);
-	mSceneViewport.width = width;
-	mSceneViewport.height = height;
+	mSceneViewport.top = screen->GetHeight() - (renderheight + windowxy1.y - ((renderheight - viewheight) / 2));
+	mSceneViewport.width = viewwidth;
+	mSceneViewport.height = renderheight;
 	return mSceneViewport;
 }
 

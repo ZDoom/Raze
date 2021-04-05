@@ -478,7 +478,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
 		{
 			if (wal->nextwall >= 0) continue;
-			if (!tileGetTexture(wal->picnum)->isValid()) continue;
+			if (!gFullMap && !tileGetTexture(wal->picnum)->isValid()) continue;
 
 			if ((g_gameType & GAMEFLAG_SW) && !gFullMap && !show2dwall[j])
 				continue;
@@ -565,7 +565,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 
 	for (int i = numsectors - 1; i >= 0; i--)
 	{
-		if (!gFullMap && !show2dsector[i] && !(g_gameType & GAMEFLAG_SW)) continue;
+		if (!gFullMap && !show2dsector[i]) continue;
 
 		//Collect floor sprites to draw
 		SectIterator it(i);
@@ -585,7 +585,10 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 
 		if (sector[i].floorstat & CSTAT_SECTOR_SKY) continue;
 
-		auto mesh = sectorGeometry.get(i, 0);
+		int picnum = sector[i].floorpicnum;
+		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
+
+		auto mesh = sectorGeometry.get(i, 0, { 0.f,0.f });
 		vertices.Resize(mesh->vertices.Size());
 		for (unsigned j = 0; j < mesh->vertices.Size(); j++)
 		{
@@ -595,8 +598,6 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 			vertices[j] = { x1 / 4096.f, y1 / 4096.f, mesh->texcoords[j].X, mesh->texcoords[j].Y };
 		}
-		int picnum = sector[i].floorpicnum;
-		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
 
 		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);
 		setgotpic(picnum);
@@ -616,6 +617,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	vertices.Resize(4);
 	for (auto sn : floorsprites)
 	{
+		if (!gFullMap && !show2dsprite[sn]) continue;
 		auto spr = &sprite[sn];
 		vec2_t pp[4];
 		GetFlatSpritePosition(spr, spr->pos.vec2, pp, true);

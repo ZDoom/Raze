@@ -359,6 +359,11 @@ void InitLevel(MapRecord *maprec)
         // silence a misplaced and *very* annoying ambient sound.
         if (sprite[442].picnum == ST1 && sprite[442].hitag == 1002 && sprite[442].lotag == 31) sprite[442].lotag = -1;
     }
+    if (!maprec->labelName.CompareNoCase("$volcano") && !maprec->name.CompareNoCase("$TXTS_W_MAP10"))
+    {
+        // fix badly tagged sector that can glitch out.
+        if (sector[118].ceilingstat == 37 && sector[118].ceilingpicnum == 317) sector[118].ceilingstat &= ~CSTAT_SECTOR_SKY;
+    }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
@@ -800,6 +805,11 @@ void GameInterface::FreeLevelData()
 {
     TerminateLevel();
     ::GameInterface::FreeLevelData();
+}
+
+bool GameInterface::Voxelize(int sprnum) 
+{ 
+    return (aVoxelArray[sprnum].Voxel >= 0);
 }
 
 END_SW_NS

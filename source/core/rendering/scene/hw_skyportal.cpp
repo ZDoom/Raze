@@ -6,7 +6,7 @@
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -58,29 +58,35 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	{
 		vertexBuffer->RenderBox(state, skybox, origin->x_offset, false, /*di->Level->info->pixelstretch*/1, { 0, 0, 1 }, { 0, 0, 1 });
 	}
-	else
+	else if (!origin->cloudy)
 	{
 		auto tex = origin->texture;
 		float texw = tex->GetDisplayWidth();
 		float texh = tex->GetDisplayHeight();
 		auto& modelMatrix = state.mModelMatrix;
 		auto& textureMatrix = state.mTextureMatrix;
-		auto texskyoffset = tex->GetSkyOffset() + origin->y_offset + skyoffsettest;
+		auto texskyoffset = tex->GetSkyOffset() + skyoffsettest;
+		if (!(g_gameType & GAMEFLAG_PSEXHUMED)) texskyoffset += origin->y_offset;
 
-		int repeat_fac = 1;
-		if (texh <= 192)
+		float repeat_fac = 1;
+		if (texh <= 256)
 		{
-			repeat_fac = 384 / texh;
-			texh *= repeat_fac;
+			repeat_fac = 336.f / texh;
+			texh = 336;
 		}
 		modelMatrix.loadIdentity();
 		modelMatrix.rotate(-180.0f + origin->x_offset, 0.f, 1.f, 0.f);
-		modelMatrix.translate(0.f, -40 + texskyoffset + (texh - 300) / 2 * skyoffsetfactor, 0.f);
-		//modelMatrix.scale(1.f, 0.8f * 1.17f, 1.f);
+		modelMatrix.translate(0.f, -40 + texskyoffset * skyoffsetfactor, 0.f);
+		modelMatrix.scale(1.f, texh / 400.f, 1.f);
 		textureMatrix.loadIdentity();
-		textureMatrix.scale(-1.f, 0.5*repeat_fac, 1.f);
-		textureMatrix.translate(1.f, 0/*origin->y_offset / texh*/, 1.f);
-		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER);
+		state.EnableTextureMatrix(true);
+		textureMatrix.scale(1.f, repeat_fac, 1.f);
+		vertexBuffer->RenderDome(state, origin->texture, FSkyVertexBuffer::SKYMODE_MAINLAYER, true);
+		state.EnableTextureMatrix(false);
+	}
+	else
+	{
+		vertexBuffer->RenderDome(state, origin->texture, -origin->x_offset, origin->y_offset, false, FSkyVertexBuffer::SKYMODE_MAINLAYER, true);
 	}
 	state.SetTextureMode(TM_NORMAL);
 	if (origin->fadecolor & 0xffffff)

@@ -102,8 +102,8 @@ void displaymasks_d(int snum, double smoothratio);
 void displaymasks_r(int snum, double smoothratio);
 void think_d();
 void think_r();
-void animatesprites_d(int x, int y, int a, int smoothratio);
-void animatesprites_r(int x, int y, int a, int smoothratio);
+void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
+void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
 
 void Logo_d(const CompletionFunc&);
 void Logo_r(const CompletionFunc&);

@@ -77,7 +77,6 @@ CVARD(Bool, cl_slopetilting, false, CVAR_ARCHIVE, "enable/disable slope tilting"
 CVARD(Int, cl_showweapon, 1, CVAR_ARCHIVE, "enable/disable show weapons") // only implemented in Blood
 CVARD(Bool, cl_sointerpolation, true, CVAR_ARCHIVE, "enable/disable sector object interpolation") // only implemented in SW
 CVARD(Bool, cl_syncinput, false, CVAR_ARCHIVE, "enable/disable synchronized input with game's ticrate") // only implemented in Duke
-CVARD(Bool, cl_dukefixrpgrecoil, false, CVAR_ARCHIVE, "soften recoil of Duke 3D's RPG")
 CVARD(Bool, cl_smoothsway, false, CVAR_ARCHIVE, "move SW weapon left and right smoothly while bobbing")
 CVARD(Bool, cl_showmagamt, false, CVAR_ARCHIVE, "show the amount of rounds left in the magazine of your weapon on the modern HUD")
 CVARD(Bool, cl_nomeleeblur, false, CVAR_ARCHIVE, "enable/disable blur effect with melee weapons in SW")

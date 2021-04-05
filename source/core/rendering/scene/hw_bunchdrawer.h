@@ -37,7 +37,6 @@ private:
         CL_Pass = 2,
     };
 
-
     void StartScene();
     void StartBunch(int sectnum, int linenum, binangle startan, binangle endan);
     void AddLineToBunch(int line, binangle newan);
@@ -53,4 +52,5 @@ private:
 public:
     void Init(HWDrawInfo* _di, Clipper* c, vec2_t& view);
     void RenderScene(const int* viewsectors, unsigned sectcount);
+    const FixedBitArray<MAXSECTORS>& GotSector() const { return gotsector; }
 };

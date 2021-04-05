@@ -753,7 +753,7 @@ static void handle_st21(int sn, DDukeActor* actor)
 	int j;
 	if (i >= 0)
 	{
-		if (animategoal[sn] == sptr->ceilingz)
+		if (animategoal[i] == sptr->ceilingz)
 			animategoal[i] = sector[nextsectorneighborz(sn, sptr->ceilingz, 1, 1)].floorz;
 		else animategoal[i] = sptr->ceilingz;
 		j = animategoal[i];
@@ -1271,8 +1271,18 @@ void moveclouds(double smoothratio)
 		cloudy += ps[screenpeek].angle.ang.fsin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
-			sector[clouds[i]].setceilingxpan(cloudx);
-			sector[clouds[i]].setceilingypan(cloudy);
+			if (!testnewrenderer)
+			{
+				sector[clouds[i]].setceilingxpan(cloudx);
+				sector[clouds[i]].setceilingypan(cloudy);
+			}
+			else
+			{ 
+				// no clamping here!
+				sector[clouds[i]].ceilingxpan_ = cloudx;
+				sector[clouds[i]].ceilingypan_ = cloudy;
+			}
+			sector[clouds[i]].exflags |= SECTOREX_CLOUDSCROLL;
 		}
 	}
 }

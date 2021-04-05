@@ -270,7 +270,7 @@ void FuncAnim(int a, int, int nRun)
         case 0x90000:
         {
             seq_PlotSequence(a & 0xFFFF, nSeq, AnimList[nAnim].field_2, 0x101);
-            tsprite[a & 0xFFFF].owner = -1;
+            mytsprite[a & 0xFFFF].owner = -1;
             return;
         }
 

@@ -60,6 +60,7 @@ enum
 
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
 constexpr double BRadAngScale = 1. / BAngRadian;
+constexpr double BAngToDegree = 360. / 2048.;
 
 extern int16_t sintable[2048];
 
@@ -122,6 +123,7 @@ class lookangle
 	friend constexpr lookangle bamlook(int32_t v);
 	friend constexpr lookangle q16look(int32_t v);
 	friend constexpr lookangle buildlook(int32_t v);
+	friend lookangle buildflook(double v);
 	friend lookangle radlook(double v);
 	friend lookangle deglook(double v);
 
@@ -224,7 +226,8 @@ public:
 inline constexpr lookangle bamlook(int32_t v) { return lookangle(v); }
 inline constexpr lookangle q16look(int32_t v) { return lookangle(v << 5); }
 inline constexpr lookangle buildlook(int32_t v) { return lookangle(v << BAMBITS); }
-inline lookangle radlook(double v) { return lookangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
+inline lookangle buildflook(double v) { return lookangle(xs_CRoundToInt(v * BAMUNIT)); }
+inline lookangle radlook(double v) { return lookangle(xs_CRoundToInt(v * (0x80000000u / pi::pi()))); }
 inline lookangle deglook(double v) { return lookangle(FloatToAngle(v)); }
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)
@@ -398,6 +401,7 @@ class fixedhoriz
 	
 	friend constexpr fixedhoriz q16horiz(fixed_t v);
 	friend constexpr fixedhoriz buildhoriz(int v);
+	friend fixedhoriz buildfhoriz(double v);
 	friend fixedhoriz pitchhoriz(double v);
 	friend fixedhoriz bamhoriz(int32_t v);
 
@@ -496,6 +500,7 @@ public:
 
 inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
+inline fixedhoriz buildfhoriz(double v) { return fixedhoriz(FloatToFixed(v)); }
 inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
 inline fixedhoriz bamhoriz(int32_t v) { return pitchhoriz(BAMToPitch(v)); }
 

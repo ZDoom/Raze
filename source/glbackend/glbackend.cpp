@@ -49,7 +49,7 @@
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
 #include "gamestruct.h"
-#include "gl_models.h"
+#include "hw_models.h"
 #include "gamefuncs.h"
 
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
@@ -136,7 +136,7 @@ void GLInstance::DoDraw()
 					state.SetDepthFunc(DF_LEqual);
 					state.EnableTexture(true);
 					rs.model->BuildVertexBuffer(&mr);
-					mr.SetupFrame(rs.model, rs.mframes[0], rs.mframes[1], rs.mfactor);
+					mr.SetupFrame(rs.model, rs.mframes[0], rs.mframes[1], 0);
 					rs.model->RenderFrame(&mr, rs.mMaterial.mTexture, rs.mframes[0], rs.mframes[1], 0.f, rs.mMaterial.mTranslation);
 					state.SetDepthFunc(DF_Less);
 					state.SetVertexBuffer(screen->mVertexData);
@@ -206,7 +206,8 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.SetMaterial(mMaterial.mTexture, mMaterial.uFlags, mMaterial.mScaleFlags, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
 
-	state.SetColor(Color[0], Color[1], Color[2], Color[3]);
+	if (!drawblack) state.SetColor(Color[0], Color[1], Color[2], Color[3]);
+	else state.SetColor(0, 0, 0, Color[3]);
 	if (StateFlags != oldState.Flags)
 	{
 		state.EnableDepthTest(StateFlags & STF_DEPTHTEST);
@@ -569,7 +570,7 @@ void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dasha
 		DTA_FlipX, !!(dastat & RS_XFLIPHUD),
 		DTA_FlipY, !!(dastat & RS_YFLIPHUD),
 		DTA_Pin, (dastat & RS_ALIGN_R) ? 1 : (dastat & RS_ALIGN_L) ? -1 : 0,
-		DTA_Rotate, a * (-360./2048),
+		DTA_Rotate, a * -BAngToDegree,
 		DTA_FlipOffsets, !(dastat & (/*RS_TOPLEFT |*/ RS_CENTER)),
 		DTA_Alpha, alpha,
 		TAG_DONE);

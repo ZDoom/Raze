@@ -3,6 +3,7 @@
 #include "m_fixed.h"
 #include "binaryangle.h"
 #include "gamecvars.h"
+#include "gamestruct.h"
 #include "packet.h"
 
 int getincangle(int a, int na);
@@ -13,7 +14,6 @@ lookangle getincanglebam(binangle a, binangle na);
 struct PlayerHorizon
 {
 	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;
-	double adjustment, target;
 
 	void backup()
 	{
@@ -29,46 +29,49 @@ struct PlayerHorizon
 
 	void addadjustment(double value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += value * FRACUNIT;
+		__addadjustment(q16horiz(FloatToFixed(value)));
 		}
-		else
-		{
-			horiz += q16horiz(FloatToFixed(value));
-		}
-	}
 
 	void resetadjustment()
 	{
 		adjustment = 0;
 	}
 
+	void settarget(int value, bool backup = false)
+	{
+		__settarget(buildhoriz(clamp(value, FixedToInt(gi->playerHorizMin()), FixedToInt(gi->playerHorizMax()))), backup);
+	}
+
 	void settarget(double value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = value * FRACUNIT;
-			if (target == 0) target += 1;
-		}
-		else
-		{
-			horiz = q16horiz(FloatToFixed(value));
-			if (backup) ohoriz = horiz;
-		}
+		__settarget(buildfhoriz(clamp(value, FixedToFloat(gi->playerHorizMin()), FixedToFloat(gi->playerHorizMax()))), backup);
 	}
+
+	void settarget(fixedhoriz value, bool backup = false)
+		{
+		__settarget(q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax())), backup);
+		}
+
+	bool targetset()
+		{
+		return target.asq16();
+		}
 
 	void processhelpers(double const scaleAdjust)
 	{
-		if (target)
+		if (targetset())
 		{
-			horiz += q16horiz(xs_CRoundToInt(scaleAdjust * (target - horiz.asq16())));
+			auto delta = (target - horiz).asq16();
 
-			if (abs(horiz.asq16() - target) < FRACUNIT)
+			if (abs(delta) > FRACUNIT)
 			{
-				horiz = q16horiz(target);
-				target = 0;
+				horiz += q16horiz(xs_CRoundToInt(scaleAdjust * delta));
 			}
+			else
+			{
+				horiz = target;
+				target = q16horiz(0);
+		}
 		}
 		else if (adjustment)
 		{
@@ -99,13 +102,42 @@ struct PlayerHorizon
 		double const ratio = smoothratio * (1. / FRACUNIT);
 		return q16horiz(ohorizoff.asq16() + xs_CRoundToInt(ratio * (horizoff - ohorizoff).asq16()));
 	}
+
+private:
+	fixedhoriz target;
+	double adjustment;
+
+	void __addadjustment(fixedhoriz value)
+	{
+		if (!SyncInput())
+		{
+			adjustment += value.asq16();
+		}
+		else
+		{
+			horiz += value;
+		}
+	}
+
+	void __settarget(fixedhoriz value, bool backup = false)
+	{
+		if (!SyncInput() && !backup)
+		{
+			target = value;
+			if (!targetset()) target = q16horiz(1);
+		}
+		else
+		{
+			horiz = value;
+			if (backup) ohoriz = horiz;
+		}
+	}
 };
 
 struct PlayerAngle
 {
 	binangle ang, oang;
 	lookangle look_ang, olook_ang, rotscrnang, orotscrnang, spin;
-	double adjustment, target;
 
 	void backup()
 	{
@@ -123,51 +155,23 @@ struct PlayerAngle
 
 	void addadjustment(int value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += BAngToBAM(value);
+		__addadjustment(buildlook(value));
 		}
-		else
-		{
-			ang += buildang(value);
-		}
-	}
 
 	void addadjustment(double value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += value * BAMUNIT;
+		__addadjustment(buildflook(value));
 		}
-		else
-		{
-			ang += bamang(xs_CRoundToUInt(value * BAMUNIT));
-		}
-	}
 
 	void addadjustment(lookangle value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += value.asbam();
+		__addadjustment(value);
 		}
-		else
-		{
-			ang += bamang(value.asbam());
-		}
-	}
 
 	void addadjustment(binangle value)
 	{
-		if (!SyncInput())
-		{
-			adjustment += value.asbam();
+		__addadjustment(bamlook(value.asbam()));
 		}
-		else
-		{
-			ang += value;
-		}
-	}
 
 	void resetadjustment()
 	{
@@ -176,57 +180,39 @@ struct PlayerAngle
 
 	void settarget(int value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = (ang + getincanglebam(ang, buildang(value))).asbam();
-			if (target == 0) target += 1;
+		__settarget(buildang(value & 2047), backup);
 		}
-		else
-		{
-			ang = buildang(value);
-			if (backup) oang = ang;
-		}
-	}
 
 	void settarget(double value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = (ang + getincanglebam(ang, buildfang(value))).asbam();
-			if (target == 0) target += 1;
+		__settarget(buildfang(fmod(value, 2048)), backup);
 		}
-		else
-		{
-			ang = buildfang(value);
-			if (backup) oang = ang;
-		}
-	}
 
 	void settarget(binangle value, bool backup = false)
 	{
-		if (!SyncInput() && !backup)
-		{
-			target = (ang + getincanglebam(ang, value)).asbam();
-			if (target == 0) target += 1;
+		__settarget(value, backup);
 		}
-		else
+
+	bool targetset()
 		{
-			ang = value;
-			if (backup) oang = ang;
+		return target.asbam();
 		}
-	}
 
 	void processhelpers(double const scaleAdjust)
 	{
-		if (target)
+		if (targetset())
 		{
-			ang += bamang(xs_CRoundToUInt(scaleAdjust * (target - ang.asbam())));
+			auto delta = getincanglebam(ang, target).asbam();
 
-			if (abs(ang.asbam() - target) < BAMUNIT)
+			if (delta > BAMUNIT)
 			{
-				ang = bamang(target);
-				target = 0;
+				ang += bamang(xs_CRoundToUInt(scaleAdjust * delta));
 			}
+			else
+			{
+				ang = target;
+				target = bamang(0);
+		}
 		}
 		else if (adjustment)
 		{
@@ -269,6 +255,36 @@ struct PlayerAngle
 	{
 		return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).asbam() * (0.5 / BAMUNIT); // Used within draw code for weapon and crosshair when looking left/right.
 	}
+
+private:
+	binangle target;
+	double adjustment;
+
+	void __addadjustment(lookangle value)
+	{
+		if (!SyncInput())
+		{
+			adjustment += value.asbam();
+		}
+		else
+		{
+			ang += value;
+		}
+	}
+
+	void __settarget(binangle value, bool backup = false)
+	{
+		if (!SyncInput() && !backup)
+		{
+			target = value;
+			if (!targetset()) target = bamang(1);
+		}
+		else
+		{
+			ang = value;
+			if (backup) oang = ang;
+		}
+	}
 };
 
 class FSerializer;
@@ -280,6 +296,6 @@ void updateTurnHeldAmt(double const scaleAdjust);
 bool const isTurboTurnTime();
 void resetTurnHeldAmt();
 void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
-void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double const scaleAdjust = 1);
+void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, double const scaleAdjust = 1);
 void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust = 1);
 void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust = 1, bool const climbing = false);

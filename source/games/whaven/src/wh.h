@@ -480,7 +480,7 @@ inline int insertsprite(int sectnum, int statnum)
 	return j;
 }
 
-void analyzesprites(PLAYER& plr, int dasmoothratio);
+void analyzesprites(PLAYER& plr, int dasmoothratio, spritetype* tsprite, int& spritesortcnt);
 void precacheTiles();
 
 
@@ -535,8 +535,7 @@ struct GameInterface : public ::GameInterface
     int chaseCamX(binangle ang) { return -ang.bcos() / 12; }
     int chaseCamY(binangle ang) { return -ang.bsin() / 12; }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() / 384; }
-	void processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
-
+	void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
 };
  
 END_WH_NS

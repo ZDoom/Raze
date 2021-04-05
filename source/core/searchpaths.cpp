@@ -88,7 +88,7 @@ struct RegistryPathInfo
 };
 
 static const char * gameroot[] = { "/gameroot", nullptr};
-static const char * swaddons[] = { "/gameroot", "/gameroot/addons", nullptr};
+static const char * swaddons[] = { "/gameroot/addons", "/gameroot", nullptr};
 static const char * dukeaddons[] = { "/gameroot", "/gameroot/addons/dc", "/gameroot/addons/nw", "/gameroot/addons/vacation", nullptr};
 static const char * dn3d[] = { "/Duke Nukem 3D", nullptr};
 static const char * nam[] = { "/NAM", nullptr};

@@ -43,7 +43,7 @@ EXTERN_CVAR(Bool, wt_commentary)
 
 BEGIN_DUKE_NS
 
-void animatesprites_d(int x, int y, int a, int smoothratio)
+void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio)
 {
 	int i, j, k, p;
 	short sect;

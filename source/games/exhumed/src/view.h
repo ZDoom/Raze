@@ -40,6 +40,9 @@ extern short bTouchFloor;
 extern short nChunkTotal;
 extern int gFov;
 
+extern spritetype* mytsprite;
+extern int* myspritesortcnt;
+
 static inline int angle_interpolate16(int a, int b, int smooth)
 {
     return a + MulScale(((b+1024-a)&2047)-1024, smooth, 16);

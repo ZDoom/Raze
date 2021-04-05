@@ -141,7 +141,6 @@ enum
 };
 
 EXTERN int32_t guniqhudid;
-EXTERN int32_t spritesortcnt;
 
 struct usermaphack_t 
 {
@@ -156,7 +155,6 @@ EXTERN spritesmooth_t *spritesmooth;
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
-EXTERN tspriteptr_t tsprite;
 EXTERN int leveltimer;
 
 extern sectortype sectorbackup[MAXSECTORS];
@@ -164,14 +162,7 @@ extern walltype wallbackup[MAXWALLS];
 
 extern bool inpreparemirror;
 
-inline tspriteptr_t renderAddNewTSprite()
-{
-    auto tspr = &tsprite[spritesortcnt++];
-    *tspr = {};
-    return tspr;
-}
-
-inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
+inline tspriteptr_t renderAddTSpriteFromSprite(spritetype* tsprite, int& spritesortcnt, uint16_t const spritenum)
 {
     auto tspr = &tsprite[spritesortcnt++];
     auto const spr = &sprite[spritenum];
@@ -183,10 +174,10 @@ inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
 
 // returns: 0=continue sprite collecting;
 //          1=break out of sprite collecting;
-inline int32_t renderAddTsprite(int16_t z, int16_t sectnum)
+inline int32_t renderAddTsprite(spritetype* tsprite, int& spritesortcnt, int16_t z, int16_t sectnum)
 {
     if (spritesortcnt >= MAXSPRITESONSCREEN) return 1;
-    renderAddTSpriteFromSprite(z);
+    renderAddTSpriteFromSprite(tsprite, spritesortcnt, z);
     return 0;
 }
 
@@ -273,7 +264,7 @@ EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
-EXTERN char gotsector[(MAXSECTORS+7)>>3];
+extern FixedBitArray<MAXSECTORS> gotsector;
 
 
 extern uint32_t drawlinepat;
@@ -553,13 +544,6 @@ int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
 
 int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz);
-#if !defined NETCODE_DISABLE
-void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum);
-int32_t insertspritestat(int16_t statnum);
-void do_deletespritestat(int16_t deleteme);
-void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum);
-void do_deletespritesect(int16_t deleteme);
-#endif
 int32_t insertsprite(int16_t sectnum, int16_t statnum);
 int32_t deletesprite(int16_t spritenum);
 
@@ -769,8 +753,6 @@ enum EHitBits
 };
 
 void updateModelInterpolation();
-
-int32_t renderAddTsprite(int16_t z, int16_t sectnum);
 
 inline void tileUpdatePicnum(int* const tileptr, int const obj, int stat)
 {

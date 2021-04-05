@@ -24,6 +24,8 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "printf.h"
 #include "gamefuncs.h"
 #include "hw_drawinfo.h"
+#include "gamestruct.h"
+#include "gamestruct.h"
 
 
 typedef struct {
@@ -45,6 +47,7 @@ CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/di
 CVARD(Bool, hw_models, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
 CVARD(Bool, hw_parallaxskypanning, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky")
 CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
+int pm_smoothratio;
 
 
 //{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 }, disabled because not fully functional 
@@ -62,6 +65,8 @@ static int16_t numscans, numbunches;
 static int16_t maskwall[MAXWALLSB], maskwallcnt;
 static int16_t sectorborder[256];
 static tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
+tspritetype pm_tsprite[MAXSPRITESONSCREEN];
+int pm_spritesortcnt;
 
 
 
@@ -1818,7 +1823,7 @@ static void polymost_drawalls(int32_t const bunch)
         domostpolymethod = DAMETH_NOMASK;
 
         if (nextsectnum >= 0)
-            if ((!(gotsector[nextsectnum>>3]& (1<<(nextsectnum&7)))) && testvisiblemost(x0,x1))
+            if (!gotsector[nextsectnum] && testvisiblemost(x0,x1))
                 polymost_scansector(nextsectnum);
     }
 }
@@ -1913,13 +1918,14 @@ void polymost_scansector(int32_t sectnum)
             {
                 if ((spr->cstat&(64+48))!=(64+16) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
+                    (r_voxels && gi->Voxelize(spr->picnum)) ||
                     DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)
-                    if (renderAddTsprite(z, sectnum))
+                    if (renderAddTsprite(pm_tsprite, pm_spritesortcnt, z, sectnum))
                         break;
             }
         }
 
-        gotsector[sectnum>>3] |= 1<<(sectnum&7);
+        gotsector.Set(sectnum);
 
         int const bunchfrst = numbunches;
         int const onumscans = numscans;
@@ -1942,7 +1948,7 @@ void polymost_scansector(int32_t sectnum)
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
             if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < countof(sectorborder))
-            if ((gotsector[nextsectnum>>3]&(1<<(nextsectnum&7))) == 0)
+            if (gotsector[nextsectnum] == 0)
             {
                 double const d = fp1.X* fp2.Y - fp2.X * fp1.Y;
                 DVector2 const p1 = fp2 - fp1;
@@ -1952,7 +1958,7 @@ void polymost_scansector(int32_t sectnum)
                 if (d*d < (p1.LengthSquared()) * 256.f)
                 {
                     sectorborder[sectorbordercnt++] = nextsectnum;
-                    gotsector[nextsectnum>>3] |= 1<<(nextsectnum&7);
+                    gotsector.Set(nextsectnum);
                 }
             }
 
@@ -2743,13 +2749,15 @@ void polymost_drawsprite(int32_t snum)
         {
             if ((tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
             {
-                if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
+                int num = tiletovox[tspr->picnum];
+                if (polymost_voxdraw(voxmodels[num], tspr, voxrotate[num>>3] & (1<<(num&7)))) return;
                 break;  // else, render as flat sprite
             }
 
             if ((tspr->cstat & 48) == 48 && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
             {
-                polymost_voxdraw(voxmodels[tspr->picnum], tspr);
+                int num = tspr->picnum;
+                polymost_voxdraw(voxmodels[tspr->picnum], tspr, voxrotate[num >> 3] & (1 << (num & 7)));
                 return;
             }
         }
@@ -3329,7 +3337,7 @@ EXTERN_CVAR(Int, gl_fogmode)
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
-    spritesortcnt = 0;
+    pm_spritesortcnt = 0;
     checkRotatedWalls();
 
     if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
@@ -3355,7 +3363,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     global100horiz = dahoriz;
 
-    memset(gotsector, 0, sizeof(gotsector));
+    gotsector.Zero();
     qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
     globalcursectnum = dacursectnum;
     Polymost::polymost_drawrooms();
@@ -3492,21 +3500,21 @@ static void sortsprites(int const start, int const end)
 void renderDrawMasks(void)
 {
 # define debugmask_add(dispidx, idx) do {} while (0)
-    int32_t i = spritesortcnt - 1;
-    int32_t numSprites = spritesortcnt;
+    int32_t i = pm_spritesortcnt - 1;
+    int32_t numSprites = pm_spritesortcnt;
 
-    spritesortcnt = 0;
+    pm_spritesortcnt = 0;
     int32_t back = i;
     for (; i >= 0; --i)
     {
-        if (Polymost::polymost_spriteHasTranslucency(&tsprite[i]))
+        if (Polymost::polymost_spriteHasTranslucency(&pm_tsprite[i]))
         {
-            tspriteptr[spritesortcnt] = &tsprite[i];
-            ++spritesortcnt;
+            tspriteptr[pm_spritesortcnt] = &pm_tsprite[i];
+            ++pm_spritesortcnt;
         }
         else
         {
-            tspriteptr[back] = &tsprite[i];
+            tspriteptr[back] = &pm_tsprite[i];
             --back;
         }
     }
@@ -3532,7 +3540,7 @@ void renderDrawMasks(void)
             if (!modelp)
             {
                 //Delete face sprite if on wrong side!
-                if (i >= spritesortcnt)
+                if (i >= pm_spritesortcnt)
                 {
                     --numSprites;
                     if (i != numSprites)
@@ -3545,15 +3553,15 @@ void renderDrawMasks(void)
                 else
                 {
                     --numSprites;
-                    --spritesortcnt;
+                    --pm_spritesortcnt;
                     if (i != numSprites)
                     {
-                        tspriteptr[i] = tspriteptr[spritesortcnt];
-                        spritesxyz[i].x = spritesxyz[spritesortcnt].x;
-                        spritesxyz[i].y = spritesxyz[spritesortcnt].y;
-                        tspriteptr[spritesortcnt] = tspriteptr[numSprites];
-                        spritesxyz[spritesortcnt].x = spritesxyz[numSprites].x;
-                        spritesxyz[spritesortcnt].y = spritesxyz[numSprites].y;
+                        tspriteptr[i] = tspriteptr[pm_spritesortcnt];
+                        spritesxyz[i].x = spritesxyz[pm_spritesortcnt].x;
+                        spritesxyz[i].y = spritesxyz[pm_spritesortcnt].y;
+                        tspriteptr[pm_spritesortcnt] = tspriteptr[numSprites];
+                        spritesxyz[pm_spritesortcnt].x = spritesxyz[numSprites].x;
+                        spritesxyz[pm_spritesortcnt].y = spritesxyz[numSprites].y;
                     }
                 }
                 continue;
@@ -3562,18 +3570,18 @@ void renderDrawMasks(void)
         spritesxyz[i].y = yp;
     }
 
-    sortsprites(0, spritesortcnt);
-    sortsprites(spritesortcnt, numSprites);
+    sortsprites(0, pm_spritesortcnt);
+    sortsprites(pm_spritesortcnt, numSprites);
     renderBeginScene();
 
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(true);
     GLInterface.SetDepthBias(-2, -256);
 
-    if (spritesortcnt < numSprites)
+    if (pm_spritesortcnt < numSprites)
     {
-        i = spritesortcnt;
-        for (bssize_t i = spritesortcnt; i < numSprites;)
+        i = pm_spritesortcnt;
+        for (bssize_t i = pm_spritesortcnt; i < numSprites;)
         {
             int32_t py = spritesxyz[i].y;
             int32_t pcstat = tspriteptr[i]->cstat & 48;
@@ -3659,7 +3667,7 @@ void renderDrawMasks(void)
         _equation p1eq = equation(pos.x, pos.y, dot.x, dot.y);
         _equation p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
 
-        i = spritesortcnt;
+        i = pm_spritesortcnt;
         while (i)
         {
             i--;
@@ -3743,14 +3751,14 @@ void renderDrawMasks(void)
         Polymost::polymost_drawmaskwall(maskwallcnt);
     }
 
-    while (spritesortcnt)
+    while (pm_spritesortcnt)
     {
-        --spritesortcnt;
-        if (tspriteptr[spritesortcnt] != NULL)
+        --pm_spritesortcnt;
+        if (tspriteptr[pm_spritesortcnt] != NULL)
         {
             debugmask_add(i | 32768, tspriteptr[i]->owner);
-            Polymost::polymost_drawsprite(spritesortcnt);
-            tspriteptr[spritesortcnt] = NULL;
+            Polymost::polymost_drawsprite(pm_spritesortcnt);
+            tspriteptr[pm_spritesortcnt] = NULL;
         }
     }
     renderFinishScene();

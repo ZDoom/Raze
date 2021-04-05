@@ -330,7 +330,7 @@ void FuncFish(int a, int nDamage, int nRun)
         case 0x90000:
         {
             seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqFish] + FishSeq[nAction].a, FishList[nFish].nFrame, FishSeq[nAction].b);
-            tsprite[a & 0xFFFF].owner = -1;
+            mytsprite[a & 0xFFFF].owner = -1;
             return;
         }
 

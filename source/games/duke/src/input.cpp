@@ -752,7 +752,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 	}
 
 	input.fvel = xs_CRoundToInt(p->MotoSpeed);
-	input.avel *= (45. / 256.);
+	input.avel *= BAngToDegree;
 	loc.avel += input.avel;
 }
 
@@ -839,7 +839,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 			doslopetilting(p, scaleAdjust);
 			applylook(&p->angle, p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
 			p->apply_seasick(scaleAdjust);
-			sethorizon(&p->horizon.horiz, input.horz, &p->sync.actions, scaleAdjust);
+			sethorizon(&p->horizon, input.horz, &p->sync.actions, scaleAdjust);
 		}
 
 		p->angle.processhelpers(scaleAdjust);

@@ -1,3 +1,4 @@
+#include "polymost.h"
 
 BEGIN_BLD_NS
 
@@ -30,7 +31,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
             int dx = mirror[j].dx;
             int dy = mirror[j].dy;
             int dz = mirror[j].dz;
-            tspritetype* pTSprite = &tsprite[spritesortcnt++];
+            tspritetype* pTSprite = &pm_tsprite[pm_spritesortcnt++];
             *pTSprite = {};
             pTSprite->type = pSprite->type;
             pTSprite->index = pSprite->index;
@@ -91,7 +92,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 nAnim--;
             }
 
-            spritesortcnt++;
+            pm_spritesortcnt++;
         }
     }
 
@@ -99,11 +100,11 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
 
 void processSpritesOnOtherSideOfPortal(int x, int y, int interpolation)
 {
-    if (spritesortcnt == 0) return;
-    int nViewSprites = spritesortcnt-1;
+    if (pm_spritesortcnt == 0) return;
+    int nViewSprites = pm_spritesortcnt-1;
     for (int nTSprite = nViewSprites; nTSprite >= 0; nTSprite--)
     {
-        tspritetype *pTSprite = &tsprite[nTSprite];
+        tspritetype *pTSprite = &pm_tsprite[nTSprite];
         pTSprite->xrepeat = pTSprite->yrepeat = 0;
     }
     for (int i = mirrorcnt-1; i >= 0; i--)
@@ -159,7 +160,7 @@ RORHACK:
     }
 
     renderDrawRoomsQ16(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, nSectnum);
-    viewProcessSprites(cX, cY, cZ, cA.asbuild(), gInterpolate);
+    viewProcessSprites(pm_tsprite, pm_spritesortcnt, cX, cY, cZ, cA.asbuild(), gInterpolate);
     bool do_ror_hack = false;
     for (int i = 0; i < 16; i++)
         if (ror_status[i] != TestBitString(gotpic, 4080 + i))
@@ -167,13 +168,13 @@ RORHACK:
     if (do_ror_hack)
     {
         gView->pSprite->cstat = bakCstat;
-        spritesortcnt = 0;
+        pm_spritesortcnt = 0;
         goto RORHACK;
     }
     setPortalFlags(1);
-    int nSpriteSortCnt = spritesortcnt;
+    int nSpriteSortCnt = pm_spritesortcnt;
     renderDrawMasks();
-    spritesortcnt = nSpriteSortCnt;
+    pm_spritesortcnt = nSpriteSortCnt;
     setPortalFlags(0);
     processSpritesOnOtherSideOfPortal(cX, cY, gInterpolate);
     renderDrawMasks();
@@ -252,7 +253,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     renderPrepareMirror(x, y, z, a, horiz, nWall, &cx, &cy, &ca);
                 }
                 int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca, horiz, mirrorsector | MAXSECTORS);
-                viewProcessSprites(cx, cy, z, FixedToInt(ca), smooth);
+                viewProcessSprites(pm_tsprite, pm_spritesortcnt, cx, cy, z, FixedToInt(ca), smooth);
                 renderDrawMasks();
                 if (GetWallType(nWall) != kWallStack)
                     renderCompleteMirror();
@@ -280,7 +281,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     }
                 }
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector | MAXSECTORS);
-                viewProcessSprites(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
+                viewProcessSprites(pm_tsprite, pm_spritesortcnt, x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
                 short fstat = sector[nSector].floorstat;
                 sector[nSector].floorstat |= 1;
                 renderDrawMasks();
@@ -312,7 +313,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     }
                 }
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector | MAXSECTORS);
-                viewProcessSprites(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
+                viewProcessSprites(pm_tsprite, pm_spritesortcnt, x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
                 short cstat = sector[nSector].ceilingstat;
                 sector[nSector].ceilingstat |= 1;
                 renderDrawMasks();

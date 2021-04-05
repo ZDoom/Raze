@@ -6,7 +6,7 @@
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -101,7 +101,7 @@ void HWFlat::MakeVertices()
 	bool canvas = texture->isHardwareCanvas();
 	if (sprite == nullptr)
 	{
-		auto mesh = sectorGeometry.get(sec - sector, plane);
+		auto mesh = sectorGeometry.get(sec - sector, plane, geoofs);
 		if (!mesh) return;
 		auto ret = screen->mVertexData->AllocVertices(mesh->vertices.Size());
 		auto vp = ret.first;
@@ -161,7 +161,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 	if (!sprite)
 	{
-		auto mesh = sectorGeometry.get(sec - sector, plane);
+		auto mesh = sectorGeometry.get(sec - sector, plane, geoofs);
 		state.SetNormal(mesh->normal);
 	}
 	else
@@ -178,7 +178,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	{
 		state.EnableFog(1);
 		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density);
+		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
 		state.SetSoftLightLevel(255);
 		state.SetLightParms(128.f, 1 / 1000.f);
 	}
@@ -231,7 +231,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 {
 	vertcount = 0;
 	plane = whichplane;
-	if (!screen->BuffersArePersistent() || sprite)	// should be made static buffer content later (when the logic is working)
+	if (!screen->BuffersArePersistent() || sprite || di->ingeo)	// should be made static buffer content later (when the logic is working)
 	{
 #if 0
 		if (di->Level->HasDynamicLights && texture != nullptr && !di->isFullbrightScene() && !(hacktype & (SSRF_PLANEHACK | SSRF_FLOODHACK)))
@@ -273,6 +273,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;
 	sprite = nullptr;
+	geoofs = di->geoofs;
 
 	//
 	//

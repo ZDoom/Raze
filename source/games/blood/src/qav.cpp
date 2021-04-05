@@ -46,7 +46,7 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
     {
 		auto tex = tileGetTexture(pTile->picnum);
 		double scale = pTile->z/65536.;
-		double angle = pTile->angle * (360./2048);
+		double angle = pTile->angle * BAngToDegree;
 		int renderstyle = (stat & RS_NOMASK)? STYLE_Normal : STYLE_Translucent;
 		double alpha = (stat & RS_TRANS1)? glblend[0].def[!!(stat & RS_TRANS2)].alpha : 1.;
 		int pin = (stat & kQavOrientationLeft)? -1 : (stat & RS_ALIGN_R)? 1:0;

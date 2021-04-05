@@ -6,7 +6,7 @@
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -53,16 +53,31 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 		int remap = TRANSLATION(Translation_Remap + curbasepal, palette);
 
 		int16_t const* dapskyoff = getpsky(picnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+		int tw = tileWidth(picnum);
+		if ((1 << sizeToBits(tw)) < tw) dapskybits--; // Build math is weird.
+
 		skytex = GetSkyTexture(picnum, dapskybits, dapskyoff, remap);
 		realskybits = dapskybits;
 		if (skytex) dapskybits = 0;
 		else skytex = tileGetTexture(picnum);
 	}
 
+	float xpanning = plane == plane_ceiling ? sector->ceilingxpan_ : sector->floorxpan_;
+	float ypanning = plane == plane_ceiling ? sector->ceilingypan_ : sector->floorypan_;
+
 	// dapyscale is not relvant for a sky dome.
 	sky->y_scale = FixedToFloat(daptileyscale);
-	sky->y_offset = dapyoffs*2;
-	sky->x_offset = 0;// xpanning / (1 << (realskybits - dapskybits));
+	sky->cloudy = !!(sector->exflags & SECTOREX_CLOUDSCROLL);
+	if (!sky->cloudy)
+	{
+		sky->y_offset = dapyoffs * 1.5;
+		sky->x_offset = xpanning / (1 << (realskybits - dapskybits));
+	}
+	else
+	{
+		sky->y_offset = ypanning;
+		sky->x_offset = 2 * xpanning / (1 << (realskybits - dapskybits));
+	}
 	sky->fadecolor = FadeColor;
 	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
 	sky->texture = skytex;

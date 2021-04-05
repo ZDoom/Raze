@@ -54,7 +54,7 @@
 EXTERN_CVAR(Bool, cl_capfps)
 
 PalEntry GlobalMapFog;
-float GlobalFogDensity;
+float GlobalFogDensity = 350.f;
 TArray<PortalDesc> allPortals;
 
 
@@ -117,6 +117,8 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 	auto vrmode = VRMode::GetVRMode(mainview && toscreen);
 	const int eyeCount = vrmode->mEyeCount;
 	screen->FirstEye();
+	hw_int_useindexedcolortextures = eyeCount > 1? false : *hw_useindexedcolortextures;
+
 	for (int eye_ix = 0; eye_ix < eyeCount; ++eye_ix)
 	{
 		const auto& eye = vrmode->mEyes[eye_ix];
@@ -164,6 +166,7 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 		if (eyeCount - eye_ix > 1)
 			screen->NextEye(eyeCount);
 	}
+	hw_int_useindexedcolortextures = false;
 }
 
 //===========================================================================
@@ -309,7 +312,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 
 	// now render the main view
 	float fovratio;
-	float ratio = ActiveRatio(windowxy2.x - windowxy1.x + 1, windowxy2.y - windowxy1.y + 1);
+	float ratio = ActiveRatio(screen->GetWidth(), screen->GetHeight());
 	if (ratio >= 1.33f)
 	{
 		fovratio = 1.33f;

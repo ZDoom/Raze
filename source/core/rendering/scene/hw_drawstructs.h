@@ -10,6 +10,7 @@
 #include "build.h"
 #include "gamefuncs.h"
 #include "render.h"
+#include "matrix.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)
@@ -124,7 +125,6 @@ public:
 		HWF_SKYHACK=4,
 		HWF_NOSPLIT=64,
 		HWF_TRANSLUCENT = 128,
-		HWF_NOSLICE = 256
 	};
 
 	enum
@@ -258,6 +258,7 @@ public:
 	FRenderStyle RenderStyle;
 	int iboindex;
 	bool stack;
+	FVector2 geoofs;
 	//int vboheight;
 
 	int plane;
@@ -293,7 +294,8 @@ public:
 	int shade, palette, visibility;
 	float alpha;
 	FRenderStyle RenderStyle;
-	int modelframe; // : sprite, 1: model, <0:voxel index
+	int modelframe; // : sprite, 1: model, -1:voxel
+	voxmodel_t* voxel;
 
 	int index;
 	float depth;
@@ -301,10 +303,17 @@ public:
 
 	float x,y,z;	// needed for sorting!
 
-	float ul,ur;
-	float vt,vb;
-	float x1,y1,z1;
-	float x2,y2,z2;
+	union
+	{
+		struct
+		{
+			float ul, ur;
+			float vt, vb;
+			float x1, y1, z1;
+			float x2, y2, z2;
+		};
+		VSMatrix rotmat;
+	};
 	int dynlightindex;
 
 	FGameTexture *texture;
@@ -318,6 +327,7 @@ public:
 	void CreateVertices(HWDrawInfo* di);
 	void PutSprite(HWDrawInfo *di, bool translucent);
 	void Process(HWDrawInfo *di, spritetype* thing,sectortype * sector, int thruportal = false);
+	bool ProcessVoxel(HWDrawInfo* di, voxmodel_t* voxel, spritetype* tspr, sectortype* sector, bool rotate);
 
 	void DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent);
 };
@@ -345,3 +355,4 @@ inline float sectorVisibility(sectortype* sec)
 	return v ? ((uint8_t)(v + 16)) / 16.f : 1.f;
 }
 
+inline const float hw_density = 0.35f;

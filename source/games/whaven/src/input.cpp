@@ -153,7 +153,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     if (!cl_syncinput)
     {
         applylook(&plr.angle, input.avel, &plr.plInput.actions, scaleAdjust);
-        sethorizon(&plr.horizon.horiz, input.horz, &plr.plInput.actions, scaleAdjust);
+        sethorizon(&plr.horizon, input.horz, &plr.plInput.actions, scaleAdjust);
 
         plr.angle.processhelpers(scaleAdjust);
         plr.horizon.processhelpers(scaleAdjust);
@@ -264,7 +264,7 @@ void processinput(int num) {
 
 	if (cl_syncinput)
 	{
-		sethorizon(&plr.horizon.horiz, plr.plInput.horz, &bits);
+		sethorizon(&plr.horizon, plr.plInput.horz, &bits);
 	}
 
 	if ((bits & SB_FLYSTOP) != 0)

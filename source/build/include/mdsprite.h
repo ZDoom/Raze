@@ -210,7 +210,7 @@ EXTERN voxmodel_t *voxmodels[MAXVOXELS];
 
 void voxfree(voxmodel_t *m);
 voxmodel_t *voxload(int lumpnum);
-int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr);
+int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr, bool rotate);
 
 #endif // defined USE_OPENGL
 

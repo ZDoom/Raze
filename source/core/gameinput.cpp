@@ -155,8 +155,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	int const keymove = gi->playerKeyMove() << running;
 	int const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8 : 1;
 	float const mousevelscale = keymove / 160.f;
-	double const angtodegscale = 360. / 2048.;
-	double const hidspeed = ((running ? 1585. : 867.5) / GameTicRate) * angtodegscale;
+	double const hidspeed = ((running ? 1585. : 867.5) / GameTicRate) * BAngToDegree;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
@@ -200,7 +199,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		// allow Exhumed to use its legacy values given the drastic difference from the other games.
 		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
 		{
-			preambleturn = turnamount = (running ? 12 : 8) * angtodegscale;
+			preambleturn = turnamount = (running ? 12 : 8) * BAngToDegree;
 		}
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
@@ -273,60 +272,68 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 //
 //---------------------------------------------------------------------------
 
-void sethorizon(fixedhoriz* horiz, float const horz, ESyncBits* actions, double const scaleAdjust)
+void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, double const scaleAdjust)
 {
-	// Store current horizon as true pitch.
-	double pitch = horiz->aspitch();
-
-	if (horz)
+	// Process only if no targeted horizon set.
+	if (!horizon->targetset())
 	{
-		*actions &= ~SB_CENTERVIEW;
-		pitch += horz;
-	}
+		// Store current horizon as true pitch.
+		double pitch = horizon->horiz.aspitch();
 
-	// this is the locked type
-	if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
-	{
-		*actions &= ~SB_CENTERVIEW;
-		double const amount = HorizToPitch(250. / GameTicRate);
-
-		if (*actions & SB_AIM_DOWN)
-			pitch -= scaleAdjust * amount;
-
-		if (*actions & SB_AIM_UP)
-			pitch += scaleAdjust * amount;
-	}
-
-	// this is the unlocked type
-	if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
-	{
-		*actions |= SB_CENTERVIEW;
-		double const amount = HorizToPitch(500. / GameTicRate);
-
-		if (*actions & SB_LOOK_DOWN)
-			pitch -= scaleAdjust * amount;
-
-		if (*actions & SB_LOOK_UP)
-			pitch += scaleAdjust * amount;
-	}
-
-	// clamp before converting back to horizon
-	*horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
-
-	// return to center if conditions met.
-	if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
-	{
-		if (abs(horiz->asq16()) > FloatToFixed(0.25))
+		if (horz)
 		{
-			// move horiz back to 0
-			*horiz -= q16horiz(xs_CRoundToInt(scaleAdjust * horiz->asq16() * (10. / GameTicRate)));
-		}
-		else
-		{
-			// not looking anymore because horiz is back at 0
-			*horiz = q16horiz(0);
 			*actions &= ~SB_CENTERVIEW;
+			pitch += horz;
 		}
+
+		// this is the locked type
+		if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
+		{
+			*actions &= ~SB_CENTERVIEW;
+			double const amount = HorizToPitch(250. / GameTicRate);
+
+			if (*actions & SB_AIM_DOWN)
+				pitch -= scaleAdjust * amount;
+
+			if (*actions & SB_AIM_UP)
+				pitch += scaleAdjust * amount;
+		}
+
+		// this is the unlocked type
+		if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
+		{
+			*actions |= SB_CENTERVIEW;
+			double const amount = HorizToPitch(500. / GameTicRate);
+
+			if (*actions & SB_LOOK_DOWN)
+				pitch -= scaleAdjust * amount;
+
+			if (*actions & SB_LOOK_UP)
+				pitch += scaleAdjust * amount;
+		}
+
+		// clamp before converting back to horizon
+		horizon->horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
+
+		// return to center if conditions met.
+		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+		{
+			if (abs(horizon->horiz.asq16()) > FloatToFixed(0.25))
+			{
+				// move horiz back to 0
+				horizon->horiz -= q16horiz(xs_CRoundToInt(scaleAdjust * horizon->horiz.asq16() * (10. / GameTicRate)));
+			}
+			else
+			{
+				// not looking anymore because horiz is back at 0
+				horizon->horiz = q16horiz(0);
+				*actions &= ~SB_CENTERVIEW;
+			}
+		}
+	}
+	else
+	{
+		*actions &= ~SB_CENTERVIEW;
 	}
 }
 
@@ -360,34 +367,41 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 		angle->rotscrnang -= bamlook(xs_CRoundToInt(scaleAdjust * (720. / GameTicRate) * BAMUNIT));
 	}
 
-	if (*actions & SB_TURNAROUND)
+	if (!angle->targetset())
 	{
-		if (angle->spin.asbam() == 0)
+		if (*actions & SB_TURNAROUND)
 		{
-			// currently not spinning, so start a spin
-			angle->spin = buildlook(-1024);
+			if (angle->spin.asbam() == 0)
+			{
+				// currently not spinning, so start a spin
+				angle->spin = buildlook(-1024);
+			}
+			*actions &= ~SB_TURNAROUND;
 		}
-		*actions &= ~SB_TURNAROUND;
-	}
 
-	if (angle->spin.asbam() < 0)
-	{
-		// return spin to 0
-		lookangle add = bamlook(xs_CRoundToUInt(scaleAdjust * ((!(*actions & SB_CROUCH) ? 3840. : 1920.) / GameTicRate) * BAMUNIT));
-		angle->spin += add;
-		if (angle->spin.asbam() > 0)
+		if (angle->spin.asbam() < 0)
 		{
-			// Don't overshoot our target. With variable factor this is possible.
-			add -= angle->spin;
+			// return spin to 0
+			lookangle add = bamlook(xs_CRoundToUInt(scaleAdjust * ((!(*actions & SB_CROUCH) ? 3840. : 1920.) / GameTicRate) * BAMUNIT));
+			angle->spin += add;
+			if (angle->spin.asbam() > 0)
+			{
+				// Don't overshoot our target. With variable factor this is possible.
+				add -= angle->spin;
+				angle->spin = bamlook(0);
+			}
+			angle->ang += bamang(add.asbam());
+		}
+
+		if (avel)
+		{
+			// add player's input
+			angle->ang += degang(avel);
 			angle->spin = bamlook(0);
 		}
-		angle->ang += bamang(add.asbam());
 	}
-
-	if (avel)
+	else
 	{
-		// add player's input
-		angle->ang += degang(avel);
 		angle->spin = bamlook(0);
 	}
 }

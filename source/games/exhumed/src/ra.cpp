@@ -306,7 +306,7 @@ void FuncRa(int a, int, int nRun)
         {
             short nSprite2 = a & 0xFFFF;
             seq_PlotSequence(nSprite2, nSeq, Ra[nPlayer].nFrame, 1);
-            tsprite[nSprite2].owner = -1;
+            mytsprite[nSprite2].owner = -1;
             return;
         }
     }

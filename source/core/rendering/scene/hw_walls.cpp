@@ -6,7 +6,7 @@
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -131,7 +131,7 @@ void HWWall::SetLightAndFog(FRenderState& state)
 	{
 		state.EnableFog(1);
 		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density);
+		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
 		state.SetSoftLightLevel(255);
 		state.SetLightParms(128.f, 1 / 1000.f);
 	}
@@ -192,7 +192,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
 	//int tmode = state.GetTextureMode();
 
-	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? CLAMP_NONE : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	SetLightAndFog(state);
 
@@ -426,7 +426,7 @@ void HWWall::PutWall(HWDrawInfo *di, bool translucent)
 	// make sure that following parts of the same linedef do not get this one's vertex and lighting info.
 	vertcount = 0;	
 	dynlightindex = -1;
-	flags &= ~HWF_TRANSLUCENT;
+	flags &= ~(HWF_TRANSLUCENT|HWF_CLAMPX|HWF_CLAMPY);
 }
 
 //==========================================================================
@@ -684,12 +684,6 @@ void HWWall::CheckTexturePosition()
 		tcs[UPRGT].v -= sub;
 		tcs[LOLFT].v -= sub;
 		tcs[LORGT].v -= sub;
-
-		if ((tcs[UPLFT].v == 0.f && tcs[UPRGT].v == 0.f && tcs[LOLFT].v <= 1.f && tcs[LORGT].v <= 1.f) ||
-			(tcs[UPLFT].v >= 0.f && tcs[UPRGT].v >= 0.f && tcs[LOLFT].v == 1.f && tcs[LORGT].v == 1.f))
-		{
-			flags |= HWF_CLAMPY;
-		}
 	}
 	else
 	{
@@ -705,13 +699,19 @@ void HWWall::CheckTexturePosition()
 		tcs[UPRGT].v -= sub;
 		tcs[LOLFT].v -= sub;
 		tcs[LORGT].v -= sub;
-
-		if ((tcs[LOLFT].v == 0.f && tcs[LORGT].v == 0.f && tcs[UPLFT].v <= 1.f && tcs[UPRGT].v <= 1.f) ||
-			(tcs[LOLFT].v >= 0.f && tcs[LORGT].v >= 0.f && tcs[UPLFT].v == 1.f && tcs[UPRGT].v == 1.f))
-		{
-			flags |= HWF_CLAMPY;
-		}
 	}
+	if (tcs[UPLFT].u >= 0.f && tcs[UPRGT].u >= 0.f && tcs[LOLFT].u >= 0.f && tcs[LORGT].u >= 0.f &&
+		tcs[UPLFT].u <= 1.f && tcs[UPRGT].u <= 1.f && tcs[LOLFT].u <= 1.f && tcs[LORGT].u <= 1.f)
+	{
+		flags |= HWF_CLAMPX;
+	}
+
+	if (tcs[UPLFT].v >= 0.f && tcs[UPRGT].v >= 0.f && tcs[LOLFT].v >= 0.f && tcs[LORGT].v >= 0.f &&
+		tcs[UPLFT].v <= 1.f && tcs[UPRGT].v <= 1.f && tcs[LOLFT].v <= 1.f && tcs[LORGT].v <= 1.f)
+	{
+		flags |= HWF_CLAMPY;
+	}
+
 }
 
 
@@ -743,7 +743,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	{
 		float h = hl + (hr - hl) * frac;
 		h = (-(float)(refheight + (h * 256)) / ((th * 2048.0f) / (float)(wal->yrepeat))) + ypanning;
-		if (wal->cstat & CSTAT_WALL_YFLIP) h = 1.f - h;
+		if (wal->cstat & CSTAT_WALL_YFLIP) h = -h;
 		return h;
 	};
 
@@ -902,17 +902,12 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	}
 #endif
 
-	// note: we always have a valid sidedef and linedef reference when getting here.
-
 	this->seg = wal;
 	this->frontsector = frontsector;
 	this->backsector = backsector;
 	sprite = nullptr;
 	vertindex = 0;
 	vertcount = 0;
-
-	//vertexes[0] = v1;
-	//vertexes[1] = v2;
 
 	glseg.x1 = v1.X;
 	glseg.y1 = v1.Y;
@@ -1067,11 +1062,18 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	vec2_t pos[2];
 	int sprz = spr->pos.z;
 
+	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
+	glseg.x1 = pos[0].x * (1 / 16.f);
+	glseg.y1 = pos[0].y * (1 / -16.f);
+	glseg.x2 = pos[1].x * (1 / 16.f);
+	glseg.y2 = pos[1].y * (1 / -16.f);
+
 	if (spr->cstat & CSTAT_SPRITE_ONE_SIDED)
 	{
-		DAngle sprang = buildang(spr->ang).asdeg();
-		DAngle lookang = bamang(di->Viewpoint.RotAngle).asdeg();
-		if ((sprang.ToVector() | lookang.ToVector()) >= 0.) return;
+		if (PointOnLineSide(di->Viewpoint.Pos.X, di->Viewpoint.Pos.Y, glseg.x1, glseg.y1, glseg.x2 - glseg.x1, glseg.y2 - glseg.y1) <= 0)
+		{
+			return;
+		}
 	}
 
 	vertindex = 0;
@@ -1101,8 +1103,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	}
 
 
-	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
-
 	int height, topofs;
 	if (hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
 	{
@@ -1128,10 +1128,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 
 	glseg.fracleft = 0;
 	glseg.fracright = 1;
-	glseg.x1 = pos[0].x * (1 / 16.f);
-	glseg.y1 = pos[0].y * (1 / -16.f);
-	glseg.x2 = pos[1].x * (1 / 16.f);
-	glseg.y2 = pos[1].y * (1 / -16.f);
 	tcs[LOLFT].u = tcs[UPLFT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
 	tcs[LORGT].u = tcs[UPRGT].u = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
 	tcs[UPLFT].v = tcs[UPRGT].v = (spr->cstat & CSTAT_SPRITE_YFLIP) ? 1.f : 0.f;

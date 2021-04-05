@@ -445,10 +445,6 @@ void GameInterface::UpdateSounds(void)
 
 int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel, EChanFlags flags)
 {
-	if (sndnum == GENERIC_AMBIENCE1 || sndnum == DUMPSTER_MOVE)
-	{
-		int a = 0;
-	}
 	auto const pl = &ps[myconnectindex];
 	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || actor == nullptr || !playrunning() ||
 		(pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;

@@ -652,6 +652,7 @@ void viewDrawScreen(bool sceneonly)
         gInterpolate = I_GetTimeFrac() * MaxSmoothRatio;
     }
     else gInterpolate = MaxSmoothRatio;
+    pm_smoothratio = (int)gInterpolate;
 
     if (cl_interpolate)
     {
@@ -725,7 +726,7 @@ void viewDrawScreen(bool sceneonly)
             int nXSprite = pSprite->extra;
             assert(nXSprite > 0 && nXSprite < kMaxXSprites);
             XSPRITE* pXSprite = &xsprite[nXSprite];
-            if (TestBitString(gotsector, pSprite->sectnum))
+            if (gotsector[pSprite->sectnum])
             {
                 brightness += pXSprite->data3 * 32;
             }
@@ -739,7 +740,7 @@ void viewDrawScreen(bool sceneonly)
             case kMissileTeslaAlt:
             case kMissileFlareAlt:
             case kMissileTeslaRegular:
-                if (TestBitString(gotsector, pSprite->sectnum)) brightness += 256;
+                if (gotsector[pSprite->sectnum]) brightness += 256;
                 break;
             }
         }
@@ -857,7 +858,7 @@ FString GameInterface::GetCoordString()
     FString out;
 
     out.Format("pos= %d, %d, %d - angle = %2.3f",
-        gMe->pSprite->x, gMe->pSprite->y, gMe->pSprite->z, gMe->pSprite->ang * (360./2048));
+        gMe->pSprite->x, gMe->pSprite->y, gMe->pSprite->z, gMe->pSprite->ang * BAngToDegree);
 
     return out;
 }

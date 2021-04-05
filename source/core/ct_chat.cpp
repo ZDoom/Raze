@@ -17,6 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/
 //
+//
+// Alternatively the following applies:
+//
+// This source is available for distribution and/or modification
+// only under the terms of the DOOM Source Code License as
+// published by id Software. All rights reserved.
+//
+// The source is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
+// for more details.
+//
 //-----------------------------------------------------------------------------
 //
 
@@ -308,42 +320,42 @@ static void CT_ClearChatMessage ()
 
 static void ShoveChatStr (const char *str, uint8_t who)
 {
-#if 0
 	// Don't send empty messages
 	if (str == NULL || str[0] == '\0')
 		return;
 
-	FString substBuff;
-
-	if (str[0] == '/' &&
-		(str[1] == 'm' || str[1] == 'M') &&
-		(str[2] == 'e' || str[2] == 'E'))
-	{ // This is a /me message
-		str += 3;
-		who |= 2;
-	}
-
-	Net_WriteByte (DEM_SAY);
-	Net_WriteByte (who);
-
-	if (!chat_substitution || !DoSubstitution (substBuff, str))
-	{
-		Net_WriteString(MakeUTF8(str));
-	}
-	else
-	{
-		Net_WriteString(MakeUTF8(substBuff));
-	}
-#else
 	if (*str == '#')
 	{
 		C_DoCommand(FStringf("activatecheat %s", str + 1));
 	}
 	else
 	{
+#if 0
+		FString substBuff;
+
+		if (str[0] == '/' &&
+			(str[1] == 'm' || str[1] == 'M') &&
+			(str[2] == 'e' || str[2] == 'E'))
+		{ // This is a /me message
+			str += 3;
+			who |= 2;
+		}
+
+		Net_WriteByte(DEM_SAY);
+		Net_WriteByte(who);
+
+		if (!chat_substitution || !DoSubstitution(substBuff, str))
+		{
+			Net_WriteString(MakeUTF8(str));
+		}
+		else
+		{
+			Net_WriteString(MakeUTF8(substBuff));
+		}
+#else
 		Printf("%s %s\n", GStrings("TXT_SAY"), str);
-	}
 #endif
+	}
 }
 
 //===========================================================================
@@ -358,10 +370,6 @@ static void ShoveChatStr (const char *str, uint8_t who)
 static bool DoSubstitution (FString &out, const char *in)
 {
 #if 0
-	player_t *player = &players[consoleplayer];
-	auto weapon = player->ReadyWeapon;
-	auto ammo1 = weapon ? weapon->PointerVar<AActor>(NAME_Ammo1) : nullptr;
-	auto ammo2 = weapon ? weapon->PointerVar<AActor>(NAME_Ammo2) : nullptr;
 	const char *a, *b;
 
 	a = in;
@@ -378,75 +386,10 @@ static bool DoSubstitution (FString &out, const char *in)
 
 		ptrdiff_t ByteLen = b - a;
 
-		if (ByteLen == 6)
+		// todo: forward to the game modules. Doom used the following tokens:
+		// health, weapon, armor, ammocount, ammo
+		if (0)
 		{
-			if (strnicmp(a, "health", 6) == 0)
-			{
-				out.AppendFormat("%d", player->health);
-			}
-			else if (strnicmp(a, "weapon", 6) == 0)
-			{
-				if (weapon == NULL)
-				{
-					out += "no weapon";
-				}
-				else
-				{
-					out += weapon->GetClass()->TypeName.GetChars();
-				}
-			}
-		}
-		else if (ByteLen == 5)
-		{
-			if (strnicmp(a, "armor", 5) == 0)
-			{
-				auto armor = player->mo->FindInventory(NAME_BasicArmor);
-				out.AppendFormat("%d", armor != NULL ? armor->IntVar(NAME_Amount) : 0);
-			}
-		}
-		else if (ByteLen == 9)
-		{
-			if (strnicmp(a, "ammocount", 9) == 0)
-			{
-				if (weapon == NULL)
-				{
-					out += '0';
-				}
-				else
-				{
-					out.AppendFormat("%d", ammo1 != NULL ? ammo1->IntVar(NAME_Amount) : 0);
-					if (ammo2 != NULL)
-					{
-						out.AppendFormat("/%d", ammo2->IntVar(NAME_Amount));
-					}
-				}
-			}
-		}
-		else if (ByteLen == 4)
-		{
-			if (strnicmp(a, "ammo", 4) == 0)
-			{
-				if (ammo1 == NULL)
-				{
-					out += "no ammo";
-				}
-				else
-				{
-					out.AppendFormat("%s", ammo1->GetClass()->TypeName.GetChars());
-					if (ammo2 != NULL)
-					{
-						out.AppendFormat("/%s", ammo2->GetClass()->TypeName.GetChars());
-					}
-				}
-			}
-		}
-		else if (ByteLen == 0)
-		{
-			out += '$';
-			if (*b == '$')
-			{
-				b++;
-			}
 		}
 		else
 		{

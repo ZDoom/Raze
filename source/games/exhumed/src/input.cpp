@@ -125,7 +125,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         if (!nFreeze)
         {
             applylook(&pPlayer->angle, input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
-            sethorizon(&pPlayer->horizon.horiz, input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
+            sethorizon(&pPlayer->horizon, input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
         }
 
         pPlayer->angle.processhelpers(scaleAdjust);

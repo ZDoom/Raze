@@ -65,10 +65,17 @@ short enemy;
 
 short nEnemyPal = 0;
 
+// We cannot drag these through the entire event system... :(
+spritetype* mytsprite;
+int* myspritesortcnt;
+
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites(int x, int y, int z, double const smoothratio)
+static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y, int z, double const smoothratio)
 {
     tspritetype *pTSprite;
+
+    mytsprite = tsprite;
+    myspritesortcnt = &spritesortcnt;
 
     for (int i = 0; i < spritesortcnt; i++) {
         pTSprite = &tsprite[i];
@@ -173,6 +180,10 @@ static void analyzesprites(int x, int y, int z, double const smoothratio)
             besttarget = -1;
         }
     }
+
+    mytsprite = nullptr;
+    myspritesortcnt = nullptr;
+
 }
 
 void ResetView()
@@ -205,6 +216,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     zbob = bsin(2 * bobangle, -3);
 
     DoInterpolations(smoothRatio / 65536.);
+    pm_smoothratio = (int)smoothRatio;
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
     int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
@@ -357,7 +369,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         {
             renderSetRollAngle(rotscrnang.asbuildf());
             renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
-            analyzesprites(nCamerax, nCameray, viewz, smoothRatio);
+            analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);
             renderDrawMasks();
         }
         else
@@ -462,9 +474,9 @@ bool GameInterface::GenerateSavePic()
     return true;
 }
 
-void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-    analyzesprites(viewx, viewy, viewz, smoothRatio);
+    analyzesprites(tsprite, spritesortcnt, viewx, viewy, viewz, smoothRatio);
 }
 
 

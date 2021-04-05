@@ -12,7 +12,8 @@
 #include "hw_renderstate.h"
 #include "texturemanager.h"
 #include "voxels.h"
-#include "glbackend/gl_models.h"
+#include "gamecontrol.h"
+#include "hw_models.h"
 #include "printf.h"
 
 #include "palette.h"
@@ -50,7 +51,7 @@ voxmodel_t *voxload(int lumpnum)
 }
 
 //Draw voxel model as perfect cubes
-int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 {
     float f, g, k0, zoff;
 
@@ -59,6 +60,13 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr)
 
     if ((tspr->cstat & 48) == 32)
         return 0;
+
+    if ((tspr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
+    {
+        int myclock = (PlayClock << 3) + MulScale(4 << 3, pm_smoothratio, 16);
+        tspr->ang = (tspr->ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.
+    }
+
 
     vec3f_t m0 = { m->scale, m->scale, m->scale };
     vec3f_t a0 = { 0, 0, m->zadd*m->scale };

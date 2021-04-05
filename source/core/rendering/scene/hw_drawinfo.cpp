@@ -6,7 +6,7 @@
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -40,16 +40,16 @@
 #include "v_draw.h"
 #include "gamecvars.h"
 #include "gamestruct.h"
+#include "automap.h"
 
 EXTERN_CVAR(Float, r_visibility)
-CVAR(Bool, gl_bandedswlight, false, CVAR_ARCHIVE)
-CVAR(Bool, gl_sort_textures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, gl_no_skyclear, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-CVAR(Int, gl_enhanced_nv_stealth, 3, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 CVAR(Bool, gl_texture, true, 0)
 CVAR(Float, gl_mask_threshold, 0.5f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Float, gl_mask_sprite_threshold, 0.5f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+FixedBitArray<MAXSECTORS> gotsector;
 
 //==========================================================================
 //
@@ -281,34 +281,36 @@ void HWDrawInfo::DispatchSprites()
 		if (spritenum < 0 || (unsigned)tilenum >= MAXTILES)
 			continue;
 
+		if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
+			show2dsprite.Set(spritenum);
+
 		setgotpic(tilenum);
 
-		while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
+		if (!(spriteext[spritenum].flags & SPREXT_NOTMD))
 		{
 			int pt = Ptile2tile(tspr->picnum, tspr->pal);
 			if (hw_models && tile2model[pt].modelid >= 0 && tile2model[pt].framenum >= 0)
 			{
 				//HWSprite hwsprite;
-				//if (hwsprite.ProcessModel(pt, tspr)) return;
-				break;
+				//if (hwsprite.ProcessModel(pt, tspr)) continue;
 			}
-
 			if (r_voxels)
 			{
 				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
 				{
-					//HWSprite hwsprite;
-					//if (hwsprite.ProcessVoxel(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
-					break;
+					HWSprite hwsprite;
+					int num = tiletovox[tspr->picnum];
+					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)))) 
+						continue;
 				}
 				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
 				{
-					//HWSprite hwsprite;
-					//hwsprite.ProcessVoxel(voxmodels[tspr->picnum], tspr);
-					break;
+					HWSprite hwsprite;
+					int num = tspr->picnum;
+					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)));
+					continue;
 				}
 			}
-			break;
 		}
 
 		if (spriteext[spritenum].flags & SPREXT_AWAY1)
@@ -378,6 +380,8 @@ void HWDrawInfo::CreateScene()
 	screen->mLights->Map();
 
 	spritesortcnt = 0;
+	ingeo = false;
+	geoofs = { 0,0 };
 
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 	mDrawer.Init(this, mClipper, view);
@@ -387,9 +391,82 @@ void HWDrawInfo::CreateScene()
 		mDrawer.RenderScene(&vp.SectCount, 1); 
 
 	SetupSprite.Clock();
-	gi->processSprites(view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
+	gi->processSprites(tsprite, spritesortcnt, view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
 	DispatchSprites();
 	SetupSprite.Unclock();
+
+	GeoEffect eff;
+	int effsect = vp.SectNums ? vp.SectNums[0] : vp.SectCount;
+	int drawsect = effsect;
+	// RR geometry hack. Ugh...
+	// This just adds to the existing render list, so we must offset the effect areas to the same xy-space as the main one as we cannot change the view matrix.
+	if (gi->GetGeoEffect(&eff, effsect))
+	{
+		ingeo = true;
+		geoofs = { (float)eff.geox[0], (float)eff.geoy[0] };
+		// process the first layer.
+		for (int i = 0; i < eff.geocnt; i++)
+		{
+			auto sect = &sector[eff.geosectorwarp[i]];
+			for (auto w = 0; w < sect->wallnum; w++)
+			{
+				auto wal = &wall[sect->wallptr + w];
+				wal->x += eff.geox[i];
+				wal->y += eff.geoy[i];
+			}
+			sect->dirty = 255;
+			if (eff.geosector[i] == effsect) drawsect = eff.geosectorwarp[i];
+		}
+
+		mClipper->Clear();
+		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
+		mDrawer.Init(this, mClipper, view);
+		mDrawer.RenderScene(&drawsect, 1);
+
+		for (int i = 0; i < eff.geocnt; i++)
+		{
+			auto sect = &sector[eff.geosectorwarp[i]];
+			for (auto w = 0; w < sect->wallnum; w++)
+			{
+				auto wal = &wall[sect->wallptr + w];
+				wal->x -= eff.geox[i];
+				wal->y -= eff.geoy[i];
+			}
+		}
+
+		// Now the second layer. Same shit, different arrays.
+		geoofs = { (float)eff.geox2[0], (float)eff.geoy2[0] };
+		for (int i = 0; i < eff.geocnt; i++)
+		{
+			auto sect = &sector[eff.geosectorwarp2[i]];
+			for (auto w = 0; w < sect->wallnum; w++)
+			{
+				auto wal = &wall[sect->wallptr + w];
+				wal->x += eff.geox2[i];
+				wal->y += eff.geoy2[i];
+			}
+			sect->dirty = 255;
+			if (eff.geosector[i] == effsect) drawsect = eff.geosectorwarp2[i];
+		}
+
+		mClipper->Clear();
+		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
+		mDrawer.Init(this, mClipper, view);
+		mDrawer.RenderScene(&drawsect, 1);
+
+		for (int i = 0; i < eff.geocnt; i++)
+		{
+			auto sect = &sector[eff.geosectorwarp2[i]];
+			for (auto w = 0; w < sect->wallnum; w++)
+			{
+				auto wal = &wall[sect->wallptr + w];
+				wal->x -= eff.geox2[i];
+				wal->y -= eff.geoy2[i];
+			}
+		}
+		ingeo = false;
+	}
+
 
 	screen->mLights->Unmap();
 	screen->mVertexData->Unmap();
@@ -648,4 +725,8 @@ void HWDrawInfo::ProcessScene(bool toscreen)
 {
 	portalState.BeginScene();
 	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN);
+	if (toscreen && isBlood())
+	{
+		gotsector = mDrawer.GotSector(); // Blood needs this to implement some lighting effect hacks. Needs to be refactored to use better info.
+	}
 }

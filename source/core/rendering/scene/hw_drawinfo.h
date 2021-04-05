@@ -108,9 +108,13 @@ struct HWDrawInfo
 	FRenderViewpoint Viewpoint;
 	HWViewpointUniforms VPUniforms;	// per-viewpoint uniform state
 	TArray<HWPortal *> Portals;
+	spritetype tsprite[MAXSPRITESONSCREEN];
+	int spritesortcnt;
 
 	// This is needed by the BSP traverser.
 	bool multithread;
+	bool ingeo;
+	FVector2 geoofs;
 
 private:
     bool inview;

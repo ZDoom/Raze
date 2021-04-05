@@ -62,7 +62,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
             int i = 0, j;
             for (int k = floormirrorcnt - 1; k >= 0; k--) {
             	int sect = floormirrorsector[k];
-            	if((gotsector[sect >> 3] & (1 << (sect & 7))) == 0) continue;
+            	if(!gotsector[sect]) continue;
                 j = abs(wall[sector[sect].wallptr].x - plr.x);
                 j += abs(wall[sector[sect].wallptr].y - plr.y);
                 if (j < dist) {
@@ -74,7 +74,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			inpreparemirror = true;
 			renderSetRollAngle(1024);
 			renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), floormirrorsector[i]);
-			analyzesprites(plr, dasmoothratio);
+			analyzesprites(plr, dasmoothratio, pm_tsprite, pm_spritesortcnt);
 			renderDrawMasks();
 			renderSetRollAngle(0);
 			inpreparemirror = false;
@@ -96,7 +96,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	{
 		renderSetRollAngle(crotscrnang.asbuildf());
 		renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), plr.sector);
-		analyzesprites(plr, dasmoothratio);
+		analyzesprites(plr, dasmoothratio, pm_tsprite, pm_spritesortcnt);
 		renderDrawMasks();
 	}
 	else
@@ -118,10 +118,10 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	}
 }
 
-void GameInterface::processSprites(int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
 	PLAYER& plr = player[curpnum];
-	analyzesprites(plr, (int)smoothRatio);
+	analyzesprites(plr, (int)smoothRatio, tsprite, spritesortcnt);
 }
 
 void GameInterface::Render()
