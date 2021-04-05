@@ -21,25 +21,6 @@ class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
 
-class PaletteManager
-{
-	IHardwareTexture* palettetextures[256] = {};
-	IHardwareTexture* lookuptextures[256] = {};
-
-	GLInstance* const inst;
-
-	unsigned FindPalswap(const uint8_t* paldata, palette_t& fadecolor);
-
-public:
-	PaletteManager(GLInstance *inst_) : inst(inst_)
-	{}
-	~PaletteManager();
-	void DeleteAll();
-	IHardwareTexture *GetPalette(int index);
-	IHardwareTexture* GetLookup(int index);
-};
-
-
 struct glinfo_t {
 	float maxanisotropy;
 };
@@ -75,9 +56,7 @@ class GLInstance
 	friend IHardwareTexture* setpalettelayer(int layer, int translation);
 
 public:
-	TArray<PolymostRenderState> rendercommands;
-	PaletteManager palmanager;
-	int lastPalswapIndex = -1;
+			TArray<PolymostRenderState> rendercommands;
 	FGameTexture* currentTexture = nullptr;
 	int MatrixChange = 0;
 
@@ -89,8 +68,6 @@ public:
 	glinfo_t glinfo;
 	
 	void Init(int y);
-	
-	void Deinit();
 	
 	static int GetTexDimension(int value)
 	{

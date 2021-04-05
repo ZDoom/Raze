@@ -1022,7 +1022,6 @@ set (FASTMATH_SOURCES ${FASTMATH_SOURCES})
 set (PCH_SOURCES
 
 	glbackend/glbackend.cpp
-	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
 
 	thirdparty/src/md4.cpp
@@ -1081,6 +1080,7 @@ set (PCH_SOURCES
 	core/rendering/hw_entrypoint.cpp
 	core/rendering/hw_models.cpp
 	core/rendering/hw_voxels.cpp
+	core/rendering/hw_palmanager.cpp
 	core/rendering/scene/hw_clipper.cpp
 	core/rendering/scene/hw_walls.cpp
 	core/rendering/scene/hw_flats.cpp

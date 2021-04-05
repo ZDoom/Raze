@@ -75,6 +75,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gi.h"
 #include "gamefuncs.h"
 #include "hw_voxels.h"
+#include "hw_palmanager.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -576,9 +577,9 @@ int GameMain()
 	C_DeinitConsole();
 	V_ClearFonts();
 	voxClear();
+	ClearPalManager();
 	TexMan.DeleteAll();
 	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
-	GLInterface.Deinit();
 	I_ShutdownGraphics();
 	freeallmodels();
 	if (gi)
@@ -943,6 +944,8 @@ int RunGame()
 	lookups.postLoadTables();
 	PostLoadSetup();
 	lookups.postLoadLookups();
+	FMaterial::SetLayerCallback(setpalettelayer);
+
 	V_Init2();
 	twod->Begin(screen->GetWidth(), screen->GetHeight());
 	twod->End();
