@@ -27,7 +27,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 //------------------------------------------------------------------------- 
 
 #include "automap.h"
-#include "cstat.h"
 #include "c_dispatch.h"
 #include "c_cvars.h"
 #include "gstrings.h"
