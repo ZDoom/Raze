@@ -256,7 +256,7 @@ void BuildTiles::InvalidateTile(int num)
 	if ((unsigned) num < MAXTILES)
 	{
 		auto tex = tiledata[num].texture;
-		tex->GetTexture()->SystemTextures.Clean();
+		tex->CleanHardwareData();
 		tiledata[num].rawCache.data.Clear();
 	}
 }
