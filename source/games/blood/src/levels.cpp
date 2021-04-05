@@ -115,6 +115,28 @@ void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSectio
 
 static const char* DefFile(void)
 {
+    int found = -1;
+    if (userConfig.DefaultCon.IsEmpty() || userConfig.DefaultCon.CompareNoCase("blood.ini") == 0)
+    {
+        int numlumps = fileSystem.GetNumEntries();
+        for (int i = numlumps - 1; i >= 0; i--)
+        {
+            if (fileSystem.GetFileContainer(i) <= fileSystem.GetMaxIwadNum()) break;
+            FString fn = fileSystem.GetFileFullName(i, false);
+            FString ext = fn.Right(4);
+            if (ext.CompareNoCase(".ini") == 0)
+            {
+                if (fileSystem.CheckNumForFullName(fn) != i) continue;
+                if (found == -1) found = i;
+                else
+                {
+                    found = -1;
+                    break;
+                }
+            }
+        }
+    }
+    if (found >= 0) return fileSystem.GetFileFullName(found);
     // The command line parser stores this in the CON field.
     return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : "blood.ini";
 }
