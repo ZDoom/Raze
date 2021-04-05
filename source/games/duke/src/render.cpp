@@ -444,7 +444,7 @@ bool GameInterface::GenerateSavePic()
 
 void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
-	fi.animatesprites(tsprite, spritesortcnt, viewx, viewy, viewz, int(smoothRatio));
+	fi.animatesprites(tsprite, spritesortcnt, viewx, viewy, viewang.asbuild(), int(smoothRatio));
 }
 
 
