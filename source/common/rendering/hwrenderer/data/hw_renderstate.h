@@ -273,7 +273,7 @@ public:
 		mSpecialEffect = EFF_NONE;
 		mLightIndex = -1;
 		mStreamData.uInterpolationFactor = 0;
-		mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
+		mRenderStyle = DefaultRenderStyle();
 		mMaterial.Reset();
 		mBias.Reset();
 		mPassType = NORMAL_PASS;
