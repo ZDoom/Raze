@@ -405,6 +405,8 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 		float xoff = (tilexoff * spr->xrepeat) * (0.2f / 16.f);
 		float yoff = (tileyoff * spr->yrepeat) * (0.25f / 16.f);
 
+		if (xsize & 1) xoff -= spr->xrepeat * (0.1f / 16.f);  // Odd xspans (taken from polymost as-is)
+
 		if (spr->cstat & CSTAT_SPRITE_YCENTER)
 		{
 			yoff -= height * 0.5;
