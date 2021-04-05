@@ -309,7 +309,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 
 	// now render the main view
 	float fovratio;
-	float ratio = ActiveRatio(windowxy2.x - windowxy1.x + 1, windowxy2.y - windowxy1.y + 1);
+	float ratio = ActiveRatio(screen->GetWidth(), screen->GetHeight());
 	if (ratio >= 1.33f)
 	{
 		fovratio = 1.33f;
