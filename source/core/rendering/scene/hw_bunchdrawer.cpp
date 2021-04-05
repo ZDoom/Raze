@@ -232,6 +232,8 @@ void BunchDrawer::ProcessBunch(int bnch)
 
 			//if (gl_render_walls)
 			{
+				ClipWall.Unclock();
+				Bsp.Unclock();
 				SetupWall.Clock();
 
 				HWWall hwwall;
@@ -239,6 +241,8 @@ void BunchDrawer::ProcessBunch(int bnch)
 				rendered_lines++;
 
 				SetupWall.Unclock();
+				Bsp.Clock();
+				ClipWall.Clock();
 			}
 		}
 
@@ -462,7 +466,6 @@ void BunchDrawer::ProcessSector(int sectnum)
 	HWFlat flat;
 	flat.ProcessSector(di, &sector[sectnum]);
 	SetupFlat.Unclock();
-	Bsp.Clock();
 
 	//Todo: process subsectors
 	inbunch = false;
@@ -508,7 +511,6 @@ void BunchDrawer::ProcessSector(int sectnum)
 		}
 		if (thiswall->point2 != sect->wallptr + i + 1) inbunch = false;
 	}
-	Bsp.Unclock();
 }
 
 //==========================================================================
@@ -519,6 +521,7 @@ void BunchDrawer::ProcessSector(int sectnum)
 
 void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount)
 {
+	Bsp.Clock();
 	for(unsigned i=0;i<sectcount;i++)
 		ProcessSector(viewsectors[i]);
 	while (Bunches.Size() > 0)
@@ -527,4 +530,5 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount)
 		ProcessBunch(closest);
 		DeleteBunch(closest);
 	}
+	Bsp.Unclock();
 }
