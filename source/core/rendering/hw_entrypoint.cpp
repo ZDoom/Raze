@@ -117,6 +117,8 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 	auto vrmode = VRMode::GetVRMode(mainview && toscreen);
 	const int eyeCount = vrmode->mEyeCount;
 	screen->FirstEye();
+	hw_int_useindexedcolortextures = eyeCount > 1? false : *hw_useindexedcolortextures;
+
 	for (int eye_ix = 0; eye_ix < eyeCount; ++eye_ix)
 	{
 		const auto& eye = vrmode->mEyes[eye_ix];
@@ -164,6 +166,7 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 		if (eyeCount - eye_ix > 1)
 			screen->NextEye(eyeCount);
 	}
+	hw_int_useindexedcolortextures = false;
 }
 
 //===========================================================================
