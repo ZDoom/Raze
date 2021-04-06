@@ -35,6 +35,33 @@
 **
 */
 
+void parseSetupTile(FScanner& sc, FScriptPosition& pos)
+{
+	int tile;
+	if (!sc.GetNumber(tile, true)) return;
+	if (!ValidateTilenum("setuptile", tile, pos)) return;
+	auto& tiled = TileFiles.tiledata[tile];
+	if (!sc.GetNumber(tiled.hiofs.xsize, true)) return;
+	if (!sc.GetNumber(tiled.hiofs.ysize, true)) return;
+	if (!sc.GetNumber(tiled.hiofs.xoffs, true)) return;
+	if (!sc.GetNumber(tiled.hiofs.yoffs, true)) return;
+}
+
+void parseSetupTileRange(FScanner& sc, FScriptPosition& pos)
+{
+	int tilestart, tileend;
+	if (!sc.GetNumber(tilestart, true)) return;
+	if (!sc.GetNumber(tileend, true)) return;
+	if (!ValidateTileRange("setuptilerange", tilestart, tileend, pos)) return;
+
+	TileOffs hiofs;
+	if (!sc.GetNumber(hiofs.xsize, true)) return;
+	if (!sc.GetNumber(hiofs.ysize, true)) return;
+	if (!sc.GetNumber(hiofs.xoffs, true)) return;
+	if (!sc.GetNumber(hiofs.yoffs, true)) return;
+
+	for (int i = tilestart; i <= tileend; i++) TileFiles.tiledata[i].hiofs = hiofs;
+}
 
 void parseAnimTileRange(FScanner& sc, FScriptPosition& pos)
 {
