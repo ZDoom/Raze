@@ -11,6 +11,7 @@ struct FBunch
     int sectnum;
     int startline;
     int endline;
+    bool portal;
     binangle startangle; // in pseudo angles for the clipper
     binangle endangle;
 };
@@ -38,19 +39,19 @@ private:
     };
 
     void StartScene();
-    void StartBunch(int sectnum, int linenum, binangle startan, binangle endan);
+    void StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal);
     void AddLineToBunch(int line, binangle newan);
     void DeleteBunch(int index);
     bool CheckClip(walltype* wal);
-    int ClipLine(int line);
+    int ClipLine(int line, bool portal);
     void ProcessBunch(int bnch);
     int WallInFront(int wall1, int wall2);
     int BunchInFront(FBunch* b1, FBunch* b2);
     int FindClosestBunch();
-    void ProcessSector(int sectnum);
+    void ProcessSector(int sectnum, bool portal);
 
 public:
     void Init(HWDrawInfo* _di, Clipper* c, vec2_t& view);
-    void RenderScene(const int* viewsectors, unsigned sectcount);
+    void RenderScene(const int* viewsectors, unsigned sectcount, bool portal);
     const FixedBitArray<MAXSECTORS>& GotSector() const { return gotsector; }
 };

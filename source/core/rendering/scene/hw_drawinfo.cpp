@@ -364,7 +364,7 @@ void HWDrawInfo::DispatchSprites()
 //
 //-----------------------------------------------------------------------------
 
-void HWDrawInfo::CreateScene()
+void HWDrawInfo::CreateScene(bool portal)
 {
 	const auto& vp = Viewpoint;
 
@@ -387,9 +387,9 @@ void HWDrawInfo::CreateScene()
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 	mDrawer.Init(this, mClipper, view);
 	if (vp.SectNums)
-		mDrawer.RenderScene(vp.SectNums, vp.SectCount);
+		mDrawer.RenderScene(vp.SectNums, vp.SectCount, portal);
 	else
-		mDrawer.RenderScene(&vp.SectCount, 1); 
+		mDrawer.RenderScene(&vp.SectCount, 1, portal);
 
 	SetupSprite.Clock();
 	gi->processSprites(tsprite, spritesortcnt, view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
@@ -422,7 +422,7 @@ void HWDrawInfo::CreateScene()
 		mClipper->Clear();
 		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 		mDrawer.Init(this, mClipper, view);
-		mDrawer.RenderScene(&drawsect, 1);
+		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
 		{
@@ -453,7 +453,7 @@ void HWDrawInfo::CreateScene()
 		mClipper->Clear();
 		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 		mDrawer.Init(this, mClipper, view);
-		mDrawer.RenderScene(&drawsect, 1);
+		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
 		{
@@ -670,7 +670,7 @@ void HWDrawInfo::Set3DViewport(FRenderState &state)
 //
 //-----------------------------------------------------------------------------
 
-void HWDrawInfo::DrawScene(int drawmode)
+void HWDrawInfo::DrawScene(int drawmode, bool portal)
 {
 	static int recursion = 0;
 	static int ssao_portals_available = 0;
@@ -692,7 +692,7 @@ void HWDrawInfo::DrawScene(int drawmode)
 		ssao_portals_available--;
 	}
 
-	CreateScene();
+	CreateScene(portal);
 	auto& RenderState = *screen->RenderState();
 
 	RenderState.SetDepthMask(true);
@@ -725,7 +725,7 @@ void HWDrawInfo::DrawScene(int drawmode)
 void HWDrawInfo::ProcessScene(bool toscreen)
 {
 	portalState.BeginScene();
-	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN);
+	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN, false);
 	if (toscreen && isBlood())
 	{
 		gotsector = mDrawer.GotSector(); // Blood needs this to implement some lighting effect hacks. Needs to be refactored to use better info.

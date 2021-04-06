@@ -91,7 +91,7 @@ void BunchDrawer::StartScene()
 //
 //==========================================================================
 
-void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan)
+void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal)
 {
 	FBunch* bunch = &Bunches[LastBunch = Bunches.Reserve(1)];
 
@@ -99,6 +99,7 @@ void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 	bunch->startline = bunch->endline = linenum;
 	bunch->startangle = startan;
 	bunch->endangle = endan;
+	bunch->portal = portal;
 }
 
 //==========================================================================
@@ -182,7 +183,7 @@ bool BunchDrawer::CheckClip(walltype* wal)
 //
 //==========================================================================
 
-int BunchDrawer::ClipLine(int line)
+int BunchDrawer::ClipLine(int line, bool portal)
 {
 	auto wal = &wall[line];
 
@@ -195,7 +196,7 @@ int BunchDrawer::ClipLine(int line)
 		return CL_Skip;
 	}
 
-	if (!clipper->SafeCheckRange(startAngle, endAngle))
+	if (!portal && !clipper->SafeCheckRange(startAngle, endAngle))
 	{
 		return CL_Skip;
 	}
@@ -203,7 +204,7 @@ int BunchDrawer::ClipLine(int line)
 	if (wal->nextwall == -1 || (wal->cstat & CSTAT_WALL_1WAY) || CheckClip(wal))
 	{
 		// one-sided
-		clipper->SafeAddClipRange(startAngle, endAngle);
+		if (!portal) clipper->SafeAddClipRange(startAngle, endAngle);
 		return CL_Draw;
 	}
 	else
@@ -225,7 +226,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 	ClipWall.Clock();
 	for (int i = bunch->startline; i <= bunch->endline; i++)
 	{
-		int clipped = ClipLine(i);
+		int clipped = ClipLine(i, bunch->portal);
 
 		if (clipped & CL_Draw)
 		{
@@ -250,7 +251,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 		if (clipped & CL_Pass)
 		{
 			ClipWall.Unclock();
-			ProcessSector(wall[i].nextsector);
+			ProcessSector(wall[i].nextsector, false);
 			ClipWall.Clock();
 		}
 	}
@@ -425,7 +426,7 @@ int BunchDrawer::FindClosestBunch()
 //
 //==========================================================================
 
-void BunchDrawer::ProcessSector(int sectnum)
+void BunchDrawer::ProcessSector(int sectnum, bool portal)
 {
 	if (gotsector[sectnum]) return;
 	gotsector.Set(sectnum);
@@ -503,7 +504,7 @@ void BunchDrawer::ProcessSector(int sectnum)
 			// situation where 2 bunches may overlap at both ends.
 
 			startangle = ang1;
-			StartBunch(sectnum, sect->wallptr + i, ang1, ang2);
+			StartBunch(sectnum, sect->wallptr + i, ang1, ang2, portal);
 			inbunch = true;
 		}
 		else
@@ -520,11 +521,11 @@ void BunchDrawer::ProcessSector(int sectnum)
 //
 //==========================================================================
 
-void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount)
+void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
 	Bsp.Clock();
 	for(unsigned i=0;i<sectcount;i++)
-		ProcessSector(viewsectors[i]);
+		ProcessSector(viewsectors[i], portal);
 	while (Bunches.Size() > 0)
 	{
 		int closest = FindClosestBunch();

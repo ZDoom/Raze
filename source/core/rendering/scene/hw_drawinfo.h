@@ -158,8 +158,8 @@ public:
 	void ClearBuffers();
 	HWDrawInfo *EndDrawInfo();
 
-	void DrawScene(int drawmode);
-	void CreateScene();
+	void DrawScene(int drawmode, bool portal);
+	void CreateScene(bool portal);
 	void DispatchSprites();
 	void RenderScene(FRenderState &state);
 	void RenderTranslucent(FRenderState &state);
