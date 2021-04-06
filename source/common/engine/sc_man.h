@@ -113,6 +113,13 @@ public:
 	void MustGetNumber(bool evaluate = false);
 	bool CheckNumber(bool evaluate = false);
 
+	bool GetNumber(int& var, bool evaluate = false)
+	{
+		if (!GetNumber(evaluate)) return false;
+		var = Number;
+		return true;
+	}
+
 	bool GetFloat(bool evaluate = false);
 	void MustGetFloat(bool evaluate = false);
 	bool CheckFloat(bool evaluate = false);

@@ -18,6 +18,7 @@
 #include "palettecontainer.h"
 #include "mapinfo.h"
 #include "hw_voxels.h"
+#include "parsefuncs.h"
 
 int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
 int tileSetSkybox(int picnum, int palnum, const char** facenames, int flags);
@@ -646,15 +647,9 @@ static int32_t defsparser(scriptfile *script)
             break;
         }
         case T_ANIMTILERANGE:
-        {
-            SetAnim set;
-            if (scriptfile_getsymbol(script,&set.tile1)) break;
-            if (scriptfile_getsymbol(script,&set.tile2)) break;
-            if (scriptfile_getsymbol(script,&set.speed)) break;
-            if (scriptfile_getsymbol(script,&set.type)) break;
-            processSetAnim("animtilerange", pos, set);
+            parseAnimTileRange(*script, pos);
             break;
-        }
+
         case T_TILEFROMTEXTURE:
         {
             auto texturepos = scriptfile_getposition(script);
