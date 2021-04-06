@@ -28,6 +28,8 @@ class BunchDrawer
     vec2_t iview;
     float gcosang, gsinang;
     FixedBitArray<MAXSECTORS> gotsector;
+    FixedBitArray<MAXWALLS> gotwall;
+    binangle ang1, ang2;
 
 private:
 
@@ -51,7 +53,7 @@ private:
     void ProcessSector(int sectnum, bool portal);
 
 public:
-    void Init(HWDrawInfo* _di, Clipper* c, vec2_t& view);
+    void Init(HWDrawInfo* _di, Clipper* c, vec2_t& view, binangle a1, binangle a2);
     void RenderScene(const int* viewsectors, unsigned sectcount, bool portal);
     const FixedBitArray<MAXSECTORS>& GotSector() const { return gotsector; }
 };

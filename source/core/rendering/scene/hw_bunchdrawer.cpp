@@ -49,8 +49,10 @@
 //
 //==========================================================================
 
-void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view)
+void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, binangle a2)
 {
+	ang1 = a1;
+	ang2 = a2;
 	di = _di;
 	clipper = c;
 	viewx = view.x * (1/ 16.f);
@@ -83,6 +85,7 @@ void BunchDrawer::StartScene()
 	Bunches.Clear();
 	CompareData.Clear();
 	gotsector.Zero();
+	gotwall.Zero();
 }
 
 //==========================================================================
@@ -232,8 +235,9 @@ void BunchDrawer::ProcessBunch(int bnch)
 		{
 			show2dwall.Set(i);
 
-			//if (gl_render_walls)
+			if (!gotwall[i])
 			{
+				gotwall.Set(i);
 				ClipWall.Unclock();
 				Bsp.Unclock();
 				SetupWall.Clock();
@@ -480,36 +484,25 @@ void BunchDrawer::ProcessSector(int sectnum, bool portal)
 		DVector2 start = { WallStartX(thiswall), WallStartY(thiswall) };
 		DVector2 end = { WallStartX(thiswall->point2), WallStartY(thiswall->point2) };
 #endif
-		binangle ang1 = thiswall->clipangle;
-		binangle ang2 = wall[thiswall->point2].clipangle;
+		binangle walang1 = thiswall->clipangle;
+		binangle walang2 = wall[thiswall->point2].clipangle;
 
-		if (ang1.asbam() - ang2.asbam() < ANGLE_180)
+		// outside the visible area or seen from the backside.
+		if ((walang1.asbam() - ang1.asbam() > ANGLE_180 && walang2.asbam() - ang1.asbam() > ANGLE_180) ||
+			(walang1.asbam() - ang2.asbam() < ANGLE_180 && walang2.asbam() - ang2.asbam() < ANGLE_180) ||
+			(walang1.asbam() - walang2.asbam() < ANGLE_180))
 		{
-			// Backside
 			inbunch = false;
 		}
-		/* disabled because it only fragments the bunches without any performance gain.
-		else if (!clipper->SafeCheckRange(ang1, ang2))
+		else if (!inbunch)
 		{
-			// is it visible?
-			inbunch = false;
-		}
-		*/
-		else if (!inbunch || ang2.asbam() - startangle.asbam() >= ANGLE_180)
-		{
-			// don't let a bunch span more than 180° to avoid problems.
-			// This limitation ensures that the combined range of 2
-			// bunches will always be less than 360° which simplifies
-			// the distance comparison code because it prevents a 
-			// situation where 2 bunches may overlap at both ends.
-
-			startangle = ang1;
-			StartBunch(sectnum, sect->wallptr + i, ang1, ang2, portal);
+			startangle = walang1;
+			StartBunch(sectnum, sect->wallptr + i, walang1, walang2, portal);
 			inbunch = true;
 		}
 		else
 		{
-			AddLineToBunch(sect->wallptr + i, ang2);
+			AddLineToBunch(sect->wallptr + i, walang2);
 		}
 		if (thiswall->point2 != sect->wallptr + i + 1) inbunch = false;
 	}
@@ -523,14 +516,35 @@ void BunchDrawer::ProcessSector(int sectnum, bool portal)
 
 void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
-	Bsp.Clock();
-	for(unsigned i=0;i<sectcount;i++)
-		ProcessSector(viewsectors[i], portal);
-	while (Bunches.Size() > 0)
+	auto process = [&]()
 	{
-		int closest = FindClosestBunch();
-		ProcessBunch(closest);
-		DeleteBunch(closest);
+		for (unsigned i = 0; i < sectcount; i++)
+			ProcessSector(viewsectors[i], portal);
+		while (Bunches.Size() > 0)
+		{
+			int closest = FindClosestBunch();
+			ProcessBunch(closest);
+			DeleteBunch(closest);
+		}
+	};
+
+	Bsp.Clock();
+	if (ang1.asbam() != 0 || ang2.asbam() != 0)
+	{
+		process();
+	}
+	else
+	{
+		// with a 360° field of view we need to split the scene into two halves. 
+		// The BunchInFront check can fail with angles that may wrap around.
+		auto rotang = di->Viewpoint.RotAngle;
+		ang1 = bamang(rotang - ANGLE_90);
+		ang2 = bamang(rotang + ANGLE_90);
+		process();
+		clipper->Clear();
+		ang1 = bamang(rotang + ANGLE_90);
+		ang2 = bamang(rotang - ANGLE_90);
+		process();
 	}
 	Bsp.Unclock();
 }

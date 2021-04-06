@@ -211,7 +211,7 @@ angle_t HWDrawInfo::FrustumAngle()
 	// but at least it doesn't overestimate too much...
 	double floatangle = 2.0 + (45.0 + ((tilt / 1.9)))*Viewpoint.FieldOfView.Degrees*48.0 / AspectMultiplier(WidescreenRatio) / 90.0;
 	angle_t a1 = DAngle(floatangle).BAMs();
-	if (a1 >= ANGLE_180) return 0xffffffff;
+	if (a1 >= ANGLE_90) return 0xffffffff; // it's either below 90 or bust.
 	return a1;
 }
 
@@ -369,7 +369,7 @@ void HWDrawInfo::CreateScene(bool portal)
 	const auto& vp = Viewpoint;
 
 	angle_t a1 = FrustumAngle();
-	mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
+	if (a1 != 0xffffffff) mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 
 	// reset the portal manager
 	portalState.StartFrame();
@@ -385,7 +385,8 @@ void HWDrawInfo::CreateScene(bool portal)
 	geoofs = { 0,0 };
 
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
-	mDrawer.Init(this, mClipper, view);
+	if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
+	else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
 	if (vp.SectNums)
 		mDrawer.RenderScene(vp.SectNums, vp.SectCount, portal);
 	else
@@ -421,7 +422,8 @@ void HWDrawInfo::CreateScene(bool portal)
 
 		mClipper->Clear();
 		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
-		mDrawer.Init(this, mClipper, view);
+		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
+		else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
 		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
@@ -452,7 +454,8 @@ void HWDrawInfo::CreateScene(bool portal)
 
 		mClipper->Clear();
 		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
-		mDrawer.Init(this, mClipper, view);
+		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
+		else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
 		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
