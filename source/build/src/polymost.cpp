@@ -2722,9 +2722,9 @@ void polymost_drawsprite(int32_t snum)
 
     if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
     {
-        int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].h_xsize;
-        off = { (int32_t)tspr->xoffset + (flag ? TileFiles.tiledata[globalpicnum].h_xoffs : tileLeftOffset(globalpicnum)),
-                (int32_t)tspr->yoffset + (flag ? TileFiles.tiledata[globalpicnum].h_yoffs : tileTopOffset(globalpicnum)) };
+        int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].hiofs.xsize;
+        off = { (int32_t)tspr->xoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.xoffs : tileLeftOffset(globalpicnum)),
+                (int32_t)tspr->yoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.yoffs : tileTopOffset(globalpicnum)) };
     }
 
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
@@ -2784,8 +2784,8 @@ void polymost_drawsprite(int32_t snum)
 
     vec2_t tsiz;
 
-    if (hw_hightile && TileFiles.tiledata[globalpicnum].h_xsize)
-        tsiz = { TileFiles.tiledata[globalpicnum].h_xsize, TileFiles.tiledata[globalpicnum].h_ysize };
+    if (hw_hightile && TileFiles.tiledata[globalpicnum].hiofs.xsize)
+        tsiz = { TileFiles.tiledata[globalpicnum].hiofs.xsize, TileFiles.tiledata[globalpicnum].hiofs.ysize };
     else 
         tsiz = { tileWidth(globalpicnum), tileHeight(globalpicnum) };
 

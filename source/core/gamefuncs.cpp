@@ -191,10 +191,10 @@ void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	auto tex = tileGetTexture(spr->picnum);
 
 	int width, leftofs;
-	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
-		width = TileFiles.tiledata[spr->picnum].h_xsize;
-		leftofs = (TileFiles.tiledata[spr->picnum].h_xoffs + spr->xoffset);
+		width = TileFiles.tiledata[spr->picnum].hiofs.xsize;
+		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + spr->xoffset);
 	}
 	else
 	{
@@ -227,12 +227,12 @@ void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	auto tex = tileGetTexture(spr->picnum);
 
 	int width, height, leftofs, topofs;
-	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
-		width = TileFiles.tiledata[spr->picnum].h_xsize * spr->xrepeat;
-		height = TileFiles.tiledata[spr->picnum].h_ysize * spr->yrepeat;
-		leftofs = (TileFiles.tiledata[spr->picnum].h_xoffs + spr->xoffset) * spr->xrepeat;
-		topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset) * spr->yrepeat;
+		width = TileFiles.tiledata[spr->picnum].hiofs.xsize * spr->xrepeat;
+		height = TileFiles.tiledata[spr->picnum].hiofs.ysize * spr->yrepeat;
+		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + spr->xoffset) * spr->xrepeat;
+		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + spr->yoffset) * spr->yrepeat;
 	}
 	else
 	{

@@ -617,38 +617,30 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile("setuptile", tile, script, pos))
                 break;
             auto& tiled = TileFiles.tiledata[tile];
-            if (scriptfile_getsymbol(script,&tmp)) break;  // XXX
-            tiled.h_xsize = tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            tiled.h_ysize = tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            tiled.h_xoffs = tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            tiled.h_yoffs = tmp;
+            if (scriptfile_getsymbol(script,&tiled.hiofs.xsize)) break;  // XXX
+            if (scriptfile_getsymbol(script, &tiled.hiofs.ysize)) break;
+            if (scriptfile_getsymbol(script, &tiled.hiofs.xoffs)) break;
+            if (scriptfile_getsymbol(script, &tiled.hiofs.yoffs)) break;
             break;
         }
         case T_SETUPTILERANGE:
         {
-            int tile1,tile2,xsiz,ysiz,xoffs,yoffs,i;
+            int tile1,tile2;
+            TileOffs t;
 
             if (scriptfile_getsymbol(script,&tile1)) break;
             if (scriptfile_getsymbol(script,&tile2)) break;
-            if (scriptfile_getnumber(script,&xsiz)) break;
-            if (scriptfile_getnumber(script,&ysiz)) break;
-            if (scriptfile_getsymbol(script,&xoffs)) break;
-            if (scriptfile_getsymbol(script,&yoffs)) break;
+            if (scriptfile_getnumber(script,&t.xsize)) break;
+            if (scriptfile_getnumber(script,&t.ysize)) break;
+            if (scriptfile_getsymbol(script,&t.xoffs)) break;
+            if (scriptfile_getsymbol(script,&t.yoffs)) break;
 
             if (check_tile_range("setuptilerange", &tile1, &tile2, script, pos))
                 break;
 
-            for (i=tile1; i<=tile2; i++)
+            for (int i=tile1; i<=tile2; i++)
             {
-                auto& tiled = TileFiles.tiledata[i];
-
-                tiled.h_xsize = xsiz;
-                tiled.h_ysize = ysiz;
-                tiled.h_xoffs = xoffs;
-                tiled.h_yoffs = yoffs;
+                TileFiles.tiledata[i].hiofs = t;
             }
 
             break;

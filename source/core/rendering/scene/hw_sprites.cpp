@@ -376,12 +376,12 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 		int tilenum = spr->picnum;
 
 		int xsize, ysize, tilexoff, tileyoff;
-		if (hw_hightile && TileFiles.tiledata[tilenum].h_xsize)
+		if (hw_hightile && TileFiles.tiledata[tilenum].hiofs.xsize)
 		{
-			xsize = TileFiles.tiledata[tilenum].h_xsize;
-			ysize = TileFiles.tiledata[tilenum].h_ysize;
-			tilexoff = TileFiles.tiledata[tilenum].h_xoffs;
-			tileyoff = TileFiles.tiledata[tilenum].h_yoffs;
+			xsize = TileFiles.tiledata[tilenum].hiofs.xsize;
+			ysize = TileFiles.tiledata[tilenum].hiofs.ysize;
+			tilexoff = TileFiles.tiledata[tilenum].hiofs.xoffs;
+			tileyoff = TileFiles.tiledata[tilenum].hiofs.yoffs;
 		}
 		else
 		{

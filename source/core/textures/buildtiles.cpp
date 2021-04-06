@@ -145,7 +145,7 @@ void BuildTiles::Init()
 		tile.RotTile = { -1,-1 };
 		tile.replacement = ReplacementType::Art;
 		tile.alphaThreshold = 0.5;
-		tile.h_xsize = 0;
+		tile.hiofs = {};
 	}
 
 }

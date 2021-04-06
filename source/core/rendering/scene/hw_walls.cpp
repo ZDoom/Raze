@@ -1104,10 +1104,10 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 
 
 	int height, topofs;
-	if (hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	if (hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
-		height = TileFiles.tiledata[spr->picnum].h_ysize;
-		topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset);
+		height = TileFiles.tiledata[spr->picnum].hiofs.ysize;
+		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + spr->yoffset);
 	}
 	else
 	{
