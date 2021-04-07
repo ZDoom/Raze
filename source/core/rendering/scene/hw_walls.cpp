@@ -190,11 +190,8 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
-	//int tmode = state.GetTextureMode();
-
-	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
-
 	SetLightAndFog(state);
+	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr ? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	int h = (int)texture->GetDisplayHeight();
 	int h2 = 1 << sizeToBits(h);
