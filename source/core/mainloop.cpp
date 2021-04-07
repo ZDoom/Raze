@@ -189,6 +189,7 @@ static void GameTicker()
 		case ga_newgame:
 			FX_StopAllSounds();
 		case ga_newgamenostopsound:
+			DeleteScreenJob();
 			newGameStarted = true;
 			FX_SetReverb(0);
 			gi->FreeLevelData();
