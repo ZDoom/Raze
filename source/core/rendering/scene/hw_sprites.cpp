@@ -437,6 +437,12 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 
 		z1 = z + yoff;
 		z2 = z + height + yoff;
+		if (z1 < z2)
+		{
+			// Make sure that z1 is the higher one. Some utilities expect it to be oriented this way.
+			std::swap(z1, z2);
+			std::swap(vt, vb);
+		}
 	}
 	else
 	{
