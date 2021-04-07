@@ -28,6 +28,7 @@ class BunchDrawer
     vec2_t iview;
     float gcosang, gsinang;
     FixedBitArray<MAXSECTORS> gotsector;
+    FixedBitArray<MAXSECTORS> gotsector2;
     FixedBitArray<MAXWALLS> gotwall;
     binangle ang1, ang2;
 

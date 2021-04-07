@@ -1046,7 +1046,6 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 			}
 		}
 	}
-	globalr = globalg = globalb = 255;
 }
 
 void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sector)

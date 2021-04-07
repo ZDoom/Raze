@@ -85,6 +85,7 @@ void BunchDrawer::StartScene()
 	Bunches.Clear();
 	CompareData.Clear();
 	gotsector.Zero();
+	gotsector2.Zero();
 	gotwall.Zero();
 }
 
@@ -435,8 +436,8 @@ int BunchDrawer::FindClosestBunch()
 
 void BunchDrawer::ProcessSector(int sectnum, bool portal)
 {
-	if (gotsector[sectnum]) return;
-	gotsector.Set(sectnum);
+	if (gotsector2[sectnum]) return;
+	gotsector2.Set(sectnum);
 
 	auto sect = &sector[sectnum];
 	bool inbunch;
@@ -445,28 +446,32 @@ void BunchDrawer::ProcessSector(int sectnum, bool portal)
 	SetupSprite.Clock();
 
 	int z;
-	SectIterator it(sectnum);
-	while ((z = it.NextIndex()) >= 0)
+	if (!gotsector[sectnum])
 	{
-		auto const spr = (uspriteptr_t)&sprite[z];
-
-		if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0) // skip invisible sprites
-			continue;
-
-		int sx = spr->x - iview.x, sy = spr->y - int(iview.y);
-
-		// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.
-		//if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[spr->picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
+		gotsector.Set(sectnum);
+		SectIterator it(sectnum);
+		while ((z = it.NextIndex()) >= 0)
 		{
-			if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_WALL) ||
-				(r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
-				(r_voxels && gi->Voxelize(spr->picnum)) ||
-				DMulScale(bcos(spr->ang), -sx, bsin(spr->ang), -sy, 6) > 0)
-				if (renderAddTsprite(di->tsprite, di->spritesortcnt, z, sectnum))
-					break;
+			auto const spr = (uspriteptr_t)&sprite[z];
+
+			if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0) // skip invisible sprites
+				continue;
+
+			int sx = spr->x - iview.x, sy = spr->y - int(iview.y);
+
+			// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.
+			//if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[spr->picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
+			{
+				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_WALL) ||
+					(r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
+					(r_voxels && gi->Voxelize(spr->picnum)) ||
+					DMulScale(bcos(spr->ang), -sx, bsin(spr->ang), -sy, 6) > 0)
+					if (renderAddTsprite(di->tsprite, di->spritesortcnt, z, sectnum))
+						break;
+			}
 		}
+		SetupSprite.Unclock();
 	}
-	SetupSprite.Unclock();
 
 	if (automapping)
 		show2dsector.Set(sectnum);
@@ -547,6 +552,7 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 		ang2 = bamang(rotang + ANGLE_90);
 		process();
 		clipper->Clear();
+		gotsector2.Zero();
 		ang1 = bamang(rotang + ANGLE_90);
 		ang2 = bamang(rotang - ANGLE_90);
 		process();
