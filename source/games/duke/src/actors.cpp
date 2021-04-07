@@ -4505,7 +4505,7 @@ void handle_se27(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB, int LASERLINE, int CRANE, int shift)
+void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, bool scroll, int TRIPBOMB, int LASERLINE, int CRANE, int shift)
 {
 	int* t = &actor->temp_data[0];
 
@@ -4575,7 +4575,7 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, int TRIPBOMB
 			}
 		}
 	}
-	sector[actor->s.sectnum].addfloorxpan(actor->s.yvel / 128.f);
+	if (scroll) sector[actor->s.sectnum].addfloorxpan(actor->s.yvel / 128.f);
 }
 
 //---------------------------------------------------------------------------
