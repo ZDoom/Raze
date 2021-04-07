@@ -48,15 +48,17 @@
 #include "sc_man.h"
 #include "gamestruct.h"
 #include "hw_renderstate.h"
+#include "skyboxtexture.h"
 
 CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
 
 struct HightileReplacement
 {
-	FGameTexture* faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
+	FGameTexture* image;
 	FVector2 scale;
 	float alphacut, specpower, specfactor;
-	uint16_t palnum, flags;
+	uint16_t palnum;
+	bool issky;
 };
 
 static TMap<int, TArray<HightileReplacement>> tileReplacements;
@@ -91,7 +93,7 @@ static void AddReplacement(int picnum, const HightileReplacement& replace)
 	auto& Hightiles = tileReplacements[picnum];
 	for (auto& ht : Hightiles)
 	{
-		if (replace.palnum == ht.palnum && (replace.faces[1] == nullptr) == (ht.faces[1] == nullptr))
+		if (replace.palnum == ht.palnum && replace.issky == ht.issky)
 		{
 			ht = replace;
 			return;
@@ -125,7 +127,7 @@ static HightileReplacement* FindReplacement(FTextureID picnum, int palnum, bool 
 	{
 		for (auto& rep : *Hightiles)
 		{
-			if (rep.palnum == palnum && (rep.faces[1] != nullptr) == skybox) return &rep;
+			if (rep.palnum == palnum && rep.issky == skybox) return &rep;
 		}
 		if (!palnum || palnum >= MAXPALOOKUPS - RESERVEDPALS) break;
 		palnum = 0;
@@ -137,10 +139,18 @@ int checkTranslucentReplacement(FTextureID picnum, int pal)
 {
 	FGameTexture* tex = nullptr;
 	auto si = FindReplacement(picnum, pal, 0);
-	if (si && hw_hightile) tex = si->faces[0];
+	if (si && hw_hightile) tex = si->image;
 	if (!tex || tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
 	return tex && tex->GetTranslucency();
 }
+
+FGameTexture* SkyboxReplacement(FTextureID picnum, int palnum)
+{
+	auto hr = FindReplacement(picnum, palnum, true);
+	if (!hr) return nullptr;
+	return hr->image;
+}
+
 
 //==========================================================================
 //
@@ -163,19 +173,19 @@ void PostLoadSetup()
 		{
 			if (rep.palnum == GLOWPAL)
 			{
-				glowTex = rep.faces[0];
+				glowTex = rep.image;
 			}
 			if (rep.palnum == NORMALPAL)
 			{
-				normalTex = rep.faces[0];
+				normalTex = rep.image;
 			}
 			if (rep.palnum == SPECULARPAL)
 			{
-				specTex = rep.faces[0];
+				specTex = rep.image;
 			}
 			if (rep.palnum == DETAILPAL)
 			{
-				detailTex = rep.faces[0];
+				detailTex = rep.image;
 				scalex = rep.scale.X;
 				scaley = rep.scale.Y;
 			}
@@ -185,10 +195,10 @@ void PostLoadSetup()
 		{
 			for (auto& rep : *Hightile)
 			{
-				if (rep.faces[1]) continue;	// do not muck around with skyboxes (yet)
+				if (rep.issky) continue;	// do not muck around with skyboxes (yet)
 				if (rep.palnum < NORMALPAL)
 				{
-					auto tex = rep.faces[0];
+					auto tex = rep.image;
 					// Make a copy so that multiple appearances of the same texture with different layers can be handled. They will all refer to the same internal texture anyway.
 					tex = MakeGameTexture(tex->GetTexture(), "", ETextureType::Any);
 					if (glowTex) tex->SetGlowmap(glowTex->GetTexture());
@@ -196,7 +206,7 @@ void PostLoadSetup()
 					if (normalTex) tex->SetNormalmap(normalTex->GetTexture());
 					if (specTex) tex->SetSpecularmap(specTex->GetTexture());
 					tex->SetDetailScale(scalex, scaley);
-					rep.faces[0] = tex;
+					rep.image = tex;
 				}
 			}
 		}
@@ -237,7 +247,7 @@ void PostLoadSetup()
 //
 //==========================================================================
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags)
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor)
 {
 	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
 	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
@@ -257,13 +267,12 @@ int tileSetHightileReplacement(int picnum, int palnum, const char* filename, flo
 		return -1;
 	}
 
-	replace.faces[0] = TexMan.GetGameTexture(texid);
-	if (replace.faces[0] == nullptr)
+	replace.image = TexMan.GetGameTexture(texid);
     replace.alphacut = min(alphacut,1.f);
 	replace.scale = { xscale, yscale };
 	replace.specpower = specpower; // currently unused
 	replace.specfactor = specfactor; // currently unused
-	replace.flags = flags;
+	replace.issky = 0;
 	replace.palnum = (uint16_t)palnum;
 	AddReplacement(picnum, replace);
 	return 0;
@@ -276,10 +285,10 @@ int tileSetHightileReplacement(int picnum, int palnum, const char* filename, flo
 //
 //==========================================================================
 
-int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
+int tileSetSkybox(int picnum, int palnum, FString* facenames)
 {
-    if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
-    if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
+	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
+	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
 
 	auto tex = tileGetTexture(picnum);
 	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0)
@@ -288,18 +297,26 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 		return -1;	// cannot add replacements to empty tiles, must create one beforehand
 	}
 	HightileReplacement replace = {};
-	
-	for (auto &face : replace.faces)
+
+	FGameTexture *faces[6];
+	const static uint8_t map[] = { 2, 1, 0, 3, 4, 5 };
+	for (int i = 0; i < 6; i++)
 	{
-		FTextureID texid = TexMan.CheckForTexture(*facenames, ETextureType::Any);
+		FTextureID texid = TexMan.CheckForTexture(facenames[i], ETextureType::Any);
 		if (!texid.isValid())
 		{
-			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", *facenames, picnum);
+			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", facenames[i].GetChars(), picnum);
 			return -1;
 		}
-		face = TexMan.GetGameTexture(texid);
+		faces[map[i]] = TexMan.GetGameTexture(texid);
 	}
-    replace.flags = flags;
+	FSkyBox* sbtex = new FSkyBox("");
+	memcpy(sbtex->faces, faces, sizeof(faces));
+	sbtex->previous = faces[0];	// won't ever be used, just to be safe.
+	sbtex->fliptop = true;
+	replace.image = MakeGameTexture(sbtex, "", ETextureType::Override);
+	TexMan.AddGameTexture(replace.image, false);
+    replace.issky = 1;
 	replace.palnum = (uint16_t)palnum;
 	AddReplacement(picnum, replace);
 	return 0;
@@ -341,7 +358,7 @@ bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TextureP
 
 		if (rep)
 		{
-			tex = rep->faces[0];
+			tex = rep->image;
 		}
 		if (!rep || rep->palnum != hipalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL)) 
 			applytint = true;

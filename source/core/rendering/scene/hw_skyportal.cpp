@@ -26,7 +26,8 @@
 #include "hw_renderstate.h"
 #include "skyboxtexture.h"
 
- CVAR(Float, skyoffsettest, 0, 0)
+CVAR(Float, skyoffsettest, 0, 0)
+
 //-----------------------------------------------------------------------------
 //
 //

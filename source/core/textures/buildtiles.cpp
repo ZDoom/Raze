@@ -60,7 +60,7 @@ enum
 
 BuildTiles TileFiles;
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor);
 
 //==========================================================================
 //
@@ -514,7 +514,7 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	TexMan.AddGameTexture(tex);
 	TileFiles.tiledata[tilenum].backup = TileFiles.tiledata[tilenum].texture = tex;
 	if (istexture)
-		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);
+		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0);
 	return 0;
 
 }

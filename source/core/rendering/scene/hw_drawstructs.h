@@ -11,6 +11,7 @@
 #include "gamefuncs.h"
 #include "render.h"
 #include "matrix.h"
+#include "gamecontrol.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)
@@ -357,3 +358,20 @@ inline float sectorVisibility(sectortype* sec)
 }
 
 inline const float hw_density = 0.35f;
+
+int checkTranslucentReplacement(FTextureID picnum, int pal);
+
+inline bool maskWallHasTranslucency(const walltype* wall)
+{
+	return (wall->cstat & CSTAT_WALL_TRANSLUCENT) || checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
+}
+
+inline bool spriteHasTranslucency(const spritetype* tspr)
+{
+	if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || //(tspr->clipdist & TSPR_FLAGS_DRAW_LAST) ||
+		((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
+		return true;
+
+	return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
+}
+

@@ -35,6 +35,41 @@
 **
 */
 
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor);
+int tileSetSkybox(int picnum, int palnum, FString* facenames);
+void tileRemoveReplacement(int num);
+
+void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
+{
+	int tile, palette;
+
+	if (!sc.GetNumber(tile, true)) return;
+	if (!sc.GetNumber(palette, true))  return;
+	if (!sc.GetNumber(true)) return; //formerly x-center, unused
+	if (!sc.GetNumber(true)) return; //formerly y-center, unused
+	if (!sc.GetNumber(true)) return; //formerly x-size, unused
+	if (!sc.GetNumber(true)) return; //formerly y-size, unused
+	if (!sc.GetString())  return;
+
+	tileSetHightileReplacement(tile, palette, sc.String, -1.0, 1.0, 1.0, 1.0, 1.0);
+}
+
+void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
+{
+	int tile, palette;
+	FString fn[6];
+
+	if (!sc.GetNumber(tile, true)) return;
+	if (!sc.GetNumber(palette, true))  return;
+	if (!sc.GetNumber(true)) return; //'future extension' (for what?)
+	for (int i = 0; i < 6; i++)
+	{
+		if (!sc.GetString()) return;
+		fn[i] = sc.String;
+	}
+	tileSetSkybox(tile, palette, fn);
+}
+
 void parseSetupTile(FScanner& sc, FScriptPosition& pos)
 {
 	int tile;

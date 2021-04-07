@@ -20,11 +20,6 @@
 #include "hw_voxels.h"
 #include "parsefuncs.h"
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
-int tileSetSkybox(int picnum, int palnum, const char** facenames, int flags);
-void tileRemoveReplacement(int num);
-
-
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 {
     int32_t i;
@@ -409,44 +404,11 @@ static int32_t defsparser(scriptfile *script)
 
         // OLD (DEPRECATED) DEFINITION SYNTAX
         case T_DEFINETEXTURE:
-        {
-            int32_t tile,pal,fnoo;
-            FString fn;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getsymbol(script,&pal))  break;
-            if (scriptfile_getnumber(script,&fnoo)) break; //x-center
-            if (scriptfile_getnumber(script,&fnoo)) break; //y-center
-            if (scriptfile_getnumber(script,&fnoo)) break; //x-size
-            if (scriptfile_getnumber(script,&fnoo)) break; //y-size
-            if (scriptfile_getstring(script,&fn))  break;
-
-            if (!fileSystem.FileExists(fn))
-                break;
-
-            tileSetHightileReplacement(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
-        }
-        break;
+            parseDefineTexture(*script, pos);
+            break;
         case T_DEFINESKYBOX:
-        {
-            int32_t tile,pal,i;
-            FString fn[6];
-            int happy = 1;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getsymbol(script,&pal)) break;
-            if (scriptfile_getsymbol(script,&i)) break; //future expansion
-            for (i=0; i<6; i++)
-            {
-                if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
-
-                if (!fileSystem.FileExists(fn[i]))
-                    happy = 0;
-            }
-            if (i < 6 || !happy) break;
-			tileSetSkybox(tile, pal, (const char **)fn, 0);
-        }
-        break;
+            parseDefineSkybox(*script, pos);
+            break;
         case T_DEFINETINT:
         {
             int32_t pal, r,g,b,f;
@@ -1609,7 +1571,6 @@ static int32_t defsparser(scriptfile *script)
             FString fn[6];
             FScanner::SavedPos modelend;
             int32_t i, tile = -1, pal = 0, happy = 1;
-			int flags = 0;
 
             static const tokenlist skyboxtokens[] =
             {
@@ -1663,8 +1624,7 @@ static int32_t defsparser(scriptfile *script)
             }
             if (!happy) break;
 
-            const char* fns[] = { fn[0].GetChars(), fn[1].GetChars(), fn[2].GetChars(), fn[3].GetChars(), fn[4].GetChars(), fn[5].GetChars() };
-			tileSetSkybox(tile, pal, fns, flags);
+			tileSetSkybox(tile, pal, fn);
         }
         break;
         case T_HIGHPALOOKUP:
@@ -1901,7 +1861,6 @@ static int32_t defsparser(scriptfile *script)
                     int32_t pal=-1, xsiz = 0, ysiz = 0;
                     FString fn;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
-                    uint8_t flags = 0;
 
                     static const tokenlist texturetokens_pal[] =
                     {
@@ -1972,7 +1931,7 @@ static int32_t defsparser(scriptfile *script)
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
-                    tileSetHightileReplacement(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
+                    tileSetHightileReplacement(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor);
                 }
                 break;
                 case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
@@ -1980,7 +1939,6 @@ static int32_t defsparser(scriptfile *script)
 					auto detailpos = scriptfile_getposition(script);
                     FScanner::SavedPos detailend;
                     int32_t pal = 0;
-                    char flags = 0;
                     FString fn;
                     double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
@@ -2045,7 +2003,7 @@ static int32_t defsparser(scriptfile *script)
                         pal = NORMALPAL;
                         break;
                     }
-                    tileSetHightileReplacement(tile,pal,fn,-1.0f,xscale,yscale, specpower, specfactor,flags);
+                    tileSetHightileReplacement(tile,pal,fn,-1.0f,xscale,yscale, specpower, specfactor);
                 }
                 break;
                 default:
