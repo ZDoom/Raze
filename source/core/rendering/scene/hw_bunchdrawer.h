@@ -12,7 +12,7 @@ struct FBunch
     int startline;
     int endline;
     bool portal;
-    binangle startangle; // in pseudo angles for the clipper
+    binangle startangle;
     binangle endangle;
 };
 
@@ -41,8 +41,8 @@ private:
     };
 
     void StartScene();
-    void StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal);
-    void AddLineToBunch(int line, binangle newan);
+    bool StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal);
+    bool AddLineToBunch(int line, binangle newan);
     void DeleteBunch(int index);
     bool CheckClip(walltype* wal);
     int ClipLine(int line, bool portal);

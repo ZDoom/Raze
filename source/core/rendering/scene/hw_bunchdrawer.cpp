@@ -94,15 +94,16 @@ void BunchDrawer::StartScene()
 //
 //==========================================================================
 
-void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal)
+bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal)
 {
 	FBunch* bunch = &Bunches[LastBunch = Bunches.Reserve(1)];
 
 	bunch->sectnum = sectnum;
 	bunch->startline = bunch->endline = linenum;
-	bunch->startangle = startan;
-	bunch->endangle = endan;
+	bunch->startangle = (startan.asbam() - ang1.asbam()) > ANGLE_180? ang1 :startan;
+	bunch->endangle = (endan.asbam() - ang2.asbam()) < ANGLE_180 ? ang2 : endan;
 	bunch->portal = portal;
+	return bunch->endangle != ang2;
 }
 
 //==========================================================================
@@ -111,10 +112,11 @@ void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 //
 //==========================================================================
 
-void BunchDrawer::AddLineToBunch(int line, binangle newan)
+bool BunchDrawer::AddLineToBunch(int line, binangle newan)
 {
 	Bunches[LastBunch].endline++;
-	Bunches[LastBunch].endangle = newan;
+	Bunches[LastBunch].endangle = (newan.asbam() - ang2.asbam()) < ANGLE_180 ? ang2 : newan;
+	return Bunches[LastBunch].endangle != ang2;
 }
 
 //==========================================================================
@@ -421,6 +423,7 @@ int BunchDrawer::FindClosestBunch()
 
 		}
 	}
+	//Printf("picked bunch starting at %d\n", Bunches[closest].startline);
 	return closest;
 }
 
@@ -497,12 +500,13 @@ void BunchDrawer::ProcessSector(int sectnum, bool portal)
 		else if (!inbunch)
 		{
 			startangle = walang1;
-			StartBunch(sectnum, sect->wallptr + i, walang1, walang2, portal);
-			inbunch = true;
+			//Printf("Starting bunch:\n\tWall %d\n", sect->wallptr + i);
+			inbunch = StartBunch(sectnum, sect->wallptr + i, walang1, walang2, portal);
 		}
 		else
 		{
-			AddLineToBunch(sect->wallptr + i, walang2);
+			//Printf("\tWall %d\n", sect->wallptr + i);
+			inbunch = AddLineToBunch(sect->wallptr + i, walang2);
 		}
 		if (thiswall->point2 != sect->wallptr + i + 1) inbunch = false;
 	}
@@ -516,6 +520,7 @@ void BunchDrawer::ProcessSector(int sectnum, bool portal)
 
 void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
+	//Printf("----------------------------------------- \n");
 	auto process = [&]()
 	{
 		for (unsigned i = 0; i < sectcount; i++)
