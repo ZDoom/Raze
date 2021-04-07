@@ -1494,9 +1494,8 @@ OptionMenu VideoModeMenu protected
 {
 	Title "$VIDMNU_TITLE"
 
-	// does not work yet.
-	//Option "$VIDMNU_PREFERBACKEND",		"vid_preferbackend", "PreferBackend"
-	//StaticText " "
+	Option "$VIDMNU_PREFERBACKEND",		"vid_preferbackend", "PreferBackend"
+	StaticText " "
 	Option "$VIDMNU_FULLSCREEN",		"vid_fullscreen", "YesNo"
 
 	IfOption(Mac)
