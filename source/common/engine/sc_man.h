@@ -94,6 +94,8 @@ public:
 	inline void AddSymbol(const char* name, uint32_t value) { return AddSymbol(name, uint64_t(value)); }
 	void AddSymbol(const char* name, double value);
 	void SkipToEndOfBlock();
+	int StartBraces(FScanner::SavedPos* braceend);
+	bool FoundEndBrace(FScanner::SavedPos& braceend);
 
 	static FString TokenName(int token, const char *string=NULL);
 
@@ -117,6 +119,13 @@ public:
 	{
 		if (!GetNumber(evaluate)) return false;
 		var = Number;
+		return true;
+	}
+
+	bool GetString(FString& var)
+	{
+		if (!GetString()) return false;
+		var = String;
 		return true;
 	}
 

@@ -39,6 +39,12 @@ int tileSetHightileReplacement(int picnum, int palnum, const char* filename, flo
 int tileSetSkybox(int picnum, int palnum, FString* facenames);
 void tileRemoveReplacement(int num);
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, palette;
@@ -53,6 +59,12 @@ void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
 
 	tileSetHightileReplacement(tile, palette, sc.String, -1.0, 1.0, 1.0, 1.0, 1.0);
 }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
 {
@@ -70,6 +82,46 @@ void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
 	tileSetSkybox(tile, palette, fn);
 }
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseSkybox(FScanner& sc, FScriptPosition& pos)
+{
+    FString faces[6];
+    FScanner::SavedPos blockend;
+    int32_t tile = -1, pal = 0;
+
+    if (sc.StartBraces(&blockend)) return;
+    while (!sc.FoundEndBrace(blockend))
+    {
+        sc.GetString();
+        if (sc.Compare("tile")) sc.GetNumber(tile, true);
+        else if (sc.Compare("pal")) sc.GetNumber(pal, true);
+        else if (sc.Compare({ "ft", "front", "forward" })) sc.GetString(faces[0]);
+        else if (sc.Compare({ "rt", "right" })) sc.GetString(faces[1]);
+        else if (sc.Compare({ "bk", "back" })) sc.GetString(faces[2]);
+        else if (sc.Compare({ "lt", "lf", "left" })) sc.GetString(faces[3]);
+        else if (sc.Compare({ "up", "ceiling", "top", "ceil" })) sc.GetString(faces[4]);
+        else if (sc.Compare({ "dn", "floor", "bottom", "down" })) sc.GetString(faces[5]);
+		// skip over everything else.
+    }
+	if (tile < 0)
+	{
+		pos.Message(MSG_ERROR, "skybox: missing tile number");
+		return;
+	}
+    tileSetSkybox(tile, pal, faces);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 void parseSetupTile(FScanner& sc, FScriptPosition& pos)
 {
 	int tile;
@@ -81,6 +133,12 @@ void parseSetupTile(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(tiled.hiofs.xoffs, true)) return;
 	if (!sc.GetNumber(tiled.hiofs.yoffs, true)) return;
 }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 void parseSetupTileRange(FScanner& sc, FScriptPosition& pos)
 {
@@ -97,6 +155,12 @@ void parseSetupTileRange(FScanner& sc, FScriptPosition& pos)
 
 	for (int i = tilestart; i <= tileend; i++) TileFiles.tiledata[i].hiofs = hiofs;
 }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 void parseAnimTileRange(FScanner& sc, FScriptPosition& pos)
 {

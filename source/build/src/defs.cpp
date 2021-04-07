@@ -1566,67 +1566,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_SKYBOX:
-        {
-						auto skyboxpos = scriptfile_getposition(script);
-            FString fn[6];
-            FScanner::SavedPos modelend;
-            int32_t i, tile = -1, pal = 0, happy = 1;
-
-            static const tokenlist skyboxtokens[] =
-            {
-                { "tile"   ,T_TILE   },
-                { "pal"    ,T_PAL    },
-                { "ft"     ,T_FRONT  },{ "front"  ,T_FRONT  },{ "forward",T_FRONT  },
-                { "rt"     ,T_RIGHT  },{ "right"  ,T_RIGHT  },
-                { "bk"     ,T_BACK   },{ "back"   ,T_BACK   },
-                { "lf"     ,T_LEFT   },{ "left"   ,T_LEFT   },{ "lt"     ,T_LEFT   },
-                { "up"     ,T_TOP    },{ "top"    ,T_TOP    },{ "ceiling",T_TOP    },{ "ceil"   ,T_TOP    },
-                { "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM },
-                { "nocompress", T_NOCOMPRESS },
-                { "nodownsize", T_NODOWNSIZE },
-                { "forcefilter", T_FORCEFILTER },
-                { "artquality", T_ARTQUALITY },
-            };
-
-            if (scriptfile_getbraces(script,&modelend)) break;
-            while (!scriptfile_endofblock(script, modelend))
-            {
-                switch (getatoken(script,skyboxtokens,countof(skyboxtokens)))
-                {
-                    //case T_ERROR: Printf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
-                case T_TILE:
-                    scriptfile_getsymbol(script,&tile); break;
-                case T_PAL:
-                    scriptfile_getsymbol(script,&pal); break;
-                case T_FRONT:
-                    scriptfile_getstring(script,&fn[0]); break;
-                case T_RIGHT:
-                    scriptfile_getstring(script,&fn[1]); break;
-                case T_BACK:
-                    scriptfile_getstring(script,&fn[2]); break;
-                case T_LEFT:
-                    scriptfile_getstring(script,&fn[3]); break;
-                case T_TOP:
-                    scriptfile_getstring(script,&fn[4]); break;
-                case T_BOTTOM:
-                    scriptfile_getstring(script,&fn[5]); break;
-
-                }
-            }
-
-            if (tile < 0) skyboxpos.Message(MSG_ERROR, "skybox: missing 'tile number'"), happy=0;
-            for (i=0; i<6; i++)
-            {
-                if (fn[i].IsEmpty()) skyboxpos.Message(MSG_ERROR, "skybox: missing '%s filename'", skyfaces[i]), happy = 0;
-                // FIXME?
-                if (!fileSystem.FileExists(fn[i]))
-                    happy = 0;
-            }
-            if (!happy) break;
-
-			tileSetSkybox(tile, pal, fn);
-        }
-        break;
+            parseSkybox(*script, pos);
+            break;
         case T_HIGHPALOOKUP:
         {
             int32_t basepal=-1, pal=-1;
