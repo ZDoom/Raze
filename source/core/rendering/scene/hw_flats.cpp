@@ -124,8 +124,8 @@ void HWFlat::MakeVertices()
 
 		auto ret = screen->mVertexData->AllocVertices(6);
 		auto vp = ret.first;
-		float x = !(sprite->cstat & CSTAT_SECTOR_XFLIP) ? 0.f : 1.f;
-		float y = !(sprite->cstat & CSTAT_SECTOR_YFLIP) ? 0.f : 1.f;
+		float x = !(sprite->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
+		float y = !(sprite->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 		for (unsigned i = 0; i < 6; i++)
 		{
 			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
