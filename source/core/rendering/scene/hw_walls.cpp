@@ -176,7 +176,7 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 	state.EnableTextureMatrix(false);
 	state.SetEffect(EFF_NONE);
-	state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
+	state.AlphaFunc(Alpha_GEqual, 0.5f);
 
 	state.SetDepthFunc(DF_Less);
 	state.SetRenderStyle(STYLE_Translucent);
@@ -235,7 +235,7 @@ void HWWall::RenderTranslucentWall(HWDrawInfo *di, FRenderState &state)
 
 	state.SetRenderStyle(RenderStyle);
 	state.SetTextureMode(RenderStyle);
-	if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
+	if (!texture || !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 	else state.AlphaFunc(Alpha_GEqual, 0.f);
 	RenderTexturedWall(di, state, HWWall::RWF_TEXTURED);
 	state.SetRenderStyle(STYLE_Translucent);

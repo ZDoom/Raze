@@ -75,7 +75,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		state.SetRenderStyle(RenderStyle);
 		state.SetTextureMode(RenderStyle);
 
-		if (!texture || !texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
+		if (!texture || !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 		else state.AlphaFunc(Alpha_Greater, 0.f);
 
 		if (RenderStyle.BlendOp == STYLEOP_Add && RenderStyle.DestAlpha == STYLEALPHA_One)
