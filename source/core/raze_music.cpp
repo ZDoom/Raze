@@ -46,6 +46,7 @@
 
 static bool mus_blocked;
 static FString lastStartedMusic;
+TArray<FString> specialmusic;
 
 MusicAliasMap MusicAliases;
 MusicAliasMap LevelMusicAliases;

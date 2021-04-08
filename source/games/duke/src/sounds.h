@@ -74,8 +74,6 @@ void S_ParseDeveloperCommentary();
 void StopCommentary();
 bool StartCommentary(int tag, DDukeActor* sprnum);
 
-extern TArray<FString> specialmusic;
-
 
 END_DUKE_NS
 

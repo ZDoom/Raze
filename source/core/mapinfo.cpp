@@ -38,6 +38,7 @@
 #include "raze_music.h"
 #include "filesystem.h"
 #include "printf.h"
+#include "raze_sound.h"
 
 FString gSkillNames[MAXSKILLS];
 FString gVolumeNames[MAXVOLUMES];
@@ -109,7 +110,8 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 	{
 		if (!stricmp(mapname, specials[i]))
 		{
-			// todo: store this properly.
+			if (specialmusic.Size() <= i) specialmusic.Resize(i + 1);
+			specialmusic[i] = music;
 			return true;
 		}
 	}
@@ -127,7 +129,7 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 		if (numMatches != 4 || toupper(b1) != 'E' || toupper(b2) != 'L')
 			return false;
 
-		index = FindMapByLevelNum(ep*100 + lev);
+		index = FindMapByLevelNum(levelnum(ep - 1, lev - 1));
 
 	}
 	if (index != nullptr)
