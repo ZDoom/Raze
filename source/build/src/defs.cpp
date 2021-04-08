@@ -3156,7 +3156,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             FStringf name("%s.%s", resName.GetChars(), resType.GetChars());
-            fileSystem.CreatePathlessCopy(resName, resID, 0);
+            fileSystem.CreatePathlessCopy(name, resID, 0);
         }
         break;
 

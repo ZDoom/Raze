@@ -1328,7 +1328,7 @@ void LoadDefinitions()
 	{
 		loaddefinitionsfile("engine/widescreen.def");
 	}
-
+	fileSystem.InitHashChains();
 
 }
 
