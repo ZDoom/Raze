@@ -132,7 +132,7 @@ FileReader OpenMusic(const char* musicname)
 	if (!reader.isOpen())
 	{
 		int lumpnum = LookupMusic(musicname);
-		if (mus_extendedlookup && lumpnum >= 0)
+		if (mus_extendedlookup && lumpnum < 0)
 		{
 			// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
 			auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
