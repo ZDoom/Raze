@@ -36,68 +36,6 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 }
 
 void AddUserMapHack(usermaphack_t&);
-#if 0
-// For later
-{
-if (sc.Compare("music"))
-{
-    FString id, mus;
-    sc.MustGetToken('{');
-    while (!sc.CheckToken('}'))
-    {
-        sc.MustGetToken(TK_Identifier);
-        if (sc.Compare("id"))
-        {
-            sc.MustGetString();
-            id = sc.String;
-        }
-        else if (sc.Compare("file"))
-        {
-            sc.MustGetString();
-            mus = sc.String;
-        }
-    }
-
-    if (!SetMusicForMap(id, mus, true))
-    {
-        sc.ScriptError("Map %s not found in music definition", id.GetChars());
-    }
-
-    char* tokenPtr = pScript->ltextptr;
-    char* musicID = NULL;
-    char* fileName = NULL;
-    char* musicEnd;
-
-    if (scriptfile_getbraces(pScript, &musicEnd))
-        break;
-
-    while (pScript->textptr < musicEnd)
-    {
-        switch (getatoken(pScript, soundTokens, countof(soundTokens)))
-        {
-        case T_ID: scriptfile_getstring(pScript, &musicID); break;
-        case T_FILE: scriptfile_getstring(pScript, &fileName); break;
-        }
-    }
-
-    if (!firstPass)
-    {
-        if (musicID == NULL)
-        {
-            pos.Message(MSG_ERROR, "missing ID for music definition\n");
-            break;
-        }
-
-        if (fileName == NULL || fileSystem.FileExists(fileName))
-            break;
-
-        if (S_DefineMusic(musicID, fileName) == -1)
-            pos.Message(MSG_ERROR, "invalid music ID");
-    }
-
-}
-}
-#endif
 
 enum scripttoken_t
 {
