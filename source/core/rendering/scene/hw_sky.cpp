@@ -185,6 +185,7 @@ void HWWall::SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * 
 
 			// if the back sector is closed the sky must be drawn!
 			if (c1 > f1 || c2 > f2) return;
+			fs = bs; // draw sky from the backsector.
 		}
 
 		flags |= HWF_SKYHACK;	// mid textures on such lines need special treatment!
@@ -241,6 +242,7 @@ void HWWall::SkyBottom(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype
 			if (c1 > f1 || c2 > f2) return;
 		}
 		flags |= HWF_SKYHACK;	// mid textures on such lines need special treatment!
+		fs = bs; // draw sky from the backsector.
 	}
 	else return;
 
