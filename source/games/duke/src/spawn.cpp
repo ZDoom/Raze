@@ -785,7 +785,8 @@ void spawneffector(DDukeActor* actor)
 			break;
 		}
 		case 156:
-			if (!isRRRA()) break;
+			break;
+
 		case 34:
 			StartInterpolation(sect, Interp_Sect_FloorPanX);
 			break;

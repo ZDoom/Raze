@@ -915,6 +915,7 @@ public:
 					startTime = -1;
 					clock = 0;
 					jobs[index].job->fadestate = DScreenJob::fadeout;
+					gamestate = GS_INTRO;	// block menu and console during fadeout - this can cause timing problems.
 					actionState = State_Fadeout;
 				}
 				else
@@ -959,6 +960,7 @@ void DeleteScreenJob()
 		delete runner;
 		runner = nullptr;
 	}
+	twod->SetScreenFade(1);
 }
 
 void RunScreenJobFrame()
