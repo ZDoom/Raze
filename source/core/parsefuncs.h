@@ -45,6 +45,12 @@ void tileRemoveReplacement(int num);
 //
 //===========================================================================
 
+template<int cnt>
+void parseSkip(FScanner& sc, FScriptPosition& pos)
+{
+	for (int i = 0; i < cnt; i++) if (!sc.GetNumber(true)) return;
+}
+
 void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, palette;

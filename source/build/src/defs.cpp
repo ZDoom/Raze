@@ -387,38 +387,12 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_SPRITECOL:
-        {
-            int32_t tile,col,col2;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getnumber(script,&col)) break;
-            if (scriptfile_getnumber(script,&col2)) break;
-        }
-        break;
-        case T_2DCOL:
-        {
-            int32_t col,b,g,r;
-
-            if (scriptfile_getnumber(script,&col)) break;
-            if (scriptfile_getnumber(script,&r)) break;
-            if (scriptfile_getnumber(script,&g)) break;
-            if (scriptfile_getnumber(script,&b)) break;
-
-            if ((unsigned)col < 256)
-            {
-            }
-        }
-        break;
         case T_2DCOLIDXRANGE:  // NOTE: takes precedence over 2dcol, see InitCustomColors()
-        {
-            int32_t col, idx, idxend;
-
-            if (scriptfile_getnumber(script,&col)) break;
-            if (scriptfile_getnumber(script,&idx)) break;
-            if (scriptfile_getnumber(script,&idxend)) break;
-
-        }
-        break;
+            parseSkip<3>(*script, pos);
+            break;
+        case T_2DCOL:
+            parseSkip<4>(*script, pos);
+            break;
         case T_FOGPAL:
         {
             int32_t p,r,g,b;
@@ -461,15 +435,9 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_CACHESIZE:
-        {
-            int32_t j;
-
-            if (scriptfile_getnumber(script,&j)) break;
-        }
-        break;
         case T_SHADEFACTOR:
-            //scriptfile_getnumber(script, &realmaxshade);
-            //frealmaxshade = (float)realmaxshade;
+        case T_GLOBALGAMEFLAGS:
+            parseSkip<1>(*script, pos);
             break;
         case T_ARTFILE:
         {
@@ -2084,13 +2052,6 @@ static int32_t defsparser(scriptfile *script)
         case T_GLOBALFLAGS:
         {
             if (scriptfile_getnumber(script,&globalflags)) break;
-        }
-        break;
-
-        case T_GLOBALGAMEFLAGS:
-        {
-            int32_t dummy;
-            if (scriptfile_getnumber(script,&dummy)) break;
         }
         break;
 
