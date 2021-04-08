@@ -375,3 +375,18 @@ inline bool spriteHasTranslucency(const spritetype* tspr)
 	return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
 }
 
+inline void SetSpriteTranslucency(const spritetype* sprite, float& alpha, FRenderStyle& RenderStyle)
+{
+	bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
+	if (trans)
+	{
+		RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+		alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+	}
+	else
+	{
+		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
+		alpha = 1.f;
+	}
+	alpha *= 1.f - spriteext[sprite->owner].alpha;
+}

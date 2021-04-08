@@ -749,7 +749,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	tcs[UPRGT].v = setv(topleft, topright, glseg.fracright);
 	tcs[LORGT].v = setv(bottomleft, bottomright, glseg.fracright);
 	if (th == pow2size) CheckTexturePosition(); // for NPOT textures this adjustment can break things.
-	bool trans = type == RENDERWALL_M2S && (wal->cstat & CSTAT_WALL_TRANSLUCENT);
+	bool trans = type == RENDERWALL_M2S && maskWallHasTranslucency(wal);
 	if (trans)
 	{
 		RenderStyle = GetRenderStyle(0, !!(wal->cstat & CSTAT_WALL_TRANS_FLIP));
@@ -1086,18 +1086,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);
 
-	bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
-	if (trans)
-	{
-		RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-		alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
-	}
-	else
-	{
-		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
-		alpha = 1.f;
-	}
-
+	SetSpriteTranslucency(sprite, alpha, RenderStyle);
 
 	int height, topofs;
 	if (hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
@@ -1156,5 +1145,5 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 			zbottom[0] = zbottom[1] = floorz;
 		}
 	}
-	PutWall(di, trans);
+	PutWall(di, spriteHasTranslucency(sprite));
 }

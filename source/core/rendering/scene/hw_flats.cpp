@@ -380,17 +380,8 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 		palette = sprite->pal;
 		fade = lookups.getFade(sector[sprite->sectnum].floorpal);	// fog is per sector.
 
-		bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
-		if (trans)
-		{
-			RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-			alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
-		}
-		else
-		{
-			RenderStyle = LegacyRenderStyles[STYLE_Translucent];
-			alpha = 1.f;
- 		}
+		SetSpriteTranslucency(sprite, alpha, RenderStyle);
+
 		PutFlat(di, 0);
 	}
 }

@@ -353,17 +353,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);
 
-	bool trans = (spr->cstat & CSTAT_SPRITE_TRANSLUCENT);
-	if (trans)
-	{
-		RenderStyle = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-		alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
-	}
-	else
-	{
-		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
-		alpha = 1.f;
-	}
+	SetSpriteTranslucency(spr, alpha, RenderStyle);
 
 	x = spr->x * (1 / 16.f);
 	z = spr->z * (1 / -256.f);
@@ -466,7 +456,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 	}
 #endif
 
-	PutSprite(di, alpha < 1.f-FLT_EPSILON || modelframe == 0);
+	PutSprite(di, true);
 	rendered_sprites++;
 }
 
@@ -500,17 +490,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 
 	if (!vox || (spr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_FLOOR) return false;
 
-	bool trans = (spr->cstat & CSTAT_SPRITE_TRANSLUCENT);
-	if (trans)
-	{
-		RenderStyle = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-		alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
-	}
-	else
-	{
-		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
-		alpha = 1.f;
-	}
+	SetSpriteTranslucency(spr, alpha, RenderStyle);
 
 	auto sprext = &spriteext[spr->owner];
 
@@ -575,7 +555,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 
 	auto vp = di->Viewpoint;
 	depth = (float)((x - vp.Pos.X) * vp.TanCos + (y - vp.Pos.Y) * vp.TanSin);
-	PutSprite(di, alpha < 1.f - FLT_EPSILON);
+	PutSprite(di, spriteHasTranslucency(sprite));
 	rendered_sprites++;
 	return true;
 }
