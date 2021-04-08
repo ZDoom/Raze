@@ -46,6 +46,7 @@
 
 static bool mus_blocked;
 static FString lastStartedMusic;
+TArray<FString> specialmusic;
 
 MusicAliasMap MusicAliases;
 MusicAliasMap LevelMusicAliases;
@@ -138,7 +139,8 @@ FileReader OpenMusic(const char* musicname)
 			auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
 			auto rfbase = ExtractFileBase(rfn);
 			FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
-			lumpnum = LookupMusic(aliasMusicname);
+			int newlumpnum = LookupMusic(aliasMusicname);
+			if (newlumpnum >= 0) lumpnum = newlumpnum;
 		}
 		if (lumpnum == -1)
 		{
@@ -148,7 +150,7 @@ FileReader OpenMusic(const char* musicname)
 		}
 		if (lumpnum == -1 && (g_gameType & GAMEFLAG_SW))
 		{
-			// Some Shadow Warrioe distributions have the music in a subfolder named 'classic'. Check that, too.
+			// Some Shadow Warrior distributions have the music in a subfolder named 'classic'. Check that, too.
 			FStringf aliasMusicname("classic/music/%s", musicname);
 			lumpnum = fileSystem.FindFile(aliasMusicname);
 		}

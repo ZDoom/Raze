@@ -695,7 +695,7 @@ private:
     void DisplayMinibarInventory(PLAYERp pp)
     {
         int InventoryBoxX = MINI_BAR_INVENTORY_BOX_X;
-        int InventoryBoxY = MINI_BAR_INVENTORY_BOX_Y;
+        int InventoryBoxY = MINI_BAR_INVENTORY_BOX_Y - 200;
 
         int InventoryXoff = 0;
         int InventoryYoff = 1;

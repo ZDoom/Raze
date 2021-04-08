@@ -840,7 +840,7 @@ public:
 			clock += now - lastTime;
 			if (clock == 0) clock = 1;
 		}
-		bool skiprequest = clock > 100'000'000 && inputState.CheckAllInput() && !processed;
+		bool skiprequest = clock > 100'000'000 && inputState.CheckAllInput() && !processed && job.job->fadestate != DScreenJob::fadeout;
 		lastTime = now;
 
 		if (screenfade < 1.f && !M_Active())
@@ -848,7 +848,8 @@ public:
 			float ms = (clock / 1'000'000) / job.job->fadetime;
 			screenfade = clamp(ms, 0.f, 1.f);
 			twod->SetScreenFade(screenfade);
-			job.job->fadestate = DScreenJob::fadein;
+			if (job.job->fadestate != DScreenJob::fadeout)
+				job.job->fadestate = DScreenJob::fadein;
 		}
 		else
 		{
