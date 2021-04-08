@@ -179,13 +179,7 @@ void HWWall::SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * 
 	{
 		if (bs->ceilingstat & CSTAT_SECTOR_SKY)
 		{
-			float c1, c2, f1, f2;
-			PlanesAtPoint(bs, v1.X * 16.f, v1.Y * -16.f, &c1, &f1);
-			PlanesAtPoint(bs, v2.X * 16.f, v2.Y * -16.f, &c2, &f2);
-
-			// if the back sector is closed the sky must be drawn!
-			if (c1 > f1 || c2 > f2) return;
-			fs = bs; // draw sky from the backsector.
+			return;
 		}
 
 		flags |= HWF_SKYHACK;	// mid textures on such lines need special treatment!
@@ -232,17 +226,12 @@ void HWWall::SkyBottom(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype
 	}
 	else if (fs->floorstat & CSTAT_SECTOR_SKY)
 	{
-		float c1, c2, f1, f2;
-		PlanesAtPoint(bs, v1.X * 16.f, v1.Y * -16.f, &c1, &f1);
-		PlanesAtPoint(bs, v2.X * 16.f, v2.Y * -16.f, &c2, &f2);
 
 		if (bs->floorstat & CSTAT_SECTOR_SKY)
 		{
-			// if the back sector is closed the sky must be drawn!
-			if (c1 > f1 || c2 > f2) return;
+			return;
 		}
 		flags |= HWF_SKYHACK;	// mid textures on such lines need special treatment!
-		fs = bs; // draw sky from the backsector.
 	}
 	else return;
 
