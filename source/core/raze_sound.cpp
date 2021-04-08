@@ -142,7 +142,11 @@ int S_LookupSound(const char* fn)
 	static const char * const sndformats[] = { "OGG", "FLAC", "WAV" };
 	if (snd_extendedlookup)
 	{
-		int lump = fileSystem.FindFileWithExtensions(StripExtension(fn), sndformats, countof(sndformats));
+		auto newfn = StripExtension(fn);
+		int lump = fileSystem.FindFileWithExtensions(newfn, sndformats, countof(sndformats));
+		if (lump >= 0) return lump;
+		newfn = "sound/" + newfn;
+		lump = fileSystem.FindFileWithExtensions(newfn, sndformats, countof(sndformats));
 		if (lump >= 0) return lump;
 	}
 	return fileSystem.FindFile(fn);
