@@ -266,7 +266,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
     if (pPlayer->weaponTimer == 0) // playing idle QAV?
     { 
         // Double shotgun fix from BloodGDX.
-        if (/*!IsOriginalDemo() &&*/ (pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7)) && isOriginalQAV())
+        if (/*!IsOriginalDemo() &&*/ (pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7))/* && isOriginalQAV()*/)
             duration = pQAV->duration - 1;
         else duration = (PlayClock + MulScale(4, smoothratio, 16)) % pQAV->duration;
     }
