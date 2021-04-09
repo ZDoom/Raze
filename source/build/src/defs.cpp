@@ -323,24 +323,11 @@ static int32_t defsparser(scriptfile *script)
             break;
         }
         case T_INCLUDEDEFAULT:
-        {
             defsparser_include(G_DefaultDefFile(), script, &pos);
             break;
-        }
         case T_DEFINE:
-        {
-            FString name;
-            int32_t number;
-
-            if (scriptfile_getstring(script,&name)) break;
-            if (scriptfile_getsymbol(script,&number)) break;
-
-            if (scriptfile_addsymbolvalue(script, name,number) < 0)
-                pos.Message(MSG_WARNING, "Warning: Symbol %s was NOT redefined to %d", name.GetChars(),number);
+            parseDefine(*script, pos);
             break;
-        }
-
-        // OLD (DEPRECATED) DEFINITION SYNTAX
         case T_DEFINETEXTURE:
             parseDefineTexture(*script, pos);
             break;
@@ -348,44 +335,14 @@ static int32_t defsparser(scriptfile *script)
             parseDefineSkybox(*script, pos);
             break;
         case T_DEFINETINT:
-        {
-            int32_t pal, r,g,b,f;
-
-            if (scriptfile_getsymbol(script,&pal)) break;
-            if (scriptfile_getnumber(script,&r)) break;
-            if (scriptfile_getnumber(script,&g)) break;
-            if (scriptfile_getnumber(script,&b)) break;
-            if (scriptfile_getnumber(script,&f)) break; //effects
-            lookups.setPaletteTint(pal,r,g,b,0,0,0,f);
-        }
-        break;
+            parseDefineTint(*script, pos);
+            break;
         case T_ALPHAHACK:
-        {
-            int32_t tile;
-            double alpha;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getdouble(script,&alpha)) break;
-            if ((uint32_t)tile < MAXTILES)
-                TileFiles.tiledata[tile].texture->alphaThreshold = (float)alpha;
-        }
-        break;
+            parseAlphahack(*script, pos);
+            break;
         case T_ALPHAHACKRANGE:
-        {
-            int32_t tilenume1,tilenume2;
-            double alpha;
-
-            if (scriptfile_getsymbol(script,&tilenume1)) break;
-            if (scriptfile_getsymbol(script,&tilenume2)) break;
-            if (scriptfile_getdouble(script,&alpha)) break;
-
-            if (check_tile_range("alphahackrange", &tilenume1, &tilenume2, script, pos))
-                break;
-
-            for (int i=tilenume1; i<=tilenume2; i++)
-                TileFiles.tiledata[i].texture->alphaThreshold = (float)alpha;
-        }
-        break;
+            parseAlphahackRange(*script, pos);
+            break;
         case T_SPRITECOL:
         case T_2DCOLIDXRANGE:  // NOTE: takes precedence over 2dcol, see InitCustomColors()
             parseSkip<3>(*script, pos);
