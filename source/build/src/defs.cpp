@@ -3195,7 +3195,7 @@ int32_t loaddefinitionsfile(const char *fn, bool loadadds, bool cumulative)
         int lump, lastlump = 0;
         while ((lump = fileSystem.FindLumpFullName(fn, &lastlump)) >= 0)
         {
-            Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump));
+            Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump).GetChars());
             parseit(lump);
         }
     }
