@@ -431,8 +431,8 @@ void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 	clipper->SafeAddClipRange(bamang(0), bamang(0xffffffff));
 	for (unsigned int i = 0; i < lines.Size(); i++)
 	{
-		binangle startang = q16ang(gethiq16angle(lines[i].seg->x - view.x, lines[i].seg->y - view.y));
-		binangle endang = q16ang(gethiq16angle(wall[lines[i].seg->point2].x - view.x, wall[lines[i].seg->point2].y - view.y));
+		binangle startang = bvectangbam(lines[i].seg->x - view.x, lines[i].seg->y - view.y);
+		binangle endang = bvectangbam(wall[lines[i].seg->point2].x - view.x, wall[lines[i].seg->point2].y - view.y);
 
 		if (endang.asbam() - startang.asbam() >= ANGLE_180)
 		{
@@ -574,14 +574,14 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	int newx = int((x << 1) + Scale(dx, i, j) - view.x);
 	int newy = int((y << 1) + Scale(dy, i, j) - view.y);
-	int newan = ((gethiq16angle(dx, dy) << 1) - bamang(vp.RotAngle).asq16()) & 0x7FFFFFF;
-	vp.RotAngle = q16ang(newan).asbam();
+	auto newan = bamang(int64_t((bvectangf(dx, dy) * (BAMUNIT << 1)) - vp.RotAngle) & 0xFFFFFFFF);
+	vp.RotAngle = newan.asbam();
 	vp.SectNums = nullptr;
 	vp.SectCount = line->sector;
 
 	vp.Pos.X = newx / 16.f;
 	vp.Pos.Y = newy / -16.f;
-	vp.HWAngles.Yaw = -90.f + q16ang(newan).asdeg();
+	vp.HWAngles.Yaw = -90.f + newan.asdeg();
 
 	double FocalTangent = tan(vp.FieldOfView.Radians() / 2);
 	DAngle an = 270. - vp.HWAngles.Yaw.Degrees;
@@ -598,9 +598,9 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	angle_t af = di->FrustumAngle();
 	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
 
-	auto startan = gethiq16angle(line->x - newx, line->y - newy);
-	auto endan = gethiq16angle(wall[line->point2].x - newx, wall[line->point2].y - newy);
-	clipper->SafeAddClipRange(q16ang(startan), q16ang(endan));  // we check the line from the backside so angles are reversed.
+	auto startan = bvectangbam(line->x - newx, line->y - newy);
+	auto endan = bvectangbam(wall[line->point2].x - newx, wall[line->point2].y - newy);
+	clipper->SafeAddClipRange(startan, endan);  // we check the line from the backside so angles are reversed.
 	return true;
 }
 
@@ -647,10 +647,10 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	int dx2 = wall[line->point2].x - line->x;
 	int dy2 = wall[line->point2].y - line->y;
 
-	int srcang = gethiq16angle(dx, dy);
-	int destang = gethiq16angle(-dx, -dy);
+	auto srcang = bvectangbam(dx, dy);
+	auto destang = bvectangbam(-dx, -dy);
 
-	vp.RotAngle += q16ang(destang - srcang).asbam();
+	vp.RotAngle += (destang - srcang).asbam();
 #endif
 
 	// Nothing in the entire setup mandates that both lines have the same length.
@@ -670,9 +670,9 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	angle_t af = di->FrustumAngle();
 	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
 
-	auto startan = gethiq16angle(origin->x - origx, origin->y - origy);
-	auto endan = gethiq16angle(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
-	clipper->SafeAddClipRange(q16ang(endan), q16ang(startan));
+	auto startan = bvectangbam(origin->x - origx, origin->y - origy);
+	auto endan = bvectangbam(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
+	clipper->SafeAddClipRange(endan, startan);
 	return true;
 }
 
@@ -724,9 +724,9 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	angle_t af = di->FrustumAngle();
 	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
 
-	auto startan = gethiq16angle(origin->x - origx, origin->y - origy);
-	auto endan = gethiq16angle(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
-	clipper->SafeAddClipRange(q16ang(endan), q16ang(startan));
+	auto startan = bvectangbam(origin->x - origx, origin->y - origy);
+	auto endan = bvectangbam(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
+	clipper->SafeAddClipRange(endan, startan);
 	return true;
 }
 

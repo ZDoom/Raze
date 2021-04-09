@@ -377,7 +377,7 @@ binangle Clipper::PointToAngle(const vec2_t& pos)
 		return bamang(xs_Fix<30>::ToFix(result));
 	}
 #else
-	return q16ang(gethiq16angle(vec.x, vec.y));
+	return bvectangbam(vec.x, vec.y);
 #endif
 }
 
