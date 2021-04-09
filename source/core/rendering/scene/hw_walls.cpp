@@ -893,7 +893,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 
 #ifdef _DEBUG
-	if (wal - wall == 843)
+	if (wal - wall == 788)
 	{
 		int a = 0;
 	}
@@ -990,11 +990,14 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		{
 			float bch1a = bch1;
 			float bch2a = bch2;
-			if (ffh1 > bch1 && ffh2 > bch2)
+			if (ffh1 > bch1 || ffh2 > bch2)
 			{
-				// the back sector's floor obstructs part of this wall
-				bch2a = ffh2;
-				bch1a = ffh1;
+				// the back sector's floor obstructs part of this wall. Todo: Handle the portal case better.
+				if ((ffh1 > bch1 && ffh2 > bch2) || frontsector->portalflags == PORTAL_SECTOR_FLOOR)
+				{
+					bch2a = ffh2;
+					bch1a = ffh1;
+				}
 			}
 
 			if (bch1a < fch1 || bch2a < fch2)
@@ -1025,11 +1028,14 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		// lower texture
 		if (!(frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY))
 		{
-			if (fch1 < bfh1 && fch2 < bfh2)
+			if (fch1 < bfh1 || fch2 < bfh2)
 			{
-				// the back sector's ceiling obstructs part of this wall.
-				bfh1 = fch1;
-				bfh2 = fch2;
+				// the back sector's ceiling obstructs part of this wall. Todo: Handle the portal case better.
+				if ((fch1 < bfh1 && fch2 < bfh2) || frontsector->portalflags == PORTAL_SECTOR_CEILING)
+				{
+					bfh1 = fch1;
+					bfh2 = fch2;
+				}
 			}
 
 			if (bfh1 > ffh1 || bfh2 > ffh2)
