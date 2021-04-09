@@ -297,7 +297,7 @@ int BunchDrawer::WallInFront(int wall1, int wall2)
 	if ((t1 * t2) >= 0)
 	{
 		t2 = PointOnLineSide(viewx, viewy, x1s, y1s, dx, dy);
-		return((t2 * t1) < 0);
+		return((t2 * t1) <= 0);
 	}
 
 	dx = x2e - x2s;
@@ -313,7 +313,7 @@ int BunchDrawer::WallInFront(int wall1, int wall2)
 	if ((t1 * t2) >= 0)
 	{
 		t2 = PointOnLineSide(viewx, viewy, x2s, y2s, dx, dy);
-		return((t2 * t1) >= 0);
+		return((t2 * t1) > 0);
 	}
 	return(-2);
 }
@@ -525,7 +525,7 @@ void BunchDrawer::ProcessSector(int sectnum, bool portal)
 
 void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
-	//Printf("----------------------------------------- \n");
+	//Printf("----------------------------------------- \nstart at sector %d\n", viewsectors[0]);
 	auto process = [&]()
 	{
 		for (unsigned i = 0; i < sectcount; i++)
