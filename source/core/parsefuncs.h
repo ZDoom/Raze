@@ -51,6 +51,20 @@ void parseSkip(FScanner& sc, FScriptPosition& pos)
 	for (int i = 0; i < cnt; i++) if (!sc.GetNumber(true)) return;
 }
 
+void parseDefine(FScanner& sc, FScriptPosition& pos)
+{
+	FString name;
+	if (!sc.GetString(name))  return;
+	if (!sc.GetNumber()) return;
+	sc.AddSymbol(name, sc.Number);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, palette;
@@ -178,3 +192,54 @@ void parseAnimTileRange(FScanner& sc, FScriptPosition& pos)
 	processSetAnim("animtilerange", pos, set);
 }
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseAlphahack(FScanner& sc, FScriptPosition& pos)
+{
+	int tile;
+
+	if (!sc.GetNumber(tile, true)) return;
+	if (!sc.GetFloat(true)) return;
+	if ((unsigned)tile < MAXTILES) TileFiles.tiledata[tile].texture->alphaThreshold = (float)sc.Float;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseAlphahackRange(FScanner& sc, FScriptPosition& pos)
+{
+	int tilestart, tileend;
+
+	if (!sc.GetNumber(tilestart, true)) return;
+	if (!sc.GetNumber(tileend, true)) return;
+	if (!sc.GetFloat(true)) return;
+	if (!ValidateTileRange("alphahackrange", tilestart, tileend, pos)) return;
+
+	for (int i = tilestart; i <= tileend; i++)
+		TileFiles.tiledata[i].texture->alphaThreshold = (float)sc.Number;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseDefineTint(FScanner& sc, FScriptPosition& pos)
+{
+	int pal, r, g, b, f;
+
+	if (!sc.GetNumber(pal, true)) return;
+	if (!sc.GetNumber(r)) return;
+	if (!sc.GetNumber(g)) return;
+	if (!sc.GetNumber(b)) return;
+	if (!sc.GetNumber(f)) return;
+	lookups.setPaletteTint(pal, r, g, b, 0, 0, 0, f);
+}

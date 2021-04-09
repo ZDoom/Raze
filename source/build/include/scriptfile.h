@@ -113,12 +113,6 @@ inline void scriptfile_close(scriptfile *sf)
 	delete sf;
 }
 
-inline int32_t scriptfile_addsymbolvalue(scriptfile *sf, char const *name, int32_t val)
-{
-	sf->AddSymbol(name, val);
-	return 1;
-}
-
 typedef struct
 {
     const char *text;

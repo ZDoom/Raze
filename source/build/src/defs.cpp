@@ -2917,7 +2917,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             FStringf name("%s.%s", resName.GetChars(), resType.GetChars());
-            fileSystem.CreatePathlessCopy(resName, resID, 0);
+            fileSystem.CreatePathlessCopy(name, resID, 0);
         }
         break;
 
@@ -2930,34 +2930,44 @@ static int32_t defsparser(scriptfile *script)
     return 0;
 }
 
-
-int32_t loaddefinitionsfile(const char *fn, bool loadadds)
+int32_t loaddefinitionsfile(const char *fn, bool loadadds, bool cumulative)
 {
-    scriptfile *script;
-
-    script = scriptfile_fromfile(fn);
-
-    if (script)
+    bool done = false;
+    auto parseit = [&](int lump)
     {
-        Printf(PRINT_NONOTIFY, "Loading \"%s\"\n",fn);
+        FScanner sc;
+        sc.OpenLumpNum(lump);
+        sc.SetNoOctals(true);
+        sc.SetNoFatalErrors(true);
+        defsparser(&sc);
+        done = true;
+        Printf(PRINT_NONOTIFY, "\n");
+    };
 
-        defsparser(script);
+    if (!cumulative)
+    {
+        int lump = fileSystem.FindFile(fn);
+        if (lump >= 0)
+        {
+            Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fn);
+            parseit(lump);
+    }
+    }
+    else
+    {
+        int lump, lastlump = 0;
+        while ((lump = fileSystem.FindLumpFullName(fn, &lastlump)) >= 0)
+        {
+            Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump).GetChars());
+            parseit(lump);
+        }
     }
 
     if (userConfig.AddDefs && loadadds) for (auto& m : *userConfig.AddDefs)
 	{
 		Printf("Loading module \"%s\"\n",m.GetChars());
-        defsparser_include(m, NULL, NULL); // Q: should we let the external script see our symbol table?
+        defsparser_include(m, nullptr, nullptr); // Q: should we let the external script see our symbol table?
+        Printf(PRINT_NONOTIFY, "\n");
 	}
-
-    if (script)
-        scriptfile_close(script);
-
-    if (!script) return -1;
-
-    Printf(PRINT_NONOTIFY, "\n");
-
     return 0;
 }
-
-// vim:ts=4:

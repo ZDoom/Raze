@@ -65,6 +65,7 @@ struct UserConfig
 {
 	FString gamegrp;
 	FString CommandMap;
+	FString UserDef;
 	FString DefaultDef;
 	FString DefaultCon;
 	FString CommandDemo;
