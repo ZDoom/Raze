@@ -133,21 +133,24 @@ FileReader OpenMusic(const char* musicname)
 	if (!reader.isOpen())
 	{
 		int lumpnum = LookupMusic(musicname);
-		if (mus_extendedlookup && lumpnum >= 0)
+		if (mus_extendedlookup || lumpnum < 0)
 		{
-			// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
-			auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
-			auto rfbase = ExtractFileBase(rfn);
-			FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
-			int newlumpnum = LookupMusic(aliasMusicname);
-			if (newlumpnum >= 0) lumpnum = newlumpnum;
-		}
-		if (lumpnum == -1)
-		{
+			if (lumpnum >= 0)
+			{
+				// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
+				auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
+				auto rfbase = ExtractFileBase(rfn);
+				FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
+				int newlumpnum = LookupMusic(aliasMusicname);
+				if (newlumpnum >= 0) lumpnum = newlumpnum;
+			}
+
 			// Always look in the 'music' subfolder as well. This gets used by multiple setups to store ripped CD tracks.
 			FStringf aliasMusicname("music/%s", musicname);
-			lumpnum = LookupMusic(aliasMusicname);
+			int newlumpnum = LookupMusic(aliasMusicname, lumpnum >= 0);
+			if (newlumpnum >= 0) lumpnum = newlumpnum;
 		}
+
 		if (lumpnum == -1 && (g_gameType & GAMEFLAG_SW))
 		{
 			// Some Shadow Warrior distributions have the music in a subfolder named 'classic'. Check that, too.

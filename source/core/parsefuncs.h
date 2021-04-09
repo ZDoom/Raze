@@ -243,3 +243,4 @@ void parseDefineTint(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(f)) return;
 	lookups.setPaletteTint(pal, r, g, b, 0, 0, 0, f);
 }
+ 
