@@ -86,6 +86,128 @@ void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
+static void parseTexturePaletteBlock(FScanner& sc, FScriptPosition& pos, int tile)
+{
+	FScanner::SavedPos blockend;
+
+	int pal = -1, xsiz = 0, ysiz = 0;
+	FString fn;
+	double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+
+	if (!sc.GetNumber(pal, true)) return;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.GetString();
+		if (sc.Compare("file")) sc.GetString(fn);
+		else if (sc.Compare("alphacut")) sc.GetFloat(alphacut, true);
+		else if (sc.Compare({ "xscale", "scale", "intensity", "detailscale" })) sc.GetFloat(xscale, true); // what's the point of all of these names?
+		else if (sc.Compare("yscale")) sc.GetFloat(yscale, true);
+		else if (sc.Compare({ "specpower", "specularpower", "parallaxscale" })) sc.GetFloat(specpower, true);
+		else if (sc.Compare({ "specfactor", "specularfactor", "parallaxbias" })) sc.GetFloat(specfactor, true);
+		else if (sc.Compare("orig_sizex")) sc.GetNumber(xsiz, true);
+		else if (sc.Compare("orig_sizey")) sc.GetNumber(ysiz, true);
+	};
+
+	if ((unsigned)tile < MAXUSERTILES)
+	{
+		if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
+		{
+			pos.Message(MSG_ERROR, "missing or invalid 'palette number' for texture definition");
+		}
+		else if (fn.IsEmpty())
+		{
+			pos.Message(MSG_ERROR, "missing 'file name' for texture definition");
+		}
+		else if (!fileSystem.FileExists(fn))
+		{
+			pos.Message(MSG_ERROR, "%s not found in replacement for tile %d", fn.GetChars(), tile);
+		}
+		else
+		{
+			if (xsiz > 0 && ysiz > 0)
+			{
+				tileSetDummy(tile, xsiz, ysiz);
+			}
+			xscale = 1.0f / xscale;
+			yscale = 1.0f / yscale;
+
+			tileSetHightileReplacement(tile, pal, fn, alphacut, xscale, yscale, specpower, specfactor);
+		}
+	}
+}
+
+static void parseTextureSpecialBlock(FScanner& sc, FScriptPosition& pos, int tile, int specialpal)
+{
+	FScanner::SavedPos blockend;
+
+	int pal = -1;
+	FString fn;
+	double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+
+	if (!sc.GetNumber(pal, true)) return;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.GetString();
+		if (sc.Compare("file")) sc.GetString(fn);
+		else if (sc.Compare({ "xscale", "scale", "intensity", "detailscale" })) sc.GetFloat(xscale, true); // what's the point of all of these names?
+		else if (sc.Compare("yscale")) sc.GetFloat(yscale, true);
+		else if (sc.Compare({ "specpower", "specularpower", "parallaxscale" })) sc.GetFloat(specpower, true);
+		else if (sc.Compare({ "specfactor", "specularfactor", "parallaxbias" })) sc.GetFloat(specfactor, true);
+	};
+
+	if ((unsigned)tile < MAXUSERTILES)
+	{
+		if (fn.IsEmpty())
+		{
+			pos.Message(MSG_ERROR, "missing 'file name' for texture definition");
+		}
+		else if (!fileSystem.FileExists(fn))
+		{
+			pos.Message(MSG_ERROR, "%s not found in replacement for tile %d", fn.GetChars(), tile);
+		}
+		else
+		{
+			if (pal == DETAILPAL)
+			{
+				xscale = 1.0f / xscale;
+				yscale = 1.0f / yscale;
+			}
+
+			tileSetHightileReplacement(tile, pal, fn, -1.f, xscale, yscale, specpower, specfactor);
+		}
+	}
+}
+
+void parseTexture(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int tile = -1;
+
+	if (!sc.GetNumber(tile, true)) return;
+	ValidateTilenum("texture", tile, pos); // do not abort, we still need to parse over the data.
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("pal")) parseTexturePaletteBlock(sc, pos, tile);
+		else if (sc.Compare("detail")) parseTextureSpecialBlock(sc, pos, tile, DETAILPAL);
+		else if (sc.Compare("glow")) parseTextureSpecialBlock(sc, pos, tile, GLOWPAL);
+		else if (sc.Compare("specular")) parseTextureSpecialBlock(sc, pos, tile, SPECULARPAL);
+		else if (sc.Compare("normal")) parseTextureSpecialBlock(sc, pos, tile, NORMALPAL);
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, palette;
@@ -110,30 +232,30 @@ void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
 
 void parseSkybox(FScanner& sc, FScriptPosition& pos)
 {
-    FString faces[6];
-    FScanner::SavedPos blockend;
-    int32_t tile = -1, pal = 0;
+	FString faces[6];
+	FScanner::SavedPos blockend;
+	int tile = -1, pal = 0;
 
-    if (sc.StartBraces(&blockend)) return;
-    while (!sc.FoundEndBrace(blockend))
-    {
-        sc.GetString();
-        if (sc.Compare("tile")) sc.GetNumber(tile, true);
-        else if (sc.Compare("pal")) sc.GetNumber(pal, true);
-        else if (sc.Compare({ "ft", "front", "forward" })) sc.GetString(faces[0]);
-        else if (sc.Compare({ "rt", "right" })) sc.GetString(faces[1]);
-        else if (sc.Compare({ "bk", "back" })) sc.GetString(faces[2]);
-        else if (sc.Compare({ "lt", "lf", "left" })) sc.GetString(faces[3]);
-        else if (sc.Compare({ "up", "ceiling", "top", "ceil" })) sc.GetString(faces[4]);
-        else if (sc.Compare({ "dn", "floor", "bottom", "down" })) sc.GetString(faces[5]);
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("tile")) sc.GetNumber(tile, true);
+		else if (sc.Compare("pal")) sc.GetNumber(pal, true);
+		else if (sc.Compare({ "ft", "front", "forward" })) sc.GetString(faces[0]);
+		else if (sc.Compare({ "rt", "right" })) sc.GetString(faces[1]);
+		else if (sc.Compare({ "bk", "back" })) sc.GetString(faces[2]);
+		else if (sc.Compare({ "lt", "lf", "left" })) sc.GetString(faces[3]);
+		else if (sc.Compare({ "up", "ceiling", "top", "ceil" })) sc.GetString(faces[4]);
+		else if (sc.Compare({ "dn", "floor", "bottom", "down" })) sc.GetString(faces[5]);
 		// skip over everything else.
-    }
+	}
 	if (tile < 0)
 	{
 		pos.Message(MSG_ERROR, "skybox: missing tile number");
 		return;
 	}
-    tileSetSkybox(tile, pal, faces);
+	tileSetSkybox(tile, pal, faces);
 }
 
 //===========================================================================

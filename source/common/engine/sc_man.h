@@ -130,6 +130,15 @@ public:
 	}
 
 	bool GetFloat(bool evaluate = false);
+
+	bool GetFloat(double& var, bool evaluate = false)
+	{
+		if (!GetFloat(evaluate)) return false;
+		var = Float;
+		return true;
+	}
+
+
 	void MustGetFloat(bool evaluate = false);
 	bool CheckFloat(bool evaluate = false);
 
