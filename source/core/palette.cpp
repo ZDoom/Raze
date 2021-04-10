@@ -268,16 +268,13 @@ void LookupTableInfo::postLoadLookups()
                 {
                     const uint8_t* lookup = (uint8_t*)tables[l].Shades.GetChars();
                     FRemapTable remap;
-                    if (i == 0 || (palette != basepalette && !palette->TwodOnly))
+                    memcpy(remap.Remap, lookup, 256);
+                    for (int j = 0; j < 256; j++)
                     {
-                        memcpy(remap.Remap, lookup, 256);
-                        for (int j = 0; j < 256; j++)
-                        {
-                            remap.Palette[j] = palette->Palette[remap.Remap[j]];
-                        }
-                        remap.NumEntries = 256;
-                        GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
+                        remap.Palette[j] = palette->Palette[remap.Remap[j]];
                     }
+                    remap.NumEntries = 256;
+                    GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
                 }
             }
         }
