@@ -144,7 +144,29 @@ public:
 
 	void DumpClipper();
     
-    binangle PointToAngle(const vec2_t& point);
+	binangle PointToAngle(const vec2_t& pos)
+	{
+		vec2_t vec = pos - viewpoint;
+#if 0
+
+		if (vec.x == 0 && vec.y == 0)
+		{
+			return bamang(0);
+		}
+		else
+		{
+			double result = vec.y / double(abs(vec.x) + fabs(vec.y));
+			if (vec.x < 0)
+			{
+				result = 2. - result;
+			}
+			return bamang(xs_Fix<30>::ToFix(result));
+		}
+#else
+		return bvectangbam(vec.x, vec.y);
+#endif
+	}
+
 
 };
 
