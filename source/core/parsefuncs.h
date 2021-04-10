@@ -48,7 +48,7 @@ void tileRemoveReplacement(int num);
 template<int cnt>
 void parseSkip(FScanner& sc, FScriptPosition& pos)
 {
-	for (int i = 0; i < cnt; i++) if (!sc.GetNumber(true)) return;
+	for (int i = 0; i < cnt; i++) if (!sc.GetString()) return;
 }
 
 void parseDefine(FScanner& sc, FScriptPosition& pos)
@@ -366,3 +366,41 @@ void parseDefineTint(FScanner& sc, FScriptPosition& pos)
 	lookups.setPaletteTint(pal, r, g, b, 0, 0, 0, f);
 }
  
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseFogpal(FScanner& sc, FScriptPosition& pos)
+{
+	int pal, r, g, b;
+
+	if (!sc.GetNumber(pal, true)) return;
+	if (!sc.GetNumber(r)) return;
+	if (!sc.GetNumber(g)) return;
+	if (!sc.GetNumber(b)) return;
+
+	r = clamp(r, 0, 63);
+	g = clamp(g, 0, 63);
+	b = clamp(b, 0, 63);
+
+	lookups.makeTable(pal, nullptr, r << 2, g << 2, b << 2, 1);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseNoFloorpalRange(FScanner& sc, FScriptPosition& pos)
+{
+	int start, end;
+	if (!sc.GetNumber(start, true)) return;
+	if (!sc.GetNumber(end, true)) return;
+	if (start > 1) start = 1;
+	if (end > MAXPALOOKUPS - 1) end = MAXPALOOKUPS - 1;
+	for (int i = start; i <= end; i++)
+		lookups.tables[i].noFloorPal = true;
+}

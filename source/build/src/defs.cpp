@@ -325,6 +325,19 @@ static int32_t defsparser(scriptfile *script)
         case T_INCLUDEDEFAULT:
             defsparser_include(G_DefaultDefFile(), script, &pos);
             break;
+        case T_LOADGRP:
+        case T_CACHESIZE:
+        case T_SHADEFACTOR:
+        case T_GLOBALGAMEFLAGS:
+            parseSkip<1>(*script, pos);
+            break;
+        case T_SPRITECOL:
+        case T_2DCOLIDXRANGE:  // NOTE: takes precedence over 2dcol, see InitCustomColors()
+            parseSkip<3>(*script, pos);
+            break;
+        case T_2DCOL:
+            parseSkip<4>(*script, pos);
+            break;
         case T_DEFINE:
             parseDefine(*script, pos);
             break;
@@ -343,58 +356,11 @@ static int32_t defsparser(scriptfile *script)
         case T_ALPHAHACKRANGE:
             parseAlphahackRange(*script, pos);
             break;
-        case T_SPRITECOL:
-        case T_2DCOLIDXRANGE:  // NOTE: takes precedence over 2dcol, see InitCustomColors()
-            parseSkip<3>(*script, pos);
-            break;
-        case T_2DCOL:
-            parseSkip<4>(*script, pos);
-            break;
         case T_FOGPAL:
-        {
-            int32_t p,r,g,b;
-
-            if (scriptfile_getsymbol(script,&p)) break;
-            if (scriptfile_getnumber(script,&r)) break;
-            if (scriptfile_getnumber(script,&g)) break;
-            if (scriptfile_getnumber(script,&b)) break;
-
-            r = clamp(r, 0, 63);
-            g = clamp(g, 0, 63);
-            b = clamp(b, 0, 63);
-
-            lookups.makeTable(p, NULL, r<<2, g<<2, b<<2, 1);
-        }
-        break;
+            parseFogpal(*script, pos);
+            break;
         case T_NOFLOORPALRANGE:
-        {
-            int32_t b,e,i;
-
-            if (scriptfile_getsymbol(script,&b)) break;
-            if (scriptfile_getsymbol(script,&e)) break;
-
-            b = max(b, 1);
-            e = min(e, MAXPALOOKUPS-1);
-
-            for (i = b; i <= e; i++)
-                lookups.tables[i].noFloorPal = true;
-        }
-        break;
-        case T_LOADGRP:
-        {
-            scriptfile_getstring(script,nullptr);
-#if 0
-            if (!scriptfile_getstring(pScript, &fileName) && firstPass)
-            {
-                fileSystem.AddAdditionalFile(fileName);
-            }
-#endif
-        }
-        break;
-        case T_CACHESIZE:
-        case T_SHADEFACTOR:
-        case T_GLOBALGAMEFLAGS:
-            parseSkip<1>(*script, pos);
+            parseNoFloorpalRange(*script, pos);
             break;
         case T_ARTFILE:
         {
