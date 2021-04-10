@@ -717,9 +717,6 @@ static TArray<GrpEntry> SetupGame()
 	if (groupno == -1) return TArray<GrpEntry>();
 	auto& group = groups[groupno];
 
-	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
-	else I_SetWindowTitle(group.FileInfo.name);
-
 	// Now filter out the data we actually need and delete the rest.
 
 	usedgroups.Push(group);
@@ -818,6 +815,8 @@ void CreateStatusBar()
 
 int RunGame()
 {
+	GameStartupInfo.FgColor = 0xffffff;
+
 	// Set up the console before anything else so that it can receive text.
 	C_InitConsole(1024, 768, true);
 
@@ -836,6 +835,19 @@ int RunGame()
 	G_LoadConfig();
 	auto usedgroups = SetupGame();
 
+	for (auto& grp : usedgroups)
+	{
+		if (grp.FileInfo.name.IsNotEmpty())
+		{
+			if (GameStartupInfo.Name.IsEmpty()) GameStartupInfo.Name = grp.FileInfo.name;
+			if (grp.FileInfo.FgColor != grp.FileInfo.BgColor && (GameStartupInfo.FgColor != 0 || GameStartupInfo.BkColor != 0))
+			{
+				GameStartupInfo.FgColor = grp.FileInfo.FgColor;
+				GameStartupInfo.BkColor = grp.FileInfo.BgColor;
+			}
+		}
+	}
+	I_SetIWADInfo();
 
 	InitFileSystem(usedgroups);
 	if (usedgroups.Size() == 0) return 0;
@@ -927,6 +939,7 @@ int RunGame()
 	lookups.postLoadTables();
 	PostLoadSetup();
 	videoInit();
+	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
 
 	D_CheckNetGame();
 	UpdateGenericUI(ui_generic);
