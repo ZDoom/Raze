@@ -62,7 +62,6 @@ static int8_t tempbuf[MAXWALLS];
 
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
-static int32_t qradarang[10240];
 
 const char *engineerrstr = "No error";
 
@@ -214,11 +213,6 @@ static int32_t engineLoadTables(void)
             radarang[i] = atan((639.5 - i) / 160.) * (-64. / BAngRadian);
         for (i=0; i<640; i++)
             radarang[1279-i] = -radarang[i];
-
-        for (i=0; i<5120; i++)
-            qradarang[i] = FloatToFixed(atan((5119.5 - i) / 1280.) * (-64. / BAngRadian));
-        for (i=0; i<5120; i++)
-            qradarang[10239-i] = -qradarang[i];
 
         tablesloaded = 1;
     }
@@ -873,26 +867,6 @@ int32_t getangle(int32_t xvect, int32_t yvect)
     return rv;
 }
 
-fixed_t gethiq16angle(int32_t xvect, int32_t yvect)
-{
-    fixed_t rv;
-
-    if ((xvect | yvect) == 0)
-        rv = 0;
-    else if (xvect == 0)
-        rv = IntToFixed(512 + ((yvect < 0) << 10));
-    else if (yvect == 0)
-        rv = IntToFixed(((xvect < 0) << 10));
-    else if (xvect == yvect)
-        rv = IntToFixed(256 + ((xvect < 0) << 10));
-    else if (xvect == -yvect)
-        rv = IntToFixed(768 + ((xvect > 0) << 10));
-    else if (abs(xvect) > abs(yvect))
-        rv = ((qradarang[5120 + Scale(1280, yvect, xvect)] >> 6) + IntToFixed(((xvect < 0) << 10))) & 0x7FFFFFF;
-    else rv = ((qradarang[5120 - Scale(1280, xvect, yvect)] >> 6) + IntToFixed(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
-
-    return rv;
-}
 
 // Gets the BUILD unit height and z offset of a sprite.
 // Returns the z offset, 'height' may be NULL.

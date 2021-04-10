@@ -436,7 +436,6 @@ inline int32_t ksqrt(uint32_t num)
 }
 
 int32_t   getangle(int32_t xvect, int32_t yvect);
-fixed_t   gethiq16angle(int32_t xvect, int32_t yvect);
 
 inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {

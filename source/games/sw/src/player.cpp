@@ -5471,7 +5471,7 @@ DoPlayerStopOperate(PLAYERp pp)
         if (TEST_BOOL1(pp->remote_sprite))
             pp->angle.ang = pp->angle.oang = buildang(pp->remote_sprite->ang);
         else
-            pp->angle.ang = pp->angle.oang = q16ang(gethiq16angle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
+            pp->angle.ang = pp->angle.oang = bvectangbam(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
     }
 
     if (pp->sop_control)
