@@ -881,7 +881,8 @@ int RunGame()
 
 	V_InitScreenSize();
 	V_InitScreen();
-	StartScreen = FStartupScreen::CreateInstance(100);
+	StartScreen = FStartupScreen::CreateInstance(8);
+	StartScreen->Progress();
 
 	TArray<FString> addArt;
 	for (auto& grp : usedgroups)
@@ -911,15 +912,20 @@ int RunGame()
 	GameTicRate = 30;
 	CheckUserMap();
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
+	StartScreen->Progress();
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
+	StartScreen->Progress();
 	TileFiles.Init();
+	StartScreen->Progress();
 	I_InitSound();
+	StartScreen->Progress();
 	Mus_InitMusic();
 	S_ParseSndInfo();
 	S_ParseReverbDef();
 	InitStatistics();
 	LoadScripts();
+	StartScreen->Progress();
 	SetDefaultStrings();
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
@@ -927,11 +933,14 @@ int RunGame()
 	enginePreInit();
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
+	StartScreen->Progress();
 	gi->app_init();
+	StartScreen->Progress();
 	CreateStatusBar();
 	SetDefaultMenuColors();
 	M_Init();
 	BuildGameMenus();
+	StartScreen->Progress();
 	if (!(paletteloaded & PALETTE_MAIN))
 		I_FatalError("No palette found.");
 
