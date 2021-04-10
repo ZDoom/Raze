@@ -46,10 +46,6 @@
 #include "hw_viewpointbuffer.h"
 #include "hw_voxels.h"
 
-extern PalEntry GlobalMapFog;
-extern float GlobalFogDensity;
-
-
 //==========================================================================
 //
 // 
@@ -114,36 +110,15 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	}
 
 	// Fog must be done before the texture so that the texture selector can override it.
-	bool foggy = (GlobalMapFog || (fade & 0xffffff));
-	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
 	// Disable brightmaps if non-black fog is used.
 	int shade = this->shade;
-	PalEntry color(255, globalr, globalg, globalb);
 	if (this->shade > numshades) // handling of SW's shadow hack using a shade of 127.
 	{
 		shade = sector[sprite->sectnum].floorshade;
-		color = 0xff000000;
-	}
-	shade = clamp(shade, 0, numshades - 1);
-
-	if (ShadeDiv >= 1 / 1000.f && foggy && !foglayer)
-	{
-		state.EnableFog(1);
-		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
-		state.SetSoftLightLevel(255);
-		state.SetLightParms(128.f, 1 / 1000.f);
-	}
-	else
-	{
-		state.EnableFog(0);
-		state.SetFog(0, 0);
-		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
-		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
+		state.SetColor(0, 0, 0, alpha);
 	}
 
-	// The shade rgb from the tint is ignored here.
-	state.SetColorAlpha(color, alpha);
+	SetLightAndFog(state, fade, palette, shade, visibility, alpha, this->shade <= numshades);
 
 	if (modelframe == 0)
 	{
@@ -158,15 +133,20 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		state.SetLightIndex(-1);
 		state.Draw(DT_TriangleStrip, vertexindex, 4);
 
-		if (ShadeDiv >= 1 / 1000.f && foggy && foglayer)
+		if (foglayer)
 		{
-			// If we get here we know that we have colored fog and no fixed colormap.
-			float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-			state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
-			state.SetTextureMode(TM_FOGLAYER);
-			state.SetRenderStyle(STYLE_Translucent);
-			state.Draw(DT_TriangleStrip, vertexindex, 4);
-			state.SetTextureMode(TM_NORMAL);
+			bool foggy = (GlobalMapFog || (fade & 0xffffff));
+			auto ShadeDiv = lookups.tables[palette].ShadeFactor;
+			if (ShadeDiv >= 1 / 1000.f && foggy)
+			{
+				// If we get here we know that we have colored fog and no fixed colormap.
+				float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
+				state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
+				state.SetTextureMode(TM_FOGLAYER);
+				state.SetRenderStyle(STYLE_Translucent);
+				state.Draw(DT_TriangleStrip, vertexindex, 4);
+				state.SetTextureMode(TM_NORMAL);
+			}
 		}
 	}
 	else

@@ -39,9 +39,6 @@
 #include "flatvertices.h"
 #include "glbackend/glbackend.h"
 
-extern PalEntry GlobalMapFog;
-extern float GlobalFogDensity;
-
 //==========================================================================
 //
 // Create vertices for one wall
@@ -104,7 +101,7 @@ void HWWall::RenderFogBoundary(HWDrawInfo *di, FRenderState &state)
 	if (gl_fogmode)// && !di->isFullbrightScene())
 	{
 		state.EnableDrawBufferAttachments(false);
-		SetLightAndFog(state);
+		SetLightAndFog(state, fade, palette, shade, visibility, alpha);
 		state.SetEffect(EFF_FOGBOUNDARY);
 		state.AlphaFunc(Alpha_GEqual, 0.f);
 		state.SetDepthBias(-1, -128);
@@ -113,38 +110,6 @@ void HWWall::RenderFogBoundary(HWDrawInfo *di, FRenderState &state)
 		state.SetEffect(EFF_NONE);
 		state.EnableDrawBufferAttachments(true);
 	}
-}
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
-void HWWall::SetLightAndFog(FRenderState& state)
-{
-	// Fog must be done before the texture so that the texture selector can override it.
-	bool foggy = (GlobalMapFog || (fade & 0xffffff));
-	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
-	// Disable brightmaps if non-black fog is used.
-	if (ShadeDiv >= 1 / 1000.f && foggy)
-	{
-		state.EnableFog(1);
-		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
-		state.SetSoftLightLevel(255);
-		state.SetLightParms(128.f, 1 / 1000.f);
-	}
-	else
-	{
-		state.EnableFog(0);
-		state.SetFog(0, 0);
-		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
-		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
-	}
-
-	// The shade rgb from the tint is ignored here.
-	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
 }
 
 //==========================================================================
@@ -163,7 +128,7 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 	// Use sphere mapping for this
 	state.SetEffect(EFF_SPHEREMAP);
-	SetLightAndFog(state);
+	SetLightAndFog(state, fade, palette, shade, visibility, alpha, false);
 	state.SetColor(PalEntry(25, globalr >> 1, globalg >> 1, globalb >> 1));
 
 	state.SetRenderStyle(STYLE_Add);
@@ -190,7 +155,7 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
-	SetLightAndFog(state);
+	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
 	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr ? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	int h = (int)texture->GetDisplayHeight();
