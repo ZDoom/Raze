@@ -366,24 +366,14 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, 
 
 //---------------------------------------------------------------------------
 //
-// Constants and functions for use with fixedhoriz and friendly functions.
+// Functions for use with fixedhoriz and friendly functions.
 //
 //---------------------------------------------------------------------------
 
-// 280039127 is the maximum horizon in Q16.16 the engine will handle before wrapping around.
-constexpr double horizDiff = 280039127 * 3. / 100.;
-
-// Degrees needed to convert horizAngle into pitch degrees.
-constexpr double horizDegrees = 183.503609961216825;
-
-// Ratio to convert inverse tangent to -90/90 degrees of pitch.
-constexpr double horizRatio = horizDegrees / pi::pi();
-
-// Horizon conversion functions.
-inline double HorizToPitch(double horiz) { return atan2(horiz, horizDiff / 65536.) * horizRatio; }
-inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, horizDiff) * horizRatio; }
-inline fixed_t PitchToHoriz(double horizAngle) { return xs_CRoundToInt(horizDiff * tan(horizAngle * (pi::pi() / horizDegrees))); }
-inline int32_t PitchToBAM(double horizAngle) { return xs_CRoundToInt(clamp(horizAngle * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
+inline double HorizToPitch(double horiz) { return atan2(horiz, 128) * (180. / pi::pi()); }
+inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, IntToFixed(128)) * (180. / pi::pi()); }
+inline fixed_t PitchToHoriz(double pitch) { return xs_CRoundToInt(IntToFixed(128) * tan(pitch * (pi::pi() / 180.))); }
+inline int32_t PitchToBAM(double pitch) { return xs_CRoundToInt(clamp(pitch * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
 inline constexpr double BAMToPitch(int32_t bam) { return bam * (45. / 1073741823.5); }
 
 
