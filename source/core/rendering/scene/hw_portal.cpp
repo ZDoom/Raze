@@ -574,7 +574,10 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	int newx = int((x << 1) + Scale(dx, i, j) - view.x);
 	int newy = int((y << 1) + Scale(dy, i, j) - view.y);
-	auto newan = bamang(int64_t((bvectangf(dx, dy) * (BAMUNIT << 1)) - vp.RotAngle) & 0xFFFFFFFF);
+
+	auto myan = bvectangbam(dx, dy);
+	auto newan = myan + myan - bamang(vp.RotAngle);
+
 	vp.RotAngle = newan.asbam();
 	vp.SectNums = nullptr;
 	vp.SectCount = line->sector;
