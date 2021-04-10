@@ -1075,7 +1075,6 @@ set (FASTMATH_SOURCES ${FASTMATH_SOURCES})
 set (PCH_SOURCES
 
 	glbackend/glbackend.cpp
-	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
 
 	thirdparty/src/md4.cpp
@@ -1086,7 +1085,6 @@ set (PCH_SOURCES
 	build/src/engine.cpp
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
-	build/src/voxmodel.cpp
 
 	core/movie/playmve.cpp
 	core/automap.cpp
@@ -1134,6 +1132,8 @@ set (PCH_SOURCES
 	
 	core/rendering/hw_entrypoint.cpp
 	core/rendering/hw_models.cpp
+	core/rendering/hw_voxels.cpp
+	core/rendering/hw_palmanager.cpp
 	core/rendering/scene/hw_clipper.cpp
 	core/rendering/scene/hw_walls.cpp
 	core/rendering/scene/hw_flats.cpp

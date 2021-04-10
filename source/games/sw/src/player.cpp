@@ -5471,7 +5471,7 @@ DoPlayerStopOperate(PLAYERp pp)
         if (TEST_BOOL1(pp->remote_sprite))
             pp->angle.ang = pp->angle.oang = buildang(pp->remote_sprite->ang);
         else
-            pp->angle.ang = pp->angle.oang = q16ang(gethiq16angle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
+            pp->angle.ang = pp->angle.oang = bvectangbam(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
     }
 
     if (pp->sop_control)
@@ -7148,7 +7148,9 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].angle.settarget(bvectangf(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy));
+            int deltax = Player[myconnectindex].posx - Player[screenpeek].posx;
+            int deltay = Player[myconnectindex].posy - Player[screenpeek].posy;
+            Player[screenpeek].angle.settarget(bvectangbam(deltax, deltay));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))

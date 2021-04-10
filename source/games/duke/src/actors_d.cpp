@@ -3697,7 +3697,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		{
 			static int16_t list1[] = { BLOODPOOL, PUKE, FOOTPRINTS, FOOTPRINTS2, FOOTPRINTS3, FOOTPRINTS4, BULLETHOLE, BLOODSPLAT1, BLOODSPLAT2, BLOODSPLAT3, BLOODSPLAT4, -1 };
 			static int16_t list2[] = { BOLT1, BOLT1 + 1,BOLT1 + 2, BOLT1 + 3, SIDEBOLT1, SIDEBOLT1 + 1, SIDEBOLT1 + 2, SIDEBOLT1 + 3, -1 };
-			handle_se24(act, list1, list2, TRIPBOMB, LASERLINE, CRANE, 2);
+			handle_se24(act, list1, list2, false, TRIPBOMB, LASERLINE, CRANE, 2);
 			break;
 		}
 		case SE_35:

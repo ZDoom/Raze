@@ -40,6 +40,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "razemenu.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
+#include "hw_voxels.h"
 
 BEGIN_SW_NS
 
@@ -231,7 +232,7 @@ void LoadKVXFromScript(const char* filename)
         GetToken(false);
 
         // Load the voxel file into memory
-        if (!qloadkvx(lNumber,token))
+        if (!voxDefine(lNumber,token))
         {
             // Store the sprite and voxel numbers for later use
             aVoxelArray[lTile].Voxel = lNumber; // Voxel num

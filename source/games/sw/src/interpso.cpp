@@ -110,8 +110,10 @@ static void so_setpointinterpolation(so_interp *interp, int element)
         return;
 
     for (i = 0; i < interp->numinterpolations; i++)
+    {
         if (interp->data[i].curelement == element)
             return;
+    }
 
     so_interp::interp_data *data = &interp->data[interp->numinterpolations++];
 
@@ -129,7 +131,7 @@ static void so_setspriteanginterpolation(so_interp *interp, int32_t spritenum)
         return;
 
     for (i = 0; i < interp->numinterpolations; i++)
-        if (interp->data[i].curelement == -1)
+        if (interp->data[i].curelement == -1 && interp->data[i].spriteofang == spritenum)
             return;
 
     so_interp::interp_data *data = &interp->data[interp->numinterpolations++];
@@ -148,8 +150,15 @@ static void so_stopdatainterpolation(so_interp *interp, int element)
     int32_t i;
 
     for (i = 0; i < interp->numinterpolations; i++)
-        if (interp->data[i].curelement == element)
+    {
+        if (interp->data[i].curelement == -1)
+        {
+            if (interp->data[i].spriteofang == element) break;
+        }
+        else if (interp->data[i].curelement == element)
             break;
+
+    }
 
     if (i == interp->numinterpolations)
         return;
@@ -219,7 +228,7 @@ void so_setspriteinterpolation(SECTOR_OBJECTp sop, spritetype *sp)
     so_setpointinterpolation(interp, snum | soi_spry);
     if (!interp->hasvator)
         so_setpointinterpolation(interp, snum | soi_sprz);
-    so_setspriteanginterpolation(interp, int(sp - sprite));
+    so_setspriteanginterpolation(interp, snum);
 }
 
 void so_stopspriteinterpolation(SECTOR_OBJECTp sop, spritetype *sp)

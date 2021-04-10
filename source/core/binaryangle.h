@@ -366,24 +366,14 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, 
 
 //---------------------------------------------------------------------------
 //
-// Constants and functions for use with fixedhoriz and friendly functions.
+// Functions for use with fixedhoriz and friendly functions.
 //
 //---------------------------------------------------------------------------
 
-// 280039127 is the maximum horizon in Q16.16 the engine will handle before wrapping around.
-constexpr double horizDiff = 280039127 * 3. / 100.;
-
-// Degrees needed to convert horizAngle into pitch degrees.
-constexpr double horizDegrees = 183.503609961216825;
-
-// Ratio to convert inverse tangent to -90/90 degrees of pitch.
-constexpr double horizRatio = horizDegrees / pi::pi();
-
-// Horizon conversion functions.
-inline double HorizToPitch(double horiz) { return atan2(horiz, horizDiff / 65536.) * horizRatio; }
-inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, horizDiff) * horizRatio; }
-inline fixed_t PitchToHoriz(double horizAngle) { return xs_CRoundToInt(horizDiff * tan(horizAngle * (pi::pi() / horizDegrees))); }
-inline int32_t PitchToBAM(double horizAngle) { return xs_CRoundToInt(clamp(horizAngle * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
+inline double HorizToPitch(double horiz) { return atan2(horiz, 128) * (180. / pi::pi()); }
+inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, IntToFixed(128)) * (180. / pi::pi()); }
+inline fixed_t PitchToHoriz(double pitch) { return xs_CRoundToInt(IntToFixed(128) * tan(pitch * (pi::pi() / 180.))); }
+inline int32_t PitchToBAM(double pitch) { return xs_CRoundToInt(clamp(pitch * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
 inline constexpr double BAMToPitch(int32_t bam) { return bam * (45. / 1073741823.5); }
 
 
@@ -512,54 +502,11 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj
 
 //---------------------------------------------------------------------------
 //
-// Double-precision implementation of `getangle()` with associated wrappers and helper functions.
+// High precision vector angle function, mainly for the renderer.
 //
 //---------------------------------------------------------------------------
 
-inline double bradarangf(double vect)
-{
-	return atan(vect) * BRadAngScale;
-}
-inline double bvectangf(int32_t x, int32_t y)
-{
-	if ((x | y) == 0)
-	{
-		return 0;
-	}
-	else if (x == 0)
-	{
-		return 512 + ((y < 0) << 10);
-	}
-	else if (y == 0)
-	{
-		return ((x < 0) << 10);
-	}
-	else if (x == y)
-	{
-		return 256 + ((x < 0) << 10);
-	}
-	else if (x == -y)
-	{
-		return 768 + ((x > 0) << 10);
-	}
-	else if (abs(x) > abs(y))
-	{
-		return fmod(bradarangf(double(y) / x) + ((x < 0) << 10), 2048.);
-	}
-	else
-	{
-		return fmod(bradarangf(double(x) / -y) + 512 + ((y < 0) << 10), 2048.);
-	}
-}
-inline int32_t bvectang(int32_t x, int32_t y)
-{
-	return xs_CRoundToInt(bvectangf(x, y));
-}
-inline fixed_t bvectangq16(int32_t x, int32_t y)
-{
-	return FloatToFixed(bvectangf(x, y));
-}
 inline binangle bvectangbam(int32_t x, int32_t y)
 {
-	return bamang(xs_CRoundToUInt(bvectangf(x, y) * BAMUNIT));
+	return radang(atan2(y, x));
 }

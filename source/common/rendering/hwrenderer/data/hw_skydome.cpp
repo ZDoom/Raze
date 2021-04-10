@@ -202,7 +202,7 @@ void FSkyVertexBuffer::SkyVertexBuild(int r, int c, bool zflip)
 
 	// And the texture coordinates.
 	if (zflip) r = mRows * 2 - r;
-	vert.u = 0.5 + (-c / (float)mColumns);
+	vert.u = 0.5f + (-c / (float)mColumns);
 	vert.v = (r / (float)(2*mRows));
 
 	// And finally the vertex.
@@ -413,11 +413,13 @@ void FSkyVertexBuffer::SetupMatrices(FGameTexture *tex, float x_offset, float y_
 		{
 			modelMatrix.translate(0.f, -1250.f, 0.f);
 			modelMatrix.scale(1.f, texh / 230.f, 1.f);
+			yscale = 1.f;
 		}
 		else if (texh <= 240)
 		{
 			modelMatrix.translate(0.f, (200 - texh + texskyoffset) * skyoffsetfactor, 0.f);
 			modelMatrix.scale(1.f, 1.f + ((texh - 200.f) / 200.f) * 1.17f, 1.f);
+			yscale = 1.f;
 		}
 		else
 		{

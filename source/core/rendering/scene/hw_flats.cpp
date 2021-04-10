@@ -41,9 +41,6 @@
 CVAR(Int, gl_breaksec, -1, 0)
 #endif
 
-extern PalEntry GlobalMapFog;
-extern float GlobalFogDensity;
-
 //==========================================================================
 //
 //
@@ -124,8 +121,8 @@ void HWFlat::MakeVertices()
 
 		auto ret = screen->mVertexData->AllocVertices(6);
 		auto vp = ret.first;
-		float x = !(sprite->cstat & CSTAT_SECTOR_XFLIP) ? 0.f : 1.f;
-		float y = !(sprite->cstat & CSTAT_SECTOR_YFLIP) ? 0.f : 1.f;
+		float x = !(sprite->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
+		float y = !(sprite->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 		for (unsigned i = 0; i < 6; i++)
 		{
 			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
@@ -170,28 +167,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 		else state.SetNormal({ 0, -1, 0 });
 	}
 
-	// Fog must be done before the texture so that the texture selector can override it.
-	bool foggy = (GlobalMapFog || (fade & 0xffffff));
-	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
-	// Disable brightmaps if non-black fog is used.
-	if (ShadeDiv >= 1 / 1000.f && foggy)
-	{
-		state.EnableFog(1);
-		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
-		state.SetSoftLightLevel(255);
-		state.SetLightParms(128.f, 1 / 1000.f);
-	}
-	else
-	{
-		state.EnableFog(0);
-		state.SetFog(0, 0);
-		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
-		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
-	}
-
-	// The shade rgb from the tint is ignored here.
-	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
+	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
 
 	if (translucent)
 	{
@@ -202,7 +178,8 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 		state.SetRenderStyle(RenderStyle);
 		state.SetTextureMode(RenderStyle);
-		if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
+
+		if (!texture || !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 		else state.AlphaFunc(Alpha_GEqual, 0.f);
 	}
 	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? CLAMP_NONE : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
@@ -366,7 +343,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 	z = sprite->z * (1 / -256.f);
 	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.
 
-	visibility = sectorVisibility(&sector[sprite->sectnum]);// *(4.f / 5.f); // The factor comes directly from Polymost. No idea why this uses a different visibility setting. Bad projection math?
+	visibility = sectorVisibility(&sector[sprite->sectnum]) *(4.f / 5.f); // The factor comes directly from Polymost. What is it with Build and these magic factors?
 
 	// Weird Build logic that really makes no sense.
 	if ((sprite->cstat & CSTAT_SPRITE_ONE_SIDED) != 0 && (di->Viewpoint.Pos.Z < z) == ((sprite->cstat & CSTAT_SPRITE_YFLIP) == 0))
@@ -380,17 +357,8 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 		palette = sprite->pal;
 		fade = lookups.getFade(sector[sprite->sectnum].floorpal);	// fog is per sector.
 
-		bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
-		if (trans)
-		{
-			RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-			alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
-		}
-		else
-		{
-			RenderStyle = LegacyRenderStyles[STYLE_Translucent];
-			alpha = 1.f;
- 		}
+		SetSpriteTranslucency(sprite, alpha, RenderStyle);
+
 		PutFlat(di, 0);
 	}
 }

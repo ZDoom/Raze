@@ -6,6 +6,7 @@
 
 typedef TMap<FName, FName> MusicAliasMap;
 extern MusicAliasMap MusicAliases;
+extern TArray<FString> specialmusic;
 
 // Totally minimalistic interface - should be all the game modules need.
 void Mus_InitMusic();

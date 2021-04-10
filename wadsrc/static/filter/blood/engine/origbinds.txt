@@ -8,3 +8,8 @@ X "+Alt_Fire"
 J "useitem 4"
 M "useitem 1"
 Mouse2 "+Alt_Fire"
+
+unbind KP0
+unbind KP.
+unbind DEL
+unbind INS

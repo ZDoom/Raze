@@ -40,6 +40,7 @@
 #include "gamefuncs.h"
 #include "hw_portal.h"
 #include "gamestruct.h"
+#include "hw_voxels.h"
 
 
 //==========================================================================
@@ -48,8 +49,10 @@
 //
 //==========================================================================
 
-void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view)
+void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, binangle a2)
 {
+	ang1 = a1;
+	ang2 = a2;
 	di = _di;
 	clipper = c;
 	viewx = view.x * (1/ 16.f);
@@ -82,6 +85,8 @@ void BunchDrawer::StartScene()
 	Bunches.Clear();
 	CompareData.Clear();
 	gotsector.Zero();
+	gotsector2.Zero();
+	gotwall.Zero();
 }
 
 //==========================================================================
@@ -90,14 +95,16 @@ void BunchDrawer::StartScene()
 //
 //==========================================================================
 
-void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan)
+bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal)
 {
 	FBunch* bunch = &Bunches[LastBunch = Bunches.Reserve(1)];
 
 	bunch->sectnum = sectnum;
 	bunch->startline = bunch->endline = linenum;
-	bunch->startangle = startan;
-	bunch->endangle = endan;
+	bunch->startangle = (startan.asbam() - ang1.asbam()) > ANGLE_180? ang1 :startan;
+	bunch->endangle = (endan.asbam() - ang2.asbam()) < ANGLE_180 ? ang2 : endan;
+	bunch->portal = portal;
+	return bunch->endangle != ang2;
 }
 
 //==========================================================================
@@ -106,10 +113,11 @@ void BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 //
 //==========================================================================
 
-void BunchDrawer::AddLineToBunch(int line, binangle newan)
+bool BunchDrawer::AddLineToBunch(int line, binangle newan)
 {
 	Bunches[LastBunch].endline++;
-	Bunches[LastBunch].endangle = newan;
+	Bunches[LastBunch].endangle = (newan.asbam() - ang2.asbam()) < ANGLE_180 ? ang2 : newan;
+	return Bunches[LastBunch].endangle != ang2;
 }
 
 //==========================================================================
@@ -181,7 +189,7 @@ bool BunchDrawer::CheckClip(walltype* wal)
 //
 //==========================================================================
 
-int BunchDrawer::ClipLine(int line)
+int BunchDrawer::ClipLine(int line, bool portal)
 {
 	auto wal = &wall[line];
 
@@ -194,7 +202,7 @@ int BunchDrawer::ClipLine(int line)
 		return CL_Skip;
 	}
 
-	if (!clipper->SafeCheckRange(startAngle, endAngle))
+	if (!portal && !clipper->SafeCheckRange(startAngle, endAngle))
 	{
 		return CL_Skip;
 	}
@@ -202,7 +210,7 @@ int BunchDrawer::ClipLine(int line)
 	if (wal->nextwall == -1 || (wal->cstat & CSTAT_WALL_1WAY) || CheckClip(wal))
 	{
 		// one-sided
-		clipper->SafeAddClipRange(startAngle, endAngle);
+		if (!portal) clipper->SafeAddClipRange(startAngle, endAngle);
 		return CL_Draw;
 	}
 	else
@@ -224,14 +232,15 @@ void BunchDrawer::ProcessBunch(int bnch)
 	ClipWall.Clock();
 	for (int i = bunch->startline; i <= bunch->endline; i++)
 	{
-		int clipped = ClipLine(i);
+		int clipped = ClipLine(i, bunch->portal);
 
 		if (clipped & CL_Draw)
 		{
 			show2dwall.Set(i);
 
-			//if (gl_render_walls)
+			if (!gotwall[i])
 			{
+				gotwall.Set(i);
 				ClipWall.Unclock();
 				Bsp.Unclock();
 				SetupWall.Clock();
@@ -249,7 +258,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 		if (clipped & CL_Pass)
 		{
 			ClipWall.Unclock();
-			ProcessSector(wall[i].nextsector);
+			ProcessSector(wall[i].nextsector, false);
 			ClipWall.Clock();
 		}
 	}
@@ -288,7 +297,7 @@ int BunchDrawer::WallInFront(int wall1, int wall2)
 	if ((t1 * t2) >= 0)
 	{
 		t2 = PointOnLineSide(viewx, viewy, x1s, y1s, dx, dy);
-		return((t2 * t1) < 0);
+		return((t2 * t1) <= 0);
 	}
 
 	dx = x2e - x2s;
@@ -304,7 +313,7 @@ int BunchDrawer::WallInFront(int wall1, int wall2)
 	if ((t1 * t2) >= 0)
 	{
 		t2 = PointOnLineSide(viewx, viewy, x2s, y2s, dx, dy);
-		return((t2 * t1) >= 0);
+		return((t2 * t1) > 0);
 	}
 	return(-2);
 }
@@ -415,6 +424,7 @@ int BunchDrawer::FindClosestBunch()
 
 		}
 	}
+	//Printf("picked bunch starting at %d\n", Bunches[closest].startline);
 	return closest;
 }
 
@@ -424,10 +434,10 @@ int BunchDrawer::FindClosestBunch()
 //
 //==========================================================================
 
-void BunchDrawer::ProcessSector(int sectnum)
+void BunchDrawer::ProcessSector(int sectnum, bool portal)
 {
-	if (gotsector[sectnum]) return;
-	gotsector.Set(sectnum);
+	if (gotsector2[sectnum]) return;
+	gotsector2.Set(sectnum);
 
 	auto sect = &sector[sectnum];
 	bool inbunch;
@@ -436,28 +446,32 @@ void BunchDrawer::ProcessSector(int sectnum)
 	SetupSprite.Clock();
 
 	int z;
-	SectIterator it(sectnum);
-	while ((z = it.NextIndex()) >= 0)
+	if (!gotsector[sectnum])
 	{
-		auto const spr = (uspriteptr_t)&sprite[z];
-
-		if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0) // skip invisible sprites
-			continue;
-
-		int sx = spr->x - iview.x, sy = spr->y - int(iview.y);
-
-		// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.
-		//if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[spr->picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
+		gotsector.Set(sectnum);
+		SectIterator it(sectnum);
+		while ((z = it.NextIndex()) >= 0)
 		{
-			if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_WALL) ||
-				(r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
-				(r_voxels && gi->Voxelize(spr->picnum)) ||
-				DMulScale(bcos(spr->ang), -sx, bsin(spr->ang), -sy, 6) > 0)
-				if (renderAddTsprite(di->tsprite, di->spritesortcnt, z, sectnum))
-					break;
+			auto const spr = (uspriteptr_t)&sprite[z];
+
+			if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0) // skip invisible sprites
+				continue;
+
+			int sx = spr->x - iview.x, sy = spr->y - int(iview.y);
+
+			// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.
+			//if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[spr->picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
+			{
+				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_WALL) ||
+					(r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
+					(r_voxels && gi->Voxelize(spr->picnum)) ||
+					DMulScale(bcos(spr->ang), -sx, bsin(spr->ang), -sy, 6) > 0)
+					if (renderAddTsprite(di->tsprite, di->spritesortcnt, z, sectnum))
+						break;
+			}
 		}
+		SetupSprite.Unclock();
 	}
-	SetupSprite.Unclock();
 
 	if (automapping)
 		show2dsector.Set(sectnum);
@@ -478,36 +492,26 @@ void BunchDrawer::ProcessSector(int sectnum)
 		DVector2 start = { WallStartX(thiswall), WallStartY(thiswall) };
 		DVector2 end = { WallStartX(thiswall->point2), WallStartY(thiswall->point2) };
 #endif
-		binangle ang1 = thiswall->clipangle;
-		binangle ang2 = wall[thiswall->point2].clipangle;
+		binangle walang1 = thiswall->clipangle;
+		binangle walang2 = wall[thiswall->point2].clipangle;
 
-		if (ang1.asbam() - ang2.asbam() < ANGLE_180)
+		// outside the visible area or seen from the backside.
+		if ((walang1.asbam() - ang1.asbam() > ANGLE_180 && walang2.asbam() - ang1.asbam() > ANGLE_180) ||
+			(walang1.asbam() - ang2.asbam() < ANGLE_180 && walang2.asbam() - ang2.asbam() < ANGLE_180) ||
+			(walang1.asbam() - walang2.asbam() < ANGLE_180))
 		{
-			// Backside
 			inbunch = false;
 		}
-		/* disabled because it only fragments the bunches without any performance gain.
-		else if (!clipper->SafeCheckRange(ang1, ang2))
+		else if (!inbunch)
 		{
-			// is it visible?
-			inbunch = false;
-		}
-		*/
-		else if (!inbunch || ang2.asbam() - startangle.asbam() >= ANGLE_180)
-		{
-			// don't let a bunch span more than 180° to avoid problems.
-			// This limitation ensures that the combined range of 2
-			// bunches will always be less than 360° which simplifies
-			// the distance comparison code because it prevents a 
-			// situation where 2 bunches may overlap at both ends.
-
-			startangle = ang1;
-			StartBunch(sectnum, sect->wallptr + i, ang1, ang2);
-			inbunch = true;
+			startangle = walang1;
+			//Printf("Starting bunch:\n\tWall %d\n", sect->wallptr + i);
+			inbunch = StartBunch(sectnum, sect->wallptr + i, walang1, walang2, portal);
 		}
 		else
 		{
-			AddLineToBunch(sect->wallptr + i, ang2);
+			//Printf("\tWall %d\n", sect->wallptr + i);
+			inbunch = AddLineToBunch(sect->wallptr + i, walang2);
 		}
 		if (thiswall->point2 != sect->wallptr + i + 1) inbunch = false;
 	}
@@ -519,16 +523,39 @@ void BunchDrawer::ProcessSector(int sectnum)
 //
 //==========================================================================
 
-void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount)
+void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
-	Bsp.Clock();
-	for(unsigned i=0;i<sectcount;i++)
-		ProcessSector(viewsectors[i]);
-	while (Bunches.Size() > 0)
+	//Printf("----------------------------------------- \nstart at sector %d\n", viewsectors[0]);
+	auto process = [&]()
 	{
-		int closest = FindClosestBunch();
-		ProcessBunch(closest);
-		DeleteBunch(closest);
+		for (unsigned i = 0; i < sectcount; i++)
+			ProcessSector(viewsectors[i], portal);
+		while (Bunches.Size() > 0)
+		{
+			int closest = FindClosestBunch();
+			ProcessBunch(closest);
+			DeleteBunch(closest);
+		}
+	};
+
+	Bsp.Clock();
+	if (ang1.asbam() != 0 || ang2.asbam() != 0)
+	{
+		process();
+	}
+	else
+	{
+		// with a 360° field of view we need to split the scene into two halves. 
+		// The BunchInFront check can fail with angles that may wrap around.
+		auto rotang = di->Viewpoint.RotAngle;
+		ang1 = bamang(rotang - ANGLE_90);
+		ang2 = bamang(rotang + ANGLE_90);
+		process();
+		clipper->Clear();
+		gotsector2.Zero();
+		ang1 = bamang(rotang + ANGLE_90);
+		ang2 = bamang(rotang - ANGLE_90);
+		process();
 	}
 	Bsp.Unclock();
 }

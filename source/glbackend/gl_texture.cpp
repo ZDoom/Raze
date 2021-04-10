@@ -86,20 +86,3 @@ bool GLInstance::SetTexture(FGameTexture* tex, int paletteid, int sampler, bool 
 	return true;
 }
 
-//===========================================================================
-// 
-// stand-ins for the texture system. Nothing of this is used right now, but needs to be present to satisfy the linker
-//
-//===========================================================================
-
-void InitBuildTiles()
-{
-
-}
-
-TArray<UserShaderDesc> usershaders;
-
-void UpdateVRModes(bool considerQuadBuffered = true)
-{
-	// should update the menu.
-}

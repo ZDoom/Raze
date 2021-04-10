@@ -1617,13 +1617,20 @@ OptionValue GPUSwitch
 	2.0, "$OPTVAL_INTEGRATED"
 }
 
+OptionValue PreferBackend
+{
+	0, "$OPTVAL_OPENGL"
+	1, "$OPTVAL_VULKAN"
+	// Enable when HAVE_SOFTPOLY will be defined
+	//2, "$OPTVAL_SOFTPOLY"
+}
+
 OptionMenu VideoModeMenu protected
 {
 	Title "$VIDMNU_TITLE"
 
-	// does not work yet.
-	//Option "$VIDMNU_PREFERBACKEND",		"vid_preferbackend", "PreferBackend"
-	//StaticText " "
+	Option "$VIDMNU_PREFERBACKEND",		"vid_preferbackend", "PreferBackend"
+	StaticText " "
 	Option "$VIDMNU_FULLSCREEN",		"vid_fullscreen", "YesNo"
 
 	IfOption(Mac)

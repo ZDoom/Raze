@@ -95,7 +95,7 @@ void HWDrawInfo::AddFlat(HWFlat *flat)
 {
 	int list;;
 
-	if (flat->RenderStyle != LegacyRenderStyles[STYLE_Translucent] || flat->alpha < 1.f - FLT_EPSILON) // flat->texture->GetTranslucency() -  fixme
+	if (flat->RenderStyle != LegacyRenderStyles[STYLE_Translucent] || flat->alpha < 1.f - FLT_EPSILON || checkTranslucentReplacement(flat->texture->GetID(), flat->palette))
 	{
 		// translucent portals go into the translucent border list.
 		list = flat->sprite? GLDL_TRANSLUCENT : GLDL_TRANSLUCENTBORDER;

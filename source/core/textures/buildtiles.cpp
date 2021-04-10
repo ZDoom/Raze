@@ -47,6 +47,7 @@
 #include "c_dispatch.h"
 #include "sc_man.h"
 #include "gamestruct.h"
+#include "hw_voxels.h"
 
 #include "hw_renderstate.h"
 
@@ -59,7 +60,7 @@ enum
 
 BuildTiles TileFiles;
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor);
 
 //==========================================================================
 //
@@ -144,7 +145,7 @@ void BuildTiles::Init()
 		tile.RotTile = { -1,-1 };
 		tile.replacement = ReplacementType::Art;
 		tile.alphaThreshold = 0.5;
-		tile.h_xsize = 0;
+		tile.hiofs = {};
 	}
 
 }
@@ -256,7 +257,7 @@ void BuildTiles::InvalidateTile(int num)
 	if ((unsigned) num < MAXTILES)
 	{
 		auto tex = tiledata[num].texture;
-		tex->GetTexture()->SystemTextures.Clean();
+		tex->CleanHardwareData();
 		tiledata[num].rawCache.data.Clear();
 	}
 }
@@ -513,7 +514,7 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	TexMan.AddGameTexture(tex);
 	TileFiles.tiledata[tilenum].backup = TileFiles.tiledata[tilenum].texture = tex;
 	if (istexture)
-		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);
+		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0);
 	return 0;
 
 }
@@ -648,7 +649,7 @@ void artSetupMapArt(const char* filename)
 void tileDelete(int tile)
 {
 	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.GameByIndex(0);
-	vox_undefine(tile);
+	tiletovox[tile] = -1; // clear the link but don't clear the voxel. It may be in use for another tile.
 	md_undefinetile(tile);
 }
 

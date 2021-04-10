@@ -75,12 +75,6 @@ void ResetEngine()
 
 void InstallEngine()
 {
-	TileFiles.LoadArtSet("tiles%03d.art");
-
-    if (engineInit())
-    {
-        G_FatalEngineError();
-    }
     uploadCinemaPalettes();
     LoadPaletteLookups();
 }

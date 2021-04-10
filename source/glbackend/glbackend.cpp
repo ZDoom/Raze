@@ -70,31 +70,14 @@ void Draw2D(F2DDrawer* drawer, FRenderState& state);
 GLInstance GLInterface;
 
 GLInstance::GLInstance()
-	:palmanager(this)
 {
 	VSMatrix mat(0);
 	matrixArray.Push(mat);
 }
 
-IHardwareTexture *setpalettelayer(int layer, int translation)
-{
-	if (layer == 1)
-		return GLInterface.palmanager.GetPalette(GetTranslationType(translation) - Translation_Remap);
-	else if (layer == 2)
-		return GLInterface.palmanager.GetLookup(GetTranslationIndex(translation));
-	else return nullptr;
-}
-
 void GLInstance::Init(int ydim)
 {
-	FMaterial::SetLayerCallback(setpalettelayer);
 	new(&renderState) PolymostRenderState;	// reset to defaults.
-}
-
-void GLInstance::Deinit()
-{
-	palmanager.DeleteAll();
-	lastPalswapIndex = -1;
 }
 
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)

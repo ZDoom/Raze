@@ -26,7 +26,8 @@
 #include "hw_renderstate.h"
 #include "skyboxtexture.h"
 
- CVAR(Float, skyoffsettest, 0, 0)
+CVAR(Float, skyoffsettest, 0, 0)
+
 //-----------------------------------------------------------------------------
 //
 //
@@ -34,6 +35,8 @@
 //-----------------------------------------------------------------------------
 void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 {
+	int indexed = hw_int_useindexedcolortextures;
+	hw_int_useindexedcolortextures = false; // this code does not work with indexed textures.
 	bool drawBoth = false;
 	auto &vp = di->Viewpoint;
 
@@ -101,6 +104,7 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 
 	//di->lightmode = oldlightmode;
 	state.SetDepthClamp(oldClamp);
-}
+	hw_int_useindexedcolortextures = indexed;
+ }
 
 const char *HWSkyPortal::GetName() { return "Sky"; }

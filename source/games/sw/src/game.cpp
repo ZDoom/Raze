@@ -199,7 +199,6 @@ void GameInterface::app_init()
 
     registerosdcommands();
 
-    engineInit();
     auto pal = fileSystem.LoadFile("3drealms.pal", 0);
     if (pal.Size() >= 768)
     {
@@ -219,8 +218,6 @@ void GameInterface::app_init()
         I_FatalError("To play a Network game with more than 4 players you must purchase "
             "the full version.  Read the Ordering Info screens for details.");
     }
-
-    TileFiles.LoadArtSet("tiles%03d.art");
 
     //Connect();
     SortBreakInfo();

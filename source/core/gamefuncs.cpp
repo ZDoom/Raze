@@ -148,28 +148,6 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnu
 	return true;
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-bool spriteIsModelOrVoxel(const spritetype * tspr)
-{
-	if ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].flags & SPREXT_NOTMD)
-		return false;
-
-	if (hw_models)
-	{
-		auto& mdinfo = tile2model[Ptile2tile(tspr->picnum, tspr->pal)];
-		if (mdinfo.modelid >= 0 && mdinfo.framenum >= 0) return true;
-	}
-
-	auto slabalign = (tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB;
-	if (r_voxels && !slabalign && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]]) return true;
-	return (slabalign && voxmodels[tspr->picnum]);
-}
-
 //==========================================================================
 //
 // note that this returns values in renderer coordinate space with inverted sign!
@@ -213,10 +191,10 @@ void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	auto tex = tileGetTexture(spr->picnum);
 
 	int width, leftofs;
-	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
-		width = TileFiles.tiledata[spr->picnum].h_xsize;
-		leftofs = (TileFiles.tiledata[spr->picnum].h_xoffs + spr->xoffset);
+		width = TileFiles.tiledata[spr->picnum].hiofs.xsize;
+		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + spr->xoffset);
 	}
 	else
 	{
@@ -249,12 +227,12 @@ void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	auto tex = tileGetTexture(spr->picnum);
 
 	int width, height, leftofs, topofs;
-	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
-		width = TileFiles.tiledata[spr->picnum].h_xsize * spr->xrepeat;
-		height = TileFiles.tiledata[spr->picnum].h_ysize * spr->yrepeat;
-		leftofs = (TileFiles.tiledata[spr->picnum].h_xoffs + spr->xoffset) * spr->xrepeat;
-		topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset) * spr->yrepeat;
+		width = TileFiles.tiledata[spr->picnum].hiofs.xsize * spr->xrepeat;
+		height = TileFiles.tiledata[spr->picnum].hiofs.ysize * spr->yrepeat;
+		leftofs = (TileFiles.tiledata[spr->picnum].hiofs.xoffs + spr->xoffset) * spr->xrepeat;
+		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + spr->yoffset) * spr->yrepeat;
 	}
 	else
 	{

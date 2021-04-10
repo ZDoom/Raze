@@ -200,7 +200,7 @@ enum {
     PALETTE_TRANSLUC = 1<<2,
 };
 
-EXTERN int32_t g_visibility, parallaxvisibility;
+EXTERN int32_t g_visibility;
 
 // blendtable[1] to blendtable[numalphatabs] are considered to be
 // alpha-blending tables:
@@ -268,12 +268,6 @@ extern FixedBitArray<MAXSECTORS> gotsector;
 
 
 extern uint32_t drawlinepat;
-
-extern int32_t novoxmips;
-
-extern int16_t tiletovox[MAXTILES];
-extern int32_t voxscale[MAXVOXELS];
-extern char g_haveVoxels;
 
 extern uint8_t globalr, globalg, globalb;
 
@@ -362,10 +356,6 @@ void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *da
 void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename, const unsigned char*);
 
-int32_t   qloadkvx(int32_t voxindex, const char *filename);
-void vox_undefine(int32_t const);
-void vox_deinit();
-
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   renderSetAspect(int32_t daxrange, int32_t daaspect);
@@ -448,7 +438,6 @@ inline int32_t ksqrt(uint32_t num)
 }
 
 int32_t   getangle(int32_t xvect, int32_t yvect);
-fixed_t   gethiq16angle(int32_t xvect, int32_t yvect);
 
 inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {
@@ -598,7 +587,6 @@ int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, f
 
 EXTERN int32_t nextvoxid;
 EXTERN int8_t voxreserve[(MAXVOXELS+7)>>3];
-EXTERN int8_t voxrotate[(MAXVOXELS+7)>>3];
 
 #ifdef USE_OPENGL
 // TODO: dynamically allocate this
@@ -628,13 +616,7 @@ inline int32_t md_tilehasmodel(int32_t const tilenume, int32_t const pal)
 }
 #endif  // defined USE_OPENGL
 
-inline int tilehasmodelorvoxel(int const tilenume, int pal)
-{
-    UNREFERENCED_PARAMETER(pal);
-    return
-    (mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
-    (r_voxels && tiletovox[tilenume] != -1);
-}
+int tilehasmodelorvoxel(int const tilenume, int pal);
 
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
                        int32_t skinnum, float smoothduration, int32_t pal);
@@ -647,7 +629,7 @@ int32_t md_definehud (int32_t modelid, int32_t tilex, vec3f_t add,
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
 
-int32_t loaddefinitionsfile(const char *fn, bool loadadds = false);
+int32_t loaddefinitionsfile(const char *fn, bool loadadds = false, bool cumulative = false);
 
 #ifdef USE_OPENGL
 # include "polymost.h"
@@ -735,9 +717,6 @@ extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);
 extern int32_t(*deletesprite_replace)(int16_t spritenum);
 extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
 extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum);
-#ifdef USE_OPENGL
-extern void(*PolymostProcessVoxels_Callback)(void);
-#endif
 
 // Masking these into the object index to keep it in 16 bit was probably the single most dumbest and pointless thing Build ever did.
 // Gonna be fun to globally replace these to finally lift the limit this imposes on map size.

@@ -41,6 +41,7 @@
 #include "gamecvars.h"
 #include "gamestruct.h"
 #include "automap.h"
+#include "hw_voxels.h"
 
 EXTERN_CVAR(Float, r_visibility)
 CVAR(Bool, gl_no_skyclear, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -210,7 +211,7 @@ angle_t HWDrawInfo::FrustumAngle()
 	// but at least it doesn't overestimate too much...
 	double floatangle = 2.0 + (45.0 + ((tilt / 1.9)))*Viewpoint.FieldOfView.Degrees*48.0 / AspectMultiplier(WidescreenRatio) / 90.0;
 	angle_t a1 = DAngle(floatangle).BAMs();
-	if (a1 >= ANGLE_180) return 0xffffffff;
+	if (a1 >= ANGLE_90) return 0xffffffff; // it's either below 90 or bust.
 	return a1;
 }
 
@@ -300,14 +301,14 @@ void HWDrawInfo::DispatchSprites()
 				{
 					HWSprite hwsprite;
 					int num = tiletovox[tspr->picnum];
-					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)))) 
+					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num])) 
 						continue;
 				}
 				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
 				{
 					HWSprite hwsprite;
 					int num = tspr->picnum;
-					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num >> 3] & (1 << (num & 7)));
+					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num]);
 					continue;
 				}
 			}
@@ -363,12 +364,12 @@ void HWDrawInfo::DispatchSprites()
 //
 //-----------------------------------------------------------------------------
 
-void HWDrawInfo::CreateScene()
+void HWDrawInfo::CreateScene(bool portal)
 {
 	const auto& vp = Viewpoint;
 
 	angle_t a1 = FrustumAngle();
-	mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
+	if (a1 != 0xffffffff) mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 
 	// reset the portal manager
 	portalState.StartFrame();
@@ -384,11 +385,12 @@ void HWDrawInfo::CreateScene()
 	geoofs = { 0,0 };
 
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
-	mDrawer.Init(this, mClipper, view);
+	if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
+	else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
 	if (vp.SectNums)
-		mDrawer.RenderScene(vp.SectNums, vp.SectCount);
+		mDrawer.RenderScene(vp.SectNums, vp.SectCount, portal);
 	else
-		mDrawer.RenderScene(&vp.SectCount, 1); 
+		mDrawer.RenderScene(&vp.SectCount, 1, portal);
 
 	SetupSprite.Clock();
 	gi->processSprites(tsprite, spritesortcnt, view.x, view.y, vp.Pos.Z * -256, bamang(vp.RotAngle), vp.TicFrac * 65536);
@@ -420,8 +422,9 @@ void HWDrawInfo::CreateScene()
 
 		mClipper->Clear();
 		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
-		mDrawer.Init(this, mClipper, view);
-		mDrawer.RenderScene(&drawsect, 1);
+		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
+		else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
+		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
 		{
@@ -451,8 +454,9 @@ void HWDrawInfo::CreateScene()
 
 		mClipper->Clear();
 		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
-		mDrawer.Init(this, mClipper, view);
-		mDrawer.RenderScene(&drawsect, 1);
+		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
+		else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
+		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
 		{
@@ -669,7 +673,7 @@ void HWDrawInfo::Set3DViewport(FRenderState &state)
 //
 //-----------------------------------------------------------------------------
 
-void HWDrawInfo::DrawScene(int drawmode)
+void HWDrawInfo::DrawScene(int drawmode, bool portal)
 {
 	static int recursion = 0;
 	static int ssao_portals_available = 0;
@@ -691,7 +695,7 @@ void HWDrawInfo::DrawScene(int drawmode)
 		ssao_portals_available--;
 	}
 
-	CreateScene();
+	CreateScene(portal);
 	auto& RenderState = *screen->RenderState();
 
 	RenderState.SetDepthMask(true);
@@ -724,7 +728,7 @@ void HWDrawInfo::DrawScene(int drawmode)
 void HWDrawInfo::ProcessScene(bool toscreen)
 {
 	portalState.BeginScene();
-	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN);
+	DrawScene(toscreen ? DM_MAINVIEW : DM_OFFSCREEN, false);
 	if (toscreen && isBlood())
 	{
 		gotsector = mDrawer.GotSector(); // Blood needs this to implement some lighting effect hacks. Needs to be refactored to use better info.

@@ -44,10 +44,7 @@
 #include "hw_renderstate.h"
 #include "hw_models.h"
 #include "hw_viewpointbuffer.h"
-
-extern PalEntry GlobalMapFog;
-extern float GlobalFogDensity;
-
+#include "hw_voxels.h"
 
 //==========================================================================
 //
@@ -74,7 +71,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		state.SetRenderStyle(RenderStyle);
 		state.SetTextureMode(RenderStyle);
 
-		if (!texture || !texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
+		if (!texture || !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 		else state.AlphaFunc(Alpha_Greater, 0.f);
 
 		if (RenderStyle.BlendOp == STYLEOP_Add && RenderStyle.DestAlpha == STYLEALPHA_One)
@@ -113,36 +110,15 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	}
 
 	// Fog must be done before the texture so that the texture selector can override it.
-	bool foggy = (GlobalMapFog || (fade & 0xffffff));
-	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
 	// Disable brightmaps if non-black fog is used.
 	int shade = this->shade;
-	PalEntry color(255, globalr, globalg, globalb);
 	if (this->shade > numshades) // handling of SW's shadow hack using a shade of 127.
 	{
 		shade = sector[sprite->sectnum].floorshade;
-		color = 0xff000000;
-	}
-	shade = clamp(shade, 0, numshades - 1);
-
-	if (ShadeDiv >= 1 / 1000.f && foggy && !foglayer)
-	{
-		state.EnableFog(1);
-		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
-		state.SetSoftLightLevel(255);
-		state.SetLightParms(128.f, 1 / 1000.f);
-	}
-	else
-	{
-		state.EnableFog(0);
-		state.SetFog(0, 0);
-		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
-		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
+		state.SetColor(0, 0, 0, alpha);
 	}
 
-	// The shade rgb from the tint is ignored here.
-	state.SetColorAlpha(color, alpha);
+	SetLightAndFog(state, fade, palette, shade, visibility, alpha, this->shade <= numshades);
 
 	if (modelframe == 0)
 	{
@@ -157,15 +133,20 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		state.SetLightIndex(-1);
 		state.Draw(DT_TriangleStrip, vertexindex, 4);
 
-		if (ShadeDiv >= 1 / 1000.f && foggy && foglayer)
+		if (foglayer)
 		{
-			// If we get here we know that we have colored fog and no fixed colormap.
-			float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-			state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
-			state.SetTextureMode(TM_FOGLAYER);
-			state.SetRenderStyle(STYLE_Translucent);
-			state.Draw(DT_TriangleStrip, vertexindex, 4);
-			state.SetTextureMode(TM_NORMAL);
+			bool foggy = (GlobalMapFog || (fade & 0xffffff));
+			auto ShadeDiv = lookups.tables[palette].ShadeFactor;
+			if (ShadeDiv >= 1 / 1000.f && foggy)
+			{
+				// If we get here we know that we have colored fog and no fixed colormap.
+				float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
+				state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
+				state.SetTextureMode(TM_FOGLAYER);
+				state.SetRenderStyle(STYLE_Translucent);
+				state.Draw(DT_TriangleStrip, vertexindex, 4);
+				state.SetTextureMode(TM_NORMAL);
+			}
 		}
 	}
 	else
@@ -352,17 +333,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);
 
-	bool trans = (spr->cstat & CSTAT_SPRITE_TRANSLUCENT);
-	if (trans)
-	{
-		RenderStyle = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-		alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
-	}
-	else
-	{
-		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
-		alpha = 1.f;
-	}
+	SetSpriteTranslucency(spr, alpha, RenderStyle);
 
 	x = spr->x * (1 / 16.f);
 	z = spr->z * (1 / -256.f);
@@ -375,12 +346,12 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 		int tilenum = spr->picnum;
 
 		int xsize, ysize, tilexoff, tileyoff;
-		if (hw_hightile && TileFiles.tiledata[tilenum].h_xsize)
+		if (hw_hightile && TileFiles.tiledata[tilenum].hiofs.xsize)
 		{
-			xsize = TileFiles.tiledata[tilenum].h_xsize;
-			ysize = TileFiles.tiledata[tilenum].h_ysize;
-			tilexoff = TileFiles.tiledata[tilenum].h_xoffs;
-			tileyoff = TileFiles.tiledata[tilenum].h_yoffs;
+			xsize = TileFiles.tiledata[tilenum].hiofs.xsize;
+			ysize = TileFiles.tiledata[tilenum].hiofs.ysize;
+			tilexoff = TileFiles.tiledata[tilenum].hiofs.xoffs;
+			tileyoff = TileFiles.tiledata[tilenum].hiofs.yoffs;
 		}
 		else
 		{
@@ -436,6 +407,12 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 
 		z1 = z + yoff;
 		z2 = z + height + yoff;
+		if (z1 < z2)
+		{
+			// Make sure that z1 is the higher one. Some utilities expect it to be oriented this way.
+			std::swap(z1, z2);
+			std::swap(vt, vb);
+		}
 	}
 	else
 	{
@@ -459,7 +436,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 	}
 #endif
 
-	PutSprite(di, alpha < 1.f-FLT_EPSILON || modelframe == 0);
+	PutSprite(di, true);
 	rendered_sprites++;
 }
 
@@ -487,23 +464,13 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 	if ((spr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
 	{
 		int myclock = (PlayClock << 3) + MulScale(4 << 3, (int)di->Viewpoint.TicFrac, 16);
-		ang = (ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.
+		ang = (ang + myclock) & 2047;
 	}
 
 
 	if (!vox || (spr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_FLOOR) return false;
 
-	bool trans = (spr->cstat & CSTAT_SPRITE_TRANSLUCENT);
-	if (trans)
-	{
-		RenderStyle = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-		alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
-	}
-	else
-	{
-		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
-		alpha = 1.f;
-	}
+	SetSpriteTranslucency(spr, alpha, RenderStyle);
 
 	auto sprext = &spriteext[spr->owner];
 
@@ -568,7 +535,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 
 	auto vp = di->Viewpoint;
 	depth = (float)((x - vp.Pos.X) * vp.TanCos + (y - vp.Pos.Y) * vp.TanSin);
-	PutSprite(di, alpha < 1.f - FLT_EPSILON);
+	PutSprite(di, spriteHasTranslucency(sprite));
 	rendered_sprites++;
 	return true;
 }

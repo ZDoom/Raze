@@ -65,7 +65,6 @@ inline DDukeActor* getSndActor(const void* source)
 	return source ? &hittype[((spritetype*)source) - sprite] : nullptr;
 }
 
-TArray<FString> specialmusic;
 static FSoundID currentCommentarySound;
 static DDukeActor* currentCommentarySprite; // todo: GC this once actors become objects
 

@@ -122,7 +122,6 @@ extern short voxelIndex[MAXTILES];
 extern int nPrecacheCount;
 
 int tileInit(char a1, const char *a2);
-void tileProcessGLVoxels(void);
 void tilePreloadTile(int nTile);
 void tilePrecacheTile(int nTile, int nType, HitList& hits);
 

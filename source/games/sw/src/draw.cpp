@@ -1123,7 +1123,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle
         {
             sp = &sprite[i];
 
-            ang = q16ang(gethiq16angle(*tx - sp->x, *ty - sp->y));
+            ang = bvectangbam(*tx - sp->x, *ty - sp->y);
             ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
 
             FAFcansee_test =
@@ -1568,7 +1568,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         if (TEST_BOOL1(pp->remote_sprite))
             tang = buildang(pp->remote_sprite->ang);
         else
-            tang = q16ang(gethiq16angle(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty));
+            tang = bvectangbam(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))

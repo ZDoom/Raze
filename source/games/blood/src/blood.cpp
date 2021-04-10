@@ -465,9 +465,6 @@ void GameInterface::app_init()
 
 	HookReplaceFunctions();
 
-	Printf(PRINT_NONOTIFY, "Initializing Build 3D engine\n");
-	engineInit();
-
 	Printf(PRINT_NONOTIFY, "Loading tiles\n");
 	if (!tileInit(0, NULL))
 		I_FatalError("TILES###.ART files not found");

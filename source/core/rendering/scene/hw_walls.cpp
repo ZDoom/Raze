@@ -39,9 +39,6 @@
 #include "flatvertices.h"
 #include "glbackend/glbackend.h"
 
-extern PalEntry GlobalMapFog;
-extern float GlobalFogDensity;
-
 //==========================================================================
 //
 // Create vertices for one wall
@@ -104,7 +101,7 @@ void HWWall::RenderFogBoundary(HWDrawInfo *di, FRenderState &state)
 	if (gl_fogmode)// && !di->isFullbrightScene())
 	{
 		state.EnableDrawBufferAttachments(false);
-		SetLightAndFog(state);
+		SetLightAndFog(state, fade, palette, shade, visibility, alpha);
 		state.SetEffect(EFF_FOGBOUNDARY);
 		state.AlphaFunc(Alpha_GEqual, 0.f);
 		state.SetDepthBias(-1, -128);
@@ -113,38 +110,6 @@ void HWWall::RenderFogBoundary(HWDrawInfo *di, FRenderState &state)
 		state.SetEffect(EFF_NONE);
 		state.EnableDrawBufferAttachments(true);
 	}
-}
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
-void HWWall::SetLightAndFog(FRenderState& state)
-{
-	// Fog must be done before the texture so that the texture selector can override it.
-	bool foggy = (GlobalMapFog || (fade & 0xffffff));
-	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
-	// Disable brightmaps if non-black fog is used.
-	if (ShadeDiv >= 1 / 1000.f && foggy)
-	{
-		state.EnableFog(1);
-		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
-		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
-		state.SetSoftLightLevel(255);
-		state.SetLightParms(128.f, 1 / 1000.f);
-	}
-	else
-	{
-		state.EnableFog(0);
-		state.SetFog(0, 0);
-		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
-		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
-	}
-
-	// The shade rgb from the tint is ignored here.
-	state.SetColorAlpha(PalEntry(255, globalr, globalg, globalb), alpha);
 }
 
 //==========================================================================
@@ -163,7 +128,7 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 	// Use sphere mapping for this
 	state.SetEffect(EFF_SPHEREMAP);
-	SetLightAndFog(state);
+	SetLightAndFog(state, fade, palette, shade, visibility, alpha, false);
 	state.SetColor(PalEntry(25, globalr >> 1, globalg >> 1, globalb >> 1));
 
 	state.SetRenderStyle(STYLE_Add);
@@ -176,7 +141,7 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 	state.EnableTextureMatrix(false);
 	state.SetEffect(EFF_NONE);
-	state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
+	state.AlphaFunc(Alpha_GEqual, 0.5f);
 
 	state.SetDepthFunc(DF_Less);
 	state.SetRenderStyle(STYLE_Translucent);
@@ -190,11 +155,8 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
-	//int tmode = state.GetTextureMode();
-
-	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
-
-	SetLightAndFog(state);
+	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
+	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr ? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	int h = (int)texture->GetDisplayHeight();
 	int h2 = 1 << sizeToBits(h);
@@ -238,7 +200,7 @@ void HWWall::RenderTranslucentWall(HWDrawInfo *di, FRenderState &state)
 
 	state.SetRenderStyle(RenderStyle);
 	state.SetTextureMode(RenderStyle);
-	if (!texture->GetTranslucency()) state.AlphaFunc(Alpha_GEqual, gl_mask_threshold);
+	if (!texture || !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 	else state.AlphaFunc(Alpha_GEqual, 0.f);
 	RenderTexturedWall(di, state, HWWall::RWF_TEXTURED);
 	state.SetRenderStyle(STYLE_Translucent);
@@ -752,7 +714,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	tcs[UPRGT].v = setv(topleft, topright, glseg.fracright);
 	tcs[LORGT].v = setv(bottomleft, bottomright, glseg.fracright);
 	if (th == pow2size) CheckTexturePosition(); // for NPOT textures this adjustment can break things.
-	bool trans = type == RENDERWALL_M2S && (wal->cstat & CSTAT_WALL_TRANSLUCENT);
+	bool trans = type == RENDERWALL_M2S && maskWallHasTranslucency(wal);
 	if (trans)
 	{
 		RenderStyle = GetRenderStyle(0, !!(wal->cstat & CSTAT_WALL_TRANS_FLIP));
@@ -896,7 +858,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 
 #ifdef _DEBUG
-	if (wal - wall == 843)
+	if (wal - wall == 788)
 	{
 		int a = 0;
 	}
@@ -993,11 +955,14 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		{
 			float bch1a = bch1;
 			float bch2a = bch2;
-			if (ffh1 > bch1 && ffh2 > bch2)
+			if (ffh1 > bch1 || ffh2 > bch2)
 			{
-				// the back sector's floor obstructs part of this wall
-				bch2a = ffh2;
-				bch1a = ffh1;
+				// the back sector's floor obstructs part of this wall. Todo: Handle the portal case better.
+				if ((ffh1 > bch1 && ffh2 > bch2) || frontsector->portalflags == PORTAL_SECTOR_FLOOR)
+				{
+					bch2a = ffh2;
+					bch1a = ffh1;
+				}
 			}
 
 			if (bch1a < fch1 || bch2a < fch2)
@@ -1028,11 +993,14 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		// lower texture
 		if (!(frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY))
 		{
-			if (fch1 < bfh1 && fch2 < bfh2)
+			if (fch1 < bfh1 || fch2 < bfh2)
 			{
-				// the back sector's ceiling obstructs part of this wall.
-				bfh1 = fch1;
-				bfh2 = fch2;
+				// the back sector's ceiling obstructs part of this wall. Todo: Handle the portal case better.
+				if ((fch1 < bfh1 && fch2 < bfh2) || frontsector->portalflags == PORTAL_SECTOR_CEILING)
+				{
+					bfh1 = fch1;
+					bfh2 = fch2;
+				}
 			}
 
 			if (bfh1 > ffh1 || bfh2 > ffh2)
@@ -1049,7 +1017,6 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 			}
 		}
 	}
-	globalr = globalg = globalb = 255;
 }
 
 void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sector)
@@ -1090,24 +1057,13 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);
 
-	bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
-	if (trans)
-	{
-		RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-		alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
-	}
-	else
-	{
-		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
-		alpha = 1.f;
-	}
-
+	SetSpriteTranslucency(sprite, alpha, RenderStyle);
 
 	int height, topofs;
-	if (hw_hightile && TileFiles.tiledata[spr->picnum].h_xsize)
+	if (hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
-		height = TileFiles.tiledata[spr->picnum].h_ysize;
-		topofs = (TileFiles.tiledata[spr->picnum].h_yoffs + spr->yoffset);
+		height = TileFiles.tiledata[spr->picnum].hiofs.ysize;
+		topofs = (TileFiles.tiledata[spr->picnum].hiofs.yoffs + spr->yoffset);
 	}
 	else
 	{
@@ -1160,5 +1116,5 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 			zbottom[0] = zbottom[1] = floorz;
 		}
 	}
-	PutWall(di, trans);
+	PutWall(di, spriteHasTranslucency(sprite));
 }

@@ -17,11 +17,8 @@
 #include "gamecontrol.h"
 #include "palettecontainer.h"
 #include "mapinfo.h"
-
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
-int tileSetSkybox(int picnum, int palnum, const char** facenames, int flags);
-void tileRemoveReplacement(int num);
-
+#include "hw_voxels.h"
+#include "parsefuncs.h"
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 {
@@ -39,68 +36,6 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 }
 
 void AddUserMapHack(usermaphack_t&);
-#if 0
-// For later
-{
-if (sc.Compare("music"))
-{
-    FString id, mus;
-    sc.MustGetToken('{');
-    while (!sc.CheckToken('}'))
-    {
-        sc.MustGetToken(TK_Identifier);
-        if (sc.Compare("id"))
-        {
-            sc.MustGetString();
-            id = sc.String;
-        }
-        else if (sc.Compare("file"))
-        {
-            sc.MustGetString();
-            mus = sc.String;
-        }
-    }
-
-    if (!SetMusicForMap(id, mus, true))
-    {
-        sc.ScriptError("Map %s not found in music definition", id.GetChars());
-    }
-
-    char* tokenPtr = pScript->ltextptr;
-    char* musicID = NULL;
-    char* fileName = NULL;
-    char* musicEnd;
-
-    if (scriptfile_getbraces(pScript, &musicEnd))
-        break;
-
-    while (pScript->textptr < musicEnd)
-    {
-        switch (getatoken(pScript, soundTokens, countof(soundTokens)))
-        {
-        case T_ID: scriptfile_getstring(pScript, &musicID); break;
-        case T_FILE: scriptfile_getstring(pScript, &fileName); break;
-        }
-    }
-
-    if (!firstPass)
-    {
-        if (musicID == NULL)
-        {
-            pos.Message(MSG_ERROR, "missing ID for music definition\n");
-            break;
-        }
-
-        if (fileName == NULL || fileSystem.FileExists(fileName))
-            break;
-
-        if (S_DefineMusic(musicID, fileName) == -1)
-            pos.Message(MSG_ERROR, "invalid music ID");
-    }
-
-}
-}
-#endif
 
 enum scripttoken_t
 {
@@ -388,186 +323,44 @@ static int32_t defsparser(scriptfile *script)
             break;
         }
         case T_INCLUDEDEFAULT:
-        {
             defsparser_include(G_DefaultDefFile(), script, &pos);
             break;
-        }
-        case T_DEFINE:
-        {
-            FString name;
-            int32_t number;
-
-            if (scriptfile_getstring(script,&name)) break;
-            if (scriptfile_getsymbol(script,&number)) break;
-
-            if (scriptfile_addsymbolvalue(script, name,number) < 0)
-                pos.Message(MSG_WARNING, "Warning: Symbol %s was NOT redefined to %d", name.GetChars(),number);
-            break;
-        }
-
-        // OLD (DEPRECATED) DEFINITION SYNTAX
-        case T_DEFINETEXTURE:
-        {
-            int32_t tile,pal,fnoo;
-            FString fn;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getsymbol(script,&pal))  break;
-            if (scriptfile_getnumber(script,&fnoo)) break; //x-center
-            if (scriptfile_getnumber(script,&fnoo)) break; //y-center
-            if (scriptfile_getnumber(script,&fnoo)) break; //x-size
-            if (scriptfile_getnumber(script,&fnoo)) break; //y-size
-            if (scriptfile_getstring(script,&fn))  break;
-
-            if (!fileSystem.FileExists(fn))
-                break;
-
-            tileSetHightileReplacement(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
-        }
-        break;
-        case T_DEFINESKYBOX:
-        {
-            int32_t tile,pal,i;
-            FString fn[6];
-            int happy = 1;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getsymbol(script,&pal)) break;
-            if (scriptfile_getsymbol(script,&i)) break; //future expansion
-            for (i=0; i<6; i++)
-            {
-                if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
-
-                if (!fileSystem.FileExists(fn[i]))
-                    happy = 0;
-            }
-            if (i < 6 || !happy) break;
-			tileSetSkybox(tile, pal, (const char **)fn, 0);
-        }
-        break;
-        case T_DEFINETINT:
-        {
-            int32_t pal, r,g,b,f;
-
-            if (scriptfile_getsymbol(script,&pal)) break;
-            if (scriptfile_getnumber(script,&r)) break;
-            if (scriptfile_getnumber(script,&g)) break;
-            if (scriptfile_getnumber(script,&b)) break;
-            if (scriptfile_getnumber(script,&f)) break; //effects
-            lookups.setPaletteTint(pal,r,g,b,0,0,0,f);
-        }
-        break;
-        case T_ALPHAHACK:
-        {
-            int32_t tile;
-            double alpha;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getdouble(script,&alpha)) break;
-            if ((uint32_t)tile < MAXTILES)
-                TileFiles.tiledata[tile].texture->alphaThreshold = (float)alpha;
-        }
-        break;
-        case T_ALPHAHACKRANGE:
-        {
-            int32_t tilenume1,tilenume2;
-            double alpha;
-
-            if (scriptfile_getsymbol(script,&tilenume1)) break;
-            if (scriptfile_getsymbol(script,&tilenume2)) break;
-            if (scriptfile_getdouble(script,&alpha)) break;
-
-            if (check_tile_range("alphahackrange", &tilenume1, &tilenume2, script, pos))
-                break;
-
-            for (int i=tilenume1; i<=tilenume2; i++)
-                TileFiles.tiledata[i].texture->alphaThreshold = (float)alpha;
-        }
-        break;
-        case T_SPRITECOL:
-        {
-            int32_t tile,col,col2;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getnumber(script,&col)) break;
-            if (scriptfile_getnumber(script,&col2)) break;
-        }
-        break;
-        case T_2DCOL:
-        {
-            int32_t col,b,g,r;
-
-            if (scriptfile_getnumber(script,&col)) break;
-            if (scriptfile_getnumber(script,&r)) break;
-            if (scriptfile_getnumber(script,&g)) break;
-            if (scriptfile_getnumber(script,&b)) break;
-
-            if ((unsigned)col < 256)
-            {
-            }
-        }
-        break;
-        case T_2DCOLIDXRANGE:  // NOTE: takes precedence over 2dcol, see InitCustomColors()
-        {
-            int32_t col, idx, idxend;
-
-            if (scriptfile_getnumber(script,&col)) break;
-            if (scriptfile_getnumber(script,&idx)) break;
-            if (scriptfile_getnumber(script,&idxend)) break;
-
-        }
-        break;
-        case T_FOGPAL:
-        {
-            int32_t p,r,g,b;
-
-            if (scriptfile_getsymbol(script,&p)) break;
-            if (scriptfile_getnumber(script,&r)) break;
-            if (scriptfile_getnumber(script,&g)) break;
-            if (scriptfile_getnumber(script,&b)) break;
-
-            r = clamp(r, 0, 63);
-            g = clamp(g, 0, 63);
-            b = clamp(b, 0, 63);
-
-            lookups.makeTable(p, NULL, r<<2, g<<2, b<<2, 1);
-        }
-        break;
-        case T_NOFLOORPALRANGE:
-        {
-            int32_t b,e,i;
-
-            if (scriptfile_getsymbol(script,&b)) break;
-            if (scriptfile_getsymbol(script,&e)) break;
-
-            b = max(b, 1);
-            e = min(e, MAXPALOOKUPS-1);
-
-            for (i = b; i <= e; i++)
-                lookups.tables[i].noFloorPal = true;
-        }
-        break;
         case T_LOADGRP:
-        {
-            scriptfile_getstring(script,nullptr);
-#if 0
-            if (!scriptfile_getstring(pScript, &fileName) && firstPass)
-            {
-                fileSystem.AddAdditionalFile(fileName);
-            }
-#endif
-        }
-        break;
         case T_CACHESIZE:
-        {
-            int32_t j;
-
-            if (scriptfile_getnumber(script,&j)) break;
-        }
-        break;
         case T_SHADEFACTOR:
-            //scriptfile_getnumber(script, &realmaxshade);
-            //frealmaxshade = (float)realmaxshade;
+        case T_GLOBALGAMEFLAGS:
+            parseSkip<1>(*script, pos);
+            break;
+        case T_SPRITECOL:
+        case T_2DCOLIDXRANGE:  // NOTE: takes precedence over 2dcol, see InitCustomColors()
+            parseSkip<3>(*script, pos);
+            break;
+        case T_2DCOL:
+            parseSkip<4>(*script, pos);
+            break;
+        case T_DEFINE:
+            parseDefine(*script, pos);
+            break;
+        case T_DEFINETEXTURE:
+            parseDefineTexture(*script, pos);
+            break;
+        case T_DEFINESKYBOX:
+            parseDefineSkybox(*script, pos);
+            break;
+        case T_DEFINETINT:
+            parseDefineTint(*script, pos);
+            break;
+        case T_ALPHAHACK:
+            parseAlphahack(*script, pos);
+            break;
+        case T_ALPHAHACKRANGE:
+            parseAlphahackRange(*script, pos);
+            break;
+        case T_FOGPAL:
+            parseFogpal(*script, pos);
+            break;
+        case T_NOFLOORPALRANGE:
+            parseNoFloorpalRange(*script, pos);
             break;
         case T_ARTFILE:
         {
@@ -609,59 +402,17 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_SETUPTILE:
-        {
-            int tile, tmp;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (check_tile("setuptile", tile, script, pos))
-                break;
-            auto& tiled = TileFiles.tiledata[tile];
-            if (scriptfile_getsymbol(script,&tmp)) break;  // XXX
-            tiled.h_xsize = tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            tiled.h_ysize = tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            tiled.h_xoffs = tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            tiled.h_yoffs = tmp;
+            parseSetupTile(*script, pos);
             break;
-        }
+
         case T_SETUPTILERANGE:
-        {
-            int tile1,tile2,xsiz,ysiz,xoffs,yoffs,i;
-
-            if (scriptfile_getsymbol(script,&tile1)) break;
-            if (scriptfile_getsymbol(script,&tile2)) break;
-            if (scriptfile_getnumber(script,&xsiz)) break;
-            if (scriptfile_getnumber(script,&ysiz)) break;
-            if (scriptfile_getsymbol(script,&xoffs)) break;
-            if (scriptfile_getsymbol(script,&yoffs)) break;
-
-            if (check_tile_range("setuptilerange", &tile1, &tile2, script, pos))
-                break;
-
-            for (i=tile1; i<=tile2; i++)
-            {
-                auto& tiled = TileFiles.tiledata[i];
-
-                tiled.h_xsize = xsiz;
-                tiled.h_ysize = ysiz;
-                tiled.h_xoffs = xoffs;
-                tiled.h_yoffs = yoffs;
-            }
-
+            parseSetupTileRange(*script, pos);
             break;
-        }
+
         case T_ANIMTILERANGE:
-        {
-            SetAnim set;
-            if (scriptfile_getsymbol(script,&set.tile1)) break;
-            if (scriptfile_getsymbol(script,&set.tile2)) break;
-            if (scriptfile_getsymbol(script,&set.speed)) break;
-            if (scriptfile_getsymbol(script,&set.type)) break;
-            processSetAnim("animtilerange", pos, set);
+            parseAnimTileRange(*script, pos);
             break;
-        }
+
         case T_TILEFROMTEXTURE:
         {
             auto texturepos = scriptfile_getposition(script);
@@ -1117,7 +868,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (qloadkvx(nextvoxid, fn))
+            if (voxDefine(nextvoxid, fn))
             {
                 Printf("Failure loading voxel file \"%s\"\n",fn.GetChars());
                 break;
@@ -1588,7 +1339,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (qloadkvx(nextvoxid, fn))
+            if (voxDefine(nextvoxid, fn))
             {
                 voxelpos.Message(MSG_ERROR, "Failure loading voxel file \"%s\"",fn.GetChars());
                 break;
@@ -1629,14 +1380,14 @@ static int32_t defsparser(scriptfile *script)
                 {
                     double scale=1.0;
                     scriptfile_getdouble(script,&scale);
-                    voxscale[lastvoxid] = (int32_t)(65536*scale);
+                    voxscale[lastvoxid] = (float)scale;
                     if (voxmodels[lastvoxid])
                         voxmodels[lastvoxid]->scale = scale;
                     break;
                 }
 
                 case T_ROTATE:
-                    voxrotate[lastvoxid>>3] |= (1 << (lastvoxid&7));
+                    voxrotate.Set(lastvoxid);
                     break;
                 }
             }
@@ -1644,69 +1395,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_SKYBOX:
-        {
-						auto skyboxpos = scriptfile_getposition(script);
-            FString fn[6];
-            FScanner::SavedPos modelend;
-            int32_t i, tile = -1, pal = 0, happy = 1;
-			int flags = 0;
-
-            static const tokenlist skyboxtokens[] =
-            {
-                { "tile"   ,T_TILE   },
-                { "pal"    ,T_PAL    },
-                { "ft"     ,T_FRONT  },{ "front"  ,T_FRONT  },{ "forward",T_FRONT  },
-                { "rt"     ,T_RIGHT  },{ "right"  ,T_RIGHT  },
-                { "bk"     ,T_BACK   },{ "back"   ,T_BACK   },
-                { "lf"     ,T_LEFT   },{ "left"   ,T_LEFT   },{ "lt"     ,T_LEFT   },
-                { "up"     ,T_TOP    },{ "top"    ,T_TOP    },{ "ceiling",T_TOP    },{ "ceil"   ,T_TOP    },
-                { "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM },
-                { "nocompress", T_NOCOMPRESS },
-                { "nodownsize", T_NODOWNSIZE },
-                { "forcefilter", T_FORCEFILTER },
-                { "artquality", T_ARTQUALITY },
-            };
-
-            if (scriptfile_getbraces(script,&modelend)) break;
-            while (!scriptfile_endofblock(script, modelend))
-            {
-                switch (getatoken(script,skyboxtokens,countof(skyboxtokens)))
-                {
-                    //case T_ERROR: Printf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
-                case T_TILE:
-                    scriptfile_getsymbol(script,&tile); break;
-                case T_PAL:
-                    scriptfile_getsymbol(script,&pal); break;
-                case T_FRONT:
-                    scriptfile_getstring(script,&fn[0]); break;
-                case T_RIGHT:
-                    scriptfile_getstring(script,&fn[1]); break;
-                case T_BACK:
-                    scriptfile_getstring(script,&fn[2]); break;
-                case T_LEFT:
-                    scriptfile_getstring(script,&fn[3]); break;
-                case T_TOP:
-                    scriptfile_getstring(script,&fn[4]); break;
-                case T_BOTTOM:
-                    scriptfile_getstring(script,&fn[5]); break;
-
-                }
-            }
-
-            if (tile < 0) skyboxpos.Message(MSG_ERROR, "skybox: missing 'tile number'"), happy=0;
-            for (i=0; i<6; i++)
-            {
-                if (fn[i].IsEmpty()) skyboxpos.Message(MSG_ERROR, "skybox: missing '%s filename'", skyfaces[i]), happy = 0;
-                // FIXME?
-                if (!fileSystem.FileExists(fn[i]))
-                    happy = 0;
-            }
-            if (!happy) break;
-
-            const char* fns[] = { fn[0].GetChars(), fn[1].GetChars(), fn[2].GetChars(), fn[3].GetChars(), fn[4].GetChars(), fn[5].GetChars() };
-			tileSetSkybox(tile, pal, fns, flags);
-        }
-        break;
+            parseSkybox(*script, pos);
+            break;
         case T_HIGHPALOOKUP:
         {
             int32_t basepal=-1, pal=-1;
@@ -1914,191 +1604,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_TEXTURE:
-        {
-            FScanner::SavedPos textureend;
-            int32_t tile=-1, token;
-
-            static const tokenlist texturetokens[] =
-            {
-                { "pal",     T_PAL  },
-                { "detail",  T_DETAIL },
-                { "glow",    T_GLOW },
-                { "specular",T_SPECULAR },
-                { "normal",  T_NORMAL },
-            };
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getbraces(script,&textureend)) break;
-            while (!scriptfile_endofblock(script, textureend))
-            {
-                token = getatoken(script,texturetokens,countof(texturetokens));
-                switch (token)
-                {
-                case T_PAL:
-                {
-					auto palpos = scriptfile_getposition(script);
-                    FScanner::SavedPos palend;
-                    int32_t pal=-1, xsiz = 0, ysiz = 0;
-                    FString fn;
-                    double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
-                    uint8_t flags = 0;
-
-                    static const tokenlist texturetokens_pal[] =
-                    {
-                        { "file",            T_FILE },{ "name", T_FILE },
-                        { "alphacut",        T_ALPHACUT },
-                        { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
-                        { "yscale",          T_YSCALE },
-                        { "specpower",       T_SPECPOWER }, { "specularpower", T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
-                        { "specfactor",      T_SPECFACTOR }, { "specularfactor", T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
-                        { "nocompress",      T_NOCOMPRESS },
-                        { "nodownsize",      T_NODOWNSIZE },
-                        { "forcefilter",     T_FORCEFILTER },
-                        { "artquality",      T_ARTQUALITY },
-                        { "orig_sizex",      T_ORIGSIZEX }, { "orig_sizey", T_ORIGSIZEY }
-                    };
-
-                    if (scriptfile_getsymbol(script,&pal)) break;
-                    if (scriptfile_getbraces(script,&palend)) break;
-                    while (!scriptfile_endofblock(script, palend))
-                    {
-                        switch (getatoken(script,texturetokens_pal,countof(texturetokens_pal)))
-                        {
-                        case T_FILE:
-                            scriptfile_getstring(script,&fn); break;
-                        case T_ALPHACUT:
-                            scriptfile_getdouble(script,&alphacut); break;
-                        case T_XSCALE:
-                            scriptfile_getdouble(script,&xscale); break;
-                        case T_YSCALE:
-                            scriptfile_getdouble(script,&yscale); break;
-                        case T_SPECPOWER:
-                            scriptfile_getdouble(script,&specpower); break;
-                        case T_SPECFACTOR:
-                            scriptfile_getdouble(script,&specfactor); break;
-                        case T_ORIGSIZEX:
-                            scriptfile_getnumber(script, &xsiz);
-                            break;
-                        case T_ORIGSIZEY:
-                            scriptfile_getnumber(script, &ysiz);
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-
-                    if ((unsigned)tile >= MAXUSERTILES) break;	// message is printed later
-                    if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
-                    {
-                        palpos.Message(MSG_ERROR, "missing or invalid 'palette number' for texture definition");
-                        break;
-                    }
-                    if (fn.IsEmpty())
-                    {
-                        palpos.Message(MSG_ERROR, "missing 'file name' for texture definition");
-                        break;
-                    }
-
-                    if (!fileSystem.FileExists(fn))
-                    {
-                        palpos.Message(MSG_ERROR, "%s not found in replacement for tile %d", fn.GetChars(), tile);
-                        break;
-                    }
-
-                    if (xsiz > 0 && ysiz > 0)
-                    {
-                        tileSetDummy(tile, xsiz, ysiz);
-                    }
-                    xscale = 1.0f / xscale;
-                    yscale = 1.0f / yscale;
-
-                    tileSetHightileReplacement(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
-                }
-                break;
-                case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
-                {
-					auto detailpos = scriptfile_getposition(script);
-                    FScanner::SavedPos detailend;
-                    int32_t pal = 0;
-                    char flags = 0;
-                    FString fn;
-                    double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
-
-                    static const tokenlist texturetokens_pal[] =
-                    {
-                        { "file",            T_FILE },{ "name", T_FILE },
-                        { "alphacut",        T_ALPHACUT },
-                        { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
-                        { "yscale",          T_YSCALE },
-                        { "specpower",       T_SPECPOWER }, { "specularpower", T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
-                        { "specfactor",      T_SPECFACTOR }, { "specularfactor", T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
-                        { "nocompress",      T_NOCOMPRESS },
-                        { "nodownsize",      T_NODOWNSIZE },
-                        { "forcefilter",     T_FORCEFILTER },
-                        { "artquality",      T_ARTQUALITY },
-                    };
-
-                    if (scriptfile_getbraces(script,&detailend)) break;
-                    while (!scriptfile_endofblock(script, detailend))
-                    {
-                        switch (getatoken(script,texturetokens_pal,countof(texturetokens_pal)))
-                        {
-                        case T_FILE:
-                            scriptfile_getstring(script,&fn); break;
-                        case T_XSCALE:
-                            scriptfile_getdouble(script,&xscale); break;
-                        case T_YSCALE:
-                            scriptfile_getdouble(script,&yscale); break;
-                        case T_SPECPOWER:
-                            scriptfile_getdouble(script,&specpower); break;
-                        case T_SPECFACTOR:
-                            scriptfile_getdouble(script,&specfactor); break;
-                        default:
-                            break;
-                        }
-                    }
-
-                    if ((unsigned)tile >= MAXUSERTILES) break;	// message is printed later
-                    if (fn.IsEmpty())
-                    {
-                        detailpos.Message(MSG_ERROR, "missing 'file name' for texture definition");
-                        break;
-                    }
-
-                    if (!fileSystem.FileExists(fn))
-                        break;
-
-                    switch (token)
-                    {
-                    case T_DETAIL:
-                        pal = DETAILPAL;
-                        xscale = 1.0f / xscale;
-                        yscale = 1.0f / yscale;
-                        break;
-                    case T_GLOW:
-                        pal = GLOWPAL;
-                        break;
-                    case T_SPECULAR:
-                        pal = SPECULARPAL;
-                        break;
-                    case T_NORMAL:
-                        pal = NORMALPAL;
-                        break;
-                    }
-                    tileSetHightileReplacement(tile,pal,fn,-1.0f,xscale,yscale, specpower, specfactor,flags);
-                }
-                break;
-                default:
-                    break;
-                }
-            }
-            if ((unsigned)tile >= MAXUSERTILES)
-            {
-                pos.Message(MSG_ERROR, "missing or invalid 'tile number' for texture definition");
-                break;
-            }
-        }
-        break;
+            parseTexture(*script, pos);
+            break;
 
         case T_UNDEFMODEL:
         case T_UNDEFMODELRANGE:
@@ -2287,13 +1794,6 @@ static int32_t defsparser(scriptfile *script)
         case T_GLOBALFLAGS:
         {
             if (scriptfile_getnumber(script,&globalflags)) break;
-        }
-        break;
-
-        case T_GLOBALGAMEFLAGS:
-        {
-            int32_t dummy;
-            if (scriptfile_getnumber(script,&dummy)) break;
         }
         break;
 
@@ -3159,7 +2659,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             FStringf name("%s.%s", resName.GetChars(), resType.GetChars());
-            fileSystem.CreatePathlessCopy(resName, resID, 0);
+            fileSystem.CreatePathlessCopy(name, resID, 0);
         }
         break;
 
@@ -3172,34 +2672,44 @@ static int32_t defsparser(scriptfile *script)
     return 0;
 }
 
-
-int32_t loaddefinitionsfile(const char *fn, bool loadadds)
+int32_t loaddefinitionsfile(const char *fn, bool loadadds, bool cumulative)
 {
-    scriptfile *script;
-
-    script = scriptfile_fromfile(fn);
-
-    if (script)
+    bool done = false;
+    auto parseit = [&](int lump)
     {
-        Printf(PRINT_NONOTIFY, "Loading \"%s\"\n",fn);
+        FScanner sc;
+        sc.OpenLumpNum(lump);
+        sc.SetNoOctals(true);
+        sc.SetNoFatalErrors(true);
+        defsparser(&sc);
+        done = true;
+        Printf(PRINT_NONOTIFY, "\n");
+    };
 
-        defsparser(script);
+    if (!cumulative)
+    {
+        int lump = fileSystem.FindFile(fn);
+        if (lump >= 0)
+        {
+            Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fn);
+            parseit(lump);
+    }
+    }
+    else
+    {
+        int lump, lastlump = 0;
+        while ((lump = fileSystem.FindLumpFullName(fn, &lastlump)) >= 0)
+        {
+            Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump).GetChars());
+            parseit(lump);
+        }
     }
 
     if (userConfig.AddDefs && loadadds) for (auto& m : *userConfig.AddDefs)
 	{
 		Printf("Loading module \"%s\"\n",m.GetChars());
-        defsparser_include(m, NULL, NULL); // Q: should we let the external script see our symbol table?
+        defsparser_include(m, nullptr, nullptr); // Q: should we let the external script see our symbol table?
+        Printf(PRINT_NONOTIFY, "\n");
 	}
-
-    if (script)
-        scriptfile_close(script);
-
-    if (!script) return -1;
-
-    Printf(PRINT_NONOTIFY, "\n");
-
     return 0;
 }
-
-// vim:ts=4:

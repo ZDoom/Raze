@@ -646,7 +646,6 @@ void SerializeMap(FSerializer& arc)
 			("numshades", numshades)	// is this really needed?
 			("visibility", g_visibility)
 			("parallaxtype", parallaxtype)
-			("parallaxvisibility", parallaxvisibility)
 			("parallaxyo", parallaxyoffs_override)
 			("parallaxys", parallaxyscale_override)
 			("pskybits", pskybits_override)

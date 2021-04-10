@@ -11,6 +11,9 @@
 #include "gamefuncs.h"
 #include "render.h"
 #include "matrix.h"
+#include "gamecontrol.h"
+#include "hw_renderstate.h"
+#include "hw_cvars.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)
@@ -26,6 +29,7 @@ struct FDynLightData;
 class VSMatrix;
 struct FSpriteModelFrame;
 class FRenderState;
+struct voxmodel_t;
 
 struct HWSectorPlane
 {
@@ -192,7 +196,6 @@ public:
 	void SetupLights(HWDrawInfo *di, FDynLightData &lightdata);
 
 	void MakeVertices(HWDrawInfo *di, bool nosplit);
-	void SetLightAndFog(FRenderState& state);
 
 	void SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowmirror);
 	void SkyLine(HWDrawInfo *di, sectortype *sec, walltype *line);
@@ -356,3 +359,71 @@ inline float sectorVisibility(sectortype* sec)
 }
 
 inline const float hw_density = 0.35f;
+
+int checkTranslucentReplacement(FTextureID picnum, int pal);
+
+inline bool maskWallHasTranslucency(const walltype* wall)
+{
+	return (wall->cstat & CSTAT_WALL_TRANSLUCENT) || checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
+}
+
+inline bool spriteHasTranslucency(const spritetype* tspr)
+{
+	if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || //(tspr->clipdist & TSPR_FLAGS_DRAW_LAST) ||
+		((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
+		return true;
+
+	return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
+}
+
+inline void SetSpriteTranslucency(const spritetype* sprite, float& alpha, FRenderStyle& RenderStyle)
+{
+	bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
+	if (trans)
+	{
+		RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+		alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+	}
+	else
+	{
+		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
+		alpha = 1.f;
+	}
+	alpha *= 1.f - spriteext[sprite->owner].alpha;
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+extern PalEntry GlobalMapFog;
+extern float GlobalFogDensity;
+
+__forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palette, int shade, int visibility, float alpha, bool setcolor = true)
+{
+	// Fog must be done before the texture so that the texture selector can override it.
+	bool foggy = (GlobalMapFog || (fade & 0xffffff));
+	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
+	shade = clamp(shade, 0, numshades - 1);
+	// Disable brightmaps if non-black fog is used.
+	if (ShadeDiv >= 1 / 1000.f && foggy)
+	{
+		state.EnableFog(1);
+		float density = GlobalMapFog ? GlobalFogDensity : 350.f - Scale(numshades - shade, 150, numshades);
+		state.SetFog((GlobalMapFog) ? GlobalMapFog : fade, density * hw_density);
+		state.SetSoftLightLevel(255);
+		state.SetLightParms(128.f, 1 / 1000.f);
+	}
+	else
+	{
+		state.EnableFog(0);
+		state.SetFog(0, 0);
+		state.SetSoftLightLevel(gl_fogmode != 0 && ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
+		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
+	}
+
+	// The shade rgb from the tint is ignored here.
+	state.SetColor(globalr * (1 / 255.f), globalg * (1 / 255.f), globalb * (1 / 255.f), alpha);
+}
+

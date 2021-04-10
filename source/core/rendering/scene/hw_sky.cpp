@@ -32,6 +32,7 @@
 
 CVAR(Bool,gl_noskyboxes, false, 0)
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap);
+FGameTexture* SkyboxReplacement(FTextureID picnum, int palnum);
 
 //==========================================================================
 //
@@ -42,14 +43,14 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilema
 void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, PalEntry FadeColor)
 {
 	int picnum = plane == plane_ceiling ? sector->ceilingpicnum : sector->floorpicnum;
+	int palette = plane == plane_ceiling ? sector->ceilingpal : sector->floorpal;
 
 	int32_t dapyscale = 0, dapskybits = 0, dapyoffs = 0, daptileyscale = 0;
-	FGameTexture* skytex = nullptr;
+	FGameTexture* skytex = SkyboxReplacement(tileGetTexture(picnum)->GetID(), palette);
 	int realskybits = 0;
 	// todo: check for skybox replacement.
 	if (!skytex)
 	{
-		int palette = plane == plane_ceiling ? sector->ceilingpal : sector->floorpal;
 		int remap = TRANSLATION(Translation_Remap + curbasepal, palette);
 
 		int16_t const* dapskyoff = getpsky(picnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
@@ -179,12 +180,7 @@ void HWWall::SkyTop(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype * 
 	{
 		if (bs->ceilingstat & CSTAT_SECTOR_SKY)
 		{
-			float c1, c2, f1, f2;
-			PlanesAtPoint(bs, v1.X * 16.f, v1.Y * -16.f, &c1, &f1);
-			PlanesAtPoint(bs, v2.X * 16.f, v2.Y * -16.f, &c2, &f2);
-
-			// if the back sector is closed the sky must be drawn!
-			if (c1 > f1 || c2 > f2) return;
+			return;
 		}
 
 		flags |= HWF_SKYHACK;	// mid textures on such lines need special treatment!
@@ -231,14 +227,10 @@ void HWWall::SkyBottom(HWDrawInfo *di, walltype * seg,sectortype * fs,sectortype
 	}
 	else if (fs->floorstat & CSTAT_SECTOR_SKY)
 	{
-		float c1, c2, f1, f2;
-		PlanesAtPoint(bs, v1.X * 16.f, v1.Y * -16.f, &c1, &f1);
-		PlanesAtPoint(bs, v2.X * 16.f, v2.Y * -16.f, &c2, &f2);
 
 		if (bs->floorstat & CSTAT_SECTOR_SKY)
 		{
-			// if the back sector is closed the sky must be drawn!
-			if (c1 > f1 || c2 > f2) return;
+			return;
 		}
 		flags |= HWF_SKYHACK;	// mid textures on such lines need special treatment!
 	}

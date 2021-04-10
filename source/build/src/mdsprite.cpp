@@ -16,6 +16,7 @@
 #include "texturemanager.h"
 #include "hw_renderstate.h"
 #include "printf.h"
+#include "hw_voxels.h"
 #include "../../glbackend/glbackend.h"
 
 static int32_t curextra=MAXTILES;
@@ -23,6 +24,7 @@ static int32_t curextra=MAXTILES;
 #define MIN_CACHETIME_PRINT 10
 
 using namespace Polymost;
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate);
 
 static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 {
@@ -1536,6 +1538,11 @@ int32_t polymost_mddraw(tspriteptr_t tspr)
     else if (vm->mdnum == 3)
         return polymost_md3draw((md3model_t *)vm,tspr);
     return 0;
+}
+
+void voxfree(voxmodel_t* m)
+{
+    if (m) delete m;
 }
 
 static void mdfree(mdmodel_t *vm)

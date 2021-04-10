@@ -74,6 +74,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_draw.h"
 #include "gi.h"
 #include "gamefuncs.h"
+#include "hw_voxels.h"
+#include "hw_palmanager.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -135,6 +137,7 @@ void SetConsoleNotifyBuffer();
 bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
 void PostLoadSetup();
 void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated);
+void LoadVoxelModels();
 
 DBaseStatusBar* StatusBar;
 
@@ -358,7 +361,7 @@ void UserConfig::ProcessOptions()
 
 	static const char* defs[] = { "-def", "-h", nullptr };
 	Args->CollectFiles("-def", defs, ".def");
-	DefaultDef = Args->CheckValue("-def");
+	UserDef = Args->CheckValue("-def");
 
 	if (DefaultCon.IsEmpty())
 	{
@@ -582,10 +585,10 @@ int GameMain()
 	G_SaveConfig();
 	C_DeinitConsole();
 	V_ClearFonts();
-	vox_deinit();
+	voxClear();
+	ClearPalManager();
 	TexMan.DeleteAll();
 	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
-	GLInterface.Deinit();
 	I_ShutdownGraphics();
 	freeallmodels();
 	if (gi)
@@ -932,6 +935,12 @@ int RunGame()
 	enginePreInit();
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
+
+	GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
+	gi->loadPalette();
+	voxInit();
+	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
+	engineInit();
 	gi->app_init();
 	CreateStatusBar();
 	SetDefaultMenuColors();
@@ -943,7 +952,22 @@ int RunGame()
 	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
 	lookups.postLoadTables();
 	PostLoadSetup();
-	videoInit();
+	lookups.postLoadLookups();
+	FMaterial::SetLayerCallback(setpalettelayer);
+
+	V_Init2();
+	twod->Begin(screen->GetWidth(), screen->GetHeight());
+	twod->End();
+	UpdateJoystickMenu(NULL);
+	UpdateVRModes();
+
+	setVideoMode();
+
+	LoadVoxelModels();
+	GLInterface.Init(screen->GetWidth());
+	screen->BeginFrame();
+	screen->SetTextureFilterMode();
+	setViewport(hud_size);
 
 	D_CheckNetGame();
 	UpdateGenericUI(ui_generic);
@@ -1011,7 +1035,7 @@ void updatePauseStatus()
 //
 //==========================================================================
 
-void PolymostProcessVoxels(void);
+void LoadVoxelModels(void);
 
 void setVideoMode()
 {
@@ -1020,24 +1044,6 @@ void setVideoMode()
 	V_UpdateModeSize(xdim, ydim);
 	videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 	videoClearScreen(0);
-}
-
-void videoInit()
-{
-	lookups.postLoadLookups();
-	V_Init2();
-	setVideoMode();
-
-	PolymostProcessVoxels();
-	GLInterface.Init(screen->GetWidth());
-	screen->BeginFrame();
-	screen->SetTextureFilterMode();
-	setViewport(hud_size);
-}
-
-void G_FatalEngineError(void)
-{
-	I_FatalError("There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
 }
 
 //==========================================================================
@@ -1326,27 +1332,50 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 
 void LoadDefinitions()
 {
-	loaddefinitionsfile("engine/engine.def");	// Internal stuff that is required.
-
-	const char* defsfile = G_DefFile();
-
 	cycle_t deftimer;
 	deftimer.Reset();
 	deftimer.Clock();
-	if (!loaddefinitionsfile(defsfile, true))
+	const char* loaded = nullptr;
+
+	const char* defsfile = G_DefFile();
+	FString razedefsfile = defsfile;
+	razedefsfile.Substitute(".def", "-raze.def");
+
+	loaddefinitionsfile("engine/engine.def", false);	// Internal stuff that is required.
+
+	// check what we have.
+	// user .defs override the default ones and are not cumulative.
+	// if we fine even one Raze-specific file, all of those will be loaded cumulatively.
+	// otherwise the default rules inherited from older ports apply.
+	if (userConfig.UserDef.IsNotEmpty())
+	{
+		if (!loaddefinitionsfile(userConfig.UserDef, true, false)) loaded = userConfig.UserDef;
+	}
+	else
+	{
+		if (fileSystem.FileExists(razedefsfile))
+		{
+			if (!loaddefinitionsfile(razedefsfile, true, true)) loaded = razedefsfile;
+		}
+		else
+		{
+			if (!loaddefinitionsfile(defsfile, true, false)) loaded = defsfile;
+		}
+	}
+	
+	if (loaded)
 	{
 		deftimer.Unclock();
-		Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
+		DPrintf(DMSG_SPAMMY, "Definitions file \"%s\" loaded, %f ms.\n", loaded, deftimer.TimeMS());
 	}
 	userConfig.AddDefs.reset();
 
-	// load the widescreen replacements last so that they do not clobber the CRC for the original items so that mod-side replacement are picked up.
+	// load the widescreen replacements last. This ensures that mods still get the correct CRCs for their own tile replacements.
 	if (fileSystem.FindFile("engine/widescreen.def") >= 0 && !Args->CheckParm("-nowidescreen"))
 	{
 		loaddefinitionsfile("engine/widescreen.def");
 	}
-
-
+	fileSystem.InitHashChains(); // make sure that any resources that got added can be found again.
 }
 
 bool M_Active()
@@ -1417,3 +1446,10 @@ DEFINE_GLOBAL(gameaction)
 DEFINE_GLOBAL(gamestate)
 DEFINE_GLOBAL(demoplayback)
 DEFINE_GLOBAL(consoleplayer)
+
+
+void InitBuildTiles()
+{
+	// need to find a better way to handle this thing.
+}
+

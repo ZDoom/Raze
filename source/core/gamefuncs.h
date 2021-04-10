@@ -7,7 +7,6 @@
 extern int cameradist, cameraclock;
 
 bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
-bool spriteIsModelOrVoxel(const spritetype* tspr);
 void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz);
 void setWallSectors();
 void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
