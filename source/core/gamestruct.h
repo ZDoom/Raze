@@ -101,7 +101,7 @@ struct GameInterface
 	virtual int chaseCamX(binangle ang) { return 0; }
 	virtual int chaseCamY(binangle ang) { return 0; }
 	virtual int chaseCamZ(fixedhoriz horiz) { return 0; }
-	virtual bool Voxelize(int sprnum) { return false; }
+	virtual int Voxelize(int sprnum) { return -1; }
 
 	virtual FString statFPS()
 	{

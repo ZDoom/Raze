@@ -72,8 +72,9 @@ static void doprecache(int picnum, int palette)
 		if (r_voxels)
 		{
 			int vox = tiletovox[picnum];
+			if (vox == -1) vox = gi->Voxelize(picnum);
 			if (vox == -1 && isBlood()) vox = Blood::voxelIndex[picnum];
-			if (vox != -1 && voxmodels[vox] && voxmodels[vox]->model)
+			if (vox >= 0 && vox < MAXVOXELS && voxmodels[vox] && voxmodels[vox]->model)
 			{
 				FHWModelRenderer mr(*screen->RenderState(), 0);
 				voxmodels[vox]->model->BuildVertexBuffer(&mr);
@@ -127,5 +128,6 @@ void precacheMarkedTiles()
 		int dapalnum = pair->Key >> 32;
 		doprecache(dapicnum, dapalnum);
 	}
+	cachemap.Clear();
 }
 

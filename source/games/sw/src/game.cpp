@@ -798,9 +798,9 @@ void GameInterface::FreeLevelData()
     ::GameInterface::FreeLevelData();
 }
 
-bool GameInterface::Voxelize(int sprnum) 
+int GameInterface::Voxelize(int sprnum) 
 { 
-    return (aVoxelArray[sprnum].Voxel >= 0);
+    return (aVoxelArray[sprnum].Voxel);
 }
 
 END_SW_NS
