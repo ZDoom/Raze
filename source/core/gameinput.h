@@ -91,10 +91,7 @@ struct PlayerHorizon
 
 	fixedhoriz interpolatedsum(double const smoothratio)
 	{
-		double const ratio = smoothratio * (1. / FRACUNIT);
-		fixed_t const prev = osum().asq16();
-		fixed_t const curr = sum().asq16();
-		return q16horiz(prev + xs_CRoundToInt(ratio * (curr - prev)));
+		return q16horiz(interpolatedvalue(osum().asq16(), sum().asq16(), smoothratio));
 	}
 
 private:
