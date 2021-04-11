@@ -32,11 +32,11 @@ BEGIN_BLD_NS
 
 int nPrecacheCount;
 
-void fxPrecache(HitList &hits);
-void gibPrecache(HitList &hits);
+void fxPrecache();
+void gibPrecache();
 
 
-void tilePrecacheTile(int nTile, int nType, HitList &hits)
+void tilePrecacheTile(int nTile, int nType, int palette)
 {
     int n = 1;
     switch (picanm[nTile].extra & 7)
@@ -65,20 +65,13 @@ void tilePrecacheTile(int nTile, int nType, HitList &hits)
                     tile = nTile - frame;
                 else
                     tile = nTile + frame;
-                if (!hits[tile])
-                {
-                    nPrecacheCount++;
-                    hits.Set(tile);
-                }
+
+                markTileForPrecache(tile, palette);
             }
         }
         else
         {
-            if (!hits[nTile])
-            {
-                nPrecacheCount++;
-                hits.Set(nTile);
-            }
+            markTileForPrecache(nTile, palette);
         }
         nTile += 1 + picanm[nTile].num;
     }
@@ -87,34 +80,34 @@ void tilePrecacheTile(int nTile, int nType, HitList &hits)
 
 // To do: This needs to handle the sprite palettes as well to properly precache the needed content.
 
-void viewPrecacheTiles(HitList &hits)
+void viewPrecacheTiles()
 {
-    tilePrecacheTile(2173, 0, hits);
-    tilePrecacheTile(2200, 0, hits);
-    tilePrecacheTile(2201, 0, hits);
-    tilePrecacheTile(2202, 0, hits);
-    tilePrecacheTile(2207, 0, hits);
-    tilePrecacheTile(2208, 0, hits);
-    tilePrecacheTile(2209, 0, hits);
-    tilePrecacheTile(2229, 0, hits);
-    tilePrecacheTile(2260, 0, hits);
-    tilePrecacheTile(2559, 0, hits);
-    tilePrecacheTile(2169, 0, hits);
-    tilePrecacheTile(2578, 0, hits);
-    tilePrecacheTile(2586, 0, hits);
-    tilePrecacheTile(2602, 0, hits);
+    tilePrecacheTile(2173, 0, 0);
+    tilePrecacheTile(2200, 0, 0);
+    tilePrecacheTile(2201, 0, 0);
+    tilePrecacheTile(2202, 0, 0);
+    tilePrecacheTile(2207, 0, 0);
+    tilePrecacheTile(2208, 0, 0);
+    tilePrecacheTile(2209, 0, 0);
+    tilePrecacheTile(2229, 0, 0);
+    tilePrecacheTile(2260, 0, 0);
+    tilePrecacheTile(2559, 0, 0);
+    tilePrecacheTile(2169, 0, 0);
+    tilePrecacheTile(2578, 0, 0);
+    tilePrecacheTile(2586, 0, 0);
+    tilePrecacheTile(2602, 0, 0);
     for (int i = 0; i < 10; i++)
     {
-        tilePrecacheTile(2190 + i, 0, hits);
-        tilePrecacheTile(2230 + i, 0, hits);
-        tilePrecacheTile(2240 + i, 0, hits);
-        tilePrecacheTile(2250 + i, 0, hits);
-        tilePrecacheTile(kSBarNumberHealth + i, 0, hits);
-        tilePrecacheTile(kSBarNumberAmmo + i, 0, hits);
-        tilePrecacheTile(kSBarNumberInv + i, 0, hits);
-        tilePrecacheTile(kSBarNumberArmor1 + i, 0, hits);
-        tilePrecacheTile(kSBarNumberArmor2 + i, 0, hits);
-        tilePrecacheTile(kSBarNumberArmor3 + i, 0, hits);
+        tilePrecacheTile(2190 + i, 0, 0);
+        tilePrecacheTile(2230 + i, 0, 0);
+        tilePrecacheTile(2240 + i, 0, 0);
+        tilePrecacheTile(2250 + i, 0, 0);
+        tilePrecacheTile(kSBarNumberHealth + i, 0, 0);
+        tilePrecacheTile(kSBarNumberAmmo + i, 0, 0);
+        tilePrecacheTile(kSBarNumberInv + i, 0, 0);
+        tilePrecacheTile(kSBarNumberArmor1 + i, 0, 0);
+        tilePrecacheTile(kSBarNumberArmor2 + i, 0, 0);
+        tilePrecacheTile(kSBarNumberArmor3 + i, 0, 0);
     }
     /*
     for (int i = 0; i < 5; i++)
@@ -125,54 +118,55 @@ void viewPrecacheTiles(HitList &hits)
     */
     for (int i = 0; i < 6; i++)
     {
-        tilePrecacheTile(2220 + i, 0, hits);
-        tilePrecacheTile(2552 + i, 0, hits);
+        tilePrecacheTile(2220 + i, 0, 0);
+        tilePrecacheTile(2552 + i, 0, 0);
     }
 }
 
 
 
-void PrecacheDude(spritetype *pSprite, HitList &hits)
+void PrecacheDude(spritetype *pSprite)
 {
+    int palette = pSprite->pal;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    seqPrecacheId(pDudeInfo->seqStartID  , hits);
-    seqPrecacheId(pDudeInfo->seqStartID+5, hits);
-    seqPrecacheId(pDudeInfo->seqStartID+1, hits);
-    seqPrecacheId(pDudeInfo->seqStartID+2, hits);
+    seqPrecacheId(pDudeInfo->seqStartID  , palette);
+    seqPrecacheId(pDudeInfo->seqStartID+5, palette);
+    seqPrecacheId(pDudeInfo->seqStartID+1, palette);
+    seqPrecacheId(pDudeInfo->seqStartID+2, palette);
     switch (pSprite->type)
     {
     case kDudeCultistTommy:
     case kDudeCultistShotgun:
     case kDudeCultistTesla:
     case kDudeCultistTNT:
-        seqPrecacheId(pDudeInfo->seqStartID+6 , hits);
-        seqPrecacheId(pDudeInfo->seqStartID+7 , hits);
-        seqPrecacheId(pDudeInfo->seqStartID+8 , hits);
-        seqPrecacheId(pDudeInfo->seqStartID+9 , hits);
-        seqPrecacheId(pDudeInfo->seqStartID+13, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+14, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+15, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+6 , palette);
+        seqPrecacheId(pDudeInfo->seqStartID+7 , palette);
+        seqPrecacheId(pDudeInfo->seqStartID+8 , palette);
+        seqPrecacheId(pDudeInfo->seqStartID+9 , palette);
+        seqPrecacheId(pDudeInfo->seqStartID+13, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+14, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+15, palette);
         break;
     case kDudeZombieButcher:
     case kDudeGillBeast:
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+7, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+8, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+9, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+10, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+11, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+8, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+9, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+10, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+11, palette);
         break;
     case kDudeGargoyleStatueFlesh:
     case kDudeGargoyleStatueStone:
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits); //???
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette); //???
         fallthrough__;
     case kDudeGargoyleFlesh:
     case kDudeGargoyleStone:
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+7, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+8, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+9, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+8, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+9, palette);
         break;
     case kDudePhantasm:
     case kDudeHellHound:
@@ -181,88 +175,89 @@ void PrecacheDude(spritetype *pSprite, HitList &hits)
     case kDudeSpiderBlack:
     case kDudeSpiderMother:
     case kDudeTchernobog:
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+7, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+8, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+8, palette);
         break;
     case kDudeCerberusTwoHead:
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+7, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
         fallthrough__;
     case kDudeHand:
     case kDudeBoneEel:
     case kDudeBat:
     case kDudeRat:
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+7, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
         break;
     case kDudeCultistBeast:
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
         break;
     case kDudeZombieAxeBuried:
-        seqPrecacheId(pDudeInfo->seqStartID+12, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+9, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+12, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+9, palette);
         fallthrough__;
     case kDudeZombieAxeLaying:
-        seqPrecacheId(pDudeInfo->seqStartID+10, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+10, palette);
         fallthrough__;
     case kDudeZombieAxeNormal:
-        seqPrecacheId(pDudeInfo->seqStartID+6, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+7, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+8, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+11, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+13, hits);
-        seqPrecacheId(pDudeInfo->seqStartID+14, hits);
+        seqPrecacheId(pDudeInfo->seqStartID+6, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+7, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+8, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+11, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+13, palette);
+        seqPrecacheId(pDudeInfo->seqStartID+14, palette);
         break;
     }
 }
 
-void PrecacheThing(spritetype *pSprite, HitList &hits) {
+void PrecacheThing(spritetype *pSprite) 
+{
+    int palette = pSprite->pal;
     switch (pSprite->type) {
         case kThingGlassWindow: // worthless...
         case kThingFluorescent:
-            seqPrecacheId(12, hits);
+            seqPrecacheId(12, palette);
             break;
         case kThingSpiderWeb:
-            seqPrecacheId(15, hits);
+            seqPrecacheId(15, palette);
             break;
         case kThingMetalGrate:
-            seqPrecacheId(21, hits);
+            seqPrecacheId(21, palette);
             break;
         case kThingFlammableTree:
-            seqPrecacheId(25, hits);
-            seqPrecacheId(26, hits);
+            seqPrecacheId(25, palette);
+            seqPrecacheId(26, palette);
             break;
         case kTrapMachinegun:
-            seqPrecacheId(38, hits);
-            seqPrecacheId(40, hits);
-            seqPrecacheId(28, hits);
+            seqPrecacheId(38, palette);
+            seqPrecacheId(40, palette);
+            seqPrecacheId(28, palette);
             break;
         case kThingObjectGib:
         //case kThingObjectExplode: weird that only gib object is precached and this one is not
             break;
     }
-    tilePrecacheTile(pSprite->picnum, -1, hits);
+    tilePrecacheTile(pSprite->picnum, -1, palette);
 }
 
-void PreloadTiles(HitList & hits)
+void PreloadCache()
 {
-    nPrecacheCount = 0;
+    if (!r_precache) return;
     int skyTile = -1;
-    hits.Zero();
     // Fonts
     for (int i = 0; i < numsectors; i++)
     {
-        tilePrecacheTile(sector[i].floorpicnum, 0, hits);
-        tilePrecacheTile(sector[i].ceilingpicnum, 0, hits);
+        tilePrecacheTile(sector[i].floorpicnum, 0, sector[i].floorpal);
+        tilePrecacheTile(sector[i].ceilingpicnum, 0, sector[i].ceilingpal);
         if ((sector[i].ceilingstat&1) != 0 && skyTile == -1)
             skyTile = sector[i].ceilingpicnum;
     }
     for (int i = 0; i < numwalls; i++)
     {
-        tilePrecacheTile(wall[i].picnum, 0, hits);
+        tilePrecacheTile(wall[i].picnum, 0, wall[i].pal);
         if (wall[i].overpicnum >= 0)
-            tilePrecacheTile(wall[i].overpicnum, 0, hits);
+            tilePrecacheTile(wall[i].overpicnum, 0, wall[i].pal);
     }
     for (int i = 0; i < kMaxSprites; i++)
     {
@@ -272,13 +267,13 @@ void PreloadTiles(HitList & hits)
             switch (pSprite->statnum)
             {
             case kStatDude:
-                PrecacheDude(pSprite, hits);
+                PrecacheDude(pSprite);
                 break;
             case kStatThing:
-                PrecacheThing(pSprite, hits);
+                PrecacheThing(pSprite);
                 break;
             default:
-                tilePrecacheTile(pSprite->picnum, -1, hits);
+                tilePrecacheTile(pSprite->picnum, -1, pSprite->pal);
                 break;
             }
         }
@@ -287,57 +282,38 @@ void PreloadTiles(HitList & hits)
     // Precache common SEQs
     for (int i = 0; i < 100; i++)
     {
-        seqPrecacheId(i, hits);
+        seqPrecacheId(i, 0);
     }
 
-    tilePrecacheTile(1147, -1, hits); // water drip
-    tilePrecacheTile(1160, -1, hits); // blood drip
+    tilePrecacheTile(1147, -1, 0); // water drip
+    tilePrecacheTile(1160, -1, 0); // blood drip
 
     // Player SEQs
-    seqPrecacheId(dudeInfo[31].seqStartID+6, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+7, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+8, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+9, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+10, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+14, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+15, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+12, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+16, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+17, hits);
-    seqPrecacheId(dudeInfo[31].seqStartID+18, hits);
+    seqPrecacheId(dudeInfo[31].seqStartID+6, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+7, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+8, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+9, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+10, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+14, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+15, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+12, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+16, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+17, 0);
+    seqPrecacheId(dudeInfo[31].seqStartID+18, 0);
 
     if (skyTile > -1 && skyTile < kMaxTiles)
     {
         for (int i = 1; i < gSkyCount; i++)
-            tilePrecacheTile(skyTile+i, 0, hits);
+            tilePrecacheTile(skyTile+i, 0, 0);
     }
 
-    WeaponPrecache(hits);
-    viewPrecacheTiles(hits);
-    fxPrecache(hits);
-    gibPrecache(hits);
+    WeaponPrecache();
+    viewPrecacheTiles();
+    fxPrecache();
+    gibPrecache();
 
     I_GetEvent();
-}
-
-void PreloadCache()
-{
-	if (!r_precache) return;
-    HitList hits;
-    PreloadTiles(hits);
-    int cnt = 0;
-    int percentDisplayed = -1;
-
-    for (int i = 0; i < kMaxTiles; i++)
-    {
-        if (hits[i])
-        {
-            PrecacheHardwareTextures(i);
-
-            if ((++cnt & 7) == 0)
-                I_GetEvent();
-        }
-    }
+    precacheMarkedTiles();
 }
 
 END_BLD_NS

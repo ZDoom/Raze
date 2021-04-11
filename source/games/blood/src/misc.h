@@ -27,8 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-using HitList = FixedBitArray<MAXTILES>;
-
 void playlogos();
 unsigned int qrand(void);
 int wrand(void);
@@ -56,7 +54,7 @@ char WeaponUpgrade(PLAYER *pPlayer, char newWeapon);
 void WeaponProcess(PLAYER *pPlayer);
 void WeaponUpdateState(PLAYER* pPlayer);
 void teslaHit(spritetype *pMissile, int a2);
-void WeaponPrecache(HitList &hits);
+void WeaponPrecache();
 
 struct ZONE {
     int x, y, z;
@@ -124,7 +122,7 @@ extern int nPrecacheCount;
 
 int tileInit(char a1, const char *a2);
 void tileProcessGLVoxels(void);
-void tilePrecacheTile(int nTile, int nType, HitList& hits);
+void tilePrecacheTile(int nTile, int nType, int palette);
 
 char tileGetSurfType(int hit);
 

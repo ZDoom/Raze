@@ -237,12 +237,12 @@ void WeaponInit(void)
     }
 }
 
-void WeaponPrecache(HitList &hits)
+void WeaponPrecache()
 {
     for (int i = 0; i < kQAVEnd; i++)
     {
         if (weaponQAV[i])
-            weaponQAV[i]->Precache(hits);
+            weaponQAV[i]->Precache();
     }
 }
 

@@ -146,14 +146,14 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
     }
 }
 
-void QAV::Precache(HitList &hits)
+void QAV::Precache(int palette)
 {
     for (int i = 0; i < nFrames; i++)
     {
         for (int j = 0; j < 8; j++)
         {
             if (frames[i].tiles[j].picnum >= 0)
-                tilePrecacheTile(frames[i].tiles[j].picnum, 0, hits);
+                tilePrecacheTile(frames[i].tiles[j].picnum, 0, palette);
         }
     }
 }

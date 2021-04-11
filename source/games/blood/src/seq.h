@@ -59,7 +59,7 @@ struct Seq {
 	short soundId;
 	int flags;
 	SEQFRAME frames[1];
-	void Precache(HitList&);
+	void Precache(int palette);
 
 	bool isLooping()
 	{
@@ -96,7 +96,7 @@ inline int seqGetTile(SEQFRAME* pFrame)
 }
 
 int seqRegisterClient(void(*pClient)(int, int));
-void seqPrecacheId(int id, HitList& hits);
+void seqPrecacheId(int id, int palette);
 SEQINST* GetInstance(int a1, int a2);
 void UnlockInstance(SEQINST* pInst);
 void seqSpawn(int a1, int a2, int a3, int a4 = -1);
