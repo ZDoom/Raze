@@ -137,9 +137,6 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     float pc[4];
 
-    pc[0] = pc[1] = pc[2] = 1.f;
-
-
     if (!shadowHack)
     {
         pc[3] = (tspr->cstat & 2) ? glblend[tspr->blend].def[!!(tspr->cstat & 512)].alpha : 1.0f;
@@ -152,6 +149,12 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     }
     else pc[3] = 1.f;
 	GLInterface.SetShade(std::max(0, globalshade), numshades);
+
+    pc[0] = (float)globalr * (1.f / 255.f);
+    pc[1] = (float)globalg * (1.f / 255.f);
+    pc[2] = (float)globalb * (1.f / 255.f);
+    GLInterface.SetColor(pc[0], pc[1], pc[2], pc[3]);
+
     //------------
 
     //transform to Build coords
