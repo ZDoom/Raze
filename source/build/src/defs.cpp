@@ -1446,56 +1446,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_TINT:
-        {
-			auto tintpos = scriptfile_getposition(script);
-            int32_t red=255, green=255, blue=255, shadered=0, shadegreen=0, shadeblue=0, pal=-1, flags=0;
-            FScanner::SavedPos tintend;
-
-            static const tokenlist tinttokens[] =
-            {
-                { "pal",        T_PAL        },
-                { "red",        T_RED        },{ "r",  T_RED },
-                { "green",      T_GREEN      },{ "g",  T_GREEN },
-                { "blue",       T_BLUE       },{ "b",  T_BLUE },
-                { "shadered",   T_SHADERED   },{ "sr", T_SHADERED },
-                { "shadegreen", T_SHADEGREEN },{ "sg", T_SHADEGREEN },
-                { "shadeblue",  T_SHADEBLUE  },{ "sb", T_SHADEBLUE },
-                { "flags",      T_FLAGS      }
-            };
-
-            if (scriptfile_getbraces(script,&tintend)) break;
-            while (!scriptfile_endofblock(script, tintend))
-            {
-                switch (getatoken(script,tinttokens,countof(tinttokens)))
-                {
-                case T_PAL:
-                    scriptfile_getsymbol(script,&pal);        break;
-                case T_RED:
-                    scriptfile_getnumber(script,&red);        red        = min(255,max(0,red));   break;
-                case T_GREEN:
-                    scriptfile_getnumber(script,&green);      green      = min(255,max(0,green)); break;
-                case T_BLUE:
-                    scriptfile_getnumber(script,&blue);       blue       = min(255,max(0,blue));  break;
-                case T_SHADERED:
-                    scriptfile_getnumber(script,&shadered);   shadered   = min(255,max(0,shadered));   break;
-                case T_SHADEGREEN:
-                    scriptfile_getnumber(script,&shadegreen); shadegreen = min(255,max(0,shadegreen)); break;
-                case T_SHADEBLUE:
-                    scriptfile_getnumber(script,&shadeblue);  shadeblue  = min(255,max(0,shadeblue));  break;
-                case T_FLAGS:
-                    scriptfile_getsymbol(script,&flags);      break;
-                }
-            }
-
-            if (pal < 0)
-            {
-                tintpos.Message(MSG_ERROR, "tint: missing 'palette number'");
-                break;
-            }
-
-            lookups.setPaletteTint(pal,red,green,blue,shadered,shadegreen,shadeblue,flags);
-        }
-        break;
+            parseTint(*script, pos);
+            break;
         case T_MAKEPALOOKUP:
         {
             int32_t red=0, green=0, blue=0, pal=-1;

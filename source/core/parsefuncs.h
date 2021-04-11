@@ -146,8 +146,6 @@ static void parseTextureSpecialBlock(FScanner& sc, FScriptPosition& pos, int til
 	FString fn;
 	double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
-	if (!sc.GetNumber(pal, true)) return;
-
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))
 	{
@@ -403,4 +401,38 @@ void parseNoFloorpalRange(FScanner& sc, FScriptPosition& pos)
 	if (end > MAXPALOOKUPS - 1) end = MAXPALOOKUPS - 1;
 	for (int i = start; i <= end; i++)
 		lookups.tables[i].noFloorPal = true;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseTint(FScanner& sc, FScriptPosition& pos)
+{
+	int red = 255, green = 255, blue = 255, shadered = 0, shadegreen = 0, shadeblue = 0, pal = -1, flags = 0;
+	FScanner::SavedPos tintend;
+
+	FScanner::SavedPos blockend;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("pal")) sc.GetNumber(pal, true);
+		else if (sc.Compare({"red", "r"})) sc.GetNumber(red);
+		else if (sc.Compare({ "green", "g" })) sc.GetNumber(green);
+		else if (sc.Compare({ "blue", "b" })) sc.GetNumber(blue);
+		else if (sc.Compare({ "shadered", "sr" })) sc.GetNumber(shadered);
+		else if (sc.Compare({ "shadegreen", "sg" })) sc.GetNumber(shadegreen);
+		else if (sc.Compare({ "shadeblue", "sb" })) sc.GetNumber(shadeblue);
+		else if (sc.Compare("flags")) sc.GetNumber(flags, true);
+	}
+
+	if (pal < 0)
+		pos.Message(MSG_ERROR, "tint: missing palette number");
+	else
+		lookups.setPaletteTint(pal, clamp(red, 0, 255), clamp(green, 0, 255), clamp(blue, 0, 255), 
+			clamp(shadered, 0, 255), clamp(shadegreen, 0, 255), clamp(shadeblue, 0, 255), flags);
 }
