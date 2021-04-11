@@ -32,12 +32,18 @@
 **---------------------------------------------------------------------------
 **
 */
-
+#include "ns.h"
 #include "build.h"
 #include "palette.h"
 #include "v_video.h"
 #include "hw_material.h"
+#include "gamestruct.h"
+#include "gamecontrol.h"
 #include "glbackend/gl_models.h"
+
+BEGIN_BLD_NS
+extern short voxelIndex[MAXTILES];
+END_BLD_NS
 
 static void PrecacheTex(FGameTexture* tex, int palid)
 {
@@ -49,31 +55,29 @@ static void PrecacheTex(FGameTexture* tex, int palid)
 	screen->PrecacheMaterial(mat, palid);
 }
 
-static void doprecache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
+static void doprecache(int picnum, int palette)
 {
-    // dapicnum and dapalnum are like you'd expect
-    // datype is 0 for a wall/floor/ceiling and 1 for a sprite
-    //    basically this just means walls are repeating
-    //    while sprites are clamped
+   if ((palette < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(palette))) return;
 
-   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(dapalnum))) return;//dapalnum = 0;
-
-    //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
-    int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-    auto tex = tileGetTexture(dapicnum);
+    int palid = TRANSLATION(Translation_Remap + curbasepal, palette);
+    auto tex = tileGetTexture(picnum);
     PrecacheTex(tex, palid);
 
-    if (datype == 0 || !hw_models) return;
+    if (!hw_models) return;
 
-    int const mid = md_tilehasmodel(dapicnum, dapalnum);
+    int const mid = md_tilehasmodel(picnum, palette);
 
 	if (mid < 0 || models[mid]->mdnum < 2)
 	{
-		int vox = tiletovox[dapicnum];
-		if (vox != -1 && voxmodels[vox] && voxmodels[vox]->model)
+		if (r_voxels)
 		{
-			FHWModelRenderer mr(*screen->RenderState(), 0);
-			voxmodels[vox]->model->BuildVertexBuffer(&mr);
+			int vox = tiletovox[picnum];
+			if (vox == -1 && isBlood()) vox = Blood::voxelIndex[picnum];
+			if (vox != -1 && voxmodels[vox] && voxmodels[vox]->model)
+			{
+				FHWModelRenderer mr(*screen->RenderState(), 0);
+				voxmodels[vox]->model->BuildVertexBuffer(&mr);
+			}
 		}
 		return;
 	}
@@ -82,17 +86,10 @@ static void doprecache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
     for (int i = 0; i <= surfaces; i++)
 	{
-        auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
-        int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
+        auto tex = mdloadskin((md2model_t *)models[mid], 0, palette, i, nullptr);
+        int palid = TRANSLATION(Translation_Remap + curbasepal, palette);
         if (tex) PrecacheTex(tex, palid);
 	}
-}
-
-void PrecacheHardwareTextures(int nTile)
-{
-	// PRECACHE
-	// This really *really* needs improvement on the game side - the entire precaching logic has no clue about the different needs of a hardware renderer.
-	doprecache(nTile, 0, 1);
 }
 
 
@@ -128,7 +125,7 @@ void precacheMarkedTiles()
 	{
 		int dapicnum = pair->Key & 0x7fffffff;
 		int dapalnum = pair->Key >> 32;
-		doprecache(dapicnum, dapalnum, 0);
+		doprecache(dapicnum, dapalnum);
 	}
 }
 
