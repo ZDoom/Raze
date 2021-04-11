@@ -388,6 +388,11 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	LumpFilterInfo lfi;
 	for (auto p : iwad_folders) lfi.reservedFolders.Push(p);
 	for (auto p = iwad_reserved(); *p; p++) lfi.requiredPrefixes.Push(*p);
+	if (isBlood())
+	{
+		lfi.embeddings.Push("blood.rff");
+		lfi.embeddings.Push("sounds.rff");
+	}
 
 	lfi.dotFilter = LumpFilter;
 
