@@ -234,7 +234,7 @@ private:
 	{
 		if (!SyncInput())
 		{
-			adjustment += value.asbuildf();
+			adjustment += value.signedbuildf();
 		}
 		else
 		{

@@ -6125,7 +6125,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)) >> 4);
+            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)).signedbuild() >> 4);
         }
     }
 }
