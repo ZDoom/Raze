@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "v_video.h"
 #include "interpolate.h"
-#include "glbackend/glbackend.h"
 #include "v_draw.h"
 #include <string.h>
 

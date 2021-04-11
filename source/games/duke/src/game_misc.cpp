@@ -41,7 +41,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "i_interface.h"
 #include "prediction.h"
 #include "sbar.h"
-#include "glbackend/glbackend.h"
 #include "gamestate.h"
 #include "dukeactor.h"
 #include "interpolate.h"

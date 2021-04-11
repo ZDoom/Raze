@@ -1046,6 +1046,7 @@ set (PCH_SOURCES
 	core/gameconfigfile.cpp
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
+	core/gamehud.cpp
 	core/gamefuncs.cpp
 	core/gameinput.cpp
 	core/interpolate.cpp

@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
-#include "glbackend/glbackend.h"
+#include "gamehud.h"
 
 BEGIN_BLD_NS
 

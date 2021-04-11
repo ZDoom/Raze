@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "SmackerDecoder.h"
 #include "blood.h"
 #include "animtexture.h"
-#include "../glbackend/glbackend.h"
 #include "raze_sound.h"
 #include "v_2ddrawer.h"
 #include "screenjob.h"

@@ -55,7 +55,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "v_draw.h"
-#include "glbackend/glbackend.h"
 
 BEGIN_SW_NS
 

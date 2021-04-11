@@ -33,6 +33,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "automap.h"
 #include "dukeactor.h"
 #include "interpolate.h"
+#include "glbackend/glbackend.h"
 
 
 BEGIN_DUKE_NS
