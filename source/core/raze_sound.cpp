@@ -254,3 +254,46 @@ void S_SerializeSounds(FSerializer& arc)
 	GSnd->UpdateSounds();
 }
 
+//==========================================================================
+//
+// CCMD playsound
+//
+//==========================================================================
+
+CCMD(playsound)
+{
+	if (argv.argc() > 1)
+	{
+		FSoundID id = argv[1];
+		if (id == 0)
+		{
+			Printf("'%s' is not a sound\n", argv[1]);
+		}
+		else
+		{
+			soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI | CHANF_NOPAUSE, id, 1.f, ATTN_NORM);
+		}
+	}
+}
+
+//==========================================================================
+//
+// CCMD playsound
+//
+//==========================================================================
+
+CCMD(playsoundid)
+{
+	if (argv.argc() > 1)
+	{
+		FSoundID id = soundEngine->FindSoundByResID((int)strtol(argv[1], nullptr, 0));
+		if (id == 0)
+		{
+			Printf("'%s' is not a sound\n", argv[1]);
+		}
+		else
+		{
+			soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI | CHANF_NOPAUSE, id, 1.f, ATTN_NORM);
+		}
+	}
+}
