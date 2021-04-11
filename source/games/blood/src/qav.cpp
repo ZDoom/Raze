@@ -146,18 +146,6 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
     }
 }
 
-void QAV::Preload(void)
-{
-    for (int i = 0; i < nFrames; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            if (frames[i].tiles[j].picnum >= 0)
-                tilePreloadTile(frames[i].tiles[j].picnum);
-        }
-    }
-}
-
 void QAV::Precache(HitList &hits)
 {
     for (int i = 0; i < nFrames; i++)

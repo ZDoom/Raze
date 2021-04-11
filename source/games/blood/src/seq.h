@@ -59,7 +59,6 @@ struct Seq {
 	short soundId;
 	int flags;
 	SEQFRAME frames[1];
-	void Preload(void);
 	void Precache(HitList&);
 
 	bool isLooping()

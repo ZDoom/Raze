@@ -302,7 +302,7 @@ static void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int callback, bool looped 
     pPlayer->weaponTimer = weaponQAV[nWeaponQAV]->duration;
     pPlayer->qavCallback = callback;
     pPlayer->qavLoop = looped;
-    weaponQAV[nWeaponQAV]->Preload();
+    //weaponQAV[nWeaponQAV]->Preload();
     WeaponPlay(pPlayer);
     pPlayer->weaponTimer -= 4;
 }
