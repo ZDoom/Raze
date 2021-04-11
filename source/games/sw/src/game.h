@@ -2239,14 +2239,14 @@ struct GameInterface : ::GameInterface
     void WarpToCoords(int x, int y, int z, int a, int h) override;
     void ToggleThirdPerson() override;
     void SwitchCoopView() override;
-    int chaseCamX(binangle ang) { return -ang.bcos(-3); }
-    int chaseCamY(binangle ang) { return -ang.bsin(-3); }
-    int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 8; }
+    int chaseCamX(binangle ang) override { return -ang.bcos(-3); }
+    int chaseCamY(binangle ang) override { return -ang.bsin(-3); }
+    int chaseCamZ(fixedhoriz horiz) override { return horiz.asq16() >> 8; }
     void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(spritetype* viewer, int type) override;
     void LeavePortal(spritetype* viewer, int type) override;
-    bool Voxelize(int sprnum);
+    int Voxelize(int sprnum);
 
 
     GameStats getStats() override;

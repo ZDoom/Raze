@@ -27,7 +27,6 @@ void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
 void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t mirrorWall);
 void polymost_completeMirror();
-void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 void polymost_deletesprite(int num);
 
 int32_t polymost_maskWallHasTranslucency(walltype const * const wall);

@@ -728,9 +728,6 @@ static TArray<GrpEntry> SetupGame()
 	if (groupno == -1) return TArray<GrpEntry>();
 	auto& group = groups[groupno];
 
-	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
-	else I_SetWindowTitle(group.FileInfo.name);
-
 	// Now filter out the data we actually need and delete the rest.
 
 	usedgroups.Push(group);
@@ -829,6 +826,8 @@ void CreateStatusBar()
 
 int RunGame()
 {
+	GameStartupInfo.FgColor = 0xffffff;
+
 	// Set up the console before anything else so that it can receive text.
 	C_InitConsole(1024, 768, true);
 
@@ -847,6 +846,19 @@ int RunGame()
 	G_LoadConfig();
 	auto usedgroups = SetupGame();
 
+	for (auto& grp : usedgroups)
+	{
+		if (grp.FileInfo.name.IsNotEmpty())
+		{
+			if (GameStartupInfo.Name.IsEmpty()) GameStartupInfo.Name = grp.FileInfo.name;
+			if (grp.FileInfo.FgColor != grp.FileInfo.BgColor && (GameStartupInfo.FgColor != 0 || GameStartupInfo.BkColor != 0))
+			{
+				GameStartupInfo.FgColor = grp.FileInfo.FgColor;
+				GameStartupInfo.BkColor = grp.FileInfo.BgColor;
+			}
+		}
+	}
+	I_SetIWADInfo();
 
 	InitFileSystem(usedgroups);
 	if (usedgroups.Size() == 0) return 0;
@@ -880,7 +892,8 @@ int RunGame()
 
 	V_InitScreenSize();
 	V_InitScreen();
-	StartScreen = FStartupScreen::CreateInstance(100);
+	StartScreen = FStartupScreen::CreateInstance(8);
+	StartScreen->Progress();
 
 	TArray<FString> addArt;
 	for (auto& grp : usedgroups)
@@ -910,15 +923,20 @@ int RunGame()
 	GameTicRate = 30;
 	CheckUserMap();
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
+	StartScreen->Progress();
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
+	StartScreen->Progress();
 	TileFiles.Init();
+	StartScreen->Progress();
 	I_InitSound();
+	StartScreen->Progress();
 	Mus_InitMusic();
 	S_ParseSndInfo();
 	S_ParseReverbDef();
 	InitStatistics();
 	LoadScripts();
+	StartScreen->Progress();
 	SetDefaultStrings();
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
@@ -926,6 +944,7 @@ int RunGame()
 	enginePreInit();
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
+	StartScreen->Progress();
 
 	GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
 	gi->loadPalette();
@@ -933,10 +952,12 @@ int RunGame()
 	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
 	engineInit();
 	gi->app_init();
+	StartScreen->Progress();
 	CreateStatusBar();
 	SetDefaultMenuColors();
 	M_Init();
 	BuildGameMenus();
+	StartScreen->Progress();
 	if (!(paletteloaded & PALETTE_MAIN))
 		I_FatalError("No palette found.");
 
@@ -945,6 +966,7 @@ int RunGame()
 	PostLoadSetup();
 	lookups.postLoadLookups();
 	FMaterial::SetLayerCallback(setpalettelayer);
+	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
 
 	V_Init2();
 	twod->Begin(screen->GetWidth(), screen->GetHeight());

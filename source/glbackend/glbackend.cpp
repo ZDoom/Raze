@@ -51,6 +51,7 @@
 #include "gamestruct.h"
 #include "hw_models.h"
 #include "gamefuncs.h"
+#include "gamehud.h"
 
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 bool hw_int_useindexedcolortextures;
@@ -61,7 +62,6 @@ CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBAL
 
 EXTERN_CVAR(Bool, gl_texture)
 
-F2DDrawer twodpsp;
 static int BufferLock = 0;
 
 TArray<VSMatrix> matrixArray;
@@ -403,62 +403,6 @@ void renderFinishScene()
 	}
 }
 
-//==========================================================================
-//
-// DFrameBuffer :: DrawRateStuff
-//
-// Draws the fps counter, dot ticker, and palette debug.
-//
-//==========================================================================
-CVAR(Bool, vid_fps, false, 0)
-
-
-static FString statFPS()
-{
-	static int32_t frameCount;
-	static double lastFrameTime;
-	static double cumulativeFrameDelay;
-	static double lastFPS;
-
-	FString output;
-
-	double frameTime = I_msTimeF();
-	double frameDelay = frameTime - lastFrameTime;
-	cumulativeFrameDelay += frameDelay;
-
-	frameCount++;
-	if (frameDelay >= 0)
-	{
-		output.AppendFormat("%5.1f fps (%.1f ms)\n", lastFPS, frameDelay);
-
-		if (cumulativeFrameDelay >= 1000.0)
-		{
-			lastFPS = 1000. * frameCount / cumulativeFrameDelay;
-			frameCount = 0;
-			cumulativeFrameDelay = 0.0;
-		}
-	}
-	lastFrameTime = frameTime;
-	return output;
-}
-
-void DrawRateStuff()
-{
-	// Draws frame time and cumulative fps
-	if (vid_fps)
-	{
-		FString fpsbuff = statFPS();
-
-		int textScale = active_con_scale(twod);
-		int rate_x = screen->GetWidth() / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);
-		twod->AddColorOnlyQuad(rate_x * textScale, 0, screen->GetWidth(), NewConsoleFont->GetHeight() * textScale, MAKEARGB(255, 0, 0, 0));
-		DrawText(twod, NewConsoleFont, CR_WHITE, rate_x, 0, (char*)&fpsbuff[0],
-			DTA_VirtualWidth, screen->GetWidth() / textScale,
-			DTA_VirtualHeight, screen->GetHeight() / textScale,
-			DTA_KeepRatio, true, TAG_DONE);
-
-	}
-}
 
 int32_t r_scenebrightness = 0;
 
@@ -493,69 +437,3 @@ void videoShowFrame(int32_t w)
 		twod->Clear();
 	}
 }
-
-TMap<int64_t, bool> cachemap;
-
-void markTileForPrecache(int tilenum, int palnum)
-{
-	int i, j;
-	if ((picanm[tilenum].sf & PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
-	{
-		i = tilenum - picanm[tilenum].num;
-		j = tilenum;
-	}
-	else
-	{
-		i = tilenum;
-		j = tilenum + picanm[tilenum].num;
-	}
-
-	for (; i <= j; i++)
-	{
-		int64_t val = i + (int64_t(palnum) << 32);
-		cachemap.Insert(val, true);
-	}
-}
-
-void precacheMarkedTiles()
-{
-	decltype(cachemap)::Iterator it(cachemap);
-	decltype(cachemap)::Pair* pair;
-	while (it.NextPair(pair))
-	{
-		int dapicnum = pair->Key & 0x7fffffff;
-		int dapalnum = pair->Key >> 32;
-		Polymost::polymost_precache(dapicnum, dapalnum, 0);
-	}
-}
-
-void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha)
-{
-	double dz = z / 65536.;
-	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
-	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-
-	if (picanm[picnum].sf & PICANM_ANIMTYPE_MASK)
-		picnum += animateoffs(picnum, 0);
-
-	auto tex = tileGetTexture(picnum);
-
-	DrawTexture(&twodpsp, tex, sx, sy,
-		DTA_ScaleX, dz, DTA_ScaleY, dz,
-		DTA_Color, shadeToLight(dashade),
-		DTA_TranslationIndex, palid,
-		DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
-		DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1,
-		DTA_FullscreenScale, (dastat & RS_STRETCH)? FSMode_ScaleToScreen: FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-		DTA_CenterOffsetRel, !(dastat & (RS_TOPLEFT | RS_CENTER)),
-		DTA_TopLeft, !!(dastat & RS_TOPLEFT),
-		DTA_CenterOffset, !!(dastat & RS_CENTER),
-		DTA_FlipX, !!(dastat & RS_XFLIPHUD),
-		DTA_FlipY, !!(dastat & RS_YFLIPHUD),
-		DTA_Pin, (dastat & RS_ALIGN_R) ? 1 : (dastat & RS_ALIGN_L) ? -1 : 0,
-		DTA_Rotate, a * -BAngToDegree,
-		DTA_FlipOffsets, !(dastat & (/*RS_TOPLEFT |*/ RS_CENTER)),
-		DTA_Alpha, alpha,
-		TAG_DONE);
-}
-

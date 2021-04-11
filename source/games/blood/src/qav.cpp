@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "common_game.h"
 #include "v_draw.h"
-#include "glbackend/glbackend.h"
 #include "blood.h"
 
 BEGIN_BLD_NS
@@ -147,26 +146,14 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
     }
 }
 
-void QAV::Preload(void)
+void QAV::Precache(int palette)
 {
     for (int i = 0; i < nFrames; i++)
     {
         for (int j = 0; j < 8; j++)
         {
             if (frames[i].tiles[j].picnum >= 0)
-                tilePreloadTile(frames[i].tiles[j].picnum);
-        }
-    }
-}
-
-void QAV::Precache(HitList &hits)
-{
-    for (int i = 0; i < nFrames; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            if (frames[i].tiles[j].picnum >= 0)
-                tilePrecacheTile(frames[i].tiles[j].picnum, 0, hits);
+                tilePrecacheTile(frames[i].tiles[j].picnum, 0, palette);
         }
     }
 }

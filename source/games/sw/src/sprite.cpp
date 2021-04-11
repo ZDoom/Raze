@@ -1187,9 +1187,6 @@ ActorSpawn(SPRITEp sp)
     case 1441:
     case COOLG_RUN_R0:
     {
-
-        //PreCacheGhost();
-
         if (!ActorTestSpawn(sp))
         {
             KillSprite(SpriteNum);

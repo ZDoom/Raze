@@ -45,7 +45,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "parent.h"
 #include "v_video.h"
 #include "render.h"
-#include "glbackend/glbackend.h"
 
 EXTERN_CVAR(Bool, testnewrenderer)
 

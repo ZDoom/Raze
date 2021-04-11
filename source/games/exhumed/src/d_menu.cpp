@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "vm.h"
 #include "razemenu.h"
 
-#include "../../glbackend/glbackend.h"
 
 
 BEGIN_PS_NS

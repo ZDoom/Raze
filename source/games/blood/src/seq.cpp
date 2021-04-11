@@ -102,30 +102,20 @@ static void (*seqClientCallback[])(int, DBloodActor*) = {
 //
 //---------------------------------------------------------------------------
 
-void Seq::Preload(void)
+void Seq::Precache(int palette)
 {
 	if (memcmp(signature, "SEQ\x1a", 4) != 0)
 		I_Error("Invalid sequence");
 	if ((version & 0xff00) != 0x300)
 		I_Error("Obsolete sequence version");
 	for (int i = 0; i < nFrames; i++)
-		tilePreloadTile(seqGetTile(&frames[i]));
+		tilePrecacheTile(seqGetTile(&frames[i]), -1, palette);
 }
 
-void Seq::Precache(HitList& hits)
-{
-	if (memcmp(signature, "SEQ\x1a", 4) != 0)
-		I_Error("Invalid sequence");
-	if ((version & 0xff00) != 0x300)
-		I_Error("Obsolete sequence version");
-	for (int i = 0; i < nFrames; i++)
-		tilePrecacheTile(seqGetTile(&frames[i]), -1, hits);
-}
-
-void seqPrecacheId(int id, HitList& hits)
+void seqPrecacheId(int id, int palette)
 {
 	auto pSeq = getSequence(id);
-	if (pSeq) pSeq->Precache(hits);
+	if (pSeq) pSeq->Precache(palette);
 }
 
 //---------------------------------------------------------------------------

@@ -2319,7 +2319,7 @@ void SerializePlayers(FSerializer& arc)
                 if (pQav) 
                 {
                     gPlayerCtrl[i].qavScene.qavResrc = pQav;
-                    gPlayerCtrl[i].qavScene.qavResrc->Preload();
+                    //gPlayerCtrl[i].qavScene.qavResrc->Preload();
                 }
                 else 
                 {

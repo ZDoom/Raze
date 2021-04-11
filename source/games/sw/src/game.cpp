@@ -106,7 +106,6 @@ bool NewGame = false;
 bool FinishedLevel = false;
 short screenpeek = 0;
 
-bool PreCaching = true;
 int GodMode = false;
 short Skill = 2;
 short TotalKillable;
@@ -364,8 +363,6 @@ void InitLevel(MapRecord *maprec)
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
-
-    SetupPreCache();
 
     if (sector[0].extra != -1)
     {
@@ -804,9 +801,9 @@ void GameInterface::FreeLevelData()
     ::GameInterface::FreeLevelData();
 }
 
-bool GameInterface::Voxelize(int sprnum) 
+int GameInterface::Voxelize(int sprnum) 
 { 
-    return (aVoxelArray[sprnum].Voxel >= 0);
+    return (aVoxelArray[sprnum].Voxel);
 }
 
 END_SW_NS

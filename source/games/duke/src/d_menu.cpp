@@ -42,7 +42,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "gamestate.h"
 #include "dukeactor.h"
-#include "../../glbackend/glbackend.h"
 
 
 BEGIN_DUKE_NS

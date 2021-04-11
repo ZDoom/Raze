@@ -82,8 +82,7 @@ struct QAV
     void Draw(int ticks, int stat, int shade, int palnum, bool in3dscene);
     void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool in3dscene);
     void Play(int, int, int, void *);
-    void Preload(void);
-    void Precache(HitList &hits);
+    void Precache(int palette = 0);
 };
 
 #pragma pack(pop)

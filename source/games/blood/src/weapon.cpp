@@ -237,12 +237,12 @@ void WeaponInit(void)
     }
 }
 
-void WeaponPrecache(HitList &hits)
+void WeaponPrecache()
 {
     for (int i = 0; i < kQAVEnd; i++)
     {
         if (weaponQAV[i])
-            weaponQAV[i]->Precache(hits);
+            weaponQAV[i]->Precache();
     }
 }
 
@@ -302,7 +302,7 @@ static void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int callback, bool looped 
     pPlayer->weaponTimer = weaponQAV[nWeaponQAV]->duration;
     pPlayer->qavCallback = callback;
     pPlayer->qavLoop = looped;
-    weaponQAV[nWeaponQAV]->Preload();
+    //weaponQAV[nWeaponQAV]->Preload();
     WeaponPlay(pPlayer);
     pPlayer->weaponTimer -= 4;
 }
