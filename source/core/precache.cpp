@@ -121,6 +121,7 @@ void markTileForPrecache(int tilenum, int palnum)
 
 void precacheMarkedTiles()
 {
+	screen->StartPrecaching();
 	decltype(cachemap)::Iterator it(cachemap);
 	decltype(cachemap)::Pair* pair;
 	while (it.NextPair(pair))
