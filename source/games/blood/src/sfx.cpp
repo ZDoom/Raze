@@ -149,7 +149,8 @@ FSoundID getSfx(FSoundID soundId, float &attenuation, int &pitch, int &relvol)
     auto udata = soundEngine->GetUserData(soundId);
     if (pitch < 0) pitch = udata ? udata[0] : 0x10000;
 
-    if (relvol < 0) relvol = udata && udata[2] ? udata[2] : 80;
+	if (relvol < 0) relvol = 0;
+    else if (relvol == 0) relvol = udata && udata[2] ? udata[2] : 80;
     if (relvol > 255) relvol = 255;
     // Limit the attenuation. More than 2.0 is simply too much.
     attenuation = relvol > 0 ? clamp(80.f / relvol, 0.f, 2.f) : 1.f;
@@ -167,7 +168,7 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
 
     float attenuation;
     int pitch = -1;
-    int relvol = -1;
+    int relvol = 0;
     sid = getSfx(sid, attenuation, pitch, relvol);
     auto sfx = soundEngine->GetSfx(sid);
     EChanFlags flags = CHANF_OVERLAP;
@@ -225,7 +226,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
 
 void sfxPlay3DSound(spritetype* pSprite, int soundId, int a3, int a4)
 {
-    sfxPlay3DSoundCP(pSprite, soundId, a3, a4, -1, -1);
+    sfxPlay3DSoundCP(pSprite, soundId, a3, a4, -1);
 }
 
 
