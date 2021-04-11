@@ -34,11 +34,6 @@ void resettiming()
     lastTic = -1;
 }
 
-void doTileLoad(int i)
-{
-	if (r_precache) PrecacheHardwareTextures(i);
-}
-
 void precache()
 {
     int i;
@@ -46,15 +41,15 @@ void precache()
     for (i = 0; i < numsectors; i++)
     {
         short j = sector[i].ceilingpicnum;
-        doTileLoad(j);
+        markTileForPrecache(j, sector[i].ceilingpal);
         j = sector[i].floorpicnum;
-		doTileLoad(j);
+        markTileForPrecache(j, sector[i].floorpal);
     }
 
     for (i = 0; i < numwalls; i++)
     {
         short j = wall[i].picnum;
-		doTileLoad(j);
+        markTileForPrecache(j, wall[i].pal);
     }
 
     for (i = 0; i < kMaxSprites; i++)
@@ -62,8 +57,9 @@ void precache()
         if (sprite[i].statnum < kMaxStatus)
         {
             short j = sprite[i].picnum;
-			doTileLoad(j);
+            markTileForPrecache(j, sprite[i].pal);
         }
     }
+    precacheMarkedTiles();
 }
 END_PS_NS
