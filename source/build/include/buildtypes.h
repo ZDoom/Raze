@@ -317,39 +317,41 @@ struct spritetype
 
     int32_t interpolatedx(double const smoothratio, int const scale = 16)
     {
-        return ox + MulScale(x - ox, smoothratio, scale);
+        return interpolatedvalue(ox, x, smoothratio, scale);
     }
 
     int32_t interpolatedy(double const smoothratio, int const scale = 16)
     {
-        return oy + MulScale(y - oy, smoothratio, scale);
+        return interpolatedvalue(oy, y, smoothratio, scale);
     }
 
     int32_t interpolatedz(double const smoothratio, int const scale = 16)
     {
-        return oz + MulScale(z - oz, smoothratio, scale);
+        return interpolatedvalue(oz, z, smoothratio, scale);
     }
 
     vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
     {
-        return vec2_t({
+        return
+        {
             interpolatedx(smoothratio, scale),
             interpolatedy(smoothratio, scale)
-        });
+        };
     }
 
     vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
     {
-        return vec3_t({
+        return
+        {
             interpolatedx(smoothratio, scale),
             interpolatedy(smoothratio, scale),
             interpolatedz(smoothratio, scale)
-        });
+        };
     }
 
     int16_t interpolatedang(double const smoothratio)
     {
-        return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, 16);
+        return interpolatedangle(oang, ang, smoothratio, 16);
     }
 };
 

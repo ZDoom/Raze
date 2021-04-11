@@ -166,9 +166,9 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     if (pInput->avel)
         predict.angle = degang(pInput->avel);
     if (pInput->actions & SB_TURNAROUND)
-        if (!predict.spin.asbuild())
-            predict.spin = buildlook(-1024);
-    if (predict.spin.asbuild() < 0)
+        if (!predict.spin)
+            predict.spin = -1024;
+    if (predict.spin < 0)
     {
         int speed;
         if (predict.at48 == 1)
@@ -176,7 +176,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         else
             speed = 128;
 
-        predict.spin = buildlook(min(predict.spin.asbuild()+speed, 0));
+        predict.spin = min(int(predict.spin) + speed, 0);
         predict.angle += buildang(speed);
     }
 
@@ -250,12 +250,12 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            predict.horizoff = q16horiz(interpolate(predict.horizoff.asq16(), IntToFixed(z1 - z2) >> 3, 0x4000));
+            predict.horizoff = q16horiz(interpolatedvalue(predict.horizoff.asq16(), IntToFixed(z1 - z2) >> 3, 0x4000));
         }
     }
     else
     {
-        predict.horizoff = q16horiz(interpolate(predict.horizoff.asq16(), 0, 0x4000));
+        predict.horizoff = q16horiz(interpolatedvalue(predict.horizoff.asq16(), 0, 0x4000));
         if (abs(predict.horizoff.asq16()) < 4)
             predict.horizoff = q16horiz(0);
     }
@@ -289,7 +289,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 
     int nSpeed = approxDist(predict.xvel, predict.yvel);
 
-    predict.at3c = interpolate(predict.at3c, predict.zvel, 0x7000);
+    predict.at3c = interpolatedvalue(predict.at3c, predict.zvel, 0x7000);
     int dz = predict.z-pPosture->eyeAboveZ-predict.viewz;
     if (dz > 0)
         predict.at3c += MulScale(dz<<8, 0xa000, 16);
@@ -297,7 +297,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
         predict.at3c += MulScale(dz<<8, 0x1800, 16);
     predict.viewz += predict.at3c>>8;
 
-    predict.at44 = interpolate(predict.at44, predict.zvel, 0x5000);
+    predict.at44 = interpolatedvalue(predict.at44, predict.zvel, 0x5000);
     dz = predict.z-pPosture->weaponAboveZ-predict.at40;
     if (dz > 0)
         predict.at44 += MulScale(dz<<8, 0x8000, 16);

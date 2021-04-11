@@ -52,9 +52,9 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
             pTSprite->owner = pSprite->index;
             pTSprite->extra = pSprite->extra;
             pTSprite->flags = pSprite->hitag | 0x200;
-            pTSprite->x = dx + interpolate(pSprite->ox, pSprite->x, interpolation);
-            pTSprite->y = dy + interpolate(pSprite->oy, pSprite->y, interpolation);
-            pTSprite->z = dz + interpolate(pSprite->oz, pSprite->z, interpolation);
+            pTSprite->x = dx + interpolatedvalue(pSprite->ox, pSprite->x, interpolation);
+            pTSprite->y = dy + interpolatedvalue(pSprite->oy, pSprite->y, interpolation);
+            pTSprite->z = dz + interpolatedvalue(pSprite->oz, pSprite->z, interpolation);
             pTSprite->ang = pSprite->interpolatedang(interpolation);
 
             int nAnim = 0;
@@ -147,7 +147,7 @@ RORHACK:
     int ror_status[16];
     for (int i = 0; i < 16; i++)
         ror_status[i] = TestBitString(gotpic, 4080 + i);
-    fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
+    fixed_t deliriumPitchI = interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
     DrawMirrors(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, gInterpolate, gViewIndex);
     int bakCstat = gView->pSprite->cstat;
     if (gViewPos == 0)

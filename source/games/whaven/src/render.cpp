@@ -22,7 +22,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	int cposz = plr.z;
 	binangle cang = plr.angle.sum();
 	fixedhoriz choriz = plr.horizon.horiz + plr.horizon.interpolatedoff(dasmoothratio);
-	lookangle crotscrnang = plr.angle.rotscrnang;
+	binangle crotscrnang = plr.angle.rotscrnang;
 
 	if (!paused)
 	{

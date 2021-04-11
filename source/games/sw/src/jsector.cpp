@@ -481,7 +481,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
             }
             else
             {
-                render_camtex(nullptr, { daposx, daposy, daposz }, dacursectnum, ang, horiz, buildlook(0), tileGetTexture(tilenume), rect, smoothratio);
+                render_camtex(nullptr, { daposx, daposy, daposz }, dacursectnum, ang, horiz, buildang(0), tileGetTexture(tilenume), rect, smoothratio);
             }
         });
 

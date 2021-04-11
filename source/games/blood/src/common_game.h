@@ -527,36 +527,6 @@ inline int ClipRange(int a, int b, int c)
     return a;
 }
 
-inline int interpolate(int a, int b, int c)
-{
-    return a+MulScale(b-a,c, 16);
-}
-
-inline double finterpolate(double a, double b, double c)
-{
-    return a+MulScaleF(b-a,c, 16);
-}
-
-inline int interpolateang(int a, int b, int c)
-{
-    return a+MulScale(((b-a+1024)&2047)-1024, c, 16);
-}
-
-inline fixed_t interpolateangfix16(fixed_t a, fixed_t b, int c)
-{
-    return a+MulScale(((b-a+0x4000000)&0x7ffffff)-0x4000000, c, 16);
-}
-
-inline binangle interpolateangbin(uint32_t a, uint32_t b, double c)
-{
-    return bamang(xs_CRoundToUInt(a + MulScaleF(b - a, c, 16)));
-}
-
-inline lookangle interpolateanglook(int32_t a, int32_t b, double c)
-{
-    return bamlook(xs_CRoundToUInt(a + MulScaleF(b - a, c, 16)));
-}
-
 inline char Chance(int a1)
 {
     return wrand() < (a1>>1);

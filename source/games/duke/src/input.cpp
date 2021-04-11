@@ -477,7 +477,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerInput(plnum, SB_TURNAROUND) && p->angle.spin.asbam() == 0 && p->on_crane == nullptr)
+		if (PlayerInput(plnum, SB_TURNAROUND) && p->angle.spin == 0 && p->on_crane == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);

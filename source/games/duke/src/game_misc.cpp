@@ -266,15 +266,15 @@ void drawoverlays(double smoothratio)
 			{
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
-					cposx = omyx + MulScale(myx - omyx, smoothratio, 16);
-					cposy = omyy + MulScale(myy - omyy, smoothratio, 16);
-					cang = !SyncInput() ? myang.asbuild() : omyang.asbuild() + MulScale(((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024, smoothratio, 16);
+					cposx = interpolatedvalue(omyx, myx, smoothratio);
+					cposy = interpolatedvalue(omyy, myy, smoothratio);
+					cang = (!SyncInput() ? myang : interpolatedangle(omyang, myang, smoothratio)).asbuild();
 				}
 				else
 				{
-					cposx = pp->oposx + MulScale(pp->posx - pp->oposx, smoothratio, 16);
-					cposy = pp->oposy + MulScale(pp->posy - pp->oposy, smoothratio, 16);
-					cang = !SyncInput() ? pp->angle.ang.asbuild() : pp->angle.oang.asbuild() + MulScale(((pp->angle.ang.asbuild() + 1024 - pp->angle.oang.asbuild()) & 2047) - 1024, smoothratio, 16);
+					cposx = interpolatedvalue(pp->oposx, pp->posx, smoothratio);
+					cposy = interpolatedvalue(pp->oposy, pp->posy, smoothratio);
+					cang = (!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbuild();
 				}
 			}
 			else

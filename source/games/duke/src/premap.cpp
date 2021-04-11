@@ -140,8 +140,8 @@ void resetplayerstats(int snum)
     p->jetpack_on =         0;
     p->holoduke_on =       nullptr;
 
-    p->angle.olook_ang = p->angle.look_ang = buildlook(512 - ((currentLevel->levelNumber & 1) << 10));
-    p->angle.orotscrnang = p->angle.rotscrnang = buildlook(0);
+    p->angle.olook_ang = p->angle.look_ang = buildang(512 - ((currentLevel->levelNumber & 1) << 10));
+    p->angle.orotscrnang = p->angle.rotscrnang = buildang(0);
 
     p->newOwner          =nullptr;
     p->jumping_counter   = 0;
@@ -152,7 +152,7 @@ void resetplayerstats(int snum)
     p->fric.x            = 0;
     p->fric.y            = 0;
     p->somethingonplayer =nullptr;
-    p->angle.spin        = bamlook(0);
+    p->angle.spin        = 0;
 
     p->on_crane          = nullptr;
 

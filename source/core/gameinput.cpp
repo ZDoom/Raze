@@ -78,7 +78,7 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 	return na-a;
 }
 
-lookangle getincanglebam(binangle a, binangle na)
+binangle getincanglebam(binangle a, binangle na)
 {
 	int64_t cura = a.asbam() & 0xFFFFFFFF;
 	int64_t newa = na.asbam() & 0xFFFFFFFF;
@@ -89,7 +89,7 @@ lookangle getincanglebam(binangle a, binangle na)
 		if(cura > BAngToBAM(1024)) cura -= BAngToBAM(2048);
 	}
 
-	return bamlook(newa-cura);
+	return bamang(newa-cura);
 }
 
 //---------------------------------------------------------------------------
@@ -318,10 +318,10 @@ void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, do
 		// return to center if conditions met.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
-			if (abs(horizon->horiz.asq16()) > FloatToFixed(0.25))
+			if (abs(horizon->horiz.asq16()) > (FRACUNIT >> 2))
 			{
 				// move horiz back to 0
-				horizon->horiz -= q16horiz(xs_CRoundToInt(scaleAdjust * horizon->horiz.asq16() * (10. / GameTicRate)));
+				horizon->horiz -= buildfhoriz(scaleAdjust * horizon->horiz.asbuildf() * (10. / GameTicRate));
 			}
 			else
 			{
@@ -346,63 +346,63 @@ void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, do
 void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a unit
-	angle->rotscrnang -= bamlook(xs_CRoundToInt(scaleAdjust * angle->rotscrnang.asbam() * (15. / GameTicRate)));
-	if (abs(angle->rotscrnang.asbam()) < (BAMUNIT >> 2)) angle->rotscrnang = bamlook(0);
+	angle->rotscrnang -= buildfang(scaleAdjust * angle->rotscrnang.signedbuildf() * (15. / GameTicRate));
+	if (abs(angle->rotscrnang.signedbam()) < (BAMUNIT >> 2)) angle->rotscrnang = bamang(0);
 
 	// return q16look_ang to 0 and set to 0 if less than a quarter of a unit
-	angle->look_ang -= bamlook(xs_CRoundToInt(scaleAdjust * angle->look_ang.asbam() * (7.5 / GameTicRate)));
-	if (abs(angle->look_ang.asbam()) < (BAMUNIT >> 2)) angle->look_ang = bamlook(0);
+	angle->look_ang -= buildfang(scaleAdjust * angle->look_ang.signedbuildf() * (7.5 / GameTicRate));
+	if (abs(angle->look_ang.signedbam()) < (BAMUNIT >> 2)) angle->look_ang = bamang(0);
 
 	if (*actions & SB_LOOK_LEFT)
 	{
 		// start looking left
-		angle->look_ang -= bamlook(xs_CRoundToInt(scaleAdjust * (4560. / GameTicRate) * BAMUNIT));
-		angle->rotscrnang += bamlook(xs_CRoundToInt(scaleAdjust * (720. / GameTicRate) * BAMUNIT));
+		angle->look_ang += buildfang(scaleAdjust * -(4560. / GameTicRate));
+		angle->rotscrnang += buildfang(scaleAdjust * (720. / GameTicRate));
 	}
 
 	if (*actions & SB_LOOK_RIGHT)
 	{
 		// start looking right
-		angle->look_ang += bamlook(xs_CRoundToInt(scaleAdjust * (4560. / GameTicRate) * BAMUNIT));
-		angle->rotscrnang -= bamlook(xs_CRoundToInt(scaleAdjust * (720. / GameTicRate) * BAMUNIT));
+		angle->look_ang += buildfang(scaleAdjust * (4560. / GameTicRate));
+		angle->rotscrnang += buildfang(scaleAdjust * -(720. / GameTicRate));
 	}
 
 	if (!angle->targetset())
 	{
 		if (*actions & SB_TURNAROUND)
 		{
-			if (angle->spin.asbam() == 0)
+			if (angle->spin == 0)
 			{
 				// currently not spinning, so start a spin
-				angle->spin = buildlook(-1024);
+				angle->spin = -1024.;
 			}
 			*actions &= ~SB_TURNAROUND;
 		}
 
-		if (angle->spin.asbam() < 0)
+		if (angle->spin < 0)
 		{
 			// return spin to 0
-			lookangle add = bamlook(xs_CRoundToUInt(scaleAdjust * ((!(*actions & SB_CROUCH) ? 3840. : 1920.) / GameTicRate) * BAMUNIT));
+			double add = scaleAdjust * ((!(*actions & SB_CROUCH) ? 3840. : 1920.) / GameTicRate);
 			angle->spin += add;
-			if (angle->spin.asbam() > 0)
+			if (angle->spin > 0)
 			{
 				// Don't overshoot our target. With variable factor this is possible.
 				add -= angle->spin;
-				angle->spin = bamlook(0);
+				angle->spin = 0;
 			}
-			angle->ang += bamang(add.asbam());
+			angle->ang += buildfang(add);
 		}
 
 		if (avel)
 		{
 			// add player's input
 			angle->ang += degang(avel);
-			angle->spin = bamlook(0);
+			angle->spin = 0;
 		}
 	}
 	else
 	{
-		angle->spin = bamlook(0);
+		angle->spin = 0;
 	}
 }
 
