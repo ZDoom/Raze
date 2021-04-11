@@ -58,15 +58,6 @@ public:
 
 };
 
-void sfxInit(void)
-{
-    soundEngine = new BloodSoundEngine;
-}
-
-void sfxTerm()
-{
-}
-
 //==========================================================================
 //
 //
