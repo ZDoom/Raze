@@ -297,7 +297,7 @@ void displayrooms(int snum, double smoothratio)
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
 
-		cang = buildfang(ud.cameraactor->tempang + MulScaleF(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio, 16));
+		cang = buildang(interpolatedangle(ud.cameraactor->tempang, s->ang, smoothratio));
 
 		auto bh = buildhoriz(s->yvel);
 		renderView(s, s->sectnum, s->x, s->y, s->z - (4 << 8), cang, bh, buildang(0), smoothratio);
@@ -318,15 +318,13 @@ void displayrooms(int snum, double smoothratio)
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
-			cposx = omyx + xs_CRoundToInt(MulScaleF(myx - omyx, smoothratio, 16));
-			cposy = omyy + xs_CRoundToInt(MulScaleF(myy - omyy, smoothratio, 16));
-			cposz = omyz + xs_CRoundToInt(MulScaleF(myz - omyz, smoothratio, 16));
+			cposx = interpolatedvalue(omyx, myx, smoothratio);
+			cposy = interpolatedvalue(omyy, myy, smoothratio);
+			cposz = interpolatedvalue(omyz, myz, smoothratio);
 			if (SyncInput())
 			{
-				fixed_t ohorz = (omyhoriz + omyhorizoff).asq16();
-				fixed_t horz = (myhoriz + myhorizoff).asq16();
-				choriz = q16horiz(ohorz + xs_CRoundToInt(MulScaleF(horz - ohorz, smoothratio, 16)));
-				cang = bamang(xs_CRoundToUInt(omyang.asbam() + MulScaleF((myang - omyang).asbam(), smoothratio, 16)));
+				choriz = q16horiz(interpolatedvalue((omyhoriz + omyhorizoff).asq16(), (myhoriz + myhorizoff).asq16(), smoothratio));
+				cang = interpolatedangle(omyang, myang, smoothratio);
 			}
 			else
 			{
@@ -337,9 +335,9 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else
 		{
-			cposx = p->oposx + xs_CRoundToInt(MulScaleF(p->posx - p->oposx, smoothratio, 16));
-			cposy = p->oposy + xs_CRoundToInt(MulScaleF(p->posy - p->oposy, smoothratio, 16));
-			cposz = p->oposz + xs_CRoundToInt(MulScaleF(p->posz - p->oposz, smoothratio, 16));
+			cposx = interpolatedvalue(p->oposx, p->posx, smoothratio);
+			cposy = interpolatedvalue(p->oposy, p->posy, smoothratio);
+			cposz = interpolatedvalue(p->oposz, p->posz, smoothratio);;
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
@@ -370,7 +368,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else if (p->over_shoulder_on == 0)
 		{
-			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(MulScaleF(p->pyoff - p->opyoff, smoothratio, 16));
+			if (cl_viewbob) cposz += interpolatedvalue(p->opyoff, p->pyoff, smoothratio);
 			viewer = &p->GetActor()->s;
 		}
 		else

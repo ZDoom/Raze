@@ -11,15 +11,6 @@ double getincanglef(double a, double na);
 fixed_t getincangleq16(fixed_t a, fixed_t na);
 binangle getincanglebam(binangle a, binangle na);
 
-inline binangle interpolatedbamang(binangle oang, binangle ang, double const smoothratio)
-{
-	double const ratio = smoothratio * (1. / FRACUNIT);
-	uint32_t const dang = UINT32_MAX >> 1;
-	int64_t const prev = oang.asbam();
-	int64_t const curr = ang.asbam();
-	return bamang(prev + xs_CRoundToUInt(ratio * (((curr + dang - prev) & 0xFFFFFFFF) - dang)));
-}
-
 struct PlayerHorizon
 {
 	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;
@@ -220,17 +211,17 @@ struct PlayerAngle
 
 	binangle interpolatedsum(double const smoothratio)
 	{
-		return interpolatedbamang(osum(), sum(), smoothratio);
+		return interpolatedangle(osum(), sum(), smoothratio);
 	}
 
 	binangle interpolatedlookang(double const smoothratio)
 	{
-		return interpolatedbamang(olook_ang, look_ang, smoothratio);
+		return interpolatedangle(olook_ang, look_ang, smoothratio);
 	}
 
 	binangle interpolatedrotscrn(double const smoothratio)
 	{
-		return interpolatedbamang(orotscrnang, rotscrnang, smoothratio);
+		return interpolatedangle(orotscrnang, rotscrnang, smoothratio);
 	}
 
 	double look_anghalf(double const smoothratio)

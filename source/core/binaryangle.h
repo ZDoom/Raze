@@ -364,3 +364,30 @@ inline binangle bvectangbam(int32_t x, int32_t y)
 {
 	return radang(atan2(y, x));
 }
+
+
+//---------------------------------------------------------------------------
+//
+// Interpolation functions for use throughout games.
+//
+//---------------------------------------------------------------------------
+
+inline int32_t interpolatedvalue(int32_t oval, int32_t val, double const smoothratio, int const scale = 16)
+{
+	return oval + MulScale(val - oval, smoothratio, scale);
+}
+
+inline double interpolatedvaluef(double oval, double val, double const smoothratio, int const scale = 16)
+{
+	return oval + MulScaleF(val - oval, smoothratio, scale);
+}
+
+inline int32_t interpolatedangle(int32_t oang, int32_t ang, double const smoothratio, int const scale = 16)
+{
+	return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, scale);
+}
+
+inline binangle interpolatedangle(binangle oang, binangle ang, double const smoothratio, int const scale = 16)
+{
+	return bamang(oang.asbam() + MulScale(((ang.asbam() + 0x80000000 - oang.asbam()) & 0xFFFFFFFF) - 0x80000000, smoothratio, scale));
+}

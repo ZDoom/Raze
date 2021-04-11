@@ -194,11 +194,6 @@ void ResetView()
 #endif
 }
 
-static inline int interpolate16(int a, int b, int smooth)
-{
-    return a + MulScale(b - a, smooth, 16);
-}
-
 static TextOverlay subtitleOverlay;
 
 void DrawView(double smoothRatio, bool sceneonly)
@@ -251,7 +246,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         auto psp = &sprite[nPlayerSprite];
         playerX = psp->interpolatedx(smoothRatio);
         playerY = psp->interpolatedy(smoothRatio);
-        playerZ = psp->interpolatedz(smoothRatio) + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
+        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
 
         nSector = nPlayerViewSect[nLocalPlayer];
         updatesector(playerX, playerY, &nSector);

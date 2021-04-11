@@ -177,7 +177,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		{
 			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posx - ps[s->yvel].oposx, 16);
 			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posy - ps[s->yvel].oposy, 16);
-			t->z = ps[s->yvel].oposz + MulScale(smoothratio, ps[s->yvel].posz - ps[s->yvel].oposz, 16);
+			t->z = interpolatedvalue(ps[s->yvel].oposz, ps[s->yvel].posz, smoothratio);
 			t->z += (40 << 8);
 		}
 		else if (s->picnum != CRANEPOLE)
@@ -328,10 +328,10 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				t->cstat |= 2;
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
-					t->x = omyx + MulScale((int)(myx - omyx), smoothratio, 16);
-					t->y = omyy + MulScale((int)(myy - omyy), smoothratio, 16);
-					t->z = omyz + MulScale((int)(myz - omyz), smoothratio, 16) + (40 << 8);
-					t->ang = myang.asbuild() + MulScale((((myang.asbuild() + 1024 - myang.asbuild()) & 2047) - 1024), smoothratio, 16);
+					t->x = interpolatedvalue(omyx, myx, smoothratio);
+					t->y = interpolatedvalue(omyy, myy, smoothratio);
+					t->z = interpolatedvalue(omyz, myz, smoothratio) + (40 << 8);
+					t->ang = interpolatedangle(omyang, myang, smoothratio).asbuild();
 					t->sectnum = mycursectnum;
 				}
 			}
