@@ -50,7 +50,7 @@ struct VIEW {
     int at40;
     int at44;
     int at48; // posture
-    lookangle spin; // spin
+    double spin; // spin
     int x; // x
     int y; // y
     int z; // z
@@ -66,8 +66,8 @@ struct VIEW {
     char at72; // underwater
     short at73; // sprite flags
     SPRITEHIT at75;
-    lookangle look_ang;
-    lookangle rotscrnang;
+    binangle look_ang;
+    binangle rotscrnang;
 };
 
 extern VIEW gPrevView[kMaxPlayers];

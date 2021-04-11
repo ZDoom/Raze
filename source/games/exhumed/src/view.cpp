@@ -207,9 +207,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerY;
     int playerZ;
     short nSector;
-    binangle nAngle;
+    binangle nAngle, rotscrnang;
     fixedhoriz pan;
-    lookangle rotscrnang;
 
     fixed_t dang = IntToFixed(1024);
 
@@ -231,7 +230,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerZ = sprite[nSprite].z;
         nSector = sprite[nSprite].sectnum;
         nAngle = buildang(sprite[nSprite].ang);
-        rotscrnang = buildlook(0);
+        rotscrnang = buildang(0);
 
         SetGreenPal();
 

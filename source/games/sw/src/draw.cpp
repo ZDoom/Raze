@@ -1468,8 +1468,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
-    lookangle trotscrnang;
-    binangle tang;
+    binangle tang, trotscrnang;
     fixedhoriz thoriz;
     short tsectnum;
     short i,j;

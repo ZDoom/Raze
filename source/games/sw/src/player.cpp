@@ -1606,8 +1606,7 @@ DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 void
 DoPlayerTurnTurret(PLAYERp pp, float avel)
 {
-    lookangle diff;
-    binangle new_ang;
+    binangle new_ang, diff;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)

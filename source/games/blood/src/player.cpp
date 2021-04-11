@@ -700,7 +700,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->restTime = 0;
     pPlayer->kickPower = 0;
     pPlayer->laughCount = 0;
-    pPlayer->angle.spin = buildlook(0);
+    pPlayer->angle.spin = 0;
     pPlayer->posture = 0;
     pPlayer->voodooTarget = -1;
     pPlayer->voodooTargets = 0;

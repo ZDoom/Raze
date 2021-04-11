@@ -59,7 +59,6 @@ enum
 //---------------------------------------------------------------------------
 
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
-constexpr double BRadAngScale = 1. / BAngRadian;
 constexpr double BAngToDegree = 360. / 2048.;
 
 extern int16_t sintable[2048];
@@ -114,134 +113,6 @@ inline constexpr int64_t BAngToBAM(int ang)
 //
 //---------------------------------------------------------------------------
 
-class lookangle
-{
-	int32_t value;
-	
-	constexpr lookangle(int32_t v) : value(v) {}
-	
-	friend constexpr lookangle bamlook(int32_t v);
-	friend constexpr lookangle q16look(int32_t v);
-	friend constexpr lookangle buildlook(int32_t v);
-	friend lookangle buildflook(double v);
-	friend lookangle radlook(double v);
-	friend lookangle deglook(double v);
-
-	friend FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval);
-
-	friend class binangle;
-	
-public:
-	lookangle() = default;
-	lookangle(const lookangle &other) = default;
-	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	constexpr short asbuild() const { return value >> 21; }
-	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
-	constexpr fixed_t asq16() const { return value >> 5; }
-	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
-	constexpr double asdeg() const { return AngleToFloat(value); }
-	constexpr int32_t asbam() const { return value; }
-	
-	double fsin() const { return g_sin(asrad()); }
-	double fcos() const { return g_cos(asrad()); }
-	double ftan() const { return g_tan(asrad()); }
-	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
-	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
-
-	bool operator< (lookangle other) const
-	{
-		return value < other.value;
-	}
-
-	bool operator> (lookangle other) const
-	{
-		return value > other.value;
-	}
-
-	bool operator<= (lookangle other) const
-	{
-		return value <= other.value;
-	}
-
-	bool operator>= (lookangle other) const
-	{
-		return value >= other.value;
-	}
-	constexpr bool operator== (lookangle other) const
-	{
-		return value == other.value;
-	}
-
-	constexpr bool operator!= (lookangle other) const
-	{
-		return value != other.value;
-	}
-
-	constexpr lookangle &operator+= (lookangle other)
-	{
-		value += other.value;
-		return *this;
-	}
-
-	constexpr lookangle &operator-= (lookangle other)
-	{
-		value -= other.value;
-		return *this;
-	}
-
-	constexpr lookangle operator+ (lookangle other) const
-	{
-		return lookangle(value + other.value);
-	}
-
-	constexpr lookangle operator- (lookangle other) const
-	{
-		return lookangle(value - other.value);
-	}
-
-	constexpr lookangle &operator<<= (const uint8_t shift)
-	{
-		value <<= shift;
-		return *this;
-	}
-
-	constexpr lookangle &operator>>= (const uint8_t shift)
-	{
-		value >>= shift;
-		return *this;
-	}
-
-	constexpr lookangle operator<< (const uint8_t shift) const
-	{
-		return lookangle(value << shift);
-	}
-
-	constexpr lookangle operator>> (const uint8_t shift) const
-	{
-		return lookangle(value >> shift);
-	}
-
-};
-
-inline constexpr lookangle bamlook(int32_t v) { return lookangle(v); }
-inline constexpr lookangle q16look(int32_t v) { return lookangle(v << 5); }
-inline constexpr lookangle buildlook(int32_t v) { return lookangle(v << BAMBITS); }
-inline lookangle buildflook(double v) { return lookangle(xs_CRoundToInt(v * BAMUNIT)); }
-inline lookangle radlook(double v) { return lookangle(xs_CRoundToInt(v * (0x80000000u / pi::pi()))); }
-inline lookangle deglook(double v) { return lookangle(FloatToAngle(v)); }
-
-inline FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)
-{
-	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
-}
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 class binangle
 {
 	uint32_t value;
@@ -261,12 +132,17 @@ public:
 	binangle() = default;
 	binangle(const binangle &other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
+	constexpr int32_t tosigned() const { return value > BAngToBAM(1024) ? int64_t(value) - BAngToBAM(2048) : value; }
 	constexpr short asbuild() const { return value >> 21; }
 	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
 	constexpr fixed_t asq16() const { return value >> 5; }
+	constexpr uint32_t asbam() const { return value; }
 	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
 	constexpr double asdeg() const { return AngleToFloat(value); }
-	constexpr uint32_t asbam() const { return value; }
+	constexpr short signedbuild() const { return tosigned() >> 21; }
+	constexpr double signedbuildf() const { return tosigned() * (1. / BAMUNIT); }
+	constexpr fixed_t signedq16() const { return tosigned() >> 5; }
+	constexpr int32_t signedbam() const { return tosigned(); }
 	
 	double fsin() const { return g_sin(asrad()); }
 	double fcos() const { return g_cos(asrad()); }
@@ -302,28 +178,6 @@ public:
 	}
 
 	constexpr binangle operator- (binangle other) const
-	{
-		return binangle(value - other.value);
-	}
-
-	constexpr binangle &operator+= (lookangle other)
-	{
-		value += other.value;
-		return *this;
-	}
-
-	constexpr binangle &operator-= (lookangle other)
-	{
-		value -= other.value;
-		return *this;
-	}
-
-	constexpr binangle operator+ (lookangle other) const
-	{
-		return binangle(value + other.value);
-	}
-
-	constexpr binangle operator- (lookangle other) const
 	{
 		return binangle(value - other.value);
 	}

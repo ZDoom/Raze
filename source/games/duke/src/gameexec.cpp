@@ -484,7 +484,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) ps[iPlayer].angle.look_ang = buildlook(lValue);
+		if (bSet) ps[iPlayer].angle.look_ang = buildang(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.look_ang.asbuild(), sActor, sPlayer);
 		break;
 
@@ -645,8 +645,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ONE_EIGHTY_COUNT:
-		if (bSet) ps[iPlayer].angle.spin = buildlook(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.spin.asbuild(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.spin = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].angle.spin, sActor, sPlayer);
 		break;
 
 	case PLAYER_CHEAT_PHASE:
@@ -705,7 +705,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].angle.rotscrnang = buildlook(lValue);
+		if (bSet) ps[iPlayer].angle.rotscrnang = buildang(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.rotscrnang.asbuild(), sActor, sPlayer);
 		break;
 
@@ -2267,7 +2267,7 @@ int ParseState::parse(void)
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].posxv = ps[g_p].posyv = 0;
-			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = buildlook(0);
+			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = buildang(0);
 
 			ps[g_p].falling_counter = 0;
 

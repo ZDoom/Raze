@@ -67,7 +67,7 @@ BEGIN_DUKE_NS
 /*static*/ int tempsectorpicnum[MAXSECTORS];
 //short tempcursectnum;
 
-void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, binangle a, fixedhoriz h, lookangle rotscrnang, int smoothratio)
+void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
 {
 	if (!testnewrenderer)
 	{
@@ -126,7 +126,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				}
 				else
 				{
-					render_camtex(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildlook(0), tex, rect, smoothratio);
+					render_camtex(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildang(0), tex, rect, smoothratio);
 				}
 				display_mirror = 0;
 			});
@@ -256,8 +256,7 @@ void displayrooms(int snum, double smoothratio)
 {
 	int cposx, cposy, cposz, fz, cz;
 	short sect;
-	binangle cang;
-	lookangle rotscrnang;
+	binangle cang, rotscrnang;
 	fixedhoriz choriz;
 	struct player_struct* p;
 	int tiltcs = 0; // JBF 20030807
@@ -301,7 +300,7 @@ void displayrooms(int snum, double smoothratio)
 		cang = buildfang(ud.cameraactor->tempang + MulScaleF(((s->ang + 1024 - ud.cameraactor->tempang) & 2047) - 1024, smoothratio, 16));
 
 		auto bh = buildhoriz(s->yvel);
-		renderView(s, s->sectnum, s->x, s->y, s->z - (4 << 8), cang, bh, buildlook(0), smoothratio);
+		renderView(s, s->sectnum, s->x, s->y, s->z - (4 << 8), cang, bh, buildang(0), smoothratio);
 	}
 	else
 	{
@@ -365,7 +364,7 @@ void displayrooms(int snum, double smoothratio)
 			cposy = spr->pos.y;
 			cposz = spr->pos.z;
 			sect = spr->sectnum;
-			rotscrnang = buildlook(0);
+			rotscrnang = buildang(0);
 			smoothratio = MaxSmoothRatio;
 			viewer = spr;
 		}

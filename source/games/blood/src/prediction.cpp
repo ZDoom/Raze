@@ -166,9 +166,9 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     if (pInput->avel)
         predict.angle = degang(pInput->avel);
     if (pInput->actions & SB_TURNAROUND)
-        if (!predict.spin.asbuild())
-            predict.spin = buildlook(-1024);
-    if (predict.spin.asbuild() < 0)
+        if (!predict.spin)
+            predict.spin = -1024;
+    if (predict.spin < 0)
     {
         int speed;
         if (predict.at48 == 1)
@@ -176,7 +176,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         else
             speed = 128;
 
-        predict.spin = buildlook(min(predict.spin.asbuild()+speed, 0));
+        predict.spin = min(int(predict.spin) + speed, 0);
         predict.angle += buildang(speed);
     }
 

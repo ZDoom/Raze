@@ -458,7 +458,7 @@ static void DrawMap(spritetype* pSprite)
         setViewport(hud_size);
 }
 
-void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta, double& shakeX, double& shakeY, lookangle& rotscrnang)
+void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta, double& shakeX, double& shakeY, binangle& rotscrnang)
 {
     int bobWidth, bobHeight;
     
@@ -483,15 +483,15 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
         }
         else
         {
-            uint32_t oang = predictOld.angle.asbam() + predictOld.look_ang.asbam();
-            uint32_t ang = predict.angle.asbam() + predict.look_ang.asbam();
-            cA = interpolateangbin(oang, ang, gInterpolate);
+            auto oang = predictOld.angle + predictOld.look_ang;
+            auto ang = predict.angle + predict.look_ang;
+            cA = interpolatedbamang(oang, ang, gInterpolate);
 
             fixed_t ohoriz = (predictOld.horiz + predictOld.horizoff).asq16();
             fixed_t horiz = (predict.horiz + predict.horizoff).asq16();
             cH = q16horiz(interpolate(ohoriz, horiz, gInterpolate));
 
-            rotscrnang = interpolateanglook(predictOld.rotscrnang.asbam(), predict.rotscrnang.asbam(), gInterpolate);
+            rotscrnang = interpolatedbamang(predictOld.rotscrnang, predict.rotscrnang, gInterpolate);
         }
     }
     else
@@ -685,7 +685,7 @@ void viewDrawScreen(bool sceneonly)
         int nSectnum;
         double zDelta;
         double shakeX, shakeY;
-        lookangle rotscrnang;
+        binangle rotscrnang;
         SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta, shakeX, shakeY, rotscrnang);
 
         int tilt = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
@@ -697,7 +697,7 @@ void viewDrawScreen(bool sceneonly)
         uint8_t otherview = powerupCheck(gView, kPwUpCrystalBall) > 0;
         if (tilt || bDelirium)
         {
-            rotscrnang = buildlook(tilt);
+            rotscrnang = buildang(tilt);
         }
         else if (otherview && gNetPlayers > 1)
         {

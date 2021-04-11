@@ -121,7 +121,7 @@ void forceplayerangle(int snum)
 
 	p->horizon.addadjustment(64);
 	p->sync.actions |= SB_CENTERVIEW;
-	p->angle.rotscrnang = p->angle.look_ang = buildlook(n >> 1);
+	p->angle.rotscrnang = p->angle.look_ang = buildang(n >> 1);
 }
 
 //---------------------------------------------------------------------------
@@ -630,7 +630,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && s->pal != 1)
-		p->angle.rotscrnang = buildlook(p->dead_flag + ((fz + p->posz) >> 7));
+		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->posz) >> 7));
 
 	p->on_warping_sector = 0;
 
@@ -741,16 +741,16 @@ void player_struct::apply_seasick(double factor)
 		if (SeaSick < 250)
 		{
 			if (SeaSick >= 180)
-				angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
+				angle.rotscrnang += bamang(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (SeaSick >= 130)
-				angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
+				angle.rotscrnang -= bamang(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (SeaSick >= 70)
-				angle.rotscrnang += bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
+				angle.rotscrnang += bamang(xs_CRoundToUInt(24 * factor * BAMUNIT));
 			else if (SeaSick >= 20)
-				angle.rotscrnang -= bamlook(xs_CRoundToUInt(24 * factor * BAMUNIT));
+				angle.rotscrnang -= bamang(xs_CRoundToUInt(24 * factor * BAMUNIT));
 		}
 		if (SeaSick < 250)
-			angle.look_ang = bamlook(xs_CRoundToUInt(((krand() & 255) - 128) * factor * BAMUNIT));
+			angle.look_ang = bamang(xs_CRoundToUInt(((krand() & 255) - 128) * factor * BAMUNIT));
 	}
 }
 
