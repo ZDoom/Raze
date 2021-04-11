@@ -583,7 +583,7 @@ int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, f
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
 EXTERN int32_t nextvoxid;
-EXTERN int8_t voxreserve[(MAXVOXELS+7)>>3];
+EXTERN FixedBitArray<MAXVOXELS>voxreserve;
 
 #ifdef USE_OPENGL
 // TODO: dynamically allocate this

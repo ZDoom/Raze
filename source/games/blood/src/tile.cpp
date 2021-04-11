@@ -74,7 +74,7 @@ int tileInit(char a1, const char *a2)
     for (int i = 0; i < kMaxTiles; i++)
     {
         if (voxelIndex[i] >= 0 && voxelIndex[i] < kMaxVoxels)
-            SetBitString((char*)voxreserve, voxelIndex[i]);
+            voxreserve.Set(voxelIndex[i]);
     }
 
     artLoaded = 1;

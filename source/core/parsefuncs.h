@@ -351,6 +351,111 @@ void parseAlphahackRange(FScanner& sc, FScriptPosition& pos)
 //
 //
 //===========================================================================
+static int lastvoxid = -1;
+
+void parseDefineVoxel(FScanner& sc, FScriptPosition& pos)
+{
+	sc.MustGetString();
+	while (nextvoxid < MAXVOXELS && voxreserve[nextvoxid]) nextvoxid++;
+
+	if (nextvoxid == MAXVOXELS)
+	{
+		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+		return;
+	}
+
+	if (voxDefine(nextvoxid, sc.String))
+	{
+		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"\n", sc.String);
+		return;
+	}
+
+	lastvoxid = nextvoxid++;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseDefineVoxelTiles(FScanner& sc, FScriptPosition& pos)
+{
+	int tilestart, tileend;
+	if (!sc.GetNumber(tilestart, true)) return;
+	if (!sc.GetNumber(tileend, true)) return;
+	if (!ValidateTileRange("definevoxeltiles", tilestart, tileend, pos)) return;
+
+	if (lastvoxid < 0)
+	{
+		pos.Message(MSG_WARNING, "Warning: Ignoring voxel tiles definition without valid voxel.\n");
+		return;
+	}
+	for (int i = tilestart; i <= tileend; i++) tiletovox[i] = lastvoxid;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseVoxel(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int tile0 = MAXTILES, tile1 = -1;
+	FString fn;
+
+	if (!sc.GetString(fn)) return;
+
+	while (nextvoxid < MAXVOXELS && voxreserve[nextvoxid]) nextvoxid++;
+
+	if (nextvoxid == MAXVOXELS)
+	{
+		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+		return;
+	}
+
+	if (voxDefine(nextvoxid, fn))
+	{
+		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"\n", fn.GetChars());
+		return;
+	}
+
+	int lastvoxid = nextvoxid++;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("tile"))
+		{
+			sc.GetNumber(true);
+			if (ValidateTilenum("voxel", sc.Number, pos)) tiletovox[sc.Number] = lastvoxid;
+		}
+		if (sc.Compare("tile0")) sc.GetNumber(tile0, true);
+		if (sc.Compare("tile1"))
+		{
+			sc.GetNumber(tile1, true);
+			if (ValidateTileRange("voxel", tile0, tile1, pos))
+			{
+				for (int i = tile0; i <= tile1; i++) tiletovox[i] = lastvoxid;
+			}
+		}
+		if (sc.Compare("scale"))
+		{
+			sc.GetFloat(true);
+			voxscale[lastvoxid] = (float)sc.Float;
+		}
+		if (sc.Compare("rotate")) voxrotate.Set(lastvoxid);
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 void parseDefineTint(FScanner& sc, FScriptPosition& pos)
 {
@@ -412,8 +517,6 @@ void parseNoFloorpalRange(FScanner& sc, FScriptPosition& pos)
 void parseTint(FScanner& sc, FScriptPosition& pos)
 {
 	int red = 255, green = 255, blue = 255, shadered = 0, shadegreen = 0, shadeblue = 0, pal = -1, flags = 0;
-	FScanner::SavedPos tintend;
-
 	FScanner::SavedPos blockend;
 
 	if (sc.StartBraces(&blockend)) return;

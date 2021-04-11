@@ -144,7 +144,7 @@ enum scripttoken_t
     T_SURFACE, T_VIEW,
 };
 
-static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
+static int32_t lastmodelid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 
 static const char *skyfaces[6] =
 {
@@ -853,50 +853,11 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_DEFINEVOXEL:
-        {
-            FString fn;
-
-            if (scriptfile_getstring(script,&fn))
-                break; //voxel filename
-
-            while (nextvoxid < MAXVOXELS && (voxreserve[nextvoxid>>3]&(1<<(nextvoxid&7))))
-                nextvoxid++;
-
-            if (nextvoxid == MAXVOXELS)
-            {
-                Printf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
-                break;
-            }
-
-            if (voxDefine(nextvoxid, fn))
-            {
-                Printf("Failure loading voxel file \"%s\"\n",fn.GetChars());
-                break;
-            }
-
-            lastvoxid = nextvoxid++;
-        }
-        break;
+            parseDefineVoxel(*script, pos);
+            break;
         case T_DEFINEVOXELTILES:
-        {
-            int32_t ftilenume, ltilenume, tilex;
-
-            if (scriptfile_getsymbol(script,&ftilenume)) break; //1st tile #
-            if (scriptfile_getsymbol(script,&ltilenume)) break; //last tile #
-
-            if (check_tile_range("definevoxeltiles", &ftilenume, &ltilenume, script, pos))
-                break;
-
-            if (lastvoxid < 0)
-            {
-                Printf("Warning: Ignoring voxel tiles definition.\n");
-                break;
-            }
-
-            for (tilex = ftilenume; tilex <= ltilenume; tilex++)
-                tiletovox[tilex] = lastvoxid;
-        }
-        break;
+            parseDefineVoxelTiles(*script, pos);
+            break;
 
         // NEW (ENCOURAGED) DEFINITION SYNTAX
         case T_MODEL:
@@ -1312,88 +1273,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_VOXEL:
-        {
-			auto voxelpos = scriptfile_getposition(script);
-            FScanner::SavedPos modelend;
-            FString fn;
-            int32_t tile0 = MAXTILES, tile1 = -1, tilex = -1;
-
-            static const tokenlist voxeltokens[] =
-            {
-                { "tile",   T_TILE   },
-                { "tile0",  T_TILE0  },
-                { "tile1",  T_TILE1  },
-                { "scale",  T_SCALE  },
-                { "rotate", T_ROTATE },
-            };
-
-            if (scriptfile_getstring(script,&fn))
-                break; //voxel filename
-
-            while (nextvoxid < MAXVOXELS && (voxreserve[nextvoxid>>3]&(1<<(nextvoxid&7))))
-                nextvoxid++;
-
-            if (nextvoxid == MAXVOXELS)
-            {
-                voxelpos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
-                break;
-            }
-
-            if (voxDefine(nextvoxid, fn))
-            {
-                voxelpos.Message(MSG_ERROR, "Failure loading voxel file \"%s\"",fn.GetChars());
-                break;
-            }
-
-            lastvoxid = nextvoxid++;
-
-            if (scriptfile_getbraces(script,&modelend)) break;
-            while (!scriptfile_endofblock(script, modelend))
-            {
-                switch (getatoken(script, voxeltokens, countof(voxeltokens)))
-                {
-                    //case T_ERROR: Printf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
-                case T_TILE:
-                    scriptfile_getsymbol(script,&tilex);
-
-                    if (check_tile("voxel", tilex, script, voxelpos))
-                        break;
-
-                    tiletovox[tilex] = lastvoxid;
-                    break;
-
-                case T_TILE0:
-                    scriptfile_getsymbol(script,&tile0);
-                    break; //1st tile #
-
-                case T_TILE1:
-                    scriptfile_getsymbol(script,&tile1);
-
-                    if (check_tile_range("voxel", &tile0, &tile1, script, voxelpos))
-                        break;
-
-                    for (tilex=tile0; tilex<=tile1; tilex++)
-                        tiletovox[tilex] = lastvoxid;
-                    break; //last tile number (inclusive)
-
-                case T_SCALE:
-                {
-                    double scale=1.0;
-                    scriptfile_getdouble(script,&scale);
-                    voxscale[lastvoxid] = (float)scale;
-                    if (voxmodels[lastvoxid])
-                        voxmodels[lastvoxid]->scale = scale;
-                    break;
-                }
-
-                case T_ROTATE:
-                    voxrotate.Set(lastvoxid);
-                    break;
-                }
-            }
-            lastvoxid = -1;
-        }
-        break;
+            parseVoxel(*script, pos);
+            break;
         case T_SKYBOX:
             parseSkybox(*script, pos);
             break;
