@@ -143,6 +143,8 @@ public:
 	constexpr double signedbuildf() const { return tosigned() * (1. / BAMUNIT); }
 	constexpr fixed_t signedq16() const { return tosigned() >> 5; }
 	constexpr int32_t signedbam() const { return tosigned(); }
+	constexpr double signedrad() const { return tosigned() * (pi::pi() / 0x80000000u); }
+	constexpr double signeddeg() const { return AngleToFloat(tosigned()); }
 	
 	double fsin() const { return g_sin(asrad()); }
 	double fcos() const { return g_cos(asrad()); }
