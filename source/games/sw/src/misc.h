@@ -11,10 +11,7 @@ enum
 	CACHE_SOUND_PLAY =1
 };
 
-void SetupPreCache(void);
-void PreCacheRange(short start_pic, short end_pic);
 void DoTheCache(void);
-void precache(void);
 
 void InitCheats();
 
