@@ -1061,6 +1061,7 @@ set (PCH_SOURCES
 	core/secrets.cpp
 	core/compositesavegame.cpp
 	core/savegamehelp.cpp
+	core/precache.cpp
 	core/quotes.cpp
 	core/screenshot.cpp
 	core/raze_music.cpp

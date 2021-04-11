@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "view.h"
 #include "g_input.h"
+#include "precache.h"
 
 BEGIN_BLD_NS
 

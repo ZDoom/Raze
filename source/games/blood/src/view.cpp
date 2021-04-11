@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "gamefuncs.h"
 #include "v_draw.h"
+#include "precache.h"
 
 BEGIN_BLD_NS
 

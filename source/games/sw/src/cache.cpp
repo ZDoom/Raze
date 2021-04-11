@@ -40,6 +40,7 @@ not load" error messages.
 #include "misc.h"
 #include "sounds.h"
 #include "network.h"
+#include "precache.h"
 
 BEGIN_SW_NS
 

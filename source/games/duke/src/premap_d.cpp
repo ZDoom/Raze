@@ -37,6 +37,7 @@ source as it is released.
 #include "build.h"
 #include "names_d.h"
 #include "dukeactor.h"
+#include "precache.h"
 
 BEGIN_DUKE_NS 
 

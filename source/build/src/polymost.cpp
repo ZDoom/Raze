@@ -99,7 +99,6 @@ static int32_t r_parallaxskyclamping = 1;
 #define Bfabsf fabsf
 
 static int32_t drawingskybox = 0;
-static int32_t hicprecaching = 0;
 
 static hitdata_t polymost_hitdata;
 
@@ -3543,45 +3542,6 @@ _drawsprite_return:
 
 static_assert((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 
-void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
-{
-    // dapicnum and dapalnum are like you'd expect
-    // datype is 0 for a wall/floor/ceiling and 1 for a sprite
-    //    basically this just means walls are repeating
-    //    while sprites are clamped
-
-   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(dapalnum))) return;//dapalnum = 0;
-
-    //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
-    hicprecaching = 1;
-    int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-    auto tex = tileGetTexture(dapicnum);
-    if (tex->isValid())
-        GLInterface.SetTexture(tex, palid, CLAMP_NONE);
-    hicprecaching = 0;
-
-    if (datype == 0 || !hw_models) return;
-
-    int const mid = md_tilehasmodel(dapicnum, dapalnum);
-
-    if (mid < 0 || models[mid]->mdnum < 2) return;
-
-    int const surfaces = (models[mid]->mdnum == 3) ? ((md3model_t *)models[mid])->head.numsurfs : 0;
-
-    for (int i = 0; i <= surfaces; i++)
-	{
-        auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
-        int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
-        if (tex) GLInterface.SetTexture(tex, palid, CLAMP_NONE);
-	}
-}
-
-void PrecacheHardwareTextures(int nTile)
-{
-	// PRECACHE
-	// This really *really* needs improvement on the game side - the entire precaching logic has no clue about the different needs of a hardware renderer.
-	polymost_precache(nTile, 0, 1);
-}
 
 extern char* voxfilenames[MAXVOXELS];
 void (*PolymostProcessVoxels_Callback)(void) = NULL;
