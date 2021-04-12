@@ -208,49 +208,107 @@ void S_SerializeSounds(FSerializer& arc)
 {
 	FSoundChan* chan;
 
-	GSnd->Sync(true);
+GSnd->Sync(true);
 
-	if (arc.isWriting())
+if (arc.isWriting())
+{
+	// Count channels and accumulate them so we can store them in
+	// reverse order. That way, they will be in the same order when
+	// reloaded later as they are now.
+	TArray<FSoundChan*> chans = soundEngine->AllActiveChannels();
+
+	if (chans.Size() > 0 && arc.BeginArray("sounds"))
 	{
-		// Count channels and accumulate them so we can store them in
-		// reverse order. That way, they will be in the same order when
-		// reloaded later as they are now.
-		TArray<FSoundChan*> chans = soundEngine->AllActiveChannels();
-
-		if (chans.Size() > 0 && arc.BeginArray("sounds"))
+		for (unsigned int i = chans.Size(); i-- != 0; )
 		{
-			for (unsigned int i = chans.Size(); i-- != 0; )
-			{
-				// Replace start time with sample position.
-				uint64_t start = chans[i]->StartTime;
-				chans[i]->StartTime = GSnd ? GSnd->GetPosition(chans[i]) : 0;
-				arc(nullptr, *chans[i]);
-				chans[i]->StartTime = start;
-			}
-			arc.EndArray();
+			// Replace start time with sample position.
+			uint64_t start = chans[i]->StartTime;
+			chans[i]->StartTime = GSnd ? GSnd->GetPosition(chans[i]) : 0;
+			arc(nullptr, *chans[i]);
+			chans[i]->StartTime = start;
 		}
+		arc.EndArray();
 	}
-	else
+}
+else
+{
+	unsigned int count;
+
+	soundEngine->StopAllChannels();
+	if (arc.BeginArray("sounds"))
 	{
-		unsigned int count;
-
-		soundEngine->StopAllChannels();
-		if (arc.BeginArray("sounds"))
+		count = arc.ArraySize();
+		for (unsigned int i = 0; i < count; ++i)
 		{
-			count = arc.ArraySize();
-			for (unsigned int i = 0; i < count; ++i)
-			{
-				chan = (FSoundChan*)soundEngine->GetChannel(nullptr);
-				arc(nullptr, *chan);
-				// Sounds always start out evicted when restored from a save.
-				chan->ChanFlags |= CHANF_EVICTED | CHANF_ABSTIME;
-			}
-			arc.EndArray();
+			chan = (FSoundChan*)soundEngine->GetChannel(nullptr);
+			arc(nullptr, *chan);
+			// Sounds always start out evicted when restored from a save.
+			chan->ChanFlags |= CHANF_EVICTED | CHANF_ABSTIME;
 		}
-		// Add a small delay so that eviction only runs once the game is up and runnnig.
-		soundEngine->SetRestartTime(I_GetTime() + 2);
+		arc.EndArray();
 	}
-	GSnd->Sync(false);
-	GSnd->UpdateSounds();
+	// Add a small delay so that eviction only runs once the game is up and runnnig.
+	soundEngine->SetRestartTime(I_GetTime() + 2);
+}
+GSnd->Sync(false);
+GSnd->UpdateSounds();
 }
 
+//==========================================================================
+//
+// CCMD playsound
+//
+//==========================================================================
+
+CCMD(playsound)
+{
+	if (argv.argc() > 1)
+	{
+		FSoundID id = argv[1];
+		if (id == 0)
+		{
+			Printf("'%s' is not a sound\n", argv[1]);
+		}
+		else
+		{
+			soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI | CHANF_NOPAUSE, id, 1.f, ATTN_NORM);
+		}
+	}
+}
+
+//==========================================================================
+//
+// CCMD playsound
+//
+//==========================================================================
+
+CCMD(playsoundid)
+{
+	if (argv.argc() > 1)
+	{
+		FSoundID id = soundEngine->FindSoundByResID((int)strtol(argv[1], nullptr, 0));
+		if (id == 0)
+		{
+			Printf("'%s' is not a sound\n", argv[1]);
+		}
+		else
+		{
+			soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI | CHANF_NOPAUSE, id, 1.f, ATTN_NORM);
+		}
+	}
+}
+
+//==========================================================================
+//
+// CCMD listsounds
+//
+//==========================================================================
+
+CCMD(listsounds)
+{
+	auto& S_sfx = soundEngine->GetSounds();
+	for (unsigned i = 0; i < S_sfx.Size(); i++)
+	{
+		Printf("%4d: name = %s, resId = %d, lumpnum = %d\n", i, S_sfx[i].name.GetChars(), S_sfx[i].ResourceId, S_sfx[i].lumpnum);
+	}
+}

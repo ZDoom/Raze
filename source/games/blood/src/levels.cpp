@@ -121,7 +121,8 @@ static const char* DefFile(void)
         int numlumps = fileSystem.GetNumEntries();
         for (int i = numlumps - 1; i >= 0; i--)
         {
-            if (fileSystem.GetFileContainer(i) <= fileSystem.GetMaxIwadNum()) break;
+            int fileno = fileSystem.GetFileContainer(i);
+            if (fileno != -1 && fileno <= fileSystem.GetMaxIwadNum()) break;
             FString fn = fileSystem.GetFileFullName(i, false);
             FString ext = fn.Right(4);
             if (ext.CompareNoCase(".ini") == 0)

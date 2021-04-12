@@ -595,7 +595,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 break;
             gMe->restTime = 0;
         }
-        sndStartSample(pXSprite->data1, -1, 1, 0);
+        sndStartSample(pXSprite->data1, -1, 1, 0, CHANF_FORCE);
         break;
     case kThingObjectGib:
     case kThingObjectExplode:

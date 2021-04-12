@@ -209,7 +209,7 @@ void FDirectory::AddEntry(const char *fullpath, int size)
 	lump_p->LumpSize = size;
 	lump_p->Owner = this;
 	lump_p->Flags = 0;
-	lump_p->CheckEmbedded();
+	lump_p->CheckEmbedded(nullptr);
 }
 
 
