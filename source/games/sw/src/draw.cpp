@@ -1466,8 +1466,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
-    lookangle trotscrnang;
-    binangle tang;
+    binangle tang, trotscrnang;
     fixedhoriz thoriz;
     short tsectnum;
     short i,j;
@@ -1503,9 +1502,9 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
         camerapp = pp;
 
-    tx = camerapp->oposx + xs_CRoundToInt(MulScaleF(camerapp->posx - camerapp->oposx, smoothratio, 16));
-    ty = camerapp->oposy + xs_CRoundToInt(MulScaleF(camerapp->posy - camerapp->oposy, smoothratio, 16));
-    tz = camerapp->oposz + xs_CRoundToInt(MulScaleF(camerapp->posz - camerapp->oposz, smoothratio, 16));
+    tx = interpolatedvalue(camerapp->oposx, camerapp->posx, smoothratio);
+    ty = interpolatedvalue(camerapp->oposy, camerapp->posy, smoothratio);
+    tz = interpolatedvalue(camerapp->oposz, camerapp->posz, smoothratio);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
@@ -1594,7 +1593,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         if (cl_viewbob)
         {
             tz += bob_amt;
-            tz += pp->obob_z + xs_CRoundToInt(MulScaleF(pp->bob_z - pp->obob_z, smoothratio, 16));
+            tz += interpolatedvalue(pp->obob_z, pp->bob_z, smoothratio);
         }
 
         // recoil only when not in camera

@@ -446,15 +446,15 @@ static void DrawMap(spritetype* pSprite)
         tm = 1;
     }
     VIEW* pView = &gPrevView[gViewIndex];
-    int x = interpolate(pView->x, pSprite->x, gInterpolate);
-    int y = interpolate(pView->y, pSprite->y, gInterpolate);
+    int x = interpolatedvalue(pView->x, pSprite->x, gInterpolate);
+    int y = interpolatedvalue(pView->y, pSprite->y, gInterpolate);
     int ang = (!SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate)).asbuild();
     DrawOverheadMap(x, y, ang, gInterpolate);
     if (tm)
         setViewport(hud_size);
 }
 
-void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta, double& shakeX, double& shakeY, lookangle& rotscrnang)
+void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta, double& shakeX, double& shakeY, binangle& rotscrnang)
 {
     int bobWidth, bobHeight;
     
@@ -462,14 +462,14 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
     if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
     {
         nSectnum = predict.sectnum;
-        cX = interpolate(predictOld.x, predict.x, gInterpolate);
-        cY = interpolate(predictOld.y, predict.y, gInterpolate);
-        cZ = interpolate(predictOld.viewz, predict.viewz, gInterpolate);
-        zDelta = finterpolate(predictOld.weaponZ, predict.weaponZ, gInterpolate);
-        bobWidth = interpolate(predictOld.bobWidth, predict.bobWidth, gInterpolate);
-        bobHeight = interpolate(predictOld.bobHeight, predict.bobHeight, gInterpolate);
-        shakeX = finterpolate(predictOld.shakeBobX, predict.shakeBobX, gInterpolate);
-        shakeY = finterpolate(predictOld.shakeBobY, predict.shakeBobY, gInterpolate);
+        cX = interpolatedvalue(predictOld.x, predict.x, gInterpolate);
+        cY = interpolatedvalue(predictOld.y, predict.y, gInterpolate);
+        cZ = interpolatedvalue(predictOld.viewz, predict.viewz, gInterpolate);
+        zDelta = interpolatedvaluef(predictOld.weaponZ, predict.weaponZ, gInterpolate);
+        bobWidth = interpolatedvalue(predictOld.bobWidth, predict.bobWidth, gInterpolate);
+        bobHeight = interpolatedvalue(predictOld.bobHeight, predict.bobHeight, gInterpolate);
+        shakeX = interpolatedvaluef(predictOld.shakeBobX, predict.shakeBobX, gInterpolate);
+        shakeY = interpolatedvaluef(predictOld.shakeBobY, predict.shakeBobY, gInterpolate);
 
         if (!SyncInput())
         {
@@ -479,28 +479,28 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
         }
         else
         {
-            uint32_t oang = predictOld.angle.asbam() + predictOld.look_ang.asbam();
-            uint32_t ang = predict.angle.asbam() + predict.look_ang.asbam();
-            cA = interpolateangbin(oang, ang, gInterpolate);
+            auto oang = predictOld.angle + predictOld.look_ang;
+            auto ang = predict.angle + predict.look_ang;
+            cA = interpolatedangle(oang, ang, gInterpolate);
 
             fixed_t ohoriz = (predictOld.horiz + predictOld.horizoff).asq16();
             fixed_t horiz = (predict.horiz + predict.horizoff).asq16();
-            cH = q16horiz(interpolate(ohoriz, horiz, gInterpolate));
+            cH = q16horiz(interpolatedvalue(ohoriz, horiz, gInterpolate));
 
-            rotscrnang = interpolateanglook(predictOld.rotscrnang.asbam(), predict.rotscrnang.asbam(), gInterpolate);
+            rotscrnang = interpolatedangle(predictOld.rotscrnang, predict.rotscrnang, gInterpolate);
         }
     }
     else
     {
         VIEW* pView = &gPrevView[gViewIndex];
-        cX = interpolate(pView->x, gView->pSprite->x, gInterpolate);
-        cY = interpolate(pView->y, gView->pSprite->y, gInterpolate);
-        cZ = interpolate(pView->viewz, gView->zView, gInterpolate);
-        zDelta = finterpolate(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
-        bobWidth = interpolate(pView->bobWidth, gView->bobWidth, gInterpolate);
-        bobHeight = interpolate(pView->bobHeight, gView->bobHeight, gInterpolate);
-        shakeX = finterpolate(pView->shakeBobX, gView->swayWidth, gInterpolate);
-        shakeY = finterpolate(pView->shakeBobY, gView->swayHeight, gInterpolate);
+        cX = interpolatedvalue(pView->x, gView->pSprite->x, gInterpolate);
+        cY = interpolatedvalue(pView->y, gView->pSprite->y, gInterpolate);
+        cZ = interpolatedvalue(pView->viewz, gView->zView, gInterpolate);
+        zDelta = interpolatedvaluef(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
+        bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
+        bobHeight = interpolatedvalue(pView->bobHeight, gView->bobHeight, gInterpolate);
+        shakeX = interpolatedvaluef(pView->shakeBobX, gView->swayWidth, gInterpolate);
+        shakeY = interpolatedvaluef(pView->shakeBobY, gView->swayHeight, gInterpolate);
 
         if (!SyncInput())
         {
@@ -681,10 +681,10 @@ void viewDrawScreen(bool sceneonly)
         int nSectnum;
         double zDelta;
         double shakeX, shakeY;
-        lookangle rotscrnang;
+        binangle rotscrnang;
         SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta, shakeX, shakeY, rotscrnang);
 
-        int tilt = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
+        int tilt = interpolatedangle(gScreenTiltO, gScreenTilt, gInterpolate);
         uint8_t v14 = 0;
         uint8_t v10 = 0;
         bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
@@ -693,7 +693,7 @@ void viewDrawScreen(bool sceneonly)
         uint8_t otherview = powerupCheck(gView, kPwUpCrystalBall) > 0;
         if (tilt || bDelirium)
         {
-            rotscrnang = buildlook(tilt);
+            rotscrnang = buildang(tilt);
         }
         else if (otherview && gNetPlayers > 1)
         {
@@ -741,7 +741,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
         g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - brightness, 0));
-        cA += q16ang(interpolateangfix16(IntToFixed(deliriumTurnO), IntToFixed(deliriumTurn), gInterpolate));
+        cA += interpolatedangle(buildang(deliriumTurnO), buildang(deliriumTurn), gInterpolate);
 
         int ceilingZ, floorZ;
         getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
@@ -769,7 +769,7 @@ void viewDrawScreen(bool sceneonly)
 
         if (testnewrenderer)
         {
-            fixedhoriz deliriumPitchI = q16horiz(interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
+            fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
             int bakCstat = gView->pSprite->cstat;
             gView->pSprite->cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANSLUCENT_INVERT;
             render_drawrooms(gView->pSprite, { cX, cY, cZ }, nSectnum, cA, cH + deliriumPitchI, rotscrnang);

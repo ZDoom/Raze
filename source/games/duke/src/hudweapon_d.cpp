@@ -284,10 +284,10 @@ void displayweapon_d(int snum, double smoothratio)
 	horiz16th = get16thOfHoriz(snum, SyncInput(), smoothratio);
 	look_anghalf = p->angle.look_anghalf(smoothratio);
 	looking_arc = fabs(look_anghalf) / 4.5;
-	weapon_sway = p->oweapon_sway + MulScaleF(p->weapon_sway - p->oweapon_sway, smoothratio, 16);
-	kickback_pic = p->okickback_pic + MulScaleF(*kb - p->okickback_pic, smoothratio, 16);
-	random_club_frame = p->orandom_club_frame + MulScaleF(p->random_club_frame - p->orandom_club_frame, smoothratio, 16);
-	hard_landing = p->ohard_landing + MulScaleF(p->hard_landing - p->ohard_landing, smoothratio, 16);
+	weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
+	kickback_pic = interpolatedvaluef(p->okickback_pic, p->kickback_pic, smoothratio);
+	random_club_frame = interpolatedvaluef(p->orandom_club_frame, p->random_club_frame, smoothratio);
+	hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
 
 	shade = p->GetActor()->s.shade;
 	if(shade > 24) shade = 24;
@@ -301,9 +301,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 	animateknee(shade,snum,hard_landing,look_anghalf,horiz16th);
 
-	int opos = p->oweapon_pos * p->oweapon_pos;
-	int npos = p->weapon_pos * p->weapon_pos;
-	gun_pos = 80 - (opos + MulScaleF(npos - opos, smoothratio, 16));
+	gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
 
 	weapon_xoffset =  (160)-90;
 	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);

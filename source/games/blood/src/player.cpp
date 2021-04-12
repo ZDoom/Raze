@@ -700,7 +700,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->restTime = 0;
     pPlayer->kickPower = 0;
     pPlayer->laughCount = 0;
-    pPlayer->angle.spin = buildlook(0);
+    pPlayer->angle.spin = 0;
     pPlayer->posture = 0;
     pPlayer->voodooTarget = -1;
     pPlayer->voodooTargets = 0;
@@ -1640,14 +1640,14 @@ void playerProcess(PLAYER *pPlayer)
     }
     ProcessInput(pPlayer);
     int nSpeed = approxDist(xvel[nSprite], yvel[nSprite]);
-    pPlayer->zViewVel = interpolate(pPlayer->zViewVel, zvel[nSprite], 0x7000);
+    pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, zvel[nSprite], 0x7000);
     int dz = pPlayer->pSprite->z-pPosture->eyeAboveZ-pPlayer->zView;
     if (dz > 0)
         pPlayer->zViewVel += MulScale(dz<<8, 0xa000, 16);
     else
         pPlayer->zViewVel += MulScale(dz<<8, 0x1800, 16);
     pPlayer->zView += pPlayer->zViewVel>>8;
-    pPlayer->zWeaponVel = interpolate(pPlayer->zWeaponVel, zvel[nSprite], 0x5000);
+    pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, zvel[nSprite], 0x5000);
     dz = pPlayer->pSprite->z-pPosture->weaponAboveZ-pPlayer->zWeapon;
     if (dz > 0)
         pPlayer->zWeaponVel += MulScale(dz<<8, 0x8000, 16);

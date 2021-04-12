@@ -193,11 +193,6 @@ void ResetView()
 #endif
 }
 
-static inline int interpolate16(int a, int b, int smooth)
-{
-    return a + MulScale(b - a, smooth, 16);
-}
-
 static TextOverlay subtitleOverlay;
 
 void DrawView(double smoothRatio, bool sceneonly)
@@ -206,9 +201,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerY;
     int playerZ;
     short nSector;
-    binangle nAngle;
+    binangle nAngle, rotscrnang;
     fixedhoriz pan;
-    lookangle rotscrnang;
 
     fixed_t dang = IntToFixed(1024);
 
@@ -230,7 +224,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerZ = sprite[nSprite].z;
         nSector = sprite[nSprite].sectnum;
         nAngle = buildang(sprite[nSprite].ang);
-        rotscrnang = buildlook(0);
+        rotscrnang = buildang(0);
 
         SetGreenPal();
 
@@ -251,7 +245,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         auto psp = &sprite[nPlayerSprite];
         playerX = psp->interpolatedx(smoothRatio);
         playerY = psp->interpolatedy(smoothRatio);
-        playerZ = psp->interpolatedz(smoothRatio) + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
+        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
 
         nSector = nPlayerViewSect[nLocalPlayer];
         updatesector(playerX, playerY, &nSector);

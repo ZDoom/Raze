@@ -218,9 +218,9 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                 mirrorinview = true;
 
-//                tx = pp->oposx + MulScale(pp->posx - pp->oposx, smoothratio, 16);
-//                ty = pp->oposy + MulScale(pp->posy - pp->oposy, smoothratio, 16);
-//                tz = pp->oposz + MulScale(pp->posz - pp->oposz, smoothratio, 16);
+//                tx = interpolatedvalue(pp->oposx, pp->posx, smoothratio);
+//                ty = interpolatedvalue(pp->oposy, pp->posy, smoothratio);
+//                tz = interpolatedvalue(pp->oposz, pp->posz, smoothratio);
 //                tpq16ang = pp->angle.ang.asq16();
 
 
