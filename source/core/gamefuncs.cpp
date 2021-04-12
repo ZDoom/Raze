@@ -205,7 +205,7 @@ void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	int x = bsin(spr->ang) * spr->xrepeat;
 	int y = -bcos(spr->ang) * spr->xrepeat;
 
-	int xoff = leftofs + spr->xoffset;
+	int xoff = leftofs;
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoff = -xoff;
 	int origin = (width >> 1) + xoff;
 
