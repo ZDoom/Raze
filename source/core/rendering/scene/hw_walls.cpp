@@ -944,11 +944,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		float zalign = 0.f;
 
-		if (fch1 > ffh1 || fch2 > ffh2)
-		{
-			SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
-			SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);
-		}
+		SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
+		SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);
 
 		// upper texture
 		if (!(frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY))
