@@ -990,7 +990,6 @@ bool GameInterface::LoadGame()
     }
 #endif
 
-    SetupPreCache();
     DoTheCache();
 
     // this is ok - just duplicating sector list with pointers

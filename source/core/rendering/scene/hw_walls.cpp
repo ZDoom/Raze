@@ -200,7 +200,7 @@ void HWWall::RenderTranslucentWall(HWDrawInfo *di, FRenderState &state)
 
 	state.SetRenderStyle(RenderStyle);
 	state.SetTextureMode(RenderStyle);
-	if (!texture || !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
+	if (texture && !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 	else state.AlphaFunc(Alpha_GEqual, 0.f);
 	RenderTexturedWall(di, state, HWWall::RWF_TEXTURED);
 	state.SetRenderStyle(STYLE_Translucent);
@@ -944,11 +944,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		float zalign = 0.f;
 
-		if (fch1 > ffh1 || fch2 > ffh2)
-		{
-			SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
-			SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);
-		}
+		SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
+		SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);
 
 		// upper texture
 		if (!(frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY))

@@ -144,7 +144,7 @@ enum scripttoken_t
     T_SURFACE, T_VIEW,
 };
 
-static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
+static int32_t lastmodelid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 
 static const char *skyfaces[6] =
 {
@@ -853,50 +853,11 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_DEFINEVOXEL:
-        {
-            FString fn;
-
-            if (scriptfile_getstring(script,&fn))
-                break; //voxel filename
-
-            while (nextvoxid < MAXVOXELS && (voxreserve[nextvoxid>>3]&(1<<(nextvoxid&7))))
-                nextvoxid++;
-
-            if (nextvoxid == MAXVOXELS)
-            {
-                Printf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
-                break;
-            }
-
-            if (voxDefine(nextvoxid, fn))
-            {
-                Printf("Failure loading voxel file \"%s\"\n",fn.GetChars());
-                break;
-            }
-
-            lastvoxid = nextvoxid++;
-        }
-        break;
+            parseDefineVoxel(*script, pos);
+            break;
         case T_DEFINEVOXELTILES:
-        {
-            int32_t ftilenume, ltilenume, tilex;
-
-            if (scriptfile_getsymbol(script,&ftilenume)) break; //1st tile #
-            if (scriptfile_getsymbol(script,&ltilenume)) break; //last tile #
-
-            if (check_tile_range("definevoxeltiles", &ftilenume, &ltilenume, script, pos))
-                break;
-
-            if (lastvoxid < 0)
-            {
-                Printf("Warning: Ignoring voxel tiles definition.\n");
-                break;
-            }
-
-            for (tilex = ftilenume; tilex <= ltilenume; tilex++)
-                tiletovox[tilex] = lastvoxid;
-        }
-        break;
+            parseDefineVoxelTiles(*script, pos);
+            break;
 
         // NEW (ENCOURAGED) DEFINITION SYNTAX
         case T_MODEL:
@@ -1312,88 +1273,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_VOXEL:
-        {
-			auto voxelpos = scriptfile_getposition(script);
-            FScanner::SavedPos modelend;
-            FString fn;
-            int32_t tile0 = MAXTILES, tile1 = -1, tilex = -1;
-
-            static const tokenlist voxeltokens[] =
-            {
-                { "tile",   T_TILE   },
-                { "tile0",  T_TILE0  },
-                { "tile1",  T_TILE1  },
-                { "scale",  T_SCALE  },
-                { "rotate", T_ROTATE },
-            };
-
-            if (scriptfile_getstring(script,&fn))
-                break; //voxel filename
-
-            while (nextvoxid < MAXVOXELS && (voxreserve[nextvoxid>>3]&(1<<(nextvoxid&7))))
-                nextvoxid++;
-
-            if (nextvoxid == MAXVOXELS)
-            {
-                voxelpos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
-                break;
-            }
-
-            if (voxDefine(nextvoxid, fn))
-            {
-                voxelpos.Message(MSG_ERROR, "Failure loading voxel file \"%s\"",fn.GetChars());
-                break;
-            }
-
-            lastvoxid = nextvoxid++;
-
-            if (scriptfile_getbraces(script,&modelend)) break;
-            while (!scriptfile_endofblock(script, modelend))
-            {
-                switch (getatoken(script, voxeltokens, countof(voxeltokens)))
-                {
-                    //case T_ERROR: Printf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
-                case T_TILE:
-                    scriptfile_getsymbol(script,&tilex);
-
-                    if (check_tile("voxel", tilex, script, voxelpos))
-                        break;
-
-                    tiletovox[tilex] = lastvoxid;
-                    break;
-
-                case T_TILE0:
-                    scriptfile_getsymbol(script,&tile0);
-                    break; //1st tile #
-
-                case T_TILE1:
-                    scriptfile_getsymbol(script,&tile1);
-
-                    if (check_tile_range("voxel", &tile0, &tile1, script, voxelpos))
-                        break;
-
-                    for (tilex=tile0; tilex<=tile1; tilex++)
-                        tiletovox[tilex] = lastvoxid;
-                    break; //last tile number (inclusive)
-
-                case T_SCALE:
-                {
-                    double scale=1.0;
-                    scriptfile_getdouble(script,&scale);
-                    voxscale[lastvoxid] = (float)scale;
-                    if (voxmodels[lastvoxid])
-                        voxmodels[lastvoxid]->scale = scale;
-                    break;
-                }
-
-                case T_ROTATE:
-                    voxrotate.Set(lastvoxid);
-                    break;
-                }
-            }
-            lastvoxid = -1;
-        }
-        break;
+            parseVoxel(*script, pos);
+            break;
         case T_SKYBOX:
             parseSkybox(*script, pos);
             break;
@@ -1446,56 +1327,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_TINT:
-        {
-			auto tintpos = scriptfile_getposition(script);
-            int32_t red=255, green=255, blue=255, shadered=0, shadegreen=0, shadeblue=0, pal=-1, flags=0;
-            FScanner::SavedPos tintend;
-
-            static const tokenlist tinttokens[] =
-            {
-                { "pal",        T_PAL        },
-                { "red",        T_RED        },{ "r",  T_RED },
-                { "green",      T_GREEN      },{ "g",  T_GREEN },
-                { "blue",       T_BLUE       },{ "b",  T_BLUE },
-                { "shadered",   T_SHADERED   },{ "sr", T_SHADERED },
-                { "shadegreen", T_SHADEGREEN },{ "sg", T_SHADEGREEN },
-                { "shadeblue",  T_SHADEBLUE  },{ "sb", T_SHADEBLUE },
-                { "flags",      T_FLAGS      }
-            };
-
-            if (scriptfile_getbraces(script,&tintend)) break;
-            while (!scriptfile_endofblock(script, tintend))
-            {
-                switch (getatoken(script,tinttokens,countof(tinttokens)))
-                {
-                case T_PAL:
-                    scriptfile_getsymbol(script,&pal);        break;
-                case T_RED:
-                    scriptfile_getnumber(script,&red);        red        = min(255,max(0,red));   break;
-                case T_GREEN:
-                    scriptfile_getnumber(script,&green);      green      = min(255,max(0,green)); break;
-                case T_BLUE:
-                    scriptfile_getnumber(script,&blue);       blue       = min(255,max(0,blue));  break;
-                case T_SHADERED:
-                    scriptfile_getnumber(script,&shadered);   shadered   = min(255,max(0,shadered));   break;
-                case T_SHADEGREEN:
-                    scriptfile_getnumber(script,&shadegreen); shadegreen = min(255,max(0,shadegreen)); break;
-                case T_SHADEBLUE:
-                    scriptfile_getnumber(script,&shadeblue);  shadeblue  = min(255,max(0,shadeblue));  break;
-                case T_FLAGS:
-                    scriptfile_getsymbol(script,&flags);      break;
-                }
-            }
-
-            if (pal < 0)
-            {
-                tintpos.Message(MSG_ERROR, "tint: missing 'palette number'");
-                break;
-            }
-
-            lookups.setPaletteTint(pal,red,green,blue,shadered,shadegreen,shadeblue,flags);
-        }
-        break;
+            parseTint(*script, pos);
+            break;
         case T_MAKEPALOOKUP:
         {
             int32_t red=0, green=0, blue=0, pal=-1;

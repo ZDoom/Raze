@@ -1099,6 +1099,7 @@ set (PCH_SOURCES
 	core/gameconfigfile.cpp
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
+	core/gamehud.cpp
 	core/gamefuncs.cpp
 	core/gameinput.cpp
 	core/interpolate.cpp
@@ -1113,6 +1114,7 @@ set (PCH_SOURCES
 	core/secrets.cpp
 	core/compositesavegame.cpp
 	core/savegamehelp.cpp
+	core/precache.cpp
 	core/quotes.cpp
 	core/screenshot.cpp
 	core/sectorgeometry.cpp

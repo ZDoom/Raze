@@ -38,7 +38,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "st_start.h"
 #include "i_interface.h"
 #include "prediction.h"
-#include "glbackend/glbackend.h"
 #include "gamestate.h"
 
 BEGIN_DUKE_NS
@@ -195,14 +194,14 @@ static void setupbackdrop()
 	if (isWorldTour())
 	{
 		defineSky(5284, 65536, 3, defoff);
-		defineSky(5412, 65536, 3, defoff, 48);
-		defineSky(5420, 65536, 3, defoff, 48);
-		defineSky(5450, 65536, 3, defoff7, 48);
-		defineSky(5540, 65536, 3, defoff, 48);
-		defineSky(5548, 65536, 3, defoff, 48);
-		defineSky(5556, 65536, 3, defoff1, 48);
-		defineSky(5720, 65536, 3, defoff4, 48);
-		defineSky(5814, 65536, 3, defoff, 48);
+		defineSky(5412, 65536, 3, defoff, 80);
+		defineSky(5420, 65536, 3, defoff, 80);
+		defineSky(5450, 65536, 3, defoff7, 80);
+		defineSky(5540, 65536, 3, defoff, 80);
+		defineSky(5548, 65536, 3, defoff, 80);
+		defineSky(5556, 65536, 3, defoff1, 80);
+		defineSky(5720, 65536, 3, defoff4, 80);
+		defineSky(5814, 65536, 3, defoff, 80);
 	}
 
 	// Ugh... Since we do not know up front which of these tiles are skies we have to set them all...

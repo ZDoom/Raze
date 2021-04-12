@@ -146,8 +146,6 @@ static void parseTextureSpecialBlock(FScanner& sc, FScriptPosition& pos, int til
 	FString fn;
 	double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
-	if (!sc.GetNumber(pal, true)) return;
-
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))
 	{
@@ -353,6 +351,111 @@ void parseAlphahackRange(FScanner& sc, FScriptPosition& pos)
 //
 //
 //===========================================================================
+static int lastvoxid = -1;
+
+void parseDefineVoxel(FScanner& sc, FScriptPosition& pos)
+{
+	sc.MustGetString();
+	while (nextvoxid < MAXVOXELS && voxreserve[nextvoxid]) nextvoxid++;
+
+	if (nextvoxid == MAXVOXELS)
+	{
+		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+		return;
+	}
+
+	if (voxDefine(nextvoxid, sc.String))
+	{
+		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"\n", sc.String);
+		return;
+	}
+
+	lastvoxid = nextvoxid++;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseDefineVoxelTiles(FScanner& sc, FScriptPosition& pos)
+{
+	int tilestart, tileend;
+	if (!sc.GetNumber(tilestart, true)) return;
+	if (!sc.GetNumber(tileend, true)) return;
+	if (!ValidateTileRange("definevoxeltiles", tilestart, tileend, pos)) return;
+
+	if (lastvoxid < 0)
+	{
+		pos.Message(MSG_WARNING, "Warning: Ignoring voxel tiles definition without valid voxel.\n");
+		return;
+	}
+	for (int i = tilestart; i <= tileend; i++) tiletovox[i] = lastvoxid;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseVoxel(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int tile0 = MAXTILES, tile1 = -1;
+	FString fn;
+
+	if (!sc.GetString(fn)) return;
+
+	while (nextvoxid < MAXVOXELS && voxreserve[nextvoxid]) nextvoxid++;
+
+	if (nextvoxid == MAXVOXELS)
+	{
+		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+		return;
+	}
+
+	if (voxDefine(nextvoxid, fn))
+	{
+		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"\n", fn.GetChars());
+		return;
+	}
+
+	int lastvoxid = nextvoxid++;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("tile"))
+		{
+			sc.GetNumber(true);
+			if (ValidateTilenum("voxel", sc.Number, pos)) tiletovox[sc.Number] = lastvoxid;
+		}
+		if (sc.Compare("tile0")) sc.GetNumber(tile0, true);
+		if (sc.Compare("tile1"))
+		{
+			sc.GetNumber(tile1, true);
+			if (ValidateTileRange("voxel", tile0, tile1, pos))
+			{
+				for (int i = tile0; i <= tile1; i++) tiletovox[i] = lastvoxid;
+			}
+		}
+		if (sc.Compare("scale"))
+		{
+			sc.GetFloat(true);
+			voxscale[lastvoxid] = (float)sc.Float;
+		}
+		if (sc.Compare("rotate")) voxrotate.Set(lastvoxid);
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 void parseDefineTint(FScanner& sc, FScriptPosition& pos)
 {
@@ -403,4 +506,36 @@ void parseNoFloorpalRange(FScanner& sc, FScriptPosition& pos)
 	if (end > MAXPALOOKUPS - 1) end = MAXPALOOKUPS - 1;
 	for (int i = start; i <= end; i++)
 		lookups.tables[i].noFloorPal = true;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseTint(FScanner& sc, FScriptPosition& pos)
+{
+	int red = 255, green = 255, blue = 255, shadered = 0, shadegreen = 0, shadeblue = 0, pal = -1, flags = 0;
+	FScanner::SavedPos blockend;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("pal")) sc.GetNumber(pal, true);
+		else if (sc.Compare({"red", "r"})) sc.GetNumber(red);
+		else if (sc.Compare({ "green", "g" })) sc.GetNumber(green);
+		else if (sc.Compare({ "blue", "b" })) sc.GetNumber(blue);
+		else if (sc.Compare({ "shadered", "sr" })) sc.GetNumber(shadered);
+		else if (sc.Compare({ "shadegreen", "sg" })) sc.GetNumber(shadegreen);
+		else if (sc.Compare({ "shadeblue", "sb" })) sc.GetNumber(shadeblue);
+		else if (sc.Compare("flags")) sc.GetNumber(flags, true);
+	}
+
+	if (pal < 0)
+		pos.Message(MSG_ERROR, "tint: missing palette number");
+	else
+		lookups.setPaletteTint(pal, clamp(red, 0, 255), clamp(green, 0, 255), clamp(blue, 0, 255), 
+			clamp(shadered, 0, 255), clamp(shadegreen, 0, 255), clamp(shadeblue, 0, 255), flags);
 }

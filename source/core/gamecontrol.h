@@ -153,6 +153,7 @@ struct GrpDefInfo
 	TArray<FString> tobedeleted;
 	TArray<FString> loadfiles;
 	TArray<FString> loadart;
+	uint32_t FgColor = 0, BgColor = 0;
 };
 
 

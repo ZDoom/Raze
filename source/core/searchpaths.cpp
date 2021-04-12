@@ -462,6 +462,16 @@ static TArray<GrpDefInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FStr
 					sc.MustGetToken(TK_StringConst);
 					grp.gamefilter = sc.String;
 				}
+				else if (sc.Compare("fgcolor"))
+				{
+					sc.MustGetToken(TK_IntConst);
+					grp.FgColor = sc.Number;
+				}
+				else if (sc.Compare("bkcolor"))
+				{
+					sc.MustGetToken(TK_IntConst);
+					grp.BgColor = sc.Number;
+				}
 				else if (sc.Compare("crc"))
 				{
 					sc.MustGetAnyToken();

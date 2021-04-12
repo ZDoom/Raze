@@ -52,6 +52,8 @@ grpinfo
 	flags GAMEFLAG_DUKE
 	gamefilter "Duke.Duke"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -62,6 +64,8 @@ grpinfo
 	flags GAMEFLAG_DUKE
 	gamefilter "Duke.Duke"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -72,6 +76,8 @@ grpinfo
 	flags GAMEFLAG_DUKE
 	gamefilter "Duke.Duke"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -82,6 +88,8 @@ grpinfo
 	flags GAMEFLAG_DUKE
 	gamefilter "Duke.Duke"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo // another variant? I got this one, dated 2016-10-12
@@ -92,6 +100,8 @@ grpinfo // another variant? I got this one, dated 2016-10-12
 	flags GAMEFLAG_DUKE
 	gamefilter "Duke.Duke"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -102,6 +112,8 @@ grpinfo
 	flags GAMEFLAG_DUKE
 	gamefilter "Duke.Duke"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -112,6 +124,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_DUKEBETA
 	gamefilter "Duke.Shareware"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -122,6 +136,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
 	gamefilter "Duke.Shareware"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -132,6 +148,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
 	gamefilter "Duke.Shareware"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -142,6 +160,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
 	gamefilter "Duke.Shareware"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -152,6 +172,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
 	gamefilter "Duke.Shareware"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -162,6 +184,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
 	gamefilter "Duke.Shareware"
 	dependency 0
+	FgColor 0xffff00
+	BkColor 0xff6f00
 }
 
 grpinfo
@@ -218,6 +242,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.Vacation"
+	FgColor 0x00004f
+	BkColor 0x8f8fff
 }
 
 grpinfo
@@ -229,6 +255,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.Vacation"
+	FgColor 0x00004f
+	BkColor 0x8f8fff
 }
 
 grpinfo
@@ -240,6 +268,8 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.NWinter"
+	FgColor 0
+	BkColor 0x8f8f8f
 }
 
 grpinfo
@@ -251,6 +281,16 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.NWinter"
+	FgColor 0
+	BkColor 0x8f8f8f
+}
+
+grpinfo
+{
+    name "Duke: Alien World Order"
+    dependency DUKE15_CRC
+	mustcontain "FIREFLYTROOPER.CON", "FLAMETHROWER.CON", "music/E5L1_BulletDam.ogg", "sound/VO_E5L1_Duke_CreamAndSugar.ogg"
+	gamefilter "Duke.Worldtour"
 }
 
 grpinfo
@@ -297,6 +337,8 @@ grpinfo
 	dependency 0
 	loadgrp "SOUNDS.RFF", "GUI.RFF"
 	gamefilter "Blood.Blood"
+	FgColor 0
+	BkColor 0x7f003f
 }
 
 grpinfo
@@ -310,6 +352,8 @@ grpinfo
 	dependency 0
 	loadgrp "SOUNDS.RFF", "GUI.RFF"
 	gamefilter "Blood.Blood"
+	FgColor 0
+	BkColor 0xaf0024
 }
 
 grpinfo
@@ -323,6 +367,8 @@ grpinfo
 	dependency 0
 	loadgrp "SOUNDS.RFF", "GUI.RFF"
 	gamefilter "Blood.Blood"
+	FgColor 0
+	BkColor 0xaf0024
 }
 
 grpinfo
@@ -336,6 +382,8 @@ grpinfo
 	dependency 0
 	loadgrp "SOUNDS.RFF", "GUI.RFF"
 	gamefilter "Blood.Blood"
+	FgColor 0
+	BkColor 0x7f002f
 }
 
 /* this doesn't work with the current setup.
@@ -410,6 +458,8 @@ grpinfo
 	size 47536148
 	defname "sw.def"
 	gamefilter "ShadowWarrior.ShadowWarrior"
+	FgColor 0
+	BkColor 0xaf0000
 }
 
 grpinfo
@@ -420,6 +470,8 @@ grpinfo
 	size 47536148
 	defname "sw.def"
 	gamefilter "ShadowWarrior.ShadowWarrior"
+	FgColor 0
+	BkColor 0xaf0000
 }
 
 grpinfo
@@ -430,6 +482,8 @@ grpinfo
 	size 47536148
 	defname "sw.def"
 	gamefilter "ShadowWarrior.ShadowWarrior"
+	FgColor 0
+	BkColor 0xaf0000
 }
 
 grpinfo
@@ -440,6 +494,8 @@ grpinfo
 	size 47537951
 	defname "sw.def"
 	gamefilter "ShadowWarrior.ShadowWarrior"
+	FgColor 0
+	BkColor 0xaf0000
 }
 
 grpinfo
@@ -450,6 +506,8 @@ grpinfo
 	size 25702245
 	defname "sw.def"
 	gamefilter "ShadowWarrior.Shareware"
+	FgColor 0
+	BkColor 0xaf0000
 }
 
 grpinfo
@@ -460,6 +518,8 @@ grpinfo
 	size 25833456
 	defname "sw.def"
 	gamefilter "ShadowWarrior.Shareware"
+	FgColor 0
+	BkColor 0xaf0000
 }
 
 grpinfo
@@ -470,6 +530,8 @@ grpinfo
 	size 26056769
 	defname "sw.def"
 	gamefilter "ShadowWarrior.Shareware"
+	FgColor 0
+	BkColor 0xaf0000
 }
 
 grpinfo
@@ -480,6 +542,8 @@ grpinfo
 	size 26056769
 	defname "sw.def"
 	gamefilter "ShadowWarrior.Shareware"
+	FgColor 0
+	BkColor 0xaf0000
 }
 
 grpinfo
@@ -559,6 +623,8 @@ grpinfo
 	flags GAMEFLAG_RR
 	dependency 0
 	gamefilter "Redneck.Redneck"
+	FgColor 0xbc9e89
+	BkColor 0x7f3300
 }
 
 grpinfo
@@ -570,6 +636,8 @@ grpinfo
 	flags GAMEFLAG_RRRA
 	dependency 0
 	gamefilter "Redneck.RidesAgain"
+	FgColor 0xbc9e89
+	BkColor 0x7f3300
 }
 
 grpinfo
@@ -606,6 +674,8 @@ grpinfo
 	flags GAMEFLAG_NAM
 	dependency 0
 	gamefilter "Nam.Nam"
+	FgColor 0
+	BkColor 0x78720d
 }
 
 grpinfo
@@ -616,6 +686,8 @@ grpinfo
 	flags GAMEFLAG_NAM|GAMEFLAG_NAPALM
 	dependency 0
 	gamefilter "Nam.Napalm"
+	FgColor 0
+	BkColor 0x78720d
 }
 
 grpinfo
@@ -626,6 +698,8 @@ grpinfo
 	flags GAMEFLAG_WW2GI
 	dependency 0
 	gamefilter "WW2GI.WW2GI"
+	FgColor 0
+	BkColor 0x78720d
 }
 
 grpinfo
@@ -647,6 +721,8 @@ grpinfo
 	size 27020745
 	defname "exhumed.def"
 	gamefilter "Exhumed.Powerslave"
+	FgColor 0xff0000
+	BkColor 0xffff33
 }
 
 grpinfo
@@ -657,6 +733,8 @@ grpinfo
 	size 27108170
 	defname "exhumed.def"
 	gamefilter "Exhumed.Exhumed"
+	FgColor 0xff0000
+	BkColor 0xffff33
 }
 
 grpinfo
@@ -667,6 +745,8 @@ grpinfo
 	size 27020745
 	defname "exhumed.def"
 	gamefilter "Exhumed.Powerslave"
+	FgColor 0xff0000
+	BkColor 0xffff33
 }
 
 grpinfo

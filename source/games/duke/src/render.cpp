@@ -34,6 +34,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "dukeactor.h"
 #include "interpolate.h"
 #include "render.h"
+#include "glbackend/glbackend.h"
 
 #include "_polymost.cpp"
 

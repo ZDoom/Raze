@@ -69,7 +69,7 @@ CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widesc
 			data->nSprite = -1;
 			data->x = m_nX;
 			data->y = m_nY;
-			data->Preload();
+			//data->Preload();
 			duration = data->duration;
 			lastTick = I_GetBuildTime();
 		}

@@ -306,7 +306,6 @@ public:
 };
 
 extern GLInstance GLInterface;
-extern F2DDrawer twodpsp;
 
 void renderSetProjectionMatrix(const float* p);
 void renderSetViewMatrix(const float* p);
@@ -314,6 +313,4 @@ void renderSetVisibility(float v);
 void renderSetViewpoint(float x, float y, float z);
 void renderBeginScene();
 void renderFinishScene();
-void DrawRateStuff();
 void videoShowFrame(int32_t);
-void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha = 1);

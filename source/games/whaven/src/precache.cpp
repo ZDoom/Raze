@@ -1,5 +1,6 @@
 #include "ns.h"
 #include "wh.h"
+#include "precache.h"
 
 BEGIN_WH_NS
 

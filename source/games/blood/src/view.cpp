@@ -42,8 +42,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "gamefuncs.h"
 #include "v_draw.h"
+#include "precache.h"
 #include "render.h"
-#include "glbackend/glbackend.h"
+
 
 EXTERN_CVAR(Bool, testnewrenderer)
 BEGIN_BLD_NS
@@ -134,10 +135,6 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 
 }
 
-void InitStatusBar(void)
-{
-    if (r_precache) PrecacheHardwareTextures(2200);
-}
 GameStats GameInterface::getStats()
 {
 	return { gKillMgr.Kills, gKillMgr.TotalKills, gSecretMgr.Founds, gSecretMgr.Total, gFrameCount / kTicsPerSec, gPlayer[myconnectindex].fragCount };
@@ -170,7 +167,6 @@ extern int dword_172CE0[16][3];
 void viewInit(void)
 {
     Printf("Initializing status bar\n");
-    InitStatusBar();
     FontSet(0, 4096, 0);
     FontSet(1, 4192, 1);
     FontSet(2, 4288, 1);

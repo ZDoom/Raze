@@ -1325,7 +1325,7 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
         pCtrl->qavScene.qavResrc = pQav;
         pCtrl->qavScene.dummy = -1;
 
-        pCtrl->qavScene.qavResrc->Preload();
+        //pCtrl->qavScene.qavResrc->Preload();
 
         pPlayer->sceneQav = pXSource->data2;
         pPlayer->weaponTimer = pCtrl->qavScene.qavResrc->duration;

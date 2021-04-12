@@ -337,7 +337,7 @@ bool FZipFile::Open(bool quiet, LumpFilterInfo* filter)
 		lump_p->CRC32 = zip_fh->CRC32;
 		lump_p->CompressedSize = LittleLong(zip_fh->CompressedSize);
 		lump_p->Position = LittleLong(zip_fh->LocalHeaderOffset);
-		lump_p->CheckEmbedded();
+		lump_p->CheckEmbedded(filter);
 
 		lump_p++;
 	}
