@@ -421,7 +421,8 @@ static void BuildEpisodeMenu()
 #endif
 		if (addedVolumes == 1)
 		{
-			ld->mAutoselect = ld->mItems.Size() - (textadded ? 2 : 1);
+			if (!isBlood()) ld->mAutoselect = ld->mItems.Size() - (textadded ? 2 : 1);
+			else ld->mAutoselect = 2;
 		}
 		if (popped) ld->mItems.Push(popped);
 	}
