@@ -46,7 +46,7 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilema
 	char synthname[60];
 	
 	
-	if (lognumtiles == 0 || lognumtiles > 4) 
+	if ((lognumtiles == 0 && remap == 0) || lognumtiles > 4) 
 	{
 		// no special handling - let the old code do its job as-is
 		return nullptr;
