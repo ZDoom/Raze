@@ -56,8 +56,6 @@ int16_t pskybits_override = -1;
 
 static int32_t beforedrawrooms = 1;
 
-int32_t globalflags;
-
 static int8_t tempbuf[MAXWALLS];
 
 static int32_t no_radarang2 = 0;

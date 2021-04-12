@@ -38,6 +38,7 @@
 int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor);
 int tileSetSkybox(int picnum, int palnum, FString* facenames);
 void tileRemoveReplacement(int num);
+void AddUserMapHack(usermaphack_t&);
 
 //===========================================================================
 //
@@ -538,4 +539,107 @@ void parseTint(FScanner& sc, FScriptPosition& pos)
 	else
 		lookups.setPaletteTint(pal, clamp(red, 0, 255), clamp(green, 0, 255), clamp(blue, 0, 255), 
 			clamp(shadered, 0, 255), clamp(shadegreen, 0, 255), clamp(shadeblue, 0, 255), flags);
+}
+
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseMusic(FScanner& sc, FScriptPosition& pos)
+{
+	FString id, file;
+	FScanner::SavedPos blockend;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("id")) sc.GetString(id);
+		else if (sc.Compare("file")) sc.GetString(file);
+	}
+	SetMusicForMap(id, file, true);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseMapinfo(FScanner& sc, FScriptPosition& pos)
+{
+	usermaphack_t mhk;
+	FScanner::SavedPos blockend;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("mapfile")) sc.GetString();
+		else if (sc.Compare("maptitle")) sc.GetString(mhk.title);
+		else if (sc.Compare("mhkfile")) sc.GetString(mhk.mhkfile);
+		else if (sc.Compare("mapmd4"))
+		{
+			sc.GetString();
+			for (int i = 0; i < 16; i++)
+			{
+				char smallbuf[3] = { sc.String[2 * i], sc.String[2 * i + 1], 0 };
+				mhk.md4[i] = strtol(smallbuf, nullptr, 16);
+			}
+		}
+	}
+	AddUserMapHack(mhk);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseEcho(FScanner& sc, FScriptPosition& pos)
+{
+	sc.MustGetString();
+	Printf("%s\n", sc.String);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseMultiPsky(FScanner& sc, FScriptPosition& pos)
+{
+	usermaphack_t mhk;
+	FScanner::SavedPos blockend;
+	psky_t sky{};
+
+	sky.yscale = 65536;
+	if (!sc.GetNumber(sky.tilenum, true)) return;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("horizfrac")) sc.GetNumber(sky.horizfrac, true);
+		else if (sc.Compare("yoffset")) sc.GetNumber(sky.yoffs, true);
+		else if (sc.Compare("lognumtiles")) sc.GetNumber(sky.lognumtiles, true);
+		else if (sc.Compare("yscale")) sc.GetNumber(sky.yscale, true);
+		else if (sc.Compare({ "tile", "panel" }))
+		{
+			int panel, offset;
+			sc.GetNumber(panel, true);
+			sc.GetNumber(offset, true);
+			if ((unsigned)panel < MAXPSKYTILES && (unsigned)offset <= PSKYOFF_MAX) sky.tileofs[panel] = offset;
+		}
+	}
+
+	if (sky.tilenum != DEFAULTPSKY && (unsigned)sky.tilenum >= MAXUSERTILES) return;
+	if ((1 << sky.lognumtiles) > MAXPSKYTILES) return;
+	auto psky = tileSetupSky(sky.tilenum);
+	*psky = sky;
 }
