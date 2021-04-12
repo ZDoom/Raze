@@ -1888,7 +1888,7 @@ OptionMenu "EngineCredits2"
 OptionMenu "EngineCredits2a"
 {
 	title "$MNU_CREDITS"
-	Submenu " ---->", "EngineCredits3"
+	Submenu " ---->", "EngineCredits2b"
 	StaticText "RedNukem / NBlood", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText ""
@@ -1898,6 +1898,16 @@ OptionMenu "EngineCredits2a"
 	StaticText "PCExhumed", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText "sirlemonhead", 0
+}
+	
+OptionMenu "EngineCredits2b"
+{
+	title "$MNU_CREDITS"
+	Submenu " ---->", "EngineCredits3"
+	StaticText "Widescreen graphics", 1
+	StaticText "James Manning     fgsfds            ", 0
+	StaticText "Dzierzan          Phredreeke        ", 0
+	StaticText "MaxED             Kinsie            ", 0
 }
 	
 OptionMenu "EngineCredits3"
