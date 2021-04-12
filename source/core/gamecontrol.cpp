@@ -835,15 +835,18 @@ int RunGame()
 	G_LoadConfig();
 	auto usedgroups = SetupGame();
 
-	for (auto& grp : usedgroups)
+	bool colorset = false;
+	for (int i = usedgroups.Size()-1; i >= 0; i--)
 	{
+		auto& grp = usedgroups[i];
 		if (grp.FileInfo.name.IsNotEmpty())
 		{
 			if (GameStartupInfo.Name.IsEmpty()) GameStartupInfo.Name = grp.FileInfo.name;
-			if (grp.FileInfo.FgColor != grp.FileInfo.BgColor && (GameStartupInfo.FgColor != 0 || GameStartupInfo.BkColor != 0))
+			if (!colorset && grp.FileInfo.FgColor != grp.FileInfo.BgColor && (GameStartupInfo.FgColor != 0 || GameStartupInfo.BkColor != 0))
 			{
 				GameStartupInfo.FgColor = grp.FileInfo.FgColor;
 				GameStartupInfo.BkColor = grp.FileInfo.BgColor;
+				colorset = true;
 			}
 		}
 	}
