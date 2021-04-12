@@ -287,6 +287,14 @@ grpinfo
 
 grpinfo
 {
+    name "Duke: Alien World Order"
+    dependency DUKE15_CRC
+	mustcontain "FIREFLYTROOPER.CON", "FLAMETHROWER.CON", "music/E5L1_BulletDam.ogg", "sound/VO_E5L1_Duke_CreamAndSugar.ogg"
+	gamefilter "Duke.Worldtour"
+}
+
+grpinfo
+{
 	name "Duke!ZONE II (1.3D)"
 	scriptname "DZ-GAME.CON"
 	size 26135388
