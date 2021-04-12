@@ -2854,7 +2854,12 @@ spritetype *actDropObject(spritetype *pSprite, int nType) {
     else if (nType >= kItemAmmoBase && nType < kItemAmmoMax) pSprite2 = actDropAmmo(pSprite, nType);
     else if (nType >= kItemWeaponBase && nType < kItemWeaponMax) pSprite2 = actDropWeapon(pSprite, nType);
     
-    if (pSprite2 && pSprite->picnum > -1) {
+    if (pSprite2) {
+        if (pSprite2->picnum == -1)
+        {
+            DeleteSprite(pSprite2 - sprite);
+            return nullptr;
+        }
         int top, bottom;
         GetSpriteExtents(pSprite2, &top, &bottom);
         if (bottom >= pSprite2->z)
