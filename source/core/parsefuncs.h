@@ -1263,3 +1263,76 @@ void parsePalookup(FScanner& sc, FScriptPosition& pos)
 		paletteloaded |= PALETTE_SHADE;
 	}
 }
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseMakePalookup(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int red = 0, green = 0, blue = 0, pal = -1;
+	int havepal = 0, remappal = 0;
+	int nofloorpal = -1;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	enum {
+		HAVE_PAL = 1,
+		HAVE_REMAPPAL = 2,
+		HAVE_REMAPSELF = 4,
+
+		HAVEPAL_SPECIAL = HAVE_REMAPPAL | HAVE_REMAPSELF,
+		HAVEPAL_ERROR = 8,
+	};
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare({ "r", "red" })) sc.GetNumber(red);
+		else if (sc.Compare({ "g", "green" })) sc.GetNumber(green);
+		else if (sc.Compare({ "b", "blue" })) sc.GetNumber(blue);
+		else if (sc.Compare("remappal"))
+		{
+			sc.GetNumber(remappal, true);
+			if (havepal & HAVEPAL_SPECIAL) havepal |= HAVEPAL_ERROR;
+			havepal |= HAVE_REMAPPAL;
+		}
+		else if (sc.Compare("remapself"))
+		{
+			if (havepal & HAVEPAL_SPECIAL) havepal |= HAVEPAL_ERROR;
+			havepal |= HAVE_REMAPSELF;
+		}
+		else if (sc.Compare("nofloorpal")) sc.GetNumber(nofloorpal, true);
+		else if (sc.Compare("pal")) sc.GetNumber(pal, true);
+	}
+	red = clamp(red, 0, 63);
+	green = clamp(green, 0, 63);
+	blue = clamp(blue, 0, 63);
+
+	if ((havepal & HAVE_PAL) == 0)
+	{
+		pos.Message(MSG_ERROR, "makepalookup: missing 'palette number'");
+	}
+	else if (pal == 0 || (unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
+	{
+		pos.Message(MSG_ERROR, "makepalookup: 'palette number' %d out of range (1 .. %d)\n", pal, MAXPALOOKUPS - RESERVEDPALS - 1);
+	}
+	else if (havepal & HAVEPAL_ERROR)
+	{
+		// will also disallow multiple remappals or remapselfs
+		pos.Message(MSG_ERROR, "makepalookup: must have exactly one of either 'remappal' or 'remapself'\n");
+	}
+	else if ((havepal & HAVE_REMAPPAL && (unsigned)remappal >= MAXPALOOKUPS - RESERVEDPALS))
+	{
+		pos.Message(MSG_ERROR, "makepalookup: 'remap palette number' %d out of range (max=%d)\n", pal, MAXPALOOKUPS - RESERVEDPALS - 1);
+	}
+	else
+	{
+		if (havepal & HAVE_REMAPSELF) remappal = pal;
+		lookups.makeTable(pal, lookups.getTable(remappal), red << 2, green << 2, blue << 2,
+			remappal == 0 ? 1 : (nofloorpal == -1 ? lookups.tables[remappal].noFloorPal : nofloorpal));
+	}
+}
