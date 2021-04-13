@@ -139,6 +139,7 @@ struct GrpInfo
 	FString defname;
 	FString rtsname;
 	FString gamefilter;
+	FString gameid;
 	uint32_t CRC = 0;
 	uint32_t dependencyCRC = 0;
 	size_t size = 0;

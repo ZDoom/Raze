@@ -123,7 +123,7 @@ FMemArena dump;	// this is for memory blocks than cannot be deallocated without 
 
 InputState inputState;
 int ShowStartupWindow(TArray<GrpEntry> &);
-FString GetGameFronUserFiles();
+TArray<FString> GetGameFronUserFiles();
 void InitFileSystem(TArray<GrpEntry>&);
 void I_SetWindowTitle(const char* caption);
 void S_ParseSndInfo();
@@ -643,14 +643,25 @@ static TArray<GrpEntry> SetupGame()
 
 	int groupno = -1;
 
-	// If the user has specified a file name, let's see if we know it.
-	//
-	FString game = GetGameFronUserFiles();
+	auto game = GetGameFronUserFiles();
 	if (userConfig.gamegrp.IsEmpty())
 	{
-		userConfig.gamegrp = game;
+		for (auto& str : game)
+		{
+			for (auto& grp : groups)
+			{
+				if (grp.FileInfo.gameid.CompareNoCase(str) == 0)
+				{
+					userConfig.gamegrp = grp.FileName;
+					goto foundit;
+				}
+			}
+		}
 	}
+	foundit:
 
+	// If the user has specified a file name, let's see if we know it.
+	//
 	if (userConfig.gamegrp.Len())
 	{
 		FString gamegrplower = "/" + userConfig.gamegrp.MakeLower();
