@@ -4,7 +4,7 @@ CRC
 	DUKEKR_CRC 0xAA4F6A40
 	DUKE15_CRC 0xFD3DCFF1
 	DUKEPP_CRC 0xF514A6AC
-	DUKEWT_CRC 0x982AFE4A
+	DukeWorldTour_CRC 0x982AFE4A
 	DUKE099_CRC 0x02F18900
 	DUKE10_CRC 0xA28AA589
 	DUKE11_CRC 0x912E1E8D
@@ -54,6 +54,7 @@ grpinfo
 	dependency 0
 	FgColor 0xffff00
 	BkColor 0xff6f00
+	GameID "Duke13"
 }
 
 grpinfo
@@ -66,6 +67,7 @@ grpinfo
 	dependency 0
 	FgColor 0xffff00
 	BkColor 0xff6f00
+	GameID "Duke13"
 }
 
 grpinfo
@@ -78,18 +80,20 @@ grpinfo
 	dependency 0
 	FgColor 0xffff00
 	BkColor 0xff6f00
+	GameID "Duke3D"
 }
 
 grpinfo
 {
 	name "Duke Nukem 3D: Atomic Edition (WT)"
 	size 44356548
-	crc DUKEWT_CRC
+	crc DukeWorldTour_CRC
 	flags GAMEFLAG_DUKE
 	gamefilter "Duke.Duke"
 	dependency 0
 	FgColor 0xffff00
 	BkColor 0xff6f00
+	GameID "DukeWorldTour"
 }
 
 grpinfo // another variant? I got this one, dated 2016-10-12
@@ -102,6 +106,7 @@ grpinfo // another variant? I got this one, dated 2016-10-12
 	dependency 0
 	FgColor 0xffff00
 	BkColor 0xff6f00
+	GameID "DukeWorldTour"
 }
 
 grpinfo
@@ -114,6 +119,7 @@ grpinfo
 	dependency 0
 	FgColor 0xffff00
 	BkColor 0xff6f00
+	GameID "Duke3D"
 }
 
 grpinfo
@@ -196,6 +202,7 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE13_CRC
 	gamefilter "Duke.DukeDC"
+	GameID "DukeDC13"
 }
 
 grpinfo
@@ -206,6 +213,7 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC"
+	GameID "DukeDC"
 }
 
 grpinfo
@@ -216,6 +224,7 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC"
+	GameID "DukeDC"
 }
 
 grpinfo
@@ -227,6 +236,7 @@ grpinfo
 	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC"
+	GameID "DukeDC"
 }
 
 // These are a bit strange but without anything to check I do not know in what way.
@@ -244,6 +254,7 @@ grpinfo
 	gamefilter "Duke.Vacation"
 	FgColor 0x00004f
 	BkColor 0x8f8fff
+	GameID "DukeVacation"
 }
 
 grpinfo
@@ -257,6 +268,7 @@ grpinfo
 	gamefilter "Duke.Vacation"
 	FgColor 0x00004f
 	BkColor 0x8f8fff
+	GameID "DukeVacation"
 }
 
 grpinfo
@@ -270,6 +282,7 @@ grpinfo
 	gamefilter "Duke.NWinter"
 	FgColor 0
 	BkColor 0x8f8f8f
+	GameID "NuclearWinter"
 }
 
 grpinfo
@@ -291,6 +304,7 @@ grpinfo
     dependency DUKE15_CRC
 	mustcontain "FIREFLYTROOPER.CON", "FLAMETHROWER.CON", "music/E5L1_BulletDam.ogg", "sound/VO_E5L1_Duke_CreamAndSugar.ogg"
 	gamefilter "Duke.Worldtour"
+	GameID "DukeWorldTour"
 }
 
 grpinfo
@@ -339,6 +353,7 @@ grpinfo
 	gamefilter "Blood.Blood"
 	FgColor 0
 	BkColor 0x7f003f
+	GameID "Blood10"
 }
 
 grpinfo
@@ -354,6 +369,7 @@ grpinfo
 	gamefilter "Blood.Blood"
 	FgColor 0
 	BkColor 0xaf0024
+	GameID "Blood11"
 }
 
 grpinfo
@@ -369,6 +385,7 @@ grpinfo
 	gamefilter "Blood.Blood"
 	FgColor 0
 	BkColor 0xaf0024
+	GameID "Blood"
 }
 
 grpinfo
@@ -384,6 +401,7 @@ grpinfo
 	gamefilter "Blood.Blood"
 	FgColor 0
 	BkColor 0x7f002f
+	GameID "Blood"
 }
 
 /* this doesn't work with the current setup.
@@ -411,6 +429,7 @@ grpinfo
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
+	GameID "CyrpticPassage"
 }
 
 addon
@@ -423,6 +442,7 @@ addon
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
+	GameID "CyrpticPassage"
 }
 
 addon
@@ -436,6 +456,7 @@ addon
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
+	GameID "CyrpticPassage"
 }
 
 addon
@@ -448,6 +469,7 @@ addon
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
 	dependency BLOOD_CRC
 	gamefilter "Blood.Cryptic"
+	GameID "CyrpticPassage"
 }
 
 grpinfo
@@ -460,6 +482,7 @@ grpinfo
 	gamefilter "ShadowWarrior.ShadowWarrior"
 	FgColor 0
 	BkColor 0xaf0000
+	GameID "ShadowWarrior"
 }
 
 grpinfo
@@ -472,6 +495,7 @@ grpinfo
 	gamefilter "ShadowWarrior.ShadowWarrior"
 	FgColor 0
 	BkColor 0xaf0000
+	GameID "ShadowWarrior"
 }
 
 grpinfo
@@ -484,6 +508,7 @@ grpinfo
 	gamefilter "ShadowWarrior.ShadowWarrior"
 	FgColor 0
 	BkColor 0xaf0000
+	GameID "ShadowWarrior"
 }
 
 grpinfo
@@ -496,6 +521,7 @@ grpinfo
 	gamefilter "ShadowWarrior.ShadowWarrior"
 	FgColor 0
 	BkColor 0xaf0000
+	GameID "ShadowWarrior"
 }
 
 grpinfo
@@ -555,6 +581,7 @@ grpinfo
 	defname "sw.def"
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.Wanton"
+	GameID "WantonDestruction"
 }
 
 grpinfo
@@ -566,6 +593,7 @@ grpinfo
 	defname "sw.def"
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.Wanton"
+	GameID "WantonDestruction"
 }
 
 grpinfo
@@ -578,6 +606,7 @@ grpinfo
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.Wanton"
 	deletecontent "swcustom.txt"	// not localizable and also not present in the alternative packages.
+	GameID "WantonDestruction"
 }
 
 grpinfo
@@ -590,6 +619,7 @@ grpinfo
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.TwinDragon"
 	deletecontent "swcustom.txt"	// not localizable and also not present in the alternative package.
+	GameID "TwinDragon"
 }
 
 grpinfo
@@ -601,6 +631,7 @@ grpinfo
 	defname "twindrag.def"
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.TwinDragon"
+	GameID "TwinDragon"
 }
 
 grpinfo
@@ -612,6 +643,7 @@ grpinfo
 	defname "twindrag.def"
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.TwinDragon"
+	GameID "TwinDragon"
 }
 
 grpinfo
@@ -625,6 +657,7 @@ grpinfo
 	gamefilter "Redneck.Redneck"
 	FgColor 0xbc9e89
 	BkColor 0x7f3300
+	GameID "Redneck"
 }
 
 grpinfo
@@ -638,6 +671,7 @@ grpinfo
 	gamefilter "Redneck.RidesAgain"
 	FgColor 0xbc9e89
 	BkColor 0x7f3300
+	GameID "RedneckRides"
 }
 
 grpinfo
@@ -651,6 +685,7 @@ grpinfo
 	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
 	gamefilter "Redneck.Route66"
 	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
+	GameID "Route66"
 }
 
 addon
@@ -664,6 +699,7 @@ addon
 	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
 	gamefilter "Redneck.Route66"
 	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
+	GameID "Route66"
 }	
 
 grpinfo
@@ -676,6 +712,7 @@ grpinfo
 	gamefilter "Nam.Nam"
 	FgColor 0
 	BkColor 0x78720d
+	GameID "Nam"
 }
 
 grpinfo
@@ -688,6 +725,7 @@ grpinfo
 	gamefilter "Nam.Napalm"
 	FgColor 0
 	BkColor 0x78720d
+	GameID "Nam"
 }
 
 grpinfo
@@ -700,6 +738,7 @@ grpinfo
 	gamefilter "WW2GI.WW2GI"
 	FgColor 0
 	BkColor 0x78720d
+	GameID "WW2GI"
 }
 
 grpinfo
@@ -711,6 +750,7 @@ grpinfo
 	flags GAMEFLAG_WW2GI|GAMEFLAG_ADDON
 	dependency WW2GI_CRC
 	gamefilter "WW2GI.Platoon"
+	GameID "PlatoonLeader"
 }
 
 grpinfo
@@ -723,6 +763,7 @@ grpinfo
 	gamefilter "Exhumed.Powerslave"
 	FgColor 0xff0000
 	BkColor 0xffff33
+	GameID "Exhumed"
 }
 
 grpinfo
@@ -735,6 +776,7 @@ grpinfo
 	gamefilter "Exhumed.Exhumed"
 	FgColor 0xff0000
 	BkColor 0xffff33
+	GameID "Exhumed"
 }
 
 grpinfo
