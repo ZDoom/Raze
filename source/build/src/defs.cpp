@@ -2303,36 +2303,11 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_NEWGAMECHOICES: // stub
-        {
-            FScanner::SavedPos blockend;
-            if (scriptfile_getbraces(script,&blockend))
-                break;
-            scriptfile_setposition(script, blockend);
+            parseNewGameChoices(*script, pos);
              break;
-        }
 
         case T_RFFDEFINEID:
-        {
-            FString resName;
-            FString resType;
-            FString rffName;
-            int resID;
-
-            if (scriptfile_getstring(script, &resName))
-                break;
-
-            if (scriptfile_getstring(script, &resType))
-                break;
-
-            if (scriptfile_getnumber(script, &resID))
-                break;
-
-            if (scriptfile_getstring(script, &rffName))
-                break;
-
-            FStringf name("%s.%s", resName.GetChars(), resType.GetChars());
-            fileSystem.CreatePathlessCopy(name, resID, 0);
-        }
+            parseRffDefineId(*script, pos);
         break;
 
 

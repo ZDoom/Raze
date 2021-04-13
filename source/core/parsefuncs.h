@@ -643,3 +643,38 @@ void parseMultiPsky(FScanner& sc, FScriptPosition& pos)
 	auto psky = tileSetupSky(sky.tilenum);
 	*psky = sky;
 }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseRffDefineId(FScanner& sc, FScriptPosition& pos)
+{
+	FString resName;
+	FString resType;
+	int resID;
+
+	if (!sc.GetString(resName)) return;
+	if (!sc.GetString(resType)) return;
+	if (!sc.GetNumber(resID)) return;
+	if (!sc.GetString()) return;
+	resName.AppendFormat(".%s", resType.GetChars());
+	fileSystem.CreatePathlessCopy(resName, resID, 0);
+}
+
+//===========================================================================
+//
+// empty stub
+//
+//===========================================================================
+
+void parseNewGameChoices(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend)) {}
+}
+
