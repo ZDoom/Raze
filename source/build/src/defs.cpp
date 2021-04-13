@@ -1326,27 +1326,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_UNDEFPALOOKUPRANGE:
-        {
-            int32_t id0, id1;
-
-            if (scriptfile_getsymbol(script,&id0))
-                break;
-            if (scriptfile_getsymbol(script,&id1))
-                break;
-
-            if (id0 > id1 || (unsigned)id0 >= MAXPALOOKUPS || (unsigned)id1 >= MAXPALOOKUPS)
-            {
-                pos.Message(MSG_ERROR, "undefpalookuprange: Invalid range");
-                break;
-            }
-
-            for (bssize_t i = id0; i <= id1; i++)
-                lookups.clearTable(i);
-
-            if (id0 == 0)
-                paletteloaded &= ~PALETTE_SHADE;
-        }
-        break;
+            parseUndefPalookupRange(*script, pos);
+            break;
         case T_RFFDEFINEID:
             parseRffDefineId(*script, pos);
         break;

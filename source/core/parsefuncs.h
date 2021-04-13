@@ -1336,3 +1336,27 @@ void parseMakePalookup(FScanner& sc, FScriptPosition& pos)
 			remappal == 0 ? 1 : (nofloorpal == -1 ? lookups.tables[remappal].noFloorPal : nofloorpal));
 	}
 }
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseUndefPalookupRange(FScanner& sc, FScriptPosition& pos)
+{
+	int id0, id1;
+
+	if (!sc.GetNumber(id0, true)) return;
+	if (!sc.GetNumber(id1, true)) return;
+
+	if (id0 > id1 || (unsigned)id0 >= MAXPALOOKUPS || (unsigned)id1 >= MAXPALOOKUPS)
+	{
+		pos.Message(MSG_ERROR, "undefpalookuprange: Invalid range");
+	}
+	else
+	{
+		for (int i = id0; i <= id1; i++) lookups.clearTable(i);
+		if (id0 == 0) paletteloaded &= ~PALETTE_SHADE;
+	}
+}
