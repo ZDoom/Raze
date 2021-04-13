@@ -71,7 +71,8 @@ struct Player
     short field_3A;
     short field_3C;
     short nRun;
-    bool bIsFalling;
+    bool bPlayerPan, bLockPan;
+    fixedhoriz nDestVertPan;
 
     PlayerHorizon horizon;
     PlayerAngle angle;
