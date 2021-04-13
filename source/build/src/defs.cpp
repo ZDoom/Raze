@@ -389,90 +389,20 @@ static int32_t defsparser(scriptfile *script)
             parseCopyTile(*script, pos);
             break;
         case T_IMPORTTILE:
-        {
-            int32_t tile;
-            FString fn;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getstring(script,&fn))  break;
-
-            if (check_tile("importtile", tile, script, pos))
-                break;
-
-            int32_t const texstatus = tileImportFromTexture(fn, tile, 255, 0);
-            if (texstatus < 0)
-                break;
-
-			picanm[tile] = {};
-
+            parseImportTile(*script, pos);
             break;
-        }
         case T_DUMMYTILE:
-        {
-            int32_t tile, xsiz, ysiz;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (scriptfile_getsymbol(script,&xsiz)) break;
-            if (scriptfile_getsymbol(script,&ysiz)) break;
-
-            if (check_tile("dummytile", tile, script, pos))
-                break;
-
-			tileSetDummy(tile, xsiz, ysiz);
-
+            parseDummyTile(*script, pos);
             break;
-        }
         case T_DUMMYTILERANGE:
-        {
-            int32_t tile1,tile2,xsiz,ysiz,i;
-
-            if (scriptfile_getsymbol(script,&tile1)) break;
-            if (scriptfile_getsymbol(script,&tile2)) break;
-            if (scriptfile_getnumber(script,&xsiz)) break;
-            if (scriptfile_getnumber(script,&ysiz)) break;
-
-            if (check_tile_range("dummytilerange", &tile1, &tile2, script, pos))
-                break;
-
-            if (xsiz < 0 || ysiz < 0)
-                break;  // TODO: message
-
-            for (i=tile1; i<=tile2; i++)
-            {
-				tileSetDummy(i, xsiz, ysiz);
-            }
-
+            parseDummyTileRange(*script, pos);
             break;
-        }
-
         case T_UNDEFINETILE:
-        {
-            int32_t tile;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-
-            if (check_tile("undefinetile", tile, script, pos))
-                break;
-
-            tileDelete(tile);
-
+            parseUndefineTile(*script, pos);
             break;
-        }
         case T_UNDEFINETILERANGE:
-        {
-            int32_t tile1, tile2;
-
-            if (scriptfile_getsymbol(script,&tile1)) break;
-            if (scriptfile_getsymbol(script,&tile2)) break;
-
-            if (check_tile_range("undefinetilerange", &tile1, &tile2, script, pos))
-                break;
-
-            for (bssize_t i = tile1; i <= tile2; i++)
-                tileDelete(i);
-
+            parseUndefineTileRange(*script, pos);
             break;
-        }
 
         case T_DEFINEMODEL:
         {

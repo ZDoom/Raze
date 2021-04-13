@@ -317,6 +317,93 @@ void parseCopyTile(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
+void parseImportTile(FScanner& sc, FScriptPosition& pos)
+{
+	int tile;
+
+	if (!sc.GetNumber(tile, true)) return;
+	if (!sc.GetString())  return;
+	if (!ValidateTilenum("importtile", tile, pos)) return;
+
+	int texstatus = tileImportFromTexture(sc.String, tile, 255, 0);
+	if (texstatus >= 0) TileFiles.tiledata[tile].picanm = {};
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseDummyTile(FScanner& sc, FScriptPosition& pos)
+{
+	int tile, xsiz, ysiz;
+
+	if (!sc.GetNumber(tile, true)) return;
+	if (!sc.GetNumber(xsiz, true)) return;
+	if (!sc.GetNumber(ysiz, true)) return;
+	if (!ValidateTilenum("dummytile", tile, pos)) return;
+	tileSetDummy(tile, xsiz, ysiz);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseDummyTileRange(FScanner& sc, FScriptPosition& pos)
+{
+	int tile1, tile2, xsiz, ysiz;
+
+	if (!sc.GetNumber(tile1, true)) return;
+	if (!sc.GetNumber(tile2, true)) return;
+	if (!sc.GetNumber(xsiz, true)) return;
+	if (!sc.GetNumber(ysiz, true)) return;
+	if (!ValidateTileRange("dummytilerange", tile1, tile2, pos)) return;
+	if (xsiz < 0 || ysiz < 0) return;
+
+	for (int i = tile1; i <= tile2; i++) tileSetDummy(i, xsiz, ysiz);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseUndefineTile(FScanner& sc, FScriptPosition& pos)
+{
+	int tile;
+
+	if (!sc.GetNumber(tile, true)) return;
+	if (ValidateTilenum("undefinetile", tile, pos)) 
+		tileDelete(tile);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseUndefineTileRange(FScanner& sc, FScriptPosition& pos)
+{
+	int tile1, tile2;
+
+	if (!sc.GetNumber(tile1, true)) return;
+	if (!sc.GetNumber(tile2, true)) return;
+	if (!ValidateTileRange("undefinetilerange", tile1, tile2, pos)) return;
+
+	for (int i = tile1; i <= tile2; i++) tileDelete(i);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, palette;
