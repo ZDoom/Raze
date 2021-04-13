@@ -527,8 +527,6 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 
 void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags)
 {
-	// Todo. Since I do not know if some mod needs this it's of low priority now.
-	// Let's get things working first.
 	picanm_t* picanm = nullptr;
 	picanm_t* sourceanm = nullptr;
 	int srcxo, srcyo;
@@ -889,6 +887,8 @@ void processTileImport(const char *cmd, FScriptPosition& pos, TileImport& imp)
 	if (imp.sizex != INT_MAX && tileWidth(imp.tile) != imp.sizex && tileHeight(imp.tile) != imp.sizey)
 		return;
 
+	imp.alphacut = clamp(imp.alphacut, 0, 255);
+
 	gi->SetTileProps(imp.tile, imp.surface, imp.vox, imp.shade);
 
 	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
@@ -898,10 +898,19 @@ void processTileImport(const char *cmd, FScriptPosition& pos, TileImport& imp)
 	// 1: Since these are texture properties now, there's no need to clear them.
 	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
 	if (imp.xoffset == INT_MAX) imp.xoffset = tileLeftOffset(imp.tile);
+	else imp.xoffset = clamp(imp.xoffset, -128, 127);
 	if (imp.yoffset == INT_MAX) imp.yoffset = tileTopOffset(imp.tile);
+	else imp.yoffset = clamp(imp.yoffset, -128, 127);
 
 	auto tex = tileGetTexture(imp.tile);
-	if (tex) tex->SetOffsets(imp.xoffset, imp.yoffset);
+	if (tex)
+	{
+		tex->SetOffsets(imp.xoffset, imp.yoffset);
+		if (imp.flags & PICANM_NOFULLBRIGHT_BIT)
+		{
+			tex->SetDisableBrightmap();
+		}
+	}
 	if (imp.extra != INT_MAX) TileFiles.tiledata[imp.tile].picanm.extra = imp.extra;
 }
 

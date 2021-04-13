@@ -207,6 +207,116 @@ void parseTexture(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
+void parseTileFromTexture(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	TileImport imp;
+
+	if (!sc.GetNumber(imp.tile, true)) return;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare({ "file", "name" })) sc.GetString(imp.fn);
+		else if (sc.Compare("alphacut")) sc.GetNumber(imp.alphacut, true);
+		else if (sc.Compare({ "xoff", "xoffset" })) sc.GetNumber(imp.xoffset, true);
+		else if (sc.Compare({ "yoff", "yoffset" })) sc.GetNumber(imp.yoffset, true);
+		else if (sc.Compare("texhitscan")) imp.flags |= PICANM_TEXHITSCAN_BIT;
+		else if (sc.Compare("nofullbright")) imp.flags |= PICANM_NOFULLBRIGHT_BIT;
+		else if (sc.Compare("texture")) imp.istexture = 1;
+		else if (sc.Compare("ifcrc")) sc.GetNumber(imp.crc32, true);
+		else if (sc.Compare("extra")) sc.GetNumber(imp.extra, true);
+		else if (sc.Compare("surface")) sc.GetNumber(imp.surface, true);
+		else if (sc.Compare("voxel")) sc.GetNumber(imp.vox, true);
+		else if (sc.Compare("shade")) sc.GetNumber(imp.shade, true);
+		else if (sc.Compare("view")) { sc.GetNumber(imp.extra, true); imp.extra &= 7; }
+		else if (sc.Compare("ifmatch"))
+		{
+			FScanner::SavedPos blockend2;
+			if (sc.StartBraces(&blockend2)) return;
+			while (!sc.FoundEndBrace(blockend2))
+			{
+				sc.MustGetString();
+				if (sc.Compare("size"))
+				{
+					sc.GetNumber(imp.sizex, true);
+					sc.GetNumber(imp.sizey, true);
+				}
+				else if (sc.Compare("crc32")) sc.GetNumber(imp.crc32, true);
+			}
+		}
+	}
+	processTileImport("tilefromtexture", pos, imp);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseCopyTile(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int tile = -1, source = -1;
+	int havetile = 0, xoffset = -1024, yoffset = -1024;
+	int flags = 0, tsiz = 0, temppal = -1, tempsource = -1;
+
+	if (!sc.GetNumber(tile, true)) return;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("tile"))
+		{
+			if (sc.GetNumber(tempsource, true))
+			{
+				if (ValidateTilenum("copytile", tempsource, pos))
+				{
+					source = tempsource;
+					havetile = true;
+				}
+			}
+		}
+		else if (sc.Compare("pal"))
+		{
+			// This is a bit messy because it doesn't wait until everything is parsed. Sadly that quirk needs to be replicated...
+			if (sc.GetNumber(temppal, true))
+			{
+				// palettize self case
+				if (!havetile)
+				{
+					if (ValidateTilenum("copytile", tile, pos)) havetile = true;
+				}
+
+				if ((unsigned)temppal >= MAXPALOOKUPS - RESERVEDPALS)
+				{
+					pos.Message(MSG_ERROR, "copytile 'palette number' out of range (max=%d)\n", MAXPALOOKUPS - RESERVEDPALS - 1);
+					break;
+				}
+			}
+		}
+		else if (sc.Compare({ "xoff", "xoffset" })) sc.GetNumber(xoffset, true);
+		else if (sc.Compare({ "yoff", "yoffset" })) sc.GetNumber(yoffset, true);
+		else if (sc.Compare("texhitscan")) flags |= PICANM_TEXHITSCAN_BIT;
+		else if (sc.Compare("nofullbright")) flags |= PICANM_NOFULLBRIGHT_BIT;
+	}
+
+	if (!ValidateTilenum("copytile", tile, pos)) return;
+	// if !havetile, we have never confirmed a valid source
+	if (!havetile && !ValidateTilenum("copytile", source, pos)) return;
+
+	tileCopy(tile, source, temppal, xoffset, yoffset, flags);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 void parseDefineSkybox(FScanner& sc, FScriptPosition& pos)
 {
 	int tile, palette;
