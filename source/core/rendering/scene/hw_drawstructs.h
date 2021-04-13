@@ -405,7 +405,12 @@ __forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palett
 	// Fog must be done before the texture so that the texture selector can override it.
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
 	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
+	bool shadow = orgshade >= numshades;
 	int shade = clamp(orgshade, 0, numshades - 1);
+
+	if (shadow) state.SetObjectColor(0xff000000);
+	else state.SetObjectColor(0xffffffff);
+
 	// Disable brightmaps if non-black fog is used.
 	if (ShadeDiv >= 1 / 1000.f && foggy)
 	{
