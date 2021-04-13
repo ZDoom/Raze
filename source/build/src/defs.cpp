@@ -330,6 +330,9 @@ static int32_t defsparser(scriptfile *script)
         case T_GLOBALFLAGS:
             parseSkip<1>(*script, pos);
             break;
+        case T_UNDEFBLENDTABLERANGE:
+            parseSkip<2>(*script, pos);
+            break;
         case T_SPRITECOL:
         case T_2DCOLIDXRANGE:  // NOTE: takes precedence over 2dcol, see InitCustomColors()
             parseSkip<3>(*script, pos);
@@ -1682,35 +1685,8 @@ static int32_t defsparser(scriptfile *script)
             parseBlendTable(*script, pos);
             break;
         case T_NUMALPHATABS:
-        {
-            int32_t value;
-            if (scriptfile_getnumber(script,&value)) break;
-
-            switch (value)
-            {
-                case 1: case 3: case 7: case 15: case 31: case 63: case 127:
-                case 2: case 4: case 8: case 16: case 32: case 64: case 128:
-#ifdef USE_OPENGL
-                    for (int32_t a = 1, value2 = value*2 + (value&1); a <= value; ++a)
-                    {
-                        float finv2value = 1.f/(float)value2;
-
-                        glblend_t * const glb = glblend + a;
-                        *glb = defaultglblend;
-                        glb->def[0].alpha = (float)(value2-a) * finv2value;
-                        glb->def[1].alpha = (float)a * finv2value;
-                    }
-                    fallthrough__;
-#endif
-                case 0:
-                    numalphatabs = value;
-                    break;
-                default:
-                    pos.Message(MSG_ERROR, "numalphatables: Invalid value");
-                    break;
-            }
-        }
-        break;
+            parseNumAlphaTabs(*script, pos);
+            break;
         case T_UNDEFBASEPALETTERANGE:
         {
             int32_t id0, id1;
@@ -1753,22 +1729,6 @@ static int32_t defsparser(scriptfile *script)
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_SHADE;
-        }
-        break;
-        case T_UNDEFBLENDTABLERANGE:
-        {
-            int32_t id0, id1;
-
-            if (scriptfile_getsymbol(script,&id0))
-                break;
-            if (scriptfile_getsymbol(script,&id1))
-                break;
-
-            if (id0 > id1 || (unsigned)id0 >= MAXBLENDTABS || (unsigned)id1 >= MAXBLENDTABS)
-            {
-                pos.Message(MSG_ERROR, "undefblendtablerange: Invalid range");
-                break;
-            }
         }
         break;
         case T_RFFDEFINEID:

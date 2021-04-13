@@ -1038,3 +1038,26 @@ void parseBlendTable(FScanner& sc, FScriptPosition& pos)
 		}
 	}
 }
+
+//===========================================================================
+//
+// thw same note as for blendtable applies here.
+//
+//===========================================================================
+
+void parseNumAlphaTabs(FScanner& sc, FScriptPosition& pos)
+{
+	int value;
+	if (!sc.GetNumber(value)) return;
+
+	for (int a = 1, value2 = value * 2 + (value & 1); a <= value; ++a)
+	{
+		float finv2value = 1.f / (float)value2;
+
+		glblend_t* const glb = glblend + a;
+		*glb = defaultglblend;
+		glb->def[0].alpha = (float)(value2 - a) * finv2value;
+		glb->def[1].alpha = (float)a * finv2value;
+	}
+}
+
