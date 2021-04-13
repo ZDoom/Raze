@@ -757,7 +757,7 @@ static TArray<GrpEntry> SetupGame()
 		if (ugroup.FileInfo.gamefilter.IsNotEmpty()) LumpFilter = ugroup.FileInfo.gamefilter;
 		g_gameType |= ugroup.FileInfo.flags;
 	}
-	if (userConfig.DefaultCon.IsEmpty()) userConfig.DefaultCon = selectedScript;
+	if (userConfig.DefaultCon.IsEmpty()) userConfig.DefaultCon = GameStartupInfo.con.IsNotEmpty()? GameStartupInfo.con : selectedScript;
 	if (userConfig.DefaultDef.IsEmpty()) userConfig.DefaultDef = selectedDef;
 
 	// This can only happen with a custom game that does not define any filter.

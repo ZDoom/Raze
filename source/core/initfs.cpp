@@ -122,10 +122,10 @@ static TArray<FString> ParseGameInfo(TArray<FString>& pwads, const char* fn, con
 			sc.MustGetString();
 			GameStartupInfo.BkColor = V_GetColor(NULL, sc);
 		}
-		else if (!nextKey.CompareNoCase("MODERN"))
+		else if (!nextKey.CompareNoCase("CON"))
 		{
-			sc.MustGetNumber();
-			GameStartupInfo.modern = sc.Number ? 1 : -1;
+			sc.MustGetString();
+			GameStartupInfo.con = sc.String;;
 		}
 		else
 		{
