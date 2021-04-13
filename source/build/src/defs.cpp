@@ -337,6 +337,12 @@ static int32_t defsparser(scriptfile *script)
         case T_2DCOL:
             parseSkip<4>(*script, pos);
             break;
+        case T_CUTSCENE:
+        case T_ANIMSOUNDS:
+        case T_NEWGAMECHOICES: // stub
+            parseEmptyBlock(*script, pos);
+            break;
+
         case T_DEFINE:
             parseDefine(*script, pos);
             break;
@@ -1508,23 +1514,6 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
 
-        case T_CUTSCENE:
-        case T_ANIMSOUNDS:
-        {
-            FScanner::SavedPos dummy;
-
-            static const tokenlist dummytokens[] = { { "id",   T_ID  }, };
-
-            if (scriptfile_getstring(script, nullptr)) break;
-            if (scriptfile_getbraces(script,&dummy)) break;
-            while (!scriptfile_endofblock(script, dummy))
-            {
-                // XXX?
-                getatoken(script,dummytokens,sizeof(dummytokens)/sizeof(dummytokens));
-            }
-        }
-        break;
-
         case T_TEXHITSCANRANGE:
             parseTexHitscanRange(*script, pos);
             break;
@@ -2292,10 +2281,6 @@ static int32_t defsparser(scriptfile *script)
             }
         }
         break;
-        case T_NEWGAMECHOICES: // stub
-            parseNewGameChoices(*script, pos);
-             break;
-
         case T_RFFDEFINEID:
             parseRffDefineId(*script, pos);
         break;

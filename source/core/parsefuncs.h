@@ -670,7 +670,7 @@ void parseRffDefineId(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-void parseNewGameChoices(FScanner& sc, FScriptPosition& pos)
+void parseEmptyBlock(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 
