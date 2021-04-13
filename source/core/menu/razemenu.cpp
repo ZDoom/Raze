@@ -421,8 +421,7 @@ static void BuildEpisodeMenu()
 #endif
 		if (addedVolumes == 1)
 		{
-			if (!isBlood()) ld->mAutoselect = ld->mItems.Size() - (textadded ? 2 : 1);
-			else ld->mAutoselect = 2;
+			ld->mAutoselect = ld->mItems.Size() - (textadded ? 2 : 1);
 		}
 		if (popped) ld->mItems.Push(popped);
 	}
@@ -438,7 +437,7 @@ static void BuildEpisodeMenu()
 		{
 			ld->mItems.Pop(popped);
 		}
-
+		if (isBlood()) gDefaultSkill = 2;
 		ld->mSelectedItem = gDefaultSkill + ld->mItems.Size(); // account for pre-added items
 		int y = ld->mYpos;
 
