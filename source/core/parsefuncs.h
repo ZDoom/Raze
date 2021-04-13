@@ -872,10 +872,7 @@ void parseEmptyBlock(FScanner& sc, FScriptPosition& pos)
 	FScanner::SavedPos blockend;
 
 	if (sc.StartBraces(&blockend)) return;
-	while (!sc.FoundEndBrace(blockend)) 
-	{
-		sc.MustGetString();
-	}
+	sc.RestorePos(blockend);
 }
 
 //===========================================================================
@@ -945,4 +942,99 @@ void parseArtFile(FScanner& sc, FScriptPosition& pos)
 	}
 	else if (tile >= 0 && ValidateTilenum("artfile", tile, pos))
 		TileFiles.LoadArtFile(file, nullptr, tile);
+}
+
+//===========================================================================
+//
+// this is only left in for compatibility purposes.
+// There's way better methods to handle translucency.
+//
+//===========================================================================
+
+static void parseBlendTableGlBlend(FScanner& sc, FScriptPosition& pos, int id)
+{
+	FScanner::SavedPos blockend;
+	FString file;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	glblend_t* const glb = glblend + id;
+	*glb = nullglblend;
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		int which = 0;
+		sc.MustGetString();
+		if (sc.Compare("forward")) which = 1;
+		else if (sc.Compare("reverse")) which = 2;
+		else if (sc.Compare("both")) which = 3;
+		else continue;
+
+		FScanner::SavedPos blockend2;
+
+		if (sc.StartBraces(&blockend2)) return;
+		glblenddef_t bdef{};
+		while (!sc.FoundEndBrace(blockend2))
+		{
+			int whichb = 0;
+			sc.MustGetString();
+			if (sc.Compare({ "src", "sfactor", "top" })) whichb = 0;
+			else if (sc.Compare({ "dst", "dfactor", "bottom" })) whichb = 1;
+			else if (sc.Compare("alpha"))
+			{
+				sc.GetFloat(true);
+				bdef.alpha = (float)sc.Float;
+				continue;
+			}
+			uint8_t* const factor = whichb == 0 ? &bdef.src : &bdef.dst;
+			if (sc.Compare("ZERO")) *factor = STYLEALPHA_Zero;
+			else if (sc.Compare("ONE")) *factor = STYLEALPHA_One;
+			else if (sc.Compare("SRC_COLOR")) *factor = STYLEALPHA_SrcCol;
+			else if (sc.Compare("ONE_MINUS_SRC_COLOR")) *factor = STYLEALPHA_InvSrcCol;
+			else if (sc.Compare("SRC_ALPHA")) *factor = STYLEALPHA_Src;
+			else if (sc.Compare("ONE_MINUS_SRC_ALPHA")) *factor = STYLEALPHA_InvSrc;
+			else if (sc.Compare("DST_ALPHA")) *factor = STYLEALPHA_Dst;
+			else if (sc.Compare("ONE_MINUS_DST_ALPHA")) *factor = STYLEALPHA_InvDst;
+			else if (sc.Compare("DST_COLOR")) *factor = STYLEALPHA_DstCol;
+			else if (sc.Compare("ONE_MINUS_DST_COLOR")) *factor = STYLEALPHA_InvDstCol;
+			else sc.ScriptMessage("Unknown blend operation %s", sc.String);
+		}
+		if (which & 1) glb->def[0] = bdef;
+		if (which & 2) glb->def[1] = bdef;
+	}
+}
+
+void parseBlendTable(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int id;
+
+	if (!sc.GetNumber(id, true)) return;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	if ((unsigned)id >= MAXBLENDTABS)
+	{
+		pos.Message(MSG_ERROR, "blendtable: Invalid blendtable number %d", id);
+		sc.RestorePos(blockend);
+		return;
+	}
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("raw")) parseEmptyBlock(sc, pos); // Raw translucency map for the software renderer. We have no use for this.
+		else if (sc.Compare("glblend")) parseBlendTableGlBlend(sc, pos, id);
+		else if (sc.Compare("undef")) glblend[id] = defaultglblend;
+		else if (sc.Compare("copy"))
+		{
+			sc.GetNumber(true);
+
+			if ((unsigned)sc.Number >= MAXBLENDTABS || sc.Number == id)
+			{
+				pos.Message(MSG_ERROR, "blendtable: Invalid source blendtable number %d in copy", sc.Number);
+			}
+			else glblend[id] = glblend[sc.Number];
+		}
+	}
 }
