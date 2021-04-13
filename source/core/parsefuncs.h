@@ -207,6 +207,33 @@ void parseTexture(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
+void parseUndefTexture(FScanner& sc, FScriptPosition& pos)
+{
+	if (!sc.GetNumber(true)) return;
+	if (ValidateTilenum("undeftexture", sc.Number, pos)) tileRemoveReplacement(sc.Number);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseUndefTextureRange(FScanner& sc, FScriptPosition& pos)
+{
+	int start, end;
+	if (!sc.GetNumber(start, true)) return;
+	if (!sc.GetNumber(end, true)) return;
+	if (ValidateTileRange("undeftexturerange", start, end, pos))
+		for (int i = start; i <= end; i++) tileRemoveReplacement(i);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 void parseTileFromTexture(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;

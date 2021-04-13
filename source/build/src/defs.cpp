@@ -1085,27 +1085,11 @@ static int32_t defsparser(scriptfile *script)
         break;
 
         case T_UNDEFTEXTURE:
+            parseUndefTexture(*script, pos);
+            break;
         case T_UNDEFTEXTURERANGE:
-        {
-            int32_t r0,r1;
-            if (scriptfile_getsymbol(script,&r0)) break;
-            if (tokn == T_UNDEFTEXTURERANGE)
-            {
-                if (scriptfile_getsymbol(script,&r1)) break;
-
-                if (check_tile_range("undeftexturerange", &r0, &r1, script, pos))
-                    break;
-            }
-            else
-            {
-                r1 = r0;
-
-                if (check_tile("undeftexture", r0, script, pos))
-                    break;
-            }
-			for (; r0 <= r1; r0++) tileRemoveReplacement(r0);
-        }
-        break;
+            parseUndefTextureRange(*script, pos);
+            break;
 
         case T_TEXHITSCANRANGE:
             parseTexHitscanRange(*script, pos);
