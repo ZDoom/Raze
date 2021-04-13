@@ -438,7 +438,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		PALONLY:
 
 			if (sector[sect].floorpal)
-				t->pal = sector[sect].floorpal;
+				copyfloorpal(t, &sector[sect]);
 
 			if (!h->GetOwner()) continue;
 
@@ -484,7 +484,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			t->shade -= 6;
 
 			if (sector[sect].floorpal)
-				t->pal = sector[sect].floorpal;
+				copyfloorpal(t, &sector[sect]);
 			break;
 
 		case WATERBUBBLE:
@@ -496,7 +496,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		default:
 
 			if (sector[sect].floorpal)
-				t->pal = sector[sect].floorpal;
+				copyfloorpal(t, &sector[sect]);
 			break;
 		}
 

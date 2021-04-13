@@ -1061,3 +1061,191 @@ void parseNumAlphaTabs(FScanner& sc, FScriptPosition& pos)
 	}
 }
 
+
+//===========================================================================
+//
+// sadly this looks broken by design with its hard coded 32 shades...
+//
+//===========================================================================
+
+static void parsePalookupRaw(FScanner& sc, FScriptPosition& pos, int id, int& didLoadShade)
+{
+	FScanner::SavedPos blockend;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	FString fn;
+	int32_t offset = 0;
+	int32_t length = 256 * 32; // hardcoding 32 instead of numshades
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("file")) sc.GetString(fn);
+		else if (sc.Compare("offset")) sc.GetNumber(offset);
+		else if (sc.Compare("noshades")) length = 256;
+	}
+
+	if (fn.IsEmpty())
+	{
+		pos.Message(MSG_ERROR, "palookup: No filename provided");
+	}
+	else if (offset < 0)
+	{
+		pos.Message(MSG_ERROR, "palookup: Invalid file offset %d", offset);
+	}
+	else
+	{
+		FileReader fil = fileSystem.OpenFileReader(fn);
+		if (!fil.isOpen())
+		{
+			pos.Message(MSG_ERROR, "palookup: Failed opening \"%s\"", fn.GetChars());
+		}
+		else if (fil.Seek(offset, FileReader::SeekSet) < 0)
+		{
+			pos.Message(MSG_ERROR, "palookup: Seek failed");
+		}
+		else
+		{
+			auto palookupbuf = fil.Read();
+			if (palookupbuf.Size() < 256)
+			{
+				pos.Message(MSG_ERROR, "palookup: Read failed");
+			}
+			else if (palookupbuf.Size() >= 256 * 32)
+			{
+				didLoadShade = 1;
+				numshades = 32;
+				lookups.setTable(id, palookupbuf.Data());
+			}
+			else
+			{
+				if (!(paletteloaded & PALETTE_SHADE))
+				{
+					pos.Message(MSG_ERROR, "palookup: Shade tables not loaded");
+				}
+				else
+					lookups.makeTable(id, palookupbuf.Data(), 0, 0, 0, lookups.tables[id].noFloorPal);
+			}
+		}
+	}
+}
+
+static void parsePalookupFogpal(FScanner& sc, FScriptPosition& pos, int id)
+{
+	FScanner::SavedPos blockend;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	int red = 0, green = 0, blue = 0;
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare({ "r", "red" })) sc.GetNumber(red);
+		else if (sc.Compare({ "g", "green" })) sc.GetNumber(green);
+		else if (sc.Compare({ "b", "blue" })) sc.GetNumber(blue);
+	}
+	red = clamp(red, 0, 255);
+	green = clamp(green, 0, 255);
+	blue = clamp(blue, 0, 255);
+
+	if (!(paletteloaded & PALETTE_SHADE))
+	{
+		pos.Message(MSG_ERROR, "palookup: Shade tables not loaded");
+	}
+	else
+		lookups.makeTable(id, nullptr, red, green, blue, 1);
+}
+
+static void parsePalookupMakePalookup(FScanner& sc, FScriptPosition& pos, int id, int& didLoadShade)
+{
+	FScanner::SavedPos blockend;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	int red = 0, green = 0, blue = 0;
+	int remappal = -1;
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare({ "r", "red" })) sc.GetNumber(red);
+		else if (sc.Compare({ "g", "green" })) sc.GetNumber(green);
+		else if (sc.Compare({ "b", "blue" })) sc.GetNumber(blue);
+		else if (sc.Compare("remappal")) sc.GetNumber(remappal, true);
+		else if (sc.Compare("remapself")) remappal = id;
+	}
+	red = clamp(red, 0, 255);
+	green = clamp(green, 0, 255);
+	blue = clamp(blue, 0, 255);
+
+	if ((unsigned)remappal >= MAXPALOOKUPS)
+	{
+		pos.Message(MSG_ERROR, "palookup: Invalid remappal %d", remappal);
+	}
+	else if (!(paletteloaded & PALETTE_SHADE))
+	{
+		pos.Message(MSG_ERROR, "palookup: Shade tables not loaded");
+	}
+	else
+		lookups.makeTable(id, nullptr, red, green, blue, lookups.tables[id].noFloorPal);
+}
+
+void parsePalookup(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int id;
+	int didLoadShade = 0;
+
+	if (!sc.GetNumber(id, true)) return;
+	if (sc.StartBraces(&blockend)) return;
+
+	if ((unsigned)id >= MAXPALOOKUPS)
+	{
+		pos.Message(MSG_ERROR, "palookup: Invalid pal number %d", id);
+		sc.RestorePos(blockend);
+		return;
+	}
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("raw")) parsePalookupRaw(sc, pos, id, didLoadShade);
+		else if (sc.Compare("fogpal")) parsePalookupFogpal(sc, pos, id);
+		else if (sc.Compare("makepalookup")) parsePalookupMakePalookup(sc, pos, id, didLoadShade);
+		else if (sc.Compare("floorpal")) lookups.tables[id].noFloorPal = 0;
+		else if (sc.Compare("nofloorpal")) lookups.tables[id].noFloorPal = 1;
+		else if (sc.Compare("copy"))
+		{
+			int source;
+			sc.GetNumber(source, true);
+
+			if ((unsigned)source >= MAXPALOOKUPS || source == id)
+			{
+				pos.Message(MSG_ERROR, "palookup: Invalid source pal number %d", source);
+			}
+			else if (source == 0 && !(paletteloaded & PALETTE_SHADE))
+			{
+				pos.Message(MSG_ERROR, "palookup: Shade tables not loaded");
+			}
+			else
+			{
+				// do not overwrite the base with an empty table.
+				if (lookups.checkTable(source) || id > 0) lookups.copyTable(id, source);
+				didLoadShade = 1;
+			}
+		}
+		else if (sc.Compare("undef")) 
+		{
+			lookups.clearTable(id);
+			didLoadShade = 0;
+			if (id == 0) paletteloaded &= ~PALETTE_SHADE;
+		}
+
+	}
+	if (didLoadShade && id == 0)
+	{
+		paletteloaded |= PALETTE_SHADE;
+	}
+}

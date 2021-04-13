@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_video.h"
 #include "v_font.h"
 #include "hw_voxels.h"
+#include "gamefuncs.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_BLD_NS
@@ -426,7 +427,7 @@ static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector
     XSECTOR const *pXSector = nXSector >= 0 ? &xsector[nXSector] : NULL;
     if (pXSector && pXSector->color && (VanillaMode() || pSector->floorpal != 0))
     {
-        pTSprite->pal = pSector->floorpal;
+        copyfloorpal(pTSprite, pSector);
     }
 }
 
@@ -759,7 +760,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 }
             }
             
-            if (pXSector && pXSector->color) pTSprite->pal = pSector->floorpal;
+            if (pXSector && pXSector->color) copyfloorpal(pTSprite, pSector);
             if (powerupCheck(gView, kPwUpBeastVision) > 0) pTSprite->shade = -128;
 
             if (IsPlayerSprite(pTSprite)) {

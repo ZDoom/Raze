@@ -200,10 +200,6 @@ enum {
 
 EXTERN int32_t g_visibility;
 
-// blendtable[1] to blendtable[numalphatabs] are considered to be
-// alpha-blending tables:
-EXTERN uint8_t numalphatabs;
-
 EXTERN vec2_t windowxy1, windowxy2;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
