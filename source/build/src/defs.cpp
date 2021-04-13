@@ -1526,20 +1526,10 @@ static int32_t defsparser(scriptfile *script)
         break;
 
         case T_TEXHITSCANRANGE:
+            parseTexHitscanRange(*script, pos);
+            break;
         case T_NOFULLBRIGHTRANGE:
-        {
-            int32_t b,e, i;
-
-            if (scriptfile_getsymbol(script,&b)) break;
-            if (scriptfile_getsymbol(script,&e))break;
-
-            b = max(b, 0);
-            e = min(e, MAXUSERTILES-1);
-
-            for (i=b; i<=e; i++)
-                picanm[i].sf |= (tokn==T_TEXHITSCANRANGE) ?
-                    PICANM_TEXHITSCAN_BIT : PICANM_NOFULLBRIGHT_BIT;
-        }
+            parseNoFullbrightRange(*script, pos);
         break;
 
         case T_SOUND:

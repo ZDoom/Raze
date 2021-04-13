@@ -678,3 +678,43 @@ void parseNewGameChoices(FScanner& sc, FScriptPosition& pos)
 	while (!sc.FoundEndBrace(blockend)) {}
 }
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseTexHitscanRange(FScanner& sc, FScriptPosition& pos)
+{
+	int start, end;
+
+	if (!sc.GetNumber(start, true)) return;
+	if (!sc.GetNumber(end, true)) return;
+
+	if (start < 0) start = 0;
+	if (end >= MAXUSERTILES) end = MAXUSERTILES - 1;
+	for (int i = start; i <= end; i++)
+		TileFiles.tiledata[i].picanm.sf |= PICANM_TEXHITSCAN_BIT;
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseNoFullbrightRange(FScanner& sc, FScriptPosition& pos)
+{
+	int start, end;
+
+	if (!sc.GetNumber(start, true)) return;
+	if (!sc.GetNumber(end, true)) return;
+
+	if (start < 0) start = 0;
+	if (end >= MAXUSERTILES) end = MAXUSERTILES - 1;
+	for (int i = start; i <= end; i++)
+	{
+		auto tex = tileGetTexture(i);
+		if (tex->isValid())	tex->SetDisableBrightmap();
+	}
+}
