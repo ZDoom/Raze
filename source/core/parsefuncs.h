@@ -675,7 +675,10 @@ void parseEmptyBlock(FScanner& sc, FScriptPosition& pos)
 	FScanner::SavedPos blockend;
 
 	if (sc.StartBraces(&blockend)) return;
-	while (!sc.FoundEndBrace(blockend)) {}
+	while (!sc.FoundEndBrace(blockend)) 
+	{
+		sc.MustGetString();
+	}
 }
 
 //===========================================================================
@@ -717,4 +720,32 @@ void parseNoFullbrightRange(FScanner& sc, FScriptPosition& pos)
 		auto tex = tileGetTexture(i);
 		if (tex->isValid())	tex->SetDisableBrightmap();
 	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseArtFile(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	FString file;
+	int tile = -1;
+
+	if (sc.StartBraces(&blockend)) return;
+	while (!sc.FoundEndBrace(blockend)) 
+	{
+		sc.MustGetString();
+		if (sc.Compare("file")) sc.GetString(file);
+		else if (sc.Compare("tile")) sc.GetNumber(tile, true);
+	}
+
+	if (file.IsEmpty())
+	{
+		pos.Message(MSG_ERROR, "missing 'file name' for artfile definition");
+	}
+	else if (tile >= 0 && ValidateTilenum("artfile", tile, pos))
+		TileFiles.LoadArtFile(file, nullptr, tile);
 }

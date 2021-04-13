@@ -368,44 +368,8 @@ static int32_t defsparser(scriptfile *script)
             parseNoFloorpalRange(*script, pos);
             break;
         case T_ARTFILE:
-        {
-            FScanner::SavedPos blockend;
-            FString fn;
-            int32_t tile = -1, havetile = 0;
-
-            static const tokenlist artfiletokens[] =
-            {
-                { "file",            T_FILE },
-                { "tile",            T_TILE },
-            };
-
-            if (scriptfile_getbraces(script,&blockend)) break;
-            while (!scriptfile_endofblock(script, blockend))
-            {
-                int32_t token = getatoken(script,artfiletokens,countof(artfiletokens));
-                switch (token)
-                {
-                case T_FILE:
-                    scriptfile_getstring(script,&fn);
-                    break;
-                case T_TILE:
-                    havetile = 1;
-                    scriptfile_getsymbol(script,&tile);
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            if (fn.IsEmpty())
-            {
-				pos.Message(MSG_ERROR, "missing 'file name' for artfile definition");
-                break;
-            }
-			if (!check_tile("artfile", tile, script, pos))
-				TileFiles.LoadArtFile(fn, nullptr, tile);
-        }
-        break;
+            parseArtFile(*script, pos);
+            break;
         case T_SETUPTILE:
             parseSetupTile(*script, pos);
             break;
