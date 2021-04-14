@@ -256,7 +256,8 @@ public:
 	float z; // the z position of the flat (only valid for non-sloped planes)
 
 	PalEntry fade;
-	int shade, palette, visibility;
+	int shade, palette;
+	float visibility;
 	float alpha;
 	FRenderStyle RenderStyle;
 	int iboindex;
@@ -294,7 +295,8 @@ public:
 
 	spritetype* sprite;
 	PalEntry fade;
-	int shade, palette, visibility;
+	int shade, palette;
+	float visibility;
 	float alpha;
 	FRenderStyle RenderStyle;
 	int modelframe; // : sprite, 1: model, -1:voxel
@@ -400,7 +402,7 @@ inline void SetSpriteTranslucency(const spritetype* sprite, float& alpha, FRende
 extern PalEntry GlobalMapFog;
 extern float GlobalFogDensity;
 
-__forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palette, int orgshade, int visibility, float alpha, bool setcolor = true)
+__forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palette, int orgshade, float visibility, float alpha, bool setcolor = true)
 {
 	// Fog must be done before the texture so that the texture selector can override it.
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
