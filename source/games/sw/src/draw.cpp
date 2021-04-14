@@ -1615,7 +1615,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
     {
         UpdateWallPortalState();
-        render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang);
+        render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang, smoothratio);
         RestorePortalState();
     }
 

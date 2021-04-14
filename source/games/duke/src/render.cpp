@@ -83,7 +83,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 	}
 	else
 	{
-		render_drawrooms(playersprite, { x, y, z }, sectnum, a, h, rotscrnang);
+		render_drawrooms(playersprite, { x, y, z }, sectnum, a, h, rotscrnang, smoothratio);
 	}
 }
 
