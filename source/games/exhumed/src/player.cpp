@@ -436,7 +436,7 @@ void RestartPlayer(short nPlayer)
 	nYDamage[nPlayer] = 0;
 	nXDamage[nPlayer] = 0;
 
-	plr->horizon.ohoriz = plr->horizon.horiz = q16horiz(0);
+	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = q16horiz(0);
 	nBreathTimer[nPlayer] = 90;
 
 	nTauntTimer[nPlayer] = RandomSize(3) + 3;
@@ -456,6 +456,8 @@ void RestartPlayer(short nPlayer)
 
 		SetMagicFrame();
 		RestoreGreenPal();
+
+        plr->bPlayerPan = plr->bLockPan = false;
 	}
 
 	ototalvel[nPlayer] = totalvel[nPlayer] = 0;
@@ -1030,13 +1032,14 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
+                        PlayerList[nPlayer].nDestVertPan = q16horiz(0);
                         if (currentLevel->levelNumber == 11)
                         {
-                            PlayerList[nPlayer].horizon.settarget(46);
+                            PlayerList[nPlayer].nDestVertPan = q16horiz(46);
                         }
                         else
                         {
-                            PlayerList[nPlayer].horizon.settarget(11);
+                            PlayerList[nPlayer].nDestVertPan = q16horiz(11);
                         }
                     }
                 }
@@ -1064,7 +1067,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                             zVelB = -zVelB;
                         }
 
-                        if (zVelB > 512 && PlayerList[nPlayer].horizon.horiz.asq16() != 0 && (sPlayerInput[nPlayer].actions & (SB_AIMMODE))) {
+                        if (zVelB > 512 && !PlayerList[nPlayer].horizon.horiz.asq16() && !(sPlayerInput[nPlayer].actions & SB_AIMMODE)) {
                             sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
                         }
                     }
@@ -1163,29 +1166,9 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
 sectdone:
-            if (!PlayerList[nPlayer].horizon.horiz.asbuild() || PlayerList[nPlayer].bIsFalling)
+            if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
             {
-                // Calculate base pan amount based on how much the player is falling.
-                fixed_t dVertPan = (spr_z - sprite[nPlayerSprite].z) << 9;
-                if (!bUnderwater && dVertPan != 0)
-                {
-                    fixed_t adjustment;
-
-                    if (dVertPan >= IntToFixed(4))
-                        adjustment = 4;
-                    else if (dVertPan <= -IntToFixed(4))
-                        adjustment = -4;
-                    else
-                        adjustment = dVertPan << 1;
-
-                    PlayerList[nPlayer].horizon.addadjustment(adjustment);
-                    PlayerList[nPlayer].bIsFalling = true;
-                }
-                else
-                {
-                    sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
-                    PlayerList[nPlayer].bIsFalling = false;
-                }
+                PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((spr_z - sprite[nPlayerSprite].z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
             }
 
             playerX -= sprite[nPlayerSprite].x;
@@ -2653,10 +2636,39 @@ loc_1BD2E:
                     PlayerList[nPlayer].field_2 = 0;
                 }
 
+                Player* pPlayer = &PlayerList[nPlayer];
+
+                if (actions & (SB_LOOK_UP | SB_LOOK_DOWN))
+                {
+                    pPlayer->nDestVertPan = pPlayer->horizon.horiz;
+                    pPlayer->bPlayerPan = pPlayer->bLockPan = true;
+                }
+                else if (actions & (SB_AIM_UP | SB_AIM_DOWN | SB_CENTERVIEW))
+                {
+                    pPlayer->nDestVertPan = pPlayer->horizon.horiz;
+                    pPlayer->bPlayerPan = pPlayer->bLockPan = false;
+                }
+
                 if (SyncInput())
                 {
-                    Player* pPlayer = &PlayerList[nPlayer];
                     sethorizon(&pPlayer->horizon, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
+                }
+
+                if (sPlayerInput[nPlayer].pan)
+                {
+                    pPlayer->nDestVertPan = pPlayer->horizon.horiz;
+                    pPlayer->bPlayerPan = pPlayer->bLockPan = true;
+                }
+
+                if (totalvel[nPlayer] > 20)
+                {
+                    pPlayer->bPlayerPan = false;
+                }
+
+                double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asq16() * (1. / (FRACUNIT << 2));
+                if (nVertPan != 0)
+                {
+                    pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4, 4) : nVertPan * 2.);
                 }
             }
             else // else, player's health is less than 0
@@ -2849,7 +2861,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("field38", w.field_38)
             ("field3a", w.field_3A)
             ("field3c", w.field_3C)
-            ("bIsFalling", w.bIsFalling)
             ("seq", w.nSeq)
             ("horizon", w.horizon)
             ("angle", w.angle)

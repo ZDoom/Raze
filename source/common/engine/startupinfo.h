@@ -9,11 +9,11 @@ struct FStartupInfo
 	uint32_t FgColor;			// Foreground color for title banner
 	uint32_t BkColor;			// Background color for title banner
 	FString Song;
+	FString con;
 	int Type;
 	int LoadLights = -1;
 	int LoadBrightmaps = -1;
 	int LoadWidescreen = -1;
-	int modern = 0;
 	enum
 	{
 		DefaultStartup,

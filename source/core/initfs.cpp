@@ -60,10 +60,10 @@ static const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "
 //
 //==========================================================================
 
-static FString ParseGameInfo(TArray<FString>& pwads, const char* fn, const char* data, int size)
+static TArray<FString> ParseGameInfo(TArray<FString>& pwads, const char* fn, const char* data, int size)
 {
 	FScanner sc;
-	FString iwad;
+	TArray<FString> bases;
 	int pos = 0;
 
 	const char* lastSlash = strrchr(fn, '/');
@@ -78,7 +78,7 @@ static FString ParseGameInfo(TArray<FString>& pwads, const char* fn, const char*
 		if (!nextKey.CompareNoCase("GAME"))
 		{
 			sc.MustGetString();
-			iwad = sc.String;
+			bases.Push(sc.String);
 		}
 		else if (!nextKey.CompareNoCase("LOAD"))
 		{
@@ -122,10 +122,10 @@ static FString ParseGameInfo(TArray<FString>& pwads, const char* fn, const char*
 			sc.MustGetString();
 			GameStartupInfo.BkColor = V_GetColor(NULL, sc);
 		}
-		else if (!nextKey.CompareNoCase("MODERN"))
+		else if (!nextKey.CompareNoCase("CON"))
 		{
-			sc.MustGetNumber();
-			GameStartupInfo.modern = sc.Number ? 1 : -1;
+			sc.MustGetString();
+			GameStartupInfo.con = sc.String;;
 		}
 		else
 		{
@@ -136,7 +136,7 @@ static FString ParseGameInfo(TArray<FString>& pwads, const char* fn, const char*
 			} while (sc.CheckToken(','));
 		}
 	}
-	return iwad;
+	return bases;
 }
 //==========================================================================
 //
@@ -144,7 +144,7 @@ static FString ParseGameInfo(TArray<FString>& pwads, const char* fn, const char*
 //
 //==========================================================================
 
-static FString CheckGameInfo(TArray<FString>& pwads)
+static TArray<FString> CheckGameInfo(TArray<FString>& pwads)
 {
 	// scan the list of WADs backwards to find the last one that contains a GAMEINFO lump
 	for (int i = pwads.Size() - 1; i >= 0; i--)
@@ -184,15 +184,15 @@ static FString CheckGameInfo(TArray<FString>& pwads)
 				if (FName(lmp->getName(), true) == gameinfo)
 				{
 					// Found one!
-					FString iwad = ParseGameInfo(pwads, resfile->FileName, (const char*)lmp->Lock(), lmp->LumpSize);
+					auto bases = ParseGameInfo(pwads, resfile->FileName, (const char*)lmp->Lock(), lmp->LumpSize);
 					delete resfile;
-					return iwad;
+					return bases;
 				}
 			}
 			delete resfile;
 		}
 	}
-	return "";
+	return TArray<FString>();
 }
 
 //==========================================================================
@@ -201,7 +201,7 @@ static FString CheckGameInfo(TArray<FString>& pwads)
 //
 //==========================================================================
 
-FString GetGameFronUserFiles()
+TArray<FString> GetGameFronUserFiles()
 {
 	TArray<FString> Files;
 

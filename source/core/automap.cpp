@@ -427,9 +427,12 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
 		{
 			int k = wal->nextwall;
-			if (k < 0 || k >= MAXWALLS) continue;
+			if (k < 0 || k >= numwalls) continue;
 
-			if (sector[wal->nextsector].ceilingz == z1 && sector[wal->nextsector].floorz == z2)
+			int s = wal->nextsector;
+			if (s < 0 || s >= numsectors) continue;
+
+			if (sector[s].ceilingz == z1 && sector[s].floorz == z2)
 				if (((wal->cstat | wall[wal->nextwall].cstat) & (16 + 32)) == 0) continue;
 
 			if (ShowRedLine(j, i))

@@ -599,12 +599,13 @@ void artClearMapArt(void)
 
 void artSetupMapArt(const char* filename)
 {
-	if (currentMapArt.CompareNoCase(filename)) return;
-	currentMapArt = filename;
-	artClearMapArt();
-
-	FString lcfilename = filename;
+	FString lcfilename = StripExtension(filename);
 	lcfilename.MakeLower();
+
+	if (currentMapArt.CompareNoCase(lcfilename) == 0) return;
+	artClearMapArt();
+	currentMapArt = lcfilename;
+
 
 	// Re-get from the texture manager if this map's tiles have already been created.
 	if (TileFiles.maptilesadded.Find(lcfilename) < TileFiles.maptilesadded.Size())
@@ -635,7 +636,7 @@ void artSetupMapArt(const char* filename)
 
 	for (int i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)
 	{
-		FStringf fullname("%s_%02d.art", filename, i);
+		FStringf fullname("%s_%02d.art", lcfilename.GetChars(), i);
 		TileFiles.LoadArtFile(fullname, filename);
 	}
 }
