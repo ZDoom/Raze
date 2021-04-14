@@ -97,18 +97,6 @@ inline double bcosf(const double ang, const int8_t shift = 0)
 
 //---------------------------------------------------------------------------
 //
-// Shift a Build angle left by 21 bits.
-//
-//---------------------------------------------------------------------------
-
-inline constexpr int64_t BAngToBAM(int ang)
-{
-	return ang << BAMBITS;
-}
-
-
-//---------------------------------------------------------------------------
-//
 //
 //
 //---------------------------------------------------------------------------
@@ -132,14 +120,14 @@ public:
 	binangle() = default;
 	binangle(const binangle &other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	constexpr int32_t tosigned() const { return value > BAngToBAM(1024) ? int64_t(value) - BAngToBAM(2048) : value; }
-	constexpr short asbuild() const { return value >> 21; }
+	constexpr int32_t tosigned() const { return value > INT32_MAX ? int64_t(value) - UINT32_MAX : value; }
+	constexpr short asbuild() const { return value >> BAMBITS; }
 	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
 	constexpr fixed_t asq16() const { return value >> 5; }
 	constexpr uint32_t asbam() const { return value; }
 	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
 	constexpr double asdeg() const { return AngleToFloat(value); }
-	constexpr short signedbuild() const { return tosigned() >> 21; }
+	constexpr short signedbuild() const { return tosigned() >> BAMBITS; }
 	constexpr double signedbuildf() const { return tosigned() * (1. / BAMUNIT); }
 	constexpr fixed_t signedq16() const { return tosigned() >> 5; }
 	constexpr int32_t signedbam() const { return tosigned(); }

@@ -80,13 +80,13 @@ fixed_t getincangleq16(fixed_t a, fixed_t na)
 
 binangle getincanglebam(binangle a, binangle na)
 {
-	int64_t cura = a.asbam() & 0xFFFFFFFF;
-	int64_t newa = na.asbam() & 0xFFFFFFFF;
+	int64_t cura = a.asbam();
+	int64_t newa = na.asbam();
 
-	if(abs(cura-newa) >= BAngToBAM(1024))
+	if(abs(cura-newa) > INT32_MAX)
 	{
-		if(newa > BAngToBAM(1024)) newa -= BAngToBAM(2048);
-		if(cura > BAngToBAM(1024)) cura -= BAngToBAM(2048);
+		if(newa > INT32_MAX) newa -= UINT32_MAX;
+		if(cura > INT32_MAX) cura -= UINT32_MAX;
 	}
 
 	return bamang(newa-cura);
