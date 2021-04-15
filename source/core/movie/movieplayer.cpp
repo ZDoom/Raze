@@ -51,13 +51,22 @@
 #include "raze_music.h"
 
 
+class MoviePlayer
+{
+public:
+	virtual void Start() {}
+	virtual bool Frame(uint64_t clock) = 0;
+	virtual void Stop() {}
+	virtual ~MoviePlayer() = default;
+};
+
 //---------------------------------------------------------------------------
 //
 // 
 //
 //---------------------------------------------------------------------------
 
-class DAnmPlayer : public DScreenJob
+class AnmPlayer : public MoviePlayer
 {
 	// This doesn't need its own class type
 	anim_t anim;
@@ -74,7 +83,7 @@ class DAnmPlayer : public DScreenJob
 public:
 	bool isvalid() { return numframes > 0; }
 
-	DAnmPlayer(FileReader& fr, const AnimSound* ans, const int *frameticks, bool nosoundcutoff)
+	AnmPlayer(FileReader& fr, const AnimSound* ans, const int *frameticks, bool nosoundcutoff)
 		: animSnd(ans), frameTicks(frameticks), nostopsound(nosoundcutoff)
 	{
 		buffer = fr.ReadPadded(1);
@@ -94,7 +103,7 @@ public:
 	//
 	//---------------------------------------------------------------------------
 
-	int Frame(uint64_t clock, bool skiprequest) override
+	bool Frame(uint64_t clock) override
 	{
 		int currentclock = int(clock * 120 / 1'000'000'000);
 
@@ -102,8 +111,7 @@ public:
 		{
 			twod->ClearScreen();
 			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
-			if (skiprequest && !nostopsound) soundEngine->StopAllChannels();
-			return skiprequest? -1 : 1;
+			return true;
 		}
 
 		animtex.SetFrame(ANIM_GetPalette(&anim), ANIM_DrawFrame(&anim, curframe));
@@ -132,13 +140,18 @@ public:
 					soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
 			}
 		}
-		if (!skiprequest && !nostopsound && curframe == numframes && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, -1)) return 1;
+		if (!nostopsound && curframe == numframes && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, -1)) return true;
 		curframe++;
-		if (skiprequest && !nostopsound) soundEngine->StopAllChannels();
-		return skiprequest ? -1 : curframe < numframes? 1 : 0;
+		return curframe < numframes;
 	}
 
-	void OnDestroy() override
+	void Stop() override
+	{
+		if (!nostopsound) soundEngine->StopAllChannels();
+	}
+
+
+	~AnmPlayer()
 	{
 		buffer.Reset();
 		animtex.Clean();
@@ -151,7 +164,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DMvePlayer : public DScreenJob
+class MvePlayer : public MoviePlayer
 {
 	InterplayDecoder decoder;
 	bool failed = false;
@@ -159,7 +172,7 @@ class DMvePlayer : public DScreenJob
 public:
 	bool isvalid() { return !failed; }
 
-	DMvePlayer(FileReader& fr) : decoder(SoundEnabled())
+	MvePlayer(FileReader& fr) : decoder(SoundEnabled())
 	{
 		failed = !decoder.Open(fr);
 	}
@@ -170,17 +183,16 @@ public:
 	//
 	//---------------------------------------------------------------------------
 
-	int Frame(uint64_t clock, bool skiprequest) override
+	bool Frame(uint64_t clock) override
 	{
-		if (failed) return -1;
+		if (failed) return false;
 		bool playon = decoder.RunFrame(clock);
 		twod->ClearScreen();
 		DrawTexture(twod, decoder.animTex().GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-
-		return skiprequest ? -1 : playon ? 1 : 0;
+		return playon;
 	}
 
-	void OnDestroy() override
+	~MvePlayer()
 	{
 		decoder.Close();
 	}
@@ -192,7 +204,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DVpxPlayer : public DScreenJob
+class VpxPlayer : public MoviePlayer
 {
 	bool failed = false;
 	FileReader fr;
@@ -222,7 +234,7 @@ public:
 public:
 	bool isvalid() { return !failed; }
 
-	DVpxPlayer(FileReader& fr_, const AnimSound* animSnd_, int origframedelay)
+	VpxPlayer(FileReader& fr_, const AnimSound* animSnd_, int origframedelay, FString& error)
 	{
 		fr = std::move(fr_);
 		animSnd = animSnd_;
@@ -230,7 +242,7 @@ public:
 		if (!ReadIVFHeader(origframedelay))
 		{
 			// We should never get here, because any file failing this has been eliminated before this constructor got called.
-			Printf(PRINT_BOLD, "Failed reading IVF header\n");
+			error.Format("Failed reading IVF header\n");
 			failed = true;
 		}
 
@@ -241,7 +253,7 @@ public:
 		vpx_codec_dec_cfg_t cfg = { 1, width, height };
 		if (vpx_codec_dec_init(&codec, &vpx_codec_vp8_dx_algo, &cfg, 0))
 		{
-			Printf(PRINT_BOLD, "Error initializing VPX codec.\n");
+			error.Format("Error initializing VPX codec.\n");
 			failed = true;
 		}
 	}
@@ -387,16 +399,23 @@ public:
 	//
 	//---------------------------------------------------------------------------
 
-	int Frame(uint64_t clock, bool skiprequest) override
+	void Start() override
 	{
-		if (clock == 0)
+		if (soundtrack > 0)
 		{
-			if (soundtrack > 0)
-			{
-				Mus_Play(nullptr, fileSystem.GetFileFullName(soundtrack, false), false);
-			}
-			animtex.SetSize(AnimTexture::YUV, width, height);
+			Mus_Play(nullptr, fileSystem.GetFileFullName(soundtrack, false), false);
 		}
+		animtex.SetSize(AnimTexture::YUV, width, height);
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	bool Frame(uint64_t clock) override
+	{
 		bool stop = false;
 		if (clock > nextframetime)
 		{
@@ -432,14 +451,18 @@ public:
 			}
 		}
 		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit, TAG_DONE);
-		if (stop || skiprequest) Mus_Stop();
-		if (stop) return 0;
-		return skiprequest ? -1 : 1;
+		return !stop;
 	}
 
-	void OnDestroy() override
+	void Stop()
+	{
+		Mus_Stop();
+	}
+
+	~VpxPlayer()
 	{
 		vpx_codec_destroy(&codec);
+		animtex.Clean();
 	}
 };
 
@@ -460,7 +483,7 @@ struct AudioData
 	int nRead;
 };
 
-class DSmkPlayer : public DScreenJob
+class SmkPlayer : public MoviePlayer
 {
 	SmackerHandle hSMK{};
 	int numAudioTracks;
@@ -484,7 +507,7 @@ public:
 
 	static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
 	{
-		DSmkPlayer* pId = (DSmkPlayer*)userdata;
+		SmkPlayer* pId = (SmkPlayer*)userdata;
 		memcpy(buff, &pId->adata.samples[pId->adata.nRead], len);
 		pId->adata.nRead += len / 2;
 		if (pId->adata.nRead >= countof(pId->adata.samples)) pId->adata.nRead = 0;
@@ -511,7 +534,7 @@ public:
 	}
 
 
-	DSmkPlayer(const char *fn, const AnimSound* ans, bool fixedviewport)
+	SmkPlayer(const char *fn, const AnimSound* ans, bool fixedviewport)
 	{
 		hSMK = Smacker_Open(fn);
 		if (!hSMK.isValid)
@@ -552,22 +575,31 @@ public:
 	}
 
 	//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+	void Start() override
+	{
+		animtex.SetSize(AnimTexture::Paletted, nWidth, nHeight);
+	}
+
+	//---------------------------------------------------------------------------
 	//
 	//
 	//
 	//---------------------------------------------------------------------------
 
-	int Frame(uint64_t clock, bool skiprequest) override
+	bool Frame(uint64_t clock) override
 	{
 		int frame = clock / nFrameNs;
 
-		if (clock == 0)
-		{
-			animtex.SetSize(AnimTexture::Paletted, nWidth, nHeight);
-		}
 		twod->ClearScreen();
+		Printf("clock = %llu, frame = %d\n", clock, frame);
 		if (frame > nFrame)
 		{
+			Printf("Updating\n");
 			Smacker_GetPalette(hSMK, palette);
 			Smacker_GetFrame(hSMK, pFrame.Data());
 			animtex.SetFrame(palette, pFrame.Data());
@@ -607,10 +639,10 @@ public:
 			}
 		}
 
-		return skiprequest ? -1 : nFrame < nFrames ? 1 : 0;
+		return nFrame < nFrames;
 	}
 
-	void OnDestroy() override
+	~SmkPlayer()
 	{
 		Smacker_Close(hSMK);
 		if (stream) S_StopCustomStream(stream);
@@ -625,13 +657,56 @@ public:
 //
 //---------------------------------------------------------------------------
 
-DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks, bool nosoundcutoff)
+class DMoviePlayer : public DSkippableScreenJob
 {
-	auto nothing = []()->DScreenJob* { return Create<DScreenJob>(); };
-	if (!filename)
+	MoviePlayer* player;
+	bool started = false;
+
+public:
+	DMoviePlayer(MoviePlayer* mp)
 	{
-		return nothing();
+		player = mp;
 	}
+
+	void Draw(double smoothratio) override
+	{
+		if (!player)
+		{
+			state = stopped;
+			return;
+		}
+		if (!started)
+		{
+			started = true;
+			player->Start();
+		}
+		uint64_t clock = (ticks + smoothratio) * 1'000'000'000. / GameTicRate;
+		if (state == running  && !player->Frame(clock))
+		{
+			state = finished;
+		}
+	}
+
+	void OnDestroy() override
+	{
+		if (player)
+		{
+			player->Stop();
+			delete player;
+		}
+		player = nullptr;
+	}
+};
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+MoviePlayer* OpenMovie(const char* filename, const AnimSound* ans, const int* frameticks, bool nosoundcutoff, FString& error)
+{
 	FileReader fr;
 	// first try as .ivf - but only if sounds are provided - the decoder is video only.
 	if (ans)
@@ -653,8 +728,8 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 		}
 		if (!fr.isOpen())
 		{
-			Printf(PRINT_BOLD, "%s: Unable to open video\n", filename);
-			return nothing();
+			error.Format("%s: Unable to open video\n", filename);
+			return nullptr;
 		}
 	}
 	char id[20] = {};
@@ -664,44 +739,44 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 
 	if (!memcmp(id, "LPF ", 4))
 	{
-		auto anm = Create<DAnmPlayer>(fr, ans, frameticks, nosoundcutoff);
+		auto anm = new AnmPlayer(fr, ans, frameticks, nosoundcutoff);
 		if (!anm->isvalid())
 		{
-			Printf(PRINT_BOLD, "%s: invalid ANM file.\n", filename);
-			anm->Destroy();
-			return nothing();
+			error.Format("%s: invalid ANM file.\n", filename);
+			delete anm;
+			return nullptr;
 		}
 		return anm;
 	}
 	else if (!memcmp(id, "SMK2", 4))
 	{
 		fr.Close();
-		auto anm = Create<DSmkPlayer>(filename, ans, true); // Fixme: Handle Blood's video scaling behavior more intelligently.
+		auto anm = new SmkPlayer(filename, ans, true); // Fixme: Handle Blood's video scaling behavior more intelligently.
 		if (!anm->isvalid())
 		{
-			Printf(PRINT_BOLD, "%s: invalid SMK file.\n", filename);
-			anm->Destroy();
-			return nothing();
+			error.Format("%s: invalid SMK file.\n", filename);
+			delete anm;
+			return nullptr;
 		}
 		return anm;
 	}
 	else if (!memcmp(id, "Interplay MVE File", 18))
 	{
-		auto anm = Create<DMvePlayer>(fr);
+		auto anm = new MvePlayer(fr);
 		if (!anm->isvalid())
 		{
-			anm->Destroy();
-			return nothing();
+			delete anm;
+			return nullptr;
 		}
 		return anm;
 	}
 	else if (!memcmp(id, "DKIF\0\0 \0VP80", 12))
 	{
-		auto anm = Create<DVpxPlayer>(fr, ans, frameticks? frameticks[1] : 0 );
+		auto anm = new VpxPlayer(fr, ans, frameticks ? frameticks[1] : 0, error);
 		if (!anm->isvalid())
 		{
-			anm->Destroy();
-			return nothing();
+			delete anm;
+			return nullptr;
 		}
 		anm->soundtrack = LookupMusic(filename, true);
 		return anm;
@@ -709,9 +784,31 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 	// add more formats here.
 	else
 	{
-		Printf(PRINT_BOLD, "%s: Unknown video format\n", filename);
+		error.Format("%s: Unknown video format\n", filename);
+		return nullptr;
 	}
-	return nothing();
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks, bool nosoundcutoff)
+{
+	if (!filename)
+	{
+		return Create<DScreenJob>();
+	}
+	FString error;
+	auto movie = OpenMovie(filename, ans, frameticks, nosoundcutoff, error);
+	if (!movie)
+	{
+		Printf(TEXTCOLOR_YELLOW, "%s", error.GetChars());
+		return Create<DScreenJob>();
+	}
+	return Create<DMoviePlayer>(movie);
 }
 
 

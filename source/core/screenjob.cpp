@@ -57,6 +57,13 @@ IMPLEMENT_CLASS(DScreenJob, true, false)
 IMPLEMENT_CLASS(DImageScreen, true, false)
 
 
+bool DSkippableScreenJob::OnEvent(event_t* evt)
+{
+	if (evt->type == EV_GUI_KeyDown) state = skipped;
+	return true;
+}
+
+
 int DBlackScreen::Frame(uint64_t clock, bool skiprequest)
 {
 	int span = int(clock / 1'000'000);
@@ -193,7 +200,7 @@ public:
 			screenfade = 1.f;
 		}
 		job.job->SetClock(clock);
-		int state = job.job->Frame(clock, skiprequest, 0);
+		int state = job.job->Frame(clock, skiprequest, I_GetTimeFrac());
 		clock = job.job->GetClock();
 		if (clock == 0) clock = 1;
 		return state;
@@ -227,7 +234,8 @@ public:
 
 	bool OnEvent(event_t* ev)
 	{
-		if (jobs[index].job->state == DScreenJob::stopping) return false;
+		if (index >= jobs.Size()) return false;
+		if (jobs[index].job->state != DScreenJob::running) return false;
 		return jobs[index].job->OnEvent(ev);
 	}
 
@@ -249,7 +257,7 @@ public:
 		}
 		else
 		{
-			if (jobs[index].job->state == DScreenJob::stopping) return;
+			if (jobs[index].job->state != DScreenJob::running) return;
 			jobs[index].job->ticks++;
 			jobs[index].job->OnTick();
 		}
@@ -282,6 +290,7 @@ public:
 					startTime = -1;
 					clock = 0;
 					jobs[index].job->fadestate = DScreenJob::fadeout;
+					jobs[index].job->state = DScreenJob::stopping;
 					gamestate = GS_INTRO;	// block menu and console during fadeout - this can cause timing problems.
 					actionState = State_Fadeout;
 				}
@@ -296,6 +305,7 @@ public:
 			int ended = FadeoutFrame();
 			if (ended < 1)
 			{
+				jobs[index].job->state = DScreenJob::stopped;
 				AdvanceJob(terminateState < 0);
 			}
 		}

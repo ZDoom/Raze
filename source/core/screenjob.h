@@ -77,6 +77,21 @@ public:
 //
 //---------------------------------------------------------------------------
 
+class DSkippableScreenJob : public DScreenJob
+{
+protected:
+	DSkippableScreenJob(int fade = 0, float fadet = 250.f) : DScreenJob(fade, fadet)
+	{}
+
+	bool OnEvent(event_t* evt) override;
+};
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 class DBlackScreen : public DScreenJob
 {
 	int wait;
