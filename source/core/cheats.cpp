@@ -44,6 +44,7 @@
 #include "mmulti.h"
 #include "gstrings.h"
 #include "gamecontrol.h"
+#include "screenjob.h"
 #include "mapinfo.h"
 
 CVAR(Bool, sv_cheats, true, CVAR_ARCHIVE|CVAR_SERVERINFO)
@@ -231,6 +232,17 @@ void changeMap(int player, uint8_t** stream, bool skip)
 		g_nextmap = map;
 		g_nextskill = skill;
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void endScreenJob(int player, uint8_t** stream, bool skip)
+{
+	if (!skip) EndScreenJob();
 }
 
 //---------------------------------------------------------------------------

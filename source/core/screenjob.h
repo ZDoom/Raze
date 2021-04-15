@@ -2,6 +2,7 @@
 #include <functional>
 #include "dobject.h"
 #include "v_2ddrawer.h"
+#include "d_eventbase.h"
 
 using CompletionFunc = std::function<void(bool)>;
 struct JobDesc;
@@ -16,8 +17,19 @@ class DScreenJob : public DObject
 	int fadestate = fadein;
 
 	friend class ScreenJobRunner;
+protected:
+	int ticks = 0;
+	int state = running;
 
 public:
+	enum
+	{
+		running = 1,	// normal operation
+		skipped = 2,	// finished by user skipping
+		finished = 3,	// finished by completing its sequence
+		stopping = 4,	// running ending animations / fadeout, etc. Will not accept more input.
+		stopped = 5,	// we're done here.
+	};
 	enum
 	{
 		visible = 0,
@@ -42,7 +54,19 @@ public:
 		return now;
 	}
 
-	virtual int Frame(uint64_t clock, bool skiprequest) { return 0; }
+	virtual bool OnEvent(event_t* evt) { return false; }
+	virtual void OnTick() { }
+	virtual int Frame(uint64_t clock, bool skiprequest) { return 1; }
+	virtual void Draw(double smoothratio) {}
+
+	int Frame(uint64_t clock, bool skiprequest, double smoothratio)
+	{
+		Draw(smoothratio);
+		if (state == skipped) return -1;
+		if (state == finished) return 0;
+		return Frame(clock, skiprequest);
+	}
+
 	int GetFadeState() const { return fadestate; }
 
 };
@@ -105,8 +129,11 @@ struct JobDesc
 
 
 void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore = true, bool blockingui = false);
+void EndScreenJob();
 void DeleteScreenJob();
-void RunScreenJobFrame();
+bool ScreenJobResponder(event_t* ev);
+void ScreenJobTick();
+void ScreenJobDraw();
 
 struct AnimSound
 {

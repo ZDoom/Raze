@@ -193,7 +193,7 @@ public:
 			screenfade = 1.f;
 		}
 		job.job->SetClock(clock);
-		int state = job.job->Frame(clock, skiprequest);
+		int state = job.job->Frame(clock, skiprequest, 0);
 		clock = job.job->GetClock();
 		if (clock == 0) clock = 1;
 		return state;
@@ -225,6 +225,36 @@ public:
 		return 1;
 	}
 
+	bool OnEvent(event_t* ev)
+	{
+		if (jobs[index].job->state == DScreenJob::stopping) return false;
+		return jobs[index].job->OnEvent(ev);
+	}
+
+	void OnFinished()
+	{
+		if (completion) completion(false);
+		completion = nullptr; // only finish once.
+	}
+
+	void OnTick()
+	{
+		if (index >= jobs.Size())
+		{
+			//DeleteJobs();
+			//twod->SetScreenFade(1);
+			//twod->ClearScreen(); // This must not leave the 2d buffer empty.
+			//if (gamestate == GS_INTRO) OnFinished();
+			//else Net_WriteByte(DEM_ENDSCREENJOB);	// intermissions must be terminated synchronously.
+		}
+		else
+		{
+			if (jobs[index].job->state == DScreenJob::stopping) return;
+			jobs[index].job->ticks++;
+			jobs[index].job->OnTick();
+		}
+	}
+	
 	bool RunFrame()
 	{
 		if (index >= jobs.Size())
@@ -300,7 +330,25 @@ void DeleteScreenJob()
 	twod->SetScreenFade(1);
 }
 
-void RunScreenJobFrame()
+void EndScreenJob()
+{
+	if (runner) runner->OnFinished();
+	DeleteScreenJob();
+}
+
+
+bool ScreenJobResponder(event_t* ev)
+{
+	if (runner) return runner->OnEvent(ev);
+	return false;
+}
+
+void ScreenJobTick()
+{
+	if (runner) runner->OnTick();
+}
+
+void ScreenJobDraw()
 {
 	// we cannot recover from this because we have no completion callback to call.
 	if (!runner)

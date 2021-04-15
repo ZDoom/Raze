@@ -976,29 +976,6 @@ int RunGame()
 //
 //---------------------------------------------------------------------------
 
-
-void TickSubsystems()
-{
-	// run these on an independent timer until we got something working for the games.
-	static const uint64_t tickInterval = 1'000'000'000 / 30;
-	static uint64_t nexttick = 0;
-
-	auto nowtick = I_nsTime();
-	if (nexttick == 0) nexttick = nowtick;
-	int cnt = 0;
-	while (nexttick <= nowtick && cnt < 5)
-	{
-		nexttick += tickInterval;
-		C_Ticker();
-		M_Ticker();
-		C_RunDelayedCommands();
-		cnt++;
-	}
-	// If this took too long the engine was most likely suspended so recalibrate the timer.
-	// Perfect precision is not needed here.
-	if (cnt == 5) nexttick = nowtick + tickInterval;
-}
-
 void updatePauseStatus()
 {
 	// This must go through the network in multiplayer games.
