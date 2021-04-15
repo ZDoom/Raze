@@ -736,7 +736,7 @@ void playerJump(int snum, int fz, int cz)
 
 void player_struct::apply_seasick(double factor)
 {
-	if (isRRRA() && SeaSick && dead_flag == 0)
+	if (isRRRA() && SeaSick && (dead_flag == 0 || dead_flag && resurrected))
 	{
 		if (SeaSick < 250)
 		{

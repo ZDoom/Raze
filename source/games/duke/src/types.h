@@ -244,6 +244,8 @@ struct player_struct
 
 	int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
 
+	bool resurrected;
+
 	// Redneck Rampage additions. Those which did not have names in the reconstructed source got one from either RedneckGDX or RedNukem.
 	// Items were reordered by size.
 	int stairs;

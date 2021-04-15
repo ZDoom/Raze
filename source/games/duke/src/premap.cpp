@@ -81,6 +81,7 @@ void resetplayerstats(int snum)
 
     gFullMap = 0; 
     p->dead_flag        = 0;
+    p->resurrected      = false;
     p->wackedbyactor    = nullptr;
     p->falling_counter  = 0;
     p->quick_kick       = 0;

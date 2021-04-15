@@ -2262,6 +2262,7 @@ int ParseState::parse(void)
 			ps[g_p].wackedbyactor = nullptr;
 			ps[g_p].shield_amount = gs.max_armour_amount;
 			ps[g_p].dead_flag = 0;
+			ps[g_p].resurrected = false;
 			ps[g_p].pals.a = 0;
 			ps[g_p].footprintcount = 0;
 			ps[g_p].weapreccnt = 0;

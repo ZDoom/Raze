@@ -84,6 +84,7 @@ void hud_input(int plnum)
 				{
 					p->GetActor()->s.extra += 2;
 					p->last_extra = p->GetActor()->s.extra;
+					p->resurrected = true;
 				}
 				else if (p->GetActor()->s.extra < gs.max_player_health)
 					p->GetActor()->s.extra = gs.max_player_health;
@@ -767,7 +768,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 static void FinalizeInput(player_struct *p, InputPacket& input, bool vehicle)
 {
-	if (movementBlocked(p) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god))
+	if (movementBlocked(p) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god && !p->resurrected))
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
