@@ -596,10 +596,8 @@ public:
 		int frame = clock / nFrameNs;
 
 		twod->ClearScreen();
-		Printf("clock = %llu, frame = %d\n", clock, frame);
 		if (frame > nFrame)
 		{
-			Printf("Updating\n");
 			Smacker_GetPalette(hSMK, palette);
 			Smacker_GetFrame(hSMK, pFrame.Data());
 			animtex.SetFrame(palette, pFrame.Data());

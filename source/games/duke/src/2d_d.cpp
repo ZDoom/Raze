@@ -165,20 +165,23 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
 //
 //---------------------------------------------------------------------------
 
-class DDRealmsScreen : public DScreenJob
+class DDRealmsScreen : public DSkippableScreenJob
 {
 public:
-	DDRealmsScreen() : DScreenJob(fadein | fadeout)	{}
+	DDRealmsScreen() : DSkippableScreenJob(fadein | fadeout)	{}
 
-	int Frame(uint64_t clock, bool skiprequest) override
+	void OnTick() override
 	{
-		const uint64_t duration = 7'000'000'000;
+		if (ticks >= 7 * GameTicRate) state = finished;
+	}
+
+	void Draw(double smoothratio) override
+	{
 		const auto tex = tileGetTexture(DREALMS, true);
 		int translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, DREALMSPAL) : 0;
 
 		twod->ClearScreen();
 		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-		return skiprequest ? -1 : clock < duration ? 1 : 0;
 	}
 };
 
@@ -188,27 +191,18 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DTitleScreen : public DScreenJob
+class DTitleScreen : public DSkippableScreenJob
 {
 	int soundanm = 0;
 
 public:
-	DTitleScreen() : DScreenJob(fadein | fadeout) 
+	DTitleScreen() : DSkippableScreenJob(fadein | fadeout) 
 	{
 	}
 
-	int Frame(uint64_t nsclock, bool skiprequest) override
+	void OnTick() override
 	{
-		twod->ClearScreen();
-		int clock = nsclock * 120 / 1'000'000'000;
-
-		twod->ClearScreen();
-
-		// Only translate if the image depends on the global palette.
-		auto tex = tileGetTexture(BETASCREEN, true);
-		int translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, TITLEPAL) : 0;
-		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-
+		int clock = ticks * 120 / GameTicRate;
 		if (soundanm == 0 && clock >= 120 && clock < 120 + 60)
 		{
 			soundanm = 1;
@@ -229,6 +223,25 @@ public:
 			soundanm = 4;
 			if (isPlutoPak()) S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 		}
+
+		if (clock > (860 + 120))
+		{
+			state = finished;
+		}
+	}
+
+	void Draw(double smoothratio) override
+	{
+		twod->ClearScreen();
+		int clock = (ticks + smoothratio) * 120 / GameTicRate;
+
+		twod->ClearScreen();
+
+		// Only translate if the image depends on the global palette.
+		auto tex = tileGetTexture(BETASCREEN, true);
+		int translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, TITLEPAL) : 0;
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+
 
 		double scale = clamp(clock - 120, 0, 60) / 64.;
 		if (scale > 0.)
@@ -262,13 +275,6 @@ public:
 					DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 			}
 		}
-
-		if (clock > (860 + 120))
-		{
-			return 0;
-		}
-
-		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -310,70 +316,68 @@ void Logo_d(const CompletionFunc &completion)
 //
 //---------------------------------------------------------------------------
 
-class DEpisode1End1 : public DScreenJob
+class DEpisode1End1 : public DSkippableScreenJob
 {
 	int bonuscnt = 0;
+	int bossani = -1;
+	int breatheani = -1;
+	bool breathebg = false;
+
+	static inline const int breathe[] =
+	{
+		 0,  30,VICTORY1 + 1,176,59,
+		30,  60,VICTORY1 + 2,176,59,
+		60,  90,VICTORY1 + 1,176,59,
+		90, 120,0         ,176,59
+	};
+
+	static inline const int bossmove[] =
+	{
+		 0, 120,VICTORY1 + 3,86,59,
+	   220, 260,VICTORY1 + 4,86,59,
+	   260, 290,VICTORY1 + 5,86,59,
+	   290, 320,VICTORY1 + 6,86,59,
+	   320, 350,VICTORY1 + 7,86,59,
+	   350, 380,VICTORY1 + 8,86,59,
+	   350, 380,VICTORY1 + 8,86,59,
+	};
 
 public:
-	DEpisode1End1() : DScreenJob(fadein | fadeout) {}
+	DEpisode1End1() : DSkippableScreenJob(fadein | fadeout) {}
 
-	int Frame(uint64_t nsclock, bool skiprequest) override
+	void OnTick()
 	{
-		static const int breathe[] =
-		{
-			 0,  30,VICTORY1 + 1,176,59,
-			30,  60,VICTORY1 + 2,176,59,
-			60,  90,VICTORY1 + 1,176,59,
-			90, 120,0         ,176,59
-		};
+		int currentclock = ticks * 120 / GameTicRate;
 
-		static const int bossmove[] =
-		{
-			 0, 120,VICTORY1 + 3,86,59,
-		   220, 260,VICTORY1 + 4,86,59,
-		   260, 290,VICTORY1 + 5,86,59,
-		   290, 320,VICTORY1 + 6,86,59,
-		   320, 350,VICTORY1 + 7,86,59,
-		   350, 380,VICTORY1 + 8,86,59,
-		   350, 380,VICTORY1 + 8,86,59,
-		};
-
-		auto translation = TRANSLATION(Translation_BasePalettes, ENDINGPAL);
-
-		int currentclock = nsclock * 120 / 1'000'000'000;
-
-		uint64_t span = nsclock / 1'000'000;
-
-		twod->ClearScreen();
-		DrawTexture(twod, tileGetTexture(VICTORY1, true), 0, 50, DTA_FullscreenScale, FSMode_Fit320x200, 
-			DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TopLeft, true, TAG_DONE);
-
+		bossani = -1;
+		breathebg = false;
+		breatheani = -1;
 
 		// boss
 		if (currentclock > 390 && currentclock < 780)
+		{
 			for (int t = 0; t < 35; t += 5) if (bossmove[t + 2] && (currentclock % 390) > bossmove[t] && (currentclock % 390) <= bossmove[t + 1])
 			{
-				if (t == 10 && bonuscnt == 1) 
-				{ 
+				if (t == 10 && bonuscnt == 1)
+				{
 					S_PlaySound(SHOTGUN_FIRE, CHAN_AUTO, CHANF_UI);
 					S_PlaySound(SQUISHED, CHAN_AUTO, CHANF_UI);
-					bonuscnt++; 
+					bonuscnt++;
 				}
-				DrawTexture(twod, tileGetTexture(bossmove[t + 2], true), bossmove[t + 3], bossmove[t + 4], DTA_FullscreenScale, FSMode_Fit320x200,
-					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+				bossani = t;
 			}
+		}
 
 		// Breathe
 		if (currentclock < 450 || currentclock >= 750)
 		{
 			if (currentclock >= 750)
 			{
-				DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, FSMode_Fit320x200,
-					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
-				if (currentclock >= 750 && bonuscnt == 2) 
-				{ 
+				breathebg = true;
+				if (currentclock >= 750 && bonuscnt == 2)
+				{
 					S_PlaySound(DUKETALKTOBOSS, CHAN_AUTO, CHANF_UI);
-					bonuscnt++; 
+					bonuscnt++;
 				}
 			}
 			for (int t = 0; t < 20; t += 5)
@@ -384,12 +388,37 @@ public:
 						S_PlaySound(BOSSTALKTODUKE, CHAN_AUTO, CHANF_UI);
 						bonuscnt++;
 					}
-					DrawTexture(twod, tileGetTexture(breathe[t + 2], true), breathe[t + 3], breathe[t + 4], DTA_FullscreenScale, FSMode_Fit320x200,
-						DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+					breatheani = t;
 				}
 		}
-		// Only end after having faded out.
-		return skiprequest ? -1 : 1;
+
+	}
+
+	void Draw(double) override
+	{
+		auto translation = TRANSLATION(Translation_BasePalettes, ENDINGPAL);
+
+		twod->ClearScreen();
+		DrawTexture(twod, tileGetTexture(VICTORY1, true), 0, 50, DTA_FullscreenScale, FSMode_Fit320x200, 
+			DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TopLeft, true, TAG_DONE);
+
+		if (bossani != -1)
+		{
+			DrawTexture(twod, tileGetTexture(bossmove[bossani + 2], true), bossmove[bossani + 3], bossmove[bossani + 4], DTA_FullscreenScale, FSMode_Fit320x200,
+				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+		}
+
+		if (breathebg)
+		{
+			DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, FSMode_Fit320x200,
+				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+		}
+
+		if (breatheani != -1)
+		{
+			DrawTexture(twod, tileGetTexture(breathe[breatheani + 2], true), breathe[breatheani + 3], breathe[breatheani + 4], DTA_FullscreenScale, FSMode_Fit320x200,
+				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+		}
 	}
 };
 
