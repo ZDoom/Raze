@@ -66,7 +66,7 @@ static const char *cheatGod(int myconnectindex, int state)
 	auto* p = &ps[myconnectindex];
 	auto act = p->GetActor();
 
-	p->dead_flag = 0;
+	p->resurrected = true;
 	act->s.extra = gs.max_player_health;
 	act->extra = 0;
 	if (ud.god)
