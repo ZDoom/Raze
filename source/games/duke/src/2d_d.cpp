@@ -437,7 +437,6 @@ public:
 
 	FGameTexture* getTexture()
 	{
-		// Here we must provide a real texture, even if invalid, so that the sounds play.
 		auto texid = TexMan.CheckForTexture("radlogo.anm", ETextureType::Any, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
 		if (texid.isValid()) return TexMan.GetGameTexture(texid);
 		else return TexMan.GameByIndex(0);
@@ -448,7 +447,17 @@ public:
 	{
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	bool OnEvent(event_t* evt) override
+	{
+		if (evt->type == EV_GUI_KeyDown)
+		{
+			state = skipped;
+			FX_StopAllSounds();
+		}
+		return true;
+	}
+
+	void OnTick() override
 	{
 		switch (sound)
 		{
@@ -493,23 +502,21 @@ public:
 			if (!S_CheckSoundPlaying(ENDSEQVOL3SND9))
 			{
 				sound++;
-				waittime = clock + (SoundEnabled()? 1'000'000'000 : 5'000'000'000);	// if sound is off this wouldn't wait without a longer delay here.
+				waittime = ticks + GameTicRate * (SoundEnabled() ? 1 : 5);	// if sound is off this wouldn't wait without a longer delay here.
 			}
 			break;
 
 		case 6:
 			if (isPlutoPak())
 			{
-				if (clock > waittime) skiprequest = true;
+				if (ticks > waittime) state = finished;
 			}
 			break;
 
 		default:
 			break;
 		}
-		int ret = DImageScreen::Frame(clock, skiprequest);
-		if (ret != 1) FX_StopAllSounds();
-		return ret;
+		if (state != running) FX_StopAllSounds();
 	}
 };
 
@@ -519,12 +526,12 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DEpisode4Text : public DScreenJob
+class DEpisode4Text : public DSkippableScreenJob
 {
 public:
-	DEpisode4Text() : DScreenJob(fadein | fadeout) {}
+	DEpisode4Text() : DSkippableScreenJob(fadein | fadeout) {}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double)
 	{
 		twod->ClearScreen();
 		BigText(160, 60, GStrings("Thanks to all our"));
@@ -532,7 +539,6 @@ public:
 		BigText(160, 60 + 16 + 16, GStrings("us big heads."));
 		BigText(160, 70 + 16 + 16 + 16, GStrings("Look for a Duke Nukem 3D"));
 		BigText(160, 70 + 16 + 16 + 16 + 16, GStrings("sequel soon."));
-		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -551,7 +557,7 @@ public:
 	{
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void OnTick() override
 	{
 		switch (sound)
 		{
@@ -567,9 +573,6 @@ public:
 		default:
 			break;
 		}
-		int ret = DImageScreen::Frame(clock, skiprequest);
-		if (ret != 1) FX_StopAllSounds();
-		return ret;
 	}
 };
 
@@ -1120,14 +1123,13 @@ class DDukeLoadScreen : public DScreenJob
 public:
 	DDukeLoadScreen(MapRecord *maprec) : DScreenJob(0), rec(maprec) {}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		
 		BigText(160, 90, (rec->flags & MI_USERMAP)? GStrings("TXT_LOADUM") :  GStrings("TXT_LOADING"));
 		BigText(160, 114, rec->DisplayName());
-		return 0;
 	}
 };
 
