@@ -212,12 +212,13 @@ void GameInterface::NextLevel(MapRecord *map, int skill)
 	
 }
 
-void GameInterface::NewGame(MapRecord *map, int skill)
+void GameInterface::NewGame(MapRecord *map, int skill, bool frommenu)
 {
 	// start a new game on the given level
 	InitNewGame();
 	if (map->levelNumber == 1) STAT_StartNewGame("Exhumed", 1);
-	Intermission(nullptr, map);
+    if (frommenu) Intermission(nullptr, map);
+    else NextLevel(map, skill);
 }
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)

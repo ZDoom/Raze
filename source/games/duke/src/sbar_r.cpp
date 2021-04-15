@@ -110,7 +110,7 @@ public:
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, imgScale, imgScale);
 
-		if (!althud_flashing || p->last_extra > (gs.max_player_health >> 2) || (PlayClock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
+		if (!althud_flashing || p->last_extra > (gs.max_player_health >> 2) || (PlayClock & 32) || (p->GetActor()->s->pal == 1 && p->last_extra < 2))
 		{
 			int s = -8;
 			if (althud_flashing && p->last_extra > gs.max_player_health)
@@ -230,7 +230,7 @@ public:
 		// health
 		//
 		DrawGraphic(tileGetTexture(HEALTHBOX), 2, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
-		int health = (p->GetActor()->s.pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
+		int health = (p->GetActor()->s->pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		FStringf format("%d", health);
 		SBar_DrawString(this, digiFont, format, 21.5, -digiFont->mFont->GetHeight() * scale - 5.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
@@ -379,7 +379,7 @@ public:
 			if (p->keys[1]) DrawGraphic(key, 145, top + 21, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 0));
 		}
 
-		int num = (p->GetActor()->s.pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
+		int num = (p->GetActor()->s->pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		format.Format("%d", num);
 		SBar_DrawString(this, digiFont, format, 66.5, top + 16, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 

@@ -57,7 +57,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		t = &tsprite[j];
 		i = t->owner;
 		h = &hittype[i];
-		s = &h->s;
+		s = h->s;
 
 		switch (t->picnum)
 		{
@@ -149,9 +149,9 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		t = &tsprite[j];
 		i = t->owner;
 		h = &hittype[i];
-		s = &h->s;
+		s = h->s;
 		auto OwnerAc = h->GetOwner();
-		auto Owner = OwnerAc ? &OwnerAc->s : nullptr;
+		auto Owner = OwnerAc ? OwnerAc->s : nullptr;
 
 		switch (s->picnum)
 		{
@@ -227,7 +227,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 						Owner->y - t->y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
-					if (ldist(Owner, t) < ldist(&ps[screenpeek].GetActor()->s, Owner))
+					if (ldist(Owner, t) < ldist(ps[screenpeek].GetActor()->s, Owner))
 						t->xrepeat = t->yrepeat = 0;
 			}
 			continue;
@@ -336,7 +336,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				}
 			}
 
-			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
+			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s->extra > 0 && ps[p].curr_weapon > 0)
 			{
 				auto newtspr = &tsprite[spritesortcnt];
 				memcpy(newtspr, t, sizeof(spritetype));

@@ -78,7 +78,7 @@ public:
 		while (index < MAXSPRITES)
 		{
 			auto p = &hittype[index++];
-			if (p->s.statnum != MAXSTATUS) return p;
+			if (p->s->statnum != MAXSTATUS) return p;
 		}
 		return nullptr;
 	}
@@ -91,7 +91,7 @@ inline DDukeActor* player_struct::GetActor()
 
 inline int player_struct::GetPlayerNum()
 {
-	return GetActor()->s.yvel;
+	return GetActor()->s->yvel;
 }
 
 // Refactoring helpers/intermediates
@@ -141,7 +141,7 @@ inline int ActorToScriptIndex(DDukeActor* a)
 inline DDukeActor* ScriptIndexToActor(int index)
 {
 	// only allow valid actors to get through here. Everything else gets null'ed.
-	if (index < 0 || index >= MAXSPRITES || hittype[index].s.statnum == MAXSTATUS) return nullptr;
+	if (index < 0 || index >= MAXSPRITES || hittype[index].s->statnum == MAXSTATUS) return nullptr;
 	return &hittype[index];
 }
 
@@ -156,22 +156,22 @@ inline DDukeActor* spawn(DDukeActor* spawner, int type)
 
 inline int ldist(DDukeActor* s1, DDukeActor* s2)
 {
-	return ldist(&s1->s, &s2->s);
+	return ldist(s1->s, s2->s);
 }
 
 inline int dist(DDukeActor* s1, DDukeActor* s2)
 {
-	return dist(&s1->s, &s2->s);
+	return dist(s1->s, s2->s);
 }
 
 inline int badguy(DDukeActor* pSprite)
 {
-	return badguypic(pSprite->s.picnum);
+	return badguypic(pSprite->s->picnum);
 }
 
 inline int bossguy(DDukeActor* pSprite)
 {
-	return bossguypic(pSprite->s.picnum);
+	return bossguypic(pSprite->s->picnum);
 }
 
 // old interface versions of already changed functions

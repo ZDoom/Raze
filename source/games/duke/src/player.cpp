@@ -67,8 +67,8 @@ void PlayerColorChanged(void)
 	{
 		pp.palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
 	}
-	if (pp.GetActor()->s.picnum == TILE_APLAYER && pp.GetActor()->s.pal != 1)
-		pp.GetActor()->s.pal = ud.user_pals[myconnectindex];
+	if (pp.GetActor()->s->picnum == TILE_APLAYER && pp.GetActor()->s->pal != 1)
+		pp.GetActor()->s->pal = ud.user_pals[myconnectindex];
 }
 
 //---------------------------------------------------------------------------
@@ -100,8 +100,8 @@ void quickkill(struct player_struct* p)
 	SetPlayerPal(p, PalEntry(48, 48, 48, 48));
 
 	auto pa = p->GetActor();
-	pa->s.extra = 0;
-	pa->s.cstat |= 32768;
+	pa->s->extra = 0;
+	pa->s->cstat |= 32768;
 	if (ud.god == 0) fi.guts(pa, TILE_JIBS6, 8, myconnectindex);
 	return;
 }
@@ -167,7 +167,7 @@ void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 
 int hits(DDukeActor* actor)
 {
-	auto sp = &actor->s;
+	auto sp = actor->s;
 	int sx, sy, sz;
 	short sect;
 	short hw;
@@ -190,7 +190,7 @@ int hits(DDukeActor* actor)
 
 int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
-	auto sp = &actor->s;
+	auto sp = actor->s;
 	int sx, sy, sz, zoff;
 	short sect, hw;
 
@@ -240,7 +240,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
 	int xv, yv;
-	auto s = &actor->s;
+	auto s = actor->s;
 
 	a = s->ang;
 
@@ -309,7 +309,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 		DukeStatIterator it(aimstats[k]);
 		while (auto act = it.Next())
 		{
-			auto sp = &act->s;
+			auto sp = act->s;
 			if (sp->xrepeat > 0 && sp->extra >= 0 && (sp->cstat & (257 + 32768)) == 257)
 				if (badguy(sp) || k < 2)
 				{
@@ -381,18 +381,18 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 				fi.guts(p->actorsqu, TILE_JIBS6, 7, myconnectindex);
 				spawn(p->actorsqu, TILE_BLOODPOOL);
 				S_PlayActorSound(SQUISHED, p->actorsqu);
-				if (isIn(p->actorsqu->s.picnum, respawnlist))
+				if (isIn(p->actorsqu->s->picnum, respawnlist))
 				{
-					if (p->actorsqu->s.yvel)
-						fi.operaterespawns(p->actorsqu->s.yvel);
+					if (p->actorsqu->s->yvel)
+						fi.operaterespawns(p->actorsqu->s->yvel);
 				}
 
-				if (p->actorsqu->s.picnum == TILE_APLAYER)
+				if (p->actorsqu->s->picnum == TILE_APLAYER)
 				{
-					quickkill(&ps[p->actorsqu->s.yvel]);
-					ps[p->actorsqu->s.yvel].frag_ps = snum;
+					quickkill(&ps[p->actorsqu->s->yvel]);
+					ps[p->actorsqu->s->yvel].frag_ps = snum;
 				}
-				else if (badguy(&p->actorsqu->s))
+				else if (badguy(p->actorsqu->s))
 				{
 					deletesprite(p->actorsqu);
 					p->actors_killed++;
@@ -415,7 +415,7 @@ int makepainsounds(int snum, int type)
 {
 	auto p = &ps[snum];
 	auto actor = p->GetActor();
-	auto s = &actor->s;
+	auto s = actor->s;
 	int k = 0;
 
 	switch (type)
@@ -489,7 +489,7 @@ void footprints(int snum)
 {
 	auto p = &ps[snum];
 	auto actor = p->GetActor();
-	auto s = &actor->s;
+	auto s = actor->s;
 	auto psect = s->sectnum;
 
 	if (p->footprintcount > 0 && p->on_ground)
@@ -499,9 +499,9 @@ void footprints(int snum)
 			DukeSectIterator it(psect);
 			while (auto act = it.Next())
 			{
-				if (act->s.picnum == TILE_FOOTPRINTS || act->s.picnum == TILE_FOOTPRINTS2 || act->s.picnum == TILE_FOOTPRINTS3 || act->s.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->s.x - p->posx) < 384)
-						if (abs(act->s.y - p->posy) < 384)
+				if (act->s->picnum == TILE_FOOTPRINTS || act->s->picnum == TILE_FOOTPRINTS2 || act->s->picnum == TILE_FOOTPRINTS3 || act->s->picnum == TILE_FOOTPRINTS4)
+					if (abs(act->s->x - p->posx) < 384)
+						if (abs(act->s->y - p->posy) < 384)
 						{
 							j = 1;
 							break;
@@ -520,8 +520,8 @@ void footprints(int snum)
 					case 2:	 fprint = spawn(actor, TILE_FOOTPRINTS3); break;
 					default: fprint = spawn(actor, TILE_FOOTPRINTS4); break;
 					}
-					fprint->s.pal = p->footprintpal;
-					fprint->s.shade = p->footprintshade;
+					fprint->s->pal = p->footprintpal;
+					fprint->s->shade = p->footprintshade;
 				}
 			}
 		}
@@ -544,7 +544,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 {
 	auto p = &ps[snum];
 	auto actor = p->GetActor();
-	auto s = &actor->s;
+	auto s = actor->s;
 
 	if (p->dead_flag == 0)
 	{
@@ -1002,7 +1002,7 @@ int haskey(int sect, int snum)
 
 void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST)
 {
-	spritetype* const s = &actor->s;
+	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
 	short hitsect, hitwall;
@@ -1037,7 +1037,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				DukeSectIterator it(wall[hitwall].nextsector);
 				while (auto act2 = it.Next())
 				{
-					if (act2->s.statnum == STAT_EFFECTOR && act2->s.lotag == SE_13_EXPLOSIVE)
+					if (act2->s->statnum == STAT_EFFECTOR && act2->s->lotag == SE_13_EXPLOSIVE)
 						return;
 				}
 			}
@@ -1049,16 +1049,16 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 			if (wall[hitwall].hitag == 0)
 			{
 				auto spawned = spawn(actor, atwith);
-				spawned->s.xvel = -12;
-				spawned->s.ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
-				spawned->s.x = hitx;
-				spawned->s.y = hity;
-				spawned->s.z = hitz;
-				spawned->s.cstat |= (krand() & 4);
+				spawned->s->xvel = -12;
+				spawned->s->ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
+				spawned->s->x = hitx;
+				spawned->s->y = hity;
+				spawned->s->z = hitz;
+				spawned->s->cstat |= (krand() & 4);
 				ssp(spawned, CLIPMASK0);
-				setsprite(spawned, spawned->s.pos);
+				setsprite(spawned, spawned->s->pos);
 				if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
-					spawned->s.pal = 6;
+					spawned->s->pal = 6;
 			}
 		}
 	}

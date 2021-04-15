@@ -45,7 +45,7 @@ int wakeup(DDukeActor* ac, int snum)
 	player_struct *p;
 	int radius;
 	p = &ps[snum];
-	auto spr = &ac->s;
+	auto spr = ac->s;
 	if (!p->donoise)
 		return 0;
 	if (spr->pal == 30 || spr->pal == 32 || spr->pal == 33 || (isRRRA() && spr->pal == 8))

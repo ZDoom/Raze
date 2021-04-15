@@ -251,7 +251,7 @@ void drawoverlays(double smoothratio)
 			{
 				fi.displayweapon(screenpeek, smoothratio);
 				if (pp->over_shoulder_on == 0)
-					fi.displaymasks(screenpeek, pp->GetActor()->s.pal == 1 ? 1 : sector[pp->cursectnum].floorpal, smoothratio);
+					fi.displaymasks(screenpeek, pp->GetActor()->s->pal == 1 ? 1 : sector[pp->cursectnum].floorpal, smoothratio);
 			}
 			if (!isRR())
 				moveclouds(smoothratio);
@@ -414,7 +414,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 		DukeSectIterator it(i);
 		while (auto act = it.Next())
 		{
-			spr = &act->s;
+			spr = act->s;
 
 			if (act == pactor || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
 
@@ -555,7 +555,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
 		auto act = ps[p].GetActor();
-		auto pspr = &act->s;
+		auto pspr = act->s;
 		auto spos = pspr->interpolatedvec2(smoothratio);
 		daang = ((!SyncInput() ? pspr->ang : pspr->interpolatedang(smoothratio)) - cang) & 2047;
 
