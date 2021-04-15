@@ -183,7 +183,7 @@ void GameInterface::NextLevel(MapRecord* map, int skill)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::NewGame(MapRecord* map, int skill)
+void GameInterface::NewGame(MapRecord* map, int skill, bool)
 {
 	// Hmm... What about the other players?
 	ps[0].last_extra = gs.max_player_health;

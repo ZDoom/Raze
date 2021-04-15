@@ -197,7 +197,7 @@ static void GameTicker()
 			C_FlushDisplay();
 			gameaction = ga_level;
 			BackupSaveGame = "";
-			gi->NewGame(g_nextmap, g_nextskill);
+			gi->NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);
 			break;
 
 		case ga_startup:
