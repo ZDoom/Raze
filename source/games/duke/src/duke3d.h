@@ -118,7 +118,7 @@ struct Dispatcher
 	void (*checkweapons)(struct player_struct* p);
 	void (*processinput)(int snum);
 	void (*displayweapon)(int snum, double smoothratio);
-	void (*displaymasks)(int snum, double smoothratio);
+	void (*displaymasks)(int snum, int p, double smoothratio);
 
 	void (*animatesprites)(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
 

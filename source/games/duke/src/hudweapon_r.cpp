@@ -65,15 +65,8 @@ inline static void rd3myospal(double x, double y, int tilenum, int shade, int or
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_r(int snum, double smoothratio)
+void displaymasks_r(int snum, int p, double smoothratio)
 {
-	short p;
-
-	if (ps[snum].GetActor()->s.pal == 1)
-		p = 1;
-	else
-		p = sector[ps[snum].cursectnum].floorpal;
-
 	if (ps[snum].scuba_on)
 	{
 		//int pin = 0;
@@ -157,6 +150,8 @@ void displayweapon_r(int snum, double smoothratio)
 		shade = p->GetActor()->s.shade;
 	if(shade > 24) shade = 24;
 
+	pal = p->GetActor()->s.pal == 1 ? 1 : pal = sector[p->cursectnum].floorpal;
+
 	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0))
 		return;
 
@@ -222,10 +217,6 @@ void displayweapon_r(int snum, double smoothratio)
 			else
 				temp_kb = MOTOHIT;
 		}
-		if (p->GetActor()->s.pal == 1)
-			pal = 1;
-		else
-			pal = sector[p->cursectnum].floorpal;
 
 		ShowMotorcycle(160-look_anghalf, 174, temp_kb, shade, 0, pal, TiltStatus*5);
 		return;
@@ -286,11 +277,6 @@ void displayweapon_r(int snum, double smoothratio)
 				temp_kb = BOATHIT;
 		}
 
-		if (p->GetActor()->s.pal == 1)
-			pal = 1;
-		else
-			pal = sector[p->cursectnum].floorpal;
-
 		if (p->NotOnWater)
 			temp3 = 170;
 		else
@@ -322,11 +308,6 @@ void displayweapon_r(int snum, double smoothratio)
 	else
 	{
 		int pin = 0;
-
-		if (p->GetActor()->s.pal == 1)
-			pal = 1;
-		else
-			pal = sector[p->cursectnum].floorpal;
 
 
 		//---------------------------------------------------------------------------
@@ -507,11 +488,6 @@ void displayweapon_r(int snum, double smoothratio)
 		auto displayshotgun = [&]
 		{
 			weapon_xoffset -= 8;
-
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
 
 			{
 				double x;
