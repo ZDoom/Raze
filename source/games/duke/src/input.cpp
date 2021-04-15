@@ -755,7 +755,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		input.avel = boatApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
 	}
 
-	input.fvel = xs_CRoundToInt(p->MotoSpeed);
+	input.fvel = clamp(xs_CRoundToInt(p->MotoSpeed), -(MAXVELMOTO >> 3), MAXVELMOTO);
 	input.avel *= BAngToDegree;
 	loc.avel += input.avel;
 }
@@ -766,7 +766,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 //
 //---------------------------------------------------------------------------
 
-static void FinalizeInput(player_struct *p, InputPacket& input, bool vehicle)
+static void FinalizeInput(player_struct *p, InputPacket& input)
 {
 	if (movementBlocked(p) || p->GetActor()->s.extra <= 0 || (p->dead_flag && !ud.god && !p->resurrected))
 	{
@@ -777,14 +777,7 @@ static void FinalizeInput(player_struct *p, InputPacket& input, bool vehicle)
 	}
 	else
 	{
-		if (p->on_crane == nullptr)
-		{
-			if (vehicle)
-			{
-				loc.fvel = clamp(input.fvel, -(MAXVELMOTO >> 3), MAXVELMOTO);
-			}
-		}
-		else
+		if (p->on_crane != nullptr)
 		{
 			loc.fvel = input.fvel = 0;
 			loc.svel = input.svel = 0;
@@ -833,7 +826,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		processMovement(&input, &loc, hidInput, scaleAdjust, p->drink_amt);
 	}
 
-	FinalizeInput(p, input, rrraVehicle);
+	FinalizeInput(p, input);
 
 	if (!SyncInput())
 	{
