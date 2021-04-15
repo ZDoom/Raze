@@ -20,6 +20,7 @@ class DScreenJob : public DObject
 protected:
 	int ticks = 0;
 	int state = running;
+	bool pausable = true;
 
 public:
 	enum
@@ -55,7 +56,7 @@ public:
 	}
 
 	virtual bool OnEvent(event_t* evt) { return false; }
-	virtual void OnTick() { }
+	virtual void OnTick() { /*state = finished;*/ }
 	virtual int Frame(uint64_t clock, bool skiprequest) { return 1; }
 	virtual void Draw(double smoothratio) {}
 
@@ -95,10 +96,12 @@ protected:
 class DBlackScreen : public DScreenJob
 {
 	int wait;
+	bool cleared = false;
 
 public:
 	DBlackScreen(int w) : wait(w) {}
-	int Frame(uint64_t clock, bool skiprequest) override;
+	void OnTick() override;
+	void Draw(double smooth) override;
 };
 
 //---------------------------------------------------------------------------
@@ -107,29 +110,31 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DImageScreen : public DScreenJob
+class DImageScreen : public DSkippableScreenJob
 {
 	DECLARE_CLASS(DImageScreen, DScreenJob)
 
 	int tilenum = -1;
 	int trans;
 	int waittime; // in ms.
+	bool cleared = false;
 	FGameTexture* tex = nullptr;
 
 public:
-	DImageScreen(FGameTexture* tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000, int translation = 0) : DScreenJob(fade), waittime(wait)
+	DImageScreen(FGameTexture* tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000, int translation = 0) : DSkippableScreenJob(fade), waittime(wait)
 	{
 		tex = tile;
 		trans = translation;
 	}
 
-	DImageScreen(int tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000, int translation = 0) : DScreenJob(fade), waittime(wait)
+	DImageScreen(int tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000, int translation = 0) : DSkippableScreenJob(fade), waittime(wait)
 	{
 		tilenum = tile;
 		trans = translation;
 	}
 
-	int Frame(uint64_t clock, bool skiprequest) override;
+	void OnTick() override;
+	void Draw(double smooth) override;
 };
 
 

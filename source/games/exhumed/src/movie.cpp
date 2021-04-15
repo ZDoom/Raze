@@ -274,7 +274,7 @@ DScreenJob* PlayMovie(const char* fileName)
     auto fp = fileSystem.OpenFileReader(fileName);
     if (!fp.isOpen())
     {
-        return Create<DScreenJob>();
+        return Create<DBlackScreen>(1);
     }
     char buffer[4];
     fp.Read(buffer, 4);

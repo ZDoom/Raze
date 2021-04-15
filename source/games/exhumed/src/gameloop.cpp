@@ -167,7 +167,7 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
                 showmap(from_map ? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
             }
             else
-                jobs.Push({ Create<DScreenJob>() }); // we need something in here even in the multiplayer case.
+                jobs.Push({ Create<DBlackScreen>(1) }); // we need something in here even in the multiplayer case.
         }
     }
     else

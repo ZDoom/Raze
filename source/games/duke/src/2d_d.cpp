@@ -296,7 +296,7 @@ void Logo_d(const CompletionFunc &completion)
 	if (!userConfig.nologo)
 	{
 		if (!isShareware()) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes), []() { S_PlaySpecialMusic(MUS_INTRO); } };
-		else jobs[job++] = { Create<DScreenJob>(), []() { S_PlaySpecialMusic(MUS_INTRO); } };
+		else jobs[job++] = { Create<DBlackScreen>(1), []() { S_PlaySpecialMusic(MUS_INTRO); } };
 		if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), nullptr };
 	}
 	else S_PlaySpecialMusic(MUS_INTRO);

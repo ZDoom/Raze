@@ -63,12 +63,19 @@ bool DSkippableScreenJob::OnEvent(event_t* evt)
 	return true;
 }
 
-
-int DBlackScreen::Frame(uint64_t clock, bool skiprequest)
+void DBlackScreen::OnTick()
 {
-	int span = int(clock / 1'000'000);
+	if (cleared)
+	{
+		int span = ticks * 1000 / GameTicRate;
+		if (span > wait) state = finished;
+	}
+}
+
+void DBlackScreen::Draw(double)
+{
+	cleared = true;
 	twod->ClearScreen();
-	return span < wait ? 1 : -1;
 }
 
 //---------------------------------------------------------------------------
@@ -77,22 +84,22 @@ int DBlackScreen::Frame(uint64_t clock, bool skiprequest)
 //
 //---------------------------------------------------------------------------
 
-int DImageScreen::Frame(uint64_t clock, bool skiprequest)
+void DImageScreen::OnTick()
 {
-	if (tilenum > 0)
+	if (cleared)
 	{
-		tex = tileGetTexture(tilenum, true);
+		int span = ticks * 1000 / GameTicRate;
+		if (span > waittime) state = finished;
 	}
-	if (!tex)
-	{
-		twod->ClearScreen();
-		return 0;
-	}
-	int span = int(clock / 1'000'000);
+}
+
+
+void DImageScreen::Draw(double smoothratio)
+{
+	if (tilenum > 0) tex = tileGetTexture(tilenum, true);
 	twod->ClearScreen();
-	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TranslationIndex, trans, TAG_DONE);
-	// Only end after having faded out.
-	return skiprequest ? -1 : span > waittime? 0 : 1;
+	if (tex) DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TranslationIndex, trans, TAG_DONE);
+	cleared = true;
 }
 
 //---------------------------------------------------------------------------
@@ -200,7 +207,7 @@ public:
 			screenfade = 1.f;
 		}
 		job.job->SetClock(clock);
-		int state = job.job->Frame(clock, skiprequest, I_GetTimeFrac());
+		int state = job.job->Frame(clock, skiprequest, M_Active()? 1. : I_GetTimeFrac());
 		clock = job.job->GetClock();
 		if (clock == 0) clock = 1;
 		return state;

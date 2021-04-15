@@ -666,7 +666,9 @@ public:
 	DMoviePlayer(MoviePlayer* mp)
 	{
 		player = mp;
+		pausable = false;
 	}
+
 
 	void Draw(double smoothratio) override
 	{
@@ -799,14 +801,14 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 {
 	if (!filename)
 	{
-		return Create<DScreenJob>();
+		return Create<DBlackScreen>(1);
 	}
 	FString error;
 	auto movie = OpenMovie(filename, ans, frameticks, nosoundcutoff, error);
 	if (!movie)
 	{
 		Printf(TEXTCOLOR_YELLOW, "%s", error.GetChars());
-		return Create<DScreenJob>();
+		return Create<DBlackScreen>(1);
 	}
 	return Create<DMoviePlayer>(movie);
 }
