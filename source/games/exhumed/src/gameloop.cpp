@@ -93,7 +93,7 @@ void GameInterface::Render()
 
     DrawView(smoothratio);
     DrawStatusBar();
-    DrawCrosshair(MAXTILES, PlayerList[nLocalPlayer].nHealth >> 3, -PlayerList[nLocalPlayer].angle.look_anghalf(smoothratio), 0, 1);
+    DrawCrosshair(MAXTILES, PlayerList[nLocalPlayer].nHealth >> 3, -PlayerList[nLocalPlayer].angle.look_anghalf(cl_hudinterpolation, smoothratio), 0, 1);
 
     if (paused && !M_Active())
     {

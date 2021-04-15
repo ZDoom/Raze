@@ -39,9 +39,9 @@ source as it is released.
 
 BEGIN_DUKE_NS 
   
-double getavel(int snum)
+inline static double getavel(int snum)
 {
-	return FixedToFloat(PlayerInputAngVel(screenpeek));
+	return PlayerInputAngVel(screenpeek) * (2048. / 360.);
 }
 
 //---------------------------------------------------------------------------
@@ -87,17 +87,15 @@ void displayloogie(short snum)
 //
 //---------------------------------------------------------------------------
 
-int animatefist(int gs, int snum, double look_anghalf)
+int animatefist(int gs, int snum, double look_anghalf, double looking_arc, double plravel)
 {
 	short fisti, fistpal;
 	int fistzoom;
-	double looking_arc, fistz;
+	double fistz;
 
 	fisti = ps[snum].fist_incs;
 	if (fisti > 32) fisti = 32;
 	if (fisti <= 0) return 0;
-
-	looking_arc = fabs(look_anghalf) / 4.5;
 
 	fistzoom = 65536L - bcosf(fisti << 6, 2);
 	if (fistzoom > 90612L)
@@ -112,7 +110,7 @@ int animatefist(int gs, int snum, double look_anghalf)
 		fistpal = sector[ps[snum].cursectnum].floorpal;
 
 	hud_drawsprite(
-		(-fisti + 222 + (getavel(snum) / 16.)),
+		(-fisti + 222 + plravel),
 		(looking_arc + fistz),
 		fistzoom, 0, FIST, gs, fistpal, 2);
 
@@ -125,17 +123,14 @@ int animatefist(int gs, int snum, double look_anghalf)
 //
 //---------------------------------------------------------------------------
 
-int animateknee(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
+int animateknee(int gs, int snum, double look_anghalf, double looking_arc, double horiz16th, double plravel)
 {
 	static const short knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
 	short pal;
-	double looking_arc;
 
 	if (ps[snum].knee_incs > 11 || ps[snum].knee_incs == 0 || ps[snum].GetActor()->s.extra <= 0) return 0;
 
-	looking_arc = knee_y[ps[snum].knee_incs] + (fabs(look_anghalf) / 4.5);
-
-	looking_arc -= hard_landing * 8.;
+	looking_arc += knee_y[ps[snum].knee_incs];
 
 	if (ps[snum].GetActor()->s.pal == 1)
 		pal = 1;
@@ -146,7 +141,7 @@ int animateknee(int gs, int snum, double hard_landing, double look_anghalf, doub
 			pal = ps[snum].palookup;
 	}
 
-	hud_drawpal(105 + (getavel(snum) / 16.) - look_anghalf + (knee_y[ps[snum].knee_incs] >> 2), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
+	hud_drawpal(105 + plravel - look_anghalf + (knee_y[ps[snum].knee_incs] >> 2), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
 
 	return 1;
 }
@@ -157,24 +152,19 @@ int animateknee(int gs, int snum, double hard_landing, double look_anghalf, doub
 //
 //---------------------------------------------------------------------------
 
-int animateknuckles(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
+int animateknuckles(int gs, int snum, double look_anghalf, double looking_arc, double horiz16th, double plravel)
 {
 	static const short knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
 	short pal;
-	double looking_arc;
 
 	if (isWW2GI() || ps[snum].over_shoulder_on != 0 || ps[snum].knuckle_incs == 0 || ps[snum].GetActor()->s.extra <= 0) return 0;
-
-	looking_arc = fabs(look_anghalf) / 4.5;
-
-	looking_arc -= hard_landing * 8.;
 
 	if (ps[snum].GetActor()->s.pal == 1)
 		pal = 1;
 	else
 		pal = sector[ps[snum].cursectnum].floorpal;
 
-	hud_drawpal(160 + (getavel(snum) / 16.) - look_anghalf, looking_arc + 180 - horiz16th, CRACKKNUCKLES + knuckle_frames[ps[snum].knuckle_incs >> 1], gs, 4, pal);
+	hud_drawpal(160 + plravel - look_anghalf, looking_arc + 180 - horiz16th, CRACKKNUCKLES + knuckle_frames[ps[snum].knuckle_incs >> 1], gs, 4, pal);
 
 	return 1;
 }
@@ -209,23 +199,19 @@ void displaymasks_d(int snum, double)
 //
 //---------------------------------------------------------------------------
 
-static int animatetip(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
+static int animatetip(int gs, int snum, double look_anghalf, double looking_arc, double horiz16th, double plravel)
 {
 	int p;
-	double looking_arc;
 	static const short tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
 
 	if (ps[snum].tipincs == 0) return 0;
-
-	looking_arc = fabs(look_anghalf) / 4.5;
-	looking_arc -= hard_landing * 8.;
 
 	if (ps[snum].GetActor()->s.pal == 1)
 		p = 1;
 	else
 		p = sector[ps[snum].cursectnum].floorpal;
 
-	hud_drawpal(170 + (getavel(snum) / 16.) - look_anghalf,
+	hud_drawpal(170 + plravel - look_anghalf,
 		(tip_y[ps[snum].tipincs] >> 1) + looking_arc + 240 - horiz16th, TIP + ((26 - ps[snum].tipincs) >> 4), gs, 0, p);
 
 	return 1;
@@ -237,25 +223,23 @@ static int animatetip(int gs, int snum, double hard_landing, double look_anghalf
 //
 //---------------------------------------------------------------------------
 
-int animateaccess(int gs,int snum,double hard_landing,double look_anghalf,double horiz16th)
+int animateaccess(int gs, int snum, double look_anghalf, double looking_arc, double horiz16th, double plravel)
 {
 	static const short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
-	double looking_arc;
 	char p;
 
 	if(ps[snum].access_incs == 0 || ps[snum].GetActor()->s.extra <= 0) return 0;
 
-	looking_arc = access_y[ps[snum].access_incs] + (fabs(look_anghalf) / 4.5);
-	looking_arc -= hard_landing * 8.;
+	looking_arc += access_y[ps[snum].access_incs];
 
 	if(ps[snum].access_spritenum != nullptr)
 		p = ps[snum].access_spritenum->s.pal;
 	else p = 0;
 
 	if((ps[snum].access_incs-3) > 0 && (ps[snum].access_incs-3)>>3)
-		hud_drawpal(170+(getavel(snum)/16.)-look_anghalf+(access_y[ps[snum].access_incs]>>2),looking_arc+266-horiz16th,HANDHOLDINGLASER+(ps[snum].access_incs>>3),gs,0,p);
+		hud_drawpal(170 + plravel - look_anghalf + (access_y[ps[snum].access_incs] >> 2), looking_arc + 266 - horiz16th, HANDHOLDINGLASER + (ps[snum].access_incs >> 3), gs, 0, p);
 	else
-		hud_drawpal(170+(getavel(snum)/16.)-look_anghalf+(access_y[ps[snum].access_incs]>>2),looking_arc+266-horiz16th,HANDHOLDINGACCESS,gs,4,p);
+		hud_drawpal(170 + plravel - look_anghalf + (access_y[ps[snum].access_incs] >> 2), looking_arc + 266 - horiz16th, HANDHOLDINGACCESS, gs, 4, p);
 
 	return 1;
 }
@@ -271,7 +255,7 @@ void displayweapon_d(int snum, double smoothratio)
 	int cw;
 	int i, j;
 	int o,pal;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th;
+	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th, plravel;
 	signed char shade;
 	struct player_struct *p;
 
@@ -281,36 +265,48 @@ void displayweapon_d(int snum, double smoothratio)
 
 	o = 0;
 
-	horiz16th = get16thOfHoriz(snum, SyncInput(), smoothratio);
-	look_anghalf = p->angle.look_anghalf(smoothratio);
-	looking_arc = fabs(look_anghalf) / 4.5;
-	weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
-	kickback_pic = interpolatedvaluef(p->okickback_pic, p->kickback_pic, smoothratio);
-	random_club_frame = interpolatedvaluef(p->orandom_club_frame, p->random_club_frame, smoothratio);
-	hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
+	if (cl_hudinterpolation)
+	{
+		weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
+		kickback_pic = interpolatedvaluef(p->okickback_pic, p->kickback_pic, smoothratio);
+		random_club_frame = interpolatedvaluef(p->orandom_club_frame, p->random_club_frame, smoothratio);
+		hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
+		gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
+	}
+	else
+	{
+		weapon_sway = p->weapon_sway;
+		kickback_pic = p->kickback_pic;
+		random_club_frame = p->random_club_frame;
+		hard_landing = p->hard_landing;
+		gun_pos = 80 - (p->weapon_pos * p->weapon_pos);
+	}
+
+	plravel = getavel(snum) * (1. / 16.);
+	horiz16th = p->horizon.horizsumfrac(cl_hudinterpolation, smoothratio);
+	look_anghalf = p->angle.look_anghalf(cl_hudinterpolation, smoothratio);
+	looking_arc = p->angle.looking_arc(cl_hudinterpolation, smoothratio);
+	hard_landing *= 8.;
+
+	gun_pos -= fabs(p->GetActor()->s.xrepeat < 32 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
+	gun_pos -= hard_landing;
+
+	weapon_xoffset = (160)-90;
+	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
+	weapon_xoffset -= 58 + p->weapon_ang;
 
 	shade = p->GetActor()->s.shade;
 	if(shade > 24) shade = 24;
 
+	auto adjusted_arc = looking_arc - hard_landing;
 	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0);
-	bool playerAnims = animatefist(shade,snum,look_anghalf) || animateknuckles(shade,snum,hard_landing,look_anghalf,horiz16th) ||
-					   animatetip(shade,snum,hard_landing,look_anghalf,horiz16th) || animateaccess(shade,snum,hard_landing,look_anghalf,horiz16th);
+	bool playerAnims = animatefist(shade, snum, look_anghalf, looking_arc, plravel) || animateknuckles(shade, snum, look_anghalf, adjusted_arc, horiz16th, plravel) ||
+					   animatetip(shade, snum, look_anghalf, adjusted_arc, horiz16th, plravel) || animateaccess(shade, snum, look_anghalf, adjusted_arc, horiz16th, plravel);
 
 	if(playerVars || playerAnims)
 		return;
 
-	animateknee(shade,snum,hard_landing,look_anghalf,horiz16th);
-
-	gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
-
-	weapon_xoffset =  (160)-90;
-	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
-	weapon_xoffset -= 58 + p->weapon_ang;
-	if( p->GetActor()->s.xrepeat < 32 )
-		gun_pos -= fabs(bsinf(weapon_sway * 4., -9));
-	else gun_pos -= fabs(bsinf(weapon_sway * 0.5, -10));
-
-	gun_pos -= hard_landing * 8.;
+	animateknee(shade, snum, look_anghalf, adjusted_arc, horiz16th, plravel);
 
 	if (isWW2GI())
 	{

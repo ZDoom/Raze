@@ -91,20 +91,28 @@ static void viewBurnTime(int gScale)
 
 void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio)
 {
-	double look_anghalf = gView->angle.look_anghalf(smoothratio);
+	double look_anghalf = gView->angle.look_anghalf(cl_hudinterpolation, smoothratio);
 
 	DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, -look_anghalf, 0, 2);
 
 	if (gViewPos == 0)
 	{
-		double looking_arc = fabs(look_anghalf) / 4.5;
+		double looking_arc = gView->angle.looking_arc(cl_hudinterpolation, smoothratio);
 
 		double cX = 160 - look_anghalf;
 		double cY = 220 + looking_arc;
 		if (cl_weaponsway)
 		{
-			cX += (bobx / 256.);
-			cY += (boby / 256.) + (zDelta / 128.);
+			if (cl_hudinterpolation)
+			{
+				cX += (bobx / 256.);
+				cY += (boby / 256.) + (zDelta / 128.);
+			}
+			else
+			{
+				cX += (int(bobx) >> 8);
+				cY += (int(boby) >> 8) + (int(zDelta) >> 7);
+			}
 		}
 		else
 		{

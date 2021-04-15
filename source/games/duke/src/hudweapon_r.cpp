@@ -116,7 +116,7 @@ void displayweapon_r(int snum, double smoothratio)
 {
 	int cw;
 	int i, j;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, TiltStatus;
+	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, hard_landing, TiltStatus;
 	char o,pal;
 	signed char shade;
 
@@ -125,10 +125,31 @@ void displayweapon_r(int snum, double smoothratio)
 
 	o = 0;
 
-	look_anghalf = p->angle.look_anghalf(smoothratio);
-	looking_arc = fabs(look_anghalf) / 4.5;
-	weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
-	TiltStatus = !SyncInput() ? p->TiltStatus : interpolatedvaluef(p->oTiltStatus, p->TiltStatus, smoothratio);
+	if (cl_hudinterpolation)
+	{
+		weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
+		hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
+		gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
+		TiltStatus = !SyncInput() ? p->TiltStatus : interpolatedvaluef(p->oTiltStatus, p->TiltStatus, smoothratio);
+	}
+	else
+	{
+		weapon_sway = p->weapon_sway;
+		hard_landing = p->hard_landing;
+		gun_pos = 80 - (p->weapon_pos * p->weapon_pos);
+		TiltStatus = p->TiltStatus;
+	}
+
+	look_anghalf = p->angle.look_anghalf(cl_hudinterpolation, smoothratio);
+	looking_arc = p->angle.looking_arc(cl_hudinterpolation, smoothratio);
+	hard_landing *= 8.;
+
+	gun_pos -= fabs(p->GetActor()->s.xrepeat < 8 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
+	gun_pos -= hard_landing;
+
+	weapon_xoffset = (160)-90;
+	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
+	weapon_xoffset -= 58 + p->weapon_ang;
 
 	if (shadedsector[p->cursectnum] == 1)
 		shade = 16;
@@ -138,17 +159,6 @@ void displayweapon_r(int snum, double smoothratio)
 
 	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0))
 		return;
-
-	gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
-
-	weapon_xoffset =  (160)-90;
-	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
-	weapon_xoffset -= 58 + p->weapon_ang;
-	if( p->GetActor()->s.xrepeat < 8 )
-		gun_pos -= fabs(bsinf(weapon_sway * 4., -9));
-	else gun_pos -= fabs(bsinf(weapon_sway * 0.5, -10));
-
-	gun_pos -= interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio) * 8.;
 
 	if(p->last_weapon >= 0)
 		cw = p->last_weapon;
