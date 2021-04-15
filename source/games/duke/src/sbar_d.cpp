@@ -158,7 +158,7 @@ public:
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-		if (!althud_flashing || p->last_extra > (gs.max_player_health >> 2) || (PlayClock & 32) || (p->GetActor()->s.pal == 1 && p->last_extra < 2))
+		if (!althud_flashing || p->last_extra > (gs.max_player_health >> 2) || (PlayClock & 32) || (p->GetActor()->s->pal == 1 && p->last_extra < 2))
 		{
 			int s = -8;
 			if (althud_flashing && p->last_extra > gs.max_player_health)
@@ -261,7 +261,7 @@ public:
 		// health
 		//
 		DrawGraphic(tileGetTexture(HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
-		int health = (p->GetActor()->s.pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
+		int health = (p->GetActor()->s->pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		FStringf format("%d", health);
 		SBar_DrawString(this, digiFont, format, 20, -digiFont->mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
@@ -437,7 +437,7 @@ public:
 		}
 		DrawWeaponAmounts(p, 96, top + 15.5);
 
-		int num = (p->GetActor()->s.pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
+		int num = (p->GetActor()->s->pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		format.Format("%d", num);
 		SBar_DrawString(this, digiFont, format, 31, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		format.Format("%d", GetMoraleOrShield(p, snum));

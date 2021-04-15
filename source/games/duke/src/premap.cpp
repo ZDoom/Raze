@@ -570,7 +570,7 @@ void resetpspritevars(int g)
     DukeStatIterator it(STAT_PLAYER);
     while (auto act = it.Next())
     {
-        s = &act->s;
+        s = act->s;
 
         if (numplayersprites == MAXPLAYERS)
             I_Error("Too many player sprites (max 16.)");
@@ -947,7 +947,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        int pn = sector[ps[i].GetActor()->s.sectnum].floorpicnum;
+        int pn = sector[ps[i].GetActor()->s->sectnum].floorpicnum;
         if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
         {
             resetweapons(i);

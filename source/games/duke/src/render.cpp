@@ -86,7 +86,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	DukeStatIterator it(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = &act->s;
+		auto spr = act->s;
 		if (
 			spr->picnum == SECTOREFFECTOR &&
 			spr->lotag == fofmode &&
@@ -106,7 +106,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = &act->s;
+		auto spr = act->s;
 		if (
 			spr->picnum == SECTOREFFECTOR &&
 			spr->lotag == k &&
@@ -124,7 +124,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = &act->s;
+		auto spr = act->s;
 		if (spr->picnum == SECTOREFFECTOR &&
 			spr->lotag == k + 2 &&
 			spr->hitag == floor1->hitag
@@ -157,7 +157,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = &act->s;
+		auto spr = act->s;
 		if (spr->picnum == 1 &&
 			spr->lotag == k + 2 &&
 			spr->hitag == floor1->hitag
@@ -195,7 +195,7 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 	DukeStatIterator it(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		switch (act->s.lotag - tag + 40)
+		switch (act->s->lotag - tag + 40)
 		{
 			//            case 40:
 			//            case 41:
@@ -205,8 +205,8 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 		case 43:
 		case 44:
 		case 45:
-			if (ps[screenpeek].cursectnum == act->s.sectnum)
-				SE40_Draw(tag, &act->s, x, y, z, a, h, smoothratio);
+			if (ps[screenpeek].cursectnum == act->s->sectnum)
+				SE40_Draw(tag, act->s, x, y, z, a, h, smoothratio);
 			break;
 		}
 	}
@@ -268,7 +268,7 @@ void animatecamsprite(double smoothratio)
 		return;
 
 	auto p = &ps[screenpeek];
-	auto sp = &camsprite->s;
+	auto sp = camsprite->s;
 
 	if (p->newOwner != nullptr) camsprite->SetOwner(p->newOwner);
 
@@ -282,7 +282,7 @@ void animatecamsprite(double smoothratio)
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
-				auto camera = &camsprite->GetOwner()->s;
+				auto camera = camsprite->GetOwner()->s;
 				auto ang = buildang(camera->interpolatedang(smoothratio));
 				// Note: no ROR or camera here for now - the current setup has no means to detect these things before rendering the scene itself.
 				renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
@@ -400,7 +400,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			changespritesect(act, geosectorwarp[gs]);
-			setsprite(act, act->s.x -= geox[gs], act->s.y -= geoy[gs], act->s.z);
+			setsprite(act, act->s->x -= geox[gs], act->s->y -= geoy[gs], act->s->z);
 		}
 		if (geosector[gs] == sect)
 		{
@@ -420,7 +420,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			changespritesect(act, geosector[gs]);
-			setsprite(act, act->s.x += geox[gs], act->s.y += geoy[gs], act->s.z);
+			setsprite(act, act->s->x += geox[gs], act->s->y += geoy[gs], act->s->z);
 		}
 	}
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
@@ -432,7 +432,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			changespritesect(act, geosectorwarp2[gs]);
-			setsprite(act, act->s.x -= geox2[gs], act->s.y -= geoy2[gs], act->s.z);
+			setsprite(act, act->s->x -= geox2[gs], act->s->y -= geoy2[gs], act->s->z);
 		}
 		if (geosector[gs] == sect)
 		{
@@ -452,7 +452,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			changespritesect(act, geosector[gs]);
-			setsprite(act, act->s.x += geox2[gs], act->s.y += geoy2[gs], act->s.z);
+			setsprite(act, act->s->x += geox2[gs], act->s->y += geoy2[gs], act->s->z);
 		}
 	}
 	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
@@ -501,9 +501,7 @@ void displayrooms(int snum, double smoothratio)
 
 	if (ud.cameraactor)
 	{
-		spritetype* s;
-
-		s = &ud.cameraactor->s;
+		spritetype* s = ud.cameraactor->s;
 
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
@@ -520,7 +518,7 @@ void displayrooms(int snum, double smoothratio)
 	else
 	{
 		// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
-		int i = DivScale(1, isRR() ? 64 : p->GetActor()->s.yrepeat + 28, 22);
+		int i = DivScale(1, isRR() ? 64 : p->GetActor()->s->yrepeat + 28, 22);
 		int viewingaspect = !isRRRA() || !p->DrugMode ? xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.))) : getdrugmode(p, i);
 		renderSetAspect(MulScale(viewingaspect, viewingrange, 16), yxaspect);
 
@@ -571,7 +569,7 @@ void displayrooms(int snum, double smoothratio)
 
 		if (p->newOwner != nullptr)
 		{
-			auto spr = &p->newOwner->s;
+			auto spr = p->newOwner->s;
 			cang = buildang(spr->interpolatedang(smoothratio));
 			choriz = buildhoriz(spr->shade);
 			cposx = spr->pos.x;
@@ -589,10 +587,10 @@ void displayrooms(int snum, double smoothratio)
 		{
 			cposz -= isRR() ? 3840 : 3072;
 
-			if (!calcChaseCamPos(&cposx, &cposy, &cposz, &p->GetActor()->s, &sect, cang, choriz, smoothratio))
+			if (!calcChaseCamPos(&cposx, &cposy, &cposz, p->GetActor()->s, &sect, cang, choriz, smoothratio))
 			{
 				cposz += isRR() ? 3840 : 3072;
-				calcChaseCamPos(&cposx, &cposy, &cposz, &p->GetActor()->s, &sect, cang, choriz, smoothratio);
+				calcChaseCamPos(&cposx, &cposy, &cposz, p->GetActor()->s, &sect, cang, choriz, smoothratio);
 			}
 		}
 
@@ -608,7 +606,7 @@ void displayrooms(int snum, double smoothratio)
 			cang += buildang((2 - ((earthquaketime) & 2)) << 2);
 		}
 
-		if (p->GetActor()->s.pal == 1) cposz -= (18 << 8);
+		if (p->GetActor()->s->pal == 1) cposz -= (18 << 8);
 
 		else if (p->spritebridge == 0 && p->newOwner == nullptr)
 		{

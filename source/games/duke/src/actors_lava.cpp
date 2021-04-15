@@ -521,7 +521,7 @@ void moveminecart(void)
 		DukeSectIterator it(csect);
 		while (auto a2 = it.Next())
 		{
-			auto sj = &a2->s;
+			auto sj = a2->s;
 			if (badguy(sj))
 				setsprite(a2, cx, cy, sj->z);
 		}

@@ -256,8 +256,8 @@ void cacheit_d(void)
 		DukeSectIterator it(i);
 		while (auto j = it.Next())
 		{
-			if (j->s.xrepeat != 0 && j->s.yrepeat != 0 && (j->s.cstat & 32768) == 0)
-				cachespritenum(&j->s);
+			if (j->s->xrepeat != 0 && j->s->yrepeat != 0 && (j->s->cstat & 32768) == 0)
+				cachespritenum(j->s);
 		}
 	}
 
@@ -280,7 +280,7 @@ void prelevel_d(int g)
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto ac = it.Next())
 	{
-		auto si = &ac->s;
+		auto si = ac->s;
 		LoadActor(ac, -1, -1);
 
 		if (si->lotag == -1 && (si->cstat & 16))
@@ -366,7 +366,7 @@ void prelevel_d(int g)
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto ac = it1.Next())
 				{
-					if (ac->s.lotag == 12 && ac->s.hitag == spr->lotag)
+					if (ac->s->lotag == 12 && ac->s->hitag == spr->lotag)
 						ac->temp_data[0] = 1;
 				}
 			}

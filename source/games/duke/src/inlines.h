@@ -39,7 +39,7 @@ inline int bossguy(spritetype const* const pSprite)
 
 inline int actorflag(DDukeActor * actor, int mask)
 {
-	return (((gs.actorinfo[actor->s.picnum].flags) & mask) != 0);
+	return (((gs.actorinfo[actor->s->picnum].flags) & mask) != 0);
 }
 
 inline int actorfella(DDukeActor* actor)
@@ -70,14 +70,14 @@ inline void settileflag(int flag, const std::initializer_list<short>& types)
 
 inline bool wallswitchcheck(DDukeActor* s)
 {
-	return !!(gs.tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
+	return !!(gs.tileinfo[s->s->picnum].flags & TFLAG_WALLSWITCH);
 }
 
 inline int checkcursectnums(int se)
 {
 	int i;
 	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if(ps[i].GetActor() && ps[i].GetActor()->s.sectnum == se ) return i;
+		if(ps[i].GetActor() && ps[i].GetActor()->s->sectnum == se ) return i;
 	return -1;
 }
 

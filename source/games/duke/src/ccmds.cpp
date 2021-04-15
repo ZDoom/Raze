@@ -90,9 +90,9 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	}
 
 	auto spawned = spawn(ps[myconnectindex].GetActor(), picnum);
-	if (set & 1) spawned->s.pal = (char)pal;
-	if (set & 2) spawned->s.cstat = (short)cstat;
-	if (set & 4) spawned->s.ang = ang;
+	if (set & 1) spawned->s->pal = (char)pal;
+	if (set & 2) spawned->s->cstat = (short)cstat;
+	if (set & 4) spawned->s->ang = ang;
 	if (set & 8) {
 		if (setsprite(spawned, x, y, z) < 0) 
 		{

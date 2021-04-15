@@ -38,17 +38,17 @@ void ballreturn(DDukeActor *ball)
 	DukeStatIterator it(STAT_BOWLING);
 	while (auto act = it.Next())
 	{
-		if (act->s.picnum == RRTILE281 && ball->s.sectnum == act->s.sectnum)
+		if (act->s->picnum == RRTILE281 && ball->s->sectnum == act->s->sectnum)
 		{
 			DukeStatIterator it2(STAT_BOWLING);
 			while (auto act2 = it2.Next())
 			{
-				if (act2->s.picnum == RRTILE282 && act->s.hitag == act2->s.hitag)
+				if (act2->s->picnum == RRTILE282 && act->s->hitag == act2->s->hitag)
 					spawn(act2, BOWLINGBALLSPRITE);
-				if (act2->s.picnum == RRTILE280 && act->s.hitag == act2->s.hitag && act2->s.lotag == 0)
+				if (act2->s->picnum == RRTILE280 && act->s->hitag == act2->s->hitag && act2->s->lotag == 0)
 				{
-					act2->s.lotag = 100;
-					act2->s.extra++;
+					act2->s->lotag = 100;
+					act2->s->extra++;
 				}
 			}
 		}
@@ -94,14 +94,14 @@ short checkpins(short sect)
 	DukeSectIterator it(sect);
 	while (auto a2 = it.Next())
 	{
-		if (a2->s.picnum == RRTILE3440)
+		if (a2->s->picnum == RRTILE3440)
 		{
 			pin++;
-			pins[a2->s.lotag] = 1;
+			pins[a2->s->lotag] = 1;
 		}
-		if (a2->s.picnum == RRTILE280)
+		if (a2->s->picnum == RRTILE280)
 		{
-			tag = a2->s.hitag;
+			tag = a2->s->hitag;
 		}
 	}
 
@@ -171,28 +171,28 @@ void resetpins(short sect)
 	DukeSectIterator it(sect);
 	while (auto a2 = it.Next())
 	{
-		if (a2->s.picnum == RRTILE3440)
+		if (a2->s->picnum == RRTILE3440)
 			deletesprite(a2);
 	}
 	it.Reset(sect);
 	while (auto a2 = it.Next())
 	{
-		if (a2->s.picnum == 283)
+		if (a2->s->picnum == 283)
 		{
 			auto spawned = spawn(a2, RRTILE3440);
-			spawned->s.lotag = a2->s.lotag;
-			if (spawned->s.lotag == 3 || spawned->s.lotag == 5)
+			spawned->s->lotag = a2->s->lotag;
+			if (spawned->s->lotag == 3 || spawned->s->lotag == 5)
 			{
-				spawned->s.clipdist = (1 + (krand() % 1)) * 16 + 32;
+				spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
 			}
 			else
 			{
-				spawned->s.clipdist = (1 + (krand() % 1)) * 16 + 32;
+				spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
 			}
-			spawned->s.ang -= ((krand() & 32) - (krand() & 64)) & 2047;
+			spawned->s->ang -= ((krand() & 32) - (krand() & 64)) & 2047;
 		}
-		if (a2->s.picnum == 280)
-			tag = a2->s.hitag;
+		if (a2->s->picnum == 280)
+			tag = a2->s->hitag;
 	}
 	if (tag)
 	{

@@ -431,8 +431,8 @@ void cacheit_r(void)
 		DukeSectIterator it(i);
 		while (auto j = it.Next())
 		{
-			if(j->s.xrepeat != 0 && j->s.yrepeat != 0 && (j->s.cstat&32768) == 0)
-					cachespritenum(&j->s);
+			if(j->s->xrepeat != 0 && j->s->yrepeat != 0 && (j->s->cstat&32768) == 0)
+					cachespritenum(j->s);
 		}
 	}
 	precacheMarkedTiles();
@@ -499,7 +499,7 @@ void prelevel_r(int g)
 			DukeSectIterator it(i);
 			while (auto act = it.Next())
 			{
-				auto spr = &act->s;
+				auto spr = act->s;
 				if (spr->picnum == RRTILE11)
 				{
 					dist = spr->lotag << 4;
@@ -530,7 +530,7 @@ void prelevel_r(int g)
 			DukeSectIterator it(i);
 			while (auto act = it.Next())
 			{
-				auto sj = &act->s;
+				auto sj = act->s;
 				if (sj->picnum == RRTILE64)
 				{
 					dist = sj->lotag << 4;
@@ -562,7 +562,7 @@ void prelevel_r(int g)
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto ac = it.Next())
 	{
-		auto si = &ac->s;
+		auto si = ac->s;
 		LoadActor(ac, -1, -1);
 
 		if (si->lotag == -1 && (si->cstat & 16))
@@ -698,7 +698,7 @@ void prelevel_r(int g)
 	it.Reset(STAT_DEFAULT);
 	while (auto ac = it.Next())
 	{
-		auto spr = &ac->s;
+		auto spr = ac->s;
 		switch (spr->picnum)
 		{
 		case RRTILE8464 + 1:
@@ -733,7 +733,7 @@ void prelevel_r(int g)
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto j = it1.Next())
 				{
-					if (j->s.lotag == 12 && j->s.hitag == spr->lotag)
+					if (j->s->lotag == 12 && j->s->hitag == spr->lotag)
 						j->temp_data[0] = 1;
 				}
 			}
