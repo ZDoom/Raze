@@ -225,7 +225,8 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
     Mus_Stop();
     if (currentLevel->levelNumber == 0) gameaction = ga_mainmenu;
-	else Intermission(currentLevel, map);
+    else if (ConsoleState == c_up) Intermission(currentLevel, map);
+    else gameaction = ga_nextlevel;
 }
 
 //---------------------------------------------------------------------------
