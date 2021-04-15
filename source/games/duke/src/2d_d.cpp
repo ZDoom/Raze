@@ -724,22 +724,25 @@ void doorders(const CompletionFunc& completion)
 //
 //---------------------------------------------------------------------------
 
-class DDukeMultiplayerBonusScreen : public DScreenJob
+class DDukeMultiplayerBonusScreen : public DSkippableScreenJob
 {
 	int playerswhenstarted;
 
 public:
-	DDukeMultiplayerBonusScreen(int pws) : DScreenJob(fadein|fadeout)
+	DDukeMultiplayerBonusScreen(int pws) : DSkippableScreenJob(fadein|fadeout)
 	{
 		playerswhenstarted = pws;
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void OnTick() override
 	{
-		if (clock == 0) S_PlayBonusMusic();
+		if (ticks == 1) S_PlayBonusMusic();
+	}
 
+	void Draw(double smoothratio) override
+	{
 		char tempbuf[32];
-		int currentclock = int(clock * 120 / 1'000'000'000);
+		int currentclock = int((ticks + smoothratio) * 120 / GameTicRate);
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, TAG_DONE);
@@ -814,7 +817,6 @@ public:
 		}
 
 		MiniText(45, 96 + (8 * 7), GStrings("Deaths"), 0, -1, 8);
-		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -830,6 +832,22 @@ class DDukeLevelSummaryScreen : public DScreenJob
 	int gfx_offset;
 	int bonuscnt = 0;
 	int speech = -1;
+	int displaystate = 0;
+	int dukeAnimStart;
+
+	enum
+	{
+		printTimeText = 1,
+		printTimeVal = 2,
+		printKillsText = 4,
+		printKillsVal = 8,
+		printSecretsText = 16,
+		printSecretsVal = 32,
+		printStatsAll = 63,
+		dukeAnim = 64,
+		dukeWait = 128,
+
+	};
 
 	void SetTotalClock(int tc)
 	{
@@ -849,7 +867,78 @@ public:
 		mysnprintf(tempbuf, 32, "%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
 	}
 
-	void PrintTime(int currentclock)
+	bool OnEvent(event_t* ev) override
+	{
+		if (ev->type == EV_KeyDown)
+		{
+			if ((displaystate & printStatsAll) != printStatsAll)
+			{
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+				displaystate = printStatsAll;
+			}
+			else if (!(displaystate & dukeAnim))
+			{
+				displaystate |= dukeAnim;
+				dukeAnimStart = ticks;
+				S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
+				static const uint16_t speeches[] = { BONUS_SPEECH1, BONUS_SPEECH2, BONUS_SPEECH3, BONUS_SPEECH4 };
+				speech = speeches[(rand() & 3)];
+				S_PlaySound(speech, CHAN_AUTO, CHANF_UI, 1);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	void OnTick() override
+	{
+		if (ticks == 1) S_PlayBonusMusic();
+		if ((displaystate & printStatsAll) != printStatsAll)
+		{
+			if (ticks == 15 * 3)
+			{
+				displaystate |= printTimeText;
+			}
+			else if (ticks == 15 * 4)
+			{
+				displaystate |= printTimeVal;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 6)
+			{
+				displaystate |= printKillsText;
+				S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 7)
+			{
+				displaystate |= printKillsVal;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 9)
+			{
+				displaystate |= printSecretsText;
+			}
+			else if (ticks == 15 * 10)
+			{
+				displaystate |= printSecretsVal;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+		}
+		if (displaystate & dukeAnim)
+		{
+			if (ticks >= dukeAnimStart + 60)
+			{
+				displaystate ^= dukeAnim | dukeWait;
+			}
+		}
+		if (displaystate & dukeWait)
+		{
+			if (speech <= 0 || !soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, speech)) 
+				state = finished;
+		}
+	}
+
+	void PrintTime()
 	{
 		char tempbuf[32];
 		GameText(10, 59 + 9, GStrings("TXT_YourTime"), 0);
@@ -857,16 +946,8 @@ public:
 		if (!isNamWW2GI())
 			GameText(10, 79 + 9, GStrings("TXT_3DRTIME"), 0);
 
-		if (bonuscnt == 0)
-			bonuscnt++;
-
-		if (currentclock > (60 * 4))
+		if (displaystate & printTimeVal)
 		{
-			if (bonuscnt == 1)
-			{
-				bonuscnt++;
-				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-			}
 			FormatTime(ps[myconnectindex].player_par, tempbuf);
 			GameText((320 >> 2) + 71, 59 + 9, tempbuf, 0);
 
@@ -881,25 +962,14 @@ public:
 		}
 	}
 
-	void PrintKills(int currentclock)
+	void PrintKills()
 	{
 		char tempbuf[32];
 		GameText(10, 94 + 9, GStrings("TXT_EnemiesKilled"), 0);
 		GameText(10, 104 + 9, GStrings("TXT_EnemiesLeft"), 0);
 
-		if (bonuscnt == 2)
+		if (displaystate & printKillsVal)
 		{
-			bonuscnt++;
-			S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
-		}
-
-		if (currentclock > (60 * 7))
-		{
-			if (bonuscnt == 3)
-			{
-				bonuscnt++;
-				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-			}
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].actors_killed);
 			GameText((320 >> 2) + 70, 94 + 9, tempbuf, 0);
 
@@ -918,20 +988,14 @@ public:
 		}
 	}
 
-	void PrintSecrets(int currentclock)
+	void PrintSecrets()
 	{
 		char tempbuf[32];
 		GameText(10, 119 + 9, GStrings("TXT_SECFND"), 0);
 		GameText(10, 129 + 9, GStrings("TXT_SECMISS"), 0);
-		if (bonuscnt == 4) bonuscnt++;
 
-		if (currentclock > (60 * 10))
+		if (displaystate & printSecretsVal)
 		{
-			if (bonuscnt == 5)
-			{
-				bonuscnt++;
-				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-			}
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].secret_rooms);
 			GameText((320 >> 2) + 70, 119 + 9, tempbuf, 0);
 			if (ps[myconnectindex].secret_rooms > 0)
@@ -941,41 +1005,31 @@ public:
 		}
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
-		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
-		int currentclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
-		GameText(160, 190, GStrings("PRESSKEY"), 8 - int(sin(currentclock / 10.) * 8), 0);
+		GameText(160, 190, GStrings("PRESSKEY"), 8 - int(sin(ticks * 12 / GameTicRate) * 8), 0);
 
-		if (currentclock > (60 * 3))
+		if (displaystate & printTimeText)
 		{
-			PrintTime(currentclock);
+			PrintTime();
 		}
-		if (currentclock > (60 * 6))
+		if (displaystate & printKillsText)
 		{
-			PrintKills(currentclock);
+			PrintKills();
 		}
-		if (currentclock > (60 * 9))
+		if (displaystate & printSecretsText)
 		{
-			PrintSecrets(currentclock);
+			PrintSecrets();
 		}
 
-		if (currentclock >= (1000000000L) && currentclock < (1000000320L))
+		if (displaystate & dukeAnim)
 		{
-			switch ((currentclock >> 4) % 15)
+			switch (((ticks - dukeAnimStart) >> 2) % 15)
 			{
 				case 0:
-					if (bonuscnt == 6)
-					{
-						bonuscnt++;
-						S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
-						static const uint16_t speeches[] = { BONUS_SPEECH1, BONUS_SPEECH2, BONUS_SPEECH3, BONUS_SPEECH4};
-						speech = speeches[(rand() & 3)];
-						S_PlaySound(speech, CHAN_AUTO, CHANF_UI, 1);
-					}
 				case 1:
 				case 4:
 				case 5:
@@ -987,14 +1041,9 @@ public:
 					break;
 			}
 		}
-		else if (currentclock > (10240 + 120L))
+		else if (!(displaystate & dukeWait))
 		{
-			if (speech > 0 && !skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, speech)) return 1;
-			return 0;
-		}
-		else
-		{
-			switch((currentclock >> 5) & 3)
+			switch((ticks >> 3) & 3)
 			{
 				case 1:
 				case 3:
@@ -1008,26 +1057,6 @@ public:
 
 		if (lastmapname) BigText(160, 20 - 6, lastmapname);
 		BigText(160, 36 - 6, GStrings("Completed"));
-
-		if (currentclock > 10240 && currentclock < 10240 + 10240)
-			SetTotalClock(1024);
-
-		if (skiprequest && currentclock > (60 * 2))
-		{
-			skiprequest = false;
-			if (currentclock < (60 * 13))
-			{
-				SetTotalClock(60 * 13);
-			}
-			else if (currentclock < (1000000000))
-			{
-				// force-set bonuscnt here so that it won't desync with the rest of the logic and Duke's voice can be heard.
-				if (bonuscnt < 6) bonuscnt = 6;
-				SetTotalClock(1000000000);
-			}
-		}
-
-		return 1;
 	}
 
 };
@@ -1061,7 +1090,9 @@ void dobonus_d(int bonusonly, const CompletionFunc& completion)
 		jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
 	}
 	if (job)
+	{
 		RunScreenJob(jobs, job, completion);
+	}
 	else if (completion) completion(false);
 }
 
