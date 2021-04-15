@@ -174,7 +174,7 @@ int hits(DDukeActor* actor)
 	int zoff;
 	DDukeActor* d;
 
-	if (sp->picnum == TILE_APLAYER) zoff = (40 << 8);
+	if (sp->picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
 	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, &d, &sx, &sy, &sz, CLIPMASK1);
