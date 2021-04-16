@@ -202,7 +202,7 @@ public:
 	int FadeoutFrame(double smoothratio)
 	{
 		auto& job = jobs[index];
-		double ms = (job.job->ticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
+		double ms = (fadeticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
 		float screenfade = 1.f - (float)clamp(ms, 0., 1.);
 		twod->SetScreenFade(screenfade);
 		job.job->DrawFrame(1.);
@@ -292,6 +292,7 @@ public:
 					jobs[index].job->fadestate = DScreenJob::fadeout;
 					jobs[index].job->state = DScreenJob::stopping;
 					actionState = State_Fadeout;
+					fadeticks = 0;
 				}
 				else
 				{
