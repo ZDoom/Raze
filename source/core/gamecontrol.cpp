@@ -998,7 +998,10 @@ void updatePauseStatus()
 		}
 	}
 
-	paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
+	if (paused)
+		S_PauseSound(!pausedWithKey, !paused);
+	else 
+		S_ResumeSound(paused);
 }
 
 //==========================================================================
@@ -1106,6 +1109,7 @@ void S_PauseSound (bool notmusic, bool notsfx)
 	{
 		soundEngine->SetPaused(true);
 		GSnd->SetSfxPaused (true, 0);
+		S_PauseAllCustomStreams(true);
 	}
 }
 
@@ -1124,6 +1128,7 @@ void S_ResumeSound (bool notsfx)
 	{
 		soundEngine->SetPaused(false);
 		GSnd->SetSfxPaused (false, 0);
+		S_PauseAllCustomStreams(false);
 	}
 }
 

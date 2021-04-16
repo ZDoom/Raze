@@ -110,13 +110,18 @@ void S_SetMusicCallbacks(MusicCallbacks* cb)
 //==========================================================================
 
 static std::unique_ptr<SoundStream> musicStream;
+static TArray<SoundStream*> customStreams;
 
 SoundStream *S_CreateCustomStream(size_t size, int samplerate, int numchannels, StreamCallback cb, void *userdata)
 {
 	int flags = 0;
 	if (numchannels < 2) flags |= SoundStream::Mono;
 	auto stream = GSnd->CreateStream(cb, int(size), flags, samplerate, userdata);
-	if (stream) stream->Play(true, 1);
+	if (stream)
+	{
+		stream->Play(true, 1);
+		customStreams.Push(stream);
+	}
 	return stream;
 }
 
@@ -125,11 +130,19 @@ void S_StopCustomStream(SoundStream *stream)
 	if (stream)
 	{
 		stream->Stop();
+		auto f = customStreams.Find(stream);
+		if (f < customStreams.Size()) customStreams.Delete(f);
 		delete stream;
 	}
-
 }
 
+void S_PauseAllCustomStreams(bool on)
+{
+	for (auto s : customStreams)
+	{
+		s->SetPaused(on);
+	}
+}
 
 static TArray<int16_t> convert;
 static bool FillStream(SoundStream* stream, void* buff, int len, void* userdata)
