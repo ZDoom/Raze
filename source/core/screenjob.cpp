@@ -211,6 +211,18 @@ public:
 	bool OnEvent(event_t* ev)
 	{
 		if (paused || index >= jobs.Size()) return false;
+
+		if (ev->type == EV_KeyDown)
+		{
+			// We never reach the key binding checks in G_Responder, so for the console we have to check for ourselves here.
+			auto binding = Bindings.GetBinding(ev->data1);
+			if (binding.CompareNoCase("toggleconsole") == 0)
+			{
+				C_ToggleConsole();
+				return true;
+			}
+		}
+
 		if (jobs[index].job->state != DScreenJob::running) return false;
 		return jobs[index].job->OnEvent(ev);
 	}
