@@ -217,16 +217,14 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool frommenu)
 	// start a new game on the given level
 	InitNewGame();
 	if (map->levelNumber == 1) STAT_StartNewGame("Exhumed", 1);
-    if (frommenu) Intermission(nullptr, map);
-    else NextLevel(map, skill);
+    Intermission(nullptr, map);
 }
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
     Mus_Stop();
     if (currentLevel->levelNumber == 0) gameaction = ga_mainmenu;
-    else if (ConsoleState == c_up) Intermission(currentLevel, map);
-    else gameaction = ga_nextlevel;
+    Intermission(currentLevel, map);
 }
 
 //---------------------------------------------------------------------------
