@@ -1142,7 +1142,7 @@ private:
         int yy = ebp;
 
         auto p = GStrings["REQUIRED_CHARACTERS"];
-        if (1)//p && *p)
+        if (p && *p)
         {
             yy *= 2;
             for (int i = 0; i < nStringTypeOn; i++, yy += 10)
@@ -1179,7 +1179,7 @@ private:
         {
         case 1:
             Phase1();
-            if (skiprequest || ticks >= 60)
+            if (skiprequest || ticks >= nextclock)
             {
                 InitPhase2();
                 phase = 2;
@@ -1224,6 +1224,19 @@ private:
             {
                 skiprequest |= !Phase3();
             }
+            if (skiprequest)
+            {
+                // Go to the next text page.
+                if (screencnt != 2)
+                {
+                    screencnt++;
+                    nextclock = ticks + 60;
+                    skiprequest = 0;
+                    phase = 1;
+                }
+                else state = finished;
+            }
+
             if (skiprequest)
             {
                 state = finished;
