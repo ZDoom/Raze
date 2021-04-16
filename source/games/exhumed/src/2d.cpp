@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_draw.h"
 #include "m_random.h"
 #include "gstrings.h"
+#include "c_bind.h"
 
 #include <string>
 
@@ -382,13 +383,19 @@ class DLobotomyScreen : public DImageScreen
 public:
 	DLobotomyScreen(FGameTexture *tex, int fade) : DImageScreen(tex, fade)
 	{}
-	
-    int Frame(uint64_t clock, bool skiprequest) override
+
+    void Skipped() override
     {
-		if (clock == 0) PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000, false, CHANF_UI);
-        if (skiprequest) StopLocalSound();
-		return DImageScreen::Frame(clock, skiprequest);
-	}
+        StopLocalSound();
+    }
+
+    void OnTick() override
+    {
+        if (ticks == 1) PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000, false, CHANF_UI);
+
+        DImageScreen::OnTick();
+        if (state == finished) StopLocalSound();
+    }
 };
 
 //---------------------------------------------------------------------------
@@ -399,12 +406,12 @@ public:
 
 static const short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 600 };
 
-class DMainTitle : public DScreenJob
+class DMainTitle : public DSkippableScreenJob
 {
     const char* a;
     const char* b;
     int state = 0;
-    int var_18;
+    int duration;
     int var_4 = 0;
     int esi = 130;
     int nCount = 0;
@@ -412,56 +419,64 @@ class DMainTitle : public DScreenJob
 
 
 public:
-    DMainTitle() : DScreenJob(fadein)
+    DMainTitle() : DSkippableScreenJob(fadein)
     {
         a = GStrings("TXT_EX_COPYRIGHT1");
         b = GStrings("TXT_EX_COPYRIGHT2");
-        var_18 = skullDurations[0];
+        duration = skullDurations[0];
     }
 
-    int Frame(uint64_t clock, bool skiprequest) override
+    void OnTick() override
     {
-        int ticker = clock * 120 / 1'000'000'000;
-        if (clock == 0)
+        int ticker = ticks * 120 / GameTicRate;
+        if (ticks == 1)
         {
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
             playCDtrack(19, true);
         }
-        if (clock > 1'000'000 && state == 0 && !soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr,CHAN_AUTO, -1))
+        if (ticks > 1 && state == 0 && !soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_AUTO, -1))
         {
-            if (time(0) & 0xF)
+            if (time(0) & 0xF) // cheap-ass random...
                 PlayGameOverSound();
-            else 
+            else
                 PlayLocalSound(StaticSound[61], 0, false, CHANF_UI);
             state = 1;
             start = ticker;
         }
+        if (state == 1)
+        {
+            if (ticker > duration)
+            {
+                nCount++;
+                if (nCount > 12)
+                {
+                    state = finished;
+                    return;
+                }
+                duration = start + skullDurations[nCount];
+                var_4 = var_4 == 0;
+            }
+        }
+    }
 
+    void Draw(double) override
+    {
         twod->ClearScreen();
 
         menu_DoPlasma();
 
         DrawRel(kSkullHead, 160, 100);
-        switch (state)
+        if (state == 0)
         {
-        case 0:
             DrawRel(kSkullJaw, 161, 130);
-            break;
-
-        case 1:
+        }
+        else
         {
             int nStringWidth = SmallFont->StringWidth(a);
             DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 200 - 24, a, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
             nStringWidth = SmallFont->StringWidth(b);
             DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 200 - 16, b, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 
-            if (ticker > var_18)
-            {
-                nCount++;
-                if (nCount > 12) return 0;
-                var_18 = start + skullDurations[nCount];
-                var_4 = var_4 == 0;
-            }
 
             short nTile = kSkullJaw;
 
@@ -486,10 +501,7 @@ public:
             }
 
             DrawRel(nTile, 161, y);
-            break;
         }
-        }
-        return skiprequest? -1 : 1;
     }
 };
 

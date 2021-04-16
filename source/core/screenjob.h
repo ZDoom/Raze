@@ -62,6 +62,7 @@ public:
 
 	int Frame(uint64_t clock, bool skiprequest, double smoothratio)
 	{
+		if (state != running) smoothratio = 1; // this is necessary because the ticker won't be incremented anymore to avoid having a negative time span.
 		Draw(smoothratio);
 		if (state == skipped) return -1;
 		if (state == finished) return 0;
