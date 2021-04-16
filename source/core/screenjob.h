@@ -143,7 +143,7 @@ void EndScreenJob();
 void DeleteScreenJob();
 bool ScreenJobResponder(event_t* ev);
 void ScreenJobTick();
-void ScreenJobDraw();
+bool ScreenJobDraw();
 
 struct AnimSound
 {

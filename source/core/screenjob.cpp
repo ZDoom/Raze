@@ -128,7 +128,7 @@ class ScreenJobRunner
 	int actionState;
 	int terminateState;
 	int fadeticks = 0;
-	int last_M_Active_Tic = -1;
+	int last_paused_tic = -1;
 
 public:
 	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_)
@@ -210,7 +210,7 @@ public:
 
 	bool OnEvent(event_t* ev)
 	{
-		if (index >= jobs.Size()) return false;
+		if (paused || index >= jobs.Size()) return false;
 		if (jobs[index].job->state != DScreenJob::running) return false;
 		return jobs[index].job->OnEvent(ev);
 	}
@@ -223,6 +223,7 @@ public:
 
 	void OnTick()
 	{
+		if (paused) return;
 		if (index >= jobs.Size())
 		{
 			//DeleteJobs();
@@ -257,9 +258,9 @@ public:
 		}
 
 		// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
-		bool menuon = M_Active();
-		if (menuon) last_M_Active_Tic = jobs[index].job->ticks;
-		else if (last_M_Active_Tic == jobs[index].job->ticks) menuon = true;
+		bool menuon = paused;
+		if (menuon) last_paused_tic = jobs[index].job->ticks;
+		else if (last_paused_tic == jobs[index].job->ticks) menuon = true;
 		double smoothratio = menuon ? 1. : I_GetTimeFrac();
 
 		if (actionState == State_Clear)
@@ -343,7 +344,7 @@ void ScreenJobTick()
 	if (runner) runner->OnTick();
 }
 
-void ScreenJobDraw()
+bool ScreenJobDraw()
 {
 	// we cannot recover from this because we have no completion callback to call.
 	if (!runner)
@@ -351,7 +352,7 @@ void ScreenJobDraw()
 		// We can get here before a gameaction has been processed. In that case just draw a black screen and wait.
 		if (gameaction == ga_nothing) I_Error("Trying to run a non-existent screen job");
 		twod->ClearScreen();
-		return;
+		return false;
 	}
 	auto res = runner->RunFrame();
 	if (!res)
@@ -359,5 +360,6 @@ void ScreenJobDraw()
 		assert((gamestate != GS_INTERMISSION && gamestate != GS_INTRO) || gameaction != ga_nothing);
 		DeleteScreenJob();
 	}
+	return res;
 }
 

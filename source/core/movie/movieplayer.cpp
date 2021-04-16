@@ -137,7 +137,7 @@ public:
 				if (sound == -1)
 					soundEngine->StopAllChannels();
 				else if (SoundEnabled())
-					soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
+					soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_NONE, sound, 1.f, ATTN_NONE);
 			}
 		}
 		if (!nostopsound && curframe == numframes && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, -1)) return true;
@@ -444,7 +444,7 @@ public:
 						if (sound == -1)
 							soundEngine->StopAllChannels();
 						else if (SoundEnabled())
-							soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
+							soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_NONE, sound, 1.f, ATTN_NONE);
 					}
 				}
 				lastsoundframe = soundframe;
@@ -632,7 +632,7 @@ public:
 					if (sound == -1)
 						soundEngine->StopAllChannels();
 					else if (SoundEnabled())
-						soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
+						soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_NONE, sound, 1.f, ATTN_NONE);
 				}
 			}
 		}

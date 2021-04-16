@@ -193,7 +193,7 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
 				gameaction = ga_nextlevel;
 
 			}
-		}, true, true);
+		});
 	}
 	
 }
