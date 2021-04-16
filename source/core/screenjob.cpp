@@ -175,7 +175,7 @@ public:
 		actionState = clearbefore ? State_Clear : State_Run;
 		if (index < jobs.Size())
 		{
-			jobs[index].job->fadestate = jobs[index].job->fadestyle & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
+			jobs[index].job->fadestate = !paused && jobs[index].job->fadestyle & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
 		}
 		inputState.ClearAllInput();
 	}
