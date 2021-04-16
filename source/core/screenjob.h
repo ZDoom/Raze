@@ -57,7 +57,6 @@ public:
 
 	virtual bool OnEvent(event_t* evt) { return false; }
 	virtual void OnTick() { /*state = finished;*/ }
-	virtual int Frame(uint64_t clock, bool skiprequest) { return 1; }
 	virtual void Draw(double smoothratio) {}
 
 	int Frame(uint64_t clock, bool skiprequest, double smoothratio)
@@ -66,7 +65,7 @@ public:
 		Draw(smoothratio);
 		if (state == skipped) return -1;
 		if (state == finished) return 0;
-		return Frame(clock, skiprequest);
+		return 1;
 	}
 
 	int GetFadeState() const { return fadestate; }

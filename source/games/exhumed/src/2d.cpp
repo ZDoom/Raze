@@ -963,16 +963,17 @@ void uploadCinemaPalettes()
 //
 //---------------------------------------------------------------------------
 
-class DCinema : public DScreenJob
+class DCinema : public DSkippableScreenJob
 {
     TextOverlay text;
 	short cinematile;
 	int currentCinemaPalette;
     int edx;
     int check;
+    int cont = 1;
 
 public:
-	DCinema(int nVal, int checklevel = -1) : DScreenJob(fadein|fadeout)
+	DCinema(int nVal, int checklevel = -1) : DSkippableScreenJob(fadein|fadeout)
 	{
 		if (nVal < 0 || nVal >5) return;
 		cinematile = cinemas[nVal].tile;
@@ -984,12 +985,17 @@ public:
         check = checklevel;
     }
 	
-    int Frame(uint64_t clock, bool skiprequest) override
+    void OnTick() override
     {
-
-        if (clock == 0)
+        if (ticks == 1)
         {
-            if (check > 0 && check != selectedlevelnew) return 0; // immediately abort if the player selected a different level on the map
+            if (check > 0 && check != selectedlevelnew)
+            {
+                state = finished;
+                return; // immediately abort if the player selected a different level on the map
+            }
+
+            check = -1;
             StopAllSounds();
             if (edx != -1)
             {
@@ -997,19 +1003,26 @@ public:
             }
         }
 
+        if (!cont)
+        {
+            state = finished;
+            // quit the game if we've finished level 4 and displayed the advert text
+            if (isShareware() && currentCinemaPalette == 3)
+            {
+                gameaction = ga_mainmenu;
+            }
+            return;
+        }
+    }
+
+    void Draw(double smoothratio) override
+    {
         twod->ClearScreen();
+        if (check < 0) return;
         DrawTexture(twod, tileGetTexture(cinematile), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
 
         text.DisplayText();
-        auto cont = text.AdvanceCinemaText(clock * (120. / 1'000'000'000));
-        int ret = skiprequest ? -1 : cont ? 1 : 0;
-
-        // quit the game if we've finished level 4 and displayed the advert text
-        if (isShareware() && currentCinemaPalette == 3 && ret != 1) 
-        {
-            gameaction = ga_mainmenu;
-        }
-        return ret;
+        cont = text.AdvanceCinemaText((ticks + smoothratio) * (120. / GameTicRate));
     }
 };
 
@@ -1029,6 +1042,7 @@ class DLastLevelCinema : public DScreenJob
     int nextclock = 4;
     unsigned int nStringTypeOn, nCharTypeOn;
     int screencnt = 0;
+    bool skiprequest = false;
 
     TArray<FString> screentext;
 
@@ -1142,91 +1156,81 @@ private:
         }
     }
 
-    int Frame(uint64_t clock, bool skiprequest) override
+    bool OnEvent(event_t* ev)
     {
-        if (clock == 0)
+        if (ev->type == EV_KeyDown) skiprequest = true;
+        return true;
+    }
+
+    void OnTick() override
+    {
+        if (ticks == 1)
         {
             PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
             phase = 1;
         }
-        int currentclock = clock * 120 / 1'000'000'000;
-        twod->ClearScreen();
-        DrawTexture(twod, tileGetTexture(kTileLoboLaptop), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
+
         switch (phase)
         {
         case 1:
-            if (currentclock >= nextclock)
-            {
-                Phase1();
-                nextclock += 4;
-            }
-            if (skiprequest || currentclock >= 240)
+            Phase1();
+            if (skiprequest || ticks >= 60)
             {
                 InitPhase2();
                 phase = 2;
-                skiprequest = 0;
+                skiprequest = false;
             }
             break;
 
         case 2:
-            if (currentclock >= nextclock)
+            if (screentext[nStringTypeOn][nCharTypeOn] != ' ')
+                PlayLocalSound(StaticSound[kSound71], 0, false, CHANF_UI);
+
+            nCharTypeOn++;
+            if (screentext[nStringTypeOn][nCharTypeOn] == 0)
             {
-                if (screentext[nStringTypeOn][nCharTypeOn] != ' ')
-                    PlayLocalSound(StaticSound[kSound71], 0, false, CHANF_UI);
-
-                nCharTypeOn++;
-                nextclock += 4;
-                if (screentext[nStringTypeOn][nCharTypeOn] == 0)
+                nCharTypeOn = 0;
+                nStringTypeOn++;
+                if (nStringTypeOn >= screentext.Size())
                 {
-                    nCharTypeOn = 0;
-                    nStringTypeOn++;
-                    if (nStringTypeOn >= screentext.Size())
-                    {
-                        nextclock = (kTimerTicks * (screentext.Size() + 2)) + currentclock;
-                        phase = 3;
-                    }
-
+                    nextclock = (GameTicRate * (screentext.Size() + 2)) + ticks;
+                    phase = 3;
                 }
+
             }
-            DisplayPhase2();
             if (skiprequest)
             {
-                nextclock = (kTimerTicks * (screentext.Size() + 2)) + currentclock;
+                nextclock = (GameTicRate * (screentext.Size() + 2)) + ticks;
                 phase = 4;
             }
             break;
 
         case 3:
-            DisplayPhase2();
-            if (currentclock >= nextclock || skiprequest)
+            if (ticks >= nextclock || skiprequest)
             {
                 PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
                 phase = 4;
-                nextclock = currentclock + 240;
-                skiprequest = 0;
+                nextclock = ticks + 60;
+                skiprequest = false;
             }
-            break;
 
         case 4:
-            if (currentclock >= nextclock)
+            if (ticks >= nextclock)
             {
                 skiprequest |= !Phase3();
-                nextclock += 4;
             }
-            if (skiprequest || currentclock >= 240)
+            if (skiprequest)
             {
-                // Go to the next text page.
-                if (screencnt != 2)
-                {
-                    screencnt++;
-                    nextclock = currentclock + 240;
-                    skiprequest = 0;
-                    phase = 1;
-                }
-                else return skiprequest ? -1 : 0;
+                state = finished;
             }
         }
-        return 1;
+    }
+
+    void Draw(double) override
+    {
+        twod->ClearScreen();
+        DrawTexture(twod, tileGetTexture(kTileLoboLaptop), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
+        if (phase == 2 || phase == 3) DisplayPhase2();
     }
 
 };
@@ -1243,6 +1247,7 @@ class DExCredits : public DScreenJob
     TArray<FString> pagelines;
     uint64_t page;
     uint64_t pagetime;
+    bool skiprequest = false;
 
 public:
     DExCredits()
@@ -1253,35 +1258,53 @@ public:
         credits = text.Split("\n\n");
     }
 
-private:
-    int Frame(uint64_t clock, bool skiprequest) override
+    bool OnEvent(event_t* ev)
     {
-        if (clock == 0)
+        if (ev->type == EV_KeyDown) skiprequest = true;
+        return true;
+    }
+
+    void OnTick() override
+    {
+        if (ticks == 1)
         {
-            if (credits.Size() == 0) return 0;
+            if (credits.Size() == 0)
+            {
+                state = finished;
+                return;
+            }
             playCDtrack(19, false);
             pagetime = 0;
             page = -1;
         }
-        if (clock >= pagetime || skiprequest)
+
+        if (ticks >= pagetime || skiprequest)
         {
             page++;
             if (page < credits.Size())
                 pagelines = credits[page].Split("\n");
             else
             {
-                if (skiprequest || !CDplaying()) return 0;
+                if (skiprequest || !CDplaying())
+                {
+                    state = finished;
+                    return;
+                }
                 pagelines.Clear();
             }
-            pagetime = clock + 2'000'000'000; // 
+            pagetime = ticks + 60; // 
         }
+    }
+
+    void Draw(double smoothratio) override
+    {
         twod->ClearScreen();
 
         int y = 100 - ((10 * (pagelines.Size() - 1)) / 2);
 
         for (unsigned i = 0; i < pagelines.Size(); i++)
         {
-            uint64_t ptime = (pagetime-clock) / 1'000'000;
+            int ptime = clamp((pagetime - ticks - smoothratio) * 1000 / GameTicRate, 0, 2000); // in milliseconds
             int light;
 
             if (ptime < 255) light = ptime;
@@ -1294,7 +1317,6 @@ private:
             DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, y, pagelines[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, color, TAG_DONE);
             y += 10;
         }
-        return 1;
     }
 };
 
