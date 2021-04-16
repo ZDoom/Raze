@@ -1033,10 +1033,7 @@ OptionMenu "VideoOptions" protected
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
 	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
-	ifnotgame(Exhumed)
-	{
-		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
-	}
+	Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
 	ifnotgame(Blood, Exhumed)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
