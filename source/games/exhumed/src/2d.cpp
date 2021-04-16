@@ -629,10 +629,8 @@ class DMapScreen : public DScreenJob
 {
 	int i;
 	int x = 0;
-	int var_2C = 0;
+	int delta = 0;
 	int nIdleSeconds = 0;
-	int startTime = 0;
-	int runtimer = 0;
 	
 	int curYPos, destYPos;
 	int nLevel, nLevelNew, nLevelBest;
@@ -644,11 +642,11 @@ public:
 		destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
 
 		if (curYPos < destYPos) {
-			var_2C = 2;
+			delta = 2;
 		}
 
 		if (curYPos > destYPos) {
-			var_2C = -2;
+			delta = -2;
 		}
 
 		// Trim smoke in widescreen
@@ -662,19 +660,12 @@ public:
 		}
 #endif
 	}
-	
-	int Frame(uint64_t clock, bool skiprequest) override
-	
+
+    void Draw(double smoothratio)
 	{
-		int currentclock = int(clock * 120 / 1'000'000'000);
+		int currentclock = int((ticks + smoothratio) * 120 / GameTicRate);
 
 		twod->ClearScreen();
-		
-		if ((currentclock - startTime) / kTimerTicks)
-		{
-			nIdleSeconds++;
-			startTime = currentclock;
-		}
 		
 		int tileY = curYPos;
 		
@@ -739,84 +730,82 @@ public:
 			DrawAbs(nTile, textX, textY, shade);
 		}
 		
-		if (curYPos != destYPos)
-		{
-			// scroll the map every couple of ms
-			if (currentclock - runtimer >= (kTimerTicks / 32)) {
-				curYPos += var_2C;
-				runtimer = currentclock;
-			}
-			
-			if (inputState.CheckAllInput())
-			{
-				if (var_2C < 8) {
-					var_2C *= 2;
-				}
-				
-			}
-			
-			if (curYPos > destYPos&& var_2C > 0) {
-				curYPos = destYPos;
-			}
-			
-			if (curYPos < destYPos && var_2C < 0) {
-				curYPos = destYPos;
-			}
-			
-			nIdleSeconds = 0;
-		}
 		selectedlevelnew = nLevelNew + 1;
-		return skiprequest? -1 : nIdleSeconds < 12? 1 : 0;
 	}
 
-	bool ProcessInput() override
+    void OnTick() override
+    {
+        if (curYPos != destYPos)
+        {
+            // scroll the map every couple of ms
+            curYPos += delta;
+
+            if (curYPos > destYPos && delta > 0) {
+                curYPos = destYPos;
+            }
+
+            if (curYPos < destYPos && delta < 0) {
+                curYPos = destYPos;
+            }
+            nIdleSeconds = 0;
+        }
+        else nIdleSeconds++;
+        if (nIdleSeconds > 300) state = finished;
+    }
+
+	bool OnEvent(event_t* ev) override
 	{
-		if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-		{
-			buttonMap.ClearButton(gamefunc_Move_Forward);
-			
-			if (curYPos == destYPos && nLevelNew <= nLevelBest)
-			{
-				nLevelNew++;
-				assert(nLevelNew < 20);
-				
-				destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
-				
-				if (curYPos <= destYPos) {
-					var_2C = 2;
-				}
-				else {
-					var_2C = -2;
-				}
-				
-				nIdleSeconds = 0;
-			}
-			return true;
-		}
+        int key = ev->data1;
+        if (ev->type == EV_KeyDown)
+        {
+            auto binding = Bindings.GetBinding(ev->data1);
+            if (!binding.CompareNoCase("+move_forward")) key = KEY_UPARROW;
+            if (!binding.CompareNoCase("+move_backward")) key = KEY_DOWNARROW;
+
+            if (key == KEY_UPARROW || key == KEY_PAD_DPAD_UP || key == sc_kpad_8)
+            {
+                if (curYPos == destYPos && nLevelNew <= nLevelBest)
+                {
+                    nLevelNew++;
+                    assert(nLevelNew < 20);
+
+                    destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
+
+                    if (curYPos <= destYPos) {
+                        delta = 2;
+                    }
+                    else {
+                        delta = -2;
+                    }
+
+                    nIdleSeconds = 0;
+                }
+                return true;
+            }
 		
-		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-		{
-			buttonMap.ClearButton(gamefunc_Move_Backward);
+            if (key == KEY_DOWNARROW || key == KEY_PAD_DPAD_DOWN || key == sc_kpad_2)
+            {
+                if (curYPos == destYPos && nLevelNew > 0)
+                {
+                    nLevelNew--;
+                    assert(nLevelNew >= 0);
 
-			if (curYPos == destYPos && nLevelNew > 0)
-			{
-				nLevelNew--;
-				assert(nLevelNew >= 0);
-				
-				destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
-				
-				if (curYPos <= destYPos) {
-					var_2C = 2;
-				}
-				else {
-					var_2C = -2;
-				}
-				
-				nIdleSeconds = 0;
-			}
-			return true;
+                    destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
+
+                    if (curYPos <= destYPos) {
+                        delta = 2;
+                    }
+                    else {
+                        delta = -2;
+                    }
+
+                    nIdleSeconds = 0;
+                }
+                return true;
+            }
+            state = skipped;
+            return true;
 		}
-
 		return false;
 	}
 };
