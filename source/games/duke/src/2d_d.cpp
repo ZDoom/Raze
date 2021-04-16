@@ -526,7 +526,7 @@ class DEpisode4Text : public DSkippableScreenJob
 public:
 	DEpisode4Text() : DSkippableScreenJob(fadein | fadeout) {}
 
-	void Draw(double)
+	void Draw(double) override
 	{
 		twod->ClearScreen();
 		BigText(160, 60, GStrings("Thanks to all our"));

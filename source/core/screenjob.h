@@ -11,7 +11,6 @@ class ScreenJobRunner;
 class DScreenJob : public DObject
 {
 	DECLARE_CLASS(DScreenJob, DObject)
-	int64_t now;
 	const int fadestyle;
 	const float fadetime;	// in milliseconds
 	int fadestate = fadein;
@@ -45,21 +44,11 @@ public:
 		return false;
 	}
 
-	void SetClock(int64_t nsnow)
-	{
-		now = nsnow;
-	}
-
-	int64_t GetClock() const
-	{
-		return now;
-	}
-
 	virtual bool OnEvent(event_t* evt) { return false; }
 	virtual void OnTick() { /*state = finished;*/ }
 	virtual void Draw(double smoothratio) {}
 
-	int Frame(uint64_t clock, bool skiprequest, double smoothratio)
+	int DrawFrame(double smoothratio)
 	{
 		if (state != running) smoothratio = 1; // this is necessary because the ticker won't be incremented anymore to avoid having a negative time span.
 		Draw(smoothratio);

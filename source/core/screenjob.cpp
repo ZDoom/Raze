@@ -125,11 +125,10 @@ class ScreenJobRunner
 	int index = -1;
 	float screenfade;
 	bool clearbefore;
-	int64_t startTime = -1;
-	int64_t lastTime = -1;
 	int actionState;
 	int terminateState;
-	uint64_t clock = 0;
+	int fadeticks = 0;
+	int last_M_Active_Tic = -1;
 
 public:
 	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_)
@@ -174,73 +173,39 @@ public:
 			index++;
 		}
 		actionState = clearbefore ? State_Clear : State_Run;
-		if (index < jobs.Size()) screenfade = jobs[index].job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
-		lastTime= startTime = -1;
-		clock = 0;
+		if (index < jobs.Size())
+		{
+			jobs[index].job->fadestate = jobs[index].job->fadestyle & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
+		}
 		inputState.ClearAllInput();
 	}
 
-	int DisplayFrame()
+	int DisplayFrame(double smoothratio)
 	{
 		auto& job = jobs[index];
 		auto now = I_GetTimeNS();
 		bool processed = job.job->ProcessInput();
-		if (startTime == -1)
-		{
-			lastTime = startTime = now;
-		}
-		else if (!M_Active())
-		{
-			clock += now - lastTime;
-			if (clock == 0) clock = 1;
-		}
-		bool skiprequest = clock > 100'000'000 && inputState.CheckAllInput() && !processed && job.job->fadestate != DScreenJob::fadeout;
-		lastTime = now;
 
-		if (screenfade < 1.f && !M_Active())
+		if (job.job->fadestate == DScreenJob::fadein)
 		{
-			float ms = (clock / 1'000'000) / job.job->fadetime;
-			screenfade = clamp(ms, 0.f, 1.f);
+			double ms = (job.job->ticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
+			float screenfade = (float)clamp(ms, 0., 1.);
 			twod->SetScreenFade(screenfade);
-			if (job.job->fadestate != DScreenJob::fadeout)
-				job.job->fadestate = DScreenJob::fadein;
+			if (screenfade == 1.f) job.job->fadestate = DScreenJob::visible;
 		}
-		else
-		{
-			job.job->fadestate = DScreenJob::visible;
-			screenfade = 1.f;
-		}
-		job.job->SetClock(clock);
-		int state = job.job->Frame(clock, skiprequest, M_Active()? 1. : I_GetTimeFrac());
-		clock = job.job->GetClock();
-		if (clock == 0) clock = 1;
+		int state = job.job->DrawFrame(smoothratio);
+		twod->SetScreenFade(1.f);
 		return state;
 	}
 
-	int FadeoutFrame()
+	int FadeoutFrame(double smoothratio)
 	{
-		auto now = I_GetTimeNS();
-
-		if (startTime == -1)
-		{
-			lastTime = startTime = now;
-		}
-		else if (!M_Active())
-		{
-			clock += now - lastTime;
-			if (clock == 0) clock = 1;
-		}
-		lastTime = now;
-
-		float ms = (clock / 1'000'000) / jobs[index].job->fadetime;
-		float screenfade2 = clamp(screenfade - ms, 0.f, 1.f);
-		if (!M_Active()) twod->SetScreenFade(screenfade2);
-		if (screenfade2 <= 0.f)
-		{
-			twod->Unlock(); // must unlock before displaying.
-			return 0;
-		}
-		return 1;
+		auto& job = jobs[index];
+		double ms = (job.job->ticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
+		float screenfade = 1.f - (float)clamp(ms, 0., 1.);
+		twod->SetScreenFade(screenfade);
+		job.job->DrawFrame(1.);
+		return (screenfade > 0.f);
 	}
 
 	bool OnEvent(event_t* ev)
@@ -268,9 +233,15 @@ public:
 		}
 		else
 		{
-			if (jobs[index].job->state != DScreenJob::running) return;
-			jobs[index].job->ticks++;
-			jobs[index].job->OnTick();
+			if (jobs[index].job->state == DScreenJob::running)
+			{
+				jobs[index].job->ticks++;
+				jobs[index].job->OnTick();
+			}
+			else if (jobs[index].job->state == DScreenJob::stopping)
+			{
+				fadeticks++;
+			}
 		}
 	}
 	
@@ -284,6 +255,13 @@ public:
 			if (completion) completion(false);
 			return false;
 		}
+
+		// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
+		bool menuon = M_Active();
+		if (menuon) last_M_Active_Tic = jobs[index].job->ticks;
+		else if (last_M_Active_Tic == jobs[index].job->ticks) menuon = true;
+		double smoothratio = menuon ? 1. : I_GetTimeFrac();
+
 		if (actionState == State_Clear)
 		{
 			actionState = State_Run;
@@ -291,18 +269,14 @@ public:
 		}
 		else if (actionState == State_Run)
 		{
-			terminateState = DisplayFrame();
+			terminateState = DisplayFrame(smoothratio);
 			if (terminateState < 1)
 			{
 				// Must lock before displaying.
 				if (jobs[index].job->fadestyle & DScreenJob::fadeout)
 				{
-					twod->Lock();
-					startTime = -1;
-					clock = 0;
 					jobs[index].job->fadestate = DScreenJob::fadeout;
 					jobs[index].job->state = DScreenJob::stopping;
-					gamestate = GS_INTRO;	// block menu and console during fadeout - this can cause timing problems.
 					actionState = State_Fadeout;
 				}
 				else
@@ -313,7 +287,7 @@ public:
 		}
 		else if (actionState == State_Fadeout)
 		{
-			int ended = FadeoutFrame();
+			int ended = FadeoutFrame(smoothratio);
 			if (ended < 1)
 			{
 				jobs[index].job->state = DScreenJob::stopped;
