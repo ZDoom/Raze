@@ -85,6 +85,7 @@ protected:
 	{}
 
 	bool OnEvent(event_t* evt) override;
+	virtual void Skipped() {}
 };
 
 //---------------------------------------------------------------------------

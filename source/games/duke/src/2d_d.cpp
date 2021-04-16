@@ -447,14 +447,9 @@ public:
 	{
 	}
 
-	bool OnEvent(event_t* evt) override
+	void Skipped() override
 	{
-		if (evt->type == EV_GUI_KeyDown)
-		{
-			state = skipped;
-			FX_StopAllSounds();
-		}
-		return true;
+		FX_StopAllSounds();
 	}
 
 	void OnTick() override

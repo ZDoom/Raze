@@ -481,11 +481,8 @@ public:
 			FormatTime(currentLevel->parTime, tempbuf);
 			BigText(191, 64, tempbuf, -1);
 
-			if (!isNamWW2GI())
-			{
-				FormatTime(currentLevel->designerTime, tempbuf);
-				BigText(191, 80, tempbuf, -1);
-			}
+			FormatTime(currentLevel->designerTime, tempbuf);
+			BigText(191, 80, tempbuf, -1);
 		}
 	}
 
@@ -556,21 +553,18 @@ public:
 };
 
 
-class DRRRAEndOfGame : public DScreenJob
+class DRRRAEndOfGame : public DSkippableScreenJob
 {
 public:
-	DRRRAEndOfGame() : DScreenJob(fadein|fadeout)
+	DRRRAEndOfGame() : DSkippableScreenJob(fadein|fadeout)
 	{
 	}
-	bool OnEvent(event_t* ev) override
+
+	void Skipped() override
 	{
-		if (ev->type == EV_GUI_KeyDown)
-		{
-			S_StopSound(35);
-			state = skipped;
-		}
-		return true;
+		S_StopSound(35);
 	}
+
 	void OnTick() override
 	{
 		if (ticks == 1) S_PlaySound(35, CHAN_AUTO, CHANF_UI);

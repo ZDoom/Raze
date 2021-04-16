@@ -59,7 +59,11 @@ IMPLEMENT_CLASS(DImageScreen, true, false)
 
 bool DSkippableScreenJob::OnEvent(event_t* evt)
 {
-	if (evt->type == EV_GUI_KeyDown) state = skipped;
+	if (evt->type == EV_KeyDown)
+	{
+		state = skipped;
+		Skipped();
+	}
 	return true;
 }
 

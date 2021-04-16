@@ -45,20 +45,23 @@ BEGIN_SW_NS
 //
 //---------------------------------------------------------------------------
 
-class DSWDRealmsScreen : public DScreenJob
+class DSWDRealmsScreen : public DSkippableScreenJob
 {
 public:
-    DSWDRealmsScreen() : DScreenJob(fadein | fadeout) {}
+    DSWDRealmsScreen() : DSkippableScreenJob(fadein | fadeout) {}
 
-    int Frame(uint64_t clock, bool skiprequest) override
+    void OnTick() override
     {
-        const uint64_t duration = 5'000'000'000;
+        if (ticks > 5 * GameTicRate) state = finished;
+    }
+
+    void Draw(double) override
+    {
         const auto tex = tileGetTexture(THREED_REALMS_PIC, true);
         const int translation = TRANSLATION(Translation_BasePalettes, DREALMSPAL);
 
         twod->ClearScreen();
         DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-        return skiprequest ? -1 : clock < duration ? 1 : 0;
     }
 };
 
@@ -166,7 +169,7 @@ DScreenJob* GetFinishAnim(int num)
 //
 //---------------------------------------------------------------------------
 
-class DSWCreditsScreen : public DScreenJob
+class DSWCreditsScreen : public DSkippableScreenJob
 {
     enum
     {
@@ -177,21 +180,23 @@ class DSWCreditsScreen : public DScreenJob
     int starttime;
     int curpic;
 
-    int Frame(uint64_t clock, bool skiprequest)
+    void Skipped() override
     {
-        twod->ClearScreen();
-        int seconds = int(clock / 1'000'000'000);
-        if (clock == 0)
+        StopSound();
+    }
+
+    void OnTick() override
+    {
+        if (ticks == 1)
         {
             // Lo Wang feel like singing!
             PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE, CHANF_UI);
         }
         if (state == 0)
         {
-            if (skiprequest || !soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+            if (!soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
             {
-                skiprequest = false;
-                starttime = seconds;
+                starttime = ticks;
                 state = 1;
                 StopSound();
                 curpic = CREDITS1_PIC;
@@ -205,15 +210,19 @@ class DSWCreditsScreen : public DScreenJob
         }
         else
         {
-            if (seconds >= starttime + 8)
+            if (ticks >= starttime + 8 * GameTicRate)
             {
                 curpic = CREDITS1_PIC + CREDITS2_PIC - curpic;
-                starttime = seconds;
+                starttime = ticks;
             }
-            DrawTexture(twod, tileGetTexture(curpic, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
         }
-        if (skiprequest) StopSound();
-        return skiprequest ? -1 : 1;
+    }
+
+    void Draw(double) override
+    {
+        twod->ClearScreen();
+        if (state == 1)
+            DrawTexture(twod, tileGetTexture(curpic, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
     }
 };
 
@@ -377,31 +386,41 @@ private:
             (*(*State)->Animator)(0);
     }
 
-    int Frame(uint64_t clock, bool skiprequest)
+    bool OnEvent(event_t* ev) override
     {
-        twod->ClearScreen();
-        int currentclock = int(clock * 120 / 1'000'000'000);
+        if (ev->type == EV_KeyDown)
+        {
+            if (State >= s_BonusRest && State < &s_BonusRest[countof(s_BonusRest)])
+            {
+                State = s_BonusAnim[STD_RANDOM_RANGE(countof(s_BonusAnim))];
+                Tics = 0;
+                nextclock = ticks;
+            }
+        }
+        return true;
+    }
 
-        if (clock == 0)
+    void OnTick() override
+    {
+        if (ticks == 1)
         {
             PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
         }
+        while (ticks > nextclock)
+        {
+            nextclock++;
+            gStateControl(&State, &Tics);
+        }
 
-        if (skiprequest && State >= s_BonusRest && State < &s_BonusRest[countof(s_BonusRest)])
+        if (State == State->NextState)
         {
-            State = s_BonusAnim[STD_RANDOM_RANGE(countof(s_BonusAnim))];
-            Tics = 0;
-            skiprequest = false;
-            nextclock = currentclock;
+            state = finished;
+            StopSound();
         }
-        else
-        {
-            while (currentclock > nextclock)
-            {
-                nextclock += synctics;
-                gStateControl(&State, &Tics);
-            }
-        }
+    }
+
+    void Draw(double) override
+    {
         twod->ClearScreen();
         DrawTexture(twod, tileGetTexture(BONUS_SCREEN_PIC, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
         MNU_DrawString(160, 20, currentLevel->DisplayName(), 1, 19, 0);
@@ -437,10 +456,6 @@ private:
         MNU_DrawString(60, BONUS_LINE(line), ds, 1, 16);
 
         MNU_DrawString(160, 185, GStrings("PRESSKEY"), 1, 19, 0);
-
-        int ret = (State == State->NextState)? 0 : skiprequest ? -1 : 1;
-        if (ret != 1) StopSound();
-        return ret;
     }
 
 };
@@ -466,12 +481,17 @@ enum
 };
 
 
-class DSWMultiSummaryScreen : public DScreenJob
+class DSWMultiSummaryScreen : public DSkippableScreenJob
 {
     short death_total[MAX_SW_PLAYERS_REG]{};
     short kills[MAX_SW_PLAYERS_REG]{};
 
-    int Frame(uint64_t clock, bool skiprequest)
+    void Skipped() override
+    {
+        StopSound();
+    }
+
+    void Draw(double) override
     {
         if (clock == 0) PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
 
@@ -571,8 +591,6 @@ class DSWMultiSummaryScreen : public DScreenJob
 
             y += STAT_OFF_Y;
         }
-        if (skiprequest) StopSound();
-        return skiprequest ? -1 : 1;
     }
 };
 
@@ -635,7 +653,7 @@ class DSWLoadScreen : public DScreenJob
 public:
     DSWLoadScreen(MapRecord* maprec) : DScreenJob(0), rec(maprec) {}
 
-    int Frame(uint64_t clock, bool skiprequest)
+    void Draw(double) override
     {
         const int TITLE_PIC = 2324;
         twod->ClearScreen();
@@ -643,8 +661,6 @@ public:
 
         MNU_DrawString(160, 170, /*DemoMode ? GStrings("TXT_LBDEMO") :*/ GStrings("TXT_ENTERING"), 1, 16, 0);
         MNU_DrawString(160, 180, rec->DisplayName(), 1, 16, 0);
-
-        return 0;
     }
 };
 
