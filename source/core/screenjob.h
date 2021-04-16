@@ -44,6 +44,7 @@ public:
 		return false;
 	}
 
+	virtual void Start() {}
 	virtual bool OnEvent(event_t* evt) { return false; }
 	virtual void OnTick() { /*state = finished;*/ }
 	virtual void Draw(double smoothratio) {}

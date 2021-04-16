@@ -265,10 +265,11 @@ public:
 		playerswhenstarted = pws;
 	}
 
-	void OnTick() override
+	void Start() override
 	{
-		if (ticks == 1) S_PlayBonusMusic();
+		S_PlayBonusMusic();
 	}
+
 
 	void Draw(double) override
 	{
@@ -419,9 +420,13 @@ public:
 		return false;
 	}
 
+	void Start() override
+	{
+		S_PlayBonusMusic();
+	}
+
 	void OnTick() override
 	{
-		if (ticks == 1) S_PlayBonusMusic();
 		if ((displaystate & printStatsAll) != printStatsAll)
 		{
 			if (ticks == 15 * 3)
@@ -565,9 +570,13 @@ public:
 		S_StopSound(35);
 	}
 
+	void Start() override
+	{
+		S_PlaySound(35, CHAN_AUTO, CHANF_UI);
+	}
+
 	void OnTick() override
 	{
-		if (ticks == 1) S_PlaySound(35, CHAN_AUTO, CHANF_UI);
 		if (!S_CheckSoundPlaying(-1, 35) && ticks > 15 * GameTicRate) state = finished; // make sure it stays, even if sound is off.
 	}
 	void Draw(double) override

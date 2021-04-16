@@ -185,13 +185,14 @@ class DSWCreditsScreen : public DSkippableScreenJob
         StopSound();
     }
 
+    void Start() override
+    {
+        // Lo Wang feel like singing!
+        PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE, CHANF_UI);
+    }
+
     void OnTick() override
     {
-        if (ticks == 1)
-        {
-            // Lo Wang feel like singing!
-            PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE, CHANF_UI);
-        }
         if (state == 0)
         {
             if (!soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
@@ -400,12 +401,13 @@ private:
         return true;
     }
 
+    void Start() override
+    {
+        PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
+    }
+
     void OnTick() override
     {
-        if (ticks == 1)
-        {
-            PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
-        }
         while (ticks > nextclock)
         {
             nextclock++;

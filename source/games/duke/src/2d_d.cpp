@@ -729,9 +729,9 @@ public:
 		playerswhenstarted = pws;
 	}
 
-	void OnTick() override
+	void Start() override
 	{
-		if (ticks == 1) S_PlayBonusMusic();
+		S_PlayBonusMusic();
 	}
 
 	void Draw(double smoothratio) override
@@ -879,9 +879,13 @@ public:
 		return false;
 	}
 
+	void Start() override
+	{
+		S_PlayBonusMusic();
+	}
+
 	void OnTick() override
 	{
-		if (ticks == 1) S_PlayBonusMusic();
 		if ((displaystate & printStatsAll) != printStatsAll)
 		{
 			if (ticks == 15 * 3)

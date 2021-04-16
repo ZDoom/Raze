@@ -389,9 +389,13 @@ public:
         StopLocalSound();
     }
 
+    void Start() override
+    {
+        PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000, false, CHANF_UI);
+    }
+
     void OnTick() override
     {
-        if (ticks == 1) PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000, false, CHANF_UI);
 
         DImageScreen::OnTick();
         if (state == finished) StopLocalSound();
@@ -426,14 +430,15 @@ public:
         duration = skullDurations[0];
     }
 
+    void Start() override
+    {
+        PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
+        playCDtrack(19, true);
+    }
+
     void OnTick() override
     {
         int ticker = ticks * 120 / GameTicRate;
-        if (ticks == 1)
-        {
-            PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
-            playCDtrack(19, true);
-        }
         if (ticks > 1 && state == 0 && !soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_AUTO, -1))
         {
             if (time(0) & 0xF) // cheap-ass random...
@@ -985,24 +990,24 @@ public:
         check = checklevel;
     }
 	
-    void OnTick() override
+    void Start() override
     {
-        if (ticks == 1)
+        if (check > 0 && check != selectedlevelnew)
         {
-            if (check > 0 && check != selectedlevelnew)
-            {
-                state = finished;
-                return; // immediately abort if the player selected a different level on the map
-            }
-
-            check = -1;
-            StopAllSounds();
-            if (edx != -1)
-            {
-                playCDtrack(edx + 2, false);
-            }
+            state = finished;
+            return; // immediately abort if the player selected a different level on the map
         }
 
+        check = -1;
+        StopAllSounds();
+        if (edx != -1)
+        {
+            playCDtrack(edx + 2, false);
+        }
+    }
+
+    void OnTick() override
+    {
         if (!cont)
         {
             state = finished;
@@ -1018,7 +1023,7 @@ public:
     void Draw(double smoothratio) override
     {
         twod->ClearScreen();
-        if (check < 0) return;
+        if (check == 0) return;
         DrawTexture(twod, tileGetTexture(cinematile), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
 
         text.DisplayText();
@@ -1162,14 +1167,14 @@ private:
         return true;
     }
 
+    void Start() override
+    {
+        PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
+        phase = 1;
+    }
+
     void OnTick() override
     {
-        if (ticks == 1)
-        {
-            PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
-            phase = 1;
-        }
-
         switch (phase)
         {
         case 1:
@@ -1264,20 +1269,20 @@ public:
         return true;
     }
 
+    void Start() override
+    {
+        if (credits.Size() == 0)
+        {
+            state = finished;
+            return;
+        }
+        playCDtrack(19, false);
+        pagetime = 0;
+        page = -1;
+    }
+
     void OnTick() override
     {
-        if (ticks == 1)
-        {
-            if (credits.Size() == 0)
-            {
-                state = finished;
-                return;
-            }
-            playCDtrack(19, false);
-            pagetime = 0;
-            page = -1;
-        }
-
         if (ticks >= pagetime || skiprequest)
         {
             page++;

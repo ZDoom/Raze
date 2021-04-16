@@ -271,7 +271,6 @@ public:
 DScreenJob* PlayMovie(const char* fileName)
 {
     // clear keys
-    inputState.ClearAllInput();
 
     auto fp = fileSystem.OpenFileReader(fileName);
     if (!fp.isOpen())

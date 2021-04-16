@@ -176,6 +176,7 @@ public:
 		if (index < jobs.Size())
 		{
 			jobs[index].job->fadestate = !paused && jobs[index].job->fadestyle & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
+			jobs[index].job->Start();
 		}
 		inputState.ClearAllInput();
 	}
