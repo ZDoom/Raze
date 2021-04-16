@@ -830,7 +830,6 @@ class DDukeLevelSummaryScreen : public DScreenJob
 {
 	const char* lastmapname;
 	int gfx_offset;
-	int bonuscnt = 0;
 	int speech = -1;
 	int displaystate = 0;
 	int dukeAnimStart;
@@ -848,11 +847,6 @@ class DDukeLevelSummaryScreen : public DScreenJob
 		dukeWait = 128,
 
 	};
-
-	void SetTotalClock(int tc)
-	{
-		SetClock(tc * (uint64_t)1'000'000'000 / 120);
-	}
 
 public:
 	DDukeLevelSummaryScreen() : DScreenJob(fadein | fadeout)
@@ -933,7 +927,7 @@ public:
 		}
 		if (displaystate & dukeWait)
 		{
-			if (speech <= 0 || !soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, speech)) 
+			if (speech <= 0 || !S_CheckSoundPlaying(speech)) 
 				state = finished;
 		}
 	}
