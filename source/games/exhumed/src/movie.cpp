@@ -249,7 +249,6 @@ public:
                 angle = 0;
             }
         }
-        assert(z < 65536);
 
         {
             twod->ClearScreen();
