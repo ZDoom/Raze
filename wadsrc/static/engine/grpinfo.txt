@@ -427,7 +427,7 @@ grpinfo
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
-	GameID "CyrpticPassage"
+	GameID "CrypticPassage"
 }
 
 addon
@@ -440,7 +440,7 @@ addon
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
-	GameID "CyrpticPassage"
+	GameID "CrypticPassage"
 }
 
 addon
@@ -454,7 +454,7 @@ addon
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
-	GameID "CyrpticPassage"
+	GameID "CrypticPassage"
 }
 
 addon
@@ -467,7 +467,7 @@ addon
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
 	dependency BLOOD_CRC
 	gamefilter "Blood.Cryptic"
-	GameID "CyrpticPassage"
+	GameID "CrypticPassage"
 }
 
 grpinfo
