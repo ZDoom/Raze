@@ -182,7 +182,7 @@ struct PLAYER
 struct AMMOINFO
 {
     int max;
-    signed char vectorType;
+    int8_t vectorType;
 };
 
 struct POWERUPINFO

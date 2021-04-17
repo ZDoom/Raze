@@ -115,7 +115,7 @@ enum SurfaceType {
 };
 
 extern char surfType[MAXTILES];
-extern signed char tileShade[MAXTILES];
+extern int8_t tileShade[MAXTILES];
 extern short voxelIndex[MAXTILES];
 
 extern int nPrecacheCount;

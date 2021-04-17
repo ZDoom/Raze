@@ -41,7 +41,7 @@ int tileEnd[256];
 int hTileFile[256];
 
 char surfType[kMaxTiles];
-signed char tileShade[kMaxTiles];
+int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
 
 const char *pzBaseFileName = "TILES%03i.ART"; //"TILES%03i.ART";

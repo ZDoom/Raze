@@ -44,8 +44,8 @@ BEGIN_BLD_NS
 
 static struct {
 	short nTile;
-	unsigned char nStat;
-	unsigned char nPal;
+	uint8_t nStat;
+	uint8_t nPal;
 	int nScale;
 	short nX, nY;
 } burnTable[9] = {
