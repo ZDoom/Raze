@@ -76,7 +76,7 @@ struct THINGINFO
     int dmgResist; // damage resistance
     short cstat;
     short picnum;
-    char shade;
+    int8_t shade;
     uint8_t pal;
     uint8_t xrepeat; // xrepeat
     uint8_t yrepeat; // yrepeat
@@ -87,8 +87,8 @@ struct AMMOITEMDATA
 {
     short cstat;
     short picnum;
-    char shade;
-    char pal;
+    int8_t shade;
+    uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
     short count;
@@ -100,8 +100,8 @@ struct WEAPONITEMDATA
 {
     short cstat;
     short picnum;
-    char shade;
-    char pal;
+    int8_t shade;
+    uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
     short type;
@@ -113,8 +113,8 @@ struct ITEMDATA
 {
     short cstat;
     short picnum;
-    char shade;
-    char pal;
+    int8_t shade;
+    uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
     short packSlot;
@@ -127,7 +127,7 @@ struct MissileType
     int angleOfs;
     uint8_t xrepeat;
     uint8_t yrepeat;
-    char shade;
+    int8_t shade;
     uint8_t clipDist;
 };
 
