@@ -404,12 +404,11 @@ grpinfo
 	GameID "Blood"
 }
 
-/* this doesn't work with the current setup.
 grpinfo
 {
 	// This is for identifying older Blood versions. Since I have no information, all I can do is testing for a few known files.
 	name "BLOOD: Unknown Version"
-	mustcontain "help1.qav", "cult2d2.seq", "tombstn1.kvx", "normal.plu"
+	mustcontain "help1.qav", "normal.plu", "inverse.clu", "cosine.dat", "blood.pal"
 	defname "blood.def"
 	scriptname "BLOOD.INI"
 	flags GAMEFLAG_BLOOD
@@ -417,7 +416,6 @@ grpinfo
 	loadgrp "SOUNDS.RFF", "GUI.RFF"
 	gamefilter "Blood.Blood"
 }
-*/
 
 grpinfo
 {
