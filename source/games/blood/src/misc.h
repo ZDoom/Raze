@@ -50,7 +50,7 @@ void WeaponInit(void);
 void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int smoothratio);
 void WeaponRaise(PLAYER *pPlayer);
 void WeaponLower(PLAYER *pPlayer);
-char WeaponUpgrade(PLAYER *pPlayer, char newWeapon);
+int WeaponUpgrade(PLAYER *pPlayer, int newWeapon);
 void WeaponProcess(PLAYER *pPlayer);
 void WeaponUpdateState(PLAYER* pPlayer);
 void teslaHit(spritetype *pMissile, int a2);

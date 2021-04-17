@@ -144,7 +144,7 @@ enum
 
 QAV *weaponQAV[kQAVEnd];
 
-char sub_4B1A4(PLAYER *pPlayer)
+static bool sub_4B1A4(PLAYER *pPlayer)
 {
     switch (pPlayer->curWeapon)
     {
@@ -169,12 +169,12 @@ char sub_4B1A4(PLAYER *pPlayer)
     return 0;
 }
 
-char BannedUnderwater(int nWeapon)
+static bool BannedUnderwater(int nWeapon)
 {
     return nWeapon == 7 || nWeapon == 6;
 }
 
-char CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count)
+static bool CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count)
 {
     if (gInfiniteAmmo)
         return 1;
@@ -187,7 +187,7 @@ char CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count)
     return pPlayer->ammoCount[ammotype] >= count;
 }
 
-char CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
+static bool CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
 {
     if (gInfiniteAmmo)
         return 1;
@@ -200,7 +200,7 @@ char CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
     return pPlayer->ammoCount[ammotype] >= count;
 }
 
-char checkAmmo2(PLAYER *pPlayer, int ammotype, int amount)
+static bool checkAmmo2(PLAYER *pPlayer, int ammotype, int amount)
 {
     if (gInfiniteAmmo)
         return 1;
@@ -1735,7 +1735,7 @@ void FireBeast(int nTrigger, PLAYER * pPlayer)
     actFireVector(pPlayer->pSprite, 0, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, VECTOR_TYPE_9);
 }
 
-char gWeaponUpgrade[][13] = {
+uint8_t gWeaponUpgrade[][13] = {
     { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
     { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
     { 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -1751,9 +1751,9 @@ char gWeaponUpgrade[][13] = {
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
 };
 
-char WeaponUpgrade(PLAYER *pPlayer, char newWeapon)
+int WeaponUpgrade(PLAYER *pPlayer, int newWeapon)
 {
-    char weapon = pPlayer->curWeapon;
+    int weapon = pPlayer->curWeapon;
     if (!sub_4B1A4(pPlayer) && (cl_weaponswitch&1) && (gWeaponUpgrade[pPlayer->curWeapon][newWeapon] || (cl_weaponswitch&2)))
         weapon = newWeapon;
     return weapon;
@@ -1762,7 +1762,7 @@ char WeaponUpgrade(PLAYER *pPlayer, char newWeapon)
 int OrderNext[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 1 };
 int OrderPrev[] = { 12, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1 };
 
-char WeaponFindNext(PLAYER *pPlayer, int *a2, char bDir)
+static int WeaponFindNext(PLAYER *pPlayer, int *a2, int bDir)
 {
     int weapon = pPlayer->curWeapon;
     do
@@ -1795,9 +1795,9 @@ char WeaponFindNext(PLAYER *pPlayer, int *a2, char bDir)
     return weapon;
 }
 
-char WeaponFindLoaded(PLAYER *pPlayer, int *a2)
+static int WeaponFindLoaded(PLAYER *pPlayer, int *a2)
 {
-    char v4 = 1;
+    int v4 = 1;
     int v14 = 0;
     if (weaponModes[pPlayer->curWeapon].update > 1)
     {
@@ -1874,7 +1874,7 @@ int processSprayCan(PLAYER *pPlayer)
     return 0;
 }
 
-char processTNT(PLAYER *pPlayer)
+static bool processTNT(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1912,7 +1912,7 @@ char processTNT(PLAYER *pPlayer)
     return 0;
 }
 
-char processProxy(PLAYER *pPlayer)
+static bool processProxy(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1929,7 +1929,7 @@ char processProxy(PLAYER *pPlayer)
     return 0;
 }
 
-char processRemote(PLAYER *pPlayer)
+static bool processRemote(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1945,7 +1945,7 @@ char processRemote(PLAYER *pPlayer)
     return 0;
 }
 
-char processLeech(PLAYER *pPlayer)
+static bool processLeech(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -1969,7 +1969,7 @@ char processLeech(PLAYER *pPlayer)
     return 0;
 }
 
-char processTesla(PLAYER *pPlayer)
+static bool processTesla(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {
@@ -2109,7 +2109,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         }
         pPlayer->nextWeapon = 0;
         int t;
-        char weapon = WeaponFindNext(pPlayer, &t, 1);
+        int weapon = WeaponFindNext(pPlayer, &t, 1);
         pPlayer->weaponMode[weapon] = t;
         if (VanillaMode())
         {
@@ -2131,7 +2131,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         }
         pPlayer->nextWeapon = 0;
         int t;
-        char weapon = WeaponFindNext(pPlayer, &t, 0);
+        int weapon = WeaponFindNext(pPlayer, &t, 0);
         pPlayer->weaponMode[weapon] = t;
         if (VanillaMode())
         {
@@ -2146,7 +2146,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     else if (pPlayer->input.getNewWeapon() == WeaponSel_Alt)
     {
-        char weapon;
+        int weapon;
 
         switch (pPlayer->curWeapon)
         {
@@ -2189,7 +2189,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         pPlayer->weaponState = 0;
         int t;
-        char weapon = WeaponFindLoaded(pPlayer, &t);
+        int weapon = WeaponFindLoaded(pPlayer, &t);
         pPlayer->weaponMode[weapon] = t;
         if (pPlayer->curWeapon)
         {
@@ -2263,7 +2263,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 {
                     pPlayer->weaponState = 0;
                     int t;
-                    char weapon = WeaponFindLoaded(pPlayer, &t);
+                    int weapon = WeaponFindLoaded(pPlayer, &t);
                     pPlayer->weaponMode[weapon] = t;
                     if (pPlayer->curWeapon)
                     {
@@ -2597,11 +2597,11 @@ void teslaHit(spritetype *pMissile, int a2)
     int nSector = pMissile->sectnum;
     int nOwner = pMissile->owner;
     GetClosestSpriteSectors(nSector, x, y, nDist, va4);
-    char v4 = 1;
+    bool v4 = true;
     int v24 = -1;
     actHitcodeToData(a2, &gHitInfo, &v24, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     if (a2 == 3 && v24 >= 0 && sprite[v24].statnum == kStatDude)
-        v4 = 0;
+        v4 = false;
     int nSprite;
     StatIterator it(kStatDude);
     while ((nSprite = it.NextIndex()) >= 0)
