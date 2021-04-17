@@ -35,8 +35,6 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
     return T_ERROR;
 }
 
-void AddUserMapHack(usermaphack_t&);
-
 enum scripttoken_t
 {
     T_INCLUDE = 0,
@@ -329,6 +327,7 @@ static int32_t defsparser(scriptfile *script)
         case T_CACHESIZE:
         case T_SHADEFACTOR:
         case T_GLOBALGAMEFLAGS:
+        case T_GLOBALFLAGS:
             parseSkip<1>(*script, pos);
             break;
         case T_SPRITECOL:
@@ -1545,180 +1544,20 @@ static int32_t defsparser(scriptfile *script)
 
         case T_SOUND:
         case T_MUSIC:
-        {
-            FScanner::SavedPos p;
-            FString dummy, dummy2;
-            static const tokenlist sound_musictokens[] =
-            {
-                { "id",   T_ID  },
-                { "file", T_FILE },
-            };
-
-            if (scriptfile_getbraces(script,&p)) break;
-            while (!scriptfile_endofblock(script, p))
-            {
-                switch (getatoken(script,sound_musictokens,countof(sound_musictokens)))
-                {
-                case T_ID:
-                    scriptfile_getstring(script,&dummy2);
-                    break;
-                case T_FILE:
-                    scriptfile_getstring(script,&dummy);
-                    break;
-                }
-            }
-            SetMusicForMap(dummy2, dummy, true);
-        }
+            parseMusic(*script, pos);
         break;
 
         case T_MAPINFO:
-        {
-            FString mapmd4string;
-            FScanner::SavedPos mapinfoend;
-            usermaphack_t mhk;
-            static const tokenlist mapinfotokens[] =
-            {
-                { "mapfile",    T_MAPFILE },
-                { "maptitle",   T_MAPTITLE },
-                { "mapmd4",     T_MAPMD4 },
-                { "mhkfile",    T_MHKFILE },
-            };
-
-            if (scriptfile_getbraces(script,&mapinfoend)) break;
-            while (!scriptfile_endofblock(script, mapinfoend))
-            {
-                switch (getatoken(script,mapinfotokens,countof(mapinfotokens)))
-                {
-                case T_MAPFILE:
-                    scriptfile_getstring(script,nullptr);
-                    break;
-                case T_MAPTITLE:
-                    scriptfile_getstring(script,&mhk.title);
-                    break;
-                case T_MAPMD4:
-                {
-                    scriptfile_getstring(script,&mapmd4string);
-
-                    for (int i = 0; i < 16; i++)
-                    {
-                        char smallbuf[3] = { mapmd4string[2 * i], mapmd4string[2 * i + 1], 0 };
-                        mhk.md4[i] = strtol(smallbuf, NULL, 16);
-                    }
-
-                    break;
-                }
-                case T_MHKFILE:
-                    scriptfile_getstring(script,&mhk.mhkfile);
-                    break;
-                }
-            }
-            AddUserMapHack(mhk);
-        }
-        break;
+            parseMapinfo(*script, pos);
+            break;
 
         case T_ECHO:
-        {
-            FString string;
-            scriptfile_getstring(script,&string);
-            Printf("%s\n",string.GetChars());
-        }
-        break;
-
-        case T_GLOBALFLAGS:
-        {
-            if (scriptfile_getnumber(script,&globalflags)) break;
-        }
-        break;
+            parseEcho(*script, pos);
+            break;
 
         case T_MULTIPSKY:
-        {
-            FScanner::SavedPos blockend;
-            int32_t tile;
-
-            static const tokenlist subtokens[] =
-            {
-                { "horizfrac",       T_HORIZFRAC },
-                { "yoffset",         T_YOFFSET },
-                { "lognumtiles",     T_LOGNUMTILES },
-                { "tile",            T_TILE },
-                { "panel",           T_TILE },
-                { "yscale",          T_YSCALE },
-            };
-
-            if (scriptfile_getsymbol(script,&tile))
-                break;
-            if (scriptfile_getbraces(script,&blockend))
-                break;
-
-            if (tile != DEFAULTPSKY && (unsigned)tile >= MAXUSERTILES)
-            {
-                scriptfile_setposition(script, blockend);
-                break;
-            }
-
-            psky_t * const newpsky = tileSetupSky(tile);
-
-            while (!scriptfile_endofblock(script, blockend))
-            {
-                int32_t token = getatoken(script,subtokens,countof(subtokens));
-                switch (token)
-                {
-                case T_HORIZFRAC:
-                {
-                    int32_t horizfrac;
-                    scriptfile_getsymbol(script,&horizfrac);
-
-                    newpsky->horizfrac = horizfrac;
-                    break;
-                }
-                case T_YOFFSET:
-                {
-                    int32_t yoffset;
-                    scriptfile_getsymbol(script,&yoffset);
-
-                    newpsky->yoffs = yoffset;
-                    break;
-                }
-                case T_LOGNUMTILES:
-                {
-                    int32_t lognumtiles;
-                    scriptfile_getsymbol(script,&lognumtiles);
-
-                    if ((1<<lognumtiles) > MAXPSKYTILES)
-                        break;
-
-                    newpsky->lognumtiles = lognumtiles;
-                    break;
-                }
-                case T_TILE:
-                {
-                    int32_t panel, offset;
-                    scriptfile_getsymbol(script,&panel);
-                    scriptfile_getsymbol(script,&offset);
-
-                    if ((unsigned) panel >= MAXPSKYTILES)
-                        break;
-
-                    if ((unsigned) offset > PSKYOFF_MAX)
-                        break;
-
-                    newpsky->tileofs[panel] = offset;
-                    break;
-                }
-                case T_YSCALE:
-                {
-                    int32_t yscale;
-                    scriptfile_getsymbol(script,&yscale);
-
-                    newpsky->yscale = yscale;
-                    break;
-                }
-                default:
-                    break;
-                }
-            }
-        }
-        break;
+            parseMultiPsky(*script, pos);
+            break;
         case T_BASEPALETTE:
         {
             FScanner::SavedPos blockend;

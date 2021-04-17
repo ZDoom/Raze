@@ -56,8 +56,6 @@ int16_t pskybits_override = -1;
 
 static int32_t beforedrawrooms = 1;
 
-int32_t globalflags;
-
 static int8_t tempbuf[MAXWALLS];
 
 static int32_t no_radarang2 = 0;
@@ -1169,6 +1167,8 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
         {
             auto const spr = (uspriteptr_t)&sprite[z];
 
+            if (spr->cstat & CSTAT_SPRITE_NOFIND)
+                continue;
             if (blacklist_sprite_func && blacklist_sprite_func(z))
                 continue;
 

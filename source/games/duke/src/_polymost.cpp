@@ -30,7 +30,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	DukeStatIterator it(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = &act->s;
+		auto spr = act->s;
 		if (
 			spr->picnum == SECTOREFFECTOR &&
 			spr->lotag == fofmode &&
@@ -50,7 +50,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = &act->s;
+		auto spr = act->s;
 		if (
 			spr->picnum == SECTOREFFECTOR &&
 			spr->lotag == k &&
@@ -68,7 +68,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = &act->s;
+		auto spr = act->s;
 		if (spr->picnum == SECTOREFFECTOR &&
 			spr->lotag == k + 2 &&
 			spr->hitag == floor1->hitag
@@ -101,7 +101,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = &act->s;
+		auto spr = act->s;
 		if (spr->picnum == 1 &&
 			spr->lotag == k + 2 &&
 			spr->hitag == floor1->hitag
@@ -139,7 +139,7 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 	DukeStatIterator it(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		switch (act->s.lotag - tag + 40)
+		switch (act->s->lotag - tag + 40)
 		{
 			//            case 40:
 			//            case 41:
@@ -149,8 +149,8 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 		case 43:
 		case 44:
 		case 45:
-			if (ps[screenpeek].cursectnum == act->s.sectnum)
-				SE40_Draw(tag, &act->s, x, y, z, a, h, smoothratio);
+			if (ps[screenpeek].cursectnum == act->s->sectnum)
+				SE40_Draw(tag, act->s, x, y, z, a, h, smoothratio);
 			break;
 		}
 	}
@@ -218,7 +218,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			changespritesect(act, geosectorwarp[gs]);
-			setsprite(act, act->s.x -= geox[gs], act->s.y -= geoy[gs], act->s.z);
+			setsprite(act, act->s->x -= geox[gs], act->s->y -= geoy[gs], act->s->z);
 		}
 		if (geosector[gs] == sect)
 		{
@@ -238,7 +238,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			changespritesect(act, geosector[gs]);
-			setsprite(act, act->s.x += geox[gs], act->s.y += geoy[gs], act->s.z);
+			setsprite(act, act->s->x += geox[gs], act->s->y += geoy[gs], act->s->z);
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);
@@ -250,7 +250,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			changespritesect(act, geosectorwarp2[gs]);
-			setsprite(act, act->s.x -= geox2[gs], act->s.y -= geoy2[gs], act->s.z);
+			setsprite(act, act->s->x -= geox2[gs], act->s->y -= geoy2[gs], act->s->z);
 		}
 		if (geosector[gs] == sect)
 		{
@@ -270,7 +270,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			changespritesect(act, geosector[gs]);
-			setsprite(act, act->s.x += geox2[gs], act->s.y += geoy2[gs], act->s.z);
+			setsprite(act, act->s->x += geox2[gs], act->s->y += geoy2[gs], act->s->z);
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);

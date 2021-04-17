@@ -217,13 +217,13 @@ typedef struct {
     // The proportion at which looking up/down affects the apparent 'horiz' of
     // a parallaxed sky, scaled by 65536 (so, a value of 65536 makes it align
     // with the drawn surrounding scene):
-    int32_t horizfrac;
+    int horizfrac;
 
     // The texel index offset in the y direction of a parallaxed sky:
     // XXX: currently always 0.
-    int32_t yoffs;
+    int yoffs;
 
-    int8_t lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
+    int lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
     int16_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
 
     int32_t yscale;
@@ -276,8 +276,6 @@ enum {
     GLOBAL_NO_GL_FULLBRIGHT = 1<<1,
     GLOBAL_NO_GL_FOGSHADE = 1<<2,
 };
-
-extern int32_t globalflags;
 
 extern const char *engineerrstr;
 

@@ -126,7 +126,7 @@ FMemArena dump;	// this is for memory blocks than cannot be deallocated without 
 
 InputState inputState;
 int ShowStartupWindow(TArray<GrpEntry> &);
-FString GetGameFronUserFiles();
+TArray<FString> GetGameFronUserFiles();
 void InitFileSystem(TArray<GrpEntry>&);
 void I_SetWindowTitle(const char* caption);
 void S_ParseSndInfo();
@@ -663,14 +663,25 @@ static TArray<GrpEntry> SetupGame()
 
 	int groupno = -1;
 
-	// If the user has specified a file name, let's see if we know it.
-	//
-	FString game = GetGameFronUserFiles();
+	auto game = GetGameFronUserFiles();
 	if (userConfig.gamegrp.IsEmpty())
 	{
-		userConfig.gamegrp = game;
+		for (auto& str : game)
+		{
+			for (auto& grp : groups)
+			{
+				if (grp.FileInfo.gameid.CompareNoCase(str) == 0)
+				{
+					userConfig.gamegrp = grp.FileName;
+					goto foundit;
+				}
+			}
+		}
 	}
+	foundit:
 
+	// If the user has specified a file name, let's see if we know it.
+	//
 	if (userConfig.gamegrp.Len())
 	{
 		FString gamegrplower = "/" + userConfig.gamegrp.MakeLower();
@@ -766,7 +777,7 @@ static TArray<GrpEntry> SetupGame()
 		if (ugroup.FileInfo.gamefilter.IsNotEmpty()) LumpFilter = ugroup.FileInfo.gamefilter;
 		g_gameType |= ugroup.FileInfo.flags;
 	}
-	if (userConfig.DefaultCon.IsEmpty()) userConfig.DefaultCon = selectedScript;
+	if (userConfig.DefaultCon.IsEmpty()) userConfig.DefaultCon = GameStartupInfo.con.IsNotEmpty()? GameStartupInfo.con : selectedScript;
 	if (userConfig.DefaultDef.IsEmpty()) userConfig.DefaultDef = selectedDef;
 
 	// This can only happen with a custom game that does not define any filter.
@@ -1006,29 +1017,6 @@ int RunGame()
 //
 //---------------------------------------------------------------------------
 
-
-void TickSubsystems()
-{
-	// run these on an independent timer until we got something working for the games.
-	static const uint64_t tickInterval = 1'000'000'000 / 30;
-	static uint64_t nexttick = 0;
-
-	auto nowtick = I_nsTime();
-	if (nexttick == 0) nexttick = nowtick;
-	int cnt = 0;
-	while (nexttick <= nowtick && cnt < 5)
-	{
-		nexttick += tickInterval;
-		C_Ticker();
-		M_Ticker();
-		C_RunDelayedCommands();
-		cnt++;
-	}
-	// If this took too long the engine was most likely suspended so recalibrate the timer.
-	// Perfect precision is not needed here.
-	if (cnt == 5) nexttick = nowtick + tickInterval;
-}
-
 void updatePauseStatus()
 {
 	// This must go through the network in multiplayer games.
@@ -1051,7 +1039,10 @@ void updatePauseStatus()
 		}
 	}
 
-	paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
+	if (paused)
+		S_PauseSound(!pausedWithKey, !paused);
+	else 
+		S_ResumeSound(paused);
 }
 
 //==========================================================================
@@ -1141,6 +1132,7 @@ void S_PauseSound (bool notmusic, bool notsfx)
 	{
 		soundEngine->SetPaused(true);
 		GSnd->SetSfxPaused (true, 0);
+		S_PauseAllCustomStreams(true);
 	}
 }
 
@@ -1159,6 +1151,7 @@ void S_ResumeSound (bool notsfx)
 	{
 		soundEngine->SetPaused(false);
 		GSnd->SetSfxPaused (false, 0);
+		S_PauseAllCustomStreams(false);
 	}
 }
 

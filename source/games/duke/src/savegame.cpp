@@ -161,6 +161,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.Array("weaprecs", w.weaprecs, w.weapreccnt)
 			("interface_toggle_flag", w.interface_toggle_flag)
 			("dead_flag", w.dead_flag)
+			("resurrected", w.resurrected)
 			("show_empty_weapon", w.show_empty_weapon)
 			("scuba_amount", w.scuba_amount)
 			("jetpack_amount", w.jetpack_amount)

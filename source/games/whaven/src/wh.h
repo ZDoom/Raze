@@ -525,7 +525,7 @@ struct GameInterface : public ::GameInterface
 	const char* GenericCheat(int player, int cheat) override;
 	const char* CheckCheatMode() override;
 	void NextLevel(MapRecord* map, int skill) override;
-	void NewGame(MapRecord* map, int skill) override;
+	void NewGame(MapRecord* map, int skill, bool s = false) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
 	//bool DrawAutomapPlayer(int x, int y, int z, int a) override;
 	int playerKeyMove() override { return isWh2()? 20:15; }

@@ -200,7 +200,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DLmfPlayer : public DScreenJob
+class DLmfPlayer : public DSkippableScreenJob
 {
     LMFPlayer decoder;
     double angle = 1536;
@@ -216,6 +216,7 @@ public:
         lastclock = 0;
         nextclock = 0;
         fp = std::move(fr);
+        pausable = false;
     }
 
     //---------------------------------------------------------------------------
@@ -224,14 +225,16 @@ public:
     //
     //---------------------------------------------------------------------------
 
-    int Frame(uint64_t clock, bool skiprequest) override
+    void Draw(double smoothratio) override
     {
+        uint64_t clock = (ticks + smoothratio) * 1'000'000'000. / GameTicRate;
         if (clock >= nextclock)
         {
             nextclock += 100'000'000;
             if (decoder.ReadFrame(fp) == 0)
             {
-                return 0;
+                state = finished;
+                return;
             }
         }
 
@@ -254,7 +257,6 @@ public:
         }
         
         lastclock = clock;
-        return skiprequest ? -1 : 1;
     }
 
     void OnDestroy() override
@@ -269,12 +271,11 @@ public:
 DScreenJob* PlayMovie(const char* fileName)
 {
     // clear keys
-    inputState.ClearAllInput();
 
     auto fp = fileSystem.OpenFileReader(fileName);
     if (!fp.isOpen())
     {
-        return Create<DScreenJob>();
+        return Create<DBlackScreen>(1);
     }
     char buffer[4];
     fp.Read(buffer, 4);

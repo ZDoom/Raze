@@ -275,7 +275,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 
 void animatecamsprite(double s);
 
-void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang)
+void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, double smoothratio)
 {
 	checkRotatedWalls();
 
@@ -295,7 +295,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 	// Get this before everything else
 	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang);
 	if (cl_capfps) r_viewpoint.TicFrac = 1.;
-	else r_viewpoint.TicFrac = I_GetTimeFrac();
+	else r_viewpoint.TicFrac = smoothratio * (1/65536.);
 
 	screen->mLights->Clear();
 	screen->mViewpoints->Clear();

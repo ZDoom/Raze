@@ -39,9 +39,9 @@ source as it is released.
 
 BEGIN_DUKE_NS 
   
-double getavel(int snum)
+inline static double getavel(int snum)
 {
-	return FixedToFloat(PlayerInputAngVel(screenpeek));
+	return PlayerInputAngVel(snum) * (2048. / 360.);
 }
 
 //---------------------------------------------------------------------------
@@ -61,22 +61,22 @@ inline static void hud_drawpal(double x, double y, int tilenum, int shade, int o
 //
 //---------------------------------------------------------------------------
 
-void displayloogie(short snum)
+void displayloogie(player_struct* p)
 {
 	int i, a, y, z;
 	double x;
 
-	if (ps[snum].loogcnt == 0) return;
+	if (p->loogcnt == 0) return;
 
-	y = (ps[snum].loogcnt << 2);
-	for (i = 0; i < ps[snum].numloogs; i++)
+	y = (p->loogcnt << 2);
+	for (i = 0; i < p->numloogs; i++)
 	{
-		a = abs(bsinf((ps[snum].loogcnt + i) << 5, -5));
-		z = 4096 + ((ps[snum].loogcnt + i) << 9);
-		x = -getavel(snum) + bsinf((ps[snum].loogcnt + i) << 6, -10);
+		a = abs(bsinf((p->loogcnt + i) << 5, -5));
+		z = 4096 + ((p->loogcnt + i) << 9);
+		x = -getavel(p->i) + bsinf((p->loogcnt + i) << 6, -10);
 
 		hud_drawsprite(
-			(ps[snum].loogiex[i] + x), (200 + ps[snum].loogiey[i] - y), z - (i << 8), 256 - a,
+			(p->loogiex[i] + x), (200 + p->loogiey[i] - y), z - (i << 8), 256 - a,
 			LOOGIE, 0, 0, 2);
 	}
 }
@@ -87,17 +87,15 @@ void displayloogie(short snum)
 //
 //---------------------------------------------------------------------------
 
-int animatefist(int gs, int snum, double look_anghalf)
+int animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal)
 {
-	short fisti, fistpal;
+	short fisti;
 	int fistzoom;
-	double looking_arc, fistz;
+	double fistz;
 
-	fisti = ps[snum].fist_incs;
+	fisti = p->fist_incs;
 	if (fisti > 32) fisti = 32;
 	if (fisti <= 0) return 0;
-
-	looking_arc = fabs(look_anghalf) / 4.5;
 
 	fistzoom = 65536L - bcosf(fisti << 6, 2);
 	if (fistzoom > 90612L)
@@ -106,13 +104,8 @@ int animatefist(int gs, int snum, double look_anghalf)
 		fistzoom = 40290;
 	fistz = 194 + bsinf((6 + fisti) << 7, -9);
 
-	if (ps[snum].GetActor()->s.pal == 1)
-		fistpal = 1;
-	else
-		fistpal = sector[ps[snum].cursectnum].floorpal;
-
 	hud_drawsprite(
-		(-fisti + 222 + (getavel(snum) / 16.)),
+		(-fisti + 222 + plravel),
 		(looking_arc + fistz),
 		fistzoom, 0, FIST, gs, fistpal, 2);
 
@@ -125,28 +118,15 @@ int animatefist(int gs, int snum, double look_anghalf)
 //
 //---------------------------------------------------------------------------
 
-int animateknee(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
+int animateknee(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal)
 {
+	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
+
 	static const short knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
-	short pal;
-	double looking_arc;
 
-	if (ps[snum].knee_incs > 11 || ps[snum].knee_incs == 0 || ps[snum].GetActor()->s.extra <= 0) return 0;
+	looking_arc += knee_y[p->knee_incs];
 
-	looking_arc = knee_y[ps[snum].knee_incs] + (fabs(look_anghalf) / 4.5);
-
-	looking_arc -= hard_landing * 8.;
-
-	if (ps[snum].GetActor()->s.pal == 1)
-		pal = 1;
-	else
-	{
-		pal = sector[ps[snum].cursectnum].floorpal;
-		if (pal == 0)
-			pal = ps[snum].palookup;
-	}
-
-	hud_drawpal(105 + (getavel(snum) / 16.) - look_anghalf + (knee_y[ps[snum].knee_incs] >> 2), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
+	hud_drawpal(105 + plravel - look_anghalf + (knee_y[p->knee_incs] >> 2), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
 
 	return 1;
 }
@@ -157,24 +137,13 @@ int animateknee(int gs, int snum, double hard_landing, double look_anghalf, doub
 //
 //---------------------------------------------------------------------------
 
-int animateknuckles(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
+int animateknuckles(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal)
 {
+	if (isWW2GI() || p->over_shoulder_on != 0 || p->knuckle_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
+
 	static const short knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
-	short pal;
-	double looking_arc;
 
-	if (isWW2GI() || ps[snum].over_shoulder_on != 0 || ps[snum].knuckle_incs == 0 || ps[snum].GetActor()->s.extra <= 0) return 0;
-
-	looking_arc = fabs(look_anghalf) / 4.5;
-
-	looking_arc -= hard_landing * 8.;
-
-	if (ps[snum].GetActor()->s.pal == 1)
-		pal = 1;
-	else
-		pal = sector[ps[snum].cursectnum].floorpal;
-
-	hud_drawpal(160 + (getavel(snum) / 16.) - look_anghalf, looking_arc + 180 - horiz16th, CRACKKNUCKLES + knuckle_frames[ps[snum].knuckle_incs >> 1], gs, 4, pal);
+	hud_drawpal(160 + plravel - look_anghalf, looking_arc + 180 - horiz16th, CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal);
 
 	return 1;
 }
@@ -186,15 +155,8 @@ int animateknuckles(int gs, int snum, double hard_landing, double look_anghalf, 
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_d(int snum, double)
+void displaymasks_d(int snum, int p, double)
 {
-	int p;
-
-	if (ps[snum].GetActor()->s.pal == 1)
-		p = 1;
-	else
-		p = sector[ps[snum].cursectnum].floorpal;
-
 	if (ps[snum].scuba_on)
 	{
 		int y = 200 - tileHeight(SCUBAMASK);
@@ -209,24 +171,14 @@ void displaymasks_d(int snum, double)
 //
 //---------------------------------------------------------------------------
 
-static int animatetip(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
+static int animatetip(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal)
 {
-	int p;
-	double looking_arc;
+	if (p->tipincs == 0) return 0;
+
 	static const short tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
 
-	if (ps[snum].tipincs == 0) return 0;
-
-	looking_arc = fabs(look_anghalf) / 4.5;
-	looking_arc -= hard_landing * 8.;
-
-	if (ps[snum].GetActor()->s.pal == 1)
-		p = 1;
-	else
-		p = sector[ps[snum].cursectnum].floorpal;
-
-	hud_drawpal(170 + (getavel(snum) / 16.) - look_anghalf,
-		(tip_y[ps[snum].tipincs] >> 1) + looking_arc + 240 - horiz16th, TIP + ((26 - ps[snum].tipincs) >> 4), gs, 0, p);
+	hud_drawpal(170 + plravel - look_anghalf,
+		(tip_y[p->tipincs] >> 1) + looking_arc + 240 - horiz16th, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal);
 
 	return 1;
 }
@@ -237,25 +189,18 @@ static int animatetip(int gs, int snum, double hard_landing, double look_anghalf
 //
 //---------------------------------------------------------------------------
 
-int animateaccess(int gs,int snum,double hard_landing,double look_anghalf,double horiz16th)
+int animateaccess(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal)
 {
+	if(p->access_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
+
 	static const short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
-	double looking_arc;
-	char p;
 
-	if(ps[snum].access_incs == 0 || ps[snum].GetActor()->s.extra <= 0) return 0;
+	looking_arc += access_y[p->access_incs];
 
-	looking_arc = access_y[ps[snum].access_incs] + (fabs(look_anghalf) / 4.5);
-	looking_arc -= hard_landing * 8.;
-
-	if(ps[snum].access_spritenum != nullptr)
-		p = ps[snum].access_spritenum->s.pal;
-	else p = 0;
-
-	if((ps[snum].access_incs-3) > 0 && (ps[snum].access_incs-3)>>3)
-		hud_drawpal(170+(getavel(snum)/16.)-look_anghalf+(access_y[ps[snum].access_incs]>>2),looking_arc+266-horiz16th,HANDHOLDINGLASER+(ps[snum].access_incs>>3),gs,0,p);
+	if((p->access_incs-3) > 0 && (p->access_incs-3)>>3)
+		hud_drawpal(170 + plravel - look_anghalf + (access_y[p->access_incs] >> 2), looking_arc + 266 - horiz16th, HANDHOLDINGLASER + (p->access_incs >> 3), gs, 0, pal);
 	else
-		hud_drawpal(170+(getavel(snum)/16.)-look_anghalf+(access_y[ps[snum].access_incs]>>2),looking_arc+266-horiz16th,HANDHOLDINGACCESS,gs,4,p);
+		hud_drawpal(170 + plravel - look_anghalf + (access_y[p->access_incs] >> 2), looking_arc + 266 - horiz16th, HANDHOLDINGACCESS, gs, 4, pal);
 
 	return 1;
 }
@@ -270,8 +215,8 @@ void displayweapon_d(int snum, double smoothratio)
 {
 	int cw;
 	int i, j;
-	int o,pal;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th;
+	int o, pal;
+	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th, plravel;
 	signed char shade;
 	struct player_struct *p;
 
@@ -281,36 +226,52 @@ void displayweapon_d(int snum, double smoothratio)
 
 	o = 0;
 
-	horiz16th = get16thOfHoriz(snum, SyncInput(), smoothratio);
-	look_anghalf = p->angle.look_anghalf(smoothratio);
-	looking_arc = fabs(look_anghalf) / 4.5;
-	weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
-	kickback_pic = interpolatedvaluef(p->okickback_pic, p->kickback_pic, smoothratio);
-	random_club_frame = interpolatedvaluef(p->orandom_club_frame, p->random_club_frame, smoothratio);
-	hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
+	if (cl_hudinterpolation)
+	{
+		weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
+		kickback_pic = interpolatedvaluef(p->okickback_pic, p->kickback_pic, smoothratio);
+		random_club_frame = interpolatedvaluef(p->orandom_club_frame, p->random_club_frame, smoothratio);
+		hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
+		gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
+	}
+	else
+	{
+		weapon_sway = p->weapon_sway;
+		kickback_pic = p->kickback_pic;
+		random_club_frame = p->random_club_frame;
+		hard_landing = p->hard_landing;
+		gun_pos = 80 - (p->weapon_pos * p->weapon_pos);
+	}
 
-	shade = p->GetActor()->s.shade;
+	plravel = getavel(snum) * (1. / 16.);
+	horiz16th = p->horizon.horizsumfrac(cl_hudinterpolation, smoothratio);
+	look_anghalf = p->angle.look_anghalf(cl_hudinterpolation, smoothratio);
+	looking_arc = p->angle.looking_arc(cl_hudinterpolation, smoothratio);
+	hard_landing *= 8.;
+
+	gun_pos -= fabs(p->GetActor()->s->xrepeat < 32 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
+	gun_pos -= hard_landing;
+
+	weapon_xoffset = (160)-90;
+	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
+	weapon_xoffset -= 58 + p->weapon_ang;
+
+	shade = p->GetActor()->s->shade;
 	if(shade > 24) shade = 24;
 
-	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0);
-	bool playerAnims = animatefist(shade,snum,look_anghalf) || animateknuckles(shade,snum,hard_landing,look_anghalf,horiz16th) ||
-					   animatetip(shade,snum,hard_landing,look_anghalf,horiz16th) || animateaccess(shade,snum,hard_landing,look_anghalf,horiz16th);
+	pal = p->GetActor()->s->pal == 1 ? 1 : sector[p->cursectnum].floorpal;
+	if (pal == 0)
+		pal = p->palookup;
+
+	auto adjusted_arc = looking_arc - hard_landing;
+	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s->pal != 1 && p->GetActor()->s->extra <= 0);
+	bool playerAnims = animatefist(shade, p, look_anghalf, looking_arc, plravel, pal) || animateknuckles(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) ||
+					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal);
 
 	if(playerVars || playerAnims)
 		return;
 
-	animateknee(shade,snum,hard_landing,look_anghalf,horiz16th);
-
-	gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
-
-	weapon_xoffset =  (160)-90;
-	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
-	weapon_xoffset -= 58 + p->weapon_ang;
-	if( p->GetActor()->s.xrepeat < 32 )
-		gun_pos -= fabs(bsinf(weapon_sway * 4., -9));
-	else gun_pos -= fabs(bsinf(weapon_sway * 0.5, -10));
-
-	gun_pos -= hard_landing * 8.;
+	animateknee(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal);
 
 	if (isWW2GI())
 	{
@@ -337,16 +298,6 @@ void displayweapon_d(int snum, double smoothratio)
 	j = 14-p->quick_kick;
 	if (j != 14 || p->last_quick_kick)
 	{
-		if (p->GetActor()->s.pal == 1)
-			pal = 1;
-		else
-		{
-			pal = sector[p->cursectnum].floorpal;
-			if (pal == 0)
-				pal = p->palookup;
-		}
-
-
 		if (j < 5 || j > 9)
 		{
 			hud_drawpal(weapon_xoffset + 80 - look_anghalf, looking_arc + 250 - gun_pos, KNEE, shade, o | 4, pal);
@@ -357,13 +308,13 @@ void displayweapon_d(int snum, double smoothratio)
 		}
 	}
 
-	if (p->GetActor()->s.xrepeat < 40)
+	if (p->GetActor()->s->xrepeat < 40)
 	{
 		static int fistsign;
 		//shrunken..
 		if (p->jetpack_on == 0)
 		{
-			i = p->GetActor()->s.xvel;
+			i = p->GetActor()->s->xvel;
 			looking_arc += 32 - (i >> 1);
 			fistsign += i >> 1;
 		}
@@ -391,15 +342,6 @@ void displayweapon_d(int snum, double smoothratio)
 		{
 			if (*kb > 0)
 			{
-				if (p->GetActor()->s.pal == 1)
-					pal = 1;
-				else
-				{
-					pal = sector[p->cursectnum].floorpal;
-					if (pal == 0)
-						pal = p->palookup;
-				}
-
 				if (*kb < 5 || *kb > 9)
 				{
 					hud_drawpal(weapon_xoffset + 220 - look_anghalf,
@@ -421,12 +363,6 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displaytripbomb = [&]()
 		{
-
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			weapon_xoffset += 8;
 			gun_pos -= 10;
 
@@ -454,10 +390,6 @@ void displayweapon_d(int snum, double smoothratio)
 		{
 			pin = ((gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 			auto rpgpic = RPGGUN;
-
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else pal = sector[p->cursectnum].floorpal;
 
 			weapon_xoffset -= bsinf(768 + (kickback_pic * 128.), -11);
 			gun_pos += bsinf(768 + (kickback_pic * 128.), -11);
@@ -503,18 +435,12 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayshotgun_ww = [&]()
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
-
 			if (*kb > 0)
 			{
 				gun_pos -= bsinf(kickback_pic * 128., -12);
 			}
 
-			if (*kb > 0 && p->GetActor()->s.pal != 1)
+			if (*kb > 0 && p->GetActor()->s->pal != 1)
 			{
 				weapon_xoffset += 1 - (rand() & 3);
 			}
@@ -561,12 +487,6 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayshotgun = [&]()
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
-
 			weapon_xoffset -= 8;
 
 			switch(*kb)
@@ -637,15 +557,10 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displaychaingun_ww = [&]()
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			if (*kb > 0)
 				gun_pos -= bsinf(kickback_pic * 128., -12);
 
-			if (*kb > 0 && p->GetActor()->s.pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0 && p->GetActor()->s->pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
 			if (*kb == 0)
 			{
@@ -743,15 +658,10 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displaychaingun = [&]
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			if (*kb > 0)
 				gun_pos -= bsinf(kickback_pic * 128., -12);
 
-			if (*kb > 0 && p->GetActor()->s.pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0 && p->GetActor()->s->pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
 			hud_drawpal(weapon_xoffset + 168 - look_anghalf, looking_arc + 260 - gun_pos, CHAINGUN, shade, o, pal);
 			switch(*kb)
@@ -763,9 +673,9 @@ void displayweapon_d(int snum, double smoothratio)
 					if (*kb > 4 && *kb < 12)
 					{
 						i = 0;
-						if (p->GetActor()->s.pal != 1) i = rand() & 7;
+						if (p->GetActor()->s->pal != 1) i = rand() & 7;
 						hud_drawpal(i + weapon_xoffset - 4 + 140 - look_anghalf,i + looking_arc - (kickback_pic / 2.) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 4) / 5),shade,o,pal);
-						if (p->GetActor()->s.pal != 1) i = rand() & 7;
+						if (p->GetActor()->s->pal != 1) i = rand() & 7;
 						hud_drawpal(i + weapon_xoffset - 4 + 184 - look_anghalf,i + looking_arc - (kickback_pic / 2.) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 4) / 5),shade,o,pal);
 					}
 					if (*kb < 8)
@@ -787,11 +697,6 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displaypistol = [&]()
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			if (*kb < 5)
 			{
 				short kb_frames[] = { 0,1,2,0,0 };
@@ -850,11 +755,6 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayhandbomb = [&]()
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			if (*kb)
 			{
 				static const uint8_t throw_frames[]
@@ -910,10 +810,6 @@ void displayweapon_d(int snum, double smoothratio)
 		auto displayhandremote = [&]()
 		{
 			signed char remote_frames[] = { 0,1,1,2,1,1,0,0,0,0,0 };
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
 
 			weapon_xoffset = -48;
 
@@ -931,11 +827,6 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displaydevastator_ww = [&]
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			if (*kb)
 			{
 				if (*kb < aplWeaponTotalTime[p->curr_weapon][snum])
@@ -992,11 +883,6 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displaydevastator = [&]
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			if (*kb)
 			{
 				char cycloidy[] = { 0,4,12,24,12,4,0 };
@@ -1032,16 +918,11 @@ void displayweapon_d(int snum, double smoothratio)
 			pin = (isWW2GI() || (gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
 			auto pic = FREEZE;
 
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			if (*kb)
 			{
 				char cat_frames[] = { 0,0,1,1,2,2 };
 
-				if (p->GetActor()->s.pal != 1)
+				if (p->GetActor()->s->pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					looking_arc += rand() & 3;
@@ -1063,14 +944,11 @@ void displayweapon_d(int snum, double smoothratio)
 		{
 			weapon_xoffset += 28;
 			looking_arc += 18;
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
+
 			if (*kb == 0)
 			{
 				// the 'at rest' display
-				if (ps[snum].ammo_amount[cw] <= 0) //p->last_weapon >= 0)
+				if (p->ammo_amount[cw] <= 0) //p->last_weapon >= 0)
 				{
 					hud_drawpal(weapon_xoffset + 184 - look_anghalf,
 						looking_arc + 240 - gun_pos, SHRINKER + 3 + (*kb & 3), -32,
@@ -1094,7 +972,7 @@ void displayweapon_d(int snum, double smoothratio)
 			else
 			{
 				// the 'active' display.
-				if (p->GetActor()->s.pal != 1)
+				if (p->GetActor()->s->pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);
@@ -1156,10 +1034,7 @@ void displayweapon_d(int snum, double smoothratio)
 		{
 			weapon_xoffset += 28;
 			looking_arc += 18;
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
+
 			if (*kb == 0)
 			{
 				{
@@ -1169,7 +1044,7 @@ void displayweapon_d(int snum, double smoothratio)
 			}
 			else
 			{
-				if (p->GetActor()->s.pal != 1)
+				if (p->GetActor()->s->pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);
@@ -1232,10 +1107,7 @@ void displayweapon_d(int snum, double smoothratio)
 			auto shrinker = /*isWorldTour() ? SHRINKERWIDE :*/ SHRINKER;
 			weapon_xoffset += 28;
 			looking_arc += 18;
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
+
 			if (*kb == 0)
 			{
 				if (cw == GROW_WEAPON)
@@ -1261,7 +1133,7 @@ void displayweapon_d(int snum, double smoothratio)
 			}
 			else
 			{
-				if (p->GetActor()->s.pal != 1)
+				if (p->GetActor()->s->pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);
@@ -1297,16 +1169,6 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayflamethrower = [&]()
 		{
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-			{
-				if (p->cursectnum < 0)
-					pal = 0;
-				else
-					pal = sector[p->cursectnum].floorpal;
-			}
-
 			if (*kb < 1 || sector[p->cursectnum].lotag == 2)
 			{
 				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, FLAMETHROWER, shade, o, pal);
@@ -1315,7 +1177,7 @@ void displayweapon_d(int snum, double smoothratio)
 			else
 			{
 				static const uint8_t cat_frames[] = { 0, 0, 1, 1, 2, 2 };
-				if (p->GetActor()->s.pal != 1)
+				if (p->GetActor()->s->pal != 1)
 				{
 					weapon_xoffset += krand() & 1;
 					looking_arc += krand() & 1;
@@ -1394,7 +1256,7 @@ void displayweapon_d(int snum, double smoothratio)
 		}
 	}
 
-	displayloogie(snum);
+	displayloogie(p);
 
 }
 

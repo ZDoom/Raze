@@ -41,7 +41,7 @@ static const char* ratings[] = { "poor", "average", "good", "perfect" };
 		if (init("stairs.smk"))
 			inited = true;
 */
-class DStatisticsScreen : public DScreenJob
+class DStatisticsScreen : public DSkippableScreenJob
 {
 
 	boolean inited = false;
@@ -74,9 +74,14 @@ public:
 		DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 	}
 
-	int Frame(uint64_t nsclock, bool skiprequest) override
+	void Start() override
 	{
-		if (nsclock == 0) SND_Sound(S_CHAINDOOR1);
+		SND_Sound(S_CHAINDOOR1);
+	}
+
+	void OnTick() override
+	{
+
 		DrawTexture(twod, tileGetTexture(VMAINBLANK), 0, 0, DTA_Fullscreen, FSMode_ScaleToFit43, TAG_DONE);
 
 		drawText(10, 13, currentLevel->DisplayName());
@@ -96,8 +101,6 @@ public:
 
 		drawText(10, 64 + 4 * 18, GStrings("TXT_Bonus"));
 		drawText(160 + 48 + 14, 64 + 4 * 18, FStringf("%d", bonus));
-
-		return skiprequest ? -1 : 1;
 	}
 
 };

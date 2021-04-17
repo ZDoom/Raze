@@ -81,6 +81,7 @@ void resetplayerstats(int snum)
 
     gFullMap = 0; 
     p->dead_flag        = 0;
+    p->resurrected      = false;
     p->wackedbyactor    = nullptr;
     p->falling_counter  = 0;
     p->quick_kick       = 0;
@@ -570,7 +571,7 @@ void resetpspritevars(int g)
     DukeStatIterator it(STAT_PLAYER);
     while (auto act = it.Next())
     {
-        s = &act->s;
+        s = act->s;
 
         if (numplayersprites == MAXPLAYERS)
             I_Error("Too many player sprites (max 16.)");
@@ -864,7 +865,7 @@ static void SpawnPortals()
     DukeStatIterator it(STAT_RAROR);
     while (auto act = it.Next())
     {
-        auto spr = &act->s;
+        auto spr = act->s;
         if (spr->picnum == SECTOREFFECTOR && spr->lotag == tag)
         {
             if (processedTags.Find(spr->hitag) == processedTags.Size())
@@ -872,7 +873,7 @@ static void SpawnPortals()
                 DukeStatIterator it2(STAT_RAROR);
                 while (auto act2 = it2.Next())
                 {
-                    auto spr2 = &act2->s;
+                    auto spr2 = act2->s;
                     if (spr2->picnum == SECTOREFFECTOR && spr2->lotag == tag + 1 && spr2->hitag == spr->hitag)
                     {
                         if (processedTags.Find(spr->hitag) == processedTags.Size())
@@ -1067,7 +1068,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        int pn = sector[ps[i].GetActor()->s.sectnum].floorpicnum;
+        int pn = sector[ps[i].GetActor()->s->sectnum].floorpicnum;
         if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
         {
             resetweapons(i);

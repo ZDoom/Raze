@@ -439,7 +439,7 @@ static void BuildEpisodeMenu()
 		{
 			ld->mItems.Pop(popped);
 		}
-
+		if (isBlood()) gDefaultSkill = 2;
 		ld->mSelectedItem = gDefaultSkill + ld->mItems.Size(); // account for pre-added items
 		int y = ld->mYpos;
 

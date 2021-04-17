@@ -248,7 +248,7 @@ void NewLevel(MapRecord *sng, int skill)
 
 }
 
-void GameInterface::NewGame(MapRecord *sng, int skill)
+void GameInterface::NewGame(MapRecord *sng, int skill, bool)
 {
 	gGameOptions.uGameFlags = 0;
 	cheatReset();

@@ -91,7 +91,7 @@ static void DrawCaption(const char* text)
 }
 
 
-class DBloodSummaryScreen : public DScreenJob
+class DBloodSummaryScreen : public DSkippableScreenJob
 {
 	void DrawKills(void)
 	{
@@ -139,7 +139,7 @@ class DBloodSummaryScreen : public DScreenJob
 	}
 
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
 		drawTextScreenBackground();
 		if (gGameOptions.nGameType == 0)
@@ -160,7 +160,7 @@ class DBloodSummaryScreen : public DScreenJob
 			DrawCaption(GStrings("TXTB_FRAGSTATS"));
 			DrawKills();
 		}
-		int myclock = int(clock * 120 / 1'000'000'000);
+		int myclock = ticks * 120 / GameTicRate;
 		if ((myclock & 32))
 		{
 			auto text = GStrings("PRESSKEY");
@@ -168,7 +168,6 @@ class DBloodSummaryScreen : public DScreenJob
 			if (!SmallFont2->CanPrint(text)) font = 0;
 			viewDrawText(font, text, 160, 134, -128, 0, 1, font == 3);
 		}
-		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -274,7 +273,7 @@ CSecretMgr gSecretMgr;
 CKillMgr gKillMgr;
 
 class DBloodLoadScreen : public DScreenJob
-{
+{ 
 	const char* pzLoadingScreenText1;
 	MapRecord* rec;
 
@@ -285,7 +284,7 @@ public:
 		else pzLoadingScreenText1 = GStrings(FStringf("TXTB_NETGT%d", gGameOptions.nGameType));
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
 		twod->ClearScreen();
 		drawTextScreenBackground();
@@ -297,7 +296,6 @@ public:
 		if (!SmallFont2->CanPrint(text)) font = 0;
 
 		viewDrawText(font, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, font == 3);
-		return 0;
 	}
 };
 

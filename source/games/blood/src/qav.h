@@ -46,7 +46,7 @@ struct TILE_FRAME
     int y;
     int z;
     int stat;
-    signed char shade;
+    int8_t shade;
     char palnum;
     unsigned short angle;
 };
@@ -54,9 +54,9 @@ struct TILE_FRAME
 struct SOUNDINFO
 {
     int sound;
-    unsigned char priority;
-    unsigned char sndFlags; // (by NoOne) Various sound flags
-    unsigned char sndRange; // (by NoOne) Random sound range
+    uint8_t priority;
+    uint8_t sndFlags; // (by NoOne) Various sound flags
+    uint8_t sndRange; // (by NoOne) Random sound range
     char reserved[1];
 };
 

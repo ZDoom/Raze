@@ -791,7 +791,7 @@ void GameInterface::NextLevel(MapRecord* map, int skill)
 }
 
 
-void GameInterface::NewGame(MapRecord* map, int skill) 
+void GameInterface::NewGame(MapRecord* map, int skill, bool) 
 {
 	//pNet.ready2send = false;
 	//game.nNetMode = NetMode.Single;

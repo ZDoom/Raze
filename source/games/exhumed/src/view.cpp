@@ -367,7 +367,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         }
         else
         {
-            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, nSector, nCameraa, nCamerapan, rotscrnang);
+            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, nSector, nCameraa, nCamerapan, rotscrnang, smoothRatio);
         }
 
         if (HavePLURemap())

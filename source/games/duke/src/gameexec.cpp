@@ -1033,7 +1033,7 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 	if (lVar1 == g_iThisActorID)
 	{
 		// if they've asked for 'this', then use 'this'...
-		iSector = sActor->s.sectnum;
+		iSector = sActor->s->sectnum;
 	}
 	else
 	{
@@ -1161,7 +1161,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		iActor = GetGameVarID(lVar1, sActor, sPlayer);
 		act = ScriptIndexToActor(iActor);
 	}
-	auto spr = &act->s;
+	auto spr = act->s;
 
 	if (iActor < 0 || iActor >= MAXSPRITES || spr->statnum == MAXSTATUS)
 	{
@@ -1404,7 +1404,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 	{
 		short sclip, angdif;
 
-		if (badguy(actor) && actor->s.xrepeat > 56)
+		if (badguy(actor) && actor->s->xrepeat > 56)
 		{
 			sclip = 3084;
 			angdif = 48;
@@ -1423,21 +1423,21 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 		}
 		if (j > sclip)
 		{
-			if (hit != nullptr && hit->s.picnum == actor->s.picnum)
+			if (hit != nullptr && hit->s->picnum == actor->s->picnum)
 				j = 0;
 			else
 			{
-				actor->s.ang += angdif; j = hitasprite(actor, &hit); actor->s.ang -= angdif;
+				actor->s->ang += angdif; j = hitasprite(actor, &hit); actor->s->ang -= angdif;
 				if (j > sclip)
 				{
-					if (hit != nullptr && hit->s.picnum == actor->s.picnum)
+					if (hit != nullptr && hit->s->picnum == actor->s->picnum)
 						j = 0;
 					else
 					{
-						actor->s.ang -= angdif; j = hitasprite(actor, &hit); actor->s.ang += angdif;
+						actor->s->ang -= angdif; j = hitasprite(actor, &hit); actor->s->ang += angdif;
 						if (j > 768)
 						{
-							if (hit != nullptr && hit->s.picnum == actor->s.picnum)
+							if (hit != nullptr && hit->s->picnum == actor->s->picnum)
 								j = 0;
 							else j = 1;
 						}
@@ -1463,7 +1463,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 {
 	int j;
 	DDukeActor* tosee;
-	auto spr = &actor->s;
+	auto spr = actor->s;
 
 	// select sprite for monster to target
 	// if holoduke is on, let them target holoduke first.
@@ -1471,7 +1471,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
 		tosee = ps[pnum].holoduke_on;
-		j = cansee(spr->x, spr->y, spr->z - (krand() & ((32 << 8) - 1)), spr->sectnum, tosee->s.x, tosee->s.y, tosee->s.z, tosee->s.sectnum);
+		j = cansee(spr->x, spr->y, spr->z - (krand() & ((32 << 8) - 1)), spr->sectnum, tosee->s->x, tosee->s->y, tosee->s->z, tosee->s->sectnum);
 
 		if (j == 0)
 		{
@@ -1483,7 +1483,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(spr->x, spr->y, spr->z - (krand() & ((47 << 8))), spr->sectnum, tosee->s.x, tosee->s.y, tosee->s.z - ((isRR()? 28 : 24) << 8), tosee->s.sectnum);
+	j = cansee(spr->x, spr->y, spr->z - (krand() & ((47 << 8))), spr->sectnum, tosee->s->x, tosee->s->y, tosee->s->z - ((isRR()? 28 : 24) << 8), tosee->s->sectnum);
 
 	if (j == 0)
 	{
@@ -1495,8 +1495,8 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	{
 		// else, they did see it.
 		// save where we were looking..
-		actor->lastvx = tosee->s.x;
-		actor->lastvy = tosee->s.y;
+		actor->lastvx = tosee->s->x;
+		actor->lastvy = tosee->s->y;
 	}
 
 	if (j == 1 && (spr->statnum == STAT_ACTOR || spr->statnum == STAT_STANDABLE))
@@ -1511,7 +1511,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 int ParseState::parse(void)
 {
 	int j, l, s;
-	auto g_sp = g_ac? &g_ac->s : nullptr;
+	auto g_sp = g_ac? g_ac->s : nullptr;
 
 	if(killit_flag) return 1;
 
@@ -1535,12 +1535,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->s.sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->s->sectnum);
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz, ps[g_p].GetActor()->s.sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz, ps[g_p].GetActor()->s->sectnum);
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -1953,7 +1953,7 @@ int ParseState::parse(void)
 	case concmd_isdrunk: // todo: move out to player_r.
 		insptr++;
 		ps[g_p].drink_amt += *insptr;
-		j = ps[g_p].GetActor()->s.extra;
+		j = ps[g_p].GetActor()->s->extra;
 		if (j > 0)
 			j += *insptr;
 		if (j > gs.max_player_health * 2)
@@ -1972,14 +1972,14 @@ int ParseState::parse(void)
 				ps[g_p].last_extra = j;
 			}
 
-			ps[g_p].GetActor()->s.extra = j;
+			ps[g_p].GetActor()->s->extra = j;
 		}
 		if (ps[g_p].drink_amt > 100)
 			ps[g_p].drink_amt = 100;
 
-		if (ps[g_p].GetActor()->s.extra >= gs.max_player_health)
+		if (ps[g_p].GetActor()->s->extra >= gs.max_player_health)
 		{
-			ps[g_p].GetActor()->s.extra = gs.max_player_health;
+			ps[g_p].GetActor()->s->extra = gs.max_player_health;
 			ps[g_p].last_extra = gs.max_player_health;
 		}
 		insptr++;
@@ -1994,8 +1994,8 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].posz = sector[ps[g_p].GetActor()->s.sectnum].ceilingz;
-		ps[g_p].GetActor()->s.z = ps[g_p].posz;
+		ps[g_p].posz = sector[ps[g_p].GetActor()->s->sectnum].ceilingz;
+		ps[g_p].GetActor()->s->z = ps[g_p].posz;
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -2011,7 +2011,7 @@ int ParseState::parse(void)
 		ps[g_p].drink_amt -= *insptr;
 		if (ps[g_p].drink_amt < 0)
 			ps[g_p].drink_amt = 0;
-		j = ps[g_p].GetActor()->s.extra;
+		j = ps[g_p].GetActor()->s->extra;
 		if (g_sp->picnum != TILE_ATOMICHEALTH)
 		{
 			if (j > gs.max_player_health && *insptr > 0)
@@ -2048,7 +2048,7 @@ int ParseState::parse(void)
 				ps[g_p].last_extra = j;
 			}
 
-			ps[g_p].GetActor()->s.extra = j;
+			ps[g_p].GetActor()->s->extra = j;
 		}
 
 		insptr++;
@@ -2069,12 +2069,12 @@ int ParseState::parse(void)
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto j = it.Next())
 			{
-				if (j->s.picnum == TILE_CAMERA1)
-					j->s.yvel = 0;
+				if (j->s->picnum == TILE_CAMERA1)
+					j->s->yvel = 0;
 			}
 		}
 
-		j = ps[g_p].GetActor()->s.extra;
+		j = ps[g_p].GetActor()->s->extra;
 
 		if(g_sp->picnum != TILE_ATOMICHEALTH)
 		{
@@ -2112,7 +2112,7 @@ int ParseState::parse(void)
 				ps[g_p].last_extra = j;
 			}
 
-			ps[g_p].GetActor()->s.extra = j;
+			ps[g_p].GetActor()->s->extra = j;
 		}
 
 		insptr++;
@@ -2188,9 +2188,9 @@ int ParseState::parse(void)
 					dnum + s, g_sp->shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
 				if(weap)
-					l->s.yvel = gs.weaponsandammosprites[j%14];
-				else l->s.yvel = -1;
-				l->s.pal = g_sp->pal;
+					l->s->yvel = gs.weaponsandammosprites[j%14];
+				else l->s->yvel = -1;
+				l->s->pal = g_sp->pal;
 			}
 			insptr++;
 		}
@@ -2262,6 +2262,7 @@ int ParseState::parse(void)
 			ps[g_p].wackedbyactor = nullptr;
 			ps[g_p].shield_amount = gs.max_armour_amount;
 			ps[g_p].dead_flag = 0;
+			ps[g_p].resurrected = false;
 			ps[g_p].pals.a = 0;
 			ps[g_p].footprintcount = 0;
 			ps[g_p].weapreccnt = 0;
@@ -2422,7 +2423,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;
-			else if( (l& pshrunk) && ps[g_p].GetActor()->s.xrepeat < (isRR() ? 8 : 32))
+			else if( (l& pshrunk) && ps[g_p].GetActor()->s->xrepeat < (isRR() ? 8 : 32))
 					j = 1;
 			else if( (l& pjetpack) && ps[g_p].jetpack_on )
 					j = 1;
@@ -2430,9 +2431,9 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& ponground) && ps[g_p].on_ground)
 					j = 1;
-			else if( (l& palive) && ps[g_p].GetActor()->s.xrepeat > (isRR() ? 8 : 32) && ps[g_p].GetActor()->s.extra > 0 && ps[g_p].timebeforeexit == 0 )
+			else if( (l& palive) && ps[g_p].GetActor()->s->xrepeat > (isRR() ? 8 : 32) && ps[g_p].GetActor()->s->extra > 0 && ps[g_p].timebeforeexit == 0 )
 					j = 1;
-			else if( (l& pdead) && ps[g_p].GetActor()->s.extra <= 0)
+			else if( (l& pdead) && ps[g_p].GetActor()->s->extra <= 0)
 					j = 1;
 			else if( (l& pfacing) )
 			{
@@ -2508,7 +2509,7 @@ int ParseState::parse(void)
 							DDukeActor* a2;
 							while ((a2 = it.Next()))
 							{
-								auto sj = &a2->s;
+								auto sj = a2->s;
 								if (sj->picnum == ACTIVATOR)
 									break;
 							}
@@ -2541,7 +2542,7 @@ int ParseState::parse(void)
 	case concmd_ifrespawn:
 		if( badguy(g_ac) )
 			parseifelse( ud.respawn_monsters );
-		else if( inventory(&g_ac->s) )
+		else if( inventory(g_ac->s) )
 			parseifelse( ud.respawn_inventory );
 		else
 			parseifelse( ud.respawn_items );
@@ -2725,7 +2726,7 @@ int ParseState::parse(void)
 	}
 	case concmd_ifphealthl:
 		insptr++;
-		parseifelse( ps[g_p].GetActor()->s.extra < *insptr);
+		parseifelse( ps[g_p].GetActor()->s->extra < *insptr);
 		break;
 
 	case concmd_ifpinventory:
@@ -2776,8 +2777,8 @@ int ParseState::parse(void)
 		}
 	case concmd_pstomp:
 		insptr++;
-		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->s.xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),ps[g_p].GetActor()->s.sectnum) )
+		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->s->xrepeat >= (isRR()? 9: 40) )
+			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),ps[g_p].GetActor()->s->sectnum) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)
@@ -2928,7 +2929,7 @@ int ParseState::parse(void)
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto j = it.Next())
 		{
-			if (j->s.picnum == lType)
+			if (j->s->picnum == lType)
 			{
 				lTemp = ldist(g_ac, j);
 				if (lTemp < lMaxDist)
@@ -2971,7 +2972,7 @@ int ParseState::parse(void)
 		DukeStatIterator it(STAT_ACTOR);
 		while (auto j = it.Next())
 		{
-			if (j->s.picnum == lType)
+			if (j->s->picnum == lType)
 			{
 				lTemp = ldist(g_ac, j);
 				if (lTemp < lMaxDist)
@@ -3659,14 +3660,14 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	s.g_ac = actor;
 	s.g_t = &s.g_ac->temp_data[0];	// Sprite's 'extra' data
 
-	auto addr = gs.tileinfo[actor->s.picnum].loadeventscriptptr;
+	auto addr = gs.tileinfo[actor->s->picnum].loadeventscriptptr;
 	if (addr == 0) return;
 
 	int *insptr = &ScriptCode[addr + 1];
 
 	s.killit_flag = 0;
 
-	if (actor->s.sectnum < 0 || actor->s.sectnum >= MAXSECTORS)
+	if (actor->s->sectnum < 0 || actor->s->sectnum >= MAXSECTORS)
 	{
 		deletesprite(actor);
 		return;
@@ -3689,14 +3690,14 @@ void LoadActor(DDukeActor *actor, int p, int x)
 	{
 		fi.move(actor, p, x);
 
-		if (actor->s.statnum == STAT_ACTOR)
+		if (actor->s->statnum == STAT_ACTOR)
 		{
 			if (badguy(actor))
 			{
-				if (actor->s.xrepeat > 60) return;
-				if (ud.respawn_monsters == 1 && actor->s.extra <= 0) return;
+				if (actor->s->xrepeat > 60) return;
+				if (ud.respawn_monsters == 1 && actor->s->extra <= 0) return;
 			}
-			else if (ud.respawn_items == 1 && (actor->s.cstat & 32768)) return;
+			else if (ud.respawn_items == 1 && (actor->s->cstat & 32768)) return;
 
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
@@ -3704,7 +3705,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 				changespritestat(actor, STAT_ZOMBIEACTOR);
 		}
 
-		else if (actor->s.statnum == 6)
+		else if (actor->s->statnum == 6)
 		{
 #if 0
 			switch (actor->s.picnum)
@@ -3740,7 +3741,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 void execute(DDukeActor *actor,int p,int x)
 {
-	if (gs.actorinfo[actor->s.picnum].scriptaddress == 0) return;
+	if (gs.actorinfo[actor->s->picnum].scriptaddress == 0) return;
 
 	int done;
 
@@ -3750,12 +3751,12 @@ void execute(DDukeActor *actor,int p,int x)
 	s.g_ac = actor;
 	s.g_t = &actor->temp_data[0];	// Sprite's 'extra' data
 
-	if (gs.actorinfo[actor->s.picnum].scriptaddress == 0) return;
-	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->s.picnum].scriptaddress)];
+	if (gs.actorinfo[actor->s->picnum].scriptaddress == 0) return;
+	s.insptr = &ScriptCode[4 + (gs.actorinfo[actor->s->picnum].scriptaddress)];
 
 	s.killit_flag = 0;
 
-	if(actor->s.sectnum < 0 || actor->s.sectnum >= MAXSECTORS)
+	if(actor->s->sectnum < 0 || actor->s->sectnum >= MAXSECTORS)
 	{
 		if(badguy(actor))
 			ps[p].actors_killed++;
@@ -3771,11 +3772,11 @@ void execute(DDukeActor *actor,int p,int x)
 		int increment = ptr[3];
 		int delay =  ptr[4];
 
-		actor->s.lotag += TICSPERFRAME;
-		if (actor->s.lotag > delay)
+		actor->s->lotag += TICSPERFRAME;
+		if (actor->s->lotag > delay)
 		{
 			s.g_t[2]++;
-			actor->s.lotag = 0;
+			actor->s->lotag = 0;
 			s.g_t[3] += increment;
 		}
 		if (abs(s.g_t[3]) >= abs(numframes * increment))
@@ -3797,14 +3798,14 @@ void execute(DDukeActor *actor,int p,int x)
 	{
 		fi.move(actor, p, x);
 
-		if (actor->s.statnum == STAT_ACTOR)
+		if (actor->s->statnum == STAT_ACTOR)
 		{
 			if (badguy(actor))
 			{
-				if (actor->s.xrepeat > 60) goto quit;
-				if (ud.respawn_monsters == 1 && actor->s.extra <= 0) goto quit;
+				if (actor->s->xrepeat > 60) goto quit;
+				if (ud.respawn_monsters == 1 && actor->s->extra <= 0) goto quit;
 			}
-			else if (ud.respawn_items == 1 && (actor->s.cstat & 32768)) goto quit;
+			else if (ud.respawn_items == 1 && (actor->s->cstat & 32768)) goto quit;
 
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
@@ -3812,7 +3813,7 @@ void execute(DDukeActor *actor,int p,int x)
 				changespritestat(actor, STAT_ZOMBIEACTOR);
 		}
 
-		else if (actor->s.statnum == STAT_STANDABLE)
+		else if (actor->s->statnum == STAT_STANDABLE)
 			fi.checktimetosleep(actor);
 	}
 quit:

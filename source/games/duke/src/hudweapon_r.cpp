@@ -65,15 +65,8 @@ inline static void rd3myospal(double x, double y, int tilenum, int shade, int or
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_r(int snum, double smoothratio)
+void displaymasks_r(int snum, int p, double smoothratio)
 {
-	short p;
-
-	if (ps[snum].GetActor()->s.pal == 1)
-		p = 1;
-	else
-		p = sector[ps[snum].cursectnum].floorpal;
-
 	if (ps[snum].scuba_on)
 	{
 		//int pin = 0;
@@ -116,7 +109,7 @@ void displayweapon_r(int snum, double smoothratio)
 {
 	int cw;
 	int i, j;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, TiltStatus;
+	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, hard_landing, TiltStatus;
 	char o,pal;
 	signed char shade;
 
@@ -125,30 +118,42 @@ void displayweapon_r(int snum, double smoothratio)
 
 	o = 0;
 
-	look_anghalf = p->angle.look_anghalf(smoothratio);
-	looking_arc = fabs(look_anghalf) / 4.5;
-	weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
-	TiltStatus = !SyncInput() ? p->TiltStatus : interpolatedvaluef(p->oTiltStatus, p->TiltStatus, smoothratio);
+	if (cl_hudinterpolation)
+	{
+		weapon_sway = interpolatedvaluef(p->oweapon_sway, p->weapon_sway, smoothratio);
+		hard_landing = interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio);
+		gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
+		TiltStatus = !SyncInput() ? p->TiltStatus : interpolatedvaluef(p->oTiltStatus, p->TiltStatus, smoothratio);
+	}
+	else
+	{
+		weapon_sway = p->weapon_sway;
+		hard_landing = p->hard_landing;
+		gun_pos = 80 - (p->weapon_pos * p->weapon_pos);
+		TiltStatus = p->TiltStatus;
+	}
+
+	look_anghalf = p->angle.look_anghalf(cl_hudinterpolation, smoothratio);
+	looking_arc = p->angle.looking_arc(cl_hudinterpolation, smoothratio);
+	hard_landing *= 8.;
+
+	gun_pos -= fabs(p->GetActor()->s->xrepeat < 8 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
+	gun_pos -= hard_landing;
+
+	weapon_xoffset = (160)-90;
+	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
+	weapon_xoffset -= 58 + p->weapon_ang;
 
 	if (shadedsector[p->cursectnum] == 1)
 		shade = 16;
 	else
-		shade = p->GetActor()->s.shade;
+		shade = p->GetActor()->s->shade;
 	if(shade > 24) shade = 24;
 
-	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s.pal != 1 && p->GetActor()->s.extra <= 0))
+	pal = p->GetActor()->s->pal == 1 ? 1 : pal = sector[p->cursectnum].floorpal;
+
+	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s->pal != 1 && p->GetActor()->s->extra <= 0))
 		return;
-
-	gun_pos = 80 - interpolatedvaluef(p->oweapon_pos * p->oweapon_pos, p->weapon_pos * p->weapon_pos, smoothratio);
-
-	weapon_xoffset =  (160)-90;
-	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
-	weapon_xoffset -= 58 + p->weapon_ang;
-	if( p->GetActor()->s.xrepeat < 8 )
-		gun_pos -= fabs(bsinf(weapon_sway * 4., -9));
-	else gun_pos -= fabs(bsinf(weapon_sway * 0.5, -10));
-
-	gun_pos -= interpolatedvaluef(p->ohard_landing, p->hard_landing, smoothratio) * 8.;
 
 	if(p->last_weapon >= 0)
 		cw = p->last_weapon;
@@ -157,7 +162,7 @@ void displayweapon_r(int snum, double smoothratio)
 	j = 14-p->quick_kick;
 	if(j != 14)
 	{
-		if(p->GetActor()->s.pal == 1)
+		if(p->GetActor()->s->pal == 1)
 			pal = 1;
 		else
 			pal = p->palookup;
@@ -212,10 +217,6 @@ void displayweapon_r(int snum, double smoothratio)
 			else
 				temp_kb = MOTOHIT;
 		}
-		if (p->GetActor()->s.pal == 1)
-			pal = 1;
-		else
-			pal = sector[p->cursectnum].floorpal;
 
 		ShowMotorcycle(160-look_anghalf, 174, temp_kb, shade, 0, pal, TiltStatus*5);
 		return;
@@ -276,11 +277,6 @@ void displayweapon_r(int snum, double smoothratio)
 				temp_kb = BOATHIT;
 		}
 
-		if (p->GetActor()->s.pal == 1)
-			pal = 1;
-		else
-			pal = sector[p->cursectnum].floorpal;
-
 		if (p->NotOnWater)
 			temp3 = 170;
 		else
@@ -293,12 +289,12 @@ void displayweapon_r(int snum, double smoothratio)
 		return;
 	}
 
-	if (p->GetActor()->s.xrepeat < 8)
+	if (p->GetActor()->s->xrepeat < 8)
 	{
 		static int fistsign;
 		if (p->jetpack_on == 0)
 		{
-			i = p->GetActor()->s.xvel;
+			i = p->GetActor()->s->xvel;
 			looking_arc += 32 - (i >> 1);
 			fistsign += i >> 1;
 		}
@@ -312,11 +308,6 @@ void displayweapon_r(int snum, double smoothratio)
 	else
 	{
 		int pin = 0;
-
-		if (p->GetActor()->s.pal == 1)
-			pal = 1;
-		else
-			pal = sector[p->cursectnum].floorpal;
 
 
 		//---------------------------------------------------------------------------
@@ -498,11 +489,6 @@ void displayweapon_r(int snum, double smoothratio)
 		{
 			weapon_xoffset -= 8;
 
-			if (p->GetActor()->s.pal == 1)
-				pal = 1;
-			else
-				pal = sector[p->cursectnum].floorpal;
-
 			{
 				double x;
 				short y;
@@ -613,7 +599,7 @@ void displayweapon_r(int snum, double smoothratio)
 			if (*kb > 0)
 				gun_pos -= bsinf((*kb) << 7, -12);
 
-			if (*kb > 0 && p->GetActor()->s.pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0 && p->GetActor()->s->pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
 			switch (*kb)
 			{
@@ -826,7 +812,7 @@ void displayweapon_r(int snum, double smoothratio)
 			}
 			else
 			{
-				if (p->GetActor()->s.pal != 1)
+				if (p->GetActor()->s->pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);

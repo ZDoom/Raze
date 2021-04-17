@@ -101,7 +101,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	}
 	else
 	{
-		render_drawrooms(nullptr, { cposx, cposy, cposz }, plr.sector, cang, choriz, crotscrnang);
+		render_drawrooms(nullptr, { cposx, cposy, cposz }, plr.sector, cang, choriz, crotscrnang, dasmoothratio);
 	}
 
 	if (!sceneonly)

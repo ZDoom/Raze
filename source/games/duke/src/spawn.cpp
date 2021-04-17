@@ -57,7 +57,7 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 		I_Error(" Too many sprites spawned.");
 
 	auto act = &hittype[i];
-	auto s = &act->s;
+	auto s = act->s;
 
 	s->x = s_x;
 	s->y = s_y;
@@ -95,7 +95,7 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 
 	if (s_ow)
 	{
-		act->picnum = s_ow->s.picnum;
+		act->picnum = s_ow->s->picnum;
 		act->floorz = s_ow->floorz;
 		act->ceilingz = s_ow->ceilingz;
 	}
@@ -143,9 +143,9 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 
 	if (actj)
 	{
-		auto spawned = EGS(actj->s.sectnum, actj->s.x, actj->s.y, actj->s.z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
-		spawned->picnum = actj->s.picnum;
-		sp = &spawned->s;
+		auto spawned = EGS(actj->s->sectnum, actj->s->x, actj->s->y, actj->s->z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
+		spawned->picnum = actj->s->picnum;
+		sp = spawned->s;
 		t = spawned->temp_data;
 		i = spawned->GetIndex();
 	}
@@ -153,7 +153,7 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 	{
 		i = pn;
 		auto act = &hittype[i];
-		sp = &act->s;
+		sp = act->s;
 		t = act->temp_data;
 
 		act->picnum = sp->picnum;
@@ -234,7 +234,7 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 
 void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 {
-	auto sp = &act->s;
+	auto sp = act->s;
 	auto sect = sp->sectnum;
 
 	if (gs.actorinfo[sp->picnum].scriptaddress)
@@ -271,8 +271,8 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			sp->clipdist = 80;
 			if (actj)
 			{
-				if (actj->s.picnum == RESPAWN)
-					act->tempang = sp->pal = actj->s.pal;
+				if (actj->s->picnum == RESPAWN)
+					act->tempang = sp->pal = actj->s->pal;
 				changespritestat(act, STAT_ACTOR);
 			}
 			else changespritestat(act, STAT_ZOMBIEACTOR);
@@ -287,7 +287,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		act->timetosleep = 0;
 
 		if (actj)
-			sp->ang = actj->s.ang;
+			sp->ang = actj->s->ang;
 	}
 }
 
@@ -300,13 +300,13 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 {
 	if (actj == nullptr) return;
-	auto sp = &acti->s;
-	auto spj = &actj->s;
+	auto sp = acti->s;
+	auto spj = actj->s;
 	if (beam)
 	{
 		sp->xrepeat = 31;
 		sp->yrepeat = 1;
-		sp->z = sector[spj->sectnum].floorz - (40 << 8);
+		sp->z = sector[spj->sectnum].floorz - isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	}
 	else
 	{
@@ -342,7 +342,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 
 int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 {
-	auto sp = &acti->s;
+	auto sp = acti->s;
 	short s1 = sp->sectnum;
 
 	updatesector(sp->x + 108, sp->y + 108, &s1);
@@ -382,7 +382,7 @@ int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 
 void initfootprint(DDukeActor* actj, DDukeActor* acti)
 {
-	auto sp = &acti->s;
+	auto sp = acti->s;
 	int sect = sp->sectnum;
 	if (actj)
 	{
@@ -410,8 +410,8 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 		}
 		else { sp->xrepeat = sp->yrepeat = 0; return; }
 
-		sp->cstat = 32 + ((ps[actj->s.yvel].footprintcount & 1) << 2);
-		sp->ang = actj->s.ang;
+		sp->cstat = 32 + ((ps[actj->s->yvel].footprintcount & 1) << 2);
+		sp->ang = actj->s->ang;
 	}
 
 	sp->z = sector[sect].floorz;
@@ -430,12 +430,12 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 {
-	auto sp = &acti->s;
+	auto sp = acti->s;
 	int sect = sp->sectnum;
 	auto t = acti->temp_data;
 	if (actj)
 	{
-		auto spj = &actj->s;
+		auto spj = actj->s;
 		short snum, a;
 
 		if (spj->picnum == TILE_APLAYER)
@@ -484,7 +484,7 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 
 void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 {
-	auto sp = &acti->s;
+	auto sp = acti->s;
 	int sect = sp->sectnum;
 	auto t = acti->temp_data;
 	sp->cstat |= 64 | 257;
@@ -500,7 +500,7 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto act = it.Next())
 	{
-		auto ss = &act->s;
+		auto ss = act->s;
 		if (ss->picnum == CRANEPOLE && sp->hitag == (ss->hitag))
 		{
 			msy[tempwallptr + 2] = ActorToScriptIndex(act);
@@ -537,13 +537,13 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 
 void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 {
-	auto sp = &actor->s;
+	auto sp = actor->s;
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
-	if (actj && (actj->s.statnum == 10 || actj->s.statnum == 1))
+	if (actj && (actj->s->statnum == 10 || actj->s->statnum == 1))
 	{
 		sp->shade = 32;
-		if (actj->s.pal != 1)
+		if (actj->s->pal != 1)
 		{
 			sp->pal = 2;
 			sp->z -= (18 << 8);
@@ -573,7 +573,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 
 int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 {
-	auto sp = &actor->s;
+	auto sp = actor->s;
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
 	if (isrecon)
@@ -621,7 +621,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 
 void spawneffector(DDukeActor* actor)
 {
-	auto sp = &actor->s;
+	auto sp = actor->s;
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
 	int startwall, endwall, x, y, d, s, clostest;
@@ -642,8 +642,8 @@ void spawneffector(DDukeActor* actor)
 				DukeLinearSpriteIterator it;
 				while (auto act2 = it.Next())
 					{
-					if (act2->s.statnum < MAXSTATUS && act2->s.picnum == SECTOREFFECTOR && (act2->s.lotag == SE_7_TELEPORT || act2->s.lotag == SE_23_ONE_WAY_TELEPORT) && 
-						actor != act2 && act2->s.hitag == sp->hitag)
+					if (act2->s->statnum < MAXSTATUS && act2->s->picnum == SECTOREFFECTOR && (act2->s->lotag == SE_7_TELEPORT || act2->s->lotag == SE_23_ONE_WAY_TELEPORT) && 
+						actor != act2 && act2->s->hitag == sp->hitag)
 					{
 						actor->SetOwner(act2);
 						break;
@@ -976,7 +976,7 @@ void spawneffector(DDukeActor* actor)
 				bool found = false;
 				while (auto act2 = it.Next())
 				{
-					auto spr = &act2->s;
+					auto spr = act2->s;
 					if (spr->statnum < MAXSTATUS)
 						if (spr->picnum == SECTOREFFECTOR &&
 							spr->lotag == SE_1_PIVOT &&
@@ -1094,17 +1094,17 @@ void spawneffector(DDukeActor* actor)
 		case SE_15_SLIDING_DOOR:
 		case SE_16_REACTOR:
 		case SE_26:
-			setsectinterpolate(actor->s.sectnum);
+			setsectinterpolate(actor->s->sectnum);
 			break;
 
 		case SE_29_WAVES:
-			StartInterpolation(actor->s.sectnum, Interp_Sect_Floorheinum);
-			StartInterpolation(actor->s.sectnum, Interp_Sect_Floorz);
+			StartInterpolation(actor->s->sectnum, Interp_Sect_Floorheinum);
+			StartInterpolation(actor->s->sectnum, Interp_Sect_Floorz);
 			break;
 	}
 
-	if ((!isRR() && actor->s.lotag >= 40 && actor->s.lotag <= 45) ||
-		(isRRRA() && actor->s.lotag >= 150 && actor->s.lotag <= 155))
+	if ((!isRR() && actor->s->lotag >= 40 && actor->s->lotag <= 45) ||
+		(isRRRA() && actor->s->lotag >= 150 && actor->s->lotag <= 155))
 		changespritestat(actor, STAT_RAROR);
 	else
 		changespritestat(actor, STAT_EFFECTOR);
@@ -1121,7 +1121,7 @@ void lotsofglass(DDukeActor *actor, int wallnum, int n)
 {
 	int j, xv, yv, z, x1, y1, a;
 	short sect;
-	auto sp = &actor->s;
+	auto sp = actor->s;
 
 	sect = -1;
 
@@ -1174,14 +1174,14 @@ void lotsofglass(DDukeActor *actor, int wallnum, int n)
 
 void spriteglass(DDukeActor* actor, int n)
 {
-	auto sp = &actor->s;
+	auto sp = actor->s;
 
 	for (int j = n; j > 0; j--)
 	{
 		int a = krand() & 2047;
 		int z = sp->z - ((krand() & 16) << 8);
 		auto k = EGS(sp->sectnum, sp->x, sp->y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
-		k->s.pal = sp->pal;
+		k->s->pal = sp->pal;
 	}
 }
 
@@ -1195,7 +1195,7 @@ void ceilingglass(DDukeActor* actor, int sectnum, int n)
 {
 	int j, xv, yv, z, x1, y1;
 	int a, s, startwall, endwall;
-	auto sp = &actor->s;
+	auto sp = actor->s;
 
 	startwall = sector[sectnum].wallptr;
 	endwall = startwall + sector[sectnum].wallnum;
@@ -1230,7 +1230,7 @@ void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
 	int j, xv, yv, z, x1, y1;
 	short sect = -1;
 	int a;;
-	auto sp = &actor->s;
+	auto sp = actor->s;
 
 	if (wallnum < 0)
 	{
@@ -1238,7 +1238,7 @@ void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
 		{
 			a = krand() & 2047;
 			auto k = EGS(sp->sectnum, sp->x, sp->y, sp->z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
-			k->s.pal = krand() & 15;
+			k->s->pal = krand() & 15;
 		}
 		return;
 	}
@@ -1261,7 +1261,7 @@ void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
 			z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 		a = sp->ang - 1024;
 		auto k = EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
-		k->s.pal = krand() & 7;
+		k->s->pal = krand() & 7;
 	}
 }
 

@@ -94,6 +94,11 @@ struct PlayerHorizon
 		return q16horiz(interpolatedvalue(osum().asq16(), sum().asq16(), smoothratio));
 	}
 
+	double horizsumfrac(bool const precise, double const smoothratio)
+	{
+		return !precise ? sum().asq16() >> 20 : (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); // Used within draw code for Duke.
+	}
+
 	fixedhoriz interpolatedoff(double const smoothratio)
 	{
 		double const ratio = smoothratio * (1. / FRACUNIT);
@@ -227,9 +232,14 @@ struct PlayerAngle
 		return interpolatedangle(orotscrnang, rotscrnang, smoothratio);
 	}
 
-	double look_anghalf(double const smoothratio)
+	double look_anghalf(bool const precise, double const smoothratio)
 	{
-		return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; // Used within draw code for weapon and crosshair when looking left/right.
+		return !precise ? look_ang.signedbam() >> 22 : (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; // Used within draw code for weapon and crosshair when looking left/right.
+	}
+
+	double looking_arc(bool const precise, double const smoothratio)
+	{
+		return !precise ? abs(look_ang.signedbuild()) / 9 : fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); // Used within draw code for weapon and crosshair when looking left/right.
 	}
 
 private:

@@ -39,7 +39,7 @@ inline int bossguy(spritetype const* const pSprite)
 
 inline int actorflag(DDukeActor * actor, int mask)
 {
-	return (((gs.actorinfo[actor->s.picnum].flags) & mask) != 0);
+	return (((gs.actorinfo[actor->s->picnum].flags) & mask) != 0);
 }
 
 inline int actorfella(DDukeActor* actor)
@@ -70,14 +70,14 @@ inline void settileflag(int flag, const std::initializer_list<short>& types)
 
 inline bool wallswitchcheck(DDukeActor* s)
 {
-	return !!(gs.tileinfo[s->s.picnum].flags & TFLAG_WALLSWITCH);
+	return !!(gs.tileinfo[s->s->picnum].flags & TFLAG_WALLSWITCH);
 }
 
 inline int checkcursectnums(int se)
 {
 	int i;
 	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if(ps[i].GetActor() && ps[i].GetActor()->s.sectnum == se ) return i;
+		if(ps[i].GetActor() && ps[i].GetActor()->s->sectnum == se ) return i;
 	return -1;
 }
 
@@ -185,12 +185,6 @@ inline void SetPlayerPal(player_struct* p, PalEntry pe)
 inline bool playrunning()
 {
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
-}
-
-// the weapon display code uses this.
-inline double get16thOfHoriz(int const snum, bool const interpolate, double const smoothratio)
-{
-	return (!interpolate ? ps[snum].horizon.sum() : ps[snum].horizon.interpolatedsum(smoothratio)).asq16() * (0.0625 / FRACUNIT);
 }
 
 inline void doslopetilting(player_struct* p, double const scaleAdjust = 1)

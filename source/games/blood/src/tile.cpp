@@ -41,7 +41,7 @@ int tileEnd[256];
 int hTileFile[256];
 
 char surfType[kMaxTiles];
-signed char tileShade[kMaxTiles];
+int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
 
 int tileInit(char a1, const char *a2)

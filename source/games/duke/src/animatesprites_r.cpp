@@ -52,7 +52,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		t = &tsprite[j];
 		i = t->owner;
 		h = &hittype[i];
-		s = &h->s;
+		s = h->s;
 
 		switch (t->picnum)
 		{
@@ -139,9 +139,9 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		t = &tsprite[j];
 		i = t->owner;
 		h = &hittype[i];
-		s = &h->s;
+		s = h->s;
 		auto OwnerAc = h->GetOwner();
-		auto Owner = OwnerAc ? &OwnerAc->s : nullptr;
+		auto Owner = OwnerAc ? OwnerAc->s : nullptr;
 
 		switch (s->picnum)
 		{
@@ -164,7 +164,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posx - ps[s->yvel].oposx, 16);
 			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posy - ps[s->yvel].oposy, 16);
 			t->z = interpolatedvalue(ps[s->yvel].oposz, ps[s->yvel].posz, smoothratio);
-			t->z += (40 << 8);
+			t->z += PHEIGHT_RR;
 			s->xrepeat = 24;
 			s->yrepeat = 17;
 		}
@@ -226,7 +226,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 						Owner->y - t->y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
-					if (ldist(Owner, t) < ldist(&ps[screenpeek].GetActor()->s, Owner))
+					if (ldist(Owner, t) < ldist(ps[screenpeek].GetActor()->s, Owner))
 						t->xrepeat = t->yrepeat = 0;
 			}
 			continue;
@@ -376,13 +376,13 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				{
 					t->x = interpolatedvalue(omyx, myx, smoothratio);
 					t->y = interpolatedvalue(omyy, myy, smoothratio);
-					t->z = interpolatedvalue(omyz, myz, smoothratio) + (40 << 8);
+					t->z = interpolatedvalue(omyz, myz, smoothratio) + PHEIGHT_RR;
 					t->ang = interpolatedangle(omyang, myang, smoothratio).asbuild();
 					t->sectnum = mycursectnum;
 				}
 			}
 
-			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s.extra > 0 && ps[p].curr_weapon > 0)
+			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s->extra > 0 && ps[p].curr_weapon > 0)
 			{
 				auto newtspr = &tsprite[spritesortcnt];
 				memcpy(newtspr, t, sizeof(spritetype));

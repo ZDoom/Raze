@@ -43,6 +43,7 @@
 #include "gamecontrol.h"
 #include "uiinput.h"
 #include "automap.h"
+#include "screenjob.h"
 
 //==========================================================================
 //
@@ -53,6 +54,11 @@
 
 bool G_Responder (event_t *ev)
 {
+	if (gamestate == GS_INTRO || gamestate == GS_INTERMISSION)
+	{
+		return ScreenJobResponder(ev);
+	}
+
 	if (CT_Responder(ev))
 		return true;					// chat ate the event
 	if (Cheat_Responder(ev))

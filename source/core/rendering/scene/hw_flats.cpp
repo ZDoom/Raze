@@ -343,7 +343,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 	z = sprite->z * (1 / -256.f);
 	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.
 
-	visibility = sectorVisibility(&sector[sprite->sectnum]) *(4.f / 5.f); // The factor comes directly from Polymost. What is it with Build and these magic factors?
+	visibility = sectorVisibility(sector) *(4.f / 5.f); // The factor comes directly from Polymost. What is it with Build and these magic factors?
 
 	// Weird Build logic that really makes no sense.
 	if ((sprite->cstat & CSTAT_SPRITE_ONE_SIDED) != 0 && (di->Viewpoint.Pos.Z < z) == ((sprite->cstat & CSTAT_SPRITE_YFLIP) == 0))
@@ -355,7 +355,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 		sec = sector;
 		shade = clamp(sprite->shade, 0, numshades - 1);
 		palette = sprite->pal;
-		fade = lookups.getFade(sector[sprite->sectnum].floorpal);	// fog is per sector.
+		fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 
 		SetSpriteTranslucency(sprite, alpha, RenderStyle);
 

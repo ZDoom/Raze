@@ -109,15 +109,6 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		else RenderStyle.BlendOp = STYLEOP_Fuzz;	// subtractive with models is not going to work.
 	}
 
-	// Fog must be done before the texture so that the texture selector can override it.
-	// Disable brightmaps if non-black fog is used.
-	int shade = this->shade;
-	if (this->shade > numshades) // handling of SW's shadow hack using a shade of 127.
-	{
-		shade = sector[sprite->sectnum].floorshade;
-		state.SetColor(0, 0, 0, alpha);
-	}
-
 	SetLightAndFog(state, fade, palette, shade, visibility, alpha, this->shade <= numshades);
 
 	if (modelframe == 0)

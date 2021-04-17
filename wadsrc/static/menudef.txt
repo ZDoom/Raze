@@ -1160,10 +1160,8 @@ OptionMenu "VideoOptions" protected
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
 	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
-	ifnotgame(Exhumed)
-	{
-		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
-	}
+	Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
+	Option "$GLPREFMNU_ENVIRONMENTMAPMIRROR",	gl_mirror_envmap,				"OnOff"
 	ifnotgame(Blood, Exhumed)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
@@ -2015,7 +2013,7 @@ OptionMenu "EngineCredits2"
 OptionMenu "EngineCredits2a"
 {
 	title "$MNU_CREDITS"
-	Submenu " ---->", "EngineCredits3"
+	Submenu " ---->", "EngineCredits2b"
 	StaticText "RedNukem / NBlood", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText ""
@@ -2025,6 +2023,16 @@ OptionMenu "EngineCredits2a"
 	StaticText "PCExhumed", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText "sirlemonhead", 0
+}
+	
+OptionMenu "EngineCredits2b"
+{
+	title "$MNU_CREDITS"
+	Submenu " ---->", "EngineCredits3"
+	StaticText "Widescreen graphics", 1
+	StaticText "James Manning     fgsfds            ", 0
+	StaticText "Dzierzan          Phredreeke        ", 0
+	StaticText "MaxED             Kinsie            ", 0
 }
 	
 OptionMenu "EngineCredits3"

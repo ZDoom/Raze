@@ -54,7 +54,7 @@ struct GameInterface : public ::GameInterface
 	const char* GenericCheat(int player, int cheat) override;
 	const char* CheckCheatMode() override;
 	void NextLevel(MapRecord* map, int skill) override;
-	void NewGame(MapRecord* map, int skill) override;
+	void NewGame(MapRecord* map, int skill, bool) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
 	bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) override;
 	int playerKeyMove() override { return 40; }
@@ -118,7 +118,7 @@ struct Dispatcher
 	void (*checkweapons)(struct player_struct* p);
 	void (*processinput)(int snum);
 	void (*displayweapon)(int snum, double smoothratio);
-	void (*displaymasks)(int snum, double smoothratio);
+	void (*displaymasks)(int snum, int p, double smoothratio);
 
 	void (*animatesprites)(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
 

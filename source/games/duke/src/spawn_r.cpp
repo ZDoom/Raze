@@ -45,8 +45,8 @@ int spawn_r(int j, int pn)
 	if (!(i & 0x1000000)) return i;
 	i &= 0xffffff;
 	auto act = &hittype[i];
-	auto sp = &act->s;
-	auto spj = j < 0? nullptr : &actj->s;
+	auto sp = act->s;
+	auto spj = j < 0? nullptr : actj->s;
 	auto t = act->temp_data;
 	int sect = sp->sectnum;
 
@@ -293,7 +293,7 @@ int spawn_r(int j, int pn)
 			case TONGUE:
 				if(j >= 0)
 					sp->ang = spj->ang;
-				sp->z -= 38<<8;
+				sp->z -= PHEIGHT_RR;
 				sp->zvel = 256-(krand()&511);
 				sp->xvel = 64-(krand()&127);
 				changespritestat(i,4);

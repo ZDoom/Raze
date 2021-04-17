@@ -30,7 +30,7 @@ struct DUDEINFO {
     short startHealth; // health
     unsigned short mass; // mass
     int at6; // unused?
-    unsigned char clipdist; // clipdist
+    uint8_t clipdist; // clipdist
     int eyeHeight;
     int aimHeight; // used by just Cerberus
     int hearDist; // hear radius

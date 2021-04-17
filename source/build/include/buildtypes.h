@@ -188,6 +188,7 @@ enum
 
     // Raze extensions, using the higher bits to avoid conflitcs with the reserved and undocumented bits above.
     CSTAT_SPRITE_MDLROTATE = 1u<<16u,   // Only for tsprites: rotate if this is a model or voxel.
+    CSTAT_SPRITE_NOFIND = 1u<<17u,      // Invisible to neartag and hitscan
 
 };
 enum

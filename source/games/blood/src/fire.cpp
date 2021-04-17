@@ -109,10 +109,10 @@ void FireProcess(void)
 void CellularFrame(char *pFrame, int sizeX, int sizeY)
 {
     int nSquare = sizeX * sizeY;
-    unsigned char *pPtr1 = (unsigned char*)pFrame;
+    uint8_t *pPtr1 = (uint8_t*)pFrame;
     while (nSquare--)
     {
-        unsigned char *pPtr2 = pPtr1+sizeX;
+        uint8_t *pPtr2 = pPtr1+sizeX;
         int sum = *(pPtr2-1) + *pPtr2 + *(pPtr2+1) + *(pPtr2+sizeX);
         if (*(pPtr2+sizeX) > 96)
         {
