@@ -987,7 +987,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 
     fr.Seek(0, FileReader::SeekSet);
     auto buffer = fr.Read();
-    unsigned char md4[16];
+    uint8_t md4[16];
     md4once(buffer.Data(), buffer.Size(), md4);
     G_LoadMapHack(mapname, md4);
 

@@ -70,16 +70,16 @@ struct THINGINFO
 {
     short startHealth;
     short mass;
-    unsigned char clipdist;
+    uint8_t clipdist;
     short flags;
     int elastic; // elasticity
     int dmgResist; // damage resistance
     short cstat;
     short picnum;
-    char shade;
-    unsigned char pal;
-    unsigned char xrepeat; // xrepeat
-    unsigned char yrepeat; // yrepeat
+    int8_t shade;
+    uint8_t pal;
+    uint8_t xrepeat; // xrepeat
+    uint8_t yrepeat; // yrepeat
     int dmgControl[kDamageMax]; // damage
 };
 
@@ -87,23 +87,23 @@ struct AMMOITEMDATA
 {
     short cstat;
     short picnum;
-    char shade;
-    char pal;
-    unsigned char xrepeat;
-    unsigned char yrepeat;
+    int8_t shade;
+    uint8_t pal;
+    uint8_t xrepeat;
+    uint8_t yrepeat;
     short count;
-    unsigned char type;
-    unsigned char weaponType;
+    uint8_t type;
+    uint8_t weaponType;
 };
 
 struct WEAPONITEMDATA
 {
     short cstat;
     short picnum;
-    char shade;
-    char pal;
-    unsigned char xrepeat;
-    unsigned char yrepeat;
+    int8_t shade;
+    uint8_t pal;
+    uint8_t xrepeat;
+    uint8_t yrepeat;
     short type;
     short ammoType;
     short count;
@@ -113,10 +113,10 @@ struct ITEMDATA
 {
     short cstat;
     short picnum;
-    char shade;
-    char pal;
-    unsigned char xrepeat;
-    unsigned char yrepeat;
+    int8_t shade;
+    uint8_t pal;
+    uint8_t xrepeat;
+    uint8_t yrepeat;
     short packSlot;
 };
 
@@ -125,15 +125,15 @@ struct MissileType
     short picnum;
     int velocity;
     int angleOfs;
-    unsigned char xrepeat;
-    unsigned char yrepeat;
-    char shade;
-    unsigned char clipDist;
+    uint8_t xrepeat;
+    uint8_t yrepeat;
+    int8_t shade;
+    uint8_t clipDist;
 };
 
 struct EXPLOSION
 {
-    unsigned char repeat;
+    uint8_t repeat;
     char dmg;
     char dmgRng;
     int radius;

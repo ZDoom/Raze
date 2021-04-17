@@ -166,20 +166,23 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
 //
 //---------------------------------------------------------------------------
 
-class DDRealmsScreen : public DScreenJob
+class DDRealmsScreen : public DSkippableScreenJob
 {
 public:
-	DDRealmsScreen() : DScreenJob(fadein | fadeout)	{}
+	DDRealmsScreen() : DSkippableScreenJob(fadein | fadeout)	{}
 
-	int Frame(uint64_t clock, bool skiprequest) override
+	void OnTick() override
 	{
-		const uint64_t duration = 7'000'000'000;
+		if (ticks >= 7 * GameTicRate) state = finished;
+	}
+
+	void Draw(double smoothratio) override
+	{
 		const auto tex = tileGetTexture(DREALMS, true);
 		int translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, DREALMSPAL) : 0;
 
 		twod->ClearScreen();
 		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-		return skiprequest ? -1 : clock < duration ? 1 : 0;
 	}
 };
 
@@ -189,27 +192,18 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DTitleScreen : public DScreenJob
+class DTitleScreen : public DSkippableScreenJob
 {
 	int soundanm = 0;
 
 public:
-	DTitleScreen() : DScreenJob(fadein | fadeout) 
+	DTitleScreen() : DSkippableScreenJob(fadein | fadeout) 
 	{
 	}
 
-	int Frame(uint64_t nsclock, bool skiprequest) override
+	void OnTick() override
 	{
-		twod->ClearScreen();
-		int clock = nsclock * 120 / 1'000'000'000;
-
-		twod->ClearScreen();
-
-		// Only translate if the image depends on the global palette.
-		auto tex = tileGetTexture(BETASCREEN, true);
-		int translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, TITLEPAL) : 0;
-		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-
+		int clock = ticks * 120 / GameTicRate;
 		if (soundanm == 0 && clock >= 120 && clock < 120 + 60)
 		{
 			soundanm = 1;
@@ -230,6 +224,25 @@ public:
 			soundanm = 4;
 			if (isPlutoPak()) S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 		}
+
+		if (clock > (860 + 120))
+		{
+			state = finished;
+		}
+	}
+
+	void Draw(double smoothratio) override
+	{
+		twod->ClearScreen();
+		int clock = (ticks + smoothratio) * 120 / GameTicRate;
+
+		twod->ClearScreen();
+
+		// Only translate if the image depends on the global palette.
+		auto tex = tileGetTexture(BETASCREEN, true);
+		int translation = tex->GetTexture()->GetImage()->UseGamePalette() ? TRANSLATION(Translation_BasePalettes, TITLEPAL) : 0;
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+
 
 		double scale = clamp(clock - 120, 0, 60) / 64.;
 		if (scale > 0.)
@@ -263,13 +276,6 @@ public:
 					DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 			}
 		}
-
-		if (clock > (860 + 120))
-		{
-			return 0;
-		}
-
-		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -297,7 +303,7 @@ void Logo_d(const CompletionFunc &completion)
 	if (!userConfig.nologo)
 	{
 		if (!isShareware()) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes), []() { S_PlaySpecialMusic(MUS_INTRO); } };
-		else jobs[job++] = { Create<DScreenJob>(), []() { S_PlaySpecialMusic(MUS_INTRO); } };
+		else jobs[job++] = { Create<DBlackScreen>(1), []() { S_PlaySpecialMusic(MUS_INTRO); } };
 		if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), nullptr };
 	}
 	else S_PlaySpecialMusic(MUS_INTRO);
@@ -311,70 +317,68 @@ void Logo_d(const CompletionFunc &completion)
 //
 //---------------------------------------------------------------------------
 
-class DEpisode1End1 : public DScreenJob
+class DEpisode1End1 : public DSkippableScreenJob
 {
 	int bonuscnt = 0;
+	int bossani = -1;
+	int breatheani = -1;
+	bool breathebg = false;
+
+	static inline const int breathe[] =
+	{
+		 0,  30,VICTORY1 + 1,176,59,
+		30,  60,VICTORY1 + 2,176,59,
+		60,  90,VICTORY1 + 1,176,59,
+		90, 120,0         ,176,59
+	};
+
+	static inline const int bossmove[] =
+	{
+		 0, 120,VICTORY1 + 3,86,59,
+	   220, 260,VICTORY1 + 4,86,59,
+	   260, 290,VICTORY1 + 5,86,59,
+	   290, 320,VICTORY1 + 6,86,59,
+	   320, 350,VICTORY1 + 7,86,59,
+	   350, 380,VICTORY1 + 8,86,59,
+	   350, 380,VICTORY1 + 8,86,59,
+	};
 
 public:
-	DEpisode1End1() : DScreenJob(fadein | fadeout) {}
+	DEpisode1End1() : DSkippableScreenJob(fadein | fadeout) {}
 
-	int Frame(uint64_t nsclock, bool skiprequest) override
+	void OnTick()
 	{
-		static const int breathe[] =
-		{
-			 0,  30,VICTORY1 + 1,176,59,
-			30,  60,VICTORY1 + 2,176,59,
-			60,  90,VICTORY1 + 1,176,59,
-			90, 120,0         ,176,59
-		};
+		int currentclock = ticks * 120 / GameTicRate;
 
-		static const int bossmove[] =
-		{
-			 0, 120,VICTORY1 + 3,86,59,
-		   220, 260,VICTORY1 + 4,86,59,
-		   260, 290,VICTORY1 + 5,86,59,
-		   290, 320,VICTORY1 + 6,86,59,
-		   320, 350,VICTORY1 + 7,86,59,
-		   350, 380,VICTORY1 + 8,86,59,
-		   350, 380,VICTORY1 + 8,86,59,
-		};
-
-		auto translation = TRANSLATION(Translation_BasePalettes, ENDINGPAL);
-
-		int currentclock = nsclock * 120 / 1'000'000'000;
-
-		uint64_t span = nsclock / 1'000'000;
-
-		twod->ClearScreen();
-		DrawTexture(twod, tileGetTexture(VICTORY1, true), 0, 50, DTA_FullscreenScale, FSMode_Fit320x200, 
-			DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TopLeft, true, TAG_DONE);
-
+		bossani = -1;
+		breathebg = false;
+		breatheani = -1;
 
 		// boss
 		if (currentclock > 390 && currentclock < 780)
+		{
 			for (int t = 0; t < 35; t += 5) if (bossmove[t + 2] && (currentclock % 390) > bossmove[t] && (currentclock % 390) <= bossmove[t + 1])
 			{
-				if (t == 10 && bonuscnt == 1) 
-				{ 
+				if (t == 10 && bonuscnt == 1)
+				{
 					S_PlaySound(SHOTGUN_FIRE, CHAN_AUTO, CHANF_UI);
 					S_PlaySound(SQUISHED, CHAN_AUTO, CHANF_UI);
-					bonuscnt++; 
+					bonuscnt++;
 				}
-				DrawTexture(twod, tileGetTexture(bossmove[t + 2], true), bossmove[t + 3], bossmove[t + 4], DTA_FullscreenScale, FSMode_Fit320x200,
-					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+				bossani = t;
 			}
+		}
 
 		// Breathe
 		if (currentclock < 450 || currentclock >= 750)
 		{
 			if (currentclock >= 750)
 			{
-				DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, FSMode_Fit320x200,
-					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
-				if (currentclock >= 750 && bonuscnt == 2) 
-				{ 
+				breathebg = true;
+				if (currentclock >= 750 && bonuscnt == 2)
+				{
 					S_PlaySound(DUKETALKTOBOSS, CHAN_AUTO, CHANF_UI);
-					bonuscnt++; 
+					bonuscnt++;
 				}
 			}
 			for (int t = 0; t < 20; t += 5)
@@ -385,12 +389,37 @@ public:
 						S_PlaySound(BOSSTALKTODUKE, CHAN_AUTO, CHANF_UI);
 						bonuscnt++;
 					}
-					DrawTexture(twod, tileGetTexture(breathe[t + 2], true), breathe[t + 3], breathe[t + 4], DTA_FullscreenScale, FSMode_Fit320x200,
-						DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+					breatheani = t;
 				}
 		}
-		// Only end after having faded out.
-		return skiprequest ? -1 : 1;
+
+	}
+
+	void Draw(double) override
+	{
+		auto translation = TRANSLATION(Translation_BasePalettes, ENDINGPAL);
+
+		twod->ClearScreen();
+		DrawTexture(twod, tileGetTexture(VICTORY1, true), 0, 50, DTA_FullscreenScale, FSMode_Fit320x200, 
+			DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TopLeft, true, TAG_DONE);
+
+		if (bossani != -1)
+		{
+			DrawTexture(twod, tileGetTexture(bossmove[bossani + 2], true), bossmove[bossani + 3], bossmove[bossani + 4], DTA_FullscreenScale, FSMode_Fit320x200,
+				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+		}
+
+		if (breathebg)
+		{
+			DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, FSMode_Fit320x200,
+				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+		}
+
+		if (breatheani != -1)
+		{
+			DrawTexture(twod, tileGetTexture(breathe[breatheani + 2], true), breathe[breatheani + 3], breathe[breatheani + 4], DTA_FullscreenScale, FSMode_Fit320x200,
+				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
+		}
 	}
 };
 
@@ -409,7 +438,6 @@ public:
 
 	FGameTexture* getTexture()
 	{
-		// Here we must provide a real texture, even if invalid, so that the sounds play.
 		auto texid = TexMan.CheckForTexture("radlogo.anm", ETextureType::Any, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ForceLookup);
 		if (texid.isValid()) return TexMan.GetGameTexture(texid);
 		else return TexMan.GameByIndex(0);
@@ -420,7 +448,12 @@ public:
 	{
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Skipped() override
+	{
+		FX_StopAllSounds();
+	}
+
+	void OnTick() override
 	{
 		switch (sound)
 		{
@@ -465,23 +498,21 @@ public:
 			if (!S_CheckSoundPlaying(ENDSEQVOL3SND9))
 			{
 				sound++;
-				waittime = clock + (SoundEnabled()? 1'000'000'000 : 5'000'000'000);	// if sound is off this wouldn't wait without a longer delay here.
+				waittime = ticks + GameTicRate * (SoundEnabled() ? 1 : 5);	// if sound is off this wouldn't wait without a longer delay here.
 			}
 			break;
 
 		case 6:
 			if (isPlutoPak())
 			{
-				if (clock > waittime) skiprequest = true;
+				if (ticks > waittime) state = finished;
 			}
 			break;
 
 		default:
 			break;
 		}
-		int ret = DImageScreen::Frame(clock, skiprequest);
-		if (ret != 1) FX_StopAllSounds();
-		return ret;
+		if (state != running) FX_StopAllSounds();
 	}
 };
 
@@ -491,12 +522,12 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DEpisode4Text : public DScreenJob
+class DEpisode4Text : public DSkippableScreenJob
 {
 public:
-	DEpisode4Text() : DScreenJob(fadein | fadeout) {}
+	DEpisode4Text() : DSkippableScreenJob(fadein | fadeout) {}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
 		twod->ClearScreen();
 		BigText(160, 60, GStrings("Thanks to all our"));
@@ -504,7 +535,6 @@ public:
 		BigText(160, 60 + 16 + 16, GStrings("us big heads."));
 		BigText(160, 70 + 16 + 16 + 16, GStrings("Look for a Duke Nukem 3D"));
 		BigText(160, 70 + 16 + 16 + 16 + 16, GStrings("sequel soon."));
-		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -523,7 +553,7 @@ public:
 	{
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void OnTick() override
 	{
 		switch (sound)
 		{
@@ -539,9 +569,6 @@ public:
 		default:
 			break;
 		}
-		int ret = DImageScreen::Frame(clock, skiprequest);
-		if (ret != 1) FX_StopAllSounds();
-		return ret;
 	}
 };
 
@@ -693,22 +720,25 @@ void doorders(const CompletionFunc& completion)
 //
 //---------------------------------------------------------------------------
 
-class DDukeMultiplayerBonusScreen : public DScreenJob
+class DDukeMultiplayerBonusScreen : public DSkippableScreenJob
 {
 	int playerswhenstarted;
 
 public:
-	DDukeMultiplayerBonusScreen(int pws) : DScreenJob(fadein|fadeout)
+	DDukeMultiplayerBonusScreen(int pws) : DSkippableScreenJob(fadein|fadeout)
 	{
 		playerswhenstarted = pws;
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Start() override
 	{
-		if (clock == 0) S_PlayBonusMusic();
+		S_PlayBonusMusic();
+	}
 
+	void Draw(double smoothratio) override
+	{
 		char tempbuf[32];
-		int currentclock = int(clock * 120 / 1'000'000'000);
+		int currentclock = int((ticks + smoothratio) * 120 / GameTicRate);
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, TAG_DONE);
@@ -783,7 +813,6 @@ public:
 		}
 
 		MiniText(45, 96 + (8 * 7), GStrings("Deaths"), 0, -1, 8);
-		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -797,13 +826,23 @@ class DDukeLevelSummaryScreen : public DScreenJob
 {
 	const char* lastmapname;
 	int gfx_offset;
-	int bonuscnt = 0;
 	int speech = -1;
+	int displaystate = 0;
+	int dukeAnimStart;
 
-	void SetTotalClock(int tc)
+	enum
 	{
-		SetClock(tc * (uint64_t)1'000'000'000 / 120);
-	}
+		printTimeText = 1,
+		printTimeVal = 2,
+		printKillsText = 4,
+		printKillsVal = 8,
+		printSecretsText = 16,
+		printSecretsVal = 32,
+		printStatsAll = 63,
+		dukeAnim = 64,
+		dukeWait = 128,
+
+	};
 
 public:
 	DDukeLevelSummaryScreen() : DScreenJob(fadein | fadeout)
@@ -818,7 +857,82 @@ public:
 		mysnprintf(tempbuf, 32, "%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
 	}
 
-	void PrintTime(int currentclock)
+	bool OnEvent(event_t* ev) override
+	{
+		if (ev->type == EV_KeyDown)
+		{
+			if ((displaystate & printStatsAll) != printStatsAll)
+			{
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+				displaystate = printStatsAll;
+			}
+			else if (!(displaystate & dukeAnim))
+			{
+				displaystate |= dukeAnim;
+				dukeAnimStart = ticks;
+				S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
+				static const uint16_t speeches[] = { BONUS_SPEECH1, BONUS_SPEECH2, BONUS_SPEECH3, BONUS_SPEECH4 };
+				speech = speeches[(rand() & 3)];
+				S_PlaySound(speech, CHAN_AUTO, CHANF_UI, 1);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	void Start() override
+	{
+		S_PlayBonusMusic();
+	}
+
+	void OnTick() override
+	{
+		if ((displaystate & printStatsAll) != printStatsAll)
+		{
+			if (ticks == 15 * 3)
+			{
+				displaystate |= printTimeText;
+			}
+			else if (ticks == 15 * 4)
+			{
+				displaystate |= printTimeVal;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 6)
+			{
+				displaystate |= printKillsText;
+				S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 7)
+			{
+				displaystate |= printKillsVal;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 9)
+			{
+				displaystate |= printSecretsText;
+			}
+			else if (ticks == 15 * 10)
+			{
+				displaystate |= printSecretsVal;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+		}
+		if (displaystate & dukeAnim)
+		{
+			if (ticks >= dukeAnimStart + 60)
+			{
+				displaystate ^= dukeAnim | dukeWait;
+			}
+		}
+		if (displaystate & dukeWait)
+		{
+			if (speech <= 0 || !S_CheckSoundPlaying(speech)) 
+				state = finished;
+		}
+	}
+
+	void PrintTime()
 	{
 		char tempbuf[32];
 		GameText(10, 59 + 9, GStrings("TXT_YourTime"), 0);
@@ -826,16 +940,8 @@ public:
 		if (!isNamWW2GI())
 			GameText(10, 79 + 9, GStrings("TXT_3DRTIME"), 0);
 
-		if (bonuscnt == 0)
-			bonuscnt++;
-
-		if (currentclock > (60 * 4))
+		if (displaystate & printTimeVal)
 		{
-			if (bonuscnt == 1)
-			{
-				bonuscnt++;
-				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-			}
 			FormatTime(ps[myconnectindex].player_par, tempbuf);
 			GameText((320 >> 2) + 71, 59 + 9, tempbuf, 0);
 
@@ -850,25 +956,14 @@ public:
 		}
 	}
 
-	void PrintKills(int currentclock)
+	void PrintKills()
 	{
 		char tempbuf[32];
 		GameText(10, 94 + 9, GStrings("TXT_EnemiesKilled"), 0);
 		GameText(10, 104 + 9, GStrings("TXT_EnemiesLeft"), 0);
 
-		if (bonuscnt == 2)
+		if (displaystate & printKillsVal)
 		{
-			bonuscnt++;
-			S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
-		}
-
-		if (currentclock > (60 * 7))
-		{
-			if (bonuscnt == 3)
-			{
-				bonuscnt++;
-				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-			}
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].actors_killed);
 			GameText((320 >> 2) + 70, 94 + 9, tempbuf, 0);
 
@@ -887,20 +982,14 @@ public:
 		}
 	}
 
-	void PrintSecrets(int currentclock)
+	void PrintSecrets()
 	{
 		char tempbuf[32];
 		GameText(10, 119 + 9, GStrings("TXT_SECFND"), 0);
 		GameText(10, 129 + 9, GStrings("TXT_SECMISS"), 0);
-		if (bonuscnt == 4) bonuscnt++;
 
-		if (currentclock > (60 * 10))
+		if (displaystate & printSecretsVal)
 		{
-			if (bonuscnt == 5)
-			{
-				bonuscnt++;
-				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-			}
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].secret_rooms);
 			GameText((320 >> 2) + 70, 119 + 9, tempbuf, 0);
 			if (ps[myconnectindex].secret_rooms > 0)
@@ -910,41 +999,31 @@ public:
 		}
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
-		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
-		int currentclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
-		GameText(160, 190, GStrings("PRESSKEY"), 8 - int(sin(currentclock / 10.) * 8), 0);
+		GameText(160, 190, GStrings("PRESSKEY"), 8 - int(sin(ticks * 12 / GameTicRate) * 8), 0);
 
-		if (currentclock > (60 * 3))
+		if (displaystate & printTimeText)
 		{
-			PrintTime(currentclock);
+			PrintTime();
 		}
-		if (currentclock > (60 * 6))
+		if (displaystate & printKillsText)
 		{
-			PrintKills(currentclock);
+			PrintKills();
 		}
-		if (currentclock > (60 * 9))
+		if (displaystate & printSecretsText)
 		{
-			PrintSecrets(currentclock);
+			PrintSecrets();
 		}
 
-		if (currentclock >= (1000000000L) && currentclock < (1000000320L))
+		if (displaystate & dukeAnim)
 		{
-			switch ((currentclock >> 4) % 15)
+			switch (((ticks - dukeAnimStart) >> 2) % 15)
 			{
 				case 0:
-					if (bonuscnt == 6)
-					{
-						bonuscnt++;
-						S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
-						static const uint16_t speeches[] = { BONUS_SPEECH1, BONUS_SPEECH2, BONUS_SPEECH3, BONUS_SPEECH4};
-						speech = speeches[(rand() & 3)];
-						S_PlaySound(speech, CHAN_AUTO, CHANF_UI, 1);
-					}
 				case 1:
 				case 4:
 				case 5:
@@ -956,14 +1035,9 @@ public:
 					break;
 			}
 		}
-		else if (currentclock > (10240 + 120L))
+		else if (!(displaystate & dukeWait))
 		{
-			if (speech > 0 && !skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, speech)) return 1;
-			return 0;
-		}
-		else
-		{
-			switch((currentclock >> 5) & 3)
+			switch((ticks >> 3) & 3)
 			{
 				case 1:
 				case 3:
@@ -977,26 +1051,6 @@ public:
 
 		if (lastmapname) BigText(160, 20 - 6, lastmapname);
 		BigText(160, 36 - 6, GStrings("Completed"));
-
-		if (currentclock > 10240 && currentclock < 10240 + 10240)
-			SetTotalClock(1024);
-
-		if (skiprequest && currentclock > (60 * 2))
-		{
-			skiprequest = false;
-			if (currentclock < (60 * 13))
-			{
-				SetTotalClock(60 * 13);
-			}
-			else if (currentclock < (1000000000))
-			{
-				// force-set bonuscnt here so that it won't desync with the rest of the logic and Duke's voice can be heard.
-				if (bonuscnt < 6) bonuscnt = 6;
-				SetTotalClock(1000000000);
-			}
-		}
-
-		return 1;
 	}
 
 };
@@ -1030,7 +1084,9 @@ void dobonus_d(int bonusonly, const CompletionFunc& completion)
 		jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
 	}
 	if (job)
+	{
 		RunScreenJob(jobs, job, completion);
+	}
 	else if (completion) completion(false);
 }
 
@@ -1092,14 +1148,13 @@ class DDukeLoadScreen : public DScreenJob
 public:
 	DDukeLoadScreen(MapRecord *maprec) : DScreenJob(0), rec(maprec) {}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		
 		BigText(160, 90, (rec->flags & MI_USERMAP)? GStrings("TXT_LOADUM") :  GStrings("TXT_LOADING"));
 		BigText(160, 114, rec->DisplayName());
-		return 0;
 	}
 };
 

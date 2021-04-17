@@ -328,9 +328,10 @@ static void GameTicker()
 
 	case GS_MENUSCREEN:
 	case GS_FULLCONSOLE:
+		break;
 	case GS_INTERMISSION:
 	case GS_INTRO:
-		// These elements do not tick at game rate.
+		ScreenJobTick();
 		break;
 
 	}
@@ -370,7 +371,7 @@ void Display()
 	case GS_INTRO:
 	case GS_INTERMISSION:
 		// screen jobs are not bound by the game ticker so they need to be ticked in the display loop.
-		RunScreenJobFrame();
+		ScreenJobDraw();
 		break;
 
 	case GS_LEVEL:

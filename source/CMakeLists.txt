@@ -1034,6 +1034,7 @@ set (PCH_SOURCES
 	build/src/polymost.cpp
 
 	core/movie/playmve.cpp
+	core/movie/movieplayer.cpp
 	core/automap.cpp
 	core/cheats.cpp
 	core/cheathandler.cpp

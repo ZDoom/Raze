@@ -47,8 +47,8 @@ enum EGameFlag
 };
 
 struct GAMEOPTIONS {
-    unsigned char nGameType;
-    unsigned char nDifficulty;
+    uint8_t nGameType;
+    uint8_t nDifficulty;
     char nMonsterSettings;
     int uGameFlags;
     int uNetGameFlags;

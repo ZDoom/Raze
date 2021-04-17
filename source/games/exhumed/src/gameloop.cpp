@@ -167,7 +167,7 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
                 showmap(from_map ? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
             }
             else
-                jobs.Push({ Create<DScreenJob>() }); // we need something in here even in the multiplayer case.
+                jobs.Push({ Create<DBlackScreen>(1) }); // we need something in here even in the multiplayer case.
         }
     }
     else
@@ -193,7 +193,7 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
 				gameaction = ga_nextlevel;
 
 			}
-		}, true, true);
+		});
 	}
 	
 }
@@ -217,15 +217,14 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool frommenu)
 	// start a new game on the given level
 	InitNewGame();
 	if (map->levelNumber == 1) STAT_StartNewGame("Exhumed", 1);
-    if (frommenu) Intermission(nullptr, map);
-    else NextLevel(map, skill);
+    Intermission(nullptr, map);
 }
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
     Mus_Stop();
     if (currentLevel->levelNumber == 0) gameaction = ga_mainmenu;
-	else Intermission(currentLevel, map);
+    Intermission(currentLevel, map);
 }
 
 //---------------------------------------------------------------------------

@@ -74,7 +74,7 @@ struct Seq {
 
 struct ACTIVE
 {
-	unsigned char type;
+	uint8_t type;
 	unsigned short xindex;
 };
 
@@ -86,7 +86,7 @@ struct SEQINST
 	int nSeqID;
 	int callback;
 	short timeCounter;
-	unsigned char frameIndex;
+	uint8_t frameIndex;
 	void Update();
 };
 

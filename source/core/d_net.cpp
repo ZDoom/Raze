@@ -1674,6 +1674,7 @@ bool D_CheckNetGame (void)
 
 	Net_SetCommandHandler(DEM_GENERICCHEAT, genericCheat);
 	Net_SetCommandHandler(DEM_CHANGEMAP, changeMap);
+	Net_SetCommandHandler(DEM_ENDSCREENJOB, endScreenJob);
 
 	for (i = 0; i < MAXNETNODES; i++)
 	{

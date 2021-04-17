@@ -266,9 +266,14 @@ public:
 		playerswhenstarted = pws;
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Start() override
 	{
-		if (clock == 0) S_PlayBonusMusic();
+		S_PlayBonusMusic();
+	}
+
+
+	void Draw(double) override
+	{
 		char tempbuf[32];
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
@@ -344,7 +349,6 @@ public:
 		}
 
 		MiniText(45, 96 + (8 * 7), GStrings("Deaths"), 0);
-		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -358,13 +362,23 @@ class DRRLevelSummaryScreen : public DScreenJob
 {
 	const char* lastmapname;
 	int gfx_offset;
-	int bonuscnt = 0;
+	int displaystate = 0;
 	int speech = -1;
+	int exitSoundStart;
 
-	void SetTotalClock(int tc)
+	enum
 	{
-		SetClock(tc * (uint64_t)1'000'000'000 / 120);
-	}
+		printTimeText = 1,
+		printTimeVal = 2,
+		printKillsText = 4,
+		printKillsVal = 8,
+		printSecretsText = 16,
+		printSecretsVal = 32,
+		printStatsAll = 63,
+		exitSound = 64,
+		exitWait = 128,
+
+	};
 
 public:
 	DRRLevelSummaryScreen(bool dofadeout = true) : DScreenJob(dofadeout? (fadein | fadeout) : fadein)
@@ -385,53 +399,107 @@ public:
 		mysnprintf(tempbuf, 32, "%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
 	}
 
-	void PrintTime(int currentclock)
+	bool OnEvent(event_t* ev) override
+	{
+		if (ev->type == EV_KeyDown)
+		{
+			if ((displaystate & printStatsAll) != printStatsAll)
+			{
+				S_PlaySound(404, CHAN_AUTO, CHANF_UI);
+				displaystate = printStatsAll;
+			}
+			else if (!(displaystate & exitSound))
+			{
+				displaystate |= exitSound;
+				exitSoundStart = ticks;
+				S_PlaySound(425, CHAN_AUTO, CHANF_UI);
+				speech = BONUS_SPEECH1 + (rand() & 3);
+				S_PlaySound(speech, CHAN_AUTO, CHANF_UI);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	void Start() override
+	{
+		S_PlayBonusMusic();
+	}
+
+	void OnTick() override
+	{
+		if ((displaystate & printStatsAll) != printStatsAll)
+		{
+			if (ticks == 15 * 3)
+			{
+				displaystate |= printTimeText;
+			}
+			else if (ticks == 15 * 4)
+			{
+				displaystate |= printTimeVal;
+				S_PlaySound(404, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 6)
+			{
+				displaystate |= printKillsText;
+			}
+			else if (ticks == 15 * 7)
+			{
+				displaystate |= printKillsVal;
+				S_PlaySound(404, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 9)
+			{
+				displaystate |= printSecretsText;
+			}
+			else if (ticks == 15 * 10)
+			{
+				displaystate |= printSecretsVal;
+				S_PlaySound(404, CHAN_AUTO, CHANF_UI);
+			}
+		}
+		if (displaystate & exitSound)
+		{
+			if (ticks >= exitSoundStart + 60)
+			{
+				displaystate ^= exitSound | exitWait;
+			}
+		}
+		if (displaystate & exitWait)
+		{
+			if (speech <= 0 || !S_CheckSoundPlaying(speech))
+				state = finished;
+		}
+	}
+
+	void PrintTime()
 	{
 		char tempbuf[32];
 		BigText(30, 48, GStrings("TXT_YerTime"), -1);
 		BigText(30, 64, GStrings("TXT_ParTime"), -1);
 		BigText(30, 80, GStrings("TXT_XTRTIME"), -1);
 
-		if (bonuscnt == 0)
-			bonuscnt++;
-
-		if (currentclock > (60 * 4))
+		if (displaystate & printTimeVal)
 		{
-			if (bonuscnt == 1)
-			{
-				bonuscnt++;
-				S_PlaySound(404, CHAN_AUTO, CHANF_UI);
-			}
 			FormatTime(ps[myconnectindex].player_par, tempbuf);
 			BigText(191, 48, tempbuf, -1);
 
 			FormatTime(currentLevel->parTime, tempbuf);
 			BigText(191, 64, tempbuf, -1);
 
-			if (!isNamWW2GI())
-			{
-				FormatTime(currentLevel->designerTime, tempbuf);
-				BigText(191, 80, tempbuf, -1);
-			}
+			FormatTime(currentLevel->designerTime, tempbuf);
+			BigText(191, 80, tempbuf, -1);
 		}
 	}
 
-	void PrintKills(int currentclock)
+	void PrintKills()
 	{
 		char tempbuf[32];
 		BigText(30, 112, GStrings("TXT_VarmintsKilled"), -1);
 		BigText(30, 128, GStrings("TXT_VarmintsLeft"), -1);
 
-		if (bonuscnt == 2)
-			bonuscnt++;
-
-		if (currentclock > (60 * 7))
+		if (displaystate & printKillsVal)
 		{
-			if (bonuscnt == 3)
-			{
-				bonuscnt++;
-				S_PlaySound(442, CHAN_AUTO, CHANF_UI);
-			}
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].actors_killed);
 			BigText(231, 112, tempbuf, -1);
 			if (ud.player_skill > 3)
@@ -449,20 +517,14 @@ public:
 		}
 	}
 
-	void PrintSecrets(int currentclock)
+	void PrintSecrets()
 	{
 		char tempbuf[32];
 		BigText(30, 144, GStrings("TXT_SECFND"), -1);
 		BigText(30, 160, GStrings("TXT_SECMISS"), -1);
-		if (bonuscnt == 4) bonuscnt++;
 
-		if (currentclock > (60 * 10))
+		if (displaystate & printSecretsVal)
 		{
-			if (bonuscnt == 5)
-			{
-				bonuscnt++;
-				S_PlaySound(404, CHAN_AUTO, CHANF_UI);
-			}
 			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].secret_rooms);
 			BigText(231, 144, tempbuf, -1);
 			if (ps[myconnectindex].secret_rooms > 0)
@@ -472,88 +534,56 @@ public:
 		}
 	}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
-		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
-		int currentclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 		if (lastmapname) BigText(80, 16, lastmapname, -1);
 		BigText(15, 192, GStrings("PRESSKEY"), -1);
 
-		if (currentclock > (60 * 3))
+		if (displaystate & printTimeText)
 		{
-			PrintTime(currentclock);
+			PrintTime();
 		}
-		if (currentclock > (60 * 6))
+		if (displaystate & printKillsText)
 		{
-			PrintKills(currentclock);
+			PrintKills();
 		}
-		if (currentclock > (60 * 9))
+		if (displaystate & printSecretsText)
 		{
-			PrintSecrets(currentclock);
+			PrintSecrets();
 		}
-
-		if (currentclock > (1000000000L) && currentclock < (1000000320L))
-		{
-			int val = (currentclock >> 4) % 15;
-			if (val == 0)
-			{
-				if (bonuscnt == 6)
-				{
-					bonuscnt++;
-					S_PlaySound(425, CHAN_AUTO, CHANF_UI);
-					speech = BONUS_SPEECH1 + (rand() & 3);
-					S_PlaySound(speech, CHAN_AUTO, CHANF_UI);
-				}
-			}
-		}
-		else if (currentclock > (10240 + 120L))
-		{
-			if (speech > 0 && !skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, speech)) return 1;
-			return 0;
-		}
-
-		if (currentclock > 10240 && currentclock < 10240 + 10240)
-			SetTotalClock(1024);
-
-		if (skiprequest && currentclock > (60 * 2))
-		{
-			skiprequest = false;
-			if (currentclock < (60 * 13))
-			{
-				SetTotalClock(60 * 13);
-			}
-			else if (currentclock < (1000000000))
-				SetTotalClock(1000000000);
-		}
-
-		return 1;
 	}
 
 };
 
 
-class DRRRAEndOfGame : public DScreenJob
+class DRRRAEndOfGame : public DSkippableScreenJob
 {
 public:
-	DRRRAEndOfGame() : DScreenJob(fadein|fadeout)
+	DRRRAEndOfGame() : DSkippableScreenJob(fadein|fadeout)
+	{
+	}
+
+	void Skipped() override
+	{
+		S_StopSound(35);
+	}
+
+	void Start() override
 	{
 		S_PlaySound(35, CHAN_AUTO, CHANF_UI);
 	}
-	int Frame(uint64_t clock, bool skiprequest)
+
+	void OnTick() override
 	{
-		int currentclock = int(clock * 120 / 1'000'000'000);
-		auto tex = tileGetTexture(ENDGAME + ((currentclock >> 4) & 1));
+		if (!S_CheckSoundPlaying(-1, 35) && ticks > 15 * GameTicRate) state = finished; // make sure it stays, even if sound is off.
+	}
+	void Draw(double) override
+	{
+		auto tex = tileGetTexture(ENDGAME + ((ticks >> 2) & 1));
 		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-		if (!S_CheckSoundPlaying(-1, 35) && currentclock > 15*120) return 0; // make sure it stays, even if sound is off.
-		if (skiprequest)
-		{
-			S_StopSound(35);
-			return -1;
-		}
-		return 1;
 	}
 };
 
@@ -617,14 +647,13 @@ class DRRLoadScreen : public DScreenJob
 public:
 	DRRLoadScreen(MapRecord* maprec) : DScreenJob(0), rec(maprec) {}
 
-	int Frame(uint64_t clock, bool skiprequest)
+	void Draw(double) override
 	{
 		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		
 		int y = isRRRA()? 140 : 90;
 		BigText(160, y, (rec->flags & MI_USERMAP) ? GStrings("TXT_ENTRUM") : GStrings("TXT_ENTERIN"), 0);
 		BigText(160, y+24, rec->DisplayName(), 0);
-		return 0;
 	}
 };
 

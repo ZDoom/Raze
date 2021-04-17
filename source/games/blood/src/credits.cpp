@@ -64,7 +64,7 @@ void playlogos()
 
 	if (!userConfig.nologo)
 	{
-		if (fileSystem.FindFile("logo.smk"))
+		if (fileSystem.FindFile("logo.smk") != -1)
 		{
 			jobs[job++] = { PlayVideo("logo.smk", &logosound[0], 0) };
 		}
@@ -73,7 +73,7 @@ void playlogos()
 			jobs[job++] = { Create<DBlackScreen>(1), []() { sndStartSample("THUNDER2", 128, -1); } };
 			jobs[job++] = { Create<DImageScreen>(2050) };
 		}
-		if (fileSystem.FindFile("gti.smk"))
+		if (fileSystem.FindFile("gti.smk") != -1)
 		{
 			jobs[job++] = { PlayVideo("gti.smk", &logosound[2], 0) };
 		}

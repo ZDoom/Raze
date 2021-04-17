@@ -1032,14 +1032,13 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
-                        PlayerList[nPlayer].nDestVertPan = q16horiz(0);
                         if (currentLevel->levelNumber == 11)
                         {
-                            PlayerList[nPlayer].nDestVertPan = q16horiz(46);
+                            PlayerList[nPlayer].horizon.settarget(46);
                         }
                         else
                         {
-                            PlayerList[nPlayer].nDestVertPan = q16horiz(11);
+                            PlayerList[nPlayer].horizon.settarget(11);
                         }
                     }
                 }
@@ -1067,7 +1066,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                             zVelB = -zVelB;
                         }
 
-                        if (zVelB > 512 && !PlayerList[nPlayer].horizon.horiz.asq16() && !(sPlayerInput[nPlayer].actions & SB_AIMMODE)) {
+                        if (zVelB > 512 && !PlayerList[nPlayer].horizon.horiz.asq16() && cl_slopetilting) {
                             sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
                         }
                     }
@@ -2665,10 +2664,13 @@ loc_1BD2E:
                     pPlayer->bPlayerPan = false;
                 }
 
-                double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asq16() * (1. / (FRACUNIT << 2));
-                if (nVertPan != 0)
+                if (cl_slopetilting)
                 {
-                    pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4, 4) : nVertPan * 2.);
+                    double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asq16() * (1. / (FRACUNIT << 2));
+                    if (nVertPan != 0)
+                    {
+                        pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4, 4) : nVertPan * 2.);
+                    }
                 }
             }
             else // else, player's health is less than 0
