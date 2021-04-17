@@ -1428,6 +1428,10 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
         {
             auto const spr = (uspriteptr_t)&sprite[z];
             uint32_t const cstat = spr->cstat;
+
+            if (cstat & CSTAT_SPRITE_NOFIND)
+                continue;
+
 #ifdef USE_OPENGL
             if (!hitallsprites)
 #endif

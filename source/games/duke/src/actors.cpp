@@ -1014,7 +1014,7 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 			// This originally depended on undefined behavior as the deleted sprite was still used for the sound
 			// with no checking if it got reused in the mean time.
 			spri->picnum = 0;	// give it a picnum without any behavior attached, just in case
-			spri->cstat |= CSTAT_SPRITE_INVISIBLE;
+			spri->cstat |= CSTAT_SPRITE_INVISIBLE|CSTAT_SPRITE_NOFIND;
 			changespritestat(actor->GetIndex(), STAT_REMOVED);
 		}
 	}
