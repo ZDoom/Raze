@@ -215,6 +215,7 @@ int BunchDrawer::ClipLine(int line, bool portal)
 	}
 	else
 	{
+		if (portal) clipper->SafeRemoveClipRange(startAngle, endAngle);
 		return CL_Draw | CL_Pass;
 	}
 }
