@@ -407,25 +407,29 @@ extern PicAnm picanm;
 
 inline int tileWidth(int num)
 {
-	assert(num < MAXTILES);
+	assert((unsigned)num < MAXTILES);
+	if ((unsigned)num >= MAXTILES) return 1;
 	return (int)TileFiles.tiledata[num].texture->GetDisplayWidth();
 }
 
 inline int tileHeight(int num)
 {
-	assert(num < MAXTILES);
+	assert((unsigned)num < MAXTILES);
+	if ((unsigned)num >= MAXTILES) return 1;
 	return (int)TileFiles.tiledata[num].texture->GetDisplayHeight();
 }
 
 inline int tileLeftOffset(int num)
 {
-	assert(num < MAXTILES);
+	assert((unsigned)num < MAXTILES);
+	if ((unsigned)num >= MAXTILES) return 0;
 	return (int)TileFiles.tiledata[num].texture->GetDisplayLeftOffset();
 }
 
 inline int tileTopOffset(int num)
 {
-	assert(num < MAXTILES);
+	assert((unsigned)num < MAXTILES);
+	if ((unsigned)num >= MAXTILES) return 0;
 	return (int)TileFiles.tiledata[num].texture->GetDisplayTopOffset();
 }
 
@@ -440,11 +444,11 @@ int32_t animateoffs(int const tilenum, int fakevar);
 
 inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 {
-	assert(tile < MAXTILES);
+	assert((unsigned)tile < MAXTILES);
 	if (tile < 0 || tile >= MAXTILES) return nullptr;
 	if (animate)
 	{
-		if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+		if (TileFiles.tiledata[tile].picanm.sf & PICANM_ANIMTYPE_MASK)
 			tile += animateoffs(tile, 0);
 
 	}

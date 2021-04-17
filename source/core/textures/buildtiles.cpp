@@ -820,7 +820,7 @@ void tileUpdateAnimations()
 {
 	for (int i = 0; i < MAXTILES; i++)
 	{
-		if (picanm[i].sf & PICANM_ANIMTYPE_MASK)
+		if (TileFiles.tiledata[i].picanm.sf & PICANM_ANIMTYPE_MASK)
 		{
 			int j = i + animateoffs(i, 0);
 
