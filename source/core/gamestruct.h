@@ -67,8 +67,6 @@ struct GameInterface
 	virtual bool StartGame(FNewGameStartup& gs) { return false; }
 	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
 	virtual double SmallFontScale() { return 1; }
-	virtual bool SaveGame() { return true; }
-	virtual bool LoadGame() { return true; }
 	virtual void SerializeGameState(FSerializer& arc) {}
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void QuitToTitle() {}

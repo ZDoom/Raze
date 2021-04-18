@@ -1380,20 +1380,24 @@ public:
 	{
 		Ptr = nullptr;
 	}
-	TPointer(const T& other)
+	TPointer(const T& other) = delete;
+	/*
 	{
 		Alloc();
 		*Ptr = other;
 	}
+	*/
 	TPointer(T&& other)
 	{
 		Alloc();
 		*Ptr = other;
 	}
-	TPointer(const TPointer<T>& other)
+	TPointer(const TPointer<T>& other) = delete;
+	/*
 	{
 		DoCopy(other);
 	}
+	*/
 	TPointer(TPointer<T>&& other)
 	{
 		Ptr = other.Ptr;

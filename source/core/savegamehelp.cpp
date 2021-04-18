@@ -107,19 +107,11 @@ static void SerializeSession(FSerializer& arc)
 
 //=============================================================================
 //
-// This is for keeping my sanity while working with the horrible mess
-// that is the savegame code in Duke Nukem.
-// Without handling this in global variables it is a losing proposition
-// to save custom data along with the regular snapshot. :(
-// With this the savegame code can mostly pretend to load from and write
-// to files while really using a composite archive.
 //
-// All global non-game dependent state is also saved right here for convenience.
 //
 //=============================================================================
 
-
-bool OpenSaveGameForRead(const char *name)
+bool ReadSavegame(const char *name)
 {
 	if (savereader) delete savereader;
 	savereader = FResourceFile::OpenResourceFile(name, true, true);
@@ -180,11 +172,6 @@ FileReader ReadSavegameChunk(const char *name)
 	return lump->NewReader();
 }
 
-bool FinishSavegameWrite()
-{
-	return savewriter.WriteToFile();
-}
-
 void FinishSavegameRead()
 {
 	delete savereader;
@@ -199,7 +186,7 @@ CVAR(Bool, save_formatted, false, 0)	// should be set to false once the conversi
 //
 //=============================================================================
 
-bool OpenSaveGameForWrite(const char* filename, const char *name)
+bool WriteSavegame(const char* filename, const char *name)
 {
 	savewriter.Clear();
 	savewriter.SetFileName(filename);
@@ -262,8 +249,7 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	M_AppendPNGText(picfile, "Title", name);
 	M_AppendPNGText(picfile, "Current Map", lev->labelName);
 	M_FinishPNG(picfile);
-
-	return true;
+	return savewriter.WriteToFile();
 }
 
 //=============================================================================
@@ -699,16 +685,9 @@ static int nextquicksave = -1;
 
  void DoLoadGame(const char* name)
  {
-	 if (OpenSaveGameForRead(name))
+	 if (ReadSavegame(name))
 	 {
-		 if (gi->LoadGame())
-		 {
-			 gameaction = ga_level;
-		 }
-		 else
-		 {
-			 I_Error("%s: Failed to load savegame", name);
-		 }
+		 gameaction = ga_level;
 	 }
 	 else
 	 {
@@ -727,14 +706,11 @@ static int nextquicksave = -1;
 
  void G_SaveGame(const char *fn, const char *desc, bool ok4q, bool forceq)
  {
-	 if (OpenSaveGameForWrite(fn, desc))
+	 if (WriteSavegame(fn, desc))
 	 {
-		 if (gi->SaveGame() && FinishSavegameWrite())
-		 {
-			 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
-			 Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
-			 BackupSaveGame = fn;
-		 }
+		 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
+		 Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
+		 BackupSaveGame = fn;
 	 }
  }
 

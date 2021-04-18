@@ -5,13 +5,9 @@
 
 extern FixedBitArray<MAXSPRITES> activeSprites;
 
-bool OpenSaveGameForWrite(const char *fname, const char *name);
-bool OpenSaveGameForRead(const char *name);
-
 FileWriter *WriteSavegameChunk(const char *name);
 FileReader ReadSavegameChunk(const char *name);
 
-bool FinishSavegameWrite();
 void FinishSavegameRead();
 
 // Savegame utilities
