@@ -1169,6 +1169,59 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, GAME_SET& w, GAME_
 //
 //---------------------------------------------------------------------------
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK_POINT& w, TRACK_POINT* def)
+{
+	static TRACK_POINT nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.x, def->x)
+			("y", w.y, def->y)
+			("z", w.z, def->z)
+			("ang", w.ang, def->ang)
+			("tag_low", w.tag_low, def->tag_low)
+			("tag_high", w.tag_high, def->tag_high)
+			("filler", w.filler, def->filler)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* def)
+{
+	static int nul;
+	if (!def)
+	{
+		if (arc.isReading()) w.flags = w.ttflags = 0;
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("numpoints", w.NumPoints, nul)
+			("flags", w.flags, nul)
+			("ttflag", w.ttflags, nul);
+
+		if (arc.isReading())
+		{
+			if (w.TrackPoint) FreeMem(w.TrackPoint);
+			int size = w.NumPoints ? w.NumPoints : 1;
+			w.TrackPoint = (TRACK_POINT*)CallocMem(sizeof(TRACK_POINT), size);
+		}
+		if (w.NumPoints > 0) arc.Array("points", w.TrackPoint, w.NumPoints)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
     Saveable_Init();
@@ -1220,75 +1273,19 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("sumowasseen", sumowasseen)
 			("zillawasseen", zillawasseen)
 			.Array("BossSpriteNum", BossSpriteNum, 3)
-
+			.Array("tracks", Track, countof(Track))
             ;
         postSerializePanelSprites(arc);
         arc.EndObject();
     }
-}
 
-
-
-bool GameInterface::SaveGame()
-{
-	
-    // workaround until the level info here has been transitioned.
-	auto fil = WriteSavegameChunk("snapshot.sw");
-
-
-    MWRITE(Track, sizeof(Track),1,fil);
-    for (int i = 0; i < MAX_TRACKS; i++)
+	if (arc.isReading())
     {
-        ASSERT(Track[i].TrackPoint);
-        if (Track[i].NumPoints == 0)
-            MWRITE(Track[i].TrackPoint, sizeof(TRACK_POINT),1,fil);
-        else
-            MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
-    }
-
-    return true;
-}
-
-
-bool GameInterface::LoadGame()
-{
-    MFILE_READ fil;
-    int i,j,saveisshot=0;
-    short ndx,SpriteNum,sectnum;
-    PLAYERp pp = NULL;
-    USERp u;
-    SECTOR_OBJECTp sop;
-    SECT_USERp sectu;
-    ANIMp a;
-    PANEL_SPRITEp psp,next;
-
-
-	auto filr = ReadSavegameChunk("snapshot.sw");
-	if (!filr.isOpen()) return false;
-	fil = &filr;
-
-    MREAD(Track, sizeof(Track),1,fil);
-    for (i = 0; i < MAX_TRACKS; i++)
-    {
-        if (Track[i].NumPoints == 0)
-        {
-            Track[i].TrackPoint = (TRACK_POINTp)CallocMem(sizeof(TRACK_POINT), 1);
-            MREAD(Track[i].TrackPoint, sizeof(TRACK_POINT),1,fil);
-        }
-        else
-        {
-            Track[i].TrackPoint = (TRACK_POINTp)CallocMem(Track[i].NumPoints * sizeof(TRACK_POINT), 1);
-            MREAD(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
-        }
-    }
-
     DoTheCache();
 
-    {
         int SavePlayClock = PlayClock;
         InitTimingVars();
         PlayClock = SavePlayClock;
-    }
     InitNetVars();
 
     screenpeek = myconnectindex;
@@ -1300,12 +1297,10 @@ bool GameInterface::LoadGame()
     // this is not a new game
     ShadowWarrior::NewGame = false;
 
-
-    DoPlayerDivePalette(Player+myconnectindex);
-    DoPlayerNightVisionPalette(Player+myconnectindex);
-
+		DoPlayerDivePalette(Player + myconnectindex);
+		DoPlayerNightVisionPalette(Player + myconnectindex);
     InitLevelGlobals();
-    return true;
+	}
 }
 
 END_SW_NS

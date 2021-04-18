@@ -1679,8 +1679,8 @@ typedef struct TRACK
 {
     TRACK_POINTp TrackPoint;
     int ttflags;
-    short flags;
-    short NumPoints;
+    int flags;
+    int NumPoints;
 
     void FreeTrackPoints()
     {
@@ -2267,8 +2267,6 @@ struct GameInterface : ::GameInterface
 	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
     void SerializeGameState(FSerializer& arc);
-    bool LoadGame() override;
-	bool SaveGame() override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
