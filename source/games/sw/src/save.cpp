@@ -662,7 +662,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruc
 			.Array("sector", w.sector, def->sector, w.num_sectors)  // is this really different from sectp?
 			.Array("zorig_floor", w.zorig_floor, def->zorig_floor, w.num_sectors)
 			.Array("zorig_ceiling", w.zorig_ceiling, def->zorig_ceiling, w.num_sectors)
-			.Array("sp_num", w.sp_num, def->sp_num, sp_cnt + 1)
+			.Array("sp_num", w.sp_num, def->sp_num, countof(w.sp_num))
 			.Array("xorig", w.xorig, def->xorig, w.num_walls)
 			.Array("yorig", w.yorig, def->yorig, w.num_walls)
 			("controller", w.controller, def->controller)
