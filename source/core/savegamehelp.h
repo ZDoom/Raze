@@ -5,11 +5,6 @@
 
 extern FixedBitArray<MAXSPRITES> activeSprites;
 
-FileWriter *WriteSavegameChunk(const char *name);
-FileReader ReadSavegameChunk(const char *name);
-
-void FinishSavegameRead();
-
 // Savegame utilities
 class FileReader;
 

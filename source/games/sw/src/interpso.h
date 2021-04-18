@@ -27,8 +27,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef INTERPSO_H
 #define INTERPSO_H
 
-#include "mfile.h"
-
 BEGIN_SW_NS
 
 extern int32_t so_numinterpolations;

@@ -1060,7 +1060,6 @@ set (PCH_SOURCES
 	core/initfs.cpp
 	core/statistics.cpp
 	core/secrets.cpp
-	core/compositesavegame.cpp
 	core/savegamehelp.cpp
 	core/precache.cpp
 	core/quotes.cpp

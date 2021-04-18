@@ -1210,8 +1210,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* d
 			int size = w.NumPoints ? w.NumPoints : 1;
 			w.TrackPoint = (TRACK_POINT*)CallocMem(sizeof(TRACK_POINT), size);
 		}
-		if (w.NumPoints > 0) arc.Array("points", w.TrackPoint, w.NumPoints)
-			.EndObject();
+		if (w.NumPoints > 0) arc.Array("points", w.TrackPoint, w.NumPoints);
+		arc.EndObject();
 	}
 	return arc;
 }
@@ -1233,7 +1233,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		SerializeSectUser(arc);
 		so_serializeinterpolations(arc);
 		arc("numplayers", numplayers)
-            .Array("players", Player, numplayers)
+			.Array("players", Player, numplayers)
 			("skill", Skill)
 			("screenpeek", screenpeek)
 			("randomseed", randomseed)
@@ -1272,8 +1272,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("serpwasseen", serpwasseen)
 			("sumowasseen", sumowasseen)
 			("zillawasseen", zillawasseen)
-			.Array("BossSpriteNum", BossSpriteNum, 3)
-			.Array("tracks", Track, countof(Track))
+			.Array("BossSpriteNum", BossSpriteNum, 3);
+			arc.Array("tracks", Track, countof(Track))
             ;
         postSerializePanelSprites(arc);
         arc.EndObject();
