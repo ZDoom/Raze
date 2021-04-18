@@ -515,7 +515,7 @@ DoBloodSpray(int16_t Weapon)
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing
                 // underwater
 
-                if (u->lo_sectp && SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth)
+                if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                 // shallow water
 
@@ -739,7 +739,7 @@ DoPhosphorus(int16_t Weapon)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -976,7 +976,7 @@ DoChemBomb(int16_t Weapon)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -1210,7 +1210,7 @@ DoCaltrops(int16_t Weapon)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 

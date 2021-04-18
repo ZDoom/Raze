@@ -1552,11 +1552,7 @@ typedef struct SECT_USER
 {
     SECT_USER() { memset(this, 0, sizeof(*this)); }
     int dist, flags;
-    union
-    {
-        struct { short depth_fract, depth; }; // do NOT change this, doubles as a long FIXED point number
-        int depth_fixed;
-    };
+    int depth_fixed;
     short stag,    // ST? tag number - for certain things it helps to know it
           ang,
           height,

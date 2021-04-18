@@ -1462,8 +1462,8 @@ DoPlayerSetWadeDepth(PLAYERp pp)
     if (TEST(sectp->extra, SECTFX_SINK))
     {
         // make sure your even in the water
-        if (pp->posz + PLAYER_HEIGHT > pp->lo_sectp->floorz - Z(SectUser[pp->lo_sectp - sector]->depth))
-            pp->WadeDepth = SectUser[pp->lo_sectp - sector]->depth;
+        if (pp->posz + PLAYER_HEIGHT > pp->lo_sectp->floorz - Z(FixedToInt(SectUser[pp->lo_sectp - sector]->depth_fixed)))
+            pp->WadeDepth = FixedToInt(SectUser[pp->lo_sectp - sector]->depth_fixed);
     }
 }
 

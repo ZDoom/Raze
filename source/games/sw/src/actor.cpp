@@ -455,7 +455,7 @@ DoActorDebris(short SpriteNum)
             }
         }
 
-        if (SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth > 10) // JBF: added null check
+        if (SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed) > 10) // JBF: added null check
         {
             u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 3)) & 1023;
             //sp->z = Z(2) + u->loz + ((Z(4) * (int) bsin(u->WaitTics)) >> 14);
@@ -540,7 +540,7 @@ KeepActorOnFloor(short SpriteNum)
         return;
 
     if (u->lo_sectp && SectUser[u->lo_sectp - sector].Data())
-        depth = SectUser[u->lo_sectp - sector]->depth;
+        depth = FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed);
     else
         depth = 0;
 

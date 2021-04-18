@@ -4516,7 +4516,7 @@ WeaponMoveHit(short SpriteNum)
                 return true;
             }
 
-            if (SectUser[hit_sect].Data() && SectUser[hit_sect]->depth > 0)
+            if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
             {
                 SpawnSplash(SpriteNum);
                 //SetSuicide(SpriteNum);
@@ -4798,7 +4798,7 @@ DoFireballFlames(short SpriteNum)
         }
         else
         {
-            if (SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth > 0)
+            if (SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed) > 0)
             {
                 if (labs(sector[sp->sectnum].floorz - sp->z) <= Z(4))
                 {
@@ -4871,7 +4871,7 @@ DoBreakFlames(short SpriteNum)
     }
     else
     {
-        if (SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth > 0)
+        if (SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed) > 0)
         {
             if (labs(sector[sp->sectnum].floorz - sp->z) <= Z(4))
             {
@@ -8077,7 +8077,7 @@ DoStar(int16_t Weapon)
 
             if (sp->z > DIV2(u->hiz + u->loz))
             {
-                if (SectUser[hit_sect].Data() && SectUser[hit_sect]->depth > 0)
+                if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
                 {
                     SpawnSplash(Weapon);
                     KillSprite(Weapon);
@@ -9078,7 +9078,7 @@ DoGrenade(int16_t Weapon)
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing on shallow water
 
                     if (!TEST(u->Flags, SPR_BOUNCE))
@@ -21257,7 +21257,7 @@ DoShrapVelocity(int16_t SpriteNum)
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing on shallow water
 
                     if (!TEST(u->Flags, SPR_BOUNCE))

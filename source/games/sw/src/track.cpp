@@ -834,7 +834,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
             sop->zorig_ceiling[sop->num_sectors] = sector[k].ceilingz;
 
             if (TEST(sector[k].extra, SECTFX_SINK))
-                sop->zorig_floor[sop->num_sectors] += Z(SectUser[k]->depth);
+                sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(SectUser[k]->depth_fixed));
 
             // lowest and highest floorz's
             if (sector[k].floorz > sop->floor_loz)
@@ -2269,46 +2269,19 @@ void CallbackSOsink(ANIMp ap, void *data)
     ASSERT(su != NULL);
 
     ASSERT(GetSectUser(src_sector));
-    tgt_depth = (GetSectUser(src_sector))->depth;
+    tgt_depth = FixedToInt((GetSectUser(src_sector))->depth_fixed);
 
-#if 0
-    for (w = &Water[0]; w < &Water[MAX_WATER]; w++)
+    short sectnum;
+    for (sectnum = 0; sectnum < numsectors; sectnum++)
     {
-        if (w->sector == dest_sector)
+        if (sectnum == dest_sector)
         {
-            ndx = AnimSet(&w->depth, Z(tgt_depth), ap->vel>>8);
+            ndx = AnimSet(ANIM_SUdepth, dest_sector, IntToFixed(tgt_depth), (ap->vel << 8) >> 8);
             AnimSetVelAdj(ndx, ap->vel_adj);
-
-            // This is interesting
-            // Added a depth_fract to the struct so I could do a
-            // 16.16 Fixed point representation to change the depth
-            // in a more precise way
-            ndx = AnimSet((int *)&su->depth_fract, IntToFixed(tgt_depth), (ap->vel<<8)>>8);
-            AnimSetVelAdj(ndx, ap->vel_adj);
-
             found = true;
             break;
         }
     }
-#else
-    {
-        short sectnum;
-        for (sectnum = 0; sectnum < numsectors; sectnum++)
-        {
-            if (sectnum == dest_sector)
-            {
-                // This is interesting
-                // Added a depth_fract to the struct so I could do a
-                // 16.16 Fixed point representation to change the depth
-                // in a more precise way
-                ndx = AnimSet(ANIM_SUdepth, dest_sector, IntToFixed(tgt_depth), (ap->vel << 8) >> 8);
-                AnimSetVelAdj(ndx, ap->vel_adj);
-                found = true;
-                break;
-            }
-        }
-    }
-#endif
 
     ASSERT(found);
 

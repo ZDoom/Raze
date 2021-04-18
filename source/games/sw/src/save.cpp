@@ -801,7 +801,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECT_USER& w, SECT
 	{
 		arc("dist", w.dist, def->dist)
 			("flags", w.flags, def->flags)
-			("depth_fract", w.depth_fract, def->depth_fract)
+			("depth", w.depth_fixed, def->depth_fixed)
 			("stag", w.stag, def->stag)
 			("ang", w.ang, def->ang)
 			("height", w.height, def->height)

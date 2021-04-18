@@ -478,7 +478,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
         if (SectUser[sectnum].Data() && TEST(u->lo_sectp->extra, SECTFX_SINK))
         {
-            depth = SectUser[sectnum]->depth;
+            depth = FixedToInt(SectUser[sectnum]->depth_fixed);
         }
         else
         {
