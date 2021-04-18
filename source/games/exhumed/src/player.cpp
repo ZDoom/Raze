@@ -1032,6 +1032,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
+                        PlayerList[nPlayer].nDestVertPan = q16horiz(0);
                         if (currentLevel->levelNumber == 11)
                         {
                             PlayerList[nPlayer].horizon.settarget(46);
@@ -1067,7 +1068,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         }
 
                         if (zVelB > 512 && !PlayerList[nPlayer].horizon.horiz.asq16() && cl_slopetilting) {
-                            sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
+                            PlayerList[nPlayer].nDestVertPan = q16horiz(0);
                         }
                     }
 
@@ -2666,7 +2667,7 @@ loc_1BD2E:
 
                 if (cl_slopetilting)
                 {
-                    double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asq16() * (1. / (FRACUNIT << 2));
+                    double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asbuildf() * 0.25;
                     if (nVertPan != 0)
                     {
                         pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4, 4) : nVertPan * 2.);

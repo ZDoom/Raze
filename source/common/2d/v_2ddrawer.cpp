@@ -956,6 +956,7 @@ void F2DDrawer::AddColorOnlyQuad(int x1, int y1, int w, int h, PalEntry color, F
 	{
 		// Only needed by Raze's fullscreen blends because they are being calculated late when half of the 2D content has already been submitted,
 		// This ensures they are below the HUD, not above it.
+		dg.mScreenFade = screenFade;
 		mData.Insert(0, dg);
 	}
 }
