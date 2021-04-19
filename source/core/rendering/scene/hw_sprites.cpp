@@ -331,6 +331,8 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 	y = spr->y * (1 / -16.f);
 	auto vp = di->Viewpoint;
 
+	if ((vp.Pos.XY() - DVector2(x, y)).LengthSquared() < 0.125) return;
+
 	if (modelframe == 0)
 	{
 		int flags = spr->cstat;
