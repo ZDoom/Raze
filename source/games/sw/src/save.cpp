@@ -631,7 +631,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTp& w,
 {
 	int ndx = w ? int(w - SectorObject) : -1;
 	arc(keyname, ndx);
-	w = ndx == -1 ? nullptr : SectorObject;
+	if (arc.isReading() )w = ndx == -1 ? nullptr : SectorObject + ndx;
 	return arc;
 }
 
