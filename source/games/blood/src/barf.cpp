@@ -659,8 +659,8 @@ void ParseScript(int lumpnum)
 					auto inp1 = strpbrk(inp, "/\\");
 					if (!inp1 || !fileSystem.CreatePathlessCopy(inp1 + 1, ID, nFlags))
 					{
-						// I'll activate this when I find evidence that it is needed. Otherwise the risk of picking up unwanted data is too high.
-						//fileSystem.CreatePathlessCopy(inp, ID, nFlags);
+						// GDX spports this so we should, too.
+						fileSystem.CreatePathlessCopy(inp, ID, nFlags);
 					}
                 }
 

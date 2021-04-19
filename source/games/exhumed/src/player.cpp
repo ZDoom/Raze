@@ -915,7 +915,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             if (SyncInput())
             {
                 Player* pPlayer = &PlayerList[nPlayer];
-                applylook(&pPlayer->angle, sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
+                pPlayer->angle.applylook(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
                 UpdatePlayerSpriteAngle(pPlayer);
             }
 
@@ -1032,6 +1032,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
+                        PlayerList[nPlayer].nDestVertPan = q16horiz(0);
                         if (currentLevel->levelNumber == 11)
                         {
                             PlayerList[nPlayer].horizon.settarget(46);
@@ -1067,7 +1068,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         }
 
                         if (zVelB > 512 && !PlayerList[nPlayer].horizon.horiz.asq16() && cl_slopetilting) {
-                            sPlayerInput[nPlayer].actions |= SB_CENTERVIEW;
+                            PlayerList[nPlayer].nDestVertPan = q16horiz(0);
                         }
                     }
 
@@ -2637,7 +2638,12 @@ loc_1BD2E:
 
                 Player* pPlayer = &PlayerList[nPlayer];
 
-                if (actions & (SB_LOOK_UP | SB_LOOK_DOWN))
+                if (SyncInput())
+                {
+                    pPlayer->horizon.sethorizon(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
+                }
+
+                if (actions & (SB_LOOK_UP | SB_LOOK_DOWN) || sPlayerInput[nPlayer].pan)
                 {
                     pPlayer->nDestVertPan = pPlayer->horizon.horiz;
                     pPlayer->bPlayerPan = pPlayer->bLockPan = true;
@@ -2648,17 +2654,6 @@ loc_1BD2E:
                     pPlayer->bPlayerPan = pPlayer->bLockPan = false;
                 }
 
-                if (SyncInput())
-                {
-                    sethorizon(&pPlayer->horizon, sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
-                }
-
-                if (sPlayerInput[nPlayer].pan)
-                {
-                    pPlayer->nDestVertPan = pPlayer->horizon.horiz;
-                    pPlayer->bPlayerPan = pPlayer->bLockPan = true;
-                }
-
                 if (totalvel[nPlayer] > 20)
                 {
                     pPlayer->bPlayerPan = false;
@@ -2666,7 +2661,7 @@ loc_1BD2E:
 
                 if (cl_slopetilting)
                 {
-                    double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asq16() * (1. / (FRACUNIT << 2));
+                    double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asbuildf() * 0.25;
                     if (nVertPan != 0)
                     {
                         pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4, 4) : nVertPan * 2.);

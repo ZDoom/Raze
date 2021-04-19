@@ -127,6 +127,11 @@ static TArray<FString> ParseGameInfo(TArray<FString>& pwads, const char* fn, con
 			sc.MustGetString();
 			GameStartupInfo.con = sc.String;;
 		}
+		else if (!nextKey.CompareNoCase("DEF"))
+		{
+			sc.MustGetString();
+			GameStartupInfo.def = sc.String;;
+		}
 		else
 		{
 			// Silently ignore unknown properties

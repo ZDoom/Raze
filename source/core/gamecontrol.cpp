@@ -1380,6 +1380,11 @@ void LoadDefinitions()
 			if (!loaddefinitionsfile(defsfile, true, false)) loaded = defsfile;
 		}
 	}
+
+	if (GameStartupInfo.def.IsNotEmpty())
+	{
+		loaddefinitionsfile(GameStartupInfo.def, false);	// Stuff from gameinfo.
+	}
 	
 	if (loaded)
 	{
