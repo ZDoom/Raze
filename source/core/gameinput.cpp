@@ -272,13 +272,13 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 //
 //---------------------------------------------------------------------------
 
-void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, double const scaleAdjust)
+void PlayerHorizon::sethorizon(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process only if no targeted horizon set.
-	if (!horizon->targetset())
+	if (!targetset())
 	{
 		// Store current horizon as true pitch.
-		double pitch = horizon->horiz.aspitch();
+		double pitch = horiz.aspitch();
 
 		if (horz)
 		{
@@ -313,20 +313,20 @@ void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, do
 		}
 
 		// clamp before converting back to horizon
-		horizon->horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
+		horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 
 		// return to center if conditions met.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
-			if (abs(horizon->horiz.asq16()) > (FRACUNIT >> 2))
+			if (abs(horiz.asq16()) > (FRACUNIT >> 2))
 			{
 				// move horiz back to 0
-				horizon->horiz -= buildfhoriz(scaleAdjust * horizon->horiz.asbuildf() * (10. / GameTicRate));
+				horiz -= buildfhoriz(scaleAdjust * horiz.asbuildf() * (10. / GameTicRate));
 			}
 			else
 			{
 				// not looking anymore because horiz is back at 0
-				horizon->horiz = q16horiz(0);
+				horiz = q16horiz(0);
 				*actions &= ~SB_CENTERVIEW;
 			}
 		}
@@ -343,66 +343,66 @@ void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, do
 //
 //---------------------------------------------------------------------------
 
-void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust)
+void PlayerAngle::applylook(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a unit
-	angle->rotscrnang -= buildfang(scaleAdjust * angle->rotscrnang.signedbuildf() * (15. / GameTicRate));
-	if (abs(angle->rotscrnang.signedbam()) < (BAMUNIT >> 2)) angle->rotscrnang = bamang(0);
+	rotscrnang -= buildfang(scaleAdjust * rotscrnang.signedbuildf() * (15. / GameTicRate));
+	if (abs(rotscrnang.signedbam()) < (BAMUNIT >> 2)) rotscrnang = bamang(0);
 
 	// return q16look_ang to 0 and set to 0 if less than a quarter of a unit
-	angle->look_ang -= buildfang(scaleAdjust * angle->look_ang.signedbuildf() * (7.5 / GameTicRate));
-	if (abs(angle->look_ang.signedbam()) < (BAMUNIT >> 2)) angle->look_ang = bamang(0);
+	look_ang -= buildfang(scaleAdjust * look_ang.signedbuildf() * (7.5 / GameTicRate));
+	if (abs(look_ang.signedbam()) < (BAMUNIT >> 2)) look_ang = bamang(0);
 
 	if (*actions & SB_LOOK_LEFT)
 	{
 		// start looking left
-		angle->look_ang += buildfang(scaleAdjust * -(4560. / GameTicRate));
-		angle->rotscrnang += buildfang(scaleAdjust * (720. / GameTicRate));
+		look_ang += buildfang(scaleAdjust * -(4560. / GameTicRate));
+		rotscrnang += buildfang(scaleAdjust * (720. / GameTicRate));
 	}
 
 	if (*actions & SB_LOOK_RIGHT)
 	{
 		// start looking right
-		angle->look_ang += buildfang(scaleAdjust * (4560. / GameTicRate));
-		angle->rotscrnang += buildfang(scaleAdjust * -(720. / GameTicRate));
+		look_ang += buildfang(scaleAdjust * (4560. / GameTicRate));
+		rotscrnang += buildfang(scaleAdjust * -(720. / GameTicRate));
 	}
 
-	if (!angle->targetset())
+	if (!targetset())
 	{
 		if (*actions & SB_TURNAROUND)
 		{
-			if (angle->spin == 0)
+			if (spin == 0)
 			{
 				// currently not spinning, so start a spin
-				angle->spin = -1024.;
+				spin = -1024.;
 			}
 			*actions &= ~SB_TURNAROUND;
 		}
 
-		if (angle->spin < 0)
+		if (spin < 0)
 		{
 			// return spin to 0
 			double add = scaleAdjust * ((!(*actions & SB_CROUCH) ? 3840. : 1920.) / GameTicRate);
-			angle->spin += add;
-			if (angle->spin > 0)
+			spin += add;
+			if (spin > 0)
 			{
 				// Don't overshoot our target. With variable factor this is possible.
-				add -= angle->spin;
-				angle->spin = 0;
+				add -= spin;
+				spin = 0;
 			}
-			angle->ang += buildfang(add);
+			ang += buildfang(add);
 		}
 
 		if (avel)
 		{
 			// add player's input
-			angle->ang += degang(avel);
-			angle->spin = 0;
+			ang += degang(avel);
+			spin = 0;
 		}
 	}
 	else
 	{
-		angle->spin = 0;
+		spin = 0;
 	}
 }
 
@@ -412,7 +412,7 @@ void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double 
 //
 //---------------------------------------------------------------------------
 
-void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
+void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting)
 	{
@@ -439,7 +439,7 @@ void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, b
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
 				{
-					*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? 160 : 1408))));
+					horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? 160 : 1408))));
 				}
 			}
 		}
@@ -447,21 +447,21 @@ void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, b
 		if (climbing)
 		{
 			// tilt when climbing but you can't even really tell it.
-			if (horizoff->asq16() < IntToFixed(100))
-				*horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - horizoff->asq16()) >> 3) + FRACUNIT)));
+			if (horizoff.asq16() < IntToFixed(100))
+				horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - horizoff.asq16()) >> 3) + FRACUNIT)));
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			if (horizoff->asq16() > 0)
+			if (horizoff.asq16() > 0)
 			{
-				*horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff->asq16() >> 3) + FRACUNIT)));
-				if (horizoff->asq16() < 0) *horizoff = q16horiz(0);
+				horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff.asq16() >> 3) + FRACUNIT)));
+				if (horizoff.asq16() < 0) horizoff = q16horiz(0);
 			}
-			if (horizoff->asq16() < 0)
+			if (horizoff.asq16() < 0)
 			{
-				*horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff->asq16() >> 3) - FRACUNIT)));
-				if (horizoff->asq16() > 0) *horizoff = q16horiz(0);
+				horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff.asq16() >> 3) - FRACUNIT)));
+				if (horizoff.asq16() > 0) horizoff = q16horiz(0);
 			}
 		}
 	}

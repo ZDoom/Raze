@@ -1300,7 +1300,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
     auto* const pXSprite = pPlayer->pXSprite;
     int const florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
     char const va = pXSprite->height < 16 && (florhit == 0x4000 || florhit == 0) ? 1 : 0;
-    calcviewpitch(pSprite->pos.vec2, &pPlayer->horizon.horizoff, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
+    pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
 }
 
 void ProcessInput(PLAYER *pPlayer)
@@ -1422,7 +1422,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (SyncInput())
     {
-        applylook(&pPlayer->angle, pInput->avel, &pInput->actions);
+        pPlayer->angle.applylook(pInput->avel, &pInput->actions);
     }
 
     // unconditionally update the player's sprite angle
@@ -1549,7 +1549,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (SyncInput())
     {
-        sethorizon(&pPlayer->horizon, pInput->horz, &pInput->actions);
+        pPlayer->horizon.sethorizon(pInput->horz, &pInput->actions);
         doslopetilting(pPlayer);
     }
 

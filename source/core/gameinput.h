@@ -99,6 +99,9 @@ struct PlayerHorizon
 		return !precise ? sum().asq16() >> 20 : (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); // Used within draw code for Duke.
 	}
 
+	void sethorizon(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
+	void calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
+
 private:
 	fixedhoriz target;
 	double adjustment;
@@ -236,6 +239,8 @@ struct PlayerAngle
 		return !precise ? abs(look_ang.signedbuild()) / 9 : fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); // Used within draw code for weapon and crosshair when looking left/right.
 	}
 
+	void applylook(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
+
 private:
 	binangle target;
 	double adjustment;
@@ -276,6 +281,3 @@ void updateTurnHeldAmt(double const scaleAdjust);
 bool const isTurboTurnTime();
 void resetTurnHeldAmt();
 void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);
-void sethorizon(PlayerHorizon* horizon, float const horz, ESyncBits* actions, double const scaleAdjust = 1);
-void applylook(PlayerAngle* angle, float const avel, ESyncBits* actions, double const scaleAdjust = 1);
-void calcviewpitch(vec2_t const pos, fixedhoriz* horizoff, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
