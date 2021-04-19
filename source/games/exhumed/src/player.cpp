@@ -2638,7 +2638,12 @@ loc_1BD2E:
 
                 Player* pPlayer = &PlayerList[nPlayer];
 
-                if (actions & (SB_LOOK_UP | SB_LOOK_DOWN))
+                if (SyncInput())
+                {
+                    pPlayer->horizon.sethorizon(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
+                }
+
+                if (actions & (SB_LOOK_UP | SB_LOOK_DOWN) || sPlayerInput[nPlayer].pan)
                 {
                     pPlayer->nDestVertPan = pPlayer->horizon.horiz;
                     pPlayer->bPlayerPan = pPlayer->bLockPan = true;
@@ -2647,17 +2652,6 @@ loc_1BD2E:
                 {
                     pPlayer->nDestVertPan = pPlayer->horizon.horiz;
                     pPlayer->bPlayerPan = pPlayer->bLockPan = false;
-                }
-
-                if (SyncInput())
-                {
-                    pPlayer->horizon.sethorizon(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
-                }
-
-                if (sPlayerInput[nPlayer].pan)
-                {
-                    pPlayer->nDestVertPan = pPlayer->horizon.horiz;
-                    pPlayer->bPlayerPan = pPlayer->bLockPan = true;
                 }
 
                 if (totalvel[nPlayer] > 20)
