@@ -1089,7 +1089,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	zbottom[0] = zbottom[1] = (sprz) * (1 / -256.);
 	ztop[0] = ztop[1] =  (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
 
-
 	// Clip sprites to ceilings/floors
 	float origz = ztop[0];
 	float polyh = (zbottom[0] - origz);
@@ -1113,5 +1112,16 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 			zbottom[0] = zbottom[1] = floorz;
 		}
 	}
+
+	// If the sprite is backward, flip it around so that we have guaranteed orientation when this is about to be sorted.
+	if (PointOnLineSide(di->Viewpoint.Pos.XY(), DVector2(glseg.x1, glseg.y1), DVector2(glseg.x2, glseg.y2)) < 0)
+	{
+		std::swap(glseg.x1, glseg.x2);
+		std::swap(glseg.y1, glseg.y2);
+		// z is always the same on both sides.
+		std::swap(tcs[LOLFT], tcs[LORGT]);
+		std::swap(tcs[UPLFT], tcs[UPRGT]);
+	}
+
 	PutWall(di, spriteHasTranslucency(sprite));
 }

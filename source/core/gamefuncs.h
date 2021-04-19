@@ -91,6 +91,12 @@ inline double PointOnLineSide(const DVector2 &pos, const walltype *line)
     return (pos.X - WallStartX(line)) * WallDelta(line).Y - (pos.Y - WallStartY(line)) * WallDelta(line).X;
 }
 
+template<class T>
+inline double PointOnLineSide(const TVector2<T>& pos, const TVector2<T>& linestart, const TVector2<T>& lineend)
+{
+    return (pos.X - linestart.X) * (lineend.Y - linestart.Y) - (pos.Y - linestart.Y) * (lineend.X - linestart.X);
+}
+
 inline int sectorofwall(int wallNum)
 {
     if ((unsigned)wallNum < (unsigned)numwalls) return wall[wallNum].sector;
