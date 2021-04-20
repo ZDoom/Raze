@@ -1333,7 +1333,11 @@ void parseMakePalookup(FScanner& sc, FScriptPosition& pos)
 			havepal |= HAVE_REMAPSELF;
 		}
 		else if (sc.Compare("nofloorpal")) sc.GetNumber(nofloorpal, true);
-		else if (sc.Compare("pal")) sc.GetNumber(pal, true);
+		else if (sc.Compare("pal"))
+		{
+			havepal |= HAVE_PAL;
+			sc.GetNumber(pal, true);
+		}
 	}
 	red = clamp(red, 0, 63);
 	green = clamp(green, 0, 63);
