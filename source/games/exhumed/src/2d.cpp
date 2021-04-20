@@ -808,7 +808,7 @@ public:
                 }
                 return true;
             }
-            state = skipped;
+            if (!specialKeyEvent(ev)) state = skipped;
             return true;
 		}
 		return false;
@@ -1163,7 +1163,7 @@ private:
 
     bool OnEvent(event_t* ev)
     {
-        if (ev->type == EV_KeyDown) skiprequest = true;
+        if (ev->type == EV_KeyDown && !specialKeyEvent(ev)) skiprequest = true;
         return true;
     }
 
@@ -1278,7 +1278,7 @@ public:
 
     bool OnEvent(event_t* ev)
     {
-        if (ev->type == EV_KeyDown) skiprequest = true;
+        if (ev->type == EV_KeyDown && !specialKeyEvent(ev)) skiprequest = true;
         return true;
     }
 

@@ -389,7 +389,7 @@ private:
 
     bool OnEvent(event_t* ev) override
     {
-        if (ev->type == EV_KeyDown)
+        if (ev->type == EV_KeyDown && !specialKeyEvent(ev))
         {
             if (State >= s_BonusRest && State < &s_BonusRest[countof(s_BonusRest)])
             {

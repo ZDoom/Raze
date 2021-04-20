@@ -59,15 +59,10 @@ IMPLEMENT_CLASS(DImageScreen, true, false)
 
 bool DSkippableScreenJob::OnEvent(event_t* evt)
 {
-	if (evt->type == EV_KeyDown)
+	if (evt->type == EV_KeyDown && !specialKeyEvent(evt))
 	{
-		auto& key = evt->data1;
-		bool ignoredkeys = key == KEY_VOLUMEDOWN || key == KEY_VOLUMEUP || (key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT);
-		if (!ignoredkeys)
-		{
-			state = skipped;
-			Skipped();
-		}
+		state = skipped;
+		Skipped();
 	}
 	return true;
 }
@@ -230,6 +225,7 @@ public:
 		}
 
 		if (jobs[index].job->state != DScreenJob::running) return false;
+
 		return jobs[index].job->OnEvent(ev);
 	}
 
