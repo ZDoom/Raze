@@ -859,7 +859,7 @@ public:
 
 	bool OnEvent(event_t* ev) override
 	{
-		if (ev->type == EV_KeyDown)
+		if (ev->type == EV_KeyDown && !specialKeyEvent(ev))
 		{
 			if ((displaystate & printStatsAll) != printStatsAll)
 			{
