@@ -1745,3 +1745,247 @@ void parseUndefModelOf(FScanner& sc, FScriptPosition& pos)
 	if (!ValidateTilenum("undefmodelof", tile, pos)) return;
 	pos.Message(MSG_WARNING, "undefmodelof: currently non-functional.");
 }
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+static bool parseModelFrameBlock(FScanner& sc, FixedBitArray<1024>& usedframes)
+{
+	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
+
+	FString framename;
+	bool ok = true;
+	int pal = -1;
+	int starttile = -1, endtile = -1;
+	double smoothduration = 0.1f;
+
+	if (sc.StartBraces(&blockend)) return false;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("pal")) sc.GetNumber(pal, true);
+		else if (sc.Compare({ "name", "frame" })) sc.GetString(framename);
+		else if (sc.Compare("tile")) { sc.GetNumber(starttile, true); endtile = starttile; }
+		else if (sc.Compare("tile0")) sc.GetNumber(starttile, true);
+		else if (sc.Compare("tile1")) sc.GetNumber(endtile, true);
+		else if (sc.Compare("smoothduration")) sc.GetFloat(smoothduration, true);
+	}
+
+	if (!ValidateTileRange("model: frame", starttile, endtile, pos)) return false;
+
+	if (smoothduration > 1.0)
+	{
+		pos.Message(MSG_WARNING, "smoothduration out of range");
+		smoothduration = 1.0;
+	}
+	for (int i = starttile; i <= endtile && ok; i++)
+	{
+		int res = md_defineframe(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), smoothduration, pal);
+		if (res < 0)
+		{
+			ok = false;
+			if (res == -2) pos.Message(MSG_WARNING, "Invalid tile number %d", i);
+			else if (res == -3) pos.Message(MSG_WARNING, "%s: Invalid frame name", framename.GetChars());
+		}
+		else if (res < 1024) usedframes.Set(res);
+	}
+	mdglobal.seenframe = 1;
+	return ok;
+}
+
+static bool parseModelAnimBlock(FScanner& sc)
+{
+	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
+
+	FString startframe, endframe;
+	int flags = 0;
+	double fps = 1.0;
+
+	if (sc.StartBraces(&blockend)) return false;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("frame0")) sc.GetString(startframe);
+		else if (sc.Compare("frame1")) sc.GetString(endframe);
+		else if (sc.Compare("fps")) sc.GetFloat(fps, true);
+		else if (sc.Compare("flags")) sc.GetNumber(flags, true);
+	}
+
+	if (startframe.IsEmpty())
+	{
+		pos.Message(MSG_ERROR, "missing start frame for anim definition");
+		return false;
+	}
+	if (endframe.IsEmpty())
+	{
+		pos.Message(MSG_ERROR, "missing end frame for anim definition");
+		return false;
+	}
+
+	int res = md_defineanimation(mdglobal.lastmodelid, startframe, endframe, (int)(fps * (65536.0 * .001)), flags);
+	if (res < 0)
+	{
+		if (res == -2) pos.Message(MSG_ERROR, "Invalid starting frame name %s", startframe.GetChars());
+		else if (res == -3) pos.Message(MSG_ERROR, "Invalid ending frame name %s", endframe.GetChars());
+		return false;
+	}
+	return true;
+}
+
+static bool parseModelSkinBlock(FScanner& sc, int whichpal)
+{
+	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
+
+	FString filename;
+	int pal = 0, surface = 0;
+	double param = 1.0, specpower = 1.0, specfactor = 1.0;
+	int flags = 0;
+
+	if (sc.StartBraces(&blockend)) return false;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("pal")) sc.GetNumber(pal, true);
+		else if (sc.Compare("file")) sc.GetString(filename);
+		else if (sc.Compare({ "surface", "surf" })) sc.GetNumber(surface, true);
+		else if (sc.Compare({ "intensity", "scale", "detailscale" })) sc.GetFloat(param, true);
+		else if (sc.Compare({ "specpower", "specularpower", "parallaxscale" })) sc.GetFloat(specpower, true);
+		else if (sc.Compare({ "specfactor", "specularfactor", "parallaxbias" })) sc.GetFloat(specfactor, true);
+		else if (sc.Compare("forcefilter")) { /* not suppoted yet*/ }
+	}
+
+
+	if (filename.IsEmpty())
+	{
+		pos.Message(MSG_ERROR, "missing 'skin filename' for skin definition");
+		return false;
+	}
+
+	if (mdglobal.seenframe) mdglobal.modelskin = ++mdglobal.lastmodelskin;
+	mdglobal.seenframe = 0;
+
+	if (!fileSystem.FileExists(filename))
+	{
+		pos.Message(MSG_ERROR, "%s: file not found", filename.GetChars());
+		return false;
+	}
+
+	if (whichpal == DETAILPAL) param = 1. / param;
+	int res = md_defineskin(mdglobal.lastmodelid, filename, pal, max(0, mdglobal.modelskin), surface, param, specpower, specfactor, flags);
+	if (res < 0)
+	{
+		if (res == -2) pos.Message(MSG_ERROR, "Invalid skin filename %s", filename.GetChars());
+		else if (res == -3) pos.Message(MSG_ERROR, "Invalid palette number %d", pal);
+		return false;
+	}
+	return true;
+}
+
+static bool parseModelHudBlock(FScanner& sc)
+{
+	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
+
+	int starttile = -1, endtile = -1, flags = 0, fov = -1, angadd = 0;
+	DVector3 add{};
+
+	if (sc.StartBraces(&blockend)) return false;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("tile")) { sc.GetNumber(starttile, true); endtile = starttile; }
+		else if (sc.Compare("tile0")) sc.GetNumber(starttile, true);
+		else if (sc.Compare("tile1")) sc.GetNumber(endtile, true);
+		else if (sc.Compare("xadd")) sc.GetFloat(add.X, true);
+		else if (sc.Compare("yadd")) sc.GetFloat(add.Y, true);
+		else if (sc.Compare("zadd")) sc.GetFloat(add.Z, true);
+		else if (sc.Compare("angadd")) sc.GetNumber(angadd, true);
+		else if (sc.Compare("fov")) sc.GetNumber(fov, true);
+		else if (sc.Compare("hide")) flags |= HUDFLAG_HIDE;
+		else if (sc.Compare("nobob")) flags |= HUDFLAG_NOBOB;
+		else if (sc.Compare("flipped")) flags |= HUDFLAG_FLIPPED;
+		else if (sc.Compare("nodepth")) flags |= HUDFLAG_NODEPTH;
+	}
+
+	if (!ValidateTileRange("hud", starttile, endtile, pos)) return false;
+
+	for (int i = starttile; i <= endtile; i++)
+	{
+		vec3f_t addf = { (float)add.X, (float)add.Y, (float)add.Z };
+		int res = md_definehud(mdglobal.lastmodelid, i, addf, angadd, flags, fov);
+		if (res < 0)
+		{
+			if (res == -2) pos.Message(MSG_ERROR, "Invalid tile number %d", i);
+			return false;
+		}
+	}
+	return true;
+}
+
+void parseModel(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+
+	FString modelfn;
+	double scale = 1.0, mzadd = 0.0, myoffset = 0.0;
+	int32_t shadeoffs = 0, pal = 0, flags = 0;
+	FixedBitArray<1024> usedframes;
+
+	usedframes.Zero();
+	mdglobal.modelskin = mdglobal.lastmodelskin = 0;
+	mdglobal.seenframe = 0;
+
+	if (!sc.GetString(modelfn)) return;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	mdglobal.lastmodelid = md_loadmodel(modelfn);
+	if (mdglobal.lastmodelid < 0)
+	{
+		pos.Message(MSG_WARNING, "Unable to load model file \"%s\"\n", modelfn.GetChars());
+		sc.RestorePos(blockend);
+		sc.CheckString("}");
+		return;
+	}
+
+	bool ok = true;
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("scale")) sc.GetFloat(scale, true);
+		else if (sc.Compare("shade")) sc.GetNumber(shadeoffs, true);
+		else if (sc.Compare("zadd")) sc.GetFloat(mzadd, true);
+		else if (sc.Compare("yoffset")) sc.GetFloat(myoffset, true);
+		else if (sc.Compare("frame")) ok &= parseModelFrameBlock(sc, usedframes);
+		else if (sc.Compare("anim")) ok &= parseModelAnimBlock(sc);
+		else if (sc.Compare("skin")) ok &= parseModelSkinBlock(sc, 0);
+		else if (sc.Compare("detail")) ok &= parseModelSkinBlock(sc, DETAILPAL);
+		else if (sc.Compare("glow")) ok &= parseModelSkinBlock(sc, GLOWPAL);
+		else if (sc.Compare("specular")) ok &= parseModelSkinBlock(sc, SPECULARPAL);
+		else if (sc.Compare("normal")) ok &= parseModelSkinBlock(sc, NORMALPAL);
+		else if (sc.Compare("hud")) ok &= parseModelHudBlock(sc);
+		else if (sc.Compare("flags")) sc.GetNumber(flags, true);
+	}
+
+	if (!ok)
+	{
+		if (mdglobal.lastmodelid >= 0)
+		{
+			pos.Message(MSG_ERROR, "Removing model %d due to errors.", mdglobal.lastmodelid);
+			md_undefinemodel(mdglobal.lastmodelid);
+			nextmodelid--;
+		}
+	}
+	else
+	{
+		md_setmisc(mdglobal.lastmodelid, (float)scale, shadeoffs, (float)mzadd, (float)myoffset, flags);
+		mdglobal.modelskin = mdglobal.lastmodelskin = 0;
+		mdglobal.seenframe = 0;
+	}
+}
