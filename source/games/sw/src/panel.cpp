@@ -6897,8 +6897,8 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
     short ang;
     int flags;
 
-    double const look_anghalf = pp->angle.look_anghalf(cl_hudinterpolation, smoothratio);
-    double const looking_arc = pp->angle.looking_arc(cl_hudinterpolation, smoothratio);
+    double const look_anghalf = pp->angle.look_anghalf(smoothratio);
+    double const looking_arc = pp->angle.looking_arc(smoothratio);
 
     TRAVERSE(&pp->PanelSpriteList, psp, next)
     {

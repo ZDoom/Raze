@@ -244,9 +244,9 @@ void displayweapon_d(int snum, double smoothratio)
 	}
 
 	plravel = getavel(snum) * (1. / 16.);
-	horiz16th = p->horizon.horizsumfrac(cl_hudinterpolation, smoothratio);
-	look_anghalf = p->angle.look_anghalf(cl_hudinterpolation, smoothratio);
-	looking_arc = p->angle.looking_arc(cl_hudinterpolation, smoothratio);
+	horiz16th = p->horizon.horizsumfrac(smoothratio);
+	look_anghalf = p->angle.look_anghalf(smoothratio);
+	looking_arc = p->angle.looking_arc(smoothratio);
 	hard_landing *= 8.;
 
 	gun_pos -= fabs(p->GetActor()->s->xrepeat < 32 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
