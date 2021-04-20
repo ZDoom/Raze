@@ -156,19 +156,18 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
 	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
-	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr ? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
-	int h = (int)texture->GetDisplayHeight();
-	int h2 = 1 << sizeToBits(h);
-	if (h2 < h) h2 *= 2;
-	if (h != h2)
+	if (sprite == nullptr)
 	{
-		float xOffset = 1.f / texture->GetDisplayWidth();
-		state.SetNpotEmulation(float(h2) / h, xOffset);
-	}
-	else
-	{
-		state.SetNpotEmulation(0.f, 0.f);
+		int h = (int)texture->GetDisplayHeight();
+		int h2 = 1 << sizeToBits(h);
+		if (h2 < h) h2 *= 2;
+		if (h != h2)
+		{
+			float xOffset = 1.f / texture->GetDisplayWidth();
+			state.SetNpotEmulation(float(h2) / h, xOffset);
+		}
 	}
 
 	RenderWall(di, state, rflags);
@@ -1047,7 +1046,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	backsector = sector;
 	texture = tex;
 
-	flags = 0;
+	flags = HWF_CLAMPX|HWF_CLAMPY;
 	dynlightindex = -1;
 	shade = clamp(spr->shade, 0, numshades - 1);
 	palette = spr->pal;

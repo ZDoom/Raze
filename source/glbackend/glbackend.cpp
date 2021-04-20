@@ -126,6 +126,7 @@ void GLInstance::DoDraw()
 				}
 			}
 		}
+		state.SetNpotEmulation(0, 0);	// make sure we do not leave this in an undefined state.
 		renderState.Apply(*screen->RenderState(), lastState);	// apply any pending change before returning.
 		rendercommands.Clear();
 		hw_int_useindexedcolortextures = false;
