@@ -410,150 +410,20 @@ static int32_t defsparser(scriptfile *script)
             break;
 
         case T_DEFINEMODEL:
-        {
-            FString modelfn;
-            double scale;
-            int32_t shadeoffs;
-
-            if (scriptfile_getstring(script,&modelfn)) break;
-            if (scriptfile_getdouble(script,&scale)) break;
-            if (scriptfile_getnumber(script,&shadeoffs)) break;
-
-            lastmodelid = md_loadmodel(modelfn);
-            if (lastmodelid < 0)
-            {
-                Printf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn.GetChars());
-                break;
-            }
-            md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0.0,0);
-
-            modelskin = lastmodelskin = 0;
-            seenframe = 0;
-        }
-        break;
+            parseDefineModel(*script, pos);
+            break;
         case T_DEFINEMODELFRAME:
-        {
-            FString framename;
-            char happy=1;
-            int32_t tilex;
-            int32_t ftilenume, ltilenume;
-
-            if (scriptfile_getstring(script,&framename)) break;
-            if (scriptfile_getsymbol(script,&ftilenume)) break; //first tile number
-            if (scriptfile_getsymbol(script,&ltilenume)) break; //last tile number (inclusive)
-
-            if (check_tile_range("definemodelframe", &ftilenume, &ltilenume, script, pos))
-                break;
-
-            if (lastmodelid < 0)
-            {
-                pos.Message(MSG_WARNING, "Ignoring frame definition.\n");
-                break;
-            }
-            for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
-            {
-                switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), 0.0f,0))
-                {
-                case -1:
-                    happy = 0; break; // invalid model id!?
-                case -2:
-                    Printf("Invalid tile number");
-                    happy = 0;
-                    break;
-                case -3:
-                    Printf("Invalid frame name");
-                    happy = 0;
-                    break;
-                default:
-                    break;
-                }
-            }
-            seenframe = 1;
-        }
-        break;
+            parseDefineModelFrame(*script, pos);
+            break;
         case T_DEFINEMODELANIM:
-        {
-            FString startframe, endframe;
-            int32_t flags;
-            double dfps;
-
-            if (scriptfile_getstring(script,&startframe)) break;
-            if (scriptfile_getstring(script,&endframe)) break;
-            if (scriptfile_getdouble(script,&dfps)) break; //animation frame rate
-            if (scriptfile_getnumber(script,&flags)) break;
-
-            if (lastmodelid < 0)
-            {
-                Printf("Warning: Ignoring animation definition.\n");
-                break;
-            }
-            switch (md_defineanimation(lastmodelid, startframe, endframe, (int32_t)(dfps*(65536.0*.001)), flags))
-            {
-            case 0:
-                break;
-            case -1:
-                break; // invalid model id!?
-            case -2:
-					Printf("Invalid starting frame name");
-                break;
-            case -3:
-					Printf("Invalid ending frame name");
-                break;
-            case -4:
-                Printf("Out of memory");
-                break;
-            }
-        }
-        break;
+            parseDefineModelAnim(*script, pos);
+            break;
         case T_DEFINEMODELSKIN:
-        {
-            int32_t palnum;
-            FString skinfn;
-
-            if (scriptfile_getsymbol(script,&palnum)) break;
-            if (scriptfile_getstring(script,&skinfn)) break; //skin filename
-
-            // if we see a sequence of definemodelskin, then a sequence of definemodelframe,
-            // and then a definemodelskin, we need to increment the skin counter.
-            //
-            // definemodel "mymodel.md2" 1 1
-            // definemodelskin 0 "normal.png"   // skin 0
-            // definemodelskin 21 "normal21.png"
-            // definemodelframe "foo" 1000 1002   // these use skin 0
-            // definemodelskin 0 "wounded.png"   // skin 1
-            // definemodelskin 21 "wounded21.png"
-            // definemodelframe "foo2" 1003 1004   // these use skin 1
-            // selectmodelskin 0         // resets to skin 0
-            // definemodelframe "foo3" 1005 1006   // these use skin 0
-            if (seenframe) { modelskin = ++lastmodelskin; }
-            seenframe = 0;
-
-            if (!fileSystem.FileExists(skinfn))
-                break;
-
-            switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f, 1.0f, 1.0f, 0))
-            {
-            case 0:
-                break;
-            case -1:
-                break; // invalid model id!?
-            case -2:
-                Printf("Invalid skin filename");
-                break;
-            case -3:
-                Printf("Invalid palette number");
-                break;
-            case -4:
-                Printf("Out of memory");
-                break;
-            }
-        }
-        break;
+            parseDefineModelSkin(*script, pos);
+            break;
         case T_SELECTMODELSKIN:
-        {
-            if (scriptfile_getsymbol(script,&modelskin)) break;
-        }
-        break;
+            parseSelectModelSkin(*script, pos);
+            break;
         case T_DEFINEVOXEL:
             parseDefineVoxel(*script, pos);
             break;
@@ -994,50 +864,15 @@ static int32_t defsparser(scriptfile *script)
             break;
 
         case T_UNDEFMODEL:
+            parseUndefModel(*script, pos);
+            break;
         case T_UNDEFMODELRANGE:
-        {
-            int32_t r0,r1;
-
-            if (scriptfile_getsymbol(script,&r0)) break;
-            if (tokn == T_UNDEFMODELRANGE)
-            {
-                if (scriptfile_getsymbol(script,&r1)) break;
-
-                if (check_tile_range("undefmodelrange", &r0, &r1, script, pos))
-                    break;
-            }
-            else
-            {
-                r1 = r0;
-
-                if (check_tile("undefmodel", r0, script, pos))
-                    break;
-            }
-            for (; r0 <= r1; r0++)
-                md_undefinetile(r0);
-        }
-        break;
-
-        case T_UNDEFMODELOF:
-        {
-            int32_t r0;
-            if (scriptfile_getsymbol(script,&r0)) break;
-
-            if (check_tile("undefmodelof", r0, script, pos))
-                break;
-
-            // XXX: See comment of md_undefinemodel()
-            pos.Message(MSG_WARNING, "undefmodelof: currently non-functional.");
+            parseUndefModelRange(*script, pos);
             break;
 
-#if defined USE_OPENGL && 0
-            mid = md_tilehasmodel(r0,0);
-            if (mid < 0) break;
-
-            md_undefinemodel(mid);
-#endif
-        }
-        break;
+        case T_UNDEFMODELOF:
+            parseUndefModelOf(*script, pos);
+            break;
 
         case T_UNDEFTEXTURE:
             parseUndefTexture(*script, pos);

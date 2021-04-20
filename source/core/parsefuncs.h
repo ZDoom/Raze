@@ -1580,3 +1580,168 @@ void parseHighpalookup(FScanner& sc, FScriptPosition& pos)
 	}
 	// todo
 }
+
+
+struct ModelStatics
+{
+	int lastmodelid;
+	int modelskin, lastmodelskin;
+	int seenframe;
+} mdglobal;
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseDefineModel(FScanner& sc, FScriptPosition& pos)
+{
+	FString modelfn;
+	double scale;
+	int shadeoffs;
+
+	if (!sc.GetString(modelfn)) return;
+	if (!sc.GetFloat(scale, true)) return;
+	if (!sc.GetNumber(shadeoffs, true)) return;
+
+	mdglobal.lastmodelid = md_loadmodel(modelfn);
+	if (mdglobal.lastmodelid < 0)
+	{
+		pos.Message(MSG_WARNING, "definemodel: Failed loading model file '%s'\n", modelfn.GetChars());
+	}
+	else
+	{
+		md_setmisc(mdglobal.lastmodelid, (float)scale, shadeoffs, 0.0, 0.0, 0);
+		mdglobal.modelskin = mdglobal.lastmodelskin = 0;
+		mdglobal.seenframe = 0;
+	}
+}
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseDefineModelFrame(FScanner& sc, FScriptPosition& pos)
+{
+	FString framename;
+	bool ok = true;
+	int firsttile, lasttile;
+
+	if (!sc.GetString(framename)) return;
+	if (!sc.GetNumber(firsttile, true)) return;
+	if (!sc.GetNumber(lasttile, true)) return;
+
+	if (!ValidateTileRange("definemodelframe", firsttile, lasttile, pos)) return;
+
+	if (mdglobal.lastmodelid < 0)
+	{
+		pos.Message(MSG_WARNING, "definemodelframe: Ignoring frame definition outside model.");
+		return;
+	}
+	for (int i = firsttile; i <= lasttile && ok; i++)
+	{
+		int err = (md_defineframe(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), 0.0f, 0));
+		if (err < 0) ok = false; 
+		if (err == -2) pos.Message(MSG_ERROR, "Invalid tile number %d", i);
+		else if (err == -3) pos.Message(MSG_ERROR, "Invalid frame name", framename.GetChars());
+	}
+	mdglobal.seenframe = 1;
+}
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseDefineModelAnim(FScanner& sc, FScriptPosition& pos)
+{
+	FString startframe, endframe;
+	int32_t flags;
+	double dfps;
+
+	if (!sc.GetString(startframe)) return;
+	if (!sc.GetString(endframe)) return;
+	if (!sc.GetFloat(dfps, true)) return;
+	if (!sc.GetNumber(flags, true)) return;
+
+	if (mdglobal.lastmodelid < 0)
+	{
+		pos.Message(MSG_WARNING, "definemodelframe: Ignoring animation definition outside model.");
+		return;
+	}
+	int err = (md_defineanimation(mdglobal.lastmodelid, startframe, endframe, (int32_t)(dfps * (65536.0 * .001)), flags));
+	if (err == -2) pos.Message(MSG_ERROR, "Invalid starting frame name %s", startframe.GetChars());
+	else if (err == -3) pos.Message(MSG_ERROR, "Invalid ending frame name %s", endframe.GetChars());
+}
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseDefineModelSkin(FScanner& sc, FScriptPosition& pos)
+{
+	int palnum;
+	FString skinfn;
+
+	if (!sc.GetNumber(palnum, true)) return;
+	if (!sc.GetString(skinfn)) return;
+
+	if (mdglobal.seenframe) { mdglobal.modelskin = ++mdglobal.lastmodelskin; }
+	mdglobal.seenframe = 0;
+
+	if (!fileSystem.FileExists(skinfn)) return;
+
+	int err = (md_defineskin(mdglobal.lastmodelid, skinfn, palnum, max(0, mdglobal.modelskin), 0, 0.0f, 1.0f, 1.0f, 0));
+	if (err == -2) pos.Message(MSG_ERROR, "Invalid skin file name %s", skinfn.GetChars());
+	else if (err == -3) pos.Message(MSG_ERROR, "Invalid palette %d", palnum);
+}
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseSelectModelSkin(FScanner& sc, FScriptPosition& pos)
+{
+	sc.GetNumber(mdglobal.modelskin, true);
+}
+
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseUndefModel(FScanner& sc, FScriptPosition& pos)
+{
+	int tile;
+	if (!sc.GetNumber(tile, true)) return;
+	if (!ValidateTilenum("undefmodel", tile, pos)) return;
+	md_undefinetile(tile);
+}
+
+void parseUndefModelRange(FScanner& sc, FScriptPosition& pos)
+{
+	int start, end;
+
+	if (!sc.GetNumber(start, true)) return;
+	if (!sc.GetNumber(end, true)) return;
+	if (!ValidateTileRange("undefmodel", start, end, pos)) return;
+	for (int i = start; i <= end; i++) md_undefinetile(i);
+}
+
+void parseUndefModelOf(FScanner& sc, FScriptPosition& pos)
+{
+	int tile;
+	if (!sc.GetNumber(tile, true)) return;
+	if (!ValidateTilenum("undefmodelof", tile, pos)) return;
+	pos.Message(MSG_WARNING, "undefmodelof: currently non-functional.");
+}
