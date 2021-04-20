@@ -378,7 +378,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 		}
 
 		if (flags & CSTAT_SPRITE_XFLIP) xoff = -xoff;
-		if (flags & CSTAT_SPRITE_YFLIP) yoff = -yoff;
+		//if (flags & CSTAT_SPRITE_YFLIP) yoff = -yoff; According to Polymost this must not be done.
 
 		ul = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
 		ur = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
