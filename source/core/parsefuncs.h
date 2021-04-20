@@ -1102,6 +1102,155 @@ void parseNumAlphaTabs(FScanner& sc, FScriptPosition& pos)
 	}
 }
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+static bool parseBasePaletteRaw(FScanner& sc, FScriptPosition& pos, int id)
+{
+	FScanner::SavedPos blockend;
+	FString fn;
+	int32_t offset = 0;
+	int32_t shiftleft = 0;
+
+	if (sc.StartBraces(&blockend)) return false;
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("file")) sc.GetString(fn);
+		else if (sc.Compare("offset")) sc.GetNumber(offset, true);
+		else if (sc.Compare("shiftleft")) sc.GetNumber(shiftleft, true);
+	}
+
+	if (fn.IsEmpty())
+	{
+		pos.Message(MSG_ERROR, "basepalette: No filename provided");
+	}
+	else if (offset < 0)
+	{
+		pos.Message(MSG_ERROR, "basepalette: Invalid file offset");
+	}
+	else if ((unsigned)shiftleft >= 8)
+	{
+		pos.Message(MSG_ERROR, "basepalette: Invalid left shift %d provided", shiftleft);
+	}
+	else
+	{
+		FileReader fil = fileSystem.OpenFileReader(fn);
+		if (!fil.isOpen())
+		{
+			pos.Message(MSG_ERROR, "basepalette: Failed opening \"%s\"", fn.GetChars());
+		}
+		else if (fil.Seek(offset, FileReader::SeekSet) < 0)
+		{
+			pos.Message(MSG_ERROR, "basepalette: Seek failed");
+		}
+		else
+		{
+			auto palbuf = fil.Read();
+			if (palbuf.Size() < 768)
+			{
+				pos.Message(MSG_ERROR, "basepalette: Read failed");
+			}
+			else
+			{
+				if (shiftleft != 0)
+				{
+					for (bssize_t k = 0; k < 768; k++)
+						palbuf[k] <<= shiftleft;
+				}
+
+				paletteSetColorTable(id, palbuf.Data(), false, false);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void parseBasePalette(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int id;
+	bool didLoadPal = false;
+
+	if (!sc.GetNumber(id)) return;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	if ((unsigned)id >= MAXBASEPALS)
+	{
+		pos.Message(MSG_ERROR, "basepalette: Invalid basepal number %d", id);
+		sc.RestorePos(blockend);
+		sc.CheckString("{");
+		return;
+	}
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("raw")) didLoadPal |= parseBasePaletteRaw(sc, pos, id);
+		else if (sc.Compare("copy"))
+		{
+			int source = -1;
+			sc.GetNumber(source);
+
+			if ((unsigned)source >= MAXBASEPALS || source == id)
+			{
+				pos.Message(MSG_ERROR, "basepalette: Invalid source basepal number %d", source);
+			}
+			else
+			{
+				auto sourcepal = GPalette.GetTranslation(Translation_BasePalettes, source);
+				if (sourcepal == nullptr)
+				{
+					pos.Message(MSG_ERROR, "basepalette: Source basepal %d does not exist", source);
+				}
+				else
+				{
+					GPalette.CopyTranslation(TRANSLATION(Translation_BasePalettes, id), TRANSLATION(Translation_BasePalettes, source));
+					didLoadPal = true;
+				}
+			}
+		}
+		else if (sc.Compare("undef"))
+		{
+			GPalette.ClearTranslationSlot(TRANSLATION(Translation_BasePalettes, id));
+			didLoadPal = 0;
+			if (id == 0) paletteloaded &= ~PALETTE_MAIN;
+		}
+	}
+
+	if (didLoadPal && id == 0)
+	{
+		paletteloaded |= PALETTE_MAIN;
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+void parseUndefBasePaletteRange(FScanner& sc, FScriptPosition& pos)
+{
+	int start, end;
+
+	if (!sc.GetNumber(start)) return;
+	if (!sc.GetNumber(end)) return;
+
+	if (start > end || (unsigned)start >= MAXBASEPALS || (unsigned)end >= MAXBASEPALS)
+	{
+		pos.Message(MSG_ERROR, "undefbasepaletterange: Invalid range [%d, %d]", start, end);
+		return;
+	}
+	for (int i = start; i <= end; i++) GPalette.ClearTranslationSlot(TRANSLATION(Translation_BasePalettes, i));
+	if (start == 0) paletteloaded &= ~PALETTE_MAIN;
+}
 
 //===========================================================================
 //
@@ -1390,4 +1539,44 @@ void parseUndefPalookupRange(FScanner& sc, FScriptPosition& pos)
 		for (int i = id0; i <= id1; i++) lookups.clearTable(i);
 		if (id0 == 0) paletteloaded &= ~PALETTE_SHADE;
 	}
+}
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+void parseHighpalookup(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	int basepal = -1, pal = -1;
+	FString fn;
+
+	if (sc.StartBraces(&blockend)) return;
+
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("basepal")) sc.GetNumber(basepal);
+		else if (sc.Compare("pal")) sc.GetNumber(pal);
+		else if (sc.Compare("file")) sc.GetString(fn);
+	}
+	if ((unsigned)basepal >= MAXBASEPALS)
+	{
+		pos.Message(MSG_ERROR, "highpalookup: invalid base palette number %d", basepal);
+	}
+	else if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
+	{
+		pos.Message(MSG_ERROR, "highpalookup: invalid palette number %d", pal);
+	}
+	else if (fn.IsEmpty())
+	{
+		pos.Message(MSG_ERROR, "highpalookup: missing file name");
+	}
+	else if (!fileSystem.FileExists(fn))
+	{
+		pos.Message(MSG_ERROR, "highpalookup: file %s not found", fn.GetChars());
+	}
+	// todo
 }

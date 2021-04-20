@@ -981,53 +981,8 @@ static int32_t defsparser(scriptfile *script)
             parseSkybox(*script, pos);
             break;
         case T_HIGHPALOOKUP:
-        {
-            int32_t basepal=-1, pal=-1;
-            FString fn;
-            FScanner::SavedPos highpalend;
-            static const tokenlist highpaltokens[] =
-            {
-                { "basepal",   T_BASEPAL },
-                { "pal",   T_PAL },
-                { "file",  T_FILE }
-            };
-
-            if (scriptfile_getbraces(script,&highpalend)) break;
-            while (!scriptfile_endofblock(script, highpalend))
-            {
-                switch (getatoken(script,highpaltokens,countof(highpaltokens)))
-                {
-                case T_BASEPAL:
-                    scriptfile_getsymbol(script,&basepal);   break;
-                case T_PAL:
-                    scriptfile_getsymbol(script,&pal);   break;
-                case T_FILE:
-                    scriptfile_getstring(script,&fn); break;
-                }
-            }
-            if ((unsigned)basepal >= MAXBASEPALS)
-            {
-                pos.Message(MSG_ERROR, "missing or invalid 'base palette number' for highpalookup definition ");
-                break;
-            }
-
-            if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
-            {
-                pos.Message(MSG_ERROR, "missing or invalid 'palette number' for highpalookup definition");
-                break;
-            }
-
-            if (fn.IsEmpty())
-            {
-                pos.Message(MSG_ERROR, "missing 'file name' for highpalookup definition");
-                break;
-            }
-
-            if (!fileSystem.FileExists(fn))
-                break;
-
-        }
-        break;
+            parseHighpalookup(*script, pos);
+            break;
         case T_TINT:
             parseTint(*script, pos);
             break;
@@ -1115,168 +1070,7 @@ static int32_t defsparser(scriptfile *script)
             parseMultiPsky(*script, pos);
             break;
         case T_BASEPALETTE:
-        {
-            FScanner::SavedPos blockend;
-            int32_t id;
-
-            static const tokenlist subtokens[] =
-            {
-                { "raw",         T_RAW },
-                { "copy",        T_COPY },
-                { "undef",       T_UNDEF },
-            };
-
-            if (scriptfile_getsymbol(script,&id))
-                break;
-            if (scriptfile_getbraces(script,&blockend))
-                break;
-
-            if ((unsigned)id >= MAXBASEPALS)
-            {
-                pos.Message(MSG_ERROR, "basepalette: Invalid basepal number");
-                scriptfile_setposition(script, blockend);
-                break;
-            }
-
-            int didLoadPal = 0;
-
-            while (!scriptfile_endofblock(script, blockend))
-            {
-                int32_t token = getatoken(script,subtokens,countof(subtokens));
-                switch (token)
-                {
-                case T_RAW:
-                {
-                    FScanner::SavedPos rawblockend;
-
-                    static const tokenlist rawsubtokens[] =
-                    {
-                        { "file",           T_FILE },
-                        { "offset",         T_OFFSET },
-                        { "shiftleft",      T_SHIFTLEFT },
-                    };
-
-                    if (scriptfile_getbraces(script,&rawblockend))
-                        break;
-
-                    FString fn;
-                    int32_t offset = 0;
-                    int32_t shiftleft = 0;
-
-                    while (!scriptfile_endofblock(script, rawblockend))
-                    {
-                        int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
-                        switch (token)
-                        {
-                        case T_FILE:
-                        {
-                            scriptfile_getstring(script,&fn);
-                            break;
-                        }
-                        case T_OFFSET:
-                        {
-                            scriptfile_getnumber(script,&offset);
-                            break;
-                        }
-                        case T_SHIFTLEFT:
-                        {
-                            scriptfile_getnumber(script,&shiftleft);
-                            break;
-                        }
-                        default:
-                            break;
-                        }
-                    }
-
-                    if (fn.IsEmpty())
-                    {
-                        pos.Message(MSG_ERROR, "basepalette: No filename provided");
-                        break;
-                    }
-
-                    if (offset < 0)
-                    {
-                        pos.Message(MSG_ERROR, "basepalette: Invalid file offset");
-                        break;
-                    }
-
-                    if ((unsigned)shiftleft >= 8)
-                    {
-                        pos.Message(MSG_ERROR, "basepalette: Invalid left shift provided");
-                        break;
-                    }
-
-                    FileReader fil = fileSystem.OpenFileReader(fn);
-                    if (!fil.isOpen())
-                    {
-                        pos.Message(MSG_ERROR, "basepalette: Failed opening \"%s\"", fn.GetChars());
-                        break;
-                    }
-
-                    if (fil.Seek(offset, FileReader::SeekSet) < 0)
-                    {
-                        pos.Message(MSG_ERROR, "basepalette: Seek failed");
-                        break;
-                    }
-
-					auto palbuf = fil.Read();
-                    if (palbuf.Size() < 768)
-                    {
-                        pos.Message(MSG_ERROR, "basepalette: Read failed");
-                        break;
-                    }
-
-                    if (shiftleft != 0)
-                    {
-                        for (bssize_t k = 0; k < 768; k++)
-                            palbuf[k] <<= shiftleft;
-                    }
-
-                    paletteSetColorTable(id, palbuf.Data(), false, false);
-                    didLoadPal = 1;
-                    break;
-                }
-                case T_COPY:
-                {
-                    int32_t source;
-                    scriptfile_getsymbol(script,&source);
-
-                    if ((unsigned)source >= MAXBASEPALS || source == id)
-                    {
-                        pos.Message(MSG_ERROR, "basepalette: Invalid source basepal number");
-                        break;
-                    }
-
-                    auto sourcepal = GPalette.GetTranslation(Translation_BasePalettes, source);
-                    if (sourcepal == NULL)
-                    {
-                        pos.Message(MSG_ERROR, "basepalette: Source basepal does not exist");
-                        break;
-                    }
-
-                    GPalette.CopyTranslation(TRANSLATION(Translation_BasePalettes, id), TRANSLATION(Translation_BasePalettes, source));
-                    didLoadPal = 1;
-                    break;
-                }
-                case T_UNDEF:
-                {
-                    GPalette.ClearTranslationSlot(TRANSLATION(Translation_BasePalettes, id));
-
-                    didLoadPal = 0;
-                    if (id == 0)
-                        paletteloaded &= ~PALETTE_MAIN;
-                    break;
-                }
-                default:
-                    break;
-                }
-            }
-
-            if (didLoadPal && id == 0)
-            {
-                paletteloaded |= PALETTE_MAIN;
-            }
-        }
+            parseBasePalette(*script, pos);
         break;
         case T_PALOOKUP:
             parsePalookup(*script, pos);
@@ -1288,27 +1082,8 @@ static int32_t defsparser(scriptfile *script)
             parseNumAlphaTabs(*script, pos);
             break;
         case T_UNDEFBASEPALETTERANGE:
-        {
-            int32_t id0, id1;
-
-            if (scriptfile_getsymbol(script,&id0))
-                break;
-            if (scriptfile_getsymbol(script,&id1))
-                break;
-
-            if (id0 > id1 || (unsigned)id0 >= MAXBASEPALS || (unsigned)id1 >= MAXBASEPALS)
-            {
-                pos.Message(MSG_ERROR, "undefbasepaletterange: Invalid range");
-                break;
-            }
-
-            for (bssize_t i = id0; i <= id1; i++)
-                GPalette.ClearTranslationSlot(TRANSLATION(Translation_BasePalettes, i));
-
-            if (id0 == 0)
-                paletteloaded &= ~PALETTE_MAIN;
-        }
-        break;
+            parseUndefBasePaletteRange(*script, pos);
+            break;
         case T_UNDEFPALOOKUPRANGE:
             parseUndefPalookupRange(*script, pos);
             break;
