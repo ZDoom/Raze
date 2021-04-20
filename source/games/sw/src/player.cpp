@@ -6892,6 +6892,12 @@ MoveSkipSavePos(void)
             }
         }
     }
+
+    // back up all sprite angles.
+    for (int i = 0; i < MAXSPRITES; i++)
+    {
+        sprite[i].backupang();
+    }
 }
 
 
