@@ -35,10 +35,53 @@
 **
 */
 
+#include "build.h"
+#include "compat.h"
+
+#include "mdsprite.h"  // md3model_t
+#include "buildtiles.h"
+#include "bitmap.h"
+#include "m_argv.h"
+#include "gamecontrol.h"
+#include "palettecontainer.h"
+#include "mapinfo.h"
+#include "hw_voxels.h"
+
 int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor);
 int tileSetSkybox(int picnum, int palnum, FString* facenames);
 void tileRemoveReplacement(int num);
 void AddUserMapHack(usermaphack_t&);
+
+static void defsparser(FScanner& sc);
+
+static void performInclude(FScanner* sc, const char* fn, FScriptPosition* pos)
+{
+	int lump = fileSystem.FindFile(fn);
+	if (lump == -1)
+	{
+		if (!pos) Printf("Warning: Unable to open %s\n", fn);
+		else pos->Message(MSG_ERROR, "Unable to open %s", fn);
+	}
+	else
+	{
+		FScanner included;
+		included.OpenLumpNum(lump);
+		if (sc) included.symbols = std::move(sc->symbols);
+		defsparser(included);
+		if (sc) sc->symbols = std::move(included.symbols);
+	}
+}
+
+void parseInclude(FScanner& sc, FScriptPosition& pos)
+{
+	sc.MustGetString();
+	performInclude(&sc, sc.String, &pos);
+}
+
+void parseIncludeDefault(FScanner& sc, FScriptPosition& pos)
+{
+	performInclude(&sc, G_DefaultDefFile(), &pos);
+}
 
 //===========================================================================
 //
@@ -1837,13 +1880,13 @@ static bool parseModelAnimBlock(FScanner& sc)
 	return true;
 }
 
-static bool parseModelSkinBlock(FScanner& sc, int whichpal)
+static bool parseModelSkinBlock(FScanner& sc, int pal)
 {
 	FScanner::SavedPos blockend;
 	FScriptPosition pos = sc;
 
 	FString filename;
-	int pal = 0, surface = 0;
+	int surface = 0;
 	double param = 1.0, specpower = 1.0, specfactor = 1.0;
 	int flags = 0;
 
@@ -1876,7 +1919,7 @@ static bool parseModelSkinBlock(FScanner& sc, int whichpal)
 		return false;
 	}
 
-	if (whichpal == DETAILPAL) param = 1. / param;
+	if (pal == DETAILPAL) param = 1. / param;
 	int res = md_defineskin(mdglobal.lastmodelid, filename, pal, max(0, mdglobal.modelskin), surface, param, specpower, specfactor, flags);
 	if (res < 0)
 	{
@@ -1987,5 +2030,163 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 		md_setmisc(mdglobal.lastmodelid, (float)scale, shadeoffs, (float)mzadd, (float)myoffset, flags);
 		mdglobal.modelskin = mdglobal.lastmodelskin = 0;
 		mdglobal.seenframe = 0;
+	}
+}
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+struct dispatch
+{
+	const char* text;
+	void (*handler)(FScanner& sc, FScriptPosition& pos);
+};
+
+
+static const dispatch basetokens[] =
+{
+	{ "include",         parseInclude          },
+	{ "#include",        parseInclude          },
+	{ "includedefault",  parseIncludeDefault   },
+	{ "#includedefault", parseIncludeDefault   },
+	{ "define",          parseDefine           },
+	{ "#define",         parseDefine           },
+
+	// deprecated style
+	{ "definetexture",   parseDefineTexture    },
+	{ "defineskybox",    parseDefineSkybox     },
+	{ "definetint",      parseDefineTint       },
+	{ "definemodel",     parseDefineModel      },
+	{ "definemodelframe",parseDefineModelFrame },
+	{ "definemodelanim", parseDefineModelAnim  },
+	{ "definemodelskin", parseDefineModelSkin  },
+	{ "selectmodelskin", parseSelectModelSkin  },
+	{ "definevoxel",     parseDefineVoxel      },
+	{ "definevoxeltiles",parseDefineVoxelTiles },
+
+	// new style
+	{ "model",           parseModel            },
+	{ "voxel",           parseVoxel            },
+	{ "skybox",          parseSkybox           },
+	{ "highpalookup",    parseHighpalookup     },
+	{ "tint",            parseTint             },
+	{ "makepalookup",    parseMakePalookup     },
+	{ "texture",         parseTexture          },
+	{ "tile",            parseTexture          },
+	{ "music",           parseMusic            },
+	{ "sound",           parseMusic            },
+	{ "animsounds",      parseEmptyBlockWithParm       },
+	{ "cutscene",        parseEmptyBlockWithParm         },
+	{ "nofloorpalrange", parseNoFloorpalRange  },
+	{ "texhitscanrange", parseTexHitscanRange  },
+	{ "nofullbrightrange", parseNoFullbrightRange },
+	// other stuff
+	{ "undefmodel",      parseUndefModel       },
+	{ "undefmodelrange", parseUndefModelRange  },
+	{ "undefmodelof",    parseUndefModelOf     },
+	{ "undeftexture",    parseUndefTexture     },
+	{ "undeftexturerange", parseUndefTextureRange },
+	{ "alphahack",	     parseAlphahack 		},
+	{ "alphahackrange",  parseAlphahackRange 	},
+	{ "spritecol",	     parseSkip<3> 		},
+	{ "2dcol",	     	 parseSkip<4> 			},
+	{ "2dcolidxrange",   parseSkip<3>	},
+	{ "fogpal",	     	 parseFogpal	 		},
+	{ "loadgrp",     	 parseSkip<1>	 		},
+	{ "dummytile",     	 parseDummyTile		},
+	{ "dummytilerange",  parseDummyTileRange   },
+	{ "setuptile",       parseSetupTile        },
+	{ "setuptilerange",  parseSetupTileRange   },
+	{ "undefinetile",    parseUndefineTile		},
+	{ "undefinetilerange", parseUndefineTileRange },
+	{ "animtilerange",   parseAnimTileRange    },
+	{ "cachesize",       parseSkip<1>        },
+	{ "dummytilefrompic",parseImportTile       },
+	{ "tilefromtexture", parseTileFromTexture  },
+	{ "artfile",         parseArtFile          },
+	{ "mapinfo",         parseMapinfo          },
+	{ "echo",            parseEcho             },
+	{ "globalflags",     parseSkip<1>      },
+	{ "copytile",        parseCopyTile         },
+	{ "globalgameflags", parseSkip<1>  },
+	{ "multipsky",       parseMultiPsky        },
+	{ "basepalette",     parseBasePalette      },
+	{ "palookup",        parsePalookup         },
+	{ "blendtable",      parseBlendTable       },
+	{ "numalphatables",  parseNumAlphaTabs     },
+	{ "undefbasepaletterange", parseUndefBasePaletteRange },
+	{ "undefpalookuprange", parseUndefPalookupRange },
+	{ "undefblendtablerange", parseSkip<2> },
+	{ "shadefactor",     parseSkip<1>      },
+	{ "newgamechoices",  parseEmptyBlock   },
+	{ "rffdefineid",     parseRffDefineId      },
+};
+
+static void defsparser(FScanner& sc)
+{
+	int iter = 0;
+
+	sc.SetNoFatalErrors(true);
+	sc.SetNoOctals(true);
+	while (1)
+	{
+		if (++iter >= 50)
+		{
+			Printf(".");
+			iter = 0;
+		}
+		FScriptPosition pos = sc;
+		if (!sc.GetString()) return;
+		int index = sc.MustMatchString(&basetokens[0].text, sizeof(basetokens[0]));
+		if (index != -1) basetokens[index].handler(sc, pos);
+	}
+}
+
+void loaddefinitionsfile(const char* fn, bool loadadds, bool cumulative)
+{
+	bool done = false;
+	auto parseit = [&](int lump)
+	{
+		FScanner sc;
+		sc.OpenLumpNum(lump);
+		defsparser(sc);
+		done = true;
+		Printf(PRINT_NONOTIFY, "\n");
+	};
+
+	if (!cumulative)
+	{
+		int lump = fileSystem.FindFile(fn);
+		if (lump >= 0)
+		{
+			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fn);
+			parseit(lump);
+		}
+	}
+	else
+	{
+		int lump, lastlump = 0;
+		while ((lump = fileSystem.FindLumpFullName(fn, &lastlump)) >= 0)
+		{
+			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump).GetChars());
+			parseit(lump);
+		}
+	}
+
+	if (userConfig.AddDefs && loadadds) for (auto& m : *userConfig.AddDefs)
+	{
+		int lump = fileSystem.FindFile(fn);
+		if (lump >= 0)
+		{
+			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fn);
+			parseit(lump);
+		}
+
+		Printf("Loading module \"%s\"\n", m.GetChars());
+		performInclude(nullptr, m, nullptr); // Q: should we let the external script see our symbol table?
+		Printf(PRINT_NONOTIFY, "\n");
 	}
 }

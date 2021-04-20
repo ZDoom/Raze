@@ -6,6 +6,8 @@
 
 extern int cameradist, cameraclock;
 
+void loaddefinitionsfile(const char* fn, bool loadadds = false, bool cumulative = false);
+
 bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
 void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz);
 void setWallSectors();

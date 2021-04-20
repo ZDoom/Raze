@@ -113,12 +113,6 @@ inline void scriptfile_close(scriptfile *sf)
 	delete sf;
 }
 
-typedef struct
-{
-    const char *text;
-    int32_t tokenid;
-}
-tokenlist;
 
 
 enum

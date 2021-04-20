@@ -1358,17 +1358,20 @@ void LoadDefinitions()
 	// otherwise the default rules inherited from older ports apply.
 	if (userConfig.UserDef.IsNotEmpty())
 	{
-		if (!loaddefinitionsfile(userConfig.UserDef, true, false)) loaded = userConfig.UserDef;
+		loaddefinitionsfile(userConfig.UserDef, true, false);
+		loaded = userConfig.UserDef;
 	}
 	else
 	{
 		if (fileSystem.FileExists(razedefsfile))
 		{
-			if (!loaddefinitionsfile(razedefsfile, true, true)) loaded = razedefsfile;
+			loaddefinitionsfile(razedefsfile, true, true);
+			loaded = razedefsfile;
 		}
-		else
+		else if (fileSystem.FileExists(defsfile))
 		{
-			if (!loaddefinitionsfile(defsfile, true, false)) loaded = defsfile;
+			loaddefinitionsfile(defsfile, true, false);
+			loaded = defsfile;
 		}
 	}
 
