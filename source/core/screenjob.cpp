@@ -61,8 +61,13 @@ bool DSkippableScreenJob::OnEvent(event_t* evt)
 {
 	if (evt->type == EV_KeyDown)
 	{
-		state = skipped;
-		Skipped();
+		auto& key = evt->data1;
+		bool ignoredkeys = key == KEY_VOLUMEDOWN || key == KEY_VOLUMEUP || (key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT);
+		if (!ignoredkeys)
+		{
+			state = skipped;
+			Skipped();
+		}
 	}
 	return true;
 }
