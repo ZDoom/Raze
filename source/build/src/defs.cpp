@@ -342,6 +342,8 @@ static int32_t defsparser(scriptfile *script)
             break;
         case T_CUTSCENE:
         case T_ANIMSOUNDS:
+            parseEmptyBlockWithParm(*script, pos);;
+            break;
         case T_NEWGAMECHOICES: // stub
             parseEmptyBlock(*script, pos);
             break;

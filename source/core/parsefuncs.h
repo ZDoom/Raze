@@ -873,7 +873,19 @@ void parseEmptyBlock(FScanner& sc, FScriptPosition& pos)
 
 	if (sc.StartBraces(&blockend)) return;
 	sc.RestorePos(blockend);
+	sc.CheckString("}");
 }
+
+void parseEmptyBlockWithParm(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+
+	sc.MustGetString();
+	if (sc.StartBraces(&blockend)) return;
+	sc.RestorePos(blockend);
+	sc.CheckString("}");
+}
+
 
 //===========================================================================
 //
@@ -978,6 +990,7 @@ static void parseBlendTableGlBlend(FScanner& sc, FScriptPosition& pos, int id)
 		{
 			int whichb = 0;
 			sc.MustGetString();
+			if (sc.Compare("}")) break;
 			if (sc.Compare({ "src", "sfactor", "top" })) whichb = 0;
 			else if (sc.Compare({ "dst", "dfactor", "bottom" })) whichb = 1;
 			else if (sc.Compare("alpha"))
@@ -987,6 +1000,7 @@ static void parseBlendTableGlBlend(FScanner& sc, FScriptPosition& pos, int id)
 				continue;
 			}
 			uint8_t* const factor = whichb == 0 ? &bdef.src : &bdef.dst;
+			sc.MustGetString();
 			if (sc.Compare("ZERO")) *factor = STYLEALPHA_Zero;
 			else if (sc.Compare("ONE")) *factor = STYLEALPHA_One;
 			else if (sc.Compare("SRC_COLOR")) *factor = STYLEALPHA_SrcCol;
