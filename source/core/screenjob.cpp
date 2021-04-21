@@ -117,208 +117,223 @@ void DImageScreen::Draw(double smoothratio)
 //
 //---------------------------------------------------------------------------
 
-class ScreenJobRunner
+ScreenJobRunner::ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_, bool skipall_)
+	: completion(std::move(completion_)), clearbefore(clearbefore_), skipall(skipall_)
 {
-	enum
+	jobs.Resize(count);
+	memcpy(jobs.Data(), jobs_, count * sizeof(JobDesc));
+	// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected. This should be removed later once the GC is working.
+	for (int i = 0; i < count; i++)
 	{
-		State_Clear,
-		State_Run,
-		State_Fadeout
-	};
-	TArray<JobDesc> jobs;
-	CompletionFunc completion;
-	int index = -1;
-	float screenfade;
-	bool clearbefore;
-	bool skipall;
-	int actionState;
-	int terminateState;
-	int fadeticks = 0;
-	int last_paused_tic = -1;
+		jobs[i].job->Release();
+	}
+	AdvanceJob(false);
+}
 
-public:
-	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_, bool skipall_)
-		: completion(std::move(completion_)), clearbefore(clearbefore_), skipall(skipall_)
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+ScreenJobRunner::~ScreenJobRunner()
+{
+	DeleteJobs();
+}
+
+void ScreenJobRunner::DeleteJobs()
+{
+	for (auto& job : jobs)
 	{
-		jobs.Resize(count);
-		memcpy(jobs.Data(), jobs_, count * sizeof(JobDesc));
-		// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected. This should be removed later once the GC is working.
-		for (int i = 0; i < count; i++)
+		job.job->ObjectFlags |= OF_YesReallyDelete;
+		delete job.job;
+	}
+	jobs.Clear();
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void ScreenJobRunner::AdvanceJob(bool skip)
+{
+	if (index >= 0)
+	{
+		//if (jobs[index].postAction) jobs[index].postAction();
+		jobs[index].job->Destroy();
+	}
+	index++;
+	while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && skipall)))
+	{
+		if (jobs[index].job != nullptr) jobs[index].job->Destroy();
+		index++;
+	}
+	actionState = clearbefore ? State_Clear : State_Run;
+	if (index < jobs.Size())
+	{
+		jobs[index].job->fadestate = !paused && jobs[index].job->flags & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
+		jobs[index].job->Start();
+	}
+	inputState.ClearAllInput();
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int ScreenJobRunner::DisplayFrame(double smoothratio)
+{
+	auto& job = jobs[index];
+	auto now = I_GetTimeNS();
+	bool processed = job.job->ProcessInput();
+
+	if (job.job->fadestate == DScreenJob::fadein)
+	{
+		double ms = (job.job->ticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
+		float screenfade = (float)clamp(ms, 0., 1.);
+		twod->SetScreenFade(screenfade);
+		if (screenfade == 1.f) job.job->fadestate = DScreenJob::visible;
+	}
+	int state = job.job->DrawFrame(smoothratio);
+	twod->SetScreenFade(1.f);
+	return state;
+}
+
+int ScreenJobRunner::FadeoutFrame(double smoothratio)
+{
+	auto& job = jobs[index];
+	double ms = (fadeticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
+	float screenfade = 1.f - (float)clamp(ms, 0., 1.);
+	twod->SetScreenFade(screenfade);
+	job.job->DrawFrame(1.);
+	return (screenfade > 0.f);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool ScreenJobRunner::OnEvent(event_t* ev)
+{
+	if (paused || index >= jobs.Size()) return false;
+
+	if (ev->type == EV_KeyDown)
+	{
+		// We never reach the key binding checks in G_Responder, so for the console we have to check for ourselves here.
+		auto binding = Bindings.GetBinding(ev->data1);
+		if (binding.CompareNoCase("toggleconsole") == 0)
 		{
-			jobs[i].job->Release();
+			C_ToggleConsole();
+			return true;
 		}
-		AdvanceJob(false);
 	}
 
-	~ScreenJobRunner()
+	if (jobs[index].job->state != DScreenJob::running) return false;
+
+	return jobs[index].job->OnEvent(ev);
+}
+
+void ScreenJobRunner::OnFinished()
+{
+	if (completion) completion(false);
+	completion = nullptr; // only finish once.
+}
+
+void ScreenJobRunner::OnTick()
+{
+	if (paused) return;
+	if (index >= jobs.Size())
+	{
+		//DeleteJobs();
+		//twod->SetScreenFade(1);
+		//twod->ClearScreen(); // This must not leave the 2d buffer empty.
+		//if (gamestate == GS_INTRO) OnFinished();
+		//else Net_WriteByte(DEM_ENDSCREENJOB);	// intermissions must be terminated synchronously.
+	}
+	else
+	{
+		if (jobs[index].job->state == DScreenJob::running)
+		{
+			jobs[index].job->ticks++;
+			jobs[index].job->OnTick();
+		}
+		else if (jobs[index].job->state == DScreenJob::stopping)
+		{
+			fadeticks++;
+		}
+	}
+}
+	
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool ScreenJobRunner::RunFrame()
+{
+	if (index >= jobs.Size())
 	{
 		DeleteJobs();
-	}
-
-	void DeleteJobs()
-	{
-		for (auto& job : jobs)
-		{
-			job.job->ObjectFlags |= OF_YesReallyDelete;
-			delete job.job;
-		}
-		jobs.Clear();
-	}
-
-	void AdvanceJob(bool skip)
-	{
-		if (index >= 0)
-		{
-			//if (jobs[index].postAction) jobs[index].postAction();
-			jobs[index].job->Destroy();
-		}
-		index++;
-		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && skipall)))
-		{
-			if (jobs[index].job != nullptr) jobs[index].job->Destroy();
-			index++;
-		}
-		actionState = clearbefore ? State_Clear : State_Run;
-		if (index < jobs.Size())
-		{
-			jobs[index].job->fadestate = !paused && jobs[index].job->flags & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
-			jobs[index].job->Start();
-		}
-		inputState.ClearAllInput();
-	}
-
-	int DisplayFrame(double smoothratio)
-	{
-		auto& job = jobs[index];
-		auto now = I_GetTimeNS();
-		bool processed = job.job->ProcessInput();
-
-		if (job.job->fadestate == DScreenJob::fadein)
-		{
-			double ms = (job.job->ticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
-			float screenfade = (float)clamp(ms, 0., 1.);
-			twod->SetScreenFade(screenfade);
-			if (screenfade == 1.f) job.job->fadestate = DScreenJob::visible;
-		}
-		int state = job.job->DrawFrame(smoothratio);
-		twod->SetScreenFade(1.f);
-		return state;
-	}
-
-	int FadeoutFrame(double smoothratio)
-	{
-		auto& job = jobs[index];
-		double ms = (fadeticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
-		float screenfade = 1.f - (float)clamp(ms, 0., 1.);
-		twod->SetScreenFade(screenfade);
-		job.job->DrawFrame(1.);
-		return (screenfade > 0.f);
-	}
-
-	bool OnEvent(event_t* ev)
-	{
-		if (paused || index >= jobs.Size()) return false;
-
-		if (ev->type == EV_KeyDown)
-		{
-			// We never reach the key binding checks in G_Responder, so for the console we have to check for ourselves here.
-			auto binding = Bindings.GetBinding(ev->data1);
-			if (binding.CompareNoCase("toggleconsole") == 0)
-			{
-				C_ToggleConsole();
-				return true;
-			}
-		}
-
-		if (jobs[index].job->state != DScreenJob::running) return false;
-
-		return jobs[index].job->OnEvent(ev);
-	}
-
-	void OnFinished()
-	{
+ 		twod->SetScreenFade(1);
+		twod->ClearScreen(); // This must not leave the 2d buffer empty.
 		if (completion) completion(false);
-		completion = nullptr; // only finish once.
+		return false;
 	}
 
-	void OnTick()
+	// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
+	bool menuon = paused;
+	if (menuon) last_paused_tic = jobs[index].job->ticks;
+	else if (last_paused_tic == jobs[index].job->ticks) menuon = true;
+	double smoothratio = menuon ? 1. : I_GetTimeFrac();
+
+	if (actionState == State_Clear)
 	{
-		if (paused) return;
-		if (index >= jobs.Size())
-		{
-			//DeleteJobs();
-			//twod->SetScreenFade(1);
-			//twod->ClearScreen(); // This must not leave the 2d buffer empty.
-			//if (gamestate == GS_INTRO) OnFinished();
-			//else Net_WriteByte(DEM_ENDSCREENJOB);	// intermissions must be terminated synchronously.
-		}
-		else
-		{
-			if (jobs[index].job->state == DScreenJob::running)
-			{
-				jobs[index].job->ticks++;
-				jobs[index].job->OnTick();
-			}
-			else if (jobs[index].job->state == DScreenJob::stopping)
-			{
-				fadeticks++;
-			}
-		}
+		actionState = State_Run;
+		twod->ClearScreen();
 	}
-	
-	bool RunFrame()
+	else if (actionState == State_Run)
 	{
-		if (index >= jobs.Size())
+		terminateState = DisplayFrame(smoothratio);
+		if (terminateState < 1)
 		{
-			DeleteJobs();
- 			twod->SetScreenFade(1);
-			twod->ClearScreen(); // This must not leave the 2d buffer empty.
-			if (completion) completion(false);
-			return false;
-		}
-
-		// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
-		bool menuon = paused;
-		if (menuon) last_paused_tic = jobs[index].job->ticks;
-		else if (last_paused_tic == jobs[index].job->ticks) menuon = true;
-		double smoothratio = menuon ? 1. : I_GetTimeFrac();
-
-		if (actionState == State_Clear)
-		{
-			actionState = State_Run;
-			twod->ClearScreen();
-		}
-		else if (actionState == State_Run)
-		{
-			terminateState = DisplayFrame(smoothratio);
-			if (terminateState < 1)
+			// Must lock before displaying.
+			if (jobs[index].job->flags & DScreenJob::fadeout)
 			{
-				// Must lock before displaying.
-				if (jobs[index].job->flags & DScreenJob::fadeout)
-				{
-					jobs[index].job->fadestate = DScreenJob::fadeout;
-					jobs[index].job->state = DScreenJob::stopping;
-					actionState = State_Fadeout;
-					fadeticks = 0;
-				}
-				else
-				{
-					AdvanceJob(terminateState < 0);
-				}
+				jobs[index].job->fadestate = DScreenJob::fadeout;
+				jobs[index].job->state = DScreenJob::stopping;
+				actionState = State_Fadeout;
+				fadeticks = 0;
 			}
-		}
-		else if (actionState == State_Fadeout)
-		{
-			int ended = FadeoutFrame(smoothratio);
-			if (ended < 1)
+			else
 			{
-				jobs[index].job->state = DScreenJob::stopped;
 				AdvanceJob(terminateState < 0);
 			}
 		}
-		return true;
 	}
-};
+	else if (actionState == State_Fadeout)
+	{
+		int ended = FadeoutFrame(smoothratio);
+		if (ended < 1)
+		{
+			jobs[index].job->state = DScreenJob::stopped;
+			AdvanceJob(terminateState < 0);
+		}
+	}
+	return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 ScreenJobRunner *runner;
 

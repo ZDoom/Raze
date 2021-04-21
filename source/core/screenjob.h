@@ -132,14 +132,51 @@ public:
 	void Draw(double smooth) override;
 };
 
-
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 struct JobDesc
 {
 	DScreenJob* job;
-	//void (*postAction)();
 };
+
+
+class ScreenJobRunner
+{
+	enum
+	{
+		State_Clear,
+		State_Run,
+		State_Fadeout
+	};
+	TArray<JobDesc> jobs;
+	CompletionFunc completion;
+	int index = -1;
+	float screenfade;
+	bool clearbefore;
+	bool skipall;
+	int actionState;
+	int terminateState;
+	int fadeticks = 0;
+	int last_paused_tic = -1;
+
+public:
+	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_, bool skipall_);
+	~ScreenJobRunner();
+	void DeleteJobs();
+	void AdvanceJob(bool skip);
+	int DisplayFrame(double smoothratio);
+	int FadeoutFrame(double smoothratio);
+	bool OnEvent(event_t* ev);
+	void OnFinished();
+	void OnTick();
+	bool RunFrame();
+};
+
+
 
 enum
 {
