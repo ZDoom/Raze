@@ -135,11 +135,11 @@ struct JobDesc
 {
 	DScreenJob* job;
 	void (*postAction)();
-	bool ignoreifskipped;
+	//bool ignoreifskipped;
 };
 
 
-void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore = true, bool blockingui = false);
+void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore = true, bool blockingui = false, bool skipall = false);
 void EndScreenJob();
 void DeleteScreenJob();
 bool ScreenJobResponder(event_t* ev);

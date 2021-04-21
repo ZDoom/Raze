@@ -125,14 +125,15 @@ class ScreenJobRunner
 	int index = -1;
 	float screenfade;
 	bool clearbefore;
+	bool skipall;
 	int actionState;
 	int terminateState;
 	int fadeticks = 0;
 	int last_paused_tic = -1;
 
 public:
-	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_)
-		: completion(std::move(completion_)), clearbefore(clearbefore_)
+	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_, bool skipall_)
+		: completion(std::move(completion_)), clearbefore(clearbefore_), skipall(skipall_)
 	{
 		jobs.Resize(count);
 		memcpy(jobs.Data(), jobs_, count * sizeof(JobDesc));
@@ -167,7 +168,7 @@ public:
 			jobs[index].job->Destroy();
 		}
 		index++;
-		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && jobs[index].ignoreifskipped)))
+		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && skipall)))
 		{
 			if (jobs[index].job != nullptr) jobs[index].job->Destroy();
 			index++;
@@ -316,13 +317,13 @@ public:
 
 ScreenJobRunner *runner;
 
-void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore, bool blockingui)
+void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore, bool blockingui, bool skipall)
 {
 	assert(completion != nullptr);
 	videoclearFade();
 	if (count)
 	{
-		runner = new ScreenJobRunner(jobs, count, completion, clearbefore);
+		runner = new ScreenJobRunner(jobs, count, completion, clearbefore, skipall);
 		gameaction = blockingui? ga_intro : ga_intermission;
 	}
 	else

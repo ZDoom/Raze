@@ -1129,9 +1129,9 @@ void e4intro(const CompletionFunc& completion)
 
 	S_PlaySpecialMusic(MUS_BRIEFING);
 	jobs[job++] = { PlayVideo("vol41a.anm", vol41a, framespeed_10), nullptr };
-	jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14), nullptr, true };
-	jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10), nullptr, true };
-	RunScreenJob(jobs, job, completion);
+	jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14), nullptr };
+	jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10), nullptr };
+	RunScreenJob(jobs, job, completion, true, false, true);
 }
 
 //---------------------------------------------------------------------------
