@@ -1563,24 +1563,6 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
 
 
-//
-// clearview
-//
-void videoClearViewableArea(int32_t dacol)
-{
-    GLInterface.ClearScreen(dacol, false);
-}
-
-
-//
-// clearallviews
-//
-void videoClearScreen(int32_t dacol)
-{
-    GLInterface.ClearScreen(dacol | PalEntry(255,0,0,0));
-}
-
-
 //MUST USE RESTOREFORDRAWROOMS AFTER DRAWING
 
 static int32_t setviewcnt = 0; // interface layers use this now
@@ -1736,7 +1718,6 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 
 int tilehasmodelorvoxel(int const tilenume, int pal)
 {
-    UNREFERENCED_PARAMETER(pal);
     return
         (mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
         (r_voxels && tiletovox[tilenume] != -1);

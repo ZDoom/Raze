@@ -1050,7 +1050,6 @@ void setVideoMode()
 	ydim = screen->GetHeight();
 	V_UpdateModeSize(xdim, ydim);
 	videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-	videoClearScreen(0);
 }
 
 //==========================================================================
