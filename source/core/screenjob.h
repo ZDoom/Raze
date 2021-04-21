@@ -3,6 +3,7 @@
 #include "dobject.h"
 #include "v_2ddrawer.h"
 #include "d_eventbase.h"
+#include "s_soundinternal.h"
 
 using CompletionFunc = std::function<void(bool)>;
 struct JobDesc;
@@ -11,7 +12,7 @@ class ScreenJobRunner;
 class DScreenJob : public DObject
 {
 	DECLARE_CLASS(DScreenJob, DObject)
-	const int fadestyle;
+	const int flags;
 	const float fadetime;	// in milliseconds
 	int fadestate = fadein;
 
@@ -35,9 +36,11 @@ public:
 		visible = 0,
 		fadein = 1,
 		fadeout = 2,
+		stopmusic = 4,
+		stopsound = 8,
 	};
 
-	DScreenJob(int fade = 0, float fadet = 250.f) : fadestyle(fade), fadetime(fadet) {}
+	DScreenJob(int fade = 0, float fadet = 250.f) : flags(fade), fadetime(fadet) {}
 	
 	virtual bool ProcessInput()
 	{
@@ -60,6 +63,7 @@ public:
 
 	int GetFadeState() const { return fadestate; }
 
+	virtual void OnDestroy() override;
 };
 
 //---------------------------------------------------------------------------
@@ -90,7 +94,7 @@ class DBlackScreen : public DScreenJob
 	bool cleared = false;
 
 public:
-	DBlackScreen(int w) : wait(w) {}
+	DBlackScreen(int w, int flags = 0) : DScreenJob(flags & ~(fadein|fadeout)), wait(w) {}
 	void OnTick() override;
 	void Draw(double smooth) override;
 };
@@ -134,8 +138,7 @@ public:
 struct JobDesc
 {
 	DScreenJob* job;
-	void (*postAction)();
-	//bool ignoreifskipped;
+	//void (*postAction)();
 };
 
 enum

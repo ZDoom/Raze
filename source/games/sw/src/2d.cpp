@@ -356,6 +356,7 @@ public:
         seconds = (second_tics % 60);
     }
 private:
+
     static void gNextState(STATE** State)
     {
         // Transition to the next state
@@ -403,6 +404,7 @@ private:
 
     void Start() override
     {
+        FX_StopAllSounds();
         PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
     }
 
@@ -610,7 +612,7 @@ void StatScreen(int FinishAnim, CompletionFunc completion)
     if (FinishAnim)
     {
         StopSound();
-        jobs[job++] = { GetFinishAnim(FinishAnim), []() { soundEngine->StopAllChannels(); } };
+        jobs[job++] = { GetFinishAnim(FinishAnim) };
         jobs[job++] = { Create<DSWLevelSummaryScreen>() };
         if (FinishAnim == ANIM_ZILLA)
             jobs[job++] = { Create<DSWCreditsScreen>() };

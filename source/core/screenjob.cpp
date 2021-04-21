@@ -56,6 +56,11 @@
 IMPLEMENT_CLASS(DScreenJob, true, false)
 IMPLEMENT_CLASS(DImageScreen, true, false)
 
+void DScreenJob::OnDestroy()
+{
+	if (flags & stopmusic) Mus_Stop();
+	if (flags & stopsound) FX_StopAllSounds();
+}
 
 bool DSkippableScreenJob::OnEvent(event_t* evt)
 {
@@ -164,7 +169,7 @@ public:
 	{
 		if (index >= 0)
 		{
-			if (jobs[index].postAction) jobs[index].postAction();
+			//if (jobs[index].postAction) jobs[index].postAction();
 			jobs[index].job->Destroy();
 		}
 		index++;
@@ -176,7 +181,7 @@ public:
 		actionState = clearbefore ? State_Clear : State_Run;
 		if (index < jobs.Size())
 		{
-			jobs[index].job->fadestate = !paused && jobs[index].job->fadestyle & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
+			jobs[index].job->fadestate = !paused && jobs[index].job->flags & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
 			jobs[index].job->Start();
 		}
 		inputState.ClearAllInput();
@@ -289,7 +294,7 @@ public:
 			if (terminateState < 1)
 			{
 				// Must lock before displaying.
-				if (jobs[index].job->fadestyle & DScreenJob::fadeout)
+				if (jobs[index].job->flags & DScreenJob::fadeout)
 				{
 					jobs[index].job->fadestate = DScreenJob::fadeout;
 					jobs[index].job->state = DScreenJob::stopping;

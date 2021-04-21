@@ -36,6 +36,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+class DBloodIntroImage : public DImageScreen
+{
+	bool mus;
+
+public:
+	DBloodIntroImage(int tilenum, int flags = 0, bool withmusic = false) : DImageScreen(tilenum, flags), mus(withmusic)
+	{}
+
+	void Start() override
+	{
+		sndStartSample("THUNDER2", 128, -1);
+		if (mus) sndPlaySpecialMusicOrNothing(MUS_INTRO);
+	}
+};
 
 //---------------------------------------------------------------------------
 //
@@ -70,8 +84,7 @@ void playlogos()
 		}
 		else
 		{
-			jobs[job++] = { Create<DBlackScreen>(1), []() { sndStartSample("THUNDER2", 128, -1); } };
-			jobs[job++] = { Create<DImageScreen>(2050) };
+			jobs[job++] = { Create<DBloodIntroImage>(2050) };
 		}
 		if (fileSystem.FindFile("gti.smk") != -1)
 		{
@@ -79,12 +92,11 @@ void playlogos()
 		}
 		else
 		{
-			jobs[job++] = { Create<DBlackScreen>(1), []() { sndStartSample("THUNDER2", 128, -1); } };
-			jobs[job++] = { Create<DImageScreen>(2052) };
+			jobs[job++] = { Create<DBloodIntroImage>(2052) };
 		}
 	}
-	jobs[job++] = { Create<DBlackScreen>(1), []() { sndPlaySpecialMusicOrNothing(MUS_INTRO); sndStartSample("THUNDER2", 128, -1); }};
-	jobs[job++] = { Create<DImageScreen>(2518, DScreenJob::fadein) };
+	jobs[job++] = { Create<DBlackScreen>(1) };
+	jobs[job++] = { Create<DBloodIntroImage>(2518, DScreenJob::fadein, true) };
 
 	RunScreenJob(jobs, job, [](bool) { 
 		Mus_Stop();

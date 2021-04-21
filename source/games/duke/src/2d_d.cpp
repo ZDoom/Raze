@@ -170,6 +170,11 @@ class DDRealmsScreen : public DSkippableScreenJob
 public:
 	DDRealmsScreen() : DSkippableScreenJob(fadein | fadeout)	{}
 
+	void Start() override
+	{
+		S_PlaySpecialMusic(MUS_INTRO);
+	}
+
 	void OnTick() override
 	{
 		if (ticks >= 7 * GameTicRate) state = finished;
@@ -198,6 +203,11 @@ class DTitleScreen : public DSkippableScreenJob
 public:
 	DTitleScreen() : DSkippableScreenJob(fadein | fadeout) 
 	{
+	}
+
+	void Start() override
+	{
+		if (isNam() || userConfig.nologo) S_PlaySpecialMusic(MUS_INTRO);
 	}
 
 	void OnTick() override
@@ -276,6 +286,11 @@ public:
 			}
 		}
 	}
+
+	void OnDestroy() override
+	{
+		S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI);
+	}
 };
 
 //---------------------------------------------------------------------------
@@ -301,12 +316,10 @@ void Logo_d(const CompletionFunc &completion)
 	int job = 0;
 	if (!userConfig.nologo)
 	{
-		if (!isShareware()) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes), []() { S_PlaySpecialMusic(MUS_INTRO); } };
-		else jobs[job++] = { Create<DBlackScreen>(1), []() { S_PlaySpecialMusic(MUS_INTRO); } };
-		if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), nullptr };
+		if (!isShareware()) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes) };
+		if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), };
 	}
-	else S_PlaySpecialMusic(MUS_INTRO);
-	jobs[job++] = { Create<DTitleScreen>(), []() { S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI); } };
+	jobs[job++] = { Create<DTitleScreen>() };
 	RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
 }
 
@@ -422,6 +435,18 @@ public:
 	}
 };
 
+
+class DE2EndScreen : public DImageScreen
+{
+public:
+	DE2EndScreen() : DImageScreen(E2ENDSCREEN, DScreenJob::fadein | DScreenJob::fadeout | DScreenJob::stopsound, 0x7fffffff, 0)
+	{}
+
+	void Start() override
+	{
+		S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+	}
+};
 //---------------------------------------------------------------------------
 //
 //
@@ -513,6 +538,11 @@ public:
 		}
 		if (state != running) FX_StopAllSounds();
 	}
+
+	void OnDestroy() override
+	{
+		if (!isPlutoPak()) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
+	}
 };
 
 //---------------------------------------------------------------------------
@@ -535,6 +565,11 @@ public:
 		BigText(160, 70 + 16 + 16 + 16, GStrings("Look for a Duke Nukem 3D"));
 		BigText(160, 70 + 16 + 16 + 16 + 16, GStrings("sequel soon."));
 	}
+
+	void Start() override
+	{
+		S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
+	}
 };
 
 //---------------------------------------------------------------------------
@@ -548,7 +583,7 @@ class DEpisode5End : public DImageScreen
 	int sound = 0;
 
 public:
-	DEpisode5End() : DImageScreen(FIREFLYGROWEFFECT, fadein|fadeout)
+	DEpisode5End() : DImageScreen(FIREFLYGROWEFFECT, fadein|fadeout|stopsound)
 	{
 	}
 
@@ -644,45 +679,45 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 	switch (num)
 	{
 	case 0:
-		jobs[job++] = { Create<DEpisode1End1>(), nullptr };
-		jobs[job++] = { Create<DImageScreen>(E1ENDSCREEN, DScreenJob::fadein|DScreenJob::fadeout, 0x7fffffff), []() { Mus_Stop(); } };
+		jobs[job++] = { Create<DEpisode1End1>() };
+		jobs[job++] = { Create<DImageScreen>(E1ENDSCREEN, DScreenJob::fadein|DScreenJob::fadeout|DScreenJob::stopmusic, 0x7fffffff) };
 		break;
 
 	case 1:
 		Mus_Stop();
-		jobs[job++] = { PlayVideo("cineov2.anm", cineov2sound, framespeed_18), []() { S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI); } };
-		jobs[job++] = { Create<DImageScreen>(E2ENDSCREEN, DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff), []() { FX_StopAllSounds(); } };
+		jobs[job++] = { PlayVideo("cineov2.anm", cineov2sound, framespeed_18) };
+		jobs[job++] = { Create<DE2EndScreen>() };
 		break;
 
 	case 2:
 		Mus_Stop();
 		if (g_gameType & GAMEFLAG_DUKEDC)
 		{
-			jobs[job++] = { PlayVideo("radlogo.anm", dukedcsound, framespeed_10), nullptr };
+			jobs[job++] = { PlayVideo("radlogo.anm", dukedcsound, framespeed_10) };
 		}
 		else
 		{
-			jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10), nullptr };
-			jobs[job++] = { Create<DBlackScreen>(200), []() { FX_StopAllSounds(); } };
-			jobs[job++] = { Create<DEpisode3End>(), []() { if (!isPlutoPak()) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
+			jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10) };
+			jobs[job++] = { Create<DBlackScreen>(200, DScreenJob::stopsound) };
+			jobs[job++] = { Create<DEpisode3End>() };
 			if (!isPlutoPak()) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup),
-				DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff), []() { FX_StopAllSounds(); } };
+				DScreenJob::fadein | DScreenJob::fadeout | DScreenJob::stopsound, 0x7fffffff) };
 		}
 		break;
 
 	case 3:
 		Mus_Stop();
-		jobs[job++] = { PlayVideo("vol4e1.anm", vol4e1, framespeed_10), nullptr };
-		jobs[job++] = { PlayVideo("vol4e2.anm", vol4e2, framespeed_10), nullptr };
-		jobs[job++] = { PlayVideo("vol4e3.anm", vol4e3, framespeed_10), []() { S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
-		jobs[job++] = { Create<DEpisode4Text>(), nullptr };
+		jobs[job++] = { PlayVideo("vol4e1.anm", vol4e1, framespeed_10) };
+		jobs[job++] = { PlayVideo("vol4e2.anm", vol4e2, framespeed_10) };
+		jobs[job++] = { PlayVideo("vol4e3.anm", vol4e3, framespeed_10) };
+		jobs[job++] = { Create<DEpisode4Text>() };
 		jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup), 
-			DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff),  []() { FX_StopAllSounds(); } };
+			DScreenJob::fadein | DScreenJob::fadeout | DScreenJob::stopsound, 0x7fffffff) };
 		break;
 
 	case 4:
 		Mus_Stop();
-		jobs[job++] = { Create<DEpisode5End>(),  []() { FX_StopAllSounds(); } };
+		jobs[job++] = { Create<DEpisode5End>() };
 		break;
 	}
 }
@@ -698,8 +733,8 @@ void showtwoscreens(const CompletionFunc& completion)
 	JobDesc jobs[2];
 	int job = 0;
 
-	jobs[job++] = { Create<DImageScreen>(3291), nullptr };
-	jobs[job++] = { Create<DImageScreen>(3290), nullptr };
+	jobs[job++] = { Create<DImageScreen>(3291) };
+	jobs[job++] = { Create<DImageScreen>(3290) };
 	RunScreenJob(jobs, job, completion);
 }
 
@@ -709,7 +744,7 @@ void doorders(const CompletionFunc& completion)
 	int job = 0;
 
 	for (int i = 0; i < 4; i++)
-		jobs[job++] = { Create<DImageScreen>(ORDERING + i), nullptr };
+		jobs[job++] = { Create<DImageScreen>(ORDERING + i) };
 	RunScreenJob(jobs, job, completion);
 }
 
@@ -1128,9 +1163,9 @@ void e4intro(const CompletionFunc& completion)
 	static const int framespeed_14[] = { 14, 14, 14 };
 
 	S_PlaySpecialMusic(MUS_BRIEFING);
-	jobs[job++] = { PlayVideo("vol41a.anm", vol41a, framespeed_10), nullptr };
-	jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14), nullptr };
-	jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10), nullptr };
+	jobs[job++] = { PlayVideo("vol41a.anm", vol41a, framespeed_10) };
+	jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14) };
+	jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10) };
 	RunScreenJob(jobs, job, completion, SJ_SKIPALL);
 }
 

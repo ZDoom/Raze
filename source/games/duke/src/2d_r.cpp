@@ -196,13 +196,13 @@ void Logo_r(const CompletionFunc& completion)
 	}
 	else if (!isRRRA())
 	{
-		jobs[job++] = { PlayVideo("rr_intro.anm", introsound, framespeed), nullptr };
-		jobs[job++] = { PlayVideo("redneck.anm", rednecksound, framespeed), nullptr };
-		jobs[job++] = { PlayVideo("xatlogo.anm", xatrixsound, framespeed), nullptr };
+		jobs[job++] = { PlayVideo("rr_intro.anm", introsound, framespeed) };
+		jobs[job++] = { PlayVideo("redneck.anm", rednecksound, framespeed) };
+		jobs[job++] = { PlayVideo("xatlogo.anm", xatrixsound, framespeed) };
 	}
 	else
 	{
-		jobs[job++] = { PlayVideo("redint.mve"), nullptr };
+		jobs[job++] = { PlayVideo("redint.mve") };
 	}
 	RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
 }
@@ -235,13 +235,13 @@ static void bonussequence_r(int num, JobDesc* jobs, int& job)
 	switch (num)
 	{
 	case 0:
-		jobs[job++] = { PlayVideo("turdmov.anm", turdmov, framespeed), nullptr };
-		jobs[job++] = { Create<DImageScreen>(TENSCREEN), nullptr };
+		jobs[job++] = { PlayVideo("turdmov.anm", turdmov, framespeed) };
+		jobs[job++] = { Create<DImageScreen>(TENSCREEN) };
 		break;
 
 	case 1:
-		jobs[job++] = { PlayVideo("rr_outro.anm", rr_outro, framespeed), nullptr };
-		jobs[job++] = { Create<DImageScreen>(TENSCREEN), nullptr };
+		jobs[job++] = { PlayVideo("rr_outro.anm", rr_outro, framespeed) };
+		jobs[job++] = { Create<DImageScreen>(TENSCREEN) };
 		break;
 
 	default:
