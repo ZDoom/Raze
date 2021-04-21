@@ -130,9 +130,10 @@ void parseDefineTexture(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-static void parseTexturePaletteBlock(FScanner& sc, FScriptPosition& pos, int tile)
+static void parseTexturePaletteBlock(FScanner& sc, int tile)
 {
 	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
 
 	int pal = -1, xsiz = 0, ysiz = 0;
 	FString fn;
@@ -156,18 +157,9 @@ static void parseTexturePaletteBlock(FScanner& sc, FScriptPosition& pos, int til
 
 	if ((unsigned)tile < MAXUSERTILES)
 	{
-		if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
-		{
-			pos.Message(MSG_ERROR, "missing or invalid 'palette number' for texture definition");
-		}
-		else if (fn.IsEmpty())
-		{
-			pos.Message(MSG_ERROR, "missing 'file name' for texture definition");
-		}
-		else if (!fileSystem.FileExists(fn))
-		{
-			pos.Message(MSG_ERROR, "%s not found in replacement for tile %d", fn.GetChars(), tile);
-		}
+		if ((unsigned)pal >= MAXREALPAL) pos.Message(MSG_ERROR, "texture (%d): invalid palette number %d ", tile, pal);
+		else if (fn.IsEmpty()) pos.Message(MSG_ERROR, "texture (%d): missing file name in palette definition", tile);
+		else if (!fileSystem.FileExists(fn)) pos.Message(MSG_ERROR, "texture (%d): file '%s' not found in palette definition", tile, fn.GetChars());
 		else
 		{
 			if (xsiz > 0 && ysiz > 0)
@@ -182,15 +174,15 @@ static void parseTexturePaletteBlock(FScanner& sc, FScriptPosition& pos, int til
 	}
 }
 
-static void parseTextureSpecialBlock(FScanner& sc, FScriptPosition& pos, int tile, int specialpal)
+static void parseTextureSpecialBlock(FScanner& sc, int tile, int pal)
 {
 	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
 
-	int pal = -1;
 	FString fn;
 	double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
-	if (sc.StartBraces(&blockend)) return;
+	if (sc.StartBraces(&blockend)) return; 
 	while (!sc.FoundEndBrace(blockend))
 	{
 		sc.GetString();
@@ -203,14 +195,8 @@ static void parseTextureSpecialBlock(FScanner& sc, FScriptPosition& pos, int til
 
 	if ((unsigned)tile < MAXUSERTILES)
 	{
-		if (fn.IsEmpty())
-		{
-			pos.Message(MSG_ERROR, "missing 'file name' for texture definition");
-		}
-		else if (!fileSystem.FileExists(fn))
-		{
-			pos.Message(MSG_ERROR, "%s not found in replacement for tile %d", fn.GetChars(), tile);
-		}
+		if (fn.IsEmpty()) pos.Message(MSG_ERROR, "texture (%d): missing file name for layer definition", tile);
+		else if (!fileSystem.FileExists(fn)) pos.Message(MSG_ERROR, "texture (%d): file '%s' not found in layer definition", tile, fn.GetChars());
 		else
 		{
 			if (pal == DETAILPAL)
@@ -236,11 +222,11 @@ void parseTexture(FScanner& sc, FScriptPosition& pos)
 	while (!sc.FoundEndBrace(blockend))
 	{
 		sc.MustGetString();
-		if (sc.Compare("pal")) parseTexturePaletteBlock(sc, pos, tile);
-		else if (sc.Compare("detail")) parseTextureSpecialBlock(sc, pos, tile, DETAILPAL);
-		else if (sc.Compare("glow")) parseTextureSpecialBlock(sc, pos, tile, GLOWPAL);
-		else if (sc.Compare("specular")) parseTextureSpecialBlock(sc, pos, tile, SPECULARPAL);
-		else if (sc.Compare("normal")) parseTextureSpecialBlock(sc, pos, tile, NORMALPAL);
+		if (sc.Compare("pal")) parseTexturePaletteBlock(sc, tile);
+		else if (sc.Compare("detail")) parseTextureSpecialBlock(sc, tile, DETAILPAL);
+		else if (sc.Compare("glow")) parseTextureSpecialBlock(sc, tile, GLOWPAL);
+		else if (sc.Compare("specular")) parseTextureSpecialBlock(sc, tile, SPECULARPAL);
+		else if (sc.Compare("normal")) parseTextureSpecialBlock(sc, tile, NORMALPAL);
 	}
 }
 
@@ -361,9 +347,9 @@ void parseCopyTile(FScanner& sc, FScriptPosition& pos)
 					if (ValidateTilenum("copytile", tile, pos)) havetile = true;
 				}
 
-				if ((unsigned)temppal >= MAXPALOOKUPS - RESERVEDPALS)
+				if ((unsigned)temppal >= MAXREALPAL)
 				{
-					pos.Message(MSG_ERROR, "copytile 'palette number' out of range (max=%d)\n", MAXPALOOKUPS - RESERVEDPALS - 1);
+					pos.Message(MSG_ERROR, "copytile: palette number %d out of range (max=%d)\n", MAXREALPAL - 1);
 					break;
 				}
 			}
@@ -516,12 +502,8 @@ void parseSkybox(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare({ "dn", "floor", "bottom", "down" })) sc.GetString(faces[5]);
 		// skip over everything else.
 	}
-	if (tile < 0)
-	{
-		pos.Message(MSG_ERROR, "skybox: missing tile number");
-		return;
-	}
-	tileSetSkybox(tile, pal, faces);
+	if (tile < 0) pos.Message(MSG_ERROR, "skybox: missing tile number");
+	else tileSetSkybox(tile, pal, faces);
 }
 
 //===========================================================================
@@ -628,13 +610,13 @@ void parseDefineVoxel(FScanner& sc, FScriptPosition& pos)
 
 	if (nextvoxid == MAXVOXELS)
 	{
-		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
 		return;
 	}
 
 	if (voxDefine(nextvoxid, sc.String))
 	{
-		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"\n", sc.String);
+		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"", sc.String);
 		return;
 	}
 
@@ -680,13 +662,13 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 
 	if (nextvoxid == MAXVOXELS)
 	{
-		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
 		return;
 	}
 
 	if (voxDefine(nextvoxid, fn))
 	{
-		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"\n", fn.GetChars());
+		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"", fn.GetChars());
 		return;
 	}
 
@@ -802,7 +784,7 @@ void parseTint(FScanner& sc, FScriptPosition& pos)
 	}
 
 	if (pal < 0)
-		pos.Message(MSG_ERROR, "tint: missing palette number");
+		pos.Message(MSG_ERROR, "tint: palette number missing");
 	else
 		lookups.setPaletteTint(pal, clamp(red, 0, 255), clamp(green, 0, 255), clamp(blue, 0, 255), 
 			clamp(shadered, 0, 255), clamp(shadegreen, 0, 255), clamp(shadeblue, 0, 255), flags);
@@ -1020,7 +1002,7 @@ void parseArtFile(FScanner& sc, FScriptPosition& pos)
 
 	if (file.IsEmpty())
 	{
-		pos.Message(MSG_ERROR, "missing 'file name' for artfile definition");
+		pos.Message(MSG_ERROR, "artfile: missing file name");
 	}
 	else if (tile >= 0 && ValidateTilenum("artfile", tile, pos))
 		TileFiles.LoadArtFile(file, nullptr, tile);
@@ -1033,9 +1015,10 @@ void parseArtFile(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-static void parseBlendTableGlBlend(FScanner& sc, FScriptPosition& pos, int id)
+static void parseBlendTableGlBlend(FScanner& sc, int id)
 {
 	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
 	FString file;
 
 	if (sc.StartBraces(&blockend)) return;
@@ -1108,7 +1091,7 @@ void parseBlendTable(FScanner& sc, FScriptPosition& pos)
 	{
 		sc.MustGetString();
 		if (sc.Compare("raw")) parseEmptyBlock(sc, pos); // Raw translucency map for the software renderer. We have no use for this.
-		else if (sc.Compare("glblend")) parseBlendTableGlBlend(sc, pos, id);
+		else if (sc.Compare("glblend")) parseBlendTableGlBlend(sc, id);
 		else if (sc.Compare("undef")) glblend[id] = defaultglblend;
 		else if (sc.Compare("copy"))
 		{
@@ -1170,7 +1153,7 @@ static bool parseBasePaletteRaw(FScanner& sc, FScriptPosition& pos, int id)
 
 	if (fn.IsEmpty())
 	{
-		pos.Message(MSG_ERROR, "basepalette: No filename provided");
+		pos.Message(MSG_ERROR, "basepalette: filename missing");
 	}
 	else if (offset < 0)
 	{
@@ -1187,12 +1170,9 @@ static bool parseBasePaletteRaw(FScanner& sc, FScriptPosition& pos, int id)
 		{
 			pos.Message(MSG_ERROR, "basepalette: Failed opening \"%s\"", fn.GetChars());
 		}
-		else if (fil.Seek(offset, FileReader::SeekSet) < 0)
-		{
-			pos.Message(MSG_ERROR, "basepalette: Seek failed");
-		}
 		else
 		{
+			fil.Seek(offset, FileReader::SeekSet);
 			auto palbuf = fil.Read();
 			if (palbuf.Size() < 768)
 			{
@@ -1301,9 +1281,10 @@ void parseUndefBasePaletteRange(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-static void parsePalookupRaw(FScanner& sc, FScriptPosition& pos, int id, int& didLoadShade)
+static void parsePalookupRaw(FScanner& sc, int id, int& didLoadShade)
 {
 	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
 
 	if (sc.StartBraces(&blockend)) return;
 
@@ -1321,7 +1302,7 @@ static void parsePalookupRaw(FScanner& sc, FScriptPosition& pos, int id, int& di
 
 	if (fn.IsEmpty())
 	{
-		pos.Message(MSG_ERROR, "palookup: No filename provided");
+		pos.Message(MSG_ERROR, "palookup: filename missing");
 	}
 	else if (offset < 0)
 	{
@@ -1334,12 +1315,9 @@ static void parsePalookupRaw(FScanner& sc, FScriptPosition& pos, int id, int& di
 		{
 			pos.Message(MSG_ERROR, "palookup: Failed opening \"%s\"", fn.GetChars());
 		}
-		else if (fil.Seek(offset, FileReader::SeekSet) < 0)
-		{
-			pos.Message(MSG_ERROR, "palookup: Seek failed");
-		}
 		else
 		{
+			fil.Seek(offset, FileReader::SeekSet);
 			auto palookupbuf = fil.Read();
 			if (palookupbuf.Size() < 256)
 			{
@@ -1364,9 +1342,10 @@ static void parsePalookupRaw(FScanner& sc, FScriptPosition& pos, int id, int& di
 	}
 }
 
-static void parsePalookupFogpal(FScanner& sc, FScriptPosition& pos, int id)
+static void parsePalookupFogpal(FScanner& sc, int id)
 {
 	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
 
 	if (sc.StartBraces(&blockend)) return;
 
@@ -1436,7 +1415,7 @@ void parsePalookup(FScanner& sc, FScriptPosition& pos)
 
 	if ((unsigned)id >= MAXPALOOKUPS)
 	{
-		pos.Message(MSG_ERROR, "palookup: Invalid pal number %d", id);
+		pos.Message(MSG_ERROR, "palookup: Invalid palette number %d", id);
 		sc.RestorePos(blockend);
 		return;
 	}
@@ -1444,8 +1423,8 @@ void parsePalookup(FScanner& sc, FScriptPosition& pos)
 	while (!sc.FoundEndBrace(blockend))
 	{
 		sc.MustGetString();
-		if (sc.Compare("raw")) parsePalookupRaw(sc, pos, id, didLoadShade);
-		else if (sc.Compare("fogpal")) parsePalookupFogpal(sc, pos, id);
+		if (sc.Compare("raw")) parsePalookupRaw(sc, id, didLoadShade);
+		else if (sc.Compare("fogpal")) parsePalookupFogpal(sc, id);
 		else if (sc.Compare("makepalookup")) parsePalookupMakePalookup(sc, pos, id, didLoadShade);
 		else if (sc.Compare("floorpal")) lookups.tables[id].noFloorPal = 0;
 		else if (sc.Compare("nofloorpal")) lookups.tables[id].noFloorPal = 1;
@@ -1493,19 +1472,11 @@ void parseMakePalookup(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 	int red = 0, green = 0, blue = 0, pal = -1;
-	int havepal = 0, remappal = 0;
+	int remappal = 0;
 	int nofloorpal = -1;
+	bool havepal = false, haveremappal = false, haveremapself = false;
 
 	if (sc.StartBraces(&blockend)) return;
-
-	enum {
-		HAVE_PAL = 1,
-		HAVE_REMAPPAL = 2,
-		HAVE_REMAPSELF = 4,
-
-		HAVEPAL_SPECIAL = HAVE_REMAPPAL | HAVE_REMAPSELF,
-		HAVEPAL_ERROR = 8,
-	};
 
 	while (!sc.FoundEndBrace(blockend))
 	{
@@ -1516,18 +1487,16 @@ void parseMakePalookup(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare("remappal"))
 		{
 			sc.GetNumber(remappal, true);
-			if (havepal & HAVEPAL_SPECIAL) havepal |= HAVEPAL_ERROR;
-			havepal |= HAVE_REMAPPAL;
+			haveremappal = true;
 		}
 		else if (sc.Compare("remapself"))
 		{
-			if (havepal & HAVEPAL_SPECIAL) havepal |= HAVEPAL_ERROR;
-			havepal |= HAVE_REMAPSELF;
+			haveremapself = true;
 		}
 		else if (sc.Compare("nofloorpal")) sc.GetNumber(nofloorpal, true);
 		else if (sc.Compare("pal"))
 		{
-			havepal |= HAVE_PAL;
+			havepal = true;
 			sc.GetNumber(pal, true);
 		}
 	}
@@ -1535,26 +1504,26 @@ void parseMakePalookup(FScanner& sc, FScriptPosition& pos)
 	green = clamp(green, 0, 63);
 	blue = clamp(blue, 0, 63);
 
-	if ((havepal & HAVE_PAL) == 0)
+	if (!havepal)
 	{
-		pos.Message(MSG_ERROR, "makepalookup: missing 'palette number'");
-	}
-	else if (pal == 0 || (unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
+		pos.Message(MSG_ERROR, "makepalookup: missing palette number");
+	} 
+	else if (pal == 0 || (unsigned)pal >= MAXREALPAL)
 	{
-		pos.Message(MSG_ERROR, "makepalookup: 'palette number' %d out of range (1 .. %d)\n", pal, MAXPALOOKUPS - RESERVEDPALS - 1);
+		pos.Message(MSG_ERROR, "makepalookup: palette number %d out of range (1 .. %d)", pal, MAXREALPAL - 1);
 	}
-	else if (havepal & HAVEPAL_ERROR)
+	else if (haveremappal && haveremapself)
 	{
 		// will also disallow multiple remappals or remapselfs
-		pos.Message(MSG_ERROR, "makepalookup: must have exactly one of either 'remappal' or 'remapself'\n");
+		pos.Message(MSG_ERROR, "makepalookup: must have either 'remappal' or 'remapself' but not both");
 	}
-	else if ((havepal & HAVE_REMAPPAL && (unsigned)remappal >= MAXPALOOKUPS - RESERVEDPALS))
+	else if ((haveremappal && (unsigned)remappal >= MAXREALPAL))
 	{
-		pos.Message(MSG_ERROR, "makepalookup: 'remap palette number' %d out of range (max=%d)\n", pal, MAXPALOOKUPS - RESERVEDPALS - 1);
+		pos.Message(MSG_ERROR, "makepalookup: remap palette number %d out of range (0 .. %d)", pal, MAXREALPAL - 1);
 	}
 	else
 	{
-		if (havepal & HAVE_REMAPSELF) remappal = pal;
+		if (haveremapself) remappal = pal;
 		lookups.makeTable(pal, lookups.getTable(remappal), red << 2, green << 2, blue << 2,
 			remappal == 0 ? 1 : (nofloorpal == -1 ? lookups.tables[remappal].noFloorPal : nofloorpal));
 	}
@@ -1609,7 +1578,7 @@ void parseHighpalookup(FScanner& sc, FScriptPosition& pos)
 	{
 		pos.Message(MSG_ERROR, "highpalookup: invalid base palette number %d", basepal);
 	}
-	else if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
+	else if ((unsigned)pal >= MAXREALPAL)
 	{
 		pos.Message(MSG_ERROR, "highpalookup: invalid palette number %d", pal);
 	}
@@ -1651,7 +1620,7 @@ void parseDefineModel(FScanner& sc, FScriptPosition& pos)
 	mdglobal.lastmodelid = md_loadmodel(modelfn);
 	if (mdglobal.lastmodelid < 0)
 	{
-		pos.Message(MSG_WARNING, "definemodel: Failed loading model file '%s'\n", modelfn.GetChars());
+		pos.Message(MSG_WARNING, "definemodel: unable to load model file '%s'", modelfn.GetChars());
 	}
 	else
 	{
@@ -1717,8 +1686,8 @@ void parseDefineModelAnim(FScanner& sc, FScriptPosition& pos)
 		return;
 	}
 	int err = (md_defineanimation(mdglobal.lastmodelid, startframe, endframe, (int32_t)(dfps * (65536.0 * .001)), flags));
-	if (err == -2) pos.Message(MSG_ERROR, "Invalid starting frame name %s", startframe.GetChars());
-	else if (err == -3) pos.Message(MSG_ERROR, "Invalid ending frame name %s", endframe.GetChars());
+	if (err == -2) pos.Message(MSG_ERROR, "Invalid start frame name %s", startframe.GetChars());
+	else if (err == -3) pos.Message(MSG_ERROR, "Invalid end frame name %s", endframe.GetChars());
 }
 
 //===========================================================================
@@ -1818,7 +1787,7 @@ static bool parseModelFrameBlock(FScanner& sc, FixedBitArray<1024>& usedframes)
 		else if (sc.Compare("smoothduration")) sc.GetFloat(smoothduration, true);
 	}
 
-	if (!ValidateTileRange("model: frame", starttile, endtile, pos)) return false;
+	if (!ValidateTileRange("model/frame", starttile, endtile, pos)) return false;
 
 	if (smoothduration > 1.0)
 	{
@@ -1873,8 +1842,8 @@ static bool parseModelAnimBlock(FScanner& sc)
 	int res = md_defineanimation(mdglobal.lastmodelid, startframe, endframe, (int)(fps * (65536.0 * .001)), flags);
 	if (res < 0)
 	{
-		if (res == -2) pos.Message(MSG_ERROR, "Invalid starting frame name %s", startframe.GetChars());
-		else if (res == -3) pos.Message(MSG_ERROR, "Invalid ending frame name %s", endframe.GetChars());
+		if (res == -2) pos.Message(MSG_ERROR, "Invalid start frame name %s", startframe.GetChars());
+		else if (res == -3) pos.Message(MSG_ERROR, "Invalid end frame name %s", endframe.GetChars());
 		return false;
 	}
 	return true;
@@ -1991,7 +1960,7 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 	mdglobal.lastmodelid = md_loadmodel(modelfn);
 	if (mdglobal.lastmodelid < 0)
 	{
-		pos.Message(MSG_WARNING, "Unable to load model file \"%s\"\n", modelfn.GetChars());
+		pos.Message(MSG_WARNING, "Unable to load model file '%s'", modelfn.GetChars());
 		sc.RestorePos(blockend);
 		sc.CheckString("}");
 		return;
@@ -2077,7 +2046,7 @@ static const dispatch basetokens[] =
 	{ "texture",         parseTexture          },
 	{ "tile",            parseTexture          },
 	{ "music",           parseMusic            },
-	{ "sound",           parseMusic            },
+	{ "sound",           parseEmptyBlock       },
 	{ "animsounds",      parseEmptyBlockWithParm       },
 	{ "cutscene",        parseEmptyBlockWithParm         },
 	{ "nofloorpalrange", parseNoFloorpalRange  },

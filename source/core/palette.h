@@ -17,17 +17,21 @@
 #include "palentry.h"
 #include "templates.h"
 
-#define MAXBASEPALS 256
-#define MAXPALOOKUPS 256
-#define MAXBLENDTABS 256
+enum
+{
+    MAXBASEPALS = 256,
+    MAXPALOOKUPS = 256,
+    MAXBLENDTABS = 256,
+    
+    RESERVEDPALS = 4, // don't forget to increment this when adding reserved pals
+    DETAILPAL   = (MAXPALOOKUPS - 1),
+    GLOWPAL     = (MAXPALOOKUPS - 2),
+    SPECULARPAL = (MAXPALOOKUPS - 3),
+    NORMALPAL   = (MAXPALOOKUPS - 4),
+    BRIGHTPAL	= (MAXPALOOKUPS),
 
-#define RESERVEDPALS 4 // don't forget to increment this when adding reserved pals
-#define DETAILPAL   (MAXPALOOKUPS - 1)
-#define GLOWPAL     (MAXPALOOKUPS - 2)
-#define SPECULARPAL (MAXPALOOKUPS - 3)
-#define NORMALPAL   (MAXPALOOKUPS - 4)
-#define BRIGHTPAL	(MAXPALOOKUPS)
-
+    MAXREALPAL = MAXPALOOKUPS - RESERVEDPALS
+}
 // fixme: should use the flags from the PRSFlags enum directly
 enum
 {
