@@ -268,7 +268,7 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	return true;
 }
 
-void DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width, int height, bool upsidedown)
+static void PM_DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width, int height, bool upsidedown)
 {
 	int pixelsize = 3;
 	int pitch = width * pixelsize;
@@ -287,7 +287,7 @@ void DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width,
 //
 //===========================================================================
 
-void WriteSavePic(FileWriter* file, int width, int height)
+void PM_WriteSavePic(FileWriter* file, int width, int height)
 {
 	IntRect bounds;
 	bounds.left = 0;
@@ -344,7 +344,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	uint8_t* scr = (uint8_t*)M_Malloc(numpixels * 3);
 	screen->CopyScreenToBuffer(width, height, scr);
 
-	DoWriteSavePic(file, SS_RGB, scr, width, height, screen->FlipSavePic());
+	PM_DoWriteSavePic(file, SS_RGB, scr, width, height, screen->FlipSavePic());
 	M_Free(scr);
 
 	// Switch back the screen render buffers

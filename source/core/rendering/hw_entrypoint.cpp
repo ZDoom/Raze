@@ -50,6 +50,7 @@
 #include "gamecvars.h"
 #include "render.h"
 #include "gamestruct.h"
+#include "gamehud.h"
 
 EXTERN_CVAR(Bool, cl_capfps)
 
@@ -198,7 +199,7 @@ FRenderViewpoint SetupViewpoint(spritetype* cam, const vec3_t& position, int sec
 
 void DoWriteSavePic(FileWriter* file, uint8_t* scr, int width, int height, bool upsidedown)
 {
-	int pixelsize = 1;
+	int pixelsize = 3;
 
 	int pitch = width * pixelsize;
 	if (upsidedown)
@@ -214,10 +215,44 @@ void DoWriteSavePic(FileWriter* file, uint8_t* scr, int width, int height, bool 
 //
 // Render the view to a savegame picture
 //
+// Currently a bit messy because the game side still needs to be able to
+// handle Polymost.
+//
 //===========================================================================
+bool writingsavepic;
+FileWriter* savefile;
+int savewidth, saveheight;
+void PM_WriteSavePic(FileWriter* file, int width, int height);
+EXTERN_CVAR(Bool, testnewrenderer);
 
-#if 0
-void WriteSavePic(player_t* player, FileWriter* file, int width, int height)
+void WriteSavePic(FileWriter* file, int width, int height)
+{
+	if (!testnewrenderer)
+	{
+		PM_WriteSavePic(file, width, height);
+		return;
+	}
+	int oldx = xdim;
+	int oldy = ydim;
+	auto oldwindowxy1 = windowxy1;
+	auto oldwindowxy2 = windowxy2;
+
+	xdim = width;
+	ydim = height;
+	videoSetViewableArea(0, 0, width - 1, height - 1);
+
+	writingsavepic = true;
+	savefile = file;
+	savewidth = width;
+	saveheight = height;
+	bool didit = gi->GenerateSavePic();
+	writingsavepic = false;
+	xdim = oldx;
+	ydim = oldy;
+	videoSetViewableArea(oldwindowxy1.x, oldwindowxy1.y, oldwindowxy2.x, oldwindowxy2.y);
+}
+
+void RenderToSavePic(FRenderViewpoint& vp, FileWriter* file, int width, int height)
 {
 	IntRect bounds;
 	bounds.left = 0;
@@ -233,30 +268,27 @@ void WriteSavePic(player_t* player, FileWriter* file, int width, int height)
 	screen->SetSaveBuffers(true);
 	screen->ImageTransitionScene(true);
 
-	hw_ClearFakeFlat();
 	RenderState.SetVertexBuffer(screen->mVertexData);
 	screen->mVertexData->Reset();
 	screen->mLights->Clear();
 	screen->mViewpoints->Clear();
 
-	// This shouldn't overwrite the global viewpoint even for a short time.
-	FRenderViewpoint savevp;
-	sector_t* viewsector = RenderViewpoint(savevp, players[consoleplayer].camera, &bounds, r_viewpoint.FieldOfView.Degrees, 1.6f, 1.6f, true, false);
-	RenderState.EnableStencil(false);
-	RenderState.SetNoSoftLightLevel();
+	twodpsp.Clear();
+
+	RenderViewpoint(vp, &bounds, vp.FieldOfView.Degrees, 1.333f, 1.333f, true, false);
+
 
 	int numpixels = width * height;
 	uint8_t* scr = (uint8_t*)M_Malloc(numpixels * 3);
 	screen->CopyScreenToBuffer(width, height, scr);
 
-	DoWriteSavePic(file, SS_RGB, scr, width, height, viewsector, screen->FlipSavePic());
+	DoWriteSavePic(file, scr, width, height, screen->FlipSavePic());
 	M_Free(scr);
 
 	// Switch back the screen render buffers
 	screen->SetViewportRects(nullptr);
 	screen->SetSaveBuffers(false);
 }
-#endif
 
 //===========================================================================
 //
@@ -300,6 +332,12 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 	screen->mLights->Clear();
 	screen->mViewpoints->Clear();
 	screen->mVertexData->Reset();
+
+	if (writingsavepic) // hack alert! The save code should not go through render_drawrooms, but we can only clean up the game side when Polymost is gone for good.
+	{
+		RenderToSavePic(r_viewpoint, savefile, savewidth, saveheight);
+		return;
+	}
 
 	// Shader start time does not need to be handled per level. Just use the one from the camera to render from.
 	auto RenderState = screen->RenderState();
