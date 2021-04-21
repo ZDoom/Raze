@@ -2146,15 +2146,11 @@ void loaddefinitionsfile(const char* fn, bool loadadds, bool cumulative)
 
 	if (userConfig.AddDefs && loadadds) for (auto& m : *userConfig.AddDefs)
 	{
-		int lump = fileSystem.FindFile(fn);
+		int lump = fileSystem.FindFile(m);
 		if (lump >= 0)
 		{
-			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fn);
+			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", m.GetChars());
 			parseit(lump);
 		}
-
-		Printf("Loading module \"%s\"\n", m.GetChars());
-		performInclude(nullptr, m, nullptr); // Q: should we let the external script see our symbol table?
-		Printf(PRINT_NONOTIFY, "\n");
 	}
 }
