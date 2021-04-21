@@ -1,8 +1,7 @@
 
 /*
-** parsefuncs.h
-** handlers for .def parser
-** only to be included by the actual parser
+** def.cpp
+** Rewritten .def parser free of Build license restrictions.
 **
 **---------------------------------------------------------------------------
 ** Copyright 2021 Christoph Oelckers

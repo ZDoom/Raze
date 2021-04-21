@@ -17,7 +17,6 @@
 #include "compat.h"
 #include "engine_priv.h"
 #include "palette.h"
-#include "scriptfile.h"
 #include "gamecvars.h"
 #include "c_console.h"
 #include "v_2ddrawer.h"
