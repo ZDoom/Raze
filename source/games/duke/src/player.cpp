@@ -741,16 +741,16 @@ void player_struct::apply_seasick(double factor)
 		if (SeaSick < 250)
 		{
 			if (SeaSick >= 180)
-				angle.rotscrnang += bamang(xs_CRoundToUInt(24 * factor * BAMUNIT));
+				angle.rotscrnang += buildfang(24 * factor);
 			else if (SeaSick >= 130)
-				angle.rotscrnang -= bamang(xs_CRoundToUInt(24 * factor * BAMUNIT));
+				angle.rotscrnang -= buildfang(24 * factor);
 			else if (SeaSick >= 70)
-				angle.rotscrnang += bamang(xs_CRoundToUInt(24 * factor * BAMUNIT));
+				angle.rotscrnang += buildfang(24 * factor);
 			else if (SeaSick >= 20)
-				angle.rotscrnang -= bamang(xs_CRoundToUInt(24 * factor * BAMUNIT));
+				angle.rotscrnang -= buildfang(24 * factor);
 		}
 		if (SeaSick < 250)
-			angle.look_ang = bamang(xs_CRoundToUInt(((krand() & 255) - 128) * factor * BAMUNIT));
+			angle.look_ang = buildfang(((krand() & 255) - 128) * factor);
 	}
 }
 

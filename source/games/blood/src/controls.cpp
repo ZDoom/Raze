@@ -58,8 +58,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         // Perform unsynchronised angle/horizon if not dead.
         if (gView->pXSprite->health != 0)
         {
-            pPlayer->angle.applylook(input.avel, &pPlayer->input.actions, scaleAdjust);
-            pPlayer->horizon.sethorizon(input.horz, &pPlayer->input.actions, scaleAdjust);
+            pPlayer->angle.applyinput(input.avel, &pPlayer->input.actions, scaleAdjust);
+            pPlayer->horizon.applyinput(input.horz, &pPlayer->input.actions, scaleAdjust);
             doslopetilting(pPlayer, scaleAdjust);
         }
 

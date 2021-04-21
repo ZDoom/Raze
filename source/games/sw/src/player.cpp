@@ -1516,7 +1516,7 @@ UpdatePlayerSpriteAngle(PLAYERp pp)
 void
 DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust)
 {
-    pp->angle.applylook(avel, &pp->input.actions, scaleAdjust);
+    pp->angle.applyinput(avel, &pp->input.actions, scaleAdjust);
     UpdatePlayerSpriteAngle(pp);
 }
 
@@ -1668,7 +1668,7 @@ DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE);
     pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursectnum, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
-    pp->horizon.sethorizon(horz, &pp->input.actions, scaleAdjust);
+    pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
 
 void
