@@ -59,8 +59,7 @@ public:
 
 void playlogos()
 {
-	JobDesc jobs[6];
-	int job = 0;
+	TArray<DScreenJob*> jobs;
 	static AnimSound logosound[] =
 	{
 		{ 1, -1 },
@@ -80,25 +79,25 @@ void playlogos()
 	{
 		if (fileSystem.FindFile("logo.smk") != -1)
 		{
-			jobs[job++] = { PlayVideo("logo.smk", &logosound[0], 0) };
+			jobs.Push(PlayVideo("logo.smk", &logosound[0], 0));
 		}
 		else
 		{
-			jobs[job++] = { Create<DBloodIntroImage>(2050) };
+			jobs.Push(Create<DBloodIntroImage>(2050));
 		}
 		if (fileSystem.FindFile("gti.smk") != -1)
 		{
-			jobs[job++] = { PlayVideo("gti.smk", &logosound[2], 0) };
+			jobs.Push(PlayVideo("gti.smk", &logosound[2], 0));
 		}
 		else
 		{
-			jobs[job++] = { Create<DBloodIntroImage>(2052) };
+			jobs.Push(Create<DBloodIntroImage>(2052));
 		}
 	}
-	jobs[job++] = { Create<DBlackScreen>(1) };
-	jobs[job++] = { Create<DBloodIntroImage>(2518, DScreenJob::fadein, true) };
+	jobs.Push(Create<DBlackScreen>(1));
+	jobs.Push(Create<DBloodIntroImage>(2518, DScreenJob::fadein, true));
 
-	RunScreenJob(jobs, job, [](bool) { 
+	RunScreenJob(jobs, [](bool) { 
 		Mus_Stop();
 		gameaction = ga_mainmenu;
 		}, SJ_BLOCKUI);
@@ -106,7 +105,7 @@ void playlogos()
 
 void playSmk(const char *smk, const char *wav, int wavid, CompletionFunc func)
 {
-	JobDesc jobs{};
+	TArray<DScreenJob*> jobs;
 	static AnimSound smksound[] =
 	{
 		{ 1, -1 },
@@ -127,8 +126,8 @@ void playSmk(const char *smk, const char *wav, int wavid, CompletionFunc func)
 	FString smkk = smk;
 	FixPathSeperator(smkk);
 	smksound[0].soundnum = id;
-	jobs.job = PlayVideo(smkk, smksound, nullptr);
-	RunScreenJob(&jobs, 1, func);
+	jobs.Push(PlayVideo(smkk, smksound, nullptr));
+	RunScreenJob(jobs, func);
 }
 
 void levelPlayIntroScene(int nEpisode, CompletionFunc completion)

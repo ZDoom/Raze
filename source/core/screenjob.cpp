@@ -117,15 +117,14 @@ void DImageScreen::Draw(double smoothratio)
 //
 //---------------------------------------------------------------------------
 
-ScreenJobRunner::ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_, bool skipall_)
+ScreenJobRunner::ScreenJobRunner(TArray<DScreenJob*>& jobs_, CompletionFunc completion_, bool clearbefore_, bool skipall_)
 	: completion(std::move(completion_)), clearbefore(clearbefore_), skipall(skipall_)
 {
-	jobs.Resize(count);
-	memcpy(jobs.Data(), jobs_, count * sizeof(JobDesc));
+	jobs = std::move(jobs_);
 	// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected. This should be removed later once the GC is working.
-	for (int i = 0; i < count; i++)
+	for (unsigned i = 0; i < jobs.Size(); i++)
 	{
-		jobs[i].job->Release();
+		jobs[i]->Release();
 	}
 	AdvanceJob(false);
 }
@@ -145,8 +144,8 @@ void ScreenJobRunner::DeleteJobs()
 {
 	for (auto& job : jobs)
 	{
-		job.job->ObjectFlags |= OF_YesReallyDelete;
-		delete job.job;
+		job->ObjectFlags |= OF_YesReallyDelete;
+		delete job;
 	}
 	jobs.Clear();
 }
@@ -162,19 +161,19 @@ void ScreenJobRunner::AdvanceJob(bool skip)
 	if (index >= 0)
 	{
 		//if (jobs[index].postAction) jobs[index].postAction();
-		jobs[index].job->Destroy();
+		jobs[index]->Destroy();
 	}
 	index++;
-	while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && skipall)))
+	while (index < jobs.Size() && (jobs[index] == nullptr || (skip && skipall)))
 	{
-		if (jobs[index].job != nullptr) jobs[index].job->Destroy();
+		if (jobs[index] != nullptr) jobs[index]->Destroy();
 		index++;
 	}
 	actionState = clearbefore ? State_Clear : State_Run;
 	if (index < jobs.Size())
 	{
-		jobs[index].job->fadestate = !paused && jobs[index].job->flags & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
-		jobs[index].job->Start();
+		jobs[index]->fadestate = !paused && jobs[index]->flags & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
+		jobs[index]->Start();
 	}
 	inputState.ClearAllInput();
 }
@@ -189,16 +188,16 @@ int ScreenJobRunner::DisplayFrame(double smoothratio)
 {
 	auto& job = jobs[index];
 	auto now = I_GetTimeNS();
-	bool processed = job.job->ProcessInput();
+	bool processed = job->ProcessInput();
 
-	if (job.job->fadestate == DScreenJob::fadein)
+	if (job->fadestate == DScreenJob::fadein)
 	{
-		double ms = (job.job->ticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
+		double ms = (job->ticks + smoothratio) * 1000 / GameTicRate / job->fadetime;
 		float screenfade = (float)clamp(ms, 0., 1.);
 		twod->SetScreenFade(screenfade);
-		if (screenfade == 1.f) job.job->fadestate = DScreenJob::visible;
+		if (screenfade == 1.f) job->fadestate = DScreenJob::visible;
 	}
-	int state = job.job->DrawFrame(smoothratio);
+	int state = job->DrawFrame(smoothratio);
 	twod->SetScreenFade(1.f);
 	return state;
 }
@@ -206,10 +205,10 @@ int ScreenJobRunner::DisplayFrame(double smoothratio)
 int ScreenJobRunner::FadeoutFrame(double smoothratio)
 {
 	auto& job = jobs[index];
-	double ms = (fadeticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
+	double ms = (fadeticks + smoothratio) * 1000 / GameTicRate / job->fadetime;
 	float screenfade = 1.f - (float)clamp(ms, 0., 1.);
 	twod->SetScreenFade(screenfade);
-	job.job->DrawFrame(1.);
+	job->DrawFrame(1.);
 	return (screenfade > 0.f);
 }
 
@@ -234,9 +233,9 @@ bool ScreenJobRunner::OnEvent(event_t* ev)
 		}
 	}
 
-	if (jobs[index].job->state != DScreenJob::running) return false;
+	if (jobs[index]->state != DScreenJob::running) return false;
 
-	return jobs[index].job->OnEvent(ev);
+	return jobs[index]->OnEvent(ev);
 }
 
 void ScreenJobRunner::OnFinished()
@@ -258,12 +257,12 @@ void ScreenJobRunner::OnTick()
 	}
 	else
 	{
-		if (jobs[index].job->state == DScreenJob::running)
+		if (jobs[index]->state == DScreenJob::running)
 		{
-			jobs[index].job->ticks++;
-			jobs[index].job->OnTick();
+			jobs[index]->ticks++;
+			jobs[index]->OnTick();
 		}
-		else if (jobs[index].job->state == DScreenJob::stopping)
+		else if (jobs[index]->state == DScreenJob::stopping)
 		{
 			fadeticks++;
 		}
@@ -289,8 +288,8 @@ bool ScreenJobRunner::RunFrame()
 
 	// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
 	bool menuon = paused;
-	if (menuon) last_paused_tic = jobs[index].job->ticks;
-	else if (last_paused_tic == jobs[index].job->ticks) menuon = true;
+	if (menuon) last_paused_tic = jobs[index]->ticks;
+	else if (last_paused_tic == jobs[index]->ticks) menuon = true;
 	double smoothratio = menuon ? 1. : I_GetTimeFrac();
 
 	if (actionState == State_Clear)
@@ -304,10 +303,10 @@ bool ScreenJobRunner::RunFrame()
 		if (terminateState < 1)
 		{
 			// Must lock before displaying.
-			if (jobs[index].job->flags & DScreenJob::fadeout)
+			if (jobs[index]->flags & DScreenJob::fadeout)
 			{
-				jobs[index].job->fadestate = DScreenJob::fadeout;
-				jobs[index].job->state = DScreenJob::stopping;
+				jobs[index]->fadestate = DScreenJob::fadeout;
+				jobs[index]->state = DScreenJob::stopping;
 				actionState = State_Fadeout;
 				fadeticks = 0;
 			}
@@ -322,7 +321,7 @@ bool ScreenJobRunner::RunFrame()
 		int ended = FadeoutFrame(smoothratio);
 		if (ended < 1)
 		{
-			jobs[index].job->state = DScreenJob::stopped;
+			jobs[index]->state = DScreenJob::stopped;
 			AdvanceJob(terminateState < 0);
 		}
 	}
@@ -337,13 +336,13 @@ bool ScreenJobRunner::RunFrame()
 
 ScreenJobRunner *runner;
 
-void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, int flags)
+void RunScreenJob(TArray<DScreenJob*>& jobs, CompletionFunc completion, int flags)
 {
 	assert(completion != nullptr);
 	videoclearFade();
-	if (count)
+	if (jobs.Size())
 	{
-		runner = new ScreenJobRunner(jobs, count, completion, !(flags & SJ_DONTCLEAR), !!(flags & SJ_SKIPALL));
+		runner = new ScreenJobRunner(jobs, completion, !(flags & SJ_DONTCLEAR), !!(flags & SJ_SKIPALL));
 		gameaction = (flags & SJ_BLOCKUI)? ga_intro : ga_intermission;
 	}
 	else

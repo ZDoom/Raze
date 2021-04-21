@@ -186,8 +186,7 @@ void Logo_r(const CompletionFunc& completion)
 
 	static const int framespeed[] = { 9, 9, 9 }; // same for all 3 anims
 
-	JobDesc jobs[3];
-	int job = 0;
+	TArray<DScreenJob*> jobs;
 
 	if (userConfig.nologo)
 	{
@@ -196,15 +195,15 @@ void Logo_r(const CompletionFunc& completion)
 	}
 	else if (!isRRRA())
 	{
-		jobs[job++] = { PlayVideo("rr_intro.anm", introsound, framespeed) };
-		jobs[job++] = { PlayVideo("redneck.anm", rednecksound, framespeed) };
-		jobs[job++] = { PlayVideo("xatlogo.anm", xatrixsound, framespeed) };
+		jobs.Push(PlayVideo("rr_intro.anm", introsound, framespeed));
+		jobs.Push(PlayVideo("redneck.anm", rednecksound, framespeed));
+		jobs.Push(PlayVideo("xatlogo.anm", xatrixsound, framespeed));
 	}
 	else
 	{
-		jobs[job++] = { PlayVideo("redint.mve") };
+		jobs.Push(PlayVideo("redint.mve"));
 	}
-	RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
+	RunScreenJob(jobs, completion, SJ_BLOCKUI);
 }
 
 //---------------------------------------------------------------------------
@@ -213,7 +212,7 @@ void Logo_r(const CompletionFunc& completion)
 //
 //---------------------------------------------------------------------------
 
-static void bonussequence_r(int num, JobDesc* jobs, int& job)
+static void bonussequence_r(int num, TArray<DScreenJob*>& jobs)
 {
 	static const AnimSound  turdmov[] =
 	{
@@ -235,13 +234,13 @@ static void bonussequence_r(int num, JobDesc* jobs, int& job)
 	switch (num)
 	{
 	case 0:
-		jobs[job++] = { PlayVideo("turdmov.anm", turdmov, framespeed) };
-		jobs[job++] = { Create<DImageScreen>(TENSCREEN) };
+		jobs.Push(PlayVideo("turdmov.anm", turdmov, framespeed));
+		jobs.Push(Create<DImageScreen>(TENSCREEN));
 		break;
 
 	case 1:
-		jobs[job++] = { PlayVideo("rr_outro.anm", rr_outro, framespeed) };
-		jobs[job++] = { Create<DImageScreen>(TENSCREEN) };
+		jobs.Push(PlayVideo("rr_outro.anm", rr_outro, framespeed));
+		jobs.Push(Create<DImageScreen>(TENSCREEN));
 		break;
 
 	default:
@@ -594,8 +593,7 @@ public:
 
 void dobonus_r(int bonusonly, const CompletionFunc& completion)
 {
-	JobDesc jobs[20];
-	int job = 0;
+	TArray<DScreenJob*> jobs;
 
 	FX_StopAllSounds();
 	Mus_Stop();
@@ -603,32 +601,32 @@ void dobonus_r(int bonusonly, const CompletionFunc& completion)
 	if (bonusonly < 0 && !isRRRA() && numplayers < 2 && ud.from_bonus == 0)
 	{
 		int vol = volfromlevelnum(currentLevel->levelNumber);
-		bonussequence_r(vol, jobs, job);
+		bonussequence_r(vol, jobs);
 	}
 
 	if (playerswhenstarted > 1 && ud.coop != 1)
 	{
-		jobs[job++] = { Create<DRRMultiplayerBonusScreen>(playerswhenstarted) };
+		jobs.Push(Create<DRRMultiplayerBonusScreen>(playerswhenstarted));
 	}
 	else if (bonusonly <= 0 && ud.multimode <= 1)
 	{
 		if (isRRRA() && !(currentLevel->flags & MI_USERMAP) && currentLevel->levelNumber < 106) // fixme: The logic here is awful. Shift more control to the map records.
 		{
-			jobs[job++] = { Create<DRRLevelSummaryScreen>(true) };
+			jobs.Push(Create<DRRLevelSummaryScreen>(true));
 			int levnum = clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
 			char fn[20];
 			mysnprintf(fn, 20, "lvl%d.anm", levnum + 1);
 			static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame so that the video doesn't stop  before the user notices.
-			jobs[job++] = { PlayVideo(fn, nullptr, framespeed) };
+			jobs.Push(PlayVideo(fn, nullptr, framespeed));
 			if (bonusonly < 0 && currentLevel->levelNumber > 100)
 			{
-				jobs[job++] = { Create<DRRRAEndOfGame>() };
+				jobs.Push(Create<DRRRAEndOfGame>());
 			}
 		}
-		else jobs[job++] = { Create<DRRLevelSummaryScreen>(false) };
+		else jobs.Push(Create<DRRLevelSummaryScreen>(false));
 	}
-	if (job)
-		RunScreenJob(jobs, job, completion);
+	if (jobs.Size())
+		RunScreenJob(jobs, completion);
 	else if (completion) completion(false);
 }
 
@@ -658,8 +656,10 @@ public:
 
 void loadscreen_r(MapRecord* rec, CompletionFunc func)
 {
-	JobDesc job = { Create<DRRLoadScreen>(rec) };
-	RunScreenJob(&job, 1, func);
+	TArray<DScreenJob*> jobs(1, true);
+
+	jobs[0] = Create<DRRLoadScreen>(rec);
+	RunScreenJob(jobs, func);
 }
 
 void PrintPaused_r()

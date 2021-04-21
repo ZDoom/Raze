@@ -173,10 +173,11 @@ class DBloodSummaryScreen : public DSkippableScreenJob
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
-	JobDesc job = { Create<DBloodSummaryScreen>() };
+	TArray<DScreenJob*> job(1, true);
+	job[0] = Create<DBloodSummaryScreen>();
 	sndStartSample(268, 128, -1, false, CHANF_UI);
 	Mus_Stop();
-	RunScreenJob(&job, 1, [=](bool)
+	RunScreenJob(job, [=](bool)
 		{
 			soundEngine->StopAllChannels();
 			gameaction = ga_nextlevel;
@@ -301,8 +302,9 @@ public:
 
 void loadscreen(const char *caption, MapRecord* rec, CompletionFunc func)
 {
-	JobDesc job = { Create<DBloodLoadScreen>(caption, rec) };
-	RunScreenJob(&job, 1, func);
+	TArray<DScreenJob*> job(1, true);
+	job[0] = Create<DBloodLoadScreen>(caption, rec);
+	RunScreenJob(job, func);
 }
 
 

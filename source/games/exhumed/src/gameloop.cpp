@@ -62,7 +62,7 @@ void DrawClock();
 double calc_smoothratio();
 void DoTitle(CompletionFunc completion);
 
-static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobDesc> &jobs)
+static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<DScreenJob*> &jobs)
 {
     if (nLevelNew == 5 && !(nCinemaSeen & 1)) {
         nCinemaSeen |= 1;
@@ -135,7 +135,7 @@ void GameInterface::DrawBackground()
 
 static void Intermission(MapRecord *from_map, MapRecord *to_map)
 {
-    TArray<JobDesc> jobs;
+    TArray<DScreenJob*> jobs;
 
     if (from_map) StopAllSounds();
     bCamera = false;
@@ -167,7 +167,7 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
                 showmap(from_map ? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
             }
             else
-                jobs.Push({ Create<DBlackScreen>(1) }); // we need something in here even in the multiplayer case.
+                jobs.Push(Create<DBlackScreen>(1)); // we need something in here even in the multiplayer case.
         }
     }
     else
@@ -179,7 +179,7 @@ static void Intermission(MapRecord *from_map, MapRecord *to_map)
 
 	if (jobs.Size() > 0)
 	{
-		RunScreenJob(jobs.Data(), jobs.Size(), [=](bool)
+		RunScreenJob(jobs, [=](bool)
 		{
 			if (!to_map) gameaction = ga_startup; // this was the end of the game
 			else

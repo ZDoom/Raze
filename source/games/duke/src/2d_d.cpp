@@ -312,15 +312,15 @@ void Logo_d(const CompletionFunc &completion)
 	};
 	static const int logoframetimes[] = { 9, 9, 9 };
 
-	JobDesc jobs[3];
+	TArray<DScreenJob*> jobs;
 	int job = 0;
 	if (!userConfig.nologo)
 	{
-		if (!isShareware()) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes) };
-		if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), };
+		if (!isShareware()) jobs.Push(PlayVideo("logo.anm", logosound, logoframetimes));
+		if (!isNam()) jobs.Push(Create<DDRealmsScreen>());
 	}
-	jobs[job++] = { Create<DTitleScreen>() };
-	RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
+	jobs.Push(Create<DTitleScreen>());
+	RunScreenJob(jobs, completion, SJ_BLOCKUI);
 }
 
 //---------------------------------------------------------------------------
@@ -612,7 +612,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-static void bonussequence_d(int num, JobDesc *jobs, int &job)
+static void bonussequence_d(int num, TArray<DScreenJob*>& jobs)
 {
 	static const AnimSound  cineov2sound[] =
 	{
@@ -679,45 +679,45 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 	switch (num)
 	{
 	case 0:
-		jobs[job++] = { Create<DEpisode1End1>() };
-		jobs[job++] = { Create<DImageScreen>(E1ENDSCREEN, DScreenJob::fadein|DScreenJob::fadeout|DScreenJob::stopmusic, 0x7fffffff) };
+		jobs.Push(Create<DEpisode1End1>());
+		jobs.Push(Create<DImageScreen>(E1ENDSCREEN, DScreenJob::fadein|DScreenJob::fadeout|DScreenJob::stopmusic, 0x7fffffff));
 		break;
 
 	case 1:
 		Mus_Stop();
-		jobs[job++] = { PlayVideo("cineov2.anm", cineov2sound, framespeed_18) };
-		jobs[job++] = { Create<DE2EndScreen>() };
+		jobs.Push(PlayVideo("cineov2.anm", cineov2sound, framespeed_18));
+		jobs.Push(Create<DE2EndScreen>());
 		break;
 
 	case 2:
 		Mus_Stop();
 		if (g_gameType & GAMEFLAG_DUKEDC)
 		{
-			jobs[job++] = { PlayVideo("radlogo.anm", dukedcsound, framespeed_10) };
+			jobs.Push(PlayVideo("radlogo.anm", dukedcsound, framespeed_10));
 		}
 		else
 		{
-			jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10) };
-			jobs[job++] = { Create<DBlackScreen>(200, DScreenJob::stopsound) };
-			jobs[job++] = { Create<DEpisode3End>() };
-			if (!isPlutoPak()) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup),
-				DScreenJob::fadein | DScreenJob::fadeout | DScreenJob::stopsound, 0x7fffffff) };
+			jobs.Push(PlayVideo("cineov3.anm", cineov3sound, framespeed_10));
+			jobs.Push(Create<DBlackScreen>(200, DScreenJob::stopsound));
+			jobs.Push(Create<DEpisode3End>());
+			if (!isPlutoPak()) jobs.Push(Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup),
+				DScreenJob::fadein | DScreenJob::fadeout | DScreenJob::stopsound, 0x7fffffff));
 		}
 		break;
 
 	case 3:
 		Mus_Stop();
-		jobs[job++] = { PlayVideo("vol4e1.anm", vol4e1, framespeed_10) };
-		jobs[job++] = { PlayVideo("vol4e2.anm", vol4e2, framespeed_10) };
-		jobs[job++] = { PlayVideo("vol4e3.anm", vol4e3, framespeed_10) };
-		jobs[job++] = { Create<DEpisode4Text>() };
-		jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup), 
-			DScreenJob::fadein | DScreenJob::fadeout | DScreenJob::stopsound, 0x7fffffff) };
+		jobs.Push(PlayVideo("vol4e1.anm", vol4e1, framespeed_10));
+		jobs.Push(PlayVideo("vol4e2.anm", vol4e2, framespeed_10));
+		jobs.Push(PlayVideo("vol4e3.anm", vol4e3, framespeed_10));
+		jobs.Push(Create<DEpisode4Text>());
+		jobs.Push(Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup), 
+			DScreenJob::fadein | DScreenJob::fadeout | DScreenJob::stopsound, 0x7fffffff));
 		break;
 
 	case 4:
 		Mus_Stop();
-		jobs[job++] = { Create<DEpisode5End>() };
+		jobs.Push(Create<DEpisode5End>());
 		break;
 	}
 }
@@ -730,22 +730,20 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 
 void showtwoscreens(const CompletionFunc& completion)
 {
-	JobDesc jobs[2];
-	int job = 0;
+	TArray<DScreenJob*> jobs;
 
-	jobs[job++] = { Create<DImageScreen>(3291) };
-	jobs[job++] = { Create<DImageScreen>(3290) };
-	RunScreenJob(jobs, job, completion);
+	jobs.Push(Create<DImageScreen>(3291));
+	jobs.Push(Create<DImageScreen>(3290));
+	RunScreenJob(jobs, completion);
 }
 
 void doorders(const CompletionFunc& completion)
 {
-	JobDesc jobs[4];
-	int job = 0;
+	TArray<DScreenJob*> jobs;
 
 	for (int i = 0; i < 4; i++)
-		jobs[job++] = { Create<DImageScreen>(ORDERING + i) };
-	RunScreenJob(jobs, job, completion);
+		jobs.Push(Create<DImageScreen>(ORDERING + i));
+	RunScreenJob(jobs, completion);
 }
 
 //---------------------------------------------------------------------------
@@ -1097,29 +1095,28 @@ public:
 
 void dobonus_d(int bonusonly, const CompletionFunc& completion)
 {
-	JobDesc jobs[20];
-	int job = 0;
+	TArray<DScreenJob*> jobs;
 
 	FX_StopAllSounds();
 
 	if (bonusonly < 0 && numplayers < 2 && ud.from_bonus == 0)
 	{
-		bonussequence_d(volfromlevelnum(currentLevel->levelNumber), jobs, job);
+		bonussequence_d(volfromlevelnum(currentLevel->levelNumber), jobs);
 	}
 	else
 		Mus_Stop();
 
 	if (playerswhenstarted > 1 && ud.coop != 1)
 	{
-		jobs[job++] = { Create<DDukeMultiplayerBonusScreen>(playerswhenstarted) };
+		jobs.Push(Create<DDukeMultiplayerBonusScreen>(playerswhenstarted));
 	}
 	else if (bonusonly <= 0 && ud.multimode <= 1)
 	{
-		jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
+		jobs.Push(Create<DDukeLevelSummaryScreen>());
 	}
-	if (job)
+	if (jobs.Size())
 	{
-		RunScreenJob(jobs, job, completion);
+		RunScreenJob(jobs, completion);
 	}
 	else if (completion) completion(false);
 }
@@ -1132,8 +1129,7 @@ void dobonus_d(int bonusonly, const CompletionFunc& completion)
 
 void e4intro(const CompletionFunc& completion)
 {
-	JobDesc jobs[5];
-	int job = 0;
+	TArray<DScreenJob*> jobs;
 
 	static const AnimSound vol42a[] =
 	{
@@ -1163,10 +1159,10 @@ void e4intro(const CompletionFunc& completion)
 	static const int framespeed_14[] = { 14, 14, 14 };
 
 	S_PlaySpecialMusic(MUS_BRIEFING);
-	jobs[job++] = { PlayVideo("vol41a.anm", vol41a, framespeed_10) };
-	jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14) };
-	jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10) };
-	RunScreenJob(jobs, job, completion, SJ_SKIPALL);
+	jobs.Push(PlayVideo("vol41a.anm", vol41a, framespeed_10));
+	jobs.Push(PlayVideo("vol42a.anm", vol42a, framespeed_14));
+	jobs.Push(PlayVideo("vol43a.anm", vol43a, framespeed_10));
+	RunScreenJob(jobs, completion, SJ_SKIPALL);
 }
 
 //---------------------------------------------------------------------------
@@ -1194,8 +1190,10 @@ public:
 
 void loadscreen_d(MapRecord *rec, CompletionFunc func)
 {
-	JobDesc job = { Create<DDukeLoadScreen>(rec) };
-	RunScreenJob(&job, 1, func);
+	TArray<DScreenJob*> jobs(1, true);
+
+	jobs[0] = Create<DDukeLoadScreen>(rec);
+	RunScreenJob(jobs, func);
 }
 
 void PrintPaused_d()

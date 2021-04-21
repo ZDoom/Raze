@@ -520,15 +520,14 @@ DScreenJob *PlayMovie(const char* fileName);
 
 void DoTitle(CompletionFunc completion)
 {
-    JobDesc jobs[5];
-    int job = 0;
+    TArray<DScreenJob*> jobs;
 
-    jobs[job++] = { Create<DImageScreen>(tileGetTexture(PublisherLogo()), DScreenJob::fadein | DScreenJob::fadeout) };
-    jobs[job++] = { Create<DLobotomyScreen>(tileGetTexture(seq_GetSeqPicnum(kSeqScreens, 0, 0)), DScreenJob::fadein | DScreenJob::fadeout) };
-    jobs[job++] = { PlayMovie("book.mov") };
-    jobs[job++] = { Create<DMainTitle>() };
+    jobs.Push(Create<DImageScreen>(tileGetTexture(PublisherLogo()), DScreenJob::fadein | DScreenJob::fadeout));
+    jobs.Push(Create<DLobotomyScreen>(tileGetTexture(seq_GetSeqPicnum(kSeqScreens, 0, 0)), DScreenJob::fadein | DScreenJob::fadeout));
+    jobs.Push(PlayMovie("book.mov"));
+    jobs.Push(Create<DMainTitle>());
 
-    RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
+    RunScreenJob(jobs, completion, SJ_BLOCKUI);
 
 }
 
@@ -815,7 +814,7 @@ public:
 	}
 };
 
- void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<JobDesc> &jobs)
+ void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<DScreenJob*> &jobs)
  {
 	 if (nLevel > kMap20 || nLevelNew > kMap20) // max single player levels
 	 {
@@ -829,7 +828,7 @@ public:
 	 if (nLevelNew < 1) nLevelNew = nLevel;
 	 
      // 0-offset the level numbers
-     jobs.Push( { Create<DMapScreen>(nLevel-1, nLevelNew-1, nLevelBest-1) });
+     jobs.Push(Create<DMapScreen>(nLevel-1, nLevelNew-1, nLevelBest-1));
  }
 
 //---------------------------------------------------------------------------
@@ -1346,37 +1345,37 @@ public:
 
 void DoGameOverScene(bool finallevel)
 {
-    JobDesc job;
+    TArray<DScreenJob*> jobs(1, true);
 
     if (finallevel)
     {
-        job = { Create<DCinema>(CINEMA_LOSE_SCENE) };
+        jobs[0] = Create<DCinema>(CINEMA_LOSE_SCENE);
     }
     else
     {
         StopCD();
         PlayGameOverSound();
-        job = { Create<DImageScreen>(tileGetTexture(kTile3591), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff, TRANSLATION(Translation_BasePalettes, 16)) };
+        jobs[0] = Create<DImageScreen>(tileGetTexture(kTile3591), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff, TRANSLATION(Translation_BasePalettes, 16));
     }
-    RunScreenJob(&job, 1, [](bool) { gameaction = ga_mainmenu; });
+    RunScreenJob(jobs, [](bool) { gameaction = ga_mainmenu; });
 }
 
 
-void DoAfterCinemaScene(int nLevel, TArray<JobDesc>& jobs)
+void DoAfterCinemaScene(int nLevel, TArray<DScreenJob*>& jobs)
 {
     int scene = -1;
     if (nLevel == 10) scene = CINEMA_AFTER_LEVEL_10;
     if (nLevel == 15) scene = CINEMA_AFTER_LEVEL_15;
     if (nLevel == 20) scene = CINEMA_AFTER_LEVEL_20;
-    if (scene > 0) jobs.Push({ Create<DCinema>(scene) });
-    if (nLevel == 19) { jobs.Push({ Create<DLastLevelCinema>() }); selectedlevelnew = 20; }
-    if (nLevel == 20) jobs.Push({ Create<DExCredits>() });
+    if (scene > 0) jobs.Push(Create<DCinema>(scene));
+    if (nLevel == 19) { jobs.Push(Create<DLastLevelCinema>()); selectedlevelnew = 20; }
+    if (nLevel == 20) jobs.Push(Create<DExCredits>());
 }
 
-void DoBeforeCinemaScene(int nLevel, TArray<JobDesc>& jobs)
+void DoBeforeCinemaScene(int nLevel, TArray<DScreenJob*>& jobs)
 {
-    if (nLevel == 5) jobs.Push({ Create<DCinema>(CINEMA_BEFORE_LEVEL_5) });
-    else if (nLevel == 11) jobs.Push({ Create<DCinema>(CINEMA_BEFORE_LEVEL_11, 11) });
+    if (nLevel == 5) jobs.Push(Create<DCinema>(CINEMA_BEFORE_LEVEL_5));
+    else if (nLevel == 11) jobs.Push(Create<DCinema>(CINEMA_BEFORE_LEVEL_11, 11));
 }
 
 END_PS_NS

@@ -88,11 +88,10 @@ void Logo(const CompletionFunc& completion)
 
     if (!userConfig.nologo)
 	{
-		JobDesc jobs[3];
-		int job = 0;
-		jobs[job++] = { Create<DSWDRealmsScreen>() };
-		jobs[job++] = { PlayVideo("sw.anm", logosound, logoframetimes, true)};
-		RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
+        TArray<DScreenJob*> jobs;
+        jobs.Push(Create<DSWDRealmsScreen>());
+		jobs.Push(PlayVideo("sw.anm", logosound, logoframetimes, true));
+		RunScreenJob(jobs, completion, SJ_BLOCKUI);
 	}
 	else completion(false);
 }
@@ -606,26 +605,25 @@ class DSWMultiSummaryScreen : public DSkippableScreenJob
 
 void StatScreen(int FinishAnim, CompletionFunc completion)
 {
-    JobDesc jobs[5];
-    int job = 0;
+    TArray<DScreenJob*> jobs;
 
     if (FinishAnim)
     {
         StopSound();
-        jobs[job++] = { GetFinishAnim(FinishAnim) };
-        jobs[job++] = { Create<DSWLevelSummaryScreen>() };
+        jobs.Push(GetFinishAnim(FinishAnim));
+        jobs.Push(Create<DSWLevelSummaryScreen>());
         if (FinishAnim == ANIM_ZILLA)
-            jobs[job++] = { Create<DSWCreditsScreen>() };
+            jobs.Push(Create<DSWCreditsScreen>());
     }
     else if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
     {
-        jobs[job++] = { Create<DSWLevelSummaryScreen>() };
+        jobs.Push(Create<DSWLevelSummaryScreen>());
     }
     else
     {
-        jobs[job++] = { Create<DSWMultiSummaryScreen>() };
+        jobs.Push(Create<DSWMultiSummaryScreen>());
     }
-    RunScreenJob(jobs, job, completion);
+    RunScreenJob(jobs, completion);
 }
 
 //---------------------------------------------------------------------------
@@ -639,8 +637,9 @@ void SybexScreen(CompletionFunc completion)
     if (!SW_SHAREWARE || CommEnabled) completion(false);
     else
     {
-        JobDesc job = { Create<DImageScreen>(tileGetTexture(5261), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff) };
-        RunScreenJob(&job, 1, completion, SJ_BLOCKUI);
+        TArray<DScreenJob*> jobs(1, true);
+        jobs[0] = Create<DImageScreen>(tileGetTexture(5261), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff);
+        RunScreenJob(jobs, completion, SJ_BLOCKUI);
     }
 }
 
@@ -670,8 +669,9 @@ public:
 
 void loadscreen(MapRecord* rec, CompletionFunc func)
 {
-    JobDesc job = { Create<DSWLoadScreen>(rec) };
-    RunScreenJob(&job, 1, func);
+    TArray<DScreenJob*> jobs(1, true);
+    jobs[0] = Create<DSWLoadScreen>(rec);
+    RunScreenJob(jobs, func);
 }
 
 END_SW_NS

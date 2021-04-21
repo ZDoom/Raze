@@ -138,12 +138,6 @@ public:
 //
 //---------------------------------------------------------------------------
 
-struct JobDesc
-{
-	DScreenJob* job;
-};
-
-
 class ScreenJobRunner
 {
 	enum
@@ -152,7 +146,7 @@ class ScreenJobRunner
 		State_Run,
 		State_Fadeout
 	};
-	TArray<JobDesc> jobs;
+	TArray<DScreenJob*> jobs;
 	CompletionFunc completion;
 	int index = -1;
 	float screenfade;
@@ -164,7 +158,7 @@ class ScreenJobRunner
 	int last_paused_tic = -1;
 
 public:
-	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_, bool skipall_);
+	ScreenJobRunner(TArray<DScreenJob*>& jobs, CompletionFunc completion_, bool clearbefore_, bool skipall_);
 	~ScreenJobRunner();
 	void DeleteJobs();
 	void AdvanceJob(bool skip);
@@ -186,7 +180,7 @@ enum
 };
 
 
-void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, int flags = 0);
+void RunScreenJob(TArray<DScreenJob*>& jobs, CompletionFunc completion, int flags = 0);
 void EndScreenJob();
 void DeleteScreenJob();
 bool ScreenJobResponder(event_t* ev);

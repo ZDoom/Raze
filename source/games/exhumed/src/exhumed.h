@@ -54,8 +54,8 @@ void SetHiRes();
 void BlackOut();
 
 void DoGameOverScene(bool finallevel);
-void DoAfterCinemaScene(int nLevel, TArray<JobDesc> &jobs);
-void DoBeforeCinemaScene(int nLevel, TArray<JobDesc>& jobs);
+void DoAfterCinemaScene(int nLevel, TArray<DScreenJob*> &jobs);
+void DoBeforeCinemaScene(int nLevel, TArray<DScreenJob*>& jobs);
 
 int Query(short n, short l, ...);
 
@@ -88,7 +88,7 @@ void InitNewGame();
 
 int showmap(short nLevel, short nLevelNew, short nLevelBest);
 void menu_DoPlasma();
-void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<JobDesc>& jobs);
+void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<DScreenJob*>& jobs);
 void DoEnergyTile();
 void InitEnergyTile();
 
