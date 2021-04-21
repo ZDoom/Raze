@@ -894,12 +894,12 @@ SetupRipper2(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum, RIPPER2_RUN_R0, s_Ripper2Run[0]);
+        u = SpawnUser(SpriteNum, RIPPER2_RUN_R0, s_Ripper2Run[0]);
         u->Health = HEALTH_RIPPER2;
     }
 
@@ -940,7 +940,7 @@ int
 InitRipper2Hang(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int dist;
 
     hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
@@ -1000,7 +1000,7 @@ InitRipper2Hang(short SpriteNum)
 int
 DoRipper2Hang(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return 0;
@@ -1016,7 +1016,7 @@ int
 DoRipper2MoveHang(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
     // Move while jumping
@@ -1062,7 +1062,7 @@ DoRipper2MoveHang(short SpriteNum)
 int
 DoRipper2HangJF(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1094,7 +1094,7 @@ int
 DoRipper2BeginJumpAttack(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp psp = User[SpriteNum]->tgt_sp;
     short tang;
 
@@ -1135,7 +1135,7 @@ DoRipper2BeginJumpAttack(short SpriteNum)
 int
 DoRipper2MoveJump(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1164,7 +1164,7 @@ DoRipper2MoveJump(short SpriteNum)
 int
 DoRipper2QuickJump(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // Tests to see if ripper2 is on top of a player/enemy and then immediatly
     // does another jump
@@ -1189,7 +1189,7 @@ DoRipper2QuickJump(short SpriteNum)
 int
 NullRipper2(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -1202,7 +1202,7 @@ NullRipper2(short SpriteNum)
 
 int DoRipper2Pain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullRipper2(SpriteNum);
 
@@ -1215,7 +1215,7 @@ int DoRipper2Pain(short SpriteNum)
 int DoRipper2RipHeart(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SPRITEp tsp = u->tgt_sp;
 
@@ -1230,7 +1230,7 @@ int DoRipper2RipHeart(short SpriteNum)
 int DoRipper2StandHeart(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullRipper2(SpriteNum);
 
@@ -1274,7 +1274,7 @@ void Ripper2Hatch(short Weapon)
         np->pal = 0;
         np->shade = -10;
         SetupRipper2(New);
-        nu = User[New];
+        nu = User[New].Data();
 
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
@@ -1300,7 +1300,7 @@ int
 DoRipper2Move(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     
     if (sp->hitag == TAG_SWARMSPOT && sp->lotag == 1)
         DoCheckSwarm(SpriteNum);

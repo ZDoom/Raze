@@ -847,13 +847,6 @@ struct PLAYERstruct
     int slide_dec;
     float drive_avel;
 
-
-
-    // scroll 2D mode stuff
-    int scr_x, scr_y, oscr_x, oscr_y;
-    int scr_xvect, scr_yvect;
-    short scr_ang, oscr_ang, scr_sectnum;
-
     short view_outside_dang;  // outside view delta ang
     short circle_camera_ang;
     short camera_check_time_delay;
@@ -985,7 +978,7 @@ struct PLAYERstruct
     short Heads;                    // Number of Accursed Heads orbiting player
     int PlayerVersion;
 
-    char cookieQuote[256];          // Should be an FString but must be POD for now to be storable in a savegame.
+    char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
     int cookieTime;
 
     char WpnReloadState;
@@ -1094,7 +1087,7 @@ typedef struct
     STATEp *Dive;
 } ACTOR_ACTION_SET,*ACTOR_ACTION_SETp;
 
-typedef struct
+struct ROTATOR
 {
     int pos;           // current position - always moves toward tgt
     int open_dest;     // destination of open position
@@ -1102,25 +1095,54 @@ typedef struct
     int speed;         // speed of movement
     int orig_speed;    // original speed - vel jacks with speed
     int vel;           // velocity adjuments
-    int num_walls;     // save off positions of walls for rotator
-    int *origx;
-    int *origy;
-} ROTATOR, *ROTATORp;
+
+    TArray<int> origX;
+    TArray<int> origY;
+
+    void SetNumWalls(int num)
+    {
+        origX.Resize(num);
+        origY.Resize(num);
+        memset(origX.Data(), 0, num * sizeof(int));
+        memset(origY.Data(), 0, num * sizeof(int));
+    }
+
+    void ClearWalls()
+    {
+        origX.Reset();
+        origY.Reset();
+    }
+
+};
+
+using ROTATORp = ROTATOR*;
 
 //
 // User Extension record
 //
 
-typedef struct
+struct USER
 {
+    // C++'s default init rules suck, so we have to help it out a bit to do what we need (i.e. setting all POD members to 0.
+    USER()
+    {
+        memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
+    }
+
+    void Clear()
+    {
+        rotator.Clear();
+        WallShade.Clear();
+        memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
+    }
+
     //
     // Variables that can be used by actors and Player
     //
-    ROTATORp rotator;
+    TPointer<ROTATOR> rotator;
 
     // wall vars for lighting
-    int WallCount;
-    int8_t* WallShade; // malloced - save off wall shades for lighting
+    TArray<int8_t> WallShade;
 
     WALLp WallP; // operate on wall instead of sprite
     STATEp State;
@@ -1265,7 +1287,9 @@ typedef struct
     int16_t oangdiff;      // Used for interpolating sprite angles
 
     uint8_t filler;
-} USER,*USERp;
+};
+
+using USERp = USER*;
 
 struct USERSAVE
 {
@@ -1428,32 +1452,12 @@ struct USERSAVE
 #define SPR2_DONT_TARGET_OWNER  (BIT(24))
 
 
-extern USERp User[MAXSPRITES];
+extern TPointer<USER> User[MAXSPRITES];
 
 typedef struct
 {
     short high;
 } RANGE,*RANGEp;
-
-
-inline void ClearUser(USER* user)
-{
-    *user = {};
-}
-
-inline USER* NewUser()
-{
-    auto u = (USER*)M_Calloc(sizeof(USER), 1);// new USER;
-    ClearUser(u);
-    return u;
-}
-
-inline void FreeUser(int num)
-{
-    if (User[num]) M_Free(User[num]);// delete User[num];
-    User[num] = nullptr;
-}
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1540,10 +1544,11 @@ enum ShrapType
     SHRAP_USER_DEFINED      = 99
 };
 
-typedef struct
+typedef struct SECT_USER
 {
+    SECT_USER() { memset(this, 0, sizeof(*this)); }
     int dist, flags;
-    short depth_fract, depth; // do NOT change this, doubles as a long FIXED point number
+    int depth_fixed;
     short stag,    // ST? tag number - for certain things it helps to know it
           ang,
           height,
@@ -1551,9 +1556,9 @@ typedef struct
           damage,
           number;  // usually used for matching number
     uint8_t    flags2;
-} SECT_USER, *SECT_USERp;
+} *SECT_USERp;
 
-extern SECT_USERp SectUser[MAXSECTORS];
+extern TPointer<SECT_USER> SectUser[MAXSECTORS];
 SECT_USERp SpawnSectUser(short sectnum);
 
 
@@ -1604,30 +1609,30 @@ typedef struct
     short sector, angopen, angclosed, angopendir, sang, anginc, wall[17];
 } SWING;
 
-typedef struct
+typedef struct SINE_WAVE_FLOOR
 {
     int floor_origz, ceiling_origz, range;
     short sector, sintable_ndx, speed_shift;
-    char flags;
-} SINE_WAVE_FLOOR, *SINE_WAVE_FLOORp;
+    uint8_t flags;
+} *SINE_WAVE_FLOORp;
 
 #define MAX_SINE_WAVE 6
 extern SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 
-typedef struct
+typedef struct SINE_WALL
 {
     int orig_xy, range;
     short wall, sintable_ndx, speed_shift, type;
-} SINE_WALL, *SINE_WALLp;
+} *SINE_WALLp;
 
 #define MAX_SINE_WALL 10
 #define MAX_SINE_WALL_POINTS 64
 extern SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 
-typedef struct
+struct SPRING_BOARD
 {
     short Sector, TimeOut;
-} SPRING_BOARD;
+};
 
 extern SPRING_BOARD SpringBoard[20];
 extern SWING Rotate[17];
@@ -1646,17 +1651,14 @@ typedef void ANIM_CALLBACK (ANIMp, void *);
 typedef ANIM_CALLBACK *ANIM_CALLBACKp;
 typedef void *ANIM_DATAp;
 
-struct ANIMstruct
+enum
 {
-    int *ptr, goal;
-    int vel;
-    short vel_adj;
-    ANIM_CALLBACKp callback;
-    ANIM_DATAp callbackdata;
+    ANIM_Floorz,
+    ANIM_SopZ,
+    ANIM_Spritez,
+    ANIM_Userz,
+    ANIM_SUdepth,
 };
-
-extern ANIM Anim[MAXANIM];
-extern short AnimCnt;
 
 
 typedef struct TRACK_POINT
@@ -1669,8 +1671,8 @@ typedef struct TRACK
 {
     TRACK_POINTp TrackPoint;
     int ttflags;
-    short flags;
-    short NumPoints;
+    int flags;
+    int NumPoints;
 
     void FreeTrackPoints()
     {
@@ -1871,6 +1873,39 @@ struct SECTOR_OBJECTstruct
 
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
+
+struct ANIMstruct
+{
+    int animtype, index;
+    int goal;
+    int vel;
+    short vel_adj;
+    ANIM_CALLBACKp callback;
+    SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
+
+    int& Addr()
+    {
+        switch (animtype)
+        {
+        case ANIM_Floorz:
+            return sector[index].floorz;
+        case ANIM_SopZ:
+            return SectorObject[index].zmid;
+        case ANIM_Spritez:
+            return sprite[index].z;
+        case ANIM_Userz:
+            return User[index]->sz;
+        case ANIM_SUdepth:
+            return SectUser[index]->depth_fixed;
+        default:
+            return index;
+        }
+    }
+};
+
+extern ANIM Anim[MAXANIM];
+extern short AnimCnt;
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
 // Prototypes
@@ -1945,11 +1980,10 @@ void PlayerUpdateKills(PLAYERp pp, short value);
 void RefreshInfoLine(PLAYERp pp);
 
 void DoAnim(int numtics);
-void AnimDelete(int *animptr);
-short AnimGetGoal(int *animptr);
-short AnimSet(int *animptr, int thegoal, int thevel);
-//short AnimSetCallback(int *animptr, int thegoal, int thevel, ANIM_CALLBACKp call, ANIM_DATAp data);
-short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, ANIM_DATAp data);
+void AnimDelete(int animtype, int animindex);
+short AnimGetGoal(int animtype, int animindex);
+short AnimSet(int animtype, int animindex, int thegoal, int thevel);
+short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
 void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person);
@@ -2126,7 +2160,6 @@ int GetZadjustment(short sectnum,short hitag);  // rooms.c
 void InitSetup(void);   // setup.c
 
 void LoadKVXFromScript(const char *filename); // scrip2.c
-void LoadPLockFromScript(const char *filename);   // scrip2.c
 void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 
 int PlayerInitChemBomb(PLAYERp pp); // jweapon.c
@@ -2216,8 +2249,7 @@ struct GameInterface : ::GameInterface
 	bool CanSave() override;
 	bool StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
-	bool LoadGame() override;
-	bool SaveGame() override;
+    void SerializeGameState(FSerializer& arc);
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;

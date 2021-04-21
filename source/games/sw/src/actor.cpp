@@ -60,7 +60,7 @@ int
 DoScaleSprite(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int scale_value;
 
     if (u->scale_speed)
@@ -92,7 +92,7 @@ DoScaleSprite(short SpriteNum)
 int
 DoActorDie(short SpriteNum, short weapon)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = &sprite[SpriteNum];
 
 
@@ -299,8 +299,8 @@ DoDebrisCurrent(SPRITEp sp)
 {
     int nx, ny;
     int ret=0;
-    USERp u = User[sp - sprite];
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    USERp u = User[sp - sprite].Data();
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
 
     //sp->clipdist = (256+128)>>2;
 
@@ -329,8 +329,8 @@ int
 DoActorSectorDamage(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    USERp u = User[SpriteNum].Data();
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
     if (u->Health <= 0)
@@ -396,7 +396,7 @@ DoActorSectorDamage(short SpriteNum)
 int
 move_debris(short SpriteNum, int xchange, int ychange, int zchange)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->ret = move_sprite(SpriteNum, xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
@@ -411,7 +411,7 @@ int
 DoActorDebris(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SECTORp sectp = &sector[sp->sectnum];
     int nx, ny;
 
@@ -455,7 +455,7 @@ DoActorDebris(short SpriteNum)
             }
         }
 
-        if (SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth > 10) // JBF: added null check
+        if (SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed) > 10) // JBF: added null check
         {
             u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 3)) & 1023;
             //sp->z = Z(2) + u->loz + ((Z(4) * (int) bsin(u->WaitTics)) >> 14);
@@ -475,7 +475,7 @@ int
 DoFireFly(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
     nx = 4 * ACTORMOVETICS * bcos(sp->ang) >> 14;
@@ -497,7 +497,7 @@ int
 DoGenerateSewerDebris(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short n;
 
     static STATEp Debris[] =
@@ -527,7 +527,7 @@ DoGenerateSewerDebris(short SpriteNum)
 void
 KeepActorOnFloor(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SECTORp sectp;
     int depth;
@@ -539,8 +539,8 @@ KeepActorOnFloor(short SpriteNum)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         return;
 
-    if (u->lo_sectp && SectUser[u->lo_sectp - sector])
-        depth = SectUser[u->lo_sectp - sector]->depth;
+    if (u->lo_sectp && SectUser[u->lo_sectp - sector].Data())
+        depth = FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed);
     else
         depth = 0;
 
@@ -619,7 +619,7 @@ KeepActorOnFloor(short SpriteNum)
 int
 DoActorBeginSlide(short SpriteNum, short ang, short vel, short dec)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SET(u->Flags, SPR_SLIDING);
 
@@ -638,7 +638,7 @@ DoActorBeginSlide(short SpriteNum, short ang, short vel, short dec)
 int
 DoActorSlide(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
     nx = MulScale(u->slide_vel, bcos(u->slide_ang), 14);
@@ -665,7 +665,7 @@ DoActorSlide(short SpriteNum)
 int
 DoActorBeginJump(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -695,7 +695,7 @@ DoActorBeginJump(short SpriteNum)
 int
 DoActorJump(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int jump_adj;
@@ -741,7 +741,7 @@ DoActorJump(short SpriteNum)
 int
 DoActorBeginFall(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SET(u->Flags, SPR_FALLING);
     RESET(u->Flags, SPR_JUMPING);
@@ -773,7 +773,7 @@ DoActorBeginFall(short SpriteNum)
 int
 DoActorFall(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     // adjust jump speed by gravity
@@ -794,7 +794,7 @@ DoActorFall(short SpriteNum)
 int
 DoActorStopFall(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     sp->z = u->loz;
@@ -847,7 +847,7 @@ DoActorDeathMove(short SpriteNum)
 {
     ANIMATOR DoFindGround;
 
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -876,7 +876,7 @@ DoActorDeathMove(short SpriteNum)
 int
 DoBeginJump(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -892,7 +892,7 @@ DoBeginJump(short SpriteNum)
 int
 DoJump(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int jump_adj;
@@ -932,7 +932,7 @@ DoJump(short SpriteNum)
 int
 DoBeginFall(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SET(u->Flags, SPR_FALLING);
     RESET(u->Flags, SPR_JUMPING);
@@ -948,7 +948,7 @@ DoBeginFall(short SpriteNum)
 int
 DoFall(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     // adjust jump speed by gravity
@@ -970,7 +970,7 @@ DoFall(short SpriteNum)
 int
 DoFall(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     // adjust jump speed by gravity

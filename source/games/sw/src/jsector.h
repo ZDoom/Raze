@@ -54,7 +54,7 @@ typedef struct
     // level for a
     // max of up to 4 coolie ghosts to spawn.
     bool ismagic;                       // Is this a magic mirror?
-    MIRRORSTATE mstate;                 // What state the mirror is currently
+    uint8_t mstate;                 // What state the mirror is currently
     // in
     int maxtics;                       // Tic count used to time mirror
     // events
@@ -74,9 +74,6 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio);
 void JS_CameraParms(PLAYERp pp, int tx, int ty, int tz);
 void JS_DrawMirrors(PLAYERp pp,int tx,int ty,int tz,fixed_t tpq16ang,fixed_t tpq16horiz);
 void JS_InitMirrors(void);
-void JS_InitLockouts(void);
-void JS_ToggleLockouts(void);
-void JS_UnInitLockouts(void);
 void JS_ProcessEchoSpot(void);
 void JS_SpriteSetup(void);
 

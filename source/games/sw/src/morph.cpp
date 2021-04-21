@@ -357,7 +357,7 @@ MorphTornado(SECTOR_OBJECTp sop)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector] &&
+        if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
 #define TOR_LOW (floorz)
@@ -450,7 +450,7 @@ MorphFloor(SECTOR_OBJECTp sop)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector] &&
+        if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(*sectp - sector, mx, my, floorz + sop->morph_z);
@@ -466,7 +466,7 @@ SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector] &&
+        if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(*sectp - sector, x, y, z);
@@ -482,7 +482,7 @@ SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector] &&
+        if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignceilslope(*sectp - sector, x, y, z);
@@ -498,7 +498,7 @@ SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector] &&
+        if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(*sectp - sector, x, y, z);

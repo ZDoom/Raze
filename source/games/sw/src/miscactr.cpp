@@ -119,12 +119,12 @@ SetupToiletGirl(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,TOILETGIRL_R0,s_ToiletGirlStand);
+        u = SpawnUser(SpriteNum,TOILETGIRL_R0,s_ToiletGirlStand);
         u->Health = 60;
     }
 
@@ -151,7 +151,7 @@ SetupToiletGirl(short SpriteNum)
 
 int DoToiletGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -209,7 +209,7 @@ int DoToiletGirl(short SpriteNum)
 
 int NullToiletGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -241,7 +241,7 @@ int NullToiletGirl(short SpriteNum)
 
 int ToiletGirlUzi(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -258,7 +258,7 @@ int ToiletGirlUzi(short SpriteNum)
 
 int ToiletGirlPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullToiletGirl(SpriteNum);
 
@@ -359,12 +359,12 @@ SetupWashGirl(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,WASHGIRL_R0,s_WashGirlStand);
+        u = SpawnUser(SpriteNum,WASHGIRL_R0,s_WashGirlStand);
         u->Health = 60;
     }
 
@@ -390,7 +390,7 @@ SetupWashGirl(short SpriteNum)
 
 int DoWashGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -454,7 +454,7 @@ int DoWashGirl(short SpriteNum)
 
 int NullWashGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -486,7 +486,7 @@ int NullWashGirl(short SpriteNum)
 
 int WashGirlUzi(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -503,7 +503,7 @@ int WashGirlUzi(short SpriteNum)
 
 int WashGirlPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullWashGirl(SpriteNum);
 
@@ -568,12 +568,12 @@ SetupTrashCan(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,TRASHCAN,s_TrashCanStand);
+        u = SpawnUser(SpriteNum,TRASHCAN,s_TrashCanStand);
         u->Health = 60;
     }
 
@@ -599,7 +599,7 @@ SetupTrashCan(short SpriteNum)
 
 int DoTrashCan(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //(*u->ActorActionFunc) (SpriteNum);
@@ -620,7 +620,7 @@ int DoTrashCan(short SpriteNum)
 
 int TrashCanPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -676,12 +676,12 @@ SetupPachinkoLight(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,PACHINKOLIGHT_R0,s_PachinkoLightStand);
+        u = SpawnUser(SpriteNum,PACHINKOLIGHT_R0,s_PachinkoLightStand);
         u->Health = 1;
     }
 
@@ -708,7 +708,7 @@ SetupPachinkoLight(short SpriteNum)
 int PachinkoLightOperate(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -777,12 +777,12 @@ SetupPachinko1(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,PACHINKO1,s_Pachinko1Stand);
+        u = SpawnUser(SpriteNum,PACHINKO1,s_Pachinko1Stand);
         u->Health = 1;
     }
 
@@ -807,7 +807,7 @@ SetupPachinko1(short SpriteNum)
 int PachinkoCheckWin(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->WaitTics = 0;  // Can operate it again now
 
@@ -840,7 +840,7 @@ int PachinkoCheckWin(short SpriteNum)
         while ((i = it.NextIndex()) >= 0)
         {
             tsp = &sprite[i];
-            tu = User[i];
+            tu = User[i].Data();
 
             if (tsp->lotag == TAG_PACHINKOLIGHT)
             {
@@ -947,12 +947,12 @@ SetupPachinko2(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,PACHINKO2,s_Pachinko2Stand);
+        u = SpawnUser(SpriteNum,PACHINKO2,s_Pachinko2Stand);
         u->Health = 1;
     }
 
@@ -1031,12 +1031,12 @@ SetupPachinko3(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,PACHINKO3,s_Pachinko3Stand);
+        u = SpawnUser(SpriteNum,PACHINKO3,s_Pachinko3Stand);
         u->Health = 1;
     }
 
@@ -1116,12 +1116,12 @@ SetupPachinko4(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,PACHINKO4,s_Pachinko4Stand);
+        u = SpawnUser(SpriteNum,PACHINKO4,s_Pachinko4Stand);
         u->Health = 1;
     }
 
@@ -1229,12 +1229,12 @@ SetupCarGirl(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,CARGIRL_R0,s_CarGirlStand);
+        u = SpawnUser(SpriteNum,CARGIRL_R0,s_CarGirlStand);
         u->Health = 60;
     }
 
@@ -1262,7 +1262,7 @@ SetupCarGirl(short SpriteNum)
 
 int DoCarGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1311,7 +1311,7 @@ int DoCarGirl(short SpriteNum)
 
 int NullCarGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1350,7 +1350,7 @@ int NullCarGirl(short SpriteNum)
 
 int CarGirlUzi(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1367,7 +1367,7 @@ int CarGirlUzi(short SpriteNum)
 
 int CarGirlPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullCarGirl(SpriteNum);
 
@@ -1449,12 +1449,12 @@ SetupMechanicGirl(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,MECHANICGIRL_R0,s_MechanicGirlStand);
+        u = SpawnUser(SpriteNum,MECHANICGIRL_R0,s_MechanicGirlStand);
         u->Health = 60;
     }
 
@@ -1481,7 +1481,7 @@ SetupMechanicGirl(short SpriteNum)
 
 int DoMechanicGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1530,7 +1530,7 @@ int DoMechanicGirl(short SpriteNum)
 
 int NullMechanicGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1569,7 +1569,7 @@ int NullMechanicGirl(short SpriteNum)
 
 int MechanicGirlDrill(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1586,7 +1586,7 @@ int MechanicGirlDrill(short SpriteNum)
 
 int MechanicGirlPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullMechanicGirl(SpriteNum);
 
@@ -1668,12 +1668,12 @@ SetupSailorGirl(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,SAILORGIRL_R0,s_SailorGirlStand);
+        u = SpawnUser(SpriteNum,SAILORGIRL_R0,s_SailorGirlStand);
         u->Health = 60;
     }
 
@@ -1701,7 +1701,7 @@ SetupSailorGirl(short SpriteNum)
 
 int DoSailorGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1754,7 +1754,7 @@ int DoSailorGirl(short SpriteNum)
 
 int NullSailorGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
     static short alreadythrew = 0;
@@ -1798,7 +1798,7 @@ int NullSailorGirl(short SpriteNum)
 
 int SailorGirlThrow(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1815,7 +1815,7 @@ int SailorGirlThrow(short SpriteNum)
 
 int SailorGirlPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullSailorGirl(SpriteNum);
 
@@ -1881,12 +1881,12 @@ SetupPruneGirl(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,PRUNEGIRL_R0,s_PruneGirlStand);
+        u = SpawnUser(SpriteNum,PRUNEGIRL_R0,s_PruneGirlStand);
         u->Health = 60;
     }
 
@@ -1913,7 +1913,7 @@ SetupPruneGirl(short SpriteNum)
 
 int DoPruneGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1978,7 +1978,7 @@ int DoPruneGirl(short SpriteNum)
 
 int NullPruneGirl(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -2016,7 +2016,7 @@ int NullPruneGirl(short SpriteNum)
 
 int PruneGirlUzi(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -2033,7 +2033,7 @@ int PruneGirlUzi(short SpriteNum)
 
 int PruneGirlPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullPruneGirl(SpriteNum);
 

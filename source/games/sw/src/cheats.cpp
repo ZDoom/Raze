@@ -196,7 +196,7 @@ static cheatseq_t swcheats[] = {
 static void WeaponCheat(int player)
 {
     auto p = &Player[player];
-    auto u = User[p->PlayerSprite];
+    auto u = User[p->PlayerSprite].Data();
 
     if (!TEST(p->Flags, PF_TWO_UZI))
     {
@@ -241,7 +241,7 @@ static void ItemCheat(int player)
 
     for (int i = 0; i < numsectors; i++)
     {
-        if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR)
+        if (SectUser[i].Data() && SectUser[i]->stag == SECT_LOCK_DOOR)
             SectUser[i]->number = 0;  // unlock all doors of this type
     }
 }
@@ -280,7 +280,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
     case GIVE_AMMO:
     {
         auto p = &Player[player];
-        auto u = User[p->PlayerSprite];
+        auto u = User[p->PlayerSprite].Data();
 
         p->WpnShotgunAuto = 50;
         p->WpnRocketHeat = 5;

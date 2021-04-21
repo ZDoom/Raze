@@ -78,8 +78,8 @@ void SectorLightShade(SPRITEp sp, short intensity)
     // change wall
     if (!TEST_BOOL4(sp))
     {
-        ASSERT(User[sp - sprite] && User[sp - sprite]->WallShade);
-        wall_shade = User[sp - sprite]->WallShade;
+        ASSERT(User[sp - sprite].Data() && User[sp - sprite]->WallShade.Data());
+        wall_shade = User[sp - sprite]->WallShade.Data();
 
         startwall = sector[sp->sectnum].wallptr;
         endwall = startwall + sector[sp->sectnum].wallnum - 1;

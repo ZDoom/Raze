@@ -1,7 +1,6 @@
 
 /*
 ** def.cpp
-** Rewritten .def parser free of Build license restrictions.
 **
 **---------------------------------------------------------------------------
 ** Copyright 2021 Christoph Oelckers

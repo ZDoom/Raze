@@ -704,12 +704,12 @@ SetupSerp(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,SERP_RUN_R0,s_SerpRun[0]);
+        u = SpawnUser(SpriteNum,SERP_RUN_R0,s_SerpRun[0]);
         u->Health = HEALTH_SERP_GOD;
     }
 
@@ -755,7 +755,7 @@ SetupSerp(short SpriteNum)
 
 int NullSerp(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -769,7 +769,7 @@ int NullSerp(short SpriteNum)
 int DoSerpMove(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);

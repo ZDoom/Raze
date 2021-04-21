@@ -79,7 +79,7 @@ Distance(int x1, int y1, int x2, int y2)
 void DebugMoveHit(short SpriteNum)
 {
     SPRITEp sp;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     return;
 
@@ -116,7 +116,7 @@ void DebugMoveHit(short SpriteNum)
 
 bool ActorMoveHitReact(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // Should only return true if there is a reaction to what was hit that
     // would cause the calling function to abort
@@ -129,7 +129,7 @@ bool ActorMoveHitReact(short SpriteNum)
         USERp hu;
         ANIMATORp action;
 
-        hu = User[HitSprite];
+        hu = User[HitSprite].Data();
 
 
         // if you ran into a player - call close range functions
@@ -163,7 +163,7 @@ bool ActorMoveHitReact(short SpriteNum)
 
 bool ActorFlaming(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (u->flame >= 0)
@@ -186,7 +186,7 @@ bool ActorFlaming(short SpriteNum)
 void
 DoActorSetSpeed(short SpriteNum, uint8_t speed)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
@@ -252,7 +252,7 @@ ChooseActionNumber(short decision[])
 int
 DoActorNoise(ANIMATORp Action, short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (Action == InitActorAmbientNoise)
     {
@@ -310,7 +310,7 @@ DoActorNoise(ANIMATORp Action, short SpriteNum)
 
 bool CanSeePlayer(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     // if actor can still see the player
@@ -328,7 +328,7 @@ bool CanSeePlayer(short SpriteNum)
 int
 CanHitPlayer(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP, hp;
     hitdata_t hitinfo;
     int xvect,yvect,zvect;
@@ -391,7 +391,7 @@ int
 DoActorPickClosePlayer(short SpriteNum)
 {
     //extern short Zombies;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int dist, near_dist = MAX_ACTIVE_RANGE, a,b,c;
     short pnum;
@@ -515,7 +515,7 @@ TARGETACTOR:
 int
 GetPlayerSpriteNum(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short pnum;
     PLAYERp pp;
 
@@ -546,7 +546,7 @@ CloseRangeDist(SPRITEp sp1, SPRITEp sp2)
 int DoActorOperate(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short nearsector, nearwall, nearsprite;
     int nearhitdist;
     int z[2];
@@ -634,7 +634,7 @@ DECISION GenericFlaming[] =
 ANIMATORp
 DoActorActionDecide(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int dist;
     ANIMATORp action;
@@ -706,7 +706,7 @@ DoActorActionDecide(short SpriteNum)
         }
 
 
-        pu = User[GetPlayerSpriteNum(SpriteNum)];
+        pu = User[GetPlayerSpriteNum(SpriteNum)].Data();
         // check for short range attack possibility
         if ((dist < CloseRangeDist(sp, u->tgt_sp) && ICanSee) ||
             (pu && pu->WeaponNum == WPN_FIST && u->ID != RIPPER2_RUN_R0 && u->ID != RIPPER_RUN_R0))
@@ -822,7 +822,7 @@ DoActorActionDecide(short SpriteNum)
 int
 InitActorDecide(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // NOTE: It is possible to overflow the stack with too many calls to this
     // routine
@@ -842,7 +842,7 @@ InitActorDecide(short SpriteNum)
 int
 DoActorDecide(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     ANIMATORp actor_action;
 
@@ -898,7 +898,7 @@ int sw_snd_scratch = 0;
 int
 InitActorAlertNoise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 1;
     // MONO_PRINT(strcpy(ds,"Init Actor Threat Noise"));
 
@@ -914,7 +914,7 @@ InitActorAlertNoise(short SpriteNum)
 int
 InitActorAmbientNoise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 2;
 
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
@@ -930,7 +930,7 @@ InitActorAmbientNoise(short SpriteNum)
 int
 InitActorAttackNoise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 3;
 
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
@@ -946,7 +946,7 @@ InitActorAttackNoise(short SpriteNum)
 int
 InitActorPainNoise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 4;
 
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
@@ -962,7 +962,7 @@ InitActorPainNoise(short SpriteNum)
 int
 InitActorDieNoise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 5;
 
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
@@ -978,7 +978,7 @@ InitActorDieNoise(short SpriteNum)
 int
 InitActorExtra1Noise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 6;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -993,7 +993,7 @@ InitActorExtra1Noise(short SpriteNum)
 int
 InitActorExtra2Noise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 7;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -1008,7 +1008,7 @@ InitActorExtra2Noise(short SpriteNum)
 int
 InitActorExtra3Noise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 8;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -1023,7 +1023,7 @@ InitActorExtra3Noise(short SpriteNum)
 int
 InitActorExtra4Noise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 9;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -1038,7 +1038,7 @@ InitActorExtra4Noise(short SpriteNum)
 int
 InitActorExtra5Noise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 10;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -1053,7 +1053,7 @@ InitActorExtra5Noise(short SpriteNum)
 int
 InitActorExtra6Noise(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     sw_snd_scratch = 11;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -1073,7 +1073,7 @@ InitActorExtra6Noise(short SpriteNum)
 int
 InitActorMoveCloser(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     //MONO_PRINT("Init Actor Move Closer\n");
 
@@ -1090,7 +1090,7 @@ InitActorMoveCloser(short SpriteNum)
 int
 DoActorCantMoveCloser(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //MONO_PRINT("Can't move closer\n");
@@ -1123,7 +1123,7 @@ DoActorCantMoveCloser(short SpriteNum)
 int
 DoActorMoveCloser(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -1367,7 +1367,7 @@ FindWanderTrack(USERp u)
 int
 InitActorRunAway(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //MONO_PRINT("Init Actor RunAway\n");
@@ -1398,7 +1398,7 @@ InitActorRunAway(short SpriteNum)
 int
 InitActorRunToward(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     //MONO_PRINT("InitActorRunToward\n");
 
@@ -1421,7 +1421,7 @@ InitActorRunToward(short SpriteNum)
 int
 InitActorAttack(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     // zombie is attacking a player
@@ -1442,7 +1442,7 @@ InitActorAttack(short SpriteNum)
         return 0;
     }
 
-    if (User[u->tgt_sp-sprite] &&
+    if (User[u->tgt_sp-sprite].Data() &&
         User[u->tgt_sp-sprite]->Health <= 0)
     {
         DoActorPickClosePlayer(SpriteNum);
@@ -1458,7 +1458,7 @@ InitActorAttack(short SpriteNum)
 
     // if the guy you are after is dead, look for another and
     // reposition
-    if (User[u->tgt_sp-sprite] &&
+    if (User[u->tgt_sp-sprite].Data() &&
         User[u->tgt_sp-sprite]->PlayerP &&
         TEST(User[u->tgt_sp-sprite]->PlayerP->Flags, PF_DEAD))
     {
@@ -1526,7 +1526,7 @@ InitActorAttack(short SpriteNum)
 int
 DoActorAttack(short SpriteNum)
 {
-    USERp u = User[SpriteNum],pu;
+    USERp u = User[SpriteNum].Data(),pu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rand_num;
     int dist,a,b,c;
@@ -1535,7 +1535,7 @@ DoActorAttack(short SpriteNum)
 
     DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
 
-    pu = User[GetPlayerSpriteNum(SpriteNum)];
+    pu = User[GetPlayerSpriteNum(SpriteNum)].Data();
     if ((u->ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(sp, u->tgt_sp)) ||
         (pu && pu->WeaponNum == WPN_FIST))      // JBF: added null check
     {
@@ -1563,7 +1563,7 @@ DoActorAttack(short SpriteNum)
 int
 InitActorEvade(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //MONO_PRINT("Init Actor Evade\n");
@@ -1591,7 +1591,7 @@ InitActorEvade(short SpriteNum)
 int
 InitActorWanderAround(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //DSPRINTF(ds, "InitActorWanderAround\n");
@@ -1616,7 +1616,7 @@ InitActorWanderAround(short SpriteNum)
 int
 InitActorFindPlayer(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int DoActorFindPlayer(short SpriteNum);
 
@@ -1649,7 +1649,7 @@ InitActorFindPlayer(short SpriteNum)
 int
 InitActorDuck(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short dist;
 
@@ -1685,7 +1685,7 @@ InitActorDuck(short SpriteNum)
 int
 DoActorDuck(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if ((u->WaitTics -= ACTORMOVETICS) < 0)
     {
@@ -1701,7 +1701,7 @@ DoActorDuck(short SpriteNum)
 int
 DoActorMoveJump(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -1723,7 +1723,7 @@ DoActorMoveJump(short SpriteNum)
 
 int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int *stopz, short *stopsect)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int nx,ny;
@@ -1789,7 +1789,7 @@ int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int 
 int
 FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     static short toward_angle_delta[4][9] =
@@ -1932,7 +1932,7 @@ int
 InitActorReposition(short SpriteNum)
 {
     int DoActorReposition(short SpriteNum);
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short ang;
     int rnum;
@@ -2038,7 +2038,7 @@ InitActorReposition(short SpriteNum)
 int
 DoActorReposition(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -2069,7 +2069,7 @@ DoActorReposition(short SpriteNum)
 int
 InitActorPause(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->ActorActionFunc = DoActorPause;
 
@@ -2085,7 +2085,7 @@ InitActorPause(short SpriteNum)
 int
 DoActorPause(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // Using Vis instead of WaitTics, var name sucks, but it's the same type
     // WaitTics is used by too much other actor code and causes problems here
@@ -2106,7 +2106,7 @@ int
 InitActorReposition(short SpriteNum)
 {
     int DoActorReposition(short SpriteNum);
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //MONO_PRINT("InitActorReposition\n");
@@ -2125,7 +2125,7 @@ InitActorReposition(short SpriteNum)
 int
 DoActorReposition(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -2148,7 +2148,7 @@ DoActorReposition(short SpriteNum)
 int
 InitActorPause(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //MONO_PRINT("InitActorPause\n");
@@ -2165,7 +2165,7 @@ InitActorPause(short SpriteNum)
 int
 DoActorPause(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if ((u->WaitTics -= ACTORMOVETICS) < 0)

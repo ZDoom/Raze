@@ -41,10 +41,10 @@ BEGIN_SW_NS
 
 void ReverseSlidor(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     ROTATORp r;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     // if paused go ahead and start it up again
     if (u->Tics)
@@ -92,11 +92,11 @@ SlidorSwitch(short match, short setting)
 
 void SetSlidorActive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     DoSlidorInterp(SpriteNum, StartInterpolation);
 
@@ -115,7 +115,7 @@ void SetSlidorActive(short SpriteNum)
 
 void SetSlidorInactive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
     DoSlidorInterp(SpriteNum, StopInterpolation);
@@ -166,7 +166,7 @@ DoSlidorMatch(PLAYERp pp, short match, bool manual)
 
         if (SP_TAG1(fsp) == SECT_SLIDOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -189,7 +189,7 @@ DoSlidorMatch(PLAYERp pp, short match, bool manual)
 
             sectnum = fsp->sectnum;
 
-            if (pp && SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
+            if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
             {
                 short key_num;
 
@@ -243,7 +243,7 @@ TestSlidorMatchActive(short match)
 
         if (SP_TAG1(fsp) == SECT_SLIDOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(fsp))
@@ -537,13 +537,13 @@ int DoSlidorInstantClose(short SpriteNum)
 
 int DoSlidorMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
     int old_pos;
     bool kill = false;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     // Example - ang pos moves from 0 to 512 <<OR>> from 0 to -512
 
@@ -632,7 +632,7 @@ int DoSlidorMove(short SpriteNum)
             while ((i = it.NextIndex()) >= 0)
             {
                 bsp = &sprite[i];
-                bu = User[i];
+                bu = User[i].Data();
 
                 if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
                 {
@@ -681,7 +681,7 @@ int DoSlidorMove(short SpriteNum)
 
 int DoSlidor(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
 

@@ -229,7 +229,6 @@ void GameInterface::app_init()
         INITLIST(&Player[i].PanelSpriteList);
 
     LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
-    LoadPLockFromScript("swplock.txt");   // Get Parental Lock setup info
 	LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
@@ -399,8 +398,6 @@ void InitLevel(MapRecord *maprec)
     PlayerPanelSetup();
     SectorSetup();
     JS_InitMirrors();
-    JS_InitLockouts();   // Setup the lockout linked lists
-    JS_ToggleLockouts(); // Init lockouts on/off
 
     PlaceSectorObjectsOnTracks();
     PlaceActorsOnTracks();
@@ -483,7 +480,7 @@ void TerminateLevel(void)
         StatIterator it(stat);
         if ((i = it.NextIndex()) >= 0)
         {
-            if (User[i]) puser[pnum].CopyFromUser(User[i]);
+            if (User[i].Data()) puser[pnum].CopyFromUser(User[i].Data());
         }
     }
 
@@ -498,19 +495,7 @@ void TerminateLevel(void)
     }
 
     // Free SectUser memory
-    for (sectu = &SectUser[0];
-        sectu < &SectUser[MAXSECTORS];
-        sectu++)
-    {
-        if (*sectu)
-        {
-            FreeMem(*sectu);
-            *sectu = NULL;
-        }
-    }
-
-    //memset(&User[0], 0, sizeof(User));
-    memset(&SectUser[0], 0, sizeof(SectUser));
+    for (auto& su : SectUser) su.Clear();
 
     TRAVERSE_CONNECT(pnum)
     {
@@ -541,8 +526,6 @@ void TerminateLevel(void)
 
         INITLIST(&pp->PanelSpriteList);
     }
-
-    JS_UnInitLockouts();
 }
 
 

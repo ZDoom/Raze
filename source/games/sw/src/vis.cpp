@@ -75,7 +75,7 @@ void ProcessVisOn(void)
                 VIS_VisCur(sp) = NormalVisibility;
                 if (sp->owner >= 0)
                 {
-                    ASSERT(User[sp->owner]);
+                    ASSERT(User[sp->owner].Data());
                     RESET(User[sp->owner]->Flags2, SPR2_VIS_SHADING);
                 }
                 KillSprite(i);
@@ -157,7 +157,7 @@ int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt)
 
         sp->owner = Parent;
 
-        ASSERT(User[Parent]);
+        ASSERT(User[Parent].Data());
         SET(User[Parent]->Flags2, SPR2_CHILDREN);
 
         sp->x = sprite[Parent].x;

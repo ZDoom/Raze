@@ -126,7 +126,7 @@ point to the sprite.
 short
 ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_point_num, short *track_dir)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int dist, near_dist = 999999, zdiff;
@@ -294,7 +294,7 @@ NextTrackPoint(SECTOR_OBJECTp sop)
 void
 NextActorTrackPoint(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->point += u->track_dir;
 
@@ -732,7 +732,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     bool FoundOutsideLoop = false;
     bool SectorInBounds;
     SECTORp *sectp;
-    USERp u = User[sop->sp_child - sprite];
+    USERp u = User[sop->sp_child - sprite].Data();
 
     static unsigned char StatList[] =
     {
@@ -834,7 +834,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
             sop->zorig_ceiling[sop->num_sectors] = sector[k].ceilingz;
 
             if (TEST(sector[k].extra, SECTFX_SINK))
-                sop->zorig_floor[sop->num_sectors] += Z(SectUser[k]->depth);
+                sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(SectUser[k]->depth_fixed));
 
             // lowest and highest floorz's
             if (sector[k].floorz > sop->floor_loz)
@@ -904,10 +904,10 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         continue;
                 }
 
-                if (User[sp_num] == NULL)
+                if (User[sp_num].Data() == NULL)
                     u = SpawnUser(sp_num, 0, NULL);
                 else
-                    u = User[sp_num];
+                    u = User[sp_num].Data();
 
                 u->RotNum = 0;
 
@@ -1013,7 +1013,7 @@ cont:
         for (i = 0; sop->sp_num[i] != -1; i++)
         {
             sp = &sprite[sop->sp_num[i]];
-            u = User[sop->sp_num[i]];
+            u = User[sop->sp_num[i]].Data();
 
             if (sp->z > zmid)
                 zmid = sp->z;
@@ -1026,7 +1026,7 @@ cont:
         for (i = 0; sop->sp_num[i] != -1; i++)
         {
             sp = &sprite[sop->sp_num[i]];
-            u = User[sop->sp_num[i]];
+            u = User[sop->sp_num[i]].Data();
 
             u->sz = sop->zmid - sp->z;
         }
@@ -1129,7 +1129,7 @@ SetupSectorObject(short sectnum, short tag)
         New = SpawnSprite(STAT_SO_SP_CHILD, 0, NULL, sectnum,
                           sop->xmid, sop->ymid, sop->zmid, 0, 0);
         sop->sp_child = &sprite[New];
-        u = User[New];
+        u = User[New].Data();
         u->sop_parent = sop;
         SET(u->Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
@@ -1560,7 +1560,7 @@ PlaceActorsOnTracks(void)
         int low_dist = 999999, dist;
 
         sp = User[i]->SpriteP;
-        u = User[i];
+        u = User[i].Data();
 
         tag = LOW_TAG_SPRITE(i);
 
@@ -1801,7 +1801,7 @@ PlayerPart:
     for (i = 0; sop->sp_num[i] != -1; i++)
     {
         sp = &sprite[sop->sp_num[i]];
-        u = User[sop->sp_num[i]];
+        u = User[sop->sp_num[i]].Data();
 
         // if its a player sprite || NOT attached
         if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
@@ -2032,7 +2032,7 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
     for (i = 0; sop->sp_num[i] != -1; i++)
     {
         sp = &sprite[sop->sp_num[i]];
-        u = User[sop->sp_num[i]];
+        u = User[sop->sp_num[i]].Data();
 
         // not a part of the so anymore
         RESET(u->Flags, SPR_SO_ATTACHED);
@@ -2180,7 +2180,7 @@ MoveZ(SECTOR_OBJECTp sop)
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            if (SectUser[sop->sector[i]] && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_BOB))
+            if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_BOB))
                 continue;
 
             (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff;
@@ -2189,7 +2189,7 @@ MoveZ(SECTOR_OBJECTp sop)
 
     if (TEST(sop->flags, SOBJ_MOVE_VERTICAL))
     {
-        i = AnimGetGoal(&sop->zmid);
+        i = AnimGetGoal (ANIM_SopZ, int(sop - SectorObject));
         if (i < 0)
             RESET(sop->flags, SOBJ_MOVE_VERTICAL);
     }
@@ -2204,7 +2204,7 @@ MoveZ(SECTOR_OBJECTp sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(&(*sectp)->floorz, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, int(*sectp - sector), sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         RESET(sop->flags, SOBJ_ZDOWN);
@@ -2213,7 +2213,7 @@ MoveZ(SECTOR_OBJECTp sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(&(*sectp)->floorz, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, int(*sectp - sector), sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         RESET(sop->flags, SOBJ_ZUP);
@@ -2237,7 +2237,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     for (i = 0; sop->sector[i] != -1; i++)
     {
-        if (SectUser[sop->sector[i]] && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_SINK_DEST))
+        if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_SINK_DEST))
         {
             src_sector = sop->sector[i];
             break;
@@ -2248,7 +2248,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     for (i = 0; sop->sector[i] != -1; i++)
     {
-        if (ap->ptr == &sector[sop->sector[i]].floorz)
+        if (ap->animtype == ANIM_Floorz && ap->index == sop->sector[i])
         {
             dest_sector = sop->sector[i];
             break;
@@ -2269,46 +2269,19 @@ void CallbackSOsink(ANIMp ap, void *data)
     ASSERT(su != NULL);
 
     ASSERT(GetSectUser(src_sector));
-    tgt_depth = (GetSectUser(src_sector))->depth;
+    tgt_depth = FixedToInt((GetSectUser(src_sector))->depth_fixed);
 
-#if 0
-    for (w = &Water[0]; w < &Water[MAX_WATER]; w++)
+    short sectnum;
+    for (sectnum = 0; sectnum < numsectors; sectnum++)
     {
-        if (w->sector == dest_sector)
+        if (sectnum == dest_sector)
         {
-            ndx = AnimSet(&w->depth, Z(tgt_depth), ap->vel>>8);
+            ndx = AnimSet(ANIM_SUdepth, dest_sector, IntToFixed(tgt_depth), (ap->vel << 8) >> 8);
             AnimSetVelAdj(ndx, ap->vel_adj);
-
-            // This is interesting
-            // Added a depth_fract to the struct so I could do a
-            // 16.16 Fixed point representation to change the depth
-            // in a more precise way
-            ndx = AnimSet((int *)&su->depth_fract, IntToFixed(tgt_depth), (ap->vel<<8)>>8);
-            AnimSetVelAdj(ndx, ap->vel_adj);
-
             found = true;
             break;
         }
     }
-#else
-    {
-        short sectnum;
-        for (sectnum = 0; sectnum < numsectors; sectnum++)
-        {
-            if (sectnum == dest_sector)
-            {
-                // This is interesting
-                // Added a depth_fract to the struct so I could do a
-                // 16.16 Fixed point representation to change the depth
-                // in a more precise way
-                ndx = AnimSet((int *)&su->depth_fract, IntToFixed(tgt_depth), (ap->vel<<8)>>8);
-                AnimSetVelAdj(ndx, ap->vel_adj);
-                found = true;
-                break;
-            }
-        }
-    }
-#endif
 
     ASSERT(found);
 
@@ -2316,13 +2289,13 @@ void CallbackSOsink(ANIMp ap, void *data)
     while ((i = it.NextIndex()) >= 0)
     {
         sp = &sprite[i];
-        u = User[i];
+        u = User[i].Data();
 
         if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(&u->sz, -u->sz - SPRITEp_SIZE_Z(sp) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, i, -u->sz - SPRITEp_SIZE_Z(sp) - Z(100), ap->vel>>8);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -2558,7 +2531,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0; sop->sector[i] != -1; i++)
             {
-                if (SectUser[sop->sector[i]] && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_SINK_DEST))
+                if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_SINK_DEST))
                 {
                     dest_sector = sop->sector[i];
                     break;
@@ -2576,10 +2549,10 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
-                if (SectUser[sop->sector[i]] && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_SINK))
+                if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_SINK))
                     continue;
 
-                ndx = AnimSet(&(*sectp)->floorz, sector[dest_sector].floorz, tpoint->tag_high);
+                ndx = AnimSet(ANIM_Floorz, int(*sectp-sector), sector[dest_sector].floorz, tpoint->tag_high);
                 AnimSetCallback(ndx, CallbackSOsink, sop);
                 AnimSetVelAdj(ndx, 6);
             }
@@ -2596,11 +2569,11 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
-                sectu = SectUser[*sectp - sector];
+                sectu = SectUser[*sectp - sector].Data();
 
                 if (sectu && sectu->stag == SECT_SO_FORM_WHIRLPOOL)
                 {
-                    AnimSet(&(*sectp)->floorz, (*sectp)->floorz + Z(sectu->height), 128);
+                    AnimSet(ANIM_Floorz, int(*sectp - sector), (*sectp)->floorz + Z(sectu->height), 128);
                     (*sectp)->floorshade += sectu->height/6;
 
                     RESET((*sectp)->extra, SECTFX_NO_RIDE);
@@ -2625,7 +2598,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             tpoint = Track[sop->track].TrackPoint + sop->point;
 
             // set anim
-            AnimSet(&sop->zmid, tpoint->z, zr);
+            AnimSet(ANIM_SopZ, int(sop-SectorObject), tpoint->z, zr);
 
             // move back to current point by reversing direction
             sop->dir *= -1;
@@ -2721,14 +2694,14 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
             {
                 // only modify zmid for sprite_objects
-                AnimSet(&sop->zmid, dz, sop->z_rate);
+                AnimSet(ANIM_SopZ, int(sop - SectorObject), dz, sop->z_rate);
             }
             else
             {
                 // churn through sectors setting their new z values
                 for (i = 0; sop->sector[i] != -1; i++)
                 {
-                    AnimSet(&sector[sop->sector[i]].floorz, dz - (sector[sop->mid_sector].floorz - sector[sop->sector[i]].floorz), sop->z_rate);
+                    AnimSet(ANIM_Floorz, sop->sector[i], dz - (sector[sop->mid_sector].floorz - sector[sop->sector[i]].floorz), sop->z_rate);
                 }
             }
         }
@@ -2789,7 +2762,7 @@ OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int newy,
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            if (SectUser[sop->sector[i]] && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_BOB))
+            if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_BOB))
                 continue;
 
             (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff;
@@ -2833,7 +2806,7 @@ void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
         while ((SpriteNum = it.NextIndex()) >= 0)
         {
             sp = &sprite[SpriteNum];
-            u = User[SpriteNum];
+            u = User[SpriteNum].Data();
 
             switch (sp->hitag)
             {
@@ -2954,7 +2927,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
 {
     short SpriteNum = sop->sp_child - sprite;
     SPRITEp shootp;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short delta_ang;
     int diff;
     short i;
@@ -3110,7 +3083,7 @@ DoActorHitTrackEndPoint(USERp u)
 void
 ActorLeaveTrack(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->track == -1)
         return;
@@ -3134,7 +3107,7 @@ bool
 ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 {
     SPRITEp sp;
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp = u->SpriteP;
 
@@ -3682,7 +3655,7 @@ present time.
 int
 ActorFollowTrack(short SpriteNum, short locktics)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     PLAYERp pp;
 
