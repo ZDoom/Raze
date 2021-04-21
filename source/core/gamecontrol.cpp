@@ -1367,7 +1367,7 @@ void LoadDefinitions()
 			loaddefinitionsfile(razedefsfile, true, true);
 			loaded = razedefsfile;
 		}
-		else if (fileSystem.FileExists(defsfile))
+		else
 		{
 			loaddefinitionsfile(defsfile, true, false);
 			loaded = defsfile;
