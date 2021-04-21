@@ -31,7 +31,8 @@ enum
     BRIGHTPAL	= (MAXPALOOKUPS),
 
     MAXREALPAL = MAXPALOOKUPS - RESERVEDPALS
-}
+};
+
 // fixme: should use the flags from the PRSFlags enum directly
 enum
 {
