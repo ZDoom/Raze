@@ -1020,7 +1020,7 @@ OptionMenu "VideoOptions" protected
 	Title "$DSPLYMNU_TITLE"
 	
 	Submenu "$OPTMNU_HUD", "HUDOptions"
-	Submenu "$OPTMNU_POLYMOST", "PolymostOptions"
+	Submenu "$OPTMNU_RENDER", "RenderOptions"
 	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
 	Submenu "$GLMNU_POSTPROCESS",				"PostProcessMenu"
 	StaticText ""
@@ -1190,20 +1190,20 @@ OptionMenu "HUDOptions" protected
 
 //-------------------------------------------------------------------------------------------
 //
-// Polymost options
+// Render options
 //
 //-------------------------------------------------------------------------------------------
 
-OptionMenu "PolymostOptions"
+OptionMenu "RenderOptions"
 {
-	Title "Polymost Options"
-	Option "$POLYMOST_TC", "hw_hightile", "OnOff"
-	Option "$POLYMOST_CACHE", "r_precache", "OnOff"
+	Title "Render Options"
+	Option "$RENDER_TC", "hw_hightile", "OnOff"
+	Option "$RENDER_CACHE", "r_precache", "OnOff"
 	StaticText ""
-	Option "$POLYMOST_PALETTEEMU", "hw_useindexedcolortextures", "OnOff"
-	Option "$POLYMOST_PALINTER", "hw_shadeinterpolate", "OnOff", "hw_useindexedcolortextures"
+	Option "$RENDER_PALETTEEMU", "hw_useindexedcolortextures", "OnOff"
+	Option "$RENDER_PALINTER", "hw_shadeinterpolate", "OnOff", "hw_useindexedcolortextures"
 	StaticText ""
-	Option "$POLYMOST_MODELS", "hw_models", "OnOff"
+	Option "$RENDER_MODELS", "hw_models", "OnOff"
 }
 
 //-------------------------------------------------------------------------------------------
