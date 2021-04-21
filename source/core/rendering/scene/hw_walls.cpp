@@ -783,7 +783,7 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? &wall[wal->nextwall] : wal;
 	refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
 
-	shade = clamp(refwall->shade, 0, numshades - 1);
+	shade = refwall->shade;
 	palette = refwall->pal;
 	type = RENDERWALL_BOTTOM;
 	DoTexture(di, wal, refwall, refheight, topleft, topright, bottomleft, bottomright);
@@ -878,7 +878,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	glseg.fracright = 1;
 	flags = 0;
 	dynlightindex = -1;
-	shade = clamp(wal->shade, 0, numshades - 1);
+	shade = wal->shade;
 	palette = wal->pal;
 	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
@@ -1048,7 +1048,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 
 	flags = HWF_CLAMPX|HWF_CLAMPY;
 	dynlightindex = -1;
-	shade = clamp(spr->shade, 0, numshades - 1);
+	shade = spr->shade;
 	palette = spr->pal;
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);
