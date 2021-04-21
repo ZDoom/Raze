@@ -402,15 +402,14 @@ inline void SetSpriteTranslucency(const spritetype* sprite, float& alpha, FRende
 extern PalEntry GlobalMapFog;
 extern float GlobalFogDensity;
 
-__forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palette, int orgshade, float visibility, float alpha, bool setcolor = true)
+__forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palette, int shade, float visibility, float alpha, bool setcolor = true)
 {
 	// Fog must be done before the texture so that the texture selector can override it.
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
 	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
-	bool shadow = orgshade >= numshades;
-	int shade = clamp(orgshade, 0, numshades - 1);
+	bool shadow = shade >= numshades;
 
-	if (shadow) state.SetObjectColor(0xff000000);
+	if (shadow) state.SetObjectColor(0xff000000); // make sure that nothing lights this up again.
 	else state.SetObjectColor(0xffffffff);
 
 	// Disable brightmaps if non-black fog is used.
@@ -427,7 +426,7 @@ __forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palett
 		state.EnableFog(0);
 		state.SetFog(0, 0);
 		state.SetSoftLightLevel(gl_fogmode != 0 && ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
-		state.SetLightParms(visibility, orgshade < -numshades / 2 ? 1 / 1000.f : ShadeDiv / (numshades - 2));
+		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
 	}
 
 	// The shade rgb from the tint is ignored here.
