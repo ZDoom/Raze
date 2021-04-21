@@ -307,7 +307,7 @@ void Logo_d(const CompletionFunc &completion)
 	}
 	else S_PlaySpecialMusic(MUS_INTRO);
 	jobs[job++] = { Create<DTitleScreen>(), []() { S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI); } };
-	RunScreenJob(jobs, job, completion, true, true);
+	RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
 }
 
 //---------------------------------------------------------------------------
@@ -1131,7 +1131,7 @@ void e4intro(const CompletionFunc& completion)
 	jobs[job++] = { PlayVideo("vol41a.anm", vol41a, framespeed_10), nullptr };
 	jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14), nullptr };
 	jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10), nullptr };
-	RunScreenJob(jobs, job, completion, true, false, true);
+	RunScreenJob(jobs, job, completion, SJ_SKIPALL);
 }
 
 //---------------------------------------------------------------------------

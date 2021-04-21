@@ -92,7 +92,7 @@ void Logo(const CompletionFunc& completion)
 		int job = 0;
 		jobs[job++] = { Create<DSWDRealmsScreen>() };
 		jobs[job++] = { PlayVideo("sw.anm", logosound, logoframetimes, true)};
-		RunScreenJob(jobs, job, completion, true, true);
+		RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
 	}
 	else completion(false);
 }
@@ -623,7 +623,7 @@ void StatScreen(int FinishAnim, CompletionFunc completion)
     {
         jobs[job++] = { Create<DSWMultiSummaryScreen>() };
     }
-    RunScreenJob(jobs, job, completion, true);
+    RunScreenJob(jobs, job, completion);
 }
 
 //---------------------------------------------------------------------------
@@ -638,7 +638,7 @@ void SybexScreen(CompletionFunc completion)
     else
     {
         JobDesc job = { Create<DImageScreen>(tileGetTexture(5261), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff) };
-        RunScreenJob(&job, 1, completion, true, true);
+        RunScreenJob(&job, 1, completion, SJ_BLOCKUI);
     }
 }
 

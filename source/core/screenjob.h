@@ -138,8 +138,15 @@ struct JobDesc
 	//bool ignoreifskipped;
 };
 
+enum
+{
+	SJ_DONTCLEAR = 1,
+	SJ_BLOCKUI = 2,
+	SJ_SKIPALL = 4
+};
 
-void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore = true, bool blockingui = false, bool skipall = false);
+
+void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, int flags = 0);
 void EndScreenJob();
 void DeleteScreenJob();
 bool ScreenJobResponder(event_t* ev);

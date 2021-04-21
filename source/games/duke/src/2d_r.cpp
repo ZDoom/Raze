@@ -204,7 +204,7 @@ void Logo_r(const CompletionFunc& completion)
 	{
 		jobs[job++] = { PlayVideo("redint.mve"), nullptr };
 	}
-	RunScreenJob(jobs, job, completion, true, true);
+	RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
 }
 
 //---------------------------------------------------------------------------

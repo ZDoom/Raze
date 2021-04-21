@@ -528,7 +528,7 @@ void DoTitle(CompletionFunc completion)
     jobs[job++] = { PlayMovie("book.mov") };
     jobs[job++] = { Create<DMainTitle>() };
 
-    RunScreenJob(jobs, job, completion, true, true);
+    RunScreenJob(jobs, job, completion, SJ_BLOCKUI);
 
 }
 

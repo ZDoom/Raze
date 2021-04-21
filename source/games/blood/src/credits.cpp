@@ -89,7 +89,7 @@ void playlogos()
 	RunScreenJob(jobs, job, [](bool) { 
 		Mus_Stop();
 		gameaction = ga_mainmenu;
-		}, true, true);
+		}, SJ_BLOCKUI);
 }
 
 void playSmk(const char *smk, const char *wav, int wavid, CompletionFunc func)

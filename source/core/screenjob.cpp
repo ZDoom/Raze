@@ -317,14 +317,14 @@ public:
 
 ScreenJobRunner *runner;
 
-void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore, bool blockingui, bool skipall)
+void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, int flags)
 {
 	assert(completion != nullptr);
 	videoclearFade();
 	if (count)
 	{
-		runner = new ScreenJobRunner(jobs, count, completion, clearbefore, skipall);
-		gameaction = blockingui? ga_intro : ga_intermission;
+		runner = new ScreenJobRunner(jobs, count, completion, !(flags & SJ_DONTCLEAR), !!(flags & SJ_SKIPALL));
+		gameaction = (flags & SJ_BLOCKUI)? ga_intro : ga_intermission;
 	}
 	else
 	{
