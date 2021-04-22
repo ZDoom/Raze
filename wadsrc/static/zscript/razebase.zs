@@ -27,6 +27,17 @@ enum EGameType
 
 };
 
+struct UserConfigStruct native
+{
+	native bool nomonsters;
+	native bool nosound;
+	native bool nologo;
+}
+
+extend struct _
+{
+	native @UserConfigStruct userConfig;
+}
 
 struct Build
 {
@@ -36,6 +47,53 @@ struct Build
 	}
 	
 	native static Color shadeToLight(int shade);
+	
+	// game check shortcuts
+	static bool isNam()
+	{
+		return gameinfo.gametype & (GAMEFLAG_NAM | GAMEFLAG_NAPALM);
+	}
+
+	static bool isNamWW2GI()
+	{
+		return gameinfo.gametype & (GAMEFLAG_NAM | GAMEFLAG_NAPALM |GAMEFLAG_WW2GI);
+	}
+
+	static bool isWW2GI()
+	{
+		return gameinfo.gametype & (GAMEFLAG_WW2GI);
+	}
+
+	static bool isRR()
+	{
+		return gameinfo.gametype & (GAMEFLAG_RRALL);
+	}
+
+	static bool isRRRA()
+	{
+		return gameinfo.gametype & (GAMEFLAG_RRRA);
+	}
+
+	static bool isWorldTour()
+	{
+		return gameinfo.gametype & GAMEFLAG_WORLDTOUR;
+	}
+
+	static bool isPlutoPak()
+	{
+		return gameinfo.gametype & GAMEFLAG_PLUTOPAK;
+	}
+
+	static bool isShareware()
+	{
+		return gameinfo.gametype & GAMEFLAG_SHAREWARE;
+	}
+
+	static bool isBlood()
+	{
+		return gameinfo.gametype & GAMEFLAG_BLOOD;
+	}
+	
 }
 
 /*

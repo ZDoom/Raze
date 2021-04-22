@@ -73,6 +73,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "v_draw.h"
 #include "gi.h"
+#include "vm.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -274,6 +275,11 @@ void System_CrashInfo(char* buffer, size_t bufflen, const char *lfstr)
 //==========================================================================
 
 UserConfig userConfig;
+
+DEFINE_GLOBAL(userConfig)
+DEFINE_FIELD_X(UserConfigStruct, UserConfig, nomonsters)
+DEFINE_FIELD_X(UserConfigStruct, UserConfig, nosound)
+DEFINE_FIELD_X(UserConfigStruct, UserConfig, nologo)
 
 void UserConfig::ProcessOptions()
 {

@@ -720,14 +720,6 @@ void S_PlaySpecialMusic(unsigned int m)
 	}
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PlaySpecialMusic, S_PlaySpecialMusic)
-{
-	PARAM_PROLOGUE;
-	PARAM_INT(song);
-	S_PlaySpecialMusic(song);
-	return 0;
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -879,6 +871,30 @@ bool StartCommentary(int tag, DDukeActor* actor)
 		return true;
 	}
 	return false;
+}
+
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PlaySpecialMusic, S_PlaySpecialMusic)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(song);
+	S_PlaySpecialMusic(song);
+	return 0;
+}
+
+static int PlaySound(int num, int chan, int flags, double vol)
+{
+	return S_PlaySound(num, chan, EChanFlags::FromInt(flags), float(vol));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PLaySound, PlaySound)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(snd);
+	PARAM_INT(chan);
+	PARAM_INT(flags);
+	PARAM_FLOAT(vol);
+	ACTION_RETURN_INT(PlaySound(snd, chan, flags, vol));
 }
 
 END_DUKE_NS
