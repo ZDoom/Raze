@@ -1340,26 +1340,11 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 
 void LoadDefinitions()
 {
-	cycle_t deftimer;
-
 	const char* defsfile = G_DefFile();
 	FString razedefsfile = defsfile;
 	razedefsfile.Substitute(".def", "-raze.def");
 
-	auto starttimer = [&]()
-	{
-		deftimer.Reset();
-		deftimer.Clock();
-	};
-	auto printtimer = [&](const char* fn)
-	{
-		deftimer.Unclock();
-		DPrintf(DMSG_SPAMMY, "Definitions file \"%s\" loaded, %f ms.\n", fn, deftimer.TimeMS());
-	};
-
-	starttimer();
 	loaddefinitionsfile("engine/engine.def");	// Internal stuff that is required.
-	printtimer("engine/engine.def");
 
 	// check what we have.
 	// user .defs override the default ones and are not cumulative.
@@ -1367,23 +1352,17 @@ void LoadDefinitions()
 	// otherwise the default rules inherited from older ports apply.
 	if (userConfig.UserDef.IsNotEmpty())
 	{
-		starttimer();
 		loaddefinitionsfile(userConfig.UserDef, false);
-		printtimer(userConfig.UserDef);
 	}
 	else
 	{
 		if (fileSystem.FileExists(razedefsfile))
 		{
-			starttimer();
 			loaddefinitionsfile(razedefsfile, true);
-			printtimer(razedefsfile);
 		}
 		else if (fileSystem.FileExists(defsfile))
 		{
-			starttimer();
 			loaddefinitionsfile(defsfile, false);
-			printtimer(defsfile);
 		}
 	}
 
@@ -1391,26 +1370,20 @@ void LoadDefinitions()
 	{
 		for (auto& m : *userConfig.AddDefs)
 		{
-			starttimer();
 			loaddefinitionsfile(m, false);
-			printtimer(m);
 		}
 		userConfig.AddDefs.reset();
 	}
 
 	if (GameStartupInfo.def.IsNotEmpty())
 	{
-		starttimer();
 		loaddefinitionsfile(GameStartupInfo.def);	// Stuff from gameinfo.
-		printtimer(GameStartupInfo.def);
 	}
 
 	// load the widescreen replacements last. This ensures that mods still get the correct CRCs for their own tile replacements.
 	if (fileSystem.FindFile("engine/widescreen.def") >= 0 && !Args->CheckParm("-nowidescreen"))
 	{
-		starttimer();
 		loaddefinitionsfile("engine/widescreen.def");
-		printtimer("engine/widescreen.def");
 	}
 	fileSystem.InitHashChains(); // make sure that any resources that got added can be found again.
 }
