@@ -12,12 +12,13 @@ class ScreenJobRunner;
 class DScreenJob : public DObject
 {
 	DECLARE_CLASS(DScreenJob, DObject)
+public:
 	const int flags;
 	const float fadetime;	// in milliseconds
 	int fadestate = fadein;
 
 	friend class ScreenJobRunner;
-protected:
+//protected:
 	int ticks = 0;
 	int state = running;
 	bool pausable = true;
@@ -74,7 +75,8 @@ public:
 
 class DSkippableScreenJob : public DScreenJob
 {
-protected:
+	DECLARE_CLASS(DSkippableScreenJob, DScreenJob)
+public:
 	DSkippableScreenJob(int fade = 0, float fadet = 250.f) : DScreenJob(fade, fadet)
 	{}
 
@@ -90,6 +92,8 @@ protected:
 
 class DBlackScreen : public DScreenJob
 {
+	DECLARE_CLASS(DBlackScreen, DScreenJob)
+public:
 	int wait;
 	bool cleared = false;
 
@@ -109,10 +113,12 @@ class DImageScreen : public DSkippableScreenJob
 {
 	DECLARE_CLASS(DImageScreen, DScreenJob)
 
+public:
 	int tilenum = -1;
 	int trans;
 	int waittime; // in ms.
 	bool cleared = false;
+	FTextureID texid;
 	FGameTexture* tex = nullptr;
 
 public:

@@ -46,6 +46,7 @@ source as it is released.
 #include "gamestate.h"
 #include "names_d.h"
 #include "i_music.h"
+#include "vm.h"
 
 CVAR(Bool, wt_forcemidi, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // quick hack to disable the oggs, which are of lower quality than playing the MIDIs with a good synth and sound font.
 CVAR(Bool, wt_forcevoc, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // The same for sound effects. The re-recordings are rather poor and disliked
@@ -717,6 +718,14 @@ void S_PlaySpecialMusic(unsigned int m)
 	{
 		MusPlay(nullptr, musicfn, true);
 	}
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PlaySpecialMusic, S_PlaySpecialMusic)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(song);
+	S_PlaySpecialMusic(song);
+	return 0;
 }
 
 //---------------------------------------------------------------------------

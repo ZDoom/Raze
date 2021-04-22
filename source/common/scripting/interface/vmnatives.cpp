@@ -49,6 +49,7 @@
 #include "s_music.h"
 #include "i_interface.h"
 #include "base_sbar.h"
+#include "image.h"
 
 //==========================================================================
 //
@@ -477,6 +478,20 @@ DEFINE_ACTION_FUNCTION_NATIVE(_TexMan, OkForLocalization, OkForLocalization_)
 	ACTION_RETURN_INT(OkForLocalization_(name, subst));
 }
 
+static int UseGamePalette(int index)
+{
+	auto tex = TexMan.GameByIndex(index, false);
+	if (!tex) return false;
+	auto image = tex->GetTexture()->GetImage();
+	return image ? image->UseGamePalette() : false;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_TexMan, UseGamePalette, UseGamePalette)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(texid);
+	ACTION_RETURN_INT(UseGamePalette(texid));
+}
 
 //=====================================================================================
 //

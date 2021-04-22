@@ -239,6 +239,7 @@ struct TexMan
 	native static Vector2 GetScaledOffset(TextureID tex);
 	native static int CheckRealHeight(TextureID tex);
 	native static bool OkForLocalization(TextureID patch, String textSubstitute);
+	native static bool UseGamePalette(TextureID tex);
 }
 
 enum EScaleMode
@@ -402,6 +403,7 @@ struct Screen native
 	native static int, int, int, int GetViewWindow();
 	native static double, double, double, double GetFullscreenRect(double vwidth, double vheight, int fsmode);
 	native static Vector2 SetOffset(double x, double y);
+	native static void ClearScreen(color col = 0);
 }
 
 struct Font native

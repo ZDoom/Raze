@@ -324,6 +324,14 @@ DEFINE_ACTION_FUNCTION(_Screen, ClearClipRect)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(_Screen, ClearScreen)
+{
+	PARAM_PROLOGUE;
+	twod->ClearScreen();
+	return 0;
+}
+
+
 void F2DDrawer::GetClipRect(int *x, int *y, int *w, int *h)
 {
 	if (x) *x = clipleft;

@@ -51,10 +51,106 @@
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
 #include "raze_music.h"
+#include "vm.h"
 
 
 IMPLEMENT_CLASS(DScreenJob, true, false)
+IMPLEMENT_CLASS(DSkippableScreenJob, true, false)
+IMPLEMENT_CLASS(DBlackScreen, true, false)
 IMPLEMENT_CLASS(DImageScreen, true, false)
+
+DEFINE_FIELD(DScreenJob, flags)
+DEFINE_FIELD(DScreenJob, fadetime)
+DEFINE_FIELD_NAMED(DScreenJob, state, jobstate)
+DEFINE_FIELD(DScreenJob, fadestate)
+DEFINE_FIELD(DScreenJob, ticks)
+DEFINE_FIELD(DScreenJob, pausable)
+
+DEFINE_FIELD(DBlackScreen, wait)
+DEFINE_FIELD(DBlackScreen, cleared)
+
+DEFINE_FIELD(DImageScreen, tilenum)
+DEFINE_FIELD(DImageScreen, trans)
+DEFINE_FIELD(DImageScreen, waittime)
+DEFINE_FIELD(DImageScreen, cleared)
+DEFINE_FIELD(DImageScreen, texid)
+
+DEFINE_ACTION_FUNCTION(DScreenJob, Init)
+{
+	// todo
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DScreenJob, ProcessInput)
+{
+	PARAM_SELF_PROLOGUE(DScreenJob);
+	ACTION_RETURN_BOOL(self->ProcessInput());
+}
+
+DEFINE_ACTION_FUNCTION(DScreenJob, Start)
+{
+	PARAM_SELF_PROLOGUE(DScreenJob);
+	self->Start();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DScreenJob, OnEvent)
+{
+	PARAM_SELF_PROLOGUE(DScreenJob);
+	PARAM_POINTER(evt, FInputEvent);
+	if (evt->Type != EV_KeyDown)
+	{
+		// not needed in the transition phase
+		ACTION_RETURN_BOOL(false);
+	}
+	event_t ev = {};
+	ev.type = EV_KeyDown;
+	ev.data1 = evt->KeyScan;
+	ACTION_RETURN_BOOL(self->OnEvent(&ev));
+}
+
+DEFINE_ACTION_FUNCTION(DScreenJob, OnTick)
+{
+	PARAM_SELF_PROLOGUE(DScreenJob);
+	self->OnTick();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DScreenJob, Draw)
+{
+	PARAM_SELF_PROLOGUE(DScreenJob);
+	PARAM_FLOAT(smooth);
+	self->Draw(smooth);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSkippableScreenJob, Init)
+{
+	// todo
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DSkippableScreenJob, Skipped)
+{
+	PARAM_SELF_PROLOGUE(DSkippableScreenJob);
+	self->Skipped();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DBlackScreen, Init)
+{
+	// todo
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(DImageScreen, Init)
+{
+	// todo
+	return 0;
+}
+
+
+
 
 void DScreenJob::OnDestroy()
 {
