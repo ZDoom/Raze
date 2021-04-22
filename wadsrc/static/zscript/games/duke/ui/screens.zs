@@ -251,3 +251,21 @@ class Episode1End1 : SkippableScreenJob
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class E2EndScreen : ImageScreen
+{
+	void Init()
+	{
+		Super.Init("E2ENDSCREEN", fadein | fadeout | stopsound, 0x7fffffff, 0);
+	}
+
+	override void Start()
+	{
+		Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+	}
+}

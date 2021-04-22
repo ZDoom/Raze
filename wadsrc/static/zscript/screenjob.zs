@@ -81,7 +81,7 @@ class ImageScreen : SkippableScreenJob native
 	native bool cleared;
 	native TextureID texid;
 
-	native void Init(TextureID tex, int fade = fadein | fadeout, int wait = 3000, int translation = 0);
+	native void Init(String tex, int fade = fadein | fadeout, int wait = 3000, int translation = 0);
 	//override void OnTick();
 	//override void Draw(double smooth);
 }
