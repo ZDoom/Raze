@@ -332,28 +332,21 @@ void Logo_d(const CompletionFunc &completion)
 class DEpisode1End1 : public DSkippableScreenJob
 {
 	int bonuscnt = 0;
-	int bossani = -1;
+	int bossani = -1; 
 	int breatheani = -1;
 	bool breathebg = false;
 
-	static inline const int breathe[] =
-	{
-		 0,  30,VICTORY1 + 1,176,59,
-		30,  60,VICTORY1 + 2,176,59,
-		60,  90,VICTORY1 + 1,176,59,
-		90, 120,0         ,176,59
-	};
+	static inline const int breathe_time[] = { 0, 30, 60, 90 };
+	static inline const int breathe_time2[] = { 30, 60, 90, 120 };
+	static inline const int breathe_tile[] = { VICTORY2, VICTORY3, VICTORY2, 0 };
+	static const int breathe_x = 176;
+	static const int breathe_y = 59;
 
-	static inline const int bossmove[] =
-	{
-		 0, 120,VICTORY1 + 3,86,59,
-	   220, 260,VICTORY1 + 4,86,59,
-	   260, 290,VICTORY1 + 5,86,59,
-	   290, 320,VICTORY1 + 6,86,59,
-	   320, 350,VICTORY1 + 7,86,59,
-	   350, 380,VICTORY1 + 8,86,59,
-	   350, 380,VICTORY1 + 8,86,59,
-	};
+	static inline const int boss_time[] = { 0, 220, 260, 290, 320, 350, 350 };
+	static inline const int boss_time2[] = { 120, 260, 290, 320, 350, 380, 380 };
+	static inline const int boss_tile[] = { VICTORY4, VICTORY5, VICTORY6, VICTORY7, VICTORY8, VICTORY9, VICTORY9 };
+	static const int boss_x = 86;
+	static const int boss_y = 59;
 
 public:
 	DEpisode1End1() : DSkippableScreenJob(fadein | fadeout) {}
@@ -369,7 +362,7 @@ public:
 		// boss
 		if (currentclock > 390 && currentclock < 780)
 		{
-			for (int t = 0; t < 35; t += 5) if (bossmove[t + 2] && (currentclock % 390) > bossmove[t] && (currentclock % 390) <= bossmove[t + 1])
+			for (int t = 0, tt = 0; t < 35; t +=5, tt++) if ((currentclock % 390) > boss_time[tt] && (currentclock % 390) <= boss_time2[tt])
 			{
 				if (t == 10 && bonuscnt == 1)
 				{
@@ -377,7 +370,7 @@ public:
 					S_PlaySound(SQUISHED, CHAN_AUTO, CHANF_UI);
 					bonuscnt++;
 				}
-				bossani = t;
+				bossani = tt;
 			}
 		}
 
@@ -393,15 +386,15 @@ public:
 					bonuscnt++;
 				}
 			}
-			for (int t = 0; t < 20; t += 5)
-				if (breathe[t + 2] && (currentclock % 120) > breathe[t] && (currentclock % 120) <= breathe[t + 1])
+			for (int t = 0, tt = 0; t < 20; t += 5, tt++)
+				if (breathe_tile[tt] && (currentclock % 120) > breathe_time[tt] && (currentclock % 120) <= breathe_time2[tt])
 				{
 					if (t == 5 && bonuscnt == 0)
 					{
 						S_PlaySound(BOSSTALKTODUKE, CHAN_AUTO, CHANF_UI);
 						bonuscnt++;
 					}
-					breatheani = t;
+					breatheani = tt;
 				}
 		}
 
@@ -417,19 +410,19 @@ public:
 
 		if (bossani != -1)
 		{
-			DrawTexture(twod, tileGetTexture(bossmove[bossani + 2], true), bossmove[bossani + 3], bossmove[bossani + 4], DTA_FullscreenScale, FSMode_Fit320x200,
+			DrawTexture(twod, tileGetTexture(boss_tile[bossani], true), boss_x, boss_y, DTA_FullscreenScale, FSMode_Fit320x200,
 				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 		}
 
 		if (breathebg)
 		{
-			DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, FSMode_Fit320x200,
+			DrawTexture(twod, tileGetTexture(VICTORY9, true), 86, 59, DTA_FullscreenScale, FSMode_Fit320x200,
 				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 		}
 
 		if (breatheani != -1)
 		{
-			DrawTexture(twod, tileGetTexture(breathe[breatheani + 2], true), breathe[breatheani + 3], breathe[breatheani + 4], DTA_FullscreenScale, FSMode_Fit320x200,
+			DrawTexture(twod, tileGetTexture(breathe_tile[breatheani], true), breathe_x, breathe_y, DTA_FullscreenScale, FSMode_Fit320x200,
 				DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 		}
 	}
