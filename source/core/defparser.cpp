@@ -2126,12 +2126,12 @@ void loaddefinitionsfile(const char* fn, bool cumulative)
 
 	cycle_t deftimer;
 	deftimer.Reset();
-	deftimer.Clock();
 
 	auto printtimer = [&](const char* fn)
 	{
 		deftimer.Unclock();
 		DPrintf(DMSG_SPAMMY, "Definitions file \"%s\" loaded, %f ms.\n", fn, deftimer.TimeMS());
+		deftimer.Reset();
 	};
 
 	if (!cumulative)
@@ -2140,6 +2140,7 @@ void loaddefinitionsfile(const char* fn, bool cumulative)
 		if (lump >= 0)
 		{
 			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fn);
+			deftimer.Clock();
 			parseit(lump);
 			printtimer(fn);
 		}
@@ -2150,6 +2151,7 @@ void loaddefinitionsfile(const char* fn, bool cumulative)
 		while ((lump = fileSystem.FindLumpFullName(fn, &lastlump)) >= 0)
 		{
 			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump).GetChars());
+			deftimer.Clock();
 			parseit(lump);
 			printtimer(fn);
 		}
