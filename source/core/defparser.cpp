@@ -2112,7 +2112,7 @@ static void defsparser(FScanner& sc)
 	}
 }
 
-void loaddefinitionsfile(const char* fn, bool loadadds, bool cumulative)
+void loaddefinitionsfile(const char* fn, bool cumulative)
 {
 	bool done = false;
 	auto parseit = [&](int lump)
@@ -2139,16 +2139,6 @@ void loaddefinitionsfile(const char* fn, bool loadadds, bool cumulative)
 		while ((lump = fileSystem.FindLumpFullName(fn, &lastlump)) >= 0)
 		{
 			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump).GetChars());
-			parseit(lump);
-		}
-	}
-
-	if (userConfig.AddDefs && loadadds) for (auto& m : *userConfig.AddDefs)
-	{
-		int lump = fileSystem.FindFile(m);
-		if (lump >= 0)
-		{
-			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", m.GetChars());
 			parseit(lump);
 		}
 	}

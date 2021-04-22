@@ -1341,15 +1341,25 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 void LoadDefinitions()
 {
 	cycle_t deftimer;
-	deftimer.Reset();
-	deftimer.Clock();
-	const char* loaded = nullptr;
 
 	const char* defsfile = G_DefFile();
 	FString razedefsfile = defsfile;
 	razedefsfile.Substitute(".def", "-raze.def");
 
-	loaddefinitionsfile("engine/engine.def", false);	// Internal stuff that is required.
+	auto starttimer = [&]()
+	{
+		deftimer.Reset();
+		deftimer.Clock();
+	};
+	auto printtimer = [&](const char* fn)
+	{
+		deftimer.Unclock();
+		DPrintf(DMSG_SPAMMY, "Definitions file \"%s\" loaded, %f ms.\n", fn, deftimer.TimeMS());
+	};
+
+	starttimer();
+	loaddefinitionsfile("engine/engine.def");	// Internal stuff that is required.
+	printtimer("engine/engine.def");
 
 	// check what we have.
 	// user .defs override the default ones and are not cumulative.
@@ -1357,39 +1367,50 @@ void LoadDefinitions()
 	// otherwise the default rules inherited from older ports apply.
 	if (userConfig.UserDef.IsNotEmpty())
 	{
-		loaddefinitionsfile(userConfig.UserDef, true, false);
-		loaded = userConfig.UserDef;
+		starttimer();
+		loaddefinitionsfile(userConfig.UserDef, false);
+		printtimer(userConfig.UserDef);
 	}
 	else
 	{
 		if (fileSystem.FileExists(razedefsfile))
 		{
-			loaddefinitionsfile(razedefsfile, true, true);
-			loaded = razedefsfile;
+			starttimer();
+			loaddefinitionsfile(razedefsfile, true);
+			printtimer(razedefsfile);
 		}
-		else
+		else if (fileSystem.FileExists(defsfile))
 		{
-			loaddefinitionsfile(defsfile, true, false);
-			loaded = defsfile;
+			starttimer();
+			loaddefinitionsfile(defsfile, false);
+			printtimer(defsfile);
 		}
+	}
+
+	if (userConfig.AddDefs)
+	{
+		for (auto& m : *userConfig.AddDefs)
+		{
+			starttimer();
+			loaddefinitionsfile(m, false);
+			printtimer(m);
+		}
+		userConfig.AddDefs.reset();
 	}
 
 	if (GameStartupInfo.def.IsNotEmpty())
 	{
-		loaddefinitionsfile(GameStartupInfo.def, false);	// Stuff from gameinfo.
+		starttimer();
+		loaddefinitionsfile(GameStartupInfo.def);	// Stuff from gameinfo.
+		printtimer(GameStartupInfo.def);
 	}
-	
-	if (loaded)
-	{
-		deftimer.Unclock();
-		DPrintf(DMSG_SPAMMY, "Definitions file \"%s\" loaded, %f ms.\n", loaded, deftimer.TimeMS());
-	}
-	userConfig.AddDefs.reset();
 
 	// load the widescreen replacements last. This ensures that mods still get the correct CRCs for their own tile replacements.
 	if (fileSystem.FindFile("engine/widescreen.def") >= 0 && !Args->CheckParm("-nowidescreen"))
 	{
+		starttimer();
 		loaddefinitionsfile("engine/widescreen.def");
+		printtimer("engine/widescreen.def");
 	}
 	fileSystem.InitHashChains(); // make sure that any resources that got added can be found again.
 }
