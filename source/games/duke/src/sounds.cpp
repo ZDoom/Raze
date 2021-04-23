@@ -897,4 +897,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PLaySound, PlaySound)
 	ACTION_RETURN_INT(PlaySound(snd, chan, flags, vol));
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, CheckSoundPlaying, S_CheckSoundPlaying)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(snd);
+	ACTION_RETURN_INT(S_CheckSoundPlaying(snd));
+}
+
 END_DUKE_NS

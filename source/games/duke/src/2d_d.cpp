@@ -139,10 +139,11 @@ void InitFonts_d()
 //
 //==========================================================================
 
-static void BigText(double x, double y, const char* text, double alpha = 1.)
+static void BigText(double x, double y, const char* text, int align = -1, double alpha = 1.)
 {
-	auto width = BigFont->StringWidth(text);
-	DrawText(twod, BigFont, CR_UNTRANSLATED, x - width / 2, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, TAG_DONE);
+	if (align != -1)
+		x -= BigFont->StringWidth(text) * (align == 0 ? 0.5 : 1);
+	DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, TAG_DONE);
 }
 
 static void GameText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)

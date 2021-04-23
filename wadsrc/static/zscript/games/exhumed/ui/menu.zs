@@ -98,10 +98,10 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		double y = mYpos + v.y / 2;
 
 		int shade;
-		if (selected) shade = Build.CalcSinTableValue(MSTime() * 16 * 120 / 1000) >> 9;
+		if (selected) shade = Raze.CalcSinTableValue(MSTime() * 16 * 120 / 1000) >> 9;
 		else if (Selectable()) shade = 0;
 		else shade = 25;
-		let color = Build.shadeToLight(shade);
+		let color = Raze.shadeToLight(shade);
 
 		double scalex = 1.; // Squash the text if it is too wide. Due to design limitations we cannot expand the box here. :(
 		if (texsize.X - 18 < width)

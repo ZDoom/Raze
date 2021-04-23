@@ -39,7 +39,7 @@ extend struct _
 	native @UserConfigStruct userConfig;
 }
 
-struct Build
+struct Raze
 {
 	static int calcSinTableValue(int ang)
 	{
@@ -47,6 +47,9 @@ struct Build
 	}
 	
 	native static Color shadeToLight(int shade);
+	native static void StopAllSounds();
+	native static bool SoundEnabled();
+	native static bool MusicEnabled();
 	
 	// game check shortcuts
 	static bool isNam()

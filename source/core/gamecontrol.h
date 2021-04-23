@@ -70,12 +70,12 @@ extern UserConfig userConfig;
 
 extern int nomusic;
 extern bool nosound;
-inline bool MusicEnabled()
+inline int MusicEnabled() // int return is for scripting
 {
 	return mus_enabled && !nomusic;
 }
 
-inline bool SoundEnabled()
+inline int SoundEnabled()
 {
 	return snd_enabled && !nosound;
 }

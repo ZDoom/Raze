@@ -51,7 +51,7 @@ class TitleScreen : SkippableScreenJob
 
 	override void Start()
 	{
-		if (Build.isNam() || userConfig.nologo) Duke.PlaySpecialMusic(Duke.MUS_INTRO);
+		if (Raze.isNam() || userConfig.nologo) Duke.PlaySpecialMusic(Duke.MUS_INTRO);
 	}
 
 	override void OnTick() 
@@ -70,12 +70,12 @@ class TitleScreen : SkippableScreenJob
 		if (soundanm == 2 && clock >= 280 && clock < 395)
 		{
 			soundanm = 3;
-			if (Build.isPlutoPak()) Duke.PlaySound(DukeSnd.FLY_BY, CHAN_AUTO, CHANF_UI);
+			if (Raze.isPlutoPak()) Duke.PlaySound(DukeSnd.FLY_BY, CHAN_AUTO, CHANF_UI);
 		}
 		else if (soundanm == 3 && clock >= 395)
 		{
 			soundanm = 4;
-			if (Build.isPlutoPak()) Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			if (Raze.isPlutoPak()) Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 		}
 
 		if (clock > (860 + 120))
@@ -116,7 +116,7 @@ class TitleScreen : SkippableScreenJob
 				DTA_CenterOffsetRel, true, DTA_TranslationIndex, trans, DTA_ScaleX, scale, DTA_ScaleY, scale);
 		}
 
-		if (Build.isPlutoPak()) 
+		if (Raze.isPlutoPak()) 
 		{
 			scale = (410 - clamp(clock, 280, 395)) / 16.;
 			if (scale > 0. && clock > 280)
@@ -269,3 +269,145 @@ class E2EndScreen : ImageScreen
 		Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class Episode3End : ImageScreen
+{
+	int soundstate;
+	int finishtime;
+
+	void Init()
+	{
+		Super.Init("", fadein|fadeout, 0x7fffffff);
+		texid = TexMan.CheckForTexture("radlogo.anm", TexMan.Type_Any, TexMan.TryAny | TexMan.ForceLookup); // must override with 'forcelookup'.
+		soundstate = 0;
+		finishtime = 0;
+	}
+
+	override void OnSkip()
+	{
+		Raze.StopAllSounds();
+	}
+
+	override void OnTick()
+	{
+		switch (soundstate)
+		{
+		case 0:
+			Duke.PlaySound(DukeSnd.ENDSEQVOL3SND5, CHAN_AUTO, CHANF_UI);
+			soundstate++;
+			break;
+
+		case 1:
+			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND5))
+			{
+				Duke.PlaySound(DukeSnd.ENDSEQVOL3SND6, CHAN_AUTO, CHANF_UI);
+				soundstate++;
+			}
+			break;
+
+		case 2:
+			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND6))
+			{
+				Duke.PlaySound(DukeSnd.ENDSEQVOL3SND7, CHAN_AUTO, CHANF_UI);
+				soundstate++;
+			}
+			break;
+
+		case 3:
+			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND7))
+			{
+				Duke.PlaySound(DukeSnd.ENDSEQVOL3SND8, CHAN_AUTO, CHANF_UI);
+				soundstate++;
+			}
+			break;
+
+		case 4:
+			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND8))
+			{
+				Duke.PlaySound(DukeSnd.ENDSEQVOL3SND9, CHAN_AUTO, CHANF_UI);
+				soundstate++;
+			}
+			break;
+
+		case 5:
+			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND9))
+			{
+				soundstate++;
+				finishtime = ticks + GameTicRate * (Raze.SoundEnabled() ? 1 : 5);	// if sound is off this wouldn't wait without a longer delay here.
+			}
+			break;
+
+		case 6:
+			if (Raze.isPlutoPak())
+			{
+				if (ticks > finishtime) jobstate = finished;
+			}
+			break;
+
+		default:
+			break;
+		}
+		if (jobstate != running) Raze.StopAllSounds();
+	}
+
+	override void OnDestroy()
+	{
+		if (!Raze.isPlutoPak()) Duke.PlaySound(DukeSnd.ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class Episode4Text : SkippableScreenJob
+{
+	void Init()
+	{
+		Super.Init(fadein|fadeout);
+	}
+
+
+	override void Draw(double sm)
+	{
+		Screen.ClearScreen();
+		Duke.BigText(160, 60, "$Thanks to all our");
+		Duke.BigText(160, 60 + 16, "$fans for giving");
+		Duke.BigText(160, 60 + 16 + 16, "$us big heads.");
+		Duke.BigText(160, 70 + 16 + 16 + 16, "$Look for a Duke Nukem 3D");
+		Duke.BigText(160, 70 + 16 + 16 + 16 + 16, "$sequel soon.");
+	}
+
+	override void Start()
+	{
+		Duke.PlaySound(DukeSnd.ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class Episode5End : ImageScreen
+{
+	void Init()
+	{
+		Super.Init("FIREFLYGROWEFFECT", fadein|fadeout|stopsound);
+	}
+
+	override void OnTick()
+	{
+		if (ticks == 1) Duke.PlaySound(DukeSnd.E5L7_DUKE_QUIT_YOU, CHAN_AUTO, CHANF_UI);
+	}
+}
+

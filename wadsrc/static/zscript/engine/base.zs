@@ -218,7 +218,9 @@ struct TexMan
 		AllowSkins = 8,
 		ShortNameOnly = 16,
 		DontCreate = 32,
-		Localize = 64
+		Localize = 64,
+		ForceLookup = 128,
+		NoAlias = 256
 	};
 	
 	enum ETexReplaceFlags

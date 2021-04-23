@@ -135,7 +135,6 @@ static void BigText(double x, double y, const char* text, int align, double alph
 	//x *= 2.2; y *= 2.64;
 	if (align != -1)
 		x -= BigFont->StringWidth(text) * (align == 0 ? 0.2 : 0.4);
-	auto width = BigFont->StringWidth(text);
 	DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha, TAG_DONE);
 }
 
@@ -576,7 +575,7 @@ public:
 
 	void OnTick() override
 	{
-		if (!S_CheckSoundPlaying(-1, 35) && ticks > 15 * GameTicRate) state = finished; // make sure it stays, even if sound is off.
+		if (!S_CheckSoundPlaying(35) && ticks > 15 * GameTicRate) state = finished; // make sure it stays, even if sound is off.
 	}
 	void Draw(double) override
 	{

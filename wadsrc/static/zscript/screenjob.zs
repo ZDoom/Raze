@@ -32,6 +32,7 @@ class ScreenJob native
 	native virtual bool OnEvent(InputEvent evt);
 	native virtual void OnTick();
 	native virtual void Draw(double smoothratio);
+	virtual void OnSkip() {}
 
 	//native int DrawFrame(double smoothratio);
 	//native int GetFadeState();
@@ -48,7 +49,6 @@ class SkippableScreenJob : ScreenJob native
 {
 	native void Init(int flags = 0, float fadet = 250.f);
 	//native override bool OnEvent(InputEvent evt);
-	virtual void Skipped() {}
 }
 
 //---------------------------------------------------------------------------

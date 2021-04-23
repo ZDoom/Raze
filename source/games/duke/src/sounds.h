@@ -48,7 +48,6 @@ void S_MenuSound(void);
 void S_StopSound(int sndNum, DDukeActor* spr = nullptr, int flags = -1);
 
 int S_CheckSoundPlaying(int soundNum);
-inline int S_CheckSoundPlaying(int sprnum, int soundNum) { return S_CheckSoundPlaying(soundNum); }
 int S_CheckActorSoundPlaying(DDukeActor* spriteNum, int soundNum, int channel = 0);
 int S_CheckAnyActorSoundPlaying(DDukeActor* spriteNum);
 
