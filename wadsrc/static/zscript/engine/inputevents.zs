@@ -140,6 +140,9 @@ struct InputEvent native play version("2.4")
         Key_PgUp = 0xc9, // DIK_PRIOR
         Key_PgDn = 0xd1, // DIK_NEXT
 
+        KEY_VOLUMEDOWN = 0xAE, // DIK_VOLUMEDOWN
+        KEY_VOLUMEUP = 0xB0, // DIK_VOLUMEUP
+
         Key_Mouse1 = 0x100,
         Key_Mouse2 = 0x101,
         Key_Mouse3 = 0x102,

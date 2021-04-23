@@ -98,7 +98,7 @@ class SummaryScreenBase : ScreenJob
 	MapRecord level;
 	int kills, maxkills;
 	int secrets, maxsecrets, supersecrets;
-	int time;
+	int playtime;
 	bool cheatflag;
 
 	void SetParameters(MapRecord map, int kills_, int maxkills_, int secrets_, int maxsecrets_, int supersecrets_, int time_, bool cheated)
@@ -109,7 +109,7 @@ class SummaryScreenBase : ScreenJob
 		secrets = secrets_;
 		maxsecrets = maxsecrets_;
 		supersecrets = supersecrets_;
-		time = time_;
+		playtime = time_;
 		cheatflag = cheated;
 	}
 }

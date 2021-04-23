@@ -452,14 +452,14 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 
 		for (int i = 0; i < playerswhenstarted; i++)
 		{
-			tempbuf.Format("%-4d", i + 1);
+			tempbuf = String.Format("%-4d", i + 1);
 			Duke.MiniText(92 + (i * 23), 80, tempbuf, 0, -1, 3);
 		}
 
 		for (int i = 0; i < playerswhenstarted; i++)
 		{
 			int xfragtotal = 0;
-			tempbuf.Format("%d", i + 1);
+			tempbuf = String.Format("%d", i + 1);
 
 			Duke.MiniText(30, 90 + t, tempbuf, 0);
 			Duke.MiniText(38, 90 + t, Raze.PlayerName(i), 0, -1, Raze.playerPalette(i));
@@ -470,26 +470,26 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 				if (i == y)
 				{
 					int fraggedself = Raze.playerFraggedSelf(y);
-					tempbuf.Format("%-4d", fraggedself);
+					tempbuf = String.Format("%-4d", fraggedself);
 					Duke.MiniText(92 + (y * 23), 90 + t, tempbuf, 0, -1, 2);
 					xfragtotal -= fraggedself;
 				}
 				else
 				{
-					tempbuf.Format("%-4d", frag);
+					tempbuf = String.Format("%-4d", frag);
 					Duke.MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
 					xfragtotal += frag;
 				}
 				/*
 				if (myconnectindex == connecthead)
 				{
-					tempbuf.Format("stats %ld killed %ld %ld\n", i + 1, y + 1, frag);
+					tempbuf = String.Format("stats %ld killed %ld %ld\n", i + 1, y + 1, frag);
 					sendscore(tempbuf);
 				}
 				*/
 			}
 
-			tempbuf.Format("%-4d", xfragtotal);
+			tempbuf = String.Format("%-4d", xfragtotal);
 			Duke.MiniText(101 + (8 * 23), 90 + t, tempbuf, 0, -1, 2);
 
 			t += 7;
@@ -505,11 +505,257 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 				int frag = Raze.playerFrags(i, y);
 				yfragtotal += frag;
 			}
-			tempbuf.Format("%-4d", yfragtotal);
+			tempbuf = String.Format("%-4d", yfragtotal);
 			Duke.MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0, -1, 2);
 		}
 
 		Duke.MiniText(45, 96 + (8 * 7), "$Deaths", 0, -1, 8);
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class DukeLevelSummaryScreen : SummaryScreenBase
+{
+	String lastmapname;
+	int gfx_offset;
+	int speech;
+	int displaystate;
+	int dukeAnimStart;
+
+	TextureID texBg;
+	TextureID texOv[4];
+
+	enum EScreenFlags
+	{
+		printTimeText = 1,
+		printTimeVal = 2,
+		printKillsText = 4,
+		printKillsVal = 8,
+		printSecretsText = 16,
+		printSecretsVal = 32,
+		printStatsAll = 63,
+		dukeAnim = 64,
+		dukeWait = 128,
+
+	}
+
+	void Init()
+	{
+		Super.Init(fadein | fadeout);
+		int vol = currentLevel.volumeNum();
+		String basetex = vol == 1? "BONUSSCREEN2" : "BONUSSCREEN";
+		texBg = TexMan.CheckForTexture(basetex);
+		for(int i = 0; i < 4; i++)
+		{
+			String otex = String.Format("%s_O%d", basetex, i+1);
+			texOv[i] = TexMan.CheckForTexture(otex);
+		}
+		lastmapname = currentLevel.DisplayName();
+		speech = -1;
+		displaystate = 0;
+
+	}
+
+	String FormatTime(int time)
+	{
+		return String.Format("%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
+	}
+
+	override bool OnEvent(InputEvent ev)
+	{
+		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev))
+		{
+			if ((displaystate & printStatsAll) != printStatsAll)
+			{
+				Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+				displaystate = printStatsAll;
+			}
+			else if (!(displaystate & dukeAnim))
+			{
+				displaystate |= dukeAnim;
+				dukeAnimStart = ticks;
+				Duke.PlaySound(DukeSnd.SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
+				static const int speeches[] = { DukeSnd.BONUS_SPEECH1, DukeSnd.BONUS_SPEECH2, DukeSnd.BONUS_SPEECH3, DukeSnd.BONUS_SPEECH4 };
+				speech = speeches[random(0, 3)];
+				Duke.PlaySound(speech, CHAN_AUTO, CHANF_UI, 1);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	override void Start()
+	{
+		Duke.PlayBonusMusic();
+	}
+
+	override void OnTick()
+	{
+		if ((displaystate & printStatsAll) != printStatsAll)
+		{
+			if (ticks == 15 * 3)
+			{
+				displaystate |= printTimeText;
+			}
+			else if (ticks == 15 * 4)
+			{
+				displaystate |= printTimeVal;
+				Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 6)
+			{
+				displaystate |= printKillsText;
+				Duke.PlaySound(DukeSnd.FLY_BY, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 7)
+			{
+				displaystate |= printKillsVal;
+				Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 9)
+			{
+				displaystate |= printSecretsText;
+			}
+			else if (ticks == 15 * 10)
+			{
+				displaystate |= printSecretsVal;
+				Duke.PlaySound(DukeSnd.PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+		}
+		if (displaystate & dukeAnim)
+		{
+			if (ticks >= dukeAnimStart + 60)
+			{
+				displaystate ^= dukeAnim | dukeWait;
+			}
+		}
+		if (displaystate & dukeWait)
+		{
+			if (speech <= 0 || !Duke.CheckSoundPlaying(speech)) 
+				jobstate = finished;
+		}
+	}
+
+	void PrintTime()
+	{
+		String tempbuf;
+		Duke.GameText(10, 59 + 9, "$TXT_YourTime", 0);
+		Duke.GameText(10, 69 + 9, "$TXT_ParTime", 0);
+		if (!Raze.isNamWW2GI())
+			Duke.GameText(10, 79 + 9, "$TXT_3DRTIME", 0);
+
+		if (displaystate & printTimeVal)
+		{
+			tempbuf = FormatTime(playtime);
+			Duke.GameText((320 >> 2) + 71, 59 + 9, tempbuf, 0);
+
+			tempbuf = FormatTime(level.parTime);
+			Duke.GameText((320 >> 2) + 71, 69 + 9, tempbuf, 0);
+
+			if (!Raze.isNamWW2GI())
+			{
+				tempbuf = FormatTime(level.designerTime);
+				Duke.GameText((320 >> 2) + 71, 79 + 9, tempbuf, 0);
+			}
+		}
+	}
+
+	void PrintKills()
+	{
+		String tempbuf;
+		Duke.GameText(10, 94 + 9, "$TXT_EnemiesKilled", 0);
+		Duke.GameText(10, 104 + 9, "$TXT_EnemiesLeft", 0);
+
+		if (displaystate & printKillsVal)
+		{
+			tempbuf = String.Format("%-3d", kills);
+			Duke.GameText((320 >> 2) + 70, 94 + 9, tempbuf, 0);
+
+			if (maxkills < 0)
+			{
+				tempbuf = "$TXT_N_A";
+			}
+			else
+			{
+				tempbuf = String.Format("%-3d", max(0, maxkills - kills));
+			}
+			Duke.GameText((320 >> 2) + 70, 104 + 9, tempbuf, 0);
+		}
+	}
+
+	void PrintSecrets()
+	{
+		String tempbuf;
+		Duke.GameText(10, 119 + 9, "$TXT_SECFND", 0);
+		Duke.GameText(10, 129 + 9, "$TXT_SECMISS", 0);
+
+		if (displaystate & printSecretsVal)
+		{
+			tempbuf = String.Format("%-3d", secrets);
+			Duke.GameText((320 >> 2) + 70, 119 + 9, tempbuf, 0);
+			tempbuf = String.Format("%-3d", max(0, maxsecrets - secrets));
+			Duke.GameText((320 >> 2) + 70, 129 + 9, tempbuf, 0);
+		}
+	}
+
+	override void Draw(double sr) 
+	{
+		Screen.ClearScreen();
+		Screen.DrawTexture(texBg, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
+
+		Duke.GameText(160, 190, "$PRESSKEY", 8 - int(sin(ticks * 12 / GameTicRate) * 8), 0);
+
+		if (displaystate & printTimeText)
+		{
+			PrintTime();
+		}
+		if (displaystate & printKillsText)
+		{
+			PrintKills();
+		}
+		if (displaystate & printSecretsText)
+		{
+			PrintSecrets();
+		}
+
+		if (displaystate & dukeAnim)
+		{
+			switch (((ticks - dukeAnimStart) >> 2) % 15)
+			{
+				case 0:
+				case 1:
+				case 4:
+				case 5:
+					Screen.DrawTexture(texOv[2], true, 199, 31, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true);
+					break;
+				case 2:
+				case 3:
+					Screen.DrawTexture(texOv[3], true, 199, 31, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true);
+					break;
+			}
+		}
+		else if (!(displaystate & dukeWait))
+		{
+			switch((ticks >> 3) & 3)
+			{
+				case 1:
+				case 3:
+					Screen.DrawTexture(texOv[0], true, 199, 31, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true);
+					break;
+				case 2:
+					Screen.DrawTexture(texOv[1], true, 199, 31, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true);
+					break;
+			}
+		}
+
+		if (lastmapname) Duke.BigText(160, 20 - 6, lastmapname);
+		Duke.BigText(160, 36 - 6, "$Completed");
+	}
+
 }
 

@@ -74,6 +74,10 @@ struct MapRecord native
 		if (name == "") return labelName;
 		return name;
 	}
+	int volumeNum()
+	{
+		return levelNumber / 1000;
+	}
 }
 
 
@@ -89,6 +93,16 @@ struct Raze
 	native static bool SoundEnabled();
 	native static bool MusicEnabled();
 	native static String PlayerName(int i);
+	
+	static bool specialKeyEvent(InputEvent ev)
+	{
+		if (ev.type == InputEvent.Type_KeyDown || ev.type == InputEvent.Type_KeyUp)
+		{
+			int key = ev.KeyScan;
+			if (key == InputEvent.KEY_VOLUMEDOWN || key == InputEvent.KEY_VOLUMEUP || (key > InputEvent.KEY_LASTJOYBUTTON && key < InputEvent.KEY_PAD_LTHUMB_RIGHT)) return true;
+		}
+		return false;
+	}
 	
 	// game check shortcuts
 	static bool isNam()
