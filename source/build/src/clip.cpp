@@ -1088,6 +1088,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     for (bssize_t i=0; i<clipsectnum; i++)
     {
         int j;
+        if (clipsectorlist[i] == MAXSECTORS) continue;    // we got a deleted sprite in here somewhere. Skip this entry.
         SectIterator it(clipsectorlist[i]);
         while ((j = it.NextIndex()) >= 0)
         {
