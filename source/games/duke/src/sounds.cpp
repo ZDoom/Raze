@@ -887,7 +887,7 @@ static int PlaySound(int num, int chan, int flags, double vol)
 	return S_PlaySound(num, chan, EChanFlags::FromInt(flags), float(vol));
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PLaySound, PlaySound)
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PlaySound, PlaySound)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(snd);
@@ -895,6 +895,19 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Duke, PLaySound, PlaySound)
 	PARAM_INT(flags);
 	PARAM_FLOAT(vol);
 	ACTION_RETURN_INT(PlaySound(snd, chan, flags, vol));
+}
+static void StopSound(int num)
+{
+	S_StopSound(num);
+}
+
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Duke, StopSound, StopSound)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(snd);
+	StopSound(snd);
+	return 0;
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Duke, CheckSoundPlaying, S_CheckSoundPlaying)

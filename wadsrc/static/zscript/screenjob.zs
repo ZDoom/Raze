@@ -112,4 +112,10 @@ class SummaryScreenBase : ScreenJob
 		playtime = time_;
 		cheatflag = cheated;
 	}
+
+	String FormatTime(int time)
+	{
+		return String.Format("%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
+	}
+
 }

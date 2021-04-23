@@ -413,7 +413,7 @@ class Episode5End : ImageScreen
 
 //---------------------------------------------------------------------------
 //
-//
+// This handles both Duke and RR.
 //
 //---------------------------------------------------------------------------
 
@@ -421,10 +421,10 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 {
 	int playerswhenstarted;
 
-	void Init(int pos)
+	void Init(int pws)
 	{
 		Super.Init(fadein|fadeout);
-		playerswhenstarted = pos;
+		playerswhenstarted = pws;
 	}
 
 	override void Start()
@@ -434,26 +434,29 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 
 	override void Draw(double smoothratio)
 	{
+		bool isRR = Raze.isRR();
+		double titlescale = isRR? 0.36 : 1;
+
 		String tempbuf;
 		int currentclock = int((ticks + smoothratio) * 120 / GameTicRate);
 		Screen.ClearScreen();
 		Screen.DrawTexture(TexMan.CheckForTexture("MENUSCREEN"), false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal);
-		Screen.DrawTexture(TexMan.CheckForTexture("INGAMEDUKETHREEDEE"), true, 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true);
+		Screen.DrawTexture(TexMan.CheckForTexture("INGAMEDUKETHREEDEE"), true, 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, DTA_ScaleX, titlescale, DTA_ScaleY, titlescale);
 		if (Raze.isPlutoPak()) Screen.DrawTexture(TexMan.CheckForTexture("MENUPLUTOPAKSPRITE"), true, 260, 36, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true);
 
-		Duke.GameText(160, 58 + 2, "$Multiplayer Totals", 0, 0);
+		Duke.GameText(160, isRR? 58 : 58 + 2, "$Multiplayer Totals", 0, 0);
 		Duke.GameText(160, 58 + 10, currentLevel.DisplayName(), 0, 0);
 		Duke.GameText(160, 165, "$Presskey", 8 - int(sin(currentclock / 10.) * 8), 0);
 
 		int t = 0;
 
-		Duke.MiniText(38, 80, "$Name", 0, -1, 8);
-		Duke.MiniText(269+20, 80, "$Kills", 0, 1, 8);
+		Duke.MiniText(38, 80, "$Name", 0, -1, isRR? 0 : 8);
+		Duke.MiniText(269+20, 80, "$Kills", 0, 1, isRR? 0: 8);
 
 		for (int i = 0; i < playerswhenstarted; i++)
 		{
 			tempbuf = String.Format("%-4d", i + 1);
-			Duke.MiniText(92 + (i * 23), 80, tempbuf, 0, -1, 3);
+			Duke.MiniText(92 + (i * 23), 80, tempbuf, 0, -1, isRR? 0: 3);
 		}
 
 		for (int i = 0; i < playerswhenstarted; i++)
@@ -471,7 +474,7 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 				{
 					int fraggedself = Raze.playerFraggedSelf(y);
 					tempbuf = String.Format("%-4d", fraggedself);
-					Duke.MiniText(92 + (y * 23), 90 + t, tempbuf, 0, -1, 2);
+					Duke.MiniText(92 + (y * 23), 90 + t, tempbuf, 0, -1, isRR? 0: 2);
 					xfragtotal -= fraggedself;
 				}
 				else
@@ -490,7 +493,7 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 			}
 
 			tempbuf = String.Format("%-4d", xfragtotal);
-			Duke.MiniText(101 + (8 * 23), 90 + t, tempbuf, 0, -1, 2);
+			Duke.MiniText(101 + (8 * 23), 90 + t, tempbuf, 0, -1, isRR? 0: 2);
 
 			t += 7;
 		}
@@ -506,10 +509,10 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 				yfragtotal += frag;
 			}
 			tempbuf = String.Format("%-4d", yfragtotal);
-			Duke.MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0, -1, 2);
+			Duke.MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0, -1, isRR? 0: 2);
 		}
 
-		Duke.MiniText(45, 96 + (8 * 7), "$Deaths", 0, -1, 8);
+		Duke.MiniText(45, 96 + (8 * 7), "$Deaths", 0, -1, isRR? 0: 8);
 	}
 }
 
@@ -522,7 +525,6 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 class DukeLevelSummaryScreen : SummaryScreenBase
 {
 	String lastmapname;
-	int gfx_offset;
 	int speech;
 	int displaystate;
 	int dukeAnimStart;
@@ -547,7 +549,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 	void Init()
 	{
 		Super.Init(fadein | fadeout);
-		int vol = currentLevel.volumeNum();
+		int vol = level.volumeNum();
 		String basetex = vol == 1? "BONUSSCREEN2" : "BONUSSCREEN";
 		texBg = TexMan.CheckForTexture(basetex);
 		for(int i = 0; i < 4; i++)
@@ -555,15 +557,10 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 			String otex = String.Format("%s_O%d", basetex, i+1);
 			texOv[i] = TexMan.CheckForTexture(otex);
 		}
-		lastmapname = currentLevel.DisplayName();
+		lastmapname = level.DisplayName();
 		speech = -1;
 		displaystate = 0;
 
-	}
-
-	String FormatTime(int time)
-	{
-		return String.Format("%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
 	}
 
 	override bool OnEvent(InputEvent ev)
@@ -761,6 +758,238 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 //---------------------------------------------------------------------------
 //
+// TBD: fold this into DukeLevelSummaryScreen?
+//
+//---------------------------------------------------------------------------
+
+class RRLevelSummaryScreen : SummaryScreenBase
+{
+	String lastmapname;
+	int speech;
+	int displaystate;
+	int exitSoundStart;
+	TextureID texBg;
+
+	enum EFlags
+	{
+		printTimeText = 1,
+		printTimeVal = 2,
+		printKillsText = 4,
+		printKillsVal = 8,
+		printSecretsText = 16,
+		printSecretsVal = 32,
+		printStatsAll = 63,
+		exitSound = 64,
+		exitWait = 128,
+
+	}
+
+	void Init(bool dofadeout = true)
+	{
+		Super.Init(dofadeout? (fadein | fadeout) : fadein);
+		String s;
+		if (level.flags & MapRecord.USERMAP)
+			s = "BONUSPIC01";
+		else if (!Raze.isRRRA())
+			s = String.Format("BONUSPIC%02d", 1 + clamp((level.levelNumber / 1000) * 7 + (level.levelNumber % 1000), 0, 13));
+		else
+			s = String.Format("LEVELMAP%02d", 1 + clamp((level.levelNumber / 1000) * 7 + (level.levelNumber % 1000), 0, 13));
+		
+		lastmapname = level.DisplayName();
+		texBg = TexMan.CheckForTexture(s);
+	}
+
+	override bool OnEvent(InputEvent ev)
+	{
+		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev))
+		{
+			if ((displaystate & printStatsAll) != printStatsAll)
+			{
+				Duke.PlaySound(RRSnd.FART1, CHAN_AUTO, CHANF_UI);
+				displaystate = printStatsAll;
+			}
+			else if (!(displaystate & exitSound))
+			{
+				displaystate |= exitSound;
+				exitSoundStart = ticks;
+				Duke.PlaySound(RRSnd.CHUG, CHAN_AUTO, CHANF_UI);
+				static const int speeches[] = { RRSnd.BNS_SPCH1, RRSnd.BNS_SPCH2, RRSnd.BNS_SPCH3, RRSnd.BNS_SPCH4 };
+				speech = speeches[random(0, 3)];
+				Duke.PlaySound(speech, CHAN_AUTO, CHANF_UI);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	override void Start()
+	{
+		Duke.PlayBonusMusic();
+	}
+
+	override void OnTick()
+	{
+		if ((displaystate & printStatsAll) != printStatsAll)
+		{
+			if (ticks == 15 * 3)
+			{
+				displaystate |= printTimeText;
+			}
+			else if (ticks == 15 * 4)
+			{
+				displaystate |= printTimeVal;
+				Duke.PlaySound(RRSnd.FART1, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 6)
+			{
+				displaystate |= printKillsText;
+			}
+			else if (ticks == 15 * 7)
+			{
+				displaystate |= printKillsVal;
+				Duke.PlaySound(RRSnd.FART1, CHAN_AUTO, CHANF_UI);
+			}
+			else if (ticks == 15 * 9)
+			{
+				displaystate |= printSecretsText;
+			}
+			else if (ticks == 15 * 10)
+			{
+				displaystate |= printSecretsVal;
+				Duke.PlaySound(RRSnd.FART1, CHAN_AUTO, CHANF_UI);
+			}
+		}
+		if (displaystate & exitSound)
+		{
+			if (ticks >= exitSoundStart + 60)
+			{
+				displaystate ^= exitSound | exitWait;
+			}
+		}
+		if (displaystate & exitWait)
+		{
+			if (speech <= 0 || !Duke.CheckSoundPlaying(speech))
+				jobstate = finished;
+		}
+	}
+
+	void PrintTime()
+	{
+		String tempbuf;
+		Duke.BigText(30, 48, "$TXT_YerTime", -1);
+		Duke.BigText(30, 64, "$TXT_ParTime", -1);
+		Duke.BigText(30, 80, "$TXT_XTRTIME", -1);
+
+		if (displaystate & printTimeVal)
+		{
+			tempbuf = FormatTime(playtime);
+			Duke.BigText(191, 48, tempbuf, -1);
+
+			tempbuf = FormatTime(level.parTime);
+			Duke.BigText(191, 64, tempbuf, -1);
+
+			tempbuf = FormatTime(level.designerTime);
+			Duke.BigText(191, 80, tempbuf, -1);
+		}
+	}
+
+	void PrintKills()
+	{
+		String tempbuf;
+		Duke.BigText(30, 112, "$TXT_VarmintsKilled", -1);
+		Duke.BigText(30, 128, "$TXT_VarmintsLeft", -1);
+
+		if (displaystate & printKillsVal)
+		{
+			tempbuf.Format("%-3d", kills);
+			Duke.BigText(231, 112, tempbuf, -1);
+			if (maxkills < 0)
+			{
+				tempbuf = "$TXT_N_A";
+			}
+			else
+			{
+				tempbuf = String.Format("%-3d", max(0, maxkills - kills));
+			}
+			Duke.BigText(231, 128, tempbuf, -1);
+		}
+	}
+
+	void PrintSecrets()
+	{
+		String tempbuf;
+		Duke.BigText(30, 144, "$TXT_SECFND", -1);
+		Duke.BigText(30, 160, "$TXT_SECMISS", -1);
+
+		if (displaystate & printSecretsVal)
+		{
+			tempbuf = String.Format("%-3d", secrets);
+			Duke.BigText(231, 144, tempbuf, -1);
+			tempbuf = String.Format("%-3d", max(0, maxsecrets - secrets));
+			Duke.BigText(231, 160, tempbuf, -1);
+		}
+	}
+
+	override void Draw(double sr)
+	{
+		Screen.ClearScreen();
+		Screen.DrawTexture(texBg, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
+
+		if (lastmapname) Duke.BigText(80, 16, lastmapname, -1);
+		Duke.BigText(15, 192, "$PRESSKEY", -1);
+
+		if (displaystate & printTimeText)
+		{
+			PrintTime();
+		}
+		if (displaystate & printKillsText)
+		{
+			PrintKills();
+		}
+		if (displaystate & printSecretsText)
+		{
+			PrintSecrets();
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class RRRAEndOfGame : SkippableScreenJob
+{
+	void Init()
+	{
+		Super.Init(fadein|fadeout);
+	}
+
+	override void OnSkip()
+	{
+		Duke.StopSound(RRSnd.LN_FINAL);
+	}
+
+	override void Start()
+	{
+		Duke.PlaySound(RRSnd.LN_FINAL, CHAN_AUTO, CHANF_UI);
+	}
+
+	override void OnTick()
+	{
+		if (!Duke.CheckSoundPlaying(RRSnd.LN_FINAL) && ticks > 15 * GameTicRate) jobstate = finished; // make sure it stays, even if sound is off.
+	}
+
+	override void Draw(double sr) 
+	{
+		let tex = TexMan.CheckForTexture(((ticks >> 2) & 1)? "ENDGAME2" : "ENDGAME");
+		Screen.DrawTexture(tex, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------
@@ -780,8 +1009,17 @@ class DukeLoadScreen : ScreenJob
 		Screen.ClearScreen();
 		Screen.DrawTexture(TexMan.CheckForTexture("LOADSCREEN"), false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
 		
-		Duke.BigText(160, 90, (rec.flags & MapRecord.USERMAP)? "$TXT_LOADUM" : "$TXT_LOADING");
-		Duke.BigText(160, 114, rec.DisplayName());
+		if (!Raze.IsRR())
+		{
+			Duke.BigText(160, 90, (rec.flags & MapRecord.USERMAP)? "$TXT_LOADUM" : "$TXT_LOADING");
+			Duke.BigText(160, 114, rec.DisplayName());
+		}
+		else
+		{
+			int y = Raze.isRRRA()? 140 : 90;
+			Duke.BigText(160, y, (rec.flags & MapRecord.USERMAP)? "$TXT_ENTRUM" : "$TXT_ENTERIN", 0);
+			Duke.BigText(160, y+24, rec.DisplayName(), 0);
+		}
 	}
 }
 
