@@ -1459,6 +1459,13 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, MusicEnabled, MusicEnabled)
 	ACTION_RETURN_INT(MusicEnabled());
 }
 
+DEFINE_ACTION_FUNCTION(_Raze, PlayerName)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(index);
+	ACTION_RETURN_STRING(unsigned(index) >= MAXPLAYERS ? "" : PlayerName(index));
+}
+
 extern bool demoplayback;
 DEFINE_GLOBAL(multiplayer)
 DEFINE_GLOBAL(netgame)
@@ -1466,3 +1473,18 @@ DEFINE_GLOBAL(gameaction)
 DEFINE_GLOBAL(gamestate)
 DEFINE_GLOBAL(demoplayback)
 DEFINE_GLOBAL(consoleplayer)
+DEFINE_GLOBAL(currentLevel)
+
+DEFINE_FIELD_X(MapRecord, MapRecord, parTime)
+DEFINE_FIELD_X(MapRecord, MapRecord, designerTime)
+DEFINE_FIELD_X(MapRecord, MapRecord, fileName)
+DEFINE_FIELD_X(MapRecord, MapRecord, labelName)
+DEFINE_FIELD_X(MapRecord, MapRecord, name)
+DEFINE_FIELD_X(MapRecord, MapRecord, music)
+DEFINE_FIELD_X(MapRecord, MapRecord, cdSongId)
+DEFINE_FIELD_X(MapRecord, MapRecord, flags)
+DEFINE_FIELD_X(MapRecord, MapRecord, levelNumber)
+DEFINE_FIELD_X(MapRecord, MapRecord, nextLevel)
+DEFINE_FIELD_X(MapRecord, MapRecord, nextSecret)
+//native readonly String messages[MAX_MESSAGES];
+DEFINE_FIELD_X(MapRecord, MapRecord, author)

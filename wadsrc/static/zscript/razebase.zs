@@ -37,7 +37,45 @@ struct UserConfigStruct native
 extend struct _
 {
 	native @UserConfigStruct userConfig;
+	native MapRecord currentLevel;
 }
+
+struct MapRecord native
+{
+	enum MIFlags
+	{
+		FORCEEOG = 1,
+		USERMAP = 2,
+	}
+	
+	native readonly int parTime;
+	native readonly int designerTime;
+	native readonly String fileName;
+	native readonly String labelName;
+	native readonly String name;
+	native readonly String music;
+	native readonly int cdSongId;
+	native readonly int flags;
+	native readonly int levelNumber;
+
+	// The rest is only used by Blood
+	native readonly int nextLevel;
+	native readonly int nextSecret;
+	//native readonly String messages[MAX_MESSAGES];
+	native readonly String author;
+	
+	String GetLabelName()
+	{
+		if (flags & USERMAP) return "$TXT_USERMAP";
+		return labelName;
+	}
+	String DisplayName()
+	{
+		if (name == "") return labelName;
+		return name;
+	}
+}
+
 
 struct Raze
 {
@@ -50,6 +88,7 @@ struct Raze
 	native static void StopAllSounds();
 	native static bool SoundEnabled();
 	native static bool MusicEnabled();
+	native static String PlayerName(int i);
 	
 	// game check shortcuts
 	static bool isNam()
@@ -95,6 +134,22 @@ struct Raze
 	static bool isBlood()
 	{
 		return gameinfo.gametype & GAMEFLAG_BLOOD;
+	}
+	
+	// Dont know yet how to best export this, so for now these are just placeholders as MP is not operational anyway.
+	static int playerPalette(int i)
+	{
+		return 0;
+	}
+	
+	static int playerFrags(int i, int j)
+	{
+		return 0;
+	}
+	
+	static int playerFraggedSelf(int i)
+	{
+		return 0;
 	}
 	
 }

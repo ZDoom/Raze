@@ -85,3 +85,31 @@ class ImageScreen : SkippableScreenJob native
 	//override void OnTick();
 	//override void Draw(double smooth);
 }
+
+//---------------------------------------------------------------------------
+//
+// this is to have a unified interface to the summary screens
+// that can be set up automatically by the games to avoid direct access to game data.
+//
+//---------------------------------------------------------------------------
+
+class SummaryScreenBase : ScreenJob
+{
+	MapRecord level;
+	int kills, maxkills;
+	int secrets, maxsecrets, supersecrets;
+	int time;
+	bool cheatflag;
+
+	void SetParameters(MapRecord map, int kills_, int maxkills_, int secrets_, int maxsecrets_, int supersecrets_, int time_, bool cheated)
+	{
+		level = map;
+		kills = kills_;
+		maxkills = maxkills_;
+		secrets = secrets_;
+		maxsecrets = maxsecrets_;
+		supersecrets = supersecrets_;
+		time = time_;
+		cheatflag = cheated;
+	}
+}

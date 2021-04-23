@@ -25,6 +25,12 @@ struct Duke native
 	native static int PlaySound(int num, int channel = CHAN_AUTO, int flags = 0, float vol =0.8f);
 	native static bool CheckSoundPlaying(int num);
 	
+	static void PlayBonusMusic()
+	{
+		if (Raze.MusicEnabled())
+			PlaySound(DukeSnd.BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+	}
+	
 	//==========================================================================
 	//
 	// wrappers around DrawText to allow easier reuse of the old code.
