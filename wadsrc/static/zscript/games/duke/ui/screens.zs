@@ -759,3 +759,29 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DukeLoadScreen : ScreenJob
+{
+	MapRecord rec;
+	
+	void Init(MapRecord maprec)
+	{
+		Super.Init();
+		rec = maprec;
+	}
+	
+	override void Draw(double sr)
+	{
+		Screen.ClearScreen();
+		Screen.DrawTexture(TexMan.CheckForTexture("LOADSCREEN"), false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
+		
+		Duke.BigText(160, 90, (rec.flags & MapRecord.USERMAP)? "$TXT_LOADUM" : "$TXT_LOADING");
+		Duke.BigText(160, 114, rec.DisplayName());
+	}
+}
+
