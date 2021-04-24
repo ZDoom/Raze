@@ -344,21 +344,6 @@ void InitLevel(MapRecord *maprec)
     engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &Player[0].cursectnum);
     currentLevel = maprec;
 
-    if (!maprec->labelName.CompareNoCase("$hidtemp") && !maprec->name.CompareNoCase("$TXTS_T_MAP10"))
-    {
-        // flip the inverted card reader in TD's level 10.
-        if (sprite[179].picnum == 1852 && sprite[179].cstat == 92) sprite[179].cstat &= ~12;
-    }
-    if (!maprec->labelName.CompareNoCase("$outpost") && !maprec->name.CompareNoCase("$TXTS_MAP09"))
-    {
-        // silence a misplaced and *very* annoying ambient sound.
-        if (sprite[442].picnum == ST1 && sprite[442].hitag == 1002 && sprite[442].lotag == 31) sprite[442].lotag = -1;
-    }
-    if (!maprec->labelName.CompareNoCase("$volcano") && !maprec->name.CompareNoCase("$TXTS_W_MAP10"))
-    {
-        // fix badly tagged sector that can glitch out.
-        if (sector[118].ceilingstat == 37 && sector[118].ceilingpicnum == 317) sector[118].ceilingstat &= ~CSTAT_SECTOR_SKY;
-    }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);

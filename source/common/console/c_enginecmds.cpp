@@ -52,6 +52,7 @@
 #include "version.h"
 #include "findfile.h"
 #include "md5.h"
+#include "md4.h"
 
 extern FILE* Logfile;
 
@@ -293,8 +294,8 @@ CCMD (md5sum)
 	}
 	for (int i = 1; i < argv.argc(); ++i)
 	{
-		FileReader fr;
-		if (!fr.OpenFile(argv[i]))
+		FileReader fr = fileSystem.OpenFileReader(argv[i]);
+		if (!fr.isOpen())
 		{
 			Printf("%s: %s\n", argv[i], strerror(errno));
 		}
@@ -314,6 +315,33 @@ CCMD (md5sum)
 				Printf("%02x", readbuf[j]);
 			}
 			Printf(" *%s\n", argv[i]);
+		}
+	}
+}
+
+CCMD(md4sum)
+{
+	if (argv.argc() < 2)
+	{
+		Printf("Usage: md4sum <file> ...\n");
+	}
+	for (int i = 1; i < argv.argc(); ++i)
+	{
+		FileReader fr = fileSystem.OpenFileReader(argv[i]);
+		if (!fr.isOpen())
+		{
+			Printf("%s: %s\n", argv[i], strerror(errno));
+		}
+		else
+		{
+			auto data = fr.Read();
+			uint8_t digest[16];
+			md4once(data.Data(), data.Size(), digest);
+			for (int j = 0; j < 16; ++j)
+			{
+				Printf("%02x", digest[j]);
+			}
+			Printf(" //*%s\n", argv[i]);
 		}
 	}
 }

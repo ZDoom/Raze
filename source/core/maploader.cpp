@@ -45,7 +45,6 @@
 #include "sectorgeometry.h"
 #include "render.h"
 
-
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
 {
 	sect.wallptr = fr.ReadInt16();
@@ -455,8 +454,6 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 
 	memcpy(wallbackup, wall, sizeof(wallbackup));
 	memcpy(sectorbackup, sector, sizeof(sectorbackup));
-
-	addBlockingPairs();
 }
 
 
