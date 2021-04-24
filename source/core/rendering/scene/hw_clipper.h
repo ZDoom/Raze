@@ -13,7 +13,7 @@ class ClipNode
 	friend class Clipper;
 	
 	ClipNode *prev, *next;
-	angle_t start, end;
+	int start, end;
 
 	bool operator== (const ClipNode &other)
 	{
@@ -24,27 +24,23 @@ class ClipNode
 
 class Clipper
 {
-	static unsigned starttime;
 	FMemArena nodearena;
 	ClipNode * freelist = nullptr;
 
 	ClipNode * clipnodes = nullptr;
 	ClipNode * cliphead = nullptr;
-	ClipNode * silhouette = nullptr;	// will be preserved even when RemoveClipRange is called
 	vec2_t viewpoint;
-	bool blocked = false;
+	void RemoveRange(ClipNode* cn);
+	binangle visibleStart, visibleEnd;
 
-	bool IsRangeVisible(binangle startangle, binangle endangle);
-	void RemoveRange(ClipNode * cn);
-	void AddClipRange(binangle startangle, binangle endangle);
-	void RemoveClipRange(binangle startangle, binangle endangle);
+public:
+	bool IsRangeVisible(int startangle, int endangle);
+	void AddClipRange(int startangle, int endangle);
+	void RemoveClipRange(int startangle, int endangle);
 
 public:
 
-	Clipper();
-
-	void Clear();
-	static binangle AngleToPseudo(binangle ang);
+	void Clear(binangle rangestart);
 
 	void Free(ClipNode *node)
 	{
@@ -64,7 +60,7 @@ private:
 		else return (ClipNode*)nodearena.Alloc(sizeof(ClipNode));
 	}
 
-	ClipNode * NewRange(angle_t start, angle_t end)
+	ClipNode * NewRange(int start, int end)
 	{
 		ClipNode * c = GetNew();
 
@@ -74,8 +70,6 @@ private:
 		return c;
 	}
 
-	void DoRemoveClipRange(angle_t start, angle_t end);
-
 public:
     
     void SetViewpoint(const vec2_t &vp)
@@ -83,63 +77,28 @@ public:
         viewpoint = vp;
     }
 
-	void SetSilhouette();
-
-	bool SafeCheckRange(binangle startAngle, binangle endAngle)
+	void SetVisibleRange(angle_t a1, angle_t a2)
 	{
-		if(startAngle.asbam() > endAngle.asbam())
+		if (a2 != 0xffffffff)
 		{
-			return (IsRangeVisible(startAngle, bamang(ANGLE_MAX)) || IsRangeVisible(bamang(0), endAngle));
+			visibleStart = bamang(a1 - a2);
+			visibleEnd = bamang(a1 + a2);
 		}
-		
-		return IsRangeVisible(startAngle, endAngle);
+		else visibleStart = visibleEnd = bamang(0);
 	}
 
-	void SafeAddClipRange(binangle startangle, binangle endangle)
+	void RestrictVisibleRange(binangle a1, binangle a2)
 	{
-		if(startangle.asbam() > endangle.asbam())
+		if (visibleStart == visibleEnd)
 		{
-			// The range has to added in two parts.
-			AddClipRange(startangle, bamang(ANGLE_MAX));
-			AddClipRange(bamang(0), endangle);
+			visibleStart = a1;
+			visibleEnd = a2;
 		}
 		else
 		{
-			// Add the range as usual.
-			AddClipRange(startangle, endangle);
+			if (a1.asbam() - visibleStart.asbam() < visibleEnd.asbam() - visibleStart.asbam()) visibleStart = a1;
+			if (a2.asbam() - visibleStart.asbam() < visibleEnd.asbam() - visibleStart.asbam()) visibleStart = a2;
 		}
-	}
-    
-    void SafeAddClipRange(const vec2_t& v1, const vec2_t& v2)
-    {
-        binangle a2 = PointToAngle(v1);
-        binangle a1 = PointToAngle(v2);
-        SafeAddClipRange(a1,a2);
-    }
-
-	void SafeRemoveClipRange(binangle startangle, binangle endangle)
-	{
-		if(startangle.asbam() > endangle.asbam())
-		{
-			// The range has to added in two parts.
-			RemoveClipRange(startangle, bamang(ANGLE_MAX));
-			RemoveClipRange(bamang(0), endangle);
-		}
-		else
-		{
-			// Add the range as usual.
-			RemoveClipRange(startangle, endangle);
-		}
-	}
-
-	void SetBlocked(bool on)
-	{
-		blocked = on;
-	}
-
-	bool IsBlocked() const
-	{
-		return blocked;
 	}
 
 	void DumpClipper();
@@ -147,24 +106,7 @@ public:
 	binangle PointToAngle(const vec2_t& pos)
 	{
 		vec2_t vec = pos - viewpoint;
-#if 0
-
-		if (vec.x == 0 && vec.y == 0)
-		{
-			return bamang(0);
-		}
-		else
-		{
-			double result = vec.y / double(abs(vec.x) + fabs(vec.y));
-			if (vec.x < 0)
-			{
-				result = 2. - result;
-			}
-			return bamang(xs_Fix<30>::ToFix(result));
-		}
-#else
 		return bvectangbam(vec.x, vec.y);
-#endif
 	}
 
 

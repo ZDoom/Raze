@@ -32,6 +32,8 @@ class BunchDrawer
     FixedBitArray<MAXWALLS> gotwall;
     binangle ang1, ang2;
 
+    int sectstartang[MAXSECTORS], sectendang[MAXSECTORS];
+
 private:
 
     enum

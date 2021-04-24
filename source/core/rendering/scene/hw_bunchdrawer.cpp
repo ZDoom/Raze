@@ -70,6 +70,11 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 		// Reverse the orientation so that startangle and endangle are properly ordered.
 		wall[i].clipangle = clipper->PointToAngle(wall[i].pos);
 	}
+	for (int i = 0; i < numsectors; i++)
+	{
+		sectstartang[i] = -1;
+		sectendang[i] = -1;
+	}
 }
 
 //==========================================================================
@@ -193,16 +198,37 @@ int BunchDrawer::ClipLine(int line, bool portal)
 {
 	auto wal = &wall[line];
 
-	auto startAngle = wal->clipangle;
-	auto endAngle = wall[wal->point2].clipangle;
+	auto startAngleBam = wal->clipangle;
+	auto endAngleBam = wall[wal->point2].clipangle;
 
-	// Back side, i.e. backface culling	- read: endAngle >= startAngle!
-	if (startAngle.asbam() - endAngle.asbam() < ANGLE_180)
+	// Back side, i.e. backface culling	- read: endAngle <= startAngle!
+	if (startAngleBam.asbam() - endAngleBam.asbam() < ANGLE_180)
 	{
 		return CL_Skip;
 	}
+	// convert to clipper coordinates and clamp to valid range.
+	int startAngle = startAngleBam.asbam() - ang1.asbam();
+	int endAngle = endAngleBam.asbam() - ang1.asbam();
+	if (startAngle < 0) startAngle = 0;
+	if (endAngle < 0) endAngle = INT_MAX;
 
-	if (!portal && !clipper->SafeCheckRange(startAngle, endAngle))
+	// since these values are derived from previous calls of this function they cannot be out of range.
+	int sect = wal->sector;
+	int sectStartAngle = sectstartang[sect];
+	auto sectEndAngle = sectendang[sect];
+
+	// check against the maximum possible viewing range of the sector.
+	// Todo: check if this is sufficient or if we really have to do a more costly check against the single visible segments.
+	if (sectStartAngle != -1)
+	{
+		if (sectStartAngle > endAngle || sectEndAngle < startAngle) 
+			return CL_Skip; // completely outside the valid range for this sector.
+		if (sectStartAngle > startAngle) startAngle = sectStartAngle;
+		if (sectEndAngle < endAngle) endAngle = sectEndAngle;
+		if (endAngle <= startAngle) return CL_Skip; // can this even happen?
+	}
+
+	if (!portal && !clipper->IsRangeVisible(startAngle, endAngle))
 	{
 		return CL_Skip;
 	}
@@ -210,12 +236,26 @@ int BunchDrawer::ClipLine(int line, bool portal)
 	if (wal->nextwall == -1 || (wal->cstat & CSTAT_WALL_1WAY) || CheckClip(wal))
 	{
 		// one-sided
-		if (!portal) clipper->SafeAddClipRange(startAngle, endAngle);
+		if (!portal) clipper->AddClipRange(startAngle, endAngle);
 		return CL_Draw;
 	}
 	else
 	{
-		if (portal) clipper->SafeRemoveClipRange(startAngle, endAngle);
+		if (portal) clipper->RemoveClipRange(startAngle, endAngle);
+
+		// set potentially visible viewing range for this line's back sector.
+		int nsect = wal->nextsector;
+		if (sectstartang[nsect] == -1)
+		{
+			sectstartang[nsect] = startAngle;
+			sectendang[nsect] = endAngle;
+		}
+		else
+		{
+			if (startAngle < sectstartang[nsect]) sectstartang[nsect] = startAngle;
+			if (endAngle > sectendang[nsect]) sectendang[nsect] = endAngle;
+		}
+
 		return CL_Draw | CL_Pass;
 	}
 }
@@ -529,6 +569,14 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 	//Printf("----------------------------------------- \nstart at sector %d\n", viewsectors[0]);
 	auto process = [&]()
 	{
+		clipper->Clear(ang1);
+
+		for (unsigned i = 0; i < sectcount; i++)
+		{
+			sectstartang[viewsectors[i]] = 0;
+			sectendang[viewsectors[i]] = int (ang2.asbam() - ang1.asbam());
+		}
+
 		for (unsigned i = 0; i < sectcount; i++)
 			ProcessSector(viewsectors[i], portal);
 		while (Bunches.Size() > 0)
@@ -550,12 +598,11 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 		// The BunchInFront check can fail with angles that may wrap around.
 		auto rotang = di->Viewpoint.RotAngle;
 		ang1 = bamang(rotang - ANGLE_90);
-		ang2 = bamang(rotang + ANGLE_90);
+		ang2 = bamang(rotang + ANGLE_90 - 1);
 		process();
-		clipper->Clear();
 		gotsector2.Zero();
 		ang1 = bamang(rotang + ANGLE_90);
-		ang2 = bamang(rotang - ANGLE_90);
+		ang2 = bamang(rotang - ANGLE_90 - 1);
 		process();
 	}
 	Bsp.Unclock();

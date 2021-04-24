@@ -40,12 +40,6 @@
 #include "build.h"
 #include "printf.h"
 
-unsigned Clipper::starttime;
-
-Clipper::Clipper()
-{
-	starttime++;
-}
 
 //-----------------------------------------------------------------------------
 //
@@ -74,20 +68,11 @@ void Clipper::RemoveRange(ClipNode * range)
 //
 //-----------------------------------------------------------------------------
 
-void Clipper::Clear()
+void Clipper::Clear(binangle rangestart)
 {
 	ClipNode *node = cliphead;
 	ClipNode *temp;
 	
-	blocked = false;
-	while (node != nullptr)
-	{
-		temp = node;
-		node = node->next;
-		Free(temp);
-	}
-	node = silhouette;
-
 	while (node != nullptr)
 	{
 		temp = node;
@@ -96,30 +81,17 @@ void Clipper::Clear()
 	}
 	
 	cliphead = nullptr;
-	silhouette = nullptr;
-	starttime++;
-}
 
-//-----------------------------------------------------------------------------
-//
-// SetSilhouette
-//
-//-----------------------------------------------------------------------------
-
-void Clipper::SetSilhouette()
-{
-	ClipNode *node = cliphead;
-	ClipNode *last = nullptr;
-
-	while (node != nullptr)
+	if (visibleStart.asbam() != 0 || visibleEnd.asbam() != 0)
 	{
-		ClipNode *snode = NewRange(node->start, node->end);
-		if (silhouette == nullptr) silhouette = snode;
-		snode->prev = last;
-		if (last != nullptr) last->next = snode;
-		last = snode;
-		node = node->next;
+		int vstart = int(visibleStart.asbam() - rangestart.asbam());
+		if (vstart > 1) AddClipRange(0, vstart - 1);
+
+		int vend = int(visibleEnd.asbam() - rangestart.asbam());
+		if (vend > 0 && vend < INT_MAX - 1) AddClipRange(vend + 1, INT_MAX);
 	}
+
+
 }
 
 //-----------------------------------------------------------------------------
@@ -128,16 +100,16 @@ void Clipper::SetSilhouette()
 //
 //-----------------------------------------------------------------------------
 
-bool Clipper::IsRangeVisible(binangle startAngle, binangle endAngle)
+bool Clipper::IsRangeVisible(int startAngle, int endAngle)
 {
 	ClipNode *ci;
 	ci = cliphead;
 	
-	if (endAngle.asbam()==0 && ci && ci->start==0) return false;
+	if (endAngle == 0 && ci && ci->start==0) return false;
 	
-	while (ci != nullptr && ci->start < endAngle.asbam())
+	while (ci != nullptr && ci->start < endAngle)
 	{
-		if (startAngle.asbam() >= ci->start && endAngle.asbam() <= ci->end)
+		if (startAngle >= ci->start && endAngle <= ci->end)
 		{
 			return false;
 		}
@@ -153,9 +125,8 @@ bool Clipper::IsRangeVisible(binangle startAngle, binangle endAngle)
 //
 //-----------------------------------------------------------------------------
 
-void Clipper::AddClipRange(binangle start_, binangle end_)
+void Clipper::AddClipRange(int start, int end)
 {
-	auto start = start_.asbam(), end = end_.asbam();
 	ClipNode *node, *temp, *prevNode;
 
 	if (cliphead)
@@ -255,46 +226,11 @@ void Clipper::AddClipRange(binangle start_, binangle end_)
 
 //-----------------------------------------------------------------------------
 //
-// RemoveClipRange
+// RemoveClipRange 
 //
 //-----------------------------------------------------------------------------
 
-void Clipper::RemoveClipRange(binangle start_, binangle end_)
-{
-	auto start = start_.asbam(), end = end_.asbam();
-	ClipNode *node;
-
-	if (silhouette)
-	{
-		node = silhouette;
-		while (node != nullptr && node->end <= start)
-		{
-			node = node->next;
-		}
-		if (node != nullptr && node->start <= start)
-		{
-			if (node->end >= end) return;
-			start = node->end;
-			node = node->next;
-		}
-		while (node != nullptr && node->start < end)
-		{
-			DoRemoveClipRange(start, node->start);
-			start = node->end;
-			node = node->next;
-		}
-		if (start >= end) return;
-	}
-	DoRemoveClipRange(start, end);
-}
-	
-//-----------------------------------------------------------------------------
-//
-// RemoveClipRange worker function
-//
-//-----------------------------------------------------------------------------
-
-void Clipper::DoRemoveClipRange(angle_t start, angle_t end)
+void Clipper::RemoveClipRange(int start, int end)
 {
 	ClipNode *node, *temp;
 
@@ -346,15 +282,6 @@ void Clipper::DoRemoveClipRange(angle_t start, angle_t end)
 
 
 //-----------------------------------------------------------------------------
-//
-// ! Returns the pseudoangle between the line p1 to (infinity, p1.y) and the 
-// line from p1 to p2. The pseudoangle has the property that the ordering of 
-// points by true angle around p1 and ordering of points by pseudoangle are the 
-// same.
-//
-// For clipping exact angles are not needed. Only the ordering matters.
-// This is about as fast as the fixed point R_PointToAngle2 but without
-// the precision issues associated with that function.
 //
 //-----------------------------------------------------------------------------
 
