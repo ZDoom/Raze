@@ -43,6 +43,7 @@ FGameTexture* SkyboxReplacement(FTextureID picnum, int palnum);
 void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, PalEntry FadeColor)
 {
 	int picnum = plane == plane_ceiling ? sector->ceilingpicnum : sector->floorpicnum;
+	tileUpdatePicnum(&picnum, 0, 0);
 	int palette = plane == plane_ceiling ? sector->ceilingpal : sector->floorpal;
 
 	int32_t dapyscale = 0, dapskybits = 0, dapyoffs = 0, daptileyscale = 0;
