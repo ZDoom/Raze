@@ -181,6 +181,11 @@ inline bool isWW2GI()
 	return g_gameType & (GAMEFLAG_WW2GI);
 }
 
+inline bool isDuke()
+{
+	return g_gameType & (GAMEFLAG_DUKE);
+}
+
 inline bool isRR()
 {
 	return g_gameType & (GAMEFLAG_RRALL);

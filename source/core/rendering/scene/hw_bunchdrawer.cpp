@@ -41,7 +41,30 @@
 #include "hw_portal.h"
 #include "gamestruct.h"
 #include "hw_voxels.h"
+#include "mapinfo.h"
+#include "gamecontrol.h"
 
+TArray<int> blockingpairs[MAXWALLS];
+
+// temporary hack job to make Lunatic Fringe work while searching for a proper solution.
+void addBlockingPairs()
+{
+	for (auto& p : blockingpairs) p.Clear();
+	if (!isDuke()) return;
+	if (wall[682].sector == 151 && wall[683].sector == 151 && wall[684].sector == 151 &&
+		wall[694].sector == 152 && wall[695].sector == 152 && wall[695].sector == 152 &&
+		wall[755].sector == 158 && wall[756].sector == 158 && wall[757].sector == 158 &&
+		wall[739].sector == 158 && wall[740].sector == 158 && wall[741].sector == 158)
+	{
+		for (int i = 755; i<=757; i++) blockingpairs[682].Push(i);
+		blockingpairs[683] = blockingpairs[682];
+		blockingpairs[684] = blockingpairs[682];
+
+		for (int i = 739; i <= 741; i++) blockingpairs[694].Push(i);
+		blockingpairs[695] = blockingpairs[694];
+		blockingpairs[696] = blockingpairs[694];
+	}
+}
 
 //==========================================================================
 //
@@ -92,6 +115,7 @@ void BunchDrawer::StartScene()
 	gotsector.Zero();
 	gotsector2.Zero();
 	gotwall.Zero();
+	blockwall.Zero();
 }
 
 //==========================================================================
@@ -196,6 +220,8 @@ bool BunchDrawer::CheckClip(walltype* wal)
 
 int BunchDrawer::ClipLine(int line, bool portal)
 {
+	if (blockwall[line]) return CL_Draw;
+
 	auto wal = &wall[line];
 
 	auto startAngleBam = wal->clipangle;
@@ -277,6 +303,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 
 		if (clipped & CL_Draw)
 		{
+			for (auto p : blockingpairs[i]) blockwall.Set(p);
 			show2dwall.Set(i);
 
 			if (!gotwall[i])

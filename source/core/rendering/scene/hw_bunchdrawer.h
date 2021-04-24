@@ -30,6 +30,7 @@ class BunchDrawer
     FixedBitArray<MAXSECTORS> gotsector;
     FixedBitArray<MAXSECTORS> gotsector2;
     FixedBitArray<MAXWALLS> gotwall;
+    FixedBitArray<MAXWALLS> blockwall;
     binangle ang1, ang2;
 
     int sectstartang[MAXSECTORS], sectendang[MAXSECTORS];
