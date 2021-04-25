@@ -35,6 +35,8 @@
 #include "build.h"
 #include "sc_man.h"
 #include "printf.h"
+#include "c_dispatch.h"
+#include "md4.h"
 
 static TArray<usermaphack_t> usermaphacks;
 TArray<int> blockingpairs[MAXWALLS];
@@ -364,6 +366,34 @@ void G_LoadMapHack(const char* filename, const unsigned char* md4)
             {
                 LoadMapHack(mhk.mhkfile);
             }
+        }
+    }
+}
+
+// Map hacks use MD4 instead of MD5. Oh, well...
+CCMD(md4sum)
+{
+    if (argv.argc() < 2)
+    {
+        Printf("Usage: md4sum <file> ...\n");
+    }
+    for (int i = 1; i < argv.argc(); ++i)
+    {
+        FileReader fr = fileSystem.OpenFileReader(argv[i]);
+        if (!fr.isOpen())
+        {
+            Printf("%s: %s\n", argv[i], strerror(errno));
+        }
+        else
+        {
+            auto data = fr.Read();
+            uint8_t digest[16];
+            md4once(data.Data(), data.Size(), digest);
+            for (int j = 0; j < 16; ++j)
+            {
+                Printf("%02x", digest[j]);
+            }
+            Printf(" //*%s\n", argv[i]);
         }
     }
 }
