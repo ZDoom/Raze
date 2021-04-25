@@ -45,10 +45,9 @@ class DukeIntro : ScreenJobRunner
 			if (!Raze.isShareware())
 			{
 				Array<int> soundinfo;
-				soundinfo.Push(1);
-				soundinfo.Push(DukeSnd.FLY_BY+1);
-				soundinfo.Push(19);
-				soundinfo.Push(DukeSnd.PIPEBOMB_EXPLODE+1);
+				soundinfo.Pushv(
+					1, DukeSnd.FLY_BY+1,
+					19, DukeSnd.PIPEBOMB_EXPLODE+1);
 				jobs.Push(MoviePlayerJob.CreateWithSoundinfo("logo.anm", soundinfo, 9, 9, 9));
 			}
 			if (!Raze.isNam()) jobs.Push(new("DRealmsScreen").Init());
