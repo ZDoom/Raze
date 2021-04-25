@@ -54,6 +54,7 @@
 #include "vm.h"
 
 
+#if 0
 IMPLEMENT_CLASS(DScreenJob, true, false)
 IMPLEMENT_CLASS(DSkippableScreenJob, true, false)
 IMPLEMENT_CLASS(DBlackScreen, true, false)
@@ -318,17 +319,6 @@ bool ScreenJobRunner::OnEvent(event_t* ev)
 {
 	if (paused || index >= jobs.Size()) return false;
 
-	if (ev->type == EV_KeyDown)
-	{
-		// We never reach the key binding checks in G_Responder, so for the console we have to check for ourselves here.
-		auto binding = Bindings.GetBinding(ev->data1);
-		if (binding.CompareNoCase("toggleconsole") == 0)
-		{
-			C_ToggleConsole();
-			return true;
-		}
-	}
-
 	if (jobs[index]->state != DScreenJob::running) return false;
 
 	return jobs[index]->OnEvent(ev);
@@ -432,6 +422,10 @@ bool ScreenJobRunner::RunFrame()
 
 ScreenJobRunner *runner;
 
+#endif
+
+
+#if 0
 void RunScreenJob(TArray<DScreenJob*>& jobs, CompletionFunc completion, int flags)
 {
 	assert(completion != nullptr);
@@ -446,38 +440,52 @@ void RunScreenJob(TArray<DScreenJob*>& jobs, CompletionFunc completion, int flag
 		completion(false);
 	}
 }
+#endif
 
 void DeleteScreenJob()
 {
+	/*
 	if (runner)
 	{
 		delete runner;
 		runner = nullptr;
 	}
-	twod->SetScreenFade(1);
+	twod->SetScreenFade(1);*/
 }
 
 void EndScreenJob()
 {
-	if (runner) runner->OnFinished();
+	//if (runner) runner->OnFinished();
 	DeleteScreenJob();
 }
 
 
 bool ScreenJobResponder(event_t* ev)
 {
-	if (runner) return runner->OnEvent(ev);
+	if (ev->type == EV_KeyDown)
+	{
+		// We never reach the key binding checks in G_Responder, so for the console we have to check for ourselves here.
+		auto binding = Bindings.GetBinding(ev->data1);
+		if (binding.CompareNoCase("toggleconsole") == 0)
+		{
+			C_ToggleConsole();
+			return true;
+		}
+	}
+
+	//if (runner) return runner->OnEvent(ev);
 	return false;
 }
 
 void ScreenJobTick()
 {
-	if (runner) runner->OnTick();
+	//if (runner) runner->OnTick();
 }
 
 bool ScreenJobDraw()
 {
 	// we cannot recover from this because we have no completion callback to call.
+	/*
 	if (!runner)
 	{
 		// We can get here before a gameaction has been processed. In that case just draw a black screen and wait.
@@ -486,6 +494,7 @@ bool ScreenJobDraw()
 		return false;
 	}
 	auto res = runner->RunFrame();
+	*/ int res = 0;
 	if (!res)
 	{
 		assert((gamestate != GS_INTERMISSION && gamestate != GS_INTRO) || gameaction != ga_nothing);
@@ -493,4 +502,3 @@ bool ScreenJobDraw()
 	}
 	return res;
 }
-

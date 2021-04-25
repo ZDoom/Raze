@@ -372,6 +372,7 @@ void menu_DoPlasma()
     DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150);
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 //
@@ -509,6 +510,7 @@ public:
         }
     }
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -516,10 +518,11 @@ public:
 //
 //---------------------------------------------------------------------------
 
-DScreenJob *PlayMovie(const char* fileName);
+//DScreenJob *PlayMovie(const char* fileName);
 
 void DoTitle(CompletionFunc completion)
 {
+#if 0
     TArray<DScreenJob*> jobs;
 
     jobs.Push(Create<DImageScreen>(tileGetTexture(PublisherLogo()), DScreenJob::fadein | DScreenJob::fadeout));
@@ -528,9 +531,10 @@ void DoTitle(CompletionFunc completion)
     jobs.Push(Create<DMainTitle>());
 
     RunScreenJob(jobs, completion, SJ_BLOCKUI);
-
+#endif
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 // pre-level map display
@@ -814,7 +818,7 @@ public:
 	}
 };
 
- void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<DScreenJob*> &jobs)
+void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<DScreenJob*> &jobs)
  {
 	 if (nLevel > kMap20 || nLevelNew > kMap20) // max single player levels
 	 {
@@ -830,6 +834,8 @@ public:
      // 0-offset the level numbers
      jobs.Push(Create<DMapScreen>(nLevel-1, nLevelNew-1, nLevelBest-1));
  }
+
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -961,6 +967,7 @@ void uploadCinemaPalettes()
     }
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 // cinema
@@ -1336,6 +1343,7 @@ public:
         }
     }
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -1345,6 +1353,7 @@ public:
 
 void DoGameOverScene(bool finallevel)
 {
+#if 0
     TArray<DScreenJob*> jobs(1, true);
 
     if (finallevel)
@@ -1358,8 +1367,10 @@ void DoGameOverScene(bool finallevel)
         jobs[0] = Create<DImageScreen>(tileGetTexture(kTile3591), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff, TRANSLATION(Translation_BasePalettes, 16));
     }
     RunScreenJob(jobs, [](bool) { gameaction = ga_mainmenu; });
+#endif
 }
 
+#if 0
 
 void DoAfterCinemaScene(int nLevel, TArray<DScreenJob*>& jobs)
 {
@@ -1377,5 +1388,93 @@ void DoBeforeCinemaScene(int nLevel, TArray<DScreenJob*>& jobs)
     if (nLevel == 5) jobs.Push(Create<DCinema>(CINEMA_BEFORE_LEVEL_5));
     else if (nLevel == 11) jobs.Push(Create<DCinema>(CINEMA_BEFORE_LEVEL_11, 11));
 }
+
+void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<DScreenJob*>& jobs)
+{
+    if (nLevelNew == 5 && !(nCinemaSeen & 1)) {
+        nCinemaSeen |= 1;
+        DoBeforeCinemaScene(5, jobs);
+    }
+
+    menu_DrawTheMap(nLevel, nLevelNew, nLevelBest, jobs);
+
+    if (nLevelNew == 11 && !(nCinemaSeen & 2)) {
+        DoBeforeCinemaScene(11, jobs);
+    }
+}
+#endif
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void Intermission(MapRecord* from_map, MapRecord* to_map)
+{
+#if 0
+    TArray<DScreenJob*> jobs;
+
+    if (from_map) StopAllSounds();
+    bCamera = false;
+    automapMode = am_off;
+
+    if (to_map)
+    {
+        if (to_map->levelNumber != 0)
+            nBestLevel = to_map->levelNumber - 1;
+
+        STAT_Update(false);
+        if (to_map->levelNumber == kMap20)
+            nPlayerLives[0] = 0;
+
+        if (to_map->levelNumber == 0) // skip all intermission stuff when going to the training map.
+        {
+            gameaction = ga_nextlevel;
+            return;
+        }
+        else
+        {
+            DoAfterCinemaScene(to_map->levelNumber - 1, jobs);
+        }
+        if (to_map->levelNumber > -1 && to_map->levelNumber < kMap20)
+        {
+            // start a new game at the given level
+            if (!nNetPlayerCount && to_map->levelNumber > 0)
+            {
+                showmap(from_map ? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
+            }
+            else
+                jobs.Push(Create<DBlackScreen>(1)); // we need something in here even in the multiplayer case.
+        }
+    }
+    else
+    {
+        DoAfterCinemaScene(20, jobs);
+        STAT_Update(true);
+    }
+
+
+    if (jobs.Size() > 0)
+    {
+        RunScreenJob(jobs, [=](bool)
+            {
+                if (!to_map) gameaction = ga_startup; // this was the end of the game
+                else
+                {
+                    if (to_map->levelNumber != selectedlevelnew)
+                    {
+                        // User can switch destination on the scrolling map.
+                        g_nextmap = FindMapByLevelNum(selectedlevelnew);
+                        STAT_Cancel();
+                    }
+                    gameaction = ga_nextlevel;
+
+                }
+            });
+    }
+#endif
+}
+
 
 END_PS_NS

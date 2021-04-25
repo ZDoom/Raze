@@ -1,13 +1,13 @@
 
-class ScreenJob native
+class ScreenJob : Object
 {
-	native int flags;
-	native float fadetime;	// in milliseconds
-	native int fadestate;
+	int flags;
+	float fadetime;	// in milliseconds
+	int fadestate;
 
-	native int ticks;
-	native int jobstate;
-	native bool pausable;
+	int ticks;
+	int jobstate;
+	bool pausable;
 
 	enum EJobState
 	{
@@ -26,17 +26,41 @@ class ScreenJob native
 		stopsound = 8,
 	};
 
-	native void Init(int flags = 0, float fadet = 250.f);
-	native virtual bool ProcessInput();
-	native virtual void Start();
-	native virtual bool OnEvent(InputEvent evt);
-	native virtual void OnTick();
-	native virtual void Draw(double smoothratio);
+	void Init(int flags = 0, float fadet = 250.f)
+	{
+		flags = fadet;
+		fadetime = fadet;
+		jobstate = running;
+		pausable = true;
+	}
+
+	virtual bool ProcessInput()
+	{
+		return false;
+	}
+
+	virtual void Start() {}
+	virtual bool OnEvent(InputEvent evt) { return false; }
+	virtual void OnTick() {}
+	virtual void Draw(double smoothratio) {}
 	virtual void OnSkip() {}
 
-	//native int DrawFrame(double smoothratio);
-	//native int GetFadeState();
-	//native override void OnDestroy();
+	int DrawFrame(double smoothratio)
+	{
+		if (jobstate != running) smoothratio = 1; // this is necessary because the ticker won't be incremented anymore to avoid having a negative time span.
+		Draw(smoothratio);
+		if (jobstate == skipped) return -1;
+		if (jobstate == finished) return 0;
+		return 1;
+	}
+
+	int GetFadeState() { return fadestate; }
+	override void OnDestroy()
+	{
+		if (flags & stopmusic) Raze.StopMusic();
+		if (flags & stopsound) Raze.StopAllSounds();
+	}
+
 }
 
 //---------------------------------------------------------------------------
@@ -45,10 +69,22 @@ class ScreenJob native
 //
 //---------------------------------------------------------------------------
 
-class SkippableScreenJob : ScreenJob native
+class SkippableScreenJob : ScreenJob
 {
-	native void Init(int flags = 0, float fadet = 250.f);
-	//native override bool OnEvent(InputEvent evt);
+	void Init(int flags = 0, float fadet = 250.f)
+	{
+		Super.Init(flags, fadet);
+	}
+
+	override bool OnEvent(InputEvent evt)
+	{
+		if (evt.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(evt))
+		{
+			jobstate = skipped;
+			OnSkip();
+		}
+		return true;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -57,14 +93,32 @@ class SkippableScreenJob : ScreenJob native
 //
 //---------------------------------------------------------------------------
 
-class BlackScreen : ScreenJob native
+class BlackScreen : ScreenJob
 {
-	native int wait;
-	native bool cleared;
+	int wait;
+	bool cleared;
 
-	native void Init(int w, int flags = 0);
-	//override void OnTick();
-	//override void Draw(double smooth);
+	void Init(int w, int flags = 0)
+	{
+		Super.Init(flags & ~(fadein|fadeout));
+		wait = w;
+		cleared = false;
+	}
+
+	override void OnTick()
+	{
+		if (cleared)
+		{
+			int span = ticks * 1000 / GameTicRate;
+			if (span > wait) jobstate = finished;
+		}
+	}
+
+	override void Draw(double smooth)
+	{
+		cleared = true;
+		Screen.ClearScreen();
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -73,17 +127,46 @@ class BlackScreen : ScreenJob native
 //
 //---------------------------------------------------------------------------
 
-class ImageScreen : SkippableScreenJob native
+class ImageScreen : SkippableScreenJob
 {
-	native int tilenum;
-	native int trans;
-	native int waittime; // in ms.
-	native bool cleared;
-	native TextureID texid;
+	int tilenum;
+	int trans;
+	int waittime; // in ms.
+	bool cleared;
+	TextureID texid;
 
-	native void Init(String tex, int fade = fadein | fadeout, int wait = 3000, int translation = 0);
-	//override void OnTick();
-	//override void Draw(double smooth);
+	void Init(TextureID tile, int fade = fadein | fadeout, int wait = 3000, int translation = 0)
+	{
+		Super.Init(fade);
+		waittime = wait;
+		texid = tile;
+		trans = translation;
+		cleared = false;
+	}
+
+	void InitNamed(String tex, int fade = fadein | fadeout, int wait = 3000, int translation = 0)
+	{
+		Super.Init(fade);
+		waittime = wait;
+		texid = TexMan.CheckForTexture(tex, TexMan.Type_Any, TexMan.TryAny | TexMan.ForceLookup);
+		trans = translation;
+		cleared = false;
+	}
+	override void OnTick()
+	{
+		if (cleared)
+		{
+			int span = ticks * 1000 / GameTicRate;
+			if (span > waittime) jobstate = finished;
+		}
+	}
+
+	override void Draw(double smooth)
+	{
+		Screen.ClearScreen();
+		if (texid.IsValid()) Screen.DrawTexture(texid, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TranslationIndex, trans);
+		cleared = true;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -118,4 +201,285 @@ class SummaryScreenBase : ScreenJob
 		return String.Format("%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
 	}
 
+}
+
+//---------------------------------------------------------------------------
+//
+// internal polymorphic movie player object
+//
+//---------------------------------------------------------------------------
+
+struct AnmControl // ANM has no internal timing and sound info. Ugh...
+{
+	Array<int> sounds;
+	int frameticks[3];	// first and last frame have their own durations.
+}
+
+struct MoviePlayer native
+{
+	native static MoviePlayer OpenMovie(String filename, AnmControl ans, bool nosoundcutoff, out String error);
+	native void Start();
+	native bool Frame(double clock);
+	native bool Destroy();
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class MoviePlayerJob : SkippableScreenJob
+{
+	MoviePlayer player;
+	bool started;
+
+	void Init(MoviePlayer mp)
+	{
+		player = mp;
+		pausable = false;
+	}
+
+	override void Draw(double smoothratio)
+	{
+		if (!player)
+		{
+			jobstate = stopped;
+			return;
+		}
+		if (!started)
+		{
+			started = true;
+			player.Start();
+		}
+		double clock = (ticks + smoothratio) * 1000000000. / GameTicRate;
+		if (jobstate == running  && !player.Frame(clock))
+		{
+			jobstate = finished;
+		}
+	}
+
+	override void OnDestroy()
+	{
+		if (player)
+		{
+			player.Destroy();
+		}
+		player = null;
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class ScreenJobRunner : Object
+{
+	enum ERunState
+	{
+		State_Clear,
+		State_Run,
+		State_Fadeout,
+	}
+	Array<ScreenJob> jobs;
+	//CompletionFunc completion;
+	int index;
+	float screenfade;
+	bool clearbefore;
+	bool skipall;
+	bool advance;
+	int actionState;
+	int terminateState;
+	int fadeticks;
+	int last_paused_tic;
+
+	void Init(bool clearbefore_ = true, bool skipall_ = false)
+	{
+		clearbefore = clearbefore_;
+		skipall = skipall_;
+		index = -1;
+		fadeticks = 0;
+		last_paused_tic = -1;
+	}
+
+	override void OnDestroy()
+	{
+		DeleteJobs();
+	}
+
+	void DeleteJobs()
+	{
+		// Free all allocated resources now.
+		for (int i = 0; i < jobs.Size(); i++)
+		{
+			if (jobs[i]) jobs[i].Destroy();
+		}
+		jobs.Clear();
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	void AdvanceJob(bool skip)
+	{
+		if (index == jobs.Size()-1) 
+		{
+			index++;
+			return; // we need to retain the last element until the runner is done.
+		}
+
+		if (index >= 0) jobs[index].Destroy();
+		index++;
+		while (index < jobs.Size() && (jobs[index] == null || (skip && skipall)))
+		{
+			if (jobs[index] != null) jobs[index].Destroy();
+			index++;
+		}
+		actionState = clearbefore ? State_Clear : State_Run;
+		if (index < jobs.Size())
+		{
+			jobs[index].fadestate = !paused && jobs[index].flags & ScreenJob.fadein? ScreenJob.fadein : ScreenJob.visible;
+			jobs[index].Start();
+		}
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	virtual int DisplayFrame(double smoothratio)
+	{
+		int x = index >= jobs.Size()? jobs.Size()-1 : index;
+		let job = jobs[x];
+		bool processed = job.ProcessInput();
+
+		if (job.fadestate == ScreenJob.fadein)
+		{
+			double ms = (job.ticks + smoothratio) * 1000 / GameTicRate / job.fadetime;
+			double screenfade = clamp(ms, 0., 1.);
+			Screen.SetScreenFade(screenfade);
+			if (screenfade == 1.) job.fadestate = ScreenJob.visible;
+		}
+		int state = job.DrawFrame(smoothratio);
+		Screen.SetScreenFade(1.);
+		return state;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	virtual int FadeoutFrame(double smoothratio)
+	{
+		int x = index >= jobs.Size()? jobs.Size()-1 : index;
+		let job = jobs[x];
+		double ms = (fadeticks + smoothratio) * 1000 / GameTicRate / job.fadetime;
+		float screenfade = 1. - clamp(ms, 0., 1.);
+		Screen.SetScreenFade(screenfade);
+		job.DrawFrame(1.);
+		Screen.SetScreenFade(1.);
+		return (screenfade > 0.);
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	virtual bool OnEvent(InputEvent ev)
+	{
+		if (paused || index >= jobs.Size()) return false;
+		if (jobs[index].jobstate != ScreenJob.running) return false;
+		return jobs[index].OnEvent(ev);
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	virtual bool OnTick()
+	{
+		if (paused) return false;
+		if (advance)
+		{
+			advance = false;
+			AdvanceJob(terminateState < 0);
+			if (index >= jobs.Size())
+			{
+				return true;
+			}
+		}
+		if (jobs[index].jobstate == ScreenJob.running)
+		{
+			jobs[index].ticks++;
+			jobs[index].OnTick();
+		}
+		else if (jobs[index].jobstate == ScreenJob.stopping)
+		{
+			fadeticks++;
+		}
+		return false;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	virtual bool RunFrame(double smoothratio)
+	{
+		// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
+		bool menuon = paused;
+		if (menuon) last_paused_tic = jobs[index].ticks;
+		else if (last_paused_tic == jobs[index].ticks) menuon = true;
+		if (menuon || index >= jobs.Size()) smoothratio = 1.;
+
+		if (actionState == State_Clear)
+		{
+			actionState = State_Run;
+			Screen.ClearScreen();
+		}
+		else if (actionState == State_Run)
+		{
+			terminateState = DisplayFrame(smoothratio);
+			if (terminateState < 1 && index < jobs.Size())
+			{
+				if (jobs[index].flags & ScreenJob.fadeout)
+				{
+					jobs[index].fadestate = ScreenJob.fadeout;
+					jobs[index].jobstate = ScreenJob.stopping;
+					actionState = State_Fadeout;
+					fadeticks = 0;
+				}
+				else
+				{
+					advance = true;
+				}
+			}
+		}
+		else if (actionState == State_Fadeout)
+		{
+			int ended = FadeoutFrame(smoothratio);
+			if (ended < 1 && index < jobs.Size())
+			{
+				jobs[index].jobstate = ScreenJob.stopped;
+				advance = true;
+			}
+		}
+		return true;
+	}
 }

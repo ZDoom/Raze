@@ -406,6 +406,7 @@ struct Screen native
 	native static double, double, double, double GetFullscreenRect(double vwidth, double vheight, int fsmode);
 	native static Vector2 SetOffset(double x, double y);
 	native static void ClearScreen(color col = 0);
+	native static void SetScreenFade(double factor);
 }
 
 struct Font native

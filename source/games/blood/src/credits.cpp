@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+#if 0
 class DBloodIntroImage : public DImageScreen
 {
 	bool mus;
@@ -50,6 +51,7 @@ public:
 		if (mus) sndPlaySpecialMusicOrNothing(MUS_INTRO);
 	}
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -59,6 +61,7 @@ public:
 
 void playlogos()
 {
+#if 0
 	TArray<DScreenJob*> jobs;
 	static AnimSound logosound[] =
 	{
@@ -101,10 +104,12 @@ void playlogos()
 		Mus_Stop();
 		gameaction = ga_mainmenu;
 		}, SJ_BLOCKUI);
+#endif
 }
 
 void playSmk(const char *smk, const char *wav, int wavid, CompletionFunc func)
 {
+#if 0
 	TArray<DScreenJob*> jobs;
 	static AnimSound smksound[] =
 	{
@@ -128,6 +133,7 @@ void playSmk(const char *smk, const char *wav, int wavid, CompletionFunc func)
 	smksound[0].soundnum = id;
 	jobs.Push(PlayVideo(smkk, smksound, nullptr));
 	RunScreenJob(jobs, func);
+#endif
 }
 
 void levelPlayIntroScene(int nEpisode, CompletionFunc completion)

@@ -62,19 +62,6 @@ void DrawClock();
 double calc_smoothratio();
 void DoTitle(CompletionFunc completion);
 
-static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<DScreenJob*> &jobs)
-{
-    if (nLevelNew == 5 && !(nCinemaSeen & 1)) {
-        nCinemaSeen |= 1;
-        DoBeforeCinemaScene(5, jobs);
-    }
-
-    menu_DrawTheMap(nLevel, nLevelNew, nLevelBest, jobs);
-
-    if (nLevelNew == 11 && !(nCinemaSeen & 2)) {
-        DoBeforeCinemaScene(11, jobs);
-    }
-}
 
 
 void GameInterface::Render()
@@ -127,77 +114,6 @@ void GameInterface::DrawBackground()
     DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 0);
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static void Intermission(MapRecord *from_map, MapRecord *to_map)
-{
-    TArray<DScreenJob*> jobs;
-
-    if (from_map) StopAllSounds();
-    bCamera = false;
-    automapMode = am_off;
-
-    if (to_map)
-    {
-        if (to_map->levelNumber != 0)
-            nBestLevel = to_map->levelNumber - 1;
-
-        STAT_Update(false);
-        if (to_map->levelNumber == kMap20)
-            nPlayerLives[0] = 0;
-
-        if (to_map->levelNumber == 0) // skip all intermission stuff when going to the training map.
-        {
-            gameaction = ga_nextlevel;
-            return;
-        }
-        else
-        {
-            DoAfterCinemaScene(to_map->levelNumber - 1, jobs);
-        }
-        if (to_map->levelNumber > -1 && to_map->levelNumber < kMap20)
-        {
-            // start a new game at the given level
-            if (!nNetPlayerCount && to_map->levelNumber > 0)
-            {
-                showmap(from_map ? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
-            }
-            else
-                jobs.Push(Create<DBlackScreen>(1)); // we need something in here even in the multiplayer case.
-        }
-    }
-    else
-    {
-        DoAfterCinemaScene(20, jobs);
-        STAT_Update(true);
-    }
-	
-
-	if (jobs.Size() > 0)
-	{
-		RunScreenJob(jobs, [=](bool)
-		{
-			if (!to_map) gameaction = ga_startup; // this was the end of the game
-			else
-			{
-				if (to_map->levelNumber != selectedlevelnew)
-				{
-					// User can switch destination on the scrolling map.
-					g_nextmap = FindMapByLevelNum(selectedlevelnew);
-					STAT_Cancel();
-				}
-				gameaction = ga_nextlevel;
-
-			}
-		});
-	}
-	
-}
-
 void GameInterface::NextLevel(MapRecord *map, int skill)
 {
 	InitLevel(map->levelNumber);
@@ -211,6 +127,8 @@ void GameInterface::NextLevel(MapRecord *map, int skill)
 	STAT_NewLevel(currentLevel->labelName);
 	
 }
+
+void Intermission(MapRecord* from_map, MapRecord* to_map);
 
 void GameInterface::NewGame(MapRecord *map, int skill, bool frommenu)
 {

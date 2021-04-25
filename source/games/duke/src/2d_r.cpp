@@ -123,6 +123,7 @@ void InitFonts_r()
 
 }
 
+#if 0
 //==========================================================================
 //
 // wrappers around DrawText to allow easier reuse of the old code.
@@ -153,6 +154,7 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
 		x -= SmallFont2->StringWidth(t) * (align == 0 ? 0.5 : 1);
 	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, FSMode_Fit640x400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
 }
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -162,6 +164,7 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
 
 void Logo_r(const CompletionFunc& completion)
 {
+#if 0
 	Mus_Stop();
 	FX_StopAllSounds(); // JBF 20031228
 
@@ -203,8 +206,10 @@ void Logo_r(const CompletionFunc& completion)
 		jobs.Push(PlayVideo("redint.mve"));
 	}
 	RunScreenJob(jobs, completion, SJ_BLOCKUI);
+#endif
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 //
@@ -246,7 +251,9 @@ static void bonussequence_r(int num, TArray<DScreenJob*>& jobs)
 		break;
 	}
 }
+#endif
 
+#if 0
 //---------------------------------------------------------------------------
 //
 //
@@ -583,6 +590,7 @@ public:
 		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 	}
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -592,6 +600,7 @@ public:
 
 void dobonus_r(int bonusonly, const CompletionFunc& completion)
 {
+#if 0
 	TArray<DScreenJob*> jobs;
 
 	FX_StopAllSounds();
@@ -627,9 +636,11 @@ void dobonus_r(int bonusonly, const CompletionFunc& completion)
 	if (jobs.Size())
 		RunScreenJob(jobs, completion);
 	else if (completion) completion(false);
+#endif
 }
 
 
+#if 0
 //---------------------------------------------------------------------------
 //
 // 
@@ -660,10 +671,11 @@ void loadscreen_r(MapRecord* rec, CompletionFunc func)
 	jobs[0] = Create<DRRLoadScreen>(rec);
 	RunScreenJob(jobs, func);
 }
+#endif
 
 void PrintPaused_r()
 {
-	BigText(160, 100, GStrings("Game Paused"), 0);
+	//BigText(160, 100, GStrings("Game Paused"), 0);
 }
 
 

@@ -131,7 +131,7 @@ void InitFonts_d()
 
 }
 
-
+#if 0
 //==========================================================================
 //
 // wrappers around DrawText to allow easier reuse of the old code.
@@ -293,6 +293,7 @@ public:
 		S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI);
 	}
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -302,6 +303,7 @@ public:
 
 void Logo_d(const CompletionFunc &completion)
 {
+#if 0
 	Mus_Stop();
 	FX_StopAllSounds(); // JBF 20031228
 
@@ -322,8 +324,10 @@ void Logo_d(const CompletionFunc &completion)
 	}
 	jobs.Push(Create<DTitleScreen>());
 	RunScreenJob(jobs, completion, SJ_BLOCKUI);
+#endif
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 //
@@ -715,6 +719,7 @@ static void bonussequence_d(int num, TArray<DScreenJob*>& jobs)
 		break;
 	}
 }
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -724,22 +729,27 @@ static void bonussequence_d(int num, TArray<DScreenJob*>& jobs)
 
 void showtwoscreens(const CompletionFunc& completion)
 {
+#if 0
 	TArray<DScreenJob*> jobs;
 
 	jobs.Push(Create<DImageScreen>(3291));
 	jobs.Push(Create<DImageScreen>(3290));
 	RunScreenJob(jobs, completion);
+#endif
 }
 
 void doorders(const CompletionFunc& completion)
 {
+#if 0
 	TArray<DScreenJob*> jobs;
 
 	for (int i = 0; i < 4; i++)
 		jobs.Push(Create<DImageScreen>(ORDERING + i));
 	RunScreenJob(jobs, completion);
+#endif
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 //
@@ -1080,6 +1090,7 @@ public:
 	}
 
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -1089,6 +1100,7 @@ public:
 
 void dobonus_d(int bonusonly, const CompletionFunc& completion)
 {
+#if 0
 	TArray<DScreenJob*> jobs;
 
 	FX_StopAllSounds();
@@ -1113,6 +1125,7 @@ void dobonus_d(int bonusonly, const CompletionFunc& completion)
 		RunScreenJob(jobs, completion);
 	}
 	else if (completion) completion(false);
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -1123,6 +1136,7 @@ void dobonus_d(int bonusonly, const CompletionFunc& completion)
 
 void e4intro(const CompletionFunc& completion)
 {
+#if 0
 	TArray<DScreenJob*> jobs;
 
 	static const AnimSound vol42a[] =
@@ -1157,8 +1171,10 @@ void e4intro(const CompletionFunc& completion)
 	jobs.Push(PlayVideo("vol42a.anm", vol42a, framespeed_14));
 	jobs.Push(PlayVideo("vol43a.anm", vol43a, framespeed_10));
 	RunScreenJob(jobs, completion, SJ_SKIPALL);
+#endif
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 // 
@@ -1189,10 +1205,11 @@ void loadscreen_d(MapRecord *rec, CompletionFunc func)
 	jobs[0] = Create<DDukeLoadScreen>(rec);
 	RunScreenJob(jobs, func);
 }
+#endif
 
 void PrintPaused_d()
 {
-	BigText(160, 100, GStrings("Game Paused"));
+	//BigText(160, 100, GStrings("Game Paused"));
 }
 
 

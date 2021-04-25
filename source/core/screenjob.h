@@ -9,6 +9,7 @@ using CompletionFunc = std::function<void(bool)>;
 struct JobDesc;
 class ScreenJobRunner;
 
+#if 0
 class DScreenJob : public DObject
 {
 	DECLARE_CLASS(DScreenJob, DObject)
@@ -137,7 +138,9 @@ public:
 	void OnTick() override;
 	void Draw(double smooth) override;
 };
+#endif
 
+#if 0
 //---------------------------------------------------------------------------
 //
 //
@@ -175,9 +178,10 @@ public:
 	void OnTick();
 	bool RunFrame();
 };
+#endif
 
 
-
+#if 0
 enum
 {
 	SJ_DONTCLEAR = 1,
@@ -187,6 +191,7 @@ enum
 
 
 void RunScreenJob(TArray<DScreenJob*>& jobs, CompletionFunc completion, int flags = 0);
+#endif
 void EndScreenJob();
 void DeleteScreenJob();
 bool ScreenJobResponder(event_t* ev);
@@ -199,4 +204,6 @@ struct AnimSound
 	int soundnum;
 };
 
+#if 0
 DScreenJob *PlayVideo(const char *filename, const AnimSound *ans = nullptr, const int *frameticks = nullptr, bool nosoundstop = false);
+#endif

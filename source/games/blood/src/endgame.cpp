@@ -91,6 +91,7 @@ static void DrawCaption(const char* text)
 }
 
 
+#if 0 // public DScreenJob
 class DBloodSummaryScreen : public DSkippableScreenJob
 {
 	void DrawKills(void)
@@ -170,9 +171,11 @@ class DBloodSummaryScreen : public DSkippableScreenJob
 		}
 	}
 };
+#endif
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
+#if 0
 	TArray<DScreenJob*> job(1, true);
 	job[0] = Create<DBloodSummaryScreen>();
 	sndStartSample(268, 128, -1, false, CHANF_UI);
@@ -182,7 +185,9 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 			soundEngine->StopAllChannels();
 			gameaction = ga_nextlevel;
 		});
-
+#else
+	gameaction = ga_nextlevel;
+#endif
 }
 
 
@@ -273,6 +278,7 @@ void SerializeGameStats(FSerializer& arc)
 CSecretMgr gSecretMgr;
 CKillMgr gKillMgr;
 
+#if 0
 class DBloodLoadScreen : public DScreenJob
 { 
 	const char* pzLoadingScreenText1;
@@ -306,6 +312,6 @@ void loadscreen(const char *caption, MapRecord* rec, CompletionFunc func)
 	job[0] = Create<DBloodLoadScreen>(caption, rec);
 	RunScreenJob(job, func);
 }
-
+#endif
 
 END_BLD_NS

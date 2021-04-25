@@ -49,6 +49,7 @@
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
 #include "raze_music.h"
+#include "vm.h"
 
 
 class MoviePlayer
@@ -649,6 +650,7 @@ public:
 	}
 };
 
+#if 0
 //---------------------------------------------------------------------------
 //
 // 
@@ -697,8 +699,9 @@ public:
 		player = nullptr;
 	}
 };
+#endif
 
-
+#if 0
 //---------------------------------------------------------------------------
 //
 // 
@@ -751,7 +754,7 @@ MoviePlayer* OpenMovie(const char* filename, const AnimSound* ans, const int* fr
 	else if (!memcmp(id, "SMK2", 4))
 	{
 		fr.Close();
-		auto anm = new SmkPlayer(filename, ans, true); // Fixme: Handle Blood's video scaling behavior more intelligently.
+		auto anm = new SmkPlayer(filename, ans, isBlood()); // Fixme: Handle Blood's video scaling behavior more intelligently.
 		if (!anm->isvalid())
 		{
 			error.Format("%s: invalid SMK file.\n", filename);
@@ -811,4 +814,34 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 	return Create<DMoviePlayer>(movie);
 }
 
+#endif
 
+DEFINE_ACTION_FUNCTION(_MoviePlayer, OpenMovie)
+{
+	PARAM_PROLOGUE;
+	// todo
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_MoviePlayer, Start)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
+	self->Start();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_MoviePlayer, Frame)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
+	PARAM_FLOAT(clock);
+	self->Frame(int64_t(clock));
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_MoviePlayer, Destroy)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
+	self->Stop();
+	delete self;
+	return 0;
+}

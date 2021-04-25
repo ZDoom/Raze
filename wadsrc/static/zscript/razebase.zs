@@ -29,15 +29,16 @@ enum EGameType
 
 struct UserConfigStruct native
 {
-	native bool nomonsters;
-	native bool nosound;
-	native bool nologo;
+	native readonly bool nomonsters;
+	native readonly bool nosound;
+	native readonly bool nologo;
 }
 
 extend struct _
 {
 	native @UserConfigStruct userConfig;
-	native MapRecord currentLevel;
+	native readonly MapRecord currentLevel;
+	native readonly int paused;
 }
 
 struct MapRecord native
@@ -91,8 +92,10 @@ struct Raze
 	native static Color shadeToLight(int shade);
 	native static void StopAllSounds();
 	native static bool SoundEnabled();
+	native static void StopMusic();
 	native static bool MusicEnabled();
 	native static String PlayerName(int i);
+	native static double GetTimeFrac();
 	
 	static bool specialKeyEvent(InputEvent ev)
 	{

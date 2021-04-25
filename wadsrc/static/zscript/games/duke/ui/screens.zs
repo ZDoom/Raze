@@ -261,7 +261,7 @@ class E2EndScreen : ImageScreen
 {
 	void Init()
 	{
-		Super.Init("E2ENDSCREEN", fadein | fadeout | stopsound, 0x7fffffff, 0);
+		Super.InitNamed("E2ENDSCREEN", fadein | fadeout | stopsound, 0x7fffffff, 0);
 	}
 
 	override void Start()
@@ -283,8 +283,7 @@ class Episode3End : ImageScreen
 
 	void Init()
 	{
-		Super.Init("", fadein|fadeout, 0x7fffffff);
-		texid = TexMan.CheckForTexture("radlogo.anm", TexMan.Type_Any, TexMan.TryAny | TexMan.ForceLookup); // must override with 'forcelookup'.
+		Super.InitNamed("radlogo.anm", fadein|fadeout, 0x7fffffff);
 		soundstate = 0;
 		finishtime = 0;
 	}
@@ -402,7 +401,7 @@ class Episode5End : ImageScreen
 {
 	void Init()
 	{
-		Super.Init("FIREFLYGROWEFFECT", fadein|fadeout|stopsound);
+		Super.InitNamed("FIREFLYGROWEFFECT", fadein|fadeout|stopsound);
 	}
 
 	override void OnTick()

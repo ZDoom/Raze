@@ -194,6 +194,7 @@ public:
     }
 };
 
+#if 0
 //---------------------------------------------------------------------------
 //
 // 
@@ -288,5 +289,6 @@ DScreenJob* PlayMovie(const char* fileName)
     fp.Seek(0, FileReader::SeekSet);
     return Create<DLmfPlayer>(fp);
 }
+#endif
 
 END_PS_NS

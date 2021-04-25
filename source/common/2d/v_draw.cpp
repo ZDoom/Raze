@@ -331,6 +331,14 @@ DEFINE_ACTION_FUNCTION(_Screen, ClearScreen)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(_Screen, SetScreenFade)
+{
+	PARAM_PROLOGUE;
+	PARAM_FLOAT(x);
+	twod->SetScreenFade(x);
+	return 0;
+}
+
 
 void F2DDrawer::GetClipRect(int *x, int *y, int *w, int *h)
 {

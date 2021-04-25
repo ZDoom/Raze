@@ -39,6 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+#if 0
 //---------------------------------------------------------------------------
 //
 //
@@ -64,6 +65,7 @@ public:
         DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
     }
 };
+#endif
 
 
 //---------------------------------------------------------------------------
@@ -74,6 +76,7 @@ public:
 
 void Logo(const CompletionFunc& completion)
 {
+#if 0
     StopSound();
     PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
 
@@ -94,7 +97,10 @@ void Logo(const CompletionFunc& completion)
 		RunScreenJob(jobs, completion, SJ_BLOCKUI);
 	}
 	else completion(false);
+#endif
 }
+
+#if 0
 
 //---------------------------------------------------------------------------
 //
@@ -225,7 +231,7 @@ class DSWCreditsScreen : public DSkippableScreenJob
             DrawTexture(twod, tileGetTexture(curpic, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
     }
 };
-
+#endif
 //---------------------------------------------------------------------------
 //
 // Summary screen
@@ -340,6 +346,7 @@ static STATE * s_BonusAnim[] =
     s_BonusGrab
 };
 
+#if 0
 class DSWLevelSummaryScreen : public DScreenJob
 {
     int minutes, seconds, second_tics;
@@ -462,6 +469,7 @@ private:
     }
 
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -483,7 +491,7 @@ enum
     STAT_TABLE_XOFF = SM_SIZ(6)
 };
 
-
+#if 0
 class DSWMultiSummaryScreen : public DSkippableScreenJob
 {
     short death_total[MAX_SW_PLAYERS_REG]{};
@@ -596,6 +604,7 @@ class DSWMultiSummaryScreen : public DSkippableScreenJob
         }
     }
 };
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -605,6 +614,7 @@ class DSWMultiSummaryScreen : public DSkippableScreenJob
 
 void StatScreen(int FinishAnim, CompletionFunc completion)
 {
+#if 0
     TArray<DScreenJob*> jobs;
 
     if (FinishAnim)
@@ -624,6 +634,7 @@ void StatScreen(int FinishAnim, CompletionFunc completion)
         jobs.Push(Create<DSWMultiSummaryScreen>());
     }
     RunScreenJob(jobs, completion);
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -634,6 +645,7 @@ void StatScreen(int FinishAnim, CompletionFunc completion)
 
 void SybexScreen(CompletionFunc completion)
 {
+#if 0
     if (!SW_SHAREWARE || CommEnabled) completion(false);
     else
     {
@@ -641,8 +653,10 @@ void SybexScreen(CompletionFunc completion)
         jobs[0] = Create<DImageScreen>(tileGetTexture(5261), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff);
         RunScreenJob(jobs, completion, SJ_BLOCKUI);
     }
+#endif
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 // 
@@ -673,5 +687,6 @@ void loadscreen(MapRecord* rec, CompletionFunc func)
     jobs[0] = Create<DSWLoadScreen>(rec);
     RunScreenJob(jobs, func);
 }
+#endif
 
 END_SW_NS
