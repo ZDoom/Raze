@@ -98,33 +98,29 @@ class DukeCutscenes
 
 	static void BuildE3End(ScreenJobRunner runner)
 	{
-		Array<int> soundinfo;
-		soundinfo.Pushv(
-			1, DukeSnd.WIND_REPEAT + 1,
-			98, DukeSnd.DUKE_GRUNT + 1,
-			102, DukeSnd.THUD + 1,
-			102, DukeSnd.SQUISHED + 1,
-			124, DukeSnd.ENDSEQVOL3SND3 + 1,
-			134, DukeSnd.ENDSEQVOL3SND2 + 1,
-			158, DukeSnd.PIPEBOMB_EXPLODE + 1);
+		if (gameinfo.gameType & GAMEFLAG_DUKEDC)
+		{
+			Array<int> soundinfo;
+			soundinfo.Pushv(144, DukeSnd.ENDSEQVOL3SND3 + 1);
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("radlogo.anm", soundinfo, 0, 10, 10, 10));
+		}
+		else
+		{
+			Array<int> soundinfo;
+			soundinfo.Pushv(
+				1, DukeSnd.WIND_REPEAT + 1,
+				98, DukeSnd.DUKE_GRUNT + 1,
+				102, DukeSnd.THUD + 1,
+				102, DukeSnd.SQUISHED + 1,
+				124, DukeSnd.ENDSEQVOL3SND3 + 1,
+				134, DukeSnd.ENDSEQVOL3SND2 + 1,
+				158, DukeSnd.PIPEBOMB_EXPLODE + 1);
 
-		runner.Append(MoviePlayerJob.CreateWithSoundinfo("cineov3.anm", soundinfo, 0, 10, 10, 10));
-		runner.Append(BlackScreen.Create(200, ScreenJob.stopsound));
-		runner.Append(new("Episode3End").Init());
-		if (!Raze.isPlutoPak()) runner.Append(ImageScreen.CreateNamed("DUKETEAM.ANM", ScreenJob.fadein | ScreenJob.fadeout | ScreenJob.stopsound, 0x7fffffff));
-	}
-
-	//---------------------------------------------------------------------------
-	//
-	//
-	//
-	//---------------------------------------------------------------------------
-
-	static void BuildDCEnd(ScreenJobRunner runner)
-	{
-		Array<int> soundinfo;
-		soundinfo.Pushv(144, DukeSnd.ENDSEQVOL3SND3 + 1);
-		runner.Append(MoviePlayerJob.CreateWithSoundinfo("radlogo.anm", soundinfo, 0, 10, 10, 10));
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("cineov3.anm", soundinfo, 0, 10, 10, 10));
+			runner.Append(BlackScreen.Create(200, ScreenJob.stopsound));
+			runner.Append(new("Episode3End").Init());
+			if (!Raze.isPlutoPak()) runner.Append(ImageScreen.CreateNamed("DUKETEAM.ANM", ScreenJob.fadein | ScreenJob.fadeout | ScreenJob.stopsound, 0x7fffffff));
+		}
 	}
 
 	//---------------------------------------------------------------------------
