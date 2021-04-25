@@ -26,18 +26,16 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-class DukeIntro : ScreenJobRunner
+class DukeCutscenes
 {
-	void Init()
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildIntro(ScreenJobRunner runner)
     {
-		Super.Init();
 		Raze.StopMusic();
 		Raze.StopAllSounds();
 
@@ -49,41 +47,33 @@ class DukeIntro : ScreenJobRunner
 				soundinfo.Pushv(
 					1, DukeSnd.FLY_BY+1,
 					19, DukeSnd.PIPEBOMB_EXPLODE+1);
-				jobs.Push(MoviePlayerJob.CreateWithSoundinfo("logo.anm", soundinfo, 0, 9, 9, 9));
+				runner.Append(MoviePlayerJob.CreateWithSoundinfo("logo.anm", soundinfo, 0, 9, 9, 9));
 			}
-			if (!Raze.isNam()) jobs.Push(new("DRealmsScreen").Init());
+			if (!Raze.isNam()) runner.Append(new("DRealmsScreen").Init());
 		}
-		jobs.Push(new("DukeTitleScreen").Init());
+		runner.Append(new("DukeTitleScreen").Init());
     }
-}
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
 
-class DukeE1End : ScreenJobRunner
-{
-	void Init()
+	static void BuildE1End(ScreenJobRunner runner)
 	{
-		Super.Init();
-		jobs.Push(new("Episode1End1").Init());
-		jobs.Push(ImageScreen.CreateNamed("E1ENDSCREEN", ScreenJob.fadein|ScreenJob.fadeout|ScreenJob.stopmusic, 0x7fffffff));
+		runner.Append(new("Episode1End1").Init());
+		runner.Append(ImageScreen.CreateNamed("E1ENDSCREEN", ScreenJob.fadein|ScreenJob.fadeout|ScreenJob.stopmusic, 0x7fffffff));
 	}
-}
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
 
-class DukeE2End : ScreenJobRunner
-{
-	void Init()
+	static void BuildE2End(ScreenJobRunner runner)
 	{
-		Super.Init();
 		Array<int> soundinfo;
 		soundinfo.Pushv(
 			1, DukeSnd.WIND_AMBIENCE+1,
@@ -96,22 +86,18 @@ class DukeE2End : ScreenJobRunner
 			115, DukeSnd.ENDSEQVOL2SND6 + 1,
 			124, DukeSnd.ENDSEQVOL2SND7 + 1);
 
-		jobs.Push(MoviePlayerJob.CreateWithSoundinfo("cineov2.anm", soundinfo, 0, 18, 18, 18));
-		jobs.Push(new("E2EndScreen").Init());
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("cineov2.anm", soundinfo, 0, 18, 18, 18));
+		runner.Append(new("E2EndScreen").Init());
 	}
-}
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
 
-class DukeE3End : ScreenJobRunner
-{
-	void Init()
+	static void BuildE3End(ScreenJobRunner runner)
 	{
-		Super.Init();
 		Array<int> soundinfo;
 		soundinfo.Pushv(
 			1, DukeSnd.WIND_REPEAT + 1,
@@ -122,79 +108,162 @@ class DukeE3End : ScreenJobRunner
 			134, DukeSnd.ENDSEQVOL3SND2 + 1,
 			158, DukeSnd.PIPEBOMB_EXPLODE + 1);
 
-		jobs.Push(MoviePlayerJob.CreateWithSoundinfo("cineov3.anm", soundinfo, 0, 10, 10, 10));
-		jobs.Push(BlackScreen.Create(200, ScreenJob.stopsound));
-		jobs.Push(new("Episode3End").Init());
-		if (!Raze.isPlutoPak()) jobs.Push(ImageScreen.CreateNamed("DUKETEAM.ANM", ScreenJob.fadein | ScreenJob.fadeout | ScreenJob.stopsound, 0x7fffffff));
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("cineov3.anm", soundinfo, 0, 10, 10, 10));
+		runner.Append(BlackScreen.Create(200, ScreenJob.stopsound));
+		runner.Append(new("Episode3End").Init());
+		if (!Raze.isPlutoPak()) runner.Append(ImageScreen.CreateNamed("DUKETEAM.ANM", ScreenJob.fadein | ScreenJob.fadeout | ScreenJob.stopsound, 0x7fffffff));
 	}
-}
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
 
-class DukeDCEnd : ScreenJobRunner
-{
-	void Init()
+	static void BuildDCEnd(ScreenJobRunner runner)
 	{
-		Super.Init();
 		Array<int> soundinfo;
 		soundinfo.Pushv(144, DukeSnd.ENDSEQVOL3SND3 + 1);
-		jobs.Push(MoviePlayerJob.CreateWithSoundinfo("radlogo.anm", soundinfo, 0, 10, 10, 10));
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("radlogo.anm", soundinfo, 0, 10, 10, 10));
 	}
-}
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
 
-class DukeE4End : ScreenJobRunner
-{
-	void Init()
+	static void BuildE4End(ScreenJobRunner runner)
 	{
-		Super.Init(true, true);
 		Array<int> soundinfo;
 
 		soundinfo.Pushv(
 			3, DukeSnd.DUKE_UNDERWATER+1,
 			35, DukeSnd.VOL4ENDSND1+1);
-		jobs.Push(MoviePlayerJob.CreateWithSoundinfo("vol4e1.anm", soundinfo, 0, 10, 10, 10));
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol4e1.anm", soundinfo, 0, 10, 10, 10));
 
 		soundinfo.Pushv(
 			11, DukeSnd.DUKE_UNDERWATER+1,
 			20, DukeSnd.VOL4ENDSND1+1,
 			39, DukeSnd.VOL4ENDSND2+1,
 			50, -1);
-		jobs.Push(MoviePlayerJob.CreateWithSoundinfo("vol4e2.anm", soundinfo, 0, 10, 10, 10));
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol4e2.anm", soundinfo, 0, 10, 10, 10));
 
 		soundinfo.Pushv(
 			1, DukeSnd.BOSS4_DEADSPEECH+1,
 			40, DukeSnd.VOL4ENDSND1+1,
 			40, DukeSnd.DUKE_UNDERWATER+1,
 			50, DukeSnd.BIGBANG+1);
-		jobs.Push(MoviePlayerJob.CreateWithSoundinfo("vol4e3.anm", soundinfo, 0, 10, 10, 10));
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol4e3.anm", soundinfo, 0, 10, 10, 10));
 
-		jobs.Push(new("Episode4Text").Init());
-		jobs.Push(ImageScreen.CreateNamed("DUKETEAM.ANM", ScreenJob.fadein | ScreenJob.fadeout | ScreenJob.stopsound, 0x7fffffff));
+		runner.Append(new("Episode4Text").Init());
+		runner.Append(ImageScreen.CreateNamed("DUKETEAM.ANM", ScreenJob.fadein | ScreenJob.fadeout | ScreenJob.stopsound, 0x7fffffff));
 	}
-}
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
 
-class DukeE5End : ScreenJobRunner
-{
-	void Init()
+	static void BuildE5End(ScreenJobRunner runner)
 	{
-		Super.Init();
-		jobs.Push(new("Episode5End").Init());
+		runner.Append(new("Episode5End").Init());
 	}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+	static void BuildE4Intro(ScreenJobRunner runner)
+	{
+		Array<int> soundinfo;
+
+		Duke.PlaySpecialMusic(Duke.MUS_BRIEFING);
+		soundinfo.Pushv(
+			1, DukeSnd.INTRO4_B + 1,
+			12, DukeSnd.SHORT_CIRCUIT + 1,
+			18, DukeSnd.INTRO4_5 + 1,
+			34, DukeSnd.SHORT_CIRCUIT + 1);
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol41a1.anm", soundinfo, 0, 10, 10, 10));
+
+		soundinfo.Pushv(
+			1, DukeSnd.INTRO4_1 + 1,
+			7, DukeSnd.INTRO4_3 + 1,
+			12, DukeSnd.INTRO4_2 + 1,
+			26, DukeSnd.INTRO4_4 + 1);
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol42a.anm", soundinfo, 0, 14, 14, 14));
+
+		soundinfo.Pushv(
+			10, DukeSnd.INTRO4_6 + 1);
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol43a.anm", soundinfo, 0, 10, 10, 10));
+
+		runner.skipall = true;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildMPSummary(ScreenJobRunner runner, int playerswhenstarted)
+	{
+		runner.Append(new("DukeMultiplayerBonusScreen").Init(playerswhenstarted));
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, int kills_, int maxkills_, int secrets_, int maxsecrets_, int supersecrets_, int time_, bool cheated)
+	{
+		let screen = SummaryScreenBase(new("DukeLevelSummaryScreen").Init());
+		if (screen) screen.SetParameters(map, kills_, maxkills_, secrets_, maxsecrets_, supersecrets_, time_, cheated);
+		runner.Append(screen);
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildSharewareExit(ScreenJobRunner runner)
+	{
+		runner.Append(ImageScreen.CreateNamed("SWEXIT1"));
+		runner.Append(ImageScreen.CreateNamed("SWEXIT2"));
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildSharewareOrder(ScreenJobRunner runner)
+	{
+		runner.Append(ImageScreen.CreateNamed("ORDERING"));
+		runner.Append(ImageScreen.CreateNamed("ORDERING1"));
+		runner.Append(ImageScreen.CreateNamed("ORDERING2"));
+		runner.Append(ImageScreen.CreateNamed("ORDERING3"));
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildLoading(ScreenJobRunner runner, MapRecord map)
+	{
+		runner.Append(new("DukeLoadScreen").Init(map));
+	}
+
 }
 

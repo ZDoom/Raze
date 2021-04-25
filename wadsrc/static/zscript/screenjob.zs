@@ -349,7 +349,7 @@ class ScreenJobRunner : Object
 		DeleteJobs();
 	}
 
-	void DeleteJobs()
+	protected void DeleteJobs()
 	{
 		// Free all allocated resources now.
 		for (int i = 0; i < jobs.Size(); i++)
@@ -359,13 +359,18 @@ class ScreenJobRunner : Object
 		jobs.Clear();
 	}
 
+	void Append(ScreenJob job)
+	{
+		jobs.Push(job);
+	}
+
 	//---------------------------------------------------------------------------
 	//
 	// 
 	//
 	//---------------------------------------------------------------------------
 
-	void AdvanceJob(bool skip)
+	protected void AdvanceJob(bool skip)
 	{
 		if (index == jobs.Size()-1) 
 		{
