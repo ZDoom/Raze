@@ -386,9 +386,9 @@ public:
 		if (currentLevel->flags & MI_USERMAP)
 			gfx_offset = BONUSPIC01;
 		else if (!isRRRA())
-			gfx_offset = BONUSPIC01 + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+			gfx_offset = BONUSPIC01 + clamp((currentLevel->levelNumber / 1000) * 7 + (currentLevel->levelNumber % 1000), 0, 13);
 		else
-			gfx_offset = LEVELMAP01 + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+			gfx_offset = LEVELMAP01 + clamp((currentLevel->levelNumber / 1000) * 7 + (currentLevel->levelNumber % 1000), 0, 13);
 		
 
 		lastmapname = currentLevel->DisplayName();

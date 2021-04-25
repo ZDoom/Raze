@@ -1534,7 +1534,6 @@ bool FileSystem::CreatePathlessCopy(const char *name, int id, int /*flags*/)
 
 	auto oldlump = FileInfo[lump];
 	int slash = oldlump.longName.LastIndexOf('/');
-	// Note: already pathless entries must be duplica
 
 	if (slash == -1)
 	{
