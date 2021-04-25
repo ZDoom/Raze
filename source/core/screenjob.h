@@ -198,12 +198,6 @@ bool ScreenJobResponder(event_t* ev);
 void ScreenJobTick();
 bool ScreenJobDraw();
 
-struct AnimSound
-{
-	int framenum;
-	int soundnum;
-};
-
 #if 0
 DScreenJob *PlayVideo(const char *filename, const AnimSound *ans = nullptr, const int *frameticks = nullptr, bool nosoundstop = false);
 #endif

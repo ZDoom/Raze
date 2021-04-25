@@ -98,11 +98,17 @@ class BlackScreen : ScreenJob
 	int wait;
 	bool cleared;
 
-	void Init(int w, int flags = 0)
+	ScreenJob Init(int w, int flags = 0)
 	{
 		Super.Init(flags & ~(fadein|fadeout));
 		wait = w;
 		cleared = false;
+		return self;
+	}
+
+	static ScreenJob Create(int w, int flags = 0)
+	{
+		return new("BlackScreen").Init(w, flags);
 	}
 
 	override void OnTick()
@@ -135,23 +141,36 @@ class ImageScreen : SkippableScreenJob
 	bool cleared;
 	TextureID texid;
 
-	void Init(TextureID tile, int fade = fadein | fadeout, int wait = 3000, int translation = 0)
+	ScreenJob Init(TextureID tile, int fade = fadein | fadeout, int wait = 3000, int translation = 0)
 	{
 		Super.Init(fade);
 		waittime = wait;
 		texid = tile;
 		trans = translation;
 		cleared = false;
+		return self;
 	}
 
-	void InitNamed(String tex, int fade = fadein | fadeout, int wait = 3000, int translation = 0)
+	ScreenJob InitNamed(String tex, int fade = fadein | fadeout, int wait = 3000, int translation = 0)
 	{
 		Super.Init(fade);
 		waittime = wait;
 		texid = TexMan.CheckForTexture(tex, TexMan.Type_Any, TexMan.TryAny | TexMan.ForceLookup);
 		trans = translation;
 		cleared = false;
+		return self;
 	}
+
+	static ScreenJob Create(TextureID tile, int fade = fadein | fadeout, int wait = 3000, int translation = 0)
+	{
+		return new("ImageScreen").Init(tile, fade, wait, translation);
+	}
+
+	static ScreenJob CreateNamed(String tex, int fade = fadein | fadeout, int wait = 3000, int translation = 0)
+	{
+		return new("ImageScreen").InitNamed(tex, fade, wait, translation);
+	}
+
 	override void OnTick()
 	{
 		if (cleared)
@@ -209,15 +228,15 @@ class SummaryScreenBase : ScreenJob
 //
 //---------------------------------------------------------------------------
 
-struct AnmControl // ANM has no internal timing and sound info. Ugh...
-{
-	Array<int> sounds;
-	int frameticks[3];	// first and last frame have their own durations.
-}
-
 struct MoviePlayer native
 {
-	native static MoviePlayer OpenMovie(String filename, AnmControl ans, bool nosoundcutoff, out String error);
+	enum EMovieFlags
+	{
+		NOSOUNDCUTOFF = 1,
+		FIXEDVIEWPORT = 2,	// Forces fixed 640x480 screen size like for Blood's intros.
+	}
+
+	native static MoviePlayer Create(String filename, Array<int> soundinfo, int flags, int frametime, int firstframetime, int lastframetime);
 	native void Start();
 	native bool Frame(double clock);
 	native bool Destroy();
@@ -234,10 +253,30 @@ class MoviePlayerJob : SkippableScreenJob
 	MoviePlayer player;
 	bool started;
 
-	void Init(MoviePlayer mp)
+	ScreenJob Init(MoviePlayer mp)
 	{
 		player = mp;
 		pausable = false;
+		return self;
+	}
+
+	static ScreenJob CreateWithSoundInfo(String filename, Array<int> soundinfo, int flags, int frametime, int firstframetime = -1, int lastframetime = -1)
+	{
+		let movie = MoviePlayer.Create(filename, soundinfo, flags, frametime, firstframetime, lastframetime);
+		if (movie) return new("MoviePlayerJob").Init(movie);
+		return BlackScreen.Create(1); // do not return null.
+	}
+	static ScreenJob Create(String filename, int flags, int frametime = -1)
+	{
+		Array<int> empty;
+		return CreateWithSoundInfo(filename, empty, flags, frametime);
+	}
+	static ScreenJob CreateWithSound(String filename, Sound soundname, int flags, int frametime = -1)
+	{
+		Array<int> empty;
+		empty.Push(1);
+		empty.Push(int(soundname));
+		return CreateWithSoundInfo(filename, empty, flags, frametime);
 	}
 
 	override void Draw(double smoothratio)

@@ -1,3 +1,31 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2020-2021 Christoph Oelckers
+
+This file is part of Raze.
+
+Duke Nukem 3D is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+aint with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+Original Source: 1996 - Todd Replogle
+Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
+( not much left of the original code, though... ;) )
+*/
+//-------------------------------------------------------------------------
+
 
 
 //---------------------------------------------------------------------------
@@ -8,9 +36,10 @@
 
 class DRealmsScreen : SkippableScreenJob
 {
-	void Init()
+	ScreenJob Init()
 	{
 		Super.Init(fadein | fadeout);
+		return self;
 	}
 
 	override void Start()
@@ -43,10 +72,11 @@ class TitleScreen : SkippableScreenJob
 {
 	int soundanm;
 
-	void Init()
+	ScreenJob Init()
 	{
 		Super.Init(fadein | fadeout);
 		soundanm = 0;
+		return self;
 	}
 
 	override void Start()
@@ -154,13 +184,14 @@ class Episode1End1 : SkippableScreenJob
 	const boss_x = 86;
 	const boss_y = 59;
 
-	void Init()
+	ScreenJob Init()
 	{
 		bonuscnt = 0;
 		breathebg = false;
 		bossani.SetInvalid();
 		breatheani.SetInvalid();
 		Super.Init(fadein | fadeout);
+		return self;
 	}
 	
 
@@ -259,9 +290,10 @@ class Episode1End1 : SkippableScreenJob
 
 class E2EndScreen : ImageScreen
 {
-	void Init()
+	ScreenJob Init()
 	{
 		Super.InitNamed("E2ENDSCREEN", fadein | fadeout | stopsound, 0x7fffffff, 0);
+		return self;
 	}
 
 	override void Start()
@@ -281,11 +313,12 @@ class Episode3End : ImageScreen
 	int soundstate;
 	int finishtime;
 
-	void Init()
+	ScreenJob Init()
 	{
 		Super.InitNamed("radlogo.anm", fadein|fadeout, 0x7fffffff);
 		soundstate = 0;
 		finishtime = 0;
+		return self;
 	}
 
 	override void OnSkip()
@@ -369,9 +402,10 @@ class Episode3End : ImageScreen
 
 class Episode4Text : SkippableScreenJob
 {
-	void Init()
+	ScreenJob Init()
 	{
 		Super.Init(fadein|fadeout);
+		return self;
 	}
 
 
@@ -399,9 +433,10 @@ class Episode4Text : SkippableScreenJob
 
 class Episode5End : ImageScreen
 {
-	void Init()
+	ScreenJob Init()
 	{
 		Super.InitNamed("FIREFLYGROWEFFECT", fadein|fadeout|stopsound);
+		return self;
 	}
 
 	override void OnTick()
@@ -420,10 +455,11 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 {
 	int playerswhenstarted;
 
-	void Init(int pws)
+	ScreenJob Init(int pws)
 	{
 		Super.Init(fadein|fadeout);
 		playerswhenstarted = pws;
+		return self;
 	}
 
 	override void Start()
@@ -545,7 +581,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 	}
 
-	void Init()
+	ScreenJob Init()
 	{
 		Super.Init(fadein | fadeout);
 		int vol = level.volumeNum();
@@ -559,7 +595,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 		lastmapname = level.DisplayName();
 		speech = -1;
 		displaystate = 0;
-
+		return self;
 	}
 
 	override bool OnEvent(InputEvent ev)
@@ -783,7 +819,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 	}
 
-	void Init(bool dofadeout = true)
+	ScreenJob Init(bool dofadeout = true)
 	{
 		Super.Init(dofadeout? (fadein | fadeout) : fadein);
 		String s;
@@ -796,6 +832,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 		
 		lastmapname = level.DisplayName();
 		texBg = TexMan.CheckForTexture(s);
+		return self;
 	}
 
 	override bool OnEvent(InputEvent ev)
@@ -960,9 +997,10 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 class RRRAEndOfGame : SkippableScreenJob
 {
-	void Init()
+	ScreenJob Init()
 	{
 		Super.Init(fadein|fadeout);
+		return self;
 	}
 
 	override void OnSkip()
@@ -997,10 +1035,11 @@ class DukeLoadScreen : ScreenJob
 {
 	MapRecord rec;
 	
-	void Init(MapRecord maprec)
+	ScreenJob Init(MapRecord maprec)
 	{
 		Super.Init();
 		rec = maprec;
+		return self;
 	}
 	
 	override void Draw(double sr)
