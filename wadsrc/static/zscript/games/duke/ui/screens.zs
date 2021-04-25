@@ -68,7 +68,7 @@ class DRealmsScreen : SkippableScreenJob
 //
 //---------------------------------------------------------------------------
 
-class TitleScreen : SkippableScreenJob
+class DukeTitleScreen : SkippableScreenJob
 {
 	int soundanm;
 
