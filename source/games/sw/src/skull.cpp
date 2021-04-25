@@ -219,12 +219,12 @@ SetupSkull(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,SKULL_R0,s_SkullWait[0]);
+        u = SpawnUser(SpriteNum,SKULL_R0,s_SkullWait[0]);
         u->Health = HEALTH_SKULL;
     }
 
@@ -265,7 +265,7 @@ int
 DoSkullMove(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int32_t dax, day, daz;
 
     dax = MOVEx(sp->xvel, sp->ang);
@@ -282,7 +282,7 @@ int
 DoSkullBeginDeath(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int16_t i,num_ord=0;
     //extern short *DamageRadiusSkull;
 
@@ -369,7 +369,7 @@ DoSkullBeginDeath(int16_t SpriteNum)
 int DoSkullJump(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
 
     if (sp->xvel)
@@ -432,7 +432,7 @@ int DoSkullJump(short SpriteNum)
 int DoSkullBob(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // actor does a sine wave about u->sz - this is the z mid point
 #define SKULL_BOB_AMT (Z(16))
@@ -457,7 +457,7 @@ int DoSkullSpawnShrap(short SpriteNum)
 int DoSkullWait(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int a,b,c,dist;
 
     DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
@@ -637,12 +637,12 @@ SetupBetty(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,BETTY_R0,s_BettyWait[0]);
+        u = SpawnUser(SpriteNum,BETTY_R0,s_BettyWait[0]);
         u->Health = HEALTH_SKULL;
     }
 
@@ -683,7 +683,7 @@ int
 DoBettyMove(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int32_t dax, day, daz;
 
     dax = MOVEx(sp->xvel, sp->ang);
@@ -700,7 +700,7 @@ int
 DoBettyBeginDeath(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int16_t i,num_ord=0;
     //extern short *DamageRadiusBetty;
 
@@ -782,7 +782,7 @@ DoBettyBeginDeath(int16_t SpriteNum)
 int DoBettyJump(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
 
     if (sp->xvel)
@@ -843,7 +843,7 @@ int DoBettyJump(short SpriteNum)
 int DoBettyBob(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // actor does a sine wave about u->sz - this is the z mid point
 #define BETTY_BOB_AMT (Z(16))
@@ -866,7 +866,7 @@ int DoBettySpawnShrap(short SpriteNum)
 int DoBettyWait(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int a,b,c,dist;
 
     DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);

@@ -296,12 +296,12 @@ SetupHornet(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,HORNET_RUN_R0,s_HornetRun[0]);
+        u = SpawnUser(SpriteNum,HORNET_RUN_R0,s_HornetRun[0]);
         u->Health = HEALTH_HORNET;
     }
 
@@ -334,7 +334,7 @@ SetupHornet(short SpriteNum)
 
 int NullHornet(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -349,7 +349,7 @@ int NullHornet(short SpriteNum)
 int DoHornetMatchPlayerZ(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp tsp = User[SpriteNum]->tgt_sp;
     int zdiff,zdist;
     int loz,hiz;
@@ -380,8 +380,8 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     hiz = u->hiz;
 
     // adjust loz/hiz for water depth
-    if (u->lo_sectp && SectUser[u->lo_sectp - sector] && SectUser[u->lo_sectp - sector]->depth)
-        loz -= Z(SectUser[u->lo_sectp - sector]->depth) - Z(8);
+    if (u->lo_sectp && SectUser[u->lo_sectp - sector].Data() && FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed))
+        loz -= Z(FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed)) - Z(8);
 
     // lower bound
     if (u->lo_sp)
@@ -424,7 +424,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
 int InitHornetCircle(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     u->ActorActionFunc = DoHornetCircle;
 
@@ -456,7 +456,7 @@ int InitHornetCircle(short SpriteNum)
 int DoHornetCircle(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int nx,ny,bound;
 
     sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
@@ -509,7 +509,7 @@ int
 DoHornetDeath(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
     if (TEST(u->Flags, SPR_FALLING))
@@ -554,7 +554,7 @@ int DoCheckSwarm(short SpriteNum)
 {
     int i;
     SPRITEp sp = &sprite[SpriteNum], tsp;
-    USERp u = User[SpriteNum], tu;
+    USERp u = User[SpriteNum].Data(), tu;
     int dist, pdist, a,b,c;
     PLAYERp pp;
 
@@ -578,7 +578,7 @@ int DoCheckSwarm(short SpriteNum)
     while ((i = it.NextIndex()) >= 0)
     {
         tsp = &sprite[i];
-        tu = User[i];
+        tu = User[i].Data();
 
         if (!tu) continue;
 
@@ -599,7 +599,7 @@ int DoCheckSwarm(short SpriteNum)
 int DoHornetMove(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // Check for swarming
     // lotag of 1 = Swarm around lotags of 2

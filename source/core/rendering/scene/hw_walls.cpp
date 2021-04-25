@@ -156,19 +156,18 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
 	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
-	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr ? (flags & (HWF_CLAMPX | HWF_CLAMPY)) : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
-	int h = (int)texture->GetDisplayHeight();
-	int h2 = 1 << sizeToBits(h);
-	if (h2 < h) h2 *= 2;
-	if (h != h2)
+	if (sprite == nullptr)
 	{
-		float xOffset = 1.f / texture->GetDisplayWidth();
-		state.SetNpotEmulation(float(h2) / h, xOffset);
-	}
-	else
-	{
-		state.SetNpotEmulation(0.f, 0.f);
+		int h = (int)texture->GetDisplayHeight();
+		int h2 = 1 << sizeToBits(h);
+		if (h2 < h) h2 *= 2;
+		if (h != h2)
+		{
+			float xOffset = 1.f / texture->GetDisplayWidth();
+			state.SetNpotEmulation(float(h2) / h, xOffset);
+		}
 	}
 
 	RenderWall(di, state, rflags);
@@ -784,7 +783,7 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? &wall[wal->nextwall] : wal;
 	refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
 
-	shade = clamp(refwall->shade, 0, numshades - 1);
+	shade = refwall->shade;
 	palette = refwall->pal;
 	type = RENDERWALL_BOTTOM;
 	DoTexture(di, wal, refwall, refheight, topleft, topright, bottomleft, bottomright);
@@ -879,7 +878,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	glseg.fracright = 1;
 	flags = 0;
 	dynlightindex = -1;
-	shade = clamp(wal->shade, 0, numshades - 1);
+	shade = wal->shade;
 	palette = wal->pal;
 	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
@@ -1047,9 +1046,9 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	backsector = sector;
 	texture = tex;
 
-	flags = 0;
+	flags = HWF_CLAMPX|HWF_CLAMPY;
 	dynlightindex = -1;
-	shade = clamp(spr->shade, 0, numshades - 1);
+	shade = spr->shade;
 	palette = spr->pal;
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);
@@ -1089,7 +1088,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	zbottom[0] = zbottom[1] = (sprz) * (1 / -256.);
 	ztop[0] = ztop[1] =  (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
 
-
 	// Clip sprites to ceilings/floors
 	float origz = ztop[0];
 	float polyh = (zbottom[0] - origz);
@@ -1113,5 +1111,16 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 			zbottom[0] = zbottom[1] = floorz;
 		}
 	}
+
+	// If the sprite is backward, flip it around so that we have guaranteed orientation when this is about to be sorted.
+	if (PointOnLineSide(di->Viewpoint.Pos.XY(), DVector2(glseg.x1, glseg.y1), DVector2(glseg.x2, glseg.y2)) < 0)
+	{
+		std::swap(glseg.x1, glseg.x2);
+		std::swap(glseg.y1, glseg.y2);
+		// z is always the same on both sides.
+		std::swap(tcs[LOLFT], tcs[LORGT]);
+		std::swap(tcs[UPLFT], tcs[UPRGT]);
+	}
+
 	PutWall(di, spriteHasTranslucency(sprite));
 }

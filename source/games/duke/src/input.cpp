@@ -831,9 +831,9 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		{
 			// Do these in the same order as the old code.
 			doslopetilting(p, scaleAdjust);
-			p->angle.applylook(p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
+			p->angle.applyinput(p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
 			p->apply_seasick(scaleAdjust);
-			p->horizon.sethorizon(input.horz, &p->sync.actions, scaleAdjust);
+			p->horizon.applyinput(input.horz, &p->sync.actions, scaleAdjust);
 		}
 
 		p->angle.processhelpers(scaleAdjust);

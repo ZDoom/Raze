@@ -356,7 +356,7 @@ PreCacheActor(void)
 		if (sprite[i].statnum >= MAXSTATUS)
 			continue;
 
-		if (User[i])
+		if (User[i].Data())
 			pic = User[i]->ID;
 		else
 			pic = sprite[i].picnum;

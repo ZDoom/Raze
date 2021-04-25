@@ -50,34 +50,6 @@ int getincangle(int a, int na)
 	return na-a;
 }
 
-double getincanglef(double a, double na)
-{
-	a = fmod(a, 2048.);
-	na = fmod(na, 2048.);
-
-	if(fabs(a-na) >= 1024)
-	{
-		if(na > 1024) na -= 2048;
-		if(a > 1024) a -= 2048;
-	}
-
-	return na-a;
-}
-
-fixed_t getincangleq16(fixed_t a, fixed_t na)
-{
-	a &= 0x7FFFFFF;
-	na &= 0x7FFFFFF;
-
-	if(abs(a-na) >= IntToFixed(1024))
-	{
-		if(na > IntToFixed(1024)) na -= IntToFixed(2048);
-		if(a > IntToFixed(1024)) a -= IntToFixed(2048);
-	}
-
-	return na-a;
-}
-
 binangle getincanglebam(binangle a, binangle na)
 {
 	int64_t cura = a.asbam();
@@ -159,7 +131,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * (hidInput->dyaw / 60) * keymove * cntrlvelscale));
+		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove * cntrlvelscale));
 	else
 		currInput->avel += hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale);
 
@@ -272,7 +244,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 //
 //---------------------------------------------------------------------------
 
-void PlayerHorizon::sethorizon(float const horz, ESyncBits* actions, double const scaleAdjust)
+void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process only if no targeted horizon set.
 	if (!targetset())
@@ -316,14 +288,11 @@ void PlayerHorizon::sethorizon(float const horz, ESyncBits* actions, double cons
 		horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 
 		// return to center if conditions met.
-		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)) && horiz.asq16())
 		{
-			if (abs(horiz.asq16()) > (FRACUNIT >> 2))
-			{
-				// move horiz back to 0
-				horiz -= buildfhoriz(scaleAdjust * horiz.asbuildf() * (10. / GameTicRate));
-			}
-			else
+			// move horiz back to 0
+			horiz -= buildfhoriz(scaleAdjust * horiz.asbuildf() * (10. / GameTicRate));
+			if (abs(horiz.asq16()) < (FRACUNIT >> 2))
 			{
 				// not looking anymore because horiz is back at 0
 				horiz = q16horiz(0);
@@ -343,15 +312,21 @@ void PlayerHorizon::sethorizon(float const horz, ESyncBits* actions, double cons
 //
 //---------------------------------------------------------------------------
 
-void PlayerAngle::applylook(float const avel, ESyncBits* actions, double const scaleAdjust)
+void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
-	// return q16rotscrnang to 0 and set to 0 if less than a quarter of a unit
-	rotscrnang -= buildfang(scaleAdjust * rotscrnang.signedbuildf() * (15. / GameTicRate));
-	if (abs(rotscrnang.signedbam()) < (BAMUNIT >> 2)) rotscrnang = bamang(0);
+	if (rotscrnang.asbam())
+	{
+		// return rotscrnang to 0
+		rotscrnang -= buildfang(scaleAdjust * rotscrnang.signedbuildf() * (15. / GameTicRate));
+		if (abs(rotscrnang.signedbam()) < (BAMUNIT >> 2)) rotscrnang = bamang(0);
+	}
 
-	// return q16look_ang to 0 and set to 0 if less than a quarter of a unit
-	look_ang -= buildfang(scaleAdjust * look_ang.signedbuildf() * (7.5 / GameTicRate));
-	if (abs(look_ang.signedbam()) < (BAMUNIT >> 2)) look_ang = bamang(0);
+	if (look_ang.asbam())
+	{
+		// return look_ang to 0
+		look_ang -= buildfang(scaleAdjust * look_ang.signedbuildf() * (7.5 / GameTicRate));
+		if (abs(look_ang.signedbam()) < (BAMUNIT >> 2)) look_ang = bamang(0);
+	}
 
 	if (*actions & SB_LOOK_LEFT)
 	{
@@ -379,6 +354,13 @@ void PlayerAngle::applylook(float const avel, ESyncBits* actions, double const s
 			*actions &= ~SB_TURNAROUND;
 		}
 
+		if (avel)
+		{
+			// add player's input
+			ang += degang(avel);
+			spin = 0;
+		}
+
 		if (spin < 0)
 		{
 			// return spin to 0
@@ -391,13 +373,6 @@ void PlayerAngle::applylook(float const avel, ESyncBits* actions, double const s
 				spin = 0;
 			}
 			ang += buildfang(add);
-		}
-
-		if (avel)
-		{
-			// add player's input
-			ang += degang(avel);
-			spin = 0;
 		}
 	}
 	else

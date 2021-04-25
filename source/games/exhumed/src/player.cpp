@@ -915,7 +915,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             if (SyncInput())
             {
                 Player* pPlayer = &PlayerList[nPlayer];
-                pPlayer->angle.applylook(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
+                pPlayer->angle.applyinput(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
                 UpdatePlayerSpriteAngle(pPlayer);
             }
 
@@ -2640,7 +2640,7 @@ loc_1BD2E:
 
                 if (SyncInput())
                 {
-                    pPlayer->horizon.sethorizon(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
+                    pPlayer->horizon.applyinput(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
                 }
 
                 if (actions & (SB_LOOK_UP | SB_LOOK_DOWN) || sPlayerInput[nPlayer].pan)

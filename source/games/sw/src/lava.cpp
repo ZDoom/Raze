@@ -460,12 +460,12 @@ SetupLava(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,LAVA_RUN_R0,s_LavaRun[0]);
+        u = SpawnUser(SpriteNum,LAVA_RUN_R0,s_LavaRun[0]);
         u->Health = 100;
     }
 
@@ -487,7 +487,7 @@ SetupLava(short SpriteNum)
 
 int NullLava(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -500,7 +500,7 @@ int NullLava(short SpriteNum)
 
 int DoLavaMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);

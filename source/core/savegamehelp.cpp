@@ -33,7 +33,6 @@
 **
 */
 
-#include "compositesaveame.h"
 #include "savegamehelp.h"
 #include "gstrings.h"
 #include "i_specialpaths.h"
@@ -58,14 +57,14 @@
 #include "interpolate.h"
 #include "gamefuncs.h"
 #include "render.h"
+#include <zlib.h>
 
 
 sectortype sectorbackup[MAXSECTORS];
 walltype wallbackup[MAXWALLS];
 
-static CompositeSavegameWriter savewriter;
-static FResourceFile *savereader;
 void WriteSavePic(FileWriter* file, int width, int height);
+bool WriteZip(const char* filename, TArray<FString>& filenames, TArray<FCompressedBuffer>& content);
 extern FString BackupSaveGame;
 void SerializeMap(FSerializer &arc);
 FixedBitArray<MAXSPRITES> activeSprites;
@@ -109,35 +108,25 @@ static void SerializeSession(FSerializer& arc)
 
 //=============================================================================
 //
-// This is for keeping my sanity while working with the horrible mess
-// that is the savegame code in Duke Nukem.
-// Without handling this in global variables it is a losing proposition
-// to save custom data along with the regular snapshot. :(
-// With this the savegame code can mostly pretend to load from and write
-// to files while really using a composite archive.
 //
-// All global non-game dependent state is also saved right here for convenience.
 //
 //=============================================================================
 
-
-bool OpenSaveGameForRead(const char *name)
+bool ReadSavegame(const char* name)
 {
-	if (savereader) delete savereader;
-	savereader = FResourceFile::OpenResourceFile(name, true, true);
+	auto savereader = FResourceFile::OpenResourceFile(name, true, true);
 
 	if (savereader != nullptr)
 	{
-		auto file = ReadSavegameChunk("info.json");
-		if (!file.isOpen())
+		auto lump = savereader->FindLump("info.json");
+		if (!lump)
 		{
-			FinishSavegameRead();
 			delete savereader;
 			return false;
 		}
+		auto file = lump->NewReader();
 		if (G_ValidateSavegame(file, nullptr, false) <= 0)
 		{
-			FinishSavegameRead();
 			delete savereader;
 			return false;
 		}
@@ -145,6 +134,7 @@ bool OpenSaveGameForRead(const char *name)
 		FResourceLump* info = savereader->FindLump("session.json");
 		if (info == nullptr)
 		{
+			delete savereader;
 			return false;
 		}
 
@@ -152,45 +142,19 @@ bool OpenSaveGameForRead(const char *name)
 		FSerializer arc;
 		if (!arc.OpenReader((const char*)data, info->LumpSize))
 		{
+			delete savereader;
 			info->Unlock();
 			return false;
 		}
 		info->Unlock();
 
-		// Load system-side data from savegames.
+		// Load the savegame.
 		loadMapBackup(currentLevel->fileName);
 		SerializeSession(arc);
+		delete savereader;
+		return true;
 	}
-	return savereader != nullptr;
-}
-
-FileWriter *WriteSavegameChunk(const char *name)
-{
-	return &savewriter.NewElement(name);
-}
-
-void AddCompressedSavegameChunk(const char* name, FCompressedBuffer& buffer)
-{
-	savewriter.AddCompressedElement(name, buffer);
-}
-
-FileReader ReadSavegameChunk(const char *name)
-{
-	if (!savereader) return FileReader();
-	auto lump = savereader->FindLump(name);
-	if (!lump) return FileReader();
-	return lump->NewReader();
-}
-
-bool FinishSavegameWrite()
-{
-	return savewriter.WriteToFile();
-}
-
-void FinishSavegameRead()
-{
-	delete savereader;
-	savereader = nullptr;
+	return false;
 }
 
 CVAR(Bool, save_formatted, false, 0)	// should be set to false once the conversion is done
@@ -201,17 +165,11 @@ CVAR(Bool, save_formatted, false, 0)	// should be set to false once the conversi
 //
 //=============================================================================
 
-bool OpenSaveGameForWrite(const char* filename, const char *name)
+bool WriteSavegame(const char* filename, const char *name)
 {
-	savewriter.Clear();
-	savewriter.SetFileName(filename);
-
+	BufferWriter savepic;
 	FSerializer savegameinfo;		// this is for displayable info about the savegame.
 	FSerializer savegamesession;	// saved game session settings.
-	FSerializer savegameengine;		// saved play state.
-
-	savegameinfo.OpenWriter(true);
-	savegameengine.OpenWriter(save_formatted);
 
 	char buf[100];
 	mysnprintf(buf, countof(buf), GAMENAME " %s", GetVersionString());
@@ -220,6 +178,7 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	FStringf timeStr("%02d:%02d", gs.timesecnd / 60, gs.timesecnd % 60);
 	auto lev = currentLevel;
 
+	savegameinfo.OpenWriter(true);
 	savegameinfo.AddString("Software", buf)
 		("Save Version", savesig.currentsavever)
 		.AddString("Engine", savesig.savesig)
@@ -241,31 +200,48 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 		if (mapcname) savegameinfo.AddString("Map Resource", mapcname);
 		else
 		{
-			savewriter.Clear();
 			return false; // this should never happen. Saving on a map that isn't present is impossible.
 		}
 	}
 
-	auto buff = savegameinfo.GetCompressedOutput();
-	AddCompressedSavegameChunk("info.json", buff);
 
 
-	// Handle system-side modules that need to persist data in savegames here, in a central place.
+	// Save the game state
 	savegamesession.OpenWriter(save_formatted);
 	SerializeSession(savegamesession);
-	buff = savegamesession.GetCompressedOutput();
-	AddCompressedSavegameChunk("session.json", buff);
 
-	auto picfile = WriteSavegameChunk("savepic.png");
-	WriteSavePic(picfile, 240, 180);
+	WriteSavePic(&savepic, 240, 180);
 	mysnprintf(buf, countof(buf), GAMENAME " %s", GetVersionString());
 	// put some basic info into the PNG so that this isn't lost when the image gets extracted.
-	M_AppendPNGText(picfile, "Software", buf);
-	M_AppendPNGText(picfile, "Title", name);
-	M_AppendPNGText(picfile, "Current Map", lev->labelName);
-	M_FinishPNG(picfile);
+	M_AppendPNGText(&savepic, "Software", buf);
+	M_AppendPNGText(&savepic, "Title", name);
+	M_AppendPNGText(&savepic, "Current Map", lev->labelName);
+	M_FinishPNG(&savepic);
 
+	auto picdata = savepic.GetBuffer();
+	FCompressedBuffer bufpng = { picdata->Size(), picdata->Size(), METHOD_STORED, 0, static_cast<unsigned int>(crc32(0, &(*picdata)[0], picdata->Size())), (char*)&(*picdata)[0] };
+
+	TArray<FCompressedBuffer> savegame_content;
+	TArray<FString> savegame_filenames;
+
+	savegame_content.Push(bufpng);
+	savegame_filenames.Push("savepic.png");
+	savegame_content.Push(savegameinfo.GetCompressedOutput());
+	savegame_filenames.Push("info.json");
+	savegame_content.Push(savegamesession.GetCompressedOutput());
+	savegame_filenames.Push("session.json");
+
+	if (WriteZip(filename, savegame_filenames, savegame_content))
+	{
+		// Check whether the file is ok by trying to open it.
+		FResourceFile* test = FResourceFile::OpenResourceFile(filename, true);
+		if (test != nullptr)
+		{
+			delete test;
 	return true;
+		}
+	}
+	return false;
 }
 
 //=============================================================================
@@ -445,23 +421,6 @@ FString G_BuildSaveName (const char *prefix)
 
 #include "build.h"
 #include "mmulti.h"
-
-static const int magic = 0xbeefcafe;
-void WriteMagic(FileWriter *fw)
-{
-	fw->Write(&magic, 4);
-}
-
-void CheckMagic(FileReader& fr)
-{
-	int m = 0;
-	fr.Read(&m, 4);
-	assert(m == magic);
-#ifndef _DEBUG
-	if (m != magic)  I_Error("Savegame corrupt");
-#endif
-}
-
 
 #define V(x) x
 static spritetype zsp;
@@ -710,19 +669,12 @@ static int nextquicksave = -1;
 
  void DoLoadGame(const char* name)
  {
-	 if (OpenSaveGameForRead(name))
+	 if (ReadSavegame(name))
 	 {
-		 if (gi->LoadGame())
-		 {
 			 gameaction = ga_level;
 		 }
 		 else
 		 {
-			 I_Error("%s: Failed to load savegame", name);
-		 }
-	 }
-	 else
-	 {
 		 I_Error("%s: Failed to open savegame", name);
 	 }
  }
@@ -738,16 +690,13 @@ static int nextquicksave = -1;
 
  void G_SaveGame(const char *fn, const char *desc, bool ok4q, bool forceq)
  {
-	 if (OpenSaveGameForWrite(fn, desc))
+	 if (WriteSavegame(fn, desc))
 	 {
-		 if (gi->SaveGame() && FinishSavegameWrite())
-		 {
 			 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
 			 Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
 			 BackupSaveGame = fn;
 		 }
 	 }
- }
 
 
 void M_Autosave()

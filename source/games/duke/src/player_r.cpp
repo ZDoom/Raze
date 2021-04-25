@@ -3353,7 +3353,6 @@ void processinput_r(int snum)
 	int i, k, doubvel, fz, cz, truefdist;
 	Collision chz, clz;
 	char shrunk;
-	ESyncBits actions;
 	short psect, psectlotag;
 
 	auto p = &ps[snum];
@@ -3363,7 +3362,7 @@ void processinput_r(int snum)
 	p->horizon.resetadjustment();
 	p->angle.resetadjustment();
 
-	actions = PlayerInputBits(snum, SB_ALL);
+	ESyncBits& actions = p->sync.actions;
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);
@@ -3639,7 +3638,7 @@ void processinput_r(int snum)
 		// may still be needed later for demo recording
 
 		sb_avel = p->adjustavel(sb_avel);
-		p->angle.applylook(sb_avel, &p->sync.actions);
+		p->angle.applyinput(sb_avel, &actions);
 	}
 
 	if (p->spritebridge == 0)
@@ -4001,7 +4000,7 @@ HORIZONLY:
 
 	if (SyncInput())
 	{
-		p->horizon.sethorizon(PlayerHorizon(snum), &p->sync.actions);
+		p->horizon.applyinput(PlayerHorizon(snum), &actions);
 	}
 
 	p->checkhardlanding();

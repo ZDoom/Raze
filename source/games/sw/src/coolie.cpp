@@ -406,7 +406,7 @@ ACTOR_ACTION_SET CoolieActionSet =
 
 void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = &sprite[SpriteNum];
     unsigned int wpn;
     short wpn_cnt;
@@ -476,9 +476,9 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
         int i;
         short sectnum = u->lo_sectp - sector;
 
-        if (SectUser[sectnum] && TEST(u->lo_sectp->extra, SECTFX_SINK))
+        if (SectUser[sectnum].Data() && TEST(u->lo_sectp->extra, SECTFX_SINK))
         {
-            depth = SectUser[sectnum]->depth;
+            depth = FixedToInt(SectUser[sectnum]->depth_fixed);
         }
         else
         {
@@ -531,12 +531,12 @@ SetupCoolie(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,COOLIE_RUN_R0,s_CoolieRun[0]);
+        u = SpawnUser(SpriteNum,COOLIE_RUN_R0,s_CoolieRun[0]);
         u->Health = HEALTH_COOLIE;
     }
 
@@ -576,7 +576,7 @@ int SpawnCoolg(short SpriteNum)
 
 int CooliePain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -594,7 +594,7 @@ int CooliePain(short SpriteNum)
 
 int NullCoolie(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -610,7 +610,7 @@ int NullCoolie(short SpriteNum)
 int DoCoolieMove(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -660,7 +660,7 @@ DoCoolieWaitBirth(short SpriteNum)
 {
     USERp u;
 
-    u = User[SpriteNum];
+    u = User[SpriteNum].Data();
 
     if ((u->Counter -= ACTORMOVETICS) <= 0)
     {

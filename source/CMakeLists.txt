@@ -1081,7 +1081,6 @@ set (PCH_SOURCES
 
 	# Todo: Split out the license-safe code from this.
 	build/src/clip.cpp
-	build/src/defs.cpp
 	build/src/engine.cpp
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
@@ -1113,7 +1112,6 @@ set (PCH_SOURCES
 	core/initfs.cpp
 	core/statistics.cpp
 	core/secrets.cpp
-	core/compositesavegame.cpp
 	core/savegamehelp.cpp
 	core/precache.cpp
 	core/quotes.cpp
@@ -1125,6 +1123,7 @@ set (PCH_SOURCES
 	core/zcompile.cpp
 	core/statusbar2.cpp
 	core/gi.cpp
+	core/defparser.cpp
 
 	core/nodebuilder/nodebuild.cpp
 	core/nodebuilder/nodebuild_classify_nosse2.cpp

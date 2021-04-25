@@ -80,7 +80,7 @@ enum
 
 static void processWeapon(PLAYERp const pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     int i;
 
     if (loc.getNewWeapon() == WeaponSel_Next)
@@ -120,7 +120,7 @@ static void processWeapon(PLAYERp const pp)
     }
     else if (loc.getNewWeapon() == WeaponSel_Prev)
     {
-        USERp u = User[pp->PlayerSprite];
+        USERp u = User[pp->PlayerSprite].Data();
         short prev_weapon = u->WeaponNum - 1;
         short start_weapon;
 
@@ -153,7 +153,7 @@ static void processWeapon(PLAYERp const pp)
     }
     else if (loc.getNewWeapon() == WeaponSel_Alt)
     {
-        USERp u = User[pp->PlayerSprite];
+        USERp u = User[pp->PlayerSprite].Data();
         short const which_weapon = u->WeaponNum + 1;
         loc.setNewWeapon(which_weapon);
     }

@@ -417,36 +417,7 @@ void HWScenePortalBase::DrawContents(HWDrawInfo* di, FRenderState& state)
 
 void HWScenePortalBase::ClearClipper(HWDrawInfo *di, Clipper *clipper)
 {
-	auto outer_di = di->outer;
-#if 0 // todo: fixme or remove - Unlike for Doom this won't be of great benefit with Build's rendering approach.
-	// This requires maximum precision, so convert everything to double.
-	DAngle angleOffset = deltaangle(DAngle(outer_di->Viewpoint.HWAngles.Yaw.Degrees), DAngle(di->Viewpoint.HWAngles.Yaw.Degrees));
-
-	clipper->Clear();
-
-	auto& vp = di->Viewpoint;
-	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
-
-	// Set the clipper to the minimal visible area
-	clipper->SafeAddClipRange(bamang(0), bamang(0xffffffff));
-	for (unsigned int i = 0; i < lines.Size(); i++)
-	{
-		binangle startang = bvectangbam(lines[i].seg->x - view.x, lines[i].seg->y - view.y);
-		binangle endang = bvectangbam(wall[lines[i].seg->point2].x - view.x, wall[lines[i].seg->point2].y - view.y);
-
-		if (endang.asbam() - startang.asbam() >= ANGLE_180)
-		{
-			clipper->SafeRemoveClipRange(startang, endang);
-		}
-	}
-#endif
-
-	// and finally clip it to the visible area
-	angle_t a1 = di->FrustumAngle();
-	if (a1 < ANGLE_180) clipper->SafeAddClipRange(bamang(di->Viewpoint.RotAngle + a1), bamang(di->Viewpoint.RotAngle - a1));
-
-	// lock the parts that have just been clipped out.
-	//clipper->SetSilhouette();
+	clipper->SetVisibleRange(di->Viewpoint.RotAngle, di->FrustumAngle());
 }
 
 
@@ -596,14 +567,11 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	di->SetClipLine(line);
 	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
 
-	clipper->Clear();
-
-	angle_t af = di->FrustumAngle();
-	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
+	ClearClipper(di, clipper);
 
 	auto startan = bvectangbam(line->x - newx, line->y - newy);
 	auto endan = bvectangbam(wall[line->point2].x - newx, wall[line->point2].y - newy);
-	clipper->SafeAddClipRange(startan, endan);  // we check the line from the backside so angles are reversed.
+	clipper->RestrictVisibleRange(endan, startan);  // we check the line from the backside so angles are reversed.
 	return true;
 }
 
@@ -668,14 +636,12 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 
 	di->SetClipLine(line);
 	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
-	clipper->Clear();
-
-	angle_t af = di->FrustumAngle();
-	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
+	
+	ClearClipper(di, clipper);
 
 	auto startan = bvectangbam(origin->x - origx, origin->y - origy);
 	auto endan = bvectangbam(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
-	clipper->SafeAddClipRange(endan, startan);
+	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }
 
@@ -722,14 +688,12 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 
 	di->SetClipLine(line);
 	di->SetupView(rstate, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, !!(state->MirrorFlag & 1), !!(state->PlaneMirrorFlag & 1));
-	clipper->Clear();
-
-	angle_t af = di->FrustumAngle();
-	if (af < ANGLE_180) clipper->SafeAddClipRange(bamang(vp.RotAngle + af), bamang(vp.RotAngle - af));
+	
+	ClearClipper(di, clipper);
 
 	auto startan = bvectangbam(origin->x - origx, origin->y - origy);
 	auto endan = bvectangbam(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
-	clipper->SafeAddClipRange(endan, startan);
+	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }
 

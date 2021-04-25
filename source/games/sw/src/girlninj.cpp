@@ -722,12 +722,12 @@ SetupGirlNinja(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
+        u = SpawnUser(SpriteNum, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
         u->Health = 100;
     }
 
@@ -753,7 +753,7 @@ SetupGirlNinja(short SpriteNum)
 int
 DoGirlNinjaMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     // jumping and falling
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING) && !TEST(u->Flags, SPR_CLIMBING))
@@ -791,7 +791,7 @@ DoGirlNinjaMove(short SpriteNum)
 int
 GirlNinjaJumpActionFunc(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -816,7 +816,7 @@ GirlNinjaJumpActionFunc(short SpriteNum)
 int
 NullGirlNinja(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
 
@@ -834,7 +834,7 @@ NullGirlNinja(short SpriteNum)
 
 int DoGirlNinjaPain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullGirlNinja(SpriteNum);
 
@@ -847,7 +847,7 @@ int DoGirlNinjaPain(short SpriteNum)
 int DoGirlNinjaSpecial(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->spal == PALETTE_PLAYER5)
     {

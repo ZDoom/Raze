@@ -147,7 +147,7 @@ void GameInterface::LeavePortal(spritetype* viewer, int type)
 
 bool GameInterface::GetGeoEffect(GeoEffect* eff, int viewsector)
 {
-	if (!isRR() || sector[viewsector].lotag == 848)
+	if (isRR() && sector[viewsector].lotag == 848)
 	{
 		eff->geocnt = geocnt;
 		eff->geosector = geosector;

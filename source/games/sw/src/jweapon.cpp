@@ -260,7 +260,7 @@ int
 DoWallBloodDrip(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     //sp->z += (300+RANDOM_RANGE(2300)) >> 1;
 
@@ -300,7 +300,7 @@ void
 SpawnMidSplash(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp np;
     USERp nu;
     short New;
@@ -309,7 +309,7 @@ SpawnMidSplash(short SpriteNum)
                       sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     //SetOwner(Weapon, New);
     np->shade = -12;
@@ -334,7 +334,7 @@ void
 SpawnFloorSplash(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp np;
     USERp nu;
     short New;
@@ -343,7 +343,7 @@ SpawnFloorSplash(short SpriteNum)
                       sp->x, sp->y, sp->z, sp->ang, 0);
 
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     //SetOwner(Weapon, New);
     np->shade = -12;
@@ -369,7 +369,7 @@ int
 DoBloodSpray(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int cz,fz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -515,7 +515,7 @@ DoBloodSpray(int16_t Weapon)
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing
                 // underwater
 
-                if (u->lo_sectp && SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth)
+                if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                 // shallow water
 
@@ -563,7 +563,7 @@ DoBloodSpray(int16_t Weapon)
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         SetOwner(Weapon, New);
         np->shade = -12;
@@ -596,7 +596,7 @@ int
 DoPhosphorus(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -636,7 +636,7 @@ DoPhosphorus(int16_t Weapon)
 
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
-            hu = User[hit_sprite];
+            hu = User[hit_sprite].Data();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -739,7 +739,7 @@ DoPhosphorus(int16_t Weapon)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -785,7 +785,7 @@ DoPhosphorus(int16_t Weapon)
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         np->hitag = LUMINOUS;           // Always full brightness
         SetOwner(Weapon, New);
@@ -820,7 +820,7 @@ int
 DoChemBomb(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -976,7 +976,7 @@ DoChemBomb(int16_t Weapon)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -1035,7 +1035,7 @@ DoChemBomb(int16_t Weapon)
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
         np = &sprite[New];
-        nu = User[New];
+        nu = User[New].Data();
 
         SetOwner(Weapon, New);
         np->shade = -40;
@@ -1065,7 +1065,7 @@ DoChemBomb(int16_t Weapon)
 int
 DoCaltropsStick(int16_t Weapon)
 {
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     u->Counter = !u->Counter;
 
@@ -1079,7 +1079,7 @@ int
 DoCaltrops(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -1210,7 +1210,7 @@ DoCaltrops(int16_t Weapon)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum] && SectUser[sp->sectnum]->depth)
+                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -1257,7 +1257,7 @@ int
 SpawnRadiationCloud(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], np;
-    USERp u = User[SpriteNum], nu;
+    USERp u = User[SpriteNum].Data(), nu;
     short New;
 
 
@@ -1288,7 +1288,7 @@ SpawnRadiationCloud(short SpriteNum)
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     SetOwner(sp->owner, New);
     nu->WaitTics = 1 * 120;
@@ -1335,7 +1335,7 @@ int
 DoRadiationCloud(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     sp->z -= sp->zvel;
 
@@ -1358,7 +1358,7 @@ DoRadiationCloud(short SpriteNum)
 int
 PlayerInitChemBomb(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -1381,7 +1381,7 @@ PlayerInitChemBomb(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), CHEMBOMB_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
@@ -1444,7 +1444,7 @@ PlayerInitChemBomb(PLAYERp pp)
 int
 InitSpriteChemBomb(int16_t SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp sp = &sprite[SpriteNum], wp;
     int nx, ny, nz;
@@ -1463,7 +1463,7 @@ InitSpriteChemBomb(int16_t SpriteNum)
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
@@ -1498,7 +1498,7 @@ int
 InitChemBomb(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -1518,7 +1518,7 @@ InitChemBomb(short SpriteNum)
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
 //    wu->RotNum = 5;
 //    NewStateGroup(w, &sg_ChemBomb);
@@ -1592,7 +1592,7 @@ PlayerInitFlashBomb(PLAYERp pp)
         while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
-            hu = User[i];
+            hu = User[i].Data();
 
             if (i == pp->PlayerSprite)
                 break;
@@ -1660,7 +1660,7 @@ InitFlashBomb(int16_t SpriteNum)
         while ((i = it.NextIndex()) >= 0)
         {
             hp = &sprite[i];
-            hu = User[i];
+            hu = User[i].Data();
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
@@ -1710,7 +1710,7 @@ int
 SpawnFlashBombOnActor(int16_t enemy)
 {
     SPRITEp ep = &sprite[enemy];
-    USERp eu = User[enemy];
+    USERp eu = User[enemy].Data();
     SPRITEp np;
     USERp nu;
     short New;
@@ -1733,7 +1733,7 @@ SpawnFlashBombOnActor(int16_t enemy)
             int sizez = SPRITEp_SIZE_Z(ep) + DIV4(SPRITEp_SIZE_Z(ep));
 
             np = &sprite[eu->flame];
-            nu = User[eu->flame];
+            nu = User[eu->flame].Data();
 
 
             if (nu->Counter >= SPRITEp_SIZE_Z_2_YREPEAT(np, sizez))
@@ -1764,7 +1764,7 @@ SpawnFlashBombOnActor(int16_t enemy)
     New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, ep->sectnum,
                       ep->x, ep->y, ep->z, ep->ang, 0);
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
 
     if (enemy >= 0)
         eu->flame = New;
@@ -1801,7 +1801,7 @@ SpawnFlashBombOnActor(int16_t enemy)
 int
 PlayerInitCaltrops(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -1827,7 +1827,7 @@ PlayerInitCaltrops(PLAYERp pp)
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RANDOM_RANGE(CHEMBOMB_VELOCITY)) / 2);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
@@ -1885,7 +1885,7 @@ int
 InitCaltrops(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -1904,7 +1904,7 @@ InitCaltrops(int16_t SpriteNum)
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY / 2);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
@@ -1936,7 +1936,7 @@ int
 InitPhosphorus(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -1958,7 +1958,7 @@ InitPhosphorus(int16_t SpriteNum)
                     nx, ny, nz, daang, CHEMBOMB_VELOCITY/3);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     wp->hitag = LUMINOUS;               // Always full brightness
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
@@ -1995,7 +1995,7 @@ int
 InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
@@ -2047,7 +2047,7 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
                         nx, ny, nz, ang, vel*2);
 
         wp = &sprite[w];
-        wu = User[w];
+        wu = User[w].Data();
 
         SET(wu->Flags, SPR_XFLIP_TOGGLE);
         if (dogib)
@@ -2174,11 +2174,11 @@ int
 DoCarryFlag(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
 #define FLAG_DETONATE_STATE 99
     SPRITEp fp = &sprite[u->FlagOwner];
-    USERp fu = User[u->FlagOwner];
+    USERp fu = User[u->FlagOwner].Data();
 
 
     // if no owner then die
@@ -2214,7 +2214,7 @@ DoCarryFlag(int16_t Weapon)
         if (u->Counter2 < FLAG_DETONATE_STATE)
         {
             SPRITEp ap = &sprite[u->Attach];
-            USERp au = User[u->Attach];
+            USERp au = User[u->Attach].Data();
 
             if (!au || au->Health <= 0)
             {
@@ -2329,11 +2329,11 @@ int
 DoCarryFlagNoDet(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     SPRITEp ap = &sprite[u->Attach];
-    USERp au = User[u->Attach];
+    USERp au = User[u->Attach].Data();
     SPRITEp fp = &sprite[u->FlagOwner];
-    USERp fu = User[u->FlagOwner];
+    USERp fu = User[u->FlagOwner].Data();
 
 
     if (u->FlagOwner >= 0)
@@ -2397,7 +2397,7 @@ int
 SetCarryFlag(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
 
     // stuck
     SET(u->Flags, SPR_BOUNCE);
@@ -2419,7 +2419,7 @@ int
 DoFlag(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
+    USERp u = User[Weapon].Data();
     int16_t hit_sprite = -1;
 
     hit_sprite = DoFlagRangeTest(Weapon, 1000);
@@ -2448,7 +2448,7 @@ DoFlag(int16_t Weapon)
 int
 InitShell(int16_t SpriteNum, int16_t ShellNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp sp = &sprite[SpriteNum], wp;
     int nx, ny, nz;
@@ -2484,7 +2484,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
                     nx, ny, nz, sp->ang, 64);
 
     wp = &sprite[w];
-    wu = User[w];
+    wu = User[w].Data();
 
     wp->zvel = -(velocity);
 

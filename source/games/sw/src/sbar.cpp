@@ -367,7 +367,7 @@ private:
 
     void PlayerUpdateWeaponSummary(PLAYERp pp, int UpdateWeaponNum)
     {
-        USERp u = User[pp->PlayerSprite];
+        USERp u = User[pp->PlayerSprite].Data();
         int x, y;
         int pos;
         int column;
@@ -665,7 +665,7 @@ private:
     void DrawStatusBar()
     {
         auto pp = Player + screenpeek;
-        USERp u = User[pp->PlayerSprite];
+        USERp u = User[pp->PlayerSprite].Data();
         BeginStatusBar(320, 200, tileHeight(STATUS_BAR));
 
         if (hud_size == Hud_StbarOverlay) Set43ClipRect();
@@ -742,7 +742,7 @@ private:
     {
         BeginHUD(320, 200, 1);
         auto pp = Player + screenpeek;
-        USERp u = User[pp->PlayerSprite];
+        USERp u = User[pp->PlayerSprite].Data();
         int x, y;
         INVENTORY_DATAp id;
 
@@ -785,7 +785,7 @@ private:
         BeginHUD(320, 200, 1);
 
         auto pp = Player + screenpeek;
-        USERp u = User[pp->PlayerSprite];
+        USERp u = User[pp->PlayerSprite].Data();
 
         FString format;
         FGameTexture* img;

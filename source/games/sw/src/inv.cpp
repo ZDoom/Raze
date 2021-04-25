@@ -139,7 +139,7 @@ void AutoPickInventory(PLAYERp pp)
 
 void UseInventoryMedkit(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite];
+    USERp u = User[pp->PlayerSprite].Data();
     short diff;
     short inv = INVENTORY_MEDKIT;
     short amt;

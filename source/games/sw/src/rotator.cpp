@@ -47,10 +47,10 @@ void DoRotatorStopInterp(short SpriteNum);
 
 void ReverseRotator(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     ROTATORp r;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     // if paused go ahead and start it up again
     if (u->Tics)
@@ -97,11 +97,11 @@ RotatorSwitch(short match, short setting)
 
 void SetRotatorActive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     DoRotatorSetInterp(SpriteNum);
 
@@ -120,7 +120,7 @@ void SetRotatorActive(short SpriteNum)
 
 void SetRotatorInactive(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
     DoRotatorStopInterp(SpriteNum);
@@ -170,7 +170,7 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
 
         if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -193,7 +193,7 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
 
             sectnum = fsp->sectnum;
 
-            if (pp && SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
+            if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
             {
                 short key_num;
 
@@ -247,7 +247,7 @@ TestRotatorMatchActive(short match)
 
         if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i];
+            fu = User[i].Data();
 
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(fsp))
@@ -310,7 +310,7 @@ void DoRotatorStopInterp(short SpriteNum)
 
 int DoRotatorMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
     short ndx,w,startwall,endwall;
@@ -320,7 +320,7 @@ int DoRotatorMove(short SpriteNum)
     int dist,closest;
     bool kill = false;
 
-    r = u->rotator;
+    r = u->rotator.Data();
 
     // Example - ang pos moves from 0 to 512 <<OR>> from 0 to -512
 
@@ -416,7 +416,7 @@ int DoRotatorMove(short SpriteNum)
     // move points
     for (w = startwall, ndx = 0; w <= endwall; w++)
     {
-        vec2_t const orig = { r->origx[ndx], r->origy[ndx] };
+        vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
         rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);
 
         dragpoint(w, nxy.x, nxy.y, 0);
@@ -435,7 +435,7 @@ int DoRotatorMove(short SpriteNum)
 
 int DoRotator(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
 
     // could move this inside sprite control

@@ -396,7 +396,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetFade(globalfloorpal);
-	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), palid, sampleroverride);
+	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), globalskytex? 0 : palid, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -1319,9 +1319,13 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     float const fglobalang = FixedToFloat(qglobalang);
     int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
     int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
-    globalskytex = skytile? nullptr : GetSkyTexture(globalpicnum, dapskybits, dapskyoff);
+    int remap = TRANSLATION(Translation_Remap + curbasepal, globalpal);
+    globalskytex = skytile? nullptr : GetSkyTexture(globalpicnum, dapskybits, dapskyoff, remap);
     int realskybits = dapskybits;
-    if (globalskytex) dapskybits = 0;
+    if (globalskytex)
+    {
+        dapskybits = 0;
+    }
 
     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 

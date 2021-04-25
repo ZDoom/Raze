@@ -45,7 +45,6 @@
 #include "sectorgeometry.h"
 #include "render.h"
 
-
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
 {
 	sect.wallptr = fr.ReadInt16();
@@ -371,6 +370,7 @@ static void insertAllSprites(const char* filename, const vec3_t* pos, int16_t* c
 	assert(realnumsprites == Numsprites);
 }
 
+void addBlockingPairs();
 
 void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int16_t* cursectnum)
 {

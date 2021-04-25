@@ -638,12 +638,12 @@ SetupSumo(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,SUMO_RUN_R0,s_SumoRun[0]);
+        u = SpawnUser(SpriteNum,SUMO_RUN_R0,s_SumoRun[0]);
         u->Health = 6000;
     }
 
@@ -680,7 +680,7 @@ SetupSumo(short SpriteNum)
 
 int NullSumo(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     //if (TEST(u->Flags,SPR_SLIDING))
     //DoActorSlide(SpriteNum);
@@ -695,7 +695,7 @@ int NullSumo(short SpriteNum)
 
 int DoSumoMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     //if (TEST(u->Flags,SPR_SLIDING))
     //DoActorSlide(SpriteNum);
@@ -719,7 +719,7 @@ int DoSumoMove(short SpriteNum)
 int InitSumoCharge(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (RANDOM_P2(1024) > 950)
         PlaySound(DIGI_SUMOALERT, sp, v3df_follow);
@@ -737,7 +737,7 @@ int InitSumoCharge(short SpriteNum)
 int DoSumoRumble(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     SetSumoQuake(SpriteNum);
 
@@ -787,7 +787,7 @@ int InitSumoClap(short SpriteNum)
 int DoSumoDeathMelt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     PlaySound(DIGI_SUMOFART, sp, v3df_follow);
 
@@ -840,7 +840,7 @@ BossHealthMeter(void)
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
-            u = User[i];
+            u = User[i].Data();
 
             if ((u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0) && sp->pal != 16)
             {
@@ -869,7 +869,7 @@ BossHealthMeter(void)
             if (BossSpriteNum[i] >= 0)
             {
                 sp = &sprite[BossSpriteNum[i]];
-                u = User[BossSpriteNum[i]];
+                u = User[BossSpriteNum[i]].Data();
 
                 if (cansee(sp->x, sp->y, SPRITEp_TOS(sp), sp->sectnum, pp->posx, pp->posy, pp->posz - Z(40), pp->cursectnum))
                 {
@@ -914,7 +914,7 @@ BossHealthMeter(void)
             continue;
 
         sp = &sprite[BossSpriteNum[i]];
-        u = User[BossSpriteNum[i]];
+        u = User[BossSpriteNum[i]].Data();
 
         if (u->ID == SERP_RUN_R0 && serpwasseen)
         {

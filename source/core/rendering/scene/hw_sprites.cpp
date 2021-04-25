@@ -331,6 +331,8 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 	y = spr->y * (1 / -16.f);
 	auto vp = di->Viewpoint;
 
+	if ((vp.Pos.XY() - DVector2(x, y)).LengthSquared() < 0.125) return;
+
 	if (modelframe == 0)
 	{
 		int flags = spr->cstat;
@@ -376,7 +378,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 		}
 
 		if (flags & CSTAT_SPRITE_XFLIP) xoff = -xoff;
-		if (flags & CSTAT_SPRITE_YFLIP) yoff = -yoff;
+		//if (flags & CSTAT_SPRITE_YFLIP) yoff = -yoff; According to Polymost this must not be done.
 
 		ul = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
 		ur = (spr->cstat & CSTAT_SPRITE_XFLIP) ? 1.f : 0.f;
@@ -441,6 +443,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, sectortype* sector, bool rotate)
 {
 	sprite = spr;
+	auto sprext = &spriteext[spr->owner];
 
 	texture = nullptr;
 	modelframe = -1;
@@ -451,7 +454,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 	visibility = sectorVisibility(sector);
 	voxel = vox;
 
-	auto ang = spr->ang;
+	auto ang = spr->ang + sprext->angoff;
 	if ((spr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
 	{
 		int myclock = (PlayClock << 3) + MulScale(4 << 3, (int)di->Viewpoint.TicFrac, 16);
@@ -463,7 +466,6 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 
 	SetSpriteTranslucency(spr, alpha, RenderStyle);
 
-	auto sprext = &spriteext[spr->owner];
 
 	FVector3 scalevec = { voxel->scale, voxel->scale, voxel->scale };
 	FVector3 translatevec = { 0, 0, voxel->zadd * voxel->scale };

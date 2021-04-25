@@ -83,942 +83,1209 @@ extern bool sumowasseen;
 extern bool zillawasseen;
 extern short BossSpriteNum[3];
 
-#define PANEL_SAVE 1
 #define ANIM_SAVE 1
 
 extern STATE s_NotRestored[];
 
-OrgTileListP otlist[] = {&orgwalllist, &orgwalloverlist, &orgsectorceilinglist, &orgsectorfloorlist};
 
-int PanelSpriteToNdx(PLAYERp pp, PANEL_SPRITEp psprite)
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, savedcodesym& w, savedcodesym* def)
 {
-    short ndx = 0;
-    PANEL_SPRITEp psp=NULL, next=NULL;
-
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    static savedcodesym nul;
+    if (!def)
     {
-        if (psp == psprite)
-            return ndx;
-
-        ndx++;
+        def = &nul;
+        if (arc.isReading()) w = {};
     }
 
-    // special case for pointing to the list head
-    if ((LIST)psprite == (LIST)&pp->PanelSpriteList)
-        return 9999;
-
-    return -1;
+    if (arc.BeginObject(keyname))
+    {
+        arc("module", w.module, def->module)
+            ("index", w.index, def->index)
+            .EndObject();
+    }
+    return arc;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-PANEL_SPRITEp PanelNdxToSprite(PLAYERp pp, int ndx)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, saveddatasym& w, saveddatasym* def)
 {
-    short count = 0;
-    PANEL_SPRITEp psp, next;
-
-    if (ndx == -1)
-        return NULL;
-
-    if (ndx == 9999)
-        return (PANEL_SPRITEp)&pp->PanelSpriteList;
-
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    static saveddatasym nul;
+    if (!def)
     {
-        if (count == ndx)
-            return psp;
-
-        count++;
+        def = &nul;
+        if (arc.isReading()) w = {};
     }
 
-    return NULL;
+    if (arc.BeginObject(keyname))
+    {
+        arc("module", w.module, def->module)
+            ("index", w.index, def->index)
+            ("offset", w.offset, def->offset)
+            .EndObject();
+    }
+    return arc;
 }
 
-int SaveSymDataInfo(MFILE_WRITE fil, void *ptr)
+//---------------------------------------------------------------------------
+//
+// todo: make sure all saveables are arrays so we can store indices instead of offsets
+//
+//---------------------------------------------------------------------------
+
+FSerializer& SerializeDataPtr(FSerializer& arc, const char* keyname, void*& w, size_t sizeOf)
 {
     saveddatasym sym;
-
-    if (Saveable_FindDataSym(ptr, &sym))
+    if (arc.isWriting())
     {
-        FILE *fp;
-
-        assert(false);
-        fp = fopen("savegame symbols missing.txt", "a");
-        if (fp)
-        {
-            fprintf(fp,"data %p - reference variable xdim at %p\n",ptr, &xdim);
-            fclose(fp);
-        }
-        return 1;
+        Saveable_FindDataSym(w, &sym);
+        arc(keyname, sym);
     }
-
-    MWRITE(&sym, sizeof(sym), 1, fil);
-
-    return 0;
+    else
+    {
+        arc(keyname, sym);
+        Saveable_RestoreDataSym(&sym, &w);
+    }
+    return arc;
 }
 
-static int SaveSymCodeInfo_raw(MFILE_WRITE fil, void *ptr)
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& SerializeCodePtr(FSerializer& arc, const char* keyname, void** w)
 {
     savedcodesym sym;
-
-    if (Saveable_FindCodeSym(ptr, &sym))
+    if (arc.isWriting())
     {
-        FILE *fp;
-
-        assert(false);
-        fp = fopen("savegame symbols missing.txt", "a");
-        if (fp)
-        {
-            fprintf(fp,"code %p - reference function SaveSymDataInfo at %p\n",ptr, SaveSymDataInfo);
-            fclose(fp);
-        }
-        return 1;
+        Saveable_FindCodeSym(*w, &sym);
+        arc(keyname, sym);
     }
-
-    MWRITE(&sym, sizeof(sym), 1, fil);
-
-    return 0;
-}
-template <typename T>
-static int SaveSymCodeInfo(MFILE_WRITE fil, T * ptr)
-{
-    return SaveSymCodeInfo_raw(fil, (void *)ptr);
+    else
+    {
+        arc(keyname, sym);
+        Saveable_RestoreCodeSym(&sym, w);
+    }
+    return arc;
 }
 
-int LoadSymDataInfo(MFILE_READ fil, void **ptr)
+//---------------------------------------------------------------------------
+//
+// Unfortunately this cannot be simplified with templates.
+// This requires an explicit function for each pointer type.
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_STATEp& w, PANEL_STATEp* def)
 {
-    saveddatasym sym;
-
-    MREAD(&sym, sizeof(sym), 1, fil);
-
-    return Saveable_RestoreDataSym(&sym, ptr);
-}
-int LoadSymCodeInfo(MFILE_READ fil, void **ptr)
-{
-    savedcodesym sym;
-
-    MREAD(&sym, sizeof(sym), 1, fil);
-
-    return Saveable_RestoreCodeSym(&sym, ptr);
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(PANEL_STATE));
 }
 
-
-
-bool GameInterface::SaveGame()
+FSerializer& Serialize(FSerializer& arc, const char* keyname, STATEp& w, STATEp* def)
 {
-    MFILE_WRITE fil;
-    int i,j;
-    short ndx;
-    PLAYER tp;
-    PLAYERp pp;
-    SECT_USERp sectu;
-    USER tu;
-    USERp u;
-    ANIM tanim;
-    ANIMp a;
-    PANEL_SPRITE tpanel_sprite;
-    PANEL_SPRITEp psp,cur,next;
-    SECTOR_OBJECTp sop;
-    int saveisshot=0;
-    OrgTileP otp, next_otp;
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(STATE));
+}
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, STATEp*& w, STATEp** def)
+{
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(STATEp));
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ACTOR_ACTION_SETp& w, ACTOR_ACTION_SETp* def)
+{
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(ACTOR_ACTION_SET));
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PERSONALITYp& w, PERSONALITYp* def)
+{
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(PERSONALITY));
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ATTRIBUTEp& w, ATTRIBUTEp* def)
+{
+	return SerializeDataPtr(arc, keyname, *(void**)&w, sizeof(ATTRIBUTE));
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+// Temporary array to serialize the panel sprites.
+static TArray<PANEL_SPRITEp> pspAsArray;
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEp& w, PANEL_SPRITEp* def)
+{
+	unsigned idx = ~0u;
+	if (arc.isWriting())
+	{
+		if (w != nullptr) 
+		{
+			idx = pspAsArray.Find(w);
+			if ((unsigned)idx >= pspAsArray.Size())
+			{
+				for (unsigned i = 0; i < MAX_SW_PLAYERS_REG; i++)
+				{
+					// special case for pointing to the list head
+					if ((LIST)w == (LIST)&Player[i].PanelSpriteList)
+					{
+						idx = 1000'0000 + i;
+						break;
+					}
+				}
+				if (idx >= pspAsArray.Size() && idx < 1000'0000)
+					idx = pspAsArray.Push(w);
+			}
+		}
+		arc(keyname, idx);
+	}
+	else
+	{
+		unsigned int ndx;
+		arc(keyname, ndx);
+
+		if (ndx == ~0u) w = nullptr;
+		else if (ndx >= 1000'0000) w = (PANEL_SPRITEp)&Player[ndx - 1000'0000].PanelSpriteList;
+		else if ((unsigned)ndx >= pspAsArray.Size())
+			I_Error("Bad panel sprite index in savegame");
+		else w = pspAsArray[ndx];
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// we need to allocate the needed panel sprites before loading anything else
+//
+//---------------------------------------------------------------------------
+
+void preSerializePanelSprites(FSerializer& arc)
+{
+	if (arc.isReading())
+	{
+		unsigned siz;
+		arc("panelcount", siz);
+		pspAsArray.Resize(siz);
+		for (unsigned i = 0; i < siz; i++)
+		{
+			pspAsArray[i] = (PANEL_SPRITEp)CallocMem(sizeof(PANEL_SPRITE), 1);
+		}
+	}
+}
+
+void postSerializePanelSprites(FSerializer& arc)
+{
+	if (arc.isWriting())
+	{
+		unsigned siz = pspAsArray.Size();
+		arc("panelcount", siz);
+	}
+	if (arc.BeginArray("panelsprites"))
+	{
+		for (auto psp : pspAsArray)
+		{
+			arc(nullptr, *psp);
+		}
+		arc.EndArray();
+	}
+	pspAsArray.Clear();
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITE_OVERLAY& w, PANEL_SPRITE_OVERLAY* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("state", w.State)
+			("flags", w.flags)
+			("tics", w.tics)
+			("pic", w.pic)
+			("xoff", w.xoff)
+			("yoff", w.yoff)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct& w, PANEL_SPRITEstruct* def)
+{
+	static PANEL_SPRITEstruct nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("Next", w.Next)
+			("Prev", w.Prev)
+			("sibling", w.sibling)
+			("State", w.State)
+			("RetractState", w.RetractState)
+			("PresentState", w.PresentState)
+			("ActionState", w.ActionState)
+			("RestState", w.RestState)
+			("xfract", w.xfract)
+			("x", w.x)
+			("yfract", w.yfract)
+			("y", w.y)
+			.Array("over", w.over, countof(w.over))
+			("id", w.ID)
+			("picndx", w.picndx)
+			("picnum", w.picnum)
+			("vel", w.vel)
+			("vel_adj", w.vel_adj)
+			("xorig", w.xorig)
+			("yorig", w.yorig)
+			("flags", w.flags)
+			("priority", w.priority)
+			("scale", w.scale)
+			("jump_speed", w.jump_speed)
+			("jump_grav", w.jump_grav)
+			("xspeed", w.xspeed)
+			("tics", w.tics)
+			("delay", w.delay)
+			("ang", w.ang)
+			("rotate_ang", w.rotate_ang)
+			("sin_ndx", w.sin_ndx)
+			("sin_amt", w.sin_amt)
+			("sin_arc_speed", w.sin_arc_speed)
+			("bob_height_divider", w.bob_height_divider)
+			("shade", w.shade)
+			("pal", w.pal)
+			("kill_tics", w.kill_tics)
+			("WeaponType", w.WeaponType)
+			("playerp", w.PlayerP);
+
+		SerializeCodePtr(arc, "PanelSpriteFunc", (void**)&w.PanelSpriteFunc);
+
+		arc.EndObject();
+	}
+	if (arc.isReading())
+	{
+		w.ox = w.x;
+		w.oy = w.y;
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w, REMOTE_CONTROL* def)
+{
+	static REMOTE_CONTROL nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("cursectnum", w.cursectnum)
+			("lastcursectnum", w.lastcursectnum)
+			("pang", w.pang)
+			("filler", w.filler)
+			("xvect", w.xvect)
+			("yvect", w.yvect)
+			("slide_xvect", w.slide_xvect)
+			("slide_yvect", w.slide_yvect)
+			("x", w.posx)
+			("y", w.posy)
+			("z", w.posz)
+			("sop_control", w.sop_control)
+			.EndObject();
+	}
+	if (arc.isReading())
+	{
+		w.oxvect = w.xvect;
+		w.oyvect = w.yvect;
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERp& w, PLAYERp* def)
+{
+	int ndx = w ? int(w - Player) : -1;
+	arc(keyname, ndx);
+	w = ndx == -1 ? nullptr : Player + ndx;
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, PLAYERstruct* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.posx)
+			("y", w.posy)
+			("z", w.posz)
+			("lv_sectnum", w.lv_sectnum)
+			("lv_x", w.lv_x)
+			("lv_y", w.lv_y)
+			("lv_z", w.lv_z)
+			("remote_sprite", w.remote_sprite)
+			("remote", w.remote)
+			("sop_remote", w.sop_remote)
+			("sop", w.sop)
+			("jump_count", w.jump_count)
+			("jump_speed", w.jump_speed)
+			("down_speed", w.down_speed)
+			("up_speed", w.up_speed)
+			("z_speed", w.z_speed)
+			("climb_ndx", w.climb_ndx)
+			("hiz", w.hiz)
+			("loz", w.loz)
+			("ceiling_dist", w.ceiling_dist)
+			("floor_dist", w.floor_dist)
+			("hi_sectp", w.hi_sectp)
+			("lo_sectp", w.lo_sectp)
+			("hi_sp", w.hi_sp)
+			("lo_sp", w.lo_sp)
+			("last_camera_sp", w.last_camera_sp)
+			("circle_camera_dist", w.circle_camera_dist)
+			("six", w.six)
+			("siy", w.siy)
+			("siz", w.siz)
+			("siang", w.siang)
+			("xvect", w.xvect)
+			("yvect", w.yvect)
+			("friction", w.friction)
+			("slide_xvect", w.slide_xvect)
+			("slide_yvect", w.slide_yvect)
+			("slide_ang", w.slide_ang)
+			("slide_dec", w.slide_dec)
+			("drive_avel", w.drive_avel)
+			("view_outside_dang", w.view_outside_dang)
+			("circle_camera_ang", w.circle_camera_ang)
+			("camera_check_time_delay", w.camera_check_time_delay)
+			("cursectnum", w.cursectnum)
+			("lastcursectnum", w.lastcursectnum)
+			("turn180_target", w.turn180_target)
+			("hvel", w.hvel)
+			("tilt", w.tilt)
+			("tilt_dest", w.tilt_dest)
+			("horizon", w.horizon)
+			("angle", w.angle)
+			("recoil_amt", w.recoil_amt)
+			("recoil_speed", w.recoil_speed)
+			("recoil_ndx", w.recoil_ndx)
+			("recoil_horizoff", w.recoil_horizoff)
+			("oldposx", w.oldposx)
+			("oldposy", w.oldposy)
+			("oldposz", w.oldposz)
+			("revolvex", w.RevolveX)
+			("revolvey", w.RevolveY)
+			("RevolveDeltaAng", w.RevolveDeltaAng)
+			("RevolveAng", w.RevolveAng)
+			("PlayerSprite", w.PlayerSprite)
+			("PlayerUnderSprite", w.PlayerUnderSprite)
+			("SpriteP", w.SpriteP)
+			("UnderSpriteP", w.UnderSpriteP)
+			("pnum", w.pnum)
+			("LadderSector", w.LadderSector)
+			("lx", w.lx)
+			("ly", w.ly)
+			("JumpDuration", w.JumpDuration)
+			("WadeDepth", w.WadeDepth)
+			("bob_amt", w.bob_amt)
+			("bob_ndx", w.bob_ndx)
+			("bcnt", w.bcnt)
+			("bob_z", w.bob_z)
+			("playerreadyflag", w.playerreadyflag)
+			("Flags", w.Flags)
+			("Flags2", w.Flags2)
+			("sop_control", w.sop_control)
+			("sop_riding", w.sop_riding)
+			.Array("HasKey", w.HasKey, countof(w.HasKey))
+			("SwordAng", w.SwordAng)
+			("WpnGotOnceFlags", w.WpnGotOnceFlags)
+			("WpnFlags", w.WpnFlags)
+			.Array("WpnAmmo", w.WpnAmmo, countof(w.WpnAmmo))
+			("WpnNum", w.WpnNum)
+			("pnum", w.pnum)
+			("panelnext", w.PanelSpriteList.Next)
+			("panelprev", w.PanelSpriteList.Prev)
+			("curwpn", w.CurWpn)
+			.Array("wpn", w.Wpn, countof(w.Wpn))
+			("WpnRocketType", w.WpnRocketType)
+			("WpnRocketHeat", w.WpnRocketHeat)
+			("WpnRocketNuke", w.WpnRocketNuke)
+			("WpnFlameType", w.WpnFlameType)
+			("WpnFirstType", w.WpnFirstType)
+			("WeaponType", w.WeaponType)
+			("FirePause", w.FirePause)
+			("InventoryNum", w.InventoryNum)
+			("InventoryBarTics", w.InventoryBarTics)
+			.Array("InventoryTics", w.InventoryTics, countof(w.InventoryTics))
+			.Array("InventoryPercent", w.InventoryPercent, countof(w.InventoryPercent))
+			.Array("InventoryAmount", w.InventoryAmount, countof(w.InventoryAmount))
+			.Array("InventoryActive", w.InventoryActive, countof(w.InventoryActive))
+			("DiveTics", w.DiveTics)
+			("DiveDamageTics", w.DiveDamageTics)
+			("DeathType", w.DeathType)
+			("Kills", w.Kills)
+			("Killer", w.Killer)
+			.Array("KilledPlayer", w.KilledPlayer, countof(w.KilledPlayer))
+			("SecretsFound", w.SecretsFound)
+			("Armor", w.Armor)
+			("MaxHealth", w.MaxHealth)
+			("UziShellLeftAlt", w.UziShellLeftAlt)
+			("UziShellRightAlt", w.UziShellRightAlt)
+			("TeamColor", w.TeamColor)
+			("FadeTics", w.FadeTics)
+			("FadeAmt", w.FadeAmt)
+			("NightVision", w.NightVision)
+			("IsAI", w.IsAI)
+			("NumFootPrints", w.NumFootPrints)
+			("WpnUziType", w.WpnUziType)
+			("WpnShotgunType", w.WpnShotgunType)
+			("WpnShotgunAuto", w.WpnShotgunAuto)
+			("WpnShotgunLastShell", w.WpnShotgunLastShell)
+			("WpnRailType", w.WpnRailType)
+			("Bloody", w.Bloody)
+			("InitingNuke", w.InitingNuke)
+			("TestNukeInit", w.TestNukeInit)
+			("NukeInitialized", w.NukeInitialized)
+			("FistAng", w.FistAng)
+			("WpnKungFuMove", w.WpnKungFuMove)
+			("HitBy", w.HitBy)
+			("Reverb", w.Reverb)
+			("Heads", w.Heads)
+			("PlayerVersion", w.PlayerVersion)
+			("cookieTime", w.cookieTime)
+			("WpnReloadState", w.WpnReloadState)
+			("keypressbits", w.KeyPressBits)
+			("chops", w.Chops);
+
+		SerializeCodePtr(arc, "DoPlayerAction", (void**)&w.DoPlayerAction);
+		arc.EndObject();
+	}
+	if (arc.isReading())
+	{
+		w.oposx = w.posx;
+		w.oposy = w.posx;
+		w.oposz = w.posx;
+		w.oz_speed = w.z_speed;
+		w.oxvect = w.xvect;
+		w.oyvect = w.yvect;
+		w.obob_z = w.bob_z;
+		w.input = {};
+		w.lastinput = {};
+        memset(w.cookieQuote, 0, sizeof(w.cookieQuote)); // no need to remember this.
+        w.StartColor = 0;
+
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTp& w, SECTOR_OBJECTp* def)
+{
+	int ndx = w ? int(w - SectorObject) : -1;
+	arc(keyname, ndx);
+	if (arc.isReading() )w = ndx == -1 ? nullptr : SectorObject + ndx;
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruct& w, SECTOR_OBJECTstruct* def)
+{
+	static SECTOR_OBJECTstruct nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		int sp_cnt;
+		for (sp_cnt = 0; w.sp_num[sp_cnt] != -1 && sp_cnt < (int)countof(w.sp_num); sp_cnt++) {}
+
+		arc("num_sectors", w.num_sectors, def->num_sectors)
+			("num_walls", w.num_walls, def->num_walls)
+			("num_sp", sp_cnt)
+			("clipbox_num", w.clipbox_num, def->clipbox_num)
+			.Array("sectp", w.sectp, def->sectp, w.num_sectors)
+			.Array("sector", w.sector, def->sector, w.num_sectors)  // is this really different from sectp?
+			.Array("zorig_floor", w.zorig_floor, def->zorig_floor, w.num_sectors)
+			.Array("zorig_ceiling", w.zorig_ceiling, def->zorig_ceiling, w.num_sectors)
+			.Array("sp_num", w.sp_num, def->sp_num, countof(w.sp_num))
+			.Array("xorig", w.xorig, def->xorig, w.num_walls)
+			.Array("yorig", w.yorig, def->yorig, w.num_walls)
+			("controller", w.controller, def->controller)
+			("child", w.sp_child, def->sp_child)
+			("xmid", w.xmid, def->xmid)
+			("ymid", w.ymid, def->ymid)
+			("zmid", w.zmid, def->zmid)
+			("vel", w.vel, def->vel)
+			("vel_tgt", w.vel_tgt, def->vel_tgt)
+			("player_xoff", w.player_xoff, def->player_xoff)
+			("player_yoff", w.player_yoff, def->player_yoff)
+			("zdelta", w.zdelta, def->zdelta)
+
+			("z_tgt", w.z_tgt, def->z_tgt)
+			("z_rate", w.z_rate, def->z_rate)
+			("update", w.update, def->update)
+			("bob_diff", w.bob_diff, def->bob_diff)
+			("target_dist", w.target_dist, def->target_dist)
+			("floor_loz", w.floor_loz, def->floor_loz)
+			("floor_hiz", w.floor_hiz, def->floor_hiz)
+			("morph_z", w.morph_z, def->morph_z)
+			("morph_z_min", w.morph_z_min, def->morph_z_min)
+			("morph_z_max", w.morph_z_max, def->morph_z_max)
+			("bob_amt", w.bob_amt, def->bob_amt)
+			("drive_angspeed", w.drive_angspeed, def->drive_angspeed)
+			("drive_angslide", w.drive_angslide, def->drive_angslide)
+			("drive_speed", w.drive_speed, def->drive_speed)
+			("drive_slide", w.drive_slide, def->drive_slide)
+			("crush_z", w.crush_z, def->crush_z)
+			("flags", w.flags, def->flags)
+			("sectnum", w.sectnum, def->sectnum)
+			("mid_sector", w.mid_sector, def->mid_sector)
+			("max_damage", w.max_damage, def->max_damage)
+			("ram_damage", w.ram_damage, def->ram_damage)
+			("wait_tics", w.wait_tics, def->wait_tics)
+			("track", w.track, def->track)
+			("point", w.point, def->point)
+			("vel_rate", w.vel_rate, def->vel_rate)
+			("dir", w.dir, def->dir)
+			("ang", w.ang, def->ang)
+			("ang_moving", w.ang_moving, def->ang_moving)
+			("clipdist", w.clipdist, def->clipdist)
+			("ang_tgt", w.ang_tgt, def->ang_tgt)
+			("ang_orig", w.ang_orig, def->ang_orig)
+			("last_ang", w.last_ang, def->last_ang)
+			("old_ang", w.old_ang, def->old_ang)
+			("spin_speed", w.spin_speed, def->spin_speed)
+			("spin_ang", w.spin_ang, def->spin_ang)
+			("turn_speed", w.turn_speed, def->turn_speed)
+			("bob_sine_ndx", w.bob_sine_ndx, def->bob_sine_ndx)
+			("bob_speed", w.bob_speed, def->bob_speed)
+			("op_main_sector", w.op_main_sector, def->op_main_sector)
+			("save_vel", w.save_vel, def->save_vel)
+			("save_spin_speed", w.save_spin_speed, def->save_spin_speed)
+			("match_event", w.match_event, def->match_event)
+			("match_event_sprite", w.match_event_sprite, def->match_event_sprite)
+			("scale_type", w.scale_type, def->scale_type)
+			("scale_active_type", w.scale_active_type, def->scale_active_type)
+			("scale_dist", w.scale_dist, def->scale_dist)
+			("scale_speed", w.scale_speed, def->scale_speed)
+			("scale_dist_min", w.scale_dist_min, def->scale_dist_min)
+			("scale_dist_max", w.scale_dist_max, def->scale_dist_max)
+			("scale_rand_freq", w.scale_rand_freq, def->scale_rand_freq)
+			.Array("clipbox_dist", w.clipbox_dist, def->clipbox_dist, w.clipbox_num)
+			.Array("clipbox_xoff", w.clipbox_xoff, def->clipbox_xoff, w.clipbox_num)
+			.Array("clipbox_yoff", w.clipbox_yoff, def->clipbox_yoff, w.clipbox_num)
+			.Array("clipbox_ang", w.clipbox_ang, def->clipbox_ang, w.clipbox_num)
+			.Array("clipbox_vdist", w.clipbox_vdist, def->clipbox_vdist, w.clipbox_num)
+			.Array("scale_point_dist", w.scale_point_dist, def->scale_point_dist, MAX_SO_POINTS)
+			.Array("scale_point_speed", w.scale_point_speed, def->scale_point_speed, MAX_SO_POINTS)
+			("scale_point_base_speed", w.scale_point_base_speed, def->scale_point_base_speed)
+			("scale_point_dist_min", w.scale_point_dist_min, def->scale_point_dist_min)
+			("scale_point_dist_max", w.scale_point_dist_max, def->scale_point_dist_max)
+			("scale_point_rand_freq", w.scale_point_rand_freq, def->scale_point_rand_freq)
+			("scale_x_mult", w.scale_x_mult, def->scale_x_mult)
+			("scale_y_mult", w.scale_y_mult, def->scale_y_mult)
+			("morph_wall_point", w.morph_wall_point, def->morph_wall_point)
+			("morph_ang", w.morph_ang, def->morph_ang)
+			("morph_speed", w.morph_speed, def->morph_speed)
+			("morph_dist_max", w.morph_dist_max, def->morph_dist_max)
+			("morph_rand_freq", w.morph_rand_freq, def->morph_rand_freq)
+			("morph_dist", w.morph_dist, def->morph_dist)
+			("morph_z_speed", w.morph_z_speed, def->morph_z_speed)
+			("morph_xoff", w.morph_xoff, def->morph_xoff)
+			("morph_yoff", w.morph_yoff, def->morph_yoff)
+			("limit_ang_center", w.limit_ang_center, def->limit_ang_center)
+			("limit_ang_delta", w.limit_ang_delta, def->limit_ang_delta);
+
+		SerializeCodePtr(arc, "preanimator", (void**)&w.PreMoveAnimator);
+		SerializeCodePtr(arc, "postanimator", (void**)&w.PostMoveAnimator);
+		SerializeCodePtr(arc, "animator", (void**)&w.Animator);
+
+		arc.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ROTATOR& w, ROTATOR* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("pos", w.pos)
+			("open_dest", w.open_dest)
+			("tgt", w.tgt)
+			("speed", w.speed)
+			("orig_speed", w.orig_speed)
+			("vel", w.vel)
+			("origx", w.origX)
+			("origy", w.origY)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SECT_USER& w, SECT_USER* def)
+{
+	static SECT_USER nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("dist", w.dist, def->dist)
+			("flags", w.flags, def->flags)
+			("depth", w.depth_fixed, def->depth_fixed)
+			("stag", w.stag, def->stag)
+			("ang", w.ang, def->ang)
+			("height", w.height, def->height)
+			("speed", w.speed, def->speed)
+			("damage", w.damage, def->damage)
+			("number", w.number, def->number)
+			("flags2", w.flags2, def->flags2)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void SerializeSectUser(FSerializer& arc)
+{
+	FixedBitArray<MAXSECTORS> hitlist;
+
+	if (arc.isWriting())
+	{
+		for (int i = 0; i < MAXSECTORS; i++)
+		{
+			hitlist.Set(i, !!SectUser[i].Data());
+		}
+	}
+	else
+	{
+		for (int i = 0; i < MAXSECTORS; i++)
+		{
+			SectUser[i].Clear();
+		}
+	}
+	arc("sectusermap", hitlist);
+	arc.SparseArray("sectuser", SectUser, MAXSECTORS, hitlist);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+static USER nuluser; // must be outside the function to evade C++'s retarded initialization rules for static function variables.
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def)
+{
+	if (!def)
+	{
+		def = &nuluser;
+		if (arc.isReading()) w.Clear();
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("WallP", w.WallP, def->WallP)
+			("State", w.State, def->State)
+			("Rot", w.Rot, def->Rot)
+			("StateStart", w.StateStart, def->StateStart)
+			("StateEnd", w.StateEnd, def->StateEnd)
+			("StateFallOverride", w.StateFallOverride, def->StateFallOverride)
+			("ActorActionSet", w.ActorActionSet, def->ActorActionSet)
+			("Personality", w.Personality, def->Personality)
+			("Attrib", w.Attrib, def->Attrib)
+			("sop_parent", w.sop_parent, def->sop_parent)
+			("flags", w.Flags, def->Flags)
+			("flags2", w.Flags2, def->Flags2)
+			("Tics", w.Tics, def->Tics)
+			("RotNum", w.RotNum, def->RotNum)
+			("ID", w.ID, def->ID)
+			("Health", w.Health, def->Health)
+			("MaxHealth", w.MaxHealth, def->MaxHealth)
+			("LastDamage", w.LastDamage, def->LastDamage)
+			("PainThreshold", w.PainThreshold, def->PainThreshold)
+			("jump_speed", w.jump_speed, def->jump_speed)
+			("jump_grav", w.jump_grav, def->jump_grav)
+			("ceiling_dist", w.ceiling_dist, def->ceiling_dist)
+			("floor_dist", w.floor_dist, def->floor_dist)
+			("lo_step", w.lo_step, def->lo_step)
+			("hiz", w.hiz, def->hiz)
+			("loz", w.loz, def->loz)
+			("zclip", w.zclip, def->zclip)
+			("hi_sectp", w.hi_sectp, def->hi_sectp)
+			("lo_sectp", w.lo_sectp, def->lo_sectp)
+			("hi_sp", w.hi_sp, def->hi_sp)
+			("lo_sp", w.lo_sp, def->lo_sp)
+			("active_range", w.active_range, def->active_range)
+			("SpriteNum", w.SpriteNum, def->SpriteNum)
+			("Attach", w.Attach, def->Attach)
+			("SpriteP", w.SpriteP, def->SpriteP)
+			("PlayerP", w.PlayerP, def->PlayerP)
+			("Sibling", w.Sibling, def->Sibling)
+			("xchange", w.xchange, def->xchange)
+			("ychange", w.ychange, def->ychange)
+			("zchange", w.zchange, def->zchange)
+			("z_tgt", w.z_tgt, def->z_tgt)
+			("vel_tgt", w.vel_tgt, def->vel_tgt)
+			("vel_rate", w.vel_rate, def->vel_rate)
+			("speed", w.speed, def->speed)
+			("Counter", w.Counter, def->Counter)
+			("Counter2", w.Counter2, def->Counter2)
+			("Counter3", w.Counter3, def->Counter3)
+			("DamageTics", w.DamageTics, def->DamageTics)
+			("BladeDamageTics", w.BladeDamageTics, def->BladeDamageTics)
+			("WpnGoal", w.WpnGoal, def->WpnGoal)
+			("Radius", w.Radius, def->Radius)
+			("OverlapZ", w.OverlapZ, def->OverlapZ)
+			("flame", w.flame, def->flame)
+			("tgt_sp", w.tgt_sp, def->tgt_sp)
+			("scale_speed", w.scale_speed, def->scale_speed)
+			("scale_value", w.scale_value, def->scale_value)
+			("scale_tgt", w.scale_tgt, def->scale_tgt)
+			("DistCheck", w.DistCheck, def->DistCheck)
+			("Dist", w.Dist, def->Dist)
+			("TargetDist", w.TargetDist, def->TargetDist)
+			("WaitTics", w.WaitTics, def->WaitTics)
+			("track", w.track, def->track)
+			("point", w.point, def->point)
+			("track_dir", w.track_dir, def->track_dir)
+			("track_vel", w.track_vel, def->track_vel)
+			("slide_ang", w.slide_ang, def->slide_ang)
+			("slide_vel", w.slide_vel, def->slide_vel)
+			("slide_dec", w.slide_dec, def->slide_dec)
+			("motion_blur_dist", w.motion_blur_dist, def->motion_blur_dist)
+			("motion_blur_num", w.motion_blur_num, def->motion_blur_num)
+			("wait_active_check", w.wait_active_check, def->wait_active_check)
+			("inactive_time", w.inactive_time, def->inactive_time)
+			("sx", w.sx, def->sx)
+			("sy", w.sy, def->sy)
+			("sz", w.sz, def->sz)
+			("sang", w.sang, def->sang)
+			("spal", w.spal, def->spal)
+			("ret", w.ret, def->ret)
+			("Flag1", w.Flag1, def->Flag1)
+			("LastWeaponNum", w.LastWeaponNum, def->LastWeaponNum)
+			("WeaponNum", w.WeaponNum, def->WeaponNum)
+			("bounce", w.bounce, def->bounce)
+			("ShellNum", w.ShellNum, def->ShellNum)
+			("FlagOwner", w.FlagOwner, def->FlagOwner)
+			("Vis", w.Vis, def->Vis)
+			("DidAlert", w.DidAlert, def->DidAlert)
+			("filler", w.filler, def->filler)
+			("wallshade", w.WallShade)
+			("rotator", w.rotator)
+			("oz", w.oz, def->oz);
+
+		SerializeCodePtr(arc, "ActorActionFunc", (void**)&w.ActorActionFunc);
+		arc.EndObject();
+
+		if (arc.isReading())
+		{
+			w.oangdiff = 0;
+		}
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void SerializeUser(FSerializer& arc)
+{
+	FixedBitArray<MAXSPRITES> hitlist;
+
+	if (arc.isWriting())
+	{
+		for (int i = 0; i < MAXSPRITES; i++)
+		{
+			hitlist.Set(i, !!User[i].Data());
+		}
+	}
+	else
+	{
+		for (int i = 0; i < MAXSPRITES; i++)
+		{
+			User[i].Clear();
+		}
+	}
+	arc("usermap", hitlist);
+	arc.SparseArray("user", User, MAXSPRITES, hitlist);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WAVE_FLOOR& w, SINE_WAVE_FLOOR* def)
+{
+	static SINE_WAVE_FLOOR nul = { -1,-1,-1,-1,-1,-1,255 };
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = nul;
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("floor_origz", w.floor_origz, def->floor_origz)
+			("ceiling_origz", w.ceiling_origz, def->ceiling_origz)
+			("range", w.range, def->range)
+			("sector", w.sector, def->sector)
+			("sintable_ndx", w.sintable_ndx, def->sintable_ndx)
+			("speed_shift", w.speed_shift, def->speed_shift)
+			("flags", w.flags, def->flags)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WALL& w, SINE_WALL* def)
+{
+	static SINE_WALL nul = { -1,-1,-1,-1,-1,-1 };
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = nul;
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("orig_xy", w.orig_xy, def->orig_xy)
+			("range", w.range, def->range)
+			("sector", w.wall, def->wall)
+			("sintable_ndx", w.sintable_ndx, def->sintable_ndx)
+			("speed_shift", w.speed_shift, def->speed_shift)
+			("flags", w.type, def->type)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRING_BOARD& w, SPRING_BOARD* def)
+{
+	static SPRING_BOARD nul = { -1,-1 };
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = nul;
+	}
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("sector", w.Sector, def->Sector)
+			("timeout", w.TimeOut, def->TimeOut)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRRORTYPE& w, MIRRORTYPE* def)
+{
+	static MIRRORTYPE nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("mirrorwall", w.mirrorwall, def->mirrorwall)
+			("mirrorsector", w.mirrorsector, def->mirrorsector)
+			("camera", w.camera, def->camera)
+			("camsprite", w.camsprite, def->camsprite)
+			("campic", w.campic, def->campic)
+			("numspawnspots", w.numspawnspots, def->numspawnspots)
+			.Array("spawnspots", w.spawnspots, def->spawnspots, w.numspawnspots)
+			("ismagic", w.ismagic, def->ismagic)
+			("mstate", w.mstate, def->mstate)
+			("maxtics", w.maxtics, def->maxtics)
+			("tics", w.tics, def->tics)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, gNET& w, gNET* def)
+{
+	static gNET nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("KillLimit", w.KillLimit, def->KillLimit)
+			("TimeLimit", w.TimeLimit, def->TimeLimit)
+			("TimeLimitClock", w.TimeLimitClock, def->TimeLimitClock)
+			("MultiGameType", w.MultiGameType, def->MultiGameType)
+			("TeamPlay", w.TeamPlay, def->TeamPlay)
+			("HurtTeammate", w.HurtTeammate, def->HurtTeammate)
+			("SpawnMarkers", w.SpawnMarkers, def->SpawnMarkers)
+			("AutoAim", w.AutoAim, def->AutoAim)
+			("NoRespawn", w.NoRespawn, def->NoRespawn)
+			("Nuke", w.Nuke, def->Nuke)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, GAME_SET& w, GAME_SET* def)
+{
+	static GAME_SET nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("NetGameType", w.NetGameType, def->NetGameType)
+			("NetMonsters", w.NetMonsters, def->NetMonsters)
+			("NetHurtTeammate", w.NetHurtTeammate, def->NetHurtTeammate)
+			("NetSpawnMarkers", w.NetSpawnMarkers, def->NetSpawnMarkers)
+			("NetTeamPlay", w.NetTeamPlay, def->NetTeamPlay)
+			("NetKillLimit", w.NetKillLimit, def->NetKillLimit)
+			("NetTimeLimit", w.NetTimeLimit, def->NetTimeLimit)
+			("NetColor", w.NetColor, def->NetColor)
+			("Nuke", w.NetNuke, def->NetNuke)
+			.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK_POINT& w, TRACK_POINT* def)
+{
+	static TRACK_POINT nul;
+	if (!def)
+	{
+		def = &nul;
+		if (arc.isReading()) w = {};
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.x, def->x)
+			("y", w.y, def->y)
+			("z", w.z, def->z)
+			("ang", w.ang, def->ang)
+			("tag_low", w.tag_low, def->tag_low)
+			("tag_high", w.tag_high, def->tag_high)
+			("filler", w.filler, def->filler)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* def)
+{
+	static int nul;
+	if (!def)
+	{
+		if (arc.isReading()) w.flags = w.ttflags = 0;
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("numpoints", w.NumPoints, nul)
+			("flags", w.flags, nul)
+			("ttflag", w.ttflags, nul);
+
+		if (arc.isReading())
+		{
+			if (w.TrackPoint) FreeMem(w.TrackPoint);
+			int size = w.NumPoints ? w.NumPoints : 1;
+			w.TrackPoint = (TRACK_POINT*)CallocMem(sizeof(TRACK_POINT), size);
+		}
+		if (w.NumPoints > 0) arc.Array("points", w.TrackPoint, w.NumPoints);
+		arc.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::SerializeGameState(FSerializer& arc)
+{
     Saveable_Init();
-	
-	
-    // workaround until the level info here has been transitioned.
-	fil = WriteSavegameChunk("snapshot.sw");
 
-    MWRITE(&Skill,sizeof(Skill),1,fil);
-
-    MWRITE(&numplayers,sizeof(numplayers),1,fil);
-    MWRITE(&myconnectindex,sizeof(myconnectindex),1,fil);
-    MWRITE(&connecthead,sizeof(connecthead),1,fil);
-    MWRITE(connectpoint2,sizeof(connectpoint2),1,fil);
-    MWRITE(&crouch_toggle,sizeof(crouch_toggle),1,fil);
-
-    //save players info
-    pp = &tp;
-    for (i = 0; i < numplayers; i++)
+    if (arc.BeginObject("state"))
     {
-        memcpy(&tp, &Player[i], sizeof(PLAYER));
-
-        // this does not point to global data - this is allocated link list based
-        // save this inside the structure
-#if PANEL_SAVE
-        pp->CurWpn = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->CurWpn);
-        for (ndx = 0; ndx < MAX_WEAPONS; ndx++)
-            pp->Wpn[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->Wpn[ndx]);
-        pp->Chops = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->Chops);
-#endif
-
-        MWRITE(&tp, sizeof(PLAYER),1,fil);
-
-        //////
-
-        saveisshot |= SaveSymDataInfo(fil, pp->remote_sprite);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->remote.sop_control);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->sop_remote);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->sop);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->hi_sectp);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->lo_sectp);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->hi_sp);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->lo_sp);
-        assert(!saveisshot);
-
-        saveisshot |= SaveSymDataInfo(fil, pp->last_camera_sp);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->SpriteP);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->UnderSpriteP);
-        assert(!saveisshot);
-
-        saveisshot |= SaveSymCodeInfo(fil, pp->DoPlayerAction);
-        assert(!saveisshot);
-
-        saveisshot |= SaveSymDataInfo(fil, pp->sop_control);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, pp->sop_riding);
-        assert(!saveisshot);
+        preSerializePanelSprites(arc);
+        SerializeUser(arc);
+		SerializeSectUser(arc);
+		so_serializeinterpolations(arc);
+		arc("numplayers", numplayers)
+			.Array("players", Player, numplayers)
+			("skill", Skill)
+			("screenpeek", screenpeek)
+			("randomseed", randomseed)
+			.Array("sop", SectorObject, countof(SectorObject))
+			.Array("swf", &SineWaveFloor[0][0], 6 * 21)
+			.Array("sinewall", &SineWall[0][0], 10 * 64)
+			.Array("springboard", SpringBoard, countof(SpringBoard))
+			("NormalVisibility", NormalVisibility)
+			("MoveSkip2", MoveSkip2)
+			("MoveSkip4", MoveSkip4)
+			("MoveSkip8", MoveSkip8)
+			("mirrorcnt", mirrorcnt)
+			.Array("mirror", mirror, mirrorcnt)
+			("mirrorinview", mirrorinview)
+			("StarQueueHead", StarQueueHead)
+			.Array("StarQueue", StarQueue, countof(StarQueue))
+			("HoleQueueHead", HoleQueueHead)
+			.Array("HoleQueue", HoleQueue, countof(HoleQueue))
+			("WallBloodQueueHead", WallBloodQueueHead)
+			.Array("WallBloodQueue", WallBloodQueue, countof(WallBloodQueue))
+			("FloorBloodQueueHead", FloorBloodQueueHead)
+			.Array("FloorBloodQueue", FloorBloodQueue, countof(FloorBloodQueue))
+			("GenericQueueHead", GenericQueueHead)
+			.Array("GenericQueue", GenericQueue, countof(GenericQueue))
+			("LoWangsQueueHead", LoWangsQueueHead)
+			.Array("LoWangsQueue", LoWangsQueue, countof(LoWangsQueue))
+			("PlayClock", PlayClock)
+			("TotalKillable", TotalKillable)
+			("net", gNet)
+			("gs", gs)
+			("LevelSecrets", LevelSecrets)
+			("Bunny_Count", Bunny_Count)
+			("GodMode", GodMode)
+			("FinishTimer", FinishTimer)
+			("FinishAnim", FinishAnim)
+			("serpwasseen", serpwasseen)
+			("sumowasseen", sumowasseen)
+			("zillawasseen", zillawasseen)
+			.Array("BossSpriteNum", BossSpriteNum, 3);
+			arc.Array("tracks", Track, countof(Track))
+            ;
+        postSerializePanelSprites(arc);
+        arc.EndObject();
     }
 
-#if PANEL_SAVE
-    // local copy
-    psp = &tpanel_sprite;
-    for (i = 0; i < numplayers; i++)
+	if (arc.isReading())
     {
-        unsigned j;
-        pp = &Player[i];
-        ndx = 0;
-
-        TRAVERSE(&pp->PanelSpriteList, cur, next)
-        {
-            // this is a HEADER
-            MWRITE(&ndx, sizeof(ndx),1,fil);
-
-            memcpy(psp, cur, sizeof(PANEL_SPRITE));
-
-            // Panel Sprite - save in structure
-            psp->sibling = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(pp, cur->sibling);
-            MWRITE(psp, sizeof(PANEL_SPRITE),1,fil);
-
-            saveisshot |= SaveSymDataInfo(fil, psp->PlayerP);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->State);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->RetractState);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->PresentState);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->ActionState);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, psp->RestState);
-            assert(!saveisshot);
-            saveisshot |= SaveSymCodeInfo(fil, psp->PanelSpriteFunc);
-            assert(!saveisshot);
-
-            for (j = 0; j < SIZ(psp->over); j++)
-            {
-                saveisshot |= SaveSymDataInfo(fil, psp->over[j].State);
-                assert(!saveisshot);
-            }
-
-            ndx++;
-        }
-
-        // store -1 when done for player
-        ndx = -1;
-        MWRITE(&ndx, sizeof(ndx),1,fil);
-    }
-#endif
-
-    //Sector User information
-    for (i = 0; i < numsectors; i++)
-    {
-        sectu = SectUser[i];
-        ndx = i;
-        if (sectu)
-        {
-            // write header
-            MWRITE(&ndx,sizeof(ndx),1,fil);
-
-            MWRITE(sectu,sizeof(SECT_USER),1,fil);
-        }
-        else
-        {
-            // write trailer
-            ndx = -1;
-            MWRITE(&ndx,sizeof(ndx),1,fil);
-        }
-    }
-
-    //User information
-    for (i = 0; i < MAXSPRITES; i++)
-    {
-        ndx = i;
-        if (User[i])
-        {
-            // write header
-            MWRITE(&ndx,sizeof(ndx),1,fil);
-
-            memcpy(&tu, User[i], sizeof(USER));
-            u = &tu;
-
-            MWRITE(u,sizeof(USER),1,fil);
-
-            if (u->WallShade)
-            {
-                MWRITE(u->WallShade,sizeof(*u->WallShade)*u->WallCount,1,fil);
-            }
-
-            if (u->rotator)
-            {
-                MWRITE(u->rotator,sizeof(*u->rotator),1,fil);
-                if (u->rotator->origx)
-                    MWRITE(u->rotator->origx,sizeof(*u->rotator->origx)*u->rotator->num_walls,1,fil);
-                if (u->rotator->origy)
-                    MWRITE(u->rotator->origy,sizeof(*u->rotator->origy)*u->rotator->num_walls,1,fil);
-            }
-
-            saveisshot |= SaveSymDataInfo(fil, u->WallP);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->State);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->Rot);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->StateStart);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->StateEnd);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->StateFallOverride);
-            assert(!saveisshot);
-            saveisshot |= SaveSymCodeInfo(fil, u->ActorActionFunc);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->ActorActionSet);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->Personality);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->Attrib);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->sop_parent);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->hi_sectp);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->lo_sectp);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->hi_sp);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->lo_sp);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->SpriteP);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->PlayerP);
-            assert(!saveisshot);
-            saveisshot |= SaveSymDataInfo(fil, u->tgt_sp);
-            assert(!saveisshot);
-        }
-    }
-    ndx = -1;
-    MWRITE(&ndx,sizeof(ndx),1,fil);
-
-    //
-    // Sector object
-    //
-
-    MWRITE(SectorObject, sizeof(SectorObject),1,fil);
-
-    for (ndx = 0; ndx < (short)SIZ(SectorObject); ndx++)
-    {
-        sop = &SectorObject[ndx];
-
-        saveisshot |= SaveSymCodeInfo(fil, sop->PreMoveAnimator);
-        assert(!saveisshot);
-        saveisshot |= SaveSymCodeInfo(fil, sop->PostMoveAnimator);
-        assert(!saveisshot);
-        saveisshot |= SaveSymCodeInfo(fil, sop->Animator);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, sop->controller);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, sop->sp_child);
-        assert(!saveisshot);
-    }
-
-
-    MWRITE(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
-    MWRITE(SineWall, sizeof(SineWall),1,fil);
-    MWRITE(SpringBoard, sizeof(SpringBoard),1,fil);
-
-
-    MWRITE(Track, sizeof(Track),1,fil);
-    for (i = 0; i < MAX_TRACKS; i++)
-    {
-        ASSERT(Track[i].TrackPoint);
-        if (Track[i].NumPoints == 0)
-            MWRITE(Track[i].TrackPoint, sizeof(TRACK_POINT),1,fil);
-        else
-            MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
-    }
-
-    MWRITE(&Player[myconnectindex].input,sizeof(Player[myconnectindex].input),1,fil);
-    MWRITE(&screenpeek,sizeof(screenpeek),1,fil);
-    MWRITE(&randomseed, sizeof(randomseed), 1, fil);
-
-    // do all sector manipulation structures
-
-#if ANIM_SAVE
-#if 1
-    MWRITE(&AnimCnt,sizeof(AnimCnt),1,fil);
-
-    for (i = 0, a = &tanim; i < AnimCnt; i++)
-    {
-        intptr_t offset;
-        memcpy(a,&Anim[i],sizeof(ANIM));
-
-        // maintain compatibility with sinking boat which points to user data
-        for (j=0; j<MAXSPRITES; j++)
-        {
-            if (User[j])
-            {
-                uint8_t* bp = (uint8_t*)User[j];
-
-                if ((uint8_t*)a->ptr >= bp && (uint8_t*)a->ptr < bp + sizeof(USER))
-                {
-                    offset = (intptr_t)((uint8_t*)a->ptr - bp); // offset from user data
-                    a->ptr = (int *)-2;
-                    break;
-                }
-            }
-        }
-
-        if ((intptr_t)a->ptr != -2)
-        {
-            for (j=0; j<numsectors; j++)
-            {
-                if (SectUser[j])
-                {
-                    uint8_t* bp = (uint8_t*)SectUser[j];
-
-                    if ((uint8_t*)a->ptr >= bp && (uint8_t*)a->ptr < bp + sizeof(SECT_USER))
-                    {
-                        offset = (intptr_t)((uint8_t*)a->ptr - bp); // offset from user data
-                        a->ptr = (int *)-3;
-                        break;
-                    }
-                }
-            }
-        }
-        MWRITE(a,sizeof(ANIM),1,fil);
-
-        if ((intptr_t)a->ptr == -2 || (intptr_t)a->ptr == -3)
-        {
-            MWRITE(&j, sizeof(j),1,fil);
-            MWRITE(&offset, sizeof(offset),1,fil);
-        }
-        else
-        {
-            saveisshot |= SaveSymDataInfo(fil, a->ptr);
-            assert(!saveisshot);
-        }
-
-        saveisshot |= SaveSymCodeInfo(fil, a->callback);
-        assert(!saveisshot);
-        saveisshot |= SaveSymDataInfo(fil, a->callbackdata);
-        assert(!saveisshot);
-    }
-
-#else
-    ndx = 0;
-    for (i = AnimCnt - 1, a = &tanim; i >= 0; i--)
-    {
-        // write header
-        MWRITE(&ndx,sizeof(ndx),1,fil);
-
-        memcpy(a,&Anim[i],sizeof(ANIM));
-        MWRITE(a,sizeof(ANIM),1,fil);
-
-        saveisshot |= SaveSymDataInfo(fil, a->ptr);
-        saveisshot |= SaveSymCodeInfo(fil, a->callback);
-        saveisshot |= SaveSymDataInfo(fil, a->callbackdata);
-
-        ndx++;
-    }
-
-    // write trailer
-    ndx = -1;
-    MWRITE(&ndx,sizeof(ndx),1,fil);
-#endif
-#endif
-
-    MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-    MWRITE(&MoveSkip2,sizeof(MoveSkip2),1,fil);
-    MWRITE(&MoveSkip4,sizeof(MoveSkip4),1,fil);
-    MWRITE(&MoveSkip8,sizeof(MoveSkip8),1,fil);
-
-    // SO interpolations
-	saveisshot |= so_writeinterpolations(fil);
-	assert(!saveisshot);
-
-    // parental lock
-    for (i = 0; i < (int)SIZ(otlist); i++)
-    {
-        ndx = 0;
-        TRAVERSE(otlist[i], otp, next_otp)
-        {
-            MWRITE(&ndx,sizeof(ndx),1,fil);
-            MWRITE(&otp,sizeof(*otp),1,fil);
-            ndx++;
-        }
-        ndx = -1;
-        MWRITE(&ndx, sizeof(ndx),1,fil);
-    }
-
-    // mirror
-    MWRITE(mirror,sizeof(mirror),1,fil);
-    MWRITE(&mirrorcnt,sizeof(mirrorcnt),1,fil);
-    MWRITE(&mirrorinview,sizeof(mirrorinview),1,fil);
-
-    // queue
-    MWRITE(&StarQueueHead,sizeof(StarQueueHead),1,fil);
-    MWRITE(StarQueue,sizeof(StarQueue),1,fil);
-    MWRITE(&HoleQueueHead,sizeof(HoleQueueHead),1,fil);
-    MWRITE(HoleQueue,sizeof(HoleQueue),1,fil);
-    MWRITE(&WallBloodQueueHead,sizeof(WallBloodQueueHead),1,fil);
-    MWRITE(WallBloodQueue,sizeof(WallBloodQueue),1,fil);
-    MWRITE(&FloorBloodQueueHead,sizeof(FloorBloodQueueHead),1,fil);
-    MWRITE(FloorBloodQueue,sizeof(FloorBloodQueue),1,fil);
-    MWRITE(&GenericQueueHead,sizeof(GenericQueueHead),1,fil);
-    MWRITE(GenericQueue,sizeof(GenericQueue),1,fil);
-    MWRITE(&LoWangsQueueHead,sizeof(LoWangsQueueHead),1,fil);
-    MWRITE(LoWangsQueue,sizeof(LoWangsQueue),1,fil);
-
-    MWRITE(&PlayClock,sizeof(PlayClock),1,fil);
-    MWRITE(&TotalKillable,sizeof(TotalKillable),1,fil);
-
-    // game settings
-    MWRITE(&gNet,sizeof(gNet),1,fil);
-
-    MWRITE(&gs,sizeof(gs),1,fil);
-
-    MWRITE(&LevelSecrets,sizeof(LevelSecrets),1,fil);
-
-    MWRITE(&Bunny_Count,sizeof(Bunny_Count),1,fil);
-
-    MWRITE(&GodMode,sizeof(GodMode),1,fil);
-
-    MWRITE(&FinishTimer,sizeof(FinishTimer),1,fil);
-    MWRITE(&FinishAnim,sizeof(FinishAnim),1,fil);
-
-    MWRITE(&serpwasseen, sizeof(serpwasseen), 1, fil);
-    MWRITE(&sumowasseen, sizeof(sumowasseen), 1, fil);
-    MWRITE(&zillawasseen, sizeof(zillawasseen), 1, fil);
-    MWRITE(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
-    //MWRITE(&Zombies, sizeof(Zombies), 1, fil);
-
-    return !saveisshot;
-}
-
-
-bool GameInterface::LoadGame()
-{
-    MFILE_READ fil;
-    int i,j,saveisshot=0;
-    short ndx,SpriteNum,sectnum;
-    PLAYERp pp = NULL;
-    USERp u;
-    SECTOR_OBJECTp sop;
-    SECT_USERp sectu;
-    ANIMp a;
-    PANEL_SPRITEp psp,next;
-    OrgTileP otp;
-
-
-    Saveable_Init();
-
-	auto filr = ReadSavegameChunk("snapshot.sw");
-	if (!filr.isOpen()) return false;
-	fil = &filr;
-
-    MREAD(&Skill,sizeof(Skill),1,fil);
-
-    MREAD(&numplayers, sizeof(numplayers),1,fil);
-    MREAD(&myconnectindex,sizeof(myconnectindex),1,fil);
-    MREAD(&connecthead,sizeof(connecthead),1,fil);
-    MREAD(connectpoint2,sizeof(connectpoint2),1,fil);
-    MREAD(&crouch_toggle,sizeof(crouch_toggle),1,fil);
-
-    //save players
-    //MREAD(Player,sizeof(PLAYER), numplayers,fil);
-
-    //save players info
-
-    for (auto& pp : Player)
-    {
-        pp.cookieTime = 0;
-        memset(pp.cookieQuote, 0, sizeof(pp.cookieQuote));
-    }
-
-    for (i = 0; i < numplayers; i++)
-    {
-        pp = &Player[i];
-
-        MREAD(pp, sizeof(*pp), 1, fil);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->remote_sprite);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->remote.sop_control);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_remote);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->hi_sectp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->lo_sectp);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->hi_sp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->lo_sp);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->last_camera_sp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->SpriteP);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->UnderSpriteP);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&pp->DoPlayerAction);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_control);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_riding);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-    }
-
-
-#if PANEL_SAVE
-    for (i = 0; i < numplayers; i++)
-    {
-        int j;
-        pp = &Player[i];
-
-        INITLIST(&pp->PanelSpriteList);
-
-        while (true)
-        {
-            MREAD(&ndx, sizeof(ndx),1,fil);
-
-            if (ndx == -1)
-                break;
-
-            psp = (PANEL_SPRITEp)CallocMem(sizeof(PANEL_SPRITE), 1);
-            ASSERT(psp);
-
-            MREAD(psp, sizeof(PANEL_SPRITE),1,fil);
-            INSERT_TAIL(&pp->PanelSpriteList,psp);
-
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->PlayerP);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->State);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->RetractState);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->PresentState);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->ActionState);
-            saveisshot |= LoadSymDataInfo(fil, (void **)&psp->RestState);
-            saveisshot |= LoadSymCodeInfo(fil, (void **)&psp->PanelSpriteFunc);
-            if (saveisshot) { MCLOSE_READ(fil); return false; }
-
-            for (j = 0; j < (int)SIZ(psp->over); j++)
-            {
-                saveisshot |= LoadSymDataInfo(fil, (void **)&psp->over[j].State);
-                if (saveisshot) { MCLOSE_READ(fil); return false; }
-            }
-
-        }
-    }
-#endif
-
-    //Sector User information
-    for (i = 0; i < numsectors; i++)
-    {
-        MREAD(&sectnum,sizeof(sectnum),1,fil);
-        if (sectnum != -1)
-        {
-            SectUser[sectnum] = sectu = (SECT_USERp)CallocMem(sizeof(SECT_USER), 1);
-            MREAD(sectu,sizeof(SECT_USER),1,fil);
-        }
-    }
-
-    //User information
-    memset(User, 0, sizeof(User));
-
-    MREAD(&SpriteNum, sizeof(SpriteNum),1,fil);
-    while (SpriteNum != -1)
-    {
-        User[SpriteNum] = u = NewUser();
-        MREAD(u,sizeof(USER),1,fil);
-
-        if (u->WallShade)
-        {
-            u->WallShade = (int8_t*)CallocMem(u->WallCount * sizeof(*u->WallShade), 1);
-            MREAD(u->WallShade,sizeof(*u->WallShade)*u->WallCount,1,fil);
-        }
-
-        if (u->rotator)
-        {
-            u->rotator = (ROTATORp)CallocMem(sizeof(*u->rotator), 1);
-            MREAD(u->rotator,sizeof(*u->rotator),1,fil);
-
-            if (u->rotator->origx)
-            {
-                u->rotator->origx = (int*)CallocMem(u->rotator->num_walls * sizeof(*u->rotator->origx), 1);
-                MREAD(u->rotator->origx,sizeof(*u->rotator->origx)*u->rotator->num_walls,1,fil);
-            }
-            if (u->rotator->origy)
-            {
-                u->rotator->origy = (int*)CallocMem(u->rotator->num_walls * sizeof(*u->rotator->origy), 1);
-                MREAD(u->rotator->origy,sizeof(*u->rotator->origy)*u->rotator->num_walls,1,fil);
-            }
-        }
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->WallP);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->State);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->Rot);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->StateStart);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->StateEnd);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->StateFallOverride);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&u->ActorActionFunc);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->ActorActionSet);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->Personality);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->Attrib);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->sop_parent);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->hi_sectp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->lo_sectp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->hi_sp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->lo_sp);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->SpriteP);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->PlayerP);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&u->tgt_sp);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-
-        MREAD(&SpriteNum,sizeof(SpriteNum),1,fil);
-    }
-
-    MREAD(SectorObject, sizeof(SectorObject),1,fil);
-
-    for (ndx = 0; ndx < (short)SIZ(SectorObject); ndx++)
-    {
-        sop = &SectorObject[ndx];
-
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&sop->PreMoveAnimator);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&sop->PostMoveAnimator);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&sop->Animator);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&sop->controller);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&sop->sp_child);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-    }
-
-    MREAD(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
-    MREAD(SineWall, sizeof(SineWall),1,fil);
-    MREAD(SpringBoard, sizeof(SpringBoard),1,fil);
-
-    MREAD(Track, sizeof(Track),1,fil);
-    for (i = 0; i < MAX_TRACKS; i++)
-    {
-        if (Track[i].NumPoints == 0)
-        {
-            Track[i].TrackPoint = (TRACK_POINTp)CallocMem(sizeof(TRACK_POINT), 1);
-            MREAD(Track[i].TrackPoint, sizeof(TRACK_POINT),1,fil);
-        }
-        else
-        {
-            Track[i].TrackPoint = (TRACK_POINTp)CallocMem(Track[i].NumPoints * sizeof(TRACK_POINT), 1);
-            MREAD(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
-        }
-    }
-
-    MREAD(&Player[myconnectindex].input,sizeof(Player[myconnectindex].input),1,fil);
-
-    MREAD(&screenpeek,sizeof(screenpeek),1,fil);
-    MREAD(&randomseed, sizeof(randomseed), 1, fil);
-
-    // do all sector manipulation structures
-
-#if ANIM_SAVE
-#if 1
-    MREAD(&AnimCnt,sizeof(AnimCnt),1,fil);
-
-    for (i = 0; i < AnimCnt; i++)
-    {
-        a = &Anim[i];
-        MREAD(a,sizeof(ANIM),1,fil);
-
-        if ((intptr_t)a->ptr == -2)
-        {
-            // maintain compatibility with sinking boat which points to user data
-            int offset;
-            MREAD(&j, sizeof(j),1,fil);
-            MREAD(&offset, sizeof(offset),1,fil);
-            a->ptr = (int *)(((char *)User[j]) + offset);
-        }
-        else if ((intptr_t)a->ptr == -3)
-        {
-            // maintain compatibility with sinking boat which points to user data
-            int offset;
-            MREAD(&j, sizeof(j),1,fil);
-            MREAD(&offset, sizeof(offset),1,fil);
-            a->ptr = (int *)(((char *)SectUser[j]) + offset);
-        }
-        else
-        {
-            saveisshot |= LoadSymDataInfo(fil, (void **)&a->ptr);
-        }
-
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&a->callback);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&a->callbackdata);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-    }
-#else
-    AnimCnt = 0;
-    for (i = MAXANIM - 1; i >= 0; i--)
-    {
-        a = &Anim[i];
-
-        MREAD(&ndx,sizeof(ndx),1,fil);
-
-        if (ndx == -1)
-            break;
-
-        AnimCnt++;
-
-        MREAD(a,sizeof(ANIM),1,fil);
-
-        saveisshot |= LoadSymDataInfo(fil, (void **)&a->ptr);
-        saveisshot |= LoadSymCodeInfo(fil, (void **)&a->callback);
-        saveisshot |= LoadSymDataInfo(fil, (void **)&a->callbackdata);
-        if (saveisshot) { MCLOSE_READ(fil); return false; }
-    }
-#endif
-#endif
-
-    MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-
-    MREAD(&MoveSkip2,sizeof(MoveSkip2),1,fil);
-    MREAD(&MoveSkip4,sizeof(MoveSkip4),1,fil);
-    MREAD(&MoveSkip8,sizeof(MoveSkip8),1,fil);
-
-    // SO interpolations
-    saveisshot |= so_readinterpolations(fil);
-    if (saveisshot) { MCLOSE_READ(fil); return false; }
-
-    // parental lock
-    for (i = 0; i < (int)SIZ(otlist); i++)
-    {
-        INITLIST(otlist[i]);
-
-        while (true)
-        {
-            MREAD(&ndx, sizeof(ndx),1,fil);
-
-            if (ndx == -1)
-                break;
-
-            otp = (OrgTileP)CallocMem(sizeof(*otp), 1);
-            ASSERT(otp);
-
-            MREAD(otp, sizeof(*otp),1,fil);
-            INSERT_TAIL(otlist[i],otp);
-        }
-    }
-
-    // mirror
-    MREAD(mirror,sizeof(mirror),1,fil);
-    MREAD(&mirrorcnt,sizeof(mirrorcnt),1,fil);
-    MREAD(&mirrorinview,sizeof(mirrorinview),1,fil);
-
-    // queue
-    MREAD(&StarQueueHead,sizeof(StarQueueHead),1,fil);
-    MREAD(StarQueue,sizeof(StarQueue),1,fil);
-    MREAD(&HoleQueueHead,sizeof(HoleQueueHead),1,fil);
-    MREAD(HoleQueue,sizeof(HoleQueue),1,fil);
-    MREAD(&WallBloodQueueHead,sizeof(WallBloodQueueHead),1,fil);
-    MREAD(WallBloodQueue,sizeof(WallBloodQueue),1,fil);
-    MREAD(&FloorBloodQueueHead,sizeof(FloorBloodQueueHead),1,fil);
-    MREAD(FloorBloodQueue,sizeof(FloorBloodQueue),1,fil);
-    MREAD(&GenericQueueHead,sizeof(GenericQueueHead),1,fil);
-    MREAD(GenericQueue,sizeof(GenericQueue),1,fil);
-    MREAD(&LoWangsQueueHead,sizeof(LoWangsQueueHead),1,fil);
-    MREAD(LoWangsQueue,sizeof(LoWangsQueue),1,fil);
-
-    // init timing vars before PlayClock is read
-    MREAD(&PlayClock,sizeof(PlayClock),1,fil);
-    MREAD(&TotalKillable,sizeof(TotalKillable),1,fil);
-
-    // game settings
-    MREAD(&gNet,sizeof(gNet),1,fil);
-
-	MREAD(&gs,sizeof(gs),1,fil);
-
-    MREAD(&LevelSecrets,sizeof(LevelSecrets),1,fil);
-
-    MREAD(&Bunny_Count,sizeof(Bunny_Count),1,fil);
-
-    MREAD(&GodMode,sizeof(GodMode),1,fil);
-
-    MREAD(&FinishTimer,sizeof(FinishTimer),1,fil);
-    MREAD(&FinishAnim,sizeof(FinishAnim),1,fil);
-
-    MREAD(&serpwasseen, sizeof(serpwasseen), 1, fil);
-    MREAD(&sumowasseen, sizeof(sumowasseen), 1, fil);
-    MREAD(&zillawasseen, sizeof(zillawasseen), 1, fil);
-    MREAD(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
-    //MREAD(&Zombies, sizeof(Zombies), 1, fil);
-
-    MCLOSE_READ(fil);
-
-
-    //!!IMPORTANT - this POST stuff will not work here now becaus it does actual reads
-
-
-    //
-    // POST processing of info MREAD in
-    //
-
-#if PANEL_SAVE
-    for (i = 0; i < numplayers; i++)
-    {
-        pp = &Player[i];
-        TRAVERSE(&pp->PanelSpriteList, psp, next)
-        {
-            // dont need to set Next and Prev this was done
-            // when sprites were inserted
-
-            // sibling is the only PanelSprite (malloced ptr) in the PanelSprite struct
-            psp->sibling = PanelNdxToSprite(pp, (int)(intptr_t)psp->sibling);
-        }
-    }
-#endif
-
     DoTheCache();
 
-    // this is ok - just duplicating sector list with pointers
-    for (sop = SectorObject; sop < &SectorObject[SIZ(SectorObject)]; sop++)
-    {
-        for (i = 0; i < sop->num_sectors; i++)
-            sop->sectp[i] = &sector[sop->sector[i]];
-    }
-
-    //!!Again this will not work here
-    //restore players info
-    for (i = 0; i < numplayers; i++)
-    {
-#if PANEL_SAVE
-        pp->CurWpn = PanelNdxToSprite(pp, (int)(intptr_t)pp->CurWpn);
-
-        for (ndx = 0; ndx < MAX_WEAPONS; ndx++)
-            pp->Wpn[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->Wpn[ndx]);
-
-        pp->Chops = PanelNdxToSprite(pp, (int)(intptr_t)pp->Chops);
-
-#endif
-    }
-
-    {
         int SavePlayClock = PlayClock;
         InitTimingVars();
         PlayClock = SavePlayClock;
-    }
     InitNetVars();
 
     screenpeek = myconnectindex;
@@ -1027,20 +1294,13 @@ bool GameInterface::LoadGame()
     if (snd_ambience)
         StartAmbientSound();
 
-    TRAVERSE_CONNECT(i)
-    {
-        Player[i].StartColor = 0;
-    }
-
     // this is not a new game
     ShadowWarrior::NewGame = false;
 
-
-    DoPlayerDivePalette(Player+myconnectindex);
-    DoPlayerNightVisionPalette(Player+myconnectindex);
-
+		DoPlayerDivePalette(Player + myconnectindex);
+		DoPlayerNightVisionPalette(Player + myconnectindex);
     InitLevelGlobals();
-    return true;
+	}
 }
 
 END_SW_NS

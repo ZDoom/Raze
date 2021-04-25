@@ -752,7 +752,7 @@ int
 SetupZombie(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     ANIMATOR DoActorDecide;
 
     u->Health = 100;
@@ -790,7 +790,7 @@ SpawnZombie(PLAYERp pp, short Weapon)
 
     New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
     np->sectnum = pp->cursectnum;
     np->owner = owner;
     np->pal = nu->spal = User[owner]->spal;
@@ -824,7 +824,7 @@ SpawnZombie2(short Weapon)
     SPRITEp np;
     USERp nu;
     short owner;
-    SECT_USERp sectu = SectUser[sp->sectnum];
+    SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
     owner = sprite[Weapon].owner;
@@ -853,7 +853,7 @@ SpawnZombie2(short Weapon)
     //Zombies++;
     New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
     np = &sprite[New];
-    nu = User[New];
+    nu = User[New].Data();
     nu->Counter3 = 0;
     np->owner = owner;
     np->pal = nu->spal = User[owner]->spal;
@@ -882,7 +882,7 @@ SpawnZombie2(short Weapon)
 int
 DoZombieMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
@@ -893,7 +893,7 @@ DoZombieMove(short SpriteNum)
         return 0;
     }
 
-    if (u->tgt_sp && User[u->tgt_sp-sprite] && TEST(User[u->tgt_sp-sprite]->Flags, PF_DEAD))    // JBF: added User[] null check
+    if (u->tgt_sp && User[u->tgt_sp-sprite].Data() && TEST(User[u->tgt_sp-sprite]->Flags, PF_DEAD))    // JBF: added User[] null check
         DoActorPickClosePlayer(SpriteNum);
 
     // jumping and falling
@@ -932,7 +932,7 @@ DoZombieMove(short SpriteNum)
 int
 NullZombie(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
@@ -943,7 +943,7 @@ NullZombie(short SpriteNum)
         return 0;
     }
 
-    if (u->tgt_sp && User[u->tgt_sp-sprite] && TEST(User[u->tgt_sp-sprite]->Flags, PF_DEAD))
+    if (u->tgt_sp && User[u->tgt_sp-sprite].Data() && TEST(User[u->tgt_sp-sprite]->Flags, PF_DEAD))
         DoActorPickClosePlayer(SpriteNum);
 
     if (u->WaitTics > 0)
@@ -963,7 +963,7 @@ NullZombie(short SpriteNum)
 
 int DoZombiePain(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     NullZombie(SpriteNum);
 

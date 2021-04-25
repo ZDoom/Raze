@@ -1422,7 +1422,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (SyncInput())
     {
-        pPlayer->angle.applylook(pInput->avel, &pInput->actions);
+        pPlayer->angle.applyinput(pInput->avel, &pInput->actions);
     }
 
     // unconditionally update the player's sprite angle
@@ -1549,7 +1549,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (SyncInput())
     {
-        pPlayer->horizon.sethorizon(pInput->horz, &pInput->actions);
+        pPlayer->horizon.applyinput(pInput->horz, &pInput->actions);
         doslopetilting(pPlayer);
     }
 

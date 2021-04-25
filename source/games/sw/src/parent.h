@@ -34,39 +34,8 @@ BEGIN_SW_NS
 typedef struct TILE_INFO_TYPE
 {
     short Voxel;    // Voxel Number to replace sprites with
-    short Parental; // Tile offset to replace adult tiles with when locked out
     // 0 = Invisible
 } ParentalStruct;
-
-struct ORG_TILE;
-typedef struct ORG_TILE OrgTile, *OrgTileP;
-struct ORG_TILE_LIST;
-typedef struct ORG_TILE_LIST OrgTileList, *OrgTileListP;
-
-void JS_InitLockouts(void);
-void JS_UnitInitLockouts(void);
-void JS_ToggleLockouts(void);
-
-struct ORG_TILE
-{
-    OrgTileP Next, Prev;
-    short index;
-    short orgpicnum;
-};
-
-struct ORG_TILE_LIST
-{
-    OrgTileP Next, Prev;
-};
-
-extern OrgTileList orgwalllist;                // The list containing orginal wall
-// pics
-extern OrgTileList orgwalloverlist;            // The list containing orginal wall
-// over pics
-extern OrgTileList orgsectorceilinglist;       // The list containing orginal sector
-// ceiling pics
-extern OrgTileList orgsectorfloorlist;         // The list containing orginal sector
-// floor pics
 
 END_SW_NS
 

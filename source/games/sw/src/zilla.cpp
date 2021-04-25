@@ -649,12 +649,12 @@ SetupZilla(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum];
+        u = User[SpriteNum].Data();
         ASSERT(u);
     }
     else
     {
-        User[SpriteNum] = u = SpawnUser(SpriteNum,ZILLA_RUN_R0,s_ZillaRun[0]);
+        u = SpawnUser(SpriteNum,ZILLA_RUN_R0,s_ZillaRun[0]);
         u->Health = 6000;
     }
 
@@ -680,7 +680,7 @@ SetupZilla(short SpriteNum)
 
 int NullZilla(short SpriteNum)
 {
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //if (TEST(u->Flags,SPR_SLIDING))
@@ -713,7 +713,7 @@ int NullZilla(short SpriteNum)
 int DoZillaMove(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
     short choose;
 
     //if (TEST(u->Flags,SPR_SLIDING))
@@ -763,7 +763,7 @@ extern int SpawnGrenadeExp(int16_t Weapon);
 int DoZillaDeathMelt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
+    USERp u = User[SpriteNum].Data();
 
     if (RANDOM_RANGE(1000) > 800)
         SpawnGrenadeExp(SpriteNum);

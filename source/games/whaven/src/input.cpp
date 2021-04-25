@@ -152,8 +152,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
     if (!cl_syncinput)
     {
-		plr.angle.applylook(input.avel, &plr.plInput.actions, scaleAdjust);
-		plr.horizon.sethorizon(input.horz, &plr.plInput.actions, scaleAdjust);
+		plr.angle.applyinput(input.avel, &plr.plInput.actions, scaleAdjust);
+		plr.horizon.applyinput(input.horz, &plr.plInput.actions, scaleAdjust);
 
         plr.angle.processhelpers(scaleAdjust);
         plr.horizon.processhelpers(scaleAdjust);
@@ -264,7 +264,7 @@ void processinput(int num) {
 
 	if (cl_syncinput)
 	{
-		plr.horizon.sethorizon(plr.plInput.horz, &bits);
+		plr.horizon.applyinput(plr.plInput.horz, &bits);
 	}
 
 	if ((bits & SB_FLYSTOP) != 0)
@@ -305,7 +305,7 @@ void processinput(int num) {
 
 	if (cl_syncinput)
 	{
-		plr.angle.applylook(plr.plInput.avel, &bits);
+		plr.angle.applyinput(plr.plInput.avel, &bits);
 	}
 
 	if (plr.sector != -1 && ((sector[plr.sector].floorpicnum != LAVA || sector[plr.sector].floorpicnum != SLIME

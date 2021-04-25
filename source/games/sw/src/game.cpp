@@ -229,7 +229,6 @@ void GameInterface::app_init()
         INITLIST(&Player[i].PanelSpriteList);
 
     LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
-    LoadPLockFromScript("swplock.txt");   // Get Parental Lock setup info
 	LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
@@ -345,21 +344,6 @@ void InitLevel(MapRecord *maprec)
     engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &Player[0].cursectnum);
     currentLevel = maprec;
 
-    if (!maprec->labelName.CompareNoCase("$hidtemp") && !maprec->name.CompareNoCase("$TXTS_T_MAP10"))
-    {
-        // flip the inverted card reader in TD's level 10.
-        if (sprite[179].picnum == 1852 && sprite[179].cstat == 92) sprite[179].cstat &= ~12;
-    }
-    if (!maprec->labelName.CompareNoCase("$outpost") && !maprec->name.CompareNoCase("$TXTS_MAP09"))
-    {
-        // silence a misplaced and *very* annoying ambient sound.
-        if (sprite[442].picnum == ST1 && sprite[442].hitag == 1002 && sprite[442].lotag == 31) sprite[442].lotag = -1;
-    }
-    if (!maprec->labelName.CompareNoCase("$volcano") && !maprec->name.CompareNoCase("$TXTS_W_MAP10"))
-    {
-        // fix badly tagged sector that can glitch out.
-        if (sector[118].ceilingstat == 37 && sector[118].ceilingpicnum == 317) sector[118].ceilingstat &= ~CSTAT_SECTOR_SKY;
-    }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
@@ -399,8 +383,6 @@ void InitLevel(MapRecord *maprec)
     PlayerPanelSetup();
     SectorSetup();
     JS_InitMirrors();
-    JS_InitLockouts();   // Setup the lockout linked lists
-    JS_ToggleLockouts(); // Init lockouts on/off
 
     PlaceSectorObjectsOnTracks();
     PlaceActorsOnTracks();
@@ -483,7 +465,7 @@ void TerminateLevel(void)
         StatIterator it(stat);
         if ((i = it.NextIndex()) >= 0)
         {
-            if (User[i]) puser[pnum].CopyFromUser(User[i]);
+            if (User[i].Data()) puser[pnum].CopyFromUser(User[i].Data());
         }
     }
 
@@ -498,19 +480,7 @@ void TerminateLevel(void)
     }
 
     // Free SectUser memory
-    for (sectu = &SectUser[0];
-        sectu < &SectUser[MAXSECTORS];
-        sectu++)
-    {
-        if (*sectu)
-        {
-            FreeMem(*sectu);
-            *sectu = NULL;
-        }
-    }
-
-    //memset(&User[0], 0, sizeof(User));
-    memset(&SectUser[0], 0, sizeof(SectUser));
+    for (auto& su : SectUser) su.Clear();
 
     TRAVERSE_CONNECT(pnum)
     {
@@ -541,8 +511,6 @@ void TerminateLevel(void)
 
         INITLIST(&pp->PanelSpriteList);
     }
-
-    JS_UnInitLockouts();
 }
 
 

@@ -28,27 +28,6 @@ extern int g_nextskill;
 
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
-int CONFIG_Init();
-
-// I am not sure if anything below will survive for long...
-
-#define MAXMOUSEAXES 2
-#define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
-
-// default mouse scale
-#define DEFAULTMOUSEANALOGUESCALE           65536
-
-// default joystick settings
-
-#define DEFAULTJOYSTICKANALOGUESCALE        65536
-#define DEFAULTJOYSTICKANALOGUEDEAD         1000
-#define DEFAULTJOYSTICKANALOGUESATURATE     9500
-
-
-void CONFIG_SetupJoystick(void);
-
-void CONFIG_SetGameControllerDefaultsClear();
-
 extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
 
@@ -182,6 +161,11 @@ inline bool isNamWW2GI()
 inline bool isWW2GI()
 {
 	return g_gameType & (GAMEFLAG_WW2GI);
+}
+
+inline bool isDuke()
+{
+	return g_gameType & (GAMEFLAG_DUKE);
 }
 
 inline bool isRR()

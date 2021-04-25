@@ -7,8 +7,6 @@
 #include "packet.h"
 
 int getincangle(int a, int na);
-double getincanglef(double a, double na);
-fixed_t getincangleq16(fixed_t a, fixed_t na);
 binangle getincanglebam(binangle a, binangle na);
 
 struct PlayerHorizon
@@ -44,12 +42,12 @@ struct PlayerHorizon
 
 	void settarget(double value, bool backup = false)
 	{
-		__settarget(buildfhoriz(clamp(value, FixedToFloat(gi->playerHorizMin()), FixedToFloat(gi->playerHorizMax()))), backup);
+		__settarget(buildfhoriz(value), backup);
 	}
 
 	void settarget(fixedhoriz value, bool backup = false)
 		{
-		__settarget(q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax())), backup);
+		__settarget(value, backup);
 		}
 
 	bool targetset()
@@ -94,9 +92,9 @@ struct PlayerHorizon
 		return q16horiz(interpolatedvalue(osum().asq16(), sum().asq16(), smoothratio));
 	}
 
-	double horizsumfrac(bool const precise, double const smoothratio)
+	double horizsumfrac(double const smoothratio)
 	{
-		return !precise ? sum().asq16() >> 20 : (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); // Used within draw code for Duke.
+		return (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); // Used within draw code for Duke.
 	}
 
 	fixedhoriz interpolatedoff(double const smoothratio)
@@ -105,7 +103,7 @@ struct PlayerHorizon
 		return q16horiz(ohorizoff.asq16() + xs_CRoundToInt(ratio * (horizoff - ohorizoff).asq16()));
 	}
 
-	void sethorizon(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
+	void applyinput(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
 	void calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
 
 private:
@@ -126,6 +124,8 @@ private:
 
 	void __settarget(fixedhoriz value, bool backup)
 	{
+		value = q16horiz(clamp(value.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
+
 		if (!SyncInput() && !backup)
 		{
 			target = value;
@@ -235,17 +235,17 @@ struct PlayerAngle
 		return interpolatedangle(orotscrnang, rotscrnang, smoothratio);
 	}
 
-	double look_anghalf(bool const precise, double const smoothratio)
+	double look_anghalf(double const smoothratio)
 	{
-		return !precise ? look_ang.signedbam() >> 22 : (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; // Used within draw code for weapon and crosshair when looking left/right.
+		return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; // Used within draw code for weapon and crosshair when looking left/right.
 	}
 
-	double looking_arc(bool const precise, double const smoothratio)
+	double looking_arc(double const smoothratio)
 	{
-		return !precise ? abs(look_ang.signedbuild()) / 9 : fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); // Used within draw code for weapon and crosshair when looking left/right.
+		return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); // Used within draw code for weapon and crosshair when looking left/right.
 	}
 
-	void applylook(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
+	void applyinput(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
 
 private:
 	binangle target;

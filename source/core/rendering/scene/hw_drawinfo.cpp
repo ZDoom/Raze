@@ -121,7 +121,6 @@ static HWDrawInfo * gl_drawinfo;	// This is a linked list of all active DrawInfo
 
 void HWDrawInfo::StartScene(FRenderViewpoint& parentvp, HWViewpointUniforms* uniforms)
 {
-	staticClipper.Clear();
 	mClipper = &staticClipper;
 
 	Viewpoint = parentvp;
@@ -369,7 +368,6 @@ void HWDrawInfo::CreateScene(bool portal)
 	const auto& vp = Viewpoint;
 
 	angle_t a1 = FrustumAngle();
-	if (a1 != 0xffffffff) mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 
 	// reset the portal manager
 	portalState.StartFrame();
@@ -385,6 +383,9 @@ void HWDrawInfo::CreateScene(bool portal)
 	geoofs = { 0,0 };
 
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
+
+	if(!portal) mClipper->SetVisibleRange(vp.RotAngle, a1);
+
 	if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
 	else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
 	if (vp.SectNums)
@@ -420,10 +421,9 @@ void HWDrawInfo::CreateScene(bool portal)
 			if (eff.geosector[i] == effsect) drawsect = eff.geosectorwarp[i];
 		}
 
-		mClipper->Clear();
-		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
 		else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
+
 		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
@@ -452,8 +452,6 @@ void HWDrawInfo::CreateScene(bool portal)
 			if (eff.geosector[i] == effsect) drawsect = eff.geosectorwarp2[i];
 		}
 
-		mClipper->Clear();
-		mClipper->SafeAddClipRange(bamang(vp.RotAngle + a1), bamang(vp.RotAngle - a1));
 		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
 		else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
 		mDrawer.RenderScene(&drawsect, 1, false);

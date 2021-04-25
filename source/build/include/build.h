@@ -202,10 +202,6 @@ enum {
 
 EXTERN int32_t g_visibility;
 
-// blendtable[1] to blendtable[numalphatabs] are considered to be
-// alpha-blending tables:
-EXTERN uint8_t numalphatabs;
-
 EXTERN vec2_t windowxy1, windowxy2;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
@@ -358,14 +354,10 @@ void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   renderSetAspect(int32_t daxrange, int32_t daaspect);
 
-void   plotpixel(int32_t x, int32_t y, char col);
 FCanvasTexture *renderSetTarget(int16_t tilenume);
 void   renderRestoreTarget();
 
 void setVideoMode();
-void videoInit();
-void   videoClearViewableArea(int32_t dacol);
-void   videoClearScreen(int32_t dacol);
 
 class F2DDrawer;
 
@@ -625,8 +617,6 @@ int32_t md_definehud (int32_t modelid, int32_t tilex, vec3f_t add,
                       int32_t angadd, int32_t flags, int32_t fov);
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
-
-int32_t loaddefinitionsfile(const char *fn, bool loadadds = false, bool cumulative = false);
 
 #ifdef USE_OPENGL
 # include "polymost.h"

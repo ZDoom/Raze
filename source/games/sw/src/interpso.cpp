@@ -30,6 +30,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "game.h"
 #include "interpso.h"
+#include "serializer.h"
 #include "names2.h"
 
 BEGIN_SW_NS
@@ -271,7 +272,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
         {
             if (data->spriteofang >= 0)
             {
-                USERp u = User[data->spriteofang];
+                USERp u = User[data->spriteofang].Data();
                 if (u)
                     u->oangdiff = 0;
                 if (!interpolating)
@@ -318,7 +319,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                 data->lastoldipos = data->oldipos;
                 if (data->spriteofang >= 0)
                 {
-                    USERp u = User[data->spriteofang];
+                    USERp u = User[data->spriteofang].Data();
                     data->lastangdiff = u ? u->oangdiff : 0;
                 }
             }
@@ -360,7 +361,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             if (data->curelement >= soi_sprx)
             {
                 int32_t sprnum = data->curelement & soi_base;
-                USERp u = User[sprnum];
+                USERp u = User[sprnum].Data();
                 if (u && (sprite[sprnum].statnum != STAT_DEFAULT) &&
                     ((TEST(u->Flags, SPR_SKIP4) && (sprite[sprnum].statnum <= STAT_SKIP4_INTERP_END)) ||
                      (TEST(u->Flags, SPR_SKIP2) && (sprite[sprnum].statnum <= STAT_SKIP2_INTERP_END))))
@@ -400,58 +401,46 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
     }
 }
 
-int SaveSymDataInfo(MFILE_WRITE fil, void *ptr);
-
-int so_writeinterpolations(MFILE_WRITE fil)
+void so_serializeinterpolations(FSerializer& arc)
 {
-    int32_t i;
     SECTOR_OBJECTp sop;
-    so_interp *interp;
-    int saveisshot = 0;
+    so_interp* interp;
 
-    for (sop = SectorObject, interp = so_interpdata;
-         sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
+    if (arc.BeginArray("sop_interp"))
     {
-        so_interp::interp_data *data = interp->data;
-        MWRITE(&interp->numinterpolations,sizeof(interp->numinterpolations),1,fil);
-        MWRITE(&interp->hasvator,sizeof(interp->hasvator),1,fil);
-        for (i = 0; i < interp->numinterpolations; i++, data++)
+        for (sop = SectorObject, interp = so_interpdata; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
         {
-            MWRITE(&data->curelement, sizeof(data->curelement), 1, fil);
-            MWRITE(&data->oldipos,sizeof(data->oldipos),1,fil);
-            MWRITE(&data->spriteofang,sizeof(data->spriteofang),1,fil);
+            if (arc.BeginObject(nullptr))
+            {
+                so_interp::interp_data* data = interp->data;
+                arc("numinterp", interp->numinterpolations)
+                    ("hasvator", interp->hasvator);
+                if (arc.BeginArray("data"))
+                {
+                    for (int i = 0; i < interp->numinterpolations; i++, data++)
+                    {
+                        if (arc.BeginObject(nullptr))
+                        {
+                            arc("curelement", data->curelement)
+                                ("oldipos", data->oldipos)
+                                ("spriteofang", data->spriteofang)
+                                .EndObject();
+                            if (arc.isReading())
+                            {
+                                data->lastipos = data->lastoldipos = data->oldipos;
+                                data->lastangdiff = 0;
+                            }
+                        }
+                    }
+                    arc.EndArray();
+                }
+                arc.EndObject();
+                interp->tic = 0;
+                interp->lasttic = synctics;
+            }
         }
+        arc.EndArray();
     }
-    return saveisshot;
-}
-
-int LoadSymDataInfo(MFILE_READ fil, void** ptr);
-
-int so_readinterpolations(MFILE_READ fil)
-{
-    int32_t i;
-    SECTOR_OBJECTp sop;
-    so_interp *interp;
-    int saveisshot = 0;
-
-    for (sop = SectorObject, interp = so_interpdata;
-         sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
-    {
-        so_interp::interp_data *data = interp->data;
-        MREAD(&interp->numinterpolations,sizeof(interp->numinterpolations),1,fil);
-        MREAD(&interp->hasvator,sizeof(interp->hasvator),1,fil);
-        for (i = 0; i < interp->numinterpolations; i++, data++)
-        {
-            MREAD(&data->curelement, sizeof(data->curelement), 1, fil);
-            MREAD(&data->oldipos,sizeof(data->oldipos),1,fil);
-            MREAD(&data->spriteofang,sizeof(data->spriteofang),1,fil);
-            data->lastipos = data->lastoldipos = data->oldipos;
-            data->lastangdiff = 0;
-        }
-        interp->tic = 0;
-        interp->lasttic = synctics;
-    }
-    return saveisshot;
 }
 
 END_SW_NS

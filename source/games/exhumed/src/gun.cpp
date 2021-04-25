@@ -997,8 +997,8 @@ void DrawWeapons(double smooth)
         nShade = sprite[PlayerList[nLocalPlayer].nSprite].shade;
     }
 
-    double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(cl_hudinterpolation, smooth);
-    double const looking_arc = PlayerList[nLocalPlayer].angle.looking_arc(cl_hudinterpolation, smooth);
+    double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(smooth);
+    double const looking_arc = PlayerList[nLocalPlayer].angle.looking_arc(smooth);
 
     xOffset -= look_anghalf;
     yOffset += looking_arc;
