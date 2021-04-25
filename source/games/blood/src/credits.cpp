@@ -144,7 +144,7 @@ void levelPlayIntroScene(int nEpisode, CompletionFunc completion)
     ambKillAll();
     seqKillAll();
     EPISODEINFO *pEpisode = &gEpisodeInfo[nEpisode];
-	playSmk(pEpisode->cutsceneAName, pEpisode->cutsceneASound, pEpisode->at9028, completion);
+	playSmk(pEpisode->cutsceneAName, pEpisode->cutsceneASound, pEpisode->cutsceneAWave, completion);
 }
 
 void levelPlayEndScene(int nEpisode, CompletionFunc completion)
@@ -156,7 +156,7 @@ void levelPlayEndScene(int nEpisode, CompletionFunc completion)
     ambKillAll();
     seqKillAll();
     EPISODEINFO *pEpisode = &gEpisodeInfo[nEpisode];
-    playSmk(pEpisode->cutsceneBName, pEpisode->cutsceneBSound, pEpisode->at902c, completion);
+    playSmk(pEpisode->cutsceneBName, pEpisode->cutsceneBSound, pEpisode->cutsceneBWave, completion);
 }
 
 

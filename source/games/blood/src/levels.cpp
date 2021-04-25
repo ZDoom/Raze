@@ -157,16 +157,16 @@ void levelLoadDefaults(void)
             break;
         EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[i];
 		auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
-		gVolumeNames[i] = ep_str; // only keep one table for the names. Todo: Consolidate this across games.
+		volumeList[i].name = ep_str;
         strncpy(pEpisodeInfo->cutsceneAName, BloodINI->GetKeyString(buffer, "CutSceneA", ""), BMAX_PATH);
-        pEpisodeInfo->at9028 = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
-        if (pEpisodeInfo->at9028 == 0)
+        pEpisodeInfo->cutsceneAWave = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
+        if (pEpisodeInfo->cutsceneAWave == 0)
             strncpy(pEpisodeInfo->cutsceneASound, BloodINI->GetKeyString(buffer, "CutWavA", ""), BMAX_PATH);
         else
             pEpisodeInfo->cutsceneASound[0] = 0;
         strncpy(pEpisodeInfo->cutsceneBName, BloodINI->GetKeyString(buffer, "CutSceneB", ""), BMAX_PATH);
-        pEpisodeInfo->at902c = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
-        if (pEpisodeInfo->at902c == 0)
+        pEpisodeInfo->cutsceneBWave = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
+        if (pEpisodeInfo->cutsceneBWave == 0)
             strncpy(pEpisodeInfo->cutsceneBSound, BloodINI->GetKeyString(buffer, "CutWavB", ""), BMAX_PATH);
         else
             pEpisodeInfo->cutsceneBSound[0] = 0;

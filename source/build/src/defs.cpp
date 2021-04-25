@@ -207,7 +207,7 @@ enum scripttoken_t
     T_RFFDEFINEID,
     T_EXTRA,
     T_ROTATE,
-    T_SURFACE, T_VIEW,
+    T_SURFACE, T_VIEW, T_MAP, T_DEFINECUTSCENE,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -360,6 +360,8 @@ static int32_t defsparser(scriptfile *script)
         { "shadefactor",     T_SHADEFACTOR      },
         { "newgamechoices",  T_NEWGAMECHOICES   },
         { "rffdefineid",     T_RFFDEFINEID      },  // dummy
+        { "map",             T_MAP          },
+        { "definecutscene",             T_DEFINECUTSCENE          },
     };
 
     script->SetNoOctals(true);
@@ -376,6 +378,9 @@ static int32_t defsparser(scriptfile *script)
 		auto pos = scriptfile_getposition(script);
         switch (tokn)
         {
+        case T_DEFINECUTSCENE:
+            parseDefineCutscene(*script, pos);
+            break;
         case T_ERROR:
             pos.Message(MSG_ERROR, "Unknown error");
             break;

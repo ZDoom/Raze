@@ -599,15 +599,16 @@ void SetDefaultStrings()
 	if ((g_gameType & GAMEFLAG_DUKE) && fileSystem.FindFile("E4L1.MAP") < 0)
 	{
 		// Pre-Atomic releases do not define this.
-		gVolumeNames[0] = "$L.A. Meltdown";
-		gVolumeNames[1] = "$Lunar Apocalypse";
-		gVolumeNames[2] = "$Shrapnel City";
-		if (g_gameType & GAMEFLAG_SHAREWARE) gVolumeNames[3] = "$The Birth";
+		volumeList[0].name = "$L.A. Meltdown";
+		volumeList[1].name = "$Lunar Apocalypse";
+		volumeList[2].name = "$Shrapnel City";
+		if (g_gameType & GAMEFLAG_SHAREWARE) volumeList[3].name = "$The Birth";
 		gSkillNames[0] = "$Piece of Cake";
 		gSkillNames[1] = "$Let's Rock";
 		gSkillNames[2] = "$Come get Some";
 		gSkillNames[3] = "$Damn I'm Good";
 	}
+	if (g_gameType & GAMEFLAG_RR) volumeList[0].flags |= EF_GOTONEXTVOLUME;
 	// Blood hard codes its skill names, so we have to define them manually.
 	if (isBlood())
 	{

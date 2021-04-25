@@ -233,6 +233,7 @@ void PlayerColorChanged(void);
 bool movementBlocked(player_struct *p);
 void loadcons();
 void recordoldspritepos();
+void FixMapinfo(); 
 
 int* animateptr(int i);
 

@@ -79,8 +79,8 @@ struct EPISODEINFO
     unsigned int cutALevel : 4;
     char cutsceneAName[BMAX_PATH];
     char cutsceneBName[BMAX_PATH];
-    int at9028;
-    int at902c;
+    int cutsceneAWave;
+    int cutsceneBWave;
     char cutsceneASound[BMAX_PATH];
     char cutsceneBSound[BMAX_PATH];
 };

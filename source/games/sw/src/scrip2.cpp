@@ -523,13 +523,13 @@ void LoadCustomInfoFromScript(const char *filename)
                 case CM_TITLE:
                 {
                     sc.MustGetString();
-                    if (curep != -1) gVolumeNames[curep] = sc.String;
+                    if (curep != -1) volumeList[curep].name = sc.String;
                     break;
                 }
                 case CM_SUBTITLE:
                 {
                     sc.MustGetString();
-                    if (curep != -1) gVolumeSubtitles[curep] = sc.String;
+                    if (curep != -1) volumeList[curep].subtitle = sc.String;
                     break;
                 }
                 default:

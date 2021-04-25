@@ -240,7 +240,7 @@ void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats, bool forcetextfont)
 	{
 		y = 200 - stats.screenbottomspace - spacing;
 	}
-	const auto &volname = gVolumeNames[volfromlevelnum(lev->levelNumber)];
+	const auto &volname = volumeList[volfromlevelnum(lev->levelNumber)].name;
 	if (volname.IsEmpty() && am_nameontop) y = 1;
 
 	DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, mapname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,

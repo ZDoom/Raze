@@ -18,13 +18,11 @@ enum EMax
 enum EVolFlags
 {
 	EF_HIDEFROMSP = 1,
+	EF_GOTONEXTVOLUME = 2,	// for RR which continues the game in the next volume
 };
 
 // These get filled in by the map definition parsers of the front ends.
 extern FString gSkillNames[MAXSKILLS];
-extern FString gVolumeNames[MAXVOLUMES];
-extern FString gVolumeSubtitles[MAXVOLUMES];
-extern int32_t gVolumeFlags[MAXVOLUMES];
 extern int gDefaultVolume, gDefaultSkill;
 
 
@@ -46,6 +44,42 @@ enum {
 	MAX_MESSAGES = 32
 };
 
+// Cutscene rules for maps are as follows:
+// * when an episode is started, the episode intro will play, if none is defined, the map's intro will play.
+// * when an episde is ended, the episode outro will play after the summary screen.
+// * when a map ends, its own outro scene will play before the summary screen, if none is defined, use the default map outro handler.
+// * when a new map starts after the summary screen, its own intro scene will play, if none is defined, use the default map intro handler.
+// * setting any of these fields to 'none' will override any default and play nothing, even if a default is set.
+class DObject;
+
+struct CutsceneDef
+{
+	FString video;
+	FString function;
+	int sound = 0;
+	int framespersec = 0; // only relevant for ANM.
+
+	void Create(DObject* runner);
+};
+
+struct GlobalCutscenes
+{
+	CutsceneDef Intro;
+	CutsceneDef DefaultMapIntro;
+	CutsceneDef DefaultMapOutro;
+	FString MPSummaryScreen;
+	FString SummaryScreen;
+};
+
+struct VolumeRecord
+{
+	FString name;
+	FString subtitle;
+	CutsceneDef intro;
+	CutsceneDef outro;
+	int32_t flags = 0;
+};
+
 struct MapRecord
 {
 	int parTime = 0;
@@ -54,6 +88,8 @@ struct MapRecord
 	FString labelName;
 	FString name;
 	FString music;
+	CutsceneDef intro;
+	CutsceneDef outro;
 	int cdSongId = -1;
 	int flags = 0;
 	int levelNumber = -1;
@@ -101,8 +137,8 @@ struct MapRecord
 
 };
 
-
-extern MapRecord mapList[512];
+extern GlobalCutscenes globalCutscenes;
+extern VolumeRecord volumeList[MAXVOLUMES];
 extern MapRecord *currentLevel;	
 
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack = false);

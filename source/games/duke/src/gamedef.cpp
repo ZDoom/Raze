@@ -1658,7 +1658,7 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		gVolumeNames[j] = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		volumeList[j].name = FStringTable::MakeMacro(parsebuffer.Data(), i);
 		return 0;
 	case concmd_defineskillname:
 		popscriptvalue();
@@ -3206,8 +3206,16 @@ void loadcons()
 	InitGameVarPointers();
 	ResetSystemDefaults();
 	S_WorldTourMappingsForOldSounds(); // create a sound mapping for World Tour.
+	S_CacheAllSounds();
+	comp.setmusic();
+}
+
+void FixMapinfo()
+{
+	// todo: export this to proper map definition features.
 	if (isWorldTour())
 	{
+		// fix broken secret exit in WT's super secret map.
 		int num = fileSystem.CheckNumForName("e1l7.map");
 		int file = fileSystem.GetFileContainer(num);
 		if (file <= fileSystem.GetMaxIwadNum())
@@ -3216,35 +3224,36 @@ void loadcons()
 			if (maprec) maprec->nextLevel = levelnum(0, 4);
 		}
 	}
-	else if (isRRRA())
-	{
-		// RRRA goes directly to the second episode after E1L7 to continue the game.
-		int num = fileSystem.CheckNumForName("e1l7.map");
-		int file = fileSystem.GetFileContainer(num);
-		if (file <= fileSystem.GetMaxIwadNum())
-		{
-			auto maprec = FindMapByName("e1l7");
-			if (maprec) maprec->nextLevel = levelnum(1, 0);
-		}
-	}
 	else if (isRR())
 	{
-		// RR does not define its final level and crudely hacked it into the progression. This puts it into the E2L8 slot so that the game can naturally progress there.
-		auto maprec1 = FindMapByLevelNum(levelnum(1, 6));
-		auto maprec2 = FindMapByLevelNum(levelnum(1, 7));
-		auto maprec3 = FindMapByName("endgame");
-		int num3 = fileSystem.FindFile("endgame.map");
-		if (maprec1 && !maprec2 && !maprec3 && num3 >= 0)
+		if (volumeList[0].flags & EF_GOTONEXTVOLUME)
 		{
-			auto maprec = AllocateMap();
-			maprec->designerTime = 0;
-			maprec->parTime = 0;
-			maprec->SetFileName("endgame.map");
-			maprec->SetName("$TXT_CLOSEENCOUNTERS");
-			maprec->levelNumber = levelnum(1, 7);
+			// RR goes directly to the second episode after E1L7 to continue the game.
+			auto maprec1 = FindMapByLevelNum(levelnum(0, 6));	// E1L7 must exist
+			auto maprec2 = FindMapByLevelNum(levelnum(0, 7));	// E1L8 must not exist
+			if (maprec1 && !maprec2)
+			{
+				maprec1->nextLevel = levelnum(1, 0);
+			}
+		}
+		if (!isRRRA())
+		{
+			// RR does not define its final level and crudely hacked it into the progression. This puts it into the E2L8 slot so that the game can naturally progress there.
+			auto maprec1 = FindMapByLevelNum(levelnum(1, 6));	// E2L7 must exist
+			auto maprec2 = FindMapByLevelNum(levelnum(1, 7));	// E2L8 must not exist
+			auto maprec3 = FindMapByName("endgame");			// endgame must not have a map record already
+			int num3 = fileSystem.FindFile("endgame.map");		// endgame.map must exist.
+			if (maprec1 && !maprec2 && !maprec3 && num3 >= 0)
+			{
+				auto maprec = AllocateMap();
+				maprec->designerTime = 0;
+				maprec->parTime = 0;
+				maprec->SetFileName("endgame.map");
+				maprec->SetName("$TXT_CLOSEENCOUNTERS");
+				maprec->levelNumber = levelnum(1, 7);
+			}
 		}
 	}
-	comp.setmusic();
 }
 
 END_DUKE_NS

@@ -35,7 +35,6 @@
 **
 */
 
-
 void parseAnimTileRange(FScanner& sc, FScriptPosition& pos)
 {
 	SetAnim set;
@@ -44,5 +43,92 @@ void parseAnimTileRange(FScanner& sc, FScriptPosition& pos)
 	if (!sc.GetNumber(set.speed, true)) return;
 	if (!sc.GetNumber(set.type, true)) return;
 	processSetAnim("animtilerange", pos, set);
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+static void parseCutscene(FScanner& sc, CutsceneDef& cdef)
+{
+	FScanner::SavedPos eblockend;
+
+	if (sc.StartBraces(&eblockend)) return;
+	FString sound;
+	while (!sc.FoundEndBrace(eblockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("video")) { sc.GetString(cdef.video); cdef.function = ""; }
+		else if (sc.Compare("function")) { sc.GetString(cdef.function); cdef.video = ""; }
+		else if (sc.Compare("sound")) sc.GetString(sound);
+		else if (sc.Compare("clear")) { cdef.function = "none"; cdef.video = ""; } // this means 'play nothing', not 'not defined'.
+	}
+	if (sound.IsNotEmpty())
+	{
+
+	}
+}
+
+void parseDefineCutscene(FScanner& sc, FScriptPosition& pos)
+{
+	int scenenum = -1;
+
+	if (!sc.GetString()) return;
+
+	if (sc.Compare("intro"))
+	{
+		parseCutscene(sc, globalCutscenes.Intro);
+	}
+	if (sc.Compare("mapintro")) // sets the global default for a map entry handler.
+	{
+		parseCutscene(sc, globalCutscenes.DefaultMapIntro);
+	}
+	if (sc.Compare("mapoutro")) // sets the global default for a map exit handler.
+	{
+		parseCutscene(sc, globalCutscenes.DefaultMapOutro);
+	}
+	else if (sc.Compare("episode"))
+	{
+		FScanner::SavedPos eblockend;
+		sc.MustGetNumber();
+		if (sc.Number < 1 || sc.Number > MAXVOLUMES)
+		{
+			sc.ScriptError("episode number %d out of range. Must be positive", sc.Number);
+			return;
+		}
+		int vol = sc.Number - 1;
+
+		if (sc.StartBraces(&eblockend)) return;
+		while (!sc.FoundEndBrace(eblockend))
+		{
+			sc.MustGetString();
+			if (sc.Compare("intro")) parseCutscene(sc, volumeList[vol].intro);
+			else if (sc.Compare("outro")) parseCutscene(sc, volumeList[vol].outro);
+			else if (sc.Compare("flags")) sc.GetNumber(volumeList[vol].flags);
+		}
+	}
+	else if (sc.Compare("map"))
+	{
+		FScanner::SavedPos eblockend;
+		sc.MustGetString();
+		auto maprec = FindMapByName(sc.String);
+		if (!maprec)
+		{
+			sc.ScriptError("%s: map not found", sc.String);
+			return;
+		}
+		if (sc.StartBraces(&eblockend)) return;
+		while (!sc.FoundEndBrace(eblockend))
+		{
+			sc.MustGetString();
+			if (sc.Compare("intro")) parseCutscene(sc, maprec->intro);
+			else if (sc.Compare("outro")) parseCutscene(sc, maprec->outro);
+		}
+	}
+	else if (sc.Compare("summary")) sc.GetString(globalCutscenes.SummaryScreen);
+	else if (sc.Compare("mpsummary")) sc.GetString(globalCutscenes.MPSummaryScreen);
+
 }
 

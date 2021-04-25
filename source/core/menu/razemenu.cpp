@@ -121,7 +121,7 @@ bool M_SetSpecialMenu(FName& menu, int param)
 		if (gi->StartGame(NewGameStartupInfo))
 		{
 			M_ClearMenus();
-			STAT_StartNewGame(gVolumeNames[NewGameStartupInfo.Episode], NewGameStartupInfo.Skill);
+			STAT_StartNewGame(volumeList[NewGameStartupInfo.Episode].name, NewGameStartupInfo.Skill);
 			inputState.ClearAllInput();
 		}
 		return false;
@@ -387,20 +387,21 @@ static void BuildEpisodeMenu()
 
 		for (int i = 0; i < MAXVOLUMES; i++)
 		{
-			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
+			auto& vol = volumeList[i];
+			if (vol.name.IsNotEmpty() && !(vol.flags & EF_HIDEFROMSP))
 
 			{
 				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0);
-				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gVolumeNames[i][0],
-					gVolumeNames[i], ld->mFont, CR_UNTRANSLATED, isShareware, NAME_Skillmenu, i); // font colors are not used, so hijack one for the shareware flag.
+				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, vol.name[0],
+					vol.name, ld->mFont, CR_UNTRANSLATED, isShareware, NAME_Skillmenu, i); // font colors are not used, so hijack one for the shareware flag.
 
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedVolumes++;
-				if (gVolumeSubtitles[i].IsNotEmpty())
+				if (vol.subtitle.IsNotEmpty())
 				{
 					auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing * 6 / 10, 1,
-						gVolumeSubtitles[i], SmallFont, CR_GRAY, false, NAME_None, i);
+						vol.subtitle, SmallFont, CR_GRAY, false, NAME_None, i);
 					y += ld->mLinespacing * 6 / 10;
 					ld->mItems.Push(it);
 					textadded = true;

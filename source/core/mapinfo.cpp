@@ -41,30 +41,28 @@
 #include "raze_sound.h"
 
 FString gSkillNames[MAXSKILLS];
-FString gVolumeNames[MAXVOLUMES];
-FString gVolumeSubtitles[MAXVOLUMES];
-int32_t gVolumeFlags[MAXVOLUMES];
 int gDefaultVolume = 0, gDefaultSkill = 1;
 
-MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
-MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
+GlobalCutscenes globalCutscenes;
+VolumeRecord volumeList[MAXVOLUMES];
+TArray<MapRecord> mapList;
+MapRecord *currentLevel;	// level that is currently played.
 MapRecord* lastLevel;		// Same here, for the last level.
-unsigned int numUsedSlots;
 
 
 CCMD(listmaps)
 {
-	for (unsigned int i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		int lump = fileSystem.FindFile(mapList[i].fileName);
+		int lump = fileSystem.FindFile(map.fileName);
 		if (lump >= 0)
 		{
 			int rfnum = fileSystem.GetFileContainer(lump);
-			Printf("%s - %s (%s)\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName(), fileSystem.GetResourceFileName(rfnum));
+			Printf("%s - %s (%s)\n", map.fileName.GetChars(), map.DisplayName(), fileSystem.GetResourceFileName(rfnum));
 		}
 		else
 		{
-			Printf("%s - %s (defined but does not exist)\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName());
+			Printf("%s - %s (defined but does not exist)\n", map.fileName.GetChars(), map.DisplayName());
 		}
 	}
 }
@@ -72,9 +70,8 @@ CCMD(listmaps)
 
 MapRecord *FindMapByName(const char *nm)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
 		if (map.labelName.CompareNoCase(nm) == 0)
 		{
 			return &map;
@@ -86,9 +83,8 @@ MapRecord *FindMapByName(const char *nm)
 
 MapRecord *FindMapByLevelNum(int num)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
 		if (map.levelNumber == num)
 		{
 			return &map;
@@ -142,15 +138,14 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 
 MapRecord *AllocateMap()
 {
-	return &mapList[numUsedSlots++];
+	return &mapList[mapList.Reserve(1)];
 }
 
 
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
 		if (map.fileName.CompareNoCase(boardfilename) == 0)
 		{
 			return &map;
