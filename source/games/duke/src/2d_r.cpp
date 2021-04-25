@@ -285,23 +285,6 @@ void dobonus_r(int bonusonly, const CompletionFunc& completion)
 }
 
 
-#if 0
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-
-void loadscreen_r(MapRecord* rec, CompletionFunc func)
-{
-	TArray<DScreenJob*> jobs(1, true);
-
-	jobs[0] = Create<DRRLoadScreen>(rec);
-	RunScreenJob(jobs, func);
-}
-#endif
-
 void PrintPaused_r()
 {
 	BigText(160, 100, GStrings("Game Paused"), 0);
