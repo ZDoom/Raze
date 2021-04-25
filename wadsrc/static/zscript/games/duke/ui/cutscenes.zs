@@ -36,9 +36,6 @@ class DukeCutscenes
 
 	static void BuildIntro(ScreenJobRunner runner)
     {
-		Raze.StopMusic();
-		Raze.StopAllSounds();
-
 		if (!userConfig.nologo)
 		{
 			if (!Raze.isShareware())
@@ -174,7 +171,7 @@ class DukeCutscenes
 //
 //---------------------------------------------------------------------------
 
-	static void BuildE4Intro(ScreenJobRunner runner)
+	static void BuildE4Intro(ScreenJobRunner runner, MapRecord map)
 	{
 		Array<int> soundinfo;
 
@@ -263,3 +260,103 @@ class DukeCutscenes
 
 }
 
+class RRCutscenes
+{
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildIntro(ScreenJobRunner runner)
+    {
+		if (!userConfig.nologo)
+		{
+			if (!Raze.isRRRA())
+			{
+				soundinfo.Pushv(1, RRSnd.URANUS + 1);
+				runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_intro.anm", soundinfo, 0, 9, 9, 9));
+
+				soundinfo.Pushv(1, RRSnd.REDNECK2 + 1);
+				runner.Append(MoviePlayerJob.CreateWithSoundinfo("redneck.anm", soundinfo, 0, 14, 14, 14));
+
+				soundinfo.Pushv(1, RRSnd.XATRIX + 1);
+				runner.Append(MoviePlayerJob.CreateWithSoundinfo("xatlogo.anm", soundinfo, 0, 10, 10, 10));
+			}
+			else
+			{
+				runner.Append(MoviePlayerJob.Create("redint.mve"), 0);
+			}
+		}
+	}
+
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildE1End(ScreenJobRunner runner)
+    {
+		soundinfo.Pushv(1, RRSnd.CHKAMMO + 1);
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("turdmov.anm", soundinfo, 0, 9, 9, 9));
+	}
+
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildE2End(ScreenJobRunner runner)
+    {
+		soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, 0, 9, 9, 9));
+		runner.Append(ImageScreen.CreateNamed("TENSCREEN"));
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildRRRAEnd(ScreenJobRunner runner)
+    {
+		runner.Append(new("RRRAEndOfGame").Init());
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, int kills_, int maxkills_, int secrets_, int maxsecrets_, int supersecrets_, int time_, bool cheated)
+	{
+		let screen = SummaryScreenBase(new("RRLevelSummaryScreen").Init(!isRRRA() || map.flags & MapRecord.FORCEEOG));
+		if (screen) screen.SetParameters(map, kills_, maxkills_, secrets_, maxsecrets_, supersecrets_, time_, cheated);
+		runner.Append(screen);
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildMapIntro(ScreenJobRunner runner, MapRecord map)
+	{
+		int ln = map.levelnumber;
+		if (ln == 0) return;
+		if (ln > 1000) ln -= 1000-7;
+
+		let fn = String.Format("lvl%d.anm", ln);
+		Array<int> soundinfo;
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo(fn, soundinfo, 0, 20, 20, 7200)); // wait for one minute on the final frame so that the video doesn't stop  before the user notices.
+	}
+
+}

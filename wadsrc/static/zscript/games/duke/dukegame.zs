@@ -522,9 +522,15 @@ struct RRSnd native
 		BUB_HRT3     = 24 ,
 		GASP         = 25 ,
 		BUB_HRT4     = 26 ,
-		MIRROR1      = 27 ,
+
+		ONECART      = 27 , // RR
+		MINEWIND     = 28 ,
+		URANUS       = 29 ,
+
+		MIRROR1      = 27 , // RRRA
 		MIRROR2      = 28 ,
 		MIRROR3      = 29 ,
+
 		COMPUTER     = 30 ,
 		NEON         = 31 ,
 		VX_FINAL     = 32 ,
