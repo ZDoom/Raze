@@ -67,7 +67,13 @@ static void parseCutscene(FScanner& sc, CutsceneDef& cdef)
 	}
 	if (sound.IsNotEmpty())
 	{
-
+		cdef.sound = soundEngine->FindSound(sound);
+		if (cdef.sound == 0)
+		{
+			int lump = fileSystem.FindFile(sound);
+			if (lump < 0) return;
+			cdef.sound = FSoundID(soundEngine->AddSoundLump(sound, lump, 0));
+		}
 	}
 }
 
@@ -81,11 +87,11 @@ void parseDefineCutscene(FScanner& sc, FScriptPosition& pos)
 	{
 		parseCutscene(sc, globalCutscenes.Intro);
 	}
-	if (sc.Compare("mapintro")) // sets the global default for a map entry handler.
+	else if (sc.Compare("mapintro")) // sets the global default for a map entry handler.
 	{
 		parseCutscene(sc, globalCutscenes.DefaultMapIntro);
 	}
-	if (sc.Compare("mapoutro")) // sets the global default for a map exit handler.
+	else if (sc.Compare("mapoutro")) // sets the global default for a map exit handler.
 	{
 		parseCutscene(sc, globalCutscenes.DefaultMapOutro);
 	}

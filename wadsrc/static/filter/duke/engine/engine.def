@@ -1,0 +1,53 @@
+// Cutscene definitions for Duke
+
+definecutscene intro
+{
+	function DukeCutscenes.BuildIntro
+}
+
+definecutscene episode 1
+{
+	outro
+	{
+		function DukeCutscenes.BuildE1End
+	}
+}
+
+definecutscene episode 2
+{
+	outro
+	{
+		function DukeCutscenes.BuildE2End
+	}
+}
+
+definecutscene episode 3
+{
+	outro
+	{
+		function DukeCutscenes.BuildE3End
+	}
+}
+
+definecutscene episode 4
+{
+	intro
+	{
+		function DukeCutscenes.BuildE4Intro
+	}
+	outro
+	{
+		function DukeCutscenes.BuildE4End
+	}
+}
+
+definecutscene episode 5
+{
+	outro
+	{
+		function DukeCutscenes.BuildE5End
+	}
+}
+
+definecutscene summary DukeCutscenes.BuildSPSummary
+definecutscene mpsummary DukeCutscenes.BuildMPSummary

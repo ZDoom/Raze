@@ -354,6 +354,7 @@ struct RRCutscenes
 
 	static void BuildMapIntro(ScreenJobRunner runner, MapRecord map)
 	{
+		if (!raze.isRRRA()) return;
 		int ln = map.levelnumber;
 		if (ln == 0) return;
 		if (ln > 1000) ln -= 1000-7;

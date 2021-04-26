@@ -17,6 +17,7 @@
 #include "gamecontrol.h"
 #include "palettecontainer.h"
 #include "mapinfo.h"
+#include "s_soundinternal.h"
 #include "parsefuncs.h"
 
 int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
