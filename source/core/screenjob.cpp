@@ -223,6 +223,13 @@ bool StartCutscene(CutsceneDef& cs, int flags, CompletionFunc completion_)
 	return false;
 }
 
+bool StartCutscene(const char* s, int flags, CompletionFunc completion)
+{
+	CutsceneDef def;
+	def.function = s;
+	return StartCutscene(def, 0, completion);
+}
+
 
 void DeleteScreenJob()
 {
@@ -311,6 +318,28 @@ void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
 	}
 }
 
+
+CCMD(testcutscene)
+{
+	if (argv.argc() < 2)
+	{
+		Printf("Usage: testcutscene <buildfunction>\n");
+		return;
+	}
+	try
+	{
+		CutsceneDef def;
+		def.function = argv[1];
+		if (StartCutscene(def, 0, [](bool) { }))
+		{
+			C_HideConsole();
+		}
+	}
+	catch (const CRecoverableError& err)
+	{
+		Printf("Unable to play cutscene\n");
+	}
+}
 /* 
 Duke:
 			if (!userConfig.nologo) fi.ShowLogo([](bool) { gameaction = ga_mainmenunostopsound; });

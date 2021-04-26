@@ -162,9 +162,6 @@ int hits(DDukeActor* snum);
 DDukeActor* LocateTheLocator(int n, int sectnum);
 void clearcamera(player_struct* ps);
 
-void showtwoscreens(const CompletionFunc& func);
-void doorders(const CompletionFunc& func);
-
 void LoadActor(DDukeActor* i, int p, int x);
 void execute(DDukeActor* s, int p, int d);
 void makeitfall(DDukeActor* s);

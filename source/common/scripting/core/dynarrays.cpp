@@ -416,10 +416,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(FDynArray_I32, Push, ArrayPush<FDynArray_I32 COMMA
 DEFINE_ACTION_FUNCTION(FDynArray_I32, PushV)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(FDynArray_I32);
-	PARAM_INT(val);
 	PARAM_VA_POINTER(va_reginfo);	// Get the hidden type information array
-	self->Push(val);
-	VMVa_List args = { param + 3, 0, numparam - 4, va_reginfo + 3 };
+	VMVa_List args = { param + 1, 0, numparam - 2, va_reginfo + 1 };
 	while (args.curindex < args.numargs)
 	{
 		if (args.reginfo[args.curindex] == REGT_INT)

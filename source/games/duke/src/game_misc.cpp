@@ -94,20 +94,20 @@ void GameInterface::ExitFromMenu()
 { 
 	auto runbonus = [=](auto completion)
 	{
-	// MP scoreboard
+		// MP scoreboard
 		if (playerswhenstarted > 1 && !ud.coop)
-	{
-			dobonus(1, completion);
-	}
-	else completion(false);
+		{
+				dobonus(1, completion);
+		}
+		else completion(false);
 	};
 
 	auto runtwoscreens = [](auto completion)
 	{
-	// shareware and TEN screens
-	if (isShareware() && !isRR())
-		showtwoscreens(completion);
-	else completion(false);
+		// shareware and TEN screens
+		if (isShareware() && !isRR())
+			StartCutscene("DukeCutscenes.BuildSharewareExit", 0, completion);
+		else completion(false);
 	};
 
 	runbonus([=](bool aborted) { runtwoscreens(endthegame); });

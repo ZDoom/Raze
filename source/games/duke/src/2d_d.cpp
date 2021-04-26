@@ -147,34 +147,6 @@ static void BigText(double x, double y, const char* text, int align = -1, double
 
 //---------------------------------------------------------------------------
 //
-//
-//
-//---------------------------------------------------------------------------
-
-void showtwoscreens(const CompletionFunc& completion)
-{
-#if 0
-	TArray<DScreenJob*> jobs;
-
-	jobs.Push(Create<DImageScreen>(3291));
-	jobs.Push(Create<DImageScreen>(3290));
-	RunScreenJob(jobs, completion);
-#endif
-}
-
-void doorders(const CompletionFunc& completion)
-{
-#if 0
-	TArray<DScreenJob*> jobs;
-
-	for (int i = 0; i < 4; i++)
-		jobs.Push(Create<DImageScreen>(ORDERING + i));
-	RunScreenJob(jobs, completion);
-#endif
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------

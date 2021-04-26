@@ -412,11 +412,11 @@ class Episode4Text : SkippableScreenJob
 	override void Draw(double sm)
 	{
 		Screen.ClearScreen();
-		Duke.BigText(160, 60, "$Thanks to all our");
-		Duke.BigText(160, 60 + 16, "$fans for giving");
-		Duke.BigText(160, 60 + 16 + 16, "$us big heads.");
-		Duke.BigText(160, 70 + 16 + 16 + 16, "$Look for a Duke Nukem 3D");
-		Duke.BigText(160, 70 + 16 + 16 + 16 + 16, "$sequel soon.");
+		Duke.BigText(160, 60, "$Thanks to all our", 0);
+		Duke.BigText(160, 60 + 16, "$fans for giving", 0);
+		Duke.BigText(160, 60 + 16 + 16, "$us big heads.", 0);
+		Duke.BigText(160, 70 + 16 + 16 + 16, "$Look for a Duke Nukem 3D", 0);
+		Duke.BigText(160, 70 + 16 + 16 + 16 + 16, "$sequel soon.", 0);
 	}
 
 	override void Start()

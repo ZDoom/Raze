@@ -926,7 +926,6 @@ void enterlevel(MapRecord *mi, int gamemode)
     OnEvent(EVENT_ENTERLEVEL);
 
     // Stop all sounds
-    S_ResumeSound(false);
     FX_StopAllSounds();
     FX_SetReverb(0);
 
@@ -1078,7 +1077,7 @@ void exitlevel(MapRecord *nextlevel)
                 if (ud.multimode < 2)
                 {
                     if (isShareware())
-                        doorders([](bool) { gameaction = ga_startup; });
+                        StartCutscene("DukeCutscenes.BuildSharewareOrder", 0, [](bool) { gameaction = ga_startup; });
                     else gameaction = ga_startup;
                     return;
                 }

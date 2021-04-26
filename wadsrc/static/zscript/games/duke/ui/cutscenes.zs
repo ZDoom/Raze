@@ -181,14 +181,14 @@ class DukeCutscenes // Note: must be class, not struct, otherwise we cannot easi
 			12, DukeSnd.SHORT_CIRCUIT + 1,
 			18, DukeSnd.INTRO4_5 + 1,
 			34, DukeSnd.SHORT_CIRCUIT + 1);
-		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol41a1.anm", soundinfo, 0, 10, 10, 10));
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol41a.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 10, 10, 10));
 
 		soundinfo.Pushv(
 			1, DukeSnd.INTRO4_1 + 1,
 			7, DukeSnd.INTRO4_3 + 1,
 			12, DukeSnd.INTRO4_2 + 1,
 			26, DukeSnd.INTRO4_4 + 1);
-		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol42a.anm", soundinfo, 0, 14, 14, 14));
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol42a.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 14, 14, 14));
 
 		soundinfo.Pushv(
 			10, DukeSnd.INTRO4_6 + 1);
@@ -322,7 +322,7 @@ class RRCutscenes
 		{
 			Array<int> soundinfo;
 			soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);
-			runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, 0, 9, 9, 9));
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 9, 9, 9));
 			runner.Append(ImageScreen.CreateNamed("TENSCREEN"));
 		}
 		else

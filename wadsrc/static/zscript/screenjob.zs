@@ -437,7 +437,7 @@ class ScreenJobRunner : Object
 
 	virtual bool OnEvent(InputEvent ev)
 	{
-		if (paused || index >= jobs.Size()) return false;
+		if (paused || index < 0 || index >= jobs.Size()) return false;
 		if (jobs[index].jobstate != ScreenJob.running) return false;
 		return jobs[index].OnEvent(ev);
 	}
@@ -481,6 +481,10 @@ class ScreenJobRunner : Object
 
 	virtual bool RunFrame(double smoothratio)
 	{
+		if (index < 0)
+		{
+			AdvanceJob(false);
+		}
 		// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
 		if (index < jobs.Size())
 		{

@@ -200,4 +200,7 @@ bool ScreenJobResponder(event_t* ev);
 bool ScreenJobTick();
 void ScreenJobDraw();
 
+struct CutsceneDef;
+bool StartCutscene(CutsceneDef& cs, int flags, CompletionFunc completion);
+bool StartCutscene(const char* s, int flags, CompletionFunc completion);
 void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic);
