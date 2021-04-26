@@ -10,6 +10,9 @@ using CompletionFunc = std::function<void(bool)>;
 struct JobDesc;
 class ScreenJobRunner;
 
+void Job_Init();
+
+
 #if 0
 class DScreenJob : public DObject
 {

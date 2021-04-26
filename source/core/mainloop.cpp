@@ -333,6 +333,7 @@ static void GameTicker()
 	case GS_INTRO:
 		if (ScreenJobTick())
 		{
+			Printf("Sending event\n");
 			// synchronize termination with the playsim.
 			Net_WriteByte(DEM_ENDSCREENJOB);
 		}

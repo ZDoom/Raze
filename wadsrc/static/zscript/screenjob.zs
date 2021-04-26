@@ -7,15 +7,14 @@ class ScreenJob : Object
 
 	int ticks;
 	int jobstate;
-	bool pausable;
 
 	enum EJobState
 	{
-		running = 1,	// normal operation
-		skipped = 2,	// finished by user skipping
-		finished = 3,	// finished by completing its sequence
-		stopping = 4,	// running ending animations / fadeout, etc. Will not accept more input.
-		stopped = 5,	// we're done here.
+		running = 0,	// normal operation
+		skipped = 1,	// finished by user skipping
+		finished = 2,	// finished by completing its sequence
+		stopping = 3,	// running ending animations / fadeout, etc. Will not accept more input.
+		stopped = 4,	// we're done here.
 	};
 	enum EJobFlags
 	{
@@ -31,7 +30,6 @@ class ScreenJob : Object
 		flags = fadet;
 		fadetime = fadet;
 		jobstate = running;
-		pausable = true;
 	}
 
 	virtual bool ProcessInput()
@@ -78,8 +76,10 @@ class SkippableScreenJob : ScreenJob
 
 	override bool OnEvent(InputEvent evt)
 	{
+		Console.Printf("OnEvent");
 		if (evt.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(evt))
 		{
+			Console.Printf("Skip requested");
 			jobstate = skipped;
 			OnSkip();
 		}
@@ -230,7 +230,7 @@ struct MoviePlayer native
 	native static MoviePlayer Create(String filename, Array<int> soundinfo, int flags, int frametime, int firstframetime, int lastframetime);
 	native void Start();
 	native bool Frame(double clock);
-	native bool Destroy();
+	native void Destroy();
 }
 
 //---------------------------------------------------------------------------
@@ -246,8 +246,8 @@ class MoviePlayerJob : SkippableScreenJob
 
 	ScreenJob Init(MoviePlayer mp)
 	{
+		Super.Init();
 		player = mp;
-		pausable = false;
 		return self;
 	}
 
@@ -272,19 +272,25 @@ class MoviePlayerJob : SkippableScreenJob
 
 	override void Draw(double smoothratio)
 	{
+		Console.Printf("MoviePlayer.Draw state = %d", jobstate);
+
 		if (!player)
 		{
+			Console.Printf("MoviePlayer.Draw: end");
 			jobstate = stopped;
 			return;
 		}
 		if (!started)
 		{
+			Console.Printf("MoviePlayer.Draw: start");
 			started = true;
 			player.Start();
 		}
 		double clock = (ticks + smoothratio) * 1000000000. / GameTicRate;
+		Console.Printf("MoviePlayer.Frame %d %f", ticks, clock);
 		if (jobstate == running  && !player.Frame(clock))
 		{
+			Console.Printf("MoviePlayer.finish");
 			jobstate = finished;
 		}
 	}
@@ -352,6 +358,7 @@ class ScreenJobRunner : Object
 
 	void Append(ScreenJob job)
 	{
+		Console.Printf("Appending job of type " .. job.GetClassName() );
 		jobs.Push(job);
 	}
 
@@ -365,6 +372,7 @@ class ScreenJobRunner : Object
 	{
 		if (index == jobs.Size()-1) 
 		{
+			Console.Printf("AdvanceJob: reached end of list");
 			index++;
 			return; // we need to retain the last element until the runner is done.
 		}
@@ -379,6 +387,7 @@ class ScreenJobRunner : Object
 		actionState = clearbefore ? State_Clear : State_Run;
 		if (index < jobs.Size())
 		{
+			Console.Printf("AdvanceJob: starting job at index %d, type %s", index, jobs[index].GetClassName());
 			jobs[index].fadestate = !paused && jobs[index].flags & ScreenJob.fadein? ScreenJob.fadein : ScreenJob.visible;
 			jobs[index].Start();
 		}
@@ -406,6 +415,7 @@ class ScreenJobRunner : Object
 			double ms = (job.ticks + smoothratio) * 1000 / GameTicRate / job.fadetime;
 			double screenfade = clamp(ms, 0., 1.);
 			Screen.SetScreenFade(screenfade);
+			Console.Printf("DisplayFrame: fading in %s with %f", job.GetClassName(), screenfade);
 			if (screenfade == 1.) job.fadestate = ScreenJob.visible;
 		}
 		int state = job.DrawFrame(smoothratio);
@@ -428,6 +438,7 @@ class ScreenJobRunner : Object
 		Screen.SetScreenFade(screenfade);
 		job.DrawFrame(1.);
 		Screen.SetScreenFade(1.);
+		Console.Printf("FadeoutFrame: fading out %s with %f", job.GetClassName(), screenfade);
 		return (screenfade > 0.);
 	}
 
@@ -441,6 +452,7 @@ class ScreenJobRunner : Object
 	{
 		if (paused || index >= jobs.Size()) return false;
 		if (jobs[index].jobstate != ScreenJob.running) return false;
+		if (ev.type == InputEvent.Type_KeyDown) Console.Printf("OnEvent: dispatching key %d to job %s", ev.keyScan, jobs[index].GetClassName());
 		return jobs[index].OnEvent(ev);
 	}
 
@@ -453,23 +465,26 @@ class ScreenJobRunner : Object
 	virtual bool OnTick()
 	{
 		if (paused) return false;
-		if (jobs.Size() == 0) return true;
-		if (advance)
+		if (index >= jobs.Size() || jobs.Size() == 0) return true;
+		if (advance || index < 0)
 		{
 			advance = false;
 			AdvanceJob(terminateState < 0);
 			if (index >= jobs.Size())
 			{
+				Console.Printf("OnTick: done");
 				return true;
 			}
 		}
 		if (jobs[index].jobstate == ScreenJob.running)
 		{
 			jobs[index].ticks++;
+			Console.Printf("OnTick: job %s, ticks = %d", jobs[index].GetClassName(), jobs[index].ticks);
 			jobs[index].OnTick();
 		}
 		else if (jobs[index].jobstate == ScreenJob.stopping)
 		{
+			Console.Printf("OnTick: fadeticks for %s", jobs[index].GetClassName());
 			fadeticks++;
 		}
 		return false;
@@ -482,12 +497,16 @@ class ScreenJobRunner : Object
 	//---------------------------------------------------------------------------
 
 	virtual bool RunFrame(double smoothratio)
-	{
+	{		
 		// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
-		bool menuon = paused;
-		if (menuon) last_paused_tic = jobs[index].ticks;
-		else if (last_paused_tic == jobs[index].ticks) menuon = true;
-		if (menuon || index >= jobs.Size()) smoothratio = 1.;
+		if (index < jobs.Size())
+		{
+			bool menuon = paused;
+			if (menuon) last_paused_tic = jobs[index].ticks;
+			else if (last_paused_tic == jobs[index].ticks) menuon = true;
+			if (menuon) smoothratio = 1.;
+		}
+		else smoothratio = 1.;
 
 		if (actionState == State_Clear)
 		{
@@ -499,6 +518,8 @@ class ScreenJobRunner : Object
 			terminateState = DisplayFrame(smoothratio);
 			if (terminateState < 1 && index < jobs.Size())
 			{
+				Console.Printf("RunFrame: job %s, state %d", jobs[index].GetClassName(), terminateState);
+
 				if (jobs[index].flags & ScreenJob.fadeout)
 				{
 					jobs[index].fadestate = ScreenJob.fadeout;
@@ -508,6 +529,7 @@ class ScreenJobRunner : Object
 				}
 				else
 				{
+					Console.Printf("RunState: advancing");
 					advance = true;
 				}
 			}

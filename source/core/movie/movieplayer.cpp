@@ -86,14 +86,15 @@ class AnmPlayer : public MoviePlayer
 	int nextframetime = 0;
 	AnimTextures animtex;
 	const TArray<int> animSnd;
-	const int* frameTicks;
+	int frameTicks[3];
 
 public:
 	bool isvalid() { return numframes > 0; }
 
 	AnmPlayer(FileReader& fr, TArray<int>& ans, const int *frameticks, int flags_)
-		: animSnd(std::move(ans)), frameTicks(frameticks)
+		: animSnd(std::move(ans))
 	{
+		memcpy(frameTicks, frameticks, 3 * sizeof(int));
 		flags = flags_;
 		buffer = fr.ReadPadded(1);
 		fr.Close();
@@ -798,7 +799,7 @@ DEFINE_ACTION_FUNCTION(_MoviePlayer, Frame)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
 	PARAM_FLOAT(clock);
-	self->Frame(int64_t(clock));
+	ACTION_RETURN_INT(self->Frame(int64_t(clock)));
 	return 0;
 }
 

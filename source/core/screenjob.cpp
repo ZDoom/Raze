@@ -69,7 +69,7 @@ static int ticks;
 //
 //=============================================================================
 
-static void Job_Init()
+void Job_Init()
 {
 	static bool done = false;
 	if (!done)
@@ -215,6 +215,7 @@ bool StartCutscene(CutsceneDef& cs, int flags, CompletionFunc completion_)
 	{
 		completion = completion_;
 		runner = CreateRunner();
+		GC::WriteBarrier(runner);
 		cs.Create(runner);
 		gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
 		return true;
@@ -225,12 +226,13 @@ bool StartCutscene(CutsceneDef& cs, int flags, CompletionFunc completion_)
 
 void DeleteScreenJob()
 {
-	runner->Destroy();
+	if (runner) runner->Destroy();
 	runner = nullptr;
 }
 
 void EndScreenJob()
 {
+	Printf("EndScreenJob\n");
 	DeleteScreenJob();
 	if (completion) completion(false);
 	completion = nullptr;

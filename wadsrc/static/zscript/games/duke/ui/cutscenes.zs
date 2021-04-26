@@ -26,7 +26,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-struct DukeCutscenes
+class DukeCutscenes // Note: must be class, not struct, otherwise we cannot easily look up the methods from C++.
 {
 	//---------------------------------------------------------------------------
 	//
@@ -205,7 +205,7 @@ struct DukeCutscenes
 
 	static void BuildMPSummary(ScreenJobRunner runner, MapRecord map, SummaryInfo stats)
 	{
-		runner.Append(new("DukeMultiplayerBonusScreen").Init(playerswhenstarted));
+		runner.Append(new("DukeMultiplayerBonusScreen").Init(stats.playercount));
 	}
 
 	//---------------------------------------------------------------------------
@@ -260,7 +260,7 @@ struct DukeCutscenes
 
 }
 
-struct RRCutscenes
+class RRCutscenes
 {
 
 	//---------------------------------------------------------------------------
@@ -301,7 +301,7 @@ struct RRCutscenes
 
 	static void BuildE1End(ScreenJobRunner runner)
     {
-		if (!isRRRA())
+		if (!Raze.isRRRA())
 		{
 			Array<int> soundinfo;
 			soundinfo.Pushv(1, RRSnd.CHKAMMO + 1);
@@ -318,7 +318,7 @@ struct RRCutscenes
 
 	static void BuildE2End(ScreenJobRunner runner)
     {
-		if (!isRRRA())
+		if (!Raze.isRRRA())
 		{
 			Array<int> soundinfo;
 			soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);

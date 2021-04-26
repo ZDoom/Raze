@@ -948,6 +948,7 @@ int RunGame()
 	LoadScripts();
 	StartScreen->Progress();
 	SetDefaultStrings();
+	Job_Init();
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 
