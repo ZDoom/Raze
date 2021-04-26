@@ -232,7 +232,6 @@ void DeleteScreenJob()
 
 void EndScreenJob()
 {
-	Printf("EndScreenJob\n");
 	DeleteScreenJob();
 	if (completion) completion(false);
 	completion = nullptr;
@@ -275,7 +274,8 @@ bool ScreenJobTick()
 		{
 			int result = 0;
 			VMValue parm[] = { runner };
-			VMCall(func, parm, 1, nullptr, 0);
+			VMReturn ret(&result);
+			VMCall(func, parm, 1, &ret, 1);
 			return result;
 		}
 	}
