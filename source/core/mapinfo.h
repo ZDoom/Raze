@@ -145,6 +145,7 @@ struct SummaryInfo
 	int maxsecrets;
 	int supersecrets;
 	int time;
+	int playercount;
 	bool cheated;
 	bool endofgame;
 };

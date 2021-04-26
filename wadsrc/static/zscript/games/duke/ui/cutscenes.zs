@@ -203,7 +203,7 @@ struct DukeCutscenes
 	//
 	//---------------------------------------------------------------------------
 
-	static void BuildMPSummary(ScreenJobRunner runner, int playerswhenstarted)
+	static void BuildMPSummary(ScreenJobRunner runner, MapRecord map, SummaryInfo stats)
 	{
 		runner.Append(new("DukeMultiplayerBonusScreen").Init(playerswhenstarted));
 	}
@@ -301,9 +301,12 @@ struct RRCutscenes
 
 	static void BuildE1End(ScreenJobRunner runner)
     {
-		Array<int> soundinfo;
-		soundinfo.Pushv(1, RRSnd.CHKAMMO + 1);
-		runner.Append(MoviePlayerJob.CreateWithSoundinfo("turdmov.anm", soundinfo, 0, 9, 9, 9));
+		if (!isRRRA())
+		{
+			Array<int> soundinfo;
+			soundinfo.Pushv(1, RRSnd.CHKAMMO + 1);
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("turdmov.anm", soundinfo, 0, 9, 9, 9));
+		} 
 	}
 
 
@@ -315,21 +318,17 @@ struct RRCutscenes
 
 	static void BuildE2End(ScreenJobRunner runner)
     {
-		Array<int> soundinfo;
-		soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);
-		runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, 0, 9, 9, 9));
-		runner.Append(ImageScreen.CreateNamed("TENSCREEN"));
-	}
-
-	//---------------------------------------------------------------------------
-	//
-	//
-	//
-	//---------------------------------------------------------------------------
-
-	static void BuildRRRAEnd(ScreenJobRunner runner)
-    {
-		runner.Append(new("RRRAEndOfGame").Init());
+		if (!isRRRA())
+		{
+			Array<int> soundinfo;
+			soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, 0, 9, 9, 9));
+			runner.Append(ImageScreen.CreateNamed("TENSCREEN"));
+		}
+		else
+		{
+			runner.Append(new("RRRAEndOfGame").Init());
+		}
 	}
 
 	//---------------------------------------------------------------------------

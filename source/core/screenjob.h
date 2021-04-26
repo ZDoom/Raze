@@ -181,23 +181,17 @@ public:
 #endif
 
 
-#if 0
 enum
 {
-	SJ_DONTCLEAR = 1,
-	SJ_BLOCKUI = 2,
-	SJ_SKIPALL = 4
+	SJ_BLOCKUI = 1,
 };
 
+#if 0
 
 void RunScreenJob(TArray<DScreenJob*>& jobs, CompletionFunc completion, int flags = 0);
 #endif
 void EndScreenJob();
 void DeleteScreenJob();
 bool ScreenJobResponder(event_t* ev);
-void ScreenJobTick();
-bool ScreenJobDraw();
-
-#if 0
-DScreenJob *PlayVideo(const char *filename, const AnimSound *ans = nullptr, const int *frameticks = nullptr, bool nosoundstop = false);
-#endif
+bool ScreenJobTick();
+void ScreenJobDraw();

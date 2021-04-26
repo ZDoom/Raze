@@ -331,7 +331,11 @@ static void GameTicker()
 		break;
 	case GS_INTERMISSION:
 	case GS_INTRO:
-		ScreenJobTick();
+		if (ScreenJobTick())
+		{
+			// synchronize termination with the playsim.
+			Net_WriteByte(DEM_ENDSCREENJOB);
+		}
 		break;
 
 	}

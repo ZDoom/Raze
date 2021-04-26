@@ -326,7 +326,7 @@ class ScreenJobRunner : Object
 	int fadeticks;
 	int last_paused_tic;
 
-	void Init(bool clearbefore_ = true, bool skipall_ = false)
+	void Init(bool clearbefore_, bool skipall_)
 	{
 		clearbefore = clearbefore_;
 		skipall = skipall_;
@@ -392,6 +392,11 @@ class ScreenJobRunner : Object
 
 	virtual int DisplayFrame(double smoothratio)
 	{
+		if (jobs.Size() == 0) 
+		{
+			screen.ClearScreen();
+			return 1;
+		}
 		int x = index >= jobs.Size()? jobs.Size()-1 : index;
 		let job = jobs[x];
 		bool processed = job.ProcessInput();
@@ -448,6 +453,7 @@ class ScreenJobRunner : Object
 	virtual bool OnTick()
 	{
 		if (paused) return false;
+		if (jobs.Size() == 0) return true;
 		if (advance)
 		{
 			advance = false;
@@ -516,5 +522,12 @@ class ScreenJobRunner : Object
 			}
 		}
 		return true;
+	}
+
+	void AddGenericVideo(String fn, int snd, int framerate)
+	{
+		Array<int> sounds;
+		if (snd > 0) sounds.Pushv(1, snd);
+		Append(MoviePlayerJob.CreateWithSoundInfo(fn, sounds, 0, framerate));
 	}
 }
