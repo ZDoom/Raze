@@ -26,7 +26,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-class DukeCutscenes
+struct DukeCutscenes
 {
 	//---------------------------------------------------------------------------
 	//
@@ -171,7 +171,7 @@ class DukeCutscenes
 //
 //---------------------------------------------------------------------------
 
-	static void BuildE4Intro(ScreenJobRunner runner, MapRecord map)
+	static void BuildE4Intro(ScreenJobRunner runner)
 	{
 		Array<int> soundinfo;
 
@@ -214,10 +214,10 @@ class DukeCutscenes
 	//
 	//---------------------------------------------------------------------------
 
-	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, int kills_, int maxkills_, int secrets_, int maxsecrets_, int supersecrets_, int time_, bool cheated)
+	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, SummaryInfo stats)
 	{
 		let screen = SummaryScreenBase(new("DukeLevelSummaryScreen").Init());
-		if (screen) screen.SetParameters(map, kills_, maxkills_, secrets_, maxsecrets_, supersecrets_, time_, cheated);
+		if (screen) screen.SetParameters(map, stats);
 		runner.Append(screen);
 	}
 
@@ -260,7 +260,7 @@ class DukeCutscenes
 
 }
 
-class RRCutscenes
+struct RRCutscenes
 {
 
 	//---------------------------------------------------------------------------
@@ -275,6 +275,7 @@ class RRCutscenes
 		{
 			if (!Raze.isRRRA())
 			{
+				Array<int> soundinfo;
 				soundinfo.Pushv(1, RRSnd.URANUS + 1);
 				runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_intro.anm", soundinfo, 0, 9, 9, 9));
 
@@ -286,7 +287,7 @@ class RRCutscenes
 			}
 			else
 			{
-				runner.Append(MoviePlayerJob.Create("redint.mve"), 0);
+				runner.Append(MoviePlayerJob.Create("redint.mve", 0));
 			}
 		}
 	}
@@ -300,6 +301,7 @@ class RRCutscenes
 
 	static void BuildE1End(ScreenJobRunner runner)
     {
+		Array<int> soundinfo;
 		soundinfo.Pushv(1, RRSnd.CHKAMMO + 1);
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("turdmov.anm", soundinfo, 0, 9, 9, 9));
 	}
@@ -313,6 +315,7 @@ class RRCutscenes
 
 	static void BuildE2End(ScreenJobRunner runner)
     {
+		Array<int> soundinfo;
 		soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, 0, 9, 9, 9));
 		runner.Append(ImageScreen.CreateNamed("TENSCREEN"));
@@ -335,11 +338,12 @@ class RRCutscenes
 	//
 	//---------------------------------------------------------------------------
 
-	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, int kills_, int maxkills_, int secrets_, int maxsecrets_, int supersecrets_, int time_, bool cheated)
+	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, SummaryInfo stats)
 	{
-		let screen = SummaryScreenBase(new("RRLevelSummaryScreen").Init(!isRRRA() || map.flags & MapRecord.FORCEEOG));
-		if (screen) screen.SetParameters(map, kills_, maxkills_, secrets_, maxsecrets_, supersecrets_, time_, cheated);
-		runner.Append(screen);
+		let sumscreen = new("RRLevelSummaryScreen").Init(!Raze.isRRRA() || stats.endOfGame);
+		let sumscreens = SummaryScreenBase(sumscreen);
+		if (sumscreens) sumscreens.SetParameters(map, stats);
+		runner.Append(sumscreen);
 	}
 
 	//---------------------------------------------------------------------------

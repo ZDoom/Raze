@@ -87,6 +87,17 @@ struct MapRecord native
 	}
 }
 
+struct SummaryInfo native
+{
+	native readonly int kills; 
+	native readonly int maxkills;
+	native readonly int secrets; 
+	native readonly int maxsecrets;
+	native readonly int supersecrets;
+	native readonly int time; 
+	native readonly bool cheated;
+	native readonly bool endofgame;
+}
 
 struct Raze
 {

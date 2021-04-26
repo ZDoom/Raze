@@ -198,21 +198,12 @@ class ImageScreen : SkippableScreenJob
 class SummaryScreenBase : ScreenJob
 {
 	MapRecord level;
-	int kills, maxkills;
-	int secrets, maxsecrets, supersecrets;
-	int playtime;
-	bool cheatflag;
+	SummaryInfo stats;
 
-	void SetParameters(MapRecord map, int kills_, int maxkills_, int secrets_, int maxsecrets_, int supersecrets_, int time_, bool cheated)
+	void SetParameters(MapRecord map, SummaryInfo thestats)
 	{
 		level = map;
-		kills = kills_;
-		maxkills = maxkills_;
-		secrets = secrets_;
-		maxsecrets = maxsecrets_;
-		supersecrets = supersecrets_;
-		playtime = time_;
-		cheatflag = cheated;
+		stats = thestats;
 	}
 
 	String FormatTime(int time)

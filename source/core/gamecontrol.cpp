@@ -1501,3 +1501,12 @@ DEFINE_FIELD_X(MapRecord, MapRecord, nextLevel)
 DEFINE_FIELD_X(MapRecord, MapRecord, nextSecret)
 //native readonly String messages[MAX_MESSAGES];
 DEFINE_FIELD_X(MapRecord, MapRecord, author)
+
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, kills)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, maxkills)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, secrets)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, maxsecrets)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, supersecrets)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, time)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, cheated)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, endofgame)

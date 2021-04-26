@@ -137,6 +137,18 @@ struct MapRecord
 
 };
 
+struct SummaryInfo
+{
+	int kills;
+	int maxkills;
+	int secrets;
+	int maxsecrets;
+	int supersecrets;
+	int time;
+	bool cheated;
+	bool endofgame;
+};
+
 extern GlobalCutscenes globalCutscenes;
 extern VolumeRecord volumeList[MAXVOLUMES];
 extern MapRecord *currentLevel;	

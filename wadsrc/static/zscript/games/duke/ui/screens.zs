@@ -683,7 +683,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 		if (displaystate & printTimeVal)
 		{
-			tempbuf = FormatTime(playtime);
+			tempbuf = FormatTime(stats.time);
 			Duke.GameText((320 >> 2) + 71, 59 + 9, tempbuf, 0);
 
 			tempbuf = FormatTime(level.parTime);
@@ -705,16 +705,16 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 		if (displaystate & printKillsVal)
 		{
-			tempbuf = String.Format("%-3d", kills);
+			tempbuf = String.Format("%-3d", stats.kills);
 			Duke.GameText((320 >> 2) + 70, 94 + 9, tempbuf, 0);
 
-			if (maxkills < 0)
+			if (stats.maxkills < 0)
 			{
 				tempbuf = "$TXT_N_A";
 			}
 			else
 			{
-				tempbuf = String.Format("%-3d", max(0, maxkills - kills));
+				tempbuf = String.Format("%-3d", max(0, stats.maxkills - stats.kills));
 			}
 			Duke.GameText((320 >> 2) + 70, 104 + 9, tempbuf, 0);
 		}
@@ -728,9 +728,9 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 		if (displaystate & printSecretsVal)
 		{
-			tempbuf = String.Format("%-3d", secrets);
+			tempbuf = String.Format("%-3d", stats.secrets);
 			Duke.GameText((320 >> 2) + 70, 119 + 9, tempbuf, 0);
-			tempbuf = String.Format("%-3d", max(0, maxsecrets - secrets));
+			tempbuf = String.Format("%-3d", max(0, stats.maxsecrets - stats.secrets));
 			Duke.GameText((320 >> 2) + 70, 129 + 9, tempbuf, 0);
 		}
 	}
@@ -918,7 +918,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 		if (displaystate & printTimeVal)
 		{
-			tempbuf = FormatTime(playtime);
+			tempbuf = FormatTime(stats.time);
 			Duke.BigText(191, 48, tempbuf, -1);
 
 			tempbuf = FormatTime(level.parTime);
@@ -937,15 +937,15 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 		if (displaystate & printKillsVal)
 		{
-			tempbuf.Format("%-3d", kills);
+			tempbuf.Format("%-3d", stats.kills);
 			Duke.BigText(231, 112, tempbuf, -1);
-			if (maxkills < 0)
+			if (stats.maxkills < 0)
 			{
 				tempbuf = "$TXT_N_A";
 			}
 			else
 			{
-				tempbuf = String.Format("%-3d", max(0, maxkills - kills));
+				tempbuf = String.Format("%-3d", max(0, stats.maxkills - stats.kills));
 			}
 			Duke.BigText(231, 128, tempbuf, -1);
 		}
@@ -959,9 +959,9 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 		if (displaystate & printSecretsVal)
 		{
-			tempbuf = String.Format("%-3d", secrets);
+			tempbuf = String.Format("%-3d", stats.secrets);
 			Duke.BigText(231, 144, tempbuf, -1);
-			tempbuf = String.Format("%-3d", max(0, maxsecrets - secrets));
+			tempbuf = String.Format("%-3d", max(0, stats.maxsecrets - stats.secrets));
 			Duke.BigText(231, 160, tempbuf, -1);
 		}
 	}
