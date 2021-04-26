@@ -47,7 +47,7 @@ class ScreenJob : Object
 
 	int DrawFrame(double smoothratio)
 	{
-		if (jobstate != running) smoothratio = 1; // this is necessary because the ticker won't be incremented anymore to avoid having a negative time span.
+		if (jobstate != running) smoothratio = 1; // this is necessary to avoid having a negative time span because the ticker won't be incremented anymore.
 		Draw(smoothratio);
 		if (jobstate == skipped) return -1;
 		if (jobstate == finished) return 0;

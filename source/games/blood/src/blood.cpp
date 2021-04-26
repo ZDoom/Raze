@@ -528,11 +528,7 @@ void GameInterface::Startup()
 	}
 	else
 	{
-		if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
-		else
-		{
-			gameaction = ga_mainmenu;
-		}
+		PlayLogos(ga_mainmenu, ga_mainmenu, true);
 	}
 }
 

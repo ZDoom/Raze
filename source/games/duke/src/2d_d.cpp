@@ -151,39 +151,6 @@ static void BigText(double x, double y, const char* text, int align = -1, double
 //
 //---------------------------------------------------------------------------
 
-void Logo_d(const CompletionFunc &completion)
-{
-#if 0
-	Mus_Stop();
-	FX_StopAllSounds(); // JBF 20031228
-
-	static const AnimSound logosound[] =
-	{
-		{ 1, FLY_BY+1 },
-		{ 19, PIPEBOMB_EXPLODE+1 },
-		{ -1, -1 }
-	};
-	static const int logoframetimes[] = { 9, 9, 9 };
-
-	TArray<DScreenJob*> jobs;
-	int job = 0;
-	if (!userConfig.nologo)
-	{
-		if (!isShareware()) jobs.Push(PlayVideo("logo.anm", logosound, logoframetimes));
-		if (!isNam()) jobs.Push(Create<DDRealmsScreen>());
-	}
-	jobs.Push(Create<DTitleScreen>());
-	RunScreenJob(jobs, completion, SJ_BLOCKUI);
-#endif
-}
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void showtwoscreens(const CompletionFunc& completion)
 {
 #if 0

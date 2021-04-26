@@ -193,16 +193,13 @@ void AddGenericVideo(DObject* runner, const FString& fn, int soundid, int fps)
 
 void CutsceneDef::Create(DObject* runner)
 {
-	if (function.CompareNoCase("none") != 0)
+	if (function.IsNotEmpty())
 	{
-		if (function.IsNotEmpty())
-		{
-			CallCreateFunction(function, runner);
-		}
-		else if (video.IsNotEmpty())
-		{
-			AddGenericVideo(runner, video, sound, framespersec);
-		}
+		CallCreateFunction(function, runner);
+	}
+	else if (video.IsNotEmpty())
+	{
+		AddGenericVideo(runner, video, sound, framespersec);
 	}
 }
 
@@ -212,12 +209,17 @@ void CutsceneDef::Create(DObject* runner)
 //
 //=============================================================================
 
-void StartCutscene(CutsceneDef& cs, int flags, CompletionFunc completion_)
+bool StartCutscene(CutsceneDef& cs, int flags, CompletionFunc completion_)
 {
-	completion = completion_;
-	runner = CreateRunner();
-	cs.Create(runner);
-	gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
+	if (cs.function.CompareNoCase("none") != 0)
+	{
+		completion = completion_;
+		runner = CreateRunner();
+		cs.Create(runner);
+		gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
+		return true;
+	}
+	return false;
 }
 
 
@@ -291,3 +293,48 @@ void ScreenJobDraw()
 		}
 	}
 }
+
+
+void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
+{
+	Mus_Stop();
+	FX_StopAllSounds(); // JBF 20031228
+	if (userConfig.nologo)
+	{
+		gameaction = def_ga;
+	}
+	else
+	{
+		if (!StartCutscene(globalCutscenes.Intro, SJ_BLOCKUI, [=](bool) { gameaction = complete_ga; })) gameaction = def_ga;
+	}
+}
+
+/* 
+Duke:
+			if (!userConfig.nologo) fi.ShowLogo([](bool) { gameaction = ga_mainmenunostopsound; });
+			else gameaction = ga_mainmenunostopsound;
+
+
+Blood:
+		if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
+		else
+		{
+			gameaction = ga_mainmenu;
+		}
+	RunScreenJob(jobs, [](bool) {
+		Mus_Stop();
+		gameaction = ga_mainmenu;
+		}, SJ_BLOCKUI);
+
+Exhumed:
+		if (!userConfig.nologo) DoTitle([](bool) { gameaction = ga_mainmenu; });
+		else gameaction = ga_mainmenu;
+
+SW:
+		if (!userConfig.nologo) Logo([](bool)
+			{
+				gameaction = ga_mainmenunostopsound;
+			});
+		else gameaction = ga_mainmenu;
+
+*/

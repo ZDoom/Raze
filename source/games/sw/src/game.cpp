@@ -650,11 +650,7 @@ void GameInterface::Startup()
     }
     else
     {
-		if (!userConfig.nologo) Logo([](bool) 
-            { 
-                gameaction = ga_mainmenunostopsound;
-            });
-        else gameaction = ga_mainmenu;
+        PlayLogos(ga_mainmenunostopsound, ga_mainmenu, false);
     }
 }
 

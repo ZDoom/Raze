@@ -133,8 +133,7 @@ void GameInterface::Startup()
 		}
 		else
 		{
-			if (!userConfig.nologo) fi.ShowLogo([](bool) { gameaction = ga_mainmenunostopsound; });
-			else gameaction = ga_mainmenunostopsound;
+			PlayLogos(ga_mainmenunostopsound, ga_mainmenunostopsound, false);
 		}
 }
 

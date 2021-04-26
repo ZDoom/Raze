@@ -139,59 +139,6 @@ static void BigText(double x, double y, const char* text, int align, double alph
 }
 
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void Logo_r(const CompletionFunc& completion)
-{
-#if 0
-	Mus_Stop();
-	FX_StopAllSounds(); // JBF 20031228
-
-	static const AnimSound introsound[] =
-	{
-		{ 1, 29+1 },
-		{ -1, -1 }
-	};
-
-	static const AnimSound rednecksound[] =
-	{
-		{ 1, 478+1 },
-		{ -1, -1 }
-	};
-
-	static const AnimSound  xatrixsound[] =
-	{
-		{ 1, 479+1 },
-		{ -1, -1 }
-	};
-
-	static const int framespeed[] = { 9, 9, 9 }; // same for all 3 anims
-
-	TArray<DScreenJob*> jobs;
-
-	if (userConfig.nologo)
-	{
-		completion(false);
-		return;
-	}
-	else if (!isRRRA())
-	{
-		jobs.Push(PlayVideo("rr_intro.anm", introsound, framespeed));
-		jobs.Push(PlayVideo("redneck.anm", rednecksound, framespeed));
-		jobs.Push(PlayVideo("xatlogo.anm", xatrixsound, framespeed));
-	}
-	else
-	{
-		jobs.Push(PlayVideo("redint.mve"));
-	}
-	RunScreenJob(jobs, completion, SJ_BLOCKUI);
-#endif
-}
-
 #if 0
 //---------------------------------------------------------------------------
 //

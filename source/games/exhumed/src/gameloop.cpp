@@ -167,8 +167,7 @@ void GameInterface::Startup()
     }
     else
     {
-        if (!userConfig.nologo) DoTitle([](bool) { gameaction = ga_mainmenu; });
-        else gameaction = ga_mainmenu;
+        PlayLogos(ga_mainmenu, ga_mainmenu, false);
     }
 
 }

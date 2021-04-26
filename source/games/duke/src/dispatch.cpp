@@ -105,8 +105,6 @@ void think_r();
 void animatesprites_d(int x, int y, int a, int smoothratio);
 void animatesprites_r(int x, int y, int a, int smoothratio);
 
-void Logo_d(const CompletionFunc&);
-void Logo_r(const CompletionFunc&);
 void InitFonts_d();
 void InitFonts_r();
 void PrintPaused_d();
@@ -120,7 +118,6 @@ void SetDispatcher()
 	if (!isRR())
 	{
 		fi = {
-		Logo_d,
 		InitFonts_d,
 		PrintPaused_d,
 
@@ -167,7 +164,6 @@ void SetDispatcher()
 	else
 	{
 		fi = {
-		Logo_r,
 		InitFonts_r,
 		PrintPaused_r,
 

@@ -4,6 +4,7 @@
 #include "v_2ddrawer.h"
 #include "d_eventbase.h"
 #include "s_soundinternal.h"
+#include "gamestate.h"
 
 using CompletionFunc = std::function<void(bool)>;
 struct JobDesc;
@@ -195,3 +196,5 @@ void DeleteScreenJob();
 bool ScreenJobResponder(event_t* ev);
 bool ScreenJobTick();
 void ScreenJobDraw();
+
+void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic);
