@@ -155,21 +155,7 @@ void GameInterface::Startup()
 {
     resettiming();
     EndLevel = 0;
-
-    if (userConfig.CommandMap.IsNotEmpty())
-    {
-        /*
-        auto map = FindMapByName(userConfig.CommandMap);
-        if (map) DeferedStartMap(map, 0);
-        userConfig.CommandMap = "";
-        goto again;
-        */
-    }
-    else
-    {
-        PlayLogos(ga_mainmenu, ga_mainmenu, false);
-    }
-
+    PlayLogos(ga_mainmenu, ga_mainmenu, false);
 }
 
 void GameInterface::ErrorCleanup()

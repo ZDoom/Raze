@@ -523,13 +523,7 @@ static void gameInit()
 void GameInterface::Startup()
 {
 	gameInit();
-	if (userConfig.CommandMap.IsNotEmpty())
-	{
-	}
-	else
-	{
-		PlayLogos(ga_mainmenu, ga_mainmenu, true);
-	}
+	PlayLogos(ga_mainmenu, ga_mainmenu, true);
 }
 
 

@@ -181,63 +181,6 @@ void dobonus_d(int bonusonly, const CompletionFunc& completion)
 #endif
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void e4intro(const CompletionFunc& completion)
-{
-#if 0
-	TArray<DScreenJob*> jobs;
-
-	static const AnimSound vol42a[] =
-	{
-		{ 1, INTRO4_B + 1 },
-		{ 12, SHORT_CIRCUIT + 1 },
-		{ 18, INTRO4_5 + 1 },
-		{ 34, SHORT_CIRCUIT + 1 },
-		{ -1,-1 }
-	};
-
-	static const AnimSound vol41a[] =
-	{
-		{ 1, INTRO4_1 + 1 },
-		{ 7, INTRO4_3 + 1 },
-		{ 12, INTRO4_2 + 1 },
-		{ 26, INTRO4_4 + 1 },
-		{ -1,-1 }
-	};
-
-	static const AnimSound vol43a[] =
-	{
-		{ 10, INTRO4_6 + 1 },
-		{ -1,-1 }
-	};
-
-	static const int framespeed_10[] = { 10, 10, 10 };
-	static const int framespeed_14[] = { 14, 14, 14 };
-
-	S_PlaySpecialMusic(MUS_BRIEFING);
-	jobs.Push(PlayVideo("vol41a.anm", vol41a, framespeed_10));
-	jobs.Push(PlayVideo("vol42a.anm", vol42a, framespeed_14));
-	jobs.Push(PlayVideo("vol43a.anm", vol43a, framespeed_10));
-	RunScreenJob(jobs, completion, SJ_SKIPALL);
-#endif
-}
-
-#if 0
-
-void loadscreen_d(MapRecord *rec, CompletionFunc func)
-{
-	TArray<DScreenJob*> jobs(1, true);
-
-	jobs[0] = Create<DDukeLoadScreen>(rec);
-	RunScreenJob(jobs, func);
-}
-#endif
-
 void PrintPaused_d()
 {
 	BigText(160, 100, GStrings("Game Paused"));

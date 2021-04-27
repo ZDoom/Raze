@@ -5,7 +5,8 @@ definecutscene intro
 	function RRCutscenes.BuildIntro
 }
 
-definecutscene map e1l7 // episode 1
+// The 'E1End' cutscene is tied to the level as it is not an end-of-game event.
+definecutscene map e1l7
 {
 	outro
 	{

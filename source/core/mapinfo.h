@@ -93,6 +93,7 @@ struct MapRecord
 	int cdSongId = -1;
 	int flags = 0;
 	int levelNumber = -1;
+	int cluster = -1;
 
 	// The rest is only used by Blood
 	int nextLevel = -1;

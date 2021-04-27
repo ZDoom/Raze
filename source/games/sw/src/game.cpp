@@ -645,13 +645,7 @@ void GameInterface::Render()
 
 void GameInterface::Startup()
 {
-    if (userConfig.CommandMap.IsNotEmpty())
-    {
-    }
-    else
-    {
-        PlayLogos(ga_mainmenunostopsound, ga_mainmenu, false);
-    }
+    PlayLogos(ga_mainmenunostopsound, ga_mainmenu, false);
 }
 
 

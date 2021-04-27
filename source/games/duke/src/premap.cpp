@@ -812,33 +812,6 @@ void donewgame(MapRecord* map, int sk)
     }
 }
 
-template<class func>
-void newgame(MapRecord* map, int sk, func completion)
-{
-    auto completion1 = [=](bool res)
-    {
-        if (!isRR() && map->levelNumber == levelnum(3, 0) && (ud.multimode < 2))
-        {
-            e4intro([=](bool) { donewgame(map, sk); completion(res); });
-        }
-        else
-        {
-            donewgame(map, sk);
-            completion(res);
-        }
-    };
-
-    if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && ud.coop != 1)
-        dobonus(1, completion1);
-
-#if 0 // this is one lousy hack job that's hopefully not needed anymore.
-    else if (isRR() && !isRRRA() && map->levelNumber == levelnum(0, 6))
-        dobonus(0, completion1);
-#endif
-
-    else completion1(false);
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -983,9 +956,19 @@ void enterlevel(MapRecord *mi, int gamemode)
 //
 //---------------------------------------------------------------------------
 
-void startnewgame(MapRecord* map, int skill)
+void GameInterface::NewGame(MapRecord* map, int skill, bool)
 {
+    for (int i = 0; i != -1; i = connectpoint2[i])
+    {
+        resetweapons(i);
+        resetinventory(i);
+    }
+
+    ps[0].last_extra = gs.max_player_health;
+
+
     if (skill == -1) skill = ud.player_skill;
+    else skill++;
     ud.player_skill = skill;
     ud.m_respawn_monsters = (skill == 4);
     ud.m_monsters_off = ud.monsters_off = 0;
@@ -993,13 +976,11 @@ void startnewgame(MapRecord* map, int skill)
     ud.m_respawn_inventory = 0;
     ud.multimode = 1;
 
-    newgame(map, skill, [=](bool)
-        {
-            enterlevel(map, 0);
-            PlayerColorChanged();
-            inputState.ClearAllInput();
-            gameaction = ga_level;
-        });
+    donewgame(map, skill);
+    enterlevel(map, 0);
+    PlayerColorChanged();
+    inputState.ClearAllInput();
+    gameaction = ga_level;
 }
 
 //---------------------------------------------------------------------------

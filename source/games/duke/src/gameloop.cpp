@@ -113,28 +113,8 @@ void GameInterface::Ticker()
 
 void GameInterface::Startup()
 {
-		ps[myconnectindex].ftq = 0;
-
-		if (userConfig.CommandMap.IsNotEmpty())
-		{
-			auto maprecord = FindMapByName(userConfig.CommandMap);
-			userConfig.CommandMap = "";
-			if (maprecord)
-			{
-				ud.m_respawn_monsters = ud.player_skill == 4;
-
-				for (int i = 0; i != -1; i = connectpoint2[i])
-				{
-					resetweapons(i);
-					resetinventory(i);
-				}
-				startnewgame(maprecord, /*userConfig.skill*/2);
-			}
-		}
-		else
-		{
-			PlayLogos(ga_mainmenunostopsound, ga_mainmenunostopsound, false);
-		}
+	ps[myconnectindex].ftq = 0;
+	PlayLogos(ga_mainmenunostopsound, ga_mainmenunostopsound, false);
 }
 
 //---------------------------------------------------------------------------
@@ -159,38 +139,18 @@ void GameInterface::Render()
 // 
 //
 //---------------------------------------------------------------------------
-void loadscreen_d(MapRecord* rec, CompletionFunc func);
-void loadscreen_r(MapRecord* rec, CompletionFunc func);
 
 void GameInterface::NextLevel(MapRecord* map, int skill)
 {
 #if 0
-	// Loading is so fast on modern system so that this only serves as an irritant, not an asset.
-	auto loadscreen = isRR() ? loadscreen_r : loadscreen_d;
-	loadscreen_d(map, [=](bool)
+	// Loading is so fast on modern systems that this only serves as an irritant, not an asset.
+	loadscreen(map, [=](bool)
 		{
 			enterlevel(map, 0);
 			gameaction = ga_level;
 		});
 #endif
 	enterlevel(map, 0);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::NewGame(MapRecord* map, int skill, bool)
-{
-	// Hmm... What about the other players?
-	ps[0].last_extra = gs.max_player_health;
-	resetweapons(0);
-	resetinventory(0);
-	if (skill != -1) skill = skill + 1;
-
-	startnewgame(map, skill);
 }
 
 //---------------------------------------------------------------------------

@@ -96,7 +96,7 @@ void parseDefineCutscene(FScanner& sc, FScriptPosition& pos)
 	{
 		parseCutscene(sc, globalCutscenes.DefaultMapOutro);
 	}
-	else if (sc.Compare("episode"))
+	else if (sc.Compare({ "episode", "volume", "cluster" }))
 	{
 		FScanner::SavedPos eblockend;
 		sc.MustGetNumber();

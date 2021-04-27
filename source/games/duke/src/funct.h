@@ -224,7 +224,6 @@ void e4intro(const CompletionFunc& completion);
 void exitlevel(MapRecord *next);
 void enterlevel(MapRecord* mi, int gm);
 void donewgame(MapRecord* map, int sk);
-void startnewgame(MapRecord* map, int skill);
 int playercolor2lookup(int color);
 void PlayerColorChanged(void);
 bool movementBlocked(player_struct *p);

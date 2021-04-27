@@ -494,6 +494,7 @@ void GameInterface::app_init()
         mi->labelName.Format("LEV%d", i);
         mi->name.Format("$TXT_EX_MAP%02d", i);
         mi->levelNumber = i;
+        mi->cluster = i? 1 : 2; // training is cluster 2
 
         int nTrack = i;
         if (nTrack != 0) nTrack--;

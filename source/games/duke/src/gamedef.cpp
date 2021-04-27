@@ -1714,6 +1714,7 @@ int ConCompiler::parsecommand()
 			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
 
 		map->levelNumber = levnum;
+		map->cluster = j + 1;
 
 		textptr += 5;
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
@@ -3251,6 +3252,7 @@ void FixMapinfo()
 				maprec->SetFileName("endgame.map");
 				maprec->SetName("$TXT_CLOSEENCOUNTERS");
 				maprec->levelNumber = levelnum(1, 7);
+				maprec->cluster = 2;
 			}
 		}
 	}

@@ -185,6 +185,7 @@ void levelLoadDefaults(void)
             const char *pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
             CheckSectionAbend(pMap);
 			pLevelInfo->levelNumber = levelnum(i, j);
+            pLevelInfo->cluster = i + 1;
             pLevelInfo->labelName = pMap;
             pLevelInfo->fileName.Format("%s.map", pMap);
             levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j);

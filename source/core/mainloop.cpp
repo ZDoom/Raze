@@ -133,6 +133,23 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 //==========================================================================
 bool newGameStarted;
 
+void NewGame(MapRecord* map, int skill, bool ns = false)
+{
+	newGameStarted = true;
+	int volume = map->cluster - 1;
+	if (volume >= 0 && volume < MAXVOLUMES)
+	{
+		if (StartCutscene(volumeList[volume].intro, 0, [=](bool) { gi->NewGame(map, skill, ns); })) return;
+	}
+	gi->NewGame(map, skill, ns);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 static void GameTicker()
 {
 	int i;
@@ -159,7 +176,7 @@ static void GameTicker()
 				FX_SetReverb(0);
 				gi->FreeLevelData();
 				gameaction = ga_level;
-				gi->NewGame(g_nextmap, -1);
+				NewGame(g_nextmap, -1);
 				BackupSaveGame = "";
 			}
 			break;
@@ -191,13 +208,12 @@ static void GameTicker()
 			FX_StopAllSounds();
 		case ga_newgamenostopsound:
 			DeleteScreenJob();
-			newGameStarted = true;
 			FX_SetReverb(0);
 			gi->FreeLevelData();
 			C_FlushDisplay();
 			gameaction = ga_level;
 			BackupSaveGame = "";
-			gi->NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);
+			NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);
 			break;
 
 		case ga_startup:
@@ -636,6 +652,16 @@ void MainLoop ()
 
 	// Clamp the timer to TICRATE until the playloop has been entered.
 	r_NoInterpolate = true;
+
+	if (userConfig.CommandMap.IsNotEmpty())
+	{
+		auto maprecord = FindMapByName(userConfig.CommandMap);
+		userConfig.CommandMap = "";
+		if (maprecord)
+		{
+			NewGame(maprecord, /*userConfig.skill*/2); // todo: fix the skill.
+		}
+	}
 
 	for (;;)
 	{

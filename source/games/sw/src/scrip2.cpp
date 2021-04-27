@@ -447,6 +447,7 @@ void LoadCustomInfoFromScript(const char *filename)
             {
                 curMap = AllocateMap();
                 curMap->levelNumber = mapno;
+                curMap->cluster = mapno < 5 ? 1 : 2;
             }
             if (sc.CheckString("{"))
 
