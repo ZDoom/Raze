@@ -356,7 +356,7 @@ bool ScreenJobValidate()
 
 bool StartCutscene(CutsceneDef& cs, int flags, const CompletionFunc& completion_)
 {
-	if (cs.function.IsNotEmpty() && cs.video.IsNotEmpty()cs.function.CompareNoCase("none") != 0)
+	if (cs.function.IsNotEmpty() && cs.video.IsNotEmpty() && cs.function.CompareNoCase("none") != 0)
 	{
 		completion = completion_;
 		runner = CreateRunner();
@@ -440,6 +440,43 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 	gameaction = ga_intermission;
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void NewGame(MapRecord* map, int skill, bool ns)
+{
+	completion = [=](bool) { gi->NewGame(map, skill, ns); };
+	runner = CreateRunner();
+	GC::WriteBarrier(runner);
+
+	try
+	{
+		int volume = map->cluster - 1;
+		if (volume >= 0 && volume < MAXVOLUMES)
+			volumeList[volume].intro.Create(runner);
+
+		globalCutscenes.LoadingScreen.Create(runner, map);
+		if (!ScreenJobValidate())
+		{
+			runner->Destroy();
+			runner = nullptr;
+			completion(false);
+			completion = nullptr;
+			return;
+		}
+		gameaction = ga_intermission;
+	}
+	catch (...)
+	{
+		if (runner) runner->Destroy();
+		runner = nullptr;
+		throw;
+	}
+}
+
 //---------------------------------------------------------------------------
 //
 // 
@@ -468,8 +505,10 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 
 		if (toMap)
 		{
-			if (!toMap->intro.Create(runner, fromMap))
-				globalCutscenes.DefaultMapIntro.Create(runner, fromMap);
+			if (!toMap->intro.Create(runner, toMap))
+				globalCutscenes.DefaultMapIntro.Create(runner, toMap);
+
+			globalCutscenes.LoadingScreen.Create(runner, toMap);
 		}
 		else if (isShareware())
 		{
@@ -502,9 +541,7 @@ CCMD(testcutscene)
 	}
 	try
 	{
-		CutsceneDef def;
-		def.function = argv[1];
-		if (StartCutscene(def, 0, [](bool) {}))
+		if (StartCutscene(argv[1], 0, [](bool) {}))
 		{
 			C_HideConsole();
 		}

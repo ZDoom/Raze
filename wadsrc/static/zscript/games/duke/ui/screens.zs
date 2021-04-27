@@ -459,7 +459,7 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 
 	override void Start()
 	{
-		Duke.PlayBonusMusic();
+		if (!Raze.isRR()) Duke.PlayBonusMusic();
 	}
 
 	override void Draw(double smoothratio)
@@ -853,11 +853,6 @@ class RRLevelSummaryScreen : SummaryScreenBase
 		return false;
 	}
 
-	override void Start()
-	{
-		Duke.PlayBonusMusic();
-	}
-
 	override void OnTick()
 	{
 		if ((displaystate & printStatsAll) != printStatsAll)
@@ -1031,9 +1026,14 @@ class DukeLoadScreen : ScreenJob
 	
 	ScreenJob Init(MapRecord maprec)
 	{
-		Super.Init();
+		Super.Init(fadein);
 		rec = maprec;
 		return self;
+	}
+
+	override void OnTick()
+	{
+		if (fadestate == visible) jobstate = finished;
 	}
 	
 	override void Draw(double sr)

@@ -100,6 +100,10 @@ void parseDefineCutscene(FScanner& sc, FScriptPosition& pos)
 	{
 		parseCutscene(sc, globalCutscenes.SharewareEnd);
 	}
+	else if (sc.Compare("loading")) // sets the loading screen when entering a level.
+	{
+		parseCutscene(sc, globalCutscenes.LoadingScreen);
+	}
 	else if (sc.Compare({ "episode", "volume", "cluster" }))
 	{
 		FScanner::SavedPos eblockend;

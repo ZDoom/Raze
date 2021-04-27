@@ -54,6 +54,11 @@ definecutscene sharewareend
 	function DukeCutscenes.BuildSharewareEnd
 }
 
+definecutscene loading
+{
+	function DukeCutscenes.BuildLoading
+}
+
 definecutscene summary DukeCutscenes.BuildSPSummary
 definecutscene mpsummary DukeCutscenes.BuildMPSummary
 

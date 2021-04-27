@@ -242,7 +242,7 @@ void changeMap(int player, uint8_t** stream, bool skip)
 
 void endScreenJob(int player, uint8_t** stream, bool skip)
 {
-	if (!skip) EndScreenJob();
+	if (!skip) gameaction = ga_endscreenjob;
 }
 
 //---------------------------------------------------------------------------

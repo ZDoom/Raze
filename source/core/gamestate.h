@@ -43,6 +43,7 @@ enum gameaction_t : int
 	ga_nextlevel,			// Actually start the next level.
 	ga_loadgamehidecon,
 	ga_newgamenostopsound,	// start a new game
+	ga_endscreenjob,
 
 	ga_fullconsole,
 };

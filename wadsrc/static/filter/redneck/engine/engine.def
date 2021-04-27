@@ -22,10 +22,15 @@ definecutscene episode 2
 	}
 }
 
-definecutscene summary RRCutscenes.BuildSPSummary
-definecutscene mpsummary DukeCutscenes.BuildMPSummary // identical with Duke's
 definecutscene mapintro 
 {
 	function RRCutscenes.BuildMapIntro	// this plays the 'travel' animation.
 }
 
+definecutscene loading
+{
+	function DukeCutscenes.BuildLoading // identical with Duke's
+}
+
+definecutscene summary RRCutscenes.BuildSPSummary
+definecutscene mpsummary DukeCutscenes.BuildMPSummary // identical with Duke's
