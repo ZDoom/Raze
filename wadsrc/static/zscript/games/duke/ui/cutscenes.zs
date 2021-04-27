@@ -352,11 +352,10 @@ class RRCutscenes
 		if (!raze.isRRRA()) return;
 		int ln = map.levelnumber;
 		if (ln == 0) return;
-		if (ln > 1000) ln -= 1000-7;
+		if (ln >= 1000) ln -= 1000-7;
 
 		let fn = String.Format("lvl%d.anm", ln);
 		Array<int> soundinfo;
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo(fn, soundinfo, 0, 20, 20, 7200)); // wait for one minute on the final frame so that the video doesn't stop  before the user notices.
 	}
-
 }

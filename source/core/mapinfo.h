@@ -53,9 +53,10 @@ struct CutsceneDef
 	FString function;
 	int sound = 0;
 	int framespersec = 0; // only relevant for ANM.
+	bool transitiononly = false; // only play when transitioning between maps, but not when starting on a map or ending a game.
 
 	void Create(DObject* runner);
-	bool Create(DObject* runner, MapRecord* map);
+	bool Create(DObject* runner, MapRecord* map, bool transition);
 };
 
 struct GlobalCutscenes

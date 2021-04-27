@@ -64,6 +64,7 @@ static void parseCutscene(FScanner& sc, CutsceneDef& cdef)
 		else if (sc.Compare("function")) { sc.GetString(cdef.function); cdef.video = ""; }
 		else if (sc.Compare("sound")) sc.GetString(sound);
 		else if (sc.Compare("fps")) sc.GetNumber(cdef.framespersec);
+		else if (sc.Compare("transitiononly")) cdef.transitiononly = true;
 		else if (sc.Compare("clear")) { cdef.function = "none"; cdef.video = ""; } // this means 'play nothing', not 'not defined'.
 	}
 	if (sound.IsNotEmpty())

@@ -133,6 +133,18 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 //==========================================================================
 bool newGameStarted;
 
+void NewGame(MapRecord* map, int skill, bool ns = false)
+{
+	newGameStarted = true;
+	ShowIntermission(nullptr, map, nullptr, [=](bool) { gi->NewGame(map, skill, ns); });
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 static void GameTicker()
 {
 	int i;
@@ -159,7 +171,6 @@ static void GameTicker()
 				FX_SetReverb(0);
 				gi->FreeLevelData();
 				gameaction = ga_level;
-				newGameStarted = true;
 				NewGame(g_nextmap, -1);
 				BackupSaveGame = "";
 			}
@@ -197,7 +208,6 @@ static void GameTicker()
 			C_FlushDisplay();
 			gameaction = ga_level;
 			BackupSaveGame = "";
-			newGameStarted = true;
 			NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);
 			break;
 
@@ -648,7 +658,6 @@ void MainLoop ()
 		userConfig.CommandMap = "";
 		if (maprecord)
 		{
-			newGameStarted = true;
 			NewGame(maprecord, /*userConfig.skill*/2); // todo: fix the skill.
 		}
 	}

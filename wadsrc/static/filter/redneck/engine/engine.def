@@ -25,6 +25,7 @@ definecutscene episode 2
 definecutscene mapintro 
 {
 	function RRCutscenes.BuildMapIntro	// this plays the 'travel' animation.
+	transitiononly
 }
 
 definecutscene loading

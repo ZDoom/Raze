@@ -212,8 +212,9 @@ void CutsceneDef::Create(DObject* runner)
 //
 //=============================================================================
 
-bool CutsceneDef::Create(DObject* runner, MapRecord* map)
+bool CutsceneDef::Create(DObject* runner, MapRecord* map, bool transition)
 {
+	if (!transition && transitiononly) return false;
 	if (function.CompareNoCase("none") == 0) 
 		return true;	// play nothing but return as being validated
 	if (function.IsNotEmpty())
@@ -440,43 +441,6 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 	gameaction = ga_intermission;
 }
 
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void NewGame(MapRecord* map, int skill, bool ns)
-{
-	completion = [=](bool) { gi->NewGame(map, skill, ns); };
-	runner = CreateRunner();
-	GC::WriteBarrier(runner);
-
-	try
-	{
-		int volume = map->cluster - 1;
-		if (volume >= 0 && volume < MAXVOLUMES)
-			volumeList[volume].intro.Create(runner);
-
-		globalCutscenes.LoadingScreen.Create(runner, map);
-		if (!ScreenJobValidate())
-		{
-			runner->Destroy();
-			runner = nullptr;
-			completion(false);
-			completion = nullptr;
-			return;
-		}
-		gameaction = ga_intermission;
-	}
-	catch (...)
-	{
-		if (runner) runner->Destroy();
-		runner = nullptr;
-		throw;
-	}
-}
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -489,26 +453,42 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 	runner = CreateRunner();
 	GC::WriteBarrier(runner);
 
+	// retrieve cluster relations for cluster-based cutscenes.
+	int fromcluster = -1, tocluster = -1;
+	if (fromMap)
+	{
+		fromcluster = fromMap->cluster - 1;
+		if (fromcluster < 0 || fromcluster >= MAXVOLUMES) fromcluster = -1;
+	}
+	if (toMap)
+	{
+		tocluster = toMap->cluster - 1;
+		if (tocluster < 0 || tocluster >= MAXVOLUMES) tocluster = -1;
+	}
+	if (fromcluster == tocluster) fromcluster = tocluster = -1;
+
+
 	try
 	{
-		// outro: first check the map's own outro.
-		// if that is empty, check the cluster's outro
-		// if that also fails, check the default outro
-		if (!fromMap->outro.Create(runner, fromMap))
+		if (fromMap)
 		{
-			auto& cluster = volumeList[fromMap->cluster - 1];
-			if ((toMap == nullptr || toMap->cluster != fromMap->cluster) && !cluster.outro.Create(runner, fromMap))
-				globalCutscenes.DefaultMapOutro.Create(runner, fromMap);
-		}
+			if (!fromMap->outro.Create(runner, fromMap, !!toMap))
+			{
+				if (fromcluster != -1 && !volumeList[fromcluster].outro.Create(runner, fromMap, !!toMap))
+					globalCutscenes.DefaultMapOutro.Create(runner, fromMap, !!toMap);
+			}
 
-		CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info);
+			CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info);
+		}
 
 		if (toMap)
 		{
-			if (!toMap->intro.Create(runner, toMap))
-				globalCutscenes.DefaultMapIntro.Create(runner, toMap);
-
-			globalCutscenes.LoadingScreen.Create(runner, toMap);
+			if (!toMap->intro.Create(runner, toMap, !!fromMap))
+			{
+				if  (tocluster != -1 && !volumeList[tocluster].intro.Create(runner, toMap, !!fromMap))
+					globalCutscenes.DefaultMapIntro.Create(runner, toMap, !!fromMap);
+			}
+			globalCutscenes.LoadingScreen.Create(runner, toMap, true);
 		}
 		else if (isShareware())
 		{
@@ -555,11 +535,6 @@ CCMD(testcutscene)
 
 
 /* 
-Duke:
-			if (!userConfig.nologo) fi.ShowLogo([](bool) { gameaction = ga_mainmenunostopsound; });
-			else gameaction = ga_mainmenunostopsound;
-
-
 Blood:
 		if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
 		else

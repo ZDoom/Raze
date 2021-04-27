@@ -28,4 +28,3 @@ bool StartCutscene(const char* s, int flags, const CompletionFunc& completion);
 void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic);
 void ShowScoreboard(int numplayers, const CompletionFunc& completion_);
 void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_);
-void NewGame(MapRecord* map, int skill, bool ns = false);

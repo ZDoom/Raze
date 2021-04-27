@@ -31,10 +31,6 @@ definecutscene episode 3
 
 definecutscene episode 4
 {
-	intro
-	{
-		function DukeCutscenes.BuildE4Intro
-	}
 	outro
 	{
 		function DukeCutscenes.BuildE4End
@@ -46,6 +42,14 @@ definecutscene episode 5
 	outro
 	{
 		function DukeCutscenes.BuildE5End
+	}
+}
+
+definecutscene map e4l1
+{
+	intro
+	{
+		function DukeCutscenes.BuildE4Intro
 	}
 }
 
