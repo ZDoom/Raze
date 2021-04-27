@@ -332,9 +332,31 @@ void ScreenJobDraw()
 //
 //=============================================================================
 
+bool ScreenJobValidate()
+{
+	if (runner)
+	{
+		IFVIRTUALPTRNAME(runner, NAME_ScreenJobRunner, Validate)
+		{
+			int res;
+			VMValue parm[] = { runner };
+			VMReturn ret(&res);
+			VMCall(func, parm, 2, &ret, 1);
+			return res;
+		}
+	}
+	return false;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
 bool StartCutscene(CutsceneDef& cs, int flags, const CompletionFunc& completion_)
 {
-	if (cs.function.CompareNoCase("none") != 0)
+	if (cs.function.IsNotEmpty() && cs.video.IsNotEmpty()cs.function.CompareNoCase("none") != 0)
 	{
 		completion = completion_;
 		runner = CreateRunner();
@@ -342,14 +364,20 @@ bool StartCutscene(CutsceneDef& cs, int flags, const CompletionFunc& completion_
 		try
 		{
 			cs.Create(runner);
+			if (!ScreenJobValidate())
+			{
+				runner->Destroy();
+				runner = nullptr;
+				return false;
+			}
+			gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
 		}
 		catch (...)
 		{
-			runner->Destroy();
+			if (runner) runner->Destroy();
 			runner = nullptr;
 			throw;
 		}
-		gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
 		return true;
 	}
 	return false;
@@ -401,7 +429,14 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner reference and integer.", qname);
 	VMValue val[2] = { runner, numplayers };
 	VMCall(func, val, 2, nullptr, 0);
-
+	if (!ScreenJobValidate())
+	{
+		runner->Destroy();
+		runner = nullptr;
+		if (completion) completion(false);
+		completion = nullptr;
+		return;
+	}
 	gameaction = ga_intermission;
 }
 
@@ -417,12 +452,11 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 	runner = CreateRunner();
 	GC::WriteBarrier(runner);
 
-	// outro: first check the map's own outro.
-	// if that is empty, check the cluster's outro
-	// if that also fails, check the default outro
-
 	try
 	{
+		// outro: first check the map's own outro.
+		// if that is empty, check the cluster's outro
+		// if that also fails, check the default outro
 		if (!fromMap->outro.Create(runner, fromMap))
 		{
 			auto& cluster = volumeList[fromMap->cluster - 1];
@@ -441,11 +475,19 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		{
 			globalCutscenes.SharewareEnd.Create(runner);
 		}
+		if (!ScreenJobValidate())
+		{
+			runner->Destroy();
+			runner = nullptr;
+			if (completion) completion(false);
+			completion = nullptr;
+			return;
+		}
 		gameaction = ga_intermission;
 	}
 	catch (...)
 	{
-		runner->Destroy();
+		if (runner) runner->Destroy();
 		runner = nullptr;
 		throw;
 	}

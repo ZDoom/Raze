@@ -932,7 +932,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 		if (displaystate & printKillsVal)
 		{
-			tempbuf.Format("%-3d", stats.kills);
+			tempbuf = String.Format("%-3d", stats.kills);
 			Duke.BigText(231, 112, tempbuf, -1);
 			if (stats.maxkills < 0)
 			{
@@ -965,8 +965,8 @@ class RRLevelSummaryScreen : SummaryScreenBase
 	{
 		Screen.DrawTexture(texBg, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
 
-		if (lastmapname) Duke.BigText(80, 16, lastmapname, 0, 0);
-		Duke.BigText(15, 192, "$PRESSKEY", 0, 0);
+		Duke.BigText(80, 16, lastmapname, -1);
+		Duke.BigText(15, 192, "$PRESSKEY", -1);
 
 		if (displaystate & printTimeText)
 		{

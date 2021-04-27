@@ -251,7 +251,7 @@ class MoviePlayerJob : SkippableScreenJob
 	{
 		let movie = MoviePlayer.Create(filename, soundinfo, flags, frametime, firstframetime, lastframetime);
 		if (movie) return new("MoviePlayerJob").Init(movie);
-		return BlackScreen.Create(1); // do not return null.
+		return null;
 	}
 	static ScreenJob Create(String filename, int flags, int frametime = -1)
 	{
@@ -348,7 +348,12 @@ class ScreenJobRunner : Object
 
 	void Append(ScreenJob job)
 	{
-		jobs.Push(job);
+		if (job != null) jobs.Push(job);
+	}
+
+	virtual bool Validate()
+	{
+		return jobs.Size() > 0;
 	}
 
 	//---------------------------------------------------------------------------
