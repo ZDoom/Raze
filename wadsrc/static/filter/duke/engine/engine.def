@@ -49,5 +49,11 @@ definecutscene episode 5
 	}
 }
 
+definecutscene sharewareend 
+{
+	function DukeCutscenes.BuildSharewareEnd
+}
+
 definecutscene summary DukeCutscenes.BuildSPSummary
 definecutscene mpsummary DukeCutscenes.BuildMPSummary
+

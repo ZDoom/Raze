@@ -44,13 +44,8 @@ enum {
 	MAX_MESSAGES = 32
 };
 
-// Cutscene rules for maps are as follows:
-// * when an episode is started, the episode intro will play, if none is defined, the map's intro will play.
-// * when an episde is ended, the episode outro will play after the summary screen.
-// * when a map ends, its own outro scene will play before the summary screen, if none is defined, use the default map outro handler.
-// * when a new map starts after the summary screen, its own intro scene will play, if none is defined, use the default map intro handler.
-// * setting any of these fields to 'none' will override any default and play nothing, even if a default is set.
 class DObject;
+struct MapRecord;
 
 struct CutsceneDef
 {
@@ -60,6 +55,7 @@ struct CutsceneDef
 	int framespersec = 0; // only relevant for ANM.
 
 	void Create(DObject* runner);
+	bool Create(DObject* runner, MapRecord* map);
 };
 
 struct GlobalCutscenes
@@ -67,6 +63,7 @@ struct GlobalCutscenes
 	CutsceneDef Intro;
 	CutsceneDef DefaultMapIntro;
 	CutsceneDef DefaultMapOutro;
+	CutsceneDef SharewareEnd;
 	FString MPSummaryScreen;
 	FString SummaryScreen;
 };
@@ -159,6 +156,7 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack = fals
 
 MapRecord *FindMapByName(const char *nm);
 MapRecord *FindMapByLevelNum(int num);
+MapRecord* FindMapByClusterAndLevelNum(int clst, int num);
 MapRecord *FindNextMap(MapRecord *thismap);
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic = nullptr);
 MapRecord* AllocateMap();

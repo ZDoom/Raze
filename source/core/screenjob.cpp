@@ -62,6 +62,7 @@ static PType* maprecordtype;
 static PType* summaryinfotype;
 static CompletionFunc completion;
 static int ticks;
+static SummaryInfo summaryinfo;
 
 //=============================================================================
 //
@@ -133,6 +134,7 @@ void CallCreateFunction(const char* qname, DObject* runner)
 void CallCreateMapFunction(const char* qname, DObject* runner, MapRecord* map)
 {
 	auto func = LookupFunction(qname);
+	if (func->Proto->ArgumentTypes.Size() == 1) return CallCreateFunction(qname, runner);	// accept functions without map parameter as well here.
 	if (func->Proto->ArgumentTypes.Size() != 2) I_Error("Bad map-cutscene function %s. Must receive precisely two arguments.", qname);
 	if (func->Proto->ArgumentTypes[0] != runnerclasstype && func->Proto->ArgumentTypes[1] != maprecordtype) 
 		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner and MapRecord reference.", qname);
@@ -152,7 +154,8 @@ void CallCreateSummaryFunction(const char* qname, DObject* runner, MapRecord* ma
 	if (func->Proto->ArgumentTypes.Size() != 3) I_Error("Bad map-cutscene function %s. Must receive precisely three arguments.", qname);
 	if (func->Proto->ArgumentTypes[0] != runnerclasstype && func->Proto->ArgumentTypes[1] != maprecordtype && func->Proto->ArgumentTypes[2] != summaryinfotype)
 		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner, MapRecord and SummaryInfo reference.", qname);
-	VMValue val[3] = { runner, map, info };
+	summaryinfo = *info; // must be copied to a persistent location.
+	VMValue val[3] = { runner, map, &summaryinfo };
 	VMCall(func, val, 3, nullptr, 0);
 }
 
@@ -209,27 +212,28 @@ void CutsceneDef::Create(DObject* runner)
 //
 //=============================================================================
 
-bool StartCutscene(CutsceneDef& cs, int flags, CompletionFunc completion_)
+bool CutsceneDef::Create(DObject* runner, MapRecord* map)
 {
-	if (cs.function.CompareNoCase("none") != 0)
+	if (function.CompareNoCase("none") == 0) 
+		return true;	// play nothing but return as being validated
+	if (function.IsNotEmpty())
 	{
-		completion = completion_;
-		runner = CreateRunner();
-		GC::WriteBarrier(runner);
-		cs.Create(runner);
-		gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
+		CallCreateMapFunction(function, runner, map);
+		return true;
+	}
+	else if (video.IsNotEmpty())
+	{
+		AddGenericVideo(runner, video, sound, framespersec);
 		return true;
 	}
 	return false;
 }
 
-bool StartCutscene(const char* s, int flags, CompletionFunc completion)
-{
-	CutsceneDef def;
-	def.function = s;
-	return StartCutscene(def, 0, completion);
-}
-
+//=============================================================================
+//
+//
+//
+//=============================================================================
 
 void DeleteScreenJob()
 {
@@ -244,6 +248,12 @@ void EndScreenJob()
 	completion = nullptr;
 }
 
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
 
 bool ScreenJobResponder(event_t* ev)
 {
@@ -272,6 +282,12 @@ bool ScreenJobResponder(event_t* ev)
 	return false;
 }
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
 bool ScreenJobTick()
 {
 	ticks++;
@@ -289,12 +305,19 @@ bool ScreenJobTick()
 	return false;
 }
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
 void ScreenJobDraw()
 {
 	double smoothratio = I_GetTimeFrac();
 
 	if (runner)
 	{
+		twod->ClearScreen();
 		IFVIRTUALPTRNAME(runner, NAME_ScreenJobRunner, RunFrame)
 		{
 			VMValue parm[] = { runner, smoothratio };
@@ -303,6 +326,47 @@ void ScreenJobDraw()
 	}
 }
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+bool StartCutscene(CutsceneDef& cs, int flags, const CompletionFunc& completion_)
+{
+	if (cs.function.CompareNoCase("none") != 0)
+	{
+		completion = completion_;
+		runner = CreateRunner();
+		GC::WriteBarrier(runner);
+		try
+		{
+			cs.Create(runner);
+		}
+		catch (...)
+		{
+			runner->Destroy();
+			runner = nullptr;
+			throw;
+		}
+		gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
+		return true;
+	}
+	return false;
+}
+
+bool StartCutscene(const char* s, int flags, const CompletionFunc& completion)
+{
+	CutsceneDef def;
+	def.function = s;
+	return StartCutscene(def, 0, completion);
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
 
 void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
 {
@@ -318,6 +382,74 @@ void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
+{
+	completion = completion_;
+	runner = CreateRunner();
+	GC::WriteBarrier(runner);
+
+	const char* qname = globalCutscenes.MPSummaryScreen;
+	auto func = LookupFunction(qname);
+	if (func->Proto->ArgumentTypes.Size() != 2) I_Error("Bad map-cutscene function %s. Must receive precisely two arguments.", qname);
+	if (func->Proto->ArgumentTypes[0] != runnerclasstype && func->Proto->ArgumentTypes[1] != TypeSInt32)
+		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner reference and integer.", qname);
+	VMValue val[2] = { runner, numplayers };
+	VMCall(func, val, 2, nullptr, 0);
+
+	gameaction = ga_intermission;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_)
+{
+	completion = completion_;
+	runner = CreateRunner();
+	GC::WriteBarrier(runner);
+
+	// outro: first check the map's own outro.
+	// if that is empty, check the cluster's outro
+	// if that also fails, check the default outro
+
+	try
+	{
+		if (!fromMap->outro.Create(runner, fromMap))
+		{
+			auto& cluster = volumeList[fromMap->cluster - 1];
+			if ((toMap == nullptr || toMap->cluster != fromMap->cluster) && !cluster.outro.Create(runner, fromMap))
+				globalCutscenes.DefaultMapOutro.Create(runner, fromMap);
+		}
+
+		CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info);
+
+		if (toMap)
+		{
+			if (!toMap->intro.Create(runner, fromMap))
+				globalCutscenes.DefaultMapIntro.Create(runner, fromMap);
+		}
+		else if (isShareware())
+		{
+			globalCutscenes.SharewareEnd.Create(runner);
+		}
+		gameaction = ga_intermission;
+	}
+	catch (...)
+	{
+		runner->Destroy();
+		runner = nullptr;
+		throw;
+	}
+}
 
 CCMD(testcutscene)
 {
@@ -330,16 +462,19 @@ CCMD(testcutscene)
 	{
 		CutsceneDef def;
 		def.function = argv[1];
-		if (StartCutscene(def, 0, [](bool) { }))
+		if (StartCutscene(def, 0, [](bool) {}))
 		{
 			C_HideConsole();
 		}
 	}
 	catch (const CRecoverableError& err)
 	{
-		Printf("Unable to play cutscene\n");
+		Printf(TEXTCOLOR_RED "Unable to play cutscene: %s\n", err.what());
 	}
 }
+
+
+
 /* 
 Duke:
 			if (!userConfig.nologo) fi.ShowLogo([](bool) { gameaction = ga_mainmenunostopsound; });

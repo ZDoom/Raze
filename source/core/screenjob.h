@@ -201,6 +201,10 @@ bool ScreenJobTick();
 void ScreenJobDraw();
 
 struct CutsceneDef;
-bool StartCutscene(CutsceneDef& cs, int flags, CompletionFunc completion);
-bool StartCutscene(const char* s, int flags, CompletionFunc completion);
+struct MapRecord;
+struct SummaryInfo;
+bool StartCutscene(CutsceneDef& cs, int flags, const CompletionFunc& completion);
+bool StartCutscene(const char* s, int flags, const CompletionFunc& completion);
 void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic);
+void ShowScoreboard(int numplayers, const CompletionFunc& completion_);
+void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_);

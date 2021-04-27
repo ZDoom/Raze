@@ -216,8 +216,7 @@ class DukeCutscenes // Note: must be class, not struct, otherwise we cannot easi
 
 	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, SummaryInfo stats)
 	{
-		let screen = SummaryScreenBase(new("DukeLevelSummaryScreen").Init());
-		if (screen) screen.SetParameters(map, stats);
+		let screen = new("DukeLevelSummaryScreen").Init(map, stats);
 		runner.Append(screen);
 	}
 
@@ -235,11 +234,11 @@ class DukeCutscenes // Note: must be class, not struct, otherwise we cannot easi
 
 	//---------------------------------------------------------------------------
 	//
-	//
+	// 
 	//
 	//---------------------------------------------------------------------------
 
-	static void BuildSharewareOrder(ScreenJobRunner runner)
+	static void BuildSharewareEnd(ScreenJobRunner runner)
 	{
 		runner.Append(ImageScreen.CreateNamed("ORDERING"));
 		runner.Append(ImageScreen.CreateNamed("ORDERING1"));
@@ -339,10 +338,7 @@ class RRCutscenes
 
 	static void BuildSPSummary(ScreenJobRunner runner, MapRecord map, SummaryInfo stats)
 	{
-		let sumscreen = new("RRLevelSummaryScreen").Init(!Raze.isRRRA() || stats.endOfGame);
-		let sumscreens = SummaryScreenBase(sumscreen);
-		if (sumscreens) sumscreens.SetParameters(map, stats);
-		runner.Append(sumscreen);
+		runner.Append(new("RRLevelSummaryScreen").Init(map, stats, !Raze.isRRRA() || stats.endOfGame));
 	}
 
 	//---------------------------------------------------------------------------

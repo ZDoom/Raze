@@ -107,8 +107,6 @@ void animatesprites_r(int x, int y, int a, int smoothratio);
 
 void InitFonts_d();
 void InitFonts_r();
-void PrintPaused_d();
-void PrintPaused_r();
 
 
 Dispatcher fi;
@@ -119,7 +117,6 @@ void SetDispatcher()
 	{
 		fi = {
 		InitFonts_d,
-		PrintPaused_d,
 
 		think_d,
 		initactorflags_d,
@@ -165,7 +162,6 @@ void SetDispatcher()
 	{
 		fi = {
 		InitFonts_r,
-		PrintPaused_r,
 
 		think_r,
 		initactorflags_r,

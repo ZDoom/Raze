@@ -121,7 +121,6 @@ class BlackScreen : ScreenJob
 	override void Draw(double smooth)
 	{
 		cleared = true;
-		Screen.ClearScreen();
 	}
 }
 
@@ -180,7 +179,6 @@ class ImageScreen : SkippableScreenJob
 
 	override void Draw(double smooth)
 	{
-		Screen.ClearScreen();
 		if (texid.IsValid()) Screen.DrawTexture(texid, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TranslationIndex, trans);
 		cleared = true;
 	}
@@ -392,7 +390,6 @@ class ScreenJobRunner : Object
 	{
 		if (jobs.Size() == 0) 
 		{
-			screen.ClearScreen();
 			return 1;
 		}
 		int x = index >= jobs.Size()? jobs.Size()-1 : index;
@@ -498,7 +495,6 @@ class ScreenJobRunner : Object
 		if (actionState == State_Clear)
 		{
 			actionState = State_Run;
-			Screen.ClearScreen();
 		}
 		else if (actionState == State_Run)
 		{

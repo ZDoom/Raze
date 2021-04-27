@@ -64,6 +64,7 @@ struct MapRecord native
 	native readonly int cdSongId;
 	native readonly int flags;
 	native readonly int levelNumber;
+	native readonly int cluster;
 
 	// The rest is only used by Blood
 	native readonly int nextLevel;
@@ -80,10 +81,6 @@ struct MapRecord native
 	{
 		if (name == "") return labelName;
 		return name;
-	}
-	int volumeNum()
-	{
-		return levelNumber / 1000;
 	}
 }
 

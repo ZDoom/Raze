@@ -244,7 +244,7 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor*
 		break;
 
 	case USERDEFS_VOLUME_NUMBER:
-		if (!bSet) SetGameVarID(lVar2, volfromlevelnum(currentLevel->levelNumber), sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, currentLevel->cluster-1, sActor, sPlayer);
 		break;
 
 	case USERDEFS_MARKER:
@@ -3572,7 +3572,7 @@ int ParseState::parse(void)
 	{
 		insptr++;
 		int music_select = *insptr++;
-		auto level = FindMapByLevelNum(levelnum(currentLevel->levelNumber, music_select));
+ 		auto level = FindMapByLevelNum(levelnum(currentLevel->cluster, music_select));
 		if (level) S_PlayLevelMusic(level);
 		break;
 	}

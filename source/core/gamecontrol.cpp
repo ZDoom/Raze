@@ -1498,6 +1498,7 @@ DEFINE_FIELD_X(MapRecord, MapRecord, music)
 DEFINE_FIELD_X(MapRecord, MapRecord, cdSongId)
 DEFINE_FIELD_X(MapRecord, MapRecord, flags)
 DEFINE_FIELD_X(MapRecord, MapRecord, levelNumber)
+DEFINE_FIELD_X(MapRecord, MapRecord, cluster)
 DEFINE_FIELD_X(MapRecord, MapRecord, nextLevel)
 DEFINE_FIELD_X(MapRecord, MapRecord, nextSecret)
 //native readonly String messages[MAX_MESSAGES];

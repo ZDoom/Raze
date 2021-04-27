@@ -57,7 +57,6 @@ class DRealmsScreen : SkippableScreenJob
 		let tex = TexMan.CheckForTexture("DREALMS"); 
 		int translation = TexMan.UseGamePalette(tex)? Translation.MakeID(Translation_BasePalette, Duke.DREALMSPAL) : 0;
 
-		screen.ClearScreen();
 		screen.DrawTexture(tex, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal);
 	}
 }
@@ -118,8 +117,6 @@ class DukeTitleScreen : SkippableScreenJob
 	{
 		int clock = (ticks + smoothratio) * 120 / GameTicRate;
 		int etrans = Translation.MakeID(Translation_BasePalette, Duke.TITLEPAL);
-
-		screen.ClearScreen();
 
 		// Only translate if the image depends on the global palette.
 		let tex = TexMan.CheckForTexture("BETASCREEN"); 
@@ -256,7 +253,6 @@ class Episode1End1 : SkippableScreenJob
 	{
 		int etrans = Translation.MakeID(Translation_BasePalette, Duke.ENDINGPAL);
 
-		screen.ClearScreen();
 		let tex = TexMan.CheckForTexture("VICTORY1");
 		int trans = TexMan.UseGamePalette(tex)? etrans : 0;
 		screen.DrawTexture(tex, false, 0, 50, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, trans, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TopLeft, true);
@@ -411,7 +407,6 @@ class Episode4Text : SkippableScreenJob
 
 	override void Draw(double sm)
 	{
-		Screen.ClearScreen();
 		Duke.BigText(160, 60, "$Thanks to all our", 0);
 		Duke.BigText(160, 60 + 16, "$fans for giving", 0);
 		Duke.BigText(160, 60 + 16 + 16, "$us big heads.", 0);
@@ -474,7 +469,6 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 
 		String tempbuf;
 		int currentclock = int((ticks + smoothratio) * 120 / GameTicRate);
-		Screen.ClearScreen();
 		Screen.DrawTexture(TexMan.CheckForTexture("MENUSCREEN"), false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal);
 		Screen.DrawTexture(TexMan.CheckForTexture("INGAMEDUKETHREEDEE"), true, 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, DTA_ScaleX, titlescale, DTA_ScaleY, titlescale);
 		if (Raze.isPlutoPak()) Screen.DrawTexture(TexMan.CheckForTexture("MENUPLUTOPAKSPRITE"), true, 260, 36, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true);
@@ -581,11 +575,12 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 	}
 
-	ScreenJob Init()
+	ScreenJob Init(MapRecord m, SummaryInfo s)
 	{
 		Super.Init(fadein | fadeout);
-		int vol = level.volumeNum();
-		String basetex = vol == 1? "BONUSSCREEN2" : "BONUSSCREEN";
+		SetParameters(m, s);
+		int vol = level.cluster;
+		String basetex = vol == 2? "BONUSSCREEN2" : "BONUSSCREEN";
 		texBg = TexMan.CheckForTexture(basetex);
 		for(int i = 0; i < 4; i++)
 		{
@@ -737,10 +732,9 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 	override void Draw(double sr) 
 	{
-		Screen.ClearScreen();
 		Screen.DrawTexture(texBg, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
 
-		Duke.GameText(160, 190, "$PRESSKEY", 8 - int(sin(ticks * 12 / GameTicRate) * 8), 0);
+		Duke.GameText(160, 190, "$PRESSKEY", 8 - (sin(ticks * 4) * 8), 0);
 
 		if (displaystate & printTimeText)
 		{
@@ -785,15 +779,15 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 			}
 		}
 
-		if (lastmapname) Duke.BigText(160, 20 - 6, lastmapname);
-		Duke.BigText(160, 36 - 6, "$Completed");
+		if (lastmapname) Duke.BigText(160, 20 - 6, lastmapname, 0);
+		Duke.BigText(160, 36 - 6, "$Completed", 0);
 	}
 
 }
 
 //---------------------------------------------------------------------------
 //
-// TBD: fold this into DukeLevelSummaryScreen?
+//
 //
 //---------------------------------------------------------------------------
 
@@ -819,9 +813,10 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 	}
 
-	ScreenJob Init(bool dofadeout = true)
+	ScreenJob Init(MapRecord m, SummaryInfo s, bool dofadeout = true)
 	{
 		Super.Init(dofadeout? (fadein | fadeout) : fadein);
+		SetParameters(m, s);
 		String s;
 		if (level.flags & MapRecord.USERMAP)
 			s = "BONUSPIC01";
@@ -968,11 +963,10 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 	override void Draw(double sr)
 	{
-		Screen.ClearScreen();
 		Screen.DrawTexture(texBg, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
 
-		if (lastmapname) Duke.BigText(80, 16, lastmapname, -1);
-		Duke.BigText(15, 192, "$PRESSKEY", -1);
+		if (lastmapname) Duke.BigText(80, 16, lastmapname, 0, 0);
+		Duke.BigText(15, 192, "$PRESSKEY", 0, 0);
 
 		if (displaystate & printTimeText)
 		{
@@ -1044,7 +1038,6 @@ class DukeLoadScreen : ScreenJob
 	
 	override void Draw(double sr)
 	{
-		Screen.ClearScreen();
 		Screen.DrawTexture(TexMan.CheckForTexture("LOADSCREEN"), false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
 		
 		if (!Raze.IsRR())

@@ -72,7 +72,6 @@ struct Dispatcher
 {
 	// global stuff
 	void (*InitFonts)();
-	void (*PrintPaused)();
 
 	// sectors_?.cpp
 	void (*think)();

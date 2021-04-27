@@ -93,6 +93,28 @@ MapRecord *FindMapByLevelNum(int num)
 	return nullptr;
 }
 
+// return a map whose cluster and map number matches.
+// if there's only one map with the given level number return that.
+MapRecord* FindMapByClusterAndLevelNum(int cluster, int num)
+{
+	MapRecord* mr = nullptr;
+	int mapfound = 0;
+	for (auto& map : mapList)
+	{
+		if (map.levelNumber == num)
+		{
+			if (map.cluster == cluster) return &map;
+			else
+			{
+				mr = &map;
+				mapfound++;
+			}
+		}
+	}
+	if (mapfound == 1) return mr;
+	return nullptr;
+}
+
 MapRecord *FindNextMap(MapRecord *thismap)
 {
 	if (thismap->nextLevel != -1) return FindMapByLevelNum(thismap->nextLevel);

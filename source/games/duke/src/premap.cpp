@@ -1040,29 +1040,32 @@ bool setnextmap(bool checksecretexit)
 //
 //---------------------------------------------------------------------------
 
-void exitlevel(MapRecord *nextlevel)
+void exitlevel(MapRecord* nextlevel)
 {
     bool endofgame = nextlevel == nullptr;
     STAT_Update(endofgame);
     StopCommentary();
 
-    dobonus(endofgame? -1 : 0, [=](bool)
-        {
+    SummaryInfo info{};
 
-            // Clear potentially loaded per-map ART only after the bonus screens.
-            artClearMapArt();
-            gameaction = ga_level;
-            ud.eog = false;
-            if (endofgame)
+    info.kills = ps[0].actors_killed;
+    info.maxkills = ps[0].max_actors_killed;
+    info.secrets = ps[0].secret_rooms;
+    info.maxsecrets = ps[0].max_secret_rooms;
+    info.time = ps[0].player_par;
+    info.endofgame = endofgame;
+    Mus_Stop();
+
+    if (playerswhenstarted > 1 && ud.coop != 1)
+    {
+        // MP scoreboard
+        ShowScoreboard(playerswhenstarted, [=](bool)
             {
-                if (ud.multimode < 2)
-                {
-                    if (isShareware())
-                        StartCutscene("DukeCutscenes.BuildSharewareOrder", 0, [](bool) { gameaction = ga_startup; });
-                    else gameaction = ga_startup;
-                    return;
-                }
-                else
+                // Clear potentially loaded per-map ART only after the bonus screens.
+                artClearMapArt();
+                gameaction = ga_level;
+                ud.eog = false;
+                if (endofgame)
                 {
                     auto nextlevel = FindMapByLevelNum(0);
                     if (!nextlevel)
@@ -1072,11 +1075,22 @@ void exitlevel(MapRecord *nextlevel)
                     }
                     else gameaction = ga_nextlevel;
                 }
-            }
-            else 
-                gameaction = ga_nextlevel;
+                else
+                    gameaction = ga_nextlevel;
 
+            });
+    }
+    else if (ud.multimode <= 1)
+    {
+        // SP cutscene + summary
+        ShowIntermission(currentLevel, nextlevel, &info, [=](bool)
+        {
+            // Clear potentially loaded per-map ART only after the bonus screens.
+            artClearMapArt();
+            ud.eog = false;
+            gameaction = endofgame? ga_startup : ga_nextlevel;
         });
+    }
 }
 
 

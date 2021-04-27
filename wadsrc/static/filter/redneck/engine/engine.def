@@ -1,4 +1,4 @@
-// Cutscene definitions for Duke
+// Cutscene definitions for RR
 
 definecutscene intro
 {
@@ -24,3 +24,4 @@ definecutscene episode 2
 
 definecutscene summary RRCutscenes.BuildSPSummary
 definecutscene mpsummary DukeCutscenes.BuildMPSummary // identical with Duke's
+definecutscene mapintro RRCutscenes.BuildMapIntro	// this plays the 'travel' animation.

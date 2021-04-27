@@ -96,6 +96,10 @@ void parseDefineCutscene(FScanner& sc, FScriptPosition& pos)
 	{
 		parseCutscene(sc, globalCutscenes.DefaultMapOutro);
 	}
+	else if (sc.Compare("sharewareend")) // sets screens to be shown after the shareware version ends.
+	{
+		parseCutscene(sc, globalCutscenes.SharewareEnd);
+	}
 	else if (sc.Compare({ "episode", "volume", "cluster" }))
 	{
 		FScanner::SavedPos eblockend;

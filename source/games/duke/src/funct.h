@@ -208,8 +208,6 @@ void OffBoat(player_struct *pl);
 
 void cameratext(DDukeActor* i);
 void dobonus(int bonusonly, const CompletionFunc& completion);
-void dobonus_d(int bonusonly, const CompletionFunc& completion);
-void dobonus_r(int bonusonly, const CompletionFunc& completion);
 
 void drawoverlays(double smoothratio);
 void drawbackground(void);
