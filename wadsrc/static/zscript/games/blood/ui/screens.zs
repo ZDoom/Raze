@@ -122,6 +122,16 @@ class BloodSummaryScreen : SummaryScreenBase
 		Blood.sndStartSample(268, 128, -1, false, CHANF_UI);
 	}
 
+	override bool OnEvent(InputEvent ev)
+	{
+		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev))
+		{
+			jobstate = skipped;
+			return true;
+		}
+		return false;
+	}
+
 	void DrawKills()
 	{
 		String pBuffer;
@@ -245,6 +255,11 @@ class BloodLoadScreen : ScreenJob
 		return self;
 	}
 
+	override void OnTick()
+	{
+		if (fadestate == visible) jobstate = finished;
+	}
+	
 	override void Draw(double sr) 
 	{
 		BloodScreen.DrawBackground();
