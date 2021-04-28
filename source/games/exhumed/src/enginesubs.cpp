@@ -36,6 +36,8 @@ void resettiming()
 
 void precache()
 {
+    if (!r_precache) return;
+
     int i;
 
     for (i = 0; i < numsectors; i++)
