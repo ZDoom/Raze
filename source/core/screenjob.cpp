@@ -357,7 +357,7 @@ bool ScreenJobValidate()
 
 bool StartCutscene(CutsceneDef& cs, int flags, const CompletionFunc& completion_)
 {
-	if (cs.function.IsNotEmpty() && cs.video.IsNotEmpty() && cs.function.CompareNoCase("none") != 0)
+	if ((cs.function.IsNotEmpty() || cs.video.IsNotEmpty()) && cs.function.CompareNoCase("none") != 0)
 	{
 		completion = completion_;
 		runner = CreateRunner();
@@ -407,7 +407,9 @@ void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
 	}
 	else
 	{
-		if (!StartCutscene(globalCutscenes.Intro, SJ_BLOCKUI, [=](bool) { gameaction = complete_ga; })) gameaction = def_ga;
+		if (!StartCutscene(globalCutscenes.Intro, SJ_BLOCKUI, [=](bool) { 
+			gameaction = complete_ga; 
+			})) gameaction = def_ga;
 	}
 }
 

@@ -246,9 +246,10 @@ public:
 public:
 	bool isvalid() { return !failed; }
 
-	VpxPlayer(FileReader& fr_, TArray<int>& animSnd_, int flags, int origframedelay, FString& error) : animSnd(std::move(animSnd_))
+	VpxPlayer(FileReader& fr_, TArray<int>& animSnd_, int flags_, int origframedelay, FString& error) : animSnd(std::move(animSnd_))
 	{
 		fr = std::move(fr_);
+		flags = flags_;
 
 		if (!ReadIVFHeader(origframedelay))
 		{
@@ -552,13 +553,14 @@ public:
 	}
 
 
-	SmkPlayer(const char *fn, TArray<int>& ans, int flags) : animSnd(std::move(ans))
+	SmkPlayer(const char *fn, TArray<int>& ans, int flags_) : animSnd(std::move(ans))
 	{
 		hSMK = Smacker_Open(fn);
 		if (!hSMK.isValid)
 		{
 			return;
 		}
+		flags = flags_;
 		Smacker_GetFrameSize(hSMK, nWidth, nHeight);
 		pFrame.Resize(nWidth * nHeight + std::max(nWidth, nHeight));
 		nFrameRate = Smacker_GetFrameRate(hSMK);

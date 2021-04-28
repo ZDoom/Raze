@@ -220,6 +220,7 @@ static void GameTicker()
 
 		case ga_mainmenu:
 			FX_StopAllSounds();
+			if (isBlood()) Mus_Stop();
 		case ga_mainmenunostopsound:
 			gi->FreeLevelData();
 			gamestate = GS_MENUSCREEN;

@@ -67,38 +67,16 @@ struct GAMEOPTIONS {
 
 #pragma pack(pop)
 
-enum {
-    MUS_INTRO = 0,
-    MUS_LOADING = 1,
-};
-
-struct EPISODEINFO
-{
-    int nLevels;
-    unsigned int bloodbath : 1;
-    unsigned int cutALevel : 4;
-    char cutsceneAName[BMAX_PATH];
-    char cutsceneBName[BMAX_PATH];
-    int cutsceneAWave;
-    int cutsceneBWave;
-    char cutsceneASound[BMAX_PATH];
-    char cutsceneBSound[BMAX_PATH];
-};
-
-extern EPISODEINFO gEpisodeInfo[];
 extern GAMEOPTIONS gSingleGameOptions;
 extern GAMEOPTIONS gGameOptions;
 extern int gSkill;
 extern char BloodIniFile[];
 extern bool bINIOverride;
-extern int gEpisodeCount;
 extern int gNextLevel;
 extern bool gGameStarted;
 
 void levelInitINI(const char *pzIni);
 void levelOverrideINI(const char *pzIni);
-void levelPlayIntroScene(int nEpisode, CompletionFunc completion);
-void levelPlayEndScene(int nEpisode, CompletionFunc completion);
 void levelSetupSecret(int nCount);
 void levelTriggerSecret(int nSecret);
 void CheckSectionAbend(const char *pzSection);

@@ -63,7 +63,6 @@ inline bool S_IsSoundValid(int num)
 void S_PlayRRMusic(int newTrack = -1);
 void S_PlayBonusMusic();
 void S_PlayLevelMusic(MapRecord* mi);
-void S_PlaySpecialMusic(unsigned int);
 void S_ContinueLevelMusic(void);
 
 // Placeholders.

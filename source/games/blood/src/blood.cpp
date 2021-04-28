@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_draw.h"
 #include "texturemanager.h"
 #include "statusbar.h"
+#include "vm.h"
 
 BEGIN_BLD_NS
 
@@ -225,28 +226,10 @@ void StartLevel(MapRecord* level)
 
 void NewLevel(MapRecord *sng, int skill)
 {
-	auto completion = [=](bool = false)
-	{
-		if (skill != -1) gGameOptions.nDifficulty = skill;
-		gSkill = gGameOptions.nDifficulty;
-		StartLevel(sng);
-		gameaction = ga_level;
-	};
-
-	bool startedCutscene = false;
-	if (!(sng->flags & MI_USERMAP))
-	{
-		int episode = volfromlevelnum(sng->levelNumber);
-		int level = mapfromlevelnum(sng->levelNumber);
-		if (gEpisodeInfo[episode].cutALevel == level && gEpisodeInfo[episode].cutsceneAName[0])
-		{
-			levelPlayIntroScene(episode, completion);
-			startedCutscene = true;
-		}
-
-	}
-	if (!startedCutscene) completion(false);
-
+	if (skill != -1) gGameOptions.nDifficulty = skill;
+	gSkill = gGameOptions.nDifficulty;
+	StartLevel(sng);
+	gameaction = ga_level;
 }
 
 void GameInterface::NewGame(MapRecord *sng, int skill, bool)
@@ -330,35 +313,20 @@ void GameInterface::Ticker()
 				team_ticker[i] = 0;
 		}
 
-		if ((gGameOptions.uGameFlags & GF_AdvanceLevel) != 0)
+		int gf = gGameOptions.uGameFlags;
+
+		if (gf & GF_AdvanceLevel)
 		{
 			seqKillAll();
-			if (gGameOptions.uGameFlags & GF_EndGame)
+
+			if (gf & GF_EndGame)
 			{
 				STAT_Update(true);
-				if (gGameOptions.nGameType == 0)
-				{
-					auto completion = [](bool) {
-						gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
-						gameaction = ga_creditsmenu;
-					};
-
-					if (gGameOptions.uGameFlags & GF_PlayCutscene)
-					{
-						levelPlayEndScene(volfromlevelnum(currentLevel->levelNumber), completion);
-					}
-					else completion(false);
-				}
-				else
-				{
-					gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
-				}
+				CompleteLevel(nullptr);
 			}
 			else
 			{
 				STAT_Update(false);
-				EndLevel();
-				Mus_Stop();
 				// Fixme: Link maps, not episode/level pairs.
 				int ep = volfromlevelnum(currentLevel->levelNumber);
 				auto map = FindMapByLevelNum(levelnum(ep, gNextLevel));
@@ -474,13 +442,24 @@ void GameInterface::app_init()
 	if (!tileInit(0, NULL))
 		I_FatalError("TILES###.ART files not found");
 
+	//----------
+	// There's a small problem here. We have a nasty circular dependency thanks to .def's all-inclusive mentality.
+	// snd may depend on rffdefineid in .def
+	// .def depends on level definitions.
+	// level definitions depend on sound to resolve cutscene sounds.
+	// Conclusion: All map related definitions need to be taken out of .def - meaning 'definecutscene' cannot be done in there
+	// Unless that is done no sound related data can be done with rffdefineid.
+	Printf(PRINT_NONOTIFY, "Initializing sound system\n");
+	sndInit();
+
 	levelLoadDefaults();
 	LoadDefinitions();
+
+	//---------
 	SetTileNames();
 	C_InitConback(TexMan.CheckForTexture("BACKTILE", ETextureType::Any), true, 0.25);
 
 	TileFiles.SetBackup();
-	powerupInit();
 	Printf(PRINT_NONOTIFY, "Loading cosine table\n");
 	trigInit();
 	Printf(PRINT_NONOTIFY, "Initializing view subsystem\n");
@@ -495,9 +474,6 @@ void GameInterface::app_init()
 	connectpoint2[0] = -1;
 	gGameOptions.nGameType = 0;
 	UpdateNetworkMenus();
-
-	Printf(PRINT_NONOTIFY, "Initializing sound system\n");
-	sndInit();
 
 	gChoke.init(518, chokeCallback);
 	UpdateDacs(0, true);
@@ -571,6 +547,50 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;
+}
+
+enum
+{
+	kLoadScreenCRC = -2051908571,
+	kLoadScreenWideBackWidth = 256,
+	kLoadScreenWideSideWidth = 128,
+
+};
+
+
+DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
+{
+	static int bLoadScreenCrcMatch = -1;
+	if (bLoadScreenCrcMatch == -1) bLoadScreenCrcMatch = tileGetCRC32(kLoadScreen) == kLoadScreenCRC;
+	ACTION_RETURN_INT(bLoadScreenCrcMatch);
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, PlayIntroMusic)
+{
+	Mus_Play(nullptr, "PESTIS.MID", false);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, sndStartSample)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(id);
+	PARAM_INT(vol);
+	PARAM_INT(chan);
+	PARAM_BOOL(looped);
+	PARAM_INT(chanflags);
+	sndStartSample(id, vol, chan, looped, EChanFlags::FromInt(chanflags));
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, sndStartSampleNamed)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(id);
+	PARAM_INT(vol);
+	PARAM_INT(chan);
+	sndStartSample(id, vol, chan);
+	return 0;
 }
 
 END_BLD_NS

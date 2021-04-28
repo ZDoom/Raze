@@ -59,3 +59,18 @@ tilefromtexture 9277 { file "tiles/9277.png" }
 tilefromtexture 9278 { file "tiles/9278.png" }
 tilefromtexture 9279 { file "tiles/9279.png" }
 tilefromtexture 9280 { file "tiles/9280.png" }
+
+// Cutscene definitions for Blood
+
+definecutscene intro
+{
+	function BloodCutscenes.BuildIntro
+}
+
+definecutscene loading
+{
+	function BloodCutscenes.BuildLoading
+}
+
+definecutscene summary BloodCutscenes.BuildSPSummary
+definecutscene mpsummary BloodCutscenes.BuildMPSummary
