@@ -858,7 +858,6 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     allignwarpelevators();
     resetpspritevars(gamemode);
 
-    if (!r_precache) return 0;
     if (isRR()) cacheit_r(); else cacheit_d();
     return 0;
 }
