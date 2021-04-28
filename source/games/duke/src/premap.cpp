@@ -1052,7 +1052,7 @@ void exitlevel(MapRecord* nextlevel)
     info.maxkills = ps[0].max_actors_killed;
     info.secrets = ps[0].secret_rooms;
     info.maxsecrets = ps[0].max_secret_rooms;
-    info.time = ps[0].player_par;
+    info.time = ps[0].player_par / GameTicRate;
     info.endofgame = endofgame;
     Mus_Stop();
 

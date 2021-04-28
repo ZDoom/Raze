@@ -204,7 +204,10 @@ class SummaryScreenBase : ScreenJob
 
 	String FormatTime(int time)
 	{
-		return String.Format("%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
+		if (time >= 60 * 50)
+			return String.Format("%02d:%02d:%02d", time / (60*60), (time / 60) % 60, time % 60);
+		else
+			return String.Format("%02d:%02d", (time / 60) % 60, time % 60);
 	}
 
 }

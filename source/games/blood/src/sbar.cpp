@@ -218,7 +218,7 @@ private:
         stats.font = SmallFont;
         stats.letterColor = CR_DARKRED;
         stats.standardColor = CR_DARKGRAY;
-        stats.time = Scale(gFrameCount, 1000, kTicsPerSec);
+        stats.time = gFrameCount / GameTicRate;
 
 		if (automapMode == am_full)
 		{

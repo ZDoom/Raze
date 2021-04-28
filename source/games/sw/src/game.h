@@ -77,7 +77,6 @@ extern GAME_SET gs;
 enum
 {
     DREALMSPAL = 1,
-    THREED_REALMS_PIC = 2325,
 
     MAXMIRRORS          = 8,
     // This is just some, high, blank tile number not used

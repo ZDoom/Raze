@@ -154,7 +154,6 @@ FString ThemeSongs[6];
 int ThemeTrack[6];
 
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
-void SybexScreen(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #define x(a, b) registerName(#a, b);
@@ -256,12 +255,6 @@ void GameInterface::DrawBackground(void)
     twod->ClearScreen();
     DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal,
         DTA_Color, shadeToLight(20), TAG_DONE);
-
-    if (CommEnabled)
-    {
-        MNU_DrawString(160, 170, "Lo Wang is waiting for other players...", 1, 16, 0);
-        MNU_DrawString(160, 180, "They are afraid!", 1, 16, 0);
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -553,6 +546,8 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 	StopSound();
     STAT_Update(map == nullptr);
 
+#if 0
+    // else if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
 	StatScreen(FinishAnim, [=](bool)
 		{
             if (map == nullptr)
@@ -568,7 +563,7 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 			}
 			else gameaction = ga_nextlevel;
 		});
-
+#endif
 }
 //---------------------------------------------------------------------------
 //
