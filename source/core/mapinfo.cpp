@@ -45,7 +45,7 @@ int gDefaultVolume = 0, gDefaultSkill = 1;
 
 GlobalCutscenes globalCutscenes;
 VolumeRecord volumeList[MAXVOLUMES];
-TArray<MapRecord> mapList;
+static TArray<TPointer<MapRecord>> mapList;
 MapRecord *currentLevel;	// level that is currently played.
 MapRecord* lastLevel;		// Same here, for the last level.
 
@@ -54,15 +54,15 @@ CCMD(listmaps)
 {
 	for (auto& map : mapList)
 	{
-		int lump = fileSystem.FindFile(map.fileName);
+		int lump = fileSystem.FindFile(map->fileName);
 		if (lump >= 0)
 		{
 			int rfnum = fileSystem.GetFileContainer(lump);
-			Printf("%s - %s (%s)\n", map.fileName.GetChars(), map.DisplayName(), fileSystem.GetResourceFileName(rfnum));
+			Printf("%s - %s (%s)\n", map->fileName.GetChars(), map->DisplayName(), fileSystem.GetResourceFileName(rfnum));
 		}
 		else
 		{
-			Printf("%s - %s (defined but does not exist)\n", map.fileName.GetChars(), map.DisplayName());
+			Printf("%s - %s (defined but does not exist)\n", map->fileName.GetChars(), map->DisplayName());
 		}
 	}
 }
@@ -72,9 +72,9 @@ MapRecord *FindMapByName(const char *nm)
 {
 	for (auto& map : mapList)
 	{
-		if (map.labelName.CompareNoCase(nm) == 0)
+		if (map->labelName.CompareNoCase(nm) == 0)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 	return nullptr;
@@ -85,9 +85,9 @@ MapRecord *FindMapByLevelNum(int num)
 {
 	for (auto& map : mapList)
 	{
-		if (map.levelNumber == num)
+		if (map->levelNumber == num)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 	return nullptr;
@@ -101,12 +101,12 @@ MapRecord* FindMapByClusterAndLevelNum(int cluster, int num)
 	int mapfound = 0;
 	for (auto& map : mapList)
 	{
-		if (map.levelNumber == num)
+		if (map->levelNumber == num)
 		{
-			if (map.cluster == cluster) return &map;
+			if (map->cluster == cluster) return map.Data();
 			else
 			{
-				mr = &map;
+				mr = map.Data();
 				mapfound++;
 			}
 		}
@@ -160,7 +160,9 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 
 MapRecord *AllocateMap()
 {
-	return &mapList[mapList.Reserve(1)];
+	auto&p = mapList[mapList.Reserve(1)];
+	p.Alloc();
+	return p.Data();
 }
 
 
@@ -168,9 +170,9 @@ MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 {
 	for (auto& map : mapList)
 	{
-		if (map.fileName.CompareNoCase(boardfilename) == 0)
+		if (map->fileName.CompareNoCase(boardfilename) == 0)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 
