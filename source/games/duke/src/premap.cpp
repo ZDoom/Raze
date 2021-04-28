@@ -845,7 +845,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     if (isRR()) prelevel_r(gamemode);
     else prelevel_d(gamemode);
 
-    if (isRRRA() && mi->levelNumber == levelnum(2, 0))
+    if (isRRRA() && mi->levelNumber == levelnum(0, 2))
     {
         for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
             ps[0].ammo_amount[i] = 0;
