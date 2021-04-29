@@ -1703,15 +1703,15 @@ int ConCompiler::parsecommand()
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		map->parTime =
-			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
-			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
+			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 60) +
+			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')));
 
 		textptr += 5;
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		map->designerTime =
-			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
-			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
+			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 60) +
+			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')));
 
 		map->levelNumber = levnum;
 		map->cluster = j + 1;

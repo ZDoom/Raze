@@ -681,12 +681,12 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 			tempbuf = FormatTime(stats.time);
 			Duke.GameText((320 >> 2) + 71, 59 + 9, tempbuf, 0);
 
-			tempbuf = FormatTime(level.parTime / 26); // Build weirdness again...
+			tempbuf = FormatTime(level.parTime);
 			Duke.GameText((320 >> 2) + 71, 69 + 9, tempbuf, 0);
 
 			if (!Raze.isNamWW2GI())
 			{
-				tempbuf = FormatTime(level.designerTime / 26);
+				tempbuf = FormatTime(level.designerTime);
 				Duke.GameText((320 >> 2) + 71, 79 + 9, tempbuf, 0);
 			}
 		}
@@ -911,10 +911,10 @@ class RRLevelSummaryScreen : SummaryScreenBase
 			tempbuf = FormatTime(stats.time);
 			Duke.BigText(191, 48, tempbuf, -1);
 
-			tempbuf = FormatTime(level.parTime / 26);
+			tempbuf = FormatTime(level.parTime);
 			Duke.BigText(191, 64, tempbuf, -1);
 
-			tempbuf = FormatTime(level.designerTime / 26);
+			tempbuf = FormatTime(level.designerTime);
 			Duke.BigText(191, 80, tempbuf, -1);
 		}
 	}
