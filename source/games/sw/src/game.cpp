@@ -88,10 +88,6 @@ CVAR(Bool, sw_bunnyrockets, false, CVAR_SERVERINFO | CVAR_CHEAT);   // This is a
 
 BEGIN_SW_NS
 
-void Logo(const CompletionFunc& completion);
-void StatScreen(int FinishAnim, CompletionFunc completion);
-
-
 void pClearSpriteList(PLAYERp pp);
 
 extern int sw_snd_scratch;
@@ -538,32 +534,37 @@ static void PlayOrderSound()
 
 
 
-void GameInterface::LevelCompleted(MapRecord *map, int skill)
+void GameInterface::LevelCompleted(MapRecord* map, int skill)
 {
-	//ResetPalette(mpp);
-	COVER_SetReverb(0); // Reset reverb
-	Player[myconnectindex].Reverb = 0;
-	StopSound();
+    //ResetPalette(mpp);
+    COVER_SetReverb(0); // Reset reverb
+    Player[myconnectindex].Reverb = 0;
+    StopSound();
     STAT_Update(map == nullptr);
 
-#if 0
-    // else if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
-	StatScreen(FinishAnim, [=](bool)
-		{
+    SummaryInfo info{};
+
+    info.kills = Player->Kills;
+    info.maxkills = TotalKillable;
+    info.secrets = Player->SecretsFound;
+    info.maxsecrets = LevelSecrets;
+    info.time = PlayClock / 120;
+
+    ShowIntermission(currentLevel, map, &info, [=](bool)
+        {
             if (map == nullptr)
-			{
-				FinishAnim = false;
-				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-                if (SW_SHAREWARE)
+            {
+                FinishAnim = false;
+                PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
+                if (isShareware())
                 {
                     PlayOrderSound();
                     gameaction = ga_creditsmenu;
                 }
-				else gameaction = ga_mainmenu;
-			}
-			else gameaction = ga_nextlevel;
-		});
-#endif
+                else gameaction = ga_mainmenu;
+            }
+            else gameaction = ga_nextlevel;
+        });
 }
 //---------------------------------------------------------------------------
 //
@@ -591,6 +592,7 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool)
 	ShadowWarrior::NewGame = true;
 	InitLevel(map);
 	InitRunLevel();
+    gameaction = ga_level;
 }
 
 //---------------------------------------------------------------------------

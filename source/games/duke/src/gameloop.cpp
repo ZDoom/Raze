@@ -142,14 +142,6 @@ void GameInterface::Render()
 
 void GameInterface::NextLevel(MapRecord* map, int skill)
 {
-#if 0
-	// Loading is so fast on modern systems that this only serves as an irritant, not an asset.
-	loadscreen(map, [=](bool)
-		{
-			enterlevel(map, 0);
-			gameaction = ga_level;
-		});
-#endif
 	enterlevel(map, 0);
 }
 
