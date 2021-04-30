@@ -497,33 +497,30 @@ void uploadCinemaPalettes()
 
 static int DoStatic(int a, int b)
 {
+    TileFiles.tileMakeWritable(kTileLoboLaptop);
+    auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
+    if (tex) tex->Reload();
     auto pixels = TileFiles.tileMakeWritable(kTileLoboLaptop);
 
-    int v2 = 160 - a / 2;
-    int v4 = 81 - b / 2;
+    int y = 160 - a / 2;
+    int left = 81 - b / 2;
 
-    int var_18 = v2 + a;
-    int v5 = v4 + b;
+    int bottom = y + a;
+    int right = left + b;
 
-    auto pTile = (pixels + (200 * v2)) + v4;
+    auto pTile = (pixels + (200 * y)) + left;
 
     TileFiles.InvalidateTile(kTileLoboLaptop);
 
-    while (v2 < var_18)
+    for(;y < bottom; y++)
     {
-        uint8_t* pStart = pTile;
+        uint8_t* pixel = pTile;
         pTile += 200;
 
-        int v7 = v4;
-
-        while (v7 < v5)
+        for (int x = left; x < right; x++)
         {
-            *pStart = RandomBit() * 16;
-
-            v7++;
-            pStart++;
+            *pixel++ = RandomBit() * 16;
         }
-        v2++;
     }
     return tileGetTexture(kTileLoboLaptop)->GetID().GetIndex();
 }
