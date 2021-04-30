@@ -1445,7 +1445,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                                 {
                                     short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0)) & 0xFFFF;
 
-                                    sprite[nChunkSprite].picnum = kTile3117 + (i % 3);
+                                    sprite[nChunkSprite].picnum = kQueenChunk + (i % 3);
                                     sprite[nChunkSprite].xrepeat = 100;
                                     sprite[nChunkSprite].yrepeat = 100;
                                 }

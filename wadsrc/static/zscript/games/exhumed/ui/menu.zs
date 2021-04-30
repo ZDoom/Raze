@@ -50,7 +50,10 @@ class ListMenuItemExhumedPlasma : ListMenuItem
 		Super.Init(0, 0);
 	}
 
-	native override void Draw(bool selected, ListMenuDescriptor desc);
+	override void Draw(bool selected, ListMenuDescriptor desc)
+	{
+		Exhumed.DrawPlasma();
+	}
 }
 
 class ListMenuItemExhumedLogo : ListMenuItem

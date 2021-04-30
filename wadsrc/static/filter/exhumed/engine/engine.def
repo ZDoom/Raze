@@ -1,0 +1,71 @@
+// Cutscene definitions for Duke
+
+definecutscene intro
+{
+	function ExhumedCutscenes.BuildIntro
+}
+
+definecutscene map lev5
+{
+	intro
+	{
+		function ExhumedCutscenes.BuildCinemaBefore5
+	}
+}
+
+definecutscene map lev10
+{
+	outro
+	{
+		function ExhumedCutscenes.BuildCinemaAfter10
+	}
+}
+
+definecutscene map lev11
+{
+	intro
+	{
+		function ExhumedCutscenes.BuildCinemaBefore11
+	}
+}
+
+definecutscene map lev15
+{
+	outro
+	{
+		function ExhumedCutscenes.BuildCinemaAfter15
+	}
+}
+
+definecutscene map lev20
+{
+	intro
+	{
+		function ExhumedCutscenes.BuildCinemaBefore20
+	}
+	outro
+	{
+		function ExhumedCutscenes.BuildCinemaAfter20
+	}
+}
+
+/*
+definecutscene gameover
+{
+	function ExhumedCutscenes.BuildGameoverScene
+}
+
+definecutscene lose
+{
+	function ExhumedCutscenes.BuildCinemaLose
+}
+
+definecutscene loading
+{
+	function DukeCutscenes.BuildLoading
+}
+*/
+
+definecutscene summary ExhumedCutscenes.BuildMap
+//definecutscene mpsummary DukeCutscenes.BuildMPSummary
+

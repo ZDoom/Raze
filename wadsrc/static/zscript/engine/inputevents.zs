@@ -120,6 +120,21 @@ struct InputEvent native play version("2.4")
         Key_F12  = 0x58, // DIK_F12
         Key_Grave = 0x29, // DIK_GRAVE
 
+        KEY_kpad_1       = 0x4f,
+        KEY_kpad_2       = 0x50,
+        KEY_kpad_3       = 0x51,
+        KEY_kpad_4       = 0x4b,
+        KEY_kpad_5       = 0x4c,
+        KEY_kpad_6       = 0x4d,
+        KEY_kpad_7       = 0x47,
+        KEY_kpad_8       = 0x48,
+        KEY_kpad_9       = 0x49,
+        KEY_kpad_0       = 0x52,
+        KEY_kpad_Minus   = 0x4a,
+        KEY_kpad_Plus    = 0x4e,
+        KEY_kpad_Period  = 0x53,
+
+
         Key_Backspace = 0x0e, // DIK_BACK
 
         Key_Equals = 0x0d, // DIK_EQUALS

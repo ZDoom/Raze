@@ -111,6 +111,8 @@ struct Raze
 	native static bool MusicEnabled();
 	native static String PlayerName(int i);
 	native static double GetTimeFrac();
+	native static int bsin(int angle, int shift = 0);
+	native static int bcos(int angle, int shift = 0);
 	
 	static bool specialKeyEvent(InputEvent ev)
 	{

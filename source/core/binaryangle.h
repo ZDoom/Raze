@@ -69,11 +69,11 @@ constexpr double BAngToDegree = 360. / 2048.;
 //
 //---------------------------------------------------------------------------
 
-inline int32_t bsin(const int ang, const int8_t shift = 0)
+inline int bsin(const int ang, const int shift = 0)
 {
 	return shift < 0 ? sintable[ang & 2047] >> abs(shift) : sintable[ang & 2047] << shift;
 }
-inline double bsinf(const double ang, const int8_t shift = 0)
+inline double bsinf(const double ang, const int shift = 0)
 {
 	return g_sin(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
 }
@@ -85,11 +85,11 @@ inline double bsinf(const double ang, const int8_t shift = 0)
 //
 //---------------------------------------------------------------------------
 
-inline int32_t bcos(const int ang, const int8_t shift = 0)
+inline int bcos(const int ang, const int shift = 0)
 {
 	return shift < 0 ? sintable[(ang + 512) & 2047] >> abs(shift) : sintable[(ang + 512) & 2047] << shift;
 }
-inline double bcosf(const double ang, const int8_t shift = 0)
+inline double bcosf(const double ang, const int shift = 0)
 {
 	return g_cos(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
 }

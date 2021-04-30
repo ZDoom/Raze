@@ -881,6 +881,13 @@ DEFINE_ACTION_FUNCTION(FKeyBindings, GetAllKeysForCommand)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(FKeyBindings, GetBinding)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FKeyBindings);
+	PARAM_INT(key);
+	ACTION_RETURN_STRING(self->GetBinding(key));
+}
+
 DEFINE_ACTION_FUNCTION(FKeyBindings, UnbindACommand)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(FKeyBindings);
@@ -928,6 +935,7 @@ DEFINE_GLOBAL_NAMED(mus_playing, musplaying);
 DEFINE_FIELD_X(MusPlayingInfo, MusPlayingInfo, name);
 DEFINE_FIELD_X(MusPlayingInfo, MusPlayingInfo, baseorder);
 DEFINE_FIELD_X(MusPlayingInfo, MusPlayingInfo, loop);
+DEFINE_FIELD_X(MusPlayingInfo, MusPlayingInfo, handle);
 
 DEFINE_GLOBAL_NAMED(PClass::AllClasses, AllClasses)
 DEFINE_GLOBAL(Bindings)

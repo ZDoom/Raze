@@ -136,7 +136,9 @@ bool newGameStarted;
 void NewGame(MapRecord* map, int skill, bool ns = false)
 {
 	newGameStarted = true;
-	ShowIntermission(nullptr, map, nullptr, [=](bool) { gi->NewGame(map, skill, ns); });
+	ShowIntermission(nullptr, map, nullptr, [=](bool) { 
+		gi->NewGame(map, skill, ns); 
+		});
 }
 
 //==========================================================================

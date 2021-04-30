@@ -244,6 +244,15 @@ double calc_smoothratio()
     return I_GetTimeFrac() * MaxSmoothRatio;
 }
 
+void DoGameOverScene(bool finallevel)
+{
+    // todo: make these customizable later.
+    StartCutscene(finallevel ? "ExhumedCutscenes.BuildCinemaLose" : "ExhumedCutscenes.BuildGameoverScene", 0, [](bool)
+        {
+            gameaction = ga_mainmenu;
+        });
+}
+
 void GameMove(void)
 {
     FixPalette();
@@ -646,7 +655,6 @@ void SerializeState(FSerializer& arc)
             ("bsnakecam", bSnakeCam)
             ("slipmode", bSlipMode)
             ("PlayClock", PlayClock)
-            ("cinemaseen", nCinemaSeen)
             ("spiritsprite", nSpiritSprite)
             .EndObject();
     }

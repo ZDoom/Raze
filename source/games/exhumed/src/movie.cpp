@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "s_music.h"
 #include "screenjob.h"
 #include "v_draw.h"
+#include "vm.h"
 
 BEGIN_PS_NS
 
@@ -63,9 +64,34 @@ class LMFPlayer
     AudioData audio{};
     AnimTextures animtex;
 
+    FileReader fp;
+
     int nFrame = 0;
 
+    uint64_t nextclock = 0;
+
 public:
+
+    LMFPlayer(const char *filename)
+    {
+        fp = fileSystem.OpenFileReader(filename);
+        Open(fp);
+    }
+
+    bool Frame(uint64_t clock)
+    {
+        if (clock >= nextclock)
+        {
+            nextclock += 100'000'000;
+            if (ReadFrame(fp) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     int ReadFrame(FileReader& fp)
     {
         nFrame++;
@@ -188,107 +214,56 @@ public:
         S_StopCustomStream(stream);
     }
 
-    AnimTextures& animTex()
+    FTextureID GetTexture()
     {
-        return animtex;
+        return animtex.GetFrameID();
     }
 };
 
-#if 0
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-class DLmfPlayer : public DSkippableScreenJob
+int IdentifyLMF(const FString* fn)
 {
-    LMFPlayer decoder;
-    double angle = 1536;
-    double z = 0;
-    uint64_t nextclock = 0, lastclock = 0;
-    FileReader fp;
-
-public:
-
-    DLmfPlayer(FileReader& fr)
-    {
-        decoder.Open(fr);
-        lastclock = 0;
-        nextclock = 0;
-        fp = std::move(fr);
-        pausable = false;
-    }
-
-    //---------------------------------------------------------------------------
-    //
-    // 
-    //
-    //---------------------------------------------------------------------------
-
-    void Draw(double smoothratio) override
-    {
-        uint64_t clock = (ticks + smoothratio) * 1'000'000'000. / GameTicRate;
-        if (clock >= nextclock)
-        {
-            nextclock += 100'000'000;
-            if (decoder.ReadFrame(fp) == 0)
-            {
-                state = finished;
-                return;
-            }
-        }
-
-        double duration = (clock - lastclock) * double(120. / 8'000'000'000);
-        if (z < 65536) { // Zoom - normal zoom is 65536.
-            z += 2048 * duration;
-        }
-        if (z > 65536) z = 65536;
-        if (angle != 0) {
-            angle += 16. * duration;
-            if (angle >= 2048) {
-                angle = 0;
-            }
-        }
-
-        {
-            twod->ClearScreen();
-            DrawTexture(twod, decoder.animTex().GetFrame(), 160, 100, DTA_FullscreenScale, FSMode_Fit320x200,
-                DTA_CenterOffset, true, DTA_FlipY, true, DTA_ScaleX, z / 65536., DTA_ScaleY, z / 65536., DTA_Rotate, (-angle - 512) * BAngToDegree, TAG_DONE);
-        }
-        
-        lastclock = clock;
-    }
-
-    void OnDestroy() override
-    {
-        decoder.Close();
-        fp.Close();
-    }
-};
-
-
-
-DScreenJob* PlayMovie(const char* fileName)
-{
-    // clear keys
-
-    auto fp = fileSystem.OpenFileReader(fileName);
-    if (!fp.isOpen())
-    {
-        return Create<DBlackScreen>(1);
-    }
+    auto fp = fileSystem.OpenFileReader(*fn);
+    if (!fp.isOpen()) return false;
     char buffer[4];
     fp.Read(buffer, 4);
-    if (memcmp(buffer, "LMF ", 4))
-    {
-        fp.Close();
-        // Allpw replacement with more modern formats.
-        return PlayVideo(fileName);
-    }
-    fp.Seek(0, FileReader::SeekSet);
-    return Create<DLmfPlayer>(fp);
+    return (0 == memcmp(buffer, "LMF ", 4));
 }
-#endif
+
+DEFINE_ACTION_FUNCTION(_LMFDecoder, Create)
+{
+    PARAM_PROLOGUE;
+    PARAM_STRING(fn);
+    ACTION_RETURN_POINTER(new LMFPlayer(fn));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_LMFDecoder, Identify, IdentifyLMF)
+{
+    PARAM_PROLOGUE;
+    PARAM_STRING(fn);
+    ACTION_RETURN_BOOL(IdentifyLMF(&fn));
+}
+
+DEFINE_ACTION_FUNCTION(_LMFDecoder, Frame)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(LMFPlayer);
+    PARAM_FLOAT(clock);
+    ACTION_RETURN_BOOL(self->Frame(uint64_t(clock)));
+}
+
+DEFINE_ACTION_FUNCTION(_LMFDecoder, GetTexture)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(LMFPlayer);
+    ACTION_RETURN_INT(self->GetTexture().GetIndex());
+}
+
+DEFINE_ACTION_FUNCTION(_LMFDecoder, Close)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(LMFPlayer);
+    self->Close();
+    delete self;
+    return 0;
+}
+
+
 
 END_PS_NS

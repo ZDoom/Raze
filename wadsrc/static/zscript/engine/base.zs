@@ -187,6 +187,8 @@ struct MusPlayingInfo native
 	native String name;
 	native int baseorder;
 	native bool loop;
+	native voidptr handle;
+	
 };
 
 struct TexMan
@@ -662,6 +664,7 @@ struct StringStruct native
 	native void DeleteLastCharacter();
 	native int CodePointCount() const;
 	native int, int GetNextCodePoint(int position) const;
+	native void Substitute(String str, String replace);
 }
 
 struct Translation version("2.4")

@@ -148,15 +148,18 @@ void CallCreateMapFunction(const char* qname, DObject* runner, MapRecord* map)
 //
 //=============================================================================
 
-void CallCreateSummaryFunction(const char* qname, DObject* runner, MapRecord* map, SummaryInfo* info)
+void CallCreateSummaryFunction(const char* qname, DObject* runner, MapRecord* map, SummaryInfo* info, MapRecord* map2)
 {
 	auto func = LookupFunction(qname);
-	if (func->Proto->ArgumentTypes.Size() != 3) I_Error("Bad map-cutscene function %s. Must receive precisely three arguments.", qname);
-	if (func->Proto->ArgumentTypes[0] != runnerclasstype && func->Proto->ArgumentTypes[1] != maprecordtype && func->Proto->ArgumentTypes[2] != summaryinfotype)
-		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner, MapRecord and SummaryInfo reference.", qname);
-	summaryinfo = *info; // must be copied to a persistent location.
-	VMValue val[3] = { runner, map, &summaryinfo };
-	VMCall(func, val, 3, nullptr, 0);
+	auto s = func->Proto->ArgumentTypes.Size();
+	auto at = func->Proto->ArgumentTypes.Data();
+	if (s != 3 && s != 4) I_Error("Bad map-cutscene function %s. Must receive precisely three or four arguments.", qname);
+	if (at[0] != runnerclasstype && at[1] != maprecordtype && at[2] != summaryinfotype && (s == 3 || at[3] == maprecordtype))
+		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner, MapRecord and SummaryInfo reference,", qname);
+	if (info) summaryinfo = *info; // must be copied to a persistent location.
+	else summaryinfo = {};
+	VMValue val[] = { runner, map, &summaryinfo, map2 };
+	VMCall(func, val, s, nullptr, 0);
 }
 
 //=============================================================================
@@ -480,8 +483,9 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 					globalCutscenes.DefaultMapOutro.Create(runner, fromMap, !!toMap);
 			}
 
-			CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info);
 		}
+		if (fromMap || (g_gameType & GAMEFLAG_PSEXHUMED))
+			CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info, toMap);
 
 		if (toMap)
 		{

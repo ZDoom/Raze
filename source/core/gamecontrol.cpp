@@ -555,7 +555,7 @@ int GameMain()
 		I_ShowFatalError(err.what());
 		r = -1;
 	}
-	DeleteScreenJob();
+	//DeleteScreenJob();
 	DeinitMenus();
 	if (StatusBar) StatusBar->Destroy();
 	StatusBar = nullptr;
@@ -1477,6 +1477,22 @@ DEFINE_ACTION_FUNCTION(_Raze, PlayerName)
 	PARAM_PROLOGUE;
 	PARAM_INT(index);
 	ACTION_RETURN_STRING(unsigned(index) >= MAXPLAYERS ? "" : PlayerName(index));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bsin, bsin)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	PARAM_INT(shift);
+	ACTION_RETURN_INT(bsin(v, shift));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bcos, bcos)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	PARAM_INT(shift);
+	ACTION_RETURN_INT(bcos(v, shift));
 }
 
 extern bool demoplayback;

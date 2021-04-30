@@ -90,12 +90,6 @@ END_PS_NS
 
 using namespace Exhumed;
 
-DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedPlasma, Draw)
-{
-	menu_DoPlasma();
-	return 0;
-}
-
 DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedLogo, Draw)
 {
 	auto nLogoTile = GameLogo();

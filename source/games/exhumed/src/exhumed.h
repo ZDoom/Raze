@@ -81,7 +81,7 @@ void DoSpiritHead();
 
 void CheckKeys2();
 void GameTicker();
-void InitLevel(int);
+void InitLevel(MapRecord*);
 void InitNewGame();
 
 int showmap(short nLevel, short nLevelNew, short nLevelBest);
@@ -124,7 +124,6 @@ extern short nCurBodyNum;
 extern short nBodyTotal;
 
 extern short bSnakeCam;
-extern uint8_t nCinemaSeen;
 
 extern short nButtonColor;
 
@@ -151,11 +150,6 @@ extern short bSlipMode;
 extern short bDoFlashes;
 
 extern int bVanilla;
-
-inline int PublisherLogo()
-{
-    return (g_gameType & GAMEFLAG_EXHUMED) ? kTileBMGLogo : kTilePIELogo;
-}
 
 inline int GameLogo()
 {
@@ -198,6 +192,7 @@ public:
 	void DisplayText();
 	bool AdvanceCinemaText(double clock);
     void SetPalette(int pal) { currentCinemaPalette = pal; }
+    void Create(const FString& text, int pal);
 };
 
 
