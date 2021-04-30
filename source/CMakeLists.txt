@@ -746,7 +746,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/callback.cpp
 	games/blood/src/choke.cpp
 	games/blood/src/controls.cpp
-	games/blood/src/credits.cpp
 	games/blood/src/db.cpp
 	games/blood/src/dude.cpp
 	games/blood/src/d_menu.cpp
