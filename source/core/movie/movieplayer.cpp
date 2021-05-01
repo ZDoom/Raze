@@ -67,6 +67,7 @@ public:
 	virtual bool Frame(uint64_t clock) = 0;
 	virtual void Stop() {}
 	virtual ~MoviePlayer() = default;
+	virtual FTextureID GetTexture() = 0;
 };
 
 //---------------------------------------------------------------------------
@@ -119,16 +120,11 @@ public:
 
 		if (currentclock < nextframetime - 1)
 		{
-			twod->ClearScreen();
-			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
 			return true;
 		}
 
 		animtex.SetFrame(ANIM_GetPalette(&anim), ANIM_DrawFrame(&anim, curframe));
 		frametime = currentclock;
-
-		twod->ClearScreen();
-		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
 
 		int delay = 20;
 		if (frameTicks)
@@ -168,6 +164,11 @@ public:
 		buffer.Reset();
 		animtex.Clean();
 	}
+
+	FTextureID GetTexture() override
+	{
+		return animtex.GetFrameID();
+	}
 };
 
 //---------------------------------------------------------------------------
@@ -199,14 +200,17 @@ public:
 	{
 		if (failed) return false;
 		bool playon = decoder.RunFrame(clock);
-		twod->ClearScreen();
-		DrawTexture(twod, decoder.animTex().GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 		return playon;
 	}
 
 	~MvePlayer()
 	{
 		decoder.Close();
+	}
+
+	FTextureID GetTexture() override
+	{
+		return decoder.animTex().GetFrameID();
 	}
 };
 
@@ -466,7 +470,6 @@ public:
 				lastsoundframe = soundframe;
 			}
 		}
-		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit, TAG_DONE);
 		return !stop;
 	}
 
@@ -481,6 +484,11 @@ public:
 	{
 		vpx_codec_destroy(&codec);
 		animtex.Clean();
+	}
+
+	FTextureID GetTexture() override
+	{
+		return animtex.GetFrameID();
 	}
 };
 
@@ -567,7 +575,6 @@ public:
 		nFrameNs = 1'000'000'000 / nFrameRate;
 		nFrames = Smacker_GetNumFrames(hSMK);
 		Smacker_GetPalette(hSMK, palette);
-		fullscreenScale = (!(flags & FIXEDVIEWPORT) || (nWidth <= 320 && nHeight <= 200) || nWidth >= 640 || nHeight >= 480);
 
 		numAudioTracks = Smacker_GetNumAudioTracks(hSMK);
 		if (numAudioTracks)
@@ -629,14 +636,7 @@ public:
 			}
 
 		}
-		if (fullscreenScale)
-		{
-			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-		}
-		else
-		{
-			DrawTexture(twod, animtex.GetFrame(), 320, 240, DTA_VirtualWidth, 640, DTA_VirtualHeight, 480, DTA_CenterOffset, true, TAG_DONE);
-		}
+
 		if (frame > nFrame)
 		{
 			nFrame++;
@@ -670,6 +670,12 @@ public:
 		Smacker_Close(hSMK);
 		animtex.Clean();
 	}
+
+	FTextureID GetTexture() override
+	{
+		return animtex.GetFrameID();
+	}
+
 };
 
 //---------------------------------------------------------------------------
@@ -811,4 +817,10 @@ DEFINE_ACTION_FUNCTION(_MoviePlayer, Destroy)
 	self->Stop();
 	delete self;
 	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_MoviePlayer, GetTexture)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
+	ACTION_RETURN_INT(self->GetTexture().GetIndex());
 }

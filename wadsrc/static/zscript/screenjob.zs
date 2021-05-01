@@ -230,6 +230,7 @@ struct MoviePlayer native
 	native void Start();
 	native bool Frame(double clock);
 	native void Destroy();
+	native TextureID GetTexture();
 }
 
 //---------------------------------------------------------------------------
@@ -242,10 +243,12 @@ class MoviePlayerJob : SkippableScreenJob
 {
 	MoviePlayer player;
 	bool started;
+	int flag;
 
-	ScreenJob Init(MoviePlayer mp)
+	ScreenJob Init(MoviePlayer mp, int flags)
 	{
 		Super.Init();
+		flag = flags;
 		player = mp;
 		return self;
 	}
@@ -253,7 +256,7 @@ class MoviePlayerJob : SkippableScreenJob
 	static ScreenJob CreateWithSoundInfo(String filename, Array<int> soundinfo, int flags, int frametime, int firstframetime = -1, int lastframetime = -1)
 	{
 		let movie = MoviePlayer.Create(filename, soundinfo, flags, frametime, firstframetime, lastframetime);
-		if (movie) return new("MoviePlayerJob").Init(movie);
+		if (movie) return new("MoviePlayerJob").Init(movie, flags);
 		return null;
 	}
 	static ScreenJob Create(String filename, int flags, int frametime = -1)
@@ -267,6 +270,22 @@ class MoviePlayerJob : SkippableScreenJob
 		empty.Push(1);
 		empty.Push(int(soundname));
 		return CreateWithSoundInfo(filename, empty, flags, frametime);
+	}
+	
+	virtual void DrawFrame()
+	{
+		let tex = player.GetTexture();
+		let size = TexMan.GetScaledSize(tex);
+		
+		if (!(flag & MoviePlayer.FIXEDVIEWPORT) || (size.x <= 320 && size.y <= 200) || size.x >= 640 || size.y >= 480)
+		{
+			Screen.DrawTexture(tex, false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false);
+		}
+		else
+		{
+			Screen.DrawTexture(tex, false, 320, 240, DTA_VirtualWidth, 640, DTA_VirtualHeight, 480, DTA_CenterOffset, true, DTA_Masked, false);
+		}
+
 	}
 
 	override void Draw(double smoothratio)
@@ -286,6 +305,7 @@ class MoviePlayerJob : SkippableScreenJob
 		{
 			jobstate = finished;
 		}
+		DrawFrame();
 	}
 
 	override void OnDestroy()
