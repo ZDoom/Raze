@@ -807,6 +807,12 @@ void LoadCustomInfoFromScript(const char *filename)
             break;
         }
     }
+    auto vol0 = MustFindVolume(0);
+    auto vol1 = MustFindVolume(1);
+    auto map1 = FindMapByLevelNum(1);
+    auto map5 = FindMapByLevelNum(5);
+    if (vol0 && map1) vol0->startmap = map1->labelName;
+    if (vol1 && map5) vol1->startmap = map5->labelName;
 }
 
 END_SW_NS

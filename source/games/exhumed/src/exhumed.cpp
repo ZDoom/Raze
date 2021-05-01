@@ -495,6 +495,12 @@ void GameInterface::app_init()
 #if 0
     help_disabled = true;
 #endif
+
+    auto vol0 = MustFindVolume(0);
+    auto vol1 = MustFindVolume(1);
+    if (vol0) vol0->startmap = "LEV1";
+    if (vol1) vol1->startmap = "LEV0";
+
     // Create the global level table. Parts of the engine need it, even though the game itself does not.
     for (int i = 0; i <= 32; i++)
     {

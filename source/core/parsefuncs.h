@@ -120,7 +120,7 @@ void parseDefineCutscene(FScanner& sc, FScriptPosition& pos)
 		while (!sc.FoundEndBrace(eblockend))
 		{
 			sc.MustGetString();
-			auto volume = MustFindVolume(vol);
+			auto volume = MustFindCluster(vol);
 			if (sc.Compare("intro")) parseCutscene(sc, volume->intro);
 			else if (sc.Compare("outro")) parseCutscene(sc, volume->outro);
 			else if (sc.Compare("flags")) sc.GetNumber(volume->flags);

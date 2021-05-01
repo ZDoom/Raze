@@ -221,7 +221,6 @@ struct GameInterface : ::GameInterface
 	bool GenerateSavePic() override;
     void MenuOpened() override;
     void MenuSound(EMenuSounds snd) override;
-    bool StartGame(FNewGameStartup& gs) override;
     FSavegameInfo GetSaveSig() override;
     void SerializeGameState(FSerializer& arc);
     bool CanSave() override;

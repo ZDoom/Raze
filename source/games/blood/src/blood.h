@@ -78,7 +78,6 @@ extern int blood_globalflags;
 
 void QuitGame(void);
 void PreloadCache(void);
-void StartLevel(MapRecord *gameOptions);
 void ProcessFrame(void);
 void ScanINIFiles(void);
 void EndLevel();
@@ -108,7 +107,6 @@ struct GameInterface : ::GameInterface
 	void MenuOpened() override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	bool StartGame(FNewGameStartup& gs) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;

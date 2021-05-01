@@ -64,7 +64,7 @@ struct GameInterface
 	virtual void MenuSound(EMenuSounds snd) {}
 	virtual bool CanSave() { return true; }
 	virtual void CustomMenuSelection(int menu, int item) {}
-	virtual bool StartGame(FNewGameStartup& gs) { return false; }
+	virtual bool StartGame(FNewGameStartup& gs) { return true; }
 	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
 	virtual double SmallFontScale() { return 1; }
 	virtual void SerializeGameState(FSerializer& arc) {}

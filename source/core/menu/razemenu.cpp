@@ -83,7 +83,30 @@ bool help_disabled;
 FNewGameStartup NewGameStartupInfo;
 
 
+
 //FNewGameStartup NewGameStartupInfo;
+
+static bool DoStartGame(FNewGameStartup& gs)
+{
+	auto vol = FindVolume(gs.Episode);
+	if (!vol) return false;
+
+	if (isShareware() && (vol->flags & VF_SHAREWARELOCK))
+	{
+		M_StartMessage(GStrings("SHAREWARELOCK"), 1, NAME_None);
+		return false;
+	}
+
+	auto map = FindMapByName(vol->startmap);
+	if (!map) return false;
+	soundEngine->StopAllChannels();
+
+	gi->StartGame(gs);	// play game specific effects (like Duke/RR/SW's voice lines when starting a game.)
+
+	DeferedStartGame(map, gs.Skill);
+	return true;
+}
+
 
 
 bool M_SetSpecialMenu(FName& menu, int param)
@@ -115,14 +138,14 @@ bool M_SetSpecialMenu(FName& menu, int param)
 
 	case NAME_Startgame:
 	case NAME_StartgameNoSkill:
-		menu = NAME_Startgame;
 		NewGameStartupInfo.Skill = param;
 		if (menu == NAME_StartgameNoSkill)
 		{
+			menu = NAME_Startgame;
 			NewGameStartupInfo.Episode = param;
 			NewGameStartupInfo.Skill = 1;
 		}
-		if (gi->StartGame(NewGameStartupInfo))
+		if (DoStartGame(NewGameStartupInfo))
 		{
 			M_ClearMenus();
 			int ep = NewGameStartupInfo.Episode;

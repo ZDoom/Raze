@@ -104,9 +104,9 @@ void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSectio
     pLevelInfo->weather = pIni->GetKeyInt(pzSection, "Weather", -0);
     for (int i = 0; i < kMaxMessages; i++)
     {
-        sprintf(buffer, "Message%d", i+1);
-		auto msg = pIni->GetKeyString(pzSection, buffer, "");
-		pLevelInfo->AddMessage(i, msg);
+        sprintf(buffer, "Message%d", i + 1);
+        auto msg = pIni->GetKeyString(pzSection, buffer, "");
+        pLevelInfo->AddMessage(i, msg);
     }
 }
 
@@ -182,7 +182,7 @@ void levelLoadDefaults(void)
         if (cutALevel < 0) cutALevel = 0;
 
         int j;
-        for (j = 0; j < kMaxLevels; j++)
+        for (j = 1; j <= kMaxLevels; j++)
         {
             sprintf(buffer2, "Map%d", j);
             if (!BloodINI->KeyExists(buffer, buffer2))
@@ -190,10 +190,11 @@ void levelLoadDefaults(void)
             auto pLevelInfo = AllocateMap();
             const char *pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
             CheckSectionAbend(pMap);
-			SetLevelNum(pLevelInfo, makelevelnum(i, j));
+			SetLevelNum(pLevelInfo, makelevelnum(i-1, j-1));
             pLevelInfo->cluster = i;
             pLevelInfo->mapindex = j;
             pLevelInfo->labelName = pMap;
+			if (j == 1) volume->startmap = pLevelInfo->labelName;
             pLevelInfo->fileName.Format("%s.map", pMap);
             levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j);
             if (j == cutALevel)

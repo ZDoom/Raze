@@ -108,8 +108,6 @@ struct VolumeRecord	// episodes
 	FString name;
 	FString subtitle;
 	int index = -1;
-	CutsceneDef intro;
-	CutsceneDef outro;
 	int flags = 0;
 	int shortcut = 0;
 };
