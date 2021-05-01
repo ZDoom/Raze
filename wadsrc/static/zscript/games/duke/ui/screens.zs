@@ -1042,8 +1042,8 @@ class DukeLoadScreen : ScreenJob
 		
 		if (!Raze.IsRR())
 		{
-			Duke.BigText(160, 90, (rec.flags & MapRecord.USERMAP)? "$TXT_LOADUM" : "$TXT_LOADING");
-			Duke.BigText(160, 114, rec.DisplayName());
+			Duke.BigText(160, 90, (rec.flags & MapRecord.USERMAP)? "$TXT_LOADUM" : "$TXT_LOADING", 0);
+			Duke.BigText(160, 114, rec.DisplayName(), 0);
 		}
 		else
 		{
