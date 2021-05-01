@@ -49,3 +49,4 @@ enum gameaction_t : int
 };
 extern	gamestate_t 	gamestate;
 extern gameaction_t		gameaction;
+extern int intermissiondelay;

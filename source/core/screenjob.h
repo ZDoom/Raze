@@ -13,6 +13,7 @@ void Job_Init();
 enum
 {
 	SJ_BLOCKUI = 1,
+	SJ_DELAY = 2,
 };
 
 void EndScreenJob();

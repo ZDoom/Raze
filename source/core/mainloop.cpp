@@ -105,6 +105,7 @@ bool r_NoInterpolate;
 int entertic;
 int oldentertics;
 int gametic;
+int intermissiondelay;
 
 FString BackupSaveGame;
 
@@ -349,6 +350,11 @@ static void GameTicker()
 		break;
 	case GS_INTERMISSION:
 	case GS_INTRO:
+		if (intermissiondelay > 0)
+		{
+			intermissiondelay--;
+			break;
+		}
 		if (ScreenJobTick())
 		{
 			// synchronize termination with the playsim.
@@ -393,7 +399,7 @@ void Display()
 	case GS_INTRO:
 	case GS_INTERMISSION:
 		// screen jobs are not bound by the game ticker so they need to be ticked in the display loop.
-		ScreenJobDraw();
+		if (intermissiondelay <= 0) ScreenJobDraw();
 		break;
 
 	case GS_LEVEL:

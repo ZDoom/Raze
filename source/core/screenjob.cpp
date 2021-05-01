@@ -374,6 +374,8 @@ bool StartCutscene(CutsceneDef& cs, int flags, const CompletionFunc& completion_
 				runner = nullptr;
 				return false;
 			}
+			if (flags & SJ_DELAY) intermissiondelay = 10;	// need to wait a bit at the start to let the timer catch up.
+			else intermissiondelay = 0;
 			gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
 		}
 		catch (...)
@@ -410,7 +412,7 @@ void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
 	}
 	else
 	{
-		if (!StartCutscene(globalCutscenes.Intro, SJ_BLOCKUI, [=](bool) { 
+		if (!StartCutscene(globalCutscenes.Intro, SJ_BLOCKUI|SJ_DELAY, [=](bool) { 
 			gameaction = complete_ga; 
 			})) gameaction = def_ga;
 	}
