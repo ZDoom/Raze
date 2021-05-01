@@ -1644,6 +1644,7 @@ int ConCompiler::parsecommand()
 		return 0;
 
 	case concmd_definevolumename:
+	{
 		popscriptvalue();
 		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
@@ -1658,8 +1659,13 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		volumeList[j].name = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		// We need both a volume and a cluster for this new episode.
+		auto vol = MustFindVolume(j);
+		auto clust = MustFindCluster(j + 1);
+		vol->name = clust->name = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		if (j > 0) vol->flags |= VF_SHAREWARELOCK;
 		return 0;
+	}
 	case concmd_defineskillname:
 		popscriptvalue();
 		transnum(LABEL_DEFINE);
@@ -1699,6 +1705,11 @@ int ConCompiler::parsecommand()
 		auto map = FindMapByLevelNum(levnum);
 		if (!map) map = AllocateMap();
 		map->SetFileName(parsebuffer.Data());
+		if (k == 0)
+		{
+			auto vol = MustFindVolume(j);
+			vol->startmap = map->labelName;
+		}
 
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
@@ -3177,6 +3188,12 @@ void loadcons()
 
 	ScriptCode.Push(0);
 	ConCompiler comp;
+
+	if (fileSystem.FileExists("engine/engine.con"))
+	{
+		comp.compilecon("engine/engine.con");
+	}
+
 	comp.compilecon(ConFile()); //Tokenize
 
 	if (userConfig.AddCons) for (FString& m : *userConfig.AddCons.get())

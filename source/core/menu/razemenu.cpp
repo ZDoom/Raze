@@ -117,11 +117,17 @@ bool M_SetSpecialMenu(FName& menu, int param)
 	case NAME_StartgameNoSkill:
 		menu = NAME_Startgame;
 		NewGameStartupInfo.Skill = param;
-		if (menu == NAME_StartgameNoSkill) NewGameStartupInfo.Episode = param;
+		if (menu == NAME_StartgameNoSkill)
+		{
+			NewGameStartupInfo.Episode = param;
+			NewGameStartupInfo.Skill = 1;
+		}
 		if (gi->StartGame(NewGameStartupInfo))
 		{
 			M_ClearMenus();
-			STAT_StartNewGame(volumeList[NewGameStartupInfo.Episode].name, NewGameStartupInfo.Skill);
+			int ep = NewGameStartupInfo.Episode;
+			auto vol = FindVolume(ep);
+			if (vol) STAT_StartNewGame(vol->name, NewGameStartupInfo.Skill);
 			inputState.ClearAllInput();
 		}
 		return false;
@@ -365,6 +371,7 @@ static DMenuItemBase* CreateCustomListMenuItemText(double x, double y, int heigh
 // Creates the episode menu
 //
 //=============================================================================
+extern TArray<VolumeRecord> volumes;
 
 static void BuildEpisodeMenu()
 {
@@ -385,15 +392,14 @@ static void BuildEpisodeMenu()
 		ld->mSelectedItem = gDefaultVolume + ld->mItems.Size(); // account for pre-added items
 		int y = ld->mYpos;
 
-		for (int i = 0; i < MAXVOLUMES; i++)
+		// Volume definitions should be sorted by intended menu order.
+		for (auto &vol : volumes)
 		{
-			auto& vol = volumeList[i];
 			if (vol.name.IsNotEmpty() && !(vol.flags & VF_HIDEFROMSP))
-
 			{
-				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0);
+				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && (vol.flags & VF_SHAREWARELOCK));
 				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, vol.name[0],
-					vol.name, ld->mFont, CR_UNTRANSLATED, isShareware, NAME_Skillmenu, i); // font colors are not used, so hijack one for the shareware flag.
+					vol.name, ld->mFont, CR_UNTRANSLATED, isShareware, NAME_Skillmenu, vol.index); // font colors are not used, so hijack one for the shareware flag.
 
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
@@ -401,7 +407,7 @@ static void BuildEpisodeMenu()
 				if (vol.subtitle.IsNotEmpty())
 				{
 					auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing * 6 / 10, 1,
-						vol.subtitle, SmallFont, CR_GRAY, false, NAME_None, i);
+						vol.subtitle, SmallFont, CR_GRAY, false, NAME_None, vol.index);
 					y += ld->mLinespacing * 6 / 10;
 					ld->mItems.Push(it);
 					textadded = true;

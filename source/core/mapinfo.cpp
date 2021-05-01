@@ -47,7 +47,6 @@ GlobalCutscenes globalCutscenes;
 TArray<ClusterDef> clusters;
 TArray<VolumeRecord> volumes;
 TArray<TPointer<MapRecord>> mapList;	// must be allocated as pointers because it can whack the currentlLevel pointer if this was a flat array.
-VolumeRecord volumeList[MAXVOLUMES];
 MapRecord *currentLevel;	// level that is currently played.
 MapRecord* lastLevel;		// Same here, for the last level.
 
@@ -147,6 +146,33 @@ MapRecord *FindMapByLevelNum(int num)
 	return nullptr;
 }
 
+VolumeRecord* FindVolume(int index)
+{
+	for (auto& vol : volumes)
+	{
+		if (vol.index == index) return &vol;
+	}
+	return nullptr;
+}
+
+ClusterDef* FindCluster(int index)
+{
+	for (auto& vol : clusters)
+	{
+		if (vol.index == index) return &vol;
+	}
+	return nullptr;
+}
+
+ClusterDef* AllocateCluster()
+{
+	return &clusters[clusters.Reserve(1)];
+}
+
+VolumeRecord* AllocateVolume()
+{
+	return &volumes[volumes.Reserve(1)];
+}
 // return a map whose cluster and map number matches.
 // if there's only one map with the given level number return that.
 MapRecord* FindMapByClusterAndLevelNum(int cluster, int num)

@@ -372,7 +372,7 @@ DEFINE_MAP_OPTION(clear, true)
 }
 
 
-DEFINE_MAP_OPTION(makelevelnum, true)
+DEFINE_MAP_OPTION(levelnum, true)
 {
 	parse.ParseAssign();
 	parse.sc.MustGetNumber();

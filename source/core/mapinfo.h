@@ -9,11 +9,9 @@
 #undef GetMessage	// Windows strikes...
 #endif
 
-
 enum EMax
 {
 	MAXSKILLS = 7,
-	MAXVOLUMES = 7,
 	MAXMENUGAMEPLAYENTRIES = 7,
 };
 
@@ -203,7 +201,6 @@ struct SummaryInfo
 };
 
 extern GlobalCutscenes globalCutscenes;
-extern VolumeRecord volumeList[MAXVOLUMES];
 extern MapRecord *currentLevel;	
 
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack = false);
@@ -216,10 +213,10 @@ MapRecord *FindNextMap(MapRecord *thismap);
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic = nullptr);
 MapRecord* AllocateMap();
 
-inline VolumeRecord* FindVolume(int index) { return nullptr; }
-inline ClusterDef* FindCluster(int index) { return nullptr; }
-inline ClusterDef* AllocateCluster() { return nullptr; }
-inline VolumeRecord* AllocateVolume() { return nullptr; }
+VolumeRecord* FindVolume(int index);
+ClusterDef* FindCluster(int index);
+ClusterDef* AllocateCluster();
+VolumeRecord* AllocateVolume();
 void SetLevelNum(MapRecord* info, int num);
 
 inline VolumeRecord* MustFindVolume(int index)

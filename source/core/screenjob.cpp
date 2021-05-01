@@ -461,18 +461,10 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 	GC::WriteBarrier(runner);
 
 	// retrieve cluster relations for cluster-based cutscenes.
-	int fromcluster = -1, tocluster = -1;
-	if (fromMap)
-	{
-		fromcluster = fromMap->cluster - 1;
-		if (fromcluster < 0 || fromcluster >= MAXVOLUMES) fromcluster = -1;
-	}
-	if (toMap)
-	{
-		tocluster = toMap->cluster - 1;
-		if (tocluster < 0 || tocluster >= MAXVOLUMES) tocluster = -1;
-	}
-	if (fromcluster == tocluster) fromcluster = tocluster = -1;
+	ClusterDef* fromcluster = nullptr, *tocluster = nullptr;
+	if (fromMap) fromcluster = FindCluster(fromMap->cluster);
+	if (toMap) tocluster = FindCluster(toMap->cluster);
+	if (fromcluster == tocluster) fromcluster = tocluster = nullptr;
 
 
 	try
@@ -481,7 +473,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		{
 			if (!fromMap->outro.Create(runner, fromMap, !!toMap))
 			{
-				if (fromcluster != -1 && !volumeList[fromcluster].outro.Create(runner, fromMap, !!toMap))
+				if (fromcluster != nullptr && !fromcluster->outro.Create(runner, fromMap, !!toMap))
 					globalCutscenes.DefaultMapOutro.Create(runner, fromMap, !!toMap);
 			}
 
@@ -493,7 +485,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		{
 			if (!toMap->intro.Create(runner, toMap, !!fromMap))
 			{
-				if  (tocluster != -1 && !volumeList[tocluster].intro.Create(runner, toMap, !!fromMap))
+				if  (tocluster != nullptr && !tocluster->intro.Create(runner, toMap, !!fromMap))
 					globalCutscenes.DefaultMapIntro.Create(runner, toMap, !!fromMap);
 			}
 			globalCutscenes.LoadingScreen.Create(runner, toMap, true);

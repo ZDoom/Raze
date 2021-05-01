@@ -109,20 +109,21 @@ void parseDefineCutscene(FScanner& sc, FScriptPosition& pos)
 	{
 		FScanner::SavedPos eblockend;
 		sc.MustGetNumber();
-		if (sc.Number < 1 || sc.Number > MAXVOLUMES)
+		if (sc.Number < 1)
 		{
 			sc.ScriptError("episode number %d out of range. Must be positive", sc.Number);
 			return;
 		}
-		int vol = sc.Number - 1;
+		int vol = sc.Number;
 
 		if (sc.StartBraces(&eblockend)) return;
 		while (!sc.FoundEndBrace(eblockend))
 		{
 			sc.MustGetString();
-			if (sc.Compare("intro")) parseCutscene(sc, volumeList[vol].intro);
-			else if (sc.Compare("outro")) parseCutscene(sc, volumeList[vol].outro);
-			else if (sc.Compare("flags")) sc.GetNumber(volumeList[vol].flags);
+			auto volume = MustFindVolume(vol);
+			if (sc.Compare("intro")) parseCutscene(sc, volume->intro);
+			else if (sc.Compare("outro")) parseCutscene(sc, volume->outro);
+			else if (sc.Compare("flags")) sc.GetNumber(volume->flags);
 		}
 	}
 	else if (sc.Compare("map"))

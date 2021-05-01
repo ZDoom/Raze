@@ -65,7 +65,7 @@ struct MapRecord native
 	native readonly int flags;
 	native readonly int levelNumber;
 	native readonly int cluster;
-
+	native readonly String InterBackground;
 	// The rest is only used by Blood
 	native readonly int nextLevel;
 	native readonly int nextSecret;
@@ -82,6 +82,14 @@ struct MapRecord native
 		if (name == "") return labelName;
 		return name;
 	}
+
+	native ClusterDef GetCluster();
+}
+
+struct ClusterDef
+{
+	native readonly String name;
+	native readonly String InterBackground;
 }
 
 struct SummaryInfo native

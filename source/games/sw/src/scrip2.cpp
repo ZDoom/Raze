@@ -524,13 +524,19 @@ void LoadCustomInfoFromScript(const char *filename)
                 case CM_TITLE:
                 {
                     sc.MustGetString();
-                    if (curep != -1) volumeList[curep].name = sc.String;
+                    auto vol = MustFindVolume(curep);
+                    auto clust = MustFindCluster(curep);
+                    vol->name = clust->name = sc.String;
                     break;
                 }
                 case CM_SUBTITLE:
                 {
                     sc.MustGetString();
-                    if (curep != -1) volumeList[curep].subtitle = sc.String;
+                    if (curep != -1)
+                    {
+                        auto vol = MustFindVolume(curep);
+                        vol->subtitle = sc.String;
+                    }
                     break;
                 }
                 default:

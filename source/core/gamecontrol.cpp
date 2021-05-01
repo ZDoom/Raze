@@ -596,13 +596,17 @@ int GameMain()
 
 void SetDefaultStrings()
 {
+	// Duke 1.3 does not define its episodes through CON.
 	if ((g_gameType & GAMEFLAG_DUKE) && fileSystem.FindFile("E4L1.MAP") < 0)
 	{
+		auto vol0 = AllocateVolume(); vol0->index = 0;
+		auto vol1 = AllocateVolume(); vol1->index = 1; vol1->flags = VF_SHAREWARELOCK;
+		auto vol2 = AllocateVolume(); vol2->index = 2; vol1->flags = VF_SHAREWARELOCK;
 		// Pre-Atomic releases do not define this.
-		volumeList[0].name = "$L.A. Meltdown";
-		volumeList[1].name = "$Lunar Apocalypse";
-		volumeList[2].name = "$Shrapnel City";
-		if (g_gameType & GAMEFLAG_SHAREWARE) volumeList[3].name = "$The Birth";
+		vol0->name = "$L.A. Meltdown";
+		vol1->name = "$Lunar Apocalypse";
+		vol2->name = "$Shrapnel City";
+
 		gSkillNames[0] = "$Piece of Cake";
 		gSkillNames[1] = "$Let's Rock";
 		gSkillNames[2] = "$Come get Some";
@@ -1494,6 +1498,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bcos, bcos)
 	ACTION_RETURN_INT(bcos(v, shift));
 }
 
+DEFINE_ACTION_FUNCTION(_MapRecord, GetCluster)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MapRecord);
+	ACTION_RETURN_POINTER(FindCluster(self->cluster));
+}
+
 extern bool demoplayback;
 DEFINE_GLOBAL(multiplayer)
 DEFINE_GLOBAL(netgame)
@@ -1503,6 +1513,9 @@ DEFINE_GLOBAL(demoplayback)
 DEFINE_GLOBAL(consoleplayer)
 DEFINE_GLOBAL(currentLevel)
 DEFINE_GLOBAL(paused)
+
+DEFINE_FIELD_X(ClusterDef, ClusterDef, name)
+DEFINE_FIELD_X(ClusterDef, ClusterDef, InterBackground)
 
 DEFINE_FIELD_X(MapRecord, MapRecord, parTime)
 DEFINE_FIELD_X(MapRecord, MapRecord, designerTime)
@@ -1518,6 +1531,7 @@ DEFINE_FIELD_X(MapRecord, MapRecord, nextLevel)
 DEFINE_FIELD_X(MapRecord, MapRecord, nextSecret)
 //native readonly String messages[MAX_MESSAGES];
 DEFINE_FIELD_X(MapRecord, MapRecord, Author)
+DEFINE_FIELD_X(MapRecord, MapRecord, InterBackground)
 
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, kills)
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, maxkills)

@@ -160,14 +160,17 @@ void levelLoadDefaults(void)
 
     levelInitINI(DefFile());
     int i;
-    for (i = 0; i < kMaxEpisodes; i++)
+    for (i = 1; i <= kMaxEpisodes; i++)
     {
-        sprintf(buffer, "Episode%d", i+1);
+        sprintf(buffer, "Episode%d", i);
         if (!BloodINI->SectionExists(buffer))
             break;
-        CutsceneDef &csB = volumeList[i].outro;
+        auto cluster = MustFindCluster(i);
+        auto volume = MustFindVolume(i);
+        CutsceneDef &csB = cluster->outro;
         auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
-		volumeList[i].name = ep_str;
+		cluster->name = volume->name = ep_str;
+        if (i > 1) volume->flags |= VF_SHAREWARELOCK;
 
         csB.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneB", ""));
         csB.sound = soundEngine->FindSoundByResID(BloodINI->GetKeyInt(buffer, "CutWavB", -1) + 0x40000000);
@@ -181,14 +184,15 @@ void levelLoadDefaults(void)
         int j;
         for (j = 0; j < kMaxLevels; j++)
         {
-            sprintf(buffer2, "Map%d", j+1);
+            sprintf(buffer2, "Map%d", j);
             if (!BloodINI->KeyExists(buffer, buffer2))
                 break;
             auto pLevelInfo = AllocateMap();
             const char *pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
             CheckSectionAbend(pMap);
-			pLevelInfo->levelNumber = makelevelnum(i, j);
-            pLevelInfo->cluster = i + 1;
+			SetLevelNum(pLevelInfo, makelevelnum(i, j));
+            pLevelInfo->cluster = i;
+            pLevelInfo->mapindex = j;
             pLevelInfo->labelName = pMap;
             pLevelInfo->fileName.Format("%s.map", pMap);
             levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j);
