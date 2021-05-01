@@ -199,6 +199,11 @@ class BloodSummaryScreen : SummaryScreenBase
 			BloodScreen.DrawText(font, text, 160, 134, 1, shadow:font == SmallFont2);
 		}
 	}
+
+	override void OnDestroy()
+	{
+		Raze.StopAllSounds();
+	}
 }
 
 //---------------------------------------------------------------------------
