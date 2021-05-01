@@ -832,7 +832,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);
 
-    if (isRR() && !isRRRA() && mi->levelNumber == levelnum(1, 1))
+    if (isRR() && !isRRRA() && mi->levelNumber == makelevelnum(1, 1))
     {
         for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
             ps[0].ammo_amount[i] = 0;
@@ -845,7 +845,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     if (isRR()) prelevel_r(gamemode);
     else prelevel_d(gamemode);
 
-    if (isRRRA() && mi->levelNumber == levelnum(0, 2))
+    if (isRRRA() && mi->levelNumber == makelevelnum(0, 2))
     {
         for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
             ps[0].ammo_amount[i] = 0;
@@ -1001,7 +1001,7 @@ bool setnextmap(bool checksecretexit)
     {
         if (ud.secretlevel > 0)
         {
-            int newlevnum = levelnum(volfromlevelnum(currentLevel->levelNumber), ud.secretlevel-1);
+            int newlevnum = makelevelnum(volfromlevelnum(currentLevel->levelNumber), ud.secretlevel-1);
             map = FindMapByLevelNum(newlevnum);
             if (map)
             {

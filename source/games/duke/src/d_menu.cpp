@@ -127,7 +127,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 		Net_ClearFifo();
 	}
 
-	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
+	auto map = FindMapByLevelNum(makelevelnum(gs.Episode, gs.Level));
 	if (map)
 	{
 		DeferedStartGame(map, gs.Skill);

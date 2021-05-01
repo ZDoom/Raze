@@ -329,7 +329,7 @@ void GameInterface::Ticker()
 				STAT_Update(false);
 				// Fixme: Link maps, not episode/level pairs.
 				int ep = volfromlevelnum(currentLevel->levelNumber);
-				auto map = FindMapByLevelNum(levelnum(ep, gNextLevel));
+				auto map = FindMapByLevelNum(makelevelnum(ep, gNextLevel));
 				CompleteLevel(map);
 			}
 		}

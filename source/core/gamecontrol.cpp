@@ -608,7 +608,6 @@ void SetDefaultStrings()
 		gSkillNames[2] = "$Come get Some";
 		gSkillNames[3] = "$Damn I'm Good";
 	}
-	if (g_gameType & GAMEFLAG_RR) volumeList[0].flags |= EF_GOTONEXTVOLUME;
 	// Blood hard codes its skill names, so we have to define them manually.
 	if (isBlood())
 	{
@@ -1518,7 +1517,7 @@ DEFINE_FIELD_X(MapRecord, MapRecord, cluster)
 DEFINE_FIELD_X(MapRecord, MapRecord, nextLevel)
 DEFINE_FIELD_X(MapRecord, MapRecord, nextSecret)
 //native readonly String messages[MAX_MESSAGES];
-DEFINE_FIELD_X(MapRecord, MapRecord, author)
+DEFINE_FIELD_X(MapRecord, MapRecord, Author)
 
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, kills)
 DEFINE_FIELD_X(SummaryInfo, SummaryInfo, maxkills)

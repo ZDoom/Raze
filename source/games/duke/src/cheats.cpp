@@ -296,7 +296,7 @@ static bool cheatLevel(cheatseq_t *s)
 	levnume = (s->Args[1] - '0')*10+(s->Args[2]-'0') - 1;
 	
 	// Instead of hard coded range checks on volume and level, let's just check if the level is defined.
-	auto map = FindMapByLevelNum(levelnum(volnume, levnume));
+	auto map = FindMapByLevelNum(makelevelnum(volnume, levnume));
 	if (map)
 	{
 		ChangeLevel(map, -1);

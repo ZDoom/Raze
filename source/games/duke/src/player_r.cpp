@@ -1469,20 +1469,20 @@ int doincrements_r(struct player_struct* p)
 				switch (currentLevel->levelNumber)
 				{
 				default: snd = 391; break;
-				case levelnum(0, 0): snd = isRRRA() ? 63 : 391; break;
-				case levelnum(0, 1): snd = 64; break;
-				case levelnum(0, 2): snd = 77; break;
-				case levelnum(0, 3): snd = 80; break;
-				case levelnum(0, 4): snd = 102; break;
-				case levelnum(0, 5): snd = 103; break;
-				case levelnum(0, 6): snd = 104; break;
-				case levelnum(1, 0): snd = 105; break;
-				case levelnum(1, 1): snd = 176; break;
-				case levelnum(1, 2): snd = 177; break;
-				case levelnum(1, 3): snd = 198; break;
-				case levelnum(1, 4): snd = 230; break;
-				case levelnum(1, 5): snd = 255; break;
-				case levelnum(1, 6): snd = 283; break;
+				case makelevelnum(0, 0): snd = isRRRA() ? 63 : 391; break;
+				case makelevelnum(0, 1): snd = 64; break;
+				case makelevelnum(0, 2): snd = 77; break;
+				case makelevelnum(0, 3): snd = 80; break;
+				case makelevelnum(0, 4): snd = 102; break;
+				case makelevelnum(0, 5): snd = 103; break;
+				case makelevelnum(0, 6): snd = 104; break;
+				case makelevelnum(1, 0): snd = 105; break;
+				case makelevelnum(1, 1): snd = 176; break;
+				case makelevelnum(1, 2): snd = 177; break;
+				case makelevelnum(1, 3): snd = 198; break;
+				case makelevelnum(1, 4): snd = 230; break;
+				case makelevelnum(1, 5): snd = 255; break;
+				case makelevelnum(1, 6): snd = 283; break;
 				}
 				S_PlayActorSound(snd, pact);
 			}
@@ -3401,7 +3401,7 @@ void processinput_r(int snum)
 		}
 	}
 	else if (psectlotag == 7777)
-		if (currentLevel->levelNumber == levelnum(1, 6))
+		if (currentLevel->levelNumber == makelevelnum(1, 6))
 			lastlevel = 1;
 
 	if (psectlotag == 848 && sector[psect].floorpicnum == WATERTILE2)

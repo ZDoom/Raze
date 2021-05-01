@@ -366,11 +366,11 @@ static void cachegoodsprites(void)
 	for (i = SMALLSMOKE; i < (SMALLSMOKE + 4); i++)
 		tloadtile(i);
 
-	if (isRRRA() && currentLevel->levelNumber == levelnum(0, 4))
+	if (isRRRA() && currentLevel->levelNumber == makelevelnum(0, 4))
 	{
 		tloadtile(RRTILE2577);
 	}
-	if (!isRRRA() && currentLevel->levelNumber == levelnum(1, 2))
+	if (!isRRRA() && currentLevel->levelNumber == makelevelnum(1, 2))
 	{
 		tloadtile(RRTILE3190);
 		tloadtile(RRTILE3191);
@@ -465,7 +465,7 @@ void prelevel_r(int g)
 
 	if (isRRRA())
 	{
-		if (currentLevel->levelNumber == levelnum(1, 4))
+		if (currentLevel->levelNumber == makelevelnum(1, 4))
 			ps[myconnectindex].steroids_amount = 0;
 
 		for (j = 0; j < MAXSPRITES; j++)

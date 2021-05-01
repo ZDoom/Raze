@@ -3455,7 +3455,7 @@ int ParseState::parse(void)
 		insptr++; // skip command
 		volnume = GetGameVarID(*insptr++, g_ac, g_p);
 		levnume = GetGameVarID(*insptr++, g_ac, g_p);
-		auto level = FindMapByLevelNum(levelnum(volnume - 1, levnume - 1));
+		auto level = FindMapByLevelNum(makelevelnum(volnume - 1, levnume - 1));
 		if (level != nullptr)
 			ChangeLevel(level, -1);
 		break;
@@ -3572,7 +3572,7 @@ int ParseState::parse(void)
 	{
 		insptr++;
 		int music_select = *insptr++;
- 		auto level = FindMapByLevelNum(levelnum(currentLevel->cluster, music_select));
+ 		auto level = FindMapByLevelNum(makelevelnum(currentLevel->cluster, music_select));
 		if (level) S_PlayLevelMusic(level);
 		break;
 	}

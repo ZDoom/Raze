@@ -3,6 +3,8 @@
 #include "gstrings.h"
 #include "cmdlib.h"
 #include "quotemgr.h"
+#include "palentry.h"
+#include "vectors.h"
 #ifdef GetMessage
 #undef GetMessage	// Windows strikes...
 #endif
@@ -17,8 +19,24 @@ enum EMax
 
 enum EVolFlags
 {
-	EF_HIDEFROMSP = 1,
-	EF_GOTONEXTVOLUME = 2,	// for RR which continues the game in the next volume
+	VF_HIDEFROMSP = 1,
+	VF_OPTIONAL = 2,
+	VF_SHAREWARELOCK = 4,	// show in shareware but lock access.
+	VF_NOSKILL = 8,
+};
+
+enum EMapFlags
+{
+	LEVEL_NOINTERMISSION = 1,
+	LEVEL_SECRETEXITOVERRIDE = 2,	// when given an explicit level number, override with secret exit in the map, mainly for compiling episodes out of single levels.
+	LEVEL_CLEARINVENTORY = 4,
+	LEVEL_CLEARWEAPONS = 8,
+};
+
+enum EMapGameFlags
+{
+	LEVEL_RR_HULKSPAWN = 1,
+	LEVEL_RR_CLEARMOONSHINE = 2,
 };
 
 // These get filled in by the map definition parsers of the front ends.
@@ -51,12 +69,16 @@ struct CutsceneDef
 {
 	FString video;
 	FString function;
+	FString soundName;
+	int soundID;	// ResID not SoundID!
 	int sound = 0;
 	int framespersec = 0; // only relevant for ANM.
 	bool transitiononly = false; // only play when transitioning between maps, but not when starting on a map or ending a game.
 
 	void Create(DObject* runner);
 	bool Create(DObject* runner, MapRecord* map, bool transition);
+	bool isdefined() { return video.IsNotEmpty() || function.IsNotEmpty(); }
+	int GetSound();
 };
 
 struct GlobalCutscenes
@@ -70,13 +92,28 @@ struct GlobalCutscenes
 	FString SummaryScreen;
 };
 
-struct VolumeRecord
+struct ClusterDef
 {
+	FString name;			// What gets displayed for this cluster. In Duke this is normally the corresponding volume name but does not have to be.
+	CutsceneDef intro;		// plays when entering this cluster
+	CutsceneDef outro;		// plays when leaving this cluster
+	CutsceneDef gameover;	// when defined, plays when the player dies in this cluster
+	FString InterBackground;
+	int index = -1;
+	int flags = 0;			// engine and common flags
+	int gameflags = 0;		// game specific flags.
+};
+
+struct VolumeRecord	// episodes
+{
+	FString startmap;
 	FString name;
 	FString subtitle;
+	int index = -1;
 	CutsceneDef intro;
 	CutsceneDef outro;
-	int32_t flags = 0;
+	int flags = 0;
+	int shortcut = 0;
 };
 
 struct MapRecord
@@ -87,19 +124,36 @@ struct MapRecord
 	FString labelName;
 	FString name;
 	FString music;
+	FString Author;
+	FString NextMap;
+	FString NextSecret;
+	int cdSongId = -1;
+	int musicorder = -1;
+
 	CutsceneDef intro;
 	CutsceneDef outro;
-	int cdSongId = -1;
 	int flags = 0;
+	int gameflags = 0;
 	int levelNumber = -1;
+	int mapindex = -1;	// index in the episode. This only for finding the next map in the progression when nothing explicit is defined.
 	int cluster = -1;
+
+	PalEntry fadeto = 0;
+	int fogdensity = 0;
+	int skyfog = 0;
+	FString BorderTexture;
+	FString InterBackground;
+	TArray<FString> PrecacheTextures;
+	FVector4 skyrotatevector;
 
 	// The rest is only used by Blood
 	int nextLevel = -1;
 	int nextSecret = -1;
 	FString messages[MAX_MESSAGES];
-	FString author;
 	int8_t fog = -1, weather = -1;	// Blood defines these but they aren't used.
+
+	// game specific stuff
+	int rr_startsound = 0;
 	
 	const char* LabelName() const
 	{
@@ -133,8 +187,6 @@ struct MapRecord
 	{
 		messages[num] = msg;
 	}
-	
-
 };
 
 struct SummaryInfo
@@ -159,12 +211,37 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack = fals
 MapRecord *FindMapByName(const char *nm);
 MapRecord *FindMapByLevelNum(int num);
 MapRecord* FindMapByClusterAndLevelNum(int clst, int num);
+inline MapRecord* FindMapByIndexOnly(int clst, int num) { return FindMapByClusterAndLevelNum(clst, num); }
 MapRecord *FindNextMap(MapRecord *thismap);
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic = nullptr);
 MapRecord* AllocateMap();
 
+inline VolumeRecord* FindVolume(int index) { return nullptr; }
+inline ClusterDef* FindCluster(int index) { return nullptr; }
+inline ClusterDef* AllocateCluster() { return nullptr; }
+inline VolumeRecord* AllocateVolume() { return nullptr; }
+void SetLevelNum(MapRecord* info, int num);
+
+inline VolumeRecord* MustFindVolume(int index)
+{
+	auto r = FindVolume(index);
+	if (r) return r;
+	r = AllocateVolume();
+	r->index = index;
+	return r;
+}
+inline ClusterDef* MustFindCluster(int index)
+{
+	auto r = FindCluster(index);
+	if (r) return r;
+	r = AllocateCluster();
+	r->index = index;
+	return r;
+}
+
+
 // These should be the only places converting between level numbers and volume/map pairs
-constexpr inline int levelnum(int vol, int map)
+constexpr inline int makelevelnum(int vol, int map)
 {
 	return vol * 1000 + map;
 }

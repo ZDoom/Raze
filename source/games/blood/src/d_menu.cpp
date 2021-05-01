@@ -171,7 +171,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 	}
 
 	sfxKillAllSounds();
-	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
+	auto map = FindMapByLevelNum(makelevelnum(gs.Episode, gs.Level));
 	DeferedStartGame(map, gs.Skill);
 	return true;
 }

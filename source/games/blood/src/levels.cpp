@@ -95,7 +95,7 @@ void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSectio
 {
     char buffer[16];
     pLevelInfo->SetName(pIni->GetKeyString(pzSection, "Title", pLevelInfo->labelName));
-    pLevelInfo->author = pIni->GetKeyString(pzSection, "Author", "");
+    pLevelInfo->Author = pIni->GetKeyString(pzSection, "Author", "");
     pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); DefaultExtension(pLevelInfo->music, ".mid");
     pLevelInfo->cdSongId = pIni->GetKeyInt(pzSection, "Track", -1);
     pLevelInfo->nextLevel = pIni->GetKeyInt(pzSection, "EndingA", -1);
@@ -187,7 +187,7 @@ void levelLoadDefaults(void)
             auto pLevelInfo = AllocateMap();
             const char *pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
             CheckSectionAbend(pMap);
-			pLevelInfo->levelNumber = levelnum(i, j);
+			pLevelInfo->levelNumber = makelevelnum(i, j);
             pLevelInfo->cluster = i + 1;
             pLevelInfo->labelName = pMap;
             pLevelInfo->fileName.Format("%s.map", pMap);

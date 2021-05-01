@@ -1016,7 +1016,7 @@ int ConCompiler::parsecommand()
 			if (k >= 0)
 			{
 				tempMusic.Reserve(1);
-				tempMusic.Last().levnum = levelnum(k, i);
+				tempMusic.Last().levnum = makelevelnum(k, i);
 				tempMusic.Last().music = parsebuffer.Data();
 			}
 			else
@@ -1695,7 +1695,7 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		auto levnum = levelnum(j, k);
+		auto levnum = makelevelnum(j, k);
 		auto map = FindMapByLevelNum(levnum);
 		if (!map) map = AllocateMap();
 		map->SetFileName(parsebuffer.Data());
@@ -3222,26 +3222,26 @@ void FixMapinfo()
 		if (file <= fileSystem.GetMaxIwadNum())
 		{
 			auto maprec = FindMapByName("e1l7");
-			if (maprec) maprec->nextLevel = levelnum(0, 4);
+			if (maprec) maprec->nextLevel = makelevelnum(0, 4);
 		}
 	}
 	else if (isRR())
 	{
-		if (volumeList[0].flags & EF_GOTONEXTVOLUME)
+		if (true)
 		{
 			// RR goes directly to the second episode after E1L7 to continue the game.
-			auto maprec1 = FindMapByLevelNum(levelnum(0, 6));	// E1L7 must exist
-			auto maprec2 = FindMapByLevelNum(levelnum(0, 7));	// E1L8 must not exist
+			auto maprec1 = FindMapByLevelNum(makelevelnum(0, 6));	// E1L7 must exist
+			auto maprec2 = FindMapByLevelNum(makelevelnum(0, 7));	// E1L8 must not exist
 			if (maprec1 && !maprec2)
 			{
-				maprec1->nextLevel = levelnum(1, 0);
+				maprec1->nextLevel = makelevelnum(1, 0);
 			}
 		}
 		if (!isRRRA())
 		{
 			// RR does not define its final level and crudely hacked it into the progression. This puts it into the E2L8 slot so that the game can naturally progress there.
-			auto maprec1 = FindMapByLevelNum(levelnum(1, 6));	// E2L7 must exist
-			auto maprec2 = FindMapByLevelNum(levelnum(1, 7));	// E2L8 must not exist
+			auto maprec1 = FindMapByLevelNum(makelevelnum(1, 6));	// E2L7 must exist
+			auto maprec2 = FindMapByLevelNum(makelevelnum(1, 7));	// E2L8 must not exist
 			auto maprec3 = FindMapByName("endgame");			// endgame must not have a map record already
 			int num3 = fileSystem.FindFile("endgame.map");		// endgame.map must exist.
 			if (maprec1 && !maprec2 && !maprec3 && num3 >= 0)
@@ -3251,7 +3251,7 @@ void FixMapinfo()
 				maprec->parTime = 0;
 				maprec->SetFileName("endgame.map");
 				maprec->SetName("$TXT_CLOSEENCOUNTERS");
-				maprec->levelNumber = levelnum(1, 7);
+				maprec->levelNumber = makelevelnum(1, 7);
 				maprec->cluster = 2;
 			}
 		}

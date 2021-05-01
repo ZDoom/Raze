@@ -388,7 +388,7 @@ static void BuildEpisodeMenu()
 		for (int i = 0; i < MAXVOLUMES; i++)
 		{
 			auto& vol = volumeList[i];
-			if (vol.name.IsNotEmpty() && !(vol.flags & EF_HIDEFROMSP))
+			if (vol.name.IsNotEmpty() && !(vol.flags & VF_HIDEFROMSP))
 
 			{
 				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0);
