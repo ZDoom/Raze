@@ -279,10 +279,10 @@ class RRCutscenes
 				runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_intro.anm", soundinfo, 0, 9, 9, 9));
 
 				soundinfo.Pushv(1, RRSnd.REDNECK2 + 1);
-				runner.Append(MoviePlayerJob.CreateWithSoundinfo("redneck.anm", soundinfo, 0, 14, 14, 14));
+				runner.Append(MoviePlayerJob.CreateWithSoundinfo("redneck.anm", soundinfo, 0, 9, 9, 9));
 
 				soundinfo.Pushv(1, RRSnd.XATRIX + 1);
-				runner.Append(MoviePlayerJob.CreateWithSoundinfo("xatlogo.anm", soundinfo, 0, 10, 10, 10));
+				runner.Append(MoviePlayerJob.CreateWithSoundinfo("xatlogo.anm", soundinfo, 0, 9, 9, 9));
 			}
 			else
 			{
