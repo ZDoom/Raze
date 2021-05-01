@@ -8,6 +8,8 @@ class ScreenJob : Object
 	int ticks;
 	int jobstate;
 
+	bool skipover;
+
 	enum EJobState
 	{
 		running = 0,	// normal operation
@@ -395,9 +397,9 @@ class ScreenJobRunner : Object
 
 		if (index >= 0) jobs[index].Destroy();
 		index++;
-		while (index < jobs.Size() && (jobs[index] == null || (skip && skipall)))
+		while (index < jobs.Size() && (jobs[index] == null || (skip && jobs[index].skipover)))
 		{
-			if (jobs[index] != null) jobs[index].Destroy();
+			if (jobs[index] != null && index < jobs.Size() - 1) jobs[index].Destroy(); // may not delete the last element - we still need it for shutting down.
 			index++;
 		}
 		actionState = clearbefore ? State_Clear : State_Run;
