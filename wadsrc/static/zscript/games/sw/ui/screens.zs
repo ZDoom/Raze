@@ -494,7 +494,6 @@ class SWCutscenes
 			35, SWSnd.DIGI_WANGTAUNTSERP1,
 			51, SWSnd.DIGI_SHAREND_UGLY1,
 			64, SWSnd.DIGI_SHAREND_UGLY2);
-		static const int serpzillaframetimes[] = { 16, 16, 140 };
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("swend.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 16, 16, 140)); 
 	}
 
