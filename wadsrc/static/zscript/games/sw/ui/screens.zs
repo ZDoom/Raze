@@ -542,6 +542,7 @@ class SWCutscenes
 			108, SWSnd.DIGI_ZC9,
 			120, SWSnd.DIGI_JG94039);
 		runner.Append(MoviePlayerJob.CreateWithSoundinfo("zfcin.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 16, 16, 140)); 
+		runner.Append(new("SWCreditsScreen").Init());
 	}
 
 	//---------------------------------------------------------------------------
