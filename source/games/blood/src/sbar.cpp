@@ -248,6 +248,7 @@ private:
             stats.secrets = gSecretMgr.Founds;
             stats.supersecrets = gSecretMgr.Super;
             stats.maxsecrets = max(gSecretMgr.Founds, gSecretMgr.Total); // If we found more than there are, increase the total. Some levels have a bugged counter.
+            stats.time = Scale(PlayClock, 1000, 120);
 
             DBaseStatusBar::PrintLevelStats(stats);
         }
