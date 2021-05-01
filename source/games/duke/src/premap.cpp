@@ -753,7 +753,6 @@ void donewgame(MapRecord* map, int sk)
     auto p = &ps[0];
     show_shareware = 26 * 34;
 
-    //ud.nextLevel = map;
     ud.player_skill = sk;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
@@ -915,8 +914,6 @@ void enterlevel(MapRecord *mi, int gamemode)
         S_PlayLevelMusic(mi);
     }
 
-    if (isShareware() && mi->levelNumber == 0 && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
-
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         int pn = sector[ps[i].GetActor()->s->sectnum].floorpicnum;
@@ -978,6 +975,8 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 
     donewgame(map, skill);
     enterlevel(map, 0);
+    if (isShareware() && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
+
     PlayerColorChanged();
     inputState.ClearAllInput();
     gameaction = ga_level;
