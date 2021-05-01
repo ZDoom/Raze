@@ -831,7 +831,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/spawn_r.cpp
 	
 	# Shadow Warrior
-	games/sw/src/2d.cpp
 	games/sw/src/actor.cpp
 	games/sw/src/ai.cpp
 	games/sw/src/break.cpp
