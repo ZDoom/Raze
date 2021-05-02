@@ -557,6 +557,39 @@ DEFINE_MAP_OPTION(rr_mamaspawn, false)
 	info->rr_mamaspawn = parse.sc.Number;
 }
 
+DEFINE_MAP_OPTION(ex_ramses_horiz, false)
+{
+	parse.ParseAssign();
+	parse.sc.MustGetNumber();
+	info->ex_ramses_horiz = parse.sc.Number;
+}
+
+DEFINE_MAP_OPTION(ex_ramses_cdtrack, false)
+{
+	parse.ParseAssign();
+	parse.sc.MustGetNumber();
+	info->ex_ramses_cdtrack = parse.sc.Number;
+}
+
+DEFINE_MAP_OPTION(ex_ramses_pup, false)
+{
+	parse.ParseAssign();
+	parse.sc.MustGetString();
+	info->ex_ramses_pup = parse.sc.Number;
+}
+
+DEFINE_MAP_OPTION(ex_ramses_text, false)
+{
+	parse.ParseAssign();
+	parse.sc.MustGetString();
+	info->ex_ramses_text = parse.sc.Number;
+}
+
+int ex_ramses_horiz = 11;
+int ex_ramses_cdtrack = -1; // this is not music, it is the actual dialogue!
+FString ex_ramses_pup;
+FString ex_ramses_text;
+
 //==========================================================================
 //
 // All flag based map options 
@@ -592,6 +625,10 @@ MapFlagHandlers[] =
 	{ "forcenoeog",						MITYPE_SETFLAG, LEVEL_FORCENOEOG, 0, -1 },
 	{ "rrra_hulkspawn",					MITYPE_SETFLAGG,LEVEL_RR_HULKSPAWN, 0, GAMEFLAG_RRRA },
 	{ "rr_clearmoonshine",				MITYPE_SETFLAGG,LEVEL_RR_CLEARMOONSHINE, 0, GAMEFLAG_RR },
+	{ "ex_training",					MITYPE_SETFLAGG,LEVEL_EX_TRAINING, 0, GAMEFLAG_PSEXHUMED },
+	{ "ex_altsound",					MITYPE_SETFLAGG,LEVEL_EX_ALTSOUND, 0, GAMEFLAG_PSEXHUMED },
+	{ "ex_countdown",					MITYPE_SETFLAGG,LEVEL_EX_COUNTDOWN, 0, GAMEFLAG_PSEXHUMED },
+	{ "ex_multi",						MITYPE_SETFLAGG,LEVEL_EX_MULTI, 0, GAMEFLAG_PSEXHUMED },
 
 	{ NULL, MITYPE_IGNORE, 0, 0}
 };

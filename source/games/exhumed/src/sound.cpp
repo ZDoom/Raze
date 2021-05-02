@@ -724,7 +724,7 @@ void CheckAmbience(short nSector)
 
 void UpdateCreepySounds()
 {
-    if (currentLevel->levelNumber == 20 || nFreeze || !SoundEnabled())
+    if ((currentLevel->gameflags & LEVEL_EX_COUNTDOWN) || nFreeze || !SoundEnabled())
         return;
     spritetype* pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
     nCreepyTimer--;

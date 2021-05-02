@@ -36,6 +36,12 @@ enum EMapGameFlags
 {
 	LEVEL_RR_HULKSPAWN = 1,
 	LEVEL_RR_CLEARMOONSHINE = 2,
+
+	LEVEL_EX_COUNTDOWN = 4,
+	LEVEL_EX_TRAINING = 8,
+	LEVEL_EX_ALTSOUND = 16,
+	LEVEL_EX_MULTI = 32,
+
 };
 
 // These get filled in by the map definition parsers of the front ends.
@@ -151,6 +157,10 @@ struct MapRecord
 	// game specific stuff
 	int rr_startsound = 0;
 	int rr_mamaspawn = 15;
+	int ex_ramses_horiz = 11;
+	int ex_ramses_cdtrack = -1; // this is not music, it is the actual dialogue!
+	FString ex_ramses_pup;
+	FString ex_ramses_text;
 	
 	const char* LabelName() const
 	{

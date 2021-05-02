@@ -68,7 +68,7 @@ uint8_t bIsVersion6 = true;
 
 uint8_t LoadLevel(MapRecord* map)
 {
-    if (map->levelNumber == kMap20)
+    if (map->gameflags & LEVEL_EX_COUNTDOWN)
     {
         lCountDown = 81000;
         nAlarmTicks = 30;
@@ -116,12 +116,12 @@ uint8_t LoadLevel(MapRecord* map)
         InitItems();
         InitInput();
 
-        if (map->levelNumber == kMap20) {
+        if (map->gameflags & LEVEL_EX_COUNTDOWN) {
             InitEnergyTile();
         }
     }
 
-    if (map->levelNumber > 15)
+    if (map->gameflags & LEVEL_EX_ALTSOUND)
     {
         nSwitchSound = 35;
         nStoneSound = 23;
@@ -196,10 +196,8 @@ void InitLevel(MapRecord* map)
 
     RefreshStatus();
 
-    int nTrack = map->levelNumber;
-    if (nTrack != 0) nTrack--;
-
-    playCDtrack((nTrack % 8) + 11, true);
+    if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->labelName, map->music, true);    // Allow non-CD music if defined for the current level
+    playCDtrack(map->cdSongId, true);
 	setLevelStarted(currentLevel);
 }
 

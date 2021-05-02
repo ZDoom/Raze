@@ -117,7 +117,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		parallaxtype = 2;
 		g_visibility = 1024;
 
-		if (currentLevel->levelNumber > 15)
+		if (currentLevel->gameflags & LEVEL_EX_ALTSOUND)
 		{
 			nSwitchSound = 35;
 			nStoneSound = 23;

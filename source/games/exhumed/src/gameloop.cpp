@@ -69,7 +69,7 @@ void GameInterface::Render()
     drawtime.Reset();
     drawtime.Clock();
 
-    if (currentLevel && currentLevel->levelNumber == kMap20)
+    if (currentLevel && (currentLevel->gameflags & LEVEL_EX_COUNTDOWN))
     {
         DoEnergyTile();
         DrawClock();
@@ -153,7 +153,7 @@ DEFINE_ACTION_FUNCTION(DMapScreen, SetNextLevel)
 void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
 {
     Mus_Stop();
-    if (currentLevel->levelNumber == 0)
+    if (currentLevel->gameflags & LEVEL_EX_TRAINING)
     {
         gameaction = ga_mainmenu;
         return;
@@ -168,8 +168,8 @@ void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
     {
         if (to_map->levelNumber > nBestLevel) nBestLevel = to_map->levelNumber - 1;
 
-        if (to_map->levelNumber == 20) nPlayerLives[0] = 0;
-        if (to_map->levelNumber == 0) // skip all intermission stuff when going to the training map.
+        if (to_map->gameflags & LEVEL_EX_COUNTDOWN) nPlayerLives[0] = 0;
+        if (to_map->gameflags & LEVEL_EX_TRAINING)
         {
             gameaction = ga_nextlevel;
             return;

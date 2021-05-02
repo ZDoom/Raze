@@ -410,10 +410,9 @@ void TextOverlay::ComputeCinemaText()
     nHeight = screentext.Size() * 10;
 }
 
-void TextOverlay::ReadyCinemaText(uint16_t nVal)
+void TextOverlay::ReadyCinemaText(const char* nVal)
 {
-    FStringf label("TXT_EX_CINEMA%d", nVal);
-    label = GStrings(label);
+    FString label = nVal[0] == '$'? GStrings(nVal +1) : nVal;
     screentext = label.Split("\n");
     ComputeCinemaText();
 }

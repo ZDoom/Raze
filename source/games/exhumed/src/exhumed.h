@@ -188,7 +188,7 @@ public:
 
 	void Start(double starttime);
 	void ComputeCinemaText();
-	void ReadyCinemaText(uint16_t nVal);
+	void ReadyCinemaText(const char* nVal);
 	void DisplayText();
 	bool AdvanceCinemaText(double clock);
     void SetPalette(int pal) { currentCinemaPalette = pal; }

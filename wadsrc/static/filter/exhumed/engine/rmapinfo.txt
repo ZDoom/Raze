@@ -1,0 +1,306 @@
+
+episode LEV1
+{
+	name = "Exhumed"
+	noskillmenu
+}
+
+episode LEV0
+{
+	name = "$TXT_EX_MAP00"
+	noskillmenu
+}
+
+cluster 1
+{
+	name = "Exhumed"
+	gameover
+	{
+		function = ExhumedCutscenes.BuildGameoverScene
+	}
+}
+
+cluster 2
+{
+	name = "$TXT_EX_MAP00"
+}
+
+cluster 3
+{
+	name = "Multiplayer"
+}
+
+cluster 4
+{
+	gameover
+	{
+		function = ExhumedCutscenes.BuildCinemaLose
+	}
+}
+
+map lev0 "$TXT_EX_MAP00"
+{
+	cdtrack = 11
+	ex_training
+	cluster = 2
+}
+
+map lev1 "$TXT_EX_MAP01"
+{
+	cdtrack = 11
+	cluster = 1
+	ex_ramses_cdtrack = 3
+	ex_ramses_pup = "lev1.pup"
+	ex_ramses_text = "$TXT_EX_CINEMA1"
+}
+
+map lev2 "$TXT_EX_MAP02"
+{
+	cdtrack = 12
+	cluster = 1
+}
+
+map lev3 "$TXT_EX_MAP03"
+{
+	cdtrack = 13
+	cluster = 1
+}
+
+map lev4 "$TXT_EX_MAP04"
+{
+	cdtrack = 14
+	cluster = 1
+}
+
+map lev5 "$TXT_EX_MAP05"
+{
+	cdtrack = 15
+	cluster = 1
+	intro
+	{
+		function = ExhumedCutscenes.BuildCinemaBefore5
+	}
+}
+
+map lev6 "$TXT_EX_MAP06"
+{
+	cdtrack = 16
+	cluster = 1
+}
+
+map lev7 "$TXT_EX_MAP07"
+{
+	cdtrack = 17
+	cluster = 1
+}
+
+map lev8 "$TXT_EX_MAP08"
+{
+	cdtrack = 18
+	cluster = 1
+}
+
+map lev9 "$TXT_EX_MAP09"
+{
+	cdtrack = 11
+	cluster = 1
+}
+
+map lev10 "$TXT_EX_MAP10"
+{
+	cdtrack = 12
+	cluster = 1
+	outro
+	{
+		function = ExhumedCutscenes.BuildCinemaAfter10
+	}
+}
+
+map lev11 "$TXT_EX_MAP11"
+{
+	cdtrack = 13
+	cluster = 1
+	ex_ramses_cdtrack = 7
+	ex_ramses_pup = "lev11.pup"
+	ex_ramses_text = "$TXT_EX_CINEMA5"
+	ex_ramses_horiz = 46
+	intro
+	{
+		function = ExhumedCutscenes.BuildCinemaBefore11
+	}
+}
+
+map lev12 "$TXT_EX_MAP12"
+{
+	cdtrack = 14
+	cluster = 1
+}
+
+map lev13 "$TXT_EX_MAP13"
+{
+	cdtrack = 15
+	cluster = 1
+}
+
+map lev14 "$TXT_EX_MAP14"
+{
+	cdtrack = 16
+	cluster = 1
+}
+
+map lev15 "$TXT_EX_MAP15"
+{
+	cdtrack = 17
+	cluster = 1
+	outro
+	{
+		function = ExhumedCutscenes.BuildCinemaAfter15
+	}
+}
+
+map lev16 "$TXT_EX_MAP16"
+{
+	cdtrack = 18
+	cluster = 1
+	ex_altsound
+}
+
+map lev17 "$TXT_EX_MAP17"
+{
+	cdtrack = 11
+	cluster = 1
+	ex_altsound
+}
+
+map lev18 "$TXT_EX_MAP18"
+{
+	cdtrack = 12
+	cluster = 1
+	ex_altsound
+}
+
+map lev19 "$TXT_EX_MAP19"
+{
+	cdtrack = 13
+	cluster = 1
+	ex_altsound
+}
+
+map lev20 "$TXT_EX_MAP20"
+{
+	cdtrack = 14
+	cluster = 4
+	next = "-"
+	ex_altsound
+	ex_countdown
+	intro
+	{
+		function = ExhumedCutscenes.BuildCinemaBefore20
+	}
+	outro
+	{
+		function = ExhumedCutscenes.BuildCinemaAfter20
+	}
+}
+
+map lev21 "$TXT_EX_MAP21"
+{
+	cdtrack = 15
+	cluster = 3
+	ex_multi
+}
+
+map lev22 "$TXT_EX_MAP22"
+{
+	cdtrack = 16
+	cluster = 3
+	ex_multi
+}
+
+map lev23 "$TXT_EX_MAP23"
+{
+	cdtrack = 17
+	cluster = 3
+	ex_multi
+}
+
+map lev24 "$TXT_EX_MAP24"
+{
+	cdtrack = 18
+	cluster = 3
+	ex_multi
+}
+
+map lev25 "$TXT_EX_MAP25"
+{
+	cdtrack = 11
+	cluster = 3
+	ex_multi
+}
+
+map lev26 "$TXT_EX_MAP26"
+{
+	cdtrack = 12
+	cluster = 3
+	ex_multi
+}
+
+map lev27 "$TXT_EX_MAP27"
+{
+	cdtrack = 13
+	cluster = 3
+	ex_multi
+}
+
+map lev28 "$TXT_EX_MAP28"
+{
+	cdtrack = 14
+	cluster = 3
+	ex_multi
+}
+
+map lev29 "$TXT_EX_MAP29"
+{
+	cdtrack = 15
+	cluster = 3
+	ex_multi
+}
+
+map lev30 "$TXT_EX_MAP30"
+{
+	cdtrack = 16
+	cluster = 3
+	ex_multi
+}
+
+map lev31 "$TXT_EX_MAP31"
+{
+	cdtrack = 17
+	cluster = 3
+	ex_multi
+}
+
+map lev32 "$TXT_EX_MAP32"
+{
+	cdtrack = 18
+	cluster = 3
+	ex_multi
+}
+
+cutscenes
+{
+	intro
+	{
+		function = ExhumedCutscenes.BuildIntro
+	}
+
+	loadscreen
+	{
+		function = DukeCutscenes.BuildLoading
+	}
+}
+
+gameinfo
+{
+	summaryscreen = ExhumedCutscenes.BuildMap
+}
