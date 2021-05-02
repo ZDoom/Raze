@@ -66,9 +66,9 @@ LISTMENU "MainMenu"
 		Position 160, 65
 		linespacing 22
 		ExhumedPlasma
-		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 1
+		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 0
 		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 0
+		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 1
 		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
 		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
@@ -137,9 +137,9 @@ LISTMENU "IngameMenu"
 		Position 160, 65
 		linespacing 22
 		ExhumedLogo
-		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 1
+		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 0
 		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 0
+		ExhumedTextItem "$TXT_EX_MAP00", "m", "StartGameNoSkill", 1
 		ExhumedTextItem "$MNU_OPTIONS", "v", "OptionsMenu"
 		ExhumedTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}

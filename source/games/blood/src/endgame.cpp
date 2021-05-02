@@ -36,152 +36,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-enum
-{
-	kLoadScreenCRC = -2051908571,
-	kLoadScreenWideBackWidth = 256,
-	kLoadScreenWideSideWidth = 128,
-
-};
-
-static int bLoadScreenCrcMatch = -1;
-
-static void drawTextScreenBackground(void)
-{
-	if (bLoadScreenCrcMatch == -1) bLoadScreenCrcMatch = tileGetCRC32(kLoadScreen) == kLoadScreenCRC;
-
-	if (bLoadScreenCrcMatch)
-	{
-		if (ActiveRatio(twod->GetWidth(), twod->GetHeight()) < 1.34f)
-		{
-			DrawTexture(twod, tileGetTexture(kLoadScreen), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-		}
-		else
-		{
-			int width = scale(twod->GetWidth(), 240, twod->GetHeight());
-			int nCount = (width + kLoadScreenWideBackWidth - 1) / kLoadScreenWideBackWidth;
-			for (int i = 0; i < nCount; i++)
-			{
-				DrawTexture(twod, tileGetTexture(kLoadScreenWideBack), (i * kLoadScreenWideBackWidth), 0,
-					DTA_VirtualWidth, width, DTA_VirtualHeight, 200, DTA_KeepRatio, true, TAG_DONE);
-			}
-			DrawTexture(twod, tileGetTexture(kLoadScreenWideLeft), 0, 0, DTA_VirtualWidth, width, DTA_VirtualHeight, 200, DTA_KeepRatio, true, DTA_TopLeft, true, TAG_DONE);
-			DrawTexture(twod, tileGetTexture(kLoadScreenWideRight), width - tileWidth(kLoadScreenWideRight), 0, DTA_TopLeft, true,
-				DTA_VirtualWidth, width, DTA_VirtualHeight, 200, DTA_KeepRatio, true, TAG_DONE);
-			DrawTexture(twod, tileGetTexture(kLoadScreenWideMiddle), (width - tileWidth(kLoadScreenWideMiddle)) / 2, 0, DTA_TopLeft, true,
-				DTA_VirtualWidth, width, DTA_VirtualHeight, 200, DTA_KeepRatio, true, TAG_DONE);
-		}
-	}
-	else
-	{
-		DrawTexture(twod, tileGetTexture(kLoadScreen), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-	}
-}
-
-// One these screens get scriptified this should use the version in BloodMenuDelegate.
-static void DrawCaption(const char* text)
-{
-	double scalex = 1.; // Expand the box if the text is longer
-	int width = BigFont->StringWidth(text);
-	int boxwidth = tileWidth(2038);
-	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
-
-	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
-	DrawText(twod, BigFont, CR_UNDEFINED, 160 - width / 2, 20 - tileHeight(4193) / 2, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
-}
-
-
-class DBloodSummaryScreen : public DSkippableScreenJob
-{
-	void DrawKills(void)
-	{
-		char pBuffer[40];
-		if (gGameOptions.nGameType == 0)
-		{
-			viewDrawText(1, FStringf("%s:", GStrings("KILLS")), 75, 50, -128, 0, 0, 1);
-			mysnprintf(pBuffer, 40,"%2d", gKillMgr.Kills);
-			viewDrawText(1, pBuffer, 160, 50, -128, 0, 0, 1);
-			viewDrawText(1, GStrings("OF"), 190, 50, -128, 0, 0, 1);
-			mysnprintf(pBuffer, 40, "%2d", gKillMgr.TotalKills);
-			viewDrawText(1, pBuffer, 220, 50, -128, 0, 0, 1);
-		}
-		else
-		{
-			viewDrawText(3, "#", 85, 35, -128, 0, 0, 1);
-			viewDrawText(3, GStrings("NAME"), 100, 35, -128, 0, 0, 1);
-			viewDrawText(3, GStrings("FRAGS"), 210, 35, -128, 0, 0, 1);
-			int nStart = 0;
-			int nEnd = kMaxPlayers;
-
-			for (int i = nStart; i < nEnd; i++) if (playeringame[i])
-			{
-				mysnprintf(pBuffer, 40, "%-2d", i);
-				viewDrawText(3, pBuffer, 85, 50 + 8 * i, -128, 0, 0, 1);
-				mysnprintf(pBuffer, 40, "%s", PlayerName(i));
-				viewDrawText(3, pBuffer, 100, 50 + 8 * i, -128, 0, 0, 1);
-				mysnprintf(pBuffer, 40, "%d", gPlayer[i].fragCount);
-				viewDrawText(3, pBuffer, 210, 50 + 8 * i, -128, 0, 0, 1);
-			}
-		}
-	}
-
-	void DrawSecrets(void)
-	{
-		char pBuffer[40];
-		viewDrawText(1, FStringf("%s:", GStrings("TXT_SECRETS")), 75, 70, -128, 0, 0, 1);
-		mysnprintf(pBuffer, 40, "%2d", gSecretMgr.Founds);
-		viewDrawText(1, pBuffer, 160, 70, -128, 0, 0, 1);
-		viewDrawText(1, GStrings("OF"), 190, 70, -128, 0, 0, 1);
-		mysnprintf(pBuffer, 40, "%2d", gSecretMgr.Total);
-		viewDrawText(1, pBuffer, 220, 70, -128, 0, 0, 1);
-		if (gSecretMgr.Super > 0)
-			viewDrawText(1, GStrings("TXT_SUPERSECRET"), 160, 100, -128, 2, 1, 1);
-	}
-
-
-	void Draw(double) override
-	{
-		drawTextScreenBackground();
-		if (gGameOptions.nGameType == 0)
-		{
-			DrawCaption(GStrings("TXTB_LEVELSTATS"));
-			if (bPlayerCheated)
-			{
-				auto text = GStrings("TXTB_CHEATED");
-				int font = 3;
-				if (!SmallFont2->CanPrint(text)) font = 0;
-				viewDrawText(font, text, 160, 32, -128, 0, 1, font == 3);
-			}
-			DrawKills();
-			DrawSecrets();
-		}
-		else
-		{
-			DrawCaption(GStrings("TXTB_FRAGSTATS"));
-			DrawKills();
-		}
-		int myclock = ticks * 120 / GameTicRate;
-		if ((myclock & 32))
-		{
-			auto text = GStrings("PRESSKEY");
-			int font = 3;
-			if (!SmallFont2->CanPrint(text)) font = 0;
-			viewDrawText(font, text, 160, 134, -128, 0, 1, font == 3);
-		}
-	}
-};
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
-	JobDesc job = { Create<DBloodSummaryScreen>() };
-	sndStartSample(268, 128, -1, false, CHANF_UI);
+	EndLevel();
 	Mus_Stop();
-	RunScreenJob(&job, 1, [=](bool)
+
+	SummaryInfo info{};
+
+	info.kills = gKillMgr.Kills;
+	info.maxkills = gKillMgr.TotalKills;
+	info.secrets = gSecretMgr.Founds;
+	info.maxsecrets = gSecretMgr.Total;
+	info.time = gSecretMgr.Super;
+	info.endofgame = map == nullptr;
+
+	ShowIntermission(currentLevel, map, &info, [=](bool)
 		{
 			soundEngine->StopAllChannels();
-			gameaction = ga_nextlevel;
+			gameaction = map? ga_nextlevel : ga_creditsmenu;
 		});
-
 }
 
 
@@ -271,39 +145,5 @@ void SerializeGameStats(FSerializer& arc)
 
 CSecretMgr gSecretMgr;
 CKillMgr gKillMgr;
-
-class DBloodLoadScreen : public DScreenJob
-{ 
-	const char* pzLoadingScreenText1;
-	MapRecord* rec;
-
-public:
-	DBloodLoadScreen(const char* caption, MapRecord* maprec) : DScreenJob(), rec(maprec)
-	{
-		if (gGameOptions.nGameType == 0) pzLoadingScreenText1 = GStrings("TXTB_LLEVEL");
-		else pzLoadingScreenText1 = GStrings(FStringf("TXTB_NETGT%d", gGameOptions.nGameType));
-	}
-
-	void Draw(double) override
-	{
-		twod->ClearScreen();
-		drawTextScreenBackground();
-		DrawCaption(pzLoadingScreenText1);
-		viewDrawText(1, rec->DisplayName(), 160, 50, -128, 0, 1, 1);
-
-		auto text = GStrings("TXTB_PLSWAIT");
-		int font = 3;
-		if (!SmallFont2->CanPrint(text)) font = 0;
-
-		viewDrawText(font, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, font == 3);
-	}
-};
-
-void loadscreen(const char *caption, MapRecord* rec, CompletionFunc func)
-{
-	JobDesc job = { Create<DBloodLoadScreen>(caption, rec) };
-	RunScreenJob(&job, 1, func);
-}
-
 
 END_BLD_NS

@@ -1464,26 +1464,8 @@ int doincrements_r(struct player_struct* p)
 		{
 			if (!wupass)
 			{
-				short snd;
+				int snd = currentLevel->rr_startsound ? currentLevel->rr_startsound : 391;
 				wupass = 1;
-				switch (currentLevel->levelNumber)
-				{
-				default: snd = 391; break;
-				case levelnum(0, 0): snd = isRRRA() ? 63 : 391; break;
-				case levelnum(0, 1): snd = 64; break;
-				case levelnum(0, 2): snd = 77; break;
-				case levelnum(0, 3): snd = 80; break;
-				case levelnum(0, 4): snd = 102; break;
-				case levelnum(0, 5): snd = 103; break;
-				case levelnum(0, 6): snd = 104; break;
-				case levelnum(1, 0): snd = 105; break;
-				case levelnum(1, 1): snd = 176; break;
-				case levelnum(1, 2): snd = 177; break;
-				case levelnum(1, 3): snd = 198; break;
-				case levelnum(1, 4): snd = 230; break;
-				case levelnum(1, 5): snd = 255; break;
-				case levelnum(1, 6): snd = 283; break;
-				}
 				S_PlayActorSound(snd, pact);
 			}
 			else if (PlayClock > 1024)
@@ -3399,8 +3381,7 @@ void processinput_r(int snum)
 					psectlotag = 2;
 		}
 	}
-	else if (psectlotag == 7777)
-		if (currentLevel->levelNumber == levelnum(1, 6))
+	else if (psectlotag == 7777 && (currentLevel->gameflags & LEVEL_RR_HULKSPAWN))
 			lastlevel = 1;
 
 	if (psectlotag == 848 && sector[psect].floorpicnum == WATERTILE2)
@@ -4000,7 +3981,7 @@ HORIZONLY:
 
 	if (SyncInput())
 	{
-		p->horizon.applyinput(PlayerHorizon(snum), &actions);
+		p->horizon.applyinput(GetPlayerHorizon(snum), &actions);
 	}
 
 	p->checkhardlanding();

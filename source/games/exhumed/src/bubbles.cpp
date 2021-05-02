@@ -236,7 +236,7 @@ void DoBubbleMachines()
 void BuildBubbleMachine(int nSprite)
 {
     if (nMachineCount >= kMaxMachines) {
-        I_Error("too many bubble machines in level %d\n", currentLevel->levelNumber);
+        I_Error("too many bubble machines in level %s\n", currentLevel->labelName.GetChars());
         exit(-1);
     }
 

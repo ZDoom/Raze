@@ -48,10 +48,11 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "conlabeldef.h"
 #include "gi.h"
 
+extern TArray<TPointer<MapRecord>> mapList;
+
 BEGIN_DUKE_NS
 
 enum { VERSIONCHECK = 41 };
-
 
 //---------------------------------------------------------------------------
 //
@@ -88,7 +89,8 @@ public:
 
 struct TempMusic
 {
-	int levnum;
+	int volnum;
+	int levlnum;
 	FString music;
 };
 
@@ -1016,7 +1018,8 @@ int ConCompiler::parsecommand()
 			if (k >= 0)
 			{
 				tempMusic.Reserve(1);
-				tempMusic.Last().levnum = levelnum(k, i);
+				tempMusic.Last().volnum = k + 1;
+				tempMusic.Last().levlnum = i + 1;
 				tempMusic.Last().music = parsebuffer.Data();
 			}
 			else
@@ -1644,6 +1647,7 @@ int ConCompiler::parsecommand()
 		return 0;
 
 	case concmd_definevolumename:
+	{
 		popscriptvalue();
 		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
@@ -1658,8 +1662,13 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		gVolumeNames[j] = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		// We need both a volume and a cluster for this new episode.
+		auto vol = MustFindVolume(j);
+		auto clust = MustFindCluster(j + 1);
+		vol->name = clust->name = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		if (j > 0) vol->flags |= VF_SHAREWARELOCK;
 		return 0;
+	}
 	case concmd_defineskillname:
 		popscriptvalue();
 		transnum(LABEL_DEFINE);
@@ -1695,25 +1704,32 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		auto levnum = levelnum(j, k);
-		auto map = FindMapByLevelNum(levnum);
+		auto map = FindMapByIndexOnly(j + 1, k + 1);
 		if (!map) map = AllocateMap();
 		map->SetFileName(parsebuffer.Data());
+		if (k == 0)
+		{
+			auto vol = MustFindVolume(j);
+			vol->startmap = map->labelName;
+		}
 
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		map->parTime =
-			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
-			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
+			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 60) +
+			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')));
 
 		textptr += 5;
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		map->designerTime =
-			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
-			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
+			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 60) +
+			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')));
 
-		map->levelNumber = levnum;
+		SetLevelNum(map, makelevelnum(j + 1, k + 1));
+
+		map->mapindex = k + 1;
+		map->cluster = j + 1;
 
 		textptr += 5;
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
@@ -3132,7 +3148,7 @@ void ConCompiler::setmusic()
 {
 	for (auto& tm : tempMusic)
 	{
-		auto map = FindMapByLevelNum(tm.levnum);
+		auto map = FindMapByIndexOnly(tm.volnum, tm.levlnum);
 		if (map) map->music = tm.music;
 	}
 	tempMusic.Clear();
@@ -3176,6 +3192,12 @@ void loadcons()
 
 	ScriptCode.Push(0);
 	ConCompiler comp;
+
+	if (fileSystem.FileExists("engine/engine.con"))
+	{
+		comp.compilecon("engine/engine.con");
+	}
+
 	comp.compilecon(ConFile()); //Tokenize
 
 	if (userConfig.AddCons) for (FString& m : *userConfig.AddCons.get())
@@ -3206,45 +3228,38 @@ void loadcons()
 	InitGameVarPointers();
 	ResetSystemDefaults();
 	S_WorldTourMappingsForOldSounds(); // create a sound mapping for World Tour.
+	S_CacheAllSounds();
+	comp.setmusic();
+
+	// RR must link the last map of E1 to the first map of E2.
+	if (isRR()) for (auto& map : mapList)
+	{
+		if (map->cluster == 1) 
+		{
+			if (!FindMapByIndexOnly(map->cluster, map->mapindex + 1))
+			{
+				auto nextmap = FindMapByIndexOnly(map->cluster + 1, 1);
+				if (nextmap)
+				{
+					map->NextMap = nextmap->labelName;
+					map->flags |= LEVEL_FORCENOEOG;
+				}
+			}
+		}
+	}
+
 	if (isWorldTour())
 	{
+		// fix broken secret exit in WT's super secret map. 
+		// This cannot be done from an RMAPINFO definition because the conditions are too specific and must not override custom maps.
 		int num = fileSystem.CheckNumForName("e1l7.map");
 		int file = fileSystem.GetFileContainer(num);
 		if (file <= fileSystem.GetMaxIwadNum())
 		{
 			auto maprec = FindMapByName("e1l7");
-			if (maprec) maprec->nextLevel = levelnum(0, 4);
+			if (maprec) maprec->NextMap = "e1l5";
 		}
 	}
-	else if (isRRRA())
-	{
-		// RRRA goes directly to the second episode after E1L7 to continue the game.
-		int num = fileSystem.CheckNumForName("e1l7.map");
-		int file = fileSystem.GetFileContainer(num);
-		if (file <= fileSystem.GetMaxIwadNum())
-		{
-			auto maprec = FindMapByName("e1l7");
-			if (maprec) maprec->nextLevel = levelnum(1, 0);
-		}
-	}
-	else if (isRR())
-	{
-		// RR does not define its final level and crudely hacked it into the progression. This puts it into the E2L8 slot so that the game can naturally progress there.
-		auto maprec1 = FindMapByLevelNum(levelnum(1, 6));
-		auto maprec2 = FindMapByLevelNum(levelnum(1, 7));
-		auto maprec3 = FindMapByName("endgame");
-		int num3 = fileSystem.FindFile("endgame.map");
-		if (maprec1 && !maprec2 && !maprec3 && num3 >= 0)
-		{
-			auto maprec = AllocateMap();
-			maprec->designerTime = 0;
-			maprec->parTime = 0;
-			maprec->SetFileName("endgame.map");
-			maprec->SetName("$TXT_CLOSEENCOUNTERS");
-			maprec->levelNumber = levelnum(1, 7);
-		}
-	}
-	comp.setmusic();
 }
 
 END_DUKE_NS

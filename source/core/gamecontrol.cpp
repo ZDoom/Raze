@@ -73,6 +73,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "v_draw.h"
 #include "gi.h"
+#include "vm.h"
+#include "g_mapinfo.h"
 #include "gamefuncs.h"
 #include "hw_voxels.h"
 #include "hw_palmanager.h"
@@ -285,6 +287,11 @@ void System_CrashInfo(char* buffer, size_t bufflen, const char *lfstr)
 //==========================================================================
 
 UserConfig userConfig;
+
+DEFINE_GLOBAL(userConfig)
+DEFINE_FIELD_X(UserConfigStruct, UserConfig, nomonsters)
+DEFINE_FIELD_X(UserConfigStruct, UserConfig, nosound)
+DEFINE_FIELD_X(UserConfigStruct, UserConfig, nologo)
 
 void UserConfig::ProcessOptions()
 {
@@ -560,7 +567,7 @@ int GameMain()
 		I_ShowFatalError(err.what());
 		r = -1;
 	}
-	DeleteScreenJob();
+	//DeleteScreenJob();
 	DeinitMenus();
 	if (StatusBar) StatusBar->Destroy();
 	StatusBar = nullptr;
@@ -601,13 +608,17 @@ int GameMain()
 
 void SetDefaultStrings()
 {
+	// Duke 1.3 does not define its episodes through CON.
 	if ((g_gameType & GAMEFLAG_DUKE) && fileSystem.FindFile("E4L1.MAP") < 0)
 	{
+		auto vol0 = AllocateVolume(); vol0->index = 0;
+		auto vol1 = AllocateVolume(); vol1->index = 1; vol1->flags = VF_SHAREWARELOCK;
+		auto vol2 = AllocateVolume(); vol2->index = 2; vol1->flags = VF_SHAREWARELOCK;
 		// Pre-Atomic releases do not define this.
-		gVolumeNames[0] = "$L.A. Meltdown";
-		gVolumeNames[1] = "$Lunar Apocalypse";
-		gVolumeNames[2] = "$Shrapnel City";
-		if (g_gameType & GAMEFLAG_SHAREWARE) gVolumeNames[3] = "$The Birth";
+		vol0->name = "$L.A. Meltdown";
+		vol1->name = "$Lunar Apocalypse";
+		vol2->name = "$Shrapnel City";
+
 		gSkillNames[0] = "$Piece of Cake";
 		gSkillNames[1] = "$Let's Rock";
 		gSkillNames[2] = "$Come get Some";
@@ -952,6 +963,7 @@ int RunGame()
 	LoadScripts();
 	StartScreen->Progress();
 	SetDefaultStrings();
+	Job_Init();
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 
@@ -967,6 +979,7 @@ int RunGame()
 	engineInit();
 	gi->app_init();
 	StartScreen->Progress();
+	G_ParseMapInfo();
 	CreateStatusBar();
 	SetDefaultMenuColors();
 	M_Init();
@@ -1440,11 +1453,67 @@ DEFINE_ACTION_FUNCTION(_Screen, GetViewWindow)
 	return MIN(numret, 4);
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Build, ShadeToLight, shadeToLight)
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, ShadeToLight, shadeToLight)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(shade);
 	ACTION_RETURN_INT(shadeToLight(shade));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, StopAllSounds, FX_StopAllSounds)
+{
+	FX_StopAllSounds();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, StopMusic, Mus_Stop)
+{
+	Mus_Stop();
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SoundEnabled, SoundEnabled)
+{
+	ACTION_RETURN_INT(SoundEnabled());
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, MusicEnabled, MusicEnabled)
+{
+	ACTION_RETURN_INT(MusicEnabled());
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetTimeFrac, I_GetTimeFrac)
+{
+	ACTION_RETURN_INT(I_GetTimeFrac());
+}
+
+DEFINE_ACTION_FUNCTION(_Raze, PlayerName)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(index);
+	ACTION_RETURN_STRING(unsigned(index) >= MAXPLAYERS ? "" : PlayerName(index));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bsin, bsin)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	PARAM_INT(shift);
+	ACTION_RETURN_INT(bsin(v, shift));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bcos, bcos)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(v);
+	PARAM_INT(shift);
+	ACTION_RETURN_INT(bcos(v, shift));
+}
+
+DEFINE_ACTION_FUNCTION(_MapRecord, GetCluster)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MapRecord);
+	ACTION_RETURN_POINTER(FindCluster(self->cluster));
 }
 
 extern bool demoplayback;
@@ -1454,6 +1523,37 @@ DEFINE_GLOBAL(gameaction)
 DEFINE_GLOBAL(gamestate)
 DEFINE_GLOBAL(demoplayback)
 DEFINE_GLOBAL(consoleplayer)
+DEFINE_GLOBAL(currentLevel)
+DEFINE_GLOBAL(paused)
+
+DEFINE_FIELD_X(ClusterDef, ClusterDef, name)
+DEFINE_FIELD_X(ClusterDef, ClusterDef, InterBackground)
+
+DEFINE_FIELD_X(MapRecord, MapRecord, parTime)
+DEFINE_FIELD_X(MapRecord, MapRecord, designerTime)
+DEFINE_FIELD_X(MapRecord, MapRecord, fileName)
+DEFINE_FIELD_X(MapRecord, MapRecord, labelName)
+DEFINE_FIELD_X(MapRecord, MapRecord, name)
+DEFINE_FIELD_X(MapRecord, MapRecord, music)
+DEFINE_FIELD_X(MapRecord, MapRecord, cdSongId)
+DEFINE_FIELD_X(MapRecord, MapRecord, flags)
+DEFINE_FIELD_X(MapRecord, MapRecord, levelNumber)
+DEFINE_FIELD_X(MapRecord, MapRecord, cluster)
+DEFINE_FIELD_X(MapRecord, MapRecord, NextMap)
+DEFINE_FIELD_X(MapRecord, MapRecord, NextSecret)
+//native readonly String messages[MAX_MESSAGES];
+DEFINE_FIELD_X(MapRecord, MapRecord, Author)
+DEFINE_FIELD_X(MapRecord, MapRecord, InterBackground)
+
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, kills)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, maxkills)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, secrets)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, maxsecrets)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, supersecrets)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, playercount)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, time)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, cheated)
+DEFINE_FIELD_X(SummaryInfo, SummaryInfo, endofgame)
 
 
 void InitBuildTiles()

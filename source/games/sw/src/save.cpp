@@ -78,9 +78,7 @@ extern int FinishAnim;
 extern int GameVersion;
 //extern short Zombies;
 
-extern bool serpwasseen;
-extern bool sumowasseen;
-extern bool zillawasseen;
+extern bool bosswasseen[3];
 extern short BossSpriteNum[3];
 
 #define ANIM_SAVE 1
@@ -1269,9 +1267,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("GodMode", GodMode)
 			("FinishTimer", FinishTimer)
 			("FinishAnim", FinishAnim)
-			("serpwasseen", serpwasseen)
-			("sumowasseen", sumowasseen)
-			("zillawasseen", zillawasseen)
+			.Array("bosswasseen", bosswasseen, 3)
 			.Array("BossSpriteNum", BossSpriteNum, 3);
 			arc.Array("tracks", Track, countof(Track))
             ;

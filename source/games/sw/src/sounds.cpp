@@ -48,6 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "serializer.h"
 #include "gamecontrol.h"
 #include "gamestate.h"
+#include "vm.h"
 
 BEGIN_SW_NS
 
@@ -981,5 +982,37 @@ void StopFX()
     if (soundEngine) soundEngine->StopAllChannels();
 }
 
+DEFINE_ACTION_FUNCTION(_SW, PlaySound)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(sound);
+    PARAM_INT(vflags);
+    PARAM_INT(channel);
+    PARAM_INT(cflags);
+    PlaySound(sound, Voc3D_Flags(vflags), channel, EChanFlags::FromInt(cflags));
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_SW, StopSound, StopSound)
+{
+    StopSound();
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_SW, IsSoundPlaying)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(channel);
+    ACTION_RETURN_BOOL(soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, channel));
+
+}
+
+DEFINE_ACTION_FUNCTION(_SW, PlaySong)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(song);
+    PlaySong(nullptr, ThemeSongs[song], ThemeTrack[song], true);
+    return 0;
+}
 
 END_SW_NS

@@ -88,10 +88,6 @@ CVAR(Bool, sw_bunnyrockets, false, CVAR_SERVERINFO | CVAR_CHEAT);   // This is a
 
 BEGIN_SW_NS
 
-void Logo(const CompletionFunc& completion);
-void StatScreen(int FinishAnim, CompletionFunc completion);
-
-
 void pClearSpriteList(PLAYERp pp);
 
 extern int sw_snd_scratch;
@@ -154,7 +150,6 @@ FString ThemeSongs[6];
 int ThemeTrack[6];
 
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
-void SybexScreen(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #define x(a, b) registerName(#a, b);
@@ -253,12 +248,6 @@ void GameInterface::DrawBackground(void)
     twod->ClearScreen();
     DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal,
         DTA_Color, shadeToLight(20), TAG_DONE);
-
-    if (CommEnabled)
-    {
-        MNU_DrawString(160, 170, "Lo Wang is waiting for other players...", 1, 16, 0);
-        MNU_DrawString(160, 180, "They are afraid!", 1, 16, 0);
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -282,9 +271,8 @@ void InitLevelGlobals(void)
 
     gNet.TimeLimitClock = gNet.TimeLimit;
 
-    serpwasseen = false; 
-    sumowasseen = false;
-    zillawasseen = false;
+
+    for (auto& b : bosswasseen) b = false;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
 }
 
@@ -533,30 +521,37 @@ static void PlayOrderSound()
 
 
 
-void GameInterface::LevelCompleted(MapRecord *map, int skill)
+void GameInterface::LevelCompleted(MapRecord* map, int skill)
 {
-	//ResetPalette(mpp);
-	COVER_SetReverb(0); // Reset reverb
-	Player[myconnectindex].Reverb = 0;
-	StopSound();
+    //ResetPalette(mpp);
+    COVER_SetReverb(0); // Reset reverb
+    Player[myconnectindex].Reverb = 0;
+    StopSound();
     STAT_Update(map == nullptr);
 
-	StatScreen(FinishAnim, [=](bool)
-		{
+    SummaryInfo info{};
+
+    info.kills = Player->Kills;
+    info.maxkills = TotalKillable;
+    info.secrets = Player->SecretsFound;
+    info.maxsecrets = LevelSecrets;
+    info.time = PlayClock / 120;
+
+    ShowIntermission(currentLevel, map, &info, [=](bool)
+        {
             if (map == nullptr)
-			{
-				FinishAnim = false;
-				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-                if (SW_SHAREWARE)
+            {
+                FinishAnim = false;
+                PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
+                if (isShareware())
                 {
                     PlayOrderSound();
                     gameaction = ga_creditsmenu;
                 }
-				else gameaction = ga_mainmenu;
-			}
-			else gameaction = ga_nextlevel;
-		});
-
+                else gameaction = ga_mainmenu;
+            }
+            else gameaction = ga_nextlevel;
+        });
 }
 //---------------------------------------------------------------------------
 //
@@ -584,6 +579,7 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool)
 	ShadowWarrior::NewGame = true;
 	InitLevel(map);
 	InitRunLevel();
+    gameaction = ga_level;
 }
 
 //---------------------------------------------------------------------------
@@ -633,17 +629,7 @@ void GameInterface::Render()
 
 void GameInterface::Startup()
 {
-    if (userConfig.CommandMap.IsNotEmpty())
-    {
-    }
-    else
-    {
-		if (!userConfig.nologo) Logo([](bool) 
-            { 
-                gameaction = ga_mainmenunostopsound;
-            });
-        else gameaction = ga_mainmenu;
-    }
+    PlayLogos(ga_mainmenunostopsound, ga_mainmenu, false);
 }
 
 

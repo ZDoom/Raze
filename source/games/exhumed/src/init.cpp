@@ -66,9 +66,9 @@ uint8_t bIsVersion6 = true;
 
 
 
-uint8_t LoadLevel(int nMap)
+uint8_t LoadLevel(MapRecord* map)
 {
-    if (nMap == kMap20)
+    if (map->gameflags & LEVEL_EX_COUNTDOWN)
     {
         lCountDown = 81000;
         nAlarmTicks = 30;
@@ -116,12 +116,12 @@ uint8_t LoadLevel(int nMap)
         InitItems();
         InitInput();
 
-        if (nMap == kMap20) {
+        if (map->gameflags & LEVEL_EX_COUNTDOWN) {
             InitEnergyTile();
         }
     }
 
-    if (nMap > 15)
+    if (map->gameflags & LEVEL_EX_ALTSOUND)
     {
         nSwitchSound = 35;
         nStoneSound = 23;
@@ -134,10 +134,6 @@ uint8_t LoadLevel(int nMap)
         nStoneSound = 23;
         nElevSound = 23;
         nStopSound = 66;
-    }
-
-    if (nMap < 0) {
-        return false;
     }
 
     vec3_t startPos;
@@ -172,12 +168,12 @@ uint8_t LoadLevel(int nMap)
     return true;
 }
 
-void InitLevel(int level) // todo: use a map record
+void InitLevel(MapRecord* map)
 {
     StopCD();
-    currentLevel = FindMapByLevelNum(level);
-    if (!LoadLevel(level)) {
-        I_Error("Can't load level %d...\n", level);
+    currentLevel = map;
+    if (!LoadLevel(map)) {
+        I_Error("Cannot load %s...\n", map->fileName.GetChars());
     }
 
     for (int i = 0; i < nTotalPlayers; i++)
@@ -200,17 +196,14 @@ void InitLevel(int level) // todo: use a map record
 
     RefreshStatus();
 
-    int nTrack = level;
-    if (nTrack != 0) nTrack--;
-
-    playCDtrack((nTrack % 8) + 11, true);
+    if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->labelName, map->music, true);    // Allow non-CD music if defined for the current level
+    playCDtrack(map->cdSongId, true);
 	setLevelStarted(currentLevel);
 }
 
 void InitNewGame()
 {
     bCamera = false;
-    nCinemaSeen = 0;
     PlayerCount = 0;
 
     for (int i = 0; i < nTotalPlayers; i++)

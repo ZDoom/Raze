@@ -408,10 +408,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                     if (bSubTitles)
                     {
                         subtitleOverlay.Start(I_GetTimeNS() * (120. / 1'000'000'000));
-                        if (currentLevel->levelNumber == 1)
-                            subtitleOverlay.ReadyCinemaText(1);
-                        else
-                            subtitleOverlay.ReadyCinemaText(5);
+                        subtitleOverlay.ReadyCinemaText(currentLevel->ex_ramses_text);
                     }
                     inputState.ClearAllInput();
                 }

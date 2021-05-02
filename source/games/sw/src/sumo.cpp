@@ -41,9 +41,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 extern uint8_t playTrack;
-bool serpwasseen = false;
-bool sumowasseen = false;
-bool zillawasseen = false;
+bool bosswasseen[3];
 
 short BossSpriteNum[3] = {-1,-1,-1};
 
@@ -819,22 +817,19 @@ BossHealthMeter(void)
     int y;
     extern bool NoMeters;
     short health;
-    bool bosswasseen;
     static bool triedplay = false;
 
     if (NoMeters) return;
 
-    if (currentLevel->levelNumber != 20 && currentLevel->levelNumber != 4 && currentLevel->levelNumber != 11 && currentLevel->levelNumber != 5) return;
+    if (!(currentLevel->gameflags & (LEVEL_SW_BOSSMETER_SERPENT | LEVEL_SW_BOSSMETER_SUMO | LEVEL_SW_BOSSMETER_ZILLA))) return;
 
     // Don't draw bar for other players
     if (pp != Player+myconnectindex)
         return;
 
     // all enemys
-    if ((currentLevel->levelNumber == 20 && (BossSpriteNum[0] == -1 || BossSpriteNum[1] == -1 || BossSpriteNum[2] == -1)) ||
-        (currentLevel->levelNumber == 4 && BossSpriteNum[0] == -1) ||
-        (currentLevel->levelNumber == 5 && BossSpriteNum[0] == -1) ||
-        (currentLevel->levelNumber == 11 && BossSpriteNum[1] == -1))
+    if (currentLevel->gameflags & (LEVEL_SW_BOSSMETER_SERPENT|LEVEL_SW_BOSSMETER_SUMO|LEVEL_SW_BOSSMETER_ZILLA) &&
+        BossSpriteNum[0] <= -1 && BossSpriteNum[1] <= -1 && BossSpriteNum[2] <= -1)
     {
         StatIterator it(STAT_ENEMY);
         while ((i = it.NextIndex()) >= 0)
@@ -844,11 +839,11 @@ BossHealthMeter(void)
 
             if ((u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0) && sp->pal != 16)
             {
-                if (u->ID == SERP_RUN_R0)
+                if (u->ID == SERP_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SERPENT))
                     BossSpriteNum[0] = i;
-                else if (u->ID == SUMO_RUN_R0)
+                else if (u->ID == SUMO_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SUMO))
                     BossSpriteNum[1] = i;
-                else if (u->ID == ZILLA_RUN_R0)
+                else if (u->ID == ZILLA_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_ZILLA))
                     BossSpriteNum[2] = i;
             }
         }
@@ -857,45 +852,39 @@ BossHealthMeter(void)
     if (BossSpriteNum[0] <= -1 && BossSpriteNum[1] <= -1 && BossSpriteNum[2] <= -1)
         return;
 
-    // Frank, good optimization for other levels, but it broke level 20. :(
-    // I kept this but had to add a fix.
-    bosswasseen = serpwasseen || sumowasseen || zillawasseen;
 
     // Only show the meter when you can see the boss
-    if ((currentLevel->levelNumber == 20 && (!serpwasseen || !sumowasseen || !zillawasseen)) || !bosswasseen)
+    for (i=0; i<3; i++)
     {
-        for (i=0; i<3; i++)
+        if (BossSpriteNum[i] >= 0 && !bosswasseen[i])
         {
-            if (BossSpriteNum[i] >= 0)
-            {
-                sp = &sprite[BossSpriteNum[i]];
-                u = User[BossSpriteNum[i]].Data();
+            sp = &sprite[BossSpriteNum[i]];
+            u = User[BossSpriteNum[i]].Data();
 
-                if (cansee(sp->x, sp->y, SPRITEp_TOS(sp), sp->sectnum, pp->posx, pp->posy, pp->posz - Z(40), pp->cursectnum))
+            if (cansee(sp->x, sp->y, SPRITEp_TOS(sp), sp->sectnum, pp->posx, pp->posy, pp->posz - Z(40), pp->cursectnum))
+            {
+                if (i == 0 && !bosswasseen[0])
                 {
-                    if (i == 0 && !serpwasseen)
+                    bosswasseen[0] = true;
+                    if (!SW_SHAREWARE)
                     {
-                        serpwasseen = true;
-                        if (!SW_SHAREWARE)
-                        {
-                            PlaySong(nullptr, ThemeSongs[2], ThemeTrack[2], true);
-                        }
+                        PlaySong(nullptr, ThemeSongs[2], ThemeTrack[2], true);
                     }
-                    else if (i == 1 && !sumowasseen)
+                }
+                else if (i == 1 && !bosswasseen[1])
+                {
+                    bosswasseen[1] = true;
+                    if (!SW_SHAREWARE)
                     {
-                        sumowasseen = true;
-                        if (!SW_SHAREWARE)
-                        {
-                            PlaySong(nullptr, ThemeSongs[3], ThemeTrack[3], true);
-                        }
+                        PlaySong(nullptr, ThemeSongs[3], ThemeTrack[3], true);
                     }
-                    else if (i == 2 && !zillawasseen)
+                }
+                else if (i == 2 && !bosswasseen[2])
+                {
+                    bosswasseen[2] = true;
+                    if (!SW_SHAREWARE)
                     {
-                        zillawasseen = true;
-                        if (!SW_SHAREWARE)
-                        {
-                            PlaySong(nullptr, ThemeSongs[4], ThemeTrack[4], true);
-                        }
+                        PlaySong(nullptr, ThemeSongs[4], ThemeTrack[4], true);
                     }
                 }
             }
@@ -906,17 +895,17 @@ BossHealthMeter(void)
     for (i=0; i<3; i++)
     {
 
-        if (i == 0 && (!serpwasseen || BossSpriteNum[0] < 0))
+        if (i == 0 && (!bosswasseen[0] || BossSpriteNum[0] < 0))
             continue;
-        if (i == 1 && (!sumowasseen || BossSpriteNum[1] < 0))
+        if (i == 1 && (!bosswasseen[1] || BossSpriteNum[1] < 0))
             continue;
-        if (i == 2 && (!zillawasseen || BossSpriteNum[2] < 0))
+        if (i == 2 && (!bosswasseen[2] || BossSpriteNum[2] < 0))
             continue;
 
         sp = &sprite[BossSpriteNum[i]];
         u = User[BossSpriteNum[i]].Data();
 
-        if (u->ID == SERP_RUN_R0 && serpwasseen)
+        if (u->ID == SERP_RUN_R0 && bosswasseen[0])
         {
             if (Skill == 0) health = 1100;
             else if (Skill == 1) health = 2200;
@@ -924,7 +913,7 @@ BossHealthMeter(void)
                 health = HEALTH_SERP_GOD;
             meterunit = health / 30;
         }
-        else if (u->ID == SUMO_RUN_R0 && sumowasseen)
+        else if (u->ID == SUMO_RUN_R0 && bosswasseen[1])
         {
             if (Skill == 0) health = 2000;
             else if (Skill == 1) health = 4000;
@@ -932,7 +921,7 @@ BossHealthMeter(void)
                 health = 6000;
             meterunit = health / 30;
         }
-        else if (u->ID == ZILLA_RUN_R0 && zillawasseen)
+        else if (u->ID == ZILLA_RUN_R0 && bosswasseen[2])
         {
             if (Skill == 0) health = 2000;
             else if (Skill == 1) health = 4000;
@@ -963,10 +952,10 @@ BossHealthMeter(void)
         else
             y = 30;
 
-        if (currentLevel->levelNumber == 20 && numplayers >= 2)
+        if ((currentLevel->gameflags & (LEVEL_SW_BOSSMETER_SUMO|LEVEL_SW_BOSSMETER_ZILLA)) == (LEVEL_SW_BOSSMETER_SUMO | LEVEL_SW_BOSSMETER_ZILLA) && numplayers >= 2)
         {
-            if (u->ID == SUMO_RUN_R0 && sumowasseen) y += 10;
-            else if (u->ID == ZILLA_RUN_R0 && zillawasseen) y += 20;
+            if (u->ID == SUMO_RUN_R0 && bosswasseen[1]) y += 10;
+            else if (u->ID == ZILLA_RUN_R0 && bosswasseen[2]) y += 20;
         }
 
         if (metertics <= 12 && metertics > 6)

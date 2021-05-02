@@ -1681,7 +1681,9 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (paused && !M_Active())
     {
-        MNU_DrawString(160, 100, "Game Paused", 0, 0, 0);
+        auto str = GStrings("Game Paused");
+        int w = SmallFont->StringWidth(str);
+        DrawText(twod, SmallFont, CR_UNDEFINED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 
     if (!CommEnabled && TEST(pp->Flags, PF_DEAD))

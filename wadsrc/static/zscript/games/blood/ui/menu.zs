@@ -9,25 +9,7 @@ class BloodMenuDelegate : RazeMenuDelegate
 {
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{
-		let font = generic_ui? NewConsoleFont : BigFont;	// this ignores the passed font intentionally.
-		let texid = TexMan.CheckForTexture("MENUBAR");
-		let texsize = TexMan.GetScaledSize(texid);
-		let fonth = font.GetGlyphHeight("A");
-		if (drawit)
-		{
-			int width = font.StringWidth(title);
-			if (texid.isValid())
-			{
-				double scalex = 1.; // Expand the box if the text is longer
-				if (texsize.X - 10 < width) scalex = width / (texsize.X - 10);
-				screen.DrawTexture(texid, false, 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex);
-			}
-			screen.DrawText(font, Font.CR_UNDEFINED, 160 - width / 2, 20 - fonth / 2, title, DTA_FullscreenScale, FSMode_Fit320x200Top);
-		}
-		double fx, fy, fw, fh;
-		[fx, fy, fw, fh] = Screen.GetFullscreenRect(320, 200, FSMode_ScaleToFit43Top);
-		int h = texid.isValid() && texsize.Y < 40? texsize.Y : fonth;
-		return int((y+h) * fh / 200); // This must be the covered height of the header in true pixels.
+		return BloodScreen.DrawCaption(title, y, drawit);	// this ignores the passed font intentionally.
 	}
 	
 	override bool DrawSelector(ListMenuDescriptor desc)
@@ -85,7 +67,7 @@ class ListMenuItemBloodTextItem : ListMenuItemTextItem
 		if (selected) shade = 32 - ((MSTime() * 120 / 1000) & 63);
 
 		Screen.DrawText(gamefont, Font.CR_UNDEFINED, xpos+1, mYpos+1, mText, DTA_Color, 0xff000000, DTA_FullscreenScale, FSMode_Fit320x200);
-		Screen.DrawText(gamefont, Font.CR_UNDEFINED, xpos, mYpos, mText, DTA_TranslationIndex, trans, DTA_Color, Build.shadeToLight(shade), DTA_FullscreenScale, FSMode_Fit320x200);
+		Screen.DrawText(gamefont, Font.CR_UNDEFINED, xpos, mYpos, mText, DTA_TranslationIndex, trans, DTA_Color, Raze.shadeToLight(shade), DTA_FullscreenScale, FSMode_Fit320x200);
 	}
 	
 }

@@ -108,24 +108,6 @@ void InitFonts()
 //
 //---------------------------------------------------------------------------
 
-void MNU_DrawString(int x, int y, const char* string, int shade, int pal, int align)
-{
-    if (align > -1)
-    {
-        int w = SmallFont->StringWidth(string);
-        if (align == 0) x -= w / 2;
-        else x -= w;
-    }
-    DrawText(twod, SmallFont, CR_UNDEFINED, x, y, string, DTA_FullscreenScale, FSMode_Fit320x200,
-        DTA_Color, shadeToLight(shade), DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), TAG_DONE);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, int align, double alpha)
 {
     if (align > -1)

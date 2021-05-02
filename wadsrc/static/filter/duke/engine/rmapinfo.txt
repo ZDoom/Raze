@@ -1,0 +1,74 @@
+//This sets up the missing things that cannot be inferred from the setup in the .CON files.
+
+cluster 1
+{
+	outro
+	{
+		function = DukeCutscenes.BuildE1End
+	}
+}
+
+cluster 2
+{
+	outro
+	{
+		function = DukeCutscenes.BuildE2End
+	}
+	interbackground = "BONUSSCREEN2"
+}
+
+cluster 3
+{
+	outro
+	{
+		function = DukeCutscenes.BuildE3End
+	}
+}
+
+cluster 4
+{
+	outro
+	{
+		function = DukeCutscenes.BuildE4End
+	}
+}
+
+cluster 5
+{
+	outro
+	{
+		function = DukeCutscenes.BuildE5End
+	}
+}
+
+map { 4, 1 }
+{
+	intro
+	{
+		function = DukeCutscenes.BuildE4Intro
+	}
+}
+
+cutscenes
+{
+	intro
+	{
+		function = DukeCutscenes.BuildIntro
+	}
+
+	sharewareend 
+	{
+		function = DukeCutscenes.BuildSharewareEnd
+	}
+
+	loadscreen
+	{
+		function = DukeCutscenes.BuildLoading
+	}
+}
+
+gameinfo
+{
+	summaryscreen = DukeCutscenes.BuildSPSummary
+	mpsummaryscreen = DukeCutscenes.BuildMPSummary  
+}

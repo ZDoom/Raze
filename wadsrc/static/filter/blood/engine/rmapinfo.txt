@@ -1,0 +1,21 @@
+
+// Cutscene definitions for Blood
+
+cutscenes
+{
+	intro
+	{
+		function = BloodCutscenes.BuildIntro
+	}
+	loadscreen
+	{
+		function = BloodCutscenes.BuildLoading
+	}
+	
+}
+
+gameinfo
+{
+	summaryscreen = BloodCutscenes.BuildSPSummary
+	mpsummaryscreen = BloodCutscenes.BuildMPSummary
+}
