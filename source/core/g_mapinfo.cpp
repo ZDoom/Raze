@@ -317,15 +317,15 @@ bool FMapInfoParser::CheckLegacyMapDefinition(FString& mapname)
 			sc.MustGetNumber();
 			int indx = sc.Number;
 			auto map = FindMapByIndexOnly(vol, indx);
-			if (!map) I_Error("Map {%d, %d} does not exist", vol, indx);
-			mapname = map->labelName;
+			if (!map) mapname = "";
+			else mapname = map->labelName;
 		}
 		else
 		{
 			// SW only uses the level number
 			auto map = FindMapByLevelNum(vol);
-			if (!map) I_Error("Map {%d} does not exist", vol);
-			mapname = map->labelName;
+			if (!map) mapname = "";
+			else mapname = map->labelName;
 		}
 		sc.MustGetStringName("}");
 		return true;
@@ -744,23 +744,32 @@ static int GetDefaultLevelNum(const char *mapname)
 // Parses the header of a map definition ('map mapxx mapname')
 //
 //==========================================================================
+static MapRecord sink;
 
 MapRecord *FMapInfoParser::ParseMapHeader(MapRecord &defaultinfo)
 {
 	FString mapname;
+	MapRecord* map;
 
 	if (!CheckLegacyMapDefinition(mapname))
 	{
 		ParseLookupName(mapname);
 	}
 
-	auto map = FindMapByName(mapname);
-	if (!map)
+	if (mapname.IsEmpty())
 	{
-		map = AllocateMap();
-		*map = defaultinfo;
-		DefaultExtension(mapname, ".map");
-		map->SetFileName(mapname);
+		map = &sink; // parse over the entire definition but discard the result.
+	}
+	else
+	{
+		map = FindMapByName(mapname);
+		if (!map)
+		{
+			map = AllocateMap();
+			*map = defaultinfo;
+			DefaultExtension(mapname, ".map");
+			map->SetFileName(mapname);
+		}
 	}
 
 	if (!sc.CheckString("{"))
@@ -770,7 +779,7 @@ MapRecord *FMapInfoParser::ParseMapHeader(MapRecord &defaultinfo)
 	}
 	else
 	{
-		if (map->name.IsEmpty()) sc.ScriptError("Missing level name");
+		if (map != &sink && map->name.IsEmpty()) sc.ScriptError("Missing level name");
 		sc.UnGet();
 	}
 	map->levelNumber = GetDefaultLevelNum(map->labelName);
