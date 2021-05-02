@@ -659,13 +659,16 @@ static TArray<GrpEntry> SetupGame()
 	{
 		for (auto& str : game)
 		{
+			int g = 0;
 			for (auto& grp : groups)
 			{
 				if (grp.FileInfo.gameid.CompareNoCase(str) == 0)
 				{
 					userConfig.gamegrp = grp.FileName;
+					groupno = g;
 					goto foundit;
 				}
+				g++;
 			}
 		}
 	}
@@ -673,16 +676,18 @@ static TArray<GrpEntry> SetupGame()
 
 	// If the user has specified a file name, let's see if we know it.
 	//
-	if (userConfig.gamegrp.Len())
+	if (groupno == -1 && userConfig.gamegrp.Len())
 	{
-		FString gamegrplower = "/" + userConfig.gamegrp.MakeLower();
+		FString gamegrplower = userConfig.gamegrp.MakeLower();
+		if (gamegrplower[1] != ':' || gamegrplower[2] != '/') gamegrplower.Insert(0, "/");
 
 		int g = 0;
 		for (auto& grp : groups)
 		{
 			auto grplower = grp.FileName.MakeLower();
-			grplower.Substitute("\\", "/");
-			if (grplower.LastIndexOf(gamegrplower) == grplower.Len() - gamegrplower.Len())
+			FixPathSeperator(grplower);
+			int pos = grplower.LastIndexOf(gamegrplower);
+			if (pos >= 0 && pos == grplower.Len() - gamegrplower.Len())
 			{
 				groupno = g;
 				break;
