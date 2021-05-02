@@ -3230,14 +3230,11 @@ void loadcons()
 	S_WorldTourMappingsForOldSounds(); // create a sound mapping for World Tour.
 	S_CacheAllSounds();
 	comp.setmusic();
-}
 
-void FixMapinfo()
-{
 	// RR must link the last map of E1 to the first map of E2.
-	for (auto& map : mapList)
+	if (isRR()) for (auto& map : mapList)
 	{
-		if (isRR() && map->cluster == 1) 
+		if (map->cluster == 1) 
 		{
 			if (!FindMapByIndexOnly(map->cluster, map->mapindex + 1))
 			{

@@ -325,7 +325,6 @@ void GameInterface::app_init()
 	screenpeek = myconnectindex;
 
 	LoadDefinitions();
-	FixMapinfo();	// Add some corrections. Can only be done after .def has been parsed.
 	fi.InitFonts();
 	SetTileNames();
 	TileFiles.SetBackup();
