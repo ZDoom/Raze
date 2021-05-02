@@ -508,6 +508,17 @@ DEFINE_MAP_OPTION(skyfog, false)
 	info->skyfog = parse.sc.Number;
 }
 
+DEFINE_MAP_OPTION(message, false)
+{
+	parse.ParseAssign();
+	parse.sc.MustGetNumber();
+	if (parse.sc.Number < 1 || parse.sc.Number > MAX_MESSAGES) parse.sc.ScriptError("Invalid message ID %d - must be 1..32", parse.sc.Number);
+	int num = parse.sc.Number;
+	parse.ParseComma();
+	parse.sc.MustGetString();
+	info->messages[num] = parse.sc.String;
+}
+
 /* stuff for later when the new renderer is done.
 DEFINE_MAP_OPTION(lightmode, false)
 {
