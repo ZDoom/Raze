@@ -212,9 +212,9 @@ public:
 		//
 		// keys
 		//
-		if (p->keys[1]) DrawGraphic(tileGetTexture(ACCESSCARD), -28.5,  -32    , DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 0));
-		if (p->keys[3]) DrawGraphic(tileGetTexture(ACCESSCARD), -21.25, -28.375, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-		if (p->keys[2]) DrawGraphic(tileGetTexture(ACCESSCARD), -14,    -24.75 , DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+		if (p->keys[1]) DrawGraphic(tileGetTexture(ACCESSCARD), -28.5,  -32    , DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+		if (p->keys[3]) DrawGraphic(tileGetTexture(ACCESSCARD), -21.25, -28.375, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+		if (p->keys[2]) DrawGraphic(tileGetTexture(ACCESSCARD), -14,    -24.75 , DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 21));
 	}
 
 
@@ -374,9 +374,9 @@ public:
 		else
 		{
 			auto key = tileGetTexture(ACCESS_ICON);
-			if (p->keys[3]) DrawGraphic(key, 138, top + 13, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-			if (p->keys[2]) DrawGraphic(key, 152, top + 13, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 21));
-			if (p->keys[1]) DrawGraphic(key, 145, top + 21, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+			if (p->keys[3]) DrawGraphic(key, 138, top + 13, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+			if (p->keys[2]) DrawGraphic(key, 152, top + 13, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+			if (p->keys[1]) DrawGraphic(key, 145, top + 21, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 0));
 		}
 
 		int num = (p->GetActor()->s->pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
