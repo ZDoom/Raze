@@ -39,6 +39,7 @@
 #include "gamefuncs.h"
 #include "texturemanager.h"
 #include "earcut.hpp"
+#include "hw_sections.h"
 #include "nodebuilder/nodebuild.h"
 
 SectorGeometry sectorGeometry;
@@ -217,8 +218,9 @@ public:
 
 bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2& offset)
 {
-	auto sec = &sector[secnum];
-	int numvertices = sec->wallnum;
+	auto sec = &sections[secnum];
+	auto sectorp = &sector[sec->sector];
+	int numvertices = sec->lines.Size();
 	
 	TArray<FVector3> points(numvertices, true);
 	using Point = std::pair<float, float>;
@@ -229,7 +231,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 	curPoly = &polygon.back();
 	FixedBitArray<MAXWALLSB> done;
 
-	int fz = sec->floorz, cz = sec->ceilingz;
+	int fz = sectorp->floorz, cz = sectorp->ceilingz;
 
 	int vertstoadd = numvertices;
 
@@ -243,7 +245,8 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 		{
 			while (!done[start])
 			{
-				auto wallp = &wall[sec->wallptr + start];
+				auto sline = &sectionLines[sec->lines[start]];
+				auto wallp = &wall[sline->startpoint];
 				float X = WallStartX(wallp);
 				float Y = WallStartY(wallp);
 				if (fabs(X) > 32768. || fabs(Y) > 32768.)
@@ -255,7 +258,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 				curPoly->push_back(std::make_pair(X, Y));
 				done.Set(start);
 				vertstoadd--;
-				start = wallp->point2 - sec->wallptr;
+				start = sline->point2index;
 			}
 			polygon.resize(polygon.size() + 1);
 			curPoly = &polygon.back();
@@ -280,12 +283,12 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 	}
 	if (outer != 0) std::swap(polygon[0], polygon[outer]);
 	auto indices = mapbox::earcut(polygon);
-	if (indices.size() < 3 * (sec->wallnum - 2))
+	if (indices.size() < 3 * (sec->lines.Size() - 2))
 	{
 		// this means that full triangulation failed.
 		return false;
 	}
-	sec->floorz = sec->ceilingz = 0;
+	sectorp->floorz = sectorp->ceilingz = 0;
 
 	int p = 0;
 	for (size_t a = 0; a < polygon.size(); a++)
@@ -293,7 +296,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 		for (auto& pt : polygon[a])
 		{
 			float planez;
-			PlanesAtPoint(sec, (pt.first * 16), (pt.second * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
+			PlanesAtPoint(sectorp, (pt.first * 16), (pt.second * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
 			FVector3 point = { pt.first, pt.second, planez };
 			points[p++] = point;
 		}
@@ -302,11 +305,11 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 	auto& entry = data[secnum].planes[plane];
 	entry.vertices.Resize(indices.size());
 	entry.texcoords.Resize(indices.size());
-	entry.normal = CalcNormal(sec, plane);
+	entry.normal = CalcNormal(sectorp, plane);
 
-	auto texture = tileGetTexture(plane ? sec->ceilingpicnum : sec->floorpicnum);
+	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
 
-	UVCalculator uvcalc(sec, plane, texture, offset);
+	UVCalculator uvcalc(sectorp, plane, texture, offset);
 	
 	for(unsigned i = 0; i < entry.vertices.Size(); i++)
 	{
@@ -315,8 +318,8 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 		entry.texcoords[i] = uvcalc.GetUV(int(pt.X * 16), int(pt.Y * -16), pt.Z);
 	}
 
-	sec->floorz = fz;
-	sec->ceilingz = cz;
+	sectorp->floorz = fz;
+	sectorp->ceilingz = cz;
 	return true;
 }
 
@@ -330,26 +333,30 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 
 bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector2& offset)
 {
+	auto sec = &sections[secnum];
+	auto sectorp = &sector[sec->sector];
+	int numvertices = sec->lines.Size();
 
 	// Convert our sector into something the node builder understands
-	auto sect = &sector[secnum];
-	TArray<vertex_t> vertexes(sect->wallnum, true);
-	TArray<line_t> lines(sect->wallnum, true);
-	TArray<side_t> sides(sect->wallnum, true);
-	for (int i = 0; i < sect->wallnum; i++)
+	TArray<vertex_t> vertexes(sectorp->wallnum, true);
+	TArray<line_t> lines(numvertices, true);
+	TArray<side_t> sides(numvertices, true);
+	for (int i = 0; i < numvertices; i++)
 	{
-		auto wal = &wall[sect->wallptr + i];
+		auto sline = &sectionLines[sec->lines[i]];
+		auto wal = &wall[sline->startpoint];
 		vertexes[i].p = { wal->x * (1 / 16.), wal->y * (1 / -16.) };
+
 		lines[i].backsector = nullptr;
-		lines[i].frontsector = sect;
+		lines[i].frontsector = sectorp;
 		lines[i].linenum = i;
 		lines[i].sidedef[0] = &sides[i];
 		lines[i].sidedef[1] = nullptr;
 		lines[i].v1 = &vertexes[i];
-		lines[i].v2 = &vertexes[wal->point2 - sect->wallptr];
+		lines[i].v2 = &vertexes[sline->point2index];
 
 		sides[i].sidenum = i;
-		sides[i].sector = sect;
+		sides[i].sector = sectorp;
 	}
 
 
@@ -372,8 +379,8 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 	entry.vertices.Clear();
 	entry.texcoords.Clear();
 
-	int fz = sect->floorz, cz = sect->ceilingz;
-	sect->floorz = sect->ceilingz = 0;
+	int fz = sectorp->floorz, cz = sectorp->ceilingz;
+	sectorp->floorz = sectorp->ceilingz = 0;
 
 	for (auto& sub : Level.subsectors)
 	{
@@ -391,9 +398,9 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 	}
 
 	// calculate the rest.
-	auto texture = tileGetTexture(plane ? sect->ceilingpicnum : sect->floorpicnum);
+	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
 
-	UVCalculator uvcalc(sect, plane, texture, offset);
+	UVCalculator uvcalc(sectorp, plane, texture, offset);
 
 	entry.texcoords.Resize(entry.vertices.Size());
 	for (unsigned i = 0; i < entry.vertices.Size(); i++)
@@ -401,13 +408,13 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 		auto& pt = entry.vertices[i];
 
 		float planez;
-		PlanesAtPoint(sect, (pt.X * 16), (pt.Y * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
+		PlanesAtPoint(sectorp, (pt.X * 16), (pt.Y * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
 		entry.vertices[i].Z = planez;
 		entry.texcoords[i] = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);
 	}
-	entry.normal = CalcNormal(sect, plane);
-	sect->floorz = fz;
-	sect->ceilingz = cz;
+	entry.normal = CalcNormal(sectorp, plane);
+	sectorp->floorz = fz;
+	sectorp->ceilingz = cz;
 	return true;
 }
 
@@ -419,7 +426,8 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 
 void SectorGeometry::ValidateSector(unsigned int secnum, int plane, const FVector2& offset)
 {
-	auto sec = &sector[secnum];
+	auto sec = &sector[sections[secnum].sector];
+
 	auto compare = &data[secnum].compare[plane];
 	if (plane == 0)
 	{
