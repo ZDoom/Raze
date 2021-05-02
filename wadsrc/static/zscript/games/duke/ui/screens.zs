@@ -579,8 +579,13 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 	{
 		Super.Init(fadein | fadeout);
 		SetParameters(m, s);
-		int vol = level.cluster;
-		String basetex = vol == 2? "BONUSSCREEN2" : "BONUSSCREEN";
+		String basetex = level.InterBackground;
+		if (basetex.length() == 0)
+		{
+			let cluster = level.GetCluster();
+			if (cluster != null) basetex = cluster.InterBackground;
+		}
+		if (basetex.length() == 0) basetex = "BONUSSCREEN";
 		texBg = TexMan.CheckForTexture(basetex);
 		for(int i = 0; i < 4; i++)
 		{

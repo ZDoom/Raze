@@ -234,7 +234,7 @@ void FMapInfoParser::ParseCutscene(CutsceneDef& cdef)
 	{
 		sc.MustGetString();
 		if (sc.Compare("video")) { ParseAssign(); sc.MustGetString(); cdef.video = sc.String; cdef.function = ""; }
-		else if (sc.Compare("function")) { ParseAssign(); sc.MustGetString(); cdef.function = sc.String; cdef.video = ""; }
+		else if (sc.Compare("function")) { ParseAssign(); sc.SetCMode(false); sc.MustGetString(); sc.SetCMode(true); cdef.function = sc.String; cdef.video = ""; }
 		else if (sc.Compare("sound")) { ParseAssign(); sc.MustGetString(); cdef.soundName = sc.String; }
 		else if (sc.Compare("soundid")) { ParseAssign(); sc.MustGetNumber(); cdef.soundID = sc.Number; }
 		else if (sc.Compare("fps")) { ParseAssign();  sc.MustGetNumber();  cdef.framespersec = sc.Number; }
@@ -269,17 +269,14 @@ void FMapInfoParser::ParseCluster()
 		}
 		else if (sc.Compare("intro"))
 		{
-			ParseAssign();
 			ParseCutscene(clusterinfo->intro);
 		}
 		else if (sc.Compare("outro"))
 		{
-			ParseAssign();
 			ParseCutscene(clusterinfo->outro);
 		}
 		else if (sc.Compare("gameover"))
 		{
-			ParseAssign();
 			ParseCutscene(clusterinfo->gameover);
 		}
 		else if (sc.Compare("interbackground"))
@@ -321,15 +318,14 @@ bool FMapInfoParser::CheckLegacyMapDefinition(FString& mapname)
 			int indx = sc.Number;
 			auto map = FindMapByIndexOnly(vol, indx);
 			if (!map) I_Error("Map {%d, %d} does not exist", vol, indx);
-			mapname = map->fileName;	// we need the actual file name for further processing.
+			mapname = map->labelName;
 		}
 		else
 		{
 			// SW only uses the level number
 			auto map = FindMapByLevelNum(vol);
 			if (!map) I_Error("Map {%d} does not exist", vol);
-			mapname = map->fileName;	// we need the actual file name for further processing.
-
+			mapname = map->labelName;
 		}
 		sc.MustGetStringName("}");
 		return true;
@@ -444,13 +440,11 @@ DEFINE_MAP_OPTION(cdtrack, true)
 
 DEFINE_MAP_OPTION(intro, true)
 {
-	parse.ParseAssign();
 	parse.ParseCutscene(info->intro);
 }
 
 DEFINE_MAP_OPTION(outro, true)
 {
-	parse.ParseAssign();
 	parse.ParseCutscene(info->outro);
 }
 
@@ -769,7 +763,7 @@ MapRecord *FMapInfoParser::ParseMapHeader(MapRecord &defaultinfo)
 	}
 	else
 	{
-		if (map->name.IsEmpty()) I_Error("Missing level name");
+		if (map->name.IsEmpty()) sc.ScriptError("Missing level name");
 		sc.UnGet();
 	}
 	map->levelNumber = GetDefaultLevelNum(map->labelName);
@@ -991,6 +985,10 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 			volumes.Clear();
 			mapList.Clear();
 			clusters.Clear();
+		}
+		else if (sc.Compare("cutscenes"))
+		{
+			//ParseCutsceneInfo();
 		}
 		else if (sc.Compare("gameinfo"))
 		{

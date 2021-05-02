@@ -74,6 +74,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_draw.h"
 #include "gi.h"
 #include "vm.h"
+#include "g_mapinfo.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -961,6 +962,7 @@ int RunGame()
 	StartScreen->Progress();
 	gi->app_init();
 	StartScreen->Progress();
+	G_ParseMapInfo();
 	CreateStatusBar();
 	SetDefaultMenuColors();
 	M_Init();

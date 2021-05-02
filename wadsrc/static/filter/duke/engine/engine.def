@@ -5,54 +5,6 @@ definecutscene intro
 	function DukeCutscenes.BuildIntro
 }
 
-definecutscene episode 1
-{
-	outro
-	{
-		function DukeCutscenes.BuildE1End
-	}
-}
-
-definecutscene episode 2
-{
-	outro
-	{
-		function DukeCutscenes.BuildE2End
-	}
-}
-
-definecutscene episode 3
-{
-	outro
-	{
-		function DukeCutscenes.BuildE3End
-	}
-}
-
-definecutscene episode 4
-{
-	outro
-	{
-		function DukeCutscenes.BuildE4End
-	}
-}
-
-definecutscene episode 5
-{
-	outro
-	{
-		function DukeCutscenes.BuildE5End
-	}
-}
-
-definecutscene map e4l1
-{
-	intro
-	{
-		function DukeCutscenes.BuildE4Intro
-	}
-}
-
 definecutscene sharewareend 
 {
 	function DukeCutscenes.BuildSharewareEnd
