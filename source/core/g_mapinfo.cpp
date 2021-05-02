@@ -550,6 +550,12 @@ DEFINE_MAP_OPTION(rr_startsound, false)
 	info->rr_startsound = parse.sc.Number;
 }
 
+DEFINE_MAP_OPTION(rr_mamaspawn, false)
+{
+	parse.ParseAssign();
+	parse.sc.MustGetNumber();
+	info->rr_mamaspawn = parse.sc.Number;
+}
 
 //==========================================================================
 //
@@ -583,6 +589,7 @@ MapFlagHandlers[] =
 	{ "secretexitoverride",				MITYPE_SETFLAG,	LEVEL_SECRETEXITOVERRIDE, 0, -1 },
 	{ "clearinventory",					MITYPE_SETFLAG, LEVEL_CLEARINVENTORY, 0, -1 },
 	{ "clearweapons",					MITYPE_SETFLAG, LEVEL_CLEARWEAPONS, 0, -1 },
+	{ "forcenoeog",						MITYPE_SETFLAG, LEVEL_FORCENOEOG, 0, -1 },
 	{ "rrra_hulkspawn",					MITYPE_SETFLAGG,LEVEL_RR_HULKSPAWN, 0, GAMEFLAG_RRRA },
 	{ "rr_clearmoonshine",				MITYPE_SETFLAGG,LEVEL_RR_CLEARMOONSHINE, 0, GAMEFLAG_RR },
 
@@ -884,7 +891,6 @@ void FMapInfoParser::ParseEpisodeInfo ()
 
 void FMapInfoParser::ParseCutsceneInfo()
 {
-	unsigned int i;
 	FString map;
 	FString pic;
 	FString name;
@@ -923,7 +929,7 @@ void FMapInfoParser::ParseCutsceneInfo()
 		else if (!ParseCloseBrace())
 		{
 			// Unknown
-			sc.ScriptMessage("Unknown property '%s' found in episode definition\n", sc.String);
+			sc.ScriptMessage("Unknown property '%s' found in cutscene definition\n", sc.String);
 			SkipToNext();
 		}
 		else
@@ -943,7 +949,6 @@ void FMapInfoParser::ParseCutsceneInfo()
 
 void FMapInfoParser::ParseGameInfo()
 {
-	unsigned int i;
 	FString map;
 	FString pic;
 	FString name;
@@ -974,7 +979,7 @@ void FMapInfoParser::ParseGameInfo()
 		else if (!ParseCloseBrace())
 		{
 			// Unknown
-			sc.ScriptMessage("Unknown property '%s' found in episode definition\n", sc.String);
+			sc.ScriptMessage("Unknown property '%s' found in gameinfo definition\n", sc.String);
 			SkipToNext();
 		}
 		else

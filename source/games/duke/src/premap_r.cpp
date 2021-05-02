@@ -366,37 +366,6 @@ static void cachegoodsprites(void)
 	for (i = SMALLSMOKE; i < (SMALLSMOKE + 4); i++)
 		tloadtile(i);
 
-	if (isRRRA() && currentLevel->levelNumber == makelevelnum(0, 4))
-	{
-		tloadtile(RRTILE2577);
-	}
-	if (!isRRRA() && currentLevel->levelNumber == makelevelnum(1, 2))
-	{
-		tloadtile(RRTILE3190);
-		tloadtile(RRTILE3191);
-		tloadtile(RRTILE3192);
-		tloadtile(RRTILE3144);
-		tloadtile(RRTILE3139);
-		tloadtile(RRTILE3132);
-		tloadtile(RRTILE3120);
-		tloadtile(RRTILE3121);
-		tloadtile(RRTILE3122);
-		tloadtile(RRTILE3123);
-		tloadtile(RRTILE3124);
-	}
-	if (lastlevel)
-	{
-		i = isRRRA() ? UFO1_RRRA : UFO1_RR;
-		tloadtile(i);
-		i = UFO2;
-		tloadtile(i);
-		i = UFO3;
-		tloadtile(i);
-		i = UFO4;
-		tloadtile(i);
-		i = UFO5;
-		tloadtile(i);
-	}
 }
 
 //---------------------------------------------------------------------------

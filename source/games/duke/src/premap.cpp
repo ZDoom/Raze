@@ -36,6 +36,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "automap.h"
 #include "dukeactor.h"
 #include "interpolate.h"
+#include "precache.h"
 
 BEGIN_DUKE_NS  
 
@@ -1003,7 +1004,10 @@ bool setnextmap(bool checksecretexit)
     {
         if (ud.secretlevel > 0)
         {
-            map = FindMapByIndex(currentLevel->cluster, ud.secretlevel);
+            // allow overriding the secret exit destination to make episode compilation easier with maps containing secret exits.
+            if (currentLevel->flags & LEVEL_SECRETEXITOVERRIDE) map = FindNextSecretMap(currentLevel);
+            if (!map) map = FindMapByIndex(currentLevel->cluster, ud.secretlevel);
+
             if (map)
             {
                 from_bonus = FindNextMap(currentLevel);

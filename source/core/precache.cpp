@@ -39,7 +39,9 @@
 #include "hw_material.h"
 #include "gamestruct.h"
 #include "gamecontrol.h"
+#include "texturemanager.h"
 #include "glbackend/gl_models.h"
+#include "mapinfo.h"
 
 BEGIN_BLD_NS
 extern short voxelIndex[MAXTILES];
@@ -128,6 +130,19 @@ void precacheMarkedTiles()
 		int dapalnum = pair->Key >> 32;
 		doprecache(dapicnum, dapalnum);
 	}
+
+	// Cache everything the map explicitly declares.
+	TMap<FString, bool> cachetexmap;
+	for (auto& tex : currentLevel->PrecacheTextures) cachetexmap.Insert(tex, true);
+
+	decltype(cachetexmap)::Iterator it2(cachetexmap);
+	decltype(cachetexmap)::Pair* pair2;
+	while (it2.NextPair(pair2))
+	{
+		auto tex = TexMan.FindGameTexture(pair2->Key, ETextureType::Any);
+		if (tex) PrecacheTex(tex, 0);
+	}
+
 	cachemap.Clear();
 }
 

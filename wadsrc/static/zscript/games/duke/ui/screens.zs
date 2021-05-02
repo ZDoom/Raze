@@ -822,16 +822,16 @@ class RRLevelSummaryScreen : SummaryScreenBase
 	{
 		Super.Init(dofadeout? (fadein | fadeout) : fadein);
 		SetParameters(m, s);
-		String s;
-		if (level.flags & MapRecord.USERMAP)
-			s = "BONUSPIC01";
-		else if (!Raze.isRRRA())
-			s = String.Format("BONUSPIC%02d", 1 + clamp((level.levelNumber / 1000) * 7 + (level.levelNumber % 1000), 0, 13));
-		else
-			s = String.Format("LEVELMAP%02d", 1 + clamp((level.levelNumber / 1000) * 7 + (level.levelNumber % 1000), 0, 13));
+		String basetex = level.InterBackground;
+		if (basetex.length() == 0)
+		{
+			let cluster = level.GetCluster();
+			if (cluster != null) basetex = cluster.InterBackground;
+		}
+		if (basetex.length() == 0) basetex = "BONUSPIC01";
 		
 		lastmapname = level.DisplayName();
-		texBg = TexMan.CheckForTexture(s);
+		texBg = TexMan.CheckForTexture(basetex);
 		return self;
 	}
 

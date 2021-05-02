@@ -1,5 +1,5 @@
 // Cutscene definitions for RR
-
+/*
 definecutscene intro
 {
 	function RRCutscenes.BuildIntro
@@ -34,3 +34,4 @@ definecutscene loading
 
 definecutscene summary RRCutscenes.BuildSPSummary
 definecutscene mpsummary DukeCutscenes.BuildMPSummary // identical with Duke's
+*/
