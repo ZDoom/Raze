@@ -431,11 +431,11 @@ void prelevel_r(int g)
 	prelevel_common(g);
 	p = &ps[screenpeek];
 
+	if (currentLevel->gameflags & LEVEL_RR_CLEARMOONSHINE)
+		ps[myconnectindex].steroids_amount = 0;
 
 	if (isRRRA())
 	{
-		if (currentLevel->levelNumber == makelevelnum(1, 4))
-			ps[myconnectindex].steroids_amount = 0;
 
 		for (j = 0; j < MAXSPRITES; j++)
 		{

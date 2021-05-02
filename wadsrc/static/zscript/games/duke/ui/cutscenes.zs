@@ -319,17 +319,21 @@ class RRCutscenes
 
 	static void BuildE2End(ScreenJobRunner runner)
     {
-		if (!Raze.isRRRA())
-		{
-			Array<int> soundinfo;
-			soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);
-			runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 9, 9, 9));
-			runner.Append(ImageScreen.CreateNamed("TENSCREEN"));
-		}
-		else
-		{
-			runner.Append(new("RRRAEndOfGame").Init());
-		}
+		Array<int> soundinfo;
+		soundinfo.Pushv(1, RRSnd.LN_FINAL + 1);
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_outro.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 9, 9, 9));
+		runner.Append(ImageScreen.CreateNamed("TENSCREEN"));
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildRAE2End(ScreenJobRunner runner)
+    {
+		runner.Append(new("RRRAEndOfGame").Init());
 	}
 
 	//---------------------------------------------------------------------------
@@ -351,13 +355,12 @@ class RRCutscenes
 
 	static void BuildMapIntro(ScreenJobRunner runner, MapRecord map)
 	{
-		if (!raze.isRRRA()) return;
-		int ln = map.levelnumber;
+		int ln = map.levelnumber - 1;
 		if (ln == 0) return;
 		if (ln >= 1000) ln -= 1000-7;
 
 		let fn = String.Format("lvl%d.anm", ln);
 		Array<int> soundinfo;
-		runner.Append(MoviePlayerJob.CreateWithSoundinfo(fn, soundinfo, 0, 20, 20, 7200)); // wait for one minute on the final frame so that the video doesn't stop  before the user notices.
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo(fn, soundinfo, 0, 20, 20, 2000)); // wait for a few seconds on the final frame so that the video doesn't stop  before the user notices.
 	}
 }

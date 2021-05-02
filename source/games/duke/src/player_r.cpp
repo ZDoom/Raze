@@ -3382,9 +3382,8 @@ void processinput_r(int snum)
 					psectlotag = 2;
 		}
 	}
-	else if (psectlotag == 7777)
-		if (currentLevel->levelNumber == makelevelnum(1, 6))
-			lastlevel = 1;
+	else if (psectlotag == 7777 && (currentLevel->gameflags & LEVEL_RR_HULKSPAWN))
+		lastlevel = 1;
 
 	if (psectlotag == 848 && sector[psect].floorpicnum == WATERTILE2)
 		psectlotag = 1;

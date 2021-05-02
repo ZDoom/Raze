@@ -150,7 +150,7 @@ struct MapRecord
 
 	// game specific stuff
 	int rr_startsound = 0;
-	int rr_mamaspawn = 5;
+	int rr_mamaspawn = 15;
 	
 	const char* LabelName() const
 	{

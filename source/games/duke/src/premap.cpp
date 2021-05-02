@@ -671,19 +671,7 @@ void prelevel_common(int g)
     WindDir = 0;
     fakebubba_spawn = 0;
     RRRA_ExitedLevel = 0;
-    mamaspawn_count = 15;
-    /* todo
-        if (ud.level_number != 3 || ud.volume_number != 0) {
-            if (ud.level_number == 2 && ud.volume_number == 1)
-                mamaspawn_count = 10;
-            else if (ud.level_number == 6 && ud.volume_number == 1)
-                mamaspawn_count = 15;
-            else if (ud.level_number == 4 && ud.volume_number == 1)
-                ps[myconnectindex].moonshine_amount = 0;
-        } else
-            mamaspawn_count = 5;
-    */
-
+    mamaspawn_count = currentLevel->rr_mamaspawn;
     BellTime = 0;
     BellSprite = nullptr;
 
@@ -919,8 +907,7 @@ void enterlevel(MapRecord *mi, int gamemode)
             resetinventory(i);
             clearweapon = true;
         }
-        if (clearweapon || (isRRRA() && currentLevel->mapindex == 3 && currentLevel->cluster == 1)
-            || (!isRRRA() && currentLevel->mapindex == 2 && currentLevel->cluster == 2))
+        if (clearweapon)
         {
             resetweapons(i);
             ps[i].gotweapon.Clear(PISTOL_WEAPON);

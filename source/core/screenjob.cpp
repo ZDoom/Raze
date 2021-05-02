@@ -473,7 +473,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		{
 			if (!fromMap->outro.Create(runner, fromMap, !!toMap))
 			{
-				if (fromcluster != nullptr && !fromcluster->outro.Create(runner, fromMap, !!toMap))
+				if (fromcluster == nullptr || !fromcluster->outro.Create(runner, fromMap, !!toMap))
 					globalCutscenes.DefaultMapOutro.Create(runner, fromMap, !!toMap);
 			}
 
@@ -485,7 +485,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		{
 			if (!toMap->intro.Create(runner, toMap, !!fromMap))
 			{
-				if  (tocluster != nullptr && !tocluster->intro.Create(runner, toMap, !!fromMap))
+				if  (tocluster == nullptr || !tocluster->intro.Create(runner, toMap, !!fromMap))
 					globalCutscenes.DefaultMapIntro.Create(runner, toMap, !!fromMap);
 			}
 			globalCutscenes.LoadingScreen.Create(runner, toMap, true);
