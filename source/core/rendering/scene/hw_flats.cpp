@@ -98,7 +98,7 @@ void HWFlat::MakeVertices()
 	bool canvas = texture->isHardwareCanvas();
 	if (sprite == nullptr)
 	{
-		auto mesh = sectorGeometry.get(sec - sector, plane, geoofs);
+		auto mesh = sectorGeometry.get(section, plane, geoofs);
 		if (!mesh) return;
 		auto ret = screen->mVertexData->AllocVertices(mesh->vertices.Size());
 		auto vp = ret.first;
@@ -158,7 +158,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 	if (!sprite)
 	{
-		auto mesh = sectorGeometry.get(sec - sector, plane, geoofs);
+		auto mesh = sectorGeometry.get(section, plane, geoofs);
 		state.SetNormal(mesh->normal);
 	}
 	else
@@ -230,7 +230,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 //
 //==========================================================================
 
-void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
+void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section_, int which)
 {
 #ifdef _DEBUG
 	if (frontsector - sector == gl_breaksec)
@@ -249,6 +249,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which)
 	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;
+	section = section_;
 	sprite = nullptr;
 	geoofs = di->geoofs;
 

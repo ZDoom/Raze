@@ -43,6 +43,7 @@
 #include "hw_voxels.h"
 #include "mapinfo.h"
 #include "gamecontrol.h"
+#include "hw_sections.h"
 
 extern TArray<int> blockingpairs[MAXWALLS];
 
@@ -73,11 +74,8 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 		// Reverse the orientation so that startangle and endangle are properly ordered.
 		wall[i].clipangle = clipper->PointToAngle(wall[i].pos);
 	}
-	for (int i = 0; i < numsectors; i++)
-	{
-		sectstartang[i] = -1;
-		sectendang[i] = -1;
-	}
+	memset(sectionstartang, -1, sizeof(sectionstartang));
+	memset(sectionendang, -1, sizeof(sectionendang));
 }
 
 //==========================================================================
@@ -93,7 +91,7 @@ void BunchDrawer::StartScene()
 	Bunches.Clear();
 	CompareData.Clear();
 	gotsector.Zero();
-	gotsector2.Zero();
+	gotsection2.Zero();
 	gotwall.Zero();
 	blockwall.Zero();
 }
@@ -198,20 +196,22 @@ bool BunchDrawer::CheckClip(walltype* wal)
 //
 //==========================================================================
 
-int BunchDrawer::ClipLine(int line, bool portal)
+int BunchDrawer::ClipLine(int aline, bool portal)
 {
-	if (blockwall[line]) return CL_Draw;
+	auto cline = &sectionLines[aline];
+	int section = cline->section;
+	int line = cline->wall;
 
-	auto wal = &wall[line];
-
-	auto startAngleBam = wal->clipangle;
-	auto endAngleBam = wall[wal->point2].clipangle;
+	auto startAngleBam = wall[cline->startpoint].clipangle;
+	auto endAngleBam = wall[cline->endpoint].clipangle;
 
 	// Back side, i.e. backface culling	- read: endAngle <= startAngle!
 	if (startAngleBam.asbam() - endAngleBam.asbam() < ANGLE_180)
 	{
 		return CL_Skip;
 	}
+	if (line >= 0 && blockwall[line]) return CL_Draw;
+
 	// convert to clipper coordinates and clamp to valid range.
 	int startAngle = startAngleBam.asbam() - ang1.asbam();
 	int endAngle = endAngleBam.asbam() - ang1.asbam();
@@ -219,9 +219,8 @@ int BunchDrawer::ClipLine(int line, bool portal)
 	if (endAngle < 0) endAngle = INT_MAX;
 
 	// since these values are derived from previous calls of this function they cannot be out of range.
-	int sect = wal->sector;
-	int sectStartAngle = sectstartang[sect];
-	auto sectEndAngle = sectendang[sect];
+	int sectStartAngle = sectionstartang[section];
+	auto sectEndAngle = sectionendang[section];
 
 	// check against the maximum possible viewing range of the sector.
 	// Todo: check if this is sufficient or if we really have to do a more costly check against the single visible segments.
@@ -239,7 +238,8 @@ int BunchDrawer::ClipLine(int line, bool portal)
 		return CL_Skip;
 	}
 
-	if (wal->nextwall == -1 || (wal->cstat & CSTAT_WALL_1WAY) || CheckClip(wal))
+	auto wal = &wall[line];
+	if (cline->partner == -1 || (wal->cstat & CSTAT_WALL_1WAY) || CheckClip(wal))
 	{
 		// one-sided
 		if (!portal) clipper->AddClipRange(startAngle, endAngle);
@@ -250,16 +250,16 @@ int BunchDrawer::ClipLine(int line, bool portal)
 		if (portal) clipper->RemoveClipRange(startAngle, endAngle);
 
 		// set potentially visible viewing range for this line's back sector.
-		int nsect = wal->nextsector;
-		if (sectstartang[nsect] == -1)
+		int nsection = cline->partnersection;
+		if (sectionstartang[nsection] == -1)
 		{
-			sectstartang[nsect] = startAngle;
-			sectendang[nsect] = endAngle;
+			sectionstartang[nsection] = startAngle;
+			sectionendang[nsection] = endAngle;
 		}
 		else
 		{
-			if (startAngle < sectstartang[nsect]) sectstartang[nsect] = startAngle;
-			if (endAngle > sectendang[nsect]) sectendang[nsect] = endAngle;
+			if (startAngle < sectionstartang[nsection]) sectionstartang[nsection] = startAngle;
+			if (endAngle > sectionendang[nsection]) sectionendang[nsection] = endAngle;
 		}
 
 		return CL_Draw | CL_Pass;
@@ -283,8 +283,8 @@ void BunchDrawer::ProcessBunch(int bnch)
 
 		if (clipped & CL_Draw)
 		{
-			for (auto p : blockingpairs[i]) blockwall.Set(p);
-			show2dwall.Set(i);
+			for (auto p : blockingpairs[i]) blockwall.Set(sectionLines[p].wall);
+			show2dwall.Set(sectionLines[i].wall);
 
 			if (!gotwall[i])
 			{
@@ -294,7 +294,8 @@ void BunchDrawer::ProcessBunch(int bnch)
 				SetupWall.Clock();
 
 				HWWall hwwall;
-				hwwall.Process(di, &wall[i], &sector[bunch->sectnum], wall[i].nextsector < 0 ? nullptr : &sector[wall[i].nextsector]);
+				int j = sectionLines[i].wall;
+				hwwall.Process(di, &wall[j], &sector[bunch->sectnum], wall[j].nextsector < 0 ? nullptr : &sector[wall[j].nextsector]);
 				rendered_lines++;
 
 				SetupWall.Unclock();
@@ -306,7 +307,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 		if (clipped & CL_Pass)
 		{
 			ClipWall.Unclock();
-			ProcessSector(wall[i].nextsector, false);
+			ProcessSection(sectionLines[i].partnersection, false);
 			ClipWall.Clock();
 		}
 	}
@@ -319,16 +320,21 @@ void BunchDrawer::ProcessBunch(int bnch)
 //
 //==========================================================================
 
-int BunchDrawer::WallInFront(int wall1, int wall2)
+int BunchDrawer::WallInFront(int line1, int line2)
 {
-	double x1s = WallStartX(wall1);
-	double y1s = WallStartY(wall1);
-	double x1e = WallEndX(wall1);
-	double y1e = WallEndY(wall1);
-	double x2s = WallStartX(wall2);
-	double y2s = WallStartY(wall2);
-	double x2e = WallEndX(wall2);
-	double y2e = WallEndY(wall2);
+	int wall1s = sectionLines[line1].startpoint;
+	int wall1e = sectionLines[line1].endpoint;
+	int wall2s = sectionLines[line2].startpoint;
+	int wall2e = sectionLines[line2].endpoint;
+
+	double x1s = WallStartX(wall1s);
+	double y1s = WallStartY(wall1s);
+	double x1e = WallStartX(wall1e);
+	double y1e = WallStartY(wall1e);
+	double x2s = WallStartX(wall2s);
+	double y2s = WallStartY(wall2s);
+	double x2e = WallStartX(wall2e);
+	double y2e = WallStartY(wall2e);
 
 	double dx = x1e - x1s;
 	double dy = y1e - y1s;
@@ -482,18 +488,18 @@ int BunchDrawer::FindClosestBunch()
 //
 //==========================================================================
 
-void BunchDrawer::ProcessSector(int sectnum, bool portal)
+void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 {
-	if (gotsector2[sectnum]) return;
-	gotsector2.Set(sectnum);
+	if (gotsection2[sectionnum]) return;
+	gotsection2.Set(sectionnum);
 
-	auto sect = &sector[sectnum];
 	bool inbunch;
 	binangle startangle;
 
 	SetupSprite.Clock();
 
 	int z;
+	int sectnum = sections[sectionnum].sector;
 	if (!gotsector[sectnum])
 	{
 		gotsector.Set(sectnum);
@@ -526,22 +532,23 @@ void BunchDrawer::ProcessSector(int sectnum, bool portal)
 
 	SetupFlat.Clock();
 	HWFlat flat;
-	flat.ProcessSector(di, &sector[sectnum]);
+	flat.ProcessSector(di, &sector[sectnum], sectionnum);
 	SetupFlat.Unclock();
 
 	//Todo: process subsectors
 	inbunch = false;
-	for (int i = 0; i < sect->wallnum; i++)
+	auto section = &sections[sectionnum];
+	for (unsigned i = 0; i < section->lines.Size(); i++)
 	{
-		auto thiswall = &wall[sect->wallptr + i];
+		auto thisline = &sectionLines[section->lines[i]];
 
 #ifdef _DEBUG
 		// For displaying positions in debugger
-		DVector2 start = { WallStartX(thiswall), WallStartY(thiswall) };
-		DVector2 end = { WallStartX(thiswall->point2), WallStartY(thiswall->point2) };
+		//DVector2 start = { WallStartX(thiswall), WallStartY(thiswall) };
+		//DVector2 end = { WallStartX(thiswall->point2), WallStartY(thiswall->point2) };
 #endif
-		binangle walang1 = thiswall->clipangle;
-		binangle walang2 = wall[thiswall->point2].clipangle;
+		binangle walang1 = wall[thisline->startpoint].clipangle;
+		binangle walang2 = wall[thisline->endpoint].clipangle;
 
 		// outside the visible area or seen from the backside.
 		if ((walang1.asbam() - ang1.asbam() > ANGLE_180 && walang2.asbam() - ang1.asbam() > ANGLE_180) ||
@@ -554,14 +561,14 @@ void BunchDrawer::ProcessSector(int sectnum, bool portal)
 		{
 			startangle = walang1;
 			//Printf("Starting bunch:\n\tWall %d\n", sect->wallptr + i);
-			inbunch = StartBunch(sectnum, sect->wallptr + i, walang1, walang2, portal);
+			inbunch = StartBunch(sectnum, section->lines[i], walang1, walang2, portal);
 		}
 		else
 		{
 			//Printf("\tWall %d\n", sect->wallptr + i);
-			inbunch = AddLineToBunch(sect->wallptr + i, walang2);
+			inbunch = AddLineToBunch(section->lines[i], walang2);
 		}
-		if (thiswall->point2 != sect->wallptr + i + 1) inbunch = false;
+		if (thisline->endpoint != section->lines[i] + 1) inbunch = false;
 	}
 }
 
@@ -580,12 +587,19 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 
 		for (unsigned i = 0; i < sectcount; i++)
 		{
-			sectstartang[viewsectors[i]] = 0;
-			sectendang[viewsectors[i]] = int (ang2.asbam() - ang1.asbam());
+			for (auto j : sectionspersector[viewsectors[i]])
+			{
+				sectionstartang[j] = 0;
+				sectionendang[j] = int(ang2.asbam() - ang1.asbam());
+			}
 		}
-
 		for (unsigned i = 0; i < sectcount; i++)
-			ProcessSector(viewsectors[i], portal);
+		{
+			for (auto j : sectionspersector[viewsectors[i]])
+			{
+				ProcessSection(j, portal);
+			}
+		}
 		while (Bunches.Size() > 0)
 		{
 			int closest = FindClosestBunch();
@@ -607,7 +621,7 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 		ang1 = bamang(rotang - ANGLE_90);
 		ang2 = bamang(rotang + ANGLE_90 - 1);
 		process();
-		gotsector2.Zero();
+		gotsection2.Zero();
 		ang1 = bamang(rotang + ANGLE_90);
 		ang2 = bamang(rotang - ANGLE_90 - 1);
 		process();
