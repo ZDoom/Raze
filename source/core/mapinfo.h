@@ -143,8 +143,6 @@ struct MapRecord
 	FVector4 skyrotatevector;
 
 	// The rest is only used by Blood
-	int nextLevel = -1;
-	int nextSecret = -1;
 	FString messages[MAX_MESSAGES];
 	int8_t fog = -1, weather = -1;	// Blood defines these but they aren't used.
 
@@ -207,7 +205,6 @@ MapRecord *FindMapByName(const char *nm);
 MapRecord *FindMapByLevelNum(int num);
 MapRecord* FindMapByIndexOnly(int clst, int num); // this is for map setup where fallbacks are undesirable.
 MapRecord* FindMapByIndex(int clst, int num);
-MapRecord* FindMapByClusterAndLevelNum(int clst, int num);
 MapRecord *FindNextMap(MapRecord *thismap);
 MapRecord* FindNextSecretMap(MapRecord* thismap);
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic = nullptr);
@@ -242,17 +239,6 @@ constexpr inline int makelevelnum(int vol, int map)
 {
 	return vol * 1000 + map;
 }
-
-constexpr inline int volfromlevelnum(int num)
-{
-	return num >= 0 ? num / 1000 : 0;
-}
-
-constexpr inline int mapfromlevelnum(int num)
-{
-	return num >= 0 ? num % 1000 : -1;
-}
-
 
 enum
 {

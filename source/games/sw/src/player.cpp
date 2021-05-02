@@ -7044,7 +7044,7 @@ void MultiPlayLimits(void)
         MapRecord *next = nullptr;
         // do not increment if level is 23 thru 28 (should be done smarter.)
         if (currentLevel->levelNumber <= 22)
-            next = FindMapByLevelNum(currentLevel->levelNumber + 1);
+            next = FindNextMap(currentLevel);
 		ChangeLevel(next, -1);
     }
 }
@@ -7202,7 +7202,7 @@ domovethings(void)
 			MapRecord *map = nullptr;
 			if (FinishAnim == ANIM_SUMO)
 			{
-				map = FindMapByLevelNum(currentLevel->levelNumber+1);
+				map = FindNextMap(currentLevel);
 			}
 			ChangeLevel(map, -1);
         }

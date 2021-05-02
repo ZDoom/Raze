@@ -195,7 +195,7 @@ MapRecord* FindNextMap(MapRecord* thismap)
 	MapRecord* next = nullptr;
 	if (!thismap->NextMap.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
 	if (thismap->NextMap.IsNotEmpty()) next = FindMapByName(thismap->NextMap);
-	if (!next) next = FindMapByLevelNum(thismap->levelNumber);
+	if (!next) next = FindMapByLevelNum(thismap->levelNumber + 1);
 	return next;
 }
 
@@ -207,28 +207,6 @@ MapRecord* FindNextSecretMap(MapRecord* thismap)
 	return next? next : FindNextMap(thismap);
 }
 
-
-// return a map whose cluster and map number matches.
-// if there's only one map with the given level number return that.
-MapRecord* FindMapByClusterAndLevelNum(int cluster, int num)
-{
-	MapRecord* mr = nullptr;
-	int mapfound = 0;
-	for (auto& map : mapList)
-	{
-		if (map->levelNumber == num)
-		{
-			if (map->cluster == cluster) return map.Data();
-			else
-			{
-				mr = map.Data();
-				mapfound++;
-			}
-		}
-	}
-	if (mapfound == 1) return mr;
-	return nullptr;
-}
 
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 {
@@ -256,7 +234,7 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 		if (numMatches != 4 || toupper(b1) != 'E' || toupper(b2) != 'L')
 			return false;
 
-		index = FindMapByLevelNum(makelevelnum(ep - 1, lev - 1));
+		index = FindMapByIndexOnly(ep, lev);
 
 	}
 	if (index != nullptr)

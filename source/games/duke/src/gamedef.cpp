@@ -48,10 +48,11 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "conlabeldef.h"
 #include "gi.h"
 
+extern TArray<TPointer<MapRecord>> mapList;
+
 BEGIN_DUKE_NS
 
 enum { VERSIONCHECK = 41 };
-
 
 //---------------------------------------------------------------------------
 //
@@ -88,7 +89,8 @@ public:
 
 struct TempMusic
 {
-	int levnum;
+	int volnum;
+	int levlnum;
 	FString music;
 };
 
@@ -1016,7 +1018,8 @@ int ConCompiler::parsecommand()
 			if (k >= 0)
 			{
 				tempMusic.Reserve(1);
-				tempMusic.Last().levnum = makelevelnum(k, i);
+				tempMusic.Last().volnum = k + 1;
+				tempMusic.Last().levlnum = i + 1;
 				tempMusic.Last().music = parsebuffer.Data();
 			}
 			else
@@ -1701,8 +1704,7 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		auto levnum = makelevelnum(j, k);
-		auto map = FindMapByLevelNum(levnum);
+		auto map = FindMapByIndexOnly(j + 1, k + 1);
 		if (!map) map = AllocateMap();
 		map->SetFileName(parsebuffer.Data());
 		if (k == 0)
@@ -1724,7 +1726,9 @@ int ConCompiler::parsecommand()
 			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 60) +
 			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')));
 
-		map->levelNumber = levnum;
+		SetLevelNum(map, makelevelnum(j + 1, k + 1));
+
+		map->mapindex = k + 1;
 		map->cluster = j + 1;
 
 		textptr += 5;
@@ -3144,7 +3148,7 @@ void ConCompiler::setmusic()
 {
 	for (auto& tm : tempMusic)
 	{
-		auto map = FindMapByLevelNum(tm.levnum);
+		auto map = FindMapByIndexOnly(tm.volnum, tm.levlnum);
 		if (map) map->music = tm.music;
 	}
 	tempMusic.Clear();
@@ -3230,30 +3234,30 @@ void loadcons()
 
 void FixMapinfo()
 {
-	// todo: export this to proper map definition features.
+	// RR must link the last map of E1 to the first map of E2.
+	for (auto& map : mapList)
+	{
+		if (isRR() && map->cluster == 1) 
+		{
+			auto nextmap = FindMapByIndexOnly(map->cluster + 1, 1);
+			if (nextmap) map->NextMap = nextmap->labelName;
+		}
+	}
+
 	if (isWorldTour())
 	{
-		// fix broken secret exit in WT's super secret map.
+		// fix broken secret exit in WT's super secret map. 
+		// This cannot be done from an RMAPINFO definition because the conditions are too specific and must not override custom maps.
 		int num = fileSystem.CheckNumForName("e1l7.map");
 		int file = fileSystem.GetFileContainer(num);
 		if (file <= fileSystem.GetMaxIwadNum())
 		{
 			auto maprec = FindMapByName("e1l7");
-			if (maprec) maprec->nextLevel = makelevelnum(0, 4);
+			if (maprec) maprec->NextMap = "e1l5";
 		}
 	}
 	else if (isRR())
 	{
-		if (true)
-		{
-			// RR goes directly to the second episode after E1L7 to continue the game.
-			auto maprec1 = FindMapByLevelNum(makelevelnum(0, 6));	// E1L7 must exist
-			auto maprec2 = FindMapByLevelNum(makelevelnum(0, 7));	// E1L8 must not exist
-			if (maprec1 && !maprec2)
-			{
-				maprec1->nextLevel = makelevelnum(1, 0);
-			}
-		}
 		if (!isRRRA())
 		{
 			// RR does not define its final level and crudely hacked it into the progression. This puts it into the E2L8 slot so that the game can naturally progress there.

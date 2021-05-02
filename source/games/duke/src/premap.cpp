@@ -140,7 +140,7 @@ void resetplayerstats(int snum)
     p->jetpack_on =         0;
     p->holoduke_on =       nullptr;
 
-    p->angle.olook_ang = p->angle.look_ang = buildlook(512 - ((currentLevel->levelNumber & 1) << 10));
+    p->angle.olook_ang = p->angle.look_ang = buildlook(512 - (((~currentLevel->levelNumber) & 1) << 10));
     p->angle.orotscrnang = p->angle.rotscrnang = buildlook(0);
 
     p->newOwner          =nullptr;
@@ -916,14 +916,21 @@ void enterlevel(MapRecord *mi, int gamemode)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
+        bool clearweapon = false;
         int pn = sector[ps[i].GetActor()->s->sectnum].floorpicnum;
         if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
         {
-            resetweapons(i);
             resetinventory(i);
+            clearweapon = true;
+        }
+        if (clearweapon || (isRRRA() && currentLevel->mapindex == 3 && currentLevel->cluster == 1)
+            || (!isRRRA() && currentLevel->mapindex == 2 && currentLevel->cluster == 2))
+        {
+            resetweapons(i);
             ps[i].gotweapon.Clear(PISTOL_WEAPON);
             ps[i].ammo_amount[PISTOL_WEAPON] = 0;
             ps[i].curr_weapon = KNEE_WEAPON;
+            ps[i].kickback_pic = 0;
             ps[i].okickback_pic = ps[i].kickback_pic = 0;
         }
     }
@@ -932,7 +939,7 @@ void enterlevel(MapRecord *mi, int gamemode)
     everyothertime = 0;
     global_random = 0;
 
-    ud.last_level = currentLevel->levelNumber;
+    ud.last_level = 1;
     ps[myconnectindex].over_shoulder_on = 0;
     clearfrags();
     resettimevars();  // Here we go
@@ -991,7 +998,7 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 bool setnextmap(bool checksecretexit)
 {
     MapRecord* map = nullptr;;
-    int from_bonus = 0;
+    MapRecord* from_bonus = nullptr;
 
     if (ud.eog)
     {
@@ -1000,15 +1007,14 @@ bool setnextmap(bool checksecretexit)
     {
         if (ud.secretlevel > 0)
         {
-            int newlevnum = makelevelnum(volfromlevelnum(currentLevel->levelNumber), ud.secretlevel-1);
-            map = FindMapByLevelNum(newlevnum);
+            map = FindMapByIndex(currentLevel->cluster, ud.secretlevel);
             if (map)
             {
-                from_bonus = currentLevel->levelNumber + 1;
+                from_bonus = FindNextMap(currentLevel);
             }
         }
     }
-    else if (ud.from_bonus && currentLevel->nextLevel == -1)	// if the current level has an explicit link, use that instead of ud.from_bonus.
+    else if (ud.from_bonus && currentLevel->NextMap.IsEmpty())	// if the current level has an explicit link, use that instead of ud.from_bonus.
     {
         map = FindMapByLevelNum(ud.from_bonus);
     }
@@ -1027,7 +1033,7 @@ bool setnextmap(bool checksecretexit)
         {
             I_Error("Trying to open non-existent %s", map->fileName.GetChars());
         }
-        ud.from_bonus = from_bonus;
+        ud.from_bonus = from_bonus? from_bonus->levelNumber : 0;
     }
     CompleteLevel(map);
     return false;

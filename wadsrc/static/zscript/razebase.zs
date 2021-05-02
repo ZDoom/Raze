@@ -66,9 +66,10 @@ struct MapRecord native
 	native readonly int levelNumber;
 	native readonly int cluster;
 	native readonly String InterBackground;
-	// The rest is only used by Blood
-	native readonly int nextLevel;
-	native readonly int nextSecret;
+
+	native readonly String nextMap;
+	native readonly String nextSecret;
+
 	//native readonly String messages[MAX_MESSAGES];
 	native readonly String author;
 	
