@@ -164,7 +164,7 @@ inline float PlayerInputAngVel(int pl)
 	return ps[pl].sync.avel;
 }
 
-inline float PlayerHorizon(int pl)
+inline float GetPlayerHorizon(int pl)
 {
 	return ps[pl].sync.horz;
 }
