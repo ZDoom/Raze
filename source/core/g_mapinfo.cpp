@@ -1162,6 +1162,16 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		{
 			ParseGameInfo();
 		}
+		else if (sc.Compare("clearall"))
+		{
+			// clears all map and progression related data, so that a mod can start with a clean slate.
+			mapList.Clear();
+			volumes.Clear();
+			clusters.Clear();
+			globalCutscenes.DefaultMapIntro = {};
+			globalCutscenes.DefaultMapOutro = {};
+			globalCutscenes.DefaultGameover = {};
+		}
 		else
 		{
 			sc.ScriptError("%s: Unknown top level keyword", sc.String);
