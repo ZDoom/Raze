@@ -878,6 +878,96 @@ void FMapInfoParser::ParseEpisodeInfo ()
 
 //==========================================================================
 //
+//
+//
+//==========================================================================
+
+void FMapInfoParser::ParseCutsceneInfo()
+{
+	unsigned int i;
+	FString map;
+	FString pic;
+	FString name;
+	bool remove = false;
+	char key = 0;
+	int flags = 0;
+
+	ParseOpenBrace();
+
+	while (sc.GetString())
+	{
+		if (sc.Compare("intro"))
+		{
+			ParseCutscene(globalCutscenes.Intro);
+		}
+		else if (sc.Compare("defaultmapintro"))
+		{
+			ParseCutscene(globalCutscenes.DefaultMapIntro);
+		}
+		else if (sc.Compare("defaultmapoutro"))
+		{
+			ParseCutscene(globalCutscenes.DefaultMapOutro);
+		}
+		else if (sc.Compare("defaultgameover"))
+		{
+			ParseCutscene(globalCutscenes.DefaultGameover);
+		}
+		else if (sc.Compare("sharewareend"))
+		{
+			ParseCutscene(globalCutscenes.SharewareEnd);
+		}
+		else if (sc.Compare("loadscreen"))
+		{
+			ParseCutscene(globalCutscenes.LoadingScreen);
+		}
+		else if (!ParseCloseBrace())
+		{
+			// Unknown
+			sc.ScriptMessage("Unknown property '%s' found in episode definition\n", sc.String);
+			SkipToNext();
+		}
+		else
+		{
+			break;
+		}
+	}
+	CheckEndOfFile("episode");
+
+
+	for (i = 0; i < volumes.Size(); i++)
+	{
+		if (volumes[i].startmap.CompareNoCase(map) == 0)
+		{
+			break;
+		}
+	}
+
+	if (remove)
+	{
+		// If the remove property is given for an episode, remove it.
+		volumes.Delete(i);
+	}
+	else
+	{
+		// Only allocate a new entry if this doesn't replace an existing episode.
+		if (i >= volumes.Size())
+		{
+			i = volumes.Reserve(1);
+		}
+
+		auto epi = &volumes[i];
+
+		epi->startmap = map;
+		epi->name = name;
+		epi->shortcut = tolower(key);
+		epi->flags = flags;
+		epi->index = i;
+	}
+}
+
+
+//==========================================================================
+//
 // SetLevelNum
 // Avoid duplicate levelnums. The level being set always has precedence.
 //
@@ -988,7 +1078,7 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		}
 		else if (sc.Compare("cutscenes"))
 		{
-			//ParseCutsceneInfo();
+			ParseCutsceneInfo();
 		}
 		else if (sc.Compare("gameinfo"))
 		{

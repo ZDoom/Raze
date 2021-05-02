@@ -85,6 +85,7 @@ struct GlobalCutscenes
 	CutsceneDef Intro;
 	CutsceneDef DefaultMapIntro;
 	CutsceneDef DefaultMapOutro;
+	CutsceneDef DefaultGameover;
 	CutsceneDef SharewareEnd;
 	CutsceneDef LoadingScreen;
 	FString MPSummaryScreen;

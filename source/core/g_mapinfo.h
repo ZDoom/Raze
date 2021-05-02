@@ -53,7 +53,6 @@ struct FMapInfoParser
 	bool CheckLegacyMapDefinition(FString& mapname);
 	bool ParseLookupName(FString &dest);
 	void ParseMusic(FString &name, int &order);
-	//void ParseLumpOrTextureName(char *name);
 	void ParseLumpOrTextureName(FString &name);
 
 	void ParseCutscene(CutsceneDef& cdef);
@@ -62,7 +61,7 @@ struct FMapInfoParser
 	MapRecord *ParseMapHeader(MapRecord &defaultinfo);
 	void ParseMapDefinition(MapRecord &leveldef);
 	void ParseEpisodeInfo ();
-	void ParseSkill ();
+	void ParseCutsceneInfo();
 	void ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord &defaultinfo);
 
 	void ParseOpenBrace();

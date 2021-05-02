@@ -49,3 +49,20 @@ map { 4, 1 }
 	}
 }
 
+cutscenes
+{
+	intro
+	{
+		function = DukeCutscenes.BuildIntro
+	}
+
+	sharewareend 
+	{
+		function = DukeCutscenes.BuildSharewareEnd
+	}
+
+	loadscreen
+	{
+		function = DukeCutscenes.BuildLoading
+	}
+}
