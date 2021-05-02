@@ -29,6 +29,7 @@ enum EMapFlags
 	LEVEL_SECRETEXITOVERRIDE = 2,	// when given an explicit level number, override with secret exit in the map, mainly for compiling episodes out of single levels.
 	LEVEL_CLEARINVENTORY = 4,
 	LEVEL_CLEARWEAPONS = 8,
+	LEVEL_FORCENOEOG = 16,			// RR E1L7 needs this to override its boss's death ending the game.
 };
 
 enum EMapGameFlags

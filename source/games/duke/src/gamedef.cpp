@@ -3239,8 +3239,15 @@ void FixMapinfo()
 	{
 		if (isRR() && map->cluster == 1) 
 		{
-			auto nextmap = FindMapByIndexOnly(map->cluster + 1, 1);
-			if (nextmap) map->NextMap = nextmap->labelName;
+			if (!FindMapByIndexOnly(map->cluster, map->mapindex + 1))
+			{
+				auto nextmap = FindMapByIndexOnly(map->cluster + 1, 1);
+				if (nextmap)
+				{
+					map->NextMap = nextmap->labelName;
+					map->flags |= LEVEL_FORCENOEOG;
+				}
+			}
 		}
 	}
 
@@ -3254,27 +3261,6 @@ void FixMapinfo()
 		{
 			auto maprec = FindMapByName("e1l7");
 			if (maprec) maprec->NextMap = "e1l5";
-		}
-	}
-	else if (isRR())
-	{
-		if (!isRRRA())
-		{
-			// RR does not define its final level and crudely hacked it into the progression. This puts it into the E2L8 slot so that the game can naturally progress there.
-			auto maprec1 = FindMapByLevelNum(makelevelnum(1, 6));	// E2L7 must exist
-			auto maprec2 = FindMapByLevelNum(makelevelnum(1, 7));	// E2L8 must not exist
-			auto maprec3 = FindMapByName("endgame");			// endgame must not have a map record already
-			int num3 = fileSystem.FindFile("endgame.map");		// endgame.map must exist.
-			if (maprec1 && !maprec2 && !maprec3 && num3 >= 0)
-			{
-				auto maprec = AllocateMap();
-				maprec->designerTime = 0;
-				maprec->parTime = 0;
-				maprec->SetFileName("endgame.map");
-				maprec->SetName("$TXT_CLOSEENCOUNTERS");
-				maprec->levelNumber = makelevelnum(1, 7);
-				maprec->cluster = 2;
-			}
 		}
 	}
 }

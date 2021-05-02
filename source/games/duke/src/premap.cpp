@@ -911,7 +911,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        bool clearweapon = false;
+        bool clearweapon = !!(currentLevel->flags & LEVEL_CLEARWEAPONS);
         int pn = sector[ps[i].GetActor()->s->sectnum].floorpicnum;
         if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
         {
@@ -928,6 +928,7 @@ void enterlevel(MapRecord *mi, int gamemode)
             ps[i].kickback_pic = 0;
             ps[i].okickback_pic = ps[i].kickback_pic = 0;
         }
+        if (currentLevel->flags & LEVEL_CLEARINVENTORY) resetinventory(i);
     }
     resetmys();
 
@@ -992,10 +993,10 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 
 bool setnextmap(bool checksecretexit)
 {
-    MapRecord* map = nullptr;;
+    MapRecord* map = nullptr;
     MapRecord* from_bonus = nullptr;
 
-    if (ud.eog)
+    if (ud.eog && !(currentLevel->flags & LEVEL_FORCENOEOG))
     {
     }
     else if (checksecretexit && ud.from_bonus == 0)
