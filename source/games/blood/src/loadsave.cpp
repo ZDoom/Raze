@@ -641,7 +641,6 @@ void SerializeState(FSerializer& arc)
 			("modern", gModernMap)
 #endif
 			("cheating", bPlayerCheated)
-			("nextlevel", gNextLevel)
 			("skyhoriz", pSky->horizfrac)
 			("skyy", pSky->yoffs)
 			("scale", pSky->yscale)

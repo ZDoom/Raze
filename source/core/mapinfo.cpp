@@ -84,10 +84,10 @@ CCMD(mapinfo)
 			if (clus.intro.isdefined() || clus.outro.isdefined())
 			{
 				Printf("Cluster %d\n\tName = '%s'\n", clus.index, clus.name.GetChars());
-				if (clus.intro.function.IsNotEmpty()) Printf("\tIntro function = %d\n", clus.intro.function.GetChars());
-				if (clus.intro.video.IsNotEmpty()) Printf("\tIntro video = %d\n", clus.intro.video.GetChars());
-				if (clus.outro.function.IsNotEmpty()) Printf("\tOutro function = %d\n", clus.outro.function.GetChars());
-				if (clus.outro.video.IsNotEmpty()) Printf("\tOutro video = %d\n", clus.outro.video.GetChars());
+				if (clus.intro.function.IsNotEmpty()) Printf("\tIntro function = %s\n", clus.intro.function.GetChars());
+				if (clus.intro.video.IsNotEmpty()) Printf("\tIntro video = %s\n", clus.intro.video.GetChars());
+				if (clus.outro.function.IsNotEmpty()) Printf("\tOutro function = %s\n", clus.outro.function.GetChars());
+				if (clus.outro.video.IsNotEmpty()) Printf("\tOutro video = %s\n", clus.outro.video.GetChars());
 				Printf("}\n");
 			}
 		}
@@ -108,10 +108,10 @@ CCMD(mapinfo)
 			if (map->cdSongId > 0) Printf("\tCD track = %d\n", map->cdSongId);
 			if (map->parTime) Printf("\tPar Time = %d\n", map->parTime);
 			if (map->designerTime) Printf("\tPar Time = %d\n", map->designerTime);
-			if (map->intro.function.IsNotEmpty()) Printf("\tIntro function = %d\n", map->intro.function.GetChars());
-			if (map->intro.video.IsNotEmpty()) Printf("\tIntro video = %d\n", map->intro.video.GetChars());
-			if (map->outro.function.IsNotEmpty()) Printf("\tOutro function = %d\n", map->outro.function.GetChars());
-			if (map->outro.video.IsNotEmpty()) Printf("\tOutro video = %d\n", map->outro.video.GetChars());
+			if (map->intro.function.IsNotEmpty()) Printf("\tIntro function = %s\n", map->intro.function.GetChars());
+			if (map->intro.video.IsNotEmpty()) Printf("\tIntro video = %s\n", map->intro.video.GetChars());
+			if (map->outro.function.IsNotEmpty()) Printf("\tOutro function = %s\n", map->outro.function.GetChars());
+			if (map->outro.video.IsNotEmpty()) Printf("\tOutro video = %s\n", map->outro.video.GetChars());
 			Printf("}\n");
 		}
 		else
@@ -173,6 +173,41 @@ VolumeRecord* AllocateVolume()
 {
 	return &volumes[volumes.Reserve(1)];
 }
+
+MapRecord* FindMapByIndexOnly(int cluster, int num)
+{
+	for (auto& map : mapList)
+	{
+		if (map->mapindex == num && map->cluster == cluster) return map.Data();
+	}
+	return nullptr;
+}
+
+MapRecord* FindMapByIndex(int cluster, int num)
+{
+	auto map = FindMapByLevelNum(num);
+	if (!map) map = FindMapByIndexOnly(cluster, num); // modern definitions take precedence.
+	return map;
+}
+
+MapRecord* FindNextMap(MapRecord* thismap)
+{
+	MapRecord* next = nullptr;
+	if (!thismap->NextMap.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
+	if (thismap->NextMap.IsNotEmpty()) next = FindMapByName(thismap->NextMap);
+	if (!next) next = FindMapByLevelNum(thismap->levelNumber);
+	return next;
+}
+
+MapRecord* FindNextSecretMap(MapRecord* thismap)
+{
+	MapRecord* next = nullptr;
+	if (!thismap->NextSecret.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
+	if (thismap->NextSecret.IsNotEmpty()) next = FindMapByName(thismap->NextSecret);
+	return next? next : FindNextMap(thismap);
+}
+
+
 // return a map whose cluster and map number matches.
 // if there's only one map with the given level number return that.
 MapRecord* FindMapByClusterAndLevelNum(int cluster, int num)
@@ -193,12 +228,6 @@ MapRecord* FindMapByClusterAndLevelNum(int cluster, int num)
 	}
 	if (mapfound == 1) return mr;
 	return nullptr;
-}
-
-MapRecord *FindNextMap(MapRecord *thismap)
-{
-	if (thismap->nextLevel != -1) return FindMapByLevelNum(thismap->nextLevel);
-	return FindMapByLevelNum(thismap->levelNumber+1);
 }
 
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack)

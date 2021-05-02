@@ -294,7 +294,7 @@ static MapRecord* levelwarp_common(FCommandLine& argv, const char *cmdname, cons
 		Printf(PRINT_BOLD, "Invalid level! Numbers must be > 0\n");
 		return nullptr;
 	}
-	auto map = FindMapByLevelNum(numparm == 1 ? m : makelevelnum(e - 1, m - 1));
+	auto map = FindMapByLevelNum(numparm == 1 ? m : makelevelnum(e, m));
 	if (!map)
 	{
 		if (numparm == 2) Printf(PRINT_BOLD, "Level E%s L%s not found!\n", argv[1], argv[2]);

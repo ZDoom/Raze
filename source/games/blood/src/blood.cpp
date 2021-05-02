@@ -80,7 +80,7 @@ void EndLevel(void)
 	seqKillAll();
 }
 
-void StartLevel(MapRecord* level)
+void StartLevel(MapRecord* level, bool newgame)
 {
 	if (!level) return;
 	gFrameCount = 0;
@@ -97,14 +97,14 @@ void StartLevel(MapRecord* level)
 		///////
 	}
 #if 0
-	else if (gGameOptions.nGameType > 0 && !(gGameOptions.uGameFlags & GF_AdvanceLevel))
+	else if (gGameOptions.nGameType > 0 && newgame)
 	{
 		// todo
 		gBlueFlagDropped = false;
 		gRedFlagDropped = false;
 	}
 #endif
-	if (gGameOptions.uGameFlags & GF_AdvanceLevel)
+	if (!newgame)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
@@ -182,13 +182,13 @@ void StartLevel(MapRecord* level)
 	evInit();
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (!(gGameOptions.uGameFlags & GF_AdvanceLevel))
+		if (newgame)
 		{
 			playerInit(i, 0);
 		}
 		playerStart(i, 1);
 	}
-	if (gGameOptions.uGameFlags & GF_AdvanceLevel)
+	if (!newgame)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
@@ -205,7 +205,6 @@ void StartLevel(MapRecord* level)
 			pPlayer->nextWeapon = gPlayerTemp[i].nextWeapon;
 		}
 	}
-	gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
 	PreloadCache();
 	InitMirrors();
 	trInit();
@@ -224,11 +223,11 @@ void StartLevel(MapRecord* level)
 }
 
 
-void NewLevel(MapRecord *sng, int skill)
+void NewLevel(MapRecord *sng, int skill, bool newgame)
 {
 	if (skill != -1) gGameOptions.nDifficulty = skill;
 	gSkill = gGameOptions.nDifficulty;
-	StartLevel(sng);
+	StartLevel(sng, newgame);
 	gameaction = ga_level;
 }
 
@@ -236,13 +235,12 @@ void GameInterface::NewGame(MapRecord *sng, int skill, bool)
 {
 	gGameOptions.uGameFlags = 0;
 	cheatReset();
-	NewLevel(sng, skill);
+	NewLevel(sng, skill, true);
 }
 
 void GameInterface::NextLevel(MapRecord *map, int skill)
 {
-	gGameOptions.uGameFlags = GF_AdvanceLevel;
-	NewLevel(map, skill);
+	NewLevel(map, skill, false);
 }
 
 void GameInterface::Ticker()
@@ -313,25 +311,12 @@ void GameInterface::Ticker()
 				team_ticker[i] = 0;
 		}
 
-		int gf = gGameOptions.uGameFlags;
-
-		if (gf & GF_AdvanceLevel)
+		if (gGameOptions.uGameFlags & GF_AdvanceLevel)
 		{
+			gGameOptions.uGameFlags &= ~GF_AdvanceLevel;
 			seqKillAll();
-
-			if (gf & GF_EndGame)
-			{
-				STAT_Update(true);
-				CompleteLevel(nullptr);
-			}
-			else
-			{
-				STAT_Update(false);
-				// Fixme: Link maps, not episode/level pairs.
-				int ep = volfromlevelnum(currentLevel->levelNumber);
-				auto map = FindMapByLevelNum(makelevelnum(ep, gNextLevel));
-				CompleteLevel(map);
-			}
+			STAT_Update(gNextLevel == nullptr);
+			CompleteLevel(gNextLevel);
 		}
 		r_NoInterpolate = false;
 	}

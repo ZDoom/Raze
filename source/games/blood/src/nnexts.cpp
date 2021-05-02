@@ -5215,13 +5215,7 @@ void seqSpawnerOffSameTx(XSPRITE* pXSource) {
 void levelEndLevelCustom(int nLevel) {
 
     gGameOptions.uGameFlags |= GF_AdvanceLevel;
-
-    if (nLevel >= 16 || nLevel < 0) {
-        gGameOptions.uGameFlags |= GF_EndGame;
-        return;
-    }
-
-    gNextLevel = nLevel;
+    gNextLevel = FindMapByIndex(currentLevel->cluster, nLevel + 1);
 }
 
 void callbackUniMissileBurst(int nSprite) // 22

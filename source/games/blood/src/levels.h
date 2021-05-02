@@ -41,7 +41,6 @@ enum
 enum EGameFlag
 {
 	GF_AdvanceLevel = 1,
-	GF_EndGame = 2,
 	// 4 was for playing intro cutscenes but is no longer used.
 	GF_PlayCutscene = 8,
 };
@@ -72,7 +71,7 @@ extern GAMEOPTIONS gGameOptions;
 extern int gSkill;
 extern char BloodIniFile[];
 extern bool bINIOverride;
-extern int gNextLevel;
+extern MapRecord* gNextLevel;
 extern bool gGameStarted;
 
 void levelInitINI(const char *pzIni);

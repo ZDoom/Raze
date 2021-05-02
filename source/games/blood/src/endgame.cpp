@@ -55,7 +55,6 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 		{
 			soundEngine->StopAllChannels();
 			gameaction = map? ga_nextlevel : ga_creditsmenu;
-			if (!map) gGameOptions.uGameFlags &= ~(GF_AdvanceLevel | GF_EndGame);
 		});
 }
 

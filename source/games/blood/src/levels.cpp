@@ -39,7 +39,7 @@ GAMEOPTIONS gSingleGameOptions = {
 };
 
 int gSkill = 2;
-int gNextLevel; // fixme: let this contain a full level number.
+MapRecord* gNextLevel;
 
 char BloodIniFile[BMAX_PATH] = "BLOOD.INI";
 bool bINIOverride = false;
@@ -91,15 +91,16 @@ void CheckKeyAbend(const char *pzSection, const char *pzKey)
 }
 
 
-void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSection, int epinum, int mapnum)
+
+void levelLoadMapInfo(IniFile* pIni, MapRecord* pLevelInfo, const char* pzSection, int epinum, int mapnum, int* nextmap, int* nextsecret)
 {
     char buffer[16];
     pLevelInfo->SetName(pIni->GetKeyString(pzSection, "Title", pLevelInfo->labelName));
     pLevelInfo->Author = pIni->GetKeyString(pzSection, "Author", "");
     pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); DefaultExtension(pLevelInfo->music, ".mid");
     pLevelInfo->cdSongId = pIni->GetKeyInt(pzSection, "Track", -1);
-    pLevelInfo->nextLevel = pIni->GetKeyInt(pzSection, "EndingA", -1);
-    pLevelInfo->nextSecret = pIni->GetKeyInt(pzSection, "EndingB", -1);
+    *nextmap = pIni->GetKeyInt(pzSection, "EndingA", 0);
+    *nextsecret = pIni->GetKeyInt(pzSection, "EndingB", 0);
     pLevelInfo->fog = pIni->GetKeyInt(pzSection, "Fog", -0);
     pLevelInfo->weather = pIni->GetKeyInt(pzSection, "Weather", -0);
     for (int i = 0; i < kMaxMessages; i++)
@@ -178,11 +179,11 @@ void levelLoadDefaults(void)
             csB.sound = soundEngine->FindSound(cleanPath(BloodINI->GetKeyString(buffer, "CutWavB", "")));
 
         //pEpisodeInfo->bloodbath = BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0);
-        cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0) - 1;
-        if (cutALevel < 0) cutALevel = 0;
+        cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0);
+        if (cutALevel < 1) cutALevel = 1;
 
-        int j;
-        for (j = 1; j <= kMaxLevels; j++)
+        int nextmaps[kMaxLevels]{}, nextsecrets[kMaxLevels]{};
+        for (int j = 1; j <= kMaxLevels; j++)
         {
             sprintf(buffer2, "Map%d", j);
             if (!BloodINI->KeyExists(buffer, buffer2))
@@ -190,13 +191,13 @@ void levelLoadDefaults(void)
             auto pLevelInfo = AllocateMap();
             const char *pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
             CheckSectionAbend(pMap);
-			SetLevelNum(pLevelInfo, makelevelnum(i-1, j-1));
+			SetLevelNum(pLevelInfo, makelevelnum(i, j));
             pLevelInfo->cluster = i;
             pLevelInfo->mapindex = j;
             pLevelInfo->labelName = pMap;
 			if (j == 1) volume->startmap = pLevelInfo->labelName;
             pLevelInfo->fileName.Format("%s.map", pMap);
-            levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j);
+            levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j, &nextmaps[j - 1], &nextsecrets[j - 1]);
             if (j == cutALevel)
             {
                 CutsceneDef& csA = pLevelInfo->intro;
@@ -206,47 +207,34 @@ void levelLoadDefaults(void)
                     csA.sound = soundEngine->FindSound(cleanPath(BloodINI->GetKeyString(buffer, "CutWavA", "")));
             }
         }
+        // Now resolve the level links
+        for (int j = 1; j <= kMaxLevels; j++)
+        {
+            auto map = FindMapByIndexOnly(i, j);
+            if (map)
+            {
+                if (nextmaps[j - 1] > 0)
+                {
+                    auto nmap = FindMapByIndexOnly(i, nextmaps[j - 1]);
+                    if (nmap) map->NextMap = nmap->labelName;
+                    else map->NextMap = "-";
+                }
+                if (nextsecrets[j - 1] > 0)
+                {
+                    auto nmap = FindMapByIndexOnly(i, nextsecrets[j - 1]);
+                    if (nmap) map->NextSecret = nmap->labelName;
+                    else map->NextSecret = "-";
+                }
+            }
+        }
     }
-}
-
-void levelGetNextLevels(int *pnEndingA, int *pnEndingB)
-{
-    assert(pnEndingA != NULL && pnEndingB != NULL);
-    int nEndingA = currentLevel->nextLevel;
-    if (nEndingA >= 0)
-        nEndingA--;
-    int nEndingB = currentLevel->nextSecret;
-    if (nEndingB >= 0)
-        nEndingB--;
-    *pnEndingA = nEndingA;
-    *pnEndingB = nEndingB;
 }
 
 void levelEndLevel(int secret)
 {
-    int nEndingA, nEndingB;
-    auto episode = volfromlevelnum(currentLevel->levelNumber);
     gGameOptions.uGameFlags |= GF_AdvanceLevel;
-    levelGetNextLevels(&nEndingA, &nEndingB);
-    switch (secret)
-    {
-    case 0:
-        if (nEndingA == -1)
-        {
-            gGameOptions.uGameFlags |= GF_EndGame;
-        }
-        else
-            gNextLevel = nEndingA;
-        break;
-    case 1:
-        if (nEndingB == -1)
-        {
-            gGameOptions.uGameFlags |= GF_EndGame;
-        }
-        else
-            gNextLevel = nEndingB;
-        break;
-    }
+    if (!secret) gNextLevel = FindNextMap(currentLevel);
+    else gNextLevel = FindNextSecretMap(currentLevel);
 }
 
 void levelTryPlayMusic()

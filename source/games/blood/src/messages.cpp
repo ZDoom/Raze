@@ -268,7 +268,7 @@ static int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
     if (!nArg1 || !nArg2 || strlen(pzArgs) < 3)
         return -1;
 	*nArg1 = pzArgs[0] - '0';
-	*nArg2 = (pzArgs[1] - '0')*10+(pzArgs[2]-'0') - 1;
+	*nArg2 = (pzArgs[1] - '0')*10+(pzArgs[2]-'0');
     return 2;
 }
 
@@ -421,7 +421,7 @@ static bool cheatMario(cheatseq_t* c)
     int nEpisode, nLevel;
     if (parseArgs((char*)c->Args, &nEpisode, &nLevel) == 2)
 	{
-		auto map = FindMapByLevelNum(makelevelnum(nEpisode, nLevel));
+		auto map = FindMapByIndex(nEpisode, nLevel);
 		if (map) DeferedStartGame(map, -1);
 	}
     return true;

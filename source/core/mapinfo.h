@@ -205,9 +205,11 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack = fals
 
 MapRecord *FindMapByName(const char *nm);
 MapRecord *FindMapByLevelNum(int num);
+MapRecord* FindMapByIndexOnly(int clst, int num); // this is for map setup where fallbacks are undesirable.
+MapRecord* FindMapByIndex(int clst, int num);
 MapRecord* FindMapByClusterAndLevelNum(int clst, int num);
-inline MapRecord* FindMapByIndexOnly(int clst, int num) { return FindMapByClusterAndLevelNum(clst, num); }
 MapRecord *FindNextMap(MapRecord *thismap);
+MapRecord* FindNextSecretMap(MapRecord* thismap);
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic = nullptr);
 MapRecord* AllocateMap();
 
