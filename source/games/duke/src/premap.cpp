@@ -658,7 +658,6 @@ void prelevel_common(int g)
     p->SlotWin = 0;
     enemysizecheat = 0;
     p->MamaEnd = 0;
-    mamaspawn_count = 15;
     banjosound = 0;
     RRRA_ExitedLevel = 0;
 
@@ -672,6 +671,18 @@ void prelevel_common(int g)
     fakebubba_spawn = 0;
     RRRA_ExitedLevel = 0;
     mamaspawn_count = 15;
+    /* todo
+        if (ud.level_number != 3 || ud.volume_number != 0) {
+            if (ud.level_number == 2 && ud.volume_number == 1)
+                mamaspawn_count = 10;
+            else if (ud.level_number == 6 && ud.volume_number == 1)
+                mamaspawn_count = 15;
+            else if (ud.level_number == 4 && ud.volume_number == 1)
+                ps[myconnectindex].moonshine_amount = 0;
+        } else
+            mamaspawn_count = 5;
+    */
+
     BellTime = 0;
     BellSprite = nullptr;
 
@@ -831,28 +842,12 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);
 
-    if (isRR() && !isRRRA() && mi->levelNumber == makelevelnum(1, 1))
-    {
-        for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
-            ps[0].ammo_amount[i] = 0;
-        ps[0].gotweapon.Clear(KNEE_WEAPON);
-    }
     p->angle.ang = buildang(lbang);
 
     memset(gotpic, 0, sizeof(gotpic));
     
     if (isRR()) prelevel_r(gamemode);
     else prelevel_d(gamemode);
-
-    if (isRRRA() && mi->levelNumber == makelevelnum(0, 2))
-    {
-        for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
-            ps[0].ammo_amount[i] = 0;
-        ps[0].gotweapon.Clear(KNEE_WEAPON);
-        ps[0].gotweapon.Set(SLINGBLADE_WEAPON);
-        ps[0].ammo_amount[SLINGBLADE_WEAPON] = 1;
-        ps[0].curr_weapon = SLINGBLADE_WEAPON;
-    }
 
     allignwarpelevators();
     resetpspritevars(gamemode);
