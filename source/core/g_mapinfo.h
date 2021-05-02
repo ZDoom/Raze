@@ -62,6 +62,7 @@ struct FMapInfoParser
 	void ParseMapDefinition(MapRecord &leveldef);
 	void ParseEpisodeInfo ();
 	void ParseCutsceneInfo();
+	void ParseGameInfo();
 	void ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord &defaultinfo);
 
 	void ParseOpenBrace();

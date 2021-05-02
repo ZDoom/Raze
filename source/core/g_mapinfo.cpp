@@ -931,38 +931,58 @@ void FMapInfoParser::ParseCutsceneInfo()
 			break;
 		}
 	}
-	CheckEndOfFile("episode");
+	CheckEndOfFile("cutscenes");
+}
 
 
-	for (i = 0; i < volumes.Size(); i++)
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FMapInfoParser::ParseGameInfo()
+{
+	unsigned int i;
+	FString map;
+	FString pic;
+	FString name;
+	bool remove = false;
+	char key = 0;
+	int flags = 0;
+
+	ParseOpenBrace();
+
+	while (sc.GetString())
 	{
-		if (volumes[i].startmap.CompareNoCase(map) == 0)
+		if (sc.Compare("summaryscreen"))
+		{
+			ParseAssign();
+			sc.SetCMode(false);
+			sc.MustGetString();
+			sc.SetCMode(false);
+			globalCutscenes.SummaryScreen = sc.String;
+		}
+		else if (sc.Compare("mpsummaryscreen"))
+		{
+			ParseAssign();
+			sc.SetCMode(false);
+			sc.MustGetString();
+			sc.SetCMode(false);
+			globalCutscenes.MPSummaryScreen = sc.String;
+		}
+		else if (!ParseCloseBrace())
+		{
+			// Unknown
+			sc.ScriptMessage("Unknown property '%s' found in episode definition\n", sc.String);
+			SkipToNext();
+		}
+		else
 		{
 			break;
 		}
 	}
-
-	if (remove)
-	{
-		// If the remove property is given for an episode, remove it.
-		volumes.Delete(i);
-	}
-	else
-	{
-		// Only allocate a new entry if this doesn't replace an existing episode.
-		if (i >= volumes.Size())
-		{
-			i = volumes.Reserve(1);
-		}
-
-		auto epi = &volumes[i];
-
-		epi->startmap = map;
-		epi->name = name;
-		epi->shortcut = tolower(key);
-		epi->flags = flags;
-		epi->index = i;
-	}
+	CheckEndOfFile("cutscenes");
 }
 
 
@@ -1082,7 +1102,7 @@ void FMapInfoParser::ParseMapInfo (int lump, MapRecord &gamedefaults, MapRecord 
 		}
 		else if (sc.Compare("gameinfo"))
 		{
-			// todo: global game propeties.
+			ParseGameInfo();
 		}
 		else
 		{
