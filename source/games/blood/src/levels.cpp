@@ -174,9 +174,9 @@ void levelLoadDefaults(void)
         if (i > 1) volume->flags |= VF_SHAREWARELOCK;
 
         csB.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneB", ""));
-        csB.sound = soundEngine->FindSoundByResID(BloodINI->GetKeyInt(buffer, "CutWavB", -1) + 0x40000000);
-        if (csB.sound == 0)
-            csB.sound = soundEngine->FindSound(cleanPath(BloodINI->GetKeyString(buffer, "CutWavB", "")));
+        int soundint = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
+        if (soundint > 0) csB.soundID = soundint + 0x40000000;
+        else csB.soundName = cleanPath(BloodINI->GetKeyString(buffer, "CutWavB", ""));
 
         //pEpisodeInfo->bloodbath = BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0);
         cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0);
@@ -202,9 +202,9 @@ void levelLoadDefaults(void)
             {
                 CutsceneDef& csA = pLevelInfo->intro;
                 csA.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneA", ""));
-                csA.sound = soundEngine->FindSoundByResID(BloodINI->GetKeyInt(buffer, "CutWavA", -1) + 0x40000000);
-                if (csA.sound == 0)
-                    csA.sound = soundEngine->FindSound(cleanPath(BloodINI->GetKeyString(buffer, "CutWavA", "")));
+                int soundint = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
+                if (soundint > 0) csA.soundID = soundint + 0x40000000;
+                else csA.soundName = cleanPath(BloodINI->GetKeyString(buffer, "CutWavA", ""));
             }
         }
         // Now resolve the level links

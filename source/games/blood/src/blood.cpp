@@ -427,16 +427,6 @@ void GameInterface::app_init()
 	if (!tileInit(0, NULL))
 		I_FatalError("TILES###.ART files not found");
 
-	//----------
-	// There's a small problem here. We have a nasty circular dependency thanks to .def's all-inclusive mentality.
-	// snd may depend on rffdefineid in .def
-	// .def depends on level definitions.
-	// level definitions depend on sound to resolve cutscene sounds.
-	// Conclusion: All map related definitions need to be taken out of .def - meaning 'definecutscene' cannot be done in there
-	// Unless that is done no sound related data can be done with rffdefineid.
-	Printf(PRINT_NONOTIFY, "Initializing sound system\n");
-	sndInit();
-
 	levelLoadDefaults();
 	LoadDefinitions();
 
@@ -453,6 +443,9 @@ void GameInterface::app_init()
 	FireInit();
 	Printf(PRINT_NONOTIFY, "Initializing weapon animations\n");
 	WeaponInit();
+
+	Printf(PRINT_NONOTIFY, "Initializing sound system\n");
+	sndInit();
 
 	myconnectindex = connecthead = 0;
 	gNetPlayers = numplayers = 1;

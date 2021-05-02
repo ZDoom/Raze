@@ -205,7 +205,7 @@ void CutsceneDef::Create(DObject* runner)
 	}
 	else if (video.IsNotEmpty())
 	{
-		AddGenericVideo(runner, video, sound, framespersec);
+		AddGenericVideo(runner, video, GetSound(), framespersec);
 	}
 }
 
@@ -227,7 +227,7 @@ bool CutsceneDef::Create(DObject* runner, MapRecord* map, bool transition)
 	}
 	else if (video.IsNotEmpty())
 	{
-		AddGenericVideo(runner, video, sound, framespersec);
+		AddGenericVideo(runner, video, GetSound(), framespersec);
 		return true;
 	}
 	return false;

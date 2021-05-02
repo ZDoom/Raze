@@ -84,8 +84,7 @@ struct CutsceneDef
 	FString video;
 	FString function;
 	FString soundName;
-	int soundID;	// ResID not SoundID!
-	int sound = 0;
+	int soundID = -1;	// ResID not SoundID!
 	int framespersec = 0; // only relevant for ANM.
 	bool transitiononly = false; // only play when transitioning between maps, but not when starting on a map or ending a game.
 
