@@ -7042,9 +7042,7 @@ void MultiPlayLimits(void)
         gNet.TimeLimitClock = gNet.TimeLimit;
 
         MapRecord *next = nullptr;
-        // do not increment if level is 23 thru 28 (should be done smarter.)
-        if (currentLevel->levelNumber <= 22)
-            next = FindNextMap(currentLevel);
+        next = FindNextMap(currentLevel);
 		ChangeLevel(next, -1);
     }
 }

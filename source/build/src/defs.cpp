@@ -361,8 +361,6 @@ static int32_t defsparser(scriptfile *script)
         { "shadefactor",     T_SHADEFACTOR      },
         { "newgamechoices",  T_NEWGAMECHOICES   },
         { "rffdefineid",     T_RFFDEFINEID      },  // dummy
-        { "map",             T_MAP          },
-        { "definecutscene",             T_DEFINECUTSCENE          },
     };
 
     script->SetNoOctals(true);
@@ -379,9 +377,6 @@ static int32_t defsparser(scriptfile *script)
 		auto pos = scriptfile_getposition(script);
         switch (tokn)
         {
-        case T_DEFINECUTSCENE:
-            parseDefineCutscene(*script, pos);
-            break;
         case T_ERROR:
             pos.Message(MSG_ERROR, "Unknown error");
             break;

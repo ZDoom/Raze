@@ -629,6 +629,13 @@ MapFlagHandlers[] =
 	{ "ex_altsound",					MITYPE_SETFLAGG,LEVEL_EX_ALTSOUND, 0, GAMEFLAG_PSEXHUMED },
 	{ "ex_countdown",					MITYPE_SETFLAGG,LEVEL_EX_COUNTDOWN, 0, GAMEFLAG_PSEXHUMED },
 	{ "ex_multi",						MITYPE_SETFLAGG,LEVEL_EX_MULTI, 0, GAMEFLAG_PSEXHUMED },
+	{ "sw_bossmeter_serpent",			MITYPE_SETFLAGG,LEVEL_SW_BOSSMETER_SERPENT, 0, GAMEFLAG_SW },
+	{ "sw_bossmeter_sumo",				MITYPE_SETFLAGG,LEVEL_SW_BOSSMETER_SUMO, 0, GAMEFLAG_SW },
+	{ "sw_bossmeter_zilla",				MITYPE_SETFLAGG,LEVEL_SW_BOSSMETER_ZILLA, 0, GAMEFLAG_SW },
+	{ "sw_deathexit_serpent",			MITYPE_SETFLAGG,LEVEL_SW_DEATHEXIT_SERPENT, 0, GAMEFLAG_SW },
+	{ "sw_deathexit_sumo",				MITYPE_SETFLAGG,LEVEL_SW_DEATHEXIT_SUMO, 0, GAMEFLAG_SW },
+	{ "sw_deathexit_zilla",				MITYPE_SETFLAGG,LEVEL_SW_DEATHEXIT_ZILLA, 0, GAMEFLAG_SW },
+	{ "sw_spawnmines",					MITYPE_SETFLAGG,LEVEL_SW_SPAWNMINES, 0, GAMEFLAG_SW },
 
 	{ NULL, MITYPE_IGNORE, 0, 0}
 };
@@ -1178,15 +1185,18 @@ void G_ParseMapInfo ()
 	// first parse the internal one which sets up the needed basics and patches the legacy definitions of each game.
 	FMapInfoParser parse;
 	MapRecord defaultinfo;
-	int baselump = fileSystem.GetNumForFullName("engine/rmapinfo.txt");
-	if (fileSystem.GetFileContainer(baselump) > 0)
-	{
-		I_FatalError("File %s is overriding core lump %s.", 
-			fileSystem.GetResourceFileName(fileSystem.GetFileContainer(baselump)), "engine/rmapinfo.txt");
-	}
-	parse.ParseMapInfo(baselump, gamedefaults, defaultinfo);
 
-	// Parse any extra MAPINFOs.
+	// Parse internal RMAPINFOs.
+	while ((lump = fileSystem.FindLumpFullName("engine/rmapinfo.txt", &lastlump, false)) != -1)
+	{
+		if (fileSystem.GetFileContainer(lump) > 0) break; // only load from raze.pk3
+
+		FMapInfoParser parse;
+		MapRecord defaultinfo;
+		parse.ParseMapInfo(lump, gamedefaults, defaultinfo);
+	}
+
+	// Parse any extra RMAPINFOs.
 	while ((lump = fileSystem.FindLump ("RMAPINFO", &lastlump, false)) != -1)
 	{
 		FMapInfoParser parse;

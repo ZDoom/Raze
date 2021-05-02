@@ -1080,10 +1080,8 @@ ActorTestSpawn(SPRITEp sp)
             sp->picnum == SAILORGIRL_R0) && (g_gameType & GAMEFLAG_ADDON)) return true;
 
         // spawn Bouncing Betty (mine) in TD map 09 Warehouse 
-#if 0   // needs to be done smarter.
-        if (sp->picnum == 817 && swGetAddon() == 2 && currentLevel->levelNumber == 9)
+        if (sp->picnum == 817 && (currentLevel->flags & LEVEL_SW_SPAWNMINES))
             return true;
-#endif
 
         return false;
     }
