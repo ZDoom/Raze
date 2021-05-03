@@ -115,7 +115,6 @@ struct ClusterDef
 	FString InterBackground;
 	int index = -1;
 	int flags = 0;			// engine and common flags
-	int gameflags = 0;		// game specific flags.
 };
 
 struct VolumeRecord	// episodes
@@ -147,7 +146,6 @@ struct MapRecord
 	int flags = 0;
 	int gameflags = 0;
 	int levelNumber = -1;
-	int mapindex = -1;	// index in the episode. This only for finding the next map in the progression when nothing explicit is defined.
 	int cluster = -1;
 
 	PalEntry fadeto = 0;

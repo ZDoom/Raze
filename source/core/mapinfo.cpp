@@ -68,59 +68,6 @@ CCMD(listmaps)
 	}
 }
 
-CCMD(mapinfo)
-{
-	const char* mapname = nullptr;
-	if (argv.argc() > 1) mapname = argv[1];
-
-	if (!mapname)
-	{
-		for (auto& vol : volumes)
-		{
-			Printf("Volume %d\n\tName = '%s'\n\tstartmap = '%s'\n}\n", vol.index, vol.name.GetChars(), vol.startmap.GetChars());
-		}
-		for (auto& clus : clusters)
-		{
-			if (clus.intro.isdefined() || clus.outro.isdefined())
-			{
-				Printf("Cluster %d\n\tName = '%s'\n", clus.index, clus.name.GetChars());
-				if (clus.intro.function.IsNotEmpty()) Printf("\tIntro function = %s\n", clus.intro.function.GetChars());
-				if (clus.intro.video.IsNotEmpty()) Printf("\tIntro video = %s\n", clus.intro.video.GetChars());
-				if (clus.outro.function.IsNotEmpty()) Printf("\tOutro function = %s\n", clus.outro.function.GetChars());
-				if (clus.outro.video.IsNotEmpty()) Printf("\tOutro video = %s\n", clus.outro.video.GetChars());
-				Printf("}\n");
-			}
-		}
-	}
-	for (auto& map : mapList)
-	{
-		if (mapname && map->labelName.CompareNoCase(mapname)) continue;
-		int lump = fileSystem.FindFile(map->fileName);
-		if (lump >= 0)
-		{
-			int rfnum = fileSystem.GetFileContainer(lump);
-			Printf("%s - %s (%s)\n{\n", map->fileName.GetChars(), map->DisplayName(), fileSystem.GetResourceFileName(rfnum));
-			Printf("\tlevel number = %d\n\tCluster = %d\n\tIndex = %d\n", map->levelNumber, map->cluster, map->mapindex);
-			if (map->Author.IsNotEmpty()) Printf("\tAuthor = '%s'\n", map->Author.GetChars());
-			if (map->NextMap.IsNotEmpty()) Printf("\tNext map = '%s'\n", map->NextMap.GetChars());
-			if (map->NextSecret.IsNotEmpty()) Printf("\tNext secret map = '%s'\n", map->NextSecret.GetChars());
-			if (map->music.IsNotEmpty()) Printf("\tMusic = '%s:%d'", map->music.GetChars(), map->musicorder);
-			if (map->cdSongId > 0) Printf("\tCD track = %d\n", map->cdSongId);
-			if (map->parTime) Printf("\tPar Time = %d\n", map->parTime);
-			if (map->designerTime) Printf("\tPar Time = %d\n", map->designerTime);
-			if (map->intro.function.IsNotEmpty()) Printf("\tIntro function = %s\n", map->intro.function.GetChars());
-			if (map->intro.video.IsNotEmpty()) Printf("\tIntro video = %s\n", map->intro.video.GetChars());
-			if (map->outro.function.IsNotEmpty()) Printf("\tOutro function = %s\n", map->outro.function.GetChars());
-			if (map->outro.video.IsNotEmpty()) Printf("\tOutro video = %s\n", map->outro.video.GetChars());
-			Printf("}\n");
-		}
-		else
-		{
-			Printf("%s - %s (defined but does not exist)\n", map->fileName.GetChars(), map->DisplayName());
-		}
-	}
-}
-
 int CutsceneDef::GetSound()
 {
 	int id;
@@ -185,9 +132,10 @@ VolumeRecord* AllocateVolume()
 
 MapRecord* FindMapByIndexOnly(int cluster, int num)
 {
+	int levelnum = makelevelnum(cluster, num);
 	for (auto& map : mapList)
 	{
-		if (map->mapindex == num && map->cluster == cluster) return map.Data();
+		if (map->levelNumber == levelnum) return map.Data();
 	}
 	return nullptr;
 }
@@ -195,7 +143,7 @@ MapRecord* FindMapByIndexOnly(int cluster, int num)
 MapRecord* FindMapByIndex(int cluster, int num)
 {
 	auto map = FindMapByLevelNum(num);
-	if (!map) map = FindMapByIndexOnly(cluster, num); // modern definitions take precedence.
+	if (!map && num < 1000) map = FindMapByLevelNum(makelevelnum(cluster, num));
 	return map;
 }
 

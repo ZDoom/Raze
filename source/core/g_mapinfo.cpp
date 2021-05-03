@@ -651,6 +651,94 @@ MapFlagHandlers[] =
 	{ NULL, MITYPE_IGNORE, 0, 0}
 };
 
+void PrintCutscene(const char* name, CutsceneDef& cut)
+{
+	if (cut.function.IsEmpty() && cut.video.IsEmpty()) return;
+	Printf("\t%s\n\t{\n", name);
+	if (cut.function.IsNotEmpty())
+	{
+		Printf("\t\tfunction = %s\n", cut.function.GetChars());
+	}
+	if (cut.video.IsNotEmpty())
+	{
+		Printf("\t\tvideo = \"%s\"\n", cut.video.GetChars());
+	}
+	if (cut.soundName.IsNotEmpty())
+	{
+		Printf("\t\tsound = \"%s\"\n", cut.soundName.GetChars());
+	}
+	Printf("\t}\n");
+}
+
+CCMD(mapinfo)
+{
+	for (auto& vol : volumes)
+	{
+		Printf("episode %s\n{\n", vol.startmap.GetChars());
+		if (vol.name.IsNotEmpty()) Printf("\tname = \"%s\"\n", vol.name.GetChars());
+		if (vol.subtitle.IsNotEmpty()) Printf("\tsubtitle = \"%s\"\n{\n", vol.subtitle.GetChars());
+		Printf("}\n");
+	}
+	for (auto& clust : clusters)
+	{
+		Printf("cluster %d\n{\n", clust.index);
+		if (clust.name.IsNotEmpty()) Printf("\tname = \"%s\"\n", clust.name.GetChars());
+		if (clust.InterBackground.IsNotEmpty()) Printf("\tInterBackground = %s\n", clust.InterBackground.GetChars());
+		PrintCutscene("intro", clust.intro);
+		PrintCutscene("outro", clust.outro);
+		PrintCutscene("gameover", clust.gameover);
+		Printf("}\n");
+	}
+	for (auto& map : mapList)
+	{
+		int lump = fileSystem.FindFile(map->fileName);
+		if (lump >= 0)
+		{
+			int rfnum = fileSystem.GetFileContainer(lump);
+			Printf("map %s \"%s\"\n{\n", map->labelName.GetChars(), map->DisplayName());
+			Printf("\tlevelnum = %d\n\tCluster = %d\n", map->levelNumber, map->cluster);
+			if (map->Author.IsNotEmpty())
+			{
+				FString auth = map->Author;
+				auth.Substitute("\"", "\\\"");
+				Printf("\tAuthor = \"%s\"\n", auth.GetChars());
+			}
+			if (map->NextMap.IsNotEmpty()) Printf("\tNext = %s\n", map->NextMap.GetChars());
+			if (map->NextSecret.IsNotEmpty()) Printf("\tSecretNext = %s\n", map->NextSecret.GetChars());
+			if (map->InterBackground.IsNotEmpty()) Printf("\tInterBackground = %s\n", map->InterBackground.GetChars());
+			if (map->music.IsNotEmpty()) Printf("\tMusic = \"%s\"\n", map->music.GetChars());
+			if (map->musicorder > 0) Printf("\tMusicorder = %d\n", map->musicorder);
+			if (map->cdSongId > 0) Printf("\tCDtrack = %d\n", map->cdSongId);
+			if (map->parTime) Printf("\tParTime = %d\n", map->parTime);
+			if (map->designerTime) Printf("\tDesignerTime = %d\n", map->designerTime);
+			for (int i = 0; i < MAX_MESSAGES; i++)
+			{
+				if (map->messages[i].IsNotEmpty()) Printf("\tMessage = %d, \"%s\"\n", i + 1, map->messages[i]);
+			}
+
+			for (auto& flagh : MapFlagHandlers)
+			{
+				if (flagh.type == MITYPE_SETFLAG)
+				{
+					if (map->flags & flagh.data1) Printf("\t%s\n", flagh.name);
+				}
+				if (flagh.type == MITYPE_SETFLAGG)
+				{
+					if (map->gameflags & flagh.data1) Printf("\t%s\n", flagh.name);
+				}
+			}
+			PrintCutscene("intro", map->intro);
+			PrintCutscene("outro", map->outro);
+			Printf("}\n");
+		}
+		else
+		{
+			//Printf("%s - %s (defined but does not exist)\n", map->fileName.GetChars(), map->DisplayName());
+		}
+	}
+}
+
+
 //==========================================================================
 //
 // ParseMapDefinition
@@ -786,7 +874,7 @@ static int GetDefaultLevelNum(const char *mapname)
 			(mapname[2] == 'M' || mapname[2] == 'L') &&
 			mapname[3] >= '0' && mapname[3] <= '9')
 	{
-		int epinum = mapname[1] - '1';
+		int epinum = mapname[1] - '0';
 		int mapnum = mapname[3] - '0';
 		return makelevelnum(epinum, mapnum);
 	}
@@ -837,7 +925,7 @@ MapRecord *FMapInfoParser::ParseMapHeader(MapRecord &defaultinfo)
 		if (map != &sink && map->name.IsEmpty()) sc.ScriptError("Missing level name");
 		sc.UnGet();
 	}
-	map->levelNumber = GetDefaultLevelNum(map->labelName);
+	if (!map->levelNumber) map->levelNumber = GetDefaultLevelNum(map->labelName);
 	return map;
 }
 
@@ -1218,6 +1306,7 @@ void G_ParseMapInfo ()
 	}
 
 	// Parse any extra RMAPINFOs.
+	lastlump = 0;
 	while ((lump = fileSystem.FindLump ("RMAPINFO", &lastlump, false)) != -1)
 	{
 		FMapInfoParser parse;
