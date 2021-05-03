@@ -10,6 +10,9 @@ enum
 	MAXPLAYERS = 8
 };
 
+extern int myconnectindex, numplayers;
+extern int connecthead, connectpoint2[MAXPLAYERS];
+
 class FDynamicBuffer
 {
 public:

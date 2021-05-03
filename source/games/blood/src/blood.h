@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "gamestruct.h"
 #include "mapinfo.h"
+#include "d_net.h"
 
 #include "common_game.h"
 #include "fx.h"

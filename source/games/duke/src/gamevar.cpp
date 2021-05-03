@@ -37,7 +37,6 @@ source as it is released.
 #include "serializer.h"
 #include "names.h"
 #include "build.h"
-#include "mmulti.h"
 #include "gamevar.h"
 #include "mapinfo.h"
 

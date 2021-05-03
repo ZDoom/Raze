@@ -59,6 +59,7 @@
 #include "render.h"
 #include "hw_sections.h"
 #include "sectorgeometry.h"
+#include "d_net.h"
 #include <zlib.h>
 
 
@@ -422,7 +423,6 @@ FString G_BuildSaveName (const char *prefix)
 }
 
 #include "build.h"
-#include "mmulti.h"
 
 #define V(x) x
 static spritetype zsp;

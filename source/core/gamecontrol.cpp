@@ -57,7 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_dispatch.h"
 #include "glbackend/glbackend.h"
 #include "engineerrors.h"
-#include "mmulti.h"
 #include "gamestate.h"
 #include "gstrings.h"
 #include "texturemanager.h"
@@ -106,7 +105,7 @@ CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 // The last remains of sdlayer.cpp
 GameInterface* gi;
 int myconnectindex, numplayers;
-int connecthead, connectpoint2[MAXMULTIPLAYERS];
+int connecthead, connectpoint2[MAXPLAYERS];
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
 int lastTic;
 

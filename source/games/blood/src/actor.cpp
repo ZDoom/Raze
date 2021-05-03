@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "automap.h"
-#include "mmulti.h"
 #include "savegamehelp.h"
 
 #include "blood.h"

@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include "build.h"
 #include "compat.h"
-#include "mmulti.h"
 
 #include "blood.h"
 #include "i_specialpaths.h"

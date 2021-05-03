@@ -3,7 +3,6 @@
 #include "build.h"
 #include "compat.h"
 #include "duke3d.h"
-#include "mmulti.h"
 #include "quotemgr.h"
 #include "sounds.h"
 #include "constants.h"
