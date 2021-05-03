@@ -991,10 +991,10 @@ void nnExtProcessSuperSprites() {
                     if ((gSpriteHit[pPlayer->pSprite->extra].hit & 0xc000) == 0xc000  && (gSpriteHit[pPlayer->pSprite->extra].hit & 0x3fff) == idx) {
                         
                             int nSpeed = approxDist(xvel[pPlayer->pSprite->index], yvel[pPlayer->pSprite->index]);
-                            nSpeed = ClipLow(nSpeed - mulscale(nSpeed, mass, 6), 0x9000 - (mass << 3));
+                            nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
 
-                            xvel[idx] += mulscale30(nSpeed, Cos(pPlayer->pSprite->ang));
-                            yvel[idx] += mulscale30(nSpeed, Sin(pPlayer->pSprite->ang));
+                            xvel[idx] += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
+                            yvel[idx] += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
                             
                             gSpriteHit[pDebris->extra].hit = pPlayer->pSprite->index | 0xc000;
 
@@ -1208,10 +1208,10 @@ void debrisBubble(int nSprite) {
     GetSpriteExtents(pSprite, &top, &bottom);
     for (int i = 0; i < 1 + Random(5); i++) {
         
-        int nDist = (pSprite->xrepeat * (tilesiz[pSprite->picnum].x >> 1)) >> 2;
+        int nDist = (pSprite->xrepeat * (tileWidth(pSprite->picnum) >> 1)) >> 2;
         int nAngle = Random(2048);
-        int x = pSprite->x + mulscale30(nDist, Cos(nAngle));
-        int y = pSprite->y + mulscale30(nDist, Sin(nAngle));
+        int x = pSprite->x + MulScale(nDist, Cos(nAngle), 30);
+        int y = pSprite->y + MulScale(nDist, Sin(nAngle), 30);
         int z = bottom - Random(bottom - top);
         spritetype* pFX = gFX.fxSpawn((FX_ID)(FX_23 + Random(3)), pSprite->sectnum, x, y, z, 0);
         if (pFX) {
@@ -1312,7 +1312,7 @@ void debrisMove(int listIndex) {
 
         if (gLowerLink[nSector] >= 0) cz += (cz < 0) ? 0x500 : -0x500;
         if (top > cz && (!(pXDebris->physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
-            zvel[nSprite] -= divscale8((bottom - ceilZ) >> 6, mass);
+            zvel[nSprite] -= DivScale((bottom - ceilZ) >> 6, mass, 8);
 
         if (fz < bottom)
             vc = 58254 + ((bottom - fz) * -80099) / div;
@@ -1378,7 +1378,7 @@ void debrisMove(int listIndex) {
                     if ((pFX2 = gFX.fxSpawn(FX_14, pFX->sectnum, pFX->x, pFX->y, pFX->z, 0)) == NULL) continue;
                     xvel[pFX2->index] = Random2(0x6aaaa);
                     yvel[pFX2->index] = Random2(0x6aaaa);
-                    zvel[pFX2->index] = -Random(0xd5555);
+                    zvel[pFX2->index] = -(int)Random(0xd5555);
                 }
                 break;
             case kSurfWater:
@@ -1405,7 +1405,7 @@ void debrisMove(int listIndex) {
         gSpriteHit[nXSprite].ceilhit = moveHit = ceilHit;
         pSprite->z += ClipLow(ceilZ - top, 0);
         if (zvel[nSprite] <= 0 && (pXDebris->physAttr & kPhysFalling))
-            zvel[nSprite] = MulScale(-zvel[nSprite], 0x2000);
+            zvel[nSprite] = MulScale(-zvel[nSprite], 0x2000, 16);
 
     } else {
 
@@ -3443,6 +3443,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
     spritetype* pSpr = &sprite[objIndex];
     XSPRITE* pXSpr = (xspriRangeIsFine(pSpr->extra)) ? &xsprite[pSpr->extra] : NULL;
+    DBloodActor* spractor = &bloodActors[pXSpr->reference];
     
     if (cond < (kCondRange >> 1)) {
         switch (cond) {
@@ -3487,7 +3488,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
                     var = HitScan(pSpr, pPlayer->zWeapon - pSpr->z, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
                 else if (IsDudeSprite(pSpr))
-                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, (!xspriRangeIsFine(pSpr->extra)) ? 0 : gDudeSlope[pSpr->extra], arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, (!xspriRangeIsFine(pSpr->extra)) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
                 else if (var2 & CSTAT_SPRITE_ALIGNMENT_FLOOR) {
                     
                     if (var3 == 0) {
@@ -4132,7 +4133,7 @@ void sectorContinueMotion(int nSector, EVENT event) {
     
     if (!xsectRangeIsFine(sector[nSector].extra)) return;
     else if (gBusyCount >= kMaxBusyCount) {
-        consoleSysMsg("Failed to continue motion for sector #%d. Max (%d) busy objects count reached!", nSector, kMaxBusyCount);
+        Printf(PRINT_HIGH, "Failed to continue motion for sector #%d. Max (%d) busy objects count reached!", nSector, kMaxBusyCount);
         return;
     }
 

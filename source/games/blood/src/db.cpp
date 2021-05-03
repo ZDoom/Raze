@@ -919,7 +919,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->waitTime = bitReader.readUnsigned(12);
             pXSprite->restState = bitReader.readUnsigned(1);
             pXSprite->Interrutable = bitReader.readUnsigned(1);
-            bitReader.readUnsigned(2);
+            pXSprite->unused1 = bitReader.readUnsigned(2);
             pXSprite->respawnPending = bitReader.readUnsigned(2);
             pXSprite->unused2 = bitReader.readUnsigned(1);
             pXSprite->lT = bitReader.readUnsigned(1);

@@ -131,6 +131,7 @@ struct XSPRITE {
     uint8_t lSkill;            // Launch 12345
     uint8_t lockMsg;           // Lock msg
     int8_t dodgeDir;          // Dude dodge direction
+    uint8_t unused1;            // modern flags
 
 };
 

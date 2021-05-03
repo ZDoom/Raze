@@ -49,19 +49,12 @@ enum
     kMaxTracedObjects = 32, // per one tracking condition
 
     // additional physics attributes for debris sprites
-    kPhysDebrisFly = 0x0008, // *debris* affected by negative gravity (fly instead of falling, DO NOT mess with kHitagAutoAim)
-    kPhysDebrisSwim = 0x0016, // *debris* can swim underwater (instead of drowning)
+    kPhysDebrisFloat = 0x0008, // *debris* slowly goes up and down from it's position
+    kPhysDebrisFly = 0x0010, // *debris* affected by negative gravity (fly instead of falling)
+    kPhysDebrisSwim = 0x0020, // *debris* can swim underwater (instead of drowning)
+    kPhysDebrisTouch = 0x0040, // *debris* can be moved via touch
     kPhysDebrisVector = 0x0400, // *debris* can be affected by vector weapons
     kPhysDebrisExplode = 0x0800, // *debris* can be affected by explosions
-/*
-// additional physics attributes for debris sprites
-#define kPhysDebrisFloat 0x0008 // *debris* slowly goes up and down from it's position
-#define kPhysDebrisFly 0x0010 // *debris* affected by negative gravity (fly instead of falling)
-#define kPhysDebrisSwim 0x0020 // *debris* can swim underwater (instead of drowning)
-#define kPhysDebrisTouch 0x0040 // *debris* can be moved via touch
-//#define kPhysDebrisPush 0x0080 // *debris* can be moved via push
-#define kPhysDebrisVector 0x0400 // *debris* can be affected by vector weapons
-*/
 
     // *modern types only hitag*
     kModernTypeFlag0 = 0x0000,
