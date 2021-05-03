@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_sound.h"
 #include "gamefuncs.h"
 #include "hw_sections.h"
+#include "sectorgeometry.h"
 
 #include "blood.h"
 
@@ -1069,6 +1070,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 
     setWallSectors();
     hw_BuildSections();
+    sectorGeometry.SetSize(numsections);
     memcpy(wallbackup, wall, sizeof(wallbackup));
     memcpy(sectorbackup, sector, sizeof(sectorbackup));
 }

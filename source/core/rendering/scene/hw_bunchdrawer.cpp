@@ -283,24 +283,27 @@ void BunchDrawer::ProcessBunch(int bnch)
 
 		if (clipped & CL_Draw)
 		{
-			for (auto p : blockingpairs[i]) blockwall.Set(sectionLines[p].wall);
-			show2dwall.Set(sectionLines[i].wall);
-
-			if (!gotwall[i])
+			int ww = sectionLines[i].wall;
+			if (ww != -1)
 			{
-				gotwall.Set(i);
-				ClipWall.Unclock();
-				Bsp.Unclock();
-				SetupWall.Clock();
+				for (auto p : blockingpairs[ww]) blockwall.Set(sectionLines[p].wall);
+				show2dwall.Set(ww);
 
-				HWWall hwwall;
-				int j = sectionLines[i].wall;
-				hwwall.Process(di, &wall[j], &sector[bunch->sectnum], wall[j].nextsector < 0 ? nullptr : &sector[wall[j].nextsector]);
-				rendered_lines++;
+				if (!gotwall[i])
+				{
+					gotwall.Set(i);
+					ClipWall.Unclock();
+					Bsp.Unclock();
+					SetupWall.Clock();
 
-				SetupWall.Unclock();
-				Bsp.Clock();
-				ClipWall.Clock();
+					HWWall hwwall;
+					hwwall.Process(di, &wall[ww], &sector[bunch->sectnum], wall[ww].nextsector < 0 ? nullptr : &sector[wall[ww].nextsector]);
+					rendered_lines++;
+
+					SetupWall.Unclock();
+					Bsp.Clock();
+					ClipWall.Clock();
+				}
 			}
 		}
 

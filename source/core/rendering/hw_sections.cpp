@@ -48,6 +48,10 @@ TArray<int> sectionspersector[MAXSECTORS];	// reverse map, mainly for the automa
 int numsections;
 int numsectionlines;
 
+void hw_SplitSector(int sector, int startpos, int endpos);
+
+TArray<int> splits;
+
 
 void hw_BuildSections()
 {
@@ -72,4 +76,146 @@ void hw_BuildSections()
 		sectionspersector[i].Resize(1);
 		sectionspersector[i][0] = i;
 	}
+
+	for (unsigned i = 0; i < splits.Size(); i += 3)
+		hw_SplitSector(splits[i], splits[i + 1], splits[i + 2]);
+}
+
+
+static void SplitSection(int section, int start, int end)
+{
+	// note: to do this, the sector's lines must be well ordered and there must only be one outline and no holes.
+	// This also can only apply a single split to a given sector.
+	int firstsection = numsections++;
+	int secondsection = numsections++;
+
+	auto& sect = sections[section];
+	Section* sect1 = &sections[firstsection];
+	Section* sect2 = &sections[secondsection];
+	sect1->sector = sect.sector;
+	sect2->sector = sect.sector;
+	sect1->lines.Clear();
+	sect2->lines.Clear();
+	for (int aline : sect.lines)
+	{
+		int line = sectionLines[aline].wall;
+		if (line < start || line >= end)
+		{
+			sect1->lines.Push(aline);
+		}
+		if (line == start)
+		{
+			sect1->lines.Push(-1);
+			sect2->lines.Push(-1);
+		}
+		if (line >= start && line < end)
+		{
+			sect2->lines.Push(aline);
+		}
+	}
+
+	int firstnewline = numsectionlines;
+	int thisline = numsectionlines;
+	int splitline1, splitline2;
+	//numsectionlines += sect1->lines.Size() + 1;
+	for (unsigned i = 0; i < sect1->lines.Size(); i++)//  auto& sline : sect1->lines)
+	{
+		int sline = sect1->lines[i];
+		sect1->lines[i] = thisline;
+		if (sline != -1)
+		{
+			SectionLine& newline = sectionLines[thisline];
+			newline = sectionLines[sline];
+			newline.section = int16_t(sect1 - sections);
+			if (i != sect1->lines.Size() - 1) newline.point2index = thisline + 1 - firstnewline;
+			else newline.point2index = 0;
+			assert(newline.point2index >= 0);
+
+			// relink the partner
+			auto& partnerline = sectionLines[newline.partner];
+			partnerline.partner = thisline;
+			partnerline.partnersection = newline.section;
+			thisline++;
+		}
+		else
+		{
+			splitline1 = thisline++;
+			sectionLines[splitline1].wall = -1;
+			sectionLines[splitline1].section = int16_t(sect1 - sections);
+			sectionLines[splitline1].partnersection = int16_t(sect2 - sections);
+			sectionLines[splitline1].startpoint = start;
+			sectionLines[splitline1].endpoint = end;
+			sectionLines[splitline1].point2index = splitline1 + 1 - firstnewline;
+		}
+	}
+
+	firstnewline = thisline;
+	for (unsigned i = 0; i < sect2->lines.Size(); i++)//  auto& sline : sect1->lines)
+	{
+		int sline = sect2->lines[i];
+		sect2->lines[i] = thisline;
+		if (sline != -1)
+		{
+			SectionLine& newline = sectionLines[thisline];
+			newline = sectionLines[sline];
+			newline.section = int16_t(sect2 - sections);
+			if (i != sect2->lines.Size() - 1) newline.point2index = thisline + 1 - firstnewline;
+			else newline.point2index = 0;
+			assert(newline.point2index >= 0);
+
+			// relink the partner
+			auto& partnerline = sectionLines[newline.partner];
+			partnerline.partner = thisline;
+			partnerline.partnersection = newline.section;
+			thisline++;
+		}
+		else
+		{
+			splitline2 = thisline++;
+			sectionLines[splitline2].wall = -1;
+			sectionLines[splitline2].section = int16_t(sect2 - sections);
+			sectionLines[splitline2].partnersection = int16_t(sect1 - sections);
+			sectionLines[splitline2].startpoint = end;
+			sectionLines[splitline2].endpoint = start;
+			sectionLines[splitline2].point2index = splitline2 + 1 - firstnewline;
+		}
+	}
+	sectionLines[splitline1].partner = splitline2;
+	sectionLines[splitline2].partner = splitline1;
+
+	sectionspersector[sect.sector].Resize(2);
+	sectionspersector[sect.sector][0] = int16_t(sect1 - sections);
+	sectionspersector[sect.sector][1] = int16_t(sect2 - sections);
+}
+
+void hw_SplitSector(int sectnum, int start, int end)
+{
+	int wallstart = sector[sectnum].wallptr;
+	int wallend = wallstart + sector[sectnum].wallnum;
+	if (start < wallstart || start >= wallend || end < wallstart || end >= wallend || end < start) return;
+
+	for (unsigned i = 0; i < sectionspersector[sectnum].Size(); i++)
+	{
+		int sect = sectionspersector[sectnum][i];
+		bool foundstart = false, foundend = false;
+		for (int aline : sections[sect].lines)
+		{
+			int line = sectionLines[aline].wall;
+			if (line == start) foundstart = true;
+			if (line == end) foundend = true;
+		}
+		if (foundstart && foundend)
+		{
+			sectionspersector->Delete(i);
+			SplitSection(sect, start, end);
+			return;
+		}
+	}
+}
+
+void hw_SetSplitSector(int sectnum, int start, int end)
+{
+	splits.Push(sectnum);
+	splits.Push(start);
+	splits.Push(end);
 }

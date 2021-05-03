@@ -453,6 +453,8 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	G_LoadMapHack(filename, md4);
 	setWallSectors();
 	hw_BuildSections();
+	sectorGeometry.SetSize(numsections);
+
 
 	memcpy(wallbackup, wall, sizeof(wallbackup));
 	memcpy(sectorbackup, sector, sizeof(sectorbackup));
@@ -491,5 +493,4 @@ void setWallSectors()
 			wall[sector[i].wallptr + w].sector = i;
 		}
 	}
-	sectorGeometry.SetSize(numsectors);
 }

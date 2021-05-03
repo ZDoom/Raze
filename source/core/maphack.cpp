@@ -37,6 +37,7 @@
 #include "printf.h"
 #include "c_dispatch.h"
 #include "md4.h"
+#include "hw_sections.h"
 
 static TArray<usermaphack_t> usermaphacks;
 TArray<int> blockingpairs[MAXWALLS];
@@ -171,6 +172,16 @@ static int32_t LoadMapHack(const char *filename)
             if (sc.CheckNumber() && validateWall())
             {
                 wall[currentwall].overpicnum = sc.Number;
+            }
+        }
+        else if (sc.Compare("split"))
+        {
+            int start = -1, end = -1;
+            if (sc.CheckNumber()) start = sc.Number;
+            if (sc.CheckNumber()) end = sc.Number;
+            if (end >= 0 && validateSector())
+            {
+                hw_SetSplitSector(currentsector, start, end);
             }
         }
         else if (sc.Compare("clearflags"))
