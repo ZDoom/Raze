@@ -713,7 +713,7 @@ CCMD(mapinfo)
 			if (map->designerTime) Printf("\tDesignerTime = %d\n", map->designerTime);
 			for (int i = 0; i < MAX_MESSAGES; i++)
 			{
-				if (map->messages[i].IsNotEmpty()) Printf("\tMessage = %d, \"%s\"\n", i + 1, map->messages[i]);
+				if (map->messages[i].IsNotEmpty()) Printf("\tMessage = %d, \"%s\"\n", i + 1, map->messages[i].GetChars());
 			}
 
 			for (auto& flagh : MapFlagHandlers)
