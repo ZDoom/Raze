@@ -249,6 +249,7 @@ public:
 class HWFlat
 {
 public:
+	int section;
 	sectortype * sec;
 	spritetype* sprite; // for flat sprites.
 	FGameTexture *texture;
@@ -275,7 +276,7 @@ public:
 	//void SetupLights(HWDrawInfo *di, FLightNode *head, FDynLightData &lightdata, int portalgroup);
 
 	void PutFlat(HWDrawInfo* di, int whichplane);
-	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
+	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, int sectionnum, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
 	void ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* sector);
 	
 	void DrawSubsectors(HWDrawInfo *di, FRenderState &state);

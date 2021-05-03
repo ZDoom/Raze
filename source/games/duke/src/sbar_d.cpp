@@ -243,9 +243,9 @@ public:
 		//
 		// keys
 		//
-		if (p->got_access & 1) DrawGraphic(tileGetTexture(ACCESSCARD), -12, -23.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
-		if (p->got_access & 4) DrawGraphic(tileGetTexture(ACCESSCARD), -7 , -21.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-		if (p->got_access & 2) DrawGraphic(tileGetTexture(ACCESSCARD), -2 , -19.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+		if (p->got_access & 1) DrawGraphic(tileGetTexture(ACCESSCARD), -12, -23.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+		if (p->got_access & 4) DrawGraphic(tileGetTexture(ACCESSCARD), -7 , -21.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+		if (p->got_access & 2) DrawGraphic(tileGetTexture(ACCESSCARD), -2 , -19.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 21));
 	}
 
 
@@ -355,15 +355,15 @@ public:
 			format.Format("%3d/%d", num1, num2);
 		}
 		y--;
-		DrawGraphic(tileGetTexture(THREEBYFIVE + index), x - 7, y, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, 0, 0, 1, 1, LightForShade(shade - 10), TRANSLATION(Translation_Remap, 7));
+		DrawGraphic(tileGetTexture(THREEBYFIVE + index), x - 7, y, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, LightForShade(shade - 10), TRANSLATION(Translation_Remap, 7));
 		auto pe = LightForShade(shade);
-		DrawGraphic(tileGetTexture(THREEBYFIVE + 10), x - 3, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, pe);
+		DrawGraphic(tileGetTexture(THREEBYFIVE + 10), x - 3, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, pe);
 		for (size_t i = 0; i < format.Len(); i++) 
 		{
 			if (format[i] != ' ')
 			{
 				char c = format[i] == '/' ? 11 : format[i] - '0';
-				DrawGraphic(tileGetTexture(THREEBYFIVE + c), x + 4 * i + (parsedDivisor ? 1 : 0), y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, pe);
+				DrawGraphic(tileGetTexture(THREEBYFIVE + c), x + 4 * i + (parsedDivisor ? 1 : 0), y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, pe);
 			}
 			if (format[i] == '/')
 			{
@@ -431,9 +431,9 @@ public:
 		else
 		{
 			auto key = tileGetTexture(ACCESS_ICON);
-			if (p->got_access & 4) DrawGraphic(key, 275.5, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-			if (p->got_access & 2) DrawGraphic(key, 288.5, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 21));
-			if (p->got_access & 1) DrawGraphic(key, 282, top + 23, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+			if (p->got_access & 4) DrawGraphic(key, 275.5, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+			if (p->got_access & 2) DrawGraphic(key, 288.5, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+			if (p->got_access & 1) DrawGraphic(key, 282, top + 23, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, STYLE_Translucent, 0xffffffff, TRANSLATION(Translation_Remap, 0));
 		}
 		DrawWeaponAmounts(p, 96, top + 15.5);
 

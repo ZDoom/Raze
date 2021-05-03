@@ -44,6 +44,7 @@
 #include "gamefuncs.h"
 #include "sectorgeometry.h"
 #include "render.h"
+#include "hw_sections.h"
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
 {
@@ -451,6 +452,9 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	md4once(buffer.Data(), buffer.Size(), md4);
 	G_LoadMapHack(filename, md4);
 	setWallSectors();
+	hw_BuildSections();
+	sectorGeometry.SetSize(numsections);
+
 
 	memcpy(wallbackup, wall, sizeof(wallbackup));
 	memcpy(sectorbackup, sector, sizeof(sectorbackup));
@@ -489,5 +493,4 @@ void setWallSectors()
 			wall[sector[i].wallptr + w].sector = i;
 		}
 	}
-	sectorGeometry.SetSize(numsectors);
 }

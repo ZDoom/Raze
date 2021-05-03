@@ -41,43 +41,102 @@
 #include "raze_sound.h"
 
 FString gSkillNames[MAXSKILLS];
-FString gVolumeNames[MAXVOLUMES];
-FString gVolumeSubtitles[MAXVOLUMES];
-int32_t gVolumeFlags[MAXVOLUMES];
 int gDefaultVolume = 0, gDefaultSkill = 1;
 
-MapRecord mapList[512];
-MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
+GlobalCutscenes globalCutscenes;
+TArray<ClusterDef> clusters;
+TArray<VolumeRecord> volumes;
+TArray<TPointer<MapRecord>> mapList;	// must be allocated as pointers because it can whack the currentlLevel pointer if this was a flat array.
+MapRecord *currentLevel;	// level that is currently played.
 MapRecord* lastLevel;		// Same here, for the last level.
-unsigned int numUsedSlots;
 
 
 CCMD(listmaps)
 {
-	for (unsigned int i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		int lump = fileSystem.FindFile(mapList[i].fileName);
+		int lump = fileSystem.FindFile(map->fileName);
 		if (lump >= 0)
 		{
 			int rfnum = fileSystem.GetFileContainer(lump);
-			Printf("%s - %s (%s)\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName(), fileSystem.GetResourceFileName(rfnum));
+			Printf("%s - %s (%s)\n", map->LabelName(), map->DisplayName(), fileSystem.GetResourceFileName(rfnum));
 		}
 		else
 		{
-			Printf("%s - %s (defined but does not exist)\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName());
+			Printf("%s - %s (defined but does not exist)\n", map->fileName.GetChars(), map->DisplayName());
 		}
 	}
+}
+
+CCMD(mapinfo)
+{
+	const char* mapname = nullptr;
+	if (argv.argc() > 1) mapname = argv[1];
+
+	if (!mapname)
+	{
+		for (auto& vol : volumes)
+		{
+			Printf("Volume %d\n\tName = '%s'\n\tstartmap = '%s'\n}\n", vol.index, vol.name.GetChars(), vol.startmap.GetChars());
+		}
+		for (auto& clus : clusters)
+		{
+			if (clus.intro.isdefined() || clus.outro.isdefined())
+			{
+				Printf("Cluster %d\n\tName = '%s'\n", clus.index, clus.name.GetChars());
+				if (clus.intro.function.IsNotEmpty()) Printf("\tIntro function = %s\n", clus.intro.function.GetChars());
+				if (clus.intro.video.IsNotEmpty()) Printf("\tIntro video = %s\n", clus.intro.video.GetChars());
+				if (clus.outro.function.IsNotEmpty()) Printf("\tOutro function = %s\n", clus.outro.function.GetChars());
+				if (clus.outro.video.IsNotEmpty()) Printf("\tOutro video = %s\n", clus.outro.video.GetChars());
+				Printf("}\n");
+			}
+		}
+	}
+	for (auto& map : mapList)
+	{
+		if (mapname && map->labelName.CompareNoCase(mapname)) continue;
+		int lump = fileSystem.FindFile(map->fileName);
+		if (lump >= 0)
+		{
+			int rfnum = fileSystem.GetFileContainer(lump);
+			Printf("%s - %s (%s)\n{\n", map->fileName.GetChars(), map->DisplayName(), fileSystem.GetResourceFileName(rfnum));
+			Printf("\tlevel number = %d\n\tCluster = %d\n\tIndex = %d\n", map->levelNumber, map->cluster, map->mapindex);
+			if (map->Author.IsNotEmpty()) Printf("\tAuthor = '%s'\n", map->Author.GetChars());
+			if (map->NextMap.IsNotEmpty()) Printf("\tNext map = '%s'\n", map->NextMap.GetChars());
+			if (map->NextSecret.IsNotEmpty()) Printf("\tNext secret map = '%s'\n", map->NextSecret.GetChars());
+			if (map->music.IsNotEmpty()) Printf("\tMusic = '%s:%d'", map->music.GetChars(), map->musicorder);
+			if (map->cdSongId > 0) Printf("\tCD track = %d\n", map->cdSongId);
+			if (map->parTime) Printf("\tPar Time = %d\n", map->parTime);
+			if (map->designerTime) Printf("\tPar Time = %d\n", map->designerTime);
+			if (map->intro.function.IsNotEmpty()) Printf("\tIntro function = %s\n", map->intro.function.GetChars());
+			if (map->intro.video.IsNotEmpty()) Printf("\tIntro video = %s\n", map->intro.video.GetChars());
+			if (map->outro.function.IsNotEmpty()) Printf("\tOutro function = %s\n", map->outro.function.GetChars());
+			if (map->outro.video.IsNotEmpty()) Printf("\tOutro video = %s\n", map->outro.video.GetChars());
+			Printf("}\n");
+		}
+		else
+		{
+			Printf("%s - %s (defined but does not exist)\n", map->fileName.GetChars(), map->DisplayName());
+		}
+	}
+}
+
+int CutsceneDef::GetSound()
+{
+	int id;
+	if (soundName.IsNotEmpty()) id = soundEngine->FindSound(soundName);
+	if (id <= 0) id = soundEngine->FindSoundByResID(soundID);
+	return id;
 }
 
 
 MapRecord *FindMapByName(const char *nm)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
-		if (map.labelName.CompareNoCase(nm) == 0)
+		if (map->labelName.CompareNoCase(nm) == 0)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 	return nullptr;
@@ -86,22 +145,77 @@ MapRecord *FindMapByName(const char *nm)
 
 MapRecord *FindMapByLevelNum(int num)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
-		if (map.levelNumber == num)
+		if (map->levelNumber == num)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 	return nullptr;
 }
 
-MapRecord *FindNextMap(MapRecord *thismap)
+VolumeRecord* FindVolume(int index)
 {
-	if (thismap->nextLevel != -1) return FindMapByLevelNum(thismap->nextLevel);
-	return FindMapByLevelNum(thismap->levelNumber+1);
+	for (auto& vol : volumes)
+	{
+		if (vol.index == index) return &vol;
+	}
+	return nullptr;
 }
+
+ClusterDef* FindCluster(int index)
+{
+	for (auto& vol : clusters)
+	{
+		if (vol.index == index) return &vol;
+	}
+	return nullptr;
+}
+
+ClusterDef* AllocateCluster()
+{
+	return &clusters[clusters.Reserve(1)];
+}
+
+VolumeRecord* AllocateVolume()
+{
+	return &volumes[volumes.Reserve(1)];
+}
+
+MapRecord* FindMapByIndexOnly(int cluster, int num)
+{
+	for (auto& map : mapList)
+	{
+		if (map->mapindex == num && map->cluster == cluster) return map.Data();
+	}
+	return nullptr;
+}
+
+MapRecord* FindMapByIndex(int cluster, int num)
+{
+	auto map = FindMapByLevelNum(num);
+	if (!map) map = FindMapByIndexOnly(cluster, num); // modern definitions take precedence.
+	return map;
+}
+
+MapRecord* FindNextMap(MapRecord* thismap)
+{
+	MapRecord* next = nullptr;
+	if (!thismap->NextMap.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
+	if (thismap->NextMap.IsNotEmpty()) next = FindMapByName(thismap->NextMap);
+	if (!next) next = FindMapByLevelNum(thismap->levelNumber + 1);
+	return next;
+}
+
+MapRecord* FindNextSecretMap(MapRecord* thismap)
+{
+	MapRecord* next = nullptr;
+	if (!thismap->NextSecret.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
+	if (thismap->NextSecret.IsNotEmpty()) next = FindMapByName(thismap->NextSecret);
+	return next? next : FindNextMap(thismap);
+}
+
 
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 {
@@ -129,7 +243,7 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 		if (numMatches != 4 || toupper(b1) != 'E' || toupper(b2) != 'L')
 			return false;
 
-		index = FindMapByLevelNum(levelnum(ep - 1, lev - 1));
+		index = FindMapByIndexOnly(ep, lev);
 
 	}
 	if (index != nullptr)
@@ -142,18 +256,19 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 
 MapRecord *AllocateMap()
 {
-	return &mapList[numUsedSlots++];
+	auto&p = mapList[mapList.Reserve(1)];
+	p.Alloc();
+	return p.Data();
 }
 
 
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
-		if (map.fileName.CompareNoCase(boardfilename) == 0)
+		if (map->fileName.CompareNoCase(boardfilename) == 0)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 

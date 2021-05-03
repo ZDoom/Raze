@@ -28,12 +28,12 @@ class BunchDrawer
     vec2_t iview;
     float gcosang, gsinang;
     FixedBitArray<MAXSECTORS> gotsector;
-    FixedBitArray<MAXSECTORS> gotsector2;
+    FixedBitArray<MAXSECTORS*5/4> gotsection2;
     FixedBitArray<MAXWALLS> gotwall;
     FixedBitArray<MAXWALLS> blockwall;
     binangle ang1, ang2;
 
-    int sectstartang[MAXSECTORS], sectendang[MAXSECTORS];
+    int sectionstartang[MAXSECTORS*5/4], sectionendang[MAXSECTORS*5/4];
 
 private:
 
@@ -54,7 +54,7 @@ private:
     int WallInFront(int wall1, int wall2);
     int BunchInFront(FBunch* b1, FBunch* b2);
     int FindClosestBunch();
-    void ProcessSector(int sectnum, bool portal);
+    void ProcessSection(int sectnum, bool portal);
 
 public:
     void Init(HWDrawInfo* _di, Clipper* c, vec2_t& view, binangle a1, binangle a2);

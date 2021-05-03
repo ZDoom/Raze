@@ -249,7 +249,7 @@ grpinfo
 	name "Duke Caribbean: Life's a Beach"
 	size 22213819
 	crc DUKECB_CRC
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEVACA
 	dependency DUKE15_CRC
 	gamefilter "Duke.Vacation"
 	FgColor 0x00004f
@@ -263,7 +263,7 @@ grpinfo
 	scriptname "VACATION.CON"
 	size 22397273
 	crc 0x65B5F690
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEVACA
 	dependency DUKE15_CRC
 	gamefilter "Duke.Vacation"
 	FgColor 0x00004f
@@ -277,7 +277,7 @@ grpinfo
 	scriptname "NWINTER.CON"
 	size 16169365
 	crc DUKENW_CRC
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKENW
 	dependency DUKE15_CRC
 	gamefilter "Duke.NWinter"
 	FgColor 0
@@ -291,7 +291,7 @@ grpinfo
 	scriptname "NWINTER.CON"
 	size 10965909
 	crc 0xC7EFBFA9
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKENW
 	dependency DUKE15_CRC
 	gamefilter "Duke.NWinter"
 	FgColor 0
@@ -423,7 +423,7 @@ grpinfo
 	name "BLOOD: Cryptic Passage"
 	scriptname "CRYPTIC.INI"
 	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"
-	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON|GAMEFLAG_BLOODCP
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
@@ -436,7 +436,7 @@ addon
 	name "BLOOD: Cryptic Passage"
 	scriptname "CRYPTIC.INI"
 	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"
-	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON|GAMEFLAG_BLOODCP
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
@@ -450,7 +450,7 @@ addon
 	scriptname "CRYPTIC.INI"
 	mustcontain "cryptic/CRYPTIC.INI", "cryptic/CP01.MAP", "cryptic/CP02.MAP"
 	loadgrp "cryptic"
-	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON|GAMEFLAG_BLOODCP
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
@@ -464,7 +464,7 @@ addon
 	scriptname "CRYPTIC.INI"
 	mustcontain "addons/Cryptic Passage/CRYPTIC.INI", "addons/Cryptic Passage/CP01.MAP", "addons/Cryptic Passage/CP02.MAP"
 	loadgrp "addons/Cryptic Passage"
-	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON|GAMEFLAG_BLOODCP
 	dependency BLOOD_CRC
 	gamefilter "Blood.Cryptic"
 	GameID "CrypticPassage"
@@ -573,7 +573,7 @@ grpinfo
 grpinfo
 {
 	name "Shadow Warrior: Wanton Destruction"
-	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWWANTON
 	crc SWWD_CRC
 	size 48698128
 	defname "sw.def"
@@ -585,7 +585,7 @@ grpinfo
 grpinfo
 {
 	name "Shadow Warrior: Wanton Destruction"
-	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWWANTON
 	crc 0x8B6E8011
 	size 48698128
 	defname "sw.def"
@@ -597,7 +597,7 @@ grpinfo
 grpinfo
 {
 	name "Shadow Warrior: Wanton Destruction (ProAsm)"
-	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWWANTON
 	crc 0x39893EF4
 	size 9562689
 	defname "sw.def"
@@ -610,7 +610,7 @@ grpinfo
 grpinfo
 {
 	name "Shadow Warrior: Twin Dragon"
-	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWTWINDRAG
 	crc SWTD_CRC
 	size 12499012
 	defname "twindrag.def"
@@ -623,7 +623,7 @@ grpinfo
 grpinfo
 {
 	name "Shadow Warrior: Twin Dragon"
-	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWTWINDRAG
 	crc 0xB5B71277
 	size 6236287
 	defname "twindrag.def"
@@ -635,7 +635,7 @@ grpinfo
 grpinfo
 {
 	name "Shadow Warrior: Twin Dragon"
-	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWTWINDRAG
 	crc 0xACC8DCDE
 	size 6235578
 	defname "twindrag.def"
@@ -678,7 +678,7 @@ grpinfo
 	name "Redneck Rampage: Suckin' Grits on Route 66"
 	scriptname "GAME66.CON"
 	mustcontain "TILESA66.ART", "TILESB66.ART", "ROUTE66/CARNIVAL.MAP", "ROUTE66/TRUCKSTP.MAP", "GAME66.CON"
-	flags GAMEFLAG_RR|GAMEFLAG_ADDON
+	flags GAMEFLAG_RR|GAMEFLAG_ADDON|GAMEFLAG_ROUTE66
 	dependency RR_CRC
 	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
 	gamefilter "Redneck.Route66"
@@ -692,7 +692,7 @@ addon
 	name "Redneck Rampage: Suckin' Grits on Route 66"
 	scriptname "GAME66.CON"
 	mustcontain "TILESA66.ART", "TILESB66.ART", "ROUTE66/CARNIVAL.MAP", "ROUTE66/TRUCKSTP.MAP", "GAME66.CON"
-	flags GAMEFLAG_RR|GAMEFLAG_ADDON
+	flags GAMEFLAG_RR|GAMEFLAG_ADDON|GAMEFLAG_ROUTE66
 	dependency RR_CRC
 	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
 	gamefilter "Redneck.Route66"

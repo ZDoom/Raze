@@ -216,7 +216,7 @@ private:
             }
 
             font_pic = font_base[color] + (ch - '0');
-            DrawGraphic(tileGetTexture(font_pic), x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, shadeToLight(shade));
+            DrawGraphic(tileGetTexture(font_pic), x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, STYLE_Translucent, shadeToLight(shade));
             x += tileWidth(font_pic) + 1;
         }
     }
@@ -651,7 +651,7 @@ private:
 
         for (i = 0, x = COMPASS_X; i < 10; i++)
         {
-            DrawGraphic(tileGetTexture(CompassPic[NORM_CANG(start_ang + i)]), x, COMPASS_Y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, shadeToLight(CompassShade[i]));
+            DrawGraphic(tileGetTexture(CompassPic[NORM_CANG(start_ang + i)]), x, COMPASS_Y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, STYLE_Translucent, shadeToLight(CompassShade[i]));
             x += x_size;
         }
     }

@@ -57,6 +57,8 @@
 #include "interpolate.h"
 #include "gamefuncs.h"
 #include "render.h"
+#include "hw_sections.h"
+#include "sectorgeometry.h"
 #include <zlib.h>
 
 
@@ -639,6 +641,8 @@ void SerializeMap(FSerializer& arc)
 	if (arc.isReading())
 	{
 		setWallSectors();
+		hw_BuildSections();
+		sectorGeometry.SetSize(numsections);
 	}
 }
 

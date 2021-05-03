@@ -49,15 +49,25 @@
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
 #include "raze_music.h"
+#include "vm.h"
 
 
 class MoviePlayer
 {
+protected:
+	enum EMovieFlags
+	{
+		NOSOUNDCUTOFF = 1,
+		FIXEDVIEWPORT = 2,	// Forces fixed 640x480 screen size like for Blood's intros.
+	};
+
+	int flags;
 public:
 	virtual void Start() {}
 	virtual bool Frame(uint64_t clock) = 0;
 	virtual void Stop() {}
 	virtual ~MoviePlayer() = default;
+	virtual FTextureID GetTexture() = 0;
 };
 
 //---------------------------------------------------------------------------
@@ -76,16 +86,17 @@ class AnmPlayer : public MoviePlayer
 	int frametime = 0;
 	int nextframetime = 0;
 	AnimTextures animtex;
-	const AnimSound* animSnd;
-	const int* frameTicks;
-	bool nostopsound;
+	const TArray<int> animSnd;
+	int frameTicks[3];
 
 public:
 	bool isvalid() { return numframes > 0; }
 
-	AnmPlayer(FileReader& fr, const AnimSound* ans, const int *frameticks, bool nosoundcutoff)
-		: animSnd(ans), frameTicks(frameticks), nostopsound(nosoundcutoff)
+	AnmPlayer(FileReader& fr, TArray<int>& ans, const int *frameticks, int flags_)
+		: animSnd(std::move(ans))
 	{
+		memcpy(frameTicks, frameticks, 3 * sizeof(int));
+		flags = flags_;
 		buffer = fr.ReadPadded(1);
 		fr.Close();
 
@@ -109,16 +120,11 @@ public:
 
 		if (currentclock < nextframetime - 1)
 		{
-			twod->ClearScreen();
-			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
 			return true;
 		}
 
 		animtex.SetFrame(ANIM_GetPalette(&anim), ANIM_DrawFrame(&anim, curframe));
 		frametime = currentclock;
-
-		twod->ClearScreen();
-		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
 
 		int delay = 20;
 		if (frameTicks)
@@ -129,11 +135,12 @@ public:
 		}
 		nextframetime += delay;
 
-		if (animSnd) for (int i = 0; animSnd[i].framenum >= 0; i++)
+		bool nostopsound = (flags & NOSOUNDCUTOFF);
+		for (unsigned i = 0; i < animSnd.Size(); i+=2)
 		{
-			if (animSnd[i].framenum == curframe)
+			if (animSnd[i] == curframe)
 			{
-				int sound = animSnd[i].soundnum;
+				int sound = animSnd[i+1];
 				if (sound == -1)
 					soundEngine->StopAllChannels();
 				else if (SoundEnabled())
@@ -147,6 +154,7 @@ public:
 
 	void Stop() override
 	{
+		bool nostopsound = (flags & NOSOUNDCUTOFF);
 		if (!nostopsound) soundEngine->StopAllChannels();
 	}
 
@@ -155,6 +163,11 @@ public:
 	{
 		buffer.Reset();
 		animtex.Clean();
+	}
+
+	FTextureID GetTexture() override
+	{
+		return animtex.GetFrameID();
 	}
 };
 
@@ -187,14 +200,17 @@ public:
 	{
 		if (failed) return false;
 		bool playon = decoder.RunFrame(clock);
-		twod->ClearScreen();
-		DrawTexture(twod, decoder.animTex().GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 		return playon;
 	}
 
 	~MvePlayer()
 	{
 		decoder.Close();
+	}
+
+	FTextureID GetTexture() override
+	{
+		return decoder.animTex().GetFrameID();
 	}
 };
 
@@ -209,7 +225,7 @@ class VpxPlayer : public MoviePlayer
 	bool failed = false;
 	FileReader fr;
 	AnimTextures animtex;
-	const AnimSound* animSnd;
+	const TArray<int> animSnd;
 
 	unsigned width, height;
 	TArray<uint8_t> Pic;
@@ -234,10 +250,10 @@ public:
 public:
 	bool isvalid() { return !failed; }
 
-	VpxPlayer(FileReader& fr_, const AnimSound* animSnd_, int origframedelay, FString& error)
+	VpxPlayer(FileReader& fr_, TArray<int>& animSnd_, int flags_, int origframedelay, FString& error) : animSnd(std::move(animSnd_))
 	{
 		fr = std::move(fr_);
-		animSnd = animSnd_;
+		flags = flags_;
 
 		if (!ReadIVFHeader(origframedelay))
 		{
@@ -433,36 +449,46 @@ public:
 			framenum++;
 			if (framenum >= numframes) stop = true;
 
+			bool nostopsound = (flags & NOSOUNDCUTOFF);
 			int soundframe = convdenom ? Scale(framenum, convnumer, convdenom) : framenum;
 			if (soundframe > lastsoundframe)
 			{
-				if (animSnd && soundtrack == -1) for (int i = 0; animSnd[i].framenum >= 0; i++)
+				if (soundtrack == -1)
 				{
-					if (animSnd[i].framenum == soundframe)
+					for (unsigned i = 0; i < animSnd.Size(); i += 2)
 					{
-						int sound = animSnd[i].soundnum;
-						if (sound == -1)
-							soundEngine->StopAllChannels();
-						else if (SoundEnabled())
-							soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_NONE, sound, 1.f, ATTN_NONE);
+						if (animSnd[i] == soundframe)
+						{
+							int sound = animSnd[i + 1];
+							if (sound == -1)
+								soundEngine->StopAllChannels();
+							else if (SoundEnabled())
+								soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, nostopsound ? CHANF_UI : CHANF_NONE, sound, 1.f, ATTN_NONE);
+						}
 					}
 				}
 				lastsoundframe = soundframe;
 			}
 		}
-		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit, TAG_DONE);
 		return !stop;
 	}
 
 	void Stop()
 	{
 		Mus_Stop();
+		bool nostopsound = (flags & NOSOUNDCUTOFF);
+		if (!nostopsound) soundEngine->StopAllChannels();
 	}
 
 	~VpxPlayer()
 	{
 		vpx_codec_destroy(&codec);
 		animtex.Clean();
+	}
+
+	FTextureID GetTexture() override
+	{
+		return animtex.GetFrameID();
 	}
 };
 
@@ -498,9 +524,10 @@ class SmkPlayer : public MoviePlayer
 	bool fullscreenScale;
 	uint64_t nFrameNs;
 	int nFrame = 0;
-	const AnimSound* animSnd;
+	const TArray<int> animSnd;
 	FString filename;
 	SoundStream* stream = nullptr;
+	bool hassound = false;
 
 public:
 	bool isvalid() { return hSMK.isValid; }
@@ -534,22 +561,21 @@ public:
 	}
 
 
-	SmkPlayer(const char *fn, const AnimSound* ans, bool fixedviewport)
+	SmkPlayer(const char *fn, TArray<int>& ans, int flags_) : animSnd(std::move(ans))
 	{
 		hSMK = Smacker_Open(fn);
 		if (!hSMK.isValid)
 		{
 			return;
 		}
+		flags = flags_;
 		Smacker_GetFrameSize(hSMK, nWidth, nHeight);
 		pFrame.Resize(nWidth * nHeight + std::max(nWidth, nHeight));
 		nFrameRate = Smacker_GetFrameRate(hSMK);
 		nFrameNs = 1'000'000'000 / nFrameRate;
 		nFrames = Smacker_GetNumFrames(hSMK);
 		Smacker_GetPalette(hSMK, palette);
-		fullscreenScale = (!fixedviewport || (nWidth <= 320 && nHeight <= 200) || nWidth >= 640 || nHeight >= 480);
 
-		bool hassound = false;
 		numAudioTracks = Smacker_GetNumAudioTracks(hSMK);
 		if (numAudioTracks)
 		{
@@ -562,14 +588,12 @@ public:
 				auto read = Smacker_GetAudioData(hSMK, 0, (int16_t*)audioBuffer.Data());
 				if (adata.inf.bitsPerSample == 8) copy8bitSamples(read);
 				else copy16bitSamples(read);
-				animSnd = nullptr;
 				hassound = true;
 			}
 		}
 		if (!hassound)
 		{
 			adata.inf = {};
-			animSnd = ans;
 		}
 
 	}
@@ -612,27 +636,21 @@ public:
 			}
 
 		}
-		if (fullscreenScale)
-		{
-			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-		}
-		else
-		{
-			DrawTexture(twod, animtex.GetFrame(), 320, 240, DTA_VirtualWidth, 640, DTA_VirtualHeight, 480, DTA_CenterOffset, true, TAG_DONE);
-		}
+
 		if (frame > nFrame)
 		{
 			nFrame++;
 			Smacker_GetNextFrame(hSMK);
-			if (animSnd) for (int i = 0; animSnd[i].framenum >= 0; i++)
+			bool nostopsound = (flags & NOSOUNDCUTOFF);
+			if (!hassound) for (unsigned i = 0; i < animSnd.Size(); i += 2)
 			{
-				if (animSnd[i].framenum == nFrame)
+				if (animSnd[i] == nFrame)
 				{
-					int sound = animSnd[i].soundnum;
+					int sound = animSnd[i + 1];
 					if (sound == -1)
 						soundEngine->StopAllChannels();
 					else if (SoundEnabled())
-						soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_NONE, sound, 1.f, ATTN_NONE);
+						soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, nostopsound ? CHANF_UI : CHANF_NONE, sound, 1.f, ATTN_NONE);
 				}
 			}
 		}
@@ -640,13 +658,24 @@ public:
 		return nFrame < nFrames;
 	}
 
+	void Stop() override
+	{
+		if (stream) S_StopCustomStream(stream);
+		bool nostopsound = (flags & NOSOUNDCUTOFF);
+		if (!nostopsound && !hassound) soundEngine->StopAllChannels();
+	}
+
 	~SmkPlayer()
 	{
 		Smacker_Close(hSMK);
-		if (stream) S_StopCustomStream(stream);
-		soundEngine->StopAllChannels();
 		animtex.Clean();
 	}
+
+	FTextureID GetTexture() override
+	{
+		return animtex.GetFrameID();
+	}
+
 };
 
 //---------------------------------------------------------------------------
@@ -655,61 +684,11 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DMoviePlayer : public DSkippableScreenJob
-{
-	MoviePlayer* player;
-	bool started = false;
-
-public:
-	DMoviePlayer(MoviePlayer* mp)
-	{
-		player = mp;
-		pausable = false;
-	}
-
-
-	void Draw(double smoothratio) override
-	{
-		if (!player)
-		{
-			state = stopped;
-			return;
-		}
-		if (!started)
-		{
-			started = true;
-			player->Start();
-		}
-		uint64_t clock = (ticks + smoothratio) * 1'000'000'000. / GameTicRate;
-		if (state == running  && !player->Frame(clock))
-		{
-			state = finished;
-		}
-	}
-
-	void OnDestroy() override
-	{
-		if (player)
-		{
-			player->Stop();
-			delete player;
-		}
-		player = nullptr;
-	}
-};
-
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-MoviePlayer* OpenMovie(const char* filename, const AnimSound* ans, const int* frameticks, bool nosoundcutoff, FString& error)
+MoviePlayer* OpenMovie(const char* filename, TArray<int>& ans, const int* frameticks, int flags, FString& error)
 {
 	FileReader fr;
 	// first try as .ivf - but only if sounds are provided - the decoder is video only.
-	if (ans)
+	if (ans.Size())
 	{
 		auto fn = StripExtension(filename);
 		DefaultExtension(fn, ".ivf");
@@ -739,7 +718,7 @@ MoviePlayer* OpenMovie(const char* filename, const AnimSound* ans, const int* fr
 
 	if (!memcmp(id, "LPF ", 4))
 	{
-		auto anm = new AnmPlayer(fr, ans, frameticks, nosoundcutoff);
+		auto anm = new AnmPlayer(fr, ans, frameticks, flags);
 		if (!anm->isvalid())
 		{
 			error.Format("%s: invalid ANM file.\n", filename);
@@ -751,7 +730,7 @@ MoviePlayer* OpenMovie(const char* filename, const AnimSound* ans, const int* fr
 	else if (!memcmp(id, "SMK2", 4))
 	{
 		fr.Close();
-		auto anm = new SmkPlayer(filename, ans, true); // Fixme: Handle Blood's video scaling behavior more intelligently.
+		auto anm = new SmkPlayer(filename, ans, flags);
 		if (!anm->isvalid())
 		{
 			error.Format("%s: invalid SMK file.\n", filename);
@@ -772,7 +751,7 @@ MoviePlayer* OpenMovie(const char* filename, const AnimSound* ans, const int* fr
 	}
 	else if (!memcmp(id, "DKIF\0\0 \0VP80", 12))
 	{
-		auto anm = new VpxPlayer(fr, ans, frameticks ? frameticks[1] : 0, error);
+		auto anm = new VpxPlayer(fr, ans, frameticks ? frameticks[1] : 0, flags, error);
 		if (!anm->isvalid())
 		{
 			delete anm;
@@ -795,20 +774,53 @@ MoviePlayer* OpenMovie(const char* filename, const AnimSound* ans, const int* fr
 //
 //---------------------------------------------------------------------------
 
-DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks, bool nosoundcutoff)
+DEFINE_ACTION_FUNCTION(_MoviePlayer, Create)
 {
-	if (!filename)
-	{
-		return Create<DBlackScreen>(1);
-	}
+	PARAM_PROLOGUE;
+	PARAM_STRING(filename);
+	PARAM_POINTER(sndinf, TArray<int>);
+	PARAM_INT(flags);
+	PARAM_INT(frametime);
+	PARAM_INT(firstframetime);
+	PARAM_INT(lastframetime);
+
 	FString error;
-	auto movie = OpenMovie(filename, ans, frameticks, nosoundcutoff, error);
+	if (firstframetime == -1) firstframetime = frametime;
+	if (lastframetime == -1) lastframetime = frametime;
+	int frametimes[] = { firstframetime, frametime, lastframetime };
+	auto movie = OpenMovie(filename, *sndinf, frametime == -1? nullptr : frametimes, flags, error);
 	if (!movie)
 	{
 		Printf(TEXTCOLOR_YELLOW, "%s", error.GetChars());
-		return Create<DBlackScreen>(1);
 	}
-	return Create<DMoviePlayer>(movie);
+	ACTION_RETURN_POINTER(movie);
 }
 
+DEFINE_ACTION_FUNCTION(_MoviePlayer, Start)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
+	self->Start();
+	return 0;
+}
 
+DEFINE_ACTION_FUNCTION(_MoviePlayer, Frame)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
+	PARAM_FLOAT(clock);
+	ACTION_RETURN_INT(self->Frame(int64_t(clock)));
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_MoviePlayer, Destroy)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
+	self->Stop();
+	delete self;
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_MoviePlayer, GetTexture)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
+	ACTION_RETURN_INT(self->GetTexture().GetIndex());
+}

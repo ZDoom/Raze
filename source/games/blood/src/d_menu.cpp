@@ -159,23 +159,6 @@ bool GameInterface::CanSave()
 	return (gamestate == GS_LEVEL && gPlayer[myconnectindex].pXSprite->health != 0);
 }
 
-bool GameInterface::StartGame(FNewGameStartup& gs)
-{
-	if (gs.Episode >= 1)
-	{
-		if (g_gameType & GAMEFLAG_SHAREWARE)
-		{
-			M_StartMessage(GStrings("BUYBLOOD"), 1, NAME_None); // unreachable because we do not support Blood SW versions yet.
-			return false;
-		}
-	}
-
-	sfxKillAllSounds();
-	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
-	DeferedStartGame(map, gs.Skill);
-	return true;
-}
-
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };

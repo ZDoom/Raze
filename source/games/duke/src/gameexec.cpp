@@ -130,11 +130,6 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor*
 		if (!bSet) SetGameVarID(lVar2, cl_showweapon, sActor, sPlayer);
 		break;
 
-	case USERDEFS_FROM_BONUS:
-		if (bSet) ud.from_bonus = lValue;
-		else SetGameVarID(lVar2, ud.from_bonus, sActor, sPlayer);
-		break;
-
 	case USERDEFS_CAMERASPRITE:
 		if (bSet) ud.cameraactor = ScriptIndexToActor(lValue);
 		else SetGameVarID(lVar2, ActorToScriptIndex(ud.cameraactor), sActor, sPlayer);
@@ -237,14 +232,6 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor*
 	case USERDEFS_PLAYER_SKILL:
 		if (bSet) ud.player_skill = lValue;
 		else SetGameVarID(lVar2, ud.player_skill, sActor, sPlayer);
-		break;
-
-	case USERDEFS_LEVEL_NUMBER:
-		if (!bSet) SetGameVarID(lVar2, mapfromlevelnum(currentLevel->levelNumber), sActor, sPlayer);
-		break;
-
-	case USERDEFS_VOLUME_NUMBER:
-		if (!bSet) SetGameVarID(lVar2, volfromlevelnum(currentLevel->levelNumber), sActor, sPlayer);
 		break;
 
 	case USERDEFS_MARKER:
@@ -3455,7 +3442,7 @@ int ParseState::parse(void)
 		insptr++; // skip command
 		volnume = GetGameVarID(*insptr++, g_ac, g_p);
 		levnume = GetGameVarID(*insptr++, g_ac, g_p);
-		auto level = FindMapByLevelNum(levelnum(volnume - 1, levnume - 1));
+		auto level = FindMapByIndex(volnume, levnume);
 		if (level != nullptr)
 			ChangeLevel(level, -1);
 		break;
@@ -3572,7 +3559,7 @@ int ParseState::parse(void)
 	{
 		insptr++;
 		int music_select = *insptr++;
-		auto level = FindMapByLevelNum(levelnum(currentLevel->levelNumber, music_select));
+ 		auto level = FindMapByIndex(currentLevel->cluster, music_select+1); // this was 0-based in EDuke 2.0...
 		if (level) S_PlayLevelMusic(level);
 		break;
 	}

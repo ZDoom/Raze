@@ -105,6 +105,7 @@ bool r_NoInterpolate;
 int entertic;
 int oldentertics;
 int gametic;
+int intermissiondelay;
 
 FString BackupSaveGame;
 
@@ -133,6 +134,20 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 //==========================================================================
 bool newGameStarted;
 
+void NewGame(MapRecord* map, int skill, bool ns = false)
+{
+	newGameStarted = true;
+	ShowIntermission(nullptr, map, nullptr, [=](bool) { 
+		gi->NewGame(map, skill, ns); 
+		});
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 static void GameTicker()
 {
 	int i;
@@ -159,7 +174,7 @@ static void GameTicker()
 				FX_SetReverb(0);
 				gi->FreeLevelData();
 				gameaction = ga_level;
-				gi->NewGame(g_nextmap, -1);
+				NewGame(g_nextmap, -1);
 				BackupSaveGame = "";
 			}
 			break;
@@ -191,13 +206,12 @@ static void GameTicker()
 			FX_StopAllSounds();
 		case ga_newgamenostopsound:
 			DeleteScreenJob();
-			newGameStarted = true;
 			FX_SetReverb(0);
 			gi->FreeLevelData();
 			C_FlushDisplay();
 			gameaction = ga_level;
 			BackupSaveGame = "";
-			gi->NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);
+			NewGame(g_nextmap, g_nextskill, ga == ga_newgamenostopsound);
 			break;
 
 		case ga_startup:
@@ -209,6 +223,7 @@ static void GameTicker()
 
 		case ga_mainmenu:
 			FX_StopAllSounds();
+			if (isBlood()) Mus_Stop();
 		case ga_mainmenunostopsound:
 			gi->FreeLevelData();
 			gamestate = GS_MENUSCREEN;
@@ -251,6 +266,10 @@ static void GameTicker()
 			C_FullConsole();
 			Mus_Stop();
 			gameaction = ga_nothing;
+			break;
+
+		case ga_endscreenjob:
+			EndScreenJob();
 			break;
 
 			// for later
@@ -331,7 +350,16 @@ static void GameTicker()
 		break;
 	case GS_INTERMISSION:
 	case GS_INTRO:
-		ScreenJobTick();
+		if (intermissiondelay > 0)
+		{
+			intermissiondelay--;
+			break;
+		}
+		if (ScreenJobTick())
+		{
+			// synchronize termination with the playsim.
+			Net_WriteByte(DEM_ENDSCREENJOB);
+		}
 		break;
 
 	}
@@ -371,7 +399,7 @@ void Display()
 	case GS_INTRO:
 	case GS_INTERMISSION:
 		// screen jobs are not bound by the game ticker so they need to be ticked in the display loop.
-		ScreenJobDraw();
+		if (intermissiondelay <= 0) ScreenJobDraw();
 		break;
 
 	case GS_LEVEL:
@@ -632,6 +660,16 @@ void MainLoop ()
 
 	// Clamp the timer to TICRATE until the playloop has been entered.
 	r_NoInterpolate = true;
+
+	if (userConfig.CommandMap.IsNotEmpty())
+	{
+		auto maprecord = FindMapByName(userConfig.CommandMap);
+		userConfig.CommandMap = "";
+		if (maprecord)
+		{
+			NewGame(maprecord, /*userConfig.skill*/2); // todo: fix the skill.
+		}
+	}
 
 	for (;;)
 	{

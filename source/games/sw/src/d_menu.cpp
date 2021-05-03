@@ -102,22 +102,8 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
     int handle = 0;
     int zero = 0;
 	
-	MapRecord* map;
-	if (gs.Episode >= 1)
-	{
-		if (g_gameType & GAMEFLAG_SHAREWARE)
-		{
-			M_StartMessage(GStrings("BUYSW"), 1, NAME_None);
-			return false;
-		}
-		map = FindMapByLevelNum(5);
-	}
-    else
-		map = FindMapByLevelNum(1);
-
-	if (!map) return false;
     CameraTestMode = false;
-	StopFX();
+	StopAmbientSound();
 
     //InitNewGame();
 
@@ -140,7 +126,6 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 		}
 		Net_ClearFifo();
 	}
-	DeferedStartGame(map, gs.Skill);
 	return true;
 }
 

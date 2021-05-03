@@ -2630,27 +2630,6 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 	auto s = pact->s;
 	int shrunk = (s->yrepeat < 32);
 
-	// Set maximum for pistol slightly higher if playing with `cl_showmagamount 1`.
-	if (!cl_showmagamt)
-	{
-		if (p->ammo_amount[PISTOL_WEAPON] > PISTOL_MAXDEFAULT)
-			p->ammo_amount[PISTOL_WEAPON] = PISTOL_MAXDEFAULT;
-
-		if (gs.max_ammo_amount[PISTOL_WEAPON] != PISTOL_MAXDEFAULT)
-			gs.max_ammo_amount[PISTOL_WEAPON] = PISTOL_MAXDEFAULT;
-	}
-	else
-	{
-		short pistolAddition = 4;
-		short pistolNewMaximum = PISTOL_MAXDEFAULT + pistolAddition;
-
-		if (p->ammo_amount[PISTOL_WEAPON] == PISTOL_MAXDEFAULT && gs.max_ammo_amount[PISTOL_WEAPON] == PISTOL_MAXDEFAULT)
-			p->ammo_amount[PISTOL_WEAPON] += pistolAddition;
-
-		if (gs.max_ammo_amount[PISTOL_WEAPON] != pistolNewMaximum)
-			gs.max_ammo_amount[PISTOL_WEAPON] = pistolNewMaximum;
-	}
-
 	if (isNamWW2GI() && (actions & SB_HOLSTER)) // 'Holster Weapon
 	{
 		if (isWW2GI())
@@ -3138,7 +3117,7 @@ HORIZONLY:
 
 	if (SyncInput())
 	{
-		p->horizon.applyinput(PlayerHorizon(snum), &actions);
+		p->horizon.applyinput(GetPlayerHorizon(snum), &actions);
 	}
 
 	p->checkhardlanding();

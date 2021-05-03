@@ -400,10 +400,6 @@ void powerupClear(PLAYER *pPlayer)
     }
 }
 
-void powerupInit(void)
-{
-}
-
 int packItemToPowerup(int nPack)
 {
     int nPowerUp = -1;

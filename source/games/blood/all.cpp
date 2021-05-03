@@ -31,7 +31,6 @@
 #include "src/callback.cpp"
 #include "src/choke.cpp"
 #include "src/controls.cpp"
-#include "src/credits.cpp"
 #include "src/db.cpp"
 #include "src/dude.cpp"
 #include "src/endgame.cpp"

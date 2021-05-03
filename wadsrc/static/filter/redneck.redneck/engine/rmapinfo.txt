@@ -1,0 +1,124 @@
+// Cutscene definitions for RR
+
+cluster 1
+{
+	outro
+	{
+		function = RRCutscenes.BuildE1End
+	}
+}
+
+cluster 2
+{
+	outro
+	{
+		function = RRCutscenes.BuildE2End
+	}
+}
+
+map { 1, 1 }
+{
+	interbackground = "BONUSPIC01"
+	rr_startsound = 391	// fixme: allow symbolic names 
+}
+
+map { 1, 2 }
+{
+	interbackground = "BONUSPIC02"
+	rr_startsound = 64
+}
+
+map { 1, 3 }
+{
+	interbackground = "BONUSPIC03"
+	rr_startsound = 77
+}
+
+map { 1, 4 }
+{
+	interbackground = "BONUSPIC04"
+	rr_startsound = 80
+}
+
+map { 1, 5 }
+{
+	interbackground = "BONUSPIC05"
+	rr_startsound = 102
+}
+
+map { 1, 6 }
+{
+	interbackground = "BONUSPIC06"
+	rr_startsound = 103
+}
+
+map { 1, 7 }
+{
+	interbackground = "BONUSPIC07"
+	rr_startsound = 104
+}
+
+map { 2, 1 }
+{
+	interbackground = "BONUSPIC08"
+	rr_startsound = 105
+}
+
+map { 2, 2 }
+{
+	interbackground = "BONUSPIC09"
+	rr_startsound = 176
+	clearweapons
+}
+
+map { 2, 3 }
+{
+	interbackground = "BONUSPIC10"
+	rr_startsound = 177
+	PrecacheTextures = "#03190","#03191","#03192","#03144","#03139","#03132","#03120","#03121","#03122","#03123","#03124"
+}
+
+map { 2, 4 }
+{
+	interbackground = "BONUSPIC11"
+	rr_startsound = 198
+}
+
+map { 2, 5 }
+{
+	interbackground = "BONUSPIC12"
+	rr_startsound = 230
+}
+
+map { 2, 6 }
+{
+	interbackground = "BONUSPIC13"
+	rr_startsound = 255
+}
+
+map { 2, 7 }
+{
+	interbackground = "BONUSPIC14"
+	rr_startsound = 283
+	PrecacheTextures = "UFO1", "UFO2", "UFO3", "UFO4", "UFO5"
+}
+
+map { 2, 8 }
+{
+	interbackground = "BONUSPIC14"
+	rr_startsound = 391
+}
+
+cutscenes
+{
+	loadscreen
+	{
+		function = DukeCutscenes.BuildLoading // identical with Duke's
+	}
+}
+
+gameinfo
+{
+	summaryscreen = RRCutscenes.BuildSPSummary
+	mpsummaryscreen = DukeCutscenes.BuildMPSummary // identical with Duke's 
+}

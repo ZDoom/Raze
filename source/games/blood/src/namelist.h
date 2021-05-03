@@ -1,6 +1,9 @@
 // names for everything that gets accessed by scripts.
 x(MENUBAR, 2038)
 x(BackTile, 253)
+x(Monolithscreen, 2050)
+x(GTIScreen, 2052)
+x(TitleScreen, 2518)
 
 x(CrosshairTile, 2319)
 x(LoadScreen, 2049)

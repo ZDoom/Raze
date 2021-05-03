@@ -70,12 +70,12 @@ extern UserConfig userConfig;
 
 extern int nomusic;
 extern bool nosound;
-inline bool MusicEnabled()
+inline int MusicEnabled() // int return is for scripting
 {
 	return mus_enabled && !nomusic;
 }
 
-inline bool SoundEnabled()
+inline int SoundEnabled()
 {
 	return snd_enabled && !nosound;
 }
@@ -101,6 +101,13 @@ enum
 	GAMEFLAG_PSEXHUMED  = GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED,	// the two games really are the same, except for the name and the publisher.
 	GAMEFLAG_WORLDTOUR = 0x00008000,
 	GAMEFLAG_DUKEDC		= 0x00010000,
+	GAMEFLAG_DUKENW		= 0x00020000,
+	GAMEFLAG_DUKEVACA	= 0x00040000,
+	GAMEFLAG_BLOODCP	= 0x00080000,
+	GAMEFLAG_ROUTE66	= 0x00100000,
+	GAMEFLAG_SWWANTON	= 0x00200000,
+	GAMEFLAG_SWTWINDRAG	= 0x00400000,
+
 	GAMEFLAG_DUKECOMPAT = GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_RRALL,
 	GAMEFLAG_WH			= 0x00020000,
 	GAMEFLAG_WH2		= 0x00040000,

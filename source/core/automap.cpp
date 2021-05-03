@@ -45,6 +45,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "v_draw.h"
 #include "sectorgeometry.h"
 #include "gamefuncs.h"
+#include "hw_sections.h"
 
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)
@@ -590,15 +591,18 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		int picnum = sector[i].floorpicnum;
 		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
 
-		auto mesh = sectorGeometry.get(i, 0, { 0.f,0.f });
-		vertices.Resize(mesh->vertices.Size());
-		for (unsigned j = 0; j < mesh->vertices.Size(); j++)
+		for (auto ii : sectionspersector[i])
 		{
-			int ox = int(mesh->vertices[j].X * 16.f) - cposx;
-			int oy = int(mesh->vertices[j].Y * -16.f) - cposy;
-			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
-			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
-			vertices[j] = { x1 / 4096.f, y1 / 4096.f, mesh->texcoords[j].X, mesh->texcoords[j].Y };
+			auto mesh = sectorGeometry.get(ii, 0, { 0.f,0.f });
+			vertices.Resize(mesh->vertices.Size());
+			for (unsigned j = 0; j < mesh->vertices.Size(); j++)
+			{
+				int ox = int(mesh->vertices[j].X * 16.f) - cposx;
+				int oy = int(mesh->vertices[j].Y * -16.f) - cposy;
+				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
+				int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
+				vertices[j] = { x1 / 4096.f, y1 / 4096.f, mesh->texcoords[j].X, mesh->texcoords[j].Y };
+			}
 		}
 
 		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);

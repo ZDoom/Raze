@@ -51,59 +51,371 @@
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
 #include "raze_music.h"
+#include "vm.h"
+#include "mapinfo.h"
 
+static DObject* runner;
+static SummaryInfo sinfo;
+static PClass* runnerclass;
+static PType* runnerclasstype;
+static PType* maprecordtype;
+static PType* summaryinfotype;
+static CompletionFunc completion;
+static int ticks;
+static SummaryInfo summaryinfo;
 
-IMPLEMENT_CLASS(DScreenJob, true, false)
-IMPLEMENT_CLASS(DImageScreen, true, false)
-
-
-bool DSkippableScreenJob::OnEvent(event_t* evt)
-{
-	if (evt->type == EV_KeyDown && !specialKeyEvent(evt))
-	{
-		state = skipped;
-		Skipped();
-	}
-	return true;
-}
-
-void DBlackScreen::OnTick()
-{
-	if (cleared)
-	{
-		int span = ticks * 1000 / GameTicRate;
-		if (span > wait) state = finished;
-	}
-}
-
-void DBlackScreen::Draw(double)
-{
-	cleared = true;
-	twod->ClearScreen();
-}
-
-//---------------------------------------------------------------------------
+//=============================================================================
 //
 //
 //
-//---------------------------------------------------------------------------
+//=============================================================================
 
-void DImageScreen::OnTick()
+void Job_Init()
 {
-	if (cleared)
+	static bool done = false;
+	if (!done)
 	{
-		int span = ticks * 1000 / GameTicRate;
-		if (span > waittime) state = finished;
+		done = true;
+		GC::AddMarkerFunc([] { GC::Mark(runner); });
+	}
+	runnerclass = PClass::FindClass("ScreenJobRunner");
+	if (!runnerclass) I_FatalError("ScreenJobRunner not defined");
+	runnerclasstype = NewPointer(runnerclass);
+
+	maprecordtype = NewPointer(NewStruct("MapRecord", nullptr, true));
+	summaryinfotype = NewPointer(NewStruct("SummaryInfo", nullptr, true));
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+static VMFunction* LookupFunction(const char* qname, bool validate = true)
+{
+	int p = strcspn(qname, ".");
+	if (p == 0) I_Error("Call to undefined function %s", qname);
+	FString clsname(qname, p);
+	FString funcname = qname + p + 1;
+
+	auto func = PClass::FindFunction(clsname, funcname);
+	if (func == nullptr) I_Error("Call to undefined function %s", qname);
+	if (validate)
+	{
+		// these conditions must be met by all functions for this interface.
+		if (func->Proto->ReturnTypes.Size() != 0) I_Error("Bad cutscene function %s. Return value not allowed", qname);
+		if (func->ImplicitArgs != 0) I_Error("Bad cutscene function %s. Must be static", qname);
+	}
+	return func;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void CallCreateFunction(const char* qname, DObject* runner)
+{
+	auto func = LookupFunction(qname);
+	if (func->Proto->ArgumentTypes.Size() != 1) I_Error("Bad cutscene function %s. Must receive precisely one argument.", qname);
+	if (func->Proto->ArgumentTypes[0] != runnerclasstype) I_Error("Bad cutscene function %s. Must receive ScreenJobRunner reference.", qname);
+	VMValue val = runner;
+	VMCall(func, &val, 1, nullptr, 0);
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void CallCreateMapFunction(const char* qname, DObject* runner, MapRecord* map)
+{
+	auto func = LookupFunction(qname);
+	if (func->Proto->ArgumentTypes.Size() == 1) return CallCreateFunction(qname, runner);	// accept functions without map parameter as well here.
+	if (func->Proto->ArgumentTypes.Size() != 2) I_Error("Bad map-cutscene function %s. Must receive precisely two arguments.", qname);
+	if (func->Proto->ArgumentTypes[0] != runnerclasstype && func->Proto->ArgumentTypes[1] != maprecordtype) 
+		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner and MapRecord reference.", qname);
+	VMValue val[2] = { runner, map };
+	VMCall(func, val, 2, nullptr, 0);
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void CallCreateSummaryFunction(const char* qname, DObject* runner, MapRecord* map, SummaryInfo* info, MapRecord* map2)
+{
+	auto func = LookupFunction(qname);
+	auto s = func->Proto->ArgumentTypes.Size();
+	auto at = func->Proto->ArgumentTypes.Data();
+	if (s != 3 && s != 4) I_Error("Bad map-cutscene function %s. Must receive precisely three or four arguments.", qname);
+	if (at[0] != runnerclasstype && at[1] != maprecordtype && at[2] != summaryinfotype && (s == 3 || at[3] == maprecordtype))
+		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner, MapRecord and SummaryInfo reference,", qname);
+	if (info) summaryinfo = *info; // must be copied to a persistent location.
+	else summaryinfo = {};
+	VMValue val[] = { runner, map, &summaryinfo, map2 };
+	VMCall(func, val, s, nullptr, 0);
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+DObject* CreateRunner(bool clearbefore = true)
+{
+	auto obj = runnerclass->CreateNew();
+	auto func = LookupFunction("ScreenJobRunner.Init", false);
+	VMValue val[3] = { obj, clearbefore, false };
+	VMCall(func, val, 3, nullptr, 0);
+	return obj;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void AddGenericVideo(DObject* runner, const FString& fn, int soundid, int fps)
+{
+	auto obj = runnerclass->CreateNew();
+	auto func = LookupFunction("ScreenJobRunner.AddGenericVideo", false);
+	VMValue val[] = { runner, &fn, soundid, fps };
+	VMCall(func, val, 4, nullptr, 0);
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void CutsceneDef::Create(DObject* runner)
+{
+	if (function.IsNotEmpty())
+	{
+		CallCreateFunction(function, runner);
+	}
+	else if (video.IsNotEmpty())
+	{
+		AddGenericVideo(runner, video, GetSound(), framespersec);
 	}
 }
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
 
-void DImageScreen::Draw(double smoothratio)
+bool CutsceneDef::Create(DObject* runner, MapRecord* map, bool transition)
 {
-	if (tilenum > 0) tex = tileGetTexture(tilenum, true);
-	twod->ClearScreen();
-	if (tex) DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TranslationIndex, trans, TAG_DONE);
-	cleared = true;
+	if (!transition && transitiononly) return false;
+	if (function.CompareNoCase("none") == 0) 
+		return true;	// play nothing but return as being validated
+	if (function.IsNotEmpty())
+	{
+		CallCreateMapFunction(function, runner, map);
+		return true;
+	}
+	else if (video.IsNotEmpty())
+	{
+		AddGenericVideo(runner, video, GetSound(), framespersec);
+		return true;
+	}
+	return false;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void DeleteScreenJob()
+{
+	if (runner) runner->Destroy();
+	runner = nullptr;
+}
+
+void EndScreenJob()
+{
+	DeleteScreenJob();
+	if (completion) completion(false);
+	completion = nullptr;
+}
+
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+bool ScreenJobResponder(event_t* ev)
+{
+	if (ev->type == EV_KeyDown)
+	{
+		// We never reach the key binding checks in G_Responder, so for the console we have to check for ourselves here.
+		auto binding = Bindings.GetBinding(ev->data1);
+		if (binding.CompareNoCase("toggleconsole") == 0)
+		{
+			C_ToggleConsole();
+			return true;
+		}
+	}
+	FInputEvent evt = ev;
+	if (runner)
+	{
+		IFVIRTUALPTRNAME(runner, NAME_ScreenJobRunner, OnEvent)
+		{
+			int result = 0;
+			VMValue parm[] = { runner, &evt };
+			VMReturn ret(&result);
+			VMCall(func, parm, 2, &ret, 1);
+			return result;
+		}
+	}
+	return false;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+bool ScreenJobTick()
+{
+	ticks++;
+	if (runner)
+	{
+		IFVIRTUALPTRNAME(runner, NAME_ScreenJobRunner, OnTick)
+		{
+			int result = 0;
+			VMValue parm[] = { runner };
+			VMReturn ret(&result);
+			VMCall(func, parm, 1, &ret, 1);
+			return result;
+		}
+	}
+	return false;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void ScreenJobDraw()
+{
+	double smoothratio = I_GetTimeFrac();
+
+	if (runner)
+	{
+		twod->ClearScreen();
+		IFVIRTUALPTRNAME(runner, NAME_ScreenJobRunner, RunFrame)
+		{
+			VMValue parm[] = { runner, smoothratio };
+			VMCall(func, parm, 2, nullptr, 0);
+		}
+	}
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+bool ScreenJobValidate()
+{
+	if (runner)
+	{
+		IFVIRTUALPTRNAME(runner, NAME_ScreenJobRunner, Validate)
+		{
+			int res;
+			VMValue parm[] = { runner };
+			VMReturn ret(&res);
+			VMCall(func, parm, 2, &ret, 1);
+			return res;
+		}
+	}
+	return false;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+bool StartCutscene(CutsceneDef& cs, int flags, const CompletionFunc& completion_)
+{
+	if ((cs.function.IsNotEmpty() || cs.video.IsNotEmpty()) && cs.function.CompareNoCase("none") != 0)
+	{
+		completion = completion_;
+		runner = CreateRunner();
+		GC::WriteBarrier(runner);
+		try
+		{
+			cs.Create(runner);
+			if (!ScreenJobValidate())
+			{
+				runner->Destroy();
+				runner = nullptr;
+				return false;
+			}
+			if (flags & SJ_DELAY) intermissiondelay = 10;	// need to wait a bit at the start to let the timer catch up.
+			else intermissiondelay = 0;
+			gameaction = (flags & SJ_BLOCKUI) ? ga_intro : ga_intermission;
+		}
+		catch (...)
+		{
+			if (runner) runner->Destroy();
+			runner = nullptr;
+			throw;
+		}
+		return true;
+	}
+	return false;
+}
+
+bool StartCutscene(const char* s, int flags, const CompletionFunc& completion)
+{
+	CutsceneDef def;
+	def.function = s;
+	return StartCutscene(def, 0, completion);
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
+{
+	Mus_Stop();
+	FX_StopAllSounds(); // JBF 20031228
+	if (userConfig.nologo)
+	{
+		gameaction = def_ga;
+	}
+	else
+	{
+		if (!StartCutscene(globalCutscenes.Intro, SJ_BLOCKUI|SJ_DELAY, [=](bool) { 
+			gameaction = complete_ga; 
+			})) gameaction = def_ga;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -112,269 +424,137 @@ void DImageScreen::Draw(double smoothratio)
 //
 //---------------------------------------------------------------------------
 
-class ScreenJobRunner
+void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 {
-	enum
+	completion = completion_;
+	runner = CreateRunner();
+	GC::WriteBarrier(runner);
+
+	const char* qname = globalCutscenes.MPSummaryScreen;
+	auto func = LookupFunction(qname);
+	if (func->Proto->ArgumentTypes.Size() != 2) I_Error("Bad map-cutscene function %s. Must receive precisely two arguments.", qname);
+	if (func->Proto->ArgumentTypes[0] != runnerclasstype && func->Proto->ArgumentTypes[1] != TypeSInt32)
+		I_Error("Bad cutscene function %s. Must receive ScreenJobRunner reference and integer.", qname);
+	VMValue val[2] = { runner, numplayers };
+	VMCall(func, val, 2, nullptr, 0);
+	if (!ScreenJobValidate())
 	{
-		State_Clear,
-		State_Run,
-		State_Fadeout
-	};
-	TArray<JobDesc> jobs;
-	CompletionFunc completion;
-	int index = -1;
-	float screenfade;
-	bool clearbefore;
-	int actionState;
-	int terminateState;
-	int fadeticks = 0;
-	int last_paused_tic = -1;
-
-public:
-	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_)
-		: completion(std::move(completion_)), clearbefore(clearbefore_)
-	{
-		jobs.Resize(count);
-		memcpy(jobs.Data(), jobs_, count * sizeof(JobDesc));
-		// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected. This should be removed later once the GC is working.
-		for (int i = 0; i < count; i++)
-		{
-			jobs[i].job->Release();
-		}
-		AdvanceJob(false);
-	}
-
-	~ScreenJobRunner()
-	{
-		DeleteJobs();
-	}
-
-	void DeleteJobs()
-	{
-		for (auto& job : jobs)
-		{
-			job.job->ObjectFlags |= OF_YesReallyDelete;
-			delete job.job;
-		}
-		jobs.Clear();
-	}
-
-	void AdvanceJob(bool skip)
-	{
-		if (index >= 0)
-		{
-			if (jobs[index].postAction) jobs[index].postAction();
-			jobs[index].job->Destroy();
-		}
-		index++;
-		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && jobs[index].ignoreifskipped)))
-		{
-			if (jobs[index].job != nullptr) jobs[index].job->Destroy();
-			index++;
-		}
-		actionState = clearbefore ? State_Clear : State_Run;
-		if (index < jobs.Size())
-		{
-			jobs[index].job->fadestate = !paused && jobs[index].job->fadestyle & DScreenJob::fadein? DScreenJob::fadein : DScreenJob::visible;
-			jobs[index].job->Start();
-		}
-		inputState.ClearAllInput();
-	}
-
-	int DisplayFrame(double smoothratio)
-	{
-		auto& job = jobs[index];
-		auto now = I_GetTimeNS();
-		bool processed = job.job->ProcessInput();
-
-		if (job.job->fadestate == DScreenJob::fadein)
-		{
-			double ms = (job.job->ticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
-			float screenfade = (float)clamp(ms, 0., 1.);
-			twod->SetScreenFade(screenfade);
-			if (screenfade == 1.f) job.job->fadestate = DScreenJob::visible;
-		}
-		int state = job.job->DrawFrame(smoothratio);
-		twod->SetScreenFade(1.f);
-		return state;
-	}
-
-	int FadeoutFrame(double smoothratio)
-	{
-		auto& job = jobs[index];
-		double ms = (fadeticks + smoothratio) * 1000 / GameTicRate / job.job->fadetime;
-		float screenfade = 1.f - (float)clamp(ms, 0., 1.);
-		twod->SetScreenFade(screenfade);
-		job.job->DrawFrame(1.);
-		return (screenfade > 0.f);
-	}
-
-	bool OnEvent(event_t* ev)
-	{
-		if (paused || index >= jobs.Size()) return false;
-
-		if (ev->type == EV_KeyDown)
-		{
-			// We never reach the key binding checks in G_Responder, so for the console we have to check for ourselves here.
-			auto binding = Bindings.GetBinding(ev->data1);
-			if (binding.CompareNoCase("toggleconsole") == 0)
-			{
-				C_ToggleConsole();
-				return true;
-			}
-		}
-
-		if (jobs[index].job->state != DScreenJob::running) return false;
-
-		return jobs[index].job->OnEvent(ev);
-	}
-
-	void OnFinished()
-	{
+		runner->Destroy();
+		runner = nullptr;
 		if (completion) completion(false);
-		completion = nullptr; // only finish once.
+		completion = nullptr;
+		return;
 	}
+	gameaction = ga_intermission;
+}
 
-	void OnTick()
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_)
+{
+	completion = completion_;
+	runner = CreateRunner();
+	GC::WriteBarrier(runner);
+
+	// retrieve cluster relations for cluster-based cutscenes.
+	ClusterDef* fromcluster = nullptr, *tocluster = nullptr;
+	if (fromMap) fromcluster = FindCluster(fromMap->cluster);
+	if (toMap) tocluster = FindCluster(toMap->cluster);
+	if (fromcluster == tocluster) fromcluster = tocluster = nullptr;
+
+
+	try
 	{
-		if (paused) return;
-		if (index >= jobs.Size())
+		if (fromMap)
 		{
-			//DeleteJobs();
-			//twod->SetScreenFade(1);
-			//twod->ClearScreen(); // This must not leave the 2d buffer empty.
-			//if (gamestate == GS_INTRO) OnFinished();
-			//else Net_WriteByte(DEM_ENDSCREENJOB);	// intermissions must be terminated synchronously.
+			if (!fromMap->outro.Create(runner, fromMap, !!toMap))
+			{
+				if (fromcluster == nullptr || !fromcluster->outro.Create(runner, fromMap, !!toMap))
+					globalCutscenes.DefaultMapOutro.Create(runner, fromMap, !!toMap);
+			}
+
 		}
+		if (fromMap || (g_gameType & GAMEFLAG_PSEXHUMED))
+			CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info, toMap);
+
+		if (toMap)
+		{
+			if (!toMap->intro.Create(runner, toMap, !!fromMap))
+			{
+				if  (tocluster == nullptr || !tocluster->intro.Create(runner, toMap, !!fromMap))
+					globalCutscenes.DefaultMapIntro.Create(runner, toMap, !!fromMap);
+			}
+			globalCutscenes.LoadingScreen.Create(runner, toMap, true);
+		}
+		else if (isShareware())
+		{
+			globalCutscenes.SharewareEnd.Create(runner);
+		}
+		if (!ScreenJobValidate())
+		{
+			runner->Destroy();
+			runner = nullptr;
+			if (completion) completion(false);
+			completion = nullptr;
+			return;
+		}
+		gameaction = ga_intermission;
+	}
+	catch (...)
+	{
+		if (runner) runner->Destroy();
+		runner = nullptr;
+		throw;
+	}
+}
+
+CCMD(testcutscene)
+{
+	if (argv.argc() < 2)
+	{
+		Printf("Usage: testcutscene <buildfunction>\n");
+		return;
+	}
+	try
+	{
+		if (StartCutscene(argv[1], 0, [](bool) {}))
+		{
+			C_HideConsole();
+		}
+	}
+	catch (const CRecoverableError& err)
+	{
+		Printf(TEXTCOLOR_RED "Unable to play cutscene: %s\n", err.what());
+	}
+}
+
+
+
+/* 
+Blood:
+		if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
 		else
 		{
-			if (jobs[index].job->state == DScreenJob::running)
+			gameaction = ga_mainmenu;
+		}
+	RunScreenJob(jobs, [](bool) {
+		Mus_Stop();
+		gameaction = ga_mainmenu;
+		}, SJ_BLOCKUI);
+
+Exhumed:
+		if (!userConfig.nologo) DoTitle([](bool) { gameaction = ga_mainmenu; });
+		else gameaction = ga_mainmenu;
+
+SW:
+		if (!userConfig.nologo) Logo([](bool)
 			{
-				jobs[index].job->ticks++;
-				jobs[index].job->OnTick();
-			}
-			else if (jobs[index].job->state == DScreenJob::stopping)
-			{
-				fadeticks++;
-			}
-		}
-	}
-	
-	bool RunFrame()
-	{
-		if (index >= jobs.Size())
-		{
-			DeleteJobs();
- 			twod->SetScreenFade(1);
-			twod->ClearScreen(); // This must not leave the 2d buffer empty.
-			if (completion) completion(false);
-			return false;
-		}
+				gameaction = ga_mainmenunostopsound;
+			});
+		else gameaction = ga_mainmenu;
 
-		// ensure that we won't go back in time if the menu is dismissed without advancing our ticker
-		bool menuon = paused;
-		if (menuon) last_paused_tic = jobs[index].job->ticks;
-		else if (last_paused_tic == jobs[index].job->ticks) menuon = true;
-		double smoothratio = menuon ? 1. : I_GetTimeFrac();
-
-		if (actionState == State_Clear)
-		{
-			actionState = State_Run;
-			twod->ClearScreen();
-		}
-		else if (actionState == State_Run)
-		{
-			terminateState = DisplayFrame(smoothratio);
-			if (terminateState < 1)
-			{
-				// Must lock before displaying.
-				if (jobs[index].job->fadestyle & DScreenJob::fadeout)
-				{
-					jobs[index].job->fadestate = DScreenJob::fadeout;
-					jobs[index].job->state = DScreenJob::stopping;
-					actionState = State_Fadeout;
-					fadeticks = 0;
-				}
-				else
-				{
-					AdvanceJob(terminateState < 0);
-				}
-			}
-		}
-		else if (actionState == State_Fadeout)
-		{
-			int ended = FadeoutFrame(smoothratio);
-			if (ended < 1)
-			{
-				jobs[index].job->state = DScreenJob::stopped;
-				AdvanceJob(terminateState < 0);
-			}
-		}
-		return true;
-	}
-};
-
-ScreenJobRunner *runner;
-
-void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore, bool blockingui)
-{
-	assert(completion != nullptr);
-	videoclearFade();
-	if (count)
-	{
-		runner = new ScreenJobRunner(jobs, count, completion, clearbefore);
-		gameaction = blockingui? ga_intro : ga_intermission;
-	}
-	else
-	{
-		completion(false);
-	}
-}
-
-void DeleteScreenJob()
-{
-	if (runner)
-	{
-		delete runner;
-		runner = nullptr;
-	}
-	twod->SetScreenFade(1);
-}
-
-void EndScreenJob()
-{
-	if (runner) runner->OnFinished();
-	DeleteScreenJob();
-}
-
-
-bool ScreenJobResponder(event_t* ev)
-{
-	if (runner) return runner->OnEvent(ev);
-	return false;
-}
-
-void ScreenJobTick()
-{
-	if (runner) runner->OnTick();
-}
-
-bool ScreenJobDraw()
-{
-	// we cannot recover from this because we have no completion callback to call.
-	if (!runner)
-	{
-		// We can get here before a gameaction has been processed. In that case just draw a black screen and wait.
-		if (gameaction == ga_nothing) I_Error("Trying to run a non-existent screen job");
-		twod->ClearScreen();
-		return false;
-	}
-	auto res = runner->RunFrame();
-	if (!res)
-	{
-		assert((gamestate != GS_INTERMISSION && gamestate != GS_INTRO) || gameaction != ga_nothing);
-		DeleteScreenJob();
-	}
-	return res;
-}
-
+*/

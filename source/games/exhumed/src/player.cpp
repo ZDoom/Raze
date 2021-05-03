@@ -417,7 +417,7 @@ void RestartPlayer(short nPlayer)
 	plr->nAir = 100;
 	airpages = 0;
 
-	if (currentLevel->levelNumber <= kMap20)
+	if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
 	{
 		RestoreMinAmmo(nPlayer);
 	}
@@ -570,7 +570,7 @@ void StartDeathSeq(int nPlayer, int nVal)
             BuildStatusAnim((3 * (nLives - 1)) + 7, 0);
         }
 
-        if (currentLevel->levelNumber > 0) { // if not on the training level
+        if (!(currentLevel->gameflags & LEVEL_EX_TRAINING)) { // if not on the training level
             nPlayerLives[nPlayer]--;
         }
 
@@ -679,7 +679,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
 {
     int var_48 = 0;
     int var_40;
-	bool mplevel = currentLevel->levelNumber > 20;
+	bool mplevel = (currentLevel->gameflags & LEVEL_EX_MULTI);
 
     short nPlayer = RunData[nRun].nVal;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
@@ -1033,14 +1033,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         InitSpiritHead();
 
                         PlayerList[nPlayer].nDestVertPan = q16horiz(0);
-                        if (currentLevel->levelNumber == 11)
-                        {
-                            PlayerList[nPlayer].horizon.settarget(46);
-                        }
-                        else
-                        {
-                            PlayerList[nPlayer].horizon.settarget(11);
-                        }
+                        PlayerList[nPlayer].horizon.settarget(currentLevel->ex_ramses_horiz);
                     }
                 }
                 else

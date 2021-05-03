@@ -232,6 +232,7 @@ static void cachegoodsprites(void)
 
 void cacheit_d(void)
 {
+	if (!r_precache) return;
 	int i;
 
 	cachegoodsprites();

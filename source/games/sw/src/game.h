@@ -77,7 +77,6 @@ extern GAME_SET gs;
 enum
 {
     DREALMSPAL = 1,
-    THREED_REALMS_PIC = 2325,
 
     MAXMIRRORS          = 8,
     // This is just some, high, blank tile number not used
@@ -2225,9 +2224,7 @@ extern short wait_active_check_offset;
 //extern short Zombies;
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 extern bool left_foot;
-extern bool serpwasseen;
-extern bool sumowasseen;
-extern bool zillawasseen;
+extern bool bosswasseen[3];
 extern short BossSpriteNum[3];
 extern int ChopTics;
 extern short Bunny_Count;

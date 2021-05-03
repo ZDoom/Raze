@@ -750,7 +750,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/callback.cpp
 	games/blood/src/choke.cpp
 	games/blood/src/controls.cpp
-	games/blood/src/credits.cpp
 	games/blood/src/db.cpp
 	games/blood/src/dude.cpp
 	games/blood/src/d_menu.cpp
@@ -836,7 +835,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/spawn_r.cpp
 	
 	# Shadow Warrior
-	games/sw/src/2d.cpp
 	games/sw/src/actor.cpp
 	games/sw/src/ai.cpp
 	games/sw/src/break.cpp
@@ -1102,6 +1100,7 @@ set (PCH_SOURCES
 	core/gamehud.cpp
 	core/gamefuncs.cpp
 	core/gameinput.cpp
+	core/g_mapinfo.cpp
 	core/interpolate.cpp
 	core/inputstate.cpp
 	core/maphack.cpp
@@ -1136,6 +1135,7 @@ set (PCH_SOURCES
 	core/rendering/hw_models.cpp
 	core/rendering/hw_voxels.cpp
 	core/rendering/hw_palmanager.cpp
+	core/rendering/hw_sections.cpp
 	core/rendering/scene/hw_clipper.cpp
 	core/rendering/scene/hw_walls.cpp
 	core/rendering/scene/hw_flats.cpp

@@ -54,8 +54,6 @@ void SetHiRes();
 void BlackOut();
 
 void DoGameOverScene(bool finallevel);
-void DoAfterCinemaScene(int nLevel, TArray<JobDesc> &jobs);
-void DoBeforeCinemaScene(int nLevel, TArray<JobDesc>& jobs);
 
 int Query(short n, short l, ...);
 
@@ -83,12 +81,11 @@ void DoSpiritHead();
 
 void CheckKeys2();
 void GameTicker();
-void InitLevel(int);
+void InitLevel(MapRecord*);
 void InitNewGame();
 
 int showmap(short nLevel, short nLevelNew, short nLevelBest);
 void menu_DoPlasma();
-void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<JobDesc>& jobs);
 void DoEnergyTile();
 void InitEnergyTile();
 
@@ -127,7 +124,6 @@ extern short nCurBodyNum;
 extern short nBodyTotal;
 
 extern short bSnakeCam;
-extern uint8_t nCinemaSeen;
 
 extern short nButtonColor;
 
@@ -154,11 +150,6 @@ extern short bSlipMode;
 extern short bDoFlashes;
 
 extern int bVanilla;
-
-inline int PublisherLogo()
-{
-    return (g_gameType & GAMEFLAG_EXHUMED) ? kTileBMGLogo : kTilePIELogo;
-}
 
 inline int GameLogo()
 {
@@ -197,10 +188,11 @@ public:
 
 	void Start(double starttime);
 	void ComputeCinemaText();
-	void ReadyCinemaText(uint16_t nVal);
+	void ReadyCinemaText(const char* nVal);
 	void DisplayText();
 	bool AdvanceCinemaText(double clock);
     void SetPalette(int pal) { currentCinemaPalette = pal; }
+    void Create(const FString& text, int pal);
 };
 
 
@@ -229,7 +221,6 @@ struct GameInterface : ::GameInterface
 	bool GenerateSavePic() override;
     void MenuOpened() override;
     void MenuSound(EMenuSounds snd) override;
-    bool StartGame(FNewGameStartup& gs) override;
     FSavegameInfo GetSaveSig() override;
     void SerializeGameState(FSerializer& arc);
     bool CanSave() override;

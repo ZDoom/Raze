@@ -92,13 +92,12 @@ static void endthegame(bool)
 
 void GameInterface::ExitFromMenu() 
 { 
+#if 0
+	// do we really need this scoreboard stuff here?
 	auto runbonus = [=](auto completion)
 	{
 	// MP scoreboard
-		if (playerswhenstarted > 1 && !ud.coop)
-	{
-			dobonus(1, completion);
-	}
+		if (playerswhenstarted > 1 && !ud.coop) ShowScoreboard(playerswhenstarted);
 	else completion(false);
 	};
 
@@ -106,11 +105,16 @@ void GameInterface::ExitFromMenu()
 	{
 	// shareware and TEN screens
 	if (isShareware() && !isRR())
-		showtwoscreens(completion);
+			StartCutscene("DukeCutscenes.BuildSharewareExit", 0, completion);
 	else completion(false);
 	};
 
 	runbonus([=](bool aborted) { runtwoscreens(endthegame); });
+#else
+	if (isShareware() && !isRR())
+		StartCutscene("DukeCutscenes.BuildSharewareExit", 0, endthegame);
+	else endthegame(false);
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -297,7 +301,13 @@ void drawoverlays(double smoothratio)
 	}
 
 	if (paused == 2)
-		fi.PrintPaused();
+	{
+		double x = 160, y = 100;
+		double scale = isRR() ? 0.4 : 1.;
+		const char* text = GStrings("Game Paused");
+		x -= BigFont->StringWidth(text) * 0.5 * scale;
+		DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	}
 }
 
 
@@ -334,18 +344,6 @@ void cameratext(DDukeActor *cam)
 			for (int y = 0; y < 200; y += 64)
 				drawitem(TILE_STATIC, x, y, !!(PlayClock & 8), !!(PlayClock & 16));
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void dobonus(int bonusonly, const CompletionFunc& completion)
-{
-	if (isRR()) dobonus_r(bonusonly, completion);
-	else dobonus_d(bonusonly, completion);
 }
 
 //---------------------------------------------------------------------------
