@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-bool artLoaded = false;
 int nTileFiles = 0;
 
 int tileStart[256];
@@ -44,14 +43,8 @@ char surfType[kMaxTiles];
 int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
 
-int tileInit(char a1, const char *a2)
+int tileInit()
 {
-    UNREFERENCED_PARAMETER(a1);
-    if (artLoaded)
-        return 1;
-    for (int i = 0; i < kMaxTiles; i++)
-        voxelIndex[i] = 0;
-
     auto hFile = fileSystem.OpenFileReader("SURFACE.DAT");
     if (hFile.isOpen())
     {
@@ -76,8 +69,6 @@ int tileInit(char a1, const char *a2)
         if (voxelIndex[i] >= 0 && voxelIndex[i] < kMaxVoxels)
             voxreserve.Set(voxelIndex[i]);
     }
-
-    artLoaded = 1;
     return 1;
 }
 

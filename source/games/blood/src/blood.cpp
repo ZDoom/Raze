@@ -418,7 +418,7 @@ void GameInterface::app_init()
 	HookReplaceFunctions();
 
 	Printf(PRINT_NONOTIFY, "Loading tiles\n");
-	if (!tileInit(0, NULL))
+	if (!tileInit())
 		I_FatalError("TILES###.ART files not found");
 
 	levelLoadDefaults();
