@@ -95,6 +95,7 @@ struct XSPRITE {
             unsigned int wave : 2;              // Wave
             unsigned int medium : 2;            // medium
             unsigned int respawn : 2;           // Respawn option
+            unsigned int unused2 : 1;           // (new) patrol state
        };
     };
     int32_t targetX;          // target x
@@ -175,6 +176,7 @@ struct XSECTOR {
             unsigned int bobFloor : 1;          // Motion bob floor
             unsigned int bobCeiling : 1;        // Motion bob ceiling
             unsigned int bobRotate : 1;         // Motion rotate
+            unsigned int unused1 : 1;           // (new) pause motion
             
         };
     };

@@ -1965,13 +1965,13 @@ void trProcessBusy(void)
     for (int i = gBusyCount-1; i >= 0; i--)
     {
         int nStatus;
-        int oldBusy = gBusy[i].at8;
-        gBusy[i].at8 = ClipRange(oldBusy+gBusy[i].at4*4, 0, 65536);
+        int oldBusy = gBusy[i].busy;
+        gBusy[i].busy = ClipRange(oldBusy+gBusy[i].delta*4, 0, 65536);
         #ifdef NOONE_EXTENSIONS
-            if (!gModernMap || !xsector[sector[gBusy[i].at0].extra].unused1) nStatus = gBusyProc[gBusy[i].atc](gBusy[i].at0, gBusy[i].at8);
+            if (!gModernMap || !xsector[sector[gBusy[i].index].extra].unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].index, gBusy[i].busy);
             else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
         #else
-            nStatus = gBusyProc[gBusy[i].atc](gBusy[i].at0, gBusy[i].at8);
+            nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);
         #endif
         switch (nStatus) {
             case 1:

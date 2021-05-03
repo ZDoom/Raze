@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+inline int mulscale8(int a, int b) { return MulScale(a, b, 8); }
+
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
 SPRITEMASS gSpriteMass[];   // cache for getSpriteMassBySize();
@@ -2581,7 +2583,7 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
                                 sprite[nSprite].z = top;
                                 break;
                             case 4:
-                                sprite[nSprite].z = sprite[index].z + (tilesiz[sprite[index].picnum].y / 2 + picanm[sprite[index].picnum].yofs);
+                                sprite[nSprite].z = sprite[index].z + tileHeight(sprite[index].picnum) / 2 + tileTopOffset(sprite[index].picnum);
                                 break;
                             case 5:
                             case 6:
@@ -3901,7 +3903,7 @@ int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget) {
 int sectorInMotion(int nSector) {
  
     for (int i = 0; i < kMaxBusyCount; i++) {
-        if (gBusy->at0 == nSector) return i;
+        if (gBusy->index == nSector) return i;
     }
 
     return -1;
@@ -3909,7 +3911,7 @@ int sectorInMotion(int nSector) {
 
 void sectorPauseMotion(int nSector) {
 
-    dassert(xsectRangeIsFine(sector[nSector].extra));
+    assert(xsectRangeIsFine(sector[nSector].extra));
     xsector[sector[nSector].extra].unused1 = 1;
     SectorEndSound(nSector, xsector[sector[nSector].extra].state);
     /*for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
@@ -3929,7 +3931,7 @@ void sectorContinueMotion(int nSector, EVENT event) {
     if (gBusyCount >= kMaxBusyCount)
         return;
 
-    dassert(xsectRangeIsFine(sector[nSector].extra));
+    assert(xsectRangeIsFine(sector[nSector].extra));
     XSECTOR* pXSector = &xsector[sector[nSector].extra];
     pXSector->unused1 = 0;
     
@@ -3974,15 +3976,15 @@ void sectorContinueMotion(int nSector, EVENT event) {
             busyFunc = BUSYID_7;
             break;
         default:
-            ThrowError("Unsupported sector type %d", sector[nSector].type);
+            I_Error("Unsupported sector type %d", sector[nSector].type);
             break;
     }
 
     nDelta = (pXSector->state) ? -nDelta : nDelta;
-    gBusy[gBusyCount].at0 = nSector;
-    gBusy[gBusyCount].at4 = nDelta;
-    gBusy[gBusyCount].at8 = pXSector->busy;
-    gBusy[gBusyCount].atc = (BUSYID)busyFunc;
+    gBusy[gBusyCount].index = nSector;
+    gBusy[gBusyCount].delta = nDelta;
+    gBusy[gBusyCount].busy = pXSector->busy;
+    gBusy[gBusyCount].type = (BUSYID)busyFunc;
     gBusyCount++;
 
     SectorStartSound(nSector, pXSector->state);
@@ -5620,7 +5622,7 @@ bool aiPatrolMoving(AISTATE* pAiState) {
 
 void aiPatrolState(spritetype* pSprite, int state) {
 
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
 
     int seq = -1, i, start, end; bool crouch;
@@ -5667,7 +5669,7 @@ void aiPatrolState(spritetype* pSprite, int state) {
         if (curState->stateType != state || seq != curState->seqId) continue;
         aiChooseDirection(pSprite, pXSprite, getangle(pXSprite->targetX - pSprite->x, pXSprite->targetY - pSprite->y));
         if (pSprite->type == kDudeModernCustom) aiGenDudeNewState(pSprite, &genPatrolStates[i]);
-        else aiNewState(pSprite, pXSprite, &genPatrolStates[i]);
+        else aiNewState(&bloodActors[pXSprite->reference], &genPatrolStates[i]);
 
         pXSprite->unused2 = crouch;
 
@@ -5713,8 +5715,8 @@ bool aiPatrolMarkerReached(spritetype* pSprite, XSPRITE* pXSprite) {
 
             // ignore z of marker for ground
             spritetype* pMarker = &sprite[pXSprite->target];
-            int oX = klabs(pMarker->x - pSprite->x) >> 4;
-            int oY = klabs(pMarker->y - pSprite->y) >> 4;
+            int oX = abs(pMarker->x - pSprite->x) >> 4;
+            int oY = abs(pMarker->y - pSprite->y) >> 4;
             return (approxDist(oX, oY) <= okDist);
         }
 
@@ -5802,7 +5804,7 @@ void aiPatrolStop(spritetype* pSprite, int target, bool alarm) {
         if (spriRangeIsFine(target) && IsDudeSprite(&sprite[target]) && xspriRangeIsFine(sprite[target].extra)) {
 
             aiSetTarget(pXSprite, target);
-            aiActivateDude(pSprite, pXSprite);
+            aiActivateDude(&bloodActors[pXSprite->reference]);
             if (alarm)
                 aiPatrolAlarm(pSprite, Chance(0x0500));
 
@@ -5830,7 +5832,7 @@ void aiPatrolMoveZ(spritetype* pSprite, XSPRITE* pXSprite) {
     int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
     int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
     pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
-    if (klabs(nAng) > 341) {
+    if (abs(nAng) > 341) {
         pSprite->ang = (pSprite->ang + 512) & 2047;
         return;
     }
@@ -5840,7 +5842,10 @@ void aiPatrolMoveZ(spritetype* pSprite, XSPRITE* pXSprite) {
 
 }
 
-void aiPatrolMove(spritetype* pSprite, XSPRITE* pXSprite) {
+
+void aiPatrolMove(DBloodActor* actor) {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
 
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
         return;
@@ -5863,7 +5868,7 @@ void aiPatrolMove(spritetype* pSprite, XSPRITE* pXSprite) {
 
     if (pSprite->type == kDudeModernCustom) {
         
-        aiGenDudeMoveForward(pSprite, pXSprite);
+        aiGenDudeMoveForward(&bloodActors[pXSprite->reference]);
 
     } else {
 
@@ -5873,9 +5878,9 @@ void aiPatrolMove(spritetype* pSprite, XSPRITE* pXSprite) {
         int frontSpeed = pDudeInfo->frontSpeed;
 
         pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
-        if (klabs(nAng) <= 341) {
-            xvel[pSprite->index] += mulscale30(frontSpeed, Cos(pSprite->ang));
-            yvel[pSprite->index] += mulscale30(frontSpeed, Sin(pSprite->ang));
+        if (abs(nAng) <= 341) {
+            xvel[pSprite->index] += MulScale(frontSpeed, Cos(pSprite->ang), 30);
+            yvel[pSprite->index] += MulScale(frontSpeed, Sin(pSprite->ang), 30);
         }
 
     }
@@ -5908,13 +5913,13 @@ void aiPatrolAlarm(spritetype* pSprite, bool chain) {
             if (spriRangeIsFine(target)) aiSetTarget(pXDude, target);
             else aiSetTarget(pXDude, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
 
-            aiActivateDude(pDude, pXDude);
+            aiActivateDude(&bloodActors[pXDude->reference]);
             if (chain) {
                 aiPatrolAlarm(pDude, Chance(chainChance));
                 chainChance -= 0x0100;
             }
 
-            consoleSysMsg("Dude #%d alarms dude #%d", pSprite->index, pDude->index);
+            DPrintf(DMSG_SPAMMY, "Dude #%d alarms dude #%d", pSprite->index, pDude->index);
         }
     }
 
@@ -5961,12 +5966,12 @@ bool readyForCrit(spritetype* pHunter, spritetype* pVictim) {
 
     DUDEINFO* pDudeInfo = getDudeInfo(pVictim->type);
     int nDeltaAngle = ((getangle(dx, dy) + 1024 - pVictim->ang) & 2047) - 1024;
-    return (klabs(nDeltaAngle) < (pDudeInfo->periphery >> 1));
+    return (abs(nDeltaAngle) < (pDudeInfo->periphery >> 1));
 }
 
 int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
    
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     int i, x, y, z, dx, dy, nDist, eyeAboveZ;
     PLAYER* pPlayer = NULL;
@@ -6049,12 +6054,12 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
             
 
             if (nDist < hearDist && hearChance > 0) {
-                consoleSysMsg("Patrol dude #%d hearing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
+                DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
                 pXSprite->data3 += hearChance;
             }
 
-            if (nDist < seeDist && klabs(nDeltaAngle) < periphery && seeChance > 0) {
-                consoleSysMsg("Patrol dude #%d seeing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
+            if (nDist < seeDist && abs(nDeltaAngle) < periphery && seeChance > 0) {
+                DPrintf(DMSG_SPAMMY, "Patrol dude #%d seeing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
                 pXSprite->data3 += seeChance;
             }
 
@@ -6066,7 +6071,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
         } else {
             
-            consoleSysMsg("Patrol dude #%d spot the Player #%d via touch.", pSprite->index, pPlayer->nPlayer + 1);
+            DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", pSprite->index, pPlayer->nPlayer + 1);
             if (invisible) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
             target = pSpr->index;
             break;
@@ -6083,9 +6088,12 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
     return -1;
 }
 
-void aiPatrolThink(spritetype* pSprite, XSPRITE* pXSprite) {
+void aiPatrolThink(DBloodActor*actor) {
 
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+
 
     int nTarget = -1;
     if ((nTarget = aiPatrolSearchTargets(pSprite, pXSprite)) != -1) {

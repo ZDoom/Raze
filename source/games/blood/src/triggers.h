@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "dude.h"
 #include "player.h"
 
+BEGIN_BLD_NS
+
 enum BUSYID {
     BUSYID_0 = 0,
     BUSYID_1,
@@ -45,10 +47,7 @@ struct BUSY {
     int index;
     int delta;
     int busy;
-/*    int at0;
-    int at4;
-    int at8;*/
-    BUSYID atc;
+    int/*BUSYID*/ type;
 };
 
 extern BUSY gBusy[kMaxBusyCount];

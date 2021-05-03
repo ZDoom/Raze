@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "actor.h"
 #include "dude.h"
 #include "player.h"
-#include "triggers.h"
 
 BEGIN_BLD_NS
 
@@ -372,11 +371,11 @@ int listTx(XSPRITE* pXRedir, int tx);
 void seqSpawnerOffSameTx(XSPRITE* pXSource);
 //  -------------------------------------------------------------------------   //
 void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite);
-void aiPatrolThink(spritetype* pSprite, XSPRITE* pXSprite);
+void aiPatrolThink(DBloodActor* actor);
 void aiPatrolStop(spritetype* pSprite, int target, bool alarm = false);
 void aiPatrolAlarm(spritetype* pSprite, bool chain);
 void aiPatrolState(spritetype* pSprite, int state);
-void aiPatrolMove(spritetype* pSprite, XSPRITE* pXSprite);
+void aiPatrolMove(DBloodActor* actor);
 int aiPatrolMarkerBusy(int nExcept, int nMarker);
 bool aiPatrolMarkerReached(spritetype* pSprite, XSPRITE* pXSprite);
 AISTATE* aiInPatrolState(AISTATE* pAiState);

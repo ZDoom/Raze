@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+void RecoilDude(DBloodActor* actor);
+
 int cumulDamage[kMaxXSprites];
 DUDEEXTRA gDudeExtra[kMaxXSprites];
 
@@ -917,11 +919,11 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                         int fullHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : getDudeInfo(pSprite->type)->startHealth << 4;
                         if (((100 * pXSprite->health) / fullHp) <= 75) {
                             cumulDamage[pSprite->extra] += nDamage << 4; // to be sure any enemy will play the recoil animation
-                            RecoilDude(pSprite, pXSprite);
+                            RecoilDude(&bloodActors[pXSprite->reference]);
                         }
                     }
 
-                    consoleSysMsg("Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, pSprite->index);
+                    DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, pSprite->index);
                 }
 
                 return nDamage;
@@ -929,9 +931,9 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
             if (pSprite->type == kDudeModernCustomBurning) {
 
-                if (Chance(0x2000) && gDudeExtra[pSprite->extra].at0 < (int)gFrameClock) {
+                if (Chance(0x2000) && gDudeExtra[pSprite->extra].time < (int)gFrameClock) {
                     playGenDudeSound(pSprite, kGenDudeSndBurning);
-                    gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
+                    gDudeExtra[pSprite->extra].time = (int)gFrameClock + 360;
                 }
 
                 if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
@@ -977,7 +979,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
                             aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                             actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
-                            gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
+                            gDudeExtra[pSprite->extra].time = (int)gFrameClock + 360;
                             evKill(nSprite, 3, kCallbackFXFlameLick);
 
                         }
@@ -991,13 +993,13 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                     if (!dudeIsMelee(pXSprite)) {
                         if (inIdle(pXSprite->aiState) || Chance(getDodgeChance(pSprite))) {
                             if (!spriteIsUnderwater(pSprite)) {
-                                if (!canDuck(pSprite) || !sub_5BDA8(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
+                                if (!canDuck(pSprite) || !dudeIsPlayingSeq(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
                                 else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
 
                                 if (Chance(0x0200))
                                     playGenDudeSound(pSprite, kGenDudeSndGotHit);
 
-                            } else if (sub_5BDA8(pSprite, 13)) {
+                            } else if (dudeIsPlayingSeq(pSprite, 13)) {
                                 aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
                             }
                         }

@@ -718,7 +718,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSector->Depth = bitReader.readUnsigned(3);
             pXSector->panVel = bitReader.readUnsigned(8);
             pXSector->panAngle = bitReader.readUnsigned(11);
-            bitReader.readUnsigned(1);
+            pXSector->unused1 = bitReader.readUnsigned(1);
             pXSector->decoupled = bitReader.readUnsigned(1);
             pXSector->triggerOnce = bitReader.readUnsigned(1);
             pXSector->isTriggered = bitReader.readUnsigned(1);
@@ -730,7 +730,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSector->Exit = bitReader.readUnsigned(1);
             pXSector->Wallpush = bitReader.readUnsigned(1);
             pXSector->color = bitReader.readUnsigned(1);
-            bitReader.readUnsigned(1);
+            /*pXSector->unused2 =*/ bitReader.readUnsigned(1);
             pXSector->busyTimeB = bitReader.readUnsigned(12);
             pXSector->waitTimeB = bitReader.readUnsigned(12);
             pXSector->stopOn = bitReader.readUnsigned(1);
@@ -921,7 +921,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->Interrutable = bitReader.readUnsigned(1);
             bitReader.readUnsigned(2);
             pXSprite->respawnPending = bitReader.readUnsigned(2);
-            bitReader.readUnsigned(1);
+            pXSprite->unused2 = bitReader.readUnsigned(1);
             pXSprite->lT = bitReader.readUnsigned(1);
             pXSprite->dropMsg = bitReader.readUnsigned(8);
             pXSprite->Decoupled = bitReader.readUnsigned(1);
