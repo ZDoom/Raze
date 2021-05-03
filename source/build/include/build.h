@@ -15,11 +15,8 @@
 
 static_assert('\xff' == 255, "Char must be unsigned!");
 
-#if !defined __cplusplus || (__cplusplus < 201103L && !defined _MSC_VER)
-# error C++11 or greater is required.
-#endif
-
 #include "compat.h"
+#include "printf.h"
 #include "palette.h"
 #include "binaryangle.h"
 

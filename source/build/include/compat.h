@@ -14,15 +14,6 @@
 
 ////////// Language and compiler feature polyfills //////////
 
-# define EXTERNC
-
-#if defined __GNUC__ || defined __clang__
-# define ATTRIBUTE(attrlist) __attribute__(attrlist)
-#else
-# define ATTRIBUTE(attrlist)
-#endif
-
-
 #  define fallthrough__ [[fallthrough]]
 
 ////////// Architecture detection //////////
