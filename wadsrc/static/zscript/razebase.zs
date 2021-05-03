@@ -106,6 +106,8 @@ struct SummaryInfo native
 	native readonly int supersecrets;
 	native readonly int time; 
 	native readonly int playercount;
+	native readonly int score;
+	native readonly int bonus;
 	native readonly bool cheated;
 	native readonly bool endofgame;
 }

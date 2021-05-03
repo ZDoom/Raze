@@ -12,10 +12,20 @@ using byte = uint8_t;
 
 END_WH_NS
 
+enum
+{
+#define x(a, b) a= b,
+#define y(a, b) WH1##a = b,
+#include "wh1names.h"
+#undef y
+#define y(a, b) WH2##a = b,
+#include "wh2names.h"
+#undef y
+#undef x
+};
+
 #include "globals.h"
 #include "names.h"
-#include "wh1names.h"
-#include "wh2names.h"
 #include "sndnames.h"
 #include "player.h"
 #include "ai.h"
@@ -484,15 +494,10 @@ void analyzesprites(PLAYER& plr, int dasmoothratio, spritetype* tsprite, int& sp
 void precacheTiles();
 
 
-void startWh2Ending(CompletionFunc);
-void showStatisticsScreen(CompletionFunc);
-void showVictoryScreen(CompletionFunc);
-
 void InitNames();
 void InitFonts();
 void sfxInit(void);
 
-void IntroMovie(const CompletionFunc& completion);
 bool playrunning();
 
 

@@ -1,5 +1,6 @@
 #include "ns.h"
 #include "gamecontrol.h"
+#include "texturemanager.h"
 
 BEGIN_WH_NS
 
@@ -167,8 +168,30 @@ short GRONMUDIE;
 short GRONSHIELD;
 short SHIELD;
 
+
+#define x(a, b) registerName(#a, b);
+#define y(a, b)	registerName(#a, b);
+static void SetTileNames()
+{
+	auto registerName = [](const char* name, int index)
+	{
+		TexMan.AddAlias(name, tileGetTexture(index));
+	};
+	if (!isWh2())
+	{
+#include "wh1names.h"
+	}
+	else
+	{
+#include "wh2names.h"
+	}
+}
+#undef x
+#undef y
+
 void InitNames()
 {
+	SetTileNames();
 	if(!isWh2()) {
 		KNIFEREADY = 1249;
 		KNIFEATTACK = 1261;

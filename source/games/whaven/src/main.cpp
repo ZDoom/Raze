@@ -653,10 +653,12 @@ void GameInterface::Startup()
 	}
 	else
 	{
+		/*
 		IntroMovie([](bool)
 			{
 				gameaction = ga_mainmenu;
 			});
+		*/
 	}
 }
 
@@ -747,6 +749,7 @@ void GameInterface::Ticker()
 
 void GameInterface::LevelCompleted(MapRecord* map, int skill)
 {
+#if 0
 	if (map)
 	{
 		STAT_Update(false);
@@ -757,7 +760,28 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 			playertorch = 0;
 			spritesound(S_WARP, &sprite[pplr->spritenum]);
 		};
-		if (isWh2()) {
+		if (isWh2())
+		{
+#if 0
+			if (kills > killcnt)
+				kills = killcnt;
+			int killp = (kills * 100) / (killcnt + 1);
+			if (treasuresfound > treasurescnt)
+				treasuresfound = treasurescnt;
+			int treap = (treasuresfound * 100) / (treasurescnt + 1);
+			rating = (killp + treap) / 2;
+			if (rating >= 95) {
+				rating = 3;
+			}
+			else if (rating >= 70)
+				rating = 2;
+			else if (rating >= 40)
+				rating = 1;
+			else rating = 0;
+			bonus = rating * 500;
+			plr.score += bonus;
+			score = bonus + expgained;
+#endif
 			showStatisticsScreen(completion);
 			return;
 		}
@@ -778,6 +802,7 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 			gameaction = ga_mainmenu;
 			});
 	}
+#endif
 }
 
 void GameInterface::NextLevel(MapRecord* map, int skill)
