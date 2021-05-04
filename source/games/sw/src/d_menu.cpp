@@ -61,13 +61,6 @@ BEGIN_SW_NS
 //
 //----------------------------------------------------------------------------
 
-void GameInterface::QuitToTitle()
-{
-	Mus_Stop();
-	gameaction = ga_mainmenu;
-}
-
-
 void GameInterface::MenuSound(EMenuSounds snd)
 {
 	switch (snd)

@@ -163,12 +163,6 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
 }
 
-void GameInterface::QuitToTitle()
-{
-	Mus_Stop();
-	gameaction = ga_mainmenu;
-}
-
 END_BLD_NS
 
 using namespace Blood;

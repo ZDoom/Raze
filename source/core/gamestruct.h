@@ -84,7 +84,6 @@ struct GameInterface
 	virtual double SmallFontScale() { return 1; }
 	virtual void SerializeGameState(FSerializer& arc) {}
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
-	virtual void QuitToTitle() {}
 	virtual void SetAmbience(bool on) {}
 	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }

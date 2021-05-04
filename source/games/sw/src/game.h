@@ -2250,8 +2250,7 @@ struct GameInterface : ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
-    void QuitToTitle() override;
-	void UpdateSounds() override;
+    void UpdateSounds() override;
     void ErrorCleanup() override;
     void GetInput(InputPacket* input, ControlInfo* const hidInput) override;
     void DrawBackground(void) override;

@@ -121,7 +121,6 @@ struct GameInterface : ::GameInterface
 	void MenuOpened() override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	void QuitToTitle() override;
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;

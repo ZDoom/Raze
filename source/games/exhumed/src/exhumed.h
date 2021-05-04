@@ -225,7 +225,6 @@ struct GameInterface : ::GameInterface
     void SerializeGameState(FSerializer& arc);
     bool CanSave() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override { return { 0, 24 }; }
-	void QuitToTitle() override;
     void UpdateSounds() override;
     void ErrorCleanup() override;
     void Ticker() override;

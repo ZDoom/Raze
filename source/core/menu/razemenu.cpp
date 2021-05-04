@@ -64,6 +64,7 @@
 #include "i_net.h"
 #include "savegamehelp.h"
 #include "gi.h"
+#include "raze_music.h"
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
@@ -272,7 +273,8 @@ CCMD(menu_endgame)
 		{
 			STAT_Cancel();
 			M_ClearMenus();
-			gi->QuitToTitle();
+			Mus_Stop();
+			gameaction = ga_mainmenu;
 		});
 
 	M_ActivateMenu(newmenu);
