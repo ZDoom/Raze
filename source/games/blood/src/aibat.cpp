@@ -136,7 +136,7 @@ static void batThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
+    aiChooseDirection(actor, pXSprite->goalAng);
     batThinkTarget(actor);
 }
 
@@ -150,7 +150,7 @@ static void batThinkGoto(DBloodActor* actor)
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
-    aiChooseDirection(pSprite, pXSprite, nAngle);
+    aiChooseDirection(actor, nAngle);
     if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &batSearch);
     batThinkTarget(actor);
@@ -172,7 +172,7 @@ static void batThinkPonder(DBloodActor* actor)
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
-    aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
+    aiChooseDirection(actor, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
         aiNewState(actor, &batSearch);
@@ -280,7 +280,7 @@ static void batThinkChase(DBloodActor* actor)
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
-    aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
+    aiChooseDirection(actor, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
         aiNewState(actor, &batSearch);

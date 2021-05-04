@@ -87,7 +87,7 @@ static void zombaThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
+    aiChooseDirection(actor,pXSprite->goalAng);
     aiLookForTarget(pSprite, pXSprite);
 }
 
@@ -101,7 +101,7 @@ static void zombaThinkGoto(DBloodActor* actor)
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
-    aiChooseDirection(pSprite, pXSprite, nAngle);
+    aiChooseDirection(actor,nAngle);
     if (nDist < 921 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &zombieASearch);
     aiThinkTarget(actor);
@@ -123,7 +123,7 @@ static void zombaThinkChase(DBloodActor* actor)
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
-    aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
+    aiChooseDirection(actor,getangle(dx, dy));
     if (pXTarget->health == 0)
     {
         aiNewState(actor, &zombieASearch);
@@ -175,7 +175,7 @@ static void zombaThinkPonder(DBloodActor* actor)
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
-    aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
+    aiChooseDirection(actor,getangle(dx, dy));
     if (pXTarget->health == 0)
     {
         aiNewState(actor, &zombieASearch);
@@ -256,7 +256,7 @@ static void myThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
+    aiChooseDirection(actor,pXSprite->goalAng);
     myThinkTarget(actor);
 }
 
