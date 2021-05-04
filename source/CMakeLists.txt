@@ -709,6 +709,7 @@ set( POLYRENDER_SOURCES
 # without being compiled.
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
+	${POLYRENDER_SOURCES}
 	sc_man_scanner.h
 	common/engine/sc_man_scanner.re
 	common/scripting/frontend/zcc-parse.lemon
@@ -964,6 +965,7 @@ set( VM_JIT_SOURCES
 set( FASTMATH_SOURCES
 
 	common/rendering/gl_load/gl_load.c
+	common/rendering/polyrenderer/poly_all.cpp
 	common/textures/hires/hqnx/init.cpp
 	common/textures/hires/hqnx/hq2x.cpp
 	common/textures/hires/hqnx/hq3x.cpp
@@ -1014,7 +1016,7 @@ set (POLYBACKEND_SOURCES
 	common/rendering/polyrenderer/backend/poly_hwtexture.cpp
 	common/rendering/polyrenderer/backend/poly_renderstate.cpp
 )
-set (FASTMATH_SOURCES ${FASTMATH_SOURCES})
+set (FASTMATH_SOURCES ${FASTMATH_SOURCES} ${POLYBACKEND_SOURCES})
 
 set (PCH_SOURCES
 
