@@ -66,7 +66,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
+    spritetype *pTarget = &actor->GetTarget()->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
@@ -95,7 +95,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
     wrand(); // ???
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
+    spritetype *pTarget = &actor->GetTarget()->s();
     int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -346,8 +346,8 @@ static void ghostThinkChase(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
     aiChooseDirection(actor,getangle(dx, dy));

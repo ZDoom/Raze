@@ -65,15 +65,10 @@ void podAttack(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
-        return;
-    }
-    
-    spritetype *pTarget = &sprite[pXSprite->target_i];
 
     if (!actor->ValidateTarget(__FUNCTION__)) return;
+    spritetype *pTarget = &actor->GetTarget()->s();
+
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int x = pTarget->x-pSprite->x;
     int y = pTarget->y-pSprite->y;
@@ -197,8 +192,8 @@ static void aiPodChase(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
     aiChooseDirection(actor,getangle(dx, dy));

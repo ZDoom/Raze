@@ -51,8 +51,8 @@ void sub_71A90(int, DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int nTarget = pTarget->index;
     int nOwner = pSprite->owner;
     if (pXTarget->burnTime == 0)
@@ -319,8 +319,8 @@ static void sub_72934(DBloodActor* actor)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
     aiChooseDirection(actor,getangle(dx, dy));

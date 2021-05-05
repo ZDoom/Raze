@@ -74,8 +74,8 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
     int dz = Random2(2000);
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     if (IsPlayerSprite(pTarget)) {
         
         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -123,7 +123,7 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
     int dz = Random2(200);
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
+    spritetype *pTarget = &actor->GetTarget()->s();
     if (IsPlayerSprite(pTarget)) {
         dz += pTarget->z-pSprite->z;
         switch (pSprite->type) {
@@ -145,7 +145,7 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
+    spritetype *pTarget = &actor->GetTarget()->s();
     DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -207,8 +207,8 @@ static void spidThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
     aiChooseDirection(actor,getangle(dx, dy));
