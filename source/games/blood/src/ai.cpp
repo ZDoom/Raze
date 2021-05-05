@@ -166,16 +166,16 @@ bool CanMove(DBloodActor *actor, DBloodActor* target, int nAngle, int nRange)
         if (sector[nSector].type == kSectorDamage || pXSector->damageType > 0)
             Crusher = 1;
     }
-    int nUpper = gUpperLink[nSector];
-    int nLower = gLowerLink[nSector];
-    if (nUpper >= 0)
+	auto Upper = getUpperLink(nSector);
+	auto Lower = getLowerLink(nSector);
+	if (Upper != nullptr)
     {
-        if (sprite[nUpper].type == kMarkerUpWater || sprite[nUpper].type == kMarkerUpGoo)
+		if (Upper->s().type == kMarkerUpWater || Upper->s().type == kMarkerUpGoo)
             Water = Depth = 1;
     }
-    if (nLower >= 0)
+	if (Lower != nullptr)
     {
-        if (sprite[nLower].type == kMarkerLowWater || sprite[nLower].type == kMarkerLowGoo)
+		if (Lower->s().type == kMarkerLowWater || Lower->s().type == kMarkerLowGoo)
             Depth = 1;
     }
     switch (pSprite->type) {
