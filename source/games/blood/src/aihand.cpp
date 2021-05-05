@@ -86,7 +86,7 @@ static void handThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &handGoto);
         return;
@@ -118,7 +118,7 @@ static void handThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x233 && abs(nDeltaAngle) < 85 && gGameOptions.nGameType == 0)
                     aiNewState(actor, &handJump);
                 return;
@@ -127,7 +127,7 @@ static void handThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &handGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS

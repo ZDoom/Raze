@@ -6793,8 +6793,11 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
 
 }
 
-void aiPatrolStop(spritetype* pSprite, int target, bool alarm) {
-    if (xspriRangeIsFine(pSprite->extra)) {
+void aiPatrolStop(spritetype* pSprite, int target, bool alarm) 
+{
+    auto actor = &bloodActors[pSprite->index];
+    if (xspriRangeIsFine(pSprite->extra)) 
+    {
 
         XSPRITE* pXSprite = &xsprite[pSprite->extra];
         pXSprite->data3 = 0; // reset spot progress
@@ -6806,7 +6809,7 @@ void aiPatrolStop(spritetype* pSprite, int target, bool alarm) {
 
         if (pXSprite->target_i >= 0 && sprite[pXSprite->target_i].type == kMarkerPath) {
             if (target < 0) pSprite->ang = sprite[pXSprite->target_i].ang & 2047;
-            pXSprite->target_i = -1;
+            actor->SetTarget(nullptr);
         }
 
         bool patrol = pXSprite->dudeFlag4; pXSprite->dudeFlag4 = 0;

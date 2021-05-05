@@ -351,7 +351,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1) {
+    if (actor->GetTarget() == nullptr) {
         switch (pSprite->type) {
             case kDudeCerberusTwoHead:
                 aiNewState(actor, &cerberusGoto);
@@ -414,7 +414,7 @@ static void cerberusThinkChase(DBloodActor* actor)
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 
                 if (nDist < 0x1b00 && nDist > 0xd00 && abs(nDeltaAngle) < 85) {
                     switch (pSprite->type) {
@@ -490,7 +490,7 @@ static void cerberusThinkChase(DBloodActor* actor)
             aiNewState(actor, &cerberus2Goto);
             break;
     }
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS

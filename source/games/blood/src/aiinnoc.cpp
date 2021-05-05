@@ -69,7 +69,7 @@ static void innocThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &innocentGoto);
         return;
@@ -101,7 +101,7 @@ static void innocThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x666 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &innocentIdle);
                 return;
@@ -111,7 +111,7 @@ static void innocThinkChase(DBloodActor* actor)
 
     aiPlay3DSound(pSprite, 7000+Random(6), AI_SFX_PRIORITY_1, -1);
     aiNewState(actor, &innocentGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 

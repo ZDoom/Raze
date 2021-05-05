@@ -182,7 +182,7 @@ static void aiPodChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1) {
+    if (actor->GetTarget() == nullptr) {
         switch (pSprite->type) {
             case kDudePodGreen:
             case kDudePodFire:
@@ -234,7 +234,7 @@ static void aiPodChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (abs(nDeltaAngle) < 85 && pTarget->type != kDudePodGreen && pTarget->type != kDudePodFire) {
                     switch (pSprite->type) {
                         case kDudePodGreen:
@@ -262,7 +262,7 @@ static void aiPodChase(DBloodActor* actor)
             aiNewState(actor, &tentacleMove);
             break;
     }
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS

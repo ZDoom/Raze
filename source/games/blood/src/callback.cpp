@@ -269,7 +269,7 @@ void Respawn(int nSprite) // 9
                 // return dude to the patrol state
                 if (gModernMap && pXSprite->dudeFlag4) {
                     pXSprite->data3 = 0;
-                    pXSprite->target_i = -1;
+                    actor->SetTarget(nullptr);
                 }
                 #else
                 pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;

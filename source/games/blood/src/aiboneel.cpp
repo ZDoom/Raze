@@ -80,7 +80,7 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
      * copied from lines 177:181
      * resolves this case, but may cause other issues? 
      */
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &eelSearch);
         return;
@@ -173,7 +173,7 @@ static void eelThinkPonder(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &eelSearch);
         return;
@@ -201,7 +201,7 @@ static void eelThinkPonder(DBloodActor* actor)
         GetSpriteExtents(pSprite, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            aiSetTarget(pXSprite, pXSprite->target_i);
+            aiSetTarget(actor, actor->GetTarget());
             if (height2-height < -0x2000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &eelDodgeUp);
             else if (height2-height > 0xccc && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
@@ -222,7 +222,7 @@ static void eelThinkPonder(DBloodActor* actor)
         }
     }
     aiNewState(actor, &eelGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 static void eelMoveDodgeUp(DBloodActor* actor)
@@ -281,7 +281,7 @@ static void eelThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &eelGoto);
         return;
@@ -317,7 +317,7 @@ static void eelThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x399 && top2 > top && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &eelSwoop);
                 else if (nDist <= 0x399 && abs(nDeltaAngle) < 85)
@@ -331,7 +331,7 @@ static void eelThinkChase(DBloodActor* actor)
         return;
     }
 
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
     aiNewState(actor, &eelSearch);
 }
 
@@ -347,7 +347,7 @@ static void eelMoveForward(DBloodActor* actor)
     int nAccel = (pDudeInfo->frontSpeed-(((4-gGameOptions.nDifficulty)<<26)/120)/120)<<2;
     if (abs(nAng) > 341)
         return;
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -360,7 +360,7 @@ static void eelMoveForward(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
         t1 += nAccel;
     else
         t1 += nAccel>>1;

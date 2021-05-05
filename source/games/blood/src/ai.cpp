@@ -994,9 +994,9 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
         spritetype *pSource = &source->s();
         int nSource = pSource->index;
         if (pSprite == pSource) return 0;
-        else if (pXSprite->target_i == -1) // if no target, give the dude a target
+        else if (actor->GetTarget() == nullptr) // if no target, give the dude a target
         {
-            aiSetTarget(pXSprite, nSource);
+            aiSetTarget(actor, source);
             aiActivateDude(&bloodActors[pXSprite->reference]);
         }
         else if (nSource != pXSprite->target_i) // if found a new target, retarget

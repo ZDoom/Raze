@@ -121,7 +121,7 @@ static void calebThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         XSECTOR *pXSector;
         int nXSector = sector[pSprite->sectnum].extra;
@@ -183,7 +183,7 @@ static void calebThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
                 if (nDist < 0x599 && abs(nDeltaAngle) < 28)
                 {
@@ -243,7 +243,7 @@ static void calebThinkChase(DBloodActor* actor)
         aiNewState(actor, &tinycalebGoto);
     if (Chance(0x2000))
         sfxPlay3DSound(pSprite, 10000 + Random(5), -1, 0);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 static void calebThinkSwimGoto(DBloodActor* actor)
@@ -266,7 +266,7 @@ static void calebThinkSwimChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &tinycalebSwimGoto);
         return;
@@ -300,7 +300,7 @@ static void calebThinkSwimChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &tinycalebSwimAttack);
                 else
@@ -310,7 +310,7 @@ static void calebThinkSwimChase(DBloodActor* actor)
         return;
     }
     aiNewState(actor, &tinycalebSwimGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 static void sub_65D04(DBloodActor* actor)
@@ -326,7 +326,7 @@ static void sub_65D04(DBloodActor* actor)
     int nAccel = pDudeInfo->frontSpeed<<2;
     if (abs(nAng) > 341)
         return;
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -339,7 +339,7 @@ static void sub_65D04(DBloodActor* actor)
     int vy = yvel[nSprite];
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
         t1 += nAccel;
     else
         t1 += nAccel>>2;

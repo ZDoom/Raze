@@ -109,7 +109,7 @@ static void houndThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &houndGoto);
         return;
@@ -149,7 +149,7 @@ static void houndThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0xb00 && nDist > 0x500 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &houndBurn);
                 else if(nDist < 0x266 && abs(nDeltaAngle) < 85)
@@ -160,7 +160,7 @@ static void houndThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &houndGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS

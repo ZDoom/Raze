@@ -306,7 +306,7 @@ static void sub_72934(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &tcherno13A9B8);
         return;
@@ -346,7 +346,7 @@ static void sub_72934(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x1f00 && nDist > 0xd00 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &tcherno13AA0C);
                 else if (nDist < 0xd00 && nDist > 0xb00 && abs(nDeltaAngle) < 85)
@@ -359,7 +359,7 @@ static void sub_72934(DBloodActor* actor)
     }
 
     aiNewState(actor, &tcherno13A9B8);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS
