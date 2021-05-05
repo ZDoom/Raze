@@ -1437,7 +1437,7 @@ void removeDudeStuff(DBloodActor* actor)
                 actPostSprite(actor2, kStatFree);
                 break;
             case kModernThingEnemyLifeLeech:
-                killDudeLeech(pSprite2);
+                killDudeLeech(actor2);
                 break;
         }
     }
@@ -1486,16 +1486,25 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
     }
 }
     
-void killDudeLeech(spritetype* pLeech) {
-    if (pLeech != NULL) {
-        actDamageSprite(&bloodActors[pLeech->owner], &bloodActors[pLeech->index], kDamageExplode, 65535);
-        sfxPlay3DSoundCP(pLeech, 522, -1, 0, 60000);
 
-        if (pLeech->owner >= 0 && pLeech->owner < kMaxSprites)
-            gGenDudeExtra[sprite[pLeech->owner].index].pLifeLeech = nullptr;
+void killDudeLeech(DBloodActor* actLeech) 
+{
+    if (actLeech != NULL) 
+    {
+        actDamageSprite(actLeech->GetOwner(), actLeech, kDamageExplode, 65535);
+        sfxPlay3DSoundCP(actLeech, 522, -1, 0, 60000);
+
+        if (actLeech->GetOwner() != nullptr)
+           actLeech->GetOwner()->genDudeExtra().pLifeLeech = nullptr;
     }
 }
     
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 XSPRITE* getNextIncarnation(XSPRITE* pXSprite) {
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
         if (rxBucket[i].type != 3 || rxBucket[i].index == pXSprite->reference)
