@@ -331,7 +331,7 @@ spritetype* nnExtSpawnDude(XSPRITE* pXSource, spritetype* pSprite, short nType, 
 
     }
 
-    aiInitSprite(pDude);
+    aiInitSprite(pDudeActor);
 
     gKillMgr.AddNewKill(1);
 
@@ -342,7 +342,7 @@ spritetype* nnExtSpawnDude(XSPRITE* pXSource, spritetype* pSprite, short nType, 
     }
 
     if ((burning || (pSource->flags & kModernTypeFlag3)) && !pXDude->dudeFlag4)
-        aiActivateDude(&bloodActors[pXDude->reference]);
+        aiActivateDude(pDudeActor);
 
     return pDude;
 }
@@ -2664,6 +2664,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
 }
 
 void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
+    auto actor = &bloodActors[pSprite->index];
     spritetype* pSource = &sprite[pXSource->reference]; PLAYER* pPlayer = getPlayerById(pSprite->type);
     XSECTOR* pXSector = (sector[pSource->sectnum].extra >= 0) ? &xsector[sector[pSource->sectnum].extra] : NULL;
     bool isDude = (!pPlayer && IsDudeSprite(pSprite));
@@ -2733,7 +2734,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
         int x = pXDude->targetX; int y = pXDude->targetY; int z = pXDude->targetZ;
         int target = pXDude->target_i;
         
-        aiInitSprite(pSprite);
+        aiInitSprite(actor);
 
         if (target >= 0) {
             pXDude->targetX = x; pXDude->targetY = y; pXDude->targetZ = z;
@@ -4414,7 +4415,7 @@ void aiFightActivateDudes(int rx) {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
         spritetype* pDude = &sprite[rxBucket[i].index]; XSPRITE* pXDude = &xsprite[pDude->extra];
         if (!IsDudeSprite(pDude) || pXDude->aiState->stateType != kAiStateGenIdle) continue;
-        aiInitSprite(pDude);
+        aiInitSprite(&bloodActors[pDude->index]);
     }
 }
 
@@ -6827,7 +6828,7 @@ void aiPatrolStop(spritetype* pSprite, int target, bool alarm)
         } else {
 
             
-            aiInitSprite(pSprite);
+            aiInitSprite(actor);
             aiSetTarget_(pXSprite, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
             
 

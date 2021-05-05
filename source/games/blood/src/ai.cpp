@@ -1651,7 +1651,7 @@ void aiLookForTarget(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiProcessDudes(void) 
+void aiProcessDudes(void)
 {
     BloodStatIterator it(kStatDude);
     while (auto actor = it.Next())
@@ -1659,10 +1659,10 @@ void aiProcessDudes(void)
 		auto pSprite = &actor->s();
         if (pSprite->flags & 32) continue;
 		auto pXSprite = &actor->x();
-        DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+		DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
 
-        pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
+		pXSprite->stateTimer = ClipLow(pXSprite->stateTimer - 4, 0);
 
         if (pXSprite->aiState && pXSprite->aiState->moveFunc)
             pXSprite->aiState->moveFunc(actor);
@@ -1671,14 +1671,14 @@ void aiProcessDudes(void)
             pXSprite->aiState->thinkFunc(actor);
 
         switch (pSprite->type) {
-            #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
             case kDudeModernCustom:
             case kDudeModernCustomBurning: {
                 GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
                 if (pExtra->slaveCount > 0) updateTargetOfSlaves(pSprite);
                 if (pExtra->nLifeLeech >= 0) updateTargetOfLeech(pSprite);
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
-                    && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0)) 
+				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0))
 				{
                     aiGenDudeNewState(pSprite, pXSprite->aiState->nextState);
                 }
@@ -1688,7 +1688,7 @@ void aiProcessDudes(void)
                 RecoilDude(actor);
                 break;
             }
-            #endif
+#endif
             default:
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState) {
                     if (pXSprite->aiState->stateTicks > 0)
@@ -1697,7 +1697,7 @@ void aiProcessDudes(void)
                         aiNewState(actor, pXSprite->aiState->nextState);
                 }
 
-                if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= actor->cumulDamage)) 
+			if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= actor->cumulDamage))
 				{
                     pXSprite->data3 = actor->cumulDamage;
                     RecoilDude(actor);
@@ -1715,53 +1715,51 @@ void aiProcessDudes(void)
 
 void aiInit(void)
 {
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+	BloodStatIterator it(kStatDude);
+	while (auto actor = it.Next())
     {
-        aiInitSprite(&sprite[nSprite]);
+		aiInitSprite(actor);
     }
 }
 
-void aiInitSprite(spritetype *pSprite)
+void aiInitSprite(DBloodActor* actor)
 {
-    auto actor = &bloodActors[pSprite->index];
-    int nXSprite = pSprite->extra;
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+	auto pSprite = &actor->s();
+	auto pXSprite = &actor->x();
     int nSector = pSprite->sectnum;
     int nXSector = sector[nSector].extra;
-    XSECTOR *pXSector = NULL;
+	XSECTOR* pXSector = NULL;
     if (nXSector > 0)
         pXSector = &xsector[nXSector];
-    DUDEEXTRA *pDudeExtra = &actor->dudeExtra;
+	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
     pDudeExtra->recoil = 0;
     pDudeExtra->time = 0;
-    
-    #ifdef NOONE_EXTENSIONS
+
+#ifdef NOONE_EXTENSIONS
     int stateTimer = -1, targetMarker = -1;
     int targetX = 0, targetY = 0, targetZ = 0;
-    
+
     // dude patrol init
-    if (gModernMap) {
-        
+	if (gModernMap)
+	{
         // must keep it in case of loading save
         if (pXSprite->dudeFlag4 && spriRangeIsFine(pXSprite->target_i) && sprite[pXSprite->target_i].type == kMarkerPath) {
             stateTimer = pXSprite->stateTimer; targetMarker = pXSprite->target_i;
             targetX = pXSprite->targetX; targetY = pXSprite->targetY;
             targetZ = pXSprite->targetZ;
         }
-
     }
-    #endif
+#endif
 
-    switch (pSprite->type) {
+	switch (pSprite->type)
+	{
     case kDudeCultistTommy:
     case kDudeCultistShotgun:
     case kDudeCultistTesla:
     case kDudeCultistTNT:
     case kDudeCultistBeast:
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &cultistIdle);
@@ -1769,7 +1767,7 @@ void aiInitSprite(spritetype *pSprite)
     }
     case kDudeCultistTommyProne:
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &fanaticProneIdle);
@@ -1777,21 +1775,21 @@ void aiInitSprite(spritetype *pSprite)
     }
     case kDudeCultistShotgunProne:
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &cultistProneIdle);
         break;
     }
     case kDudeZombieButcher: {
-        DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
+		DUDEEXTRA_at6_u2* pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &zombieFIdle);
         break;
     }
     case kDudeZombieAxeNormal: {
-        DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
+		DUDEEXTRA_at6_u2* pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &zombieAIdle);
@@ -1799,7 +1797,7 @@ void aiInitSprite(spritetype *pSprite)
     }
     case kDudeZombieAxeLaying:
     {
-        DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
+		DUDEEXTRA_at6_u2* pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &zombieSIdle);
@@ -1807,7 +1805,7 @@ void aiInitSprite(spritetype *pSprite)
         break;
     }
     case kDudeZombieAxeBuried: {
-        DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
+		DUDEEXTRA_at6_u2* pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &zombieEIdle);
@@ -1815,7 +1813,7 @@ void aiInitSprite(spritetype *pSprite)
     }
     case kDudeGargoyleFlesh:
     case kDudeGargoyleStone: {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval1 = 0;
@@ -1827,7 +1825,7 @@ void aiInitSprite(spritetype *pSprite)
         aiNewState(actor, &gargoyleStatueIdle);
         break;
     case kDudeCerberusTwoHead: {
-        DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
+		DUDEEXTRA_at6_u2* pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &cerberusIdle);
@@ -1841,7 +1839,7 @@ void aiInitSprite(spritetype *pSprite)
         break;
     case kDudePhantasm:
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval1 = 0;
@@ -1856,7 +1854,7 @@ void aiInitSprite(spritetype *pSprite)
         break;
     case kDudeBoneEel:
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval1 = 0;
@@ -1868,7 +1866,7 @@ void aiInitSprite(spritetype *pSprite)
         break;
     case kDudeBat:
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval1 = 0;
@@ -1879,7 +1877,7 @@ void aiInitSprite(spritetype *pSprite)
     case kDudeSpiderRed:
     case kDudeSpiderBlack:
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval1 = 0;
@@ -1888,7 +1886,7 @@ void aiInitSprite(spritetype *pSprite)
     }
     case kDudeSpiderMother:
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+		DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 0;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval1 = 0;
@@ -1897,7 +1895,7 @@ void aiInitSprite(spritetype *pSprite)
     }
     case kDudeTchernobog:
     {
-        DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
+		DUDEEXTRA_at6_u2* pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval1 = 0;
         aiNewState(actor, &tchernobogIdle);
@@ -1921,14 +1919,14 @@ void aiInitSprite(spritetype *pSprite)
         aiNewState(actor, &genIdle);
         break;
     }
-    aiSetTarget_(pXSprite, 0, 0, 0);
+	aiSetTarget(actor, 0, 0, 0);
     pXSprite->stateTimer = 0;
     switch (pSprite->type)
     {
     case kDudeSpiderBrown:
     case kDudeSpiderRed:
     case kDudeSpiderBlack:
-        if (pSprite->cstat&8) pSprite->flags |= 9;
+		if (pSprite->cstat & 8) pSprite->flags |= 9;
         else pSprite->flags = 15;
         break;
     case kDudeGargoyleFlesh:
@@ -1946,7 +1944,7 @@ void aiInitSprite(spritetype *pSprite)
     case kDudeZombieAxeLaying:
         pSprite->flags = 7;
         break;
-    #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
     case kDudePodMother: // FakeDude type
         if (gModernMap) break;
         [[fallthrough]];
@@ -1963,24 +1961,26 @@ void aiInitSprite(spritetype *pSprite)
         }
         [[fallthrough]];
     // go default
-    #endif
+#endif
     default:
         pSprite->flags = 15;
         break;
     }
 
-    #ifdef NOONE_EXTENSIONS
-    if (gModernMap) {
-
-        if (pSprite->type == kDudeModernCustom) {
+#ifdef NOONE_EXTENSIONS
+	if (gModernMap)
+	{
+		if (pSprite->type == kDudeModernCustom)
+		{
             aiGenDudeInitSprite(pSprite, pXSprite);
             genDudePrepare(pSprite, kGenDudePropertyAll);
         }
 
-        if (pXSprite->dudeFlag4) {
-
+		if (pXSprite->dudeFlag4)
+		{
             // restore dude's path
-            if (spriRangeIsFine(targetMarker)) {
+			if (spriRangeIsFine(targetMarker))
+			{
                 pXSprite->target_i = targetMarker;
                 pXSprite->targetX = targetX;
                 pXSprite->targetY = targetY;
@@ -2005,12 +2005,9 @@ void aiInitSprite(spritetype *pSprite)
             else if (uwater) aiPatrolState(pSprite, kAiStatePatrolMoveW);
             else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolMoveC);
             else aiPatrolState(pSprite, kAiStatePatrolMoveL);
-
         }
-
     }
-    #endif
-
+#endif
 }
 
 END_BLD_NS

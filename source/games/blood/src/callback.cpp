@@ -277,7 +277,7 @@ void Respawn(int nSprite) // 9
                 if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
                     seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
                 #endif
-                aiInitSprite(pSprite);
+                aiInitSprite(actor);
                 pXSprite->key = 0;
             } else if (pSprite->type == kThingTNTBarrel) {
                 pSprite->cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN;

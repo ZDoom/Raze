@@ -6519,7 +6519,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, short nType, int a3, int a4)
     }
 #endif
 
-    aiInitSprite(pSprite2);
+	aiInitSprite(spawned);
 	return spawned;
 }
 
