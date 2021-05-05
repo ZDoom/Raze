@@ -78,7 +78,7 @@ void SlashSeqCallback(int, DBloodActor* actor)
     actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
     actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
     actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
-    sfxPlay3DSound(pSprite, 9012+Random(2), -1, 0);
+    sfxPlay3DSound(actor, 9012+Random(2), -1, 0);
 }
 
 void StompSeqCallback(int, DBloodActor* actor1)
@@ -171,7 +171,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
             }
         }
     }
-    sfxPlay3DSound(pSprite, 9015+Random(2), -1, 0);
+    sfxPlay3DSound(actor1, 9015+Random(2), -1, 0);
 }
 
 static void MorphToBeast(DBloodActor* actor)

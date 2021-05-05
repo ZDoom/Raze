@@ -197,7 +197,7 @@ void punchCallback(int, DBloodActor* actor)
         int dz = nZOffset1 - nZOffset2;
 
         if (!playGenDudeSound(pSprite, kGenDudeSndAttackMelee))
-            sfxPlay3DSound(pSprite, 530, 1, 0);
+            sfxPlay3DSound(actor, 530, 1, 0);
 
         actFireVector(actor, 0, 0, dx, dy, dz,kVectorGenDudePunch);
     }
@@ -295,7 +295,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     const THINGINFO* pThinkInfo = &thingInfo[curWeapon - kThingBase];
     if (!gThingInfoExtra[curWeapon - kThingBase].allowThrow) return;
     else if (!playGenDudeSound(pSprite, kGenDudeSndAttackThrow))
-        sfxPlay3DSound(pSprite, 455, -1, 0);
+        sfxPlay3DSound(actor, 455, -1, 0);
             
     int zThrow = 14500;
     int dx = pTarget->x - pSprite->x;
@@ -357,7 +357,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             if (pLeech != NULL) pXThing->health = pXLeech->health;
             else pXThing->health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
 
-            sfxPlay3DSound(pSprite, 490, -1, 0);
+            sfxPlay3DSound(actor, 490, -1, 0);
 
             pXThing->data3 = 512 / (gGameOptions.nDifficulty + 1);
             pThing->cstat &= ~CSTAT_SPRITE_BLOCK;

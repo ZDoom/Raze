@@ -81,7 +81,7 @@ void HackSeqCallback(int, DBloodActor* actor)
 
 void StandSeqCallback(int, DBloodActor* actor)
 {
-    sfxPlay3DSound(&actor->s(), 1102, -1, 0);
+    sfxPlay3DSound(actor, 1102, -1, 0);
 }
 
 static void zombaThinkSearch(DBloodActor* actor)

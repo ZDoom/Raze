@@ -1480,9 +1480,13 @@ int debrisGetFreeIndex(void) {
     return -1;
 }
 
-void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) {
+void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) 
+{
+    auto owner = &bloodActors[nOwner];
     spritetype* pSprite = (gPhysSpritesList[listIndex] >= 0) ? &sprite[gPhysSpritesList[listIndex]] : NULL;
-    if (pSprite != NULL && xspriRangeIsFine(pSprite->extra)) {
+    if (pSprite != NULL && xspriRangeIsFine(pSprite->extra)) 
+    {
+        auto actor = &bloodActors[pSprite->index];
         int dx = pSprite->x - x; int dy = pSprite->y - y; int dz = (pSprite->z - z) >> 4;
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (pSprite->type >= kThingBase && pSprite->type < kThingMax);
@@ -1500,7 +1504,7 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) {
                 pSprite->statnum = kStatThing; // temporary change statnum property
         }
 
-        actDamageSprite_(nOwner, pSprite, kDamageExplode, dmg);
+        actDamageSprite(owner, actor, kDamageExplode, dmg);
         
         if (thing)
             pSprite->statnum = kStatDecoration; // return statnum property back
@@ -2985,15 +2989,18 @@ void useSpriteDamager(XSPRITE* pXSource, int objType, int objIndex) {
     }
 }
 
-void damageSprites(XSPRITE* pXSource, spritetype* pSprite) {
+void damageSprites(XSPRITE* pXSource, spritetype* pSprite) 
+{
     auto actor = &bloodActors[pSprite->index];
-    spritetype* pSource = &sprite[pXSource->reference];
+    auto sourceactor = &bloodActors[pXSource->reference];
+    spritetype* pSource = &sourceactor->s();
     if (!IsDudeSprite(pSprite) || !xspriRangeIsFine(pSprite->extra) || xsprite[pSprite->extra].health <= 0 || pXSource->data3 < 0)
         return;
     
 
     int health = 0;
-    XSPRITE* pXSprite = &xsprite[pSprite->extra]; PLAYER* pPlayer = getPlayerById(pSprite->type);
+    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    PLAYER* pPlayer = getPlayerById(pSprite->type);
     int dmgType = (pXSource->data2 >= kDmgFall) ? ClipHigh(pXSource->data2, kDmgElectric) : -1;
     int dmg = pXSprite->health << 4; int armor[3];
 
@@ -3017,13 +3024,13 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite) {
 
                     playerDamageArmor(pPlayer, (DAMAGE_TYPE)dmgType, dmg);
                     for (int i = 0; i < 3; armor[i] = pPlayer->armor[i], pPlayer->armor[i] = 0, i++);
-                actDamageSprite_(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
+                actDamageSprite(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
                     for (int i = 0; i < 3; pPlayer->armor[i] = armor[i], i++);
 
                 }
                 else {
 
-                actDamageSprite_(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
+                actDamageSprite(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
 
                 }
 

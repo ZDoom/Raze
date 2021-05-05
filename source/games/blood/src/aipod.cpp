@@ -53,12 +53,12 @@ AISTATE tentacleChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, aiPodChase,
 
 void sub_6FF08(int, DBloodActor* actor)
 {
-    sfxPlay3DSound(&actor->s(), 2503, -1, 0);
+    sfxPlay3DSound(actor, 2503, -1, 0);
 }
 
 void sub_6FF54(int, DBloodActor* actor)
 {
-    sfxPlay3DSound(&actor->s(), 2500, -1, 0);
+    sfxPlay3DSound(actor, 2500, -1, 0);
 }
 
 void podAttack(int, DBloodActor* actor)
@@ -85,9 +85,9 @@ void podAttack(int, DBloodActor* actor)
         if (pDudeInfo->seeDist*0.1 < nDist)
         {
             if (Chance(0x8000))
-                sfxPlay3DSound(pSprite, 2474, -1, 0);
+                sfxPlay3DSound(actor, 2474, -1, 0);
             else
-                sfxPlay3DSound(pSprite, 2475, -1, 0);
+                sfxPlay3DSound(actor, 2475, -1, 0);
             pMissile = actFireThing(actor, 0, -8000, dz/128-14500, kThingPodGreenBall, (nDist2<<23)/120);
         }
         if (pMissile)
@@ -97,7 +97,7 @@ void podAttack(int, DBloodActor* actor)
         dz += 8000;
         if (pDudeInfo->seeDist*0.1 < nDist)
         {
-            sfxPlay3DSound(pSprite, 2454, -1, 0);
+            sfxPlay3DSound(actor, 2454, -1, 0);
             pMissile = actFireThing(actor, 0, -8000, dz/128-14500, kThingPodFireBall, (nDist2<<23)/120);
         }
         if (pMissile)
@@ -111,7 +111,7 @@ void podAttack(int, DBloodActor* actor)
 void sub_70284(int, DBloodActor* actor)
 {
     auto pSprite = &actor->s();
-    sfxPlay3DSound(pSprite, 2502, -1, 0);
+    sfxPlay3DSound(actor, 2502, -1, 0);
     int nDist, nBurn;
     DAMAGE_TYPE dmgType;
     switch (pSprite->type) {

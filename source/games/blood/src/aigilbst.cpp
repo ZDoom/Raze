@@ -230,7 +230,7 @@ static void gillThinkChase(DBloodActor* actor)
         aiNewState(actor, &gillBeastSwimGoto);
     else
         aiNewState(actor, &gillBeastGoto);
-    sfxPlay3DSound(pSprite, 1701, -1, 0);
+    sfxPlay3DSound(actor, 1701, -1, 0);
     actor->SetTarget(nullptr);
 }
 
