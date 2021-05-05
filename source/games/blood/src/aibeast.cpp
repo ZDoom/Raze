@@ -152,7 +152,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
             continue;
         if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
         {
-            XSPRITE *pXSprite = &xsprite[pSprite2->extra];
+            XSPRITE *pXSprite = &actor2->x();
             if (pXSprite->locked)
                 continue;
             int dx = abs(pSprite->x-pSprite2->x);

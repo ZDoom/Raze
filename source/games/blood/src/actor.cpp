@@ -6533,11 +6533,9 @@ DBloodActor* actSpawnThing(int nSector, int x, int y, int z, int nThingType)
 	auto actor = actSpawnSprite(nSector, x, y, z, 4, 1);
 	spritetype* pSprite = &actor->s();
 	int nType = nThingType - kThingBase;
-    int nThing = pSprite->index;
-    int nXThing = pSprite->extra;
     pSprite->type = nThingType;
-    assert(nXThing > 0 && nXThing < kMaxXSprites);
-	XSPRITE* pXThing = &xsprite[nXThing];
+	assert(actor->hasX());
+	XSPRITE* pXThing = &actor->x();
 	const THINGINFO* pThingInfo = &thingInfo[nType];
 	pXThing->health = pThingInfo->startHealth << 4;
     pSprite->clipdist = pThingInfo->clipdist;
@@ -6601,17 +6599,17 @@ DBloodActor* actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         break;
 
     case kThingArmedTNTStick:
-        evPost(nThing, 3, 0, kCallbackFXDynPuff);
+		evPost(actor, 0, kCallbackFXDynPuff);
 		sfxPlay3DSound(actor, 450, 0, 0);
         break;
 
     case kThingArmedTNTBundle:
 		sfxPlay3DSound(actor, 450, 0, 0);
-        evPost(nThing, 3, 0, kCallbackFXDynPuff);
+		evPost(actor, 0, kCallbackFXDynPuff);
         break;
 
     case kThingArmedSpray:
-        evPost(nThing, 3, 0, kCallbackFXDynPuff);
+		evPost(actor, 0, kCallbackFXDynPuff);
         break;
     }
 	return actor;

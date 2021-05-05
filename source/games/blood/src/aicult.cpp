@@ -187,11 +187,10 @@ void sub_68230(int, DBloodActor* actor)
 
 static char TargetNearExplosion(spritetype *pSprite)
 {
-    int nSprite;
-    SectIterator it(pSprite->sectnum);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(pSprite->sectnum);
+    while (auto actor = it.Next())
     {
-        if (sprite[nSprite].type == kThingArmedTNTStick || sprite[nSprite].statnum == kStatExplosion)
+        if (actor->s().type == kThingArmedTNTStick || actor->s().statnum == kStatExplosion)
             return 1;
     }
     return 0;
