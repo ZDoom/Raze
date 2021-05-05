@@ -52,7 +52,7 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
     if (pSprite->type != kDudeZombieButcher)
         return;
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = (pDudeInfo->eyeHeight*pSprite->yrepeat);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -64,7 +64,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height = (pDudeInfo->eyeHeight*pSprite->yrepeat);
@@ -112,15 +112,15 @@ static void zombfThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
     {
         aiNewState(actor, &zombieFGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -144,7 +144,7 @@ static void zombfThinkChase(DBloodActor* actor)
         {
             if (abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 if (nDist < 0x1400 && nDist > 0xe00 && abs(nDeltaAngle) < 85)
                 {
                     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -208,7 +208,7 @@ static void zombfThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &zombieFSearch);
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 END_BLD_NS

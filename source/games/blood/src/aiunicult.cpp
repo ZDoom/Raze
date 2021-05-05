@@ -130,7 +130,7 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
 {
     spritetype* pSprite = &actor->s();
     XSPRITE* pXSprite = &actor->x();
-    if (spriRangeIsFine(pXSprite->target)) 
+    if (spriRangeIsFine(pXSprite->target_i)) 
     {
         int fStart = 0; 
         int fEnd = 0; 
@@ -140,8 +140,8 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
         for (int i = -8191; i < 8192; i += by) 
         {
             HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), i, clipMask, dist);
-            if (!fStart && pXSprite->target == gHitInfo.hitsprite) fStart = i;
-            else if (fStart && pXSprite->target != gHitInfo.hitsprite) 
+            if (!fStart && pXSprite->target_i == gHitInfo.hitsprite) fStart = i;
+            else if (fStart && pXSprite->target_i != gHitInfo.hitsprite) 
             { 
                 fEnd = i; 
                 break; 
@@ -183,12 +183,12 @@ void punchCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    if (pXSprite->target != -1) 
+    if (pXSprite->target_i != -1) 
     {
         int nZOffset1 = getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat << 2;
         int nZOffset2 = 0;
         
-        spritetype* pTarget = &sprite[pXSprite->target];
+        spritetype* pTarget = &sprite[pXSprite->target_i];
         if(IsDudeSprite(pTarget))
             nZOffset2 = getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat << 2;
 
@@ -208,7 +208,7 @@ void genDudeAttack1(int, DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
 
-    if (pXSprite->target < 0) return;
+    if (pXSprite->target_i < 0) return;
 
     int dx, dy, dz;
     xvel[pSprite->index] = yvel[pSprite->index] = 0;
@@ -241,8 +241,8 @@ void genDudeAttack1(int, DBloodActor* actor)
                 pSpawned->owner = pSprite->index;
 
                 if (xspriRangeIsFine(pSpawned->extra)) {
-                    xsprite[pSpawned->extra].target = pXSprite->target;
-                    if (pXSprite->target > -1)
+                    xsprite[pSpawned->extra].target_i = pXSprite->target_i;
+                    if (pXSprite->target_i > -1)
                         aiActivateDude(&bloodActors[pSpawned->index]);
                 }
 
@@ -281,10 +281,10 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
 
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites))
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites))
         return;
 
-    spritetype * pTarget = &sprite[pXSprite->target];
+    spritetype * pTarget = &sprite[pXSprite->target_i];
     if (!(pTarget->type >= kDudeBase && pTarget->type < kDudeMax))
         return;
 
@@ -363,7 +363,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             pThing->cstat &= ~CSTAT_SPRITE_BLOCK;
             pThing->pal = 6;
             pThing->clipdist = 0;
-            pXThing->target = pTarget->index;
+            pXThing->target_i = pTarget->index;
             pXThing->Proximity = true;
             pXThing->stateTimer = 1;
                 
@@ -418,7 +418,7 @@ static void unicultThinkChase(DBloodActor* actor)
     auto const pXSprite = &actor->x();
     auto const pSprite = &actor->s();
     if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax) return;
-    else if (pXSprite->target < 0 || pXSprite->target >= kMaxSprites) {
+    else if (pXSprite->target_i < 0 || pXSprite->target_i >= kMaxSprites) {
         if(spriteIsUnderwater(pSprite,false)) aiGenDudeNewState(pSprite, &genDudeGotoW);
         else aiGenDudeNewState(pSprite, &genDudeGotoL);
         return;
@@ -428,13 +428,13 @@ static void unicultThinkChase(DBloodActor* actor)
 
     }
 
-    spritetype* pTarget = &sprite[pXSprite->target];
+    spritetype* pTarget = &sprite[pXSprite->target_i];
     XSPRITE* pXTarget = (!IsDudeSprite(pTarget) || !xspriRangeIsFine(pTarget->extra)) ? NULL : &xsprite[pTarget->extra];
 
     if (pXTarget == NULL) {  // target lost
         if(spriteIsUnderwater(pSprite,false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
         else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
-        pXSprite->target = -1;
+        pXSprite->target_i = -1;
         return;
 
     } else if (pXTarget->health <= 0) { // target is dead
@@ -446,7 +446,7 @@ static void unicultThinkChase(DBloodActor* actor)
         } 
         else if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeGotoW);
         else aiGenDudeNewState(pSprite, &genDudeGotoL);
-        pXSprite->target = -1;
+        pXSprite->target_i = -1;
         return;
     }
     
@@ -475,7 +475,7 @@ static void unicultThinkChase(DBloodActor* actor)
         if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)  {
             if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
             else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
-            pXSprite->target = -1;
+            pXSprite->target_i = -1;
             return;
         }
     }
@@ -489,7 +489,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
         if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchW);
         else aiGenDudeNewState(pSprite, &genDudeSearchL);
-        pXSprite->target = -1;
+        pXSprite->target_i = -1;
         return;
     }
 
@@ -533,7 +533,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             XSPRITE* pXLeech = &xsprite[pLeech->extra];
                             int ldist = aiFightGetTargetDist(pTarget, pDudeInfo, pLeech);
                             if (ldist > 3 || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum,
-                                pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || pXLeech->target == -1) {
+                                pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || pXLeech->target_i == -1) {
 
                                 aiGenDudeNewState(pSprite, &genDudeThrow2);
                                 genDudeThrow2.nextState = &genDudeDodgeShortL;
@@ -595,7 +595,7 @@ static void unicultThinkChase(DBloodActor* actor)
             } else if (weaponType == kGenDudeWeaponSummon) {
 
                 // don't attack slaves
-                if (pXSprite->target >= 0 && sprite[pXSprite->target].owner == pSprite->index) {
+                if (pXSprite->target_i >= 0 && sprite[pXSprite->target_i].owner == pSprite->index) {
                     aiSetTarget(pXSprite, pSprite->x, pSprite->y, pSprite->z);
                     return;
                 } else if (gGenDudeExtra[pSprite->index].slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist) {
@@ -677,7 +677,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         objDist = approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y);
                     }
 
-                    if (pXSprite->target != gHitInfo.hitsprite && targetDist > objDist) {
+                    if (pXSprite->target_i != gHitInfo.hitsprite && targetDist > objDist) {
                         walltype* pHWall = NULL; XWALL* pXHWall = NULL;
                         spritetype* pHSprite = NULL; XSPRITE* pXHSprite = NULL;
                         bool hscn = false; bool blck = false; bool failed = false;
@@ -716,7 +716,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 break;
                             if (IsDudeSprite(pHSprite) && (weaponType != kGenDudeWeaponHitscan || hscn)) {
                                 // dodge a bit in sides
-                                if (pXHSprite->target != pSprite->index) {
+                                if (pXHSprite->target_i != pSprite->index) {
                                     if (pExtra->baseDispersion < 1024 && weaponType != kGenDudeWeaponMissile) {
                                         if (spriteIsUnderwater(pSprite)) aiGenDudeNewState(pSprite, &genDudeDodgeShorterW);
                                         else if (inDuck(pXSprite->aiState)) aiGenDudeNewState(pSprite, &genDudeDodgeShorterD);
@@ -774,7 +774,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             {
                                 if (genDudeAdjustSlope(actor, dist, weaponType)) break;
                                 VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, dist, 1);
-                                if (pXSprite->target == gHitInfo.hitsprite) break;
+                                if (pXSprite->target_i == gHitInfo.hitsprite) break;
                                 
                                 bool immune = nnExtIsImmune(pHSprite, gVectorData[curWeapon].dmgType);
                                 if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) 
@@ -828,7 +828,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 if (masked) VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, dist, 1);
 
                                 //viewSetSystemMessage("WALL VHIT: %d", gHitInfo.hitwall);
-                                if ((pXSprite->target != gHitInfo.hitsprite) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) {
+                                if ((pXSprite->target_i != gHitInfo.hitsprite) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) {
                                     if (spriteIsUnderwater(pSprite)) aiGenDudeNewState(pSprite, &genDudeChaseW);
                                     else aiGenDudeNewState(pSprite, &genDudeChaseL);
                                     return;
@@ -880,7 +880,7 @@ static void unicultThinkChase(DBloodActor* actor)
                     }
                 }
                 
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 switch (state) {
                     case 1:
                         aiGenDudeNewState(pSprite, &genDudeFireW);
@@ -999,7 +999,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
         int nAccel = pDudeInfo->frontSpeed << 2;
         if (abs(nAng) > 341)
             return;
-        if (pXSprite->target == -1)
+        if (pXSprite->target_i == -1)
             pSprite->ang = (pSprite->ang + 256) & 2047;
         int dx = pXSprite->targetX - pSprite->x;
         int dy = pXSprite->targetY - pSprite->y;
@@ -1012,7 +1012,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
         int vy = yvel[pSprite->index];
         int t1 = DMulScale(vx, nCos, vy, nSin, 30);
         int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-        if (pXSprite->target == -1)
+        if (pXSprite->target_i == -1)
             t1 += nAccel;
         else
             t1 += nAccel >> 1;
@@ -1048,26 +1048,26 @@ void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, in
     int t1 = DMulScale(xvel, Cos(pSprite->ang), yvel, Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
     
-    if (CanMove(actor, pXSprite->target, pSprite->ang + vc, vsi))
+    if (CanMove(actor, actor->GetTarget(), pSprite->ang + vc, vsi))
         pXSprite->goalAng = pSprite->ang + vc;
-    else if (CanMove(actor, pXSprite->target, pSprite->ang + vc / 2, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang + vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang + vc / 2;
-    else if (CanMove(actor, pXSprite->target, pSprite->ang - vc / 2, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang - vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang - vc / 2;
-    else if (CanMove(actor, pXSprite->target, pSprite->ang + v8, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang + v8, vsi))
         pXSprite->goalAng = pSprite->ang + v8;
-    else if (CanMove(actor, pXSprite->target, pSprite->ang, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang, vsi))
         pXSprite->goalAng = pSprite->ang;
-    else if (CanMove(actor, pXSprite->target, pSprite->ang - v8, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang - v8, vsi))
         pXSprite->goalAng = pSprite->ang - v8;
     else
         pXSprite->goalAng = pSprite->ang + 341;
     
     pXSprite->dodgeDir = (Chance(0x8000)) ? 1 : -1;
 
-    if (!CanMove(actor, pXSprite->target, pSprite->ang + pXSprite->dodgeDir * 512, 512)) {
+    if (!CanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512)) {
         pXSprite->dodgeDir = -pXSprite->dodgeDir;
-        if (!CanMove(actor, pXSprite->target, pSprite->ang + pXSprite->dodgeDir * 512, 512))
+        if (!CanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512))
             pXSprite->dodgeDir = 0;
     }
 }
@@ -1552,7 +1552,7 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
     }
     auto actor = &bloodActors[pSprite->index];
 
-    int nTarget = pXSprite->target;
+    int nTarget = pXSprite->target_i;
     if (spriRangeIsFine(nTarget) && nTarget != pSprite->owner) {
         spritetype* pTarget = &sprite[nTarget];
         if (pTarget->statnum == kStatDude && !(pTarget->flags & 32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites && !pXSprite->stateTimer) {
@@ -1811,7 +1811,7 @@ void genDudeTransform(spritetype* pSprite) {
             seqSpawn(seqId, 3, pSprite->extra, -1);
 
             // save target
-            int target = pXSprite->target;
+            int target = pXSprite->target_i;
 
             // re-init sprite
             aiInitSprite(pSprite);
@@ -1849,14 +1849,14 @@ void updateTargetOfLeech(spritetype* pSprite) {
     
     spritetype* pLeech = leechIsDropped(pSprite);
     if (pLeech == NULL || pLeech->extra < 0) gGenDudeExtra[pSprite->index].nLifeLeech = -1;
-    else if (xsprite[pSprite->extra].target != xsprite[pLeech->extra].target) {
+    else if (xsprite[pSprite->extra].target_i != xsprite[pLeech->extra].target_i) {
         XSPRITE* pXDude = &xsprite[pSprite->extra]; XSPRITE* pXLeech = &xsprite[pLeech->extra];
-        if (pXDude->target < 0 && spriRangeIsFine(pXLeech->target)) {
-            aiSetTarget(pXDude, pXLeech->target);
+        if (pXDude->target_i < 0 && spriRangeIsFine(pXLeech->target_i)) {
+            aiSetTarget(pXDude, pXLeech->target_i);
             if (inIdle(pXDude->aiState))
                 aiActivateDude(&bloodActors[pXDude->reference]);
         } else {
-            pXLeech->target = pXDude->target;
+            pXLeech->target_i = pXDude->target_i;
         }
     }
 }
@@ -1869,7 +1869,7 @@ void updateTargetOfSlaves(spritetype* pSprite) {
     
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
     GENDUDEEXTRA* pExtra = genDudeExtra(pSprite); short* slave = pExtra->slave;
-    spritetype* pTarget = (pXSprite->target >= 0 && IsDudeSprite(&sprite[pXSprite->target])) ? &sprite[pXSprite->target] : NULL;
+    spritetype* pTarget = (pXSprite->target_i >= 0 && IsDudeSprite(&sprite[pXSprite->target_i])) ? &sprite[pXSprite->target_i] : NULL;
     XSPRITE* pXTarget = (pTarget != NULL && xspriRangeIsFine(pTarget->extra) && xsprite[pTarget->extra].health > 0) ? &xsprite[pTarget->extra] : NULL;
 
     int newCnt = pExtra->slaveCount;
@@ -1883,9 +1883,9 @@ void updateTargetOfSlaves(spritetype* pSprite) {
 
             XSPRITE* pXSlave = &xsprite[pSlave->index];
             if (pXTarget != NULL) {
-                if (pXSprite->target != pXSlave->target) aiSetTarget(pXSlave, pXSprite->target);
+                if (pXSprite->target_i != pXSlave->target_i) aiSetTarget(pXSlave, pXSprite->target_i);
                 // check if slave have proper target
-                if (!spriRangeIsFine(pXSlave->target) || sprite[pXSlave->target].owner == pSprite->index)
+                if (!spriRangeIsFine(pXSlave->target_i) || sprite[pXSlave->target_i].owner == pSprite->index)
                     aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z);
             } else {
                 aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z); // try return to master
@@ -2099,7 +2099,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                         bool oldStatus = pExtra->canWalk;
                         pExtra->canWalk = !!getSequence(i);
                         if (oldStatus != pExtra->canWalk) {
-                            if (!spriRangeIsFine(pXSprite->target)) 
+                            if (!spriRangeIsFine(pXSprite->target_i)) 
                             {
                                 if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeIdleW);
                                 else aiGenDudeNewState(pSprite, &genDudeIdleL);

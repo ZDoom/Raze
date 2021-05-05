@@ -136,8 +136,8 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
         nMissile = kThingArmedTNTBundle;
     char v4 = Chance(0x6000);
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int dx = pTarget->x - pSprite->x;
     int dy = pTarget->y - pSprite->y;
@@ -173,8 +173,8 @@ void sub_68230(int, DBloodActor* actor)
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int dx = pTarget->x - pSprite->x;
     int dy = pTarget->y - pSprite->y;
@@ -236,7 +236,7 @@ static void cultThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
     {
         switch (pXSprite->medium)
         {
@@ -252,8 +252,8 @@ static void cultThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -299,7 +299,7 @@ static void cultThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
                 switch (pSprite->type) {
                 case kDudeCultistTommy:
@@ -633,7 +633,7 @@ static void cultThinkChase(DBloodActor* actor)
         aiNewState(actor, &cultistSwimGoto);
         break;
     }
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 END_BLD_NS

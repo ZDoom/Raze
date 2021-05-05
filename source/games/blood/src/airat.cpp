@@ -49,8 +49,8 @@ void ratBiteSeqCallback(int, DBloodActor* actor)
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     if (IsPlayerSprite(pTarget))
         actFireVector(actor, 0, 0, dx, dy, pTarget->z-pSprite->z, kVectorRatBite);
 }
@@ -83,15 +83,15 @@ static void ratThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
     {
         aiNewState(actor, &ratGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -115,7 +115,7 @@ static void ratThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 if (nDist < 0x399 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &ratBite);
                 return;
@@ -124,7 +124,7 @@ static void ratThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &ratGoto);
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 END_BLD_NS

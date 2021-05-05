@@ -269,7 +269,7 @@ void Respawn(int nSprite) // 9
                 // return dude to the patrol state
                 if (gModernMap && pXSprite->dudeFlag4) {
                     pXSprite->data3 = 0;
-                    pXSprite->target = -1;
+                    pXSprite->target_i = -1;
                 }
                 #else
                 pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
@@ -377,7 +377,7 @@ void FinishHim(int nSprite) // 13
     spritetype* pSprite = &sprite[nSprite];
     int nXSprite = pSprite->extra;
     XSPRITE* pXSprite = &xsprite[nXSprite];
-    if (IsPlayerSprite(pSprite) && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target == gMe->nSprite)
+    if (IsPlayerSprite(pSprite) && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target_i == gMe->nSprite)
         sndStartSample(3313, -1, 1, 0);
 }
 

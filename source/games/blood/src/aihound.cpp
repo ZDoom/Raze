@@ -56,11 +56,11 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
     }
 
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
     }
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     #ifdef NOONE_EXTENSIONS
         if (IsPlayerSprite(pTarget) || gModernMap) // allow to hit non-player targets
             actFireVector(actor, 0, 0, dx, dy, pTarget->z - pSprite->z, kVectorHoundBite);
@@ -109,7 +109,7 @@ static void houndThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
     {
         aiNewState(actor, &houndGoto);
         return;
@@ -121,11 +121,11 @@ static void houndThinkChase(DBloodActor* actor)
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
     }
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -149,7 +149,7 @@ static void houndThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 if (nDist < 0xb00 && nDist > 0x500 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &houndBurn);
                 else if(nDist < 0x266 && abs(nDeltaAngle) < 85)
@@ -160,7 +160,7 @@ static void houndThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &houndGoto);
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 END_BLD_NS

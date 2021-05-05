@@ -98,13 +98,14 @@ void aiMoveDodge(DBloodActor *actor);
 void aiActivateDude(DBloodActor *actor);
 void aiSetTarget(XSPRITE *pXSprite, int x, int y, int z);
 void aiSetTarget(XSPRITE *pXSprite, int nTarget);
+void aiSetTarget(DBloodActor* actor, DBloodActor* target);
 int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage);
 void aiThinkTarget(DBloodActor* actor);
 void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite);
 void aiProcessDudes(void);
 void aiInit(void);
 void aiInitSprite(spritetype *pSprite);
-bool CanMove(DBloodActor* pSprite, int a2, int nAngle, int nRange);
+bool CanMove(DBloodActor* pSprite, DBloodActor* target, int nAngle, int nRange);
 
 bool dudeIsPlayingSeq(spritetype* pSprite, int nSeq); // deprecated
 void aiPlay3DSound(spritetype* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);

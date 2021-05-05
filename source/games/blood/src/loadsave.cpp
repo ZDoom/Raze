@@ -575,7 +575,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 			("targetX", w.targetX, def->targetX)
 			("targetY", w.targetY, def->targetY)
 			("targetZ", w.targetZ, def->targetZ)
-			("target", w.target, def->target)
+			("target", w.target_i, def->target_i)
 			("sysdata1", w.sysData1, def->sysData1)
 			("sysdata2", w.sysData2, def->sysData2)
 			("scale", w.scale, def->scale)

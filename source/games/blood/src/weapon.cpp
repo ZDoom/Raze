@@ -1693,7 +1693,7 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
     if (pMissile)
     {
         XSPRITE *pXSprite = &xsprite[pMissile->extra];
-        pXSprite->target = pPlayer->aimTarget;
+        pXSprite->target_i = pPlayer->aimTarget;
         pMissile->ang = (nTrigger==2) ? 1024 : 0;
     }
     if (checkAmmo2(pPlayer, 8, 1))

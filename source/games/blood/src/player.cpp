@@ -2042,7 +2042,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 nDeathSeqID = 16;
                 nKneelingPlayer = nPlayerKneelClient;
                 powerupActivate(pPlayer, kPwUpDeliriumShroom);
-                pXSprite->target = nSource;
+                pXSprite->target_i = nSource;
                 evPost(pSprite->index, 3, 15, kCallbackFinishHim);
             }
             else
