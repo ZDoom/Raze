@@ -63,6 +63,12 @@ AISTATE beast138FB4 = { kAiStateOther, 9, -1, 120, NULL, sub_62AE0, beastThinkSw
 AISTATE beast138FD0 = { kAiStateOther, 9, -1, 0, NULL, sub_62D7C, beastThinkSwimChase, &beastSwimChase };
 AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beastSwimChase };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SlashSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
@@ -80,6 +86,12 @@ void SlashSeqCallback(int, DBloodActor* actor)
     actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
     sfxPlay3DSound(actor, 9012+Random(2), -1, 0);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void StompSeqCallback(int, DBloodActor* actor1)
 {
@@ -174,6 +186,12 @@ void StompSeqCallback(int, DBloodActor* actor1)
     sfxPlay3DSound(actor1, 9015+Random(2), -1, 0);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void MorphToBeast(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -182,6 +200,12 @@ static void MorphToBeast(DBloodActor* actor)
     pSprite->type = kDudeBeast;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void beastThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -189,6 +213,12 @@ static void beastThinkSearch(DBloodActor* actor)
     aiChooseDirection(actor,pXSprite->goalAng);
     aiThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void beastThinkGoto(DBloodActor* actor)
 {
@@ -216,6 +246,12 @@ static void beastThinkGoto(DBloodActor* actor)
     }
     aiThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void beastThinkChase(DBloodActor* actor)
 {
@@ -380,6 +416,12 @@ static void beastThinkChase(DBloodActor* actor)
     actor->SetTarget(nullptr);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void beastThinkSwimGoto(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -395,6 +437,12 @@ static void beastThinkSwimGoto(DBloodActor* actor)
         aiNewState(actor, &beastSwimSearch);
     aiThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void beastThinkSwimChase(DBloodActor* actor)
 {
@@ -452,6 +500,12 @@ static void beastThinkSwimChase(DBloodActor* actor)
     actor->SetTarget(nullptr);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void beastMoveForward(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -471,6 +525,12 @@ static void beastMoveForward(DBloodActor* actor)
     actor->xvel() += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
     actor->yvel() += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void sub_628A0(DBloodActor* actor)
 {
@@ -504,6 +564,12 @@ static void sub_628A0(DBloodActor* actor)
     actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void sub_62AE0(DBloodActor* actor)
 {
@@ -541,6 +607,12 @@ static void sub_62AE0(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = -dz;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void sub_62D7C(DBloodActor* actor)
 {

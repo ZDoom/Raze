@@ -58,6 +58,12 @@ AISTATE tinycaleb139660 = { kAiStateOther, 8, -1, 120, NULL, sub_65F44, calebThi
 AISTATE tinycaleb13967C = { kAiStateOther, 8, -1, 0, NULL, sub_661E0, calebThinkSwimChase, &tinycalebSwimChase };
 AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &tinycalebSwimChase };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void SeqAttackCallback(int, DBloodActor* actor)
 {
     spritetype *pSprite = &actor->s();
@@ -82,6 +88,12 @@ void SeqAttackCallback(int, DBloodActor* actor)
         sfxPlay3DSound(actor, 1002, -1, 0);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void calebThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -89,6 +101,12 @@ static void calebThinkSearch(DBloodActor* actor)
     aiChooseDirection(actor,pXSprite->goalAng);
     aiThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void calebThinkGoto(DBloodActor* actor)
 {
@@ -116,6 +134,12 @@ static void calebThinkGoto(DBloodActor* actor)
     }
     aiThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void calebThinkChase(DBloodActor* actor)
 {
@@ -245,6 +269,12 @@ static void calebThinkChase(DBloodActor* actor)
     actor->SetTarget(nullptr);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void calebThinkSwimGoto(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -260,6 +290,12 @@ static void calebThinkSwimGoto(DBloodActor* actor)
         aiNewState(actor, &tinycalebSwimSearch);
     aiThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void calebThinkSwimChase(DBloodActor* actor)
 {
@@ -311,6 +347,12 @@ static void calebThinkSwimChase(DBloodActor* actor)
     actor->SetTarget(nullptr);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void sub_65D04(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -343,6 +385,12 @@ static void sub_65D04(DBloodActor* actor)
     actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void sub_65F44(DBloodActor* actor)
 {
@@ -381,6 +429,12 @@ static void sub_65F44(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = -dz;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void sub_661E0(DBloodActor* actor)
 {

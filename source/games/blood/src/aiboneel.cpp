@@ -61,6 +61,12 @@ AISTATE eelDodgeDown = { kAiStateMove, 0, -1, 120, NULL, eelMoveDodgeDown, NULL,
 AISTATE eelDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NULL, &eelChase };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void eelBiteSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
@@ -89,6 +95,12 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
     actFireVector(actor, 0, 0, dx, dy, height2-height, kVectorBoneelBite);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void eelThinkTarget(DBloodActor* actor)
 {
@@ -146,6 +158,12 @@ static void eelThinkTarget(DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void eelThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -153,6 +171,12 @@ static void eelThinkSearch(DBloodActor* actor)
     aiChooseDirection(actor,pXSprite->goalAng);
     eelThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void eelThinkGoto(DBloodActor* actor)
 {
@@ -169,6 +193,12 @@ static void eelThinkGoto(DBloodActor* actor)
         aiNewState(actor, &eelSearch);
     eelThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void eelThinkPonder(DBloodActor* actor)
 {
@@ -225,6 +255,12 @@ static void eelThinkPonder(DBloodActor* actor)
     actor->SetTarget(nullptr);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void eelMoveDodgeUp(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -249,6 +285,12 @@ static void eelMoveDodgeUp(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = -0x8000;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void eelMoveDodgeDown(DBloodActor* actor)
 {
@@ -276,6 +318,12 @@ static void eelMoveDodgeDown(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = 0x44444;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void eelThinkChase(DBloodActor* actor)
 {
@@ -334,6 +382,12 @@ static void eelThinkChase(DBloodActor* actor)
     aiNewState(actor, &eelSearch);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void eelMoveForward(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -367,6 +421,12 @@ static void eelMoveForward(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void eelMoveSwoop(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -396,6 +456,12 @@ static void eelMoveSwoop(DBloodActor* actor)
     actor->zvel() = 0x22222;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void eelMoveAscend(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -424,6 +490,12 @@ static void eelMoveAscend(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = -0x8000;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void eelMoveToCeil(DBloodActor* actor)
 {

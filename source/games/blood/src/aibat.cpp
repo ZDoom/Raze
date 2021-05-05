@@ -62,6 +62,12 @@ AISTATE batDodgeDown = {kAiStateMove, 6, -1, 120, NULL, batMoveDodgeDown, 0, &ba
 AISTATE batDodgeDownRight = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 AISTATE batDodgeDownLeft = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void batBiteSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
@@ -77,6 +83,12 @@ void batBiteSeqCallback(int, DBloodActor* actor)
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
     actFireVector(actor, 0, 0, dx, dy, height2-height, kVectorBatBite);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batThinkTarget(DBloodActor* actor)
 {
@@ -132,6 +144,12 @@ static void batThinkTarget(DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -139,6 +157,12 @@ static void batThinkSearch(DBloodActor* actor)
     aiChooseDirection(actor, pXSprite->goalAng);
     batThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batThinkGoto(DBloodActor* actor)
 {
@@ -155,6 +179,12 @@ static void batThinkGoto(DBloodActor* actor)
         aiNewState(actor, &batSearch);
     batThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batThinkPonder(DBloodActor* actor)
 {
@@ -212,6 +242,12 @@ static void batThinkPonder(DBloodActor* actor)
     actor->SetTarget(nullptr);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batMoveDodgeUp(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -236,6 +272,12 @@ static void batMoveDodgeUp(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = -0x52aaa;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batMoveDodgeDown(DBloodActor* actor)
 {
@@ -263,6 +305,12 @@ static void batMoveDodgeDown(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = 0x44444;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batThinkChase(DBloodActor* actor)
 {
@@ -326,6 +374,12 @@ static void batThinkChase(DBloodActor* actor)
     aiNewState(actor, &batHide);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batMoveForward(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -359,6 +413,12 @@ static void batMoveForward(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batMoveSwoop(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -391,6 +451,12 @@ static void batMoveSwoop(DBloodActor* actor)
     actor->zvel() = 0x44444;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batMoveFly(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -422,6 +488,12 @@ static void batMoveFly(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = -0x2d555;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void batMoveToCeil(DBloodActor* actor)
 {
