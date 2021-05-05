@@ -2958,7 +2958,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 
 		if (damageType == kDamageBurn)
 		{
-			if (pExtra->availDeaths[kDamageBurn] && !spriteIsUnderwater(pSprite))
+			if (pExtra->availDeaths[kDamageBurn] && !spriteIsUnderwater(actor))
 			{
 				if (pExtra->canBurn)
 				{
