@@ -92,7 +92,7 @@ static void batThinkTarget(DBloodActor* actor)
         pDudeExtraE->xval2 = 0;
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
-        aiSetTarget_(pXSprite, pTarget->x, pTarget->y, pTarget->z);
+        aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &batTurn);
         return;
     }
@@ -117,13 +117,13 @@ static void batThinkTarget(DBloodActor* actor)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget_(pXSprite, pPlayer->nSprite);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, pPlayer->actor());
+                aiActivateDude(actor);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                aiSetTarget_(pXSprite, x, y, z);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, x, y, z);
+                aiActivateDude(actor);
             }
             else
                 continue;
@@ -439,7 +439,7 @@ void batMoveToCeil(DBloodActor* actor)
         aiNewState(actor, &batIdle);
     }
     else
-        aiSetTarget_(pXSprite, x, y, sector[nSector].ceilingz);
+        aiSetTarget(actor, x, y, sector[nSector].ceilingz);
 }
 
 END_BLD_NS

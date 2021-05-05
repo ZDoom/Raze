@@ -106,7 +106,6 @@ void aiInit(void);
 void aiInitSprite(spritetype *pSprite);
 bool CanMove(DBloodActor* pSprite, DBloodActor* target, int nAngle, int nRange);
 
-bool dudeIsPlayingSeq(spritetype* pSprite, int nSeq); // deprecated
 void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z);
 void aiSetTarget_(XSPRITE* pXSprite, int nTarget);
 

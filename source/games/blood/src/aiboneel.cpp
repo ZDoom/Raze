@@ -104,7 +104,7 @@ static void eelThinkTarget(DBloodActor* actor)
         pDudeExtraE->xval2 = 0;
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
-        aiSetTarget_(pXSprite, pTarget->x, pTarget->y, pTarget->z);
+        aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &eelTurn);
         return;
     }
@@ -130,14 +130,14 @@ static void eelThinkTarget(DBloodActor* actor)
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval2 = 0;
-                aiSetTarget_(pXSprite, pPlayer->nSprite);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, pPlayer->actor());
+                aiActivateDude(actor);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 pDudeExtraE->xval2 = 0;
-                aiSetTarget_(pXSprite, x, y, z);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, x, y, z);
+                aiActivateDude(actor);
             }
             else
                 continue;
@@ -441,7 +441,7 @@ void eelMoveToCeil(DBloodActor* actor)
         aiNewState(actor, &eelIdle);
     }
     else
-        aiSetTarget_(pXSprite, x, y, sector[nSector].ceilingz);
+        aiSetTarget(actor, x, y, sector[nSector].ceilingz);
 }
 
 END_BLD_NS

@@ -7426,11 +7426,6 @@ void actPostSprite(int nSprite, int nStatus)
 	actPostSprite(&bloodActors[nSprite], nStatus);
 }
 
-bool dudeIsPlayingSeq(spritetype* pSprite, int nSeq)
-{
-	return dudeIsPlayingSeq(&bloodActors[pSprite->index], nSeq);
-}
-
 void aiSetTarget_(XSPRITE* pXSprite, int nTarget)
 {
 	aiSetTarget(&bloodActors[pXSprite->reference], &bloodActors[nTarget]);

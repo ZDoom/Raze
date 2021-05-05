@@ -466,7 +466,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
     GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
     if (!pExtra->canAttack) {
-        if (pExtra->canWalk) aiSetTarget_(pXSprite, pSprite->index);
+        if (pExtra->canWalk) aiSetTarget(actor, actor); // targeting self???
         if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeGotoW);
         else aiGenDudeNewState(pSprite, &genDudeGotoL);
         return;
@@ -595,8 +595,9 @@ static void unicultThinkChase(DBloodActor* actor)
             } else if (weaponType == kGenDudeWeaponSummon) {
 
                 // don't attack slaves
-                if (pXSprite->target_i >= 0 && sprite[pXSprite->target_i].owner == pSprite->index) {
-                    aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+                if (actor->GetTarget() != nullptr && actor->GetTarget()->GetOwner() == actor) 
+                {
+                    aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
                     return;
                 } else if (gGenDudeExtra[pSprite->index].slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist) {
                     if (dist <= meleeVector->maxDist) {
@@ -927,9 +928,9 @@ int checkAttackState(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (dudeIsPlayingSeq(pSprite, 14) || spriteIsUnderwater(pSprite,false))
+    if (dudeIsPlayingSeq(actor, 14) || spriteIsUnderwater(pSprite,false))
     {
-        if ( !dudeIsPlayingSeq(pSprite, 14) || spriteIsUnderwater(pSprite,false))
+        if ( !dudeIsPlayingSeq(actor, 14) || spriteIsUnderwater(pSprite,false))
         {
             if (spriteIsUnderwater(pSprite,false))
             {
@@ -1730,6 +1731,7 @@ void genDudeTransform(spritetype* pSprite) {
     }
     
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    auto actor = &bloodActors[pXSprite->reference];
     XSPRITE* pXIncarnation = getNextIncarnation(pXSprite);
     if (pXIncarnation == NULL) {
         if (pXSprite->sysData1 == kGenDudeTransformStatus) pXSprite->sysData1 = 0;
@@ -1818,11 +1820,11 @@ void genDudeTransform(spritetype* pSprite) {
             aiInitSprite(pSprite);
 
             // try to restore target
-            if (target == -1) aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+            if (target == -1) aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
             else aiSetTarget_(pXSprite, target);
 
             // finally activate it
-            aiActivateDude(&bloodActors[pXSprite->reference]);
+            aiActivateDude(actor);
 
             break;
     }
