@@ -185,7 +185,7 @@ static void batThinkPonder(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         int height2 = (getDudeInfo(pTarget->type)->eyeHeight*pTarget->yrepeat)<<2;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             aiSetTarget(actor, actor->GetTarget());
@@ -299,7 +299,7 @@ static void batThinkChase(DBloodActor* actor)
         // Should be dudeInfo[pTarget->type-kDudeBase]
         int height2 = (pDudeInfo->eyeHeight*pTarget->yrepeat)<<2;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
