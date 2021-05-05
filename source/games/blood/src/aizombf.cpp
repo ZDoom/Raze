@@ -112,7 +112,7 @@ static void zombfThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &zombieFGoto);
         return;
@@ -144,7 +144,7 @@ static void zombfThinkChase(DBloodActor* actor)
         {
             if (abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x1400 && nDist > 0xe00 && abs(nDeltaAngle) < 85)
                 {
                     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -208,7 +208,7 @@ static void zombfThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &zombieFSearch);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS

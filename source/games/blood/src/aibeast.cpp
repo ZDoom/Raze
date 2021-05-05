@@ -222,7 +222,7 @@ static void beastThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         XSECTOR *pXSector;
         int nXSector = sector[pSprite->sectnum].extra;
@@ -281,7 +281,7 @@ static void beastThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
                 if (nDist < 0x1400 && nDist > 0xa00 && abs(nDeltaAngle) < 85 && (pTarget->flags&2)
                     && IsPlayerSprite(pTarget) && Chance(0x8000))
@@ -378,7 +378,7 @@ static void beastThinkChase(DBloodActor* actor)
         aiNewState(actor, &beastSwimGoto);
     else
         aiNewState(actor, &beastGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 static void beastThinkSwimGoto(DBloodActor* actor)
@@ -401,7 +401,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &beastSwimGoto);
         return;
@@ -435,7 +435,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &beastSwimSlash);
                 else
@@ -450,7 +450,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
         return;
     }
     aiNewState(actor, &beastSwimGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 static void beastMoveForward(DBloodActor* actor)
@@ -485,7 +485,7 @@ static void sub_628A0(DBloodActor* actor)
     int nAccel = pDudeInfo->frontSpeed<<2;
     if (abs(nAng) > 341)
         return;
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -498,7 +498,7 @@ static void sub_628A0(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
         t1 += nAccel;
     else
         t1 += nAccel>>2;

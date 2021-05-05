@@ -434,7 +434,7 @@ static void unicultThinkChase(DBloodActor* actor)
     if (pXTarget == NULL) {  // target lost
         if(spriteIsUnderwater(pSprite,false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
         else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
-        pXSprite->target_i = -1;
+        actor->SetTarget(nullptr);
         return;
 
     } else if (pXTarget->health <= 0) { // target is dead
@@ -446,7 +446,7 @@ static void unicultThinkChase(DBloodActor* actor)
         } 
         else if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeGotoW);
         else aiGenDudeNewState(pSprite, &genDudeGotoL);
-        pXSprite->target_i = -1;
+        actor->SetTarget(nullptr);
         return;
     }
     
@@ -475,7 +475,7 @@ static void unicultThinkChase(DBloodActor* actor)
         if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)  {
             if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
             else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
-            pXSprite->target_i = -1;
+            actor->SetTarget(nullptr);
             return;
         }
     }
@@ -489,7 +489,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
         if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchW);
         else aiGenDudeNewState(pSprite, &genDudeSearchL);
-        pXSprite->target_i = -1;
+        actor->SetTarget(nullptr);
         return;
     }
 
@@ -880,7 +880,7 @@ static void unicultThinkChase(DBloodActor* actor)
                     }
                 }
                 
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 switch (state) {
                     case 1:
                         aiGenDudeNewState(pSprite, &genDudeFireW);
@@ -999,7 +999,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
         int nAccel = pDudeInfo->frontSpeed << 2;
         if (abs(nAng) > 341)
             return;
-        if (pXSprite->target_i == -1)
+        if (actor->GetTarget() == nullptr)
             pSprite->ang = (pSprite->ang + 256) & 2047;
         int dx = pXSprite->targetX - pSprite->x;
         int dy = pXSprite->targetY - pSprite->y;
@@ -1012,7 +1012,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
         int vy = yvel[pSprite->index];
         int t1 = DMulScale(vx, nCos, vy, nSin, 30);
         int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-        if (pXSprite->target_i == -1)
+        if (actor->GetTarget() == nullptr)
             t1 += nAccel;
         else
             t1 += nAccel >> 1;

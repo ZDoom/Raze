@@ -83,7 +83,7 @@ static void ratThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &ratGoto);
         return;
@@ -115,7 +115,7 @@ static void ratThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x399 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &ratBite);
                 return;
@@ -124,7 +124,7 @@ static void ratThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &ratGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS

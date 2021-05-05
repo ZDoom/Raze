@@ -111,7 +111,7 @@ static void zombaThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &zombieASearch);
         return;
@@ -147,7 +147,7 @@ static void zombaThinkChase(DBloodActor* actor)
         {
             if (abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &zombieAHack);
                 return;
@@ -156,14 +156,14 @@ static void zombaThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &zombieAGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 static void zombaThinkPonder(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &zombieASearch);
         return;
@@ -195,7 +195,7 @@ static void zombaThinkPonder(DBloodActor* actor)
         {
             if (abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 if (nDist < 0x400)
                 {
                     if (abs(nDeltaAngle) < 85)
@@ -270,8 +270,7 @@ static void entryEZombie(DBloodActor* actor)
 
 static void entryAIdle(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 static void entryEStand(DBloodActor* actor)

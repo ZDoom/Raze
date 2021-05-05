@@ -200,7 +200,7 @@ static void spidThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &spidGoto);
         return;
@@ -229,7 +229,7 @@ static void spidThinkChase(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum)) {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 
                 switch (pSprite->type) {
                     case kDudeSpiderRed:
@@ -257,7 +257,7 @@ static void spidThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &spidGoto);
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS

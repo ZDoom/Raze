@@ -236,7 +236,7 @@ static void cultThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target_i == -1)
+    if (actor->GetTarget() == nullptr)
     {
         switch (pXSprite->medium)
         {
@@ -299,7 +299,7 @@ static void cultThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target_i);
+                aiSetTarget(actor, actor->GetTarget());
                 actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
                 switch (pSprite->type) {
                 case kDudeCultistTommy:
@@ -633,7 +633,7 @@ static void cultThinkChase(DBloodActor* actor)
         aiNewState(actor, &cultistSwimGoto);
         break;
     }
-    pXSprite->target_i = -1;
+    actor->SetTarget(nullptr);
 }
 
 END_BLD_NS
