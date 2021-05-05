@@ -369,7 +369,7 @@ static void ghostThinkChase(DBloodActor* actor)
         // Should be dudeInfo[pTarget->type-kDudeBase]
         int height2 = (pDudeInfo->eyeHeight*pTarget->yrepeat)<<2;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)

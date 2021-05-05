@@ -134,7 +134,7 @@ bool CanMove(DBloodActor *actor, DBloodActor* target, int nAngle, int nRange)
 {
     auto pSprite = &actor->s();
     int top, bottom;
-    GetSpriteExtents(pSprite, &top, &bottom);
+	GetActorExtents(actor, &top, &bottom);
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;

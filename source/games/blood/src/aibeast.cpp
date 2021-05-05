@@ -124,7 +124,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
                 if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
                 {
                     int top, bottom;
-                    GetSpriteExtents(pSprite, &top, &bottom);
+                    GetActorExtents(actor1, &top, &bottom);
                     if (abs(bottom-sector[nSector].floorz) == 0)
                     {
                         int dx = abs(pSprite->x-pSprite2->x);
@@ -431,7 +431,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
         int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
         int height = pDudeInfo->eyeHeight+pSprite->z;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)

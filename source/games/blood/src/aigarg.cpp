@@ -129,6 +129,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
     StatIterator it(kStatDude);
     while ((nSprite2 = it.NextIndex()) >= 0)
     {
+		auto actor2 = &bloodActors[nSprite2];
         spritetype *pSprite2 = &sprite[nSprite2];
         if (pSprite == pSprite2 || !(pSprite2->flags&8))
             continue;
@@ -150,7 +151,7 @@ void BlastSSeqCallback(int, DBloodActor* actor)
         int tz = z+MulScale(actor->dudeSlope, nDist, 10);
         int tsr = MulScale(9460, nDist, 10);
         int top, bottom;
-        GetSpriteExtents(pSprite2, &top, &bottom);
+        GetActorExtents(actor2, &top, &bottom);
         if (tz-tsr > bottom || tz+tsr < top)
             continue;
         int dx = (tx-x2)>>4;
@@ -390,14 +391,15 @@ static void gargThinkChase(DBloodActor* actor)
         // Should be dudeInfo[pTarget->type-kDudeBase]
         int height2 = (pDudeInfo->eyeHeight*pTarget->yrepeat)<<2;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(actor, actor->GetTarget());
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-                switch (pSprite->type) {
+                switch (pSprite->type) 
+                {
                 case kDudeGargoyleFlesh:
                     if (nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
                     {
@@ -710,7 +712,6 @@ static void gargMoveFly(DBloodActor* actor)
             actor->zvel() = -t1;
             break;
     }
-    abs(actor->zvel());
 }
 
 END_BLD_NS
