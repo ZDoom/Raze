@@ -459,7 +459,7 @@ void aiActivateDude(DBloodActor* actor)
 		}
 		else
 		{
-            if (Chance(0x4000)) playGenDudeSound(pSprite, kGenDudeSndTargetSpot);
+			if (Chance(0x4000)) playGenDudeSound(actor,kGenDudeSndTargetSpot);
 			if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(actor, &genDudeChaseW);
 			else aiGenDudeNewState(actor, &genDudeChaseL);
         }
@@ -1049,7 +1049,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			if (pSprite->type == kDudeModernCustomBurning) 
 			{
                 if (Chance(0x2000) && actor->dudeExtra.time < PlayClock) {
-                    playGenDudeSound(pSprite, kGenDudeSndBurning);
+					playGenDudeSound(actor,kGenDudeSndBurning);
                     actor->dudeExtra.time = PlayClock + 360;
                 }
 
@@ -1091,7 +1091,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                         if (pExtra->canBurn && pExtra->availDeaths[kDamageBurn] > 0) {
 
 							aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
-                            playGenDudeSound(pSprite, kGenDudeSndBurning);
+							playGenDudeSound(actor,kGenDudeSndBurning);
                             pSprite->type = kDudeModernCustomBurning;
 
                             if (pXSprite->data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
@@ -1121,7 +1121,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 								else aiGenDudeNewState(actor, &genDudeDodgeShortD);
 
                                 if (Chance(0x0200))
-                                    playGenDudeSound(pSprite, kGenDudeSndGotHit);
+									playGenDudeSound(actor,kGenDudeSndGotHit);
 
 							} else if (dudeIsPlayingSeq(actor, 13)) 
 							{
@@ -1131,7 +1131,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 					}
 					else if (Chance(0x0200)) 
 					{
-                        playGenDudeSound(pSprite, kGenDudeSndGotHit);
+						playGenDudeSound(actor,kGenDudeSndGotHit);
                     }
                 }
                 return nDamage;
@@ -1325,7 +1325,7 @@ void RecoilDude(DBloodActor* actor)
                 else if (rState == 2) pXSprite->aiState->nextState = &genDudeChaseD;
                 else pXSprite->aiState->nextState = &genDudeChaseW;
 
-                playGenDudeSound(pSprite, kGenDudeSndGotHit);
+				playGenDudeSound(actor,kGenDudeSndGotHit);
 
             }
 

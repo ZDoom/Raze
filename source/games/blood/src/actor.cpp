@@ -2997,7 +2997,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		pSprite->flags &= ~kPhysMove; 
 		actor->xvel() = actor->yvel() = 0;
 
-		playGenDudeSound(pSprite, kGenDudeSndTransforming);
+		playGenDudeSound(actor, kGenDudeSndTransforming);
 		int seqId = pXSprite->data2 + kGenDudeSeqTransform;
 		if (getSequence(seqId)) seqSpawn(seqId, actor, -1);
 		else
@@ -3194,7 +3194,7 @@ static int checkDamageType(DBloodActor* actor, DAMAGE_TYPE damageType)
 		case kDudeModernCustom:
 		case kDudeModernCustomBurning:
 		{
-			playGenDudeSound(pSprite, kGenDudeSndDeathExplode);
+			playGenDudeSound(actor, kGenDudeSndDeathExplode);
 			GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
 			if (!pExtra->availDeaths[damageType])
 			{
@@ -3339,7 +3339,7 @@ static void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 	auto pSprite = &actor->s();
 	auto pXSprite = &actor->x();
 
-	playGenDudeSound(pSprite, kGenDudeSndDeathNormal);
+	playGenDudeSound(actor, kGenDudeSndDeathNormal);
 	int dudeToGib = (actCheckRespawn(actor)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
 	if (nSeq == 3)
 	{
@@ -3367,7 +3367,7 @@ static void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 {
 	auto pSprite = &actor->s();
 
-	playGenDudeSound(pSprite, kGenDudeSndDeathExplode);
+	playGenDudeSound(actor, kGenDudeSndDeathExplode);
 	int dudeToGib = (actCheckRespawn(actor)) ? -1 : nDudeToGibClient1;
 
 	if (Chance(0x4000)) spawnGibs(actor, GIBTYPE_27, -0xccccc);
