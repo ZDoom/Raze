@@ -217,7 +217,7 @@ void punchCallback(int, DBloodActor* actor)
         int dy = SinScale16(pSprite->ang);
         int dz = nZOffset1 - nZOffset2;
 
-        if (!playGenDudeSound(pSprite, kGenDudeSndAttackMelee))
+        if (!playGenDudeSound(actor, kGenDudeSndAttackMelee))
             sfxPlay3DSound(actor, 530, 1, 0);
 
         actFireVector(actor, 0, 0, dx, dy, dz,kVectorGenDudePunch);
@@ -255,7 +255,7 @@ void genDudeAttack1(int, DBloodActor* actor)
         }
 
         actFireVector(actor, 0, 0, dx, dy, dz,(VECTOR_TYPE)pExtra->curWeapon);
-        if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
+        if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
             sfxPlayVectorSound(pSprite, pExtra->curWeapon);
     } 
     else if (pExtra->weaponType == kGenDudeWeaponSummon) 
@@ -278,7 +278,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 
                 gKillMgr.AddNewKill(1);
                 pExtra->slave[pExtra->slaveCount++] = pSpawned->index;
-                if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
+                if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
                     sfxPlay3DSoundCP(actor, 379, 1, 0, 0x10000 - Random3(0x3000));
             }
         }
@@ -291,7 +291,7 @@ void genDudeAttack1(int, DBloodActor* actor)
         dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion >> 1);
 
         actFireMissile(actor, 0, 0, dx, dy, dz, pExtra->curWeapon);
-        if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
+        if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
             sfxPlayMissileSound(pSprite, pExtra->curWeapon);
     }
 }
@@ -330,7 +330,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 
     const THINGINFO* pThinkInfo = &thingInfo[curWeapon - kThingBase];
     if (!gThingInfoExtra[curWeapon - kThingBase].allowThrow) return;
-    else if (!playGenDudeSound(pSprite, kGenDudeSndAttackThrow))
+    else if (!playGenDudeSound(actor, kGenDudeSndAttackThrow))
         sfxPlay3DSound(actor, 455, -1, 0);
             
     int zThrow = 14500;
@@ -502,7 +502,7 @@ static void unicultThinkChase(DBloodActor* actor)
         PLAYER* pPlayer = NULL;
         if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fraggerId == pSprite->index)) 
         {
-            playGenDudeSound(pSprite, kGenDudeSndTargetDead);
+            playGenDudeSound(actor, kGenDudeSndTargetDead);
             if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
             else aiGenDudeNewState(actor, &genDudeSearchShortL);
         } 
@@ -565,7 +565,7 @@ static void unicultThinkChase(DBloodActor* actor)
     if (dist < pDudeInfo->seeDist && abs(losAngle) <= pDudeInfo->periphery) {
 
         if ((PlayClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
-            playGenDudeSound(pSprite, kGenDudeSndChasing);
+            playGenDudeSound(actor, kGenDudeSndChasing);
 
         actor->dudeSlope = DivScale(pTarget->z - pSprite->z, dist, 10);
 
@@ -636,7 +636,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         return;
                         case kModernThingThrowableRock:
                             if (Chance(0x4000)) aiGenDudeNewState(actor, &genDudeThrow2);
-                            else playGenDudeSound(pSprite, kGenDudeSndTargetSpot);
+                            else playGenDudeSound(actor, kGenDudeSndTargetSpot);
                             return;
                         default:
                             aiGenDudeNewState(actor, &genDudeThrow2);
@@ -1324,12 +1324,14 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
 //
 //---------------------------------------------------------------------------
 
-bool playGenDudeSound(spritetype* pSprite, int mode) {
-    
+bool playGenDudeSound(DBloodActor* actor, int mode) 
+{
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
     if (mode < kGenDudeSndTargetSpot || mode >= kGenDudeSndMax) return false;
-    auto actor = &bloodActors[pSprite->index];
-    const GENDUDESND* sndInfo =& gCustomDudeSnd[mode]; bool gotSnd = false;
-    short sndStartId = xsprite[pSprite->extra].sysData1; int rand = sndInfo->randomRange;
+    const GENDUDESND* sndInfo = &gCustomDudeSnd[mode]; bool gotSnd = false;
+    short sndStartId = pXSprite->sysData1; 
+    int rand = sndInfo->randomRange;
     int sndId = (sndStartId <= 0) ? sndInfo->defaultSndId : sndStartId + sndInfo->sndIdOffset;
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
 
@@ -1357,8 +1359,8 @@ bool playGenDudeSound(spritetype* pSprite, int mode) {
 
     if (sndId < 0) return false;
     else if (sndStartId <= 0) { sndId += Random(rand); gotSnd = true; }
-    else {
-
+    else 
+    {
         // Let's try to get random snd
         int maxRetries = 5;
         while (maxRetries-- > 0) {
@@ -1370,9 +1372,11 @@ bool playGenDudeSound(spritetype* pSprite, int mode) {
         }
 
         // If no success in getting random snd, get first existing one
-        if (gotSnd == false) {
+        if (gotSnd == false) 
+        {
             int maxSndId = sndId + rand;
-            while (sndId++ < maxSndId) {
+            while (sndId++ < maxSndId) 
+            {
                 if (!soundEngine->FindSoundByResID(sndId)) continue;
                 gotSnd = true;
                 break;
@@ -1383,13 +1387,18 @@ bool playGenDudeSound(spritetype* pSprite, int mode) {
 
     if (gotSnd == false) return false;
     else if (sndInfo->aiPlaySound) aiPlay3DSound(actor, sndId, AI_SFX_PRIORITY_2, -1);
-    else sfxPlay3DSound(pSprite, sndId, -1, 0);
+    else sfxPlay3DSound(actor, sndId, -1, 0);
     
     pExtra->sndPlaying = true;
     return true;
 }
     
-    
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool spriteIsUnderwater(spritetype* pSprite, bool oldWay) {
     return ((sector[pSprite->sectnum].extra >= 0 && xsector[sector[pSprite->sectnum].extra].Underwater)
         || (oldWay && (xsprite[pSprite->extra].medium == kMediumWater || xsprite[pSprite->extra].medium == kMediumGoo)));

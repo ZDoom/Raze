@@ -201,7 +201,7 @@ void removeLeech(spritetype* pLeech, bool delSprite = true);
 void removeDudeStuff(spritetype* pSprite);
 spritetype* leechIsDropped(spritetype* pSprite);
 bool spriteIsUnderwater(spritetype* pSprite, bool oldWay = false);
-bool playGenDudeSound(spritetype* pSprite, int mode);
+bool playGenDudeSound(DBloodActor* actor, int mode);
 void aiGenDudeMoveForward(DBloodActor* actor);
 void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int aXvel = -1, int aYvel = -1);
 void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState);
