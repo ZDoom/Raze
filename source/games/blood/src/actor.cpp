@@ -2994,7 +2994,8 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (pXSprite->dropMsg > 0) // drop items
 			actDropObject(actor, pXSprite->dropMsg);
 
-		pSprite->flags &= ~kPhysMove; xvel[pSprite->index] = yvel[pSprite->index] = 0;
+		pSprite->flags &= ~kPhysMove; 
+		actor->xvel() = actor->yvel() = 0;
 
 		playGenDudeSound(pSprite, kGenDudeSndTransforming);
 		int seqId = pXSprite->data2 + kGenDudeSeqTransform;
@@ -7414,6 +7415,7 @@ void SerializeActor(FSerializer& arc)
 	}
 }
 
+// dumping ground for temporary wrappers.
 int actDamageSprite(int nSource, spritetype* pSprite, DAMAGE_TYPE damageType, int damage)
 {
     return actDamageSprite(nSource == -1 ? nullptr : &bloodActors[nSource], &bloodActors[pSprite->index], damageType, damage);
@@ -7433,6 +7435,17 @@ void aiPlay3DSound(spritetype* pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
 {
 	return aiPlay3DSound(&bloodActors[pSprite->index], a2, a3, a4);
 }
+
+void aiSetTarget_(XSPRITE* pXSprite, int nTarget)
+{
+	aiSetTarget(&bloodActors[pXSprite->reference], &bloodActors[nTarget]);
+}
+
+void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z)
+{
+	aiSetTarget(&bloodActors[pXSprite->reference], x, y, z);
+}
+
 
 
 END_BLD_NS

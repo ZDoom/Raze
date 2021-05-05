@@ -239,12 +239,12 @@ static void myThinkTarget(DBloodActor* actor)
         int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
         if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
         {
-            aiSetTarget(pXSprite, pPlayer->nSprite);
+            aiSetTarget_(pXSprite, pPlayer->nSprite);
             aiActivateDude(&bloodActors[pXSprite->reference]);
         }
         else if (nDist < pDudeInfo->hearDist)
         {
-            aiSetTarget(pXSprite, x, y, z);
+            aiSetTarget_(pXSprite, x, y, z);
             aiActivateDude(&bloodActors[pXSprite->reference]);
         }
         else

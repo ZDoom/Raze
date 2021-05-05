@@ -211,7 +211,7 @@ void genDudeAttack1(int, DBloodActor* actor)
     if (pXSprite->target_i < 0) return;
 
     int dx, dy, dz;
-    xvel[pSprite->index] = yvel[pSprite->index] = 0;
+    actor->xvel() = actor->yvel() = 0;
     
     GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
     short dispersion = pExtra->baseDispersion;
@@ -466,7 +466,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
     GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
     if (!pExtra->canAttack) {
-        if (pExtra->canWalk) aiSetTarget(pXSprite, pSprite->index);
+        if (pExtra->canWalk) aiSetTarget_(pXSprite, pSprite->index);
         if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeGotoW);
         else aiGenDudeNewState(pSprite, &genDudeGotoL);
         return;
@@ -596,7 +596,7 @@ static void unicultThinkChase(DBloodActor* actor)
 
                 // don't attack slaves
                 if (pXSprite->target_i >= 0 && sprite[pXSprite->target_i].owner == pSprite->index) {
-                    aiSetTarget(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+                    aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
                     return;
                 } else if (gGenDudeExtra[pSprite->index].slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist) {
                     if (dist <= meleeVector->maxDist) {
@@ -1817,8 +1817,8 @@ void genDudeTransform(spritetype* pSprite) {
             aiInitSprite(pSprite);
 
             // try to restore target
-            if (target == -1) aiSetTarget(pXSprite, pSprite->x, pSprite->y, pSprite->z);
-            else aiSetTarget(pXSprite, target);
+            if (target == -1) aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+            else aiSetTarget_(pXSprite, target);
 
             // finally activate it
             aiActivateDude(&bloodActors[pXSprite->reference]);
@@ -1852,7 +1852,7 @@ void updateTargetOfLeech(spritetype* pSprite) {
     else if (xsprite[pSprite->extra].target_i != xsprite[pLeech->extra].target_i) {
         XSPRITE* pXDude = &xsprite[pSprite->extra]; XSPRITE* pXLeech = &xsprite[pLeech->extra];
         if (pXDude->target_i < 0 && spriRangeIsFine(pXLeech->target_i)) {
-            aiSetTarget(pXDude, pXLeech->target_i);
+            aiSetTarget_(pXDude, pXLeech->target_i);
             if (inIdle(pXDude->aiState))
                 aiActivateDude(&bloodActors[pXDude->reference]);
         } else {
@@ -1883,12 +1883,12 @@ void updateTargetOfSlaves(spritetype* pSprite) {
 
             XSPRITE* pXSlave = &xsprite[pSlave->index];
             if (pXTarget != NULL) {
-                if (pXSprite->target_i != pXSlave->target_i) aiSetTarget(pXSlave, pXSprite->target_i);
+                if (pXSprite->target_i != pXSlave->target_i) aiSetTarget_(pXSlave, pXSprite->target_i);
                 // check if slave have proper target
                 if (!spriRangeIsFine(pXSlave->target_i) || sprite[pXSlave->target_i].owner == pSprite->index)
-                    aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z);
+                    aiSetTarget_(pXSlave, pSprite->x, pSprite->y, pSprite->z);
             } else {
-                aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z); // try return to master
+                aiSetTarget_(pXSlave, pSprite->x, pSprite->y, pSprite->z); // try return to master
             }
         } 
     }
