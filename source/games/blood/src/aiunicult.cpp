@@ -339,8 +339,9 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     int dz = pTarget->z - pSprite->z;
     int dist = approxDist(dx, dy);
     
-    spritetype* pLeech = leechIsDropped(pSprite); 
-    XSPRITE* pXLeech = (pLeech != NULL) ? &xsprite[pLeech->extra] : NULL;
+    auto actLeech = leechIsDropped(actor);
+    spritetype* pLeech = actLeech? &actLeech->s() : nullptr;
+    XSPRITE* pXLeech = actLeech && actLeech->hasX()? &actLeech->x() : nullptr;
     
     switch (curWeapon) {
         case kModernThingEnemyLifeLeech:
@@ -403,7 +404,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             pXSpawned->Proximity = true;
             pXSpawned->stateTimer = 1;
                 
-            actor->genDudeExtra().nLifeLeech = pSpawned->index;
+            actor->genDudeExtra().pLifeLeech = spawned;
             evPost(spawned, 80, kCallbackLeechStateTimer);
             return;
     }
@@ -571,7 +572,10 @@ static void unicultThinkChase(DBloodActor* actor)
 
         int curWeapon = actor->genDudeExtra().curWeapon; 
         int weaponType = actor->genDudeExtra().weaponType;
-        spritetype* pLeech = leechIsDropped(pSprite); 
+
+        auto actLeech = leechIsDropped(actor);
+        spritetype* pLeech = actLeech? &actLeech->s() : nullptr;
+
         const VECTORDATA* meleeVector = &gVectorData[22];
         if (weaponType == kGenDudeWeaponThrow) 
         {
@@ -1407,11 +1411,9 @@ bool spriteIsUnderwater(DBloodActor* actor, bool oldWay)
         || (oldWay && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)));
 }
 
-spritetype* leechIsDropped(spritetype* pSprite) {
-    short nLeech = gGenDudeExtra[pSprite->index].nLifeLeech;
-    if (nLeech >= 0 && nLeech < kMaxSprites) return &sprite[nLeech];
-    return NULL;
-
+DBloodActor* leechIsDropped(DBloodActor* actor) 
+{
+    return actor->genDudeExtra().pLifeLeech;
 }
     
 void removeDudeStuff(spritetype* pSprite) {
@@ -1455,7 +1457,7 @@ void removeLeech(spritetype* pLeech, bool delSprite) {
         sfxPlay3DSoundCP(pLeech, 490, -1, 0,60000);
         
         if (pLeech->owner >= 0 && pLeech->owner < kMaxSprites)
-            gGenDudeExtra[sprite[pLeech->owner].index].nLifeLeech = -1;
+            gGenDudeExtra[sprite[pLeech->owner].index].pLifeLeech = nullptr;
 
         if (delSprite) {
             pLeech->type = kSpriteDecoration;
@@ -1472,7 +1474,7 @@ void killDudeLeech(spritetype* pLeech) {
         sfxPlay3DSoundCP(pLeech, 522, -1, 0, 60000);
 
         if (pLeech->owner >= 0 && pLeech->owner < kMaxSprites)
-            gGenDudeExtra[sprite[pLeech->owner].index].nLifeLeech = -1;
+            gGenDudeExtra[sprite[pLeech->owner].index].pLifeLeech = nullptr;
     }
 }
     
@@ -2054,17 +2056,25 @@ void updateTargetOfLeech(spritetype* pSprite) {
         return;
     }
     
+    auto actor = &bloodActors[pSprite->index];
     
-    spritetype* pLeech = leechIsDropped(pSprite);
-    if (pLeech == NULL || pLeech->extra < 0) gGenDudeExtra[pSprite->index].nLifeLeech = -1;
-    else if (xsprite[pSprite->extra].target_i != xsprite[pLeech->extra].target_i) {
-        XSPRITE* pXDude = &xsprite[pSprite->extra]; XSPRITE* pXLeech = &xsprite[pLeech->extra];
-        if (pXDude->target_i < 0 && spriRangeIsFine(pXLeech->target_i)) {
-            aiSetTarget_(pXDude, pXLeech->target_i);
+    auto actLeech = leechIsDropped(actor);
+    if (actLeech == NULL || !actLeech->hasX()) actor->genDudeExtra().pLifeLeech = nullptr;
+    else
+    {
+        XSPRITE* pXDude = &actor->x();
+        if (actor->GetTarget() != actLeech->GetTarget())
+        {
+            if (actor->GetTarget() == nullptr && actLeech->GetTarget() != nullptr) 
+            {
+                aiSetTarget(actor, actLeech->GetTarget());
             if (inIdle(pXDude->aiState))
-                aiActivateDude(&bloodActors[pXDude->reference]);
-        } else {
-            pXLeech->target_i = pXDude->target_i;
+                    aiActivateDude(actor);
+        }
+            else 
+            {
+                actLeech->SetTarget(actor->GetTarget());
+    }
         }
     }
 }
@@ -2367,14 +2377,14 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             fallthrough__;
         }
         case kGenDudePropertyLeech:
-            pExtra->nLifeLeech = -1;
+            pExtra->pLifeLeech = nullptr;
             if (pSprite->owner != kMaxSprites - 1) {
                 int nSprite;
                 StatIterator it(kStatThing);
                 while ((nSprite = it.NextIndex()) >= 0)
                 {
                     if (sprite[nSprite].owner == pSprite->index && sprite[nSprite].type == kModernThingEnemyLifeLeech) {
-                        pExtra->nLifeLeech = nSprite;
+                        pExtra->pLifeLeech = &bloodActors[nSprite];
                         break;
                     }
                 }
