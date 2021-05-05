@@ -140,8 +140,8 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
         for (int i = -8191; i < 8192; i += by) 
         {
             HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), i, clipMask, dist);
-            if (!fStart && pXSprite->target_i == gHitInfo.hitsprite) fStart = i;
-            else if (fStart && pXSprite->target_i != gHitInfo.hitsprite) 
+            if (!fStart && actor->GetTarget() == gHitInfo.hitactor) fStart = i;
+            else if (fStart && actor->GetTarget() != gHitInfo.hitactor) 
             { 
                 fEnd = i; 
                 break; 
@@ -427,16 +427,20 @@ static void unicultThinkChase(DBloodActor* actor)
 
     }
 
-    spritetype* pTarget = &sprite[pXSprite->target_i];
-    XSPRITE* pXTarget = (!IsDudeSprite(pTarget) || !xspriRangeIsFine(pTarget->extra)) ? NULL : &xsprite[pTarget->extra];
-
-    if (pXTarget == NULL) {  // target lost
+    auto const targetactor = actor->GetTarget();
+    if (targetactor == nullptr)  // target lost
+    {
         if(spriteIsUnderwater(pSprite,false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
         else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
         actor->SetTarget(nullptr);
         return;
+    } 
 
-    } else if (pXTarget->health <= 0) { // target is dead
+    auto const pTarget = &targetactor->s();
+    XSPRITE* pXTarget = (!IsDudeSprite(pTarget) || !xspriRangeIsFine(pTarget->extra)) ? NULL : &xsprite[pTarget->extra];
+
+    if (pXTarget->health <= 0) // target is dead
+    {
         PLAYER* pPlayer = NULL;
         if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fraggerId == pSprite->index)) {
             playGenDudeSound(pSprite, kGenDudeSndTargetDead);
@@ -677,16 +681,27 @@ static void unicultThinkChase(DBloodActor* actor)
                         objDist = approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y);
                     }
 
-                    if (pXSprite->target_i != gHitInfo.hitsprite && targetDist > objDist) {
-                        walltype* pHWall = NULL; XWALL* pXHWall = NULL;
-                        spritetype* pHSprite = NULL; XSPRITE* pXHSprite = NULL;
-                        bool hscn = false; bool blck = false; bool failed = false;
+                    if (actor != gHitInfo.hitactor && targetDist > objDist) 
+                    {
+                        DBloodActor* hitactor = nullptr;
+                        walltype* pHWall = NULL; 
+                        XWALL* pXHWall = NULL;
+                        spritetype* pHSprite = NULL; 
+                        XSPRITE* pXHSprite = NULL;
+                        bool hscn = false; 
+                        bool blck = false; 
+                        bool failed = false;
 
-                        switch (hit) {
+                        switch (hit) 
+                        {
                         case 3:
-                            pHSprite = &sprite[gHitInfo.hitsprite];
-                            if (xspriRangeIsFine(pHSprite->extra)) pXHSprite = &xsprite[pHSprite->extra];
-                            hscn = (pHSprite->cstat & CSTAT_SPRITE_BLOCK_HITSCAN); blck = (pHSprite->cstat & CSTAT_SPRITE_BLOCK);
+                            hitactor = gHitInfo.hitactor;
+                            if (hitactor)
+                            {
+                                pHSprite = &hitactor->s();
+                                pXHSprite = &hitactor->x();
+                                hscn = (pHSprite->cstat & CSTAT_SPRITE_BLOCK_HITSCAN); blck = (pHSprite->cstat & CSTAT_SPRITE_BLOCK);
+                            }
                             break;
                         case 0:
                         case 4:
@@ -774,7 +789,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             {
                                 if (genDudeAdjustSlope(actor, dist, weaponType)) break;
                                 VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, dist, 1);
-                                if (pXSprite->target_i == gHitInfo.hitsprite) break;
+                                if (actor == gHitInfo.hitactor) break;
                                 
                                 bool immune = nnExtIsImmune(pHSprite, gVectorData[curWeapon].dmgType);
                                 if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) 
@@ -828,7 +843,8 @@ static void unicultThinkChase(DBloodActor* actor)
                                 if (masked) VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, dist, 1);
 
                                 //viewSetSystemMessage("WALL VHIT: %d", gHitInfo.hitwall);
-                                if ((pXSprite->target_i != gHitInfo.hitsprite) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) {
+                                if ((actor != gHitInfo.hitactor) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) 
+                                {
                                     if (spriteIsUnderwater(pSprite)) aiGenDudeNewState(pSprite, &genDudeChaseW);
                                     else aiGenDudeNewState(pSprite, &genDudeChaseL);
                                     return;

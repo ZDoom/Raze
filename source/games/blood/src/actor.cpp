@@ -3852,17 +3852,17 @@ int actDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE damageT
 //
 //---------------------------------------------------------------------------
 
-void actHitcodeToData(int a1, HITINFO* pHitInfo, DBloodActor** pActor, walltype** a7)
+void actHitcodeToData(int a1, HITINFO* pHitInfo, DBloodActor** pActor, walltype** ppWall)
 {
 	assert(pHitInfo != nullptr);
-	int nSprite = -1;
+	DBloodActor* actor = nullptr;
 	int nWall = -1;
 	walltype* pWall = nullptr;
 	switch (a1)
 	{
 	case 3:
 	case 5:
-		nSprite = pHitInfo->hitsprite;
+		actor = pHitInfo->hitactor;
 		break;
 	case 0:
 	case 4:
@@ -3872,8 +3872,8 @@ void actHitcodeToData(int a1, HITINFO* pHitInfo, DBloodActor** pActor, walltype*
 	default:
 		break;
 	}
-	if (pActor) *pActor = nSprite == -1 ? nullptr : &bloodActors[nSprite];
-	if (a7) *a7 = pWall;
+	if (pActor) *pActor = actor;
+	if (ppWall) *ppWall = pWall;
 }
 
 //---------------------------------------------------------------------------
@@ -4901,7 +4901,7 @@ void MoveDude(DBloodActor* actor)
 			if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags & 32) && actor != Owner)
 			{
 				HITINFO hitInfo = gHitInfo;
-				gHitInfo.hitsprite = pSprite->index;
+				gHitInfo.hitactor = actor;
 				actImpactMissile(coll.actor, 3);
 				gHitInfo = hitInfo;
 			}
@@ -5344,9 +5344,7 @@ int MoveMissile(DBloodActor* actor)
 		bakCstat = pOwner->cstat;
 		pOwner->cstat &= ~257;
 	}
-	gHitInfo.hitsect = -1;
-	gHitInfo.hitwall = -1;
-	gHitInfo.hitsprite = -1;
+	gHitInfo.clearObj();
 	if (pSprite->type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
 
 	if (actor->GetTarget() != nullptr && (actor->xvel() || actor->yvel() || actor->zvel()))
@@ -5405,7 +5403,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 		if (clipmoveresult.type == kHitSprite)
 		{
-			gHitInfo.hitsprite = clipmoveresult.legacyVal & kHitIndexMask;
+			gHitInfo.hitactor = clipmoveresult.actor;
 			cliptype = 3;
 		}
 		else if (clipmoveresult.type == kHitWall)
@@ -6936,17 +6934,16 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
     int hit = VectorScan(pShooter, a2, a3, a4, a5, a6, nRange, 1);
     if (hit == 3)
     {
-        int nSprite_ = gHitInfo.hitsprite;
-        assert(nSprite_ >= 0 && nSprite_ < kMaxSprites);
-		auto actor = &bloodActors[nSprite_];
-		spritetype* pSprite = &actor->s();
+		auto hitactor = gHitInfo.hitactor;
+		assert(hitactor != nullptr);
+		spritetype* pSprite = &hitactor->s();
         if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pShooter, pSprite)) return;
 		if (IsPlayerSprite(pSprite))
 		{
 			PLAYER* pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
             if (powerupCheck(pPlayer, kPwUpReflectShots))
             {
-				gHitInfo.hitsprite = pShooter->index;
+				gHitInfo.hitactor = shooter;
                 gHitInfo.hitx = pShooter->x;
                 gHitInfo.hity = pShooter->y;
                 gHitInfo.hitz = pShooter->z;
@@ -7020,9 +7017,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
         }
         case 3:
         {
-            int nSprite = gHitInfo.hitsprite;
-            assert(nSprite >= 0 && nSprite < kMaxSprites);
-			auto actor = &bloodActors[nSprite];
+			auto actor = gHitInfo.hitactor;
 			spritetype* pSprite = &actor->s();
 			nSurf = surfType[pSprite->picnum];
             x -= MulScale(a4, 112, 14);
@@ -7129,12 +7124,12 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
                     if (pXSprite->physAttr & kPhysDebrisVector) {
                         
                         int impulse = DivScale(pVectorData->impulse, ClipLow(gSpriteMass[pSprite->extra].mass, 10), 6);
-                        xvel[nSprite] += MulScale(a4, impulse, 16);
-                        yvel[nSprite] += MulScale(a5, impulse, 16);
-                        zvel[nSprite] += MulScale(a6, impulse, 16);
+                        actor->xvel() += MulScale(a4, impulse, 16);
+						actor->yvel() += MulScale(a5, impulse, 16);
+						actor->zvel() += MulScale(a6, impulse, 16);
 
                         if (pVectorData->burnTime != 0) {
-                            if (!pXSprite->burnTime) evPost(nSprite, 3, 0, kCallbackFXFlameLick);
+                            if (!pXSprite->burnTime) evPost(actor, 0, kCallbackFXFlameLick);
                             actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
                         }
 
@@ -7416,6 +7411,19 @@ void SerializeActor(FSerializer& arc)
 }
 
 // dumping ground for temporary wrappers.
+
+void HITINFO::set(hitdata_t* hit)
+{
+	hitsect = hit->sect;
+	hitwall = hit->wall;
+	hitsprite = hit->sprite;
+	hitactor = hit->sprite >= 0 ? &bloodActors[hit->sprite] : nullptr;
+	hitx = hit->pos.x;
+	hity = hit->pos.y;
+	hitz = hit->pos.z;
+}
+
+
 void actPostSprite(int nSprite, int nStatus)
 {
 	actPostSprite(&bloodActors[nSprite], nStatus);

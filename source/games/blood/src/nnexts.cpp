@@ -3977,7 +3977,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                     switch (var) {
                         case 0: case 4: condPush(pXCond, OBJ_WALL, gHitInfo.hitwall);       break;
                         case 1: case 2: condPush(pXCond, OBJ_SECTOR, gHitInfo.hitsect);     break;
-                        case 3:         condPush(pXCond, OBJ_SPRITE, gHitInfo.hitsprite);   break;
+                    case 3:         condPush(pXCond, OBJ_SPRITE, gHitInfo.hitactor? gHitInfo.hitactor->s().index : -1);   break;
                     }
 
                 }

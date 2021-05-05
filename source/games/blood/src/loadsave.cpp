@@ -607,7 +607,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, HITINFO& w, HITINF
 	if (arc.BeginObject(keyname))
 	{
 		arc("sect", w.hitsect)
-			("sprite", w.hitsprite)
+			("sprite", w.hitactor)
 			("wall", w.hitwall)
 			("x", w.hitx)
 			("y", w.hity)

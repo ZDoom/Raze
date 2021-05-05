@@ -389,7 +389,7 @@ static void ghostThinkChase(DBloodActor* actor)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudePhantasm)
+                            if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudePhantasm)
                                 aiNewState(actor, &ghostBlast);
                             break;
                         default:
@@ -409,7 +409,7 @@ static void ghostThinkChase(DBloodActor* actor)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudePhantasm)
+                            if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudePhantasm)
                                 aiNewState(actor, &ghostSlash);
                             break;
                         default:

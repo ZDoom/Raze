@@ -156,7 +156,7 @@ static void zombfThinkChase(DBloodActor* actor)
                         aiNewState(actor, &zombieFThrow);
                         break;
                     case 3:
-                        if (pSprite->type != sprite[gHitInfo.hitsprite].type)
+                        if (pSprite->type != gHitInfo.hitactor->s().type)
                             aiNewState(actor, &zombieFThrow);
                         else
                             aiNewState(actor, &zombieFDodge);
@@ -175,7 +175,7 @@ static void zombfThinkChase(DBloodActor* actor)
                         aiNewState(actor, &zombieFPuke);
                         break;
                     case 3:
-                        if (pSprite->type != sprite[gHitInfo.hitsprite].type)
+                        if (pSprite->type != gHitInfo.hitactor->s().type)
                             aiNewState(actor, &zombieFPuke);
                         else
                             aiNewState(actor, &zombieFDodge);
@@ -194,7 +194,7 @@ static void zombfThinkChase(DBloodActor* actor)
                         aiNewState(actor, &zombieFHack);
                         break;
                     case 3:
-                        if (pSprite->type != sprite[gHitInfo.hitsprite].type)
+                        if (pSprite->type != gHitInfo.hitactor->s().type)
                             aiNewState(actor, &zombieFHack);
                         else
                             aiNewState(actor, &zombieFDodge);

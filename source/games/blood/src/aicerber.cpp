@@ -432,7 +432,7 @@ static void cerberusThinkChase(DBloodActor* actor)
                                 aiNewState(actor, &cerberusBite);
                                 break;
                             case 3:
-                                if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeHellHound)
+                                if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeHellHound)
                                     aiNewState(actor, &cerberusBite);
                                 break;
                             case 0:
@@ -449,7 +449,7 @@ static void cerberusThinkChase(DBloodActor* actor)
                                 aiNewState(actor, &cerberus2Bite);
                                 break;
                             case 3:
-                                if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeHellHound)
+                                if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeHellHound)
                                     aiNewState(actor, &cerberus2Bite);
                                 break;
                             case 0:
