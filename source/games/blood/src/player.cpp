@@ -1254,7 +1254,7 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
         switch (hit)
         {
         case 3:
-            *a2 = gHitInfo.hitsprite;
+            *a2 = gHitInfo.hitactor ? gHitInfo.hitactor->s().index : -1;
             *a3 = sprite[*a2].extra;
             if (*a3 > 0 && sprite[*a2].statnum == kStatThing)
             {

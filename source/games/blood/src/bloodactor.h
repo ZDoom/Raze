@@ -277,7 +277,6 @@ struct Collision
 	}
 };
 
-
 inline DBloodActor* getUpperLink(int sect)
 {
 	auto l = gUpperLink[sect];

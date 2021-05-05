@@ -301,7 +301,7 @@ static void beastThinkChase(DBloodActor* actor)
                                 aiNewState(actor, &beastStomp);
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type)
+                            if (pSprite->type != gHitInfo.hitactor->s().type)
                             {
                                 if (!pXSector || !pXSector->Underwater)
                                     aiNewState(actor, &beastStomp);
@@ -339,7 +339,7 @@ static void beastThinkChase(DBloodActor* actor)
                             aiNewState(actor, &beastSlash);
                         break;
                     case 3:
-                        if (pSprite->type != sprite[gHitInfo.hitsprite].type)
+                        if (pSprite->type != gHitInfo.hitactor->s().type)
                         {
                             if (pXSector && pXSector->Underwater)
                                 aiNewState(actor, &beastSwimSlash);
