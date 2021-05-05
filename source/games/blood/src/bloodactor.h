@@ -67,7 +67,11 @@ public:
 	bool ValidateTarget(const char* func)
 	{
 		if (GetTarget() == nullptr)
-			Printf(PRINT_HIGH|PRINT_NOTIFY, "%s: invalid target in calling actor\n", func);
+		{
+			Printf(PRINT_HIGH | PRINT_NOTIFY, "%s: invalid target in calling actor\n", func);
+			return false;
+		}
+		return true;
 	}
 
 	void SetBurnSource(DBloodActor* own)

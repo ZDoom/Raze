@@ -56,7 +56,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
     }
 
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
+    spritetype *pTarget = &actor->GetTarget()->s();
     #ifdef NOONE_EXTENSIONS
         if (IsPlayerSprite(pTarget) || gModernMap) // allow to hit non-player targets
             actFireVector(actor, 0, 0, dx, dy, pTarget->z - pSprite->z, kVectorHoundBite);
@@ -116,8 +116,8 @@ static void houndThinkChase(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
     aiChooseDirection(actor,getangle(dx, dy));

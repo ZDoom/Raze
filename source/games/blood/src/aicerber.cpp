@@ -68,7 +68,7 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
         return;
     }
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
+    spritetype *pTarget = &actor->GetTarget()->s();
     int dz = pTarget->z-pSprite->z;
     actFireVector(actor, 350, -100, dx, dy, dz, kVectorCerberusHack);
     actFireVector(actor, -350, 0, dx, dy, dz, kVectorCerberusHack);
@@ -372,8 +372,8 @@ static void cerberusThinkChase(DBloodActor* actor)
         Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
     }
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
     aiChooseDirection(actor,getangle(dx, dy));

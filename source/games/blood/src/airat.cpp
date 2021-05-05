@@ -50,7 +50,7 @@ void ratBiteSeqCallback(int, DBloodActor* actor)
     int dy = SinScale16(pSprite->ang);
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &sprite[pXSprite->target_i];
+    spritetype *pTarget = &actor->GetTarget()->s();
     if (IsPlayerSprite(pTarget))
         actFireVector(actor, 0, 0, dx, dy, pTarget->z-pSprite->z, kVectorRatBite);
 }
@@ -90,8 +90,8 @@ static void ratThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    spritetype *pTarget = &sprite[pXSprite->target_i];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
     aiChooseDirection(actor,getangle(dx, dy));
