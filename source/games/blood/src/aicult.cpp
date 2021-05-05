@@ -200,9 +200,8 @@ static char TargetNearExplosion(spritetype *pSprite)
 static void cultThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
     aiChooseDirection(actor,pXSprite->goalAng);
-    aiLookForTarget(pSprite, pXSprite);
+    aiLookForTarget(actor);
 }
 
 static void cultThinkGoto(DBloodActor* actor)

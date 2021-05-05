@@ -100,7 +100,7 @@ void aiSetTarget(DBloodActor* pXSprite, int x, int y, int z);
 void aiSetTarget(DBloodActor* actor, DBloodActor* target);
 int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage);
 void aiThinkTarget(DBloodActor* actor);
-void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite);
+void aiLookForTarget(DBloodActor* actor);
 void aiProcessDudes(void);
 void aiInit(void);
 void aiInitSprite(spritetype *pSprite);

@@ -382,12 +382,11 @@ static void ThrowThing(DBloodActor* actor, bool impact)
 static void unicultThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
     // TO DO: if can't see the target, but in fireDist range - stop moving and look around
     
     //viewSetSystemMessage("IN SEARCH");
     aiChooseDirection(actor,pXSprite->goalAng);
-    aiLookForTarget(pSprite, pXSprite);
+    aiLookForTarget(actor);
 }
 
 static void unicultThinkGoto(DBloodActor* actor)

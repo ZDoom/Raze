@@ -87,9 +87,8 @@ void StandSeqCallback(int, DBloodActor* actor)
 static void zombaThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
     aiChooseDirection(actor,pXSprite->goalAng);
-    aiLookForTarget(pSprite, pXSprite);
+    aiLookForTarget(actor);
 }
 
 static void zombaThinkGoto(DBloodActor* actor)

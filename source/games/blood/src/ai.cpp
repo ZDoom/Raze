@@ -32,8 +32,6 @@ BEGIN_BLD_NS
 
 void RecoilDude(DBloodActor* actor);
 
-int cumulDamage[kMaxXSprites];
-
 AISTATE genIdle = {kAiStateGenIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
 AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 
@@ -979,7 +977,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 
 //---------------------------------------------------------------------------
 //
-//
+// todo: split up and put most of its content in tables.
 //
 //---------------------------------------------------------------------------
 
@@ -991,7 +989,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
     if (!pXSprite->health)
         return 0;
     pXSprite->health = ClipLow(pXSprite->health - nDamage, 0);
-    actor->cumulDamage() += nDamage;
+	actor->cumulDamage += nDamage;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
 
     if (source)
@@ -1037,7 +1035,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                         int fullHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : getDudeInfo(pSprite->type)->startHealth << 4;
 						if (((100 * pXSprite->health) / fullHp) <= 75) 
 						{
-							actor->cumulDamage() += nDamage << 4; // to be sure any enemy will play the recoil animation
+							actor->cumulDamage += nDamage << 4; // to be sure any enemy will play the recoil animation
                             RecoilDude(&bloodActors[pXSprite->reference]);
                         }
                     }
@@ -1048,8 +1046,8 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 return nDamage;
             }
 
-            if (pSprite->type == kDudeModernCustomBurning) {
-
+			if (pSprite->type == kDudeModernCustomBurning) 
+			{
                 if (Chance(0x2000) && actor->dudeExtra.time < PlayClock) {
                     playGenDudeSound(pSprite, kGenDudeSndBurning);
                     actor->dudeExtra.time = PlayClock + 360;
@@ -1265,50 +1263,62 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
     return nDamage;
 }
 
+//---------------------------------------------------------------------------
+//
+// todo: split up and put most of its content in tables.
+//
+//---------------------------------------------------------------------------
+
 void RecoilDude(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     char v4 = Chance(0x8000);
-    DUDEEXTRA *pDudeExtra = &actor->dudeExtra;
-    if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-        switch (pSprite->type) {
+	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
+	if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
+	{
+		DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+		switch (pSprite->type)
+		{
 #ifdef NOONE_EXTENSIONS
-        case kDudeModernCustom: {
+		case kDudeModernCustom:
+		{
             GENDUDEEXTRA* pExtra = genDudeExtra(pSprite); int rChance = getRecoilChance(pSprite);
-            if (pExtra->canElectrocute && pDudeExtra->recoil && !spriteIsUnderwater(pSprite, false)) {
-                
+			if (pExtra->canElectrocute && pDudeExtra->recoil && !spriteIsUnderwater(pSprite, false))
+			{
                 if (Chance(rChance << 3) || (dudeIsMelee(pXSprite) && Chance(rChance << 4))) aiGenDudeNewState(pSprite, &genDudeRecoilTesla);
                 else if (pExtra->canRecoil && Chance(rChance)) aiGenDudeNewState(pSprite, &genDudeRecoilL);
-                else if (canWalk(pSprite)) {
-                    
+				else if (canWalk(pSprite))
+				{
+
                     if (Chance(rChance >> 2)) aiGenDudeNewState(pSprite, &genDudeDodgeL);
                     else if (Chance(rChance >> 1)) aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
 
                 }
 
-            } else if (pExtra->canRecoil && Chance(rChance)) {
-                
+			}
+			else if (pExtra->canRecoil && Chance(rChance))
+			{
                 if (inDuck(pXSprite->aiState) && Chance(rChance >> 2)) aiGenDudeNewState(pSprite, &genDudeRecoilD);
                 else if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeRecoilW);
                 else aiGenDudeNewState(pSprite, &genDudeRecoilL);
+			}
 
-            }
-            
             short rState = inRecoil(pXSprite->aiState);
-            if (rState > 0) {
-                
-                if (!canWalk(pSprite)) {
+			if (rState > 0)
+			{
+				if (!canWalk(pSprite))
+				{
                     if (rState == 1) pXSprite->aiState->nextState = &genDudeChaseNoWalkL;
                     else if (rState == 2) pXSprite->aiState->nextState = &genDudeChaseNoWalkD;
                     else pXSprite->aiState->nextState = &genDudeChaseNoWalkW;
 
-                } else if (!dudeIsMelee(pXSprite) || Chance(rChance >> 2)) {
+				}
+				else if (!dudeIsMelee(pXSprite) || Chance(rChance >> 2))
+				{
                     if (rState == 1) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeL : &genDudeDodgeShortL);
                     else if (rState == 2) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeD : &genDudeDodgeShortD);
                     else if (rState == 3) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeW : &genDudeDodgeShortW);
-
                 }
                 else if (rState == 1) pXSprite->aiState->nextState = &genDudeChaseL;
                 else if (rState == 2) pXSprite->aiState->nextState = &genDudeChaseD;
@@ -1327,14 +1337,17 @@ void RecoilDude(DBloodActor* actor)
         case kDudeCultistTesla:
         case kDudeCultistTNT:
         case kDudeCultistBeast:
-            if (pSprite->type == kDudeCultistTommy) aiPlay3DSound(actor, 4013+Random(2), AI_SFX_PRIORITY_2, -1);
-            else aiPlay3DSound(actor, 1013+Random(2), AI_SFX_PRIORITY_2, -1);
-            
-            if (!v4 && pXSprite->medium == kMediumNormal) {
+			if (pSprite->type == kDudeCultistTommy) aiPlay3DSound(actor, 4013 + Random(2), AI_SFX_PRIORITY_2, -1);
+			else aiPlay3DSound(actor, 1013 + Random(2), AI_SFX_PRIORITY_2, -1);
+
+			if (!v4 && pXSprite->medium == kMediumNormal)
+			{
                 if (pDudeExtra->recoil) aiNewState(actor, &cultistTeslaRecoil);
                 else aiNewState(actor, &cultistRecoil);
 
-            } else if (v4 && pXSprite->medium == kMediumNormal) {
+			}
+			else if (v4 && pXSprite->medium == kMediumNormal)
+			{
                 if (pDudeExtra->recoil) aiNewState(actor, &cultistTeslaRecoil);
                 else if (gGameOptions.nDifficulty > 0) aiNewState(actor, &cultistProneRecoil);
                 else aiNewState(actor, &cultistRecoil);
@@ -1367,9 +1380,9 @@ void RecoilDude(DBloodActor* actor)
         case kDudeZombieAxeNormal:
         case kDudeZombieAxeBuried:
             aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
-            if (pDudeExtra->recoil && pXSprite->data3 > pDudeInfo->startHealth/3)
+			if (pDudeExtra->recoil && pXSprite->data3 > pDudeInfo->startHealth / 3)
                 aiNewState(actor, &zombieATeslaRecoil);
-            else if (pXSprite->data3 > pDudeInfo->startHealth/3)
+			else if (pXSprite->data3 > pDudeInfo->startHealth / 3)
                 aiNewState(actor, &zombieARecoil2);
             else
                 aiNewState(actor, &zombieARecoil);
@@ -1388,14 +1401,14 @@ void RecoilDude(DBloodActor* actor)
             aiNewState(actor, &gargoyleFRecoil);
             break;
         case kDudeCerberusTwoHead:
-            aiPlay3DSound(actor, 2302+Random(2), AI_SFX_PRIORITY_2, -1);
-            if (pDudeExtra->recoil && pXSprite->data3 > pDudeInfo->startHealth/3)
+			aiPlay3DSound(actor, 2302 + Random(2), AI_SFX_PRIORITY_2, -1);
+			if (pDudeExtra->recoil && pXSprite->data3 > pDudeInfo->startHealth / 3)
                 aiNewState(actor, &cerberusTeslaRecoil);
             else
                 aiNewState(actor, &cerberusRecoil);
             break;
         case kDudeCerberusOneHead:
-            aiPlay3DSound(actor, 2302+Random(2), AI_SFX_PRIORITY_2, -1);
+			aiPlay3DSound(actor, 2302 + Random(2), AI_SFX_PRIORITY_2, -1);
             aiNewState(actor, &cerberus2Recoil);
             break;
         case kDudeHellHound:
@@ -1406,7 +1419,7 @@ void RecoilDude(DBloodActor* actor)
                 aiNewState(actor, &houndRecoil);
             break;
         case kDudeTchernobog:
-            aiPlay3DSound(actor, 2370+Random(2), AI_SFX_PRIORITY_2, -1);
+			aiPlay3DSound(actor, 2370 + Random(2), AI_SFX_PRIORITY_2, -1);
             aiNewState(actor, &tchernobogRecoil);
             break;
         case kDudeHand:
@@ -1426,7 +1439,7 @@ void RecoilDude(DBloodActor* actor)
             aiNewState(actor, &eelRecoil);
             break;
         case kDudeGillBeast: {
-            XSECTOR *pXSector = NULL;
+			XSECTOR* pXSector = NULL;
             if (sector[pSprite->sectnum].extra > 0)
                 pXSector = &xsector[sector[pSprite->sectnum].extra];
             aiPlay3DSound(actor, 1702, AI_SFX_PRIORITY_2, -1);
@@ -1446,15 +1459,15 @@ void RecoilDude(DBloodActor* actor)
         case kDudeSpiderBrown:
         case kDudeSpiderRed:
         case kDudeSpiderBlack:
-            aiPlay3DSound(actor, 1802+Random(1), AI_SFX_PRIORITY_2, -1);
+			aiPlay3DSound(actor, 1802 + Random(1), AI_SFX_PRIORITY_2, -1);
             aiNewState(actor, &spidDodge);
             break;
         case kDudeSpiderMother:
-            aiPlay3DSound(actor, 1851+Random(1), AI_SFX_PRIORITY_2, -1);
+			aiPlay3DSound(actor, 1851 + Random(1), AI_SFX_PRIORITY_2, -1);
             aiNewState(actor, &spidDodge);
             break;
         case kDudeInnocent:
-            aiPlay3DSound(actor, 7007+Random(2), AI_SFX_PRIORITY_2, -1);
+			aiPlay3DSound(actor, 7007 + Random(2), AI_SFX_PRIORITY_2, -1);
             if (pDudeExtra->recoil)
                 aiNewState(actor, &innocentTeslaRecoil);
             else
@@ -1479,7 +1492,7 @@ void RecoilDude(DBloodActor* actor)
             }
             break;
         case kDudeBeast:
-            aiPlay3DSound(actor, 9004+Random(2), AI_SFX_PRIORITY_2, -1);
+			aiPlay3DSound(actor, 9004 + Random(2), AI_SFX_PRIORITY_2, -1);
             if (pXSprite->medium == kMediumNormal)
             {
                 if (pDudeExtra->recoil)
@@ -1513,31 +1526,38 @@ void RecoilDude(DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void aiThinkTarget(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
     {
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
-            PLAYER *pPlayer = &gPlayer[p];
+			PLAYER* pPlayer = &gPlayer[p];
             if (pSprite->owner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
             int z = pPlayer->pSprite->z;
             int nSector = pPlayer->pSprite->sectnum;
-            int dx = x-pSprite->x;
-            int dy = y-pSprite->y;
+			int dx = x - pSprite->x;
+			int dy = y - pSprite->y;
             int nDist = approxDist(dx, dy);
             if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                 continue;
-            if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
+			if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sectnum))
                 continue;
-            int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
+
+			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(actor, pPlayer->actor());
@@ -1554,30 +1574,37 @@ void aiThinkTarget(DBloodActor* actor)
     }
 }
 
-void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void aiLookForTarget(DBloodActor* actor)
 {
-	auto actor = &bloodActors[pSprite->index];
+	auto pSprite = &actor->s();
+	auto pXSprite = &actor->x();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
     {
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
-            PLAYER *pPlayer = &gPlayer[p];
+			PLAYER* pPlayer = &gPlayer[p];
             if (pSprite->owner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
             int z = pPlayer->pSprite->z;
             int nSector = pPlayer->pSprite->sectnum;
-            int dx = x-pSprite->x;
-            int dy = y-pSprite->y;
+			int dx = x - pSprite->x;
+			int dy = y - pSprite->y;
             int nDist = approxDist(dx, dy);
             if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                 continue;
-            if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
+			if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sectnum))
                 continue;
-            int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
+			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 aiSetTarget(actor, pPlayer->actor());
@@ -1601,12 +1628,12 @@ void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
             while (DBloodActor* actor2 = it.Next())
             {
 				spritetype* pSprite2 = &actor2->s();
-                int dx = pSprite2->x-pSprite->x;
-                int dy = pSprite2->y-pSprite->y;
+				int dx = pSprite2->x - pSprite->x;
+				int dy = pSprite2->y - pSprite->y;
                 int nDist = approxDist(dx, dy);
                 if (pSprite2->type == kDudeInnocent)
                 {
-                    DUDEINFO *pDudeInfo = getDudeInfo(pSprite2->type);
+					DUDEINFO* pDudeInfo = getDudeInfo(pSprite2->type);
                     if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                         continue;
                     aiSetTarget(actor, actor2);
@@ -1618,25 +1645,30 @@ void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
     }
 }
 
-void aiProcessDudes(void) {
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void aiProcessDudes(void) 
+{
+    BloodStatIterator it(kStatDude);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+		auto pSprite = &actor->s();
         if (pSprite->flags & 32) continue;
-        int nXSprite = pSprite->extra;
-        XSPRITE *pXSprite = &xsprite[nXSprite]; 
+		auto pXSprite = &actor->x();
         DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-        auto actor = &bloodActors[pXSprite->reference];
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
+
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
 
         if (pXSprite->aiState && pXSprite->aiState->moveFunc)
-            pXSprite->aiState->moveFunc(&bloodActors[pXSprite->reference]);
+            pXSprite->aiState->moveFunc(actor);
 
-        if (pXSprite->aiState && pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (nSprite & 3))
-            pXSprite->aiState->thinkFunc(&bloodActors[pXSprite->reference]);
+        if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (pSprite->index & 3)) // ouch, ouch! :(
+            pXSprite->aiState->thinkFunc(actor);
 
         switch (pSprite->type) {
             #ifdef NOONE_EXTENSIONS
@@ -1646,13 +1678,14 @@ void aiProcessDudes(void) {
                 if (pExtra->slaveCount > 0) updateTargetOfSlaves(pSprite);
                 if (pExtra->nLifeLeech >= 0) updateTargetOfLeech(pSprite);
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
-                    && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0)) {
+                    && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0)) 
+				{
                     aiGenDudeNewState(pSprite, pXSprite->aiState->nextState);
                 }
                 int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
-                if (pXSprite->health <= 0 || hinder > cumulDamage[pSprite->extra]) break;
-                pXSprite->data3 = cumulDamage[pSprite->extra];
-                RecoilDude(&bloodActors[pXSprite->reference]);
+                if (pXSprite->health <= 0 || hinder > actor->cumulDamage) break;
+                pXSprite->data3 = actor->cumulDamage;
+                RecoilDude(actor);
                 break;
             }
             #endif
@@ -1660,18 +1693,24 @@ void aiProcessDudes(void) {
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState) {
                     if (pXSprite->aiState->stateTicks > 0)
                         aiNewState(actor, pXSprite->aiState->nextState);
-                    else if (seqGetStatus(3, nXSprite) < 0)
+                    else if (seqGetStatus(actor) < 0)
                         aiNewState(actor, pXSprite->aiState->nextState);
                 }
 
-                if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= cumulDamage[nXSprite])) {
-                    pXSprite->data3 = cumulDamage[nXSprite];
-                    RecoilDude(&bloodActors[pXSprite->reference]);
+                if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= actor->cumulDamage)) 
+				{
+                    pXSprite->data3 = actor->cumulDamage;
+                    RecoilDude(actor);
                 }
                 break;
         }
     }
-    memset(cumulDamage, 0, sizeof(cumulDamage));
+
+	it.Reset(kStatDude);
+	while (auto actor = it.Next())
+	{
+		actor->cumulDamage = 0;
+	}
 }
 
 void aiInit(void)
