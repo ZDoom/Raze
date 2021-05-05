@@ -93,7 +93,7 @@ void aiThinkTarget(DBloodActor* actor);
 void aiLookForTarget(DBloodActor* actor);
 void aiProcessDudes(void);
 void aiInit(void);
-void aiInitSprite(spritetype *pSprite);
+void aiInitSprite(DBloodActor* pSprite);
 bool CanMove(DBloodActor* pSprite, int a2, int nAngle, int nRange);
 
 void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z);

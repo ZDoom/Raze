@@ -1716,7 +1716,7 @@ spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist) {
     }
 
     gKillMgr.AddNewKill(1);
-    aiInitSprite(pDude);
+    aiInitSprite(spawned);
     return pDude;
 }
 
@@ -1814,7 +1814,7 @@ void genDudeTransform(spritetype* pSprite) {
             int target = pXSprite->target_i;
 
             // re-init sprite
-            aiInitSprite(pSprite);
+            aiInitSprite(actor);
 
             // try to restore target
             if (target == -1) aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
