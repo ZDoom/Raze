@@ -538,12 +538,12 @@ int GameMain()
 	{
 		r = RunGame();
 	}
-	catch (const CExitEvent & exit)
+	catch (const CExitEvent& exit)
 	{
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
-	catch (const std::exception & err)
+	catch (const std::exception& err)
 	{
 		// shut down critical systems before showing a message box.
 		I_ShowFatalError(err.what());
@@ -818,6 +818,56 @@ void CreateStatusBar()
 	StatusBar = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
 }
 
+
+void GetGames()
+{
+	auto getgames = Args->CheckValue("-getgames");
+	if (getgames)
+	{
+		try
+		{
+			auto groups = GrpScan();
+			FSerializer arc;
+			if (arc.OpenWriter())
+			{
+				if (arc.BeginArray("games"))
+				{
+					for (auto& entry : groups)
+					{
+						if (arc.BeginObject(nullptr))
+						{
+							arc("filename", entry.FileName)
+								("description", entry.FileInfo.name)
+								("defname", entry.FileInfo.defname)
+								("scriptname", entry.FileInfo.scriptname)
+								("gamefilter", entry.FileInfo.gamefilter)
+								("gameid", entry.FileInfo.gameid)
+								("fgcolor", entry.FileInfo.FgColor)
+								("bkcolor", entry.FileInfo.BgColor)
+								("addon", entry.FileInfo.isAddon)
+								.EndObject();
+						}
+					}
+					arc.EndArray();
+				}
+				unsigned int len;
+				auto p = arc.GetOutput(&len);
+				FILE* f = fopen(getgames, "wb");
+				if (f)
+				{
+					fwrite(p, 1, len, f);
+					fclose(f);
+				}
+			}
+		}
+		catch (...)
+		{
+			// Ignore all errors
+		}
+		throw CExitEvent(0);
+	}
+}
+
 //==========================================================================
 //
 //
@@ -844,6 +894,7 @@ int RunGame()
 	I_DetectOS();
 	userConfig.ProcessOptions();
 	G_LoadConfig();
+	GetGames();
 	auto usedgroups = SetupGame();
 
 	bool colorset = false;
