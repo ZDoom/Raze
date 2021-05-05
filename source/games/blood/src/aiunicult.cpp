@@ -1132,6 +1132,7 @@ void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState) {
 bool playGenDudeSound(spritetype* pSprite, int mode) {
     
     if (mode < kGenDudeSndTargetSpot || mode >= kGenDudeSndMax) return false;
+    auto actor = &bloodActors[pSprite->index];
     const GENDUDESND* sndInfo =& gCustomDudeSnd[mode]; bool gotSnd = false;
     short sndStartId = xsprite[pSprite->extra].sysData1; int rand = sndInfo->randomRange;
     int sndId = (sndStartId <= 0) ? sndInfo->defaultSndId : sndStartId + sndInfo->sndIdOffset;
@@ -1186,7 +1187,7 @@ bool playGenDudeSound(spritetype* pSprite, int mode) {
     }
 
     if (gotSnd == false) return false;
-    else if (sndInfo->aiPlaySound) aiPlay3DSound(pSprite, sndId, AI_SFX_PRIORITY_2, -1);
+    else if (sndInfo->aiPlaySound) aiPlay3DSound(actor, sndId, AI_SFX_PRIORITY_2, -1);
     else sfxPlay3DSound(pSprite, sndId, -1, 0);
     
     pExtra->sndPlaying = true;

@@ -74,7 +74,7 @@ AISTATE statueSBreakSEQ = { kAiStateOther, 5, -1, 0, entrySStatue, NULL, playSta
 static void playStatueBreakSnd(DBloodActor* actor) {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    aiPlay3DSound(pSprite, 313, AI_SFX_PRIORITY_1, -1);
+    aiPlay3DSound(actor, 313, AI_SFX_PRIORITY_1, -1);
 }
 
 void SlashFSeqCallback(int, DBloodActor* actor)
@@ -452,11 +452,11 @@ static void gargThinkChase(DBloodActor* actor)
                     }
                     else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0xa00)
                     {
-                        aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
+                        aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
                         aiNewState(actor, &gargoyleSwoop);
                     }
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && abs(nDeltaAngle) < 85)
-                        aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
+                        aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
                     break;
                 case kDudeGargoyleStone:
                     if (nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
@@ -507,13 +507,13 @@ static void gargThinkChase(DBloodActor* actor)
                     else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0x800)
                     {
                         if (pSprite->type == kDudeGargoyleFlesh)
-                            aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
+                            aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
                         else
-                            aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
+                            aiPlay3DSound(actor, 1450, AI_SFX_PRIORITY_1, -1);
                         aiNewState(actor, &gargoyleSwoop);
                     }
                     else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && abs(nDeltaAngle) < 85)
-                        aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
+                        aiPlay3DSound(actor, 1450, AI_SFX_PRIORITY_1, -1);
                     break;
                 }
             }

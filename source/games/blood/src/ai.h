@@ -107,7 +107,6 @@ void aiInitSprite(spritetype *pSprite);
 bool CanMove(DBloodActor* pSprite, DBloodActor* target, int nAngle, int nRange);
 
 bool dudeIsPlayingSeq(spritetype* pSprite, int nSeq); // deprecated
-void aiPlay3DSound(spritetype* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
 void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z);
 void aiSetTarget_(XSPRITE* pXSprite, int nTarget);
 
