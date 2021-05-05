@@ -451,13 +451,13 @@ void aiActivateDude(DBloodActor* actor)
 		pDudeExtraE->active = 1;
 		if (actor->GetTarget() == nullptr)
 		{
-			if (spriteIsUnderwater(pSprite, false))  aiGenDudeNewState(actor, &genDudeSearchW);
+			if (spriteIsUnderwater(actor, false))  aiGenDudeNewState(actor, &genDudeSearchW);
 			else aiGenDudeNewState(actor, &genDudeSearchL);
 		}
 		else
 		{
 			if (Chance(0x4000)) playGenDudeSound(actor,kGenDudeSndTargetSpot);
-			if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(actor, &genDudeChaseW);
+			if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeChaseW);
 			else aiGenDudeNewState(actor, &genDudeChaseL);
 		}
 		break;
@@ -1038,7 +1038,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				}
 
 				if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
-				if (spriteIsUnderwater(pSprite, false))
+				if (spriteIsUnderwater(actor, false)) 
 				{
 					pSprite->type = kDudeModernCustom;
 					pXSprite->burnTime = 0;
@@ -1063,7 +1063,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						if (pExtra->weaponType == kGenDudeWeaponKamikaze)
 							doExplosion(pSprite, pXSprite->data1 - kTrapExploder);
 
-						if (spriteIsUnderwater(pSprite))
+						if (spriteIsUnderwater(actor)) 
 						{
 							pXSprite->health = 0;
 							return nDamage;
@@ -1099,7 +1099,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 					{
 						if (inIdle(pXSprite->aiState) || Chance(getDodgeChance(pSprite)))
 						{
-							if (!spriteIsUnderwater(pSprite))
+							if (!spriteIsUnderwater(actor)) 
 							{
 								if (!canDuck(pSprite) || !dudeIsPlayingSeq(actor, 14))  aiGenDudeNewState(actor, &genDudeDodgeShortL);
 								else aiGenDudeNewState(actor, &genDudeDodgeShortD);
@@ -1275,7 +1275,7 @@ void RecoilDude(DBloodActor* actor)
 		{
 			GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
 			int rChance = getRecoilChance(pSprite);
-			if (pExtra->canElectrocute && pDudeExtra->teslaHit && !spriteIsUnderwater(pSprite, false))
+			if (pExtra->canElectrocute && pDudeExtra->teslaHit && !spriteIsUnderwater(actor, false))
 			{
 				if (Chance(rChance << 3) || (dudeIsMelee(pXSprite) && Chance(rChance << 4))) aiGenDudeNewState(actor, &genDudeRecoilTesla);
 				else if (pExtra->canRecoil && Chance(rChance)) aiGenDudeNewState(actor, &genDudeRecoilL);
@@ -1291,7 +1291,7 @@ void RecoilDude(DBloodActor* actor)
 			else if (pExtra->canRecoil && Chance(rChance))
 			{
 				if (inDuck(pXSprite->aiState) && Chance(rChance >> 2)) aiGenDudeNewState(actor, &genDudeRecoilD);
-				else if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(actor, &genDudeRecoilW);
+				else if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeRecoilW);
 				else aiGenDudeNewState(actor, &genDudeRecoilL);
 			}
 
@@ -1974,7 +1974,7 @@ void aiInitSprite(DBloodActor* actor)
 			pXSprite->data3 = 0;
 
 			// make dude follow the markers
-			bool uwater = spriteIsUnderwater(pSprite);
+			bool uwater = spriteIsUnderwater(actor);
 			if (pXSprite->target_i <= 0 || sprite[pXSprite->target_i].type != kMarkerPath) {
 				pXSprite->target_i = -1; aiPatrolSetMarker(pSprite, pXSprite);
 			}

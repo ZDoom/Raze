@@ -1253,6 +1253,7 @@ void nnExtProcessSuperSprites() {
                 continue;
             }
 
+            auto debrisactor = &bloodActors[gPhysSpritesList[i]];
             spritetype* pDebris = &sprite[gPhysSpritesList[i]];
             int idx = pDebris->index;
 
@@ -1316,7 +1317,7 @@ void nnExtProcessSuperSprites() {
                 pXDebris->goalAng = getangle(xvel[idx], yvel[idx]) & 2047;
 
             int ang = pDebris->ang & 2047;
-            if ((uwater = spriteIsUnderwater(pDebris)) == false) evKill(idx, 3, kCallbackEnemeyBubble);
+            if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKill(idx, 3, kCallbackEnemeyBubble);
             else if (Chance(0x1000 - mass)) {
                 
                 if (zvel[idx] > 0x100) debrisBubble(idx);
@@ -1550,6 +1551,7 @@ void debrisMove(int listIndex) {
     int nSprite = gPhysSpritesList[listIndex];
     int nXSprite = sprite[nSprite].extra;       XSPRITE* pXDebris = &xsprite[nXSprite];
     spritetype* pSprite = &sprite[nSprite];     int nSector = pSprite->sectnum;
+    auto actor = &bloodActors[nSprite];
 
     int top, bottom, i;
     GetSpriteExtents(pSprite, &top, &bottom);
@@ -1646,7 +1648,7 @@ void debrisMove(int listIndex) {
             case kMarkerUpGoo:
                 int pitch = (150000 - (gSpriteMass[pSprite->extra].mass << 9)) + Random3(8192);
                 sfxPlay3DSoundCP(pSprite, 720, -1, 0, pitch, 75 - Random(40));
-                    if (!spriteIsUnderwater(pSprite)) {
+                    if (!spriteIsUnderwater(actor)) {
                     evKill(pSprite->index, 3, kCallbackEnemeyBubble);
                     } else {
                         evPost(pSprite->index, 3, 0, kCallbackEnemeyBubble);
@@ -3927,7 +3929,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 }
                 break;
             case 30:
-                if (!spriteIsUnderwater(pSpr) && !spriteIsUnderwater(pSpr, true)) return false;
+                if (!spriteIsUnderwater(spractor) && !spriteIsUnderwater(spractor, true)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
                 return true;
             case 31: 
@@ -4747,6 +4749,7 @@ void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
 
 bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event) {
 
+    auto actor = &bloodActors[pSprite->index];
     if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) {
         switch (event.cmd) {
             case kCmdLock:
@@ -6632,6 +6635,7 @@ bool aiPatrolMarkerReached(spritetype* pSprite, XSPRITE* pXSprite) {
 
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 
+        auto actor = &bloodActors[pSprite->index];
     DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
     if (spriRangeIsFine(pXSprite->target_i) && sprite[pXSprite->target_i].type == kMarkerPath) {
             
@@ -6642,7 +6646,7 @@ bool aiPatrolMarkerReached(spritetype* pSprite, XSPRITE* pXSprite) {
 
         if (approxDist(oX, oY) <= okDist) {
             
-            if (spriteIsUnderwater(pSprite) || pExtra->flying) {
+            if (spriteIsUnderwater(actor) || pExtra->flying) {
 
                 okDist = pMarker->clipdist << 4;
                 int ztop, zbot, ztop2, zbot2;
@@ -6900,7 +6904,7 @@ void aiPatrolMove(DBloodActor* actor) {
     int vel = (pXSprite->unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
     int goalAng = 341;
 
-    if (pExtra->flying || spriteIsUnderwater(pSprite)) {
+    if (pExtra->flying || spriteIsUnderwater(actor)) {
 
         goalAng >>= 1;
         zvel[pSprite->index] = dz;
@@ -7409,6 +7413,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
 void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init) {
 
+    auto destactor = &bloodActors[pDest->index];
     // copy flags
     if (copy) {
     
@@ -7441,7 +7446,7 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
             
             
             aiPatrolSetMarker(pDest, pXDest);
-            if (spriteIsUnderwater(pDest)) aiPatrolState(pDest, kAiStatePatrolWaitW);
+            if (spriteIsUnderwater(destactor)) aiPatrolState(pDest, kAiStatePatrolWaitW);
             else aiPatrolState(pDest, kAiStatePatrolWaitL);
             pXDest->data3 = 0; // reset the spot progress
 
@@ -7473,7 +7478,7 @@ void aiPatrolThink(DBloodActor* actor) {
     }
 
     
-    bool crouch = (pXSprite->unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(pSprite);
+    bool crouch = (pXSprite->unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
     if (!spriRangeIsFine(nMarker) || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(pSprite)) || !canWalk(pSprite)))) {
         aiPatrolStop(pSprite, -1);
         return;
