@@ -1074,7 +1074,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                     if (pXSprite->health > (uint32_t)pDudeInfo->fleeHealth) return nDamage;
 					else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == nullptr) 
 					{
-                        removeDudeStuff(pSprite);
+						removeDudeStuff(actor);
 
                         if (pExtra->weaponType == kGenDudeWeaponKamikaze)
                             doExplosion(pSprite, pXSprite->data1 - kTrapExploder);

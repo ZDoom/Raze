@@ -197,8 +197,8 @@ extern GENDUDEEXTRA gGenDudeExtra[kMaxSprites];
 
 XSPRITE* getNextIncarnation(XSPRITE* pXSprite);
 void killDudeLeech(spritetype* pLeech);
-void removeLeech(spritetype* pLeech, bool delSprite = true);
-void removeDudeStuff(spritetype* pSprite);
+void removeLeech(DBloodActor* pLeech, bool delSprite = true);
+void removeDudeStuff(DBloodActor* pSprite);
 DBloodActor* leechIsDropped(DBloodActor* pSprite);
 bool spriteIsUnderwater(DBloodActor* pSprite, bool oldWay = false);
 bool playGenDudeSound(DBloodActor* actor, int mode);

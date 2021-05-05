@@ -2526,7 +2526,6 @@ static void actInitDudes()
 
 void actInit(bool bSaveLoad)
 {
-
 #ifdef NOONE_EXTENSIONS
 	if (!gModernMap) nnExtResetGlobals();
 	else nnExtInitModernStuff(bSaveLoad);
@@ -2947,7 +2946,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 	auto pSprite = &actor->s();
 	auto pXSprite = &actor->x();
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
-	removeDudeStuff(pSprite);
+	removeDudeStuff(actor);
 	if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == nullptr)
 	{
 		if (pExtra->weaponType == kGenDudeWeaponKamikaze && Chance(0x4000) && damageType != kDamageSpirit && damageType != kDamageDrown)

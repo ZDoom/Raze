@@ -5913,11 +5913,11 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
             aiSetGenIdleState(pSprite, pXSprite);
             if (pSprite->type == kDudeModernCustom && actLeech)
-                removeLeech(&actLeech->s());
+                removeLeech(actLeech);
         } else if (pXSource->data4 == 4) {
             aiSetTarget_(pXSprite, pPlayer->x, pPlayer->y, pPlayer->z);
             if (pSprite->type == kDudeModernCustom && actLeech)
-                removeLeech(&actLeech->s());
+                removeLeech(actLeech);
         }
     }
 
