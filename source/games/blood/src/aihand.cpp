@@ -46,6 +46,7 @@ void HandJumpSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     if (IsPlayerSprite(pTarget))
     {
@@ -93,7 +94,7 @@ static void handThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

@@ -55,11 +55,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
         return;
     }
 
-    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
-        return;
-    }
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     #ifdef NOONE_EXTENSIONS
         if (IsPlayerSprite(pTarget) || gModernMap) // allow to hit non-player targets
@@ -120,11 +116,6 @@ static void houndThinkChase(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
-        return;
-    }
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

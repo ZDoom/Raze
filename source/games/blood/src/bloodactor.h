@@ -11,45 +11,45 @@ extern int cumulDamage[kMaxXSprites];
 class DBloodActor
 {
 	int index;
-    DBloodActor* base();
+	DBloodActor* base();
 
 public:
-    int dudeSlope;
+	int dudeSlope;
 	DUDEEXTRA dudeExtra;
 
-    DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
-    DBloodActor& operator=(const DBloodActor& other) = default;
-	
+	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
+	DBloodActor& operator=(const DBloodActor& other) = default;
+
 	void Clear()
 	{
 		dudeSlope = 0;
 		dudeExtra = {};
 	}
-    bool hasX() { return sprite[index].extra > 0; }
+	bool hasX() { return sprite[index].extra > 0; }
 	void addX()
 	{
 		if (s().extra == -1) dbInsertXSprite(s().index);
 	}
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
-    SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }
-    int& xvel() { return Blood::xvel[index]; }
-    int& yvel() { return Blood::yvel[index]; }
-    int& zvel() { return Blood::zvel[index]; }
+	SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }
+	int& xvel() { return Blood::xvel[index]; }
+	int& yvel() { return Blood::yvel[index]; }
+	int& zvel() { return Blood::zvel[index]; }
 
-    int& cumulDamage() { return Blood::cumulDamage[sprite[index].extra]; }
-    SPRITEMASS& spriteMass() { return gSpriteMass[sprite[index].extra]; }
-    GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
-    POINT3D& basePoint() { return Blood::baseSprite[index]; }
+	int& cumulDamage() { return Blood::cumulDamage[sprite[index].extra]; }
+	SPRITEMASS& spriteMass() { return gSpriteMass[sprite[index].extra]; }
+	GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
+	POINT3D& basePoint() { return Blood::baseSprite[index]; }
 
 	void SetOwner(DBloodActor* own)
 	{
-		s().owner = own? own->s().index : -1;
+		s().owner = own ? own->s().index : -1;
 	}
 
 	DBloodActor* GetOwner()
 	{
-		if (s().owner == -1 || s().owner == kMaxSprites-1) return nullptr;
+		if (s().owner == -1 || s().owner == kMaxSprites - 1) return nullptr;
 		return base() + s().owner;
 	}
 
@@ -60,8 +60,18 @@ public:
 
 	DBloodActor* GetTarget()
 	{
-		if (x().target_i == -1 || x().target_i == kMaxSprites - 1) return nullptr;
+		if (x().target_i <= -1 || x().target_i == kMaxSprites - 1) return nullptr;
 		return base() + x().target_i;
+	}
+
+	bool ValidateTarget(const char* func)
+	{
+		if (GetTarget() == nullptr)
+		{
+			Printf(PRINT_HIGH | PRINT_NOTIFY, "%s: invalid target in calling actor\n", func);
+			return false;
+		}
+		return true;
 	}
 
 	void SetBurnSource(DBloodActor* own)

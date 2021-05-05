@@ -136,7 +136,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
         nMissile = kThingArmedTNTBundle;
     char v4 = Chance(0x6000);
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int dx = pTarget->x - pSprite->x;
@@ -173,7 +173,7 @@ void sub_68230(int, DBloodActor* actor)
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
     sfxPlay3DSound(pSprite, 455, -1, 0);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int dx = pTarget->x - pSprite->x;
@@ -252,7 +252,6 @@ static void cultThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

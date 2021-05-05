@@ -73,11 +73,7 @@ void podAttack(int, DBloodActor* actor)
     
     spritetype *pTarget = &sprite[pXSprite->target_i];
 
-    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
-        return;
-    }
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int x = pTarget->x-pSprite->x;
     int y = pTarget->y-pSprite->y;
@@ -201,11 +197,6 @@ static void aiPodChase(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
-        return;
-    }
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
