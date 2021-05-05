@@ -348,7 +348,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
         case kThingDroppedLifeLeech:
             zThrow = 5000;
             // pickup life leech before throw it again
-            if (pLeech != NULL) removeLeech(pLeech);
+            if (actLeech != NULL) removeLeech(actLeech);
             break;
     }
 
@@ -719,7 +719,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 {
                     case kMissileLifeLeechRegular:
                         // pickup life leech if it was thrown previously
-                        if (pLeech != NULL) removeLeech(pLeech);
+                        if (actLeech != NULL) removeLeech(actLeech);
                         mdist = 1500;
                         break;
                     case kMissileFlareAlt:
@@ -1416,37 +1416,55 @@ DBloodActor* leechIsDropped(DBloodActor* actor)
     return actor->genDudeExtra().pLifeLeech;
 }
     
-void removeDudeStuff(spritetype* pSprite) {
-    int nSprite;
-    StatIterator it(kStatThing);
-    while ((nSprite = it.NextIndex()) >= 0)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void removeDudeStuff(DBloodActor* actor)
+{
+    auto pSprite = &actor->s();
+    BloodStatIterator it(kStatThing);
+    while (auto actor2 = it.Next())
     {
-        if (sprite[nSprite].owner != pSprite->index) continue;
-        switch (sprite[nSprite].type) {
+        if ( actor2->GetOwner() != actor) continue;
+        auto pSprite2 = &actor2->s();
+        switch (pSprite2->type) {
             case kThingArmedProxBomb:
             case kThingArmedRemoteBomb:
             case kModernThingTNTProx:
-                sprite[nSprite].type = kSpriteDecoration;
-                actPostSprite(sprite[nSprite].index, kStatFree);
+                pSprite2->type = kSpriteDecoration;
+                actPostSprite(actor2, kStatFree);
                 break;
             case kModernThingEnemyLifeLeech:
-                killDudeLeech(&sprite[nSprite]);
+                killDudeLeech(pSprite2);
                 break;
         }
     }
 
     it.Reset(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+    while (auto actor2 = it.Next())
     {
-        if (sprite[nSprite].owner != pSprite->index) continue;
-        actDamageSprite(&bloodActors[sprite[nSprite].owner], &bloodActors[nSprite], kDamageFall, 65535);
+        if (actor2->GetOwner() != actor) continue;
+        actDamageSprite(actor2->GetOwner(), actor2, kDamageFall, 65535);
     }
 }
     
-void removeLeech(spritetype* pLeech, bool delSprite) {
-    if (pLeech != NULL) {
-        spritetype* pEffect = gFX.fxSpawn((FX_ID)52,pLeech->sectnum,pLeech->x,pLeech->y,pLeech->z,pLeech->ang);
-        if (pEffect != NULL) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void removeLeech(DBloodActor* actLeech, bool delSprite) 
+{
+    if (actLeech != NULL) 
+    {
+        auto const pLeech = &actLeech->s();
+        spritetype* pEffect = gFX.fxSpawn((FX_ID)52, pLeech->sectnum, pLeech->x, pLeech->y, pLeech->z, pLeech->ang);
+        if (pEffect != NULL) 
+        {
             pEffect->cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
             pEffect->pal = 6;
             int repeat = 64 + Random(50);
@@ -1459,7 +1477,8 @@ void removeLeech(spritetype* pLeech, bool delSprite) {
         if (pLeech->owner >= 0 && pLeech->owner < kMaxSprites)
             gGenDudeExtra[sprite[pLeech->owner].index].pLifeLeech = nullptr;
 
-        if (delSprite) {
+        if (delSprite) 
+        {
             pLeech->type = kSpriteDecoration;
             actPostSprite(pLeech->index, kStatFree);
         }
