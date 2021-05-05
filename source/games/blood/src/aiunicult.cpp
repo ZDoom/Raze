@@ -1230,7 +1230,7 @@ void removeDudeStuff(spritetype* pSprite) {
     while ((nSprite = it.NextIndex()) >= 0)
     {
         if (sprite[nSprite].owner != pSprite->index) continue;
-        actDamageSprite(&bloodActors[sprite[nSprite].owner], &bloodActors[nSprite], (DAMAGE_TYPE) 0, 65535);
+        actDamageSprite(&bloodActors[sprite[nSprite].owner], &bloodActors[nSprite], kDamageFall, 65535);
     }
 }
     

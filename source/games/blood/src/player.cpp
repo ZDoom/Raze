@@ -268,7 +268,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
                 }
 
                 if (ceilIsTooLow(pPlayer->pSprite))
-                    actDamageSprite(pPlayer->pSprite->index, pPlayer->pSprite, kDamageExplode, 65535);
+                    actDamageSprite(pPlayer->actor(), pPlayer->actor(), kDamageExplode, 65535);
             }
             break;
         #endif
@@ -316,7 +316,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
             if (gModernMap) {
                 playerSizeReset(pPlayer);
                 if (ceilIsTooLow(pPlayer->pSprite))
-                    actDamageSprite(pPlayer->pSprite->index, pPlayer->pSprite, kDamageExplode, 65535);
+                    actDamageSprite(pPlayer->actor(), pPlayer->actor(), kDamageExplode, 65535);
             }
             break;
         case kItemShroomGrow:
@@ -1654,9 +1654,8 @@ void ProcessInput(PLAYER *pPlayer)
 
 void playerProcess(PLAYER *pPlayer)
 {
+    auto actor = pPlayer->actor();
     spritetype *pSprite = pPlayer->pSprite;
-    int nSprite = pPlayer->nSprite;
-    int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     powerupProcess(pPlayer);
@@ -1669,28 +1668,28 @@ void playerProcess(PLAYER *pPlayer)
     {
         short nSector = pSprite->sectnum;
         if (pushmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, dw, dzt, dzb, CLIPMASK0) == -1)
-            actDamageSprite(nSprite, pSprite, kDamageFall, 500<<4);
+            actDamageSprite(actor, actor, kDamageFall, 500<<4);
         if (pSprite->sectnum != nSector)
         {
             if (nSector == -1)
             {
                 nSector = pSprite->sectnum;
-                actDamageSprite(nSprite, pSprite, kDamageFall, 500<<4);
+                actDamageSprite(actor, actor, kDamageFall, 500<<4);
             }
             assert(nSector >= 0 && nSector < kMaxSectors);
-            ChangeSpriteSect(nSprite, nSector);
+            ChangeSpriteSect(pSprite->index, nSector);
         }
     }
     ProcessInput(pPlayer);
-    int nSpeed = approxDist(xvel[nSprite], yvel[nSprite]);
-    pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, zvel[nSprite], 0x7000);
+    int nSpeed = approxDist(actor->xvel(), actor->yvel());
+    pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->zvel(), 0x7000);
     int dz = pPlayer->pSprite->z-pPosture->eyeAboveZ-pPlayer->zView;
     if (dz > 0)
         pPlayer->zViewVel += MulScale(dz<<8, 0xa000, 16);
     else
         pPlayer->zViewVel += MulScale(dz<<8, 0x1800, 16);
     pPlayer->zView += pPlayer->zViewVel>>8;
-    pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, zvel[nSprite], 0x5000);
+    pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->zvel(), 0x5000);
     dz = pPlayer->pSprite->z-pPosture->weaponAboveZ-pPlayer->zWeapon;
     if (dz > 0)
         pPlayer->zWeaponVel += MulScale(dz<<8, 0x8000, 16);
@@ -1765,16 +1764,16 @@ void playerProcess(PLAYER *pPlayer)
     switch (pPlayer->posture)
     {
     case 1:
-        seqSpawn(dudeInfo[nType].seqStartID+9, 3, nXSprite, -1);
+        seqSpawn(dudeInfo[nType].seqStartID+9, actor, -1);
         break;
     case 2:
-        seqSpawn(dudeInfo[nType].seqStartID+10, 3, nXSprite, -1);
+        seqSpawn(dudeInfo[nType].seqStartID+10, actor, -1);
         break;
     default:
         if (!nSpeed)
-            seqSpawn(dudeInfo[nType].seqStartID, 3, nXSprite, -1);
+            seqSpawn(dudeInfo[nType].seqStartID, actor, -1);
         else
-            seqSpawn(dudeInfo[nType].seqStartID+8, 3, nXSprite, -1);
+            seqSpawn(dudeInfo[nType].seqStartID+8, actor, -1);
         break;
     }
 }

@@ -1736,16 +1736,20 @@ void aiInitSprite(DBloodActor* actor)
     pDudeExtra->time = 0;
 
 #ifdef NOONE_EXTENSIONS
-    int stateTimer = -1, targetMarker = -1;
+	int stateTimer = -1;
     int targetX = 0, targetY = 0, targetZ = 0;
+	DBloodActor* pTargetMarker = nullptr;
 
     // dude patrol init
 	if (gModernMap)
 	{
         // must keep it in case of loading save
-        if (pXSprite->dudeFlag4 && spriRangeIsFine(pXSprite->target_i) && sprite[pXSprite->target_i].type == kMarkerPath) {
-            stateTimer = pXSprite->stateTimer; targetMarker = pXSprite->target_i;
-            targetX = pXSprite->targetX; targetY = pXSprite->targetY;
+		if (pXSprite->dudeFlag4 && actor->GetTarget() && actor->GetTarget()->s().type == kMarkerPath) 
+		{
+			stateTimer = pXSprite->stateTimer; 
+			pTargetMarker = actor->GetTarget();
+			targetX = pXSprite->targetX; 
+			targetY = pXSprite->targetY;
             targetZ = pXSprite->targetZ;
         }
     }
@@ -1979,9 +1983,9 @@ void aiInitSprite(DBloodActor* actor)
 		if (pXSprite->dudeFlag4)
 		{
             // restore dude's path
-			if (spriRangeIsFine(targetMarker))
+			if (pTargetMarker)
 			{
-                pXSprite->target_i = targetMarker;
+				actor->SetTarget(pTargetMarker);
                 pXSprite->targetX = targetX;
                 pXSprite->targetY = targetY;
                 pXSprite->targetZ = targetZ;

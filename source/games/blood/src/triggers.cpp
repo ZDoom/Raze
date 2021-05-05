@@ -1152,11 +1152,12 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
         vbp = -65536/ClipLow((120*pXSector->busyTimeB)/10, 1);
     int top, bottom;
     int nSprite = GetCrushedSpriteExtents(nSector,&top,&bottom);
+    auto actor = &bloodActors[nSprite];
     if (nSprite >= 0 && a2 > pXSector->busy)
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype *pSprite = &actor->s();
         assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
-        XSPRITE *pXSprite = &xsprite[pSprite->extra];
+        XSPRITE *pXSprite = &actor->x();
         if (pXSector->onCeilZ > pXSector->offCeilZ || pXSector->onFloorZ < pXSector->offFloorZ)
         {
             if (pXSector->interruptable)
@@ -1170,7 +1171,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
                         nDamage = 500;
                     else
                         nDamage = pXSector->data;
-                    actDamageSprite(nSprite, &sprite[nSprite], kDamageFall, nDamage<<4);
+                    actDamageSprite(actor, actor, kDamageFall, nDamage<<4);
                 }
                 a2 = ClipRange(a2-(vbp/2)*4, 0, 65536);
             }
@@ -1181,16 +1182,16 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
                     nDamage = 500;
                 else
                     nDamage = pXSector->data;
-                actDamageSprite(nSprite, &sprite[nSprite], kDamageFall, nDamage<<4);
+                actDamageSprite(actor, actor, kDamageFall, nDamage<<4);
                 a2 = ClipRange(a2-(vbp/2)*4, 0, 65536);
             }
         }
     }
     else if (nSprite >= 0 && a2 < pXSector->busy)
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype* pSprite = &actor->s();
         assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
-        XSPRITE *pXSprite = &xsprite[pSprite->extra];
+        XSPRITE* pXSprite = &actor->x();
         if (pXSector->offCeilZ > pXSector->onCeilZ || pXSector->offFloorZ < pXSector->onFloorZ)
         {
             if (pXSector->interruptable)
@@ -1204,7 +1205,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
                         nDamage = 500;
                     else
                         nDamage = pXSector->data;
-                    actDamageSprite(nSprite, &sprite[nSprite], kDamageFall, nDamage<<4);
+                    actDamageSprite(actor, actor, kDamageFall, nDamage<<4);
                 }
                 a2 = ClipRange(a2+(vbp/2)*4, 0, 65536);
             }
@@ -1215,7 +1216,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
                     nDamage = 500;
                 else
                     nDamage = pXSector->data;
-                actDamageSprite(nSprite, &sprite[nSprite], kDamageFall, nDamage<<4);
+                actDamageSprite(actor, actor, kDamageFall, nDamage<<4);
                 a2 = ClipRange(a2+(vbp/2)*4, 0, 65536);
             }
         }
@@ -1422,15 +1423,15 @@ char SectorContainsDudes(int nSector)
 
 void TeleFrag(int nKiller, int nSector)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    auto killer = &bloodActors[nKiller];
+    BloodSectIterator it(nSector);
+    while (auto victim = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype *pSprite = &victim->s();
         if (pSprite->statnum == kStatDude)
-            actDamageSprite(nKiller, pSprite, kDamageExplode, 4000);
+            actDamageSprite(killer, victim, kDamageExplode, 4000);
         else if (pSprite->statnum == kStatThing)
-            actDamageSprite(nKiller, pSprite, kDamageExplode, 4000);
+            actDamageSprite(killer, victim, kDamageExplode, 4000);
     }
 }
 
@@ -2277,6 +2278,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
         int dx = CosScale16(pSprite->ang)+Random2(1000);
         int dy = SinScale16(pSprite->ang)+Random2(1000);
         int dz = Random2(1000);
+        actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
         actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
         sfxPlay3DSound(pSprite, 359, -1, 0);
     }
