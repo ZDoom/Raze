@@ -183,13 +183,15 @@ void punchCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    if (pXSprite->target_i != -1) 
+    auto const target = actor->GetTarget();
+    if (target != nullptr) 
     {
         int nZOffset1 = getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat << 2;
         int nZOffset2 = 0;
         
-        spritetype* pTarget = &sprite[pXSprite->target_i];
-        if(IsDudeSprite(pTarget))
+
+        spritetype* pTarget = &target->s();
+        if(target->IsDudeActor())
             nZOffset2 = getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat << 2;
 
         int dx = CosScale16(pSprite->ang);

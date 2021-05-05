@@ -44,11 +44,9 @@ AISTATE spidBite = { kAiStateChase, 6, nSpidBiteClient, 60, NULL, NULL, NULL, &s
 AISTATE spidJump = { kAiStateChase, 8, nSpidJumpClient, 60, NULL, aiMoveForward, NULL, &spidChase };
 AISTATE spidBirth = { kAiStateOther, 0, nSpidBirthClient, 60, NULL, NULL, NULL, &spidIdle };
 
-static char SpidPoisonPlayer(XSPRITE *pXDude, int nBlind, int max)
+static char spidBlindEffect(DBloodActor* dudeactor, int nBlind, int max)
 {
-    assert(pXDude != NULL);
-    int nDude = pXDude->reference;
-    spritetype *pDude = &sprite[nDude];
+    spritetype *pDude = &dudeactor->s();
     if (IsPlayerSprite(pDude))
     {
         nBlind <<= 4;
@@ -74,15 +72,19 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
     int dz = Random2(2000);
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
-    spritetype *pTarget = &actor->GetTarget()->s();
-    XSPRITE* pXTarget = &actor->GetTarget()->x();
-    if (IsPlayerSprite(pTarget)) {
         
+    auto const target = actor->GetTarget();
+    spritetype *pTarget = &target->s();
+    XSPRITE* pXTarget = &target->x();
+    if (IsPlayerSprite(pTarget)) 
+    {
         int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
-        if (hit == 3 && gHitInfo.hitactor->IsPlayerActor()) {
+        if (hit == 3 && gHitInfo.hitactor->IsPlayerActor()) 
+        {
             dz += pTarget->z - pSprite->z;
             PLAYER *pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
-            switch (pSprite->type) {
+            switch (pSprite->type) 
+            {
                 case kDudeSpiderBrown:
                     actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
                     if (IsPlayerSprite(pTarget) && !pPlayer->godMode && powerupCheck(pPlayer, kPwUpDeathMask) <= 0 && Chance(0x4000))
@@ -90,22 +92,21 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
                     break;
                 case kDudeSpiderRed:
                     actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
-                    if (Chance(0x5000)) SpidPoisonPlayer(pXTarget, 4, 16);
+                    if (Chance(0x5000)) spidBlindEffect(target, 4, 16);
                     break;
                 case kDudeSpiderBlack:
                     actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
-                    SpidPoisonPlayer(pXTarget, 8, 16);
+                    spidBlindEffect(target, 8, 16);
                     break;
-                case kDudeSpiderMother: {
+                case kDudeSpiderMother:
                     actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
 
                     dx += Random2(2000);
                     dy += Random2(2000);
                     dz += Random2(2000);
                     actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
-                    SpidPoisonPlayer(pXTarget, 8, 16);
+                    spidBlindEffect(target, 8, 16);
                     break;
-                }
             }
         }
 

@@ -125,12 +125,10 @@ void BlastSSeqCallback(int, DBloodActor* actor)
     aim.dy = SinScale16(pSprite->ang);
     aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
-    int nSprite2;
-    StatIterator it(kStatDude);
-    while ((nSprite2 = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatDude);
+    while (auto actor2 = it.Next())
     {
-		auto actor2 = &bloodActors[nSprite2];
-        spritetype *pSprite2 = &sprite[nSprite2];
+        spritetype* pSprite2 = &actor2->s();
         if (pSprite == pSprite2 || !(pSprite2->flags&8))
             continue;
         int x2 = pSprite2->x;
@@ -142,9 +140,9 @@ void BlastSSeqCallback(int, DBloodActor* actor)
         if (tt.at10)
         {
             int t = DivScale(nDist, tt.at10, 12);
-            x2 += (xvel[nSprite2]*t)>>12;
-            y2 += (yvel[nSprite2]*t)>>12;
-            z2 += (zvel[nSprite2]*t)>>8;
+            x2 += (actor->xvel() * t) >> 12;
+            y2 += (actor->yvel() * t) >> 12;
+            z2 += (actor->zvel() * t) >> 8;
         }
         int tx = x+MulScale(Cos(pSprite->ang), nDist, 30);
         int ty = y+MulScale(Sin(pSprite->ang), nDist, 30);
@@ -223,7 +221,7 @@ static void gargThinkTarget(DBloodActor* actor)
     else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
         pXSprite->goalAng += 256;
-        POINT3D *pTarget = &baseSprite[pSprite->index];
+        POINT3D* pTarget = &actor->basePoint();
         aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &gargoyleTurn);
         return;

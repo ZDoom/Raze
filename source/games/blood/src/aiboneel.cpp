@@ -103,7 +103,7 @@ static void eelThinkTarget(DBloodActor* actor)
     {
         pDudeExtraE->xval2 = 0;
         pXSprite->goalAng += 256;
-        POINT3D *pTarget = &baseSprite[pSprite->index];
+        POINT3D* pTarget = &actor->basePoint();
         aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &eelTurn);
         return;
