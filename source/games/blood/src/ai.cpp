@@ -392,7 +392,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
-		if (actor->GetTarget() == nullptr)
+		if (!actor->GetTarget() == nullptr)
             aiNewState(actor, &ghostSearch);
         else
         {

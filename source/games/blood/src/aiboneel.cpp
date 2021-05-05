@@ -65,6 +65,20 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype *pSprite = &actor->s();
+
+    /*
+     * workaround for
+     * pXSprite->target >= 0 && pXSprite->target < kMaxSprites in file NBlood/source/blood/src/aiboneel.cpp at line 86
+     * The value of pXSprite->target is -1.
+     * copied from lines 177:181
+     * resolves this case, but may cause other issues?
+     */
+    if (actor->GetTarget() == nullptr)
+    {
+        aiNewState(actor, &eelSearch);
+        return;
+    }
+
     spritetype *pTarget = &sprite[pXSprite->target_i];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
@@ -73,19 +87,6 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
-    /*
-     * workaround for 
-     * pXSprite->target >= 0 && pXSprite->target < kMaxSprites in file NBlood/source/blood/src/aiboneel.cpp at line 86
-     * The value of pXSprite->target is -1. 
-     * copied from lines 177:181
-     * resolves this case, but may cause other issues? 
-     */
-    if (actor->GetTarget() == nullptr)
-    {
-        aiNewState(actor, &eelSearch);
-        return;
-    }
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
     actFireVector(actor, 0, 0, dx, dy, height2-height, kVectorBoneelBite);
 }
 
@@ -180,7 +181,6 @@ static void eelThinkPonder(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -288,7 +288,6 @@ static void eelThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

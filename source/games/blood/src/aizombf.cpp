@@ -52,6 +52,7 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
     if (pSprite->type != kDudeZombieButcher)
         return;
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = (pDudeInfo->eyeHeight*pSprite->yrepeat);
@@ -64,6 +65,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -119,7 +121,7 @@ static void zombfThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

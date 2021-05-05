@@ -65,6 +65,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
@@ -93,6 +94,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
     wrand(); // ???
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
     int dx = pXSprite->targetX-pSprite->x;
@@ -344,11 +346,6 @@ static void ghostThinkChase(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
-        return;
-    }
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;

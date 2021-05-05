@@ -137,7 +137,6 @@ static void calebThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -273,7 +272,6 @@ static void calebThinkSwimChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
@@ -354,6 +352,7 @@ static void sub_65F44(DBloodActor* actor)
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
     int z2 = pTarget->z + getDudeInfo(pTarget->type)->eyeHeight;
@@ -391,6 +390,7 @@ static void sub_661E0(DBloodActor* actor)
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &sprite[pXSprite->target_i];
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
     int z2 = pTarget->z + getDudeInfo(pTarget->type)->eyeHeight;
