@@ -3849,15 +3849,20 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case kDudeModernCustomBurning:
                 switch (cond) {
                     case 20: // life leech is thrown?
-                            var = actor->genDudeExtra().nLifeLeech;
-                        if (!spriRangeIsFine(var)) return false;
-                        else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
+                        {
+                            auto act = actor->genDudeExtra().pLifeLeech;
+                            if (!act) return false;
+                            else if (PUSH) condPush(pXCond, OBJ_SPRITE, act->s().index);
                         return true;
+                        }
                     case 21: // life leech is destroyed?
-                            var = actor->genDudeExtra().nLifeLeech;
-                        if (!spriRangeIsFine(var) && pSpr->owner == kMaxSprites - 1) return true;
-                        else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
+                        {
+                            auto act = actor->genDudeExtra().pLifeLeech;
+                            if (!act) return false;
+                            if (pSpr->owner == kMaxSprites - 1) return true;
+                            else if (PUSH) condPush(pXCond, OBJ_SPRITE, act->s().index);
                         return false;
+                        }
                     case 22: // are required amount of dudes is summoned?
                         return condCmp(gGenDudeExtra[pSpr->index].slaveCount, arg1, arg2, cmpOp);
                     case 23: // check if dude can...
@@ -5875,6 +5880,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     
     //spritetype* pSource = &sprite[pXSource->reference];
     
+    auto actor = &bloodActors[pSprite->index];
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
     spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; int receiveHp = 33 + Random(33);
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); int matesPerEnemy = 1;
@@ -5902,15 +5908,16 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     spritetype* pPlayer = aiFightTargetIsPlayer(pXSprite);
     // special handling for player(s) if target changer data4 > 2.
     if (pPlayer != NULL) {
+        auto actLeech = leechIsDropped(actor);
         if (pXSource->data4 == 3) {
             aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
             aiSetGenIdleState(pSprite, pXSprite);
-            if (pSprite->type == kDudeModernCustom && leechIsDropped(pSprite))
-                removeLeech(leechIsDropped(pSprite));
+            if (pSprite->type == kDudeModernCustom && actLeech)
+                removeLeech(&actLeech->s());
         } else if (pXSource->data4 == 4) {
             aiSetTarget_(pXSprite, pPlayer->x, pPlayer->y, pPlayer->z);
-            if (pSprite->type == kDudeModernCustom && leechIsDropped(pSprite))
-                removeLeech(leechIsDropped(pSprite));
+            if (pSprite->type == kDudeModernCustom && actLeech)
+                removeLeech(&actLeech->s());
         }
     }
 
@@ -7907,7 +7914,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, GENDUDEEXTRA& w, G
             ("weapontype", w.weaponType)
             ("basedispersion", w.baseDispersion)
             ("slavecount", w.slaveCount)
-            ("lifeleech", w.nLifeLeech)
+            ("lifeleech", w.pLifeLeech)
             .Array("slaves", w.slave, w.slaveCount)
             .Array("dmgcontrol", w.dmgControl, kDamageMax)
             .Array("updreq", w.updReq, kGenDudePropertyMax)

@@ -169,7 +169,7 @@ struct GENDUDEEXTRA
     unsigned short baseDispersion;
     unsigned short slaveCount;              // how many dudes is summoned
     //unsigned short incarnationsCount;
-    signed short nLifeLeech;        // spritenum of dropped dude's leech
+    DBloodActor* pLifeLeech;        // spritenum of dropped dude's leech
     signed short slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
     signed short dmgControl[kDamageMax];    // depends of current weapon, drop armor item, sprite yrepeat and surface type
     bool updReq[kGenDudePropertyMax]; // update requests
@@ -199,7 +199,7 @@ XSPRITE* getNextIncarnation(XSPRITE* pXSprite);
 void killDudeLeech(spritetype* pLeech);
 void removeLeech(spritetype* pLeech, bool delSprite = true);
 void removeDudeStuff(spritetype* pSprite);
-spritetype* leechIsDropped(spritetype* pSprite);
+DBloodActor* leechIsDropped(DBloodActor* pSprite);
 bool spriteIsUnderwater(DBloodActor* pSprite, bool oldWay = false);
 bool playGenDudeSound(DBloodActor* actor, int mode);
 void aiGenDudeMoveForward(DBloodActor* actor);
