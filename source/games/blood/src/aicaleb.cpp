@@ -154,7 +154,7 @@ static void calebThinkChase(DBloodActor* actor)
             aiNewState(actor, &tinycalebSwimSearch);
         else
         {
-            aiPlay3DSound(pSprite, 11000+Random(4), AI_SFX_PRIORITY_1, -1);
+            aiPlay3DSound(actor, 11000+Random(4), AI_SFX_PRIORITY_1, -1);
             aiNewState(actor, &tinycalebSearch);
         }
         return;

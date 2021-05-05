@@ -293,7 +293,7 @@ static void gillThinkSwimChase(DBloodActor* actor)
                     aiNewState(actor, &gillBeastSwimBite);
                 else
                 {
-                    aiPlay3DSound(pSprite, 1700, AI_SFX_PRIORITY_1, -1);
+                    aiPlay3DSound(actor, 1700, AI_SFX_PRIORITY_1, -1);
                     aiNewState(actor, &gillBeast13A154);
                 }
             }

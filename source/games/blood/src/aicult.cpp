@@ -264,9 +264,9 @@ static void cultThinkChase(DBloodActor* actor)
         case kMediumNormal:
             aiNewState(actor, &cultistSearch);
             if (pSprite->type == kDudeCultistTommy)
-                aiPlay3DSound(pSprite, 4021+Random(4), AI_SFX_PRIORITY_1, -1);
+                aiPlay3DSound(actor, 4021+Random(4), AI_SFX_PRIORITY_1, -1);
             else
-                aiPlay3DSound(pSprite, 1021+Random(4), AI_SFX_PRIORITY_1, -1);
+                aiPlay3DSound(actor, 1021+Random(4), AI_SFX_PRIORITY_1, -1);
             break;
         case kMediumWater:
         case kMediumGoo:

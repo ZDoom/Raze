@@ -441,7 +441,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
                     aiNewState(actor, &beastSwimSlash);
                 else
                 {
-                    aiPlay3DSound(pSprite, 9009+Random(2), AI_SFX_PRIORITY_1, -1);
+                    aiPlay3DSound(actor, 9009+Random(2), AI_SFX_PRIORITY_1, -1);
                     aiNewState(actor, &beast138FD0);
                 }
             }

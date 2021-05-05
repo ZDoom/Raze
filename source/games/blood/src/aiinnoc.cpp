@@ -109,7 +109,7 @@ static void innocThinkChase(DBloodActor* actor)
         }
     }
 
-    aiPlay3DSound(pSprite, 7000+Random(6), AI_SFX_PRIORITY_1, -1);
+    aiPlay3DSound(actor, 7000+Random(6), AI_SFX_PRIORITY_1, -1);
     aiNewState(actor, &innocentGoto);
     actor->SetTarget(nullptr);
 }
