@@ -5066,7 +5066,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             }
             return true;
         case kModernThingEnemyLifeLeech:
-            dudeLeechOperate(pSprite, pXSprite, event);
+            dudeLeechOperate(actor, event);
             return true;
         case kModernPlayerControl: { // WIP
             PLAYER* pPlayer = NULL; int cmd = (event.cmd >= kCmdNumberic) ? event.cmd : pXSprite->command;

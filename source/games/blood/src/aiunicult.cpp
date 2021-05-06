@@ -1830,38 +1830,49 @@ int getDodgeChance(DBloodActor* actor)
 
     int chance = ((baseChance / mass) << 7);
     return chance;
-
 }
 
-void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 {
-    if (event.cmd == kCmdOff) {
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
+
+    if (event.cmd == kCmdOff) 
+    {
         actPostSprite(pSprite->index, kStatFree);
         return;
     }
-    auto actor = &bloodActors[pSprite->index];
 
-    int nTarget = pXSprite->target_i;
-    if (spriRangeIsFine(nTarget) && nTarget != pSprite->owner) {
-        spritetype* pTarget = &sprite[nTarget];
-        if (pTarget->statnum == kStatDude && !(pTarget->flags & 32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites && !pXSprite->stateTimer) {
-            
-            if (IsPlayerSprite(pTarget)) {
+    auto actTarget = actor->GetTarget();
+    if (actTarget != nullptr && actTarget != actor->GetOwner())
+    {
+        spritetype* pTarget = &actTarget->s();
+        if (pTarget->statnum == kStatDude && !(pTarget->flags & 32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites && !pXSprite->stateTimer) 
+        {
+            if (IsPlayerSprite(pTarget)) 
+            {
                 PLAYER* pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
                 if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0) return;
             }
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
+            GetActorExtents(actor, &top, &bottom);
             int nType = pTarget->type - kDudeBase;
             DUDEINFO* pDudeInfo = &dudeInfo[nType];
             int z1 = (top - pSprite->z) - 256;
             int x = pTarget->x; int y = pTarget->y; int z = pTarget->z;
             int nDist = approxDist(x - pSprite->x, y - pSprite->y);
             
-            if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum)) {
+            if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum)) 
+            {
                 int t = DivScale(nDist, 0x1aaaaa, 12);
-                x += (xvel[nTarget] * t) >> 12;
-                y += (yvel[nTarget] * t) >> 12;
+                x += (actTarget->xvel() * t) >> 12;
+                y += (actTarget->yvel() * t) >> 12;
                 int angBak = pSprite->ang;
                 pSprite->ang = getangle(x - pSprite->x, y - pSprite->y);
                 int dx = CosScale16(pSprite->ang);
