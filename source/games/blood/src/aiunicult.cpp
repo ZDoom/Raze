@@ -627,7 +627,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 genDudeThrow2.nextState = &genDudeChaseL;
                                 if (dist > 5072 && Chance(0x5000)) 
                                 {
-                                    if (!canDuck(pSprite) || Chance(0x4000)) aiGenDudeNewState(actor, &genDudeDodgeShortL);
+                                    if (!canDuck(actor) || Chance(0x4000)) aiGenDudeNewState(actor, &genDudeDodgeShortL);
                                     else aiGenDudeNewState(actor, &genDudeDodgeShortD);
                                 }
                                 else 
@@ -1202,7 +1202,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
     int sin = Sin(pSprite->ang);
     int cos = Cos(pSprite->ang);
 
-        int frontSpeed = gGenDudeExtra[pSprite->index].moveSpeed;
+        int frontSpeed = actor->genDudeExtra().moveSpeed;
         actor->xvel() += MulScale(cos, frontSpeed, 30);
         actor->yvel() += MulScale(sin, frontSpeed, 30);
     }
@@ -1304,7 +1304,7 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
 
     }
 
-    if (!gGenDudeExtra[pSprite->index].canRecoil) 
+    if (!actor->genDudeExtra().canRecoil) 
     {
         if (pAIState == &genDudeRecoilL || pAIState == &genDudeRecoilD) pAIState = &genDudeIdleL;
         else if (pAIState == &genDudeRecoilW) pAIState = &genDudeIdleW;
@@ -1474,8 +1474,8 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
         
         sfxPlay3DSoundCP(pLeech, 490, -1, 0,60000);
         
-        if (pLeech->owner >= 0 && pLeech->owner < kMaxSprites)
-            gGenDudeExtra[sprite[pLeech->owner].index].pLifeLeech = nullptr;
+        if (actLeech->GetOwner())
+            actLeech->GetOwner()->genDudeExtra().pLifeLeech = nullptr;
 
         if (delSprite) 
         {
@@ -2254,7 +2254,14 @@ void updateTargetOfSlaves(DBloodActor* actor)
     pExtra->slaveCount = writeindex;
 }
 
-short inDodge(AISTATE* aiState) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+short inDodge(AISTATE* aiState) 
+{
     if (aiState == &genDudeDodgeL) return 1;
     else if (aiState == &genDudeDodgeD) return 2;
     else if (aiState == &genDudeDodgeW) return 3;
@@ -2309,17 +2316,32 @@ short inDuck(AISTATE* aiState) {
 }
 
 
-bool canSwim(spritetype* pSprite) {
-    return gGenDudeExtra[pSprite->index].canSwim;
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool canSwim(DBloodActor* actor) 
+{
+    return actor->genDudeExtra().canSwim;
 }
 
-bool canDuck(spritetype* pSprite) {
-    return gGenDudeExtra[pSprite->index].canDuck;
+bool canDuck(DBloodActor* actor) 
+{
+    return actor->genDudeExtra().canDuck;
 }
 
-bool canWalk(spritetype* pSprite) {
-    return gGenDudeExtra[pSprite->index].canWalk;
+bool canWalk(DBloodActor* actor) 
+{
+    return actor->genDudeExtra().canWalk;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int genDudeSeqStartId(XSPRITE* pXSprite) {
     if (genDudePrepare(&sprite[pXSprite->reference], kGenDudePropertyStates)) return pXSprite->data2;

@@ -227,7 +227,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
 	case kDudeModernCustomBurning:
-		if ((Crusher && !nnExtIsImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
+		if ((Crusher && !nnExtIsImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(actor))) return false;
 		return true;
 		[[fallthrough]];
 #endif
@@ -1092,8 +1092,8 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 					{
 						actKillDude(actor, actor, kDamageFall, 65535);
 					}
-				}
-				else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState))
+				} 
+				else if (canWalk(actor) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState))
 				{
 					if (!dudeIsMelee(actor)) 
 					{
@@ -1101,7 +1101,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						{
 							if (!spriteIsUnderwater(actor)) 
 							{
-								if (!canDuck(pSprite) || !dudeIsPlayingSeq(actor, 14))  aiGenDudeNewState(actor, &genDudeDodgeShortL);
+								if (!canDuck(actor) || !dudeIsPlayingSeq(actor, 14))  aiGenDudeNewState(actor, &genDudeDodgeShortL);
 								else aiGenDudeNewState(actor, &genDudeDodgeShortD);
 
 								if (Chance(0x0200))
@@ -1279,7 +1279,7 @@ void RecoilDude(DBloodActor* actor)
 			{
 				if (Chance(rChance << 3) || (dudeIsMelee(actor) && Chance(rChance << 4))) aiGenDudeNewState(actor, &genDudeRecoilTesla);
 				else if (pExtra->canRecoil && Chance(rChance)) aiGenDudeNewState(actor, &genDudeRecoilL);
-				else if (canWalk(pSprite))
+				else if (canWalk(actor))
 				{
 
 					if (Chance(rChance >> 2)) aiGenDudeNewState(actor, &genDudeDodgeL);
@@ -1298,7 +1298,7 @@ void RecoilDude(DBloodActor* actor)
 			short rState = inRecoil(pXSprite->aiState);
 			if (rState > 0)
 			{
-				if (!canWalk(pSprite))
+				if (!canWalk(actor))
 				{
 					if (rState == 1) pXSprite->aiState->nextState = &genDudeChaseNoWalkL;
 					else if (rState == 2) pXSprite->aiState->nextState = &genDudeChaseNoWalkD;

@@ -5184,7 +5184,7 @@ void MoveDude(DBloodActor* actor)
 					if (pSprite->type == kDudeModernCustom) {
 
 						evPost(actor, 0, kCallbackEnemeyBubble);
-						if (!canSwim(pSprite)) actKillDude(actor, actor, kDamageFall, 1000 << 4);
+					if (!canSwim(actor)) actKillDude(actor, actor, kDamageFall, 1000 << 4);
 						break;
 					}
 
