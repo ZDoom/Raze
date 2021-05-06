@@ -251,8 +251,8 @@ void HWDrawList::SortPlaneIntoPlane(SortNode * head,SortNode * sort)
 	if (fh->z == fs->z)
 	{
 		// Make sure we have consistent ordering with two floor sprites of the same distance if they overlap
-		int time1 = fh->sprite ? fh->sprite->time : -1;
-		int time2 = fs->sprite ? fs->sprite->time : -1;
+		int time1 = fh->Sprite ? fh->Sprite->time : -1;
+		int time2 = fs->Sprite ? fs->Sprite->time : -1;
 		if (time1 == time2) head->AddToEqual(sort);
 		else if (time2 < time1)head->AddToLeft(sort);
 		else head->AddToRight(sort);
@@ -404,8 +404,8 @@ void HWDrawList::SortWallIntoWall(HWDrawInfo *di, SortNode * head,SortNode * sor
 
 	if (fabs(v1)<MIN_EQ && fabs(v2)<MIN_EQ) 
 	{
-		int time1 = wh->sprite ? wh->sprite->time : -1;
-		int time2 = ws->sprite ? ws->sprite->time : -1;
+		int time1 = wh->Sprite ? wh->Sprite->time : -1;
+		int time2 = ws->Sprite ? ws->Sprite->time : -1;
 
 		if ((ws->type==RENDERWALL_FOGBOUNDARY && wh->type!=RENDERWALL_FOGBOUNDARY) || time2 < time1) 
 		{
@@ -591,7 +591,7 @@ inline int HWDrawList::CompareSprites(SortNode * a,SortNode * b)
 
 	if (s1->depth < s2->depth) return 1;
 	if (s1->depth > s2->depth) return -1;
-	return s1->sprite->time - s2->sprite->time;
+	return s1->Sprite->time - s2->Sprite->time;
 }
 
 //==========================================================================
@@ -737,8 +737,8 @@ void HWDrawList::SortWallsVert(HWDrawInfo* di)
 				HWWall* w1 = walls[a.index];
 				HWWall* w2 = walls[b.index];
 				if (w1->glseg.y1 != w2->glseg.y1) return w1->glseg.y1 < w2->glseg.y1;
-				int time1 = w1->sprite ? w1->sprite->time : -1;
-				int time2 = w2->sprite ? w2->sprite->time : -1;
+				int time1 = w1->Sprite ? w1->Sprite->time : -1;
+				int time2 = w2->Sprite ? w2->Sprite->time : -1;
 				return time1 < time2;
 			});
 
@@ -747,8 +747,8 @@ void HWDrawList::SortWallsVert(HWDrawInfo* di)
 				HWWall* w1 = walls[a.index];
 				HWWall* w2 = walls[b.index];
 				if (w1->glseg.y1 != w2->glseg.y1) return w1->glseg.y1 > w2->glseg.y1;
-				int time1 = w1->sprite ? w1->sprite->time : -1;
-				int time2 = w2->sprite ? w2->sprite->time : -1;
+				int time1 = w1->Sprite ? w1->Sprite->time : -1;
+				int time2 = w2->Sprite ? w2->Sprite->time : -1;
 				return time1 < time2;
 			});
 
@@ -784,8 +784,8 @@ void HWDrawList::SortWallsHorz(HWDrawInfo* di)
 				HWWall* w1 = walls[a.index];
 				HWWall* w2 = walls[b.index];
 				if (w1->glseg.x1 != w2->glseg.x1) return w1->glseg.x1 < w2->glseg.x1;
-				int time1 = w1->sprite ? w1->sprite->time : -1;
-				int time2 = w2->sprite ? w2->sprite->time : -1;
+				int time1 = w1->Sprite ? w1->Sprite->time : -1;
+				int time2 = w2->Sprite ? w2->Sprite->time : -1;
 				return time1 < time2;
 			});
 
@@ -794,8 +794,8 @@ void HWDrawList::SortWallsHorz(HWDrawInfo* di)
 				HWWall* w1 = walls[a.index];
 				HWWall* w2 = walls[b.index];
 				if (w1->glseg.x1 != w2->glseg.x1) return w1->glseg.x1 > w2->glseg.x1;
-				int time1 = w1->sprite ? w1->sprite->time : -1;
-				int time2 = w2->sprite ? w2->sprite->time : -1;
+				int time1 = w1->Sprite ? w1->Sprite->time : -1;
+				int time2 = w2->Sprite ? w2->Sprite->time : -1;
 				return time1 < time2;
 			});
 
@@ -831,8 +831,8 @@ void HWDrawList::SortFlats(HWDrawInfo* di)
 			HWFlat* w1 = flats[a.index];
 			HWFlat* w2 = flats[b.index];
 			if (w1->z != w2->z) return w1->z < w2->z;
-			int time1 = w1->sprite ? w1->sprite->time : -1;
-			int time2 = w2->sprite ? w2->sprite->time : -1;
+			int time1 = w1->Sprite ? w1->Sprite->time : -1;
+			int time2 = w2->Sprite ? w2->Sprite->time : -1;
 			return time1 < time2;
 		});
 
@@ -841,8 +841,8 @@ void HWDrawList::SortFlats(HWDrawInfo* di)
 				HWFlat* w1 = flats[a.index];
 				HWFlat* w2 = flats[b.index];
 				if (w1->z != w2->z) return w2->z < w1->z;
-				int time1 = w1->sprite ? w1->sprite->time : -1;
-				int time2 = w2->sprite ? w2->sprite->time : -1;
+				int time1 = w1->Sprite ? w1->Sprite->time : -1;
+				int time2 = w2->Sprite ? w2->Sprite->time : -1;
 				return time1 < time2;
 			});
 

@@ -158,7 +158,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
 	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
-	if (sprite == nullptr)
+	if (Sprite == nullptr)
 	{
 		int h = (int)texture->GetDisplayHeight();
 		int h2 = 1 << sizeToBits(h);
@@ -479,7 +479,8 @@ void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 
 	case PORTALTYPE_LINETOSPRITE:
 		// These are also unique.
-		portal = new HWLineToSpritePortal(&portalState, seg, &sprite[seg->portalnum]);
+		assert(seg->portalnum >= 0 && seg->portalnum < MAXSPRITES);
+		portal = new HWLineToSpritePortal(&portalState, seg, &::sprite[seg->portalnum]);
 		di->Portals.Push(portal);
 		portal->AddLine(this);
 		break;
@@ -866,7 +867,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	this->seg = wal;
 	this->frontsector = frontsector;
 	this->backsector = backsector;
-	sprite = nullptr;
+	Sprite = nullptr;
 	vertindex = 0;
 	vertcount = 0;
 
@@ -1021,7 +1022,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	if (!tex || !tex->isValid()) return;
 
 	seg = nullptr;
-	sprite = spr;
+	Sprite = spr;
 	vec2_t pos[2];
 	int sprz = spr->pos.z;
 
@@ -1053,7 +1054,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	fade = lookups.getFade(sector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(sector);
 
-	SetSpriteTranslucency(sprite, alpha, RenderStyle);
+	SetSpriteTranslucency(Sprite, alpha, RenderStyle);
 
 	int height, topofs;
 	if (hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
@@ -1122,5 +1123,5 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 		std::swap(tcs[UPLFT], tcs[UPRGT]);
 	}
 
-	PutWall(di, spriteHasTranslucency(sprite));
+	PutWall(di, spriteHasTranslucency(Sprite));
 }

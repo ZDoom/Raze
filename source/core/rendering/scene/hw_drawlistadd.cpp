@@ -50,7 +50,7 @@ void HWDrawInfo::AddWall(HWWall *wall)
 		int list;
 
 		if (wall->type != RENDERWALL_M2S) list = GLDL_PLAINWALLS;
-		else if (wall->sprite == nullptr) list = GLDL_MASKEDWALLS;
+		else if (wall->Sprite == nullptr) list = GLDL_MASKEDWALLS;
 		else if (wall->glseg.x1 == wall->glseg.x2) list = GLDL_MASKEDWALLSV;
 		else if (wall->glseg.y1 == wall->glseg.y2) list = GLDL_MASKEDWALLSH;
 		else list = GLDL_MASKEDWALLSS;
@@ -98,11 +98,11 @@ void HWDrawInfo::AddFlat(HWFlat *flat)
 	if (flat->RenderStyle != LegacyRenderStyles[STYLE_Translucent] || flat->alpha < 1.f - FLT_EPSILON || checkTranslucentReplacement(flat->texture->GetID(), flat->palette))
 	{
 		// translucent portals go into the translucent border list.
-		list = flat->sprite? GLDL_TRANSLUCENT : GLDL_TRANSLUCENTBORDER;
+		list = flat->Sprite? GLDL_TRANSLUCENT : GLDL_TRANSLUCENTBORDER;
 	}
 	else
 	{
-		list = flat->sprite ? GLDL_MASKEDFLATS : GLDL_PLAINFLATS;
+		list = flat->Sprite ? GLDL_MASKEDFLATS : GLDL_PLAINFLATS;
 	}
 	auto newflat = drawlists[list].NewFlat();
 	*newflat = *flat;
