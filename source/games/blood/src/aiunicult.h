@@ -207,14 +207,14 @@ void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int aXvel = -1, int aY
 void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState);
 int checkAttackState(DBloodActor* actor);
 bool doExplosion(DBloodActor* pSprite, int nType);
-spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist);
-void genDudeTransform(spritetype* pSprite);
+DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* pSprite, int nDist);
+void genDudeTransform(DBloodActor* pSprite);
 void dudeLeechOperate(DBloodActor* actor, const EVENT& a3);
 int getDodgeChance(DBloodActor* pSprite);
 int getRecoilChance(DBloodActor* pSprite);
 bool dudeIsMelee(DBloodActor* pXSprite);
 void updateTargetOfSlaves(spritetype* pSprite);
-void updateTargetOfLeech(spritetype* pSprite);
+void updateTargetOfLeech(DBloodActor* pSprite);
 bool canSwim(spritetype* pSprite);
 bool canDuck(spritetype* pSprite);
 bool canWalk(spritetype* pSprite);

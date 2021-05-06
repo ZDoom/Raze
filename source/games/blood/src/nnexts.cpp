@@ -4307,7 +4307,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
          // spawn custom dude on TX ID sprites
         case kModernCustomDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useCustomDudeSpawn(pXSource, &sprite[destObjIndex]);
+            useCustomDudeSpawn(&bloodActors[pXSource->reference], &bloodActors[destObjIndex]);
             break;
     }
 }
@@ -4740,10 +4740,9 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
 
 }
 
-void useCustomDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
-
-    genDudeSpawn(pXSource, pSprite, pSprite->clipdist << 1);
-        
+void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite) 
+{
+    genDudeSpawn(pSource, pSprite, pSprite->s().clipdist << 1);
 }
 
 void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
@@ -4851,7 +4850,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             return true;
         case kModernCustomDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
-            else if (!(pSprite->flags & kModernTypeFlag4)) useCustomDudeSpawn(pXSprite, pSprite);
+            else if (!(pSprite->flags & kModernTypeFlag4)) useCustomDudeSpawn(actor, actor);
             else if (pXSprite->txID) evSend(nSprite, OBJ_SPRITE, pXSprite->txID, kCmdModernUse);
             return true;
         case kModernRandomTX: // random Event Switch takes random data field and uses it as TX ID

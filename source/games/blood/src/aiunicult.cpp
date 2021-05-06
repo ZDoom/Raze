@@ -1949,10 +1949,13 @@ bool doExplosion(DBloodActor* actor, int nType)
 //
 //---------------------------------------------------------------------------
 
-spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist) 
+DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist) 
 {
-    DBloodActor* actor = &bloodActors[pSprite->index];
-    spritetype* pSource = &sprite[pXSource->reference];
+    spritetype* pSprite = &actor->s();
+
+    spritetype* pSource = &source->s();
+    auto pXSource = &source->x();
+
     auto spawned = actSpawnSprite(actor, kStatDude);
     spritetype* pDude = &spawned->s();
     XSPRITE* pXDude = &spawned->x();
@@ -2036,7 +2039,7 @@ spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist)
 
     gKillMgr.AddNewKill(1);
     aiInitSprite(spawned);
-    return pDude;
+    return spawned;
 }
 
 //---------------------------------------------------------------------------
@@ -2045,17 +2048,16 @@ spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist)
 //
 //---------------------------------------------------------------------------
 
-void genDudeTransform(spritetype* pSprite) {
+void genDudeTransform(DBloodActor* actor) 
+{
+    if (!actor->hasX()) return;
     
-    if (!(pSprite->extra >= 0 && pSprite->extra < kMaxXSprites)) {
-        Printf(PRINT_HIGH, "pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
-        return;
-    }
-    
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    auto actor = &bloodActors[pXSprite->reference];
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
+
     auto actIncarnation = getNextIncarnation(actor);
-    if (actIncarnation == NULL) {
+    if (actIncarnation == NULL) 
+    {
         if (pXSprite->sysData1 == kGenDudeTransformStatus) pXSprite->sysData1 = 0;
         trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
         return;
@@ -2171,13 +2173,11 @@ void genDudeTransform(spritetype* pSprite) {
 //
 //---------------------------------------------------------------------------
 
-void updateTargetOfLeech(spritetype* pSprite) {
-    if (!(pSprite->extra >= 0 && pSprite->extra < kMaxXSprites)) {
-        Printf(PRINT_HIGH, "pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
-        return;
-    }
-    
-    auto actor = &bloodActors[pSprite->index];
+void updateTargetOfLeech(DBloodActor* actor)
+{
+    if (!actor->hasX()) return;
+
+    auto const pSprite = &actor->s();
     
     auto actLeech = leechIsDropped(actor);
     if (actLeech == NULL || !actLeech->hasX()) actor->genDudeExtra().pLifeLeech = nullptr;
