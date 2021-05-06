@@ -277,7 +277,7 @@ void genDudeAttack1(int, DBloodActor* actor)
                 }
 
                 gKillMgr.AddNewKill(1);
-                pExtra->slave[pExtra->slaveCount++] = pSpawned->index;
+                pExtra->slave[pExtra->slaveCount++] = spawned->s().index;
                 if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
                     sfxPlay3DSoundCP(actor, 379, 1, 0, 0x10000 - Random3(0x3000));
             }
@@ -617,7 +617,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             XSPRITE* pXLeech = &xsprite[pLeech->extra];
                             int ldist = aiFightGetTargetDist(pTarget, pDudeInfo, pLeech);
                             if (ldist > 3 || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum,
-                                pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || pXLeech->target_i == -1) 
+                                pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || actLeech->GetTarget() == nullptr) 
                             {
                                 aiGenDudeNewState(actor, &genDudeThrow2);
                                 genDudeThrow2.nextState = &genDudeDodgeShortL;
@@ -839,7 +839,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             if (IsDudeSprite(pHSprite) && (weaponType != kGenDudeWeaponHitscan || hscn)) 
                             {
                                 // dodge a bit in sides
-                                if (pXHSprite->target_i != pSprite->index) 
+                                if (hitactor->GetTarget() != actor) 
                                 {
                                     if (pExtra->baseDispersion < 1024 && weaponType != kGenDudeWeaponMissile) 
                                     {
@@ -1953,18 +1953,20 @@ spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist)
 {
     DBloodActor* actor = &bloodActors[pSprite->index];
     spritetype* pSource = &sprite[pXSource->reference];
-    auto spawned = actSpawnSprite(actor, kStatDude); 
+    auto spawned = actSpawnSprite(actor, kStatDude);
     spritetype* pDude = &spawned->s();
     XSPRITE* pXDude = &spawned->x();
 
     int x, y, z = pSprite->z, nAngle = pSprite->ang, nType = kDudeModernCustom;
 
-    if (nDist > 0) {
+    if (nDist > 0) 
+    {
         
         x = pSprite->x + mulscale30r(Cos(nAngle), nDist);
         y = pSprite->y + mulscale30r(Sin(nAngle), nDist);
-
-    } else {
+    }
+    else 
+    {
         
         x = pSprite->x;
         y = pSprite->y;
@@ -1996,7 +1998,8 @@ spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist)
     else pXDude->health = ClipRange(pXSource->data4 << 4, 1, 65535);
 
 
-    if (pSource->flags & kModernTypeFlag1) {
+    if (pSource->flags & kModernTypeFlag1) 
+    {
         switch (pSource->type) {
             case kModernCustomDudeSpawn:
                 //inherit pal?
@@ -2025,7 +2028,8 @@ spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist)
     }
 
     // inherit sprite size (useful for seqs with zero repeats)
-    if (pSource->flags & kModernTypeFlag2) {
+    if (pSource->flags & kModernTypeFlag2) 
+    {
         pDude->xrepeat = pSource->xrepeat;
         pDude->yrepeat = pSource->yrepeat;
     }
@@ -2034,6 +2038,12 @@ spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist)
     aiInitSprite(spawned);
     return pDude;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void genDudeTransform(spritetype* pSprite) {
     
@@ -2127,14 +2137,14 @@ void genDudeTransform(spritetype* pSprite) {
             seqSpawn(seqId, 3, pSprite->extra, -1);
 
             // save target
-            int target = pXSprite->target_i;
+            auto target = actor->GetTarget();
 
             // re-init sprite
             aiInitSprite(actor);
 
             // try to restore target
-            if (target == -1) aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
-            else aiSetTarget_(pXSprite, target);
+            if (target == nullptr) aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
+            else aiSetTarget(actor, target);
 
             // finally activate it
             aiActivateDude(actor);
@@ -2155,6 +2165,11 @@ void genDudeTransform(spritetype* pSprite) {
     }*/
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void updateTargetOfLeech(spritetype* pSprite) {
     if (!(pSprite->extra >= 0 && pSprite->extra < kMaxXSprites)) {
@@ -2184,6 +2199,12 @@ void updateTargetOfLeech(spritetype* pSprite) {
         }
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void updateTargetOfSlaves(spritetype* pSprite) {
     if (!xspriRangeIsFine(pSprite->extra)) {
