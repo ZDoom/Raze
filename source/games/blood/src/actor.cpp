@@ -2947,7 +2947,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 	auto pXSprite = &actor->x();
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
 	removeDudeStuff(actor);
-	if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == nullptr)
+	if (pXSprite->txID <= 0 || getNextIncarnation(actor) == nullptr)
 	{
 		if (pExtra->weaponType == kGenDudeWeaponKamikaze && Chance(0x4000) && damageType != kDamageSpirit && damageType != kDamageDrown)
 		{

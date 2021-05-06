@@ -195,7 +195,7 @@ struct GENDUDEEXTRA
 
 extern GENDUDEEXTRA gGenDudeExtra[kMaxSprites];
 
-XSPRITE* getNextIncarnation(XSPRITE* pXSprite);
+DBloodActor* getNextIncarnation(DBloodActor* actor);
 void killDudeLeech(DBloodActor* pLeech);
 void removeLeech(DBloodActor* pLeech, bool delSprite = true);
 void removeDudeStuff(DBloodActor* pSprite);

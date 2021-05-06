@@ -1056,7 +1056,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				if (nDmgType == kDamageBurn)
 				{
 					if (pXSprite->health > (uint32_t)pDudeInfo->fleeHealth) return nDamage;
-					else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == nullptr)
+					else if (pXSprite->txID <= 0 || getNextIncarnation(actor) == nullptr) 
 					{
 						removeDudeStuff(actor);
 
