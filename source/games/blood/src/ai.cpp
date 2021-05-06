@@ -1900,7 +1900,7 @@ void aiInitSprite(DBloodActor* actor)
 	case kDudeModernCustom:
 	case kDudeModernCustomBurning:
 		if (!gModernMap) break;
-		aiGenDudeInitSprite(pSprite, pXSprite);
+		aiGenDudeInitSprite(actor);
 		genDudePrepare(actor, kGenDudePropertyAll);
 		break;
 #endif

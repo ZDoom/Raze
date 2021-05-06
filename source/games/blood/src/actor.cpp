@@ -3504,12 +3504,12 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
 		modernCustomDudeDeath(actor, nSeq, damageType);
-		genDudePostDeath(pSprite, damageType, damage);
+		genDudePostDeath(actor, damageType, damage);
 		return;
 
 	case kDudeModernCustomBurning:
 		modernCustomDudeBurningDeath(actor, nSeq);
-		genDudePostDeath(pSprite, kDamageExplode, damage);
+		genDudePostDeath(actor, kDamageExplode, damage);
 		return;
 #endif
 

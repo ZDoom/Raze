@@ -228,7 +228,7 @@ short inDuck(AISTATE* aiState);
 int genDudeSeqStartId(DBloodActor* pXSprite);
 bool genDudePrepare(DBloodActor* pSprite, int propId);
 void genDudeUpdate(DBloodActor* pSprite);
-void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage);
-void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite);
+void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage);
+void aiGenDudeInitSprite(DBloodActor* actor);
 #endif
 END_BLD_NS

@@ -2591,8 +2591,17 @@ bool genDudePrepare(DBloodActor* actor, int propId)
     return true;
 }
 
-void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage) {
-    if (damageType == kDamageExplode) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage) 
+{
+    auto const pSprite = &actor->s();
+    if (damageType == kDamageExplode)
+    {
         DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
         for (int i = 0; i < 3; i++)
             if (pDudeInfo->nGibType[i] > -1)
@@ -2608,11 +2617,20 @@ void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage) {
     actPostSprite(pSprite->index, kStatThing);
 }
 
-void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void aiGenDudeInitSprite(DBloodActor* actor)
 {
-    auto actor = &bloodActors[pSprite->index];
-    switch (pSprite->type) {
-        case kDudeModernCustom: {
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
+    switch (pSprite->type)
+    {
+        case kDudeModernCustom: 
+        {
             DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
             pDudeExtraE->active = 0;
             aiGenDudeNewState(actor, &genDudeIdleL);
