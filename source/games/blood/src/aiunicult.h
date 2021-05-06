@@ -226,8 +226,6 @@ short inSearch(AISTATE* aiState);
 short inChase(AISTATE* aiState);
 short inDuck(AISTATE* aiState);
 int genDudeSeqStartId(XSPRITE* pXSprite);
-int getRangeAttackDist(spritetype* pSprite, int minDist = 3000, int maxDist = 80000);
-int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp);
 bool genDudePrepare(spritetype* pSprite, int propId);
 void genDudeUpdate(DBloodActor* pSprite);
 void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage);
