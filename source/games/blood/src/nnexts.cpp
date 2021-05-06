@@ -4532,7 +4532,7 @@ bool aiFightUnitCanFly(spritetype* pDude) {
 }
 
 bool aiFightIsMeleeUnit(spritetype* pDude) {
-    if (pDude->type == kDudeModernCustom) return (pDude->extra >= 0 && dudeIsMelee(&xsprite[pDude->extra]));
+    if (pDude->type == kDudeModernCustom) return (pDude->extra >= 0 && dudeIsMelee(&bloodActors[pDude->index]));
     else return (IsDudeSprite(pDude) && gDudeInfoExtra[pDude->type - kDudeBase].melee);
 }
 

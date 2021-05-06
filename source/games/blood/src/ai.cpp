@@ -1111,7 +1111,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				} 
 				else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState)) 
 				{
-					if (!dudeIsMelee(pXSprite)) 
+					if (!dudeIsMelee(actor)) 
 					{
 						if (inIdle(pXSprite->aiState) || Chance(getDodgeChance(pSprite))) 
 						{
@@ -1287,7 +1287,7 @@ void RecoilDude(DBloodActor* actor)
 			int rChance = getRecoilChance(pSprite);
 			if (pExtra->canElectrocute && pDudeExtra->recoil && !spriteIsUnderwater(actor, false))
 			{
-				if (Chance(rChance << 3) || (dudeIsMelee(pXSprite) && Chance(rChance << 4))) aiGenDudeNewState(actor, &genDudeRecoilTesla);
+				if (Chance(rChance << 3) || (dudeIsMelee(actor) && Chance(rChance << 4))) aiGenDudeNewState(actor, &genDudeRecoilTesla);
 				else if (pExtra->canRecoil && Chance(rChance)) aiGenDudeNewState(actor, &genDudeRecoilL);
 				else if (canWalk(pSprite))
 				{
@@ -1315,7 +1315,7 @@ void RecoilDude(DBloodActor* actor)
                     else pXSprite->aiState->nextState = &genDudeChaseNoWalkW;
 
 				}
-				else if (!dudeIsMelee(pXSprite) || Chance(rChance >> 2))
+				else if (!dudeIsMelee(actor) || Chance(rChance >> 2))
 				{
                     if (rState == 1) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeL : &genDudeDodgeShortL);
                     else if (rState == 2) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeD : &genDudeDodgeShortD);

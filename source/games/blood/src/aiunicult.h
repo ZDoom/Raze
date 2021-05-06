@@ -212,7 +212,7 @@ void genDudeTransform(spritetype* pSprite);
 void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT a3);
 int getDodgeChance(spritetype* pSprite);
 int getRecoilChance(spritetype* pSprite);
-bool dudeIsMelee(XSPRITE* pXSprite);
+bool dudeIsMelee(DBloodActor* pXSprite);
 void updateTargetOfSlaves(spritetype* pSprite);
 void updateTargetOfLeech(spritetype* pSprite);
 bool canSwim(spritetype* pSprite);
