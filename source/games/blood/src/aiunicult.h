@@ -209,7 +209,7 @@ int checkAttackState(DBloodActor* actor);
 bool doExplosion(DBloodActor* pSprite, int nType);
 spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist);
 void genDudeTransform(spritetype* pSprite);
-void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT a3);
+void dudeLeechOperate(DBloodActor* actor, const EVENT& a3);
 int getDodgeChance(DBloodActor* pSprite);
 int getRecoilChance(DBloodActor* pSprite);
 bool dudeIsMelee(DBloodActor* pXSprite);
