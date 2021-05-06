@@ -235,7 +235,7 @@ void genDudeAttack1(int, DBloodActor* actor)
     auto const pXSprite = &actor->x();
     auto const pSprite = &actor->s();
 
-    if (pXSprite->target_i < 0) return;
+    if (actor->GetTarget() == nullptr) return;
 
     int dx, dy, dz;
     actor->xvel() = actor->yvel() = 0;
@@ -400,7 +400,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             pSpawned->cstat &= ~CSTAT_SPRITE_BLOCK;
             pSpawned->pal = 6;
             pSpawned->clipdist = 0;
-            pXSpawned->target_i = pTarget->index;
+            spawned->SetTarget(actor->GetTarget());
             pXSpawned->Proximity = true;
             pXSpawned->stateTimer = 1;
                 
@@ -662,7 +662,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 }
                 else 
                 {
-                    int state = checkAttackState(&bloodActors[pXSprite->reference]);
+                    int state = checkAttackState(actor);
                     if (state == 1) aiGenDudeNewState(actor, &genDudeChaseW);
                     else if (state == 2) 
                     {
@@ -724,7 +724,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         break;
                     case kMissileFlareAlt:
                         mdist = 2500;
-                        fallthrough__;
+                        [[fallthrough]];
                     case kMissileFireball:
                     case kMissileFireballNapalm:
                     case kMissileFireballCerberus:
@@ -764,7 +764,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 {
                     actor->xvel() = actor->yvel() = actor->zvel() = 0;
                     if (doExplosion(pSprite, nType) && pXSprite->health > 0)
-                            actDamageSprite(&bloodActors[pSprite->index], &bloodActors[pSprite->index], kDamageExplode, 65535);
+                            actDamageSprite(actor, actor, kDamageExplode, 65535);
                 }
                 return;
                 }
@@ -1179,16 +1179,16 @@ void aiGenDudeMoveForward(DBloodActor* actor)
             return;
         int nCos = Cos(pSprite->ang);
         int nSin = Sin(pSprite->ang);
-        int vx = xvel[pSprite->index];
-        int vy = yvel[pSprite->index];
+        int vx = actor->xvel();
+        int vy = actor->yvel();
         int t1 = DMulScale(vx, nCos, vy, nSin, 30);
         int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
         if (actor->GetTarget() == nullptr)
             t1 += nAccel;
         else
             t1 += nAccel >> 1;
-        xvel[pSprite->index] = DMulScale(t1, nCos, t2, nSin, 30);
-        yvel[pSprite->index] = DMulScale(t1, nSin, -t2, nCos, 30);
+        actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
+        actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     }
     else
     {
@@ -1203,8 +1203,8 @@ void aiGenDudeMoveForward(DBloodActor* actor)
     int cos = Cos(pSprite->ang);
 
         int frontSpeed = gGenDudeExtra[pSprite->index].moveSpeed;
-        xvel[pSprite->index] += MulScale(cos, frontSpeed, 30);
-        yvel[pSprite->index] += MulScale(sin, frontSpeed, 30);
+        actor->xvel() += MulScale(cos, frontSpeed, 30);
+        actor->yvel() += MulScale(sin, frontSpeed, 30);
     }
 }
 
@@ -1319,7 +1319,7 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
     }
 
     if (pAIState->enterFunc)
-        pAIState->enterFunc(&bloodActors[pXSprite->reference]);
+        pAIState->enterFunc(actor);
 }
 
 //---------------------------------------------------------------------------
@@ -1551,10 +1551,11 @@ void scaleDamage(XSPRITE* pXSprite) {
             break;
         case kGenDudeWeaponMissile:
         case kGenDudeWeaponThrow:
-            switch (curWeapon) {
+            switch (curWeapon) 
+            {
                 case kMissileButcherKnife:
                     curScale[kDmgBullet] = 100;
-                    fallthrough__;
+                    [[fallthrough]];
                 case kMissileEctoSkull:
                     curScale[kDmgSpirit] = 32;
                     break;
@@ -1575,7 +1576,7 @@ void scaleDamage(XSPRITE* pXSprite) {
                     break;
                 case kMissileLifeLeechRegular:
                     curScale[kDmgBurn] = 60 + Random(4);
-                    fallthrough__;
+                    [[fallthrough]];
                 case kThingDroppedLifeLeech:
                 case kModernThingEnemyLifeLeech:
                     curScale[kDmgSpirit] = 32 + Random(18);
@@ -1608,8 +1609,10 @@ void scaleDamage(XSPRITE* pXSprite) {
     }
 
     // add resistance if have an armor item to drop
-    if (pXSprite->dropMsg >= kItemArmorAsbest && pXSprite->dropMsg <= kItemArmorSuper) {
-        switch (pXSprite->dropMsg) {
+    if (pXSprite->dropMsg >= kItemArmorAsbest && pXSprite->dropMsg <= kItemArmorSuper) 
+    {
+        switch (pXSprite->dropMsg) 
+        {
             case kItemArmorAsbest:
                 curScale[kDmgBurn] = 0;
                 curScale[kDmgExplode] -= 30;
@@ -1641,15 +1644,19 @@ void scaleDamage(XSPRITE* pXSprite) {
 
     // take in account yrepeat of sprite
     short yrepeat = sprite[pXSprite->reference].yrepeat;
-    if (yrepeat < 64) {
+    if (yrepeat < 64) 
+    {
         for (int i = 0; i < kDmgMax; i++) curScale[i] += (64 - yrepeat);
-    } else if (yrepeat > 64) {
+    } 
+    else if (yrepeat > 64) 
+    {
         for (int i = 0; i < kDmgMax; i++) curScale[i] -= ((yrepeat - 64) >> 2);
     }
 
     // take surface type into account
     int surfType = tileGetSurfType(sprite[pXSprite->reference].index + 0xc000);
-    switch (surfType) {
+    switch (surfType) 
+    {
         case 1:  // stone
             curScale[kDmgFall] = 0;
             curScale[kDmgBullet] -= 200;
@@ -1748,12 +1755,16 @@ int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp)
 // the distance counts from sprite size
 int getRangeAttackDist(spritetype* pSprite, int minDist, int maxDist) {
     short yrepeat = pSprite->yrepeat; int dist = 0; int seqId = xsprite[pSprite->extra].data2; 
-    short mul = 550; int picnum = pSprite->picnum;
+    int mul = 550; 
+    int picnum = pSprite->picnum;
     
-    if (yrepeat > 0) {
-        if (seqId >= 0) {
+    if (yrepeat > 0) 
+    {
+        if (seqId >= 0) 
+        {
             Seq* pSeq = getSequence(seqId);
-            if (pSeq) {
+            if (pSeq) 
+            {
                 picnum = seqGetTile(&pSeq->frames[0]);
             }
         }
@@ -1768,7 +1779,14 @@ int getRangeAttackDist(spritetype* pSprite, int minDist, int maxDist) {
     return dist;
 }
 
-int getBaseChanceModifier(int baseChance) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getBaseChanceModifier(int baseChance)
+{
     return ((gGameOptions.nDifficulty > 0) ? baseChance - (0x0500 * gGameOptions.nDifficulty) : baseChance);
 }
 
@@ -1884,10 +1902,15 @@ bool doExplosion(spritetype* pSprite, int nType)
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
 // this function allows to spawn new custom dude and inherit spawner settings,
 // so custom dude can have different weapons, hp and so on...
-spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist) {
+//
+//---------------------------------------------------------------------------
 
+spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist) 
+{
     DBloodActor* actor = &bloodActors[pSprite->index];
     spritetype* pSource = &sprite[pXSource->reference];
     auto spawned = actSpawnSprite(actor, kStatDude); 
@@ -2059,7 +2082,7 @@ void genDudeTransform(spritetype* pSprite) {
         case kDudeModernCustomBurning:
             seqId = genDudeSeqStartId(pXSprite);
             genDudePrepare(pSprite, kGenDudePropertyMass);
-            fallthrough__; // go below
+            [[fallthrough]]; // go below
         default:
             seqSpawn(seqId, 3, pSprite->extra, -1);
 
@@ -2258,7 +2281,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             pExtra->initVals[1] = pSprite->yrepeat;
             pExtra->initVals[2] = pSprite->clipdist;
             if (propId) break;
-            fallthrough__;
+            [[fallthrough]];
 
         case kGenDudePropertyWeapon: {
             pExtra->curWeapon = pXSprite->data1;
@@ -2288,13 +2311,13 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             }
 
             if (propId) break;
-            fallthrough__;
+            [[fallthrough]];
 
         }
         case kGenDudePropertyDmgScale:
             scaleDamage(pXSprite);
             if (propId) break;
-            fallthrough__;
+            [[fallthrough]];
 
         case kGenDudePropertyMass: {
             // to ensure mass gets updated, let's clear all cache
@@ -2303,14 +2326,14 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             pMass->mass = pMass->airVel = pMass->fraction = 0;
             getSpriteMassBySize(pSprite);
             if (propId) break;
-            fallthrough__;
+            [[fallthrough]];
         }
         case kGenDudePropertyAttack:
             pExtra->fireDist = getRangeAttackDist(pSprite, 3000, 45000);
             pExtra->throwDist = pExtra->fireDist; // temp
             pExtra->baseDispersion = getDispersionModifier(pSprite, 200, 3500);
             if (propId) break;
-            fallthrough__;
+            [[fallthrough]];
 
         case kGenDudePropertyStates: {
 
@@ -2417,7 +2440,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                 }
             }
             if (propId) break;
-            fallthrough__;
+            [[fallthrough]];
         }
         case kGenDudePropertyLeech:
             pExtra->pLifeLeech = nullptr;
@@ -2433,7 +2456,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                 }
             }
             if (propId) break;
-            fallthrough__;
+            [[fallthrough]];
 
         case kGenDudePropertySlaves:
         {
@@ -2453,7 +2476,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                     break;
             }
             if (propId) break;
-            fallthrough__;
+            [[fallthrough]];
         }
         case kGenDudePropertySpriteSize: {
             if (seqGetStatus(3, pSprite->extra) == -1)
