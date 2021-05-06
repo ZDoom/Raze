@@ -206,7 +206,7 @@ void aiGenDudeMoveForward(DBloodActor* actor);
 void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int aXvel = -1, int aYvel = -1);
 void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState);
 int checkAttackState(DBloodActor* actor);
-bool doExplosion(spritetype* pSprite, int nType);
+bool doExplosion(DBloodActor* pSprite, int nType);
 spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist);
 void genDudeTransform(spritetype* pSprite);
 void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT a3);

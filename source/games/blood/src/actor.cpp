@@ -2951,7 +2951,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 	{
 		if (pExtra->weaponType == kGenDudeWeaponKamikaze && Chance(0x4000) && damageType != kDamageSpirit && damageType != kDamageDrown)
 		{
-			doExplosion(pSprite, pXSprite->data1 - kTrapExploder);
+			doExplosion(actor, pXSprite->data1 - kTrapExploder);
 			if (Chance(0x9000)) damageType = kDamageExplode;
 		}
 
