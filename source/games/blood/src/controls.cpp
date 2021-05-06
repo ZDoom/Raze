@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "mmulti.h"
 #include "blood.h"
 #include "gamestate.h"
 #include "inputstate.h"
@@ -58,8 +57,8 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         // Perform unsynchronised angle/horizon if not dead.
         if (gView->pXSprite->health != 0)
         {
-            applylook(&pPlayer->angle, input.avel, &pPlayer->input.actions, scaleAdjust);
-            sethorizon(&pPlayer->horizon, input.horz, &pPlayer->input.actions, scaleAdjust);
+            pPlayer->angle.applyinput(input.avel, &pPlayer->input.actions, scaleAdjust);
+            pPlayer->horizon.applyinput(input.horz, &pPlayer->input.actions, scaleAdjust);
             doslopetilting(pPlayer, scaleAdjust);
         }
 

@@ -37,7 +37,6 @@ source as it is released.
 #include "serializer.h"
 #include "names.h"
 #include "build.h"
-#include "mmulti.h"
 #include "gamevar.h"
 #include "mapinfo.h"
 
@@ -555,9 +554,9 @@ void InitGameVarPointers(void)
 //
 //---------------------------------------------------------------------------
 
-// These are deliberately not stored in accessible variables anymore
-int getmap() { return mapfromlevelnum(currentLevel->levelNumber); }
-int getvol() { return volfromlevelnum(currentLevel->levelNumber); }
+// These are deliberately not stored in accessible variables anymore. Use is deprecated.
+int getmap() { return currentLevel->levelNumber; }
+int getvol() { return currentLevel->cluster; }
 
 void AddSystemVars()
 {

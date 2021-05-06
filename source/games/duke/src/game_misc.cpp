@@ -92,13 +92,12 @@ static void endthegame(bool)
 
 void GameInterface::ExitFromMenu() 
 { 
+#if 0
+	// do we really need this scoreboard stuff here?
 	auto runbonus = [=](auto completion)
 	{
 	// MP scoreboard
-		if (playerswhenstarted > 1 && !ud.coop)
-	{
-			dobonus(1, completion);
-	}
+		if (playerswhenstarted > 1 && !ud.coop) ShowScoreboard(playerswhenstarted);
 	else completion(false);
 	};
 
@@ -106,11 +105,16 @@ void GameInterface::ExitFromMenu()
 	{
 	// shareware and TEN screens
 	if (isShareware() && !isRR())
-		showtwoscreens(completion);
+			StartCutscene("DukeCutscenes.BuildSharewareExit", 0, completion);
 	else completion(false);
 	};
 
 	runbonus([=](bool aborted) { runtwoscreens(endthegame); });
+#else
+	if (isShareware() && !isRR())
+		StartCutscene("DukeCutscenes.BuildSharewareExit", 0, endthegame);
+	else endthegame(false);
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -208,7 +212,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 //---------------------------------------------------------------------------
 //
-// 'rest' in this case means everything not part of the 3D scene and its weapon sprite.
+// draws everything not part of the 3D scene and its weapon sprite.
 //
 //---------------------------------------------------------------------------
 
@@ -251,7 +255,7 @@ void drawoverlays(double smoothratio)
 			{
 				fi.displayweapon(screenpeek, smoothratio);
 				if (pp->over_shoulder_on == 0)
-					fi.displaymasks(screenpeek, smoothratio);
+					fi.displaymasks(screenpeek, pp->GetActor()->s->pal == 1 ? 1 : sector[pp->cursectnum].floorpal, smoothratio);
 			}
 			if (!isRR())
 				moveclouds(smoothratio);
@@ -265,15 +269,15 @@ void drawoverlays(double smoothratio)
 			{
 				if (screenpeek == myconnectindex && numplayers > 1)
 				{
-					cposx = omyx + MulScale(myx - omyx, smoothratio, 16);
-					cposy = omyy + MulScale(myy - omyy, smoothratio, 16);
-					cang = !SyncInput() ? myang.asbuild() : omyang.asbuild() + MulScale(((myang.asbuild() + 1024 - omyang.asbuild()) & 2047) - 1024, smoothratio, 16);
+					cposx = interpolatedvalue(omyx, myx, smoothratio);
+					cposy = interpolatedvalue(omyy, myy, smoothratio);
+					cang = (!SyncInput() ? myang : interpolatedangle(omyang, myang, smoothratio)).asbuild();
 				}
 				else
 				{
-					cposx = pp->oposx + MulScale(pp->posx - pp->oposx, smoothratio, 16);
-					cposy = pp->oposy + MulScale(pp->posy - pp->oposy, smoothratio, 16);
-					cang = !SyncInput() ? pp->angle.ang.asbuild() : pp->angle.oang.asbuild() + MulScale(((pp->angle.ang.asbuild() + 1024 - pp->angle.oang.asbuild()) & 2047) - 1024, smoothratio, 16);
+					cposx = interpolatedvalue(pp->oposx, pp->posx, smoothratio);
+					cposy = interpolatedvalue(pp->oposy, pp->posy, smoothratio);
+					cang = (!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbuild();
 				}
 			}
 			else
@@ -297,7 +301,13 @@ void drawoverlays(double smoothratio)
 	}
 
 	if (paused == 2)
-		fi.PrintPaused();
+	{
+		double x = 160, y = 100;
+		double scale = isRR() ? 0.4 : 1.;
+		const char* text = GStrings("Game Paused");
+		x -= BigFont->StringWidth(text) * 0.5 * scale;
+		DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	}
 }
 
 
@@ -334,18 +344,6 @@ void cameratext(DDukeActor *cam)
 			for (int y = 0; y < 200; y += 64)
 				drawitem(TILE_STATIC, x, y, !!(PlayClock & 8), !!(PlayClock & 16));
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void dobonus(int bonusonly, const CompletionFunc& completion)
-{
-	if (isRR()) dobonus_r(bonusonly, completion);
-	else dobonus_d(bonusonly, completion);
 }
 
 //---------------------------------------------------------------------------
@@ -398,15 +396,13 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
 	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
 	int xrepeat, yrepeat, tilenum, daang;
-	int xvect, yvect, xvect2, yvect2;
+	int xvect, yvect;
 	int p;
 	PalEntry col;
 	spritetype* spr;
 
 	xvect = -bsin(cang) * czoom;
 	yvect = -bcos(cang) * czoom;
-	xvect2 = MulScale(xvect, yxaspect, 16);
-	yvect2 = MulScale(yvect, yxaspect, 16);
 
 	//Draw sprites
 	auto pactor = ps[screenpeek].GetActor();
@@ -434,15 +430,15 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 				ox = sprx - cposx;
 				oy = spry - cposy;
 				x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y1 = DMulScale(oy, xvect2, ox, yvect2, 16);
+				y1 = DMulScale(oy, xvect, ox, yvect, 16);
 
 				ox = bcos(spr->ang, -7);
 				oy = bsin(spr->ang, -7);
 				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
 				y2 = DMulScale(oy, xvect, ox, yvect, 16);
 
-				x3 = MulScale(x2, yxaspect, 16);
-				y3 = MulScale(y2, yxaspect, 16);
+				x3 = x2;
+				y3 = y2;
 
 				drawlinergb(x1 - x2 + (xdim << 11), y1 - y3 + (ydim << 11),
 					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
@@ -474,12 +470,12 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 					ox = x1 - cposx;
 					oy = y1 - cposy;
 					x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-					y1 = DMulScale(oy, xvect2, ox, yvect2, 16);
+					y1 = DMulScale(oy, xvect, ox, yvect, 16);
 
 					ox = x2 - cposx;
 					oy = y2 - cposy;
 					x2 = DMulScale(ox, xvect, -oy, yvect, 16);
-					y2 = DMulScale(oy, xvect2, ox, yvect2, 16);
+					y2 = DMulScale(oy, xvect, ox, yvect, 16);
 
 					drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
 						x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -520,22 +516,22 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 				ox = x1 - cposx;
 				oy = y1 - cposy;
 				x1 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y1 = DMulScale(oy, xvect2, ox, yvect2, 16);
+				y1 = DMulScale(oy, xvect, ox, yvect, 16);
 
 				ox = x2 - cposx;
 				oy = y2 - cposy;
 				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y2 = DMulScale(oy, xvect2, ox, yvect2, 16);
+				y2 = DMulScale(oy, xvect, ox, yvect, 16);
 
 				ox = x3 - cposx;
 				oy = y3 - cposy;
 				x3 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y3 = DMulScale(oy, xvect2, ox, yvect2, 16);
+				y3 = DMulScale(oy, xvect, ox, yvect, 16);
 
 				ox = x4 - cposx;
 				oy = y4 - cposy;
 				x4 = DMulScale(ox, xvect, -oy, yvect, 16);
-				y4 = DMulScale(oy, xvect2, ox, yvect2, 16);
+				y4 = DMulScale(oy, xvect, ox, yvect, 16);
 
 				drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
 					x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -570,7 +566,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 				i = TILE_APLAYERTOP;
 
 			j = abs(pp.truefz - pp.posz) >> 8;
-			j = MulScale(czoom * (pspr->yrepeat + j), yxaspect, 16);
+			j = czoom * (pspr->yrepeat + j);
 
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);

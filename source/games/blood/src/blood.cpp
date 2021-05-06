@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "build.h"
-#include "mmulti.h"
 #include "compat.h"
 #include "g_input.h"
 #include "automap.h"
@@ -49,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_draw.h"
 #include "texturemanager.h"
 #include "statusbar.h"
+#include "vm.h"
 
 BEGIN_BLD_NS
 
@@ -79,7 +79,7 @@ void EndLevel(void)
 	seqKillAll();
 }
 
-void StartLevel(MapRecord* level)
+void StartLevel(MapRecord* level, bool newgame)
 {
 	if (!level) return;
 	gFrameCount = 0;
@@ -96,14 +96,14 @@ void StartLevel(MapRecord* level)
 		///////
 	}
 #if 0
-	else if (gGameOptions.nGameType > 0 && !(gGameOptions.uGameFlags & GF_AdvanceLevel))
+	else if (gGameOptions.nGameType > 0 && newgame)
 	{
 		// todo
 		gBlueFlagDropped = false;
 		gRedFlagDropped = false;
 	}
 #endif
-	if (gGameOptions.uGameFlags & GF_AdvanceLevel)
+	if (!newgame)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
@@ -112,7 +112,6 @@ void StartLevel(MapRecord* level)
 		}
 	}
 	memset(xsprite, 0, sizeof(xsprite));
-	memset(sprite, 0, kMaxSprites * sizeof(spritetype));
 	//drawLoadingScreen();
 	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsectnum, nullptr);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
@@ -181,13 +180,13 @@ void StartLevel(MapRecord* level)
 	evInit();
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (!(gGameOptions.uGameFlags & GF_AdvanceLevel))
+		if (newgame)
 		{
 			playerInit(i, 0);
 		}
 		playerStart(i, 1);
 	}
-	if (gGameOptions.uGameFlags & GF_AdvanceLevel)
+	if (!newgame)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
@@ -204,7 +203,6 @@ void StartLevel(MapRecord* level)
 			pPlayer->nextWeapon = gPlayerTemp[i].nextWeapon;
 		}
 	}
-	gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
 	PreloadCache();
 	InitMirrors();
 	trInit();
@@ -223,43 +221,24 @@ void StartLevel(MapRecord* level)
 }
 
 
-void NewLevel(MapRecord *sng, int skill)
+void NewLevel(MapRecord *sng, int skill, bool newgame)
 {
-	auto completion = [=](bool = false)
-	{
-		if (skill != -1) gGameOptions.nDifficulty = skill;
-		gSkill = gGameOptions.nDifficulty;
-		StartLevel(sng);
-		gameaction = ga_level;
-	};
-
-	bool startedCutscene = false;
-	if (!(sng->flags & MI_USERMAP))
-	{
-		int episode = volfromlevelnum(sng->levelNumber);
-		int level = mapfromlevelnum(sng->levelNumber);
-		if (gEpisodeInfo[episode].cutALevel == level && gEpisodeInfo[episode].cutsceneAName[0])
-		{
-			levelPlayIntroScene(episode, completion);
-			startedCutscene = true;
-		}
-
-	}
-	if (!startedCutscene) completion(false);
-
+	if (skill != -1) gGameOptions.nDifficulty = skill;
+	gSkill = gGameOptions.nDifficulty;
+	StartLevel(sng, newgame);
+	gameaction = ga_level;
 }
 
 void GameInterface::NewGame(MapRecord *sng, int skill, bool)
 {
 	gGameOptions.uGameFlags = 0;
 	cheatReset();
-	NewLevel(sng, skill);
+	NewLevel(sng, skill, true);
 }
 
 void GameInterface::NextLevel(MapRecord *map, int skill)
 {
-	gGameOptions.uGameFlags = GF_AdvanceLevel;
-	NewLevel(map, skill);
+	NewLevel(map, skill, false);
 }
 
 void GameInterface::Ticker()
@@ -304,7 +283,6 @@ void GameInterface::Ticker()
 		viewCorrectPrediction();
 		ambProcess();
 		viewUpdateDelirium();
-		viewUpdateShake();
 		gi->UpdateSounds();
 		if (gMe->hand == 1)
 		{
@@ -330,40 +308,12 @@ void GameInterface::Ticker()
 				team_ticker[i] = 0;
 		}
 
-		if ((gGameOptions.uGameFlags & GF_AdvanceLevel) != 0)
+		if (gGameOptions.uGameFlags & GF_AdvanceLevel)
 		{
+			gGameOptions.uGameFlags &= ~GF_AdvanceLevel;
 			seqKillAll();
-			if (gGameOptions.uGameFlags & GF_EndGame)
-			{
-				STAT_Update(true);
-				if (gGameOptions.nGameType == 0)
-				{
-					auto completion = [](bool) {
-						gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
-						gameaction = ga_creditsmenu;
-					};
-
-					if (gGameOptions.uGameFlags & GF_PlayCutscene)
-					{
-						levelPlayEndScene(volfromlevelnum(currentLevel->levelNumber), completion);
-					}
-					else completion(false);
-				}
-				else
-				{
-					gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
-				}
-			}
-			else
-			{
-				STAT_Update(false);
-				EndLevel();
-				Mus_Stop();
-				// Fixme: Link maps, not episode/level pairs.
-				int ep = volfromlevelnum(currentLevel->levelNumber);
-				auto map = FindMapByLevelNum(levelnum(ep, gNextLevel));
-				CompleteLevel(map);
-			}
+			STAT_Update(gNextLevel == nullptr);
+			CompleteLevel(gNextLevel);
 		}
 		r_NoInterpolate = false;
 	}
@@ -467,20 +417,18 @@ void GameInterface::app_init()
 
 	HookReplaceFunctions();
 
-	Printf(PRINT_NONOTIFY, "Initializing Build 3D engine\n");
-	engineInit();
-
 	Printf(PRINT_NONOTIFY, "Loading tiles\n");
-	if (!tileInit(0, NULL))
+	if (!tileInit())
 		I_FatalError("TILES###.ART files not found");
 
 	levelLoadDefaults();
 	LoadDefinitions();
+
+	//---------
 	SetTileNames();
 	C_InitConback(TexMan.CheckForTexture("BACKTILE", ETextureType::Any), true, 0.25);
 
 	TileFiles.SetBackup();
-	powerupInit();
 	Printf(PRINT_NONOTIFY, "Loading cosine table\n");
 	trigInit();
 	Printf(PRINT_NONOTIFY, "Initializing view subsystem\n");
@@ -490,14 +438,14 @@ void GameInterface::app_init()
 	Printf(PRINT_NONOTIFY, "Initializing weapon animations\n");
 	WeaponInit();
 
+	Printf(PRINT_NONOTIFY, "Initializing sound system\n");
+	sndInit();
+
 	myconnectindex = connecthead = 0;
 	gNetPlayers = numplayers = 1;
 	connectpoint2[0] = -1;
 	gGameOptions.nGameType = 0;
 	UpdateNetworkMenus();
-
-	Printf(PRINT_NONOTIFY, "Initializing sound system\n");
-	sndInit();
 
 	gChoke.init(518, chokeCallback);
 	UpdateDacs(0, true);
@@ -523,17 +471,7 @@ static void gameInit()
 void GameInterface::Startup()
 {
 	gameInit();
-	if (userConfig.CommandMap.IsNotEmpty())
-	{
-	}
-	else
-	{
-		if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
-		else
-		{
-			gameaction = ga_mainmenu;
-		}
-	}
+	PlayLogos(ga_mainmenu, ga_mainmenu, true);
 }
 
 
@@ -581,6 +519,50 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;
+}
+
+enum
+{
+	kLoadScreenCRC = -2051908571,
+	kLoadScreenWideBackWidth = 256,
+	kLoadScreenWideSideWidth = 128,
+
+};
+
+
+DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
+{
+	static int bLoadScreenCrcMatch = -1;
+	if (bLoadScreenCrcMatch == -1) bLoadScreenCrcMatch = tileGetCRC32(kLoadScreen) == kLoadScreenCRC;
+	ACTION_RETURN_INT(bLoadScreenCrcMatch);
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, PlayIntroMusic)
+{
+	Mus_Play(nullptr, "PESTIS.MID", false);
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, sndStartSample)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(id);
+	PARAM_INT(vol);
+	PARAM_INT(chan);
+	PARAM_BOOL(looped);
+	PARAM_INT(chanflags);
+	sndStartSample(id, vol, chan, looped, EChanFlags::FromInt(chanflags));
+	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, sndStartSampleNamed)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(id);
+	PARAM_INT(vol);
+	PARAM_INT(chan);
+	sndStartSample(id, vol, chan);
+	return 0;
 }
 
 END_BLD_NS

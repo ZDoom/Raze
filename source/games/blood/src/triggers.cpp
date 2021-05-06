@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "compat.h"
-#include "mmulti.h"
 
 #include "blood.h"
 #include "d_net.h"
@@ -794,6 +793,7 @@ void PathSound(int nSector, int nSound)
 
 void DragPoint(int nWall, int x, int y)
 {
+    sector[wall[nWall].sector].dirty = 255; 
     viewInterpolateWall(nWall, &wall[nWall]);
     wall[nWall].x = x;
     wall[nWall].y = y;
@@ -805,6 +805,7 @@ void DragPoint(int nWall, int x, int y)
         if (wall[vb].nextwall >= 0)
         {
             vb = wall[wall[vb].nextwall].point2;
+            sector[wall[vb].sector].dirty = 255;
             viewInterpolateWall(vb, &wall[vb]);
             wall[vb].x = x;
             wall[vb].y = y;
@@ -817,6 +818,7 @@ void DragPoint(int nWall, int x, int y)
                 if (wall[lastwall(vb)].nextwall >= 0)
                 {
                     vb = wall[lastwall(vb)].nextwall;
+                    sector[wall[vb].sector].dirty = 255;
                     viewInterpolateWall(vb, &wall[vb]);
                     wall[vb].x = x;
                     wall[vb].y = y;
@@ -836,14 +838,14 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
     int x, y;
     int nXSector = sector[nSector].extra;
     XSECTOR *pXSector = &xsector[nXSector];
-    int v20 = interpolate(a6, a9, a2);
-    int vc = interpolate(a6, a9, a3);
+    int v20 = interpolatedvalue(a6, a9, a2);
+    int vc = interpolatedvalue(a6, a9, a3);
     int v28 = vc - v20;
-    int v24 = interpolate(a7, a10, a2);
-    int v8 = interpolate(a7, a10, a3);
+    int v24 = interpolatedvalue(a7, a10, a2);
+    int v8 = interpolatedvalue(a7, a10, a3);
     int v2c = v8 - v24;
-    int v44 = interpolate(a8, a11, a2);
-    int vbp = interpolate(a8, a11, a3);
+    int v44 = interpolatedvalue(a8, a11, a2);
+    int vbp = interpolatedvalue(a8, a11, a3);
     int v14 = vbp - v44;
     int nWall = sector[nSector].wallptr;
     if (a12)

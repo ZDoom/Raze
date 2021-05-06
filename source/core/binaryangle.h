@@ -40,8 +40,8 @@
 #include "m_fixed.h"
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
 #include "serializer.h"
-#include "build.h"
 #include "math/cmath.h"
+#include "templates.h"
 
 class FSerializer;
 
@@ -59,9 +59,9 @@ enum
 //---------------------------------------------------------------------------
 
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
-constexpr double BRadAngScale = 1. / BAngRadian;
 constexpr double BAngToDegree = 360. / 2048.;
 
+extern int16_t sintable[2048];
 
 //---------------------------------------------------------------------------
 //
@@ -69,11 +69,11 @@ constexpr double BAngToDegree = 360. / 2048.;
 //
 //---------------------------------------------------------------------------
 
-inline int32_t bsin(const int ang, const int8_t shift = 0)
+inline int bsin(const int ang, const int shift = 0)
 {
 	return shift < 0 ? sintable[ang & 2047] >> abs(shift) : sintable[ang & 2047] << shift;
 }
-inline double bsinf(const double ang, const int8_t shift = 0)
+inline double bsinf(const double ang, const int shift = 0)
 {
 	return g_sin(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
 }
@@ -85,153 +85,13 @@ inline double bsinf(const double ang, const int8_t shift = 0)
 //
 //---------------------------------------------------------------------------
 
-inline int32_t bcos(const int ang, const int8_t shift = 0)
+inline int bcos(const int ang, const int shift = 0)
 {
 	return shift < 0 ? sintable[(ang + 512) & 2047] >> abs(shift) : sintable[(ang + 512) & 2047] << shift;
 }
-inline double bcosf(const double ang, const int8_t shift = 0)
+inline double bcosf(const double ang, const int shift = 0)
 {
 	return g_cos(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
-}
-
-
-//---------------------------------------------------------------------------
-//
-// Shift a Build angle left by 21 bits.
-//
-//---------------------------------------------------------------------------
-
-inline constexpr int64_t BAngToBAM(int ang)
-{
-	return ang << BAMBITS;
-}
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-class lookangle
-{
-	int32_t value;
-	
-	constexpr lookangle(int32_t v) : value(v) {}
-	
-	friend constexpr lookangle bamlook(int32_t v);
-	friend constexpr lookangle q16look(int32_t v);
-	friend constexpr lookangle buildlook(int32_t v);
-	friend lookangle buildflook(double v);
-	friend lookangle radlook(double v);
-	friend lookangle deglook(double v);
-
-	friend FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval);
-
-	friend class binangle;
-	
-public:
-	lookangle() = default;
-	lookangle(const lookangle &other) = default;
-	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	constexpr short asbuild() const { return value >> 21; }
-	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
-	constexpr fixed_t asq16() const { return value >> 5; }
-	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
-	constexpr double asdeg() const { return AngleToFloat(value); }
-	constexpr int32_t asbam() const { return value; }
-	
-	double fsin() const { return g_sin(asrad()); }
-	double fcos() const { return g_cos(asrad()); }
-	double ftan() const { return g_tan(asrad()); }
-	int bsin(const int8_t& shift = 0) const { return ::bsin(asbuild(), shift); }
-	int bcos(const int8_t& shift = 0) const { return ::bcos(asbuild(), shift); }
-
-	bool operator< (lookangle other) const
-	{
-		return value < other.value;
-	}
-
-	bool operator> (lookangle other) const
-	{
-		return value > other.value;
-	}
-
-	bool operator<= (lookangle other) const
-	{
-		return value <= other.value;
-	}
-
-	bool operator>= (lookangle other) const
-	{
-		return value >= other.value;
-	}
-	constexpr bool operator== (lookangle other) const
-	{
-		return value == other.value;
-	}
-
-	constexpr bool operator!= (lookangle other) const
-	{
-		return value != other.value;
-	}
-
-	constexpr lookangle &operator+= (lookangle other)
-	{
-		value += other.value;
-		return *this;
-	}
-
-	constexpr lookangle &operator-= (lookangle other)
-	{
-		value -= other.value;
-		return *this;
-	}
-
-	constexpr lookangle operator+ (lookangle other) const
-	{
-		return lookangle(value + other.value);
-	}
-
-	constexpr lookangle operator- (lookangle other) const
-	{
-		return lookangle(value - other.value);
-	}
-
-	constexpr lookangle &operator<<= (const uint8_t shift)
-	{
-		value <<= shift;
-		return *this;
-	}
-
-	constexpr lookangle &operator>>= (const uint8_t shift)
-	{
-		value >>= shift;
-		return *this;
-	}
-
-	constexpr lookangle operator<< (const uint8_t shift) const
-	{
-		return lookangle(value << shift);
-	}
-
-	constexpr lookangle operator>> (const uint8_t shift) const
-	{
-		return lookangle(value >> shift);
-	}
-
-};
-
-inline constexpr lookangle bamlook(int32_t v) { return lookangle(v); }
-inline constexpr lookangle q16look(int32_t v) { return lookangle(v << 5); }
-inline constexpr lookangle buildlook(int32_t v) { return lookangle(v << BAMBITS); }
-inline lookangle buildflook(double v) { return lookangle(xs_CRoundToInt(v * BAMUNIT)); }
-inline lookangle radlook(double v) { return lookangle(xs_CRoundToInt(v * (0x80000000u / pi::pi()))); }
-inline lookangle deglook(double v) { return lookangle(FloatToAngle(v)); }
-
-inline FSerializer &Serialize(FSerializer &arc, const char *key, lookangle &obj, lookangle *defval)
-{
-	return Serialize(arc, key, obj.value, defval ? &defval->value : nullptr);
 }
 
 
@@ -260,12 +120,19 @@ public:
 	binangle() = default;
 	binangle(const binangle &other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	constexpr short asbuild() const { return value >> 21; }
+	constexpr int32_t tosigned() const { return value > INT32_MAX ? int64_t(value) - UINT32_MAX : value; }
+	constexpr short asbuild() const { return value >> BAMBITS; }
 	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
 	constexpr fixed_t asq16() const { return value >> 5; }
+	constexpr uint32_t asbam() const { return value; }
 	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
 	constexpr double asdeg() const { return AngleToFloat(value); }
-	constexpr uint32_t asbam() const { return value; }
+	constexpr short signedbuild() const { return tosigned() >> BAMBITS; }
+	constexpr double signedbuildf() const { return tosigned() * (1. / BAMUNIT); }
+	constexpr fixed_t signedq16() const { return tosigned() >> 5; }
+	constexpr int32_t signedbam() const { return tosigned(); }
+	constexpr double signedrad() const { return tosigned() * (pi::pi() / 0x80000000u); }
+	constexpr double signeddeg() const { return AngleToFloat(tosigned()); }
 	
 	double fsin() const { return g_sin(asrad()); }
 	double fcos() const { return g_cos(asrad()); }
@@ -305,28 +172,6 @@ public:
 		return binangle(value - other.value);
 	}
 
-	constexpr binangle &operator+= (lookangle other)
-	{
-		value += other.value;
-		return *this;
-	}
-
-	constexpr binangle &operator-= (lookangle other)
-	{
-		value -= other.value;
-		return *this;
-	}
-
-	constexpr binangle operator+ (lookangle other) const
-	{
-		return binangle(value + other.value);
-	}
-
-	constexpr binangle operator- (lookangle other) const
-	{
-		return binangle(value - other.value);
-	}
-
 	constexpr binangle &operator<<= (const uint8_t shift)
 	{
 		value <<= shift;
@@ -348,7 +193,6 @@ public:
 	{
 		return binangle(value >> shift);
 	}
-
 };
 
 inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
@@ -366,24 +210,14 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, 
 
 //---------------------------------------------------------------------------
 //
-// Constants and functions for use with fixedhoriz and friendly functions.
+// Functions for use with fixedhoriz and friendly functions.
 //
 //---------------------------------------------------------------------------
 
-// 280039127 is the maximum horizon in Q16.16 the engine will handle before wrapping around.
-constexpr double horizDiff = 280039127 * 3. / 100.;
-
-// Degrees needed to convert horizAngle into pitch degrees.
-constexpr double horizDegrees = 183.503609961216825;
-
-// Ratio to convert inverse tangent to -90/90 degrees of pitch.
-constexpr double horizRatio = horizDegrees / pi::pi();
-
-// Horizon conversion functions.
-inline double HorizToPitch(double horiz) { return atan2(horiz, horizDiff / 65536.) * horizRatio; }
-inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, horizDiff) * horizRatio; }
-inline fixed_t PitchToHoriz(double horizAngle) { return xs_CRoundToInt(horizDiff * tan(horizAngle * (pi::pi() / horizDegrees))); }
-inline int32_t PitchToBAM(double horizAngle) { return xs_CRoundToInt(clamp(horizAngle * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
+inline double HorizToPitch(double horiz) { return atan2(horiz, 128) * (180. / pi::pi()); }
+inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, IntToFixed(128)) * (180. / pi::pi()); }
+inline fixed_t PitchToHoriz(double pitch) { return xs_CRoundToInt(IntToFixed(128) * tan(pitch * (pi::pi() / 180.))); }
+inline int32_t PitchToBAM(double pitch) { return xs_CRoundToInt(clamp(pitch * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
 inline constexpr double BAMToPitch(int32_t bam) { return bam * (45. / 1073741823.5); }
 
 
@@ -512,54 +346,38 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, fixedhoriz &obj
 
 //---------------------------------------------------------------------------
 //
-// Double-precision implementation of `getangle()` with associated wrappers and helper functions.
+// High precision vector angle function, mainly for the renderer.
 //
 //---------------------------------------------------------------------------
 
-inline double bradarangf(const double& vect)
+inline binangle bvectangbam(int32_t x, int32_t y)
 {
-	return atan(vect) * BRadAngScale;
+	return radang(atan2(y, x));
 }
-inline double bvectangf(const int32_t& x, const int32_t& y)
+
+
+//---------------------------------------------------------------------------
+//
+// Interpolation functions for use throughout games.
+//
+//---------------------------------------------------------------------------
+
+inline int32_t interpolatedvalue(int32_t oval, int32_t val, double const smoothratio, int const scale = 16)
 {
-	if ((x | y) == 0)
-	{
-		return 0;
-	}
-	else if (x == 0)
-	{
-		return 512 + ((y < 0) << 10);
-	}
-	else if (y == 0)
-	{
-		return ((x < 0) << 10);
-	}
-	else if (x == y)
-	{
-		return 256 + ((x < 0) << 10);
-	}
-	else if (x == -y)
-	{
-		return 768 + ((x > 0) << 10);
-	}
-	else if (abs(x) > abs(y))
-	{
-		return fmod(bradarangf(double(y) / x) + ((x < 0) << 10), 2048.);
-	}
-	else
-	{
-		return fmod(bradarangf(double(x) / -y) + 512 + ((y < 0) << 10), 2048.);
-	}
+	return oval + MulScale(val - oval, smoothratio, scale);
 }
-inline int32_t bvectang(const int32_t& x, const int32_t& y)
+
+inline double interpolatedvaluef(double oval, double val, double const smoothratio, int const scale = 16)
 {
-	return xs_CRoundToInt(bvectangf(x, y));
+	return oval + MulScaleF(val - oval, smoothratio, scale);
 }
-inline fixed_t bvectangq16(const int32_t& x, const int32_t& y)
+
+inline int32_t interpolatedangle(int32_t oang, int32_t ang, double const smoothratio, int const scale = 16)
 {
-	return FloatToFixed(bvectangf(x, y));
+	return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, scale);
 }
-inline binangle bvectangbam(const int32_t& x, const int32_t& y)
+
+inline binangle interpolatedangle(binangle oang, binangle ang, double const smoothratio, int const scale = 16)
 {
-	return bamang(xs_CRoundToUInt(bvectangf(x, y) * BAMUNIT));
+	return bamang(oang.asbam() + MulScale(((ang.asbam() + 0x80000000 - oang.asbam()) & 0xFFFFFFFF) - 0x80000000, smoothratio, scale));
 }

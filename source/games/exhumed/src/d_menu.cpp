@@ -67,18 +67,6 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	}
 }
 
-void GameInterface::QuitToTitle()
-{
-	gameaction = ga_mainmenu;
-}
-
-bool GameInterface::StartGame(FNewGameStartup& gs)
-{
-	auto map = FindMapByLevelNum(gs.Skill);	// 0 is training, 1 is the regular game - the game does not have skill levels.
-	DeferedStartGame(map, 1, true);
-	return true;
-}
-
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_PS, MINSAVEVER_PS, SAVEVER_PS };
@@ -89,12 +77,6 @@ FSavegameInfo GameInterface::GetSaveSig()
 END_PS_NS
 
 using namespace Exhumed;
-
-DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedPlasma, Draw)
-{
-	menu_DoPlasma();
-	return 0;
-}
 
 DEFINE_ACTION_FUNCTION(_ListMenuItemExhumedLogo, Draw)
 {

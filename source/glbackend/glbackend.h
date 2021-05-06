@@ -21,31 +21,6 @@ class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
 
-enum
-{
-	DM_MAINVIEW,
-	DM_OFFSCREEN
-};
-
-class PaletteManager
-{
-	IHardwareTexture* palettetextures[256] = {};
-	IHardwareTexture* lookuptextures[256] = {};
-
-	GLInstance* const inst;
-
-	unsigned FindPalswap(const uint8_t* paldata, palette_t& fadecolor);
-
-public:
-	PaletteManager(GLInstance *inst_) : inst(inst_)
-	{}
-	~PaletteManager();
-	void DeleteAll();
-	IHardwareTexture *GetPalette(int index);
-	IHardwareTexture* GetLookup(int index);
-};
-
-
 struct glinfo_t {
 	float maxanisotropy;
 };
@@ -81,9 +56,7 @@ class GLInstance
 	friend IHardwareTexture* setpalettelayer(int layer, int translation);
 
 public:
-	TArray<PolymostRenderState> rendercommands;
-	PaletteManager palmanager;
-	int lastPalswapIndex = -1;
+			TArray<PolymostRenderState> rendercommands;
 	FGameTexture* currentTexture = nullptr;
 	int MatrixChange = 0;
 
@@ -95,8 +68,6 @@ public:
 	glinfo_t glinfo;
 	
 	void Init(int y);
-	
-	void Deinit();
 	
 	static int GetTexDimension(int value)
 	{
@@ -144,6 +115,7 @@ public:
 
 	void SetShade(int32_t shade, int numshades)
 	{
+		renderState.drawblack = shade > numshades;
 		renderState.Shade = std::min(shade, numshades-1);
 	}
 
@@ -293,12 +265,6 @@ public:
 		renderState.NPOTEmulation.X = xOffset;
 	}
 
-	void SetFadeDisable(bool yes)
-	{
-		if (yes) renderState.Flags |= RF_FogDisabled;
-		else renderState.Flags &= ~RF_FogDisabled;
-	}
-
 	// Hack...
 	bool useMapFog = false;
 
@@ -344,6 +310,7 @@ extern GLInstance GLInterface;
 void renderSetProjectionMatrix(const float* p);
 void renderSetViewMatrix(const float* p);
 void renderSetVisibility(float v);
+void renderSetViewpoint(float x, float y, float z);
 void renderBeginScene();
 void renderFinishScene();
 void videoShowFrame(int32_t);

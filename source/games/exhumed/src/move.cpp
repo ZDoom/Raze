@@ -207,7 +207,7 @@ void MoveThings()
     DoMovingSects();
     DoRegenerates();
 
-    if (currentLevel->levelNumber == kMap20)
+    if (currentLevel->gameflags & LEVEL_EX_COUNTDOWN)
     {
         DoFinale();
         if (lCountDown < 1800 && nDronePitch < 2400 && !lFinaleStart)

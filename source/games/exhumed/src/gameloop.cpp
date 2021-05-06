@@ -49,12 +49,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "raze_music.h"
 #include "v_draw.h"
+#include "vm.h"
 
 BEGIN_PS_NS
 
 short nBestLevel;
-
-extern uint8_t nCinemaSeen;
 
 void RunCinemaScene(int num);
 void GameMove(void);
@@ -62,19 +61,6 @@ void DrawClock();
 double calc_smoothratio();
 void DoTitle(CompletionFunc completion);
 
-static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobDesc> &jobs)
-{
-    if (nLevelNew == 5 && !(nCinemaSeen & 1)) {
-        nCinemaSeen |= 1;
-        DoBeforeCinemaScene(5, jobs);
-    }
-
-    menu_DrawTheMap(nLevel, nLevelNew, nLevelBest, jobs);
-
-    if (nLevelNew == 11 && !(nCinemaSeen & 2)) {
-        DoBeforeCinemaScene(11, jobs);
-    }
-}
 
 
 void GameInterface::Render()
@@ -83,7 +69,7 @@ void GameInterface::Render()
     drawtime.Reset();
     drawtime.Clock();
 
-    if (currentLevel && currentLevel->levelNumber == kMap20)
+    if (currentLevel && (currentLevel->gameflags & LEVEL_EX_COUNTDOWN))
     {
         DoEnergyTile();
         DrawClock();
@@ -127,104 +113,89 @@ void GameInterface::DrawBackground()
     DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 0);
 }
 
+void GameInterface::NextLevel(MapRecord *map, int skill)
+{
+	InitLevel(map);
+
+	if (map->levelNumber >= nBestLevel)
+	{
+		nBestLevel = map->levelNumber - 1;
+	}
+	
+	STAT_NewLevel(currentLevel->labelName);
+	
+}
+
 //---------------------------------------------------------------------------
 //
 // 
 //
 //---------------------------------------------------------------------------
 
-static void Intermission(MapRecord *from_map, MapRecord *to_map)
-{
-    TArray<JobDesc> jobs;
-
-    if (from_map) StopAllSounds();
-    bCamera = false;
-    automapMode = am_off;
-
-    if (to_map)
-    {
-        if (to_map->levelNumber != 0)
-            nBestLevel = to_map->levelNumber - 1;
-
-        STAT_Update(false);
-        if (to_map->levelNumber == kMap20)
-            nPlayerLives[0] = 0;
-
-        if (to_map->levelNumber == 0) // skip all intermission stuff when going to the training map.
-        {
-            gameaction = ga_nextlevel;
-            return;
-        }
-        else
-        {
-            DoAfterCinemaScene(to_map->levelNumber - 1, jobs);
-        }
-        if (to_map->levelNumber > -1 && to_map->levelNumber < kMap20)
-        {
-            // start a new game at the given level
-            if (!nNetPlayerCount && to_map->levelNumber > 0)
-            {
-                showmap(from_map ? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
-            }
-            else
-                jobs.Push({ Create<DBlackScreen>(1) }); // we need something in here even in the multiplayer case.
-        }
-    }
-    else
-    {
-        DoAfterCinemaScene(20, jobs);
-        STAT_Update(true);
-    }
-	
-
-	if (jobs.Size() > 0)
-	{
-		RunScreenJob(jobs.Data(), jobs.Size(), [=](bool)
-		{
-			if (!to_map) gameaction = ga_startup; // this was the end of the game
-			else
-			{
-				if (to_map->levelNumber != selectedlevelnew)
-				{
-					// User can switch destination on the scrolling map.
-					g_nextmap = FindMapByLevelNum(selectedlevelnew);
-					STAT_Cancel();
-				}
-				gameaction = ga_nextlevel;
-
-			}
-		});
-	}
-	
-}
-
-void GameInterface::NextLevel(MapRecord *map, int skill)
-{
-	InitLevel(map->levelNumber);
-
-	if (map->levelNumber > nBestLevel)
-	{
-		nBestLevel = selectedlevelnew;
-	}
-	
-	if (map->levelNumber == 11) nCinemaSeen |= 2;
-	STAT_NewLevel(currentLevel->labelName);
-	
-}
-
 void GameInterface::NewGame(MapRecord *map, int skill, bool frommenu)
 {
 	// start a new game on the given level
 	InitNewGame();
-	if (map->levelNumber == 1) STAT_StartNewGame("Exhumed", 1);
-    Intermission(nullptr, map);
+    InitLevel(map);
+    gameaction = ga_level;
 }
 
-void GameInterface::LevelCompleted(MapRecord *map, int skill)
+int selectedlevelnew;
+
+DEFINE_ACTION_FUNCTION(DMapScreen, SetNextLevel)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(v);
+    selectedlevelnew = v;
+    return 0;
+}
+
+void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
 {
     Mus_Stop();
-    if (currentLevel->levelNumber == 0) gameaction = ga_mainmenu;
-    Intermission(currentLevel, map);
+    if (currentLevel->gameflags & LEVEL_EX_TRAINING)
+    {
+        gameaction = ga_mainmenu;
+        return;
+    }
+
+    StopAllSounds();
+    bCamera = false;
+    automapMode = am_off;
+
+    STAT_Update(to_map == nullptr);
+    if (to_map)
+    {
+        if (to_map->levelNumber > nBestLevel) nBestLevel = to_map->levelNumber - 1;
+
+        if (to_map->gameflags & LEVEL_EX_COUNTDOWN) nPlayerLives[0] = 0;
+        if (to_map->gameflags & LEVEL_EX_TRAINING)
+        {
+            gameaction = ga_nextlevel;
+            return;
+        }
+    }
+    SummaryInfo info{};
+    info.kills = nCreaturesKilled;
+    info.maxkills = nCreaturesTotal;
+    info.supersecrets = nBestLevel;
+    info.time = PlayClock * GameTicRate / 120;
+    selectedlevelnew = to_map->levelNumber;
+    ShowIntermission(currentLevel, to_map, &info, [=](bool)
+        {
+            if (!to_map) gameaction = ga_startup; // this was the end of the game
+            else
+            {
+                if (to_map->levelNumber != selectedlevelnew)
+                {
+                    // User can switch destination on the scrolling map.
+                    g_nextmap = FindMapByLevelNum(selectedlevelnew);
+                    STAT_Cancel();
+                }
+                gameaction = ga_nextlevel;
+
+            }
+        });
 }
 
 //---------------------------------------------------------------------------
@@ -237,22 +208,7 @@ void GameInterface::Startup()
 {
     resettiming();
     EndLevel = 0;
-
-    if (userConfig.CommandMap.IsNotEmpty())
-    {
-        /*
-        auto map = FindMapByName(userConfig.CommandMap);
-        if (map) DeferedStartMap(map, 0);
-        userConfig.CommandMap = "";
-        goto again;
-        */
-    }
-    else
-    {
-        if (!userConfig.nologo) DoTitle([](bool) { gameaction = ga_mainmenu; });
-        else gameaction = ga_mainmenu;
-    }
-
+    PlayLogos(ga_mainmenu, ga_mainmenu, false);
 }
 
 void GameInterface::ErrorCleanup()

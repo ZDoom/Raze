@@ -64,6 +64,7 @@
 #include "i_net.h"
 #include "savegamehelp.h"
 #include "gi.h"
+#include "raze_music.h"
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
@@ -83,7 +84,30 @@ bool help_disabled;
 FNewGameStartup NewGameStartupInfo;
 
 
+
 //FNewGameStartup NewGameStartupInfo;
+
+static bool DoStartGame(FNewGameStartup& gs)
+{
+	auto vol = FindVolume(gs.Episode);
+	if (!vol) return false;
+
+	if (isShareware() && (vol->flags & VF_SHAREWARELOCK))
+	{
+		M_StartMessage(GStrings("SHAREWARELOCK"), 1, NAME_None);
+		return false;
+	}
+
+	auto map = FindMapByName(vol->startmap);
+	if (!map) return false;
+	soundEngine->StopAllChannels();
+
+	gi->StartGame(gs);	// play game specific effects (like Duke/RR/SW's voice lines when starting a game.)
+
+	DeferedStartGame(map, gs.Skill);
+	return true;
+}
+
 
 
 bool M_SetSpecialMenu(FName& menu, int param)
@@ -115,13 +139,19 @@ bool M_SetSpecialMenu(FName& menu, int param)
 
 	case NAME_Startgame:
 	case NAME_StartgameNoSkill:
-		menu = NAME_Startgame;
 		NewGameStartupInfo.Skill = param;
-		if (menu == NAME_StartgameNoSkill) NewGameStartupInfo.Episode = param;
-		if (gi->StartGame(NewGameStartupInfo))
+		if (menu == NAME_StartgameNoSkill)
+		{
+			menu = NAME_Startgame;
+			NewGameStartupInfo.Episode = param;
+			NewGameStartupInfo.Skill = 1;
+		}
+		if (DoStartGame(NewGameStartupInfo))
 		{
 			M_ClearMenus();
-			STAT_StartNewGame(gVolumeNames[NewGameStartupInfo.Episode], NewGameStartupInfo.Skill);
+			int ep = NewGameStartupInfo.Episode;
+			auto vol = FindVolume(ep);
+			if (vol) STAT_StartNewGame(vol->name, NewGameStartupInfo.Skill);
 			inputState.ClearAllInput();
 		}
 		return false;
@@ -243,7 +273,8 @@ CCMD(menu_endgame)
 		{
 			STAT_Cancel();
 			M_ClearMenus();
-			gi->QuitToTitle();
+			Mus_Stop();
+			gameaction = ga_mainmenu;
 		});
 
 	M_ActivateMenu(newmenu);
@@ -365,6 +396,7 @@ static DMenuItemBase* CreateCustomListMenuItemText(double x, double y, int heigh
 // Creates the episode menu
 //
 //=============================================================================
+extern TArray<VolumeRecord> volumes;
 
 static void BuildEpisodeMenu()
 {
@@ -385,22 +417,22 @@ static void BuildEpisodeMenu()
 		ld->mSelectedItem = gDefaultVolume + ld->mItems.Size(); // account for pre-added items
 		int y = ld->mYpos;
 
-		for (int i = 0; i < MAXVOLUMES; i++)
+		// Volume definitions should be sorted by intended menu order.
+		for (auto &vol : volumes)
 		{
-			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
-
+			if (vol.name.IsNotEmpty() && !(vol.flags & VF_HIDEFROMSP))
 			{
-				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0);
-				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, gVolumeNames[i][0],
-					gVolumeNames[i], ld->mFont, CR_UNTRANSLATED, isShareware, NAME_Skillmenu, i); // font colors are not used, so hijack one for the shareware flag.
+				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && (vol.flags & VF_SHAREWARELOCK));
+				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, vol.name[0],
+					vol.name, ld->mFont, CR_UNTRANSLATED, isShareware, NAME_Skillmenu, vol.index); // font colors are not used, so hijack one for the shareware flag.
 
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedVolumes++;
-				if (gVolumeSubtitles[i].IsNotEmpty())
+				if (vol.subtitle.IsNotEmpty())
 				{
 					auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing * 6 / 10, 1,
-						gVolumeSubtitles[i], SmallFont, CR_GRAY, false, NAME_None, i);
+						vol.subtitle, SmallFont, CR_GRAY, false, NAME_None, vol.index);
 					y += ld->mLinespacing * 6 / 10;
 					ld->mItems.Push(it);
 					textadded = true;
@@ -731,3 +763,29 @@ DEFINE_ACTION_FUNCTION(_PlayerMenu, DrawPlayerSprite)
 	return 0;
 }
 
+#ifdef _WIN32
+EXTERN_CVAR(Bool, vr_enable_quadbuffered)
+#endif
+
+void UpdateVRModes(bool considerQuadBuffered)
+{
+	FOptionValues** pVRModes = OptionValues.CheckKey("VRMode");
+	if (pVRModes == nullptr) return;
+
+	TArray<FOptionValues::Pair>& vals = (*pVRModes)->mValues;
+	TArray<FOptionValues::Pair> filteredValues;
+	int cnt = vals.Size();
+	for (int i = 0; i < cnt; ++i) {
+		auto const& mode = vals[i];
+		if (mode.Value == 7) {  // Quad-buffered stereo
+#ifdef _WIN32
+			if (!vr_enable_quadbuffered) continue;
+#else
+			continue;  // Remove quad-buffered option on Mac and Linux
+#endif
+			if (!considerQuadBuffered) continue;  // Probably no compatible screen mode was found
+		}
+		filteredValues.Push(mode);
+	}
+	vals = filteredValues;
+}

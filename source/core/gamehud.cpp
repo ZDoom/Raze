@@ -45,6 +45,7 @@
 #include "v_draw.h"
 #include "v_font.h"
 #include "gamestruct.h"
+#include "gamefuncs.h"
 
 F2DDrawer twodpsp;
 

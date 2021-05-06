@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_music.h"
 #include "engine.h"
 #include "exhumed.h"
-#include "mmulti.h"
 #include "savegamehelp.h"
 #include "sound.h"
 #include "mapinfo.h"
@@ -117,7 +116,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		parallaxtype = 2;
 		g_visibility = 1024;
 
-		if (currentLevel->levelNumber > 15)
+		if (currentLevel->gameflags & LEVEL_EX_ALTSOUND)
 		{
 			nSwitchSound = 35;
 			nStoneSound = 23;

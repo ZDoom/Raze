@@ -75,12 +75,6 @@ void ResetEngine()
 
 void InstallEngine()
 {
-	TileFiles.LoadArtSet("tiles%03d.art");
-
-    if (engineInit())
-    {
-        G_FatalEngineError();
-    }
     uploadCinemaPalettes();
     LoadPaletteLookups();
 }
@@ -244,6 +238,15 @@ double calc_smoothratio()
     return I_GetTimeFrac() * MaxSmoothRatio;
 }
 
+void DoGameOverScene(bool finallevel)
+{
+    // todo: make these customizable later.
+    StartCutscene(finallevel ? "ExhumedCutscenes.BuildCinemaLose" : "ExhumedCutscenes.BuildGameoverScene", 0, [](bool)
+        {
+            gameaction = ga_mainmenu;
+        });
+}
+
 void GameMove(void)
 {
     FixPalette();
@@ -253,7 +256,7 @@ void GameMove(void)
         sprite[i].backuploc();
     }
 
-    if (currentLevel->levelNumber == kMap20)
+    if (currentLevel->gameflags & LEVEL_EX_COUNTDOWN)
     {
         if (lCountDown <= 0)
         {
@@ -462,7 +465,7 @@ void GameInterface::Ticker()
 
 void LevelFinished()
 {
-    NextMap = currentLevel->levelNumber == 20 ? nullptr : FindMapByLevelNum(currentLevel->levelNumber + 1); // todo: Use the map record for progression
+    NextMap = FindNextMap(currentLevel);
     EndLevel = 13;
 }
 
@@ -486,19 +489,6 @@ void GameInterface::app_init()
 #if 0
     help_disabled = true;
 #endif
-    // Create the global level table. Parts of the engine need it, even though the game itself does not.
-    for (int i = 0; i <= 32; i++)
-    {
-        auto mi = AllocateMap();
-        mi->fileName.Format("LEV%d.MAP", i);
-        mi->labelName.Format("LEV%d", i);
-        mi->name.Format("$TXT_EX_MAP%02d", i);
-        mi->levelNumber = i;
-
-        int nTrack = i;
-        if (nTrack != 0) nTrack--;
-        mi->cdSongId = (nTrack % 8) + 11;
-    }
 
 	InitCheats();
     registerosdcommands();
@@ -621,7 +611,7 @@ void SerializeState(FSerializer& arc)
     int loaded = 0;
     if (arc.BeginObject("state"))
     {
-        if (arc.isReading() && currentLevel->levelNumber == 20)
+        if (arc.isReading() && (currentLevel->gameflags & LEVEL_EX_COUNTDOWN))
         {
             InitEnergyTile();
     }
@@ -645,7 +635,6 @@ void SerializeState(FSerializer& arc)
             ("bsnakecam", bSnakeCam)
             ("slipmode", bSlipMode)
             ("PlayClock", PlayClock)
-            ("cinemaseen", nCinemaSeen)
             ("spiritsprite", nSpiritSprite)
             .EndObject();
     }

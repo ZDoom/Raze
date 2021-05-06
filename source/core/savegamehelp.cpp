@@ -55,6 +55,11 @@
 #include "gamestate.h"
 #include "razemenu.h"
 #include "interpolate.h"
+#include "gamefuncs.h"
+#include "render.h"
+#include "hw_sections.h"
+#include "sectorgeometry.h"
+#include "d_net.h"
 #include <zlib.h>
 
 
@@ -236,7 +241,7 @@ bool WriteSavegame(const char* filename, const char *name)
 		if (test != nullptr)
 		{
 			delete test;
-			return true;
+	return true;
 		}
 	}
 	return false;
@@ -418,7 +423,6 @@ FString G_BuildSaveName (const char *prefix)
 }
 
 #include "build.h"
-#include "mmulti.h"
 
 #define V(x) x
 static spritetype zsp;
@@ -453,6 +457,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
 			("detail", c.detail, def->detail)
+			("time", c.time, def->time)
 			.EndObject();
 	}
 	return arc;
@@ -512,6 +517,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("lotag", c.lotag, def->lotag)
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
+			("portalflags", c.portalflags, def->portalflags)
+			("portalnum", c.portalnum, def->portalnum)
 			.EndObject();
 	}
 	return arc;
@@ -538,6 +545,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 			("lotag", c.lotag, def->lotag)
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
+			("portalflags", c.portalflags, def->portalflags)
+			("portalnum", c.portalnum, def->portalnum)
 			.EndObject();
 	}
 	return arc;
@@ -598,12 +607,12 @@ void SerializeMap(FSerializer& arc)
 			("numshades", numshades)	// is this really needed?
 			("visibility", g_visibility)
 			("parallaxtype", parallaxtype)
-			("parallaxvisibility", parallaxvisibility)
 			("parallaxyo", parallaxyoffs_override)
 			("parallaxys", parallaxyscale_override)
 			("pskybits", pskybits_override)
 			("numsprites", Numsprites)
-			("gamesetinput", gamesetinput);
+			("gamesetinput", gamesetinput)
+			("allportals", allPortals);
 
 		SerializeInterpolations(arc);
 
@@ -628,6 +637,12 @@ void SerializeMap(FSerializer& arc)
 		if (nextspritesect[i] == -2) nextspritesect[i] = i + 1;
 		if (prevspritestat[i] == -2) prevspritestat[i] = i - 1;
 		if (prevspritesect[i] == -2) prevspritesect[i] = i - 1;
+	}
+	if (arc.isReading())
+	{
+		setWallSectors();
+		hw_BuildSections();
+		sectorGeometry.SetSize(numsections);
 	}
 }
 
@@ -660,10 +675,10 @@ static int nextquicksave = -1;
  {
 	 if (ReadSavegame(name))
 	 {
-		 gameaction = ga_level;
-	 }
-	 else
-	 {
+			 gameaction = ga_level;
+		 }
+		 else
+		 {
 		 I_Error("%s: Failed to open savegame", name);
 	 }
  }
@@ -681,11 +696,11 @@ static int nextquicksave = -1;
  {
 	 if (WriteSavegame(fn, desc))
 	 {
-		 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
-		 Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
-		 BackupSaveGame = fn;
+			 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
+			 Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
+			 BackupSaveGame = fn;
+		 }
 	 }
- }
 
 
 void M_Autosave()

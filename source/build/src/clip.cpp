@@ -10,7 +10,9 @@
 #include "clip.h"
 #include "engine_priv.h"
 #include "printf.h"
+#include "gamefuncs.h"
 
+enum { MAXCLIPDIST = 1024 };
 
 static int16_t clipnum;
 static linetype clipit[MAXCLIPNUM];
@@ -21,46 +23,83 @@ static uint8_t clipsectormap[(MAXSECTORS+7)>>3];
 static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
 static int16_t clipobjectval[MAXCLIPNUM];
 static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
+static int32_t rxi[8], ryi[8];
+
 
 
 int32_t quickloadboard=0;
 
-static int32_t numclipmaps;
-
-static int32_t numclipsects;  // number in sectq[]
-static int16_t *sectoidx;
-static int16_t *sectq;  // [numsectors]
-static int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
-static int16_t *tempictoidx;
-
-static usectortype *loadsector;
-static uwalltype *loadwall, *loadwallinv;
-static uspritetype *loadsprite;
-
 vec2_t hitscangoal = { (1<<29)-1, (1<<29)-1 };
 int32_t hitallsprites = 0;
 
-void engineInitClipMaps()
+////////// CLIPMOVE //////////
+
+
+// x1, y1: in/out
+// rest x/y: out
+template <typename T>
+static inline void get_wallspr_points(T const * const spr, int32_t *x1, int32_t *x2,
+                                      int32_t *y1, int32_t *y2)
 {
-    numclipmaps = 0;
-    numclipsects = 0;
+    //These lines get the 2 points of the rotated sprite
+    //Given: (x1, y1) starts out as the center point
 
-    DO_FREE_AND_NULL(sectq);
-    DO_FREE_AND_NULL(sectoidx);
-    DO_FREE_AND_NULL(tempictoidx);
-    DO_FREE_AND_NULL(loadsector);
-    DO_FREE_AND_NULL(loadwall);
-    DO_FREE_AND_NULL(loadwallinv);
-    DO_FREE_AND_NULL(loadsprite);
+    const int32_t tilenum=spr->picnum, ang=spr->ang;
+    const int32_t xrepeat = spr->xrepeat;
+    int32_t xoff = tileLeftOffset(tilenum) + spr->xoffset;
+    int32_t k, l, dax, day;
 
-    // two's complement trick, -1 = 0xff
-    memset(&pictoidx, -1, sizeof(pictoidx));
+    if (spr->cstat&4)
+        xoff = -xoff;
 
-    numsectors = 0;
-    numwalls = 0;
+    dax = bsin(ang) * xrepeat;
+    day = -bcos(ang) * xrepeat;
+
+    l = tileWidth(tilenum);
+    k = (l>>1)+xoff;
+
+    *x1 -= MulScale(dax,k, 16);
+    *x2 = *x1 + MulScale(dax,l, 16);
+
+    *y1 -= MulScale(day,k, 16);
+    *y2 = *y1 + MulScale(day,l, 16);
 }
 
-////////// CLIPMOVE //////////
+// x1, y1: in/out
+// rest x/y: out
+template <typename T>
+static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t py,
+                                       int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
+                                       int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
+{
+    const int32_t tilenum = spr->picnum;
+    const int32_t cosang = bcos(spr->ang);
+    const int32_t sinang = bsin(spr->ang);
+
+    vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum)};
+    vec2_t const repeat = { spr->xrepeat, spr->yrepeat };
+
+    vec2_t adjofs = { tileLeftOffset(tilenum) + spr->xoffset, tileTopOffset(tilenum) + spr->yoffset };
+
+    if (spr->cstat & 4)
+        adjofs.x = -adjofs.x;
+
+    if (spr->cstat & 8)
+        adjofs.y = -adjofs.y;
+
+    vec2_t const center = { ((span.x >> 1) + adjofs.x) * repeat.x, ((span.y >> 1) + adjofs.y) * repeat.y };
+    vec2_t const rspan  = { span.x * repeat.x, span.y * repeat.y };
+    vec2_t const ofs    = { -MulScale(cosang, rspan.y, 16), -MulScale(sinang, rspan.y, 16) };
+
+    *x1 += DMulScale(sinang, center.x, cosang, center.y, 16) - px;
+    *y1 += DMulScale(sinang, center.y, -cosang, center.x, 16) - py;
+
+    *x2 = *x1 - MulScale(sinang, rspan.x, 16);
+    *y2 = *y1 + MulScale(cosang, rspan.x, 16);
+
+    *x3 = *x2 + ofs.x, *x4 = *x1 + ofs.x;
+    *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;
+}
 
 int32_t clipmoveboxtracenum = 3;
 
@@ -155,14 +194,14 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
     clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
     clipobjectval[clipnum] = daoval;
 
-    uint32_t const mask = pow2char[clipnum&7];
+    uint32_t const mask = (1 << (clipnum&7));
     uint8_t &value = clipignore[clipnum>>3];
     value = (value & ~mask) | (-nofix & mask);
 
     clipnum++;
 }
 
-static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
+inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
                                       int32_t y2, int32_t *daxptr, int32_t *dayptr)
 {
     int32_t daz;
@@ -173,34 +212,6 @@ static FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32
         *daxptr = pos->x;
         *dayptr = pos->y;
     }
-}
-
-int32_t getceilzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
-{
-    int32_t dx, dy, i, j;
-
-    if (!(sector[sectnum].ceilingstat&2)) return sector[sectnum].ceilingz;
-    j = sector[sectnum].wallptr;
-    dx = wall[wall[j].point2].x-wall[j].x;
-    dy = wall[wall[j].point2].y-wall[j].y;
-    i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return(sector[sectnum].ceilingz);
-    i = DivScale(sector[sectnum].ceilingheinum,i, 15);
-    dx *= i; dy *= i;
-    return sector[sectnum].ceilingz+DMulScale(dx,day-wall[j].y,-dy,dax-wall[j].x, 23);
-}
-
-int32_t getflorzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
-{
-    int32_t dx, dy, i, j;
-
-    if (!(sector[sectnum].floorstat&2)) return sector[sectnum].floorz;
-    j = sector[sectnum].wallptr;
-    dx = wall[wall[j].point2].x-wall[j].x;
-    dy = wall[wall[j].point2].y-wall[j].y;
-    i = (ksqrtasm_old(dx*dx+dy*dy)); if (i == 0) return sector[sectnum].floorz;
-    i = DivScale(sector[sectnum].floorheinum,i, 15);
-    dx *= i; dy *= i;
-    return sector[sectnum].floorz+DMulScale(dx,day-wall[j].y,-dy,dax-wall[j].x, 23);
 }
 
 // Returns: should clip?
@@ -214,20 +225,6 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     {
     case ENGINECOMPATIBILITY_NONE:
         break;
-    case ENGINECOMPATIBILITY_19950829:
-    {
-        int32_t daz = getflorzofslope_old(dasect, pos.x, pos.y);
-        int32_t daz2 = getflorzofslope_old(nextsect, pos.x, pos.y);
-
-        if (daz2 < daz && (sec2->floorstat&1) == 0)
-            if (posz >= daz2-(flordist-1)) return 1;
-        daz = getceilzofslope_old(dasect, pos.x, pos.y);
-        daz2 = getceilzofslope_old(nextsect, pos.x, pos.y);
-        if (daz2 > daz && (sec2->ceilingstat&1) == 0)
-            if (posz <= daz2+(ceildist-1)) return 1;
-
-        return 0;
-    }
     default:
     {
         int32_t daz = getflorzofslope(dasect, pos.x, pos.y);
@@ -491,7 +488,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
     //Extra walldist for sprites on sector lines
     vec2_t const  diff    = { goal.x - (pos->x), goal.y - (pos->y) };
-    int32_t const rad     = clip_nsqrtasm(compat_maybe_truncate_to_int32(uhypsq(diff.x, diff.y))) + MAXCLIPDIST + walldist + 8;
+    int32_t const rad     = ksqrt(compat_maybe_truncate_to_int32(uhypsq(diff.x, diff.y))) + MAXCLIPDIST + walldist + 8;
     vec2_t const  clipMin = { cent.x - rad, cent.y - rad };
     vec2_t const  clipMax = { cent.x + rad, cent.y + rad };
 
@@ -550,7 +547,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 {
                     clipyou = 1;
                 }
-                else if (editstatus == 0)
+                else
                 {
                     clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
                     clipyou = cliptestsector(dasect, wal->nextsector, flordist, ceildist, v, pos->z);
@@ -570,7 +567,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
             if (clipyou)
             {
-                int16_t const objtype = curspr ? (int16_t)(curspr - (uspritetype *)sprite) + 49152 : (int16_t)j + 32768;
+                int16_t const objtype = curspr ? (int16_t)(curspr - sprite) + 49152 : (int16_t)j + 32768;
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.x < 0) bsz = -bsz;
@@ -616,7 +613,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             if ((cstat&dasprclipmask) == 0)
                 continue;
 
-            vec2_t p1 = *(vec2_t const *)spr;
+            auto p1 = spr->pos.vec2;
 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
             {
@@ -989,11 +986,6 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     vec2_t closest = pos->vec2;
     if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
         getsectordist(closest, sectnum, &closest);
-    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-    {
-        *ceilz = getceilzofslope_old(sectnum,closest.x,closest.y);
-        *florz = getflorzofslope_old(sectnum,closest.x,closest.y);
-    }
     else
         getzsofslope(sectnum,closest.x,closest.y,ceilz,florz);
     *ceilhit = sectnum+16384; *florhit = sectnum+16384;
@@ -1037,11 +1029,8 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                 if (wall[j].cstat&dawalclipmask) continue;  // XXX?
                 auto const sec = (usectorptr_t)&sector[k];
 
-                if (editstatus == 0)
-                {
-                    if (((sec->ceilingstat&1) == 0) && (pos->z <= sec->ceilingz+(3<<8))) continue;
-                    if (((sec->floorstat&1) == 0) && (pos->z >= sec->floorz-(3<<8))) continue;
-                }
+                if (((sec->ceilingstat&1) == 0) && (pos->z <= sec->ceilingz+(3<<8))) continue;
+                if (((sec->floorstat&1) == 0) && (pos->z >= sec->floorz-(3<<8))) continue;
 
                 if (bitmap_test(clipsectormap, k) == 0)
                     addclipsect(k);
@@ -1061,11 +1050,6 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                 closest = pos->vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                     getsectordist(closest, k, &closest);
-                if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-                {
-                    daz  = getceilzofslope_old(k, closest.x,closest.y);
-                    daz2 = getflorzofslope_old(k, closest.x,closest.y);
-                }
                 else
                     getzsofslope(k, closest.x,closest.y, &daz,&daz2);
 
@@ -1241,7 +1225,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         auto const wal2 = (uwallptr_t)&wall[wal->point2];
         int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
 
-        i = nsqrtasm(compat_maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;
+        i = ksqrt(compat_maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;
         i = DivScale(heinum,i, 15);
         dax *= i; day *= i;
 
@@ -1273,22 +1257,22 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
     {
         if (tmp==NULL)
         {
-            if (inside(x1,y1,sec-(usectortype *)sector) == 1)
+            if (inside(x1,y1,sec-sector) == 1)
             {
-                hit_set(hit, sec-(usectortype *)sector, -1, -1, x1, y1, z1);
+                hit_set(hit, sec-sector, -1, -1, x1, y1, z1);
                 hitscan_hitsectcf = (how+1)>>1;
             }
         }
         else
         {
             const int32_t curidx=(int32_t)tmp[0];
-            auto const curspr=(uspritetype *)tmp[1];
+            auto const curspr=(spritetype *)tmp[1];
             const int32_t thislastsec = tmp[2];
 
             if (!thislastsec)
             {
-                if (inside(x1,y1,sec-(usectortype *)sector) == 1)
-                    hit_set(hit, curspr->sectnum, -1, curspr-(uspritetype *)sprite, x1, y1, z1);
+                if (inside(x1,y1,sec-sector) == 1)
+                    hit_set(hit, curspr->sectnum, -1, curspr-sprite, x1, y1, z1);
             }
         }
     }
@@ -1476,7 +1460,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
                     {
-                        tileUpdatePicnum(&tilenum, 0);
+                        tileUpdatePicnum(&tilenum, 0, 0);
 
                         if (tileLoad(tilenum))
                         {

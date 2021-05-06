@@ -638,6 +638,9 @@ file( GLOB HEADER_FILES
 	core/music/*.h
 	core/menu/*.h
 	core/input/*.h
+	core/rendering/*.h
+	core/rendering/scene/*.h
+	core/nodebuilder/*.h
 
 	common/audio/sound/thirdparty/*.h
 	common/audio/sound/*.h
@@ -746,7 +749,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/callback.cpp
 	games/blood/src/choke.cpp
 	games/blood/src/controls.cpp
-	games/blood/src/credits.cpp
 	games/blood/src/db.cpp
 	games/blood/src/dude.cpp
 	games/blood/src/d_menu.cpp
@@ -832,7 +834,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/spawn_r.cpp
 	
 	# Shadow Warrior
-	games/sw/src/2d.cpp
 	games/sw/src/actor.cpp
 	games/sw/src/ai.cpp
 	games/sw/src/break.cpp
@@ -1019,19 +1020,15 @@ set (FASTMATH_SOURCES ${FASTMATH_SOURCES})
 set (PCH_SOURCES
 
 	glbackend/glbackend.cpp
-	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
-	glbackend/gl_models.cpp
 
 	thirdparty/src/md4.cpp
 
 	# Todo: Split out the license-safe code from this.
 	build/src/clip.cpp
-	build/src/defs.cpp
 	build/src/engine.cpp
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
-	build/src/voxmodel.cpp
 
 	core/movie/playmve.cpp
 	core/movie/movieplayer.cpp
@@ -1050,6 +1047,7 @@ set (PCH_SOURCES
 	core/gamehud.cpp
 	core/gamefuncs.cpp
 	core/gameinput.cpp
+	core/g_mapinfo.cpp
 	core/interpolate.cpp
 	core/inputstate.cpp
 	core/maphack.cpp
@@ -1064,12 +1062,38 @@ set (PCH_SOURCES
 	core/precache.cpp
 	core/quotes.cpp
 	core/screenshot.cpp
+	core/sectorgeometry.cpp
 	core/raze_music.cpp
 	core/raze_sound.cpp
 	core/palette.cpp
 	core/zcompile.cpp
 	core/statusbar2.cpp
 	core/gi.cpp
+	core/defparser.cpp
+
+	core/nodebuilder/nodebuild.cpp
+	core/nodebuilder/nodebuild_classify_nosse2.cpp
+	core/nodebuilder/nodebuild_events.cpp
+	core/nodebuilder/nodebuild_extract.cpp
+	core/nodebuilder/nodebuild_gl.cpp
+	core/nodebuilder/nodebuild_utility.cpp 
+	
+	core/rendering/hw_entrypoint.cpp
+	core/rendering/hw_models.cpp
+	core/rendering/hw_voxels.cpp
+	core/rendering/hw_palmanager.cpp
+	core/rendering/hw_sections.cpp
+	core/rendering/scene/hw_clipper.cpp
+	core/rendering/scene/hw_walls.cpp
+	core/rendering/scene/hw_flats.cpp
+	core/rendering/scene/hw_sprites.cpp
+	core/rendering/scene/hw_drawlistadd.cpp
+	core/rendering/scene/hw_drawlist.cpp
+	core/rendering/scene/hw_drawinfo.cpp
+	core/rendering/scene/hw_bunchdrawer.cpp
+	core/rendering/scene/hw_portal.cpp
+	core/rendering/scene/hw_skyportal.cpp
+	core/rendering/scene/hw_sky.cpp
 
 	core/console/c_notifybuffer.cpp
 	core/console/d_event.cpp
@@ -1274,6 +1298,7 @@ set (PCH_SOURCES
 	games/exhumed/all.cpp
 	games/blood/all.cpp
 	games/sw/all.cpp
+	
 )
 
 if( ${HAVE_VM_JIT} )
@@ -1363,6 +1388,8 @@ include_directories(
 	core/dobject
 	core/menu
 	core/input
+	core/rendering
+	core/rendering/scene
 	platform
 	common/audio/sound
 	common/audio/music
@@ -1513,6 +1540,8 @@ source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
 source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
+source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
+source_group("Core\\Rendering\\Scene" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/scene/.+")
 source_group("Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glbackend/.+")
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")

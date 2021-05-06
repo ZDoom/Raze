@@ -35,8 +35,12 @@
 #include "build.h"
 #include "sc_man.h"
 #include "printf.h"
+#include "c_dispatch.h"
+#include "md4.h"
+#include "hw_sections.h"
 
 static TArray<usermaphack_t> usermaphacks;
+TArray<int> blockingpairs[MAXWALLS];
 
 void AddUserMapHack(usermaphack_t& mhk)
 {
@@ -45,7 +49,9 @@ void AddUserMapHack(usermaphack_t& mhk)
 
 static int32_t LoadMapHack(const char *filename)
 {
-    int32_t currentsprite = -1;
+    int currentsprite = -1;
+    int currentwall = -1;
+    int currentsector = -1;
 
     FScanner sc;
     int lump = fileSystem.FindFile(filename);
@@ -68,8 +74,30 @@ static int32_t LoadMapHack(const char *filename)
             return true;
         };
 
+        auto validateWall = [&]()
+        {
+            if (currentwall < 0)
+            {
+                sc.ScriptMessage("Using %s without a valid wall", token.GetChars());
+                return false;
+            }
+            return true;
+        };
+
+        auto validateSector = [&]()
+        {
+            if (currentsector < 0)
+            {
+                sc.ScriptMessage("Using %s without a valid sector", token.GetChars());
+                return false;
+            }
+            return true;
+        };
+
         if (sc.Compare("sprite"))
         {
+            currentwall = -1;
+            currentsector = -1;
             if (sc.CheckNumber())
             {
                 currentsprite = sc.Number;
@@ -81,6 +109,137 @@ static int32_t LoadMapHack(const char *filename)
             }
             else currentsprite = -1;
         }
+        if (sc.Compare("wall"))
+        {
+            currentsprite = -1;
+            currentsector = -1;
+            if (sc.CheckNumber())
+            {
+                currentwall = sc.Number;
+                if (currentwall < 0 || currentwall >= MAXWALLS)
+                {
+                    sc.ScriptMessage("Invalid wall number %d", currentwall);
+                    currentwall = -1;
+                }
+            }
+            else currentwall = -1;
+        }
+        if (sc.Compare("sector"))
+        {
+            currentsprite = -1;
+            currentwall = -1;
+            if (sc.CheckNumber())
+            {
+                currentsector = sc.Number;
+                if (currentsector < 0 || currentsector >= MAXSECTORS)
+                {
+                    sc.ScriptMessage("Invalid sector number %d", currentsector);
+                    currentsector = -1;
+                }
+            }
+            else currentsector = -1;
+        }
+        else if (sc.Compare("blocks"))
+        {
+            if (sc.CheckNumber() && validateWall())
+            {
+                blockingpairs[currentwall].Push(sc.Number);
+            }
+        }
+        else if (sc.Compare("picnum"))
+        {
+            if (sc.CheckNumber())
+            {
+                if (currentwall != -1 && validateWall())
+                {
+                    wall[currentwall].picnum = sc.Number;
+                }
+                else if (currentsprite != -1 && validateSprite())
+                {
+                    sprite[currentsprite].picnum = sc.Number;
+                }
+            }
+        }
+        else if (sc.Compare("overpicnum"))
+        {
+            if (sc.CheckNumber() && validateWall())
+            {
+                wall[currentwall].overpicnum = sc.Number;
+            }
+        }
+        else if (sc.Compare("overpicnum"))
+        {
+            if (sc.CheckNumber() && validateWall())
+            {
+                wall[currentwall].overpicnum = sc.Number;
+            }
+        }
+        else if (sc.Compare("split"))
+        {
+            int start = -1, end = -1;
+            if (sc.CheckNumber()) start = sc.Number;
+            if (sc.CheckNumber()) end = sc.Number;
+            if (end >= 0 && validateSector())
+            {
+                hw_SetSplitSector(currentsector, start, end);
+            }
+        }
+        else if (sc.Compare("clearflags"))
+        {
+            if (currentsector != -1 && validateSector())
+            {
+                sc.GetString();
+                if (sc.Compare("floor") && sc.CheckNumber())
+                {
+                    sector[currentsector].floorstat &= ~sc.Number;
+                }
+                else if (sc.Compare("ceiling") && sc.CheckNumber())
+                {
+                    sector[currentsector].ceilingstat &= ~sc.Number;
+                }
+                else sc.ScriptError("Bad token %s", sc.String);
+            }
+            else if (sc.CheckNumber())
+            {
+                if (currentwall != -1 && validateWall())
+                {
+                    wall[currentwall].cstat &= ~sc.Number;
+                }
+                else if (currentsprite != -1 && validateSprite())
+                {
+                    sprite[currentsprite].cstat &= ~sc.Number;
+                }
+            }
+        }
+        else if (sc.Compare("setflags"))
+        {
+            if (sc.CheckNumber())
+            {
+                if (currentwall != -1 && validateWall())
+                {
+                    wall[currentwall].cstat |= sc.Number;
+                }
+                else if (currentsprite != -1 && validateSprite())
+                {
+                    sprite[currentsprite].cstat |= sc.Number;
+                }
+            }
+        }
+        else if (sc.Compare("lotag"))
+        {
+            if (sc.CheckNumber())
+            {
+                if (currentwall != -1 && validateWall())
+                {
+                    wall[currentwall].lotag = sc.Number;
+                }
+                else if (currentsprite != -1 && validateSprite())
+                {
+                    sprite[currentsprite].lotag = sc.Number;
+                }
+            }
+        }
+
         else if (sc.Compare("angleoff") || sc.Compare("angoff"))
         {
             if (sc.CheckNumber() && validateSprite())
@@ -201,6 +360,13 @@ static int32_t LoadMapHack(const char *filename)
 
 void G_LoadMapHack(const char* filename, const unsigned char* md4)
 {
+    for (auto& p : blockingpairs) p.Clear();
+    FString internal = "engine/compatibility/";
+    for (int j = 0; j < 16; ++j)
+    {
+        internal.AppendFormat("%02x", md4[j]);
+    }
+    LoadMapHack(internal + ".mhk");
     FString hack = StripExtension(filename) + ".mhk";
 
     if (LoadMapHack(hack))
@@ -211,6 +377,34 @@ void G_LoadMapHack(const char* filename, const unsigned char* md4)
             {
                 LoadMapHack(mhk.mhkfile);
             }
+        }
+    }
+}
+
+// Map hacks use MD4 instead of MD5. Oh, well...
+CCMD(md4sum)
+{
+    if (argv.argc() < 2)
+    {
+        Printf("Usage: md4sum <file> ...\n");
+    }
+    for (int i = 1; i < argv.argc(); ++i)
+    {
+        FileReader fr = fileSystem.OpenFileReader(argv[i]);
+        if (!fr.isOpen())
+        {
+            Printf("%s: %s\n", argv[i], strerror(errno));
+        }
+        else
+        {
+            auto data = fr.Read();
+            uint8_t digest[16];
+            md4once(data.Data(), data.Size(), digest);
+            for (int j = 0; j < 16; ++j)
+            {
+                Printf("%02x", digest[j]);
+            }
+            Printf(" //*%s\n", argv[i]);
         }
     }
 }

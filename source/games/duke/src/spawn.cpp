@@ -306,7 +306,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 	{
 		sp->xrepeat = 31;
 		sp->yrepeat = 1;
-		sp->z = sector[spj->sectnum].floorz - (40 << 8);
+		sp->z = sector[spj->sectnum].floorz - isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	}
 	else
 	{

@@ -16,7 +16,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "mmulti.h"
 #include "compat.h"
 #include "build.h"
 #include "engine.h"
@@ -724,7 +723,7 @@ void CheckAmbience(short nSector)
 
 void UpdateCreepySounds()
 {
-    if (currentLevel->levelNumber == 20 || nFreeze || !SoundEnabled())
+    if ((currentLevel->gameflags & LEVEL_EX_COUNTDOWN) || nFreeze || !SoundEnabled())
         return;
     spritetype* pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
     nCreepyTimer--;
@@ -798,6 +797,37 @@ void PlayTitleSound(void)
 void PlayGameOverSound(void)
 {
     PlayLocalSound(StaticSound[kSoundJonLaugh2], 0, false, CHANF_UI);
+}
+
+DEFINE_ACTION_FUNCTION(_Exhumed, PlayLocalSound)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(snd);
+    PARAM_INT(pitch);
+    PARAM_BOOL(unatt);
+    PARAM_INT(flags);
+    PlayLocalSound(StaticSound[snd], pitch, unatt, EChanFlags::FromInt(flags));
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Exhumed, StopLocalSound, StopLocalSound)
+{
+    StopLocalSound();
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Exhumed, LocalSoundPlaying)
+{
+    ACTION_RETURN_BOOL(soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_AUTO, -1));
+}
+
+DEFINE_ACTION_FUNCTION(_Exhumed, PlayCDTrack)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(track);
+    PARAM_BOOL(loop);
+    playCDtrack(track, loop);
+    return 0;
 }
 
 END_PS_NS

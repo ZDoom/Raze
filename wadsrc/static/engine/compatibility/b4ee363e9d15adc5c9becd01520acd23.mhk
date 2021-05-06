@@ -1,0 +1,3 @@
+// SW $outpost.map
+// silence a misplaced and *very* annoying ambient sound.
+sprite 442 lotag -1

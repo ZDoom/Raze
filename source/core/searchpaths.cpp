@@ -398,6 +398,12 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 	FlagMap.Insert("GAMEFLAG_POWERSLAVE", GAMEFLAG_POWERSLAVE);
 	FlagMap.Insert("GAMEFLAG_EXHUMED", GAMEFLAG_EXHUMED);
 	FlagMap.Insert("GAMEFLAG_DUKEDC", GAMEFLAG_DUKEDC);
+	FlagMap.Insert("GAMEFLAG_DUKENW", GAMEFLAG_DUKENW);
+	FlagMap.Insert("GAMEFLAG_DUKEVACA", GAMEFLAG_DUKEVACA);
+	FlagMap.Insert("GAMEFLAG_BLOODCP", GAMEFLAG_BLOODCP);
+	FlagMap.Insert("GAMEFLAG_ROUTE66", GAMEFLAG_ROUTE66);
+	FlagMap.Insert("GAMEFLAG_SWWANTON", GAMEFLAG_SWWANTON);
+	FlagMap.Insert("GAMEFLAG_SWTWINDRAG", GAMEFLAG_SWTWINDRAG);
 
 	FScanner sc;
 	auto mem = fr.Read();
@@ -949,10 +955,10 @@ bool AddINIFile(const char* pzFile, bool bForce = false)
 		if (findfrompath(pzFile, &pzFN)) return false; // failed to resolve the filename
 		if (!FileExists(pzFN))
 		{
-			Xfree(pzFN);
+			M_Free(pzFN);
 			return false;
 		} // failed to stat the file
-		Xfree(pzFN);
+		M_Free(pzFN);
 		IniFile* pTempIni = new IniFile(pzFile);
 		if (!pTempIni->FindSection("Episode1"))
 		{

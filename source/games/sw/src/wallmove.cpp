@@ -123,6 +123,7 @@ int DoWallMove(SPRITEp sp)
             {
                 wallp->x = sp->x + nx;
                 wallp->y = sp->y + ny;
+                sector[wallp->sector].dirty = 255;
             }
 
             if (shade1)

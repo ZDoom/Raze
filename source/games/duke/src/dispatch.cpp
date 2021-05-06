@@ -98,19 +98,15 @@ void processinput_d(int snum);
 void processinput_r(int snum);
 void displayweapon_d(int snum, double smoothratio);
 void displayweapon_r(int snum, double smoothratio);
-void displaymasks_d(int snum, double smoothratio);
-void displaymasks_r(int snum, double smoothratio);
+void displaymasks_d(int snum, int p, double smoothratio);
+void displaymasks_r(int snum, int p, double smoothratio);
 void think_d();
 void think_r();
-void animatesprites_d(int x, int y, int a, int smoothratio);
-void animatesprites_r(int x, int y, int a, int smoothratio);
+void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
+void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
 
-void Logo_d(const CompletionFunc&);
-void Logo_r(const CompletionFunc&);
 void InitFonts_d();
 void InitFonts_r();
-void PrintPaused_d();
-void PrintPaused_r();
 
 
 Dispatcher fi;
@@ -120,9 +116,7 @@ void SetDispatcher()
 	if (!isRR())
 	{
 		fi = {
-		Logo_d,
 		InitFonts_d,
-		PrintPaused_d,
 
 		think_d,
 		initactorflags_d,
@@ -167,9 +161,7 @@ void SetDispatcher()
 	else
 	{
 		fi = {
-		Logo_r,
 		InitFonts_r,
-		PrintPaused_r,
 
 		think_r,
 		initactorflags_r,
@@ -235,8 +227,6 @@ int TILE_STATIC;
 int TILE_BOTTOMSTATUSBAR;
 int TILE_THREEDEE;
 int TILE_INGAMEDUKETHREEDEE;
-int TILE_PLUTOPAKSPRITE;
-int TILE_MENUBAR;
 int TILE_ATOMICHEALTH;
 int TILE_FLOORSLIME;
 int TILE_JIBS6;

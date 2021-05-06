@@ -1,13 +1,5 @@
 #pragma once
 
-#include "build.h"
-#include "common_game.h"
-#include "db.h"
-#include "ai.h"
-#include "nnexts.h"
-#include "seq.h"
-#include "aiunicult.h"
-
 BEGIN_BLD_NS
 
 extern int cumulDamage[kMaxXSprites];

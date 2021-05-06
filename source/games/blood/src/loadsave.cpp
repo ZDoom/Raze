@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include "build.h"
 #include "compat.h"
-#include "mmulti.h"
 
 #include "blood.h"
 #include "i_specialpaths.h"
@@ -641,7 +640,6 @@ void SerializeState(FSerializer& arc)
 			("modern", gModernMap)
 #endif
 			("cheating", bPlayerCheated)
-			("nextlevel", gNextLevel)
 			("skyhoriz", pSky->horizfrac)
 			("skyy", pSky->yoffs)
 			("scale", pSky->yscale)
@@ -724,7 +722,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		viewSetErrorMessage("");
 		Net_ClearFifo();
 		paused = 0;
-		Polymost_prepare_loadboard();
+		Polymost::Polymost_prepare_loadboard();
 		Mus_ResumeSaved();
 	}
 }

@@ -2254,7 +2254,7 @@ FUNCOBJECT_GOTO:
                     }
                 }
 
-                if (currentLevel->levelNumber <= 20 || nStat != kStatExplodeTrigger)
+                if (!(currentLevel->gameflags & LEVEL_EX_MULTI) || nStat != kStatExplodeTrigger)
                 {
                     runlist_SubRunRec(sprite[nSprite].owner);
                     runlist_SubRunRec(ObjectList[nObject].field_4);
@@ -2689,7 +2689,7 @@ void PostProcess()
         }
     }
 
-    if (currentLevel->levelNumber != kMap20)
+    if (!(currentLevel->gameflags & LEVEL_EX_COUNTDOWN))
     {
         // esi is i
         for (i = 0; i < numsectors; i++)

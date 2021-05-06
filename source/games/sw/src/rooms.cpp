@@ -29,10 +29,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 #include "panel.h"
 #include "misc.h"
+#include "hw_drawinfo.h"
 
 BEGIN_SW_NS
-
-void FAF_DrawRooms(int posx, int posy, int posz, fixed_t q16ang, fixed_t q16horiz, short cursectnum);
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -690,7 +689,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     int sln = 0;
     int SpriteNum;
     SPRITEp sp;
-
+#if 0
     // keep a list of the last stacked sectors the view was in and
     // check those fisrt
     sln = 0;
@@ -721,12 +720,13 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
             sln++;
         }
     }
+#endif
 
     // didn't find it yet so test ALL sectors
     if (sln < 2)
     {
         sln = 0;
-        for (i = numsectors - 1; i >= 0; i--)
+        for (i = 0; i < numsectors; i++)// - 1; i >= 0; i--)
         {
             if (inside(x, y, (short) i) == 1)
             {
@@ -859,30 +859,33 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     pix_diff = labs(z - sector[sp->sectnum].floorz) >> 8;
     newz = sector[sp->sectnum].floorz + ((pix_diff / 128) + 1) * Z(128);
 
-    it.Reset(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    if (!testnewrenderer)
     {
-        sp = &sprite[i];
-
-        if (sp->lotag == match)
+        it.Reset(STAT_FAF);
+        while ((i = it.NextIndex()) >= 0)
         {
-            // move lower levels ceilings up for the correct view
-            if (sp->hitag == VIEW_LEVEL2)
+            sp = &sprite[i];
+
+            if (sp->lotag == match)
             {
-                // save it off
-                save.sectnum[save.zcount] = sp->sectnum;
-                save.zval[save.zcount] = sector[sp->sectnum].floorz;
-                save.pic[save.zcount] = sector[sp->sectnum].floorpicnum;
-                save.slope[save.zcount] = sector[sp->sectnum].floorheinum;
+                // move lower levels ceilings up for the correct view
+                if (sp->hitag == VIEW_LEVEL2)
+                {
+                    // save it off
+                    save.sectnum[save.zcount] = sp->sectnum;
+                    save.zval[save.zcount] = sector[sp->sectnum].floorz;
+                    save.pic[save.zcount] = sector[sp->sectnum].floorpicnum;
+                    save.slope[save.zcount] = sector[sp->sectnum].floorheinum;
 
-                sector[sp->sectnum].floorz = newz;
-                // don't change FAF_MIRROR_PIC - ConnectArea
-                if (sector[sp->sectnum].floorpicnum != FAF_MIRROR_PIC)
-                    sector[sp->sectnum].floorpicnum = FAF_MIRROR_PIC+1;
-                sector[sp->sectnum].floorheinum = 0;
+                    sector[sp->sectnum].floorz = newz;
+                    // don't change FAF_MIRROR_PIC - ConnectArea
+                    if (sector[sp->sectnum].floorpicnum != FAF_MIRROR_PIC)
+                        sector[sp->sectnum].floorpicnum = FAF_MIRROR_PIC + 1;
+                    sector[sp->sectnum].floorheinum = 0;
 
-                save.zcount++;
-                PRODUCTION_ASSERT(save.zcount < ZMAX);
+                    save.zcount++;
+                    PRODUCTION_ASSERT(save.zcount < ZMAX);
+                }
             }
         }
     }
@@ -951,40 +954,42 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     pix_diff = labs(z - sector[sp->sectnum].ceilingz) >> 8;
     newz = sector[sp->sectnum].ceilingz - ((pix_diff / 128) + 1) * Z(128);
 
-    it.Reset(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    if (!testnewrenderer)
     {
-        sp = &sprite[i];
-
-        if (sp->lotag == match)
+        it.Reset(STAT_FAF);
+        while ((i = it.NextIndex()) >= 0)
         {
-            // move upper levels floors down for the correct view
-            if (sp->hitag == VIEW_LEVEL1)
+            sp = &sprite[i];
+
+            if (sp->lotag == match)
             {
-                // save it off
-                save.sectnum[save.zcount] = sp->sectnum;
-                save.zval[save.zcount] = sector[sp->sectnum].ceilingz;
-                save.pic[save.zcount] = sector[sp->sectnum].ceilingpicnum;
-                save.slope[save.zcount] = sector[sp->sectnum].ceilingheinum;
+                // move upper levels floors down for the correct view
+                if (sp->hitag == VIEW_LEVEL1)
+                {
+                    // save it off
+                    save.sectnum[save.zcount] = sp->sectnum;
+                    save.zval[save.zcount] = sector[sp->sectnum].ceilingz;
+                    save.pic[save.zcount] = sector[sp->sectnum].ceilingpicnum;
+                    save.slope[save.zcount] = sector[sp->sectnum].ceilingheinum;
 
-                sector[sp->sectnum].ceilingz = newz;
+                    sector[sp->sectnum].ceilingz = newz;
 
-                // don't change FAF_MIRROR_PIC - ConnectArea
-                if (sector[sp->sectnum].ceilingpicnum != FAF_MIRROR_PIC)
-                    sector[sp->sectnum].ceilingpicnum = FAF_MIRROR_PIC+1;
-                sector[sp->sectnum].ceilingheinum = 0;
+                    // don't change FAF_MIRROR_PIC - ConnectArea
+                    if (sector[sp->sectnum].ceilingpicnum != FAF_MIRROR_PIC)
+                        sector[sp->sectnum].ceilingpicnum = FAF_MIRROR_PIC + 1;
+                    sector[sp->sectnum].ceilingheinum = 0;
 
-                save.zcount++;
-                PRODUCTION_ASSERT(save.zcount < ZMAX);
+                    save.zcount++;
+                    PRODUCTION_ASSERT(save.zcount < ZMAX);
+                }
             }
         }
     }
-
     return true;
 }
 
 short
-ViewSectorInScene(short cursectnum, short level)
+FindViewSectorInScene(short cursectnum, short level)
 {
     int i;
     SPRITEp sp;
@@ -1008,9 +1013,6 @@ ViewSectorInScene(short cursectnum, short level)
                 // found a potential match
                 match = sp->lotag;
 
-                if (!PicInView(FAF_MIRROR_PIC, true))
-                    return -1;
-
                 return match;
             }
         }
@@ -1019,65 +1021,179 @@ ViewSectorInScene(short cursectnum, short level)
     return -1;
 }
 
-void
-DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, short tsectnum)
+struct PortalGroup
 {
-    short i;
-    short match;
+    TArray<int> sectors;
+    int othersector = -1;
+    vec3_t offset = { 0,0,0 };
+};
 
-    save.zcount = 0;
+    // This is very messy because some portals are linked outside the actual portal sectors, so we have to use the complicated original linking logic to find the connection. :?
+void CollectPortals()
+{
+    int t = testnewrenderer;
+    testnewrenderer = true;
+    TArray<PortalGroup> floorportals;
+    TArray<PortalGroup> ceilingportals;
+    FixedBitArray<MAXSECTORS> floordone, ceilingdone;
 
-    match = ViewSectorInScene(tsectnum, VIEW_LEVEL1);
-    if (match != -1)
+    floordone.Zero();
+    ceilingdone.Zero();
+
+    for (int i = 0; i < numsectors; i++)
     {
-        FindCeilingView(match, &tx, &ty, tz, &tsectnum);
-
-        if (tsectnum < 0)
-            return;
-
-        renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-        //FAF_DrawRooms(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-
-        // reset Z's
-        for (i = 0; i < save.zcount; i++)
+        if (sector[i].floorpicnum == FAF_MIRROR_PIC && !floordone[i])
         {
-            sector[save.sectnum[i]].floorz = save.zval[i];
-            sector[save.sectnum[i]].floorpicnum = save.pic[i];
-            sector[save.sectnum[i]].floorheinum = save.slope[i];
-        }
-
-        analyzesprites(tx, ty, tz, false);
-        post_analyzesprites();
-        renderDrawMasks();
-
-    }
-    else
-    {
-        match = ViewSectorInScene(tsectnum, VIEW_LEVEL2);
-        if (match != -1)
-        {
-            FindFloorView(match, &tx, &ty, tz, &tsectnum);
-
-            if (tsectnum < 0)
-                return;
-
-            renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-            //FAF_DrawRooms(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-
-            // reset Z's
-            for (i = 0; i < save.zcount; i++)
+            auto& fp = floorportals[floorportals.Reserve(1)];
+            fp.sectors.Push(i);
+            floordone.Set(i);
+            for (unsigned ii = 0; ii < fp.sectors.Size(); ii++)
             {
-                sector[save.sectnum[i]].ceilingz = save.zval[i];
-                sector[save.sectnum[i]].ceilingpicnum = save.pic[i];
-                sector[save.sectnum[i]].ceilingheinum = save.slope[i];
+                auto sec = &sector[fp.sectors[ii]];
+                for (int w = 0; w < sec->wallnum; w++)
+                {
+                    auto ns = wall[sec->wallptr + w].nextsector;
+                    if (ns < 0 || floordone[ns] || sector[ns].floorpicnum != FAF_MIRROR_PIC) continue;
+                    fp.sectors.Push(ns);
+                    floordone.Set(ns);
+                }
             }
-
-            analyzesprites(tx, ty, tz, false);
-            post_analyzesprites();
-            renderDrawMasks();
-
+        }
+        if (sector[i].ceilingpicnum == FAF_MIRROR_PIC && !ceilingdone[i])
+        {
+            auto& fp = ceilingportals[ceilingportals.Reserve(1)];
+            fp.sectors.Push(i);
+            ceilingdone.Set(i);
+            for (unsigned ii = 0; ii < fp.sectors.Size(); ii++)
+            {
+                auto sec = &sector[fp.sectors[ii]];
+                for (int w = 0; w < sec->wallnum; w++)
+                {
+                    auto ns = wall[sec->wallptr + w].nextsector;
+                    if (ns < 0 || ceilingdone[ns] || sector[ns].ceilingpicnum != FAF_MIRROR_PIC) continue;
+                    fp.sectors.Push(ns);
+                    ceilingdone.Set(ns);
+                }
+            }
         }
     }
+    // now try to find connections.
+    for (auto& fp : ceilingportals)
+    {
+        // pick one sprite out of the sectors, repeat until we get a valid connection
+        for (auto sec : fp.sectors)
+        {
+            SectIterator it(sec);
+            int spr;
+            while ((spr = it.NextIndex()) >= 0)
+            {
+                int tx = sprite[spr].x;
+                int ty = sprite[spr].y;
+                int tz = sprite[spr].z;
+                int16_t tsectnum = sec;
+
+                int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL1);
+                if (match != -1)
+                {
+                    FindCeilingView(match, &tx, &ty, tz, &tsectnum);
+                    if (tsectnum >= 0 && sector[tsectnum].floorpicnum == FAF_MIRROR_PIC)
+                    {
+                        // got something!
+                        fp.othersector = tsectnum;
+                        fp.offset = { tx, ty, tz };
+                        fp.offset -= sprite[spr].pos;
+                        goto nextfg;
+                    }
+                }
+            }
+        }
+    nextfg:;
+    }
+
+    for (auto& fp : floorportals)
+    {
+        for (auto sec : fp.sectors)
+        {
+            SectIterator it(sec);
+            int spr;
+            while ((spr = it.NextIndex()) >= 0)
+            {
+                int tx = sprite[spr].x;
+                int ty = sprite[spr].y;
+                int tz = sprite[spr].z;
+                int16_t tsectnum = sec;
+
+                int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL2);
+                if (match != -1)
+                {
+                    FindFloorView(match, &tx, &ty, tz, &tsectnum);
+                    if (tsectnum >= 0 && sector[tsectnum].ceilingpicnum == FAF_MIRROR_PIC)
+                    {
+                        // got something!
+                        fp.othersector = tsectnum;
+                        fp.offset = { tx, ty, tz };
+                        fp.offset -= sprite[spr].pos;
+                        goto nextcg;
+                    }
+                }
+            }
+        }
+    nextcg:;
+    }
+    for (auto& pt : floorportals)
+    {
+        if (pt.othersector > -1)
+        {
+            auto findother = [&](int other) -> PortalGroup*
+            {
+                for (auto& pt2 : ceilingportals)
+                {
+                    if (pt2.sectors.Find(other) != pt2.sectors.Size()) return &pt2;
+                }
+                return nullptr;
+            };
+
+            auto pt2 = findother(pt.othersector);
+            if (pt2)
+            {
+                int pnum = portalAdd(PORTAL_SECTOR_FLOOR, -1, pt.offset.x, pt.offset.y, 0);
+                allPortals[pnum].targets = pt2->sectors; // do not move! We still need the original.
+                for (auto sec : pt.sectors)
+                {
+                    sector[sec].portalflags = PORTAL_SECTOR_FLOOR;
+                    sector[sec].portalnum = pnum;
+                }
+            }
+        }
+    }
+    for (auto& pt : ceilingportals)
+    {
+        if (pt.othersector > -1)
+        {
+            auto findother = [&](int other) -> PortalGroup*
+            {
+                for (auto& pt2 : floorportals)
+                {
+                    if (pt2.sectors.Find(other) != pt2.sectors.Size()) return &pt2;
+                }
+                return nullptr;
+            };
+
+            auto pt2 = findother(pt.othersector);
+            if (pt2)
+            {
+                int pnum = portalAdd(PORTAL_SECTOR_FLOOR, -1, pt.offset.x, pt.offset.y, 0);
+                allPortals[pnum].targets = std::move(pt2->sectors);
+                for (auto sec : pt.sectors)
+                {
+                    sector[sec].portalflags = PORTAL_SECTOR_CEILING;
+                    sector[sec].portalnum = pnum;
+                }
+            }
+        }
+    }
+    testnewrenderer = t;
 }
+
 
 END_SW_NS

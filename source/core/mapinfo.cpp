@@ -41,43 +41,49 @@
 #include "raze_sound.h"
 
 FString gSkillNames[MAXSKILLS];
-FString gVolumeNames[MAXVOLUMES];
-FString gVolumeSubtitles[MAXVOLUMES];
-int32_t gVolumeFlags[MAXVOLUMES];
 int gDefaultVolume = 0, gDefaultSkill = 1;
 
-MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
-MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
+GlobalCutscenes globalCutscenes;
+TArray<ClusterDef> clusters;
+TArray<VolumeRecord> volumes;
+TArray<TPointer<MapRecord>> mapList;	// must be allocated as pointers because it can whack the currentlLevel pointer if this was a flat array.
+MapRecord *currentLevel;	// level that is currently played.
 MapRecord* lastLevel;		// Same here, for the last level.
-unsigned int numUsedSlots;
 
 
 CCMD(listmaps)
 {
-	for (unsigned int i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		int lump = fileSystem.FindFile(mapList[i].fileName);
+		int lump = fileSystem.FindFile(map->fileName);
 		if (lump >= 0)
 		{
 			int rfnum = fileSystem.GetFileContainer(lump);
-			Printf("%s - %s (%s)\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName(), fileSystem.GetResourceFileName(rfnum));
+			Printf("%s - %s (%s)\n", map->LabelName(), map->DisplayName(), fileSystem.GetResourceFileName(rfnum));
 		}
 		else
 		{
-			Printf("%s - %s (defined but does not exist)\n", mapList[i].fileName.GetChars(), mapList[i].DisplayName());
+			Printf("%s - %s (defined but does not exist)\n", map->fileName.GetChars(), map->DisplayName());
 		}
 	}
+}
+
+int CutsceneDef::GetSound()
+{
+	int id;
+	if (soundName.IsNotEmpty()) id = soundEngine->FindSound(soundName);
+	if (id <= 0) id = soundEngine->FindSoundByResID(soundID);
+	return id;
 }
 
 
 MapRecord *FindMapByName(const char *nm)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
-		if (map.labelName.CompareNoCase(nm) == 0)
+		if (map->labelName.CompareNoCase(nm) == 0)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 	return nullptr;
@@ -86,22 +92,78 @@ MapRecord *FindMapByName(const char *nm)
 
 MapRecord *FindMapByLevelNum(int num)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
-		if (map.levelNumber == num)
+		if (map->levelNumber == num)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 	return nullptr;
 }
 
-MapRecord *FindNextMap(MapRecord *thismap)
+VolumeRecord* FindVolume(int index)
 {
-	if (thismap->nextLevel != -1) return FindMapByLevelNum(thismap->nextLevel);
-	return FindMapByLevelNum(thismap->levelNumber+1);
+	for (auto& vol : volumes)
+	{
+		if (vol.index == index) return &vol;
+	}
+	return nullptr;
 }
+
+ClusterDef* FindCluster(int index)
+{
+	for (auto& vol : clusters)
+	{
+		if (vol.index == index) return &vol;
+	}
+	return nullptr;
+}
+
+ClusterDef* AllocateCluster()
+{
+	return &clusters[clusters.Reserve(1)];
+}
+
+VolumeRecord* AllocateVolume()
+{
+	return &volumes[volumes.Reserve(1)];
+}
+
+MapRecord* FindMapByIndexOnly(int cluster, int num)
+{
+	int levelnum = makelevelnum(cluster, num);
+	for (auto& map : mapList)
+	{
+		if (map->levelNumber == levelnum) return map.Data();
+	}
+	return nullptr;
+}
+
+MapRecord* FindMapByIndex(int cluster, int num)
+{
+	auto map = FindMapByLevelNum(num);
+	if (!map && num < 1000) map = FindMapByLevelNum(makelevelnum(cluster, num));
+	return map;
+}
+
+MapRecord* FindNextMap(MapRecord* thismap)
+{
+	MapRecord* next = nullptr;
+	if (!thismap->NextMap.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
+	if (thismap->NextMap.IsNotEmpty()) next = FindMapByName(thismap->NextMap);
+	if (!next) next = FindMapByLevelNum(thismap->levelNumber + 1);
+	return next;
+}
+
+MapRecord* FindNextSecretMap(MapRecord* thismap)
+{
+	MapRecord* next = nullptr;
+	if (!thismap->NextSecret.Compare("-")) return nullptr;	// '-' means to forcibly end the game here.
+	if (thismap->NextSecret.IsNotEmpty()) next = FindMapByName(thismap->NextSecret);
+	return next? next : FindNextMap(thismap);
+}
+
 
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 {
@@ -129,7 +191,7 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 		if (numMatches != 4 || toupper(b1) != 'E' || toupper(b2) != 'L')
 			return false;
 
-		index = FindMapByLevelNum(levelnum(ep - 1, lev - 1));
+		index = FindMapByIndexOnly(ep, lev);
 
 	}
 	if (index != nullptr)
@@ -142,18 +204,19 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 
 MapRecord *AllocateMap()
 {
-	return &mapList[numUsedSlots++];
+	auto&p = mapList[mapList.Reserve(1)];
+	p.Alloc();
+	return p.Data();
 }
 
 
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 {
-	for (unsigned i = 0; i < numUsedSlots; i++)
+	for (auto& map : mapList)
 	{
-		auto &map = mapList[i];
-		if (map.fileName.CompareNoCase(boardfilename) == 0)
+		if (map->fileName.CompareNoCase(boardfilename) == 0)
 		{
-			return &map;
+			return map.Data();
 		}
 	}
 

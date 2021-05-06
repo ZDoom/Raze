@@ -1516,7 +1516,7 @@ UpdatePlayerSpriteAngle(PLAYERp pp)
 void
 DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust)
 {
-    applylook(&pp->angle, avel, &pp->input.actions, scaleAdjust);
+    pp->angle.applyinput(avel, &pp->input.actions, scaleAdjust);
     UpdatePlayerSpriteAngle(pp);
 }
 
@@ -1606,8 +1606,7 @@ DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 void
 DoPlayerTurnTurret(PLAYERp pp, float avel)
 {
-    lookangle diff;
-    binangle new_ang;
+    binangle new_ang, diff;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
@@ -1668,8 +1667,8 @@ void
 DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE);
-    calcviewpitch(pp->pos.vec2, &pp->horizon.horizoff, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursectnum, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
-    sethorizon(&pp->horizon, horz, &pp->input.actions, scaleAdjust);
+    pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursectnum, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
+    pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
 
 void
@@ -5471,7 +5470,7 @@ DoPlayerStopOperate(PLAYERp pp)
         if (TEST_BOOL1(pp->remote_sprite))
             pp->angle.ang = pp->angle.oang = buildang(pp->remote_sprite->ang);
         else
-            pp->angle.ang = pp->angle.oang = q16ang(gethiq16angle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
+            pp->angle.ang = pp->angle.oang = bvectangbam(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
     }
 
     if (pp->sop_control)
@@ -6126,7 +6125,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)) >> 4);
+            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)).signedbuild() >> 4);
         }
     }
 }
@@ -7042,9 +7041,7 @@ void MultiPlayLimits(void)
         gNet.TimeLimitClock = gNet.TimeLimit;
 
         MapRecord *next = nullptr;
-        // do not increment if level is 23 thru 28 (should be done smarter.)
-        if (currentLevel->levelNumber <= 22)
-            next = FindMapByLevelNum(currentLevel->levelNumber + 1);
+        next = FindNextMap(currentLevel);
 		ChangeLevel(next, -1);
     }
 }
@@ -7154,7 +7151,9 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].angle.settarget(bvectangf(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy));
+            int deltax = Player[myconnectindex].posx - Player[screenpeek].posx;
+            int deltay = Player[myconnectindex].posy - Player[screenpeek].posy;
+            Player[screenpeek].angle.settarget(bvectangbam(deltax, deltay));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))
@@ -7202,7 +7201,7 @@ domovethings(void)
 			MapRecord *map = nullptr;
 			if (FinishAnim == ANIM_SUMO)
 			{
-				map = FindMapByLevelNum(currentLevel->levelNumber+1);
+				map = FindNextMap(currentLevel);
 			}
 			ChangeLevel(map, -1);
         }

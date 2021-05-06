@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "build.h"
-#include "mmulti.h"
 #include "compat.h"
 #include "gamecontrol.h"
 
@@ -267,10 +266,8 @@ static int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
 {
     if (!nArg1 || !nArg2 || strlen(pzArgs) < 3)
         return -1;
-	*nArg1 = pzArgs[0] - '0' - 1;
-	*nArg2 = (pzArgs[1] - '0')*10+(pzArgs[2]-'0') - 1;
-    *nArg1 = ClipRange(*nArg1, 0, gEpisodeCount-1);
-    *nArg2 = ClipRange(*nArg2, 0, gEpisodeInfo[*nArg1].nLevels-1);
+	*nArg1 = pzArgs[0] - '0';
+	*nArg2 = (pzArgs[1] - '0')*10+(pzArgs[2]-'0');
     return 2;
 }
 
@@ -423,7 +420,7 @@ static bool cheatMario(cheatseq_t* c)
     int nEpisode, nLevel;
     if (parseArgs((char*)c->Args, &nEpisode, &nLevel) == 2)
 	{
-		auto map = FindMapByLevelNum(levelnum(nEpisode, nLevel));
+		auto map = FindMapByIndex(nEpisode, nLevel);
 		if (map) DeferedStartGame(map, -1);
 	}
     return true;

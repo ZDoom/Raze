@@ -22,20 +22,34 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "texturemanager.h"
 #include "hw_renderstate.h"
 #include "printf.h"
+#include "gamefuncs.h"
+#include "hw_drawinfo.h"
 #include "gamestruct.h"
+#include "gamestruct.h"
+#include "hw_voxels.h"
+
+
+typedef struct {
+    union { double x; double d; };
+    union { double y; double u; };
+    union { double z; double v; };
+} vec3d_t;
+
+static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
+int32_t xyaspect = -1;
+
+
+
+int skiptile = -1;
+FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap = 0);
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate);
 
 int checkTranslucentReplacement(FTextureID picnum, int pal);
 
 CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model animation smoothing")
-CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 CVARD(Bool, hw_models, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
 CVARD(Bool, hw_parallaxskypanning, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky")
 CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
-bool hw_int_useindexedcolortextures;
-CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
-{
-    if (screen) screen->SetTextureFilterMode();
-}
 int pm_smoothratio;
 
 
@@ -43,6 +57,25 @@ int pm_smoothratio;
 
 // For testing - will be removed later.
 CVAR(Int, skytile, 0, 0)
+CVAR(Bool, testnewrenderer, true, 0)
+
+extern fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
+static vec3_t spritesxyz[MAXSPRITESONSCREEN + 1];
+static int16_t thewall[MAXWALLSB];
+static int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
+static int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
+static int16_t numscans, numbunches;
+static int16_t maskwall[MAXWALLSB], maskwallcnt;
+static int16_t sectorborder[256];
+static tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
+tspritetype pm_tsprite[MAXSPRITESONSCREEN];
+int pm_spritesortcnt;
+
+
+
+namespace Polymost
+{
+
 
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 2048 //<- careful!
@@ -103,17 +136,54 @@ static int32_t drawingskybox = 0;
 static hitdata_t polymost_hitdata;
 
 FGameTexture* globalskytex = nullptr;
-FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap);
 
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
 }
 
-float sectorVisibility(int sectnum)
+static void set_globalang(fixed_t const ang)
+{
+    globalang = FixedToInt(ang) & 2047;
+    qglobalang = ang & 0x7FFFFFF;
+
+    float const f_ang = FixedToFloat(ang);
+    float const fcosang = bcosf(f_ang);
+    float const fsinang = bsinf(f_ang);
+
+#ifdef USE_OPENGL
+    fcosglobalang = fcosang;
+    fsinglobalang = fsinang;
+#endif
+
+    cosglobalang = (int)fcosang;
+    singlobalang = (int)fsinang;
+
+    cosviewingrangeglobalang = MulScale(cosglobalang, viewingrange, 16);
+    sinviewingrangeglobalang = MulScale(singlobalang, viewingrange, 16);
+}
+
+static inline float polymost_invsqrt_approximation(float x)
+{
+    // this is the comment
+    return 1.f / sqrtf(x);
+}
+
+static float sectorVisibility(int sectnum)
 {
     // Beware of wraparound madness...
     int v = sector[sectnum].visibility;
     return v? ((uint8_t)(v + 16)) / 16.f : 1.f;
+}
+
+static void tileUpdatePicnum(short* const tileptr, int const obj)
+{
+    auto& tile = *tileptr;
+
+    if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+        tile += animateoffs(tile, obj);
+
+    if (((obj & 16384) == 16384) && (globalorientation & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
+        tile = RotTile(tile).newtile;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +270,7 @@ static int32_t pow2xsplit = 0, skyzbufferhack = 0, flatskyrender = 0;
 static float drawpoly_alpha = 0.f;
 static uint8_t drawpoly_blend = 0;
 
-int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
+int32_t polymost_maskWallHasTranslucency(walltype const * const wall)
 {
     if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
         return true;
@@ -208,32 +278,13 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     return checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
 }
 
-int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
+int32_t polymost_spriteHasTranslucency(spritetype const * const tspr)
 {
     if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || (tspr->clipdist & TSPR_FLAGS_DRAW_LAST) || 
         ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
         return true;
 
     return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
-}
-
-int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr)
-{
-    if ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].flags&SPREXT_NOTMD)
-        return false;
-
-
-    if (hw_models && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
-        tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
-        return true;
-
-    if (r_voxels && (tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
-        return true;
-
-    if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && voxmodels[tspr->picnum])
-        return true;
-
-    return false;
 }
 
 static void polymost_updaterotmat(void)
@@ -254,7 +305,8 @@ static void polymost_updaterotmat(void)
     };
     multiplyMatrix4f(matrix, tiltmatrix);
     renderSetViewMatrix(matrix);
-    renderSetVisibility(MulScale(g_visibility, MulScale(xdimenscale, viewingrangerecip, 16), 16) * fviewingrange * (1.f / (65536.f * 65536.f)) / r_ambientlight);
+    float fxdimen = FixedToFloat(xdimenscale);
+    renderSetVisibility(g_visibility * fxdimen * (1.f / (65536.f)) / r_ambientlight);
 }
 
 const vec2_16_t tileSize(size_t index)
@@ -266,7 +318,6 @@ const vec2_16_t tileSize(size_t index)
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesize);
 
 // Hack for Duke's camera until I can find out why this behaves erratically.
-int skiptile = -1;
 
 static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method, const vec2_16_t &tilesize)
 {
@@ -334,8 +385,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     float usub = 0;
     float vsub = 0;
 
-    polymost_outputGLDebugMessage(3, "polymost_drawpoly(dpxy:%p, n:%d, method_:%X), method: %X", dpxy, n, method_, method);
-
 	// This only takes effect for textures with their default set to SamplerClampXY.
 	int sampleroverride = CLAMP_NONE;
     if (method & DAMETH_CLAMPED)
@@ -347,7 +396,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetFade(globalfloorpal);
-	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), palid, sampleroverride);
+	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), globalskytex? 0 : palid, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -920,16 +969,6 @@ skip: ;
 #endif
 }
 
-// Moved in from pragmas.h
-static inline int32_t krecipasm(int32_t i)
-{
-    // Ken did this
-    union { int32_t i; float f; } x;
-    x.f = (float)i;
-    i = x.i;
-    return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
-}
-
 // variables that are set to ceiling- or floor-members, depending
 // on which one is processed right now
 static int32_t global_cf_z;
@@ -961,14 +1000,14 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
                             wall[wall[sec->wallptr].point2].y - wall[sec->wallptr].y };
         float r;
 
+        int length = ksqrt(uhypsq(xy.x, xy.y));
         if (globalorientation & 2)
         {
-            int i = krecipasm(nsqrtasm(uhypsq(xy.x,xy.y)));
-            r = i * (1.f/1073741824.f);
+            r = 1.f / length;
         }
         else
         {
-            int i = nsqrtasm(uhypsq(xy.x,xy.y)); if (i == 0) i = 1024; else i = 1048576 / i;
+            int i; if (length == 0) i = 1024; else i = 1048576 / length; // consider integer truncation
             r = i * (1.f/1048576.f);
         }
 
@@ -1211,7 +1250,7 @@ static float fgetceilzofslope(usectorptr_t sec, float dax, float day)
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->ceilingz;
 
     float const j = (d.x*(day-w.y)-d.y*(dax-w.x))*(1.f/8.f);
@@ -1229,7 +1268,7 @@ static float fgetflorzofslope(usectorptr_t sec, float dax, float day)
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return sec->floorz;
 
     float const j = (d.x*(day-w.y)-d.y*(dax-w.x))*(1.f/8.f);
@@ -1248,7 +1287,7 @@ static void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, 
 
     vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
 
-    int const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
     if (i == 0) return;
     
     float const j = (d.x*(day-wal->y)-d.y*(dax-wal->x))*(1.f/8.f);
@@ -1280,9 +1319,13 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     float const fglobalang = FixedToFloat(qglobalang);
     int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
     int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
-    globalskytex = skytile? nullptr : GetSkyTexture(globalpicnum, dapskybits, dapskyoff);
+    int remap = TRANSLATION(Translation_Remap + curbasepal, globalpal);
+    globalskytex = skytile? nullptr : GetSkyTexture(globalpicnum, dapskybits, dapskyoff, remap);
     int realskybits = dapskybits;
-    if (globalskytex) dapskybits = 0;
+    if (globalskytex)
+    {
+        dapskybits = 0;
+    }
 
     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 
@@ -1591,184 +1634,6 @@ static void polymost_drawalls(int32_t const bunch)
                 flatskyrender = 0;
                 ghoriz = ghorizbak;
             }
-#if 0
-            else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
-            {
-                //Skybox code for parallax floor!
-                float sky_t0, sky_t1; // _nx0, _ny0, _nx1, _ny1;
-                float sky_ryp0, sky_ryp1, sky_x0, sky_x1, sky_cy0, sky_fy0, sky_cy1, sky_fy1, sky_ox0, sky_ox1;
-                static vec2f_t const skywal[4] = { { -512, -512 }, { 512, -512 }, { 512, 512 }, { -512, 512 } };
-
-                pow2xsplit = 0;
-
-                for (bssize_t i=0; i<4; i++)
-                {
-                    walpos = skywal[i&3];
-                    vec2f_t skyp0 = { walpos.y * gcosang - walpos.x * gsinang,
-                                      walpos.x * gcosang2 + walpos.y * gsinang2 };
-
-                    walpos = skywal[(i + 1) & 3];
-                    vec2f_t skyp1 = { walpos.y * gcosang - walpos.x * gsinang,
-                                      walpos.x * gcosang2 + walpos.y * gsinang2 };
-
-                    vec2f_t const oskyp0 = skyp0;
-
-                    //Clip to close parallel-screen plane
-                    if (skyp0.y < SCISDIST)
-                    {
-                        if (skyp1.y < SCISDIST) continue;
-                        sky_t0 = (SCISDIST - skyp0.y) / (skyp1.y - skyp0.y);
-                        skyp0  = { (skyp1.x - skyp0.x) * sky_t0 + skyp0.x, SCISDIST };
-                    }
-                    else { sky_t0 = 0.f; }
-
-                    if (skyp1.y < SCISDIST)
-                    {
-                        sky_t1  = (SCISDIST - oskyp0.y) / (skyp1.y - oskyp0.y);
-                        skyp1 = { (skyp1.x - oskyp0.x) * sky_t1 + oskyp0.x, SCISDIST };
-                    }
-                    else { sky_t1 = 1.f; }
-
-                    sky_ryp0 = 1.f/skyp0.y; sky_ryp1 = 1.f/skyp1.y;
-
-                    //Generate screen coordinates for front side of wall
-                    sky_x0 = ghalfx*skyp0.x*sky_ryp0 + ghalfx;
-                    sky_x1 = ghalfx*skyp1.x*sky_ryp1 + ghalfx;
-                    if ((sky_x1 <= sky_x0) || (sky_x0 >= x1) || (x0 >= sky_x1)) continue;
-
-                    sky_ryp0 *= gyxscale; sky_ryp1 *= gyxscale;
-
-                    sky_cy0 = -8192.f*sky_ryp0 + ghoriz;
-                    sky_fy0 =  8192.f*sky_ryp0 + ghoriz;
-                    sky_cy1 = -8192.f*sky_ryp1 + ghoriz;
-                    sky_fy1 =  8192.f*sky_ryp1 + ghoriz;
-
-                    sky_ox0 = sky_x0; sky_ox1 = sky_x1;
-
-                    //Make sure: x0<=_x0<_x1<=x1
-                    float nfy[2] = { fy0, fy1 };
-
-                    if (sky_x0 < x0)
-                    {
-                        float const t = (x0-sky_x0)/(sky_x1-sky_x0);
-                        sky_cy0 += (sky_cy1-sky_cy0)*t;
-                        sky_fy0 += (sky_fy1-sky_fy0)*t;
-                        sky_x0 = x0;
-                    }
-                    else if (sky_x0 > x0) nfy[0] += (sky_x0-x0)*(fy1-fy0)/(x1-x0);
-
-                    if (sky_x1 > x1)
-                    {
-                        float const t = (x1-sky_x1)/(sky_x1-sky_x0);
-                        sky_cy1 += (sky_cy1-sky_cy0)*t;
-                        sky_fy1 += (sky_fy1-sky_fy0)*t;
-                        sky_x1 = x1;
-                    }
-                    else if (sky_x1 < x1) nfy[1] += (sky_x1-x1)*(fy1-fy0)/(x1-x0);
-
-                    //   (skybox floor)
-                    //(_x0,_fy0)-(_x1,_fy1)
-                    //   (skybox wall)
-                    //(_x0,_cy0)-(_x1,_cy1)
-                    //   (skybox ceiling)
-                    //(_x0,nfy0)-(_x1,nfy1)
-
-                    //floor of skybox
-                    drawingskybox = 6; //floor/6th texture/index 5 of skybox
-                    float const ft[4] = { 512 / 16, 512 / -16, fcosglobalang * (1.f / 2147483648.f),
-                                          fsinglobalang * (1.f / 2147483648.f) };
-
-                    xtex.d = 0;
-                    ytex.d = gxyaspect*(1.0/4194304.0);
-                    otex.d = -ghoriz*ytex.d;
-                    xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
-                    xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
-                    ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
-                    otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
-                    otex.u += (ft[2]-xtex.u)*ghalfx;
-                    otex.v -= (ft[3]+xtex.v)*ghalfx;
-                    xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; //y-flip skybox floor
-
-                    if ((sky_fy0 > nfy[0]) && (sky_fy1 > nfy[1]))
-                        polymost_domost(sky_x0,sky_fy0,sky_x1,sky_fy1);
-                    else if ((sky_fy0 > nfy[0]) != (sky_fy1 > nfy[1]))
-                    {
-                        //(ox,oy) is intersection of: (_x0,_fy0)-(_x1,_fy1)
-                        //                            (_x0,nfy0)-(_x1,nfy1)
-                        float const t = (sky_fy0-nfy[0])/(nfy[1]-nfy[0]-sky_fy1+sky_fy0);
-                        vec2f_t const o = { sky_x0 + (sky_x1-sky_x0)*t, sky_fy0 + (sky_fy1-sky_fy0)*t };
-                        if (nfy[0] > sky_fy0)
-                        {
-                            polymost_domost(sky_x0,nfy[0],o.x,o.y);
-                            polymost_domost(o.x,o.y,sky_x1,sky_fy1);
-                        }
-                        else
-                        {
-                            polymost_domost(sky_x0,sky_fy0,o.x,o.y);
-                            polymost_domost(o.x,o.y,sky_x1,nfy[1]);
-                        }
-                    }
-                    else
-                        polymost_domost(sky_x0,nfy[0],sky_x1,nfy[1]);
-
-                    //wall of skybox
-                    drawingskybox = i+1; //i+1th texture/index i of skybox
-                    xtex.d = (sky_ryp0-sky_ryp1)*gxyaspect*(1.0/512.0) / (sky_ox0-sky_ox1);
-                    ytex.d = 0;
-                    otex.d = sky_ryp0*gxyaspect*(1.0/512.0) - xtex.d*sky_ox0;
-                    xtex.u = (sky_t0*sky_ryp0 - sky_t1*sky_ryp1)*gxyaspect*(64.0/512.0) / (sky_ox0-sky_ox1);
-                    otex.u = sky_t0*sky_ryp0*gxyaspect*(64.0/512.0) - xtex.u*sky_ox0;
-                    ytex.u = 0;
-                    sky_t0 = -8192.f*sky_ryp0 + ghoriz;
-                    sky_t1 = -8192.f*sky_ryp1 + ghoriz;
-                    float const t = ((xtex.d*sky_ox0 + otex.d)*8.f) / ((sky_ox1-sky_ox0) * sky_ryp0 * 2048.f);
-                    xtex.v = (sky_t0-sky_t1)*t;
-                    ytex.v = (sky_ox1-sky_ox0)*t;
-                    otex.v = -xtex.v*sky_ox0 - ytex.v*sky_t0;
-
-                    if ((sky_cy0 > nfy[0]) && (sky_cy1 > nfy[1]))
-                        polymost_domost(sky_x0,sky_cy0,sky_x1,sky_cy1);
-                    else if ((sky_cy0 > nfy[0]) != (sky_cy1 > nfy[1]))
-                    {
-                        //(ox,oy) is intersection of: (_x0,_fy0)-(_x1,_fy1)
-                        //                            (_x0,nfy0)-(_x1,nfy1)
-                        float const t = (sky_cy0-nfy[0])/(nfy[1]-nfy[0]-sky_cy1+sky_cy0);
-                        vec2f_t const o = { sky_x0 + (sky_x1 - sky_x0) * t, sky_cy0 + (sky_cy1 - sky_cy0) * t };
-                        if (nfy[0] > sky_cy0)
-                        {
-                            polymost_domost(sky_x0,nfy[0],o.x,o.y);
-                            polymost_domost(o.x,o.y,sky_x1,sky_cy1);
-                        }
-                        else
-                        {
-                            polymost_domost(sky_x0,sky_cy0,o.x,o.y);
-                            polymost_domost(o.x,o.y,sky_x1,nfy[1]);
-                        }
-                    }
-                    else
-                        polymost_domost(sky_x0,nfy[0],sky_x1,nfy[1]);
-                }
-
-                //Ceiling of skybox
-                drawingskybox = 5; //ceiling/5th texture/index 4 of skybox
-                float const ft[4] = { 512 / 16, -512 / -16, fcosglobalang * (1.f / 2147483648.f),
-                                      fsinglobalang * (1.f / 2147483648.f) };
-
-                xtex.d = 0;
-                ytex.d = gxyaspect*(-1.0/4194304.0);
-                otex.d = -ghoriz*ytex.d;
-                xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
-                xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
-                ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
-                otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
-                otex.u += (ft[2]-xtex.u)*ghalfx;
-                otex.v -= (ft[3]+xtex.v)*ghalfx;
-
-                polymost_domost(x0,fy0,x1,fy1);
-
-                drawingskybox = 0;
-            }
-#endif
 
         }
 
@@ -1822,184 +1687,6 @@ static void polymost_drawalls(int32_t const bunch)
 				flatskyrender = 0;
                 ghoriz = ghorizbak;
 			}
-#if 0
-            else
-            {
-                //Skybox code for parallax ceiling!
-                float sky_t0, sky_t1; // _nx0, _ny0, _nx1, _ny1;
-                float sky_ryp0, sky_ryp1, sky_x0, sky_x1, sky_cy0, sky_fy0, sky_cy1, sky_fy1, sky_ox0, sky_ox1;
-                static vec2f_t const skywal[4] = { { -512, -512 }, { 512, -512 }, { 512, 512 }, { -512, 512 } };
-
-                pow2xsplit = 0;
-
-                for (bssize_t i=0; i<4; i++)
-                {
-                    walpos = skywal[i&3];
-                    vec2f_t skyp0 = { walpos.y * gcosang - walpos.x * gsinang,
-                                      walpos.x * gcosang2 + walpos.y * gsinang2 };
-
-                    walpos = skywal[(i + 1) & 3];
-                    vec2f_t skyp1 = { walpos.y * gcosang - walpos.x * gsinang,
-                                      walpos.x * gcosang2 + walpos.y * gsinang2 };
-
-                    vec2f_t const oskyp0 = skyp0;
-
-                    //Clip to close parallel-screen plane
-                    if (skyp0.y < SCISDIST)
-                    {
-                        if (skyp1.y < SCISDIST) continue;
-                        sky_t0 = (SCISDIST - skyp0.y) / (skyp1.y - skyp0.y);
-                        skyp0  = { (skyp1.x - skyp0.x) * sky_t0 + skyp0.x, SCISDIST };
-                    }
-                    else { sky_t0 = 0.f; }
-
-                    if (skyp1.y < SCISDIST)
-                    {
-                        sky_t1 = (SCISDIST - oskyp0.y) / (skyp1.y - oskyp0.y);
-                        skyp1  = { (skyp1.x - oskyp0.x) * sky_t1 + oskyp0.x, SCISDIST };
-                    }
-                    else { sky_t1 = 1.f; }
-
-                    sky_ryp0 = 1.f/skyp0.y; sky_ryp1 = 1.f/skyp1.y;
-
-                    //Generate screen coordinates for front side of wall
-                    sky_x0 = ghalfx*skyp0.x*sky_ryp0 + ghalfx;
-                    sky_x1 = ghalfx*skyp1.x*sky_ryp1 + ghalfx;
-                    if ((sky_x1 <= sky_x0) || (sky_x0 >= x1) || (x0 >= sky_x1)) continue;
-
-                    sky_ryp0 *= gyxscale; sky_ryp1 *= gyxscale;
-
-                    sky_cy0 = -8192.f*sky_ryp0 + ghoriz;
-                    sky_fy0 =  8192.f*sky_ryp0 + ghoriz;
-                    sky_cy1 = -8192.f*sky_ryp1 + ghoriz;
-                    sky_fy1 =  8192.f*sky_ryp1 + ghoriz;
-
-                    sky_ox0 = sky_x0; sky_ox1 = sky_x1;
-
-                    //Make sure: x0<=_x0<_x1<=x1
-                    float ncy[2] = { cy0, cy1 };
-
-                    if (sky_x0 < x0)
-                    {
-                        float const t = (x0-sky_x0)/(sky_x1-sky_x0);
-                        sky_cy0 += (sky_cy1-sky_cy0)*t;
-                        sky_fy0 += (sky_fy1-sky_fy0)*t;
-                        sky_x0 = x0;
-                    }
-                    else if (sky_x0 > x0) ncy[0] += (sky_x0-x0)*(cy1-cy0)/(x1-x0);
-
-                    if (sky_x1 > x1)
-                    {
-                        float const t = (x1-sky_x1)/(sky_x1-sky_x0);
-                        sky_cy1 += (sky_cy1-sky_cy0)*t;
-                        sky_fy1 += (sky_fy1-sky_fy0)*t;
-                        sky_x1 = x1;
-                    }
-                    else if (sky_x1 < x1) ncy[1] += (sky_x1-x1)*(cy1-cy0)/(x1-x0);
-
-                    //   (skybox ceiling)
-                    //(_x0,_cy0)-(_x1,_cy1)
-                    //   (skybox wall)
-                    //(_x0,_fy0)-(_x1,_fy1)
-                    //   (skybox floor)
-                    //(_x0,ncy0)-(_x1,ncy1)
-
-                    //ceiling of skybox
-                    drawingskybox = 5; //ceiling/5th texture/index 4 of skybox
-                    float const ft[4] = { 512 / 16, -512 / -16, fcosglobalang * (1.f / 2147483648.f),
-                                          fsinglobalang * (1.f / 2147483648.f) };
-
-                    xtex.d = 0;
-                    ytex.d = gxyaspect*(-1.0/4194304.0);
-                    otex.d = -ghoriz*ytex.d;
-                    xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
-                    xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
-                    ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
-                    otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
-                    otex.u += (ft[2]-xtex.u)*ghalfx;
-                    otex.v -= (ft[3]+xtex.v)*ghalfx;
-
-
-                    if ((sky_cy0 < ncy[0]) && (sky_cy1 < ncy[1]))
-                        polymost_domost(sky_x1,sky_cy1,sky_x0,sky_cy0);
-                    else if ((sky_cy0 < ncy[0]) != (sky_cy1 < ncy[1]))
-                    {
-                        //(ox,oy) is intersection of: (_x0,_cy0)-(_x1,_cy1)
-                        //                            (_x0,ncy0)-(_x1,ncy1)
-                        float const t = (sky_cy0-ncy[0])/(ncy[1]-ncy[0]-sky_cy1+sky_cy0);
-                        vec2f_t const o = { sky_x0 + (sky_x1-sky_x0)*t, sky_cy0 + (sky_cy1-sky_cy0)*t };
-                        if (ncy[0] < sky_cy0)
-                        {
-                            polymost_domost(o.x,o.y,sky_x0,ncy[0]);
-                            polymost_domost(sky_x1,sky_cy1,o.x,o.y);
-                        }
-                        else
-                        {
-                            polymost_domost(o.x,o.y,sky_x0,sky_cy0);
-                            polymost_domost(sky_x1,ncy[1],o.x,o.y);
-                        }
-                    }
-                    else
-                        polymost_domost(sky_x1,ncy[1],sky_x0,ncy[0]);
-
-                    //wall of skybox
-                    drawingskybox = i+1; //i+1th texture/index i of skybox
-                    xtex.d = (sky_ryp0-sky_ryp1)*gxyaspect*(1.0/512.0) / (sky_ox0-sky_ox1);
-                    ytex.d = 0;
-                    otex.d = sky_ryp0*gxyaspect*(1.0/512.0) - xtex.d*sky_ox0;
-                    xtex.u = (sky_t0*sky_ryp0 - sky_t1*sky_ryp1)*gxyaspect*(64.0/512.0) / (sky_ox0-sky_ox1);
-                    otex.u = sky_t0*sky_ryp0*gxyaspect*(64.0/512.0) - xtex.u*sky_ox0;
-                    ytex.u = 0;
-                    sky_t0 = -8192.f*sky_ryp0 + ghoriz;
-                    sky_t1 = -8192.f*sky_ryp1 + ghoriz;
-                    float const t = ((xtex.d*sky_ox0 + otex.d)*8.f) / ((sky_ox1-sky_ox0) * sky_ryp0 * 2048.f);
-                    xtex.v = (sky_t0-sky_t1)*t;
-                    ytex.v = (sky_ox1-sky_ox0)*t;
-                    otex.v = -xtex.v*sky_ox0 - ytex.v*sky_t0;
-
-                    if ((sky_fy0 < ncy[0]) && (sky_fy1 < ncy[1]))
-                        polymost_domost(sky_x1,sky_fy1,sky_x0,sky_fy0);
-                    else if ((sky_fy0 < ncy[0]) != (sky_fy1 < ncy[1]))
-                    {
-                        //(ox,oy) is intersection of: (_x0,_fy0)-(_x1,_fy1)
-                        //                            (_x0,ncy0)-(_x1,ncy1)
-                        float const t = (sky_fy0-ncy[0])/(ncy[1]-ncy[0]-sky_fy1+sky_fy0);
-                        vec2f_t const o = { sky_x0 + (sky_x1 - sky_x0) * t, sky_fy0 + (sky_fy1 - sky_fy0) * t };
-                        if (ncy[0] < sky_fy0)
-                        {
-                            polymost_domost(o.x,o.y,sky_x0,ncy[0]);
-                            polymost_domost(sky_x1,sky_fy1,o.x,o.y);
-                        }
-                        else
-                        {
-                            polymost_domost(o.x,o.y,sky_x0,sky_fy0);
-                            polymost_domost(sky_x1,ncy[1],o.x,o.y);
-                        }
-                    }
-                    else
-                        polymost_domost(sky_x1,ncy[1],sky_x0,ncy[0]);
-                }
-
-                //Floor of skybox
-                drawingskybox = 6; //floor/6th texture/index 5 of skybox
-                float const ft[4] = { 512 / 16, 512 / -16, fcosglobalang * (1.f / 2147483648.f),
-                                      fsinglobalang * (1.f / 2147483648.f) };
-
-                xtex.d = 0;
-                ytex.d = gxyaspect*(1.0/4194304.0);
-                otex.d = -ghoriz*ytex.d;
-                xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
-                xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
-                ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
-                otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
-                otex.u += (ft[2]-xtex.u)*ghalfx;
-                otex.v -= (ft[3]+xtex.v)*ghalfx;
-                xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; //y-flip skybox floor
-                polymost_domost(x1,cy1,x0,cy0);
-
-                drawingskybox = 0;
-            }
-#endif
 
             skyzbufferhack = 0;
         }
@@ -2142,10 +1829,45 @@ static void polymost_drawalls(int32_t const bunch)
         domostpolymethod = DAMETH_NOMASK;
 
         if (nextsectnum >= 0)
-            if ((!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])) && testvisiblemost(x0,x1))
+            if (!gotsector[nextsectnum] && testvisiblemost(x0,x1))
                 polymost_scansector(nextsectnum);
     }
 }
+
+//
+// wallfront (internal)
+//
+int32_t wallfront(int32_t l1, int32_t l2)
+{
+    vec2_t const l1vect = wall[thewall[l1]].pos;
+    vec2_t const l1p2vect = wall[wall[thewall[l1]].point2].pos;
+    vec2_t const l2vect = wall[thewall[l2]].pos;
+    vec2_t const l2p2vect = wall[wall[thewall[l2]].point2].pos;
+    vec2_t d = { l1p2vect.x - l1vect.x, l1p2vect.y - l1vect.y };
+    int32_t t1 = DMulScale(l2vect.x - l1vect.x, d.y, -d.x, l2vect.y - l1vect.y, 2); //p1(l2) vs. l1
+    int32_t t2 = DMulScale(l2p2vect.x - l1vect.x, d.y, -d.x, l2p2vect.y - l1vect.y, 2); //p2(l2) vs. l1
+
+    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
+    if (t2 == 0) t2 = t1;
+
+    if ((t1 ^ t2) >= 0) //pos vs. l1
+        return (DMulScale(globalposx - l1vect.x, d.y, -d.x, globalposy - l1vect.y, 2) ^ t1) >= 0;
+
+    d.x = l2p2vect.x - l2vect.x;
+    d.y = l2p2vect.y - l2vect.y;
+
+    t1 = DMulScale(l1vect.x - l2vect.x, d.y, -d.x, l1vect.y - l2vect.y, 2); //p1(l1) vs. l2
+    t2 = DMulScale(l1p2vect.x - l2vect.x, d.y, -d.x, l1p2vect.y - l2vect.y, 2); //p2(l1) vs. l2
+
+    if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
+    if (t2 == 0) t2 = t1;
+
+    if ((t1 ^ t2) >= 0) //pos vs. l2
+        return (DMulScale(globalposx - l2vect.x, d.y, -d.x, globalposy - l2vect.y, 2) ^ t1) < 0;
+
+    return -2;
+}
+
 
 static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
 {
@@ -2204,12 +1926,12 @@ void polymost_scansector(int32_t sectnum)
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
                     (r_voxels && gi->Voxelize(spr->picnum) > -1) ||
                     DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)
-                    if (renderAddTsprite(z, sectnum))
+                    if (renderAddTsprite(pm_tsprite, pm_spritesortcnt, z, sectnum))
                         break;
             }
         }
 
-        gotsector[sectnum>>3] |= pow2char[sectnum&7];
+        gotsector.Set(sectnum);
 
         int const bunchfrst = numbunches;
         int const onumscans = numscans;
@@ -2218,7 +1940,7 @@ void polymost_scansector(int32_t sectnum)
 
         int scanfirst = numscans;
 
-        vec2d_t p2 = { 0, 0 };
+        DVector2 p2 = { 0, 0 };
 
         uwallptr_t wal;
 
@@ -2226,37 +1948,37 @@ void polymost_scansector(int32_t sectnum)
         {
             auto const wal2 = (uwallptr_t)&wall[wal->point2];
 
-            vec2d_t const fp1 = { double(wal->x - globalposx), double(wal->y - globalposy) };
-            vec2d_t const fp2 = { double(wal2->x - globalposx), double(wal2->y - globalposy) };
+            DVector2 const fp1 = { double(wal->x - globalposx), double(wal->y - globalposy) };
+            DVector2 const fp2 = { double(wal2->x - globalposx), double(wal2->y - globalposy) };
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
             if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < countof(sectorborder))
-            if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
+            if (gotsector[nextsectnum] == 0)
             {
-                double const d = fp1.x*fp2.y - fp2.x*fp1.y;
-                vec2d_t const p1 = { fp2.x-fp1.x, fp2.y-fp1.y };
+                double const d = fp1.X* fp2.Y - fp2.X * fp1.Y;
+                DVector2 const p1 = fp2 - fp1;
 
                 // this said (SCISDIST*SCISDIST*260.f), but SCISDIST is 1 and the significance of 260 isn't obvious to me
                 // is 260 fudged to solve a problem, and does the problem still apply to our version of the renderer?
-                if (d*d < (p1.x*p1.x + p1.y*p1.y) * 256.f)
+                if (d*d < (p1.LengthSquared()) * 256.f)
                 {
                     sectorborder[sectorbordercnt++] = nextsectnum;
-                    gotsector[nextsectnum>>3] |= pow2char[nextsectnum&7];
+                    gotsector.Set(nextsectnum);
                 }
             }
 
-            vec2d_t p1;
+            DVector2 p1;
 
             if ((z == startwall) || (wall[z-1].point2 != z))
             {
-                p1 = { (((fp1.y * fcosglobalang) - (fp1.x * fsinglobalang)) * (1.0/64.0)),
-                       (((fp1.x * cosviewingrangeglobalang) + (fp1.y * sinviewingrangeglobalang)) * (1.0/64.0)) };
+                p1 = { (((fp1.Y * fcosglobalang) - (fp1.X * fsinglobalang)) * (1.0/64.0)),
+                       (((fp1.X * cosviewingrangeglobalang) + (fp1.Y * sinviewingrangeglobalang)) * (1.0/64.0)) };
             }
             else { p1 = p2; }
 
-            p2 = { (((fp2.y * fcosglobalang) - (fp2.x * fsinglobalang)) * (1.0/64.0)),
-                   (((fp2.x * cosviewingrangeglobalang) + (fp2.y * sinviewingrangeglobalang)) * (1.0/64.0)) };
+            p2 = { (((fp2.Y * fcosglobalang) - (fp2.X * fsinglobalang)) * (1.0/64.0)),
+                   (((fp2.X * cosviewingrangeglobalang) + (fp2.Y * sinviewingrangeglobalang)) * (1.0/64.0)) };
 
             if (numscans >= MAXWALLSB-1)
             {
@@ -2265,10 +1987,10 @@ void polymost_scansector(int32_t sectnum)
             }
 
             //if wall is facing you...
-            if ((p1.y >= SCISDIST || p2.y >= SCISDIST) && (nexttoward(p1.x*p2.y, p2.x*p1.y) < p2.x*p1.y))
+            if ((p1.Y >= SCISDIST || p2.Y >= SCISDIST) && (nexttoward(p1.X*p2.Y, p2.X*p1.Y) < p2.X*p1.Y))
             {
-                dxb1[numscans] = (p1.y >= SCISDIST) ? float(p1.x*ghalfx/p1.y + ghalfx) : -1e32f;
-                dxb2[numscans] = (p2.y >= SCISDIST) ? float(p2.x*ghalfx/p2.y + ghalfx) : 1e32f;
+                dxb1[numscans] = (p1.Y >= SCISDIST) ? float(p1.X*ghalfx/p1.Y + ghalfx) : -1e32f;
+                dxb2[numscans] = (p2.Y >= SCISDIST) ? float(p2.X*ghalfx/p2.Y + ghalfx) : 1e32f;
 
                 if (dxb1[numscans] < xbl)
                     dxb1[numscans] = xbl;
@@ -2412,12 +2134,13 @@ void polymost_drawrooms()
 {
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
-	GLInterface.ClearDepth();
+    GLInterface.ClearDepth();
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
 	GLInterface.SetDepthFunc(DF_LEqual);
     GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+    renderSetViewpoint(0, 0, 0);
 
     gvrcorrection = viewingrange*(1.f/65536.f);
     //if (glprojectionhacks == 2)
@@ -2813,7 +2536,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     gvrcorrection = viewingrange*(1.f/65536.f);
     //if (glprojectionhacks == 2)
     {
-        // calculates the extend of the zenith glitch
+        // calculates the extent of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
         float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
@@ -2906,7 +2629,7 @@ void polymost_deletesprite(int num)
 static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4, closest = -1;
-    auto const sect = (usectortype  * )&sector[tspr->sectnum];
+    auto const sect = &sector[tspr->sectnum];
     vec2_t n;
 
     for (bssize_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
@@ -2987,8 +2710,6 @@ void polymost_drawsprite(int32_t snum)
 
     int32_t spritenum = tspr->owner;
 
-    polymost_outputGLDebugMessage(3, "polymost_drawsprite(snum:%d)", snum);
-
     if ((tspr->cstat&48) != 48)
         tileUpdatePicnum(&tspr->picnum, spritenum + 32768);
 
@@ -3004,9 +2725,9 @@ void polymost_drawsprite(int32_t snum)
 
     if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
     {
-        int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].h_xsize;
-        off = { (int32_t)tspr->xoffset + (flag ? TileFiles.tiledata[globalpicnum].h_xoffs : tileLeftOffset(globalpicnum)),
-                (int32_t)tspr->yoffset + (flag ? TileFiles.tiledata[globalpicnum].h_yoffs : tileTopOffset(globalpicnum)) };
+        int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].hiofs.xsize;
+        off = { (int32_t)tspr->xoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.xoffs : tileLeftOffset(globalpicnum)),
+                (int32_t)tspr->yoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.yoffs : tileTopOffset(globalpicnum)) };
     }
 
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
@@ -3035,14 +2756,14 @@ void polymost_drawsprite(int32_t snum)
             if ((tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
             {
                 int num = tiletovox[tspr->picnum];
-                if (polymost_voxdraw(voxmodels[num], tspr, voxrotate[num>>3] & (1<<(num&7)))) return;
+                if (polymost_voxdraw(voxmodels[num], tspr, voxrotate[num])) return;
                 break;  // else, render as flat sprite
             }
 
             if ((tspr->cstat & 48) == 48 && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
             {
                 int num = tspr->picnum;
-                polymost_voxdraw(voxmodels[tspr->picnum], tspr, voxrotate[num >> 3] & (1 << (num & 7)));
+                polymost_voxdraw(voxmodels[tspr->picnum], tspr, voxrotate[num]);
                 return;
             }
         }
@@ -3066,8 +2787,8 @@ void polymost_drawsprite(int32_t snum)
 
     vec2_t tsiz;
 
-    if (hw_hightile && TileFiles.tiledata[globalpicnum].h_xsize)
-        tsiz = { TileFiles.tiledata[globalpicnum].h_xsize, TileFiles.tiledata[globalpicnum].h_ysize };
+    if (hw_hightile && TileFiles.tiledata[globalpicnum].hiofs.xsize)
+        tsiz = { TileFiles.tiledata[globalpicnum].hiofs.xsize, TileFiles.tiledata[globalpicnum].hiofs.ysize };
     else 
         tsiz = { tileWidth(globalpicnum), tileHeight(globalpicnum) };
 
@@ -3240,10 +2961,10 @@ void polymost_drawsprite(int32_t snum)
                 {
                     int32_t const ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
                     float const foffs = TSPR_OFFSET(tspr);
-                    vec2d_t const offs = { -bsinf(ang, -6) * foffs, bcosf(ang, -6) * foffs };
+                    DVector2 const offs = { -bsinf(ang, -6) * foffs, bcosf(ang, -6) * foffs };
 
-                    vec0.x -= offs.x;
-                    vec0.y -= offs.y;
+                    vec0.x -= offs.X;
+                    vec0.y -= offs.Y;
                 }
             }
 
@@ -3540,34 +3261,688 @@ _drawsprite_return:
     ;
 }
 
+//////////////////////////////////
+
 static_assert((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 
 
-extern char* voxfilenames[MAXVOXELS];
-void (*PolymostProcessVoxels_Callback)(void) = NULL;
-void PolymostProcessVoxels(void)
-{
-    if (PolymostProcessVoxels_Callback)
-        PolymostProcessVoxels_Callback();
+}
 
-    if (g_haveVoxels != 1)
+//
+// preparemirror
+//
+void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
+    int32_t* tposx, int32_t* tposy, fixed_t* tang)
+{
+    const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x - x;
+    const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y - y;
+
+    const int32_t j = dx * dx + dy * dy;
+    if (j == 0)
         return;
 
-    g_haveVoxels = 2;
+    int i = ((dax - x) * dx + (day - y) * dy) << 1;
 
-    Printf(PRINT_NONOTIFY, "Generating voxel models for Polymost. This may take a while...\n");
+    *tposx = (x << 1) + Scale(dx, i, j) - dax;
+    *tposy = (y << 1) + Scale(dy, i, j) - day;
+    *tang = ((bvectangbam(dx, dy).asq16() << 1) - daang) & 0x7FFFFFF;
 
-    for (bssize_t i = 0; i < MAXVOXELS; i++)
+    inpreparemirror = 1;
+
+    Polymost::polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
+}
+
+
+//
+// completemirror
+//
+void renderCompleteMirror(void)
+{
+    Polymost::polymost_completeMirror();
+    inpreparemirror = 0;
+}
+
+//
+// drawrooms
+//
+EXTERN_CVAR(Int, gl_fogmode)
+
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
+    fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
+{
+    pm_spritesortcnt = 0;
+    checkRotatedWalls();
+
+    if (gl_fogmode == 1) gl_fogmode = 2;	// only radial fog works with Build's screwed up coordinate system.
+
+    // Update starting sector number (common to classic and Polymost).
+    // ADJUST_GLOBALCURSECTNUM.
+    if (dacursectnum >= MAXSECTORS)
+        dacursectnum -= MAXSECTORS;
+    else
     {
-        if (voxfilenames[i])
-        {
-            int lumpnum = fileSystem.FindFile(voxfilenames[i]);
-            if (lumpnum >= 0)
-            {
-                voxmodels[i] = voxload(lumpnum);
-                voxmodels[i]->scale = voxscale[i] * (1.f / 65536.f);
-            }
-            DO_FREE_AND_NULL(voxfilenames[i]);
-        }
+        int i = dacursectnum;
+        updatesector(daposx, daposy, &dacursectnum);
+        if (dacursectnum < 0) dacursectnum = i;
+
+        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
+        //              *can* be negative, so let's just quit here in that case...
+        if (dacursectnum < 0)
+            return 0;
+    }
+
+    set_globalpos(daposx, daposy, daposz);
+    Polymost::set_globalang(daang);
+
+    global100horiz = dahoriz;
+
+    gotsector.Zero();
+    qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);
+    globalcursectnum = dacursectnum;
+    Polymost::polymost_drawrooms();
+    return inpreparemirror;
+}
+
+// UTILITY TYPES AND FUNCTIONS FOR DRAWMASKS OCCLUSION TREE
+// typedef struct          s_maskleaf
+// {
+//     int32_t                index;
+//     _point2d            p1, p2;
+//     _equation           maskeq, p1eq, p2eq;
+//     struct s_maskleaf*  branch[MAXWALLSB];
+//     int32_t                 drawing;
+// }                       _maskleaf;
+//
+// _maskleaf               maskleaves[MAXWALLSB];
+
+// returns equation of a line given two points
+static inline _equation equation(float const x1, float const y1, float const x2, float const y2)
+{
+    const float f = x2 - x1;
+
+    // vertical
+    if (f == 0.f)
+        return { 1, 0, -x1 };
+    else
+    {
+        float const ff = (y2 - y1) / f;
+        return { ff, -1, (y1 - (ff * x1)) };
     }
 }
+
+static inline int32_t         sameside(const _equation* eq, const vec2f_t* p1, const vec2f_t* p2)
+{
+    const float sign1 = (eq->a * p1->x) + (eq->b * p1->y) + eq->c;
+    const float sign2 = (eq->a * p2->x) + (eq->b * p2->y) + eq->c;
+    return (sign1 * sign2) > 0.f;
+}
+
+
+static inline int comparetsprites(int const k, int const l)
+{
+    if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
+        return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
+
+    if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
+        return tspriteptr[k]->ang - tspriteptr[l]->ang;
+
+    if (tspriteptr[k]->statnum != tspriteptr[l]->statnum)
+        return tspriteptr[k]->statnum - tspriteptr[l]->statnum;
+
+    if (tspriteptr[k]->x == tspriteptr[l]->x &&
+        tspriteptr[k]->y == tspriteptr[l]->y &&
+        tspriteptr[k]->z == tspriteptr[l]->z &&
+        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
+        tspriteptr[k]->owner != tspriteptr[l]->owner)
+        return tspriteptr[k]->owner - tspriteptr[l]->owner;
+
+    if (abs(spritesxyz[k].z - globalposz) != abs(spritesxyz[l].z - globalposz))
+        return abs(spritesxyz[k].z - globalposz) - abs(spritesxyz[l].z - globalposz);
+
+    return 0;
+}
+
+static void sortsprites(int const start, int const end)
+{
+    int32_t i, gap, y, ys;
+
+    if (start >= end)
+        return;
+
+    gap = 1; while (gap < end - start) gap = (gap << 1) + 1;
+    for (gap >>= 1; gap > 0; gap >>= 1)   //Sort sprite list
+        for (i = start; i < end - gap; i++)
+            for (bssize_t l = i; l >= start; l -= gap)
+            {
+                if (spritesxyz[l].y <= spritesxyz[l + gap].y) break;
+                std::swap(tspriteptr[l], tspriteptr[l + gap]);
+                std::swap(spritesxyz[l].x, spritesxyz[l + gap].x);
+                std::swap(spritesxyz[l].y, spritesxyz[l + gap].y);
+            }
+
+    ys = spritesxyz[start].y; i = start;
+    for (bssize_t j = start + 1; j <= end; j++)
+    {
+        if (j < end)
+        {
+            y = spritesxyz[j].y;
+            if (y == ys)
+                continue;
+
+            ys = y;
+        }
+
+        if (j > i + 1)
+        {
+            for (bssize_t k = i; k < j; k++)
+            {
+                auto const s = tspriteptr[k];
+
+                spritesxyz[k].z = s->z;
+                if ((s->cstat & 48) != 32)
+                {
+                    int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
+                    int32_t yspan = (tileHeight(s->picnum) * s->yrepeat << 2);
+
+                    spritesxyz[k].z -= (yoff * s->yrepeat) << 2;
+
+                    if (!(s->cstat & 128))
+                        spritesxyz[k].z -= (yspan >> 1);
+                    if (abs(spritesxyz[k].z - globalposz) < (yspan >> 1))
+                        spritesxyz[k].z = globalposz;
+                }
+            }
+
+            for (bssize_t k = i + 1; k < j; k++)
+                for (bssize_t l = i; l < k; l++)
+                    if (comparetsprites(k, l) < 0)
+                    {
+                        std::swap(tspriteptr[k], tspriteptr[l]);
+                        vec3_t tv3 = spritesxyz[k];
+                        spritesxyz[k] = spritesxyz[l];
+                        spritesxyz[l] = tv3;
+                    }
+        }
+        i = j;
+    }
+}
+
+static bool spriteIsModelOrVoxel(const spritetype* tspr)
+{
+    if ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].flags & SPREXT_NOTMD)
+        return false;
+
+    if (hw_models)
+    {
+        auto& mdinfo = tile2model[Ptile2tile(tspr->picnum, tspr->pal)];
+        if (mdinfo.modelid >= 0 && mdinfo.framenum >= 0) return true;
+    }
+
+    auto slabalign = (tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB;
+    if (r_voxels && !slabalign && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]]) return true;
+    return (slabalign && voxmodels[tspr->picnum]);
+}
+
+
+//
+// drawmasks
+//
+void renderDrawMasks(void)
+{
+# define debugmask_add(dispidx, idx) do {} while (0)
+    int32_t i = pm_spritesortcnt - 1;
+    int32_t numSprites = pm_spritesortcnt;
+
+    pm_spritesortcnt = 0;
+    int32_t back = i;
+    for (; i >= 0; --i)
+    {
+        if (Polymost::polymost_spriteHasTranslucency(&pm_tsprite[i]))
+        {
+            tspriteptr[pm_spritesortcnt] = &pm_tsprite[i];
+            ++pm_spritesortcnt;
+        }
+        else
+        {
+            tspriteptr[back] = &pm_tsprite[i];
+            --back;
+        }
+    }
+
+    for (i = numSprites - 1; i >= 0; --i)
+    {
+        const int32_t xs = tspriteptr[i]->x - globalposx, ys = tspriteptr[i]->y - globalposy;
+        const int32_t yp = DMulScale(xs, cosviewingrangeglobalang, ys, sinviewingrangeglobalang, 6);
+        const int32_t modelp = spriteIsModelOrVoxel(tspriteptr[i]);
+
+        if (yp > (4 << 8))
+        {
+            const int32_t xp = DMulScale(ys, cosglobalang, -xs, singlobalang, 6);
+
+            if (MulScale(labs(xp + yp), xdimen, 24) >= yp)
+                goto killsprite;
+
+            spritesxyz[i].x = Scale(xp + yp, xdimen << 7, yp);
+        }
+        else if ((tspriteptr[i]->cstat & 48) == 0)
+        {
+        killsprite:
+            if (!modelp)
+            {
+                //Delete face sprite if on wrong side!
+                if (i >= pm_spritesortcnt)
+                {
+                    --numSprites;
+                    if (i != numSprites)
+                    {
+                        tspriteptr[i] = tspriteptr[numSprites];
+                        spritesxyz[i].x = spritesxyz[numSprites].x;
+                        spritesxyz[i].y = spritesxyz[numSprites].y;
+                    }
+                }
+                else
+                {
+                    --numSprites;
+                    --pm_spritesortcnt;
+                    if (i != numSprites)
+                    {
+                        tspriteptr[i] = tspriteptr[pm_spritesortcnt];
+                        spritesxyz[i].x = spritesxyz[pm_spritesortcnt].x;
+                        spritesxyz[i].y = spritesxyz[pm_spritesortcnt].y;
+                        tspriteptr[pm_spritesortcnt] = tspriteptr[numSprites];
+                        spritesxyz[pm_spritesortcnt].x = spritesxyz[numSprites].x;
+                        spritesxyz[pm_spritesortcnt].y = spritesxyz[numSprites].y;
+                    }
+                }
+                continue;
+            }
+        }
+        spritesxyz[i].y = yp;
+    }
+
+    sortsprites(0, pm_spritesortcnt);
+    sortsprites(pm_spritesortcnt, numSprites);
+    renderBeginScene();
+
+    GLInterface.EnableBlend(false);
+    GLInterface.EnableAlphaTest(true);
+    GLInterface.SetDepthBias(-2, -256);
+
+    if (pm_spritesortcnt < numSprites)
+    {
+        i = pm_spritesortcnt;
+        for (bssize_t i = pm_spritesortcnt; i < numSprites;)
+        {
+            int32_t py = spritesxyz[i].y;
+            int32_t pcstat = tspriteptr[i]->cstat & 48;
+            int32_t pangle = tspriteptr[i]->ang;
+            int j = i + 1;
+            if (!spriteIsModelOrVoxel(tspriteptr[i]))
+            {
+                while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
+                    && !spriteIsModelOrVoxel(tspriteptr[j]))
+                {
+                    j++;
+                }
+            }
+            if (j - i == 1)
+            {
+                debugmask_add(i | 32768, tspriteptr[i]->owner);
+                Polymost::polymost_drawsprite(i);
+                tspriteptr[i] = NULL;
+            }
+            else
+            {
+                GLInterface.SetDepthMask(false);
+
+                for (bssize_t k = j - 1; k >= i; k--)
+                {
+                    debugmask_add(k | 32768, tspriteptr[k]->owner);
+                    Polymost::polymost_drawsprite(k);
+                }
+
+                GLInterface.SetDepthMask(true);
+
+                GLInterface.SetColorMask(false);
+
+                for (bssize_t k = j - 1; k >= i; k--)
+                {
+                    Polymost::polymost_drawsprite(k);
+                    tspriteptr[k] = NULL;
+                }
+
+                GLInterface.SetColorMask(true);
+
+            }
+            i = j;
+        }
+    }
+
+    int32_t numMaskWalls = maskwallcnt;
+    maskwallcnt = 0;
+    for (i = 0; i < numMaskWalls; i++)
+    {
+        if (Polymost::polymost_maskWallHasTranslucency(&wall[thewall[maskwall[i]]]))
+        {
+            maskwall[maskwallcnt] = maskwall[i];
+            maskwallcnt++;
+        }
+        else
+            Polymost::polymost_drawmaskwall(i);
+    }
+
+    GLInterface.EnableBlend(true);
+    GLInterface.EnableAlphaTest(true);
+    GLInterface.SetDepthMask(false);
+
+    vec2f_t pos;
+
+    pos.x = fglobalposx;
+    pos.y = fglobalposy;
+
+    // CAUTION: maskwallcnt and spritesortcnt may be zero!
+    // Writing e.g. "while (maskwallcnt--)" is wrong!
+    while (maskwallcnt)
+    {
+        // PLAG: sorting stuff
+        const int32_t w = thewall[maskwall[maskwallcnt - 1]];
+
+        maskwallcnt--;
+
+        vec2f_t dot = { (float)wall[w].x, (float)wall[w].y };
+        vec2f_t dot2 = { (float)wall[wall[w].point2].x, (float)wall[wall[w].point2].y };
+        vec2f_t middle = { (dot.x + dot2.x) * .5f, (dot.y + dot2.y) * .5f };
+
+        _equation maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
+        _equation p1eq = equation(pos.x, pos.y, dot.x, dot.y);
+        _equation p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
+
+        i = pm_spritesortcnt;
+        while (i)
+        {
+            i--;
+            if (tspriteptr[i] != NULL)
+            {
+                vec2f_t spr;
+                auto const tspr = tspriteptr[i];
+
+                spr.x = (float)tspr->x;
+                spr.y = (float)tspr->y;
+
+                if (!sameside(&maskeq, &spr, &pos))
+                {
+                    // Sprite and camera are on different sides of the
+                    // masked wall.
+
+                    // Check if the sprite is inside the 'cone' given by
+                    // the rays from the camera to the two wall-points.
+                    const int32_t inleft = sameside(&p1eq, &middle, &spr);
+                    const int32_t inright = sameside(&p2eq, &middle, &spr);
+
+                    int32_t ok = (inleft && inright);
+
+                    if (!ok)
+                    {
+                        // If not, check if any of the border points are...
+                        vec2_t pp[4];
+                        int32_t numpts, jj;
+
+                        const _equation pineq = inleft ? p1eq : p2eq;
+
+                        if ((tspr->cstat & 48) == 32)
+                        {
+                            numpts = 4;
+                            GetFlatSpritePosition(tspr, tspr->pos.vec2, pp);
+                        }
+                        else
+                        {
+                            const int32_t oang = tspr->ang;
+                            numpts = 2;
+
+                            // Consider face sprites as wall sprites with camera ang.
+                            // XXX: factor 4/5 needed?
+                            if ((tspr->cstat & 48) != 16)
+                                tspriteptr[i]->ang = globalang;
+
+                            GetWallSpritePosition(tspr, tspr->pos.vec2, pp);
+
+                            if ((tspr->cstat & 48) != 16)
+                                tspriteptr[i]->ang = oang;
+                        }
+
+                        for (jj = 0; jj < numpts; jj++)
+                        {
+                            spr.x = (float)pp[jj].x;
+                            spr.y = (float)pp[jj].y;
+
+                            if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
+                                if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',
+                                    sameside(&p2eq, &middle, &spr))
+                                    || !sameside(&pineq, &middle, &spr))  // or on the other outside.
+                                {
+                                    ok = 1;
+                                    break;
+                                }
+                        }
+                    }
+
+                    if (ok)
+                    {
+                        debugmask_add(i | 32768, tspr->owner);
+                        Polymost::polymost_drawsprite(i);
+
+                        tspriteptr[i] = NULL;
+                    }
+                }
+            }
+        }
+
+        debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
+        Polymost::polymost_drawmaskwall(maskwallcnt);
+    }
+
+    while (pm_spritesortcnt)
+    {
+        --pm_spritesortcnt;
+        if (tspriteptr[pm_spritesortcnt] != NULL)
+        {
+            debugmask_add(i | 32768, tspriteptr[i]->owner);
+            Polymost::polymost_drawsprite(pm_spritesortcnt);
+            tspriteptr[pm_spritesortcnt] = NULL;
+        }
+    }
+    renderFinishScene();
+    GLInterface.SetDepthMask(true);
+    GLInterface.SetDepthBias(0, 0);
+}
+
+
+//
+// setrollangle
+//
+void renderSetRollAngle(float rolla)
+{
+    Polymost::gtang = rolla * BAngRadian;
+}
+
+void videoSetCorrectedAspect()
+{
+    // In DOS the game world is displayed with an aspect of 1.28 instead 1.333,
+    // meaning we have to stretch it by a factor of 1.25 instead of 1.2
+    // to get perfect squares
+    int32_t yx = (65536 * 5) / 4;
+    int32_t vr, y, x;
+
+    x = xdim;
+    y = ydim;
+
+    vr = DivScale(x * 3, y * 4, 16);
+
+    renderSetAspect(vr, yx);
+}
+
+
+//
+// setaspect
+//
+void renderSetAspect(int32_t daxrange, int32_t daaspect)
+{
+    if (daxrange == 65536) daxrange--;  // This doesn't work correctly with 65536. All other values are fine. No idea where this is evaluated wrong.
+    viewingrange = daxrange;
+    viewingrangerecip = DivScale(1, daxrange, 32);
+    fviewingrange = (float)daxrange;
+
+    yxaspect = daaspect;
+    xyaspect = DivScale(1, yxaspect, 32);
+    xdimenscale = Scale(xdimen, yxaspect, 320);
+    xdimscale = Scale(320, xyaspect, xdimen);
+}
+
+//Draw voxel model as perfect cubes
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
+{
+    float f, g, k0, zoff;
+
+    if ((intptr_t)m == (intptr_t)(-1)) // hackhackhack
+        return 0;
+
+    if ((tspr->cstat & 48) == 32)
+        return 0;
+
+    if ((tspr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
+    {
+        int myclock = (PlayClock << 3) + MulScale(4 << 3, pm_smoothratio, 16);
+        tspr->ang = (tspr->ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.
+    }
+
+
+    vec3f_t m0 = { m->scale, m->scale, m->scale };
+    vec3f_t a0 = { 0, 0, m->zadd * m->scale };
+
+    k0 = m->bscale / 64.f;
+    f = (float)tspr->xrepeat * (256.f / 320.f) * k0;
+    if ((sprite[tspr->owner].cstat & 48) == 16)
+    {
+        f *= 1.25f;
+        a0.y -= tspr->xoffset * bcosf(spriteext[tspr->owner].angoff, -20);
+        a0.x += tspr->xoffset * bsinf(spriteext[tspr->owner].angoff, -20);
+    }
+
+    if (globalorientation & 8) { m0.z = -m0.z; a0.z = -a0.z; } //y-flipping
+    if (globalorientation & 4) { m0.x = -m0.x; a0.x = -a0.x; a0.y = -a0.y; } //x-flipping
+
+    m0.x *= f; a0.x *= f; f = -f;
+    m0.y *= f; a0.y *= f;
+    f = (float)tspr->yrepeat * k0;
+    m0.z *= f; a0.z *= f;
+
+    k0 = (float)(tspr->z + spriteext[tspr->owner].position_offset.z);
+    f = ((globalorientation & 8) && (sprite[tspr->owner].cstat & 48) != 0) ? -4.f : 4.f;
+    k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
+    zoff = m->siz.z * .5f;
+    if (!(tspr->cstat & 128))
+        zoff += m->piv.z;
+    else if ((tspr->cstat & 48) != 48)
+    {
+        zoff += m->piv.z;
+        zoff -= m->siz.z * .5f;
+    }
+    if (globalorientation & 8) zoff = m->siz.z - zoff;
+
+    f = (65536.f * 512.f) / ((float)xdimen * viewingrange);
+    g = 32.f / ((float)xdimen * Polymost::gxyaspect);
+
+    int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
+
+    m0.y *= f; a0.y = (((float)(tspr->x + spriteext[tspr->owner].position_offset.x - globalposx)) * (1.f / 1024.f) + a0.y) * f;
+    m0.x *= -f; a0.x = (((float)(tspr->y + spriteext[tspr->owner].position_offset.y - globalposy)) * -(1.f / 1024.f) + a0.x) * -f;
+    m0.z *= g; a0.z = (((float)(k0 - globalposz - shadowHack)) * -(1.f / 16384.f) + a0.z) * g;
+
+    float mat[16];
+    md3_vox_calcmat_common(tspr, &a0, f, mat);
+
+    //Mirrors
+    if (Polymost::grhalfxdown10x < 0)
+    {
+        mat[0] = -mat[0];
+        mat[4] = -mat[4];
+        mat[8] = -mat[8];
+        mat[12] = -mat[12];
+    }
+
+    if (shadowHack)
+    {
+        GLInterface.SetDepthFunc(DF_LEqual);
+    }
+
+
+    int winding = ((Polymost::grhalfxdown10x >= 0) ^ ((globalorientation & 8) != 0) ^ ((globalorientation & 4) != 0)) ? Winding_CW : Winding_CCW;
+    GLInterface.SetCull(Cull_Back, winding);
+
+    float pc[4];
+
+    pc[0] = pc[1] = pc[2] = 1.f;
+
+
+    if (!shadowHack)
+    {
+        pc[3] = (tspr->cstat & 2) ? glblend[tspr->blend].def[!!(tspr->cstat & 512)].alpha : 1.0f;
+        pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
+
+        SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+
+        if (!(tspr->cstat & 2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
+            GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
+    }
+    else pc[3] = 1.f;
+    GLInterface.SetShade(std::max(0, globalshade), numshades);
+    //------------
+
+    //transform to Build coords
+    float omat[16];
+    memcpy(omat, mat, sizeof(omat));
+
+    f = 1.f / 64.f;
+    g = m0.x * f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
+    g = m0.y * f; mat[4] = omat[8] * g; mat[5] = omat[9] * g; mat[6] = omat[10] * g;
+    g = -m0.z * f; mat[8] = omat[4] * g; mat[9] = omat[5] * g; mat[10] = omat[6] * g;
+    //
+    mat[12] -= (m->piv.x * mat[0] + m->piv.y * mat[4] + zoff * mat[8]);
+    mat[13] -= (m->piv.x * mat[1] + m->piv.y * mat[5] + zoff * mat[9]);
+    mat[14] -= (m->piv.x * mat[2] + m->piv.y * mat[6] + zoff * mat[10]);
+    //
+    //Let OpenGL (and perhaps hardware :) handle the matrix rotation
+    mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
+
+    for (int i = 0; i < 15; i++) mat[i] *= 1024.f;
+
+    // Adjust to backend coordinate system being used by the vertex buffer.
+    for (int i = 4; i < 8; i++)
+    {
+        float f = mat[i];
+        mat[i] = -mat[i + 4];
+        mat[i + 4] = -f;
+    }
+
+    GLInterface.SetMatrix(Matrix_Model, mat);
+
+    int palId = TRANSLATION(Translation_Remap + curbasepal, globalpal);
+    GLInterface.SetPalswap(globalpal);
+    GLInterface.SetFade(sector[tspr->sectnum].floorpal);
+
+    auto tex = TexMan.GetGameTexture(m->model->GetPaletteTexture());
+    GLInterface.SetTexture(tex, TRANSLATION(Translation_Remap + curbasepal, globalpal), CLAMP_NOFILTER_XY, true);
+    GLInterface.SetModel(m->model, 0, 0, 0);
+    GLInterface.Draw(DT_Triangles, 0, 0);
+    GLInterface.SetModel(nullptr, 0, 0, 0);
+    GLInterface.SetCull(Cull_None);
+
+    if (shadowHack)
+    {
+        GLInterface.SetDepthFunc(DF_Less);
+    }
+    GLInterface.SetIdentityMatrix(Matrix_Model);
+    return 1;
+}
+
+

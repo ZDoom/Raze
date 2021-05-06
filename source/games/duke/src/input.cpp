@@ -478,7 +478,7 @@ void hud_input(int plnum)
 			}
 		}
 
-		if (PlayerInput(plnum, SB_TURNAROUND) && p->angle.spin.asbam() == 0 && p->on_crane == nullptr)
+		if (PlayerInput(plnum, SB_TURNAROUND) && p->angle.spin == 0 && p->on_crane == nullptr)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);
@@ -834,9 +834,9 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		{
 			// Do these in the same order as the old code.
 			doslopetilting(p, scaleAdjust);
-			applylook(&p->angle, p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
+			p->angle.applyinput(p->adjustavel(input.avel), &p->sync.actions, scaleAdjust);
 			p->apply_seasick(scaleAdjust);
-			sethorizon(&p->horizon, input.horz, &p->sync.actions, scaleAdjust);
+			p->horizon.applyinput(input.horz, &p->sync.actions, scaleAdjust);
 		}
 
 		p->angle.processhelpers(scaleAdjust);

@@ -432,7 +432,7 @@ void StartRegenerate(short nSprite)
     pSprite->extra = 1350;
     pSprite->ang = nFirstRegenerate;
 
-    if (currentLevel->levelNumber <= kMap20)
+    if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
     {
         pSprite->ang /= 5;
     }

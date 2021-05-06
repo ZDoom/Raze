@@ -15,12 +15,10 @@
 
 static_assert('\xff' == 255, "Char must be unsigned!");
 
-#if !defined __cplusplus || (__cplusplus < 201103L && !defined _MSC_VER)
-# error C++11 or greater is required.
-#endif
-
 #include "compat.h"
+#include "printf.h"
 #include "palette.h"
+#include "binaryangle.h"
 
     //Make all variables in BUILD.H defined in the ENGINE,
     //and externed in GAME
@@ -35,7 +33,6 @@ EXTERN int16_t sintable[2048];
 #include "buildtiles.h"
 #include "c_cvars.h"
 #include "cmdlib.h"
-#include "binaryangle.h"
 #include "mathutil.h"
 
 typedef int64_t coord_t;
@@ -47,11 +44,6 @@ enum
     MAXSPRITES = 16384,
 
     MAXVOXMIPS = 5,
-
-    MAXXDIM = 7680,
-    MAXYDIM = 3200,
-    MINXDIM = 640,
-    MINYDIM = 480,
 
     MAXWALLSB = ((MAXWALLS >> 2) + (MAXWALLS >> 3)),
 
@@ -100,24 +92,11 @@ enum {
 };
 
 
-enum {
-    SPR_XFLIP = 4,
-    SPR_YFLIP = 8,
-
-    SPR_WALL = 16,
-    SPR_FLOOR = 32,
-    SPR_ALIGN_MASK = 32+16,
-};
-
 #include "buildtypes.h"
 
-using usectortype = sectortype;
-using uwalltype = walltype;
-using uspritetype = spritetype;
-
-using uspriteptr_t = uspritetype const *;
-using uwallptr_t   = uwalltype const *;
-using usectorptr_t = usectortype const *;
+using uspriteptr_t = spritetype const *;
+using uwallptr_t   = walltype const *;
+using usectorptr_t = sectortype const *;
 using tspriteptr_t = tspritetype *;
 
 
@@ -150,21 +129,14 @@ typedef struct {
 #define SPREXT_TSPRACCESS 16
 #define SPREXT_TEMPINVISIBLE 32
 
-#define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
-    if ((alpha) < 0) { (blend) = -(alpha); (alpha) = 0; (orientation) |= RS_TRANS1; } \
-} while (0)
-
 // using the clipdist field
 enum
 {
     TSPR_FLAGS_MDHACK = 1u<<0u,
     TSPR_FLAGS_DRAW_LAST = 1u<<1u,
-    TSPR_FLAGS_NO_SHADOW = 1u<<2u,
-    TSPR_FLAGS_INVISIBLE_WITH_SHADOW = 1u<<3u,
 };
 
 EXTERN int32_t guniqhudid;
-EXTERN int32_t spritesortcnt;
 
 struct usermaphack_t 
 {
@@ -176,55 +148,35 @@ struct usermaphack_t
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
 
-// Wrapper that makes an array of pointers look like an array of references. (Refactoring helper.)
-
-template<class T, int size>
-class ReferenceArray
-{
-    T* data[size];
-public:
-    T& operator[](size_t index)
-    {
-        assert(index < size);
-        return *data[index];
-    }
-
-    void set(int pos, T* spr)
-    {
-        data[pos] = spr;
-    }
-};
-
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
-EXTERN tspriteptr_t tsprite;
+EXTERN int leveltimer;
 
 extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];
 
 
-static inline tspriteptr_t renderMakeTSpriteFromSprite(tspriteptr_t const tspr, uint16_t const spritenum)
+inline tspriteptr_t renderAddTSpriteFromSprite(spritetype* tsprite, int& spritesortcnt, uint16_t const spritenum)
 {
+    auto tspr = &tsprite[spritesortcnt++];
     auto const spr = &sprite[spritenum];
-
     *tspr = *spr;
-
     tspr->clipdist = 0;
     tspr->owner = spritenum;
-
     return tspr;
 }
 
-static inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
+// returns: 0=continue sprite collecting;
+//          1=break out of sprite collecting;
+inline int32_t renderAddTsprite(spritetype* tsprite, int& spritesortcnt, int16_t z, int16_t sectnum)
 {
-    return renderMakeTSpriteFromSprite(&tsprite[spritesortcnt++], spritenum);
+    if (spritesortcnt >= MAXSPRITESONSCREEN) return 1;
+    renderAddTSpriteFromSprite(tsprite, spritesortcnt, z);
+    return 0;
 }
 
 
-EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
-EXTERN int16_t thewall[MAXWALLSB];
-EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t xdim, ydim;
 EXTERN int32_t yxaspect, viewingrange;
@@ -235,18 +187,7 @@ EXTERN int32_t display_mirror;
 
 EXTERN int32_t randomseed;
 
-EXTERN int16_t numshades;
 EXTERN uint8_t paletteloaded;
-
-// Return type is int because this gets passed to variadic functions where structs may produce undefined behavior.
-inline int shadeToLight(int shade)
-{
-	shade = clamp(shade, 0, numshades-1);
-	int light = Scale(numshades-1-shade, 255, numshades-1);
-	return PalEntry(255,light,light,light);
-}
-
-EXTERN int32_t maxspritesonscreen;
 
 enum {
     PALETTE_MAIN = 1<<0,
@@ -254,11 +195,7 @@ enum {
     PALETTE_TRANSLUC = 1<<2,
 };
 
-EXTERN int32_t g_visibility, parallaxvisibility;
-
-// blendtable[1] to blendtable[numalphatabs] are considered to be
-// alpha-blending tables:
-EXTERN uint8_t numalphatabs;
+EXTERN int32_t g_visibility;
 
 EXTERN vec2_t windowxy1, windowxy2;
 
@@ -271,13 +208,13 @@ typedef struct {
     // The proportion at which looking up/down affects the apparent 'horiz' of
     // a parallaxed sky, scaled by 65536 (so, a value of 65536 makes it align
     // with the drawn surrounding scene):
-    int32_t horizfrac;
+    int horizfrac;
 
     // The texel index offset in the y direction of a parallaxed sky:
     // XXX: currently always 0.
-    int32_t yoffs;
+    int yoffs;
 
-    int8_t lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
+    int lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
     int16_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
 
     int32_t yscale;
@@ -299,6 +236,11 @@ static inline psky_t *getpskyidx(int32_t picnum)
 EXTERN psky_t * tileSetupSky(int32_t tilenum);
 psky_t* defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t* tileofs, int yoff = 0);
 
+// Get properties of parallaxed sky to draw.
+// Returns: pointer to tile offset array. Sets-by-pointer the other three.
+const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale);
+
+
 EXTERN char parallaxtype;
 EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;
 extern int16_t pskybits_override;
@@ -313,16 +255,10 @@ EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
-EXTERN char gotsector[(MAXSECTORS+7)>>3];
+extern FixedBitArray<MAXSECTORS> gotsector;
 
 
 extern uint32_t drawlinepat;
-
-extern int32_t novoxmips;
-
-extern int16_t tiletovox[MAXTILES];
-extern int32_t voxscale[MAXVOXELS];
-extern char g_haveVoxels;
 
 extern uint8_t globalr, globalg, globalb;
 
@@ -331,8 +267,6 @@ enum {
     GLOBAL_NO_GL_FULLBRIGHT = 1<<1,
     GLOBAL_NO_GL_FOGSHADE = 1<<2,
 };
-
-extern int32_t globalflags;
 
 extern const char *engineerrstr;
 
@@ -377,22 +311,8 @@ SPRITE VARIABLES:
         be in some sector, and must have some kind of status that you define.
 
 
-TILE VARIABLES:
-        NUMTILES - the number of tiles found TILES.DAT.
-
-TIMING VARIABLES:
-        NUMFRAMES - The number of times the draw3dscreen function was called
-            since the engine was initialized.  This helps to determine frame
-            rate.  (Frame rate = numframes * 120 / I_GetBuildTime().)
-
 OTHER VARIABLES:
 
-        STARTUMOST[320] is an array of the highest y-coordinates on each column
-                that my engine is allowed to write to.  You need to set it only
-                once.
-        STARTDMOST[320] is an array of the lowest y-coordinates on each column
-                that my engine is allowed to write to.  You need to set it only
-                once.
         SINTABLE[2048] is a sin table with 2048 angles rather than the
             normal 360 angles for higher precision.  Also since SINTABLE is in
             all integers, the range is multiplied by 16383, so instead of the
@@ -425,29 +345,14 @@ void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *da
 void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename, const unsigned char*);
 
-int32_t   qloadkvx(int32_t voxindex, const char *filename);
-void vox_undefine(int32_t const);
-void vox_deinit();
-
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   renderSetAspect(int32_t daxrange, int32_t daaspect);
 
-void   plotpixel(int32_t x, int32_t y, char col);
 FCanvasTexture *renderSetTarget(int16_t tilenume);
 void   renderRestoreTarget();
-void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
-                           int32_t *tposx, int32_t *tposy, fixed_t *tang);
-void   renderCompleteMirror(void);
 
-int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
-
-void   renderDrawMasks(void);
 void setVideoMode();
-void videoInit();
-void   videoClearViewableArea(int32_t dacol);
-void   videoClearScreen(int32_t dacol);
-void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 
 class F2DDrawer;
 
@@ -498,13 +403,12 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sect
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
 int findwallbetweensectors(int sect1, int sect2);
-static FORCE_INLINE int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
+inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
-int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 #if !KRANDDEBUG
-static FORCE_INLINE int32_t krand(void)
+inline int32_t krand(void)
 {
     randomseed = (randomseed * 1664525ul) + 221297ul;
     return ((uint32_t) randomseed)>>16;
@@ -513,16 +417,19 @@ static FORCE_INLINE int32_t krand(void)
 int32_t    krand(void);
 #endif
 
-int32_t   ksqrt(uint32_t num);
-int32_t   getangle(int32_t xvect, int32_t yvect);
-fixed_t   gethiq16angle(int32_t xvect, int32_t yvect);
+inline int32_t ksqrt(uint32_t num)
+{
+    return int(sqrt((float)num));
+}
 
-static FORCE_INLINE constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
+int32_t   getangle(int32_t xvect, int32_t yvect);
+
+inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-static FORCE_INLINE int32_t logapproach(int32_t const val, int32_t const targetval)
+inline int32_t logapproach(int32_t const val, int32_t const targetval)
 {
     int32_t const dif = targetval - val;
     return (dif>>1) ? val + (dif>>1) : targetval;
@@ -551,36 +458,36 @@ void yax_getzsofslope(int sectNum, int playerX, int playerY, int32_t* pCeilZ, in
 int32_t yax_getceilzofslope(int const sectnum, vec2_t const vect);
 int32_t yax_getflorzofslope(int const sectnum, vec2_t const vect);
 
-static FORCE_INLINE int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getceilzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
 }
 
-static FORCE_INLINE int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getflorzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
 }
 
-static FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+inline void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     getzsofslopeptr((usectorptr_t)&sector[sectnum], dax, day, ceilz, florz);
 }
 
-static FORCE_INLINE void getcorrectzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+inline void getcorrectzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
     getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y, ceilz, florz);
 }
 
-static FORCE_INLINE int32_t getcorrectceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getcorrectceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
     return getceilzofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y);
 }
 
-static FORCE_INLINE int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
@@ -589,12 +496,12 @@ static FORCE_INLINE int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax,
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-static FORCE_INLINE int32_t redwallp(uwallptr_t wal)
+inline int32_t redwallp(uwallptr_t wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }
 
-static FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
+inline int32_t E_SpriteIsValid(const int32_t i)
 {
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
@@ -602,7 +509,6 @@ static FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
 
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
-int32_t sectorofwall(int16_t wallNum);
 void setslope(int32_t sectnum, int32_t cf, int16_t slope);
 
 int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
@@ -612,13 +518,6 @@ int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
 
 int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz);
-#if !defined NETCODE_DISABLE
-void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum);
-int32_t insertspritestat(int16_t statnum);
-void do_deletespritestat(int16_t deleteme);
-void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum);
-void do_deletespritesect(int16_t deleteme);
-#endif
 int32_t insertsprite(int16_t sectnum, int16_t statnum);
 int32_t deletesprite(int16_t spritenum);
 
@@ -638,48 +537,14 @@ inline void setspritepos(int spnum, int x, int y, int z)
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
 int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs);
-static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
+inline int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
 {
     return spriteheightofsptr((uspriteptr_t)&sprite[i], height, alsotileyofs);
 }
 
 int videoCaptureScreen();
 
-struct OutputFileCounter {
-    uint16_t count = 0;
-    FileWriter *opennextfile(char *, char *);
-    FileWriter *opennextfile_withext(char *, const char *);
-};
-
-// PLAG: line utility functions
-typedef struct s_equation
-{
-    float a, b, c;
-} _equation;
-
-#define STATUS2DSIZ 144
-#define STATUS2DSIZ2 26
-
-#ifdef USE_OPENGL
-void    renderSetRollAngle(float rolla);
-#endif
-
 void Polymost_Startup();
-
-typedef uint16_t polytintflags_t;
-
-enum cutsceneflags {
-    CUTSCENE_FORCEFILTER = 1,
-    CUTSCENE_FORCENOFILTER = 2,
-    CUTSCENE_TEXTUREFILTER = 4,
-};
-
-enum {
-    TEXFILTER_OFF = 0, // GL_NEAREST
-    TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
-};
-
-extern int32_t gltexmaxsize;
 
 EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
@@ -692,7 +557,6 @@ EXTERN_CVAR(Bool, hw_useindexedcolortextures)
 EXTERN_CVAR(Bool, hw_parallaxskypanning)
 EXTERN_CVAR(Bool, r_voxels)
 
-extern int32_t r_downsize;
 extern int32_t mdtims, omdtims;
 
 extern int32_t r_rortexture;
@@ -705,11 +569,8 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
-extern TArray<FString> g_clipMapFiles;
-
 EXTERN int32_t nextvoxid;
-EXTERN int8_t voxreserve[(MAXVOXELS+7)>>3];
-EXTERN int8_t voxrotate[(MAXVOXELS+7)>>3];
+EXTERN FixedBitArray<MAXVOXELS>voxreserve;
 
 #ifdef USE_OPENGL
 // TODO: dynamically allocate this
@@ -723,7 +584,7 @@ typedef struct
     int16_t     framenum;   // calculate the number from the name when declaring
     int16_t     nexttile;
     uint16_t    smoothduration;
-    hudtyp      *hudmem[2];
+    hudtyp      hudmem[2];
     int8_t      skinnum;
     char        pal;
 } tile2model_t;
@@ -733,19 +594,13 @@ typedef struct
 EXTERN int32_t mdinited;
 EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
 
-static FORCE_INLINE int32_t md_tilehasmodel(int32_t const tilenume, int32_t const pal)
+inline int32_t md_tilehasmodel(int32_t const tilenume, int32_t const pal)
 {
     return mdinited ? tile2model[Ptile2tile(tilenume,pal)].modelid : -1;
 }
 #endif  // defined USE_OPENGL
 
-static FORCE_INLINE int tilehasmodelorvoxel(int const tilenume, int pal)
-{
-    UNREFERENCED_PARAMETER(pal);
-    return
-    (mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
-    (r_voxels && tiletovox[tilenume] != -1);
-}
+int tilehasmodelorvoxel(int const tilenume, int pal);
 
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
                        int32_t skinnum, float smoothduration, int32_t pal);
@@ -758,12 +613,6 @@ int32_t md_definehud (int32_t modelid, int32_t tilex, vec3f_t add,
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
 
-int32_t loaddefinitionsfile(const char *fn, bool loadadds = false, bool cumulative = false);
-
-// if loadboard() fails with -2 return, try loadoldboard(). if it fails with
-// -2, board is dodgy
-int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
-
 #ifdef USE_OPENGL
 # include "polymost.h"
 #endif
@@ -772,7 +621,7 @@ extern int skiptile;
 
 static vec2_t const zerovec = { 0, 0 };
 
-static FORCE_INLINE int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
+inline int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
 
 #define SET_AND_RETURN(Lval, Rval) \
     do                             \
@@ -842,15 +691,11 @@ extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     int32_t *intx, int32_t *inty, int32_t *intz);
 
 extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
-extern int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade);
 extern void(*initspritelists_replace)(void);
 extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);
 extern int32_t(*deletesprite_replace)(int16_t spritenum);
 extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
 extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum);
-#ifdef USE_OPENGL
-extern void(*PolymostProcessVoxels_Callback)(void);
-#endif
 
 // Masking these into the object index to keep it in 16 bit was probably the single most dumbest and pointless thing Build ever did.
 // Gonna be fun to globally replace these to finally lift the limit this imposes on map size.
@@ -866,6 +711,23 @@ enum EHitBits
 };
 
 void updateModelInterpolation();
+
+inline void tileUpdatePicnum(int* const tileptr, int const obj, int stat)
+{
+    auto& tile = *tileptr;
+
+    if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+        tile += animateoffs(tile, obj);
+
+    if (((obj & 16384) == 16384) && (stat & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
+        tile = RotTile(tile).newtile;
+}
+
+inline void setgotpic(int32_t tilenume)
+{
+    gotpic[tilenume >> 3] |= 1 << (tilenume & 7);
+}
+
 
 
 #include "iterators.h"

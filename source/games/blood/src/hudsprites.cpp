@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "build.h"
-#include "mmulti.h"
 #include "v_font.h"
 
 #include "blood.h"
@@ -97,14 +96,22 @@ void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelt
 
 	if (gViewPos == 0)
 	{
-		double looking_arc = fabs(look_anghalf) / 4.5;
+		double looking_arc = gView->angle.looking_arc(smoothratio);
 
 		double cX = 160 - look_anghalf;
 		double cY = 220 + looking_arc;
 		if (cl_weaponsway)
 		{
-			cX += (bobx / 256.);
-			cY += (boby / 256.) + (zDelta / 128.);
+			if (cl_hudinterpolation)
+			{
+				cX += (bobx / 256.);
+				cY += (boby / 256.) + (zDelta / 128.);
+			}
+			else
+			{
+				cX += (int(bobx) >> 8);
+				cY += (int(boby) >> 8) + (int(zDelta) >> 7);
+			}
 		}
 		else
 		{
@@ -157,11 +164,8 @@ void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelt
 	{
 		DoLensEffect();
 		viewingRange = viewingrange;
-		yxAspect = yxaspect;
-		renderSetAspect(65536, 54613);
 		r otatesprite(IntToFixed(280), IntToFixed(35), 53248, 512, 4077, v10, v14, 512 + 6, gViewX0, gViewY0, gViewX1, gViewY1);
 		r otatesprite(IntToFixed(280), IntToFixed(35), 53248, 0, 1683, v10, 0, 512 + 35, gViewX0, gViewY0, gViewX1, gViewY1);
-		renderSetAspect(viewingRange, yxAspect);
 	}
 #endif
 }

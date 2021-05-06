@@ -38,11 +38,8 @@ GAMEOPTIONS gSingleGameOptions = {
     0, 2, 0, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
 };
 
-EPISODEINFO gEpisodeInfo[kMaxEpisodes+1];
-
 int gSkill = 2;
-int gEpisodeCount;
-int gNextLevel; // fixme: let this contain a full level number.
+MapRecord* gNextLevel;
 
 char BloodIniFile[BMAX_PATH] = "BLOOD.INI";
 bool bINIOverride = false;
@@ -94,22 +91,23 @@ void CheckKeyAbend(const char *pzSection, const char *pzKey)
 }
 
 
-void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSection, int epinum, int mapnum)
+
+void levelLoadMapInfo(IniFile* pIni, MapRecord* pLevelInfo, const char* pzSection, int epinum, int mapnum, int* nextmap, int* nextsecret)
 {
     char buffer[16];
     pLevelInfo->SetName(pIni->GetKeyString(pzSection, "Title", pLevelInfo->labelName));
-    pLevelInfo->author = pIni->GetKeyString(pzSection, "Author", "");
-    pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); DefaultExtension(pLevelInfo->music, ".mid");
+    pLevelInfo->Author = pIni->GetKeyString(pzSection, "Author", "");
+    pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); if (pLevelInfo->music.IsNotEmpty()) DefaultExtension(pLevelInfo->music, ".mid");
     pLevelInfo->cdSongId = pIni->GetKeyInt(pzSection, "Track", -1);
-    pLevelInfo->nextLevel = pIni->GetKeyInt(pzSection, "EndingA", -1);
-    pLevelInfo->nextSecret = pIni->GetKeyInt(pzSection, "EndingB", -1);
+    *nextmap = pIni->GetKeyInt(pzSection, "EndingA", 0);
+    *nextsecret = pIni->GetKeyInt(pzSection, "EndingB", 0);
     pLevelInfo->fog = pIni->GetKeyInt(pzSection, "Fog", -0);
     pLevelInfo->weather = pIni->GetKeyInt(pzSection, "Weather", -0);
     for (int i = 0; i < kMaxMessages; i++)
     {
-        sprintf(buffer, "Message%d", i+1);
-		auto msg = pIni->GetKeyString(pzSection, buffer, "");
-		pLevelInfo->AddMessage(i, msg);
+        sprintf(buffer, "Message%d", i + 1);
+        auto msg = pIni->GetKeyString(pzSection, buffer, "");
+        pLevelInfo->AddMessage(i, msg);
     }
 }
 
@@ -142,108 +140,102 @@ static const char* DefFile(void)
     return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : "blood.ini";
 }
 
+static FString cleanPath(const char* pth)
+{
+    FString path = pth;
+    FixPathSeperator(path);
+    if (FileExists(path)) return path;
+    if (path.Len() > 3 && path[1] == ':' && isalpha(path[0]) && path[2] == '/')
+    {
+        return path.Mid(3);
+    }
+    return path;
+}
+
 void levelLoadDefaults(void)
 {
     char buffer[64];
     char buffer2[16];
+
+    int cutALevel = 0;
+
     levelInitINI(DefFile());
-    memset(gEpisodeInfo, 0, sizeof(gEpisodeInfo));
-    quoteMgr.InitializeQuote(MUS_INTRO, "PESTIS.MID");
     int i;
-    for (i = 0; i < kMaxEpisodes; i++)
+    for (i = 1; i <= kMaxEpisodes; i++)
     {
-        sprintf(buffer, "Episode%d", i+1);
+        sprintf(buffer, "Episode%d", i);
         if (!BloodINI->SectionExists(buffer))
             break;
-        EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[i];
-		auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
-		gVolumeNames[i] = ep_str; // only keep one table for the names. Todo: Consolidate this across games.
-        strncpy(pEpisodeInfo->cutsceneAName, BloodINI->GetKeyString(buffer, "CutSceneA", ""), BMAX_PATH);
-        pEpisodeInfo->at9028 = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
-        if (pEpisodeInfo->at9028 == 0)
-            strncpy(pEpisodeInfo->cutsceneASound, BloodINI->GetKeyString(buffer, "CutWavA", ""), BMAX_PATH);
-        else
-            pEpisodeInfo->cutsceneASound[0] = 0;
-        strncpy(pEpisodeInfo->cutsceneBName, BloodINI->GetKeyString(buffer, "CutSceneB", ""), BMAX_PATH);
-        pEpisodeInfo->at902c = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
-        if (pEpisodeInfo->at902c == 0)
-            strncpy(pEpisodeInfo->cutsceneBSound, BloodINI->GetKeyString(buffer, "CutWavB", ""), BMAX_PATH);
-        else
-            pEpisodeInfo->cutsceneBSound[0] = 0;
+        auto cluster = MustFindCluster(i);
+        auto volume = MustFindVolume(i);
+        CutsceneDef &csB = cluster->outro;
+        auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
+		cluster->name = volume->name = ep_str;
+        if (i > 1) volume->flags |= VF_SHAREWARELOCK;
 
-        pEpisodeInfo->bloodbath = BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0);
-        pEpisodeInfo->cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0);
-        if (pEpisodeInfo->cutALevel > 0)
-            pEpisodeInfo->cutALevel--;
-        int j;
-        for (j = 0; j < kMaxLevels; j++)
+        csB.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneB", ""));
+        int soundint = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
+        if (soundint > 0) csB.soundID = soundint + 0x40000000;
+        else csB.soundName = cleanPath(BloodINI->GetKeyString(buffer, "CutWavB", ""));
+
+        //pEpisodeInfo->bloodbath = BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0);
+        cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0);
+        if (cutALevel < 1) cutALevel = 1;
+
+        int nextmaps[kMaxLevels]{}, nextsecrets[kMaxLevels]{};
+        for (int j = 1; j <= kMaxLevels; j++)
         {
-            sprintf(buffer2, "Map%d", j+1);
+            sprintf(buffer2, "Map%d", j);
             if (!BloodINI->KeyExists(buffer, buffer2))
                 break;
             auto pLevelInfo = AllocateMap();
             const char *pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
             CheckSectionAbend(pMap);
-			pLevelInfo->levelNumber = levelnum(i, j);
+			SetLevelNum(pLevelInfo, makelevelnum(i, j));
+            pLevelInfo->cluster = i;
             pLevelInfo->labelName = pMap;
+			if (j == 1) volume->startmap = pLevelInfo->labelName;
             pLevelInfo->fileName.Format("%s.map", pMap);
-            levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j);
+            levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j, &nextmaps[j - 1], &nextsecrets[j - 1]);
+            if (j == cutALevel)
+            {
+                CutsceneDef& csA = pLevelInfo->intro;
+                csA.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneA", ""));
+                int soundint = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
+                if (soundint > 0) csA.soundID = soundint + 0x40000000;
+                else csA.soundName = cleanPath(BloodINI->GetKeyString(buffer, "CutWavA", ""));
+            }
         }
-        pEpisodeInfo->nLevels = j;
+        // Now resolve the level links
+        for (int j = 1; j <= kMaxLevels; j++)
+        {
+            auto map = FindMapByIndexOnly(i, j);
+            if (map)
+            {
+                if (nextmaps[j - 1] > 0)
+                {
+                    auto nmap = FindMapByIndexOnly(i, nextmaps[j - 1]);
+                    if (nmap) map->NextMap = nmap->labelName;
+                    else map->NextMap = "-";
+                }
+                else map->NextMap = "-";
+                if (nextsecrets[j - 1] > 0)
+                {
+                    auto nmap = FindMapByIndexOnly(i, nextsecrets[j - 1]);
+                    if (nmap) map->NextSecret = nmap->labelName;
+                    else map->NextSecret = "-";
+                }
+                else map->NextSecret = "-";
+            }
+        }
     }
-    gEpisodeCount = i;
 }
 
-void levelGetNextLevels(int *pnEndingA, int *pnEndingB)
+void levelEndLevel(int secret)
 {
-    assert(pnEndingA != NULL && pnEndingB != NULL);
-    int nEndingA = currentLevel->nextLevel;
-    if (nEndingA >= 0)
-        nEndingA--;
-    int nEndingB = currentLevel->nextSecret;
-    if (nEndingB >= 0)
-        nEndingB--;
-    *pnEndingA = nEndingA;
-    *pnEndingB = nEndingB;
-}
-
-void levelEndLevel(int arg)
-{
-    int nEndingA, nEndingB;
-    auto episode = volfromlevelnum(currentLevel->levelNumber);
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[episode];
     gGameOptions.uGameFlags |= GF_AdvanceLevel;
-    levelGetNextLevels(&nEndingA, &nEndingB);
-    switch (arg)
-    {
-    case 0:
-        if (nEndingA == -1)
-        {
-            if (pEpisodeInfo->cutsceneBName[0])
-                gGameOptions.uGameFlags |= GF_PlayCutscene;
-            gGameOptions.uGameFlags |= GF_EndGame;
-        }
-        else
-            gNextLevel = nEndingA;
-        break;
-    case 1:
-        if (nEndingB == -1)
-        {
-            if (episode + 1 < gEpisodeCount)
-            {
-                if (pEpisodeInfo->cutsceneBName[0])
-                    gGameOptions.uGameFlags |= GF_PlayCutscene;
-                gGameOptions.uGameFlags |= GF_EndGame;
-            }
-            else
-            {
-                gGameOptions.uGameFlags |= GF_AdvanceLevel;
-            }
-        }
-        else
-            gNextLevel = nEndingB;
-        break;
-    }
+    if (!secret) gNextLevel = FindNextMap(currentLevel);
+    else gNextLevel = FindNextSecretMap(currentLevel);
 }
 
 void levelTryPlayMusic()
@@ -255,7 +247,7 @@ void levelTryPlayMusic()
     {
         buffer = currentLevel->music;
 		if (Mus_Play(currentLevel->labelName, buffer, true)) return;
-        DefaultExtension(buffer, ".mid");
+        if (buffer.IsNotEmpty()) DefaultExtension(buffer, ".mid");
     }
     if (!Mus_Play(currentLevel->labelName, buffer, true))
     {

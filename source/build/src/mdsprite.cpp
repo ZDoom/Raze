@@ -16,18 +16,20 @@
 #include "texturemanager.h"
 #include "hw_renderstate.h"
 #include "printf.h"
+#include "hw_voxels.h"
 #include "../../glbackend/glbackend.h"
 
 static int32_t curextra=MAXTILES;
 
 #define MIN_CACHETIME_PRINT 10
 
+using namespace Polymost;
+int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate);
 
-static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
+static int32_t addtileP(int32_t ,int32_t tile,int32_t pallet)
 {
     // tile >= 0 && tile < MAXTILES
 
-    UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-1)
     {
         Printf("warning: max EXTRATILES reached\n");
@@ -97,27 +99,23 @@ void freeallmodels()
     if (models)
     {
         for (i=0; i<nextmodelid; i++) mdfree(models[i]);
-        DO_FREE_AND_NULL(models);
+        M_Free(models);
+        models = nullptr;
         nummodelsalloced = 0;
         nextmodelid = 0;
     }
 
     memset(tile2model,-1,sizeof(tile2model));
-    for (i=0; i<MAXTILES; i++)
-        memset(tile2model[i].hudmem, 0, sizeof(tile2model[i].hudmem));
 
     curextra=MAXTILES;
 
     if (vertlist)
     {
-        DO_FREE_AND_NULL(vertlist);
+        M_Free(vertlist);
+        vertlist = nullptr;
         allocmodelverts = maxmodelverts = 0;
         allocmodeltris = maxmodeltris = 0;
     }
-
-#ifdef POLYMER
-    DO_FREE_AND_NULL(tribuf);
-#endif
 }
 
 void mdinit()
@@ -134,7 +132,7 @@ int32_t md_loadmodel(const char *fn)
 
     if (nextmodelid >= nummodelsalloced)
     {
-        ml = (mdmodel_t **)Xrealloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void *));
+        ml = (mdmodel_t **)M_Realloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void *));
         models = ml; nummodelsalloced += MODELALLOCGROUP;
     }
 
@@ -246,7 +244,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     ma.fpssc = fpssc;
     ma.flags = flags;
 
-    map = (mdanim_t *)Xmalloc(sizeof(mdanim_t));
+    map = (mdanim_t *)M_Malloc(sizeof(mdanim_t));
 
     memcpy(map, &ma, sizeof(ma));
 
@@ -255,110 +253,6 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 
     return 0;
 }
-
-#if 0
-// FIXME: CURRENTLY DISABLED: interpolation may access frames we consider 'unused'?
-int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
-{
-    md3model_t *m;
-    md3surf_t *s;
-    mdanim_t *anm;
-    int32_t i, surfi, sub, usedframes;
-    static int16_t otonframe[1024];
-
-    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
-    m = (md3model_t *)models[modelid];
-    if (m->mdnum != 3) return -2;
-
-    for (anm=m->animations; anm; anm=anm->next)
-    {
-        if (anm->endframe <= anm->startframe)
-        {
-//            Printf("backward anim %d-%d\n", anm->startframe, anm->endframe);
-            return -3;
-        }
-
-        for (i=anm->startframe; i<anm->endframe; i++)
-            usedframebitmap[i>>3] |= pow2char[i&7];
-    }
-
-    sub = 0;
-    for (i=0; i<m->numframes; i++)
-    {
-        if (!(usedframebitmap[i>>3]&pow2char[i&7]))
-        {
-            sub++;
-            otonframe[i] = -1;
-            continue;
-        }
-
-        otonframe[i] = i-sub;
-    }
-
-    usedframes = m->numframes - sub;
-    if (usedframes==0 || usedframes==m->numframes)
-        return usedframes;
-
-    //// THIN OUT! ////
-
-    for (i=0; i<m->numframes; i++)
-    {
-        if (otonframe[i]>=0 && otonframe[i] != i)
-        {
-            if (m->muladdframes)
-                memcpy(&m->muladdframes[2*otonframe[i]], &m->muladdframes[2*i], 2*sizeof(vec3f_t));
-            memcpy(&m->head.frames[otonframe[i]], &m->head.frames[i], sizeof(md3frame_t));
-        }
-    }
-
-    for (surfi=0; surfi < m->head.numsurfs; surfi++)
-    {
-        s = &m->head.surfs[surfi];
-
-        for (i=0; i<m->numframes; i++)
-            if (otonframe[i]>=0 && otonframe[i] != i)
-                memcpy(&s->xyzn[otonframe[i]*s->numverts], &s->xyzn[i*s->numverts], s->numverts*sizeof(md3xyzn_t));
-    }
-
-    ////// tweak frame indices in various places
-
-    for (anm=m->animations; anm; anm=anm->next)
-    {
-        if (otonframe[anm->startframe]==-1 || otonframe[anm->endframe-1]==-1)
-            Printf("md %d WTF: anm %d %d\n", modelid, anm->startframe, anm->endframe);
-
-        anm->startframe = otonframe[anm->startframe];
-        anm->endframe = otonframe[anm->endframe-1];
-    }
-
-    for (i=0; i<MAXTILES+EXTRATILES; i++)
-        if (tile2model[i].modelid == modelid)
-        {
-            if (otonframe[tile2model[i].framenum]==-1)
-                Printf("md %d WTF: tile %d, fr %d\n", modelid, i, tile2model[i].framenum);
-            tile2model[i].framenum = otonframe[tile2model[i].framenum];
-        }
-
-    ////// realloc & change "numframes" everywhere
-
-    if (m->muladdframes)
-        m->muladdframes = Xrealloc(m->muladdframes, 2*sizeof(vec3f_t)*usedframes);
-    m->head.frames = Xrealloc(m->head.frames, sizeof(md3frame_t)*usedframes);
-
-    for (surfi=0; surfi < m->head.numsurfs; surfi++)
-    {
-        m->head.surfs[surfi].numframes = usedframes;
-        // CAN'T do that because xyzn is offset from a larger block when loaded from md3:
-//        m->head.surfs[surfi].xyzn = Xrealloc(m->head.surfs[surfi].xyzn, s->numverts*usedframes*sizeof(md3xyzn_t));
-    }
-
-    m->head.numframes = usedframes;
-    m->numframes = usedframes;
-
-    ////////////
-    return usedframes;
-}
-#endif
 
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param, float specpower, float specfactor, int32_t flags)
 {
@@ -381,7 +275,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
             break;
     if (!sk)
     {
-        sk = (mdskinmap_t *)Xcalloc(1,sizeof(mdskinmap_t));
+        sk = (mdskinmap_t *)M_Calloc(1,sizeof(mdskinmap_t));
 
         if (!skl) m->skinmap = sk;
         else skl->next = sk;
@@ -410,9 +304,7 @@ int32_t md_definehud(int32_t modelid, int32_t tilex, vec3f_t add, int32_t angadd
     if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
     if ((uint32_t)tilex >= (uint32_t)MAXTILES) return -2;
 
-    tile2model[tilex].hudmem[(flags>>2)&1] = (hudtyp *)Xmalloc(sizeof(hudtyp));
-
-    hudtyp * const hud = tile2model[tilex].hudmem[(flags>>2)&1];
+    hudtyp * const hud = &tile2model[tilex].hudmem[(flags>>2)&1];
 
     hud->add = add;
     hud->angadd = ((int16_t)angadd)|2048;
@@ -429,8 +321,6 @@ int32_t md_undefinetile(int32_t tile)
 
     tile2model[tile].modelid = -1;
     tile2model[tile].nexttile = -1;
-    DO_FREE_AND_NULL(tile2model[tile].hudmem[0]);
-    DO_FREE_AND_NULL(tile2model[tile].hudmem[1]);
     return 0;
 }
 
@@ -446,8 +336,6 @@ int32_t md_undefinemodel(int32_t modelid)
         if (tile2model[i].modelid == modelid)
         {
             tile2model[i].modelid = -1;
-            DO_FREE_AND_NULL(tile2model[i].hudmem[0]);
-            DO_FREE_AND_NULL(tile2model[i].hudmem[1]);
         }
 
     if (models)
@@ -669,23 +557,23 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 
     int32_t ournumskins, ournumglcmds;
 
-    m = (md2model_t *)Xcalloc(1,sizeof(md2model_t));
+    m = (md2model_t *)M_Calloc(1,sizeof(md2model_t));
     m->mdnum = 2; m->scale = .01f;
 
     fil.Read((char *)&head,sizeof(md2head_t));
 #if B_BIG_ENDIAN != 0
-    head.id = B_LITTLE32(head.id);                 head.vers = B_LITTLE32(head.vers);
-    head.skinxsiz = B_LITTLE32(head.skinxsiz);     head.skinysiz = B_LITTLE32(head.skinysiz);
-    head.framebytes = B_LITTLE32(head.framebytes); head.numskins = B_LITTLE32(head.numskins);
-    head.numverts = B_LITTLE32(head.numverts);     head.numuv = B_LITTLE32(head.numuv);
-    head.numtris = B_LITTLE32(head.numtris);       head.numglcmds = B_LITTLE32(head.numglcmds);
-    head.numframes = B_LITTLE32(head.numframes);   head.ofsskins = B_LITTLE32(head.ofsskins);
-    head.ofsuv = B_LITTLE32(head.ofsuv);           head.ofstris = B_LITTLE32(head.ofstris);
-    head.ofsframes = B_LITTLE32(head.ofsframes);   head.ofsglcmds = B_LITTLE32(head.ofsglcmds);
-    head.ofseof = B_LITTLE32(head.ofseof);
+    head.id = LittleLong(head.id);                 head.vers = LittleLong(head.vers);
+    head.skinxsiz = LittleLong(head.skinxsiz);     head.skinysiz = LittleLong(head.skinysiz);
+    head.framebytes = LittleLong(head.framebytes); head.numskins = LittleLong(head.numskins);
+    head.numverts = LittleLong(head.numverts);     head.numuv = LittleLong(head.numuv);
+    head.numtris = LittleLong(head.numtris);       head.numglcmds = LittleLong(head.numglcmds);
+    head.numframes = LittleLong(head.numframes);   head.ofsskins = LittleLong(head.ofsskins);
+    head.ofsuv = LittleLong(head.ofsuv);           head.ofstris = LittleLong(head.ofstris);
+    head.ofsframes = LittleLong(head.ofsframes);   head.ofsglcmds = LittleLong(head.ofsglcmds);
+    head.ofseof = LittleLong(head.ofseof);
 #endif
 
-    if ((head.id != IDP2_MAGIC) || (head.vers != 8)) { Xfree(m); return 0; } //"IDP2"
+    if ((head.id != IDP2_MAGIC) || (head.vers != 8)) { M_Free(m); return 0; } //"IDP2"
 
     ournumskins = head.numskins ? head.numskins : 1;
     ournumglcmds = head.numglcmds ? head.numglcmds : 1;
@@ -696,29 +584,29 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     m->numglcmds = head.numglcmds;
     m->framebytes = head.framebytes;
 
-    m->frames = (char *)Xmalloc(m->numframes*m->framebytes);
-    m->glcmds = (int32_t *)Xmalloc(ournumglcmds*sizeof(int32_t));
-    m->tris = (md2tri_t *)Xmalloc(head.numtris*sizeof(md2tri_t));
-    m->uv = (md2uv_t *)Xmalloc(head.numuv*sizeof(md2uv_t));
+    m->frames = (char *)M_Malloc(m->numframes*m->framebytes);
+    m->glcmds = (int32_t *)M_Malloc(ournumglcmds*sizeof(int32_t));
+    m->tris = (md2tri_t *)M_Malloc(head.numtris*sizeof(md2tri_t));
+    m->uv = (md2uv_t *)M_Malloc(head.numuv*sizeof(md2uv_t));
 
     fil.Seek(head.ofsframes,FileReader::SeekSet);
     if (fil.Read((char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
-        { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
+        { M_Free(m->uv); M_Free(m->tris); M_Free(m->glcmds); M_Free(m->frames); M_Free(m); return 0; }
 
     if (m->numglcmds > 0)
     {
         fil.Seek(head.ofsglcmds,FileReader::SeekSet);
         if (fil.Read((char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
-            { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
+            { M_Free(m->uv); M_Free(m->tris); M_Free(m->glcmds); M_Free(m->frames); M_Free(m); return 0; }
     }
 
     fil.Seek(head.ofstris,FileReader::SeekSet);
     if (fil.Read((char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int32_t)(head.numtris*sizeof(md2tri_t)))
-        { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
+        { M_Free(m->uv); M_Free(m->tris); M_Free(m->glcmds); M_Free(m->frames); M_Free(m); return 0; }
 
     fil.Seek(head.ofsuv,FileReader::SeekSet);
     if (fil.Read((char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int32_t)(head.numuv*sizeof(md2uv_t)))
-        { Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
+        { M_Free(m->uv); M_Free(m->tris); M_Free(m->glcmds); M_Free(m->frames); M_Free(m); return 0; }
 
 #if B_BIG_ENDIAN != 0
     {
@@ -730,27 +618,27 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
         {
             fr = (md2frame_t *)f;
             l = (int32_t *)&fr->mul;
-            for (j=5; j>=0; j--) l[j] = B_LITTLE32(l[j]);
+            for (j=5; j>=0; j--) l[j] = LittleLong(l[j]);
             f += m->framebytes;
         }
 
         for (i = m->numglcmds-1; i>=0; i--)
         {
-            m->glcmds[i] = B_LITTLE32(m->glcmds[i]);
+            m->glcmds[i] = LittleLong(m->glcmds[i]);
         }
         for (i = head.numtris-1; i>=0; i--)
         {
-            m->tris[i].v[0] = B_LITTLE16(m->tris[i].v[0]);
-            m->tris[i].v[1] = B_LITTLE16(m->tris[i].v[1]);
-            m->tris[i].v[2] = B_LITTLE16(m->tris[i].v[2]);
-            m->tris[i].u[0] = B_LITTLE16(m->tris[i].u[0]);
-            m->tris[i].u[1] = B_LITTLE16(m->tris[i].u[1]);
-            m->tris[i].u[2] = B_LITTLE16(m->tris[i].u[2]);
+            m->tris[i].v[0] = LittleShort(m->tris[i].v[0]);
+            m->tris[i].v[1] = LittleShort(m->tris[i].v[1]);
+            m->tris[i].v[2] = LittleShort(m->tris[i].v[2]);
+            m->tris[i].u[0] = LittleShort(m->tris[i].u[0]);
+            m->tris[i].u[1] = LittleShort(m->tris[i].u[1]);
+            m->tris[i].u[2] = LittleShort(m->tris[i].u[2]);
         }
         for (i = head.numuv-1; i>=0; i--)
         {
-            m->uv[i].u = B_LITTLE16(m->uv[i].u);
-            m->uv[i].v = B_LITTLE16(m->uv[i].v);
+            m->uv[i].u = LittleShort(m->uv[i].u);
+            m->uv[i].v = LittleShort(m->uv[i].v);
         }
     }
 #endif
@@ -760,15 +648,15 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
         if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
-    m->basepath = (char *)Xmalloc(i+1);
+    m->basepath = (char *)M_Malloc(i+1);
     strcpy(m->basepath, st);
 
-    m->skinfn = (char *)Xmalloc(ournumskins*64);
+    m->skinfn = (char *)M_Malloc(ournumskins*64);
     if (m->numskins > 0)
     {
         fil.Seek(head.ofsskins,FileReader::SeekSet);
         if (fil.Read(m->skinfn,64*m->numskins) != 64*m->numskins)
-            { Xfree(m->glcmds); Xfree(m->frames); Xfree(m); return 0; }
+            { M_Free(m->glcmds); M_Free(m->frames); M_Free(m); return 0; }
     }
 
     maxmodelverts = max(maxmodelverts, m->numverts);
@@ -778,7 +666,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 
     // the MD2 is now loaded internally - let's begin the MD3 conversion process
     //Printf("Beginning md3 conversion.\n");
-    m3 = (md3model_t *)Xcalloc(1, sizeof(md3model_t));
+    m3 = (md3model_t *)M_Calloc(1, sizeof(md3model_t));
 	m3->mdnum = 3; m3->texture = nullptr; m3->scale = m->scale;
     m3->head.id = IDP3_MAGIC; m3->head.vers = 15;
 
@@ -791,8 +679,8 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     m3->numskins = m3->head.numskins;
     m3->numframes = m3->head.numframes;
 
-    m3->head.frames = (md3frame_t *)Xcalloc(m3->head.numframes, sizeof(md3frame_t));
-    m3->muladdframes = (vec3f_t *)Xcalloc(m->numframes * 2, sizeof(vec3f_t));
+    m3->head.frames = (md3frame_t *)M_Calloc(m3->head.numframes, sizeof(md3frame_t));
+    m3->muladdframes = (vec3f_t *)M_Calloc(m->numframes * 2, sizeof(vec3f_t));
 
     f = (md2frame_t *)(m->frames);
 
@@ -810,7 +698,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 
     m3->head.tags = NULL;
 
-    m3->head.surfs = (md3surf_t *)Xcalloc(1, sizeof(md3surf_t));
+    m3->head.surfs = (md3surf_t *)M_Calloc(1, sizeof(md3surf_t));
     s = m3->head.surfs;
 
     // model converting
@@ -827,9 +715,9 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 
     s->shaders = NULL;
 
-    s->tris = (md3tri_t *)Xcalloc(head.numtris, sizeof(md3tri_t));
-    s->uv = (md3uv_t *)Xcalloc(s->numverts, sizeof(md3uv_t));
-    s->xyzn = (md3xyzn_t *)Xcalloc(s->numverts * m->numframes, sizeof(md3xyzn_t));
+    s->tris = (md3tri_t *)M_Calloc(head.numtris, sizeof(md3tri_t));
+    s->uv = (md3uv_t *)M_Calloc(s->numverts, sizeof(md3uv_t));
+    s->xyzn = (md3xyzn_t *)M_Calloc(s->numverts * m->numframes, sizeof(md3xyzn_t));
 
     //memoryusage += (s->numverts * m->numframes * sizeof(md3xyzn_t));
     //Printf("Current model geometry memory usage : %i.\n", memoryusage);
@@ -874,7 +762,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     {
         mdskinmap_t *sk;
 
-        sk = (mdskinmap_t *)Xcalloc(1,sizeof(mdskinmap_t));
+        sk = (mdskinmap_t *)M_Calloc(1,sizeof(mdskinmap_t));
         sk->palette = 0;
         sk->skinnum = 0;
         sk->surfnum = 0;
@@ -891,12 +779,12 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
         m3->skinmap = sk;
     }
 
-    m3->indexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * s->numtris);
-    m3->vindexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * s->numtris * 3);
-    m3->maxdepths = (float *)Xmalloc(sizeof(float) * s->numtris);
+    m3->indexes = (uint16_t *)M_Malloc(sizeof(uint16_t) * s->numtris);
+    m3->vindexes = (uint16_t *)M_Malloc(sizeof(uint16_t) * s->numtris * 3);
+    m3->maxdepths = (float *)M_Malloc(sizeof(float) * s->numtris);
 
     // die MD2 ! DIE !
-    Xfree(m->skinfn); Xfree(m->basepath); Xfree(m->uv); Xfree(m->tris); Xfree(m->glcmds); Xfree(m->frames); Xfree(m);
+    M_Free(m->skinfn); M_Free(m->basepath); M_Free(m->uv); M_Free(m->tris); M_Free(m->glcmds); M_Free(m->frames); M_Free(m);
 
     return ((md2model_t *)m3);
 }
@@ -948,7 +836,7 @@ static md3model_t *md3load(FileReader & fil)
     md3model_t *m;
     md3surf_t *s;
 
-    m = (md3model_t *)Xcalloc(1,sizeof(md3model_t));
+    m = (md3model_t *)M_Calloc(1,sizeof(md3model_t));
     m->mdnum = 3; m->texture = nullptr; m->scale = .01f;
 
     m->muladdframes = NULL;
@@ -956,15 +844,15 @@ static md3model_t *md3load(FileReader & fil)
     fil.Read(&m->head,SIZEOF_MD3HEAD_T);
 
 #if B_BIG_ENDIAN != 0
-    m->head.id = B_LITTLE32(m->head.id);             m->head.vers = B_LITTLE32(m->head.vers);
-    m->head.flags = B_LITTLE32(m->head.flags);       m->head.numframes = B_LITTLE32(m->head.numframes);
-    m->head.numtags = B_LITTLE32(m->head.numtags);   m->head.numsurfs = B_LITTLE32(m->head.numsurfs);
-    m->head.numskins = B_LITTLE32(m->head.numskins); m->head.ofsframes = B_LITTLE32(m->head.ofsframes);
-    m->head.ofstags = B_LITTLE32(m->head.ofstags); m->head.ofssurfs = B_LITTLE32(m->head.ofssurfs);
-    m->head.eof = B_LITTLE32(m->head.eof);
+    m->head.id = LittleLong(m->head.id);             m->head.vers = LittleLong(m->head.vers);
+    m->head.flags = LittleLong(m->head.flags);       m->head.numframes = LittleLong(m->head.numframes);
+    m->head.numtags = LittleLong(m->head.numtags);   m->head.numsurfs = LittleLong(m->head.numsurfs);
+    m->head.numskins = LittleLong(m->head.numskins); m->head.ofsframes = LittleLong(m->head.ofsframes);
+    m->head.ofstags = LittleLong(m->head.ofstags); m->head.ofssurfs = LittleLong(m->head.ofssurfs);
+    m->head.eof = LittleLong(m->head.eof);
 #endif
 
-    if ((m->head.id != IDP3_MAGIC) && (m->head.vers != 15)) { Xfree(m); return 0; } //"IDP3"
+    if ((m->head.id != IDP3_MAGIC) && (m->head.vers != 15)) { M_Free(m); return 0; } //"IDP3"
 
     m->numskins = m->head.numskins; //<- dead code?
     m->numframes = m->head.numframes;
@@ -972,19 +860,19 @@ static md3model_t *md3load(FileReader & fil)
     ofsurf = m->head.ofssurfs;
 
     fil.Seek(m->head.ofsframes,FileReader::SeekSet); i = m->head.numframes*sizeof(md3frame_t);
-    m->head.frames = (md3frame_t *)Xmalloc(i);
+    m->head.frames = (md3frame_t *)M_Malloc(i);
     fil.Read(m->head.frames,i);
 
     if (m->head.numtags == 0) m->head.tags = NULL;
     else
     {
         fil.Seek(m->head.ofstags,FileReader::SeekSet); i = m->head.numtags*sizeof(md3tag_t);
-        m->head.tags = (md3tag_t *)Xmalloc(i);
+        m->head.tags = (md3tag_t *)M_Malloc(i);
         fil.Read(m->head.tags,i);
     }
 
     fil.Seek(m->head.ofssurfs,FileReader::SeekSet);
-    m->head.surfs = (md3surf_t *)Xcalloc(m->head.numsurfs, sizeof(md3surf_t));
+    m->head.surfs = (md3surf_t *)M_Calloc(m->head.numsurfs, sizeof(md3surf_t));
     // NOTE: We assume that NULL is represented by all-zeros.
     // surfs[0].geometry is for POLYMER_MD_PROCESS_CHECK (else: crashes).
     // surfs[i].geometry is for FREE_SURFS_GEOMETRY.
@@ -997,13 +885,13 @@ static md3model_t *md3load(FileReader & fil)
         for (i = m->head.numframes-1; i>=0; i--)
         {
             l = (int32_t *)&m->head.frames[i].min;
-            for (j=3+3+3+1-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
+            for (j=3+3+3+1-1; j>=0; j--) l[j] = LittleLong(l[j]);
         }
 
         for (i = m->head.numtags-1; i>=0; i--)
         {
             l = (int32_t *)&m->head.tags[i].p;
-            for (j=3+3+3+3-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
+            for (j=3+3+3+3-1; j>=0; j--) l[j] = LittleLong(l[j]);
         }
     }
 #endif
@@ -1018,9 +906,9 @@ static md3model_t *md3load(FileReader & fil)
 #if B_BIG_ENDIAN != 0
         {
             int32_t j, *l;
-            s->id = B_LITTLE32(s->id);
+            s->id = LittleLong(s->id);
             l =	(int32_t *)&s->flags;
-            for	(j=1+1+1+1+1+1+1+1+1+1-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
+            for	(j=1+1+1+1+1+1+1+1+1+1-1; j>=0; j--) l[j] = LittleLong(l[j]);
         }
 #endif
 
@@ -1037,7 +925,7 @@ static md3model_t *md3load(FileReader & fil)
         //memoryusage += (s->numverts * s->numframes * sizeof(md3xyzn_t));
         //Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
-        s->tris = (md3tri_t *)Xmalloc((leng[0] + leng[1]) + (leng[2] + leng[3]));
+        s->tris = (md3tri_t *)M_Malloc((leng[0] + leng[1]) + (leng[2] + leng[3]));
 
         s->shaders = (md3shader_t *)(((intptr_t)s->tris)+leng[0]);
         s->uv      = (md3uv_t *)(((intptr_t)s->shaders)+leng[1]);
@@ -1054,23 +942,23 @@ static md3model_t *md3load(FileReader & fil)
 
             for (i=s->numtris-1; i>=0; i--)
             {
-                for (j=2; j>=0; j--) s->tris[i].i[j] = B_LITTLE32(s->tris[i].i[j]);
+                for (j=2; j>=0; j--) s->tris[i].i[j] = LittleLong(s->tris[i].i[j]);
             }
             for (i=s->numshaders-1; i>=0; i--)
             {
-                s->shaders[i].i = B_LITTLE32(s->shaders[i].i);
+                s->shaders[i].i = LittleLong(s->shaders[i].i);
             }
             for (i=s->numverts-1; i>=0; i--)
             {
                 l = (int32_t *)&s->uv[i].u;
-                l[0] = B_LITTLE32(l[0]);
-                l[1] = B_LITTLE32(l[1]);
+                l[0] = LittleLong(l[0]);
+                l[1] = LittleLong(l[1]);
             }
             for (i=s->numframes*s->numverts-1; i>=0; i--)
             {
-                s->xyzn[i].x = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].x);
-                s->xyzn[i].y = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].y);
-                s->xyzn[i].z = (int16_t)B_LITTLE16((uint16_t)s->xyzn[i].z);
+                s->xyzn[i].x = (int16_t)LittleShort((uint16_t)s->xyzn[i].x);
+                s->xyzn[i].y = (int16_t)LittleShort((uint16_t)s->xyzn[i].y);
+                s->xyzn[i].z = (int16_t)LittleShort((uint16_t)s->xyzn[i].z);
             }
         }
 #endif
@@ -1080,9 +968,9 @@ static md3model_t *md3load(FileReader & fil)
         ofsurf += s->ofsend;
     }
 
-    m->indexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * maxtrispersurf);
-    m->vindexes = (uint16_t *)Xmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
-    m->maxdepths = (float *)Xmalloc(sizeof(float) * maxtrispersurf);
+    m->indexes = (uint16_t *)M_Malloc(sizeof(uint16_t) * maxtrispersurf);
+    m->vindexes = (uint16_t *)M_Malloc(sizeof(uint16_t) * maxtrispersurf * 3);
+    m->maxdepths = (float *)M_Malloc(sizeof(float) * maxtrispersurf);
 
     return m;
 }
@@ -1219,7 +1107,7 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float
 }
 
 static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
-                                            int32_t texunits, const md3model_t *M)
+                                            int32_t , const md3model_t *M)
 {
     int32_t i;
 
@@ -1241,10 +1129,6 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
         }
     }
 	GLInterface.Draw(DT_Triangles, data.second, s->numtris *3);
-
-#ifndef USE_GLEXT
-    UNREFERENCED_PARAMETER(texunits);
-#endif
 }
 
 static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
@@ -1260,9 +1144,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? owner : MAXSPRITES+MAXUNIQHUDID-1];
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
     const int32_t sizyrep = tileHeight(tspr->picnum) * tspr->yrepeat;
-
-    polymost_outputGLDebugMessage(3, "polymost_md3draw(m:%p, tspr:%p)", m, tspr);
-    //    if ((tspr->cstat&48) == 32) return 0;
 
     updateanimation((md2model_t *)m, tspr, lpal);
 
@@ -1558,12 +1439,12 @@ static void md3free(md3model_t *m)
     for (anim=m->animations; anim; anim=nanim)
     {
         nanim = anim->next;
-        Xfree(anim);
+        M_Free(anim);
     }
     for (sk=m->skinmap; sk; sk=nsk)
     {
         nsk = sk->next;
-        Xfree(sk);
+        M_Free(sk);
     }
 
     if (m->head.surfs)
@@ -1571,21 +1452,21 @@ static void md3free(md3model_t *m)
         for (bssize_t surfi=m->head.numsurfs-1; surfi>=0; surfi--)
         {
             md3surf_t *s = &m->head.surfs[surfi];
-            Xfree(s->tris);
-            Xfree(s->geometry);  // FREE_SURFS_GEOMETRY
+            M_Free(s->tris);
+            M_Free(s->geometry);  // FREE_SURFS_GEOMETRY
         }
-        Xfree(m->head.surfs);
+        M_Free(m->head.surfs);
     }
-    Xfree(m->head.tags);
-    Xfree(m->head.frames);
+    M_Free(m->head.tags);
+    M_Free(m->head.frames);
 	
-    Xfree(m->muladdframes);
+    M_Free(m->muladdframes);
 
-    Xfree(m->indexes);
-    Xfree(m->vindexes);
-    Xfree(m->maxdepths);
+    M_Free(m->indexes);
+    M_Free(m->vindexes);
+    M_Free(m->maxdepths);
 
-    Xfree(m);
+    M_Free(m);
 }
 
 //---------------------------------------- MD3 LIBRARY ENDS ----------------------------------------
@@ -1607,7 +1488,7 @@ static mdmodel_t *mdload(const char *filnam)
     fil.Read(&i,4);
     fil.Seek(0,FileReader::SeekSet);
 
-    switch (B_LITTLE32(i))
+    switch (LittleLong(i))
     {
     case IDP2_MAGIC:
 //        Printf("Warning: model \"%s\" is version IDP2; wanted version IDP3\n",filnam);
@@ -1641,7 +1522,7 @@ int32_t polymost_mddraw(tspriteptr_t tspr)
 {
     if (maxmodelverts > allocmodelverts)
     {
-        vertlist = (vec3f_t *) Xrealloc(vertlist, sizeof(vec3f_t)*maxmodelverts);
+        vertlist = (vec3f_t *) M_Realloc(vertlist, sizeof(vec3f_t)*maxmodelverts);
         allocmodelverts = maxmodelverts;
     }
 
@@ -1652,6 +1533,11 @@ int32_t polymost_mddraw(tspriteptr_t tspr)
     else if (vm->mdnum == 3)
         return polymost_md3draw((md3model_t *)vm,tspr);
     return 0;
+}
+
+void voxfree(voxmodel_t* m)
+{
+    if (m) delete m;
 }
 
 static void mdfree(mdmodel_t *vm)

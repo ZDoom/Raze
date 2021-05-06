@@ -30,7 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_video.h"
 #include "interpolate.h"
 #include "v_draw.h"
+#include "render.h"
 #include <string.h>
+
+EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_PS_NS
 
@@ -61,10 +64,17 @@ short enemy;
 
 short nEnemyPal = 0;
 
+// We cannot drag these through the entire event system... :(
+spritetype* mytsprite;
+int* myspritesortcnt;
+
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites(double const smoothratio)
+static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y, int z, double const smoothratio)
 {
     tspritetype *pTSprite;
+
+    mytsprite = tsprite;
+    myspritesortcnt = &spritesortcnt;
 
     for (int i = 0; i < spritesortcnt; i++) {
         pTSprite = &tsprite[i];
@@ -85,11 +95,6 @@ static void analyzesprites(double const smoothratio)
     spritetype *pPlayerSprite = &sprite[nPlayerSprite];
 
     besttarget = -1;
-
-    int x = pPlayerSprite->x;
-    int y = pPlayerSprite->y;
-
-    int z = pPlayerSprite->z - (GetSpriteHeight(nPlayerSprite) / 2);
 
     short nSector = pPlayerSprite->sectnum;
 
@@ -174,6 +179,10 @@ static void analyzesprites(double const smoothratio)
             besttarget = -1;
         }
     }
+
+    mytsprite = nullptr;
+    myspritesortcnt = nullptr;
+
 }
 
 void ResetView()
@@ -184,11 +193,6 @@ void ResetView()
 #endif
 }
 
-static inline int interpolate16(int a, int b, int smooth)
-{
-    return a + MulScale(b - a, smooth, 16);
-}
-
 static TextOverlay subtitleOverlay;
 
 void DrawView(double smoothRatio, bool sceneonly)
@@ -197,9 +201,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerY;
     int playerZ;
     short nSector;
-    binangle nAngle;
+    binangle nAngle, rotscrnang;
     fixedhoriz pan;
-    lookangle rotscrnang;
 
     fixed_t dang = IntToFixed(1024);
 
@@ -221,6 +224,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerZ = sprite[nSprite].z;
         nSector = sprite[nSprite].sectnum;
         nAngle = buildang(sprite[nSprite].ang);
+        rotscrnang = buildang(0);
 
         SetGreenPal();
 
@@ -241,7 +245,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         auto psp = &sprite[nPlayerSprite];
         playerX = psp->interpolatedx(smoothRatio);
         playerY = psp->interpolatedy(smoothRatio);
-        playerZ = psp->interpolatedz(smoothRatio) + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
+        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
 
         nSector = nPlayerViewSect[nLocalPlayer];
         updatesector(playerX, playerY, &nSector);
@@ -269,9 +273,6 @@ void DrawView(double smoothRatio, bool sceneonly)
             sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_TRANSLUCENT;
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
-
-        renderSetRollAngle(rotscrnang.asbuildf());
-
         pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
@@ -357,9 +358,17 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
 
-        renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
-        analyzesprites(smoothRatio);
-        renderDrawMasks();
+        if (!testnewrenderer)
+        {
+            renderSetRollAngle(rotscrnang.asbuildf());
+            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
+            analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);
+            renderDrawMasks();
+        }
+        else
+        {
+            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, nSector, nCameraa, nCamerapan, rotscrnang, smoothRatio);
+        }
 
         if (HavePLURemap())
         {
@@ -373,9 +382,6 @@ void DrawView(double smoothRatio, bool sceneonly)
                 wall[i].pal = wallPal[i];
             }
         }
-
-
-        renderSetAspect(viewingRange, DivScale(ydim * 8, xdim * 5, 16));
 
         if (nFreeze)
         {
@@ -402,10 +408,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                     if (bSubTitles)
                     {
                         subtitleOverlay.Start(I_GetTimeNS() * (120. / 1'000'000'000));
-                        if (currentLevel->levelNumber == 1)
-                            subtitleOverlay.ReadyCinemaText(1);
-                        else
-                            subtitleOverlay.ReadyCinemaText(5);
+                        subtitleOverlay.ReadyCinemaText(currentLevel->ex_ramses_text);
                     }
                     inputState.ClearAllInput();
                 }
@@ -460,6 +463,12 @@ bool GameInterface::GenerateSavePic()
     DrawView(65536, true);
     return true;
 }
+
+void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+{
+    analyzesprites(tsprite, spritesortcnt, viewx, viewy, viewz, smoothRatio);
+}
+
 
 void NoClip()
 {

@@ -241,7 +241,6 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp);
 void powerupSetState(PLAYER *pPlayer, int nPowerUp, char bState);
 void powerupProcess(PLAYER *pPlayer);
 void powerupClear(PLAYER *pPlayer);
-void powerupInit(void);
 int packItemToPowerup(int nPack);
 int powerupToPackItem(int nPowerUp);
 char packAddItem(PLAYER *pPlayer, unsigned int nPack);

@@ -97,19 +97,8 @@ bool GameInterface::CanSave()
 
 bool GameInterface::StartGame(FNewGameStartup& gs)
 {
-	if (gs.Episode >= 1)
-	{
-		if (g_gameType & GAMEFLAG_SHAREWARE)
-		{
-			M_StartMessage(GStrings("BUYDUKE"), 1, NAME_None);
-			return false;
-		}
-	}
-
 	int32_t skillsound = PISTOL_BODYHIT;
 
-	soundEngine->StopAllChannels();
-	
 	static const short sounds_d[] = { JIBBED_ACTOR6, BONUS_SPEECH1, DUKE_GETWEAPON2, JIBBED_ACTOR5, JIBBED_ACTOR5 };
 	static const short sounds_r[] = { 427, 428, 196, 195, 197 };
 	if (gs.Skill >=0 && gs.Skill <= 5) skillsound = isRR()? sounds_r[gs.Skill] : sounds_d[gs.Skill];
@@ -126,15 +115,7 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 		}
 		Net_ClearFifo();
 	}
-
-	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
-	if (map)
-	{
-		DeferedStartGame(map, gs.Skill);
-		return true;
-	}
-	return false;
-
+	return true;
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
@@ -154,11 +135,5 @@ void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 
 	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, color, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 }
-
-void GameInterface::QuitToTitle()
-{
-	gameaction = ga_startup;
-}
-
 
 END_DUKE_NS

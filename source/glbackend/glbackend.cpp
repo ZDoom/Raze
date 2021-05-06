@@ -49,10 +49,18 @@
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
 #include "gamestruct.h"
-#include "gl_models.h"
+#include "hw_models.h"
+#include "gamefuncs.h"
 #include "gamehud.h"
 
-CVAR(Bool, gl_texture, true, 0)
+CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
+bool hw_int_useindexedcolortextures;
+CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
+{
+	if (screen) screen->SetTextureFilterMode();
+}
+
+EXTERN_CVAR(Bool, gl_texture)
 
 static int BufferLock = 0;
 
@@ -62,31 +70,14 @@ void Draw2D(F2DDrawer* drawer, FRenderState& state);
 GLInstance GLInterface;
 
 GLInstance::GLInstance()
-	:palmanager(this)
 {
 	VSMatrix mat(0);
 	matrixArray.Push(mat);
 }
 
-IHardwareTexture *setpalettelayer(int layer, int translation)
-{
-	if (layer == 1)
-		return GLInterface.palmanager.GetPalette(GetTranslationType(translation) - Translation_Remap);
-	else if (layer == 2)
-		return GLInterface.palmanager.GetLookup(GetTranslationIndex(translation));
-	else return nullptr;
-}
-
 void GLInstance::Init(int ydim)
 {
-	FMaterial::SetLayerCallback(setpalettelayer);
 	new(&renderState) PolymostRenderState;	// reset to defaults.
-}
-
-void GLInstance::Deinit()
-{
-	palmanager.DeleteAll();
-	lastPalswapIndex = -1;
 }
 
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
@@ -128,13 +119,14 @@ void GLInstance::DoDraw()
 					state.SetDepthFunc(DF_LEqual);
 					state.EnableTexture(true);
 					rs.model->BuildVertexBuffer(&mr);
-					mr.SetupFrame(rs.model, rs.mframes[0], rs.mframes[1], rs.mfactor);
+					mr.SetupFrame(rs.model, rs.mframes[0], rs.mframes[1], 0);
 					rs.model->RenderFrame(&mr, rs.mMaterial.mTexture, rs.mframes[0], rs.mframes[1], 0.f, rs.mMaterial.mTranslation);
 					state.SetDepthFunc(DF_Less);
 					state.SetVertexBuffer(screen->mVertexData);
 				}
 			}
 		}
+		state.SetNpotEmulation(0, 0);	// make sure we do not leave this in an undefined state.
 		renderState.Apply(*screen->RenderState(), lastState);	// apply any pending change before returning.
 		rendercommands.Clear();
 		hw_int_useindexedcolortextures = false;
@@ -182,6 +174,7 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	else
 	{
 		state.EnableFog(0);
+		state.SetFog(0, 0);
 		state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
 		state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
 	}
@@ -197,7 +190,8 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.SetMaterial(mMaterial.mTexture, mMaterial.uFlags, mMaterial.mScaleFlags, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
 
-	state.SetColor(Color[0], Color[1], Color[2], Color[3]);
+	if (!drawblack) state.SetColor(Color[0], Color[1], Color[2], Color[3]);
+	else state.SetColor(0, 0, 0, Color[3]);
 	if (StateFlags != oldState.Flags)
 	{
 		state.EnableDepthTest(StateFlags & STF_DEPTHTEST);
@@ -274,7 +268,7 @@ bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	return true;
 }
 
-void DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width, int height, bool upsidedown)
+static void PM_DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width, int height, bool upsidedown)
 {
 	int pixelsize = 3;
 	int pitch = width * pixelsize;
@@ -293,7 +287,7 @@ void DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width,
 //
 //===========================================================================
 
-void WriteSavePic(FileWriter* file, int width, int height)
+void PM_WriteSavePic(FileWriter* file, int width, int height)
 {
 	IntRect bounds;
 	bounds.left = 0;
@@ -350,7 +344,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	uint8_t* scr = (uint8_t*)M_Malloc(numpixels * 3);
 	screen->CopyScreenToBuffer(width, height, scr);
 
-	DoWriteSavePic(file, SS_RGB, scr, width, height, screen->FlipSavePic());
+	PM_DoWriteSavePic(file, SS_RGB, scr, width, height, screen->FlipSavePic());
 	M_Free(scr);
 
 	// Switch back the screen render buffers
@@ -380,6 +374,11 @@ void renderSetViewMatrix(const float* p)
 void renderSetVisibility(float vis)
 {
 	vp.mGlobVis = vis;
+}
+
+void renderSetViewpoint(float x, float y, float z)
+{
+	vp.mCameraPos = {x, z, y, 0};
 }
 
 void renderBeginScene()

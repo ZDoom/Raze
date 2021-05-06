@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 #include "compat.h"
-#include "mmulti.h"
+#include "d_net.h"
 
 #include "mytypes.h"
 #include "sounds.h"
@@ -77,7 +77,6 @@ extern GAME_SET gs;
 enum
 {
     DREALMSPAL = 1,
-    THREED_REALMS_PIC = 2325,
 
     MAXMIRRORS          = 8,
     // This is just some, high, blank tile number not used
@@ -220,11 +219,11 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SP_TAG10(sp) (LSB_VAR((sp)->owner))
 #define SP_TAG11(sp) ((sp)->shade)
 #define SP_TAG12(sp) ((sp)->pal)
-#define SP_TAG13(sp) B_LITTLE16(*((short*)&(sp)->xoffset))
-#define SP_TAG14(sp) B_LITTLE16(*((short*)&(sp)->xrepeat))
+#define SP_TAG13(sp) LittleShort(*((short*)&(sp)->xoffset))
+#define SP_TAG14(sp) LittleShort(*((short*)&(sp)->xrepeat))
 #define SP_TAG15(sp) ((sp)->z)
-#define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = B_LITTLE16((short)val)
-#define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = B_LITTLE16((short)val)
+#define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = LittleShort((short)val)
+#define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = LittleShort((short)val)
 
 #define SPRITE_TAG1(sp) (sprite[sp].hitag)
 #define SPRITE_TAG2(sp) (sprite[sp].lotag)
@@ -238,11 +237,11 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SPRITE_TAG10(sp) (LSB_VAR(sprite[sp].owner))
 #define SPRITE_TAG11(sp) (sprite[sp].shade)
 #define SPRITE_TAG12(sp) (sprite[sp].pal)
-#define SPRITE_TAG13(sp) B_LITTLE16(*((short*)&sprite[sp].xoffset))
-#define SPRITE_TAG14(sp) B_LITTLE16(*((short*)&sprite[sp].xrepeat))
+#define SPRITE_TAG13(sp) LittleShort(*((short*)&sprite[sp].xoffset))
+#define SPRITE_TAG14(sp) LittleShort(*((short*)&sprite[sp].xrepeat))
 #define SPRITE_TAG15(sp) (sprite[sp].z)
-#define SET_SPRITE_TAG13(sp,val) (*((short*)&sprite[sp].xoffset)) = B_LITTLE16((short)val)
-#define SET_SPRITE_TAG14(sp,val) (*((short*)&sprite[sp].xrepeat)) = B_LITTLE16((short)val)
+#define SET_SPRITE_TAG13(sp,val) (*((short*)&sprite[sp].xoffset)) = LittleShort((short)val)
+#define SET_SPRITE_TAG14(sp,val) (*((short*)&sprite[sp].xrepeat)) = LittleShort((short)val)
 
 // OVER and UNDER water macros
 #define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false)
@@ -354,10 +353,6 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 
 // just determine if the player is moving
 #define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)
-
-#define TEST_GOTSECTOR(sect_num) (TEST(gotsector[(sect_num) >> 3], 1 << ((sect_num) & 7)))
-#define RESET_GOTSECTOR(sect_num) (RESET(gotsector[(sect_num) >> 3], 1 << ((sect_num) & 7)))
-#define SET_GOTSECTOR(sect_num) (SET(gotsector[(sect_num) >> 3], 1 << ((sect_num) & 7)))
 
 #define TEST_GOTPIC(tile_num) (TEST(gotpic[(tile_num) >> 3], 1 << ((tile_num) & 7)))
 #define RESET_GOTPIC(tile_num) (RESET(gotpic[(tile_num) >> 3], 1 << ((tile_num) & 7)))
@@ -1920,7 +1915,6 @@ ANIMATOR NullAnimator;
 
 int Distance(int x1, int y1, int x2, int y2);
 
-int SetActorRotation(short SpriteNum,int,int);
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(short SpriteNum, short id, STATEp state);
@@ -2001,23 +1995,16 @@ int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 void change_sprite_stat(short, short);
 void SetOwner(short, short);
 void SetAttach(short, short);
-void analyzesprites(int,int,int,bool);
+void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
 void ChangeState(short SpriteNum, STATEp statep);
+void CollectPortals();
 
-void UpdateSectorFAF_Connect(short SpriteNum, int newz);
-#if 0
-bool FAF_ConnectCeiling(short sectnum);
-bool FAF_ConnectFloor(short sectnum);
-#else
 #define FAF_PLACE_MIRROR_PIC 341
 #define FAF_MIRROR_PIC 2356
 #define FAF_ConnectCeiling(sectnum) (sector[(sectnum)].ceilingpicnum == FAF_MIRROR_PIC)
 #define FAF_ConnectFloor(sectnum) (sector[(sectnum)].floorpicnum == FAF_MIRROR_PIC)
 #define FAF_ConnectArea(sectnum) (FAF_ConnectCeiling(sectnum) || FAF_ConnectFloor(sectnum))
-#endif
-//void updatesectorz(int, int, int, short *);
-void FAF_ConnectPlayerCeiling(PLAYERp pp);
-void FAF_ConnectPlayerFloor(PLAYERp pp);
+
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
 bool PlayerFloorHit(PLAYERp pp, int zlimit);
 
@@ -2159,7 +2146,6 @@ void getsyncstat(void); // sync.c
 void SyncStatMessage(void); // sync.c
 
 void drawscreen(PLAYERp pp, double smoothratio);    // draw.c
-void post_analyzesprites(void); // draw.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c
 
@@ -2238,9 +2224,7 @@ extern short wait_active_check_offset;
 //extern short Zombies;
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 extern bool left_foot;
-extern bool serpwasseen;
-extern bool sumowasseen;
-extern bool zillawasseen;
+extern bool bosswasseen[3];
 extern short BossSpriteNum[3];
 extern int ChopTics;
 extern short Bunny_Count;
@@ -2266,8 +2250,7 @@ struct GameInterface : ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
-    void QuitToTitle() override;
-	void UpdateSounds() override;
+    void UpdateSounds() override;
     void ErrorCleanup() override;
     void GetInput(InputPacket* input, ControlInfo* const hidInput) override;
     void DrawBackground(void) override;
@@ -2287,7 +2270,11 @@ struct GameInterface : ::GameInterface
     int chaseCamX(binangle ang) override { return -ang.bcos(-3); }
     int chaseCamY(binangle ang) override { return -ang.bsin(-3); }
     int chaseCamZ(fixedhoriz horiz) override { return horiz.asq16() >> 8; }
-    int Voxelize(int sprnum) override;
+    void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+    void UpdateCameras(double smoothratio) override;
+    void EnterPortal(spritetype* viewer, int type) override;
+    void LeavePortal(spritetype* viewer, int type) override;
+    int Voxelize(int sprnum);
 
 
     GameStats getStats() override;

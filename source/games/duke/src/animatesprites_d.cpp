@@ -43,7 +43,7 @@ EXTERN_CVAR(Bool, wt_commentary)
 
 BEGIN_DUKE_NS
 
-void animatesprites_d(int x, int y, int a, int smoothratio)
+void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio)
 {
 	int i, j, k, p;
 	short sect;
@@ -177,8 +177,8 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 		{
 			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posx - ps[s->yvel].oposx, 16);
 			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posy - ps[s->yvel].oposy, 16);
-			t->z = ps[s->yvel].oposz + MulScale(smoothratio, ps[s->yvel].posz - ps[s->yvel].oposz, 16);
-			t->z += (40 << 8);
+			t->z = interpolatedvalue(ps[s->yvel].oposz, ps[s->yvel].posz, smoothratio);
+			t->z += PHEIGHT_DUKE;
 		}
 		else if (s->picnum != CRANEPOLE)
 		{
@@ -328,10 +328,10 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 				t->cstat |= 2;
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
-					t->x = omyx + MulScale((int)(myx - omyx), smoothratio, 16);
-					t->y = omyy + MulScale((int)(myy - omyy), smoothratio, 16);
-					t->z = omyz + MulScale((int)(myz - omyz), smoothratio, 16) + (40 << 8);
-					t->ang = myang.asbuild() + MulScale((((myang.asbuild() + 1024 - myang.asbuild()) & 2047) - 1024), smoothratio, 16);
+					t->x = interpolatedvalue(omyx, myx, smoothratio);
+					t->y = interpolatedvalue(omyy, myy, smoothratio);
+					t->z = interpolatedvalue(omyz, myz, smoothratio) + PHEIGHT_DUKE;
+					t->ang = interpolatedangle(omyang, myang, smoothratio).asbuild();
 					t->sectnum = mycursectnum;
 				}
 			}
@@ -438,7 +438,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 		PALONLY:
 
 			if (sector[sect].floorpal)
-				t->pal = sector[sect].floorpal;
+				copyfloorpal(t, &sector[sect]);
 
 			if (!h->GetOwner()) continue;
 
@@ -484,7 +484,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 			t->shade -= 6;
 
 			if (sector[sect].floorpal)
-				t->pal = sector[sect].floorpal;
+				copyfloorpal(t, &sector[sect]);
 			break;
 
 		case WATERBUBBLE:
@@ -496,7 +496,7 @@ void animatesprites_d(int x, int y, int a, int smoothratio)
 		default:
 
 			if (sector[sect].floorpal)
-				t->pal = sector[sect].floorpal;
+				copyfloorpal(t, &sector[sect]);
 			break;
 		}
 

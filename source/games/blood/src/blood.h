@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "gamestruct.h"
 #include "mapinfo.h"
+#include "d_net.h"
 
 #include "common_game.h"
 #include "fx.h"
@@ -35,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ai.h"
 #include "aistate.h"
 #include "aiunicult.h"
-#include "blood.h"
 #include "callback.h"
 #include "db.h"
 #include "endgame.h"
@@ -78,10 +78,23 @@ extern int blood_globalflags;
 
 void QuitGame(void);
 void PreloadCache(void);
-void StartLevel(MapRecord *gameOptions);
 void ProcessFrame(void);
 void ScanINIFiles(void);
 void EndLevel();
+
+struct MIRROR
+{
+	int type;
+	int link;
+	int dx;
+	int dy;
+	int dz;
+	int wallnum;
+};
+
+extern MIRROR mirror[16];
+extern int mirrorcnt, mirrorsector, mirrorwall[4];
+
 
 inline bool DemoRecordStatus(void)
 {
@@ -108,8 +121,6 @@ struct GameInterface : ::GameInterface
 	void MenuOpened() override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	bool StartGame(FNewGameStartup& gs) override;
-	void QuitToTitle() override;
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;
@@ -131,9 +142,12 @@ struct GameInterface : ::GameInterface
 	void ToggleThirdPerson() override;
 	void SwitchCoopView() override;
 	void ToggleShowWeapon() override;
-	int chaseCamX(binangle ang) { return MulScale(-Cos(ang.asbuild()), 1280, 30); }
-	int chaseCamY(binangle ang) { return MulScale(-Sin(ang.asbuild()), 1280, 30); }
-	int chaseCamZ(fixedhoriz horiz) { return FixedToInt(MulScale(horiz.asq16(), 1280, 3)) - (16 << 8); }
+	int chaseCamX(binangle ang) override { return MulScale(-Cos(ang.asbuild()), 1280, 30); }
+	int chaseCamY(binangle ang) override { return MulScale(-Sin(ang.asbuild()), 1280, 30); }
+	int chaseCamZ(fixedhoriz horiz) override { return FixedToInt(MulScale(horiz.asq16(), 1280, 3)) - (16 << 8); }
+	void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+	void EnterPortal(spritetype* viewer, int type) override;
+	void LeavePortal(spritetype* viewer, int type) override;
 
 	GameStats getStats() override;
 };

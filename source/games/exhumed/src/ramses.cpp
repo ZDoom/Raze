@@ -64,8 +64,6 @@ short nTalkTime = 0;
 
 void InitSpiritHead()
 {
-    char filename[20];
-
     nPixels = 0;
 
     nSpiritRepeatX = sprite[nSpiritSprite].xrepeat;
@@ -137,26 +135,15 @@ void InitSpiritHead()
 
     fadecdaudio();
 
-    int nTrack;
-
-    if (currentLevel->levelNumber == 1)
-    {
-        nTrack = 3;
-    }
-    else
-    {
-        nTrack = 7;
-    }
-
+    int nTrack = currentLevel->ex_ramses_cdtrack;
     playCDtrack(nTrack, false);
 
     StartSwirlies();
 
-    sprintf(filename, "LEV%d.PUP", currentLevel->levelNumber);
     lNextStateChange = PlayClock;
     lHeadStartClock = PlayClock;
 
-	auto headfd = fileSystem.OpenFileReader(filename);
+	auto headfd = fileSystem.OpenFileReader(currentLevel->ex_ramses_pup);
 	if (!headfd.isOpen())
 	{
 		memset(cPupData, 0, sizeof(cPupData));

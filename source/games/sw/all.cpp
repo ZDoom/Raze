@@ -1,4 +1,3 @@
-#include "src/2d.cpp"
 #include "src/actor.cpp"
 #include "src/ai.cpp"
 #include "src/break.cpp"
@@ -60,3 +59,5 @@
 #include "src/zilla.cpp"
 #include "src/zombie.cpp"
 #include "src/d_menu.cpp"
+
+#include "src/_polymost.cpp"

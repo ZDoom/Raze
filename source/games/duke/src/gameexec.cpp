@@ -130,11 +130,6 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor*
 		if (!bSet) SetGameVarID(lVar2, cl_showweapon, sActor, sPlayer);
 		break;
 
-	case USERDEFS_FROM_BONUS:
-		if (bSet) ud.from_bonus = lValue;
-		else SetGameVarID(lVar2, ud.from_bonus, sActor, sPlayer);
-		break;
-
 	case USERDEFS_CAMERASPRITE:
 		if (bSet) ud.cameraactor = ScriptIndexToActor(lValue);
 		else SetGameVarID(lVar2, ActorToScriptIndex(ud.cameraactor), sActor, sPlayer);
@@ -237,14 +232,6 @@ static void DoUserDef(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor*
 	case USERDEFS_PLAYER_SKILL:
 		if (bSet) ud.player_skill = lValue;
 		else SetGameVarID(lVar2, ud.player_skill, sActor, sPlayer);
-		break;
-
-	case USERDEFS_LEVEL_NUMBER:
-		if (!bSet) SetGameVarID(lVar2, mapfromlevelnum(currentLevel->levelNumber), sActor, sPlayer);
-		break;
-
-	case USERDEFS_VOLUME_NUMBER:
-		if (!bSet) SetGameVarID(lVar2, volfromlevelnum(currentLevel->levelNumber), sActor, sPlayer);
 		break;
 
 	case USERDEFS_MARKER:
@@ -484,7 +471,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_LOOK_ANG:
-		if (bSet) ps[iPlayer].angle.look_ang = buildlook(lValue);
+		if (bSet) ps[iPlayer].angle.look_ang = buildang(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.look_ang.asbuild(), sActor, sPlayer);
 		break;
 
@@ -645,8 +632,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ONE_EIGHTY_COUNT:
-		if (bSet) ps[iPlayer].angle.spin = buildlook(lValue);
-		else SetGameVarID(lVar2, ps[iPlayer].angle.spin.asbuild(), sActor, sPlayer);
+		if (bSet) ps[iPlayer].angle.spin = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].angle.spin, sActor, sPlayer);
 		break;
 
 	case PLAYER_CHEAT_PHASE:
@@ -705,7 +692,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].angle.rotscrnang = buildlook(lValue);
+		if (bSet) ps[iPlayer].angle.rotscrnang = buildang(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.rotscrnang.asbuild(), sActor, sPlayer);
 		break;
 
@@ -984,7 +971,7 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 		else SetGameVarID(lVar2, wall[iWall].overpicnum, sActor, sPlayer);
 		break;
 	case WALL_SHADE:
-		if (bSet) wall[iWall].x = lValue;
+		if (bSet) wall[iWall].shade = lValue;
 		else SetGameVarID(lVar2, wall[iWall].shade, sActor, sPlayer);
 		break;
 	case WALL_PAL:
@@ -1016,8 +1003,8 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 		else SetGameVarID(lVar2, wall[iWall].hitag, sActor, sPlayer);
 		break;
 	case WALL_EXTRA:
-		if (bSet) wall[iWall].x = lValue;
-		else SetGameVarID(lVar2, wall[iWall].x, sActor, sPlayer);
+		if (bSet) wall[iWall].extra = lValue;
+		else SetGameVarID(lVar2, wall[iWall].extra, sActor, sPlayer);
 		break;
 	default:
 		break;
@@ -2268,7 +2255,7 @@ int ParseState::parse(void)
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].posxv = ps[g_p].posyv = 0;
-			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = buildlook(0);
+			if (!isRR()) ps[g_p].angle.orotscrnang = ps[g_p].angle.rotscrnang = buildang(0);
 
 			ps[g_p].falling_counter = 0;
 
@@ -3455,7 +3442,7 @@ int ParseState::parse(void)
 		insptr++; // skip command
 		volnume = GetGameVarID(*insptr++, g_ac, g_p);
 		levnume = GetGameVarID(*insptr++, g_ac, g_p);
-		auto level = FindMapByLevelNum(levelnum(volnume - 1, levnume - 1));
+		auto level = FindMapByIndex(volnume, levnume);
 		if (level != nullptr)
 			ChangeLevel(level, -1);
 		break;
@@ -3572,7 +3559,7 @@ int ParseState::parse(void)
 	{
 		insptr++;
 		int music_select = *insptr++;
-		auto level = FindMapByLevelNum(levelnum(currentLevel->levelNumber, music_select));
+ 		auto level = FindMapByIndex(currentLevel->cluster, music_select+1); // this was 0-based in EDuke 2.0...
 		if (level) S_PlayLevelMusic(level);
 		break;
 	}

@@ -88,10 +88,6 @@ CVAR(Bool, sw_bunnyrockets, false, CVAR_SERVERINFO | CVAR_CHEAT);   // This is a
 
 BEGIN_SW_NS
 
-void Logo(const CompletionFunc& completion);
-void StatScreen(int FinishAnim, CompletionFunc completion);
-
-
 void pClearSpriteList(PLAYERp pp);
 
 extern int sw_snd_scratch;
@@ -154,7 +150,6 @@ FString ThemeSongs[6];
 int ThemeTrack[6];
 
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
-void SybexScreen(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #define x(a, b) registerName(#a, b);
@@ -198,7 +193,6 @@ void GameInterface::app_init()
 
     registerosdcommands();
 
-    engineInit();
     auto pal = fileSystem.LoadFile("3drealms.pal", 0);
     if (pal.Size() >= 768)
     {
@@ -218,8 +212,6 @@ void GameInterface::app_init()
         I_FatalError("To play a Network game with more than 4 players you must purchase "
             "the full version.  Read the Ordering Info screens for details.");
     }
-
-    TileFiles.LoadArtSet("tiles%03d.art");
 
     //Connect();
     SortBreakInfo();
@@ -256,12 +248,6 @@ void GameInterface::DrawBackground(void)
     twod->ClearScreen();
     DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal,
         DTA_Color, shadeToLight(20), TAG_DONE);
-
-    if (CommEnabled)
-    {
-        MNU_DrawString(160, 170, "Lo Wang is waiting for other players...", 1, 16, 0);
-        MNU_DrawString(160, 180, "They are afraid!", 1, 16, 0);
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -285,9 +271,8 @@ void InitLevelGlobals(void)
 
     gNet.TimeLimitClock = gNet.TimeLimit;
 
-    serpwasseen = false; 
-    sumowasseen = false;
-    zillawasseen = false;
+
+    for (auto& b : bosswasseen) b = false;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
 }
 
@@ -347,16 +332,6 @@ void InitLevel(MapRecord *maprec)
     engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &Player[0].cursectnum);
     currentLevel = maprec;
 
-    if (!maprec->labelName.CompareNoCase("$hidtemp") && !maprec->name.CompareNoCase("$TXTS_T_MAP10"))
-    {
-        // flip the inverted card reader in TD's level 10.
-        if (sprite[179].picnum == 1852 && sprite[179].cstat == 92) sprite[179].cstat &= ~12;
-    }
-    if (!maprec->labelName.CompareNoCase("$outpost") && !maprec->name.CompareNoCase("$TXTS_MAP09"))
-    {
-        // silence a misplaced and *very* annoying ambient sound.
-        if (sprite[442].picnum == ST1 && sprite[442].hitag == 1002 && sprite[442].lotag == 31) sprite[442].lotag = -1;
-    }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
@@ -402,6 +377,7 @@ void InitLevel(MapRecord *maprec)
     PostSetupSectorObject();
     SetupMirrorTiles();
     initlava();
+    CollectPortals();
 
     // reset NewGame
     NewGame = false;
@@ -545,30 +521,37 @@ static void PlayOrderSound()
 
 
 
-void GameInterface::LevelCompleted(MapRecord *map, int skill)
+void GameInterface::LevelCompleted(MapRecord* map, int skill)
 {
-	//ResetPalette(mpp);
-	COVER_SetReverb(0); // Reset reverb
-	Player[myconnectindex].Reverb = 0;
-	StopSound();
+    //ResetPalette(mpp);
+    COVER_SetReverb(0); // Reset reverb
+    Player[myconnectindex].Reverb = 0;
+    StopSound();
     STAT_Update(map == nullptr);
 
-	StatScreen(FinishAnim, [=](bool)
-		{
+    SummaryInfo info{};
+
+    info.kills = Player->Kills;
+    info.maxkills = TotalKillable;
+    info.secrets = Player->SecretsFound;
+    info.maxsecrets = LevelSecrets;
+    info.time = PlayClock / 120;
+
+    ShowIntermission(currentLevel, map, &info, [=](bool)
+        {
             if (map == nullptr)
-			{
-				FinishAnim = false;
-				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-                if (SW_SHAREWARE)
+            {
+                FinishAnim = false;
+                PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
+                if (isShareware())
                 {
                     PlayOrderSound();
                     gameaction = ga_creditsmenu;
                 }
-				else gameaction = ga_mainmenu;
-			}
-			else gameaction = ga_nextlevel;
-		});
-
+                else gameaction = ga_mainmenu;
+            }
+            else gameaction = ga_nextlevel;
+        });
 }
 //---------------------------------------------------------------------------
 //
@@ -596,6 +579,7 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool)
 	ShadowWarrior::NewGame = true;
 	InitLevel(map);
 	InitRunLevel();
+    gameaction = ga_level;
 }
 
 //---------------------------------------------------------------------------
@@ -645,17 +629,7 @@ void GameInterface::Render()
 
 void GameInterface::Startup()
 {
-    if (userConfig.CommandMap.IsNotEmpty())
-    {
-    }
-    else
-    {
-		if (!userConfig.nologo) Logo([](bool) 
-            { 
-                gameaction = ga_mainmenunostopsound;
-            });
-        else gameaction = ga_mainmenu;
-    }
+    PlayLogos(ga_mainmenunostopsound, ga_mainmenu, false);
 }
 
 

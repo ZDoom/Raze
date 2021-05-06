@@ -355,10 +355,11 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
 XSPRITE* evrIsRedirector(int nSprite);
 int listTx(XSPRITE* pXRedir, int tx);
 void seqSpawnerOffSameTx(XSPRITE* pXSource);
-#endif
 
 ////////////////////////////////////////////////////////////////////////
 // This file provides modern features for mappers.
 // For full documentation please visit http://cruo.bloodgame.ru/xxsystem
 ////////////////////////////////////////////////////////////////////////////////////
 END_BLD_NS
+
+#endif

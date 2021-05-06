@@ -44,7 +44,7 @@ typedef struct
 } saveable_module;
 
 template <typename T>
-constexpr enable_if_t<!std::is_pointer<T>::value, size_t> SAVE_SIZEOF(T const & obj) noexcept
+constexpr std::enable_if_t<!std::is_pointer<T>::value, size_t> SAVE_SIZEOF(T const & obj) noexcept
 {
     return sizeof(obj);
 }

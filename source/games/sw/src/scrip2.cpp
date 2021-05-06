@@ -40,6 +40,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "razemenu.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
+#include "hw_voxels.h"
 
 BEGIN_SW_NS
 
@@ -226,7 +227,7 @@ void LoadKVXFromScript(const char* filename)
         GetToken(false);
 
         // Load the voxel file into memory
-        if (!qloadkvx(lNumber,token))
+        if (!voxDefine(lNumber,token))
         {
             // Store the sprite and voxel numbers for later use
             aVoxelArray[lTile].Voxel = lNumber; // Voxel num
@@ -447,6 +448,7 @@ void LoadCustomInfoFromScript(const char *filename)
             {
                 curMap = AllocateMap();
                 curMap->levelNumber = mapno;
+                curMap->cluster = mapno < 5 ? 1 : 2;
             }
             if (sc.CheckString("{"))
 
@@ -523,13 +525,19 @@ void LoadCustomInfoFromScript(const char *filename)
                 case CM_TITLE:
                 {
                     sc.MustGetString();
-                    if (curep != -1) gVolumeNames[curep] = sc.String;
+                    auto vol = MustFindVolume(curep);
+                    auto clust = MustFindCluster(curep);
+                    vol->name = clust->name = sc.String;
                     break;
                 }
                 case CM_SUBTITLE:
                 {
                     sc.MustGetString();
-                    if (curep != -1) gVolumeSubtitles[curep] = sc.String;
+                    if (curep != -1)
+                    {
+                        auto vol = MustFindVolume(curep);
+                        vol->subtitle = sc.String;
+                    }
                     break;
                 }
                 default:
@@ -800,6 +808,12 @@ void LoadCustomInfoFromScript(const char *filename)
             break;
         }
     }
+    auto vol0 = MustFindVolume(0);
+    auto vol1 = MustFindVolume(1);
+    auto map1 = FindMapByLevelNum(1);
+    auto map5 = FindMapByLevelNum(5);
+    if (vol0 && map1) vol0->startmap = map1->labelName;
+    if (vol1 && map5) vol1->startmap = map5->labelName;
 }
 
 END_SW_NS

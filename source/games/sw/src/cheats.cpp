@@ -116,7 +116,7 @@ bool NextCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
     if (!currentLevel) return true;
-    auto map = FindMapByLevelNum(currentLevel->levelNumber + 1);
+    auto map = FindNextMap(currentLevel);
 	if (map) DeferedStartGame(map, -1);
     return true;
 }

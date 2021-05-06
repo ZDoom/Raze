@@ -48,6 +48,7 @@
 #include "../../glbackend/glbackend.h"
 
 LookupTableInfo lookups;
+int numshades;
 
 //==========================================================================
 //
@@ -136,7 +137,6 @@ void paletteLoadFromDisk(void)
 
 void LookupTableInfo::postLoadTables(void)
 {
-    globalpal = 0;
     GPalette.GenerateGlobalBrightmapFromColormap(getTable(0), numshades);
 
     // Try to detect fullbright translations. Unfortunately this cannot be used to detect fade strength because of loss of color precision in the palette map.

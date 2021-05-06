@@ -6898,15 +6898,28 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
     int flags;
 
     double const look_anghalf = pp->angle.look_anghalf(smoothratio);
-    double const looking_arc = fabs(look_anghalf) / 4.5;
+    double const looking_arc = pp->angle.looking_arc(smoothratio);
 
     TRAVERSE(&pp->PanelSpriteList, psp, next)
     {
         ang = psp->rotate_ang;
         shade = 0;
         flags = 0;
-        x = (psp->ox + MulScaleF(psp->x - psp->ox, smoothratio, 16)) - look_anghalf;
-        y = (psp->oy + MulScaleF(psp->y - psp->oy, smoothratio, 16)) + looking_arc;
+        if (cl_hudinterpolation)
+        {
+            x = interpolatedvaluef(psp->ox, psp->x, smoothratio);
+            y = interpolatedvaluef(psp->oy, psp->y, smoothratio);
+
+        }
+        else
+        {
+            x = psp->x;
+            y = psp->y;
+        }
+
+        x -= look_anghalf;
+        y += looking_arc;
+
         // initilize pal here - jack with it below
         pal = psp->pal;
 

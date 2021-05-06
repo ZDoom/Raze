@@ -261,9 +261,8 @@ void CFX::fxProcess(void)
     }
 }
 
-void fxSpawnBlood(spritetype *pSprite, int a2)
+void fxSpawnBlood(spritetype *pSprite, int )
 {
-    UNREFERENCED_PARAMETER(a2);
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
     int nSector = pSprite->sectnum;
@@ -282,9 +281,8 @@ void fxSpawnBlood(spritetype *pSprite, int a2)
     }
 }
 
-void sub_746D4(spritetype *pSprite, int a2)
+void sub_746D4(spritetype *pSprite, int )
 {
-    UNREFERENCED_PARAMETER(a2);
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
     int nSector = pSprite->sectnum;

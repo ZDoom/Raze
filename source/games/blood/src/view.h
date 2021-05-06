@@ -34,31 +34,31 @@ BEGIN_BLD_NS
 struct VIEW {
     int bobPhase;
     int Kills;
-    int at8; // bob height
-    int atc; // bob width
+    int bobHeight; // bob height
+    int bobWidth; // bob width
     int at10;
     int at14;
-    int at18; // bob sway y
-    int at1c; // bob sway x
-    fixedhoriz at24; // horiz
-    fixedhoriz at28; // horizoff
+    int shakeBobY; // bob sway y
+    int shakeBobX; // bob sway x
+    fixedhoriz horiz; // horiz
+    fixedhoriz horizoff; // horizoff
     int at2c;
-    binangle at30; // angle
-    int at34; // weapon z
-    int at38; // view z
+    binangle angle; // angle
+    int weaponZ; // weapon z
+    int viewz; // view z
     int at3c;
     int at40;
     int at44;
     int at48; // posture
-    lookangle at4c; // spin
-    int at50; // x
-    int at54; // y
-    int at58; // z
-    int at5c; //xvel
-    int at60; //yvel
-    int at64; //zvel
-    short at68; // sectnum
-    unsigned int at6a; // floordist
+    double spin; // spin
+    int x; // x
+    int y; // y
+    int z; // z
+    int xvel; //xvel
+    int yvel; //yvel
+    int zvel; //zvel
+    short sectnum; // sectnum
+    unsigned int floordist; // floordist
     char at6e; // look center
     char at6f;
     char at70; // run
@@ -66,8 +66,8 @@ struct VIEW {
     char at72; // underwater
     short at73; // sprite flags
     SPRITEHIT at75;
-    lookangle look_ang;
-    lookangle rotscrnang;
+    binangle look_ang;
+    binangle rotscrnang;
 };
 
 extern VIEW gPrevView[kMaxPlayers];
@@ -144,7 +144,7 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 void InitStatusBar(void);
 void UpdateStatusBar();
 void viewInit(void);
-void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
+void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
 void viewSetMessage(const char *pMessage, const int pal = 0, const MESSAGE_PRIORITY priority = MESSAGE_PRIORITY_NORMAL);
 
 
@@ -153,7 +153,6 @@ void DoLensEffect(void);
 void UpdateDacs(int nPalette, bool bNoTint = false);
 void viewDrawScreen(bool sceneonly = false);
 void viewUpdateDelirium(void);
-void viewUpdateShake(void);
 void viewSetSystemMessage(const char* pMessage, ...);
 
 inline void viewInterpolateSector(int nSector, sectortype *pSector)

@@ -4,18 +4,20 @@
 
 #include "mdsprite.h"
 
-typedef struct { uint8_t r, g, b, a; } coltype;
-typedef struct { float r, g, b, a; } coltypef;
+extern tspritetype pm_tsprite[MAXSPRITESONSCREEN];
+extern int pm_spritesortcnt;
+extern int pm_smoothratio;
 
+
+namespace Polymost
+{
 extern float gtang;
 extern double gxyaspect;
 extern float grhalfxdown10x;
 extern float gcosang, gsinang, gcosang2, gsinang2;
-extern int pm_smoothratio;
 
 extern void Polymost_prepare_loadboard(void);
 
-void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...);
 
 //void phex(char v, char *s);
 void polymost_drawsprite(int32_t snum);
@@ -25,57 +27,40 @@ void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
 void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t mirrorWall);
 void polymost_completeMirror();
+void polymost_deletesprite(int num);
 
-int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall);
-int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr);
-int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr);
+int32_t polymost_maskWallHasTranslucency(walltype const * const wall);
+int32_t polymost_spriteHasTranslucency(spritetype const * const tspr);
 
 void polymost_glreset(void);
-
-enum {
-    INVALIDATE_ALL,
-    INVALIDATE_ART,
-    INVALIDATE_ALL_NON_INDEXED,
-    INVALIDATE_ART_NON_INDEXED
-};
-
+void polymost_scansector(int32_t sectnum);
 
 extern float curpolygonoffset;
 
+}
+
+void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
+    int32_t* tposx, int32_t* tposy, fixed_t* tang);
+void   renderCompleteMirror(void);
+
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
+
+void   renderDrawMasks(void);
+
+// PLAG: line utility functions
+typedef struct s_equation
+{
+    float a, b, c;
+} _equation;
+
+void    renderSetRollAngle(float rolla);
+
+
+// these are defined in engine.cpp.
 extern int16_t globalpicnum;
-
-#define POLYMOST_CHOOSE_FOG_PAL(fogpal, pal) \
-    ((fogpal) ? (fogpal) : (pal))
-static FORCE_INLINE int32_t get_floor_fogpal(usectorptr_t const sec)
-{
-    return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->floorpal);
-}
-static FORCE_INLINE int32_t get_ceiling_fogpal(usectorptr_t const sec)
-{
-    return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->ceilingpal);
-}
-static FORCE_INLINE int32_t fogshade(int32_t const shade, int32_t const pal)
-{
-    return (globalflags & GLOBAL_NO_GL_FOGSHADE) ? 0 : shade;
-}
-
-static constexpr inline int check_nonpow2(int32_t const x)
-{
-    return (x > 1 && (x&(x-1)));
-}
-
-static inline float polymost_invsqrt_approximation(float x)
-{
-#if !B_BIG_ENDIAN
-    float const haf = x * .5f;
-    union { float f; uint32_t i; } n = { x };
-    n.i = 0x5f375a86 - (n.i >> 1);
-    return n.f * (1.5f - haf * (n.f * n.f));
-#else
-    // this is the comment
-    return 1.f / sqrtf(x);
-#endif
-}
+extern float fcosglobalang, fsinglobalang;
+extern float fydimen, fviewingrange;
+extern int32_t viewingrangerecip;
 
 // Flags of the <dameth> argument of various functions
 enum {
@@ -95,12 +80,5 @@ enum {
     // used internally by polymost_domost
     DAMETH_BACKFACECULL = -1,
 };
-
-#define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
-static_assert(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
-
-extern float fcosglobalang, fsinglobalang;
-extern float fydimen, fviewingrange;
-extern int32_t viewingrangerecip;
 
 #endif

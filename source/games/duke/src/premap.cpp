@@ -36,6 +36,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "automap.h"
 #include "dukeactor.h"
 #include "interpolate.h"
+#include "precache.h"
+#include "render.h"
 
 BEGIN_DUKE_NS  
 
@@ -140,8 +142,8 @@ void resetplayerstats(int snum)
     p->jetpack_on =         0;
     p->holoduke_on =       nullptr;
 
-    p->angle.olook_ang = p->angle.look_ang = buildlook(512 - ((currentLevel->levelNumber & 1) << 10));
-    p->angle.orotscrnang = p->angle.rotscrnang = buildlook(0);
+    p->angle.olook_ang = p->angle.look_ang = buildang(512 - (((~currentLevel->levelNumber) & 1) << 10));
+    p->angle.orotscrnang = p->angle.rotscrnang = buildang(0);
 
     p->newOwner          =nullptr;
     p->jumping_counter   = 0;
@@ -152,7 +154,7 @@ void resetplayerstats(int snum)
     p->fric.x            = 0;
     p->fric.y            = 0;
     p->somethingonplayer =nullptr;
-    p->angle.spin        = bamlook(0);
+    p->angle.spin        = 0;
 
     p->on_crane          = nullptr;
 
@@ -658,7 +660,6 @@ void prelevel_common(int g)
     p->SlotWin = 0;
     enemysizecheat = 0;
     p->MamaEnd = 0;
-    mamaspawn_count = 15;
     banjosound = 0;
     RRRA_ExitedLevel = 0;
 
@@ -671,7 +672,7 @@ void prelevel_common(int g)
     WindDir = 0;
     fakebubba_spawn = 0;
     RRRA_ExitedLevel = 0;
-    mamaspawn_count = 15;
+    mamaspawn_count = currentLevel->rr_mamaspawn;
     BellTime = 0;
     BellSprite = nullptr;
 
@@ -753,7 +754,6 @@ void donewgame(MapRecord* map, int sk)
     auto p = &ps[0];
     show_shareware = 26 * 34;
 
-    //ud.nextLevel = map;
     ud.player_skill = sk;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
@@ -812,31 +812,122 @@ void donewgame(MapRecord* map, int sk)
     }
 }
 
-template<class func>
-void newgame(MapRecord* map, int sk, func completion)
+//---------------------------------------------------------------------------
+//
+// the setup here is very, very sloppy, because mappings are not 1:1.
+// Each portal can have multiple sectors, and even extends to unmarked
+// neighboring sectors if they got the portal tile as floor or ceiling
+//
+//---------------------------------------------------------------------------
+
+static void SpawnPortals()
 {
-    auto completion1 = [=](bool res)
+    for (int i = 0; i < numwalls; i++)
     {
-        if (!isRR() && map->levelNumber == levelnum(3, 0) && (ud.multimode < 2))
+        if (wall[i].overpicnum == TILE_MIRROR) wall[i].portalflags |= PORTAL_WALL_MIRROR;
+    }
+
+    portalClear();
+    int tag;
+    if (!isRR()) tag = 40;
+    else if (isRRRA()) tag = 150;
+    else return;
+
+    TArray<int> processedTags;
+    DukeStatIterator it(STAT_RAROR);
+    while (auto act = it.Next())
+    {
+        auto spr = act->s;
+        if (spr->picnum == SECTOREFFECTOR && spr->lotag == tag)
         {
-            e4intro([=](bool) { donewgame(map, sk); completion(res); });
+            if (processedTags.Find(spr->hitag) == processedTags.Size())
+            {
+                DukeStatIterator it2(STAT_RAROR);
+                while (auto act2 = it2.Next())
+                {
+                    auto spr2 = act2->s;
+                    if (spr2->picnum == SECTOREFFECTOR && spr2->lotag == tag + 1 && spr2->hitag == spr->hitag)
+                    {
+                        if (processedTags.Find(spr->hitag) == processedTags.Size())
+                        {
+                            int s1 = spr->sectnum, s2 = spr2->sectnum;
+                            sector[s1].portalflags = PORTAL_SECTOR_FLOOR;
+                            sector[s2].portalflags = PORTAL_SECTOR_CEILING;
+                            sector[s1].portalnum = portalAdd(PORTAL_SECTOR_FLOOR, s2, spr2->x - spr->x, spr2->y - spr->y, spr->hitag);
+                            sector[s2].portalnum = portalAdd(PORTAL_SECTOR_CEILING, s1, spr->x - spr2->x, spr->y - spr2->y, spr->hitag);
+                            processedTags.Push(spr->hitag);
+                        }
+                        else
+                        {
+                            for (auto& p : allPortals)
+                            {
+                                if (p.type == PORTAL_SECTOR_FLOOR && p.dz == spr->hitag)
+                                {
+                                    p.targets.Push(spr2->sectnum);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (auto& p : allPortals)
+                {
+                    if (p.type == PORTAL_SECTOR_CEILING && p.dz == spr->hitag)
+                    {
+                        p.targets.Push(spr->sectnum);
+                    }
+                }
+            }
         }
-        else
+    }
+    // Unfortunately the above still isn't enough. We got to do one more check to add stuff to the portals.
+    // There is one map where a sector neighboring a portal is not marked as part of the portal itself.
+    for (int i = 0; i < numsectors; i++)
+    {
+        if (sector[i].floorpicnum == FOF && sector[i].portalflags != PORTAL_SECTOR_FLOOR)
         {
-            donewgame(map, sk);
-            completion(res);
+            for (auto& pt : allPortals)
+            {
+                if (pt.type == PORTAL_SECTOR_CEILING)
+                {
+                    for (auto& t : pt.targets)
+                    {
+                        if (findwallbetweensectors(i, t) >= 0)
+                        {
+                            sector[i].portalflags = PORTAL_SECTOR_FLOOR;
+                            sector[i].portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
+                            pt.targets.Push(i);
+                            goto nexti;
+                        }
+                    }
+                }
+            }
         }
-    };
-
-    if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && ud.coop != 1)
-        dobonus(1, completion1);
-
-#if 0 // this is one lousy hack job that's hopefully not needed anymore.
-    else if (isRR() && !isRRRA() && map->levelNumber == levelnum(0, 6))
-        dobonus(0, completion1);
-#endif
-
-    else completion1(false);
+        else if (sector[i].ceilingpicnum == FOF && sector[i].portalflags != PORTAL_SECTOR_CEILING)
+        {
+            for (auto& pt : allPortals)
+            {
+                if (pt.type == PORTAL_SECTOR_FLOOR)
+                {
+                    for (auto& t : pt.targets)
+                    {
+                        if (findwallbetweensectors(i, t) >= 0)
+                        {
+                            sector[i].portalflags = PORTAL_SECTOR_CEILING;
+                            sector[i].portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
+                            pt.targets.Push(i);
+                            goto nexti;
+                        }
+                    }
+                }
+            }
+        }
+    nexti:;
+    }
+    for (auto& p : allPortals) p.dz = 0;
+    mergePortals();
 }
 
 //---------------------------------------------------------------------------
@@ -859,12 +950,6 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);
 
-    if (isRR() && !isRRRA() && mi->levelNumber == levelnum(1, 1))
-    {
-        for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
-            ps[0].ammo_amount[i] = 0;
-        ps[0].gotweapon.Clear(KNEE_WEAPON);
-    }
     p->angle.ang = buildang(lbang);
 
     memset(gotpic, 0, sizeof(gotpic));
@@ -872,15 +957,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     if (isRR()) prelevel_r(gamemode);
     else prelevel_d(gamemode);
 
-    if (isRRRA() && mi->levelNumber == levelnum(2, 0))
-    {
-        for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
-            ps[0].ammo_amount[i] = 0;
-        ps[0].gotweapon.Clear(KNEE_WEAPON);
-        ps[0].gotweapon.Set(SLINGBLADE_WEAPON);
-        ps[0].ammo_amount[SLINGBLADE_WEAPON] = 1;
-        ps[0].curr_weapon = SLINGBLADE_WEAPON;
-    }
+    SpawnPortals();
 
     allignwarpelevators();
     resetpspritevars(gamemode);
@@ -926,7 +1003,6 @@ void enterlevel(MapRecord *mi, int gamemode)
     OnEvent(EVENT_ENTERLEVEL);
 
     // Stop all sounds
-    S_ResumeSound(false);
     FX_StopAllSounds();
     FX_SetReverb(0);
 
@@ -943,27 +1019,32 @@ void enterlevel(MapRecord *mi, int gamemode)
         S_PlayLevelMusic(mi);
     }
 
-    if (isShareware() && mi->levelNumber == 0 && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
-
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
+        bool clearweapon = !!(currentLevel->flags & LEVEL_CLEARWEAPONS);
         int pn = sector[ps[i].GetActor()->s->sectnum].floorpicnum;
         if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
         {
-            resetweapons(i);
             resetinventory(i);
+            clearweapon = true;
+        }
+        if (clearweapon)
+        {
+            resetweapons(i);
             ps[i].gotweapon.Clear(PISTOL_WEAPON);
             ps[i].ammo_amount[PISTOL_WEAPON] = 0;
             ps[i].curr_weapon = KNEE_WEAPON;
+            ps[i].kickback_pic = 0;
             ps[i].okickback_pic = ps[i].kickback_pic = 0;
         }
+        if (currentLevel->flags & LEVEL_CLEARINVENTORY) resetinventory(i);
     }
     resetmys();
 
     everyothertime = 0;
     global_random = 0;
 
-    ud.last_level = currentLevel->levelNumber;
+    ud.last_level = 1;
     ps[myconnectindex].over_shoulder_on = 0;
     clearfrags();
     resettimevars();  // Here we go
@@ -984,9 +1065,19 @@ void enterlevel(MapRecord *mi, int gamemode)
 //
 //---------------------------------------------------------------------------
 
-void startnewgame(MapRecord* map, int skill)
+void GameInterface::NewGame(MapRecord* map, int skill, bool)
 {
+    for (int i = 0; i != -1; i = connectpoint2[i])
+    {
+        resetweapons(i);
+        resetinventory(i);
+    }
+
+    ps[0].last_extra = gs.max_player_health;
+
+
     if (skill == -1) skill = ud.player_skill;
+    else skill++;
     ud.player_skill = skill;
     ud.m_respawn_monsters = (skill == 4);
     ud.m_monsters_off = ud.monsters_off = 0;
@@ -994,13 +1085,13 @@ void startnewgame(MapRecord* map, int skill)
     ud.m_respawn_inventory = 0;
     ud.multimode = 1;
 
-    newgame(map, skill, [=](bool)
-        {
+    donewgame(map, skill);
             enterlevel(map, 0);
+    if (isShareware() && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
+
             PlayerColorChanged();
             inputState.ClearAllInput();
             gameaction = ga_level;
-        });
 }
 
 //---------------------------------------------------------------------------
@@ -1011,25 +1102,27 @@ void startnewgame(MapRecord* map, int skill)
 
 bool setnextmap(bool checksecretexit)
 {
-    MapRecord* map = nullptr;;
-    int from_bonus = 0;
+    MapRecord* map = nullptr;
+    MapRecord* from_bonus = nullptr;
 
-    if (ud.eog)
+    if (ud.eog && !(currentLevel->flags & LEVEL_FORCENOEOG))
     {
     }
     else if (checksecretexit && ud.from_bonus == 0)
     {
         if (ud.secretlevel > 0)
         {
-            int newlevnum = levelnum(volfromlevelnum(currentLevel->levelNumber), ud.secretlevel-1);
-            map = FindMapByLevelNum(newlevnum);
+            // allow overriding the secret exit destination to make episode compilation easier with maps containing secret exits.
+            if (currentLevel->flags & LEVEL_SECRETEXITOVERRIDE) map = FindNextSecretMap(currentLevel);
+            if (!map) map = FindMapByIndex(currentLevel->cluster, ud.secretlevel);
+
             if (map)
             {
-                from_bonus = currentLevel->levelNumber + 1;
+                from_bonus = FindNextMap(currentLevel);
             }
         }
     }
-    else if (ud.from_bonus && currentLevel->nextLevel == -1)	// if the current level has an explicit link, use that instead of ud.from_bonus.
+    else if (ud.from_bonus && currentLevel->NextMap.IsEmpty())	// if the current level has an explicit link, use that instead of ud.from_bonus.
     {
         map = FindMapByLevelNum(ud.from_bonus);
     }
@@ -1048,7 +1141,7 @@ bool setnextmap(bool checksecretexit)
         {
             I_Error("Trying to open non-existent %s", map->fileName.GetChars());
         }
-        ud.from_bonus = from_bonus;
+        ud.from_bonus = from_bonus? from_bonus->levelNumber : 0;
     }
     CompleteLevel(map);
     return false;
@@ -1060,30 +1153,33 @@ bool setnextmap(bool checksecretexit)
 //
 //---------------------------------------------------------------------------
 
-void exitlevel(MapRecord *nextlevel)
+void exitlevel(MapRecord* nextlevel)
 {
     bool endofgame = nextlevel == nullptr;
     STAT_Update(endofgame);
     StopCommentary();
 
-    dobonus(endofgame? -1 : 0, [=](bool)
-        {
+    SummaryInfo info{};
 
+    info.kills = ps[0].actors_killed;
+    info.maxkills = ps[0].max_actors_killed;
+    info.secrets = ps[0].secret_rooms;
+    info.maxsecrets = ps[0].max_secret_rooms;
+    info.time = ps[0].player_par / GameTicRate;
+    info.endofgame = endofgame;
+    Mus_Stop();
+
+    if (playerswhenstarted > 1 && ud.coop != 1)
+        {
+        // MP scoreboard
+        ShowScoreboard(playerswhenstarted, [=](bool)
+            {
             // Clear potentially loaded per-map ART only after the bonus screens.
             artClearMapArt();
             gameaction = ga_level;
             ud.eog = false;
             if (endofgame)
             {
-                if (ud.multimode < 2)
-                {
-                    if (isShareware())
-                        doorders([](bool) { gameaction = ga_startup; });
-                    else gameaction = ga_startup;
-                    return;
-                }
-                else
-                {
                     auto nextlevel = FindMapByLevelNum(0);
                     if (!nextlevel)
                     {
@@ -1092,11 +1188,22 @@ void exitlevel(MapRecord *nextlevel)
                     }
                     else gameaction = ga_nextlevel;
                 }
-            }
-            else 
+                else
                 gameaction = ga_nextlevel;
 
         });
+    }
+    else if (ud.multimode <= 1)
+    {
+        // SP cutscene + summary
+        ShowIntermission(currentLevel, nextlevel, &info, [=](bool)
+        {
+            // Clear potentially loaded per-map ART only after the bonus screens.
+            artClearMapArt();
+            ud.eog = false;
+            gameaction = endofgame? ga_startup : ga_nextlevel;
+        });
+    }
 }
 
 

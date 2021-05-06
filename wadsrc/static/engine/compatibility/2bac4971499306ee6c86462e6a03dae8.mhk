@@ -1,0 +1,2 @@
+// bad sky setting in WT's $volcano.map (original version)
+sector 118 clearflags ceiling 1

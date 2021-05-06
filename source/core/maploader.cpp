@@ -41,7 +41,10 @@
 #include "inputstate.h"
 #include "md4.h"
 #include "gamecontrol.h"
-
+#include "gamefuncs.h"
+#include "sectorgeometry.h"
+#include "render.h"
+#include "hw_sections.h"
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
 {
@@ -368,10 +371,14 @@ static void insertAllSprites(const char* filename, const vec3_t* pos, int16_t* c
 	assert(realnumsprites == Numsprites);
 }
 
+void addBlockingPairs();
 
 void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int16_t* cursectnum)
 {
 	inputState.ClearAllInput();
+	memset(sector, 0, sizeof(*sector) * MAXSECTORS);
+	memset(wall, 0, sizeof(*wall) * MAXWALLS);
+	memset(sprite, 0, sizeof(*sector) * MAXSPRITES);
 
 	FileReader fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen()) I_Error("Unable to open map %s", filename);
@@ -385,7 +392,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
 	initspritelists();
 	ClearAutomap();
-	Polymost_prepare_loadboard();
+	Polymost::Polymost_prepare_loadboard();
 
 	pos->x = fr.ReadInt32();
 	pos->y = fr.ReadInt32();
@@ -444,6 +451,10 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	unsigned char md4[16];
 	md4once(buffer.Data(), buffer.Size(), md4);
 	G_LoadMapHack(filename, md4);
+	setWallSectors();
+	hw_BuildSections();
+	sectorGeometry.SetSize(numsections);
+
 
 	memcpy(wallbackup, wall, sizeof(wallbackup));
 	memcpy(sectorbackup, sector, sizeof(sectorbackup));
@@ -467,5 +478,19 @@ void loadMapBackup(const char* filename)
 	{
 		engineLoadBoard(filename, 0, &pos, &scratch, &scratch);
 		initspritelists();
+	}
+}
+
+// Sets the sector reference for each wall. We need this for the triangulation cache.
+void setWallSectors()
+{
+	for (int i = 0; i < numsectors; i++)
+	{
+		sector[i].dirty = 255;
+		sector[i].exflags = 0;
+		for (int w = 0; w < sector[i].wallnum; w++)
+		{
+			wall[sector[i].wallptr + w].sector = i;
+		}
 	}
 }

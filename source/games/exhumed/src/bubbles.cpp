@@ -203,7 +203,7 @@ void FuncBubble(int a, int, int nRun)
         case 0x90000:
         {
             seq_PlotSequence(a & 0xFFFF, nSeq, BubbleList[nBubble].nFrame, 1);
-            tsprite[a & 0xFFFF].owner = -1;
+            mytsprite[a & 0xFFFF].owner = -1;
             return;
         }
 
@@ -236,7 +236,7 @@ void DoBubbleMachines()
 void BuildBubbleMachine(int nSprite)
 {
     if (nMachineCount >= kMaxMachines) {
-        I_Error("too many bubble machines in level %d\n", currentLevel->levelNumber);
+        I_Error("too many bubble machines in level %s\n", currentLevel->labelName.GetChars());
         exit(-1);
     }
 

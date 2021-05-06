@@ -41,7 +41,6 @@
 #include "c_dispatch.h"
 #include "d_net.h"
 #include "gamestate.h"
-#include "mmulti.h"
 #include "gstrings.h"
 #include "gamecontrol.h"
 #include "screenjob.h"
@@ -242,7 +241,7 @@ void changeMap(int player, uint8_t** stream, bool skip)
 
 void endScreenJob(int player, uint8_t** stream, bool skip)
 {
-	if (!skip) EndScreenJob();
+	if (!skip) gameaction = ga_endscreenjob;
 }
 
 //---------------------------------------------------------------------------
@@ -280,6 +279,7 @@ void DeferedStartGame(MapRecord* map, int skill, bool nostopsound)
 static MapRecord* levelwarp_common(FCommandLine& argv, const char *cmdname, const char *t2)
 {
 	int numparm = g_gameType & (GAMEFLAG_SW | GAMEFLAG_PSEXHUMED) ? 1 : 2;	// Handle games with episodic and non-episodic level order.
+	if (numparm == 2 && argv.argc() == 2) numparm = 1;
 	if (argv.argc() <= numparm)
 	{
 		if (numparm == 2) Printf(PRINT_BOLD,  "%s <e> <m>: %s episode 'e' and map 'm'\n", cmdname, t2);
@@ -294,7 +294,7 @@ static MapRecord* levelwarp_common(FCommandLine& argv, const char *cmdname, cons
 		Printf(PRINT_BOLD, "Invalid level! Numbers must be > 0\n");
 		return nullptr;
 	}
-	auto map = FindMapByLevelNum(numparm == 1 ? m : levelnum(e - 1, m - 1));
+	auto map = FindMapByIndex(e, m);
 	if (!map)
 	{
 		if (numparm == 2) Printf(PRINT_BOLD, "Level E%s L%s not found!\n", argv[1], argv[2]);

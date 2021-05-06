@@ -35,7 +35,7 @@
 
 #include <memory>
 #include "m_crc32.h"
-#include "glbackend.h"
+#include "hw_palmanager.h"
 
 #include "resourcefile.h"
 #include "imagehelpers.h"
@@ -43,6 +43,8 @@
 #include "palette.h"
 #include "build.h"
 #include "v_video.h"
+
+static PaletteManager* palmanager;
 
 //===========================================================================
 //
@@ -138,4 +140,24 @@ IHardwareTexture* PaletteManager::GetLookup(int index)
 	return nullptr;
 }
 
+//===========================================================================
+//
+// 
+//
+//===========================================================================
 
+IHardwareTexture *setpalettelayer(int layer, int translation)
+{
+	if (!palmanager) palmanager = new PaletteManager;
+	if (layer == 1)
+		return palmanager->GetPalette(GetTranslationType(translation) - Translation_Remap);
+	else if (layer == 2)
+		return palmanager->GetLookup(GetTranslationIndex(translation));
+	else return nullptr;
+}
+
+void ClearPalManager()
+{
+	if (palmanager) delete palmanager;
+	palmanager = nullptr;
+}

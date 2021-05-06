@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include "compat.h"
 #include "build.h"
-#include "mmulti.h"
 
 #include "blood.h"
 
@@ -466,9 +465,9 @@ void UpdateAimVector(PLAYER * pPlayer)
     aim2 = aim;
     RotateVector((int*)&aim2.dx, (int*)&aim2.dy, -pPSprite->ang);
     aim2.dz -= pPlayer->slope;
-    pPlayer->relAim.dx = interpolate(pPlayer->relAim.dx, aim2.dx, pWeaponTrack->aimSpeedHorz);
-    pPlayer->relAim.dy = interpolate(pPlayer->relAim.dy, aim2.dy, pWeaponTrack->aimSpeedHorz);
-    pPlayer->relAim.dz = interpolate(pPlayer->relAim.dz, aim2.dz, pWeaponTrack->aimSpeedVert);
+    pPlayer->relAim.dx = interpolatedvalue(pPlayer->relAim.dx, aim2.dx, pWeaponTrack->aimSpeedHorz);
+    pPlayer->relAim.dy = interpolatedvalue(pPlayer->relAim.dy, aim2.dy, pWeaponTrack->aimSpeedHorz);
+    pPlayer->relAim.dz = interpolatedvalue(pPlayer->relAim.dz, aim2.dz, pWeaponTrack->aimSpeedVert);
     pPlayer->aim = pPlayer->relAim;
     RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, pPSprite->ang);
     pPlayer->aim.dz += pPlayer->slope;
@@ -1548,9 +1547,8 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
     }
 }
 
-void DropVoodoo(int nTrigger, PLAYER *pPlayer)
+void DropVoodoo(int , PLAYER *pPlayer)
 {
-    UNREFERENCED_PARAMETER(nTrigger);
     sfxPlay3DSound(pPlayer->pSprite, 455, 2, 0);
     spritetype *pSprite = playerFireThing(pPlayer, 0, -4730, kThingVoodooHead, 0xccccc);
     if (pSprite)
@@ -1610,9 +1608,8 @@ void FireTesla(int nTrigger, PLAYER *pPlayer)
     }
 }
 
-void AltFireTesla(int nTrigger, PLAYER *pPlayer)
+void AltFireTesla(int , PLAYER *pPlayer)
 {
-    UNREFERENCED_PARAMETER(nTrigger);
     spritetype *pSprite = pPlayer->pSprite;
     playerFireMissile(pPlayer, 0, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileTeslaAlt);
     UseAmmo(pPlayer, pPlayer->weaponAmmo, 35);
@@ -1640,9 +1637,8 @@ void FireNapalm(int nTrigger, PLAYER *pPlayer)
     pPlayer->flashEffect = 1;
 }
 
-void FireNapalm2(int nTrigger, PLAYER *pPlayer)
+void FireNapalm2(int , PLAYER *pPlayer)
 {
-    UNREFERENCED_PARAMETER(nTrigger);
     spritetype *pSprite = pPlayer->pSprite;
     playerFireMissile(pPlayer, -120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapam);
     playerFireMissile(pPlayer, 120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapam);
@@ -1651,9 +1647,8 @@ void FireNapalm2(int nTrigger, PLAYER *pPlayer)
     pPlayer->flashEffect = 1;
 }
 
-void AltFireNapalm(int nTrigger, PLAYER *pPlayer)
+void AltFireNapalm(int , PLAYER *pPlayer)
 {
-    UNREFERENCED_PARAMETER(nTrigger);
     int nSpeed = MulScale(0x8000, 0x177777, 16)+0x66666;
     spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, kThingNapalmBall, nSpeed);
     if (pMissile)
@@ -1691,9 +1686,8 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
     pPlayer->visibility = ClipHigh(pPlayer->visibility+5, 50);
 }
 
-void AltFireLifeLeech(int nTrigger, PLAYER *pPlayer)
+void AltFireLifeLeech(int , PLAYER *pPlayer)
 {
-    UNREFERENCED_PARAMETER(nTrigger);
     sfxPlay3DSound(pPlayer->pSprite, 455, 2, 0);
     spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, kThingDroppedLifeLeech, 0x19999);
     if (pMissile)
@@ -1726,9 +1720,8 @@ void AltFireLifeLeech(int nTrigger, PLAYER *pPlayer)
     }
 }
 
-void FireBeast(int nTrigger, PLAYER * pPlayer)
+void FireBeast(int , PLAYER * pPlayer)
 {
-    UNREFERENCED_PARAMETER(nTrigger);
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(2000);

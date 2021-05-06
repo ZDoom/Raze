@@ -3,7 +3,7 @@
 
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"
-//   bit 1: 1 = groudraw, 0 = not
+//   bit 1: 1 = sloped, 0 = not
 //   bit 2: 1 = swap x&y, 0 = not                                    "F"
 //   bit 3: 1 = double smooshiness                                   "E"
 //   bit 4: 1 = x-flip                                               "F"
@@ -17,9 +17,38 @@
 //   bit 9: 1 = blocking ceiling/floor
 //   bit 10: 1 = YAX'ed ceiling/floor
 //   bit 11: 1 = hitscan-sensitive ceiling/floor
-//   bits 12-15: reserved
+//   bits 12-14: reserved
+//   bit 15: SW: block FAF hitscans
 
 //////////////////// Version 7 map format ////////////////////
+enum
+{
+    CSTAT_SECTOR_SKY = 1,
+    CSTAT_SECTOR_SLOPE = 2,
+    CSTAT_SECTOR_SWAPXY = 4,
+    CSTAT_SECTOR_TEXHALF = 8,
+    CSTAT_SECTOR_XFLIP = 16,
+    CSTAT_SECTOR_YFLIP = 32,
+    CSTAT_SECTOR_ALIGN = 64,
+    CSTAT_SECTOR_TRANS = 128,
+    CSTAT_SECTOR_TRANS_INVERT = 256,
+    CSTAT_SECTOR_METHOD = 384,
+
+    SECTOREX_CLOUDSCROLL = 1,
+};
+
+enum
+{
+    PORTAL_SECTOR_FLOOR = 1,
+    PORTAL_SECTOR_CEILING = 2,
+    PORTAL_SECTOR_FLOOR_REFLECT = 3,
+    PORTAL_SECTOR_CEILING_REFLECT = 4,
+    PORTAL_WALL_VIEW = 5,
+    PORTAL_WALL_MIRROR = 6,
+    PORTAL_WALL_TO_SPRITE = 7,
+    PORTAL_SECTOR_GEOMETRY = 8,
+};
+
 
 //40 bytes
 struct sectortype
@@ -40,7 +69,11 @@ struct sectortype
     int16_t hitag;
     int16_t extra;
 
+    uint8_t dirty;
+    uint8_t exflags;
     float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
+    uint8_t portalflags;
+    int8_t portalnum;
 
     int ceilingxpan() const { return int(ceilingxpan_); }
     int ceilingypan() const { return int(ceilingypan_); }
@@ -80,7 +113,7 @@ struct walltype
         };
         vec2_t pos;
     };
-    int16_t point2, nextwall, nextsector;
+    int16_t point2, nextwall, sector, nextsector;
     uint16_t cstat;
     int16_t picnum, overpicnum;
     int8_t shade;
@@ -91,6 +124,9 @@ struct walltype
     int16_t hitag;
     int16_t extra;
     float xpan_, ypan_;
+    binangle clipangle;
+    uint8_t portalflags;
+    uint16_t portalnum;
 
     int xpan() const { return int(xpan_); }
     int ypan() const { return int(ypan_); }
@@ -216,19 +252,13 @@ struct spritetype
     int8_t xoffset, yoffset;
     int16_t sectnum, statnum;
     int16_t oang, ang, owner;
-    union {
-        struct
-        {
-            union {
-                int16_t xvel, index;
-            };
-            int16_t yvel;
-            union {
-                int16_t zvel, inittype;
-            };
+        union {
+            int16_t xvel, index;
         };
-        vec3_16_t vel;
-    };
+        int16_t yvel;
+        union {
+            int16_t zvel, inittype;
+        };
     union {
         int16_t lotag, type;
     };
@@ -237,6 +267,7 @@ struct spritetype
     };
     int16_t extra;
     int16_t detail;
+    int time;
 
 #if 0
     // make sure we do not accidentally copy this
@@ -287,39 +318,41 @@ struct spritetype
 
     int32_t interpolatedx(double const smoothratio, int const scale = 16)
     {
-        return ox + MulScale(x - ox, smoothratio, scale);
+        return interpolatedvalue(ox, x, smoothratio, scale);
     }
 
     int32_t interpolatedy(double const smoothratio, int const scale = 16)
     {
-        return oy + MulScale(y - oy, smoothratio, scale);
+        return interpolatedvalue(oy, y, smoothratio, scale);
     }
 
     int32_t interpolatedz(double const smoothratio, int const scale = 16)
     {
-        return oz + MulScale(z - oz, smoothratio, scale);
+        return interpolatedvalue(oz, z, smoothratio, scale);
     }
 
     vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
     {
-        return vec2_t({
+        return
+        {
             interpolatedx(smoothratio, scale),
             interpolatedy(smoothratio, scale)
-        });
+        };
     }
 
     vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
     {
-        return vec3_t({
+        return
+        {
             interpolatedx(smoothratio, scale),
             interpolatedy(smoothratio, scale),
             interpolatedz(smoothratio, scale)
-        });
+        };
     }
 
     int16_t interpolatedang(double const smoothratio)
     {
-        return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, 16);
+        return interpolatedangle(oang, ang, smoothratio, 16);
     }
 };
 

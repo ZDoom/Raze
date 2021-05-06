@@ -164,7 +164,7 @@ inline float PlayerInputAngVel(int pl)
 	return ps[pl].sync.avel;
 }
 
-inline float PlayerHorizon(int pl)
+inline float GetPlayerHorizon(int pl)
 {
 	return ps[pl].sync.horz;
 }
@@ -187,16 +187,10 @@ inline bool playrunning()
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
 }
 
-// the weapon display code uses this.
-inline double get16thOfHoriz(int const snum, bool const interpolate, double const smoothratio)
-{
-	return (!interpolate ? ps[snum].horizon.sum() : ps[snum].horizon.interpolatedsum(smoothratio)).asq16() * (0.0625 / FRACUNIT);
-}
-
 inline void doslopetilting(player_struct* p, double const scaleAdjust = 1)
 {
 	bool const canslopetilt = p->on_ground && sector[p->cursectnum].lotag != ST_2_UNDERWATER && (sector[p->cursectnum].floorstat & 2);
-	calcviewpitch(p->pos.vec2, &p->horizon.horizoff, p->angle.ang, p->aim_mode == 0, canslopetilt, p->cursectnum, scaleAdjust);
+	p->horizon.calcviewpitch(p->pos.vec2, p->angle.ang, p->aim_mode == 0, canslopetilt, p->cursectnum, scaleAdjust);
 }
 
 

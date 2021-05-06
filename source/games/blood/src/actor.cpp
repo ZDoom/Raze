@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "automap.h"
-#include "mmulti.h"
 #include "savegamehelp.h"
 
 #include "blood.h"
@@ -2638,10 +2637,8 @@ int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5)
     return mulscale16r(t8, t);
 }
 
-void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11, int a12, int a13)
+void sub_2A620(int nSprite, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11, int , int )
 {
-    UNREFERENCED_PARAMETER(a12);
-    UNREFERENCED_PARAMETER(a13);
     uint8_t va0[(kMaxSectors+7)>>3];
     int nOwner = sprite[nSprite].owner;
     GetClosestSpriteSectors(nSector, x, y, nDist, va0);

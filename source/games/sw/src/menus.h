@@ -32,7 +32,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void MNU_DrawString(int x, int y, const char* string, int shade, int pal, int align = -1);
 void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, int align = -1, double alpha = 1);
 
 END_SW_NS

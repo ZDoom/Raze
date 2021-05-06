@@ -31,6 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "md4.h"
 #include "automap.h"
 #include "raze_sound.h"
+#include "gamefuncs.h"
+#include "hw_sections.h"
+#include "sectorgeometry.h"
 
 #include "blood.h"
 
@@ -200,6 +203,7 @@ int InsertSprite(int nSector, int nStat)
 
     Numsprites++;
 
+    sprite[nSprite].time = leveltimer++;
     return nSprite;
 }
 
@@ -511,8 +515,12 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     gModernMap = false;
     #endif
 
+    memset(sector, 0, sizeof(*sector) * MAXSECTORS);
+    memset(wall, 0, sizeof(*wall) * MAXWALLS);
+    memset(sprite, 0, sizeof(*sector) * MAXSPRITES);
+
 #ifdef USE_OPENGL
-    Polymost_prepare_loadboard();
+    Polymost::Polymost_prepare_loadboard();
 #endif
 
     FString mapname = pPath;
@@ -654,6 +662,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSector->floorypan_ = load.floorypanning;
         pSector->visibility = load.visibility;
         qsector_filler[i] = load.fogpal;
+        pSector->dirty = 255;
+        pSector->exflags = 0;
         pSector->fogpal = 0;
 
         if (sector[i].extra > 0)
@@ -1058,6 +1068,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         }
     }
 
+    setWallSectors();
+    hw_BuildSections();
+    sectorGeometry.SetSize(numsections);
     memcpy(wallbackup, wall, sizeof(wallbackup));
     memcpy(sectorbackup, sector, sizeof(sectorbackup));
 }

@@ -55,9 +55,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "v_draw.h"
+#include "render.h"
+EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_SW_NS
 
+int display_mirror;
 static int OverlapDraw = false;
 extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;
@@ -67,7 +70,7 @@ extern short f_c;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
 
-int ConnectCopySprite(uspritetype const * tsp);
+int ConnectCopySprite(spritetype const * tsp);
 void PreDrawStackedWater(void);
 
 void SW_InitMultiPsky(void)
@@ -97,7 +100,7 @@ ShadeSprite(tspriteptr_t tsp)
 
 
 short
-GetRotation(short tSpriteNum, int viewx, int viewy)
+GetRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
 {
     static short RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
     static short RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
@@ -168,7 +171,7 @@ directions was not standardized.
 */
 
 int
-SetActorRotation(short tSpriteNum, int viewx, int viewy)
+SetActorRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
 {
     tspriteptr_t tsp = &tsprite[tSpriteNum];
     USERp tu = User[tsp->owner].Data();
@@ -185,7 +188,7 @@ SetActorRotation(short tSpriteNum, int viewx, int viewy)
     StateOffset = State - StateStart;
 
     // Get the rotation angle
-    Rotation = GetRotation(tSpriteNum, viewx, viewy);
+    Rotation = GetRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
 
     ASSERT(Rotation < 5);
 
@@ -261,7 +264,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
 }
 
 void
-DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
+DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
 {
     tspriteptr_t New = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner].Data();
@@ -346,14 +349,14 @@ DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
         New->clipdist |= TSPR_FLAGS_MDHACK;
         New->cstat |= 512;
     }
-    else
+    else if (!testnewrenderer)
     {
         int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-        vec2_t const ofs = { bcos(camang, -11), bsin(camang, -11) };
-
-        New->x += ofs.x;
-        New->y += ofs.y;
+        New->x += bcos(camang, -11);
+        New->y += bsin(camang, -11);
+        
     }
+    else New->time = 1;
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);
@@ -362,7 +365,7 @@ DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
 }
 
 void
-DoMotionBlur(tspritetype const * const tsp)
+DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
 {
     USERp tu = User[tsp->owner].Data();
     int nx,ny,nz = 0,dx,dy,dz;
@@ -449,7 +452,7 @@ void SetVoxelSprite(SPRITEp sp, short pic)
     sp->picnum = pic;
 }
 
-void WarpCopySprite(void)
+void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
 {
     SPRITEp sp1, sp2, sp;
     int sn, sn2;
@@ -486,7 +489,7 @@ void WarpCopySprite(void)
                     if (sprite[spnum].picnum == ST1)
                         continue;
 
-                    tspriteptr_t New = renderAddTSpriteFromSprite(spnum);
+                    tspriteptr_t New = renderAddTSpriteFromSprite(tsprite, spritesortcnt, spnum);
                     New->statnum = 0;
 
                     xoff = sp1->x - New->x;
@@ -508,7 +511,7 @@ void WarpCopySprite(void)
                     if (sprite[spnum].picnum == ST1)
                         continue;
 
-                    tspriteptr_t New = renderAddTSpriteFromSprite(spnum);
+                    tspriteptr_t New = renderAddTSpriteFromSprite(tsprite, spritesortcnt, spnum);
                     New->statnum = 0;
 
                     xoff = sp2->x - New->x;
@@ -548,8 +551,7 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
     }
 }
 
-void
-analyzesprites(int viewx, int viewy, int viewz, bool mirror)
+void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang)
 {
     int tSpriteNum;
     short SpriteNum;
@@ -626,7 +628,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
 
             if (r_shadows && TEST(tu->Flags, SPR_SHADOW))
             {
-                DoShadows(tsp, viewz, mirror);
+                DoShadows(tsprite, spritesortcnt, tsp, viewz, camang);
             }
 
             //#define UK_VERSION 1
@@ -657,11 +659,11 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
 
             // rotation
             if (tu->RotNum > 0)
-                SetActorRotation(tSpriteNum, viewx, viewy);
+                SetActorRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
 
             if (tu->motion_blur_num)
             {
-                DoMotionBlur(tsp);
+                DoMotionBlur(tsprite, spritesortcnt, tsp);
             }
 
             // set palette lookup correctly
@@ -734,7 +736,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
             if ((Player + screenpeek)->PlayerSprite == tu->SpriteNum)
             {
                 PLAYERp pp = Player + screenpeek;
-                if (mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
+                if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
                 {
                     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
                         SET(tsp->cstat, CSTAT_SPRITE_TRANSLUCENT);
@@ -775,8 +777,7 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
 
         if (OverlapDraw && FAF_ConnectArea(tsp->sectnum) && tsp->owner >= 0)
         {
-            static_assert(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
-            ConnectCopySprite((uspriteptr_t)tsp);
+            ConnectCopySprite(tsp);
         }
 
         //
@@ -847,12 +848,13 @@ analyzesprites(int viewx, int viewy, int viewz, bool mirror)
         }
     }
 
-    WarpCopySprite();
+    WarpCopySprite(tsprite, spritesortcnt);
 
 }
 
+
 #if 1
-tspriteptr_t get_tsprite(short SpriteNum)
+tspriteptr_t get_tsprite(spritetype* tsprite, int& spritesortcnt, int SpriteNum)
 {
     int tSpriteNum;
 
@@ -866,7 +868,7 @@ tspriteptr_t get_tsprite(short SpriteNum)
 }
 
 void
-post_analyzesprites(void)
+post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 {
     int tSpriteNum;
     short SpriteNum;
@@ -883,8 +885,7 @@ post_analyzesprites(void)
         {
             if (tu->ID == FIREBALL_FLAMES && tu->Attach >= 0)
             {
-                //uspritetype * const atsp = &sprite[tu->Attach];
-                tspriteptr_t const atsp = get_tsprite(tu->Attach);
+                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->Attach);
 
                 if (!atsp)
                 {
@@ -1077,34 +1078,6 @@ void PrintSpriteInfo(PLAYERp pp)
 }
 
 
-void SpriteSortList2D(int tx, int ty)
-{
-    SPRITEp sp;
-    int i;
-    int dist,a,b,c;
-
-    spritesortcnt = 0;
-    for (i = 0; i < MAXSPRITES; i++)
-    {
-        if (sprite[i].statnum < MAXSTATUS)
-        {
-            sp = &sprite[i];
-
-            if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE) &&
-                (sp->xrepeat > 0) && (sp->yrepeat > 0) &&
-                (spritesortcnt < MAXSPRITESONSCREEN))
-            {
-                DISTANCE(tx,ty,sp->x,sp->y,dist,a,b,c);
-
-                if (dist < 22000)
-                {
-                    renderAddTSpriteFromSprite(i);
-                }
-            }
-        }
-    }
-}
-
 void DrawCrosshair(PLAYERp pp)
 {
     extern bool CameraTestMode;
@@ -1133,7 +1106,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle
         {
             sp = &sprite[i];
 
-            ang = q16ang(gethiq16angle(*tx - sp->x, *ty - sp->y));
+            ang = bvectangbam(*tx - sp->x, *ty - sp->y);
             ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
 
             FAFcansee_test =
@@ -1262,7 +1235,7 @@ PostDraw(void)
     }
 }
 
-int CopySprite(uspritetype const * tsp, short newsector)
+int CopySprite(spritetype const * tsp, short newsector)
 {
     short New;
     SPRITEp sp;
@@ -1291,7 +1264,7 @@ int CopySprite(uspritetype const * tsp, short newsector)
     return New;
 }
 
-int ConnectCopySprite(uspritetype const * tsp)
+int ConnectCopySprite(spritetype const * tsp)
 {
     short newsector;
     int testz;
@@ -1356,7 +1329,7 @@ void PreDrawStackedWater(void)
                 sp = &sprite[i];
                 u = User[i].Data();
 
-                New = ConnectCopySprite((uspritetype const *)sp);
+                New = ConnectCopySprite((spritetype const *)sp);
                 if (New >= 0)
                 {
                     // spawn a user
@@ -1390,8 +1363,39 @@ void PreDrawStackedWater(void)
 }
 
 
-void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short sectnum)
+short ScreenSavePic = false;
+
+bool PicInView(short, bool);
+void DoPlayerDiveMeter(PLAYERp pp);
+
+void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, int tsectnum);
+
+
+void UpdateWallPortalState()
 {
+    // This is too obtuse to be maintained statically, but with 8 mirrors at most easy to be kept up to date.
+    for (int i = 0; i < MAXMIRRORS; i++)
+    {
+        auto wal = &wall[mirror[i].mirrorwall];
+        wal->portalflags = 0;
+        wal->portalnum = 0;
+
+        if (!mirror[i].ismagic)
+        {
+            // a simple mirror
+            wal->portalflags = PORTAL_WALL_MIRROR;
+        }
+        else
+        {
+            auto sp = &sprite[mirror[i].camera];
+            if (!TEST_BOOL1(sp))
+            {
+                wal->portalflags = PORTAL_WALL_TO_SPRITE;
+                wal->portalnum = mirror[i].camera;
+            }
+        }
+    }
+
     int i;
     StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while ((i = it.NextIndex()) >= 0)
@@ -1417,17 +1421,14 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
         }
     }
 
-    renderDrawRoomsQ16(x,y,z,q16ang,q16horiz,sectnum);
+}
 
-    it.Reset(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+void RestorePortalState()
+{
+    int i;
+    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while ((i = it.NextIndex()) >= 0)
     {
-        // manually set gotpic
-        if (TEST_GOTSECTOR(sprite[i].sectnum))
-        {
-            SET_GOTPIC(FAF_MIRROR_PIC);
-        }
-
         if (SPRITE_TAG3(i) == 0)
         {
             // restore ceilingpicnum and ceilingstat
@@ -1446,18 +1447,12 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
     }
 }
 
-short ScreenSavePic = false;
-
-bool PicInView(short, bool);
-void DoPlayerDiveMeter(PLAYERp pp);
-
 void
 drawscreen(PLAYERp pp, double smoothratio)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;
-    lookangle trotscrnang;
-    binangle tang;
+    binangle tang, trotscrnang;
     fixedhoriz thoriz;
     short tsectnum;
     short i,j;
@@ -1493,9 +1488,9 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
         camerapp = pp;
 
-    tx = camerapp->oposx + xs_CRoundToInt(MulScaleF(camerapp->posx - camerapp->oposx, smoothratio, 16));
-    ty = camerapp->oposy + xs_CRoundToInt(MulScaleF(camerapp->posy - camerapp->oposy, smoothratio, 16));
-    tz = camerapp->oposz + xs_CRoundToInt(MulScaleF(camerapp->posz - camerapp->oposz, smoothratio, 16));
+    tx = interpolatedvalue(camerapp->oposx, camerapp->posx, smoothratio);
+    ty = interpolatedvalue(camerapp->oposy, camerapp->posy, smoothratio);
+    tz = interpolatedvalue(camerapp->oposz, camerapp->posz, smoothratio);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
@@ -1512,8 +1507,6 @@ drawscreen(PLAYERp pp, double smoothratio)
         trotscrnang = pp->angle.rotscrnang;
     }
     tsectnum = camerapp->cursectnum;
-
-    renderSetRollAngle(trotscrnang.asbuildf());
 
     COVERupdatesector(tx, ty, &tsectnum);
 
@@ -1558,7 +1551,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         if (TEST_BOOL1(pp->remote_sprite))
             tang = buildang(pp->remote_sprite->ang);
         else
-            tang = q16ang(gethiq16angle(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty));
+            tang = bvectangbam(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
@@ -1586,7 +1579,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         if (cl_viewbob)
         {
             tz += bob_amt;
-            tz += pp->obob_z + xs_CRoundToInt(MulScaleF(pp->bob_z - pp->obob_z, smoothratio, 16));
+            tz += interpolatedvalue(pp->obob_z, pp->bob_z, smoothratio);
         }
 
         // recoil only when not in camera
@@ -1596,34 +1589,23 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (automapMode != am_full)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
-        JS_DrawCameras(pp, tx, ty, tz);
+        if (!testnewrenderer) JS_DrawCameras(pp, tx, ty, tz, smoothratio);
+        else JS_CameraParms(pp, tx, ty, tz);  
     }
 
-
-    videoSetCorrectedAspect();
-    renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov * (pi::pi() / 360.))), yxaspect);
-    OverlapDraw = true;
-    DrawOverlapRoom(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
-    OverlapDraw = false;
-
-    if (automapMode != am_full)// && !ScreenSavePic)
+    if (!testnewrenderer)
     {
-        // TEST this! Changed to camerapp
-        //JS_DrawMirrors(camerapp, tx, ty, tz, tang.asq16(), thoriz.asq16());
-        JS_DrawMirrors(pp, tx, ty, tz, tang.asq16(), thoriz.asq16());
+        renderSetRollAngle(trotscrnang.asbuildf());
+        polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, tsectnum);
+    }
+    else
+    {
+        UpdateWallPortalState();
+        render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang, smoothratio);
+        RestorePortalState();
     }
 
-    // TODO: This call is redundant if the tiled overhead map is shown, but the
-    // HUD elements should be properly outputted with hardware rendering first.
-    if (!FAF_DebugView)
-        FAF_DrawRooms(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
 
-    analyzesprites(tx, ty, tz, false);
-    post_analyzesprites();
-    renderDrawMasks();
-
-
-    renderSetAspect(viewingRange, DivScale(ydim * 8, xdim * 5, 16));
     if (!ScreenSavePic) UpdatePanel(smoothratio);
 
 #define SLIME 2305
@@ -1699,7 +1681,9 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (paused && !M_Active())
     {
-        MNU_DrawString(160, 100, "Game Paused", 0, 0, 0);
+        auto str = GStrings("Game Paused");
+        int w = SmallFont->StringWidth(str);
+        DrawText(twod, SmallFont, CR_UNDEFINED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 
     if (!CommEnabled && TEST(pp->Flags, PF_DEAD))
@@ -1730,7 +1714,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
     int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
     int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
-    int xvect, yvect, xvect2, yvect2;
+    int xvect, yvect;
     walltype* wal, * wal2;
     spritetype* spr;
     short p;
@@ -1740,8 +1724,6 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
     xvect = -bsin(cang) * czoom;
     yvect = -bcos(cang) * czoom;
-    xvect2 = MulScale(xvect, yxaspect, 16);
-    yvect2 = MulScale(yvect, yxaspect, 16);
 
 
     // Draw sprites
@@ -1791,7 +1773,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                         x1 = sprx - cposx;
                         y1 = spry - cposy;
 
-                        if (((gotsector[i >> 3] & (1 << (i & 7))) > 0) && (czoom > 192))
+                        if (czoom > 192)
                         {
                             daang = ((!SyncInput() ? spr->ang : spr->interpolatedang(smoothratio)) - cang) & 2047;
 
@@ -1808,7 +1790,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
                             double xd = ((x1 << 4) + (xdim << 15)) / 65536.;
                             double yd = ((y1 << 4) + (ydim << 15)) / 65536.;
-                            double sc = MulScale(czoom * (spr->yrepeat), yxaspect, 16) / 32768.;
+                            double sc = czoom * (spr->yrepeat) / 32768.;
                             if (spnum >= 0)
                             {
                                 DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
@@ -1839,12 +1821,12 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                     ox = x1 - cposx;
                     oy = y1 - cposy;
                     x1 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                    y1 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                    y1 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                     ox = x2 - cposx;
                     oy = y2 - cposy;
                     x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                    y2 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                    y2 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                     drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
                         x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -1887,22 +1869,22 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                         ox = x1 - cposx;
                         oy = y1 - cposy;
                         x1 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y1 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                        y1 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                         ox = x2 - cposx;
                         oy = y2 - cposy;
                         x2 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y2 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                        y2 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                         ox = x3 - cposx;
                         oy = y3 - cposy;
                         x3 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y3 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                        y3 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                         ox = x4 - cposx;
                         oy = y4 - cposy;
                         x4 = MulScale(ox, xvect, 16) - MulScale(oy, yvect, 16);
-                        y4 = MulScale(oy, xvect2, 16) + MulScale(ox, yvect2, 16);
+                        y4 = MulScale(oy, xvect, 16) + MulScale(ox, yvect, 16);
 
                         drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
                             x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -1923,6 +1905,12 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
         }
     }
     return true;
+}
+
+void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+{
+    analyzesprites(tsprite, spritesortcnt, viewx, viewy, viewz, viewang.asbuild());
+    post_analyzesprites(tsprite, spritesortcnt);
 }
 
 

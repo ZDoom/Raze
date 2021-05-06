@@ -964,9 +964,19 @@ void DrawWeapons(double smooth)
 
     if (cl_weaponsway)
     {
-        // CHECKME - not & 0x7FF?
-        double nBobAngle = obobangle + MulScaleF(((bobangle + 1024 - obobangle) & 2047) - 1024, smooth, 16);
-        double nVal = (ototalvel[nLocalPlayer] + MulScaleF(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth, 16)) * 0.5;
+        double nBobAngle, nVal;
+
+        if (cl_hudinterpolation)
+        {
+            nBobAngle = interpolatedangle(buildang(obobangle), buildang(bobangle), smooth).asbuildf();
+            nVal = interpolatedvaluef(ototalvel[nLocalPlayer], totalvel[nLocalPlayer], smooth, 17);
+        }
+        else
+        {
+            nBobAngle = bobangle;
+            nVal = totalvel[nLocalPlayer];
+        }
+
         yOffset = MulScaleF(nVal, bsinf(fmod(nBobAngle, 1024.), -8), 9);
 
         if (var_34 == 1)
@@ -988,7 +998,7 @@ void DrawWeapons(double smooth)
     }
 
     double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(smooth);
-    double const looking_arc = fabs(look_anghalf) / 4.5;
+    double const looking_arc = PlayerList[nLocalPlayer].angle.looking_arc(smooth);
 
     xOffset -= look_anghalf;
     yOffset += looking_arc;

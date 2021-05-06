@@ -40,7 +40,6 @@ struct GameInterface : public ::GameInterface
 	FSavegameInfo GetSaveSig() override;
 	double SmallFontScale() override { return isRR() ? 0.5 : 1.; }
 	void SerializeGameState(FSerializer& arc) override;
-	void QuitToTitle() override;
 	FString GetCoordString() override;
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
@@ -65,15 +64,18 @@ struct GameInterface : public ::GameInterface
 	int chaseCamX(binangle ang) { return -ang.bcos(-4); }
 	int chaseCamY(binangle ang) { return -ang.bsin(-4); }
 	int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() >> 9; }
+	void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+	void UpdateCameras(double smoothratio) override;
+	void EnterPortal(spritetype* viewer, int type) override;
+	void LeavePortal(spritetype* viewer, int type) override;
+	bool GetGeoEffect(GeoEffect* eff, int viewsector) override;
 
 };
 
 struct Dispatcher
 {
 	// global stuff
-	void (*ShowLogo)(const CompletionFunc& completion);
 	void (*InitFonts)();
-	void (*PrintPaused)();
 
 	// sectors_?.cpp
 	void (*think)();
@@ -113,9 +115,9 @@ struct Dispatcher
 	void (*checkweapons)(struct player_struct* p);
 	void (*processinput)(int snum);
 	void (*displayweapon)(int snum, double smoothratio);
-	void (*displaymasks)(int snum, double smoothratio);
+	void (*displaymasks)(int snum, int p, double smoothratio);
 
-	void (*animatesprites)(int x, int y, int a, int smoothratio);
+	void (*animatesprites)(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
 
 
 };

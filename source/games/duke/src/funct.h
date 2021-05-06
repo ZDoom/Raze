@@ -162,9 +162,6 @@ int hits(DDukeActor* snum);
 DDukeActor* LocateTheLocator(int n, int sectnum);
 void clearcamera(player_struct* ps);
 
-void showtwoscreens(const CompletionFunc& func);
-void doorders(const CompletionFunc& func);
-
 void LoadActor(DDukeActor* i, int p, int x);
 void execute(DDukeActor* s, int p, int d);
 void makeitfall(DDukeActor* s);
@@ -211,8 +208,6 @@ void OffBoat(player_struct *pl);
 
 void cameratext(DDukeActor* i);
 void dobonus(int bonusonly, const CompletionFunc& completion);
-void dobonus_d(int bonusonly, const CompletionFunc& completion);
-void dobonus_r(int bonusonly, const CompletionFunc& completion);
 
 void drawoverlays(double smoothratio);
 void drawbackground(void);
@@ -227,7 +222,6 @@ void e4intro(const CompletionFunc& completion);
 void exitlevel(MapRecord *next);
 void enterlevel(MapRecord* mi, int gm);
 void donewgame(MapRecord* map, int sk);
-void startnewgame(MapRecord* map, int skill);
 int playercolor2lookup(int color);
 void PlayerColorChanged(void);
 bool movementBlocked(player_struct *p);

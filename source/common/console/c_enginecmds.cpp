@@ -293,8 +293,8 @@ CCMD (md5sum)
 	}
 	for (int i = 1; i < argv.argc(); ++i)
 	{
-		FileReader fr;
-		if (!fr.OpenFile(argv[i]))
+		FileReader fr = fileSystem.OpenFileReader(argv[i]);
+		if (!fr.isOpen())
 		{
 			Printf("%s: %s\n", argv[i], strerror(errno));
 		}

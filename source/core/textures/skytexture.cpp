@@ -41,24 +41,23 @@
 #include "texturemanager.h"
 #include "buildtiles.h"
 
-FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilemap)
+FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilemap, int remap)
 {
-	char synthname[60];
+	FString synthname;
 	
 	
-	if (lognumtiles == 0 || lognumtiles > 4) 
+	if ((lognumtiles == 0 && remap == 0) || lognumtiles > 4) 
 	{
 		// no special handling - let the old code do its job as-is
 		return nullptr;
 	}
 	
 	int numtiles = 1 << lognumtiles;
-	mysnprintf(synthname, 60, "%04x", basetile);
+	synthname.Format("Sky%04x%02x", basetile, remap);
 	for(int i = 0; i < numtiles; i++)
 	{
-		synthname[4+i] = 'A' + tilemap[i];
+		synthname += 'A' + tilemap[i];
 	};
-	synthname[4+numtiles] = 0;
 	auto tex = TexMan.FindGameTexture(synthname);
 	if (tex) return tex;
 	
@@ -70,6 +69,7 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilema
 		if (!tex || !tex->isValid() || tex->GetTexture() == 0) return nullptr;
 		build[i].TexImage = static_cast<FImageTexture*>(tex->GetTexture());
 		build[i].OriginX = tilewidth * i;
+		build[i].Translation = GPalette.GetTranslation(GetTranslationType(remap), GetTranslationIndex(remap));
 	}
 	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, tileHeight(basetile), build, false, false)), synthname, ETextureType::Override);
 	TexMan.AddGameTexture(tt, true);

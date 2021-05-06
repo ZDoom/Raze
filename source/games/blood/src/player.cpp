@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "compat.h"
 #include "build.h"
-#include "mmulti.h"
 
 #include "blood.h"
 #include "gstrings.h"
@@ -400,10 +399,6 @@ void powerupClear(PLAYER *pPlayer)
     }
 }
 
-void powerupInit(void)
-{
-}
-
 int packItemToPowerup(int nPack)
 {
     int nPowerUp = -1;
@@ -700,7 +695,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->restTime = 0;
     pPlayer->kickPower = 0;
     pPlayer->laughCount = 0;
-    pPlayer->angle.spin = buildlook(0);
+    pPlayer->angle.spin = 0;
     pPlayer->posture = 0;
     pPlayer->voodooTarget = -1;
     pPlayer->voodooTargets = 0;
@@ -1300,7 +1295,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
     auto* const pXSprite = pPlayer->pXSprite;
     int const florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
     char const va = pXSprite->height < 16 && (florhit == 0x4000 || florhit == 0) ? 1 : 0;
-    calcviewpitch(pSprite->pos.vec2, &pPlayer->horizon.horizoff, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
+    pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
 }
 
 void ProcessInput(PLAYER *pPlayer)
@@ -1422,7 +1417,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (SyncInput())
     {
-        applylook(&pPlayer->angle, pInput->avel, &pInput->actions);
+        pPlayer->angle.applyinput(pInput->avel, &pInput->actions);
     }
 
     // unconditionally update the player's sprite angle
@@ -1549,7 +1544,7 @@ void ProcessInput(PLAYER *pPlayer)
 
     if (SyncInput())
     {
-        sethorizon(&pPlayer->horizon, pInput->horz, &pInput->actions);
+        pPlayer->horizon.applyinput(pInput->horz, &pInput->actions);
         doslopetilting(pPlayer);
     }
 
@@ -1640,14 +1635,14 @@ void playerProcess(PLAYER *pPlayer)
     }
     ProcessInput(pPlayer);
     int nSpeed = approxDist(xvel[nSprite], yvel[nSprite]);
-    pPlayer->zViewVel = interpolate(pPlayer->zViewVel, zvel[nSprite], 0x7000);
+    pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, zvel[nSprite], 0x7000);
     int dz = pPlayer->pSprite->z-pPosture->eyeAboveZ-pPlayer->zView;
     if (dz > 0)
         pPlayer->zViewVel += MulScale(dz<<8, 0xa000, 16);
     else
         pPlayer->zViewVel += MulScale(dz<<8, 0x1800, 16);
     pPlayer->zView += pPlayer->zViewVel>>8;
-    pPlayer->zWeaponVel = interpolate(pPlayer->zWeaponVel, zvel[nSprite], 0x5000);
+    pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, zvel[nSprite], 0x5000);
     dz = pPlayer->pSprite->z-pPosture->weaponAboveZ-pPlayer->zWeapon;
     if (dz > 0)
         pPlayer->zWeaponVel += MulScale(dz<<8, 0x8000, 16);
