@@ -6186,7 +6186,7 @@ static void actCheckDudes()
 			if (pSprite->type == kDudeModernCustom && pXSprite->txID > 0 && pXSprite->sysData1 == kGenDudeTransformStatus)
 			{
 				actor->xvel() = actor->yvel() = 0;
-				if (seqGetStatus(actor) < 0) genDudeTransform(pSprite);
+				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
 			}
 #endif
 			if (pSprite->type == kDudeCerberusTwoHead)
