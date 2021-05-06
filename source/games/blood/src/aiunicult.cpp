@@ -713,7 +713,7 @@ static void unicultThinkChase(DBloodActor* actor)
             else if (weaponType == kGenDudeWeaponMissile) 
             {
                 // special handling for flame, explosive and life leech missiles
-                int state = checkAttackState(&bloodActors[pXSprite->reference]);
+                int state = checkAttackState(actor);
                 switch (curWeapon) 
                 {
                     case kMissileLifeLeechRegular:
@@ -762,7 +762,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 if (CheckProximity(pSprite, pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pExpl->radius >> 1)) 
                 {
                     actor->xvel() = actor->yvel() = actor->zvel() = 0;
-                    if (doExplosion(pSprite, nType) && pXSprite->health > 0)
+                    if (doExplosion(actor, nType) && pXSprite->health > 0)
                             actDamageSprite(actor, actor, kDamageExplode, 65535);
                 }
                 return;
@@ -1889,11 +1889,20 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
     }
 }
 
-bool doExplosion(spritetype* pSprite, int nType) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool doExplosion(DBloodActor* actor, int nType)
 {
-    auto actor = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
-    spritetype* pExplosion = &actor->s();
-    if (pExplosion->extra < 0 || pExplosion->extra >= kMaxXSprites) 
+    auto const pSprite = &actor->s();
+
+    auto actExplosion = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
+    auto const pExplosion = &actExplosion->s();
+    auto const pXExplosion = &actExplosion->x();
+    if (pExplosion->extra < 0 || pExplosion->extra >= kMaxXSprites)
         return false;
 
     int nSeq = 4; int nSnd = 304; const EXPLOSION* pExpl = &explodeInfo[nType];
@@ -1905,9 +1914,9 @@ bool doExplosion(spritetype* pSprite, int nType)
 
     pExplosion->yrepeat = pExplosion->xrepeat = pExpl->repeat;
 
-    xsprite[pExplosion->extra].data1 = pExpl->ticks;
-    xsprite[pExplosion->extra].data2 = pExpl->quakeEffect;
-    xsprite[pExplosion->extra].data3 = pExpl->flashEffect;
+    pXExplosion->data1 = pExpl->ticks;
+    pXExplosion->data2 = pExpl->quakeEffect;
+    pXExplosion->data3 = pExpl->flashEffect;
 
     if (nType == 0) { nSeq = 3; nSnd = 303; }
     else if (nType == 2) { nSeq = 4; nSnd = 305; }
@@ -1917,7 +1926,7 @@ bool doExplosion(spritetype* pSprite, int nType)
     else if (nType == 7) { nSeq = 4; nSnd = 303; }
     
     seqSpawn(nSeq, 3, pExplosion->extra, -1);
-    sfxPlay3DSound(pExplosion, nSnd, -1, 0);
+    sfxPlay3DSound(actExplosion, nSnd, -1, 0);
 
     return true;
 }

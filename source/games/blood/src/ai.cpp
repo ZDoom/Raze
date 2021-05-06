@@ -1077,7 +1077,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						removeDudeStuff(actor);
 
                         if (pExtra->weaponType == kGenDudeWeaponKamikaze)
-                            doExplosion(pSprite, pXSprite->data1 - kTrapExploder);
+							doExplosion(actor, pXSprite->data1 - kTrapExploder);
 
 						if (spriteIsUnderwater(actor)) 
 						{
