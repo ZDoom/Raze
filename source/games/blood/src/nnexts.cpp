@@ -7485,7 +7485,7 @@ void aiPatrolThink(DBloodActor* actor) {
 
     
     bool crouch = (pXSprite->unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
-    if (!spriRangeIsFine(nMarker) || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(pSprite)) || !canWalk(pSprite)))) {
+    if (!spriRangeIsFine(nMarker) || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor)))) {
         aiPatrolStop(pSprite, -1);
         return;
     }
