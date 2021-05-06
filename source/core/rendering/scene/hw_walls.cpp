@@ -705,7 +705,7 @@ void HWWall::DoTexture(HWDrawInfo* di, walltype* wal, walltype* refwall, float r
 	{
 		float h = hl + (hr - hl) * frac;
 		h = (-(float)(refheight + (h * 256)) / ((th * 2048.0f) / (float)(wal->yrepeat))) + ypanning;
-		if (wal->cstat & CSTAT_WALL_YFLIP) h = -h;
+		if (refwall->cstat & CSTAT_WALL_YFLIP) h = -h;
 		return h;
 	};
 
