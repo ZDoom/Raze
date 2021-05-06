@@ -1530,11 +1530,12 @@ bool dudeIsMelee(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void scaleDamage(XSPRITE* pXSprite) {
-
-    short curWeapon = gGenDudeExtra[sprite[pXSprite->reference].index].curWeapon;
-    short weaponType = gGenDudeExtra[sprite[pXSprite->reference].index].weaponType;
-    signed short* curScale = gGenDudeExtra[sprite[pXSprite->reference].index].dmgControl;
+static void scaleDamage(DBloodActor* actor) 
+{
+    auto const pXSprite = &actor->x();
+    short curWeapon = actor->genDudeExtra().curWeapon;
+    short weaponType = actor->genDudeExtra().weaponType;
+    signed short* curScale = actor->genDudeExtra().dmgControl;
     for (int i = 0; i < kDmgMax; i++)
         curScale[i] = getDudeInfo(kDudeModernCustom)->startDamage[i];
 
@@ -2315,7 +2316,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
 
         }
         case kGenDudePropertyDmgScale:
-            scaleDamage(pXSprite);
+            scaleDamage(actor);
             if (propId) break;
             [[fallthrough]];
 
