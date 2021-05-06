@@ -607,22 +607,6 @@ int GameMain()
 
 void SetDefaultStrings()
 {
-	// Duke 1.3 does not define its episodes through CON.
-	if ((g_gameType & GAMEFLAG_DUKE) && fileSystem.FindFile("E4L1.MAP") < 0)
-	{
-		auto vol0 = AllocateVolume(); vol0->index = 0;
-		auto vol1 = AllocateVolume(); vol1->index = 1; vol1->flags = VF_SHAREWARELOCK;
-		auto vol2 = AllocateVolume(); vol2->index = 2; vol1->flags = VF_SHAREWARELOCK;
-		// Pre-Atomic releases do not define this.
-		vol0->name = "$L.A. Meltdown";
-		vol1->name = "$Lunar Apocalypse";
-		vol2->name = "$Shrapnel City";
-
-		gSkillNames[0] = "$Piece of Cake";
-		gSkillNames[1] = "$Let's Rock";
-		gSkillNames[2] = "$Come get Some";
-		gSkillNames[3] = "$Damn I'm Good";
-	}
 	// Blood hard codes its skill names, so we have to define them manually.
 	if (isBlood())
 	{
