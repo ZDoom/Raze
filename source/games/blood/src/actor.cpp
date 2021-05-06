@@ -2482,7 +2482,7 @@ static void actInitDudes()
 				case kDudeModernCustom:
 				case kDudeModernCustomBurning:
 					pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
-					seqStartId = genDudeSeqStartId(pXSprite); //  Custom Dude stores its SEQ in data2
+					seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
 					pXSprite->sysData1 = pXSprite->data3; // move sndStartId to sysData1, because data3 used by the game;
 					pXSprite->data3 = 0;
 					break;

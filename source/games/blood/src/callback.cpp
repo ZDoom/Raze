@@ -262,7 +262,7 @@ void Respawn(int nSprite) // 9
                             seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
                         break;
                     case kDudeModernCustom:
-                        seqSpawn(genDudeSeqStartId(pXSprite), 3, pSprite->extra, -1);
+                        seqSpawn(genDudeSeqStartId(actor), 3, pSprite->extra, -1);
                         break;
                 }
                 

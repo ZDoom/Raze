@@ -1978,7 +1978,7 @@ void aiInitSprite(DBloodActor* actor)
 		if (pSprite->type == kDudeModernCustom)
 		{
             aiGenDudeInitSprite(pSprite, pXSprite);
-            genDudePrepare(pSprite, kGenDudePropertyAll);
+			genDudePrepare(actor, kGenDudePropertyAll);
         }
 
 		if (pXSprite->dudeFlag4)

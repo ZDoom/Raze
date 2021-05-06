@@ -188,7 +188,7 @@ void genDudeUpdate(DBloodActor* actor)
 {
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
     for (int i = 0; i < kGenDudePropertyMax; i++) {
-        if (pExtra->updReq[i]) genDudePrepare(&actor->s(), i);
+        if (pExtra->updReq[i]) genDudePrepare(actor, i);
     }
 }
 
@@ -1987,7 +1987,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
     pXDude->data3 = 0;
 
     // spawn seq
-    seqSpawn(genDudeSeqStartId(pXDude), 3, pDude->extra, -1);
+    seqSpawn(genDudeSeqStartId(spawned), 3, pDude->extra, -1);
 
     // inherit movement speed.
     pXDude->busyTime = pXSource->busyTime;
@@ -2132,8 +2132,8 @@ void genDudeTransform(DBloodActor* actor)
             break;
         case kDudeModernCustom:
         case kDudeModernCustomBurning:
-            seqId = genDudeSeqStartId(pXSprite);
-            genDudePrepare(pSprite, kGenDudePropertyMass);
+            seqId = genDudeSeqStartId(actor);
+            genDudePrepare(actor, kGenDudePropertyMass);
             [[fallthrough]]; // go below
         default:
             seqSpawn(seqId, 3, pSprite->extra, -1);
@@ -2343,19 +2343,20 @@ bool canWalk(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int genDudeSeqStartId(XSPRITE* pXSprite) {
-    if (genDudePrepare(&sprite[pXSprite->reference], kGenDudePropertyStates)) return pXSprite->data2;
+int genDudeSeqStartId(DBloodActor* actor) 
+{
+    if (genDudePrepare(actor, kGenDudePropertyStates)) return actor->x().data2;
     else return kGenDudeDefaultSeq;
 }
 
-bool genDudePrepare(spritetype* pSprite, int propId) {
-    if (!spriRangeIsFine(pSprite->index)) {
-        Printf(PRINT_HIGH, "!spriRangeIsFine(pSprite->index)");
-        return false;
-    } else if (!xspriRangeIsFine(pSprite->extra)) {
-        Printf(PRINT_HIGH, "!xspriRangeIsFine(pSprite->extra)");
-        return false;
-    } else if (pSprite->type != kDudeModernCustom) {
+bool genDudePrepare(DBloodActor* actor, int propId) 
+{
+    if (!actor->hasX()) return false;
+
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
+
+    if (pSprite->type != kDudeModernCustom) {
         Printf(PRINT_HIGH, "pSprite->type != kDudeModernCustom");
         return false;
     } else if (propId < kGenDudePropertyAll || propId >= kGenDudePropertyMax) {
@@ -2363,9 +2364,8 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
         return false;
     }
     
-    auto actor = &bloodActors[pSprite->index];
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index]; pExtra->updReq[propId] = false;
+    GENDUDEEXTRA* pExtra = &actor->genDudeExtra(); 
+    pExtra->updReq[propId] = false;
     
     switch (propId) {
         case kGenDudePropertyAll:
