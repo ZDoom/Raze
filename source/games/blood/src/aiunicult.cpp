@@ -1505,16 +1505,25 @@ void killDudeLeech(DBloodActor* actLeech)
 //
 //---------------------------------------------------------------------------
 
-XSPRITE* getNextIncarnation(XSPRITE* pXSprite) {
-    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (rxBucket[i].type != 3 || rxBucket[i].index == pXSprite->reference)
+DBloodActor* getNextIncarnation(DBloodActor* actor)
+{
+    XSPRITE* pXSprite = &actor->x();
+    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++)
+    {
+        if (rxBucket[i].type != OBJ_SPRITE || rxBucket[i].index == pXSprite->reference)
             continue;
-        
+
         if (sprite[rxBucket[i].index].statnum == kStatInactive)
-                    return &xsprite[sprite[rxBucket[i].index].extra];
-        }
+            return &bloodActors[sprite[rxBucket[i].index].index];
+    }
     return NULL;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool dudeIsMelee(XSPRITE* pXSprite) {
     return gGenDudeExtra[sprite[pXSprite->reference].index].isMelee;
@@ -1967,14 +1976,15 @@ void genDudeTransform(spritetype* pSprite) {
     
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
     auto actor = &bloodActors[pXSprite->reference];
-    XSPRITE* pXIncarnation = getNextIncarnation(pXSprite);
-    if (pXIncarnation == NULL) {
+    auto actIncarnation = getNextIncarnation(actor);
+    if (actIncarnation == NULL) {
         if (pXSprite->sysData1 == kGenDudeTransformStatus) pXSprite->sysData1 = 0;
         trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
         return;
     }
     
-    spritetype* pIncarnation = &sprite[pXIncarnation->reference];
+    auto pXIncarnation = &actIncarnation->x();
+    spritetype* pIncarnation = &actIncarnation->s();
     pXSprite->key = pXSprite->dropMsg = pXSprite->locked = 0;
 
     // save incarnation's going on and off options
