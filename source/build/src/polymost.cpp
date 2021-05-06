@@ -57,7 +57,7 @@ int pm_smoothratio;
 
 // For testing - will be removed later.
 CVAR(Int, skytile, 0, 0)
-CVAR(Bool, testnewrenderer, false, 0)
+CVAR(Bool, testnewrenderer, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 extern fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 static vec3_t spritesxyz[MAXSPRITESONSCREEN + 1];
