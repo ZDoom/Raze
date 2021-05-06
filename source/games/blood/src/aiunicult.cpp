@@ -1730,10 +1730,17 @@ static void scaleDamage(DBloodActor* actor)
         //viewSetSystemMessage("0: %d, 1: %d, 2: %d, 3: %d, 4: %d, 5: %d, 6: %d", dc[0], dc[1], dc[2], dc[3], dc[4], dc[5], dc[6]);
 }
 
-int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static int getDispersionModifier(DBloodActor* actor, int minDisp, int maxDisp)
 {
+    auto const pXSprite = &actor->x();
     // the faster fire rate, the less frames = more dispersion
-    Seq* pSeq = getSequence(xsprite[pSprite->extra].data2 + 6); 
+    Seq* pSeq = getSequence(pXSprite->data2 + 6); 
     int disp = 1;
     if (pSeq != nullptr) 
     {
@@ -1753,9 +1760,19 @@ int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp)
     return ClipRange(disp, minDisp, maxDisp);
 }
 
+//---------------------------------------------------------------------------
+//
 // the distance counts from sprite size
-int getRangeAttackDist(spritetype* pSprite, int minDist, int maxDist) {
-    short yrepeat = pSprite->yrepeat; int dist = 0; int seqId = xsprite[pSprite->extra].data2; 
+//
+//---------------------------------------------------------------------------
+
+static int getRangeAttackDist(DBloodActor* actor, int minDist, int maxDist) 
+{
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
+    short yrepeat = pSprite->yrepeat;
+    int dist = 0;
+    int seqId = pXSprite->data2; 
     int mul = 550; 
     int picnum = pSprite->picnum;
     
@@ -2330,9 +2347,9 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             [[fallthrough]];
         }
         case kGenDudePropertyAttack:
-            pExtra->fireDist = getRangeAttackDist(pSprite, 3000, 45000);
+            pExtra->fireDist = getRangeAttackDist(actor, 3000, 45000);
             pExtra->throwDist = pExtra->fireDist; // temp
-            pExtra->baseDispersion = getDispersionModifier(pSprite, 200, 3500);
+            pExtra->baseDispersion = getDispersionModifier(actor, 200, 3500);
             if (propId) break;
             [[fallthrough]];
 
