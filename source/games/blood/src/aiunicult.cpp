@@ -1808,9 +1808,10 @@ int getBaseChanceModifier(int baseChance)
     return ((gGameOptions.nDifficulty > 0) ? baseChance - (0x0500 * gGameOptions.nDifficulty) : baseChance);
 }
 
-int getRecoilChance(spritetype* pSprite) {
-    auto actor = &bloodActors[pSprite->index];
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+int getRecoilChance(DBloodActor* actor) 
+{
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
     int mass = getSpriteMassBySize(pSprite);
     int baseChance = (!dudeIsMelee(actor) ? 0x8000 : 0x4000);
     baseChance = getBaseChanceModifier(baseChance) + pXSprite->data3;
@@ -1819,9 +1820,10 @@ int getRecoilChance(spritetype* pSprite) {
     return chance;
 }
 
-int getDodgeChance(spritetype* pSprite) {
-    auto actor = &bloodActors[pSprite->index];
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+int getDodgeChance(DBloodActor* actor) 
+{
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
     int mass = getSpriteMassBySize(pSprite);
     int baseChance = (!dudeIsMelee(actor) ? 0x6000 : 0x1000);
     baseChance = getBaseChanceModifier(baseChance) + pXSprite->data3;

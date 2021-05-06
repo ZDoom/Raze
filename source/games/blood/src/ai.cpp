@@ -1097,7 +1097,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 				{
 					if (!dudeIsMelee(actor)) 
 					{
-						if (inIdle(pXSprite->aiState) || Chance(getDodgeChance(pSprite)))
+						if (inIdle(pXSprite->aiState) || Chance(getDodgeChance(actor))) 
 						{
 							if (!spriteIsUnderwater(actor)) 
 							{
@@ -1274,7 +1274,7 @@ void RecoilDude(DBloodActor* actor)
 		case kDudeModernCustom:
 		{
 			GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
-			int rChance = getRecoilChance(pSprite);
+			int rChance = getRecoilChance(actor);
 			if (pExtra->canElectrocute && pDudeExtra->teslaHit && !spriteIsUnderwater(actor, false))
 			{
 				if (Chance(rChance << 3) || (dudeIsMelee(actor) && Chance(rChance << 4))) aiGenDudeNewState(actor, &genDudeRecoilTesla);
