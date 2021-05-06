@@ -249,7 +249,7 @@ void genDudeAttack1(int, DBloodActor* actor)
     {
         dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = actor->dudeSlope;
         // dispersal modifiers here in case if non-melee enemy
-        if (!dudeIsMelee(pXSprite)) 
+        if (!dudeIsMelee(actor)) 
         {
             dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion);
         }
@@ -770,7 +770,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 }
 
             int state = checkAttackState(actor);
-            int kAngle = (dudeIsMelee(pXSprite) || dist <= kGenDudeMaxMeleeDist) ? pDudeInfo->periphery : kGenDudeKlabsAng;
+            int kAngle = (dudeIsMelee(actor) || dist <= kGenDudeMaxMeleeDist) ? pDudeInfo->periphery : kGenDudeKlabsAng;
 
             if (dist < vdist && abs(losAngle) < kAngle) 
             {
@@ -854,7 +854,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                     switch (pHSprite->type) 
                                     {
                                         case kDudeModernCustom: // and make dude which could be hit to dodge too
-                                            if (!dudeIsMelee(pXHSprite) && Chance(dist << 4)) 
+                                            if (!dudeIsMelee(hitactor) && Chance(dist << 4)) 
                                             {
                                                 if (!inAttack(pXHSprite->aiState)) 
                                                 {
@@ -1520,15 +1520,16 @@ DBloodActor* getNextIncarnation(DBloodActor* actor)
     return NULL;
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-bool dudeIsMelee(XSPRITE* pXSprite) {
-    return gGenDudeExtra[sprite[pXSprite->reference].index].isMelee;
+bool dudeIsMelee(DBloodActor* actor)
+{
+    return actor->genDudeExtra().isMelee;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void scaleDamage(XSPRITE* pXSprite) {
 
@@ -1772,8 +1773,10 @@ int getBaseChanceModifier(int baseChance) {
 }
 
 int getRecoilChance(spritetype* pSprite) {
-    XSPRITE* pXSprite = &xsprite[pSprite->extra]; int mass = getSpriteMassBySize(pSprite);
-    int baseChance = (!dudeIsMelee(pXSprite) ? 0x8000 : 0x4000);
+    auto actor = &bloodActors[pSprite->index];
+    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    int mass = getSpriteMassBySize(pSprite);
+    int baseChance = (!dudeIsMelee(actor) ? 0x8000 : 0x4000);
     baseChance = getBaseChanceModifier(baseChance) + pXSprite->data3;
     
     int chance = ((baseChance / mass) << 7);
@@ -1781,8 +1784,10 @@ int getRecoilChance(spritetype* pSprite) {
 }
 
 int getDodgeChance(spritetype* pSprite) {
-    XSPRITE* pXSprite = &xsprite[pSprite->extra]; int mass = getSpriteMassBySize(pSprite);
-    int baseChance = (!dudeIsMelee(pXSprite) ? 0x6000 : 0x1000);
+    auto actor = &bloodActors[pSprite->index];
+    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    int mass = getSpriteMassBySize(pSprite);
+    int baseChance = (!dudeIsMelee(actor) ? 0x6000 : 0x1000);
     baseChance = getBaseChanceModifier(baseChance) + pXSprite->data3;
 
     int chance = ((baseChance / mass) << 7);
