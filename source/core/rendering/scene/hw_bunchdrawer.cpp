@@ -275,10 +275,13 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 void BunchDrawer::ProcessBunch(int bnch)
 {
 	FBunch* bunch = &Bunches[bnch];
+	int start = bunch->startline;
+	int end = bunch->endline;
 
 	ClipWall.Clock();
-	for (int i = bunch->startline; i <= bunch->endline; i++)
+	for (int i = start; i <= end; i++)
 	{
+		bunch = &Bunches[bnch];	// re-get the pointer in case of reallocation.
 		int clipped = ClipLine(i, bunch->portal);
 
 		if (clipped & CL_Draw)
