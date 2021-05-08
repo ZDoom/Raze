@@ -1374,7 +1374,7 @@ void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixe
 void UpdateWallPortalState()
 {
     // This is too obtuse to be maintained statically, but with 8 mirrors at most easy to be kept up to date.
-    for (int i = 0; i < MAXMIRRORS; i++)
+    for (int i = 0; i < mirrorcnt; i++)
     {
         if (mirror[i].mirrorwall < 0) {
             continue;
