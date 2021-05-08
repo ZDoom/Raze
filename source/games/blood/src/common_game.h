@@ -440,21 +440,6 @@ enum
 
 // -------------------------------
 
-// NUKE-TODO:
-
-
-
-enum BLOOD_GLOBALFLAGS {
-    BLOOD_FORCE_WIDELOADSCREEN = 1<<0,
-};
-
-enum searchpathtypes_t {
-    SEARCHPATH_REMOVE = 1<<0,
-};
-
-extern void G_SetupGlobalPsky(void);
-
-
 #pragma pack(push,1)
 
 struct LOCATION {
@@ -474,35 +459,6 @@ struct Aim {
 };
 
 #pragma pack(pop)
-
-inline int ksgnf(float f)
-{
-    if (f < 0)
-        return -1;
-    if (f > 0)
-        return 1;
-    return 0;
-}
-
-inline int IncBy(int a, int b)
-{
-    a += b;
-    int q = a % b;
-    a -= q;
-    if (q < 0)
-        a -= b;
-    return a;
-}
-
-inline int DecBy(int a, int b)
-{
-    a--;
-    int q = a % b;
-    a -= q;
-    if (q < 0)
-        a -= b;
-    return a;
-}
 
 inline int ClipLow(int a, int b)
 {
