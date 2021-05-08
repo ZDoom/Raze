@@ -887,6 +887,7 @@ void parseMultiPsky(FScanner& sc, FScriptPosition& pos)
 
 	if (sky.tilenum != DEFAULTPSKY && (unsigned)sky.tilenum >= MAXUSERTILES) return;
 	if ((1 << sky.lognumtiles) > MAXPSKYTILES) return;
+	sky.yoffs2 = sky.yoffs;
 	auto psky = tileSetupSky(sky.tilenum);
 	*psky = sky;
 }

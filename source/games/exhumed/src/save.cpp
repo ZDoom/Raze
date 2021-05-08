@@ -110,6 +110,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		pSky->tileofs[2] = 0;
 		pSky->tileofs[3] = 0;
 		pSky->yoffs = 256;
+		pSky->yoffs2 = 256;
 		pSky->lognumtiles = 2;
 		pSky->horizfrac = 65536;
 		pSky->yscale = 65536;

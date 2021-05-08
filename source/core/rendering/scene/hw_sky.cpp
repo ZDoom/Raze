@@ -54,7 +54,7 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 	{
 		int remap = TRANSLATION(Translation_Remap + curbasepal, palette);
 
-		int16_t const* dapskyoff = getpsky(picnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+		int16_t const* dapskyoff = getpsky(picnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale, true);
 		int tw = tileWidth(picnum);
 		if ((1 << sizeToBits(tw)) < tw) dapskybits--; // Build math is weird.
 
