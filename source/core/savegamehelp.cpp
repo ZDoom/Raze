@@ -145,8 +145,8 @@ bool ReadSavegame(const char* name)
 		FSerializer arc;
 		if (!arc.OpenReader((const char*)data, info->LumpSize))
 		{
-			delete savereader;
 			info->Unlock();
+			delete savereader;
 			return false;
 		}
 		info->Unlock();
