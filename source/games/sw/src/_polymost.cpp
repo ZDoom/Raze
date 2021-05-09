@@ -29,9 +29,8 @@ ViewSectorInScene(short cursectnum, short level)
                 // found a potential match
                 match = sp->lotag;
 
-                if (!PicInView(FAF_MIRROR_PIC, true))
+                if (!testgotpic(FAF_MIRROR_PIC, true))
                     return -1;
-
                 return match;
             }
         }
@@ -136,7 +135,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
         // manually set gotpic
         if (gotsector[sprite[i].sectnum])
         {
-            SET_GOTPIC(FAF_MIRROR_PIC);
+            setgotpic(FAF_MIRROR_PIC);
         }
 
         if (SPRITE_TAG3(i) == 0)
@@ -195,25 +194,19 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
     // drift!
     bool bIsWallMirror = false;
 
-    // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
-    longptr = (int *)&gotpic[MIRRORLABEL >> 3];
-    if (longptr && (longptr[0] || longptr[1]))
     {
         for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--)
-            //if (TEST_GOTPIC(cnt + MIRRORLABEL) || TEST_GOTPIC(cnt + CAMSPRITE))
-            if (TEST_GOTPIC(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic)))
+            //if (testgotpic(cnt + MIRRORLABEL) || testgotpic(cnt + CAMSPRITE))
+            if (testgotpic(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && testgotpic(mirror[cnt].campic)))
             {
                 bIsWallMirror = false;
-                if (TEST_GOTPIC(cnt + MIRRORLABEL))
+                if (testgotpic(cnt + MIRRORLABEL, true))
                 {
                     bIsWallMirror = true;
-                    RESET_GOTPIC(cnt + MIRRORLABEL);
                 }
-                //else if (TEST_GOTPIC(cnt + CAMSPRITE))
-                else if ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic))
+                else if ((unsigned)mirror[cnt].campic < MAXTILES && testgotpic(mirror[cnt].campic))
                 {
-                    //RESET_GOTPIC(cnt + CAMSPRITE);
-                    RESET_GOTPIC(mirror[cnt].campic);
+                    cleargotpic(mirror[cnt].campic);
                 }
 
                 mirrorinview = true;

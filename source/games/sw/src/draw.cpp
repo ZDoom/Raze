@@ -1365,7 +1365,6 @@ void PreDrawStackedWater(void)
 
 short ScreenSavePic = false;
 
-bool PicInView(short, bool);
 void DoPlayerDiveMeter(PLAYERp pp);
 
 void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, int tsectnum);
@@ -1610,20 +1609,6 @@ drawscreen(PLAYERp pp, double smoothratio)
 
 
     if (!ScreenSavePic) UpdatePanel(smoothratio);
-
-#define SLIME 2305
-    // Only animate lava if its picnum is on screen
-    // gotpic is a bit array where the tile number's bit is set
-    // whenever it is drawn (ceilings, walls, sprites, etc.)
-#if 0	// This needs a different implementation.
-    if ((gotpic[SLIME >> 3] & (1 << (SLIME & 7))) > 0)
-    {
-        gotpic[SLIME >> 3] &= ~(1 << (SLIME & 7));
-
-        if (waloff[SLIME])
-            movelava((char *) waloff[SLIME]);
-    }
-#endif
 
     // if doing a screen save don't need to process the rest
     if (ScreenSavePic)
