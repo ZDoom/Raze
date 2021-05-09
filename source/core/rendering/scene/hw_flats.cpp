@@ -96,7 +96,7 @@ void HWFlat::MakeVertices()
 {
 	if (vertcount > 0) return;
 	bool canvas = texture->isHardwareCanvas();
-	if (sprite == nullptr)
+	if (Sprite == nullptr)
 	{
 		auto mesh = sectorGeometry.get(section, plane, geoofs);
 		if (!mesh) return;
@@ -117,12 +117,12 @@ void HWFlat::MakeVertices()
 	else
 	{
 		vec2_t pos[4];
-		GetFlatSpritePosition(sprite, sprite->pos.vec2, pos, true);
+		GetFlatSpritePosition(Sprite, Sprite->pos.vec2, pos, true);
 
 		auto ret = screen->mVertexData->AllocVertices(6);
 		auto vp = ret.first;
-		float x = !(sprite->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
-		float y = !(sprite->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
+		float x = !(Sprite->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
+		float y = !(Sprite->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
 		for (unsigned i = 0; i < 6; i++)
 		{
 			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
@@ -144,7 +144,7 @@ void HWFlat::MakeVertices()
 //==========================================================================
 void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 {
-	if (screen->BuffersArePersistent() && !sprite)
+	if (screen->BuffersArePersistent() && !Sprite)
 	{
 		MakeVertices();
 	}
@@ -156,7 +156,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	}
 #endif
 
-	if (!sprite)
+	if (!Sprite)
 	{
 		auto mesh = sectorGeometry.get(section, plane, geoofs);
 		state.SetNormal(mesh->normal);
@@ -182,7 +182,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 		if (texture && !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 		else state.AlphaFunc(Alpha_GEqual, 0.f);
 	}
-	state.SetMaterial(texture, UF_Texture, 0, sprite == nullptr? CLAMP_NONE : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
+	state.SetMaterial(texture, UF_Texture, 0, Sprite == nullptr? CLAMP_NONE : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	state.SetLightIndex(dynlightindex);
 	state.Draw(DT_Triangles, vertindex, vertcount);
@@ -208,7 +208,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 {
 	vertcount = 0;
 	plane = whichplane;
-	if (!screen->BuffersArePersistent() || sprite || di->ingeo)	// should be made static buffer content later (when the logic is working)
+	if (!screen->BuffersArePersistent() || Sprite || di->ingeo)	// should be made static buffer content later (when the logic is working)
 	{
 #if 0
 		if (di->Level->HasDynamicLights && texture != nullptr && !di->isFullbrightScene() && !(hacktype & (SSRF_PLANEHACK | SSRF_FLOODHACK)))
@@ -250,7 +250,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;
 	section = section_;
-	sprite = nullptr;
+	Sprite = nullptr;
 	geoofs = di->geoofs;
 
 	//
@@ -352,7 +352,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 
 	if (texture && texture->isValid())
 	{
-		this->sprite = sprite;
+		this->Sprite = sprite;
 		sec = sector;
 		shade = sprite->shade;
 		palette = sprite->pal;

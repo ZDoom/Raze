@@ -145,6 +145,8 @@ struct PLAYER
     int                 fragInfo[8];
     int                 teamId;
     int                 fraggerId;
+    DBloodActor* fragger();
+    void setFragger(DBloodActor*);
     int                 underwaterTime;
     int                 bubbleTime;
     int                 restTime;
@@ -272,7 +274,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim);
 void FragPlayer(PLAYER *pPlayer, int nSprite);
 int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage);
 spritetype *flagDropped(PLAYER *pPlayer, int a2);
-int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage);
+int playerDamageSprite(DBloodActor* nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage);
 int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec);
 void voodooTarget(PLAYER *pPlayer);
 void playerLandingSound(PLAYER *pPlayer);

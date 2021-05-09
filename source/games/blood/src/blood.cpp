@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "build.h"
-#include "mmulti.h"
 #include "compat.h"
 #include "g_input.h"
 #include "automap.h"
@@ -419,7 +418,7 @@ void GameInterface::app_init()
 	HookReplaceFunctions();
 
 	Printf(PRINT_NONOTIFY, "Loading tiles\n");
-	if (!tileInit(0, NULL))
+	if (!tileInit())
 		I_FatalError("TILES###.ART files not found");
 
 	levelLoadDefaults();

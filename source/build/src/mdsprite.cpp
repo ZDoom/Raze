@@ -26,11 +26,10 @@ static int32_t curextra=MAXTILES;
 using namespace Polymost;
 int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate);
 
-static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
+static int32_t addtileP(int32_t ,int32_t tile,int32_t pallet)
 {
     // tile >= 0 && tile < MAXTILES
 
-    UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-1)
     {
         Printf("warning: max EXTRATILES reached\n");
@@ -1108,7 +1107,7 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float
 }
 
 static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
-                                            int32_t texunits, const md3model_t *M)
+                                            int32_t , const md3model_t *M)
 {
     int32_t i;
 
@@ -1130,10 +1129,6 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
         }
     }
 	GLInterface.Draw(DT_Triangles, data.second, s->numtris *3);
-
-#ifndef USE_GLEXT
-    UNREFERENCED_PARAMETER(texunits);
-#endif
 }
 
 static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)

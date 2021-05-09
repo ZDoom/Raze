@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "build.h"
-#include "mmulti.h"
 #include "v_font.h"
 
 #include "blood.h"
@@ -341,8 +340,6 @@ void UpdateBlend()
     videoTintBlood(nRed, nGreen, nBlue);
 }
 
-uint8_t otherMirrorGotpic[2];
-uint8_t bakMirrorGotpic[2];
 // int gVisibility;
 
 int deliriumTilt, deliriumTurn, deliriumPitch;
@@ -543,7 +540,6 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
 void renderCrystalBall()
 {
 #if 0
-    // needs to be redone for pure hardware rendering when MP is working again.
     int tmp = (PlayClock / 240) % (gNetPlayers - 1);
     int i = connecthead;
     while (1)
@@ -594,37 +590,7 @@ void renderCrystalBall()
     {
         v14 = 10;
     }
-    memcpy(bakMirrorGotpic, gotpic + 510, 2);
-    memcpy(gotpic + 510, otherMirrorGotpic, 2);
-    g_visibility = (int32_t)(ClipLow(gVisibility - 32 * pOther->visibility, 0));
-    int vc4, vc8;
-    getzsofslope(vcc, vd8, vd4, &vc8, &vc4);
-    if (vd0 >= vc4)
-    {
-        vd0 = vc4 - (gUpperLink[vcc] >= 0 ? 0 : (8 << 8));
-    }
-    if (vd0 <= vc8)
-    {
-        vd0 = vc8 + (gLowerLink[vcc] >= 0 ? 0 : (8 << 8));
-    }
-    v54 = ClipRange(v54, -200, 200);
-RORHACKOTHER:
-    int ror_status[16];
-    for (int i = 0; i < 16; i++)
-        ror_status[i] = TestBitString(gotpic, 4080 + i);
-    DrawMirrors(vd8, vd4, vd0, IntToFixed(v50), IntToFixed(v54), gInterpolate, -1);
     drawrooms(vd8, vd4, vd0, v50, v54, vcc);
-    bool do_ror_hack = false;
-    for (int i = 0; i < 16; i++)
-        if (ror_status[i] != TestBitString(gotpic, 4080 + i))
-            do_ror_hack = true;
-    if (do_ror_hack)
-    {
-        spritesortcnt = 0;
-        goto RORHACKOTHER;
-    }
-    memcpy(otherMirrorGotpic, gotpic + 510, 2);
-    memcpy(gotpic + 510, bakMirrorGotpic, 2);
     viewProcessSprites(vd8, vd4, vd0, v50, gInterpolate);
     renderDrawMasks();
     renderRestoreTarget();
@@ -637,10 +603,9 @@ void viewDrawScreen(bool sceneonly)
 {
     int nPalette = 0;
 	
-	if (TestBitString(gotpic, 2342))
+	if (testgotpic(2342, true))
 	{
 		FireProcess();
-		ClearBitString(gotpic, 2342);
 	}
 
     if (!paused && (!M_Active() || gGameOptions.nGameType != 0))

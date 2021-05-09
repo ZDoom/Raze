@@ -1,11 +1,11 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2016 EDuke32 developers and contributors
 Copyright (C) 2019 Christoph Oelckers
 
 This is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -60,13 +60,6 @@ BEGIN_SW_NS
 // that need to look authentic
 //
 //----------------------------------------------------------------------------
-
-void GameInterface::QuitToTitle()
-{
-	Mus_Stop();
-	gameaction = ga_mainmenu;
-}
-
 
 void GameInterface::MenuSound(EMenuSounds snd)
 {

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "gamestruct.h"
 #include "mapinfo.h"
+#include "d_net.h"
 
 #include "common_game.h"
 #include "fx.h"
@@ -120,7 +121,6 @@ struct GameInterface : ::GameInterface
 	void MenuOpened() override;
 	void MenuClosed() override;
 	bool CanSave() override;
-	void QuitToTitle() override;
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;

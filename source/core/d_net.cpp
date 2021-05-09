@@ -63,7 +63,6 @@
 #include "vm.h"
 #include "gstrings.h"
 #include "s_music.h"
-#include "mmulti.h"
 #include "printf.h"
 #include "i_time.h"
 #include "d_ticcmd.h"

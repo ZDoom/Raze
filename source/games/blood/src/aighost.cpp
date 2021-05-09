@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "build.h"
-#include "mmulti.h"
 
 #include "blood.h"
 
@@ -86,7 +85,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 
 void ghostThrowSeqCallback(int, DBloodActor* actor)
 {
-    actFireThing(&actor->s(), 0, 0, actor->dudeSlope - 7500, kThingBone, 0xeeeee);
+    actFireThing_(&actor->s(), 0, 0, actor->dudeSlope - 7500, kThingBone, 0xeeeee);
 }
 
 void ghostBlastSeqCallback(int, DBloodActor* actor)

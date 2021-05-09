@@ -97,7 +97,7 @@ void levelLoadMapInfo(IniFile* pIni, MapRecord* pLevelInfo, const char* pzSectio
     char buffer[16];
     pLevelInfo->SetName(pIni->GetKeyString(pzSection, "Title", pLevelInfo->labelName));
     pLevelInfo->Author = pIni->GetKeyString(pzSection, "Author", "");
-    pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); DefaultExtension(pLevelInfo->music, ".mid");
+    pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); if (pLevelInfo->music.IsNotEmpty()) DefaultExtension(pLevelInfo->music, ".mid");
     pLevelInfo->cdSongId = pIni->GetKeyInt(pzSection, "Track", -1);
     *nextmap = pIni->GetKeyInt(pzSection, "EndingA", 0);
     *nextsecret = pIni->GetKeyInt(pzSection, "EndingB", 0);
@@ -193,7 +193,6 @@ void levelLoadDefaults(void)
             CheckSectionAbend(pMap);
 			SetLevelNum(pLevelInfo, makelevelnum(i, j));
             pLevelInfo->cluster = i;
-            pLevelInfo->mapindex = j;
             pLevelInfo->labelName = pMap;
 			if (j == 1) volume->startmap = pLevelInfo->labelName;
             pLevelInfo->fileName.Format("%s.map", pMap);
@@ -219,12 +218,14 @@ void levelLoadDefaults(void)
                     if (nmap) map->NextMap = nmap->labelName;
                     else map->NextMap = "-";
                 }
+                else map->NextMap = "-";
                 if (nextsecrets[j - 1] > 0)
                 {
                     auto nmap = FindMapByIndexOnly(i, nextsecrets[j - 1]);
                     if (nmap) map->NextSecret = nmap->labelName;
                     else map->NextSecret = "-";
                 }
+                else map->NextSecret = "-";
             }
         }
     }
@@ -246,7 +247,7 @@ void levelTryPlayMusic()
     {
         buffer = currentLevel->music;
 		if (Mus_Play(currentLevel->labelName, buffer, true)) return;
-        DefaultExtension(buffer, ".mid");
+        if (buffer.IsNotEmpty()) DefaultExtension(buffer, ".mid");
     }
     if (!Mus_Play(currentLevel->labelName, buffer, true))
     {

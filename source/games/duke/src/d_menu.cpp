@@ -136,10 +136,4 @@ void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, color, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 }
 
-void GameInterface::QuitToTitle()
-{
-	gameaction = ga_startup;
-}
-
-
 END_DUKE_NS

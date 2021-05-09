@@ -119,7 +119,7 @@ extern short voxelIndex[MAXTILES];
 
 extern int nPrecacheCount;
 
-int tileInit(char a1, const char *a2);
+int tileInit();
 void tilePrecacheTile(int nTile, int nType, int palette);
 
 char tileGetSurfType(int hit);

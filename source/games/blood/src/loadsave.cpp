@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include "build.h"
 #include "compat.h"
-#include "mmulti.h"
 
 #include "blood.h"
 #include "i_specialpaths.h"
@@ -643,6 +642,7 @@ void SerializeState(FSerializer& arc)
 			("cheating", bPlayerCheated)
 			("skyhoriz", pSky->horizfrac)
 			("skyy", pSky->yoffs)
+			("skyy2", pSky->yoffs2)
 			("scale", pSky->yscale)
 			.Array("tileofs", pSky->tileofs, countof(pSky->tileofs))
 			("numtiles", pSky->lognumtiles)

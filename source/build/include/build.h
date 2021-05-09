@@ -15,11 +15,8 @@
 
 static_assert('\xff' == 255, "Char must be unsigned!");
 
-#if !defined __cplusplus || (__cplusplus < 201103L && !defined _MSC_VER)
-# error C++11 or greater is required.
-#endif
-
 #include "compat.h"
+#include "printf.h"
 #include "palette.h"
 #include "binaryangle.h"
 
@@ -218,6 +215,7 @@ typedef struct {
     // The texel index offset in the y direction of a parallaxed sky:
     // XXX: currently always 0.
     int yoffs;
+    int yoffs2;
 
     int lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
     int16_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
@@ -239,11 +237,11 @@ static inline psky_t *getpskyidx(int32_t picnum)
 
 
 EXTERN psky_t * tileSetupSky(int32_t tilenum);
-psky_t* defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t* tileofs, int yoff = 0);
+psky_t* defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t* tileofs, int yoff = 0, int yoff2 = 0x7fffffff);
 
 // Get properties of parallaxed sky to draw.
 // Returns: pointer to tile offset array. Sets-by-pointer the other three.
-const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale);
+const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale, bool alt = false);
 
 
 EXTERN char parallaxtype;
@@ -733,6 +731,17 @@ inline void setgotpic(int32_t tilenume)
     gotpic[tilenume >> 3] |= 1 << (tilenume & 7);
 }
 
+inline void cleargotpic(int32_t tilenume)
+{
+    gotpic[tilenume >> 3] &= ~(1 << (tilenume & 7));
+}
+
+inline bool testgotpic(int32_t tilenume, bool reset = false)
+{
+    bool res = gotpic[tilenume >> 3] & (1 << (tilenume & 7));
+    if (reset) gotpic[tilenume >> 3] &= ~(1 << (tilenume & 7));
+    return res;
+}
 
 
 #include "iterators.h"

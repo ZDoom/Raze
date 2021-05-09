@@ -719,7 +719,11 @@ set( NOT_COMPILED_SOURCE_FILES
 	zcc-parse.c
 	zcc-parse.h
 	common/platform/win32/zutil.natvis
-	
+
+	games/blood/src/_polymost.cpp
+	games/duke/src/_polymost.cpp
+	games/sw/src/_polymost.cpp
+
 	# Blood
 	games/blood/src/actor.cpp
 	games/blood/src/ai.cpp

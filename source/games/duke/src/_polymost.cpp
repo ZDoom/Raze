@@ -15,8 +15,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 
 	i = FOF;    //Effect TILE
 	tileDelete(FOF);
-	if (!(gotpic[i >> 3] & (1 << (i & 7)))) return;
-	gotpic[i >> 3] &= ~(1 << (i & 7));
+	if (!testgotpic(FOF, true)) return;
 
 	floor1 = spr;
 
@@ -165,7 +164,7 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 
 void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int smoothratio)
 {
-	if ((gotpic[TILE_MIRROR >> 3] & (1 << (TILE_MIRROR & 7))) > 0)
+	if (testgotpic(TILE_MIRROR, true))
 	{
 		int dst = 0x7fffffff, i = 0;
 		for (int k = 0; k < mirrorcnt; k++)
@@ -194,7 +193,6 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 			renderCompleteMirror();   //Reverse screen x-wise in this function
 			g_visibility = j;
 		}
-		gotpic[TILE_MIRROR >> 3] &= ~(1 << (TILE_MIRROR & 7));
 	}
 }
 

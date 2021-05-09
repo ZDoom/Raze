@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 #include "compat.h"
-#include "mmulti.h"
+#include "d_net.h"
 
 #include "mytypes.h"
 #include "sounds.h"
@@ -353,10 +353,6 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 
 // just determine if the player is moving
 #define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)
-
-#define TEST_GOTPIC(tile_num) (TEST(gotpic[(tile_num) >> 3], 1 << ((tile_num) & 7)))
-#define RESET_GOTPIC(tile_num) (RESET(gotpic[(tile_num) >> 3], 1 << ((tile_num) & 7)))
-#define SET_GOTPIC(tile_num) (SET(gotpic[(tile_num) >> 3], 1 << ((tile_num) & 7)))
 
 #define LOW_TAG(sectnum) ( sector[sectnum].lotag )
 #define HIGH_TAG(sectnum) ( sector[sectnum].hitag )
@@ -2250,8 +2246,7 @@ struct GameInterface : ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
-    void QuitToTitle() override;
-	void UpdateSounds() override;
+    void UpdateSounds() override;
     void ErrorCleanup() override;
     void GetInput(InputPacket* input, ControlInfo* const hidInput) override;
     void DrawBackground(void) override;

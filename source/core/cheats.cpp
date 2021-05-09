@@ -41,7 +41,6 @@
 #include "c_dispatch.h"
 #include "d_net.h"
 #include "gamestate.h"
-#include "mmulti.h"
 #include "gstrings.h"
 #include "gamecontrol.h"
 #include "screenjob.h"

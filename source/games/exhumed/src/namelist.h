@@ -1,3 +1,4 @@
+x(CrosshairTile, 1579)
 x(SkullJaw, 3437)
 x(PowerslaveLogo, 3442)
 x(MenuNewGameTile, 3460)

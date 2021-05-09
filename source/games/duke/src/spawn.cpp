@@ -994,7 +994,11 @@ void spawneffector(DDukeActor* actor)
 				}
 				if (!found)
 				{
-					I_Error("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", sp->x, sp->y);
+					sp->picnum = 0;
+					sp->cstat = CSTAT_SPRITE_NOFIND;
+					changespritesect(actor, STAT_REMOVED);
+					Printf("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", sp->x, sp->y);
+					return;
 				}
 			}
 

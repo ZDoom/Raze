@@ -633,21 +633,6 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     }
 }
 
-// doesn't work for blank pics
-bool
-PicInView(short tile_num, bool reset)
-{
-    if (TEST(gotpic[tile_num >> 3], 1 << (tile_num & 7)))
-    {
-        if (reset)
-            RESET(gotpic[tile_num >> 3], 1 << (tile_num & 7));
-
-        return true;
-    }
-
-    return false;
-}
-
 void
 SetupMirrorTiles(void)
 {
@@ -1182,7 +1167,7 @@ void CollectPortals()
             auto pt2 = findother(pt.othersector);
             if (pt2)
             {
-                int pnum = portalAdd(PORTAL_SECTOR_FLOOR, -1, pt.offset.x, pt.offset.y, 0);
+                int pnum = portalAdd(PORTAL_SECTOR_CEILING, -1, pt.offset.x, pt.offset.y, 0);
                 allPortals[pnum].targets = std::move(pt2->sectors);
                 for (auto sec : pt.sectors)
                 {

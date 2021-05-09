@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef NOONE_EXTENSIONS
 #include <random>
-#include "mmulti.h"
 #include "blood.h"
 #include "savegamehelp.h"
 
@@ -127,7 +126,7 @@ bool nnExtIsImmune(spritetype* pSprite, int dmgType, int minScale) {
         else if (IsDudeSprite(pSprite)) {
             if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType]);
             else if (pSprite->type == kDudeModernCustom) return (gGenDudeExtra[pSprite->index].dmgControl[dmgType] <= minScale);
-            else return (getDudeInfo(pSprite->type)->at70[dmgType] <= minScale);
+            else return (getDudeInfo(pSprite->type)->damageVal[dmgType] <= minScale);
         }
     }
 
@@ -2336,11 +2335,11 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
 
         }
         else if (!pPlayer) actKillDude(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
-        else playerDamageSprite(pSource->index, pPlayer, (DAMAGE_TYPE)dmgType, dmg);
+        else playerDamageSprite(&bloodActors[pSource->index], pPlayer, (DAMAGE_TYPE)dmgType, dmg);
     }
     else if ((pXSprite->health = ClipLow(pXSprite->health - dmg, 1)) > 16) return;
     else if (!pPlayer) actKillDude(pSource->index, pSprite, DAMAGE_TYPE_2, dmg);
-    else playerDamageSprite(pSource->index, pPlayer, DAMAGE_TYPE_2, dmg);
+    else playerDamageSprite(&bloodActors[pSource->index], pPlayer, DAMAGE_TYPE_2, dmg);
     return;
 }
 
@@ -2531,8 +2530,6 @@ void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
 
 
 bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
-    
-    UNREFERENCED_PARAMETER(PUSH);
     
     //int var = -1;
     int cond = pXCond->data1 - kCondMixedBase; int arg1 = pXCond->data2;
@@ -2812,8 +2809,6 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
 bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
-    UNREFERENCED_PARAMETER(PUSH);
-    
     int var = -1;
     int cond = pXCond->data1 - kCondWallBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
@@ -2929,8 +2924,6 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
 bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
-    UNREFERENCED_PARAMETER(cmpOp);
-    
     int var = -1; //PLAYER* pPlayer = NULL;
     int cond = pXCond->data1 - kCondDudeBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
@@ -3026,7 +3019,6 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
 bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
-    UNREFERENCED_PARAMETER(PUSH);
     auto actor = &bloodActors[pXCond->reference];
     int var = -1; PLAYER* pPlayer = NULL; bool retn = false;
     int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
@@ -4093,8 +4085,7 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
 
 void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
     
-    UNREFERENCED_PARAMETER(cmd);
-    
+  
     spritetype* pSource = &sprite[pXSource->reference];
     int tx = 0; int maxRetries = kMaxRandomizeRetries;
     

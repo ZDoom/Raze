@@ -57,7 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_dispatch.h"
 #include "glbackend/glbackend.h"
 #include "engineerrors.h"
-#include "mmulti.h"
 #include "gamestate.h"
 #include "gstrings.h"
 #include "texturemanager.h"
@@ -106,7 +105,7 @@ CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 // The last remains of sdlayer.cpp
 GameInterface* gi;
 int myconnectindex, numplayers;
-int connecthead, connectpoint2[MAXMULTIPLAYERS];
+int connecthead, connectpoint2[MAXPLAYERS];
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
 int lastTic;
 
@@ -565,12 +564,12 @@ int GameMain()
 	{
 		r = RunGame();
 	}
-	catch (const CExitEvent & exit)
+	catch (const CExitEvent& exit)
 	{
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
-	catch (const std::exception & err)
+	catch (const std::exception& err)
 	{
 		// shut down critical systems before showing a message box.
 		I_ShowFatalError(err.what());
@@ -617,22 +616,6 @@ int GameMain()
 
 void SetDefaultStrings()
 {
-	// Duke 1.3 does not define its episodes through CON.
-	if ((g_gameType & GAMEFLAG_DUKE) && fileSystem.FindFile("E4L1.MAP") < 0)
-	{
-		auto vol0 = AllocateVolume(); vol0->index = 0;
-		auto vol1 = AllocateVolume(); vol1->index = 1; vol1->flags = VF_SHAREWARELOCK;
-		auto vol2 = AllocateVolume(); vol2->index = 2; vol1->flags = VF_SHAREWARELOCK;
-		// Pre-Atomic releases do not define this.
-		vol0->name = "$L.A. Meltdown";
-		vol1->name = "$Lunar Apocalypse";
-		vol2->name = "$Shrapnel City";
-
-		gSkillNames[0] = "$Piece of Cake";
-		gSkillNames[1] = "$Let's Rock";
-		gSkillNames[2] = "$Come get Some";
-		gSkillNames[3] = "$Damn I'm Good";
-	}
 	// Blood hard codes its skill names, so we have to define them manually.
 	if (isBlood())
 	{
@@ -854,6 +837,56 @@ void CreateStatusBar()
 	StatusBar = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
 }
 
+
+void GetGames()
+{
+	auto getgames = Args->CheckValue("-getgames");
+	if (getgames)
+	{
+		try
+		{
+			auto groups = GrpScan();
+			FSerializer arc;
+			if (arc.OpenWriter())
+			{
+				if (arc.BeginArray("games"))
+				{
+					for (auto& entry : groups)
+					{
+						if (arc.BeginObject(nullptr))
+						{
+							arc("filename", entry.FileName)
+								("description", entry.FileInfo.name)
+								("defname", entry.FileInfo.defname)
+								("scriptname", entry.FileInfo.scriptname)
+								("gamefilter", entry.FileInfo.gamefilter)
+								("gameid", entry.FileInfo.gameid)
+								("fgcolor", entry.FileInfo.FgColor)
+								("bkcolor", entry.FileInfo.BgColor)
+								("addon", entry.FileInfo.isAddon)
+								.EndObject();
+						}
+					}
+					arc.EndArray();
+				}
+				unsigned int len;
+				auto p = arc.GetOutput(&len);
+				FILE* f = fopen(getgames, "wb");
+				if (f)
+				{
+					fwrite(p, 1, len, f);
+					fclose(f);
+				}
+			}
+		}
+		catch (...)
+		{
+			// Ignore all errors
+		}
+		throw CExitEvent(0);
+	}
+}
+
 //==========================================================================
 //
 //
@@ -880,6 +913,7 @@ int RunGame()
 	I_DetectOS();
 	userConfig.ProcessOptions();
 	G_LoadConfig();
+	GetGames();
 	auto usedgroups = SetupGame();
 
 	bool colorset = false;

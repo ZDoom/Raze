@@ -650,7 +650,7 @@ OptionMenu "ChatControlsMenu" protected
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_SAY"     , "+send_message"
+	Control    "$CNTRLMNU_SAY"     , "messagemode"
 }
 
 OptionMenu "WeaponsControlMenu" protected

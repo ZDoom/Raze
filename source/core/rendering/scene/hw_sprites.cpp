@@ -315,7 +315,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 	if (!tex || !tex->isValid()) return;
 
 	texture = tex;
-	sprite = spr;
+	Sprite = spr;
 
 	modelframe = 0;
 	dynlightindex = -1;
@@ -442,7 +442,7 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 
 bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, sectortype* sector, bool rotate)
 {
-	sprite = spr;
+	Sprite = spr;
 	auto sprext = &spriteext[spr->owner];
 
 	texture = nullptr;
@@ -528,7 +528,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 
 	auto vp = di->Viewpoint;
 	depth = (float)((x - vp.Pos.X) * vp.TanCos + (y - vp.Pos.Y) * vp.TanSin);
-	PutSprite(di, spriteHasTranslucency(sprite));
+	PutSprite(di, spriteHasTranslucency(Sprite));
 	rendered_sprites++;
 	return true;
 }

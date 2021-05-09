@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheathandler.h"
 #include "gamestate.h"
 #include "gamefuncs.h"
-#include "mmulti.h"
 
 BEGIN_PS_NS
 

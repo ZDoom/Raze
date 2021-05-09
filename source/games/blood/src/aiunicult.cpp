@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "build.h"
-#include "mmulti.h"
 #include "raze_sound.h"
 
 #include "blood.h"
@@ -307,7 +306,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     }
 
     spritetype* pThing = NULL;
-    if ((pThing = actFireThing(pSprite, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == NULL) return;
+    if ((pThing = actFireThing_(pSprite, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == NULL) return;
     else if (pThinkInfo->picnum < 0 && pThing->type != kModernThingThrowableRock) pThing->picnum = 0;
             
     pThing->owner = pSprite->index;
@@ -1593,7 +1592,7 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
 }
 
 bool doExplosion(spritetype* pSprite, int nType) {
-    spritetype* pExplosion = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
+    spritetype* pExplosion = actSpawnSprite_(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
     if (pExplosion->extra < 0 || pExplosion->extra >= kMaxXSprites) 
         return false;
 

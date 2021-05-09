@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_music.h"
 #include "engine.h"
 #include "exhumed.h"
-#include "mmulti.h"
 #include "savegamehelp.h"
 #include "sound.h"
 #include "mapinfo.h"
@@ -111,6 +110,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		pSky->tileofs[2] = 0;
 		pSky->tileofs[3] = 0;
 		pSky->yoffs = 256;
+		pSky->yoffs2 = 256;
 		pSky->lognumtiles = 2;
 		pSky->horizfrac = 65536;
 		pSky->yscale = 65536;

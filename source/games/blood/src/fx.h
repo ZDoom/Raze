@@ -94,6 +94,7 @@ public:
     void destroy(int);
     void remove(int);
     spritetype * fxSpawn(FX_ID, int, int, int, int, unsigned int);
+    DBloodActor* fxSpawnActor(FX_ID, int, int, int, int, unsigned int);
     void fxProcess(void);
 };
 

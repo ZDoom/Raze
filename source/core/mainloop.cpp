@@ -74,7 +74,6 @@
 #include "vm.h"
 #include "gamestate.h"
 #include "screenjob.h"
-#include "mmulti.h"
 #include "c_console.h"
 #include "uiinput.h"
 #include "v_video.h"

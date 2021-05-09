@@ -870,6 +870,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
 
     ASSERT(!Prediction);
 
+    User[SpriteNum].Clear();    // make sure to delete old, stale content first!
     User[SpriteNum].Alloc();
     u = User[SpriteNum].Data();
 

@@ -824,7 +824,7 @@ static void SpawnPortals()
 {
     for (int i = 0; i < numwalls; i++)
     {
-        if (wall[i].overpicnum == TILE_MIRROR) wall[i].portalflags |= PORTAL_WALL_MIRROR;
+        if (wall[i].overpicnum == TILE_MIRROR && (wall[i].cstat & CSTAT_WALL_1WAY)) wall[i].portalflags |= PORTAL_WALL_MIRROR;
     }
 
     portalClear();

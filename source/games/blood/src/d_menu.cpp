@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "compat.h"
-#include "mmulti.h"
 #include "c_bind.h"
 #include "razemenu.h"
 #include "gamestate.h"
@@ -162,12 +161,6 @@ bool GameInterface::CanSave()
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
-}
-
-void GameInterface::QuitToTitle()
-{
-	Mus_Stop();
-	gameaction = ga_mainmenu;
 }
 
 END_BLD_NS

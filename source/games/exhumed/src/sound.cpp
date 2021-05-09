@@ -16,7 +16,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "mmulti.h"
 #include "compat.h"
 #include "build.h"
 #include "engine.h"

@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "automap.h"
 #include "compat.h"
 #include "build.h"
-#include "mmulti.h"
 
 #include "blood.h"
 #include "gstrings.h"
@@ -582,7 +581,7 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
     pPlayer->pSprite->clipdist = pDudeInfo->clipdist;
     
     for (int i = 0; i < 7; i++)
-        pDudeInfo->at70[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
+        pDudeInfo->damageVal[i] = MulScale(Handicap[gSkill], pDudeInfo->startDamage[i], 8);
 }
 
 void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
@@ -661,7 +660,7 @@ void playerStart(int nPlayer, int bNewLevel)
         pStartZone = &gStartZone[Random(8)];
     }
 
-    spritetype *pSprite = actSpawnSprite(pStartZone->sectnum, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
+    spritetype *pSprite = actSpawnSprite_(pStartZone->sectnum, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
     assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
     pPlayer->pSprite = pSprite;
@@ -1741,7 +1740,7 @@ spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, i
 spritetype * playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    return actFireThing(pPlayer->pSprite, a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
+    return actFireThing_(pPlayer->pSprite, a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
@@ -1883,9 +1882,9 @@ spritetype *flagDropped(PLAYER *pPlayer, int a2)
     return pSprite;
 }
 
-int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
+int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
 {
-    assert(nSource < kMaxSprites);
+    int nSource = source ? source->s().index : -1;
     assert(pPlayer != NULL);
     if (pPlayer->damageControl[nDamageType] || pPlayer->godMode)
         return 0;
@@ -2116,7 +2115,7 @@ void PlayerKneelsOver(int, DBloodActor* actor)
         if (gPlayer[p].pXSprite == pXSprite)
         {
             PLAYER *pPlayer = &gPlayer[p];
-            playerDamageSprite(pPlayer->fraggerId, pPlayer, DAMAGE_TYPE_5, 500<<4);
+            playerDamageSprite(pPlayer->fragger(), pPlayer, DAMAGE_TYPE_5, 500<<4);
             return;
         }
     }

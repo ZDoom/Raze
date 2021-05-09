@@ -185,7 +185,7 @@ public:
 
 public:
 	walltype* seg;
-	spritetype* sprite;
+	spritetype* Sprite;
 	sectortype* frontsector, * backsector;
 //private:
 
@@ -251,7 +251,7 @@ class HWFlat
 public:
 	int section;
 	sectortype * sec;
-	spritetype* sprite; // for flat sprites.
+	spritetype* Sprite; // for flat sprites.
 	FGameTexture *texture;
 
 	float z; // the z position of the flat (only valid for non-sloped planes)
@@ -294,7 +294,7 @@ class HWSprite
 {
 public:
 
-	spritetype* sprite;
+	spritetype* Sprite;
 	PalEntry fade;
 	int shade, palette;
 	float visibility;

@@ -1728,7 +1728,6 @@ int ConCompiler::parsecommand()
 
 		SetLevelNum(map, makelevelnum(j + 1, k + 1));
 
-		map->mapindex = k + 1;
 		map->cluster = j + 1;
 
 		textptr += 5;
@@ -3236,7 +3235,7 @@ void loadcons()
 	{
 		if (map->cluster == 1) 
 		{
-			if (!FindMapByIndexOnly(map->cluster, map->mapindex + 1))
+			if (!FindMapByLevelNum(map->levelNumber + 1))
 			{
 				auto nextmap = FindMapByIndexOnly(map->cluster + 1, 1);
 				if (nextmap)

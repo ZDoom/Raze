@@ -67,11 +67,6 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	}
 }
 
-void GameInterface::QuitToTitle()
-{
-	gameaction = ga_mainmenu;
-}
-
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_PS, MINSAVEVER_PS, SAVEVER_PS };

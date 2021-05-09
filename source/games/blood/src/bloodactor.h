@@ -22,6 +22,10 @@ public:
 		dudeSlope = 0;
 	}
     bool hasX() { return sprite[index].extra > 0; }
+	void addX()
+	{
+		if (s().extra == -1) dbInsertXSprite(s().index);
+	}
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
     SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }
@@ -42,8 +46,18 @@ public:
 
 	DBloodActor* GetOwner()
 	{
-		if (s().owner == -1) return nullptr;
+		if (s().owner == -1 || s().owner == kMaxSprites-1) return nullptr;
 		return base() + s().owner;
+	}
+
+	void SetSpecialOwner() // nnext hackery
+	{
+		s().owner = kMaxSprites - 1;
+	}
+
+	bool GetSpecialOwner()
+	{
+		return (s().owner == kMaxSprites - 1);
 	}
 
 	bool IsPlayerActor()
@@ -124,5 +138,26 @@ inline int DeleteSprite(DBloodActor* nSprite)
 	return 0;
 }
 
+inline void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
+{
+	auto pXSprite = &pTarget->x();
+	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
+	pXSprite->burnSource = pSource->s().index;
+}
+
+inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
+{
+	GetSpriteExtents(&actor->s(), top, bottom);
+}
+
+inline DBloodActor *PLAYER::fragger()
+{
+	return fraggerId == -1? nullptr : &bloodActors[fraggerId];
+}
+
+inline void PLAYER::setFragger(DBloodActor* actor)
+{
+	fraggerId = actor == nullptr ? -1 : actor->s().index;
+}
 
 END_BLD_NS
