@@ -1,7 +1,6 @@
 #include "ns.h"
 #include "wh.h"
 #include "automap.h"
-#include "mmulti.h"
 #include "glbackend/glbackend.h"
 #include "raze_music.h"
 #include "rendering/render.h"

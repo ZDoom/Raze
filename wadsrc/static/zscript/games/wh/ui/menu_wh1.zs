@@ -102,7 +102,7 @@ class ListMenuItemWH1TextItem : ListMenuItemTextItem
 		if (selected) 
 		{
 			int mclock = MSTime() * 120 / 1000;
-			int light = 223 + (Build.calcSinTableValue(mclock<<4) / 512.);
+			int light = 223 + (Raze.calcSinTableValue(mclock<<4) / 512.);
 			colr = Color(255, light, light, light); 
 		}
 		Screen.DrawText(BigFont, cr, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, colr, DTA_TranslationIndex, trans, DTA_ScaleX, scalex * fontscale, DTA_ScaleY, fontscale);
@@ -144,7 +144,7 @@ class ListMenuItemWH1SkillItem : ListMenuItemTextItem
 		if (selected) 
 		{
 			int mclock = MSTime() * 120 / 1000;
-			int light = 223 + (Build.calcSinTableValue(mclock<<4) / 512.);
+			int light = 223 + (Raze.calcSinTableValue(mclock<<4) / 512.);
 			colr = Color(255, light, light, light); 
 		}
 		screen.DrawTexture(skull, false, mXpos - 15, mYpos + 10, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, 0.6, DTA_ScaleY, 0.6, DTA_Alpha, selected? 1.0 : 0.5);

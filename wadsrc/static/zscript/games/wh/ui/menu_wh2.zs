@@ -69,7 +69,7 @@ class ListMenuItemWH2TextItem : ListMenuItemTextItem
 		else if (selected) 
 		{
 			int mclock = MSTime() * 120 / 1000;
-			int light = 223 + (Build.calcSinTableValue(mclock<<4) / 512.);
+			int light = 223 + (Raze.calcSinTableValue(mclock<<4) / 512.);
 			colr = Color(255, light, light, light); 
 			cr = Font.CR_GREEN;
 		}
@@ -105,7 +105,7 @@ class ListMenuItemWH2SkillItem : ListMenuItemTextItem
 		else if (selected) 
 		{
 			int mclock = MSTime() * 120 / 1000;
-			int light = 223 + (Build.calcSinTableValue(mclock<<4) / 512.);
+			int light = 223 + (Raze.calcSinTableValue(mclock<<4) / 512.);
 			colr = Color(255, light, light, light); 
 			cr = Font.CR_GREEN;
 		}

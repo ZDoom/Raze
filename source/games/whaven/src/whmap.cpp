@@ -1,6 +1,5 @@
 #include "ns.h"
 #include "wh.h"
-#include "mmulti.h"
 #include "automap.h"
 
 BEGIN_WH_NS
@@ -826,6 +825,7 @@ boolean prepareboard(const char* fname) {
 #endif
 		startmusic(mapon - 1);
 
+	gameaction = ga_level;
 	return true;
 }
 

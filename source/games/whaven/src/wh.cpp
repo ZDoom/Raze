@@ -1,5 +1,6 @@
 #include "ns.h"
 #include "wh.h"
+#include "vm.h"
 
 BEGIN_WH_NS 
 
@@ -51,4 +52,14 @@ Point rotatepoint(int xpivot, int ypivot, int x, int y, short daang) { // jfBuil
 
 	return rotatepoint;
 }
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Witchaven, PlaySound, SND_Sound)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(snd);
+	SND_Sound(snd);
+	return 0;
+}
+
+
 END_WH_NS

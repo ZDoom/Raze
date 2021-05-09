@@ -497,6 +497,7 @@ namespace Exhumed
 namespace Witchaven
 {
 	::GameInterface* CreateInterface();
+	void InitSoundNames();
 }
 
 void CheckFrontend(int flags)
@@ -895,6 +896,8 @@ void GetGames()
 
 int RunGame()
 {
+	Witchaven::InitSoundNames();	// this must be done globally because it sets up script constants.
+
 	GameStartupInfo.FgColor = 0xffffff;
 
 	// Set up the console before anything else so that it can receive text.

@@ -6,7 +6,7 @@
 #include "buildtiles.h"
 #include "v_draw.h"
 #include "menu.h"
-#include "mmulti.h"
+#include "d_net.h"
 #include "raze_music.h"
 #include "statistics.h"
 #include "version.h"
@@ -508,51 +508,6 @@ void InitCheats()
 }
 
 
-void MakeLevel(int i, int game)
-{
-	auto mi = AllocateMap();
-	mi->fileName.Format("level%d.map", i);
-	mi->labelName.Format("LEVEL%d", i);
-	mi->name.Format("$TXT_WH%d_MAP%02d", game, i);
-	mi->levelNumber = i;
-}
-
-void InitOriginalEpisodes()
-{
-	if(isWh2()) {
-		/*
-		const char *wh2names[] = {
-				 "Antechamber of Asmodeus",
-				 "Halls of Ragnoth",
-				 "Lokis Tomb",
-				 "Forsaken Realm",
-				 "Eye of Midian",
-				 "Dungeon of Disembowelment",
-				 "Stronghold of Chaos",
-				 "Jaws of Venom",
-				 "Descent into Doom",
-				 "Hack'n Sniff",
-				 "Straits of Perdition",
-				 "Plateau of Insanity",
-				 "Crypt of Decay",
-				 "Mausoleum of Madness",
-				 "Gateway into Oblivion",
-				 "Lungs of Hell",
-			};
-			*/
-		for (int i = 1; i <= 15; i++)
-			MakeLevel(i, 2);
-		for (int i = 30; i <= 34; i++)
-			MakeLevel(i, 2);
-	} else {
-		for (int i = 1; i <= 25; i++)
-			MakeLevel(i, 1);
-		for (int i = 30; i <= 35; i++)
-			MakeLevel(i, 1);
-	}
-}
-
-
 FString GameInterface::GetCoordString()
 {
 	return FStringf("Player X: %d, Y: %d, Z: %d", player[0].x, player[0].y, player[0].z);
@@ -621,7 +576,6 @@ void GameInterface::app_init()
 	sfxInit();
 	//sndInit();
 	//initpaletteshifts();
-	InitOriginalEpisodes();
 
 	numplayers = 1; 
 	myconnectindex = 0;
@@ -648,18 +602,7 @@ void GameInterface::app_init()
 
 void GameInterface::Startup()
 {
-	if (userConfig.CommandMap.IsNotEmpty())
-	{
-	}
-	else
-	{
-		/*
-		IntroMovie([](bool)
-			{
-				gameaction = ga_mainmenu;
-			});
-		*/
-	}
+	PlayLogos(ga_mainmenu, ga_mainmenu, true);
 }
 
 bool GameInterface::CanSave()
@@ -749,60 +692,41 @@ void GameInterface::Ticker()
 
 void GameInterface::LevelCompleted(MapRecord* map, int skill)
 {
-#if 0
-	if (map)
-	{
-		STAT_Update(false);
-		auto pplr = &player[pyrn];
-		auto completion = [=](bool)
+	Mus_Stop();
+
+	SummaryInfo info{};
+
+	if (kills > killcnt) kills = killcnt;
+	int killp = (kills * 100) / (killcnt + 1);
+	if (treasuresfound > treasurescnt) treasuresfound = treasurescnt;
+	int treap = (treasuresfound * 100) / (treasurescnt + 1);
+	int rating = (killp + treap) / 2;
+	if (rating >= 95) rating = 3;
+	else if (rating >= 70) rating = 2;
+	else if (rating >= 40) rating = 1;
+	else rating = 0;
+
+	info.kills = kills;
+	info.maxkills = killcnt;
+	info.secrets = treasuresfound;
+	info.maxsecrets = treasurescnt;
+	info.supersecrets = rating;
+	info.time = PlayClock * GameTicRate / 120;
+	info.endofgame = map == nullptr;
+
+	info.bonus = rating * 500;
+	player[pyrn].score += info.bonus;
+	info.score = info.bonus + expgained;
+
+	ShowIntermission(currentLevel, map, &info, [=](bool)
 		{
-			spritesound(S_CHAINDOOR1, &sprite[pplr->spritenum]);
+			soundEngine->StopAllChannels();
+			auto pplr = &player[pyrn];
+			SND_Sound(S_CHAINDOOR1);
 			playertorch = 0;
-			spritesound(S_WARP, &sprite[pplr->spritenum]);
-		};
-		if (isWh2())
-		{
-#if 0
-			if (kills > killcnt)
-				kills = killcnt;
-			int killp = (kills * 100) / (killcnt + 1);
-			if (treasuresfound > treasurescnt)
-				treasuresfound = treasurescnt;
-			int treap = (treasuresfound * 100) / (treasurescnt + 1);
-			rating = (killp + treap) / 2;
-			if (rating >= 95) {
-				rating = 3;
-			}
-			else if (rating >= 70)
-				rating = 2;
-			else if (rating >= 40)
-				rating = 1;
-			else rating = 0;
-			bonus = rating * 500;
-			plr.score += bonus;
-			score = bonus + expgained;
-#endif
-			showStatisticsScreen(completion);
-			return;
-		}
-		completion(false);
-	}
-	else if (!isWh2())
-	{
-		STAT_Update(true);
-		showVictoryScreen([=](bool)
-			{
-				gameaction = ga_mainmenu;
-			});
-	}
-	else
-	{
-		STAT_Update(true);
-		startWh2Ending([](bool) {
-			gameaction = ga_mainmenu;
-			});
-	}
-#endif
+			SND_Sound(S_WARP);
+			gameaction = map ? ga_nextlevel : ga_mainmenu;
+		});
 }
 
 void GameInterface::NextLevel(MapRecord* map, int skill)
@@ -828,18 +752,8 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 	nextlevel = false;
 	Mus_Stop();
 	prepareboard(currentLevel->fileName);
-	STAT_StartNewGame(isWh2() ? "Witchaven2" : "Witchaven", skill);
 	STAT_NewLevel(currentLevel->labelName);
 }
-
-bool GameInterface::StartGame(FNewGameStartup& gs)
-{
-	auto map = FindMapByLevelNum(1);
-	DeferedStartGame(map, gs.Skill);
-	return true;
-
-}
-
 
 void GameInterface::MenuSound(EMenuSounds snd)
 {
@@ -856,12 +770,6 @@ void GameInterface::MenuOpened()
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
-}
-
-void GameInterface::QuitToTitle()
-{
-	Mus_Stop();
-	gameaction = ga_mainmenu;
 }
 
 void GameInterface::ToggleThirdPerson()

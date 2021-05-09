@@ -1,0 +1,186 @@
+episode LEVEL1
+{
+	name = "Witchaven"
+}
+
+cluster 1
+{
+	name = "Witchaven"
+}
+
+map level1 "$TXT_WH1_MAP01"
+{
+	cluster = 1
+}
+
+map level2 "$TXT_WH1_MAP02"
+{
+	cluster = 1
+}
+
+map level3 "$TXT_WH1_MAP03"
+{
+	cluster = 1
+}
+
+map level4 "$TXT_WH1_MAP04"
+{
+	cluster = 1
+}
+
+map level5 "$TXT_WH1_MAP05"
+{
+	cluster = 1
+}
+
+map level6 "$TXT_WH1_MAP06"
+{
+	cluster = 1
+}
+
+map level7 "$TXT_WH1_MAP07"
+{
+	cluster = 1
+}
+
+map level8 "$TXT_WH1_MAP08"
+{
+	cluster = 1
+}
+
+map level9 "$TXT_WH1_MAP09"
+{
+	cluster = 1
+}
+
+map level10 "$TXT_WH1_MAP10"
+{
+	cluster = 1
+}
+
+map level11 "$TXT_WH1_MAP11"
+{
+	cluster = 1
+}
+
+map level12 "$TXT_WH1_MAP12"
+{
+	cluster = 1
+}
+
+map level13 "$TXT_WH1_MAP13"
+{
+	cluster = 1
+}
+
+map level14 "$TXT_WH1_MAP14"
+{
+	cluster = 1
+}
+
+map level15 "$TXT_WH1_MAP15"
+{
+	cluster = 1
+}
+
+map level16 "$TXT_WH1_MAP16"
+{
+	cluster = 1
+}
+
+map level17 "$TXT_WH1_MAP17"
+{
+	cluster = 1
+}
+
+map level18 "$TXT_WH1_MAP18"
+{
+	cluster = 1
+}
+
+map level19 "$TXT_WH1_MAP19"
+{
+	cluster = 1
+}
+
+map level20 "$TXT_WH1_MAP20"
+{
+	cluster = 1
+}
+
+map level21 "$TXT_WH1_MAP21"
+{
+	cluster = 1
+}
+
+map level22 "$TXT_WH1_MAP22"
+{
+	cluster = 1
+}
+
+map level23 "$TXT_WH1_MAP23"
+{
+	cluster = 1
+}
+
+map level24 "$TXT_WH1_MAP24"
+{
+	cluster = 1
+}
+
+map level25 "$TXT_WH1_MAP25"
+{
+	cluster = 1
+	outro
+	{
+		function = "WHCutscenes.BuildVictoryScreen"
+	}
+}
+
+map level30 "$TXT_WH1_MAP30"
+{
+	cluster = 2
+}
+
+map level31 "$TXT_WH1_MAP31"
+{
+	cluster = 2
+}
+
+map level32 "$TXT_WH1_MAP32"
+{
+	cluster = 2
+}
+
+map level33 "$TXT_WH1_MAP33"
+{
+	cluster = 2
+}
+
+map level34 "$TXT_WH1_MAP34"
+{
+	cluster = 2
+}
+
+map level35 "$TXT_WH1_MAP35"
+{
+	cluster = 2
+}
+
+cutscenes
+{
+	intro
+	{
+		function = WHCutscenes.BuildIntro
+	}
+
+	loadscreen
+	{
+		function = WHCutscenes.BuildLoading
+	}
+}
+
+gameinfo
+{
+}  
+

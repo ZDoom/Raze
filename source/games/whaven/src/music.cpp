@@ -24,7 +24,7 @@ static int oldsong;
 static bool playthesong(int which, bool looped)
 {
 	char buffer[40];
-	mysnprintf(buffer, 40, "%s/%04", isWh2()? "F_SONGS" : "SONGS", which);
+	mysnprintf(buffer, 40, "%s/%04d", isWh2()? "F_SONGS" : "SONGS", which);
 	return Mus_Play(currentLevel->labelName, buffer, looped);
 }
 
@@ -36,6 +36,7 @@ static bool loadlevelsongs(int which)
 
 void startsong(int which) // 0, 1, 2 or 3
 {
+	if (oldsong < 0) return;
 	int index = (oldsong * SONGSPERLEVEL) + which;
 	bool result = playthesong(index, !attacktheme);
 	if (result && which < 2) attacktheme = 0;
@@ -43,6 +44,13 @@ void startsong(int which) // 0, 1, 2 or 3
 
 void startmusic(int level) 
 {
+	// allow music override from MAPINFO.
+	if (currentLevel->music.IsNotEmpty())
+	{
+		Mus_Play(currentLevel->labelName, currentLevel->music, true);
+		oldsong = -1;
+		return;
+	}
 	if (!isWh2())
 	{
 		level %= 6;

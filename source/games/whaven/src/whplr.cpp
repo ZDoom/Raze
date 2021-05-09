@@ -1,7 +1,6 @@
 #include "ns.h"
 #include "wh.h"
 #include "automap.h"
-#include "mmulti.h"
 
 BEGIN_WH_NS
 

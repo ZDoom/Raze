@@ -4,7 +4,6 @@
 #include "inputstate.h"
 #include "menu.h"
 #include "gamestate.h"
-#include "mmulti.h"
 
 BEGIN_WH_NS 
 

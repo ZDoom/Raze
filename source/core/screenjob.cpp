@@ -531,30 +531,3 @@ CCMD(testcutscene)
 		Printf(TEXTCOLOR_RED "Unable to play cutscene: %s\n", err.what());
 	}
 }
-
-
-
-/* 
-Blood:
-		if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
-		else
-		{
-			gameaction = ga_mainmenu;
-		}
-	RunScreenJob(jobs, [](bool) {
-		Mus_Stop();
-		gameaction = ga_mainmenu;
-		}, SJ_BLOCKUI);
-
-Exhumed:
-		if (!userConfig.nologo) DoTitle([](bool) { gameaction = ga_mainmenu; });
-		else gameaction = ga_mainmenu;
-
-SW:
-		if (!userConfig.nologo) Logo([](bool)
-			{
-				gameaction = ga_mainmenunostopsound;
-			});
-		else gameaction = ga_mainmenu;
-
-*/
