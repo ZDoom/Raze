@@ -559,9 +559,6 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
     }
     lastcamclock = camclock;
 
-    // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
-    longptr = (int*)&gotpic[MIRRORLABEL >> 3];
-    if (longptr && (longptr[0] || longptr[1]))
     {
         uint32_t oscilation_delta = camclock - oscilationclock;
         oscilation_delta -= oscilation_delta % 4;
@@ -571,11 +568,10 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
         {
             if (!mirror[cnt].ismagic) continue; // these are definitely not camera textures.
 
-            //if (TEST_GOTPIC(cnt + MIRRORLABEL) || TEST_GOTPIC(cnt + CAMSPRITE))
-            if (TEST_GOTPIC(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic)))
+            if (testgotpic(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && testgotpic(mirror[cnt].campic)))
             {
                 // Do not change any global state here!
-                bIsWallMirror = !!(TEST_GOTPIC(cnt + MIRRORLABEL));
+                bIsWallMirror = testgotpic(cnt + MIRRORLABEL);
                 dist = 0x7fffffff;
 
                 if (bIsWallMirror)

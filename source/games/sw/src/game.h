@@ -354,10 +354,6 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 // just determine if the player is moving
 #define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)
 
-#define TEST_GOTPIC(tile_num) (TEST(gotpic[(tile_num) >> 3], 1 << ((tile_num) & 7)))
-#define RESET_GOTPIC(tile_num) (RESET(gotpic[(tile_num) >> 3], 1 << ((tile_num) & 7)))
-#define SET_GOTPIC(tile_num) (SET(gotpic[(tile_num) >> 3], 1 << ((tile_num) & 7)))
-
 #define LOW_TAG(sectnum) ( sector[sectnum].lotag )
 #define HIGH_TAG(sectnum) ( sector[sectnum].hitag )
 

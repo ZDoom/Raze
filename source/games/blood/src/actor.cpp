@@ -4969,11 +4969,11 @@ void MoveDude(spritetype *pSprite)
         switch (nLink) {
         case kMarkerLowStack:
             if (pPlayer == gView)
-                SetBitString(gotpic, sector[pSprite->sectnum].floorpicnum);
+                setgotpic(sector[pSprite->sectnum].floorpicnum);
             break;
         case kMarkerUpStack:
             if (pPlayer == gView)
-                SetBitString(gotpic, sector[pSprite->sectnum].ceilingpicnum);
+                setgotpic(sector[pSprite->sectnum].ceilingpicnum);
             break;
         case kMarkerLowWater:
         case kMarkerLowGoo:

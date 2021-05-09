@@ -563,9 +563,8 @@ void thunder(void)
 
 	if (!thunderflash)
 	{
-		if ((gotpic[RRTILE2577 >> 3] & (1 << (RRTILE2577 & 7))) > 0)
+		if (testgotpic(RRTILE2577, true))
 		{
-			gotpic[RRTILE2577 >> 3] &= ~(1 << (RRTILE2577 & 7));
 			g_visibility = 256; // this is an engine variable
 			if (krand() > 65000)
 			{
@@ -593,9 +592,8 @@ void thunder(void)
 	}
 	if (!winderflash)
 	{
-		if ((gotpic[RRTILE2562 >> 3] & (1 << (RRTILE2562 & 7))) > 0)
+		if (testgotpic(RRTILE2562, true))
 		{
-			gotpic[RRTILE2562 >> 3] &= ~(1 << (RRTILE2562 & 7));
 			if (krand() > 65000)
 			{
 				winderflash = 1;

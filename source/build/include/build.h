@@ -729,6 +729,17 @@ inline void setgotpic(int32_t tilenume)
     gotpic[tilenume >> 3] |= 1 << (tilenume & 7);
 }
 
+inline void cleargotpic(int32_t tilenume)
+{
+    gotpic[tilenume >> 3] &= ~(1 << (tilenume & 7));
+}
+
+inline bool testgotpic(int32_t tilenume, bool reset = false)
+{
+    bool res = gotpic[tilenume >> 3] & (1 << (tilenume & 7));
+    if (reset) gotpic[tilenume >> 3] &= ~(1 << (tilenume & 7));
+    return res;
+}
 
 
 #include "iterators.h"

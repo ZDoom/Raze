@@ -110,7 +110,7 @@ void processSpritesOnOtherSideOfPortal(int x, int y, int interpolation)
     for (int i = mirrorcnt-1; i >= 0; i--)
     {
         int nTile = 4080+i;
-        if (TestBitString(gotpic, nTile))
+        if (testgotpic(nTile))
         {
             if (mirror[i].type == 1 || mirror[i].type == 2)
             {
@@ -144,9 +144,9 @@ void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fix
     }
     cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 RORHACK:
-    int ror_status[16];
+    bool ror_status[16];
     for (int i = 0; i < 16; i++)
-        ror_status[i] = TestBitString(gotpic, 4080 + i);
+        ror_status[i] = testgotpic(4080 + i);
     fixed_t deliriumPitchI = interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
     DrawMirrors(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, gInterpolate, gViewIndex);
     int bakCstat = gView->pSprite->cstat;
@@ -163,7 +163,7 @@ RORHACK:
     viewProcessSprites(pm_tsprite, pm_spritesortcnt, cX, cY, cZ, cA.asbuild(), gInterpolate);
     bool do_ror_hack = false;
     for (int i = 0; i < 16; i++)
-        if (ror_status[i] != TestBitString(gotpic, 4080 + i))
+        if (ror_status[i] != testgotpic(4080 + i))
             do_ror_hack = true;
     if (do_ror_hack)
     {
@@ -188,7 +188,7 @@ void setPortalFlags(char mode)
     for (int i = mirrorcnt - 1; i >= 0; i--)
     {
         int nTile = 4080 + i;
-        if (TestBitString(gotpic, nTile))
+        if (testgotpic(nTile))
         {
             switch (mirror[i].type)
             {
@@ -215,9 +215,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
     for (int i = mirrorcnt - 1; i >= 0; i--)
     {
         int nTile = 4080 + i;
-        if (TestBitString(gotpic, nTile))
+        if (testgotpic(nTile, true))
         {
-            ClearBitString(gotpic, nTile);
             switch (mirror[i].type)
             {
             case 0:
@@ -287,7 +286,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 renderDrawMasks();
                 sector[nSector].floorstat = fstat;
                 for (int i = 0; i < 16; i++)
-                    ClearBitString(gotpic, 4080 + i);
+                    cleargotpic(4080 + i);
                 if (viewPlayer >= 0)
                 {
                     gPlayer[viewPlayer].pSprite->cstat = bakCstat;
@@ -319,7 +318,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 renderDrawMasks();
                 sector[nSector].ceilingstat = cstat;
                 for (int i = 0; i < 16; i++)
-                    ClearBitString(gotpic, 4080 + i);
+                    cleargotpic(4080 + i);
                 if (viewPlayer >= 0)
                 {
                     gPlayer[viewPlayer].pSprite->cstat = bakCstat;

@@ -478,10 +478,6 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
     {
         wallp->lotag = TAG_WALL_BREAK;
         SET(wallp->extra, WALLFX_DONT_STICK);
-
-        // set for cacheing
-        if (break_info->breaknum >= 0)
-            SET_GOTPIC(break_info->breaknum);
     }
 
     if (wallp->overpicnum > 0 && TEST(wallp->cstat, CSTAT_WALL_MASKED))
@@ -528,10 +524,6 @@ BREAK_INFOp SetupSpriteForBreak(SPRITEp sp)
         sp->clipdist = SPRITEp_SIZE_X(sp);
 
         SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
-
-        // set for cacheing
-        if (break_info->breaknum >= 0)
-            SET_GOTPIC(break_info->breaknum);
     }
 
     return break_info;
