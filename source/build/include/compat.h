@@ -52,7 +52,7 @@
 
 ////////// Platform headers //////////
 
-#if !defined __APPLE__ && (!defined EDUKE32_BSD || !__STDC__)
+#if !defined __APPLE__ && (!defined EDUKE32_BSD || !__STDC__) && !defined __OpenBSD__ && !defined __DragonFly__
 # include <malloc.h>
 #endif
 
