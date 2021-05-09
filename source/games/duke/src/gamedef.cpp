@@ -2795,10 +2795,10 @@ int ConCompiler::parsecommand()
 			setscriptvalue(tempscrptr, scriptpos());	// save 'end' location
 		}
 
-		casescriptptr = NULL;
+		casescriptptr = 0;
 		// decremented in endswitch.  Don't decrement here...
 		//			checking_switch--; // allow nesting (maybe if other things work)
-		tempscrptr = NULL;
+		tempscrptr = 0;
 		break;
 
 

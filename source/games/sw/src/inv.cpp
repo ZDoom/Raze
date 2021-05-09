@@ -79,7 +79,7 @@ INVENTORY_DATA InventoryData[MAX_INVENTORY+1] =
     {"GAS BOMB",         UseInventoryChemBomb,    NULL,                      0,   1, (FRACUNIT),     INVF_COUNT},
     {"FLASH BOMB",       UseInventoryFlashBomb,   NULL,                      0,   2, (FRACUNIT),     INVF_COUNT},
     {"CALTROPS",         UseInventoryCaltrops,    NULL,                      0,   3, (FRACUNIT),     INVF_COUNT},
-    {NULL, NULL, NULL, NULL, 0, 0, 0}
+    {NULL, NULL, NULL, 0, 0, 0, 0}
 };
 
 void PanelInvTestSuicide(PANEL_SPRITEp psp)
