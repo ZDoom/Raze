@@ -379,5 +379,3 @@ void drawMapTitle()
     }
 }
 
-
-
