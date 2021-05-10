@@ -80,6 +80,7 @@ enum
 
 static void processWeapon(PLAYERp const pp)
 {
+    if (pp->PlayerSprite < 0) return;
     USERp u = User[pp->PlayerSprite].Data();
     int i;
 
