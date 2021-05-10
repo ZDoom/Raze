@@ -56,7 +56,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	}
 
 	// wango
-    if (!testnewrenderer && (gotpic[FLOORMIRROR >> 3] & (1 << (FLOORMIRROR & 7))) != 0) {
+    if (!testnewrenderer && testgotpic(FLOORMIRROR, true)) {
             int dist = 0x7fffffff;
             int i = 0, j;
             for (int k = floormirrorcnt - 1; k >= 0; k--) {
@@ -77,8 +77,6 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			renderDrawMasks();
 			renderSetRollAngle(0);
 			inpreparemirror = false;
-   
-            gotpic[FLOORMIRROR >> 3] &= ~(1 << (FLOORMIRROR & 7));  
     }
 
 	int ceilz, floorz;
