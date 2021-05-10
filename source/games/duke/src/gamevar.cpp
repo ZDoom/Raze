@@ -431,7 +431,7 @@ void ClearGameEvents()
 	int i;
 	for (i=0;i<MAXGAMEEVENTS;i++)
 	{
-		apScriptGameEvent[i]=NULL;
+		apScriptGameEvent[i]=(intptr_t)0;
 	}
 }
 
