@@ -653,6 +653,7 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 	FScanner::SavedPos blockend;
 	int tile0 = MAXTILES, tile1 = -1;
 	FString fn;
+	bool error = false;
 
 	if (!sc.GetString(fn)) return;
 
@@ -661,17 +662,16 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 	if (nextvoxid == MAXVOXELS)
 	{
 		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
-		return;
+		error = true;
 	}
-
-	if (voxDefine(nextvoxid, fn))
+	else  if (voxDefine(nextvoxid, fn))
 	{
 		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"", fn.GetChars());
-		return;
+		error = true;
 	}
 
 	int lastvoxid = nextvoxid++;
-
+	
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))
 	{
@@ -679,13 +679,16 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 		if (sc.Compare("tile"))
 		{
 			sc.GetNumber(true);
-			if (ValidateTilenum("voxel", sc.Number, pos)) tiletovox[sc.Number] = lastvoxid;
+			if (ValidateTilenum("voxel", sc.Number, pos))
+			{
+				if (!error) tiletovox[sc.Number] = lastvoxid;
+			}
 		}
 		if (sc.Compare("tile0")) sc.GetNumber(tile0, true);
 		if (sc.Compare("tile1"))
 		{
 			sc.GetNumber(tile1, true);
-			if (ValidateTileRange("voxel", tile0, tile1, pos))
+			if (ValidateTileRange("voxel", tile0, tile1, pos) && !error)
 			{
 				for (int i = tile0; i <= tile1; i++) tiletovox[i] = lastvoxid;
 			}
@@ -693,9 +696,9 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 		if (sc.Compare("scale"))
 		{
 			sc.GetFloat(true);
-			voxscale[lastvoxid] = (float)sc.Float;
+			if (!error) voxscale[lastvoxid] = (float)sc.Float;
 		}
-		if (sc.Compare("rotate")) voxrotate.Set(lastvoxid);
+		if (sc.Compare("rotate") && !error) voxrotate.Set(lastvoxid);
 	}
 }
 
