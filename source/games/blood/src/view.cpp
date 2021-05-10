@@ -785,12 +785,6 @@ void viewDrawScreen(bool sceneonly)
     {
         gChoke.animateChoke(160, zn, (int)gInterpolate);
     }
-#if 0
-    if (drawtile_2048)
-    {
-        DrawStatSprite(2048, xdim-15, 20);
-    }
-#endif
 
     viewDrawAimedPlayerName();
     if (paused)
