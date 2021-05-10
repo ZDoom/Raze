@@ -853,14 +853,18 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     if (*sectnum < 0)
         return false;
 
-    ASSERT(sp);
-    ASSERT(sp->hitag == VIEW_THRU_FLOOR);
+    if (!sp || sp->hitag != VIEW_THRU_FLOOR)
+    {
+        *sectnum = 0;
+        return false;
+    }
 
-    pix_diff = labs(z - sector[sp->sectnum].floorz) >> 8;
-    newz = sector[sp->sectnum].floorz + ((pix_diff / 128) + 1) * Z(128);
 
     if (!testnewrenderer)
     {
+        pix_diff = labs(z - sector[sp->sectnum].floorz) >> 8;
+        newz = sector[sp->sectnum].floorz + ((pix_diff / 128) + 1) * Z(128);
+
         it.Reset(STAT_FAF);
         while ((i = it.NextIndex()) >= 0)
         {
@@ -947,15 +951,18 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     if (*sectnum < 0)
         return false;
 
-    ASSERT(sp);
-    ASSERT(sp->hitag == VIEW_THRU_CEILING);
-
-    // move ceiling multiple of 128 so that the wall tile will line up
-    pix_diff = labs(z - sector[sp->sectnum].ceilingz) >> 8;
-    newz = sector[sp->sectnum].ceilingz - ((pix_diff / 128) + 1) * Z(128);
+    if (!sp || sp->hitag != VIEW_THRU_CEILING)
+    {
+        *sectnum = 0;
+        return false;
+    }
 
     if (!testnewrenderer)
     {
+        // move ceiling multiple of 128 so that the wall tile will line up
+        pix_diff = labs(z - sector[sp->sectnum].ceilingz) >> 8;
+        newz = sector[sp->sectnum].ceilingz - ((pix_diff / 128) + 1) * Z(128);
+
         it.Reset(STAT_FAF);
         while ((i = it.NextIndex()) >= 0)
         {
