@@ -969,7 +969,7 @@ void DrawWeapons(double smooth)
         if (cl_hudinterpolation)
         {
             nBobAngle = interpolatedangle(buildang(obobangle), buildang(bobangle), smooth).asbuildf();
-            nVal = interpolatedvaluef(ototalvel[nLocalPlayer], totalvel[nLocalPlayer], smooth, 17);
+            nVal = interpolatedvaluef(ototalvel[nLocalPlayer], totalvel[nLocalPlayer], smooth, 16) * 0.5;
         }
         else
         {
