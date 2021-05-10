@@ -133,6 +133,7 @@ bool ReadSavegame(const char* name)
 			delete savereader;
 			return false;
 		}
+		file.Close();
 
 		FResourceLump* info = savereader->FindLump("session.json");
 		if (info == nullptr)
@@ -149,11 +150,12 @@ bool ReadSavegame(const char* name)
 			delete savereader;
 			return false;
 		}
-		info->Unlock();
 
 		// Load the savegame.
 		loadMapBackup(currentLevel->fileName);
 		SerializeSession(arc);
+		arc.Close();
+		info->Unlock();
 		delete savereader;
 		return true;
 	}
