@@ -9,7 +9,7 @@ extern int cameradist, cameraclock;
 void loaddefinitionsfile(const char* fn, bool cumulative = false);
 
 bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
-void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz);
+void PlanesAtPoint(const sectortype* sec, int dax, int day, float* ceilz, float* florz);
 void setWallSectors();
 void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
 void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render = false);

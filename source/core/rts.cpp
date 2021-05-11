@@ -95,7 +95,7 @@ bool RTS_IsInitialized()
 			{
 				FileLump *li = (FileLump*)(RTSFile.Data() + LittleLong(wi->infotableofs));
 				LumpInfo.Resize(numlumps);
-				for(unsigned i = 0; i < numlumps; i++, li++)
+				for(int i = 0; i < numlumps; i++, li++)
 				{
 					LumpInfo[i] = { LittleLong(li->position), LittleLong(li->size), -1 };
 					if (unsigned(LumpInfo[i].position + LumpInfo[i].size) >= RTSFile.Size())

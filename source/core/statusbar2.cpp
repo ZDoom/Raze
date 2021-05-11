@@ -140,7 +140,7 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 {
 	double y;
 	double scale = stats.fontscale * hud_statscale;
-	if (stats.spacing <= 0) stats.spacing = stats.font->GetHeight() * stats.fontscale;
+	if (stats.spacing <= 0) stats.spacing = xs_CRoundToInt(stats.font->GetHeight() * stats.fontscale);
 	double spacing = stats.spacing * hud_statscale;
 	if (stats.screenbottomspace < 0)
 	{
@@ -226,7 +226,7 @@ void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats, bool forcetextfont)
 	forcetextfont |= am_textfont;
 	double y;
 	double scale = stats.fontscale * (forcetextfont ? *hud_statscale : 1);	// the tiny default font used by all games here cannot be scaled for readability purposes.
-	if (stats.spacing <= 0) stats.spacing = stats.font->GetHeight() * stats.fontscale;
+	if (stats.spacing <= 0) stats.spacing = xs_CRoundToInt(stats.font->GetHeight() * stats.fontscale);
 	double spacing = stats.spacing * (forcetextfont ? *hud_statscale : 1);
 	if (am_nameontop)
 	{

@@ -146,7 +146,7 @@ CCMD(sizeup)
 	}
 	else
 	{
-		hud_scalefactor = hud_scalefactor + 0.04;
+		hud_scalefactor = hud_scalefactor + 0.04f;
 	}
 }
 
@@ -162,7 +162,7 @@ CCMD(sizedown)
 	}
 	else
 	{
-		hud_scalefactor = hud_scalefactor - 0.04;
+		hud_scalefactor = hud_scalefactor - 0.04f;
 	}
 }
 

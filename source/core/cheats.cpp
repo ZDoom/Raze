@@ -196,7 +196,7 @@ CCMD(give)
 	if (!CheckCheatmode(true, true))
 	{
 		Net_WriteByte(DEM_GIVE);
-		Net_WriteByte(found);
+		Net_WriteByte((uint8_t)found);
 	}
 }
 

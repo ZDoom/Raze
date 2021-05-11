@@ -94,7 +94,7 @@ void Job_Init()
 
 static VMFunction* LookupFunction(const char* qname, bool validate = true)
 {
-	int p = strcspn(qname, ".");
+	size_t p = strcspn(qname, ".");
 	if (p == 0) I_Error("Call to undefined function %s", qname);
 	FString clsname(qname, p);
 	FString funcname = qname + p + 1;

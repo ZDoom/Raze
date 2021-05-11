@@ -665,7 +665,7 @@ void GetCRC(FileEntry *entry, TArray<FileEntry> &CRCCache)
 		do
 		{
 			b = f.Read(buffer.Data(), buffer.Size());
-			if (b > 0) crcval = AddCRC32(crcval, buffer.Data(), b);
+			if (b > 0) crcval = AddCRC32(crcval, buffer.Data(), unsigned(b));
 		}
 		while (b == buffer.Size());
 		entry->CRCValue = crcval;

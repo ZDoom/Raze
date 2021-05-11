@@ -69,7 +69,7 @@ SmackerHandle Smacker_Open(const char* fileName)
 	classInstances.push_back(newDecoder);
 
 	// get a handle ID
-	newHandle.instanceIndex = classInstances.size() - 1;
+	newHandle.instanceIndex = int(classInstances.size()) - 1;
 
 	// loaded ok, make handle valid
 	newHandle.isValid = true;
@@ -1116,7 +1116,7 @@ void SmackerDecoder::GotoFrame(uint32_t frameNum)
     currentFrame = 0;
     nextPos = firstFrameFilePos;
 
-    for (int i = 0; i < frameNum + 1; i++)
+    for (unsigned i = 0; i < frameNum + 1; i++)
         GetNextFrame();
 }
 

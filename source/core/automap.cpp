@@ -185,7 +185,7 @@ static void CalcMapBounds()
 void AutomapControl()
 {
 	static int nonsharedtimer;
-	int ms = screen->FrameTime;
+	int ms = (int)screen->FrameTime;
 	int interval;
 	int panvert = 0, panhorz = 0;
 
@@ -197,7 +197,7 @@ void AutomapControl()
 	{
 		interval = 0;
 	}
-	nonsharedtimer = screen->FrameTime;
+	nonsharedtimer = ms;
 
 	if (System_WantGuiCapture())
 		return;
