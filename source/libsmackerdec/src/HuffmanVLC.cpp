@@ -65,7 +65,7 @@ void VLC_InitTable(VLCtable &table, uint32_t maxLength, uint32_t size, int *leng
 
 uint32_t VLC_GetSize(VLCtable &table)
 {
-	return table.size();
+	return uint32_t(table.size());
 }
 
 } // close namespace SmackerCommon

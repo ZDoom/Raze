@@ -135,7 +135,7 @@ static void parseTexturePaletteBlock(FScanner& sc, int tile)
 
 	int pal = -1, xsiz = 0, ysiz = 0;
 	FString fn;
-	double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+	float alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
 	if (!sc.GetNumber(pal, true)) return;
 
@@ -178,7 +178,7 @@ static void parseTextureSpecialBlock(FScanner& sc, int tile, int pal)
 	FScriptPosition pos = sc;
 
 	FString fn;
-	double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+	float xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
 	if (sc.StartBraces(&blockend)) return; 
 	while (!sc.FoundEndBrace(blockend))
@@ -837,7 +837,7 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 			for (int i = 0; i < 16; i++)
 			{
 				char smallbuf[3] = { sc.String[2 * i], sc.String[2 * i + 1], 0 };
-				mhk.md4[i] = strtol(smallbuf, nullptr, 16);
+				mhk.md4[i] = (uint8_t)strtol(smallbuf, nullptr, 16);
 			}
 		}
 	}
@@ -1775,7 +1775,7 @@ static bool parseModelFrameBlock(FScanner& sc, FixedBitArray<1024>& usedframes)
 	bool ok = true;
 	int pal = -1;
 	int starttile = -1, endtile = -1;
-	double smoothduration = 0.1f;
+	float smoothduration = 0.1f;
 
 	if (sc.StartBraces(&blockend)) return false;
 	while (!sc.FoundEndBrace(blockend))
@@ -1858,7 +1858,7 @@ static bool parseModelSkinBlock(FScanner& sc, int pal)
 
 	FString filename;
 	int surface = 0;
-	double param = 1.0, specpower = 1.0, specfactor = 1.0;
+	float param = 1.0, specpower = 1.0, specfactor = 1.0;
 	int flags = 0;
 
 	if (sc.StartBraces(&blockend)) return false;
@@ -1890,7 +1890,7 @@ static bool parseModelSkinBlock(FScanner& sc, int pal)
 		return false;
 	}
 
-	if (pal == DETAILPAL) param = 1. / param;
+	if (pal == DETAILPAL) param = 1.f / param;
 	int res = md_defineskin(mdglobal.lastmodelid, filename, pal, max(0, mdglobal.modelskin), surface, param, specpower, specfactor, flags);
 	if (res < 0)
 	{

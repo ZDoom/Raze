@@ -252,7 +252,7 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
             {
                 nTimerRate = fr.ReadUInt32();
                 nTimerDiv  = fr.ReadUInt16();
-                nFrameDuration = ((double)nTimerRate * nTimerDiv) * 1000;
+                nFrameDuration = ((uint64_t)nTimerRate * nTimerDiv) * 1000;
                 break;
             }
 
@@ -346,7 +346,7 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
 
             case OPCODE_AUDIO_FRAME:
             {
-                int nStart = fr.Tell();
+                int nStart = (int)fr.Tell();
                 uint16_t seqIndex   = fr.ReadUInt16();
                 uint16_t streamMask = fr.ReadUInt16();
                 uint16_t nSamples   = fr.ReadUInt16(); // number of samples this chunk
@@ -380,7 +380,7 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
                     ch ^= audio.nChannels - 1;
                 }
 
-                int nEnd = fr.Tell();
+                int nEnd = (int)fr.Tell();
                 int nRead = nEnd - nStart;
                 assert(opcodeSize == nRead);
                 break;
@@ -449,14 +449,14 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
                     }
                 }
 
-                int nRead = fr.Read(decodeMap.pData, opcodeSize);
+                int nRead = (int)fr.Read(decodeMap.pData, opcodeSize);
                 assert(nRead == opcodeSize);
                 break;
             }
 
             case OPCODE_VIDEO_DATA:
             {
-                int nStart = fr.Tell();
+                int nStart = (int)fr.Tell();
 
                 // need to skip 14 bytes
                 fr.Seek(14, FileReader::SeekCur);
@@ -536,7 +536,7 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
                     }
                 }
 
-                int nEnd = fr.Tell();
+                int nEnd = (int)fr.Tell();
                 int nSkipBytes = opcodeSize - (nEnd - nStart); // we can end up with 1 byte left we need to skip
                 assert(nSkipBytes <= 1);
 

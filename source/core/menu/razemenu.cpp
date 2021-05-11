@@ -415,7 +415,7 @@ static void BuildEpisodeMenu()
 		}
 
 		ld->mSelectedItem = gDefaultVolume + ld->mItems.Size(); // account for pre-added items
-		int y = ld->mYpos;
+		double y = ld->mYpos;
 
 		// Volume definitions should be sorted by intended menu order.
 		for (auto &vol : volumes)
@@ -471,7 +471,7 @@ static void BuildEpisodeMenu()
 		}
 		if (isBlood()) gDefaultSkill = 2;
 		ld->mSelectedItem = gDefaultSkill + ld->mItems.Size(); // account for pre-added items
-		int y = ld->mYpos;
+		double y = ld->mYpos;
 
 		for (int i = 0; i < MAXSKILLS; i++)
 		{
