@@ -12,6 +12,10 @@
 #include "i_time.h"
 #include "palentry.h"
 
+extern bool sendsave;
+extern FString	savedescription;
+extern FString	savegamefile;
+
 extern FString currentGame;
 extern FString LumpFilter;
 extern int PlayClock;

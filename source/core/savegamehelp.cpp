@@ -69,6 +69,7 @@ walltype wallbackup[MAXWALLS];
 void WriteSavePic(FileWriter* file, int width, int height);
 bool WriteZip(const char* filename, TArray<FString>& filenames, TArray<FCompressedBuffer>& content);
 extern FString BackupSaveGame;
+
 void SerializeMap(FSerializer &arc);
 FixedBitArray<MAXSPRITES> activeSprites;
 
@@ -694,18 +695,80 @@ static int nextquicksave = -1;
 	 BackupSaveGame = filename;
  }
 
- void G_SaveGame(const char *fn, const char *desc, bool ok4q, bool forceq)
+ extern bool sendsave;
+ extern FString	savedescription;
+ extern FString	savegamefile;
+
+ void G_SaveGame(const char* filename, const char* description)
+ {
+	 if (sendsave || gameaction == ga_savegame)
+	 {
+		 Printf("%s\n", GStrings("TXT_SAVEPENDING"));
+	 }
+	 else if (gamestate != GS_LEVEL)
+	 {
+		 Printf("%s\n", GStrings("TXT_NOTINLEVEL"));
+	 }
+	 else if (!gi->CanSave())
+	 {
+		 Printf("%s\n", GStrings("TXT_SPPLAYERDEAD"));
+	 }
+	 else
+	 {
+		 savegamefile = filename;
+		 savedescription = description;
+		 sendsave = true;
+	 }
+ }
+
+ //---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+ void startSaveGame(int player, uint8_t** stream, bool skip)
+ {
+	 auto s = ReadString(stream);
+	 savegamefile = s;
+	 delete[] s;
+	 s = ReadString(stream);
+	 savedescription = s;
+	 if (!skip && gi->CanSave())
+	 {
+		 if (player != consoleplayer)
+		 {
+			 // Paths sent over the network will be valid for the system that sent
+			 // the save command. For other systems, the path needs to be changed.
+			 savegamefile = G_BuildSaveName(ExtractFileBase(savegamefile, true));
+		 }
+		 gameaction = ga_savegame;
+	 }
+ }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+ void G_DoSaveGame(bool ok4q, bool forceq, const char* fn, const char* desc)
  {
 	 if (WriteSavegame(fn, desc))
 	 {
-			 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
-			 Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
-			 BackupSaveGame = fn;
-		 }
+		 savegameManager.NotifyNewSave(fn, desc, ok4q, forceq);
+		 Printf(PRINT_NOTIFY, "%s\n", GStrings("GGSAVED"));
+		 BackupSaveGame = fn;
 	 }
+ }
+ 
+ //---------------------------------------------------------------------------
+ //
+ //
+ //
+ //---------------------------------------------------------------------------
 
-
-void M_Autosave()
+ void M_Autosave()
 {
 	if (disableautosave) return;
 	if (!gi->CanSave()) return;
@@ -728,7 +791,7 @@ void M_Autosave()
 	readableTime = myasctime();
 	FStringf SaveTitle("Autosave %s", readableTime);
 	nextautosave = (nextautosave + 1) % count;
-	G_SaveGame(Filename, SaveTitle, false, false);
+	G_DoSaveGame(false, false, Filename, SaveTitle);
 }
 
 CCMD(autosave)
@@ -759,7 +822,7 @@ CCMD(rotatingquicksave)
 	readableTime = myasctime();
 	FStringf SaveTitle("Quicksave %s", readableTime);
 	nextquicksave = (nextquicksave + 1) % count;
-	G_SaveGame(Filename, SaveTitle, false, false);
+	G_SaveGame(Filename, SaveTitle);
 }
 
 
