@@ -106,6 +106,7 @@ int oldentertics;
 int gametic;
 int intermissiondelay;
 
+FString savename;
 FString BackupSaveGame;
 
 void DoLoadGame(const char* name);
@@ -255,6 +256,12 @@ static void GameTicker()
 			gameaction = ga_nothing;
 			savegamefile = "";
 			savedescription = "";
+			break;
+
+		case ga_loadgame:
+		case ga_loadgamehidecon:
+		//case ga_autoloadgame:
+			G_DoLoadGame();
 			break;
 
 		case ga_autosave:

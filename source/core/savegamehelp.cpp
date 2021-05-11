@@ -68,6 +68,7 @@ walltype wallbackup[MAXWALLS];
 
 void WriteSavePic(FileWriter* file, int width, int height);
 bool WriteZip(const char* filename, TArray<FString>& filenames, TArray<FCompressedBuffer>& content);
+extern FString savename;
 extern FString BackupSaveGame;
 
 void SerializeMap(FSerializer &arc);
@@ -687,12 +688,27 @@ static int nextquicksave = -1;
  }
 
 
- void G_LoadGame(const char *filename)
+ void G_LoadGame(const char* name, bool hidecon)
  {
+	 if (name != NULL)
+	 {
+		 savename = name;
+		 gameaction = !hidecon ? ga_loadgame : ga_loadgamehidecon;
+	 }
+ }
+
+ void G_DoLoadGame()
+ {
+	 if (gameaction == ga_loadgamehidecon && gamestate == GS_FULLCONSOLE)
+	 {
+		 // does this even do anything anymore?
+		 gamestate = GS_HIDECONSOLE;
+	 }
+
 	 inputState.ClearAllInput();
 	 gi->FreeLevelData();
-	 DoLoadGame(filename);
-	 BackupSaveGame = filename;
+	 DoLoadGame(savename);
+	 BackupSaveGame = savename;
  }
 
  extern bool sendsave;
