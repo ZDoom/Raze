@@ -15,10 +15,6 @@
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable:4244)
-#endif
-
 struct HWHorizonInfo;
 struct HWSkyInfo;
 class FMaterial;

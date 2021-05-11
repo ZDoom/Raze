@@ -6935,7 +6935,7 @@ SpriteControl(void)
 */
 
 int
-move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int daz;
     int retval=0, zh;
@@ -7183,7 +7183,7 @@ MissileZrange(short SpriteNum)
 
 
 int
-move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int daz;
     int retval, zh;

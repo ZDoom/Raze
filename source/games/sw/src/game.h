@@ -1984,8 +1984,8 @@ short AnimSetVelAdj(short anim_ndx, short vel_adj);
 void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person);
 
 void getzrangepoint(int x, int y, int z, short sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz, int32_t* florhit);
-int move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
-int move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+int move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+int move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 
 void change_sprite_stat(short, short);
