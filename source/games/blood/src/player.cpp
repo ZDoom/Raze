@@ -2328,4 +2328,78 @@ void SerializePlayers(FSerializer& arc)
 
 
 
+DEFINE_FIELD_X(BloodPlayer, PLAYER, newWeapon)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponQav)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, qavCallback)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, isRunning)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, posture)   // stand, crouch, swim
+DEFINE_FIELD_X(BloodPlayer, PLAYER, sceneQav)  // by NoOne: used to keep qav id
+DEFINE_FIELD_X(BloodPlayer, PLAYER, bobPhase)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, bobAmp)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, bobHeight)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, bobWidth)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, swayPhase)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, swayAmp)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, swayHeight)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, swayWidth)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, nPlayer)  // Connect id
+DEFINE_FIELD_X(BloodPlayer, PLAYER, nSprite)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, lifeMode)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, zView)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, zViewVel)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, zWeapon)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, zWeaponVel)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, slope)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, isUnderwater)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, hasKey)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, hasFlag)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, damageControl)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, curWeapon)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, nextWeapon)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponTimer)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponState)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponAmmo)  //rename
+DEFINE_FIELD_X(BloodPlayer, PLAYER, hasWeapon)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponMode)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, weaponOrder)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, ammoCount)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, qavLoop)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, fuseTime)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, throwTime)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, throwPower)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, aim)  // world
+DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTarget)  // aim target sprite
+DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargetsCount)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargets)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, deathTime)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, pwUpTime)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, fragCount)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, fragInfo)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, underwaterTime)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, bubbleTime)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, restTime)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, kickPower)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, laughCount)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, godMode)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, fallScream)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, cantJump)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, packItemTime)  // pack timer
+DEFINE_FIELD_X(BloodPlayer, PLAYER, packItemId)    // pack id 1: diving suit, 2: crystal ball, 3:
+DEFINE_FIELD_X(BloodPlayer, PLAYER, packSlots)  // at325 1]: diving suit, [2]: crystal ball, 
+DEFINE_FIELD_X(BloodPlayer, PLAYER, armor)      // armor
+DEFINE_FIELD_X(BloodPlayer, PLAYER, voodooTarget)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, flickerEffect)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, tiltEffect)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, visibility)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, painEffect)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, blindEffect)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, chokeEffect)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, handTime)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, hand)  // if true, there is hand start choking the player
+DEFINE_FIELD_X(BloodPlayer, PLAYER, pickupEffect)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, flashEffect)  // if true, reduce pPlayer->visibility counter
+DEFINE_FIELD_X(BloodPlayer, PLAYER, quakeEffect)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, player_par)
+DEFINE_FIELD_X(BloodPlayer, PLAYER, nWaterPal)
+
 END_BLD_NS

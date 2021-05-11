@@ -55,26 +55,6 @@ static const char* gPackIcons[5] = {
     "PackIcon1", "PackIcon2", "PackIcon3", "PackIcon4", "PackIcon5" 
 };
 
-static const char* packIcons2[] = { "Pack2Icon1", "Pack2Icon2", "Pack2Icon3", "Pack2Icon4", "Pack2Icon5" };
-static const char* ammoIcons[] = { nullptr, "AmmoIcon1", "AmmoIcon2", "AmmoIcon3", "AmmoIcon4", "AmmoIcon5", "AmmoIcon6",
-                "AmmoIcon7", "AmmoIcon8", "AmmoIcon9", "AmmoIcon10", "AmmoIcon11" };
-
-static const float packScale[] = { 0.5f, 0.3f, 0.6f, 0.5f, 0.4f };
-static const int packYoffs[] = { 0, 0, 0, -4, 0 };
-static const float ammoScale[] = { 0, 0.5f, 0.8f, 0.7f, 0.5f, 0.7f, 0.5f, 0.3f, 0.3f, 0.6f, 0.5f, 0.45f };
-static const int ammoYoffs[] = { 0, 0, 0, 3, -6, 2, 4, -6, -6, -6, 2, 2 };
-
-
-struct POWERUPDISPLAY
-{
-    int nTile;
-    float nScaleRatio;
-    int yOffset;
-    int remainingDuration;
-};
-
-
-
 class DBloodStatusBar : public DBaseStatusBar
 {
     DECLARE_CLASS(DBloodStatusBar, DBaseStatusBar)
@@ -259,29 +239,6 @@ private:
         }
     }
 
-
-    //---------------------------------------------------------------------------
-    //
-    // 
-    //
-    //---------------------------------------------------------------------------
-    enum { nPowerUps = 11 };
-
-    void sortPowerUps(POWERUPDISPLAY* powerups) {
-        for (int i = 1; i < nPowerUps; i++)
-        {
-            for (int j = 0; j < nPowerUps - i; j++)
-            {
-                if (powerups[j].remainingDuration > powerups[j + 1].remainingDuration)
-                {
-                    POWERUPDISPLAY temp = powerups[j];
-                    powerups[j] = powerups[j + 1];
-                    powerups[j + 1] = temp;
-                }
-            }
-        }
-    }
-
     //---------------------------------------------------------------------------
     //
     // 
@@ -290,37 +247,49 @@ private:
 
     void viewDrawPowerUps(PLAYER* pPlayer)
     {
+        enum { nPowerUps = 11 };
+
+        static const float powerScale[] = { 0.4f, 0.4f, 0.3f, 0.3f, 0.4f, 0.3f, 0.4f, 0.5f, 0.3f, 0.4f, 0.4f };
+        static const int powerYoffs[] = { 0, 5, 9, 5, 9, 7, 4, 5, 9, 4, 4 };
+
+        static const int powerOrder[] = { kPwUpShadowCloak, kPwUpReflectShots, kPwUpDeathMask, kPwUpTwoGuns, kPwUpShadowCloakUseless, kPwUpFeatherFall,
+                                        kPwUpGasMask, kPwUpDoppleganger, kPwUpAsbestArmor, kPwUpGrowShroom, kPwUpShrinkShroom };
+
         if (!hud_powerupduration)
             return;
 
-        POWERUPDISPLAY powerups[nPowerUps];
-        powerups[0] = { gPowerUpInfo[kPwUpShadowCloak].picnum,  0.4f, 0, pPlayer->pwUpTime[kPwUpShadowCloak] }; // Invisibility
-        powerups[1] = { gPowerUpInfo[kPwUpReflectShots].picnum, 0.4f, 5, pPlayer->pwUpTime[kPwUpReflectShots] }; // Reflects enemy shots
-        powerups[2] = { gPowerUpInfo[kPwUpDeathMask].picnum, 0.3f, 9, pPlayer->pwUpTime[kPwUpDeathMask] }; // Invulnerability
-        powerups[3] = { gPowerUpInfo[kPwUpTwoGuns].picnum, 0.3f, 5, pPlayer->pwUpTime[kPwUpTwoGuns] }; // Guns Akimbo
-        powerups[4] = { gPowerUpInfo[kPwUpShadowCloakUseless].picnum, 0.4f, 9, pPlayer->pwUpTime[kPwUpShadowCloakUseless] }; // Does nothing, only appears at near the end of Cryptic Passage's Lost Monastery (CP04)
+        int powersort[nPowerUps];
 
-        // Not in official maps, but custom maps can use them
-        powerups[5] = { gPowerUpInfo[kPwUpFeatherFall].picnum, 0.3f, 7, pPlayer->pwUpTime[kPwUpFeatherFall] }; // Makes player immune to fall damage
-        powerups[6] = { gPowerUpInfo[kPwUpGasMask].picnum, 0.4f, 4, pPlayer->pwUpTime[kPwUpGasMask] }; // Makes player immune to choke damage
-        powerups[7] = { gPowerUpInfo[kPwUpDoppleganger].picnum, 0.5f, 5, pPlayer->pwUpTime[kPwUpDoppleganger] }; // Works in multiplayer, it swaps player's team colors, so enemy team player thinks it's a team mate
-        powerups[8] = { gPowerUpInfo[kPwUpAsbestArmor].picnum, 0.3f, 9, pPlayer->pwUpTime[kPwUpAsbestArmor] }; // Makes player immune to fire damage and draws HUD
-        powerups[9] = { gPowerUpInfo[kPwUpGrowShroom].picnum, 0.4f, 4, pPlayer->pwUpTime[kPwUpGrowShroom] }; // Grows player size, works only if gModernMap == true
-        powerups[10] = { gPowerUpInfo[kPwUpShrinkShroom].picnum, 0.4f, 4, pPlayer->pwUpTime[kPwUpShrinkShroom] }; // Shrinks player size, works only if gModernMap == true
+        for (int i = 0; i < nPowerUps; i++) powersort[i] = i;
 
-        sortPowerUps(powerups);
+        for (int i = 0; i < nPowerUps; i++)
+        {
+            int power1 = powersort[i];
+            for (int j = i + 1; j < nPowerUps; j++)
+            {
+                int power2 = powersort[j];
+                if (pPlayer->pwUpTime[powerOrder[power1]] > pPlayer->pwUpTime[powerOrder[power2]])
+                {
+                    powersort[i] = power2;
+                    powersort[j] = power1;
+                }
+            }
+        }
 
         const int warningTime = 5;
         const int x = 15;
         int y = -50;
         for (int i = 0; i < nPowerUps; i++)
         {
-            if (powerups[i].remainingDuration)
+            int order = powersort[i];
+            int power = powerOrder[order];
+            int time = pPlayer->pwUpTime[power];
+            if (time > 0)
             {
-                int remainingSeconds = powerups[i].remainingDuration / 100;
+                int remainingSeconds = time / 100;
                 if (remainingSeconds > warningTime || (PlayClock & 32))
                 {
-                    DrawStatMaskedSprite(powerups[i].nTile, x, y + powerups[i].yOffset, 0, 0, 256, (int)(65536 * powerups[i].nScaleRatio), DI_SCREEN_LEFT_CENTER);
+                    DrawStatMaskedSprite(gPowerUpInfo[power].picnum, x, y + powerYoffs[order], 0, 0, 256, (int)(65536 * powerScale[order]), DI_SCREEN_LEFT_CENTER);
                 }
 
                 DrawStatNumber("%d", remainingSeconds, "SBarNumberInv", x + 15, y, 0, remainingSeconds > warningTime ? 0 : 2, 256, 65536 * 0.5, DI_SCREEN_LEFT_CENTER);
@@ -389,6 +358,10 @@ private:
 
     void DrawPackItemInStatusBar2(PLAYER* pPlayer, int x, int y, int x2, int y2, int nStat, int nScale)
     {
+        static const char* packIcons2[] = { "Pack2Icon1", "Pack2Icon2", "Pack2Icon3", "Pack2Icon4", "Pack2Icon5" };
+        static const float packScale[] = { 0.5f, 0.3f, 0.6f, 0.5f, 0.4f };
+        static const int packYoffs[] = { 0, 0, 0, -4, 0 };
+
         if (pPlayer->packItemId < 0) return;
 
         DrawStatMaskedSprite(packIcons2[pPlayer->packItemId], x, y + packYoffs[pPlayer->packItemId], 0, 0, nStat, packScale[pPlayer->packItemId] * 65536);
@@ -711,6 +684,12 @@ private:
 
     void DrawHUD2()
     {
+        static const char* ammoIcons[] = { nullptr, "AmmoIcon1", "AmmoIcon2", "AmmoIcon3", "AmmoIcon4", "AmmoIcon5", "AmmoIcon6",
+                        "AmmoIcon7", "AmmoIcon8", "AmmoIcon9", "AmmoIcon10", "AmmoIcon11" };
+
+        static const float ammoScale[] = { 0, 0.5f, 0.8f, 0.7f, 0.5f, 0.7f, 0.5f, 0.3f, 0.3f, 0.6f, 0.5f, 0.45f };
+        static const int ammoYoffs[] = { 0, 0, 0, 3, -6, 2, 4, -6, -6, -6, 2, 2 };
+
         PLAYER* pPlayer = gView;
         XSPRITE* pXSprite = pPlayer->pXSprite;
 
