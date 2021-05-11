@@ -114,7 +114,7 @@ void FSavegameManager::ReadSaveStrings()
 
 void FSavegameManager::PerformLoadGame(const char *f, bool s)
 {
-	G_LoadGame(f);
+	G_LoadGame(f, s);
 }
 
 void FSavegameManager::PerformSaveGame(const char *f, const char *s)
