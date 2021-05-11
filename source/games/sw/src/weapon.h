@@ -90,7 +90,6 @@ const char *DeathString(short SpriteNum);
 //
 // Damage Amounts defined in damage.h
 //
-extern DAMAGE_DATA DamageData[];
 
 // Damage Times - takes damage after this many tics
 #define DAMAGE_BLADE_TIME       (10)
