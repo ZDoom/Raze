@@ -487,7 +487,7 @@ void GameInterface::Render()
 
 void sndPlaySpecialMusicOrNothing(int nMusic)
 {
-	if (!Mus_Play(nullptr, quoteMgr.GetQuote(nMusic), true))
+	if (!Mus_Play(quoteMgr.GetQuote(nMusic), true))
 	{
 		Mus_Stop();
 	}
@@ -539,7 +539,7 @@ DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
 
 DEFINE_ACTION_FUNCTION(_Blood, PlayIntroMusic)
 {
-	Mus_Play(nullptr, "PESTIS.MID", false);
+	Mus_Play("PESTIS.MID", false);
 	return 0;
 }
 

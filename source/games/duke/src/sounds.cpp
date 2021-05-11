@@ -674,7 +674,7 @@ void S_MenuSound(void)
 
 static bool cd_disabled = false;    // This is in case mus_redbook is enabled but no tracks found so that the regular music system can be switched on.
 
-static void MusPlay(const char* label, const char* music, bool loop)
+static void MusPlay(const char* music, bool loop)
 {
 	if (isWorldTour())
 	{
@@ -688,26 +688,26 @@ static void MusPlay(const char* label, const char* music, bool loop)
 				int file = fileSystem.GetFileContainer(num);
 				if (file == 1)
 				{
-					Mus_Play(label, alternative, loop);
+					Mus_Play(alternative, loop);
 					return;
 				}
 			}
 		}
 	}
-	int result = Mus_Play(label, music, loop);
+	int result = Mus_Play(music, loop);
 	// do not remain silent if playing World Tour when the user has deleted the music.
 	if (!result && isWorldTour())
 	{
 		FString alternative = music;
 		alternative.Substitute(".ogg", ".mid");
-		Mus_Play(label, alternative, loop);
+		Mus_Play(alternative, loop);
 	}
 }
 
 void S_PlayLevelMusic(MapRecord *mi)
 {
 	if (isRR() && mi->music.IsEmpty() && mus_redbook && !cd_disabled) return;
-	MusPlay(mi->labelName, mi->music, true);
+	MusPlay(mi->music, true);
 }
 
 void S_PlaySpecialMusic(unsigned int m)
@@ -716,7 +716,7 @@ void S_PlaySpecialMusic(unsigned int m)
 	auto& musicfn = specialmusic[m];
 	if (musicfn.IsNotEmpty())
 	{
-		MusPlay(nullptr, musicfn, true);
+		MusPlay(musicfn, true);
 	}
 }
 
@@ -741,10 +741,10 @@ void S_PlayRRMusic(int newTrack)
 			g_cdTrack = 2;
 
 		FStringf filename("redneck%s%02d.ogg", isRRRA()? "rides" : "", g_cdTrack);
-		if (Mus_Play(nullptr, filename, false)) return;
+		if (Mus_Play(filename, false)) return;
 
 		filename.Format("track%02d.ogg", g_cdTrack);
-		if (Mus_Play(nullptr, filename, false)) return;
+		if (Mus_Play(filename, false)) return;
 	}
 	// If none of the tracks managed to start, disable the CD music for this session so that regular music can play if defined.
 	cd_disabled = true;

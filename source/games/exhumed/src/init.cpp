@@ -197,7 +197,7 @@ void InitLevel(MapRecord* map)
 
     RefreshStatus();
 
-    if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->labelName, map->music, true);    // Allow non-CD music if defined for the current level
+    if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->music, true);    // Allow non-CD music if defined for the current level
     playCDtrack(map->cdSongId, true);
 	setLevelStarted(currentLevel);
 }

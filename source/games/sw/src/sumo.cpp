@@ -797,7 +797,7 @@ int DoSumoDeathMelt(short SpriteNum)
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.
-        PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
+        PlaySong(currentLevel->music, currentLevel->cdSongId);
     }
 
     BossSpriteNum[1] = -2; // Sprite is gone, set it back to keep it valid!
@@ -868,7 +868,7 @@ BossHealthMeter(void)
                     bosswasseen[0] = true;
                     if (!SW_SHAREWARE)
                     {
-                        PlaySong(nullptr, ThemeSongs[2], ThemeTrack[2], true);
+                        PlaySong(ThemeSongs[2], ThemeTrack[2], true);
                     }
                 }
                 else if (i == 1 && !bosswasseen[1])
@@ -876,7 +876,7 @@ BossHealthMeter(void)
                     bosswasseen[1] = true;
                     if (!SW_SHAREWARE)
                     {
-                        PlaySong(nullptr, ThemeSongs[3], ThemeTrack[3], true);
+                        PlaySong(ThemeSongs[3], ThemeTrack[3], true);
                     }
                 }
                 else if (i == 2 && !bosswasseen[2])
@@ -884,7 +884,7 @@ BossHealthMeter(void)
                     bosswasseen[2] = true;
                     if (!SW_SHAREWARE)
                     {
-                        PlaySong(nullptr, ThemeSongs[4], ThemeTrack[4], true);
+                        PlaySong(ThemeSongs[4], ThemeTrack[4], true);
                     }
                 }
             }
