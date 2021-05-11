@@ -55,9 +55,9 @@ static const char* gPackIcons[5] = {
     "PackIcon1", "PackIcon2", "PackIcon3", "PackIcon4", "PackIcon5" 
 };
 
-class DBloodStatusBar : public DBaseStatusBar
+class DNativeBloodStatusBar : public DBaseStatusBar
 {
-    DECLARE_CLASS(DBloodStatusBar, DBaseStatusBar)
+    DECLARE_CLASS(DNativeBloodStatusBar, DBaseStatusBar)
     enum NewRSFlags
     {
         RS_CENTERBOTTOM = 16384,
@@ -66,7 +66,7 @@ class DBloodStatusBar : public DBaseStatusBar
     TObjPtr<DHUDFont*> smallf, tinyf;
 
 public:
-    DBloodStatusBar()
+    DNativeBloodStatusBar()
     {
         smallf = Create<DHUDFont>(SmallFont, 0, Off, 0, 0 );
         tinyf = Create<DHUDFont>(gFont[4], 4, CellRight, 0, 0 );
@@ -824,7 +824,7 @@ private:
     }
 };
 
-IMPLEMENT_CLASS(DBloodStatusBar, false, false)
+IMPLEMENT_CLASS(DNativeBloodStatusBar, false, false)
 
 
 static void UpdateFrame(void)
@@ -850,6 +850,23 @@ void UpdateStatusBar()
     {
         UpdateFrame();
     }
+#if 0
+    SummaryInfo sum;
+    if (gGameOptions.nGameType == 3)
+    {
+        sum->kills = pPlayer ? pPlayer->fragCount : 0;
+        sum->maxkills = -3;
+    }
+    else
+    {
+        sum->kills = gKillMgr.Kills;
+        sum->maxkills = gKillMgr.TotalKills;
+    }
+    sum->secrets = gSecretMgr.Founds;
+    sum->supersecrets = gSecretMgr.Super;
+    sum->maxsecrets = max(gSecretMgr.Founds, gSecretMgr.Total); // If we found more than there are, increase the total. Some levels have a bugged counter.
+
+#endif
 
     StatusBar->UpdateStatusBar();
 }

@@ -565,4 +565,37 @@ DEFINE_ACTION_FUNCTION(_Blood, sndStartSampleNamed)
 	return 0;
 }
 
+DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(pwup);
+	int tile = -1;
+	if (pwup >= 0 && pwup < (int)countof(gPowerUpInfo))
+	{
+		tile = gPowerUpInfo[pwup].picnum;
+	}
+	FGameTexture* tex = tileGetTexture(tile);
+	ACTION_RETURN_INT(tex ? tex->GetID().GetIndex() : -1);
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
+{
+	PARAM_PROLOGUE;
+	ACTION_RETURN_POINTER(gView);
+}
+
+DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+	XSPRITE* pXSprite = self->pXSprite;
+	ACTION_RETURN_INT(pXSprite->health);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+	PARAM_INT(pwup);
+	ACTION_RETURN_INT(powerupCheck(self, pwup));
+}
+
 END_BLD_NS

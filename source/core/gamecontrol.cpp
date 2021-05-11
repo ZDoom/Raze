@@ -806,7 +806,7 @@ void CreateStatusBar()
 	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
 	if (flags & GAMEFLAG_BLOOD)
 	{
-		stbarclass = PClass::FindClass("BloodStatusBar");
+		stbarclass = PClass::FindClass("NativeBloodStatusBar");
 	}
 	else if (flags & GAMEFLAG_SW)
 	{
@@ -1564,6 +1564,8 @@ DEFINE_GLOBAL(demoplayback)
 DEFINE_GLOBAL(consoleplayer)
 DEFINE_GLOBAL(currentLevel)
 DEFINE_GLOBAL(paused)
+DEFINE_GLOBAL(automapMode)
+DEFINE_GLOBAL(PlayClock)
 
 DEFINE_FIELD_X(ClusterDef, ClusterDef, name)
 DEFINE_FIELD_X(ClusterDef, ClusterDef, InterBackground)

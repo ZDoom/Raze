@@ -33,6 +33,30 @@ enum EGameType
 
 };
 
+enum AM_Mode
+{
+	am_off,
+	am_overlay,
+	am_full,
+	am_count
+}
+
+enum EHudSize
+{
+	Hud_Current = -1,
+	Hud_Frame50 = 0,
+	Hud_Frame60,
+	Hud_Frame70,
+	Hud_Frame80,
+	Hud_Frame90,
+	Hud_Stbar,
+	Hud_StbarOverlay,
+	Hud_Mini,
+	Hud_full,
+	Hud_Nothing,
+	Hud_MAX
+}
+
 struct UserConfigStruct native
 {
 	native readonly bool nomonsters;
@@ -45,6 +69,8 @@ extend struct _
 	native @UserConfigStruct userConfig;
 	native readonly MapRecord currentLevel;
 	native readonly int paused;
+	native readonly int automapMode;
+	native readonly int PlayClock;
 }
 
 struct MapRecord native
@@ -219,7 +245,7 @@ class BaseStatusBar : StatusBarCore native
 {}
 
 
-class BloodStatusBar : BaseStatusBar native
+class NativeBloodStatusBar : BaseStatusBar native
 {}
 
 class DukeCommonStatusBar : BaseStatusBar native
