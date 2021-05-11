@@ -19,6 +19,12 @@
 #include "hw_voxels.h"
 #include "../../glbackend/glbackend.h"
 
+#ifdef _MSC_VER
+// just make it shut up. Most of this file will go down the drain anyway soon.
+#pragma warning(disable:4244) 
+#pragma warning(disable:4267) 
+#endif
+
 static int32_t curextra=MAXTILES;
 
 #define MIN_CACHETIME_PRINT 10

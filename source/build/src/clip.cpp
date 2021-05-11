@@ -295,7 +295,7 @@ static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
 {
     int32_t hitwall = -1;
 
-    for (native_t z=clipnum-1; z>=0; z--)
+    for (int z=clipnum-1; z>=0; z--)
     {
         vec2_t const p1   = { clipit[z].x1, clipit[z].y1 };
         vec2_t const p2   = { clipit[z].x2, clipit[z].y2 };
@@ -716,13 +716,13 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
     int32_t hitwalls[4], hitwall;
     int32_t clipReturn = 0;
 
-    native_t cnt = clipmoveboxtracenum;
+    int cnt = clipmoveboxtracenum;
 
     do
     {
         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && (xvect|yvect)) 
         {
-            for (native_t i=clipnum-1;i>=0;--i)
+            for (int i=clipnum-1;i>=0;--i)
             {
                 if (!bitmap_test(clipignore, i) && clipinsideboxline(pos->x, pos->y, clipit[i].x1, clipit[i].y1, clipit[i].x2, clipit[i].y2, walldist))
                 {
@@ -750,7 +750,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 int32_t const templl2
                 = (int32_t)clamp(compat_maybe_truncate_to_int32((int64_t)(goal.x - vec.x) * clipr.x + (int64_t)(goal.y - vec.y) * clipr.y), INT32_MIN, INT32_MAX);
                 int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (abs(templl2)>>11) < templl) ?
-                    DivScaleL(templl2, templl, 20) : 0;
+                    (int)DivScaleL(templl2, templl, 20) : 0;
 
                 goal = { MulScale(clipr.x, i, 20)+vec.x, MulScale(clipr.y, i, 20)+vec.y };
             }
@@ -807,7 +807,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
         int32_t tempint2, tempint1 = INT32_MAX;
         *sectnum = -1;
-        for (native_t j=numsectors-1; j>=0; j--)
+        for (int j=numsectors-1; j>=0; j--)
             if (inside(pos->x, pos->y, j) == 1)
             {
                 if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sector[j].ceilingstat&2))
@@ -819,7 +819,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 {
                     if (tempint2 < tempint1)
                     {
-                        *sectnum = j; tempint1 = tempint2;
+                        *sectnum = (int16_t)j; 
+                        tempint1 = tempint2;
                     }
                 }
                 else
@@ -831,12 +832,13 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
                     if (tempint2 <= 0)
                     {
-                        *sectnum = j;
+                        *sectnum = (int16_t)j;
                         return clipReturn;
                     }
                     if (tempint2 < tempint1)
                     {
-                        *sectnum = j; tempint1 = tempint2;
+                        *sectnum = (int16_t)j;
+                        tempint1 = tempint2;
                     }
                 }
             }
@@ -1257,9 +1259,9 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
     {
         if (tmp==NULL)
         {
-            if (inside(x1,y1,sec-sector) == 1)
+            if (inside(x1,y1,int(sec-sector)) == 1)
             {
-                hit_set(hit, sec-sector, -1, -1, x1, y1, z1);
+                hit_set(hit, int(sec-sector), -1, -1, x1, y1, z1);
                 hitscan_hitsectcf = (how+1)>>1;
             }
         }
@@ -1267,12 +1269,12 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
         {
             const int32_t curidx=(int32_t)tmp[0];
             auto const curspr=(spritetype *)tmp[1];
-            const int32_t thislastsec = tmp[2];
+            const int32_t thislastsec = (int32_t)tmp[2];
 
             if (!thislastsec)
             {
-                if (inside(x1,y1,sec-sector) == 1)
-                    hit_set(hit, curspr->sectnum, -1, curspr-sprite, x1, y1, z1);
+                if (inside(x1,y1,int(sec-sector)) == 1)
+                    hit_set(hit, int(curspr->sectnum), -1, int(curspr-sprite), x1, y1, z1);
             }
         }
     }
