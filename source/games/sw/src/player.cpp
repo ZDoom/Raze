@@ -1621,7 +1621,7 @@ DoPlayerTurnTurret(PLAYERp pp, float avel)
         avel = avel * synctics * 0.25;
     }
 
-    if (avel != 0)
+    if (fabs(avel) >= FLT_EPSILON)
     {
         new_ang = pp->angle.ang + degang(avel);
 
@@ -1629,9 +1629,9 @@ DoPlayerTurnTurret(PLAYERp pp, float avel)
         {
             diff = getincanglebam(buildang(sop->limit_ang_center), new_ang);
 
-            if (labs(diff.asbuild()) >= sop->limit_ang_delta)
+            if (labs(diff.signedbuild()) >= sop->limit_ang_delta)
             {
-                if (diff.asbam() < 0)
+                if (diff.asbam() > INT32_MAX)
                     new_ang = buildang(sop->limit_ang_center - sop->limit_ang_delta);
                 else
                     new_ang = buildang(sop->limit_ang_center + sop->limit_ang_delta);
