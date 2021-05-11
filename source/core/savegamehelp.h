@@ -12,7 +12,8 @@ FString G_BuildSaveName (const char *prefix);
 int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
 
 void G_LoadGame(const char* filename);
-void G_SaveGame(const char* fn, const char* desc, bool ok4q, bool forceq);
+void G_SaveGame(const char* fn, const char* desc);
+void G_DoSaveGame(bool okForQuicksave, bool forceQuicksave, const char* filename, const char* description);
 
 void M_Autosave();
 

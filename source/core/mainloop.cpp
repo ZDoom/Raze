@@ -110,6 +110,9 @@ FString BackupSaveGame;
 
 void DoLoadGame(const char* name);
 
+bool sendsave;
+FString	savedescription;
+FString	savegamefile;
 
 //==========================================================================
 //
@@ -119,6 +122,14 @@ void DoLoadGame(const char* name);
 
 void G_BuildTiccmd(ticcmd_t* cmd) 
 {
+	if (sendsave)
+	{
+		sendsave = false;
+		Net_WriteByte(DEM_SAVEGAME);
+		Net_WriteString(savegamefile);
+		Net_WriteString(savedescription);
+		savegamefile = "";
+	}
 	cmd->ucmd = {};
 	I_GetEvent();
 	auto input = CONTROL_GetInput();
@@ -240,8 +251,10 @@ static void GameTicker()
 			break;
 
 		case ga_savegame:
-			// We only need this for multiplayer saves that need to go through the network.
-			// gi->SaveGame();
+			G_DoSaveGame(true, false, savegamefile, savedescription);
+			gameaction = ga_nothing;
+			savegamefile = "";
+			savedescription = "";
 			break;
 
 		case ga_autosave:

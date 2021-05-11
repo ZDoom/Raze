@@ -119,7 +119,7 @@ void FSavegameManager::PerformLoadGame(const char *f, bool s)
 
 void FSavegameManager::PerformSaveGame(const char *f, const char *s)
 {
-	G_SaveGame(f, s, true, false);
+	G_SaveGame(f, s);
 }
 
 FString FSavegameManager::BuildSaveName(const char* fn, int slot)

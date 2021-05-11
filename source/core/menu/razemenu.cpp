@@ -309,7 +309,7 @@ CCMD(quicksave)
 	// [mxd]. Just save the game, no questions asked.
 	if (!saveloadconfirmation)
 	{
-		G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle, true, true);
+		G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle);
 		return;
 	}
 
@@ -320,7 +320,7 @@ CCMD(quicksave)
 	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
 		{
 			M_ClearMenus();
-			G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle, true, true);
+			G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle);
 		});
 
 	M_ActivateMenu(newmenu);
