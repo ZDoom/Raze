@@ -658,7 +658,7 @@ void prelevel_r(int g)
 			deletesprite(i);
 		if (spr->picnum == RRTILE34)
 		{
-			sectorextra[spr->sectnum] = spr->lotag;
+			sectorextra[spr->sectnum] = uint8_t(spr->lotag);
 			deletesprite(i);
 		}
 	}

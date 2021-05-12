@@ -248,7 +248,7 @@ public:
 		unsigned icon = p->inven_icon;
 		if (icon > 0)
 		{
-			int x = 84.5;
+			int x = 84;
 			DrawGraphic(tileGetTexture(INVENTORYBOX), 77, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 			if (icon < ICON_MAX)
 				DrawGraphic(tileGetTexture(item_icons[icon]), x, -15.375, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
@@ -279,13 +279,13 @@ public:
 				y -= 4;
 			DrawInventory(p, 0, y, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD1(p, snum);
-			PrintLevelStats(scale * tileHeight(BIGALPHANUM) + 10);
+			PrintLevelStats(int(scale * tileHeight(BIGALPHANUM) + 10));
 		}
 		else if (style == 2)
 		{
 			DrawInventory(p, 56, -20, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD2(p);
-			PrintLevelStats(scale * tileHeight(HEALTHBOX) + 4);
+			PrintLevelStats(int(scale * tileHeight(HEALTHBOX) + 4));
 		}
 		else
 		{
@@ -353,11 +353,11 @@ public:
 		double left = (320 - tileWidth(BOTTOMSTATUSBAR) * scale) / 2;
 
 		double top = 200 - h;
-		BeginStatusBar(320, 200, wh + h);
+		BeginStatusBar(320, 200, int(wh + h));
 		DrawInventory(p, 160, hud_size <= Hud_Stbar? 148 : 154, 0);
 
 		if (hud_size <= Hud_Stbar)
-			DrawWeaponBar(p, top);
+			DrawWeaponBar(p, (int)top);
 
 		if (hud_size == Hud_StbarOverlay) Set43ClipRect();
 		DrawGraphic(tileGetTexture(BOTTOMSTATUSBAR), left, top, DI_ITEM_LEFT_TOP, 1, -1, -1, scale, scale);

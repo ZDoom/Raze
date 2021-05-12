@@ -50,7 +50,7 @@ struct weaponhit
 		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
-	int GetIndex() const { return this - array(); }
+	int GetIndex() const { return int(this - array()); }
 
 	// Wrapper around some ugliness. The 'owner' field gets abused by some actors, so better wrap its real use in access functions to keep things in order.
 	inline weaponhit* GetOwner()

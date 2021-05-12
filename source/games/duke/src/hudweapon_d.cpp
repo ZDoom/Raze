@@ -63,21 +63,20 @@ inline static void hud_drawpal(double x, double y, int tilenum, int shade, int o
 
 void displayloogie(player_struct* p)
 {
-	int i, a, y, z;
+	double a, y;
+	int z;
 	double x;
 
 	if (p->loogcnt == 0) return;
 
 	y = (p->loogcnt << 2);
-	for (i = 0; i < p->numloogs; i++)
+	for (int i = 0; i < p->numloogs; i++)
 	{
-		a = abs(bsinf((p->loogcnt + i) << 5, -5));
+		a = fabs(bsinf((p->loogcnt + i) << 5, -5));
 		z = 4096 + ((p->loogcnt + i) << 9);
 		x = -getavel(p->i) + bsinf((p->loogcnt + i) << 6, -10);
 
-		hud_drawsprite(
-			(p->loogiex[i] + x), (200 + p->loogiey[i] - y), z - (i << 8), 256 - a,
-			LOOGIE, 0, 0, 2);
+		hud_drawsprite((p->loogiex[i] + x), (200 + p->loogiey[i] - y), z - (i << 8), 256 - a, LOOGIE, 0, 0, 2);
 	}
 }
 
@@ -90,16 +89,16 @@ void displayloogie(player_struct* p)
 int animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal)
 {
 	short fisti;
-	int fistzoom;
+	double fistzoom;
 	double fistz;
 
 	fisti = p->fist_incs;
 	if (fisti > 32) fisti = 32;
 	if (fisti <= 0) return 0;
 
-	fistzoom = 65536L - bcosf(fisti << 6, 2);
-	if (fistzoom > 90612L)
-		fistzoom = 90612L;
+	fistzoom = 65536 - bcosf(fisti << 6, 2);
+	if (fistzoom > 90612)
+		fistzoom = 90612;
 	if (fistzoom < 40920)
 		fistzoom = 40290;
 	fistz = 194 + bsinf((6 + fisti) << 7, -9);
@@ -107,7 +106,7 @@ int animatefist(int gs, player_struct* p, double look_anghalf, double looking_ar
 	hud_drawsprite(
 		(-fisti + 222 + plravel),
 		(looking_arc + fistz),
-		fistzoom, 0, FIST, gs, fistpal, 2);
+		int(fistzoom), 0, FIST, gs, fistpal, 2);
 
 	return 1;
 }
@@ -323,12 +322,12 @@ void displayweapon_d(int snum, double smoothratio)
 			looking_arc += 32 - (i >> 1);
 			fistsign += i >> 1;
 		}
-		cw = weapon_xoffset;
+		double owo = weapon_xoffset;
 		weapon_xoffset += bsinf(fistsign, -10);
 		hud_draw(weapon_xoffset + 250 - look_anghalf,
 			looking_arc + 258 - fabs(bsinf(fistsign, -8)),
 			FIST, shade, o);
-		weapon_xoffset = cw;
+		weapon_xoffset = owo;
 		weapon_xoffset -= bsinf(fistsign, -10);
 		hud_draw(weapon_xoffset + 40 - look_anghalf,
 			looking_arc + 200 + fabs(bsinf(fistsign, -8)),

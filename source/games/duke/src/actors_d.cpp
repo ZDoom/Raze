@@ -1578,7 +1578,7 @@ static bool movefireball(DDukeActor* actor)
 					spr->zvel = proj->zv;
 				}
 			}
-			spr->yrepeat = spr->xrepeat = (short)(s->xrepeat * siz);
+			spr->yrepeat = spr->xrepeat = (uint8_t)(s->xrepeat * siz);
 			spr->cstat = s->cstat;
 			spr->extra = 0;
 

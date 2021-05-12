@@ -557,7 +557,7 @@ void thunder(void)
 	struct player_struct* p;
 	int r1, r2;
 	short startwall, endwall, i, j;
-	unsigned char shade;
+	uint8_t shade;
 
 	p = &ps[screenpeek];
 
@@ -612,10 +612,10 @@ void thunder(void)
 			{
 				startwall = sector[lightninsector[i]].wallptr;
 				endwall = startwall + sector[lightninsector[i]].wallnum;
-				sector[lightninsector[i]].floorshade = lightninsectorshade[i];
-				sector[lightninsector[i]].ceilingshade = lightninsectorshade[i];
+				sector[lightninsector[i]].floorshade = (int8_t)lightninsectorshade[i];
+				sector[lightninsector[i]].ceilingshade = (int8_t)lightninsectorshade[i];
 				for (j = startwall; j < endwall; j++)
-					wall[j].shade = lightninsectorshade[i];
+					wall[j].shade = (int8_t)lightninsectorshade[i];
 			}
 		}
 	}

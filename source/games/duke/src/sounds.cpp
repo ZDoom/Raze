@@ -196,7 +196,7 @@ static inline int S_GetPitch(int num)
 
 float S_ConvertPitch(int lpitch)
 {
-	return pow(2, lpitch / 1200.);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
+	return powf(2, lpitch / 1200.f);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
 }
 
 int S_GetUserFlags(int num)
@@ -413,7 +413,7 @@ void GameInterface::UpdateSounds(void)
 
 	if (c != nullptr)
 	{
-		listener.angle = -ca * BAngRadian; // Build uses a period of 2048.
+		listener.angle = -float(ca * BAngRadian); // Build uses a period of 2048.
 		listener.velocity.Zero();
 		listener.position = GetSoundPos(c);
 		listener.underwater = false; 
@@ -827,7 +827,7 @@ void S_ParseDeveloperCommentary()
 				}
 			}
 			sc.MustGetStringName(";");
-			if (Commentaries.Size() <= num) Commentaries.Resize(num + 1);
+			if (Commentaries.Size() <= (unsigned)num) Commentaries.Resize(num + 1);
 			Commentaries[num] = std::move(path);
 		}
 		//sc.MustGetStringName(";");
@@ -849,7 +849,7 @@ void StopCommentary()
 
 bool StartCommentary(int tag, DDukeActor* actor)
 {
-	if (wt_commentary && Commentaries.Size() > tag && Commentaries[tag].IsNotEmpty())
+	if (wt_commentary && Commentaries.Size() > (unsigned)tag && Commentaries[tag].IsNotEmpty())
 	{
 		FSoundID id = soundEngine->FindSound(Commentaries[tag]);
 		if (id == 0)

@@ -65,16 +65,11 @@ void incur_damage_r(struct player_struct* p)
 
 		switch (gut)
 		{
-			double ddamage;
 		case 1:
-			ddamage = damage;
-			ddamage *= 0.75;
-			damage = ddamage;
+			damage = damage * 3 / 4;
 			break;
 		case 2:
-			ddamage = damage;
-			ddamage *= 0.25;
-			damage = ddamage;
+			damage /= 4;
 			break;
 		}
 
@@ -1695,7 +1690,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
 	{
 		if (!p->VBumpNow && (krand() & 3) == 2)
-			p->VBumpTarget = (p->MotoSpeed / 16.) * ((krand() & 7) - 4);
+			p->VBumpTarget = short((p->MotoSpeed / 16.) * ((krand() & 7) - 4));
 
 		if (p->vehTurnLeft || p->moto_drink < 0)
 		{
@@ -1750,7 +1745,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		p->horizon.addadjustment(horiz - FixedToFloat(p->horizon.horiz.asq16()));
 	}
 
-	int currSpeed = p->MotoSpeed;
+	int currSpeed = int(p->MotoSpeed);
 	short velAdjustment;
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
@@ -1965,7 +1960,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
 	{
 		if (!p->VBumpNow && (krand() & 15) == 14)
-			p->VBumpTarget = (p->MotoSpeed / 16.) * ((krand() & 3) - 2);
+			p->VBumpTarget = short((p->MotoSpeed / 16.) * ((krand() & 3) - 2));
 
 		if (p->vehTurnLeft && p->moto_drink < 0)
 		{
@@ -2020,7 +2015,7 @@ static void onBoat(int snum, ESyncBits &actions)
 
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
-		int currSpeed = p->MotoSpeed * 4.;
+		int currSpeed = int(p->MotoSpeed * 4.);
 		short velAdjustment = p->vehTurnLeft ? -10 : 10;
 		auto angAdjustment = (velAdjustment < 0 ? 350 : -350) << BAMBITS;
 
@@ -2128,7 +2123,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 				}
 				else
 				{
-					p->poszv += gs.gravity - 80 + (120 - p->MotoSpeed);
+					p->poszv += gs.gravity - 80 + int(120 - p->MotoSpeed);
 					if (!S_CheckActorSoundPlaying(pact, 189) && !S_CheckActorSoundPlaying(pact, 190))
 						S_PlayActorSound(190, pact);
 				}
@@ -2464,8 +2459,8 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				movesprite_ex(victim, bcos(p->TiltStatus * 20 + p->angle.ang.asbuild(), -8),
-					bsin(p->TiltStatus * 20 + p->angle.ang.asbuild(), -8), s->zvel, CLIPMASK0, coll);
+				int ang = int(p->TiltStatus * 20 + p->angle.ang.asbuild());
+				movesprite_ex(victim, bcos(ang, -8), bsin(ang, -8), s->zvel, CLIPMASK0, coll);
 			}
 		}
 		else
@@ -2526,8 +2521,8 @@ void onBoatHit(int snum, DDukeActor* victim)
 			if (numplayers == 1)
 			{
 				Collision coll;
-				movesprite_ex(victim, bcos(p->TiltStatus * 20 + p->angle.ang.asbuild(), -9),
-					bsin(p->TiltStatus * 20 + p->angle.ang.asbuild(), -9), s->zvel, CLIPMASK0, coll);
+				int ang = int(p->TiltStatus * 20 + p->angle.ang.asbuild());
+				movesprite_ex(victim, bcos(ang, -9), bsin(ang, -9), s->zvel, CLIPMASK0, coll);
 			}
 		}
 		else
