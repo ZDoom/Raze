@@ -1554,13 +1554,13 @@ DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = float((MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }
     else
     {
-        avel = avel * synctics * 0.125;
+        avel *= synctics * 0.125f;
     }
 
     if (avel != 0)
@@ -1583,13 +1583,13 @@ DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (MulScaleF(pp->input.avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = float((MulScaleF(pp->input.avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }
     else
     {
-        avel = pp->input.avel * synctics * 0.125;
+        avel = pp->input.avel * synctics * 0.125f;
     }
 
     if (avel != 0)
@@ -1612,13 +1612,13 @@ DoPlayerTurnTurret(PLAYERp pp, float avel)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = float((MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }
     else
     {
-        avel = avel * synctics * 0.25;
+        avel = avel * synctics * 0.25f;
     }
 
     if (fabs(avel) >= FLT_EPSILON)
@@ -2458,7 +2458,7 @@ void DoTankTreads(PLAYERp pp)
 
     for (sectp = pp->sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        SectIterator it(*sectp - sector);
+        SectIterator it(int(*sectp - sector));
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
@@ -2694,7 +2694,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     // if it ends up actually in the drivable sector kill it
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        SectIterator it((*sectp) - sector);
+        SectIterator it(int(*sectp - sector));
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
@@ -2861,7 +2861,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
                     else
                         u->ret = 0;
 
-                    VehicleMoveHit(sp - sprite);
+                    VehicleMoveHit(short(sp - sprite));
                 }
 
                 if (!TEST(sop->flags, SOBJ_NO_QUAKE))
@@ -2906,7 +2906,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
 
             if (vel > 13000)
             {
-                VehicleMoveHit(sp - sprite);
+                VehicleMoveHit(short(sp - sprite));
                 pp->slide_xvect = -pp->xvect<<1;
                 pp->slide_yvect = -pp->yvect<<1;
                 if (!TEST(sop->flags, SOBJ_NO_QUAKE))
@@ -4809,7 +4809,7 @@ DoPlayerDive(PLAYERp pp)
         int nx,ny;
 
         PlaySound(DIGI_BUBBLES, pp, v3df_none);
-        bubble = SpawnBubble(pp->SpriteP - sprite);
+        bubble = SpawnBubble(short(pp->SpriteP - sprite));
         if (bubble >= 0)
         {
             bp = &sprite[bubble];
@@ -7318,7 +7318,7 @@ void
 PlayerSpawnPosition(PLAYERp pp)
 {
     SPRITEp sp;
-    short pnum = pp - Player;
+    short pnum = short(pp - Player);
     short spawn_sprite = 0, pos_num = pnum;
     int fz,cz;
     int i;

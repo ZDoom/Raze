@@ -346,7 +346,7 @@ private:
         for (i = windowxy1.x; i <= windowxy2.x; i++)
         {
             y = (tileHeight(FRAG_BAR) * num_frag_bars) - (2 * (num_frag_bars - 1));
-            y = y * (ydim / 200.0);
+            y = y * ydim / 200;
         }
 
         for (i = 0, y = 0; i < num_frag_bars; i++)
@@ -878,7 +878,8 @@ private:
         DrawGraphic(img, x, -1, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, imgScale, imgScale);
 
         PlayerUpdateInventoryState(pp, x + 3.0, -18.0, 1, 1);
-        PlayerUpdateInventoryPercent(pp, x + 3.5, -20.5, 1, 1);
+        //PlayerUpdateInventoryPercent(pp, x + 3.5, -20.5, 1, 1); // function takes integer coordinates.
+        PlayerUpdateInventoryPercent(pp, x + 3, -20, 1, 1);
 
         //
         // keys

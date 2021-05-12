@@ -1261,7 +1261,7 @@ struct USER
     short inactive_time; // length of time actor has been unaware of his tgt
     int  sx,sy,sz;
     short sang;
-    char spal;  // save off default palette number
+    uint8_t spal;  // save off default palette number
 
     int ret; //holder for move_sprite return value
 

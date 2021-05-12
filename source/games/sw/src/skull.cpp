@@ -394,7 +394,7 @@ int DoSkullJump(short SpriteNum)
             DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
 
             if (dist < 1000 &&
-                SpriteOverlapZ(SpriteNum, u->tgt_sp - sprite, Z(32)))
+                SpriteOverlapZ(SpriteNum, short(u->tgt_sp - sprite), Z(32)))
             {
                 UpdateSinglePlayKills(SpriteNum);
                 DoSkullBeginDeath(SpriteNum);
@@ -806,7 +806,7 @@ int DoBettyJump(short SpriteNum)
             DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
 
             if (dist < 1000 &&
-                SpriteOverlapZ(SpriteNum, u->tgt_sp - sprite, Z(32)))
+                SpriteOverlapZ(SpriteNum, short(u->tgt_sp - sprite), Z(32)))
             {
                 UpdateSinglePlayKills(SpriteNum);
                 DoBettyBeginDeath(SpriteNum);

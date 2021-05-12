@@ -364,7 +364,7 @@ int DoSpike(short SpriteNum)
 
             // change target
             u->jump_speed = u->vel_tgt;
-            u->vel_rate = labs(u->vel_rate);
+            u->vel_rate = (short)abs(u->vel_rate);
             u->z_tgt = sp->z;
 
             SetSpikeInactive(SpriteNum);
@@ -474,7 +474,7 @@ int DoSpikeAuto(short SpriteNum)
         {
             // change target
             u->jump_speed = u->vel_tgt;
-            u->vel_rate = labs(u->vel_rate);
+            u->vel_rate = (short)abs(u->vel_rate);
             u->z_tgt = sp->z;
             u->Tics = u->WaitTics;
 

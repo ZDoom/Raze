@@ -131,7 +131,7 @@ int Saveable_FindDataSym(void *ptr, saveddatasym *sym)
 
             sym->module = 1+m;
             sym->index  = i;
-            sym->offset = (intptr_t)ptr - (intptr_t)saveablemodules[m]->data[i].base;
+            sym->offset = unsigned((intptr_t)ptr - (intptr_t)saveablemodules[m]->data[i].base);
 
             return 0;
         }

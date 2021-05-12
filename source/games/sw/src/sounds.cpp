@@ -102,7 +102,7 @@ AMB_INFO ambarray[] =
 
 float S_ConvertPitch(int lpitch)
 {
-    return pow(2, lpitch / 1200.);
+    return powf(2, lpitch / 1200.f);
 }
 
 //==========================================================================
@@ -157,7 +157,7 @@ short SoundDist(int x, int y, int z, int basedist)
     if (retval < 0) retval = 0;
     if (retval > 255) retval = 255;
 
-    return retval;
+    return short(retval);
 }
 
 //==========================================================================
@@ -598,7 +598,7 @@ void GameInterface::UpdateSounds(void)
     PLAYERp pp = Player + screenpeek;
     SoundListener listener;
 
-    listener.angle = -pp->angle.ang.asbuild() * BAngRadian; // Build uses a period of 2048.
+    listener.angle = float(-pp->angle.ang.asbuild() * BAngRadian); // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos(&pp->pos);
     listener.underwater = false;

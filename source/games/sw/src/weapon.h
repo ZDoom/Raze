@@ -156,7 +156,7 @@ extern short target_ang;
 bool SpriteOverlap(short, short);
 
 int SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
-int DoActorBeginSlide(short SpriteNum, short ang, short vel, short dec);
+int DoActorBeginSlide(int SpriteNum, short ang, short vel, short dec);
 int GetOverlapSector(int x, int y, short *over, short *under);
 bool MissileHitDiveArea(short SpriteNum);
 
@@ -221,7 +221,7 @@ int AddSpriteToSectorObject(short SpriteNum,SECTOR_OBJECTp sop);
 void QueueReset(void);
 int PlayerCheckDeath(PLAYERp pp,short Weapon);
 bool SpriteWarpToUnderwater(SPRITEp sp);
-int PlayerDamageSlide(PLAYERp pp,short damage,short ang);
+int PlayerDamageSlide(PLAYERp pp,int damage,short ang);
 bool VehicleMoveHit(short SpriteNum);
 int SpawnSplash(short SpriteNum);
 int SpawnMineExp(int16_t Weapon);

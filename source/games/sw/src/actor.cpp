@@ -617,7 +617,7 @@ KeepActorOnFloor(short SpriteNum)
 }
 
 int
-DoActorBeginSlide(short SpriteNum, short ang, short vel, short dec)
+DoActorBeginSlide(int SpriteNum, short ang, short vel, short dec)
 {
     USERp u = User[SpriteNum].Data();
 
