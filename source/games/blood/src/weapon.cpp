@@ -194,7 +194,7 @@ static bool CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
         return 1;
     if (pPlayer->curWeapon == 12 && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
         return 1;
-    if (pPlayer->curWeapon == 9 && pPlayer->pXSprite->health >= (count<<4))
+    if (pPlayer->curWeapon == 9 && pPlayer->pXSprite->health >= unsigned(count<<4))
         return 1;
     return pPlayer->ammoCount[ammotype] >= count;
 }
@@ -1703,7 +1703,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
         if (gGameOptions.nGameType <= 1)
         {
             int nAmmo = pPlayer->ammoCount[8];
-            if (nAmmo < 25 && pPlayer->pXSprite->health > ((25-nAmmo)<<4))
+            if (nAmmo < 25 && pPlayer->pXSprite->health > unsigned((25-nAmmo)<<4))
             {
                 actDamageSprite(pPlayer->nSprite, pPlayer->pSprite, DAMAGE_TYPE_5, ((25-nAmmo)<<4));
                 nAmmo = 25;

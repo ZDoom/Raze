@@ -171,7 +171,6 @@ void IniFile::Load()
     auto fp = fileSystem.OpenFileReader(fileName);
     if (fp.isOpen())
     {
-        int nSize = fp.GetLength();
 		auto pBuffer = fp.Read();
         LoadRes(pBuffer.Data());
     }

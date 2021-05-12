@@ -270,9 +270,9 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                         int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
                         int t2;
                         if (!pXSprite->data3)
-                            t2 = 120 / 10.0;
+                            t2 = 120 / 10;
                         else
-                            t2 = (3*120) / 10.0;
+                            t2 = (3*120) / 10;
                         spritetype *pMissile = actFireMissile(pSprite, 0, z1, dx, dy, dz, nMissileType);
                         if (pMissile)
                         {

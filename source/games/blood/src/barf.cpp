@@ -138,7 +138,7 @@ void AddCmdDefine(char *text, int value)
 
 static void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType)
 {
-    int const nLength = strlen(pzPath);
+    int const nLength = (int)strlen(pzPath);
     const char *pDirectory = pzPath+nLength;
     const char *pDot = NULL;
     for (int i = nLength-1; i >= 0; i--)
@@ -217,7 +217,7 @@ int RFS::Open(int lumpnum)
         return 1;
     }
 
-	int fileSize = hFile.GetLength();
+	int fileSize = (int)hFile.GetLength();
 	buffer.Resize(fileSize);
     _ptr = buffer.Data();
     if (_ptr == NULL) {
@@ -890,7 +890,7 @@ void ParseScript(int lumpnum)
                     case kTagString:
                     {
                         memcpy(&buffer[nBytes], scriptBuffer, strlen(scriptBuffer) + 1);
-                        nBytes += strlen(scriptBuffer) + 1;
+                        nBytes += (int)strlen(scriptBuffer) + 1;
                         break;
                     }
                     case kTagConstant:

@@ -148,7 +148,7 @@ RORHACK:
     for (int i = 0; i < 16; i++)
         ror_status[i] = testgotpic(4080 + i);
     fixed_t deliriumPitchI = interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
-    DrawMirrors(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, gInterpolate, gViewIndex);
+    DrawMirrors(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, int(gInterpolate), gViewIndex);
     int bakCstat = gView->pSprite->cstat;
     if (gViewPos == 0)
     {
@@ -160,7 +160,7 @@ RORHACK:
     }
 
     renderDrawRoomsQ16(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, nSectnum);
-    viewProcessSprites(pm_tsprite, pm_spritesortcnt, cX, cY, cZ, cA.asbuild(), gInterpolate);
+    viewProcessSprites(pm_tsprite, pm_spritesortcnt, cX, cY, cZ, cA.asbuild(), int(gInterpolate));
     bool do_ror_hack = false;
     for (int i = 0; i < 16; i++)
         if (ror_status[i] != testgotpic(4080 + i))
@@ -176,7 +176,7 @@ RORHACK:
     renderDrawMasks();
     pm_spritesortcnt = nSpriteSortCnt;
     setPortalFlags(0);
-    processSpritesOnOtherSideOfPortal(cX, cY, gInterpolate);
+    processSpritesOnOtherSideOfPortal(cX, cY, int(gInterpolate));
     renderDrawMasks();
     gView->pSprite->cstat = bakCstat;
 

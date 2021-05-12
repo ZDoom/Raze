@@ -712,7 +712,7 @@ void callbackCondition(int nSprite) {
     if (pXSprite->isTriggered) return;
 
     TRCONDITION* pCond = &gCondition[pXSprite->sysData1];
-    for (int i = 0; i < pCond->length; i++) {
+    for (unsigned i = 0; i < pCond->length; i++) {
         EVENT evn;  evn.index = pCond->obj[i].index;   evn.type = pCond->obj[i].type;
         evn.cmd = pCond->obj[i].cmd; evn.funcID = kCallbackCondition;
         useCondition(&sprite[pXSprite->reference], pXSprite, evn);

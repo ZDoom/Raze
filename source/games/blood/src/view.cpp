@@ -742,7 +742,7 @@ void viewDrawScreen(bool sceneonly)
         }
         else
         {
-            renderSetRollAngle(rotscrnang.asbuildf());
+            renderSetRollAngle((float)rotscrnang.asbuildf());
             render3DViewPolymost(nSectnum, cX, cY, cZ, cA, cH);
         }
         bDeliriumOld = bDelirium && gDeliriumBlur;

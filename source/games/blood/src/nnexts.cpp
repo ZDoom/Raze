@@ -229,7 +229,7 @@ void nnExtResetGlobals() {
     if (gTrackingCondsCount > 0) {
         for (int i = 0; i < gTrackingCondsCount; i++) {
             TRCONDITION* pCond = &gCondition[i];
-            for (int k = 0; k < pCond->length; k++) {
+            for (unsigned k = 0; k < pCond->length; k++) {
                 pCond->obj[k].index = pCond->obj[k].cmd = 0;
                 pCond->obj[k].type = -1;
             }
@@ -716,7 +716,7 @@ spritetype* randomDropPickupObject(spritetype* pSource, short prevItem) {
             pSprite2 = actDropObject(pSource, selected);
             if (pSprite2 != NULL) {
 
-                pXSource->dropMsg = pSprite2->type; // store dropped item type in dropMsg
+                pXSource->dropMsg = uint8_t(pSprite2->type); // store dropped item type in dropMsg
                 pSprite2->x = pSource->x;
                 pSprite2->y = pSource->y;
                 pSprite2->z = pSource->z;
@@ -763,7 +763,7 @@ void nnExtProcessSuperSprites() {
             if (pCond->length > 0 && !pXCond->locked && !pXCond->isTriggered && ++pXCond->busy >= pXCond->busyTime) {
 
                 pXCond->busy = 0;
-                for (int k = 0; k < pCond->length; k++) {
+                for (unsigned k = 0; k < pCond->length; k++) {
 
                     EVENT evn;
                     evn.index = pCond->obj[k].index;   evn.cmd = pCond->obj[k].cmd;
@@ -1400,7 +1400,7 @@ void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
                 continue;
                 
             // search for player control sprite and replace it with actual player sprite
-            for (int k = 0; k < pCond->length; k++) {
+            for (unsigned k = 0; k < pCond->length; k++) {
                 if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].index != pXSource->reference) continue;
                 pCond->obj[k].index = pPlayer->nSprite;
                 pCond->obj[k].cmd = pPlayer->pXSprite->command;
@@ -1638,16 +1638,16 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
     // for sectors
     case 6:
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            sector[objIndex].floorxpan_ = ClipRange(pXSource->data1, 0, 255);
+            sector[objIndex].floorxpan_ = (float)ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            sector[objIndex].floorypan_ = ClipRange(pXSource->data2, 0, 255);
+            sector[objIndex].floorypan_ = (float)ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            sector[objIndex].ceilingxpan_ = ClipRange(pXSource->data3, 0, 255);
+            sector[objIndex].ceilingxpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            sector[objIndex].ceilingypan_ = ClipRange(pXSource->data4, 0, 255);
+            sector[objIndex].ceilingypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     // for sprites
     case 3:
@@ -1698,10 +1698,10 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
             wall[objIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            wall[objIndex].xpan_ = ClipRange(pXSource->data3, 0, 255);
+            wall[objIndex].xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            wall[objIndex].ypan_ = ClipRange(pXSource->data4, 0, 255);
+            wall[objIndex].ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     }
 
@@ -2314,7 +2314,7 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
     }
 
     if (dmgType >= kDmgFall) {
-        if (dmg < pXSprite->health << 4) {
+        if (dmg < (int)pXSprite->health << 4) {
             if (nnExtIsImmune(pSprite, dmgType, 0)) {
                 Printf(PRINT_HIGH, "Dude type %d is immune to damage type %d!", pSprite->type, dmgType);
                 return;
@@ -3201,7 +3201,7 @@ void condUpdateObjectIndex(int objType, int oldIndex, int newIndex) {
     for (int i = 0; i < gTrackingCondsCount; i++) {
 
         TRCONDITION* pCond = &gCondition[i];
-        for (int k = 0; k < pCond->length; k++) {
+        for (unsigned k = 0; k < pCond->length; k++) {
             if (pCond->obj[k].type != objType || pCond->obj[k].index != oldIndex) continue;
             pCond->obj[k].index = newIndex;
             break;
@@ -3851,7 +3851,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     else evPost(nSprite, 3, 0, kCmdOff);
                     break;
             }
-            pXSprite->dropMsg = pXSprite->data4;
+            pXSprite->dropMsg = uint8_t(pXSprite->data4);
             return true;
         case kModernObjDataAccumulator:
             switch (event.cmd) {
@@ -4352,7 +4352,7 @@ void useSoundGen(spritetype* pSource, XSPRITE* pXSource) {
 
 void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
     char buffer[5]; int data = -65535; short tmp = 0; int dataIndex = 0;
-    sprintf(buffer, "%d", abs(pXSource->data1)); int len = strlen(buffer);
+    sprintf(buffer, "%d", abs(pXSource->data1)); int len = int(strlen(buffer));
     
     for (int i = 0; i < len; i++) {
         dataIndex = (buffer[i] - 52) + 4;
@@ -4449,7 +4449,7 @@ void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector) {
 
     int oldAmplitude = pXSector->amplitude;
     if (valueIsBetween(pXSource->data2, -128, 128))
-        pXSector->amplitude = pXSource->data2;
+        pXSector->amplitude = uint8_t(pXSource->data2);
 
     if (valueIsBetween(pXSource->data3, -1, 32767))
         pXSector->freq = ClipHigh(pXSource->data3, 255);
@@ -4521,7 +4521,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                     
                     // heal dude a bit in case of friendly fire
                     int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
-                    if (pXSprite->health < startHp) actHealDude(pXSprite, receiveHp, startHp);
+                    if (pXSprite->health < (unsigned)startHp) actHealDude(pXSprite, receiveHp, startHp);
                 } else if (xsprite[pBurnSource->extra].health <= 0) {
                     pXSprite->burnTime = 0;
                 }
@@ -4581,11 +4581,11 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
 
             // heal dude
             int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
-            if (pXSprite->health < startHp) actHealDude(pXSprite, receiveHp, startHp);
+            if (pXSprite->health < (unsigned)startHp) actHealDude(pXSprite, receiveHp, startHp);
 
             // heal mate
             startHp = (pXMate->sysData2 > 0) ? ClipRange(pXMate->sysData2 << 4, 1, 65535) : getDudeInfo(pMate->type)->startHealth << 4;
-            if (pXMate->health < startHp) actHealDude(pXMate, receiveHp, startHp);
+            if (pXMate->health < (unsigned)startHp) actHealDude(pXMate, receiveHp, startHp);
 
             if (pXMate->target > -1 && sprite[pXMate->target].extra >= 0) {
                 pTarget = &sprite[pXMate->target];
@@ -4742,10 +4742,10 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
                 sector[objIndex].ceilingpicnum = pXSource->data2;
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
-                sector[objIndex].floorpal = pXSource->data3;
+                sector[objIndex].floorpal = uint8_t(pXSource->data3);
 
             if (valueIsBetween(pXSource->data4, -1, 65535))
-                sector[objIndex].ceilingpal = pXSource->data4;
+                sector[objIndex].ceilingpal = uint8_t(pXSource->data4);
             break;
         case OBJ_SPRITE:
             if (valueIsBetween(pXSource->data1, -1, 32767))
@@ -4755,7 +4755,7 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
             else if (pXSource->data2 < -1) sprite[objIndex].shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
-                sprite[objIndex].pal = pXSource->data3;
+                sprite[objIndex].pal = uint8_t(pXSource->data3);
             break;
         case OBJ_WALL:
             if (valueIsBetween(pXSource->data1, -1, 32767))
@@ -4765,7 +4765,7 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
                 wall[objIndex].overpicnum = pXSource->data2;
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
-                wall[objIndex].pal = pXSource->data3;
+                wall[objIndex].pal = uint8_t(pXSource->data3);
             break;
     }
 }
@@ -5163,7 +5163,7 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
 bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     
     if (pXSprite->data3 != pXSprite->sysData1) return false;
-    char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = strlen(buffer); int rx = -1;
+    char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = int(strlen(buffer)); int rx = -1;
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
         if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].index)) continue;
         for (int a = 0; a < len; a++) {
