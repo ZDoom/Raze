@@ -127,6 +127,7 @@ private:
 };
 
 extern DBaseStatusBar *StatusBar;
+inline DBaseStatusBar* StatusBar2;
 
 // Status bar factories -----------------------------------------------------
 
@@ -144,5 +145,7 @@ void drawMapTitle();
 class FSerializer;
 void SerializeHud(FSerializer &arc);
 extern int levelTextTime;
+struct SummaryInfo;
+void UpdateStatusBar(SummaryInfo* info);
 
 #endif /* __SBAR_H__ */

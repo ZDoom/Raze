@@ -806,7 +806,7 @@ void CreateStatusBar()
 	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
 	if (flags & GAMEFLAG_BLOOD)
 	{
-		stbarclass = PClass::FindClass("NativeBloodStatusBar");
+		stbarclass = PClass::FindClass("BloodStatusBar");
 	}
 	else if (flags & GAMEFLAG_SW)
 	{
@@ -826,6 +826,13 @@ void CreateStatusBar()
 		I_FatalError("No status bar defined");
 	}
 	StatusBar = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
+	StatusBar->SetSize(0, 320, 200);
+	// this is for comparing the scriptification with the C++ versions
+	//stbarclass = PClass::FindClass("NativeBloodStatusBar");
+	//StatusBar2 = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
+	//StatusBar2->SetSize(0, 320, 200);
+	//StatusBar2->Release();
+
 }
 
 

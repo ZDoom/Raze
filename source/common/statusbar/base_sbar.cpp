@@ -51,7 +51,7 @@ FGameTexture* CrosshairImage;
 static int CrosshairNum;
 
 
-IMPLEMENT_CLASS(DStatusBarCore, true, false)
+IMPLEMENT_CLASS(DStatusBarCore, false, false)
 IMPLEMENT_CLASS(DHUDFont, false, false);
 
 
@@ -458,7 +458,7 @@ void DStatusBarCore::DrawGraphic(FTextureID texture, double x, double y, int fla
 		return;
 
 	FGameTexture* tex = TexMan.GetGameTexture(texture, !(flags & DI_DONTANIMATE));
-	DrawGraphic(tex, x, y, flags, Alpha, boxwidth, boxheight, scaleX, scaleY, style, color, translation);
+	DrawGraphic(tex, x, y, flags, Alpha, boxwidth, boxheight, scaleX, scaleY, style, color, translation, clipwidth);
 }
 
 void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, ERenderStyle style, PalEntry color, int translation, double clipwidth)
@@ -576,6 +576,10 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		boxheight *= Scale.Y;
 		x += orgx;
 		y += orgy;
+	}
+	if (clipwidth != -1)
+	{
+		int a = 0;
 	}
 	DrawTexture(twod, tex, x, y,
 		DTA_TopOffset, 0,

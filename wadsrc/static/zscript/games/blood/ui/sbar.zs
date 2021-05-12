@@ -102,7 +102,6 @@ class BloodStatusBar : RazeStatusBar
 			}
 			else
 			{
-				if (i < "0" || i > "9") continue;
 				if (c < "0" || c > "9") continue;
 				texname = String.Format("%s%d", nametemplate, c - int("0"));
 				DrawImage(texname, (x, y), DI_ITEM_RELCENTER);
@@ -120,7 +119,7 @@ class BloodStatusBar : RazeStatusBar
 	{
 		int w = texWidth(nTile);
 		double bx = w * sc * nMult / nDiv + x;
-		double scale = double(bx - x) / w;
+		double scale = (bx - x) / w;
 		DrawImage(nTile, (x, y), DI_ITEM_LEFT_TOP, 1., (-1, -1), (sc, sc), clipwidth:scale);
 	}
 
@@ -193,9 +192,9 @@ class BloodStatusBar : RazeStatusBar
 
 		for (int i = 0; i < nPowerUps; i++)
 		{
-			int power1 = powersort[i];
 			for (int j = i + 1; j < nPowerUps; j++)
 			{
+				int power1 = powersort[i];
 				int power2 = powersort[j];
 				if (pPlayer.pwUpTime[powerOrder[power1]] > pPlayer.pwUpTime[powerOrder[power2]])
 				{
@@ -507,7 +506,7 @@ class BloodStatusBar : RazeStatusBar
 	int DrawStatusBar(BloodPlayer pPlayer, int nPalette)
 	{
 		int th = texHeight("Statusbar");
-		BeginStatusBar(320, 200, th);
+		BeginStatusBar(false, 320, 200, th);
 
 
 		int health = pPlayer.GetHealth();
@@ -582,7 +581,7 @@ class BloodStatusBar : RazeStatusBar
 
 	int DrawHUD1(BloodPlayer pPlayer, int nPalette)
 	{
-		BeginHUD(320, 200, 1);
+		BeginHUD(1, false, 320, 200);
 		DrawImage("FullHUD", (34, 187 - 200), DI_ITEM_RELCENTER, style:STYLE_Normal, col:0xffc0c0c0, translation:nPalette);
 		int health = pPlayer.GetHealth();
 		if (health >= 16 || (PlayClock & 16) || health == 0)
@@ -649,7 +648,7 @@ class BloodStatusBar : RazeStatusBar
 		static const int ammoYoffs[] = { 0, 0, 0, 3, -6, 2, 4, -6, -6, -6, 2, 2 };
 
 		int health = pPlayer.GetHealth();
-		BeginHUD(320, 200, 1);
+		BeginHUD(1, false, 320, 200);
 		DrawImage("HealthIcon", (12, 195 - 200), DI_ITEM_RELCENTER, scale:(0.56, 0.56));
 		DrawStatNumber("%d", health >> 4, "SBarNumberHealth", 28, 187 - 200, 0, 0);
 		if (pPlayer.armor[1])
@@ -705,7 +704,7 @@ class BloodStatusBar : RazeStatusBar
 			}
 		}
 
-		BeginStatusBar(320, 200, 28);
+		BeginStatusBar(false, 320, 200, 28);
 		if (pPlayer.throwPower)
 			TileHGauge("ThrowGauge", 124, 175, pPlayer.throwPower, 1);
 		else
@@ -743,7 +742,7 @@ class BloodStatusBar : RazeStatusBar
 		}
 		else if (hud_size > Hud_Stbar)
 		{
-			BeginStatusBar(320, 200, 28);
+			BeginStatusBar(false, 320, 200, 28);
 			if (pPlayer.throwPower)
 				TileHGauge("ThrowGauge", 124, 175, pPlayer.throwPower, 1);
 			else if (hud_size > Hud_StbarOverlay)
@@ -760,7 +759,7 @@ class BloodStatusBar : RazeStatusBar
 		DoLevelStats(pPlayer, y, summary);
 
 		// All remaining parts must be done with HUD alignment rules, even when showing a status bar.
-		BeginHUD(320, 200, 1);
+		BeginHUD(1, false, 320, 200);
 		drawPowerUps(pPlayer);
 
 		/*

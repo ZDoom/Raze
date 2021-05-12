@@ -245,9 +245,6 @@ class BaseStatusBar : StatusBarCore native
 {}
 
 
-class NativeBloodStatusBar : BaseStatusBar native
-{}
-
 class DukeCommonStatusBar : BaseStatusBar native
 {}
 

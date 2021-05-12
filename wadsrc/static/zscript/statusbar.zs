@@ -81,7 +81,7 @@ class RazeStatusBar : StatusBarCore
 		{
 			if (stats.maxkills == -3) text.Format("%sF: %s%d", info.letterColor, info.standardColor, stats.kills);
 			else if (stats.maxkills == -2) text.Format("%sK: %s%d", info.letterColor, info.standardColor, stats.kills);
-			else text.Format("%sK: %s%d/%d", info.letterColor, 
+			else text = String.Format("%sK: %s%d/%d", info.letterColor, 
 				stats.kills == stats.maxkills ? info.completeColor : info.standardColor, stats.kills, stats.maxkills);
 
 			drawStatText(info.statFont, 2 * hud_statscale, y2, text, scale);
@@ -89,7 +89,7 @@ class RazeStatusBar : StatusBarCore
 
 		if (stats.maxsecrets > 0)	// don't bother if there are no secrets.
 		{
-			text.Format("%sS: %s%d/%d", info.letterColor, stats.secrets >= stats.maxsecrets ? info.completeColor : info.standardColor, stats.secrets, stats.maxsecrets);
+			text = String.Format("%sS: %s%d/%d", info.letterColor, stats.secrets >= stats.maxsecrets ? info.completeColor : info.standardColor, stats.secrets, stats.maxsecrets);
 			if (stats.supersecrets > 0) text.AppendFormat("+%d", stats.supersecrets);
 
 			drawStatText(info.statFont, 2 * hud_statscale, y1, text, scale);

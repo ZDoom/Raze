@@ -379,3 +379,11 @@ void drawMapTitle()
     }
 }
 
+void UpdateStatusBar(SummaryInfo* info)
+{
+	IFVIRTUALPTRNAME(StatusBar, NAME_RazeStatusBar, UpdateStatusBar)
+	{
+		VMValue params[] = { StatusBar, info };
+		VMCall(func, params, 2, nullptr, 0);
+	}
+}
