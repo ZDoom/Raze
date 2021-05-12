@@ -179,13 +179,13 @@ int BuildStatusAnim(int val, int nFlags)
     int nStatusAnim = StatusAnim.Get();
 
     StatusAnim[nStatusAnim].nPrevAnim = -1;
-    StatusAnim[nStatusAnim].nNextAnim = nLastAnim;
+    StatusAnim[nStatusAnim].nNextAnim = (int8_t)nLastAnim;
 
     if (nLastAnim < 0) {
         nFirstAnim = nStatusAnim;
     }
     else {
-        StatusAnim[nLastAnim].nPrevAnim = nStatusAnim;
+        StatusAnim[nLastAnim].nPrevAnim = (int8_t)nStatusAnim;
     }
 
     nLastAnim = nStatusAnim;

@@ -216,7 +216,7 @@ void AddFlash(short nSector, int x, int y, int z, int val)
     assert(nSector >= 0 && nSector < kMaxSectors);
 
     int var_28 = 0;
-    unsigned int var_1C = val >> 8;
+    int var_1C = val >> 8;
 
     if (var_1C >= nFlashDepth) {
         return;
@@ -225,7 +225,7 @@ void AddFlash(short nSector, int x, int y, int z, int val)
     unsigned int var_20 = val & 0x80;
     unsigned int var_18 = val & 0x40;
 
-    val = ((var_1C + 1) << 8) | char(val);
+    val = ((var_1C + 1) << 8) | (val & 0xff);
 
     int var_14 = 0;
 
@@ -387,7 +387,7 @@ void AddFlash(short nSector, int x, int y, int z, int val)
                             shade = -127;
                         }
 
-                        sprite[nSprite].shade = shade;
+                        sprite[nSprite].shade = (int8_t)shade;
                     }
                 }
             }
@@ -462,12 +462,12 @@ void UndoFlashes()
 
             assert(pShade != NULL);
 
-            short var_2C = (*pShade) + 6;
-            int var_30 = sFlash[nFlash].shade;
+            int thisshade = (*pShade) + 6;
+            int maxshade = sFlash[nFlash].shade;
 
-            if (var_2C < var_30)
+            if (thisshade < maxshade)
             {
-                *pShade = var_2C;
+                *pShade = (int8_t)thisshade;
                 edi = nFlash;
                 continue;
             }

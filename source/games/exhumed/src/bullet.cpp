@@ -644,8 +644,8 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         nRepeat = 30;
     }
 
-    sprite[nBulletSprite].xrepeat = nRepeat;
-    sprite[nBulletSprite].yrepeat = nRepeat;
+    sprite[nBulletSprite].xrepeat = (uint8_t)nRepeat;
+    sprite[nBulletSprite].yrepeat = (uint8_t)nRepeat;
     sprite[nBulletSprite].xoffset = 0;
     sprite[nBulletSprite].yoffset = 0;
     sprite[nBulletSprite].ang = nAngle;

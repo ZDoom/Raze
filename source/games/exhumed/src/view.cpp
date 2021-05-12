@@ -336,7 +336,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         static uint8_t sectorCeilingPal[MAXSECTORS];
         static uint8_t wallPal[MAXWALLS];
         int const viewingRange = viewingrange;
-        int const vr = xs_CRoundToInt(65536.f * tanf(r_fov * (pi::pi() / 360.f)));
+        int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));
 
 
         videoSetCorrectedAspect();
@@ -360,7 +360,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!testnewrenderer)
         {
-            renderSetRollAngle(rotscrnang.asbuildf());
+            renderSetRollAngle((float)rotscrnang.asbuildf());
             renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
             analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);
             renderDrawMasks();
@@ -439,7 +439,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             {
                 RestoreGreenPal();
                 if (nEnemyPal > -1) {
-                    sprite[enemy].pal = nEnemyPal;
+                    sprite[enemy].pal = (uint8_t)nEnemyPal;
                 }
 
                 DrawMap(smoothRatio);

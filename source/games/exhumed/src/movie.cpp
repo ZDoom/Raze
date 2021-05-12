@@ -154,7 +154,7 @@ public:
 
                 uint8_t* pFrame = CurFrame;
 
-                int nRead = fp.Read(&yOffset, sizeof(yOffset));
+                int nRead = (int)fp.Read(&yOffset, sizeof(yOffset));
                 nSize -= nRead;
 
                 pFrame += yOffset * 200; // row position
@@ -169,7 +169,7 @@ public:
 
                     if (nPixels)
                     {
-                        int nRead = fp.Read(pFrame, nPixels);
+                        int nRead = (int)fp.Read(pFrame, nPixels);
                         pFrame += nRead;
                         nSize -= nRead;
                     }

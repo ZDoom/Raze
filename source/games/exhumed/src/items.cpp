@@ -141,8 +141,8 @@ void BuildItemAnim(short nSprite)
     else
     {
         sprite[nSprite].owner = -1;
-        sprite[nSprite].yrepeat = nItemAnimInfo[nItem].repeat;
-        sprite[nSprite].xrepeat = nItemAnimInfo[nItem].repeat;
+        sprite[nSprite].yrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
+        sprite[nSprite].xrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
     }
 }
 
@@ -476,9 +476,9 @@ void DoRegenerates()
         }
 
         sprite[nSprite].zvel = 0;
-        sprite[nSprite].yrepeat = sprite[nSprite].xvel;
-        sprite[nSprite].xrepeat = sprite[nSprite].xvel;
-        sprite[nSprite].pal  = sprite[nSprite].yvel;
+        sprite[nSprite].yrepeat = (uint8_t)sprite[nSprite].xvel;
+        sprite[nSprite].xrepeat = (uint8_t)sprite[nSprite].xvel;
+        sprite[nSprite].pal  = (uint8_t)sprite[nSprite].yvel;
         sprite[nSprite].yvel = sprite[nSprite].zvel; // setting to 0
         sprite[nSprite].xvel = sprite[nSprite].zvel; // setting to 0
         nRegenerates--;

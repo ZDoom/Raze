@@ -313,7 +313,7 @@ void menu_DoPlasma()
             if (badOffset)
                 continue;
 
-            unsigned int nSmokeOffset = 0;
+            int nSmokeOffset = 0;
 
             if (plasma_A[j])
             {
