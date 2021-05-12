@@ -521,7 +521,7 @@ void footprints(int snum)
 					default: fprint = spawn(actor, TILE_FOOTPRINTS4); break;
 					}
 					fprint->s->pal = p->footprintpal;
-					fprint->s->shade = p->footprintshade;
+					fprint->s->shade = (int8_t)p->footprintshade;
 				}
 			}
 		}

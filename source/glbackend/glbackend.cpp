@@ -84,8 +84,8 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
 	assert (BufferLock > 0);
 	applyMapFog();
-	renderState.vindex = start;
-	renderState.vcount = count;
+	renderState.vindex = (int)start;
+	renderState.vcount = (int)count;
 	renderState.primtype = type;
 	rendercommands.Push(renderState);
 	clearMapFog();

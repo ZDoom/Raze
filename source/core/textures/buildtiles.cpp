@@ -274,7 +274,7 @@ void BuildTiles::MakeCanvas(int tilenum, int width, int height)
 {
 	auto canvas = ValidateCustomTile(tilenum, ReplacementType::Canvas);
 	canvas->SetSize(width*4, height*4);
-	canvas->SetDisplaySize(width, height);
+	canvas->SetDisplaySize((float)width, (float)height);
 	canvas->GetTexture()->SetSize(width * 4, height * 4);
 	static_cast<FCanvasTexture*>(canvas->GetTexture())->aspectRatio = (float)width / height;
 }
@@ -291,7 +291,7 @@ void BuildTiles::MakeCanvas(int tilenum, int width, int height)
 
 int BuildTiles::LoadArtFile(const char *fn, const char *mapname, int firsttile)
 {
-	auto old = FindFile(fn);
+	unsigned old = FindFile(fn);
 	if (old >= ArtFiles.Size())	// Do not process if already loaded.
 	{
 		FileReader fr = fileSystem.OpenFileReader(fn);

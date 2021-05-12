@@ -192,8 +192,8 @@ void FNotifyBuffer::Draw()
 	double nfscale = (generic_ui? 0.7 : NotifyFontScale);
 	double scale = 1 / ( * con_notifyscale);
 
-	int line = Top + font->GetDisplacement() / nfscale;
-	int lineadv = font->GetHeight () / nfscale;
+	double line = Top + font->GetDisplacement() / nfscale;
+	double lineadv = font->GetHeight () / nfscale;
 
 	for (unsigned i = 0; i < Text.Size(); ++ i)
 	{

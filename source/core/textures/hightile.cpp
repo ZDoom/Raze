@@ -440,7 +440,7 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 				flags |= (((pick.tintFlags & TINTF_BLENDMASK) >> 6) + 1) & TextureManipulation::BlendMask;
 			}
 		}
-		addcol.W = flags;
+		addcol.W = (float)flags;
 		if ((pick.translation & 0x80000000) && hw_shadeinterpolate) addcol.W += 16384;	// hijack a free bit in here.
 		state->SetTextureColors(&modcol.X, &addcol.X, &blendcol.X);
 	}

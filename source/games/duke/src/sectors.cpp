@@ -1090,10 +1090,10 @@ void operateactivators(int low, int plnum)
 		{
 			p[5] = !p[5];
 
-			sector[p[0]].floorshade = sector[p[0]].ceilingshade = p[3];
+			sector[p[0]].floorshade = sector[p[0]].ceilingshade = (int8_t)p[3];
 			wal = &wall[sector[p[0]].wallptr];
 			for (j = sector[p[0]].wallnum; j > 0; j--, wal++)
-				wal->shade = p[3];
+				wal->shade = (int8_t)p[3];
 		}
 	}
 
@@ -1267,8 +1267,8 @@ void moveclouds(double smoothratio)
 		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
-		cloudx += ps[screenpeek].angle.ang.fcos() * 0.5f;
-		cloudy += ps[screenpeek].angle.ang.fsin() * 0.5f;
+		cloudx += (float)ps[screenpeek].angle.ang.fcos() * 0.5f;
+		cloudy += (float)ps[screenpeek].angle.ang.fsin() * 0.5f;
 		for (int i = 0; i < numclouds; i++)
 		{
 			if (!testnewrenderer)

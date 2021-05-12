@@ -4461,7 +4461,7 @@ void handle_se27(DDukeActor* actor)
 		{
 			if (cansee(s->x, s->y, s->z, s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
 			{
-				if (x < (unsigned)sh)
+				if (x < sh)
 				{
 					ud.cameraactor = actor;
 					t[0] = 999;
