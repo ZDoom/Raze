@@ -115,7 +115,7 @@ void GLInstance::DoDraw()
 				}
 				else
 				{
-					FHWModelRenderer mr(*screen->RenderState(), 0);
+					FHWModelRenderer mr(*screen->RenderState(), -1);
 					state.SetDepthFunc(DF_LEqual);
 					state.EnableTexture(true);
 					rs.model->BuildVertexBuffer(&mr);
