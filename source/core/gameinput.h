@@ -28,7 +28,7 @@ struct PlayerHorizon
 	void addadjustment(double value)
 	{
 		__addadjustment(buildfhoriz(value));
-		}
+	}
 
 	void addadjustment(fixedhoriz value)
 	{
@@ -46,14 +46,14 @@ struct PlayerHorizon
 	}
 
 	void settarget(fixedhoriz value, bool backup = false)
-		{
+	{
 		__settarget(value, backup);
-		}
+	}
 
 	bool targetset()
-		{
+	{
 		return target.asq16();
-		}
+	}
 
 	void processhelpers(double const scaleAdjust)
 	{
@@ -69,7 +69,7 @@ struct PlayerHorizon
 			{
 				horiz = target;
 				target = q16horiz(0);
-		}
+			}
 		}
 		else if (adjustment)
 		{
@@ -161,12 +161,12 @@ struct PlayerAngle
 	void addadjustment(double value)
 	{
 		__addadjustment(buildfang(value));
-		}
+	}
 
 	void addadjustment(binangle value)
 	{
 		__addadjustment(value);
-		}
+	}
 
 	void resetadjustment()
 	{
@@ -176,17 +176,17 @@ struct PlayerAngle
 	void settarget(double value, bool backup = false)
 	{
 		__settarget(buildfang(value), backup);
-		}
+	}
 
 	void settarget(binangle value, bool backup = false)
 	{
 		__settarget(value, backup);
-		}
+	}
 
 	bool targetset()
-		{
+	{
 		return target.asbam();
-		}
+	}
 
 	void processhelpers(double const scaleAdjust)
 	{
@@ -202,7 +202,7 @@ struct PlayerAngle
 			{
 				ang = target;
 				target = bamang(0);
-		}
+			}
 		}
 		else if (adjustment)
 		{
