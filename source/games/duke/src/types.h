@@ -172,7 +172,7 @@ struct player_struct
 	uint16_t frags[MAXPLAYERS];
 
 	// using a bit field for this to save a bit of space.
-	FixedBitArray<MAX_WEAPONS> gotweapon;
+	FixedBitArray<MAX_WEAPON> gotweapon; // MAX_WEAPONS is for Redneck Rampage
 
 	// Palette management uses indices into the engine's palette table now.
 	PalEntry pals;
