@@ -185,7 +185,7 @@ SetActorRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int 
         return 0;
 
     // Get the offset into the State animation
-    StateOffset = State - StateStart;
+    StateOffset = short(State - StateStart);
 
     // Get the rotation angle
     Rotation = GetRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
@@ -338,8 +338,8 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     xrepeat = min(xrepeat, short(255));
     yrepeat = min(yrepeat, short(255));
 
-    New->xrepeat = xrepeat;
-    New->yrepeat = yrepeat;
+    New->xrepeat = uint8_t(xrepeat);
+    New->yrepeat = uint8_t(yrepeat);
 
     if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
@@ -435,8 +435,8 @@ DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const 
         New->z += dz;
         dz += nz;
 
-        New->xrepeat = xrepeat;
-        New->yrepeat = yrepeat;
+        New->xrepeat = uint8_t(xrepeat);
+        New->yrepeat = uint8_t(yrepeat);
 
         xrepeat -= repeat_adj;
         yrepeat -= repeat_adj;
@@ -566,8 +566,8 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
 
     ang = NORM_ANGLE(ang + 12);
 
-    smr4 = smoothratio + IntToFixed(MoveSkip4);
-    smr2 = smoothratio + IntToFixed(MoveSkip2);
+    smr4 = int(smoothratio) + IntToFixed(MoveSkip4);
+    smr2 = int(smoothratio) + IntToFixed(MoveSkip2);
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
@@ -768,10 +768,11 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             else // Otherwise just interpolate the player sprite
             {
                 PLAYERp pp = tu->PlayerP;
-                tsp->x -= MulScale(pp->posx - pp->oposx, 65536-smoothratio, 16);
-                tsp->y -= MulScale(pp->posy - pp->oposy, 65536-smoothratio, 16);
-                tsp->z -= MulScale(pp->posz - pp->oposz, 65536-smoothratio, 16);
-                tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), 65536-smoothratio, 16);
+                int sr = 65536 - int(smoothratio);
+                tsp->x -= MulScale(pp->posx - pp->oposx, sr, 16);
+                tsp->y -= MulScale(pp->posy - pp->oposy, sr, 16);
+                tsp->z -= MulScale(pp->posz - pp->oposz, sr, 16);
+                tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
         }
 
@@ -794,7 +795,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             newshade = tsp->shade;
             newshade += 6;
             if (newshade > 127) newshade = 127;
-            tsp->shade = newshade;
+            tsp->shade = int8_t(newshade);
         }
 
         if (TEST(sector[tsp->sectnum].ceilingstat, CEILING_STAT_PLAX))
@@ -803,7 +804,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             newshade += sector[tsp->sectnum].ceilingshade;
             if (newshade > 127) newshade = 127;
             if (newshade < -128) newshade = -128;
-            tsp->shade = newshade;
+            tsp->shade = int8_t(newshade);
         }
         else
         {
@@ -811,7 +812,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             newshade += sector[tsp->sectnum].floorshade;
             if (newshade > 127) newshade = 127;
             if (newshade < -128) newshade = -128;
-            tsp->shade = newshade;
+            tsp->shade = int8_t(newshade);
         }
 
         if (tsp->hitag == 9998)
@@ -1474,13 +1475,14 @@ drawscreen(PLAYERp pp, double smoothratio)
     PreDraw();
 
     PreUpdatePanel(smoothratio);
-    pm_smoothratio = (int)smoothratio;
+    int sr = (int)smoothratio;
+    pm_smoothratio = sr;
 
     if (!ScreenSavePic)
     {
         DoInterpolations(smoothratio / 65536.);                      // Stick at beginning of drawscreen
         if (cl_sointerpolation)
-            so_dointerpolations(smoothratio);                           // Stick at beginning of drawscreen
+            so_dointerpolations(sr);                           // Stick at beginning of drawscreen
     }
 
     // TENSW: when rendering with prediction, the only thing that counts should
@@ -1490,9 +1492,9 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
         camerapp = pp;
 
-    tx = interpolatedvalue(camerapp->oposx, camerapp->posx, smoothratio);
-    ty = interpolatedvalue(camerapp->oposy, camerapp->posy, smoothratio);
-    tz = interpolatedvalue(camerapp->oposz, camerapp->posz, smoothratio);
+    tx = interpolatedvalue(camerapp->oposx, camerapp->posx, sr);
+    ty = interpolatedvalue(camerapp->oposy, camerapp->posy, sr);
+    tz = interpolatedvalue(camerapp->oposz, camerapp->posz, sr);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
@@ -1597,7 +1599,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (!testnewrenderer)
     {
-        renderSetRollAngle(trotscrnang.asbuildf());
+        renderSetRollAngle((float)trotscrnang.asbuildf());
         polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, tsectnum);
     }
     else

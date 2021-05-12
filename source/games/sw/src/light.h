@@ -38,8 +38,8 @@ void DoLighting(void);
 #define LIGHT_Match(sp)         (SP_TAG2((sp)))
 #define LIGHT_Type(sp)          (SP_TAG3((sp)))
 #define LIGHT_MaxTics(sp)       (SP_TAG4((sp)))
-#define LIGHT_MaxBright(sp)     (SP_TAG5((sp)))
-#define LIGHT_MaxDark(sp)       (SP_TAG6((sp)))
+inline int8_t LIGHT_MaxBright(spritetype* sp) { return int8_t(SP_TAG5(sp)); }
+inline int8_t LIGHT_MaxDark(spritetype* sp) { return int8_t(SP_TAG6(sp)); }
 #define LIGHT_ShadeInc(sp)      (SP_TAG7((sp)))
 
 #define LIGHT_Dir(sp)           (!!(TEST((sp)->extra, SPRX_BOOL10)))

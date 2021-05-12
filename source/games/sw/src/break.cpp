@@ -823,7 +823,7 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short ty
     //if (hit_x == INT32_MAX)
     {
         short sectnum;
-        WallBreakPosition(wp - wall, &sectnum, &hit_x, &hit_y, &hit_z, &ang);
+        WallBreakPosition(short(wp - wall), &sectnum, &hit_x, &hit_y, &hit_z, &ang);
     }
 
     AutoBreakWall(wp, hit_x, hit_y, hit_z, ang, type);
