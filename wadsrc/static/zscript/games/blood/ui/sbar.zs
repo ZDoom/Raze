@@ -27,6 +27,8 @@ class BloodStatusBar : RazeStatusBar
 	static const String gPackIcons[] = { "PackIcon1", "PackIcon2", "PackIcon3", "PackIcon4", "PackIcon5" };
 
 	HUDFont smallf, tinyf;
+	int team_score[2], team_ticker[2]; // placeholders for MP display
+	bool gBlueFlagDropped, gRedFlagDropped; // also placeholders until we know where MP will go.
 
 	void Init()
 	{
@@ -296,19 +298,15 @@ class BloodStatusBar : RazeStatusBar
 		DrawStatNumber("%3d", pPlayer.packSlots[pPlayer.packItemId].curAmount, "SBarNumberInv", x2, y2, 0, 0, nScale);
 	}
 
-/*
-	MP is non-functional, implementation details may change, 
-	so keep the code disabled for now to avoid breaking it by forcing it to compile
-
 	//---------------------------------------------------------------------------
 	//
 	// 
 	//
 	//---------------------------------------------------------------------------
 
-	void drawPlayerSlots()
+	void drawPlayerSlots(Array<BloodPlayer> players)
 	{
-		for (int nRows = (gNetPlayers - 1) / 4; nRows >= 0; nRows--)
+		for (int nRows = (players.Size() - 1) / 4; nRows >= 0; nRows--)
 		{
 			for (int nCol = 0; nCol < 4; nCol++)
 			{
@@ -324,21 +322,18 @@ class BloodStatusBar : RazeStatusBar
 	//---------------------------------------------------------------------------
 
 
-	void drawPlayerFrags()
+	void drawPlayerFrags(Array<BloodPlayer> players)
 	{
-		String gTempStr;
-		drawPlayerSlots();
-		for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
+		drawPlayerSlots(players);
+		for (int i = 0; i < players.Size(); i++)
 		{
 			int x = -160 + 80 * (i & 3);
 			int y = 9 * (i / 4);
-			int col = gPlayer[p].teamId & 3;
-			String name = PlayerName(p);
-			gTempStr.Format("%s", name);
-			int color = CR_UNDEFINED;// todo: remap the colors. (11+col)
-			DrawString(tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
-			gTempStr.Format("%2d", gPlayer[p].fragCount);
-			DrawString(tinyf, gTempStr, x + 76, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
+			int col = players[i].teamId & 3;
+			int cr = col == 0? Font.CR_UNDEFINED : col == 1? Font.CR_BLUE : Font.CR_RED;
+			DrawString(tinyf, Raze.PlayerName(i), (x + 4, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
+			String gTempStr = String.Format("%2d", players[i].fragCount);
+			DrawString(tinyf, gTempStr, (x + 76, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
 		}
 	}
 
@@ -348,31 +343,28 @@ class BloodStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
-	void drawPlayerFlags()
+	void drawPlayerFlags(Array<BloodPlayer> players)
 	{
-		FString gTempStr;
-		drawPlayerSlots();
-		for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
+		String gTempStr;
+		drawPlayerSlots(players);
+		for (int i = 0; i < players.Size(); i++)
 		{
 			int x = -160 + 80 * (i & 3);
 			int y = 9 * (i / 4);
-			int col = gPlayer[p].teamId & 3;
-			String name = PlayerName(p);
-			gTempStr.Format("%s", name);
-			gTempStr.ToUpper();
-			int color = CR_UNDEFINED;// todo: remap the colors.
-			DrawString(tinyf, gTempStr, x + 4, y, DI_SCREEN_CENTER_TOP, color, 1., -1, -1, 1, 1);
+			int col = players[i].teamId & 3;
+			gTempStr = String.Format("%s", Raze.PlayerName(i));
+			int cr = col == 0? Font.CR_UNDEFINED : col == 1? Font.CR_BLUE : Font.CR_RED;
+			DrawString(tinyf, gTempStr.MakeUpper(), (x + 4, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
 
-			gTempStr = "F";
 			x += 76;
-			if (gPlayer[p].hasFlag & 2)
+			if (players[i].hasFlag & 2)
 			{
-				DrawString(tinyf, gTempStr, x, y, DI_SCREEN_CENTER_TOP, CR_GREEN/ *12* /, 1., -1, -1, 1, 1);
+				DrawString(tinyf, "F", (x, y), DI_SCREEN_CENTER_TOP, Font.CR_BLUE/*12*/, 1., -1, -1);
 				x -= 6;
 			}
 
-			if (gPlayer[p].hasFlag & 1)
-				DrawString(tinyf, gTempStr, x, y, DI_SCREEN_CENTER_TOP, CR_RED/ *11* /, 1., -1, -1, 1, 1);
+			if (players[i].hasFlag & 1)
+				DrawString(tinyf, "F", (x, y), DI_SCREEN_CENTER_TOP, Font.CR_RED/*11*/, 1., -1, -1);
 		}
 	}
 
@@ -383,22 +375,22 @@ class BloodStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
-	void drawCtfHudVanilla()
+	void drawCtfHudVanilla(Array<BloodPlayer> players)
 	{
-		FString gTempStr;
+		String gTempStr;
 		int x = 1, y = 1;
 		if (team_ticker[0] == 0 || (PlayClock & 8))
 		{
-			DrawString(smallf, GStrings("TXT_COLOR_BLUE"), x, y, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
-			gTempStr.Format("%-3d", team_score[0]);
-			DrawString(smallf, gTempStr, x, y + 10, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
+			DrawString(smallf, "$TXT_COLOR_BLUE", (x, y), 0, Font.CR_LIGHTBLUE, 1., -1, -1);
+			gTempStr = String.Format("%-3d", team_score[0]);
+			DrawString(smallf, gTempStr, (x, y + 10), 0, Font.CR_LIGHTBLUE, 1., -1, -1);
 		}
 		x = -2;
 		if (team_ticker[1] == 0 || (PlayClock & 8))
 		{
-			DrawString(smallf, GStrings("TXT_COLOR_RED"), x, y, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
-			gTempStr.Format("%3d", team_score[1]);
-			DrawString(smallf, gTempStr, x, y + 10, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
+			DrawString(smallf, "$TXT_COLOR_RED", (x, y), DI_TEXT_ALIGN_RIGHT, Font.CR_BRICK, 1., -1, -1);
+			gTempStr = String.Format("%3d", team_score[1]);
+			DrawString(smallf, gTempStr, (x, y + 10), DI_TEXT_ALIGN_RIGHT, Font.CR_BRICK, 1., -1, -1);
 		}
 	}
 
@@ -423,7 +415,7 @@ class BloodStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
-	void drawCtfHud()
+	void drawCtfHud(BloodPlayer pPlayer, Array<BloodPlayer> players)
 	{
 		if (hud_size == Hud_Nothing)
 		{
@@ -436,34 +428,36 @@ class BloodStatusBar : RazeStatusBar
 		bool redFlagTaken = false;
 		int blueFlagCarrierColor = 0;
 		int redFlagCarrierColor = 0;
-		for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
+		for (int i = 0; i < players.Size(); i++)
 		{
-			if ((gPlayer[p].hasFlag & 1) != 0)
+			if ((players[i].hasFlag & 1) != 0)
 			{
 				blueFlagTaken = true;
-				blueFlagCarrierColor = gPlayer[p].teamId & 3;
+				blueFlagCarrierColor = players[i].teamId & 3;
 			}
-			if ((gPlayer[p].hasFlag & 2) != 0)
+			if ((players[i].hasFlag & 2) != 0)
 			{
 				redFlagTaken = true;
-				redFlagCarrierColor = gPlayer[p].teamId & 3;
+				redFlagCarrierColor = players[i].teamId & 3;
 			}
 		}
 
-		bool meHaveBlueFlag = gMe.hasFlag & 1;
-		DrawStatMaskedSprite(meHaveBlueFlag ? "FlagHave" : "FlagHaveNot", 0, 75 - 100, 0, palette:10, scale:0.35, flags:DI_SCREEN_RIGHT_CENTER);
+		bool meHaveBlueFlag = pPlayer.hasFlag & 1;
+		int trans10 = Translation.MakeID(Translation_Remap, 10);
+		int trans2 = Translation.MakeID(Translation_Remap, 2);
+		DrawImage(meHaveBlueFlag ? "FlagHave" : "FlagHaveNot", (0, 75 - 100), DI_SCREEN_RIGHT_CENTER|DI_ITEM_RELCENTER, scale:(0.35, 0.35), translation:trans10);
 		if (gBlueFlagDropped)
-			DrawStatMaskedSprite("FlagDropped", 305 - 320, 83 - 100, 0, 10, 1, DI_SCREEN_RIGHT_CENTER);
+			DrawImage("FlagDropped", (305 - 320, 83 - 100), DI_SCREEN_RIGHT_CENTER|DI_ITEM_RELCENTER, translation:trans10);
 		else if (blueFlagTaken)
-			DrawStatMaskedSprite("FlagTaken", 307 - 320, 77 - 100, 0, blueFlagCarrierColor ? 2 : 10, 65536, DI_SCREEN_RIGHT_CENTER);
+			DrawImage("FlagTaken", (307 - 320, 77 - 100), DI_SCREEN_RIGHT_CENTER|DI_ITEM_RELCENTER, translation:blueFlagCarrierColor ? trans2 : trans10);
 		flashTeamScore(0, true);
 
-		bool meHaveRedFlag = gMe.hasFlag & 2;
-		DrawStatMaskedSprite(meHaveRedFlag ? "FlagHave" : "FlagHaveNot", 0, 10, 0, 2, 65536 * 0.35, DI_SCREEN_RIGHT_CENTER);
+		bool meHaveRedFlag = pPlayer.hasFlag & 2;
+		DrawImage(meHaveRedFlag ? "FlagHave" : "FlagHaveNot", (0, 10), DI_SCREEN_RIGHT_CENTER|DI_ITEM_RELCENTER, scale:(0.35, 0.35), translation:trans2);
 		if (gRedFlagDropped)
-			DrawStatMaskedSprite("FlagDropped", 305 - 320, 17, 0, 2, 65536, DI_SCREEN_RIGHT_CENTER);
+			DrawImage("FlagDropped", (305 - 320, 17), DI_SCREEN_RIGHT_CENTER|DI_ITEM_RELCENTER, translation:trans2);
 		else if (redFlagTaken)
-			DrawStatMaskedSprite("FlagTaken", 307 - 320, 11, 0, redFlagCarrierColor ? 2 : 10, 65536, DI_SCREEN_RIGHT_CENTER);
+			DrawImage("FlagTaken", (307 - 320, 11), DI_SCREEN_RIGHT_CENTER|DI_ITEM_RELCENTER, translation:redFlagCarrierColor ? trans2 : trans10);
 		flashTeamScore(1, true);
 	}
 
@@ -473,29 +467,30 @@ class BloodStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
-	void drawMultiHUD()
+	void drawMultiHUD(BloodPlayer pPlayer, int nGameType)
 	{
 		if (nGameType >= 1)
 		{
+			Array<BloodPlayer> players;
+			Blood.GetPlayers(players);
 			if (nGameType == 3)
 			{
-				if (VanillaMode())
+				if (hud_ctf_Vanilla)
 				{
-					drawCtfHudVanilla();
+					drawCtfHudVanilla(players);
 				}
 				else
 				{
-					drawCtfHud();
-					drawPlayerFlags();
+					drawCtfHud(pPlayer, players);
+					drawPlayerFlags(players);
 				}
 			}
 			else
 			{
-				drawPlayerFrags();
+				drawPlayerFrags(players);
 			}
 		}
 	}
-*/
 
 	//---------------------------------------------------------------------------
 	//
@@ -724,7 +719,7 @@ class BloodStatusBar : RazeStatusBar
 		let pPlayer = Blood.GetViewPlayer();
 		int y = 0;
 
-		/*
+		int nGameType = Blood.getGameType();
 		if (nGameType == 3)
 		{
 			if (pPlayer.teamId & 1)
@@ -732,9 +727,8 @@ class BloodStatusBar : RazeStatusBar
 			else
 				nPalette = 10;
 
-			palette = Translation.MakeID(Translation_Remap, nPalette);
+			nPalette = Translation.MakeID(Translation_Remap, nPalette);
 		}
-		*/
 
 		if (hud_size == Hud_full)
 		{
@@ -762,9 +756,7 @@ class BloodStatusBar : RazeStatusBar
 		BeginHUD(1, false, 320, 200);
 		drawPowerUps(pPlayer);
 
-		/*
-		drawMultiHUD();
-		*/
+		drawMultiHUD(pPlayer, nGameType);
 	}
 }
 

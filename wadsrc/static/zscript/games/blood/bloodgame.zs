@@ -29,6 +29,18 @@ struct Blood native
 	native static void sndStartSampleNamed(String sname, int volume, int channel);
 	native static TextureID PowerupIcon(int pwup);
 	native static BloodPlayer GetViewPlayer();
+	
+	// These are just dummies to make the MP statusbar code compile.
+	
+	static void GetPlayers(Array<BloodPlayer> players)
+	{
+		players.Clear();
+		players.Push(GetViewPlayer());
+	}
+	static int getGameType()
+	{
+		return 0;
+	}
 }
 
 struct PACKINFO // not native!
@@ -93,6 +105,7 @@ struct BloodPlayer native
 	native int        pwUpTime[51];	// kMaxPowerUps
 	native int        fragCount;
 	native int        fragInfo[8];
+	native int        teamId;
 	native int        underwaterTime;
 	native int        bubbleTime;
 	native int        restTime;
