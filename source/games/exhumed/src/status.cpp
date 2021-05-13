@@ -211,16 +211,6 @@ void RefreshStatus()
 
     int val = 37;
 
-    for (int i = 0; i < 4; i++)
-    {
-        if (nKeys & 0x1000) {
-            BuildStatusAnim(val, 0);
-        }
-
-        nKeys >>= 1;
-        val += 2;
-    }
-
     SetPlayerItem(nLocalPlayer, nPlayerItem[nLocalPlayer]);
     SetHealthFrame(0);
     SetMagicFrame();
@@ -525,6 +515,12 @@ class DExhumedStatusBar : public DBaseStatusBar
     HAS_OBJECT_POINTERS
 
     TObjPtr<DHUDFont*> textfont, numberFont;
+    int keyanims[4];
+
+    enum EConst
+    {
+        KeySeq = 36,
+    };
 
 public:
     DExhumedStatusBar()
@@ -636,7 +632,7 @@ private:
         for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
         {
             int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
-            DrawStatusSequence(nSequence, StatusAnim[i].s2, StatusAnim[i].s1 >= 37 && StatusAnim[i].s1 <= 43 ? 0.5 : 0, 0.5);
+            DrawStatusSequence(nSequence, StatusAnim[i].s2, 0, 0);
         }
     }
 
@@ -874,6 +870,14 @@ private:
             return;
         }
 
+        for (int i = 0; i < 4; i++)
+        {
+            if (PlayerList[nLocalPlayer].keys & (4096 << i))
+            {
+                DrawStatusSequence(nStatusSeqOffset + KeySeq + 2 * i, keyanims[i], 0.5, 0.5);
+            }
+        }
+
         if (/*!bFullScreen &&*/ nNetTime)
         {
             DrawStatusSequence(nStatusSeqOffset + 127, 0, 0);
@@ -956,15 +960,35 @@ private:
     }
 
 
+    void Tick() override
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            int seq = nStatusSeqOffset + KeySeq + 2 * i;
+            if (PlayerList[nLocalPlayer].keys & (4096 << i))
+            {
+                if (keyanims[i] < SeqSize[seq] - 1)
+                {
+                    seq_MoveSequence(-1, seq, 0);   // this plays the pickup sound.
+                    keyanims[i]++;
+                }
+            }
+            else
+            {
+                keyanims[i] = 0;
+            }
+        }
+    }
 
 
 public:
     void UpdateStatusBar()
     {
+        Tick(); // temporary.
         if (hud_size <= Hud_full)
         {
             DrawStatus();
-       }
+        }
         PrintLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_full? 22 : 40);
     }
 };

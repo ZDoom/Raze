@@ -41,6 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+extern short nStatusSeqOffset;
+
 struct PlayerSave
 {
     int x;
@@ -1429,11 +1431,11 @@ sectdone:
                     int var_44 = 0;
 
                     // item lotags start at 6 (1-5 reserved?) so 0-offset them
-                    int var_6C = var_70 - 6;
+                    int itemtype = var_70 - 6;
 
-                    if (var_6C <= 54)
+                    if (itemtype <= 54)
                     {
-                        switch (var_6C)
+                        switch (itemtype)
                         {
 do_default:
                             default:
@@ -2276,98 +2278,18 @@ do_default_b:
                                 break;
                             }
 
-                            // Lots of repeated code for door key handling
                             case 39: // Power key
-                            {
-                                int ecx = 4096;
-
-                                var_88 = -1;
-
-                                if (PlayerList[nPlayer].keys != ecx)
-                                {
-                                    if (nPlayer == nLocalPlayer) {
-                                        BuildStatusAnim(36, 0);
-                                    }
-
-                                    PlayerList[nPlayer].keys |= ecx;
-
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        goto do_default_b;
-                                    }
-                                    else
-                                    {
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
                             case 40: // Time key
-                            {
-                                int ecx = 4096 << 1;
-
-                                var_88 = -1;
-
-                                if (PlayerList[nPlayer].keys != ecx)
-                                {
-                                    if (nPlayer == nLocalPlayer) {
-                                        BuildStatusAnim(36 + 2, 0);
-                                    }
-
-                                    PlayerList[nPlayer].keys |= ecx;
-
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        goto do_default_b;
-                                    }
-                                    else
-                                    {
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
                             case 41: // War key
-                            {
-                                int ecx = 4096 << 2;
-
-                                var_88 = -1;
-
-                                if (PlayerList[nPlayer].keys != ecx)
-                                {
-                                    if (nPlayer == nLocalPlayer) {
-                                        BuildStatusAnim(36 + 4, 0);
-                                    }
-
-                                    PlayerList[nPlayer].keys |= ecx;
-
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        goto do_default_b;
-                                    }
-                                    else
-                                    {
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
                             case 42: // Earth key
                             {
-                                int ecx = 4096 << 3;
+                                int keybit = 4096 << (itemtype - 39);
 
                                 var_88 = -1;
 
-                                if (PlayerList[nPlayer].keys != ecx)
+                                if (!(PlayerList[nPlayer].keys & keybit))
                                 {
-                                    if (nPlayer == nLocalPlayer) {
-                                        BuildStatusAnim(36 + 6, 0);
-                                    }
-
-                                    PlayerList[nPlayer].keys |= ecx;
+                                    PlayerList[nPlayer].keys |= keybit;
 
                                     if (nTotalPlayers > 1)
                                     {
