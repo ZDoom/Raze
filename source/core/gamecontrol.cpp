@@ -829,10 +829,10 @@ void CreateStatusBar()
 	StatusBar->SetSize(0, 320, 200);
 	InitStatusBar();
 	// this is for comparing the scriptification with the C++ versions
-	//stbarclass = PClass::FindClass("NativeBloodStatusBar");
-	//StatusBar2 = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
-	//StatusBar2->SetSize(0, 320, 200);
-	//StatusBar2->Release();
+	stbarclass = PClass::FindClass("NativeExhumedStatusBar");
+	StatusBar2 = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
+	StatusBar2->SetSize(0, 320, 200);
+	StatusBar2->Release();
 
 }
 

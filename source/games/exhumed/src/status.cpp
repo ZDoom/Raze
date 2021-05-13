@@ -47,9 +47,77 @@ void InitStatus()
     nStatusSeqOffset = SeqOffsets[kSeqStatus];
 }
 
-class DExhumedStatusBar : public DBaseStatusBar
+
+//---------------------------------------------------------------------------
+//
+// This is to hide the dirt from the script code.
+// These sequence arrays later need to be refactored 
+// if this is ever supposed to become a useful feature, 
+// so hide the dirty internals behind a handful of functions.
+//
+//---------------------------------------------------------------------------
+
+struct ChunkFrame
 {
-    DECLARE_CLASS(DExhumedStatusBar, DBaseStatusBar)
+    FTextureID tex;
+    int x, y;
+    int flags;
+
+    void GetChunkFrame(int nFrameBase)
+    {
+        x = ChunkXpos[nFrameBase];
+        y = ChunkYpos[nFrameBase];
+        auto ttex = tileGetTexture(nFrameBase);
+        if (ttex) tex = ttex->GetID();
+        else tex.SetInvalid();
+        flags = ChunkFlag[nFrameBase];
+    }
+};
+
+DEFINE_ACTION_FUNCTION(_ChunkFrame, GetChunkFrame)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(ChunkFrame);
+    PARAM_INT(index);
+    self->GetChunkFrame(index);
+    return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Exhumed, GetStatusSequence)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(nSequence);
+    PARAM_INT(frameindex);
+
+    frameindex += SeqBase[nStatusSeqOffset + nSequence];
+    if (numret > 0) ret[0].SetInt(FrameBase[frameindex]);
+    if (numret > 1) ret[1].SetInt(FrameSize[frameindex]);
+    return min(numret, 2);
+}
+
+DEFINE_ACTION_FUNCTION(_Exhumed, MoveStatusSequence)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(s1);
+    PARAM_INT(s2);
+    seq_MoveSequence(-1, nStatusSeqOffset + s1, s2);
+    ACTION_RETURN_INT(SeqSize[nStatusSeqOffset + s1]);
+}
+
+int SizeOfStatusSequence(int s1)
+{
+    return SeqSize[nStatusSeqOffset + s1];
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Exhumed, SizeOfStatusSequence, SizeOfStatusSequence)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(s1);
+    ACTION_RETURN_INT(SeqSize[nStatusSeqOffset + s1]);
+}
+
+class DNativeExhumedStatusBar : public DBaseStatusBar
+{
+    DECLARE_CLASS(DNativeExhumedStatusBar, DBaseStatusBar)
     HAS_OBJECT_POINTERS
 
     TObjPtr<DHUDFont*> textfont, numberFont;
@@ -81,7 +149,7 @@ class DExhumedStatusBar : public DBaseStatusBar
     };
 
 public:
-    DExhumedStatusBar()
+    DNativeExhumedStatusBar()
     {
         textfont = Create<DHUDFont>(SmallFont, 1, Off, 1, 1);
         numberFont = Create<DHUDFont>(BigFont, 0, Off, 1, 1);
@@ -505,12 +573,6 @@ private:
         }
 
         DrawMulti();
-
-        if (nSnakeCam >= 0)
-        {
-            BeginHUD(320, 200, 1);
-            SBar_DrawString(this, textfont, "S E R P E N T   C A M", 0, 0, DI_TEXT_ALIGN_CENTER | DI_SCREEN_CENTER_TOP, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
-        }
     }
 
     //---------------------------------------------------------------------------
@@ -898,8 +960,8 @@ public:
     }
 };
 
-IMPLEMENT_CLASS(DExhumedStatusBar, false, true)
-IMPLEMENT_POINTERS_START(DExhumedStatusBar)
+IMPLEMENT_CLASS(DNativeExhumedStatusBar, false, true)
+IMPLEMENT_POINTERS_START(DNativeExhumedStatusBar)
 IMPLEMENT_POINTER(textfont)
 IMPLEMENT_POINTER(numberFont)
 IMPLEMENT_POINTERS_END
@@ -928,7 +990,7 @@ void StatusMessage(int messageTime, const char* fmt, ...)
     va_end(ap);
 }
 
-
+CVAR(Bool, sb_native, false, 0)
 void DrawStatusBar()
 {
     if (nFreeze == 2) return; // Hide when Ramses is talking.
@@ -936,7 +998,21 @@ void DrawStatusBar()
     {
         UpdateFrame();
     }
-    StatusBar->UpdateStatusBar();
+    SummaryInfo info{};
+    info.kills = nCreaturesKilled;
+    info.maxkills = nCreaturesTotal;
+    // got no secrets in the game
+    info.time = Scale(PlayClock, 1000, 120);
+    if (!sb_native) UpdateStatusBar(&info);
+    else StatusBar2->UpdateStatusBar();
+
+    if (nSnakeCam >= 0)
+    {
+        const char* text = "S E R P E N T   C A M";
+        int width = SmallFont->StringWidth(text);
+        DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - width / 2, 1, text, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+    }
+
 }
 
 END_PS_NS

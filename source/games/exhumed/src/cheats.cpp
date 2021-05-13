@@ -203,17 +203,17 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	if (buttons & kButtonCheatGuns) // LOBOCOP cheat
 	{
 		FillWeapons(player);
-		if (player == myconnectindex) StatusMessage(150, GStrings("TXT_EX_WEAPONS"));
+		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_WEAPONS"));
 	}
 	if (buttons & kButtonCheatKeys) // LOBOPICK cheat
 	{
 		PlayerList[player].keys = 0xFFFF;
-		if (player == myconnectindex) StatusMessage(150, GStrings("TXT_EX_KEYS"));
+		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_KEYS"));
 	}
 	if (buttons & kButtonCheatItems) // LOBOSWAG cheat
 	{
 		FillItems(player);
-		if (player == myconnectindex) StatusMessage(150, GStrings("TXT_EX_ITEMS"));
+		if (player == myconnectindex) Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_ITEMS"));
 	}
 
 }

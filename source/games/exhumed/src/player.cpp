@@ -2760,4 +2760,54 @@ void SerializePlayer(FSerializer& arc)
     }
 }
 
+
+DEFINE_FIELD_X(ExhumedPlayer, Player, nHealth);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nLives);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nDouble);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nInvisible);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nTorch);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_2);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nAction);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nSprite);
+DEFINE_FIELD_X(ExhumedPlayer, Player, bIsMummified);
+DEFINE_FIELD_X(ExhumedPlayer, Player, invincibility);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nAir);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nSeq);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nMaskAmount);
+DEFINE_FIELD_X(ExhumedPlayer, Player,  keys);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nMagic);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nItem);
+DEFINE_FIELD_X(ExhumedPlayer, Player, items);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons?
+DEFINE_FIELD_X(ExhumedPlayer, Player, pad);
+
+DEFINE_FIELD_X(ExhumedPlayer, Player, nCurrentWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_3FOUR);
+DEFINE_FIELD_X(ExhumedPlayer, Player, bIsFiring);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_38);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_3A);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_3C);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nRun);
+DEFINE_FIELD_X(ExhumedPlayer, Player, bPlayerPan);
+DEFINE_FIELD_X(ExhumedPlayer, Player, bLockPan);
+
+DEFINE_ACTION_FUNCTION(_Exhumed, GetViewPlayer)
+{
+    ACTION_RETURN_POINTER(&PlayerList[nLocalPlayer]);
+}
+
+DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(Player);
+    auto nLocalPlayer = self - PlayerList;
+    ACTION_RETURN_BOOL(SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater);
+}
+
+DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(Player);
+    ACTION_RETURN_INT(sprite[self->nSprite].ang);
+}
+
+
 END_PS_NS

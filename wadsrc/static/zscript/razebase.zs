@@ -134,6 +134,8 @@ struct SummaryInfo native
 
 struct Raze
 {
+	const kAngleMask	= 0x7FF;
+
 	static int calcSinTableValue(int ang)
 	{
 		return int(16384 * sin((360./2048) * ang));
@@ -254,7 +256,7 @@ class DukeStatusBar : DukeCommonStatusBar native
 class RedneckStatusBar : DukeCommonStatusBar native
 {}
 
-class ExhumedStatusBar : BaseStatusBar native
+class NativeExhumedStatusBar : BaseStatusBar native
 {}
 
 class SWStatusBar : BaseStatusBar native
