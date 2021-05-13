@@ -181,8 +181,8 @@ void FillItems(short nPlayer)
 
 static bool UseEye(short nPlayer)
 {
-    if (nPlayerInvisible[nPlayer] >= 0) 
-        nPlayerInvisible[nPlayer] = 900;
+    if (PlayerList[nPlayer].nInvisible >= 0) 
+        PlayerList[nPlayer].nInvisible = 900;
 
     int nSprite = PlayerList[nPlayer].nSprite;
 
@@ -214,12 +214,12 @@ static bool UseMask(short nPlayer)
 
 bool UseTorch(short nPlayer)
 {
-    if (!nPlayerTorch[nPlayer]) 
+    if (!PlayerList[nPlayer].nTorch) 
     {
         SetTorch(nPlayer, 1);
     }
 
-    nPlayerTorch[nPlayer] = 900;
+    PlayerList[nPlayer].nTorch = 900;
     return true;
 }
 
@@ -255,7 +255,7 @@ bool UseScarab(short nPlayer)
 // faster firing
 static bool UseHand(short nPlayer)
 {
-    nPlayerDouble[nPlayer] = 1350;
+    PlayerList[nPlayer].nDouble = 1350;
 
     if (nPlayer == nLocalPlayer)
     {

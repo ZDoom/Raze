@@ -101,11 +101,8 @@ short nPlayerOldWeapon[kMaxPlayers];
 short nPlayerClip[kMaxPlayers];
 short nPlayerPushSound[kMaxPlayers];
 short nTauntTimer[kMaxPlayers];
-short nPlayerTorch[kMaxPlayers];
 uint16_t nPlayerWeapons[kMaxPlayers]; // each set bit represents a weapon the player has
 Player PlayerList[kMaxPlayers];
-short nPlayerInvisible[kMaxPlayers];
-short nPlayerDouble[kMaxPlayers];
 short nPlayerViewSect[kMaxPlayers];
 short nPlayerFloorSprite[kMaxPlayers];
 PlayerSave sPlayerSave[kMaxPlayers];
@@ -389,19 +386,19 @@ void RestartPlayer(short nPlayer)
 		plr->invincibility = 0;
 	}
 
-	nPlayerTorch[nPlayer] = 0;
+	PlayerList[nPlayer].nTorch = 0;
 	plr->nMaskAmount = 0;
 
 	SetTorch(nPlayer, 0);
 
-	nPlayerInvisible[nPlayer] = 0;
+	PlayerList[nPlayer].nInvisible = 0;
 
 	plr->bIsFiring = 0;
 	plr->field_3FOUR = 0;
 	nPlayerViewSect[nPlayer] = sPlayerSave[nPlayer].nSector;
 	plr->field_3A = 0;
 
-	nPlayerDouble[nPlayer] = 0;
+	PlayerList[nPlayer].nDouble = 0;
 
 	plr->nSeq = kSeqJoe;
 
@@ -526,7 +523,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = q16horiz(0);
     oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
-    nPlayerInvisible[nPlayer] = 0;
+    PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
 
     sprite[nSprite].cstat &= 0x7FFF;
@@ -822,10 +819,10 @@ void FuncPlayer(int a, int nDamage, int nRun)
             sprite[nPlayerSprite].picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
             sprite[nDopple].picnum = sprite[nPlayerSprite].picnum;
 
-            if (nPlayerTorch[nPlayer] > 0)
+            if (PlayerList[nPlayer].nTorch > 0)
             {
-                nPlayerTorch[nPlayer]--;
-                if (nPlayerTorch[nPlayer] == 0)
+                PlayerList[nPlayer].nTorch--;
+                if (PlayerList[nPlayer].nTorch == 0)
                 {
                     SetTorch(nPlayer, 0);
                 }
@@ -842,18 +839,18 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 }
             }
 
-            if (nPlayerDouble[nPlayer] > 0)
+            if (PlayerList[nPlayer].nDouble > 0)
             {
-                nPlayerDouble[nPlayer]--;
-                if (nPlayerDouble[nPlayer] == 150 && nPlayer == nLocalPlayer) {
+                PlayerList[nPlayer].nDouble--;
+                if (PlayerList[nPlayer].nDouble == 150 && nPlayer == nLocalPlayer) {
                     PlayAlert("WEAPON POWER IS ABOUT TO EXPIRE");
                 }
             }
 
-            if (nPlayerInvisible[nPlayer] > 0)
+            if (PlayerList[nPlayer].nInvisible > 0)
             {
-                nPlayerInvisible[nPlayer]--;
-                if (nPlayerInvisible[nPlayer] == 0)
+                PlayerList[nPlayer].nInvisible--;
+                if (PlayerList[nPlayer].nInvisible == 0)
                 {
                     sprite[nPlayerSprite].cstat &= 0x7FFF; // set visible
                     short nFloorSprite = nPlayerFloorSprite[nPlayerSprite];
@@ -862,7 +859,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         sprite[nFloorSprite].cstat &= 0x7FFF; // set visible
                     }
                 }
-                else if (nPlayerInvisible[nPlayer] == 150 && nPlayer == nLocalPlayer)
+                else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
                 {
                     PlayAlert("INVISIBILITY IS ABOUT TO EXPIRE");
                 }
@@ -1285,9 +1282,9 @@ sectdone:
                 // loc_1B0B9
                 if (var_5C) // if underwater
                 {
-                    if (nPlayerTorch[nPlayer] > 0)
+                    if (PlayerList[nPlayer].nTorch > 0)
                     {
-                        nPlayerTorch[nPlayer] = 0;
+                        PlayerList[nPlayer].nTorch = 0;
                         SetTorch(nPlayer, 0);
                     }
                 }
@@ -2698,6 +2695,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("horizon", w.horizon)
             ("angle", w.angle)
             ("lives", w.nLives)
+            ("double", w.nDouble)
+            ("invisible", w.nInvisible)
+            ("torch", w.nTorch)
             .EndObject();
     }
     return arc;
@@ -2746,11 +2746,8 @@ void SerializePlayer(FSerializer& arc)
             .Array("clip", nPlayerClip, PlayerCount)
             .Array("pushsound", nPlayerPushSound, PlayerCount)
             .Array("taunttimer", nTauntTimer, PlayerCount)
-            .Array("torch", nPlayerTorch, PlayerCount)
             .Array("weapons", nPlayerWeapons, PlayerCount)
             .Array("list", PlayerList, PlayerCount)
-            .Array("invisible", nPlayerInvisible, PlayerCount)
-            .Array("double", nPlayerDouble, PlayerCount)
             .Array("viewsect", nPlayerViewSect, PlayerCount)
             .Array("floorspr", nPlayerFloorSprite, PlayerCount)
             .Array("save", sPlayerSave, PlayerCount)

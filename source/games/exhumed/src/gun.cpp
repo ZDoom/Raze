@@ -356,7 +356,7 @@ void MoveWeapons(short nPlayer)
 
     short var_3C = WeaponInfo[nWeapon].b[eax] + SeqOffsets[nSeq];
 
-    int var_1C = (nPlayerDouble[nPlayer] > 0) + 1;
+    int var_1C = (PlayerList[nPlayer].nDouble > 0) + 1;
 
     frames = var_1C - 1;
 
@@ -729,7 +729,7 @@ loc_flag:
                     {
                         short nDamage = BulletInfo[kWeaponSword].nDamage;
 
-                        if (nPlayerDouble[nPlayer]) {
+                        if (PlayerList[nPlayer].nDouble) {
                             nDamage *= 2;
                         }
 
@@ -848,7 +848,7 @@ loc_flag:
                 case kWeaponMummified:
                 {
                     short nDamage = BulletInfo[kWeaponMummified].nDamage;
-                    if (nPlayerDouble[nPlayer]) {
+                    if (PlayerList[nPlayer].nDouble) {
                         nDamage *= 2;
                     }
 
@@ -911,7 +911,7 @@ void DrawWeapons(double smooth)
 
     int8_t nShade = sector[initsect].ceilingshade;
 
-    int nDouble = nPlayerDouble[nLocalPlayer];
+    int nDouble = PlayerList[nLocalPlayer].nDouble;
     int nPal = kPalNormal;
 
     if (nDouble)

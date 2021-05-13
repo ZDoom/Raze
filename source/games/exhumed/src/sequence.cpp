@@ -421,7 +421,7 @@ int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, in
             nShade = -100;
 
         double alpha = 1;
-        if (nPlayerInvisible[nLocalPlayer]) {
+        if (PlayerList[nLocalPlayer].nInvisible) {
             alpha = 0.3;
         }
 

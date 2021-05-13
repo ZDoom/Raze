@@ -51,6 +51,9 @@ struct Player
 {
     short nHealth;
     short nLives;
+    short nDouble;
+    short nInvisible;
+    short nTorch;
     short field_2;
     short nAction;
     short nSprite;
@@ -82,12 +85,8 @@ struct Player
 
 extern short PlayerCount;
 
-extern short nPlayerTorch[];
-
 extern short nPlayerLives[];
 extern Player PlayerList[];
-extern short nPlayerInvisible[];
-extern short nPlayerDouble[];
 extern short nPlayerViewSect[];
 extern short nPlayerFloorSprite[];
 

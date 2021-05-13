@@ -47,25 +47,6 @@ void InitStatus()
     nStatusSeqOffset = SeqOffsets[kSeqStatus];
 }
 
-int ItemTimer(int num, int plr) 
-{
-    switch (num) {
-    case 1: //Scarab item
-        return (PlayerList[plr].invincibility * 100) / 900;
-    case 3: //Hand item
-        return (nPlayerDouble[plr] * 100) / 1350;
-    case 5: //Mask
-        return (PlayerList[plr].nMaskAmount * 100) / 1350;
-    case 4: //Invisible
-        return (nPlayerInvisible[plr] * 100) / 900;
-    case 2: //Torch
-        return (nPlayerTorch[plr] * 100) / 900;
-    }
-
-    return -1;
-}
-
-
 class DExhumedStatusBar : public DBaseStatusBar
 {
     DECLARE_CLASS(DExhumedStatusBar, DBaseStatusBar)
@@ -283,6 +264,24 @@ private:
     // Fullscreen HUD variant #1
     //
     //==========================================================================
+
+    int ItemTimer(int num, int plr)
+    {
+        switch (num) {
+        case 1: //Scarab item
+            return (PlayerList[plr].invincibility * 100) / 900;
+        case 3: //Hand item
+            return (PlayerList[plr].nDouble * 100) / 1350;
+        case 5: //Mask
+            return (PlayerList[plr].nMaskAmount * 100) / 1350;
+        case 4: //Invisible
+            return (PlayerList[plr].nInvisible * 100) / 900;
+        case 2: //Torch
+            return (PlayerList[plr].nTorch * 100) / 900;
+        }
+
+        return -1;
+    }
 
     void DrawHUD2()
     {

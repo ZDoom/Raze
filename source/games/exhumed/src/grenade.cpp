@@ -259,7 +259,7 @@ void ExplodeGrenade(short nGrenade)
 
     short nDamage = BulletInfo[kWeaponGrenade].nDamage;
 
-    if (nPlayerDouble[nPlayer] > 0) {
+    if (PlayerList[nPlayer].nDouble > 0) {
         nDamage *= 2;
     }
 
