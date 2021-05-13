@@ -3462,7 +3462,11 @@ DoPlayerClimb(PLAYERp pp)
 
     DoPlayerZrange(pp);
 
-    ASSERT(pp->LadderSector >= 0 && pp->LadderSector <= MAXSECTORS);
+    if (pp->LadderSector < 0 || pp->LadderSector > MAXSECTORS) 
+	{
+		Printf("Bad ladder sector!\n");
+		return;
+	}
 
     // moving UP
     if (climbvel > 0)
@@ -3573,8 +3577,6 @@ DoPlayerClimb(PLAYERp pp)
 
         if (wal >= 0)
         {
-            pp->LadderSector = wall[wal].nextsector;
-
             lsp = FindNearSprite(pp->SpriteP, STAT_CLIMB_MARKER);
 
             // determine where the player is supposed to be in relation to the ladder
@@ -3583,7 +3585,7 @@ DoPlayerClimb(PLAYERp pp)
             ny = MOVEy(100, lsp->ang);
 
             // set ladder sector
-            pp->LadderSector = wall[wal].nextsector;
+            pp->LadderSector = wall[wal].nextsector >= 0? wall[wal].nextsector : wall[wal].sector;
 
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
@@ -3994,7 +3996,7 @@ PlayerOnLadder(PLAYERp pp)
     }
 #endif
 
-    pp->LadderSector = wall[wal].nextsector;
+    pp->LadderSector = wall[wal].nextsector >= 0 ? wall[wal].nextsector : wall[wal].sector;
     //DSPRINTF(ds, "Ladder Sector %d", pp->LadderSector);
     MONO_PRINT(ds);
 
