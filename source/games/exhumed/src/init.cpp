@@ -185,7 +185,6 @@ void InitLevel(MapRecord* map)
     }
     EndLevel = 0;
     lastfps = 0;
-    InitStatus();
     ResetView();
     ResetEngine();
     totalmoves = 0;
@@ -194,8 +193,6 @@ void InitLevel(MapRecord* map)
     lPlayerXVel = 0;
     lPlayerYVel = 0;
     movefifopos = movefifoend;
-
-    RefreshStatus();
 
     if (!mus_redbook && map->music.IsNotEmpty()) Mus_Play(map->music, true);    // Allow non-CD music if defined for the current level
     playCDtrack(map->cdSongId, true);

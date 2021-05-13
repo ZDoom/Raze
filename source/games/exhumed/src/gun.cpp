@@ -227,21 +227,6 @@ void FireWeapon(short nPlayer)
 
 void SetWeaponStatus(short nPlayer)
 {
-    if (nPlayer != nLocalPlayer)
-        return;
-
-    short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
-
-    if (nWeapon < 0)
-    {
-        nCounterBullet = -1;
-        SetCounterImmediate(0);
-    }
-    else
-    {
-        nCounterBullet = WeaponInfo[nWeapon].nAmmoType;
-        SetCounterImmediate(PlayerList[nPlayer].nAmmo[nCounterBullet]);
-    }
 }
 
 uint8_t WeaponCanFire(short nPlayer)

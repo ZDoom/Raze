@@ -209,7 +209,6 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	{
 		PlayerList[player].keys = 0xFFFF;
 		if (player == myconnectindex) StatusMessage(150, GStrings("TXT_EX_KEYS"));
-		RefreshStatus();
 	}
 	if (buttons & kButtonCheatItems) // LOBOSWAG cheat
 	{

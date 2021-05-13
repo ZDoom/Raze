@@ -482,10 +482,6 @@ static void SetTileNames()
 
 void GameInterface::app_init()
 {
-    int i;
-    //int esi = 1;
-    //int edi = esi;
-
 #if 0
     help_disabled = true;
 #endif
@@ -510,9 +506,6 @@ void GameInterface::app_init()
     seq_LoadSequences();
     InitStatus();
     
-    for (i = 0; i < kMaxPlayers; i++) {
-        nPlayerLives[i] = kDefaultLives;
-    }
     resettiming();
     GrabPalette();
 

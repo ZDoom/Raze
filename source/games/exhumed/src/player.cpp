@@ -103,7 +103,6 @@ short nPlayerPushSound[kMaxPlayers];
 short nTauntTimer[kMaxPlayers];
 short nPlayerTorch[kMaxPlayers];
 uint16_t nPlayerWeapons[kMaxPlayers]; // each set bit represents a weapon the player has
-short nPlayerLives[kMaxPlayers];
 Player PlayerList[kMaxPlayers];
 short nPlayerInvisible[kMaxPlayers];
 short nPlayerDouble[kMaxPlayers];
@@ -225,7 +224,7 @@ void InitPlayerInventory(short nPlayer)
 
     ResetPlayerWeapons(nPlayer);
 
-    nPlayerLives[nPlayer] = kDefaultLives;
+    PlayerList[nPlayer].nLives = kDefaultLives;
 
     PlayerList[nPlayer].nSprite = -1;
     PlayerList[nPlayer].nRun = -1;
@@ -560,19 +559,15 @@ void StartDeathSeq(int nPlayer, int nVal)
     if (nTotalPlayers == 1)
     {
         if (!(currentLevel->gameflags & LEVEL_EX_TRAINING)) { // if not on the training level
-            nPlayerLives[nPlayer]--;
+            PlayerList[nPlayer].nLives--;
         }
 
-        if (nPlayerLives[nPlayer] < 0) {
-            nPlayerLives[nPlayer] = 0;
+        if (PlayerList[nPlayer].nLives < 0) {
+            PlayerList[nPlayer].nLives = 0;
         }
     }
 
     ototalvel[nPlayer] = totalvel[nPlayer] = 0;
-
-    if (nPlayer == nLocalPlayer) {
-        RefreshStatus();
-    }
 }
 
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
@@ -593,13 +588,6 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
     }
 
     PlayerList[nPlayer].nAmmo[nWeapon] = nAmmoAmount;
-
-    if (nPlayer == nLocalPlayer)
-    {
-        if (nWeapon == nCounterBullet) {
-            SetCounter(nAmmoAmount);
-        }
-    }
 
     if (nWeapon == 1)
     {
@@ -1812,11 +1800,11 @@ do_default_b:
                             {
                                 var_88 = -1;
 
-                                if (nPlayerLives[nPlayer] >= kMaxPlayerLives) {
+                                if (PlayerList[nPlayer].nLives >= kMaxPlayerLives) {
                                     break;
                                 }
 
-                                nPlayerLives[nPlayer]++;
+                                PlayerList[nPlayer].nLives++;
 
                                 var_8C = 32;
                                 var_44 = 32;
@@ -2533,7 +2521,7 @@ loc_1BD2E:
 
                         PlayerList[nPlayer].nCurrentWeapon = nPlayerOldWeapon[nPlayer];
 
-                        if (nPlayerLives[nPlayer] && nNetTime)
+                        if (PlayerList[nPlayer].nLives && nNetTime)
                         {
                             if (nAction != 20)
                             {
@@ -2709,6 +2697,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("seq", w.nSeq)
             ("horizon", w.horizon)
             ("angle", w.angle)
+            ("lives", w.nLives)
             .EndObject();
     }
     return arc;
@@ -2759,7 +2748,6 @@ void SerializePlayer(FSerializer& arc)
             .Array("taunttimer", nTauntTimer, PlayerCount)
             .Array("torch", nPlayerTorch, PlayerCount)
             .Array("weapons", nPlayerWeapons, PlayerCount)
-            .Array("lives", nPlayerLives, PlayerCount)
             .Array("list", PlayerList, PlayerCount)
             .Array("invisible", nPlayerInvisible, PlayerCount)
             .Array("double", nPlayerDouble, PlayerCount)
@@ -2771,14 +2759,6 @@ void SerializePlayer(FSerializer& arc)
             .Array("netstartsprite", nNetStartSprite, PlayerCount)
             .Array("grenade", nPlayerGrenade, PlayerCount)
             .Array("d282a", word_D282A, PlayerCount);
-
-            if (SaveVersion < 13) // Item was an external array in older versions.
-            {
-                int nPlayerItem[8]{};
-                arc.Array("item", nPlayerItem, PlayerCount);
-                for (int i = 0; i < PlayerCount; i++) PlayerList[i].nItem = nPlayerItem[i];
-            }
-
             arc.EndObject();
     }
 }

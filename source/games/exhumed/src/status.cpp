@@ -488,7 +488,7 @@ private:
                 DrawStatusSequence(nStatusSeqOffset + 156 + 2* count, 0, 0);
             }
 
-            short nLives = nPlayerLives[nLocalPlayer];
+            short nLives = PlayerList[nLocalPlayer].nLives;
             DrawStatusSequence(nStatusSeqOffset + 145 + (2 * nLives), 0, 0);
 
             if (nHurt > 0) DrawStatusSequence(nStatusSeqOffset + 4, nHurt - 1, 0);

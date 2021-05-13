@@ -50,6 +50,7 @@ extern int lPlayerYVel;
 struct Player
 {
     short nHealth;
+    short nLives;
     short field_2;
     short nAction;
     short nSprite;

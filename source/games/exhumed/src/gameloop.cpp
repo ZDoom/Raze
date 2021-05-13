@@ -168,7 +168,7 @@ void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
     {
         if (to_map->levelNumber > nBestLevel) nBestLevel = to_map->levelNumber - 1;
 
-        if (to_map->gameflags & LEVEL_EX_COUNTDOWN) nPlayerLives[0] = 0;
+        if (to_map->gameflags & LEVEL_EX_COUNTDOWN) PlayerList[0].nLives = 0;
         if (to_map->gameflags & LEVEL_EX_TRAINING)
         {
             gameaction = ga_nextlevel;
