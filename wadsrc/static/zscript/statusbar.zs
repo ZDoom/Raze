@@ -18,12 +18,12 @@ struct StatsPrintInfo
 
 class RazeStatusBar : StatusBarCore
 {
-	void Init()
+	virtual void Init()
 	{
-		SetSize(0, 320, 200);
 	}
 	
 	virtual void Tick() {}
+	virtual void Reset() {}
 	virtual void UpdateStatusBar(SummaryInfo info) {}
 
 	void drawStatText(Font statFont, int x, int y, String text, double scale)

@@ -147,5 +147,8 @@ void SerializeHud(FSerializer &arc);
 extern int levelTextTime;
 struct SummaryInfo;
 void UpdateStatusBar(SummaryInfo* info);
+void TickStatusBar();
+void ResetStatusBar();
+void InitStatusBar();
 
 #endif /* __SBAR_H__ */

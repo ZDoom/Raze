@@ -150,6 +150,7 @@ void NewGame(MapRecord* map, int skill, bool ns = false)
 	newGameStarted = true;
 	ShowIntermission(nullptr, map, nullptr, [=](bool) { 
 		gi->NewGame(map, skill, ns); 
+		ResetStatusBar();
 		});
 }
 
@@ -199,6 +200,7 @@ static void GameTicker()
 				gi->FreeLevelData();
 				gameaction = ga_level;
 				gi->NextLevel(g_nextmap, g_nextskill);
+				ResetStatusBar();
 			}
 			else
 			{
@@ -211,6 +213,7 @@ static void GameTicker()
 			gi->FreeLevelData();
 			gameaction = ga_level;
 			gi->NextLevel(g_nextmap, g_nextskill);
+			ResetStatusBar();
 			break;
 
 		case ga_newgame:
@@ -360,6 +363,7 @@ static void GameTicker()
 		gameupdatetime.Reset();
 		gameupdatetime.Clock();
 		gi->Ticker();
+		TickStatusBar();
 		levelTextTime--;
 		gameupdatetime.Unclock();
 		break;

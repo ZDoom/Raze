@@ -827,6 +827,7 @@ void CreateStatusBar()
 	}
 	StatusBar = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
 	StatusBar->SetSize(0, 320, 200);
+	InitStatusBar();
 	// this is for comparing the scriptification with the C++ versions
 	//stbarclass = PClass::FindClass("NativeBloodStatusBar");
 	//StatusBar2 = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());

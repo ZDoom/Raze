@@ -387,3 +387,31 @@ void UpdateStatusBar(SummaryInfo* info)
 		VMCall(func, params, 2, nullptr, 0);
 	}
 }
+
+void TickStatusBar()
+{
+	IFVIRTUALPTRNAME(StatusBar, NAME_RazeStatusBar, Tick)
+	{
+		VMValue params[] = { StatusBar };
+		VMCall(func, params, 1, nullptr, 0);
+	}
+}
+
+void ResetStatusBar()
+{
+	IFVIRTUALPTRNAME(StatusBar, NAME_RazeStatusBar, Reset)
+	{
+		VMValue params[] = { StatusBar };
+		VMCall(func, params, 1, nullptr, 0);
+	}
+}
+
+void InitStatusBar()
+{
+	IFVIRTUALPTRNAME(StatusBar, NAME_RazeStatusBar, Init)
+	{
+		VMValue params[] = { StatusBar };
+		VMCall(func, params, 1, nullptr, 0);
+	}
+}
+

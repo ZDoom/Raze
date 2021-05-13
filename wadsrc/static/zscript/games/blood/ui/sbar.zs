@@ -30,7 +30,7 @@ class BloodStatusBar : RazeStatusBar
 	int team_score[2], team_ticker[2]; // placeholders for MP display
 	bool gBlueFlagDropped, gRedFlagDropped; // also placeholders until we know where MP will go.
 
-	void Init()
+	override void Init()
 	{
 		smallf = HUDFont.Create(SmallFont, 0, Mono_Off, 0, 0);
 		tinyf = HUDFont.Create(Font.FindFont("DIGIFONT"), 4, Mono_CellRight, 0, 0);

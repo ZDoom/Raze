@@ -1086,12 +1086,12 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
     ud.multimode = 1;
 
     donewgame(map, skill);
-            enterlevel(map, 0);
+    enterlevel(map, 0);
     if (isShareware() && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
 
-            PlayerColorChanged();
-            inputState.ClearAllInput();
-            gameaction = ga_level;
+    PlayerColorChanged();
+    inputState.ClearAllInput();
+    gameaction = ga_level;
 }
 
 //---------------------------------------------------------------------------
