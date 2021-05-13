@@ -586,14 +586,14 @@ DEFINE_MAP_OPTION(ex_ramses_pup, false)
 {
 	parse.ParseAssign();
 	parse.sc.MustGetString();
-	info->ex_ramses_pup = parse.sc.Number;
+	info->ex_ramses_pup = parse.sc.String;
 }
 
 DEFINE_MAP_OPTION(ex_ramses_text, false)
 {
 	parse.ParseAssign();
 	parse.sc.MustGetString();
-	info->ex_ramses_text = parse.sc.Number;
+	info->ex_ramses_text = parse.sc.String;
 }
 
 int ex_ramses_horiz = 11;
@@ -925,7 +925,7 @@ MapRecord *FMapInfoParser::ParseMapHeader(MapRecord &defaultinfo)
 		if (map != &sink && map->name.IsEmpty()) sc.ScriptError("Missing level name");
 		sc.UnGet();
 	}
-	if (!map->levelNumber) map->levelNumber = GetDefaultLevelNum(map->labelName);
+	if (map->levelNumber <= 0) map->levelNumber = GetDefaultLevelNum(map->labelName);
 	return map;
 }
 
