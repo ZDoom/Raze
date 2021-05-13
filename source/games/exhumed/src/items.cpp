@@ -175,7 +175,7 @@ void FillItems(short nPlayer)
         SetMagicFrame();
     }
 
-    if (nPlayerItem[nPlayer] == -1) {
+    if (PlayerList[nPlayer].nItem == -1) {
         SetPlayerItem(nPlayer, 0);
     }
 }
@@ -336,7 +336,7 @@ int GrabItem(short nPlayer, short nItem)
 
     PlayerList[nPlayer].items[nItem]++;
 
-    if (nPlayerItem[nPlayer] < 0 || nItem == nPlayerItem[nPlayer]) {
+    if (PlayerList[nPlayer].nItem < 0 || nItem == PlayerList[nPlayer].nItem) {
         SetPlayerItem(nPlayer, nItem);
     }
 

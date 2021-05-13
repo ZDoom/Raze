@@ -77,7 +77,7 @@ const char *GetVersionString();
 #define SAVEVER_DN3D 10
 #define SAVEVER_BLD 11
 #define SAVEVER_SW 12
-#define SAVEVER_PS 12
+#define SAVEVER_PS 13
 
 #define NETGAMEVERSION 1
 

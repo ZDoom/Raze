@@ -104,7 +104,6 @@ short nTauntTimer[kMaxPlayers];
 short nPlayerTorch[kMaxPlayers];
 uint16_t nPlayerWeapons[kMaxPlayers]; // each set bit represents a weapon the player has
 short nPlayerLives[kMaxPlayers];
-short nPlayerItem[kMaxPlayers];
 Player PlayerList[kMaxPlayers];
 short nPlayerInvisible[kMaxPlayers];
 short nPlayerDouble[kMaxPlayers];
@@ -221,7 +220,7 @@ void InitPlayerInventory(short nPlayer)
 {
     memset(&PlayerList[nPlayer], 0, sizeof(Player));
 
-    nPlayerItem[nPlayer] = -1;
+    PlayerList[nPlayer].nItem = -1;
     nPlayerSwear[nPlayer] = 4;
 
     ResetPlayerWeapons(nPlayer);
@@ -2744,6 +2743,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("invincible", w.invincibility)
             ("air", w.nAir)
             ("seq", w.nSeq)
+            ("item", w.nItem)
             ("maskamount", w.nMaskAmount)
             ("keys", w.keys)
             ("magic", w.nMagic)
@@ -2809,7 +2809,6 @@ void SerializePlayer(FSerializer& arc)
             .Array("torch", nPlayerTorch, PlayerCount)
             .Array("weapons", nPlayerWeapons, PlayerCount)
             .Array("lives", nPlayerLives, PlayerCount)
-            .Array("item", nPlayerItem, PlayerCount)
             .Array("list", PlayerList, PlayerCount)
             .Array("invisible", nPlayerInvisible, PlayerCount)
             .Array("double", nPlayerDouble, PlayerCount)
@@ -2820,8 +2819,16 @@ void SerializePlayer(FSerializer& arc)
             .Array("eyelevel", eyelevel, PlayerCount)
             .Array("netstartsprite", nNetStartSprite, PlayerCount)
             .Array("grenade", nPlayerGrenade, PlayerCount)
-            .Array("d282a", word_D282A, PlayerCount)
-            .EndObject();
+            .Array("d282a", word_D282A, PlayerCount);
+
+            if (SaveVersion < 13) // Item was an external array in older versions.
+            {
+                int nPlayerItem[8]{};
+                arc.Array("item", nPlayerItem, PlayerCount);
+                for (int i = 0; i < PlayerCount; i++) PlayerList[i].nItem = nPlayerItem[i];
+            }
+
+            arc.EndObject();
     }
 }
 

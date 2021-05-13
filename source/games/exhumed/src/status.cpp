@@ -205,7 +205,7 @@ void RefreshStatus()
 
     int val = 37;
 
-    SetPlayerItem(nLocalPlayer, nPlayerItem[nLocalPlayer]);
+    SetPlayerItem(nLocalPlayer, PlayerList[nLocalPlayer].nItem);
     SetHealthFrame(0);
     SetMagicFrame();
 }
@@ -320,7 +320,7 @@ void SetCounterDigits()
 
 void SetItemSeq()
 {
-    short nItem = nPlayerItem[nLocalPlayer];
+    short nItem = PlayerList[nLocalPlayer].nItem;
     if (nItem < 0)
     {
         nItemSeq = -1;
@@ -334,7 +334,7 @@ void SetItemSeq()
 
 void SetItemSeq2(int nSeqOffset)
 {
-    short nItem = nPlayerItem[nLocalPlayer];
+    short nItem = PlayerList[nLocalPlayer].nItem;
 
     if (nItemMagic[nItem] <= PlayerList[nLocalPlayer].nMagic) {
         nItemAltSeq = 0;
@@ -350,7 +350,7 @@ void SetItemSeq2(int nSeqOffset)
 
 void SetPlayerItem(short nPlayer, short nItem)
 {
-    nPlayerItem[nPlayer] = nItem;
+    PlayerList[nLocalPlayer].nItem = nItem;
 
     if (nPlayer == nLocalPlayer)
     {
@@ -741,7 +741,7 @@ private:
 
             format.Format("%d", pp->nMagic / 10);
 
-            short nItem = nPlayerItem[nLocalPlayer];
+            short nItem = PlayerList[nLocalPlayer].nItem;
             int timer = ItemTimer(nItem, nLocalPlayer);
             if (timer > 0)
             {

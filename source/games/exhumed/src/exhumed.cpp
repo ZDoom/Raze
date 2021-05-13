@@ -334,7 +334,7 @@ void GameInterface::Ticker()
 
         if (localInput.actions & SB_INVPREV)
         {
-            int nItem = nPlayerItem[nLocalPlayer];
+            int nItem = PlayerList[nLocalPlayer].nItem;
 
             int i;
             for (i = 6; i > 0; i--)
@@ -351,7 +351,7 @@ void GameInterface::Ticker()
 
         if (localInput.actions & SB_INVNEXT)
         {
-            int nItem = nPlayerItem[nLocalPlayer];
+            int nItem = PlayerList[nLocalPlayer].nItem;
 
             int i;
             for (i = 6; i > 0; i--)
@@ -368,9 +368,9 @@ void GameInterface::Ticker()
 
         if (localInput.actions & SB_INVUSE)
         {
-            if (nPlayerItem[nLocalPlayer] != -1)
+            if (PlayerList[nLocalPlayer].nItem != -1)
             {
-                localInput.setItemUsed(nPlayerItem[nLocalPlayer]);
+                localInput.setItemUsed(PlayerList[nLocalPlayer].nItem);
             }
         }
 

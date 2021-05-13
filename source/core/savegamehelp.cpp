@@ -70,6 +70,7 @@ void WriteSavePic(FileWriter* file, int width, int height);
 bool WriteZip(const char* filename, TArray<FString>& filenames, TArray<FCompressedBuffer>& content);
 extern FString savename;
 extern FString BackupSaveGame;
+int SaveVersion;
 
 void SerializeMap(FSerializer &arc);
 FixedBitArray<MAXSPRITES> activeSprites;
@@ -346,6 +347,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 		// not our business. Leave it alone.
 		return 0;
 	}
+	SaveVersion = savesig.currentsavever;
 
 	MapRecord *curLevel = FindMapByName(label);
 

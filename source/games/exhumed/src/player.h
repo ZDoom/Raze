@@ -60,6 +60,7 @@ struct Player
     short nMaskAmount;
     uint16_t keys;
     short nMagic;
+    short nItem;
     char items[8];
     short nAmmo[7]; // TODO - kMaxWeapons?
     short pad[2];
@@ -83,7 +84,6 @@ extern short PlayerCount;
 extern short nPlayerTorch[];
 
 extern short nPlayerLives[];
-extern short nPlayerItem[];
 extern Player PlayerList[];
 extern short nPlayerInvisible[];
 extern short nPlayerDouble[];

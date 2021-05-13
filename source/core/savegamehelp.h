@@ -7,6 +7,7 @@ extern FixedBitArray<MAXSPRITES> activeSprites;
 
 // Savegame utilities
 class FileReader;
+extern int SaveVersion;
 
 FString G_BuildSaveName (const char *prefix);
 int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
