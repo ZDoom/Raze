@@ -104,12 +104,6 @@ void FillWeapons(short nPlayer)
     }
 
     CheckClip(nPlayer);
-
-    if (nPlayer == nLocalPlayer)
-    {
-        short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
-        SetCounter(PlayerList[nPlayer].nAmmo[nWeapon]);
-    }
 }
 
 void ResetPlayerWeapons(short nPlayer)
@@ -172,20 +166,6 @@ void SetNewWeapon(short nPlayer, short nWeapon)
     }
 
     PlayerList[nPlayer].field_38 = nWeapon;
-
-    if (nPlayer == nLocalPlayer)
-    {
-        int nCounter;
-
-        if (nWeapon >= kWeaponSword && nWeapon <= kWeaponRing) {
-            nCounter = PlayerList[nPlayer].nAmmo[nWeapon];
-        }
-        else {
-            nCounter = 0;
-        }
-
-        SetCounterImmediate(nCounter);
-    }
 }
 
 void SetNewWeaponImmediate(short nPlayer, short nWeapon)

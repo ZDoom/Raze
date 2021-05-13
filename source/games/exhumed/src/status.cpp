@@ -40,105 +40,11 @@ BEGIN_PS_NS
 
 
 // All this must be moved into the status bar once it is made persistent!
-const int kMaxStatusAnims = 50;
-
 short nStatusSeqOffset;
-short nHealthFrames;
-short nMagicFrames;
-
-short nHealthLevel;
-short nMagicLevel;
-short nHealthFrame;
-short nMagicFrame;
-
-short nMaskY;
-
-int magicperline;
-int healthperline;
-int nCounter;
-int nCounterDest;
-
-short nItemFrames;
-
-int16_t nItemSeq;
-short nDigit[3];
-
-short nItemFrame;
-short nMeterRange;
-
-int16_t nFirstAnim;
-int16_t nLastAnim;
-short nItemAltSeq;
-
-short airpages = 0;
-
-short ammodelay = 3;
-
-short nCounterBullet = -1;
-
-
-// 8 bytes
-struct statusAnim
-{
-    int16_t s1;
-    int16_t s2;
-//    int16_t nPage;
-    int8_t nPrevAnim;
-    int8_t nNextAnim;
-    uint8_t StatusAnimFlags;
-};
-
-FreeListArray<statusAnim, kMaxStatusAnims> StatusAnim;
-
-short nItemSeqOffset[] = {91, 72, 76, 79, 68, 87, 83};
-
-void SetCounterDigits();
-void SetItemSeq();
-void SetItemSeq2(int nSeqOffset);
-void DestroyStatusAnim(short nAnim);
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, statusAnim& w, statusAnim* def)
-{
-    if (arc.BeginObject(keyname))
-    {
-        arc("s1", w.s1)
-            ("s2", w.s2)
-            ("prev", w.nPrevAnim)
-            ("next", w.nNextAnim)
-            ("flags", w.StatusAnimFlags)
-            .EndObject();
-    }
-    return arc;
-}
-
 
 void InitStatus()
 {
     nStatusSeqOffset = SeqOffsets[kSeqStatus];
-    nHealthFrames = SeqSize[nStatusSeqOffset + 1];
-    int nPicNum = seq_GetSeqPicnum(kSeqStatus, 1, 0);
-    nMagicFrames = SeqSize[nStatusSeqOffset + 129];
-    nHealthFrame = 0;
-    nMagicFrame = 0;
-    nHealthLevel = 0;
-    nMagicLevel = 0;
-    nMeterRange = tileHeight(nPicNum);
-    magicperline = 1000 / nMeterRange;
-    healthperline = 800 / nMeterRange;
-    nCounter = 0;
-    nCounterDest = 0;
-
-    memset(nDigit, 0, sizeof(nDigit));
-
-    SetCounter(0);
-    SetHealthFrame(0);
-    SetMagicFrame();
-
-    StatusAnim.Clear();
-
-    nLastAnim = -1;
-    nFirstAnim = -1;
-    nItemSeq = -1;
 }
 
 int ItemTimer(int num, int plr) 
@@ -159,334 +65,6 @@ int ItemTimer(int num, int plr)
     return -1;
 }
 
-int BuildStatusAnim(int val, int nFlags)
-{
-    // destroy this anim if it already exists
-    for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
-    {
-        if (StatusAnim[i].s1 == val) {
-            DestroyStatusAnim(i);
-            break;
-        }
-    }
-
-    int nStatusAnim = StatusAnim.Get();
-
-    StatusAnim[nStatusAnim].nPrevAnim = -1;
-    StatusAnim[nStatusAnim].nNextAnim = (int8_t)nLastAnim;
-
-    if (nLastAnim < 0) {
-        nFirstAnim = nStatusAnim;
-    }
-    else {
-        StatusAnim[nLastAnim].nPrevAnim = (int8_t)nStatusAnim;
-    }
-
-    nLastAnim = nStatusAnim;
-
-    StatusAnim[nStatusAnim].s1 = val;
-    StatusAnim[nStatusAnim].s2 = 0;
-    StatusAnim[nStatusAnim].StatusAnimFlags = nFlags;
-    return nStatusAnim;
-}
-
-void RefreshStatus()
-{
-    short nLives = nPlayerLives[nLocalPlayer];
-    if (nLives < 0 || nLives > kMaxPlayerLives) {
-        //Error("illegal value for nPlayerLives #%d\n", nLocalPlayer);
-        nLives = 0;
-    }
-
-    // draws the red dots that indicate the lives amount
-    BuildStatusAnim(145 + (2 * nLives), 0);
-
-    uint16_t nKeys = PlayerList[nLocalPlayer].keys;
-
-    int val = 37;
-
-    SetPlayerItem(nLocalPlayer, PlayerList[nLocalPlayer].nItem);
-    SetHealthFrame(0);
-    SetMagicFrame();
-}
-
-void MoveStatusAnims()
-{
-    for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
-    {
-        seq_MoveSequence(-1, nStatusSeqOffset + StatusAnim[i].s1, StatusAnim[i].s2);
-
-        StatusAnim[i].s2++;
-
-        short nSize = SeqSize[nStatusSeqOffset + StatusAnim[i].s1];
-
-        if (StatusAnim[i].s2 >= nSize)
-        {
-            if (StatusAnim[i].StatusAnimFlags & 0x10) {
-                StatusAnim[i].s2 = 0;
-            }
-            else {
-                StatusAnim[i].s2 = nSize - 1; // restart it
-            }
-        }
-    }
-}
-
-void DestroyStatusAnim(short nAnim)
-{
-    int8_t nPrev = StatusAnim[nAnim].nPrevAnim;
-    int8_t nNext = StatusAnim[nAnim].nNextAnim;
-
-    if (nNext >= 0) {
-        StatusAnim[nNext].nPrevAnim = nPrev;
-    }
-
-    if (nPrev >= 0) {
-        StatusAnim[nPrev].nNextAnim = nNext;
-    }
-
-    if (nAnim == nFirstAnim) {
-        nFirstAnim = nPrev;
-    }
-
-    if (nAnim == nLastAnim) {
-        nLastAnim = nNext;
-    }
-
-    StatusAnim.Release(nAnim);
-}
-
-void SetMagicFrame()
-{
-    nMagicLevel = (1000 - PlayerList[nLocalPlayer].nMagic) / magicperline;
-
-    if (nMagicLevel >= nMeterRange) {
-        nMagicLevel = nMeterRange - 1;
-    }
-
-    if (nMagicLevel < 0) {
-        nMagicLevel = 0;
-    }
-
-    SetItemSeq();
-}
-
-void SetHealthFrame(short nVal)
-{
-    nHealthLevel = (800 - PlayerList[nLocalPlayer].nHealth) / healthperline;
-
-    if (nHealthLevel >= nMeterRange ) {
-        nHealthLevel = nMeterRange - 1;
-    }
-
-    if (nHealthLevel < 0) {
-        nHealthLevel = 0;
-    }
-
-    if (nVal < 0) {
-        BuildStatusAnim(4, 0);
-    }
-}
-
-void SetCounter(short nVal)
-{
-    if (nVal <= 999)
-    {
-        if (nVal < 0) {
-            nVal = 0;
-        }
-    }
-    else {
-        nVal = 999;
-    }
-
-    nCounterDest = nVal;
-}
-
-void SetCounterImmediate(short nVal)
-{
-    SetCounter(nVal);
-    nCounter = nCounterDest;
-
-    SetCounterDigits();
-}
-
-void SetCounterDigits()
-{
-    nDigit[2] = 3 * (nCounter / 100 % 10);
-    nDigit[1] = 3 * (nCounter / 10 % 10);
-    nDigit[0] = 3 * (nCounter % 10);
-}
-
-void SetItemSeq()
-{
-    short nItem = PlayerList[nLocalPlayer].nItem;
-    if (nItem < 0)
-    {
-        nItemSeq = -1;
-        return;
-    }
-
-    short nOffset = nItemSeqOffset[nItem];
-
-    SetItemSeq2(nOffset);
-}
-
-void SetItemSeq2(int nSeqOffset)
-{
-    short nItem = PlayerList[nLocalPlayer].nItem;
-
-    if (nItemMagic[nItem] <= PlayerList[nLocalPlayer].nMagic) {
-        nItemAltSeq = 0;
-    }
-    else {
-        nItemAltSeq = 2;
-    }
-
-    nItemFrame = 0;
-    nItemSeq = nSeqOffset + nItemAltSeq;
-    nItemFrames = SeqSize[nItemSeq + nStatusSeqOffset];
-}
-
-void SetPlayerItem(short nPlayer, short nItem)
-{
-    PlayerList[nLocalPlayer].nItem = nItem;
-
-    if (nPlayer == nLocalPlayer)
-    {
-        SetItemSeq();
-        if (nItem >= 0) {
-            BuildStatusAnim(156 + (2 * PlayerList[nLocalPlayer].items[nItem]), 0);
-        }
-    }
-}
-
-void MoveStatus()
-{
-    if (nItemSeq >= 0)
-    {
-        nItemFrame++;
-
-        if (nItemFrame >= nItemFrames)
-        {
-            if (nItemSeq == 67) {
-                SetItemSeq();
-            }
-            else
-            {
-                nItemSeq -= nItemAltSeq;
-
-                if (nItemAltSeq || totalmoves & 0x1F)
-                {
-                    if (nItemSeq < 2) {
-                        nItemAltSeq = 0;
-                    }
-                }
-                else
-                {
-                    nItemAltSeq = 1;
-                }
-
-                nItemFrame = 0;
-                nItemSeq += nItemAltSeq;
-                nItemFrames = SeqSize[nStatusSeqOffset + nItemSeq];
-            }
-        }
-    }
-
-    nHealthFrame++;
-    if (nHealthFrame >= nHealthFrames) {
-        nHealthFrame = 0;
-    }
-
-    nMagicFrame++;
-    if (nMagicFrame >= nMagicFrames) {
-        nMagicFrame = 0;
-    }
-
-    MoveStatusAnims();
-
-    if (nCounter == nCounterDest)
-    {
-        nCounter = nCounterDest;
-        ammodelay = 3;
-        return;
-    }
-    else
-    {
-        ammodelay--;
-        if (ammodelay > 0) {
-            return;
-        }
-    }
-
-    int eax = nCounterDest - nCounter;
-
-    if (eax <= 0)
-    {
-        if (eax >= -30)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                nDigit[i]--;
-
-                if (nDigit[i] < 0)
-                {
-                    nDigit[i] += 30;
-                }
-
-                if (nDigit[i] < 27) {
-                    break;
-                }
-            }
-        }
-        else
-        {
-            nCounter += (nCounterDest - nCounter) >> 1;
-            SetCounterDigits();
-            return;
-        }
-    }
-    else
-    {
-        if (eax <= 30)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                nDigit[i]++;
-
-                if (nDigit[i] <= 27) {
-                    break;
-                }
-
-                if (nDigit[i] >= 30) {
-                    nDigit[i] -= 30;
-                }
-            }
-        }
-        else
-        {
-            nCounter += (nCounterDest - nCounter) >> 1;
-            SetCounterDigits();
-            return;
-        }
-    }
-
-    if (!(nDigit[0] % 3)) {
-        nCounter = nDigit[0] / 3 + 100 * (nDigit[2] / 3) + 10 * (nDigit[1] / 3);
-    }
-
-    eax = nCounterDest - nCounter;
-    if (eax < 0) {
-        eax = -eax;
-    }
-
-    ammodelay = 4 - (eax >> 1);
-    if (ammodelay < 1) {
-        ammodelay = 1;
-    }
-}
-
 
 class DExhumedStatusBar : public DBaseStatusBar
 {
@@ -497,6 +75,25 @@ class DExhumedStatusBar : public DBaseStatusBar
     int keyanims[4];
     int airframe, lungframe;
 
+    int nSelectedItem;
+    int nHealthLevel;
+    int nMagicLevel;
+    int nMeterRange;
+    int nHurt;
+    int nHealthFrame;
+    int nMagicFrame;
+    int nItemAltSeq;
+    int nItemSeq;
+    int nItemFrames;
+    int nItemFrame;
+
+
+    int nCounter;
+    int nCounterDest;
+    int nDigit[3];
+    int ammodelay;
+    int nLastWeapon;
+
     enum EConst
     {
         KeySeq = 36,
@@ -505,8 +102,26 @@ class DExhumedStatusBar : public DBaseStatusBar
 public:
     DExhumedStatusBar()
     {
-        textfont = Create<DHUDFont>(SmallFont, 1, Off, 1, 1 );
-        numberFont = Create<DHUDFont>(BigFont, 0, Off, 1, 1 );
+        textfont = Create<DHUDFont>(SmallFont, 1, Off, 1, 1);
+        numberFont = Create<DHUDFont>(BigFont, 0, Off, 1, 1);
+
+        int nPicNum = seq_GetSeqPicnum(kSeqStatus, 1, 0);
+        nMeterRange = tileHeight(nPicNum);
+        Reset();
+    }
+
+    void Reset()
+    {
+        airframe = lungframe = nHurt = nHealthFrame = nMagicFrame = nItemAltSeq = nItemFrames = nItemFrame = nCounter = 0;
+
+        nDigit[0] = nDigit[1] = nDigit[2] = 0;
+        nHealthLevel = -1;
+        nMagicLevel = -1;
+        nSelectedItem = -1;
+        nItemSeq = -1;
+        ammodelay = 3;
+        nLastWeapon = -1;
+        SetCounter(0);
     }
 
 private:
@@ -600,22 +215,6 @@ private:
         int nFrameBase = FrameBase[edx];
         return ChunkPict[nFrameBase];
     }
-
-    //---------------------------------------------------------------------------
-    //
-    // 
-    //
-    //---------------------------------------------------------------------------
-
-    void DrawStatusAnims()
-    {
-        for (int i = nFirstAnim; i >= 0; i = StatusAnim[i].nPrevAnim)
-        {
-            int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
-            DrawStatusSequence(nSequence, StatusAnim[i].s2, 0, 0);
-        }
-    }
-
 
     //---------------------------------------------------------------------------
     //
@@ -873,9 +472,6 @@ private:
                 DrawStatusSequence(nItemSeq + nStatusSeqOffset, nItemFrame, 1);
             }
 
-            // draws health level dots, animates breathing lungs and other things
-            DrawStatusAnims();
-
             // draw the blue air level meter when underwater
 			if (SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater)
 			{
@@ -886,6 +482,16 @@ private:
                 DrawStatusSequence(nStatusSeqOffset + 132, lungframe, 0);
             }
 
+            if (nSelectedItem >= 0)
+            {
+                int count = PlayerList[nLocalPlayer].items[nSelectedItem];
+                DrawStatusSequence(nStatusSeqOffset + 156 + 2* count, 0, 0);
+            }
+
+            short nLives = nPlayerLives[nLocalPlayer];
+            DrawStatusSequence(nStatusSeqOffset + 145 + (2 * nLives), 0, 0);
+
+            if (nHurt > 0) DrawStatusSequence(nStatusSeqOffset + 4, nHurt - 1, 0);
 
             // draw compass
             if (hud_size <= Hud_StbarOverlay) DrawStatusSequence(nStatusSeqOffset + 35, ((inita + 128) & kAngleMask) >> 8, 0, 0.5);
@@ -943,9 +549,300 @@ private:
         }
     }
 
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void SetItemSeq()
+    {
+        static const int nItemSeqOffset[] = { 91, 72, 76, 79, 68, 87, 83 };
+
+        short nItem = PlayerList[nLocalPlayer].nItem;
+        if (nItem < 0)
+        {
+            nItemSeq = -1;
+            return;
+        }
+
+        if (nItemMagic[nItem] <= PlayerList[nLocalPlayer].nMagic) nItemAltSeq = 0;
+        else nItemAltSeq = 2;
+
+        nItemFrame = 0;
+        nItemSeq = nItemSeqOffset[nItem] + nItemAltSeq;
+        nItemFrames = SeqSize[nItemSeq + nStatusSeqOffset];
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void SetMagicFrame()
+    {
+        int magicperline = 1000 / nMeterRange;
+
+        int newMagicLevel = (1000 - PlayerList[nLocalPlayer].nMagic) / magicperline;
+        newMagicLevel = clamp(newMagicLevel, 0, nMeterRange - 1);
+        if (newMagicLevel != nMagicLevel) SetItemSeq();
+        nMagicLevel = newMagicLevel;
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void SetHealthFrame()
+    {
+        if (nHurt)
+        {
+            nHurt++;
+            if (nHurt > SeqSize[nStatusSeqOffset + 4]) nHurt = 0;
+        }
+
+        int healthperline = 800 / nMeterRange;
+
+        int newHealthLevel = (800 - PlayerList[nLocalPlayer].nHealth) / healthperline;
+        newHealthLevel = clamp(newHealthLevel, 0, nMeterRange - 1);
+        if (newHealthLevel > nHealthLevel) nHurt = 1;
+        nHealthLevel = newHealthLevel;
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void SetCounter(int nVal)
+    {
+        if (nVal <= 999)
+        {
+            if (nVal < 0) {
+                nVal = 0;
+            }
+        }
+        else {
+            nVal = 999;
+        }
+
+        nCounterDest = nVal;
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void SetCounterImmediate(int nVal)
+    {
+        SetCounter(nVal);
+        nCounter = nCounterDest;
+
+        SetCounterDigits();
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void SetCounterDigits()
+    {
+        nDigit[2] = 3 * (nCounter / 100 % 10);
+        nDigit[1] = 3 * (nCounter / 10 % 10);
+        nDigit[0] = 3 * (nCounter % 10);
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void UpdateCounter()
+    {
+        int nWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
+
+        if (nWeapon < 0)
+        {
+            SetCounterImmediate(0);
+        }
+        else
+        {
+            int thiscount;
+
+            if (nWeapon >= kWeaponSword && nWeapon <= kWeaponRing)
+                thiscount = PlayerList[nLocalPlayer].nAmmo[nWeapon];
+            else
+                thiscount = 0;
+
+            if (nWeapon != nLastWeapon) SetCounterImmediate(thiscount);
+            else SetCounter(thiscount);
+        }
+        nLastWeapon = nWeapon;
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void MoveStatus()
+    {
+        if (nItemSeq >= 0)
+        {
+            nItemFrame++;
+
+            if (nItemFrame >= nItemFrames)
+            {
+                if (nItemSeq == 67) {
+                    SetItemSeq();
+                }
+                else
+                {
+                    nItemSeq -= nItemAltSeq;
+
+                    if (nItemAltSeq || totalmoves & 0x1F)
+                    {
+                        if (nItemSeq < 2) {
+                            nItemAltSeq = 0;
+                        }
+                    }
+                    else
+                    {
+                        nItemAltSeq = 1;
+                    }
+
+                    nItemFrame = 0;
+                    nItemSeq += nItemAltSeq;
+                    nItemFrames = SeqSize[nStatusSeqOffset + nItemSeq];
+                }
+            }
+        }
+
+        nHealthFrame++;
+        if (nHealthFrame >= SeqSize[nStatusSeqOffset + 1]) nHealthFrame = 0;
+
+        nMagicFrame++;
+        if (nMagicFrame >= SeqSize[nStatusSeqOffset + 129]) nMagicFrame = 0;
+
+        if (nCounter == nCounterDest)
+        {
+            nCounter = nCounterDest;
+            ammodelay = 3;
+            return;
+        }
+        else
+        {
+            ammodelay--;
+            if (ammodelay > 0) {
+                return;
+            }
+        }
+
+        int eax = nCounterDest - nCounter;
+
+        if (eax <= 0)
+        {
+            if (eax >= -30)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    nDigit[i]--;
+
+                    if (nDigit[i] < 0)
+                    {
+                        nDigit[i] += 30;
+                    }
+
+                    if (nDigit[i] < 27) {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                nCounter += (nCounterDest - nCounter) >> 1;
+                SetCounterDigits();
+                return;
+            }
+        }
+        else
+        {
+            if (eax <= 30)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    nDigit[i]++;
+
+                    if (nDigit[i] <= 27) {
+                        break;
+                    }
+
+                    if (nDigit[i] >= 30) {
+                        nDigit[i] -= 30;
+                    }
+                }
+            }
+            else
+            {
+                nCounter += (nCounterDest - nCounter) >> 1;
+                SetCounterDigits();
+                return;
+            }
+        }
+
+        if (!(nDigit[0] % 3)) {
+            nCounter = nDigit[0] / 3 + 100 * (nDigit[2] / 3) + 10 * (nDigit[1] / 3);
+        }
+
+        eax = nCounterDest - nCounter;
+        if (eax < 0) {
+            eax = -eax;
+        }
+
+        ammodelay = 4 - (eax >> 1);
+        if (ammodelay < 1) {
+            ammodelay = 1;
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void SetPlayerItem()
+    {
+        if (nSelectedItem != PlayerList[nLocalPlayer].nItem)
+        {
+            nSelectedItem = PlayerList[nLocalPlayer].nItem;
+            SetItemSeq();
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
 
     void Tick() override
     {
+        SetMagicFrame();
+        SetHealthFrame();
+        SetPlayerItem();
+        UpdateCounter();
+        MoveStatus();
         for (int i = 0; i < 4; i++)
         {
             int seq = nStatusSeqOffset + KeySeq + 2 * i;

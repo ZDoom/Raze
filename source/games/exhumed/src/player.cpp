@@ -416,7 +416,6 @@ void RestartPlayer(short nPlayer)
 
 	plr->field_3C = 0;
 	plr->nAir = 100;
-	airpages = 0;
 
 	if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
 	{
@@ -455,7 +454,6 @@ void RestartPlayer(short nPlayer)
 	{
 		nLocalSpr = nSprite;
 
-		SetMagicFrame();
 		RestoreGreenPal();
 
         plr->bPlayerPan = plr->bLockPan = false;
@@ -468,10 +466,6 @@ void RestartPlayer(short nPlayer)
 
 	nDeathType[nPlayer] = 0;
 	nQuake[nPlayer] = 0;
-
-	if (nPlayer == nLocalPlayer) {
-		SetHealthFrame(0);
-	}
 }
 
 int GrabPlayer()
@@ -565,12 +559,6 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     if (nTotalPlayers == 1)
     {
-        short nLives = nPlayerLives[nPlayer];
-
-        if (nLives > 0) {
-            BuildStatusAnim((3 * (nLives - 1)) + 7, 0);
-        }
-
         if (!(currentLevel->gameflags & LEVEL_EX_TRAINING)) { // if not on the training level
             nPlayerLives[nPlayer]--;
         }
@@ -749,7 +737,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 if (nPlayer == nLocalPlayer)
                 {
                     TintPalette(nDamage, 0, 0);
-                    SetHealthFrame(-1);
                 }
             }
 
@@ -1267,7 +1254,6 @@ sectdone:
                         // if underwater
                         if (var_5C)
                         {
-                            airpages = 1;
                             if (PlayerList[nPlayer].nMaskAmount > 0)
                             {
                                 D3PlayFX(StaticSound[kSound30], nPlayerSprite);
@@ -1290,11 +1276,6 @@ sectdone:
                                         StartDeathSeq(nPlayer, 0);
                                     }
 
-                                    if (nPlayer == nLocalPlayer)
-                                    {
-                                        SetHealthFrame(-1);
-                                    }
-
                                     PlayerList[nPlayer].nAir = 0;
 
                                     if (PlayerList[nPlayer].nHealth < 300)
@@ -1309,10 +1290,6 @@ sectdone:
                             }
 
                             DoBubbles(nPlayer);
-                        }
-                        else
-                        {
-                            airpages = 0;
                         }
                     }
                 }
@@ -1348,8 +1325,6 @@ sectdone:
 
                         nBreathTimer[nPlayer] = 1;
                     }
-
-                    airpages = 0;
 
                     nBreathTimer[nPlayer]--;
                     if (nBreathTimer[nPlayer] <= 0)
@@ -1580,11 +1555,6 @@ do_default_b:
                                         }
                                     }
 
-                                    if (nLocalPlayer == nPlayer)
-                                    {
-                                        SetHealthFrame(1);
-                                    }
-
                                     if (var_70 == 12)
                                     {
                                         sprite[nValB].hitag = 0;
@@ -1654,11 +1624,6 @@ do_default_b:
                                         }
                                     }
 
-                                    if (nLocalPlayer == nPlayer)
-                                    {
-                                        SetHealthFrame(1);
-                                    }
-
                                     if (var_70 == 12)
                                     {
                                         sprite[nValB].hitag = 0;
@@ -1726,11 +1691,6 @@ do_default_b:
                                                 StartDeathSeq(nPlayer, 0);
                                             }
                                         }
-                                    }
-
-                                    if (nLocalPlayer == nPlayer)
-                                    {
-                                        SetHealthFrame(1);
                                     }
 
                                     if (var_70 == 12)
@@ -1857,10 +1817,6 @@ do_default_b:
                                 }
 
                                 nPlayerLives[nPlayer]++;
-
-                                if (nPlayer == nLocalPlayer) {
-                                    BuildStatusAnim(146 + ((nPlayerLives[nPlayer] - 1) * 2), 0);
-                                }
 
                                 var_8C = 32;
                                 var_44 = 32;
@@ -2297,11 +2253,6 @@ do_default_b:
                                 PlayerList[nPlayer].nMagic += 100;
                                 if (PlayerList[nPlayer].nMagic >= 1000) {
                                     PlayerList[nPlayer].nMagic = 1000;
-                                }
-
-                                if (nLocalPlayer == nPlayer)
-                                {
-                                    SetMagicFrame();
                                 }
 
                                 goto do_default;

@@ -346,7 +346,7 @@ void GameInterface::Ticker()
                     break;
             }
 
-            if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+            if (i > 0) PlayerList[nLocalPlayer].nItem = nItem;
         }
 
         if (localInput.actions & SB_INVNEXT)
@@ -363,7 +363,7 @@ void GameInterface::Ticker()
                     break;
             }
 
-            if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+            if (i > 0) PlayerList[nLocalPlayer].nItem = nItem;
         }
 
         if (localInput.actions & SB_INVUSE)

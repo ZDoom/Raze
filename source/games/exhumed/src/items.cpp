@@ -172,11 +172,10 @@ void FillItems(short nPlayer)
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
-        SetMagicFrame();
     }
 
     if (PlayerList[nPlayer].nItem == -1) {
-        SetPlayerItem(nPlayer, 0);
+        PlayerList[nPlayer].nItem = 0;
     }
 }
 
@@ -232,7 +231,6 @@ bool UseHeart(short nPlayer)
         if (nPlayer == nLocalPlayer)
         {
             ItemFlash();
-            SetHealthFrame(1);
             D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
         }
         return true;
@@ -300,11 +298,6 @@ void UseItem(short nPlayer, short nItem)
 
     int nMagic = nItemMagic[nItem];
 
-    if (nPlayer == nLocalPlayer)
-    {
-        BuildStatusAnim(156 + (nItemCount * 2), 0);
-    }
-
     if (!nItemCount)
     {
         for (nItem = 0; nItem < 6; nItem++)
@@ -320,11 +313,7 @@ void UseItem(short nPlayer, short nItem)
     }
 
     PlayerList[nPlayer].nMagic -= nMagic;
-    SetPlayerItem(nPlayer, nItem);
-
-    if (nPlayer == nLocalPlayer) {
-        SetMagicFrame();
-    }
+    PlayerList[nPlayer].nItem = nItem;
 }
 
 // TODO - bool return type?
@@ -337,7 +326,7 @@ int GrabItem(short nPlayer, short nItem)
     PlayerList[nPlayer].items[nItem]++;
 
     if (PlayerList[nPlayer].nItem < 0 || nItem == PlayerList[nPlayer].nItem) {
-        SetPlayerItem(nPlayer, nItem);
+        PlayerList[nPlayer].nItem = nItem;
     }
 
     return 1;
