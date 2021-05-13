@@ -784,6 +784,7 @@ FSerializer &FSerializer::SerializeMemory(const char *key, void* mem, size_t len
 	if (isWriting())
 	{
 		auto array = base64_encode((const uint8_t*)mem, length);
+		array.Push(0); // Ensure no out-of-bounds accesses occur
 		AddString(key, (const char*)array.Data());
 	}
 	else
