@@ -1271,10 +1271,6 @@ sectdone:
                             airpages = 1;
                             if (PlayerList[nPlayer].nMaskAmount > 0)
                             {
-                                if (nPlayer == nLocalPlayer) {
-                                    BuildStatusAnim(132, 0);
-                                }
-
                                 D3PlayFX(StaticSound[kSound30], nPlayerSprite);
 
                                 PlayerList[nPlayer].nAir = 100;
@@ -1314,15 +1310,9 @@ sectdone:
                             }
 
                             DoBubbles(nPlayer);
-                            SetAirFrame();
                         }
                         else
                         {
-                            if (nPlayer == nLocalPlayer)
-                            {
-                                BuildStatusAnim(132, 0);
-                            }
-
                             airpages = 0;
                         }
                     }
@@ -1366,17 +1356,11 @@ sectdone:
                     if (nBreathTimer[nPlayer] <= 0)
                     {
                         nBreathTimer[nPlayer] = 90;
-                        if (nPlayer == nLocalPlayer)
-                        {
-                            // animate lungs
-                            BuildStatusAnim(132, 0);
-                        }
                     }
 
                     if (PlayerList[nPlayer].nAir < 100)
                     {
                         PlayerList[nPlayer].nAir = 100;
-                        SetAirFrame();
                     }
                 }
 
@@ -1801,8 +1785,6 @@ do_default_b:
                                 if (PlayerList[nPlayer].nAir > 100) {
                                     PlayerList[nPlayer].nAir = 100; // TODO - constant
                                 }
-
-                                SetAirFrame();
 
                                 if (nBreathTimer[nPlayer] < 89)
                                 {

@@ -208,7 +208,6 @@ static bool UseMask(short nPlayer)
 
     if (nPlayer == nLocalPlayer)
     {
-        SetAirFrame();
         D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
     }
     return true;

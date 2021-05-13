@@ -84,10 +84,6 @@ void SendInput()
 
 void CheckKeys2()
 {
-    if (PlayerList[nLocalPlayer].nHealth <= 0)
-    {
-        SetAirFrame();
-    }
 }
 
 

@@ -54,9 +54,7 @@ short nMagicFrame;
 short nMaskY;
 
 int magicperline;
-int airperline;
 int healthperline;
-int nAirFrames;
 int nCounter;
 int nCounterDest;
 
@@ -67,8 +65,6 @@ short nDigit[3];
 
 short nItemFrame;
 short nMeterRange;
-
-short airframe;
 
 int16_t nFirstAnim;
 int16_t nLastAnim;
@@ -129,8 +125,6 @@ void InitStatus()
     nMeterRange = tileHeight(nPicNum);
     magicperline = 1000 / nMeterRange;
     healthperline = 800 / nMeterRange;
-    nAirFrames = SeqSize[nStatusSeqOffset + 133];
-    airperline = 100 / nAirFrames;
     nCounter = 0;
     nCounterDest = 0;
 
@@ -214,7 +208,6 @@ void RefreshStatus()
     SetPlayerItem(nLocalPlayer, nPlayerItem[nLocalPlayer]);
     SetHealthFrame(0);
     SetMagicFrame();
-    SetAirFrame();
 }
 
 void MoveStatusAnims()
@@ -292,20 +285,6 @@ void SetHealthFrame(short nVal)
 
     if (nVal < 0) {
         BuildStatusAnim(4, 0);
-    }
-}
-
-void SetAirFrame()
-{
-    airframe = PlayerList[nLocalPlayer].nAir / airperline;
-
-    if (airframe >= nAirFrames)
-    {
-        airframe = nAirFrames - 1;
-    }
-    else if (airframe < 0)
-    {
-        airframe = 0;
     }
 }
 
@@ -516,6 +495,7 @@ class DExhumedStatusBar : public DBaseStatusBar
 
     TObjPtr<DHUDFont*> textfont, numberFont;
     int keyanims[4];
+    int airframe, lungframe;
 
     enum EConst
     {
@@ -896,11 +876,15 @@ private:
             // draws health level dots, animates breathing lungs and other things
             DrawStatusAnims();
 
-            // draw the blue air level meter when underwater (but not responsible for animating the breathing lungs otherwise)
+            // draw the blue air level meter when underwater
 			if (SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater)
 			{
 				DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0, 0.5);
 			}
+            else
+            {
+                DrawStatusSequence(nStatusSeqOffset + 132, lungframe, 0);
+            }
 
 
             // draw compass
@@ -978,6 +962,30 @@ private:
                 keyanims[i] = 0;
             }
         }
+
+        if (SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater)
+        {
+
+            int nAirFrames = SeqSize[nStatusSeqOffset + 133];
+            int airperline = 100 / nAirFrames;
+
+            airframe = PlayerList[nLocalPlayer].nAir / airperline;
+
+            if (airframe >= nAirFrames)
+            {
+                airframe = nAirFrames - 1;
+            }
+            else if (airframe < 0)
+            {
+                airframe = 0;
+            }
+            lungframe = 0;
+        }
+        else
+        {
+            int size = SeqSize[nStatusSeqOffset + 132];
+            if (++lungframe == size) lungframe = 0;
+        }
     }
 
 
@@ -985,6 +993,7 @@ public:
     void UpdateStatusBar()
     {
         Tick(); // temporary.
+
         if (hud_size <= Hud_full)
         {
             DrawStatus();

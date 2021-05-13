@@ -30,7 +30,6 @@ void InitStatus();
 void SetPlayerItem(short nPlayer, short nItem);
 void SetMagicFrame();
 void SetHealthFrame(short nVal);
-void SetAirFrame();
 void MoveStatus();
 void DrawSnakeCamStatus();
 void DrawStatus();
