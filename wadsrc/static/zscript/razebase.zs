@@ -256,8 +256,5 @@ class DukeStatusBar : DukeCommonStatusBar native
 class RedneckStatusBar : DukeCommonStatusBar native
 {}
 
-class NativeExhumedStatusBar : BaseStatusBar native
-{}
-
 class SWStatusBar : BaseStatusBar native
 {}
