@@ -109,9 +109,10 @@ bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 
 	bunch->sectnum = sectnum;
 	bunch->startline = bunch->endline = linenum;
-	bunch->startangle = (startan.asbam()) > ANGLE_180? bamang(0) :startan;
-	bunch->endangle = (endan.asbam() - angrange.asbam()) < ANGLE_180 ? angrange : endan;
+	bunch->startangle = startan;
+	bunch->endangle = endan;
 	bunch->portal = portal;
+	assert(bunch->endangle.asbam() > bunch->startangle.asbam());
 	return bunch->endangle != angrange;
 }
 
@@ -124,7 +125,9 @@ bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 bool BunchDrawer::AddLineToBunch(int line, binangle newan)
 {
 	Bunches[LastBunch].endline++;
-	Bunches[LastBunch].endangle = (newan.asbam() - angrange.asbam()) < ANGLE_180 ? angrange : newan;
+	assert(newan.asbam() > Bunches[LastBunch].endangle.asbam());
+	Bunches[LastBunch].endangle = newan;
+	assert(Bunches[LastBunch].endangle.asbam() > Bunches[LastBunch].startangle.asbam());
 	return Bunches[LastBunch].endangle != angrange;
 }
 
@@ -381,9 +384,6 @@ int BunchDrawer::WallInFront(int line1, int line2)
 
 //==========================================================================
 //
-// This is a bit more complicated than it looks because angles can wrap
-// around so we can only compare angle differences.
-//
 // Rules:
 // 1. Any bunch can span at most 180°.
 // 2. 2 bunches can never overlap at both ends
@@ -396,15 +396,15 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 {
 	binangle anglecheck, endang;
 
-	if (b2->startangle.asbam() - b1->startangle.asbam() < b1->endangle.asbam() - b1->startangle.asbam())
+	if (b2->startangle.asbam() >= b1->startangle.asbam() && b2->startangle.asbam() < b1->endangle.asbam())
 	{
 		// we have an overlap at b2->startangle
-		anglecheck = b2->startangle - b1->startangle;
+		anglecheck = b2->startangle;
 
 		// Find the wall in b1 that overlaps b2->startangle
 		for (int i = b1->startline; i <= b1->endline; i++)
 		{
-			endang = ClipAngle(wall[i].point2) - b1->startangle;
+			endang = ClipAngle(wall[i].point2);
 			if (endang.asbam() > anglecheck.asbam())
 			{
 				// found a line
@@ -413,15 +413,15 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 			}
 		}
 	}
-	else if (b1->startangle.asbam() - b2->startangle.asbam() < b2->endangle.asbam() - b2->startangle.asbam())
+	else if (b1->startangle.asbam() >= b2->startangle.asbam() && b1->startangle.asbam() < b2->endangle.asbam())
 	{
 		// we have an overlap at b1->startangle
-		anglecheck = b1->startangle - b2->startangle;
+		anglecheck = b1->startangle;
 
 		// Find the wall in b2 that overlaps b1->startangle
 		for (int i = b2->startline; i <= b2->endline; i++)
 		{
-			endang = ClipAngle(wall[i].point2) - b2->startangle;
+			endang = ClipAngle(wall[i].point2);
 			if (endang.asbam() > anglecheck.asbam())
 			{
 				// found a line
@@ -485,7 +485,7 @@ int BunchDrawer::FindClosestBunch()
 
 		}
 	}
-	Printf("picked bunch starting at %d\n", Bunches[closest].startline);
+	//Printf("picked bunch starting at %d\n", Bunches[closest].startline);
 	return closest;
 }
 
@@ -501,7 +501,6 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 	gotsection2.Set(sectionnum);
 
 	bool inbunch;
-	binangle startangle;
 
 	SetupSprite.Clock();
 
@@ -549,31 +548,29 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 	{
 		auto thisline = &sectionLines[section->lines[i]];
 
-#ifdef _DEBUG
-		// For displaying positions in debugger
-		//DVector2 start = { WallStartX(thiswall), WallStartY(thiswall) };
-		//DVector2 end = { WallStartX(thiswall->point2), WallStartY(thiswall->point2) };
-#endif
 		binangle walang1 = ClipAngle(thisline->startpoint);
 		binangle walang2 = ClipAngle(thisline->endpoint);
 
 		// outside the visible area or seen from the backside.
-		if ((walang1.asbam() > ANGLE_180 && walang2.asbam() > ANGLE_180) ||
-			(walang1.asbam() - angrange.asbam() < ANGLE_180 && walang2.asbam() - angrange.asbam() < ANGLE_180) ||
+		if ((walang1.asbam() > angrange.asbam() && walang2.asbam() > angrange.asbam() && walang1.asbam() < walang2.asbam()) ||
 			(walang1.asbam() - walang2.asbam() < ANGLE_180))
 		{
 			inbunch = false;
 		}
-		else if (!inbunch)
-		{
-			startangle = walang1;
-			Printf("Starting bunch:\n\tWall %d\n", section->lines[i]);
-			inbunch = StartBunch(sectnum, section->lines[i], walang1, walang2, portal);
-		}
 		else
 		{
-			Printf("\tWall %d\n", section->lines[i]);
-			inbunch = AddLineToBunch(section->lines[i], walang2);
+			if (walang1.asbam() >= angrange.asbam()) { walang1 = bamang(0); inbunch = false; }
+			if (walang2.asbam() >= angrange.asbam()) walang2 = angrange;
+			if (!inbunch)
+			{
+				//Printf("Starting bunch:\n\tWall %d\n", section->lines[i]);
+				inbunch = StartBunch(sectnum, section->lines[i], walang1, walang2, portal);
+			}
+			else
+			{
+				//Printf("\tWall %d\n", section->lines[i]);
+				inbunch = AddLineToBunch(section->lines[i], walang2);
+			}
 		}
 		if (thisline->endpoint != section->lines[i] + 1) inbunch = false;
 	}
@@ -587,7 +584,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
-	Printf("----------------------------------------- \nstart at sector %d\n", viewsectors[0]);
+	//Printf("----------------------------------------- \nstart at sector %d\n", viewsectors[0]);
 	auto process = [&]()
 	{
 		clipper->Clear(ang1);
