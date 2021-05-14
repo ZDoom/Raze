@@ -704,8 +704,8 @@ extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum)
 enum EHitBits
 {
     kHitNone = 0,
-    kHitTypeMask = 0xE000,
-    kHitIndexMask = 0x1FFF,
+    kHitTypeMask = 0xC000,
+    kHitIndexMask = 0x3FFF,
     kHitSector = 0x4000,
     kHitWall = 0x8000,
     kHitSprite = 0xC000,
