@@ -431,6 +431,5 @@ __forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palett
 
 	// The shade rgb from the tint is ignored here.
 	state.SetColor(globalr * (1 / 255.f), globalg * (1 / 255.f), globalb * (1 / 255.f), alpha);
-	state.SetObjectColor(0xffffffff);
 }
 
