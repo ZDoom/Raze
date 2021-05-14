@@ -2809,7 +2809,7 @@ int ParseState::parse(void)
 		parseifelse( fi.floorspace(g_sp->sectnum));
 		break;
 	case concmd_ifnotmoving:
-		parseifelse( (g_ac->movflag&kHitTypeMask) > kHitSprite );
+		parseifelse( (g_ac->movflag&kHitTypeMask) > kHitSector );
 		break;
 	case concmd_respawnhitag:
 		insptr++;
