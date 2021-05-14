@@ -31,7 +31,7 @@ class BunchDrawer
     FixedBitArray<MAXSECTORS*5/4> gotsection2;
     FixedBitArray<MAXWALLS> gotwall;
     FixedBitArray<MAXWALLS> blockwall;
-    binangle ang1, ang2;
+    binangle ang1, ang2, angrange;
 
     int sectionstartang[MAXSECTORS*5/4], sectionendang[MAXSECTORS*5/4];
 
@@ -44,6 +44,7 @@ private:
         CL_Pass = 2,
     };
 
+    binangle ClipAngle(int wal) { return wall[wal].clipangle - ang1; }
     void StartScene();
     bool StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal);
     bool AddLineToBunch(int line, binangle newan);
