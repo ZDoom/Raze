@@ -161,6 +161,7 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		{
 			//RenderModel(&renderer, x, y, z, modelframe, actor, di->Viewpoint.TicFrac);
 		}
+		state.SetObjectColor(0xffffffff);
 		state.SetVertexBuffer(screen->mVertexData);
 		state.EnableModelMatrix(false);
 	}
