@@ -7,9 +7,9 @@
 BEGIN_DUKE_NS
 
 
-class DDukeCommonStatusBar : public DBaseStatusBar
+class DNativeDukeCommonStatusBar : public DBaseStatusBar
 {
-	DECLARE_ABSTRACT_CLASS(DDukeCommonStatusBar, DBaseStatusBar)
+	DECLARE_ABSTRACT_CLASS(DNativeDukeCommonStatusBar, DBaseStatusBar)
 	HAS_OBJECT_POINTERS
 
 protected:
@@ -21,7 +21,7 @@ protected:
 	std::array<int, MAX_WEAPONS> ammo_sprites;
 	std::array<int, 8> item_icons;
 
-	DDukeCommonStatusBar();
+	DNativeDukeCommonStatusBar();
 	std::pair<const char*, int> ontext(struct player_struct *p);
 	void DrawInventory(const struct player_struct* p, double x, double y, int align);
 	PalEntry LightForShade(int shade);

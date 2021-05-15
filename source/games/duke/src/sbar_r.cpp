@@ -47,12 +47,12 @@ BEGIN_DUKE_NS
 //
 //==========================================================================
 
-class DRedneckStatusBar : public DDukeCommonStatusBar
+class DNativeRedneckStatusBar : public DNativeDukeCommonStatusBar
 {
-	DECLARE_CLASS(DRedneckStatusBar, DDukeCommonStatusBar)
+	DECLARE_CLASS(DNativeRedneckStatusBar, DNativeDukeCommonStatusBar)
 
 public:
-	DRedneckStatusBar()
+	DNativeRedneckStatusBar()
 	{
 		numberFont = Create<DHUDFont>(BigFont, 0, Off, 1, 1 );
 		miniFont = Create<DHUDFont>(SmallFont2, 0, Off, 1, 1 );
@@ -466,11 +466,11 @@ public:
 
 };
 
-IMPLEMENT_CLASS(DRedneckStatusBar, false, false)
+IMPLEMENT_CLASS(DNativeRedneckStatusBar, false, false)
 
 DBaseStatusBar* CreateRedneckStatusBar()
 {
-	return Create<DRedneckStatusBar>();
+	return Create<DNativeRedneckStatusBar>();
 }
 
 

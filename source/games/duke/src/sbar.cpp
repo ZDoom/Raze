@@ -44,8 +44,8 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-IMPLEMENT_CLASS(DDukeCommonStatusBar, true, true)
-IMPLEMENT_POINTERS_START(DDukeCommonStatusBar)
+IMPLEMENT_CLASS(DNativeDukeCommonStatusBar, true, true)
+IMPLEMENT_POINTERS_START(DNativeDukeCommonStatusBar)
 IMPLEMENT_POINTER(miniFont)
 IMPLEMENT_POINTER(numberFont)
 IMPLEMENT_POINTER(digiFont)
@@ -59,7 +59,7 @@ IMPLEMENT_POINTERS_END
 //
 //==========================================================================
 
-DDukeCommonStatusBar::DDukeCommonStatusBar()
+DNativeDukeCommonStatusBar::DNativeDukeCommonStatusBar()
 {
 	drawOffset.Y = 0;
 }
@@ -71,7 +71,7 @@ DDukeCommonStatusBar::DDukeCommonStatusBar()
 //
 //==========================================================================
 #if 0
-void DDukeCommonStatusBar::displayfragbar(void)
+void DNativeDukeCommonStatusBar::displayfragbar(void)
 {
 	short i, j;
 
@@ -98,7 +98,7 @@ void DDukeCommonStatusBar::displayfragbar(void)
 //
 //==========================================================================
 
-std::pair<const char*, int> DDukeCommonStatusBar::ontext(struct player_struct *p)
+std::pair<const char*, int> DNativeDukeCommonStatusBar::ontext(struct player_struct *p)
 {
 	std::pair<const char*, int> retval(nullptr, CR_RED);
 
@@ -136,7 +136,7 @@ std::pair<const char*, int> DDukeCommonStatusBar::ontext(struct player_struct *p
 //
 //==========================================================================
 
-void DDukeCommonStatusBar::DrawInventory(const struct player_struct* p, double x, double y, int align)
+void DNativeDukeCommonStatusBar::DrawInventory(const struct player_struct* p, double x, double y, int align)
 {
 	if (p->invdisptime <= 0)return;
 
@@ -173,7 +173,7 @@ void DDukeCommonStatusBar::DrawInventory(const struct player_struct* p, double x
 //
 //==========================================================================
 
-PalEntry DDukeCommonStatusBar::LightForShade(int shade)
+PalEntry DNativeDukeCommonStatusBar::LightForShade(int shade)
 {
 	int ll = clamp((numshades - shade) * 255 / numshades, 0, 255);
 	return PalEntry(255, ll, ll, ll);
@@ -186,7 +186,7 @@ PalEntry DDukeCommonStatusBar::LightForShade(int shade)
 //
 //==========================================================================
 
-void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
+void DNativeDukeCommonStatusBar::PrintLevelStats(int bottomy)
 {
 	FLevelStats stats{};
 	auto pp = &ps[myconnectindex];

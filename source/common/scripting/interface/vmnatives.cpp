@@ -133,6 +133,55 @@ DEFINE_ACTION_FUNCTION_NATIVE(DStatusBarCore, DrawImage, SBar_DrawImage)
 	return 0;
 }
 
+void SBar_DrawImageRotated(DStatusBarCore* self, const FString& texid, double x, double y, int flags, double angle, double alpha, double scaleX, double scaleY, int style, int color, int translation)
+{
+	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
+	self->DrawRotated(TexMan.CheckForTexture(texid, ETextureType::Any), x, y, flags, alpha, scaleX, scaleY, color, translation, style);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DStatusBarCore, DrawImageRotated, SBar_DrawImageRotated)
+{
+	PARAM_SELF_PROLOGUE(DStatusBarCore);
+	PARAM_STRING(texid);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_INT(flags);
+	PARAM_FLOAT(angle);
+	PARAM_FLOAT(alpha);
+	PARAM_FLOAT(scaleX);
+	PARAM_FLOAT(scaleY);
+	PARAM_INT(style);
+	PARAM_INT(col);
+	PARAM_INT(trans);
+	SBar_DrawImageRotated(self, texid, x, y, flags, angle, alpha, scaleX, scaleY, style, col, trans);
+	return 0;
+}
+
+void SBar_DrawTextureRotated(DStatusBarCore* self, int texid, double x, double y, int flags, double angle, double alpha, double scaleX, double scaleY, int style, int color, int translation)
+{
+	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
+	self->DrawRotated(FSetTextureID(texid), x, y, flags, alpha, scaleX, scaleY, color, translation, style);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DStatusBarCore, DrawTextureRotated, SBar_DrawTextureRotated)
+{
+	PARAM_SELF_PROLOGUE(DStatusBarCore);
+	PARAM_INT(texid);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	PARAM_INT(flags);
+	PARAM_FLOAT(angle);
+	PARAM_FLOAT(alpha);
+	PARAM_FLOAT(scaleX);
+	PARAM_FLOAT(scaleY);
+	PARAM_INT(style);
+	PARAM_INT(col);
+	PARAM_INT(trans);
+	SBar_DrawTextureRotated(self, texid, x, y, flags, angle, alpha, scaleX, scaleY, style, col, trans);
+	return 0;
+}
+
+
 void SBar_DrawString(DStatusBarCore* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY, int translation, int style);
 
 DEFINE_ACTION_FUNCTION_NATIVE(DStatusBarCore, DrawString, SBar_DrawString)

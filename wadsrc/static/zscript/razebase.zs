@@ -135,6 +135,7 @@ struct SummaryInfo native
 struct Raze
 {
 	const kAngleMask	= 0x7FF;
+	const BAngToDegree = 360. / 2048.;
 
 	static int calcSinTableValue(int ang)
 	{
@@ -150,6 +151,8 @@ struct Raze
 	native static double GetTimeFrac();
 	native static int bsin(int angle, int shift = 0);
 	native static int bcos(int angle, int shift = 0);
+	native static TextureID PickTexture(TextureID texid);
+	native static int GetBuildTime();
 	
 	static bool specialKeyEvent(InputEvent ev)
 	{
@@ -247,13 +250,13 @@ class BaseStatusBar : StatusBarCore native
 {}
 
 
-class DukeCommonStatusBar : BaseStatusBar native
+class NativeDukeCommonStatusBar : BaseStatusBar native
 {}
 
-class DukeStatusBar : DukeCommonStatusBar native
+class NativeDukeStatusBar : NativeDukeCommonStatusBar native
 {}
 
-class RedneckStatusBar : DukeCommonStatusBar native
+class NativeRedneckStatusBar : NativeDukeCommonStatusBar native
 {}
 
 class SWStatusBar : BaseStatusBar native

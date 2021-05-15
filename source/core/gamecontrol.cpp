@@ -1559,6 +1559,25 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bcos, bcos)
 	ACTION_RETURN_INT(bcos(v, shift));
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
+{
+	ACTION_RETURN_INT(I_GetBuildTime());
+}
+
+bool PickTexture(FRenderState* state, FGameTexture* tex, int paletteid, TexturePick& pick);
+
+DEFINE_ACTION_FUNCTION(_Raze, PickTexture)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(texid);
+	TexturePick pick;
+	if (PickTexture(nullptr, TexMan.GetGameTexture(FSetTextureID(texid)), TRANSLATION(Translation_Remap, 0), pick))
+	{
+		ACTION_RETURN_INT(pick.texture->GetID().GetIndex());
+	}
+	ACTION_RETURN_INT(texid);
+}
+
 DEFINE_ACTION_FUNCTION(_MapRecord, GetCluster)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(MapRecord);

@@ -55,14 +55,14 @@ BEGIN_DUKE_NS
 //
 //==========================================================================
 
-class DDukeStatusBar : public DDukeCommonStatusBar
+class DNativeDukeStatusBar : public DNativeDukeCommonStatusBar
 {
-	DECLARE_CLASS(DDukeStatusBar, DDukeCommonStatusBar)
+	DECLARE_CLASS(DNativeDukeStatusBar, DNativeDukeCommonStatusBar)
 
 	int fontheight[2];
 public:
 
-	DDukeStatusBar()
+	DNativeDukeStatusBar()
 	{
 		numberFont = Create<DHUDFont>( BigFont, 0, Off, 1, 1 );
 		indexFont = Create<DHUDFont>(IndexFont, 4, CellRight, 1, 1 );
@@ -481,11 +481,11 @@ public:
 	}
 };
 
-IMPLEMENT_CLASS(DDukeStatusBar, false, false)
+IMPLEMENT_CLASS(DNativeDukeStatusBar, false, false)
 
 DBaseStatusBar* CreateDukeStatusBar()
 {
-	return Create<DDukeStatusBar>();
+	return Create<DNativeDukeStatusBar>();
 }
 
 END_DUKE_NS
