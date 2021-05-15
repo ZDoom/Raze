@@ -1082,7 +1082,7 @@ void selectweapon_r(int snum, int weap)
 				{
 					if (act->s->picnum == HEAVYHBOMB && act->GetOwner() == p->GetActor())
 					{
-						p->gotweapon.Set(DYNAMITE_WEAPON);
+						p->gotweapon[DYNAMITE_WEAPON] = true;
 						j = THROWINGDYNAMITE_WEAPON;
 						break;
 					}
@@ -1499,7 +1499,7 @@ void checkweapons_r(struct player_struct* p)
 			j->s->ang = p->angle.ang.asbuild();
 			j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
 			p->OnMotorcycle = 0;
-			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
+			p->gotweapon[MOTORCYCLE_WEAPON] = false;
 			p->horizon.horiz = q16horiz(0);
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
@@ -1515,7 +1515,7 @@ void checkweapons_r(struct player_struct* p)
 			j->s->ang = p->angle.ang.asbuild();
 			j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
 			p->OnBoat = 0;
-			p->gotweapon.Clear(BOAT_WEAPON);
+			p->gotweapon[BOAT_WEAPON] = false;
 			p->horizon.horiz = q16horiz(0);
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
@@ -3132,7 +3132,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		if (p->kickback_pic == 3)
 		{
 			p->ammo_amount[POWDERKEG_WEAPON]--;
-			p->gotweapon.Clear(POWDERKEG_WEAPON);
+			p->gotweapon[POWDERKEG_WEAPON] = false;
 			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
@@ -3176,7 +3176,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		if (p->kickback_pic > 40)
 		{
 			p->okickback_pic = p->kickback_pic = 0;
-			p->gotweapon.Clear(BOWLING_WEAPON);
+			p->gotweapon[BOWLING_WEAPON] = false;
 			checkavailweapon(p);
 		}
 		break;
@@ -4057,7 +4057,7 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 		p->OnMotorcycle = 1;
 		p->last_full_weapon = p->curr_weapon;
 		p->curr_weapon = MOTORCYCLE_WEAPON;
-		p->gotweapon.Set(MOTORCYCLE_WEAPON);
+		p->gotweapon[MOTORCYCLE_WEAPON] = true;
 		p->posxv = 0;
 		p->posyv = 0;
 		p->horizon.horiz = q16horiz(0);
@@ -4088,7 +4088,7 @@ void OffMotorcycle(struct player_struct *p)
 		if (!S_CheckActorSoundPlaying(pact,42))
 			S_PlayActorSound(42, pact);
 		p->OnMotorcycle = 0;
-		p->gotweapon.Clear(MOTORCYCLE_WEAPON);
+		p->gotweapon[MOTORCYCLE_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
 		p->horizon.horiz = q16horiz(0);
@@ -4134,7 +4134,7 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 		p->OnBoat = 1;
 		p->last_full_weapon = p->curr_weapon;
 		p->curr_weapon = BOAT_WEAPON;
-		p->gotweapon.Set(BOAT_WEAPON);
+		p->gotweapon[BOAT_WEAPON] = true;
 		p->posxv = 0;
 		p->posyv = 0;
 		p->horizon.horiz = q16horiz(0);
@@ -4152,7 +4152,7 @@ void OffBoat(struct player_struct *p)
 	if (p->OnBoat)
 	{
 		p->OnBoat = 0;
-		p->gotweapon.Clear(BOAT_WEAPON);
+		p->gotweapon[BOAT_WEAPON] = false;
 		p->curr_weapon = p->last_full_weapon;
 		checkavailweapon(p);
 		p->horizon.horiz = q16horiz(0);

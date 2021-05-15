@@ -1924,7 +1924,7 @@ SECT_USERp GetSectUser(short sectnum);
 // 1. The variables were unmaintained and could refer to handles that had been reused already.
 // 2. No proper sound ownership tracking.
 // 3. In some cases items that were supposed to use the same check referred to different handle variables.
-// In short: I was very broken. This is a list of all sound items used this way, now each one gets a dedicated channel
+// In short: It was very broken. This is a list of all sound items used this way, now each one gets a dedicated channel
 // so that proper checks can be performed and sound ownership be tracked.
 
 enum

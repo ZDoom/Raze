@@ -1315,7 +1315,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 				{
 					if (act->s->picnum == HEAVYHBOMB && act->GetOwner() == p->GetActor())
 					{
-						p->gotweapon.Set(HANDBOMB_WEAPON);
+						p->gotweapon[HANDBOMB_WEAPON] = true;
 						j = HANDREMOTE_WEAPON;
 						break;
 					}

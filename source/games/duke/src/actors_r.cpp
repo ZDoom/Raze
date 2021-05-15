@@ -118,16 +118,16 @@ void addweapon_r(struct player_struct* p, int weapon)
 	short cw = p->curr_weapon;
 	if (p->OnMotorcycle || p->OnBoat)
 	{
-		p->gotweapon.Set(weapon);
+		p->gotweapon[weapon] = true;;
 		if (weapon == THROWSAW_WEAPON)
 		{
-			p->gotweapon.Set(BUZZSAW_WEAPON);
+			p->gotweapon[BUZZSAW_WEAPON] = true;
 			p->ammo_amount[BUZZSAW_WEAPON] = 1;
 		}
 		else if (weapon == CROSSBOW_WEAPON)
 		{
-			p->gotweapon.Set(CHICKEN_WEAPON);
-			p->gotweapon.Set(DYNAMITE_WEAPON);
+			p->gotweapon[CHICKEN_WEAPON] = true;
+			p->gotweapon[DYNAMITE_WEAPON] = true;
 		}
 		else if (weapon == SLINGBLADE_WEAPON)
 		{
@@ -138,17 +138,17 @@ void addweapon_r(struct player_struct* p, int weapon)
 
 	if (p->gotweapon[weapon] == 0)
 	{
-		p->gotweapon.Set(weapon);
+		p->gotweapon[weapon] = true;;
 		if (weapon == THROWSAW_WEAPON)
 		{
-			p->gotweapon.Set(BUZZSAW_WEAPON);
+			p->gotweapon[BUZZSAW_WEAPON] = true;
 			p->ammo_amount[BUZZSAW_WEAPON] = 1;
 		}
 		if (isRRRA())
 		{
 			if (weapon == CROSSBOW_WEAPON)
 			{
-				p->gotweapon.Set(CHICKEN_WEAPON);
+				p->gotweapon[CHICKEN_WEAPON] = true;
 			}
 			if (weapon == SLINGBLADE_WEAPON)
 			{
@@ -157,7 +157,7 @@ void addweapon_r(struct player_struct* p, int weapon)
 		}
 		if (weapon == CROSSBOW_WEAPON)
 		{
-			p->gotweapon.Set(DYNAMITE_WEAPON);
+			p->gotweapon[DYNAMITE_WEAPON] = true;
 		}
 
 		if (weapon != DYNAMITE_WEAPON)

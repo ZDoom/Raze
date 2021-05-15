@@ -173,7 +173,7 @@ void initactorflags_r()
 		STEROIDS,
 		HEATSENSOR,
 		BOOTS,
-		JETPACK,
+		COWPIE,
 		HOLODUKE,
 		AIRTANK });
 
@@ -205,7 +205,7 @@ void initactorflags_r()
 	gs.weaponsandammosprites[2] = DEVISTATORAMMO;
 	gs.weaponsandammosprites[3] = RPGAMMO;
 	gs.weaponsandammosprites[4] = RPGAMMO;
-	gs.weaponsandammosprites[5] = JETPACK;
+	gs.weaponsandammosprites[5] = COWPIE;
 	gs.weaponsandammosprites[6] = SHIELD;
 	gs.weaponsandammosprites[7] = FIRSTAID;
 	gs.weaponsandammosprites[8] = STEROIDS;

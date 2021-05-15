@@ -355,15 +355,15 @@ public:
 			format.Format("%3d/%d", num1, num2);
 		}
 		y--;
-		DrawGraphic(tileGetTexture(THREEBYFIVE + index), x - 7, y, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, LightForShade(shade - 10), TRANSLATION(Translation_Remap, 7));
+		DrawGraphic(tileGetTexture(THREEBYFIVE0 + index), x - 7, y, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, LightForShade(shade - 10), TRANSLATION(Translation_Remap, 7));
 		auto pe = LightForShade(shade);
-		DrawGraphic(tileGetTexture(THREEBYFIVE + 10), x - 3, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, pe);
+		DrawGraphic(tileGetTexture(THREEBYFIVE10), x - 3, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, pe);
 		for (size_t i = 0; i < format.Len(); i++) 
 		{
 			if (format[i] != ' ')
 			{
 				char c = format[i] == '/' ? 11 : format[i] - '0';
-				DrawGraphic(tileGetTexture(THREEBYFIVE + c), x + 4 * i + (parsedDivisor ? 1 : 0), y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, pe);
+				DrawGraphic(tileGetTexture(THREEBYFIVE0 + c), x + 4 * i + (parsedDivisor ? 1 : 0), y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, STYLE_Translucent, pe);
 			}
 			if (format[i] == '/')
 			{

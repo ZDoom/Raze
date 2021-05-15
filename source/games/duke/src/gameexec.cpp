@@ -851,7 +851,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_GOTWEAPON:
-		if (bSet) ps[iPlayer].gotweapon.Set(lParm2, lValue);
+		if (bSet) ps[iPlayer].gotweapon[lParm2, lValue] = true;
 		else SetGameVarID(lVar2, ps[iPlayer].gotweapon[lParm2], sActor, sPlayer);
 		break;
 

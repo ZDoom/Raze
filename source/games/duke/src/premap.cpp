@@ -208,7 +208,7 @@ void resetplayerstats(int snum)
     if (p->OnMotorcycle)
     {
         p->OnMotorcycle = 0;
-        p->gotweapon.Clear(MOTORCYCLE_WEAPON);
+        p->gotweapon[MOTORCYCLE_WEAPON] = false;
         p->curr_weapon = isRRRA()? SLINGBLADE_WEAPON : KNEE_WEAPON;	// just in case this is made available for the other games
     }
     p->lotag800kill = 0;
@@ -227,7 +227,7 @@ void resetplayerstats(int snum)
     if (p->OnBoat)
     {
         p->OnBoat = 0;
-        p->gotweapon.Clear(BOAT_WEAPON);
+        p->gotweapon[BOAT_WEAPON] = false;
         p->curr_weapon = isRRRA()? SLINGBLADE_WEAPON : KNEE_WEAPON;	// just in case this is made available for the other games
     }
     p->NotOnWater = 0;
@@ -272,14 +272,14 @@ void resetweapons(int snum)
         p->ammo_amount[weapon] = 0;
     }
 
-    p->gotweapon.Zero();
+    memset(p->gotweapon, 0, MAX_WEAPONS);
     p->oweapon_pos = p->weapon_pos = 6;
     p->okickback_pic = p->kickback_pic = 5;
     p->curr_weapon = PISTOL_WEAPON;
-    p->gotweapon.Set(PISTOL_WEAPON);
-    p->gotweapon.Set(KNEE_WEAPON);
+    p->gotweapon[PISTOL_WEAPON] = true;
+    p->gotweapon[KNEE_WEAPON] = true;
     p->ammo_amount[PISTOL_WEAPON] = std::min<int16_t>(gs.max_ammo_amount[PISTOL_WEAPON], 48);
-    p->gotweapon.Set(HANDREMOTE_WEAPON);
+    p->gotweapon[HANDREMOTE_WEAPON] = true;
     p->last_weapon = -1;
 
     p->show_empty_weapon= 0;
@@ -296,7 +296,7 @@ void resetweapons(int snum)
     {
         chickenphase = 0;
         p->ammo_amount[KNEE_WEAPON] = 1;
-        p->gotweapon.Set(SLINGBLADE_WEAPON);
+        p->gotweapon[SLINGBLADE_WEAPON] = true;
         p->ammo_amount[SLINGBLADE_WEAPON] = 1;
     }
     OnEvent(EVENT_RESETWEAPONS, snum, nullptr, -1);
@@ -518,7 +518,7 @@ void resetpspritevars(int g)
             for (j = 0; j < MAX_WEAPONS; j++)
             {
                 tsbar[i].ammo_amount[j] = ps[i].ammo_amount[j];
-                tsbar[i].gotweapon.Set(j, ps[i].gotweapon[j]);
+                tsbar[i].gotweapon[j] = ps[i].gotweapon[j];
             }
 
             tsbar[i].shield_amount = ps[i].shield_amount;
@@ -548,7 +548,7 @@ void resetpspritevars(int g)
             for (j = 0; j < MAX_WEAPONS; j++)
             {
                 ps[i].ammo_amount[j] = tsbar[i].ammo_amount[j];
-                ps[i].gotweapon.Set(j, tsbar[i].gotweapon[j]);
+                ps[i].gotweapon[j] = tsbar[i].gotweapon[j];
             }
             ps[i].shield_amount = tsbar[i].shield_amount;
             ps[i].curr_weapon = tsbar[i].curr_weapon;
@@ -772,22 +772,22 @@ void donewgame(MapRecord* map, int sk)
                 if (aplWeaponWorksLike[i][0] == PISTOL_WEAPON)
                 {
                     p->curr_weapon = i;
-                    p->gotweapon.Set(i);
+                    p->gotweapon[i] = true;
                     p->ammo_amount[i] = 48;
                 }
                 else if (aplWeaponWorksLike[i][0] == KNEE_WEAPON || aplWeaponWorksLike[i][0] == HANDREMOTE_WEAPON)
                 {
-                    p->gotweapon.Set(i);
+                    p->gotweapon[i] = true;
                 }
             }
         }
         else
         {
             p->curr_weapon = PISTOL_WEAPON;
-            p->gotweapon.Set(PISTOL_WEAPON);
-            p->gotweapon.Set(KNEE_WEAPON);
+            p->gotweapon[PISTOL_WEAPON] = true;
+            p->gotweapon[KNEE_WEAPON] = true;
             p->ammo_amount[PISTOL_WEAPON] = 48;
-            p->gotweapon.Set(HANDREMOTE_WEAPON);
+            p->gotweapon[HANDREMOTE_WEAPON] = true;
             p->last_weapon = -1;
         }
 
@@ -1031,7 +1031,7 @@ void enterlevel(MapRecord *mi, int gamemode)
         if (clearweapon)
         {
             resetweapons(i);
-            ps[i].gotweapon.Clear(PISTOL_WEAPON);
+            ps[i].gotweapon[PISTOL_WEAPON] = false;
             ps[i].ammo_amount[PISTOL_WEAPON] = 0;
             ps[i].curr_weapon = KNEE_WEAPON;
             ps[i].kickback_pic = 0;

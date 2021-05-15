@@ -1120,7 +1120,7 @@ int spawn_r(int j, int pn)
 			case SHIELD:
 			case AIRTANK:
 			case TRIPBOMBSPRITE:
-			case JETPACK:
+			case COWPIE:
 			case HOLODUKE:
 
 			case FIRSTGUNSPRITE:
@@ -1142,7 +1142,7 @@ int spawn_r(int j, int pn)
 			case BOOTS:
 			case AMMO:
 			case AMMOLOTS:
-			case COLA:
+			case BEER:
 			case FIRSTAID:
 			case SIXPAK:
 
@@ -1224,7 +1224,7 @@ int spawn_r(int j, int pn)
 					sp->xrepeat = 8;
 					sp->yrepeat = 8;
 					break;
-				case COLA:
+				case BEER:
 					sp->xrepeat = 5;
 					sp->yrepeat = 4;
 					break;
@@ -1242,7 +1242,7 @@ int spawn_r(int j, int pn)
 					sp->xrepeat = 16;
 					sp->yrepeat = 16;
 					break;
-				case JETPACK:
+				case COWPIE:
 					sp->xrepeat = 8;
 					sp->yrepeat = 6;
 					break;

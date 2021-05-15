@@ -123,7 +123,7 @@ public:
 		//
 		// drink
 		//
-		img = tileGetTexture(COLA);
+		img = tileGetTexture(BEER);
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 74, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, imgScale, imgScale);
 		format.Format("%d", p->drink_amt);
@@ -132,7 +132,7 @@ public:
 		//
 		// eat
 		//
-		img = tileGetTexture(JETPACK);
+		img = tileGetTexture(COWPIE);
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 133.5, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, imgScale, imgScale);
 		format.Format("%d", p->eat);
@@ -313,14 +313,14 @@ public:
 
 			if ((g_gameType & GAMEFLAG_RRRA) && i == 4 && p->curr_weapon == CHICKEN_WEAPON)
 			{
-				img = tileGetTexture(AMMO_ICON + 10);
+				img = tileGetTexture(AMMO_ICON10);
 				format.Format("%d", p->ammo_amount[CHICKEN_WEAPON]);
 			}
 			else
 			{
 				if (p->gotweapon[i+1])
 				{
-					img = tileGetTexture(AMMO_ICON + i);
+					img = tileGetTexture(AMMO_ICON0 + i);
 					format.Format("%d", p->ammo_amount[i+1]);
 				}
 			}

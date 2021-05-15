@@ -8,6 +8,7 @@ extern spritetype sprite_s[];
 
 BEGIN_DUKE_NS
 
+
 // all the struct types from JFDuke's duke3d.h
 
 struct STATUSBARTYPE 
@@ -18,7 +19,7 @@ struct STATUSBARTYPE
 	short firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
 	short heat_amount, scuba_amount, boot_amount;
 	short last_weapon, weapon_pos, kickback_pic;
-	FixedBitArray<MAX_WEAPONS> gotweapon; // must be the same type as in player_struct
+	bool gotweapon[MAX_WEAPONS];
 };
 
 struct weaponhit
@@ -171,8 +172,7 @@ struct player_struct
 
 	uint16_t frags[MAXPLAYERS];
 
-	// using a bit field for this to save a bit of space.
-	FixedBitArray<MAX_WEAPONS> gotweapon;
+	bool gotweapon[MAX_WEAPONS];
 
 	// Palette management uses indices into the engine's palette table now.
 	PalEntry pals;
