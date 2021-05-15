@@ -32,7 +32,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "secrets.h"
 #include "statistics.h"
 #include "gamestate.h"
-#include "sbar.h"
 #include "automap.h"
 #include "dukeactor.h"
 #include "interpolate.h"

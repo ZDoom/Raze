@@ -40,7 +40,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "st_start.h"
 #include "i_interface.h"
 #include "prediction.h"
-#include "sbar.h"
 #include "gamestate.h"
 #include "dukeactor.h"
 #include "interpolate.h"

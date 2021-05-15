@@ -477,9 +477,6 @@ void CheckUserMap()
 namespace Duke3d
 {
 	::GameInterface* CreateInterface();
-	DBaseStatusBar* CreateDukeStatusBar();
-	DBaseStatusBar* CreateRedneckStatusBar();
-
 }
 namespace Blood
 {
@@ -832,12 +829,10 @@ void CreateStatusBar()
 	StatusBar->SetSize(0, 320, 200);
 	InitStatusBar();
 	// this is for comparing the scriptification with the C++ versions
-	StatusBar2 = isRR() ? Duke3d::CreateRedneckStatusBar() : Duke3d::CreateDukeStatusBar();
-		
 	//stbarclass = PClass::FindClass("NativeExhumedStatusBar");
 	//StatusBar2 = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
-	StatusBar2->SetSize(0, 320, 200);
-	StatusBar2->Release();
+	//StatusBar2->SetSize(0, 320, 200);
+	//StatusBar2->Release();
 
 }
 

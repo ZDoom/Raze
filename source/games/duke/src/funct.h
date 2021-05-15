@@ -227,6 +227,7 @@ void PlayerColorChanged(void);
 bool movementBlocked(player_struct *p);
 void loadcons();
 void recordoldspritepos();
+void DrawStatusBar();
 
 int* animateptr(int i);
 

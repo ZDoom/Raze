@@ -250,14 +250,5 @@ class BaseStatusBar : StatusBarCore native
 {}
 
 
-class NativeDukeCommonStatusBar : BaseStatusBar native
-{}
-
-class NativeDukeStatusBar : NativeDukeCommonStatusBar native
-{}
-
-class NativeRedneckStatusBar : NativeDukeCommonStatusBar native
-{}
-
 class SWStatusBar : BaseStatusBar native
 {}
