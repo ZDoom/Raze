@@ -291,9 +291,7 @@ void drawoverlays(double smoothratio)
 		}
 	}
 
-	DrawBorder();
-
-	StatusBar->UpdateStatusBar();
+	DrawStatusBar();
 
 	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{

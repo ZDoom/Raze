@@ -57,6 +57,9 @@ public:
 		numberFont = Create<DHUDFont>(BigFont, 0, Off, 1, 1 );
 		miniFont = Create<DHUDFont>(SmallFont2, 0, Off, 1, 1 );
 		digiFont = Create<DHUDFont>(DigiFont, 2, Off, 1, 1 );
+		numberFont->Release();
+		miniFont->Release();
+		digiFont->Release();
 
 		// optionally draw at the top of the screen.
 		SetSize(tileHeight(BOTTOMSTATUSBAR));

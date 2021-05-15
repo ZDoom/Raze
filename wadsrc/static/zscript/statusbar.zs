@@ -26,7 +26,7 @@ class RazeStatusBar : StatusBarCore
 	virtual void Reset() {}
 	virtual void UpdateStatusBar(SummaryInfo info) {}
 
-	void drawStatText(Font statFont, int x, int y, String text, double scale)
+	void drawStatText(Font statFont, double x, double y, String text, double scale)
 	{
 		Screen.DrawText(statfont, Font.CR_UNTRANSLATED, x + scale, y + scale, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_LegacyRenderStyle, STYLE_TranslucentStencil, DTA_Color, 0);

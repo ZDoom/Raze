@@ -31,5 +31,6 @@ public:
 };
 
 void DrawBorder();
+void DrawStatusBar();
 
 END_DUKE_NS

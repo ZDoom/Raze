@@ -194,20 +194,22 @@ class DukeCommonStatusBar : RazeStatusBar
 		}
 		else if (hud_stats)
 		{
-			stats.spacing = Raze.isRR() ? 10 : 7;
 			stats.letterColor = Font.TEXTCOLOR_ORANGE;
 			if (Raze.isNamWW2GI())
 			{
+				stats.spacing = 8;
 				stats.standardColor = Font.TEXTCOLOR_YELLOW;
 				stats.completeColor = Font.TEXTCOLOR_FIRE;
 			}
 			else if (!Raze.isRR())
 			{
+				stats.spacing = 7;
 				stats.standardColor = Font.TEXTCOLOR_CREAM;
 				stats.completeColor = Font.TEXTCOLOR_FIRE;
 			}
 			else
 			{
+				stats.spacing = 10;
 				stats.standardColor =
 					stats.completeColor = Font.TEXTCOLOR_UNTRANSLATED;
 			}

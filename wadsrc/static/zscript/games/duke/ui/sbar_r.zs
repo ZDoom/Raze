@@ -221,7 +221,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 		//
 		// ammo
 		//
-		DrawImage("AMMOBOX", (37, -2), DI_ITEM_LEFT_BOTTOM, scale:(scale, scale));
+		DrawImage("AMMOBOX", (41, -2), DI_ITEM_LEFT_BOTTOM, scale:(scale, scale));
 		int wp = p.curr_weapon == RRWpn.THROWINGDYNAMITE_WEAPON? RRWpn.DYNAMITE_WEAPON : p.curr_weapon;
 		format = String.Format("%d", p.ammo_amount[wp]);
 		DrawString(digiFont, format, (60.25, -digiFont.mFont.GetHeight() * scale - 5.5), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
@@ -233,7 +233,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 		if (icon > 0)
 		{
 			int x = 84;
-			DrawImage("INVENTORYBOX", (69, -2), DI_ITEM_LEFT_BOTTOM, scale:(scale, scale));
+			DrawImage("INVENTORYBOX", (77, -2), DI_ITEM_LEFT_BOTTOM, scale:(scale, scale));
 			if (icon < Duke.ICON_MAX)
 				DrawImage(item_icons[icon], (x, -15.375), DI_ITEM_LEFT|DI_ITEM_VCENTER, scale:(scale, scale));
 
@@ -252,7 +252,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 
 	void DrawHud(DukePlayer p, int style, SummaryInfo info)
 	{
-		BeginHUD(320, 200, 1.f);
+		BeginHUD(1, false, 320, 200);
 		if (style == 1)
 		{
 			double y = -40;
@@ -324,7 +324,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 	void Statusbar(DukePlayer p)
 	{
 		let bsb = TexMan.CheckForTexture("BOTTOMSTATUSBAR", Texman.Type_Any);
-		let siz = TexMan.GetScaledSize(bsb);
+		let siz = TexMan.GetScaledSize(bsb) * scale;
 
 		double wh = 0;
 		if (hud_size < Hud_Stbar) wh = tileHeight("WEAPONBAR") * scale;
@@ -393,8 +393,8 @@ class RedneckStatusBar : DukeCommonStatusBar
 			p.drunkang = 400;
 		}
 		
-		DrawImageRotated("GUTMETER", (256, top + 15), DI_ITEM_RELCENTER, p.drunkang * -Raze.BAngToDegree, 1, (scale, scale), 0xffffffff, 0);
-		DrawImageRotated("GUTMETER", (292, top + 15), DI_ITEM_RELCENTER, p.eatang * -Raze.BAngToDegree, 1, (scale, scale), 0xffffffff, 0);
+		DrawImageRotated("GUTMETER", (256, top + 15), DI_ITEM_RELCENTER, p.drunkang * -Raze.BAngToDegree, 1, (scale, scale));
+		DrawImageRotated("GUTMETER", (292, top + 15), DI_ITEM_RELCENTER, p.eatang * -Raze.BAngToDegree, 1, (scale, scale));
 
 		if (p.drink_amt >= 0 && p.drink_amt <= 30)
 		{

@@ -816,10 +816,13 @@ void CreateStatusBar()
 	{
 		stbarclass = PClass::FindClass("ExhumedStatusBar");
 	}
+	else if (flags & GAMEFLAG_RRALL)
+	{
+		stbarclass = PClass::FindClass("RedneckStatusBar");
+	}
 	else
 	{
-		StatusBar = isRR() ? Duke3d::CreateRedneckStatusBar() : Duke3d::CreateDukeStatusBar();
-		return;
+		stbarclass = PClass::FindClass("DukeStatusBar");
 	}
 	if (!stbarclass)
 	{
@@ -829,12 +832,12 @@ void CreateStatusBar()
 	StatusBar->SetSize(0, 320, 200);
 	InitStatusBar();
 	// this is for comparing the scriptification with the C++ versions
-	/*
-	stbarclass = PClass::FindClass("NativeExhumedStatusBar");
-	StatusBar2 = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
+	StatusBar2 = isRR() ? Duke3d::CreateRedneckStatusBar() : Duke3d::CreateDukeStatusBar();
+		
+	//stbarclass = PClass::FindClass("NativeExhumedStatusBar");
+	//StatusBar2 = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
 	StatusBar2->SetSize(0, 320, 200);
 	StatusBar2->Release();
-	*/
 
 }
 
