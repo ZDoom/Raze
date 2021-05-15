@@ -191,7 +191,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	if (translucent) state.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	state.EnableBrightmap(true);
 
-	//state.SetObjectColor(0xffffffff);
+	state.SetObjectColor(0xffffffff);
 	//state.SetAddColor(0);
 	//state.ApplyTextureManipulation(nullptr);
 }

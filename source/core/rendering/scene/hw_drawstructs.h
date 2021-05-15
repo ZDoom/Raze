@@ -401,15 +401,12 @@ inline void SetSpriteTranslucency(const spritetype* sprite, float& alpha, FRende
 extern PalEntry GlobalMapFog;
 extern float GlobalFogDensity;
 
-__forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palette, int shade, float visibility, float alpha, bool setcolor = true)
+__forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palette, int shade, float visibility, float alpha)
 {
 	// Fog must be done before the texture so that the texture selector can override it.
 	bool foggy = (GlobalMapFog || (fade & 0xffffff));
 	auto ShadeDiv = lookups.tables[palette].ShadeFactor;
-	bool shadow = shade >= numshades;
-
-	if (shadow) state.SetObjectColor(0xff000000); // make sure that nothing lights this up again.
-	else state.SetObjectColor(0xffffffff);
+	if (shade == 127) state.SetObjectColor(0xff000000);	// 127 is generally used for shadow objects that must be black, even in foggy areas.
 
 	// Disable brightmaps if non-black fog is used.
 	if (ShadeDiv >= 1 / 1000.f && foggy)

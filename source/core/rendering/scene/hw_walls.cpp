@@ -128,7 +128,7 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 
 	// Use sphere mapping for this
 	state.SetEffect(EFF_SPHEREMAP);
-	SetLightAndFog(state, fade, palette, shade, visibility, alpha, false);
+	SetLightAndFog(state, fade, palette, min<int>(shade, numshades), visibility, alpha);
 	state.SetColor(PalEntry(25, globalr >> 1, globalg >> 1, globalb >> 1));
 
 	state.SetRenderStyle(STYLE_Add);
@@ -173,8 +173,8 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 	RenderWall(di, state, rflags);
 
 	state.SetNpotEmulation(0.f, 0.f);
-	/* none of these functions is in use.
 	state.SetObjectColor(0xffffffff);
+	/* none of these functions is in use.
 	state.SetObjectColor2(0);
 	state.SetAddColor(0);
 	state.SetTextureMode(tmode);
