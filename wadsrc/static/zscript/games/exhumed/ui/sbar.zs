@@ -487,7 +487,7 @@ class ExhumedStatusBar : RazeStatusBar
 
 		int newMagicLevel = (1000 - pp.nMagic) / magicperline;
 		newMagicLevel = clamp(newMagicLevel, 0, nMeterRange - 1);
-		if (newMagicLevel != nMagicLevel) SetItemSeq(pp);
+		if (newMagicLevel != nMagicLevel || nItemFrames == 0) SetItemSeq(pp);
 		nMagicLevel = newMagicLevel;
 	}
 
@@ -593,7 +593,7 @@ class ExhumedStatusBar : RazeStatusBar
 
 			if (nItemFrame >= nItemFrames)
 			{
-				if (nItemSeq == 67) {
+				if (nItemSeq == 76) {
 					SetItemSeq(pp);
 				}
 				else

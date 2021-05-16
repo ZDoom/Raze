@@ -160,6 +160,7 @@ bool ReadSavegame(const char* name)
 		arc.Close();
 		info->Unlock();
 		delete savereader;
+		ResetStatusBar();
 		return true;
 	}
 	return false;
