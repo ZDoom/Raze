@@ -1088,10 +1088,17 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 
 	zbottom[0] = zbottom[1] = (sprz) * (1 / -256.);
 	ztop[0] = ztop[1] =  (sprz - ((height * spr->yrepeat) << 2)) * (1 / -256.);
+	if (zbottom[0] > ztop[0])
+	{
+		// reorder coordinates to make the clipping code below behave.
+		auto zz = zbottom[0];
+		zbottom[0] = zbottom[1] = ztop[0];
+		ztop[0] = ztop[1] = zz;
+	}
 
 	// Clip sprites to ceilings/floors
-	float origz = ztop[0];
-	float polyh = (zbottom[0] - origz);
+	float origz = zbottom[0];
+	float polyh = (ztop[0] - origz);
 	if (!(sector->ceilingstat & CSTAT_SECTOR_SKY))
 	{
 		float ceilingz = sector->ceilingz * (1 / -256.f);
