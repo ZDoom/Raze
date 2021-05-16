@@ -1094,28 +1094,30 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 		auto zz = zbottom[0];
 		zbottom[0] = zbottom[1] = ztop[0];
 		ztop[0] = ztop[1] = zz;
+		tcs[UPLFT].v = tcs[UPRGT].v = 1.f - tcs[UPLFT].v;
+		tcs[LOLFT].v = tcs[LORGT].v = 1.f - tcs[LOLFT].v;
 	}
 
 	// Clip sprites to ceilings/floors
-	float origz = zbottom[0];
-	float polyh = (ztop[0] - origz);
 	if (!(sector->ceilingstat & CSTAT_SECTOR_SKY))
 	{
+		float polyh = (ztop[0] - zbottom[0]);
 		float ceilingz = sector->ceilingz * (1 / -256.f);
 		if (ceilingz < ztop[0] && ceilingz > zbottom[0])
 		{
-			float newv = (ceilingz - origz) / polyh;
-			tcs[UPLFT].v = tcs[UPRGT].v = newv;
+			float newv = (ceilingz - zbottom[0]) / polyh;
+			tcs[UPLFT].v = tcs[UPRGT].v = tcs[LOLFT].v + newv * (tcs[UPLFT].v - tcs[LOLFT].v);
 			ztop[0] = ztop[1] = ceilingz;
 		}
 	}
 	if (!(sector->floorstat & CSTAT_SECTOR_SKY))
 	{
+		float polyh = (ztop[0] - zbottom[0]);
 		float floorz = sector->floorz * (1 / -256.f);
 		if (floorz < ztop[0] && floorz > zbottom[0])
 		{
-			float newv = (floorz - origz) / polyh;
-			tcs[LOLFT].v = tcs[LORGT].v = newv;
+			float newv = (floorz - zbottom[0]) / polyh;
+			tcs[LOLFT].v = tcs[LORGT].v = tcs[LOLFT].v + newv * (tcs[UPLFT].v - tcs[LOLFT].v);
 			zbottom[0] = zbottom[1] = floorz;
 		}
 	}
