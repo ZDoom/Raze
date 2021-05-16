@@ -192,16 +192,10 @@ bool M_SetSpecialMenu(FName& menu, int param)
 
 void M_StartControlPanel(bool makeSound, bool)
 {
-	static bool created = false;
 	// intro might call this repeatedly
 	if (CurrentMenu != NULL)
 		return;
 
-	if (!created) // Cannot do this earlier.
-	{
-		created = true;
-		M_CreateMenus();
-	}
 	GSnd->SetSfxPaused(true, PAUSESFX_MENU);
 	gi->MenuOpened();
 	if (makeSound && menu_sounds) gi->MenuSound(ActivateSound);
