@@ -421,7 +421,7 @@ __forceinline void SetLightAndFog(FRenderState& state, PalEntry fade, int palett
 	{
 		state.EnableFog(0);
 		state.SetFog(0, 0);
-		state.SetSoftLightLevel(gl_fogmode != 0 && ShadeDiv >= 1 / 1000.f ? 255 - Scale(shade, 255, numshades) : 255);
+		state.SetSoftLightLevel(gl_fogmode != 0 && ShadeDiv >= 1 / 1000.f ? max(0, 255 - Scale(shade, 255, numshades)) : 255);
 		state.SetLightParms(visibility, ShadeDiv / (numshades - 2));
 	}
 
