@@ -1192,10 +1192,10 @@ void S_SetSoundPaused(int state)
 		if (paused == 0)
 		{
 			S_ResumeSound(true);
-			if (GSnd != nullptr)
-			{
-				GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
-			}
+		}
+		if (GSnd != nullptr)
+		{
+			GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
 		}
 	}
 	else
