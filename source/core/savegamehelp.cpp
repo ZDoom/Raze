@@ -844,3 +844,47 @@ CCMD(rotatingquicksave)
 }
 
 
+//==========================================================================
+//
+// CCMD load
+//
+// Load a saved game.
+//
+//==========================================================================
+
+UNSAFE_CCMD(load)
+{
+	if (argv.argc() != 2)
+	{
+		Printf("usage: load <filename>\n");
+		return;
+	}
+	if (netgame)
+	{
+		Printf("cannot load during a network game\n");
+		return;
+	}
+	FString fname = G_BuildSaveName(argv[1]);
+	G_LoadGame(fname);
+}
+
+//==========================================================================
+//
+// CCMD save
+//
+// Save the current game.
+//
+//==========================================================================
+
+UNSAFE_CCMD(save)
+{
+	if (argv.argc() < 2 || argv.argc() > 3)
+	{
+		Printf("usage: save <filename> [description]\n");
+		return;
+	}
+	FString fname = G_BuildSaveName(argv[1]);
+	G_SaveGame(fname, argv.argc() > 2 ? argv[2] : argv[1]);
+}
+
+
