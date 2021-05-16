@@ -152,6 +152,8 @@ public:
     {
         numberFont = Create<DHUDFont>( BigFont, 0, Off, 1, 1 );
         miniFont = Create<DHUDFont>(SmallFont2, 0, Off, 1, 1 );
+        numberFont->Release();
+        miniFont->Release();
     }
 
 private:
@@ -1088,7 +1090,16 @@ void UpdateStatusBar()
         UpdateFrame();
     }
 
-    StatusBar->UpdateStatusBar();
+    SummaryInfo info{};
+    info.kills = Player[screenpeek].Kills;
+    info.maxkills = TotalKillable;
+    info.secrets = Player[screenpeek].SecretsFound;
+    info.maxsecrets = LevelSecrets;
+    info.time = Scale(PlayClock, 1000, 120);
+
+    ::UpdateStatusBar(&info);
+
+
     PLAYERp pp = &Player[screenpeek];
     if (pp->cookieTime > 0)
     {

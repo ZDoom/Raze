@@ -531,9 +531,9 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 
     SummaryInfo info{};
 
-    info.kills = Player->Kills;
+    info.kills = Player[screenpeek].Kills;
     info.maxkills = TotalKillable;
-    info.secrets = Player->SecretsFound;
+    info.secrets = Player[screenpeek].SecretsFound;
     info.maxsecrets = LevelSecrets;
     info.time = PlayClock / 120;
 

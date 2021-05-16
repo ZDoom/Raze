@@ -152,14 +152,15 @@ class SWStatusBar : RazeStatusBar
 		{
 			let ch = buffer.ByteAt(i);
 
-			if (ch == " ")
+			if (ch == "/") ch = 10;
+			else if (ch == ":") ch = 11;
+			else if (ch >= "0" && ch <= "9") ch -= 48;
+			else
 			{
+				if (ch != " ") Console.Printf("Invalid char %c", ch);
 				x += 4;
 				continue;
 			}
-			else if (ch == 0x5c) ch = 0;
-			else if (ch == ":") ch = 11;
-			else ch -= 47;
 
 			let font_pic = SmallSBFont[color][ch];
 			DrawTexture(font_pic, (x, y), DI_ITEM_LEFT_TOP, col:Raze.shadeToLight(shade));
@@ -375,7 +376,7 @@ class SWStatusBar : RazeStatusBar
 			"PANEL_SKELKEY_RED"
 		};
 		let tex = TexMan.CheckForTexture("PANEL_KEY_RED", TexMan.Type_Any);
-		let size = TexMan.GetScaledSize(tex);
+		let size = TexMan.GetScaledSize(tex) + (1, 2);
 
 		i = 0;
 		for (row = 0; row < 2; row++)

@@ -7765,7 +7765,8 @@ DEFINE_ACTION_FUNCTION(_SW, RealWeapon)
 {
     PARAM_PROLOGUE;
     PARAM_INT(inv);
-    ACTION_RETURN_INT(DamageData[inv].with_weapon);
+    int w = DamageData[inv].with_weapon;
+    ACTION_RETURN_INT(w == -1? inv : w);
 }
 
 END_SW_NS
