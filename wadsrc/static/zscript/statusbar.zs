@@ -29,7 +29,7 @@ class RazeStatusBar : StatusBarCore
 	void drawStatText(Font statFont, double x, double y, String text, double scale)
 	{
 		Screen.DrawText(statfont, Font.CR_UNTRANSLATED, x + scale, y + scale, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_LegacyRenderStyle, STYLE_TranslucentStencil, DTA_Color, 0);
+			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_LegacyRenderStyle, STYLE_TranslucentStencil, DTA_Color, 0x80000000);
 		Screen.DrawText(statfont, Font.CR_UNTRANSLATED, x, y, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale);
 	}
@@ -49,7 +49,11 @@ class RazeStatusBar : StatusBarCore
 		double scale = info.fontscale * hud_statscale;
 		if (info.spacing <= 0) info.spacing = info.statfont.GetHeight() * info.fontscale;
 		double spacing = info.spacing * hud_statscale;
-		if (info.screenbottomspace < 0)
+		if (hud_size == Hud_Nothing)
+		{
+			y = 198 - spacing;
+		}
+		else if (info.screenbottomspace < 0)
 		{
 			y = 200 - (RelTop - info.screenbottomspace) * hud_scalefactor - spacing;
 		}
