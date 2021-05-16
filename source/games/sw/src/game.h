@@ -976,7 +976,7 @@ struct PLAYERstruct
     char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
     int cookieTime;
 
-    char WpnReloadState;
+    uint8_t WpnReloadState;
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

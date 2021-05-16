@@ -67,9 +67,9 @@ static const short icons[] = {
     ID_PanelCaltrops,
 };
 
-class DSWStatusBar : public DBaseStatusBar
+class DNativeSWStatusBar : public DBaseStatusBar
 {
-    DECLARE_CLASS(DSWStatusBar, DBaseStatusBar)
+    DECLARE_CLASS(DNativeSWStatusBar, DBaseStatusBar)
     HAS_OBJECT_POINTERS
 
     TObjPtr<DHUDFont*> miniFont, numberFont;
@@ -148,7 +148,7 @@ class DSWStatusBar : public DBaseStatusBar
 
 
 public:
-    DSWStatusBar()
+    DNativeSWStatusBar()
     {
         numberFont = Create<DHUDFont>( BigFont, 0, Off, 1, 1 );
         miniFont = Create<DHUDFont>(SmallFont2, 0, Off, 1, 1 );
@@ -716,7 +716,7 @@ private:
     //
     //---------------------------------------------------------------------------
 
-    bool DoReloadStatus(char *reloadstate, int ammo)
+    bool DoReloadStatus(uint8_t *reloadstate, int ammo)
     {
         bool reloading = ammo == 0 && *reloadstate != 2;
 
@@ -1038,8 +1038,8 @@ public:
 
 };
 
-IMPLEMENT_CLASS(DSWStatusBar, false, true)
-IMPLEMENT_POINTERS_START(DSWStatusBar)
+IMPLEMENT_CLASS(DNativeSWStatusBar, false, true)
+IMPLEMENT_POINTERS_START(DNativeSWStatusBar)
 IMPLEMENT_POINTER(miniFont)
 IMPLEMENT_POINTER(numberFont)
 IMPLEMENT_POINTERS_END

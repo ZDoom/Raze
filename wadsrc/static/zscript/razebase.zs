@@ -250,5 +250,5 @@ class BaseStatusBar : StatusBarCore native
 {}
 
 
-class SWStatusBar : BaseStatusBar native
+class NativeSWStatusBar : BaseStatusBar native
 {}
