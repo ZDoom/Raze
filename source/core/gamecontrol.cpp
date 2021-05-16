@@ -1063,7 +1063,7 @@ int RunGame()
 void updatePauseStatus()
 {
 	// This must go through the network in multiplayer games.
-	if (M_Active() || System_WantGuiCapture())
+	if (M_Active() || System_WantGuiCapture() || !AppActive)
 	{
 		paused = 1;
 	}
