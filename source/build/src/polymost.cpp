@@ -28,6 +28,10 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "gamestruct.h"
 #include "hw_voxels.h"
 
+#ifdef _MSC_VER
+// just make it shut up. Most of this file will go down the drain anyway soon.
+#pragma warning(disable:4244) 
+#endif
 
 typedef struct {
     union { double x; double d; };
@@ -309,7 +313,7 @@ static void polymost_updaterotmat(void)
     renderSetVisibility(g_visibility * fxdimen * (1.f / (65536.f)) / r_ambientlight);
 }
 
-const vec2_16_t tileSize(size_t index)
+const vec2_16_t tileSize(int index)
 {
     vec2_16_t v = { (int16_t)tileWidth(index), (int16_t)tileHeight(index) };
     return v;

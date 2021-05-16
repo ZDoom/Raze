@@ -44,9 +44,9 @@ struct EnemyInfo
 		spr.clipdist = clipdist;
 		spr.hitag = getHealth(*this, spr);
 		if(sizx != -1)
-			spr.xrepeat = sizx;
+			spr.xrepeat = (uint8_t)sizx;
 		if(sizy != -1)
-			spr.yrepeat = sizy;
+			spr.yrepeat = (uint8_t)sizy;
 		spr.lotag = 100;
 		
 		int tflag = 0;

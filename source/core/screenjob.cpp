@@ -94,7 +94,7 @@ void Job_Init()
 
 static VMFunction* LookupFunction(const char* qname, bool validate = true)
 {
-	int p = strcspn(qname, ".");
+	size_t p = strcspn(qname, ".");
 	if (p == 0) I_Error("Call to undefined function %s", qname);
 	FString clsname(qname, p);
 	FString funcname = qname + p + 1;
@@ -488,7 +488,11 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 				if  (tocluster == nullptr || !tocluster->intro.Create(runner, toMap, !!fromMap))
 					globalCutscenes.DefaultMapIntro.Create(runner, toMap, !!fromMap);
 			}
-			globalCutscenes.LoadingScreen.Create(runner, toMap, true);
+			// Skip the load screen if the level is started from the console.
+			// In this case the load screen is not helpful as it blocks the actual level start, 
+			// requiring closing and reopening the console first before entering any commands that need the level.
+			if (ConsoleState == c_up || ConsoleState == c_rising)
+				globalCutscenes.LoadingScreen.Create(runner, toMap, true);
 		}
 		else if (isShareware())
 		{

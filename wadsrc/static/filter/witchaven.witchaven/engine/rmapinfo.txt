@@ -182,5 +182,6 @@ cutscenes
 
 gameinfo
 {
+	StatusbarClass = WHStatusBar
 }  
 

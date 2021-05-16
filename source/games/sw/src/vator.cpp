@@ -504,7 +504,7 @@ int DoVator(short SpriteNum)
 
             // change target
             u->jump_speed = u->vel_tgt;
-            u->vel_rate = labs(u->vel_rate);
+            u->vel_rate = short(abs(u->vel_rate));
             u->z_tgt = sp->z;
 
             RESET_BOOL8(sp);
@@ -663,7 +663,7 @@ int DoVatorAuto(short SpriteNum)
         {
             // change target
             u->jump_speed = u->vel_tgt;
-            u->vel_rate = labs(u->vel_rate);
+            u->vel_rate = short(abs(u->vel_rate));
             u->z_tgt = sp->z;
             u->Tics = u->WaitTics;
 

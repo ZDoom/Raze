@@ -316,19 +316,14 @@ void ms(DDukeActor* const actor)
 
 void movecyclers(void)
 {
-	short q, j, x, t, s, * c;
-	walltype* wal;
-	char cshade;
-
-	for (q = numcyclers - 1; q >= 0; q--)
+	for (int q = numcyclers - 1; q >= 0; q--)
 	{
+		short* c = &cyclers[q][0];
+		int s = c[0];
 
-		c = &cyclers[q][0];
-		s = c[0];
-
-		t = c[3];
-		j = t + bsin(c[1], -10);
-		cshade = c[2];
+		int t = c[3];
+		int j = t + bsin(c[1], -10);
+		int cshade = c[2];
 
 		if (j < cshade) j = cshade;
 		else if (j > t)  j = t;
@@ -336,8 +331,8 @@ void movecyclers(void)
 		c[1] += sector[s].extra;
 		if (c[5])
 		{
-			wal = &wall[sector[s].wallptr];
-			for (x = sector[s].wallnum; x > 0; x--, wal++)
+			auto wal = &wall[sector[s].wallptr];
+			for (int x = sector[s].wallnum; x > 0; x--, wal++)
 				if (wal->hitag != 1)
 				{
 					wal->shade = j;
@@ -4466,7 +4461,7 @@ void handle_se27(DDukeActor* actor)
 		{
 			if (cansee(s->x, s->y, s->z, s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
 			{
-				if (x < (unsigned)sh)
+				if (x < sh)
 				{
 					ud.cameraactor = actor;
 					t[0] = 999;

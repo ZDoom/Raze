@@ -89,7 +89,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("posz", w.posz)
 			("angle", w.angle)
 			("horizon", w.horizon)
-			("gotweapon", w.gotweapon)
+			.Array("gotweapon", w.gotweapon, MAX_WEAPONS)
 			("pals", w.pals)
 			("fricx", w.fric.x)
 			("fricy", w.fric.y)

@@ -353,8 +353,8 @@ void analyzesprites(PLAYER& plr, int dasmoothratio,spritetype* tsprite, int& spr
 						tshadow.z = fz + 1;
 						tshadow.statnum = 99;
 						
-						tshadow.xrepeat = siz;
-						tshadow.yrepeat = (short) (tspr.yrepeat >> 3);
+						tshadow.xrepeat = (uint8_t)siz;
+						tshadow.yrepeat = (uint8_t) (tspr.yrepeat >> 3);
 						if (tshadow.yrepeat < 4)
 							tshadow.yrepeat = 4;
 

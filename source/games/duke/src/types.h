@@ -8,6 +8,7 @@ extern spritetype sprite_s[];
 
 BEGIN_DUKE_NS
 
+
 // all the struct types from JFDuke's duke3d.h
 
 struct STATUSBARTYPE 
@@ -18,7 +19,7 @@ struct STATUSBARTYPE
 	short firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
 	short heat_amount, scuba_amount, boot_amount;
 	short last_weapon, weapon_pos, kickback_pic;
-	FixedBitArray<MAX_WEAPONS> gotweapon; // must be the same type as in player_struct
+	bool gotweapon[MAX_WEAPONS];
 };
 
 struct weaponhit
@@ -50,7 +51,7 @@ struct weaponhit
 		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
-	int GetIndex() const { return this - array(); }
+	int GetIndex() const { return int(this - array()); }
 
 	// Wrapper around some ugliness. The 'owner' field gets abused by some actors, so better wrap its real use in access functions to keep things in order.
 	inline weaponhit* GetOwner()
@@ -171,8 +172,7 @@ struct player_struct
 
 	uint16_t frags[MAXPLAYERS];
 
-	// using a bit field for this to save a bit of space.
-	FixedBitArray<MAX_WEAPONS> gotweapon;
+	bool gotweapon[MAX_WEAPONS];
 
 	// Palette management uses indices into the engine's palette table now.
 	PalEntry pals;

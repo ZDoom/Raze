@@ -192,16 +192,10 @@ bool M_SetSpecialMenu(FName& menu, int param)
 
 void M_StartControlPanel(bool makeSound, bool)
 {
-	static bool created = false;
 	// intro might call this repeatedly
 	if (CurrentMenu != NULL)
 		return;
 
-	if (!created) // Cannot do this earlier.
-	{
-		created = true;
-		M_CreateMenus();
-	}
 	GSnd->SetSfxPaused(true, PAUSESFX_MENU);
 	gi->MenuOpened();
 	if (makeSound && menu_sounds) gi->MenuSound(ActivateSound);
@@ -309,7 +303,7 @@ CCMD(quicksave)
 	// [mxd]. Just save the game, no questions asked.
 	if (!saveloadconfirmation)
 	{
-		G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle, true, true);
+		G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle);
 		return;
 	}
 
@@ -320,7 +314,7 @@ CCMD(quicksave)
 	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
 		{
 			M_ClearMenus();
-			G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle, true, true);
+			G_SaveGame(savegameManager.quickSaveSlot->Filename, savegameManager.quickSaveSlot->SaveTitle);
 		});
 
 	M_ActivateMenu(newmenu);
@@ -416,7 +410,7 @@ static void BuildEpisodeMenu()
 		}
 
 		ld->mSelectedItem = gDefaultVolume + ld->mItems.Size(); // account for pre-added items
-		int y = ld->mYpos;
+		double y = ld->mYpos;
 
 		// Volume definitions should be sorted by intended menu order.
 		for (auto &vol : volumes)
@@ -473,7 +467,7 @@ static void BuildEpisodeMenu()
 		}
 		if (isBlood()) gDefaultSkill = 2;
 		ld->mSelectedItem = gDefaultSkill + ld->mItems.Size(); // account for pre-added items
-		int y = ld->mYpos;
+		double y = ld->mYpos;
 
 		for (int i = 0; i < MAXSKILLS; i++)
 		{

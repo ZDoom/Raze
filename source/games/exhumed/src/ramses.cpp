@@ -150,7 +150,7 @@ void InitSpiritHead()
 	}
 	else
 	{
-		nPupData = headfd.Read(cPupData, sizeof(cPupData));
+		nPupData = (int)headfd.Read(cPupData, sizeof(cPupData));
 		pPupData = cPupData;
 	}
     nMouthTile = 0;
@@ -383,13 +383,13 @@ void DoSpiritHead()
             {
                 sprite[nSpiritSprite].xrepeat -= 2;
                 if (sprite[nSpiritSprite].xrepeat < nSpiritRepeatX)
-                    sprite[nSpiritSprite].xrepeat = nSpiritRepeatX;
+                    sprite[nSpiritSprite].xrepeat = (uint8_t)nSpiritRepeatX;
             }
             if (sprite[nSpiritSprite].yrepeat > nSpiritRepeatY) 
             {
                 sprite[nSpiritSprite].yrepeat -= 2;
                 if (sprite[nSpiritSprite].yrepeat < nSpiritRepeatY)
-                    sprite[nSpiritSprite].yrepeat = nSpiritRepeatY;
+                    sprite[nSpiritSprite].yrepeat = (uint8_t)nSpiritRepeatY;
             }
 
             int nCount = 0;

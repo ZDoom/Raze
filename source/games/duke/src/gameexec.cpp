@@ -633,7 +633,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 
 	case PLAYER_ONE_EIGHTY_COUNT:
 		if (bSet) ps[iPlayer].angle.spin = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].angle.spin, sActor, sPlayer);
+		else SetGameVarID(lVar2, int(ps[iPlayer].angle.spin), sActor, sPlayer);
 		break;
 
 	case PLAYER_CHEAT_PHASE:
@@ -851,7 +851,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_GOTWEAPON:
-		if (bSet) ps[iPlayer].gotweapon.Set(lParm2, lValue);
+		if (bSet) ps[iPlayer].gotweapon[lParm2, lValue] = true;
 		else SetGameVarID(lVar2, ps[iPlayer].gotweapon[lParm2], sActor, sPlayer);
 		break;
 
@@ -987,11 +987,11 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 		else SetGameVarID(lVar2, wall[iWall].yrepeat, sActor, sPlayer);
 		break;
 	case WALL_XPANNING:
-		if (bSet) wall[iWall].xpan_ = lValue;
+		if (bSet) wall[iWall].xpan_ = (float)(lValue & 255);
 		else SetGameVarID(lVar2, wall[iWall].xpan(), sActor, sPlayer);
 		break;
 	case WALL_YPANNING:
-		if (bSet) wall[iWall].ypan_ = lValue;
+		if (bSet) wall[iWall].ypan_ = (float)(lValue & 255);
 		else SetGameVarID(lVar2, wall[iWall].ypan(), sActor, sPlayer);
 		break;
 	case WALL_LOTAG:
@@ -1077,11 +1077,11 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, sector[iSector].ceilingpal, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGXPANNING:
-		if (bSet) sector[iSector].ceilingxpan_ = lValue;
+		if (bSet) sector[iSector].ceilingxpan_ = (float)(lValue & 255);
 		else SetGameVarID(lVar2, sector[iSector].ceilingxpan(), sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGYPANNING:
-		if (bSet) sector[iSector].ceilingypan_ = lValue;
+		if (bSet) sector[iSector].ceilingypan_ = (float)(lValue & 255);
 		else SetGameVarID(lVar2, sector[iSector].ceilingypan(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORPICNUM:
@@ -1101,11 +1101,11 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, sector[iSector].floorpal, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORXPANNING:
-		if (bSet) sector[iSector].floorxpan_ = lValue;
+		if (bSet) sector[iSector].floorxpan_ = (float)(lValue & 255);
 		else SetGameVarID(lVar2, sector[iSector].floorxpan(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORYPANNING:
-		if (bSet) sector[iSector].floorypan_ = lValue;
+		if (bSet) sector[iSector].floorypan_ = (float)(lValue & 255);
 		else SetGameVarID(lVar2, sector[iSector].floorypan(), sActor, sPlayer);
 		break;
 	case SECTOR_VISIBILITY:
@@ -1698,7 +1698,7 @@ int ParseState::parse(void)
 				ps[connecthead].max_actors_killed++; //revive the egg
 				g_ac->temp_data[5] = 0;
 			}
-			g_sp->pal = g_ac->tempang;
+			g_sp->pal = (uint8_t)g_ac->tempang;
 		}
 		g_ac->tempang = 0;
 		break;
@@ -2194,7 +2194,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_clipdist:
 		insptr++;
-		g_sp->clipdist = (short) *insptr;
+		g_sp->clipdist = (uint8_t) *insptr;
 		insptr++;
 		break;
 	case concmd_cstat:
@@ -2809,7 +2809,7 @@ int ParseState::parse(void)
 		parseifelse( fi.floorspace(g_sp->sectnum));
 		break;
 	case concmd_ifnotmoving:
-		parseifelse( (g_ac->movflag&kHitTypeMask) > kHitSprite );
+		parseifelse( (g_ac->movflag&kHitTypeMask) > kHitSector );
 		break;
 	case concmd_respawnhitag:
 		insptr++;

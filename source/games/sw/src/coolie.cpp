@@ -474,7 +474,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     if (u->lo_sectp) // && SectUser[u->lo_sectp - sector])
     {
         int i;
-        short sectnum = u->lo_sectp - sector;
+        short sectnum = short(u->lo_sectp - sector);
 
         if (SectUser[sectnum].Data() && TEST(u->lo_sectp->extra, SECTFX_SINK))
         {
@@ -519,7 +519,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
     // for actors this tells the number of weapons available
     // for player it tells the current weapon
-    u->WeaponNum = wpn_cnt;
+    u->WeaponNum = int8_t(wpn_cnt);
 }
 
 int

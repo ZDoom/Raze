@@ -84,8 +84,8 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
 	assert (BufferLock > 0);
 	applyMapFog();
-	renderState.vindex = start;
-	renderState.vcount = count;
+	renderState.vindex = (int)start;
+	renderState.vcount = (int)count;
 	renderState.primtype = type;
 	rendercommands.Push(renderState);
 	clearMapFog();
@@ -115,7 +115,7 @@ void GLInstance::DoDraw()
 				}
 				else
 				{
-					FHWModelRenderer mr(*screen->RenderState(), 0);
+					FHWModelRenderer mr(*screen->RenderState(), -1);
 					state.SetDepthFunc(DF_LEqual);
 					state.EnableTexture(true);
 					rs.model->BuildVertexBuffer(&mr);

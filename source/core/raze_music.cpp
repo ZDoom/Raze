@@ -49,7 +49,6 @@ static FString lastStartedMusic;
 TArray<FString> specialmusic;
 
 MusicAliasMap MusicAliases;
-MusicAliasMap LevelMusicAliases;
 
 CVAR(Bool, printmusicinfo, false, 0)
 CVAR(Bool, mus_extendedlookup, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -191,31 +190,18 @@ static FString LookupMusicCB(const char* musicname, int& order)
 }
 
 
-static FString lastMusicLevel, lastMusic;
-int Mus_Play(const char *mapname, const char *fn, bool loop)
+static FString lastMusic;
+int Mus_Play(const char *fn, bool loop)
 {
 	if (mus_blocked) return 1;	// Caller should believe it succeeded.
 	if (*fn == '/') fn++;
 	// Store the requested names for resuming.
-	lastMusicLevel = mapname;
 	lastMusic = fn;
 	
 	if (!MusicEnabled())
 	{
 		return 1;
 	}
-
-	// Allow per level music substitution.
-	// For most cases using $musicalias would be sufficient, but that method only works if a level actually has some music defined at all.
-	// This way it can be done with an add-on definition lump even in cases like Redneck Rampage where no music definitions exist 
-	// or where music gets reused for multiple levels but replacement is wanted individually.
-	if (mapname && *mapname)
-	{
-		if (*mapname == '/') mapname++;
-		FName *check = LevelMusicAliases.CheckKey(FName(mapname, true));
-		if (check) fn = check->GetChars();
-	}
-
 	return S_ChangeMusic(fn, 0, loop, true);
 }
 

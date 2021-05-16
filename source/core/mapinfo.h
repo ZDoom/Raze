@@ -104,6 +104,7 @@ struct GlobalCutscenes
 	CutsceneDef LoadingScreen;
 	FString MPSummaryScreen;
 	FString SummaryScreen;
+	FString StatusBarClass;
 };
 
 struct ClusterDef

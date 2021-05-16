@@ -86,7 +86,7 @@ void StopFX(void);
 void StopSound(void);
 void StartAmbientSound(void);
 void StopAmbientSound(void);
-bool PlaySong(const char *mapname, const char *song_file_name, int cdaudio_track, bool isThemeTrack = false); //(nullptr, nullptr, -1, false) starts the normal level music.
+bool PlaySong(const char *song_file_name, int cdaudio_track, bool isThemeTrack = false); //(nullptr, nullptr, -1, false) starts the normal level music.
 void PlaySoundRTS(int rts_num);
 
 //

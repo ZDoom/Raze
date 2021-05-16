@@ -112,9 +112,9 @@ void InitFonts_d()
 	fontdata.Clear();
 
 	// SBAR index font
-	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE + i));
-	fontdata.Insert(':', tileGetTexture(THREEBYFIVE + 10));
-	fontdata.Insert('/', tileGetTexture(THREEBYFIVE + 11));
+	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE0 + i));
+	fontdata.Insert(':', tileGetTexture(THREEBYFIVE0 + 10));
+	fontdata.Insert('/', tileGetTexture(THREEBYFIVE0 + 11));
 	fontdata.Insert('%', tileGetTexture(MINIFONT + '%' - '!'));
 	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
 	GlyphSet::Iterator iti(fontdata);

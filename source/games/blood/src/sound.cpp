@@ -181,6 +181,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, 
             else nVolume = 255;
         }
         if (bLoop) chanflags |= CHANF_LOOP;
+        soundEngine->StopActorSounds(SOURCE_None, nullptr, nChannel + 1, nChannel + 1);
         soundEngine->StartSound(SOURCE_None, nullptr, nullptr, (nChannel + 1), chanflags, snd, nVolume / 255.f, ATTN_NONE);
     }
 }

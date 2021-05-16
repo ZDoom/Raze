@@ -140,7 +140,7 @@ void GameInterface::UpdateSounds()
 
 	if (player[pyrn].spritenum >= 0)
 	{
-		listener.angle = -FixedToFloat(player[pyrn].angle.ang.asq16()) * pi::pi() / 1024; // Build uses a period of 2048.
+		listener.angle = float(-FixedToFloat(player[pyrn].angle.ang.asq16()) * pi::pi() / 1024); // Build uses a period of 2048.
 		listener.velocity.Zero();
 		vec3_t ppos{ player[pyrn].x, player[pyrn].y, player[pyrn].z };
 		listener.position = GetSoundPos(&ppos);
@@ -166,7 +166,7 @@ int playsound_internal(int sn, spritetype *spr, int x, int y, int loop, int chan
 	int sourcetype = spr ? SOURCE_Actor : x != 0 || y != 0 ? SOURCE_Unattached : SOURCE_None;
 	vec3_t pos = { x, y, 0 };	
 	auto spos = GetSoundPos(&pos);
-	float attn = sourcetype == SOURCE_None ? 0 : 1;
+	float attn = sourcetype == SOURCE_None ? ATTN_NONE : ATTN_NORM;
 	int flags = sourcetype == SOURCE_Unattached ? CHANF_LISTENERZ : CHANF_NONE;
 	if (loop != 0) flags |= CHANF_LOOP;
 	auto sfx = soundEngine->StartSound(sourcetype, spr, &spos, chan, EChanFlags::FromInt(flags), sn, 1.f, attn);

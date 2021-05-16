@@ -11,7 +11,7 @@ extern TArray<FString> specialmusic;
 // Totally minimalistic interface - should be all the game modules need.
 void Mus_InitMusic();
 void Mus_UpdateMusic();
-int Mus_Play(const char *mapname, const char *fn, bool loop);
+int Mus_Play(const char *fn, bool loop);
 void Mus_Stop();
 bool Mus_IsPlaying();
 void Mus_SetPaused(bool on);

@@ -15,6 +15,8 @@ short torchpattern[] = { 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 4, 4, 6, 6, 4, 4, 6
 int monsterwarptime;
 
 short adjusthp(int hp) {
+#if 0
+	// this doesn't do much because 'factor' will always be 0 due to integer division
 	float factor = (krand() % 20) / 100;
 	int howhard = difficulty;
 
@@ -22,6 +24,9 @@ short adjusthp(int hp) {
 		return (short) ((hp * (factor + 1)) * howhard);
 	else
 		return (short) ((hp - (hp * (factor))) * howhard);
+#else
+	return (short)(hp * difficulty);
+#endif
 }
 
 void timerprocess(PLAYER& plr) {

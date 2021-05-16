@@ -292,7 +292,7 @@ static void beastThinkChase(DBloodActor* actor)
                     else
                         pXSector = NULL;
                     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
-                    if (pXTarget->health > gPlayerTemplate[0].startHealth/2)
+                    if (pXTarget->health > (unsigned)gPlayerTemplate[0].startHealth/2)
                     {
                         switch (hit)
                         {

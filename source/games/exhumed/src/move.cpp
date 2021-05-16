@@ -201,7 +201,6 @@ void MoveThings()
         actortime.Unclock();
     }
 
-    MoveStatus();
     DoBubbleMachines();
     DoDrips();
     DoMovingSects();

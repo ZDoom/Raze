@@ -55,6 +55,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "raze_music.h"
 #include "v_draw.h"
 #include "gamestate.h"
+#include "vm.h"
 
 BEGIN_SW_NS
 
@@ -1198,7 +1199,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
             // Get the angle difference
             // delta_ang = labs(pp->angle.ang.asbuild() - angle2);
 
-            delta_ang = labs(getincangle(angle2, sp->ang));
+            delta_ang = short(abs(getincangle(angle2, sp->ang)));
 
             // If delta_ang not in the range skip this one
             if (delta_ang > (int)max_delta_ang)
@@ -1554,13 +1555,13 @@ DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = float((MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }
     else
     {
-        avel = avel * synctics * 0.125;
+        avel *= synctics * 0.125f;
     }
 
     if (avel != 0)
@@ -1583,13 +1584,13 @@ DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (MulScaleF(pp->input.avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = float((MulScaleF(pp->input.avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }
     else
     {
-        avel = pp->input.avel * synctics * 0.125;
+        avel = pp->input.avel * synctics * 0.125f;
     }
 
     if (avel != 0)
@@ -1612,16 +1613,16 @@ DoPlayerTurnTurret(PLAYERp pp, float avel)
     if (sop->drive_angspeed)
     {
         float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_avel = float((MulScaleF(avel, sop->drive_angspeed, 16) + (drive_oavel * (sop->drive_angslide - 1))) / sop->drive_angslide);
 
         avel = pp->drive_avel;
     }
     else
     {
-        avel = avel * synctics * 0.25;
+        avel = avel * synctics * 0.25f;
     }
 
-    if (avel != 0)
+    if (fabs(avel) >= FLT_EPSILON)
     {
         new_ang = pp->angle.ang + degang(avel);
 
@@ -1629,9 +1630,9 @@ DoPlayerTurnTurret(PLAYERp pp, float avel)
         {
             diff = getincanglebam(buildang(sop->limit_ang_center), new_ang);
 
-            if (labs(diff.asbuild()) >= sop->limit_ang_delta)
+            if (labs(diff.signedbuild()) >= sop->limit_ang_delta)
             {
-                if (diff.asbam() < 0)
+                if (diff.asbam() > INT32_MAX)
                     new_ang = buildang(sop->limit_ang_center - sop->limit_ang_delta);
                 else
                     new_ang = buildang(sop->limit_ang_center + sop->limit_ang_delta);
@@ -2458,7 +2459,7 @@ void DoTankTreads(PLAYERp pp)
 
     for (sectp = pp->sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        SectIterator it(*sectp - sector);
+        SectIterator it(int(*sectp - sector));
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
@@ -2694,7 +2695,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     // if it ends up actually in the drivable sector kill it
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        SectIterator it((*sectp) - sector);
+        SectIterator it(int(*sectp - sector));
         while ((i = it.NextIndex()) >= 0)
         {
             sp = &sprite[i];
@@ -2861,7 +2862,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
                     else
                         u->ret = 0;
 
-                    VehicleMoveHit(sp - sprite);
+                    VehicleMoveHit(short(sp - sprite));
                 }
 
                 if (!TEST(sop->flags, SOBJ_NO_QUAKE))
@@ -2906,7 +2907,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
 
             if (vel > 13000)
             {
-                VehicleMoveHit(sp - sprite);
+                VehicleMoveHit(short(sp - sprite));
                 pp->slide_xvect = -pp->xvect<<1;
                 pp->slide_yvect = -pp->yvect<<1;
                 if (!TEST(sop->flags, SOBJ_NO_QUAKE))
@@ -3462,7 +3463,11 @@ DoPlayerClimb(PLAYERp pp)
 
     DoPlayerZrange(pp);
 
-    ASSERT(pp->LadderSector >= 0 && pp->LadderSector <= MAXSECTORS);
+    if (pp->LadderSector < 0 || pp->LadderSector > MAXSECTORS) 
+	{
+		Printf("Bad ladder sector!\n");
+		return;
+	}
 
     // moving UP
     if (climbvel > 0)
@@ -3573,8 +3578,6 @@ DoPlayerClimb(PLAYERp pp)
 
         if (wal >= 0)
         {
-            pp->LadderSector = wall[wal].nextsector;
-
             lsp = FindNearSprite(pp->SpriteP, STAT_CLIMB_MARKER);
 
             // determine where the player is supposed to be in relation to the ladder
@@ -3583,7 +3586,7 @@ DoPlayerClimb(PLAYERp pp)
             ny = MOVEy(100, lsp->ang);
 
             // set ladder sector
-            pp->LadderSector = wall[wal].nextsector;
+            pp->LadderSector = wall[wal].nextsector >= 0? wall[wal].nextsector : wall[wal].sector;
 
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
@@ -3994,7 +3997,7 @@ PlayerOnLadder(PLAYERp pp)
     }
 #endif
 
-    pp->LadderSector = wall[wal].nextsector;
+    pp->LadderSector = wall[wal].nextsector >= 0 ? wall[wal].nextsector : wall[wal].sector;
     //DSPRINTF(ds, "Ladder Sector %d", pp->LadderSector);
     MONO_PRINT(ds);
 
@@ -4809,7 +4812,7 @@ DoPlayerDive(PLAYERp pp)
         int nx,ny;
 
         PlaySound(DIGI_BUBBLES, pp, v3df_none);
-        bubble = SpawnBubble(pp->SpriteP - sprite);
+        bubble = SpawnBubble(short(pp->SpriteP - sprite));
         if (bubble >= 0)
         {
             bp = &sprite[bubble];
@@ -7318,7 +7321,7 @@ void
 PlayerSpawnPosition(PLAYERp pp)
 {
     SPRITEp sp;
-    short pnum = pp - Player;
+    short pnum = short(pp - Player);
     short spawn_sprite = 0, pos_num = pnum;
     int fz,cz;
     int i;
@@ -7595,4 +7598,175 @@ saveable_module saveable_player =
     saveable_player_data,
     SIZ(saveable_player_data)
 };
+
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, sop_remote)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, jump_count)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, jump_speed)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, down_speed)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, up_speed)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, z_speed)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oz_speed)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, climb_ndx)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, hiz)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, loz)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, ceiling_dist)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, floor_dist)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, circle_camera_dist)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, six)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, siy)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, siz)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, siang)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, xvect)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, yvect)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oxvect)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oyvect)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, friction)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_xvect)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_yvect)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_ang)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, slide_dec)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, drive_avel)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, view_outside_dang)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, circle_camera_ang)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, camera_check_time_delay)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, cursectnum)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, lastcursectnum)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, turn180_target)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, hvel)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, tilt)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, tilt_dest)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_amt)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_speed)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_ndx)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_horizoff)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposx)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposy)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposz)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, RevolveX)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, RevolveY)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, RevolveDeltaAng)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, pnum)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, LadderSector)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, lx)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, ly)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, JumpDuration)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WadeDepth)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, bob_amt)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, bob_ndx)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, bcnt)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, bob_z)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, obob_z)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, playerreadyflag)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Flags)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Flags2)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, HasKey)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, SwordAng)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnGotOnceFlags)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnFlags)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnAmmo)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnNum)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnRocketType)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnRocketHeat)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnRocketNuke)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnFlameType)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnFirstType)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WeaponType)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, FirePause)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, InventoryNum)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, InventoryBarTics)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, InventoryTics)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, InventoryPercent)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, InventoryAmount)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, InventoryActive)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, DiveTics)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, DiveDamageTics)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, DeathType)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Kills)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, SecretsFound)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Armor)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, MaxHealth)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, UziShellLeftAlt)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, UziShellRightAlt)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, TeamColor)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, FadeTics)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, FadeAmt)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, NightVision)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, StartColor)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, IsAI)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, fta)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, ftq)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, NumFootPrints)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnUziType)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnShotgunType)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnShotgunAuto)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnShotgunLastShell)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnRailType)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Bloody)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, InitingNuke)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, TestNukeInit)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, NukeInitialized)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, FistAng)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnKungFuMove)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, HitBy)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Reverb)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, Heads)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, PlayerVersion)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnReloadState)
+
+DEFINE_ACTION_FUNCTION(_SWPlayer, WeaponNum)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
+    USERp uu = User[self->PlayerSprite].Data();
+    ACTION_RETURN_INT(uu->WeaponNum);
+}
+
+DEFINE_ACTION_FUNCTION(_SWPlayer, Health)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
+    USERp uu = User[self->PlayerSprite].Data();
+    ACTION_RETURN_INT(uu->Health);
+}
+
+DEFINE_ACTION_FUNCTION(_SWPlayer, MaxUserHealth)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
+    USERp uu = User[self->PlayerSprite].Data();
+    ACTION_RETURN_INT(uu->MaxHealth);
+}
+
+DEFINE_ACTION_FUNCTION(_SWPlayer, GetBuildAngle)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
+    ACTION_RETURN_INT(self->angle.ang.asbuild());
+}
+
+DEFINE_ACTION_FUNCTION(_SW, WeaponMaxAmmo)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(wp);
+    ACTION_RETURN_INT(DamageData[wp].max_ammo);
+}
+
+DEFINE_ACTION_FUNCTION(_SW, InventoryFlags)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(inv);
+    INVENTORY_DATAp id = &InventoryData[inv];
+    ACTION_RETURN_INT(id->Flags);
+}
+
+DEFINE_ACTION_FUNCTION(_SW, GetViewPlayer)
+{
+    PARAM_PROLOGUE;
+    ACTION_RETURN_POINTER(&Player[screenpeek]);
+}
+
+DEFINE_ACTION_FUNCTION(_SW, RealWeapon)
+{
+    PARAM_PROLOGUE;
+    PARAM_INT(inv);
+    int w = DamageData[inv].with_weapon;
+    ACTION_RETURN_INT(w == -1? inv : w);
+}
+
 END_SW_NS

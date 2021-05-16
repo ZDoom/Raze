@@ -137,10 +137,10 @@ void DrawRel(int tile, double x, double y, int shade)
 // this might be static within the DoPlasma function?
 static uint8_t* PlasmaBuffer;
 static int nPlasmaTile = kTile4092;
-static unsigned int nSmokeBottom;
-static unsigned int nSmokeRight;
-static unsigned int nSmokeTop;
-static unsigned int nSmokeLeft;
+static int nSmokeBottom;
+static int nSmokeRight;
+static int nSmokeTop;
+static int nSmokeLeft;
 static int nextPlasmaTic;
 static int plasma_A[5] = { 0 };
 static int plasma_B[5] = { 0 };
@@ -313,7 +313,7 @@ void menu_DoPlasma()
             if (badOffset)
                 continue;
 
-            unsigned int nSmokeOffset = 0;
+            int nSmokeOffset = 0;
 
             if (plasma_A[j])
             {

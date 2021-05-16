@@ -421,7 +421,7 @@ int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, in
             nShade = -100;
 
         double alpha = 1;
-        if (nPlayerInvisible[nLocalPlayer]) {
+        if (PlayerList[nLocalPlayer].nInvisible) {
             alpha = 0.3;
         }
 
@@ -503,12 +503,12 @@ int seq_PlotArrowSequence(short nSprite, short nSeq, int nVal)
 
     if (ChunkFlag[nFrameBase] & 1)
     {
-        pTSprite->xoffset = ChunkXpos[nFrameBase];
+        pTSprite->xoffset = (int8_t)ChunkXpos[nFrameBase];
         pTSprite->cstat |= 4;
     }
     else
     {
-        pTSprite->xoffset = -ChunkXpos[nFrameBase];
+        pTSprite->xoffset = (int8_t)-ChunkXpos[nFrameBase];
     }
 
     pTSprite->yoffset = -ChunkYpos[nFrameBase];
@@ -588,7 +588,7 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
 
         if (ChunkFlag[nBase] & 1)
         {
-            tsp->xoffset = ChunkXpos[nBase];
+            tsp->xoffset = (int8_t)ChunkXpos[nBase];
             tsp->cstat |= 4; // x-flipped
         }
         else

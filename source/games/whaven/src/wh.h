@@ -418,7 +418,7 @@ inline void showmessage(const char* msg, int)
 
 inline bool isValidSector(int num)
 {
-	return ((unsigned)num < numsectors);
+	return ((unsigned)num < (unsigned)numsectors);
 }
 
 inline int BClampAngle(int a)

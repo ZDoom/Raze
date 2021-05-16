@@ -487,7 +487,7 @@ void GameInterface::Render()
 
 void sndPlaySpecialMusicOrNothing(int nMusic)
 {
-	if (!Mus_Play(nullptr, quoteMgr.GetQuote(nMusic), true))
+	if (!Mus_Play(quoteMgr.GetQuote(nMusic), true))
 	{
 		Mus_Stop();
 	}
@@ -539,7 +539,7 @@ DEFINE_ACTION_FUNCTION(_Blood, OriginalLoadScreen)
 
 DEFINE_ACTION_FUNCTION(_Blood, PlayIntroMusic)
 {
-	Mus_Play(nullptr, "PESTIS.MID", false);
+	Mus_Play("PESTIS.MID", false);
 	return 0;
 }
 
@@ -563,6 +563,39 @@ DEFINE_ACTION_FUNCTION(_Blood, sndStartSampleNamed)
 	PARAM_INT(chan);
 	sndStartSample(id, vol, chan);
 	return 0;
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, PowerupIcon)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(pwup);
+	int tile = -1;
+	if (pwup >= 0 && pwup < (int)countof(gPowerUpInfo))
+	{
+		tile = gPowerUpInfo[pwup].picnum;
+	}
+	FGameTexture* tex = tileGetTexture(tile);
+	ACTION_RETURN_INT(tex ? tex->GetID().GetIndex() : -1);
+}
+
+DEFINE_ACTION_FUNCTION(_Blood, GetViewPlayer)
+{
+	PARAM_PROLOGUE;
+	ACTION_RETURN_POINTER(gView);
+}
+
+DEFINE_ACTION_FUNCTION(_BloodPlayer, GetHealth)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+	XSPRITE* pXSprite = self->pXSprite;
+	ACTION_RETURN_INT(pXSprite->health);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_BloodPlayer, powerupCheck, powerupCheck)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+	PARAM_INT(pwup);
+	ACTION_RETURN_INT(powerupCheck(self, pwup));
 }
 
 END_BLD_NS

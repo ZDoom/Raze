@@ -37,6 +37,30 @@ enum EGameType
 
 };
 
+enum AM_Mode
+{
+	am_off,
+	am_overlay,
+	am_full,
+	am_count
+}
+
+enum EHudSize
+{
+	Hud_Current = -1,
+	Hud_Frame50 = 0,
+	Hud_Frame60,
+	Hud_Frame70,
+	Hud_Frame80,
+	Hud_Frame90,
+	Hud_Stbar,
+	Hud_StbarOverlay,
+	Hud_Mini,
+	Hud_full,
+	Hud_Nothing,
+	Hud_MAX
+}
+
 struct UserConfigStruct native
 {
 	native readonly bool nomonsters;
@@ -49,6 +73,8 @@ extend struct _
 	native @UserConfigStruct userConfig;
 	native readonly MapRecord currentLevel;
 	native readonly int paused;
+	native readonly int automapMode;
+	native readonly int PlayClock;
 }
 
 struct MapRecord native
@@ -114,6 +140,9 @@ struct SummaryInfo native
 
 struct Raze
 {
+	const kAngleMask	= 0x7FF;
+	const BAngToDegree = 360. / 2048.;
+
 	static int calcSinTableValue(int ang)
 	{
 		return int(16384 * sin((360./2048) * ang));
@@ -128,6 +157,8 @@ struct Raze
 	native static double GetTimeFrac();
 	native static int bsin(int angle, int shift = 0);
 	native static int bcos(int angle, int shift = 0);
+	native static TextureID PickTexture(TextureID texid);
+	native static int GetBuildTime();
 	
 	static bool specialKeyEvent(InputEvent ev)
 	{
@@ -218,27 +249,3 @@ class RazeMenuDelegate : MenuDelegateBase
 	native override void MenuDismissed();
 	
 }
-
-// dummy definitions for the status bar. We need them to create the class descriptors
-
-class BaseStatusBar : StatusBarCore native 
-{}
-
-
-class BloodStatusBar : BaseStatusBar native
-{}
-
-class DukeCommonStatusBar : BaseStatusBar native
-{}
-
-class DukeStatusBar : DukeCommonStatusBar native
-{}
-
-class RedneckStatusBar : DukeCommonStatusBar native
-{}
-
-class ExhumedStatusBar : BaseStatusBar native
-{}
-
-class SWStatusBar : BaseStatusBar native
-{}

@@ -27,9 +27,9 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	{
 		auto& prevloc = gPrevPlayerLoc[num];
 
-		cposx = prevloc.x + MulScale(cposx - prevloc.x, dasmoothratio, 16);
-		cposy = prevloc.y + MulScale(cposy - prevloc.y, dasmoothratio, 16);
-		cposz = prevloc.z + MulScale(cposz - prevloc.z, dasmoothratio, 16);
+		cposx = prevloc.x + MulScale(cposx - prevloc.x, (int)dasmoothratio, 16);
+		cposy = prevloc.y + MulScale(cposy - prevloc.y, (int)dasmoothratio, 16);
+		cposz = prevloc.z + MulScale(cposz - prevloc.z, (int)dasmoothratio, 16);
 
 		if (cl_syncinput)
 		{
@@ -73,7 +73,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			inpreparemirror = true;
 			renderSetRollAngle(1024);
 			renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), floormirrorsector[i]);
-			analyzesprites(plr, dasmoothratio, pm_tsprite, pm_spritesortcnt);
+			analyzesprites(plr, (int)dasmoothratio, pm_tsprite, pm_spritesortcnt);
 			renderDrawMasks();
 			renderSetRollAngle(0);
 			inpreparemirror = false;
@@ -91,9 +91,9 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 
 	if (!testnewrenderer)
 	{
-		renderSetRollAngle(crotscrnang.asbuildf());
+		renderSetRollAngle((float)crotscrnang.asbuildf());
 		renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), plr.sector);
-		analyzesprites(plr, dasmoothratio, pm_tsprite, pm_spritesortcnt);
+		analyzesprites(plr, (int)dasmoothratio, pm_tsprite, pm_spritesortcnt);
 		renderDrawMasks();
 	}
 	else

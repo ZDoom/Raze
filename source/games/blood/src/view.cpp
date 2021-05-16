@@ -742,7 +742,7 @@ void viewDrawScreen(bool sceneonly)
         }
         else
         {
-            renderSetRollAngle(rotscrnang.asbuildf());
+            renderSetRollAngle((float)rotscrnang.asbuildf());
             render3DViewPolymost(nSectnum, cX, cY, cZ, cA, cH);
         }
         bDeliriumOld = bDelirium && gDeliriumBlur;
@@ -785,12 +785,6 @@ void viewDrawScreen(bool sceneonly)
     {
         gChoke.animateChoke(160, zn, (int)gInterpolate);
     }
-#if 0
-    if (drawtile_2048)
-    {
-        DrawStatSprite(2048, xdim-15, 20);
-    }
-#endif
 
     viewDrawAimedPlayerName();
     if (paused)

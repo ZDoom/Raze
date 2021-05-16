@@ -234,7 +234,7 @@ if( MSVC )
 	set( ALL_C_FLAGS "${ALL_C_FLAGS} /wd4996 /DUNICODE /D_UNICODE /D_WIN32_WINNT=0x0600" )
 	
 	# These must be silenced because the code is full of them. Expect some of undefined behavior hidden in this mess. :(
-	set( ALL_C_FLAGS "${ALL_C_FLAGS} /wd4244 /wd4018 /wd4267" )
+	#set( ALL_C_FLAGS "${ALL_C_FLAGS} /wd4244 /wd4018 /wd4267" )
 	
 	
 	# Most of these need to be cleaned out. The source is currently infested with far too much conditional compilation which is a constant source of problems.

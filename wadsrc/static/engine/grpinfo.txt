@@ -241,6 +241,18 @@ grpinfo
 
 grpinfo
 {
+	name "Duke it out in D.C."
+	scriptname "DUKEDC.CON"
+	size 8410183
+	crc 0x777c77b1
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
+	dependency DUKE15_CRC
+	gamefilter "Duke.DukeDC.15"
+	GameID "DukeDC"
+}
+
+grpinfo
+{
 	name "Duke Caribbean: Life's a Beach (1.3)"
 	size 23559381
 	crc VACA13_CRC
@@ -284,7 +296,7 @@ grpinfo
 	name "Duke Caribbean: Life's a Beach"
 	size 22213819
 	crc DUKECB_CRC
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEVACA
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.Vacation.15"
 	FgColor 0x00004f
@@ -298,7 +310,21 @@ grpinfo
 	scriptname "VACATION.CON"
 	size 22397273
 	crc 0x65B5F690
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEVACA
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.Vacation.15"
+	FgColor 0x00004f
+	BkColor 0x8f8fff
+	GameID "DukeVacation"
+}
+
+grpinfo
+{
+	name "Duke Caribbean: Life's a Beach"
+	scriptname "VACATION.CON"
+	size 22201375
+	crc 0xb28e883c
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.Vacation.15"
 	FgColor 0x00004f
@@ -312,7 +338,7 @@ grpinfo
 	scriptname "NWINTER.CON"
 	size 16169365
 	crc DUKENW_CRC
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKENW
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.NWinter"
 	FgColor 0
@@ -326,7 +352,7 @@ grpinfo
 	scriptname "NWINTER.CON"
 	size 10965909
 	crc 0xC7EFBFA9
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKENW
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	dependency DUKE15_CRC
 	gamefilter "Duke.NWinter"
 	FgColor 0

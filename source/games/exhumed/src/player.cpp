@@ -41,6 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+extern short nStatusSeqOffset;
+
 struct PlayerSave
 {
     int x;
@@ -99,13 +101,8 @@ short nPlayerOldWeapon[kMaxPlayers];
 short nPlayerClip[kMaxPlayers];
 short nPlayerPushSound[kMaxPlayers];
 short nTauntTimer[kMaxPlayers];
-short nPlayerTorch[kMaxPlayers];
 uint16_t nPlayerWeapons[kMaxPlayers]; // each set bit represents a weapon the player has
-short nPlayerLives[kMaxPlayers];
-short nPlayerItem[kMaxPlayers];
 Player PlayerList[kMaxPlayers];
-short nPlayerInvisible[kMaxPlayers];
-short nPlayerDouble[kMaxPlayers];
 short nPlayerViewSect[kMaxPlayers];
 short nPlayerFloorSprite[kMaxPlayers];
 PlayerSave sPlayerSave[kMaxPlayers];
@@ -219,12 +216,12 @@ void InitPlayerInventory(short nPlayer)
 {
     memset(&PlayerList[nPlayer], 0, sizeof(Player));
 
-    nPlayerItem[nPlayer] = -1;
+    PlayerList[nPlayer].nItem = -1;
     nPlayerSwear[nPlayer] = 4;
 
     ResetPlayerWeapons(nPlayer);
 
-    nPlayerLives[nPlayer] = kDefaultLives;
+    PlayerList[nPlayer].nLives = kDefaultLives;
 
     PlayerList[nPlayer].nSprite = -1;
     PlayerList[nPlayer].nRun = -1;
@@ -389,19 +386,19 @@ void RestartPlayer(short nPlayer)
 		plr->invincibility = 0;
 	}
 
-	nPlayerTorch[nPlayer] = 0;
+	PlayerList[nPlayer].nTorch = 0;
 	plr->nMaskAmount = 0;
 
 	SetTorch(nPlayer, 0);
 
-	nPlayerInvisible[nPlayer] = 0;
+	PlayerList[nPlayer].nInvisible = 0;
 
 	plr->bIsFiring = 0;
 	plr->field_3FOUR = 0;
 	nPlayerViewSect[nPlayer] = sPlayerSave[nPlayer].nSector;
 	plr->field_3A = 0;
 
-	nPlayerDouble[nPlayer] = 0;
+	PlayerList[nPlayer].nDouble = 0;
 
 	plr->nSeq = kSeqJoe;
 
@@ -415,7 +412,6 @@ void RestartPlayer(short nPlayer)
 
 	plr->field_3C = 0;
 	plr->nAir = 100;
-	airpages = 0;
 
 	if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
 	{
@@ -454,7 +450,6 @@ void RestartPlayer(short nPlayer)
 	{
 		nLocalSpr = nSprite;
 
-		SetMagicFrame();
 		RestoreGreenPal();
 
         plr->bPlayerPan = plr->bLockPan = false;
@@ -467,10 +462,6 @@ void RestartPlayer(short nPlayer)
 
 	nDeathType[nPlayer] = 0;
 	nQuake[nPlayer] = 0;
-
-	if (nPlayer == nLocalPlayer) {
-		SetHealthFrame(0);
-	}
 }
 
 int GrabPlayer()
@@ -532,7 +523,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     PlayerList[nPlayer].horizon.ohoriz = PlayerList[nPlayer].horizon.horiz = q16horiz(0);
     oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
-    nPlayerInvisible[nPlayer] = 0;
+    PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
 
     sprite[nSprite].cstat &= 0x7FFF;
@@ -564,26 +555,16 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     if (nTotalPlayers == 1)
     {
-        short nLives = nPlayerLives[nPlayer];
-
-        if (nLives > 0) {
-            BuildStatusAnim((3 * (nLives - 1)) + 7, 0);
-        }
-
         if (!(currentLevel->gameflags & LEVEL_EX_TRAINING)) { // if not on the training level
-            nPlayerLives[nPlayer]--;
+            PlayerList[nPlayer].nLives--;
         }
 
-        if (nPlayerLives[nPlayer] < 0) {
-            nPlayerLives[nPlayer] = 0;
+        if (PlayerList[nPlayer].nLives < 0) {
+            PlayerList[nPlayer].nLives = 0;
         }
     }
 
     ototalvel[nPlayer] = totalvel[nPlayer] = 0;
-
-    if (nPlayer == nLocalPlayer) {
-        RefreshStatus();
-    }
 }
 
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
@@ -604,13 +585,6 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
     }
 
     PlayerList[nPlayer].nAmmo[nWeapon] = nAmmoAmount;
-
-    if (nPlayer == nLocalPlayer)
-    {
-        if (nWeapon == nCounterBullet) {
-            SetCounter(nAmmoAmount);
-        }
-    }
 
     if (nWeapon == 1)
     {
@@ -748,7 +722,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 if (nPlayer == nLocalPlayer)
                 {
                     TintPalette(nDamage, 0, 0);
-                    SetHealthFrame(-1);
                 }
             }
 
@@ -846,10 +819,10 @@ void FuncPlayer(int a, int nDamage, int nRun)
             sprite[nPlayerSprite].picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
             sprite[nDopple].picnum = sprite[nPlayerSprite].picnum;
 
-            if (nPlayerTorch[nPlayer] > 0)
+            if (PlayerList[nPlayer].nTorch > 0)
             {
-                nPlayerTorch[nPlayer]--;
-                if (nPlayerTorch[nPlayer] == 0)
+                PlayerList[nPlayer].nTorch--;
+                if (PlayerList[nPlayer].nTorch == 0)
                 {
                     SetTorch(nPlayer, 0);
                 }
@@ -866,18 +839,18 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 }
             }
 
-            if (nPlayerDouble[nPlayer] > 0)
+            if (PlayerList[nPlayer].nDouble > 0)
             {
-                nPlayerDouble[nPlayer]--;
-                if (nPlayerDouble[nPlayer] == 150 && nPlayer == nLocalPlayer) {
+                PlayerList[nPlayer].nDouble--;
+                if (PlayerList[nPlayer].nDouble == 150 && nPlayer == nLocalPlayer) {
                     PlayAlert("WEAPON POWER IS ABOUT TO EXPIRE");
                 }
             }
 
-            if (nPlayerInvisible[nPlayer] > 0)
+            if (PlayerList[nPlayer].nInvisible > 0)
             {
-                nPlayerInvisible[nPlayer]--;
-                if (nPlayerInvisible[nPlayer] == 0)
+                PlayerList[nPlayer].nInvisible--;
+                if (PlayerList[nPlayer].nInvisible == 0)
                 {
                     sprite[nPlayerSprite].cstat &= 0x7FFF; // set visible
                     short nFloorSprite = nPlayerFloorSprite[nPlayerSprite];
@@ -886,7 +859,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         sprite[nFloorSprite].cstat &= 0x7FFF; // set visible
                     }
                 }
-                else if (nPlayerInvisible[nPlayer] == 150 && nPlayer == nLocalPlayer)
+                else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
                 {
                     PlayAlert("INVISIBILITY IS ABOUT TO EXPIRE");
                 }
@@ -1266,13 +1239,8 @@ sectdone:
                         // if underwater
                         if (var_5C)
                         {
-                            airpages = 1;
                             if (PlayerList[nPlayer].nMaskAmount > 0)
                             {
-                                if (nPlayer == nLocalPlayer) {
-                                    BuildStatusAnim(132, 0);
-                                }
-
                                 D3PlayFX(StaticSound[kSound30], nPlayerSprite);
 
                                 PlayerList[nPlayer].nAir = 100;
@@ -1293,11 +1261,6 @@ sectdone:
                                         StartDeathSeq(nPlayer, 0);
                                     }
 
-                                    if (nPlayer == nLocalPlayer)
-                                    {
-                                        SetHealthFrame(-1);
-                                    }
-
                                     PlayerList[nPlayer].nAir = 0;
 
                                     if (PlayerList[nPlayer].nHealth < 300)
@@ -1312,16 +1275,6 @@ sectdone:
                             }
 
                             DoBubbles(nPlayer);
-                            SetAirFrame();
-                        }
-                        else
-                        {
-                            if (nPlayer == nLocalPlayer)
-                            {
-                                BuildStatusAnim(132, 0);
-                            }
-
-                            airpages = 0;
                         }
                     }
                 }
@@ -1329,9 +1282,9 @@ sectdone:
                 // loc_1B0B9
                 if (var_5C) // if underwater
                 {
-                    if (nPlayerTorch[nPlayer] > 0)
+                    if (PlayerList[nPlayer].nTorch > 0)
                     {
-                        nPlayerTorch[nPlayer] = 0;
+                        PlayerList[nPlayer].nTorch = 0;
                         SetTorch(nPlayer, 0);
                     }
                 }
@@ -1358,23 +1311,15 @@ sectdone:
                         nBreathTimer[nPlayer] = 1;
                     }
 
-                    airpages = 0;
-
                     nBreathTimer[nPlayer]--;
                     if (nBreathTimer[nPlayer] <= 0)
                     {
                         nBreathTimer[nPlayer] = 90;
-                        if (nPlayer == nLocalPlayer)
-                        {
-                            // animate lungs
-                            BuildStatusAnim(132, 0);
-                        }
                     }
 
                     if (PlayerList[nPlayer].nAir < 100)
                     {
                         PlayerList[nPlayer].nAir = 100;
-                        SetAirFrame();
                     }
                 }
 
@@ -1429,11 +1374,11 @@ sectdone:
                     int var_44 = 0;
 
                     // item lotags start at 6 (1-5 reserved?) so 0-offset them
-                    int var_6C = var_70 - 6;
+                    int itemtype = var_70 - 6;
 
-                    if (var_6C <= 54)
+                    if (itemtype <= 54)
                     {
-                        switch (var_6C)
+                        switch (itemtype)
                         {
 do_default:
                             default:
@@ -1595,11 +1540,6 @@ do_default_b:
                                         }
                                     }
 
-                                    if (nLocalPlayer == nPlayer)
-                                    {
-                                        SetHealthFrame(1);
-                                    }
-
                                     if (var_70 == 12)
                                     {
                                         sprite[nValB].hitag = 0;
@@ -1667,11 +1607,6 @@ do_default_b:
                                                 StartDeathSeq(nPlayer, 0);
                                             }
                                         }
-                                    }
-
-                                    if (nLocalPlayer == nPlayer)
-                                    {
-                                        SetHealthFrame(1);
                                     }
 
                                     if (var_70 == 12)
@@ -1743,11 +1678,6 @@ do_default_b:
                                         }
                                     }
 
-                                    if (nLocalPlayer == nPlayer)
-                                    {
-                                        SetHealthFrame(1);
-                                    }
-
                                     if (var_70 == 12)
                                     {
                                         sprite[nValB].hitag = 0;
@@ -1799,8 +1729,6 @@ do_default_b:
                                 if (PlayerList[nPlayer].nAir > 100) {
                                     PlayerList[nPlayer].nAir = 100; // TODO - constant
                                 }
-
-                                SetAirFrame();
 
                                 if (nBreathTimer[nPlayer] < 89)
                                 {
@@ -1869,15 +1797,11 @@ do_default_b:
                             {
                                 var_88 = -1;
 
-                                if (nPlayerLives[nPlayer] >= kMaxPlayerLives) {
+                                if (PlayerList[nPlayer].nLives >= kMaxPlayerLives) {
                                     break;
                                 }
 
-                                nPlayerLives[nPlayer]++;
-
-                                if (nPlayer == nLocalPlayer) {
-                                    BuildStatusAnim(146 + ((nPlayerLives[nPlayer] - 1) * 2), 0);
-                                }
+                                PlayerList[nPlayer].nLives++;
 
                                 var_8C = 32;
                                 var_44 = 32;
@@ -2276,98 +2200,18 @@ do_default_b:
                                 break;
                             }
 
-                            // Lots of repeated code for door key handling
                             case 39: // Power key
-                            {
-                                int ecx = 4096;
-
-                                var_88 = -1;
-
-                                if (PlayerList[nPlayer].keys != ecx)
-                                {
-                                    if (nPlayer == nLocalPlayer) {
-                                        BuildStatusAnim(36, 0);
-                                    }
-
-                                    PlayerList[nPlayer].keys |= ecx;
-
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        goto do_default_b;
-                                    }
-                                    else
-                                    {
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
                             case 40: // Time key
-                            {
-                                int ecx = 4096 << 1;
-
-                                var_88 = -1;
-
-                                if (PlayerList[nPlayer].keys != ecx)
-                                {
-                                    if (nPlayer == nLocalPlayer) {
-                                        BuildStatusAnim(36 + 2, 0);
-                                    }
-
-                                    PlayerList[nPlayer].keys |= ecx;
-
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        goto do_default_b;
-                                    }
-                                    else
-                                    {
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
                             case 41: // War key
-                            {
-                                int ecx = 4096 << 2;
-
-                                var_88 = -1;
-
-                                if (PlayerList[nPlayer].keys != ecx)
-                                {
-                                    if (nPlayer == nLocalPlayer) {
-                                        BuildStatusAnim(36 + 4, 0);
-                                    }
-
-                                    PlayerList[nPlayer].keys |= ecx;
-
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        goto do_default_b;
-                                    }
-                                    else
-                                    {
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
                             case 42: // Earth key
                             {
-                                int ecx = 4096 << 3;
+                                int keybit = 4096 << (itemtype - 39);
 
                                 var_88 = -1;
 
-                                if (PlayerList[nPlayer].keys != ecx)
+                                if (!(PlayerList[nPlayer].keys & keybit))
                                 {
-                                    if (nPlayer == nLocalPlayer) {
-                                        BuildStatusAnim(36 + 6, 0);
-                                    }
-
-                                    PlayerList[nPlayer].keys |= ecx;
+                                    PlayerList[nPlayer].keys |= keybit;
 
                                     if (nTotalPlayers > 1)
                                     {
@@ -2394,11 +2238,6 @@ do_default_b:
                                 PlayerList[nPlayer].nMagic += 100;
                                 if (PlayerList[nPlayer].nMagic >= 1000) {
                                     PlayerList[nPlayer].nMagic = 1000;
-                                }
-
-                                if (nLocalPlayer == nPlayer)
-                                {
-                                    SetMagicFrame();
                                 }
 
                                 goto do_default;
@@ -2679,7 +2518,7 @@ loc_1BD2E:
 
                         PlayerList[nPlayer].nCurrentWeapon = nPlayerOldWeapon[nPlayer];
 
-                        if (nPlayerLives[nPlayer] && nNetTime)
+                        if (PlayerList[nPlayer].nLives && nNetTime)
                         {
                             if (nAction != 20)
                             {
@@ -2840,6 +2679,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("invincible", w.invincibility)
             ("air", w.nAir)
             ("seq", w.nSeq)
+            ("item", w.nItem)
             ("maskamount", w.nMaskAmount)
             ("keys", w.keys)
             ("magic", w.nMagic)
@@ -2854,6 +2694,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("seq", w.nSeq)
             ("horizon", w.horizon)
             ("angle", w.angle)
+            ("lives", w.nLives)
+            ("double", w.nDouble)
+            ("invisible", w.nInvisible)
+            ("torch", w.nTorch)
             .EndObject();
     }
     return arc;
@@ -2902,13 +2746,8 @@ void SerializePlayer(FSerializer& arc)
             .Array("clip", nPlayerClip, PlayerCount)
             .Array("pushsound", nPlayerPushSound, PlayerCount)
             .Array("taunttimer", nTauntTimer, PlayerCount)
-            .Array("torch", nPlayerTorch, PlayerCount)
             .Array("weapons", nPlayerWeapons, PlayerCount)
-            .Array("lives", nPlayerLives, PlayerCount)
-            .Array("item", nPlayerItem, PlayerCount)
             .Array("list", PlayerList, PlayerCount)
-            .Array("invisible", nPlayerInvisible, PlayerCount)
-            .Array("double", nPlayerDouble, PlayerCount)
             .Array("viewsect", nPlayerViewSect, PlayerCount)
             .Array("floorspr", nPlayerFloorSprite, PlayerCount)
             .Array("save", sPlayerSave, PlayerCount)
@@ -2916,9 +2755,59 @@ void SerializePlayer(FSerializer& arc)
             .Array("eyelevel", eyelevel, PlayerCount)
             .Array("netstartsprite", nNetStartSprite, PlayerCount)
             .Array("grenade", nPlayerGrenade, PlayerCount)
-            .Array("d282a", word_D282A, PlayerCount)
-            .EndObject();
+            .Array("d282a", word_D282A, PlayerCount);
+            arc.EndObject();
     }
 }
+
+
+DEFINE_FIELD_X(ExhumedPlayer, Player, nHealth);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nLives);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nDouble);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nInvisible);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nTorch);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_2);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nAction);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nSprite);
+DEFINE_FIELD_X(ExhumedPlayer, Player, bIsMummified);
+DEFINE_FIELD_X(ExhumedPlayer, Player, invincibility);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nAir);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nSeq);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nMaskAmount);
+DEFINE_FIELD_X(ExhumedPlayer, Player,  keys);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nMagic);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nItem);
+DEFINE_FIELD_X(ExhumedPlayer, Player, items);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons?
+DEFINE_FIELD_X(ExhumedPlayer, Player, pad);
+
+DEFINE_FIELD_X(ExhumedPlayer, Player, nCurrentWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_3FOUR);
+DEFINE_FIELD_X(ExhumedPlayer, Player, bIsFiring);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_38);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_3A);
+DEFINE_FIELD_X(ExhumedPlayer, Player, field_3C);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nRun);
+DEFINE_FIELD_X(ExhumedPlayer, Player, bPlayerPan);
+DEFINE_FIELD_X(ExhumedPlayer, Player, bLockPan);
+
+DEFINE_ACTION_FUNCTION(_Exhumed, GetViewPlayer)
+{
+    ACTION_RETURN_POINTER(&PlayerList[nLocalPlayer]);
+}
+
+DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(Player);
+    auto nLocalPlayer = self - PlayerList;
+    ACTION_RETURN_BOOL(SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater);
+}
+
+DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
+{
+    PARAM_SELF_STRUCT_PROLOGUE(Player);
+    ACTION_RETURN_INT(sprite[self->nSprite].ang);
+}
+
 
 END_PS_NS

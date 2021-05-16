@@ -351,7 +351,7 @@ weapon 3
     maxammo 99
     mindamage 5
     maxdamage 10
-    pickup 9
+    pickup -1
     weaponpickup 9
 }
 weapon 4
@@ -361,7 +361,7 @@ weapon 4
     maxammo 20
     mindamage 5
     maxdamage 10
-    pickup 5
+    pickup -1
     weaponpickup 5
 }
 weapon 5
@@ -401,8 +401,8 @@ weapon 8
     maxammo 50
     mindamage 15
     maxdamage 30
-    pickup 6
-    weaponpickup 8
+    pickup 8
+    weaponpickup 6
 }
 weapon 9
 {
@@ -421,8 +421,8 @@ weapon 10
     maxammo 52
     mindamage 4
     maxdamage 4
-    pickup 8
-    weaponpickup 24
+    pickup 24
+    weaponpickup 8
 }
 weapon 11
 {
@@ -431,7 +431,7 @@ weapon 11
     maxammo 80
     mindamage 10
     maxdamage 25
-    pickup 30
+    pickup 60
     weaponpickup 30
 }
 weapon 12
@@ -441,7 +441,7 @@ weapon 12
     maxammo 5
     mindamage 75
     maxdamage 100
-    pickup 1
+    pickup 6
     weaponpickup 1
 }
 fortune

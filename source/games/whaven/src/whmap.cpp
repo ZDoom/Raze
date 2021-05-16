@@ -677,8 +677,9 @@ boolean prepareboard(const char* fname) {
 			break;
 			
 		case PINE:
-			spr.xrepeat = treesize = (short) (((krand() % 5) + 3) << 4);
-			spr.yrepeat = treesize;
+			treesize = (short) (((krand() % 5) + 3) << 4);
+			spr.xrepeat = (uint8_t)treesize;
+			spr.yrepeat = (uint8_t)treesize;
 			break;
 			
 		case GYSER:
@@ -731,8 +732,8 @@ boolean prepareboard(const char* fname) {
 		if(isItemSprite(i)) {
 			Item& item = items[(spr.detail & 0xFF) - ITEMSBASE];
 			if(item.sizx != -1 && item.sizy != -1) {
-				spr.xrepeat = (short) item.sizx;
-				spr.yrepeat = (short) item.sizy;
+				spr.xrepeat = (uint8_t)item.sizx;
+				spr.yrepeat = (uint8_t)item.sizy;
 			}
 				
 			if(item.treasures)

@@ -139,8 +139,8 @@ public:
 		DVector2 dv = { double(ix2 - ix1), -double(iy2 - iy1) };
 		auto vang = dv.Angle() - 90.;
 
-		cosalign = vang.Cos();
-		sinalign = vang.Sin();
+		cosalign = float(vang.Cos());
+		sinalign = float(vang.Sin());
 
 		int pow2width = 1 << sizeToBits((int)tx->GetDisplayWidth());
 		if (pow2width < (int)tx->GetDisplayWidth()) pow2width *= 2;
@@ -247,9 +247,9 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 			{
 				auto sline = &sectionLines[sec->lines[start]];
 				auto wallp = &wall[sline->startpoint];
-				float X = WallStartX(wallp);
-				float Y = WallStartY(wallp);
-				if (fabs(X) > 32768. || fabs(Y) > 32768.)
+				float X = float(WallStartX(wallp));
+				float Y = float(WallStartY(wallp));
+				if (fabs(X) > 32768.f || fabs(Y) > 32768.f)
 				{
 					// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
 					// Do not try alternative methods if this happens.
@@ -277,7 +277,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 			{
 				minx = pt.first;
 				miny = pt.second;
-				outer = a;
+				outer = int(a);
 			}
 		}
 	}
@@ -303,8 +303,8 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 	}
 	
 	auto& entry = data[secnum].planes[plane];
-	entry.vertices.Resize(indices.size());
-	entry.texcoords.Resize(indices.size());
+	entry.vertices.Resize((unsigned)indices.size());
+	entry.texcoords.Resize((unsigned)indices.size());
 	entry.normal = CalcNormal(sectorp, plane);
 
 	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);

@@ -61,7 +61,7 @@ binangle getincanglebam(binangle a, binangle na)
 		if(cura > INT32_MAX) cura -= UINT32_MAX;
 	}
 
-	return bamang(newa-cura);
+	return bamang(uint32_t(newa-cura));
 }
 
 //---------------------------------------------------------------------------
@@ -133,7 +133,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
 		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove * cntrlvelscale));
 	else
-		currInput->avel += hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale);
+		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale));
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny;
@@ -147,7 +147,7 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		currInput->avel = -currInput->avel;
 
 	// process remaining controller input.
-	currInput->horz -= scaleAdjust * hidInput->dpitch * hidspeed;
+	currInput->horz -= float(scaleAdjust * hidInput->dpitch * hidspeed);
 	currInput->svel += xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
 	currInput->fvel += xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
 
@@ -177,12 +177,12 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
 		{
 			updateTurnHeldAmt(scaleAdjust);
-			currInput->avel -= scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn);
+			currInput->avel -= float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
 		{
 			updateTurnHeldAmt(scaleAdjust);
-			currInput->avel += scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn);
+			currInput->avel += float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
 		}
 		else
 		{

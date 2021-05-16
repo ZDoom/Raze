@@ -392,7 +392,7 @@ void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange
                int32_t (*blacklist_sprite_func)(int32_t) = nullptr) ATTRIBUTE((nonnull(6,7,8)));
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
-int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
+int32_t   inside(int32_t x, int32_t y, int sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags = 0);
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
@@ -420,9 +420,9 @@ inline int32_t krand(void)
 int32_t    krand(void);
 #endif
 
-inline int32_t ksqrt(uint32_t num)
+inline int32_t ksqrt(uint64_t num)
 {
-    return int(sqrt((float)num));
+    return int(sqrt(double(num)));
 }
 
 int32_t   getangle(int32_t xvect, int32_t yvect);
@@ -461,36 +461,36 @@ void yax_getzsofslope(int sectNum, int playerX, int playerY, int32_t* pCeilZ, in
 int32_t yax_getceilzofslope(int const sectnum, vec2_t const vect);
 int32_t yax_getflorzofslope(int const sectnum, vec2_t const vect);
 
-inline int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getceilzofslope(int sectnum, int32_t dax, int32_t day)
 {
     return getceilzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
 }
 
-inline int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getflorzofslope(int sectnum, int32_t dax, int32_t day)
 {
     return getflorzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
 }
 
-inline void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+inline void getzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     getzsofslopeptr((usectorptr_t)&sector[sectnum], dax, day, ceilz, florz);
 }
 
-inline void getcorrectzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+inline void getcorrectzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
     getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y, ceilz, florz);
 }
 
-inline int32_t getcorrectceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getcorrectceilzofslope(int sectnum, int32_t dax, int32_t day)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
     return getceilzofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y);
 }
 
-inline int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+inline int32_t getcorrectflorzofslope(int sectnum, int32_t dax, int32_t day)
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
@@ -706,8 +706,8 @@ extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum)
 enum EHitBits
 {
     kHitNone = 0,
-    kHitTypeMask = 0xE000,
-    kHitIndexMask = 0x1FFF,
+    kHitTypeMask = 0xC000,
+    kHitIndexMask = 0x3FFF,
     kHitSector = 0x4000,
     kHitWall = 0x8000,
     kHitSprite = 0xC000,

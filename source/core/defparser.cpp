@@ -135,7 +135,7 @@ static void parseTexturePaletteBlock(FScanner& sc, int tile)
 
 	int pal = -1, xsiz = 0, ysiz = 0;
 	FString fn;
-	double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+	float alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
 	if (!sc.GetNumber(pal, true)) return;
 
@@ -178,7 +178,7 @@ static void parseTextureSpecialBlock(FScanner& sc, int tile, int pal)
 	FScriptPosition pos = sc;
 
 	FString fn;
-	double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+	float xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
 	if (sc.StartBraces(&blockend)) return; 
 	while (!sc.FoundEndBrace(blockend))
@@ -653,6 +653,7 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 	FScanner::SavedPos blockend;
 	int tile0 = MAXTILES, tile1 = -1;
 	FString fn;
+	bool error = false;
 
 	if (!sc.GetString(fn)) return;
 
@@ -661,17 +662,16 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 	if (nextvoxid == MAXVOXELS)
 	{
 		pos.Message(MSG_ERROR, "Maximum number of voxels (%d) already defined.", MAXVOXELS);
-		return;
+		error = true;
 	}
-
-	if (voxDefine(nextvoxid, fn))
+	else  if (voxDefine(nextvoxid, fn))
 	{
 		pos.Message(MSG_ERROR, "Unable to load voxel file \"%s\"", fn.GetChars());
-		return;
+		error = true;
 	}
 
 	int lastvoxid = nextvoxid++;
-
+	
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))
 	{
@@ -679,13 +679,16 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 		if (sc.Compare("tile"))
 		{
 			sc.GetNumber(true);
-			if (ValidateTilenum("voxel", sc.Number, pos)) tiletovox[sc.Number] = lastvoxid;
+			if (ValidateTilenum("voxel", sc.Number, pos))
+			{
+				if (!error) tiletovox[sc.Number] = lastvoxid;
+			}
 		}
 		if (sc.Compare("tile0")) sc.GetNumber(tile0, true);
 		if (sc.Compare("tile1"))
 		{
 			sc.GetNumber(tile1, true);
-			if (ValidateTileRange("voxel", tile0, tile1, pos))
+			if (ValidateTileRange("voxel", tile0, tile1, pos) && !error)
 			{
 				for (int i = tile0; i <= tile1; i++) tiletovox[i] = lastvoxid;
 			}
@@ -693,9 +696,9 @@ void parseVoxel(FScanner& sc, FScriptPosition& pos)
 		if (sc.Compare("scale"))
 		{
 			sc.GetFloat(true);
-			voxscale[lastvoxid] = (float)sc.Float;
+			if (!error) voxscale[lastvoxid] = (float)sc.Float;
 		}
-		if (sc.Compare("rotate")) voxrotate.Set(lastvoxid);
+		if (sc.Compare("rotate") && !error) voxrotate.Set(lastvoxid);
 	}
 }
 
@@ -834,7 +837,7 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 			for (int i = 0; i < 16; i++)
 			{
 				char smallbuf[3] = { sc.String[2 * i], sc.String[2 * i + 1], 0 };
-				mhk.md4[i] = strtol(smallbuf, nullptr, 16);
+				mhk.md4[i] = (uint8_t)strtol(smallbuf, nullptr, 16);
 			}
 		}
 	}
@@ -1772,7 +1775,7 @@ static bool parseModelFrameBlock(FScanner& sc, FixedBitArray<1024>& usedframes)
 	bool ok = true;
 	int pal = -1;
 	int starttile = -1, endtile = -1;
-	double smoothduration = 0.1f;
+	float smoothduration = 0.1f;
 
 	if (sc.StartBraces(&blockend)) return false;
 	while (!sc.FoundEndBrace(blockend))
@@ -1855,7 +1858,7 @@ static bool parseModelSkinBlock(FScanner& sc, int pal)
 
 	FString filename;
 	int surface = 0;
-	double param = 1.0, specpower = 1.0, specfactor = 1.0;
+	float param = 1.0, specpower = 1.0, specfactor = 1.0;
 	int flags = 0;
 
 	if (sc.StartBraces(&blockend)) return false;
@@ -1887,7 +1890,7 @@ static bool parseModelSkinBlock(FScanner& sc, int pal)
 		return false;
 	}
 
-	if (pal == DETAILPAL) param = 1. / param;
+	if (pal == DETAILPAL) param = 1.f / param;
 	int res = md_defineskin(mdglobal.lastmodelid, filename, pal, max(0, mdglobal.modelskin), surface, param, specpower, specfactor, flags);
 	if (res < 0)
 	{

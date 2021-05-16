@@ -419,7 +419,7 @@ public:
 	{
 		if (soundtrack > 0)
 		{
-			Mus_Play(nullptr, fileSystem.GetFileFullName(soundtrack, false), false);
+			Mus_Play(fileSystem.GetFileFullName(soundtrack, false), false);
 		}
 		animtex.SetSize(AnimTexture::YUV, width, height);
 	}
@@ -519,7 +519,6 @@ class SmkPlayer : public MoviePlayer
 	AnimTextures animtex;
 	TArray<uint8_t> pFrame;
 	TArray<uint8_t> audioBuffer;
-	int nFrameRate;
 	int nFrames;
 	bool fullscreenScale;
 	uint64_t nFrameNs;
@@ -571,8 +570,8 @@ public:
 		flags = flags_;
 		Smacker_GetFrameSize(hSMK, nWidth, nHeight);
 		pFrame.Resize(nWidth * nHeight + std::max(nWidth, nHeight));
-		nFrameRate = Smacker_GetFrameRate(hSMK);
-		nFrameNs = 1'000'000'000 / nFrameRate;
+		float frameRate = Smacker_GetFrameRate(hSMK);
+		nFrameNs = uint64_t(1'000'000'000 / frameRate);
 		nFrames = Smacker_GetNumFrames(hSMK);
 		Smacker_GetPalette(hSMK, palette);
 
@@ -617,7 +616,7 @@ public:
 
 	bool Frame(uint64_t clock) override
 	{
-		int frame = clock / nFrameNs;
+		int frame = int(clock / nFrameNs);
 
 		twod->ClearScreen();
 		if (frame > nFrame)
@@ -698,7 +697,7 @@ MoviePlayer* OpenMovie(const char* filename, TArray<int>& ans, const int* framet
 	if (!fr.isOpen()) fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen())
 	{
-		int nLen = strlen(filename);
+		size_t nLen = strlen(filename);
 		// Strip the drive letter and retry.
 		if (nLen >= 3 && isalpha(filename[0]) && filename[1] == ':' && filename[2] == '/')
 		{

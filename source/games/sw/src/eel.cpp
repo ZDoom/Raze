@@ -605,7 +605,7 @@ int DoEelMove(short SpriteNum)
 
     ASSERT(u->Rot != NULL);
 
-    if (SpriteOverlap(SpriteNum, u->tgt_sp - sprite))
+    if (SpriteOverlap(SpriteNum, int16_t(u->tgt_sp - sprite)))
         NewStateGroup(SpriteNum, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))

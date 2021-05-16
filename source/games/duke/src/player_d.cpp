@@ -762,9 +762,9 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			if (isWorldTour()) // Twentieth Anniversary World Tour
 			{
 				float siz = actor->s->yrepeat / 80.0f;
-				xoffs *= siz;
-				yoffs *= siz;
-				aoffs *= siz;
+				xoffs = int(xoffs * siz);
+				yoffs = int(yoffs * siz);
+				aoffs = int(aoffs * siz);
 			}
 
 			spj->x += xoffs;
@@ -1315,7 +1315,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 				{
 					if (act->s->picnum == HEAVYHBOMB && act->GetOwner() == p->GetActor())
 					{
-						p->gotweapon.Set(HANDBOMB_WEAPON);
+						p->gotweapon[HANDBOMB_WEAPON] = true;
 						j = HANDREMOTE_WEAPON;
 						break;
 					}

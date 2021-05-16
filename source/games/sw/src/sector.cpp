@@ -1512,7 +1512,7 @@ void DoDeleteSpriteMatch(short match)
                     if (StatList[stat] == STAT_LIGHTING)
                     {
                         // set shade to darkest and then kill it
-                        sprite[i].shade = SPRITE_TAG6(i);
+                        sprite[i].shade = int8_t(SPRITE_TAG6(i));
                         sprite[i].pal = 0;
                         SectorLightShade(&sprite[i], sprite[i].shade);
                         DiffuseLighting(&sprite[i]);
@@ -3211,8 +3211,8 @@ DoPanning(void)
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
         ny = MulScale(sp->xvel, bsin(sp->ang), 20);
 
-        sectp->addfloorxpan(nx);
-        sectp->addfloorypan(ny);
+        sectp->addfloorxpan((float)nx);
+        sectp->addfloorypan((float)ny);
     }
 
     it.Reset(STAT_CEILING_PAN);
@@ -3224,8 +3224,8 @@ DoPanning(void)
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
         ny = MulScale(sp->xvel, bsin(sp->ang), 20);
 
-        sectp->addceilingxpan(nx);
-        sectp->addceilingypan(ny);
+        sectp->addceilingxpan((float)nx);
+        sectp->addceilingypan((float)ny);
     }
 
     it.Reset(STAT_WALL_PAN);
@@ -3237,8 +3237,8 @@ DoPanning(void)
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
         ny = MulScale(sp->xvel, bsin(sp->ang), 20);
 
-        wallp->addxpan(nx);
-        wallp->addypan(ny);
+        wallp->addxpan((float)nx);
+        wallp->addypan((float)ny);
     }
 }
 

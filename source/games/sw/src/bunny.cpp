@@ -806,12 +806,12 @@ SetupBunny(short SpriteNum)
 }
 
 int
-GetBunnyJumpHeight(short jump_speed, short jump_grav)
+GetBunnyJumpHeight(int jump_speed, int jump_grav)
 {
     int jump_iterations;
     int height;
 
-    jump_speed = labs(jump_speed);
+    jump_speed = abs(jump_speed);
 
     jump_iterations = jump_speed / (jump_grav * ACTORMOVETICS);
 
@@ -973,7 +973,7 @@ DoBunnyQuickJump(short SpriteNum)
     // Random Chance of like sexes fighting
     if (u->lo_sp)
     {
-        short hit_sprite = u->lo_sp - sprite;
+        short hit_sprite = short(u->lo_sp - sprite);
         SPRITEp tsp = u->lo_sp;
         USERp tu = User[hit_sprite].Data();
 
@@ -1015,7 +1015,7 @@ DoBunnyQuickJump(short SpriteNum)
     // Get layed!
     if (u->lo_sp && u->spal == PALETTE_PLAYER8) // Only males check this
     {
-        short hit_sprite = u->lo_sp - sprite;
+        short hit_sprite = short(u->lo_sp - sprite);
         SPRITEp tsp = u->lo_sp;
         USERp tu = User[hit_sprite].Data();
 

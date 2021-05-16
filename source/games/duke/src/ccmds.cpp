@@ -29,7 +29,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "ns.h"
 
 #include "duke3d.h"
-#include "sbar.h"
 #include "mapinfo.h"
 #include "cheathandler.h"
 #include "c_dispatch.h"

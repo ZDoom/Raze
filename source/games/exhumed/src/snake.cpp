@@ -94,7 +94,7 @@ void ExplodeSnakeSprite(int nSprite, short nPlayer)
 {
     short nDamage = BulletInfo[kWeaponStaff].nDamage;
 
-    if (nPlayerDouble[nPlayer] > 0) {
+    if (PlayerList[nPlayer].nDouble > 0) {
         nDamage *= 2;
     }
 

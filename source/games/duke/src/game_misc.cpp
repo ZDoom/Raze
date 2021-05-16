@@ -40,7 +40,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "st_start.h"
 #include "i_interface.h"
 #include "prediction.h"
-#include "sbar.h"
 #include "gamestate.h"
 #include "dukeactor.h"
 #include "interpolate.h"
@@ -232,7 +231,7 @@ void drawoverlays(double smoothratio)
 	// loogies courtesy of being snotted on
 	if (pp->loogcnt > 0 && !isRR())
 	{
-		V_AddBlend(0, 63, 0, (pp->loogcnt >> 1), blend);
+		V_AddBlend(0, 63, 0, float(pp->loogcnt >> 1), blend);
 	}
 	if (blend[3])
 	{
@@ -291,9 +290,7 @@ void drawoverlays(double smoothratio)
 		}
 	}
 
-	DrawBorder();
-
-	StatusBar->UpdateStatusBar();
+	DrawStatusBar();
 
 	if (ps[myconnectindex].newOwner == nullptr && ud.cameraactor == nullptr)
 	{

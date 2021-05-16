@@ -2392,7 +2392,7 @@ InitPlayerSprite(PLAYERp pp)
     short sp_num;
     SPRITE *sp;
     USERp u;
-    int pnum = pp - Player;
+    int pnum = int(pp - Player);
     extern bool NewGame;
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
@@ -2468,7 +2468,7 @@ SpawnPlayerUnderSprite(PLAYERp pp)
     USERp pu = User[pp->PlayerSprite].Data(), u;
     SPRITEp psp = &sprite[pp->PlayerSprite];
     SPRITEp sp;
-    int pnum = pp - Player, sp_num;
+    int pnum = int(pp - Player), sp_num;
 
     sp_num = pp->PlayerUnderSprite = SpawnSprite(STAT_PLAYER_UNDER0 + pnum,
                                                  NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);

@@ -197,7 +197,7 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
         }
 
         int i;
-        SectIterator it(*sectp - sector);
+        SectIterator it(int(*sectp - sector));
         while ((i = it.NextIndex()) >= 0)
             if (sprite[i].statnum == STAT_VATOR && SP_TAG1(sprite+i) == SECT_VATOR)
                 break;

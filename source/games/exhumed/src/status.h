@@ -21,22 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-extern short nMaskY;
-extern short nCounterBullet;
-extern short airpages;
-
-void RefreshStatus();
 void InitStatus();
-void SetPlayerItem(short nPlayer, short nItem);
-void SetMagicFrame();
-void SetHealthFrame(short nVal);
-void SetAirFrame();
-void MoveStatus();
-void DrawSnakeCamStatus();
-void DrawStatus();
-int BuildStatusAnim(int val, int nFlags);
-void SetCounter(short nVal);
-void SetCounterImmediate(short nVal);
 
 END_PS_NS
 

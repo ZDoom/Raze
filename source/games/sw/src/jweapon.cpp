@@ -1424,7 +1424,7 @@ PlayerInitChemBomb(PLAYERp pp)
 
     MissileSetPos(w, DoChemBomb, 1000);
 
-    pp->SpriteP->clipdist = oclipdist;
+    pp->SpriteP->clipdist = uint8_t(oclipdist);
     wp->clipdist = 80L >> 2;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
@@ -1479,7 +1479,7 @@ InitSpriteChemBomb(int16_t SpriteNum)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     SET(wp->cstat, CSTAT_SPRITE_BLOCK);
 
-    wp->zvel = -RANDOM_RANGE(100) * HORIZ_MULT;
+    wp->zvel = short(-RANDOM_RANGE(100) * HORIZ_MULT);
 
     wp->clipdist = 80L >> 2;
 
@@ -1541,7 +1541,7 @@ InitChemBomb(short SpriteNum)
     if (SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wp->zvel = -RANDOM_RANGE(100) * HORIZ_MULT;
+    wp->zvel = short(-RANDOM_RANGE(100) * HORIZ_MULT);
     wp->clipdist = 0;
 
     if (u->ID == MUSHROOM_CLOUD || u->ID == 3121 || u->ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
@@ -1862,7 +1862,7 @@ PlayerInitCaltrops(PLAYERp pp)
 
     MissileSetPos(w, DoCaltrops, 1000);
 
-    pp->SpriteP->clipdist = oclipdist;
+    pp->SpriteP->clipdist = uint8_t(oclipdist);
     wp->clipdist = 80L >> 2;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
@@ -1920,7 +1920,7 @@ InitCaltrops(int16_t SpriteNum)
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    wp->zvel = -RANDOM_RANGE(100) * HORIZ_MULT;
+    wp->zvel = short(-RANDOM_RANGE(100) * HORIZ_MULT);
 
     // wp->clipdist = 80L>>2;
 
@@ -1982,7 +1982,7 @@ InitPhosphorus(int16_t SpriteNum)
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    wp->zvel = -RANDOM_RANGE(100) * HORIZ_MULT;
+    wp->zvel = short(-RANDOM_RANGE(100) * HORIZ_MULT);
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -2067,7 +2067,7 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
         wu->floor_dist = Z(3);
         wu->Counter = 0;
 
-        wp->zvel = ((-10 - RANDOM_RANGE(50)) * HORIZ_MULT);
+        wp->zvel = short((-10 - RANDOM_RANGE(50)) * HORIZ_MULT);
 
         wu->xchange = MOVEx(wp->xvel, wp->ang);
         wu->ychange = MOVEy(wp->xvel, wp->ang);

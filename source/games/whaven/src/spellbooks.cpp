@@ -71,9 +71,9 @@ void castaorb(PLAYER& plr) {
 			spritesound(S_GENERALMAGIC2, &sprite[plr.spritenum]);
 		}
 		else {
-			daang = BClampAngle(plr.angle.ang.asbuild() - 36);
+			daang = (float)BClampAngle(plr.angle.ang.asbuild() - 36);
 			for (k = 0; k < 10; k++) {
-				daang = BClampAngle(daang + (k << 1));
+				daang = (float)BClampAngle(int(daang) + (k << 1));
 				shootgun(plr, daang, 2);
 			}
 			spritesound(S_SPELL1, &sprite[plr.spritenum]);

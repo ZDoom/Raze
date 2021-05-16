@@ -234,7 +234,7 @@ static void ItemCheat(int player)
     for (int inv = 0; inv < MAX_INVENTORY; inv++)
     {
         p->InventoryPercent[inv] = 100;
-        p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
+        p->InventoryAmount[inv] = (uint8_t)InventoryData[inv].MaxInv;
     }
 
     PlayerUpdateInventory(p, p->InventoryNum);
@@ -321,7 +321,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         for (int inv = 0; inv < MAX_INVENTORY; inv++)
         {
             p->InventoryPercent[inv] = 100;
-            p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
+            p->InventoryAmount[inv] = (uint8_t)InventoryData[inv].MaxInv;
         }
 
         PlayerUpdateInventory(p, p->InventoryNum);

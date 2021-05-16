@@ -50,6 +50,10 @@ extern int lPlayerYVel;
 struct Player
 {
     short nHealth;
+    short nLives;
+    short nDouble;
+    short nInvisible;
+    short nTorch;
     short field_2;
     short nAction;
     short nSprite;
@@ -60,7 +64,8 @@ struct Player
     short nMaskAmount;
     uint16_t keys;
     short nMagic;
-    char items[8];
+    short nItem;
+    uint8_t items[8];
     short nAmmo[7]; // TODO - kMaxWeapons?
     short pad[2];
 
@@ -80,13 +85,8 @@ struct Player
 
 extern short PlayerCount;
 
-extern short nPlayerTorch[];
-
 extern short nPlayerLives[];
-extern short nPlayerItem[];
 extern Player PlayerList[];
-extern short nPlayerInvisible[];
-extern short nPlayerDouble[];
 extern short nPlayerViewSect[];
 extern short nPlayerFloorSprite[];
 

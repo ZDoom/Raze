@@ -80,6 +80,7 @@ enum
 
 static void processWeapon(PLAYERp const pp)
 {
+    if (pp->PlayerSprite < 0) return;
     USERp u = User[pp->PlayerSprite].Data();
     int i;
 
@@ -161,7 +162,9 @@ static void processWeapon(PLAYERp const pp)
 
 void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
-    if (paused || M_Active())
+    PLAYERp pp = &Player[myconnectindex];
+
+    if (paused || M_Active() || pp->PlayerSprite <= -1)
     {
         loc = {};
         return;
@@ -169,7 +172,6 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 
     double const scaleAdjust = InputScale();
     InputPacket input {};
-    PLAYERp pp = &Player[myconnectindex];
 
     ApplyGlobalInput(loc, hidInput);
     processMovement(&input, &loc, hidInput, scaleAdjust, 0, !pp->sop, pp->sop_control ? 3. / 1.40625 : 1.);

@@ -334,7 +334,7 @@ void GameInterface::Ticker()
 
         if (localInput.actions & SB_INVPREV)
         {
-            int nItem = nPlayerItem[nLocalPlayer];
+            int nItem = PlayerList[nLocalPlayer].nItem;
 
             int i;
             for (i = 6; i > 0; i--)
@@ -346,12 +346,12 @@ void GameInterface::Ticker()
                     break;
             }
 
-            if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+            if (i > 0) PlayerList[nLocalPlayer].nItem = nItem;
         }
 
         if (localInput.actions & SB_INVNEXT)
         {
-            int nItem = nPlayerItem[nLocalPlayer];
+            int nItem = PlayerList[nLocalPlayer].nItem;
 
             int i;
             for (i = 6; i > 0; i--)
@@ -363,14 +363,14 @@ void GameInterface::Ticker()
                     break;
             }
 
-            if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+            if (i > 0) PlayerList[nLocalPlayer].nItem = nItem;
         }
 
         if (localInput.actions & SB_INVUSE)
         {
-            if (nPlayerItem[nLocalPlayer] != -1)
+            if (PlayerList[nLocalPlayer].nItem != -1)
             {
-                localInput.setItemUsed(nPlayerItem[nLocalPlayer]);
+                localInput.setItemUsed(PlayerList[nLocalPlayer].nItem);
             }
         }
 
@@ -482,10 +482,6 @@ static void SetTileNames()
 
 void GameInterface::app_init()
 {
-    int i;
-    //int esi = 1;
-    //int edi = esi;
-
 #if 0
     help_disabled = true;
 #endif
@@ -510,9 +506,6 @@ void GameInterface::app_init()
     seq_LoadSequences();
     InitStatus();
     
-    for (i = 0; i < kMaxPlayers; i++) {
-        nPlayerLives[i] = kDefaultLives;
-    }
     resettiming();
     GrabPalette();
 

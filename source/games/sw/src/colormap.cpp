@@ -54,7 +54,7 @@ MapColors(short num, COLOR_MAP cm, short create, uint8_t *tempbuf)
     inc = cm.ToRange/((float)cm.FromRange);
 
     for (i = 0; i < cm.FromRange; i++)
-        tempbuf[i + cm.FromColor] = (i*inc) + cm.ToColor;
+        tempbuf[i + cm.FromColor] = uint8_t((i*inc) + cm.ToColor);
 }
 
 

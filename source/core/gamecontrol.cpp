@@ -140,7 +140,7 @@ void PostLoadSetup();
 void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated);
 void LoadVoxelModels();
 
-DBaseStatusBar* StatusBar;
+DStatusBarCore* StatusBar;
 
 
 bool AppActive = true;
@@ -477,9 +477,6 @@ void CheckUserMap()
 namespace Duke3d
 {
 	::GameInterface* CreateInterface();
-	DBaseStatusBar* CreateDukeStatusBar();
-	DBaseStatusBar* CreateRedneckStatusBar();
-
 }
 namespace Blood
 {
@@ -810,32 +807,15 @@ void InitLanguages()
 
 void CreateStatusBar()
 {
-	int flags = g_gameType;
-	PClass* stbarclass = nullptr;
-
-	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
-	if (flags & GAMEFLAG_BLOOD)
-	{
-		stbarclass = PClass::FindClass("BloodStatusBar");
-	}
-	else if (flags & GAMEFLAG_SW)
-	{
-		stbarclass = PClass::FindClass("SWStatusBar");
-	}
-	else if (flags & GAMEFLAG_PSEXHUMED)
-	{
-		stbarclass = PClass::FindClass("ExhumedStatusBar");
-	}
-	else
-	{
-		StatusBar = isRR() ? Duke3d::CreateRedneckStatusBar() : Duke3d::CreateDukeStatusBar();
-		return;
-	}
+	auto stbarclass = PClass::FindClass(globalCutscenes.StatusBarClass);
 	if (!stbarclass)
 	{
 		I_FatalError("No status bar defined");
 	}
-	StatusBar = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
+	StatusBar = static_cast<DStatusBarCore*>(stbarclass->CreateNew());
+	StatusBar->SetSize(0, 320, 200);
+	InitStatusBar();
+	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
 }
 
 
@@ -1075,7 +1055,7 @@ int RunGame()
 void updatePauseStatus()
 {
 	// This must go through the network in multiplayer games.
-	if (M_Active() || System_WantGuiCapture())
+	if (M_Active() || System_WantGuiCapture() || !AppActive)
 	{
 		paused = 1;
 	}
@@ -1224,10 +1204,10 @@ void S_SetSoundPaused(int state)
 		if (paused == 0)
 		{
 			S_ResumeSound(true);
-			if (GSnd != nullptr)
-			{
-				GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
-			}
+		}
+		if (GSnd != nullptr)
+		{
+			GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
 		}
 	}
 	else
@@ -1537,7 +1517,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, MusicEnabled, MusicEnabled)
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetTimeFrac, I_GetTimeFrac)
 {
-	ACTION_RETURN_INT(I_GetTimeFrac());
+	ACTION_RETURN_FLOAT(I_GetTimeFrac());
 }
 
 DEFINE_ACTION_FUNCTION(_Raze, PlayerName)
@@ -1563,6 +1543,25 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, bcos, bcos)
 	ACTION_RETURN_INT(bcos(v, shift));
 }
 
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
+{
+	ACTION_RETURN_INT(I_GetBuildTime());
+}
+
+bool PickTexture(FRenderState* state, FGameTexture* tex, int paletteid, TexturePick& pick);
+
+DEFINE_ACTION_FUNCTION(_Raze, PickTexture)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(texid);
+	TexturePick pick;
+	if (PickTexture(nullptr, TexMan.GetGameTexture(FSetTextureID(texid)), TRANSLATION(Translation_Remap, 0), pick))
+	{
+		ACTION_RETURN_INT(pick.texture->GetID().GetIndex());
+	}
+	ACTION_RETURN_INT(texid);
+}
+
 DEFINE_ACTION_FUNCTION(_MapRecord, GetCluster)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(MapRecord);
@@ -1578,6 +1577,8 @@ DEFINE_GLOBAL(demoplayback)
 DEFINE_GLOBAL(consoleplayer)
 DEFINE_GLOBAL(currentLevel)
 DEFINE_GLOBAL(paused)
+DEFINE_GLOBAL(automapMode)
+DEFINE_GLOBAL(PlayClock)
 
 DEFINE_FIELD_X(ClusterDef, ClusterDef, name)
 DEFINE_FIELD_X(ClusterDef, ClusterDef, InterBackground)

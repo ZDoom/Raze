@@ -7,12 +7,15 @@ extern FixedBitArray<MAXSPRITES> activeSprites;
 
 // Savegame utilities
 class FileReader;
+extern int SaveVersion;
 
 FString G_BuildSaveName (const char *prefix);
 int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
 
-void G_LoadGame(const char* filename);
-void G_SaveGame(const char* fn, const char* desc, bool ok4q, bool forceq);
+void G_LoadGame(const char* filename, bool hidecon = false);
+void G_SaveGame(const char* fn, const char* desc);
+void G_DoSaveGame(bool okForQuicksave, bool forceQuicksave, const char* filename, const char* description);
+void G_DoLoadGame();
 
 void M_Autosave();
 

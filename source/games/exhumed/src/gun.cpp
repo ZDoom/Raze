@@ -104,12 +104,6 @@ void FillWeapons(short nPlayer)
     }
 
     CheckClip(nPlayer);
-
-    if (nPlayer == nLocalPlayer)
-    {
-        short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
-        SetCounter(PlayerList[nPlayer].nAmmo[nWeapon]);
-    }
 }
 
 void ResetPlayerWeapons(short nPlayer)
@@ -172,20 +166,6 @@ void SetNewWeapon(short nPlayer, short nWeapon)
     }
 
     PlayerList[nPlayer].field_38 = nWeapon;
-
-    if (nPlayer == nLocalPlayer)
-    {
-        int nCounter;
-
-        if (nWeapon >= kWeaponSword && nWeapon <= kWeaponRing) {
-            nCounter = PlayerList[nPlayer].nAmmo[nWeapon];
-        }
-        else {
-            nCounter = 0;
-        }
-
-        SetCounterImmediate(nCounter);
-    }
 }
 
 void SetNewWeaponImmediate(short nPlayer, short nWeapon)
@@ -247,21 +227,6 @@ void FireWeapon(short nPlayer)
 
 void SetWeaponStatus(short nPlayer)
 {
-    if (nPlayer != nLocalPlayer)
-        return;
-
-    short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
-
-    if (nWeapon < 0)
-    {
-        nCounterBullet = -1;
-        SetCounterImmediate(0);
-    }
-    else
-    {
-        nCounterBullet = WeaponInfo[nWeapon].nAmmoType;
-        SetCounterImmediate(PlayerList[nPlayer].nAmmo[nCounterBullet]);
-    }
 }
 
 uint8_t WeaponCanFire(short nPlayer)
@@ -391,7 +356,7 @@ void MoveWeapons(short nPlayer)
 
     short var_3C = WeaponInfo[nWeapon].b[eax] + SeqOffsets[nSeq];
 
-    int var_1C = (nPlayerDouble[nPlayer] > 0) + 1;
+    int var_1C = (PlayerList[nPlayer].nDouble > 0) + 1;
 
     frames = var_1C - 1;
 
@@ -764,7 +729,7 @@ loc_flag:
                     {
                         short nDamage = BulletInfo[kWeaponSword].nDamage;
 
-                        if (nPlayerDouble[nPlayer]) {
+                        if (PlayerList[nPlayer].nDouble) {
                             nDamage *= 2;
                         }
 
@@ -883,7 +848,7 @@ loc_flag:
                 case kWeaponMummified:
                 {
                     short nDamage = BulletInfo[kWeaponMummified].nDamage;
-                    if (nPlayerDouble[nPlayer]) {
+                    if (PlayerList[nPlayer].nDouble) {
                         nDamage *= 2;
                     }
 
@@ -946,7 +911,7 @@ void DrawWeapons(double smooth)
 
     int8_t nShade = sector[initsect].ceilingshade;
 
-    int nDouble = nPlayerDouble[nLocalPlayer];
+    int nDouble = PlayerList[nLocalPlayer].nDouble;
     int nPal = kPalNormal;
 
     if (nDouble)
@@ -969,7 +934,7 @@ void DrawWeapons(double smooth)
         if (cl_hudinterpolation)
         {
             nBobAngle = interpolatedangle(buildang(obobangle), buildang(bobangle), smooth).asbuildf();
-            nVal = interpolatedvaluef(ototalvel[nLocalPlayer], totalvel[nLocalPlayer], smooth, 17);
+            nVal = interpolatedvaluef(ototalvel[nLocalPlayer], totalvel[nLocalPlayer], smooth, 16) * 0.5;
         }
         else
         {

@@ -18,4 +18,5 @@ gameinfo
 {
 	summaryscreen = BloodCutscenes.BuildSPSummary
 	mpsummaryscreen = BloodCutscenes.BuildMPSummary
+	statusbarclass = BloodStatusBar
 }

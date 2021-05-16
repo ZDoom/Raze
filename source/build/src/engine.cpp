@@ -778,7 +778,7 @@ int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
     return -1;
 }
 
-int32_t inside(int32_t x, int32_t y, int16_t sectnum)
+int32_t inside(int32_t x, int32_t y, int sectnum)
 {
     switch (enginecompatibility_mode)
     {

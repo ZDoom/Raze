@@ -404,7 +404,7 @@ void InitRunLevel(void)
 
     if (currentLevel)
     {
-        PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
+        PlaySong(currentLevel->music, currentLevel->cdSongId);
     }
 
     InitPrediction(&Player[myconnectindex]);
@@ -531,9 +531,9 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
 
     SummaryInfo info{};
 
-    info.kills = Player->Kills;
+    info.kills = Player[screenpeek].Kills;
     info.maxkills = TotalKillable;
-    info.secrets = Player->SecretsFound;
+    info.secrets = Player[screenpeek].SecretsFound;
     info.maxsecrets = LevelSecrets;
     info.time = PlayClock / 120;
 
@@ -542,7 +542,7 @@ void GameInterface::LevelCompleted(MapRecord* map, int skill)
             if (map == nullptr)
             {
                 FinishAnim = false;
-                PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
+                PlaySong(ThemeSongs[0], ThemeTrack[0]);
                 if (isShareware())
                 {
                     PlayOrderSound();

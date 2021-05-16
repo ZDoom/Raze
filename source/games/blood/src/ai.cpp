@@ -1003,7 +1003,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
             
             if (nDmgType == DAMAGE_TYPE_1) {
-                if (pXSprite->health > pDudeInfo->fleeHealth) break;
+                if (pXSprite->health > (unsigned)pDudeInfo->fleeHealth) break;
                 else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == NULL) {
                     removeDudeStuff(pSprite);
 

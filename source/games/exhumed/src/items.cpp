@@ -141,8 +141,8 @@ void BuildItemAnim(short nSprite)
     else
     {
         sprite[nSprite].owner = -1;
-        sprite[nSprite].yrepeat = nItemAnimInfo[nItem].repeat;
-        sprite[nSprite].xrepeat = nItemAnimInfo[nItem].repeat;
+        sprite[nSprite].yrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
+        sprite[nSprite].xrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
     }
 }
 
@@ -172,18 +172,17 @@ void FillItems(short nPlayer)
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
-        SetMagicFrame();
     }
 
-    if (nPlayerItem[nPlayer] == -1) {
-        SetPlayerItem(nPlayer, 0);
+    if (PlayerList[nPlayer].nItem == -1) {
+        PlayerList[nPlayer].nItem = 0;
     }
 }
 
 static bool UseEye(short nPlayer)
 {
-    if (nPlayerInvisible[nPlayer] >= 0) 
-        nPlayerInvisible[nPlayer] = 900;
+    if (PlayerList[nPlayer].nInvisible >= 0) 
+        PlayerList[nPlayer].nInvisible = 900;
 
     int nSprite = PlayerList[nPlayer].nSprite;
 
@@ -208,7 +207,6 @@ static bool UseMask(short nPlayer)
 
     if (nPlayer == nLocalPlayer)
     {
-        SetAirFrame();
         D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
     }
     return true;
@@ -216,12 +214,12 @@ static bool UseMask(short nPlayer)
 
 bool UseTorch(short nPlayer)
 {
-    if (!nPlayerTorch[nPlayer]) 
+    if (!PlayerList[nPlayer].nTorch) 
     {
         SetTorch(nPlayer, 1);
     }
 
-    nPlayerTorch[nPlayer] = 900;
+    PlayerList[nPlayer].nTorch = 900;
     return true;
 }
 
@@ -233,7 +231,6 @@ bool UseHeart(short nPlayer)
         if (nPlayer == nLocalPlayer)
         {
             ItemFlash();
-            SetHealthFrame(1);
             D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
         }
         return true;
@@ -258,7 +255,7 @@ bool UseScarab(short nPlayer)
 // faster firing
 static bool UseHand(short nPlayer)
 {
-    nPlayerDouble[nPlayer] = 1350;
+    PlayerList[nPlayer].nDouble = 1350;
 
     if (nPlayer == nLocalPlayer)
     {
@@ -301,11 +298,6 @@ void UseItem(short nPlayer, short nItem)
 
     int nMagic = nItemMagic[nItem];
 
-    if (nPlayer == nLocalPlayer)
-    {
-        BuildStatusAnim(156 + (nItemCount * 2), 0);
-    }
-
     if (!nItemCount)
     {
         for (nItem = 0; nItem < 6; nItem++)
@@ -321,11 +313,7 @@ void UseItem(short nPlayer, short nItem)
     }
 
     PlayerList[nPlayer].nMagic -= nMagic;
-    SetPlayerItem(nPlayer, nItem);
-
-    if (nPlayer == nLocalPlayer) {
-        SetMagicFrame();
-    }
+    PlayerList[nPlayer].nItem = nItem;
 }
 
 // TODO - bool return type?
@@ -337,8 +325,8 @@ int GrabItem(short nPlayer, short nItem)
 
     PlayerList[nPlayer].items[nItem]++;
 
-    if (nPlayerItem[nPlayer] < 0 || nItem == nPlayerItem[nPlayer]) {
-        SetPlayerItem(nPlayer, nItem);
+    if (PlayerList[nPlayer].nItem < 0 || nItem == PlayerList[nPlayer].nItem) {
+        PlayerList[nPlayer].nItem = nItem;
     }
 
     return 1;
@@ -476,9 +464,9 @@ void DoRegenerates()
         }
 
         sprite[nSprite].zvel = 0;
-        sprite[nSprite].yrepeat = sprite[nSprite].xvel;
-        sprite[nSprite].xrepeat = sprite[nSprite].xvel;
-        sprite[nSprite].pal  = sprite[nSprite].yvel;
+        sprite[nSprite].yrepeat = (uint8_t)sprite[nSprite].xvel;
+        sprite[nSprite].xrepeat = (uint8_t)sprite[nSprite].xvel;
+        sprite[nSprite].pal  = (uint8_t)sprite[nSprite].yvel;
         sprite[nSprite].yvel = sprite[nSprite].zvel; // setting to 0
         sprite[nSprite].xvel = sprite[nSprite].zvel; // setting to 0
         nRegenerates--;

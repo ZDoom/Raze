@@ -263,7 +263,7 @@ static void DeleteStuff(FileSystem &fileSystem, const TArray<FString>& deletelum
 			str.Truncate(ndx);
 		}
 
-		for (uint32_t i = 0; i < fileSystem.GetNumEntries(); i++)
+		for (int i = 0; i < fileSystem.GetNumEntries(); i++)
 		{
 			int cf = fileSystem.GetFileContainer(i);
 			auto fname = fileSystem.GetFileFullName(i, false);
@@ -343,8 +343,8 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 
 	D_AddConfigFiles(Files, "Global.Autoload", "*.grp", GameConfig);
 
-	long len;
-	int lastpos = 0;
+	size_t len;
+	size_t lastpos = 0;
 
 	while (lastpos < LumpFilter.Len() && (len = strcspn(LumpFilter.GetChars() + lastpos, ".")) > 0)
 	{

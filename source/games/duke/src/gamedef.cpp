@@ -300,7 +300,7 @@ int ConCompiler::getkeyword(const char* text)
 	
 	while (min <= max)
 	{
-		int mid = (min + max) >> 1;
+		auto mid = (min + max) >> 1;
 		const int comp = strcmp(text, cmdList[mid].cmd);
 		
 		if (comp == 0)

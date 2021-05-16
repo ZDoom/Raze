@@ -196,7 +196,7 @@ static inline int S_GetPitch(int num)
 
 float S_ConvertPitch(int lpitch)
 {
-	return pow(2, lpitch / 1200.);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
+	return powf(2, lpitch / 1200.f);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
 }
 
 int S_GetUserFlags(int num)
@@ -413,7 +413,7 @@ void GameInterface::UpdateSounds(void)
 
 	if (c != nullptr)
 	{
-		listener.angle = -ca * BAngRadian; // Build uses a period of 2048.
+		listener.angle = -float(ca * BAngRadian); // Build uses a period of 2048.
 		listener.velocity.Zero();
 		listener.position = GetSoundPos(c);
 		listener.underwater = false; 
@@ -674,7 +674,7 @@ void S_MenuSound(void)
 
 static bool cd_disabled = false;    // This is in case mus_redbook is enabled but no tracks found so that the regular music system can be switched on.
 
-static void MusPlay(const char* label, const char* music, bool loop)
+static void MusPlay(const char* music, bool loop)
 {
 	if (isWorldTour())
 	{
@@ -688,26 +688,26 @@ static void MusPlay(const char* label, const char* music, bool loop)
 				int file = fileSystem.GetFileContainer(num);
 				if (file == 1)
 				{
-					Mus_Play(label, alternative, loop);
+					Mus_Play(alternative, loop);
 					return;
 				}
 			}
 		}
 	}
-	int result = Mus_Play(label, music, loop);
+	int result = Mus_Play(music, loop);
 	// do not remain silent if playing World Tour when the user has deleted the music.
 	if (!result && isWorldTour())
 	{
 		FString alternative = music;
 		alternative.Substitute(".ogg", ".mid");
-		Mus_Play(label, alternative, loop);
+		Mus_Play(alternative, loop);
 	}
 }
 
 void S_PlayLevelMusic(MapRecord *mi)
 {
 	if (isRR() && mi->music.IsEmpty() && mus_redbook && !cd_disabled) return;
-	MusPlay(mi->labelName, mi->music, true);
+	MusPlay(mi->music, true);
 }
 
 void S_PlaySpecialMusic(unsigned int m)
@@ -716,7 +716,7 @@ void S_PlaySpecialMusic(unsigned int m)
 	auto& musicfn = specialmusic[m];
 	if (musicfn.IsNotEmpty())
 	{
-		MusPlay(nullptr, musicfn, true);
+		MusPlay(musicfn, true);
 	}
 }
 
@@ -741,10 +741,10 @@ void S_PlayRRMusic(int newTrack)
 			g_cdTrack = 2;
 
 		FStringf filename("redneck%s%02d.ogg", isRRRA()? "rides" : "", g_cdTrack);
-		if (Mus_Play(nullptr, filename, false)) return;
+		if (Mus_Play(filename, false)) return;
 
 		filename.Format("track%02d.ogg", g_cdTrack);
-		if (Mus_Play(nullptr, filename, false)) return;
+		if (Mus_Play(filename, false)) return;
 	}
 	// If none of the tracks managed to start, disable the CD music for this session so that regular music can play if defined.
 	cd_disabled = true;
@@ -827,7 +827,7 @@ void S_ParseDeveloperCommentary()
 				}
 			}
 			sc.MustGetStringName(";");
-			if (Commentaries.Size() <= num) Commentaries.Resize(num + 1);
+			if (Commentaries.Size() <= (unsigned)num) Commentaries.Resize(num + 1);
 			Commentaries[num] = std::move(path);
 		}
 		//sc.MustGetStringName(";");
@@ -849,7 +849,7 @@ void StopCommentary()
 
 bool StartCommentary(int tag, DDukeActor* actor)
 {
-	if (wt_commentary && Commentaries.Size() > tag && Commentaries[tag].IsNotEmpty())
+	if (wt_commentary && Commentaries.Size() > (unsigned)tag && Commentaries[tag].IsNotEmpty())
 	{
 		FSoundID id = soundEngine->FindSound(Commentaries[tag]);
 		if (id == 0)

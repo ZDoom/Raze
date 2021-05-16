@@ -220,9 +220,9 @@ void addweapon_d(struct player_struct *p, int weapon)
 {
 	if ( p->gotweapon[weapon] == 0 )
 	{
-		p->gotweapon.Set(weapon);
-		if(weapon == SHRINKER_WEAPON)
-			p->gotweapon.Set(GROW_WEAPON);
+		p->gotweapon[weapon] = true;
+		if (weapon == SHRINKER_WEAPON)
+			p->gotweapon[GROW_WEAPON] = true;
 	}
 
 	p->random_club_frame = 0;
@@ -1578,7 +1578,7 @@ static bool movefireball(DDukeActor* actor)
 					spr->zvel = proj->zv;
 				}
 			}
-			spr->yrepeat = spr->xrepeat = (short)(s->xrepeat * siz);
+			spr->yrepeat = spr->xrepeat = (uint8_t)(s->xrepeat * siz);
 			spr->cstat = s->cstat;
 			spr->extra = 0;
 

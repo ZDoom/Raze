@@ -33,8 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-#define FRAG_BAR 2920
-
 #define PRI_FRONT_MAX   250
 #define PRI_FRONT       192
 #define PRI_MID         128

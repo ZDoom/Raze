@@ -200,18 +200,18 @@ static void SortRXBucket(int nCount)
 				vbx++;
 			}
 			RXBUCKET* v2c = pArray + nCount;
-			int vt = ClipHigh(vbx - first, first - pArray);
+			int vt = int(min(vbx - first, first - pArray));
 			for (int i = 0; i < vt; i++)
 			{
 				SortSwap(&vbx[i - vt], &pArray[i]);
 			}
-			vt = ClipHigh(last - v4, v2c - last - 1);
+			vt = int(min(last - v4, v2c - last - 1));
 			for (int i = 0; i < vt; i++)
 			{
 				SortSwap(&v2c[i - vt], &vbx[i]);
 			}
-			int vvsi = last - v4;
-			int vvdi = vbx - first;
+			int vvsi = int(last - v4);
+			int vvdi = int(vbx - first);
 			if (vvsi >= vvdi)
 			{
 				vc4[v14] = vvsi;

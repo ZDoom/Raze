@@ -13,7 +13,6 @@ episode LEV0
 
 cluster 1
 {
-	name = "Exhumed"
 	gameover
 	{
 		function = ExhumedCutscenes.BuildGameoverScene
@@ -22,12 +21,10 @@ cluster 1
 
 cluster 2
 {
-	name = "$TXT_EX_MAP00"
 }
 
 cluster 3
 {
-	name = "Multiplayer"
 }
 
 cluster 4
@@ -303,4 +300,5 @@ cutscenes
 gameinfo
 {
 	summaryscreen = ExhumedCutscenes.BuildMap
+	statusbarclass = ExhumedStatusBar
 }

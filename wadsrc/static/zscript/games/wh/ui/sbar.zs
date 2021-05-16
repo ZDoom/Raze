@@ -1,0 +1,4 @@
+
+class WHStatusBar : RazeStatusBar
+{
+}

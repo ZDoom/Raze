@@ -52,13 +52,11 @@ enum SICommands
 	SI_MusicVolume,
 	SI_MidiDevice,
 	SI_MusicAlias,
-	SI_LevelMusic,
 };
 
 
 // This specifies whether Timidity or Windows playback is preferred for a certain song (only useful for Windows.)
 extern MusicAliasMap MusicAliases;
-extern MusicAliasMap LevelMusicAliases;
 extern MidiDeviceMap MidiDevices;
 extern MusicVolumeMap MusicVolumes;
 
@@ -80,7 +78,6 @@ static const char *SICommandStrings[] =
 	"$musicvolume",
 	"$mididevice",
 	"$musicalias",
-	"$levelmusic",
 	NULL
 };
 
@@ -140,7 +137,7 @@ static void S_AddSNDINFO (int lump)
 				sc.MustGetString();
 				FName musname (sc.String);
 				sc.MustGetFloat();
-				MusicVolumes[musname] = sc.Float;
+				MusicVolumes[musname] = (float)sc.Float;
 				}
 				break;
 
@@ -168,20 +165,6 @@ static void S_AddSNDINFO (int lump)
 				if (mapped == NAME_None || fileSystem.FindFile(sc.String) >= 0)
 				{
 					MusicAliases[alias] = mapped;
-				}
-				}
-				break;
-
-			case SI_LevelMusic: {
-				sc.MustGetString();
-				FName alias = sc.String;
-				sc.MustGetString();
-				FName mapped = sc.String;
-
-				// only set the alias if the lump it maps to exists.
-				if (mapped == NAME_None || fileSystem.FindFile(sc.String) >= 0)
-				{
-					LevelMusicAliases[alias] = mapped;
 				}
 				}
 				break;

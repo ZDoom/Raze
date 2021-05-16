@@ -251,7 +251,7 @@ void DoLightingMatch(short match, short state)
             else
             {
                 // turn it off till next switch
-                short spal = sp->pal;
+                auto spal = sp->pal;
                 RESET_BOOL1(sp);
                 sp->pal = 0;
                 sp->shade = LIGHT_MaxDark(sp);
@@ -318,7 +318,7 @@ void DoLighting(void)
                 else
                 {
                     // turn off lighting - even colored lighting
-                    short spal = sp->pal;
+                    auto spal = sp->pal;
                     sp->pal = 0;
                     sp->shade = LIGHT_MaxDark(sp);
                     SectorLightShade(sp, sp->shade);
@@ -410,7 +410,7 @@ void DoLighting(void)
                 else
                 {
                     // turn off lighting - even colored lighting
-                    short spal = sp->pal;
+                    auto spal = sp->pal;
                     sp->pal = 0;
                     sp->shade = LIGHT_MaxDark(sp);
                     SectorLightShade(sp, sp->shade);

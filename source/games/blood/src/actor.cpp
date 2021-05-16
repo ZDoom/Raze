@@ -2926,7 +2926,7 @@ bool actHealDude(DBloodActor* actor, int add, int threshold)
 	auto pXDude = &actor->x();
 	add <<= 4;
 	threshold <<= 4;
-	if (pXDude->health < threshold)
+	if (pXDude->health < (unsigned)threshold)
 	{
 		spritetype* pSprite = &actor->s();
 		if (actor->IsPlayerActor()) sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 780, pSprite->sectnum);

@@ -976,7 +976,7 @@ struct PLAYERstruct
     char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
     int cookieTime;
 
-    char WpnReloadState;
+    uint8_t WpnReloadState;
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
@@ -1261,7 +1261,7 @@ struct USER
     short inactive_time; // length of time actor has been unaware of his tgt
     int  sx,sy,sz;
     short sang;
-    char spal;  // save off default palette number
+    uint8_t spal;  // save off default palette number
 
     int ret; //holder for move_sprite return value
 
@@ -1924,7 +1924,7 @@ SECT_USERp GetSectUser(short sectnum);
 // 1. The variables were unmaintained and could refer to handles that had been reused already.
 // 2. No proper sound ownership tracking.
 // 3. In some cases items that were supposed to use the same check referred to different handle variables.
-// In short: I was very broken. This is a list of all sound items used this way, now each one gets a dedicated channel
+// In short: It was very broken. This is a list of all sound items used this way, now each one gets a dedicated channel
 // so that proper checks can be performed and sound ownership be tracked.
 
 enum
@@ -1984,8 +1984,8 @@ short AnimSetVelAdj(short anim_ndx, short vel_adj);
 void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person);
 
 void getzrangepoint(int x, int y, int z, short sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz, int32_t* florhit);
-int move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
-int move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+int move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+int move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 
 void change_sprite_stat(short, short);

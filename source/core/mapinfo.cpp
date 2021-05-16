@@ -168,7 +168,7 @@ MapRecord* FindNextSecretMap(MapRecord* thismap)
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 {
 	static const char* specials[] = { "intro", "briefing", "loading" };
-	for (int i = 0; i < 3; i++)
+	for (unsigned i = 0; i < 3; i++)
 	{
 		if (!stricmp(mapname, specials[i]))
 		{

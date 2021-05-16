@@ -246,12 +246,12 @@ void levelTryPlayMusic()
     else
     {
         buffer = currentLevel->music;
-		if (Mus_Play(currentLevel->labelName, buffer, true)) return;
+		if (Mus_Play(buffer, true)) return;
         if (buffer.IsNotEmpty()) DefaultExtension(buffer, ".mid");
     }
-    if (!Mus_Play(currentLevel->labelName, buffer, true))
+    if (!Mus_Play(buffer, true))
     {
-        Mus_Play("", "", true);
+        Mus_Play("", true);
     }
 }
 

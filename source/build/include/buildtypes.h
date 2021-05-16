@@ -79,14 +79,14 @@ struct sectortype
     int ceilingypan() const { return int(ceilingypan_); }
     int floorxpan() const { return int(floorxpan_); }
     int floorypan() const { return int(floorypan_); }
-    void setfloorxpan(float val) { floorxpan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
-    void setfloorypan(float val) { floorypan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
-    void setceilingxpan(float val) { ceilingxpan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
-    void setceilingypan(float val) { ceilingypan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
-    void addfloorxpan(float add) { floorxpan_ = fmod(floorxpan_ + add + 512, 256); } // +512 is for handling negative offsets
-    void addfloorypan(float add) { floorypan_ = fmod(floorypan_ + add + 512, 256); } // +512 is for handling negative offsets
-    void addceilingxpan(float add) { ceilingxpan_ = fmod(ceilingxpan_ + add + 512, 256); } // +512 is for handling negative offsets
-    void addceilingypan(float add) { ceilingypan_ = fmod(ceilingypan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void setfloorxpan(float val) { floorxpan_ = fmodf(val + 512, 256); } // +512 is for handling negative offsets
+    void setfloorypan(float val) { floorypan_ = fmodf(val + 512, 256); } // +512 is for handling negative offsets
+    void setceilingxpan(float val) { ceilingxpan_ = fmodf(val + 512, 256); } // +512 is for handling negative offsets
+    void setceilingypan(float val) { ceilingypan_ = fmodf(val + 512, 256); } // +512 is for handling negative offsets
+    void addfloorxpan(float add) { floorxpan_ = fmodf(floorxpan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addfloorypan(float add) { floorypan_ = fmodf(floorypan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addceilingxpan(float add) { ceilingxpan_ = fmodf(ceilingxpan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addceilingypan(float add) { ceilingypan_ = fmodf(ceilingypan_ + add + 512, 256); } // +512 is for handling negative offsets
 };
 
 //cstat:
@@ -130,10 +130,10 @@ struct walltype
 
     int xpan() const { return int(xpan_); }
     int ypan() const { return int(ypan_); }
-    void setxpan(float val) { xpan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
-    void setypan(float val) { ypan_ = fmod(val + 512, 256); } // +512 is for handling negative offsets
-    void addxpan(float add) { xpan_ = fmod(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
-    void addypan(float add) { ypan_ = fmod(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void setxpan(float add) { xpan_ = fmodf(add + 512, 256); } // +512 is for handling negative offsets
+    void setypan(float add) { ypan_ = fmodf(add + 512, 256); } // +512 is for handling negative offsets
+    void addxpan(float add) { xpan_ = fmodf(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
+    void addypan(float add) { ypan_ = fmodf(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
 
 #if 0
     // make sure we do not accidentally copy this

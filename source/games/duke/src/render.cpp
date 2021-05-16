@@ -73,7 +73,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 	if (!testnewrenderer)
 	{
 		// do screen rotation.
-		renderSetRollAngle(rotscrnang.asbuildf());
+		renderSetRollAngle((float)rotscrnang.asbuildf());
 
 		se40code(x, y, z, a, h, smoothratio);
 		renderMirror(x, y, z, a, h, smoothratio);
@@ -108,7 +108,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 	if (camsprite->GetOwner() && dist(p->GetActor(), camsprite) < VIEWSCREEN_ACTIVE_DISTANCE)
 	{
 		auto tex = tileGetTexture(sp->picnum);
-		TileFiles.MakeCanvas(TILE_VIEWSCR, tex->GetDisplayWidth(), tex->GetDisplayHeight());
+		TileFiles.MakeCanvas(TILE_VIEWSCR, (int)tex->GetDisplayWidth(), (int)tex->GetDisplayHeight());
 
 		auto canvas = renderSetTarget(TILE_VIEWSCR);
 		if (!canvas) return;
@@ -122,7 +122,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				{
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
 					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
-					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->x, camera->y, ang.asbuild(), smoothratio);
+					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->x, camera->y, ang.asbuild(), (int)smoothratio);
 					renderDrawMasks();
 				}
 				else
@@ -299,7 +299,7 @@ void displayrooms(int snum, double smoothratio)
 		cang = buildang(interpolatedangle(ud.cameraactor->tempang, s->ang, smoothratio));
 
 		auto bh = buildhoriz(s->yvel);
-		renderView(s, s->sectnum, s->x, s->y, s->z - (4 << 8), cang, bh, buildang(0), smoothratio);
+		renderView(s, s->sectnum, s->x, s->y, s->z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
 	}
 	else
 	{
@@ -410,12 +410,12 @@ void displayrooms(int snum, double smoothratio)
 
 		if (isRR() && sector[sect].lotag == 848 && !testnewrenderer)
 		{
-			renderSetRollAngle(rotscrnang.asbuildf());
-			geometryEffect(cposx, cposy, cposz, cang, choriz, sect, smoothratio);
+			renderSetRollAngle((float)rotscrnang.asbuildf());
+			geometryEffect(cposx, cposy, cposz, cang, choriz, sect, (int)smoothratio);
 		}
 		else
 		{
-			renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, smoothratio);
+			renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, (int)smoothratio);
 		}
 	}
 	//GLInterface.SetMapFog(false);

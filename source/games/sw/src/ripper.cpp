@@ -863,12 +863,12 @@ SetupRipper(short SpriteNum)
 }
 
 int
-GetJumpHeight(short jump_speed, short jump_grav)
+GetJumpHeight(int jump_speed, int jump_grav)
 {
     int jump_iterations;
     int height;
 
-    jump_speed = labs(jump_speed);
+    jump_speed = abs(jump_speed);
 
     jump_iterations = jump_speed / (jump_grav * ACTORMOVETICS);
 

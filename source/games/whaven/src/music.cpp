@@ -25,7 +25,7 @@ static bool playthesong(int which, bool looped)
 {
 	char buffer[40];
 	mysnprintf(buffer, 40, "%s/%04d", isWh2()? "F_SONGS" : "SONGS", which);
-	return Mus_Play(currentLevel->labelName, buffer, looped);
+	return Mus_Play(buffer, looped);
 }
 
 static bool loadlevelsongs(int which) 
@@ -47,7 +47,7 @@ void startmusic(int level)
 	// allow music override from MAPINFO.
 	if (currentLevel->music.IsNotEmpty())
 	{
-		Mus_Play(currentLevel->labelName, currentLevel->music, true);
+		Mus_Play(currentLevel->music, true);
 		oldsong = -1;
 		return;
 	}

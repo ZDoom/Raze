@@ -455,9 +455,9 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Swirly)
         {
             int which = *(int*)source;
-            float phase = (PlayClock << (4 + which)) * BAngRadian;
-            pos->X = fcampos.X + 256 * cos(phase);
-            pos->Z = fcampos.Z + 256 * sin(phase);
+            double phase = (PlayClock << (4 + which)) * BAngRadian;
+            pos->X = fcampos.X + float(256 * cos(phase));
+            pos->Z = fcampos.Z + float(256 * sin(phase));
         }
         else  if (type == SOURCE_EXBoss)
         {
@@ -518,7 +518,7 @@ void GameInterface::UpdateSounds()
     }
     auto fv = GetSoundPos(&pos);
     SoundListener listener;
-    listener.angle = -ang * BAngRadian; // Build uses a period of 2048.
+    listener.angle = float(-ang * BAngRadian); // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos(&pos);
     listener.underwater = false;
@@ -636,7 +636,7 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
     FSoundChan* chan = nullptr;
     if (nSprite >= 0)
     {
-        chan = soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, chanflags| CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5 : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, chanflags| CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5f : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
     else
     {

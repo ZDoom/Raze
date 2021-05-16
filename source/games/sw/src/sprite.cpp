@@ -1113,7 +1113,7 @@ bool
 ActorSpawn(SPRITEp sp)
 {
     bool ret = true;
-    short SpriteNum = sp - sprite;
+    short SpriteNum = short(sp - sprite);
 
     switch (sp->picnum)
     {
@@ -5255,7 +5255,7 @@ DoCoin(short SpriteNum)
     {
         if (u->StateStart != s_GreenCoin)
         {
-            offset = u->State - u->StateStart;
+            offset = int(u->State - u->StateStart);
             ChangeState(SpriteNum, s_GreenCoin);
             u->State = u->StateStart + offset;
         }
@@ -5264,7 +5264,7 @@ DoCoin(short SpriteNum)
     {
         if (u->StateStart != s_YellowCoin)
         {
-            offset = u->State - u->StateStart;
+            offset = int(u->State - u->StateStart);
             ChangeState(SpriteNum, s_YellowCoin);
             u->State = u->StateStart + offset;
         }
@@ -5568,7 +5568,7 @@ DoGet(short SpriteNum)
             continue;
         }
 
-        if (!SpriteOverlap(SpriteNum, pp->SpriteP - sprite))
+        if (!SpriteOverlap(SpriteNum, short(pp->SpriteP - sprite)))
         {
             continue;
         }
@@ -6031,7 +6031,7 @@ KeyMain:
             {
                 //sprintf(ds,"Nuclear Warhead");
                 PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNNUKE));
-                pp->WpnRocketNuke = DamageData[DMG_NUCLEAR_EXP].weapon_pickup;
+                pp->WpnRocketNuke =uint8_t(DamageData[DMG_NUCLEAR_EXP].weapon_pickup);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
@@ -6333,7 +6333,7 @@ KeyMain:
             {
                 //sprintf(ds,"Heat Seeker Card");
                 PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMONUKE));
-                pp->WpnRocketHeat = DamageData[DMG_NUCLEAR_EXP].ammo_pickup;
+                pp->WpnRocketHeat = uint8_t(DamageData[DMG_NUCLEAR_EXP].ammo_pickup);
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
@@ -6935,7 +6935,7 @@ SpriteControl(void)
 */
 
 int
-move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int daz;
     int retval=0, zh;
@@ -7183,7 +7183,7 @@ MissileZrange(short SpriteNum)
 
 
 int
-move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int daz;
     int retval, zh;

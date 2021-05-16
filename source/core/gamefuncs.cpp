@@ -131,7 +131,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnu
 	*pz += MulScale(nz, cameradist, 16);
 
 	// Caculate clock using GameTicRate so it increases the same rate on all speed computers.
-	int myclock = PlayClock + MulScale(120 / GameTicRate, smoothratio, 16);
+	int myclock = PlayClock + MulScale(120 / GameTicRate, int(smoothratio), 16);
 	if (cameraclock == INT_MIN)
 	{
 		// Third person view was just started.
@@ -154,7 +154,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnu
 //
 //==========================================================================
 
-void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, float* pflorz)
+void PlanesAtPoint(const sectortype* sec, int dax, int day, float* pceilz, float* pflorz)
 {
 	float ceilz = float(sec->ceilingz);
 	float florz = float(sec->floorz);
@@ -164,13 +164,13 @@ void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, f
 		auto wal = &wall[sec->wallptr];
 		auto wal2 = &wall[wal->point2];
 
-		float dx = wal2->x - wal->x;
-		float dy = wal2->y - wal->y;
+		float dx = float(wal2->x - wal->x);
+		float dy = float(wal2->y - wal->y);
 
 		int i = (int)sqrt(dx * dx + dy * dy) << 5; // length of sector's first wall.
 		if (i != 0)
 		{
-			float const j = (dx * (day - wal->y) - dy * (dax - wal->x)) * (1.f / 8.f);
+			float const j = (dx * (float(day - wal->y)) - dy * (float(dax - wal->x))) * (1.f / 8.f);
 			if (sec->ceilingstat & CSTAT_SECTOR_SLOPE) ceilz += (sec->ceilingheinum * j) / i;
 			if (sec->floorstat & CSTAT_SECTOR_SLOPE) florz += (sec->floorheinum * j) / i;
 		}

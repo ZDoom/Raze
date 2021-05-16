@@ -194,7 +194,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 
 	case CHT_RHETT:
 		ud.god = 0;
-		ps[player].gotweapon.Zero();
+		memset(ps[player].gotweapon, 0, MAX_WEAPONS);
 		ps[player].curr_weapon = KNEE_WEAPON;
 		ps[player].nocheat = 1;
 		ps[player].GetActor()->s->extra = 1;
@@ -231,7 +231,7 @@ static bool cheatWeapons(int player)
 	for (int weapon = PISTOL_WEAPON; weapon < weaponLimit; weapon++ )
 	{
 		addammo( weapon, &ps[player], gs.max_ammo_amount[weapon] );
-		ps[player].gotweapon.Set(weapon);
+		ps[player].gotweapon[weapon] = true;;
 	}
 	if (isRRRA())
 		ps[player].ammo_amount[SLINGBLADE_WEAPON] = 1;

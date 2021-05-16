@@ -372,7 +372,7 @@ MorphTornado(SECTOR_OBJECTp sop)
                 sop->morph_z = ceilingz;
             }
 
-            alignceilslope(*sectp - sector, mx, my, sop->morph_z);
+            alignceilslope(int16_t(*sectp - sector), mx, my, sop->morph_z);
         }
     }
 }
@@ -453,7 +453,7 @@ MorphFloor(SECTOR_OBJECTp sop)
         if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(*sectp - sector, mx, my, floorz + sop->morph_z);
+            alignflorslope(int16_t(*sectp - sector), mx, my, floorz + sop->morph_z);
         }
     }
 }
@@ -469,7 +469,7 @@ SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
         if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(*sectp - sector, x, y, z);
+            alignflorslope(int16_t(*sectp - sector), x, y, z);
         }
     }
 }
@@ -485,7 +485,7 @@ SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
         if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignceilslope(*sectp - sector, x, y, z);
+            alignceilslope(int16_t(*sectp - sector), x, y, z);
         }
     }
 }
@@ -501,8 +501,8 @@ SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
         if (SectUser[*sectp - sector].Data() &&
             TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(*sectp - sector, x, y, z);
-            alignceilslope(*sectp - sector, x, y, z);
+            alignflorslope(int16_t(*sectp - sector), x, y, z);
+            alignceilslope(int16_t(*sectp - sector), x, y, z);
         }
     }
 }

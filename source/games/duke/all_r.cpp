@@ -7,6 +7,5 @@
 #include "src/hudweapon_r.cpp"
 #include "src/player_r.cpp"
 #include "src/premap_r.cpp"
-#include "src/sbar_r.cpp"
 #include "src/sectors_r.cpp"
 #include "src/spawn_r.cpp"

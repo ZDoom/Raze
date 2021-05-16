@@ -2277,7 +2277,7 @@ void swingdapunch(PLAYER& plr, int daweapon) {
 }
 
 void swingdaweapon(PLAYER& plr) {
-	float daang = FixedToFloat(plr.angle.ang.asq16());
+	float daang = (float)FixedToFloat(plr.angle.ang.asq16());
 
 	if (plr.currweaponframe == BOWWALK + 5 && plr.ammo[6] > 0) {
 		plr.currweaponfired = 5;

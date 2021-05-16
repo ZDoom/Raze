@@ -212,8 +212,8 @@ int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int
 
 void FuncLava(int a, int nDamage, int nRun)
 {
-    short nLava = RunData[nRun].nVal;
-    assert(nLava >= 0 && nLava < LavaList.Size());
+    unsigned nLava = RunData[nRun].nVal;
+    assert(nLava < LavaList.Size());
 
     short nAction = LavaList[nLava].nAction;
     short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];

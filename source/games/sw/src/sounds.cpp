@@ -102,7 +102,7 @@ AMB_INFO ambarray[] =
 
 float S_ConvertPitch(int lpitch)
 {
-    return pow(2, lpitch / 1200.);
+    return powf(2, lpitch / 1200.f);
 }
 
 //==========================================================================
@@ -157,7 +157,7 @@ short SoundDist(int x, int y, int z, int basedist)
     if (retval < 0) retval = 0;
     if (retval > 255) retval = 255;
 
-    return retval;
+    return short(retval);
 }
 
 //==========================================================================
@@ -598,7 +598,7 @@ void GameInterface::UpdateSounds(void)
     PLAYERp pp = Player + screenpeek;
     SoundListener listener;
 
-    listener.angle = -pp->angle.ang.asbuild() * BAngRadian; // Build uses a period of 2048.
+    listener.angle = float(-pp->angle.ang.asbuild() * BAngRadian); // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos(&pp->pos);
     listener.underwater = false;
@@ -935,16 +935,16 @@ int PlayerYellVocs[] =
 //
 //==========================================================================
 
-bool PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
+bool PlaySong(const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
 {
     // Play  CD audio if enabled.
     if (cdaudio_track >= 0 && (mus_redbook || !song_file_name || *song_file_name == 0))
     {
         FStringf trackname("shadow%02d.ogg", cdaudio_track);
-        if (!Mus_Play(mapname, trackname, true))
+        if (!Mus_Play(trackname, true))
         {
             trackname.Format("track%02d.ogg", cdaudio_track);
-            if (!Mus_Play(mapname, trackname, true))
+            if (!Mus_Play(trackname, true))
             {
                 Printf("Can't find CD track %i!\n", cdaudio_track);
             }
@@ -955,14 +955,14 @@ bool PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track
     {
         return true;
     }
-    if (!Mus_Play(mapname, song_file_name, true))
+    if (!Mus_Play(song_file_name, true))
     {
         // try the CD track anyway if no MIDI could be found (the original game doesn't have any MIDI, it was CD Audio only, this avoids no music playing if mus_redbook is off.)
         FStringf trackname("shadow%02d.ogg", cdaudio_track);
-        if (!Mus_Play(mapname, trackname, true))
+        if (!Mus_Play(trackname, true))
         {
             trackname.Format("track%02d.ogg", cdaudio_track);
-            if (!Mus_Play(nullptr, trackname, true)) return false;
+            if (!Mus_Play(trackname, true)) return false;
         }
     }
     return true;
@@ -1011,7 +1011,7 @@ DEFINE_ACTION_FUNCTION(_SW, PlaySong)
 {
     PARAM_PROLOGUE;
     PARAM_INT(song);
-    PlaySong(nullptr, ThemeSongs[song], ThemeTrack[song], true);
+    PlaySong(ThemeSongs[song], ThemeTrack[song], true);
     return 0;
 }
 

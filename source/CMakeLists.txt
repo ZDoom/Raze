@@ -828,8 +828,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/duke/src/render.cpp
 	games/duke/src/savegame.cpp
 	games/duke/src/sbar.cpp
-	games/duke/src/sbar_d.cpp
-	games/duke/src/sbar_r.cpp
 	games/duke/src/sectors.cpp
 	games/duke/src/sectors_d.cpp
 	games/duke/src/sectors_r.cpp

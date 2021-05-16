@@ -49,9 +49,12 @@ typedef struct
 
 extern INVENTORY_DATA InventoryData[MAX_INVENTORY+1];
 
-#define INVF_AUTO_USE (BIT(0))
-#define INVF_TIMED (BIT(1))
-#define INVF_COUNT (BIT(2))
+enum EInvFlags
+{
+    INVF_AUTO_USE = 1,
+    INVF_TIMED = 2,
+    INVF_COUNT = 4
+};
 
 void PlayerUpdateInventory(PLAYERp pp,short InventoryNum);
 void InventoryKeys(PLAYERp pp);

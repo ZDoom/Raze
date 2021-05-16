@@ -116,10 +116,10 @@ void FNotifyBuffer::DrawNative()
 
 	FFont* font = isBlood() ? SmallFont2 : SmallFont;
 
-	int line = isBlood() ? Top : (g_gameType & GAMEFLAG_SW) ? 40 : (g_gameType & GAMEFLAG_WHALL)? 18 : font->GetDisplacement();
+	double line = isBlood() ? Top : (g_gameType & GAMEFLAG_SW) ? 40 : (g_gameType & GAMEFLAG_WHALL)? 18 : font->GetDisplacement();
 	bool canskip = isBlood();
 	double scale = 1 / (NotifyFontScale * con_notifyscale);
-	int lineadv = font->GetHeight() / NotifyFontScale;
+	double lineadv = font->GetHeight() / NotifyFontScale;
 	int textleft = (g_gameType & GAMEFLAG_WHALL) ? 18 : 0;
 
 	for (unsigned i = topline; i < Text.Size(); ++i)
@@ -193,8 +193,8 @@ void FNotifyBuffer::Draw()
 	double nfscale = (generic_ui? 0.7 : NotifyFontScale);
 	double scale = 1 / ( * con_notifyscale);
 
-	int line = Top + font->GetDisplacement() / nfscale;
-	int lineadv = font->GetHeight () / nfscale;
+	double line = Top + font->GetDisplacement() / nfscale;
+	double lineadv = font->GetHeight () / nfscale;
 
 	for (unsigned i = 0; i < Text.Size(); ++ i)
 	{

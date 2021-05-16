@@ -6,7 +6,6 @@
 #include "src/player_d.cpp"
 #include "src/player_w.cpp"
 #include "src/premap_d.cpp"
-#include "src/sbar_d.cpp"
 #include "src/sectors_d.cpp"
 #include "src/spawn_d.cpp"
 

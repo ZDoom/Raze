@@ -70,16 +70,16 @@ const char *GetVersionString();
 #define SAVESIG_PS GAMENAME ".Exhumed"
 #define SAVESIG_WH GAMENAME ".Witchaven"
 
-#define MINSAVEVER_DN3D 10
-#define MINSAVEVER_BLD 11
-#define MINSAVEVER_SW 12
-#define MINSAVEVER_PS 12
+#define MINSAVEVER_DN3D 11
+#define MINSAVEVER_BLD 12
+#define MINSAVEVER_SW 13
+#define MINSAVEVER_PS 13
 #define MINSAVEVER_WH 10
 
-#define SAVEVER_DN3D 10
-#define SAVEVER_BLD 11
-#define SAVEVER_SW 12
-#define SAVEVER_PS 12
+#define SAVEVER_DN3D 11
+#define SAVEVER_BLD 12
+#define SAVEVER_SW 13
+#define SAVEVER_PS 13
 #define SAVEVER_WH 10
 
 #define NETGAMEVERSION 1

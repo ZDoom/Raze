@@ -122,10 +122,10 @@ int AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM && !(dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC)))
 		{
 			// if existing is system, they only get to change default value....
-			aGameVars[i].lValue = lValue;
+			aGameVars[i].lValue = (int)lValue;
 			if (!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
 			{
-				aGameVars[i].defaultValue = lValue;
+				aGameVars[i].defaultValue = (int)lValue;
 			}
 		}
 		else
@@ -138,11 +138,11 @@ int AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 			}
 			else
 			{
-				aGameVars[i].lValue = lValue;
+				aGameVars[i].lValue = (int)lValue;
 			}
 			if (!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
 			{
-				aGameVars[i].defaultValue = lValue;
+				aGameVars[i].defaultValue = (int)lValue;
 			}
 		}
 
@@ -161,7 +161,7 @@ int AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 			aGameVars[i].plArray.Resize(MAXPLAYERS);
 			for (j = 0; j < MAXPLAYERS; j++)
 			{
-				aGameVars[i].plArray[j] = lValue;
+				aGameVars[i].plArray[j] = (int)lValue;
 			}
 		}
 		else if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
@@ -169,7 +169,7 @@ int AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 			aGameVars[i].plArray.Resize(MAXSPRITES);
 			for (j = 0; j < MAXSPRITES; j++)
 			{
-				aGameVars[i].plArray[j] = lValue;
+				aGameVars[i].plArray[j] = (int)lValue;
 			}
 		}
 		return 1;

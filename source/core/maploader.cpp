@@ -208,7 +208,7 @@ static void SetWallPalV5()
 
 static void ValidateSprite(spritetype& spr)
 {
-	int index = &spr - sprite;
+	int index = int(&spr - sprite);
 	bool bugged = false;
 	if ((unsigned)spr.statnum >= MAXSTATUS)
 	{

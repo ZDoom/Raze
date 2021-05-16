@@ -268,7 +268,7 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     sp->extra = 0;
 
     QUAKE_Match(sp) = -1;
-    QUAKE_Zamt(sp) = amt;
+    QUAKE_Zamt(sp) = uint8_t(amt);
     QUAKE_Radius(sp) = radius/8;
     QUAKE_Duration(sp) = tics;
     QUAKE_AngAmt(sp) = 8;

@@ -266,7 +266,7 @@ ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_
         {
             //DSPRINTF(ds,"Found track point in sector %d\n",track_sect);
             MONO_PRINT(ds);
-            return near_track - &Track[0];
+            return short(near_track - &Track[0]);
         }
 
         return -1;
@@ -705,9 +705,9 @@ TrackSetup(void)
 }
 
 SPRITEp
-FindBoundSprite(short tag)
+FindBoundSprite(int tag)
 {
-    short sn;
+    int sn;
 
     StatIterator it(STAT_ST1);
     while ((sn = it.NextIndex()) >= 0)
@@ -748,7 +748,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
     // search for 2 sprite bounding tags
 
-    BoundSprite = FindBoundSprite(500 + ((sop - SectorObject) * 5));
+    BoundSprite = FindBoundSprite(500 + (int(sop - SectorObject) * 5));
 
     //DSPRINTF(ds,"tagnum %d, so num %d",500 + ((sop - SectorObject) * 5), sop - SectorObject);
     MONO_PRINT(ds);
@@ -757,14 +757,14 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     xlow = BoundSprite->x;
     ylow = BoundSprite->y;
 
-    KillSprite(BoundSprite - sprite);
+    KillSprite(short(BoundSprite - sprite));
 
-    BoundSprite = FindBoundSprite(501 + ((sop - SectorObject) * 5));
+    BoundSprite = FindBoundSprite(501 + (int(sop - SectorObject) * 5));
     ASSERT(BoundSprite != NULL);
     xhigh = BoundSprite->x;
     yhigh = BoundSprite->y;
 
-    KillSprite(BoundSprite - sprite);
+    KillSprite(short(BoundSprite - sprite));
 
     // set radius for explosion checking - based on bounding box
     u->Radius = DIV4((xhigh - xlow) + (yhigh - ylow));
@@ -778,7 +778,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         sop->xmid = BoundSprite->x;
         sop->ymid = BoundSprite->y;
         sop->zmid = BoundSprite->z;
-        KillSprite(BoundSprite - sprite);
+        KillSprite(short(BoundSprite - sprite));
     }
 
 #if 0
@@ -2802,7 +2802,7 @@ void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        SectIterator it(*sectp - sector);
+        SectIterator it(int(*sectp - sector));
         while ((SpriteNum = it.NextIndex()) >= 0)
         {
             sp = &sprite[SpriteNum];
@@ -2925,7 +2925,7 @@ DoTornadoObject(SECTOR_OBJECTp sop)
 void
 DoAutoTurretObject(SECTOR_OBJECTp sop)
 {
-    short SpriteNum = sop->sp_child - sprite;
+    short SpriteNum = short(sop->sp_child - sprite);
     SPRITEp shootp;
     USERp u = User[SpriteNum].Data();
     short delta_ang;
@@ -3045,7 +3045,7 @@ DoActorHitTrackEndPoint(USERp u)
         else
         {
             RESET(u->Flags, SPR_RUN_AWAY);
-            DoActorSetSpeed(sp - sprite, NORM_SPEED);
+            DoActorSetSpeed(short(sp - sprite), NORM_SPEED);
             u->track = -1;
         }
     }
@@ -3066,7 +3066,7 @@ DoActorHitTrackEndPoint(USERp u)
         else
         {
             RESET(u->Flags, SPR_FIND_PLAYER);
-            DoActorSetSpeed(sp - sprite, NORM_SPEED);
+            DoActorSetSpeed(short(sp - sprite), NORM_SPEED);
             u->track = -1;
         }
     }

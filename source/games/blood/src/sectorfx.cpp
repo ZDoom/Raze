@@ -281,8 +281,8 @@ void DoSectorPanning(void)
                 int px = MulScale(speed << 2, Cos(angle), 30) / xBits;
                 int yBits = tileHeight(nTile) >> int((pSector->floorstat & 8) != 0);
                 int py = MulScale(speed << 2, Sin(angle), 30) / yBits;
-                pSector->addfloorxpan(px * (1. / 256));
-                pSector->addfloorypan(-py * (1. / 256));
+                pSector->addfloorxpan(px * (1.f / 256));
+                pSector->addfloorypan(-py * (1.f / 256));
             }
             if (pXSector->panCeiling) // Ceiling
             {
@@ -293,8 +293,8 @@ void DoSectorPanning(void)
                 int px = MulScale(speed << 2, Cos(angle), 30) / xBits;
                 int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & 8) != 0);
                 int py = MulScale(speed << 2, Sin(angle), 30) / yBits;
-                pSector->addceilingxpan(px * (1. / 256));
-                pSector->addceilingypan(-py * (1. / 256));
+                pSector->addceilingxpan(px * (1.f / 256));
+                pSector->addceilingypan(-py * (1.f / 256));
             }
         }
     }
@@ -317,8 +317,8 @@ void DoSectorPanning(void)
             int px = (psx << 2) / tileWidth(nTile);
             int py = (psy << 2) / tileHeight(nTile);
 
-            wall[nWall].addxpan(px * (1. / 256));
-            wall[nWall].addypan(py * (1. / 256));
+            wall[nWall].addxpan(px * (1.f / 256));
+            wall[nWall].addypan(py * (1.f / 256));
         }
     }
 }

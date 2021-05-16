@@ -127,14 +127,14 @@ int DoWallMove(SPRITEp sp)
             }
 
             if (shade1)
-                wallp->shade = shade1;
+                wallp->shade = int8_t(shade1);
             if (picnum1)
                 wallp->picnum = picnum1;
 
             // find the previous wall
-            prev_wall = PrevWall(wallp - wall);
+            prev_wall = PrevWall(short(wallp - wall));
             if (shade2)
-                wall[prev_wall].shade = shade2;
+                wall[prev_wall].shade = int8_t(shade2);
             if (picnum2)
                 wall[prev_wall].picnum = picnum2;
         }
@@ -143,7 +143,7 @@ int DoWallMove(SPRITEp sp)
     SP_TAG9(sp)--;
     if ((signed char)SP_TAG9(sp) <= 0)
     {
-        KillSprite(sp - sprite);
+        KillSprite(short(sp - sprite));
     }
     else
     {
