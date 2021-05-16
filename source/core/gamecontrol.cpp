@@ -140,7 +140,7 @@ void PostLoadSetup();
 void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated);
 void LoadVoxelModels();
 
-DBaseStatusBar* StatusBar;
+DStatusBarCore* StatusBar;
 
 
 bool AppActive = true;
@@ -825,15 +825,9 @@ void CreateStatusBar()
 	{
 		I_FatalError("No status bar defined");
 	}
-	StatusBar = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
+	StatusBar = static_cast<DStatusBarCore*>(stbarclass->CreateNew());
 	StatusBar->SetSize(0, 320, 200);
 	InitStatusBar();
-	// this is for comparing the scriptification with the C++ versions
-	stbarclass = PClass::FindClass("NativeSWStatusBar");
-	StatusBar2 = static_cast<DBaseStatusBar*>(stbarclass->CreateNew());
-	StatusBar2->SetSize(0, 320, 200);
-	StatusBar2->Release();
-
 }
 
 
