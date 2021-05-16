@@ -797,30 +797,7 @@ void InitLanguages()
 
 void CreateStatusBar()
 {
-	int flags = g_gameType;
-	PClass* stbarclass = nullptr;
-
-	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
-	if (flags & GAMEFLAG_BLOOD)
-	{
-		stbarclass = PClass::FindClass("BloodStatusBar");
-	}
-	else if (flags & GAMEFLAG_SW)
-	{
-		stbarclass = PClass::FindClass("SWStatusBar");
-	}
-	else if (flags & GAMEFLAG_PSEXHUMED)
-	{
-		stbarclass = PClass::FindClass("ExhumedStatusBar");
-	}
-	else if (flags & GAMEFLAG_RRALL)
-	{
-		stbarclass = PClass::FindClass("RedneckStatusBar");
-	}
-	else
-	{
-		stbarclass = PClass::FindClass("DukeStatusBar");
-	}
+	auto stbarclass = PClass::FindClass(globalCutscenes.StatusBarClass);
 	if (!stbarclass)
 	{
 		I_FatalError("No status bar defined");
@@ -828,6 +805,7 @@ void CreateStatusBar()
 	StatusBar = static_cast<DStatusBarCore*>(stbarclass->CreateNew());
 	StatusBar->SetSize(0, 320, 200);
 	InitStatusBar();
+	GC::AddMarkerFunc([]() { GC::Mark(StatusBar); });
 }
 
 

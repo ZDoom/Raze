@@ -1128,6 +1128,14 @@ void FMapInfoParser::ParseGameInfo()
 			sc.SetCMode(false);
 			globalCutscenes.MPSummaryScreen = sc.String;
 		}
+		else if (sc.Compare("statusbarclass"))
+		{
+			ParseAssign();
+			sc.SetCMode(false);
+			sc.MustGetString();
+			sc.SetCMode(false);
+			globalCutscenes.StatusBarClass = sc.String;
+		}
 		else if (!ParseCloseBrace())
 		{
 			// Unknown

@@ -106,4 +106,5 @@ gameinfo
 {
 	summaryscreen = RRCutscenes.BuildSPSummary
 	mpsummaryscreen = DukeCutscenes.BuildMPSummary // identical with Duke's 
+	statusbarclass = RedneckStatusBar
 }
