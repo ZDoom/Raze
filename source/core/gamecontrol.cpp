@@ -1033,6 +1033,7 @@ int RunGame()
 	lookups.postLoadLookups();
 	FMaterial::SetLayerCallback(setpalettelayer);
 	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
+	DeleteStartupScreen();
 
 	V_Init2();
 	twod->Begin(screen->GetWidth(), screen->GetHeight());
