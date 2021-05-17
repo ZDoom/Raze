@@ -298,7 +298,7 @@ class DukeStatusBar : DukeCommonStatusBar
 		{
 			DrawInventory(p, 0, -46, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD1(p);
-			DoLevelStats(tileHeight("BIGALPHANUM") +10, info);
+			DoLevelStats(fontheight[hw_hightile ? 1 : 0] + 6, info);
 		}
 		else if (style == 2)
 		{

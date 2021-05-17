@@ -815,16 +815,25 @@ loc_flag:
                 }
                 case kWeaponPistol:
                 {
-                    int var_50 = PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 14;
-                    nHeight -= var_50;
+                    int h = PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 14;
+                    nHeight -= h;
 
+                    int target = 0;
                     if (sPlayerInput[nPlayer].nTarget >= 0 && Autoaim(nPlayer))
                     {
                         assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
-                        var_50 = sPlayerInput[nPlayer].nTarget + 10000;
+                        int t = sPlayerInput[nPlayer].nTarget;
+                        if (t >= 0 && t < MAXSPRITES)
+                        {
+                            // only autoaim if target is in front of the player.
+                            auto pTargetSprite = &sprite[t];
+                            int angletotarget = bvectangbam(pTargetSprite->x - sprite[nPlayerSprite].x, pTargetSprite->y - sprite[nPlayerSprite].y).asbuild();
+                            int anglediff = (sprite[nPlayerSprite].ang - angletotarget) & 2047;
+                            if (anglediff < 512 || anglediff > 1536) target = t + 10000;
+                        }
                     }
 
-                    BuildBullet(nPlayerSprite, nAmmoType, ebp, ebx, nHeight, nAngle, var_50, var_1C);
+                    BuildBullet(nPlayerSprite, nAmmoType, ebp, ebx, nHeight, nAngle, target, var_1C);
                     break;
                 }
 
