@@ -34,6 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 #include "misc.h"
 #include "interpso.h"
+#include "render.h"
 
 BEGIN_SW_NS
 
@@ -244,6 +245,11 @@ void CopySectorMatch(short match)
 
                 dsectp->extra = ssectp->extra;
                 dsectp->visibility = ssectp->visibility;
+
+                dsectp->portalnum = ssectp->portalnum;
+                dsectp->portalflags = ssectp->portalflags;
+
+                if (ssectp->portalflags & (PORTAL_SECTOR_CEILING|PORTAL_SECTOR_FLOOR)) allPortals[ssectp->portalnum].dx = allPortals[ssectp->portalnum].dy = 0;
             }
         }
     }
