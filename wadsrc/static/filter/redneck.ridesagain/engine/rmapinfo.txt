@@ -102,6 +102,10 @@ map { 2, 7 }
 
 cutscenes
 {
+	intro
+	{
+		function = RRCutscenes.BuildRAIntro
+	}
 	loadscreen
 	{
 		function = DukeCutscenes.BuildLoading // identical with Duke's
