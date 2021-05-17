@@ -2170,7 +2170,6 @@ FxExpression *FxPreIncrDecr::Resolve(FCompileContext &ctx)
 ExpEmit FxPreIncrDecr::Emit(VMFunctionBuilder *build)
 {
 	assert(Token == TK_Incr || Token == TK_Decr);
-	assert(ValueType == Base->ValueType && IsNumeric());
 
 	int zero = build->GetConstantInt(0);
 	int regtype = ValueType->GetRegType();
@@ -2257,7 +2256,6 @@ FxExpression *FxPostIncrDecr::Resolve(FCompileContext &ctx)
 ExpEmit FxPostIncrDecr::Emit(VMFunctionBuilder *build)
 {
 	assert(Token == TK_Incr || Token == TK_Decr);
-	assert(ValueType == Base->ValueType && IsNumeric());
 
 	int zero = build->GetConstantInt(0);
 	int regtype = ValueType->GetRegType();
@@ -5261,7 +5259,6 @@ FxExpression *FxMinMax::Resolve(FCompileContext &ctx)
 				else
 				{
 					ExpVal value = static_cast<FxConstant *>(choices[j])->GetValue();
-					assert(value.Type == ValueType);
 					if (Type == NAME_Min)
 					{
 						if (value.Type->GetRegType() == REGT_FLOAT)

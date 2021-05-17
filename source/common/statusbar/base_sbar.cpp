@@ -577,10 +577,6 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		x += orgx;
 		y += orgy;
 	}
-	if (clipwidth != -1)
-	{
-		int a = 0;
-	}
 	DrawTexture(twod, tex, x, y,
 		DTA_TopOffset, 0,
 		DTA_LeftOffset, 0,
