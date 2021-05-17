@@ -114,7 +114,9 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 	{
 		ptype = PORTALTYPE_SKY;
 		HWSkyInfo skyinfo;
-		initSkyInfo(di, &skyinfo, sector, plane, fade);
+		PalEntry pe = GlobalMapFog? GlobalMapFog : fade;
+		pe.a = 230;
+		initSkyInfo(di, &skyinfo, sector, plane, pe);
 		ptype = PORTALTYPE_SKY;
 		sky = &skyinfo;
 		PutPortal(di, ptype, plane);
