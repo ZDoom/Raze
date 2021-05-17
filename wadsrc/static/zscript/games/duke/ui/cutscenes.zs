@@ -274,22 +274,30 @@ class RRCutscenes
     {
 		if (!userConfig.nologo)
 		{
-			if (!Raze.isRRRA())
-			{
-				Array<int> soundinfo;
-				soundinfo.Pushv(1, RRSnd.URANUS + 1);
-				runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_intro.anm", soundinfo, 0, 9, 9, 9));
+			Array<int> soundinfo;
+			soundinfo.Pushv(1, RRSnd.URANUS + 1);
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("rr_intro.anm", soundinfo, 0, 9, 9, 9));
 
-				soundinfo.Pushv(1, RRSnd.REDNECK2 + 1);
-				runner.Append(MoviePlayerJob.CreateWithSoundinfo("redneck.anm", soundinfo, 0, 9, 9, 9));
+			soundinfo.Pushv(1, RRSnd.REDNECK2 + 1);
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("redneck.anm", soundinfo, 0, 9, 9, 9));
 
-				soundinfo.Pushv(1, RRSnd.XATRIX + 1);
-				runner.Append(MoviePlayerJob.CreateWithSoundinfo("xatlogo.anm", soundinfo, 0, 9, 9, 9));
-			}
-			else
-			{
-				runner.Append(MoviePlayerJob.Create("redint.mve", 0));
-			}
+			soundinfo.Pushv(1, RRSnd.XATRIX + 1);
+			runner.Append(MoviePlayerJob.CreateWithSoundinfo("xatlogo.anm", soundinfo, 0, 9, 9, 9));
+		}
+	}
+
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	static void BuildRAIntro(ScreenJobRunner runner)
+    {
+		if (!userConfig.nologo)
+		{
+			runner.Append(MoviePlayerJob.Create("redint.mve", 0));
 		}
 	}
 
