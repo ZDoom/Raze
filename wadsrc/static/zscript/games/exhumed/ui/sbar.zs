@@ -92,7 +92,7 @@ class ExhumedStatusBar : RazeStatusBar
     //
     //---------------------------------------------------------------------------
 
-    void DrawStatusSequence(int nSequence, int frameindex, double yoffset, double xoffset = 0)
+    void DrawStatusSequence(int nSequence, int frameindex, double yoffset, double xoffset = 0, bool trueadjust = false)
     {
 		int nFrameBase, nFrameSize;
 		[nFrameBase, nFrameSize] = Exhumed.GetStatusSequence(nSequence, frameindex);
@@ -134,8 +134,16 @@ class ExhumedStatusBar : RazeStatusBar
             else
             {
 				let tsiz = TexMan.GetScaledSize(chunk.tex);
-                x -= tsiz.x * .5;
-                y -= tsiz.y * .5;
+				if (trueadjust)
+				{
+					x -= tsiz.x * 0.5;
+					y -= tsiz.y * 0.5;
+				}
+				else
+				{
+					x -= int(tsiz.x) / 2;
+					y -= int(tsiz.y) / 2;
+				}
                 flags |= DI_ITEM_OFFSETS;
             }
 
@@ -372,7 +380,7 @@ class ExhumedStatusBar : RazeStatusBar
 		{
 			if (pp.keys & (4096 << i))
 			{
-				DrawStatusSequence(KeySeq + 2 * i, keyanims[i], 0.5, 0.5);
+				DrawStatusSequence(KeySeq + 2 * i, keyanims[i], 0.5, 0.5, true);
 			}
 		}
 
