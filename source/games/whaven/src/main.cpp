@@ -675,6 +675,7 @@ void GameInterface::Ticker()
 	speelbookprocess(plr);
 	timerprocess(plr);
 	weaponsprocess(pyrn);
+	spikeanimation(plr);
 
 	if (followmode) {
 		followa += followang;

@@ -383,6 +383,20 @@ void drawweapons(int snum, double const dasmoothratio) {
 	}
 }
 
+void spikeanimation(PLAYER& plr) 
+{
+	const int wait = 2;	// was 4, but called from the render code running at fixed 60 fps.
+	if (plr.spiketics < 0) 
+	{
+		plr.currspikeframe++;
+		if (plr.currspikeframe > wait)
+			plr.currspikeframe = wait;
+		plr.spiketics = spikeanimtics[plr.currspikeframe].daweapontics;
+		plr.spikeframe = spikeanimtics[plr.currspikeframe].daweaponframe;
+	}
+}
+
+
 static void spikeheart(PLAYER& plr) 
 {
 	int dax = spikeanimtics[plr.currspikeframe].currx;

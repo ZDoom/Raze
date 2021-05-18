@@ -203,6 +203,7 @@ void spawnhornskull(short i);
 void spawnapentagram(int sn);
 void processinput(int num);
 void DrawHud(double const dasmoothratio);
+void spikeanimation(PLAYER& plr);
 
 
 // whplr
