@@ -114,9 +114,9 @@ class RazeStatusBar : StatusBarCore
 		let lev = currentLevel;
 		String mapname;
 		if (am_showlabel) 
-			mapname.Format("%s%s: %s%s", info.letterColor, lev.GetLabelName(), info.standardColor, lev.DisplayName());
+			mapname = String.Format("%s%s: %s%s", info.letterColor, lev.GetLabelName(), info.standardColor, lev.DisplayName());
 		else 
-			mapname.Format("%s%s", info.standardColor, lev.DisplayName());
+			mapname = String.Format("%s%s", info.standardColor, lev.DisplayName());
 
 		forcetextfont |= am_textfont;
 		double y;

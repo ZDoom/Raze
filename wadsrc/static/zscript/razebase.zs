@@ -101,13 +101,13 @@ struct MapRecord native
 	
 	String GetLabelName()
 	{
-		if (flags & USERMAP) return "$TXT_USERMAP";
+		if (flags & USERMAP) return StringTable.Localize("$TXT_USERMAP");
 		return labelName;
 	}
 	String DisplayName()
 	{
 		if (name == "") return labelName;
-		return name;
+		return StringTable.Localize(name);
 	}
 
 	native ClusterDef GetCluster();
