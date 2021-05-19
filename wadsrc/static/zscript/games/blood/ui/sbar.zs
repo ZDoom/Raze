@@ -526,7 +526,7 @@ class BloodStatusBar : RazeStatusBar
 			int num = pPlayer.ammoCount[i];
 			if (i == 6)
 				num /= 10;
-			DrawStatNumber("%3d", num, "SBarHealthAmount", x, y, i == pPlayer.weaponAmmo ? -128 : 32, 10);
+			DrawStatNumber("%3d", num, "SBarAmmoAmount", x, y, i == pPlayer.weaponAmmo ? -128 : 32, 10);
 		}
 		DrawStatNumber("%2d", pPlayer.ammoCount[10], "SBarAmmoAmount", 291, 194, pPlayer.weaponAmmo == 10 ? -128 : 32, 10);
 		DrawStatNumber("%2d", pPlayer.ammoCount[11], "SBarAmmoAmount", 309, 194, pPlayer.weaponAmmo == 11 ? -128 : 32, 10);
