@@ -133,6 +133,7 @@ public:
 	{
 		RWF_BLANK = 0,
 		RWF_TEXTURED = 1,	// actually not being used anymore because with buffers it's even less efficient not writing the texture coordinates - but leave it here
+		RWF_TRANS = 2,
 		RWF_NORENDER = 8,
 	};
 
@@ -158,6 +159,7 @@ public:
 	
 	float ViewDistance;
 	float visibility;
+	int walldist;
 	short shade, palette;
 
 	PalEntry fade;
