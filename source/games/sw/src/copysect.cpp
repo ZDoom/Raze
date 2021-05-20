@@ -246,10 +246,10 @@ void CopySectorMatch(short match)
                 dsectp->extra = ssectp->extra;
                 dsectp->visibility = ssectp->visibility;
 
-                dsectp->portalnum = ssectp->portalnum;
-                dsectp->portalflags = ssectp->portalflags;
-
-                if (ssectp->portalflags & (PORTAL_SECTOR_CEILING|PORTAL_SECTOR_FLOOR)) allPortals[ssectp->portalnum].dx = allPortals[ssectp->portalnum].dy = 0;
+                if (ssectp->floorpicnum == FAF_MIRROR_PIC || ssectp->ceilingpicnum == FAF_MIRROR_PIC)
+                {
+                    CollectPortals(); // unavoidable. Since these portals are not static we have to reinitialize all of them.
+                }
             }
         }
     }
