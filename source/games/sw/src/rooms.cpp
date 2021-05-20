@@ -1044,8 +1044,13 @@ void CollectPortals()
     TArray<PortalGroup> ceilingportals;
     FixedBitArray<MAXSECTORS> floordone, ceilingdone;
 
+    for (int i = 0; i < numsectors; i++)
+    {
+        sector[i].portalflags = sector[i].portalnum = 0;
+    }
     floordone.Zero();
     ceilingdone.Zero();
+    portalClear();
 
     for (int i = 0; i < numsectors; i++)
     {
