@@ -235,7 +235,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 			state.SetNpotEmulation(float(h2) / h, xOffset);
 		}
 	}
-	else if (walldist >= 0 && !(rflags && RWF_TRANS))
+	else if (walldist >= 0 && !(rflags & RWF_TRANS))
 	{
 		state.SetDepthBias(-1, -128);
 	}
@@ -1091,11 +1091,6 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 {
 	auto tex = tileGetTexture(spr->picnum);
 	if (!tex || !tex->isValid()) return;
-
-	if (spr->owner == 771)
-	{
-		int a = 0;
-	}
 
 	seg = nullptr;
 	Sprite = spr;
