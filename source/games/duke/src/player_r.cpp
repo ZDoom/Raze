@@ -2731,7 +2731,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			else
 			{
 				k = 140;
-				i = -512 - -MulScale(p->horizon.sum().asq16(), 20, 16);
+				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
 			auto spawned = EGS(p->cursectnum,
