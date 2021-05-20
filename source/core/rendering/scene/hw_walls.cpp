@@ -39,6 +39,72 @@
 #include "flatvertices.h"
 #include "glbackend/glbackend.h"
 
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static int GetClosestPointOnWall(vec2_t const* const pos, walltype* wal, vec2_t* const n)
+{
+	auto w = wal->pos;
+	auto d = wall[wal->point2].pos - w;
+	int64_t i = d.x * ((int64_t)pos->x - w.x) + d.y * ((int64_t)pos->y - w.y);
+
+	if (d.x == 0 && d.y == 0)
+	{
+		// In Blood's E1M1 this gets triggered for wall 522.
+		return 1;
+	}
+
+	if (i < 0)
+		return 1;
+
+	int64_t j = (int64_t)d.x * d.x + (int64_t)d.y * d.y;
+
+	if (i > j)
+		return 1;
+
+	i = ((i << 15) / j) << 15;
+
+	n->x = w.x + ((d.x * i) >> 30);
+	n->y = w.y + ((d.y * i) >> 30);
+
+	return 0;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static int IsOnWall(spritetype* tspr, int height)
+{
+	int dist = 3, closest = -1;
+	auto sect = &sector[tspr->sectnum];
+	vec2_t n;
+
+	int topz = (tspr->z - ((height * tspr->yrepeat) << 2));
+	for (int i = sect->wallptr; i < sect->wallptr + sect->wallnum; i++)
+	{
+		auto wal = &wall[i];
+		if ((wal->nextsector == -1 || ((sector[wal->nextsector].ceilingz > topz) ||
+			sector[wal->nextsector].floorz < tspr->z)) && !GetClosestPointOnWall(&tspr->pos.vec2, wal, &n))
+		{
+			int const dst = abs(tspr->x - n.x) + abs(tspr->y - n.y);
+
+			if (dst <= dist)
+			{
+				dist = dst;
+				closest = i;
+			}
+		}
+	}
+	return closest == -1? -1 : dist;
+}
+
 //==========================================================================
 //
 // Create vertices for one wall
@@ -169,9 +235,14 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 			state.SetNpotEmulation(float(h2) / h, xOffset);
 		}
 	}
+	else if (walldist >= 0 && !(rflags && RWF_TRANS))
+	{
+		state.SetDepthBias(-1, -128);
+	}
 
 	RenderWall(di, state, rflags);
 
+	if (!(rflags && RWF_TRANS)) state.ClearDepthBias();
 	state.SetNpotEmulation(0.f, 0.f);
 	/* none of these functions is in use.
 	state.SetObjectColor(0xffffffff);
@@ -1021,6 +1092,11 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 	auto tex = tileGetTexture(spr->picnum);
 	if (!tex || !tex->isValid()) return;
 
+	if (spr->owner == 771)
+	{
+		int a = 0;
+	}
+
 	seg = nullptr;
 	Sprite = spr;
 	vec2_t pos[2];
@@ -1067,6 +1143,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 		height = (int)tex->GetDisplayHeight();
 		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset);
 	}
+	walldist = IsOnWall(spr, height);
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP)
 		topofs = -topofs;

@@ -268,6 +268,9 @@ struct spritetype
     int16_t extra;
     int16_t detail;
     int time;
+    int16_t wall;
+    int8_t wdist;
+
 
 #if 0
     // make sure we do not accidentally copy this
