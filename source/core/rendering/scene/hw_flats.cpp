@@ -246,7 +246,6 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	float florz, ceilz;
 	PlanesAtPoint(frontsector, float(vp.Pos.X) * 16.f, float(vp.Pos.Y) * -16.f, &ceilz, &florz);
 
-	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;
 	section = section_;
@@ -264,6 +263,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	{
 		// process the original floor first.
 
+		fade = lookups.getFade(frontsector->floorpal);
 		shade = frontsector->floorshade;
 		palette = frontsector->floorpal;
 		stack = frontsector->portalflags == PORTAL_SECTOR_FLOOR || frontsector->portalflags == PORTAL_SECTOR_FLOOR_REFLECT;
@@ -304,6 +304,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	{
 		// process the original ceiling first.
 
+		fade = lookups.getFade(frontsector->ceilingpal);
 		shade = frontsector->ceilingshade;
 		palette = frontsector->ceilingpal;
 		stack = frontsector->portalflags == PORTAL_SECTOR_CEILING || frontsector->portalflags == PORTAL_SECTOR_CEILING_REFLECT;

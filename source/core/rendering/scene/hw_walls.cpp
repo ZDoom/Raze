@@ -952,7 +952,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	dynlightindex = -1;
 	shade = wal->shade;
 	palette = wal->pal;
-	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
+	fade = lookups.getFade(wal->pal);
 	visibility = sectorVisibility(frontsector);
 
 	alpha = 1.0f;
