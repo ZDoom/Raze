@@ -538,9 +538,6 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	drawlists[GLDL_MASKEDWALLSH].DrawWalls(this, state, false);
 	state.SetColorMask(true);
 
-	/*
-	state.SetDepthBias(-1, -128);
-
 	state.SetDepthMask(false);
 	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
 	state.SetDepthMask(true);
@@ -548,7 +545,6 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
 	state.SetColorMask(true);
 	state.ClearDepthBias();
-	*/
 
 	drawlists[GLDL_MODELS].Draw(this, state, false);
 
