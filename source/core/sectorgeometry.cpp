@@ -353,6 +353,7 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 		lines[j].backsector = nullptr;
 		lines[j].frontsector = sectorp;
 		lines[j].linenum = j;
+		lines[j].wallnum = sline->wall;
 		lines[j].sidedef[0] = &sides[j];
 		lines[j].sidedef[1] = nullptr;
 		lines[j].v1 = &vertexes[i];
@@ -416,7 +417,7 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 				// In this case we have to delete the shorter line and truncate the other one.
 
 				// check if the second line's end point is on the line we are checking
-				double d1 = PointOnLineSide(pp2, p1, p2);
+				double d1 = PointOnLineSide(pp1, p1, p2);
 				if (fabs(d1) > FLT_EPSILON) continue; // not colinear
 				bool vert = p1.X == p2.X;
 				double p1x = vert ? p1.X : p1.Y;
