@@ -345,7 +345,7 @@ bool ScreenJobValidate()
 			int res;
 			VMValue parm[] = { runner };
 			VMReturn ret(&res);
-			VMCall(func, parm, 2, &ret, 1);
+			VMCall(func, parm, 1, &ret, 1);
 			return res;
 		}
 	}
