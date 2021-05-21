@@ -235,9 +235,10 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 			state.SetNpotEmulation(float(h2) / h, xOffset);
 		}
 	}
-	else if (walldist >= 0 && !(rflags & RWF_TRANS))
+	else if (!(rflags & RWF_TRANS))
 	{
-		state.SetDepthBias(-1, -128);
+		if (walldist >= 0) state.SetDepthBias(-1, glseg.x1 == glseg.x2 || glseg.y1 == glseg.y2? -128 : -192);
+		else state.ClearDepthBias();
 	}
 
 	RenderWall(di, state, rflags);
@@ -1138,6 +1139,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sect
 		height = (int)tex->GetDisplayHeight();
 		topofs = ((int)tex->GetDisplayTopOffset() + spr->yoffset);
 	}
+
 	walldist = IsOnWall(spr, height);
 
 	if (spr->cstat & CSTAT_SPRITE_YFLIP)
