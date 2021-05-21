@@ -41,6 +41,13 @@
 #include "gl_renderer.h"
 #endif
 
+spriteext_t spriteext[MAXSPRITES];
+spritesmooth_t spritesmooth[MAXSPRITES];
+
+sectortype sector[MAXSECTORS];
+walltype wall[MAXWALLS];
+spritetype sprite[MAXSPRITES];
+
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
@@ -622,27 +629,6 @@ const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, 
         *daptileyscale = psky->yscale;
 
     return psky->tileofs;
-}
-
-
-
-//
-// preinitengine
-//
-static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
-static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
-static sectortype sector_s[MAXSECTORS];
-static walltype wall_s[MAXWALLS];
-spritetype sprite_s[MAXSPRITES];
-
-int32_t enginePreInit(void)
-{
-    sector = sector_s;
-    wall = wall_s;
-    sprite = sprite_s;
-    spriteext = spriteext_s;
-    spritesmooth = spritesmooth_s;
-    return 0;
 }
 
 

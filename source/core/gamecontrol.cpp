@@ -1006,7 +1006,6 @@ int RunGame()
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 
-	enginePreInit();
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	StartScreen->Progress();
