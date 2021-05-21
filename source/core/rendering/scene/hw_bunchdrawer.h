@@ -53,6 +53,7 @@ private:
     int ClipLine(int line, bool portal);
     void ProcessBunch(int bnch);
     int WallInFront(int wall1, int wall2);
+    int ColinearBunchInFront(FBunch* b1, FBunch* b2);
     int BunchInFront(FBunch* b1, FBunch* b2);
     int FindClosestBunch();
     void ProcessSection(int sectnum, bool portal);
