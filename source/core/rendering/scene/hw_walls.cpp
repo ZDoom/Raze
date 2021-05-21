@@ -46,17 +46,43 @@
 //
 //==========================================================================
 
-static int GetClosestPointOnWall(vec2_t const* const pos, walltype* wal, vec2_t* const n)
+static int GetClosestPointOnWall(spritetype* spr, walltype* wal, vec2_t* const n)
 {
 	auto w = wal->pos;
 	auto d = wall[wal->point2].pos - w;
-	int64_t i = d.x * ((int64_t)pos->x - w.x) + d.y * ((int64_t)pos->y - w.y);
+	auto pos = spr->pos;
 
+	// avoid the math below for orthogonal walls. Here we allow only sprites that exactly match the line's coordinate and orientation
 	if (d.x == 0 && d.y == 0)
 	{
+		// line has no length.
 		// In Blood's E1M1 this gets triggered for wall 522.
 		return 1;
 	}
+	else if (d.x == 0)
+	{
+		// line is vertical.
+		if (pos.x == w.x && (spr->ang & 0x3ff) == 0)
+		{
+			*n = pos.vec2;
+			return 0;
+		}
+		return 1;
+	}
+	else if (d.y == 0)
+	{
+		// line is horizontal.
+		if (pos.y == w.y && (spr->ang & 0x3ff) == 0x200)
+		{
+			*n = pos.vec2;
+			return 0;
+		}
+		return 1;
+	}
+
+
+	int64_t i = d.x * ((int64_t)pos.x - w.x) + d.y * ((int64_t)pos.y - w.y);
+
 
 	if (i < 0)
 		return 1;
@@ -91,7 +117,7 @@ static int IsOnWall(spritetype* tspr, int height)
 	{
 		auto wal = &wall[i];
 		if ((wal->nextsector == -1 || ((sector[wal->nextsector].ceilingz > topz) ||
-			sector[wal->nextsector].floorz < tspr->z)) && !GetClosestPointOnWall(&tspr->pos.vec2, wal, &n))
+			sector[wal->nextsector].floorz < tspr->z)) && !GetClosestPointOnWall(tspr, wal, &n))
 		{
 			int const dst = abs(tspr->x - n.x) + abs(tspr->y - n.y);
 
