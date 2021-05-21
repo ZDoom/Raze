@@ -260,16 +260,20 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 			float xOffset = 1.f / texture->GetDisplayWidth();
 			state.SetNpotEmulation(float(h2) / h, xOffset);
 		}
+		RenderWall(di, state, rflags);
 	}
 	else if (!(rflags & RWF_TRANS))
 	{
+		auto oldbias = state.GetDepthBias();
 		if (walldist >= 0) state.SetDepthBias(-1, glseg.x1 == glseg.x2 || glseg.y1 == glseg.y2? -128 : -192);
 		else state.ClearDepthBias();
+		RenderWall(di, state, rflags);
+		state.SetDepthBias(oldbias);
+
 	}
+	else
+		RenderWall(di, state, rflags);
 
-	RenderWall(di, state, rflags);
-
-	if (!(rflags && RWF_TRANS)) state.ClearDepthBias();
 	state.SetNpotEmulation(0.f, 0.f);
 	/* none of these functions is in use.
 	state.SetObjectColor(0xffffffff);
