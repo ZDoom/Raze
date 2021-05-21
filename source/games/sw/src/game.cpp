@@ -73,7 +73,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "raze_sound.h"
 #include "secrets.h"
 
-#include "screenjob.h"
+#include "screenjob_.h"
 #include "inputstate.h"
 #include "gamestate.h"
 #include "d_net.h"

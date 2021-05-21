@@ -198,10 +198,6 @@ int Mus_Play(const char *fn, bool loop)
 	// Store the requested names for resuming.
 	lastMusic = fn;
 	
-	if (!MusicEnabled())
-	{
-		return 1;
-	}
 	return S_ChangeMusic(fn, 0, loop, true);
 }
 

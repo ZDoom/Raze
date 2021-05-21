@@ -65,7 +65,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "startupinfo.h"
 #include "mapinfo.h"
 #include "menustate.h"
-#include "screenjob.h"
+#include "screenjob_.h"
 #include "statusbar.h"
 #include "uiinput.h"
 #include "d_net.h"
@@ -983,6 +983,7 @@ int RunGame()
 	StartScreen->Progress();
 	SetDefaultStrings();
 	Job_Init();
+	Local_Job_Init();
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 

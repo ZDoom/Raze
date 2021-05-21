@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_sound.h"
 #include "secrets.h"
 #include "gamestate.h"
-#include "screenjob.h"
+#include "screenjob_.h"
 #include "mapinfo.h"
 #include "d_net.h"
 #include "v_video.h"

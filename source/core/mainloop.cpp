@@ -73,7 +73,7 @@
 #include "raze_music.h"
 #include "vm.h"
 #include "gamestate.h"
-#include "screenjob.h"
+#include "screenjob_.h"
 #include "c_console.h"
 #include "uiinput.h"
 #include "v_video.h"
@@ -104,7 +104,6 @@ bool r_NoInterpolate;
 int entertic;
 int oldentertics;
 int gametic;
-int intermissiondelay;
 
 FString savename;
 FString BackupSaveGame;

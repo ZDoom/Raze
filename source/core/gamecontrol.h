@@ -72,18 +72,6 @@ struct UserConfig
 
 extern UserConfig userConfig;
 
-extern int nomusic;
-extern bool nosound;
-inline int MusicEnabled() // int return is for scripting
-{
-	return mus_enabled && !nomusic;
-}
-
-inline int SoundEnabled()
-{
-	return snd_enabled && !nosound;
-}
-
 
 enum
 {

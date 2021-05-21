@@ -614,6 +614,7 @@ file( GLOB HEADER_FILES
 	common/audio/music/*.h*
 	common/2d/*.h
 	common/console/*.h
+	common/cutscenes/*.h
 	common/utility/*.h
 	common/engine/*.h
 	common/menu/*.h
@@ -993,8 +994,6 @@ set (PCH_SOURCES
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
 
-	core/movie/playmve.cpp
-	core/movie/movieplayer.cpp
 	core/automap.cpp
 	core/cheats.cpp
 	core/cheathandler.cpp
@@ -1136,6 +1135,9 @@ set (PCH_SOURCES
 	common/console/c_notifybufferbase.cpp
 	common/console/c_tabcomplete.cpp
 	common/console/c_expr.cpp
+	common/cutscenes/playmve.cpp
+	common/cutscenes/movieplayer.cpp
+	common/cutscenes/screenjob.cpp
 	common/utility/engineerrors.cpp
 	common/utility/i_module.cpp
 	common/utility/m_alloc.cpp
@@ -1522,6 +1524,7 @@ source_group("Common\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
 source_group("Common\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/2d/.+")
+source_group("Common\\Cutscenes" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/cutscenes/.+")
 source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/objects/.+")
 source_group("Common\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
 source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")

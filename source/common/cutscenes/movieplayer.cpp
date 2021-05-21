@@ -32,7 +32,6 @@
 */
 
 #include "types.h"
-#include "build.h"
 #include "screenjob.h"
 #include "i_time.h"
 #include "v_2ddrawer.h"
@@ -41,16 +40,13 @@
 #include "s_soundinternal.h"
 #include "animtexture.h"
 #include "gamestate.h"
-#include "razemenu.h"
-#include "raze_sound.h"
 #include "SmackerDecoder.h"
-#include "movie/playmve.h"
-#include "gamecontrol.h"
+#include "playmve.h"
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
-#include "raze_music.h"
+#include "filesystem.h"
 #include "vm.h"
-
+#include "printf.h"
 
 class MoviePlayer
 {
@@ -143,7 +139,7 @@ public:
 				int sound = animSnd[i+1];
 				if (sound == -1)
 					soundEngine->StopAllChannels();
-				else if (SoundEnabled())
+				else
 					soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, nostopsound? CHANF_UI : CHANF_NONE, sound, 1.f, ATTN_NONE);
 			}
 		}
@@ -419,7 +415,7 @@ public:
 	{
 		if (soundtrack > 0)
 		{
-			Mus_Play(fileSystem.GetFileFullName(soundtrack, false), false);
+			S_ChangeMusic(fileSystem.GetFileFullName(soundtrack, false), 0, false);
 		}
 		animtex.SetSize(AnimTexture::YUV, width, height);
 	}
@@ -462,7 +458,7 @@ public:
 							int sound = animSnd[i + 1];
 							if (sound == -1)
 								soundEngine->StopAllChannels();
-							else if (SoundEnabled())
+							else
 								soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, nostopsound ? CHANF_UI : CHANF_NONE, sound, 1.f, ATTN_NONE);
 						}
 					}
@@ -475,7 +471,7 @@ public:
 
 	void Stop()
 	{
-		Mus_Stop();
+		S_StopMusic(true);
 		bool nostopsound = (flags & NOSOUNDCUTOFF);
 		if (!nostopsound) soundEngine->StopAllChannels();
 	}
@@ -624,7 +620,7 @@ public:
 			Smacker_GetPalette(hSMK, palette);
 			Smacker_GetFrame(hSMK, pFrame.Data());
 			animtex.SetFrame(palette, pFrame.Data());
-			if (numAudioTracks)
+			if (numAudioTracks && SoundEnabled())
 			{
 				auto read = Smacker_GetAudioData(hSMK, 0, (int16_t*)audioBuffer.Data());
 				if (adata.inf.bitsPerSample == 8) copy8bitSamples(read);
@@ -648,7 +644,7 @@ public:
 					int sound = animSnd[i + 1];
 					if (sound == -1)
 						soundEngine->StopAllChannels();
-					else if (SoundEnabled())
+					else
 						soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, nostopsound ? CHANF_UI : CHANF_NONE, sound, 1.f, ATTN_NONE);
 				}
 			}
@@ -756,7 +752,10 @@ MoviePlayer* OpenMovie(const char* filename, TArray<int>& ans, const int* framet
 			delete anm;
 			return nullptr;
 		}
-		anm->soundtrack = LookupMusic(filename, true);
+		// VPX files have no sound track, so look for a same-named sound file with a known extension as the soundtrack to be played.
+		static const char* knownSoundExts[] = { "OGG",	"FLAC",	"MP3",	"OPUS", "WAV" };
+		FString name = StripExtension(filename);
+		anm->soundtrack = fileSystem.FindFileWithExtensions(name, knownSoundExts, countof(knownSoundExts));
 		return anm;
 	}
 	// add more formats here.
