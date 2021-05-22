@@ -52,7 +52,6 @@
 
 static PType* maprecordtype;
 static PType* summaryinfotype;
-static CompletionFunc completion;
 static int ticks;
 static SummaryInfo summaryinfo;
 
