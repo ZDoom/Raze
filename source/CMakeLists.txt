@@ -394,7 +394,7 @@ if( MSVC AND NOT ZMUSIC_FOUND )
 	# Use prebuilt library
 	set( ZMUSIC_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/windows/zmusic" )
 	set( ZMUSIC_INCLUDE_DIR ${ZMUSIC_ROOT_PATH}/include )
-	set( ZMUSIC_LIBRARIES zmusic )
+	set( ZMUSIC_LIBRARIES zmusiclite )
 	if( X64 )
 		link_directories( ${ZMUSIC_ROOT_PATH}/64bit )
 	elseif( ARM64 )
