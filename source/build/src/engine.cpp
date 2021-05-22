@@ -42,7 +42,7 @@
 #endif
 
 spriteext_t spriteext[MAXSPRITES];
-spritesmooth_t spritesmooth[MAXSPRITES];
+spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
 
 sectortype sector[MAXSECTORS];
 walltype wall[MAXWALLS];

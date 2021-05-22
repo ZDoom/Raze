@@ -146,7 +146,7 @@ struct usermaphack_t
 };
 
 extern spriteext_t spriteext[MAXSPRITES];
-extern spritesmooth_t spritesmooth[MAXSPRITES];
+extern spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
 
 extern sectortype sector[MAXSECTORS];
 extern walltype wall[MAXWALLS];
