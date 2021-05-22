@@ -4,6 +4,7 @@
 #include "s_soundinternal.h"
 #include "gamestate.h"
 #include "screenjob.h"
+#include "gamecontrol.h"
 
 struct CutsceneDef;
 struct MapRecord;

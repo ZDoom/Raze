@@ -553,7 +553,7 @@ class ScreenJobRunner : Object
 		let font = generic_ui? NewSmallFont : SmallFont;
 
 		let linelen = hudwidth < 640 ? hudwidth * 0.9 - 40 : 560;
-		let lines = font.BreakLines(text, linelen);
+		let lines = font.BreakLines(text, int(linelen));
 
 		int count = lines.Count();
 		int height = 20 + font.GetHeight() * count;
@@ -573,7 +573,7 @@ class ScreenJobRunner : Object
 		y = hudheight * 0.9 - height;
 		if (y < 0) y = 0;
 		
-		Screen.Dim(0, 0.5f, x * hscale, y * vscale, w * hscale, height * vscale);
+		Screen.Dim(0, 0.5f, int(x * hscale), int(y * vscale), int(w * hscale), int(height * vscale));
 		x += 20;
 		y += 10;
 
