@@ -698,6 +698,18 @@ DEFINE_ACTION_FUNCTION_NATIVE(FFont, GetGlyphHeight, GetGlyphHeight)
 	PARAM_INT(code);
 	ACTION_RETURN_INT(GetGlyphHeight(self, code));
 }
+
+static int GetDefaultKerning(FFont* font)
+{
+	return font->GetDefaultKerning();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(FFont, GetDefaultKerning, GetDefaultKerning)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FFont);
+	ACTION_RETURN_INT(self->GetDefaultKerning());
+}
+
 //==========================================================================
 //
 // file system

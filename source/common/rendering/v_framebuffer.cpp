@@ -50,7 +50,6 @@
 #include "flatvertices.h"
 #include "version.h"
 #include "hw_material.h"
-#include "v_2ddrawer.h"
 
 #include <chrono>
 #include <thread>
