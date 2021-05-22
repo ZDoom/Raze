@@ -511,6 +511,16 @@ void CheckFrontend(int flags)
 	}
 }
 
+static void System_ToggleFullConsole()
+{
+	gameaction = ga_fullconsole;
+}
+
+static void System_StartCutscene(bool blockui)
+{
+	gameaction = blockui ? ga_intro : ga_intermission;
+}
+
 void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
@@ -545,7 +555,9 @@ int GameMain()
 		nullptr,
 		nullptr,
 		PreBindTexture,
-		FontCharCreated
+		FontCharCreated,
+		System_ToggleFullConsole,
+		System_StartCutscene,
 	};
 
 	try

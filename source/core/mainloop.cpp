@@ -280,7 +280,7 @@ static void GameTicker()
 			break;
 
 		case ga_intermission:
-			gamestate = GS_INTERMISSION;
+			gamestate = GS_CUTSCENE;
 			break;
 
 		case ga_fullconsole:
@@ -370,7 +370,7 @@ static void GameTicker()
 	case GS_MENUSCREEN:
 	case GS_FULLCONSOLE:
 		break;
-	case GS_INTERMISSION:
+	case GS_CUTSCENE:
 	case GS_INTRO:
 		if (intermissiondelay > 0)
 		{
@@ -419,7 +419,7 @@ void Display()
 		break;
 
 	case GS_INTRO:
-	case GS_INTERMISSION:
+	case GS_CUTSCENE:
 		// screen jobs are not bound by the game ticker so they need to be ticked in the display loop.
 		if (intermissiondelay <= 0) ScreenJobDraw();
 		break;
@@ -515,7 +515,7 @@ void TryRunTics (void)
 
 	// If paused, do not eat more CPU time than we need, because it
 	// will all be wasted anyway.
-	bool doWait = (cl_capfps || pauseext || (r_NoInterpolate && !M_IsAnimated() && gamestate != GS_INTERMISSION && gamestate != GS_INTRO));
+	bool doWait = (cl_capfps || pauseext || (r_NoInterpolate && !M_IsAnimated() && gamestate != GS_CUTSCENE && gamestate != GS_INTRO));
 
 	// get real tics
 	if (doWait)
