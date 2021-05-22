@@ -319,7 +319,7 @@ class Episode3End : ImageScreen
 
 	override void OnSkip()
 	{
-		Raze.StopAllSounds();
+		System.StopAllSounds();
 	}
 
 	override void OnTick()
@@ -367,7 +367,7 @@ class Episode3End : ImageScreen
 			if (!Duke.CheckSoundPlaying(DukeSnd.ENDSEQVOL3SND9))
 			{
 				soundstate++;
-				finishtime = ticks + GameTicRate * (Raze.SoundEnabled() ? 1 : 5);	// if sound is off this wouldn't wait without a longer delay here.
+				finishtime = ticks + GameTicRate * (System.SoundEnabled() ? 1 : 5);	// if sound is off this wouldn't wait without a longer delay here.
 			}
 			break;
 
@@ -381,7 +381,7 @@ class Episode3End : ImageScreen
 		default:
 			break;
 		}
-		if (jobstate != running) Raze.StopAllSounds();
+		if (jobstate != running) System.StopAllSounds();
 	}
 
 	override void OnDestroy()
@@ -600,7 +600,7 @@ class DukeLevelSummaryScreen : SummaryScreenBase
 
 	override bool OnEvent(InputEvent ev)
 	{
-		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev))
+		if (ev.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(ev))
 		{
 			if ((displaystate & printStatsAll) != printStatsAll)
 			{
@@ -837,7 +837,7 @@ class RRLevelSummaryScreen : SummaryScreenBase
 
 	override bool OnEvent(InputEvent ev)
 	{
-		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev))
+		if (ev.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(ev))
 		{
 			if ((displaystate & printStatsAll) != printStatsAll)
 			{

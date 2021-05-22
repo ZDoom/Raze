@@ -207,7 +207,7 @@ class SWSummaryScreen : SummaryScreenBase
 
 	override bool OnEvent(InputEvent ev)
 	{
-		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev)) 
+		if (ev.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(ev)) 
 		{
 			if (animstate == 0) animstate = 1;
 		}
@@ -216,7 +216,7 @@ class SWSummaryScreen : SummaryScreenBase
 
 	override void Start()
 	{
-		Raze.StopAllSounds();
+		System.StopAllSounds();
 		SW.PlaySong(1);
 	}
 

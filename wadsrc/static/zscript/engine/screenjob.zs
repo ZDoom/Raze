@@ -57,8 +57,8 @@ class ScreenJob : Object
 	int GetFadeState() { return fadestate; }
 	override void OnDestroy()
 	{
-		if (flags & stopmusic) Raze.StopMusic();
-		if (flags & stopsound) Raze.StopAllSounds();
+		if (flags & stopmusic) System.StopMusic();
+		if (flags & stopsound) System.StopAllSounds();
 	}
 
 }
@@ -78,7 +78,7 @@ class SkippableScreenJob : ScreenJob
 
 	override bool OnEvent(InputEvent evt)
 	{
-		if (evt.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(evt))
+		if (evt.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(evt))
 		{
 			jobstate = skipped;
 			OnSkip();
@@ -184,34 +184,6 @@ class ImageScreen : SkippableScreenJob
 		if (texid.IsValid()) Screen.DrawTexture(texid, true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TranslationIndex, trans);
 		cleared = true;
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// this is to have a unified interface to the summary screens
-// that can be set up automatically by the games to avoid direct access to game data.
-//
-//---------------------------------------------------------------------------
-
-class SummaryScreenBase : ScreenJob
-{
-	MapRecord level;
-	SummaryInfo stats;
-
-	void SetParameters(MapRecord map, SummaryInfo thestats)
-	{
-		level = map;
-		stats = thestats;
-	}
-
-	String FormatTime(int time)
-	{
-		if (time >= 60 * 50)
-			return String.Format("%02d:%02d:%02d", time / (60*60), (time / 60) % 60, time % 60);
-		else
-			return String.Format("%02d:%02d", (time / 60) % 60, time % 60);
-	}
-
 }
 
 //---------------------------------------------------------------------------

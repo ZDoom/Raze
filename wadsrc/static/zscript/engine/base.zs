@@ -180,6 +180,27 @@ struct _ native	// These are the global variables, the struct is only here to av
 	native MenuDelegateBase menuDelegate;
 	native readonly int consoleplayer;
 	native readonly double NotifyFontScale;
+	native readonly int paused;
+}
+
+struct System native
+{
+	native static void StopMusic();
+	native static void StopAllSounds();
+	native static bool SoundEnabled();
+	native static bool MusicEnabled();
+	native static double GetTimeFrac();
+	
+	static bool specialKeyEvent(InputEvent ev)
+	{
+		if (ev.type == InputEvent.Type_KeyDown || ev.type == InputEvent.Type_KeyUp)
+		{
+			int key = ev.KeyScan;
+			if (key == InputEvent.KEY_VOLUMEDOWN || key == InputEvent.KEY_VOLUMEUP || (key > InputEvent.KEY_LASTJOYBUTTON && key < InputEvent.KEY_PAD_LTHUMB_RIGHT)) return true;
+		}
+		return false;
+	}
+	 	
 }
 
 struct MusPlayingInfo native

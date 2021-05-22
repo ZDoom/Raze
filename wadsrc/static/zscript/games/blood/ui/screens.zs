@@ -147,7 +147,7 @@ class BloodSummaryScreen : SummaryScreenBase
 
 	override bool OnEvent(InputEvent ev)
 	{
-		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev))
+		if (ev.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(ev))
 		{
 			jobstate = skipped;
 			return true;
@@ -202,7 +202,7 @@ class BloodSummaryScreen : SummaryScreenBase
 
 	override void OnDestroy()
 	{
-		Raze.StopAllSounds();
+		System.StopAllSounds();
 	}
 }
 

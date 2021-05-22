@@ -72,7 +72,7 @@ struct Duke native
 	
 	static void PlayBonusMusic()
 	{
-		if (Raze.MusicEnabled())
+		if (System.MusicEnabled())
 			PlaySound(DukeSnd.BONUSMUSIC, CHAN_AUTO, CHANF_UI);
 	}
 	

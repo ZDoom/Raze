@@ -345,7 +345,7 @@ class MapScreen : ScreenJob
 				}
 				return true;
 			}
-			if (!Raze.specialKeyEvent(ev)) jobstate = skipped;
+			if (!System.specialKeyEvent(ev)) jobstate = skipped;
 			return true;
 		}
 		return false;
@@ -527,7 +527,7 @@ class Cinema : SkippableScreenJob
 	
 	override void Start()
 	{
-		Raze.StopAllSounds();
+		System.StopAllSounds();
 		if (cdtrack != -1)
 		{
 			Exhumed.playCDtrack(cdtrack, false);
@@ -652,7 +652,7 @@ class LastLevelCinema : ScreenJob
 
 	override bool OnEvent(InputEvent ev)
 	{
-		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev)) skiprequest = true;
+		if (ev.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(ev)) skiprequest = true;
 		return true;
 	}
 
@@ -775,7 +775,7 @@ class ExCredits : ScreenJob
 
 	override bool OnEvent(InputEvent ev)
 	{
-		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev)) skiprequest = true;
+		if (ev.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(ev)) skiprequest = true;
 		return true;
 	}
 
@@ -919,7 +919,7 @@ class ExhumedCutscenes
 
 	static void BuildGameOverScene(ScreenJobRunner runner, MapRecord map)
 	{
-		Raze.StopMusic();
+		System.StopMusic();
 		Exhumed.PlayLocalSound(ExhumedSnd.kSoundJonLaugh2, 0, false, CHANF_UI);
 		runner.Append(ImageScreen.CreateNamed("Gameover", ScreenJob.fadein | ScreenJob.fadeout, 0x7fffffff, Translation.MakeID(Translation_BasePalette, 16)));
 	}

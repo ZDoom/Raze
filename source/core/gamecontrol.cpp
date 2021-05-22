@@ -1480,33 +1480,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, ShadeToLight, shadeToLight)
 	ACTION_RETURN_INT(shadeToLight(shade));
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, StopAllSounds, FX_StopAllSounds)
-{
-	FX_StopAllSounds();
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, StopMusic, Mus_Stop)
-{
-	Mus_Stop();
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SoundEnabled, SoundEnabled)
-{
-	ACTION_RETURN_INT(SoundEnabled());
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, MusicEnabled, MusicEnabled)
-{
-	ACTION_RETURN_INT(MusicEnabled());
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetTimeFrac, I_GetTimeFrac)
-{
-	ACTION_RETURN_FLOAT(I_GetTimeFrac());
-}
-
 DEFINE_ACTION_FUNCTION(_Raze, PlayerName)
 {
 	PARAM_PROLOGUE;

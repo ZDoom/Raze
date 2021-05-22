@@ -68,7 +68,6 @@ extend struct _
 {
 	native @UserConfigStruct userConfig;
 	native readonly MapRecord currentLevel;
-	native readonly int paused;
 	native readonly int automapMode;
 	native readonly int PlayClock;
 }
@@ -143,26 +142,11 @@ struct Raze
 	}
 	
 	native static Color shadeToLight(int shade);
-	native static void StopAllSounds();
-	native static bool SoundEnabled();
-	native static void StopMusic();
-	native static bool MusicEnabled();
 	native static String PlayerName(int i);
-	native static double GetTimeFrac();
 	native static int bsin(int angle, int shift = 0);
 	native static int bcos(int angle, int shift = 0);
 	native static TextureID PickTexture(TextureID texid);
 	native static int GetBuildTime();
-	
-	static bool specialKeyEvent(InputEvent ev)
-	{
-		if (ev.type == InputEvent.Type_KeyDown || ev.type == InputEvent.Type_KeyUp)
-		{
-			int key = ev.KeyScan;
-			if (key == InputEvent.KEY_VOLUMEDOWN || key == InputEvent.KEY_VOLUMEUP || (key > InputEvent.KEY_LASTJOYBUTTON && key < InputEvent.KEY_PAD_LTHUMB_RIGHT)) return true;
-		}
-		return false;
-	}
 	
 	// game check shortcuts
 	static bool isNam()
