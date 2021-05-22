@@ -1528,6 +1528,11 @@ DEFINE_ACTION_FUNCTION(_MapRecord, GetCluster)
 	ACTION_RETURN_POINTER(FindCluster(self->cluster));
 }
 
+DEFINE_ACTION_FUNCTION(_Screen, GetTextScreenSize)
+{
+	ACTION_RETURN_VEC2(DVector2(640, 480));
+}
+
 extern bool demoplayback;
 DEFINE_GLOBAL(multiplayer)
 DEFINE_GLOBAL(netgame)

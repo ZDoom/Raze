@@ -60,7 +60,6 @@ class ScreenJob : Object
 		if (flags & stopmusic) System.StopMusic();
 		if (flags & stopsound) System.StopAllSounds();
 	}
-
 }
 
 //---------------------------------------------------------------------------
@@ -533,6 +532,56 @@ class ScreenJobRunner : Object
 		Array<int> sounds;
 		if (snd > 0) sounds.Pushv(1, snd);
 		Append(MoviePlayerJob.CreateWithSoundInfo(fn, sounds, 0, framerate));
+	}
+	
+	//==========================================================================
+	//
+	// This also gets used by the title loop.
+	//
+	//==========================================================================
+
+	void DrawFullscreenSubtitle(String text, int cr)
+	{
+		if (text.length() == 0 || !inter_subtitles) return;
+
+		// This uses the same scaling as regular HUD messages
+		let screensize = Screen.GetTextScreenSize();
+		let hudwidth = screensize.X;
+		let hudheight = screensize.Y;
+		let hscale = screen.GetWidth() / hudwidth;
+		let vscale = screen.GetHeight() / hudheight;
+		let font = generic_ui? NewSmallFont : SmallFont;
+
+		let linelen = hudwidth < 640 ? hudwidth * 0.9 - 40 : 560;
+		let lines = font.BreakLines(text, linelen);
+
+		int count = lines.Count();
+		int height = 20 + font.GetHeight() * count;
+
+		double x, y, w;
+
+		if (linelen < 560)
+		{
+			x = hudwidth / 20;
+			w = hudwidth - 2 * x;
+		}
+		else
+		{
+			x = (hudwidth * 0.5) - 300;
+			w = 600;
+		}
+		y = hudheight * 0.9 - height;
+		if (y < 0) y = 0;
+		
+		Screen.Dim(0, 0.5f, x * hscale, y * vscale, w * hscale, height * vscale);
+		x += 20;
+		y += 10;
+
+		for (int i = 0; i < count; i++)
+		{
+			Screen.DrawText(font, cr, x, y, lines.StringAt(i), DTA_KeepRatio, true, DTA_VirtualWidth, hudwidth, DTA_VirtualHeight, hudheight);
+			y += font.GetHeight();
+		}
 	}
 }
 
