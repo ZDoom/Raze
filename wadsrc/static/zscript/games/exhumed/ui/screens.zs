@@ -452,55 +452,6 @@ class MapScreen : ScreenJob
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-class TextOverlay
-{
-	int nHeight;
-	double nCrawlY;
-	int palette;
-	BrokenLines screentext;
-
-	void Init(String text, int pal)
-	{
-		screentext = SmallFont.BreakLines(StringTable.Localize(text), 320);
-		nCrawlY = 199;
-		nHeight = screentext.Count() * 10;
-		palette = pal;
-	}
-
-	void DisplayText()
-	{
-		if (nHeight + nCrawlY > 0)
-		{
-			double y = nCrawlY;
-			for (int i = 0; i < screentext.Count() && y <= 199; i++)
-			{
-				if (y >= -10) 
-				{
-					int x = 160 - screenText.StringWidth(i)/2;
-					Screen.DrawText(SmallFont, Font.CR_UNDEFINED, x, y, screentext.StringAt(i), DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, palette);
-				}
-				y += 10;
-			}
-		}
-	}
-
-	bool AdvanceCinemaText(double clock)
-	{
-		if (nHeight + nCrawlY > 0 || musplaying.handle)
-		{
-			nCrawlY = 199 - clock / 15.;
-			return false;
-		}
-		return true;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // cinema (this has been stripped off all game logic that was still in here)
 //
 //---------------------------------------------------------------------------
@@ -520,7 +471,7 @@ class Cinema : SkippableScreenJob
 		cinematile = TexMan.CheckForTexture(bgTexture, TexMan.Type_Any);
 		textov = new("TextOverlay");
 		palette =  Translation.MakeID(Translation_BasePalette, pal);
-		textov.Init(text, palette);
+		textov.Init(text, Font.CR_UNDEFINED, palette);
 		cdtrack = cdtrk;
 		return self;
 	}
@@ -543,7 +494,7 @@ class Cinema : SkippableScreenJob
 	{
 		Screen.DrawTexture(cinematile, false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, palette);
 		textov.DisplayText();
-		done = textov.AdvanceCinemaText((ticks + smoothratio) * (120. / GameTicRate));
+		done = textov.ScrollText((ticks + smoothratio) * (120. / GameTicRate));
 	}
 }
 
