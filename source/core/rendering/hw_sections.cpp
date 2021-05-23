@@ -219,3 +219,8 @@ void hw_SetSplitSector(int sectnum, int start, int end)
 	splits.Push(start);
 	splits.Push(end);
 }
+
+void hw_ClearSplitSector()
+{
+	splits.Clear();
+}
