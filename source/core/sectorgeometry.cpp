@@ -369,6 +369,14 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 	for (unsigned i = 0; i < lines.Size(); i++)
 	{
 		auto p1 = lines[i].v1->p, p2 = lines[i].v2->p;
+
+		// Throw out any line with zero length.
+		if (p1 == p2)
+		{
+			lines.Delete(i);
+			continue;
+		}
+
 		for (unsigned j = i + 1; j < lines.Size(); j++)
 		{
 			auto pp1 = lines[j].v1->p, pp2 = lines[j].v2->p;
