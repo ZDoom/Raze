@@ -115,11 +115,6 @@ void FNodeBuilder::MakeSegsFromSides ()
 {
 	int i, j;
 
-	if (Level.NumLines == 0)
-	{
-		I_Error ("Map is empty.\n");
-	}
-
 	for (i = 0; i < Level.NumLines; ++i)
 	{
 		if (Level.Lines[i].sidedef[0] != NULL)
