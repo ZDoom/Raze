@@ -374,6 +374,7 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 		if (p1 == p2)
 		{
 			lines.Delete(i);
+			i--;
 			continue;
 		}
 
