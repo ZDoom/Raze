@@ -372,11 +372,6 @@ static void GameTicker()
 		break;
 	case GS_CUTSCENE:
 	case GS_INTRO:
-		if (intermissiondelay > 0)
-		{
-			intermissiondelay--;
-			break;
-		}
 		if (ScreenJobTick())
 		{
 			// synchronize termination with the playsim.
@@ -421,7 +416,7 @@ void Display()
 	case GS_INTRO:
 	case GS_CUTSCENE:
 		// screen jobs are not bound by the game ticker so they need to be ticked in the display loop.
-		if (intermissiondelay <= 0) ScreenJobDraw();
+		ScreenJobDraw();
 		break;
 
 	case GS_LEVEL:

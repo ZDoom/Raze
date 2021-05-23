@@ -72,7 +72,7 @@ void Local_Job_Init()
 //
 //=============================================================================
 
-void CallCreateMapFunction(const char* qname, DObject* runner, MapRecord* map)
+static void CallCreateMapFunction(const char* qname, DObject* runner, MapRecord* map)
 {
 	auto func = LookupFunction(qname);
 	if (func->Proto->ArgumentTypes.Size() == 1) return CallCreateFunction(qname, runner);	// accept functions without map parameter as well here.
@@ -143,7 +143,7 @@ void PlayLogos(gameaction_t complete_ga, gameaction_t def_ga, bool stopmusic)
 	}
 	else
 	{
-		if (!StartCutscene(globalCutscenes.Intro, SJ_BLOCKUI|SJ_DELAY, [=](bool) { 
+		if (!StartCutscene(globalCutscenes.Intro, SJ_BLOCKUI, [=](bool) { 
 			gameaction = complete_ga; 
 			})) gameaction = def_ga;
 	}
