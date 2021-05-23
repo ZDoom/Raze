@@ -798,7 +798,7 @@ TArray<GrpEntry> GrpScan()
 	int gindex = sortedGroupList.Size() - 1;
 
 
-	while (findex > 0 && gindex > 0)
+	while (findex >= 0 && gindex >= 0)
 	{
 		if (sortedFileList[findex]->FileLength > sortedGroupList[gindex]->size)
 		{
@@ -815,8 +815,8 @@ TArray<GrpEntry> GrpScan()
 			findex--;
 			gindex--;
 			// We found a matching file. Skip over all other entries of the same size so we can analyze those later as well
-			while (findex > 0 && sortedFileList[findex]->FileLength == sortedFileList[findex + 1]->FileLength) findex--;
-			while (gindex > 0 && sortedGroupList[gindex]->size == sortedGroupList[gindex + 1]->size) gindex--;
+			while (findex >= 0 && sortedFileList[findex]->FileLength == sortedFileList[findex + 1]->FileLength) findex--;
+			while (gindex >= 0 && sortedGroupList[gindex]->size == sortedGroupList[gindex + 1]->size) gindex--;
 		}
 	}
 	sortedFileList.Delete(0, findex + 1);
