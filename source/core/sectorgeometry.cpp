@@ -385,8 +385,8 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 			{
 				// handle the simple case first, i.e. line j is the inverse of line i.
 				// in this case both lines need to be deleted.
-				lines.Delete(i);
 				lines.Delete(j);
+				lines.Delete(i);
 				i--;
 				goto nexti;
 			}
@@ -433,7 +433,7 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 				double pp1x = vert ? pp1.X : pp1.Y;
 				double pp2x = vert ? pp2.X : pp2.Y;
 
-				if (pp1x > min(p1x, p2x) && pp2x < max(p1x, p2x))
+				if (pp1x > min(p1x, p2x) && pp1x < max(p1x, p2x))
 				{
 					// pp1 is on line i.
 					lines[i].v1 = lines[j].v1;
