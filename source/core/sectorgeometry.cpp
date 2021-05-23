@@ -456,6 +456,14 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 nexti:;
 	}
 
+	if (lines.Size() == 0)
+	{
+		// nothing to generate.
+		auto& entry = data[secnum].planes[plane];
+		entry.vertices.Clear();
+		entry.texcoords.Clear();
+		return true;
+	}
 
 
 	FNodeBuilder::FLevel leveldata =
