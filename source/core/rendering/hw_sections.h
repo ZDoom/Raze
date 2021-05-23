@@ -30,3 +30,4 @@ extern int numsectionlines;
 
 void hw_BuildSections();
 void hw_SetSplitSector(int sector, int startpos, int endpos);
+void hw_ClearSplitSector();
