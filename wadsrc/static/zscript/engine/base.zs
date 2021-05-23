@@ -188,6 +188,7 @@ struct _ native	// These are the global variables, the struct is only here to av
 
 struct System native
 {
+	native static void PlayMusic(String mus, int order = 0, bool looped = true);
 	native static void StopMusic();
 	native static void StopAllSounds();
 	native static bool SoundEnabled();

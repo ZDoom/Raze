@@ -1014,6 +1014,20 @@ DEFINE_ACTION_FUNCTION_NATIVE(_System, StopAllSounds, StopAllSounds)
 	return 0;
 }
 
+static int PlayMusic(const FString& musname, int order, int looped)
+{
+	return S_ChangeMusic(musname, order, !!looped, true);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_System, PlayMusic, PlayMusic)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(name);
+	PARAM_INT(order);
+	PARAM_BOOL(looped);
+	ACTION_RETURN_BOOL(PlayMusic(name, order, looped));
+}
+
 static void Mus_Stop()
 {
 	S_StopMusic(true);
