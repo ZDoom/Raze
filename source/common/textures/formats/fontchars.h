@@ -23,10 +23,15 @@ public:
 	FFontChar2 (int sourcelump, int sourcepos, int width, int height, int leftofs=0, int topofs=0);
 
 	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
-	void SetSourceRemap(const uint8_t *sourceremap);
+	int CopyPixels(FBitmap* bmp, int conversion);
+
+	void SetSourceRemap(const PalEntry* sourceremap)
+	{
+		SourceRemap = sourceremap;
+	}
 
 protected:
 	int SourceLump;
 	int SourcePos;
-	const uint8_t *SourceRemap;
+	const PalEntry *SourceRemap;
 };
