@@ -79,7 +79,6 @@ FSinglePicFont::FSinglePicFont(const char *picname) :
 	SpaceWidth = (int)pic->GetDisplayWidth();
 	GlobalKerning = 0;
 	FirstChar = LastChar = 'A';
-	ActiveColors = 0;
 	PicNum = picnum;
 
 	Next = FirstFont;

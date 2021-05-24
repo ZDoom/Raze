@@ -83,7 +83,6 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 	Next = FirstFont;
 	FirstFont = this;
 	Cursor = '_';
-	ActiveColors = 0;
 	SpaceWidth = 0;
 	FontHeight = 0;
 	uint8_t pp = 0;
@@ -592,61 +591,6 @@ void FFont::RecordAllTextureColors(uint32_t *usedcolors)
 
 //==========================================================================
 //
-// SetDefaultTranslation
-//
-// Builds a translation to map the stock font to a mod provided replacement.
-//
-//==========================================================================
-
-void FFont::SetDefaultTranslation(uint32_t *othercolors)
-{
-	uint32_t mycolors[256] = {};
-	RecordAllTextureColors(mycolors);
-
-	uint8_t mytranslation[256], othertranslation[256], myreverse[256], otherreverse[256];
-	TArray<double> myluminosity, otherluminosity;
-
-	SimpleTranslation(mycolors, mytranslation, myreverse, myluminosity);
-	SimpleTranslation(othercolors, othertranslation, otherreverse, otherluminosity);
-
-	FRemapTable remap(ActiveColors);
-	remap.Remap[0] = 0;
-	remap.Palette[0] = 0;
-	remap.ForFont = true;
-
-	for (unsigned l = 1; l < myluminosity.Size(); l++)
-	{
-		for (unsigned o = 1; o < otherluminosity.Size()-1; o++)	// luminosity[0] is for the transparent color
-		{
-			if (myluminosity[l] >= otherluminosity[o] && myluminosity[l] <= otherluminosity[o+1])
-			{
-				PalEntry color1 = GPalette.BaseColors[otherreverse[o]];
-				PalEntry color2 = GPalette.BaseColors[otherreverse[o+1]];
-				double weight = 0;
-				if (otherluminosity[o] != otherluminosity[o + 1])
-				{
-					weight = (myluminosity[l] - otherluminosity[o]) / (otherluminosity[o + 1] - otherluminosity[o]);
-				}
-				int r = int(color1.r + weight * (color2.r - color1.r));
-				int g = int(color1.g + weight * (color2.g - color1.g));
-				int b = int(color1.b + weight * (color2.b - color1.b));
-
-				r = clamp(r, 0, 255);
-				g = clamp(g, 0, 255);
-				b = clamp(b, 0, 255);
-				remap.Remap[l] = ColorMatcher.Pick(r, g, b);
-				remap.Palette[l] = PalEntry(255, r, g, b);
-				break;
-			}
-		}
-	}
-	Translations[CR_UNTRANSLATED] = GPalette.StoreTranslation(TRANSLATION_Internal, &remap);
-	forceremap = true;
-}
-
-
-//==========================================================================
-//
 // compare
 //
 // Used for sorting colors by brightness.
@@ -668,66 +612,40 @@ static int compare (const void *arg1, const void *arg2)
 
 //==========================================================================
 //
-// FFont :: SimpleTranslation
-//
-// Colorsused, translation, and reverse must all be 256 entry buffers.
-// Colorsused must already be filled out.
-// Translation be set to remap the source colors to a new range of
-// consecutive colors based at 1 (0 is transparent).
-// Reverse will be just the opposite of translation: It maps the new color
-// range to the original colors.
-// *Luminosity will be an array just large enough to hold the brightness
-// levels of all the used colors, in consecutive order. It is sorted from
-// darkest to lightest and scaled such that the darkest color is 0.0 and
-// the brightest color is 1.0.
-// The return value is the number of used colors and thus the number of
-// entries in *luminosity.
+// FFont :: GetLuminosity
 //
 //==========================================================================
 
-int FFont::SimpleTranslation (uint32_t *colorsused, uint8_t *translation, uint8_t *reverse, TArray<double> &Luminosity, int* minlum, int* maxlum)
+int FFont::GetLuminosity (uint32_t *colorsused, TArray<double> &Luminosity, int* minlum, int* maxlum)
 {
 	double min, max, diver;
-	int i, j;
 
-	memset (translation, 0, 256);
-
-	reverse[0] = 0;
-	for (i = 1, j = 1; i < 256; i++)
-	{
-		if (colorsused[i])
-		{
-			reverse[j++] = i;
-		}
-	}
-
-	qsort (reverse+1, j-1, 1, compare);
-
-	Luminosity.Resize(j);
+	Luminosity.Resize(256);
 	Luminosity[0] = 0.0; // [BL] Prevent uninitalized memory
 	max = 0.0;
 	min = 100000000.0;
-	for (i = 1; i < j; i++)
+	for (int i = 1; i < 256; i++)
 	{
-		translation[reverse[i]] = i;
-
-		Luminosity[i] = RPART(GPalette.BaseColors[reverse[i]]) * 0.299 +
-						   GPART(GPalette.BaseColors[reverse[i]]) * 0.587 +
-						   BPART(GPalette.BaseColors[reverse[i]]) * 0.114;
-		if (Luminosity[i] > max)
-			max = Luminosity[i];
-		if (Luminosity[i] < min)
-			min = Luminosity[i];
+		if (colorsused[i])
+		{
+			Luminosity[i] = GPalette.BaseColors[i].r * 0.299 + GPalette.BaseColors[i].g * 0.587 + GPalette.BaseColors[i].b * 0.114;
+			if (Luminosity[i] > max) max = Luminosity[i];
+			if (Luminosity[i] < min) min = Luminosity[i];
+		}
+		else Luminosity[i] = -1;	// this color is not of interest.
 	}
 	diver = 1.0 / (max - min);
-	for (i = 1; i < j; i++)
+	for (int i = 1; i < 256; i++)
 	{
-		Luminosity[i] = (Luminosity[i] - min) * diver;
+		if (colorsused[i])
+		{
+			Luminosity[i] = (Luminosity[i] - min) * diver;
+		}
 	}
 	if (minlum) *minlum = int(min);
 	if (maxlum) *maxlum = int(max);
 
-	return j;
+	return 256;
 }
 
 //==========================================================================
@@ -748,7 +666,7 @@ int FFont::GetColorTranslation (EColorRange range, PalEntry *color) const
 		}
 		if (color != nullptr) *color = retcolor;
 	}
-	if (ActiveColors == 0 || range == CR_UNDEFINED)
+	if (range == CR_UNDEFINED)
 		return -1;
 	else if (range >= NumTextColors)
 		range = CR_UNTRANSLATED;
@@ -1046,7 +964,6 @@ void FFont::LoadTranslations()
 {
 	unsigned int count = LastChar - FirstChar + 1;
 	uint32_t usedcolors[256] = {};
-	uint8_t identity[256];
 	TArray<double> Luminosity;
 
 	for (unsigned int i = 0; i < count; i++)
@@ -1059,7 +976,7 @@ void FFont::LoadTranslations()
 	}
 
 	int minlum = 0, maxlum = 0;
-	ActiveColors = SimpleTranslation (usedcolors, PatchRemap, identity, Luminosity, &minlum, &maxlum);
+	GetLuminosity (usedcolors, Luminosity, &minlum, &maxlum);
 
 	// Here we can set everything to a luminosity translation.
 
@@ -1068,7 +985,7 @@ void FFont::LoadTranslations()
 	for (int i = 0; i < NumTextColors; i++)
 	{
 		if (i == CR_UNTRANSLATED) Translations[i] = 0;
- 		else Translations[i] = LuminosityTranslation(i*2, minlum, maxlum);
+ 		else Translations[i] = LuminosityTranslation(i*2 + TranslationType, minlum, maxlum);
 	}
 }
 

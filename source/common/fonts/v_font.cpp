@@ -689,6 +689,75 @@ void V_ApplyLuminosityTranslation(int translation, uint8_t* pixel, int size)
 
 //==========================================================================
 //
+// SetDefaultTranslation
+//
+// Builds a translation to map the stock font to a mod provided replacement.
+// This probably won't work that well if the original font is extremely colorful.
+//
+//==========================================================================
+
+static void CalcDefaultTranslation(FFont* base, int index)
+{
+	uint32_t othercolors[256] = {};
+	base->RecordAllTextureColors(othercolors);
+
+	TArray<double> otherluminosity;
+	base->GetLuminosity(othercolors, otherluminosity);
+
+	PalEntry *remap = &paletteptr[index * 256];
+	memset(remap, 0, 1024);
+
+	for (unsigned i = 0; i < 256; i++)
+	{
+		auto lum = otherluminosity[i];
+		if (lum >= 0 && lum <= 1)
+		{
+			int index = int(lum * 255);
+			remap[index] = GPalette.BaseColors[i];
+		}
+	}
+
+	// todo: fill the gaps.
+	remap[0] = 0;
+	int lowindex = 0;
+	int highindex = 1;
+
+	while (lowindex < 255)
+	{
+		while (highindex <= 255 && remap[highindex].a == 0) highindex++;
+		if (lowindex == 0)
+		{
+			for (int i = 0; i < highindex; i++) remap[i] = remap[highindex];
+			lowindex = highindex++;
+		}
+		else if (highindex > 256)
+		{
+			for (int i = lowindex + 1; i < highindex; i++) remap[i] = remap[lowindex];
+			break;
+		}
+		else
+		{
+			for (int i = lowindex + 1; i < highindex; i++)
+			{
+				PalEntry color1 = remap[lowindex];
+				PalEntry color2 = remap[highindex];
+				double weight = (i - lowindex) / double(highindex - lowindex);
+				int r = int(color1.r + weight * (color2.r - color1.r));
+				int g = int(color1.g + weight * (color2.g - color1.g));
+				int b = int(color1.b + weight * (color2.b - color1.b));
+				r = clamp(r, 0, 255);
+				g = clamp(g, 0, 255);
+				b = clamp(b, 0, 255);
+				remap[i] = PalEntry(255, r, g, b);
+			}
+			lowindex = highindex++;
+		}
+	}
+	
+}
+
+//==========================================================================
+//
 // V_LogColorFromColorRange
 //
 // Returns the color to use for text in the startup/error log window.
@@ -929,23 +998,43 @@ void V_LoadTranslations()
 	for (auto font = FFont::FirstFont; font; font = font->Next)
 	{
 		if (!font->noTranslate) font->LoadTranslations();
-		else font->ActiveColors = 0;
 	}
+
 	if (BigFont)
 	{
-		uint32_t colors[256] = {};
-		BigFont->RecordAllTextureColors(colors);
-		if (OriginalBigFont != nullptr) OriginalBigFont->SetDefaultTranslation(colors);
+		CalcDefaultTranslation(BigFont, CR_UNTRANSLATED * 2 + 1);
+		if (OriginalBigFont != nullptr && OriginalBigFont != BigFont)
+		{
+			int sometrans = OriginalBigFont->Translations[0];
+			sometrans &= ~(0x3fff << 16);
+			sometrans |= (CR_UNTRANSLATED * 2 + 1) << 16;
+			OriginalBigFont->Translations[CR_UNTRANSLATED] = sometrans;
+			OriginalBigFont->forceremap = true;
+		}
 	}
 	if (SmallFont)
 	{
-		uint32_t colors[256] = {};
-		SmallFont->RecordAllTextureColors(colors);
-		if (OriginalSmallFont != nullptr) OriginalSmallFont->SetDefaultTranslation(colors);
-		NewSmallFont->SetDefaultTranslation(colors);
+		CalcDefaultTranslation(SmallFont, CR_UNTRANSLATED * 2);
+		if (OriginalSmallFont != nullptr && OriginalSmallFont != SmallFont)
+		{
+			int sometrans = OriginalSmallFont->Translations[0];
+			sometrans &= ~(0x3fff << 16);
+			sometrans |= (CR_UNTRANSLATED * 2) << 16;
+			OriginalSmallFont->Translations[CR_UNTRANSLATED] = sometrans;
+			OriginalSmallFont->forceremap = true;
+		}
+		if (NewSmallFont != nullptr)
+		{
+			int sometrans = NewSmallFont->Translations[0];
+			sometrans &= ~(0x3fff << 16);
+			sometrans |= (CR_UNTRANSLATED * 2) << 16;
+			NewSmallFont->Translations[CR_UNTRANSLATED] = sometrans;
+			NewSmallFont->forceremap = true;
+		}
 	}
 	translationsLoaded = true;
 }
+
 
 void V_ClearFonts()
 {

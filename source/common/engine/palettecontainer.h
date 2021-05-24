@@ -32,7 +32,7 @@ struct FRemapTable
 	PalEntry Palette[256];			// The ideal palette this maps to
 	int crc32;
 	int Index;
-	int NumEntries;				// # of elements in this table (usually 256), if this is -1 it is a luminosity translation.
+	int NumEntries;				// # of elements in this table (usually 256)
 	bool Inactive = false;				// This table is inactive and should be treated as if it was passed as NULL
 	bool TwodOnly = false;				// Only used for 2D rendering 
 	bool ForFont = false;				// Mark font translations because they may require different handling than the ones for sprites-

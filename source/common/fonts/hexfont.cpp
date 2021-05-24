@@ -395,58 +395,6 @@ public:
 			else Translations[i] = LuminosityTranslation(i * 2, minlum, maxlum);
 		}
 	}
-
-	void SetDefaultTranslation(uint32_t *colors) override
-	{
-		double myluminosity[18];
-
-		myluminosity[0] = 0;
-		for (int i = 1; i < 18; i++)
-		{
-			myluminosity[i] = (i - 1) / 16.;
-		}
-
-		uint8_t othertranslation[256], otherreverse[256];
-		TArray<double> otherluminosity;
-
-		SimpleTranslation(colors, othertranslation, otherreverse, otherluminosity);
-
-		FRemapTable remap(ActiveColors);
-		remap.Remap[0] = 0;
-		remap.Palette[0] = 0;
-		remap.ForFont = true;
-
-		for (unsigned l = 1; l < 18; l++)
-		{
-			for (unsigned o = 1; o < otherluminosity.Size() - 1; o++)	// luminosity[0] is for the transparent color
-			{
-				if (myluminosity[l] >= otherluminosity[o] && myluminosity[l] <= otherluminosity[o + 1])
-				{
-					PalEntry color1 = GPalette.BaseColors[otherreverse[o]];
-					PalEntry color2 = GPalette.BaseColors[otherreverse[o + 1]];
-					double weight = 0;
-					if (otherluminosity[o] != otherluminosity[o + 1])
-					{
-						weight = (myluminosity[l] - otherluminosity[o]) / (otherluminosity[o + 1] - otherluminosity[o]);
-					}
-					int r = int(color1.r + weight * (color2.r - color1.r));
-					int g = int(color1.g + weight * (color2.g - color1.g));
-					int b = int(color1.b + weight * (color2.b - color1.b));
-
-					r = clamp(r, 0, 255);
-					g = clamp(g, 0, 255);
-					b = clamp(b, 0, 255);
-					remap.Remap[l] = ColorMatcher.Pick(r, g, b);
-					remap.Palette[l] = PalEntry(255, r, g, b);
-					break;
-				}
-			}
-		}
-		Translations[CR_UNTRANSLATED] = GPalette.StoreTranslation(TRANSLATION_Internal, &remap);
-		forceremap = true;
-
-	}
-
 };
 
 

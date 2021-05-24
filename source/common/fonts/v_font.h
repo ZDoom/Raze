@@ -128,19 +128,16 @@ public:
 	void SetKerning(int c) { GlobalKerning = c; }
 	bool NoTranslate() const { return noTranslate; }
 	virtual void RecordAllTextureColors(uint32_t *usedcolors);
-	virtual void SetDefaultTranslation(uint32_t *colors);
 	void CheckCase();
 
 	int GetDisplacement() const { return Displacement; }
 
+	static int GetLuminosity(uint32_t* colorsused, TArray<double>& Luminosity, int* minlum = nullptr, int* maxlum = nullptr);
 
 protected:
 	FFont (int lump);
 
 	void FixXMoves();
-
-	static int SimpleTranslation (uint32_t *colorsused, uint8_t *translation,
-		uint8_t *identity, TArray<double> &Luminosity, int* minlum = nullptr, int* maxlum = nullptr);
 
 	void ReadSheetFont(TArray<FolderEntry> &folderdata, int width, int height, const DVector2 &Scale);
 
@@ -163,7 +160,6 @@ protected:
 		int XMove = INT_MIN;
 	};
 	TArray<CharData> Chars;
-	int ActiveColors = -1;
 	TArray<int> Translations;
 	uint8_t PatchRemap[256];
 

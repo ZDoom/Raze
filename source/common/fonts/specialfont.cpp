@@ -129,11 +129,6 @@ FSpecialFont::FSpecialFont (const char *name, int first, int count, FGameTexture
 	}
 
 	FixXMoves();
-
-	if (noTranslate)
-	{
-		ActiveColors = 0;
-	}
 }
 
 //==========================================================================

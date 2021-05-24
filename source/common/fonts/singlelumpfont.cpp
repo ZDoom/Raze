@@ -105,6 +105,7 @@ protected:
 	} FontType;
 	PalEntry Palette[256];
 	bool RescalePalette;
+	int ActiveColors = -1;
 };
 
 
@@ -468,7 +469,7 @@ void FSingleLumpFont::LoadBMF(int lump, const uint8_t *data)
 // FSingleLumpFont :: CheckFON1Chars
 //
 // Scans a FON1 resource for all the color values it uses and sets up
-// some tables like SimpleTranslation. Data points to the RLE data for
+// some tables. Data points to the RLE data for
 // the characters. Also sets up the character textures.
 //
 //==========================================================================
