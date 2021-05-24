@@ -50,6 +50,8 @@ struct HexDataSource
 	TArray<uint8_t> glyphdata;
 	unsigned glyphmap[65536] = {};
 
+	PalEntry ConsolePal[18], SmallPal[18];
+
 	//==========================================================================
 	//
 	// parse a HEX font
@@ -83,6 +85,17 @@ struct HexDataSource
 				if (codepoint > LastChar) LastChar = codepoint;
 			}
 		}
+
+		ConsolePal[0] = SmallPal[0] = 0;
+		for (int i = 1; i < 18; i++)
+		{
+			double lum = i == 1 ? 0.01 : 0.5 + (i - 2) * (0.5 / 17.);
+			uint8_t lumb = (uint8_t(lum * 255));
+
+			ConsolePal[i] = PalEntry(255, lumb, lumb, lumb);
+			lumb = i * 255 / 17;
+			SmallPal[i] = PalEntry(255, lumb, lumb, lumb);
+		}
 	}
 };
 
@@ -95,6 +108,7 @@ public:
 	FHexFontChar(uint8_t *sourcedata, int swidth, int width, int height);
 
 	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
+	int CopyPixels(FBitmap* bmp, int conversion);
 
 protected:
 	int SourceWidth;
@@ -159,12 +173,23 @@ TArray<uint8_t> FHexFontChar::CreatePalettedPixels(int)
 	return Pixels;
 }
 
+int FHexFontChar::CopyPixels(FBitmap* bmp, int conversion)
+{
+	if (conversion == luminance) conversion = normal;	// luminance images have no use as an RGB source.
+	PalEntry* palette = hexdata.ConsolePal;
+	auto ppix = CreatePalettedPixels(conversion);
+	bmp->CopyPixelData(0, 0, ppix.Data(), Width, Height, Height, 1, 0, palette, nullptr);
+	return 0;
+
+}
+
 class FHexFontChar2 : public FHexFontChar
 {
 public:
 	FHexFontChar2(uint8_t *sourcedata, int swidth, int width, int height);
 
 	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
+	int CopyPixels(FBitmap* bmp, int conversion);
 };
 
 
@@ -228,6 +253,15 @@ TArray<uint8_t> FHexFontChar2::CreatePalettedPixels(int)
 	return Pixels;
 }
 
+int FHexFontChar2::CopyPixels(FBitmap* bmp, int conversion)
+{
+	if (conversion == luminance) conversion = normal;	// luminance images have no use as an RGB source.
+	PalEntry* palette = hexdata.SmallPal;
+	auto ppix = CreatePalettedPixels(conversion);
+	bmp->CopyPixelData(0, 0, ppix.Data(), Width, Height, Height, 1, 0, palette, nullptr);
+	return 0;
+}
+
 
 
 class FHexFont : public FFont
@@ -285,18 +319,15 @@ public:
 
 	void LoadTranslations()
 	{
-		double luminosity[256];
+		int minlum = hexdata.ConsolePal[1].r;
+		int maxlum = hexdata.ConsolePal[17].r;
 
-		memset (PatchRemap, 0, 256);
-		for (int i = 0; i < 18; i++) 
-		{	
-			// Create a gradient similar to the old console font.
-			PatchRemap[i] = i;
-			luminosity[i] = i == 1? 0.01 : 0.5 + (i-2) * (0.5 / 17.);
+		Translations.Resize(NumTextColors);
+		for (int i = 0; i < NumTextColors; i++)
+		{
+			if (i == CR_UNTRANSLATED) Translations[i] = 0;
+			else Translations[i] = LuminosityTranslation(i * 2 + 1, minlum, maxlum);
 		}
-		ActiveColors = 18;
-		
-		BuildTranslations (luminosity, nullptr, &TranslationParms[1][0], ActiveColors, nullptr);
 	}
 	
 };
@@ -356,18 +387,15 @@ public:
 
 	void LoadTranslations() override
 	{
-		double luminosity[256];
+		int minlum = hexdata.SmallPal[1].r;
+		int maxlum = hexdata.SmallPal[17].r;
 
-		memset(PatchRemap, 0, 256);
-		for (int i = 0; i < 18; i++)
+		Translations.Resize(NumTextColors);
+		for (int i = 0; i < NumTextColors; i++)
 		{
-			// Create a gradient similar to the old console font.
-			PatchRemap[i] = i;
-			luminosity[i] = i / 17.;
+			if (i == CR_UNTRANSLATED) Translations[i] = 0;
+			else Translations[i] = LuminosityTranslation(i * 2, minlum, maxlum);
 		}
-		ActiveColors = 18;
-
-		BuildTranslations(luminosity, nullptr, &TranslationParms[0][0], ActiveColors, nullptr);
 	}
 
 	void SetDefaultTranslation(uint32_t *colors) override
