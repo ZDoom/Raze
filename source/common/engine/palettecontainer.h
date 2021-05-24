@@ -32,7 +32,7 @@ struct FRemapTable
 	PalEntry Palette[256];			// The ideal palette this maps to
 	int crc32;
 	int Index;
-	int NumEntries;				// # of elements in this table (usually 256)
+	int NumEntries;				// # of elements in this table (usually 256), if this is -1 it is a luminosity translation.
 	bool Inactive = false;				// This table is inactive and should be treated as if it was passed as NULL
 	bool TwodOnly = false;				// Only used for 2D rendering 
 	bool ForFont = false;				// Mark font translations because they may require different handling than the ones for sprites-
@@ -70,12 +70,26 @@ inline constexpr uint32_t TRANSLATION(uint8_t a, uint32_t b)
 {
 	return (a << TRANSLATION_SHIFT) | b;
 }
+inline constexpr uint32_t LuminosityTranslation(int range, uint8_t min, uint8_t max)
+{
+	// ensure that the value remains positive.
+	return ( (1 << 30) | ((range&0x3fff) << 16) | (min << 8) | max );
+}
+
+inline constexpr bool IsLuminosityTranslation(int trans)
+{
+	return trans > 0 && (trans & (1 << 30));
+}
+
 inline constexpr int GetTranslationType(uint32_t trans)
 {
+	assert(!IsLuminosityTranslation(trans));
 	return (trans & TRANSLATIONTYPE_MASK) >> TRANSLATION_SHIFT;
 }
+
 inline constexpr int GetTranslationIndex(uint32_t trans)
 {
+	assert(!IsLuminosityTranslation(trans));
 	return (trans & TRANSLATION_MASK);
 }
 

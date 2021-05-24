@@ -142,7 +142,7 @@ protected:
 	void FixXMoves();
 
 	static int SimpleTranslation (uint32_t *colorsused, uint8_t *translation,
-		uint8_t *identity, TArray<double> &Luminosity);
+		uint8_t *identity, TArray<double> &Luminosity, int* minlum = nullptr, int* maxlum = nullptr);
 
 	void ReadSheetFont(TArray<FolderEntry> &folderdata, int width, int height, const DVector2 &Scale);
 
@@ -193,5 +193,6 @@ FFont *V_GetFont(const char *fontname, const char *fontlumpname = nullptr);
 void V_InitFontColors();
 char* CleanseString(char* str);
 void V_LoadTranslations();
+class FBitmap;
 
 

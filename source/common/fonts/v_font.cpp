@@ -588,6 +588,107 @@ EColorRange V_FindFontColor (FName name)
 
 //==========================================================================
 //
+// CreateLuminosityTranslationRanges
+//
+// Create universal remap ranges for hardware rendering.
+//
+//==========================================================================
+static PalEntry* paletteptr;
+
+static void CreateLuminosityTranslationRanges()
+{
+	paletteptr = (PalEntry*)ImageArena.Alloc(256 * ((NumTextColors * 2)) * sizeof(PalEntry));
+	for (int l = 0; l < 2; l++)
+	{
+		auto parmstart = &TranslationParms[l][0];
+		// Put the data into the image arena where it gets deleted with the rest of the texture data.
+		for (int p = 0; p < NumTextColors; p++)
+		{
+			// Intended storage order is Range 1, variant 1 - Range 1, variant 2, Range 2, variant 1, and so on.
+			// The storage of the ranges forces us to go through this differently...
+			PalEntry* palette = paletteptr + p * 512 + l * 256;
+			for (int v = 0; v < 256; v++)
+			{
+				palette[v].b = palette[v].g = palette[v].r = (uint8_t)v;
+			}
+			if (p != CR_UNTRANSLATED) // This table skips the untranslated entry. Do I need to say that the stored data format is garbage? >)
+			{
+				for (int v = 0; v < 256; v++)
+				{
+					// Find the color range that this luminosity value lies within.
+					const TranslationParm* parms = parmstart - 1;
+					do
+					{
+						parms++;
+						if (parms->RangeStart <= v && parms->RangeEnd >= v)
+							break;
+					} while (parms[1].RangeStart > parms[0].RangeEnd);
+
+					// Linearly interpolate to find out which color this luminosity level gets.
+					int rangev = ((v - parms->RangeStart) << 8) / (parms->RangeEnd - parms->RangeStart);
+					int r = ((parms->Start[0] << 8) + rangev * (parms->End[0] - parms->Start[0])) >> 8; // red
+					int g = ((parms->Start[1] << 8) + rangev * (parms->End[1] - parms->Start[1])) >> 8; // green
+					int b = ((parms->Start[2] << 8) + rangev * (parms->End[2] - parms->Start[2])) >> 8; // blue
+					palette[v].r = (uint8_t)clamp(r, 0, 255);
+					palette[v].g = (uint8_t)clamp(g, 0, 255);
+					palette[v].b = (uint8_t)clamp(b, 0, 255);
+				}
+				// Advance to the next color range.
+				while (parmstart[1].RangeStart > parmstart[0].RangeEnd)
+				{
+					parmstart++;
+				}
+				parmstart++;
+			}
+		}
+	}
+}
+
+//==========================================================================
+//
+// V_ApplyLuminosityTranslation
+//
+// Applies the translation to a bitmap for texture generation.
+//
+//==========================================================================
+
+void V_ApplyLuminosityTranslation(int translation, uint8_t* pixel, int size)
+{
+	int colorrange = (translation >> 16) & 0x3fff;
+	if (colorrange >= NumTextColors * 2) return;
+	int lum_min = (translation >> 8) & 0xff;
+	int lum_max = translation & 0xff;
+	int lum_range = (lum_max - lum_min + 1);
+	PalEntry* remap = paletteptr + colorrange * 256;
+
+	for (int i = 0; i < size; i++, pixel += 4)
+	{
+		// we must also process the transparent pixels here to ensure proper filtering on the characters' edges.
+		int gray = PalEntry(255, pixel[2], pixel[1], pixel[0]).Luminance();
+		int lumadjust = (gray - lum_min) * 255 / lum_range;
+		int index = clamp(lumadjust, 0, 255);
+		PalEntry newcol = remap[index];
+		// extend the range if we find colors outside what initial analysis provided.
+		if (gray < lum_min)
+		{
+			newcol.r = newcol.r * gray / lum_min;
+			newcol.g = newcol.g * gray / lum_min;
+			newcol.b = newcol.b * gray / lum_min;
+		}
+		else if (gray > lum_max)
+		{
+			newcol.r = clamp(newcol.r * gray / lum_max, 0, 255);
+			newcol.g = clamp(newcol.g * gray / lum_max, 0, 255);
+			newcol.b = clamp(newcol.b * gray / lum_max, 0, 255);
+		}
+		pixel[0] = newcol.b;
+		pixel[1] = newcol.g;
+		pixel[2] = newcol.r;
+	}
+}
+
+//==========================================================================
+//
 // V_LogColorFromColorRange
 //
 // Returns the color to use for text in the startup/error log window.
@@ -676,6 +777,7 @@ EColorRange V_ParseFontColor (const uint8_t *&color_value, int normalcolor, int 
 
 void V_InitFonts()
 {
+	CreateLuminosityTranslationRanges();
 	V_InitCustomFonts();
 
 	FFont *CreateHexLumpFont(const char *fontname, int lump);

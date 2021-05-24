@@ -161,14 +161,10 @@ void FSpecialFont::LoadTranslations()
 
 	for (i = 0; i < count; i++)
 	{
-		if (Chars[i].TranslatedPic)
+		if (Chars[i].OriginalPic)
 		{
-			FFontChar1 *pic = static_cast<FFontChar1 *>(Chars[i].TranslatedPic->GetTexture()->GetImage());
-			if (pic)
-			{
-				pic->SetSourceRemap(nullptr); // Force the FFontChar1 to return the same pixels as the base texture
-				RecordTextureColors(pic, usedcolors);
-			}
+			auto pic = Chars[i].OriginalPic->GetTexture()->GetImage();
+			if (pic) RecordTextureColors(pic, usedcolors);
 		}
 	}
 

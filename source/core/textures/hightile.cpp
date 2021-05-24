@@ -331,21 +331,29 @@ bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TextureP
 {
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 
-	int usepalette = paletteid == 0? 0 : GetTranslationType(paletteid) - Translation_Remap;
-	int usepalswap = GetTranslationIndex(paletteid);
+	int usepalette = 0, useremap = 0;
+	if (!IsLuminosityTranslation(paletteid))
+	{
+		usepalette = paletteid == 0 ? 0 : GetTranslationType(paletteid) - Translation_Remap;
+		useremap = GetTranslationIndex(paletteid);
+	}
 	bool foggy = state && (state->GetFogColor() & 0xffffff);
 	int TextureType = hw_int_useindexedcolortextures && !foggy? TT_INDEXED : TT_TRUECOLOR;
 
 	pick.translation = paletteid;
 	pick.basepalTint = 0xffffff;
 
-	auto& h = lookups.tables[usepalswap];
+	auto& h = lookups.tables[useremap];
 	bool applytint = false;
 	// Canvas textures must be treated like hightile replacements in the following code.
 
-	int hipalswap = usepalette >= 0 ? usepalswap : 0;
+	int hipalswap = usepalette >= 0 ? useremap : 0;
 	auto rep = (hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? FindReplacement(tex->GetID(), hipalswap, false) : nullptr;
-	if (rep || tex->GetTexture()->isHardwareCanvas())
+	if (IsLuminosityTranslation(paletteid))
+	{
+		// For a luminosity translation we only want the plain texture as-is.
+	}
+	else if (rep || tex->GetTexture()->isHardwareCanvas())
 	{
 		if (usepalette > 0)
 		{
@@ -371,9 +379,9 @@ bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TextureP
 			if (h.tintFlags & (TINTF_ALWAYSUSEART | TINTF_USEONART))
 			{
 				applytint = true;
-				if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) usepalswap = 0;
+				if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) useremap = 0;
 			}
-			pick.translation = paletteid == 0? 0 : TRANSLATION(usepalette + Translation_Remap, usepalswap);
+			pick.translation = paletteid == 0? 0 : TRANSLATION(usepalette + Translation_Remap, useremap);
 		}
 		else pick.translation |= 0x80000000;
 	}
