@@ -108,26 +108,18 @@ FSpecialFont::FSpecialFont (const char *name, int first, int count, FGameTexture
 			Chars[i].OriginalPic = MakeGameTexture(pic->GetTexture(), nullptr, ETextureType::FontChar);
 			Chars[i].OriginalPic->CopySize(pic, true);
 			TexMan.AddGameTexture(Chars[i].OriginalPic);
-
-			if (!noTranslate)
-			{
-				Chars[i].TranslatedPic = MakeGameTexture(new FImageTexture(new FFontChar1 (charlumps[i]->GetTexture()->GetImage())), nullptr, ETextureType::FontChar);
-				Chars[i].TranslatedPic->CopySize(charlumps[i], true);
-				TexMan.AddGameTexture(Chars[i].TranslatedPic);
-			}
-			else Chars[i].TranslatedPic = Chars[i].OriginalPic;
-			Chars[i].XMove = (int)Chars[i].TranslatedPic->GetDisplayWidth();
-			if (sysCallbacks.FontCharCreated) sysCallbacks.FontCharCreated(pic, Chars[i].OriginalPic, Chars[i].TranslatedPic);
+			Chars[i].XMove = (int)Chars[i].OriginalPic->GetDisplayWidth();
+			if (sysCallbacks.FontCharCreated) sysCallbacks.FontCharCreated(pic, Chars[i].OriginalPic, Chars[i].OriginalPic);
 		}
 		else
 		{
-			Chars[i].TranslatedPic = nullptr;
+			Chars[i].OriginalPic = nullptr;
 			Chars[i].XMove = INT_MIN;
 		}
 	}
 
 	// Special fonts normally don't have all characters so be careful here!
-	if ('N'-first >= 0 && 'N'-first < count && Chars['N' - first].TranslatedPic != nullptr)
+	if ('N'-first >= 0 && 'N'-first < count && Chars['N' - first].OriginalPic != nullptr)
 	{
 		SpaceWidth = (Chars['N' - first].XMove + 1) / 2;
 	}

@@ -191,12 +191,7 @@ void UpdateStatusBar(SummaryInfo* info)
 	for (int i = 0; i < NumTextColors; i++)
 	{
 		FStringf buffer("This is font color %d", i);
-		//DrawText(twod, SmallFont, i, 40, i * 15, buffer, DTA_FullscreenScale, FSMode_Fit640x400, TAG_DONE);
-		//DrawText(twod, V_GetFont("doomfont"), i, 40, i * 15, buffer, DTA_FullscreenScale, FSMode_Fit640x400, TAG_DONE);
-		//DrawText(twod, NewSmallFont, i, 340, i * 15, buffer, DTA_FullscreenScale, FSMode_Fit640x400, TAG_DONE);
-
-		DrawText(twod, V_GetFont("condfont"), i, 40, i * 15, buffer, DTA_FullscreenScale, FSMode_Fit640x400, TAG_DONE);
-		DrawText(twod, NewConsoleFont, i, 340, i * 15, buffer, DTA_FullscreenScale, FSMode_Fit640x400, TAG_DONE);
+		DrawText(twod, BigFont, i, 340, i * 15, buffer, DTA_FullscreenScale, FSMode_Fit640x400, TAG_DONE);
 
 	}
 #endif

@@ -188,8 +188,8 @@ void FSingleLumpFont::LoadTranslations()
 
 	for(unsigned int i = 0;i < count;++i)
 	{
-		if(Chars[i].TranslatedPic)
-			static_cast<FFontChar2*>(Chars[i].TranslatedPic->GetTexture()->GetImage())->SetSourceRemap(Palette);
+		if(Chars[i].OriginalPic)
+			static_cast<FFontChar2*>(Chars[i].OriginalPic->GetTexture()->GetImage())->SetSourceRemap(Palette);
 	}
 
 	Translations.Resize(NumTextColors);
@@ -325,14 +325,12 @@ void FSingleLumpFont::LoadFON2 (int lump, const uint8_t *data)
 		Chars[i].XMove = widths2[i];
 		if (destSize <= 0)
 		{
-			Chars[i].TranslatedPic = nullptr;
 			Chars[i].OriginalPic = nullptr;
 		}
 		else
 		{
-			Chars[i].TranslatedPic = MakeGameTexture(new FImageTexture(new FFontChar2 (lump, int(data_p - data), widths2[i], FontHeight)), nullptr, ETextureType::FontChar);
-			Chars[i].OriginalPic = Chars[i].TranslatedPic;
-			TexMan.AddGameTexture(Chars[i].TranslatedPic);
+			Chars[i].OriginalPic = MakeGameTexture(new FImageTexture(new FFontChar2 (lump, int(data_p - data), widths2[i], FontHeight)), nullptr, ETextureType::FontChar);
+			TexMan.AddGameTexture(Chars[i].OriginalPic);
 			do
 			{
 				int8_t code = *data_p++;
@@ -445,7 +443,6 @@ void FSingleLumpFont::LoadBMF(int lump, const uint8_t *data)
 			-(int8_t)chardata[chari+3],	// x offset
 			-(int8_t)chardata[chari+4]	// y offset
 		)), nullptr, ETextureType::FontChar);
-		Chars[chardata[chari] - FirstChar].TranslatedPic = tex;
 		Chars[chardata[chari] - FirstChar].OriginalPic = tex;
 		TexMan.AddGameTexture(tex);
 	}
@@ -488,12 +485,11 @@ void FSingleLumpFont::CheckFON1Chars()
 	{
 		int destSize = SpaceWidth * FontHeight;
 
-		if (!Chars[i].TranslatedPic)
+		if (!Chars[i].OriginalPic)
 		{
-			Chars[i].TranslatedPic = MakeGameTexture(new FImageTexture(new FFontChar2(Lump, int(data_p - data), SpaceWidth, FontHeight)), nullptr, ETextureType::FontChar);
-			Chars[i].OriginalPic = Chars[i].TranslatedPic;
+			Chars[i].OriginalPic = MakeGameTexture(new FImageTexture(new FFontChar2(Lump, int(data_p - data), SpaceWidth, FontHeight)), nullptr, ETextureType::FontChar);
 			Chars[i].XMove = SpaceWidth;
-			TexMan.AddGameTexture(Chars[i].TranslatedPic);
+			TexMan.AddGameTexture(Chars[i].OriginalPic);
 		}
 
 		// Advance to next char's data and count the used colors.

@@ -43,48 +43,6 @@
 
 //==========================================================================
 //
-// FFontChar1 :: FFontChar1
-//
-// Used by fonts made from textures.
-//
-//==========================================================================
-
-FFontChar1::FFontChar1(FImageSource* sourcelump)
-	: BaseTexture(sourcelump), SourceRemap(nullptr)
-{
-	// now copy all the properties from the base texture
-	assert(BaseTexture != nullptr);
-	CopySize(*BaseTexture);
-	bUseGamePalette = false;
-}
-
-//==========================================================================
-//
-// FFontChar1 :: GetPixels
-//
-// Render style is not relevant for fonts. This must not use it!
-//
-//==========================================================================
-
-TArray<uint8_t> FFontChar1::CreatePalettedPixels(int)
-{
-	// Make the texture as normal, then remap it so that all the colors
-	// are at the low end of the palette
-	// Why? It only creates unnecessary work!
-	auto Pixels = BaseTexture->GetPalettedPixels(normal);
-
-	if (SourceRemap)
-	{
-		for (int x = 0; x < Width * Height; ++x)
-		{
-			Pixels[x] = SourceRemap[Pixels[x]];
-		}
-	}
-	return Pixels;
-}
-
-//==========================================================================
-//
 // FFontChar2 :: FFontChar2
 //
 // Used by FON1 and FON2 fonts.

@@ -333,23 +333,13 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 				TexMan.AddGameTexture(tex);
 				Chars[i].OriginalPic = tex;
 
-				if (!noTranslate)
-				{
-					Chars[i].TranslatedPic = MakeGameTexture(new FImageTexture(new FFontChar1(orig->GetImage())), nullptr, ETextureType::FontChar);
-					Chars[i].TranslatedPic->CopySize(pic, true);
-					TexMan.AddGameTexture(Chars[i].TranslatedPic);
-				}
-				else
-				{
-					Chars[i].TranslatedPic = tex;
-				}
-				if (sysCallbacks.FontCharCreated) sysCallbacks.FontCharCreated(pic, Chars[i].OriginalPic, Chars[i].TranslatedPic);
+				if (sysCallbacks.FontCharCreated) sysCallbacks.FontCharCreated(pic, Chars[i].OriginalPic, Chars[i].OriginalPic);
 
-				Chars[i].XMove = (int)Chars[i].TranslatedPic->GetDisplayWidth();
+				Chars[i].XMove = (int)Chars[i].OriginalPic->GetDisplayWidth();
 			}
 			else
 			{
-				Chars[i].TranslatedPic = nullptr;
+				Chars[i].OriginalPic = nullptr;
 				Chars[i].XMove = INT_MIN;
 			}
 		}
@@ -360,7 +350,7 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 			{
 				SpaceWidth = spacewidth;
 			}
-			else if ('N' - FirstChar >= 0 && 'N' - FirstChar < count && Chars['N' - FirstChar].TranslatedPic != nullptr)
+			else if ('N' - FirstChar >= 0 && 'N' - FirstChar < count && Chars['N' - FirstChar].OriginalPic != nullptr)
 			{
 				SpaceWidth = (Chars['N' - FirstChar].XMove + 1) / 2;
 			}
@@ -444,11 +434,7 @@ void FFont::ReadSheetFont(TArray<FolderEntry> &folderdata, int width, int height
 			Chars[i].OriginalPic = (*lump)->GetUseType() == ETextureType::FontChar? (*lump) : MakeGameTexture(pic, nullptr, ETextureType::FontChar);
 			Chars[i].OriginalPic->SetUseType(ETextureType::FontChar);
 			Chars[i].OriginalPic->CopySize(*lump, true);
-			Chars[i].TranslatedPic = MakeGameTexture(new FImageTexture(new FFontChar1(pic->GetImage())), nullptr, ETextureType::FontChar);
-			Chars[i].TranslatedPic->CopySize(*lump, true);
-			Chars[i].TranslatedPic->SetUseType(ETextureType::FontChar);
 			if (Chars[i].OriginalPic != *lump) TexMan.AddGameTexture(Chars[i].OriginalPic);
-			TexMan.AddGameTexture(Chars[i].TranslatedPic);
 		}
 		Chars[i].XMove = width;
 	}
@@ -596,16 +582,10 @@ void FFont::RecordAllTextureColors(uint32_t *usedcolors)
 {
 	for (unsigned int i = 0; i < Chars.Size(); i++)
 	{
-		if (Chars[i].TranslatedPic)
+		if (Chars[i].OriginalPic)
 		{
-			FFontChar1 *pic = static_cast<FFontChar1 *>(Chars[i].TranslatedPic->GetTexture()->GetImage());
-			if (pic)
-			{
-				// The remap must be temporarily reset here because this can be called on an initialized font.
-				auto sr = pic->ResetSourceRemap();
-				RecordTextureColors(pic, usedcolors);
-				pic->SetSourceRemap(sr);
-			}
+			auto pic = Chars[i].OriginalPic->GetTexture()->GetImage();
+			if (pic) RecordTextureColors(pic, usedcolors);
 		}
 	}
 }
@@ -772,7 +752,6 @@ int FFont::GetColorTranslation (EColorRange range, PalEntry *color) const
 		return -1;
 	else if (range >= NumTextColors)
 		range = CR_UNTRANSLATED;
-	//if (range == CR_UNTRANSLATED && !translateUntranslated) return nullptr;
 	return Translations[range];
 }
 
@@ -867,7 +846,7 @@ int FFont::GetCharCode(int code, bool needpic) const
 //
 //==========================================================================
 
-FGameTexture *FFont::GetChar (int code, int translation, int *const width, bool *redirected) const
+FGameTexture *FFont::GetChar (int code, int translation, int *const width) const
 {
 	code = GetCharCode(code, true);
 	int xmove = SpaceWidth;
@@ -885,24 +864,8 @@ FGameTexture *FFont::GetChar (int code, int translation, int *const width, bool 
 	if (code < 0) return nullptr;
 
 
-	if ((translation == CR_UNTRANSLATED || translation == CR_UNDEFINED || translation >= NumTextColors) && !forceremap)
-	{
-		bool redirect = Chars[code].OriginalPic && Chars[code].OriginalPic != Chars[code].TranslatedPic;
-		if (redirected) *redirected = redirect;
-		if (redirect)
-		{
-			assert(Chars[code].OriginalPic->GetUseType() == ETextureType::FontChar);
-			return Chars[code].OriginalPic;
-		}
-	}
-	if (redirected) *redirected = false;
-	if (IsLuminosityTranslation(Translations[translation]))
-	{
-			assert(Chars[code].OriginalPic->GetUseType() == ETextureType::FontChar);
-			return Chars[code].OriginalPic;
-	}
-	assert(Chars[code].TranslatedPic->GetUseType() == ETextureType::FontChar);
-	return Chars[code].TranslatedPic;
+	assert(Chars[code].OriginalPic->GetUseType() == ETextureType::FontChar);
+	return Chars[code].OriginalPic;
 }
 
 //==========================================================================
