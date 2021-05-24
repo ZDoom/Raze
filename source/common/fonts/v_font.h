@@ -137,8 +137,6 @@ public:
 protected:
 	FFont (int lump);
 
-	void BuildTranslations (const double *luminosity, const uint8_t *identity,
-		const void *ranges, int total_colors, const PalEntry *palette, std::function<void(FRemapTable*)> post = nullptr);
 	void FixXMoves();
 
 	static int SimpleTranslation (uint32_t *colorsused, uint8_t *translation,
@@ -192,6 +190,7 @@ EColorRange V_ParseFontColor (const uint8_t *&color_value, int normalcolor, int 
 FFont *V_GetFont(const char *fontname, const char *fontlumpname = nullptr);
 void V_InitFontColors();
 char* CleanseString(char* str);
+void V_ApplyLuminosityTranslation(int translation, uint8_t* pixel, int size);
 void V_LoadTranslations();
 class FBitmap;
 
