@@ -123,6 +123,20 @@ struct BloodScreen
 
 	}
 
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	static void DrawLocalizedText(int x, int y, String text, int position = 1)
+	{
+		let text = StringTable.Localize(text);
+		if (hud_textfont || !SmallFont2.CanPrint(text))
+			DrawText(SmallFont, text, x, y, 1);
+		else
+			DrawText(SmallFont2, text, x, y, 1, shadow: true);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -184,9 +198,7 @@ class BloodSummaryScreen : SummaryScreenBase
 		BloodScreen.DrawCaption("$TXTB_LEVELSTATS", 0, true);
 		if (stats.cheated)
 		{
-			let text = StringTable.Localize("$TXTB_CHEATED");
-			let font = SmallFont2.CanPrint(text)? SmallFont2 : SmallFont;
-			BloodScreen.DrawText(font, text, 160, 32, 1, shadow:font == SmallFont2);
+			BloodScreen.DrawLocalizedText(160, 32, "$TXTB_CHEATED");
 		}
 		DrawKills();
 		DrawSecrets();
@@ -194,9 +206,7 @@ class BloodSummaryScreen : SummaryScreenBase
 		int myclock = ticks * 120 / GameTicRate;
 		if ((myclock & 32))
 		{
-			let text = StringTable.Localize("$PRESSKEY");
-			let font = SmallFont2.CanPrint(text)? SmallFont2 : SmallFont;
-			BloodScreen.DrawText(font, text, 160, 134, 1, shadow:font == SmallFont2);
+			BloodScreen.DrawLocalizedText(160, 134, "$PRESSKEY");
 		}
 	}
 
@@ -227,37 +237,10 @@ class BloodMPSummaryScreen : SkippableScreenJob
 		Blood.sndStartSample(268, 128, -1, false, CHANF_UI);
 	}
 
-	void DrawKills()
-	{
-		String pBuffer;
-		BloodScreen.DrawText(SmallFont2, "#", 85, 35);
-		BloodScreen.DrawText(SmallFont2, "$NAME", 100, 35);
-		BloodScreen.DrawText(SmallFont2, "$FRAGS", 210, 35);
-
-		for (int i = 0; i < numplayers; i++)
-		{
-			pBuffer = String.Format( "%-2d", i);
-			BloodScreen.DrawText(SmallFont2,  pBuffer, 85, 50 + 8 * i);
-			pBuffer = String.Format( "%s", Raze.PlayerName(i));
-			BloodScreen.DrawText(SmallFont2,  pBuffer, 100, 50 + 8 * i);
-			pBuffer = String.Format( "%d", Raze.playerFrags(i, -1));
-			BloodScreen.DrawText(SmallFont2,  pBuffer, 210, 50 + 8 * i);
-		}
-	}
-
 	override void Draw(double sr) 
 	{
 		BloodScreen.DrawBackground();
-		BloodScreen.DrawCaption("$TXTB_FRAGSTATS", 0, true);
-		DrawKills();
-
-		int myclock = ticks * 120 / GameTicRate;
-		if ((myclock & 32))
-		{
-			let text = StringTable.Localize("$PRESSKEY");
-			let font = SmallFont2.CanPrint(text)? SmallFont2 : SmallFont;
-			BloodScreen.DrawText(font, text, 160, 134, 1, shadow:font == SmallFont2);
-		}
+		Raze.DrawScoreboard(60);
 	}
 }
 
@@ -293,10 +276,7 @@ class BloodLoadScreen : ScreenJob
 		BloodScreen.DrawBackground();
 		BloodScreen.DrawCaption(loadtext, 0, true);
 		BloodScreen.DrawText(BigFont, rec.DisplayName(), 160, 50, 1);
-
-		let text = StringTable.Localize("$TXTB_PLSWAIT");
-		let font = SmallFont2.CanPrint(text)? SmallFont2 : SmallFont;
-		BloodScreen.DrawText(font, text, 160, 134, 1, shadow:font == SmallFont2);
+		BloodScreen.DrawLocalizedText(160, 134, "$TXTB_PLSWAIT");
 	}
 }
 
