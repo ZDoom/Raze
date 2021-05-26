@@ -104,25 +104,6 @@ void InitFonts()
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, int align, double alpha)
-{
-    if (align > -1)
-    {
-        int w = SmallFont2->StringWidth(string);
-        if (align == 0) x -= w / 2;
-        else x -= w;
-    }
-    DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, string, DTA_FullscreenScale, FSMode_Fit320x200,
-        DTA_Color, shadeToLight(shade), DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Alpha, alpha, TAG_DONE);
-
-}
-
-//---------------------------------------------------------------------------
-//
 // Notification messages. Native SW-style display should later be
 // provided by the backend.
 //

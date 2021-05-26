@@ -74,15 +74,6 @@ static void UpdateFrame(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawConString(int x, int y, const char* string, double alpha)
-{
-    x = x * 2 - SmallFont->StringWidth(string) / 2;
-    y *= 2;
-    DrawText(twod, SmallFont, CR_TAN, x, y, string, DTA_FullscreenScale, FSMode_Fit640x400, DTA_Alpha, alpha, TAG_DONE);
-
-}
-
-
 void UpdateStatusBar()
 {
     if (hud_size <= Hud_Stbar)
@@ -105,12 +96,22 @@ void UpdateStatusBar()
     {
         const int MESSAGE_LINE = 142;    // Used to be 164
         
-        if (!SmallFont2->CanPrint(pp->cookieQuote))
-            DrawConString(160, MESSAGE_LINE, pp->cookieQuote, clamp(pp->cookieTime / 60., 0., 1.));
+        if (hud_textfont || !SmallFont2->CanPrint(pp->cookieQuote))
+        {
+            int x = 320 - SmallFont->StringWidth(pp->cookieQuote) / 2;
+            DrawText(twod, SmallFont, CR_UNDEFINED, x, MESSAGE_LINE*2, pp->cookieQuote, DTA_FullscreenScale, FSMode_Fit640x400,
+                DTA_Alpha, clamp(pp->cookieTime / 60., 0., 1.), TAG_DONE);
+        }
         else
-            MNU_DrawSmallString(160, MESSAGE_LINE, pp->cookieQuote, 0, 0, 0, clamp(pp->cookieTime / 60., 0., 1.));
+        {
+            int x = 160 - SmallFont2->StringWidth(pp->cookieQuote) / 2;
+            DrawText(twod, SmallFont2, CR_UNDEFINED, x, MESSAGE_LINE, pp->cookieQuote, DTA_FullscreenScale, FSMode_Fit320x200,
+                DTA_Alpha, clamp(pp->cookieTime / 60., 0., 1.), TAG_DONE);
+
+        }
     }
 }
+
 
 
 

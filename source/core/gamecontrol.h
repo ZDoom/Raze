@@ -12,6 +12,8 @@
 #include "i_time.h"
 #include "palentry.h"
 
+EXTERN_CVAR(Bool, hud_textfont)
+
 extern bool sendsave;
 extern FString	savedescription;
 extern FString	savegamefile;

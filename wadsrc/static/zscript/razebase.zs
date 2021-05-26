@@ -209,6 +209,12 @@ struct Raze
 	{
 		return 0;
 	}
+
+	static void DrawScoreboard(int top)
+	{
+		// todo: reimplement this in a game independent fashion based on GZDoom's code.
+		// Right now, with no MP support there is no need, though.
+	}
 	
 }
 

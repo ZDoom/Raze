@@ -110,21 +110,6 @@ struct Duke native
 		if (align != -1) x -= SmallFont.StringWidth(t) * (align == 0 ? 0.5 : 1);
 		Screen.DrawText(SmallFont, Font.CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, fsmode, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, trans), DTA_Color, Raze.shadeToLight(shade));
 	}
-
-	static void MiniText(double x, double y, String t, int shade, int align = -1, int trans = 0)
-	{
-		int fsmode = FSMode_Fit320x200;
-		if (Raze.isRR())
-		{
-			x *= 2;
-			y *= 2;
-			fsmode = FSMode_Fit640x400;
-		}
-		if (align != -1) x -= SmallFont2.StringWidth(t) * (align == 0 ? 0.5 : 1);
-		Screen.DrawText(SmallFont2, Font.CR_UNDEFINED, x, y, t, DTA_FullscreenScale, fsmode, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, trans), DTA_Color, Raze.shadeToLight(shade));
-	}
-	
-
 }
 
 struct DukePlayer 

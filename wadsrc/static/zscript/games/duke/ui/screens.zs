@@ -473,75 +473,7 @@ class DukeMultiplayerBonusScreen : SkippableScreenJob
 		Screen.DrawTexture(TexMan.CheckForTexture("INGAMEDUKETHREEDEE"), true, 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, DTA_ScaleX, titlescale, DTA_ScaleY, titlescale);
 		if (Raze.isPlutoPak()) Screen.DrawTexture(TexMan.CheckForTexture("MENUPLUTOPAKSPRITE"), true, 260, 36, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true);
 
-		Duke.GameText(160, isRR? 58 : 58 + 2, "$Multiplayer Totals", 0, 0);
-		Duke.GameText(160, 58 + 10, currentLevel.DisplayName(), 0, 0);
-		Duke.GameText(160, 165, "$Presskey", 8 - int(sin(currentclock / 10.) * 8), 0);
-
-		int t = 0;
-
-		Duke.MiniText(38, 80, "$Name", 0, -1, isRR? 0 : 8);
-		Duke.MiniText(269+20, 80, "$Kills", 0, 1, isRR? 0: 8);
-
-		for (int i = 0; i < playerswhenstarted; i++)
-		{
-			tempbuf = String.Format("%-4d", i + 1);
-			Duke.MiniText(92 + (i * 23), 80, tempbuf, 0, -1, isRR? 0: 3);
-		}
-
-		for (int i = 0; i < playerswhenstarted; i++)
-		{
-			int xfragtotal = 0;
-			tempbuf = String.Format("%d", i + 1);
-
-			Duke.MiniText(30, 90 + t, tempbuf, 0);
-			Duke.MiniText(38, 90 + t, Raze.PlayerName(i), 0, -1, Raze.playerPalette(i));
-
-			for (int y = 0; y < playerswhenstarted; y++)
-			{
-				int frag = Raze.playerFrags(i, y);
-				if (i == y)
-				{
-					int fraggedself = Raze.playerFraggedSelf(y);
-					tempbuf = String.Format("%-4d", fraggedself);
-					Duke.MiniText(92 + (y * 23), 90 + t, tempbuf, 0, -1, isRR? 0: 2);
-					xfragtotal -= fraggedself;
-				}
-				else
-				{
-					tempbuf = String.Format("%-4d", frag);
-					Duke.MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
-					xfragtotal += frag;
-				}
-				/*
-				if (myconnectindex == connecthead)
-				{
-					tempbuf = String.Format("stats %ld killed %ld %ld\n", i + 1, y + 1, frag);
-					sendscore(tempbuf);
-				}
-				*/
-			}
-
-			tempbuf = String.Format("%-4d", xfragtotal);
-			Duke.MiniText(101 + (8 * 23), 90 + t, tempbuf, 0, -1, isRR? 0: 2);
-
-			t += 7;
-		}
-
-		for (int y = 0; y < playerswhenstarted; y++)
-		{
-			int yfragtotal = 0;
-			for (int i = 0; i < playerswhenstarted; i++)
-			{
-				if (i == y)
-					yfragtotal += Raze.playerFraggedself(i);
-				int frag = Raze.playerFrags(i, y);
-				yfragtotal += frag;
-			}
-			tempbuf = String.Format("%-4d", yfragtotal);
-			Duke.MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0, -1, isRR? 0: 2);
-		}
-
-		Duke.MiniText(45, 96 + (8 * 7), "$Deaths", 0, -1, isRR? 0: 8);
+		Raze.DrawScoreboard(60);
 	}
 }
 

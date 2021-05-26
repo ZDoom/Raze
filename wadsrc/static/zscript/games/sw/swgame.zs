@@ -137,21 +137,6 @@ struct SW native
 		Screen.DrawText(SmallFont, Font.CR_UNDEFINED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200,
 			DTA_Color, Raze.shadeToLight(shade), DTA_TranslationIndex, Translation.MakeID(Translation_Remap, pal));
 	}
-
-	//---------------------------------------------------------------------------
-	//
-	// 
-	//
-	//---------------------------------------------------------------------------
-
-	static void DrawSmallString(int x, int y, String text, int shade, int pal, int align = -1, double alpha = 1.)
-	{
-		if (align != -1) x -= SmallFont2.StringWidth(text) * (align == 0 ? 0.5 : 1); 		
-		Screen.DrawText(SmallFont2, Font.CR_UNDEFINED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200,
-			DTA_Color, Raze.shadeToLight(shade), DTA_TranslationIndex, Translation.MakeID(Translation_Remap, pal), DTA_Alpha, alpha);
-	}
-
-
 }
 
 
