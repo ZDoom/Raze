@@ -248,8 +248,18 @@ TArray<FString> CollectSearchPaths()
 	for (auto &str : searchpaths)
 	{
 		str.Substitute("\\", "/");
+#ifdef _WIN32
+		bool isUNCpath = false;
+		auto chars = str.GetChars();
+		if (chars[0] == '/' && chars[1] == '/')
+			isUNCpath = true;
+#endif
 		str.Substitute("//", "/");	// Double slashes can happen when constructing paths so just get rid of them here.
 		if (str.Back() == '/') str.Truncate(str.Len() - 1);
+#ifdef _WIN32
+		if (isUNCpath)
+			str = (FString)"/" + str;
+#endif
 	}
 	return searchpaths;
 }
