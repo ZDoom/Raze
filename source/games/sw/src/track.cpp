@@ -677,7 +677,6 @@ TrackSetup(void)
             // save the closest one off and kill it
             if (next_sprite != -1)
             {
-                ASSERT(low_dist < 20000);
                 TrackAddPoint(t, tp, next_sprite);
             }
 
