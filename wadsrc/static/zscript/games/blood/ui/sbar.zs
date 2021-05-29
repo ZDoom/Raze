@@ -644,7 +644,7 @@ class BloodStatusBar : RazeStatusBar
 
 		int health = pPlayer.GetHealth();
 		BeginHUD(1, false, 320, 200);
-		DrawImage("HealthIcon", (12, 195 - 200), DI_ITEM_RELCENTER, scale:(0.56, 0.56));
+		DrawImage("HealthIcon", (12, 195 - 200), 0, scale:(0.56, 0.56));
 		DrawStatNumber("%d", health >> 4, "SBarNumberHealth", 28, 187 - 200, 0, 0);
 		if (pPlayer.armor[1])
 		{
