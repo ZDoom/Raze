@@ -89,7 +89,8 @@ void initactorflags_d()
 		
 	// Some flags taken from RedNukem's init code. This is a good start as any to reduce the insane dependency on tile numbers for making decisions in the play code. A lot more will be added here later.
 	setflag(SFLAG_NODAMAGEPUSH, { TANK, BOSS1, BOSS2, BOSS3, BOSS4, RECON, ROTATEGUN });
-	setflag(SFLAG_BOSS, { BOSS1, BOSS2, BOSS3, BOSS4 });
+	setflag(SFLAG_BOSS, { BOSS1, BOSS2, BOSS3, BOSS4, BOSS4STAYPUT, BOSS1STAYPUT });
+	if (isWorldTour()) setflag(SFLAG_BOSS, { BOSS2STAYPUT, BOSS3STAYPUT, BOSS5, BOSS5STAYPUT });
 	setflag(SFLAG_NOWATERDIP, { OCTABRAIN, COMMANDER, DRONE });
 	setflag(SFLAG_GREENSLIMEFOOD, { LIZTROOP, LIZMAN, PIGCOP, NEWBEAST });
 			
