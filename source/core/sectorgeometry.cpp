@@ -350,6 +350,12 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 		auto wallp = &wall[sline->startpoint];
 		vertexes[j].p = { wallp->x * (1 / 16.), wallp->y * (1 / -16.) };
 
+		if (fabs(vertexes[j].p.X) > 32768.f || fabs(vertexes[j].p.Y) > 32768.f)
+		{
+			// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
+			return true;
+		}
+
 		lines[j].backsector = nullptr;
 		lines[j].frontsector = sectorp;
 		lines[j].linenum = j;
