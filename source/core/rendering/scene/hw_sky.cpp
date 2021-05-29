@@ -40,7 +40,7 @@ FGameTexture* SkyboxReplacement(FTextureID picnum, int palnum);
 //
 //==========================================================================
 
-void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, PalEntry FadeColor)
+void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane)
 {
 	int picnum = plane == plane_ceiling ? sector->ceilingpicnum : sector->floorpicnum;
 	tileUpdatePicnum(&picnum, 0, 0);
@@ -80,7 +80,11 @@ void initSkyInfo(HWDrawInfo *di, HWSkyInfo* sky, sectortype* sector, int plane, 
 		sky->y_offset = ypanning;
 		sky->x_offset = 2 * xpanning / (1 << (realskybits - dapskybits));
 	}
-	sky->fadecolor = FadeColor;
+
+	PalEntry pe = GlobalMapFog ? GlobalMapFog : lookups.getFade(palette);
+	pe.a = 230;
+
+	sky->fadecolor = pe;
 	sky->shade = 0;// clamp(plane == plane_ceiling ? sector->ceilingshade : sector->floorshade, 0, numshades - 1);
 	sky->texture = skytex;
 }
@@ -114,9 +118,7 @@ void HWWall::SkyPlane(HWDrawInfo *di, sectortype *sector, int plane, bool allowr
 	{
 		ptype = PORTALTYPE_SKY;
 		HWSkyInfo skyinfo;
-		PalEntry pe = GlobalMapFog? GlobalMapFog : fade;
-		pe.a = 230;
-		initSkyInfo(di, &skyinfo, sector, plane, pe);
+		initSkyInfo(di, &skyinfo, sector, plane);
 		ptype = PORTALTYPE_SKY;
 		sky = &skyinfo;
 		PutPortal(di, ptype, plane);
