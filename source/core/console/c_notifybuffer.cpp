@@ -190,7 +190,7 @@ void FNotifyBuffer::Draw()
 
 	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
 	double nfscale = (generic_ui? 0.7 : NotifyFontScale);
-	double scale = 1 / ( * con_notifyscale);
+	double scale = 1 / (nfscale * con_notifyscale);
 
 	double line = Top + font->GetDisplacement() / nfscale;
 	double lineadv = font->GetHeight () / nfscale;
