@@ -91,8 +91,8 @@ class DukeMenuDelegate : RazeMenuDelegate
 		double x = xx / 65536.;
 		double y = yy / 65536.;
 
-		Screen.DrawText(SmallFont2, Font.CR_UNDEFINED, x + 1, y + 1, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5);
-		Screen.DrawText(SmallFont2, Font.CR_UNDEFINED, x, y, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION.MakeID(Translation_Remap, p));
+		Screen.DrawText(SmallFont2, Font.CR_UNTRANSLATED, x + 1, y + 1, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5);
+		Screen.DrawText(SmallFont2, Font.CR_NATIVEPAL, x, y, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION.MakeID(Translation_Remap, p));
 	}
 
 	static void mgametextcenter(int xx, int yy, String t)
@@ -100,7 +100,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		double x = xx / 65536. + 160. - SmallFont.StringWidth(t) * 0.5;
 		double y = yy / 65536.;
 
-		Screen.DrawText(SmallFont, Font.CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, FSMode_Fit320x200);
+		Screen.DrawText(SmallFont, Font.CR_UNTRANSLATED, x, y + 2, t, DTA_FullscreenScale, FSMode_Fit320x200);
 	}
 
 	
@@ -183,7 +183,7 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 			pe = Color(255, 160, 160, 160);
 		}
 
-		Screen.DrawText(BigFont, Font.CR_UNDEFINED, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
+		Screen.DrawText(BigFont, Font.CR_NATIVEPAL, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
 	}
 	
 }

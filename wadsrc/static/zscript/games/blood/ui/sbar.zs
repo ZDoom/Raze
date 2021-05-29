@@ -330,7 +330,7 @@ class BloodStatusBar : RazeStatusBar
 			int x = -160 + 80 * (i & 3);
 			int y = 9 * (i / 4);
 			int col = players[i].teamId & 3;
-			int cr = col == 0? Font.CR_UNDEFINED : col == 1? Font.CR_BLUE : Font.CR_RED;
+			int cr = col == 0? Font.CR_UNTRANSLATED : col == 1? Font.CR_BLUE : Font.CR_RED;
 			DrawString(tinyf, Raze.PlayerName(i), (x + 4, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
 			String gTempStr = String.Format("%2d", players[i].fragCount);
 			DrawString(tinyf, gTempStr, (x + 76, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
@@ -353,7 +353,7 @@ class BloodStatusBar : RazeStatusBar
 			int y = 9 * (i / 4);
 			int col = players[i].teamId & 3;
 			gTempStr = String.Format("%s", Raze.PlayerName(i));
-			int cr = col == 0? Font.CR_UNDEFINED : col == 1? Font.CR_BLUE : Font.CR_RED;
+			int cr = col == 0? Font.CR_UNTRANSLATED : col == 1? Font.CR_BLUE : Font.CR_RED;
 			DrawString(tinyf, gTempStr.MakeUpper(), (x + 4, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
 
 			x += 76;

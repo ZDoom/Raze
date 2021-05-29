@@ -600,7 +600,7 @@ class TextOverlay
 	bool drawclean;
 	BrokenLines screentext;
 
-	void Init(String text, int cr = Font.CR_UNDEFINED, int pal = 0, bool clean = false)
+	void Init(String text, int cr = Font.CR_NATIVEPAL, int pal = 0, bool clean = false)
 	{
 		screentext = SmallFont.BreakLines(StringTable.Localize(text), 320);
 		nCrawlY = 199;
@@ -667,7 +667,7 @@ class TextTypeOnOverlay
 	//
 	//==========================================================================
 
-	void Init(Font fnt, String text, int x = 10, int y = 10, int rowpadding = 2, int speed = 2, int cr = Font.CR_UNDEFINED, int pal = 0)
+	void Init(Font fnt, String text, int x = 10, int y = 10, int rowpadding = 2, int speed = 2, int cr = Font.CR_NATIVEPAL, int pal = 0)
 	{
 		let tt = StringTable.Localize(text);
 		Array<String> lines;

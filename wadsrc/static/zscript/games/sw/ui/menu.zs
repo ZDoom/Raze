@@ -101,7 +101,7 @@ class ListMenuItemSWTextItem : ListMenuItemTextItem
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
 		let gamefont = generic_ui ? NewSmallFont : mFont;
-		int cr = mColor != Font.CR_UNDEFINED? mColor : generic_ui? Font.CR_RED : Font.CR_UNDEFINED;
+		int cr = mColor != Font.CR_UNDEFINED? mColor : generic_ui? Font.CR_RED : Font.CR_UNTRANSLATED;
 		double scalex = generic_ui && mFont == SmallFont? 0.5 : 1.;
 
 		// The font here is very bulky and may cause problems with localized content. Account for that by squashing the text if needed.

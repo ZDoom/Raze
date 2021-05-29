@@ -817,7 +817,7 @@ void DStatusBarCore::DrawString(FFont* font, const FString& cstring, double x, d
 				DTA_FillColor, 0,
 				TAG_DONE);
 		}
-		DrawChar(twod, font, pt == 0? fontcolor : CR_UNDEFINED, rx, ry, ch,
+		DrawChar(twod, font, pt == 0? fontcolor : CR_NATIVEPAL, rx, ry, ch,
 			DTA_DestWidthF, rw,
 			DTA_DestHeightF, rh,
 			DTA_Alpha, Alpha,

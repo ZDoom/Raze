@@ -134,7 +134,7 @@ struct SW native
 	static void DrawString(int x, int y, String text, int shade, int pal, int align = -1)
 	{
 		if (align != -1) x -= SmallFont.StringWidth(text) * (align == 0 ? 0.5 : 1); 		
-		Screen.DrawText(SmallFont, Font.CR_UNDEFINED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200,
+		Screen.DrawText(SmallFont, Font.CR_NATIVEPAL, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200,
 			DTA_Color, Raze.shadeToLight(shade), DTA_TranslationIndex, Translation.MakeID(Translation_Remap, pal));
 	}
 }

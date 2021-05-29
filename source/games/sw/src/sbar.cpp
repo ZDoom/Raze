@@ -99,13 +99,13 @@ void UpdateStatusBar()
         if (hud_textfont || !SmallFont2->CanPrint(pp->cookieQuote))
         {
             int x = 320 - SmallFont->StringWidth(pp->cookieQuote) / 2;
-            DrawText(twod, SmallFont, CR_UNDEFINED, x, MESSAGE_LINE*2, pp->cookieQuote, DTA_FullscreenScale, FSMode_Fit640x400,
+            DrawText(twod, SmallFont, CR_UNTRANSLATED, x, MESSAGE_LINE*2, pp->cookieQuote, DTA_FullscreenScale, FSMode_Fit640x400,
                 DTA_Alpha, clamp(pp->cookieTime / 60., 0., 1.), TAG_DONE);
         }
         else
         {
             int x = 160 - SmallFont2->StringWidth(pp->cookieQuote) / 2;
-            DrawText(twod, SmallFont2, CR_UNDEFINED, x, MESSAGE_LINE, pp->cookieQuote, DTA_FullscreenScale, FSMode_Fit320x200,
+            DrawText(twod, SmallFont2, CR_UNTRANSLATED, x, MESSAGE_LINE, pp->cookieQuote, DTA_FullscreenScale, FSMode_Fit320x200,
                 DTA_Alpha, clamp(pp->cookieTime / 60., 0., 1.), TAG_DONE);
 
         }

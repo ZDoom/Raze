@@ -44,6 +44,7 @@ struct FRemapTable;
 enum EColorRange : int
 {
 	CR_UNDEFINED = -1,
+	CR_NATIVEPAL = -1,
 	CR_BRICK,
 	CR_TAN,
 	CR_GRAY,

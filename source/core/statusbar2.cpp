@@ -173,9 +173,9 @@ void drawMapTitle()
 
 		if (shadow)
 		{
-			DrawText(twod, BigFont, CR_UNDEFINED, x+1, y+1, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, alpha / 2., DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+			DrawText(twod, BigFont, CR_UNTRANSLATED, x+1, y+1, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, alpha / 2., DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		}
-		DrawText(twod, BigFont, CR_UNDEFINED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		DrawText(twod, BigFont, CR_UNTRANSLATED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
     }
 }
 

@@ -61,13 +61,13 @@ class ListMenuItemBloodTextItem : ListMenuItemTextItem
 		int pal = 5;
 		let gamefont = generic_ui ? NewSmallFont : BigFont;
 		int xpos = mXpos - gamefont.StringWidth(mText) / 2;
-		int cr = generic_ui? Font.CR_GRAY : Font.CR_UNDEFINED;
+		int cr = generic_ui? Font.CR_GRAY : Font.CR_NATIVEPAL;
 		int trans = generic_ui? 0 : Translation.MakeID(Translation_Remap, pal);
 		
 		if (selected) shade = 32 - ((MSTime() * 120 / 1000) & 63);
 
-		Screen.DrawText(gamefont, Font.CR_UNDEFINED, xpos+1, mYpos+1, mText, DTA_Color, 0xff000000, DTA_FullscreenScale, FSMode_Fit320x200);
-		Screen.DrawText(gamefont, Font.CR_UNDEFINED, xpos, mYpos, mText, DTA_TranslationIndex, trans, DTA_Color, Raze.shadeToLight(shade), DTA_FullscreenScale, FSMode_Fit320x200);
+		Screen.DrawText(gamefont, Font.CR_UNTRANSLATED, xpos+1, mYpos+1, mText, DTA_Color, 0xff000000, DTA_FullscreenScale, FSMode_Fit320x200);
+		Screen.DrawText(gamefont, Font.CR_NATIVEPAL, xpos, mYpos, mText, DTA_TranslationIndex, trans, DTA_Color, Raze.shadeToLight(shade), DTA_FullscreenScale, FSMode_Fit320x200);
 	}
 	
 }

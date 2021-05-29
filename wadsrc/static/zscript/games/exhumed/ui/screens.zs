@@ -471,7 +471,7 @@ class Cinema : SkippableScreenJob
 		cinematile = TexMan.CheckForTexture(bgTexture, TexMan.Type_Any);
 		textov = new("TextOverlay");
 		palette =  Translation.MakeID(Translation_BasePalette, pal);
-		textov.Init(text, Font.CR_UNDEFINED, palette);
+		textov.Init(text, Font.CR_NATIVEPAL, palette);
 		cdtrack = cdtrk;
 		return self;
 	}

@@ -108,7 +108,7 @@ struct Duke native
 			fsmode = FSMode_Fit640x400;
 		}
 		if (align != -1) x -= SmallFont.StringWidth(t) * (align == 0 ? 0.5 : 1);
-		Screen.DrawText(SmallFont, Font.CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, fsmode, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, trans), DTA_Color, Raze.shadeToLight(shade));
+		Screen.DrawText(SmallFont, Font.CR_NATIVEPAL, x, y + 2, t, DTA_FullscreenScale, fsmode, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, trans), DTA_Color, Raze.shadeToLight(shade));
 	}
 }
 

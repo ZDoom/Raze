@@ -100,7 +100,7 @@ struct BloodScreen
 				if (texsize.X - 10 < width) scalex = width / (texsize.X - 10);
 				screen.DrawTexture(texid, false, 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex);
 			}
-			screen.DrawText(font, Font.CR_UNDEFINED, 160 - width / 2, 20 - fonth / 2, title, DTA_FullscreenScale, FSMode_Fit320x200Top);
+			screen.DrawText(font, Font.CR_UNTRANSLATED, 160 - width / 2, 20 - fonth / 2, title, DTA_FullscreenScale, FSMode_Fit320x200Top);
 		}
 		double fx, fy, fw, fh;
 		[fx, fy, fw, fh] = Screen.GetFullscreenRect(320, 200, FSMode_ScaleToFit43Top);
@@ -117,8 +117,8 @@ struct BloodScreen
 	static void DrawText(Font pFont, String pString, int x, int y, int position = 0, int nShade = 0, int nPalette = 0, bool shadow = true, float alpha = 1.)
 	{
 		if (position > 0) x -= pFont.StringWidth(pString) * position / 2;
-		if (shadow) Screen.DrawText(pFont, Font.CR_UNDEFINED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5);
-		Screen.DrawText(pFont, Font.CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, nPalette),
+		if (shadow) Screen.DrawText(pFont, Font.CR_UNTRANSLATED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5);
+		Screen.DrawText(pFont, Font.CR_NATIVEPAL, x, y, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, nPalette),
 				DTA_Color, Raze.shadeToLight(nShade), DTA_Alpha, alpha);
 
 	}

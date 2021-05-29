@@ -428,7 +428,7 @@ void TextOverlay::DisplayText()
         while (i < screentext.Size() && y <= 199)
         {
             if (y >= -10) {
-                DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
+                DrawText(twod, SmallFont, CR_NATIVEPAL, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
             }
 
             i++;
