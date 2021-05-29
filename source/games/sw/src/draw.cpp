@@ -351,10 +351,10 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     }
     else if (!testnewrenderer)
     {
-        int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-        New->x += bcos(camang, -11);
-        New->y += bsin(camang, -11);
-        
+        // Alter the shadow's position so that it appears behind the sprite itself.
+        int look = getangle(New->x - Player[screenpeek].six, New->y - Player[screenpeek].siy);
+        New->x += bcos(look, -9);
+        New->y += bsin(look, -9);
     }
     else New->time = 1;
 
