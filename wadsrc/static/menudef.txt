@@ -1022,7 +1022,8 @@ OptionMenu "VideoOptions" protected
 	Submenu "$OPTMNU_HUD", "HUDOptions"
 	Submenu "$GLMNU_TITLE", "RenderOptions"
 	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
-	Submenu "$GLMNU_POSTPROCESS",				"PostProcessMenu"
+	Submenu "$GLMNU_POSTPROCESS", "PostProcessMenu"
+	Submenu "$GLTEXMNU_TITLE", "GLTextureGLOptions"
 	StaticText ""
 
 	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2
@@ -1089,6 +1090,37 @@ OptionValue "LookupOrder"
 	1, "$OPTVAL_REVERSEFIRST"
 }
 
+OptionValue "HqResizeModes"
+{
+   0, "$OPTVAL_OFF"
+   1, "$OPTVAL_SCALENX"
+   2, "$OPTVAL_HQNX"
+   3, "$OPTVAL_HQNXMMX"
+   4, "$OPTVAL_NXBRZ"
+   5, "$OPTVAL_OLD_NXBRZ"
+   6, "$OPTVAL_NORMALNX"
+}
+
+OptionValue "HqResizeMultipliers"
+{
+   1, "$OPTVAL_OFF"
+   2, "2x"
+   3, "3x"
+   4, "4x"
+   5, "5x"
+   6, "6x"
+}
+
+OptionValue "HqResizeModesNoMMX"
+{
+   0, "$OPTVAL_OFF"
+   1, "$OPTVAL_SCALENX"
+   2, "$OPTVAL_HQNX"
+   4, "$OPTVAL_NXBRZ"
+   5, "$OPTVAL_OLD_NXBRZ"
+   6, "$OPTVAL_NORMALNX"
+}
+
 OptionMenu "PostProcessMenu"
 {
 	Title "$GLMNU_POSTPROCESS"
@@ -1103,8 +1135,6 @@ OptionMenu "PostProcessMenu"
 	Slider "$GLPREFMNU_PALTONEMAPPOWER",		gl_paltonemap_powtable,			0.2, 3.0, 0.1, 1
 	Option "$GLPREFMNU_PALTONEMAPORDER",		gl_paltonemap_reverselookup,	"LookupOrder"
 }
-
-
 
 OptionMenu "AutomapOptions"
 {
@@ -1126,6 +1156,27 @@ OptionMenu "AutomapOptions"
 	//CVAR(Color, am_ovonesidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
 	//CVAR(Color, am_ovplayercolor, 0xaaaaaa, CVAR_ARCHIVE)
 
+}
+
+OptionMenu "GLTextureGLOptions" protected
+{
+	Title "$GLTEXMNU_TITLE"
+	ifOption(MMX)
+	{
+		Option "$GLTEXMNU_HQRESIZE",		gl_texture_hqresizemode,		"HqResizeModes"
+	}
+	else
+	{
+		Option "$GLTEXMNU_HQRESIZE",		gl_texture_hqresizemode,		"HqResizeModesNoMMX"
+	}
+	Option "$GLTEXMNU_HQRESIZEMULT",	gl_texture_hqresizemult,		"HqResizeMultipliers"
+	StaticText "!HQRESIZE_WARNING!"
+
+	Option "$GLTEXMNU_RESIZETEX",		gl_texture_hqresize_textures,	"OnOff"
+	Option "$GLTEXMNU_RESIZESPR",		gl_texture_hqresize_sprites,	"OnOff"
+	Option "$GLTEXMNU_RESIZEFNT",		gl_texture_hqresize_fonts,		"OnOff"
+	Option "$GLTEXMNU_RESIZESKN",		gl_texture_hqresize_skins,		"OnOff"
+	Option "$GLTEXMNU_PRECACHETEX",		gl_precache,					"YesNo"
 }
 //-------------------------------------------------------------------------------------------
 //
