@@ -57,7 +57,7 @@ double gInterpolate;
 
 int gScreenTilt;
 
-FFont *gFont[kFontNum];
+FFont* DigiFont;
 
 void FontSet(int id, int tile, int space)
 {
@@ -77,10 +77,10 @@ void FontSet(int id, int tile, int space)
 	}
 	const char *names[] = { "smallfont", "bigfont", "gothfont", "smallfont2", "digifont"};
 	const char *defs[] = { "defsmallfont", "defbigfont", nullptr, "defsmallfont2", nullptr};
-	FFont ** ptrs[] = { &SmallFont, &BigFont, nullptr, &SmallFont2, nullptr};
-	gFont[id] =	new ::FFont(names[id], nullptr, defs[id], 0, 0, 0, 0, tileWidth(tile), false, false, false, &glyphs);
-	gFont[id]->SetKerning(space);
-	if (ptrs[id]) *ptrs[id] = gFont[id];
+	FFont ** ptrs[] = { &SmallFont, &BigFont, nullptr, &SmallFont2, &DigiFont};
+	auto fnt = new ::FFont(names[id], nullptr, defs[id], 0, 0, 0, 0, tileWidth(tile), false, false, false, &glyphs);
+	fnt->SetKerning(space);
+	if (ptrs[id]) *ptrs[id] = fnt;
 }
 
 void viewBackupView(int nPlayer)
@@ -114,10 +114,9 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
     pView->viewz += pPlayer->pSprite->z-oldpos->z;
 }
 
-void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat, uint8_t alpha)
+void viewDrawText(FFont* pFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow)
 {
-    if (nFont < 0 || nFont >= kFontNum || !pString) return;
-    FFont *pFont = gFont[nFont];
+    if (!pString) return;
 
     //y += pFont->yoff;
 
@@ -130,7 +129,7 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 		DrawText(twod, pFont, CR_UNTRANSLATED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5, TAG_DONE);
 	}
 	DrawText(twod, pFont, CR_NATIVEPAL, x, y, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, nPalette),
-			 DTA_Color, shadeToLight(nShade), DTA_Alpha, alpha / 255., TAG_DONE);
+			 DTA_Color, shadeToLight(nShade), TAG_DONE);
 
 }
 
@@ -153,7 +152,7 @@ void viewDrawAimedPlayerName(void)
             int nPlayer = pSprite->type-kDudePlayer1;
             const char* szName = PlayerName(nPlayer);
             int nPalette = (gPlayer[nPlayer].teamId&3)+11;
-            viewDrawText(4, szName, 160, 125, -128, nPalette, 1, 1);
+            viewDrawText(DigiFont, szName, 160, 125, -128, nPalette, 1, 1);
         }
     }
 }
@@ -789,12 +788,12 @@ void viewDrawScreen(bool sceneonly)
     viewDrawAimedPlayerName();
     if (paused)
     {
-        viewDrawText(1, GStrings("TXTB_PAUSED"), 160, 10, 0, 0, 1, 0);
+        viewDrawText(BigFont, GStrings("TXTB_PAUSED"), 160, 10, 0, 0, 1, 0);
     }
     else if (gView != gMe)
     {
         FStringf gTempStr("] %s [", PlayerName(gView->nPlayer));
-        viewDrawText(0, gTempStr, 160, 10, 0, 0, 1, 0);
+        viewDrawText(SmallFont, gTempStr, 160, 10, 0, 0, 1, 0);
     }
     if (cl_interpolate)
     {
