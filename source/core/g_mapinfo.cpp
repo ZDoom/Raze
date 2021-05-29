@@ -634,6 +634,7 @@ MapFlagHandlers[] =
 	{ "clearinventory",					MITYPE_SETFLAG, LEVEL_CLEARINVENTORY, 0, -1 },
 	{ "clearweapons",					MITYPE_SETFLAG, LEVEL_CLEARWEAPONS, 0, -1 },
 	{ "forcenoeog",						MITYPE_SETFLAG, LEVEL_FORCENOEOG, 0, -1 },
+	{ "wt_bossspawn",					MITYPE_SETFLAG, LEVEL_WT_BOSSSPAWN, 0, -1 },
 	{ "rrra_hulkspawn",					MITYPE_SETFLAGG,LEVEL_RR_HULKSPAWN, 0, GAMEFLAG_RRRA },
 	{ "rr_clearmoonshine",				MITYPE_SETFLAGG,LEVEL_RR_CLEARMOONSHINE, 0, GAMEFLAG_RR },
 	{ "ex_training",					MITYPE_SETFLAGG,LEVEL_EX_TRAINING, 0, GAMEFLAG_PSEXHUMED },

@@ -49,6 +49,46 @@ map { 4, 1 }
 	}
 }
 
+map { 5, 1 }
+{
+	wt_bossspawn
+}
+
+map { 5, 2 }
+{
+	wt_bossspawn
+}
+
+map { 5, 3 }
+{
+	wt_bossspawn
+}
+
+map { 5, 4 }
+{
+	wt_bossspawn
+}
+
+map { 5, 5 }
+{
+	wt_bossspawn
+}
+
+map { 5, 6 }
+{
+	wt_bossspawn
+}
+
+map { 5, 7 }
+{
+	wt_bossspawn
+}
+
+map { 5, 8 }
+{
+	wt_bossspawn
+}
+
 cutscenes
 {
 	intro
