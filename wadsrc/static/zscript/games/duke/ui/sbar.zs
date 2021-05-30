@@ -187,7 +187,12 @@ class DukeCommonStatusBar : RazeStatusBar
 				stats.statfont = SmallFont2;
 				stats.spacing = 6;
 			}
-			else stats.spacing = stats.statfont.GetHeight() + 1;
+			else 
+			{
+				if (Raze.isNamWW2GI()) stats.spacing = 12;
+				else if (!Raze.isRR()) stats.spacing = 11;
+				else stats.spacing = 14;
+			}
 			stats.standardColor = (Raze.isNamWW2GI() && am_textfont)? Font.TEXTCOLOR_ORANGE : Font.TEXTCOLOR_UNTRANSLATED;
 			stats.letterColor = Font.TEXTCOLOR_GOLD;
 			PrintAutomapInfo(stats, textfont);

@@ -44,7 +44,7 @@ LISTMENU "MainMenu"
 	ifgame(ShadowWarrior)
 	{
 		Position 55, 32
-		Linespacing 17
+		Linespacing 21
 		SWLogo
 		SWTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		SWTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"

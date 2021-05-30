@@ -138,7 +138,7 @@ class BloodStatusBar : RazeStatusBar
 		StatsPrintInfo stats;
 
 		stats.fontscale = 1.;
-		stats.spacing = SmallFont.GetHeight() + 1;
+		stats.spacing = SmallFont.GetHeight() + 2;
 		stats.screenbottomspace = bottomy;
 		stats.statfont = SmallFont;
 		stats.letterColor = TEXTCOLOR_DARKRED;

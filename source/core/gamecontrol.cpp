@@ -983,11 +983,13 @@ int RunGame()
 	GameTicRate = 30;
 	CheckUserMap();
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
+	gi->loadPalette();
 	StartScreen->Progress();
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	StartScreen->Progress();
 	TileFiles.Init();
 	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
+
 	InitFont();
 	StartScreen->Progress();
 	I_InitSound();
@@ -1008,8 +1010,6 @@ int RunGame()
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	StartScreen->Progress();
 
-	GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
-	gi->loadPalette();
 	voxInit();
 	engineInit();
 	gi->app_init();
@@ -1023,10 +1023,11 @@ int RunGame()
 	if (!(paletteloaded & PALETTE_MAIN))
 		I_FatalError("No palette found.");
 
-	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
 	lookups.postLoadTables();
 	PostLoadSetup();
 	lookups.postLoadLookups();
+	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
+
 	FMaterial::SetLayerCallback(setpalettelayer);
 	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
 	DeleteStartupScreen();

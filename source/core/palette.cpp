@@ -303,6 +303,7 @@ void LookupTableInfo::postLoadLookups()
     }
     colorswap(&GPalette.GlobalBrightmap);
     std::swap(GPalette.BaseColors[0], GPalette.BaseColors[255]);
+    GPalette.Remap[0] = 255;
 }
 
 //==========================================================================
