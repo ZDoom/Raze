@@ -33,6 +33,8 @@
 */  
 
 #include "razefont.h"
+#include "gamecontrol.h"
+#include "c_cvars.h"
 #include "i_interface.h"
 
 FGameTexture* GetBaseForChar(FGameTexture* t);
@@ -41,6 +43,20 @@ void FontCharCreated(FGameTexture* base, FGameTexture* glyph);
 
 FFont* IndexFont;
 FFont* DigiFont;
+FFont* BigFont13, * BigFont15;
+
+CUSTOM_CVAR(Int, duke_menufont, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL)
+{
+	if (!(g_gameType & GAMEFLAG_DUKE) || !BigFont13 || !BigFont15) return;
+	if (self < -1 || self > 1) self = -1;
+	else
+	{
+		// Font info must be copied so that BigFont does not change its address.
+		if (self == 0 || (self == -1 && isPlutoPak())) BigFont->CopyFrom(*BigFont15);
+		else if (self == 1 || (self == -1 && !isPlutoPak())) BigFont->CopyFrom(*BigFont13);
+	}
+}
+
 
 static void SetupHires(FFont *font)
 {
@@ -78,6 +94,12 @@ void InitFont()
 	SetupHires(BigFont);
 	SetupHires(SmallFont);
 
+	if (g_gameType & GAMEFLAG_DUKE)
+	{
+		BigFont13 = V_GetFont("BigFont13");
+		BigFont15 = V_GetFont("BigFont15");
+		BigFont = new FFont(0, "BigFont");
+	}
+
 	// todo: Compare small and big fonts with the base font and decide which one to use.
-	// todo: Allow Duke to select between both variants.
 }

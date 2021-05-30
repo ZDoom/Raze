@@ -103,13 +103,6 @@ FFont *V_GetFont(const char *name, const char *fontlumpname)
 			if (font) return font;
 		}
 
-		// This is only temporary until virtual fonts get implemented
-		if (!stricmp(name, "BIGFONT"))
-		{
-			font = V_GetFont("BIGFONT15");
-			if (font) return font;
-		}
-
 		int lump = -1;
 		int folderfile = -1;
 		

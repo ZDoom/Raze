@@ -1007,10 +1007,10 @@ void FFont::LoadTranslations()
 //
 //==========================================================================
 
-FFont::FFont (int lump)
+FFont::FFont (int lump, FName nm)
 {
 	Lump = lump;
-	FontName = NAME_None;
+	FontName = nm;
 	Cursor = '_';
 	noTranslate = false;
 }

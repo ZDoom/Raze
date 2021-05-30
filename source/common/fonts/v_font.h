@@ -99,6 +99,7 @@ public:
 	};
 
 	FFont (const char *fontname, const char *nametemplate, const char *filetemplate, int first, int count, int base, int fdlump, int spacewidth=-1, bool notranslate = false, bool iwadonly = false, bool doomtemplate = false, GlyphSet *baseGlpyphs = nullptr);
+	FFont(int lump, FName nm = NAME_None);
 	virtual ~FFont ();
 
 	virtual FGameTexture *GetChar (int code, int translation, int *const width) const;
@@ -141,6 +142,7 @@ public:
 	bool NoTranslate() const { return noTranslate; }
 	virtual void RecordAllTextureColors(uint32_t *usedcolors);
 	void CheckCase();
+	void SetName(FName nm) { FontName = nm; }
 
 	int GetDisplacement() const { return Displacement; }
 
@@ -149,8 +151,26 @@ public:
 
 	friend void V_InitCustomFonts();
 
+	void CopyFrom(const FFont& other)
+	{
+		Type = other.Type;
+		FirstChar = other.FirstChar;
+		LastChar = other.LastChar;
+		SpaceWidth = other.SpaceWidth;
+		FontHeight = other.FontHeight;
+		GlobalKerning = other.GlobalKerning;
+		TranslationType = other.TranslationType;
+		Displacement = other.Displacement;
+		Cursor = other.Cursor;
+		noTranslate = other.noTranslate;
+		MixedCase = other.MixedCase;
+		forceremap = other.forceremap;
+		Chars = other.Chars;
+		Translations = other.Translations;
+		Lump = other.Lump;
+	}
+
 protected:
-	FFont (int lump);
 
 	void FixXMoves();
 

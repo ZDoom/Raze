@@ -1026,6 +1026,7 @@ int RunGame()
 	lookups.postLoadTables();
 	PostLoadSetup();
 	lookups.postLoadLookups();
+	duke_menufont.Callback();
 	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
 
 	FMaterial::SetLayerCallback(setpalettelayer);
