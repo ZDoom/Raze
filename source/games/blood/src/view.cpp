@@ -59,11 +59,8 @@ int gScreenTilt;
 
 FFont* DigiFont;
 
-void FontSet(int id, int tile, int space)
+FFont* FontSet(const char* name, int tile, int space)
 {
-	if (id < 0 || id >= kFontNum || tile < 0 || tile >= kMaxTiles)
-		return;
-
 	GlyphSet glyphs;
 	for (int i = 1; i < 96; i++)
 	{
@@ -75,12 +72,14 @@ void FontSet(int id, int tile, int space)
 		}
 
 	}
-	const char *names[] = { "smallfont", "bigfont", "gothfont", "smallfont2", "digifont"};
-	const char *defs[] = { "defsmallfont", "defbigfont", nullptr, "defsmallfont2", nullptr};
-	FFont ** ptrs[] = { &SmallFont, &BigFont, nullptr, &SmallFont2, &DigiFont};
-	auto fnt = new ::FFont(names[id], nullptr, defs[id], 0, 0, 0, 0, tileWidth(tile), false, false, false, &glyphs);
-	fnt->SetKerning(space);
-	if (ptrs[id]) *ptrs[id] = fnt;
+    auto fnt = V_GetFont(name);
+    if (!fnt)
+    {
+        fnt = new ::FFont(name, nullptr, nullptr, 0, 0, 0, 0, tileWidth(tile), false, false, false, &glyphs);
+        fnt->SetKerning(space);
+        
+    }
+    return fnt;
 }
 
 void viewBackupView(int nPlayer)
@@ -165,11 +164,16 @@ extern int dword_172CE0[16][3];
 void viewInit(void)
 {
     Printf("Initializing status bar\n");
-    FontSet(0, 4096, 0);
-    FontSet(1, 4192, 1);
-    FontSet(2, 4288, 1);
-    FontSet(3, 4384, 1);
-    FontSet(4, 4480, 0);
+
+    FontSet("tilesmallfont", 4096, 0);
+    FontSet("tilebigfont", 4192, 1);
+    FontSet("gothfont", 4288, 1);
+    SmallFont2 = FontSet("smallfont2", 4384, 1);
+    DigiFont = FontSet("digifont", 4480, 0);
+
+    BigFont = V_GetFont("BIGFONT");
+    SmallFont = V_GetFont("SMALLFONT");
+
 
     lensdata = fileSystem.LoadFile("lens.dat");
     assert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));

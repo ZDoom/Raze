@@ -227,7 +227,6 @@ void FSingleLumpFont::LoadFON1 (int lump, const uint8_t *data)
 	FirstChar = 0;
 	LastChar = 255;	// This is to allow LoadTranslations to function. The way this is all set up really needs to be changed.
 	GlobalKerning = 0;
-	translateUntranslated = true;
 	LastChar = 0x2122;
 
 	// Move the Windows-1252 characters to their proper place.

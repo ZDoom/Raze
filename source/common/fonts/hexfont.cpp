@@ -292,8 +292,7 @@ public:
 		FontHeight = 16;
 		SpaceWidth = 9;
 		GlobalKerning = 0;
-		translateUntranslated = true;
-
+		
 		Chars.Resize(LastChar - FirstChar + 1);
 		for (int i = FirstChar; i <= LastChar; i++)
 		{
@@ -360,7 +359,6 @@ public:
 		FontHeight = 18;
 		SpaceWidth = 9;
 		GlobalKerning = -1;
-		translateUntranslated = true;
 		Chars.Resize(LastChar - FirstChar + 1);
 		for (int i = FirstChar; i <= LastChar; i++)
 		{

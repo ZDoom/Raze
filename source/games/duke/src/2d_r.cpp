@@ -55,72 +55,93 @@ void InitFonts_r()
 {
 	GlyphSet fontdata;
 
-	// Small font
-	for (int i = 0; i < 95; i++)
+	if (!V_GetFont("TileSmallFont"))
 	{
-		auto tile = tileGetTexture(STARTALPHANUM + i);
-		if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+		// Small font
+		for (int i = 0; i < 95; i++)
 		{
-			fontdata.Insert('!' + i, tile);
-			tile->SetOffsetsNotForFont();
+			auto tile = tileGetTexture(STARTALPHANUM + i);
+			if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+			{
+				fontdata.Insert('!' + i, tile);
+				tile->SetOffsetsNotForFont();
+			}
 		}
+		auto SmallFont = new ::FFont("TileSmallFont", nullptr, nullptr, 0, 0, 0, -1, 10, false, false, false, &fontdata);
+		SmallFont->SetKerning(2);
+		fontdata.Clear();
 	}
-	SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
-	SmallFont->SetKerning(2);
-	fontdata.Clear();
 
 	// Big font
 
-	// This font is VERY messy...
-	fontdata.Insert('_', tileGetTexture(BIGALPHANUM - 11));
-	fontdata.Insert('-', tileGetTexture(BIGALPHANUM - 11));
-	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(BIGALPHANUM - 10 + i));
-	for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, tileGetTexture(BIGALPHANUM + i));
-	fontdata.Insert('.', tileGetTexture(BIGPERIOD));
-	fontdata.Insert(',', tileGetTexture(BIGCOMMA));
-	fontdata.Insert('!', tileGetTexture(BIGX));
-	fontdata.Insert('?', tileGetTexture(BIGQ));
-	fontdata.Insert(';', tileGetTexture(BIGSEMI));
-	fontdata.Insert(':', tileGetTexture(BIGCOLIN));
-	fontdata.Insert('\\', tileGetTexture(BIGALPHANUM + 68));
-	fontdata.Insert('/', tileGetTexture(BIGALPHANUM + 68));
-	fontdata.Insert('%', tileGetTexture(BIGALPHANUM + 69));
-	fontdata.Insert('`', tileGetTexture(BIGAPPOS));
-	fontdata.Insert('"', tileGetTexture(BIGAPPOS));
-	fontdata.Insert('\'', tileGetTexture(BIGAPPOS));
-	GlyphSet::Iterator it(fontdata);
-	GlyphSet::Pair* pair;
-	while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
-	BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
-	BigFont->SetKerning(6);
-	fontdata.Clear();
-
-	// Tiny font
-	for (int i = 0; i < 95; i++)
+	if (!V_GetFont("TileBigFont"))
 	{
-		auto tile = tileGetTexture(MINIFONT + i);
-		if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-			fontdata.Insert('!' + i, tile);
+		// This font is VERY messy...
+		fontdata.Insert('_', tileGetTexture(BIGALPHANUM - 11));
+		fontdata.Insert('-', tileGetTexture(BIGALPHANUM - 11));
+		for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(BIGALPHANUM - 10 + i));
+		for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, tileGetTexture(BIGALPHANUM + i));
+		fontdata.Insert('.', tileGetTexture(BIGPERIOD));
+		fontdata.Insert(',', tileGetTexture(BIGCOMMA));
+		fontdata.Insert('!', tileGetTexture(BIGX));
+		fontdata.Insert('?', tileGetTexture(BIGQ));
+		fontdata.Insert(';', tileGetTexture(BIGSEMI));
+		fontdata.Insert(':', tileGetTexture(BIGCOLIN));
+		fontdata.Insert('\\', tileGetTexture(BIGALPHANUM + 68));
+		fontdata.Insert('/', tileGetTexture(BIGALPHANUM + 68));
+		fontdata.Insert('%', tileGetTexture(BIGALPHANUM + 69));
+		fontdata.Insert('`', tileGetTexture(BIGAPPOS));
+		fontdata.Insert('"', tileGetTexture(BIGAPPOS));
+		fontdata.Insert('\'', tileGetTexture(BIGAPPOS));
+		GlyphSet::Iterator it(fontdata);
+		GlyphSet::Pair* pair;
+		while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
+		auto BigFont = new ::FFont("TileBigFont", nullptr, nullptr, 0, 0, 0, -1, 10, false, false, false, &fontdata);
+		BigFont->SetKerning(6);
+		fontdata.Clear();
 	}
-	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-	SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 6, false, false, false, &fontdata);
-	SmallFont2->SetKerning(2);
-	fontdata.Clear();
 
-	// SBAR index font
-	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE + i));
-	fontdata.Insert(':', tileGetTexture(THREEBYFIVE + 10));
-	fontdata.Insert('/', tileGetTexture(THREEBYFIVE + 11));
-	fontdata.Insert('%', tileGetTexture(MINIFONT + '%' - '!'));
-	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-	IndexFont = new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+	SmallFont2 = V_GetFont("SmallFont2");
+	if (!SmallFont2)
+	{
+		// Tiny font
+		for (int i = 0; i < 95; i++)
+		{
+			auto tile = tileGetTexture(MINIFONT + i);
+			if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+				fontdata.Insert('!' + i, tile);
+		}
+		fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+		SmallFont2 = new ::FFont("SmallFont2", nullptr, nullptr, 0, 0, 0, -1, 6, false, false, false, &fontdata);
+		SmallFont2->SetKerning(2);
+		fontdata.Clear();
+	}
 
-	fontdata.Clear();
+	IndexFont = V_GetFont("IndexFont");
+	if (!IndexFont)
+	{
+		// SBAR index font
+		for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE + i));
+		fontdata.Insert(':', tileGetTexture(THREEBYFIVE + 10));
+		fontdata.Insert('/', tileGetTexture(THREEBYFIVE + 11));
+		fontdata.Insert('%', tileGetTexture(MINIFONT + '%' - '!'));
+		fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+		IndexFont = new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
 
-	// digital font
-	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(DIGITALNUM + i));
-	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-	DigiFont = new ::FFont("DigiFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+		fontdata.Clear();
+	}
+
+	DigiFont = V_GetFont("DigiFont");
+	if (!DigiFont)
+	{
+		// digital font
+		for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(DIGITALNUM + i));
+		fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+		DigiFont = new ::FFont("DigiFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+	}
+
+	BigFont = V_GetFont("BIGFONT");
+	SmallFont = V_GetFont("SMALLFONT");
 
 }
 

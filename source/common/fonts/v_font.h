@@ -127,6 +127,7 @@ public:
 	char GetCursor() const { return Cursor; }
 	void SetCursor(char c) { Cursor = c; }
 	void SetKerning(int c) { GlobalKerning = c; }
+	void SetHeight(int c) { FontHeight = c; }
 	bool NoTranslate() const { return noTranslate; }
 	virtual void RecordAllTextureColors(uint32_t *usedcolors);
 	void CheckCase();
@@ -145,16 +146,16 @@ protected:
 	void ReadSheetFont(TArray<FolderEntry> &folderdata, int width, int height, const DVector2 &Scale);
 
 	EFontType Type = EFontType::Unknown;
+	FName AltFontName = NAME_None;
 	int FirstChar, LastChar;
 	int SpaceWidth;
 	int FontHeight;
-	int AsciiHeight = 0;
 	int GlobalKerning;
 	int TranslationType = 0;
 	int Displacement = 0;
+	int16_t MinLum = -1, MaxLum = -1;
 	char Cursor;
 	bool noTranslate = false;
-	bool translateUntranslated;
 	bool MixedCase = false;
 	bool forceremap = false;
 	struct CharData
@@ -164,7 +165,6 @@ protected:
 	};
 	TArray<CharData> Chars;
 	TArray<int> Translations;
-	uint8_t PatchRemap[256];
 
 	int Lump;
 	FName FontName = NAME_None;

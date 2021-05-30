@@ -85,9 +85,6 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 	Cursor = '_';
 	SpaceWidth = 0;
 	FontHeight = 0;
-	uint8_t pp = 0;
-	for (auto &p : PatchRemap) p = pp++;
-	translateUntranslated = false;
 	int FixedWidth = 0;
 
 	TMap<int, FGameTexture*> charMap;
@@ -126,6 +123,11 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 						sc.MustGetValue(false);
 						GlobalKerning = sc.Number;
 					}
+					if (sc.Compare("Altfont"))
+					{
+						sc.MustGetString();
+						AltFontName = sc.String;
+					}
 					else if (sc.Compare("Scale"))
 					{
 						sc.MustGetValue(true);
@@ -153,6 +155,16 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 						sc.MustGetToken(',');
 						sc.MustGetValue(false);
 						FontHeight = sc.Number;
+					}
+					else if (sc.Compare("minluminosity"))
+					{
+						sc.MustGetValue(false);
+						MinLum = (int16_t)clamp(sc.Number, 0, 255);
+					}
+					else if (sc.Compare("maxluminosity"))
+					{
+						sc.MustGetValue(false);
+						MaxLum = (int16_t)clamp(sc.Number, 0, 255);
 					}
 					else if (sc.Compare("Translationtype"))
 					{
@@ -302,7 +314,6 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 		auto count = maxchar - minchar + 1;
 		Chars.Resize(count);
 		int fontheight = 0;
-		int asciiheight = 0;
 
 		for (i = 0; i < count; i++)
 		{
@@ -319,10 +330,6 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 					if (height > fontheight)
 					{
 						fontheight = height;
-					}
-					if (height > asciiheight && FirstChar + 1 < 128)
-					{
-						asciiheight = height;
 					}
 				}
 
@@ -359,7 +366,6 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 			}
 		}
 		if (FontHeight == 0) FontHeight = fontheight;
-		if (AsciiHeight == 0) AsciiHeight = asciiheight;
 
 		FixXMoves();
 	}
@@ -1005,8 +1011,6 @@ FFont::FFont (int lump)
 	FontName = NAME_None;
 	Cursor = '_';
 	noTranslate = false;
-	uint8_t pp = 0;
-	for (auto &p : PatchRemap) p = pp++;
 }
 
 //==========================================================================
