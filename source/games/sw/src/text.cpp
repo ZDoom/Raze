@@ -39,89 +39,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-//==========================================================================
-//
-// Sets up the game fonts.
-//
-//==========================================================================
-
-void InitFonts()
-{
-    GlyphSet fontdata;
-
-    if (!V_GetFont("TileSmallFont"))
-    {
-        // Small font
-        for (int i = 0; i < 95; i++)
-        {
-            auto tile = tileGetTexture(STARTALPHANUM + i);
-            if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-            {
-                fontdata.Insert('!' + i, tile);
-                tile->SetOffsetsNotForFont();
-            }
-        }
-        new ::FFont("TileSmallFont", nullptr, nullptr, 0, 0, 0, -1, 4, false, false, false, &fontdata);
-        fontdata.Clear();
-    }
-
-    SmallFont2 = V_GetFont("SmallFont2");
-    if (!SmallFont2)
-    {
-
-        // Tiny font
-        for (int i = 0; i < 95; i++)
-        {
-            auto tile = tileGetTexture(2930 + i);
-            if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-            {
-                fontdata.Insert('!' + i, tile);
-                tile->SetOffsetsNotForFont();
-            }
-        }
-        SmallFont2 = new ::FFont("SmallFont2", nullptr, nullptr, 0, 0, 0, -1, 4, false, false, false, &fontdata);
-        fontdata.Clear();
-    }
-
-    if (!V_GetFont("TileBigFont"))
-    {
-
-        const int FONT_LARGE_ALPHA = 3706;
-        const int FONT_LARGE_DIGIT = 3732;
-
-        // Big 
-        for (int i = 0; i < 10; i++)
-        {
-            auto tile = tileGetTexture(FONT_LARGE_DIGIT + i);
-            if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-            {
-                fontdata.Insert('0' + i, tile);
-                tile->SetOffsetsNotForFont();
-            }
-        }
-        for (int i = 0; i < 26; i++)
-        {
-            auto tile = tileGetTexture(FONT_LARGE_ALPHA + i);
-            if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-            {
-                fontdata.Insert('A' + i, tile);
-                tile->SetOffsetsNotForFont();
-            }
-        }
-
-        auto BigFont = new ::FFont("TileBigFont", nullptr, nullptr, 0, 0, 0, -1, 10, false, false, false, &fontdata);
-        BigFont->SetKerning(1);
-    }
-
-    BigFont = V_GetFont("BIGFONT");
-    SmallFont = V_GetFont("SMALLFONT");
-
-}
-
 //---------------------------------------------------------------------------
 //
-// Notification messages. Native SW-style display should later be
-// provided by the backend.
+// Notification messages.
 //
 //---------------------------------------------------------------------------
 

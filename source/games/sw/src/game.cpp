@@ -229,7 +229,6 @@ void GameInterface::app_init()
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
     LoadDefinitions();
-    InitFonts();
     SetTileNames();
     TileFiles.SetBackup();
     userConfig.AddDefs.reset();

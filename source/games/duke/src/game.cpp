@@ -325,7 +325,6 @@ void GameInterface::app_init()
 	screenpeek = myconnectindex;
 
 	LoadDefinitions();
-	fi.InitFonts();
 	SetTileNames();
 	TileFiles.SetBackup();
 	C_InitConback(TexMan.CheckForTexture("MENUSCREEN", ETextureType::Any), false, 0.75);

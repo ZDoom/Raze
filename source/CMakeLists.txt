@@ -759,8 +759,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/weapon.cpp
 	
 	# Duke
-	games/duke/src/2d_d.cpp
-	games/duke/src/2d_r.cpp
 	games/duke/src/actors.cpp
 	games/duke/src/actors_d.cpp
 	games/duke/src/actors_lava.cpp
@@ -1025,6 +1023,7 @@ set (PCH_SOURCES
 	core/quotes.cpp
 	core/screenshot.cpp
 	core/sectorgeometry.cpp
+	core/razefont.cpp
 	core/raze_music.cpp
 	core/raze_sound.cpp
 	core/palette.cpp

@@ -64,21 +64,18 @@ struct HightileReplacement
 static TMap<int, TArray<HightileReplacement>> tileReplacements;
 static TMap<int, TArray<HightileReplacement>> textureReplacements;
 
-struct FontCharInf
-{
-	FGameTexture* base;
-	FGameTexture* untranslated;
-	FGameTexture* translated;
-};
+static TMap<FGameTexture*, FGameTexture*> deferredChars;
 
-static TArray<FontCharInf> deferredChars;
-
-void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated)
+FGameTexture* GetBaseForChar(FGameTexture* t)
 {
-	// Store these in a list for now - they can only be processed in the finalization step.
-	if (translated == untranslated) translated = nullptr;
-	FontCharInf fci = { base, untranslated, translated };
-	deferredChars.Push(fci);
+	auto c = deferredChars.CheckKey(t);
+	if (c) return *c;
+	return t;
+}
+
+void FontCharCreated(FGameTexture* base, FGameTexture* glyph)
+{
+	deferredChars.Insert(glyph, base);
 }
 
 
@@ -215,28 +212,16 @@ void PostLoadSetup()
 	tileReplacements.Clear();
 
 	int i = 0;
-	for (auto& ci : deferredChars)
+	decltype(deferredChars)::Iterator it(deferredChars);
+	decltype(deferredChars)::Pair* pair;
+	while (it.NextPair(pair))
 	{
 		i++;
-		auto rep = textureReplacements.CheckKey(ci.base->GetID().GetIndex());
+		auto rep = textureReplacements.CheckKey(pair->Value->GetID().GetIndex());
 		if (rep)
 		{
-			if (ci.untranslated)
-			{
-				auto rrep = *rep;
-				textureReplacements.Insert(ci.untranslated->GetID().GetIndex(), std::move(rrep));
-			}
-
-			if (ci.translated)
-			{
-				//auto reptex = FindReplacement(ci.base->GetID(), 0, false);
-				//if (reptex)
-				{
-					// Todo: apply the translation.
-					//auto rrep = *rep;
-					//textureReplacements.Insert(ci.translated->GetID().GetIndex(), std::move(rrep));
-				}
-			}
+			auto chk = textureReplacements.CheckKey(pair->Key->GetID().GetIndex());
+			if (!chk) textureReplacements.Insert(pair->Key->GetID().GetIndex(), *rep);
 		}
 	}
 }

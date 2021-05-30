@@ -40,6 +40,9 @@
 
 class FGameTexture;
 struct FRemapTable;
+class FFont;
+
+FFont* V_GetFont(const char* fontname, const char* fontlumpname = nullptr);
 
 enum EColorRange : int
 {
@@ -123,11 +126,18 @@ public:
 	inline bool CanPrint(const char *str) const { return CanPrint((const uint8_t *)str); }
 	inline bool CanPrint(const FString &str) const { return CanPrint((const uint8_t *)str.GetChars()); }
 
+	inline FFont* AltFont()
+	{
+		if (AltFontName != NAME_None) return V_GetFont(AltFontName.GetChars());
+		return nullptr;
+	}
+
 	int GetCharCode(int code, bool needpic) const;
 	char GetCursor() const { return Cursor; }
 	void SetCursor(char c) { Cursor = c; }
 	void SetKerning(int c) { GlobalKerning = c; }
 	void SetHeight(int c) { FontHeight = c; }
+	void ClearOffsets();
 	bool NoTranslate() const { return noTranslate; }
 	virtual void RecordAllTextureColors(uint32_t *usedcolors);
 	void CheckCase();
@@ -137,6 +147,7 @@ public:
 	static int GetLuminosity(uint32_t* colorsused, TArray<double>& Luminosity, int* minlum = nullptr, int* maxlum = nullptr);
 	EFontType GetType() const { return Type; }
 
+	friend void V_InitCustomFonts();
 
 protected:
 	FFont (int lump);
@@ -185,7 +196,6 @@ void V_ClearFonts();
 EColorRange V_FindFontColor (FName name);
 PalEntry V_LogColorFromColorRange (EColorRange range);
 EColorRange V_ParseFontColor (const uint8_t *&color_value, int normalcolor, int boldcolor);
-FFont *V_GetFont(const char *fontname, const char *fontlumpname = nullptr);
 void V_InitFontColors();
 char* CleanseString(char* str);
 void V_ApplyLuminosityTranslation(int translation, uint8_t* pixel, int size);

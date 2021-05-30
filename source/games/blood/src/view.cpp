@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_draw.h"
 #include "precache.h"
 #include "render.h"
+#include "razefont.h"
 
 
 EXTERN_CVAR(Bool, testnewrenderer)
@@ -56,31 +57,6 @@ int gViewIndex;
 double gInterpolate;
 
 int gScreenTilt;
-
-FFont* DigiFont;
-
-FFont* FontSet(const char* name, int tile, int space)
-{
-	GlyphSet glyphs;
-	for (int i = 1; i < 96; i++)
-	{
-		auto tex = tileGetTexture(tile + i);
-		if (tex && tex->isValid() && tex->GetTexelWidth() > 0 && tex->GetTexelHeight() > 0)
-		{
-			glyphs.Insert(i + 32, tex);
-			tex->SetOffsetsNotForFont();
-		}
-
-	}
-    auto fnt = V_GetFont(name);
-    if (!fnt)
-    {
-        fnt = new ::FFont(name, nullptr, nullptr, 0, 0, 0, 0, tileWidth(tile), false, false, false, &glyphs);
-        fnt->SetKerning(space);
-        
-    }
-    return fnt;
-}
 
 void viewBackupView(int nPlayer)
 {
@@ -164,16 +140,6 @@ extern int dword_172CE0[16][3];
 void viewInit(void)
 {
     Printf("Initializing status bar\n");
-
-    FontSet("tilesmallfont", 4096, 0);
-    FontSet("tilebigfont", 4192, 1);
-    FontSet("gothfont", 4288, 1);
-    SmallFont2 = FontSet("smallfont2", 4384, 1);
-    DigiFont = FontSet("digifont", 4480, 0);
-
-    BigFont = V_GetFont("BIGFONT");
-    SmallFont = V_GetFont("SMALLFONT");
-
 
     lensdata = fileSystem.LoadFile("lens.dat");
     assert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));

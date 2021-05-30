@@ -47,9 +47,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 BEGIN_DUKE_NS
 
 
-FFont* IndexFont;
-FFont* DigiFont;
-
 //---------------------------------------------------------------------------
 //
 // debug output

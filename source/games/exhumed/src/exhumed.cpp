@@ -57,7 +57,6 @@ static MapRecord* NextMap;
 
 void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
-void InitFonts();
 void InitCheats();
 
 int EndLevel = 0;
@@ -497,7 +496,6 @@ void GameInterface::app_init()
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
     LoadDefinitions();
-    InitFonts();
     SetTileNames();
 
     TileFiles.SetBackup();

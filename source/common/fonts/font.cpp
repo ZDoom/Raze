@@ -339,7 +339,7 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 				TexMan.AddGameTexture(tex);
 				Chars[i].OriginalPic = tex;
 
-				if (sysCallbacks.FontCharCreated) sysCallbacks.FontCharCreated(pic, Chars[i].OriginalPic, Chars[i].OriginalPic);
+				if (sysCallbacks.FontCharCreated) sysCallbacks.FontCharCreated(pic, Chars[i].OriginalPic);
 
 				Chars[i].XMove = (int)Chars[i].OriginalPic->GetDisplayWidth();
 			}
@@ -987,6 +987,8 @@ void FFont::LoadTranslations()
 
 	int minlum = 0, maxlum = 0;
 	GetLuminosity (usedcolors, Luminosity, &minlum, &maxlum);
+	if (MinLum >= 0 && MinLum < minlum) minlum = MinLum;
+	if (MaxLum > maxlum) maxlum = MaxLum;
 
 	// Here we can set everything to a luminosity translation.
 
@@ -1074,3 +1076,7 @@ void FFont::FixXMoves()
 }
 
 
+void FFont::ClearOffsets()
+{
+	for (auto& c : Chars) if (c.OriginalPic) c.OriginalPic->SetOffsets(0, 0);
+}

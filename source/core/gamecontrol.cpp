@@ -77,6 +77,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamefuncs.h"
 #include "hw_voxels.h"
 #include "hw_palmanager.h"
+#include "razefont.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -140,7 +141,7 @@ void MainLoop();
 void SetConsoleNotifyBuffer();
 bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
 void PostLoadSetup();
-void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated);
+void FontCharCreated(FGameTexture* base, FGameTexture* untranslated);
 void LoadVoxelModels();
 
 DStatusBarCore* StatusBar;
@@ -984,9 +985,10 @@ int RunGame()
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	StartScreen->Progress();
 	TexMan.Init([]() {}, [](BuildInfo &) {});
-	V_InitFonts();
 	StartScreen->Progress();
 	TileFiles.Init();
+	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
+	InitFont();
 	StartScreen->Progress();
 	I_InitSound();
 	StartScreen->Progress();
@@ -1009,7 +1011,6 @@ int RunGame()
 	GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
 	gi->loadPalette();
 	voxInit();
-	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
 	engineInit();
 	gi->app_init();
 	StartScreen->Progress();

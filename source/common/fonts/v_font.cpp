@@ -106,7 +106,7 @@ FFont *V_GetFont(const char *name, const char *fontlumpname)
 		// This is only temporary until virtual fonts get implemented
 		if (!stricmp(name, "BIGFONT"))
 		{
-			font = FFont::FindFont("BIGFONT15");
+			font = V_GetFont("BIGFONT15");
 			if (font) return font;
 		}
 
@@ -184,9 +184,11 @@ void V_InitCustomFonts()
 	int start;
 	int first;
 	int count;
-	int spacewidth;
+	int spacewidth = -1;
 	int kerning;
 	char cursor = '_';
+	bool ignoreoffsets = false;
+	int MinLum = -1, MaxLum = -1;
 
 	while ((llump = fileSystem.FindLump ("FONTDEFS", &lastlump)) != -1)
 	{
@@ -243,10 +245,8 @@ void V_InitCustomFonts()
 				}
 				else if (sc.Compare ("SPACEWIDTH"))
 				{
-					if (format == 2) goto wrong;
 					sc.MustGetNumber();
 					spacewidth = sc.Number;
-					format = 1;
 				}
 				else if (sc.Compare("DONTTRANSLATE"))
 				{
@@ -267,9 +267,26 @@ void V_InitCustomFonts()
 					sc.MustGetNumber();
 					kerning = sc.Number;
 				}
+				else if (sc.Compare("ignoreoffsets"))
+				{
+					ignoreoffsets = true;
+				}
+				else if (sc.Compare("minluminosity"))
+				{
+					sc.MustGetValue(false);
+					MinLum = (int16_t)clamp(sc.Number, 0, 255);
+				}
+				else if (sc.Compare("maxluminosity"))
+				{
+					sc.MustGetValue(false);
+					MaxLum = (int16_t)clamp(sc.Number, 0, 255);
+				}
 				else
 				{
 					if (format == 1) goto wrong;
+					// The braces must be filtered so because they'd be treated as block terminators otherwise.
+					if (!strcmp(sc.String, "-{")) strcpy(sc.String, "{");
+					if (!strcmp(sc.String, "-}")) strcpy(sc.String, "}");
 					FGameTexture **p = &lumplist[*(unsigned char*)sc.String];
 					sc.MustGetString();
 					FTextureID texid = TexMan.CheckForTexture(sc.String, ETextureType::MiscPatch);
@@ -290,6 +307,7 @@ void V_InitCustomFonts()
 				FFont *fnt = new FFont (namebuffer, templatebuf, nullptr, first, count, start, llump, spacewidth, donttranslate);
 				fnt->SetCursor(cursor);
 				fnt->SetKerning(kerning);
+				if (ignoreoffsets) fnt->ClearOffsets();
 			}
 			else if (format == 2)
 			{
@@ -315,6 +333,10 @@ void V_InitCustomFonts()
 					FFont *fnt = CreateSpecialFont (namebuffer, first, count, &lumplist[first], notranslate, llump, donttranslate);
 					fnt->SetCursor(cursor);
 					fnt->SetKerning(kerning);
+					if (spacewidth >= 0) fnt->SpaceWidth = spacewidth;
+					fnt->MinLum = MinLum;
+					fnt->MaxLum = MaxLum;
+					if (ignoreoffsets) fnt->ClearOffsets();
 				}
 			}
 			else goto wrong;
@@ -324,7 +346,7 @@ void V_InitCustomFonts()
 	return;
 
 wrong:
-	sc.ScriptError ("Invalid combination of properties in font '%s'", namebuffer.GetChars());
+	sc.ScriptError ("Invalid combination of properties in font '%s', %s not allowed", namebuffer.GetChars(), sc.String);
 }
 
 //==========================================================================
@@ -943,3 +965,28 @@ char* CleanseString(char* str)
 	return str;
 }
 
+
+#include "c_dispatch.h"
+FGameTexture* GetBaseForChar(FGameTexture* t);
+CCMD(dumpfonts)
+{
+	for (auto c : { "tilesmallfont", "tilebigfont", "smallfont2", "digifont", "indexfont" })
+	{
+		auto f = V_GetFont(c);
+		if (f)
+		{
+			Printf("%s\n{\n", c);
+			for (int i = 33; i < 127; i++)
+			{
+				auto ch = f->GetChar(i, CR_UNDEFINED, nullptr);
+				if (ch)
+				{
+					ch = GetBaseForChar(ch);
+					if (i == 34) Printf("\t\"\\\""); else Printf("\t%c", i);
+					Printf(" %s\n", ch->GetName().GetChars());
+				}
+			}
+			Printf("}\n\n");
+		}
+	}
+}

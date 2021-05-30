@@ -2207,7 +2207,6 @@ extern short LastSaveNum;
 void LoadSaveMsg(const char *msg);
 
 void UpdateStatusBar();
-void InitFonts();
 int32_t registerosdcommands(void);
 void SW_InitMultiPsky(void);
 
