@@ -2229,7 +2229,7 @@ extern short Bunny_Count;
 #define ANIM_SUMO 2
 #define ANIM_ZILLA 3
 
-struct GameInterface : ::GameInterface
+struct GameInterface : public ::GameInterface
 {
     const char* Name() override { return "ShadowWarrior"; }
     void app_init() override;
@@ -2270,6 +2270,7 @@ struct GameInterface : ::GameInterface
     void EnterPortal(spritetype* viewer, int type) override;
     void LeavePortal(spritetype* viewer, int type) override;
     int Voxelize(int sprnum);
+    void ExitFromMenu() override;
 
 
     GameStats getStats() override;

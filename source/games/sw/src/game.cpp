@@ -44,6 +44,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "automap.h"
 #include "statusbar.h"
 #include "texturemanager.h"
+#include "st_start.h"
+#include "i_interface.h"
 
 
 #include "mytypes.h"
@@ -638,6 +640,13 @@ void GameInterface::ErrorCleanup()
     TerminateLevel();
     FinishAnim = false;
 }
+
+void GameInterface::ExitFromMenu()
+{
+    endoomName = !isShareware() ? "swreg.bin" : "shadsw.bin";
+    ST_Endoom();
+}
+
 //---------------------------------------------------------------------------
 //
 //

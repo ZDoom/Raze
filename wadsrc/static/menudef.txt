@@ -1635,6 +1635,14 @@ OptionValue Autosave
 	2,	"$OPTVAL_NEVER"
 }
 
+OptionValue Endoom
+{
+	0.0, "$OPTVAL_OFF"
+	1.0, "$OPTVAL_ON"
+	2.0, "$OPTVAL_ONLYMODIFIED"
+}
+
+
 /*=======================================
  *
  * Language menu 
@@ -1694,6 +1702,11 @@ OptionMenu "MiscOptions" protected
 	}
 	//StaticText " "
 	Option "$OPTMNU_LANGUAGE", "language", "LanguageOptions"
+	IfOption(Windows)
+	{
+		StaticText " "
+		Option	"$DSPLYMNU_SHOWENDOOM",			"showendoom", "Endoom"
+	}
 
 }
 
