@@ -339,6 +339,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		}
 		i--;
 	}
+	fileSystem.SetIwadNum(1);
 	fileSystem.SetMaxIwadNum(Files.Size() - 1);
 
 	D_AddConfigFiles(Files, "Global.Autoload", "*.grp", GameConfig);
