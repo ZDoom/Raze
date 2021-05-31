@@ -78,8 +78,6 @@ class RazeStatusBar : StatusBarCore
 
 		String text;
 		
-		Console.Printf("Stat: scale = %f, spacing = %f", scale, spacing);
-
 		text = String.Format("%sT: %s%d:%02d", info.letterColor, info.standardColor, stats.time / 60000, (stats.time % 60000) / 1000);
 		drawStatText(info.statFont, 2 * hud_statscale, y3, text, scale);
 
@@ -141,8 +139,6 @@ class RazeStatusBar : StatusBarCore
 		String volname;
 		if (cluster) volname = cluster.name;
 		if (volname.length() == 0 && am_nameontop) y = 1;
-
-		Console.Printf("AM: scale = %f, spacing = %f", scale, spacing);
 
 		Screen.DrawText(info.statfont, Font.CR_UNTRANSLATED, 2 * hud_statscale, y, mapname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true);
