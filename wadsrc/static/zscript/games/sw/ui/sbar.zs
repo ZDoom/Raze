@@ -859,25 +859,10 @@ class SWStatusBar : RazeStatusBar
 			stats.letterColor = Font.TEXTCOLOR_SAPPHIRE;
 			stats.standardColor = Font.TEXTCOLOR_UNTRANSLATED;
 
-			bool textfont = am_textfont;
-			if (!am_textfont)
-			{
-				// For non-English languages force use of the text font. The tiny one is simply too small to ever add localized characters to it.
-				let p = StringTable.Localize("$REQUIRED_CHARACTERS");
-				if (p.length() > 0)
-				{
-					stats.statfont = Raze.PickSmallFont();
-					textfont = true;
-				}
-			}
-
-			if (!textfont)
-			{
-				stats.statfont = SmallFont2;
-				stats.spacing = 6;
-			} 
-			else stats.spacing = SmallFont.GetHeight() + 1;
-			PrintAutomapInfo(stats, textfont);
+			stats.statfont = SmallFont2;
+			stats.spacing = 6;
+			stats.altspacing = SmallFont.GetHeight() + 1;
+			PrintAutomapInfo(stats, false);
 		}
 		// JBF 20040124: display level stats in screen corner
 		else if (hud_stats && !(netgame /*|| numplayers > 1*/))

@@ -138,7 +138,6 @@ class BloodStatusBar : RazeStatusBar
 		StatsPrintInfo stats;
 
 		stats.fontscale = 1.;
-		stats.spacing = SmallFont.GetHeight() + 2;
 		stats.screenbottomspace = bottomy;
 		stats.statfont = SmallFont;
 		stats.letterColor = TEXTCOLOR_DARKRED;
@@ -146,29 +145,16 @@ class BloodStatusBar : RazeStatusBar
 
 		if (automapMode == am_full)
 		{
-			bool textfont = am_textfont;
-			if (!am_textfont)
-			{
-				// For non-English languages force use of the text font. The tiny one is simply too small to ever add localized characters to it.
-				let p = StringTable.Localize("$REQUIRED_CHARACTERS");
-				if (p.length() > 0)
-				{
-					stats.statfont = Raze.PickSmallFont();
-					textfont = true;
-				}
-			}
-
-			if (!textfont)
-			{
-				stats.statfont = SmallFont2;
-				stats.spacing = 6;
-			}
+			stats.statfont = SmallFont2;
+			stats.spacing = 6;
+			stats.altspacing = SmallFont.GetHeight() + 2;
 			if (hud_size <= Hud_StbarOverlay) stats.screenbottomspace = 56;
-			PrintAutomapInfo(stats, textfont);
+			PrintAutomapInfo(stats, false);
 		}
 		if (automapMode == am_off && hud_stats)
 		{
 			stats.completeColor = TEXTCOLOR_DARKGREEN;
+			stats.spacing = SmallFont.GetHeight() + 2;
 
 			PrintLevelStats(stats, summary);
 		}
