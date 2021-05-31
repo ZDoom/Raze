@@ -674,7 +674,7 @@ grpinfo
 	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWTWINDRAG
 	crc SWTD_CRC
 	size 12499012
-	defname "twindrag.def"
+	defname "sw.def"
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.TwinDragon"
 	deletecontent "swcustom.txt"	// not localizable and also not present in the alternative package.
@@ -687,7 +687,7 @@ grpinfo
 	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWTWINDRAG
 	crc 0xB5B71277
 	size 6236287
-	defname "twindrag.def"
+	defname "sw.def"
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.TwinDragon"
 	GameID "TwinDragon"
@@ -699,7 +699,7 @@ grpinfo
 	flags GAMEFLAG_SW|GAMEFLAG_ADDON|GAMEFLAG_SWTWINDRAG
 	crc 0xACC8DCDE
 	size 6235578
-	defname "twindrag.def"
+	defname "sw.def"
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.TwinDragon"
 	GameID "TwinDragon"
