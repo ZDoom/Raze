@@ -184,7 +184,9 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 			pe = Color(255, 160, 160, 160);
 		}
 
-		Screen.DrawText(font, Font.CR_NATIVEPAL, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
+		// Palette 0 may not use NATIVEPAL so that substitution remaps work.
+		Screen.DrawText(font, trans? Font.CR_NATIVEPAL : Font.CR_UNTRANSLATED, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, 
+			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
 	}
 	
 }
