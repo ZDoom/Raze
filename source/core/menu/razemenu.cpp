@@ -65,6 +65,7 @@
 #include "savegamehelp.h"
 #include "gi.h"
 #include "raze_music.h"
+#include "razefont.h"
 
 EXTERN_CVAR(Int, cl_gfxlocalization)
 EXTERN_CVAR(Bool, m_quickexit)
@@ -412,6 +413,7 @@ static void BuildEpisodeMenu()
 		double y = ld->mYpos;
 
 		// Volume definitions should be sorted by intended menu order.
+		auto font = PickSmallFont();
 		for (auto &vol : volumes)
 		{
 			if (vol.name.IsNotEmpty() && !(vol.flags & VF_HIDEFROMSP))

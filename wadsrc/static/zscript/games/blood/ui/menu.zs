@@ -59,7 +59,7 @@ class ListMenuItemBloodTextItem : ListMenuItemTextItem
 	{
 		int shade = Selectable()? 32: 48;
 		int pal = 5;
-		let gamefont = generic_ui ? NewSmallFont : BigFont;
+		let gamefont = Raze.PickBigFont();
 		int xpos = mXpos - gamefont.StringWidth(mText) / 2;
 		int cr = generic_ui? Font.CR_GRAY : Font.CR_NATIVEPAL;
 		int trans = generic_ui? 0 : Translation.MakeID(Translation_Remap, pal);

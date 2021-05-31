@@ -8,3 +8,5 @@ extern FFont* IndexFont;
 extern FFont* DigiFont;
 
 void InitFont();
+FFont* PickBigFont(const char* txt = nullptr);
+FFont* PickSmallFont(const char* txt = nullptr);

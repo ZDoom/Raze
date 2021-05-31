@@ -84,8 +84,9 @@ void GameInterface::Render()
     if (paused && !M_Active())
     {
         auto tex = GStrings("TXTB_PAUSED");
-		int nStringWidth = SmallFont->StringWidth(tex);
-		DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+        auto font = PickSmallFont(tex);
+        int nStringWidth = font->StringWidth(tex);
+		DrawText(twod, font, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 
     drawtime.Unclock();

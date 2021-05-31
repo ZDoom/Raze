@@ -758,12 +758,13 @@ void viewDrawScreen(bool sceneonly)
     viewDrawAimedPlayerName();
     if (paused)
     {
-        viewDrawText(BigFont, GStrings("TXTB_PAUSED"), 160, 10, 0, 0, 1, 0);
+        auto text = GStrings("TXTB_PAUSED");
+        viewDrawText(PickBigFont(text), text, 160, 10, 0, 0, 1, 0);
     }
     else if (gView != gMe)
     {
         FStringf gTempStr("] %s [", PlayerName(gView->nPlayer));
-        viewDrawText(SmallFont, gTempStr, 160, 10, 0, 0, 1, 0);
+        viewDrawText(OriginalSmallFont, gTempStr, 160, 10, 0, 0, 1, 0);
     }
     if (cl_interpolate)
     {

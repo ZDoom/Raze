@@ -599,10 +599,12 @@ class TextOverlay
 	int crange;
 	bool drawclean;
 	BrokenLines screentext;
+	Font myfont;
 
 	void Init(String text, int cr = Font.CR_NATIVEPAL, int pal = 0, bool clean = false)
 	{
-		screentext = SmallFont.BreakLines(StringTable.Localize(text), 320);
+		myfont = SmallFont; // todo
+		screentext = myfont.BreakLines(StringTable.Localize(text), 320);
 		nCrawlY = 199;
 		nHeight = screentext.Count() * 10;
 		palette = pal;
@@ -620,8 +622,8 @@ class TextOverlay
 				if (y >= -10) 
 				{
 					int x = 160 - screenText.StringWidth(i)/2;
-					if (!drawclean) Screen.DrawText(SmallFont, crange, x, y, screentext.StringAt(i), DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, palette);
-					else Screen.DrawText(SmallFont, crange, x, y, screentext.StringAt(i), DTA_Clean, true, DTA_TranslationIndex, palette);
+					if (!drawclean) Screen.DrawText(myfont, crange, x, y, screentext.StringAt(i), DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, palette);
+					else Screen.DrawText(myfont, crange, x, y, screentext.StringAt(i), DTA_Clean, true, DTA_TranslationIndex, palette);
 				}
 				y += 10;
 			}

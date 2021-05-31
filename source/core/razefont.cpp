@@ -36,6 +36,8 @@
 #include "gamecontrol.h"
 #include "c_cvars.h"
 #include "i_interface.h"
+#include "vm.h"
+#include "gstrings.h"
 
 FGameTexture* GetBaseForChar(FGameTexture* t);
 void FontCharCreated(FGameTexture* base, FGameTexture* glyph);
@@ -102,4 +104,50 @@ void InitFont()
 	}
 
 	// todo: Compare small and big fonts with the base font and decide which one to use.
+}
+
+FFont* PickBigFont(const char* txt)
+{
+	if (generic_ui) return NewSmallFont; // Note: Support is incomplete. Translations do not exist anyway for most content.
+	if (!OriginalBigFont || OriginalBigFont == BigFont) return BigFont;
+	if (txt && *txt == '$') txt = GStrings[txt + 1];
+	if (!txt || !*txt) txt = GStrings["REQUIRED_CHARACTERS"];
+	if (!txt || !*txt || BigFont->CanPrint(txt)) return BigFont;
+	return OriginalBigFont;
+}
+
+static FFont* PickBigFont_(const FString& str)
+{
+	return PickBigFont(str.GetChars());
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, PickBigFont, PickBigFont_)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(text);
+	//PARAM_POINTER(cr, int);
+	ACTION_RETURN_POINTER(PickBigFont(text));
+}
+
+FFont* PickSmallFont(const char* txt)
+{
+	if (generic_ui) return NewSmallFont; // Note: Support is incomplete. Translations do not exist anyway for most content.
+	if (!OriginalSmallFont || OriginalSmallFont == SmallFont) return SmallFont;
+	if (txt && *txt == '$') txt = GStrings[txt + 1];
+	if (!txt || !*txt) txt = GStrings["REQUIRED_CHARACTERS"];
+	if (!txt || !*txt || SmallFont->CanPrint(txt)) return SmallFont;
+	return OriginalSmallFont;
+}
+
+static FFont* PickSmallFont_(const FString& str)
+{
+	return PickSmallFont(str.GetChars());
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Raze, PickSmallFont, PickSmallFont_)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(text);
+	//PARAM_POINTER(cr, int);
+	ACTION_RETURN_POINTER(PickBigFont(text));
 }

@@ -5,7 +5,7 @@ class ExhumedMenuDelegate : RazeMenuDelegate
 	
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{
-		let font = generic_ui? NewConsoleFont : BigFont;	// this ignores the passed font intentionally.
+		let font = Raze.PickBigFont();
 		let cr = generic_ui ? Font.CR_FIRE : Font.CR_UNTRANSLATED;	// this ignores the passed font intentionally.
 		let texid = TexMan.CheckForTexture("MENUBLANK");
 		let texsize = TexMan.GetScaledSize(texid);
@@ -87,7 +87,7 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
-		let font = generic_ui ? NewConsoleFont : BigFont;	// this ignores the passed font intentionally.
+		let font = Raze.PickBigFont();
 		let cr = generic_ui ? Font.CR_FIRE : Font.CR_UNTRANSLATED;	// this ignores the passed font intentionally.
 		let tex = TexMan.CheckForTexture("MENUBLANK");
 		let texsize = TexMan.GetScaledSize(tex);

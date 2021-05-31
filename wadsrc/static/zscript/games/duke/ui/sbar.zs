@@ -179,7 +179,11 @@ class DukeCommonStatusBar : RazeStatusBar
 			{
 				// For non-English languages force use of the text font. The tiny one is simply too small to ever add localized characters to it.
 				let p = StringTable.Localize("$REQUIRED_CHARACTERS");
-				if (p.length() > 0) textfont = true; 
+				if (p.length() > 0)
+				{
+					stats.statfont = Raze.PickSmallFont();
+					textfont = true;
+				}
 			}
 
 			if (!textfont)

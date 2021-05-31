@@ -176,6 +176,7 @@ enum {
 
 class TextOverlay
 {
+    FFont* font;
 	double nCrawlY;
 	short nLeft[50];
 	int nHeight;

@@ -147,7 +147,9 @@ struct Raze
 	native static int bcos(int angle, int shift = 0);
 	native static TextureID PickTexture(TextureID texid);
 	native static int GetBuildTime();
-	
+	native static Font PickBigFont(String cmptext = "");
+	native static Font PickSmallFont(String cmptext = "");
+
 	// game check shortcuts
 	static bool isNam()
 	{

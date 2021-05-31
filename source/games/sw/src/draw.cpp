@@ -56,6 +56,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_video.h"
 #include "v_draw.h"
 #include "render.h"
+#include "razefont.h"
 EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_SW_NS
@@ -1672,8 +1673,9 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (paused && !M_Active())
     {
         auto str = GStrings("Game Paused");
-        int w = SmallFont->StringWidth(str);
-        DrawText(twod, SmallFont, CR_UNTRANSLATED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+        auto font = PickSmallFont(str);
+        int w = font->StringWidth(str);
+        DrawText(twod, font, CR_UNTRANSLATED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 
     if (!CommEnabled && TEST(pp->Flags, PF_DEAD))

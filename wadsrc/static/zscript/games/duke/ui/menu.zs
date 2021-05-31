@@ -30,7 +30,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 {
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{
-		let font = generic_ui? NewConsoleFont : BigFont;	// this ignores the passed font intentionally.
+		let font = Raze.PickBigFont();	// this ignores the passed font intentionally.
 		let texid = TexMan.CheckForTexture("MENUBAR");
 		let texsize = TexMan.GetScaledSize(texid);
 		let fonth = font.GetGlyphHeight("A");
@@ -82,7 +82,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 	
 	//----------------------------------------------------------------------------
 	//
-	//
+	// not used for any localized content.
 	//
 	//----------------------------------------------------------------------------
 
@@ -167,10 +167,11 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 	
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
-		int trans = mColorSelected? Translation.MakeID(Translation_Remap, 1) : 0; 
+		let font = Raze.PickBigFont();
+		int trans = mColorSelected? Translation.MakeID(Translation_Remap, 1) : 0;
 		Color pe;
 		double scale = (gameinfo.gametype & GAMEFLAG_RRALL) ? 0.4 : 1.;
-		let xpos = 160 - BigFont.StringWidth(mText) * scale * 0.5;
+		let xpos = 160 - font.StringWidth(mText) * scale * 0.5;
 
 		if (selected)
 		{
@@ -183,7 +184,7 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 			pe = Color(255, 160, 160, 160);
 		}
 
-		Screen.DrawText(BigFont, Font.CR_NATIVEPAL, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
+		Screen.DrawText(font, Font.CR_NATIVEPAL, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
 	}
 	
 }

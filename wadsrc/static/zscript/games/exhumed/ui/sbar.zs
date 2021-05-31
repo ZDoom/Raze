@@ -448,6 +448,7 @@ class ExhumedStatusBar : RazeStatusBar
 
 		if (automapMode == am_full)
 		{
+			stats.statfont = Raze.PickSmallFont();
 			PrintAutomapInfo(stats, true);
 		}
 		else if (automapMode == am_off && hud_stats) 

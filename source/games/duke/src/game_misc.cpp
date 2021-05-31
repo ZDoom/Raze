@@ -43,6 +43,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "gamestate.h"
 #include "dukeactor.h"
 #include "interpolate.h"
+#include "razefont.h"
 
 BEGIN_DUKE_NS
 
@@ -299,8 +300,9 @@ void drawoverlays(double smoothratio)
 		double x = 160, y = 100;
 		double scale = isRR() ? 0.4 : 1.;
 		const char* text = GStrings("Game Paused");
-		x -= BigFont->StringWidth(text) * 0.5 * scale;
-		DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		auto myfont = PickBigFont(text);
+		x -= myfont->StringWidth(text) * 0.5 * scale;
+		DrawText(twod, myfont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 	}
 }
 

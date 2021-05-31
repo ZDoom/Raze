@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamefuncs.h"
 #include "c_bind.h"
 #include "vm.h"
+#include "razefont.h"
 
 #include <string>
 
@@ -328,6 +329,7 @@ void TextOverlay::Create(const FString& text, int pal)
 {
     lastclock = 0;
     FString ttext = GStrings(text);
+    font = PickSmallFont(ttext);
     screentext = ttext.Split("\n");
     ComputeCinemaText();
 }
@@ -367,7 +369,7 @@ void TextOverlay::DisplayText()
         while (i < screentext.Size() && y <= 199)
         {
             if (y >= -10) {
-                DrawText(twod, SmallFont, CR_NATIVEPAL, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
+                DrawText(twod, font, CR_NATIVEPAL, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
             }
 
             i++;
