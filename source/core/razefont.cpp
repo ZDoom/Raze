@@ -38,6 +38,7 @@
 #include "i_interface.h"
 #include "vm.h"
 #include "gstrings.h"
+#include "textures.h"
 
 FGameTexture* GetBaseForChar(FGameTexture* t);
 void FontCharCreated(FGameTexture* base, FGameTexture* glyph);
@@ -54,11 +55,32 @@ CUSTOM_CVAR(Int, duke_menufont, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOIN
 	else
 	{
 		// Font info must be copied so that BigFont does not change its address.
-		if (self == 0 || (self == -1 && isPlutoPak())) BigFont->CopyFrom(*BigFont15);
-		else if (self == 1 || (self == -1 && !isPlutoPak())) BigFont->CopyFrom(*BigFont13);
+		if (self == 0 || (self == -1 && isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont15);
+		else if (self == 1 || (self == -1 && !isPlutoPak())) OriginalBigFont->CopyFrom(*BigFont13);
 	}
 }
 
+static int compareChar(int code, FFont* gamefont, FFont* myfont)
+{
+	auto c1 = gamefont->GetChar(code, CR_UNDEFINED, nullptr);
+	auto c2 = myfont->GetChar(code, CR_UNDEFINED, nullptr);
+	if (c1 == nullptr || c2 == nullptr) return 1; // this should never happen unless one of the fonts is broken.
+	if (c1->GetTexelHeight() != c2->GetTexelHeight()) return 0;
+	if (c1->GetTexelWidth() != c2->GetTexelWidth()) return 0;
+	auto t1 = c1->GetTexture();
+	auto t2 = c2->GetTexture();
+	auto buf1 = t1->CreateTexBuffer(0);
+	auto buf2 = t2->CreateTexBuffer(0);
+	// at this point the palette has not yet been fully set up so the alpha channel is not consistent.
+	// We have to mask it out here to be able to compare the two buffers.
+	for (int i = 0; i < buf1.mWidth * buf1.mHeight * 4; i++)
+	{
+		buf1.mBuffer[i] = buf2.mBuffer[i] = 0;
+	}
+
+	int res = memcmp(buf1.mBuffer, buf2.mBuffer, buf1.mWidth * buf1.mHeight * 4);
+	return res == 0;
+}
 
 static void SetupHires(FFont *font)
 {
@@ -102,8 +124,51 @@ void InitFont()
 		BigFont15 = V_GetFont("BigFont15");
 		BigFont = new FFont(0, "BigFont");
 	}
+	OriginalSmallFont = SmallFont;
+	OriginalBigFont = BigFont;
 
-	// todo: Compare small and big fonts with the base font and decide which one to use.
+	auto tilesmallfont = V_GetFont("tilesmallfont");
+	auto tilebigfont = V_GetFont("tilebigfont");
+
+	// Check if the fonts have been altered by a mod.
+	// If that is the case we need to do a bit of remapping to ensure the proper font gets used at least for English text.
+	if (tilesmallfont)
+	{
+		int hits = 0;
+		hits += compareChar('0', tilesmallfont, SmallFont);
+		hits += compareChar('A', tilesmallfont, SmallFont);
+		hits += compareChar('a', tilesmallfont, SmallFont);
+
+		if (hits < 3)
+		{
+			tilesmallfont->SetName(SmallFont->GetName());
+			SmallFont->SetName("OriginalSmallFont");
+			SmallFont = tilesmallfont;
+		}
+	}
+	if (tilebigfont)
+	{
+		int hits = 0;
+		if (g_gameType & GAMEFLAG_DUKE)
+		{
+			hits += compareChar('0', tilebigfont, BigFont13);
+			hits += compareChar('A', tilebigfont, BigFont13);
+			hits += compareChar('0', tilebigfont, BigFont15);
+			hits += compareChar('A', tilebigfont, BigFont15);
+		}
+		else
+		{
+			hits += compareChar('0', tilebigfont, BigFont);
+			hits += compareChar('A', tilebigfont, BigFont);
+		}
+
+		if (hits < 2)
+		{
+			tilebigfont->SetName(BigFont->GetName());
+			BigFont->SetName("OriginalBigFont");
+			BigFont = tilebigfont;
+		}
+	}
 }
 
 FFont* PickBigFont(const char* txt)

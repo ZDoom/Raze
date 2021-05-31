@@ -287,8 +287,6 @@ public:
 		FirstChar = hexdata.FirstChar;
 		LastChar = hexdata.LastChar;
 
-		Next = FirstFont;
-		FirstFont = this;
 		FontHeight = 16;
 		SpaceWidth = 9;
 		GlobalKerning = 0;
@@ -354,8 +352,6 @@ public:
 		FirstChar = hexdata.FirstChar;
 		LastChar = hexdata.LastChar;
 
-		Next = FirstFont;
-		FirstFont = this;
 		FontHeight = 18;
 		SpaceWidth = 9;
 		GlobalKerning = -1;

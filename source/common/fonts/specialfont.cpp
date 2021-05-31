@@ -78,8 +78,6 @@ FSpecialFont::FSpecialFont (const char *name, int first, int count, FGameTexture
 	LastChar = first + count - 1;
 	FontHeight = 0;
 	GlobalKerning = false;
-	Next = FirstFont;
-	FirstFont = this;
 
 	maxyoffs = 0;
 

@@ -70,6 +70,7 @@
 //==========================================================================
 
 FFont::FFont (const char *name, const char *nametemplate, const char *filetemplate, int lfirst, int lcount, int start, int fdlump, int spacewidth, bool notranslate, bool iwadonly, bool doomtemplate, GlyphSet *baseGlyphs)
+	: FFont(fdlump, name)
 {
 	int i;
 	FTextureID lump;
@@ -77,12 +78,7 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 	DVector2 Scale = { 1, 1 };
 
 	noTranslate = notranslate;
-	Lump = fdlump;
 	GlobalKerning = false;
-	FontName = name;
-	Next = FirstFont;
-	FirstFont = this;
-	Cursor = '_';
 	SpaceWidth = 0;
 	FontHeight = 0;
 	int FixedWidth = 0;
@@ -1009,6 +1005,8 @@ void FFont::LoadTranslations()
 
 FFont::FFont (int lump, FName nm)
 {
+	Next = FirstFont;
+	FirstFont = this;
 	Lump = lump;
 	FontName = nm;
 	Cursor = '_';

@@ -151,9 +151,6 @@ FSingleLumpFont::FSingleLumpFont (const char *name, int lump) : FFont(lump)
 			break;
 		}
 	}
-
-	Next = FirstFont;
-	FirstFont = this;
 }
 
 //==========================================================================
