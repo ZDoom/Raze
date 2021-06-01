@@ -968,10 +968,11 @@ int FFont::GetMaxAscender(const uint8_t* string) const
 
 void FFont::LoadTranslations()
 {
-	unsigned int count = LastChar - FirstChar + 1;
+	unsigned int count = min<unsigned>(Chars.Size(), LastChar - FirstChar + 1);
 	uint32_t usedcolors[256] = {};
 	TArray<double> Luminosity;
 
+	if (count == 0) return;
 	for (unsigned int i = 0; i < count; i++)
 	{
 		if (Chars[i].OriginalPic)
@@ -1005,6 +1006,7 @@ void FFont::LoadTranslations()
 
 FFont::FFont (int lump, FName nm)
 {
+	FirstChar = LastChar = 0;
 	Next = FirstFont;
 	FirstFont = this;
 	Lump = lump;

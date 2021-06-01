@@ -121,7 +121,7 @@ static int compareChar(int code, FFont* gamefont, FFont* myfont)
 
 	// If there's a hires version attached to the base, treat this as the base being different.
 	TexturePick pick;
-	if (PickTexture(nullptr, c1, 0, pick) && pick.texture != c1) return 0;
+	if (PickTexture(c1, 0, pick) && pick.texture != c1) return 0;
 
 	auto t1 = c1->GetTexture();
 	auto t2 = c2->GetTexture();

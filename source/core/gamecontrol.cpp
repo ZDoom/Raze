@@ -1547,7 +1547,7 @@ DEFINE_ACTION_FUNCTION(_Raze, PickTexture)
 	PARAM_PROLOGUE;
 	PARAM_INT(texid);
 	TexturePick pick;
-	if (PickTexture(nullptr, TexMan.GetGameTexture(FSetTextureID(texid)), TRANSLATION(Translation_Remap, 0), pick))
+	if (PickTexture(TexMan.GetGameTexture(FSetTextureID(texid)), TRANSLATION(Translation_Remap, 0), pick))
 	{
 		ACTION_RETURN_INT(pick.texture->GetID().GetIndex());
 	}

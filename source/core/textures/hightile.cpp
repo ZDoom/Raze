@@ -322,9 +322,14 @@ int tileSetSkybox(int picnum, int palnum, FString* facenames)
 //
 //===========================================================================
 
-bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TexturePick& pick)
+bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wantindexed)
 {
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
+
+	if (tex->GetUseType() == ETextureType::FontChar && paletteid != 0)
+	{
+		int a = 0;
+	}
 
 	int usepalette = 0, useremap = 0;
 	if (!IsLuminosityTranslation(paletteid))
@@ -332,8 +337,7 @@ bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TextureP
 		usepalette = paletteid == 0 ? 0 : GetTranslationType(paletteid) - Translation_Remap;
 		useremap = GetTranslationIndex(paletteid);
 	}
-	bool foggy = state && (state->GetFogColor() & 0xffffff);
-	int TextureType = hw_int_useindexedcolortextures && !foggy? TT_INDEXED : TT_TRUECOLOR;
+	int TextureType = wantindexed? TT_INDEXED : TT_TRUECOLOR;
 
 	pick.translation = paletteid;
 	pick.basepalTint = 0xffffff;
@@ -344,11 +348,7 @@ bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TextureP
 
 	int hipalswap = usepalette >= 0 ? useremap : 0;
 	auto rep = (hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? FindReplacement(tex->GetID(), hipalswap, false) : nullptr;
-	if (IsLuminosityTranslation(paletteid))
-	{
-		// For a luminosity translation we only want the plain texture as-is.
-	}
-	else if (rep || tex->GetTexture()->isHardwareCanvas())
+	if (rep || tex->GetTexture()->isHardwareCanvas())
 	{
 		if (usepalette > 0)
 		{
@@ -364,7 +364,7 @@ bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TextureP
 		}
 		if (!rep || rep->palnum != hipalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL)) 
 			applytint = true;
-		pick.translation = 0;
+		if (!IsLuminosityTranslation(paletteid)) pick.translation = 0;
 	}
 	else
 	{
@@ -376,7 +376,7 @@ bool PickTexture(FRenderState *state, FGameTexture* tex, int paletteid, TextureP
 				applytint = true;
 				if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) useremap = 0;
 			}
-			pick.translation = paletteid == 0? 0 : TRANSLATION(usepalette + Translation_Remap, useremap);
+			pick.translation = IsLuminosityTranslation(paletteid)? paletteid : paletteid == 0? 0 : TRANSLATION(usepalette + Translation_Remap, useremap);
 		}
 		else pick.translation |= 0x80000000;
 	}
@@ -403,7 +403,8 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 
 	if (tex->GetUseType() == ETextureType::Special) return true;
 
-	if (PickTexture(state, tex, translation, pick))
+	bool foggy = state && (state->GetFogColor() & 0xffffff);
+	if (PickTexture(tex, translation, pick, hw_int_useindexedcolortextures && !foggy))
 	{
 		int TextureType = (pick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
 		int lookuppal = pick.translation & 0x7fffffff;

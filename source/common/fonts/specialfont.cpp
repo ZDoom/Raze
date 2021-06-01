@@ -105,7 +105,6 @@ FSpecialFont::FSpecialFont (const char *name, int first, int count, FGameTexture
 			auto pic = charlumps[i];
 			Chars[i].OriginalPic = MakeGameTexture(pic->GetTexture(), nullptr, ETextureType::FontChar);
 			Chars[i].OriginalPic->CopySize(pic, true);
-			Chars[i].OriginalPic->SetName(FStringf("@@%s.%d", name, i));
 			TexMan.AddGameTexture(Chars[i].OriginalPic);
 			Chars[i].XMove = (int)Chars[i].OriginalPic->GetDisplayWidth();
 			if (sysCallbacks.FontCharCreated) sysCallbacks.FontCharCreated(pic, Chars[i].OriginalPic);
