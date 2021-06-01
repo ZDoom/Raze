@@ -248,10 +248,17 @@ void HWWall::RenderMirrorSurface(HWDrawInfo *di, FRenderState &state)
 void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 {
 	SetLightAndFog(state, fade, palette, shade, visibility, alpha);
+
 	state.SetMaterial(texture, UF_Texture, 0, (flags & (HWF_CLAMPX | HWF_CLAMPY)), TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	if (Sprite == nullptr)
 	{
+		if (shade > numshades && (GlobalMapFog || (fade & 0xffffff)))
+		{
+			state.SetObjectColor(fade | 0xff000000);
+			state.EnableTexture(false);
+		}
+
 		int h = (int)texture->GetDisplayHeight();
 		int h2 = 1 << sizeToBits(h);
 		if (h2 < h) h2 *= 2;
@@ -276,6 +283,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 
 	state.SetNpotEmulation(0.f, 0.f);
 	state.SetObjectColor(0xffffffff);
+	state.EnableTexture(true);
 	/* none of these functions is in use.
 	state.SetObjectColor2(0);
 	state.SetAddColor(0);
@@ -960,7 +968,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 
 #ifdef _DEBUG
-	if (wal - wall == 788)
+	if (wal - wall == 6468)
 	{
 		int a = 0;
 	}

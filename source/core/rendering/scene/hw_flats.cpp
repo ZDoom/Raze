@@ -182,6 +182,13 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 		if (texture && !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 		else state.AlphaFunc(Alpha_GEqual, 0.f);
 	}
+	else if (shade > numshades && (GlobalMapFog || (fade & 0xffffff)))
+	{
+		state.SetObjectColor(fade | 0xff000000);
+		state.EnableTexture(false);
+	}
+
+
 	state.SetMaterial(texture, UF_Texture, 0, Sprite == nullptr? CLAMP_NONE : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	state.SetLightIndex(dynlightindex);
@@ -192,6 +199,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	state.EnableBrightmap(true);
 
 	state.SetObjectColor(0xffffffff);
+	state.EnableTexture(true);
 	//state.SetAddColor(0);
 	//state.ApplyTextureManipulation(nullptr);
 }
