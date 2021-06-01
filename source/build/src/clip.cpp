@@ -1081,6 +1081,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
             const int32_t cstat = sprite[j].cstat;
             int32_t daz, daz2;
 
+            if (cstat & CSTAT_SPRITE_INVISIBLE) continue;
             if (cstat&dasprclipmask)
             {
                 int32_t clipyou = 0;

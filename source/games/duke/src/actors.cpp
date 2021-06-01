@@ -4955,7 +4955,10 @@ void getglobalz(DDukeActor* actor)
 			zr = 4;
 		else zr = 127;
 
+		auto cc = s->cstat;
+		s->cstat |= CSTAT_SPRITE_INVISIBLE; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
 		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sectnum, &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
+		s->cstat = cc;
 
 		if( lz.type == kHitSprite && (lz.actor->s->cstat&48) == 0 )
 		{
