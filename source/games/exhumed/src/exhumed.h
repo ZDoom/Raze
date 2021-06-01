@@ -219,6 +219,7 @@ struct GameInterface : public ::GameInterface
     const char* Name() override { return "Exhumed"; }
     void app_init() override;
     void clearlocalinputstate() override;
+    void loadPalette() override;
 	bool GenerateSavePic() override;
     void MenuOpened() override;
     void MenuSound(EMenuSounds snd) override;

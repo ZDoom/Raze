@@ -72,8 +72,9 @@ void ResetEngine()
     resettiming();
 }
 
-void InstallEngine()
+void GameInterface::loadPalette()
 {
+    paletteLoadFromDisk();
     uploadCinemaPalettes();
     LoadPaletteLookups();
 }
@@ -493,12 +494,7 @@ void GameInterface::app_init()
         nTotalPlayers += nNetPlayerCount;
     }
 
-    // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
-    InstallEngine();
-    LoadDefinitions();
     SetTileNames();
-
-    TileFiles.SetBackup();
 
     InitFX();
     seq_LoadSequences();

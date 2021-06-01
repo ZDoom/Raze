@@ -639,7 +639,6 @@ int32_t engineInit(void)
 {
     engineLoadTables();
     g_visibility = 512;
-    if (!mdinited) mdinit();
     return 0;
 }
 

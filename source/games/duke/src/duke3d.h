@@ -26,6 +26,7 @@ struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Duke"; }
 	void app_init() override;
+	void loadPalette();
 	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;

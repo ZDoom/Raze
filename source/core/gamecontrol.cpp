@@ -140,7 +140,7 @@ void LoadScripts();
 void MainLoop();
 void SetConsoleNotifyBuffer();
 bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
-void PostLoadSetup();
+void highTileSetup();
 void FontCharCreated(FGameTexture* base, FGameTexture* untranslated);
 void LoadVoxelModels();
 
@@ -880,6 +880,33 @@ void GetGames()
 //
 //==========================================================================
 
+static void InitTextures()
+{
+	TexMan.Init([]() {}, [](BuildInfo&) {});
+	StartScreen->Progress();
+	mdinit();
+
+	TileFiles.Init();
+	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
+	voxInit();
+	gi->LoadGameTextures(); // loads game-side data that must be present before processing the .def files.
+	LoadDefinitions();
+	InitFont();				// InitFonts may only be called once all texture data has been initialized.
+
+	lookups.postLoadTables();
+	highTileSetup();
+	lookups.postLoadLookups();
+	SetupFontSubstitution();
+	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
+	TileFiles.SetBackup();
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 int RunGame()
 {
 	GameStartupInfo.FgColor = 0xffffff;
@@ -985,12 +1012,8 @@ int RunGame()
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	gi->loadPalette();
 	StartScreen->Progress();
-	TexMan.Init([]() {}, [](BuildInfo &) {});
-	StartScreen->Progress();
-	TileFiles.Init();
-	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
+	InitTextures();
 
-	InitFont();
 	StartScreen->Progress();
 	I_InitSound();
 	StartScreen->Progress();
@@ -1010,7 +1033,6 @@ int RunGame()
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	StartScreen->Progress();
 
-	voxInit();
 	engineInit();
 	gi->app_init();
 	StartScreen->Progress();
@@ -1022,12 +1044,6 @@ int RunGame()
 	StartScreen->Progress();
 	if (!(paletteloaded & PALETTE_MAIN))
 		I_FatalError("No palette found.");
-
-	lookups.postLoadTables();
-	PostLoadSetup();
-	lookups.postLoadLookups();
-	duke_menufont.Callback();
-	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
 
 	FMaterial::SetLayerCallback(setpalettelayer);
 	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
@@ -1525,8 +1541,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
 {
 	ACTION_RETURN_INT(I_GetBuildTime());
 }
-
-bool PickTexture(FRenderState* state, FGameTexture* tex, int paletteid, TexturePick& pick);
 
 DEFINE_ACTION_FUNCTION(_Raze, PickTexture)
 {

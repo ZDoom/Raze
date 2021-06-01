@@ -422,18 +422,15 @@ void GameInterface::app_init()
 
 	HookReplaceFunctions();
 
-	Printf(PRINT_NONOTIFY, "Loading tiles\n");
-	if (!tileInit())
-		I_FatalError("TILES###.ART files not found");
+	Printf(PRINT_NONOTIFY, "Loading texture tables\n");
+	tileInit();
 
 	levelLoadDefaults();
-	LoadDefinitions();
 
 	//---------
 	SetTileNames();
 	C_InitConback(TexMan.CheckForTexture("BACKTILE", ETextureType::Any), true, 0.25);
 
-	TileFiles.SetBackup();
 	Printf(PRINT_NONOTIFY, "Loading cosine table\n");
 	trigInit();
 	Printf(PRINT_NONOTIFY, "Initializing view subsystem\n");

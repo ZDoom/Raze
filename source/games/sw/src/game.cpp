@@ -165,6 +165,11 @@ static void SetTileNames()
 }
 #undef x
 
+void GameInterface::LoadGameTextures()
+{
+    LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -195,17 +200,6 @@ void GameInterface::app_init()
 
     registerosdcommands();
 
-    auto pal = fileSystem.LoadFile("3drealms.pal", 0);
-    if (pal.Size() >= 768)
-    {
-        for (auto& c : pal)
-            c <<= 2;
-
-        paletteSetColorTable(DREALMSPAL, pal.Data(), true, true);
-    }
-    InitPalette();
-    // sets numplayers, connecthead, connectpoint2, myconnectindex
-
 	numplayers = 1; myconnectindex = 0;
 	connecthead = 0; connectpoint2[0] = -1;
 
@@ -225,14 +219,11 @@ void GameInterface::app_init()
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
         INITLIST(&Player[i].PanelSpriteList);
 
-    LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
 	LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
-    LoadDefinitions();
     SetTileNames();
-    TileFiles.SetBackup();
     userConfig.AddDefs.reset();
     InitFX();
 }

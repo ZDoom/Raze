@@ -75,7 +75,8 @@ FGameTexture* GetBaseForChar(FGameTexture* t)
 
 void FontCharCreated(FGameTexture* base, FGameTexture* glyph)
 {
-	deferredChars.Insert(glyph, base);
+	if (base->GetName().IsNotEmpty())
+		deferredChars.Insert(glyph, base);
 }
 
 
@@ -155,7 +156,7 @@ FGameTexture* SkyboxReplacement(FTextureID picnum, int palnum)
 //
 //==========================================================================
 
-void PostLoadSetup()
+void highTileSetup()
 {
 	for(int i=0;i<MAXTILES;i++)
 	{
@@ -163,8 +164,33 @@ void PostLoadSetup()
 		if (!tex->isValid()) continue;
 		auto Hightile = tileReplacements.CheckKey(i);
 		if (!Hightile) continue;
+		textureReplacements.Insert(tex->GetID().GetIndex(), std::move(*Hightile));
+	}
+	tileReplacements.Clear();
 
-		FGameTexture* detailTex = nullptr, * glowTex = nullptr, * normalTex = nullptr, *specTex = nullptr;
+	decltype(deferredChars)::Iterator it(deferredChars);
+	decltype(deferredChars)::Pair* pair;
+	while (it.NextPair(pair))
+	{
+		auto rep = textureReplacements.CheckKey(pair->Value->GetID().GetIndex());
+		if (rep)
+		{
+			auto myrep = *rep; // don't create copies directly from the map we're inserting in!
+			auto chk = textureReplacements.CheckKey(pair->Key->GetID().GetIndex());
+			if (!chk) textureReplacements.Insert(pair->Key->GetID().GetIndex(), std::move(myrep));
+		}
+	}
+	deferredChars.Clear();
+	decltype(textureReplacements)::Iterator it2(textureReplacements);
+	decltype(textureReplacements)::Pair* pair2;
+	while (it2.NextPair(pair2))
+	{
+		auto tex = TexMan.GameByIndex(pair2->Key);
+		if (!tex->isValid()) continue;
+		auto Hightile = &pair2->Value;
+		if (!Hightile) continue;
+
+		FGameTexture* detailTex = nullptr, * glowTex = nullptr, * normalTex = nullptr, * specTex = nullptr;
 		float scalex = 1.f, scaley = 1.f;
 		for (auto& rep : *Hightile)
 		{
@@ -206,22 +232,6 @@ void PostLoadSetup()
 					rep.image = tex;
 				}
 			}
-		}
-		textureReplacements.Insert(tex->GetID().GetIndex(), std::move(*Hightile));
-	}
-	tileReplacements.Clear();
-
-	int i = 0;
-	decltype(deferredChars)::Iterator it(deferredChars);
-	decltype(deferredChars)::Pair* pair;
-	while (it.NextPair(pair))
-	{
-		i++;
-		auto rep = textureReplacements.CheckKey(pair->Value->GetID().GetIndex());
-		if (rep)
-		{
-			auto chk = textureReplacements.CheckKey(pair->Key->GetID().GetIndex());
-			if (!chk) textureReplacements.Insert(pair->Key->GetID().GetIndex(), *rep);
 		}
 	}
 }

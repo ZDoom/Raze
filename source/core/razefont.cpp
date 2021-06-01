@@ -38,7 +38,8 @@
 #include "i_interface.h"
 #include "vm.h"
 #include "gstrings.h"
-#include "textures.h"
+#include "texturemanager.h"
+#include "buildtiles.h"
 
 FGameTexture* GetBaseForChar(FGameTexture* t);
 void FontCharCreated(FGameTexture* base, FGameTexture* glyph);
@@ -60,28 +61,7 @@ CUSTOM_CVAR(Int, duke_menufont, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOIN
 	}
 }
 
-static int compareChar(int code, FFont* gamefont, FFont* myfont)
-{
-	auto c1 = gamefont->GetChar(code, CR_UNDEFINED, nullptr);
-	auto c2 = myfont->GetChar(code, CR_UNDEFINED, nullptr);
-	if (c1 == nullptr || c2 == nullptr) return 1; // this should never happen unless one of the fonts is broken.
-	if (c1->GetTexelHeight() != c2->GetTexelHeight()) return 0;
-	if (c1->GetTexelWidth() != c2->GetTexelWidth()) return 0;
-	auto t1 = c1->GetTexture();
-	auto t2 = c2->GetTexture();
-	auto buf1 = t1->CreateTexBuffer(0);
-	auto buf2 = t2->CreateTexBuffer(0);
-	// at this point the palette has not yet been fully set up so the alpha channel is not consistent.
-	// We have to mask it out here to be able to compare the two buffers.
-	for (int i = 0; i < buf1.mWidth * buf1.mHeight * 4; i++)
-	{
-		buf1.mBuffer[i] = buf2.mBuffer[i] = 0;
-	}
-
-	int res = memcmp(buf1.mBuffer, buf2.mBuffer, buf1.mWidth * buf1.mHeight * 4);
-	return res == 0;
-}
-
+#if 0
 static void SetupHires(FFont *font)
 {
 	if (!font) return;
@@ -105,6 +85,7 @@ static void SetupHires(FFont *font)
 		FontCharCreated(base, mychar);
 	}
 }
+#endif
 
 void InitFont()
 {
@@ -115,18 +96,50 @@ void InitFont()
 	IndexFont = V_GetFont("IndexFont");
 	DigiFont = V_GetFont("DigiFont");
 
-	SetupHires(BigFont);
-	SetupHires(SmallFont);
+	//SetupHires(BigFont);
+	//SetupHires(SmallFont);
 
 	if (g_gameType & GAMEFLAG_DUKE)
 	{
 		BigFont13 = V_GetFont("BigFont13");
 		BigFont15 = V_GetFont("BigFont15");
 		BigFont = new FFont(0, "BigFont");
+		BigFont->CopyFrom(*BigFont15);
 	}
 	OriginalSmallFont = SmallFont;
 	OriginalBigFont = BigFont;
+}
 
+static int compareChar(int code, FFont* gamefont, FFont* myfont)
+{
+	auto c1 = gamefont->GetChar(code, CR_UNDEFINED, nullptr);
+	auto c2 = myfont->GetChar(code, CR_UNDEFINED, nullptr);
+	if (c1 == nullptr || c2 == nullptr) return 1; // this should never happen unless one of the fonts is broken.
+
+	if (c1->GetTexelHeight() != c2->GetTexelHeight()) return 0;
+	if (c1->GetTexelWidth() != c2->GetTexelWidth()) return 0;
+
+	// If there's a hires version attached to the base, treat this as the base being different.
+	TexturePick pick;
+	if (PickTexture(nullptr, c1, 0, pick) && pick.texture != c1) return 0;
+
+	auto t1 = c1->GetTexture();
+	auto t2 = c2->GetTexture();
+	auto buf1 = t1->CreateTexBuffer(0);
+	auto buf2 = t2->CreateTexBuffer(0);
+	// at this point the palette has not yet been fully set up so the alpha channel is not consistent.
+	// We have to mask it out here to be able to compare the two buffers.
+	for (int i = 3; i < buf1.mWidth * buf1.mHeight * 4; i+=4)
+	{
+		buf1.mBuffer[i] = buf2.mBuffer[i] = 0;
+	}
+
+	int res = memcmp(buf1.mBuffer, buf2.mBuffer, buf1.mWidth * buf1.mHeight * 4);
+	return res == 0;
+}
+
+void SetupFontSubstitution()
+{
 	auto tilesmallfont = V_GetFont("tilesmallfont");
 	auto tilebigfont = V_GetFont("tilebigfont");
 
