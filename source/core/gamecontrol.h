@@ -250,21 +250,3 @@ enum gameaction_t : int
 	ga_fullconsole,
 };
 extern gameaction_t		gameaction;
-
-inline void spriteSetSlope(int spritenum, int heinum)
-{
-	auto spr = &sprite[spritenum];
-	int cstat = spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK;
-	if (spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
-	{
-		spr->xoffset = heinum & 255;
-		spr->yoffset = (heinum >> 8) & 255;
-		spr->cstat = (spr->cstat & ~CSTAT_SPRITE_ALIGNMENT_MASK) | (heinum != 0 ? CSTAT_SPRITE_ALIGNMENT_SLOPE : CSTAT_SPRITE_ALIGNMENT_FLOOR);
-	}
-}
-
-inline int spriteGetSlope(int spritenum)
-{
-	auto spr = &sprite[spritenum];
-	return ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE)? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
-}

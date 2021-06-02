@@ -914,7 +914,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 if (!pPlayer) return nDamage;
                 if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 if (readyForCrit(pSource, pSprite)) {
-                    nDamage += aiDamageSprite(pSprite, pXSprite, pSource->index, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
+                    nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
                     if (pXSprite->health > 0) {
                         int fullHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : getDudeInfo(pSprite->type)->startHealth << 4;
                         if (((100 * pXSprite->health) / fullHp) <= 75) {
@@ -931,9 +931,9 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
             if (pSprite->type == kDudeModernCustomBurning) {
 
-                if (Chance(0x2000) && gDudeExtra[pSprite->extra].time < (int)gFrameClock) {
+                if (Chance(0x2000) && gDudeExtra[pSprite->extra].time < PlayClock) {
                     playGenDudeSound(pSprite, kGenDudeSndBurning);
-                    gDudeExtra[pSprite->extra].time = (int)gFrameClock + 360;
+                    gDudeExtra[pSprite->extra].time = PlayClock + 360;
                 }
 
                 if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
@@ -953,7 +953,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
                 if (nDmgType == DAMAGE_TYPE_1) {
 
-                    if (pXSprite->health > pDudeInfo->fleeHealth) return nDamage;
+                    if (pXSprite->health > (uint32_t)pDudeInfo->fleeHealth) return nDamage;
                     else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == NULL) {
                         removeDudeStuff(pSprite);
 
@@ -979,7 +979,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
                             aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                             actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
-                            gDudeExtra[pSprite->extra].time = (int)gFrameClock + 360;
+                            gDudeExtra[pSprite->extra].time = PlayClock + 360;
                             evKill(nSprite, 3, kCallbackFXFlameLick);
 
                         }

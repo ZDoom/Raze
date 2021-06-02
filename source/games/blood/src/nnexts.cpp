@@ -1206,7 +1206,7 @@ void debrisBubble(int nSprite) {
     
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
-    for (int i = 0; i < 1 + Random(5); i++) {
+    for (unsigned i = 0; i < 1 + Random(5); i++) {
         
         int nDist = (pSprite->xrepeat * (tileWidth(pSprite->picnum) >> 1)) >> 2;
         int nAngle = Random(2048);

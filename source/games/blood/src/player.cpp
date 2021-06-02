@@ -1893,6 +1893,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
 
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
+    auto pActor = &bloodActors[pSprite->index];
     int nXSprite = pSprite->extra;
     int nXSector = sector[pSprite->sectnum].extra;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -2022,9 +2023,9 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         // allow drop items and keys in multiplayer
         if (gModernMap && gGameOptions.nGameType != 0 && pPlayer->pXSprite->health <= 0) {
             
-            spritetype* pItem = NULL;
-            if (pPlayer->pXSprite->dropMsg && (pItem = actDropItem(pPlayer->pSprite, pPlayer->pXSprite->dropMsg)) != NULL)
-                evPost(pItem->index, OBJ_SPRITE, 500, kCallbackRemove);
+            DBloodActor* pItem = nullptr;
+            if (pPlayer->pXSprite->dropMsg && (pItem = actDropItem(pActor, pPlayer->pXSprite->dropMsg)) != NULL)
+                evPost(pItem, 500, kCallbackRemove);
 
             if (pPlayer->pXSprite->key) {
                 
@@ -2034,8 +2035,8 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                         break;
                 }
                 
-                if (i == 0 && (pItem = actDropKey(pPlayer->pSprite, (pPlayer->pXSprite->key + kItemKeyBase) - 1)) != NULL)
-                    evPost(pItem->index, OBJ_SPRITE, 500, kCallbackRemove);
+                if (i == 0 && (pItem = actDropKey(pActor, (pPlayer->pXSprite->key + kItemKeyBase) - 1)) != NULL)
+                    evPost(pItem, 500, kCallbackRemove);
 
             }
 
