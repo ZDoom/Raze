@@ -369,6 +369,6 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 
 		SetSpriteTranslucency(sprite, alpha, RenderStyle);
 
-		PutFlat(di, 0);
+		PutFlat(di, z > di->Viewpoint.Pos.Z);
 	}
 }
