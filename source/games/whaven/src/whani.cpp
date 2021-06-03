@@ -1278,7 +1278,6 @@ void animateobjs(PLAYER& plr) {
 				if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
 					if (tspr.owner == 4096) {
 						// strcpy(displaybuf,"hit player");
-						// displaytime=120;
 					} else {
 						switch (tspr.detail) {
 						case SKELETONTYPE:

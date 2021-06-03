@@ -155,6 +155,7 @@ struct Raze
 	native static int GetBuildTime();
 	native static Font PickBigFont(String cmptext = "");
 	native static Font PickSmallFont(String cmptext = "");
+	native static int GetMessageBottomY();
 
 	// game check shortcuts
 	static bool isNam()

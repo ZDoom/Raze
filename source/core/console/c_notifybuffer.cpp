@@ -249,3 +249,9 @@ void SetConsoleNotifyBuffer()
 {
 	C_SetNotifyBuffer(&NotifyStrings);
 }
+
+DEFINE_ACTION_FUNCTION(_Raze, GetMessageBottomY)
+{
+	// todo: need to calculate proper bottom position of notify display, with scaling considered.
+	ACTION_RETURN_INT(con_centernotify? 0 : 40);
+}

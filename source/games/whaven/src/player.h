@@ -86,6 +86,9 @@ struct PLAYER {
 	boolean noclip;
 
 	bool over_shoulder_on;
+	int justwarpedfx;
+	int justwarpedcnt;
+
 
 	// no copy assignments for this one!
 	PLAYER() = default;

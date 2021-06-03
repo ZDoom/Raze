@@ -106,6 +106,9 @@ void InitFont()
 		BigFont = new FFont(0, "BigFont");
 		BigFont->CopyFrom(*BigFont15);
 	}
+	if (!BigFont) BigFont = ConFont;
+	if (!SmallFont) SmallFont = ConFont;
+
 	OriginalSmallFont = SmallFont;
 	OriginalBigFont = BigFont;
 }

@@ -1,9 +1,10 @@
 
 class WHStatusBar : RazeStatusBar
 {
-	int healthfont[10];
-	int potionfont[10];
-	int scorefont[10];
+	TextureID healthfont[10];
+	TextureID potionfont[10];
+	TextureID scorefont[10];
+	int displaytime;
 
 	//---------------------------------------------------------------------------
 	//
@@ -19,11 +20,26 @@ class WHStatusBar : RazeStatusBar
 			potionfont[i] = TexMan.CheckForTexture(String.Format("SPOTIONFONT%d", i), TexMan.TYPE_ANY);
 			scorefont[i] = TexMan.CheckForTexture(String.Format("SSCOREFONT%d", i), TexMan.TYPE_ANY);
 		}
+		displaytime = -1;
 	}
 
+	int tileHeight(String tex)
+	{
+		let img = TexMan.CheckForTexture(tex, TexMan.TYPE_Any);
+		let siz = TexMan.GetScaledSize(img);
+		return int(siz.Y);
+	}
+ 
+	int tileWidth(String tex)
+	{
+		let img = TexMan.CheckForTexture(tex, TexMan.TYPE_Any);
+		let siz = TexMan.GetScaledSize(img);
+		return int(siz.X);
+	} 
+	
 	void drawHealthText(double x, double y, String text, int shade = 0, int pal = 0, bool shadow = true) 
 	{
-		for (int i = 0; i < text.Length())
+		for (int i = 0; i < text.Length(); i++)
 		{
 			int c = text.ByteAt(i);
 			if (c < "0" || c > "9")
@@ -34,8 +50,8 @@ class WHStatusBar : RazeStatusBar
 			{
 				let tex = healthfont[c - 48];
 				if(shadow)
-					DrawTexture(tex, (x+1, y+1), DI_ITEM_LEFT_TOP, 0.5 col:0xff000000);
-				DrawTexture(tex, (x, y), DI_ITEM_LEFT_TOP, col:Raze.shadeToLight(shade), pt:Translation.MakeID(Translation_Remap, pal));
+					DrawTexture(tex, (x+1, y+1), DI_ITEM_LEFT_TOP, 0.5, col:0xff000000);
+				DrawTexture(tex, (x, y), DI_ITEM_LEFT_TOP, col:Raze.shadeToLight(shade), Translation.MakeID(Translation_Remap, pal));
 				let siz = TexMan.GetScaledSize(tex);
 				x += siz.X;
 			}
@@ -45,7 +61,7 @@ class WHStatusBar : RazeStatusBar
 
 	void drawPotionText(double x, double y, String text, int shade = 0, int pal = 0, bool shadow = true) 
 	{
-		for (int i = 0; i < text.Length())
+		for (int i = 0; i < text.Length(); i++)
 		{
 			int c = text.ByteAt(i);
 			if (c < "0" || c > "9")
@@ -56,8 +72,8 @@ class WHStatusBar : RazeStatusBar
 			{
 				let tex = potionfont[c - 48];
 				if(shadow)
-					DrawTexture(tex, (x+1, y+1), DI_ITEM_LEFT_TOP, 0.5 col:0xff000000);
-				DrawTexture(tex, (x, y), DI_ITEM_LEFT_TOP, col:Raze.shadeToLight(shade), pt:Translation.MakeID(Translation_Remap, pal));
+					DrawTexture(tex, (x+1, y+1), DI_ITEM_LEFT_TOP, 0.5, col:0xff000000);
+				DrawTexture(tex, (x, y), DI_ITEM_LEFT_TOP, col:Raze.shadeToLight(shade), Translation.MakeID(Translation_Remap, pal));
 				let siz = TexMan.GetScaledSize(tex);
 				x += siz.X;
 			}
@@ -67,7 +83,7 @@ class WHStatusBar : RazeStatusBar
 
 	void drawScoreText(double x, double y, String text, int shade = 0, int pal = 0, bool shadow = true) 
 	{
-		for (int i = 0; i < text.Length())
+		for (int i = 0; i < text.Length(); i++)
 		{
 			int c = text.ByteAt(i);
 			if (c < "0" || c > "9")
@@ -78,8 +94,8 @@ class WHStatusBar : RazeStatusBar
 			{
 				let tex = scorefont[c - 48];
 				if(shadow)
-					DrawTexture(tex, (x+1, y+1), DI_ITEM_LEFT_TOP, 0.5 col:0xff000000);
-				DrawTexture(tex, (x, y), DI_ITEM_LEFT_TOP, col:Raze.shadeToLight(shade), pt:Translation.MakeID(Translation_Remap, pal));
+					DrawTexture(tex, (x+1, y+1), DI_ITEM_LEFT_TOP, 0.5, col:0xff000000);
+				DrawTexture(tex, (x, y), DI_ITEM_LEFT_TOP, col:Raze.shadeToLight(shade), Translation.MakeID(Translation_Remap, pal));
 				let siz = TexMan.GetScaledSize(tex);
 				x += siz.X;
 			}
@@ -167,7 +183,7 @@ class WHStatusBar : RazeStatusBar
 	void captureflagpic() 
 	{
 		int i;
-		DrawTexture("SPOTIONBACKPIC", (260, 387), DI_ITEM_RELCENTER);
+		DrawImage("SPOTIONBACKPIC", (260, 387), DI_ITEM_RELCENTER);
 		/*
 		for (i = 0; i < 4; i++) {
 			if( teaminplay[i] ) { XXX
@@ -206,7 +222,7 @@ class WHStatusBar : RazeStatusBar
 		int y = 400 - 85;
 		for (int i = 0; i < 4; i++)
 		{
-			DrawImage(plr.treasure[TBRASSKEY + i]? keypics[i] : "SKEYBLANK", (320 + 180, y), DI_ITEM_RELCENTER );
+			DrawImage(plr.treasure[Witchaven.TBRASSKEY + i]? keypics[i] : "SKEYBLANK", (320 + 180, y), DI_ITEM_RELCENTER );
 			y += 22;
 		}
 	}
@@ -220,16 +236,15 @@ class WHStatusBar : RazeStatusBar
 	void potionpic(WhPlayer plr, int currentpotion) 
 	{
 		static const String potionpic[] = { "SFLASKBLUE", "SFLASKGREEN", "SFLASKOCHRE", "SFLASKRED", "SFLASKTAN"};
-		int tilenum = SFLASKBLUE;
 			
-		double x = 320 + 200
+		double x = 320 + 200;
 		double y = 400 - 94;
 
 		DrawImage("SPOTIONBACKPIC", (x, y), DI_ITEM_RELCENTER);
 		DrawImage("SPOTIONARROW" .. currentpotion, (x - 4, y - 7), DI_ITEM_RELCENTER);
 
 		x += 4;
-		for(int i = 0; i < MAXPOTIONS; i++) 
+		for(int i = 0; i < Witchaven.MAXPOTIONS; i++) 
 		{
 			if(plr.potion[i] < 0) plr.potion[i] = 0;
 			if(plr.potion[i] > 0) 
@@ -247,7 +262,7 @@ class WHStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
  
-	void orbpic(WhPlayer plr) 
+	void orbpic(WhPlayer plr, int currentorb) 
 	{
 		if (plr.orbammo[currentorb] < 0)
 			plr.orbammo[currentorb] = 0;
@@ -259,22 +274,21 @@ class WHStatusBar : RazeStatusBar
 		let spellbookanim = plr.GetSpellBookAnim();
 		if (spellbookanim != null && (plr.orbammo[plr.currentorb] > 0 || plr.currweaponfired == 4)) 
 		{
+			int y = 382;// was 389 originally.
+			if (currentorb == 2) y = 381;
+			if (currentorb == 3) y = 383;
+			if (currentorb == 6) y = 383;
+			if (currentorb == 7) y = 380;
+			
 			plr.spellbookframe = spellbookanim.daweaponframe;
-			DrawTexture(plr.spellbookframe, (320 + spellbookanim.currx, y + spellbookanim.curry), DI_ITEM_RELCENTER);
-			drawScoreText(320 + 126, 439, String.Format("%d", plr.potion[i]));
-			//game.getFont(4).drawText(x - mulscale(67, scale, 16), y - mulscale(39, scale, 16), tempchar, scale, 0, 0, TextAlign.Left, 0, false);
+			DrawImage(String.Format("#%05d", plr.spellbookframe), (320 + spellbookanim.currx, y + spellbookanim.curry), DI_ITEM_RELCENTER);
+			drawScoreText(320 + 126, 439, String.Format("%d", plr.orbammo[currentorb]));
 		}
 
 		/* original placement for comparison
-		int y = 382;// was 389 originally.
-		if (currentorb == 2) y = 381;
-		if (currentorb == 3) y = 383;
-		if (currentorb == 6) y = 383;
-		if (currentorb == 7) y = 380;
 
 		let spellbookpage = sspellbookanim[currentorb][8].daweaponframe;
 		DrawTexture(spellbookpage, (320 + 121, y), DI_ITEM_RELCENTER);
-		drawScoreText(320 + 126, 439, String.Format("%d", plr.potion[i]));
 		*/
 	}
 
@@ -292,7 +306,7 @@ class WHStatusBar : RazeStatusBar
 			//if (game.nNetMode == NetMode.Multiplayer) captureflagpic(scale);
 			//else fragspic(plr, scale);
 		} 
-		else potionpic(plr, plr.currentpotion, x, y, scale);
+		else potionpic(plr, plr.currentpotion);
 
 		levelpic(plr);
 		drawhealth(plr);
@@ -318,7 +332,7 @@ class WHStatusBar : RazeStatusBar
 		else
 		{
 			if (displaytime > 0)
-				displaytime -= TICSPERFRAME;
+				displaytime -= Witchaven.TICSPERFRAME;
 
 			if (displaytime <= 0) 
 			{
@@ -356,7 +370,7 @@ class WHStatusBar : RazeStatusBar
 		if (s.length() > 0)
 		{
 			let siz = SmallFont.StringWidth(s);
-			Screen.DrawText(SmallFont, CR_UNDEFINED, 320-siz/2, 40, s, DTA_FullscreenScale, FSMode_Fit640x400, DTA_Translation, Translation.MakeID(Translation_Remap, 7));
+			Screen.DrawText(SmallFont, Font.CR_NATIVEPAL, 320-siz/2, 40, s, DTA_FullscreenScale, FSMode_Fit640x400, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, 7));
 		}
 	}
 
@@ -370,8 +384,8 @@ class WHStatusBar : RazeStatusBar
 	{
 		displayStatus(plr);
 
-		if (justwarpedfx > 0)
-			DrawImage("ANNIHILATE", (0,0), DI_ITEM_RELCENTER|DI_SCREEN_CENTER, scale:(justwarpedcnt/128., justwarpedcnt/128.));
+		if (plr.justwarpedfx > 0)
+			DrawImage("ANNIHILATE", (0,0), DI_ITEM_RELCENTER|DI_SCREEN_CENTER, scale:(plr.justwarpedcnt/128., plr.justwarpedcnt/128.));
 		
 		double pwpos = 0;
 		
@@ -411,33 +425,33 @@ class WHStatusBar : RazeStatusBar
 		}
 
 		int amposx = 10;
-		int amposy = Raze.GetMessageBottomY();
+		int amposy = 40;//Raze.GetMessageBottomY();
 
-		if(plr.treasure[TONYXRING] != 0)
+		if(plr.treasure[Witchaven.TONYXRING] != 0)
 		{
 			DrawImage("ONYXRING", (amposx, amposy), DI_ITEM_RELCENTER, scale:(0.25, 0.25));
 			amposx += 20;
 		}
 		
-		if(plr.treasure[TAMULETOFTHEMIST] != 0 && plr.invisibletime > 0)
+		if(plr.treasure[Witchaven.TAMULETOFTHEMIST] != 0 && plr.invisibletime > 0)
 		{
 			DrawImage("AMULETOFTHEMIST", (amposx, amposy), DI_ITEM_RELCENTER, scale:(0.25, 0.25));
 			amposx += 20;
 		}
 		
-		if(plr.treasure[TADAMANTINERING] != 0)
+		if(plr.treasure[Witchaven.TADAMANTINERING] != 0)
 		{
 			DrawImage("ADAMANTINERING", (amposx, amposy), DI_ITEM_RELCENTER, scale:(0.25, 0.25));
 			amposx += 20;
 		}
 		
-		if(plr.treasure[TBLUESCEPTER] != 0)
+		if(plr.treasure[Witchaven.TBLUESCEPTER] != 0)
 		{
 			DrawImage("BLUESCEPTER", (amposx, amposy), DI_ITEM_RELCENTER, scale:(0.25, 0.25));
 			amposx += 20;
 		}
 		
-		if(plr.treasure[TYELLOWSCEPTER] != 0)
+		if(plr.treasure[Witchaven.TYELLOWSCEPTER] != 0)
 		{
 			DrawImage("YELLOWSCEPTER", (amposx, amposy), DI_ITEM_RELCENTER, scale:(0.25, 0.25));
 			amposx += 20;
@@ -497,10 +511,10 @@ class WHStatusBar : RazeStatusBar
 
 	override void UpdateStatusBar(SummaryInfo info)
 	{
-		let plr = WHaven.GetViewPlayer();
-		DrawGraphic("SSTATUSBAR", (0, 0), DI_ITEM_CENTER_BOTTOM | DI_SCREEN_CENTER_BOTTOM);
+		let plr = Witchaven.GetViewPlayer();
+		DrawImage("SSTATUSBAR", (0, 0), DI_ITEM_CENTER_BOTTOM | DI_SCREEN_CENTER_BOTTOM);
 		updatepics(plr);
-		int bottomy = tileSize("SSTATUSBAR") * 200 / 480; /??
+		int bottomy = tileHeight("SSTATUSBAR") * 200 / 480; //??
 		DoLevelStats(bottomy, info);
 	}
 }

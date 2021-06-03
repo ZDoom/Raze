@@ -4,7 +4,6 @@
 BEGIN_WH_NS
 
 
-int justwarpedcnt = 0;
 byte flashflag = 0x00;
 
 static const int eg_onyx_effect = 1;
@@ -30,12 +29,12 @@ short adjusthp(int hp) {
 }
 
 void timerprocess(PLAYER& plr) {
-	if (justwarpedfx > 0) {
-		justwarpedfx -= TICSPERFRAME;
-		justwarpedcnt += TICSPERFRAME << 6;
+	if (plr.justwarpedfx > 0) {
+		plr.justwarpedfx -= TICSPERFRAME;
+		plr.justwarpedcnt += TICSPERFRAME << 6;
 
-		if (justwarpedfx <= 0)
-			justwarpedcnt = 0;
+		if (plr.justwarpedfx <= 0)
+			plr.justwarpedcnt = 0;
 	}
 
 	if (plr.poisoned == 1) {

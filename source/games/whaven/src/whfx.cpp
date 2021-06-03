@@ -20,7 +20,6 @@ short lavadrylandsector[32];
 short lavadrylandcnt;
 short bobbingsectorlist[16], bobbingsectorcnt;
 
-int justwarpedfx = 0;
 int lastbat = -1;
 
 short revolveclip[16];
@@ -442,7 +441,7 @@ void teleporter() {
 			plr.sector = (short) warpsect;
 			warpfxsprite(plr.spritenum);
 			plr.angle.settarget(daang);
-			justwarpedfx = 48;
+			plr.justwarpedfx = 48;
 			spritesound(S_WARP, &sprite[plr.spritenum]);
 			setsprite(plr.spritenum, plr.x, plr.y, plr.z + (32 << 8));
 		}

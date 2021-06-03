@@ -205,7 +205,6 @@ void initplayersprite(PLAYER& plr) {
 	plr.invincibletime = plr.manatime = -1;
 	plr.hasshot = 0;
 	plr.orbshot = 0;
-	displaytime = -1;
 	plr.shadowtime = -1;
 	plr.helmettime = -1;
 	plr.nightglowtime = -1;

@@ -12,6 +12,7 @@
 #include "version.h"
 #include "cheathandler.h"
 #include "screenjob_.h"
+#include "vm.h"
 
 BEGIN_WH_NS
 
@@ -818,4 +819,93 @@ void GameInterface::ToggleThirdPerson()
 }
 
 
+DEFINE_FIELD_X(WhPlayer,PLAYER,spellnum);
+DEFINE_FIELD_X(WhPlayer,PLAYER,x);
+DEFINE_FIELD_X(WhPlayer,PLAYER,y);
+DEFINE_FIELD_X(WhPlayer,PLAYER,z);
+DEFINE_FIELD_X(WhPlayer,PLAYER,height);
+DEFINE_FIELD_X(WhPlayer,PLAYER,hvel);
+DEFINE_FIELD_X(WhPlayer,PLAYER, sector);
+DEFINE_FIELD_X(WhPlayer,PLAYER, oldsector);
+DEFINE_FIELD_X(WhPlayer,PLAYER, spritenum);
+DEFINE_FIELD_X(WhPlayer,PLAYER, keytoggle);
+DEFINE_FIELD_X(WhPlayer,PLAYER,flags);
+DEFINE_FIELD_X(WhPlayer,PLAYER,weapon);
+DEFINE_FIELD_X(WhPlayer, PLAYER, preenchantedweapon);
+DEFINE_FIELD_X(WhPlayer,PLAYER,ammo);
+DEFINE_FIELD_X(WhPlayer, PLAYER, preenchantedammo);
+DEFINE_FIELD_X(WhPlayer,PLAYER,orbammo);
+DEFINE_FIELD_X(WhPlayer,PLAYER,treasure);
+DEFINE_FIELD_X(WhPlayer,PLAYER,orbactive);
+DEFINE_FIELD_X(WhPlayer,PLAYER,orb);
+DEFINE_FIELD_X(WhPlayer,PLAYER,potion);
+DEFINE_FIELD_X(WhPlayer,PLAYER,lvl);
+DEFINE_FIELD_X(WhPlayer,PLAYER,score);
+DEFINE_FIELD_X(WhPlayer,PLAYER,health);
+DEFINE_FIELD_X(WhPlayer,PLAYER,maxhealth);
+DEFINE_FIELD_X(WhPlayer,PLAYER,armor);
+DEFINE_FIELD_X(WhPlayer,PLAYER,armortype);
+DEFINE_FIELD_X(WhPlayer,PLAYER,onsomething);
+DEFINE_FIELD_X(WhPlayer,PLAYER,fallz);
+DEFINE_FIELD_X(WhPlayer,PLAYER, dead);
+DEFINE_FIELD_X(WhPlayer,PLAYER,shadowtime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,helmettime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,scoretime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,vampiretime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,selectedgun);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currweapon);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currweapontics);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currweaponanim);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currweaponframe);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currweaponfired);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currweaponattackstyle);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currweaponflip);
+DEFINE_FIELD_X(WhPlayer,PLAYER,hasshot);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currentpotion);
+DEFINE_FIELD_X(WhPlayer,PLAYER,strongtime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,manatime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,invisibletime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,orbshot);
+DEFINE_FIELD_X(WhPlayer,PLAYER,spellbooktics);
+DEFINE_FIELD_X(WhPlayer,PLAYER,spellbook);
+DEFINE_FIELD_X(WhPlayer,PLAYER,spellbookframe);
+DEFINE_FIELD_X(WhPlayer,PLAYER,spellbookflip);
+DEFINE_FIELD_X(WhPlayer,PLAYER,nightglowtime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,showbook);
+DEFINE_FIELD_X(WhPlayer,PLAYER,showbooktype);
+DEFINE_FIELD_X(WhPlayer,PLAYER,showbookflip);
+DEFINE_FIELD_X(WhPlayer,PLAYER,showbookanim);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currentorb);
+DEFINE_FIELD_X(WhPlayer,PLAYER,spelltime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,shieldpoints);
+DEFINE_FIELD_X(WhPlayer,PLAYER,shieldtype);
+DEFINE_FIELD_X(WhPlayer,PLAYER,poisoned);
+DEFINE_FIELD_X(WhPlayer,PLAYER,poisontime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,shockme);
+DEFINE_FIELD_X(WhPlayer,PLAYER,invincibletime);
+DEFINE_FIELD_X(WhPlayer,PLAYER,spiked);
+DEFINE_FIELD_X(WhPlayer,PLAYER,spiketics);
+DEFINE_FIELD_X(WhPlayer,PLAYER,spikeframe);
+DEFINE_FIELD_X(WhPlayer,PLAYER,currspikeframe);
+DEFINE_FIELD_X(WhPlayer,PLAYER, godMode);
+DEFINE_FIELD_X(WhPlayer,PLAYER, noclip);
+DEFINE_FIELD_X(WhPlayer,PLAYER, over_shoulder_on);
+DEFINE_FIELD_X(WhPlayer, PLAYER, justwarpedfx);
+DEFINE_FIELD_X(WhPlayer, PLAYER, justwarpedcnt);
+
+DEFINE_FIELD_X(WhWeaponInf, WEAPONINF, daweapontics);
+DEFINE_FIELD_X(WhWeaponInf, WEAPONINF, daweaponframe);
+DEFINE_FIELD_X(WhWeaponInf, WEAPONINF, currx);
+DEFINE_FIELD_X(WhWeaponInf, WEAPONINF, curry);
+
+DEFINE_ACTION_FUNCTION(_WhPlayer, GetSpellbookAnim)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(PLAYER);
+	ACTION_RETURN_POINTER(&sspellbookanim[self->currentorb][8]);
+}
+
+DEFINE_ACTION_FUNCTION(_Witchaven, GetViewPlayer)
+{
+	ACTION_RETURN_POINTER(&player[myconnectindex]);
+}
 END_WH_NS

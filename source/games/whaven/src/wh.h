@@ -161,7 +161,6 @@ extern uint8_t floorshadearray[MAXSECTORS];
 extern uint8_t wallshadearray[MAXWALLS];
 extern short floormirrorsector[64];
 extern int floormirrorcnt;
-extern int displaytime;
 
 extern int zr_ceilz, zr_ceilhit, zr_florz, zr_florhit;
 void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype);
@@ -182,7 +181,6 @@ Point rotatepoint(int xpivot, int ypivot, int x, int y, short daang);
 
 // whobj
 
-extern int justwarpedcnt;
 extern byte flashflag;
 extern short torchpattern[];
 extern int monsterwarptime;
@@ -349,7 +347,6 @@ extern short skypanlist[64], skypancnt;
 extern short lavadrylandsector[32];
 extern short lavadrylandcnt;
 extern short bobbingsectorlist[16], bobbingsectorcnt;
-extern int justwarpedfx;
 extern int lastbat;
 extern short revolveclip[16];
 extern short revolvesector[4], revolveang[4], revolvecnt;
