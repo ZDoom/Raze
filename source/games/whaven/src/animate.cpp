@@ -1,5 +1,6 @@
 #include "ns.h"
 #include "wh.h"
+#include "interpolate.h"
 
 BEGIN_WH_NS
 
@@ -42,7 +43,22 @@ int setanimation(int index, int thegoal, int thevel, int theacc, int type)
 	gAnm.vel = thevel;
 	gAnm.acc = theacc;
 	gAnm.type = (byte)type;
-	// todo: setinterpolation
+
+	switch (gAnm.type)
+	{
+	case WALLX:
+		StartInterpolation(gAnm.id, Interp_Wall_X);
+		break;
+	case WALLY:
+		StartInterpolation(gAnm.id, Interp_Wall_Y);
+		break;
+	case FLOORZ:
+		StartInterpolation(gAnm.id, Interp_Sect_Floorz);
+		break;
+	case CEILZ:
+		StartInterpolation(gAnm.id, Interp_Sect_Ceilingz);
+		break;
+	}
 
 	if (j == gAnimationCount) gAnimationCount++;
 
@@ -90,7 +106,22 @@ void doanimations()
 
 		if (j == gAnm.goal)
 		{
-			// todo: stopinterpolation
+			switch (gAnm.type)
+			{
+			case WALLX:
+				StopInterpolation(gAnm.id, Interp_Wall_X);
+				break;
+			case WALLY:
+				StopInterpolation(gAnm.id, Interp_Wall_Y);
+				break;
+			case FLOORZ:
+				StopInterpolation(gAnm.id, Interp_Sect_Floorz);
+				break;
+			case CEILZ:
+				StopInterpolation(gAnm.id, Interp_Sect_Ceilingz);
+				break;
+			}
+
 			gAnimationCount--;
 			if (i != gAnimationCount)
 				gAnm = gAnimationData[gAnimationCount];

@@ -936,8 +936,7 @@ void animatetags(int nPlayer) {
 			dragpoint((short) j, wall[j].x + dragxdir[i], wall[j].y + dragydir[i]);
 		j = sector[dasector].floorz;
 			
-#pragma message ("setinterpolation")
-		//game.pInt.setceilinterpolate(dasector, sector[dasector]);
+		StartInterpolation(dasector, Interp_Sect_Floorz);
 		sector[dasector].floorz = dragfloorz[i] + bsin(PlayClock << 4, -3);
 	
 		if (plr.sector == dasector) {
@@ -971,6 +970,8 @@ void animatetags(int nPlayer) {
 				Point out = rotatepoint(swingdoor[i].x[0], swingdoor[i].y[0], swingdoor[i].x[k],
 						swingdoor[i].y[k], (short) swingdoor[i].ang);
 
+				StartInterpolation(swingdoor[i].wall[k], Interp_Wall_X);
+				StartInterpolation(swingdoor[i].wall[k], Interp_Wall_Y);
 				dragpoint((short)swingdoor[i].wall[k], out.getX(), out.getY());
 			}
 			if (swingdoor[i].anginc != 0) {
@@ -988,6 +989,8 @@ void animatetags(int nPlayer) {
 							Point out = rotatepoint(swingdoor[i].x[0], swingdoor[i].y[0], swingdoor[i].x[k],
 									swingdoor[i].y[k], (short) swingdoor[i].ang);
 
+							StartInterpolation(swingdoor[i].wall[k], Interp_Wall_X);
+							StartInterpolation(swingdoor[i].wall[k], Interp_Wall_Y);
 							dragpoint((short)swingdoor[i].wall[k], out.getX(), out.getY());
 						}
 						swingdoor[i].anginc = -swingdoor[i].anginc;

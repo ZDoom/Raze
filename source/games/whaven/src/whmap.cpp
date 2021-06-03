@@ -236,7 +236,7 @@ boolean prepareboard(const char* fname) {
 	killcnt = 0;
 	kills = 0;
 	expgained = 0;
-	// numinterpolations=0;
+	ClearInterpolations();
 
 	// the new mirror code
 	floormirrorcnt = 0;
