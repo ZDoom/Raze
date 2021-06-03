@@ -360,6 +360,8 @@ static int32_t LoadMapHack(const char *filename)
 
 void G_LoadMapHack(const char* filename, const unsigned char* md4)
 {
+    hw_ClearSplitSector();
+
     for (auto& p : blockingpairs) p.Clear();
     FString internal = "engine/compatibility/";
     for (int j = 0; j < 16; ++j)

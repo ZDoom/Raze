@@ -22,13 +22,11 @@
 
 BEGIN_DUKE_NS
 
-extern FFont* IndexFont;
-extern FFont* DigiFont;
-
 struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Duke"; }
 	void app_init() override;
+	void loadPalette();
 	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
@@ -74,9 +72,6 @@ struct GameInterface : public ::GameInterface
 
 struct Dispatcher
 {
-	// global stuff
-	void (*InitFonts)();
-
 	// sectors_?.cpp
 	void (*think)();
 	void (*initactorflags)();

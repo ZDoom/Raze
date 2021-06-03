@@ -197,6 +197,7 @@ enum
     CSTAT_SPRITE_ALIGNMENT_WALL   = 1u<<4u,
     CSTAT_SPRITE_ALIGNMENT_FLOOR  = 1u<<5u,
     CSTAT_SPRITE_ALIGNMENT_SLAB   = 1u<<4u | 1u<<5u,
+    CSTAT_SPRITE_ALIGNMENT_SLOPE  = 1u << 4u | 1u << 5u,
 
     CSTAT_SPRITE_ALIGNMENT_MASK   = 1u<<4u | 1u<<5u,
 };
@@ -268,6 +269,9 @@ struct spritetype
     int16_t extra;
     int16_t detail;
     int time;
+    int16_t wall;
+    int8_t wdist;
+
 
 #if 0
     // make sure we do not accidentally copy this

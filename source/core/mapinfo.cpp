@@ -68,15 +68,6 @@ CCMD(listmaps)
 	}
 }
 
-int CutsceneDef::GetSound()
-{
-	int id;
-	if (soundName.IsNotEmpty()) id = soundEngine->FindSound(soundName);
-	if (id <= 0) id = soundEngine->FindSoundByResID(soundID);
-	return id;
-}
-
-
 MapRecord *FindMapByName(const char *nm)
 {
 	for (auto& map : mapList)

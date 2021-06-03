@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "secrets.h"
 #include "serializer.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -457,7 +458,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 		PLAYER* pPlayer = NULL;
 		if (playerRXRngIsFine(rxId)) 
 		{
-			if ((pPlayer = getPlayerById((kChannelPlayer0 - kChannelPlayer7) + kMaxPlayers)) != nullptr)
+			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)
 				trMessageSprite(pPlayer->nSprite, event);
 		}
 		else if (rxId == kChannelAllPlayers) 
@@ -467,6 +468,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 				if ((pPlayer = getPlayerById(i)) != nullptr)
 					trMessageSprite(pPlayer->nSprite, event);
 			}
+            return;
 		}
 
 	}
@@ -525,6 +527,16 @@ void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 }
 
 
+void evPost(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
+{
+	evPost(actor->s().index, 3, nDelta, command);
+}
+
+void evPost(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
+{
+	evPost(actor->s().index, 3, nDelta, callback);
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -547,6 +559,11 @@ void evKill(int index, int type, CALLBACK_ID cb)
 		if (ev->index == index && ev->type == type && ev->funcID == cb) ev = queue.erase(ev);
 		else ev++;
 	}
+}
+
+void evKill(DBloodActor* actor)
+{
+	evKill(actor->s().index, 3);
 }
 
 //---------------------------------------------------------------------------

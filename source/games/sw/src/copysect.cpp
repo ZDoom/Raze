@@ -34,6 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 #include "misc.h"
 #include "interpso.h"
+#include "render.h"
 
 BEGIN_SW_NS
 
@@ -244,6 +245,11 @@ void CopySectorMatch(short match)
 
                 dsectp->extra = ssectp->extra;
                 dsectp->visibility = ssectp->visibility;
+
+                if (ssectp->floorpicnum == FAF_MIRROR_PIC || ssectp->ceilingpicnum == FAF_MIRROR_PIC)
+                {
+                    CollectPortals(); // unavoidable. Since these portals are not static we have to reinitialize all of them.
+                }
             }
         }
     }

@@ -490,3 +490,6 @@ struct SetAnim
 };
 
 void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp);
+class FGameTexture;
+bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wantindexed = false);
+

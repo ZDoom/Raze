@@ -392,9 +392,34 @@ int BunchDrawer::WallInFront(int line1, int line2)
 //
 //==========================================================================
 
+int BunchDrawer::ColinearBunchInFront(FBunch* b1, FBunch* b2)
+{
+	// Unable to determine the order. The only option left is to see if the sectors within the bunch can be ordered.
+	for (int i = b1->startline; i <= b1->endline; i++)
+	{
+		int wall1s = sectionLines[i].wall;
+		if (wall1s == -1) continue;
+		int sect1 = wall[wall1s].sector;
+		int nsect1 = wall[wall1s].nextsector;
+		if (nsect1 < 0) continue;
+		for (int j = b2->startline; j <= b2->endline; j++)
+		{
+			int wall2s = sectionLines[j].wall;
+			if (wall2s == -1) continue;
+			int sect2 = wall[wall2s].sector;
+			int nsect2 = wall[wall2s].nextsector;
+			if (nsect2 < 0) continue;
+			if (sect1 == nsect2) return 1; // bunch 2 is in front
+			if (sect2 == nsect1) return 0; // bunch 1 is in front
+		}
+	}
+	return -1;
+}
+
 int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 {
 	binangle anglecheck, endang;
+	bool colinear = false;
 
 	if (b2->startangle.asbam() >= b1->startangle.asbam() && b2->startangle.asbam() < b1->endangle.asbam())
 	{
@@ -409,6 +434,15 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 			{
 				// found a line
 				int ret = WallInFront(b2->startline, i);
+				if (ret == -1)
+				{
+					ret = ColinearBunchInFront(b1, b2);
+					if (ret == -1)
+					{
+						colinear = true;
+						continue;
+					}
+				}
 				return ret;
 			}
 		}
@@ -426,9 +460,23 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 			{
 				// found a line
 				int ret = WallInFront(i, b1->startline);
+				if (ret == -1)
+				{
+					ret = ColinearBunchInFront(b1, b2);
+					if (ret == -1)
+					{
+						colinear = true;
+						continue;
+					}
+				}
 				return ret;
 			}
 		}
+	}
+	if (colinear)
+	{
+		// This should never happen.
+		assert(true);
 	}
 	// we have no overlap
 	return -1;

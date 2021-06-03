@@ -818,11 +818,11 @@ int spawn_d(int j, int pn)
                     }
                 }
 
-                if( sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 || sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4 )
+                if (bossguy(sp))
                 {
                     if(j >= 0 && spj->picnum == RESPAWN)
                         sp->pal = spj->pal;
-                    if(sp->pal)
+                    if (sp->pal && (!isWorldTour() || !(currentLevel->flags & LEVEL_WT_BOSSSPAWN) || sp->pal != 22))
                     {
                         sp->clipdist = 80;
                         sp->xrepeat = 40;

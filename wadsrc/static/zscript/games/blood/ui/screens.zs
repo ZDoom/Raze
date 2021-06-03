@@ -87,7 +87,7 @@ struct BloodScreen
 
 	static int DrawCaption(String title, int y, bool drawit)
 	{
-		let font = generic_ui? NewConsoleFont : BigFont;
+		let font = Raze.PickBigFont();
 		let texid = TexMan.CheckForTexture("MENUBAR");
 		let texsize = TexMan.GetScaledSize(texid);
 		let fonth = font.GetGlyphHeight("A");
@@ -100,7 +100,7 @@ struct BloodScreen
 				if (texsize.X - 10 < width) scalex = width / (texsize.X - 10);
 				screen.DrawTexture(texid, false, 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex);
 			}
-			screen.DrawText(font, Font.CR_UNDEFINED, 160 - width / 2, 20 - fonth / 2, title, DTA_FullscreenScale, FSMode_Fit320x200Top);
+			screen.DrawText(font, Font.CR_UNTRANSLATED, 160 - width / 2, 20 - fonth / 2, title, DTA_FullscreenScale, FSMode_Fit320x200Top);
 		}
 		double fx, fy, fw, fh;
 		[fx, fy, fw, fh] = Screen.GetFullscreenRect(320, 200, FSMode_ScaleToFit43Top);
@@ -117,12 +117,26 @@ struct BloodScreen
 	static void DrawText(Font pFont, String pString, int x, int y, int position = 0, int nShade = 0, int nPalette = 0, bool shadow = true, float alpha = 1.)
 	{
 		if (position > 0) x -= pFont.StringWidth(pString) * position / 2;
-		if (shadow) Screen.DrawText(pFont, Font.CR_UNDEFINED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5);
-		Screen.DrawText(pFont, Font.CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, nPalette),
+		if (shadow) Screen.DrawText(pFont, Font.CR_UNTRANSLATED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5);
+		Screen.DrawText(pFont, Font.CR_NATIVEPAL, x, y, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, nPalette),
 				DTA_Color, Raze.shadeToLight(nShade), DTA_Alpha, alpha);
 
 	}
 
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	static void DrawLocalizedText(int x, int y, String text, int position = 1)
+	{
+		let text = StringTable.Localize(text);
+		if (hud_textfont || !SmallFont2.CanPrint(text))
+			DrawText(Raze.PickSmallFont(text), text, x, y, 1);
+		else
+			DrawText(SmallFont2, text, x, y, 1, shadow: true);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -133,6 +147,8 @@ struct BloodScreen
 
 class BloodSummaryScreen : SummaryScreenBase
 {
+	Font myfont;
+
 	ScreenJob Init(MapRecord map, SummaryInfo info)
 	{
 		Super.Init(fadein|fadeout);
@@ -147,7 +163,7 @@ class BloodSummaryScreen : SummaryScreenBase
 
 	override bool OnEvent(InputEvent ev)
 	{
-		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev))
+		if (ev.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(ev))
 		{
 			jobstate = skipped;
 			return true;
@@ -158,35 +174,34 @@ class BloodSummaryScreen : SummaryScreenBase
 	void DrawKills()
 	{
 		String pBuffer;
-		BloodScreen.DrawText(BigFont, Stringtable.Localize("$KILLS") .. ":", 75, 50);
+		BloodScreen.DrawText(myfont, Stringtable.Localize("$KILLS") .. ":", 75, 50);
 		pBuffer = String.Format("%2d", stats.Kills);
-		BloodScreen.DrawText(BigFont, pBuffer, 160, 50);
-		BloodScreen.DrawText(BigFont, "$OF", 190, 50);
+		BloodScreen.DrawText(myfont, pBuffer, 160, 50);
+		BloodScreen.DrawText(myfont, "$OF", 190, 50);
 		pBuffer = String.Format( "%2d", stats.MaxKills);
-		BloodScreen.DrawText(BigFont, pBuffer, 220, 50);
+		BloodScreen.DrawText(myfont, pBuffer, 220, 50);
 	}
 
 	void DrawSecrets()
 	{
 		String pBuffer;
-		BloodScreen.DrawText(BigFont, StringTable.Localize("$TXT_SECRETS") .. ":", 75, 70);
+		BloodScreen.DrawText(myfont, StringTable.Localize("$TXT_SECRETS") .. ":", 75, 70);
 		pBuffer = String.Format( "%2d", stats.secrets);
-		BloodScreen.DrawText(BigFont, pBuffer, 160, 70);
-		BloodScreen.DrawText(BigFont, "$OF", 190, 70);
+		BloodScreen.DrawText(myfont, pBuffer, 160, 70);
+		BloodScreen.DrawText(myfont, "$OF", 190, 70);
 		pBuffer = String.Format( "%2d", stats.maxsecrets);
-		BloodScreen.DrawText(BigFont, pBuffer, 220, 70);
-		if (stats.SuperSecrets > 0) BloodScreen.DrawText(BigFont, "$TXT_SUPERSECRET", 160, 100, 1, 0, 2);
+		BloodScreen.DrawText(myfont, pBuffer, 220, 70);
+		if (stats.SuperSecrets > 0) BloodScreen.DrawText(myfont, "$TXT_SUPERSECRET", 160, 100, 1, 0, 2);
 	}
 
 	override void Draw(double sm)
 	{
+		myfont = Raze.PickBigFont();
 		BloodScreen.DrawBackground();
 		BloodScreen.DrawCaption("$TXTB_LEVELSTATS", 0, true);
 		if (stats.cheated)
 		{
-			let text = StringTable.Localize("$TXTB_CHEATED");
-			let font = SmallFont2.CanPrint(text)? SmallFont2 : SmallFont;
-			BloodScreen.DrawText(font, text, 160, 32, 1, shadow:font == SmallFont2);
+			BloodScreen.DrawLocalizedText(160, 32, "$TXTB_CHEATED");
 		}
 		DrawKills();
 		DrawSecrets();
@@ -194,15 +209,13 @@ class BloodSummaryScreen : SummaryScreenBase
 		int myclock = ticks * 120 / GameTicRate;
 		if ((myclock & 32))
 		{
-			let text = StringTable.Localize("$PRESSKEY");
-			let font = SmallFont2.CanPrint(text)? SmallFont2 : SmallFont;
-			BloodScreen.DrawText(font, text, 160, 134, 1, shadow:font == SmallFont2);
+			BloodScreen.DrawLocalizedText(160, 134, "$PRESSKEY");
 		}
 	}
 
 	override void OnDestroy()
 	{
-		Raze.StopAllSounds();
+		System.StopAllSounds();
 	}
 }
 
@@ -227,37 +240,10 @@ class BloodMPSummaryScreen : SkippableScreenJob
 		Blood.sndStartSample(268, 128, -1, false, CHANF_UI);
 	}
 
-	void DrawKills()
-	{
-		String pBuffer;
-		BloodScreen.DrawText(SmallFont2, "#", 85, 35);
-		BloodScreen.DrawText(SmallFont2, "$NAME", 100, 35);
-		BloodScreen.DrawText(SmallFont2, "$FRAGS", 210, 35);
-
-		for (int i = 0; i < numplayers; i++)
-		{
-			pBuffer = String.Format( "%-2d", i);
-			BloodScreen.DrawText(SmallFont2,  pBuffer, 85, 50 + 8 * i);
-			pBuffer = String.Format( "%s", Raze.PlayerName(i));
-			BloodScreen.DrawText(SmallFont2,  pBuffer, 100, 50 + 8 * i);
-			pBuffer = String.Format( "%d", Raze.playerFrags(i, -1));
-			BloodScreen.DrawText(SmallFont2,  pBuffer, 210, 50 + 8 * i);
-		}
-	}
-
 	override void Draw(double sr) 
 	{
 		BloodScreen.DrawBackground();
-		BloodScreen.DrawCaption("$TXTB_FRAGSTATS", 0, true);
-		DrawKills();
-
-		int myclock = ticks * 120 / GameTicRate;
-		if ((myclock & 32))
-		{
-			let text = StringTable.Localize("$PRESSKEY");
-			let font = SmallFont2.CanPrint(text)? SmallFont2 : SmallFont;
-			BloodScreen.DrawText(font, text, 160, 134, 1, shadow:font == SmallFont2);
-		}
+		Raze.DrawScoreboard(60);
 	}
 }
 
@@ -292,11 +278,8 @@ class BloodLoadScreen : ScreenJob
 	{
 		BloodScreen.DrawBackground();
 		BloodScreen.DrawCaption(loadtext, 0, true);
-		BloodScreen.DrawText(BigFont, rec.DisplayName(), 160, 50, 1);
-
-		let text = StringTable.Localize("$TXTB_PLSWAIT");
-		let font = SmallFont2.CanPrint(text)? SmallFont2 : SmallFont;
-		BloodScreen.DrawText(font, text, 160, 134, 1, shadow:font == SmallFont2);
+		BloodScreen.DrawText(Raze.PickBigFont(), rec.DisplayName(), 160, 50, 1);
+		BloodScreen.DrawLocalizedText(160, 134, "$TXTB_PLSWAIT");
 	}
 }
 

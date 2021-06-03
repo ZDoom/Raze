@@ -110,8 +110,7 @@ static COLOR_MAP PlayerColorMap[PLAYER_COLOR_MAPS][1] =
 
 };
 
-void
-InitPalette(void)
+void GameInterface::loadPalette(void)
 {
     static COLOR_MAP AllToRed[] =
     {
@@ -215,6 +214,17 @@ InitPalette(void)
     unsigned int i;
     short play;
     uint8_t tempbuf[256];
+
+    paletteLoadFromDisk();
+    auto pal = fileSystem.LoadFile("3drealms.pal", 0);
+    if (pal.Size() >= 768)
+    {
+        for (auto& c : pal)
+            c <<= 2;
+
+        paletteSetColorTable(DREALMSPAL, pal.Data(), true, true);
+    }
+
 
     //
     // Dive palettes

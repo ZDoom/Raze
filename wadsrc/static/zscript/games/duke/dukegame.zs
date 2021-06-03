@@ -72,7 +72,7 @@ struct Duke native
 	
 	static void PlayBonusMusic()
 	{
-		if (Raze.MusicEnabled())
+		if (System.MusicEnabled())
 			PlaySound(DukeSnd.BONUSMUSIC, CHAN_AUTO, CHANF_UI);
 	}
 	
@@ -85,21 +85,22 @@ struct Duke native
 		
 	static void BigText(double x, double y, String text, int align = -1, double alpha = 1.)
 	{
-		
+		let myfont = Raze.PickBigFont();
 		if (!Raze.isRR())
 		{
-			if (align != -1) x -= BigFont.StringWidth(text) * (align == 0 ? 0.5 : 1);
-			Screen.DrawText(BigFont, Font.CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha);
+			if (align != -1) x -= myfont.StringWidth(text) * (align == 0 ? 0.5 : 1);
+			Screen.DrawText(myfont, Font.CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha);
 		}
 		else
 		{
-			if (align != -1) x -= BigFont.StringWidth(text) * (align == 0 ? 0.2 : 0.4);
-			Screen.DrawText(BigFont, Font.CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha);
+			if (align != -1) x -= myfont.StringWidth(text) * (align == 0 ? 0.2 : 0.4);
+			Screen.DrawText(myfont, Font.CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha);
 		}
 	}
 
 	static void GameText(double x, double y, String t, int shade, int align = -1, int trans = 0)
 	{
+		let myfont = Raze.PickSmallFont();
 		int fsmode = FSMode_Fit320x200;
 		if (Raze.isRR())
 		{
@@ -107,24 +108,9 @@ struct Duke native
 			y *= 2;
 			fsmode = FSMode_Fit640x400;
 		}
-		if (align != -1) x -= SmallFont.StringWidth(t) * (align == 0 ? 0.5 : 1);
-		Screen.DrawText(SmallFont, Font.CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, fsmode, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, trans), DTA_Color, Raze.shadeToLight(shade));
+		if (align != -1) x -= myfont.StringWidth(t) * (align == 0 ? 0.5 : 1);
+		Screen.DrawText(myfont, Font.CR_NATIVEPAL, x, y + 2, t, DTA_FullscreenScale, fsmode, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, trans), DTA_Color, Raze.shadeToLight(shade));
 	}
-
-	static void MiniText(double x, double y, String t, int shade, int align = -1, int trans = 0)
-	{
-		int fsmode = FSMode_Fit320x200;
-		if (Raze.isRR())
-		{
-			x *= 2;
-			y *= 2;
-			fsmode = FSMode_Fit640x400;
-		}
-		if (align != -1) x -= SmallFont2.StringWidth(t) * (align == 0 ? 0.5 : 1);
-		Screen.DrawText(SmallFont2, Font.CR_UNDEFINED, x, y, t, DTA_FullscreenScale, fsmode, DTA_TranslationIndex, Translation.MakeID(Translation_Remap, trans), DTA_Color, Raze.shadeToLight(shade));
-	}
-	
-
 }
 
 struct DukePlayer 

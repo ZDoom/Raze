@@ -38,6 +38,7 @@ source as it is released.
 #include "prediction.h"
 #include "names_d.h"
 #include "dukeactor.h"
+#include "gamefuncs.h"
 
 EXTERN_CVAR(Bool, wt_commentary)
 

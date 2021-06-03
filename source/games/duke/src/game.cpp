@@ -39,6 +39,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "i_interface.h"
 #include "prediction.h"
 #include "gamestate.h"
+#include "razefont.h"
 
 BEGIN_DUKE_NS
 
@@ -265,6 +266,12 @@ static void SetTileNames()
 #undef y
 
 
+void GameInterface::loadPalette()
+{
+	paletteLoadFromDisk();
+	genspriteremaps();
+}
+
 //---------------------------------------------------------------------------
 //
 // set up the game module's state
@@ -309,6 +316,7 @@ void GameInterface::app_init()
 
 	loadcons();
 	fi.initactorflags();
+	duke_menufont.Callback(); // depends on the .CON files so it must be after loadcons
 
 	OnEvent(EVENT_INIT);
 
@@ -316,7 +324,6 @@ void GameInterface::app_init()
 
 	initTiles();
 	setupbackdrop();
-	genspriteremaps();
 	SetupGameButtons();
 	InitCheats();
 	checkcommandline();
@@ -324,10 +331,7 @@ void GameInterface::app_init()
 
 	screenpeek = myconnectindex;
 
-	LoadDefinitions();
-	fi.InitFonts();
 	SetTileNames();
-	TileFiles.SetBackup();
 	C_InitConback(TexMan.CheckForTexture("MENUSCREEN", ETextureType::Any), false, 0.75);
 
 	if (ud.multimode > 1)

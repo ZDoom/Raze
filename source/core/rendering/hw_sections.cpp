@@ -206,7 +206,7 @@ void hw_SplitSector(int sectnum, int start, int end)
 		}
 		if (foundstart && foundend)
 		{
-			sectionspersector->Delete(i);
+			sectionspersector[sectnum].Delete(i);
 			SplitSection(sect, start, end);
 			return;
 		}
@@ -218,4 +218,9 @@ void hw_SetSplitSector(int sectnum, int start, int end)
 	splits.Push(sectnum);
 	splits.Push(start);
 	splits.Push(end);
+}
+
+void hw_ClearSplitSector()
+{
+	splits.Clear();
 }

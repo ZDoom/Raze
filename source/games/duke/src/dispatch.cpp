@@ -105,10 +105,6 @@ void think_r();
 void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
 void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio);
 
-void InitFonts_d();
-void InitFonts_r();
-
-
 Dispatcher fi;
 
 void SetDispatcher()
@@ -116,8 +112,6 @@ void SetDispatcher()
 	if (!isRR())
 	{
 		fi = {
-		InitFonts_d,
-
 		think_d,
 		initactorflags_d,
 		isadoorwall_d,
@@ -161,8 +155,6 @@ void SetDispatcher()
 	else
 	{
 		fi = {
-		InitFonts_r,
-
 		think_r,
 		initactorflags_r,
 		isadoorwall_r,

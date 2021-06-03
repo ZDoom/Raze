@@ -98,6 +98,7 @@ inline int seqGetTile(SEQFRAME* pFrame)
 int seqRegisterClient(void(*pClient)(int, int));
 void seqPrecacheId(int id, int palette);
 SEQINST* GetInstance(int a1, int a2);
+SEQINST* GetInstance(DBloodActor* actor);
 void UnlockInstance(SEQINST* pInst);
 void seqSpawn(int a1, int a2, int a3, int a4 = -1);
 void seqSpawn(int a1, DBloodActor* actor, int a4 = -1);

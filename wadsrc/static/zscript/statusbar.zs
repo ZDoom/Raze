@@ -4,6 +4,7 @@ struct StatsPrintInfo
 {
 	int screenbottomspace;
 	int spacing; // uses fontheight if 0 or less.
+	int altspacing;	// in case a larger replacement font is needed.
 	String letterColor, standardColor, completeColor;
 	double fontscale;
 	Font statfont;
@@ -77,7 +78,7 @@ class RazeStatusBar : StatusBarCore
 		y3 = y;
 
 		String text;
-
+		
 		text = String.Format("%sT: %s%d:%02d", info.letterColor, info.standardColor, stats.time / 60000, (stats.time % 60000) / 1000);
 		drawStatText(info.statFont, 2 * hud_statscale, y3, text, scale);
 
@@ -110,41 +111,59 @@ class RazeStatusBar : StatusBarCore
 
 	void PrintAutomapInfo(StatsPrintInfo info, bool forcetextfont = false)
 	{
-		let TEXTCOLOR_ESCAPESTR= "\034";
+		let TEXTCOLOR_ESCAPESTR = "\034";
 		let lev = currentLevel;
-		String mapname;
-		if (am_showlabel) 
-			mapname.Format("%s%s: %s%s", info.letterColor, lev.GetLabelName(), info.standardColor, lev.DisplayName());
-		else 
-			mapname.Format("%s%s", info.standardColor, lev.DisplayName());
+		let levname = lev.DisplayName();
 
-		forcetextfont |= am_textfont;
+		let cluster = lev.GetCluster();
+		String volname;
+		if (cluster) volname = cluster.name;
+
+		let allname = levname .. volname;
+
+		double scale, spacing;
+		String tcol = info.standardColor;
+		Font myfont;
+		if (!forcetextfont && !am_textfont && info.statfont.CanPrint(allname))
+		{
+			scale = info.fontscale;
+			spacing = info.spacing;
+			myfont = info.statfont;
+		}
+		else
+		{
+			scale = info.fontscale * hud_statscale;
+			spacing = info.altspacing * hud_statscale;
+			myfont = Raze.isNamWW2GI()? ConFont : Raze.PickSmallFont(allname);
+		}
+
+		String mapname;
+		if (am_showlabel) mapname = String.Format("%s%s: %s%s", info.letterColor, lev.GetLabelName(), tcol, levname);
+		else mapname = String.Format("%s%s", tcol, levname);
+
+
+
+			
 		double y;
-		double scale = info.fontScale * (forcetextfont ? hud_statscale : 1);	// the tiny default font used by all games here cannot be scaled for readability purposes.
-		if (info.spacing <= 0) info.spacing = info.statfont.GetHeight() * info.fontScale;
-		double spacing = info.spacing * (forcetextfont ? hud_statscale : 1);
 		if (am_nameontop)
 		{
 			y = spacing + 1;
 		}
 		else if (info.screenbottomspace < 0)
 		{
-			y = 200 - RelTop - spacing;
+			y = (200 - RelTop) * hud_scalefactor - spacing;
 		}
 		else
 		{
-			y = 200 - info.screenbottomspace - spacing;
+			y = 200 - info.screenbottomspace * hud_scalefactor - spacing;
 		}
-		let cluster = lev.GetCluster();
-		String volname;
-		if (cluster) volname = cluster.name;
 		if (volname.length() == 0 && am_nameontop) y = 1;
 
-		Screen.DrawText(info.statfont, Font.CR_UNTRANSLATED, 2 * hud_statscale, y, mapname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		Screen.DrawText(myfont, Font.CR_UNTRANSLATED, 2 * hud_statscale, y, mapname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true);
 		y -= spacing;
 		if (volname.length() > 0)
-			Screen.DrawText(info.statfont, Font.CR_UNTRANSLATED, 2 * hud_statscale, y, volname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			Screen.DrawText(myfont, Font.CR_UNTRANSLATED, 2 * hud_statscale, y, volname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 				DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true);
 	}
 

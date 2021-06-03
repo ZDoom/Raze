@@ -146,12 +146,12 @@ struct usermaphack_t
     uint8_t md4[16]{};
 };
 
-EXTERN spriteext_t *spriteext;
-EXTERN spritesmooth_t *spritesmooth;
+extern spriteext_t spriteext[MAXSPRITES];
+extern spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
 
-EXTERN sectortype *sector;
-EXTERN walltype *wall;
-EXTERN spritetype *sprite;
+extern sectortype sector[MAXSECTORS];
+extern walltype wall[MAXWALLS];
+extern spritetype sprite[MAXSPRITES];
 EXTERN int leveltimer;
 
 extern sectortype sectorbackup[MAXSECTORS];
@@ -339,7 +339,6 @@ typedef struct artheader_t {
 } artheader_t;
 #define ARTv1_UNITOFFSET 24 // using sizeof does not work because picanm_t is not the in-file format.
 
-int32_t    enginePreInit(void);	// a partial setup of the engine used for launch windows
 int32_t    engineInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);

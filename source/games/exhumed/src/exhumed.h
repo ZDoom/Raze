@@ -176,6 +176,7 @@ enum {
 
 class TextOverlay
 {
+    FFont* font;
 	double nCrawlY;
 	short nLeft[50];
 	int nHeight;
@@ -213,11 +214,12 @@ const uint32_t kSpiritY = 97;
 const uint32_t WorktileSize = kSpiritX * 2 * kSpiritY * 2;
 
 
-struct GameInterface : ::GameInterface
+struct GameInterface : public ::GameInterface
 {
     const char* Name() override { return "Exhumed"; }
     void app_init() override;
     void clearlocalinputstate() override;
+    void loadPalette() override;
 	bool GenerateSavePic() override;
     void MenuOpened() override;
     void MenuSound(EMenuSounds snd) override;

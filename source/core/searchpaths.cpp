@@ -248,8 +248,18 @@ TArray<FString> CollectSearchPaths()
 	for (auto &str : searchpaths)
 	{
 		str.Substitute("\\", "/");
+#ifdef _WIN32
+		bool isUNCpath = false;
+		auto chars = str.GetChars();
+		if (chars[0] == '/' && chars[1] == '/')
+			isUNCpath = true;
+#endif
 		str.Substitute("//", "/");	// Double slashes can happen when constructing paths so just get rid of them here.
 		if (str.Back() == '/') str.Truncate(str.Len() - 1);
+#ifdef _WIN32
+		if (isUNCpath)
+			str = (FString)"/" + str;
+#endif
 	}
 	return searchpaths;
 }
@@ -607,7 +617,7 @@ TArray<GrpDefInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 	TMap<FString, uint32_t> CRCMap;
 	// This opens the base resource only for reading the grpinfo from it which we need before setting up the game state.
 	std::unique_ptr<FResourceFile> engine_res;
-	FString baseres = progdir + ENGINERES_FILE;
+	const char* baseres = BaseFileSearch(ENGINERES_FILE, nullptr, true, GameConfig);
 	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
 	if (engine_res)
 	{

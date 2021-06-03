@@ -107,7 +107,7 @@ inline bool VanillaMode()
 }
 void sndPlaySpecialMusicOrNothing(int nMusic);
 
-struct GameInterface : ::GameInterface
+struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Blood"; }
 	void app_init() override;

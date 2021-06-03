@@ -47,6 +47,7 @@ source as it is released.
 #include "names_d.h"
 #include "i_music.h"
 #include "vm.h"
+#include "s_music.h"
 
 CVAR(Bool, wt_forcemidi, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // quick hack to disable the oggs, which are of lower quality than playing the MIDIs with a good synth and sound font.
 CVAR(Bool, wt_forcevoc, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // The same for sound effects. The re-recordings are rather poor and disliked

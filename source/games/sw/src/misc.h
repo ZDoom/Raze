@@ -16,7 +16,6 @@ void DoTheCache(void);
 void InitCheats();
 
 void MapColors(short num,COLOR_MAP cm,short create);
-void InitPalette(void); 
 int32_t CONFIG_ReadSetup(void);
 
 bool WarpPlaneSectorInfo(short sectnum, SPRITEp* sp_ceiling, SPRITEp* sp_floor);

@@ -44,7 +44,7 @@ LISTMENU "MainMenu"
 	ifgame(ShadowWarrior)
 	{
 		Position 55, 32
-		Linespacing 17
+		Linespacing 21
 		SWLogo
 		SWTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		SWTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -818,7 +818,7 @@ OptionMenu "OtherControlsMenu" protected
 	StaticText ""
 	Control    "$CNTRLMNU_SCREENSHOT"      , "screenshot"
 	Control    "$CNTRLMNU_CONSOLE"         , "toggleconsole"
-	//Control    "$CNTRLMNU_PAUSE"           , "pause"
+	Control    "$CNTRLMNU_PAUSE"           , "pause"
 
 	StaticText ""
 	Control    "$CNTRLMNU_DISPLAY_INC"     , "sizeup"
@@ -1149,7 +1149,8 @@ OptionMenu "VideoOptions" protected
 	Submenu "$OPTMNU_HUD", "HUDOptions"
 	Submenu "$GLMNU_TITLE", "RenderOptions"
 	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
-	Submenu "$GLMNU_POSTPROCESS",				"PostProcessMenu"
+	Submenu "$GLMNU_POSTPROCESS", "PostProcessMenu"
+	Submenu "$GLTEXMNU_TITLE", "GLTextureGLOptions"
 	StaticText ""
 
 	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2
@@ -1216,6 +1217,37 @@ OptionValue "LookupOrder"
 	1, "$OPTVAL_REVERSEFIRST"
 }
 
+OptionValue "HqResizeModes"
+{
+   0, "$OPTVAL_OFF"
+   1, "$OPTVAL_SCALENX"
+   2, "$OPTVAL_HQNX"
+   3, "$OPTVAL_HQNXMMX"
+   4, "$OPTVAL_NXBRZ"
+   5, "$OPTVAL_OLD_NXBRZ"
+   6, "$OPTVAL_NORMALNX"
+}
+
+OptionValue "HqResizeMultipliers"
+{
+   1, "$OPTVAL_OFF"
+   2, "2x"
+   3, "3x"
+   4, "4x"
+   5, "5x"
+   6, "6x"
+}
+
+OptionValue "HqResizeModesNoMMX"
+{
+   0, "$OPTVAL_OFF"
+   1, "$OPTVAL_SCALENX"
+   2, "$OPTVAL_HQNX"
+   4, "$OPTVAL_NXBRZ"
+   5, "$OPTVAL_OLD_NXBRZ"
+   6, "$OPTVAL_NORMALNX"
+}
+
 OptionMenu "PostProcessMenu"
 {
 	Title "$GLMNU_POSTPROCESS"
@@ -1230,8 +1262,6 @@ OptionMenu "PostProcessMenu"
 	Slider "$GLPREFMNU_PALTONEMAPPOWER",		gl_paltonemap_powtable,			0.2, 3.0, 0.1, 1
 	Option "$GLPREFMNU_PALTONEMAPORDER",		gl_paltonemap_reverselookup,	"LookupOrder"
 }
-
-
 
 OptionMenu "AutomapOptions"
 {
@@ -1253,6 +1283,27 @@ OptionMenu "AutomapOptions"
 	//CVAR(Color, am_ovonesidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
 	//CVAR(Color, am_ovplayercolor, 0xaaaaaa, CVAR_ARCHIVE)
 
+}
+
+OptionMenu "GLTextureGLOptions" protected
+{
+	Title "$GLTEXMNU_TITLE"
+	ifOption(MMX)
+	{
+		Option "$GLTEXMNU_HQRESIZE",		gl_texture_hqresizemode,		"HqResizeModes"
+	}
+	else
+	{
+		Option "$GLTEXMNU_HQRESIZE",		gl_texture_hqresizemode,		"HqResizeModesNoMMX"
+	}
+	Option "$GLTEXMNU_HQRESIZEMULT",	gl_texture_hqresizemult,		"HqResizeMultipliers"
+	StaticText "!HQRESIZE_WARNING!"
+
+	Option "$GLTEXMNU_RESIZETEX",		gl_texture_hqresize_textures,	"OnOff"
+	Option "$GLTEXMNU_RESIZESPR",		gl_texture_hqresize_sprites,	"OnOff"
+	Option "$GLTEXMNU_RESIZEFNT",		gl_texture_hqresize_fonts,		"OnOff"
+	Option "$GLTEXMNU_RESIZESKN",		gl_texture_hqresize_skins,		"OnOff"
+	Option "$GLTEXMNU_PRECACHETEX",		gl_precache,					"YesNo"
 }
 //-------------------------------------------------------------------------------------------
 //
@@ -1711,6 +1762,45 @@ OptionValue Autosave
 	2,	"$OPTVAL_NEVER"
 }
 
+OptionValue Endoom
+{
+	0.0, "$OPTVAL_OFF"
+	1.0, "$OPTVAL_ON"
+	2.0, "$OPTVAL_ONLYMODIFIED"
+}
+
+
+/*=======================================
+ *
+ * Language menu 
+ * (most languages are still incomplete, only DE, PT and RO are done.)
+ *
+ *=======================================*/
+
+OptionString "LanguageOptions"
+{
+	"auto", "Auto"
+	"default", "English (US)"
+	"eng", "English (UK)"
+	//"cs", "Česky (Czech)"
+	"de", "Deutsch (German)"
+	//"es", "Español (España) (Castilian Spanish)"
+	//"esm", "Español (Latino) (Latin American Spanish)"
+	//"eo", "Esperanto"
+	//"fi", "Suomi (Finnish)"
+	//"fr", "Français (French)"
+	//"it", "Italiano (Italian)"
+	//"jp", "日本語 (Japanese)"
+	//"ko", "한국어 (Korean)"
+	//"nl", "Nederlands (Dutch)"
+	//"pl", "Polski (Polish)"
+	//"ptg", "Português (European Portuguese)"
+	"pt", "Português do Brasil (Brazilian Portuguese)"
+	"ro", "Română (Romanian)"
+	//"ru", "Русский (Russian)"
+	//"sr", "Српски (Serbian)"
+}
+
 OptionMenu "MiscOptions" protected
 {
 	Title "$MISCMNU_TITLE"
@@ -1727,7 +1817,7 @@ OptionMenu "MiscOptions" protected
 	StaticText " "
 	//Option "$MISCMNU_ALLCHEATS",				"allcheats", "OnOff"
 	Option "$MISCMNU_ENABLEAUTOSAVES",			"disableautosave", "Autosave"
-	//Option "$MISCMNU_SAVELOADCONFIRMATION",			"saveloadconfirmation", "OnOff"
+	Option "$MISCMNU_SAVELOADCONFIRMATION",			"saveloadconfirmation", "OnOff"
 	Slider "$MISCMNU_AUTOSAVECOUNT",			"autosavecount", 1, 20, 1, 0
 	//Option "$MISCMNU_QUICKSAVEROTATION",			"quicksaverotation", "OnOff"
 	Slider "$MISCMNU_QUICKSAVECOUNT",			"quicksavecount", 1, 20, 1, 0
@@ -1738,7 +1828,12 @@ OptionMenu "MiscOptions" protected
 		Option "$MISCMNU_NINJA",				"sw_ninjahack", "OnOff"
 	}
 	//StaticText " "
-	//Option "$OPTMNU_LANGUAGE", "language", "LanguageOptions" - not ready yet
+	Option "$OPTMNU_LANGUAGE", "language", "LanguageOptions"
+	IfOption(Windows)
+	{
+		StaticText " "
+		Option	"$DSPLYMNU_SHOWENDOOM",			"showendoom", "Endoom"
+	}
 
 }
 

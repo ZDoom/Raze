@@ -341,22 +341,135 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 	TArray<vertex_t> vertexes(sectorp->wallnum, true);
 	TArray<line_t> lines(numvertices, true);
 	TArray<side_t> sides(numvertices, true);
+	int j = 0;
+
 	for (int i = 0; i < numvertices; i++)
 	{
 		auto sline = &sectionLines[sec->lines[i]];
-		auto wal = &wall[sline->startpoint];
-		vertexes[i].p = { wal->x * (1 / 16.), wal->y * (1 / -16.) };
 
-		lines[i].backsector = nullptr;
-		lines[i].frontsector = sectorp;
-		lines[i].linenum = i;
-		lines[i].sidedef[0] = &sides[i];
-		lines[i].sidedef[1] = nullptr;
-		lines[i].v1 = &vertexes[i];
-		lines[i].v2 = &vertexes[sline->point2index];
+		auto wallp = &wall[sline->startpoint];
+		vertexes[j].p = { wallp->x * (1 / 16.), wallp->y * (1 / -16.) };
 
-		sides[i].sidenum = i;
-		sides[i].sector = sectorp;
+		if (fabs(vertexes[j].p.X) > 32768.f || fabs(vertexes[j].p.Y) > 32768.f)
+		{
+			// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
+			return true;
+		}
+
+		lines[j].backsector = nullptr;
+		lines[j].frontsector = sectorp;
+		lines[j].linenum = j;
+		lines[j].wallnum = sline->wall;
+		lines[j].sidedef[0] = &sides[j];
+		lines[j].sidedef[1] = nullptr;
+		lines[j].v1 = &vertexes[i];
+		lines[j].v2 = &vertexes[sline->point2index];
+
+		sides[j].sidenum = j;
+		sides[j].sector = sectorp;
+		j++;
+	}
+	lines.Resize(j);
+	sides.Resize(j);
+	// Weed out any overlaps. These often happen with door setups and can lead to bad subsectors
+	for (unsigned i = 0; i < lines.Size(); i++)
+	{
+		auto p1 = lines[i].v1->p, p2 = lines[i].v2->p;
+
+		// Throw out any line with zero length.
+		if (p1 == p2)
+		{
+			lines.Delete(i);
+			i--;
+			continue;
+		}
+
+		for (unsigned j = i + 1; j < lines.Size(); j++)
+		{
+			auto pp1 = lines[j].v1->p, pp2 = lines[j].v2->p;
+
+			if (pp1 == p2 && pp2 == p1)
+			{
+				// handle the simple case first, i.e. line j is the inverse of line i.
+				// in this case both lines need to be deleted.
+				lines.Delete(j);
+				lines.Delete(i);
+				i--;
+				goto nexti;
+			}
+			else if (pp1 == p2)
+			{
+				// only the second line's start point matches.
+				// In this case we have to delete the shorter line and truncate the other one.
+
+				// check if the second line's end point is on the line we are checking
+				double d1 = PointOnLineSide(pp2, p1, p2);
+				if (fabs(d1) > FLT_EPSILON) continue; // not colinear
+				bool vert = p1.X == p2.X;
+				double p1x = vert ? p1.X : p1.Y;
+				double p2x = vert ? p2.X : p2.Y;
+				double pp1x = vert ? pp1.X : pp1.Y;
+				double pp2x = vert ? pp2.X : pp2.Y;
+
+				if (pp2x > min(p1x, p2x) && pp2x < max(p1x, p2x))
+				{
+					// pp2 is on line i.
+					lines[i].v2 = lines[j].v2;
+					lines.Delete(j);
+					continue;
+				}
+				else if (p1x > min(pp1x, pp2x) && p1x < max(pp1x, pp2x))
+				{
+					// p1 is on line j
+					lines[j].v1 = lines[j].v2;
+					lines.Delete(i);
+					goto nexti;
+				}
+			}
+			else if (pp2 == p1)
+			{
+				// only the second line's start point matches.
+				// In this case we have to delete the shorter line and truncate the other one.
+
+				// check if the second line's end point is on the line we are checking
+				double d1 = PointOnLineSide(pp1, p1, p2);
+				if (fabs(d1) > FLT_EPSILON) continue; // not colinear
+				bool vert = p1.X == p2.X;
+				double p1x = vert ? p1.X : p1.Y;
+				double p2x = vert ? p2.X : p2.Y;
+				double pp1x = vert ? pp1.X : pp1.Y;
+				double pp2x = vert ? pp2.X : pp2.Y;
+
+				if (pp1x > min(p1x, p2x) && pp1x < max(p1x, p2x))
+				{
+					// pp1 is on line i.
+					lines[i].v1 = lines[j].v1;
+					lines.Delete(j);
+					continue;
+				}
+				else if (p2x > min(pp1x, pp2x) && p2x < max(pp1x, pp2x))
+				{
+					// p2 is on line j
+					lines[j].v2 = lines[j].v1;
+					lines.Delete(i);
+					goto nexti;
+				}
+			}
+			else
+			{
+				// no idea if we should do further checks here. Blood's doors do not need them. We'll see.
+			}
+		}
+nexti:;
+	}
+
+	if (lines.Size() == 0)
+	{
+		// nothing to generate.
+		auto& entry = data[secnum].planes[plane];
+		entry.vertices.Clear();
+		entry.texcoords.Clear();
+		return true;
 	}
 
 
@@ -384,8 +497,9 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 
 	for (auto& sub : Level.subsectors)
 	{
+		if (sub.numlines <= 2) continue;
 		auto v0 = sub.firstline->v1;
-		for (unsigned i = 1; i < sub.numlines-1; i++)
+		for (unsigned i = 1; i < sub.numlines - 1; i++)
 		{
 			auto v1 = sub.firstline[i].v1;
 			auto v2 = sub.firstline[i].v2;
@@ -395,6 +509,7 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 			entry.vertices.Push({ (float)v2->fX(), (float)v2->fY(), 0 });
 
 		}
+
 	}
 
 	// calculate the rest.

@@ -132,6 +132,7 @@ struct line_t
 	side_t* sidedef[2];
  	sectortype* frontsector, * backsector;
 	int linenum;
+	int wallnum;
 
 	int Index() const { return linenum; }
 

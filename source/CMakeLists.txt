@@ -83,28 +83,7 @@ if( WIN32 )
 		setupapi
 		oleaut32
 		dbghelp
-		legacy_stdio_definitions
-
-		shlwapi
-		version
-		imm32
-		dxguid
-		dsound
-		winspool
-		advapi32
-		shell32
-		SetupAPI
-		uuid
-		odbc32
-		odbccp32
-
-		# this local library crap needs to go away. Sadly there doesn't seem to be anything to get a working libvpx that doesn't force linking with MinGW dependencies.
-		#libvpx
-		#libcompat-to-msvc
-
-		)
-
-
+		legacy_stdio_definitions )
 
 
 	if( NOT DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
@@ -151,6 +130,13 @@ else()
 					set( NO_GTK ON )
 				endif()
 			endif()
+		endif()
+	endif()
+
+	if ( NOT WIN32 )
+		option( NO_SDL_JOYSTICK "Disable SDL joystick support (Not applicable to Windows)" OFF )
+		if ( NO_SDL_JOYSTICK )
+			add_definitions( -DNO_SDL_JOYSTICK=1 )
 		endif()
 	endif()
 
@@ -305,16 +291,6 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	set( CMAKE_C_FLAGS "-Wall -Wextra -Wno-unused -Wno-unused-parameter -Wno-missing-field-initializers -ffp-contract=off ${CMAKE_C_FLAGS}" )
 	set( CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused -Wno-unused-parameter -Wno-missing-field-initializers -ffp-contract=off ${CMAKE_CXX_FLAGS}" )
 
-	# ARM processors (Raspberry Pi, et al) - enable ARM NEON support.
-	if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
-		set (USE_ARMV8 0 CACHE BOOL "Use ARMv8 instructions - Raspberry Pi 3")
-		if (USE_ARMV8)
-			set( CMAKE_CXX_FLAGS "-mcpu=cortex-a53 -mfpu=neon-fp-armv8 -mtune=cortex-a53 -mhard-float -DNO_SSE ${CMAKE_CXX_FLAGS}" )
-		else ()
-			set( CMAKE_CXX_FLAGS "-mcpu=cortex-a7 -mfpu=neon-vfpv4 -mtune=cortex-a7 -mhard-float -DNO_SSE ${CMAKE_CXX_FLAGS}" )
-		endif ()
-	endif ()
-
 	if( NOT X64 AND NOT CAN_DO_MFPMATH )
 		set( CMAKE_C_FLAGS "-DNO_SSE ${CMAKE_C_FLAGS}" )
 		set( CMAKE_CXX_FLAGS "-DNO_SSE ${CMAKE_CXX_FLAGS}" )
@@ -368,15 +344,8 @@ if( NOT STRUPR_EXISTS )
 	add_definitions( -DNEED_STRUPR=1 )
 endif()
 
-CHECK_FUNCTION_EXISTS( stricmp STRICMP_EXISTS )
-if( NOT STRICMP_EXISTS )
-	add_definitions( -Dstricmp=strcasecmp )
-endif()
-
-CHECK_FUNCTION_EXISTS( strnicmp STRNICMP_EXISTS )
-if( NOT STRNICMP_EXISTS )
-	add_definitions( -Dstrnicmp=strncasecmp )
-endif()
+require_stricmp()
+require_strnicmp()
 
 if( NOT MSVC )
 	add_definitions( -D__forceinline=inline )
@@ -428,7 +397,7 @@ if( MSVC AND NOT ZMUSIC_FOUND )
 	set( ZMUSIC_LIBRARIES zmusiclite )
 	if( X64 )
 		link_directories( ${ZMUSIC_ROOT_PATH}/64bit )
-	elseif( ${TARGET_ARCHITECTURE} MATCHES "arm" )
+	elseif( ARM64 )
 		link_directories( ${ZMUSIC_ROOT_PATH}/arm64 )
 	else()
 		link_directories( ${ZMUSIC_ROOT_PATH}/32bit )
@@ -436,11 +405,12 @@ if( MSVC AND NOT ZMUSIC_FOUND )
 	set( ZMUSIC_FOUND TRUE )
 endif()
 
+
 # VPX
 
 if( MSVC AND NOT VPX_FOUND )
 	# Use prebuilt library
-	set( VPX_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../platform/Windows" )
+	set( VPX_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/Windows/vpx" )
 	set( VPX_INCLUDE_DIR ${VPX_ROOT_PATH}/include )
 	set( VPX_LIBRARIES libvpx libcompat-to-msvc )
 	if( ARM64 )
@@ -578,14 +548,14 @@ if( HAVE_MMX )
 		common/textures/hires/hqnx_asm/hq4x_asm.cpp
 		common/textures/hires/hqnx_asm/hqnx_asm_Image.cpp)
 
-	if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+	if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		set_source_files_properties(
 			common/textures/hires/hqnx_asm/hq2x_asm.cpp
 			common/textures/hires/hqnx_asm/hq3x_asm.cpp
 			common/textures/hires/hqnx_asm/hq4x_asm.cpp
 			common/textures/hires/hqresize.cpp
 			PROPERTIES COMPILE_FLAGS "-mmmx" )
-	endif( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+	endif( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 endif( HAVE_MMX )
 
 if( HAVE_PARALLEL_FOR )
@@ -627,9 +597,6 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 file( GLOB HEADER_FILES
 	build/include/*.h
 	glbackend/*.h
-	libsmackerdec/include/*.h
-	libxmp-lite/include/libxmp-lite/*.h
-	libxmp-lite/src/*.h
 	core/*.h
 	core/2d/*.h
 	core/utility/*.h
@@ -647,6 +614,7 @@ file( GLOB HEADER_FILES
 	common/audio/music/*.h*
 	common/2d/*.h
 	common/console/*.h
+	common/cutscenes/*.h
 	common/utility/*.h
 	common/engine/*.h
 	common/menu/*.h
@@ -665,6 +633,7 @@ file( GLOB HEADER_FILES
 	common/thirdparty/*.h
 	common/thirdparty/rapidjson/*.h
 	common/thirdparty/math/*h
+	common/thirdparty/libsmackerdec/include/*.h
 	common/rendering/*.h
 	common/rendering/gl_load/*.h
 	common/rendering/hwrenderer/*.h
@@ -791,8 +760,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/blood/src/weapon.cpp
 	
 	# Duke
-	games/duke/src/2d_d.cpp
-	games/duke/src/2d_r.cpp
 	games/duke/src/actors.cpp
 	games/duke/src/actors_d.cpp
 	games/duke/src/actors_lava.cpp
@@ -1026,13 +993,6 @@ set( FASTMATH_SOURCES
 	common/textures/hires/hqnx/hq4x.cpp
 	common/textures/hires/xbr/xbrz.cpp
 	common/textures/hires/xbr/xbrz_old.cpp
-	# This should better be made a library subproject later, once things are working.
-	libsmackerdec/src/BitReader.cpp
-	libsmackerdec/src/FileStream.cpp
-	libsmackerdec/src/HuffmanVLC.cpp
-	libsmackerdec/src/LogError.cpp
-	libsmackerdec/src/SmackerDecoder.cpp
-
 	common/utility/matrix.cpp
 
 	# The rest is only here because it is C, not C++
@@ -1085,8 +1045,6 @@ set (PCH_SOURCES
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
 
-	core/movie/playmve.cpp
-	core/movie/movieplayer.cpp
 	core/automap.cpp
 	core/cheats.cpp
 	core/cheathandler.cpp
@@ -1118,6 +1076,7 @@ set (PCH_SOURCES
 	core/quotes.cpp
 	core/screenshot.cpp
 	core/sectorgeometry.cpp
+	core/razefont.cpp
 	core/raze_music.cpp
 	core/raze_sound.cpp
 	core/palette.cpp
@@ -1228,6 +1187,9 @@ set (PCH_SOURCES
 	common/console/c_notifybufferbase.cpp
 	common/console/c_tabcomplete.cpp
 	common/console/c_expr.cpp
+	common/cutscenes/playmve.cpp
+	common/cutscenes/movieplayer.cpp
+	common/cutscenes/screenjob.cpp
 	common/utility/engineerrors.cpp
 	common/utility/i_module.cpp
 	common/utility/m_alloc.cpp
@@ -1247,6 +1209,11 @@ set (PCH_SOURCES
 	common/thirdparty/base64.cpp
 	common/thirdparty/md5.cpp
  	common/thirdparty/superfasthash.cpp
+	common/thirdparty/libsmackerdec/src/BitReader.cpp
+	common/thirdparty/libsmackerdec/src/FileStream.cpp
+	common/thirdparty/libsmackerdec/src/HuffmanVLC.cpp
+	common/thirdparty/libsmackerdec/src/LogError.cpp
+	common/thirdparty/libsmackerdec/src/SmackerDecoder.cpp
 	common/filesystem/filesystem.cpp
 	common/filesystem/ancientzip.cpp
 	common/filesystem/file_7z.cpp
@@ -1365,8 +1332,6 @@ endif()
 macro( use_precompiled_header )
 	if( MSVC )
 		enable_precompiled_headers( "${ARGV0}/g_pch.h" PCH_SOURCES )
-		# The original Build code was written with unsigned chars and unfortunately they still haven't been eliminated entirely.
-		# All other code should stay with signed chars. What a mess... :(
 	else()
 		# Temporary solution for compilers other than MSVC
 		set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "-include g_pch.h" )
@@ -1430,7 +1395,6 @@ include_directories(
     build/include
 	libxmp-lite/include
 	libxmp-lite/include/libxmp-lite
-	libsmackerdec/include
 	thirdparty/include
 	thirdparty/imgui
 	core
@@ -1449,6 +1413,8 @@ include_directories(
 	common/audio/sound
 	common/audio/music
 	common/2d
+	common/cutscenes
+	common/thirdparty/libsmackerdec/include
 	common/thirdparty
 	common/textures
 	common/textures/formats
@@ -1539,7 +1505,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 if( CMAKE_COMPILER_IS_GNUCXX )
 	# GCC misoptimizes this file
 endif()
-if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	# Need to enable intrinsics for these files.
 	if( SSE_MATTERS )
 		set_property( SOURCE
@@ -1612,6 +1578,7 @@ source_group("Common\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
 source_group("Common\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/2d/.+")
+source_group("Common\\Cutscenes" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/cutscenes/.+")
 source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/objects/.+")
 source_group("Common\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
 source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
@@ -1666,34 +1633,6 @@ source_group("Build Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/bui
 source_group("Build Engine\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/include/.+")
 source_group("Build Engine\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/src/.+")
 
-macro( add_game_library )
-	file( GLOB HEADER_FILES src/*.h )
-	if( NOT_COMPILED_SOURCE_FILES )
-		set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
-	endif()
-	use_precompiled_header("..")
-	add_library( ${ARGV0} STATIC
-		${PCH_SOURCES}
-		${HEADER_FILES}
-		${NOT_COMPILED_SOURCE_FILES}
-	)
-endmacro()
-
-macro( add_game_library2 )
-	file( GLOB HEADER_FILES src/*.h )
-	if( NOT_COMPILED_SOURCE_FILES )
-		set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
-	endif()
-	use_precompiled_header("../..")
-	add_library( ${ARGV0} STATIC
-		${PCH_SOURCES}
-		${HEADER_FILES}
-		${NOT_COMPILED_SOURCE_FILES}
-	)
-endmacro()
-
-require_stricmp()
-require_strnicmp()
 
 unset( PCH_SOURCES )
 unset( HEADER_FILES )

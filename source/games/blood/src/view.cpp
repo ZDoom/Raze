@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_draw.h"
 #include "precache.h"
 #include "render.h"
+#include "razefont.h"
 
 
 EXTERN_CVAR(Bool, testnewrenderer)
@@ -56,32 +57,6 @@ int gViewIndex;
 double gInterpolate;
 
 int gScreenTilt;
-
-FFont *gFont[kFontNum];
-
-void FontSet(int id, int tile, int space)
-{
-	if (id < 0 || id >= kFontNum || tile < 0 || tile >= kMaxTiles)
-		return;
-
-	GlyphSet glyphs;
-	for (int i = 1; i < 96; i++)
-	{
-		auto tex = tileGetTexture(tile + i);
-		if (tex && tex->isValid() && tex->GetTexelWidth() > 0 && tex->GetTexelHeight() > 0)
-		{
-			glyphs.Insert(i + 32, tex);
-			tex->SetOffsetsNotForFont();
-		}
-
-	}
-	const char *names[] = { "smallfont", "bigfont", "gothfont", "smallfont2", "digifont"};
-	const char *defs[] = { "defsmallfont", "defbigfont", nullptr, "defsmallfont2", nullptr};
-	FFont ** ptrs[] = { &SmallFont, &BigFont, nullptr, &SmallFont2, nullptr};
-	gFont[id] =	new ::FFont(names[id], nullptr, defs[id], 0, 0, 0, 0, tileWidth(tile), false, false, false, &glyphs);
-	gFont[id]->SetKerning(space);
-	if (ptrs[id]) *ptrs[id] = gFont[id];
-}
 
 void viewBackupView(int nPlayer)
 {
@@ -114,10 +89,9 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
     pView->viewz += pPlayer->pSprite->z-oldpos->z;
 }
 
-void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat, uint8_t alpha)
+void viewDrawText(FFont* pFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow)
 {
-    if (nFont < 0 || nFont >= kFontNum || !pString) return;
-    FFont *pFont = gFont[nFont];
+    if (!pString) return;
 
     //y += pFont->yoff;
 
@@ -127,10 +101,10 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 
 	if (shadow)
 	{
-		DrawText(twod, pFont, CR_UNDEFINED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5, TAG_DONE);
+		DrawText(twod, pFont, CR_UNTRANSLATED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5, TAG_DONE);
 	}
-	DrawText(twod, pFont, CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, nPalette),
-			 DTA_Color, shadeToLight(nShade), DTA_Alpha, alpha / 255., TAG_DONE);
+	DrawText(twod, pFont, CR_NATIVEPAL, x, y, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, nPalette),
+			 DTA_Color, shadeToLight(nShade), TAG_DONE);
 
 }
 
@@ -153,7 +127,7 @@ void viewDrawAimedPlayerName(void)
             int nPlayer = pSprite->type-kDudePlayer1;
             const char* szName = PlayerName(nPlayer);
             int nPalette = (gPlayer[nPlayer].teamId&3)+11;
-            viewDrawText(4, szName, 160, 125, -128, nPalette, 1, 1);
+            viewDrawText(DigiFont, szName, 160, 125, -128, nPalette, 1, 1);
         }
     }
 }
@@ -166,11 +140,6 @@ extern int dword_172CE0[16][3];
 void viewInit(void)
 {
     Printf("Initializing status bar\n");
-    FontSet(0, 4096, 0);
-    FontSet(1, 4192, 1);
-    FontSet(2, 4288, 1);
-    FontSet(3, 4384, 1);
-    FontSet(4, 4480, 0);
 
     lensdata = fileSystem.LoadFile("lens.dat");
     assert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));
@@ -789,12 +758,13 @@ void viewDrawScreen(bool sceneonly)
     viewDrawAimedPlayerName();
     if (paused)
     {
-        viewDrawText(1, GStrings("TXTB_PAUSED"), 160, 10, 0, 0, 1, 0);
+        auto text = GStrings("TXTB_PAUSED");
+        viewDrawText(PickBigFont(text), text, 160, 10, 0, 0, 1, 0);
     }
     else if (gView != gMe)
     {
         FStringf gTempStr("] %s [", PlayerName(gView->nPlayer));
-        viewDrawText(0, gTempStr, 160, 10, 0, 0, 1, 0);
+        viewDrawText(OriginalSmallFont, gTempStr, 160, 10, 0, 0, 1, 0);
     }
     if (cl_interpolate)
     {

@@ -80,12 +80,12 @@ void SlashSeqCallback(int, DBloodActor* actor)
     sfxPlay3DSound(pSprite, 9012+Random(2), -1, 0);
 }
 
-void StompSeqCallback(int, DBloodActor* actor)
+void StompSeqCallback(int, DBloodActor* actor1)
 {
     uint8_t vb8[(kMaxSectors+7)>>3];
-    XSPRITE* pXSprite = &actor->x();
+    XSPRITE* pXSprite = &actor1->x();
     int nSprite = pXSprite->reference;
-    spritetype *pSprite = &actor->s();
+    spritetype *pSprite = &actor1->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     int x = pSprite->x;
@@ -97,12 +97,12 @@ void StompSeqCallback(int, DBloodActor* actor)
     int v10 = 25+30*gGameOptions.nDifficulty;
     GetClosestSpriteSectors(nSector, x, y, vc, vb8);
     char v4 = 0;
-    int v34 = -1;
     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
-    actHitcodeToData(hit, &gHitInfo, &v34, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-    if (hit == 3 && v34 >= 0)
+    DBloodActor* actor2 = nullptr;
+    actHitcodeToData(hit, &gHitInfo, &actor2);
+    if (hit == 3 && actor2)
     {
-        if (sprite[v34].statnum == kStatDude)
+        if (actor2->s().statnum == kStatDude)
             v4 = 0;
     }
     vc <<= 4;
@@ -178,7 +178,7 @@ static void MorphToBeast(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    actHealDude(pXSprite, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
+    actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
     pSprite->type = kDudeBeast;
 }
 

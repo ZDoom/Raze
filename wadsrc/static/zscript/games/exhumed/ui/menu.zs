@@ -5,7 +5,7 @@ class ExhumedMenuDelegate : RazeMenuDelegate
 	
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{
-		let font = generic_ui? NewConsoleFont : BigFont;	// this ignores the passed font intentionally.
+		let font = Raze.PickBigFont();
 		let cr = generic_ui ? Font.CR_FIRE : Font.CR_UNTRANSLATED;	// this ignores the passed font intentionally.
 		let texid = TexMan.CheckForTexture("MENUBLANK");
 		let texsize = TexMan.GetScaledSize(texid);
@@ -87,12 +87,12 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
-		let font = generic_ui ? NewConsoleFont : BigFont;	// this ignores the passed font intentionally.
-		let cr = generic_ui ? Font.CR_FIRE : Font.CR_UNTRANSLATED;	// this ignores the passed font intentionally.
+		let myfont = Raze.PickBigFont();
+		let cr = generic_ui ? Font.CR_FIRE : Font.CR_UNTRANSLATED;	// this ignores the passed myfont intentionally.
 		let tex = TexMan.CheckForTexture("MENUBLANK");
 		let texsize = TexMan.GetScaledSize(tex);
-		let fonth = font.GetGlyphHeight("A");
-		int width = font.StringWidth(mText);
+		let fonth = myfont.GetGlyphHeight("A");
+		int width = myfont.StringWidth(mText);
 		let delegate = ExhumedMenuDelegate(menuDelegate);
 		let zoom = delegate ? delegate.zoomsize : 1.;
 
@@ -114,7 +114,7 @@ class ListMenuItemExhumedTextItem : ListMenuItemTextItem
 		}
 
 		screen.DrawTexture(tex, false, 160, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffset, true, DTA_ScaleX, scalex, DTA_Color, color, DTA_ScaleX, zoom, DTA_ScaleY, zoom);
-		screen.DrawText(font, cr, 160 - zoom * width / 2, y - zoom * fonth / 2, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, color, DTA_ScaleX, zoom * scalex, DTA_ScaleY, zoom);
+		screen.DrawText(myfont, cr, 160 - zoom * width / 2, y - zoom * fonth / 2, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, color, DTA_ScaleX, zoom * scalex, DTA_ScaleY, zoom);
 	}
 }
 

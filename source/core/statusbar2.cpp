@@ -61,6 +61,7 @@
 #include "gamestruct.h"
 #include "razemenu.h"
 #include "mapinfo.h"
+#include "razefont.h"
 
 #include "../version.h"
 
@@ -167,15 +168,16 @@ void drawMapTitle()
     {
 		double scale = (g_gameType & GAMEFLAG_RRALL)? 0.4 : (g_gameType & GAMEFLAG_SW)? 0.7 : 1.0;
 		auto text = currentLevel->DisplayName();
-		double x = 160 - BigFont->StringWidth(text) * scale / 2.;
-		double y = isBlood() ? 50 : 100 - BigFont->GetHeight()/2.;
+		auto myfont = PickBigFont(text);
+		double x = 160 - myfont->StringWidth(text) * scale / 2.;
+		double y = isBlood() ? 50 : 100 - myfont->GetHeight()/2.;
 		bool shadow = true;
 
 		if (shadow)
 		{
-			DrawText(twod, BigFont, CR_UNDEFINED, x+1, y+1, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, alpha / 2., DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+			DrawText(twod, myfont, CR_UNTRANSLATED, x+1, y+1, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, alpha / 2., DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		}
-		DrawText(twod, BigFont, CR_UNDEFINED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		DrawText(twod, myfont, CR_UNTRANSLATED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
     }
 }
 

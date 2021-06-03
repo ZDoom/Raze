@@ -65,7 +65,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "startupinfo.h"
 #include "mapinfo.h"
 #include "menustate.h"
-#include "screenjob.h"
+#include "screenjob_.h"
 #include "statusbar.h"
 #include "uiinput.h"
 #include "d_net.h"
@@ -77,10 +77,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamefuncs.h"
 #include "hw_voxels.h"
 #include "hw_palmanager.h"
+#include "razefont.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadwidescreen, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+// Note: For the automap label there is a separate option "am_textfont".
+CVARD(Bool, hud_textfont, false, CVAR_ARCHIVE, "Use the regular text font as replacement for the tiny 3x5 font for HUD messages whenever possible")
 
 EXTERN_CVAR(Bool, ui_generic)
 
@@ -136,8 +140,8 @@ void LoadScripts();
 void MainLoop();
 void SetConsoleNotifyBuffer();
 bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flags, int& scaleflags, int& clampmode, int& translation, int& overrideshader);
-void PostLoadSetup();
-void FontCharCreated(FGameTexture* base, FGameTexture* untranslated, FGameTexture* translated);
+void highTileSetup();
+void FontCharCreated(FGameTexture* base, FGameTexture* untranslated);
 void LoadVoxelModels();
 
 DStatusBarCore* StatusBar;
@@ -521,6 +525,16 @@ void CheckFrontend(int flags)
 	}
 }
 
+static void System_ToggleFullConsole()
+{
+	gameaction = ga_fullconsole;
+}
+
+static void System_StartCutscene(bool blockui)
+{
+	gameaction = blockui ? ga_intro : ga_intermission;
+}
+
 void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
@@ -555,7 +569,9 @@ int GameMain()
 		nullptr,
 		nullptr,
 		PreBindTexture,
-		FontCharCreated
+		FontCharCreated,
+		System_ToggleFullConsole,
+		System_StartCutscene,
 	};
 
 	try
@@ -874,6 +890,33 @@ void GetGames()
 //
 //==========================================================================
 
+static void InitTextures()
+{
+	TexMan.Init([]() {}, [](BuildInfo&) {});
+	StartScreen->Progress();
+	mdinit();
+
+	TileFiles.Init();
+	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
+	voxInit();
+	gi->LoadGameTextures(); // loads game-side data that must be present before processing the .def files.
+	LoadDefinitions();
+	InitFont();				// InitFonts may only be called once all texture data has been initialized.
+
+	lookups.postLoadTables();
+	highTileSetup();
+	lookups.postLoadLookups();
+	SetupFontSubstitution();
+	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
+	TileFiles.SetBackup();
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 int RunGame()
 {
 	Witchaven::InitSoundNames();	// this must be done globally because it sets up script constants.
@@ -979,11 +1022,10 @@ int RunGame()
 	GameTicRate = 30;
 	CheckUserMap();
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
+	gi->loadPalette();
 	StartScreen->Progress();
-	TexMan.Init([]() {}, [](BuildInfo &) {});
-	V_InitFonts();
-	StartScreen->Progress();
-	TileFiles.Init();
+	InitTextures();
+
 	StartScreen->Progress();
 	I_InitSound();
 	StartScreen->Progress();
@@ -995,18 +1037,14 @@ int RunGame()
 	StartScreen->Progress();
 	SetDefaultStrings();
 	Job_Init();
+	Local_Job_Init();
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 
-	enginePreInit();
 	SetupGameButtons();
 	gameinfo.mBackButton = "engine/graphics/m_back.png";
 	StartScreen->Progress();
 
-	GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
-	gi->loadPalette();
-	voxInit();
-	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
 	engineInit();
 	gi->app_init();
 	StartScreen->Progress();
@@ -1019,12 +1057,9 @@ int RunGame()
 	if (!(paletteloaded & PALETTE_MAIN))
 		I_FatalError("No palette found.");
 
-	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
-	lookups.postLoadTables();
-	PostLoadSetup();
-	lookups.postLoadLookups();
 	FMaterial::SetLayerCallback(setpalettelayer);
 	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
+	DeleteStartupScreen();
 
 	V_Init2();
 	twod->Begin(screen->GetWidth(), screen->GetHeight());
@@ -1493,33 +1528,6 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, ShadeToLight, shadeToLight)
 	ACTION_RETURN_INT(shadeToLight(shade));
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, StopAllSounds, FX_StopAllSounds)
-{
-	FX_StopAllSounds();
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, StopMusic, Mus_Stop)
-{
-	Mus_Stop();
-	return 0;
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, SoundEnabled, SoundEnabled)
-{
-	ACTION_RETURN_INT(SoundEnabled());
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, MusicEnabled, MusicEnabled)
-{
-	ACTION_RETURN_INT(MusicEnabled());
-}
-
-DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetTimeFrac, I_GetTimeFrac)
-{
-	ACTION_RETURN_FLOAT(I_GetTimeFrac());
-}
-
 DEFINE_ACTION_FUNCTION(_Raze, PlayerName)
 {
 	PARAM_PROLOGUE;
@@ -1548,14 +1556,12 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, GetBuildTime, I_GetBuildTime)
 	ACTION_RETURN_INT(I_GetBuildTime());
 }
 
-bool PickTexture(FRenderState* state, FGameTexture* tex, int paletteid, TexturePick& pick);
-
 DEFINE_ACTION_FUNCTION(_Raze, PickTexture)
 {
 	PARAM_PROLOGUE;
 	PARAM_INT(texid);
 	TexturePick pick;
-	if (PickTexture(nullptr, TexMan.GetGameTexture(FSetTextureID(texid)), TRANSLATION(Translation_Remap, 0), pick))
+	if (PickTexture(TexMan.GetGameTexture(FSetTextureID(texid)), TRANSLATION(Translation_Remap, 0), pick))
 	{
 		ACTION_RETURN_INT(pick.texture->GetID().GetIndex());
 	}
@@ -1566,6 +1572,11 @@ DEFINE_ACTION_FUNCTION(_MapRecord, GetCluster)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(MapRecord);
 	ACTION_RETURN_POINTER(FindCluster(self->cluster));
+}
+
+DEFINE_ACTION_FUNCTION(_Screen, GetTextScreenSize)
+{
+	ACTION_RETURN_VEC2(DVector2(640, 480));
 }
 
 extern bool demoplayback;

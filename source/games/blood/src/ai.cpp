@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+void RecoilDude(DBloodActor* actor);
+
 int cumulDamage[kMaxXSprites];
 DUDEEXTRA gDudeExtra[kMaxXSprites];
 
@@ -893,13 +895,126 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
     {
         spritetype *pSource = &source->s();
         int nSource = pSource->index;
-        if (pSprite == pSource)
-            return 0;
-        if (pXSprite->target == -1 || (nSource != pXSprite->target && Chance(pSprite->type == pSource->type ? nDamage*pDudeInfo->changeTargetKin : nDamage*pDudeInfo->changeTarget)))
+        if (pSprite == pSource) return 0;
+        else if (pXSprite->target == -1 || (nSource != pXSprite->target && Chance(pSprite->type == pSource->type ? nDamage*pDudeInfo->changeTargetKin : nDamage*pDudeInfo->changeTarget)))
         {
             aiSetTarget(pXSprite, nSource);
             aiActivateDude(&bloodActors[pXSprite->reference]);
         }
+
+        #ifdef NOONE_EXTENSIONS
+        if (gModernMap) {
+            
+            // for enemies in patrol mode
+            if (aiInPatrolState(pXSprite->aiState)) {
+
+                aiPatrolStop(pSprite, pSource->index, pXSprite->dudeAmbush);
+
+                PLAYER* pPlayer = getPlayerById(pSource->type);
+                if (!pPlayer) return nDamage;
+                if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
+                if (readyForCrit(pSource, pSprite)) {
+                    nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
+                    if (pXSprite->health > 0) {
+                        int fullHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : getDudeInfo(pSprite->type)->startHealth << 4;
+                        if (((100 * pXSprite->health) / fullHp) <= 75) {
+                            cumulDamage[pSprite->extra] += nDamage << 4; // to be sure any enemy will play the recoil animation
+                            RecoilDude(&bloodActors[pXSprite->reference]);
+                        }
+                    }
+
+                    DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, pSprite->index);
+                }
+
+                return nDamage;
+            }
+
+            if (pSprite->type == kDudeModernCustomBurning) {
+
+                if (Chance(0x2000) && gDudeExtra[pSprite->extra].time < PlayClock) {
+                    playGenDudeSound(pSprite, kGenDudeSndBurning);
+                    gDudeExtra[pSprite->extra].time = PlayClock + 360;
+                }
+
+                if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
+                if (spriteIsUnderwater(pSprite, false)) {
+                    pSprite->type = kDudeModernCustom;
+                    pXSprite->burnTime = 0;
+                    pXSprite->health = 1; // so it can be killed with flame weapons while underwater and if already was burning dude before.
+                    aiGenDudeNewState(pSprite, &genDudeGotoW);
+                }
+                
+                return nDamage;
+
+            }
+
+            if (pSprite->type == kDudeModernCustom) {
+
+                GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+                if (nDmgType == DAMAGE_TYPE_1) {
+
+                    if (pXSprite->health > (uint32_t)pDudeInfo->fleeHealth) return nDamage;
+                    else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == NULL) {
+                        removeDudeStuff(pSprite);
+
+                        if (pExtra->weaponType == kGenDudeWeaponKamikaze)
+                            doExplosion(pSprite, pXSprite->data1 - kTrapExploder);
+
+                        if (spriteIsUnderwater(pSprite)) {
+                            pXSprite->health = 0;
+                            return nDamage;
+                        }
+
+                        if (pXSprite->burnTime <= 0)
+                            pXSprite->burnTime = 1200;
+
+                        if (pExtra->canBurn && pExtra->availDeaths[DAMAGE_TYPE_1] > 0) {
+
+                            aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
+                            playGenDudeSound(pSprite, kGenDudeSndBurning);
+                            pSprite->type = kDudeModernCustomBurning;
+
+                            if (pXSprite->data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
+                                pSprite->pal = 0;
+
+                            aiGenDudeNewState(pSprite, &genDudeBurnGoto);
+                            actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
+                            gDudeExtra[pSprite->extra].time = PlayClock + 360;
+                            evKill(nSprite, 3, kCallbackFXFlameLick);
+
+                        }
+
+                    } else {
+                        actKillDude(nSource, pSprite, DAMAGE_TYPE_0, 65535);
+                    }
+
+                } else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState)) {
+
+                    if (!dudeIsMelee(pXSprite)) {
+                        if (inIdle(pXSprite->aiState) || Chance(getDodgeChance(pSprite))) {
+                            if (!spriteIsUnderwater(pSprite)) {
+                                if (!canDuck(pSprite) || !dudeIsPlayingSeq(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
+                                else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
+
+                                if (Chance(0x0200))
+                                    playGenDudeSound(pSprite, kGenDudeSndGotHit);
+
+                            } else if (dudeIsPlayingSeq(pSprite, 13)) {
+                                aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
+                            }
+                        }
+                    } else if (Chance(0x0200)) {
+                        playGenDudeSound(pSprite, kGenDudeSndGotHit);
+                    }
+
+                }
+                
+                return nDamage;
+
+            }
+        }
+        #endif
+
         if (nDmgType == DAMAGE_TYPE_6)
         {
             DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
@@ -985,79 +1100,6 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
-#ifdef NOONE_EXTENSIONS
-        case kDudeModernCustomBurning:
-            if (Chance(0x2000) && gDudeExtra[pSprite->extra].time < PlayClock) {
-                playGenDudeSound(pSprite, kGenDudeSndBurning);
-                gDudeExtra[pSprite->extra].time = PlayClock + 360;
-            }
-            if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
-            if (spriteIsUnderwater(pSprite, false)) {
-                pSprite->type = kDudeModernCustom;
-                pXSprite->burnTime = 0;
-                pXSprite->health = 1; // so it can be killed with flame weapons while underwater and if already was burning dude before.
-                aiGenDudeNewState(pSprite, &genDudeGotoW);
-            }
-            break;
-        case kDudeModernCustom: {
-            GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
-            
-            if (nDmgType == DAMAGE_TYPE_1) {
-                if (pXSprite->health > (unsigned)pDudeInfo->fleeHealth) break;
-                else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == NULL) {
-                    removeDudeStuff(pSprite);
-
-                    if (pExtra->weaponType == kGenDudeWeaponKamikaze)
-                        doExplosion(pSprite, pXSprite->data1 - kTrapExploder);
-                        
-                    if (spriteIsUnderwater(pSprite, false)) {
-                        pXSprite->health = 0;
-                        break;
-                    }
-                        
-                    if (pXSprite->burnTime <= 0) 
-                        pXSprite->burnTime = 1200;
-
-                    if (pExtra->canBurn && pExtra->availDeaths[DAMAGE_TYPE_1] > 0) {
-                            
-                        aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                        playGenDudeSound(pSprite, kGenDudeSndBurning);
-                        pSprite->type = kDudeModernCustomBurning;
-
-                        if (pXSprite->data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
-                            pSprite->pal = 0;
-
-                        aiGenDudeNewState(pSprite, &genDudeBurnGoto);
-                        actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
-                        gDudeExtra[pSprite->extra].time = PlayClock + 360;
-                        evKill(nSprite, 3, kCallbackFXFlameLick);
-
-                    }
-
-                } else {
-                    actKillDude(nSource, pSprite, DAMAGE_TYPE_0, 65535);
-                }
-            } else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState)) {
-                if (!dudeIsMelee(pXSprite)) {
-                    if (inIdle(pXSprite->aiState) ||  Chance(getDodgeChance(pSprite))) {
-                        if (!spriteIsUnderwater(pSprite, false)) {
-                            if (!canDuck(pSprite) || !dudeIsPlayingSeq(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
-                            else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
-
-                            if (Chance(0x0200))
-                                playGenDudeSound(pSprite, kGenDudeSndGotHit);
-
-                        } else if (dudeIsPlayingSeq(pSprite, 13)) {
-                            aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
-                        }
-                    }
-                } else if (Chance(0x0200)) {
-                    playGenDudeSound(pSprite, kGenDudeSndGotHit);
-                }
-            }
-            break;
-        }
-#endif
         case kDudeCultistBeast:
             if (pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth)
             {
@@ -1515,17 +1557,25 @@ void aiInitSprite(spritetype *pSprite)
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
     pDudeExtra->recoil = 0;
     pDudeExtra->time = 0;
+    
+    #ifdef NOONE_EXTENSIONS
+    int stateTimer = -1, targetMarker = -1;
+    int targetX = 0, targetY = 0, targetZ = 0;
+    
+    // dude patrol init
+    if (gModernMap) {
+        
+        // must keep it in case of loading save
+        if (pXSprite->dudeFlag4 && spriRangeIsFine(pXSprite->target) && sprite[pXSprite->target].type == kMarkerPath) {
+            stateTimer = pXSprite->stateTimer; targetMarker = pXSprite->target;
+            targetX = pXSprite->targetX; targetY = pXSprite->targetY;
+            targetZ = pXSprite->targetZ;
+        }
+
+    }
+    #endif
 
     switch (pSprite->type) {
-    #ifdef NOONE_EXTENSIONS
-    case kDudeModernCustom:
-        aiGenDudeInitSprite(pSprite, pXSprite);
-        genDudePrepare(pSprite, kGenDudePropertyAll);
-        return;
-    case kDudeModernCustomBurning:
-        aiGenDudeInitSprite(pSprite, pXSprite);
-        return;
-    #endif
     case kDudeCultistTommy:
     case kDudeCultistShotgun:
     case kDudeCultistTesla:
@@ -1739,6 +1789,45 @@ void aiInitSprite(spritetype *pSprite)
         pSprite->flags = 15;
         break;
     }
+
+    #ifdef NOONE_EXTENSIONS
+    if (gModernMap) {
+
+        if (pSprite->type == kDudeModernCustom) {
+            aiGenDudeInitSprite(pSprite, pXSprite);
+            genDudePrepare(pSprite, kGenDudePropertyAll);
+        }
+
+        if (pXSprite->dudeFlag4) {
+
+            // restore dude's path
+            if (spriRangeIsFine(targetMarker)) {
+                pXSprite->target = targetMarker;
+                pXSprite->targetX = targetX;
+                pXSprite->targetY = targetY;
+                pXSprite->targetZ = targetZ;
+            }
+
+            // reset target spot progress
+            pXSprite->data3 = 0;
+
+            // make dude follow the markers
+            bool uwater = spriteIsUnderwater(pSprite);
+            if (stateTimer > 0) {
+                if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
+                else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
+                else aiPatrolState(pSprite, kAiStatePatrolWaitL);
+                pXSprite->stateTimer = stateTimer; // restore state timer
+            }
+            else if (uwater) aiPatrolState(pSprite, kAiStatePatrolMoveW);
+            else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolMoveC);
+            else aiPatrolState(pSprite, kAiStatePatrolMoveL);
+
+        }
+
+    }
+    #endif
+
 }
 
 //---------------------------------------------------------------------------

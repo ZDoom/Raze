@@ -174,23 +174,15 @@ class DukeCommonStatusBar : RazeStatusBar
 
 		if (automapMode == am_full)
 		{
-			bool textfont = am_textfont;
-			if (!am_textfont)
-			{
-				// For non-English languages force use of the text font. The tiny one is simply too small to ever add localized characters to it.
-				let p = StringTable.Localize("$REQUIRED_CHARACTERS");
-				if (p.length() > 0) textfont = true; 
-			}
+			stats.statfont = SmallFont2;
+			stats.spacing = 6;
+			if (Raze.isNamWW2GI()) stats.altspacing = 10;
+			else if (!Raze.isRR()) stats.altspacing = 11;
+			else stats.altspacing = 14;
 
-			if (!textfont)
-			{
-				stats.statfont = SmallFont2;
-				stats.spacing = 6;
-			}
-			else stats.spacing = stats.statfont.GetHeight() + 1;
-			stats.standardColor = (Raze.isNamWW2GI() && am_textfont)? Font.TEXTCOLOR_ORANGE : Font.TEXTCOLOR_UNTRANSLATED;
+			stats.standardColor = Font.TEXTCOLOR_UNTRANSLATED;
 			stats.letterColor = Font.TEXTCOLOR_GOLD;
-			PrintAutomapInfo(stats, textfont);
+			PrintAutomapInfo(stats, false);
 		}
 		else if (hud_stats)
 		{

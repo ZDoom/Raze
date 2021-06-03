@@ -519,7 +519,6 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	drawlists[GLDL_MASKEDWALLSV].SortWallsHorz(this);
 	drawlists[GLDL_MASKEDWALLSH].SortWallsVert(this);
 
-	state.SetDepthBias(-1, -128);
 
 	// these lists are only wall and floor sprites - often attached to walls and floors - so they need to be offset from the plane they may be attached to.
 	drawlists[GLDL_MASKEDWALLSS].DrawWalls(this, state, false);
@@ -539,6 +538,7 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	drawlists[GLDL_MASKEDWALLSH].DrawWalls(this, state, false);
 	state.SetColorMask(true);
 
+	state.SetDepthBias(-1, 128);
 	state.SetDepthMask(false);
 	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
 	state.SetDepthMask(true);

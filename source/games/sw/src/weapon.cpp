@@ -10724,6 +10724,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
         if (!eu)
         {
             ASSERT(true == false);
+            return -1;
         }
 
         if (eu->flame >= 0)

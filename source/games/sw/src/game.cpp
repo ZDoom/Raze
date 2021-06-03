@@ -44,6 +44,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "automap.h"
 #include "statusbar.h"
 #include "texturemanager.h"
+#include "st_start.h"
+#include "i_interface.h"
 
 
 #include "mytypes.h"
@@ -73,7 +75,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "raze_sound.h"
 #include "secrets.h"
 
-#include "screenjob.h"
+#include "screenjob_.h"
 #include "inputstate.h"
 #include "gamestate.h"
 #include "d_net.h"
@@ -163,6 +165,11 @@ static void SetTileNames()
 }
 #undef x
 
+void GameInterface::LoadGameTextures()
+{
+    LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -193,17 +200,6 @@ void GameInterface::app_init()
 
     registerosdcommands();
 
-    auto pal = fileSystem.LoadFile("3drealms.pal", 0);
-    if (pal.Size() >= 768)
-    {
-        for (auto& c : pal)
-            c <<= 2;
-
-        paletteSetColorTable(DREALMSPAL, pal.Data(), true, true);
-    }
-    InitPalette();
-    // sets numplayers, connecthead, connectpoint2, myconnectindex
-
 	numplayers = 1; myconnectindex = 0;
 	connecthead = 0; connectpoint2[0] = -1;
 
@@ -223,15 +219,11 @@ void GameInterface::app_init()
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
         INITLIST(&Player[i].PanelSpriteList);
 
-    LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
 	LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
-    LoadDefinitions();
-    InitFonts();
     SetTileNames();
-    TileFiles.SetBackup();
     userConfig.AddDefs.reset();
     InitFX();
 }
@@ -639,6 +631,13 @@ void GameInterface::ErrorCleanup()
     TerminateLevel();
     FinishAnim = false;
 }
+
+void GameInterface::ExitFromMenu()
+{
+    endoomName = !isShareware() ? "swreg.bin" : "shadsw.bin";
+    ST_Endoom();
+}
+
 //---------------------------------------------------------------------------
 //
 //

@@ -51,7 +51,7 @@ enum
     kExplodeMax = 8,
 
     kLensSize = 80,
-    kViewEffectMax = 19,
+    kViewEffectMax = 20,
 
     kNoTile = -1,
 
@@ -401,6 +401,14 @@ kAiStateSearch          =  3,
 kAiStateChase           =  4,
 kAiStateRecoil          =  5,
 kAiStateAttack          =  6,
+kAiStatePatrolBase      =  7,
+kAiStatePatrolWaitL     =  kAiStatePatrolBase,
+kAiStatePatrolWaitC,
+kAiStatePatrolWaitW,
+kAiStatePatrolMoveL,
+kAiStatePatrolMoveC,
+kAiStatePatrolMoveW,
+kAiStatePatrolMax,
 };
 
 enum

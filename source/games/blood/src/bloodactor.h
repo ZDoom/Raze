@@ -50,6 +50,28 @@ public:
 		return base() + s().owner;
 	}
 
+	void SetTarget(DBloodActor* own)
+	{
+		x().target = own ? own->s().index : -1;
+	}
+
+	DBloodActor* GetTarget()
+	{
+		if (x().target == -1 || x().target == kMaxSprites - 1) return nullptr;
+		return base() + x().target;
+	}
+
+	void SetBurnSource(DBloodActor* own)
+	{
+		x().burnSource = own ? own->s().index : -1;
+	}
+
+	DBloodActor* GetBurnSource()
+	{
+		if (x().burnSource == -1 || x().burnSource == kMaxSprites - 1) return nullptr;
+		return base() + x().burnSource;
+	}
+
 	void SetSpecialOwner() // nnext hackery
 	{
 		s().owner = kMaxSprites - 1;
@@ -83,6 +105,24 @@ public:
 	bool IsAmmoActor()
 	{
 		return s().type >= kItemAmmoBase && s().type < kItemAmmoMax;
+	}
+
+	bool isActive() 
+	{
+		if (!hasX())
+			return false;
+
+		switch (x().aiState->stateType) 
+		{
+		case kAiStateIdle:
+		case kAiStateGenIdle:
+		case kAiStateSearch:
+		case kAiStateMove:
+		case kAiStateOther:
+			return false;
+		default:
+			return true;
+		}
 	}
 
 };
@@ -159,5 +199,63 @@ inline void PLAYER::setFragger(DBloodActor* actor)
 {
 	fraggerId = actor == nullptr ? -1 : actor->s().index;
 }
+
+
+// Wrapper around the insane collision info mess from Build.
+struct Collision
+{
+	int type;
+	int index;
+	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
+	DBloodActor* actor;
+
+	Collision() = default;
+	Collision(int legacyval) { setFromEngine(legacyval); }
+
+	int setNone()
+	{
+		type = kHitNone;
+		index = -1;
+		legacyVal = 0;
+		actor = nullptr;
+		return kHitNone;
+	}
+
+	int setSector(int num)
+	{
+		type = kHitSector;
+		index = num;
+		legacyVal = type | index;
+		actor = nullptr;
+		return kHitSector;
+	}
+	int setWall(int num)
+	{
+		type = kHitWall;
+		index = num;
+		legacyVal = type | index;
+		actor = nullptr;
+		return kHitWall;
+	}
+	int setSprite(DBloodActor* num)
+	{
+		type = kHitSprite;
+		index = -1;
+		legacyVal = type | int(num - bloodActors);
+		actor = num;
+		return kHitSprite;
+	}
+
+	int setFromEngine(int value)
+	{
+		legacyVal = value;
+		type = value & kHitTypeMask;
+		if (type == 0) { index = -1; actor = nullptr; }
+		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
+		else { index = -1; actor = &bloodActors[value & kHitIndexMask]; }
+		return type;
+	}
+};
+
 
 END_BLD_NS

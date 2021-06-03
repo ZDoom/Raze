@@ -72,6 +72,7 @@ bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, in
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist);
 bool CheckProximityWall(int nWall, int x, int y, int nDist);
 int GetWallAngle(int nWall);
+int GetWallAngle(walltype* pWall);
 void GetWallNormal(int nWall, int *pX, int *pY);
 bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int *ix, int *iy, int *iz);
 int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8);

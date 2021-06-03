@@ -151,7 +151,7 @@ endif()
 
 # Fast math flags, required by some subprojects
 set( ZD_FASTMATH_FLAG "" )
-if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	set( ZD_FASTMATH_FLAG "-ffast-math -ffp-contract=fast" )
 elseif( MSVC )
 	set( ZD_FASTMATH_FLAG "/fp:fast" )
@@ -340,6 +340,7 @@ if( HAVE_VM_JIT AND UNIX )
 		else( HAVE_LIBEXECINFO )
 			set( HAVE_VM_JIT NO )
 		endif( HAVE_LIBEXECINFO )
+		set( CMAKE_REQUIRED_FLAGS )
 	endif( NOT HAVE_BACKTRACE )
 endif( HAVE_VM_JIT AND UNIX )
 

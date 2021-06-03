@@ -577,10 +577,6 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		x += orgx;
 		y += orgy;
 	}
-	if (clipwidth != -1)
-	{
-		int a = 0;
-	}
 	DrawTexture(twod, tex, x, y,
 		DTA_TopOffset, 0,
 		DTA_LeftOffset, 0,
@@ -821,7 +817,7 @@ void DStatusBarCore::DrawString(FFont* font, const FString& cstring, double x, d
 				DTA_FillColor, 0,
 				TAG_DONE);
 		}
-		DrawChar(twod, font, pt == 0? fontcolor : CR_UNDEFINED, rx, ry, ch,
+		DrawChar(twod, font, pt == 0? fontcolor : CR_NATIVEPAL, rx, ry, ch,
 			DTA_DestWidthF, rw,
 			DTA_DestHeightF, rh,
 			DTA_Alpha, Alpha,
@@ -840,7 +836,7 @@ void DStatusBarCore::DrawString(FFont* font, const FString& cstring, double x, d
 
 void SBar_DrawString(DStatusBarCore* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY, int pt, int style)
 {
-	if (font == nullptr) ThrowAbortException(X_READ_NIL, nullptr);
+	if (font == nullptr || font->mFont == nullptr) ThrowAbortException(X_READ_NIL, nullptr);
 	if (!twod->HasBegun2D()) ThrowAbortException(X_OTHER, "Attempt to draw to screen outside a draw function");
 
 	// resolve auto-alignment before making any adjustments to the position values.

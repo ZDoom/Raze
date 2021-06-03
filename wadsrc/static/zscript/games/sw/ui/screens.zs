@@ -207,7 +207,7 @@ class SWSummaryScreen : SummaryScreenBase
 
 	override bool OnEvent(InputEvent ev)
 	{
-		if (ev.type == InputEvent.Type_KeyDown && !Raze.specialKeyEvent(ev)) 
+		if (ev.type == InputEvent.Type_KeyDown && !System.specialKeyEvent(ev)) 
 		{
 			if (animstate == 0) animstate = 1;
 		}
@@ -216,7 +216,7 @@ class SWSummaryScreen : SummaryScreenBase
 
 	override void Start()
 	{
-		Raze.StopAllSounds();
+		System.StopAllSounds();
 		SW.PlaySong(1);
 	}
 
@@ -325,102 +325,8 @@ class SWMultiSummaryScreen : SkippableScreenJob
 
 	override void Draw(double sr)
 	{
-		int death_total[MAXPLAYERS];
-		int kills[MAXPLAYERS];
-
 		Screen.DrawTexture(TexMan.CheckForTexture("STAT_SCREEN_PIC", TexMan.Type_Any), true, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal);
-		SW.DrawString(160, 68, "$MULTIPLAYER TOTALS", 0, 0);
-		SW.DrawString(160, 189, "$PRESSKEY", 0, 0, 0);
-
-		int x = STAT_START_X;
-		int y = STAT_START_Y;
-
-		// Hm.... how to translate this without messing up the formatting?
-		SW.DrawSmallString(x, y, "  NAME         1     2     3     4     5     6     7    8     KILLS", 0, 0);
-		int rows = numplayers;
-		int cols = numplayers;
-
-		y += STAT_HEADER_Y;
-
-		String ds;
-		for (int i = 0; i < rows; i++)
-		{
-			x = STAT_START_X;
-
-			ds = String.Format("%d", i + 1);
-			SW.DrawSmallString(x, y, ds, 0, 0);
-
-			ds = String.Format("  %-13s", Raze.PlayerName(i));
-			SW.DrawSmallString(x, y, ds, 0, Raze.playerPalette(i));
-
-			x = STAT_TABLE_X;
-			for (int j = 0; j < cols; j++)
-			{
-				int pal = 0;
-				int frags = Raze.PlayerFrags(i, j);
-				death_total[j] += frags;
-
-				if (i == j)
-				{
-					// don't add kill for self or team player
-					pal = PALETTE_PLAYER0 + 4;
-					kills[i] -= frags;  // subtract self kills
-				}
-				else if (false/*gNet.TeamPlay*/)
-				{
-					if (Raze.playerPalette(i) == Raze.playerPalette(j))
-					{
-						// don't add kill for self or team player
-						pal = PALETTE_PLAYER0 + 4;
-						kills[i] -= frags;  // subtract self kills
-					}
-					else
-						kills[i] += frags;  // kills added here
-				}
-				else
-				{
-					kills[i] += frags;  // kills added here
-				}
-
-				ds = String.Format("%d", frags);
-				SW.DrawSmallString(x, y, ds, 0, pal);
-				x += STAT_TABLE_XOFF;
-			}
-
-			y += STAT_OFF_Y;
-		}
-
-
-		// Deaths
-
-		x = STAT_START_X;
-		y += STAT_OFF_Y;
-
-		ds = String.Format("   %s", StringTable.Localize("$DEATHS"));
-		SW.DrawSmallString(x, y, ds, 0, 0);
-		x = STAT_TABLE_X;
-
-		for (int j = 0; j < cols; j++)
-		{
-			ds = String.Format("%d", death_total[j]);
-			SW.DrawSmallString(x, y, ds, 0, 0);
-			x += STAT_TABLE_XOFF;
-		}
-
-		x = STAT_START_X;
-		y += STAT_OFF_Y;
-
-		// Kills
-		x = STAT_TABLE_X + 200;
-		y = STAT_START_Y + STAT_HEADER_Y;
-
-		for (int i = 0; i < rows; i++)
-		{
-			ds = String.Format("%d", kills[i]); //pp.Kills);
-			SW.DrawSmallString(x, y, ds, 0, 0);
-
-			y += STAT_OFF_Y;
-		}
+		Raze.DrawScoreboard(60);
 	}
 }
 

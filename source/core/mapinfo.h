@@ -5,6 +5,8 @@
 #include "quotemgr.h"
 #include "palentry.h"
 #include "vectors.h"
+#include "screenjob.h"
+
 #ifdef GetMessage
 #undef GetMessage	// Windows strikes...
 #endif
@@ -50,6 +52,8 @@ enum EMapGameFlags
 	LEVEL_SW_DEATHEXIT_SUMO = 2048,
 	LEVEL_SW_DEATHEXIT_ZILLA = 4096,
 
+	LEVEL_WT_BOSSSPAWN = 8192,
+
 
 };
 
@@ -78,21 +82,6 @@ enum {
 
 class DObject;
 struct MapRecord;
-
-struct CutsceneDef
-{
-	FString video;
-	FString function;
-	FString soundName;
-	int soundID = -1;	// ResID not SoundID!
-	int framespersec = 0; // only relevant for ANM.
-	bool transitiononly = false; // only play when transitioning between maps, but not when starting on a map or ending a game.
-
-	void Create(DObject* runner);
-	bool Create(DObject* runner, MapRecord* map, bool transition);
-	bool isdefined() { return video.IsNotEmpty() || function.IsNotEmpty(); }
-	int GetSound();
-};
 
 struct GlobalCutscenes
 {

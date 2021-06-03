@@ -182,6 +182,13 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 		if (texture && !checkTranslucentReplacement(texture->GetID(), palette)) state.AlphaFunc(Alpha_GEqual, texture->alphaThreshold);
 		else state.AlphaFunc(Alpha_GEqual, 0.f);
 	}
+	else if (shade > numshades && (GlobalMapFog || (fade & 0xffffff)))
+	{
+		state.SetObjectColor(fade | 0xff000000);
+		state.EnableTexture(false);
+	}
+
+
 	state.SetMaterial(texture, UF_Texture, 0, Sprite == nullptr? CLAMP_NONE : CLAMP_XY, TRANSLATION(Translation_Remap + curbasepal, palette), -1);
 
 	state.SetLightIndex(dynlightindex);
@@ -192,6 +199,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	state.EnableBrightmap(true);
 
 	state.SetObjectColor(0xffffffff);
+	state.EnableTexture(true);
 	//state.SetAddColor(0);
 	//state.ApplyTextureManipulation(nullptr);
 }
@@ -246,7 +254,6 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	float florz, ceilz;
 	PlanesAtPoint(frontsector, float(vp.Pos.X) * 16.f, float(vp.Pos.Y) * -16.f, &ceilz, &florz);
 
-	fade = lookups.getFade(frontsector->floorpal);	// fog is per sector.
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;
 	section = section_;
@@ -264,6 +271,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	{
 		// process the original floor first.
 
+		fade = lookups.getFade(frontsector->floorpal);
 		shade = frontsector->floorshade;
 		palette = frontsector->floorpal;
 		stack = frontsector->portalflags == PORTAL_SECTOR_FLOOR || frontsector->portalflags == PORTAL_SECTOR_FLOOR_REFLECT;
@@ -304,6 +312,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	{
 		// process the original ceiling first.
 
+		fade = lookups.getFade(frontsector->ceilingpal);
 		shade = frontsector->ceilingshade;
 		palette = frontsector->ceilingpal;
 		stack = frontsector->portalflags == PORTAL_SECTOR_CEILING || frontsector->portalflags == PORTAL_SECTOR_CEILING_REFLECT;
@@ -360,6 +369,6 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* s
 
 		SetSpriteTranslucency(sprite, alpha, RenderStyle);
 
-		PutFlat(di, 0);
+		PutFlat(di, z > di->Viewpoint.Pos.Z);
 	}
 }

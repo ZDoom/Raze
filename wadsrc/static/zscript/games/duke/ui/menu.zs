@@ -30,7 +30,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 {
 	override int DrawCaption(String title, Font fnt, int y, bool drawit)
 	{
-		let font = generic_ui? NewConsoleFont : BigFont;	// this ignores the passed font intentionally.
+		let font = Raze.PickBigFont();	// this ignores the passed font intentionally.
 		let texid = TexMan.CheckForTexture("MENUBAR");
 		let texsize = TexMan.GetScaledSize(texid);
 		let fonth = font.GetGlyphHeight("A");
@@ -82,7 +82,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 	
 	//----------------------------------------------------------------------------
 	//
-	//
+	// not used for any localized content.
 	//
 	//----------------------------------------------------------------------------
 
@@ -91,8 +91,8 @@ class DukeMenuDelegate : RazeMenuDelegate
 		double x = xx / 65536.;
 		double y = yy / 65536.;
 
-		Screen.DrawText(SmallFont2, Font.CR_UNDEFINED, x + 1, y + 1, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5);
-		Screen.DrawText(SmallFont2, Font.CR_UNDEFINED, x, y, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION.MakeID(Translation_Remap, p));
+		Screen.DrawText(SmallFont2, Font.CR_UNTRANSLATED, x + 1, y + 1, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5);
+		Screen.DrawText(SmallFont2, Font.CR_NATIVEPAL, x, y, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION.MakeID(Translation_Remap, p));
 	}
 
 	static void mgametextcenter(int xx, int yy, String t)
@@ -100,7 +100,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		double x = xx / 65536. + 160. - SmallFont.StringWidth(t) * 0.5;
 		double y = yy / 65536.;
 
-		Screen.DrawText(SmallFont, Font.CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, FSMode_Fit320x200);
+		Screen.DrawText(SmallFont, Font.CR_UNTRANSLATED, x, y + 2, t, DTA_FullscreenScale, FSMode_Fit320x200);
 	}
 
 	
@@ -167,10 +167,11 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 	
 	override void Draw(bool selected, ListMenuDescriptor desc)
 	{
-		int trans = mColorSelected? Translation.MakeID(Translation_Remap, 1) : 0; 
+		let font = Raze.PickBigFont();
+		int trans = mColorSelected? Translation.MakeID(Translation_Remap, 1) : 0;
 		Color pe;
 		double scale = (gameinfo.gametype & GAMEFLAG_RRALL) ? 0.4 : 1.;
-		let xpos = 160 - BigFont.StringWidth(mText) * scale * 0.5;
+		let xpos = 160 - font.StringWidth(mText) * scale * 0.5;
 
 		if (selected)
 		{
@@ -183,7 +184,9 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 			pe = Color(255, 160, 160, 160);
 		}
 
-		Screen.DrawText(BigFont, Font.CR_UNDEFINED, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
+		// Palette 0 may not use NATIVEPAL so that substitution remaps work.
+		Screen.DrawText(font, trans? Font.CR_NATIVEPAL : Font.CR_UNTRANSLATED, xpos, mYpos, mText, DTA_FullscreenScale, FSMode_Fit320x200, 
+			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_TranslationIndex, trans);
 	}
 	
 }

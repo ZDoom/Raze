@@ -251,6 +251,7 @@ void Respawn(int nSprite) // 9
                 #ifdef NOONE_EXTENSIONS
                 if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[pSprite->type - kDudeBase].startHealth << 4;
                 else pXSprite->health = ClipRange(pXSprite->sysData2 << 4, 1, 65535);
+
                 switch (pSprite->type) {
                     default:
                         pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
@@ -260,6 +261,12 @@ void Respawn(int nSprite) // 9
                     case kDudeModernCustom:
                         seqSpawn(genDudeSeqStartId(pXSprite), 3, pSprite->extra, -1);
                         break;
+                }
+                
+                // return dude to the patrol state
+                if (gModernMap && pXSprite->dudeFlag4) {
+                    pXSprite->data3 = 0;
+                    pXSprite->target = -1;
                 }
                 #else
                 pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;

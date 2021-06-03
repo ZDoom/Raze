@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_dispatch.h"
 #include "raze_sound.h"
 #include "gamestate.h"
-#include "screenjob.h"
+#include "screenjob_.h"
 #include "c_console.h"
 #include "cheathandler.h"
 #include "statistics.h"
@@ -84,8 +84,9 @@ void GameInterface::Render()
     if (paused && !M_Active())
     {
         auto tex = GStrings("TXTB_PAUSED");
-		int nStringWidth = SmallFont->StringWidth(tex);
-		DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+        auto font = PickSmallFont(tex);
+        int nStringWidth = font->StringWidth(tex);
+		DrawText(twod, font, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 
     drawtime.Unclock();

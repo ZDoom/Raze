@@ -321,6 +321,12 @@ int GetWallAngle(int nWall)
     return getangle(wall[nWall2].x - wall[nWall].x, wall[nWall2].y - wall[nWall].y);
 }
 
+int GetWallAngle(walltype* pWall)
+{
+    int nWall2 = pWall->point2;
+    return getangle(wall[nWall2].x - pWall->x, wall[nWall2].y - pWall->y);
+}
+
 void GetWallNormal(int nWall, int *pX, int *pY)
 {
     assert(nWall >= 0 && nWall < kMaxWalls);

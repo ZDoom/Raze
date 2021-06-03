@@ -190,18 +190,9 @@ static FString LookupMusicCB(const char* musicname, int& order)
 }
 
 
-static FString lastMusic;
 int Mus_Play(const char *fn, bool loop)
 {
 	if (mus_blocked) return 1;	// Caller should believe it succeeded.
-	if (*fn == '/') fn++;
-	// Store the requested names for resuming.
-	lastMusic = fn;
-	
-	if (!MusicEnabled())
-	{
-		return 1;
-	}
 	return S_ChangeMusic(fn, 0, loop, true);
 }
 

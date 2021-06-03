@@ -37,6 +37,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "interpolate.h"
 #include "precache.h"
 #include "render.h"
+#include "screenjob_.h"
 
 BEGIN_DUKE_NS  
 

@@ -440,7 +440,7 @@ class ExhumedStatusBar : RazeStatusBar
 		StatsPrintInfo stats;
 
 		stats.fontscale = 1.;
-		stats.spacing = SmallFont.GetHeight();
+		stats.altspacing = stats.spacing = SmallFont.GetHeight();
 		stats.screenbottomspace = bottomy;
 		stats.statfont = SmallFont;
 		stats.letterColor = TEXTCOLOR_RED;
@@ -448,6 +448,7 @@ class ExhumedStatusBar : RazeStatusBar
 
 		if (automapMode == am_full)
 		{
+			stats.statfont = Raze.PickSmallFont();
 			PrintAutomapInfo(stats, true);
 		}
 		else if (automapMode == am_off && hud_stats) 

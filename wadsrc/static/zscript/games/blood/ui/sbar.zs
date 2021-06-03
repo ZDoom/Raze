@@ -138,7 +138,6 @@ class BloodStatusBar : RazeStatusBar
 		StatsPrintInfo stats;
 
 		stats.fontscale = 1.;
-		stats.spacing = SmallFont.GetHeight() + 1;
 		stats.screenbottomspace = bottomy;
 		stats.statfont = SmallFont;
 		stats.letterColor = TEXTCOLOR_DARKRED;
@@ -146,25 +145,16 @@ class BloodStatusBar : RazeStatusBar
 
 		if (automapMode == am_full)
 		{
-			bool textfont = am_textfont;
-			if (!am_textfont)
-			{
-				// For non-English languages force use of the text font. The tiny one is simply too small to ever add localized characters to it.
-				let p = StringTable.Localize("$REQUIRED_CHARACTERS");
-				if (p.length() > 0) textfont = true;
-			}
-
-			if (!textfont)
-			{
-				stats.statfont = SmallFont2;
-				stats.spacing = 6;
-			}
+			stats.statfont = SmallFont2;
+			stats.spacing = 6;
+			stats.altspacing = SmallFont.GetHeight() + 2;
 			if (hud_size <= Hud_StbarOverlay) stats.screenbottomspace = 56;
-			PrintAutomapInfo(stats, textfont);
+			PrintAutomapInfo(stats, false);
 		}
 		if (automapMode == am_off && hud_stats)
 		{
 			stats.completeColor = TEXTCOLOR_DARKGREEN;
+			stats.spacing = SmallFont.GetHeight() + 2;
 
 			PrintLevelStats(stats, summary);
 		}
@@ -330,7 +320,7 @@ class BloodStatusBar : RazeStatusBar
 			int x = -160 + 80 * (i & 3);
 			int y = 9 * (i / 4);
 			int col = players[i].teamId & 3;
-			int cr = col == 0? Font.CR_UNDEFINED : col == 1? Font.CR_BLUE : Font.CR_RED;
+			int cr = col == 0? Font.CR_UNTRANSLATED : col == 1? Font.CR_BLUE : Font.CR_RED;
 			DrawString(tinyf, Raze.PlayerName(i), (x + 4, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
 			String gTempStr = String.Format("%2d", players[i].fragCount);
 			DrawString(tinyf, gTempStr, (x + 76, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
@@ -353,7 +343,7 @@ class BloodStatusBar : RazeStatusBar
 			int y = 9 * (i / 4);
 			int col = players[i].teamId & 3;
 			gTempStr = String.Format("%s", Raze.PlayerName(i));
-			int cr = col == 0? Font.CR_UNDEFINED : col == 1? Font.CR_BLUE : Font.CR_RED;
+			int cr = col == 0? Font.CR_UNTRANSLATED : col == 1? Font.CR_BLUE : Font.CR_RED;
 			DrawString(tinyf, gTempStr.MakeUpper(), (x + 4, y), DI_SCREEN_CENTER_TOP, cr, 1., -1, -1);
 
 			x += 76;
@@ -517,7 +507,7 @@ class BloodStatusBar : RazeStatusBar
 			int num = pPlayer.ammoCount[pPlayer.weaponAmmo];
 			if (pPlayer.weaponAmmo == 6)
 				num /= 10;
-			DrawStatNumber("%3d", num, "SBarWeaponNum", 216, 183, 0, 0);
+			DrawStatNumber("%3d", num, "SBarHealthAmount", 216, 183, 0, 0);
 		}
 		for (int i = 9; i >= 1; i--)
 		{
@@ -588,7 +578,7 @@ class BloodStatusBar : RazeStatusBar
 			int num = pPlayer.ammoCount[pPlayer.weaponAmmo];
 			if (pPlayer.weaponAmmo == 6)
 				num /= 10;
-			DrawStatNumber("%3d", num, "SBarWeaponNum", 42, 183 - 200, 0, 0);
+			DrawStatNumber("%3d", num, "SBarHealthAmount", 42, 183 - 200, 0, 0);
 		}
 		DrawImage("ArmorBox", (284 - 320, 187 - 200), DI_ITEM_RELCENTER, style:STYLE_Normal, col:0xffc0c0c0, translation:nPalette);
 		if (pPlayer.armor[1])
@@ -644,7 +634,7 @@ class BloodStatusBar : RazeStatusBar
 
 		int health = pPlayer.GetHealth();
 		BeginHUD(1, false, 320, 200);
-		DrawImage("HealthIcon", (12, 195 - 200), DI_ITEM_RELCENTER, scale:(0.56, 0.56));
+		DrawImage("HealthIcon", (12, 195 - 200), 0, scale:(0.56, 0.56));
 		DrawStatNumber("%d", health >> 4, "SBarNumberHealth", 28, 187 - 200, 0, 0);
 		if (pPlayer.armor[1])
 		{

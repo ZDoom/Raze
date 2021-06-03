@@ -57,7 +57,6 @@ static MapRecord* NextMap;
 
 void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
-void InitFonts();
 void InitCheats();
 
 int EndLevel = 0;
@@ -73,8 +72,9 @@ void ResetEngine()
     resettiming();
 }
 
-void InstallEngine()
+void GameInterface::loadPalette()
 {
+    paletteLoadFromDisk();
     uploadCinemaPalettes();
     LoadPaletteLookups();
 }
@@ -494,13 +494,7 @@ void GameInterface::app_init()
         nTotalPlayers += nNetPlayerCount;
     }
 
-    // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
-    InstallEngine();
-    LoadDefinitions();
-    InitFonts();
     SetTileNames();
-
-    TileFiles.SetBackup();
 
     InitFX();
     seq_LoadSequences();

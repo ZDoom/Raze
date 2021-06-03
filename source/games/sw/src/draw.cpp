@@ -56,6 +56,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_video.h"
 #include "v_draw.h"
 #include "render.h"
+#include "razefont.h"
 EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_SW_NS
@@ -351,10 +352,10 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     }
     else if (!testnewrenderer)
     {
-        int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-        New->x += bcos(camang, -11);
-        New->y += bsin(camang, -11);
-        
+        // Alter the shadow's position so that it appears behind the sprite itself.
+        int look = getangle(New->x - Player[screenpeek].six, New->y - Player[screenpeek].siy);
+        New->x += bcos(look, -9);
+        New->y += bsin(look, -9);
     }
     else New->time = 1;
 
@@ -1672,8 +1673,9 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (paused && !M_Active())
     {
         auto str = GStrings("Game Paused");
-        int w = SmallFont->StringWidth(str);
-        DrawText(twod, SmallFont, CR_UNDEFINED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+        auto font = PickSmallFont(str);
+        int w = font->StringWidth(str);
+        DrawText(twod, font, CR_UNTRANSLATED, 160-w, 100, str, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 
     if (!CommEnabled && TEST(pp->Flags, PF_DEAD))

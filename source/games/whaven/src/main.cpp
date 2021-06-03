@@ -11,6 +11,7 @@
 #include "statistics.h"
 #include "version.h"
 #include "cheathandler.h"
+#include "screenjob_.h"
 
 BEGIN_WH_NS
 

@@ -95,6 +95,7 @@ enum VIEW_EFFECT {
     VIEW_EFFECT_16,
     VIEW_EFFECT_17,
     VIEW_EFFECT_18,
+    kViewEffectSpotProgress,
 };
 
 enum VIEWPOS {
@@ -140,7 +141,6 @@ void viewUpdatePrediction(InputPacket *pInput);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos);
-void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat = 0, uint8_t alpha = 255);
 void InitStatusBar(void);
 void UpdateStatusBar();
 void viewInit(void);

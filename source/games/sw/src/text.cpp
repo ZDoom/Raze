@@ -39,92 +39,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-//==========================================================================
-//
-// Sets up the game fonts.
-//
-//==========================================================================
-
-void InitFonts()
-{
-    GlyphSet fontdata;
-
-    // Small font
-    for (int i = 0; i < 95; i++)
-    {
-        auto tile = tileGetTexture(STARTALPHANUM + i);
-        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-        {
-            fontdata.Insert('!' + i, tile);
-            tile->SetOffsetsNotForFont();
-        }
-    }
-    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, 4, false, false, false, &fontdata);
-    fontdata.Clear();
-
-    // Tiny font
-    for (int i = 0; i < 95; i++)
-    {
-        auto tile = tileGetTexture(2930 + i);
-        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-        {
-            fontdata.Insert('!' + i, tile);
-            tile->SetOffsetsNotForFont();
-        }
-    }
-    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 4, false, false, false, &fontdata);
-    fontdata.Clear();
-
-    const int FONT_LARGE_ALPHA = 3706;
-    const int FONT_LARGE_DIGIT = 3732;
-
-    // Big 
-    for (int i = 0; i < 10; i++)
-    {
-        auto tile = tileGetTexture(FONT_LARGE_DIGIT + i);
-        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-        {
-            fontdata.Insert('0' + i, tile);
-            tile->SetOffsetsNotForFont();
-        }
-    }
-    for (int i = 0; i < 26; i++)
-    {
-        auto tile = tileGetTexture(FONT_LARGE_ALPHA + i);
-        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-        {
-            fontdata.Insert('A' + i, tile);
-            tile->SetOffsetsNotForFont();
-        }
-    }
-
-    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
-    BigFont->SetKerning(1);
-}
-
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, int align, double alpha)
-{
-    if (align > -1)
-    {
-        int w = SmallFont2->StringWidth(string);
-        if (align == 0) x -= w / 2;
-        else x -= w;
-    }
-    DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, string, DTA_FullscreenScale, FSMode_Fit320x200,
-        DTA_Color, shadeToLight(shade), DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Alpha, alpha, TAG_DONE);
-
-}
-
-//---------------------------------------------------------------------------
-//
-// Notification messages. Native SW-style display should later be
-// provided by the backend.
+// Notification messages.
 //
 //---------------------------------------------------------------------------
 

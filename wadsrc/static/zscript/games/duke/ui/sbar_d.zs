@@ -454,12 +454,12 @@ class DukeStatusBar : DukeCommonStatusBar
 			int percentv = getinvamount(p);
 			format = String.Format("%3d%%", percentv);
 			int color = percentv > 50 ? 11 : percentv > 25 ? 23 : 2;
-			DrawString(miniFont, format, (x + 34, top + 24), DI_TEXT_ALIGN_RIGHT, Font.CR_UNDEFINED, 1, 0, 0, (1, 1), Translation.MakeID(Translation_Remap, color));
+			DrawString(miniFont, format, (x + 34, top + 24), DI_TEXT_ALIGN_RIGHT, Font.CR_NATIVEPAL, 1, 0, 0, (1, 1), Translation.MakeID(Translation_Remap, color));
 
 			String text;
 			int pal;
 			[text, pal] = ontext(p);
-			if (text.length() > 0) DrawString(miniFont, text, (x + 34, top + 14), DI_TEXT_ALIGN_RIGHT, Font.CR_UNDEFINED, 1, 0, 0, (1, 1), Translation.MakeID(Translation_Remap, pal));
+			if (text.length() > 0) DrawString(miniFont, text, (x + 34, top + 14), DI_TEXT_ALIGN_RIGHT, Font.CR_NATIVEPAL, 1, 0, 0, (1, 1), Translation.MakeID(Translation_Remap, pal));
 		}
 	}
 

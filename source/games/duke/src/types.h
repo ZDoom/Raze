@@ -4,8 +4,6 @@
 #include "d_net.h"
 #include "gameinput.h"
 
-extern spritetype sprite_s[];
-
 BEGIN_DUKE_NS
 
 
@@ -41,7 +39,7 @@ struct weaponhit
 
 	static weaponhit* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
 
-	weaponhit() : s(&sprite_s[this - array()]) {}			// little trick to initialize the reference automatically. ;)
+	weaponhit() : s(&sprite[this - array()]) {}			// little trick to initialize the reference automatically. ;)
 	weaponhit(const weaponhit& other) = delete;				// we also do not want to allow copies.
 	weaponhit& operator=(const weaponhit& other) = delete;
 	void clear()
