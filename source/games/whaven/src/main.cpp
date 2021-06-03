@@ -538,41 +538,55 @@ static void readpalettetable(void)
 	}
 }
 
+void GameInterface::loadPalette()
+{
+	paletteLoadFromDisk();
+	readpalettetable();
+
+	if (isWh2()) {
+		tileDelete(FLOORMIRROR);
+		uint8_t tempbuf[256];
+		for (int j = 0; j < 256; j++)
+			tempbuf[j] = (byte)((j + 32) & 0xFF);     // remap colors for screwy palette sectors
+		lookups.makeTable(16, tempbuf, 0, 0, 0, 1);
+		for (int j = 0; j < 256; j++)
+			tempbuf[j] = (byte)j;
+		lookups.makeTable(17, tempbuf, 24, 24, 24, 1);
+
+		for (int j = 0; j < 256; j++)
+			tempbuf[j] = (byte)j;          // (j&31)+32;
+		lookups.makeTable(18, tempbuf, 8, 8, 48, 1);
+	}
+
+	// Remap table for the menu font.
+	uint8_t remapbuf[256];
+	for (int i = 0; i < 256; i++) remapbuf[i] = i;
+	for (int i = 242; i < 252; i++) //yellow to green
+		remapbuf[i] = (uint8_t)(368 - i);
+	//for(int i = 117; i < 127; i++) //green to yellow
+		//remapbuf[i] = (uint8_t) (368 - i);
+	lookups.makeTable(20, remapbuf, 0, 0, 0, true);
+
+}
+
+
 
 void GameInterface::app_init()
 {
+	InitFonts();
+
 	GameTicRate = TIMERRATE / TICSPERFRAME;
 	InitNames();
 	engineInit();
 
-	TileFiles.LoadArtSet("tiles%03d.art");
 	TileFiles.tileMakeWritable(ANILAVA);
 	TileFiles.tileMakeWritable(HEALTHWATER);
 	initlava();
 	initwater();
 	//ConsoleInit();
 	g_visibility=1024;
-	readpalettetable();
-	TileFiles.SetBackup();
-	InitFonts();
 	connectpoint2[0] = -1;
-
-	if(isWh2()) {
-		tileDelete(FLOORMIRROR);
-		uint8_t tempbuf[256];
-		for (int j = 0; j < 256; j++)
-			tempbuf[j] = (byte) ((j + 32) & 0xFF);     // remap colors for screwy palette sectors
-		lookups.makeTable(16, tempbuf, 0, 0, 0, 1);
-		for (int j = 0; j < 256; j++)
-			tempbuf[j] = (byte) j;
-		lookups.makeTable(17, tempbuf, 24, 24, 24, 1);
-
-		for (int j = 0; j < 256; j++)
-			tempbuf[j] = (byte) j;          // (j&31)+32;
-		lookups.makeTable(18, tempbuf, 8, 8, 48, 1);
-	}
 	 
-	FadeInit();
 	setupmidi();
 	sfxInit();
 	//sndInit();

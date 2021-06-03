@@ -386,7 +386,6 @@ void bats(PLAYER& plr, int k);
 void cracks();
 void lavadryland();
 void warpfxsprite(int s);
-void FadeInit();
 void resetEffects();
 void weaponpowerup(PLAYER& plr);
 void makesparks(short i, int type);
@@ -510,6 +509,7 @@ struct GameInterface : public ::GameInterface
 	const char* Name() override { return "Witchaven"; }
 	void app_init() override;
 	void clearlocalinputstate() override;
+	void loadPalette();
 	bool GenerateSavePic() override;
 	GameStats getStats() override;
 	void MenuOpened() override;

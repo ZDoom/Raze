@@ -13,15 +13,6 @@ BEGIN_WH_NS
 
 void InitFonts()
 {
-	// Remap table for the menu font.
-	uint8_t remapbuf[256];
-	for (int i = 0; i < 256; i++) remapbuf[i] = i;
-	for(int i = 242; i < 252; i++) //yellow to green
-		remapbuf[i] = (uint8_t) (368 - i);
-	//for(int i = 117; i < 127; i++) //green to yellow
-		//remapbuf[i] = (uint8_t) (368 - i);
-	lookups.makeTable(20, remapbuf, 0, 0, 0, true);
-	
 	GlyphSet fontdata;
 
 	// Small font
