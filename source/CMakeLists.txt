@@ -918,7 +918,6 @@ set( NOT_COMPILED_SOURCE_FILES
 	games/exhumed/src/wasp.cpp
 
 	# Witchaven
-	games/whaven/src/2d.cpp
 	games/whaven/src/ai.cpp
 	games/whaven/src/aidemon.cpp
 	games/whaven/src/aidevil.cpp

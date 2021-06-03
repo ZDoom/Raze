@@ -1,4 +1,3 @@
-#include "src/2d.cpp"
 #include "src/ai.cpp"
 #include "src/aidemon.cpp"
 #include "src/aidevil.cpp"
