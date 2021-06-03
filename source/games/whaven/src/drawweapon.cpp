@@ -3,6 +3,8 @@
 #include "v_font.h"
 #include "v_draw.h"
 #include "gamehud.h"
+#include "statusbar.h"
+#include "mapinfo.h"
 
 BEGIN_WH_NS
 
@@ -428,7 +430,15 @@ void DrawHud(double const dasmoothratio) {
 	if (scarytime >= 0)
 		drawscary();
 
-	//drawInterface(player[pyrn]);
+	SummaryInfo info{};
+	info.kills = kills;
+	info.maxkills = killcnt;
+	info.secrets = treasuresfound;
+	info.maxsecrets = treasurescnt;
+	info.supersecrets = 0;
+	info.time = Scale(PlayClock, 1000, 120);
+
+	UpdateStatusBar(&info);
 }
 	
 END_WH_NS

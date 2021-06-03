@@ -425,7 +425,7 @@ class WHStatusBar : RazeStatusBar
 		}
 
 		int amposx = 10;
-		int amposy = 40;//Raze.GetMessageBottomY();
+		int amposy = Raze.GetMessageBottomY();
 
 		if(plr.treasure[Witchaven.TONYXRING] != 0)
 		{
