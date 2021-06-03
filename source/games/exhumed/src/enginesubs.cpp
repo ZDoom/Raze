@@ -42,33 +42,24 @@ void precache()
 
     for (i = 0; i < numsectors; i++)
     {
-        int j = sector[i].ceilingpicnum;
+        short j = sector[i].ceilingpicnum;
         markTileForPrecache(j, sector[i].ceilingpal);
-        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sector[i].ceilingpal);
-
         j = sector[i].floorpicnum;
         markTileForPrecache(j, sector[i].floorpal);
-        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sector[i].floorpal);
     }
 
     for (i = 0; i < numwalls; i++)
     {
-        int j = wall[i].picnum;
+        short j = wall[i].picnum;
         markTileForPrecache(j, wall[i].pal);
-        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wall[i].pal);
     }
 
     for (i = 0; i < kMaxSprites; i++)
     {
         if (sprite[i].statnum < kMaxStatus)
         {
-            int j = sprite[i].picnum;
+            short j = sprite[i].picnum;
             markTileForPrecache(j, sprite[i].pal);
-            if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-                for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sprite[i].pal);
         }
     }
     precacheMarkedTiles();
