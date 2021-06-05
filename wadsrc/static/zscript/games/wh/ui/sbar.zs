@@ -127,7 +127,7 @@ class WHStatusBar : RazeStatusBar
 		else 
 		{
 			format = "SPLAYERLVL1";// .. (plr.lvl - 1); // GDX uses 1917 + lvl for WH2
-			DrawImage(format, (x, y+2), DI_ITEM_LEFT_TOP);
+			DrawImage(format, (x, y), DI_ITEM_LEFT_TOP);
 		}
 	}
 
@@ -150,11 +150,9 @@ class WHStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
  
-	void drawarmor(WhPlayer plr, double x, double y) 
+	void drawscore2(WhPlayer plr, double x, double y) 
 	{
-		String format = String.Format("%d", plr.armor);
-
-		DrawImage("SHEALTHBACK", (x, y), DI_ITEM_LEFT_TOP);
+		String format = String.Format("%d", plr.score);
 		drawHealthText(x + 8, y + 5, format);
 	}
 
@@ -164,13 +162,27 @@ class WHStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
  
-	void drawhealth(WhPlayer plr, double x, double y) 
+	void drawarmor(WhPlayer plr, double x, double y, bool drawbg = true) 
+	{
+		String format = String.Format("%d", plr.armor);
+
+		if (drawbg) DrawImage("SHEALTHBACK", (x, y), DI_ITEM_LEFT_TOP);
+		drawHealthText(x + 8, y + 5, format);
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+ 
+	void drawhealth(WhPlayer plr, double x, double y, bool drawbg = true) 
 	{
 		String format = String.Format("%d", plr.health);
 		double alpha = 1;
 		if (plr.poisoned == 1)  alpha = sin((10 * 360. / 2048.) * PlayClock) * 0.5 + 0.5;
 
-		DrawImage("SHEALTHBACK", (x, y), DI_ITEM_LEFT_TOP);
+		if (drawbg) DrawImage("SHEALTHBACK", (x, y), DI_ITEM_LEFT_TOP);
 		drawHealthText(x + 4, y + 5, format, numshades - (numshades * alpha));
 	}
 
@@ -232,11 +244,11 @@ class WHStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
  
-	void potionpic(WhPlayer plr, int currentpotion, double x, double y) 
+	void potionpic(WhPlayer plr, int currentpotion, double x, double y, bool drawbg = true) 
 	{
 		static const String potionpic[] = { "SFLASKBLUE", "SFLASKGREEN", "SFLASKOCHRE", "SFLASKRED", "SFLASKTAN"};
 			
-		DrawImage("SPOTIONBACKPIC", (x, y), DI_ITEM_LEFT_TOP);
+		if (drawbg) DrawImage("SPOTIONBACKPIC", (x, y), DI_ITEM_LEFT_TOP);
 		DrawImage("SPOTIONARROW" .. currentpotion, (x - 4, y - 7), DI_ITEM_LEFT_TOP);
 
 		x += 4;
@@ -524,6 +536,33 @@ class WHStatusBar : RazeStatusBar
 	// 
 	//
 	//---------------------------------------------------------------------------
+ 
+ 	void DrawHud2(WhPlayer plr, SummaryInfo info)
+	{
+		BeginHUD(1, false, 640, 480);
+		
+		DrawImage("SFLASKBLUE", (4, -3), DI_ITEM_LEFT_BOTTOM);
+		drawhealth(plr, 30, -50, false);
+
+		DrawImage("CHAINMAIL", (120, -3), DI_ITEM_LEFT_BOTTOM|DI_DONTANIMATE, scale:(0.5, 0.5));
+		drawarmor(plr, 170, -50, false);
+
+		DrawImage("#00513" /*"HORNYSKULL4"*/, (260, -3), DI_ITEM_LEFT_BOTTOM|DI_DONTANIMATE, scale:(1.5, 1.5));	// something's wrong with the names...
+		drawscore2(plr, 320, -50);
+		
+		//drawscore(plr, 260, -40);
+ 		levelpic(plr, -320, -40);
+
+		if (!netgame) potionpic(plr, plr.currentpotion, -180, -80, false);
+		keyspic(plr, -30, -85);
+		DoLevelStats(60 * 200 / 480, info);
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
 
 	override void UpdateStatusBar(SummaryInfo info)
 	{
@@ -535,7 +574,7 @@ class WHStatusBar : RazeStatusBar
 		}
 		else if (hud_size == Hud_full)
 		{
-			//DrawHUD2(plr, info);
+			DrawHUD2(plr, info);
 		}
 		else if (hud_size == Hud_Mini)
 		{
