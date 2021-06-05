@@ -475,10 +475,10 @@ class WHStatusBar : RazeStatusBar
 	void DoLevelStats(int bottomy, SummaryInfo info)
 	{
 		StatsPrintInfo stats; 
-		stats.fontscale = 1;
-		stats.spacing = ConFont.GetHeight() + 1;
+		stats.fontscale = 0.6;
+		stats.spacing = stats.fontScale * SmallFont.GetHeight() + 1;
 		stats.screenbottomspace = bottomy;
-		stats.statfont = ConFont;
+		stats.statfont = SmallFont;
 
 		if (automapMode == am_full)
 		{
