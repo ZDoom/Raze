@@ -422,13 +422,42 @@ void drawscary() {
 }
 
 
-void DrawHud(double const dasmoothratio) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void UpdateFrame(void)
+{
+	static const int kBackTile = 3;
+	auto tex = tileGetTexture(kBackTile);
+
+	twod->AddFlatFill(0, 0, xdim, windowxy1.y - 3, tex);
+	twod->AddFlatFill(0, windowxy2.y + 4, xdim, ydim, tex);
+	twod->AddFlatFill(0, windowxy1.y - 3, windowxy1.x - 3, windowxy2.y + 4, tex);
+	twod->AddFlatFill(windowxy2.x + 4, windowxy1.y - 3, xdim, windowxy2.y + 4, tex);
+
+	twod->AddFlatFill(windowxy1.x - 3, windowxy1.y - 3, windowxy1.x, windowxy2.y + 1, tex, 0, 1, 0xff545454);
+	twod->AddFlatFill(windowxy1.x, windowxy1.y - 3, windowxy2.x + 4, windowxy1.y, tex, 0, 1, 0xff545454);
+	twod->AddFlatFill(windowxy2.x + 1, windowxy1.y, windowxy2.x + 4, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
+	twod->AddFlatFill(windowxy1.x - 3, windowxy2.y + 1, windowxy2.x + 1, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
+}
+
+
+void DrawHud(double const dasmoothratio) 
+{
 	if (!player[pyrn].dead)
 		drawweapons(pyrn, dasmoothratio);
 	if (player[pyrn].spiked == 1)
 		spikeheart(player[pyrn]);
 	if (scarytime >= 0)
 		drawscary();
+
+	if (hud_size <= Hud_Stbar)
+	{
+		UpdateFrame();
+	}
 
 	SummaryInfo info{};
 	info.kills = kills;
@@ -440,5 +469,11 @@ void DrawHud(double const dasmoothratio) {
 
 	UpdateStatusBar(&info);
 }
-	
+
+ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
+{
+	return { 0, tileHeight(SSTATUSBAR) * 200 / 480 };
+}
+
+
 END_WH_NS

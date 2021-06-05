@@ -1590,6 +1590,7 @@ DEFINE_GLOBAL(currentLevel)
 DEFINE_GLOBAL(paused)
 DEFINE_GLOBAL(automapMode)
 DEFINE_GLOBAL(PlayClock)
+DEFINE_GLOBAL(numshades)
 
 DEFINE_FIELD_X(ClusterDef, ClusterDef, name)
 DEFINE_FIELD_X(ClusterDef, ClusterDef, InterBackground)
