@@ -475,7 +475,7 @@ class WHStatusBar : RazeStatusBar
 	void DoLevelStats(int bottomy, SummaryInfo info)
 	{
 		StatsPrintInfo stats; 
-		stats.fontscale = 0.6;
+		stats.fontscale = Raze.isWh2()? 1. : 0.6;
 		stats.spacing = stats.fontScale * SmallFont.GetHeight() + 1;
 		stats.screenbottomspace = bottomy;
 		stats.statfont = SmallFont;

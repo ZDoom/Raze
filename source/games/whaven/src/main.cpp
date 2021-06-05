@@ -575,9 +575,8 @@ void GameInterface::loadPalette()
 void GameInterface::app_init()
 {
 	InitFonts();
-
+	C_SetNotifyFontScale(isWh2()? 1 : 0.6);
 	GameTicRate = TIMERRATE / TICSPERFRAME;
-	InitNames();
 	engineInit();
 
 	TileFiles.tileMakeWritable(ANILAVA);
@@ -817,6 +816,13 @@ void GameInterface::ToggleThirdPerson()
 {
 	return new GameInterface;
 }
+
+void GameInterface::LoadGameTextures()
+{
+	// Must be done early so that fonts etc. get properly set up.
+	InitNames();
+}
+
 
 
 DEFINE_FIELD_X(WhPlayer,PLAYER,spellnum);
