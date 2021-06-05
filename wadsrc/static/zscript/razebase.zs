@@ -74,6 +74,7 @@ extend struct _
 	native readonly MapRecord currentLevel;
 	native readonly int automapMode;
 	native readonly int PlayClock;
+	native readonly int numshades;
 }
 
 struct MapRecord native

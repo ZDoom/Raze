@@ -115,19 +115,19 @@ class WHStatusBar : RazeStatusBar
 		if (plr.selectedgun == 6) 
 		{
 			format = String.Format("%d", plr.ammo[6]);
-			DrawImage("SARROWS", (6,400 -46), DI_ITEM_RELCENTER); // GDX uses 1916 for WH2.
-			drawScoreText(42, -41, format);
+			DrawImage("SARROWS", (6,480 -46), DI_ITEM_LEFT_TOP); // GDX uses 1916 for WH2.
+			drawScoreText(42, 480 - 41, format);
 		}
 		else if (plr.selectedgun == 7 && plr.weapon[7] == 2) 
 		{
 			format = String.Format("%d", plr.ammo[7]);
-			DrawImage("SPIKES", (6,400 -46), DI_ITEM_RELCENTER);
-			drawScoreText(42, -41, format);
+			DrawImage("SPIKES", (6,480 -46), DI_ITEM_LEFT_TOP);
+			drawScoreText(42, 480 - 41, format);
 		}
 		else 
 		{
-			format = "SPLAYERLVL" .. (plr.lvl - 1); // GDX uses 1917 + lvl for WH2
-			DrawImage("SPIKES", (6,400 -44), DI_ITEM_RELCENTER);
+			format = "SPLAYERLVL1";// .. (plr.lvl - 1); // GDX uses 1917 + lvl for WH2
+			DrawImage(format, (6,480 -44), DI_ITEM_LEFT_TOP);
 		}
 	}
 
@@ -140,8 +140,8 @@ class WHStatusBar : RazeStatusBar
 	void drawscore(WhPlayer plr) 
 	{
 		String format = String.Format("%d", plr.score);
-		DrawImage("SSCOREBACKPIC", (6,400 -85), DI_ITEM_RELCENTER);
-		drawScoreText(61,400 -81, format);
+		DrawImage("SSCOREBACKPIC", (6,480 -85), DI_ITEM_LEFT_TOP);
+		drawScoreText(61, 480 -81, format);
 	}
 
 	//---------------------------------------------------------------------------
@@ -154,8 +154,8 @@ class WHStatusBar : RazeStatusBar
 	{
 		String format = String.Format("%d", plr.armor);
 
-		DrawImage("SHEALTHBACK", (401, 400 -75), DI_ITEM_RELCENTER);
-		drawScoreText(409, 400 - 70, format);
+		DrawImage("SHEALTHBACK", (401, 480 -75), DI_ITEM_LEFT_TOP);
+		drawHealthText(409, 480 - 70, format);
 	}
 
 	//---------------------------------------------------------------------------
@@ -170,8 +170,8 @@ class WHStatusBar : RazeStatusBar
 		double alpha = 1;
 		if (plr.poisoned == 1)  alpha = sin((10 * 360. / 2048.) * PlayClock) * 0.5 + 0.5;
 
-		DrawImage("SHEALTHBACK", (320 + 171, 400 -75), DI_ITEM_RELCENTER);
-		drawHealthText(320 - 167, 400 - 70, format);
+		DrawImage("SHEALTHBACK", (320 - 171, 480 -75), DI_ITEM_LEFT_TOP);
+		drawHealthText(320 - 167, 480 - 70, format, numshades - (numshades * alpha));
 	}
 
 	//---------------------------------------------------------------------------
@@ -218,11 +218,11 @@ class WHStatusBar : RazeStatusBar
  
 	void keyspic(WhPlayer plr) 
 	{
-		static const String keypics[] = { "SKEYBRASS", "SKEYBLACK", "SKYGLASS", "SKEYIVORY"};
-		int y = 400 - 85;
+		static const String keypics[] = { "SKEYBRASS", "SKEYBLACK", "SKEYGLASS", "SKEYIVORY"};
+		int y = 480 - 85;
 		for (int i = 0; i < 4; i++)
 		{
-			DrawImage(plr.treasure[Witchaven.TBRASSKEY + i]? keypics[i] : "SKEYBLANK", (320 + 180, y), DI_ITEM_RELCENTER );
+			DrawImage(/*plr.treasure[Witchaven.TBRASSKEY + i]?*/ keypics[i] /*: "SKEYBLANK"*/, (320 + 180, y), DI_ITEM_RELCENTER );
 			y += 22;
 		}
 	}
@@ -238,10 +238,10 @@ class WHStatusBar : RazeStatusBar
 		static const String potionpic[] = { "SFLASKBLUE", "SFLASKGREEN", "SFLASKOCHRE", "SFLASKRED", "SFLASKTAN"};
 			
 		double x = 320 + 200;
-		double y = 400 - 94;
+		double y = 480 - 94;
 
-		DrawImage("SPOTIONBACKPIC", (x, y), DI_ITEM_RELCENTER);
-		DrawImage("SPOTIONARROW" .. currentpotion, (x - 4, y - 7), DI_ITEM_RELCENTER);
+		DrawImage("SPOTIONBACKPIC", (x, y), DI_ITEM_LEFT_TOP);
+		DrawImage("SPOTIONARROW" .. currentpotion, (x - 4, y - 7), DI_ITEM_LEFT_TOP);
 
 		x += 4;
 		for(int i = 0; i < Witchaven.MAXPOTIONS; i++) 
@@ -249,10 +249,10 @@ class WHStatusBar : RazeStatusBar
 			if(plr.potion[i] < 0) plr.potion[i] = 0;
 			if(plr.potion[i] > 0) 
 			{
-				DrawImage(potionpic[i], (x + i*20, y + 19), DI_ITEM_RELCENTER);
+				DrawImage(potionpic[i], (x + i*20, y + 19), DI_ITEM_LEFT_TOP);
 				drawPotionText(x + 7 + i*20, y + 7, String.Format("%d", plr.potion[i]));
 			}
-			else  DrawImage("SFLASKBLACK", (x + i*20, y + 19), DI_ITEM_RELCENTER);
+			else  DrawImage("SFLASKBLACK", (x + i*20, y + 19), DI_ITEM_LEFT_TOP);
 		}
 	}
 
@@ -468,30 +468,15 @@ class WHStatusBar : RazeStatusBar
 	{
 		StatsPrintInfo stats; 
 		stats.fontscale = 1;
-		stats.spacing = 7;
+		stats.spacing = ConFont.GetHeight() + 1;
 		stats.screenbottomspace = bottomy;
-		stats.statfont = SmallFont;
+		stats.statfont = ConFont;
 
 		if (automapMode == am_full)
 		{
 			stats.letterColor = Font.TEXTCOLOR_DARKRED;
 			stats.standardColor = Font.TEXTCOLOR_TAN;
-
-			bool textfont = am_textfont;
-			if (!am_textfont)
-			{
-				// For non-English languages force use of the text font. The tiny one is simply too small to ever add localized characters to it.
-				let p = StringTable.Localize("$REQUIRED_CHARACTERS");
-				if (p.length() > 0) textfont = true; 
-			}
-
-			if (!textfont)
-			{
-				stats.statfont = SmallFont2;
-				stats.spacing = 6;
-			} 
-			else stats.spacing = SmallFont.GetHeight() + 1;
-			PrintAutomapInfo(stats, textfont);
+			PrintAutomapInfo(stats, true);
 		}
 		// JBF 20040124: display level stats in screen corner
 		else if (hud_stats && !(netgame /*|| numplayers > 1*/))
@@ -512,7 +497,10 @@ class WHStatusBar : RazeStatusBar
 	override void UpdateStatusBar(SummaryInfo info)
 	{
 		let plr = Witchaven.GetViewPlayer();
-		DrawImage("SSTATUSBAR", (0, 0), DI_ITEM_CENTER_BOTTOM | DI_SCREEN_CENTER_BOTTOM);
+		BeginStatusBar(false, 640, 480, tileHeight("SSTATUSBAR"));
+
+		if (hud_size == Hud_StbarOverlay) Set43ClipRect();
+		DrawImage("SSTATUSBAR", (320, 480), DI_ITEM_CENTER_BOTTOM); 		
 		updatepics(plr);
 		int bottomy = tileHeight("SSTATUSBAR") * 200 / 480; //??
 		DoLevelStats(bottomy, info);
