@@ -815,7 +815,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			break;
 		case UFOBEAM:
 		case RRTILE3586:
-		case RRTILE3587:
+		case LADDER:
 			t->cstat |= 32768;
 			s->cstat |= 32768;
 			break;
