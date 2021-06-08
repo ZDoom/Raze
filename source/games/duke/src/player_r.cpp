@@ -3431,7 +3431,7 @@ void processinput_r(int snum)
 			chz.actor = nullptr;
 			cz = p->truecz;
 		}
-		else if (chz.actor->s->picnum == RRTILE3587)
+		else if (chz.actor->s->picnum == LADDER)
 		{
 			if (!p->stairs)
 			{
@@ -3478,7 +3478,7 @@ void processinput_r(int snum)
 			p->posxv -= bcos(j, 4);
 			p->posyv -= bsin(j, 4);
 		}
-		if (clz.actor->s->picnum == RRTILE3587)
+		if (clz.actor->s->picnum == LADDER)
 		{
 			if (!p->stairs)
 			{
