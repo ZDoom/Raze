@@ -936,7 +936,7 @@ void animatetags(int nPlayer) {
 			dragpoint((short) j, wall[j].x + dragxdir[i], wall[j].y + dragydir[i]);
 		j = sector[dasector].floorz;
 			
-		StartInterpolation(dasector, Interp_Sect_Floorz);
+		StartInterpolation(dasector, Interp_Sect_Ceilingz);
 		sector[dasector].floorz = dragfloorz[i] + bsin(PlayClock << 4, -3);
 	
 		if (plr.sector == dasector) {
