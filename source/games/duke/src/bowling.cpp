@@ -30,6 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "global.h"
 #include "names_r.h"
 #include "dukeactor.h"
+#include "buildtiles.h"
 
 BEGIN_DUKE_NS
 
@@ -43,9 +44,9 @@ void ballreturn(DDukeActor *ball)
 			DukeStatIterator it2(STAT_BOWLING);
 			while (auto act2 = it2.Next())
 			{
-				if (act2->s->picnum == RRTILE282 && act->s->hitag == act2->s->hitag)
+				if (act2->s->picnum == BOWLINGBALLSPOT && act->s->hitag == act2->s->hitag)
 					spawn(act2, BOWLINGBALLSPRITE);
-				if (act2->s->picnum == RRTILE280 && act->s->hitag == act2->s->hitag && act2->s->lotag == 0)
+				if (act2->s->picnum == BOWLINGPINSPOT && act->s->hitag == act2->s->hitag && act2->s->lotag == 0)
 				{
 					act2->s->lotag = 100;
 					act2->s->extra++;
@@ -94,12 +95,12 @@ short checkpins(short sect)
 	DukeSectIterator it(sect);
 	while (auto a2 = it.Next())
 	{
-		if (a2->s->picnum == RRTILE3440)
+		if (a2->s->picnum == BOWLINGPIN)
 		{
 			pin++;
 			pins[a2->s->lotag] = 1;
 		}
-		if (a2->s->picnum == RRTILE280)
+		if (a2->s->picnum == BOWLINGPINSPOT)
 		{
 			tag = a2->s->hitag;
 		}
@@ -107,8 +108,9 @@ short checkpins(short sect)
 
 	if (tag)
 	{
-		tag += 2024;
-		tileCopySection(2024, 0, 0, 128, 64, tag, 0, 0);
+		tag += LANEPICS + 1;
+		TileFiles.tileMakeWritable(tag);
+		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, tag, 0, 0);
 		for (i = 0; i < 10; i++)
 		{
 			if (pins[i] == 1)
@@ -156,7 +158,7 @@ short checkpins(short sect)
 					y = 24;
 					break;
 				}
-				tileCopySection(2023, 0, 0, 8, 8, tag, x - 4, y - 10);
+				tileCopySection(LANEPICS, 0, 0, 8, 8, tag, x - 4, y - 10);
 			}
 		}
 	}
@@ -171,7 +173,7 @@ void resetpins(short sect)
 	DukeSectIterator it(sect);
 	while (auto a2 = it.Next())
 	{
-		if (a2->s->picnum == RRTILE3440)
+		if (a2->s->picnum == BOWLINGPIN)
 			deletesprite(a2);
 	}
 	it.Reset(sect);
@@ -179,7 +181,7 @@ void resetpins(short sect)
 	{
 		if (a2->s->picnum == 283)
 		{
-			auto spawned = spawn(a2, RRTILE3440);
+			auto spawned = spawn(a2, BOWLINGPIN);
 			spawned->s->lotag = a2->s->lotag;
 			if (spawned->s->lotag == 3 || spawned->s->lotag == 5)
 			{
@@ -197,6 +199,7 @@ void resetpins(short sect)
 	if (tag)
 	{
 		tag += LANEPICS + 1;
+		TileFiles.tileMakeWritable(tag);
 		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, tag, 0, 0);
 		for (i = 0; i < 10; i++)
 		{
@@ -258,6 +261,7 @@ void resetlanepics(void)
 		pic = tag + 1;
 		if (pic == 0) continue;
 		pic += LANEPICS + 1;
+		TileFiles.tileMakeWritable(pic);
 		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, pic, 0, 0);
 		for (i = 0; i < 10; i++)
 		{
