@@ -2116,7 +2116,7 @@ static void defsparser(FScanner& sc)
 	}
 }
 
-void loaddefinitionsfile(const char* fn, bool cumulative)
+void loaddefinitionsfile(const char* fn, bool cumulative, bool maingame)
 {
 	bool done = false;
 	auto parseit = [&](int lump)
@@ -2154,6 +2154,7 @@ void loaddefinitionsfile(const char* fn, bool cumulative)
 		int lump, lastlump = 0;
 		while ((lump = fileSystem.FindLumpFullName(fn, &lastlump)) >= 0)
 		{
+			if (maingame && fileSystem.GetFileContainer(lump) > fileSystem.GetMaxIwadNum()) break;
 			Printf(PRINT_NONOTIFY, "Loading \"%s\"\n", fileSystem.GetFileFullPath(lump).GetChars());
 			deftimer.Clock();
 			parseit(lump);

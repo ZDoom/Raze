@@ -1411,7 +1411,7 @@ void LoadDefinitions()
 	FString razedefsfile = defsfile;
 	razedefsfile.Substitute(".def", "-raze.def");
 
-	loaddefinitionsfile("engine/engine.def");	// Internal stuff that is required.
+	loaddefinitionsfile("engine/engine.def", true, true);	// Internal stuff that is required.
 
 	// check what we have.
 	// user .defs override the default ones and are not cumulative.

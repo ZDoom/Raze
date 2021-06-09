@@ -6,7 +6,7 @@
 
 extern int cameradist, cameraclock;
 
-void loaddefinitionsfile(const char* fn, bool cumulative = false);
+void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
 
 bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
 void PlanesAtPoint(const sectortype* sec, int dax, int day, float* ceilz, float* florz);
