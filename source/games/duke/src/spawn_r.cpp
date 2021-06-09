@@ -56,9 +56,9 @@ int spawn_r(int j, int pn)
 			default_case:
 				spawninitdefault(actj, act);
 				break;
-			case RRTILE280:
+			case BOWLINGPINSPOT:
 			case RRTILE281:
-			case RRTILE282:
+			case BOWLINGBALLSPOT:
 			case RRTILE283:
 			case RRTILE2025:
 			case RRTILE2026:
@@ -70,7 +70,7 @@ int spawn_r(int j, int pn)
 				sp->yrepeat = 0;
 				sp->clipdist = 0;
 				sp->extra = 0;
-				changespritestat(i,105);
+				changespritestat(i,STAT_BOWLING);
 				break;
 			case RRTILE3410:
 				sp->extra = 0;
@@ -535,7 +535,7 @@ int spawn_r(int j, int pn)
 				sp->xvel = 0;
 				changespritestat(i,1);
 				break;
-			case RRTILE3440:
+			case BOWLINGPIN:
 				sp->cstat = 257;
 				sp->clipdist = 48;
 				sp->xrepeat = 23;

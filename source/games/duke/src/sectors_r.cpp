@@ -2080,8 +2080,8 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 	case STRIPEBALL:
 	case QUEBALL:
-	case RRTILE3440:
-	case RRTILE3440 + 1:
+	case BOWLINGPIN:
+	case BOWLINGPIN + 1:
 	case HENSTAND:
 	case HENSTAND + 1:
 		if (pspr->picnum == QUEBALL || pspr->picnum == STRIPEBALL)
@@ -2092,7 +2092,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
-		else if (pspr->picnum == RRTILE3440 || pspr->picnum == RRTILE3440 + 1)
+		else if (pspr->picnum == BOWLINGPIN || pspr->picnum == BOWLINGPIN + 1)
 		{
 			pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
 			pspr->ang -= ((s->ang << 1) + krand()) & 64;
