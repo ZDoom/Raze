@@ -50,6 +50,7 @@ void ballreturn(DDukeActor *ball)
 				{
 					act2->s->lotag = 100;
 					act2->s->extra++;
+					pinsectorresetdown(act2->s->sectnum);
 				}
 			}
 		}
