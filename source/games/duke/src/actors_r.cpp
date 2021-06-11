@@ -4095,10 +4095,10 @@ void destroyit(DDukeActor *actor)
 {
 	int lotag, hitag;
 	int wi, wj;
-	DDukeActor* spr;
 	int wallstart2, wallend2;
 	int sectnum;
 	int wallstart, wallend;
+	DDukeActor* spr = nullptr;
 
 	hitag = 0;
 	DukeSectIterator it1(actor->s->sectnum);
@@ -4128,7 +4128,7 @@ void destroyit(DDukeActor *actor)
 				}
 			}
 		}
-		if (spr->s->sectnum != it_sect)
+		if (spr && spr->s->sectnum != it_sect)
 			if (lotag == a2->s->lotag)
 			{
 				sectnum = spr->s->sectnum;
