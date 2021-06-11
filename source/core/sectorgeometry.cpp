@@ -241,7 +241,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 		int start = 0;
 		while (done[start] && start < numvertices) start++;
 		int s = start;
-		if (start < numvertices)
+		if (start >= 0 && start < numvertices)
 		{
 			while (!done[start])
 			{
