@@ -2001,6 +2001,7 @@ OptionMenu "EngineCredits2b"
 	StaticText "James Manning     fgsfds            ", 0
 	StaticText "Dzierzan          Phredreeke        ", 0
 	StaticText "MaxED             Kinsie            ", 0
+	StaticText "Maxi Clouds                         ", 0
 }
 	
 OptionMenu "EngineCredits3"
