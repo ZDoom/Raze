@@ -17,9 +17,6 @@
 ### NBlood programming:
   * Nuke.YKT, NoOne, sirlemonhead
   
-### Blood Widescreen tiles
-  * Maxi Clouds
-  
 ### NBlood special thanks:
   * NY00123, MetHy, Striker, oasiz, Mblackwell, Zombie, Marphy Black, SAmik37, meleemario
 
@@ -35,6 +32,9 @@
 ### PCExhumed special thanks:
   * Hendricks266, JonoF, NY00123, MetHy, oasiz, Daedolon, NoOne, phredreeke, Lobotomy Software
 
+### Widescreen graphics:
+  * James Manning, fgsfds, Dzierzan, Phredreeke, MaxED, Kinsie, Maxi Clouds
+  
 ### Exhumed BigFont
   * Dynamo
 
