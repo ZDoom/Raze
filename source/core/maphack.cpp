@@ -146,6 +146,16 @@ static int32_t LoadMapHack(const char *filename)
                 blockingpairs[currentwall].Push(sc.Number);
             }
         }
+        else if (sc.Compare("sector"))
+        {
+            if (sc.CheckNumber())
+            {
+                if (currentsprite != -1 && validateSprite())
+                {
+                    sprite[currentsprite].sectnum = sc.Number;
+                }
+            }
+        }
         else if (sc.Compare("picnum"))
         {
             if (sc.CheckNumber())
