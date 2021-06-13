@@ -565,7 +565,7 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 {
 	RenderAll.Clock();
 
-	state.SetDepthBias(-1, -128);
+	state.SetDepthBias(-1, -160);
 
 	// final pass: translucent stuff
 	state.AlphaFunc(Alpha_GEqual, gl_mask_sprite_threshold);
