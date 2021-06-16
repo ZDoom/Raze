@@ -127,12 +127,12 @@ void sub_70284(int, DBloodActor* actor)
         case kDudeTentacleGreen:
         default: // ???
             nBurn = 0;
-            dmgType = DAMAGE_TYPE_2;
+            dmgType = kDamageBullet;
             nDist = 50;
             break;
         case kDudeTentacleFire: // ???
             nBurn = (gGameOptions.nDifficulty*120)>>2;
-            dmgType = DAMAGE_TYPE_3;
+            dmgType = kDamageExplode;
             nDist = 75;
             break;
     }

@@ -649,7 +649,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 if (CheckProximity(pSprite, pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pExpl->radius >> 1)) {
                     xvel[pSprite->index] = zvel[pSprite->index] = yvel[pSprite->index] = 0;
                     if (doExplosion(pSprite, nType) && pXSprite->health > 0)
-                            actDamageSprite(pSprite->index, pSprite, DAMAGE_TYPE_3, 65535);
+                            actDamageSprite(pSprite->index, pSprite, kDamageExplode, 65535);
                 }
                 return;
                 }
@@ -1252,7 +1252,7 @@ void removeLeech(spritetype* pLeech, bool delSprite) {
     
 void killDudeLeech(spritetype* pLeech) {
     if (pLeech != NULL) {
-        actDamageSprite(pLeech->owner, pLeech, DAMAGE_TYPE_3, 65535);
+        actDamageSprite(pLeech->owner, pLeech, kDamageExplode, 65535);
         sfxPlay3DSoundCP(pLeech, 522, -1, 0, 60000);
 
         if (pLeech->owner >= 0 && pLeech->owner < kMaxSprites)
@@ -1979,7 +1979,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
         case kGenDudePropertyWeapon: {
             pExtra->curWeapon = pXSprite->data1;
             switch (pXSprite->data1) {
-                case VECTOR_TYPE_19: pExtra->curWeapon = VECTOR_TYPE_2; break;
+                case VECTOR_TYPE_19: pExtra->curWeapon = kVectorBullet; break;
                 case kMissileUnused: pExtra->curWeapon = kMissileArcGargoyle; break;
                 case kThingDroppedLifeLeech: pExtra->curWeapon = kModernThingEnemyLifeLeech; break;
             }
@@ -2191,7 +2191,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
 }
 
 void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage) {
-    if (damageType == DAMAGE_TYPE_3) {
+    if (damageType == kDamageExplode) {
         DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
         for (int i = 0; i < 3; i++)
             if (pDudeInfo->nGibType[i] > -1)

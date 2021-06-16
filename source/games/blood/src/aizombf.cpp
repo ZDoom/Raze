@@ -57,7 +57,7 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
     int height = (pDudeInfo->eyeHeight*pSprite->yrepeat);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height2 = (pDudeInfoT->eyeHeight*pTarget->yrepeat);
-    actFireVector(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), height-height2, VECTOR_TYPE_11);
+    actFireVector(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), height-height2, kVectorCleaver);
 }
 
 void PukeSeqCallback(int, DBloodActor* actor)

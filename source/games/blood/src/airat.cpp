@@ -52,7 +52,7 @@ void ratBiteSeqCallback(int, DBloodActor* actor)
     assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     if (IsPlayerSprite(pTarget))
-        actFireVector(pSprite, 0, 0, dx, dy, pTarget->z-pSprite->z, VECTOR_TYPE_16);
+        actFireVector(pSprite, 0, 0, dx, dy, pTarget->z-pSprite->z, kVectorRatBite);
 }
 
 static void ratThinkSearch(DBloodActor* actor)

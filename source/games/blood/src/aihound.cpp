@@ -63,7 +63,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
     spritetype *pTarget = &sprite[pXSprite->target];
     #ifdef NOONE_EXTENSIONS
         if (IsPlayerSprite(pTarget) || gModernMap) // allow to hit non-player targets
-            actFireVector(pSprite, 0, 0, dx, dy, pTarget->z - pSprite->z, VECTOR_TYPE_15);
+            actFireVector(pSprite, 0, 0, dx, dy, pTarget->z - pSprite->z, kVectorHoundBite);
     #else
         if (IsPlayerSprite(pTarget))
             actFireVector(pSprite, 0, 0, dx, dy, pTarget->z - pSprite->z, VECTOR_TYPE_15);

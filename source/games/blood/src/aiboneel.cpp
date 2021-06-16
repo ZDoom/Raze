@@ -86,7 +86,7 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
         return;
     }
     assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    actFireVector(pSprite, 0, 0, dx, dy, height2-height, VECTOR_TYPE_7);
+    actFireVector(pSprite, 0, 0, dx, dy, height2-height, kVectorBoneelBite);
 }
 
 static void eelThinkTarget(DBloodActor* actor)

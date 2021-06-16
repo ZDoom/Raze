@@ -303,7 +303,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         SetToys(true);
         break;
     case kCheatKevorkian:
-        actDamageSprite(gMe->nSprite, gMe->pSprite, DAMAGE_TYPE_2, 8000);
+        actDamageSprite(gMe->nSprite, gMe->pSprite, kDamageBullet, 8000);
         return GStrings("TXTB_KEVORKIAN");
 
     case kCheatMcGee:
@@ -314,7 +314,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         return GStrings("TXTB_FIRED");
     }
     case kCheatEdmark:
-        actDamageSprite(gMe->nSprite, gMe->pSprite, DAMAGE_TYPE_3, 8000);
+        actDamageSprite(gMe->nSprite, gMe->pSprite, kDamageExplode, 8000);
         return GStrings("TXTB_THEDAYS");
 
     case kCheatKrueger:

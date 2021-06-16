@@ -198,6 +198,34 @@ void FGameConfigFile::DoAutoloadSetup (/*FIWadManager *iwad_man*/)
 		isInitialized = true;
 	}
 
+	CreateSectionAtStart("Exhumed.Autoload");
+	CreateSectionAtStart("WW2GI.Autoload");
+	CreateSectionAtStart("Nam.Autoload");
+	CreateSectionAtStart("Exhumed.Autoload");
+	CreateSectionAtStart("Redneck.Route66.Autoload");
+	CreateSectionAtStart("Redneck.RidesAgain.Autoload");
+	CreateSectionAtStart("Redneck.Redneck.Autoload");
+	CreateSectionAtStart("Redneck.Autoload");
+	CreateSectionAtStart("ShadowWarrior.TwinDragon.Autoload");
+	CreateSectionAtStart("ShadowWarrior.Wanton.Autoload");
+	CreateSectionAtStart("ShadowWarrior.ShadowWarrior.Autoload");
+	CreateSectionAtStart("ShadowWarrior.Autoload");
+	CreateSectionAtStart("Blood.Cryptic.Autoload");
+	CreateSectionAtStart("Blood.Blood.Autoload");
+	CreateSectionAtStart("Blood.Autoload");
+	CreateSectionAtStart("Duke.WorldTour.Autoload");
+	CreateSectionAtStart("Duke.NWinter.Autoload");
+	CreateSectionAtStart("Duke.Vacation.15.Autoload");
+	CreateSectionAtStart("Duke.Vacation.13.Autoload");
+	CreateSectionAtStart("Duke.Vacation.Autoload");
+	CreateSectionAtStart("Duke.DukeDC.15.Autoload");
+	CreateSectionAtStart("Duke.DukeDC.13.Autoload");
+	CreateSectionAtStart("Duke.DukeDC.Autoload");
+	CreateSectionAtStart("Duke.Duke.15.Autoload");
+	CreateSectionAtStart("Duke.Duke.13.Autoload");
+	CreateSectionAtStart("Duke.Duke.Autoload");
+	CreateSectionAtStart("Duke.Autoload");
+
 	CreateSectionAtStart("Global.Autoload");
 
 	// The same goes for auto-exec files.

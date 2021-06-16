@@ -74,13 +74,13 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     sfxPlay3DSound(pSprite, 1406, 0, 0);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_12);
+    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorGhost);
     int r1 = Random(50);
     int r2 = Random(50);
-    actFireVector(pSprite, 0, 0, dx+r2, dy-r1, dz, VECTOR_TYPE_12);
+    actFireVector(pSprite, 0, 0, dx+r2, dy-r1, dz, kVectorGhost);
     r1 = Random(50);
     r2 = Random(50);
-    actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, VECTOR_TYPE_12);
+    actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, kVectorGhost);
 }
 
 void ghostThrowSeqCallback(int, DBloodActor* actor)

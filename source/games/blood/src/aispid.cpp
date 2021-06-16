@@ -87,25 +87,25 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
             PLAYER *pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
             switch (pSprite->type) {
                 case kDudeSpiderBrown:
-                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
                     if (IsPlayerSprite(pTarget) && !pPlayer->godMode && powerupCheck(pPlayer, kPwUpDeathMask) <= 0 && Chance(0x4000))
                         powerupActivate(pPlayer, kPwUpDeliriumShroom);
                     break;
                 case kDudeSpiderRed:
-                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
                     if (Chance(0x5000)) sub_70D30(pXTarget, 4, 16);
                     break;
                 case kDudeSpiderBlack:
-                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
                     sub_70D30(pXTarget, 8, 16);
                     break;
                 case kDudeSpiderMother: {
-                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
 
                     dx += Random2(2000);
                     dy += Random2(2000);
                     dz += Random2(2000);
-                    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_17);
+                    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
                     sub_70D30(pXTarget, 8, 16);
                 }
                     break;

@@ -75,7 +75,7 @@ void HackSeqCallback(int, DBloodActor* actor)
     int dx = CosScale16(nAngle);
     int dy = SinScale16(nAngle);
     sfxPlay3DSound(pSprite, 1101, 1, 0);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_10);
+    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorAxe);
 }
 
 void StandSeqCallback(int, DBloodActor* actor)
