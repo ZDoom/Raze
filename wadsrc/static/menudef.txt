@@ -1030,6 +1030,7 @@ OptionMenu "VideoOptions" protected
 	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05,2
 	Slider "$DSPLYMNU_CONTRAST",				"vid_contrast",	   				0.1, 3.0, 0.1
 	Slider "$DSPLYMNU_SATURATION",				"vid_saturation",  				-3.0, 3.0, 0.25, 2
+	Slider "$DSPLYMNU_AMBIENT_LIGHT",			"r_ambientlight",  				0.5, 4.0, 0.1
 
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
