@@ -683,6 +683,10 @@ void MainLoop ()
 	if (userConfig.CommandMap.IsNotEmpty())
 	{
 		auto maprecord = FindMapByName(userConfig.CommandMap);
+		if (maprecord == nullptr)
+		{
+			maprecord = SetupUserMap(userConfig.CommandMap, g_gameType & GAMEFLAG_DUKE? "dethtoll.mid" : nullptr);
+		}
 		userConfig.CommandMap = "";
 		if (maprecord)
 		{
