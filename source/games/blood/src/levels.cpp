@@ -166,6 +166,8 @@ void levelLoadDefaults(void)
         sprintf(buffer, "Episode%d", i);
         if (!BloodINI->SectionExists(buffer))
             break;
+        if (BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0))
+            continue;
         auto cluster = MustFindCluster(i);
         auto volume = MustFindVolume(i);
         CutsceneDef &csB = cluster->outro;
