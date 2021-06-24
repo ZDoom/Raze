@@ -216,7 +216,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 		DrawImage("HEALTHBOX", (2, -2), DI_ITEM_LEFT_BOTTOM, scale:(scale, scale));
 		int health = p.IsFrozen() ? 1 : p.last_extra;
 		String format = String.Format("%d", health);
-		DrawString(digiFont, format, (21.5, -digiFont.mFont.GetHeight() * scale - 5.5), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
+		DrawString(digiFont, format, (18.5, -digiFont.mFont.GetHeight() * scale - 7), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
 
 		//
 		// ammo
@@ -224,7 +224,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 		DrawImage("AMMOBOX", (41, -2), DI_ITEM_LEFT_BOTTOM, scale:(scale, scale));
 		int wp = p.curr_weapon == RRWpn.THROWINGDYNAMITE_WEAPON? RRWpn.DYNAMITE_WEAPON : p.curr_weapon;
 		format = String.Format("%d", p.ammo_amount[wp]);
-		DrawString(digiFont, format, (60.25, -digiFont.mFont.GetHeight() * scale - 5.5), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
+		DrawString(digiFont, format, (56.5, -digiFont.mFont.GetHeight() * scale - 7), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
 
 		//
 		// inventory
@@ -361,13 +361,13 @@ class RedneckStatusBar : DukeCommonStatusBar
 
 		int num = (p.IsFrozen()) ? 1 : p.last_extra;
 		format = String.Format("%d", num);
-		DrawString(digiFont, format, (66.5, top + 16), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
+		DrawString(digiFont, format, (63.5, top + 15), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
 
 		if (p.curr_weapon != RRWpn.KNEE_WEAPON)
 		{
 			int wep = (p.curr_weapon == RRWpn.THROWINGDYNAMITE_WEAPON) ? RRWpn.DYNAMITE_WEAPON : p.curr_weapon;
 			format = String.Format("%d", p.ammo_amount[wep]);
-			DrawString(digiFont, format, (110, top + 16), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
+			DrawString(digiFont, format, (106.25, top + 15), DI_TEXT_ALIGN_CENTER, scale:(scale, scale));
 		}
 
 		int icon = p.inven_icon;
