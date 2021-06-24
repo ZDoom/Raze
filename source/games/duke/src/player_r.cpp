@@ -1021,7 +1021,7 @@ void selectweapon_r(int snum, int weap)
 						j = KNEE_WEAPON;
 						p->subweapon = 0;
 						break;
-					case DYNAMITE_WEAPON:
+					case CROSSBOW_WEAPON:
 						if (p->ammo_amount[CHICKEN_WEAPON] > 0 && isRRRA())
 						{
 							j = CHICKEN_WEAPON;
@@ -1029,9 +1029,9 @@ void selectweapon_r(int snum, int weap)
 						}
 						break;
 					case CHICKEN_WEAPON:
-						if (p->ammo_amount[DYNAMITE_WEAPON] > 0)
+						if (p->ammo_amount[CROSSBOW_WEAPON] > 0)
 						{
-							j = DYNAMITE_WEAPON;
+							j = CROSSBOW_WEAPON;
 							p->subweapon = 0;
 						}
 						break;
