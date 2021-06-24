@@ -688,7 +688,7 @@ void MainLoop ()
 		userConfig.CommandMap = "";
 		if (maprecord)
 		{
-			NewGame(maprecord, /*userConfig.skill*/2); // todo: fix the skill.
+			DeferedStartGame(maprecord, -1);
 		}
 	}
 
