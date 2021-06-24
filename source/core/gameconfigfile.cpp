@@ -95,6 +95,7 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", "$PROGDIR", true);
 		SetValueForKey ("Path", "$PROGDIR/*", true);
 #else
+		SetValueForKey ("Path", "$HOME/" GAME_DIR, true);
 		SetValueForKey ("Path", "$HOME/" GAME_DIR "/*", true);
 		// Arch Linux likes them in /usr/share/raze
 		// Debian likes them in /usr/share/games/raze
