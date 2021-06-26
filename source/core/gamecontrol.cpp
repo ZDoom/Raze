@@ -454,19 +454,18 @@ void UserConfig::ProcessOptions()
 void CheckUserMap()
 {
 	if (userConfig.CommandMap.IsEmpty()) return;
+	if (FindMapByName(userConfig.CommandMap))
+	{
+		return;	// we already got a record for this map so no need for further checks.
+	}
 	FString startupMap = userConfig.CommandMap;
-	if (startupMap.IndexOfAny("/\\") < 0) startupMap.Insert(0, "/");
 	DefaultExtension(startupMap, ".map");
 	startupMap.Substitute("\\", "/");
 	NormalizeFileName(startupMap);
 
-	if (fileSystem.FileExists(startupMap))
+	if (!fileSystem.FileExists(startupMap))
 	{
-		Printf("Using level: \"%s\".\n", startupMap.GetChars());
-	}
-	else
-	{
-		Printf("Level \"%s\" not found.\n", startupMap.GetChars());
+		Printf(PRINT_HIGH, "Level \"%s\" not found.\n", startupMap.GetChars());
 		startupMap = "";
 	}
 	userConfig.CommandMap = startupMap;

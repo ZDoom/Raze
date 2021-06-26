@@ -453,11 +453,13 @@ void GameInterface::app_init()
 	UpdateDacs(0, true);
 
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;
+
+	gViewIndex = myconnectindex;
+	gMe = gView = &gPlayer[myconnectindex];
 }
 
 static void gameInit()
 {
-	//RESTART:
 	gViewIndex = myconnectindex;
 	gMe = gView = &gPlayer[myconnectindex];
 
