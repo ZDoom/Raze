@@ -14284,7 +14284,7 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
 
     if (u && u->PlayerP)
     {
-        if (!Autoaim(u->PlayerP->pnum))
+        if (Autoaim(u->PlayerP->pnum) != 2)
         {
             return -1;
         }

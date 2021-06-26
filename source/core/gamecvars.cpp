@@ -86,7 +86,7 @@ CVARD(Bool, cl_hudinterpolation, true, CVAR_ARCHIVE, "enable/disable HUD (weapon
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")
 {
-	int automodes = (g_gameType & (GAMEFLAG_DUKECOMPAT | GAMEFLAG_BLOOD)) ? 2 : 1;
+	int automodes = (g_gameType & (GAMEFLAG_DUKECOMPAT | GAMEFLAG_BLOOD | GAMEFLAG_SW)) ? 2 : 1;
 	if (self < 0 || self > automodes) self = 1;
 };
 

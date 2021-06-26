@@ -954,7 +954,7 @@ OptionValue "WeapSwitch"
 OptionMenu GameplayOptions protected
 {
 	Title 	"$GMPLYMNU_TITLE"
-	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, Blood)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, Blood, ShadowWarrior)
 	{
 		Option "$PLYRMNU_AUTOAIM", "cl_autoaim", "AimMode"
 	}
