@@ -653,11 +653,12 @@ static TArray<GrpEntry> SetupGame()
 	{
 		// Abort if no game data found.
 		G_SaveConfig();
-		I_Error("Unable to find any game data. Please verify your settings.\n"
-		"Install game data files in subfolders of: " + M_GetAppDataPath(false) + "\n\n"
-		"For example, you can create a 'duke' folder inside the above folder\n"
-		"and place DUKE3D.GRP and DUKE.RTS (case-insensitive) in the 'duke' folder.\n"
-		"Subfolders can have any name. The name has no bearing on game recognition.");
+		I_Error("Unable to find any game data. Please verify your settings."
+#ifdef WIN32
+		);
+#else
+		"\nInstall game data files in subfolders of '%s'\n\n", M_GetAppDataPath(false).GetChars());
+#endif
 	}
 
 	decltype(groups) usedgroups;
