@@ -44,7 +44,8 @@ LISTMENU "MainMenu"
 	ifgame(ShadowWarrior)
 	{
 		Position 55, 32
-		Linespacing 21
+		Linespacing 17
+		class SWMainMenu
 		SWLogo
 		SWTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		SWTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -116,6 +117,7 @@ LISTMENU "IngameMenu"
 	{
 		Position 55, 32
 		Linespacing 17
+		class SWMainMenu
 		SWLogo
 		SWTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		SWTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -195,6 +197,7 @@ LISTMENU "SkillMenu"
 	}
 	ifgame(ShadowWarrior)
 	{
+		class SWMainMenu
 		CaptionItem "$MNU_DIFFICULTY"
 		Position 35, 32
 		Linespacing 17
