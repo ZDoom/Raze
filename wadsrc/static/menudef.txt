@@ -620,7 +620,7 @@ OptionMenu "ActionControlsMenu" protected
 	ifgame(Witchaven, Witchaven2)
 	{
 		Control    "$CNTRLMNU_FLYUP"             , "+alt_fire"
-		Control    "$CNTRLMNU_FLYDOWN"           , "+toggle_crouch"
+		Control    "$CNTRLMNU_FLYDOWN"           , "+Quick_Kick"
 		Control    "$CNTRLMNU_FLYSTOP"           , "holsterweapon"
 	}
 
