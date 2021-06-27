@@ -628,6 +628,7 @@ bool GameInterface::CanSave()
 
 void GameInterface::DrawBackground()
 {
+	twod->ClearScreen();
 	if (isWh2()) 
 	{
 		DrawTexture(twod, tileGetTexture(VMAINBLANK), 0, 0, DTA_Fullscreen, FSMode_ScaleToFit43, TAG_DONE);
