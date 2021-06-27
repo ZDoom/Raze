@@ -863,7 +863,14 @@ void FMapInfoParser::ParseMapDefinition(MapRecord &info)
 
 static int GetDefaultLevelNum(const char *mapname)
 {
-	if ((!strnicmp (mapname, "MAP", 3) || !strnicmp(mapname, "LEV", 3)) && strlen(mapname) <= 5)
+	if ((!strnicmp(mapname, "LEVEL", 5)) && strlen(mapname) <= 7)
+	{
+		int mapnum = atoi(mapname + 5);
+
+		if (mapnum >= 1 && mapnum <= 99)
+			return mapnum;
+	}
+	else if ((!strnicmp (mapname, "MAP", 3) || !strnicmp(mapname, "LEV", 3)) && strlen(mapname) <= 5)
 	{
 		int mapnum = atoi (mapname + 3);
 
