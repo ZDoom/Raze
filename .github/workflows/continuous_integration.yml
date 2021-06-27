@@ -32,7 +32,7 @@ jobs:
             name: "macOS",
             os: macos-10.15,
             extra_options: "-DDYN_FLUIDSYNTH=OFF -DDYN_OPENAL=OFF -DDYN_SNDFILE=OFF -DDYN_MPG123=OFF",
-            deps_cmdline: "brew install libvpx fluidsynth mpg123 libsndfile",
+            deps_cmdline: "brew install libvpx fluidsynth mpg123 libsndfile libomp",
             build_type: "Debug"
           }
         - {
@@ -54,14 +54,14 @@ jobs:
             os: ubuntu-20.04,
             extra_options: "-DCMAKE_C_COMPILER=clang-6.0 -DCMAKE_CXX_COMPILER=clang++-6.0 \
                             -DDYN_FLUIDSYNTH=OFF -DDYN_OPENAL=OFF -DDYN_SNDFILE=OFF -DDYN_MPG123=OFF",
-            deps_cmdline: "sudo apt update && sudo apt remove gcc-11 libgcc-11-dev g++-11 libstdc++-11-dev && sudo apt install clang-6.0 libstdc++-9-dev libsdl2-dev libvpx-dev libopenal-dev libfluidsynth-dev libmpg123-dev libsndfile1-dev",
+            deps_cmdline: "sudo apt update && sudo apt remove gcc-11 libgcc-11-dev g++-11 libstdc++-11-dev && sudo apt install clang-6.0 libstdc++-9-dev libsdl2-dev libvpx-dev libopenal-dev libfluidsynth-dev libmpg123-dev libomp5 libsndfile1-dev",
             build_type: "Debug"
           }
         - {
             name: "Linux Clang 11",
             os: ubuntu-20.04,
             extra_options: "-DCMAKE_C_COMPILER=clang-11 -DCMAKE_CXX_COMPILER=clang++-11",
-            deps_cmdline: "sudo apt update && sudo apt install clang-11 libsdl2-dev libvpx-dev",
+            deps_cmdline: "sudo apt update && sudo apt install clang-11 libomp5 libsdl2-dev libvpx-dev",
             build_type: "Release"
           }
 
