@@ -415,14 +415,14 @@ class ExhumedStatusBar : RazeStatusBar
 			if (nHurt > 0) DrawStatusSequence(4, nHurt - 1, 0);
 
 			// draw compass
-			if (hud_size <= Hud_StbarOverlay) DrawStatusSequence(35, ((pp.GetAngle() + 128) & Raze.kAngleMask) >> 8, 0, 0.5);
+			if (hud_size <= Hud_StbarOverlay) DrawStatusSequence(35, ((pp.GetAngle() + 128) & Raze.kAngleMask) >> 8, 0, 0.5, true);
 
 			//if (hud_size < Hud_full)
 			{
 				// draw ammo count
-				DrawStatusSequence(44, nDigit[2], 0, 0.5);
-				DrawStatusSequence(45, nDigit[1], 0, 0.5);
-				DrawStatusSequence(46, nDigit[0], 0, 0.5);
+				DrawStatusSequence(44, nDigit[2], 0, 0.5, true);
+				DrawStatusSequence(45, nDigit[1], 0, 0.5, true);
+				DrawStatusSequence(46, nDigit[0], 0, 0.5, true);
 			}
 		}
 
