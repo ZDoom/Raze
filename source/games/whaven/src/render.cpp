@@ -4,6 +4,7 @@
 #include "glbackend/glbackend.h"
 #include "raze_music.h"
 #include "rendering/render.h"
+#include "razefont.h"
 
 EXTERN_CVAR(Bool, testnewrenderer)
 
@@ -131,6 +132,17 @@ void GameInterface::Render()
 		startsong(krand() % 2);
     	attacktheme = 0;
 	}
+
+	if (paused == 2)
+	{
+		double x = 160, y = 20;
+		double scale = 0.6;
+		const char* text = GStrings("Game Paused");
+		auto myfont = PickBigFont(text);
+		x -= myfont->StringWidth(text) * 0.5 * scale;
+		DrawText(twod, myfont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	}
+
 }
 
 bool GameInterface::GenerateSavePic()
