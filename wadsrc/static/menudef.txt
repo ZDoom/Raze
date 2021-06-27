@@ -1165,9 +1165,12 @@ OptionMenu "VideoOptions" protected
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
 	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
-	Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
+	ifnotgame(witchaven, witchaven2)
+	{
+		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
+	}
 	Option "$GLPREFMNU_ENVIRONMENTMAPMIRROR",	gl_mirror_envmap,				"OnOff"
-	ifnotgame(Blood, Exhumed)
+	ifnotgame(Blood, Exhumed, witchaven, witchaven2)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
 	}
