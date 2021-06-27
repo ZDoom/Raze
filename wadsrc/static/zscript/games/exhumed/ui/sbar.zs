@@ -785,6 +785,6 @@ class ExhumedStatusBar : RazeStatusBar
 		{
 			DrawStatus(Exhumed.GetViewPlayer());
 		}
-		DoLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 22 : 40, info);
+		DoLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_full ? 20 : 45, info);
 	}
 }

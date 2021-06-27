@@ -416,12 +416,12 @@ class SWStatusBar : RazeStatusBar
 	//
 	//---------------------------------------------------------------------------
 
-	void PlayerUpdateInventoryPercent(SWPlayer pp, int InventoryBoxX, int InventoryBoxY, int InventoryXoff, int InventoryYoff)
+	void PlayerUpdateInventoryPercent(SWPlayer pp, double InventoryBoxX, double InventoryBoxY, double InventoryXoff, double InventoryYoff)
 	{
 		String ds;
 
-		int x = InventoryBoxX + INVENTORY_PERCENT_XOFF + InventoryXoff;
-		int y = InventoryBoxY + INVENTORY_PERCENT_YOFF + InventoryYoff;
+		double x = InventoryBoxX + INVENTORY_PERCENT_XOFF + InventoryXoff;
+		double y = InventoryBoxY + INVENTORY_PERCENT_YOFF + InventoryYoff;
 
 		if (SW.InventoryFlags(pp.InventoryNum) & SW.INVF_COUNT)
 		{
@@ -692,7 +692,7 @@ class SWStatusBar : RazeStatusBar
 
 		String format;
 		double imgScale;
-		double baseScale = numberFont.mFont.GetHeight() * 0.83125;
+		double baseScale = numberFont.mFont.GetHeight();
 
 		//
 		// Health
@@ -712,7 +712,7 @@ class SWStatusBar : RazeStatusBar
 			int intens = clamp(255 - 4 * s, 0, 255);
 			let pe = Color(255, intens, intens, intens);
 			format = String.Format("%d", Health);
-			DrawString(numberFont, format, (24.25, -numberFont.mFont.GetHeight() + 2), DI_TEXT_ALIGN_LEFT);
+			DrawString(numberFont, format, (24.25, -numberFont.mFont.GetHeight() - 0.5), DI_TEXT_ALIGN_LEFT);
 		}
 
 		//
@@ -724,7 +724,7 @@ class SWStatusBar : RazeStatusBar
 		DrawTexture(img, (80.75, -1), DI_ITEM_LEFT_BOTTOM, scale:(imgScale, imgScale));
 
 		format = String.Format("%d", pp.Armor);
-		DrawString(numberFont, format, (108.5, -numberFont.mFont.GetHeight() + 2), DI_TEXT_ALIGN_LEFT);
+		DrawString(numberFont, format, (108.5, -numberFont.mFont.GetHeight() - 0.5), DI_TEXT_ALIGN_LEFT);
 
 		//
 		// Weapon
@@ -772,7 +772,7 @@ class SWStatusBar : RazeStatusBar
 
 			if ((!hud_flashing || PlayClock & 32 || ammo > (SW.WeaponMaxAmmo(weapon) / 10)))
 			{
-				DrawString(numberFont, format, (-1.5, -numberFont.mFont.GetHeight() + 2), DI_TEXT_ALIGN_RIGHT);
+				DrawString(numberFont, format, (-1.5, -numberFont.mFont.GetHeight() - 0.5), DI_TEXT_ALIGN_RIGHT);
 			}
 
 			DrawTexture(img, (-imgX, -1), DI_ITEM_RIGHT_BOTTOM, scale:(imgScale, imgScale));
@@ -788,14 +788,13 @@ class SWStatusBar : RazeStatusBar
 		DrawTexture(img, (x, -1), DI_ITEM_LEFT_BOTTOM, scale:(imgScale, imgScale));
 
 		PlayerUpdateInventoryState(pp, x + 3.0, -18.0, 1, 1);
-		//PlayerUpdateInventoryPercent(pp, x + 3.5, -20.5, 1, 1); // function takes integer coordinates.
-		PlayerUpdateInventoryPercent(pp, x + 3, -20, 1, 1);
+		PlayerUpdateInventoryPercent(pp, x + 3.5, -20.5, 1, 1);
 
 		//
 		// keys
 		//
 		DisplayKeys(pp, -25, -38, 0.8625, 0.8625);
-		DoLevelStats(int(baseScale + 4), info);
+		DoLevelStats(baseScale + 4, info);
 	}
 
 

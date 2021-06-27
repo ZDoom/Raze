@@ -38,6 +38,7 @@
 #include "raze_music.h"
 #include "filesystem.h"
 #include "printf.h"
+#include "gamecontrol.h"
 #include "raze_sound.h"
 
 FString gSkillNames[MAXSKILLS];
@@ -203,6 +204,12 @@ MapRecord *AllocateMap()
 
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 {
+	if (g_gameType & GAMEFLAG_SHAREWARE)
+	{
+		Printf(PRINT_BOLD, "Cannot use user maps in shareware.\n");
+		return nullptr;
+	}
+
 	for (auto& map : mapList)
 	{
 		if (map->fileName.CompareNoCase(boardfilename) == 0)

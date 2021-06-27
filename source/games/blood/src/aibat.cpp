@@ -75,7 +75,7 @@ void batBiteSeqCallback(int, DBloodActor* actor)
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
     assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    actFireVector(pSprite, 0, 0, dx, dy, height2-height, VECTOR_TYPE_6);
+    actFireVector(pSprite, 0, 0, dx, dy, height2-height, kVectorBatBite);
 }
 
 static void batThinkTarget(DBloodActor* actor)

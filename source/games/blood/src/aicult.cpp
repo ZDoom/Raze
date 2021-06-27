@@ -83,7 +83,7 @@ void TommySeqCallback(int, DBloodActor* actor)
     dx += Random3((5-gGameOptions.nDifficulty)*1000);
     dy += Random3((5-gGameOptions.nDifficulty)*1000);
     dz += Random3((5-gGameOptions.nDifficulty)*500);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_2);
+    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorBullet);
     sfxPlay3DSound(pSprite, 4001, -1, 0);
 }
 
@@ -119,7 +119,7 @@ void ShotSeqCallback(int, DBloodActor* actor)
         int r1 = Random3(500);
         int r2 = Random3(1000);
         int r3 = Random3(1000);
-        actFireVector(pSprite, 0, 0, dx+r3, dy+r2, dz+r1, VECTOR_TYPE_1);
+        actFireVector(pSprite, 0, 0, dx+r3, dy+r2, dz+r1, kVectorShell);
     }
     if (Chance(0x8000))
         sfxPlay3DSound(pSprite, 1001, -1, 0);

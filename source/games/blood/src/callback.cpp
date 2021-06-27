@@ -657,7 +657,7 @@ void DropVoodooCb(int nSprite) // unused
                             t += ((3200-pPlayer2->armor[2])<<15)/3200;
                         if (Chance(t) || nNextSprite < 0)
                         {
-                            int nDmg = actDamageSprite(nOwner, pSprite2, DAMAGE_TYPE_5, pXSprite->data1<<4);
+                            int nDmg = actDamageSprite(nOwner, pSprite2, kDamageSpirit, pXSprite->data1<<4);
                             pXSprite->data1 = ClipLow(pXSprite->data1-nDmg, 0);
                             sub_76A08(pSprite2, pSprite, pPlayer2);
                             evPost(nSprite, 3, 0, kCallbackRemove);

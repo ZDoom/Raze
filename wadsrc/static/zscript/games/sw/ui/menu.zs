@@ -57,6 +57,23 @@ class SWMenuDelegate : RazeMenuDelegate
 
 //=============================================================================
 //
+//
+//
+//=============================================================================
+
+class SWMainMenu : ListMenu
+{
+	override void Drawer()
+	{
+		let p = StringTable.Localize("REQUIRED_CHARACTERS", false);
+		int newls = (p == "REQUIRED_CHARACTERS")? 17 : 21;
+		if (newls != mDesc.mLineSpacing) ChangeLineSpacing(newls);
+		super.Drawer();
+	}
+}
+
+//=============================================================================
+//
 // logo
 //
 //=============================================================================

@@ -171,7 +171,7 @@ void IniFile::Load()
     auto fp = fileSystem.OpenFileReader(fileName);
     if (fp.isOpen())
     {
-		auto pBuffer = fp.Read();
+		auto pBuffer = fp.ReadPadded(1);
         LoadRes(pBuffer.Data());
     }
     else

@@ -293,7 +293,7 @@ SKIPWALLCHECK:
 						fi.checkhitsprite(act2, actor);
 					}
 			}
-			else if (spri2->extra >= 0 && act2 != actor && (badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == RRTILE3440 || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
+			else if (spri2->extra >= 0 && act2 != actor && (badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == BOWLINGPIN || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
 			{
 				if (spri->picnum == MORTER && act2 == Owner)
 				{
@@ -350,7 +350,7 @@ SKIPWALLCHECK:
 					}
 
 					if (spri2->picnum == STATUEFLASH || spri2->picnum == QUEBALL ||
-						spri2->picnum == STRIPEBALL || spri2->picnum == RRTILE3440)
+						spri2->picnum == STRIPEBALL || spri2->picnum == BOWLINGPIN)
 						fi.checkhitsprite(act2, actor);
 
 					if (spri2->picnum != RADIUSEXPLOSION &&
@@ -2441,7 +2441,7 @@ void rr_specialstats()
 	while (auto act = it.Next())
 	{
 		auto s = act->s;
-		if (s->picnum == RRTILE280)
+		if (s->picnum == BOWLINGPINSPOT)
 			if (s->lotag == 100)
 			{
 				auto pst = pinsectorresetup(s->sectnum);
@@ -2793,12 +2793,12 @@ static int henstand(DDukeActor *actor)
 		s->xvel--;
 		if (s->xvel < 0) s->xvel = 0;
 		s->cstat = 257;
-		if (s->picnum == RRTILE3440)
+		if (s->picnum == BOWLINGPIN)
 		{
 			s->cstat |= 4 & s->xvel;
 			s->cstat |= 8 & s->xvel;
 			if (krand() & 1)
-				s->picnum = RRTILE3440 + 1;
+				s->picnum = BOWLINGPIN + 1;
 		}
 		else if (s->picnum == HENSTAND)
 		{
@@ -2809,7 +2809,7 @@ static int henstand(DDukeActor *actor)
 			if (!s->xvel)
 				return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}
-		if (s->picnum == RRTILE3440 || (s->picnum == RRTILE3440 + 1 && !s->xvel))
+		if (s->picnum == BOWLINGPIN || (s->picnum == BOWLINGPIN + 1 && !s->xvel))
 		{
 			return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}
@@ -2983,8 +2983,8 @@ void moveactors_r(void)
 				{
 					S_StopSound(356, nullptr);
 				}
-			case RRTILE3440:
-			case RRTILE3440+1:
+			case BOWLINGPIN:
+			case BOWLINGPIN+1:
 			case HENSTAND:
 			case HENSTAND+1:
 			{
@@ -4095,10 +4095,10 @@ void destroyit(DDukeActor *actor)
 {
 	int lotag, hitag;
 	int wi, wj;
-	DDukeActor* spr;
 	int wallstart2, wallend2;
 	int sectnum;
 	int wallstart, wallend;
+	DDukeActor* spr = nullptr;
 
 	hitag = 0;
 	DukeSectIterator it1(actor->s->sectnum);
@@ -4128,7 +4128,7 @@ void destroyit(DDukeActor *actor)
 				}
 			}
 		}
-		if (spr->s->sectnum != it_sect)
+		if (spr && spr->s->sectnum != it_sect)
 			if (lotag == a2->s->lotag)
 			{
 				sectnum = spr->s->sectnum;

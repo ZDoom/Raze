@@ -435,12 +435,6 @@ CCMD(map)
 	auto map = FindMapByName(mapname);
 	if (map == nullptr)
 	{
-		// got a user map
-		if (g_gameType & GAMEFLAG_SHAREWARE)
-		{
-			Printf(PRINT_BOLD, "Cannot use user maps in shareware.\n");
-			return;
-		}
 		map = SetupUserMap(mapfilename, g_gameType & GAMEFLAG_DUKE? "dethtoll.mid" : nullptr);
 	}
 	if (map)

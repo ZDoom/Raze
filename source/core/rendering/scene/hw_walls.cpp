@@ -272,7 +272,7 @@ void HWWall::RenderTexturedWall(HWDrawInfo *di, FRenderState &state, int rflags)
 	else if (!(rflags & RWF_TRANS))
 	{
 		auto oldbias = state.GetDepthBias();
-		if (walldist >= 0) state.SetDepthBias(-1, glseg.x1 == glseg.x2 || glseg.y1 == glseg.y2? -128 : -192);
+		if (walldist >= 0) state.SetDepthBias(-1, glseg.x1 == glseg.x2 || glseg.y1 == glseg.y2? -129 : -192);
 		else state.ClearDepthBias();
 		RenderWall(di, state, rflags);
 		state.SetDepthBias(oldbias);

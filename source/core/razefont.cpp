@@ -230,5 +230,5 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Raze, PickSmallFont, PickSmallFont_)
 	PARAM_PROLOGUE;
 	PARAM_STRING(text);
 	//PARAM_POINTER(cr, int);
-	ACTION_RETURN_POINTER(PickBigFont(text));
+	ACTION_RETURN_POINTER(PickSmallFont(text));
 }

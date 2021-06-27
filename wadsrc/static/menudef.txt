@@ -44,7 +44,8 @@ LISTMENU "MainMenu"
 	ifgame(ShadowWarrior)
 	{
 		Position 55, 32
-		Linespacing 21
+		Linespacing 17
+		class SWMainMenu
 		SWLogo
 		SWTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		SWTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -139,6 +140,7 @@ LISTMENU "IngameMenu"
 	{
 		Position 55, 32
 		Linespacing 17
+		class SWMainMenu
 		SWLogo
 		SWTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		SWTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -240,6 +242,7 @@ LISTMENU "SkillMenu"
 	}
 	ifgame(ShadowWarrior)
 	{
+		class SWMainMenu
 		CaptionItem "$MNU_DIFFICULTY"
 		Position 35, 32
 		Linespacing 17
@@ -1078,7 +1081,7 @@ OptionValue "WeapSwitch"
 OptionMenu GameplayOptions protected
 {
 	Title 	"$GMPLYMNU_TITLE"
-	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, Blood)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, Blood, ShadowWarrior)
 	{
 		Option "$PLYRMNU_AUTOAIM", "cl_autoaim", "AimMode"
 	}
@@ -1157,6 +1160,7 @@ OptionMenu "VideoOptions" protected
 	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05,2
 	Slider "$DSPLYMNU_CONTRAST",				"vid_contrast",	   				0.1, 3.0, 0.1
 	Slider "$DSPLYMNU_SATURATION",				"vid_saturation",  				-3.0, 3.0, 0.25, 2
+	Slider "$DSPLYMNU_AMBIENT_LIGHT",			"r_ambientlight",  				0.5, 4.0, 0.1
 
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
@@ -2128,6 +2132,7 @@ OptionMenu "EngineCredits2b"
 	StaticText "James Manning     fgsfds            ", 0
 	StaticText "Dzierzan          Phredreeke        ", 0
 	StaticText "MaxED             Kinsie            ", 0
+	StaticText "Maxi Clouds                         ", 0
 }
 	
 OptionMenu "EngineCredits3"
