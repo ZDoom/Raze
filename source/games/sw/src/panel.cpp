@@ -999,7 +999,7 @@ pSwordPresent(PANEL_SPRITEp psp)
     if (psp->y < SWORD_YOFF)
     {
         psp->oy = psp->y = SWORD_YOFF;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
     }
 }
@@ -1082,7 +1082,7 @@ pSwordSlideDown(PANEL_SPRITEp psp)
                 pStatePlusOne(psp);
                 psp->ox = psp->x = SWORDR_XOFF;
                 psp->oy = psp->y = SWORD_YOFF;
-                psp->yorig = int(psp->y);
+                psp->yorig = psp->y;
                 psp->ang = 1024;
                 psp->PlayerP->SwordAng = SwordAngTable[RANDOM_RANGE(SIZ(SwordAngTable))];
                 psp->vel = vel;
@@ -1095,7 +1095,7 @@ pSwordSlideDown(PANEL_SPRITEp psp)
         pSetState(psp, psp->PresentState);
         psp->ox = psp->x = SWORD_XOFF;
         psp->oy = psp->y = SWORD_YOFF + tileHeight(psp->picndx);
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
     }
 }
 
@@ -1177,7 +1177,7 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
                 pStatePlusOne(psp);
                 psp->ox = psp->x = SWORD_XOFF + 80;
                 psp->oy = psp->y = SWORD_YOFF;
-                psp->yorig = int(psp->y);
+                psp->yorig = psp->y;
                 psp->PlayerP->SwordAng = SwordAngTable[RANDOM_RANGE(SIZ(SwordAngTable))];
                 psp->ang = 1024;
                 psp->vel = vel;
@@ -1190,7 +1190,7 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
         pSetState(psp, psp->PresentState);
         psp->ox = psp->x = SWORD_XOFF;
         psp->oy = psp->y = SWORD_YOFF + tileHeight(psp->picndx);
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
     }
 }
 
@@ -1200,8 +1200,8 @@ pSwordBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = SWORD_SWAY_AMT;
     psp->sin_ndx = 0;
@@ -1486,8 +1486,8 @@ pStarBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = 10;
     psp->sin_ndx = 0;
@@ -1500,8 +1500,8 @@ pLStarBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = 6;
     psp->sin_ndx = 0;
@@ -2259,8 +2259,8 @@ pUziPresent(PANEL_SPRITEp psp)
 
         psp->oy = psp->y = UZI_YOFF;
         psp->ox = psp->x;
-        psp->xorig = int(psp->x);
-        psp->yorig = int(psp->y);
+        psp->xorig = psp->x;
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
     }
 }
@@ -2281,8 +2281,8 @@ pUziPresentReload(PANEL_SPRITEp psp)
     {
         psp->oy = psp->y = UZI_YOFF;
         psp->ox = psp->x;
-        psp->xorig = int(psp->x);
-        psp->yorig = int(psp->y);
+        psp->xorig = psp->x;
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
     }
 }
@@ -2293,8 +2293,8 @@ pUziBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
@@ -2959,7 +2959,7 @@ pShotgunPresent(PANEL_SPRITEp psp)
     if (psp->y < SHOTGUN_YOFF)
     {
         psp->oy = psp->y = SHOTGUN_YOFF;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
     }
 }
@@ -2970,8 +2970,8 @@ pShotgunBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
@@ -3425,7 +3425,7 @@ pRailPresent(PANEL_SPRITEp psp)
     if (psp->y < RAIL_YOFF)
     {
         psp->oy = psp->y = RAIL_YOFF;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
     }
 }
@@ -3436,8 +3436,8 @@ pRailBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
@@ -3847,7 +3847,7 @@ pHotheadPresent(PANEL_SPRITEp psp)
     if (psp->y < HOTHEAD_YOFF)
     {
         psp->oy = psp->y = HOTHEAD_YOFF;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
         //pSetState(psp, HotheadTurnStates[psp->PlayerP->WpnFlameType]);
     }
@@ -3859,8 +3859,8 @@ pHotheadBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = HOTHEAD_BOB_X_AMT;
     psp->sin_ndx = 0;
@@ -4309,7 +4309,7 @@ pMicroPresent(PANEL_SPRITEp psp)
     if (psp->y < MICRO_YOFF)
     {
         psp->oy = psp->y = MICRO_YOFF;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
         if (pp->WpnRocketType == 2 && !pp->NukeInitialized)
         {
             pp->TestNukeInit = false;
@@ -4326,8 +4326,8 @@ pMicroBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = MICRO_BOB_X_AMT;
     psp->sin_ndx = 0;
@@ -4733,7 +4733,7 @@ pHeartPresent(PANEL_SPRITEp psp)
     if (psp->y < HEART_YOFF)
     {
         psp->oy = psp->y = HEART_YOFF;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
     }
 }
@@ -4744,8 +4744,8 @@ pHeartBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
@@ -5318,7 +5318,7 @@ pGrenadePresent(PANEL_SPRITEp psp)
         psp->ox = psp->x = GRENADE_XOFF;
         psp->oy = psp->y = GRENADE_YOFF;
         psp->rotate_ang = 0;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
     }
 }
@@ -5329,8 +5329,8 @@ pGrenadeBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
@@ -5569,7 +5569,7 @@ pMinePresent(PANEL_SPRITEp psp)
     {
         psp->oy = psp->y = MINE_YOFF;
         psp->rotate_ang = 0;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
         pSetState(psp, psp->RestState);
     }
 }
@@ -5580,8 +5580,8 @@ pMineBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
@@ -6201,7 +6201,7 @@ pFistPresent(PANEL_SPRITEp psp)
     if (psp->y < FIST_YOFF)
     {
         psp->oy = psp->y = FIST_YOFF;
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
 
         rnd = RANDOM_RANGE(1000);
         if (rnd > 500)
@@ -6314,7 +6314,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
 
                     psp->ox = psp->x = FIST_XOFF;
                     psp->oy = psp->y = FIST_YOFF;
-                    psp->yorig = int(psp->y);
+                    psp->yorig = psp->y;
                     psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
                     psp->ang = 1024;
                     psp->vel = vel;
@@ -6330,7 +6330,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
 
                 psp->ox = psp->x = FISTR_XOFF+100;
                 psp->oy = psp->y = FIST_YOFF;
-                psp->yorig = int(psp->y);
+                psp->yorig = psp->y;
                 psp->ang = 1024;
                 psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
                 psp->vel = vel;
@@ -6343,7 +6343,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
         pSetState(psp, psp->PresentState);
         psp->ox = psp->x = FIST_XOFF;
         psp->oy = psp->y = FIST_YOFF + tileHeight(psp->picndx);
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
     }
 }
 
@@ -6436,7 +6436,7 @@ pFistSlideDownR(PANEL_SPRITEp psp)
 
                     psp->ox = psp->x = FISTR_XOFF+100;
                     psp->oy = psp->y = FIST_YOFF;
-                    psp->yorig = int(psp->y);
+                    psp->yorig = psp->y;
                     psp->ang = 1024;
                     psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
                     psp->vel = vel;
@@ -6452,7 +6452,7 @@ pFistSlideDownR(PANEL_SPRITEp psp)
 
                 psp->ox = psp->x = FIST_XOFF;
                 psp->oy = psp->y = FIST_YOFF;
-                psp->yorig = int(psp->y);
+                psp->yorig = psp->y;
                 psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
                 psp->ang = 1024;
                 psp->vel = vel;
@@ -6465,7 +6465,7 @@ pFistSlideDownR(PANEL_SPRITEp psp)
         pSetState(psp, psp->PresentState);
         psp->ox = psp->x = FIST_XOFF;
         psp->oy = psp->y = FIST_YOFF + tileHeight(psp->picndx);
-        psp->yorig = int(psp->y);
+        psp->yorig = psp->y;
     }
 }
 
@@ -6475,8 +6475,8 @@ pFistBobSetup(PANEL_SPRITEp psp)
     if (TEST(psp->flags, PANF_BOB))
         return;
 
-    psp->xorig = int(psp->x);
-    psp->yorig = int(psp->y);
+    psp->xorig = psp->x;
+    psp->yorig = psp->y;
 
     psp->sin_amt = FIST_SWAY_AMT;
     psp->sin_ndx = 0;

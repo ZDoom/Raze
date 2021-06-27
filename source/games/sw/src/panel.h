@@ -108,9 +108,9 @@ struct PANEL_SPRITEstruct
     PLAYERp PlayerP;
     // Do not change the order of this line
     uint16_t xfract;
-    double x;
+    double x, xorig;
     uint16_t yfract;
-    double y;                            // Do not change the order of this
+    double y, yorig;                            // Do not change the order of this
     // line
 
     PANEL_SPRITE_OVERLAY over[8];
@@ -120,7 +120,7 @@ struct PANEL_SPRITEstruct
     short picndx;                       // for pip stuff in conpic.h
     short picnum;                       // bypass pip stuff in conpic.h
     short vel, vel_adj;
-    int xorig, yorig, flags, priority;
+    int flags, priority;
     int scale;
     int jump_speed, jump_grav;         // jumping vars
     int xspeed;
