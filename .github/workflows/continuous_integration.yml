@@ -25,7 +25,7 @@ jobs:
         - {
             name: "macOS",
             os: macos-10.15,
-            deps_cmdline: "brew install libvpx",
+            deps_cmdline: "brew install libvpx libomp",
             build_type: "Release"
           }
         - {
