@@ -777,8 +777,6 @@ SpawnSwordBlur(PANEL_SPRITEp psp)
     nsp = pSpawnSprite(psp->PlayerP, NULL, PRI_BACK, psp->x, psp->y);
 
     SET(nsp->flags, PANF_WEAPON_SPRITE);
-    nsp->xfract = psp->xfract;
-    nsp->yfract = psp->yfract;
     nsp->ang = psp->ang;
     nsp->vel = psp->vel;
     nsp->PanelSpriteFunc = SwordBlur;
@@ -1011,64 +1009,37 @@ pSwordPresent(PANEL_SPRITEp psp)
 void
 pSwordSlide(PANEL_SPRITEp psp)
 {
-    double nx, ny;
-    short vel_adj;
-
-    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (!cl_nomeleeblur)
     {
         SpawnSwordBlur(psp);
     }
 
-    vel_adj = 24;
-
-    nx += psp->vel * synctics * bcosf(psp->ang, -6);
-    ny += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(nx);
-    psp->x = nx * (1. / FRACUNIT);
-    psp->yfract = LSW(ny);
-    psp->y = ny * (1. / FRACUNIT);
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
-    psp->vel += vel_adj * synctics;
+    psp->vel += 24 * synctics;
 }
 
 void
 pSwordSlideDown(PANEL_SPRITEp psp)
 {
-    double nx, ny;
-    short vel, vel_adj;
-
-    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (!cl_nomeleeblur)
     {
         SpawnSwordBlur(psp);
     }
 
-    vel_adj = 20;
-    vel = 2500;
-
     auto ang = SwordAng + psp->ang + psp->PlayerP->SwordAng;
-
-    nx += psp->vel * synctics * bcosf(ang, -6);
-    ny += psp->vel * synctics * -bsinf(ang, -6);
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(nx);
-    psp->x = nx * (1. / FRACUNIT);
-    psp->yfract = LSW(ny);
-    psp->y = ny * (1. / FRACUNIT);
+    psp->x += psp->vel * synctics * bcosf(ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT);
 
-    psp->vel += vel_adj * synctics;
+    psp->vel += 20 * synctics;
 
     if (psp->x < -40)
     {
@@ -1085,7 +1056,7 @@ pSwordSlideDown(PANEL_SPRITEp psp)
                 psp->yorig = psp->y;
                 psp->ang = 1024;
                 psp->PlayerP->SwordAng = SwordAngTable[RANDOM_RANGE(SIZ(SwordAngTable))];
-                psp->vel = vel;
+                psp->vel = 2500;
                 DoPlayerSpriteThrow(psp->PlayerP);
                 return;
             }
@@ -1106,64 +1077,37 @@ pSwordSlideDown(PANEL_SPRITEp psp)
 void
 pSwordSlideR(PANEL_SPRITEp psp)
 {
-    double nx, ny;
-    short vel_adj;
-
-    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (!cl_nomeleeblur)
     {
         SpawnSwordBlur(psp);
     }
 
-    vel_adj = 24;
-
-    nx += psp->vel * synctics * -bcosf(psp->ang, -6);
-    ny += psp->vel * synctics * bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(nx);
-    psp->x = nx * (1. / FRACUNIT);
-    psp->yfract = LSW(ny);
-    psp->y = ny * (1. / FRACUNIT);
+    psp->x += psp->vel * synctics * -bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
-    psp->vel += vel_adj * synctics;
+    psp->vel += 24 * synctics;
 }
 
 void
 pSwordSlideDownR(PANEL_SPRITEp psp)
 {
-    double nx, ny;
-    short vel, vel_adj;
-
-    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (!cl_nomeleeblur)
     {
         SpawnSwordBlur(psp);
     }
 
-    vel_adj = 24;
-    vel = 2500;
-
     auto ang = SwordAng + psp->ang - psp->PlayerP->SwordAng;
-
-    nx += psp->vel * synctics * -bcosf(ang, -6);
-    ny += psp->vel * synctics * bsinf(ang, -6);
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(nx);
-    psp->x = nx * (1. / FRACUNIT);
-    psp->yfract = LSW(ny);
-    psp->y = ny * (1. / FRACUNIT);
+    psp->x += psp->vel * synctics * -bcosf(ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * bsinf(ang, -6) * (1. / FRACUNIT);
 
-    psp->vel += vel_adj * synctics;
+    psp->vel += 24 * synctics;
 
     if (psp->x > 350)
     {
@@ -1180,7 +1124,7 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
                 psp->yorig = psp->y;
                 psp->PlayerP->SwordAng = SwordAngTable[RANDOM_RANGE(SIZ(SwordAngTable))];
                 psp->ang = 1024;
-                psp->vel = vel;
+                psp->vel = 2500;
                 DoPlayerSpriteThrow(psp->PlayerP);
                 return;
             }
@@ -1875,44 +1819,21 @@ pSpawnUziReload(PANEL_SPRITEp oclip)
 void
 pUziReload(PANEL_SPRITEp nclip)
 {
-    double nx, ny;
-
-    double x = xs_CRoundToInt(nclip->x * FRACUNIT) | nclip->xfract;
-    double y = xs_CRoundToInt(nclip->y * FRACUNIT) | nclip->yfract;
-
     PANEL_SPRITEp gun = nclip->sibling;
-    double xgun = xs_CRoundToInt(gun->x * FRACUNIT) | gun->xfract;
-    double ygun = xs_CRoundToInt(gun->y * FRACUNIT) | gun->yfract;
-
-    nx = nclip->vel * synctics * bcosf(nclip->ang, -6);
-    ny = nclip->vel * synctics * -bsinf(nclip->ang, -6);
 
     nclip->vel += 14 * synctics;
-
-    x += nx;
-    y += ny;
 
     nclip->ox = nclip->x;
     nclip->oy = nclip->y;
 
-    nclip->xfract = LSW(x);
-    nclip->x = x / FRACUNIT;
-    nclip->yfract = LSW(y);
-    nclip->y = y / FRACUNIT;
-
-    nx = gun->vel * synctics * bcosf(gun->ang, -6);
-    ny = gun->vel * synctics * -bsinf(gun->ang, -6);
-
-    xgun -= nx;
-    ygun -= ny;
+    nclip->x += nclip->vel * synctics * bcosf(nclip->ang, -6) * (1. / FRACUNIT);
+    nclip->y += nclip->vel * synctics * -bsinf(nclip->ang, -6) * (1. / FRACUNIT);
 
     gun->ox = gun->x;
     gun->oy = gun->y;
 
-    gun->xfract = LSW(xgun);
-    gun->x = xgun / FRACUNIT;
-    gun->yfract = LSW(ygun);
-    gun->y = ygun / FRACUNIT;
+    gun->x -= gun->vel * synctics * bcosf(gun->ang, -6) * (1. / FRACUNIT);
+    gun->y -= gun->vel * synctics * -bsinf(gun->ang, -6) * (1. / FRACUNIT);
 
     if (TEST(nclip->flags, PANF_XFLIP))
     {
@@ -1947,41 +1868,24 @@ pUziReload(PANEL_SPRITEp nclip)
 void
 pUziReloadRetract(PANEL_SPRITEp nclip)
 {
-    double nx, ny;
-
-    double x = xs_CRoundToInt(nclip->x * FRACUNIT) | nclip->xfract;
-    double y = xs_CRoundToInt(nclip->y * FRACUNIT) | nclip->yfract;
-
     PANEL_SPRITEp gun = nclip->sibling;
-    double xgun = xs_CRoundToInt(gun->x * FRACUNIT) | gun->xfract;
-    double ygun = xs_CRoundToInt(gun->y * FRACUNIT) | gun->yfract;
 
-    nx = nclip->vel * synctics * bcosf(nclip->ang, -6);
-    ny = nclip->vel * synctics * -bsinf(nclip->ang, -6);
+    double xadj = nclip->vel * synctics * bcosf(nclip->ang, -6) * (1. / FRACUNIT);
+    double yadj = nclip->vel * synctics * -bsinf(nclip->ang, -6) * (1. / FRACUNIT);
 
     nclip->vel += 18 * synctics;
-
-    x -= nx;
-    y -= ny;
 
     nclip->ox = nclip->x;
     nclip->oy = nclip->y;
 
-    nclip->xfract = LSW(x);
-    nclip->x = x / FRACUNIT;
-    nclip->yfract = LSW(y);
-    nclip->y = y / FRACUNIT;
-
-    xgun -= nx;
-    ygun -= ny;
+    nclip->x -= xadj;
+    nclip->y -= yadj;
 
     gun->ox = gun->x;
     gun->oy = gun->y;
 
-    gun->xfract = LSW(xgun);
-    gun->x = xgun / FRACUNIT;
-    gun->yfract = LSW(ygun);
-    gun->y = ygun / FRACUNIT;
+    gun->x -= xadj;
+    gun->y -= yadj;
 
     if (gun->y > UZI_RELOAD_YOFF + tileHeight(gun->picndx))
     {
@@ -2038,28 +1942,12 @@ pUziDoneReload(PANEL_SPRITEp psp)
 void
 pUziClip(PANEL_SPRITEp oclip)
 {
-    double nx, ny, ox, oy;
-    double x = xs_CRoundToInt(oclip->x * FRACUNIT) | oclip->xfract;
-    double y = xs_CRoundToInt(oclip->y * FRACUNIT) | oclip->yfract;
-
-    ox = x;
-    oy = y;
-
-    nx = oclip->vel * synctics * bcosf(oclip->ang, -6);
-    ny = oclip->vel * synctics * -bsinf(oclip->ang, -6);
-
-    oclip->vel += 16 * synctics;
-
-    x += nx;
-    y += ny;
 
     oclip->ox = oclip->x;
     oclip->oy = oclip->y;
 
-    oclip->xfract = LSW(x);
-    oclip->x = x / FRACUNIT;
-    oclip->yfract = LSW(y);
-    oclip->y = y / FRACUNIT;
+    oclip->x += oclip->vel * synctics * bcosf(oclip->ang, -6) * (1. / FRACUNIT);
+    oclip->y += oclip->vel * synctics * -bsinf(oclip->ang, -6) * (1. / FRACUNIT);
 
     if (oclip->y > UZI_RELOAD_YOFF)
     {
@@ -2068,23 +1956,17 @@ pUziClip(PANEL_SPRITEp oclip)
         // as synctics gets bigger, oclip->x can be way off
         // when clip goes off the screen - recalc oclip->x from scratch
         // so it will end up the same for all synctic values
-        for (x = ox, y = oy; oclip->y < UZI_RELOAD_YOFF; )
+        for (oclip->x = oclip->ox, oclip->y = oclip->oy; oclip->y < UZI_RELOAD_YOFF; )
         {
-            x += oclip->vel * bcosf(oclip->ang, -6);
-            y += oclip->vel * -bsinf(oclip->ang, -6);
+            oclip->x += oclip->vel * bcosf(oclip->ang, -6) * (1. / FRACUNIT);
+            oclip->y += oclip->vel * -bsinf(oclip->ang, -6) * (1. / FRACUNIT);
         }
-
-        oclip->xfract = LSW(x);
-        oclip->x = x / FRACUNIT;
-        oclip->yfract = LSW(y);
-        oclip->y = y / FRACUNIT;
 
         oclip->ox = oclip->x;
         oclip->oy = oclip->y = UZI_RELOAD_YOFF;
 
         gun->vel = 800;
         gun->ang = NORM_ANGLE(oclip->ang + 1024);
-
 
         pSpawnUziReload(oclip);
         pKillSprite(oclip);
@@ -2641,8 +2523,6 @@ SpawnShotgunShell(PANEL_SPRITEp psp)
 void
 pShotgunShell(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-
     if (TEST(psp->flags, PANF_JUMPING))
     {
         DoPanelJump(psp);
@@ -2652,12 +2532,9 @@ pShotgunShell(PANEL_SPRITEp psp)
         DoPanelFall(psp);
     }
 
-    x += psp->xspeed;
-
     psp->ox = psp->x;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
+    psp->x += psp->xspeed * (1. / FRACUNIT);
 
     if (psp->x > 320 || psp->x < 0 || psp->y > 200)
     {
@@ -2839,26 +2716,13 @@ pShotgunSetRecoil(PANEL_SPRITEp psp)
 void
 pShotgunRecoilDown(PANEL_SPRITEp psp)
 {
-    int targetvel;
-
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    if (psp->PlayerP->WpnShotgunType == 1)
-        targetvel = 890;
-    else
-        targetvel = 780;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
+    int targetvel = psp->PlayerP->WpnShotgunType == 1 ? 890 : 780;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->vel -= 24 * synctics;
 
@@ -2874,19 +2738,11 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
 void
 pShotgunRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->vel += 15 * synctics;
 
@@ -3352,19 +3208,11 @@ pRailSetRecoil(PANEL_SPRITEp psp)
 void
 pRailRecoilDown(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->vel -= 24 * synctics;
 
@@ -3380,19 +3228,11 @@ pRailRecoilDown(PANEL_SPRITEp psp)
 void
 pRailRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->vel += 15 * synctics;
 
@@ -4234,19 +4074,11 @@ InitWeaponMicro(PLAYERp pp)
 void
 pMicroRecoilDown(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->vel -= 24 * synctics;
 
@@ -4262,19 +4094,11 @@ pMicroRecoilDown(PANEL_SPRITEp psp)
 void
 pMicroRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->vel += 15 * synctics;
 
@@ -4985,8 +4809,6 @@ SpawnSmallHeartBlood(PANEL_SPRITEp psp)
 void
 pHeartBlood(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-
     if (TEST(psp->flags, PANF_JUMPING))
     {
         DoPanelJump(psp);
@@ -4996,12 +4818,8 @@ pHeartBlood(PANEL_SPRITEp psp)
         DoPanelFall(psp);
     }
 
-    x += psp->xspeed;
-
     psp->ox = psp->x;
-
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
+    psp->x += psp->xspeed * (1. / FRACUNIT);
 
     if (psp->x > 320 || psp->x < 0 || psp->y > 200)
     {
@@ -5029,16 +4847,9 @@ DoBeginPanelJump(PANEL_SPRITEp psp)
 int
 DoPanelJump(PANEL_SPRITEp psp)
 {
-    int jump_adj;
-
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    // precalculate jump value to adjust jump speed by
-    jump_adj = psp->jump_grav;
-
     // adjust jump speed by gravity - if jump speed greater than 0 player
     // have started falling
-    if ((psp->jump_speed += jump_adj) > 0)
+    if ((psp->jump_speed += psp->jump_grav) > 0)
     {
         // Start falling
         DoBeginPanelFall(psp);
@@ -5046,12 +4857,8 @@ DoPanelJump(PANEL_SPRITEp psp)
     }
 
     // adjust height by jump speed
-    y += psp->jump_speed * synctics;
-
     psp->oy = psp->y;
-
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->y += psp->jump_speed * synctics * (1. / FRACUNIT);
 
     return 0;
 }
@@ -5074,18 +4881,12 @@ DoBeginPanelFall(PANEL_SPRITEp psp)
 int
 DoPanelFall(PANEL_SPRITEp psp)
 {
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     // adjust jump speed by gravity
     psp->jump_speed += psp->jump_grav;
 
     // adjust player height by jump speed
-    y += psp->jump_speed * synctics;
-
     psp->oy = psp->y;
-
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->y += psp->jump_speed * synctics * (1. / FRACUNIT);
 
     return 0;
 }
@@ -5228,19 +5029,11 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
 {
 //    short picnum = psp->picndx;
 
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->vel -= 24 * synctics;
 
@@ -5259,19 +5052,11 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
 void
 pGrenadeRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->vel += 15 * synctics;
 
@@ -5290,22 +5075,14 @@ pGrenadeRecoilUp(PANEL_SPRITEp psp)
 void
 pGrenadePresent(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
         return;
-
-    x += psp->vel * synctics * bcosf(psp->ang, -6);
-    y += psp->vel * synctics * -bsinf(psp->ang, -6);
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(x);
-    psp->x = x / FRACUNIT;
-    psp->yfract = LSW(y);
-    psp->y = y / FRACUNIT;
+    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
     psp->rotate_ang = NORM_ANGLE(psp->rotate_ang + (6 * synctics));
 
@@ -5971,8 +5748,6 @@ SpawnFistBlur(PANEL_SPRITEp psp)
     nsp = pSpawnSprite(psp->PlayerP, NULL, PRI_BACK, psp->x, psp->y);
 
     SET(nsp->flags, PANF_WEAPON_SPRITE);
-    nsp->xfract = psp->xfract;
-    nsp->yfract = psp->yfract;
     nsp->ang = psp->ang;
     nsp->vel = psp->vel;
     nsp->PanelSpriteFunc = FistBlur;
@@ -6225,70 +6000,45 @@ pFistPresent(PANEL_SPRITEp psp)
 void
 pFistSlide(PANEL_SPRITEp psp)
 {
-    //double nx;
-    double ny;
-    short vel_adj;
-
-    //nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (!cl_nomeleeblur)
     {
         SpawnFistBlur(psp);
     }
 
-    vel_adj = 68;
-
-    //nx += psp->vel * synctics * bsinf(psp->ang, -6);
-    ny += psp->vel * synctics * -bsinf(psp->ang, -6);
-
     //psp->ox = psp->x;
     psp->oy = psp->y;
 
-    //psp->xfract = LSW(nx);
-    //psp->x = FixedToFloat(nx);
-    psp->yfract = LSW(ny);
-    psp->y = ny * (1. / FRACUNIT);
+    //psp->x += psp->vel * synctics * bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
-    psp->vel += vel_adj * synctics;
+    psp->vel += 68 * synctics;
 }
 
 void
 pFistSlideDown(PANEL_SPRITEp psp)
 {
-    double nx, ny;
-    short vel, vel_adj;
-
-    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (!cl_nomeleeblur)
     {
         SpawnFistBlur(psp);
     }
 
-    vel_adj = 48;
-    vel = 3500;
-
+    short vel = 3500;
     auto ang = FistAng + psp->ang + psp->PlayerP->FistAng;
-
-    if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
-        ny += psp->vel * synctics * -bsinf(ang, -6);
-    else
-    {
-        nx -= psp->vel * synctics * bsinf(ang, -6);
-        ny += psp->vel * synctics * -bsinf(ang, -6) * 3;
-    }
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(nx);
-    psp->x = nx * (1. / FRACUNIT);
-    psp->yfract = LSW(ny);
-    psp->y = ny * (1. / FRACUNIT);
+    if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
+    {
+        psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT);
+    }
+    else
+    {
+        psp->x -= psp->vel * synctics * bsinf(ang, -6) * (1. / FRACUNIT);
+        psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT) * 3;
+    }
 
-    psp->vel += vel_adj * synctics;
+    psp->vel += 48 * synctics;
 
     if (psp->y > 440)
     {
@@ -6354,70 +6104,45 @@ pFistSlideDown(PANEL_SPRITEp psp)
 void
 pFistSlideR(PANEL_SPRITEp psp)
 {
-    //double nx
-    double ny;
-    short vel_adj;
-
-    //nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (!cl_nomeleeblur)
     {
         SpawnFistBlur(psp);
     }
 
-    vel_adj = 68;
-
-    //nx += psp->vel * synctics * bsinf(psp->ang, -6);
-    ny += psp->vel * synctics * bsinf(psp->ang, -6);
-
     //psp->ox = psp->x;
     psp->oy = psp->y;
 
-    //psp->xfract = LSW(nx);
-    //psp->x = FixedToFloat(nx);
-    psp->yfract = LSW(ny);
-    psp->y = ny * (1. / FRACUNIT);
+    //psp->x += psp->vel * synctics * bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->y += psp->vel * synctics * bsinf(psp->ang, -6) * (1. / FRACUNIT);
 
-    psp->vel += vel_adj * synctics;
+    psp->vel += 68 * synctics;
 }
 
 void
 pFistSlideDownR(PANEL_SPRITEp psp)
 {
-    double nx, ny;
-    short vel, vel_adj;
-
-    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
-
     if (!cl_nomeleeblur)
     {
         SpawnFistBlur(psp);
     }
 
-    vel_adj = 48;
-    vel = 3500;
-
+    short vel = 3500;
     auto ang = FistAng + psp->ang + psp->PlayerP->FistAng;
-
-    if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
-        ny += psp->vel * synctics * -bsinf(ang, -6);
-    else
-    {
-        nx -= psp->vel * synctics * bsinf(ang, -6);
-        ny += psp->vel * synctics * -bsinf(ang, -6) * 3;
-    }
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->xfract = LSW(nx);
-    psp->x = nx * (1. / FRACUNIT);
-    psp->yfract = LSW(ny);
-    psp->y = ny * (1. / FRACUNIT);
+    if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
+    {
+        psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT);
+    }
+    else
+    {
+        psp->x -= psp->vel * synctics * bsinf(ang, -6) * (1. / FRACUNIT);
+        psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT) * 3;
+    }
 
-    psp->vel += vel_adj * synctics;
+    psp->vel += 48 * synctics;
 
     if (psp->y > 440)
     {

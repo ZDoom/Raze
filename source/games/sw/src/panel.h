@@ -107,9 +107,7 @@ struct PANEL_SPRITEstruct
     PANEL_STATEp State, RetractState, PresentState, ActionState, RestState;
     PLAYERp PlayerP;
     // Do not change the order of this line
-    uint16_t xfract;
     double x, xorig;
-    uint16_t yfract;
     double y, yorig;                            // Do not change the order of this
     // line
 
