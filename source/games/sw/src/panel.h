@@ -132,6 +132,11 @@ struct PANEL_SPRITEstruct
 
     // Weapon interpolation variables.
     double ox, oy;
+
+    // Inline helpers.
+    void backupx() { ox = x; };
+    void backupy() { oy = y; };
+    void backupcoords() { backupx(); backupy(); };
 };
 
 typedef struct
