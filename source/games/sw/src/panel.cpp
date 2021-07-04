@@ -731,6 +731,23 @@ WeaponOK(PLAYERp pp)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
+// X/Y POSITION INLINES
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+
+inline double pspSinVel(PANEL_SPRITEp const psp, int const ang = INT_MAX)
+{
+    return psp->vel * synctics * bsinf(ang == INT_MAX ? psp->ang : ang, -6) * (1. / FRACUNIT);
+}
+
+inline double pspCosVel(PANEL_SPRITEp const psp, int const ang = INT_MAX)
+{
+    return psp->vel * synctics * bcosf(ang == INT_MAX ? psp->ang : ang, -6) * (1. / FRACUNIT);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
 // SWORD
 //
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1017,8 +1034,8 @@ pSwordSlide(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel += 24 * synctics;
 }
@@ -1036,8 +1053,8 @@ pSwordSlideDown(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp, ang);
+    psp->y -= pspSinVel(psp, ang);
 
     psp->vel += 20 * synctics;
 
@@ -1085,8 +1102,8 @@ pSwordSlideR(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * -bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x -= pspCosVel(psp);
+    psp->y += pspSinVel(psp);
 
     psp->vel += 24 * synctics;
 }
@@ -1104,8 +1121,8 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * -bcosf(ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * bsinf(ang, -6) * (1. / FRACUNIT);
+    psp->x -= pspCosVel(psp, ang);
+    psp->y += pspSinVel(psp, ang);
 
     psp->vel += 24 * synctics;
 
@@ -2721,8 +2738,8 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel -= 24 * synctics;
 
@@ -2741,8 +2758,8 @@ pShotgunRecoilUp(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel += 15 * synctics;
 
@@ -3211,8 +3228,8 @@ pRailRecoilDown(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel -= 24 * synctics;
 
@@ -3231,8 +3248,8 @@ pRailRecoilUp(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel += 15 * synctics;
 
@@ -4077,8 +4094,8 @@ pMicroRecoilDown(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel -= 24 * synctics;
 
@@ -4097,8 +4114,8 @@ pMicroRecoilUp(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel += 15 * synctics;
 
@@ -5032,8 +5049,8 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel -= 24 * synctics;
 
@@ -5055,8 +5072,8 @@ pGrenadeRecoilUp(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel += 15 * synctics;
 
@@ -5081,8 +5098,8 @@ pGrenadePresent(PANEL_SPRITEp psp)
     psp->ox = psp->x;
     psp->oy = psp->y;
 
-    psp->x += psp->vel * synctics * bcosf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    psp->x += pspCosVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->rotate_ang = NORM_ANGLE(psp->rotate_ang + (6 * synctics));
 
@@ -6008,8 +6025,8 @@ pFistSlide(PANEL_SPRITEp psp)
     //psp->ox = psp->x;
     psp->oy = psp->y;
 
-    //psp->x += psp->vel * synctics * bsinf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * -bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    //psp->x += pspSinVel(psp);
+    psp->y -= pspSinVel(psp);
 
     psp->vel += 68 * synctics;
 }
@@ -6030,12 +6047,12 @@ pFistSlideDown(PANEL_SPRITEp psp)
 
     if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
     {
-        psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT);
+        psp->y -= pspSinVel(psp, ang);
     }
     else
     {
-        psp->x -= psp->vel * synctics * bsinf(ang, -6) * (1. / FRACUNIT);
-        psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT) * 3;
+        psp->x -= pspSinVel(psp, ang);
+        psp->y -= pspSinVel(psp, ang) * 3.;
     }
 
     psp->vel += 48 * synctics;
@@ -6112,8 +6129,8 @@ pFistSlideR(PANEL_SPRITEp psp)
     //psp->ox = psp->x;
     psp->oy = psp->y;
 
-    //psp->x += psp->vel * synctics * bsinf(psp->ang, -6) * (1. / FRACUNIT);
-    psp->y += psp->vel * synctics * bsinf(psp->ang, -6) * (1. / FRACUNIT);
+    //psp->x += pspSinVel(psp);
+    psp->y += pspSinVel(psp);
 
     psp->vel += 68 * synctics;
 }
@@ -6134,12 +6151,12 @@ pFistSlideDownR(PANEL_SPRITEp psp)
 
     if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
     {
-        psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT);
+        psp->y -= pspSinVel(psp, ang);
     }
     else
     {
-        psp->x -= psp->vel * synctics * bsinf(ang, -6) * (1. / FRACUNIT);
-        psp->y += psp->vel * synctics * -bsinf(ang, -6) * (1. / FRACUNIT) * 3;
+        psp->x -= pspSinVel(psp, ang);
+        psp->y -= pspSinVel(psp, ang) * 3.;
     }
 
     psp->vel += 48 * synctics;
