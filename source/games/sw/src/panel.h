@@ -137,6 +137,9 @@ struct PANEL_SPRITEstruct
     void backupx() { ox = x; };
     void backupy() { oy = y; };
     void backupcoords() { backupx(); backupy(); };
+    void backupbobx() { xorig = x; };
+    void backupboby() { yorig = y; };
+    void backupbobcoords() { backupbobx(); backupboby(); };
 };
 
 typedef struct
