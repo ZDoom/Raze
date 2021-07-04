@@ -505,7 +505,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 //
 // rintersect (internal)
 //
-// returns: -1 if didn't intersect, coefficient IntToFixed(x3--x4 fraction) else
+// returns: -1 if didn't intersect, coefficient (x3--x4 fraction)<<16 else
 int32_t rintersect_old(int32_t x1, int32_t y1, int32_t z1,
                    int32_t vx, int32_t vy, int32_t vz,
                    int32_t x3, int32_t y3, int32_t x4, int32_t y4,
