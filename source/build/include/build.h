@@ -56,8 +56,8 @@ enum
 
     TSPR_TEMP = 99,
 
-    CLIPMASK0 = (IntToFixed(1)+1),
-    CLIPMASK1 = (IntToFixed(256)+64),
+    CLIPMASK0 = (1 << 16) + 1,
+    CLIPMASK1 = (256 << 16) + 64
 };
 
 
