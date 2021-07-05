@@ -886,6 +886,7 @@ void GetGames()
 
 static void InitTextures()
 {
+	TexMan.usefullnames = true;
 	TexMan.Init([]() {}, [](BuildInfo&) {});
 	StartScreen->Progress();
 	mdinit();
