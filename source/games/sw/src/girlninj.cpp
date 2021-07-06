@@ -728,7 +728,7 @@ SetupGirlNinja(short SpriteNum)
     else
     {
         u = SpawnUser(SpriteNum, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
-        u->Health = 100;
+        u->Health = (Skill < MinEnemySkill - 1) ? 50 : 100;
     }
 
     u->StateEnd = s_GirlNinjaDie;

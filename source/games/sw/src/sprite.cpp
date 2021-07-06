@@ -92,6 +92,7 @@ void InitWeaponUzi(PLAYERp);
 
 bool FAF_Sector(short sectnum);
 int MoveSkip4, MoveSkip2, MoveSkip8;
+int MinEnemySkill;
 
 extern STATE s_CarryFlag[];
 extern STATE s_CarryFlagNoDet[];
@@ -1049,7 +1050,8 @@ ActorTestSpawn(SPRITEp sp)
     }
 
     // Skill ranges from -1 (No Monsters) to 3
-    if (TEST(sp->extra, SPRX_SKILL) > Skill)
+    int spawnskill = TEST(sp->extra, SPRX_SKILL);
+    if (spawnskill > MinEnemySkill || (MinEnemySkill == 0 && spawnskill > Skill))
     {
 
         // JBF: hack to fix Wanton Destruction's missing Sumos, Serpents, and Zilla on Skill < 2
@@ -1091,23 +1093,44 @@ ActorTestSpawn(SPRITEp sp)
 }
 
 
-void PreCacheRipper(void);
-void PreCacheRipper2(void);
-void PreCacheCoolie(void);
-void PreCacheSerpent(void);
-void PreCacheGuardian(void);
-void PreCacheNinja(void);
-void PreCacheSumo(void);
-void PreCacheEel(void);
-void PreCacheToiletGirl(void);
-void PreCacheWashGirl(void);
-void PreCacheTrash(void);
-void PreCacheBunny(void);
-void PreCacheSkel(void);
-void PreCacheHornet(void);
-void PreCacheSkull(void);
-void PreCacheBetty(void);
-void PreCachePachinko(void);
+int EnemyCheckSkill()
+{
+    StatIterator it(STAT_DEFAULT);
+    int maxskill = INT_MAX;
+    int SpriteNum;
+    while ((SpriteNum = it.NextIndex()) >= 0)
+    {
+        auto sp = &sprite[SpriteNum];
+
+        switch (sp->picnum)
+        {
+        case COOLIE_RUN_R0:
+        case NINJA_RUN_R0:
+        case NINJA_CRAWL_R0:
+        case GORO_RUN_R0:
+        case 1441:
+        case COOLG_RUN_R0:
+        case EEL_RUN_R0:
+        case SUMO_RUN_R0:
+        case ZILLA_RUN_R0:
+        case RIPPER_RUN_R0:
+        case RIPPER2_RUN_R0:
+        case SERP_RUN_R0:
+        case LAVA_RUN_R0:
+        case SKEL_RUN_R0:
+        case HORNET_RUN_R0:
+        case SKULL_R0:
+        case BETTY_R0:
+        case GIRLNINJA_RUN_R0:
+        {
+            int myskill = sp->extra & SPRX_SKILL;
+            if (myskill < maxskill) maxskill = myskill;
+        }
+        }
+    }
+    if (maxskill < 0 || maxskill == INT_MAX) maxskill = 0;
+    return maxskill;
+}
 
 bool
 ActorSpawn(SPRITEp sp)
@@ -1789,6 +1812,8 @@ SpriteSetup(void)
     short i, num;
     int cz,fz;
 
+    MinEnemySkill = EnemyCheckSkill();
+
     // special case for player
     PicAnimOff(PLAYER_NINJA_RUN_R0);
 
@@ -1807,6 +1832,8 @@ SpriteSetup(void)
 
     // Call my little sprite setup routine first
     JS_SpriteSetup();
+
+    int minEnemySkill = EnemyCheckSkill();
 
     StatIterator it(STAT_DEFAULT);
     while ((SpriteNum = it.NextIndex()) >= 0)
