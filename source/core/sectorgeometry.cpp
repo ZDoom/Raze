@@ -243,7 +243,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 		int s = start;
 		if (start >= 0 && start < numvertices)
 		{
-			while (!done[start])
+			while (start >= 0 && start < numvertices && !done[start])
 			{
 				auto sline = &sectionLines[sec->lines[start]];
 				auto wallp = &wall[sline->startpoint];
