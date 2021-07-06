@@ -562,7 +562,7 @@ int SpawnCoolg(short SpriteNum)
 {
 
     // Don't do a ghost every time
-    if (RANDOM_RANGE(1000) > 700)
+    if (RANDOM_RANGE(1000) > 700 || Skill < MinEnemySkill - 1)
     {
         return(0);
     }

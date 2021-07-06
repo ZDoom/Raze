@@ -1832,6 +1832,10 @@ SetupNinja(short SpriteNum)
     ANIMATOR DoActorDecide;
     short pic = sp->picnum;
 
+    // Fake some skill settings in case the lower skills are empty.
+    int RedNinjaHealth = MinEnemySkill <= Skill ? HEALTH_RED_NINJA : HEALTH_NINJA;
+    if (Skill < MinEnemySkill - 1) sp->pal = 0;
+
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
         u = User[SpriteNum].Data();
@@ -1853,7 +1857,7 @@ SetupNinja(short SpriteNum)
         u->Attrib = &InvisibleNinjaAttrib;
         EnemyDefaults(SpriteNum, &NinjaGreenActionSet, &NinjaPersonality);
         if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = HEALTH_RED_NINJA;
+            u->Health = RedNinjaHealth;
         SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
         sp->shade = 127;
         sp->pal = u->spal = PALETTE_PLAYER5;
@@ -1881,7 +1885,7 @@ SetupNinja(short SpriteNum)
         u->Attrib = &NinjaAttrib;
         EnemyDefaults(SpriteNum, &NinjaRedActionSet, &NinjaPersonality);
         if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = HEALTH_RED_NINJA;
+            u->Health = RedNinjaHealth;
         sp->pal = u->spal = PALETTE_PLAYER3;
         if (pic == NINJA_CRAWL_R0)
         {
@@ -1906,7 +1910,7 @@ SetupNinja(short SpriteNum)
         u->Attrib = &NinjaAttrib;
         EnemyDefaults(SpriteNum, &NinjaSeekerActionSet, &NinjaPersonality);
         if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = HEALTH_RED_NINJA;
+            u->Health = RedNinjaHealth;
         sp->pal = u->spal = PAL_XLAT_LT_TAN;
         u->Attrib = &NinjaAttrib;
     }
@@ -1915,7 +1919,7 @@ SetupNinja(short SpriteNum)
         u->Attrib = &NinjaAttrib;
         EnemyDefaults(SpriteNum, &NinjaGrenadeActionSet, &NinjaPersonality);
         if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
-            u->Health = HEALTH_RED_NINJA;
+            u->Health = RedNinjaHealth;
         sp->pal = u->spal = PAL_XLAT_LT_GREY;
         u->Attrib = &NinjaAttrib;
     }

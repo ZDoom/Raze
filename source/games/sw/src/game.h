@@ -2095,6 +2095,7 @@ extern USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 extern double smoothratio;
 extern int MoveSkip4, MoveSkip2, MoveSkip8;
+extern int MinEnemySkill;
 
 #define MASTER_SWITCHING 1
 

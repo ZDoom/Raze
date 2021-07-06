@@ -1270,6 +1270,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			.Array("bosswasseen", bosswasseen, 3)
 			.Array("BossSpriteNum", BossSpriteNum, 3);
 			arc.Array("tracks", Track, countof(Track))
+			("minenemyskill", MinEnemySkill)
             ;
         postSerializePanelSprites(arc);
         arc.EndObject();
