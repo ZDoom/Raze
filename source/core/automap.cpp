@@ -49,6 +49,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)
+CVAR(Float, am_linealpha, 1.0f, CVAR_ARCHIVE)
+CVAR(Int, am_linethickness, 1, CVAR_ARCHIVE)
 CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
 CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
 CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
@@ -322,7 +324,12 @@ void MarkSectorSeen(int i)
 
 void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
 {
-	twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p);
+	if (am_linethickness >= 2) {
+		twod->AddThickLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, am_linethickness, p, uint8_t(am_linealpha * 255));
+	} else {
+		// Use more efficient thin line drawing routine.
+		twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p, uint8_t(am_linealpha * 255));
+	}
 }
 
 //---------------------------------------------------------------------------
