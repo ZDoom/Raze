@@ -1147,6 +1147,8 @@ OptionMenu "AutomapOptions"
 	StaticText ""
 	Option "$AUTOMAPMNU_ROTATE",				"am_rotate",					"OnOff"
 	Option "$AUTOMAPMNU_FOLLOW",				"am_followplayer",				"OnOff"
+	Slider "$AUTOMAPMNU_LINEALPHA",				"am_linealpha", 0.1, 1.0, 0.1, 1
+	Slider "$AUTOMAPMNU_LINETHICKNESS",			"am_linethickness", 1, 8, 1, 0
 
 	// todo:
 	//CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
