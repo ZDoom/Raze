@@ -6548,20 +6548,7 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
         // //
 
         // increment the ndx into the sin table
-        psp->sin_ndx = psp->sin_ndx + (synctics << 3);
-        // add an additional increment to ndx
-        if (cl_smoothsway)
-        {
-            // add a fixed factor to it
-            psp->sin_ndx += (synctics << 2);
-        }
-        else
-        {
-            // add a random factor to it
-            psp->sin_ndx += (RANDOM_P2(8) * synctics);
-        }
-        // wrap
-        psp->sin_ndx &= 2047;
+        psp->sin_ndx = (psp->sin_ndx + (synctics << 3) + (cl_swsmoothsway ? (synctics << 2) : RANDOM_P2(8) * synctics)) & 2047;
 
         // get height
         xdiff = psp->sin_amt * bsinf(psp->sin_ndx, -14);
