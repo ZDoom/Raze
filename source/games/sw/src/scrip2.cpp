@@ -242,7 +242,7 @@ void LoadKVXFromScript(const char* filename)
     }
     while (script_p < scriptend_p);
 
-    script_p = NULL;
+    script_p = nullptr;
 }
 
 /*

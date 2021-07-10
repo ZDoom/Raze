@@ -1397,7 +1397,7 @@ DoPlayerWarpTeleporter(PLAYERp pp)
 #endif
 
 
-    if ((sp_warp = Warp(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum)) == NULL)
+    if ((sp_warp = Warp(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum)) == nullptr)
         return;
 
     switch (SP_TAG3(sp_warp))
@@ -1790,7 +1790,7 @@ UpdatePlayerUnderSprite(PLAYERp pp)
         {
             KillSprite(pp->PlayerUnderSprite);
             pp->PlayerUnderSprite = -1;
-            pp->UnderSpriteP = NULL;
+            pp->UnderSpriteP = nullptr;
         }
         return;
     }
@@ -1941,8 +1941,8 @@ DoPlayerZrange(PLAYERp pp)
 //  16384+sector (sector first touched) or
 //  49152+spritenum (sprite first touched)
 
-    pp->lo_sectp = pp->hi_sectp = NULL;
-    pp->lo_sp = pp->hi_sp = NULL;
+    pp->lo_sectp = pp->hi_sectp = nullptr;
+    pp->lo_sp = pp->hi_sp = nullptr;
 
     if (TEST(ceilhit, 0xc000) == 49152)
     {
@@ -1962,7 +1962,7 @@ DoPlayerZrange(PLAYERp pp)
         {
             pp->lo_sectp = &sector[pp->lo_sp->sectnum];
             pp->loz = pp->lo_sp->z;
-            pp->lo_sp = NULL;
+            pp->lo_sp = nullptr;
         }
     }
     else
@@ -3574,7 +3574,7 @@ DoPlayerClimb(PLAYERp pp)
         neartag(pp->posx, pp->posy, pp->posz,
                 pp->cursectnum, pp->angle.ang.asbuild(),
                 &sec, &wal, &spr,
-                &dist, 800L, NTAG_SEARCH_LO_HI, NULL);
+                &dist, 800L, NTAG_SEARCH_LO_HI, nullptr);
 
         if (wal >= 0)
         {
@@ -3891,7 +3891,7 @@ FindNearSprite(SPRITEp sp, short stat)
 {
     int fs;
     int dist, near_dist = 15000;
-    SPRITEp fp, near_fp = NULL;
+    SPRITEp fp, near_fp = nullptr;
 
 
     StatIterator it(stat);
@@ -3934,7 +3934,7 @@ PlayerOnLadder(PLAYERp pp)
 
     neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, pp->angle.ang.asbuild(),
             &neartagsector, &neartagwall, &neartagsprite,
-            &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI, NULL);
+            &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI, nullptr);
 
     dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
 
@@ -3948,7 +3948,7 @@ PlayerOnLadder(PLAYERp pp)
     {
         neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, NORM_ANGLE(pp->angle.ang.asbuild() + angles[i]),
                 &sec, &wal, &spr,
-                &dist, 600L, NTAG_SEARCH_LO_HI, NULL);
+                &dist, 600L, NTAG_SEARCH_LO_HI, nullptr);
 
         if (wal < 0 || dist < 100 || wall[wal].lotag != TAG_WALL_CLIMB)
             return false;
@@ -4272,7 +4272,7 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
     USERp u = User[pp->PlayerSprite].Data();
     int i;
     SECT_USERp sectu = SectUser[pp->cursectnum].Data();
-    SPRITEp under_sp = NULL, over_sp = NULL;
+    SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     short over, under;
 
@@ -4351,7 +4351,7 @@ DoPlayerWarpToSurface(PLAYERp pp)
     SECT_USERp sectu = SectUser[pp->cursectnum].Data();
     short over, under;
 
-    SPRITEp under_sp = NULL, over_sp = NULL;
+    SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
 
     if (Prediction)
@@ -5240,7 +5240,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         {
             UseInventoryRepairKit(pp);
             sop->max_damage = User[sop->sp_child - sprite]->MaxHealth;
-            VehicleSetSmoke(sop, NULL);
+            VehicleSetSmoke(sop, nullptr);
             RESET(sop->flags, SOBJ_BROKEN);
         }
         else
@@ -5328,7 +5328,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         {
             UseInventoryRepairKit(pp);
             sop->max_damage = User[sop->sp_child - sprite]->MaxHealth;
-            VehicleSetSmoke(sop, NULL);
+            VehicleSetSmoke(sop, nullptr);
             RESET(sop->flags, SOBJ_BROKEN);
         }
         else
@@ -5478,12 +5478,12 @@ DoPlayerStopOperate(PLAYERp pp)
 
     if (pp->sop_control)
     {
-        pp->sop_control->controller = NULL;
+        pp->sop_control->controller = nullptr;
     }
-    pp->sop_control = NULL;
-    pp->sop_riding = NULL;
-    pp->sop_remote = NULL;
-    pp->sop = NULL;
+    pp->sop_control = nullptr;
+    pp->sop_riding = nullptr;
+    pp->sop_remote = nullptr;
+    pp->sop = nullptr;
     DoPlayerBeginRun(pp);
 }
 
@@ -5767,7 +5767,7 @@ char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
             sprintf(ds,"%s puts the Smack Dab on %s with his %s.",p2,p1,DeathString(pp->HitBy));
             return ds;
         }
-    return NULL;
+    return nullptr;
 };
 
 void
@@ -5923,10 +5923,10 @@ DoPlayerBeginDie(PLAYERp pp)
     pp->ceiling_dist = PLAYER_WADE_CEILING_DIST;
     ASSERT(pp->DeathType < SIZ(PlayerDeathFunc));
     pp->DoPlayerAction = PlayerDeathFunc[pp->DeathType];
-    pp->sop_control = NULL;
-    pp->sop_remote = NULL;
-    pp->sop_riding = NULL;
-    pp->sop = NULL;
+    pp->sop_control = nullptr;
+    pp->sop_remote = nullptr;
+    pp->sop_riding = nullptr;
+    pp->sop = nullptr;
     RESET(pp->Flags, PF_TWO_UZI);
 
     NewStateGroup(pp->PlayerSprite, u->ActorActionSet->Run);
@@ -6171,10 +6171,10 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 
         DoPlayerZrange(pp);
 
-        pp->sop_control = NULL;
-        pp->sop_remote = NULL;
-        pp->sop_riding = NULL;
-        pp->sop = NULL;
+        pp->sop_control = nullptr;
+        pp->sop_remote = nullptr;
+        pp->sop_riding = nullptr;
+        pp->sop = nullptr;
 
         RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
         RESET(pp->Flags, PF_DEAD);
@@ -6285,10 +6285,10 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
         NewStateGroup(pp->PlayerSprite, sg_PlayerHeadFly);
         SET(pp->Flags, PF_JUMPING);
         SpawnShrap(pp->PlayerSprite, -1);
-        return NULL;
+        return nullptr;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -6772,7 +6772,7 @@ PlayerStateControl(int16_t SpriteNum)
     // Convienience var
     u = User[SpriteNum].Data();
 
-    if (u == NULL)
+    if (u == nullptr)
         return;
 
     u->Tics += synctics;
@@ -6863,7 +6863,7 @@ MoveSkipSavePos(void)
                 sp = &sprite[i];
                 u = User[i].Data();
 
-                if (sp == NULL || u == NULL)
+                if (sp == nullptr || u == nullptr)
                     continue;
 
                 sp->backuppos();
@@ -6887,7 +6887,7 @@ MoveSkipSavePos(void)
                 sp = &sprite[i];
                 u = User[i].Data();
 
-                if (sp == NULL || u == NULL)
+                if (sp == nullptr || u == nullptr)
                     continue;
                 sp->backuppos();
                 u->oz = sp->oz;
@@ -7438,7 +7438,7 @@ InitMultiPlayerInfo(void)
                 continue;
         }
 
-        start0 = SpawnSprite(MultiStatList[stat], ST1, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
+        start0 = SpawnSprite(MultiStatList[stat], ST1, nullptr, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
         ASSERT(start0 >= 0);
         User[start0].Clear();
         sprite[start0].picnum = ST1;

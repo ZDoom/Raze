@@ -571,7 +571,7 @@ int DoActorOperate(short SpriteNum)
     {
         neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
                 &nearsector, &nearwall, &nearsprite,
-                &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, NULL);
+                &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, nullptr);
 
         //DSPRINTF(ds,"nearsector = %d, nearwall = %d, nearsprite = %d hitdist == %ld\n",nearsector,nearwall,nearsprite,nearhitdist);
         //MONO_PRINT(ds);
@@ -638,7 +638,7 @@ DoActorActionDecide(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int dist;
     ANIMATORp action;
-    USERp pu=NULL;
+    USERp pu=nullptr;
     bool ICanSee=false;
 
     // REMINDER: This function is not even called if SpriteControl doesn't let
@@ -871,7 +871,7 @@ DoActorDecide(short SpriteNum)
             return 0;
     }
 
-    ASSERT(actor_action != NULL);
+    ASSERT(actor_action != nullptr);
 
     if (actor_action != InitActorDecide)
     {
@@ -1809,7 +1809,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
     };
 
 
-    int16_t* adp = NULL;
+    int16_t* adp = nullptr;
 
     short new_ang, oang;
     short save_ang = -1;

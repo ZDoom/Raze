@@ -71,7 +71,7 @@ DECISION CoolieSurprised[] =
 DECISION CoolieEvasive[] =
 {
     {10,   InitActorEvade  },
-    {1024, NULL            }
+    {1024, nullptr            }
 };
 
 DECISION CoolieLostTarget[] =
@@ -380,28 +380,28 @@ ACTOR_ACTION_SET CoolieActionSet =
 {
     sg_CoolieStand,
     sg_CoolieRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL, //climb
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr, //climb
     sg_CooliePain, //pain
     sg_CoolieDie,
-    NULL,
+    nullptr,
     sg_CoolieDead,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     {sg_CoolieCharge},
     {1024},
     {sg_CoolieCharge},
     {1024},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person)

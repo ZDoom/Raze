@@ -77,7 +77,7 @@ DECISION RipperSurprised[] =
 DECISION RipperEvasive[] =
 {
     {6, InitRipperHang},
-    {1024, NULL}
+    {1024, nullptr}
 };
 
 DECISION RipperLostTarget[] =
@@ -765,16 +765,16 @@ ACTOR_ACTION_SET RipperActionSet =
     sg_RipperRun,
     sg_RipperJump,
     sg_RipperFall,
-    NULL,                               // sg_RipperCrawl,
-    NULL,                               // sg_RipperSwim,
-    NULL,                               // sg_RipperFly,
-    NULL,                               // sg_RipperRise,
-    NULL,                               // sg_RipperSit,
-    NULL,                               // sg_RipperLook,
-    NULL,                               // climb
+    nullptr,                               // sg_RipperCrawl,
+    nullptr,                               // sg_RipperSwim,
+    nullptr,                               // sg_RipperFly,
+    nullptr,                               // sg_RipperRise,
+    nullptr,                               // sg_RipperSit,
+    nullptr,                               // sg_RipperLook,
+    nullptr,                               // climb
     sg_RipperPain,
     sg_RipperDie,
-    NULL,                               // sg_RipperHariKari,
+    nullptr,                               // sg_RipperHariKari,
     sg_RipperDead,
     sg_RipperDeathJump,
     sg_RipperDeathFall,
@@ -783,8 +783,8 @@ ACTOR_ACTION_SET RipperActionSet =
     {sg_RipperJumpAttack, sg_RipperSpew},
     {400, 1024},
     {sg_RipperHeart, sg_RipperHang},
-    NULL,
-    NULL
+    nullptr,
+    nullptr
 };
 
 ACTOR_ACTION_SET RipperBrownActionSet =
@@ -793,16 +793,16 @@ ACTOR_ACTION_SET RipperBrownActionSet =
     sg_RipperRun,
     sg_RipperJump,
     sg_RipperFall,
-    NULL,                               // sg_RipperCrawl,
-    NULL,                               // sg_RipperSwim,
-    NULL,                               // sg_RipperFly,
-    NULL,                               // sg_RipperRise,
-    NULL,                               // sg_RipperSit,
-    NULL,                               // sg_RipperLook,
-    NULL,                               // climb
+    nullptr,                               // sg_RipperCrawl,
+    nullptr,                               // sg_RipperSwim,
+    nullptr,                               // sg_RipperFly,
+    nullptr,                               // sg_RipperRise,
+    nullptr,                               // sg_RipperSit,
+    nullptr,                               // sg_RipperLook,
+    nullptr,                               // climb
     sg_RipperPain,                      // pain
     sg_RipperDie,
-    NULL,                               // sg_RipperHariKari,
+    nullptr,                               // sg_RipperHariKari,
     sg_RipperDead,
     sg_RipperDeathJump,
     sg_RipperDeathFall,
@@ -811,8 +811,8 @@ ACTOR_ACTION_SET RipperBrownActionSet =
     {sg_RipperJumpAttack, sg_RipperSwipe},
     {800, 1024},
     {sg_RipperHeart, sg_RipperHang},
-    NULL,
-    NULL
+    nullptr,
+    nullptr
 };
 
 int

@@ -471,18 +471,18 @@ void TerminateLevel(void)
 
         pp->cookieTime = 0;
         memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
-        pp->DoPlayerAction = NULL;
+        pp->DoPlayerAction = nullptr;
 
-        pp->SpriteP = NULL;
+        pp->SpriteP = nullptr;
         pp->PlayerSprite = -1;
 
-        pp->UnderSpriteP = NULL;
+        pp->UnderSpriteP = nullptr;
         pp->PlayerUnderSprite = -1;
 
         memset(pp->HasKey, 0, sizeof(pp->HasKey));
 
         //pp->WpnFlags = 0;
-        pp->CurWpn = NULL;
+        pp->CurWpn = nullptr;
 
         memset(pp->Wpn, 0, sizeof(pp->Wpn));
         memset(pp->InventoryTics, 0, sizeof(pp->InventoryTics));

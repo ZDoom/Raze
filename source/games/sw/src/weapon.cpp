@@ -327,9 +327,9 @@ STATEp sg_RailPuff[] =
 #define LASER_PUFF_RATE 8
 STATE s_LaserPuff[] =
 {
-    {LASER_PUFF + 0, LASER_PUFF_RATE, NULL, &s_LaserPuff[1]},
-    //{LASER_PUFF + 1, LASER_PUFF_RATE, NULL, &s_LaserPuff[2]},
-    //{LASER_PUFF + 2, LASER_PUFF_RATE, NULL, &s_LaserPuff[3]},
+    {LASER_PUFF + 0, LASER_PUFF_RATE, nullptr, &s_LaserPuff[1]},
+    //{LASER_PUFF + 1, LASER_PUFF_RATE, nullptr, &s_LaserPuff[2]},
+    //{LASER_PUFF + 2, LASER_PUFF_RATE, nullptr, &s_LaserPuff[3]},
     {LASER_PUFF + 0, 100, DoSuicide, &s_LaserPuff[0]}
 };
 
@@ -2658,7 +2658,7 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
         {
             if (TEST(wu->Flags2, SPR2_SO_MISSILE))
             {
-                DoMatchEverything(NULL, hsp->hitag, -1);
+                DoMatchEverything(nullptr, hsp->hitag, -1);
                 return true;
             }
             else
@@ -2676,7 +2676,7 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
         case WPN_MICRO:
         case WPN_NAPALM:
         case WPN_ROCKET:
-            DoMatchEverything(NULL, hsp->hitag, -1);
+            DoMatchEverything(nullptr, hsp->hitag, -1);
             return true;
         }
     }
@@ -2689,7 +2689,7 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
         case WPN_HOTHEAD:
         case WPN_NAPALM:
         case WPN_ROCKET:
-            DoMatchEverything(NULL, hsp->hitag, -1);
+            DoMatchEverything(nullptr, hsp->hitag, -1);
             return true;
         }
     }
@@ -2704,7 +2704,7 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
         case WPN_ROCKET:
         case WPN_UZI:
         case WPN_SHOTGUN:
-            DoMatchEverything(NULL, hsp->hitag, -1);
+            DoMatchEverything(nullptr, hsp->hitag, -1);
             return true;
         }
     }
@@ -2722,7 +2722,7 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
         case WPN_ROCKET:
         case WPN_UZI:
         case WPN_SHOTGUN:
-            DoMatchEverything(NULL, hsp->hitag, -1);
+            DoMatchEverything(nullptr, hsp->hitag, -1);
             return true;
         }
     }
@@ -2894,7 +2894,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_MetalShrapA, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_MetalShrapB, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_MetalShrapC, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP GlassShrap[] =
@@ -2902,7 +2902,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GlassShrapA, GLASS_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_GlassShrapB, GLASS_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_GlassShrapC, GLASS_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP WoodShrap[] =
@@ -2910,7 +2910,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_WoodShrapA, WOOD_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_WoodShrapB, WOOD_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_WoodShrapC, WOOD_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP StoneShrap[] =
@@ -2918,7 +2918,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_StoneShrapA, STONE_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_StoneShrapB, STONE_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_StoneShrapC, STONE_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP PaperShrap[] =
@@ -2926,7 +2926,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_PaperShrapA, PAPER_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_PaperShrapB, PAPER_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_PaperShrapC, PAPER_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP MetalShrap[] =
@@ -2934,7 +2934,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_MetalShrapA, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_MetalShrapB, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_MetalShrapC, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP MetalMix[] =
@@ -2945,7 +2945,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_MetalShrapA, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_MetalShrapB, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_MetalShrapC, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP WoodMix[] =
@@ -2956,7 +2956,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_MetalShrapA, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_MetalShrapB, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_MetalShrapC, METAL_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP PaperMix[] =
@@ -2967,7 +2967,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_PaperShrapA, PAPER_SHRAP_A, 2, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_PaperShrapB, PAPER_SHRAP_A, 2, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_PaperShrapC, PAPER_SHRAP_A, 2, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP Marbels[] =
@@ -2976,14 +2976,14 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GlassShrapA, GLASS_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_GlassShrapB, GLASS_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
         {s_GlassShrapC, GLASS_SHRAP_A, 1, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
 #if 0
     static SHRAP BloodShrap[] =
     {
         {s_BloodShrap, BLOOD_SHRAP, 8, Z_MID, 200, 600, 100, 500, true, 2048},
-        {NULL},
+        {nullptr},
     };
 #endif
 
@@ -2994,7 +2994,7 @@ SpawnShrap(short ParentNum, short Secondary)
     static SHRAP EMPShrap[] =
     {
         {s_EMPShrap, EMP, 1, Z_MID, 500, 1100, 300, 600, false, 128},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP StdShrap[] =
@@ -3005,7 +3005,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GoreArm, GORE_Arm, 1, Z_MID, 300, 500, 250, 500, true, 2048},
         {s_GoreSkullCap, GORE_SkullCap, 1, Z_TOP, 300, 500, 250, 500, true, 2048},
         {s_FastGoreDrip, GORE_Drip, 8, Z_BOT, 600, 800, 50, 70, false, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP HeartAttackShrap[] = // fewer gibs because of the plasma fountain sprites
@@ -3013,7 +3013,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GoreLung,     GORE_Lung,       2, Z_TOP, 500, 1100, 300, 600, true, 2048},
         {s_GoreLiver,   GORE_Liver,     1, Z_MID, 500, 1100, 300, 500, true, 2048},
         {s_GoreArm,     GORE_Arm,       2, Z_MID, 500, 1100, 350, 600, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP SkelGore[] =
@@ -3025,7 +3025,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GoreArm, GORE_Arm, 1, Z_MID, 300, 500, 250, 500, true, 2048},
         {s_GoreLeg, GORE_Leg, 2, Z_BOT, 200, 400, 250, 500, true, 2048},
         {s_GoreChunkS, GORE_ChunkS, 4, Z_BOT, 200, 400, 250, 400, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP UpperGore[] =
@@ -3035,14 +3035,14 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GoreLiver, GORE_Liver, 1, Z_MID, 300, 500, 100, 150, true, 2048},
         {s_GoreSkullCap, GORE_SkullCap, 1, Z_TOP, 300, 500, 100, 150, true, 2048},
         {s_GoreArm, GORE_Arm, 1, Z_MID, 300, 500, 250, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
 #if 0
     static SHRAP LowerGore[] =
     {
         {s_GoreLeg, GORE_Leg, 4, Z_BOT, 300, 500, 100, 200, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 #endif
 
@@ -3050,7 +3050,7 @@ SpawnShrap(short ParentNum, short Secondary)
     {
         {s_GoreDrip, GORE_Drip, 3, Z_TOP, 600, 800, 50, 70, false, 2048},
         {s_FastGoreDrip, GORE_Drip, 3, Z_BOT, 600, 800, 70, 100, false, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP FlamingGore[] =
@@ -3058,7 +3058,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GoreFlame, GORE_Drip, 2, Z_TOP, 600, 800, 100, 200, false, 2048},
         {s_GoreFlameChunkB, GORE_Drip, 4, Z_MID, 300, 500, 100, 200, false, 2048},
         {s_GoreFlame, GORE_Drip, 2, Z_BOT, 100, 200, 100, 200, false, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
 #if 0
@@ -3066,25 +3066,25 @@ SpawnShrap(short ParentNum, short Secondary)
     {
         {s_GoreFlame, GORE_Drip, 4, Z_MID, 300, 700, 300, 600, true, 2048},
         {s_GoreFlame, GORE_Drip, 4, Z_BOT, 300, 700, 300, 600, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP TracerExpShrap[] =
     {
         {s_TracerShrap, GORE_Drip, 3, Z_MID, 300, 700, 300, 600, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP FireballExpShrap1[] =
     {
         {s_GoreFlame, GORE_Drip, 1, Z_MID, 100, 300, 100, 200, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP FireballExpShrap2[] =
     {
         {s_GoreFlame, GORE_Drip, 2, Z_MID, 100, 300, 100, 200, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAPp FireballExpShrap[] =
@@ -3099,7 +3099,7 @@ SpawnShrap(short ParentNum, short Secondary)
     static SHRAP ElectroShrap[] =
     {
         {s_ElectroShrap, ELECTRO_SHARD, 12, Z_TOP, 200, 600, 100, 500, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     // state, id, num, zlevel, min_jspeed, max_jspeed, min_vel, max_vel,
@@ -3107,13 +3107,13 @@ SpawnShrap(short ParentNum, short Secondary)
     static SHRAP LavaShrap1[] =
     {
         {s_GoreFlame, GORE_Drip, 1, Z_TOP, 400, 1400, 100, 400, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP LavaShrap2[] =
     {
         {s_GoreFlameChunkB, GORE_Drip, 1, Z_TOP, 400, 1400, 100, 400, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP *LavaShrapTable[] =
@@ -3125,14 +3125,14 @@ SpawnShrap(short ParentNum, short Secondary)
     static SHRAP LavaBoulderShrap[] =
     {
         {s_LavaShard, LAVA_SHARD, 16, Z_MID, 400, 900, 200, 600, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
 #if 0
     static SHRAP SectorSquishGore[] =
     {
         {s_FastGoreDrip,    GORE_Drip,   24, Z_MID, -400, -200, 600, 800, false, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 #endif
 
@@ -3152,7 +3152,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GoreDrip,    GORE_Drip,      10, Z_MID, 200, 300, 100, 200, false, 2048},
         {s_GoreArm,     GORE_Arm,       1, Z_MID, 200, 300, 100, 200, true, 2048},
         {s_FastGoreDrip,    GORE_Drip,      10, Z_BOT, 200, 300, 100, 200, false, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP PlayerGoreFly[] =
@@ -3163,14 +3163,14 @@ SpawnShrap(short ParentNum, short Secondary)
         {s_GoreArm,     GORE_Arm,       1, Z_MID, 500, 1100, 350, 600, true, 2048},
         {s_FastGoreDrip,    GORE_Drip,      16, Z_MID, 500, 1100, 350, 600, false, 2048},
         {s_FastGoreDrip,    GORE_Drip,      16, Z_BOT, 500, 1100, 350, 600, false, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP PlayerDeadHead[] =
     {
         {s_GoreDrip, GORE_Drip, 2, Z_TOP, 150, 400, 40, 80, true, 2048},
         {s_GoreDrip, GORE_Drip, 2, Z_MID, 150, 400, 40, 80, true, 2048},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     // state, id, num, zlevel, min_jspeed, max_jspeed, min_vel, max_vel,
@@ -3178,7 +3178,7 @@ SpawnShrap(short ParentNum, short Secondary)
     static SHRAP PlayerHeadHurl1[] =
     {
         {s_Vomit1, Vomit1, 1, Z_BOT, 250, 400, 100, 200, true, 256},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
 #define WALL_FLOOR_SHRAP 4097
@@ -3186,8 +3186,8 @@ SpawnShrap(short ParentNum, short Secondary)
 #if 0
     static SHRAP SectorExpShrap[] =
     {
-        {NULL, WALL_FLOOR_SHRAP, 1, Z_BOT, 550, 800, 200, 400, true, 512},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr, WALL_FLOOR_SHRAP, 1, Z_BOT, 550, 800, 200, 400, true, 512},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 #endif
 
@@ -3230,7 +3230,7 @@ SpawnShrap(short ParentNum, short Secondary)
     {
         shrap_type = GlobBreakInfo->shrap_type;
         shrap_amt = GlobBreakInfo->shrap_amt;
-        GlobBreakInfo = NULL;
+        GlobBreakInfo = nullptr;
         goto AutoShrap;
     }
     else if (TEST(parent->extra, SPRX_BREAKABLE))
@@ -4129,52 +4129,52 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
     {
         {s_GoreDrip, GORE_Drip, 1, Z_MID, 100, 250, 10, 20, true, 512},  // 70,200 vels
         //{s_GoreSplash, PLASMA_Drip, 1, Z_BOT, 0, 0, 0, 0, false, 512},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP SmallBlood[] =
     {
         {s_GoreDrip, GORE_Drip, 1, Z_TOP, 100, 250, 10, 20, true, 512},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP PlasmaFountainBlood[] =
     {
         {s_PlasmaDrip, PLASMA_Drip, 1, Z_TOP, 200, 500, 100, 300, true, 16},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP SomeBlood[] =
     {
         {s_GoreDrip, GORE_Drip, 1, Z_TOP, 100, 250, 10, 20, true, 512},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
 #if 0
     static SHRAP MoreBlood[] =
     {
         {s_GoreDrip, GORE_Drip, 2, Z_TOP, 100, 250, 10, 20, true, 512},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 #endif
 
     static SHRAP ExtraBlood[] =
     {
         {s_GoreDrip, GORE_Drip, 4, Z_TOP, 100, 250, 10, 20, true, 512},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
     static SHRAP HariKariBlood[] =
     {
         {s_FastGoreDrip, GORE_Drip, 32, Z_TOP, 200, 650, 70, 100, true, 1024},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 
 #if 0
     static SHRAP SwordPowerup[] =
     {
         {s_ElectroShrap, ELECTRO_SHARD, 16, Z_TOP, 75, 200, 70, 150, true, 512},
-        {NULL,0,0,0,0,0,0,0,0,0},
+        {nullptr,0,0,0,0,0,0,0,0,0},
     };
 #endif
 
@@ -4509,7 +4509,7 @@ WeaponMoveHit(short SpriteNum)
                 {
                     if (MissileHitMatch(SpriteNum, -1, short(u->lo_sp - sprite)))
                         return true;
-                    //DoMatchEverything(NULL, u->lo_sp->hitag, -1);
+                    //DoMatchEverything(nullptr, u->lo_sp->hitag, -1);
                     //return(true);
                 }
 
@@ -4534,7 +4534,7 @@ WeaponMoveHit(short SpriteNum)
                 {
                     if (MissileHitMatch(SpriteNum, -1, short(u->hi_sp - sprite)))
                         return true;
-                    //DoMatchEverything(NULL, u->hi_sp->hitag, -1);
+                    //DoMatchEverything(nullptr, u->hi_sp->hitag, -1);
                     //return(true);
                 }
             }
@@ -4636,7 +4636,7 @@ WeaponMoveHit(short SpriteNum)
         {
             if (MissileHitMatch(SpriteNum, -1, hit_sprite))
                 return true;
-            //DoMatchEverything(NULL, hsp->hitag, -1);
+            //DoMatchEverything(nullptr, hsp->hitag, -1);
             //return(true);
         }
 
@@ -4723,7 +4723,7 @@ DoUziSmoke(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
-    //if (sp->picnum != NULL)
+    //if (sp->picnum != nullptr)
     //    DoDamageTest(SpriteNum);
     sp->z -= 200; // !JIM! Make them float up
 
@@ -4735,7 +4735,7 @@ DoShotgunSmoke(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
-    //if (sp->picnum != NULL)
+    //if (sp->picnum != nullptr)
     //    DoDamageTest(SpriteNum);
     sp->z -= 200; // !JIM! Make them float up
 
@@ -5388,7 +5388,7 @@ ActorHealth(short SpriteNum, short amt)
                     u->WaitTics = SEC(1) + SEC(RANDOM_RANGE(2));
                     u->Health = 60;
                     PlaySound(DIGI_NINJACHOKE, sp, v3df_follow);
-                    InitPlasmaFountain(NULL, sp);
+                    InitPlasmaFountain(nullptr, sp);
                     InitBloodSpray(SpriteNum,false,105);
                     sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y) + 1024);
                     RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
@@ -7772,7 +7772,7 @@ int DoExpDamageTest(short Weapon)
     int max_stat;
     short break_count;
 
-    SPRITEp found_sp = NULL;
+    SPRITEp found_sp = nullptr;
     int found_dist = 999999;
     int DoWallMoveMatch(short match);
 
@@ -8967,7 +8967,7 @@ DoGrenade(int16_t Weapon)
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
             {
                 if (TEST(SP_TAG8(hsp), BIT(3)))
-                    DoMatchEverything(NULL, hsp->hitag, -1);
+                    DoMatchEverything(nullptr, hsp->hitag, -1);
             }
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
@@ -10885,7 +10885,7 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
     USERp nu;
     short New;
 
-    New = SpawnSprite(STAT_STATIC_FIRE, FIREBALL_FLAMES, NULL, sp->sectnum,
+    New = SpawnSprite(STAT_STATIC_FIRE, FIREBALL_FLAMES, nullptr, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
     np = &sprite[New];
     nu = User[New].Data();
@@ -11168,7 +11168,7 @@ SpawnNuclearExp(int16_t Weapon)
     SPRITEp exp;
     USERp eu;
     short explosion,ang=0;
-    PLAYERp pp = NULL;
+    PLAYERp pp = nullptr;
     short rnd_rng;
 
     ASSERT(u);
@@ -11354,7 +11354,7 @@ AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
     // make sure it has a user
     if (!u)
     {
-        u = SpawnUser(SpriteNum, 0, NULL);
+        u = SpawnUser(SpriteNum, 0, nullptr);
     }
 
     // find a free place on this list
@@ -11971,7 +11971,7 @@ DoFireball(int16_t Weapon)
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(short(sp - sprite), hsp->picnum, NULL);
+                        hu = SpawnUser(short(sp - sprite), hsp->picnum, nullptr);
                     SpawnFireballFlames(Weapon, short(hsp - sprite));
                     hit_burn = true;
                 }
@@ -12027,7 +12027,7 @@ DoFindGround(int16_t SpriteNum)
         {
             // found a sprite floor
             u->lo_sp = hsp;
-            u->lo_sectp = NULL;
+            u->lo_sectp = nullptr;
             return true;
         }
         else
@@ -12045,7 +12045,7 @@ DoFindGround(int16_t SpriteNum)
     case HIT_SECTOR:
     {
         u->lo_sectp = &sector[NORM_SECTOR(florhit)];
-        u->lo_sp = NULL;
+        u->lo_sp = nullptr;
         return true;
     }
 
@@ -12086,7 +12086,7 @@ DoFindGroundPoint(int16_t SpriteNum)
         {
             // found a sprite floor
             u->lo_sp = hsp;
-            u->lo_sectp = NULL;
+            u->lo_sectp = nullptr;
             return true;
         }
         else
@@ -12104,7 +12104,7 @@ DoFindGroundPoint(int16_t SpriteNum)
     case HIT_SECTOR:
     {
         u->lo_sectp = &sector[NORM_SECTOR(florhit)];
-        u->lo_sp = NULL;
+        u->lo_sp = nullptr;
         return true;
     }
 
@@ -13283,7 +13283,7 @@ InitSerpRing(short SpriteNum)
         nu->Rot = sg_SkullRing;
 
         // defaults do change the statnum
-        EnemyDefaults(New, NULL, NULL);
+        EnemyDefaults(New, nullptr, nullptr);
         change_sprite_stat(New, STAT_SKIP4);
         RESET(np->extra, SPRX_PLAYER_OR_ENEMY);
 
@@ -13361,7 +13361,7 @@ InitSerpRing2(short SpriteNum)
             nu->Rot = sg_SkullRing;
 
             // defaults do change the statnum
-            EnemyDefaults(New, NULL, NULL);
+            EnemyDefaults(New, nullptr, nullptr);
             RESET(np->extra, SPRX_PLAYER_OR_ENEMY);
             change_sprite_stat(New, STAT_MISSILE_SKIP4);
 
@@ -13658,7 +13658,7 @@ int
 InitSwordAttack(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite].Data(),tu;
-    SPRITEp sp = NULL;
+    SPRITEp sp = nullptr;
     int i;
     unsigned stat;
     int dist;
@@ -13837,7 +13837,7 @@ int
 InitFistAttack(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite].Data(),tu;
-    SPRITEp sp = NULL;
+    SPRITEp sp = nullptr;
     int i;
     unsigned stat;
     int dist;
@@ -14171,7 +14171,7 @@ InitSumoSkull(short SpriteNum)
     nu->Health = 100;
 
     // defaults do change the statnum
-    EnemyDefaults(New, NULL, NULL);
+    EnemyDefaults(New, nullptr, nullptr);
     //change_sprite_stat(New, STAT_SKIP4);
     SET(np->extra, SPRX_PLAYER_OR_ENEMY);
 
@@ -15844,8 +15844,8 @@ InitMicro(PLAYERp pp)
         }
         else
         {
-            hp = NULL;
-            hu = NULL;
+            hp = nullptr;
+            hu = nullptr;
             ang = pp->angle.ang.asbuild();
         }
 
@@ -17962,7 +17962,7 @@ int
 InitEMP(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite].Data();
-    SPRITEp wp, hsp=NULL;
+    SPRITEp wp, hsp=nullptr;
     USERp wu;
     short daang, j;
     hitdata_t hitinfo;
@@ -18220,8 +18220,8 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
         }
         else
         {
-            hp = NULL;
-            hu = NULL;
+            hp = nullptr;
+            hu = nullptr;
             ang = sp->ang;
         }
 
@@ -19628,7 +19628,7 @@ InitFireball(PLAYERp pp)
 int
 InitEnemyFireball(short SpriteNum)
 {
-    SPRITEp sp = User[SpriteNum]->SpriteP, fp = NULL;
+    SPRITEp sp = User[SpriteNum]->SpriteP, fp = nullptr;
     USERp u = User[SpriteNum].Data();
     SPRITEp wp;
     int nz, dist;
@@ -19725,7 +19725,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 {
     int i;
     SECT_USERp sectu = SectUser[*sectnum].Data();
-    SPRITEp under_sp = NULL, over_sp = NULL;
+    SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     short over, under;
     int sx, sy;
@@ -19802,7 +19802,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
     short over, under;
     int sx, sy;
 
-    SPRITEp under_sp = NULL, over_sp = NULL;
+    SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
 
     // 0 not valid for water match tags
@@ -19874,7 +19874,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
     USERp u = User[sp - sprite].Data();
     int i;
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
-    SPRITEp under_sp = NULL, over_sp = NULL;
+    SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     short over, under;
     int sx, sy;
@@ -19955,7 +19955,7 @@ SpriteWarpToSurface(SPRITEp sp)
     short over, under;
     int sx, sy;
 
-    SPRITEp under_sp = NULL, over_sp = NULL;
+    SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
 
     // 0 not valid for water match tags

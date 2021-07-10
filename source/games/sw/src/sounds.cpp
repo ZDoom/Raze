@@ -455,9 +455,9 @@ public:
 
     void StopChannel(FSoundChan* chan) override
     {
-        if (chan && chan->SysChannel != NULL && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
+        if (chan && chan->SysChannel != nullptr && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
         {
-            chan->Source = NULL;
+            chan->Source = nullptr;
             chan->SourceType = SOURCE_Unattached;
         }
         SoundEngine::StopChannel(chan);

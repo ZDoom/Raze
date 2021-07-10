@@ -236,7 +236,7 @@ SetupSkull(short SpriteNum)
 
     u->ID = SKULL_R0;
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
     sp->clipdist = (128+64) >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE);
     SET(sp->cstat, CSTAT_SPRITE_YCENTER);
@@ -654,7 +654,7 @@ SetupBetty(short SpriteNum)
 
     u->ID = BETTY_R0;
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
     sp->clipdist = (128+64) >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE);
     SET(sp->cstat, CSTAT_SPRITE_YCENTER);

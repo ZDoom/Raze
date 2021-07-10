@@ -230,6 +230,6 @@ saveable_module saveable_wallmove =
     SIZ(saveable_wallmove_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 END_SW_NS

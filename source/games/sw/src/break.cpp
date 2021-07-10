@@ -500,7 +500,7 @@ BREAK_INFOp SetupSpriteForBreak(SPRITEp sp)
 
     // ignore as a breakable if true
     if (sp->lotag == TAG_SPRITE_HIT_MATCH)
-        return NULL;
+        return nullptr;
 
     break_info = FindSpriteBreakInfo(picnum);
     if (break_info)
@@ -606,7 +606,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
         // pass Break Info Globally
         GlobBreakInfo = break_info;
         SpawnShrap(BreakSprite, -1);
-        GlobBreakInfo = NULL;
+        GlobBreakInfo = nullptr;
 
         KillSprite(BreakSprite);
     }
@@ -879,7 +879,7 @@ int UserBreakSprite(short BreakSprite)
     {
         // even if you didn't find a matching ST1 go ahead and kill it and match everything
         // its better than forcing everyone to have a ST1
-        DoMatchEverything(NULL, match, -1);
+        DoMatchEverything(nullptr, match, -1);
         // Kill sound if one is attached
         DeleteNoSoundOwner(BreakSprite);
         //change_sprite_stat(BreakSprite, STAT_SUICIDE);
@@ -896,7 +896,7 @@ int UserBreakSprite(short BreakSprite)
     // make it BROKEN
     if (SP_TAG7(sp) <= 1)
     {
-        DoMatchEverything(NULL, match_extra, -1);
+        DoMatchEverything(nullptr, match_extra, -1);
         //DoSpawnSpotsForKill(match_extra);
         DoLightingMatch(match_extra, OFF);
 
@@ -976,7 +976,7 @@ int AutoBreakSprite(short BreakSprite, short type)
             // pass Break Info Globally
             GlobBreakInfo = break_info;
             SpawnShrap(BreakSprite, -1);
-            GlobBreakInfo = NULL;
+            GlobBreakInfo = nullptr;
             if (bp->picnum == 3683)
                 RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         }
@@ -990,7 +990,7 @@ int AutoBreakSprite(short BreakSprite, short type)
     // pass Break Info Globally
     GlobBreakInfo = break_info;
     SpawnShrap(BreakSprite, -1);
-    GlobBreakInfo = NULL;
+    GlobBreakInfo = nullptr;
 
     // kill it or change the pic
     if (TEST(break_info->flags, BF_KILL) || break_info->breaknum == -1)

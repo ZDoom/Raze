@@ -587,6 +587,6 @@ saveable_module saveable_morph =
     SIZ(saveable_morph_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 END_SW_NS

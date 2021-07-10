@@ -835,16 +835,16 @@ ACTOR_ACTION_SET Ripper2ActionSet =
     sg_Ripper2Run,
     sg_Ripper2Jump,
     sg_Ripper2Fall,
-    NULL,                               // sg_Ripper2Crawl,
-    NULL,                               // sg_Ripper2Swim,
-    NULL,                               // sg_Ripper2Fly,
-    NULL,                               // sg_Ripper2Rise,
-    NULL,                               // sg_Ripper2Sit,
-    NULL,                               // sg_Ripper2Look,
-    NULL,                               // climb
+    nullptr,                               // sg_Ripper2Crawl,
+    nullptr,                               // sg_Ripper2Swim,
+    nullptr,                               // sg_Ripper2Fly,
+    nullptr,                               // sg_Ripper2Rise,
+    nullptr,                               // sg_Ripper2Sit,
+    nullptr,                               // sg_Ripper2Look,
+    nullptr,                               // climb
     sg_Ripper2Pain,
     sg_Ripper2Die,
-    NULL,                               // sg_Ripper2HariKari,
+    nullptr,                               // sg_Ripper2HariKari,
     sg_Ripper2Dead,
     sg_Ripper2DeathJump,
     sg_Ripper2DeathFall,
@@ -853,8 +853,8 @@ ACTOR_ACTION_SET Ripper2ActionSet =
     {sg_Ripper2JumpAttack, sg_Ripper2Kong},
     {500, 1024},
     {sg_Ripper2Heart, sg_Ripper2Hang},
-    NULL,
-    NULL
+    nullptr,
+    nullptr
 };
 
 ACTOR_ACTION_SET Ripper2BrownActionSet =
@@ -863,16 +863,16 @@ ACTOR_ACTION_SET Ripper2BrownActionSet =
     sg_Ripper2Run,
     sg_Ripper2Jump,
     sg_Ripper2Fall,
-    NULL,                               // sg_Ripper2Crawl,
-    NULL,                               // sg_Ripper2Swim,
-    NULL,                               // sg_Ripper2Fly,
-    NULL,                               // sg_Ripper2Rise,
-    NULL,                               // sg_Ripper2Sit,
-    NULL,                               // sg_Ripper2Look,
-    NULL,                               // climb
+    nullptr,                               // sg_Ripper2Crawl,
+    nullptr,                               // sg_Ripper2Swim,
+    nullptr,                               // sg_Ripper2Fly,
+    nullptr,                               // sg_Ripper2Rise,
+    nullptr,                               // sg_Ripper2Sit,
+    nullptr,                               // sg_Ripper2Look,
+    nullptr,                               // climb
     sg_Ripper2Pain,                      // pain
     sg_Ripper2Die,
-    NULL,                               // sg_Ripper2HariKari,
+    nullptr,                               // sg_Ripper2HariKari,
     sg_Ripper2Dead,
     sg_Ripper2DeathJump,
     sg_Ripper2DeathFall,
@@ -881,8 +881,8 @@ ACTOR_ACTION_SET Ripper2BrownActionSet =
     {sg_Ripper2JumpAttack, sg_Ripper2Kong},
     {400, 1024},
     {sg_Ripper2Heart, sg_Ripper2Hang},
-    NULL,
-    NULL
+    nullptr,
+    nullptr
 };
 
 int

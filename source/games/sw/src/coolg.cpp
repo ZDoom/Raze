@@ -470,29 +470,29 @@ ACTOR_ACTION_SET CoolgActionSet =
 {
     sg_CoolgStand,
     sg_CoolgRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL, //climb
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr, //climb
     sg_CoolgPain, //pain
     sg_CoolgDie,
-    NULL,
+    nullptr,
     sg_CoolgDead,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
 //  {sg_CoolgClub},
     {sg_CoolgAttack},
     {1024},
     {sg_CoolgAttack},
     {1024},
-    {NULL,NULL},
-    NULL,
-    NULL
+    {nullptr,nullptr},
+    nullptr,
+    nullptr
 };
 
 int DoCoolgMatchPlayerZ(short SpriteNum);

@@ -71,7 +71,7 @@ DECISION HornetSurprised[] =
 DECISION HornetEvasive[] =
 {
     {20,     InitHornetCircle          },
-    {1024,   NULL                      },
+    {1024,   nullptr                      },
 };
 
 DECISION HornetLostTarget[] =
@@ -260,28 +260,28 @@ ACTOR_ACTION_SET HornetActionSet =
 {
     sg_HornetStand,
     sg_HornetRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL, //climb
-    NULL, //pain
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr, //climb
+    nullptr, //pain
     sg_HornetDie,
-    NULL,
+    nullptr,
     sg_HornetDead,
-    NULL,
-    NULL,
-    {NULL},
+    nullptr,
+    nullptr,
+    {nullptr},
     {0},
-    {NULL},
+    {nullptr},
     {0},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 int DoHornetMatchPlayerZ(short SpriteNum);

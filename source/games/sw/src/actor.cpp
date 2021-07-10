@@ -134,7 +134,7 @@ DoActorDie(short SpriteNum, short weapon)
         ChangeState(SpriteNum, u->StateEnd);
         u->RotNum = 0;
         sp->xvel <<= 1;
-        u->ActorActionFunc = NULL;
+        u->ActorActionFunc = nullptr;
         sprite[SpriteNum].ang = NORM_ANGLE(sprite[SpriteNum].ang + 1024);
         break;
 
@@ -165,7 +165,7 @@ DoActorDie(short SpriteNum, short weapon)
 
                 ChangeState(SpriteNum, u->StateEnd);
                 u->RotNum = 0;
-                u->ActorActionFunc = NULL;
+                u->ActorActionFunc = nullptr;
                 sp->xvel = 200 + RANDOM_RANGE(200);
                 u->jump_speed = -200 - RANDOM_RANGE(250);
                 DoActorBeginJump(SpriteNum);
@@ -185,7 +185,7 @@ DoActorDie(short SpriteNum, short weapon)
 
         u->RotNum = 0;
 
-        u->ActorActionFunc = NULL;
+        u->ActorActionFunc = nullptr;
         //u->ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
             sprite[SpriteNum].ang = sprite[weapon].ang;
@@ -220,7 +220,7 @@ DoActorDie(short SpriteNum, short weapon)
             u->jump_speed = -10 - RANDOM_RANGE(25);
             DoActorBeginJump(SpriteNum);
         }
-        u->ActorActionFunc = NULL;
+        u->ActorActionFunc = nullptr;
         // Get angle to player
         sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y) + 1024);
         break;
@@ -243,7 +243,7 @@ DoActorDie(short SpriteNum, short weapon)
             u->jump_speed = -100 - RANDOM_RANGE(250);
         }
         DoActorBeginJump(SpriteNum);
-        u->ActorActionFunc = NULL;
+        u->ActorActionFunc = nullptr;
         // Get angle to player
         sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y) + 1024);
         break;
@@ -268,7 +268,7 @@ DoActorDie(short SpriteNum, short weapon)
                 SET(sp->cstat, CSTAT_SPRITE_YFLIP);
             ChangeState(SpriteNum, u->StateEnd);
             u->RotNum = 0;
-            u->ActorActionFunc = NULL;
+            u->ActorActionFunc = nullptr;
             sp->xvel = 300 + RANDOM_RANGE(400);
             u->jump_speed = -300 - RANDOM_RANGE(350);
             DoActorBeginJump(SpriteNum);
@@ -429,8 +429,8 @@ DoActorDebris(short SpriteNum)
         getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
         u->lo_sectp = &sector[sp->sectnum];
         u->hi_sectp = &sector[sp->sectnum];
-        u->lo_sp = NULL;
-        u->hi_sp = NULL;
+        u->lo_sp = nullptr;
+        u->hi_sp = nullptr;
         break;
     }
 
@@ -683,7 +683,7 @@ DoActorBeginJump(short SpriteNum)
         else
             NewStateGroup(SpriteNum, u->ActorActionSet->Jump);
     }
-    u->StateFallOverride = NULL;
+    u->StateFallOverride = nullptr;
 
     //DO NOT CALL DoActorJump! DoActorStopFall can cause an infinite loop and
     //stack overflow if it is called.
@@ -1024,7 +1024,7 @@ saveable_module saveable_actor =
     SIZ(saveable_actor_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 
 END_SW_NS

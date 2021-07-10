@@ -180,7 +180,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
 {
     int i;
     SPRITEp sp;
-    SPRITEp save_sp = NULL;
+    SPRITEp save_sp = nullptr;
     int dist,save_dist = 999999;
     int dist_diff, scale_value;
     int ang_amt;
@@ -368,7 +368,7 @@ saveable_module saveable_quake =
     SIZ(saveable_quake_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 
 END_SW_NS

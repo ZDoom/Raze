@@ -670,26 +670,26 @@ ACTOR_ACTION_SET BunnyActionSet =
     sg_BunnyRun,
     sg_BunnyJump,
     sg_BunnyFall,
-    NULL,                               // sg_BunnyCrawl,
-    NULL,                               // sg_BunnySwim,
-    NULL,                               // sg_BunnyFly,
-    NULL,                               // sg_BunnyRise,
-    NULL,                               // sg_BunnySit,
-    NULL,                               // sg_BunnyLook,
-    NULL,                               // climb
+    nullptr,                               // sg_BunnyCrawl,
+    nullptr,                               // sg_BunnySwim,
+    nullptr,                               // sg_BunnyFly,
+    nullptr,                               // sg_BunnyRise,
+    nullptr,                               // sg_BunnySit,
+    nullptr,                               // sg_BunnyLook,
+    nullptr,                               // climb
     sg_BunnyPain,
     sg_BunnyDie,
-    NULL,
+    nullptr,
     sg_BunnyDead,
     sg_BunnyDeathJump,
     sg_BunnyDeathFall,
-    {NULL},
+    {nullptr},
     {1024},
-    {NULL},
+    {nullptr},
     {1024},
     {sg_BunnyHeart, sg_BunnyRun},
-    NULL,
-    NULL
+    nullptr,
+    nullptr
 };
 
 ACTOR_ACTION_SET BunnyWhiteActionSet =
@@ -698,16 +698,16 @@ ACTOR_ACTION_SET BunnyWhiteActionSet =
     sg_BunnyRun,
     sg_BunnyJump,
     sg_BunnyFall,
-    NULL,                               // sg_BunnyCrawl,
-    NULL,                               // sg_BunnySwim,
-    NULL,                               // sg_BunnyFly,
-    NULL,                               // sg_BunnyRise,
-    NULL,                               // sg_BunnySit,
-    NULL,                               // sg_BunnyLook,
-    NULL,                               // climb
+    nullptr,                               // sg_BunnyCrawl,
+    nullptr,                               // sg_BunnySwim,
+    nullptr,                               // sg_BunnyFly,
+    nullptr,                               // sg_BunnyRise,
+    nullptr,                               // sg_BunnySit,
+    nullptr,                               // sg_BunnyLook,
+    nullptr,                               // climb
     sg_BunnyPain,                       // pain
     sg_BunnyDie,
-    NULL,
+    nullptr,
     sg_BunnyDead,
     sg_BunnyDeathJump,
     sg_BunnyDeathFall,
@@ -718,8 +718,8 @@ ACTOR_ACTION_SET BunnyWhiteActionSet =
     {sg_BunnySwipe},
     {1024},
     {sg_BunnyHeart, sg_BunnySwipe},
-    NULL,
-    NULL
+    nullptr,
+    nullptr
 };
 
 int
@@ -1006,7 +1006,7 @@ DoBunnyQuickJump(short SpriteNum)
 
                 Bunny_Count--; // Bunny died
 
-                u->lo_sp = NULL;
+                u->lo_sp = nullptr;
                 return true;
             }
         }
@@ -1030,7 +1030,7 @@ DoBunnyQuickJump(short SpriteNum)
         {
             if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
             {
-                PLAYERp pp = NULL;
+                PLAYERp pp = nullptr;
 
                 if (RANDOM_RANGE(1000) < 995 && tu->spal != PALETTE_PLAYER0) return false;
 

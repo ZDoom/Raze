@@ -70,7 +70,7 @@ DECISION ZombieSurprised[] =
 DECISION ZombieEvasive[] =
 {
     {400,   InitActorDuck},
-    {1024,  NULL}
+    {1024,  nullptr}
 };
 
 DECISION ZombieLostTarget[] =
@@ -718,21 +718,21 @@ ACTOR_ACTION_SET ZombieActionSet =
 {
     sg_ZombieStand,
     sg_ZombieRun,
-    NULL,
+    nullptr,
     sg_ZombieFall,
-    NULL,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
+    nullptr,
     sg_ZombieRun,
     sg_ZombieRun,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     sg_ZombiePain,
     sg_ZombieRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
 #if 0
     {sg_ZombieUzi},
     {1024},
@@ -743,9 +743,9 @@ ACTOR_ACTION_SET ZombieActionSet =
     {1024},
     {sg_ZombieRail},
     {1024},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 int

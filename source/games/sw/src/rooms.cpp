@@ -544,7 +544,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         if (uppersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
         getzrange_old(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
-        SectorZadjust(*ceilhit, hiz, -1, NULL);
+        SectorZadjust(*ceilhit, hiz, -1, nullptr);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
@@ -566,7 +566,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         if (lowersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
         getzrange_old(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
-        SectorZadjust(-1, NULL, *florhit, loz);
+        SectorZadjust(-1, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }
 }
@@ -612,7 +612,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         if (uppersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
-        SectorZadjust(*ceilhit, hiz, -1, NULL);
+        SectorZadjust(*ceilhit, hiz, -1, nullptr);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
@@ -628,7 +628,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         if (lowersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
         getzrangepoint(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit);
-        SectorZadjust(-1, NULL, *florhit, loz);
+        SectorZadjust(-1, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }
 }
@@ -791,7 +791,7 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     int xoff = 0;
     int yoff = 0;
     int i;
-    SPRITEp sp = NULL;
+    SPRITEp sp = nullptr;
     int pix_diff;
     int newz;
 
@@ -888,7 +888,7 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     int xoff = 0;
     int yoff = 0;
     int i;
-    SPRITEp sp = NULL;
+    SPRITEp sp = nullptr;
     int newz;
     int pix_diff;
 

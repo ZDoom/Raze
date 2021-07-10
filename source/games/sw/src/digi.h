@@ -25,7 +25,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 
 #ifdef DIGI_TABLE
-#define DIGI_ENTRY(name, id, id_num, pri, pitch_lo, pitch_hi, voc_num, voc_dist, voc_flags) { name, NULL, 0, pitch_lo, pitch_hi, pri, voc_num, voc_dist, voc_flags, 0,0},
+#define DIGI_ENTRY(name, id, id_num, pri, pitch_lo, pitch_hi, voc_num, voc_dist, voc_flags) { name, nullptr, 0, pitch_lo, pitch_hi, pri, voc_num, voc_dist, voc_flags, 0,0},
 #endif
 
 #ifdef DIGI_ENUM
@@ -65,8 +65,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 // WEAPONS ////////////////////////////////////////////////////////////////////
 
-// NULL Entry used to detect a sound's presence in sprite attrib structs.
-DIGI_ENTRY("NULL.VOC",      DIGI_NULL,              0,      0,                    0,      0, 0, DIST_NORMAL, VF_NORMAL)
+// nullptr Entry used to detect a sound's presence in sprite attrib structs.
+DIGI_ENTRY("nullptr.VOC",      DIGI_nullptr,              0,      0,                    0,      0, 0, DIST_NORMAL, VF_NORMAL)
 
 // SWORD
 DIGI_ENTRY("SWRDSTR1.VOC",  DIGI_SWORDSWOOSH,       1,      PRI_HI_PLAYERWEAP,    -200,   200, 0, DIST_NORMAL, VF_NORMAL)
@@ -75,7 +75,7 @@ DIGI_ENTRY("SWRDSTR1.VOC",  DIGI_SWORDSWOOSH,       1,      PRI_HI_PLAYERWEAP,  
 DIGI_ENTRY("THROW.VOC",     DIGI_STAR,              2,      PRI_HI_PLAYERWEAP, -100,    100, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("STRCLNK.VOC",   DIGI_STARCLINK,         3,      PRI_PLAYERAMBIENT,    0,      0, 0, DIST_NORMAL, VF_NORMAL)
 //DIGI_ENTRY("STRWIZ.VOC",    DIGI_STARWIZ,           4,      PRI_LOW_PLAYERWEAP,   0,      0, 0, DIST_NORMAL, VF_LOOP )
-DIGI_ENTRY("NULL.VOC",      DIGI_NULL_STARWIZ,      4,      PRI_LOW_PLAYERWEAP,   0,      0, 0, DIST_NORMAL, VF_LOOP)
+DIGI_ENTRY("nullptr.VOC",      DIGI_nullptr_STARWIZ,      4,      PRI_LOW_PLAYERWEAP,   0,      0, 0, DIST_NORMAL, VF_LOOP)
 
 // UZI
 DIGI_ENTRY("UZIFIRE1.VOC",  DIGI_UZIFIRE,           5,      PRI_HI_PLAYERWEAP,    0,      0, 0, DIST_NORMAL, VF_NORMAL)
@@ -115,7 +115,7 @@ DIGI_ENTRY("HBLOOP1.VOC",     DIGI_HEARTBEAT,      27,      PRI_LOW_PLAYERWEAP, 
 //#ifndef SW_SHAREWARE
 DIGI_ENTRY("HSQUEEZ1.VOC",  DIGI_HEARTFIRE,        28,      PRI_HI_PLAYERWEAP,    0,      0, 0, DIST_NORMAL, VF_NORMAL)
 //#else
-//DIGI_ENTRY("NULL.VOC",      DIGI_HEARTFIRE,        28,      PRI_HI_PLAYERWEAP,    0,      0, 0, DIST_NORMAL, VF_NORMAL )
+//DIGI_ENTRY("nullptr.VOC",      DIGI_HEARTFIRE,        28,      PRI_HI_PLAYERWEAP,    0,      0, 0, DIST_NORMAL, VF_NORMAL )
 //#endif
 DIGI_ENTRY("HRTWIZ.VOC",    DIGI_HEARTWIZ,         29,      PRI_LOW_PLAYERWEAP,   0,      0, 0, DIST_NORMAL, VF_LOOP)
 
@@ -127,7 +127,7 @@ DIGI_ENTRY("EXPMED.VOC",    DIGI_MISSLEXP,         31,      PRI_HI_PLAYERWEAP, -
 //#ifndef SW_SHAREWARE
 DIGI_ENTRY("RFWIZ.VOC",     DIGI_RFWIZ,            32,      PRI_LOW_PLAYERWEAP,   0,      0, 0, DIST_NORMAL, VF_NORMAL)
 //#else
-//DIGI_ENTRY("NULL.VOC",      DIGI_NULL_RFWIZ,       32,      PRI_LOW_PLAYERWEAP,   0,      0, 0, DIST_NORMAL, VF_NORMAL )
+//DIGI_ENTRY("nullptr.VOC",      DIGI_nullptr_RFWIZ,       32,      PRI_LOW_PLAYERWEAP,   0,      0, 0, DIST_NORMAL, VF_NORMAL )
 //#endif
 
 // NAPALM SPELL
@@ -157,14 +157,14 @@ DIGI_ENTRY("MAGIC7.VOC",    DIGI_MAGIC7,           46,      PRI_AMBIENT,        
 //#ifndef SW_SHAREWARE
 DIGI_ENTRY("SWSPELL.VOC",   DIGI_SWCLOAKUNCLOAK,   47,      PRI_LOW_PLAYERWEAP,-100,   100, 0, DIST_NORMAL, VF_NORMAL)
 //#else
-//DIGI_ENTRY("NULL.VOC",      DIGI_NULL_SWCLOAK,     47,      PRI_LOW_PLAYERWEAP,-100,   100, 0, DIST_NORMAL, VF_NORMAL  )
+//DIGI_ENTRY("nullptr.VOC",      DIGI_nullptr_SWCLOAK,     47,      PRI_LOW_PLAYERWEAP,-100,   100, 0, DIST_NORMAL, VF_NORMAL  )
 //#endif
 
 // PLAYER DEAD HEAD
 DIGI_ENTRY("DHVOMIT.VOC",   DIGI_DHVOMIT,          48,      PRI_PLAYERAMBIENT,  0,      0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("DHCLUNK.VOC",   DIGI_DHCLUNK,          49,      PRI_PLAYERAMBIENT,  -200,   200, 0, DIST_NORMAL, VF_NORMAL)
 //DIGI_ENTRY("DHSQSH.VOC",  DIGI_DHSQUISH,         50,      PRI_PLAYERAMBIENT,  0,      0, 0, DIST_NORMAL, VF_NORMAL  )
-DIGI_ENTRY("NULL.VOC",      DIGI_NULL_DHSQUISH,    50,      PRI_PLAYERAMBIENT,  0,      0, 0, DIST_NORMAL, VF_NORMAL)
+DIGI_ENTRY("nullptr.VOC",      DIGI_nullptr_DHSQUISH,    50,      PRI_PLAYERAMBIENT,  0,      0, 0, DIST_NORMAL, VF_NORMAL)
 
 // WEAPON RELATED
 DIGI_ENTRY("LAVAHIT.VOC",   DIGI_PROJECTILELAVAHIT,51,      PRI_PLAYERAMBIENT,-100,   100, 0, DIST_NORMAL, VF_NORMAL)
@@ -382,7 +382,7 @@ DIGI_ENTRY("EXPLRG.VOC",    DIGI_LARGEEXP,        183,      PRI_ENVIRONMENT,    
 
 // HUGE EXP
 //DIGI_ENTRY("BIGEXP.VOC",    DIGI_HUGEEXP,       184,      PRI_ENVIRONMENT,    -200,     200, 0, DIST_WIDE, VF_NORMAL  )
-DIGI_ENTRY("NULL.VOC",      DIGI_NULL_HUGEEXP,    184,      PRI_ENVIRONMENT,    -200,     200, 0, DIST_WIDE, VF_NORMAL)
+DIGI_ENTRY("nullptr.VOC",      DIGI_nullptr_HUGEEXP,    184,      PRI_ENVIRONMENT,    -200,     200, 0, DIST_WIDE, VF_NORMAL)
 
 // CRACKLING FIRE FOR CONTINUOUS BURN
 DIGI_ENTRY("FIRE1.VOC",     DIGI_FIRE1,           185,      PRI_AMBIENT,        0,      0, 0, DIST_NORMAL, VF_LOOP)
@@ -569,7 +569,7 @@ DIGI_ENTRY("",              DIGI_LASTPLAYERVOICE, 268,      0,                  
 // was RAILB10.VOC
 DIGI_ENTRY("HSHOT1.VOC",    DIGI_RAILFIRE,        269,      PRI_HI_PLAYERWEAP,    0,   0, 0, DIST_NORMAL, VF_NORMAL)
 //#else
-//DIGI_ENTRY("NULL.VOC",      DIGI_NULL_RAILFIRE,   269,      PRI_HI_PLAYERWEAP,    0,   0, 0, DIST_NORMAL, VF_NORMAL  )
+//DIGI_ENTRY("nullptr.VOC",      DIGI_nullptr_RAILFIRE,   269,      PRI_HI_PLAYERWEAP,    0,   0, 0, DIST_NORMAL, VF_NORMAL  )
 //#endif
 DIGI_ENTRY("RAIL2.VOC",     DIGI_RAILREADY,       270,      PRI_HI_PLAYERWEAP,    0,   0, 0, DIST_NORMAL, VF_LOOP)
 DIGI_ENTRY("RAILUP09.VOC",  DIGI_RAILPWRUP,       271,      PRI_HI_PLAYERWEAP,    0,   0, 0, DIST_NORMAL, VF_NORMAL)
@@ -587,7 +587,7 @@ DIGI_ENTRY("PULL.VOC",      DIGI_PULL,            279,      PRI_LOW_PLAYERWEAP, 
 DIGI_ENTRY("STSCAN2.VOC",   DIGI_MINEARM,         280,      PRI_LOW_PLAYERWEAP,   0,   0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("HBDOWN1.VOC",   DIGI_HEARTDOWN,       281,      PRI_LOW_PLAYERWEAP,   0,   0, 0, DIST_NORMAL, VF_NORMAL)
 //DIGI_ENTRY("TOOLUSE1.VOC",  DIGI_TOOLBOX,         282,      PRI_LOW_PLAYERWEAP,   0,   0, 0, DIST_NORMAL, VF_NORMAL  )
-DIGI_ENTRY("NULL.VOC",      DIGI_NULL_TOOLBOX,    282,      PRI_LOW_PLAYERWEAP,   0,   0, 0, DIST_NORMAL, VF_NORMAL)
+DIGI_ENTRY("nullptr.VOC",      DIGI_nullptr_TOOLBOX,    282,      PRI_LOW_PLAYERWEAP,   0,   0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("GASPOP.VOC",    DIGI_GASPOP,          283,      PRI_LOW_PLAYERWEAP,   0,   0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("40MMBNCE.VOC",  DIGI_40MMBNCE,        284,      PRI_LOW_PLAYERWEAP,   0,   0, 0, DIST_NORMAL, VF_NORMAL)
 DIGI_ENTRY("BURGALRM.VOC",  DIGI_BURGLARALARM,    285,      PRI_LOW_PLAYERWEAP,   0,   0, 0, DIST_NORMAL, VF_LOOP)

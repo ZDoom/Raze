@@ -135,8 +135,8 @@ ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_
     short i;
     short end_point[2] = {0,0};
 
-    TRACKp t, near_track = NULL;
-    TRACK_POINTp tp, near_tp = NULL;
+    TRACKp t, near_track = nullptr;
+    TRACK_POINTp tp, near_tp = nullptr;
 
 #define TOWARD_PLAYER 1
 #define AWAY_FROM_PLAYER -1
@@ -439,7 +439,7 @@ void QuickScanSetup(short stat, short lotag, short type)
         // save space for 3 points
         Track[ndx].SetTrackSize(4);
 
-        ASSERT(Track[ndx].TrackPoint != NULL);
+        ASSERT(Track[ndx].TrackPoint != nullptr);
 
         tp = Track[ndx].TrackPoint;
         t = &Track[ndx];
@@ -499,7 +499,7 @@ void QuickExitSetup(short stat, short type)
         // save space for 3 points
         Track[ndx].SetTrackSize(4);
 
-        ASSERT(Track[ndx].TrackPoint != NULL);
+        ASSERT(Track[ndx].TrackPoint != nullptr);
 
         tp = Track[ndx].TrackPoint;
         t = &Track[ndx];
@@ -554,7 +554,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
         // save space for 3 points
         Track[ndx].SetTrackSize(4);
 
-        ASSERT(Track[ndx].TrackPoint != NULL);
+        ASSERT(Track[ndx].TrackPoint != nullptr);
 
         tp = Track[ndx].TrackPoint;
         t = &Track[ndx];
@@ -611,13 +611,13 @@ TrackSetup(void)
             continue;
         }
 
-        ASSERT(Track[ndx].TrackPoint == NULL);
+        ASSERT(Track[ndx].TrackPoint == nullptr);
 
         // make the track array rather large.  I'll resize it to correct size
         // later.
         Track[ndx].TrackPoint = (TRACK_POINTp)CallocMem(sizeof(TRACK_POINT) * 500, 1);
 
-        ASSERT(Track[ndx].TrackPoint != NULL);
+        ASSERT(Track[ndx].TrackPoint != nullptr);
 
         tp = Track[ndx].TrackPoint;
         t = &Track[ndx];
@@ -688,7 +688,7 @@ TrackSetup(void)
         FreeMem(Track[ndx].TrackPoint);
         Track[ndx].TrackPoint = New;
 
-        ASSERT(Track[ndx].TrackPoint != NULL);
+        ASSERT(Track[ndx].TrackPoint != nullptr);
     }
 
     QuickJumpSetup(STAT_QUICK_JUMP, TRACK_ACTOR_QUICK_JUMP, TT_JUMP_UP);
@@ -717,7 +717,7 @@ FindBoundSprite(int tag)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -752,14 +752,14 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     //DSPRINTF(ds,"tagnum %d, so num %d",500 + ((sop - SectorObject) * 5), sop - SectorObject);
     MONO_PRINT(ds);
 
-    ASSERT(BoundSprite != NULL);
+    ASSERT(BoundSprite != nullptr);
     xlow = BoundSprite->x;
     ylow = BoundSprite->y;
 
     KillSprite(short(BoundSprite - sprite));
 
     BoundSprite = FindBoundSprite(501 + (int(sop - SectorObject) * 5));
-    ASSERT(BoundSprite != NULL);
+    ASSERT(BoundSprite != nullptr);
     xhigh = BoundSprite->x;
     yhigh = BoundSprite->y;
 
@@ -903,8 +903,8 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         continue;
                 }
 
-                if (User[sp_num].Data() == NULL)
-                    u = SpawnUser(sp_num, 0, NULL);
+                if (User[sp_num].Data() == nullptr)
+                    u = SpawnUser(sp_num, 0, nullptr);
                 else
                     u = User[sp_num].Data();
 
@@ -1107,9 +1107,9 @@ SetupSectorObject(short sectnum, short tag)
         sop->morph_xoff = 0;
         sop->morph_yoff = 0;
 
-        sop->PreMoveAnimator = NULL;
-        sop->PostMoveAnimator = NULL;
-        sop->Animator = NULL;
+        sop->PreMoveAnimator = nullptr;
+        sop->PostMoveAnimator = nullptr;
+        sop->Animator = nullptr;
     }
 
     switch (tag % 5)
@@ -1125,7 +1125,7 @@ SetupSectorObject(short sectnum, short tag)
         sop->track = HIGH_TAG(sectnum);
 
         // spawn a sprite to make it easier to integrate with sprite routines
-        New = SpawnSprite(STAT_SO_SP_CHILD, 0, NULL, sectnum,
+        New = SpawnSprite(STAT_SO_SP_CHILD, 0, nullptr, sectnum,
                           sop->xmid, sop->ymid, sop->zmid, 0, 0);
         sop->sp_child = &sprite[New];
         u = User[New].Data();
@@ -1196,8 +1196,8 @@ SetupSectorObject(short sectnum, short tag)
                     {
                         USERp u;
                         change_sprite_stat(SpriteNum, STAT_NO_STATE);
-                        u = SpawnUser(SpriteNum, 0, NULL);
-                        u->ActorActionFunc = NULL;
+                        u = SpawnUser(SpriteNum, 0, nullptr);
+                        u->ActorActionFunc = nullptr;
                     }
                     break;
 
@@ -1463,7 +1463,7 @@ PlayerOnObject(short sectnum_match)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -1478,7 +1478,7 @@ PlaceSectorObjectsOnTracks(void)
     {
         int low_dist = 999999, dist;
         SECTOR_OBJECTp sop = &SectorObject[i];
-        TRACK_POINTp tpoint = NULL;
+        TRACK_POINTp tpoint = nullptr;
 
         if (SO_EMPTY(sop))
             continue;
@@ -1550,7 +1550,7 @@ PlaceActorsOnTracks(void)
     short i, j, tag;
     SPRITEp sp;
     USERp u;
-    TRACK_POINTp tpoint = NULL;
+    TRACK_POINTp tpoint = nullptr;
 
     // place each actor on the track
     StatIterator it(STAT_ENEMY);
@@ -2082,7 +2082,7 @@ DetectSectorObject(SECTORp sectph)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 SECTOR_OBJECTp
@@ -2124,7 +2124,7 @@ DetectSectorObjectByWall(WALLp wph)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -2265,7 +2265,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     su = GetSectUser(dest_sector);
 
-    ASSERT(su != NULL);
+    ASSERT(su != nullptr);
 
     ASSERT(GetSectUser(src_sector));
     tgt_depth = FixedToInt((GetSectUser(src_sector))->depth_fixed);
@@ -2416,11 +2416,11 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
         switch (tpoint->tag_low)
         {
         case TRACK_MATCH_EVERYTHING:
-            DoMatchEverything(NULL, tpoint->tag_high, -1);
+            DoMatchEverything(nullptr, tpoint->tag_high, -1);
             break;
 
         case TRACK_MATCH_EVERYTHING_ONCE:
-            DoMatchEverything(NULL, tpoint->tag_high, -1);
+            DoMatchEverything(nullptr, tpoint->tag_high, -1);
             tpoint->tag_low = 0;
             tpoint->tag_high = 0;
             break;
@@ -2972,7 +2972,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
 
         if (u->Counter == 0)
         {
-            shootp = NULL;
+            shootp = nullptr;
             for (i = 0; sop->sp_num[i] != -1; i++)
             {
                 if (sprite[sop->sp_num[i]].statnum == STAT_SO_SHOOT_POINT)
@@ -3351,7 +3351,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         {
             neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
                     &nearsector, &nearwall, &nearsprite,
-                    &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, NULL);
+                    &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, nullptr);
 
 //              //DSPRINTF(ds,"nearsector = %d, nearwall = %d, nearsprite = %d hitdist == %ld\n",nearsector,nearwall,nearsprite,nearhitdist);
 //              MONO_PRINT(ds);
@@ -3589,7 +3589,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             neartag(sp->x, sp->y, SPRITEp_TOS(sp) - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum,
                     sp->ang,
                     &hit_sect, &hit_wall, &hit_sprite,
-                    &dist, 600L, NTAG_SEARCH_LO_HI, NULL);
+                    &dist, 600L, NTAG_SEARCH_LO_HI, nullptr);
 
             if (hit_wall < 0)
             {
@@ -3839,7 +3839,7 @@ saveable_module saveable_track =
     SIZ(saveable_track_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 
 END_SW_NS

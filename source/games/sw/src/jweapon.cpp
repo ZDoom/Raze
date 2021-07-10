@@ -649,7 +649,7 @@ DoPhosphorus(int16_t Weapon)
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(hit_sprite, hsp->picnum, NULL);
+                        hu = SpawnUser(hit_sprite, hsp->picnum, nullptr);
                     SpawnFireballExp(Weapon);
                     if (hu)
                         SpawnFireballFlames(Weapon, hit_sprite);
@@ -2229,7 +2229,7 @@ DoCarryFlag(int16_t Weapon)
                 {
                     if (fp->lotag)      // Trigger everything if there is a
                         // lotag
-                        DoMatchEverything(NULL, fp->lotag, ON);
+                        DoMatchEverything(nullptr, fp->lotag, ON);
                 }
                 if (!TEST_BOOL1(fp))
                 {
@@ -2241,7 +2241,7 @@ DoCarryFlag(int16_t Weapon)
                         if (fu->filler >= SP_TAG5(fp))
                         {
                             fu->filler = 0;
-                            DoMatchEverything(NULL, SP_TAG6(fp), ON);
+                            DoMatchEverything(nullptr, SP_TAG6(fp), ON);
                         }
                     }
                 }
@@ -2369,7 +2369,7 @@ DoCarryFlagNoDet(int16_t Weapon)
             //MONO_PRINT(ds);
             if (fp->lotag)              // Trigger everything if there is a
                 // lotag
-                DoMatchEverything(NULL, fp->lotag, ON);
+                DoMatchEverything(nullptr, fp->lotag, ON);
             fu->WaitTics = 0;           // Tell it to respawn
         }
         if (!TEST_BOOL1(fp))
@@ -2382,7 +2382,7 @@ DoCarryFlagNoDet(int16_t Weapon)
                 if (fu->filler >= SP_TAG5(fp))
                 {
                     fu->filler = 0;
-                    DoMatchEverything(NULL, SP_TAG6(fp), ON);
+                    DoMatchEverything(nullptr, SP_TAG6(fp), ON);
                 }
             }
         }
@@ -2454,7 +2454,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
     int nx, ny, nz;
     short w;
     short id=0,velocity=0;
-    STATEp p=NULL;
+    STATEp p=nullptr;
     extern STATE s_UziShellShrap[];
     extern STATE s_ShotgunShellShrap[];
 
@@ -2584,7 +2584,7 @@ static saveable_data saveable_jweapon_data[] =
 saveable_module saveable_jweapon =
 {
     // code
-    NULL,0,
+    nullptr,0,
 
     // data
     saveable_jweapon_data,

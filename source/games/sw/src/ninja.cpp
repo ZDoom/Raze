@@ -88,7 +88,7 @@ DECISION NinjaEvasive[] =
     {400,   InitActorDuck}, // 100
 //    {300,   InitActorEvade},
 //    {800,   InitActorRunAway},
-    {1024,  NULL}
+    {1024,  nullptr}
 };
 
 DECISION NinjaLostTarget[] =
@@ -340,27 +340,27 @@ STATE s_NinjaRise[5][3] =
     {
         {NINJA_KNEEL_R0 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[0][1]},
         {NINJA_STAND_R0 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[0][2]},
-        {0, 0, NULL, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATEp)sg_NinjaRun},
     },
     {
         {NINJA_KNEEL_R1 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[1][1]},
         {NINJA_STAND_R1 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[1][2]},
-        {0, 0, NULL, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATEp)sg_NinjaRun},
     },
     {
         {NINJA_KNEEL_R2 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[2][1]},
         {NINJA_STAND_R2 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[2][2]},
-        {0, 0, NULL, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATEp)sg_NinjaRun},
     },
     {
         {NINJA_KNEEL_R3 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[3][1]},
         {NINJA_STAND_R3 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[3][2]},
-        {0, 0, NULL, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATEp)sg_NinjaRun},
     },
     {
         {NINJA_KNEEL_R4 + 0, NINJA_RISE_RATE, NullNinja, &s_NinjaRise[4][1]},
         {NINJA_STAND_R4 + 0, NINJA_STAND_RATE, NullNinja, &s_NinjaRise[4][2]},
-        {0, 0, NULL, (STATEp)sg_NinjaRun},
+        {0, 0, nullptr, (STATEp)sg_NinjaRun},
     },
 };
 
@@ -1615,7 +1615,7 @@ ACTOR_ACTION_SET NinjaSniperActionSet =
     sg_NinjaFly,
     sg_NinjaUzi,
     sg_NinjaDuck,
-    NULL,
+    nullptr,
     sg_NinjaClimb,
     sg_NinjaPain,
     sg_NinjaDie,
@@ -1627,7 +1627,7 @@ ACTOR_ACTION_SET NinjaSniperActionSet =
     {1024},
     {sg_NinjaUzi},
     {1024},
-    {NULL},
+    {nullptr},
     sg_NinjaDuck,
     sg_NinjaDive
 };
@@ -1643,7 +1643,7 @@ ACTOR_ACTION_SET NinjaActionSet =
     sg_NinjaFly,
     sg_NinjaRise,
     sg_NinjaSit,
-    NULL,
+    nullptr,
     sg_NinjaClimb,
     sg_NinjaPain,
     sg_NinjaDie,
@@ -1655,7 +1655,7 @@ ACTOR_ACTION_SET NinjaActionSet =
     {1000, 1024},
     {sg_NinjaUzi, sg_NinjaStar},
     {800, 1024},
-    {NULL},
+    {nullptr},
     sg_NinjaDuck,
     sg_NinjaDive
 };
@@ -1671,7 +1671,7 @@ ACTOR_ACTION_SET NinjaRedActionSet =
     sg_NinjaFly,
     sg_NinjaRise,
     sg_NinjaSit,
-    NULL,
+    nullptr,
     sg_NinjaClimb,
     sg_NinjaPain,
     sg_NinjaDie,
@@ -1683,7 +1683,7 @@ ACTOR_ACTION_SET NinjaRedActionSet =
     {812, 1024},
     {sg_NinjaUzi, sg_NinjaRocket},
     {812, 1024},
-    {NULL},
+    {nullptr},
     sg_NinjaDuck,
     sg_NinjaDive
 };
@@ -1699,7 +1699,7 @@ ACTOR_ACTION_SET NinjaSeekerActionSet =
     sg_NinjaFly,
     sg_NinjaRise,
     sg_NinjaSit,
-    NULL,
+    nullptr,
     sg_NinjaClimb,
     sg_NinjaPain,
     sg_NinjaDie,
@@ -1711,7 +1711,7 @@ ACTOR_ACTION_SET NinjaSeekerActionSet =
     {812, 1024},
     {sg_NinjaUzi, sg_NinjaRocket},
     {812, 1024},
-    {NULL},
+    {nullptr},
     sg_NinjaDuck,
     sg_NinjaDive
 };
@@ -1727,7 +1727,7 @@ ACTOR_ACTION_SET NinjaGrenadeActionSet =
     sg_NinjaFly,
     sg_NinjaRise,
     sg_NinjaSit,
-    NULL,
+    nullptr,
     sg_NinjaClimb,
     sg_NinjaPain,
     sg_NinjaDie,
@@ -1739,7 +1739,7 @@ ACTOR_ACTION_SET NinjaGrenadeActionSet =
     {812, 1024},
     {sg_NinjaUzi, sg_NinjaGrenade},
     {812, 1024},
-    {NULL},
+    {nullptr},
     sg_NinjaDuck,
     sg_NinjaDive
 };
@@ -1755,7 +1755,7 @@ ACTOR_ACTION_SET NinjaGreenActionSet =
     sg_NinjaFly,
     sg_NinjaRise,
     sg_NinjaSit,
-    NULL,
+    nullptr,
     sg_NinjaClimb,
     sg_NinjaPain,
     sg_NinjaDie,
@@ -1767,7 +1767,7 @@ ACTOR_ACTION_SET NinjaGreenActionSet =
     {912, 1024},
     {sg_NinjaFlashBomb, sg_NinjaUzi, sg_NinjaMirv, sg_NinjaNapalm},
     {150, 500, 712, 1024},
-    {NULL},
+    {nullptr},
     sg_NinjaDuck,
     sg_NinjaDive
 };
@@ -1793,7 +1793,7 @@ ACTOR_ACTION_SET PlayerNinjaActionSet =
     sg_NinjaFly,
     sg_NinjaRise,
     sg_NinjaSit,
-    NULL,
+    nullptr,
     sg_PlayerNinjaClimb,
     sg_NinjaPain,
     sg_NinjaDie,
@@ -1805,7 +1805,7 @@ ACTOR_ACTION_SET PlayerNinjaActionSet =
     {1000, 1024},
     {sg_NinjaStar, sg_NinjaUzi},
     {800, 1024},
-    {NULL},
+    {nullptr},
     sg_NinjaDuck,
     sg_PlayerNinjaSwim
 };
@@ -1960,7 +1960,7 @@ DoNinjaHariKari(short SpriteNum)
     RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
     u->floor_dist = Z(40);
     u->RotNum = 0;
-    u->ActorActionFunc = NULL;
+    u->ActorActionFunc = nullptr;
 
     SET(sp->extra, SPRX_BREAKABLE);
     SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
@@ -1993,7 +1993,7 @@ DoNinjaGrabThroat(short SpriteNum)
         RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
         u->floor_dist = Z(40);
         u->RotNum = 0;
-        u->ActorActionFunc = NULL;
+        u->ActorActionFunc = nullptr;
 
         SET(sp->extra, SPRX_BREAKABLE);
         SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
@@ -2219,10 +2219,10 @@ PlayerLevelReset(PLAYERp pp)
     RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
     RESET(pp->Flags, PF_DEAD);
 
-    pp->sop_control = NULL;
-    pp->sop_riding = NULL;
-    pp->sop_remote = NULL;
-    pp->sop = NULL;
+    pp->sop_control = nullptr;
+    pp->sop_riding = nullptr;
+    pp->sop_remote = nullptr;
+    pp->sop = nullptr;
     DoPlayerResetMovement(pp);
     DamageData[u->WeaponNum].Init(pp);
 }
@@ -2285,10 +2285,10 @@ PlayerDeathReset(PLAYERp pp)
     RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
     RESET(pp->Flags, PF_DEAD);
 
-    pp->sop_control = NULL;
-    pp->sop_riding = NULL;
-    pp->sop_remote = NULL;
-    pp->sop = NULL;
+    pp->sop_control = nullptr;
+    pp->sop_riding = nullptr;
+    pp->sop_remote = nullptr;
+    pp->sop = nullptr;
     DoPlayerResetMovement(pp);
     //if (pp->CurWpn)
     //    RESET(pp->CurWpn->flags, PANF_DEATH_HIDE);
@@ -2310,7 +2310,7 @@ PlayerPanelSetup(void)
 
         u = User[pp->PlayerSprite].Data();
 
-        ASSERT(u != NULL);
+        ASSERT(u != nullptr);
 
         //u->WeaponNum = WPN_STAR;
         //pp->WpnFirstType = WPN_SWORD;
@@ -2370,10 +2370,10 @@ PlayerGameReset(PLAYERp pp)
 
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
-    pp->sop_control = NULL;
-    pp->sop_riding = NULL;
-    pp->sop_remote = NULL;
-    pp->sop = NULL;
+    pp->sop_control = nullptr;
+    pp->sop_riding = nullptr;
+    pp->sop_remote = nullptr;
+    pp->sop = nullptr;
     DoPlayerResetMovement(pp);
     DamageData[u->WeaponNum].Init(pp);
 }
@@ -2401,7 +2401,7 @@ InitPlayerSprite(PLAYERp pp)
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
-    sp_num = pp->PlayerSprite = SpawnSprite(STAT_PLAYER0 + pnum, NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx,
+    sp_num = pp->PlayerSprite = SpawnSprite(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursectnum, pp->posx,
                                             pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
 
     pp->SpriteP = sp = &sprite[sp_num];
@@ -2438,7 +2438,7 @@ InitPlayerSprite(PLAYERp pp)
     NewStateGroup(sp_num, u->ActorActionSet->Run);
 
     pp->PlayerUnderSprite = -1;
-    pp->UnderSpriteP = NULL;
+    pp->UnderSpriteP = nullptr;
 
     DoPlayerZrange(pp);
 
@@ -2475,7 +2475,7 @@ SpawnPlayerUnderSprite(PLAYERp pp)
     int pnum = int(pp - Player), sp_num;
 
     sp_num = pp->PlayerUnderSprite = SpawnSprite(STAT_PLAYER_UNDER0 + pnum,
-                                                 NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
+                                                 NINJA_RUN_R0, nullptr, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
 
     sp = &sprite[sp_num];
     u = User[sp_num].Data();

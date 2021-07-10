@@ -76,7 +76,7 @@ DECISION GirlNinjaEvasive[] =
     {400,   InitActorDuck}, // 100
 //    {300,   InitActorEvade},
 //    {800,   InitActorRunAway},
-    {1024,  NULL}
+    {1024,  nullptr}
 };
 
 DECISION GirlNinjaLostTarget[] =
@@ -228,29 +228,29 @@ STATE s_GirlNinjaRise[5][3] =
     {
         {GIRLNINJA_KNEEL_R0 + 0, GIRLNINJA_RISE_RATE, NullGirlNinja, &s_GirlNinjaRise[0][1]},
         {GIRLNINJA_STAND_R0 + 0, GIRLNINJA_STAND_RATE, NullGirlNinja, &s_GirlNinjaRise[0][2]},
-        {0, 0, NULL, (STATEp)sg_GirlNinjaRun},  // JBF: sg_GirlNinjaRun really is supposed to be the
+        {0, 0, nullptr, (STATEp)sg_GirlNinjaRun},  // JBF: sg_GirlNinjaRun really is supposed to be the
         // pointer to the state group. See StateControl() where
         // it says "if (!u->State->Pic)".
     },
     {
         {GIRLNINJA_KNEEL_R1 + 0, GIRLNINJA_RISE_RATE, NullGirlNinja, &s_GirlNinjaRise[1][1]},
         {GIRLNINJA_STAND_R1 + 0, GIRLNINJA_STAND_RATE, NullGirlNinja, &s_GirlNinjaRise[1][2]},
-        {0, 0, NULL, (STATEp)sg_GirlNinjaRun},
+        {0, 0, nullptr, (STATEp)sg_GirlNinjaRun},
     },
     {
         {GIRLNINJA_KNEEL_R2 + 0, GIRLNINJA_RISE_RATE, NullGirlNinja, &s_GirlNinjaRise[2][1]},
         {GIRLNINJA_STAND_R2 + 0, GIRLNINJA_STAND_RATE, NullGirlNinja, &s_GirlNinjaRise[2][2]},
-        {0, 0, NULL, (STATEp)sg_GirlNinjaRun},
+        {0, 0, nullptr, (STATEp)sg_GirlNinjaRun},
     },
     {
         {GIRLNINJA_KNEEL_R3 + 0, GIRLNINJA_RISE_RATE, NullGirlNinja, &s_GirlNinjaRise[3][1]},
         {GIRLNINJA_STAND_R3 + 0, GIRLNINJA_STAND_RATE, NullGirlNinja, &s_GirlNinjaRise[3][2]},
-        {0, 0, NULL, (STATEp)sg_GirlNinjaRun},
+        {0, 0, nullptr, (STATEp)sg_GirlNinjaRun},
     },
     {
         {GIRLNINJA_KNEEL_R4 + 0, GIRLNINJA_RISE_RATE, NullGirlNinja, &s_GirlNinjaRise[4][1]},
         {GIRLNINJA_STAND_R4 + 0, GIRLNINJA_STAND_RATE, NullGirlNinja, &s_GirlNinjaRise[4][2]},
-        {0, 0, NULL, (STATEp)sg_GirlNinjaRun},
+        {0, 0, nullptr, (STATEp)sg_GirlNinjaRun},
     },
 };
 
@@ -691,16 +691,16 @@ ACTOR_ACTION_SET GirlNinjaActionSet =
     sg_GirlNinjaRun,
     sg_GirlNinjaJump,
     sg_GirlNinjaFall,
-    NULL,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
+    nullptr,
     sg_GirlNinjaRise,
     sg_GirlNinjaSit,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     sg_GirlNinjaPain,
     sg_GirlNinjaDie,
-    NULL,
+    nullptr,
     sg_GirlNinjaDead,
     sg_GirlNinjaDeathJump,
     sg_GirlNinjaDeathFall,
@@ -708,9 +708,9 @@ ACTOR_ACTION_SET GirlNinjaActionSet =
     {800, 1024},
     {sg_GirlNinjaCrossbow, sg_GirlNinjaSticky},
     {800, 1024},
-    {NULL},
+    {nullptr},
     sg_GirlNinjaDuck,
-    NULL
+    nullptr
 };
 
 int

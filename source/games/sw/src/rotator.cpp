@@ -314,7 +314,7 @@ int DoRotatorMove(short SpriteNum)
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
     short ndx,w,startwall,endwall;
-    SPRITEp pivot = NULL;
+    SPRITEp pivot = nullptr;
     int i;
     vec2_t nxy;
     int dist,closest;
@@ -358,7 +358,7 @@ int DoRotatorMove(short SpriteNum)
             SetRotatorInactive(SpriteNum);
 
             if (SP_TAG6(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
 
             // wait a bit and close it
             if (u->WaitTics)
@@ -385,7 +385,7 @@ int DoRotatorMove(short SpriteNum)
             }
 
             if (SP_TAG6(sp) && TEST_BOOL5(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
         }
 
         if (TEST_BOOL2(sp))
@@ -468,7 +468,7 @@ saveable_module saveable_rotator =
     SIZ(saveable_rotator_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 
 END_SW_NS

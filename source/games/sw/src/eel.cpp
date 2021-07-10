@@ -330,28 +330,28 @@ ACTOR_ACTION_SET EelActionSet =
 {
     sg_EelStand,
     sg_EelRun,
-    NULL,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
+    nullptr,
     sg_EelRun,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     sg_EelStand,
-    NULL,
-    NULL, //climb
+    nullptr,
+    nullptr, //climb
     sg_EelStand, //pain
     sg_EelDie,
-    NULL,
+    nullptr,
     sg_EelDead,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     {sg_EelAttack},
     {1024},
     {sg_EelAttack},
     {1024},
-    {NULL,NULL},
-    NULL,
-    NULL
+    {nullptr,nullptr},
+    nullptr,
+    nullptr
 };
 
 int DoEelMatchPlayerZ(short SpriteNum);
@@ -603,7 +603,7 @@ int DoEelMove(short SpriteNum)
 {
     USERp u = User[SpriteNum].Data();
 
-    ASSERT(u->Rot != NULL);
+    ASSERT(u->Rot != nullptr);
 
     if (SpriteOverlap(SpriteNum, int16_t(u->tgt_sp - sprite)))
         NewStateGroup(SpriteNum, u->ActorActionSet->CloseAttack[0]);

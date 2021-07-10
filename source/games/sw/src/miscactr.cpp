@@ -129,7 +129,7 @@ SetupToiletGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_ToiletGirlStand);
     u->Attrib = &ToiletGirlAttrib;
@@ -368,7 +368,7 @@ SetupWashGirl(short SpriteNum)
         u->Health = 60;
     }
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_WashGirlStand);
     u->Attrib = &WashGirlAttrib;
@@ -577,7 +577,7 @@ SetupTrashCan(short SpriteNum)
         u->Health = 60;
     }
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_TrashCanStand);
     u->Attrib = &TrashCanAttrib;
@@ -685,7 +685,7 @@ SetupPachinkoLight(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_PachinkoLightStand);
     u->Attrib = &PachinkoLightAttrib;
@@ -786,7 +786,7 @@ SetupPachinko1(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_Pachinko1Stand);
     u->Attrib = &Pachinko1Attrib;
@@ -956,7 +956,7 @@ SetupPachinko2(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_Pachinko2Stand);
     u->Attrib = &Pachinko2Attrib;
@@ -1040,7 +1040,7 @@ SetupPachinko3(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_Pachinko3Stand);
     u->Attrib = &Pachinko3Attrib;
@@ -1125,7 +1125,7 @@ SetupPachinko4(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_Pachinko4Stand);
     u->Attrib = &Pachinko4Attrib;
@@ -1239,7 +1239,7 @@ SetupCarGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_CarGirlStand);
     u->Attrib = &CarGirlAttrib;
@@ -1459,7 +1459,7 @@ SetupMechanicGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_MechanicGirlStand);
     u->Attrib = &MechanicGirlAttrib;
@@ -1678,7 +1678,7 @@ SetupSailorGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_SailorGirlStand);
     u->Attrib = &SailorGirlAttrib;
@@ -1891,7 +1891,7 @@ SetupPruneGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, NULL, NULL);
+    EnemyDefaults(SpriteNum, nullptr, nullptr);
 
     ChangeState(SpriteNum,s_PruneGirlStand);
     u->Attrib = &PruneGirlAttrib;

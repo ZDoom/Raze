@@ -668,7 +668,7 @@ int DoVatorAuto(short SpriteNum)
             u->Tics = u->WaitTics;
 
             if (SP_TAG6(sp) && TEST_BOOL5(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
         }
     }
 
@@ -701,6 +701,6 @@ saveable_module saveable_vator =
     SIZ(saveable_vator_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 END_SW_NS

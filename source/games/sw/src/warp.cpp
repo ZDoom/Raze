@@ -46,8 +46,8 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
     int i;
     SPRITEp sp;
 
-    *sp_floor = NULL;
-    *sp_ceiling = NULL;
+    *sp_floor = nullptr;
+    *sp_ceiling = nullptr;
 
     if (Prediction)
         return false;
@@ -86,10 +86,10 @@ WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
     SPRITEp sp_floor, sp_ceiling;
 
     if (Prediction)
-        return NULL;
+        return nullptr;
 
     if (!WarpPlaneSectorInfo(*sectnum, &sp_ceiling, &sp_floor))
-        return NULL;
+        return nullptr;
 
     if (sp_ceiling)
     {
@@ -107,7 +107,7 @@ WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 SPRITEp
@@ -203,7 +203,7 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +218,7 @@ WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
     int i;
     SPRITEp sp;
 
-    *sp_warp = NULL;
+    *sp_warp = nullptr;
 
     if (!TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
         return false;
@@ -250,16 +250,16 @@ Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
     SPRITEp sp_warp;
 
     if (Prediction)
-        return NULL;
+        return nullptr;
 
     if (!WarpSectorInfo(*sectnum, &sp_warp))
-        return NULL;
+        return nullptr;
 
     if (sp_warp)
     {
         return WarpToArea(sp_warp, x, y, z, sectnum);
     }
 
-    return NULL;
+    return nullptr;
 }
 END_SW_NS

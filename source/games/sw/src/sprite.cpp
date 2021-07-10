@@ -767,7 +767,7 @@ KillSprite(int16_t SpriteNum)
             StatIterator it(STAT_ENEMY);
             while ((i = it.NextIndex()) >= 0)
             {
-                if ((unsigned)i < MAXSPRITES && User[i].Data() != NULL && User[i]->tgt_sp == sp)
+                if ((unsigned)i < MAXSPRITES && User[i].Data() != nullptr && User[i]->tgt_sp == sp)
                 {
                     DoActorPickClosePlayer(i);
                 }
@@ -875,9 +875,9 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     User[SpriteNum].Alloc();
     u = User[SpriteNum].Data();
 
-    PRODUCTION_ASSERT(u != NULL);
+    PRODUCTION_ASSERT(u != nullptr);
 
-    // be careful State can be NULL
+    // be careful State can be nullptr
     u->State = u->StateStart = state;
 
     change_sprite_stat(SpriteNum, sp->statnum);
@@ -919,8 +919,8 @@ SpawnUser(short SpriteNum, short id, STATEp state)
 #else
     u->loz = sector[sp->sectnum].floorz;
     u->hiz = sector[sp->sectnum].ceilingz;
-    u->lo_sp = NULL;
-    u->hi_sp = NULL;
+    u->lo_sp = nullptr;
+    u->hi_sp = nullptr;
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
 #endif
@@ -939,7 +939,7 @@ GetSectUser(short sectnum)
     SectUser[sectnum].Alloc();
     sectu = SectUser[sectnum].Data();
 
-    ASSERT(sectu != NULL);
+    ASSERT(sectu != nullptr);
 
     return sectu;
 }
@@ -973,7 +973,7 @@ SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int
 
     u = SpawnUser(SpriteNum, id, state);
 
-    // be careful State can be NULL
+    // be careful State can be nullptr
     if (u->State)
     {
         sp->picnum = u->State->Pic;
@@ -1789,7 +1789,7 @@ SpriteSetupPost(void)
             if (labs(ds->z - fz) > Z(4))
                 continue;
 
-            u = SpawnUser(i, 0, NULL);
+            u = SpawnUser(i, 0, nullptr);
             change_sprite_stat(i, STAT_NO_STATE);
             u->ceiling_dist = Z(4);
             u->floor_dist = -Z(2);
@@ -2265,9 +2265,9 @@ SpriteSetup(void)
                 {
                     ANIMATOR DoGenerateSewerDebris;
 
-                    u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, nullptr);
 
-                    ASSERT(u != NULL);
+                    ASSERT(u != nullptr);
                     u->RotNum = 0;
                     u->WaitTics = sp->lotag * 120;
 
@@ -2283,7 +2283,7 @@ SpriteSetup(void)
                     SECTORp sectp = &sector[sp->sectnum];
                     SECT_USERp sectu;
                     short speed,vel,time,type,start_on,floor_vator;
-                    u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, nullptr);
 
                     // vator already set - ceiling AND floor vator
                     if (TEST(sectp->extra, SECTFX_VATOR))
@@ -2393,7 +2393,7 @@ SpriteSetup(void)
 					SECTORp sectp = &sector[sp->sectnum];
                     short time,type;
                     short wallcount,startwall,endwall,w;
-                    u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, nullptr);
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
 
@@ -2454,7 +2454,7 @@ SpriteSetup(void)
                     SECTORp sectp = &sector[sp->sectnum];
                     short time,type;
 
-                    u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, nullptr);
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
 
@@ -2505,7 +2505,7 @@ SpriteSetup(void)
                 {
                     short speed,vel,time,type,start_on,floor_vator;
                     int floorz,ceilingz,trash;
-                    u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, nullptr);
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
                     SET(sector[sp->sectnum].extra, SECTFX_DYNAMIC_AREA);
@@ -2618,7 +2618,7 @@ SpriteSetup(void)
                         }
                     }
 
-                    u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, nullptr);
                     u->WallShade.Resize(wallcount);
                     wall_shade = u->WallShade.Data();
 
@@ -2674,7 +2674,7 @@ SpriteSetup(void)
 
                     // !LIGHT
                     // make an wall_shade array and put it in User
-                    u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, nullptr);
                     u->WallShade.Resize(wallcount);
                     wall_shade = u->WallShade.Data();
 
@@ -2723,7 +2723,7 @@ SpriteSetup(void)
                 case LAVA_ERUPT:
                 {
 
-                    u = SpawnUser(SpriteNum, ST1, NULL);
+                    u = SpawnUser(SpriteNum, ST1, nullptr);
 
                     change_sprite_stat(SpriteNum, STAT_NO_STATE);
                     u->ActorActionFunc = DoLavaErupt;
@@ -2883,7 +2883,7 @@ SpriteSetup(void)
 
                 case SPAWN_SPOT:
                     if (!User[SpriteNum].Data())
-                        u = SpawnUser(SpriteNum, ST1, NULL);
+                        u = SpawnUser(SpriteNum, ST1, nullptr);
 
                     if (SP_TAG14(sp) == ((64<<8)|64))
                         //SP_TAG14(sp) = 0;
@@ -3002,7 +3002,7 @@ SpriteSetup(void)
                 case BOLT_TRAP:
                 case SPEAR_TRAP:
                 {
-                    u = SpawnUser(SpriteNum, 0, NULL);
+                    u = SpawnUser(SpriteNum, 0, nullptr);
                     sp->owner = -1;
                     change_sprite_stat(SpriteNum, STAT_TRAP);
                     break;
@@ -3140,9 +3140,9 @@ KeyMain:
                     break;
                 }
 
-                u = SpawnUser(SpriteNum, 0, NULL);
+                u = SpawnUser(SpriteNum, 0, nullptr);
 
-                ASSERT(u != NULL);
+                ASSERT(u != nullptr);
                 sprite[SpriteNum].picnum = u->ID = sprite[SpriteNum].picnum;
 
                 u->spal = sprite[SpriteNum].pal; // Set the palette from build
@@ -3178,9 +3178,9 @@ KeyMain:
             num = 3;
 KeyStatueMain:
 
-            u = SpawnUser(SpriteNum, 0, NULL);
+            u = SpawnUser(SpriteNum, 0, nullptr);
 
-            ASSERT(u != NULL);
+            ASSERT(u != nullptr);
             sprite[SpriteNum].picnum = u->ID = sprite[SpriteNum].picnum;
 
             u->spal = sp->pal;
@@ -3212,7 +3212,7 @@ KeyStatueMain:
         case FIRE_FLY0:
 
             /*
-             * u = SpawnUser(SpriteNum, FIRE_FLY0, NULL);
+             * u = SpawnUser(SpriteNum, FIRE_FLY0, nullptr);
              *
              * u->State = u->StateStart = &s_FireFly[0]; u->RotNum = 0;
              *
@@ -3727,7 +3727,7 @@ NUKE_REPLACEMENT:
         case 3143:
         case 3157:
         {
-            u = SpawnUser(SpriteNum, sp->picnum, NULL);
+            u = SpawnUser(SpriteNum, sp->picnum, nullptr);
 
             change_sprite_stat(SpriteNum, STAT_STATIC_FIRE);
 
@@ -3748,7 +3748,7 @@ NUKE_REPLACEMENT:
         case BLADE3:
         case 5011:
         {
-            u = SpawnUser(SpriteNum, sp->picnum, NULL);
+            u = SpawnUser(SpriteNum, sp->picnum, nullptr);
 
             change_sprite_stat(SpriteNum, STAT_DEFAULT);
 
@@ -3769,7 +3769,7 @@ NUKE_REPLACEMENT:
             //if (TEST(sp->extra, SPRX_BREAKABLE))
             //    break;
 
-            u = SpawnUser(SpriteNum, sp->picnum, NULL);
+            u = SpawnUser(SpriteNum, sp->picnum, nullptr);
 
             sp->clipdist = SPRITEp_SIZE_X(sp);
             SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
@@ -4610,7 +4610,7 @@ int SpawnItemsMatch(short match)
 
             sp = &sprite[SpriteNum];
 
-            ASSERT(u != NULL);
+            ASSERT(u != nullptr);
             sprite[SpriteNum].picnum = u->ID = s_Key[num]->Pic;
 
 
@@ -4880,8 +4880,8 @@ DoActorZrange(short SpriteNum)
     FAFgetzrange(sp->x, sp->y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     SET(sp->cstat, save_cstat);
 
-    u->lo_sectp = u->hi_sectp = NULL;
-    u->lo_sp = u->hi_sp = NULL;
+    u->lo_sectp = u->hi_sectp = nullptr;
+    u->lo_sp = u->hi_sp = nullptr;
 
     switch (TEST(ceilhit, HIT_MASK))
     {
@@ -4921,8 +4921,8 @@ DoActorGlobZ(short SpriteNum)
     u->loz = globloz;
     u->hiz = globhiz;
 
-    u->lo_sectp = u->hi_sectp = NULL;
-    u->lo_sp = u->hi_sp = NULL;
+    u->lo_sectp = u->hi_sectp = nullptr;
+    u->lo_sp = u->hi_sp = nullptr;
 
     switch (TEST(globhihit, HIT_MASK))
     {
@@ -6720,11 +6720,11 @@ SpriteControl(void)
         u = User[i].Data();
         sp = User[i]->SpriteP;
         STATE_CONTROL(i, sp, u, StateTics)
-        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
+        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
 #else
         ASSERT(User[i]);
         StateControl(i);
-        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
+        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
 #endif
     }
 
@@ -6741,11 +6741,11 @@ SpriteControl(void)
                 u = User[i].Data();
                 sp = User[i]->SpriteP;
                 STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
 #else
                 ASSERT(User[i]);
                 StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
 #endif
             }
         }
@@ -6793,7 +6793,7 @@ SpriteControl(void)
 #else
                 StateControl(i);
 #endif
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
             }
             else
             {
@@ -6816,11 +6816,11 @@ SpriteControl(void)
                 u = User[i].Data();
                 sp = User[i]->SpriteP;
                 STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
 #else
                 ASSERT(User[i]);
                 StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
+                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
 #endif
             }
         }
@@ -6854,7 +6854,7 @@ SpriteControl(void)
             u = User[i].Data();
             sp = User[i]->SpriteP;
             STATE_CONTROL(i, sp, u, StateTics)
-            ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != NULL : true);
+            ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
 
         }
     }
@@ -7461,7 +7461,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 
                 getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
                 u->hi_sectp = u->lo_sectp = &sector[sp->sectnum];
-                u->hi_sp = u->lo_sp = NULL;
+                u->hi_sp = u->lo_sp = nullptr;
                 return retval;
             }
             else
@@ -7488,7 +7488,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
     u->hi_sectp = u->lo_sectp = &sector[sp->sectnum];
-    u->hi_sp = u->lo_sp = NULL;
+    u->hi_sp = u->lo_sp = nullptr;
     sp->z = u->loz - Z(8);
 
     if (labs(u->hiz - u->loz) < Z(12))

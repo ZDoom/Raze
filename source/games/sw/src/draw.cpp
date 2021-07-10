@@ -866,7 +866,7 @@ tspriteptr_t get_tsprite(spritetype* tsprite, int& spritesortcnt, int SpriteNum)
             return &tsprite[tSpriteNum];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -1337,7 +1337,7 @@ void PreDrawStackedWater(void)
                     // spawn a user
                     User[New].Alloc();
                     nu = User[New].Data();
-                    ASSERT(nu != NULL);
+                    ASSERT(nu != nullptr);
 
                     nu->xchange = -989898;
 

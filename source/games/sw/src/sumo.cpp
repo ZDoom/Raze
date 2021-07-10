@@ -574,56 +574,56 @@ ACTOR_ACTION_SET SumoActionSet =
 {
     sg_SumoStand,
     sg_SumoRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL, //climb
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr, //climb
     sg_SumoPain, //pain
     sg_SumoDie,
-    NULL,
+    nullptr,
     sg_SumoDead,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     {sg_SumoStomp,sg_SumoFart},
     {800,1024},
     {sg_SumoClap,sg_SumoStomp,sg_SumoFart},
     {400,750,1024},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 ACTOR_ACTION_SET MiniSumoActionSet =
 {
     sg_SumoStand,
     sg_SumoRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL, //climb
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr, //climb
     sg_SumoPain, //pain
     sg_SumoDie,
-    NULL,
+    nullptr,
     sg_SumoDead,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     {sg_SumoClap},
     {1024},
     {sg_SumoClap},
     {1024},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 
@@ -793,7 +793,7 @@ int DoSumoDeathMelt(short SpriteNum)
     InitChemBomb(SpriteNum);
     u->ID = 0;
 
-    DoMatchEverything(NULL, sp->lotag, ON);
+    DoMatchEverything(nullptr, sp->lotag, ON);
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.
