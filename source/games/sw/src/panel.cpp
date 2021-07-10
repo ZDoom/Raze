@@ -6520,13 +6520,10 @@ void
 pWeaponBob(PANEL_SPRITEp psp, short condition)
 {
     double xdiff = 0, ydiff = 0;
-    double bob_amt, bob_ndx;
-    double bobvel;
-    PLAYERp pp = psp->PlayerP;
 
-    bobvel = fFindDistance2D(pp->xvect, pp->yvect) / 32768.;
-    bobvel = bobvel + (bobvel / 4.);
-    bobvel = (bobvel < 128 ? bobvel : 128);
+    double bobvel = fFindDistance2D(psp->PlayerP->xvect, psp->PlayerP->yvect) * (1. / 32768.);
+    bobvel = bobvel + (bobvel * (1. / 4.));
+    bobvel = min(bobvel, 128.);
 
     if (condition)
     {
@@ -6559,10 +6556,10 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
 
         // as the weapon moves left-right move the weapon up-down in the same
         // proportion
-        bob_ndx = (psp->sin_ndx + 512) & 1023;
+        double bob_ndx = (psp->sin_ndx + 512) & 1023;
 
         // base bob_amt on the players velocity - Max of 128
-        bob_amt = bobvel / psp->bob_height_divider;
+        double bob_amt = bobvel / psp->bob_height_divider;
         ydiff = bob_amt * bsinf(bob_ndx, -14);
     }
 
