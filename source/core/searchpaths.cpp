@@ -930,7 +930,7 @@ const char* G_DefaultDefFile(void)
 	if (g_gameType & GAMEFLAG_DEER)
 		return "rrdeer.def";
 
-	if (g_gameType & GAMEFLAG_WW2GI)
+	if (isWW2GI())
 		return "ww2gi.def";
 
 	if (isSWALL())

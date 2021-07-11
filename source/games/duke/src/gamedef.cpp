@@ -3110,7 +3110,7 @@ static const char* ConFile(void)
 
 	// WW2GI anf NAM special con names got introduced by EDuke32.
 	// Do we really need these?
-	if (g_gameType & GAMEFLAG_WW2GI)
+	if (isWW2GI())
 	{
 		if (fileSystem.FindFile("ww2gi.con") >= 0) return "ww2gi.con";
 	}
