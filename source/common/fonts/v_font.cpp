@@ -958,28 +958,3 @@ char* CleanseString(char* str)
 	return str;
 }
 
-
-#include "c_dispatch.h"
-FGameTexture* GetBaseForChar(FGameTexture* t);
-CCMD(dumpfonts)
-{
-	for (auto c : { "tilesmallfont", "tilebigfont", "smallfont2", "digifont", "indexfont" })
-	{
-		auto f = V_GetFont(c);
-		if (f)
-		{
-			Printf("%s\n{\n", c);
-			for (int i = 33; i < 127; i++)
-			{
-				auto ch = f->GetChar(i, CR_UNDEFINED, nullptr);
-				if (ch)
-				{
-					ch = GetBaseForChar(ch);
-					if (i == 34) Printf("\t\"\\\""); else Printf("\t%c", i);
-					Printf(" %s\n", ch->GetName().GetChars());
-				}
-			}
-			Printf("}\n\n");
-		}
-	}
-}
