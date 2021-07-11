@@ -166,14 +166,13 @@ void levelLoadDefaults(void)
         sprintf(buffer, "Episode%d", i);
         if (!BloodINI->SectionExists(buffer))
             break;
-        if (BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0))
-            continue;
         auto cluster = MustFindCluster(i);
         auto volume = MustFindVolume(i);
         CutsceneDef &csB = cluster->outro;
         auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
 		cluster->name = volume->name = ep_str;
         if (i > 1) volume->flags |= VF_SHAREWARELOCK;
+        if (BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0)) volume->flags |= VF_HIDEFROMSP;
 
         csB.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneB", ""));
         int soundint = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
