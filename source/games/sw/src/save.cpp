@@ -350,6 +350,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct
 			("PresentState", w.PresentState)
 			("ActionState", w.ActionState)
 			("RestState", w.RestState)
+			("ox", w.ox)
+			("oy", w.oy)
 			("x", w.x)
 			("y", w.y)
 			.Array("over", w.over, countof(w.over))
