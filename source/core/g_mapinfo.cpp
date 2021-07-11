@@ -310,7 +310,7 @@ bool FMapInfoParser::CheckLegacyMapDefinition(FString& mapname)
 	{
 		sc.MustGetNumber();
 		int vol = sc.Number;
-		if (!(g_gameType & GAMEFLAG_SW))
+		if (!isSWALL())
 		{
 			// Blood and Duke use volume/level pairs
 			sc.MustGetStringName(",");

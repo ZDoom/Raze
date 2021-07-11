@@ -961,7 +961,7 @@ int RunGame()
 		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
 		am_showlabel.SetGenericRepDefault(true, CVAR_Bool);
 	}
-	if (g_gameType & GAMEFLAG_SW)
+	if (isSWALL())
 	{
 		cl_weaponswitch.SetGenericRepDefault(1, CVAR_Int);
 		if (cl_weaponswitch > 1) cl_weaponswitch = 1;

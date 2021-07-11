@@ -93,7 +93,7 @@ CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable wea
 CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable auto weapon switching")
 {
 	if (self < 0) self = 0;
-	if (self > 1 && (g_gameType & GAMEFLAG_SW)) self = 1;
+	if (self > 1 && isSWALL()) self = 1;
 	if (self > 3 && isBlood()) self = 3;
 	if (self > 7) self = 7;
 }

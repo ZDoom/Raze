@@ -374,7 +374,7 @@ static DMenuItemBase* CreateCustomListMenuItemText(double x, double y, int heigh
 {
 	const char* classname = 
 		isBlood() ? "ListMenuItemBloodTextItem" :
-		(g_gameType & GAMEFLAG_SW) ? "ListMenuItemSWTextItem" :
+		isSWALL() ? "ListMenuItemSWTextItem" :
 		(g_gameType & GAMEFLAG_PSEXHUMED) ? "ListMenuItemExhumedTextItem" : "ListMenuItemDukeTextItem";
 	auto c = PClass::FindClass(classname);
 	auto p = c->CreateNew();
@@ -602,7 +602,7 @@ void SetDefaultMenuColors()
 		gameinfo.mSliderColor = "Red";
 		cls = PClass::FindClass("BloodMenuDelegate");
 	}
-	else if (g_gameType & GAMEFLAG_SW)
+	else if (isSWALL())
 	{
 		OptionSettings.mFontColorHeader = CR_DARKRED;
 		OptionSettings.mFontColorHighlight = CR_WHITE;

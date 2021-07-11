@@ -116,7 +116,7 @@ void FNotifyBuffer::DrawNative()
 
 	FFont* font = isBlood() ? SmallFont2 : SmallFont;
 
-	double line = isBlood() ? Top : (g_gameType & GAMEFLAG_SW) ? 40 : font->GetDisplacement();
+	double line = isBlood() ? Top : isSWALL() ? 40 : font->GetDisplacement();
 	bool canskip = isBlood();
 	double scale = 1 / (NotifyFontScale * con_notifyscale);
 	double lineadv = font->GetHeight() / NotifyFontScale;

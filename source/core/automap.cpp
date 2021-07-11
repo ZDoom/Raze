@@ -372,7 +372,7 @@ CCMD(printpalcol)
 bool ShowRedLine(int j, int i)
 {
 	auto wal = &wall[j];
-	if (!(g_gameType & GAMEFLAG_SW))
+	if (!isSWALL())
 	{
 		return !gFullMap && !show2dsector[wal->nextsector];
 	}
@@ -470,7 +470,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 
 	for (int i = numsectors - 1; i >= 0; i--)
 	{
-		if (!gFullMap && !show2dsector[i] && !(g_gameType & GAMEFLAG_SW)) continue;
+		if (!gFullMap && !show2dsector[i] && !isSWALL()) continue;
 
 		int startwall = sector[i].wallptr;
 		int endwall = sector[i].wallptr + sector[i].wallnum;
@@ -483,7 +483,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 			if (wal->nextwall >= 0) continue;
 			if (!gFullMap && !tileGetTexture(wal->picnum)->isValid()) continue;
 
-			if ((g_gameType & GAMEFLAG_SW) && !gFullMap && !show2dwall[j])
+			if (isSWALL() && !gFullMap && !show2dwall[j])
 				continue;
 
 			int ox = wal->x - cposx;

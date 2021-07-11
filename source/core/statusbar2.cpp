@@ -166,7 +166,7 @@ void drawMapTitle()
 	double alpha = levelTextTime > 16? 1.0 : levelTextTime / 16.;
     if (alpha > 0)
     {
-		double scale = (g_gameType & GAMEFLAG_RRALL)? 0.4 : (g_gameType & GAMEFLAG_SW)? 0.7 : 1.0;
+		double scale = (g_gameType & GAMEFLAG_RRALL)? 0.4 : isSWALL()? 0.7 : 1.0;
 		auto text = currentLevel->DisplayName();
 		auto myfont = PickBigFont(text);
 		double x = 160 - myfont->StringWidth(text) * scale / 2.;

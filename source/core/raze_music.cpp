@@ -150,7 +150,7 @@ FileReader OpenMusic(const char* musicname)
 			if (newlumpnum >= 0) lumpnum = newlumpnum;
 		}
 
-		if (lumpnum == -1 && (g_gameType & GAMEFLAG_SW))
+		if (lumpnum == -1 && isSWALL())
 		{
 			// Some Shadow Warrior distributions have the music in a subfolder named 'classic'. Check that, too.
 			FStringf aliasMusicname("classic/music/%s", musicname);

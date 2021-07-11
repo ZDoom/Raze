@@ -933,7 +933,7 @@ const char* G_DefaultDefFile(void)
 	if (g_gameType & GAMEFLAG_WW2GI)
 		return "ww2gi.def";
 
-	if (g_gameType & GAMEFLAG_SW)
+	if (isSWALL())
 		return "sw.def";
 
 	if (g_gameType & GAMEFLAG_PSEXHUMED)

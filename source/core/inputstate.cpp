@@ -291,7 +291,7 @@ CCMD(weapalt)
 
 CCMD(useitem)
 {
-	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : (g_gameType & GAMEFLAG_SW)? 7 : isBlood() ? 4 : 5;
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : isSWALL()? 7 : isBlood() ? 4 : 5;
 	if (argv.argc() != 2)
 	{
 		Printf("useitem <itemnum>: activates an inventory item (1-%d)", max);
