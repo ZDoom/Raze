@@ -2094,6 +2094,7 @@ static const dispatch basetokens[] =
 	{ "shadefactor",     parseSkip<1>      },
 	{ "newgamechoices",  parseEmptyBlock   },
 	{ "rffdefineid",     parseRffDefineId      },
+	{ nullptr,           nullptr               },
 };
 
 static void defsparser(FScanner& sc)
