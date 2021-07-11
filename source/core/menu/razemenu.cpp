@@ -628,7 +628,7 @@ void SetDefaultMenuColors()
 			OptionSettings.mFontColorSelection = CR_DARKGREEN;
 			gameinfo.mSliderColor = "Green";
 		}
-		else if (g_gameType & GAMEFLAG_RRALL)
+		else if (isRR())
 		{
 			OptionSettings.mFontColor = CR_BROWN;
 			OptionSettings.mFontColorHeader = CR_DARKBROWN;
