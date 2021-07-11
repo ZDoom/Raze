@@ -1049,11 +1049,13 @@ ActorTestSpawn(SPRITEp sp)
         return false;
     }
 
-    // Skill ranges from -1 (No Monsters) to 3
+    // Countermeasure for mods that leave the lower skills unpopulated.
     int spawnskill = TEST(sp->extra, SPRX_SKILL);
-    if (spawnskill > MinEnemySkill || (MinEnemySkill == 0 && spawnskill > Skill))
-    {
+    if (MinEnemySkill > 0 && spawnskill == MinEnemySkill) spawnskill = 0;
 
+    // Skill ranges from -1 (No Monsters) to 3.
+    if (spawnskill > Skill)
+    {
         // JBF: hack to fix Wanton Destruction's missing Sumos, Serpents, and Zilla on Skill < 2
         if (((sp->picnum == SERP_RUN_R0 || sp->picnum == SUMO_RUN_R0) && sp->lotag > 0 &&
              sp->lotag != TAG_SPAWN_ACTOR && sp->extra > 0) || sp->picnum == ZILLA_RUN_R0)
