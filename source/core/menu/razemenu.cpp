@@ -620,7 +620,7 @@ void SetDefaultMenuColors()
 	}
 	else
 	{
-		if (g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
+		if (isNamWW2GI())
 		{
 			OptionSettings.mFontColor = CR_DARKGREEN;
 			OptionSettings.mFontColorHeader = CR_DARKGRAY;
