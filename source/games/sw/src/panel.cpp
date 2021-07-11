@@ -745,6 +745,12 @@ inline double pspCosVel(PANEL_SPRITEp const psp, int const ang = INT_MAX)
     return psp->vel * synctics * bcosf(ang == INT_MAX ? psp->ang : ang, -6) * (1. / FRACUNIT);
 }
 
+inline double pspPresentRetractScale(int const picnum, double const defaultheight)
+{
+    double const picheight = tileHeight(picnum);
+    return picheight == defaultheight ? 1 : picheight / defaultheight;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1009,7 +1015,7 @@ pSwordPresent(PANEL_SPRITEp psp)
         return;
 
     psp->backupy();
-    psp->y -= 3 * synctics;
+    psp->y -= 3 * synctics * pspPresentRetractScale(psp->picndx, 136);
 
     if (psp->y < SWORD_YOFF)
     {
@@ -1239,7 +1245,7 @@ pSwordRetract(PANEL_SPRITEp psp)
     short picnum = psp->picndx;
 
     psp->backupy();
-    psp->y += 3 * synctics;
+    psp->y += 3 * synctics * pspPresentRetractScale(picnum, 136);
 
     if (psp->y >= SWORD_YOFF + tileHeight(picnum))
     {
