@@ -426,7 +426,7 @@ void GameInterface::app_init()
 	tileInit();
 
 	levelLoadDefaults();
-
+	LoadDefinitions();
 	//---------
 	SetTileNames();
 	C_InitConback(TexMan.CheckForTexture("BACKTILE", ETextureType::Any), true, 0.25);

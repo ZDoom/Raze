@@ -895,7 +895,6 @@ static void InitTextures()
 	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
 	voxInit();
 	gi->LoadGameTextures(); // loads game-side data that must be present before processing the .def files.
-	LoadDefinitions();
 	InitFont();				// InitFonts may only be called once all texture data has been initialized.
 
 	lookups.postLoadTables();
