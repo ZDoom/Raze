@@ -126,7 +126,19 @@ static const char* DefFile(void)
             if (ext.CompareNoCase(".ini") == 0)
             {
                 if (fileSystem.CheckNumForFullName(fn) != i) continue;
-                if (found == -1) found = i;
+                if (found == -1)
+                {
+                    IniFile inif(fn);
+                    for (int j = 1; j <= 6; j++)
+                    {
+                        FStringf key("Episode%d", j);
+                        if (inif.FindKey(key))
+                        {
+                            found = i;
+                            break;
+                        }
+                    }
+                }
                 else
                 {
                     found = -1;
