@@ -69,7 +69,6 @@ void GameInterface::LoadGameTextures()
         if (voxelIndex[i] >= 0 && voxelIndex[i] < kMaxVoxels)
             voxreserve.Set(voxelIndex[i]);
     }
-    return 1;
 }
 
 char tileGetSurfType(int hit)

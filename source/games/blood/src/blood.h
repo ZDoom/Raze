@@ -148,6 +148,7 @@ struct GameInterface : public ::GameInterface
 	void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
 	void EnterPortal(spritetype* viewer, int type) override;
 	void LeavePortal(spritetype* viewer, int type) override;
+	void LoadGameTextures() override;
 
 	GameStats getStats() override;
 };
