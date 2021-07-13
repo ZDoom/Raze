@@ -60,7 +60,7 @@ enum
 
 BuildTiles TileFiles;
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor);
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed = false);
 
 //==========================================================================
 //
