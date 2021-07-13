@@ -43,7 +43,7 @@ char surfType[kMaxTiles];
 int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
 
-int tileInit()
+void GameInterface::LoadGameTextures()
 {
     auto hFile = fileSystem.OpenFileReader("SURFACE.DAT");
     if (hFile.isOpen())

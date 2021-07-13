@@ -422,9 +422,6 @@ void GameInterface::app_init()
 
 	HookReplaceFunctions();
 
-	Printf(PRINT_NONOTIFY, "Loading texture tables\n");
-	tileInit();
-
 	levelLoadDefaults();
 
 	//---------
