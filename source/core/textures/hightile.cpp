@@ -59,6 +59,7 @@ struct HightileReplacement
 	float alphacut, specpower, specfactor;
 	uint16_t palnum;
 	bool issky;
+	bool indexed;
 };
 
 static TMap<int, TArray<HightileReplacement>> tileReplacements;
@@ -242,7 +243,7 @@ void highTileSetup()
 //
 //==========================================================================
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor)
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed)
 {
 	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
 	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
@@ -268,6 +269,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char* filename, flo
 	replace.specpower = specpower; // currently unused
 	replace.specfactor = specfactor; // currently unused
 	replace.issky = 0;
+	replace.indexed = indexed;
 	replace.palnum = (uint16_t)palnum;
 	AddReplacement(picnum, replace);
 	return 0;
@@ -280,7 +282,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char* filename, flo
 //
 //==========================================================================
 
-int tileSetSkybox(int picnum, int palnum, FString* facenames)
+int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed)
 {
 	if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
 	if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
@@ -311,6 +313,7 @@ int tileSetSkybox(int picnum, int palnum, FString* facenames)
 	replace.image = MakeGameTexture(sbtex, "", ETextureType::Override);
 	TexMan.AddGameTexture(replace.image, false);
     replace.issky = 1;
+	replace.indexed = indexed;
 	replace.palnum = (uint16_t)palnum;
 	AddReplacement(picnum, replace);
 	return 0;
@@ -350,21 +353,24 @@ bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wanti
 	auto rep = (hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? FindReplacement(tex->GetID(), hipalswap, false) : nullptr;
 	if (rep || tex->GetTexture()->isHardwareCanvas())
 	{
-		if (usepalette > 0)
-		{
-			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
-			auto& hh = lookups.tables[MAXPALOOKUPS - 1];
-			// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
-			pick.basepalTint = hh.tintColor;
-		}
-
 		if (rep)
 		{
 			tex = rep->image;
 		}
-		if (!rep || rep->palnum != hipalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL)) 
-			applytint = true;
-		if (!IsLuminosityTranslation(paletteid)) pick.translation = 0;
+		if (!rep || !rep->indexed)
+		{
+			if (usepalette > 0)
+			{
+				// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
+				auto& hh = lookups.tables[MAXPALOOKUPS - 1];
+				// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
+				pick.basepalTint = hh.tintColor;
+			}
+
+			if (!rep || rep->palnum != hipalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL))
+				applytint = true;
+			if (!IsLuminosityTranslation(paletteid)) pick.translation = 0;
+		}
 	}
 	else
 	{

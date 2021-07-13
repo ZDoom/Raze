@@ -45,8 +45,8 @@
 #include "mapinfo.h"
 #include "hw_voxels.h"
 
-int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor);
-int tileSetSkybox(int picnum, int palnum, FString* facenames);
+int tileSetHightileReplacement(int picnum, int palnum, const char* filename, float alphacut, float xscale, float yscale, float specpower, float specfactor, bool indexed = false);
+int tileSetSkybox(int picnum, int palnum, FString* facenames, bool indexed = false);
 void tileRemoveReplacement(int num);
 void AddUserMapHack(usermaphack_t&);
 
@@ -136,6 +136,7 @@ static void parseTexturePaletteBlock(FScanner& sc, int tile)
 	int pal = -1, xsiz = 0, ysiz = 0;
 	FString fn;
 	float alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
+	bool indexed = false;
 
 	if (!sc.GetNumber(pal, true)) return;
 
@@ -151,6 +152,7 @@ static void parseTexturePaletteBlock(FScanner& sc, int tile)
 		else if (sc.Compare({ "specfactor", "specularfactor", "parallaxbias" })) sc.GetFloat(specfactor, true);
 		else if (sc.Compare("orig_sizex")) sc.GetNumber(xsiz, true);
 		else if (sc.Compare("orig_sizey")) sc.GetNumber(ysiz, true);
+		else if (sc.Compare("indexed")) indexed = true;
 	};
 
 	if ((unsigned)tile < MAXUSERTILES)
@@ -167,7 +169,7 @@ static void parseTexturePaletteBlock(FScanner& sc, int tile)
 			xscale = 1.0f / xscale;
 			yscale = 1.0f / yscale;
 
-			tileSetHightileReplacement(tile, pal, fn, alphacut, xscale, yscale, specpower, specfactor);
+			tileSetHightileReplacement(tile, pal, fn, alphacut, xscale, yscale, specpower, specfactor, indexed);
 		}
 	}
 }
@@ -485,6 +487,7 @@ void parseSkybox(FScanner& sc, FScriptPosition& pos)
 	FString faces[6];
 	FScanner::SavedPos blockend;
 	int tile = -1, pal = 0;
+	bool indexed = false;
 
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))
@@ -498,10 +501,11 @@ void parseSkybox(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare({ "lt", "lf", "left" })) sc.GetString(faces[3]);
 		else if (sc.Compare({ "up", "ceiling", "top", "ceil" })) sc.GetString(faces[4]);
 		else if (sc.Compare({ "dn", "floor", "bottom", "down" })) sc.GetString(faces[5]);
+		else if (sc.Compare("indexed")) indexed = true;
 		// skip over everything else.
 	}
 	if (tile < 0) pos.Message(MSG_ERROR, "skybox: missing tile number");
-	else tileSetSkybox(tile, pal, faces);
+	else tileSetSkybox(tile, pal, faces, indexed);
 }
 
 //===========================================================================
