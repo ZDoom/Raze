@@ -255,7 +255,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char* filename, flo
 	}
 	HightileReplacement replace = {};
 
-	FTextureID texid = TexMan.CheckForTexture(filename, ETextureType::Any);
+	FTextureID texid = TexMan.CheckForTexture(filename, ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
 	if (!texid.isValid()) 
 	{
 		Printf("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
@@ -296,7 +296,7 @@ int tileSetSkybox(int picnum, int palnum, FString* facenames)
 	FGameTexture *faces[6];
 	for (int i = 0; i < 6; i++)
 	{
-		FTextureID texid = TexMan.CheckForTexture(facenames[i], ETextureType::Any);
+		FTextureID texid = TexMan.CheckForTexture(facenames[i], ETextureType::Any, FTextureManager::TEXMAN_ForceLookup);
 		if (!texid.isValid())
 		{
 			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", facenames[i].GetChars(), picnum);
