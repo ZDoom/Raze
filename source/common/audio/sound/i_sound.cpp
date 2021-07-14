@@ -367,7 +367,7 @@ SoundHandle SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int length)
 			i += 4;
 			if (i + blocksize > length)
 			{
-				okay = false;
+				//okay = false;
 				break;
 			}
 
