@@ -357,7 +357,11 @@ bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wanti
 		{
 			tex = rep->image;
 		}
-		if (!rep || !rep->indexed)
+		if (rep && rep->indexed && TextureType == TT_INDEXED)
+		{
+			pick.translation |= 0x80000000;
+		}
+		else if (!rep || !rep->indexed)
 		{
 			if (usepalette > 0)
 			{
