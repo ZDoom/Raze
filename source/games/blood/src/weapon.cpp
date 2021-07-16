@@ -2087,12 +2087,15 @@ void WeaponProcess(PLAYER *pPlayer) {
             return;
         break;
     }
-    if (pPlayer->nextWeapon)
+    if (VanillaMode())
     {
-        sfxKill3DSound(pPlayer->pSprite, -1, 441);
-        pPlayer->weaponState = 0;
-        pPlayer->newWeapon = pPlayer->nextWeapon;
-        pPlayer->nextWeapon = 0;
+        if (pPlayer->nextWeapon)
+        {
+            sfxKill3DSound(pPlayer->pSprite, -1, 441);
+            pPlayer->weaponState = 0;
+            pPlayer->newWeapon = pPlayer->nextWeapon;
+            pPlayer->nextWeapon = 0;
+        }
     }
     if (pPlayer->input.getNewWeapon() == WeaponSel_Next)
     {
