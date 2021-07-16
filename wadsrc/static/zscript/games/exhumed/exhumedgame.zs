@@ -11,6 +11,7 @@ struct Exhumed native
 	native static int MoveStatusSequence(int s1, int s2);
 	native static int SizeOfStatusSequence(int s1);
 	native static ExhumedPlayer GetViewPlayer();
+	native static int GetPistolClip();
 	
 	static void DrawAbs(String img, int x, int y, int shade = 0)
 	{

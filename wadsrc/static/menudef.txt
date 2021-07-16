@@ -1229,11 +1229,9 @@ OptionMenu "HUDOptions" protected
 	Option "$MSGMNU_PULSEMESSAGES",				"con_pulsetext", 			"OnOff", "con_notify_advanced"
 	Slider "$MSGMNU_MESSAGESCALE", 				"con_notifyscale", 			0.36, 1.0, 0.04, 2
 
-	ifnotgame(Exhumed)
-	{
-		StaticText ""
-		Option "$DSPLYMNU_CLIPAMT",				"cl_showmagamt",	OnOff
-	}
+	StaticText ""
+	Option "$DSPLYMNU_CLIPAMT",				"cl_showmagamt",	OnOff
+
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
 	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"crosshairscale",		0.25, 1.0, 0.125, 2
