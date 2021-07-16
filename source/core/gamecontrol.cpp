@@ -949,6 +949,13 @@ int RunGame()
 				colorset = true;
 			}
 		}
+		if (grp.FileInfo.mpepisodes.Size())
+		{
+			for (auto& mpepisode : grp.FileInfo.mpepisodes)
+			{
+				gi->AddMultiplayerEpisode(mpepisode);
+			}
+		}
 	}
 	I_SetIWADInfo();
 

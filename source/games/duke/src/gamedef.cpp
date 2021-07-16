@@ -56,6 +56,20 @@ enum { VERSIONCHECK = 41 };
 
 //---------------------------------------------------------------------------
 //
+// 
+//
+//---------------------------------------------------------------------------
+
+static TArray<FString> mpEpisodes;
+
+void GameInterface::AddMultiplayerEpisode(FString name)
+{
+	mpEpisodes.Push(FStringTable::MakeMacro(name.GetChars()));
+}
+
+
+//---------------------------------------------------------------------------
+//
 // definitions needed by the parser.
 //
 //---------------------------------------------------------------------------
@@ -1667,6 +1681,16 @@ int ConCompiler::parsecommand()
 		auto clust = MustFindCluster(j + 1);
 		vol->name = clust->name = FStringTable::MakeMacro(parsebuffer.Data(), i);
 		if (j > 0) vol->flags |= VF_SHAREWARELOCK;
+		if (mpEpisodes.Size())
+		{
+			for (auto& mpEpisode : mpEpisodes)
+			{
+				if (vol->name == mpEpisode)
+				{
+					vol->flags |= VF_HIDEFROMSP;
+				}
+			}
+		}
 		return 0;
 	}
 	case concmd_defineskillname:

@@ -717,6 +717,7 @@ grpinfo
 	FgColor 0xbc9e89
 	BkColor 0x7f3300
 	GameID "Redneck"
+	mpepisodes "PISSIN' CONTEST"
 }
 
 grpinfo
@@ -731,6 +732,7 @@ grpinfo
 	FgColor 0xbc9e89
 	BkColor 0x7f3300
 	GameID "RedneckRides"
+	mpepisodes "PISSIN' CONTEST"
 }
 
 grpinfo
@@ -772,6 +774,7 @@ grpinfo
 	FgColor 0
 	BkColor 0x78720d
 	GameID "Nam"
+	mpepisodes "MULTIPLAYER I", "MULTIPLAYER II"
 }
 
 grpinfo
@@ -785,6 +788,7 @@ grpinfo
 	FgColor 0
 	BkColor 0x78720d
 	GameID "Nam"
+	mpepisodes "MULTIPLAYER I", "MULTIPLAYER II"
 }
 
 grpinfo
@@ -798,6 +802,7 @@ grpinfo
 	FgColor 0
 	BkColor 0x78720d
 	GameID "WW2GI"
+	mpepisodes "MULTIPLAYER I", "MULTIPLAYER II"
 }
 
 grpinfo
@@ -810,6 +815,7 @@ grpinfo
 	dependency WW2GI_CRC
 	gamefilter "WW2GI.Platoon"
 	GameID "PlatoonLeader"
+	mpepisodes "MULTIPLAYER I", "MULTIPLAYER II"
 }
 
 grpinfo

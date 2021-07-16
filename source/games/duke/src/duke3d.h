@@ -67,6 +67,7 @@ struct GameInterface : public ::GameInterface
 	void EnterPortal(spritetype* viewer, int type) override;
 	void LeavePortal(spritetype* viewer, int type) override;
 	bool GetGeoEffect(GeoEffect* eff, int viewsector) override;
+	void AddMultiplayerEpisode(FString name) override;
 
 };
 

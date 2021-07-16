@@ -120,6 +120,7 @@ struct GameInterface
 	virtual void LeavePortal(spritetype* viewer, int type) {}
 	virtual bool GetGeoEffect(GeoEffect* eff, int viewsector) { return false; }
 	virtual int Voxelize(int sprnum) { return -1; }
+	virtual void AddMultiplayerEpisode(FString name) {}
 
 	virtual FString statFPS()
 	{
