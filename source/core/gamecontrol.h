@@ -143,6 +143,7 @@ struct GrpInfo
 	TArray<FString> tobedeleted;
 	TArray<FString> loadfiles;
 	TArray<FString> loadart;
+	TArray<FString> mpepisodes;
 	uint32_t FgColor = 0, BgColor = 0;
 };
 
