@@ -132,7 +132,7 @@ static const char* DefFile(void)
                     for (int j = 1; j <= 6; j++)
                     {
                         FStringf key("Episode%d", j);
-                        if (inif.FindKey(key))
+                        if (inif.SectionExists(key))
                         {
                             found = i;
                             break;
