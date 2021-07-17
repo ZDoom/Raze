@@ -136,7 +136,7 @@ inline void PlayerSetInput(int pl, ESyncBits bit)
 
 inline int PlayerNewWeapon(int pl)
 {
-	return ps[pl].sync.getNewWeapon();
+	return ps[pl].sync.getNewWeapon() - 1;
 }
 
 inline void PlayerSetItemUsed(int pl, int num)

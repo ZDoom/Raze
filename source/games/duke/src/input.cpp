@@ -243,8 +243,8 @@ void hud_input(int plnum)
 		}
 
 		int weap = PlayerNewWeapon(plnum);
-		if (weap > 1 && p->kickback_pic > 0)
-			p->wantweaponfire = weap - 1;
+		if (weap > 0 && p->kickback_pic > 0)
+			p->wantweaponfire = weap;
 
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
 		fi.selectweapon(plnum, weap);
