@@ -99,7 +99,7 @@ void FillWeapons(short nPlayer)
     for (int i = 0; i < kMaxWeapons; i++)
     {
         if (WeaponInfo[i].d) {
-            PlayerList[nPlayer].nAmmo[i] = 99;
+            PlayerList[nPlayer].nAmmo[i] = 300;
         }
     }
 
