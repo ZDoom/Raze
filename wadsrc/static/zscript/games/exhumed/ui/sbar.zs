@@ -347,7 +347,7 @@ class ExhumedStatusBar : RazeStatusBar
 		//
 
 		int nKeys = pp.keys;
-		int x = -134;
+		int x = -164;
 
 		for (int i = 0; i < 4; i++)
 		{
