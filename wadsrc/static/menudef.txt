@@ -1023,7 +1023,7 @@ OptionMenu "VideoOptions" protected
 	Title "$DSPLYMNU_TITLE"
 	
 	Submenu "$OPTMNU_HUD", "HUDOptions"
-	Submenu "$GLMNU_TITLE", "RenderOptions"
+	Submenu "$RENDER_OPTIONS", "RenderOptions"
 	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
 	Submenu "$GLMNU_POSTPROCESS", "PostProcessMenu"
 	Submenu "$GLTEXMNU_TITLE", "GLTextureGLOptions"
@@ -1181,6 +1181,7 @@ OptionMenu "GLTextureGLOptions" protected
 	Option "$GLTEXMNU_RESIZEFNT",		gl_texture_hqresize_fonts,		"OnOff"
 	Option "$GLTEXMNU_RESIZESKN",		gl_texture_hqresize_skins,		"OnOff"
 	Option "$GLTEXMNU_PRECACHETEX",		gl_precache,					"YesNo"
+	Class "GLTextureGLOptions"
 }
 //-------------------------------------------------------------------------------------------
 //
