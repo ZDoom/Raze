@@ -791,13 +791,8 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			spj->y -= yoffs;
 			spj->ang -= aoffs;
 
-			spj->x -= bsin(sa) / 56;
-			spj->y += bcos(sa) / 56;
-			spj->ang -= 8 + (krand() & 255) - 128;
 			spj->xrepeat = 24;
 			spj->yrepeat = 24;
-
-
 		}
 		else if (atwith != FREEZEBLAST)
 		{
