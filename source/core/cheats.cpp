@@ -45,6 +45,7 @@
 #include "gamecontrol.h"
 #include "screenjob.h"
 #include "mapinfo.h"
+#include "statistics.h"
 
 CVAR(Bool, sv_cheats, true, CVAR_ARCHIVE|CVAR_SERVERINFO)
 CVAR(Bool, cl_blockcheats, false, 0)
@@ -487,4 +488,10 @@ CUSTOM_CVAR(Float, i_timescale, 1.0f, CVAR_NOINITCALL)
 	{
 		Printf("Time scale must be at least 0.05!\n");
 	}
+}
+
+CCMD(endofgame)
+{
+	STAT_Update(true);
+	ChangeLevel(nullptr, -1);
 }
