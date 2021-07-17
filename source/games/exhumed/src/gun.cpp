@@ -103,9 +103,6 @@ void FillWeapons(short nPlayer)
         }
     }
 
-    // Reset pistol's clip amount.
-    nPistolClip[nPlayer] = PlayerList[nPlayer].nAmmo[kWeaponPistol] % 6;
-
     CheckClip(nPlayer);
 }
 
@@ -317,6 +314,9 @@ void CheckClip(short nPlayer)
             nPlayerClip[nPlayer] = 100;
         }
     }
+
+    // Reset pistol's clip amount.
+    nPistolClip[nPlayer] = PlayerList[nPlayer].nAmmo[kWeaponPistol] % 6;
 }
 
 void MoveWeapons(short nPlayer)
