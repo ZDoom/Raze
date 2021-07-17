@@ -307,14 +307,19 @@ class ExhumedStatusBar : RazeStatusBar
 		int ammo = pp.nAmmo[weapon];
 		if (ammo > 0) // wicon > 0
 		{
-			if (weapon != kWeaponPistol || (weapon == kWeaponPistol && !cl_showmagamt))
-			{
-				format = String.Format("%d", ammo);
-			}
-			else
+			if (weapon == kWeaponPistol && cl_showmagamt)
 			{
 				int clip = CalcMagazineAmount(ammo, 6, Exhumed.GetPistolClip() == 0);
 				format = String.Format("%d/%d", clip, ammo - clip);
+			}
+			else if (weapon == kWeaponM60 && cl_showmagamt)
+			{
+				int clip = CalcMagazineAmount(ammo, 100, Exhumed.GetPlayerClip() == 0);
+				format = String.Format("%d/%d", clip, ammo - clip);
+			}
+			else
+			{
+				format = String.Format("%d", ammo);
 			}
 			/* non-implemented weapon icon.
 			int wicon = 0;// ammo_sprites[weapon];

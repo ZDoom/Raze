@@ -2801,6 +2801,11 @@ DEFINE_ACTION_FUNCTION(_Exhumed, GetPistolClip)
     ACTION_RETURN_POINTER(&nPistolClip[nLocalPlayer]);
 }
 
+DEFINE_ACTION_FUNCTION(_Exhumed, GetPlayerClip)
+{
+    ACTION_RETURN_POINTER(&nPlayerClip[nLocalPlayer]);
+}
+
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
