@@ -265,6 +265,7 @@ void addweapon_d(struct player_struct *p, int weapon)
 #else
 	p->curr_weapon = weapon;
 #endif
+	p->wantweaponfire = -1;
 
 	switch (weapon)
 	{
