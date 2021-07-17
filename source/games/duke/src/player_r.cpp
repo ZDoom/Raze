@@ -1071,7 +1071,7 @@ void selectweapon_r(int snum, int weap)
 					}
 				}
 			}
-			else j = weap;
+			else j = weap - 1;
 
 			k = -1;
 

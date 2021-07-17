@@ -1299,7 +1299,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 					}
 				}
 			}
-			else j = weap;
+			else j = weap - 1;
 
 			k = -1;
 
