@@ -313,8 +313,8 @@ void CheckClip(short nPlayer)
     {
         nPlayerClip[nPlayer] = PlayerList[nPlayer].nAmmo[kWeaponM60];
 
-        if (nPlayerClip[nPlayer] > 99) {
-            nPlayerClip[nPlayer] = 99;
+        if (nPlayerClip[nPlayer] > 100) {
+            nPlayerClip[nPlayer] = 100;
         }
     }
 }
