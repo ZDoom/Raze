@@ -1697,21 +1697,24 @@ void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer) {
 
 void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
 {
-    int look = pXSource->data2 << 5;
+    double const upAngle = 289; double const downAngle = -347;
+    double const lookStepUp = 4.0 * upAngle / 60.0;
+    double const lookStepDown = -4.0 * downAngle / 60.0;
+    double const look = pXSource->data2 << 5;
+    double adjustment;
 
-    if (abs(look) > 0)
-    {
-        if (pPlayer->horizon.horiz.asq16() != 0)
-        {
-            // move horiz back to 0
-            pPlayer->horizon.horiz += q16horiz(xs_CRoundToInt(-pPlayer->horizon.horiz.asq16() * (1. / 3.)));
-        }
+    if (look > 0) {
+        adjustment = min(MulScaleF(lookStepUp, look, 8), upAngle);
     }
-    else
-    {
-        pPlayer->horizon.horiz = q16horiz(0);
+    else if (look < 0) {
+        adjustment = -max(MulScaleF(lookStepDown, abs(look), 8), downAngle);
+    }
+    else {
+        adjustment = 0;
     }
 
+    pPlayer->horizon.settarget(100. * tan(adjustment * pi::pi() / 1024.));
+    setForcedSyncInput();
 }
 
 void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
