@@ -1714,7 +1714,7 @@ void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
     }
 
     pPlayer->horizon.settarget(100. * tan(adjustment * pi::pi() / 1024.));
-    setForcedSyncInput();
+    pPlayer->horizon.lockinput();
 }
 
 void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
@@ -2403,7 +2403,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
         
         if (pPlayer) {
             pPlayer->angle.settarget(pSource->ang);
-            setForcedSyncInput();
+            pPlayer->angle.lockinput();
         }
         else if (isDude) xsprite[pSprite->extra].goalAng = pSprite->ang = pSource->ang;
         else pSprite->ang = pSource->ang;
@@ -4695,11 +4695,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->data4 != 0) break;
                     else if (pSprite->flags & kModernTypeFlag1) {
                         pPlayer->angle.settarget(pSprite->ang);
-                        setForcedSyncInput();
+                        pPlayer->angle.lockinput();
                     }
                     else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) {
                         pPlayer->angle.settarget(pXSprite->data2);
-                        setForcedSyncInput();
+                        pPlayer->angle.lockinput();
                     }
                     break;
                 case 10: // 74 (print the book)
