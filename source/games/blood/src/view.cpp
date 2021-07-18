@@ -618,16 +618,16 @@ void viewDrawScreen(bool sceneonly)
         binangle rotscrnang;
         SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta, shakeX, shakeY, rotscrnang);
 
-        int tilt = interpolatedangle(gScreenTiltO, gScreenTilt, gInterpolate);
+        binangle tilt = interpolatedangle(buildang(gScreenTiltO), buildang(gScreenTilt), gInterpolate);
         uint8_t v14 = 0;
         uint8_t v10 = 0;
         bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
         static bool bDeliriumOld = false;
         //int tiltcs, tiltdim;
         uint8_t otherview = powerupCheck(gView, kPwUpCrystalBall) > 0;
-        if (tilt || bDelirium)
+        if (tilt.asbam() || bDelirium)
         {
-            rotscrnang = buildang(tilt);
+            rotscrnang = tilt;
         }
         else if (otherview && gNetPlayers > 1)
         {
@@ -689,7 +689,7 @@ void viewDrawScreen(bool sceneonly)
         }
         cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
-        if ((tilt || bDelirium) && !sceneonly)
+        if ((tilt.asbam() || bDelirium) && !sceneonly)
         {
             if (gDeliriumBlur)
             {
