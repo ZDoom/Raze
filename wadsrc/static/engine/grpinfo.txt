@@ -404,7 +404,7 @@ grpinfo
 grpinfo
 {
 	name "Blood 1.0"
-	size 9570681
+	size 8200353
 	crc BLOOD10_CRC
 	defname "blood.def"
 	scriptname "BLOOD.INI"
@@ -420,7 +420,7 @@ grpinfo
 grpinfo
 {
 	name "Blood 1.1"
-	size 9570681
+	size 8231173
 	crc BLOOD11_CRC
 	defname "blood.def"
 	scriptname "BLOOD.INI"
