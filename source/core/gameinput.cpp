@@ -246,8 +246,8 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
-	// Process only if no targeted horizon set.
-	if (!targetset())
+	// Process only if movewment isn't locked.
+	if (!movementlocked())
 	{
 		// Store current horizon as true pitch.
 		double pitch = horiz.aspitch();
@@ -342,7 +342,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		rotscrnang += buildfang(scaleAdjust * -(720. / GameTicRate));
 	}
 
-	if (!targetset())
+	if (!movementlocked())
 	{
 		if (*actions & SB_TURNAROUND)
 		{
@@ -450,6 +450,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 			("lookang", w.look_ang)
 			("rotscrnang", w.rotscrnang)
 			("spin", w.spin)
+			("inputdisabled", w.inputdisabled)
 			.EndObject();
 
 		if (arc.isReading())
@@ -457,6 +458,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, Pl
 			w.oang = w.ang;
 			w.olook_ang = w.look_ang;
 			w.orotscrnang = w.rotscrnang;
+			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();
 		}
 	}
@@ -469,12 +471,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 	{
 		arc("horiz", w.horiz)
 			("horizoff", w.horizoff)
+			("inputdisabled", w.inputdisabled)
 			.EndObject();
 
 		if (arc.isReading())
 		{
 			w.ohoriz = w.horiz;
 			w.ohorizoff = w.horizoff;
+			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();
 		}
 	}
