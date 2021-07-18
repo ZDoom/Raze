@@ -4560,7 +4560,7 @@ static void ProcessTouchObjects(DBloodActor* actor)
 			}
 		}
 
-		if (actor2->hasX())
+		if (actor2 && actor2->hasX())
 		{
 			XSPRITE* pXHSprite = &actor2->x();
 			if (pXHSprite->Touch && !pXHSprite->isTriggered && (!pXHSprite->DudeLockout || actor->IsPlayerActor()))
