@@ -1020,9 +1020,10 @@ OptionMenu "VideoOptions" protected
 	Title "$DSPLYMNU_TITLE"
 	
 	Submenu "$OPTMNU_HUD", "HUDOptions"
-	Submenu "$GLMNU_TITLE", "RenderOptions"
+	Submenu "$RENDER_OPTIONS", "RenderOptions"
 	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
-	Submenu "$GLMNU_POSTPROCESS",				"PostProcessMenu"
+	Submenu "$GLMNU_POSTPROCESS", "PostProcessMenu"
+	Submenu "$GLTEXMNU_TITLE", "GLTextureGLOptions"
 	StaticText ""
 
 	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2
@@ -1128,6 +1129,30 @@ OptionMenu "AutomapOptions"
 	//CVAR(Color, am_ovplayercolor, 0xaaaaaa, CVAR_ARCHIVE)
 
 }
+
+OptionMenu "GLTextureGLOptions" protected
+{
+	Title "$GLTEXMNU_TITLE"
+	ifOption(MMX)
+	{
+		Option "$GLTEXMNU_HQRESIZE",		gl_texture_hqresizemode,		"HqResizeModes"
+	}
+	else
+	{
+		Option "$GLTEXMNU_HQRESIZE",		gl_texture_hqresizemode,		"HqResizeModesNoMMX"
+	}
+	Option "$GLTEXMNU_HQRESIZEMULT",	gl_texture_hqresizemult,		"HqResizeMultipliers"
+	StaticText "!HQRESIZE_WARNING!"
+
+	Option "$GLTEXMNU_RESIZETEX",		gl_texture_hqresize_textures,	"OnOff"
+	Option "$GLTEXMNU_RESIZESPR",		gl_texture_hqresize_sprites,	"OnOff"
+	Option "$GLTEXMNU_RESIZEFNT",		gl_texture_hqresize_fonts,		"OnOff"
+	Option "$GLTEXMNU_RESIZESKN",		gl_texture_hqresize_skins,		"OnOff"
+	Option "$GLTEXMNU_PRECACHETEX",		gl_precache,					"YesNo"
+	Class "GLTextureGLOptions"
+}
+
+
 //-------------------------------------------------------------------------------------------
 //
 // HUD options
