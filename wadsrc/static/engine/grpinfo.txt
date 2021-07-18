@@ -403,7 +403,7 @@ grpinfo
 
 grpinfo
 {
-	name "Blood 1.0"
+	name "BLOOD: 1.0"
 	size 8200353
 	crc BLOOD10_CRC
 	defname "blood.def"
@@ -419,7 +419,7 @@ grpinfo
 
 grpinfo
 {
-	name "Blood 1.1"
+	name "BLOOD: 1.1"
 	size 8231173
 	crc BLOOD11_CRC
 	defname "blood.def"
