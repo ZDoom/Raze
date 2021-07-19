@@ -209,7 +209,7 @@ void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState);
 int getGenDudeMoveSpeed(spritetype* pSprite, int which, bool mul, bool shift);
 int checkAttackState(DBloodActor* actor);
 bool doExplosion(spritetype* pSprite, int nType);
-spritetype* genDudeSpawn(spritetype* pSprite, int nDist);
+spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist);
 void genDudeTransform(spritetype* pSprite);
 void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT a3);
 int getDodgeChance(spritetype* pSprite);

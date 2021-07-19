@@ -209,6 +209,12 @@ void actAddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange
 void actDoLight(int spriteNum);
 #endif
 
+void FireballSeqCallback(int, int);
+void sub_38938(int, int);
+void NapalmSeqCallback(int, int);
+void sub_3888C(int, int);
+void TreeToGibCallback(int, int);
+
 bool IsUnderwaterSector(int nSector);
 void actInit(bool bSaveLoad);
 int actWallBounceVector(int *x, int *y, int nWall, int a4);

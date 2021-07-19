@@ -104,6 +104,13 @@ const GENDUDESND gCustomDudeSnd[] = {
     { 9008, 0, 17, false, false },      // transforming in other dude
 };
 
+// for kModernThingThrowableRock
+short gCustomDudeDebrisPics[6] = {
+    
+    2406, 2280, 2185, 2155, 2620, 3135
+
+};
+
 GENDUDEEXTRA gGenDudeExtra[kMaxSprites]; // savegame handling in ai.cpp
 
 static void forcePunch(DBloodActor* actor)
@@ -318,12 +325,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             impact = true;
             break;
         case kModernThingThrowableRock:
-            int sPics[6];
-            sPics[0] = 2406;	sPics[1] = 2280;
-            sPics[2] = 2185;	sPics[3] = 2155;
-            sPics[4] = 2620;	sPics[5] = 3135;
-
-            pThing->picnum = sPics[Random(5)];
+            pThing->picnum  = gCustomDudeDebrisPics[Random(5)];
             pThing->xrepeat = pThing->yrepeat = 24 + Random(42);
             pThing->cstat |= 0x0001;
             pThing->pal = 5;
@@ -1624,19 +1626,23 @@ bool doExplosion(spritetype* pSprite, int nType) {
 
 // this function allows to spawn new custom dude and inherit spawner settings,
 // so custom dude can have different weapons, hp and so on...
-spritetype* genDudeSpawn(spritetype* pSprite, int nDist) {
+spritetype* genDudeSpawn(XSPRITE* pXSource, spritetype* pSprite, int nDist) {
 
-    spritetype* pSource = pSprite; XSPRITE* pXSource = &xsprite[pSource->extra];
-    spritetype* pDude = actSpawnSprite(pSprite, 6); XSPRITE* pXDude = &xsprite[pDude->extra];
+    spritetype* pSource = &sprite[pXSource->reference]; 
+    spritetype* pDude = actSpawnSprite(pSprite, kStatDude); XSPRITE* pXDude = &xsprite[pDude->extra];
 
     int x, y, z = pSprite->z, nAngle = pSprite->ang, nType = kDudeModernCustom;
 
     if (nDist > 0) {
+        
         x = pSprite->x + mulscale30r(Cos(nAngle), nDist);
         y = pSprite->y + mulscale30r(Sin(nAngle), nDist);
+
     } else {
+        
         x = pSprite->x;
         y = pSprite->y;
+
     }
 
     pDude->type = nType; pDude->ang = nAngle;
@@ -1656,7 +1662,8 @@ spritetype* genDudeSpawn(spritetype* pSprite, int nDist) {
     pXDude->busyTime = pXSource->busyTime;
 
     // inherit clipdist?
-    if (pSource->clipdist > 0) pDude->clipdist = pSource->clipdist;
+    if (pSource->clipdist > 0)
+        pDude->clipdist = pSource->clipdist;
 
     // inherit custom hp settings
     if (pXSource->data4 <= 0) pXDude->health = dudeInfo[nType - kDudeBase].startHealth << 4;
@@ -1665,29 +1672,29 @@ spritetype* genDudeSpawn(spritetype* pSprite, int nDist) {
 
     if (pSource->flags & kModernTypeFlag1) {
         switch (pSource->type) {
-        case kModernCustomDudeSpawn:
-            //inherit pal?
-            if (pDude->pal <= 0) pDude->pal = pSource->pal;
+            case kModernCustomDudeSpawn:
+                //inherit pal?
+                if (pDude->pal <= 0) pDude->pal = pSource->pal;
 
-            // inherit spawn sprite trigger settings, so designer can count monsters.
-            pXDude->txID = pXSource->txID;
-            pXDude->command = pXSource->command;
-            pXDude->triggerOn = pXSource->triggerOn;
-            pXDude->triggerOff = pXSource->triggerOff;
+                // inherit spawn sprite trigger settings, so designer can count monsters.
+                pXDude->txID = pXSource->txID;
+                pXDude->command = pXSource->command;
+                pXDude->triggerOn = pXSource->triggerOn;
+                pXDude->triggerOff = pXSource->triggerOff;
 
-            // inherit drop items
-            pXDude->dropMsg = pXSource->dropMsg;
+                // inherit drop items
+                pXDude->dropMsg = pXSource->dropMsg;
 
-            // inherit required key so it can be dropped
-            pXDude->key = pXSource->key;
+                // inherit required key so it can be dropped
+                pXDude->key = pXSource->key;
 
-            // inherit dude flags
-            pXDude->dudeDeaf = pXSource->dudeDeaf;
-            pXDude->dudeGuard = pXSource->dudeGuard;
-            pXDude->dudeAmbush = pXSource->dudeAmbush;
-            pXDude->dudeFlag4 = pXSource->dudeFlag4;
-            pXDude->unused1 = pXSource->unused1;
-            break;
+                // inherit dude flags
+                pXDude->dudeDeaf = pXSource->dudeDeaf;
+                pXDude->dudeGuard = pXSource->dudeGuard;
+                pXDude->dudeAmbush = pXSource->dudeAmbush;
+                pXDude->dudeFlag4 = pXSource->dudeFlag4;
+                pXDude->unused1 = pXSource->unused1;
+                break;
         }
     }
 
@@ -1697,6 +1704,7 @@ spritetype* genDudeSpawn(spritetype* pSprite, int nDist) {
         pDude->yrepeat = pSource->yrepeat;
     }
 
+    gKillMgr.AddNewKill(1);
     aiInitSprite(pDude);
     return pDude;
 }

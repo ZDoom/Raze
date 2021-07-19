@@ -96,6 +96,8 @@ struct XSPRITE {
             unsigned int medium : 2;            // medium
             unsigned int respawn : 2;           // Respawn option
             unsigned int unused2 : 1;           // (new) patrol state
+            unsigned int unused3 : 2;           // "unused"
+            unsigned int unused4 : 6;           // "unused"
        };
     };
     int32_t targetX;          // target x

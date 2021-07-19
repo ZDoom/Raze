@@ -1813,6 +1813,10 @@ void aiInitSprite(spritetype *pSprite)
 
             // make dude follow the markers
             bool uwater = spriteIsUnderwater(pSprite);
+            if (pXSprite->target <= 0 || sprite[pXSprite->target].type != kMarkerPath) {
+                pXSprite->target = -1; aiPatrolSetMarker(pSprite, pXSprite);
+            }
+
             if (stateTimer > 0) {
                 if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
                 else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
