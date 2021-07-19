@@ -203,6 +203,7 @@ grpinfo
 	dependency DUKE13_CRC
 	gamefilter "Duke.DukeDC.13"
 	GameID "DukeDC13"
+	exclepisodes "L.A. MELTDOWN", "LUNAR APOCALYPSE", "THE BIRTH"
 }
 
 grpinfo
@@ -214,6 +215,7 @@ grpinfo
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC.13"
 	GameID "DukeDC"
+	exclepisodes "L.A. MELTDOWN", "LUNAR APOCALYPSE", "THE BIRTH"
 }
 
 grpinfo
@@ -225,6 +227,7 @@ grpinfo
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC.15"
 	GameID "DukeDC"
+	exclepisodes "L.A. MELTDOWN", "LUNAR APOCALYPSE", "THE BIRTH"
 }
 
 grpinfo
@@ -237,6 +240,7 @@ grpinfo
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC.15"
 	GameID "DukeDC"
+	exclepisodes "L.A. MELTDOWN", "LUNAR APOCALYPSE", "THE BIRTH"
 }
 
 grpinfo
@@ -249,6 +253,7 @@ grpinfo
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC.15"
 	GameID "DukeDC"
+	exclepisodes "L.A. MELTDOWN", "LUNAR APOCALYPSE", "THE BIRTH"
 }
 
 grpinfo
@@ -262,6 +267,7 @@ grpinfo
 	FgColor 0x00004f
 	BkColor 0x8f8fff
 	GameID "DukeVacation13"
+	exclepisodes "L.A. MELTDOWN", "VACATION DUKEMATCH", "THE BIRTH"
 }
 
 grpinfo
@@ -275,6 +281,7 @@ grpinfo
 	FgColor 0x00004f
 	BkColor 0x8f8fff
 	GameID "DukeVacation"
+	exclepisodes "L.A. MELTDOWN", "VACATION DUKEMATCH", "THE BIRTH"
 }
 
 grpinfo
@@ -288,6 +295,7 @@ grpinfo
 	FgColor 0x00004f
 	BkColor 0x8f8fff
 	GameID "DukeVacation"
+	exclepisodes "L.A. MELTDOWN", "VACATION DUKEMATCH", "THE BIRTH"
 }
 
 
@@ -302,6 +310,7 @@ grpinfo
 	FgColor 0x00004f
 	BkColor 0x8f8fff
 	GameID "DukeVacation"
+	exclepisodes "L.A. MELTDOWN", "VACATION DUKEMATCH", "THE BIRTH"
 }
 
 grpinfo
@@ -316,6 +325,7 @@ grpinfo
 	FgColor 0x00004f
 	BkColor 0x8f8fff
 	GameID "DukeVacation"
+	exclepisodes "L.A. MELTDOWN", "VACATION DUKEMATCH", "THE BIRTH"
 }
 
 grpinfo
@@ -330,6 +340,7 @@ grpinfo
 	FgColor 0x00004f
 	BkColor 0x8f8fff
 	GameID "DukeVacation"
+	exclepisodes "L.A. MELTDOWN", "VACATION DUKEMATCH", "THE BIRTH"
 }
 
 grpinfo
@@ -344,6 +355,7 @@ grpinfo
 	FgColor 0
 	BkColor 0x8f8f8f
 	GameID "NuclearWinter"
+	exclepisodes "L.A. MELTDOWN"
 }
 
 grpinfo
@@ -357,6 +369,7 @@ grpinfo
 	gamefilter "Duke.NWinter"
 	FgColor 0
 	BkColor 0x8f8f8f
+	exclepisodes "L.A. MELTDOWN"
 }
 
 grpinfo
@@ -717,7 +730,7 @@ grpinfo
 	FgColor 0xbc9e89
 	BkColor 0x7f3300
 	GameID "Redneck"
-	mpepisodes "PISSIN' CONTEST"
+	exclepisodes "PISSIN' CONTEST"
 }
 
 grpinfo
@@ -732,7 +745,7 @@ grpinfo
 	FgColor 0xbc9e89
 	BkColor 0x7f3300
 	GameID "RedneckRides"
-	mpepisodes "PISSIN' CONTEST"
+	exclepisodes "PISSIN' CONTEST"
 }
 
 grpinfo
@@ -774,7 +787,7 @@ grpinfo
 	FgColor 0
 	BkColor 0x78720d
 	GameID "Nam"
-	mpepisodes "MULTIPLAYER I", "MULTIPLAYER II"
+	exclepisodes "MULTIPLAYER I", "MULTIPLAYER II"
 }
 
 grpinfo
@@ -788,7 +801,7 @@ grpinfo
 	FgColor 0
 	BkColor 0x78720d
 	GameID "Nam"
-	mpepisodes "MULTIPLAYER I", "MULTIPLAYER II"
+	exclepisodes "MULTIPLAYER I", "MULTIPLAYER II"
 }
 
 grpinfo
@@ -802,7 +815,7 @@ grpinfo
 	FgColor 0
 	BkColor 0x78720d
 	GameID "WW2GI"
-	mpepisodes "MULTIPLAYER I", "MULTIPLAYER II"
+	exclepisodes "MULTIPLAYER I", "MULTIPLAYER II"
 }
 
 grpinfo
@@ -815,7 +828,7 @@ grpinfo
 	dependency WW2GI_CRC
 	gamefilter "WW2GI.Platoon"
 	GameID "PlatoonLeader"
-	mpepisodes "MULTIPLAYER I", "MULTIPLAYER II"
+	exclepisodes "MULTIPLAYER I", "MULTIPLAYER II"
 }
 
 grpinfo

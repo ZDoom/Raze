@@ -60,11 +60,11 @@ enum { VERSIONCHECK = 41 };
 //
 //---------------------------------------------------------------------------
 
-static TArray<FString> mpEpisodes;
+static TArray<FString> exclEpisodes;
 
-void GameInterface::AddMultiplayerEpisode(FString name)
+void GameInterface::AddExcludedEpisode(FString episode)
 {
-	mpEpisodes.Push(FStringTable::MakeMacro(name.GetChars()));
+	exclEpisodes.Push(FStringTable::MakeMacro(episode.GetChars()));
 }
 
 
@@ -1681,11 +1681,11 @@ int ConCompiler::parsecommand()
 		auto clust = MustFindCluster(j + 1);
 		vol->name = clust->name = FStringTable::MakeMacro(parsebuffer.Data(), i);
 		if (j > 0) vol->flags |= VF_SHAREWARELOCK;
-		if (mpEpisodes.Size())
+		if (exclEpisodes.Size())
 		{
-			for (auto& mpEpisode : mpEpisodes)
+			for (auto& episode : exclEpisodes)
 			{
-				if (vol->name == mpEpisode)
+				if (vol->name == episode)
 				{
 					vol->flags |= VF_HIDEFROMSP;
 				}

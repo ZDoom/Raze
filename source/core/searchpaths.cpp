@@ -588,12 +588,12 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 					}
 					while (sc.CheckToken(','));
 				}
-				else if (sc.Compare("mpepisodes"))
+				else if (sc.Compare("exclepisodes"))
 				{
 					do
 					{
 						sc.MustGetToken(TK_StringConst);
-						grp.mpepisodes.Push(sc.String);
+						grp.exclepisodes.Push(sc.String);
 					}
 					while (sc.CheckToken(','));
 				}

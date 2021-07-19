@@ -949,11 +949,11 @@ int RunGame()
 				colorset = true;
 			}
 		}
-		if (grp.FileInfo.mpepisodes.Size())
+		if (grp.FileInfo.exclepisodes.Size())
 		{
-			for (auto& mpepisode : grp.FileInfo.mpepisodes)
+			for (auto& episode : grp.FileInfo.exclepisodes)
 			{
-				gi->AddMultiplayerEpisode(mpepisode);
+				gi->AddExcludedEpisode(episode);
 			}
 		}
 	}
