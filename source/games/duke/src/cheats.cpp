@@ -299,7 +299,7 @@ static bool cheatLevel(cheatseq_t *s)
 	auto map = FindMapByIndex(volnume, levnume);
 	if (map)
 	{
-		ChangeLevel(map, -1);
+		ChangeLevel(map, g_nextskill);
 	}
 	return true;
 }

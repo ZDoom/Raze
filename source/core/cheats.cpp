@@ -334,7 +334,7 @@ CCMD(levelwarp)
 	auto map = levelwarp_common(argv, "levelwarp", "warp to");
 	if (map)
 	{
-		ChangeLevel(map, -1);
+		ChangeLevel(map, g_nextskill);
 	}
 }
 
@@ -355,7 +355,7 @@ CCMD(levelstart)
 	auto map = levelwarp_common(argv, "start game", "start new game at");
 	if (map)
 	{
-		DeferredStartGame(map, -1);
+		DeferredStartGame(map, g_nextskill);
 	}
 }
 
@@ -405,7 +405,7 @@ CCMD(changemap)
 		Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
 	}
 
-	ChangeLevel(map, -1);
+	ChangeLevel(map, g_nextskill);
 }
 
 //---------------------------------------------------------------------------
@@ -445,7 +445,7 @@ CCMD(map)
 			Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
 		}
 
-		DeferredStartGame(map, -1);
+		DeferredStartGame(map, g_nextskill);
 	}
 }
 
@@ -462,7 +462,7 @@ CCMD(restartmap)
 		Printf("Must be in a game to restart a level.\n");
 		return;
 	}
-	ChangeLevel(currentLevel, -1);
+	ChangeLevel(currentLevel, g_nextskill);
 }
 
 //---------------------------------------------------------------------------
@@ -493,7 +493,7 @@ CUSTOM_CVAR(Float, i_timescale, 1.0f, CVAR_NOINITCALL)
 CCMD(endofgame)
 {
 	STAT_Update(true);
-	ChangeLevel(nullptr, -1);
+	ChangeLevel(nullptr, g_nextskill);
 }
 
 //---------------------------------------------------------------------------

@@ -5327,7 +5327,7 @@ ActorHealth(short SpriteNum, short amt)
         if (u->Health < u->MaxHealth/2)
         {
             FinishAnim = ANIM_SERP;
-			ChangeLevel(nullptr, -1);
+			ChangeLevel(nullptr, g_nextskill);
             return true;
         }
     }

@@ -3444,7 +3444,7 @@ int ParseState::parse(void)
 		levnume = GetGameVarID(*insptr++, g_ac, g_p);
 		auto level = FindMapByIndex(volnume, levnume);
 		if (level != nullptr)
-			ChangeLevel(level, -1);
+			ChangeLevel(level, g_nextskill);
 		break;
 	}
 	case concmd_myosx:

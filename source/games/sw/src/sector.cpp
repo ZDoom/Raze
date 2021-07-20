@@ -1914,7 +1914,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
             map = FindMapByLevelNum(sp->hitag);
         else
             map = FindNextMap(currentLevel);
-		ChangeLevel(map, -1);
+		ChangeLevel(map, g_nextskill);
 
         return true;
     }
@@ -2096,7 +2096,7 @@ OperateTripTrigger(PLAYERp pp)
             map = FindMapByLevelNum(sectp->hitag);
         else
             map = FindNextMap(currentLevel);
-		ChangeLevel(map, -1);
+		ChangeLevel(map, g_nextskill);
         break;
     }
 

@@ -102,7 +102,7 @@ const char *GameInterface::GenericCheat(int player, int cheat)
 bool RestartCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
-	DeferredStartGame(currentLevel, -1);
+	DeferredStartGame(currentLevel, g_nextskill);
     return true;
 }
 
@@ -117,7 +117,7 @@ bool NextCheat(cheatseq_t* c)
     if (!checkCheat(c)) return false;
     if (!currentLevel) return true;
     auto map = FindNextMap(currentLevel);
-	if (map) DeferredStartGame(map, -1);
+	if (map) DeferredStartGame(map, g_nextskill);
     return true;
 }
 
@@ -126,7 +126,7 @@ bool PrevCheat(cheatseq_t* c)
     if (!checkCheat(c)) return false;
     if (!currentLevel) return true;
     auto map = FindMapByLevelNum(currentLevel->levelNumber - 1);
-	if (map) DeferredStartGame(map, -1);
+	if (map) DeferredStartGame(map, g_nextskill);
     return true;
 }
 
@@ -160,7 +160,7 @@ bool WarpCheat(cheatseq_t* c)
     if (TEST(pp->Flags, PF_DEAD))
         return true;
 
-	DeferredStartGame(maprec, -1);
+	DeferredStartGame(maprec, g_nextskill);
     return true;
 }
 
