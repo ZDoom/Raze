@@ -2237,7 +2237,6 @@ struct GameInterface : public ::GameInterface
     void LoadGameTextures();
     void loadPalette();
     void clearlocalinputstate() override;
-    void FreeGameData() override;
     void FreeLevelData() override;
     bool GenerateSavePic() override;
 	void MenuSound(EMenuSounds snd) override;

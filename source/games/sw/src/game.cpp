@@ -754,11 +754,6 @@ GameStats GameInterface::getStats()
 	return { pp->Kills, TotalKillable, pp->SecretsFound, LevelSecrets, PlayClock / 120, 0 };
 }
 
-void GameInterface::FreeGameData()
-{
-    TerminateLevel();
-}
-
 void GameInterface::FreeLevelData()
 {
     TerminateLevel();
