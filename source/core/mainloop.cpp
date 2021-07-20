@@ -688,7 +688,7 @@ void MainLoop ()
 		userConfig.CommandMap = "";
 		if (maprecord)
 		{
-			DeferedStartGame(maprecord, -1);
+			DeferredStartGame(maprecord, -1);
 		}
 	}
 

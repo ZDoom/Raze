@@ -264,7 +264,7 @@ void ChangeLevel(MapRecord* map, int skill)
 //
 //---------------------------------------------------------------------------
 
-void DeferedStartGame(MapRecord* map, int skill, bool nostopsound)
+void DeferredStartGame(MapRecord* map, int skill, bool nostopsound)
 {
 	g_nextmap = map;
 	g_nextskill = skill;
@@ -355,7 +355,7 @@ CCMD(levelstart)
 	auto map = levelwarp_common(argv, "start game", "start new game at");
 	if (map)
 	{
-		DeferedStartGame(map, -1);
+		DeferredStartGame(map, -1);
 	}
 }
 
@@ -445,7 +445,7 @@ CCMD(map)
 			Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
 		}
 
-		DeferedStartGame(map, -1);
+		DeferredStartGame(map, -1);
 	}
 }
 

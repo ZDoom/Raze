@@ -421,7 +421,7 @@ static bool cheatMario(cheatseq_t* c)
     if (parseArgs((char*)c->Args, &nEpisode, &nLevel) == 2)
 	{
 		auto map = FindMapByIndex(nEpisode, nLevel);
-		if (map) DeferedStartGame(map, -1);
+		if (map) DeferredStartGame(map, -1);
 	}
     return true;
 }

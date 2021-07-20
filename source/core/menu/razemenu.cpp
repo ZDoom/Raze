@@ -105,7 +105,7 @@ static bool DoStartGame(FNewGameStartup& gs)
 
 	gi->StartGame(gs);	// play game specific effects (like Duke/RR/SW's voice lines when starting a game.)
 
-	DeferedStartGame(map, gs.Skill);
+	DeferredStartGame(map, gs.Skill);
 	return true;
 }
 
