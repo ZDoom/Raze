@@ -343,7 +343,7 @@ void UserConfig::ProcessOptions()
 	{
 		gamegrp = "BLOOD.RFF";
 		DefaultCon = "CRYPTIC.INI";
-		const char* argv[] = { "cpart07.ar_" , "cpart15.ar_" };
+		const char* argv[] = { "CPART07.AR_", "CPART15.AR_" };
 		AddArt.reset(new FArgs(2, argv));
 	}
 
