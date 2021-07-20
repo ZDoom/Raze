@@ -272,6 +272,11 @@ void GameInterface::loadPalette()
 	genspriteremaps();
 }
 
+int GameInterface::GetCurrentSkill()
+{
+	return ud.player_skill - 1;
+}
+
 //---------------------------------------------------------------------------
 //
 // set up the game module's state

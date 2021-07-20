@@ -149,6 +149,7 @@ struct GameInterface : public ::GameInterface
 	void EnterPortal(spritetype* viewer, int type) override;
 	void LeavePortal(spritetype* viewer, int type) override;
 	void LoadGameTextures() override;
+	int GetCurrentSkill() override;
 
 	GameStats getStats() override;
 };

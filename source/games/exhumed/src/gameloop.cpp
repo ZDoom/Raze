@@ -141,6 +141,11 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool frommenu)
     gameaction = ga_level;
 }
 
+int GameInterface::GetCurrentSkill()
+{
+    return -2;
+}
+
 int selectedlevelnew;
 
 DEFINE_ACTION_FUNCTION(DMapScreen, SetNextLevel)

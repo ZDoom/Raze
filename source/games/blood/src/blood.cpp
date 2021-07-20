@@ -241,6 +241,12 @@ void GameInterface::NextLevel(MapRecord *map, int skill)
 	NewLevel(map, skill, false);
 }
 
+int GameInterface::GetCurrentSkill()
+{
+	return gGameOptions.nDifficulty;
+}
+
+
 void GameInterface::Ticker()
 {
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])

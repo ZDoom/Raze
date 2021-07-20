@@ -495,3 +495,59 @@ CCMD(endofgame)
 	STAT_Update(true);
 	ChangeLevel(nullptr, -1);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CCMD(skill)
+{
+	if (gamestate == GS_LEVEL)
+	{
+		auto argsCount = argv.argc();
+
+		if (argsCount < 2)
+		{
+			auto currentSkill = gi->GetCurrentSkill();
+			if (currentSkill >= 0)
+			{
+				Printf("Current skill is %d (%s)\n", currentSkill, GStrings.localize(gSkillNames[currentSkill]));
+			}
+			else if (currentSkill == -1)
+			{
+				Printf("Current skill is not set (%d)\n");
+			}
+			else if (currentSkill == -2)
+			{
+				Printf("This game has no skill settings.\n");
+			}
+			else
+			{
+				Printf("Current skill is an unknown/unsupported value (%d)\n");
+			}
+		}
+		else if (argsCount == 2)
+		{
+			auto newSkill = atoi(argv[1]);
+			if (newSkill >= 0 and newSkill <  MAXSKILLS)
+			{
+				g_nextskill = newSkill;
+				Printf("Skill will be changed for next game.\n");
+			}
+			else
+			{
+				Printf("Please specify a skill level between 0 and %d\n", MAXSKILLS - 1);
+			}
+		}
+		else if (argsCount > 2)
+		{
+			Printf(PRINT_BOLD, "skill <newskill>: returns the current skill level, and optionally sets the skill level for the next game.\n");
+		}
+	}
+	else
+	{
+		Printf("Currently not in a game.\n");
+	}
+}

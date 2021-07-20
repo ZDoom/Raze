@@ -121,6 +121,7 @@ struct GameInterface
 	virtual bool GetGeoEffect(GeoEffect* eff, int viewsector) { return false; }
 	virtual int Voxelize(int sprnum) { return -1; }
 	virtual void AddExcludedEpisode(FString episode) {}
+	virtual int GetCurrentSkill() { return -1; }
 
 	virtual FString statFPS()
 	{

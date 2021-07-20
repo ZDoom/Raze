@@ -2274,6 +2274,7 @@ struct GameInterface : public ::GameInterface
     void LeavePortal(spritetype* viewer, int type) override;
     int Voxelize(int sprnum);
     void ExitFromMenu() override;
+    int GetCurrentSkill() override;
 
 
     GameStats getStats() override;

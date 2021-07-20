@@ -248,6 +248,7 @@ struct GameInterface : public ::GameInterface
     int chaseCamY(binangle ang) { return -ang.bsin() / 12; }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() / 384; }
     void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+    int GetCurrentSkill() override;
 
 	::GameStats getStats() override;
 };
