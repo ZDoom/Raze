@@ -8,8 +8,8 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#ifndef VPX_VPX_FRAME_BUFFER_H_
-#define VPX_VPX_FRAME_BUFFER_H_
+#ifndef VPX_VPX_VPX_FRAME_BUFFER_H_
+#define VPX_VPX_VPX_FRAME_BUFFER_H_
 
 /*!\file
  * \brief Describes the decoder external frame buffer interface.
@@ -37,9 +37,9 @@ extern "C" {
  * This structure holds allocated frame buffers used by the decoder.
  */
 typedef struct vpx_codec_frame_buffer {
-  uint8_t *data;  /**< Pointer to the data buffer */
-  size_t size;  /**< Size of data in bytes */
-  void *priv;  /**< Frame's private data */
+  uint8_t *data; /**< Pointer to the data buffer */
+  size_t size;   /**< Size of data in bytes */
+  void *priv;    /**< Frame's private data */
 } vpx_codec_frame_buffer_t;
 
 /*!\brief get frame buffer callback prototype
@@ -52,16 +52,16 @@ typedef struct vpx_codec_frame_buffer {
  * data. The callback is triggered when the decoder needs a frame buffer to
  * decode a compressed image into. This function may be called more than once
  * for every call to vpx_codec_decode. The application may set fb->priv to
- * some data which will be passed back in the ximage and the release function
- * call. |fb| is guaranteed to not be NULL. On success the callback must
- * return 0. Any failure the callback must return a value less than 0.
+ * some data which will be passed back in the vpx_image_t and the release
+ * function call. |fb| is guaranteed to not be NULL. On success the callback
+ * must return 0. Any failure the callback must return a value less than 0.
  *
  * \param[in] priv         Callback's private data
- * \param[in] new_size     Size in bytes needed by the buffer
+ * \param[in] min_size     Size in bytes needed by the buffer
  * \param[in,out] fb       Pointer to vpx_codec_frame_buffer_t
  */
-typedef int (*vpx_get_frame_buffer_cb_fn_t)(
-    void *priv, size_t min_size, vpx_codec_frame_buffer_t *fb);
+typedef int (*vpx_get_frame_buffer_cb_fn_t)(void *priv, size_t min_size,
+                                            vpx_codec_frame_buffer_t *fb);
 
 /*!\brief release frame buffer callback prototype
  *
@@ -73,11 +73,11 @@ typedef int (*vpx_get_frame_buffer_cb_fn_t)(
  * \param[in] priv         Callback's private data
  * \param[in] fb           Pointer to vpx_codec_frame_buffer_t
  */
-typedef int (*vpx_release_frame_buffer_cb_fn_t)(
-    void *priv, vpx_codec_frame_buffer_t *fb);
+typedef int (*vpx_release_frame_buffer_cb_fn_t)(void *priv,
+                                                vpx_codec_frame_buffer_t *fb);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // VPX_VPX_FRAME_BUFFER_H_
+#endif  // VPX_VPX_VPX_FRAME_BUFFER_H_

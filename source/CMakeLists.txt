@@ -412,7 +412,7 @@ if( MSVC AND NOT VPX_FOUND )
 	# Use prebuilt library
 	set( VPX_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/Windows/vpx" )
 	set( VPX_INCLUDE_DIR ${VPX_ROOT_PATH}/include )
-	set( VPX_LIBRARIES libvpx libcompat-to-msvc )
+	set( VPX_LIBRARIES libvpx )
 	if( ARM64 )
 		link_directories( ${VPX_ROOT_PATH}/lib/arm64 )
 	elseif( X64 )
