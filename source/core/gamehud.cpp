@@ -107,7 +107,9 @@ static FString statFPS()
 	frameCount++;
 	if (frameDelay >= 0)
 	{
-		output.AppendFormat("%5.1f fps (%04.1f ms)\n", lastFPS, frameDelay);
+		output.AppendFormat("%5.1f fps", lastFPS);
+		if (frameDelay < 10) output.AppendFormat(" ");
+		output.AppendFormat(" (%.1f ms)\n", frameDelay);
 
 		if (cumulativeFrameDelay >= 1000.0)
 		{
