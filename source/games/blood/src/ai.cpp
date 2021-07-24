@@ -1492,10 +1492,10 @@ void aiProcessDudes(void) {
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
 
-        if (pXSprite->aiState->moveFunc)
+        if (pXSprite->aiState && pXSprite->aiState->moveFunc)
             pXSprite->aiState->moveFunc(&bloodActors[pXSprite->reference]);
 
-        if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (nSprite & 3))
+        if (pXSprite->aiState && pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (nSprite & 3))
             pXSprite->aiState->thinkFunc(&bloodActors[pXSprite->reference]);
 
         switch (pSprite->type) {
@@ -1505,7 +1505,7 @@ void aiProcessDudes(void) {
                 GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
                 if (pExtra->slaveCount > 0) updateTargetOfSlaves(pSprite);
                 if (pExtra->nLifeLeech >= 0) updateTargetOfLeech(pSprite);
-                if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState
+                if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
                     && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0)) {
                     aiGenDudeNewState(pSprite, pXSprite->aiState->nextState);
                 }
@@ -1517,7 +1517,7 @@ void aiProcessDudes(void) {
             }
             #endif
             default:
-                if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState) {
+                if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState) {
                     if (pXSprite->aiState->stateTicks > 0)
                         aiNewState(actor, pXSprite->aiState->nextState);
                     else if (seqGetStatus(3, nXSprite) < 0)
