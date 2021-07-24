@@ -304,7 +304,7 @@ class ExhumedStatusBar : RazeStatusBar
 		// Weapon
 		//
 		int weapon = pp.nCurrentWeapon;
-		int ammo = pp.nAmmo[weapon];
+		int ammo = nCounterDest;
 		if (ammo > 0) // wicon > 0
 		{
 			if (weapon == kWeaponPistol && cl_showmagamt)
