@@ -903,6 +903,7 @@ static void InitTextures()
 	lookups.postLoadLookups();
 	SetupFontSubstitution();
 	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
+	UpdateUpscaleMask();
 	TileFiles.SetBackup();
 }
 
