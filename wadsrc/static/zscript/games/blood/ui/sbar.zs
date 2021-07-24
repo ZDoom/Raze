@@ -507,7 +507,7 @@ class BloodStatusBar : RazeStatusBar
 			int num = pPlayer.ammoCount[pPlayer.weaponAmmo];
 			if (pPlayer.weaponAmmo == 6)
 				num /= 10;
-			DrawStatNumber("%3d", num, "SBarHealthAmount", 216, 183, 0, 0);
+			DrawStatNumber("%3d", num, "SBarNumberAmmo", 216, 183, 0, 0);
 		}
 		for (int i = 9; i >= 1; i--)
 		{
@@ -578,7 +578,7 @@ class BloodStatusBar : RazeStatusBar
 			int num = pPlayer.ammoCount[pPlayer.weaponAmmo];
 			if (pPlayer.weaponAmmo == 6)
 				num /= 10;
-			DrawStatNumber("%3d", num, "SBarHealthAmount", 42, 183 - 200, 0, 0);
+			DrawStatNumber("%3d", num, "SBarNumberAmmo", 42, 183 - 200, 0, 0);
 		}
 		DrawImage("ArmorBox", (284 - 320, 187 - 200), DI_ITEM_RELCENTER, style:STYLE_Normal, col:0xffc0c0c0, translation:nPalette);
 		if (pPlayer.armor[1])
