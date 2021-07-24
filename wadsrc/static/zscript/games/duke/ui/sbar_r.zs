@@ -298,11 +298,8 @@ class RedneckStatusBar : DukeCommonStatusBar
 			}
 			else
 			{
-				if (p.gotweapon[i+1])
-				{
-					texname = "AMMO_ICON" .. i;
-					format = String.Format("%d", p.ammo_amount[i+1]);
-				}
+				texname = "AMMO_ICON" .. i;
+				format = String.Format("%d", p.ammo_amount[i+1]);
 			}
 			
 			DrawImage(texname, (18 + i * 32, top - 6.5), DI_ITEM_OFFSETS, scale:(sbscale, sbscale));
