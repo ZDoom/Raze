@@ -329,11 +329,6 @@ bool PickTexture(FGameTexture* tex, int paletteid, TexturePick& pick, bool wanti
 {
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 
-	if (tex->GetUseType() == ETextureType::FontChar && paletteid != 0)
-	{
-		int a = 0;
-	}
-
 	int usepalette = 0, useremap = 0;
 	if (!IsLuminosityTranslation(paletteid))
 	{
