@@ -38,7 +38,7 @@ BEGIN_BLD_NS
 
 inline int mulscale8(int a, int b) { return MulScale(a, b, 8); }
 
-#define kMaxPatrolFoundSounds 256 //sizeof(Bonkle) / sizeof(Bonkle[0])
+enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
 PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
 bool gAllowTrueRandom = false;
@@ -1055,7 +1055,7 @@ void nnExtProcessSuperSprites() {
             if (pXCond->data1 >= kCondGameBase && pXCond->data1 < kCondGameMax) {
 
                 EVENT evn;
-                evn.index = pXCond->reference;     evn.cmd = pXCond->command;
+                evn.index = pXCond->reference;     evn.cmd = (int8_t)pXCond->command;
                 evn.type = OBJ_SPRITE;            evn.funcID = kCallbackMax;
                 useCondition(&sprite[pXCond->reference], pXCond, evn);
 
@@ -7086,85 +7086,72 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
         if (!deaf) {
 
-#if 0
-            for (int nBonk = 0; nBonk < kMaxPatrolFoundSounds; nBonk++) {
+            soundEngine->EnumerateChannels([&](FSoundChan* chan)
+                {
+                    int sndx = 0, sndy = 0;
+                    int searchsect = -1;
+                    if (chan->SourceType == SOURCE_Actor)
+                    {
+                        auto emitter = (spritetype*)chan->Source;
+                        if (emitter < sprite || emitter >= sprite + MAXSPRITES || emitter->statnum == kStatFree) return false; // not a valid source.
+                        sndx = emitter->x;
+                        sndy = emitter->y;
 
-                //BONKLE* pBonk = &Bonkle[nBonk];
-                BONKLE* pBonk = BonkleCache[nBonk];
-                if ((pBonk->atc <= 0) || (!pBonk->at0 && !pBonk->at4))
-                    continue; // sound is not playing
+                        // sound attached to the sprite
+                        if (pSpr->index != emitter->index && emitter->owner != pSpr->index) {
 
-                int nDist1 = approxDist(pBonk->at20.x - pSprite->x, pBonk->at20.y - pSprite->y); // channel 1
-                int nDist2 = approxDist(pBonk->at2c.x - pSprite->x, pBonk->at2c.y - pSprite->y); // channel 2
-                if (nDist1 > hearDist && nDist2 > hearDist)
-                    continue;
-
-                // N same sounds per single enemy
-                for (f = 0; f < kMaxPatrolFoundSounds; f++) {
-                    if (patrolBonkles[f].snd != pBonk->atc) continue;
-                    else if (++patrolBonkles[f].cur >= patrolBonkles[f].max)
-                        break;
-                }
-
-                if (f < kMaxPatrolFoundSounds) continue;
-                else if (sndCnt < kMaxPatrolFoundSounds - 1)
-                    patrolBonkles[sndCnt++].snd = pBonk->atc;
-
-                // sound attached to the sprite
-                if (pBonk->at10) {
-
-                    spritetype* pSndSpr = pBonk->at10;
-                    if (pSpr->index != pSndSpr->index && pSndSpr->owner != pSpr->index) {
-
-                        if (!sectRangeIsFine(pSndSpr->sectnum)) continue;
-                        for (f = headspritesect[pSndSpr->sectnum]; f != -1; f = nextspritesect[f]) {
-                            if (sprite[f].owner == pSpr->index)
-                                break;
+                            if (!sectRangeIsFine(emitter->sectnum)) return false;
+                            searchsect = emitter->sectnum;
                         }
-
-                        if (f == -1)
-                            continue;
                     }
+                    else if (chan->SourceType == SOURCE_Unattached)
+                    {
+                        if (chan->UserData < 0 || chan->UserData >= numsectors) return false; // not a vaild sector sound.
+                        sndx = int(chan->Point[0] * 16);
+                        sndy = int(chan->Point[1] * -16);
+                        searchsect = chan->UserData;
+                    }
+                    if (searchsect == -1) return false;
+                    int nDist = approxDist(sndx - pSprite->x, sndy - pSprite->y);
+                    if (nDist > hearDist) return false;
 
-                    //viewSetSystemMessage("FOUND SPRITE");
 
-                // sound playing at x, y, z
-                } else if (sectRangeIsFine(pBonk->at38)) {
+                    int sndnum = chan->OrgID;
 
-                    for (f = headspritesect[pBonk->at38]; f != -1; f = nextspritesect[f]) {
-                        if (sprite[f].owner == pSpr->index)
+                    // N same sounds per single enemy
+                    for (int f = 0; f < sndCnt; f++) 
+                    {
+                        if (patrolBonkles[f].snd != sndnum) continue;
+                        else if (++patrolBonkles[f].cur >= patrolBonkles[f].max)
+                            return false;
+                    }
+                    if (sndCnt < kMaxPatrolFoundSounds - 1)
+                        patrolBonkles[sndCnt++].snd = sndnum;
+
+                    bool found = false;
+                    BloodSectIterator it(searchsect);
+                    while (auto act = it.Next())
+                    {
+                        if (act->GetOwner() == &bloodActors[pSpr->index])
+                        {
+                            found = true;
                             break;
+                        }
                     }
+                    if (!found) return false;
 
-                    if (f == -1)
-                        continue;
+                    f = ClipLow((hearDist - nDist) / 8, 0);
+                    int sndvol = int(chan->Volume * (80.f / 0.8f));
+                    hearChance += mulscale8(sndvol, f) + Random(gGameOptions.nDifficulty);
+                    return (hearChance >= kMaxPatrolSpotValue);
+                });
 
-                    //viewSetSystemMessage("FOUND XYZ");
-
-                } else {
-                    
-                    continue;
-
-                }
-
-                f = ClipLow((hearDist - ((nDist1 < hearDist) ? nDist1 : nDist2)) / 8, 0);
-                hearChance += mulscale8(pBonk->at1c, f) + Random(gGameOptions.nDifficulty);
-                if (hearChance >= kMaxPatrolSpotValue)
-                    break;
-
-                //viewSetSystemMessage("CNT %d, HEAR %d / %d, SOUND %d, VOL %d", sndCnt, hearChance, f, pBonk->atc, pBonk->at1c);
-
-                
-            }
-#endif
-
-            if (invisible && hearChance >= kMaxPatrolSpotValue >> 2) {
-                
+            if (invisible && hearChance >= kMaxPatrolSpotValue >> 2) 
+            {
                 target = pSpr->index;
                 pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 invisible = false;
                 break;
-
             }
 
         }

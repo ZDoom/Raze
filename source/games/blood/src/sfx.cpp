@@ -165,8 +165,8 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
     EChanFlags flags = CHANF_OVERLAP;
     if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
   
-    soundEngine->StartSound(SOURCE_Unattached, nullptr, &svec, -1, flags, sid, (0.8f / 80.f) * relvol, attenuation, nullptr, pitch / 65536.f);
-
+    auto chan = soundEngine->StartSound(SOURCE_Unattached, nullptr, &svec, -1, flags, sid, (0.8f / 80.f) * relvol, attenuation, nullptr, pitch / 65536.f);
+    if (chan) chan->UserData = nSector;
 }
 
 enum EPlayFlags
