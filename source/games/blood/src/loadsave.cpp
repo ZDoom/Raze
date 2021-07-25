@@ -568,6 +568,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 			("lockmsg", w.lockMsg, def->lockMsg)
 			("dodgedir", w.dodgeDir, def->dodgeDir)
 			("modernflags", w.unused1, def->unused1)
+			("sightstuff", w.unused3, def->unused3)
+			("patrolturndelay", w.unused4, def->unused4)
 			.EndObject();
 	}
 	return arc;

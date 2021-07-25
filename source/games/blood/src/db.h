@@ -96,8 +96,6 @@ struct XSPRITE {
             unsigned int medium : 2;            // medium
             unsigned int respawn : 2;           // Respawn option
             unsigned int unused2 : 1;           // (new) patrol state
-            unsigned int unused3 : 2;           // "unused"
-            unsigned int unused4 : 6;           // "unused"
        };
     };
     int32_t targetX;          // target x
@@ -134,6 +132,8 @@ struct XSPRITE {
     uint8_t lockMsg;           // Lock msg
     int8_t dodgeDir;          // Dude dodge direction
     uint8_t unused1;            // modern flags
+    uint8_t unused3;           // something about sight checks
+    uint8_t unused4;           // patrol turn delay
 
 };
 
