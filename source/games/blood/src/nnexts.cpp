@@ -3239,15 +3239,15 @@ bool condCmp(int val, int arg1, int arg2, int comOp) {
 
 void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
    
-    char buffer[256]; char buffer2[512]; char condType[32] = "Unknown";
+    char buffer[256]; char buffer2[512]; FString condType = "Unknown";
     for (int i = 0; i < 7; i++) {
         if (pXCond->data1 < gCondTypeNames[i].rng1 || pXCond->data1 >= gCondTypeNames[i].rng2) continue;
-        sprintf(condType, gCondTypeNames[i].name);
-        strupr(condType);
+        condType = gCondTypeNames[i].name;
+        condType.ToUpper();
         break;
     }
     
-    sprintf(buffer, "\n\n%s CONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n", condType, pXCond->rxID, pXCond->txID, pXCond->reference);
+    sprintf(buffer, "\n\n%s CONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n", condType.GetChars(), pXCond->rxID, pXCond->txID, pXCond->reference);
     va_list args;
     va_start(args, pzFormat);
     vsprintf(buffer2, pzFormat, args);
