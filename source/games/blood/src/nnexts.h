@@ -435,19 +435,19 @@ inline int aiPatrolGetVelocity(int speed, int value) {
 }
 
 inline bool aiPatrolWaiting(AISTATE* pAiState) {
-    return (pAiState->stateType >= kAiStatePatrolWaitL && pAiState->stateType <= kAiStatePatrolWaitW);
+    return (pAiState && pAiState->stateType >= kAiStatePatrolWaitL && pAiState->stateType <= kAiStatePatrolWaitW);
 }
 
 inline bool aiPatrolMoving(AISTATE* pAiState) {
-    return (pAiState->stateType >= kAiStatePatrolMoveL && pAiState->stateType <= kAiStatePatrolMoveW);
+    return (pAiState && pAiState->stateType >= kAiStatePatrolMoveL && pAiState->stateType <= kAiStatePatrolMoveW);
 }
 
 inline bool aiPatrolTurning(AISTATE* pAiState) {
-    return (pAiState->stateType >= kAiStatePatrolTurnL && pAiState->stateType <= kAiStatePatrolTurnW);
+    return (pAiState && pAiState->stateType >= kAiStatePatrolTurnL && pAiState->stateType <= kAiStatePatrolTurnW);
 }
 
 inline bool aiInPatrolState(AISTATE* pAiState) {
-    return (pAiState->stateType >= kAiStatePatrolBase && pAiState->stateType < kAiStatePatrolMax);
+    return (pAiState && pAiState->stateType >= kAiStatePatrolBase && pAiState->stateType < kAiStatePatrolMax);
 }
 
 inline bool aiInPatrolState(int nAiStateType) {
