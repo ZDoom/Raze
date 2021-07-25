@@ -156,10 +156,18 @@ static FString cleanPath(const char* pth)
 {
     FString path = pth;
     FixPathSeperator(path);
-    if (FileExists(path)) return path;
+    if (fileSystem.FileExists(path)) return path;
     if (path.Len() > 3 && path[1] == ':' && isalpha(path[0]) && path[2] == '/')
     {
-        return path.Mid(3);
+        path = path.Mid(3);
+        if (fileSystem.FileExists(path)) return path;
+    }
+    // optionally strip the first path component to account for poor logic of the DOS EXE.
+    auto pos = path.IndexOf("/");
+    if (pos >= 0)
+    {
+        auto npath = path.Mid(pos + 1);
+        if (fileSystem.FileExists(npath)) return npath;
     }
     return path;
 }
