@@ -450,7 +450,7 @@ SoundHandle SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int length)
 		}
 
 		// Second pass to write the data
-		if (okay)
+		if (okay && len > 0)
 		{
 			data = new uint8_t[len];
 			i = 26;
