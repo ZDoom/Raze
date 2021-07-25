@@ -31,6 +31,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef NOONE_EXTENSIONS
 #include <random>
+
+#if !defined(_WIN32) && !defined(_MSC_VER)
+#include <string.h>
+#endif
+
 #include "blood.h"
 #include "savegamehelp.h"
 
