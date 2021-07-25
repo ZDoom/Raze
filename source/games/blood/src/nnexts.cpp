@@ -7113,6 +7113,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
         if (!deaf) {
 
+#if 0
             for (int nBonk = 0; nBonk < kMaxPatrolFoundSounds; nBonk++) {
 
                 //BONKLE* pBonk = &Bonkle[nBonk];
@@ -7182,6 +7183,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
                 
             }
+#endif
 
             if (invisible && hearChance >= kMaxPatrolSpotValue >> 2) {
                 
