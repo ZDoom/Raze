@@ -3237,33 +3237,6 @@ bool condCmp(int val, int arg1, int arg2, int comOp) {
     else return (val == arg1);
 }
 
-// no extra comparison (val always = 0)?
-bool condCmpne(int arg1, int arg2, int comOp) {
-
-    if (comOp & 0x2000) return (comOp & CSTAT_SPRITE_BLOCK) ? (0 > arg1) : (0 >= arg1); // blue sprite
-    else if (comOp & 0x4000) return (comOp & CSTAT_SPRITE_BLOCK) ? (0 < arg1) : (0 <= arg1); // green sprite
-    else if (comOp & CSTAT_SPRITE_BLOCK) {
-        if (arg1 > arg2) I_Error("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
-        return (0 >= arg1 && 0 <= arg2);
-    }
-    else return (0 == arg1);
-
-}
-
-// bool comparison
-bool condCmpb(int val, int arg1, int arg2, int comOp) {
-    
-    arg1 = ClipRange(arg1, 0, 1); arg2 = ClipRange(arg2, 0, 1);
-    if (comOp & 0x2000) return (comOp & CSTAT_SPRITE_BLOCK) ? (val > 0) : (val >= 0); // blue sprite
-    else if (comOp & 0x4000) return (comOp & CSTAT_SPRITE_BLOCK) ? (val < arg1) : (val <= arg1); // green sprite
-    else if (comOp & CSTAT_SPRITE_BLOCK) {
-        if (arg1 > arg2) I_Error("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
-        return (val >= arg1 && val <= arg2);
-    }
-    else return (val == arg1);
-
-}
-
 void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
    
     char buffer[256]; char buffer2[512]; char condType[32] = "Unknown";
