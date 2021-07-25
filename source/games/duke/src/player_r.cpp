@@ -111,7 +111,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 		bsin(sa), zvel << 6,
 		&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
-	if (isRRRA() && ((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
+	if (isRRRA() && hitsect >= 0 && ((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
 		&& hitsprt == nullptr && hitwall == -1)
 	{
 		DukeLinearSpriteIterator its;
@@ -268,7 +268,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
 		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
-	if (isRRRA() && (((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
+	if (isRRRA() && hitsect >= 0 && (((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
 		&& hitsprt == nullptr && hitwall == -1))
 	{
 		DukeLinearSpriteIterator its;
