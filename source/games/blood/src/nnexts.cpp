@@ -3247,10 +3247,10 @@ void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
         break;
     }
     
-    sprintf(buffer, "\n\n%s CONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n", condType.GetChars(), pXCond->rxID, pXCond->txID, pXCond->reference);
+    snprintf(buffer, 512, "\n\n%s CONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n", condType.GetChars(), pXCond->rxID, pXCond->txID, pXCond->reference);
     va_list args;
     va_start(args, pzFormat);
-    vsprintf(buffer2, pzFormat, args);
+    vsnprintf(buffer2, 512, pzFormat, args);
     I_Error("%s%s", buffer, buffer2);
 }
 
