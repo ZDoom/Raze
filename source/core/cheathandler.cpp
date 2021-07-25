@@ -69,7 +69,7 @@ static bool CheatAddKey (cheatseq_t *cheat, uint8_t key, bool *eat)
 		cheat->Pos = cheat->Sequence;
 		cheat->CurrentArg = 0;
 	}
-	if (*cheat->Pos == '#' && (key >= '0' && key <= '9') || key == ' ')
+	if (*cheat->Pos == '#' && ((key >= '0' && key <= '9') || key == ' '))
 	{
 		*eat = true;
 		cheat->Args[cheat->CurrentArg++] = key == ' ' ? '0' : key;
