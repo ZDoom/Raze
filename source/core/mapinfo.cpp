@@ -71,6 +71,7 @@ CCMD(listmaps)
 
 MapRecord *FindMapByName(const char *nm)
 {
+	if (!nm || !*nm) return nullptr;
 	for (auto& map : mapList)
 	{
 		if (map->labelName.CompareNoCase(nm) == 0)

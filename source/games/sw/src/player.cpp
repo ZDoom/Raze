@@ -7202,7 +7202,7 @@ domovethings(void)
         {
             FinishTimer = 0;
 			MapRecord *map = nullptr;
-			if (FinishAnim == ANIM_SUMO)
+			if (FinishAnim == ANIM_SUMO || FinishAnim == ANIM_SERP)
 			{
 				map = FindNextMap(currentLevel);
 			}

@@ -5327,8 +5327,13 @@ ActorHealth(short SpriteNum, short amt)
         if (u->Health < u->MaxHealth/2)
         {
             FinishAnim = ANIM_SERP;
-			ChangeLevel(nullptr, g_nextskill);
-            return true;
+            // Hack for Last Warrior which apparently needs to continue with the next level here.
+            if (!(currentLevel->gameflags & LEVEL_SW_DEATHEXIT_SERPENT_NEXT))
+            {
+                ChangeLevel(nullptr, g_nextskill);
+                return true;
+            }
+            else FinishTimer = 1;
         }
     }
 
