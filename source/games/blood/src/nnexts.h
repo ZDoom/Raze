@@ -70,22 +70,25 @@ enum
     kCondRange = 100,
 };
 
-#define kPatrolStateSize 42
-#define kPatrolAlarmSeeDist 10000
-#define kPatrolAlarmHearDist 10000
-#define kMaxPatrolVelocity 500000
-#define kMaxPatrolCrouchVelocity (kMaxPatrolVelocity >> 1)
-#define kMaxPatrolSpotValue 500
-#define kMinPatrolTurnDelay 8
-#define kPatrolTurnDelayRange 20
+enum
+{
+    kPatrolStateSize = 42,
+    kPatrolAlarmSeeDist = 10000,
+    kPatrolAlarmHearDist = 10000,
+    kMaxPatrolVelocity = 500000,
+    kMaxPatrolCrouchVelocity = (kMaxPatrolVelocity >> 1),
+    kMaxPatrolSpotValue = 500,
+    kMinPatrolTurnDelay = 8,
+    kPatrolTurnDelayRange = 20,
 
-#define kDudeFlagStealth    0x0001
-#define kDudeFlagCrouch     0x0002
+    kDudeFlagStealth    = 0x0001,
+    kDudeFlagCrouch     = 0x0002,
 
-#define kSlopeDist 0x20
-#define kEffectGenCallbackBase 200
-#define kTriggerSpriteScreen 0x0001
-#define kTriggerSpriteAim    0x0002
+    kSlopeDist = 0x20,
+    kEffectGenCallbackBase = 200,
+    kTriggerSpriteScreen = 0x0001,
+    kTriggerSpriteAim    = 0x0002,
+};
 
 // modern statnums
 enum {
