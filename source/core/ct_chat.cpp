@@ -326,7 +326,7 @@ static void ShoveChatStr (const char *str, uint8_t who)
 
 	if (*str == '#')
 	{
-		C_DoCommand(FStringf("activatecheat %s", str + 1));
+		C_DoCommand(FStringf("activatecheat \"%s\"", str + 1));
 	}
 	else
 	{
