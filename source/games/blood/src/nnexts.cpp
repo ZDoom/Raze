@@ -658,7 +658,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     switch (pXSprite->command) {
                         case kCmdLink:
                         {
-                            if (pXSprite->data1 < 1 || pXSprite->data1 >= kMaxPlayers)
+                            if (pXSprite->data1 < 1 || pXSprite->data1 > kMaxPlayers)
                                 I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index, pXSprite->data1);
 
                             //if (numplayers < pXSprite->data1)
@@ -2147,6 +2147,40 @@ void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
             pPlayer->packSlots[invItem].curAmount = 0;
             break;
     }
+}
+
+void trPlayerCtrlUsePowerup(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
+
+    spritetype* pSource = &sprite[pXSource->reference];
+    bool relative = (pSource->flags & kModernTypeFlag1);
+
+    int nPower = (kMinAllowedPowerup + pXSource->data2) - 1;
+    int nTime = ClipRange(abs(pXSource->data3) * 100, -gPowerUpInfo[nPower].maxTime, gPowerUpInfo[nPower].maxTime);
+    if (pXSource->data3 < 0)
+        nTime = -nTime;
+
+    
+    if (pPlayer->pwUpTime[nPower]) {
+       if (!relative && nTime <= 0)
+           powerupDeactivate(pPlayer, nPower);
+
+    }
+
+    if (nTime != 0) {
+        
+        if (pPlayer->pwUpTime[nPower] <= 0)
+            powerupActivate(pPlayer, nPower);  // MUST activate first for powerups like kPwUpDeathMask
+        
+        // ...so we able to change time amount
+        if (relative) pPlayer->pwUpTime[nPower] += nTime;
+        else pPlayer->pwUpTime[nPower] = nTime;
+    }
+
+    if (pPlayer->pwUpTime[nPower] <= 0)
+        powerupDeactivate(pPlayer, nPower);
+
+    return;
+
 }
 
 void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
@@ -3662,10 +3696,10 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         case 5: return (arg1 > 0 && arg1 < 6 && condCmp(pPlayer->packSlots[arg1 - 1].curAmount, arg2, arg3, cmpOp));
         case 6: return (arg1 > 0 && arg1 < 6 && pPlayer->packSlots[arg1 - 1].isActive);
         case 7: return condCmp(pPlayer->packItemId + 1, arg1, arg2, cmpOp);
-        case 8: // check for powerup amount in %
-            if (arg3 > 0 && arg3 < 30) {
-                var = (12 + arg3) - 1; // allowable powerups
-                return condCmp((kPercFull * pPlayer->pwUpTime[var]) / gPowerUpInfo[var].bonusTime, arg1, arg2, cmpOp);
+        case 8: // check for powerup amount in seconds
+            if (arg3 > 0 && arg3 <= (kMaxAllowedPowerup - (kMinAllowedPowerup << 1) + 1)) {
+                var = (kMinAllowedPowerup + arg3) - 1; // allowable powerups
+                return condCmp(pPlayer->pwUpTime[var] / 100, arg1, arg2, cmpOp);
             }
             condError(pXCond, "Unexpected powerup #%d", arg3);
             return false;
@@ -5091,7 +5125,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         pPlayer->angle.lockinput();
                     }
                     break;
-                case 10: // 74 (print the book)
+                case 10: // 74 (de)activate powerup
+                    if (pXSprite->data2 <= 0 || pXSprite->data2 > (kMaxAllowedPowerup - (kMinAllowedPowerup << 1) + 1)) break;
+                    trPlayerCtrlUsePowerup(pXSprite, pPlayer, event.cmd);
+                    break;
+               // case 11: // 75 (print the book)
                     // data2: RFF TXT id
                     // data3: background tile
                     // data4: font base tile
@@ -5102,7 +5140,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     // d3: 1: inherit palette for font, 2: inherit palette for background, 3: both
                     // busyTime: speed of word/letter/line printing
                     // waitTime: if TX ID > 0 and TX ID object is book reader, trigger it?
-                    break;
+                    //break;
 
             }
         }

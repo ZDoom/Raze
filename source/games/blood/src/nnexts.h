@@ -88,6 +88,9 @@ enum
     kEffectGenCallbackBase = 200,
     kTriggerSpriteScreen = 0x0001,
     kTriggerSpriteAim    = 0x0002,
+
+    kMinAllowedPowerup = kPwUpFeatherFall,
+    kMaxAllowedPowerup = kMaxPowerUps
 };
 
 // modern statnums
