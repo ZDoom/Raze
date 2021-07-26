@@ -6096,7 +6096,10 @@ void actProcessSprites(void)
                     else if (sprite[gImpactSpritesList[i]].sectnum < 0 || (sprite[gImpactSpritesList[i]].flags & kHitagFree) != 0)
                         continue;
 
-                    spritetype* pImpact = &sprite[gImpactSpritesList[i]]; XSPRITE* pXImpact = &xsprite[pImpact->extra];
+                    spritetype* pImpact = &sprite[gImpactSpritesList[i]];
+                    if (pImpact->extra <= 0)
+                        continue;
+                    XSPRITE* pXImpact = &xsprite[pImpact->extra];
                     if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(v24c, pImpact->sectnum) || !CheckProximity(pImpact, x, y, z, nSector, radius))
                         continue;
                     
