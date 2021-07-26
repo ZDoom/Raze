@@ -135,11 +135,6 @@ struct Raze
 {
 	const kAngleMask	= 0x7FF;
 	const BAngToDegree = 360. / 2048.;
-
-	static int calcSinTableValue(int ang)
-	{
-		return int(16384 * sin((360./2048) * ang));
-	}
 	
 	native static Color shadeToLight(int shade);
 	native static String PlayerName(int i);
