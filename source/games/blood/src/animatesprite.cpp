@@ -70,6 +70,9 @@ static void RotateXZ(int *pX, int *, int *pZ, int ang)
 
 template<typename T> tspritetype* viewInsertTSprite(spritetype* tsprite, int& spritesortcnt, int nSector, int nStatnum, T const * const pSprite)
 {
+    if (spritesortcnt >= MAXSPRITESONSCREEN)
+        return nullptr;
+
     int nTSprite = spritesortcnt;
     tspritetype *pTSprite = &tsprite[nTSprite];
     memset(pTSprite, 0, sizeof(tspritetype));
@@ -95,7 +98,7 @@ template<typename T> tspritetype* viewInsertTSprite(spritetype* tsprite, int& sp
     return pTSprite;
 }
 
-static const int effectDetail[] = {
+static const int effectDetail[kViewEffectMax] = {
     4, 4, 4, 4, 0, 0, 0, 0, 0, 1, 4, 4, 0, 0, 0, 1, 0, 0, 0
 };
 
@@ -134,6 +137,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         for (int i = 0; i < 16; i++)
         {
             auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+            if (!pNSprite)
+                break;
+
             int ang = (PlayClock*2048)/120;
             int nRand1 = dword_172CE0[i][0];
             int nRand2 = dword_172CE0[i][1];
@@ -157,6 +163,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         int top, bottom;
         GetSpriteExtents(pTSprite, &top, &bottom);
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         pNSprite->shade = -128;
         pNSprite->pal = 0;
         pNSprite->z = top;
@@ -170,6 +179,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectTesla:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         pNSprite->z = pTSprite->z;
         pNSprite->cstat |= 2;
         pNSprite->shade = -128;
@@ -181,6 +193,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectShoot:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         pNSprite->shade = -128;
         pNSprite->pal = 0;
         pNSprite->xrepeat = pNSprite->yrepeat = 64;
@@ -190,6 +205,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectReflectiveBall:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         pNSprite->shade = 26;
         pNSprite->pal = 0;
         pNSprite->cstat |= 2;
@@ -200,6 +218,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectPhase:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         int top, bottom;
         GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->shade = 26;
@@ -225,6 +246,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         {
             int nSector = pTSprite->sectnum;
             auto pNSprite = viewInsertTSprite<tspritetype>(tsprite, spritesortcnt, nSector, 32767, NULL);
+            if (!pNSprite)
+                break;
+
             int nLen = 128+(i<<7);
             int x = MulScale(nLen, Cos(nAng), 30);
             pNSprite->x = pTSprite->x + x;
@@ -249,6 +273,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectFlame:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         pNSprite->shade = -128;
         pNSprite->z = pTSprite->z;
         pNSprite->picnum = 908;
@@ -259,6 +286,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectSmokeHigh:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         int top, bottom;
         GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = top;
@@ -275,6 +305,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectSmokeLow:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         int top, bottom;
         GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = bottom;
@@ -291,6 +324,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectTorchHigh:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         int top, bottom;
         GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = top;
@@ -302,6 +338,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectTorchLow:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         int top, bottom;
         GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = bottom;
@@ -315,6 +354,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         if (r_shadows)
         {
             auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+            if (!pNSprite)
+                break;
+
             pNSprite->z = getflorzofslope(pTSprite->sectnum, pNSprite->x, pNSprite->y);
             pNSprite->shade = 127;
             pNSprite->cstat |= 2;
@@ -331,6 +373,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectFlareHalo:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         pNSprite->shade = -128;
         pNSprite->pal = 2;
         pNSprite->cstat |= 2;
@@ -343,6 +388,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectCeilGlow:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         sectortype *pSector = &sector[pTSprite->sectnum];
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
@@ -359,6 +407,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectFloorGlow:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         sectortype *pSector = &sector[pTSprite->sectnum];
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
@@ -376,6 +427,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     case kViewEffectSpear:
     {
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         pNSprite->z = pTSprite->z;
         if (gDetail > 1)
             pNSprite->cstat |= 514;
@@ -393,6 +447,9 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         const int nTile = weaponIcon.nTile;
         if (nTile < 0) break;
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite)
+            break;
+
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
         pNSprite->z = pTSprite->z-(32<<8);
