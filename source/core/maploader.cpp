@@ -493,4 +493,18 @@ void setWallSectors()
 			wall[sector[i].wallptr + w].sector = i;
 		}
 	}
+
+	// validate 'nextsector' fields. Some maps have these wrong which can cause render glitches and occasionally even crashes.
+	for (int i = 0; i < numwalls; i++)
+	{
+		if (wall[i].nextwall != -1)
+		{
+			if (wall[i].nextsector != wall[wall[i].nextwall].sector)
+			{
+				DPrintf(DMSG_ERROR, "Bad 'nextsector' reference %d on wall %d\n", wall[i].nextsector, i);
+				wall[i].nextsector = wall[wall[i].nextwall].sector;
+			}
+		}
+	}
+
 }
