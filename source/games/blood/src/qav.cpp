@@ -96,21 +96,32 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
     for (int i = 0; i < 8; i++)
     {
         auto* thisTile = &thisFrame->tiles[i];
-        auto* prevTile = &prevFrame->tiles[i];
 
         if (thisTile->picnum > 0)
         {
+            TILE_FRAME *prevTile = nullptr;
+
+            if (thisTile->picnum == prevFrame->tiles[i].picnum)
+            {
+                prevTile = &prevFrame->tiles[i];
+            }
+            else for (int j = 0; j < 8; j++) if (thisTile->picnum == prevFrame->tiles[j].picnum)
+            {
+                prevTile = &prevFrame->tiles[j];
+                break;
+            }
+
             double tileX = x;
             double tileY = y;
             double tileZ;
             double tileA;
 
-            if ((nFrames > 1) && (nFrame != oFrame) && (thisTile->picnum == prevTile->picnum) && (smoothratio != MaxSmoothRatio))
+            if ((nFrames > 1) && (nFrame != oFrame) && (prevTile && (thisTile->picnum == prevTile->picnum)) && (smoothratio != MaxSmoothRatio))
             {
                 tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
                 tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
                 tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
-                tileA = interpolatedanglef(prevTile->angle, thisTile->angle, smoothratio);
+                tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
             }
             else
             {
