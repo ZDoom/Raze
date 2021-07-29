@@ -387,7 +387,7 @@ inline constexpr int32_t interpolatedangle(int32_t oang, int32_t ang, int const 
 	return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, scale);
 }
 
-inline constexpr double interpolatedanglef(double oang, double ang, double const smoothratio, int const scale = 16)
+inline double interpolatedanglef(double oang, double ang, double const smoothratio, int const scale = 16)
 {
 	return oang + MulScaleF(fmod((ang + 1024. - oang), 2048.) - 1024., smoothratio, scale);
 }
