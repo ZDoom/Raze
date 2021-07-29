@@ -737,12 +737,12 @@ WeaponOK(PLAYERp pp)
 
 inline double pspSinVel(PANEL_SPRITEp const psp, int const ang = INT_MAX)
 {
-    return psp->vel * synctics * bsinf(ang == INT_MAX ? psp->ang : ang, -6) * (1. / FRACUNIT);
+    return psp->vel * synctics * bsinf(ang == INT_MAX ? psp->ang : ang, -22);
 }
 
 inline double pspCosVel(PANEL_SPRITEp const psp, int const ang = INT_MAX)
 {
-    return psp->vel * synctics * bcosf(ang == INT_MAX ? psp->ang : ang, -6) * (1. / FRACUNIT);
+    return psp->vel * synctics * bcosf(ang == INT_MAX ? psp->ang : ang, -22);
 }
 
 inline double pspPresentRetractScale(int const picnum, double const defaultheight)
@@ -1842,14 +1842,14 @@ pUziReload(PANEL_SPRITEp nclip)
     nclip->ox = nclip->x;
     nclip->oy = nclip->y;
 
-    nclip->x += nclip->vel * synctics * bcosf(nclip->ang, -6) * (1. / FRACUNIT);
-    nclip->y += nclip->vel * synctics * -bsinf(nclip->ang, -6) * (1. / FRACUNIT);
+    nclip->x += pspCosVel(nclip);
+    nclip->y -= pspSinVel(nclip);
 
     gun->ox = gun->x;
     gun->oy = gun->y;
 
-    gun->x -= gun->vel * synctics * bcosf(gun->ang, -6) * (1. / FRACUNIT);
-    gun->y -= gun->vel * synctics * -bsinf(gun->ang, -6) * (1. / FRACUNIT);
+    gun->x -= pspCosVel(gun);
+    gun->y += pspSinVel(gun);
 
     if (TEST(nclip->flags, PANF_XFLIP))
     {
@@ -1886,22 +1886,20 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
 {
     PANEL_SPRITEp gun = nclip->sibling;
 
-    double xadj = nclip->vel * synctics * bcosf(nclip->ang, -6) * (1. / FRACUNIT);
-    double yadj = nclip->vel * synctics * -bsinf(nclip->ang, -6) * (1. / FRACUNIT);
+    double xadj = pspCosVel(nclip);
+    double yadj = pspSinVel(nclip);
 
     nclip->vel += 18 * synctics;
 
-    nclip->ox = nclip->x;
-    nclip->oy = nclip->y;
+    nclip->backupcoords();
 
     nclip->x -= xadj;
-    nclip->y -= yadj;
+    nclip->y += yadj;
 
-    gun->ox = gun->x;
-    gun->oy = gun->y;
+    gun->backupcoords();
 
     gun->x -= xadj;
-    gun->y -= yadj;
+    gun->y += yadj;
 
     if (gun->y > UZI_RELOAD_YOFF + tileHeight(gun->picndx))
     {
@@ -1962,8 +1960,8 @@ pUziClip(PANEL_SPRITEp oclip)
     oclip->ox = oclip->x;
     oclip->oy = oclip->y;
 
-    oclip->x += oclip->vel * synctics * bcosf(oclip->ang, -6) * (1. / FRACUNIT);
-    oclip->y += oclip->vel * synctics * -bsinf(oclip->ang, -6) * (1. / FRACUNIT);
+    oclip->x += pspCosVel(oclip);
+    oclip->y -= pspSinVel(oclip);
 
     if (oclip->y > UZI_RELOAD_YOFF)
     {
@@ -1974,8 +1972,8 @@ pUziClip(PANEL_SPRITEp oclip)
         // so it will end up the same for all synctic values
         for (oclip->x = oclip->ox, oclip->y = oclip->oy; oclip->y < UZI_RELOAD_YOFF; )
         {
-            oclip->x += oclip->vel * bcosf(oclip->ang, -6) * (1. / FRACUNIT);
-            oclip->y += oclip->vel * -bsinf(oclip->ang, -6) * (1. / FRACUNIT);
+            oclip->x += oclip->vel * bcosf(oclip->ang, -22);
+            oclip->y -= oclip->vel * bsinf(oclip->ang, -22);
         }
 
         oclip->ox = oclip->x;
@@ -5619,8 +5617,8 @@ pChopsShake(PANEL_SPRITEp psp)
 {
     psp->backupcoords();
 
-    psp->x += (RANDOM_P2(4<<8)>>8) - 2;
-    psp->y += (RANDOM_P2(4<<8)>>8) - 2;
+    psp->x += (RANDOM_P2(4<<8) * (1. / 256.)) - 2;
+    psp->y += (RANDOM_P2(4<<8) * (1. / 256.)) - 2;
 
     if (psp->y < CHOPS_YOFF)
     {
@@ -6029,7 +6027,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
     else
     {
         psp->x -= pspSinVel(psp, ang);
-        psp->y -= pspSinVel(psp, ang) * 3.;
+        psp->y -= pspSinVel(psp, ang) * synctics;
     }
 
     psp->vel += 48 * synctics;
@@ -6132,7 +6130,7 @@ pFistSlideDownR(PANEL_SPRITEp psp)
     else
     {
         psp->x -= pspSinVel(psp, ang);
-        psp->y -= pspSinVel(psp, ang) * 3.;
+        psp->y -= pspSinVel(psp, ang) * synctics;
     }
 
     psp->vel += 48 * synctics;
