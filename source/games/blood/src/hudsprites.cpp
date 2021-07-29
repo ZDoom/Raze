@@ -127,14 +127,14 @@ void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelt
 		}
 
 		#ifdef NOONE_EXTENSIONS
-		if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette, int(smoothratio));
-			else if (gView->pXSprite->health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette, int(smoothratio));
+		if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette, smoothratio);
+			else if (gView->pXSprite->health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette, smoothratio);
 		else {
 			gView->sceneQav = gView->weaponQav = -1;
 			gView->weaponTimer = gView->curWeapon = 0;
 		}
 		#else
-			WeaponDraw(gView, nShade, cX, cY, nPalette, int(smoothratio));
+			WeaponDraw(gView, nShade, cX, cY, nPalette, smoothratio);
 		#endif
 	}
 	if (gViewPos == 0 && gView->pXSprite->burnTime > 60)

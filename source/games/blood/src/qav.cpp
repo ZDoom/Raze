@@ -34,18 +34,16 @@ BEGIN_BLD_NS
 extern void (*qavClientCallback[])(int, void *);
 
 
-void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int palnum, bool to3dview)
+void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int stat, int shade, int palnum, bool to3dview)
 {
     stat |= pTile->stat;
-	x += pTile->x;
-	y += pTile->y;
     if (palnum <= 0) palnum = pTile->palnum;
 
     if (!to3dview)
     {
 		auto tex = tileGetTexture(pTile->picnum);
-		double scale = pTile->z/65536.;
-		double angle = pTile->angle * BAngToDegree;
+		double scale = z * (1. / 65536.);
+		double angle = a * BAngToDegree;
 		int renderstyle = (stat & RS_NOMASK)? STYLE_Normal : STYLE_Translucent;
 		double alpha = (stat & RS_TRANS1)? glblend[0].def[!!(stat & RS_TRANS2)].alpha : 1.;
 		int pin = (stat & kQavOrientationLeft)? -1 : (stat & RS_ALIGN_R)? 1:0;
@@ -70,26 +68,61 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
 		if ((stat & kQavOrientationLeft)) stat |= RS_ALIGN_L;
         stat &= ~kQavOrientationLeft;
 
-		hud_drawsprite(x, y, pTile->z, pTile->angle, pTile->picnum, pTile->shade + shade, palnum, stat);
+		hud_drawsprite(x, y, z, a, pTile->picnum, pTile->shade + shade, palnum, stat);
     }
 }
 
-void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview)
+void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio)
 {
     assert(ticksPerFrame > 0);
+
     int nFrame = ticks / ticksPerFrame;
     assert(nFrame >= 0 && nFrame < nFrames);
-    FRAMEINFO *pFrame = &frames[nFrame];
+    FRAMEINFO *thisFrame = &frames[nFrame];
+
+    if ((nFrame == (nFrames - 1)) && !lastframetic)
+    {
+        lastframetic = ticks;
+    }
+    else if (lastframetic > ticks)
+    {
+        lastframetic = 0;
+    }
+
+    int oFrame = nFrame == 0 || (lastframetic && ticks > lastframetic) ? nFrame : nFrame - 1;
+    assert(oFrame >= 0 && oFrame < nFrames);
+    FRAMEINFO *prevFrame = &frames[oFrame];
+
     for (int i = 0; i < 8; i++)
     {
-        if (pFrame->tiles[i].picnum > 0)
-            DrawFrame(x, y, &pFrame->tiles[i], stat, shade, palnum, to3dview);
-    }
-}
+        auto* thisTile = &thisFrame->tiles[i];
+        auto* prevTile = &prevFrame->tiles[i];
 
-void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview)
-{
-    Draw(x, y, ticks, stat, shade, palnum, to3dview);
+        if (thisTile->picnum > 0)
+        {
+            double tileX = x;
+            double tileY = y;
+            double tileZ;
+            double tileA;
+
+            if ((nFrames > 1) && (nFrame != oFrame) && (thisTile->picnum == prevTile->picnum) && (smoothratio != MaxSmoothRatio))
+            {
+                tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
+                tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
+                tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
+                tileA = interpolatedanglef(prevTile->angle, thisTile->angle, smoothratio);
+            }
+            else
+            {
+                tileX += thisTile->x;
+                tileY += thisTile->y;
+                tileZ = thisTile->z;
+                tileA = thisTile->angle;
+            }
+
+            DrawFrame(tileX, tileY, tileZ, tileA, thisTile, stat, shade, palnum, to3dview);
+        }
+    }
 }
 
 

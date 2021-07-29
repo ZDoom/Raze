@@ -77,10 +77,11 @@ struct QAV
     int y; // 18
     int nSprite; // 1c
     //SPRITE *pSprite; // 1c
-    char pad3[4]; // 20
+    char pad3[3]; // 20
+    char lastframetic;
     FRAMEINFO frames[1]; // 24
-    void Draw(int ticks, int stat, int shade, int palnum, bool in3dscene);
-    void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool in3dscene);
+    void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536);
+    void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio); }
     void Play(int, int, int, void *);
     void Precache(int palette = 0);
 };

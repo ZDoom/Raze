@@ -255,7 +255,7 @@ bool isOriginalQAV()
     return cached;
 }
 
-void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum, int smoothratio)
+void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum, double smoothratio)
 {
     assert(pPlayer != NULL);
     if (pPlayer->weaponQav == -1)
@@ -268,7 +268,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
         // Double shotgun fix from BloodGDX.
         if (/*!IsOriginalDemo() &&*/ (pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7))/* && isOriginalQAV()*/)
             duration = pQAV->duration - 1;
-        else duration = (PlayClock + MulScale(4, smoothratio, 16)) % pQAV->duration;
+        else duration = (PlayClock + MulScale(4, int(smoothratio), 16)) % pQAV->duration;
     }
     else duration = pQAV->duration - pPlayer->weaponTimer;
 
@@ -281,7 +281,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
         shade = -128;
         flags |= 1;
     }
-    pQAV->Draw(xpos, ypos, duration, flags, shade, palnum, true);
+    pQAV->Draw(xpos, ypos, duration, flags, shade, palnum, true, smoothratio);
 }
 
 void WeaponPlay(PLAYER *pPlayer)

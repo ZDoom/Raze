@@ -387,6 +387,11 @@ inline constexpr int32_t interpolatedangle(int32_t oang, int32_t ang, int const 
 	return oang + MulScale(((ang + 1024 - oang) & 2047) - 1024, smoothratio, scale);
 }
 
+inline constexpr double interpolatedanglef(double oang, double ang, double const smoothratio, int const scale = 16)
+{
+	return oang + MulScaleF(fmod((ang + 1024. - oang), 2048.) - 1024., smoothratio, scale);
+}
+
 inline constexpr binangle interpolatedangle(binangle oang, binangle ang, double const smoothratio, int const scale = 16)
 {
 	return bamang(oang.asbam() + MulScale(((ang.asbam() + 0x80000000 - oang.asbam()) & 0xFFFFFFFF) - 0x80000000, int(smoothratio), scale));

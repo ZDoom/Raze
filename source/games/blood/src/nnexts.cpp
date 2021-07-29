@@ -6180,7 +6180,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, int smoothratio) {
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, double smoothratio) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
@@ -6189,7 +6189,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, i
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? ((PlayClock + MulScale(4, smoothratio, 16)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
+        int v4 = (pPlayer->weaponTimer == 0) ? ((PlayClock + MulScale(4, int(smoothratio), 16)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
         if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32))) {
@@ -6200,13 +6200,13 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, i
         if (!(pSprite->flags & kModernTypeFlag1)) {
 
             pQAV->x = int(a3); pQAV->y = int(a4);
-            pQAV->Draw(a3, a4, v4, flags, a2, a5, true);
+            pQAV->Draw(a3, a4, v4, flags, a2, a5, true, smoothratio);
 
             // draw fullscreen (currently 4:3 only)
         } else {
             // What an awful hack. This throws proper ordering out of the window, but there is no way to reproduce this better with strict layering of elements.
 			// From the above commit it seems to be incomplete anyway...
-            pQAV->Draw(v4, flags, a2, a5, false);
+            pQAV->Draw(v4, flags, a2, a5, false, smoothratio);
         }
 
     }

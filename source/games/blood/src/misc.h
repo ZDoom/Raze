@@ -46,7 +46,7 @@ struct PLAYER;
 extern QAV* weaponQAV[];
 
 void WeaponInit(void);
-void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int smoothratio);
+void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, double smoothratio);
 void WeaponRaise(PLAYER *pPlayer);
 void WeaponLower(PLAYER *pPlayer);
 int WeaponUpgrade(PLAYER *pPlayer, int newWeapon);
