@@ -80,8 +80,8 @@ struct QAV
     char pad3[3]; // 20
     char lastframetic;
     FRAMEINFO frames[1]; // 24
-    void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536);
-    void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio); }
+    void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536, bool const menudrip = false);
+    void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536, bool const menudrip = false) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio, menudrip); }
     void Play(int, int, int, void *);
     void Precache(int palette = 0);
 };

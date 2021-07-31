@@ -72,7 +72,7 @@ void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int st
     }
 }
 
-void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio)
+void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio, bool const menudrip)
 {
     assert(ticksPerFrame > 0);
 
@@ -93,45 +93,64 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
     assert(oFrame >= 0 && oFrame < nFrames);
     FRAMEINFO *prevFrame = &frames[oFrame];
 
+    auto drawTile = [&](TILE_FRAME *thisTile, TILE_FRAME *prevTile, bool const interpolate = true)
+    {
+        double tileX = x;
+        double tileY = y;
+        double tileZ;
+        double tileA;
+
+        if (prevTile && cl_hudinterpolation && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio) && interpolate)
+        {
+            tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
+            tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
+            tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
+            tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
+        }
+        else
+        {
+            tileX += thisTile->x;
+            tileY += thisTile->y;
+            tileZ = thisTile->z;
+            tileA = thisTile->angle;
+        }
+
+        DrawFrame(tileX, tileY, tileZ, tileA, thisTile, stat, shade, palnum, to3dview);
+    };
+
     for (int i = 0; i < 8; i++)
     {
-        auto* thisTile = &thisFrame->tiles[i];
+        TILE_FRAME *thisTile = &thisFrame->tiles[i];
+        TILE_FRAME *prevTile = nullptr;
 
         if (thisTile->picnum > 0)
         {
-            TILE_FRAME *prevTile = nullptr;
-
-            if (thisTile->picnum == prevFrame->tiles[i].picnum)
+            // Menu's blood drip requires special treatment.
+            if (menudrip)
             {
-                prevTile = &prevFrame->tiles[i];
-            }
-            else for (int j = 0; j < 8; j++) if (thisTile->picnum == prevFrame->tiles[j].picnum)
-            {
-                prevTile = &prevFrame->tiles[j];
-                break;
-            }
+                if (i != 0)
+                {
+                    // Find previous frame by iterating all previous frame's tiles and match on the consistent x coordinate.
+                    // Tile indices can change between frames for no reason, we need to accomodate that.
+                    for (int j = 0; j < 8; j++) if (thisTile->x == prevFrame->tiles[j].x)
+                    {
+                        prevTile = &prevFrame->tiles[j];
+                        break;
+                    }
 
-            double tileX = x;
-            double tileY = y;
-            double tileZ;
-            double tileA;
-
-            if ((nFrames > 1) && (nFrame != oFrame) && (prevTile && (thisTile->picnum == prevTile->picnum)) && (smoothratio != MaxSmoothRatio))
-            {
-                tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
-                tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
-                tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
-                tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
+                    drawTile(thisTile, prevTile, true);
+                }
+                else
+                {
+                    // First index is always the dripping bar at the top.
+                    drawTile(thisTile, prevTile, false);
+                }
             }
             else
             {
-                tileX += thisTile->x;
-                tileY += thisTile->y;
-                tileZ = thisTile->z;
-                tileA = thisTile->angle;
+                prevTile = &prevFrame->tiles[i];
+                drawTile(thisTile, prevTile, thisTile->picnum == prevTile->picnum);
             }
-
-            DrawFrame(tileX, tileY, tileZ, tileA, thisTile, stat, shade, palnum, to3dview);
         }
     }
 }

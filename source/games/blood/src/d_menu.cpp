@@ -47,6 +47,7 @@ public:
 	int lastTick;
 	bool bWideScreen;
 	bool bClearBackground;
+	const char* filename;
 	CGameMenuItemQAV(int, int, const char*, bool widescreen = false, bool clearbackground = false);
 	void Draw(void);
 };
@@ -57,6 +58,7 @@ CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widesc
 	m_nX = a3;
 	bWideScreen = widescreen;
 	bClearBackground = clearbackground;
+	filename = name;
 
 	if (name)
 	{
@@ -70,7 +72,7 @@ CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widesc
 			data->y = m_nY;
 			//data->Preload();
 			duration = data->duration;
-			lastTick = I_GetBuildTime();
+			lastTick = I_GetTime();
 		}
 	}
 }
@@ -83,17 +85,26 @@ void CGameMenuItemQAV::Draw(void)
 	if (raw.Size() > 0)
 	{
 		auto data = (QAV*)raw.Data();
-		int backFC = PlayClock;
-		int currentclock = I_GetBuildTime();
-		PlayClock = currentclock;
-		int nTicks = currentclock - lastTick;
-		lastTick = currentclock;
-		duration -= nTicks;
+
+		auto thisTick = I_GetTime();
+		if (!lastTick)
+		{
+			lastTick = thisTick;
+		}
+		if (lastTick < thisTick)
+		{
+			lastTick = thisTick;
+			duration -= 4;
+		}
+
 		if (duration <= 0 || duration > data->duration)
 		{
 			duration = data->duration;
 		}
-		data->Play(data->duration - duration - nTicks, data->duration - duration, -1, NULL);
+		auto currentDuration = data->duration - duration;
+		auto smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
+
+		data->Play(currentDuration - 4, currentDuration, -1, NULL);
 
 		if (bWideScreen)
 		{
@@ -102,15 +113,13 @@ void CGameMenuItemQAV::Draw(void)
 			int backX = data->x;
 			for (int i = 0; i < nCount; i++)
 			{
-				data->Draw(data->duration - duration, 10 + kQavOrientationLeft, 0, 0, false);
+				data->Draw(currentDuration, 10 + kQavOrientationLeft, 0, 0, false, smoothratio, filename == "BDRIP.QAV");
 				data->x += 320;
 			}
 			data->x = backX;
 		}
 		else
-			data->Draw(data->duration - duration, 10, 0, 0, false);
-
-		PlayClock = backFC;
+			data->Draw(currentDuration, 10, 0, 0, false, smoothratio, filename == "BDRIP.QAV");
 	}
 }
 
