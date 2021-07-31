@@ -166,7 +166,8 @@ const char *AppInfo[] =
 	"Shadow Warrior DOS/Shadow Warrior.app/Contents/Resources/sw",
 	"Redneck Rampage/Redneck Rampage.app/Contents/Resources/Redneck Rampage.boxer/C Redneck Rampage.harddisk",
 	// macOS version of Redneck Rampage Rides Again is completely broken on Steam
-	"Redneck Deer Huntin'/Redneck Deer Huntin.app/Contents/Resources/Redneck Deer Huntin.boxer/C.harddisk/INTRPLAY/HUNTIN"
+	"Redneck Deer Huntin'/Redneck Deer Huntin.app/Contents/Resources/Redneck Deer Huntin.boxer/C.harddisk/INTRPLAY/HUNTIN",
+	"PowerslaveCE/Powerslave.app/Contents/Resources/game",
 #endif
 };
 
