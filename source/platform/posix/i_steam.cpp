@@ -159,7 +159,7 @@ const char *AppInfo[] =
 	"Nam/NAM",
 	"Redneck Rampage/Redneck",
 	"Redneck Rampage Rides Again/AGAIN",
-	"Redneck Deer Huntin'/HUNTIN"
+	"Redneck Deer Huntin'/HUNTIN",
 #ifdef __APPLE__
 	"Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D",
 	"Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM",
