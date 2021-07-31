@@ -547,8 +547,8 @@ class BloodStatusBar : RazeStatusBar
 			else
 				DrawImage(nTile, (x, y), DI_ITEM_RELCENTER, style:STYLE_Normal, col: 0xff606060, translation:Translation.MakeID(Translation_Remap, 5));
 		}
-		DrawImage("BlinkIcon", (118.5, 185.5), DI_ITEM_RELCENTER, col:0xff606060);
-		DrawImage("BlinkIcon", (201.5, 185.5), DI_ITEM_RELCENTER, col:0xff606060);
+		DrawImage("BlinkIcon", (118.5, 185.5), DI_ITEM_RELCENTER, col:Raze.shadeToLight(pPlayer.isRunning || cl_bloodvanillarun ? 16 : 40));
+		DrawImage("BlinkIcon", (201.5, 185.5), DI_ITEM_RELCENTER, col:Raze.shadeToLight(pPlayer.isRunning || cl_bloodvanillarun ? 16 : 40));
 		if (pPlayer.throwPower)
 		{
 			TileHGauge("ThrowGauge", 124, 175.5, pPlayer.throwPower, 65536);

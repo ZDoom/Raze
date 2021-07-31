@@ -1317,14 +1317,14 @@ void ProcessInput(PLAYER *pPlayer)
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     InputPacket *pInput = &pPlayer->input;
 
+    // Originally, this was never able to be true due to sloppy input code in the original game.
+    // Allow it to become true behind a CVAR to offer an alternate playing experience if desired.
+    pPlayer->isRunning = !!(pInput->actions & SB_RUN) && !cl_bloodvanillarun;
+
     if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
-
-    // This was just too broken. Every single place in the game depending on 'isRunning' will misbehave if this is set because originally it never worked as intended.
-    pPlayer->isRunning = false;// !!(pInput->actions& SB_RUN) && pPlayer->restTime <= 10;
-
     WeaponProcess(pPlayer);
     if (pXSprite->health == 0)
     {
@@ -1666,8 +1666,7 @@ void playerProcess(PLAYER *pPlayer)
     {
         if (pXSprite->height < 256)
         {
-            // taking a cue from BloodGDX here. Apparently due to poor coding in the original game this could never be true.
-            bool running = false;// pPlayer->isRunning; 
+            bool running = pPlayer->isRunning && !cl_bloodvanillabobbing;
             pPlayer->bobAmp = (pPlayer->bobAmp+pPosture->pace[running]*4) & 2047;
             pPlayer->swayAmp = (pPlayer->swayAmp+(pPosture->pace[running]*4)/2) & 2047;
             if (running)
