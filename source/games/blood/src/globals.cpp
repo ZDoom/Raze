@@ -39,8 +39,4 @@ bool gInfiniteAmmo;
 int32_t gDeliriumBlur = 1;
 bool gFogMode = false;
 
-//////////
-int gWeaponsV10x;
-/////////
-
 END_BLD_NS

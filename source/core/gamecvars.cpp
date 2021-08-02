@@ -85,6 +85,7 @@ CVARD(Bool, cl_hudinterpolation, true, CVAR_ARCHIVE, "enable/disable HUD (weapon
 CVARD(Bool, cl_bloodvanillarun, true, CVAR_ARCHIVE, "enable/disable Blood's vanilla run mode")
 CVARD(Bool, cl_bloodvanillabobbing, true, CVAR_ARCHIVE, "enable/disable Blood's vanilla bobbing while not using vanilla run mode")
 CVARD(Bool, cl_bloodhudinterp, false, CVAR_ARCHIVE, "enable/disable Blood's HUD interpolation")
+CVARD(Bool, cl_bloodoldweapbalance, false, CVAR_ARCHIVE, "enable/disable legacy 1.0 weapon handling for Blood")
 
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")

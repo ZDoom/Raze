@@ -92,7 +92,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	if (gGameOptions.nGameType == 0)
 	{
 		///////
-		gGameOptions.weaponsV10x = gWeaponsV10x;
+		gGameOptions.weaponsV10x = cl_bloodoldweapbalance;
 		///////
 	}
 #if 0

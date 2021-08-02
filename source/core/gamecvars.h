@@ -30,6 +30,7 @@ EXTERN_CVAR(Bool, cl_hudinterpolation)
 EXTERN_CVAR(Bool, cl_bloodvanillarun)
 EXTERN_CVAR(Bool, cl_bloodvanillabobbing)
 EXTERN_CVAR(Bool, cl_bloodhudinterp)
+EXTERN_CVAR(Bool, cl_bloodoldweapbalance)
 
 EXTERN_CVAR(Bool, demorec_seeds_cvar)
 EXTERN_CVAR(Bool, demoplay_diffs)
