@@ -344,6 +344,10 @@ static void DoParseListMenuBody(FScanner &sc, DListMenuDescriptor *desc, bool &s
 		{
 			desc->mAnimatedTransition = true;
 		}
+		else if (sc.Compare("animated"))
+		{
+			desc->mAnimated = true;
+		}
 		else if (sc.Compare("MouseWindow"))
 		{
 			sc.MustGetNumber();

@@ -40,6 +40,7 @@ LISTMENU "MainMenu"
 		BloodTextItem "$MNU_CREDITS", "c", "CreditsMenu"
 		BloodTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 		BloodDripDrawer
+		animated
 	}
 	ifgame(ShadowWarrior)
 	{
@@ -112,6 +113,7 @@ LISTMENU "IngameMenu"
 		BloodTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
 		BloodTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 		BloodDripDrawer
+		animated
 	}
 	ifgame(ShadowWarrior)
 	{
@@ -169,6 +171,7 @@ LISTMENU "EpisodeMenu"
 		Linespacing 20
 		CaptionItem "$MNU_EPISODES"
 		BloodDripDrawer
+		animated
 	}
 	ifgame(ShadowWarrior)
 	{
@@ -194,6 +197,7 @@ LISTMENU "SkillMenu"
 		Linespacing 20
 		CaptionItem "$MNU_DIFFICULTY"
 		BloodDripDrawer
+		animated
 	}
 	ifgame(ShadowWarrior)
 	{
