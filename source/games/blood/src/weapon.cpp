@@ -995,7 +995,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             pPlayer->weaponQav = 42;
         break;
     case 10:
-        if (pXSprite->height < 256 && abs(pPlayer->swayHeight) > 768)
+        if (pXSprite->height < 256 && abs(pPlayer->swayHeight) > 16)
             pPlayer->weaponQav = 102;
         else
             pPlayer->weaponQav = 101;
