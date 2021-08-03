@@ -499,7 +499,7 @@ void WeaponRaise(PLAYER *pPlayer)
     assert(pPlayer != NULL);
     int prevWeapon = pPlayer->curWeapon;
     pPlayer->curWeapon = pPlayer->newWeapon;
-    pPlayer->newWeapon = 0;
+    pPlayer->newWeapon = kWeapNone;
     pPlayer->weaponAmmo = weaponModes[pPlayer->curWeapon].ammoType;
     switch (pPlayer->curWeapon)
     {
@@ -667,7 +667,7 @@ void WeaponLower(PLAYER *pPlayer)
             }
             else
             {
-                if (pPlayer->newWeapon == 6)
+                if (pPlayer->newWeapon == kWeapDynamite)
                 {
                     pPlayer->weaponState = 2;
                     StartQAV(pPlayer, 11, -1, 0);
@@ -685,12 +685,12 @@ void WeaponLower(PLAYER *pPlayer)
             StartQAV(pPlayer, 11, -1, 0);
             if (VanillaMode())
             {
-                pPlayer->newWeapon = 0;
+                pPlayer->newWeapon = kWeapNone;
                 WeaponLower(pPlayer);
             }
             else
             {
-                if (pPlayer->newWeapon == 6)
+                if (pPlayer->newWeapon == kWeapDynamite)
                 {
                     pPlayer->weaponState = 2;
                     StartQAV(pPlayer, 11, -1, 0);
@@ -703,17 +703,17 @@ void WeaponLower(PLAYER *pPlayer)
             }
             break;
         case 3:
-            if (pPlayer->newWeapon == 6)
+            if (pPlayer->newWeapon == kWeapDynamite)
             {
                 pPlayer->weaponState = 2;
                 StartQAV(pPlayer, 11, -1, 0);
                 return;
             }
-            else if (pPlayer->newWeapon == 7)
+            else if (pPlayer->newWeapon == kWeapSpraycan)
             {
                 pPlayer->weaponState = 1;
                 StartQAV(pPlayer, 11, -1, 0);
-                pPlayer->newWeapon = 0;
+                pPlayer->newWeapon = kWeapNone;
                 WeaponLower(pPlayer);
             }
             else
@@ -734,7 +734,7 @@ void WeaponLower(PLAYER *pPlayer)
             }
             else
             {
-                if (pPlayer->newWeapon == 7)
+                if (pPlayer->newWeapon == kWeapSpraycan)
                 {
                     pPlayer->weaponState = 2;
                     StartQAV(pPlayer, 17, -1, 0);
@@ -747,7 +747,7 @@ void WeaponLower(PLAYER *pPlayer)
             WeaponRaise(pPlayer);
             break;
         case 3:
-            if (pPlayer->newWeapon == 7)
+            if (pPlayer->newWeapon == kWeapSpraycan)
             {
                 pPlayer->weaponState = 2;
                 StartQAV(pPlayer, 17, -1, 0);
@@ -2199,47 +2199,42 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     if (pPlayer->newWeapon)
     {
-        if (pPlayer->newWeapon == 6)
+        if (pPlayer->newWeapon == kWeapDynamite)
         {
             if (pPlayer->curWeapon == kWeapDynamite)
             {
                 if (checkAmmo2(pPlayer, 10, 1))
-                    pPlayer->newWeapon = 11;
+                    pPlayer->newWeapon = kWeapProximity;
                 else if (checkAmmo2(pPlayer, 11, 1))
-                    pPlayer->newWeapon = 12;
+                    pPlayer->newWeapon = kWeapRemote;
             }
             else if (pPlayer->curWeapon == kWeapProximity)
             {
                 if (checkAmmo2(pPlayer, 11, 1))
-                    pPlayer->newWeapon = 12;
+                    pPlayer->newWeapon = kWeapRemote;
                 else if (checkAmmo2(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
-                    pPlayer->newWeapon = 6;
+                    pPlayer->newWeapon = kWeapDynamite;
             }
             else if (pPlayer->curWeapon == kWeapRemote)
             {
                 if (checkAmmo2(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
-                    pPlayer->newWeapon = 6;
+                    pPlayer->newWeapon = kWeapDynamite;
                 else if (checkAmmo2(pPlayer, 10, 1))
-                    pPlayer->newWeapon = 11;
+                    pPlayer->newWeapon = kWeapProximity;
             }
             else
             {
                 if (checkAmmo2(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
-                    pPlayer->newWeapon = 6;
+                    pPlayer->newWeapon = kWeapDynamite;
                 else if (checkAmmo2(pPlayer, 10, 1))
-                    pPlayer->newWeapon = 11;
+                    pPlayer->newWeapon = kWeapVoodooDoll;
                 else if (checkAmmo2(pPlayer, 11, 1))
-                    pPlayer->newWeapon = 12;
+                    pPlayer->newWeapon = kWeapRemote;
             }
         }
-        if (pPlayer->pXSprite->health == 0 || pPlayer->hasWeapon[pPlayer->newWeapon] == 0)
+        if ((pPlayer->pXSprite->health == 0 || pPlayer->hasWeapon[pPlayer->newWeapon] == 0) || (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !sub_4B1A4(pPlayer)))
         {
-            pPlayer->newWeapon = 0;
-            return;
-        }
-        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !sub_4B1A4(pPlayer))
-        {
-            pPlayer->newWeapon = 0;
+            pPlayer->newWeapon = kWeapNone;
             return;
         }
         int nWeapon = pPlayer->newWeapon;
@@ -2251,7 +2246,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             {
                 if (CheckAmmo(pPlayer, nAmmoType, 1) || nAmmoType == 11)
                     WeaponRaise(pPlayer);
-                pPlayer->newWeapon = 0;
+                pPlayer->newWeapon = kWeapNone;
             }
             else
             {
@@ -2276,7 +2271,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         }
         if (nWeapon == pPlayer->curWeapon && v4c <= 1)
         {
-            pPlayer->newWeapon = 0;
+            pPlayer->newWeapon = kWeapNone;
             return;
         }
         int i = 0;
@@ -2292,7 +2287,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
         }
-        pPlayer->newWeapon = 0;
+        pPlayer->newWeapon = kWeapNone;
         return;
     }
     if (pPlayer->curWeapon && !CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1) && pPlayer->weaponAmmo != 11)

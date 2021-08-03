@@ -2082,8 +2082,8 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                 break;
             }
             switch (weapon) {
-                case 11: // remote bomb 
-                case 12: // prox bomb
+                case kWeapProximity: // remote bomb 
+                case kWeapRemote: // prox bomb
                     pPlayer->hasWeapon[weapon] = true;
                     weapon--;
                     pPlayer->ammoCount[weapon] = ClipHigh(pPlayer->ammoCount[weapon] + ((pXSource->data2 == 2) ? pXSource->data4 : 1), gAmmoInfo[weapon].max);

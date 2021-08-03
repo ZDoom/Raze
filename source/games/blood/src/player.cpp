@@ -796,7 +796,7 @@ void playerReset(PLAYER *pPlayer)
     pPlayer->hasWeapon[1] = 1;
     pPlayer->curWeapon = kWeapNone;
     pPlayer->qavCallback = -1;
-    pPlayer->newWeapon = 1;
+    pPlayer->newWeapon = kWeapPitchFork;
     for (int i = 0; i < 14; i++)
     {
         pPlayer->weaponOrder[0][i] = dword_136400[i];
@@ -2134,7 +2134,7 @@ void PlayerSurvive(int, DBloodActor* actor)
                 sprintf(buffer, "%s lives again!", PlayerName(pPlayer->nPlayer));
                 viewSetMessage(buffer);
             }
-            pPlayer->newWeapon = 1;
+            pPlayer->newWeapon = kWeapPitchFork;
         }
     }
 }
