@@ -130,7 +130,7 @@ void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelt
 		if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette);
 			else if (gView->pXSprite->health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette);
 		else {
-			gView->sceneQav = gView->weaponQav = -1;
+			gView->sceneQav = gView->weaponQav = kQAVNone;
 			gView->qavTimer = gView->weaponTimer = gView->curWeapon = 0;
 		}
 		#else

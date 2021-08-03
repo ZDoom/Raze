@@ -31,6 +31,8 @@ enum { kQavOrientationLeft = 4096 };
 
 enum
 {
+    kQAVNone = -1,
+
     kQAVFORKUP = 0,
     kQAVFORKIDLE = 1,
     kQAVPFORK = 2,

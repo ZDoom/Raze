@@ -739,7 +739,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->handTime = 0;
     pPlayer->weaponTimer = 0;
     pPlayer->weaponState = 0;
-    pPlayer->weaponQav = -1;
+    pPlayer->weaponQav = kQAVNone;
     pPlayer->qavLastTick = 0;
     pPlayer->qavTimer = 0;
     #ifdef NOONE_EXTENSIONS
@@ -813,7 +813,7 @@ void playerReset(PLAYER *pPlayer)
         pPlayer->armor[i] = 0;
     pPlayer->weaponTimer = 0;
     pPlayer->weaponState = 0;
-    pPlayer->weaponQav = -1;
+    pPlayer->weaponQav = kQAVNone;
     pPlayer->qavLoop = 0;
     pPlayer->qavLastTick = 0;
     pPlayer->qavTimer = 0;
