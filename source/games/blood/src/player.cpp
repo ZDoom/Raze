@@ -722,7 +722,7 @@ void playerStart(int nPlayer, int bNewLevel)
     gFullMap = 0;
     pPlayer->throwPower = 0;
     pPlayer->deathTime = 0;
-    pPlayer->nextWeapon = 0;
+    pPlayer->nextWeapon = kWeapNone;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
     pInput->avel = 0;
     pInput->actions = 0;

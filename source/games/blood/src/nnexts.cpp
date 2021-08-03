@@ -2040,7 +2040,7 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
 
             pPlayer->hasWeapon[1] = true;
             pPlayer->curWeapon = kWeapNone;
-            pPlayer->nextWeapon = 1;
+            pPlayer->nextWeapon = kWeapPitchFork;
 
             WeaponRaise(pPlayer);
             if (pXSource->data2) break;
@@ -2110,7 +2110,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                     break;
             }
             if (pPlayer->hasWeapon[weapon] && pXSource->data4 == 0) { // switch on it
-                pPlayer->nextWeapon = 0;
+                pPlayer->nextWeapon = kWeapNone;
 
                 if (pPlayer->sceneQav >= 0 && spriRangeIsFine(pCtrl->qavScene.index)) {
                     XSPRITE* pXScene = &xsprite[sprite[pCtrl->qavScene.index].extra];

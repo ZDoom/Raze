@@ -2095,7 +2095,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             sfxKill3DSound(pPlayer->pSprite, -1, 441);
             pPlayer->weaponState = 0;
             pPlayer->newWeapon = pPlayer->nextWeapon;
-            pPlayer->nextWeapon = 0;
+            pPlayer->nextWeapon = kWeapNone;
         }
     }
     if (pPlayer->input.getNewWeapon() == WeaponSel_Next)
@@ -2105,7 +2105,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         {
             pPlayer->weaponState = 0;
         }
-        pPlayer->nextWeapon = 0;
+        pPlayer->nextWeapon = kWeapNone;
         int t;
         int weapon = WeaponFindNext(pPlayer, &t, 1);
         pPlayer->weaponMode[weapon] = t;
@@ -2127,7 +2127,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         {
             pPlayer->weaponState = 0;
         }
-        pPlayer->nextWeapon = 0;
+        pPlayer->nextWeapon = kWeapNone;
         int t;
         int weapon = WeaponFindNext(pPlayer, &t, 0);
         pPlayer->weaponMode[weapon] = t;
@@ -2163,7 +2163,7 @@ void WeaponProcess(PLAYER *pPlayer) {
 
         pPlayer->input.setNewWeapon(0);
         pPlayer->weaponState = 0;
-        pPlayer->nextWeapon = 0;
+        pPlayer->nextWeapon = kWeapNone;
         int t = 0;
         pPlayer->weaponMode[weapon] = t;
         if (pPlayer->curWeapon)
@@ -2180,7 +2180,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         {
             sfxKill3DSound(pPlayer->pSprite, -1, 441);
             pPlayer->newWeapon = pPlayer->nextWeapon;
-            pPlayer->nextWeapon = 0;
+            pPlayer->nextWeapon = kWeapNone;
         }
     }
     if (pPlayer->weaponState == -1)
