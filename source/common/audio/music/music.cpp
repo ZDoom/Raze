@@ -859,7 +859,7 @@ void S_StopMusic (bool force)
 
 CCMD (changemus)
 {
-	if (!nomusic)
+	if (MusicEnabled())
 	{
 		if (argv.argc() > 1)
 		{

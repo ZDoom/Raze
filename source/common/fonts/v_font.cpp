@@ -681,13 +681,13 @@ void V_ApplyLuminosityTranslation(int translation, uint8_t* pixel, int size)
 		int index = clamp(lumadjust, 0, 255);
 		PalEntry newcol = remap[index];
 		// extend the range if we find colors outside what initial analysis provided.
-		if (gray < lum_min)
+		if (gray < lum_min && lum_min != 0)
 		{
 			newcol.r = newcol.r * gray / lum_min;
 			newcol.g = newcol.g * gray / lum_min;
 			newcol.b = newcol.b * gray / lum_min;
 		}
-		else if (gray > lum_max)
+		else if (gray > lum_max && lum_max != 0)
 		{
 			newcol.r = clamp(newcol.r * gray / lum_max, 0, 255);
 			newcol.g = clamp(newcol.g * gray / lum_max, 0, 255);
