@@ -72,7 +72,7 @@ void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int st
     }
 }
 
-void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio, bool const menudrip)
+void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio, bool const looped)
 {
     assert(ticksPerFrame > 0);
 
@@ -89,7 +89,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
         lastframetic = 0;
     }
 
-    int oFrame = nFrame == 0 || (lastframetic && ticks > lastframetic) ? nFrame : nFrame - 1;
+    int oFrame = nFrame == 0 || (lastframetic && ticks > lastframetic) ? !looped ? nFrame : nFrames - 1 : nFrame - 1;
     assert(oFrame >= 0 && oFrame < nFrames);
     FRAMEINFO *prevFrame = &frames[oFrame];
 
@@ -126,7 +126,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
         if (thisTile->picnum > 0)
         {
             // Menu's blood drip requires special treatment.
-            if (menudrip)
+            if (res_id == 256)
             {
                 if (i != 0)
                 {
@@ -295,6 +295,7 @@ QAV* getQAV(int res_id)
     }
 
     // Write out additions.
+    qavdata->res_id = res_id;
     qavdata->ticrate = 120. / qavdata->ticksPerFrame;
 
     qavcache.Insert(res_id, qavdata);
