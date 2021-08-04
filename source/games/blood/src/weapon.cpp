@@ -33,8 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-enum { kQAVEnd = 125 };
-
 void FirePitchfork(int, PLAYER *pPlayer);
 void FireSpray(int, PLAYER *pPlayer);
 void ThrowCan(int, PLAYER *pPlayer);
@@ -142,7 +140,7 @@ enum
     nClientAltFireNapalm,
 };
 
-QAV *weaponQAV[kQAVEnd];
+static QAV *weaponQAV[kQAVEnd];
 
 static bool sub_4B1A4(PLAYER *pPlayer)
 {

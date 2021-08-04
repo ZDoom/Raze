@@ -177,6 +177,8 @@ enum
     kQAV2NAPFIRE = 122,
     kQAV2NAPFIR2 = 123,
     kQAV2NAPDOWN = 124,
+
+    kQAVEnd = 125,
 };
 
 // by NoOne: add sound flags
