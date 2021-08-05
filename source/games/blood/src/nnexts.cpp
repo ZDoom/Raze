@@ -1844,6 +1844,8 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
         pPlayer->weaponTimer = pCtrl->qavScene.qavResrc->duration;
         pPlayer->qavCallback = (pXSource->data3 > 0) ? ClipRange(pXSource->data3 - 1, 0, 32) : -1;
         pPlayer->qavLoop = false;
+        pPlayer->qavLastTick = I_GetTime(pCtrl->qavScene.qavResrc->ticrate);
+        pPlayer->qavTimer = pCtrl->qavScene.qavResrc->duration;
 
     }
 
@@ -6180,7 +6182,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, double smoothratio) {
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
@@ -6189,7 +6191,10 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, d
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? ((PlayClock + MulScale(4, int(smoothratio), 16)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
+        int v4;
+        double smoothratio;
+
+        qavProcessTimer(pPlayer, pQAV, &v4, &smoothratio);
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
         if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32))) {

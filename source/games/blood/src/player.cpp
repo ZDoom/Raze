@@ -740,6 +740,8 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->weaponTimer = 0;
     pPlayer->weaponState = 0;
     pPlayer->weaponQav = -1;
+    pPlayer->qavLastTick = 0;
+    pPlayer->qavTimer = 0;
     #ifdef NOONE_EXTENSIONS
     playerQavSceneReset(pPlayer); // reset qav scene
     
@@ -813,6 +815,8 @@ void playerReset(PLAYER *pPlayer)
     pPlayer->weaponState = 0;
     pPlayer->weaponQav = -1;
     pPlayer->qavLoop = 0;
+    pPlayer->qavLastTick = 0;
+    pPlayer->qavTimer = 0;
     pPlayer->packItemId = -1;
 
     for (int i = 0; i < 5; i++) {
@@ -2249,6 +2253,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
             .Array("weaponorder", &w.weaponOrder[0][0], 14*2)
             .Array("ammocount", w.ammoCount, countof(w.ammoCount))
             ("qavloop", w.qavLoop)
+            ("qavlastTick", w.qavLastTick)
+            ("qavtimer", w.qavTimer)
             ("fusetime", w.fuseTime)
             ("throwtime", w.throwTime)
             ("throwpower", w.throwPower)

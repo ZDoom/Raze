@@ -87,5 +87,6 @@ struct QAV
 
 QAV* getQAV(int res_id);
 void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick);
+void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration = false);
 
 END_BLD_NS

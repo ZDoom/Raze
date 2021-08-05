@@ -255,22 +255,16 @@ bool isOriginalQAV()
     return cached;
 }
 
-void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum, double smoothratio)
+void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum)
 {
     assert(pPlayer != NULL);
     if (pPlayer->weaponQav == -1)
         return;
     QAV * pQAV = weaponQAV[pPlayer->weaponQav];
     int duration;
+    double smoothratio;
 
-    if (pPlayer->weaponTimer == 0) // playing idle QAV?
-    { 
-        // Double shotgun fix from BloodGDX.
-        if (/*!IsOriginalDemo() &&*/ (pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7))/* && isOriginalQAV()*/)
-            duration = pQAV->duration - 1;
-        else duration = (PlayClock + MulScale(4, int(smoothratio), 16)) % pQAV->duration;
-    }
-    else duration = pQAV->duration - pPlayer->weaponTimer;
+    qavProcessTimer(pPlayer, pQAV, &duration, &smoothratio, pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7));
 
     pQAV->x = int(xpos);
     pQAV->y = int(ypos);
@@ -302,6 +296,8 @@ static void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int callback, bool looped 
     pPlayer->weaponTimer = weaponQAV[nWeaponQAV]->duration;
     pPlayer->qavCallback = callback;
     pPlayer->qavLoop = looped;
+    pPlayer->qavLastTick = I_GetTime(weaponQAV[nWeaponQAV]->ticrate);
+    pPlayer->qavTimer = weaponQAV[nWeaponQAV]->duration;
     //weaponQAV[nWeaponQAV]->Preload();
     WeaponPlay(pPlayer);
     pPlayer->weaponTimer -= 4;
@@ -1913,6 +1909,7 @@ static bool processProxy(PLAYER *pPlayer)
     case 9:
         pPlayer->throwPower = ClipHigh(DivScale(PlayClock-pPlayer->throwTime,240, 16), 65536);
         pPlayer->weaponTimer = 0;
+        pPlayer->qavTimer = 0;
         if (!(pPlayer->input.actions & SB_FIRE))
         {
             pPlayer->weaponState = 8;
@@ -2043,11 +2040,15 @@ void WeaponProcess(PLAYER *pPlayer) {
         if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))
         {
             while (pPlayer->weaponTimer <= 0)
+            {
                 pPlayer->weaponTimer += weaponQAV[pPlayer->weaponQav]->duration;
+                pPlayer->qavTimer += weaponQAV[pPlayer->weaponQav]->duration;
+            }
         }
         else
         {
             pPlayer->weaponTimer = 0;
+            pPlayer->qavTimer = 0;
             pPlayer->qavLoop = 0;
         }
         return;

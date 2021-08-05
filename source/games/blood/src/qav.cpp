@@ -236,6 +236,31 @@ void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick)
     *duration = ClipLow(*duration, 0);
 }
 
+void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration)
+{
+    // Process clock based on QAV's ticrate and last tick value.
+    qavProcessTicker(pQAV, &pPlayer->qavTimer, &pPlayer->qavLastTick);
+
+    if (pPlayer->weaponTimer == 0)
+    {
+        // Check if we're playing an idle QAV as per the ticker's weapon timer.
+        *duration = fixedduration ? pQAV->duration - 1 : I_GetBuildTime() % pQAV->duration;
+        *smoothratio = MaxSmoothRatio;
+    }
+    else if (pPlayer->qavTimer == 0)
+    {
+        // If qavTimer is 0, play the last frame uninterpolated. Sometimes the timer can be just ahead of weaponTimer.
+        *duration = pQAV->duration - 1;
+        *smoothratio = MaxSmoothRatio;
+    }
+    else
+    {
+        // Apply normal values.
+        *duration = pQAV->duration - pPlayer->qavTimer;
+        *smoothratio = I_GetTimeFrac(pQAV->ticrate) * MaxSmoothRatio;
+    }
+}
+
 
 // This is to eliminate a huge design issue in NBlood that was apparently copied verbatim from the DOS-Version.
 // Sequences were cached in the resource and directly returned from there in writable form, with byte swapping directly performed in the cache on Big Endian systems.
