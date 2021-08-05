@@ -1067,6 +1067,7 @@ DEFINE_FIELD(DImageScrollerDescriptor, textBackgroundBrightness)
 DEFINE_FIELD(DImageScrollerDescriptor,textFont)
 DEFINE_FIELD(DImageScrollerDescriptor, textScale)
 DEFINE_FIELD(DImageScrollerDescriptor, mAnimatedTransition)
+DEFINE_FIELD(DImageScrollerDescriptor, mAnimated)
 DEFINE_FIELD(DImageScrollerDescriptor, virtWidth)
 DEFINE_FIELD(DImageScrollerDescriptor, virtHeight)
 

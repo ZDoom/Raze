@@ -1216,6 +1216,10 @@ static void ParseImageScrollerBody(FScanner& sc, DImageScrollerDescriptor* desc)
 		{
 			desc->mAnimatedTransition = true;
 		}
+		else if (sc.Compare("animated"))
+		{
+			desc->mAnimated = true;
+		}
 		else if (sc.Compare("textBackground"))
 		{
 			sc.MustGetString();

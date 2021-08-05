@@ -236,6 +236,7 @@ ImageScroller "HelpMenu"
 		QAVDrawer "Help4.qav"
 		QAVDrawer "Help5.qav"
 		QAVDrawer "Help3b.qav"
+		animated
 	}
 	ifgame(ShadowWarrior)
 	{
@@ -356,6 +357,7 @@ ImageScroller "CreditsMenu"
 	ifgame(blood)
 	{
 		QAVDrawer "Credits.qav"
+		animated
 	}
 	ifgame(ShadowWarrior)
 	{
