@@ -76,21 +76,10 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 {
     assert(ticksPerFrame > 0);
 
-    int nFrame = ticks / ticksPerFrame;
-    assert(nFrame >= 0 && nFrame < nFrames);
+    auto const nFrame = clamp(ticks / ticksPerFrame, 0, nFrames - 1);
     FRAMEINFO *thisFrame = &frames[nFrame];
 
-    if ((nFrame == (nFrames - 1)) && !lastframetic)
-    {
-        lastframetic = ticks;
-    }
-    else if (lastframetic > ticks)
-    {
-        lastframetic = 0;
-    }
-
-    int oFrame = nFrame == 0 || (lastframetic && ticks > lastframetic) ? !looped ? nFrame : nFrames - 1 : nFrame - 1;
-    assert(oFrame >= 0 && oFrame < nFrames);
+    auto const oFrame = clamp((nFrame == 0 && looped ? nFrames : nFrame) - 1, 0, nFrames - 1);
     FRAMEINFO *prevFrame = &frames[oFrame];
 
     auto drawTile = [&](TILE_FRAME *thisTile, TILE_FRAME *prevTile, bool const interpolate = true)
