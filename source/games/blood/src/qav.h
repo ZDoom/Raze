@@ -67,7 +67,7 @@ struct FRAMEINFO
 
 struct QAV
 {
-    char pad1[8]; // 0
+    double ticrate; // 0
     int nFrames; // 8
     int ticksPerFrame; // C
     int duration; // 10
@@ -85,5 +85,6 @@ struct QAV
 };
 
 QAV* getQAV(int res_id);
+void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick);
 
 END_BLD_NS

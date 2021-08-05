@@ -221,6 +221,21 @@ void QAV::Precache(int palette)
     }
 }
 
+void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick)
+{
+    if (*duration > 0)
+    {
+        auto thisTick = I_GetTime(pQAV->ticrate);
+        auto numTicks = thisTick - (*lastTick);
+        if (numTicks)
+        {
+            *lastTick = thisTick;
+            *duration -= pQAV->ticksPerFrame * numTicks;
+        }
+    }
+    *duration = ClipLow(*duration, 0);
+}
+
 
 // This is to eliminate a huge design issue in NBlood that was apparently copied verbatim from the DOS-Version.
 // Sequences were cached in the resource and directly returned from there in writable form, with byte swapping directly performed in the cache on Big Endian systems.
@@ -278,6 +293,9 @@ QAV* getQAV(int res_id)
             qavdata->frames[i].tiles[j].angle = fr.ReadUInt16();
         }
     }
+
+    // Write out additions.
+    qavdata->ticrate = 120. / qavdata->ticksPerFrame;
 
     qavcache.Insert(res_id, qavdata);
     return qavdata;

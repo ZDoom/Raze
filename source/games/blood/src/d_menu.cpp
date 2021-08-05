@@ -41,8 +41,7 @@ BEGIN_BLD_NS
 class CGameMenuItemQAV
 {
 public:
-	int m_nX, m_nY;
-	TArray<uint8_t> raw;
+	QAV* data;
 	int duration;
 	int lastTick;
 	bool bWideScreen;
@@ -54,25 +53,20 @@ public:
 
 CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widescreen, bool clearbackground)
 {
-	m_nY = a4;
-	m_nX = a3;
 	bWideScreen = widescreen;
 	bClearBackground = clearbackground;
 	filename = name;
 
 	if (name)
 	{
-		// NBlood read this directly from the file system cache, but let's better store the data locally for robustness.
-		raw = fileSystem.LoadFile(name, 0);
-		if (raw.Size() != 0)
+		data = getQAV(fileSystem.GetResourceId(fileSystem.FindFile(name)));
+		if (data)
 		{
-			auto data = (QAV*)raw.Data();
 			data->nSprite = -1;
-			data->x = m_nX;
-			data->y = m_nY;
-			//data->Preload();
+			data->x = a3;
+			data->y = a4;
 			duration = data->duration;
-			lastTick = I_GetTime();
+			lastTick = I_GetTime(data->ticrate);
 		}
 	}
 }
@@ -82,29 +76,18 @@ void CGameMenuItemQAV::Draw(void)
 	if (bClearBackground)
 		twod->ClearScreen();
 
-	if (raw.Size() > 0)
+	if (data)
 	{
-		auto data = (QAV*)raw.Data();
-
-		auto thisTick = I_GetTime();
-		if (!lastTick)
-		{
-			lastTick = thisTick;
-		}
-		if (lastTick < thisTick)
-		{
-			lastTick = thisTick;
-			duration -= 4;
-		}
+		qavProcessTicker(data, &duration, &lastTick);
 
 		if (duration <= 0 || duration > data->duration)
 		{
 			duration = data->duration;
 		}
 		auto currentDuration = data->duration - duration;
-		auto smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
+		auto smoothratio = I_GetTimeFrac(data->ticrate) * MaxSmoothRatio;
 
-		data->Play(currentDuration - 4, currentDuration, -1, NULL);
+		data->Play(currentDuration - data->ticksPerFrame, currentDuration, -1, NULL);
 
 		if (bWideScreen)
 		{
