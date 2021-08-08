@@ -873,6 +873,25 @@ static void qavRepairTileData(QAV* pQAV)
                 }
             }
             break;
+        case kQAV2SHOTF2:
+            // 2SHOTF2 has tiles 2630 and 2631 applied when it doesn't need to,
+            // and is missing a preceding frame of tile 2632 which the non-akimbo version has.
+
+            // Patch left and right side respectively.
+            pQAV->frames[0].tiles[6] = pQAV->frames[1].tiles[6];
+            pQAV->frames[0].tiles[6].x -= pQAV->frames[1].tiles[5].x - pQAV->frames[0].tiles[5].x;
+            pQAV->frames[0].tiles[6].y -= pQAV->frames[1].tiles[5].y - pQAV->frames[0].tiles[5].y;
+            pQAV->frames[3].tiles[3] = pQAV->frames[4].tiles[3];
+            pQAV->frames[3].tiles[3].x -= pQAV->frames[4].tiles[2].x - pQAV->frames[3].tiles[2].x;
+            pQAV->frames[3].tiles[3].y -= pQAV->frames[4].tiles[2].y - pQAV->frames[3].tiles[2].y;
+
+            // Stabilise frame 2 tile 2 by using x/y coordindates from next frame.
+            pQAV->frames[2].tiles[2].x = pQAV->frames[3].tiles[2].x;
+            pQAV->frames[2].tiles[2].y = pQAV->frames[3].tiles[2].y;
+
+            // Disable frame 0 tile 7.
+            pQAV->frames[0].tiles[7].picnum = -1;
+            break;
         default:
             return;
     }
