@@ -558,6 +558,14 @@ static void qavRepairTileData(QAV* pQAV)
             pQAV->frames[3].tiles[2] = pQAV->frames[3].tiles[1];
             pQAV->frames[3].tiles[1].picnum = -1;
             break;
+        case kQAVBUNTHRO:
+            // BUNTHRO has several tile indices that require repairs here to minimise continual checks at draw time.
+            // For frame 3, move tile indices 0 and 1 into 3 and 2, and disable original indices.
+            pQAV->frames[3].tiles[3] = pQAV->frames[3].tiles[0];
+            pQAV->frames[3].tiles[2] = pQAV->frames[3].tiles[1];
+            pQAV->frames[3].tiles[0].picnum = -1;
+            pQAV->frames[3].tiles[1].picnum = -1;
+            break;
         default:
             return;
     }
