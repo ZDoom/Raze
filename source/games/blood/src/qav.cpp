@@ -552,6 +552,12 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[2] = backup;
             }
             break;
+        case kQAVBUNDROP:
+            // BUNDROP needs frame 3 tile 1 moved to tile 2 to avoid needing its own interpolation callback.
+            // For frame 3, move tile index 2 into 3, and disable original index of 2.
+            pQAV->frames[3].tiles[2] = pQAV->frames[3].tiles[1];
+            pQAV->frames[3].tiles[1].picnum = -1;
+            break;
         default:
             return;
     }
