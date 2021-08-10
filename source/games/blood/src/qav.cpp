@@ -500,6 +500,20 @@ static void qavRepairTileData(QAV* pQAV)
                 }
             }
             break;
+        case kQAVBUNDOWN2:
+            // BUNDOWN2 has some tile index swaps that require handling.
+            // For frames 3 and 4, move tile indices 1 and 2 into 2 and 3, and disable original index of 1.
+            for (i = 3; i < 5; i++)
+            {
+                pQAV->frames[i].tiles[3] = pQAV->frames[i].tiles[2];
+                pQAV->frames[i].tiles[2] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1].picnum = -1;
+            }
+
+            // For frame 5, move tile index 1 to 3 and disable original index of 1.
+            pQAV->frames[5].tiles[3] = pQAV->frames[5].tiles[1];
+            pQAV->frames[5].tiles[1].picnum = -1;
+            break;
         default:
             return;
     }
