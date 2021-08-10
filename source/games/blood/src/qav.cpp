@@ -465,6 +465,41 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[1] = backup;
             }
             break;
+        case kQAVBUNUP2:
+            // BUNUP2 has a few uninterpolatable tiles that need moving, and some index swaps to handle.
+            // For frame 2, move tile index 1 to 3 and disable original index of 1.
+            pQAV->frames[2].tiles[3] = pQAV->frames[2].tiles[1];
+            pQAV->frames[2].tiles[1].picnum = -1;
+
+            // For frame 7, move tile index 1 into 6, 2 into 1 and 3 into 2, then disable the original index of 3.
+            pQAV->frames[7].tiles[6] = pQAV->frames[7].tiles[1];
+            pQAV->frames[7].tiles[1] = pQAV->frames[7].tiles[2];
+            pQAV->frames[7].tiles[2] = pQAV->frames[7].tiles[3];
+            pQAV->frames[7].tiles[3].picnum = -1;
+
+            // For frame 8, move tile index 1 into 5, 2 into 6, 3 into 1 and 4 into 2, then disable the original index of 4.
+            pQAV->frames[8].tiles[5] = pQAV->frames[8].tiles[1];
+            pQAV->frames[8].tiles[6] = pQAV->frames[8].tiles[2];
+            pQAV->frames[8].tiles[1] = pQAV->frames[8].tiles[3];
+            pQAV->frames[8].tiles[2] = pQAV->frames[8].tiles[4];
+            pQAV->frames[8].tiles[4].picnum = -1;
+
+            // For frame 9, move tile index 1 into 5, 2 into 1 and 3 into 2, then disable the original index of 3.
+            pQAV->frames[9].tiles[5] = pQAV->frames[9].tiles[1];
+            pQAV->frames[9].tiles[1] = pQAV->frames[9].tiles[2];
+            pQAV->frames[9].tiles[2] = pQAV->frames[9].tiles[3];
+            pQAV->frames[9].tiles[3].picnum = -1;
+
+            // For frames 7 until the end, move indices 5 and 6 into 3 and 4, and disable original indices of 5 and 6.
+            for (i = 7; i < pQAV->nFrames; i++)
+            {
+                for (j = 5; j < 7; j++)
+                {
+                    pQAV->frames[i].tiles[j - 2] = pQAV->frames[i].tiles[j];
+                    pQAV->frames[i].tiles[j].picnum = -1; 
+                }
+            }
+            break;
         default:
             return;
     }
