@@ -693,6 +693,24 @@ static void qavRepairTileData(QAV* pQAV)
                 }
             }
             break;
+        case kQAVREMDROP:
+            // REMDROP has several tile indices that require repairs to avoid needing its own interpolation callback.
+            // Additionally, there are missing frames crucial to a proper interpolation experience.
+
+            // For frame 1, move tile index 2 into 6, and 3 into 2, and disable original index of 3.
+            pQAV->frames[1].tiles[6] = pQAV->frames[1].tiles[2];
+            pQAV->frames[1].tiles[2] = pQAV->frames[1].tiles[3];
+            pQAV->frames[1].tiles[3].picnum = -1;
+
+            // Clone frame 3 tile index 0 and 1 into frames 4, and adjust x/y coordinates
+            // using difference between frames 4 and 3 on looped tile index.
+            for (j = 0; j < 2; j++)
+            {
+                pQAV->frames[4].tiles[j] = pQAV->frames[3].tiles[j];
+                pQAV->frames[4].tiles[j].x += pQAV->frames[3].tiles[j].x - pQAV->frames[2].tiles[j].x;
+                pQAV->frames[4].tiles[j].y += pQAV->frames[3].tiles[j].y - pQAV->frames[2].tiles[j].y;
+            }
+            break;
         default:
             return;
     }
