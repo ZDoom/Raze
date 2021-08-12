@@ -605,6 +605,32 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[4].tiles[i].y += pQAV->frames[4].tiles[1].y - pQAV->frames[3].tiles[1].y;
             }
             break;
+        case kQAVREMUP1:
+        case kQAVREMUP2:
+            // REMUP1 and REMUP2 have several tile indices that require repairs to avoid needing their own interpolation callback.
+            // Additionally, there are missing frames crucial to a proper interpolation experience.
+
+            // For frame 0, move tile index 1 into 2, and disable original index of 1.
+            pQAV->frames[0].tiles[2] = pQAV->frames[0].tiles[1];
+            pQAV->frames[0].tiles[1].picnum = -1;
+
+            // For frame 0, clone frame 1 tile index 1 and adjust x/y coordinates
+            // using difference between frame 0 and 1's tile index 0.
+            pQAV->frames[0].tiles[1] = pQAV->frames[1].tiles[1];
+            pQAV->frames[0].tiles[1].x += pQAV->frames[0].tiles[0].x - pQAV->frames[1].tiles[0].x;
+            pQAV->frames[0].tiles[1].y += pQAV->frames[0].tiles[0].y - pQAV->frames[1].tiles[0].y;
+
+            // For frame 2, move tile index 2 and three around.
+            backup = pQAV->frames[2].tiles[2];
+            pQAV->frames[2].tiles[2] = pQAV->frames[2].tiles[3];
+            pQAV->frames[2].tiles[3] = backup;
+
+            // For frame 1, clone frame 2 tile index 3 and adjust x/y coordinates
+            // using difference between frame 1 and 2's tile index 0.
+            pQAV->frames[1].tiles[3] = pQAV->frames[2].tiles[3];
+            pQAV->frames[1].tiles[3].x += pQAV->frames[1].tiles[1].x - pQAV->frames[2].tiles[1].x;
+            pQAV->frames[1].tiles[3].y += pQAV->frames[1].tiles[1].y - pQAV->frames[2].tiles[1].y;
+            break;
         default:
             return;
     }
