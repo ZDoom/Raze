@@ -852,6 +852,19 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[1].picnum = -1;
             }
             break;
+        case kQAVSHOTUP:
+            // SHOTUP is missing tiles for the first two frames.
+            // Clone from 3rd frame and amend x/y coordinates for tile indices 1 and 2 on frames 0 and 1.
+            for (i = 0; i < 2; i++)
+            {
+                for (j = 1; j < 3; j++)
+                {
+                    pQAV->frames[i].tiles[j] = pQAV->frames[2].tiles[j];
+                    pQAV->frames[i].tiles[j].x += pQAV->frames[i].tiles[0].x - pQAV->frames[2].tiles[0].x;
+                    pQAV->frames[i].tiles[j].y += pQAV->frames[i].tiles[0].y - pQAV->frames[2].tiles[0].y;
+                }
+            }
+            break;
         default:
             return;
     }
