@@ -780,6 +780,78 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[j].tiles[0].y = xs_CRoundToInt(pQAV->frames[lastframe].tiles[0].y - (double(pQAV->frames[lastframe].tiles[0].y - -30) / lastframe) * i);
             }
             break;
+        case kQAVFLAR2FIR:
+            // FLAR2FIR has several index swaps that require accomodating and to ensure it interpolates right.
+
+            // Handle x > 0 side first.
+            // For frame 0, move tile indices 0 and 1 into 5 and 7, and disable original indices.
+            pQAV->frames[0].tiles[7] = pQAV->frames[0].tiles[1];
+            pQAV->frames[0].tiles[5] = pQAV->frames[0].tiles[0];
+            pQAV->frames[0].tiles[1].picnum = -1;
+            pQAV->frames[0].tiles[0].picnum = -1;
+
+            // For frame 1, move tile indices 1 and 2 into 5 and 6, and disable original indices of 1 and 2.
+            for (i = 1; i < 3; i++)
+            {
+                pQAV->frames[1].tiles[i + 4] = pQAV->frames[1].tiles[i];
+                pQAV->frames[1].tiles[i].picnum = -1;
+            }
+
+            // For frames 2 and 3, move tile index 1 into 7, and disable original index of 1.
+            for (i = 2; i < 4; i++)
+            {
+                pQAV->frames[i].tiles[7] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1].picnum = -1;
+            }
+
+            // For frames 4 until end, move tile index 0 into 7, and disable original index of 0.
+            for (i = 4; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[7] = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[0].picnum = -1;
+            }
+
+            // Handle x < 0 now.
+            // For frame 0, move tile index 2 into 4, and disable the original index of 2.
+            pQAV->frames[0].tiles[4] = pQAV->frames[0].tiles[2];
+            pQAV->frames[0].tiles[2].picnum = -1;
+
+            // For frame 1, move tile index 3 into 4, and disable the original index of 3.
+            pQAV->frames[1].tiles[4] = pQAV->frames[1].tiles[3];
+            pQAV->frames[1].tiles[3].picnum = -1;
+
+            // For frames 2 and 3, move tile index 2 into 4, and disable the original index of 2.
+            for (i = 2; i < 4; i++)
+            {
+                pQAV->frames[i].tiles[4] = pQAV->frames[i].tiles[2];
+                pQAV->frames[i].tiles[2].picnum = -1;
+            }
+
+            // For frame 3, move tile index 3 into 6, and disable the original index of 3.
+            pQAV->frames[3].tiles[6] = pQAV->frames[3].tiles[3];
+            pQAV->frames[3].tiles[3].picnum = -1;
+
+            // For frame 4, move tile indices 2 and 3 into 4 and 5, and disable the original indices of 2 and 3.
+            for (i = 2; i < 4; i++)
+            {
+                pQAV->frames[4].tiles[i + 2] = pQAV->frames[4].tiles[i];
+                pQAV->frames[4].tiles[i].picnum = -1;
+            }
+
+            // For frames 5 and 6, move tile index 2 into 6, and disable the original index of 2.
+            for (i = 5; i < 7; i++)
+            {
+                pQAV->frames[i].tiles[6] = pQAV->frames[i].tiles[2];
+                pQAV->frames[i].tiles[2].picnum = -1;
+            }
+
+            // For frames 7 until end, move tile index 1 into 6, and disable original index of 1.
+            for (i = 7; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[6] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1].picnum = -1;
+            }
+            break;
         default:
             return;
     }
