@@ -739,6 +739,16 @@ static void qavRepairTileData(QAV* pQAV)
 
             }
             break;
+        case kQAVFLARUP:
+            // FLARUP interpolates fine, but the final frame in bringing the flaregun up is lower than the flaregun while idle.
+            // Do linear interpolation from 2nd frame through to last frame, ending with coordinates of FLARIDLE.
+            lastframe = pQAV->nFrames - 1;
+            for (i = 1; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[0].x = xs_CRoundToInt(pQAV->frames[0].tiles[0].x - (double(pQAV->frames[0].tiles[0].x - 57) / lastframe) * i);
+                pQAV->frames[i].tiles[0].y = xs_CRoundToInt(pQAV->frames[0].tiles[0].y - (double(pQAV->frames[0].tiles[0].y - -30) / lastframe) * i);
+            }
+            break;
         default:
             return;
     }
