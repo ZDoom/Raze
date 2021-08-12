@@ -892,6 +892,39 @@ static void qavRepairTileData(QAV* pQAV)
             // Disable frame 0 tile 7.
             pQAV->frames[0].tiles[7].picnum = -1;
             break;
+        case kQAV2SHOTFIR:
+            // 2SHOTFIR has the issues of both SHOTUP and 2SHOTF2, fix both issues.
+
+            // Fix missing tiles for 2630 and 2631 and amend x/y coordinates for 2630 and 2631 for right and left side respectively.
+            for (i = 8; i < 11; i++)
+            {
+                // Use difference from tile 2, it's the same for left and right side.
+                for (j = 3; j < 5; j++)
+                {
+                    pQAV->frames[i].tiles[j] = pQAV->frames[11].tiles[j];
+                    pQAV->frames[i].tiles[j].x += pQAV->frames[i].tiles[2].x - pQAV->frames[11].tiles[2].x;
+                    pQAV->frames[i].tiles[j].y += pQAV->frames[i].tiles[2].y - pQAV->frames[11].tiles[2].y;
+                }
+                for (j = 6; j < 8; j++)
+                {
+                    pQAV->frames[i].tiles[j] = pQAV->frames[11].tiles[j];
+                    pQAV->frames[i].tiles[j].x -= pQAV->frames[i].tiles[2].x - pQAV->frames[11].tiles[2].x;
+                    pQAV->frames[i].tiles[j].y += pQAV->frames[i].tiles[2].y - pQAV->frames[11].tiles[2].y;
+                }
+            }
+
+            // Fix missing tiles for 2632 and patch coordinates on right and left side respectively.
+            for (i = 3; i < 7; i += 3)
+            {
+                pQAV->frames[0].tiles[i] = pQAV->frames[1].tiles[i];
+                pQAV->frames[0].tiles[i].x -= pQAV->frames[1].tiles[i - 1].x - pQAV->frames[0].tiles[i - 1].x;
+                pQAV->frames[0].tiles[i].y -= pQAV->frames[1].tiles[i - 1].y - pQAV->frames[0].tiles[i - 1].y;
+            }
+
+            // Disable frame 0 tile 4 and tile 7.
+            pQAV->frames[0].tiles[4].picnum = -1;
+            pQAV->frames[0].tiles[7].picnum = -1;
+            break;
         default:
             return;
     }
