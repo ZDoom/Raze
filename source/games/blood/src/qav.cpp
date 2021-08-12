@@ -1133,6 +1133,12 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[1].picnum = 2351;
             }
             break;
+        case kQAVVDUP:
+            // VDUP requires tile indices on the last frame to be swapped around.
+            backup = pQAV->frames[pQAV->nFrames-1].tiles[0];
+            pQAV->frames[pQAV->nFrames-1].tiles[0] = pQAV->frames[pQAV->nFrames - 1].tiles[1];
+            pQAV->frames[pQAV->nFrames-1].tiles[1] = backup;
+            break;
         default:
             return;
     }
