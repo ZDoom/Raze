@@ -711,6 +711,34 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[4].tiles[j].y += pQAV->frames[3].tiles[j].y - pQAV->frames[2].tiles[j].y;
             }
             break;
+        case kQAVREMTHRO:
+            // REMTHRO has several tile indices that require repairs.
+
+            // For frame 1, swap tile index 2 and 3 around.
+            backup = pQAV->frames[1].tiles[3];
+            pQAV->frames[1].tiles[3] = pQAV->frames[1].tiles[2];
+            pQAV->frames[1].tiles[2] = backup;
+
+            // For frame 0, clone frame 1 tile index 3 and adjust x/y coordinates
+            // using difference between frame 0 and 1's tile index 1.
+            pQAV->frames[0].tiles[3] = pQAV->frames[1].tiles[3];
+            pQAV->frames[0].tiles[3].x += pQAV->frames[0].tiles[1].x - pQAV->frames[1].tiles[1].x;
+            pQAV->frames[0].tiles[3].y += pQAV->frames[0].tiles[1].y - pQAV->frames[1].tiles[1].y;
+
+            // For frame 4, move tile index 1 into 2, and disable original index of 1.
+            pQAV->frames[4].tiles[2] = pQAV->frames[4].tiles[1];
+            pQAV->frames[4].tiles[1].picnum = -1;
+
+            // For frames 5 until the end, move tile indices 0 and 1 to 2 and 3 respectively, and disable original indices.
+            for (i = 5; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[3] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[2] = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[1].picnum = -1;
+                pQAV->frames[i].tiles[0].picnum = -1;
+
+            }
+            break;
         default:
             return;
     }
