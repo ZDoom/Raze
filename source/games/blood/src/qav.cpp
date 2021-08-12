@@ -421,6 +421,39 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[1].picnum = -1;
             }
             break;
+        case kQAVBUNUP:
+            // BUNUP has several tile indices that require repairs here to minimise continual checks at draw time.
+            // For the 4th frame, clone tile indices 5 and 6 into 2 and 3 respectively where they should have been.
+            for (i = 5; i < 7; i++)
+            {
+                pQAV->frames[3].tiles[i - 3] = pQAV->frames[3].tiles[i];
+                pQAV->frames[3].tiles[i].picnum = -1;
+            }
+
+            // For the 2nd frame, clone tile indices 3 and 4 into 2 and 3 respectively where they should have been.
+            for (i = 3; i < 5; i++)
+            {
+                pQAV->frames[1].tiles[i - 1] = pQAV->frames[1].tiles[i];
+            }
+
+            // Clone 1st frame's tile index 2 to tile index 4 for 1st and 2nd frame, then disable original index of 2.
+            pQAV->frames[1].tiles[4] = pQAV->frames[0].tiles[4] = pQAV->frames[0].tiles[2];
+            pQAV->frames[0].tiles[2].picnum = -1;
+
+            // Clone 1st frame's tile index 0 to tile index 3, then disable original index of 0.
+            pQAV->frames[0].tiles[3] = pQAV->frames[0].tiles[0];
+            pQAV->frames[0].tiles[0].picnum = -1;
+
+            // Shift every tile up one index to leave more room at the end, should it be needed in the future.
+            for (i = 0; i < pQAV->nFrames; i++)
+            {
+                for (j = 1; j < 5; j++)
+                {
+                    pQAV->frames[i].tiles[j - 1] = pQAV->frames[i].tiles[j];
+                    pQAV->frames[i].tiles[j].picnum = -1;
+                }
+            }
+            break;
         default:
             return;
     }
