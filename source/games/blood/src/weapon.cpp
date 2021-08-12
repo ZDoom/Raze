@@ -731,7 +731,7 @@ void WeaponLower(PLAYER *pPlayer)
             }
             break;
         case 7: // throwing ignited alt fire spray
-            if (VanillaMode() || DemoRecordStatus() || (pPlayer->input.newWeapon != 0))
+            if (VanillaMode() || DemoRecordStatus() || (pPlayer->newWeapon != 0))
                 break;
             pPlayer->weaponState = 1;
             StartQAV(pPlayer, 11, -1, 0);
@@ -742,7 +742,7 @@ void WeaponLower(PLAYER *pPlayer)
         switch (prevState)
         {
         case 1:
-            if (!VanillaMode() && (pPlayer->input.newWeapon == 7)) // do not put away lighter if TNT was selected while throwing a spray can
+            if (!VanillaMode() && (pPlayer->newWeapon == 7)) // do not put away lighter if TNT was selected while throwing a spray can
             {
                 pPlayer->weaponState = 2;
                 StartQAV(pPlayer, 17, -1, 0);
