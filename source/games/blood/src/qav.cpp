@@ -589,6 +589,22 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[0].tiles[i].y += pQAV->frames[0].tiles[1].y - pQAV->frames[1].tiles[1].y;
             }
             break;
+        case kQAVPROXDOWN:
+            // PROXUP has tile index that require repairs to avoid needing its own interpolation callback.
+            // Additionally, there are missing frames crucial to a proper interpolation experience.
+
+            // For frame 4, move tile index 0 into 1.
+            pQAV->frames[4].tiles[1] = pQAV->frames[4].tiles[0];
+
+            // For frame 4, clone frame 3's tile indices 0 and 2 and adjust x/y coordinates.
+            // using difference between frame 4 and 3's tile index 1.
+            for (i = 0; i < 3; i += 2)
+            {
+                pQAV->frames[4].tiles[i] = pQAV->frames[3].tiles[i];
+                pQAV->frames[4].tiles[i].x += pQAV->frames[4].tiles[1].x - pQAV->frames[3].tiles[1].x;
+                pQAV->frames[4].tiles[i].y += pQAV->frames[4].tiles[1].y - pQAV->frames[3].tiles[1].y;
+            }
+            break;
         default:
             return;
     }
