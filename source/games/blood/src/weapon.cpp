@@ -675,7 +675,7 @@ void WeaponLower(PLAYER *pPlayer)
             }
             else
             {
-                if (pPlayer->newWeapon == 6)
+                if (pPlayer->newWeapon == 6) // do not put away lighter if TNT was selected while throwing a spray can
                 {
                     pPlayer->weaponState = 2;
                     StartQAV(pPlayer, 11, -1, 0);
@@ -742,7 +742,7 @@ void WeaponLower(PLAYER *pPlayer)
         switch (prevState)
         {
         case 1:
-            if (!VanillaMode() && (pPlayer->newWeapon == 7)) // do not put away lighter if TNT was selected while throwing a spray can
+            if (!VanillaMode() && (pPlayer->newWeapon == 7)) // do not put away lighter after TNT is thrown if while throwing the weapon was switched already to spray
             {
                 pPlayer->weaponState = 2;
                 StartQAV(pPlayer, 17, -1, 0);
@@ -2233,6 +2233,15 @@ void WeaponProcess(PLAYER *pPlayer) {
                     pPlayer->newWeapon = 11;
                 else if (checkAmmo2(pPlayer, 11, 1))
                     pPlayer->newWeapon = 12;
+            }
+        }
+        else if ((pPlayer->newWeapon == 7) && !VanillaMode() && !DemoRecordStatus())
+        {
+            if ((pPlayer->curWeapon == 7) && (pPlayer->weaponState == 2)) // fix spray can state glitch when switching from spray to tnt and back quickly
+            {
+                pPlayer->weaponState = 1;
+                pPlayer->newWeapon = 0;
+                return;
             }
         }
         if (pPlayer->pXSprite->health == 0 || pPlayer->hasWeapon[pPlayer->newWeapon] == 0)
