@@ -664,6 +664,33 @@ static void qavRepairTileData(QAV* pQAV)
                 }
             }
             break;
+        case kQAVREMDOWN2:
+            // REMDOWN2 has several tile indices that require repairs to avoid needing its own interpolation callback.
+            // Additionally, there are missing frames crucial to a proper interpolation experience.
+
+            // For frame 1, move tile index 2 and 3 around.
+            backup = pQAV->frames[1].tiles[2];
+            pQAV->frames[1].tiles[2] = pQAV->frames[1].tiles[3];
+            pQAV->frames[1].tiles[3] = backup;
+
+            // For frame 0, clone frame 1 tile index 3 and adjust x/y coordinates
+            // using difference between frame 0 and 1's tile index 1.
+            pQAV->frames[0].tiles[3] = pQAV->frames[1].tiles[3];
+            pQAV->frames[0].tiles[3].x += pQAV->frames[0].tiles[1].x - pQAV->frames[1].tiles[1].x;
+            pQAV->frames[0].tiles[3].y += pQAV->frames[0].tiles[1].y - pQAV->frames[1].tiles[1].y;
+
+            // Clone frame 3 tile index 0, 1, 2, 3 and 4 into frames 4 and 5, and adjust x/y coordinates
+            // using difference between frames 4 and 3 and 5 and 4 on looped tile index.
+            for (i = 4; i < 6; i++)
+            {
+                for (j = 0; j < 5; j++)
+                {
+                    pQAV->frames[i].tiles[j] = pQAV->frames[i - 1].tiles[j];
+                    pQAV->frames[i].tiles[j].x += pQAV->frames[i - 1].tiles[j].x - pQAV->frames[i - 2].tiles[j].x;
+                    pQAV->frames[i].tiles[j].y += pQAV->frames[i - 1].tiles[j].y - pQAV->frames[i - 2].tiles[j].y;
+                }
+            }
+            break;
         default:
             return;
     }
