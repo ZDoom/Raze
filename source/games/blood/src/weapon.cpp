@@ -144,7 +144,7 @@ enum
 
 QAV *weaponQAV[kQAVEnd];
 
-static bool sub_4B1A4(PLAYER *pPlayer)
+static bool checkFired6or7(PLAYER *pPlayer)
 {
     switch (pPlayer->curWeapon)
     {
@@ -153,6 +153,10 @@ static bool sub_4B1A4(PLAYER *pPlayer)
         {
         case 5:
         case 6:
+            return 1;
+        case 7:
+            if (VanillaMode() || DemoRecordStatus())
+                return 0;
             return 1;
         }
         break;
@@ -651,7 +655,7 @@ void WeaponRaise(PLAYER *pPlayer)
 void WeaponLower(PLAYER *pPlayer)
 {
     assert(pPlayer != NULL);
-    if (sub_4B1A4(pPlayer))
+    if (checkFired6or7(pPlayer))
         return;
     pPlayer->throwPower = 0;
     int prevState = pPlayer->weaponState;
@@ -726,26 +730,26 @@ void WeaponLower(PLAYER *pPlayer)
                 StartQAV(pPlayer, 11, -1, 0);
             }
             break;
+        case 7: // throwing ignited alt fire spray
+            if (VanillaMode() || DemoRecordStatus() || (pPlayer->input.newWeapon != 0))
+                break;
+            pPlayer->weaponState = 1;
+            StartQAV(pPlayer, 11, -1, 0);
+            break;
         }
         break;
     case 6:
         switch (prevState)
         {
         case 1:
-            if (VanillaMode())
+            if (!VanillaMode() && (pPlayer->input.newWeapon == 7)) // do not put away lighter if TNT was selected while throwing a spray can
             {
-                StartQAV(pPlayer, 7, -1, 0);
+                pPlayer->weaponState = 2;
+                StartQAV(pPlayer, 17, -1, 0);
+                WeaponRaise(pPlayer);
+                return;
             }
-            else
-            {
-                if (pPlayer->newWeapon == 7)
-                {
-                    pPlayer->weaponState = 2;
-                    StartQAV(pPlayer, 17, -1, 0);
-                    WeaponRaise(pPlayer);
-                    return;
-                }
-            }
+            StartQAV(pPlayer, 7, -1, 0);
             break;
         case 2:
             WeaponRaise(pPlayer);
@@ -1748,7 +1752,7 @@ uint8_t gWeaponUpgrade[][13] = {
 int WeaponUpgrade(PLAYER *pPlayer, int newWeapon)
 {
     int weapon = pPlayer->curWeapon;
-    if (!sub_4B1A4(pPlayer) && (cl_weaponswitch&1) && (gWeaponUpgrade[pPlayer->curWeapon][newWeapon] || (cl_weaponswitch&2)))
+    if (!checkFired6or7(pPlayer) && (cl_weaponswitch&1) && (gWeaponUpgrade[pPlayer->curWeapon][newWeapon] || (cl_weaponswitch&2)))
         weapon = newWeapon;
     return weapon;
 }
@@ -2015,7 +2019,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->curWeapon))
     {
-        if (sub_4B1A4(pPlayer))
+        if (checkFired6or7(pPlayer))
         {
             if (pPlayer->curWeapon == 7)
             {
@@ -2236,7 +2240,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             pPlayer->newWeapon = 0;
             return;
         }
-        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !sub_4B1A4(pPlayer))
+        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkFired6or7(pPlayer))
         {
             pPlayer->newWeapon = 0;
             return;
