@@ -749,6 +749,26 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[0].y = xs_CRoundToInt(pQAV->frames[0].tiles[0].y - (double(pQAV->frames[0].tiles[0].y - -30) / lastframe) * i);
             }
             break;
+        case kQAVFLARFIR2:
+            // FLARFIR2 has several index swaps that require accomodating.
+            // For frames 4 until end, move tile index 0 to 1 and disable original index of 0.
+            for (i = 4; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[1] = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[0].picnum = -1;
+            }
+
+            // For frame 1, move tile indices 1 and 2 into 2 and 3, and disable original index of 1.
+            pQAV->frames[1].tiles[3] = pQAV->frames[1].tiles[2];
+            pQAV->frames[1].tiles[2] = pQAV->frames[1].tiles[1];
+            pQAV->frames[1].tiles[1].picnum = -1;
+
+            // For frame 0, move tile indices 0 and 1 into 2 and 4, and disable original indices.
+            pQAV->frames[0].tiles[4] = pQAV->frames[0].tiles[1];
+            pQAV->frames[0].tiles[2] = pQAV->frames[0].tiles[0];
+            pQAV->frames[0].tiles[1].picnum = -1;
+            pQAV->frames[0].tiles[0].picnum = -1;
+            break;
         default:
             return;
     }
