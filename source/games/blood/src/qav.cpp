@@ -454,6 +454,17 @@ static void qavRepairTileData(QAV* pQAV)
                 }
             }
             break;
+        case kQAVBUNDOWN:
+            // BUNDOWN requires some tile index swaps to be cleaned up to avoid using our own callback.
+            // For frames 3 till the end, backup tile index 3, move indices 1 and 2 down, then restore backed up tile index 3 as 1.
+            for (i = 3; i < pQAV->nFrames; i++)
+            {
+                backup = pQAV->frames[i].tiles[3];
+                pQAV->frames[i].tiles[3] = pQAV->frames[i].tiles[2];
+                pQAV->frames[i].tiles[2] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1] = backup;
+            }
+            break;
         default:
             return;
     }
