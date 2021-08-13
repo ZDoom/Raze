@@ -1122,6 +1122,16 @@ static void qavRepairTileData(QAV* pQAV)
             }
             break;
         }
+        case kQAVNAPUP:
+            // This QAV is missing picnum 2351 for the first two frames. Add it in to smooth interpolation.
+            for (i = 0; i < 2; i++)
+            {
+                pQAV->frames[i].tiles[1] = pQAV->frames[2].tiles[1];
+                pQAV->frames[i].tiles[1].x += pQAV->frames[i].tiles[0].x - pQAV->frames[2].tiles[0].x;
+                pQAV->frames[i].tiles[1].y += pQAV->frames[i].tiles[0].y - pQAV->frames[2].tiles[0].y;
+                pQAV->frames[i].tiles[1].picnum = 2351;
+            }
+            break;
         default:
             return;
     }
