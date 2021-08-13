@@ -1139,6 +1139,58 @@ static void qavRepairTileData(QAV* pQAV)
             pQAV->frames[pQAV->nFrames-1].tiles[0] = pQAV->frames[pQAV->nFrames - 1].tiles[1];
             pQAV->frames[pQAV->nFrames-1].tiles[1] = backup;
             break;
+        case kQAVVDIDLE2:
+        {
+            // VDIDLE2 requires several tile indices to be swapped around to fix interpolation.
+            // For frames 5 and 7, move tile index 2 into 0 and disable the original index of 0.
+            for (i = 5; i < 8; i += 2)
+            {
+                pQAV->frames[i].tiles[0] = pQAV->frames[i].tiles[2];
+                pQAV->frames[i].tiles[2].picnum = -1;
+            }
+
+            // For frames 2-3, swap tile indices 0 and 1 around.
+            for (i = 2; i < 4; i++)
+            {
+                backup = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[0] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1] = backup;
+            }
+
+            // For frames 9 til the end, swap tile indices 0 and 1 around.
+            for (i = 9; i < pQAV->nFrames; i++)
+            {
+                backup = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[0] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1] = backup;
+            }
+
+            // Set frame 1 tile 0 x/y coordinates to that of values between frames 0 and 2.
+            pQAV->frames[1].tiles[0].x = -29;
+            pQAV->frames[1].tiles[0].y = -12;
+
+            // Set frame 1 tile 1 y coordinates to that of values between frames 0 and 2.
+            pQAV->frames[1].tiles[1].y = -45;
+
+            // Set frame 3 tile 1 y coordinates to that of values between frames 2 and 4.
+            pQAV->frames[3].tiles[1].y = -46;
+
+            // Set frame 5 tile 1 y coordinates to that of values between frames 4 and 6.
+            pQAV->frames[5].tiles[1].y = -42;
+
+            // Set frame 7 tile 1 y coordinates to that of values between frames 6 and 8.
+            pQAV->frames[7].tiles[1].y = -41;
+
+            // Set frame 10 tile 1 y coordinates to that of values between frames 9 and 11.
+            pQAV->frames[10].tiles[1].y = -45;
+
+            // Smooth out tile coordinates between high and low point for tile index 1 x across all frames. High point is frame 0/12, low point is 6.
+            for (i = 1, j = (pQAV->nFrames - 2); i < 6, j > 6; i++, j--)
+            {
+                pQAV->frames[i].tiles[1].x = pQAV->frames[j].tiles[1].x = xs_CRoundToInt(pQAV->frames[0].tiles[1].x - (double(pQAV->frames[0].tiles[1].x - pQAV->frames[6].tiles[1].x) / 6) * i);
+            }
+            break;
+        }
         default:
             return;
     }
