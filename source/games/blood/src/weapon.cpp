@@ -984,8 +984,8 @@ void WeaponUpdateState(PLAYER *pPlayer)
             pPlayer->weaponQav = kQAVFLARIDLE;
         break;
     case kWeapVoodooDoll:
-        if (pXSprite->height < 256 && abs(pPlayer->swayHeight) > 16)
-            pPlayer->weaponQav = kQAVVDIDLE2;
+        if (pXSprite->height < 256 && pPlayer->swayHeight != 0)
+            StartQAV(pPlayer, kQAVVDIDLE2);
         else
             pPlayer->weaponQav = kQAVVDIDLE1;
         break;
@@ -2024,6 +2024,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     pPlayer->weaponTimer -= 4;
     bool bShoot = pPlayer->input.actions & SB_FIRE;
     bool bShoot2 = pPlayer->input.actions & SB_ALTFIRE;
+    if ((bShoot || bShoot2) && pPlayer->weaponQav == kQAVVDIDLE2) pPlayer->weaponTimer = 0;
     if (pPlayer->qavLoop && pPlayer->pXSprite->health > 0)
     {
         if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))
