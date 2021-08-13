@@ -1224,6 +1224,21 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[1].picnum = -1;
             }
             break;
+        case kQAVVDFIRE3:
+            // VDFIRE3 requires several index swaps to repair interpolations.
+            // For frame 1, swap tile indices 0 and 1.
+            backup = pQAV->frames[1].tiles[1];
+            pQAV->frames[1].tiles[1] = pQAV->frames[1].tiles[0];
+            pQAV->frames[1].tiles[0] = backup;
+
+            // For frames 13 till end, swap tile indices 0 and 1.
+            for (i = 13; i < pQAV->nFrames; i++)
+            {
+                backup = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1] = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[0] = backup;
+            }
+            break;
         default:
             return;
     }
