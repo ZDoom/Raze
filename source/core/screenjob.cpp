@@ -187,6 +187,9 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 
 void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_)
 {
+	bool bossexit = g_bossexit;
+	g_bossexit = false;
+
 	completion = completion_;
 	runner = CreateRunner();
 	GC::WriteBarrier(runner);
@@ -200,7 +203,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 
 	try
 	{
-		if (fromMap)
+		if (fromMap && (!(fromMap->gameflags & LEVEL_BOSSONLYCUTSCENE) || bossexit))
 		{
 			if (!CreateCutscene(&fromMap->outro, runner, fromMap, !!toMap))
 			{
@@ -212,7 +215,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		if (fromMap || (g_gameType & GAMEFLAG_PSEXHUMED))
 			CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info, toMap);
 
-		if (toMap)
+		if (toMap) 
 		{
 			if (!CreateCutscene(&toMap->intro, runner, toMap, !!fromMap))
 			{

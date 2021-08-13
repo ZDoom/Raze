@@ -55,7 +55,7 @@ enum EMapGameFlags
 
 	LEVEL_WT_BOSSSPAWN = 16384,
 
-
+	LEVEL_BOSSONLYCUTSCENE = 32768,
 };
 
 // These get filled in by the map definition parsers of the front ends.

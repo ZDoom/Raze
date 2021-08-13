@@ -212,6 +212,7 @@ void CompleteLevel(MapRecord* map)
 	gameaction = ga_completed;
 	g_nextmap = !currentLevel || !(currentLevel->flags & MI_FORCEEOG)? map : nullptr;
 	g_nextskill = -1;	// This does not change the skill
+	g_bossexit = false;
 }
 
 //---------------------------------------------------------------------------
@@ -223,6 +224,7 @@ void CompleteLevel(MapRecord* map)
 void changeMap(int player, uint8_t** stream, bool skip)
 {
 	int skill = (int8_t)ReadByte(stream);
+	int bossexit = (int8_t)ReadByte(stream);
 	auto mapname = ReadStringConst(stream);
 	if (skip) return;
 	auto map = FindMapByName(mapname);
@@ -231,6 +233,7 @@ void changeMap(int player, uint8_t** stream, bool skip)
 		gameaction = ga_completed;
 		g_nextmap = map;
 		g_nextskill = skill;
+		g_bossexit = bossexit;
 	}
 }
 
@@ -251,10 +254,11 @@ void endScreenJob(int player, uint8_t** stream, bool skip)
 //
 //---------------------------------------------------------------------------
 
-void ChangeLevel(MapRecord* map, int skill)
+void ChangeLevel(MapRecord* map, int skill, bool bossexit)
 {
 	Net_WriteByte(DEM_CHANGEMAP);
 	Net_WriteByte(skill);
+	Net_WriteByte(bossexit);
 	Net_WriteString(map? map->labelName : nullptr);
 }
 
@@ -268,6 +272,7 @@ void DeferredStartGame(MapRecord* map, int skill, bool nostopsound)
 {
 	g_nextmap = map;
 	g_nextskill = skill;
+	g_bossexit = false;
 	gameaction = nostopsound? ga_newgamenostopsound : ga_newgame;
 }
 

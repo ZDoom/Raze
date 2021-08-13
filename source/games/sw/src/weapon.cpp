@@ -5330,7 +5330,7 @@ ActorHealth(short SpriteNum, short amt)
             // Hack for Last Warrior which apparently needs to continue with the next level here.
             if (!(currentLevel->gameflags & LEVEL_SW_DEATHEXIT_SERPENT_NEXT))
             {
-                ChangeLevel(nullptr, g_nextskill);
+                ChangeLevel(nullptr, g_nextskill, true);
                 return true;
             }
             else FinishTimer = 1;

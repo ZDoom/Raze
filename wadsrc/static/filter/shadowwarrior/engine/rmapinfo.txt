@@ -25,6 +25,7 @@ map { 4 }
 	}
 	sw_bossmeter_serpent
 	sw_deathexit_serpent
+	bossonlycutscene
 }
 
 map { 5 }
@@ -40,6 +41,7 @@ map { 11 }
 	}
 	sw_bossmeter_sumo
 	sw_deathexit_sumo
+	bossonlycutscene
 }
 
 map { 20 }

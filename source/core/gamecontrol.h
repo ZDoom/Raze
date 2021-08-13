@@ -32,6 +32,7 @@ extern bool crouch_toggle;
 struct MapRecord;
 extern MapRecord* g_nextmap;
 extern int g_nextskill;	
+extern int g_bossexit;
 
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
@@ -44,7 +45,7 @@ int GetAutomapZoom(int gZoom);
 void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double scale, PalEntry color = 0xffffffff);
 void updatePauseStatus();
 void DeferredStartGame(MapRecord* map, int skill, bool nostopsound = false);
-void ChangeLevel(MapRecord* map, int skill);
+void ChangeLevel(MapRecord* map, int skill, bool bossexit = false);
 void CompleteLevel(MapRecord* map);
 
 struct UserConfig

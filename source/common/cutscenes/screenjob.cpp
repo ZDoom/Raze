@@ -51,6 +51,7 @@
 #include "s_music.h"
 #include "m_argv.h"
 #include "i_interface.h"
+#include "gamecontrol.h"
 
 CVAR(Bool, inter_subtitles, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 

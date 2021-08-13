@@ -649,6 +649,7 @@ MapFlagHandlers[] =
 	{ "sw_deathexit_sumo",				MITYPE_SETFLAGG,LEVEL_SW_DEATHEXIT_SUMO, 0, GAMEFLAG_SW },
 	{ "sw_deathexit_zilla",				MITYPE_SETFLAGG,LEVEL_SW_DEATHEXIT_ZILLA, 0, GAMEFLAG_SW },
 	{ "sw_spawnmines",					MITYPE_SETFLAGG,LEVEL_SW_SPAWNMINES, 0, GAMEFLAG_SW },
+	{ "bossonlycutscene",				MITYPE_SETFLAGG,LEVEL_BOSSONLYCUTSCENE, 0, -1 },
 
 	{ NULL, MITYPE_IGNORE, 0, 0}
 };

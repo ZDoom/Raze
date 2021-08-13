@@ -122,6 +122,7 @@ gameaction_t gameaction = ga_nothing;
 // gameaction state
 MapRecord* g_nextmap;
 int g_nextskill;
+int g_bossexit;
 
 
 FILE* hashfile;

@@ -7206,7 +7206,7 @@ domovethings(void)
 			{
 				map = FindNextMap(currentLevel);
 			}
-			ChangeLevel(map, g_nextskill);
+			ChangeLevel(map, g_nextskill, true);
         }
     }
 }
