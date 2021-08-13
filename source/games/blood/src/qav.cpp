@@ -160,6 +160,7 @@ void qavBuildInterpProps(QAV* const pQAV)
         case kQAV2TOMALT:
         case kQAVSGUNFIR1:
         case kQAV2SGUNFIR:
+        case kQAVNAPFIRE:
         {
             QAVInterpProps interp{};
             interp.flags |= true << kQAVIsLoopable;
