@@ -1354,6 +1354,16 @@ static void qavRepairTileData(QAV* pQAV)
             pQAV->frames[32].tiles[1].picnum = 3317;
             pQAV->frames[32].tiles[1].angle = 128;
             break;
+        case kQAVSTAFDOWN:
+            // STAFDOWN interpolates fine, but the starting frame in bringing the can down is lower than the can while idle.
+            // Do linear interpolation from 2nd last frame through to first frame, ending with coordinates of STAFIDLE.
+            lastframe = pQAV->nFrames - 1;
+            for (i = lastframe, j = 0; i >= 0; i--, j++)
+            {
+                pQAV->frames[j].tiles[0].x = xs_CRoundToInt(pQAV->frames[lastframe].tiles[0].x - (double(pQAV->frames[lastframe].tiles[0].x - -90) / lastframe) * i);
+                pQAV->frames[j].tiles[0].y = xs_CRoundToInt(pQAV->frames[lastframe].tiles[0].y - (double(pQAV->frames[lastframe].tiles[0].y - -50) / lastframe) * i);
+            }
+            break;
         default:
             return;
     }
