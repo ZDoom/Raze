@@ -1261,6 +1261,36 @@ static void qavRepairTileData(QAV* pQAV)
             pQAV->frames[0].tiles[0] = pQAV->frames[0].tiles[1];
             pQAV->frames[0].tiles[1] = backup;
             break;
+        case kQAVVDSPEL1:
+            // VDSPEL1 requires several index swaps to repair interpolations.
+            // For frame 1, swap tile indices 0 and 1.
+            backup = pQAV->frames[1].tiles[1];
+            pQAV->frames[1].tiles[1] = pQAV->frames[1].tiles[0];
+            pQAV->frames[1].tiles[0] = backup;
+
+            // For frame 2, move tile index 2 into 1, and disable original index of 2.
+            pQAV->frames[2].tiles[1] = pQAV->frames[2].tiles[2];
+            pQAV->frames[2].tiles[2].picnum = -1;
+
+            // For frames 7-9 , move tile index 1 to 2, and disable original index of 1.
+            for (i = 7; i < 10; i++)
+            {
+                pQAV->frames[i].tiles[2] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1].picnum = -1;
+            }
+
+            // For frame 10, move tile index 0 into 2, and disable original index of 0.
+            pQAV->frames[10].tiles[2] = pQAV->frames[10].tiles[0];
+            pQAV->frames[10].tiles[0].picnum = -1;
+
+            // For frames 10 till end, swap tile indices 0 and 1.
+            for (i = 10; i < pQAV->nFrames; i++)
+            {
+                backup = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1] = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[0] = backup;
+            }
+            break;
         default:
             return;
     }
