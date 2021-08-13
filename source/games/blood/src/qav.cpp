@@ -1255,6 +1255,12 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[0] = backup;
             }
             break;
+        case kQAVVDDOWN:
+            // VDDOWN requires tile indices on the first frame to be swapped around.
+            backup = pQAV->frames[0].tiles[0];
+            pQAV->frames[0].tiles[0] = pQAV->frames[0].tiles[1];
+            pQAV->frames[0].tiles[1] = backup;
+            break;
         default:
             return;
     }
