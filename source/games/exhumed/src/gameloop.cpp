@@ -186,7 +186,7 @@ void GameInterface::LevelCompleted(MapRecord *to_map, int skill)
     info.maxkills = nCreaturesTotal;
     info.supersecrets = nBestLevel;
     info.time = PlayClock * GameTicRate / 120;
-    selectedlevelnew = to_map->levelNumber;
+    if (to_map) selectedlevelnew = to_map->levelNumber;
     ShowIntermission(currentLevel, to_map, &info, [=](bool)
         {
             if (!to_map) gameaction = ga_startup; // this was the end of the game
