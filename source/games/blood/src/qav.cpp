@@ -961,6 +961,14 @@ static void qavRepairTileData(QAV* pQAV)
             pQAV->frames[0].tiles[1].x -= pQAV->frames[1].tiles[0].x - pQAV->frames[0].tiles[0].x;
             pQAV->frames[0].tiles[1].y -= pQAV->frames[1].tiles[0].y - pQAV->frames[0].tiles[0].y;
             break;
+        case kQAVSGUNIDL1:
+            // SGUNIDL1 has overlay 3232 permanently applied which is at odds with the weapon rising,
+            // and the other idling QAV. Disable it entirely.
+            for (i = 0; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[1].picnum = -1;
+            }
+            break;
         default:
             return;
     }
