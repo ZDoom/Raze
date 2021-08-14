@@ -1018,6 +1018,21 @@ static void qavRepairTileData(QAV* pQAV)
                 pQAV->frames[i].tiles[2].picnum = -1;
             }
             break;
+        case kQAVSGUNPOST:
+        {
+            // SGUNPOST's overlay sizes vary from tile to tile and don't interpolate properly.
+            // Use repaired tiles from Phredreeke where the overlays are baked in.
+            constexpr int tilearray[8] = { 9301, 9301, 9302, 9302, 9303, 9303, 9304, 9304 };
+
+            // Loop through each frame to remove overlay and replace use of 3227 with that from tilearray.
+            for (i = 0; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[1].picnum = tilearray[i];
+                pQAV->frames[i].tiles[2].picnum = -1;
+
+            }
+            break;
+        }
         default:
             return;
     }
