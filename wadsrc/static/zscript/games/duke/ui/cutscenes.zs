@@ -177,17 +177,17 @@ class DukeCutscenes // Note: must be class, not struct, otherwise we cannot easi
 
 		Duke.PlaySpecialMusic(Duke.MUS_BRIEFING);
 		soundinfo.Pushv(
-			1, DukeSnd.INTRO4_B + 1,
-			12, DukeSnd.SHORT_CIRCUIT + 1,
-			18, DukeSnd.INTRO4_5 + 1,
-			34, DukeSnd.SHORT_CIRCUIT + 1);
-		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol41a.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 10, 10, 10));
-
-		soundinfo.Pushv(
 			1, DukeSnd.INTRO4_1 + 1,
 			7, DukeSnd.INTRO4_3 + 1,
 			12, DukeSnd.INTRO4_2 + 1,
 			26, DukeSnd.INTRO4_4 + 1);
+		runner.Append(MoviePlayerJob.CreateWithSoundinfo("vol41a.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 10, 10, 10));
+
+		soundinfo.Pushv(
+			1, DukeSnd.INTRO4_B + 1,
+			12, DukeSnd.SHORT_CIRCUIT + 1,
+			18, DukeSnd.INTRO4_5 + 1,
+			34, DukeSnd.SHORT_CIRCUIT + 1);
 		let m = MoviePlayerJob.CreateWithSoundinfo("vol42a.anm", soundinfo, MoviePlayer.NOSOUNDCUTOFF, 14, 14, 14);
 		if (m) m.skipover = true;
 		runner.Append(m);
