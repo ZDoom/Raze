@@ -154,7 +154,6 @@ int DisplayWidth, DisplayHeight;
 // There's also only one, not four.
 DFrameBuffer *screen;
 
-CVAR(Bool, gl_lights, true, CVAR_ARCHIVE)
 CVAR (Int, vid_defwidth, 640, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Int, vid_defheight, 480, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Bool, ticker, false, 0)

@@ -117,10 +117,10 @@ static TArray<FString> ParseGameInfo(TArray<FString>& pwads, const char* fn, con
 		else if (!nextKey.CompareNoCase("STARTUPCOLORS"))
 		{
 			sc.MustGetString();
-			GameStartupInfo.FgColor = V_GetColor(NULL, sc);
+			GameStartupInfo.FgColor = V_GetColor(sc);
 			sc.MustGetStringName(",");
 			sc.MustGetString();
-			GameStartupInfo.BkColor = V_GetColor(NULL, sc);
+			GameStartupInfo.BkColor = V_GetColor(sc);
 		}
 		else if (!nextKey.CompareNoCase("CON"))
 		{

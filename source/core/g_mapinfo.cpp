@@ -408,7 +408,7 @@ DEFINE_MAP_OPTION(fade, true)
 {
 	parse.ParseAssign();
 	parse.sc.MustGetString();
-	info->fadeto = V_GetColor(nullptr, parse.sc);
+	info->fadeto = V_GetColor(parse.sc);
 }
 
 DEFINE_MAP_OPTION(partime, true)

@@ -698,7 +698,7 @@ static TArray<GrpEntry> SetupGame()
 		{
 			auto grplower = grp.FileName.MakeLower();
 			FixPathSeperator(grplower);
-			int pos = grplower.LastIndexOf(gamegrplower);
+			auto pos = grplower.LastIndexOf(gamegrplower);
 			if (pos >= 0 && pos == grplower.Len() - gamegrplower.Len())
 			{
 				groupno = g;
