@@ -868,7 +868,7 @@ class ExhumedCutscenes
 	//
 	//---------------------------------------------------------------------------
 
-	static void BuildGameOverScene(ScreenJobRunner runner, MapRecord map)
+	static void BuildGameOverScene(ScreenJobRunner runner)
 	{
 		System.StopMusic();
 		Exhumed.PlayLocalSound(ExhumedSnd.kSoundJonLaugh2, 0, false, CHANF_UI);
