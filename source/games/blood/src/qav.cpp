@@ -1007,6 +1007,17 @@ static void qavRepairTileData(QAV* pQAV)
             pQAV->frames[46].tiles[1] = backup;
             break;
         }
+        case kQAVSGUNPRE:
+            // SGUNPRE's overlay sizes vary from tile to tile and don't interpolate properly.
+            // Use repaired tiles from Phredreeke where the overlays are baked in.
+
+            // For the two last frames, change tile index 0 picnum from 3227 to 9300.
+            for (i = pQAV->nFrames - 2; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[0].picnum = 9300;
+                pQAV->frames[i].tiles[2].picnum = -1;
+            }
+            break;
         default:
             return;
     }
