@@ -59,3 +59,10 @@ tilefromtexture 9277 { file "tiles/9277.png" }
 tilefromtexture 9278 { file "tiles/9278.png" }
 tilefromtexture 9279 { file "tiles/9279.png" }
 tilefromtexture 9280 { file "tiles/9280.png" }
+
+// Patched tiles for QAV interpolation, thanks to Phredreeke for supplying these.
+tilefromtexture 9300 { file "tiles/9300(3227+3228).png" }
+tilefromtexture 9301 { file "tiles/9301(3227+3229).png" }
+tilefromtexture 9302 { file "tiles/9302(3227+3230).png" }
+tilefromtexture 9303 { file "tiles/9303(3227+3231).png" }
+tilefromtexture 9304 { file "tiles/9304(3227+3232).png" }
