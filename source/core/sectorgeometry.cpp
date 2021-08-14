@@ -463,9 +463,9 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 nexti:;
 	}
 
-	if (lines.Size() == 0)
+	if (lines.Size() < 4)
 	{
-		// nothing to generate.
+		// nothing to generate. If line count is < 4 this sector is degenerate and should not be processed further.
 		auto& entry = data[secnum].planes[plane];
 		entry.vertices.Clear();
 		entry.texcoords.Clear();
