@@ -1046,6 +1046,30 @@ static void qavRepairTileData(QAV* pQAV)
             // Set frame 0 tile 3 picnum to 3311.
             pQAV->frames[0].tiles[3].picnum = 3311;
             break;
+        case kQAV2SGUNFIR:
+        {
+            // 2SGUNFIR's overlay sizes vary from tile to tile and don't interpolate properly.
+            // Use repaired tiles from Phredreeke where the overlays are baked in.
+            constexpr int tilearray[2][8] = {
+                {
+                    9306, 9307, 9308, 9309, 9305, 9306, 9307, 3240
+                },
+                {
+                    3240, 9307, 9306, 9305, 9309, 9308, 9307, 9306
+                }
+            };
+
+            // Loop through each frame to remove overlay and replace use of 3240 with that from tilearray and disable overlays.
+            for (i = 0; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[0].picnum = tilearray[0][i];
+                pQAV->frames[i].tiles[4].picnum = -1;
+
+                pQAV->frames[i].tiles[2].picnum = tilearray[1][i];
+                pQAV->frames[i].tiles[5].picnum = -1;
+            }
+            break;
+        }
         default:
             return;
     }

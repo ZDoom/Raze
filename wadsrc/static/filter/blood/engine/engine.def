@@ -66,3 +66,8 @@ tilefromtexture 9301 { file "tiles/9301(3227+3229).png" }
 tilefromtexture 9302 { file "tiles/9302(3227+3230).png" }
 tilefromtexture 9303 { file "tiles/9303(3227+3231).png" }
 tilefromtexture 9304 { file "tiles/9304(3227+3232).png" }
+tilefromtexture 9305 { file "tiles/9305(3240+3228).png" }
+tilefromtexture 9306 { file "tiles/9306(3240+3229).png" }
+tilefromtexture 9307 { file "tiles/9307(3240+3230).png" }
+tilefromtexture 9308 { file "tiles/9308(3240+3231).png" }
+tilefromtexture 9309 { file "tiles/9309(3240+3232).png" }
