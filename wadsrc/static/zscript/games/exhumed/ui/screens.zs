@@ -481,7 +481,7 @@ class Cinema : SkippableScreenJob
 		System.StopAllSounds();
 		if (cdtrack != -1)
 		{
-			Exhumed.playCDtrack(cdtrack, false);
+			Exhumed.playCDtrack(cdtrack+2, false);
 		}
 	}
 
