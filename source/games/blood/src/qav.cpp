@@ -1071,6 +1071,33 @@ static void qavRepairTileData(QAV* pQAV)
             }
             break;
         }
+        case kQAV2SGUNALT:
+        {
+            // 2SGUNALT's overlay sizes vary from tile to tile and don't interpolate properly.
+            // Use repaired tiles from Phredreeke where the overlays are baked in.
+            constexpr int tilearray[2][30] = {
+                {
+                    9309, 9305, 9306, 9307, 9308, 9309, 9305, 9306, 9307, 9308, 9309, 9305, 9306, 9307, 9308, 9309, 9305, 9306, 9307, 9308, 9309, 9305, 9306, 9307, 9308, 9309, 9305, 9306, 9307, 9308
+                },
+                {
+                    9308, 9307, 9306, 9305, 9309, 9308, 9307, 9306, 9305, 9309, 9308, 9307, 9306, 9305, 9309, 9308, 9307, 9306, 9305, 9309, 9308, 9307, 9306, 9305, 9309, 9308, 9307, 9306, 9305, 9309
+                }
+            };
+
+            // Loop through first 30 frames to remove overlay and replace use of 3240 with that from tilearray and disable overlays.
+            for (i = 0; i < 30; i++)
+            {
+                pQAV->frames[i].tiles[0].picnum = tilearray[0][i];
+                pQAV->frames[i].tiles[4].picnum = -1;
+
+                pQAV->frames[i].tiles[2].picnum = tilearray[1][i];
+                pQAV->frames[i].tiles[5].picnum = -1;
+            }
+
+            // Disable tiles 1, 3 and 6 on frame 29.
+            pQAV->frames[29].tiles[1].picnum = pQAV->frames[29].tiles[3].picnum = pQAV->frames[29].tiles[6].picnum = -1;
+            break;
+        }
         default:
             return;
     }
