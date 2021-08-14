@@ -1033,6 +1033,19 @@ static void qavRepairTileData(QAV* pQAV)
             }
             break;
         }
+        case kQAV2SGUNUP:
+            // 2SGUNUP has a missing two frame tiles crucial to proper interpolation experience, so add them back
+            // in and adjust x/y coordinates using difference between frame 0 and 1's tile index 0 and 2.
+            for (i = 1; i < 4; i += 2)
+            {
+                pQAV->frames[0].tiles[i] = pQAV->frames[1].tiles[i];
+                pQAV->frames[0].tiles[i].x -= pQAV->frames[1].tiles[i-1].x - pQAV->frames[0].tiles[i-1].x;
+                pQAV->frames[0].tiles[i].y -= pQAV->frames[1].tiles[i-1].y - pQAV->frames[0].tiles[i-1].y;
+            }
+            
+            // Set frame 0 tile 3 picnum to 3311.
+            pQAV->frames[0].tiles[3].picnum = 3311;
+            break;
         default:
             return;
     }
