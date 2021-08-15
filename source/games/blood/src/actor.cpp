@@ -5734,7 +5734,6 @@ void actProcessSprites(void)
         int nXSprite = pSprite->extra;
         if (nXSprite > 0) {
             XSPRITE *pXSprite = &xsprite[nXSprite];
-            const bool fixBurnGlitch = IsBurningDude(pSprite) && !VanillaMode() && !DemoRecordStatus(); // if enemies are these types, always apply burning damage per tick
             switch (pSprite->type) {
                 case kThingBloodBits:
                 case kThingBloodChunks:
@@ -5743,7 +5742,7 @@ void actProcessSprites(void)
                     break;
             }
 
-            if ((pXSprite->burnTime > 0) || fixBurnGlitch)
+            if (pXSprite->burnTime > 0)
             {
                 pXSprite->burnTime = ClipLow(pXSprite->burnTime-4,0);
                 actDamageSprite(pXSprite->burnSource, pSprite, kDamageBurn, 8);
@@ -6189,7 +6188,8 @@ void actProcessSprites(void)
         if (nXSprite > 0)
         {
             XSPRITE *pXSprite = &xsprite[nXSprite];
-            if (pXSprite->burnTime > 0)
+            const bool fixBurnGlitch = IsBurningDude(pSprite) && !VanillaMode() && !DemoRecordStatus(); // if enemies are burning, always apply burning damage per tick
+            if ((pXSprite->burnTime > 0) || fixBurnGlitch)
             {
                 switch (pSprite->type)
                 {
