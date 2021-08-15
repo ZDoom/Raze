@@ -896,10 +896,23 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
         spritetype *pSource = &source->s();
         int nSource = pSource->index;
         if (pSprite == pSource) return 0;
-        else if (pXSprite->target == -1 || (nSource != pXSprite->target && Chance(pSprite->type == pSource->type ? nDamage*pDudeInfo->changeTargetKin : nDamage*pDudeInfo->changeTarget)))
+        else if (pXSprite->target == -1) // if no target, give the dude a target
         {
             aiSetTarget(pXSprite, nSource);
             aiActivateDude(&bloodActors[pXSprite->reference]);
+        }
+        else if (nSource != pXSprite->target) // if found a new target, retarget
+        {
+            int nThresh = nDamage;
+            if (pSprite->type == pSource->type)
+                nThresh *= pDudeInfo->changeTargetKin;
+            else
+                nThresh *= pDudeInfo->changeTarget;
+            if (Chance(nThresh))
+            {
+                aiSetTarget(pXSprite, nSource);
+                aiActivateDude(&bloodActors[pXSprite->reference]);
+            }
         }
 
         #ifdef NOONE_EXTENSIONS
@@ -1020,6 +1033,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
             pDudeExtra->recoil = 1;
         }
+        const bool fixRandomCultist = (pSprite->inittype >= kDudeBase) && (pSprite->inittype < kDudeMax) && !VanillaMode() && !DemoRecordStatus(); // fix burning cultists randomly switching types underwater
         switch (pSprite->type)
         {
         case kDudeCultistTommy:
@@ -1066,12 +1080,16 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             if (Chance(0x600) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
             {
                 pSprite->type = kDudeCultistTommy;
+                if (fixRandomCultist) // fix burning cultists randomly switching types underwater
+                    pSprite->type = pSprite->inittype; // restore back to spawned cultist type
                 pXSprite->burnTime = 0;
                 aiNewState(actor, &cultistSwimGoto);
             }
             else if (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)
             {
                 pSprite->type = kDudeCultistShotgun;
+                if (fixRandomCultist) // fix burning cultists randomly switching types underwater
+                    pSprite->type = pSprite->inittype; // restore back to spawned cultist type
                 pXSprite->burnTime = 0;
                 aiNewState(actor, &cultistSwimGoto);
             }
@@ -1093,6 +1111,8 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             if (nDmgType == kDamageBurn && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth/* && (pXSprite->at17_6 != 1 || pXSprite->at17_6 != 2)*/)
             {
                 pSprite->type = kDudeBurningInnocent;
+                if (!VanillaMode() && !DemoRecordStatus()) // fix burning sprite for tiny caleb
+                    pSprite->type = kDudeBurningTinyCaleb;
                 aiNewState(actor, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 gDudeExtra[pSprite->extra].time = PlayClock+360;

@@ -3089,6 +3089,18 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 			return true;
 		}
 		break;
+
+	case kDudeTinyCaleb:
+		if (VanillaMode() || DemoRecordStatus())
+			break;
+		if (damageType == kDamageBurn && pXSprite->medium == kMediumNormal)
+		{
+			pSprite->type = kDudeBurningTinyCaleb;
+			aiNewState(actor, &innocentBurnGoto);
+			actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
+			return true;
+		}
+		break;
 	}
 	return false;
 }
@@ -5093,22 +5105,17 @@ void MoveDude(spritetype *pSprite)
                     break;
                 case kDudeBurningCultist:
                 {
+                    const bool fixRandomCultist = (pSprite->inittype >= kDudeBase) && (pSprite->inittype < kDudeMax) && !VanillaMode() && !DemoRecordStatus(); // fix burning cultists randomly switching types underwater
                     if (Chance(chance))
-                    {
                         pSprite->type = kDudeCultistTommy;
-                        pXSprite->burnTime = 0;
-                        evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                        sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
-                    }
                     else
-                    {
                         pSprite->type = kDudeCultistShotgun;
-                        pXSprite->burnTime = 0;
-                        evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
-                        sfxPlay3DSound(pSprite, 720, -1, 0);
-                        aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
-                    }
+                    if (fixRandomCultist) // fix burning cultists randomly switching types underwater
+                        pSprite->type = pSprite->inittype; // restore back to spawned cultist type
+                    pXSprite->burnTime = 0;
+                    evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
+                    sfxPlay3DSound(pSprite, 720, -1, 0);
+                    aiNewState(&bloodActors[pXSprite->reference], &cultistSwimGoto);
                     break;
                 }
                 case kDudeZombieAxeNormal:
@@ -5727,6 +5734,7 @@ void actProcessSprites(void)
         int nXSprite = pSprite->extra;
         if (nXSprite > 0) {
             XSPRITE *pXSprite = &xsprite[nXSprite];
+            const bool fixBurnGlitch = IsBurningDude(pSprite) && !VanillaMode() && !DemoRecordStatus(); // if enemies are these types, always apply burning damage per tick
             switch (pSprite->type) {
                 case kThingBloodBits:
                 case kThingBloodChunks:
@@ -5735,7 +5743,7 @@ void actProcessSprites(void)
                     break;
             }
 
-            if (pXSprite->burnTime > 0)
+            if ((pXSprite->burnTime > 0) || fixBurnGlitch)
             {
                 pXSprite->burnTime = ClipLow(pXSprite->burnTime-4,0);
                 actDamageSprite(pXSprite->burnSource, pSprite, kDamageBurn, 8);
