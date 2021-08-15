@@ -1113,7 +1113,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 pSprite->type = kDudeBurningInnocent;
                 if (!VanillaMode() && !DemoRecordStatus()) // fix burning sprite for tiny caleb
                     pSprite->type = kDudeBurningTinyCaleb;
-                aiNewState(actor, &cultistBurnGoto);
+                aiNewState(actor, &tinycalebBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 gDudeExtra[pSprite->extra].time = PlayClock+360;
                 actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
