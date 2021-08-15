@@ -3096,7 +3096,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (damageType == kDamageBurn && pXSprite->medium == kMediumNormal)
 		{
 			pSprite->type = kDudeBurningTinyCaleb;
-			aiNewState(actor, &innocentBurnGoto);
+			aiNewState(actor, &tinycalebBurnGoto);
 			actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
 			return true;
 		}
