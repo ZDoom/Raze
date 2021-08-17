@@ -84,7 +84,6 @@ void StartLevel(MapRecord* level, bool newgame)
 	if (!level) return;
 	gFrameCount = 0;
 	PlayClock = 0;
-	STAT_Update(0);
 	EndLevel();
 	inputState.ClearAllInput();
 	currentLevel = level;
