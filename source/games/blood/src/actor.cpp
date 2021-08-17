@@ -5994,7 +5994,7 @@ static void actCheckExplosion()
                     if (pExplodeInfo->burnTime)
                     {
 						assert(dudeactor->hasX());
-						XSPRITE* pXDude = &xsprite[pDude->extra];
+						XSPRITE* pXDude = &dudeactor->x();
 						if (!pXDude->burnTime) evPost(dudeactor, 0, kCallbackFXFlameLick);
 						actBurnSprite(Owner, dudeactor, pExplodeInfo->burnTime << 2);
                     }
@@ -6063,17 +6063,18 @@ static void actCheckExplosion()
 				for (int i = 0; i < gImpactSpritesCount; i++)
 				{
                     if (gImpactSpritesList[i] == -1) continue;
-                    else if (sprite[gImpactSpritesList[i]].sectnum < 0 || (sprite[gImpactSpritesList[i]].flags & kHitagFree) != 0)
+					auto impactactor = &bloodActors[gImpactSpritesList[i]];
+					auto impactsprite = &impactactor->s();
+					if (impactsprite->sectnum < 0 || (impactsprite->flags & kHitagFree) != 0)
                         continue;
 
-                    spritetype* pImpact = &sprite[gImpactSpritesList[i]];
-                    if (pImpact->extra <= 0)
+					if (impactsprite->extra <= 0)
                         continue;
-                    XSPRITE* pXImpact = &xsprite[pImpact->extra];
-					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, pImpact->sectnum) || !CheckProximity(pImpact, x, y, z, nSector, radius))
+					XSPRITE* pXImpact = &impactactor->x();
+					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, impactsprite->sectnum) || !CheckProximity(impactsprite, x, y, z, nSector, radius))
                         continue;
 
-                    trTriggerSprite(pImpact->index, pXImpact, kCmdSpriteImpact);
+					trTriggerSprite(impactsprite->index, pXImpact, kCmdSpriteImpact);
         }
             }
 
@@ -6333,12 +6334,13 @@ void actCheckFlares()
 
 		viewBackupSpriteLoc(actor);
 		spritetype* pTarget = &target->s();
+		auto pXTarget = target->hasX()? &target->x() : nullptr;
         if (pTarget->statnum == kMaxStatus)
         {
             GibSprite(pSprite, GIBTYPE_17, NULL, NULL);
 			actPostSprite(actor, kStatFree);
         }
-        if (pTarget->extra > 0 && xsprite[pTarget->extra].health > 0)
+		if (pXTarget && pXTarget->health > 0)
         {
 			int x = pTarget->x + mulscale30r(Cos(pXSprite->goalAng + pTarget->ang), pTarget->clipdist * 2);
 			int y = pTarget->y + mulscale30r(Sin(pXSprite->goalAng + pTarget->ang), pTarget->clipdist * 2);
