@@ -82,7 +82,7 @@ void SlashSeqCallback(int, DBloodActor* actor)
 
 void StompSeqCallback(int, DBloodActor* actor1)
 {
-    uint8_t vb8[(kMaxSectors+7)>>3];
+    uint8_t sectmap[(kMaxSectors+7)>>3];
     XSPRITE* pXSprite = &actor1->x();
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &actor1->s();
@@ -95,7 +95,8 @@ void StompSeqCallback(int, DBloodActor* actor1)
     int nSector = pSprite->sectnum;
     int v1c = 5+2*gGameOptions.nDifficulty;
     int v10 = 25+30*gGameOptions.nDifficulty;
-    GetClosestSpriteSectors(nSector, x, y, vc, vb8);
+    const bool newSectCheckMethod = !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+    GetClosestSpriteSectors(nSector, x, y, vc, sectmap, nullptr, newSectCheckMethod);
     char v4 = 0;
     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
     DBloodActor* actor2 = nullptr;
@@ -119,7 +120,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
                     continue;
                 if (pSprite2->flags&32)
                     continue;
-                if (TestBitString(vb8, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
+                if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
                 {
                     int top, bottom;
                     GetSpriteExtents(pSprite, &top, &bottom);
@@ -150,7 +151,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
         spritetype *pSprite2 = &sprite[nSprite2];
         if (pSprite2->flags&32)
             continue;
-        if (TestBitString(vb8, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
+        if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
         {
             XSPRITE *pXSprite = &xsprite[pSprite2->extra];
             if (pXSprite->locked)

@@ -1441,7 +1441,7 @@ void aiThinkTarget(DBloodActor* actor)
     }
 }
 
-void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
+void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -1479,8 +1479,9 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
         }
         if (pXSprite->state)
         {
-            uint8_t va4[(kMaxSectors+7)>>3];
-            GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, va4);
+            uint8_t sectmap[(kMaxSectors+7)>>3];
+            const bool newSectCheckMethod = !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+            GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, sectmap, nullptr, newSectCheckMethod);
 
             int nSprite2;
             StatIterator it(kStatDude);

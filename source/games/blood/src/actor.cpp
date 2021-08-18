@@ -2661,7 +2661,8 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 {
 	uint8_t sectmap[(kMaxSectors + 7) >> 3];
 	auto pOwner = source->GetOwner();
-	GetClosestSpriteSectors(nSector, x, y, nDist, sectmap);
+	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+	GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
 	nDist <<= 4;
 	if (flags & 2)
 	{
@@ -5011,12 +5012,12 @@ void MoveDude(spritetype *pSprite)
     }
     if (pPlayer && zvel[nSprite] > 0x155555 && !pPlayer->fallScream && pXSprite->height > 0)
     {
-        const bool playerAlive = (pXSprite->health > 0) || VanillaMode() || DemoRecordStatus(); // only trigger falling scream if player is alive
+        const bool playerAlive = (pXSprite->health > 0) || VanillaMode() || DemoRecordStatus(); // only trigger falling scream if player is alive or vanilla mode
         if (playerAlive)
-	{
+        {
             pPlayer->fallScream = 1;
             sfxPlay3DSound(pSprite, 719, 0, 0);
-	}
+        }
     }
     vec3_t const oldpos = pSprite->pos;
     int nLink = CheckLink(pSprite);
@@ -5973,7 +5974,7 @@ void actProcessSprites(void)
     it.Reset(kStatExplosion);
     while ((nSprite = it.NextIndex()) >= 0)
     {
-        uint8_t v24c[(kMaxSectors+7)>>3];
+        uint8_t sectmap[(kMaxSectors+7)>>3];
         spritetype *pSprite = &sprite[nSprite];
 
         if (pSprite->flags & 32)
@@ -5998,9 +5999,13 @@ void actProcessSprites(void)
         if (gModernMap && pXSprite->data4 > 0)
             radius = pXSprite->data4;
         #endif
-        
+
+        // GetClosestSpriteSectors() has issues checking some sectors due to optimizations
+        // the new flag newSectCheckMethod for GetClosestSpriteSectors() does rectify these issues, but this may cause unintended side effects for level scripted explosions
+        // so only allow this new checking method for dude spawned explosions
         short gAffectedXWalls[kMaxXWalls];
-        GetClosestSpriteSectors(nSector, x, y, radius, v24c, gAffectedXWalls);
+        const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+        GetClosestSpriteSectors(nSector, x, y, radius, sectmap, gAffectedXWalls, newSectCheckMethod);
         
         for (int i = 0; i < kMaxXWalls; i++)
         {
@@ -6020,7 +6025,7 @@ void actProcessSprites(void)
 
             if (pDude->flags & 32)
                 continue;
-            if (TestBitString(v24c, pDude->sectnum))
+            if (TestBitString(sectmap, pDude->sectnum))
             {
                 if (pXSprite->data1 && CheckProximity(pDude, x, y, z, nSector, radius))
                 {
@@ -6051,7 +6056,7 @@ void actProcessSprites(void)
 
             if (pThing->flags & 32)
                 continue;
-            if (TestBitString(v24c, pThing->sectnum))
+            if (TestBitString(sectmap, pThing->sectnum))
             {
                 if (pXSprite->data1 && CheckProximity(pThing, x, y, z, nSector, radius))
                 {
@@ -6095,7 +6100,7 @@ void actProcessSprites(void)
                     continue;
 
                 spritetype* pDebris = &sprite[gPhysSpritesList[i]];
-                if (!TestBitString(v24c, pDebris->sectnum) || !CheckProximity(pDebris, x, y, z, nSector, radius)) continue;
+                if (!TestBitString(sectmap, pDebris->sectnum) || !CheckProximity(pDebris, x, y, z, nSector, radius)) continue;
                 else debrisConcuss(nOwner, i, x, y, z, pExplodeInfo->dmgType);
             }
         }
@@ -6111,7 +6116,7 @@ void actProcessSprites(void)
                     if (pImpact->extra <= 0)
                         continue;
                     XSPRITE* pXImpact = &xsprite[pImpact->extra];
-                    if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(v24c, pImpact->sectnum) || !CheckProximity(pImpact, x, y, z, nSector, radius))
+                    if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectmap, pImpact->sectnum) || !CheckProximity(pImpact, x, y, z, nSector, radius))
                         continue;
                     
                     trTriggerSprite(pImpact->index, pXImpact, kCmdSpriteImpact);

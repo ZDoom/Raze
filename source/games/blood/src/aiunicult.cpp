@@ -382,7 +382,7 @@ static void unicultThinkSearch(DBloodActor* actor)
     
     //viewSetSystemMessage("IN SEARCH");
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    sub_5F15C(pSprite, pXSprite);
+    aiLookForTarget(pSprite, pXSprite);
 }
 
 static void unicultThinkGoto(DBloodActor* actor)

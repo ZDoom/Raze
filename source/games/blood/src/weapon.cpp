@@ -2618,14 +2618,15 @@ void WeaponProcess(PLAYER *pPlayer) {
 
 void teslaHit(spritetype *pMissile, int a2)
 {
-    uint8_t va4[(kMaxSectors+7)>>3];
+    uint8_t sectmap[(kMaxSectors+7)>>3];
     int x = pMissile->x;
     int y = pMissile->y;
     int z = pMissile->z;
     int nDist = 300;
     int nSector = pMissile->sectnum;
     int nOwner = pMissile->owner;
-    GetClosestSpriteSectors(nSector, x, y, nDist, va4);
+    const bool newSectCheckMethod = !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+    GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
     bool v4 = true;
     DBloodActor* actor = nullptr;
     actHitcodeToData(a2, &gHitInfo, &actor);
@@ -2640,7 +2641,7 @@ void teslaHit(spritetype *pMissile, int a2)
             spritetype *pSprite = &sprite[nSprite];
             if (pSprite->flags&32)
                 continue;
-            if (TestBitString(va4, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
+            if (TestBitString(sectmap, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
             {
                 int dx = pMissile->x-pSprite->x;
                 int dy = pMissile->y-pSprite->y;
@@ -2657,7 +2658,7 @@ void teslaHit(spritetype *pMissile, int a2)
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->flags&32)
             continue;
-        if (TestBitString(va4, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
+        if (TestBitString(sectmap, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
         {
             XSPRITE *pXSprite = &xsprite[pSprite->extra];
             if (!pXSprite->locked)
