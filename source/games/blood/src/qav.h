@@ -29,8 +29,6 @@ BEGIN_BLD_NS
 
 enum { kQavOrientationLeft = 4096 };
 
-#pragma pack(push, 1)
-
 // by NoOne: add sound flags
 enum
 {
@@ -85,8 +83,6 @@ struct QAV
     void Play(int, int, int, void *);
     void Precache(int palette = 0);
 };
-
-#pragma pack(pop)
 
 QAV* getQAV(int res_id);
 

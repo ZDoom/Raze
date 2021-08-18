@@ -222,37 +222,6 @@ void QAV::Precache(int palette)
 }
 
 
-void ByteSwapQAV(void* p)
-{
-#if B_BIG_ENDIAN == 1
-    QAV* qav = (QAV*)p;
-    qav->nFrames = LittleLong(qav->nFrames);
-    qav->ticksPerFrame = LittleLong(qav->ticksPerFrame);
-    qav->version = LittleLong(qav->version);
-    qav->x = LittleLong(qav->x);
-    qav->y = LittleLong(qav->y);
-    qav->nSprite = LittleLong(qav->nSprite);
-    for (int i = 0; i < qav->nFrames; i++)
-    {
-        FRAMEINFO* pFrame = &qav->frames[i];
-        SOUNDINFO* pSound = &pFrame->sound;
-        pFrame->nCallbackId = LittleLong(pFrame->nCallbackId);
-        pSound->sound = LittleLong(pSound->sound);
-        for (int j = 0; j < 8; j++)
-        {
-            TILE_FRAME* pTile = &pFrame->tiles[j];
-            pTile->picnum = LittleLong(pTile->picnum);
-            pTile->x = LittleLong(pTile->x);
-            pTile->y = LittleLong(pTile->y);
-            pTile->z = LittleLong(pTile->z);
-            pTile->stat = LittleLong(pTile->stat);
-            pTile->angle = LittleShort(pTile->angle);
-        }
-    }
-#endif
-}
-
-
 // This is to eliminate a huge design issue in NBlood that was apparently copied verbatim from the DOS-Version.
 // Sequences were cached in the resource and directly returned from there in writable form, with byte swapping directly performed in the cache on Big Endian systems.
 // To avoid such unsafe operations this caches the read data separately.
@@ -269,10 +238,48 @@ QAV* getQAV(int res_id)
         return nullptr;
     }
     auto fr = fileSystem.OpenFileReader(index);
-    auto qavdata = (QAV*)seqcache.Alloc(fr.GetLength());
-    fr.Read(qavdata, fr.GetLength());
+
+    // Start reading QAV for nFrames, skipping padded data.
+    for (int i = 0; i < 8; i++) fr.ReadUInt8();
+    int nFrames = fr.ReadInt32();
+    auto qavdata = (QAV*)seqcache.Alloc(sizeof(QAV) + ((nFrames - 1) * sizeof(FRAMEINFO)));
+
+    // Write out QAV data.
+    qavdata->nFrames = nFrames;
+    qavdata->ticksPerFrame = fr.ReadInt32();
+    qavdata->duration = fr.ReadInt32();
+    qavdata->x = fr.ReadInt32();
+    qavdata->y = fr.ReadInt32();
+    qavdata->nSprite = fr.ReadInt32();
+    for (int i = 0; i < 4; i++) fr.ReadUInt8();
+
+    // Read FRAMEINFO data.
+    for (int i = 0; i < qavdata->nFrames; i++)
+    {
+        qavdata->frames[i].nCallbackId = fr.ReadInt32();
+
+        // Read SOUNDINFO data.
+        qavdata->frames[i].sound.sound = fr.ReadInt32();
+        qavdata->frames[i].sound.priority = fr.ReadUInt8();
+        qavdata->frames[i].sound.sndFlags = fr.ReadUInt8();
+        qavdata->frames[i].sound.sndRange = fr.ReadUInt8();
+        for (int i = 0; i < 1; i++) fr.ReadUInt8();
+
+        // Read TILE_FRAME data.
+        for (int j = 0; j < 8; j++)
+        {
+            qavdata->frames[i].tiles[j].picnum = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].x = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].y = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].z = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].stat = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].shade = fr.ReadInt8();
+            qavdata->frames[i].tiles[j].palnum = fr.ReadUInt8();
+            qavdata->frames[i].tiles[j].angle = fr.ReadUInt16();
+        }
+    }
+
     qavcache.Insert(res_id, qavdata);
-    ByteSwapQAV(qavdata);
     return qavdata;
 }
 
