@@ -269,7 +269,7 @@ static void gargThinkSearch(DBloodActor* actor)
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    sub_5F15C(pSprite, pXSprite);
+    aiLookForTarget(pSprite, pXSprite);
 }
 
 static void gargThinkGoto(DBloodActor* actor)

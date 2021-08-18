@@ -950,6 +950,12 @@ OptionValue "WeapSwitch"
 	3, "$PLRMNU_PREFERRED"
 }
 
+OptionValue "ExplosBehavior"
+{
+	0, "$OPTVAL_DEFAULT"
+	1, "$OPTVAL_OLD"
+}
+
 
 OptionMenu GameplayOptions protected
 {
@@ -971,6 +977,7 @@ OptionMenu GameplayOptions protected
 	ifgame(Blood)
 	{
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
+		Option "$EXPLOS_BEHAVIOR", "cl_bloodvanillaexplosions", "ExplosBehavior"
 	}
 	ifgame(Exhumed)
 	{

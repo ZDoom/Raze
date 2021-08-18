@@ -119,6 +119,7 @@ Allow Toggle,PLRMNU_TOGGLE,,,,,Umschalten erlauben,,,Permitir Alternado,,Salli v
 Override Toggle,PLRMNU_OVERRIDE,,,,,Umschalten blockieren,,,Anular Alternado,,Kumoa vaihtokytkeminen,Ignorer On/off,Futás sebesség változtatható,,,,,Nadpisz Przełączenie,Ignorar Ativar/Desativar,,Suprascriere comutare,,
 If New,PLRMNU_IFNEW,,,,Pokud je nová,Wenn neu,,,Si Nuevo,,Jos uusi,Si nouveau,Ha új,,,,,Jeśli Nowe,Quando Novo,,Dacă e nouă,,
 Equip Weapon Pickups,PLRMNU_EQUIP,,,,Přepnout na sebranou zbraň,Waffen sofort aktivieren,,,Equipar Armas Recogidas,,Vaihda poimittuun aseeseen,Equiper armes ramassées,Felvett fegyver használata,,,,,Wybierz Broń,Equipar Armas,,Echipează armele ridicate,,
+Explosions Behavior,EXPLOS_BEHAVIOR,,,,Chování při výbuchu,Explosionsverhalten,,,Comportamiento de explosiones,,Räjähdykset Käyttäytyminen,Comportement des explosions,Robbanások Viselkedés,,,,,Zachowanie wybuchów,Comportamiento de explosiones,,Comportament cu explozii,,
 Parental Lock,PLRMNU_PLOCK,,,,Rodičovský zámek,Kindersicherung,,,Bloqueo Parental,,Lapsilukko,Contrôle Parental,Szülői zár,,,,,Blokada Rodzicielska,Bloqueio Parental,,Control Parental,,
 Only preferred,PLRMNU_PREFERRED,,,,Pouze preferované,Nur bevorzugte,,,Solo preferido,,Vain parempaan,Seulement si Préféré,Csak a preferált,,,,,Tylko wybrane,Somente preferido,,Doar preferate,,
 Vanilla Keyboard Turning Speed,PLRMNU_EXHUMEDOLDTURN,,,,,,,,Velocidad de Giro del Teclado como en Vanilla,,,,Eredeti billentyűs fordulás sebesség,,,,,Oryginalna prędkość rozglądania się na klawiaturze,,,Viteză Rotire cu Tastatură,,
