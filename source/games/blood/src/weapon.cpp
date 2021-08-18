@@ -171,7 +171,7 @@ static bool sub_4B1A4(PLAYER *pPlayer)
 
 static bool BannedUnderwater(int nWeapon)
 {
-    return nWeapon == 7 || nWeapon == 6;
+    return nWeapon == kWeapSpraycan || nWeapon == kWeapDynamite;
 }
 
 static bool CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count)
@@ -180,9 +180,9 @@ static bool CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count
         return 1;
     if (ammotype == -1)
         return 1;
-    if (weapon == 12 && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
+    if (weapon == kWeapRemote && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
         return 1;
-    if (weapon == 9 && pPlayer->pXSprite->health > 0)
+    if (weapon == kWeapLifeLeech && pPlayer->pXSprite->health > 0)
         return 1;
     return pPlayer->ammoCount[ammotype] >= count;
 }
@@ -523,7 +523,7 @@ void WeaponRaise(PLAYER *pPlayer)
         if (gInfiniteAmmo || checkAmmo2(pPlayer, 5, 1))
         {
             pPlayer->weaponState = 3;
-            if (prevWeapon == 7)
+            if (prevWeapon == kWeapSpraycan)
                 StartQAV(pPlayer, kQAVBUNUP);
             else
                 StartQAV(pPlayer, kQAVBUNUP2);
@@ -2100,7 +2100,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     if (pPlayer->input.getNewWeapon() == WeaponSel_Next)
     {
-        pPlayer->input.setNewWeapon(0);
+        pPlayer->input.setNewWeapon(kWeapNone);
         if (VanillaMode())
         {
             pPlayer->weaponState = 0;
@@ -2122,7 +2122,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     else if (pPlayer->input.getNewWeapon() == WeaponSel_Prev)
     {
-        pPlayer->input.setNewWeapon(0);
+        pPlayer->input.setNewWeapon(kWeapNone);
         if (VanillaMode())
         {
             pPlayer->weaponState = 0;
@@ -2161,7 +2161,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
         }
 
-        pPlayer->input.setNewWeapon(0);
+        pPlayer->input.setNewWeapon(kWeapNone);
         pPlayer->weaponState = 0;
         pPlayer->nextWeapon = kWeapNone;
         int t = 0;
