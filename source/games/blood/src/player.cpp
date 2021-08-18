@@ -794,7 +794,7 @@ void playerReset(PLAYER *pPlayer)
         pPlayer->weaponMode[i] = 0;
     }
     pPlayer->hasWeapon[1] = 1;
-    pPlayer->curWeapon = 0;
+    pPlayer->curWeapon = kWeapNone;
     pPlayer->qavCallback = -1;
     pPlayer->newWeapon = 1;
     for (int i = 0; i < 14; i++)
@@ -1968,7 +1968,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         }
         pPlayer->deathTime = 0;
         pPlayer->qavLoop = 0;
-        pPlayer->curWeapon = 0;
+        pPlayer->curWeapon = kWeapNone;
         pPlayer->fraggerId = nSource;
         pPlayer->voodooTargets = 0;
         if (nDamageType == kDamageExplode && nDamage < (9<<4))

@@ -2039,7 +2039,7 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
             }
 
             pPlayer->hasWeapon[1] = true;
-            pPlayer->curWeapon = 0;
+            pPlayer->curWeapon = kWeapNone;
             pPlayer->nextWeapon = 1;
 
             WeaponRaise(pPlayer);
@@ -5064,7 +5064,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 switch (cmd) {
                     case 36:
                         actHealDude(pPlayer->pXSprite, ((pXSprite->data2 > 0) ? ClipHigh(pXSprite->data2, 200) : getDudeInfo(pPlayer->pSprite->type)->startHealth), 200);
-                        pPlayer->curWeapon = 1;
+                        pPlayer->curWeapon = kWeapPitchFork;
                         break;
                 }
                         

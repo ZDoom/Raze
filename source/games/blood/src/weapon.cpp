@@ -148,7 +148,7 @@ static bool sub_4B1A4(PLAYER *pPlayer)
 {
     switch (pPlayer->curWeapon)
     {
-    case 7:
+    case kWeapSpraycan:
         switch (pPlayer->weaponState)
         {
         case 5:
@@ -156,7 +156,7 @@ static bool sub_4B1A4(PLAYER *pPlayer)
             return 1;
         }
         break;
-    case 6:
+    case kWeapDynamite:
         switch (pPlayer->weaponState)
         {
         case 4:
@@ -193,9 +193,9 @@ static bool CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
         return 1;
     if (ammotype == -1)
         return 1;
-    if (pPlayer->curWeapon == 12 && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
+    if (pPlayer->curWeapon == kWeapRemote && pPlayer->weaponAmmo == 11 && pPlayer->weaponState == 11)
         return 1;
-    if (pPlayer->curWeapon == 9 && pPlayer->pXSprite->health >= unsigned(count<<4))
+    if (pPlayer->curWeapon == kWeapLifeLeech && pPlayer->pXSprite->health >= unsigned(count<<4))
         return 1;
     return pPlayer->ammoCount[ammotype] >= count;
 }
@@ -264,7 +264,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
     int duration;
     double smoothratio;
 
-    qavProcessTimer(pPlayer, pQAV, &duration, &smoothratio, pPlayer->weaponState == -1 || (pPlayer->curWeapon == 3 && pPlayer->weaponState == 7));
+    qavProcessTimer(pPlayer, pQAV, &duration, &smoothratio, pPlayer->weaponState == -1 || (pPlayer->curWeapon == kWeapShotgun && pPlayer->weaponState == 7));
 
     pQAV->x = int(xpos);
     pQAV->y = int(ypos);
@@ -346,7 +346,7 @@ void UpdateAimVector(PLAYER * pPlayer)
     int nTarget = -1;
     pPlayer->aimTargetsCount = 0;
     int autoaim = Autoaim(pPlayer->nPlayer);
-    if (autoaim == 1 || (autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == 10 || pPlayer->curWeapon == 9)
+    if (autoaim == 1 || (autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == kWeapVoodooDoll || pPlayer->curWeapon == kWeapLifeLeech)
     {
         int nClosest = 0x7fffffff;
         int nSprite;
@@ -503,11 +503,11 @@ void WeaponRaise(PLAYER *pPlayer)
     pPlayer->weaponAmmo = weaponModes[pPlayer->curWeapon].ammoType;
     switch (pPlayer->curWeapon)
     {
-    case 1: // pitchfork
+    case kWeapPitchFork:
         pPlayer->weaponState = 0;
         StartQAV(pPlayer, 0, -1, 0);
         break;
-    case 7: // spraycan
+    case kWeapSpraycan:
         if (pPlayer->weaponState == 2)
         {
             pPlayer->weaponState = 3;
@@ -519,7 +519,7 @@ void WeaponRaise(PLAYER *pPlayer)
             StartQAV(pPlayer, 4, -1, 0);
         }
         break;
-    case 6: // dynamite
+    case kWeapDynamite:
         if (gInfiniteAmmo || checkAmmo2(pPlayer, 5, 1))
         {
             pPlayer->weaponState = 3;
@@ -529,14 +529,14 @@ void WeaponRaise(PLAYER *pPlayer)
                 StartQAV(pPlayer, 18, -1, 0);
         }
         break;
-    case 11: // proximity
+    case kWeapProximity:
         if (gInfiniteAmmo || checkAmmo2(pPlayer, 10, 1))
         {
             pPlayer->weaponState = 7;
             StartQAV(pPlayer, 25, -1, 0);
         }
         break;
-    case 12: // remote
+    case kWeapRemote:
         if (gInfiniteAmmo || checkAmmo2(pPlayer, 11, 1))
         {
             pPlayer->weaponState = 10;
@@ -548,7 +548,7 @@ void WeaponRaise(PLAYER *pPlayer)
             pPlayer->weaponState = 11;
         }
         break;
-    case 3: // sawed off
+    case kWeapShotgun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns))
         {
             if (gInfiniteAmmo || pPlayer->ammoCount[2] >= 4)
@@ -575,7 +575,7 @@ void WeaponRaise(PLAYER *pPlayer)
             StartQAV(pPlayer, 50, -1, 0);
         }
         break;
-    case 4: // tommy gun
+    case kWeapTommyGun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
         {
             pPlayer->weaponState = 1;
@@ -587,14 +587,14 @@ void WeaponRaise(PLAYER *pPlayer)
             StartQAV(pPlayer, 64, -1, 0);
         }
         break;
-    case 10: // voodoo
+    case kWeapVoodooDoll:
         if (gInfiniteAmmo || checkAmmo2(pPlayer, 9, 1))
         {
             pPlayer->weaponState = 2;
             StartQAV(pPlayer, 100, -1, 0);
         }
         break;
-    case 2: // flaregun
+    case kWeapFlareGun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 1, 2))
         {
             StartQAV(pPlayer, 45, -1, 0);
@@ -606,7 +606,7 @@ void WeaponRaise(PLAYER *pPlayer)
             pPlayer->weaponState = 2;
         }
         break;
-    case 8: // tesla cannon
+    case kWeapTeslaCannon:
         if (checkAmmo2(pPlayer, 7, 1))
         {
             pPlayer->weaponState = 2;
@@ -621,7 +621,7 @@ void WeaponRaise(PLAYER *pPlayer)
             StartQAV(pPlayer, 74, -1, 0);
         }
         break;
-    case 5: // napalm
+    case kWeapNapalm:
         if (powerupCheck(pPlayer, kPwUpTwoGuns))
         {
             StartQAV(pPlayer, 120, -1, 0);
@@ -633,11 +633,11 @@ void WeaponRaise(PLAYER *pPlayer)
             pPlayer->weaponState = 2;
         }
         break;
-    case 9: // life leech
+    case kWeapLifeLeech:
         pPlayer->weaponState = 2;
         StartQAV(pPlayer, 111, -1, 0);
         break;
-    case 13: // beast
+    case kWeapBeast:
         pPlayer->weaponState = 2;
         StartQAV(pPlayer, 93, -1, 0);
         break;
@@ -653,10 +653,10 @@ void WeaponLower(PLAYER *pPlayer)
     int prevState = pPlayer->weaponState;
     switch (pPlayer->curWeapon)
     {
-    case 1:
+    case kWeapPitchFork:
         StartQAV(pPlayer, 3, -1, 0);
         break;
-    case 7:
+    case kWeapSpraycan:
         sfxKill3DSound(pPlayer->pSprite, -1, 441);
         switch (prevState)
         {
@@ -724,7 +724,7 @@ void WeaponLower(PLAYER *pPlayer)
             break;
         }
         break;
-    case 6:
+    case kWeapDynamite:
         switch (prevState)
         {
         case 1:
@@ -761,7 +761,7 @@ void WeaponLower(PLAYER *pPlayer)
             break;
         }
         break;
-    case 11:
+    case kWeapProximity:
         switch (prevState)
         {
         case 7:
@@ -769,7 +769,7 @@ void WeaponLower(PLAYER *pPlayer)
             break;
         }
         break;
-    case 12:
+    case kWeapRemote:
         switch (prevState)
         {
         case 10:
@@ -780,47 +780,47 @@ void WeaponLower(PLAYER *pPlayer)
             break;
         }
         break;
-    case 3:
+    case kWeapShotgun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns))
             StartQAV(pPlayer, 63, -1, 0);
         else
             StartQAV(pPlayer, 58, -1, 0);
         break;
-    case 4:
+    case kWeapTommyGun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns) && pPlayer->weaponState == 1)
             StartQAV(pPlayer, 72, -1, 0);
         else
             StartQAV(pPlayer, 68, -1, 0);
         break;
-    case 2:
+    case kWeapFlareGun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns) && pPlayer->weaponState == 3)
             StartQAV(pPlayer, 49, -1, 0);
         else
             StartQAV(pPlayer, 44, -1, 0);
         break;
-    case 10:
+    case kWeapVoodooDoll:
         StartQAV(pPlayer, 109, -1, 0);
         break;
-    case 8:
+    case kWeapTeslaCannon:
         if (checkAmmo2(pPlayer, 7, 10) && powerupCheck(pPlayer, kPwUpTwoGuns))
             StartQAV(pPlayer, 88, -1, 0);
         else
             StartQAV(pPlayer, 81, -1, 0);
         break;
-    case 5:
+    case kWeapNapalm:
         if (powerupCheck(pPlayer, kPwUpTwoGuns))
             StartQAV(pPlayer, 124, -1, 0);
         else
             StartQAV(pPlayer, 92, -1, 0);
         break;
-    case 9:
+    case kWeapLifeLeech:
         StartQAV(pPlayer, 119, -1, 0);
         break;
-    case 13:
+    case kWeapBeast:
         StartQAV(pPlayer, 99, -1, 0);
         break;
     }
-    pPlayer->curWeapon = 0;
+    pPlayer->curWeapon = kWeapNone;
     pPlayer->qavLoop = 0;
 }
 
@@ -838,10 +838,10 @@ void WeaponUpdateState(PLAYER *pPlayer)
     }
     switch (lastWeapon)
     {
-    case 1:
+    case kWeapPitchFork:
         pPlayer->weaponQav = 1;
         break;
-    case 7:
+    case kWeapSpraycan:
         switch (vb)
         {
         case 0:
@@ -875,7 +875,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             break;
         }
         break;
-    case 6:
+    case kWeapDynamite:
         switch (vb)
         {
         case 1:
@@ -903,7 +903,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             break;
         }
         break;
-    case 11:
+    case kWeapProximity:
         switch (vb)
         {
         case 7:
@@ -915,7 +915,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             break;
         }
         break;
-    case 12:
+    case kWeapRemote:
         switch (vb)
         {
         case 10:
@@ -935,7 +935,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             break;
         }
         break;
-    case 3:
+    case kWeapShotgun:
         switch (vb)
         {
         case 6:
@@ -968,7 +968,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             break;
         }
         break;
-    case 4:
+    case kWeapTommyGun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
         {
             pPlayer->weaponQav = 70;
@@ -980,7 +980,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             pPlayer->weaponState = 0;
         }
         break;
-    case 2:
+    case kWeapFlareGun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns))
         {
             if (vb == 3 && checkAmmo2(pPlayer, 1, 2))
@@ -994,13 +994,13 @@ void WeaponUpdateState(PLAYER *pPlayer)
         else
             pPlayer->weaponQav = 42;
         break;
-    case 10:
+    case kWeapVoodooDoll:
         if (pXSprite->height < 256 && abs(pPlayer->swayHeight) > 16)
             pPlayer->weaponQav = 102;
         else
             pPlayer->weaponQav = 101;
         break;
-    case 8:
+    case kWeapTeslaCannon:
         switch (vb)
         {
         case 2:
@@ -1014,7 +1014,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             break;
         }
         break;
-    case 5:
+    case kWeapNapalm:
         switch (vb)
         {
         case 3:
@@ -1028,7 +1028,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             break;
         }
         break;
-    case 9:
+    case kWeapLifeLeech:
         switch (vb)
         {
         case 2:
@@ -1036,7 +1036,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
             break;
         }
         break;
-    case 13:
+    case kWeapBeast:
         pPlayer->weaponQav = 94;
         break;
     }
@@ -1098,7 +1098,7 @@ void ExplodeCan(int, PLAYER *pPlayer)
     evPost(pSprite->index, 3, 0, kCmdOn);
     UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
     StartQAV(pPlayer, 15, -1);
-    pPlayer->curWeapon = 0;
+    pPlayer->curWeapon = kWeapNone;
     pPlayer->throwPower = 0;
 }
 
@@ -1133,7 +1133,7 @@ void ExplodeBundle(int, PLAYER *pPlayer)
     evPost(pSprite->index, 3, 0, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
     StartQAV(pPlayer, 24, -1, 0);
-    pPlayer->curWeapon = 0;
+    pPlayer->curWeapon = kWeapNone;
     pPlayer->throwPower = 0;
 }
 
@@ -1763,7 +1763,7 @@ static int WeaponFindNext(PLAYER *pPlayer, int *a2, int bDir)
             weapon = OrderPrev[weapon];
         if (weaponModes[weapon].update && pPlayer->hasWeapon[weapon])
         {
-            if (weapon == 9)
+            if (weapon == kWeapLifeLeech)
             {
                 if (CheckAmmo(pPlayer, weaponModes[weapon].ammoType, 1))
                     break;
@@ -1778,7 +1778,7 @@ static int WeaponFindNext(PLAYER *pPlayer, int *a2, int bDir)
     if (weapon == pPlayer->curWeapon)
     {
         if (!weaponModes[weapon].update || !CheckAmmo(pPlayer, weaponModes[weapon].ammoType, 1))
-            weapon = 1;
+            weapon = kWeapPitchFork;
     }
     if (a2)
         *a2 = 0;
@@ -1801,7 +1801,7 @@ static int WeaponFindLoaded(PLAYER *pPlayer, int *a2)
             }
         }
     }
-    if (v4 == 1)
+    if (v4 == kWeapPitchFork)
     {
         int vc = 0;
         for (int i = 0; i < 14; i++)
@@ -2014,13 +2014,13 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         if (sub_4B1A4(pPlayer))
         {
-            if (pPlayer->curWeapon == 7)
+            if (pPlayer->curWeapon == kWeapSpraycan)
             {
                 pPlayer->fuseTime = pPlayer->weaponTimer;
                 DropCan(1, pPlayer);
                 pPlayer->weaponState = 3;
             }
-            else if (pPlayer->curWeapon == 6)
+            else if (pPlayer->curWeapon == kWeapDynamite)
             {
                 pPlayer->fuseTime = pPlayer->weaponTimer;
                 DropBundle(1, pPlayer);
@@ -2056,34 +2056,34 @@ void WeaponProcess(PLAYER *pPlayer) {
     pPlayer->weaponTimer = ClipLow(pPlayer->weaponTimer, 0);
     switch (pPlayer->curWeapon)
     {
-    case 7:
+    case kWeapSpraycan:
         if (processSprayCan(pPlayer))
             return;
         break;
-    case 6:
+    case kWeapDynamite:
         if (processTNT(pPlayer))
             return;
         break;
-    case 11:
+    case kWeapProximity:
         if (processProxy(pPlayer))
             return;
         break;
-    case 12:
+    case kWeapRemote:
         if (processRemote(pPlayer))
             return;
         break;
     }
     if (pPlayer->weaponTimer > 0)
         return;
-    if (pPlayer->pXSprite->health == 0 || pPlayer->curWeapon == 0)
+    if (pPlayer->pXSprite->health == 0 || pPlayer->curWeapon == kWeapNone)
         pPlayer->weaponQav = -1;
     switch (pPlayer->curWeapon)
     {
-    case 9:
+    case kWeapLifeLeech:
         if (processLeech(pPlayer))
             return;
         break;
-    case 8:
+    case kWeapTeslaCannon:
         if (processTesla(pPlayer))
             return;
         break;
@@ -2148,14 +2148,14 @@ void WeaponProcess(PLAYER *pPlayer) {
 
         switch (pPlayer->curWeapon)
         {
-            case 6:
-                weapon = 11;
+            case kWeapDynamite:
+                weapon = kWeapProximity;
                 break;
-            case 11:
-                weapon = 12;
+            case kWeapProximity:
+                weapon = kWeapRemote;
                 break;
-            case 12:
-                weapon = 6;
+            case kWeapRemote:
+                weapon = kWeapDynamite;
                 break;
             default:
                 return;
@@ -2201,21 +2201,21 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         if (pPlayer->newWeapon == 6)
         {
-            if (pPlayer->curWeapon == 6)
+            if (pPlayer->curWeapon == kWeapDynamite)
             {
                 if (checkAmmo2(pPlayer, 10, 1))
                     pPlayer->newWeapon = 11;
                 else if (checkAmmo2(pPlayer, 11, 1))
                     pPlayer->newWeapon = 12;
             }
-            else if (pPlayer->curWeapon == 11)
+            else if (pPlayer->curWeapon == kWeapProximity)
             {
                 if (checkAmmo2(pPlayer, 11, 1))
                     pPlayer->newWeapon = 12;
                 else if (checkAmmo2(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
                     pPlayer->newWeapon = 6;
             }
-            else if (pPlayer->curWeapon == 12)
+            else if (pPlayer->curWeapon == kWeapRemote)
             {
                 if (checkAmmo2(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
                     pPlayer->newWeapon = 6;
@@ -2304,10 +2304,10 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         switch (pPlayer->curWeapon)
         {
-        case 1:
+        case kWeapPitchFork:
             StartQAV(pPlayer, 2, nClientFirePitchfork, 0);
             return;
-        case 7:
+        case kWeapSpraycan:
             switch (pPlayer->weaponState)
             {
             case 3:
@@ -2316,7 +2316,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 6:
+        case kWeapDynamite:
             switch (pPlayer->weaponState)
             {
             case 3:
@@ -2327,7 +2327,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 11:
+        case kWeapProximity:
             switch (pPlayer->weaponState)
             {
             case 7:
@@ -2337,7 +2337,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 12:
+        case kWeapRemote:
             switch (pPlayer->weaponState)
             {
             case 10:
@@ -2351,7 +2351,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 3:
+        case kWeapShotgun:
             switch (pPlayer->weaponState)
             {
             case 7:
@@ -2368,19 +2368,19 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 4:
+        case kWeapTommyGun:
             if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
                 StartQAV(pPlayer, 71, nClientFireTommy, 1);
             else
                 StartQAV(pPlayer, 66, nClientFireTommy, 1);
             return;
-        case 2:
+        case kWeapFlareGun:
             if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 1, 2))
                 StartQAV(pPlayer, 48, nClientFireFlare, 0);
             else
                 StartQAV(pPlayer, 43, nClientFireFlare, 0);
             return;
-        case 10:
+        case kWeapVoodooDoll:
         {
             static int nChance[] = { 0xa000, 0xc000, 0xe000, 0x10000 };
             int nRand = wrand()*2;
@@ -2394,7 +2394,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             StartQAV(pPlayer,103+i, nClientFireVoodoo, 0);
             return;
         }
-        case 8:
+        case kWeapTeslaCannon:
             switch (pPlayer->weaponState)
             {
             case 2:
@@ -2412,17 +2412,17 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 5:
+        case kWeapNapalm:
             if (powerupCheck(pPlayer, kPwUpTwoGuns))
                 StartQAV(pPlayer, 122, nClientFireNapalm, 0);
             else
                 StartQAV(pPlayer, 91, nClientFireNapalm, 0);
             return;
-        case 9:
+        case kWeapLifeLeech:
             sfxPlay3DSound(pPlayer->pSprite, 494, 2, 0);
             StartQAV(pPlayer, 116, nClientFireLifeLeech, 0);
             return;
-        case 13:
+        case kWeapBeast:
             StartQAV(pPlayer, 95+Random(4), nClientFireBeast, 0);
             return;
         }
@@ -2431,10 +2431,10 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         switch (pPlayer->curWeapon)
         {
-        case 1:
+        case kWeapPitchFork:
             StartQAV(pPlayer, 2, nClientFirePitchfork, 0);
             return;
-        case 7:
+        case kWeapSpraycan:
             switch (pPlayer->weaponState)
             {
             case 3:
@@ -2443,7 +2443,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 6:
+        case kWeapDynamite:
             switch (pPlayer->weaponState)
             {
             case 3:
@@ -2467,7 +2467,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 11:
+        case kWeapProximity:
             switch (pPlayer->weaponState)
             {
             case 7:
@@ -2476,7 +2476,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 12:
+        case kWeapRemote:
             switch (pPlayer->weaponState)
             {
             case 10:
@@ -2492,7 +2492,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 3:
+        case kWeapShotgun:
             switch (pPlayer->weaponState)
             {
             case 7:
@@ -2509,25 +2509,25 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
             break;
-        case 4:
+        case kWeapTommyGun:
             if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
                 StartQAV(pPlayer, 73, nClientAltFireSpread2, 0);
             else
                 StartQAV(pPlayer, 67, nClientAltFireSpread2, 0);
             return;
-        case 10:
+        case kWeapVoodooDoll:
             sfxPlay3DSound(pPlayer->pSprite, 461, 2, 0);
             StartQAV(pPlayer, 110, nClientAltFireVoodoo, 0);
             return;
 #if 0
-        case 2:
+        case kWeapFlareGun:
             if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 1, 2))
                 StartQAV(pPlayer, 48, nClientFireFlare, 0);
             else
                 StartQAV(pPlayer, 43, nClientFireFlare, 0);
             return;
 #endif
-        case 8:
+        case kWeapTeslaCannon:
             if (checkAmmo2(pPlayer, 7, 35))
             {
                 if (checkAmmo2(pPlayer, 7, 70) && powerupCheck(pPlayer, kPwUpTwoGuns))
@@ -2543,7 +2543,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                     StartQAV(pPlayer, 77, nClientFireTesla, 0);
             }
             return;
-        case 5:
+        case kWeapNapalm:
             if (powerupCheck(pPlayer, kPwUpTwoGuns))
                 // by NoOne: allow napalm launcher alt fire act like in v1.0x versions
                 if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) StartQAV(pPlayer, 123, nClientFireNapalm2, 0);
@@ -2551,7 +2551,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             else
                 StartQAV(pPlayer, 91, (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) ? nClientFireNapalm : nClientAltFireNapalm, 0);
             return;
-        case 2:
+        case kWeapFlareGun:
             if (CheckAmmo(pPlayer, 1, 8))
             {
                 if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 1, 16))
@@ -2567,7 +2567,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                     StartQAV(pPlayer, 43, nClientFireFlare, 0);
             }
             return;
-        case 9:
+        case kWeapLifeLeech:
             if (gGameOptions.nGameType <= 1 && !checkAmmo2(pPlayer, 8, 1) && pPlayer->pXSprite->health < (25 << 4))
             {
                 sfxPlay3DSound(pPlayer->pSprite, 494, 2, 0);
