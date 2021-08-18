@@ -884,7 +884,7 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
                 const int nWallB = wall[nWallA].point2;
                 int x1 = wall[nWallA].x, y1 = wall[nWallA].y;
                 int x2 = wall[nWallB].x, y2 = wall[nWallB].y;
-                int nLength = approxDist(x1-x2, y1-x2);
+                int nLength = approxDist(x1-x2, y1-y2);
                 const int nDist2 = (nDist+(nDist>>1))<<4;
                 if (nLength > nDist2) // if span is greater than range * 1.5, test midsection
                 {
