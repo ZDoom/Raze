@@ -2625,7 +2625,7 @@ void teslaHit(spritetype *pMissile, int a2)
     int nDist = 300;
     int nSector = pMissile->sectnum;
     int nOwner = pMissile->owner;
-    const bool newSectCheckMethod = !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+    const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
     GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
     bool v4 = true;
     DBloodActor* actor = nullptr;

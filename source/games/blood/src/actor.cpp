@@ -3092,7 +3092,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		break;
 
 	case kDudeTinyCaleb:
-		if (VanillaMode() || DemoRecordStatus())
+		if (cl_bloodvanillaenemies || VanillaMode() || DemoRecordStatus())
 			break;
 		if (damageType == kDamageBurn && pXSprite->medium == kMediumNormal)
 		{
@@ -5110,7 +5110,7 @@ void MoveDude(spritetype *pSprite)
                     break;
                 case kDudeBurningCultist:
                 {
-                    const bool fixRandomCultist = (pSprite->inittype >= kDudeBase) && (pSprite->inittype < kDudeMax) && !VanillaMode() && !DemoRecordStatus(); // fix burning cultists randomly switching types underwater
+                    const bool fixRandomCultist = !cl_bloodvanillaenemies && (pSprite->inittype >= kDudeBase) && (pSprite->inittype < kDudeMax) && !VanillaMode() && !DemoRecordStatus(); // fix burning cultists randomly switching types underwater
                     if (Chance(chance))
                         pSprite->type = kDudeCultistTommy;
                     else
@@ -6197,7 +6197,7 @@ void actProcessSprites(void)
         if (nXSprite > 0)
         {
             XSPRITE *pXSprite = &xsprite[nXSprite];
-            const bool fixBurnGlitch = IsBurningDude(pSprite) && !VanillaMode() && !DemoRecordStatus(); // if enemies are burning, always apply burning damage per tick
+            const bool fixBurnGlitch = !cl_bloodvanillaenemies && IsBurningDude(pSprite) && !VanillaMode() && !DemoRecordStatus(); // if enemies are burning, always apply burning damage per tick
             if ((pXSprite->burnTime > 0) || fixBurnGlitch)
             {
                 switch (pSprite->type)

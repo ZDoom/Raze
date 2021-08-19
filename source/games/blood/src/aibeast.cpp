@@ -95,7 +95,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
     int nSector = pSprite->sectnum;
     int v1c = 5+2*gGameOptions.nDifficulty;
     int v10 = 25+30*gGameOptions.nDifficulty;
-    const bool newSectCheckMethod = !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+    const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
     GetClosestSpriteSectors(nSector, x, y, vc, sectmap, nullptr, newSectCheckMethod);
     char v4 = 0;
     int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
