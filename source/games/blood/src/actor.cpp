@@ -4078,11 +4078,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				evPost(actorHit, 0, kCallbackFXFlameLick);
 
 			actBurnSprite(missileOwner, actorHit, (4 + gGameOptions.nDifficulty) << 2);
-            const bool reduceSprayDamage = !cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus();
-            int nDamage = 8;
-            if (reduceSprayDamage) // reduce flame damage if using improved clipmove mode (higher hit rate)
-                nDamage = 3;
-			actDamageSprite(missileOwner, actorHit, kDamageBurn, nDamage);
+			actDamageSprite(missileOwner, actorHit, kDamageBurn, 8);
 		}
 		break;
 
@@ -4655,7 +4651,7 @@ int MoveThing(spritetype *pSprite)
     {
         short bakCstat = pSprite->cstat;
         pSprite->cstat &= ~257;
-        if (!cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus())
+        if ((pSprite->owner >= 0) && !cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus())
             enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
         v8 = gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite]>>12, yvel[nSprite]>>12, pSprite->clipdist<<2, (pSprite->z-top)/4, (bottom-pSprite->z)/4, CLIPMASK0);
         enginecompatibility_mode = bakCompat; // restore
@@ -5436,6 +5432,7 @@ int MoveMissile(spritetype *pSprite)
     GetSpriteExtents(pSprite, &top, &bottom);
     int i = 1;
     const int bakCompat = enginecompatibility_mode;
+    const bool isFlameSprite = (pSprite->type == kMissileFlameSpray || pSprite->type == kMissileFlameHound); // do not use accurate clipmove for flame based sprites (changes damage too much)
     while (1)
     {
         int x = pSprite->x;
@@ -5443,7 +5440,7 @@ int MoveMissile(spritetype *pSprite)
         int z = pSprite->z;
         int nSector2 = pSprite->sectnum;
         clipmoveboxtracenum = 1;
-        if (!cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus())
+        if ((pSprite->owner >= 0) && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus())
             enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
         int vdx = ClipMove(&x, &y, &z, &nSector2, vx, vy, pSprite->clipdist<<2, (z-top)/4, (bottom-z)/4, CLIPMASK0);
         enginecompatibility_mode = bakCompat; // restore
