@@ -4646,11 +4646,15 @@ int MoveThing(spritetype *pSprite)
     assert(nSector >= 0 && nSector < kMaxSectors);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
+    const int bakCompat = enginecompatibilitymode;
     if (xvel[nSprite] || yvel[nSprite])
     {
         short bakCstat = pSprite->cstat;
         pSprite->cstat &= ~257;
+        if (!cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus())
+            enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
         v8 = gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite]>>12, yvel[nSprite]>>12, pSprite->clipdist<<2, (pSprite->z-top)/4, (bottom-pSprite->z)/4, CLIPMASK0);
+        enginecompatibility_mode = bakCompat; // restore
         pSprite->cstat = bakCstat;
         assert(nSector >= 0);
         if (pSprite->sectnum != nSector)
@@ -5427,6 +5431,7 @@ int MoveMissile(spritetype *pSprite)
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     int i = 1;
+    const int bakCompat = enginecompatibilitymode;
     while (1)
     {
         int x = pSprite->x;
@@ -5434,7 +5439,10 @@ int MoveMissile(spritetype *pSprite)
         int z = pSprite->z;
         int nSector2 = pSprite->sectnum;
         clipmoveboxtracenum = 1;
+        if (!cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus())
+            enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
         int vdx = ClipMove(&x, &y, &z, &nSector2, vx, vy, pSprite->clipdist<<2, (z-top)/4, (bottom-z)/4, CLIPMASK0);
+        enginecompatibility_mode = bakCompat; // restore
         clipmoveboxtracenum = 3;
         short nSector = nSector2;
         if (nSector2 < 0)
