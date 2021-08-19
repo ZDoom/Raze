@@ -4078,7 +4078,11 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				evPost(actorHit, 0, kCallbackFXFlameLick);
 
 			actBurnSprite(missileOwner, actorHit, (4 + gGameOptions.nDifficulty) << 2);
-			actDamageSprite(missileOwner, actorHit, kDamageBurn, 8);
+            const bool reduceSprayDamage = !cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus();
+            int nDamage = 8;
+            if (reduceSprayDamage) // reduce flame damage if using improved clipmove mode (higher hit rate)
+                nDamage = 3;
+			actDamageSprite(missileOwner, actorHit, kDamageBurn, nDamage);
 		}
 		break;
 
