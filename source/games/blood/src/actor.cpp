@@ -4646,7 +4646,7 @@ int MoveThing(spritetype *pSprite)
     assert(nSector >= 0 && nSector < kMaxSectors);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
-    const int bakCompat = enginecompatibilitymode;
+    const int bakCompat = enginecompatibility_mode;
     if (xvel[nSprite] || yvel[nSprite])
     {
         short bakCstat = pSprite->cstat;
@@ -5431,7 +5431,7 @@ int MoveMissile(spritetype *pSprite)
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     int i = 1;
-    const int bakCompat = enginecompatibilitymode;
+    const int bakCompat = enginecompatibility_mode;
     while (1)
     {
         int x = pSprite->x;
