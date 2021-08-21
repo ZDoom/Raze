@@ -179,6 +179,8 @@ enum
     kQAV2NAPDOWN = 124,
 
     kQAVEnd = 125,
+
+    kQAVBDRIP = 256,
 };
 
 // by NoOne: add sound flags
@@ -234,6 +236,14 @@ struct QAV
     void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536, bool const looped = false) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio, looped); }
     void Play(int, int, int, void *);
     void Precache(int palette = 0);
+};
+
+using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i);
+
+struct QAVInterpProps
+{
+    int flags;
+    QAVPrevTileFinder PrevTileFinder;
 };
 
 QAV* getQAV(int res_id);

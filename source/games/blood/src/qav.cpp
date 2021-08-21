@@ -34,6 +34,136 @@ BEGIN_BLD_NS
 extern void (*qavClientCallback[])(int, void *);
 
 
+//==========================================================================
+//
+// QAV interpolation functions
+//
+//==========================================================================
+
+enum
+{
+    kQAVIsLoopable,
+};
+
+static TMap<FString, QAVPrevTileFinder> qavPrevTileFinders;
+static TMap<int, TMap<int, TArray<int>>> qavSkippedFrameTiles;
+static TMap<int, QAVInterpProps> qavInterpProps;
+
+static void qavInitTileFinderMap()
+{
+    // Interpolate between frames if the picnums match. This is safest but could miss interpolations between suitable picnums.
+    qavPrevTileFinders.Insert("interpolate-picnum", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+        return prevFrame->tiles[i].picnum == thisFrame->tiles[i].picnum ? &prevFrame->tiles[i] : nullptr;
+    });
+
+    // Interpolate between frames if the picnum is valid. This can be problematic if tile indices change between frames.
+    qavPrevTileFinders.Insert("interpolate-index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+        return prevFrame->tiles[i].picnum > 0 ? &prevFrame->tiles[i] : nullptr;
+    });
+
+    // Find previous frame by iterating all previous frame's tiles and return on first matched x coordinate.
+    qavPrevTileFinders.Insert("interpolate-x", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+        for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].x == prevFrame->tiles[j].x)
+        {
+            return &prevFrame->tiles[j];
+        }
+        return nullptr;
+    });
+
+    // Find previous frame by iterating all previous frame's tiles and return on first matched y coordinate.
+    qavPrevTileFinders.Insert("interpolate-y", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+        for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].y == prevFrame->tiles[j].y)
+        {
+            return &prevFrame->tiles[j];
+        }
+        return nullptr;
+    });
+
+    // When type is unspecified, default to using the safest interpolation option.
+    qavPrevTileFinders.Insert("interpolate", *qavPrevTileFinders.CheckKey("interpolate-picnum"));
+}
+
+static bool qavCanInterpFrameTile(const int& res_id, const int& nFrame, const int& i)
+{
+    // Check whether this QAV has skippable tiles.
+    auto thisQAV = qavSkippedFrameTiles.CheckKey(res_id);
+    if (thisQAV)
+    {
+        // Check whether the current frame's tile is skippable.
+        auto thisFrame = thisQAV->CheckKey(nFrame);
+        if (thisFrame)
+        {
+            return !thisFrame->Contains(i);
+        }
+    }
+
+    // Return true by default.
+    return true;
+}
+
+QAVPrevTileFinder qavGetInterpType(const FString& type)
+{
+    if (!qavPrevTileFinders.CountUsed()) qavInitTileFinderMap();
+    return *qavPrevTileFinders.CheckKey(type);
+}
+
+void qavSetNonInterpFrameTile(const int& res_id, const int& nFrame, const int& i)
+{
+    // Check whether incoming resource is already in TMap.
+    auto thisQAV = qavSkippedFrameTiles.CheckKey(res_id);
+    if (!thisQAV)
+    {
+        TMap<int, TArray<int>> framemap;
+        qavSkippedFrameTiles.Insert(res_id, std::move(framemap));
+        thisQAV = qavSkippedFrameTiles.CheckKey(res_id);
+    }
+
+    // Check whether this resource's TMap has a frame TMap.
+    auto thisFrame = thisQAV->CheckKey(nFrame);
+    if (!thisFrame)
+    {
+        TArray<int> tilearray;
+        thisQAV->Insert(nFrame, std::move(tilearray));
+        thisFrame = thisQAV->CheckKey(nFrame);
+    }
+
+    // Check whether the TArray in this frame's TMap already contains the tile.
+    if (!thisFrame->Contains(i))
+    {
+        thisFrame->Push(i);
+    }
+
+    return;
+}
+
+void qavBuildInterpProps(QAV* const pQAV)
+{
+    switch (pQAV->res_id)
+    {
+        case kQAVBDRIP:
+        {
+            QAVInterpProps interp{};
+            interp.flags |= true << kQAVIsLoopable;
+            interp.PrevTileFinder = qavGetInterpType("interpolate-x");
+            qavInterpProps.Insert(pQAV->res_id, std::move(interp));
+            for (int i = 0; i < pQAV->nFrames; i++)
+            {
+                qavSetNonInterpFrameTile(pQAV->res_id, i, 0);
+            }
+            break;
+        }
+        default:
+        {
+            QAVInterpProps interp{};
+            interp.flags = 0;
+            interp.PrevTileFinder = qavGetInterpType("interpolate-index");
+            qavInterpProps.Insert(pQAV->res_id, std::move(interp));
+            break;
+        }
+    }
+}
+
+
 void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int stat, int shade, int palnum, bool to3dview)
 {
     stat |= pTile->stat;
@@ -76,70 +206,44 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 {
     assert(ticksPerFrame > 0);
 
+    auto const interpdata = qavInterpProps.CheckKey(res_id);
+
     auto const nFrame = clamp(ticks / ticksPerFrame, 0, nFrames - 1);
-    FRAMEINFO *thisFrame = &frames[nFrame];
+    FRAMEINFO* const thisFrame = &frames[nFrame];
 
-    auto const oFrame = clamp((nFrame == 0 && looped ? nFrames : nFrame) - 1, 0, nFrames - 1);
-    FRAMEINFO *prevFrame = &frames[oFrame];
+    auto const oFrame = clamp((nFrame == 0 && (looped || interpdata && (interpdata->flags & kQAVIsLoopable)) ? nFrames : nFrame) - 1, 0, nFrames - 1);
+    FRAMEINFO* const prevFrame = &frames[oFrame];
 
-    auto drawTile = [&](TILE_FRAME *thisTile, TILE_FRAME *prevTile, bool const interpolate = true)
-    {
-        double tileX = x;
-        double tileY = y;
-        double tileZ;
-        double tileA;
-
-        if (cl_bloodqavinterp && prevTile && cl_hudinterpolation && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio) && interpolate)
-        {
-            tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
-            tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
-            tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
-            tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
-        }
-        else
-        {
-            tileX += thisTile->x;
-            tileY += thisTile->y;
-            tileZ = thisTile->z;
-            tileA = thisTile->angle;
-        }
-
-        DrawFrame(tileX, tileY, tileZ, tileA, thisTile, stat, shade, palnum, to3dview);
-    };
+    bool const interpolate = interpdata && cl_hudinterpolation && cl_bloodqavinterp && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio);
 
     for (int i = 0; i < 8; i++)
     {
-        TILE_FRAME *thisTile = &thisFrame->tiles[i];
-        TILE_FRAME *prevTile = nullptr;
-
-        if (thisTile->picnum > 0)
+        if (thisFrame->tiles[i].picnum > 0)
         {
-            // Menu's blood drip requires special treatment.
-            if (res_id == 256)
-            {
-                if (i != 0)
-                {
-                    // Find previous frame by iterating all previous frame's tiles and match on the consistent x coordinate.
-                    // Tile indices can change between frames for no reason, we need to accomodate that.
-                    for (int j = 0; j < 8; j++) if (thisTile->x == prevFrame->tiles[j].x)
-                    {
-                        prevTile = &prevFrame->tiles[j];
-                        break;
-                    }
+            TILE_FRAME* const thisTile = &thisFrame->tiles[i];
+            TILE_FRAME* const prevTile = interpolate && qavCanInterpFrameTile(res_id, nFrame, i) ? interpdata->PrevTileFinder(thisFrame, prevFrame, i) : nullptr;
 
-                    drawTile(thisTile, prevTile, true);
-                }
-                else
-                {
-                    // First index is always the dripping bar at the top.
-                    drawTile(thisTile, prevTile, false);
-                }
+            double tileX = x;
+            double tileY = y;
+            double tileZ;
+            double tileA;
+
+            if (prevTile)
+            {
+                tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
+                tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
+                tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
+                tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
             }
             else
             {
-                prevTile = &prevFrame->tiles[i];
-                drawTile(thisTile, prevTile, thisTile->picnum == prevTile->picnum);
+                tileX += thisTile->x;
+                tileY += thisTile->y;
+                tileZ = thisTile->z;
+                tileA = thisTile->angle;
             }
+
+            DrawFrame(tileX, tileY, tileZ, tileA, thisTile, stat, shade, palnum, to3dview);
         }
     }
 }
@@ -311,6 +415,9 @@ QAV* getQAV(int res_id)
     // Write out additions.
     qavdata->res_id = res_id;
     qavdata->ticrate = 120. / qavdata->ticksPerFrame;
+
+    // Build QAVInterpProps struct here for now until we get DEF loading going.
+    qavBuildInterpProps(qavdata);
 
     qavcache.Insert(res_id, qavdata);
     return qavdata;
