@@ -215,6 +215,21 @@ void qavBuildInterpProps(QAV* const pQAV)
             }
             break;
         }
+        case kQAV2TOMFIRE:
+        {
+            QAVInterpProps interp{};
+            interp.flags |= true << kQAVIsLoopable;
+            interp.PrevTileFinder = qavGetInterpType("interpolate-index");
+            qavInterpProps.Insert(pQAV->res_id, std::move(interp));
+            for (int i = 0; i < pQAV->nFrames; i++)
+            {
+                for (int j = 0; j < 3; j += 2)
+                {
+                    qavSetNonInterpFrameTile(pQAV->res_id, i, j);
+                }
+            }
+            break;
+        }
         default:
         {
             QAVInterpProps interp{};
