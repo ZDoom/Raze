@@ -153,6 +153,8 @@ void qavBuildInterpProps(QAV* const pQAV)
             break;
         }
         case kQAVPFORK:
+        case kQAVREMIDLE1:
+        case kQAVREMIDLE2:
         {
             QAVInterpProps interp{};
             interp.flags |= true << kQAVIsLoopable;
