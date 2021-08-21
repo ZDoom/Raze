@@ -75,7 +75,7 @@ static void (*seqClientCallback[])(int, DBloodActor*) = {
 	ratBiteSeqCallback,
 	SpidBiteSeqCallback,
 	SpidJumpSeqCallback,
-	sub_71370,
+	SpidBirthSeqCallback,
 	sub_71BD4,
 	sub_720AC,
 	sub_71A90,
