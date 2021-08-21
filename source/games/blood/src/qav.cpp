@@ -89,7 +89,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
         double tileZ;
         double tileA;
 
-        if (cl_bloodhudinterp && prevTile && cl_hudinterpolation && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio) && interpolate)
+        if (cl_bloodqavinterp && prevTile && cl_hudinterpolation && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio) && interpolate)
         {
             tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
             tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
