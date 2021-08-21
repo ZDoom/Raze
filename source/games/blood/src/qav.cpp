@@ -194,6 +194,14 @@ void qavBuildInterpProps(QAV* const pQAV)
             }
             break;
         }
+        case kQAVSHOTL1:
+        {
+            QAVInterpProps interp{};
+            interp.flags = 0;
+            interp.PrevTileFinder = qavGetInterpType("interpolate-picnum");
+            qavInterpProps.Insert(pQAV->res_id, std::move(interp));
+            break;
+        }
         default:
         {
             QAVInterpProps interp{};
