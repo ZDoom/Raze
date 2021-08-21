@@ -160,6 +160,10 @@ void qavBuildInterpProps(QAV* const pQAV)
             qavInterpProps.Insert(pQAV->res_id, std::move(interp));
             break;
         }
+        case kQAVLITEFLAM:
+        {
+            break;
+        }
         default:
         {
             QAVInterpProps interp{};
