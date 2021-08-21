@@ -164,6 +164,21 @@ void qavBuildInterpProps(QAV* const pQAV)
         {
             break;
         }
+        case kQAVCANFIRE2:
+        {
+            QAVInterpProps interp{};
+            interp.flags = 0;
+            interp.PrevTileFinder = qavGetInterpType("interpolate-index");
+            qavInterpProps.Insert(pQAV->res_id, std::move(interp));
+            for (int i = 14; i < pQAV->nFrames; i++)
+            {
+                for (int j = 2; j < 4; j++)
+                {
+                    qavSetNonInterpFrameTile(pQAV->res_id, i, j);
+                }
+            }
+            break;
+        }
         default:
         {
             QAVInterpProps interp{};
@@ -369,6 +384,7 @@ void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, doub
 static void qavRepairTileData(QAV* pQAV)
 {
     int i, j, lastframe;
+    TILE_FRAME backup;
 
     switch (pQAV->res_id)
     {
@@ -380,6 +396,29 @@ static void qavRepairTileData(QAV* pQAV)
             {
                 pQAV->frames[j].tiles[2].x = xs_CRoundToInt(pQAV->frames[lastframe].tiles[2].x - (double(pQAV->frames[lastframe].tiles[2].x - 11) / lastframe) * i);
                 pQAV->frames[j].tiles[2].y = xs_CRoundToInt(pQAV->frames[lastframe].tiles[2].y - (double(pQAV->frames[lastframe].tiles[2].y - -28) / lastframe) * i);
+            }
+            break;
+        case kQAVCANFIRE2:
+            // Handle some index swaps and cripple interpolation after 14th frame.
+            // Swap tile indices 1 and 2 around for frame's 0 and 1.
+            for (i = 0; i < 2; i++)
+            {
+                backup = pQAV->frames[i].tiles[2];
+                pQAV->frames[i].tiles[2] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1] = backup;
+            }
+
+            // Move what's now frame 0 tile 2 to tile 3 and disable original index of 2;
+            pQAV->frames[0].tiles[3] = pQAV->frames[0].tiles[2];
+            pQAV->frames[0].tiles[2].picnum = -1;
+
+            // For frame 11 until the end, move frame indices 0 and 1 to 2 and 3 respectively, and disable the original indices.
+            for (i = 11; i < pQAV->nFrames; i++)
+            {
+                pQAV->frames[i].tiles[2] = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[0].picnum = -1;
+                pQAV->frames[i].tiles[3] = pQAV->frames[i].tiles[1];
+                pQAV->frames[i].tiles[1].picnum = -1;
             }
             break;
         default:
