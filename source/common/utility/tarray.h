@@ -292,6 +292,17 @@ public:
         return i;
     }
 
+   bool Contains(const T& item) const
+    {
+        unsigned int i;
+        for(i = 0;i < Count;++i)
+        {
+            if(Array[i] == item)
+                return true;
+        }
+        return false;
+    }
+
 	template<class Func> 
 	unsigned int FindEx(Func compare) const
 	{
