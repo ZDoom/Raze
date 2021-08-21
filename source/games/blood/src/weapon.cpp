@@ -155,7 +155,7 @@ static bool checkFired6or7(PLAYER *pPlayer)
         case 6:
             return 1;
         case 7:
-            if (VanillaMode() || DemoRecordStatus())
+            if (VanillaMode())
                 return 0;
             return 1;
         }
@@ -731,7 +731,7 @@ void WeaponLower(PLAYER *pPlayer)
             }
             break;
         case 7: // throwing ignited alt fire spray
-            if (VanillaMode() || DemoRecordStatus() || (pPlayer->newWeapon != 0))
+            if (VanillaMode() || (pPlayer->newWeapon != 0))
                 break;
             pPlayer->weaponState = 1;
             StartQAV(pPlayer, 11, -1, 0);
@@ -1479,7 +1479,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
 
         // by NoOne: trying to simulate v1.0x voodoo here.
         // dunno how exactly it works, but at least it not spend all the ammo on alt fire
-        if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) {
+        if (gGameOptions.weaponsV10x && !VanillaMode()) {
             int nCount = ClipHigh(pPlayer->ammoCount[9], pPlayer->aimTargetsCount);
             if (nCount > 0)
             {
@@ -2203,7 +2203,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     if (pPlayer->newWeapon)
     {
-        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkFired6or7(pPlayer) && !VanillaMode() && !DemoRecordStatus()) // skip banned weapons when underwater and using next/prev weapon key inputs
+        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkFired6or7(pPlayer) && !VanillaMode()) // skip banned weapons when underwater and using next/prev weapon key inputs
         {
             if (prevNewWeaponVal == WeaponSel_Next || prevNewWeaponVal == WeaponSel_Prev) // if player switched weapons
             {
@@ -2254,7 +2254,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                     pPlayer->newWeapon = 12;
             }
         }
-        else if ((pPlayer->newWeapon == 7) && !VanillaMode() && !DemoRecordStatus())
+        else if ((pPlayer->newWeapon == 7) && !VanillaMode())
         {
             if ((pPlayer->curWeapon == 7) && (pPlayer->weaponState == 2)) // fix spray can state glitch when switching from spray to tnt and back quickly
             {
@@ -2577,10 +2577,10 @@ void WeaponProcess(PLAYER *pPlayer) {
         case 5:
             if (powerupCheck(pPlayer, kPwUpTwoGuns))
                 // by NoOne: allow napalm launcher alt fire act like in v1.0x versions
-                if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) StartQAV(pPlayer, 123, nClientFireNapalm2, 0);
+                if (gGameOptions.weaponsV10x && !VanillaMode()) StartQAV(pPlayer, 123, nClientFireNapalm2, 0);
                 else StartQAV(pPlayer, 122, nClientAltFireNapalm, 0);
             else
-                StartQAV(pPlayer, 91, (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) ? nClientFireNapalm : nClientAltFireNapalm, 0);
+                StartQAV(pPlayer, 91, (gGameOptions.weaponsV10x && !VanillaMode()) ? nClientFireNapalm : nClientAltFireNapalm, 0);
             return;
         case 2:
             if (CheckAmmo(pPlayer, 1, 8))
@@ -2625,7 +2625,7 @@ void teslaHit(spritetype *pMissile, int a2)
     int nDist = 300;
     int nSector = pMissile->sectnum;
     int nOwner = pMissile->owner;
-    const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+    const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
     GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
     bool v4 = true;
     DBloodActor* actor = nullptr;

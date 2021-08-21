@@ -1033,7 +1033,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
             pDudeExtra->recoil = 1;
         }
-        const bool fixRandomCultist = !cl_bloodvanillaenemies && (pSprite->inittype >= kDudeBase) && (pSprite->inittype < kDudeMax) && !VanillaMode() && !DemoRecordStatus(); // fix burning cultists randomly switching types underwater
+        const bool fixRandomCultist = !cl_bloodvanillaenemies && (pSprite->inittype >= kDudeBase) && (pSprite->inittype < kDudeMax) && !VanillaMode(); // fix burning cultists randomly switching types underwater
         switch (pSprite->type)
         {
         case kDudeCultistTommy:
@@ -1110,7 +1110,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
         case kDudeTinyCaleb:
             if (nDmgType == kDamageBurn && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth/* && (pXSprite->at17_6 != 1 || pXSprite->at17_6 != 2)*/)
             {
-                if (!cl_bloodvanillaenemies && !VanillaMode() && !DemoRecordStatus()) // fix burning sprite for tiny caleb
+                if (!cl_bloodvanillaenemies && !VanillaMode()) // fix burning sprite for tiny caleb
                 {
                     pSprite->type = kDudeBurningTinyCaleb;
                     aiNewState(actor, &tinycalebBurnGoto);
@@ -1480,7 +1480,7 @@ void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
         if (pXSprite->state)
         {
             uint8_t sectmap[(kMaxSectors+7)>>3];
-            const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+            const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
             GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, sectmap, nullptr, newSectCheckMethod);
 
             int nSprite2;

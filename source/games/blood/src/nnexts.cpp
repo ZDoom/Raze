@@ -491,7 +491,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
     nnExtResetGlobals();
 
     // use true random only for single player mode, otherwise use Blood's default one.
-    if (gGameOptions.nGameType == 0 && !VanillaMode() && !DemoRecordStatus()) {
+    if (gGameOptions.nGameType == 0 && !VanillaMode()) {
         
         gStdRandom.seed(std::random_device()());
 
