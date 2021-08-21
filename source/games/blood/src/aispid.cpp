@@ -44,7 +44,7 @@ AISTATE spidBite = { kAiStateChase, 6, nSpidBiteClient, 60, NULL, NULL, NULL, &s
 AISTATE spidJump = { kAiStateChase, 8, nSpidJumpClient, 60, NULL, aiMoveForward, NULL, &spidChase };
 AISTATE spidBirth = { kAiStateOther, 0, nSpidBirthClient, 60, NULL, NULL, NULL, &spidIdle };
 
-static char SpidPoisonTarget(XSPRITE *pXDude, int nBlind, int max)
+static char SpidPoisonPlayer(XSPRITE *pXDude, int nBlind, int max)
 {
     assert(pXDude != NULL);
     int nDude = pXDude->reference;
@@ -90,11 +90,11 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
                     break;
                 case kDudeSpiderRed:
                     actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
-                    if (Chance(0x5000)) SpidPoisonTarget(pXTarget, 4, 16);
+                    if (Chance(0x5000)) SpidPoisonPlayer(pXTarget, 4, 16);
                     break;
                 case kDudeSpiderBlack:
                     actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
-                    SpidPoisonTarget(pXTarget, 8, 16);
+                    SpidPoisonPlayer(pXTarget, 8, 16);
                     break;
                 case kDudeSpiderMother: {
                     actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
@@ -103,9 +103,9 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
                     dy += Random2(2000);
                     dz += Random2(2000);
                     actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorSpiderBite);
-                    SpidPoisonTarget(pXTarget, 8, 16);
-                }
+                    SpidPoisonPlayer(pXTarget, 8, 16);
                     break;
+                }
             }
         }
 
