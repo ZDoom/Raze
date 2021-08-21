@@ -179,6 +179,18 @@ void qavBuildInterpProps(QAV* const pQAV)
             }
             break;
         }
+        case kQAVBUNFUSE:
+        {
+            QAVInterpProps interp{};
+            interp.flags = 0;
+            interp.PrevTileFinder = qavGetInterpType("interpolate-index");
+            qavInterpProps.Insert(pQAV->res_id, std::move(interp));
+            for (int i = 6; i < pQAV->nFrames; i++)
+            {
+                qavSetNonInterpFrameTile(pQAV->res_id, i, 4);
+            }
+            break;
+        }
         default:
         {
             QAVInterpProps interp{};
@@ -513,6 +525,32 @@ static void qavRepairTileData(QAV* pQAV)
             // For frame 5, move tile index 1 to 3 and disable original index of 1.
             pQAV->frames[5].tiles[3] = pQAV->frames[5].tiles[1];
             pQAV->frames[5].tiles[1].picnum = -1;
+            break;
+        case kQAVBUNFUSE:
+            // BUNFUSE has several tile indices that require repairs here to minimise continual checks at draw time.
+            // For frame 0, move tile indices 2 and 3 into 3 and 4, and disable original index of 2.
+            pQAV->frames[0].tiles[4] = pQAV->frames[0].tiles[3];
+            pQAV->frames[0].tiles[3] = pQAV->frames[0].tiles[2];
+            pQAV->frames[0].tiles[2].picnum = -1;
+
+            // For frame 1, move tile indices 4 and 5 into 3 and 4, and disable original index of 5.
+            pQAV->frames[1].tiles[3] = pQAV->frames[1].tiles[4];
+            pQAV->frames[1].tiles[4] = pQAV->frames[1].tiles[5];
+            pQAV->frames[1].tiles[5].picnum = -1;
+
+            // For frame 2, move tile indices 5 and 7 into 3 and 4, and disable original indices.
+            pQAV->frames[2].tiles[3] = pQAV->frames[2].tiles[5];
+            pQAV->frames[2].tiles[4] = pQAV->frames[2].tiles[7];
+            pQAV->frames[2].tiles[5].picnum = -1;
+            pQAV->frames[2].tiles[7].picnum = -1;
+
+            // For frames 0-5, swap tile indices 2 and 4 around.
+            for (i = 0; i < 6; i++)
+            {
+                backup = pQAV->frames[i].tiles[4];
+                pQAV->frames[i].tiles[4] = pQAV->frames[i].tiles[2];
+                pQAV->frames[i].tiles[2] = backup;
+            }
             break;
         default:
             return;
