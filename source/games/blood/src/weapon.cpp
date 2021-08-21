@@ -244,15 +244,6 @@ void WeaponPrecache()
     }
 }
 
-bool isOriginalQAV()
-{
-    static int cached = -1;
-    if (cached != -1) return cached;
-    int lump = fileSystem.FindResource(60, "QAV");
-    cached = lump >= 0 && fileSystem.GetFileContainer(lump) < fileSystem.GetMaxIwadNum();
-    return cached;
-}
-
 void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum)
 {
     assert(pPlayer != NULL);
