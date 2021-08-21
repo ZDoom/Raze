@@ -152,6 +152,14 @@ void qavBuildInterpProps(QAV* const pQAV)
             }
             break;
         }
+        case kQAVPFORK:
+        {
+            QAVInterpProps interp{};
+            interp.flags |= true << kQAVIsLoopable;
+            interp.PrevTileFinder = qavGetInterpType("interpolate-index");
+            qavInterpProps.Insert(pQAV->res_id, std::move(interp));
+            break;
+        }
         default:
         {
             QAVInterpProps interp{};
