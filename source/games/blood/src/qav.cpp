@@ -366,6 +366,27 @@ void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, doub
     }
 }
 
+static void qavRepairTileData(QAV* pQAV)
+{
+    int i, j, lastframe;
+
+    switch (pQAV->res_id)
+    {
+        case kQAVCANDOWN:
+            // CANDOWN interpolates fine, but the starting frame in bringing the can down is lower than the can while idle.
+            // Do linear interpolation from 2nd last frame through to first frame, ending with coordinates of CANIDLE.
+            lastframe = pQAV->nFrames - 1;
+            for (i = lastframe, j = 0; i >= 0; i--, j++)
+            {
+                pQAV->frames[j].tiles[2].x = xs_CRoundToInt(pQAV->frames[lastframe].tiles[2].x - (double(pQAV->frames[lastframe].tiles[2].x - 11) / lastframe) * i);
+                pQAV->frames[j].tiles[2].y = xs_CRoundToInt(pQAV->frames[lastframe].tiles[2].y - (double(pQAV->frames[lastframe].tiles[2].y - -28) / lastframe) * i);
+            }
+            break;
+        default:
+            return;
+    }
+}
+
 
 // This is to eliminate a huge design issue in NBlood that was apparently copied verbatim from the DOS-Version.
 // Sequences were cached in the resource and directly returned from there in writable form, with byte swapping directly performed in the cache on Big Endian systems.
@@ -427,6 +448,9 @@ QAV* getQAV(int res_id)
     // Write out additions.
     qavdata->res_id = res_id;
     qavdata->ticrate = 120. / qavdata->ticksPerFrame;
+
+    // Repair tile data here for now until we export all repaired QAVs.
+    qavRepairTileData(qavdata);
 
     // Build QAVInterpProps struct here for now until we get DEF loading going.
     qavBuildInterpProps(qavdata);
