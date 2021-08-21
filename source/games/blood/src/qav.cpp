@@ -988,6 +988,25 @@ static void qavRepairTileData(QAV* pQAV)
             }
             break;
         }
+        case kQAVSGUNFIR4:
+        {
+            // SGUNFIR4's overlay sizes vary from tile to tile and don't interpolate properly.
+            // Use repaired tiles from Phredreeke where the overlays are baked in.
+            constexpr int tilearray[46] = { 9304, 9304, 9300, 9300, 9301, 9301, 9302, 9302, 9303, 9303, 9304, 9300, 9301, 9302, 9303, 9304, 9300, 9301, 9302, 9303, 9304, 9300, 9301, 9302, 9303, 9304, 9300, 9301, 9302, 9303, 9300, 9302, 9304, 9301, 9303, 9300, 9302, 9304, 9301, 9303, 9301, 9304, 9302, 9300, 9303, 9301 };
+
+            // Loop through each frame to remove overlay and replace use of 3227 with that from tilearray.
+            for (i = 0; i < 46; i++)
+            {
+                pQAV->frames[i].tiles[0].picnum = tilearray[i];
+                pQAV->frames[i].tiles[1].picnum = -1;
+            }
+
+            // Swap frame 46 index 0 and 1.
+            backup = pQAV->frames[46].tiles[0];
+            pQAV->frames[46].tiles[0] = pQAV->frames[46].tiles[1];
+            pQAV->frames[46].tiles[1] = backup;
+            break;
+        }
         default:
             return;
     }
