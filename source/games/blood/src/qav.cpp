@@ -171,6 +171,14 @@ void qavBuildInterpProps(QAV* const pQAV)
         }
         case kQAVLITEFLAM:
         {
+            QAVInterpProps interp{};
+            interp.flags = 0;
+            interp.PrevTileFinder = qavGetInterpType("interpolate-index");
+            qavInterpProps.Insert(pQAV->res_id, std::move(interp));
+            for (int i = 3; i < pQAV->nFrames; i++)
+            {
+                qavSetNonInterpFrameTile(pQAV->res_id, i, 1);
+            }
             break;
         }
         case kQAVCANFIRE2:
@@ -447,6 +455,15 @@ static void qavRepairTileData(QAV* pQAV)
 
     switch (pQAV->res_id)
     {
+        case kQAVLITEFLAM:
+            // LITEFLAM doesn't look right when interpolating. Move frames around to cause it not to interpolate.
+            // Move frames 1 and 2 tile 0 to tile 1 and disable original index of 0.
+            for (i = 1; i < 3; i++)
+            {
+                pQAV->frames[i].tiles[1] = pQAV->frames[i].tiles[0];
+                pQAV->frames[i].tiles[0].picnum = -1;
+            }
+            break;
         case kQAVCANDOWN:
             // CANDOWN interpolates fine, but the starting frame in bringing the can down is lower than the can while idle.
             // Do linear interpolation from 2nd last frame through to first frame, ending with coordinates of CANIDLE.
