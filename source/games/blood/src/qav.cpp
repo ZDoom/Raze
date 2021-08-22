@@ -448,12 +448,13 @@ void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, doub
     }
 }
 
-static void qavRepairTileData(QAV* pQAV)
+template<class T>
+static void qavRepairTileData(T* pQAV, int const res_id)
 {
     int i, j, lastframe;
     TILE_FRAME backup;
 
-    switch (pQAV->res_id)
+    switch (res_id)
     {
         case kQAVLITEFLAM:
             // LITEFLAM doesn't look right when interpolating. Move frames around to cause it not to interpolate.
@@ -1394,6 +1395,25 @@ static void qavRepairTileData(QAV* pQAV)
     }
 }
 
+#pragma pack(push, 1)
+
+struct QAV2
+{
+    char pad1[8]; // 0
+    int nFrames; // 8
+    int ticksPerFrame; // C
+    int duration; // 10
+    int x; // 14
+    int y; // 18
+    int nSprite; // 1c
+    //SPRITE *pSprite; // 1c
+    char pad3[3]; // 20
+    char lastframetic;
+    FRAMEINFO frames[1]; // 24
+};
+
+#pragma pack(pop)
+
 
 // This is to eliminate a huge design issue in NBlood that was apparently copied verbatim from the DOS-Version.
 // Sequences were cached in the resource and directly returned from there in writable form, with byte swapping directly performed in the cache on Big Endian systems.
@@ -1457,10 +1477,43 @@ QAV* getQAV(int res_id)
     qavdata->ticrate = 120. / qavdata->ticksPerFrame;
 
     // Repair tile data here for now until we export all repaired QAVs.
-    qavRepairTileData(qavdata);
+    qavRepairTileData(qavdata, res_id);
 
     // Build QAVInterpProps struct here for now until we get DEF loading going.
     qavBuildInterpProps(qavdata);
+
+    auto fr2 = fileSystem.OpenFileReader(index);
+    auto qavdata2 = (QAV2*)seqcache.Alloc(fr2.GetLength());
+    fr2.Read(qavdata2, fr2.GetLength());
+    qavRepairTileData(qavdata2, res_id);
+
+    // Erase all data for all tiles that don't have a valid picnum.
+    for (int i = 0; i < qavdata2->nFrames; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (qavdata2->frames[i].tiles[j].picnum <= 0)
+            {
+                qavdata2->frames[i].tiles[j].picnum = 0;
+                qavdata2->frames[i].tiles[j].x = 0;
+                qavdata2->frames[i].tiles[j].y = 0;
+                qavdata2->frames[i].tiles[j].z = 0;
+                qavdata2->frames[i].tiles[j].stat = 0;
+                qavdata2->frames[i].tiles[j].shade = 0;
+                qavdata2->frames[i].tiles[j].palnum = 0;
+                qavdata2->frames[i].tiles[j].angle = 0;
+            }
+        }
+    }
+
+    FString filename = fileSystem.GetLongName(index);
+    filename.AppendFormat(".%d", res_id);
+    FILE* f = fopen(filename.GetChars(), "wb");
+    if (f)
+    {
+        fwrite(qavdata2, 1, fr2.GetLength(), f);
+        fclose(f);
+    }
 
     qavcache.Insert(res_id, qavdata);
     return qavdata;
