@@ -264,7 +264,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
         shade = -128;
         flags |= 1;
     }
-    pQAV->Draw(xpos, ypos, duration, flags, shade, palnum, true, smoothratio, pPlayer->qavLoop);
+    pQAV->Draw(xpos, ypos, duration, flags, shade, palnum, true, smoothratio);
 }
 
 void WeaponPlay(PLAYER *pPlayer)

@@ -139,7 +139,7 @@ void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int st
     }
 }
 
-void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio, bool const looped)
+void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio)
 {
     assert(ticksPerFrame > 0);
 
@@ -148,7 +148,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
     auto const nFrame = clamp(ticks / ticksPerFrame, 0, nFrames - 1);
     FRAMEINFO* const thisFrame = &frames[nFrame];
 
-    auto const oFrame = clamp((nFrame == 0 && (looped || interpdata && (interpdata->flags & kQAVIsLoopable)) ? nFrames : nFrame) - 1, 0, nFrames - 1);
+    auto const oFrame = clamp((nFrame == 0 && (interpdata && (interpdata->flags & kQAVIsLoopable)) ? nFrames : nFrame) - 1, 0, nFrames - 1);
     FRAMEINFO* const prevFrame = &frames[oFrame];
 
     bool const interpolate = interpdata && cl_hudinterpolation && cl_bloodqavinterp && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio);

@@ -46,16 +46,14 @@ public:
 	int lastTick;
 	bool bWideScreen;
 	bool bClearBackground;
-	bool bLooped;
-	CGameMenuItemQAV(int, int, const char*, bool widescreen = false, bool clearbackground = false, bool looped = false);
+	CGameMenuItemQAV(int, int, const char*, bool widescreen = false, bool clearbackground = false);
 	void Draw(void);
 };
 
-CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widescreen, bool clearbackground, bool looped)
+CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widescreen, bool clearbackground)
 {
 	bWideScreen = widescreen;
 	bClearBackground = clearbackground;
-	bLooped = looped;
 
 	if (name)
 	{
@@ -96,13 +94,13 @@ void CGameMenuItemQAV::Draw(void)
 			int backX = data->x;
 			for (int i = 0; i < nCount; i++)
 			{
-				data->Draw(currentDuration, 10 + kQavOrientationLeft, 0, 0, false, smoothratio, bLooped);
+				data->Draw(currentDuration, 10 + kQavOrientationLeft, 0, 0, false, smoothratio);
 				data->x += 320;
 			}
 			data->x = backX;
 		}
 		else
-			data->Draw(currentDuration, 10, 0, 0, false, smoothratio, bLooped);
+			data->Draw(currentDuration, 10, 0, 0, false, smoothratio);
 	}
 }
 
@@ -137,7 +135,7 @@ void UpdateNetworkMenus(void)
 
 void GameInterface::MenuOpened()
 {
-	itemBloodQAV.reset(new CGameMenuItemQAV(160, 100, "BDRIP.QAV", true, false, true));
+	itemBloodQAV.reset(new CGameMenuItemQAV(160, 100, "BDRIP.QAV", true));
 }
 
 void GameInterface::MenuClosed()
