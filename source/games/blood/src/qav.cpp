@@ -46,23 +46,22 @@ enum
 };
 
 static TMap<FString, QAVPrevTileFinder> qavPrevTileFinders;
-static TMap<int, TMap<int, TArray<int>>> qavSkippedFrameTiles;
 static TMap<int, QAVInterpProps> qavInterpProps;
 
 static void qavInitTileFinderMap()
 {
     // Interpolate between frames if the picnums match. This is safest but could miss interpolations between suitable picnums.
-    qavPrevTileFinders.Insert("interpolate-picnum", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("picnum", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
         return prevFrame->tiles[i].picnum == thisFrame->tiles[i].picnum ? &prevFrame->tiles[i] : nullptr;
     });
 
     // Interpolate between frames if the picnum is valid. This can be problematic if tile indices change between frames.
-    qavPrevTileFinders.Insert("interpolate-index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
         return prevFrame->tiles[i].picnum > 0 ? &prevFrame->tiles[i] : nullptr;
     });
 
     // Find previous frame by iterating all previous frame's tiles and return on first matched x coordinate.
-    qavPrevTileFinders.Insert("interpolate-x", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("x", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
         for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].x == prevFrame->tiles[j].x)
         {
             return &prevFrame->tiles[j];
@@ -71,22 +70,34 @@ static void qavInitTileFinderMap()
     });
 
     // Find previous frame by iterating all previous frame's tiles and return on first matched y coordinate.
-    qavPrevTileFinders.Insert("interpolate-y", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("y", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
         for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].y == prevFrame->tiles[j].y)
         {
             return &prevFrame->tiles[j];
         }
         return nullptr;
     });
-
-    // When type is unspecified, default to using the safest interpolation option.
-    qavPrevTileFinders.Insert("interpolate", *qavPrevTileFinders.CheckKey("interpolate-picnum"));
 }
 
 QAVPrevTileFinder qavGetInterpType(const FString& type)
 {
     if (!qavPrevTileFinders.CountUsed()) qavInitTileFinderMap();
     return *qavPrevTileFinders.CheckKey(type);
+}
+
+bool GameInterface::IsQAVInterpTypeValid(const FString& type)
+{
+    return qavGetInterpType(type) != nullptr;
+}
+
+void GameInterface::AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata)
+{
+    qavInterpProps.Insert(res_id, { loopable << kQAVIsLoopable, qavGetInterpType(interptype), ignoredata });
+}
+
+void GameInterface::RemoveQAVInterpProps(const int& res_id)
+{
+    qavInterpProps.Remove(res_id);
 }
 
 
@@ -147,7 +158,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
         if (thisFrame->tiles[i].picnum > 0)
         {
             TILE_FRAME* const thisTile = &thisFrame->tiles[i];
-            TILE_FRAME* const prevTile = interpolate ? interpdata->PrevTileFinder(thisFrame, prevFrame, i) : nullptr;
+            TILE_FRAME* const prevTile = interpolate && interpdata->CanInterpFrameTile(nFrame, i) ? interpdata->PrevTileFinder(thisFrame, prevFrame, i) : nullptr;
 
             double tileX = x;
             double tileY = y;

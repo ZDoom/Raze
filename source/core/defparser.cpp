@@ -40,6 +40,7 @@
 #include "buildtiles.h"
 #include "bitmap.h"
 #include "m_argv.h"
+#include "gamestruct.h"
 #include "gamecontrol.h"
 #include "palettecontainer.h"
 #include "mapinfo.h"
@@ -2008,6 +2009,166 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 	}
 }
 
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
+
+static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id, TMap<int, TArray<int>>& ignoredata, const int& numframes)
+{
+	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
+
+	FString scframes, sctiles;
+	TArray<int> framearray, tilearray;
+
+	if (sc.StartBraces(&blockend))
+	{
+		pos.Message(MSG_ERROR, "defineqav (%d): interpolate: malformed syntax, unable to continue", res_id);
+		return false;
+	}
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.GetString();
+		if (sc.Compare("frames")) sc.GetString(scframes);
+		else if (sc.Compare("tiles")) sc.GetString(sctiles);
+	}
+
+	// Confirm we received something for 'frames' and 'tiles'.
+	if (scframes.IsEmpty() || sctiles.IsEmpty())
+	{
+		pos.Message(MSG_ERROR, "defineqav (%d): interpolate: unable to get any values for 'frames' or 'tiles', unable to continue", res_id);
+		return false;
+	}
+
+	auto arraybuilder = [&](const FString& input, TArray<int>& output, const int& maxvalue) -> bool
+	{
+		// Split input if it is an array, otherwise push the singular value twice.
+		if (input.IndexOf("-") != -1)
+		{
+			auto temparray = input.Split("-");
+			for (auto& value : temparray) output.Push(atoi(value));
+		}
+		else
+		{
+			auto tempvalue = atoi(input);
+			for (auto i = 0; i < 2; i++) output.Push(tempvalue);
+		}
+		if (output.Size() != 2 || output[0] > output[1] || output[1] > maxvalue)
+		{
+			pos.Message(MSG_ERROR, "defineqav (%d): interpolate: ignore: value of '%s' is malformed, unable to continue", res_id, input.GetChars());
+			return false;
+		}
+		return true;
+	};
+
+	if (!arraybuilder(scframes, framearray, numframes - 1)) return false;
+	if (!arraybuilder(sctiles, tilearray, 7)) return false;
+
+	// Process arrays and add ignored frames as required.
+	for (auto i = framearray[0]; i <= framearray[1]; i++)
+	{
+		auto& frametiles = ignoredata[i];
+		for (auto j = tilearray[0]; j <= tilearray[1]; j++)
+		{
+			if (!frametiles.Contains(j)) frametiles.Push(j);
+		}
+	}
+	return true;
+}
+
+static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int& res_id, const int& numframes)
+{
+	FScanner::SavedPos blockend;
+	FScriptPosition pos = sc;
+
+	FString interptype;
+	bool loopable = false;
+	TMap<int, TArray<int>> ignoredata;
+
+	if (sc.StartBraces(&blockend))
+	{
+		pos.Message(MSG_ERROR, "defineqav (%d): interpolate (%s): malformed syntax, unable to continue", res_id, interptype.GetChars());
+		return false;
+	}
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.GetString();
+		if (sc.Compare("type"))
+		{
+			sc.GetString(interptype);
+			if (!gi->IsQAVInterpTypeValid(interptype))
+			{
+				pos.Message(MSG_ERROR, "defineqav (%d): interpolate (%s): interpolation type not found", res_id, interptype.GetChars());
+				return false;
+			}
+		}
+		else if (sc.Compare("loopable")) loopable = true;
+		else if (sc.Compare("ignore")) if (!parseDefineQAVInterpolateIgnoreBlock(sc, res_id, ignoredata, numframes)) return false;
+	}
+
+	// Add interpolation properties to game for processing while drawing.
+	gi->AddQAVInterpProps(res_id, interptype, loopable, ignoredata);
+	return true;
+}
+
+void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
+{
+	FScanner::SavedPos blockend;
+	FString fn;
+	int res_id = -1;
+	int numframes = -1;
+	bool interpolate = false;
+
+	if (!sc.GetNumber(res_id, true))
+	{
+		pos.Message(MSG_ERROR, "defineqav: invalid or non-defined resource ID");
+		return;
+	}
+
+	if (sc.StartBraces(&blockend))
+	{
+		pos.Message(MSG_ERROR, "defineqav (%d): malformed syntax, unable to continue", res_id);
+		return;
+	}
+	while (!sc.FoundEndBrace(blockend))
+	{
+		sc.MustGetString();
+		if (sc.Compare("file"))
+		{
+			sc.GetString(fn);
+
+			// Test file's validity.
+			FixPathSeperator(fn);
+			auto lump = fileSystem.FindFile(fn);
+			if (lump < 0)
+			{
+				pos.Message(MSG_ERROR, "defineqav (%d): file '%s' could not be found", res_id, fn.GetChars());
+				return;
+			}
+
+			// Read file to get number of frames from QAV, skipping first 8 bytes.
+			auto fr = fileSystem.OpenFileReader(lump);
+			fr.ReadUInt64();
+			numframes = fr.ReadInt32();
+		}
+		else if (sc.Compare("interpolate"))
+		{
+			interpolate = true;
+			if (!parseDefineQAVInterpolateBlock(sc, res_id, numframes)) return;
+		}
+	}
+
+	// If we're not interpolating, remove any reference to interpolation data for this res_id.
+	if (!interpolate) gi->RemoveQAVInterpProps(res_id);
+
+	// Add new file to filesystem.
+	fileSystem.CreatePathlessCopy(fn, res_id, 0);
+}
+
+
 //===========================================================================
 //
 // 
@@ -2098,6 +2259,7 @@ static const dispatch basetokens[] =
 	{ "shadefactor",     parseSkip<1>      },
 	{ "newgamechoices",  parseEmptyBlock   },
 	{ "rffdefineid",     parseRffDefineId      },
+	{ "defineqav",       parseDefineQAV        },
 	{ nullptr,           nullptr               },
 };
 

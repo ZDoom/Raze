@@ -244,6 +244,14 @@ struct QAVInterpProps
 {
     int flags;
     QAVPrevTileFinder PrevTileFinder;
+    TMap<int, TArray<int>> IgnoreData;
+
+    bool CanInterpFrameTile(const int& nFrame, const int& i)
+    {
+        // Check whether the current frame's tile is skippable.
+        auto thisFrame = IgnoreData.CheckKey(nFrame);
+        return thisFrame ? !thisFrame->Contains(i) : true;
+    }
 };
 
 QAV* getQAV(int res_id);
