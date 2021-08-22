@@ -503,6 +503,11 @@ static void qavRepairTileData(QAV* pQAV)
             pQAV->frames[0].tiles[3] = pQAV->frames[0].tiles[0];
             pQAV->frames[0].tiles[0].picnum = -1;
 
+            // Clone 2nd frame's tile index 2 into 1st frame and adjust x/y coordinates using difference between 1st and 2nd frame's tile index 3.
+            pQAV->frames[0].tiles[2] = pQAV->frames[1].tiles[2];
+            pQAV->frames[0].tiles[2].x += pQAV->frames[0].tiles[3].x - pQAV->frames[1].tiles[3].x;
+            pQAV->frames[0].tiles[2].y += pQAV->frames[0].tiles[3].y - pQAV->frames[1].tiles[3].y;
+
             // Shift every tile up one index to leave more room at the end, should it be needed in the future.
             for (i = 0; i < pQAV->nFrames; i++)
             {
