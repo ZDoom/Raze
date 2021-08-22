@@ -2540,7 +2540,7 @@ void actInit(bool bSaveLoad)
 	{
 		if (act->s().type == kItemWeaponVoodooDoll)
 		{
-			act->s().type = kAmmoItemVoodooDoll;
+			act->s().type = kItemAmmoVoodooDoll;
 			break;
 		}
 	}
@@ -4012,7 +4012,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		break;
 
 	case kMissileFireball:
-	case kMissileFireballNapam:
+	case kMissileFireballNapalm:
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
 		{
 			if (pThingInfo && pSpriteHit->type == kThingTNTBarrel && actorHit->x().burnTime == 0)
@@ -5556,7 +5556,7 @@ void actExplodeSprite(spritetype *pSprite)
 
     switch (pSprite->type)
     {
-    case kMissileFireballNapam:
+    case kMissileFireballNapalm:
         nType = kExplosionNapalm;
         seqSpawn(4, 3, nXSprite, -1);
         if (Chance(0x8000))
@@ -6719,7 +6719,7 @@ void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite) {
             seqSpawn(2, 3, nXSprite, -1);
             sfxPlay3DSound(pMissile, 493, 0, 0);
             break;
-        case kMissileFireballNapam:
+        case kMissileFireballNapalm:
             seqSpawn(61, 3, nXSprite, nNapalmClient);
             sfxPlay3DSound(pMissile, 441, 0, 0);
             break;
