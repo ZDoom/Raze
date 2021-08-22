@@ -196,7 +196,10 @@ void qavBuildInterpProps(QAV* const pQAV)
             qavInterpProps.Insert(pQAV->res_id, std::move(interp));
             for (int i = 6; i < pQAV->nFrames; i++)
             {
-                qavSetNonInterpFrameTile(pQAV->res_id, i, 4);
+                for (int j = 0; j < 7; j++)
+                {
+                    qavSetNonInterpFrameTile(pQAV->res_id, i, j);
+                }
             }
             break;
         }
