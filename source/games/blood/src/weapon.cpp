@@ -2029,7 +2029,8 @@ void WeaponProcess(PLAYER *pPlayer) {
     pPlayer->weaponTimer -= 4;
     bool bShoot = pPlayer->input.actions & SB_FIRE;
     bool bShoot2 = pPlayer->input.actions & SB_ALTFIRE;
-    if ((bShoot || bShoot2) && pPlayer->weaponQav == qavGetCorrectID(kQAVVDIDLE2)) pPlayer->weaponTimer = 0;
+    const int prevNewWeaponVal = pPlayer->input.getNewWeapon(); // used to fix scroll issue for banned weapons
+    if ((bShoot || bShoot2 || prevNewWeaponVal) && pPlayer->weaponQav == qavGetCorrectID(kQAVVDIDLE2)) pPlayer->weaponTimer = 0;
     if (pPlayer->qavLoop && pPlayer->pXSprite->health > 0)
     {
         if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))
@@ -2084,7 +2085,6 @@ void WeaponProcess(PLAYER *pPlayer) {
             return;
         break;
     }
-    const int prevNewWeaponVal = pPlayer->input.getNewWeapon(); // used to fix scroll issue for banned weapons
     if (VanillaMode())
     {
         if (pPlayer->nextWeapon)
