@@ -2098,6 +2098,11 @@ static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int& res_id, cons
 		sc.GetString();
 		if (sc.Compare("type"))
 		{
+			if (interptype.IsNotEmpty())
+			{
+				pos.Message(MSG_ERROR, "defineqav (%d): interpolate (%s): more than one interpolation type defined, unable to continue", res_id, interptype.GetChars());
+				return false;
+			}
 			sc.GetString(interptype);
 			if (!gi->IsQAVInterpTypeValid(interptype))
 			{
@@ -2138,6 +2143,11 @@ void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 		sc.MustGetString();
 		if (sc.Compare("file"))
 		{
+			if (fn.IsNotEmpty())
+			{
+				pos.Message(MSG_ERROR, "defineqav (%d): more than one file defined, unable to continue", res_id);
+				return;
+			}
 			sc.GetString(fn);
 
 			// Test file's validity.
@@ -2156,6 +2166,11 @@ void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 		}
 		else if (sc.Compare("interpolate"))
 		{
+			if (interpolate)
+			{
+				pos.Message(MSG_ERROR, "defineqav (%d): more than one interpolate block defined, unable to continue", res_id);
+				return;
+			}
 			interpolate = true;
 			if (!parseDefineQAVInterpolateBlock(sc, res_id, numframes)) return;
 		}
