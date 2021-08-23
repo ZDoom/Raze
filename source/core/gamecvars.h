@@ -32,6 +32,7 @@ EXTERN_CVAR(Bool, cl_bloodvanillabobbing)
 EXTERN_CVAR(Bool, cl_bloodvanillaexplosions)
 EXTERN_CVAR(Bool, cl_bloodvanillaenemies)
 EXTERN_CVAR(Bool, cl_bloodqavinterp)
+EXTERN_CVAR(Bool, cl_bloodqavforcedinterp)
 EXTERN_CVAR(Bool, cl_bloodweapinterp)
 EXTERN_CVAR(Bool, cl_bloodoldweapbalance)
 

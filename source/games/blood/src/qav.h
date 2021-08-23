@@ -238,22 +238,6 @@ struct QAV
     void Precache(int palette = 0);
 };
 
-using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i);
-
-struct QAVInterpProps
-{
-    int flags;
-    QAVPrevTileFinder PrevTileFinder;
-    TMap<int, TArray<int>> IgnoreData;
-
-    bool CanInterpFrameTile(const int& nFrame, const int& i)
-    {
-        // Check whether the current frame's tile is skippable.
-        auto thisFrame = IgnoreData.CheckKey(nFrame);
-        return thisFrame ? !thisFrame->Contains(i) : true;
-    }
-};
-
 QAV* getQAV(int res_id);
 void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick);
 void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration = false);

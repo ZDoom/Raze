@@ -87,6 +87,7 @@ CVARD(Bool, cl_bloodvanillabobbing, true, CVAR_ARCHIVE, "enable/disable Blood's 
 CVARD(Bool, cl_bloodvanillaexplosions, false, CVAR_ARCHIVE, "enable/disable Blood's vanilla explosion behavior")
 CVARD(Bool, cl_bloodvanillaenemies, false, CVAR_ARCHIVE, "enable/disable Blood's vanilla enemy behavior")
 CVARD(Bool, cl_bloodqavinterp, true, CVAR_ARCHIVE, "enable/disable Blood's QAV interpolation")
+CVARD(Bool, cl_bloodqavforcedinterp, false, CVAR_ARCHIVE, "enable/disable Blood's QAV interpolation forcefully for QAVs that aren't defined as interpolatable")
 CVARD(Bool, cl_bloodweapinterp, false, CVAR_ARCHIVE, "enable/disable Blood's weapon interpolation. Depends on 'cl_bloodqavinterp'")
 CVARD(Bool, cl_bloodoldweapbalance, false, CVAR_ARCHIVE, "enable/disable legacy 1.0 weapon handling for Blood")
 

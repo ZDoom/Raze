@@ -45,6 +45,22 @@ enum
     kQAVIsLoopable = 1 << 0,
 };
 
+using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i);
+
+struct QAVInterpProps
+{
+    int flags;
+    QAVPrevTileFinder PrevTileFinder;
+    TMap<int, TArray<int>> IgnoreData;
+
+    bool CanInterpFrameTile(const int& nFrame, const int& i)
+    {
+        // Check whether the current frame's tile is skippable.
+        auto thisFrame = IgnoreData.CheckKey(nFrame);
+        return thisFrame ? !thisFrame->Contains(i) : true;
+    }
+};
+
 static TMap<FString, QAVPrevTileFinder> qavPrevTileFinders;
 static TMap<int, QAVInterpProps> qavInterpProps;
 
@@ -139,11 +155,15 @@ void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int st
     }
 }
 
+
+static QAVInterpProps forcedinterpdata{ 0, qavGetInterpType("picnum") };
+
 void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio)
 {
     assert(ticksPerFrame > 0);
 
-    auto const interpdata = qavInterpProps.CheckKey(res_id);
+    QAVInterpProps* interpdata = qavInterpProps.CheckKey(res_id);
+    if (!interpdata && cl_bloodqavforcedinterp) interpdata = &forcedinterpdata;
 
     auto const nFrame = clamp(ticks / ticksPerFrame, 0, nFrames - 1);
     FRAMEINFO* const thisFrame = &frames[nFrame];
