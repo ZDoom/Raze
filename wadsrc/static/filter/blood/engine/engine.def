@@ -109,7 +109,7 @@ defineqav 10005 {
 	interpolate {
 		type "index"
 		ignore {
-			frames 3-6 tiles 1
+			frames 3-last tiles 1
 		}
 	}
 }
@@ -154,7 +154,7 @@ defineqav 10012 {
 	interpolate {
 		type "index"
 		ignore {
-			frames 14-99 tiles 2-3
+			frames 14-last tiles 2-3
 		}
 	}
 }
@@ -211,7 +211,7 @@ defineqav 10021 {
 	interpolate {
 		type "index"
 		ignore {
-			frames 6-65 tiles all
+			frames 6-last tiles all
 		}
 	}
 }

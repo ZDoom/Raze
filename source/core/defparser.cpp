@@ -2055,7 +2055,12 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id
 		{
 			// Input is a range of values, split on the hypthen and add each value to the output array.
 			auto temparray = input.Split("-");
-			for (auto& value : temparray) output.Push(atoi(value));
+			if (temparray.Size() == 2)
+			{
+				// Test if keywords 'first' and 'last' have been used.'
+				output.Push(temparray[0].CompareNoCase("first") == 0 ? 0 : atoi(temparray[0]));
+				output.Push(temparray[1].CompareNoCase("last") == 0 ? maxvalue : atoi(temparray[1]));
+			}
 		}
 		else
 		{
