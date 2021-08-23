@@ -133,6 +133,30 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     if (gDetail < effectDetail[nViewEffect] || nTSprite >= MAXSPRITESONSCREEN) return NULL;
     switch (nViewEffect)
     {
+    case kViewEffectSpotProgress: {
+        XSPRITE* pXSprite = &xsprite[pTSprite->extra];
+        int perc = (100 * pXSprite->data3) / kMaxPatrolSpotValue;
+        int width = (94 * pXSprite->data3) / kMaxPatrolSpotValue;
+
+        int top, bottom;
+        GetSpriteExtents(pTSprite, &top, &bottom);
+
+        auto pNSprite2 = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
+        if (!pNSprite2)
+            break;
+
+        pNSprite2->picnum = 2203;
+
+        pNSprite2->xrepeat = width;
+        pNSprite2->yrepeat = 20;
+        pNSprite2->pal = 10;
+        if (perc >= 75) pNSprite2->pal = 0;
+        else if (perc >= 50) pNSprite2->pal = 6;
+
+        pNSprite2->z = top - 2048;
+        pNSprite2->shade = -128;
+        break;
+    }
     case kViewEffectAtom:
         for (int i = 0; i < 16; i++)
         {
@@ -453,6 +477,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
         pNSprite->z = pTSprite->z-(32<<8);
+        pNSprite->z -= weaponIcon.zOffset<<8; // offset up
         pNSprite->picnum = nTile;
         pNSprite->shade = pTSprite->shade;
         pNSprite->xrepeat = 32;
@@ -460,15 +485,17 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         auto& nVoxel = voxelIndex[nTile];
         if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
         {
+            pNSprite->ang = (gView->pSprite->ang + 512) & 2047; // always face viewer
             pNSprite->cstat |= 48;
             pNSprite->cstat &= ~8;
             pNSprite->picnum = nVoxel;
-            pNSprite->z -= weaponIcon.zOffset<<8;
-            if (pPlayer->curWeapon == kWeapLifeLeech)
+            if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
             {
-                pNSprite->x -=  MulScale(128, Cos(pNSprite->ang), 30);
-                pNSprite->y -= MulScale(128, Sin(pNSprite->ang), 30);
+                pNSprite->x += MulScale(128, Cos(gView->pSprite->ang), 30);
+                pNSprite->y += MulScale(128, Sin(gView->pSprite->ang), 30);
             }
+            if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
+                pNSprite->ang = (pNSprite->ang + 512) & 2047; // offset angle 90 degrees
         }
         break;
     }
@@ -873,6 +900,12 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 {
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
                 }
+            }
+
+            if (gModernMap) { // add target spot indicator for patrol dudes
+                XSPRITE* pTXSprite = &xsprite[pTSprite->extra];
+                if (pTXSprite->dudeFlag4 && aiInPatrolState(pTXSprite->aiState) && pTXSprite->data3 > 0 && pTXSprite->data3 <= kMaxPatrolSpotValue)
+                    viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectSpotProgress);
             }
             break;
         }
