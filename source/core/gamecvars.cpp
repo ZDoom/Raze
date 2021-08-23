@@ -84,7 +84,8 @@ CVARD(Bool, cl_exhumedoldturn, false, CVAR_ARCHIVE, "enable/disable legacy turni
 CVARD(Bool, cl_hudinterpolation, true, CVAR_ARCHIVE, "enable/disable HUD (weapon drawer) interpolation")
 CVARD(Bool, cl_bloodvanillarun, true, CVAR_ARCHIVE, "enable/disable Blood's vanilla run mode")
 CVARD(Bool, cl_bloodvanillabobbing, true, CVAR_ARCHIVE, "enable/disable Blood's vanilla bobbing while not using vanilla run mode")
-CVARD(Bool, cl_bloodqavinterp, false, CVAR_ARCHIVE, "enable/disable Blood's HUD interpolation")
+CVARD(Bool, cl_bloodqavinterp, true, CVAR_ARCHIVE, "enable/disable Blood's QAV interpolation")
+CVARD(Bool, cl_bloodweapinterp, false, CVAR_ARCHIVE, "enable/disable Blood's weapon interpolation. Depends on 'cl_bloodqavinterp'")
 CVARD(Bool, cl_bloodoldweapbalance, false, CVAR_ARCHIVE, "enable/disable legacy 1.0 weapon handling for Blood")
 
 

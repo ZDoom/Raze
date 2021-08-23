@@ -982,6 +982,12 @@ OptionMenu GameplayOptions protected
 	{
 	    Option "$PLRMNU_EXHUMEDOLDTURN", "cl_exhumedoldturn", "OnOff"
 	}
+	StaticText ""
+	ifgame(Blood)
+	{
+		Option "$PLRMNU_BLDQAVINTERP", "cl_bloodqavinterp", "OnOff"
+		Option "$PLRMNU_BLDWEAPINTERP", "cl_bloodweapinterp", "OnOff", "cl_bloodqavinterp"
+	}
 	// StaticText ""
 	// Option "Record Demo", "m_recstat", "OnOff"
 	// Submenu "Cheats" "CheatsMenu
