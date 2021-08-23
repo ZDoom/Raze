@@ -857,6 +857,7 @@ defineqav 10256 {
 	file "qavs/BDRIP.QAV"
 	interpolate {
 		type "x"
+		loopable
 		ignore {
 			frames 0-23 tiles 0
 		}
