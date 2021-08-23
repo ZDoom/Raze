@@ -5440,10 +5440,15 @@ int MoveMissile(spritetype *pSprite)
         int z = pSprite->z;
         int nSector2 = pSprite->sectnum;
         clipmoveboxtracenum = 1;
-        if ((pSprite->owner >= 0) && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
+        const short bakSpriteCstat = pSprite->cstat;
+        if (pOwner && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
+        {
             enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
+            pSprite->cstat &= ~257; // remove self collisions for accurate clipmove
+        }
         int vdx = ClipMove(&x, &y, &z, &nSector2, vx, vy, pSprite->clipdist<<2, (z-top)/4, (bottom-z)/4, CLIPMASK0);
         enginecompatibility_mode = bakCompat; // restore
+        pSprite->cstat = bakSpriteCstat;
         clipmoveboxtracenum = 3;
         short nSector = nSector2;
         if (nSector2 < 0)
