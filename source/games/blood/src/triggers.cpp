@@ -208,7 +208,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
             {
                 pPlayer->ammoCount[8] = ClipHigh(pPlayer->ammoCount[8]+pXSprite->data3, gAmmoInfo[8].max);
                 pPlayer->hasWeapon[9] = 1;
-                if (pPlayer->curWeapon != 9)
+                if (pPlayer->curWeapon != kWeapLifeLeech)
                 {
                     pPlayer->weaponState = 0;
                     pPlayer->nextWeapon = 9;

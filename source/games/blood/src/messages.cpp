@@ -102,8 +102,8 @@ void SetWeapons(bool stat)
         {
             // Keep the pitchfork to avoid freeze
             gMe->hasWeapon[1] = 1;
-            gMe->curWeapon = 0;
-            gMe->nextWeapon = 1;
+            gMe->curWeapon = kWeapNone;
+            gMe->nextWeapon = kWeapPitchFork;
         }
         viewSetMessage(GStrings("TXTB_NOWEAP"));
     }
@@ -400,8 +400,8 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         powerupActivate(gMe, kPwUpDeliriumShroom);
         gMe->pXSprite->health = 16;
         gMe->hasWeapon[1] = 1;
-        gMe->curWeapon = 0;
-        gMe->nextWeapon = 1;
+        gMe->curWeapon = kWeapNone;
+        gMe->nextWeapon = kWeapPitchFork;
         break;
 
     default:
