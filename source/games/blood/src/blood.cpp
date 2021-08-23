@@ -200,6 +200,8 @@ void StartLevel(MapRecord* level, bool newgame)
 			pPlayer->qavLoop = gPlayerTemp[i].qavLoop;
 			pPlayer->weaponTimer = gPlayerTemp[i].weaponTimer;
 			pPlayer->nextWeapon = gPlayerTemp[i].nextWeapon;
+			pPlayer->qavLastTick = gPlayerTemp[i].qavLastTick;
+			pPlayer->qavTimer = gPlayerTemp[i].qavTimer;			
 		}
 	}
 	PreloadCache();

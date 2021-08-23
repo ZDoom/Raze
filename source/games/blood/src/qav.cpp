@@ -34,6 +34,73 @@ BEGIN_BLD_NS
 extern void (*qavClientCallback[])(int, void *);
 
 
+//==========================================================================
+//
+// QAV interpolation functions
+//
+//==========================================================================
+
+enum
+{
+    kQAVIsLoopable,
+};
+
+static TMap<FString, QAVPrevTileFinder> qavPrevTileFinders;
+static TMap<int, QAVInterpProps> qavInterpProps;
+
+static void qavInitTileFinderMap()
+{
+    // Interpolate between frames if the picnums match. This is safest but could miss interpolations between suitable picnums.
+    qavPrevTileFinders.Insert("picnum", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+        return prevFrame->tiles[i].picnum == thisFrame->tiles[i].picnum ? &prevFrame->tiles[i] : nullptr;
+    });
+
+    // Interpolate between frames if the picnum is valid. This can be problematic if tile indices change between frames.
+    qavPrevTileFinders.Insert("index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+        return prevFrame->tiles[i].picnum > 0 ? &prevFrame->tiles[i] : nullptr;
+    });
+
+    // Find previous frame by iterating all previous frame's tiles and return on first matched x coordinate.
+    qavPrevTileFinders.Insert("x", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+        for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].x == prevFrame->tiles[j].x)
+        {
+            return &prevFrame->tiles[j];
+        }
+        return nullptr;
+    });
+
+    // Find previous frame by iterating all previous frame's tiles and return on first matched y coordinate.
+    qavPrevTileFinders.Insert("y", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+        for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].y == prevFrame->tiles[j].y)
+        {
+            return &prevFrame->tiles[j];
+        }
+        return nullptr;
+    });
+}
+
+QAVPrevTileFinder qavGetInterpType(const FString& type)
+{
+    if (!qavPrevTileFinders.CountUsed()) qavInitTileFinderMap();
+    return *qavPrevTileFinders.CheckKey(type);
+}
+
+bool GameInterface::IsQAVInterpTypeValid(const FString& type)
+{
+    return qavGetInterpType(type) != nullptr;
+}
+
+void GameInterface::AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata)
+{
+    qavInterpProps.Insert(res_id, { loopable << kQAVIsLoopable, qavGetInterpType(interptype), ignoredata });
+}
+
+void GameInterface::RemoveQAVInterpProps(const int& res_id)
+{
+    qavInterpProps.Remove(res_id);
+}
+
+
 void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int stat, int shade, int palnum, bool to3dview)
 {
     stat |= pTile->stat;
@@ -72,85 +139,48 @@ void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int st
     }
 }
 
-void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio, bool const menudrip)
+void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio)
 {
     assert(ticksPerFrame > 0);
 
-    int nFrame = ticks / ticksPerFrame;
-    assert(nFrame >= 0 && nFrame < nFrames);
-    FRAMEINFO *thisFrame = &frames[nFrame];
+    auto const interpdata = qavInterpProps.CheckKey(res_id);
 
-    if ((nFrame == (nFrames - 1)) && !lastframetic)
-    {
-        lastframetic = ticks;
-    }
-    else if (lastframetic > ticks)
-    {
-        lastframetic = 0;
-    }
+    auto const nFrame = clamp(ticks / ticksPerFrame, 0, nFrames - 1);
+    FRAMEINFO* const thisFrame = &frames[nFrame];
 
-    int oFrame = nFrame == 0 || (lastframetic && ticks > lastframetic) ? nFrame : nFrame - 1;
-    assert(oFrame >= 0 && oFrame < nFrames);
-    FRAMEINFO *prevFrame = &frames[oFrame];
+    auto const oFrame = clamp((nFrame == 0 && (interpdata && (interpdata->flags & kQAVIsLoopable)) ? nFrames : nFrame) - 1, 0, nFrames - 1);
+    FRAMEINFO* const prevFrame = &frames[oFrame];
 
-    auto drawTile = [&](TILE_FRAME *thisTile, TILE_FRAME *prevTile, bool const interpolate = true)
-    {
-        double tileX = x;
-        double tileY = y;
-        double tileZ;
-        double tileA;
-
-        if (cl_bloodhudinterp && prevTile && cl_hudinterpolation && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio) && interpolate)
-        {
-            tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
-            tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
-            tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
-            tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
-        }
-        else
-        {
-            tileX += thisTile->x;
-            tileY += thisTile->y;
-            tileZ = thisTile->z;
-            tileA = thisTile->angle;
-        }
-
-        DrawFrame(tileX, tileY, tileZ, tileA, thisTile, stat, shade, palnum, to3dview);
-    };
+    bool const interpolate = interpdata && cl_hudinterpolation && cl_bloodqavinterp && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio);
 
     for (int i = 0; i < 8; i++)
     {
-        TILE_FRAME *thisTile = &thisFrame->tiles[i];
-        TILE_FRAME *prevTile = nullptr;
-
-        if (thisTile->picnum > 0)
+        if (thisFrame->tiles[i].picnum > 0)
         {
-            // Menu's blood drip requires special treatment.
-            if (menudrip)
-            {
-                if (i != 0)
-                {
-                    // Find previous frame by iterating all previous frame's tiles and match on the consistent x coordinate.
-                    // Tile indices can change between frames for no reason, we need to accomodate that.
-                    for (int j = 0; j < 8; j++) if (thisTile->x == prevFrame->tiles[j].x)
-                    {
-                        prevTile = &prevFrame->tiles[j];
-                        break;
-                    }
+            TILE_FRAME* const thisTile = &thisFrame->tiles[i];
+            TILE_FRAME* const prevTile = interpolate && interpdata->CanInterpFrameTile(nFrame, i) ? interpdata->PrevTileFinder(thisFrame, prevFrame, i) : nullptr;
 
-                    drawTile(thisTile, prevTile, true);
-                }
-                else
-                {
-                    // First index is always the dripping bar at the top.
-                    drawTile(thisTile, prevTile, false);
-                }
+            double tileX = x;
+            double tileY = y;
+            double tileZ;
+            double tileA;
+
+            if (prevTile)
+            {
+                tileX += interpolatedvaluef(prevTile->x, thisTile->x, smoothratio);
+                tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
+                tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
+                tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
             }
             else
             {
-                prevTile = &prevFrame->tiles[i];
-                drawTile(thisTile, prevTile, thisTile->picnum == prevTile->picnum);
+                tileX += thisTile->x;
+                tileY += thisTile->y;
+                tileZ = thisTile->z;
+                tileA = thisTile->angle;
             }
+
+            DrawFrame(tileX, tileY, tileZ, tileA, thisTile, stat, shade, palnum, to3dview);
         }
     }
 }
@@ -221,35 +251,52 @@ void QAV::Precache(int palette)
     }
 }
 
-
-void ByteSwapQAV(void* p)
+void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick)
 {
-#if B_BIG_ENDIAN == 1
-    QAV* qav = (QAV*)p;
-    qav->nFrames = LittleLong(qav->nFrames);
-    qav->ticksPerFrame = LittleLong(qav->ticksPerFrame);
-    qav->version = LittleLong(qav->version);
-    qav->x = LittleLong(qav->x);
-    qav->y = LittleLong(qav->y);
-    qav->nSprite = LittleLong(qav->nSprite);
-    for (int i = 0; i < qav->nFrames; i++)
+    if (*duration > 0)
     {
-        FRAMEINFO* pFrame = &qav->frames[i];
-        SOUNDINFO* pSound = &pFrame->sound;
-        pFrame->nCallbackId = LittleLong(pFrame->nCallbackId);
-        pSound->sound = LittleLong(pSound->sound);
-        for (int j = 0; j < 8; j++)
+        auto thisTick = I_GetTime(pQAV->ticrate);
+        auto numTicks = thisTick - (*lastTick);
+        if (numTicks)
         {
-            TILE_FRAME* pTile = &pFrame->tiles[j];
-            pTile->picnum = LittleLong(pTile->picnum);
-            pTile->x = LittleLong(pTile->x);
-            pTile->y = LittleLong(pTile->y);
-            pTile->z = LittleLong(pTile->z);
-            pTile->stat = LittleLong(pTile->stat);
-            pTile->angle = LittleShort(pTile->angle);
+            *lastTick = thisTick;
+            *duration -= pQAV->ticksPerFrame * numTicks;
         }
     }
-#endif
+    *duration = ClipLow(*duration, 0);
+}
+
+void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration)
+{
+    // Process if not paused.
+    if (!paused)
+    {
+        // Process clock based on QAV's ticrate and last tick value.
+        qavProcessTicker(pQAV, &pPlayer->qavTimer, &pPlayer->qavLastTick);
+
+        if (pPlayer->weaponTimer == 0)
+        {
+            // Check if we're playing an idle QAV as per the ticker's weapon timer.
+            *duration = fixedduration ? pQAV->duration - 1 : I_GetBuildTime() % pQAV->duration;
+            *smoothratio = MaxSmoothRatio;
+        }
+        else if (pPlayer->qavTimer == 0)
+        {
+            // If qavTimer is 0, play the last frame uninterpolated. Sometimes the timer can be just ahead of weaponTimer.
+            *duration = pQAV->duration - 1;
+            *smoothratio = MaxSmoothRatio;
+        }
+        else
+        {
+            // Apply normal values.
+            *duration = pQAV->duration - pPlayer->qavTimer;
+            *smoothratio = I_GetTimeFrac(pQAV->ticrate) * MaxSmoothRatio;
+        }
+    }
+    else
+    {
+        *smoothratio = MaxSmoothRatio;
+    }
 }
 
 
@@ -269,10 +316,52 @@ QAV* getQAV(int res_id)
         return nullptr;
     }
     auto fr = fileSystem.OpenFileReader(index);
-    auto qavdata = (QAV*)seqcache.Alloc(fr.GetLength());
-    fr.Read(qavdata, fr.GetLength());
+
+    // Start reading QAV for nFrames, skipping padded data.
+    for (int i = 0; i < 8; i++) fr.ReadUInt8();
+    int nFrames = fr.ReadInt32();
+    auto qavdata = (QAV*)seqcache.Alloc(sizeof(QAV) + ((nFrames - 1) * sizeof(FRAMEINFO)));
+
+    // Write out QAV data.
+    qavdata->nFrames = nFrames;
+    qavdata->ticksPerFrame = fr.ReadInt32();
+    qavdata->duration = fr.ReadInt32();
+    qavdata->x = fr.ReadInt32();
+    qavdata->y = fr.ReadInt32();
+    qavdata->nSprite = fr.ReadInt32();
+    for (int i = 0; i < 4; i++) fr.ReadUInt8();
+
+    // Read FRAMEINFO data.
+    for (int i = 0; i < qavdata->nFrames; i++)
+    {
+        qavdata->frames[i].nCallbackId = fr.ReadInt32();
+
+        // Read SOUNDINFO data.
+        qavdata->frames[i].sound.sound = fr.ReadInt32();
+        qavdata->frames[i].sound.priority = fr.ReadUInt8();
+        qavdata->frames[i].sound.sndFlags = fr.ReadUInt8();
+        qavdata->frames[i].sound.sndRange = fr.ReadUInt8();
+        for (int i = 0; i < 1; i++) fr.ReadUInt8();
+
+        // Read TILE_FRAME data.
+        for (int j = 0; j < 8; j++)
+        {
+            qavdata->frames[i].tiles[j].picnum = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].x = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].y = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].z = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].stat = fr.ReadInt32();
+            qavdata->frames[i].tiles[j].shade = fr.ReadInt8();
+            qavdata->frames[i].tiles[j].palnum = fr.ReadUInt8();
+            qavdata->frames[i].tiles[j].angle = fr.ReadUInt16();
+        }
+    }
+
+    // Write out additions.
+    qavdata->res_id = res_id;
+    qavdata->ticrate = 120. / qavdata->ticksPerFrame;
+
     qavcache.Insert(res_id, qavdata);
-    ByteSwapQAV(qavdata);
     return qavdata;
 }
 

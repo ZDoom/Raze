@@ -444,7 +444,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         assert(pTSprite->type >= kDudePlayer1 && pTSprite->type <= kDudePlayer8);
         PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
         WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
-        const int nTile = weaponIcon.nTile;
+        auto& nTile = weaponIcon.nTile;
         if (nTile < 0) break;
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
         if (!pNSprite)
@@ -457,15 +457,14 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         pNSprite->shade = pTSprite->shade;
         pNSprite->xrepeat = 32;
         pNSprite->yrepeat = 32;
-        const int nVoxel = voxelIndex[nTile];
+        auto& nVoxel = voxelIndex[nTile];
         if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
         {
             pNSprite->cstat |= 48;
             pNSprite->cstat &= ~8;
             pNSprite->picnum = nVoxel;
             pNSprite->z -= weaponIcon.zOffset<<8;
-            const int lifeLeech = 9;
-            if (pPlayer->curWeapon == lifeLeech)
+            if (pPlayer->curWeapon == kWeapLifeLeech)
             {
                 pNSprite->x -=  MulScale(128, Cos(pNSprite->ang), 30);
                 pNSprite->y -= MulScale(128, Sin(pNSprite->ang), 30);
@@ -479,7 +478,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
 
 static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector)
 {
-    int const nXSector = pSector->extra;
+    auto& nXSector = pSector->extra;
     XSECTOR const *pXSector = nXSector >= 0 ? &xsector[nXSector] : NULL;
     if (pXSector && pXSector->color && (VanillaMode() || pSector->floorpal != 0))
     {

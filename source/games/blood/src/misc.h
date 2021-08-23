@@ -41,12 +41,10 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
 int qanimateoffs(int a1, int a2);
 void HookReplaceFunctions();
 
-struct QAV;
 struct PLAYER;
-extern QAV* weaponQAV[];
 
 void WeaponInit(void);
-void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, double smoothratio);
+void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5);
 void WeaponRaise(PLAYER *pPlayer);
 void WeaponLower(PLAYER *pPlayer);
 int WeaponUpgrade(PLAYER *pPlayer, int newWeapon);

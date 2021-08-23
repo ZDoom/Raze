@@ -150,6 +150,9 @@ struct GameInterface : public ::GameInterface
 	void LeavePortal(spritetype* viewer, int type) override;
 	void LoadGameTextures() override;
 	int GetCurrentSkill() override;
+	bool IsQAVInterpTypeValid(const FString& type) override;
+	void AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata) override;
+	void RemoveQAVInterpProps(const int& res_id) override;
 
 	GameStats getStats() override;
 };

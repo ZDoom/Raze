@@ -122,6 +122,9 @@ struct GameInterface
 	virtual int Voxelize(int sprnum) { return -1; }
 	virtual void AddExcludedEpisode(FString episode) {}
 	virtual int GetCurrentSkill() { return -1; }
+	virtual bool IsQAVInterpTypeValid(const FString& type) { return false; }
+	virtual void AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata) { }
+	virtual void RemoveQAVInterpProps(const int& res_id) { }
 
 	virtual FString statFPS()
 	{

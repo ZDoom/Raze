@@ -156,3 +156,8 @@ inline int spriteGetSlope(int spritenum)
     auto spr = &sprite[spritenum];
     return ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
 }
+
+inline int I_GetBuildTime()
+{
+    return I_GetTime(120);
+}

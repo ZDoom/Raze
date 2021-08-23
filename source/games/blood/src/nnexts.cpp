@@ -1844,6 +1844,8 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
         pPlayer->weaponTimer = pCtrl->qavScene.qavResrc->duration;
         pPlayer->qavCallback = (pXSource->data3 > 0) ? ClipRange(pXSource->data3 - 1, 0, 32) : -1;
         pPlayer->qavLoop = false;
+        pPlayer->qavLastTick = I_GetTime(pCtrl->qavScene.qavResrc->ticrate);
+        pPlayer->qavTimer = pCtrl->qavScene.qavResrc->duration;
 
     }
 
@@ -2037,8 +2039,8 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
             }
 
             pPlayer->hasWeapon[1] = true;
-            pPlayer->curWeapon = 0;
-            pPlayer->nextWeapon = 1;
+            pPlayer->curWeapon = kWeapNone;
+            pPlayer->nextWeapon = kWeapPitchFork;
 
             WeaponRaise(pPlayer);
             if (pXSource->data2) break;
@@ -2080,8 +2082,8 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                 break;
             }
             switch (weapon) {
-                case 11: // remote bomb 
-                case 12: // prox bomb
+                case kWeapProximity: // remote bomb 
+                case kWeapRemote: // prox bomb
                     pPlayer->hasWeapon[weapon] = true;
                     weapon--;
                     pPlayer->ammoCount[weapon] = ClipHigh(pPlayer->ammoCount[weapon] + ((pXSource->data2 == 2) ? pXSource->data4 : 1), gAmmoInfo[weapon].max);
@@ -2108,7 +2110,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                     break;
             }
             if (pPlayer->hasWeapon[weapon] && pXSource->data4 == 0) { // switch on it
-                pPlayer->nextWeapon = 0;
+                pPlayer->nextWeapon = kWeapNone;
 
                 if (pPlayer->sceneQav >= 0 && spriRangeIsFine(pCtrl->qavScene.index)) {
                     XSPRITE* pXScene = &xsprite[sprite[pCtrl->qavScene.index].extra];
@@ -5062,7 +5064,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 switch (cmd) {
                     case 36:
                         actHealDude(pPlayer->pXSprite, ((pXSprite->data2 > 0) ? ClipHigh(pXSprite->data2, 200) : getDudeInfo(pPlayer->pSprite->type)->startHealth), 200);
-                        pPlayer->curWeapon = 1;
+                        pPlayer->curWeapon = kWeapPitchFork;
                         break;
                 }
                         
@@ -6180,7 +6182,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, double smoothratio) {
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
@@ -6189,7 +6191,10 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, d
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? ((PlayClock + MulScale(4, int(smoothratio), 16)) % pQAV->duration) : pQAV->duration - pPlayer->weaponTimer;
+        int v4;
+        double smoothratio;
+
+        qavProcessTimer(pPlayer, pQAV, &v4, &smoothratio);
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
         if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32))) {

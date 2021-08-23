@@ -722,7 +722,7 @@ void playerStart(int nPlayer, int bNewLevel)
     gFullMap = 0;
     pPlayer->throwPower = 0;
     pPlayer->deathTime = 0;
-    pPlayer->nextWeapon = 0;
+    pPlayer->nextWeapon = kWeapNone;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
     pInput->avel = 0;
     pInput->actions = 0;
@@ -739,7 +739,9 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->handTime = 0;
     pPlayer->weaponTimer = 0;
     pPlayer->weaponState = 0;
-    pPlayer->weaponQav = -1;
+    pPlayer->weaponQav = kQAVNone;
+    pPlayer->qavLastTick = 0;
+    pPlayer->qavTimer = 0;
     #ifdef NOONE_EXTENSIONS
     playerQavSceneReset(pPlayer); // reset qav scene
     
@@ -792,9 +794,9 @@ void playerReset(PLAYER *pPlayer)
         pPlayer->weaponMode[i] = 0;
     }
     pPlayer->hasWeapon[1] = 1;
-    pPlayer->curWeapon = 0;
+    pPlayer->curWeapon = kWeapNone;
     pPlayer->qavCallback = -1;
-    pPlayer->newWeapon = 1;
+    pPlayer->newWeapon = kWeapPitchFork;
     for (int i = 0; i < 14; i++)
     {
         pPlayer->weaponOrder[0][i] = dword_136400[i];
@@ -811,8 +813,10 @@ void playerReset(PLAYER *pPlayer)
         pPlayer->armor[i] = 0;
     pPlayer->weaponTimer = 0;
     pPlayer->weaponState = 0;
-    pPlayer->weaponQav = -1;
+    pPlayer->weaponQav = kQAVNone;
     pPlayer->qavLoop = 0;
+    pPlayer->qavLastTick = 0;
+    pPlayer->qavTimer = 0;
     pPlayer->packItemId = -1;
 
     for (int i = 0; i < 5; i++) {
@@ -1964,7 +1968,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         }
         pPlayer->deathTime = 0;
         pPlayer->qavLoop = 0;
-        pPlayer->curWeapon = 0;
+        pPlayer->curWeapon = kWeapNone;
         pPlayer->fraggerId = nSource;
         pPlayer->voodooTargets = 0;
         if (nDamageType == kDamageExplode && nDamage < (9<<4))
@@ -2130,7 +2134,7 @@ void PlayerSurvive(int, DBloodActor* actor)
                 sprintf(buffer, "%s lives again!", PlayerName(pPlayer->nPlayer));
                 viewSetMessage(buffer);
             }
-            pPlayer->newWeapon = 1;
+            pPlayer->newWeapon = kWeapPitchFork;
         }
     }
 }
@@ -2249,6 +2253,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
             .Array("weaponorder", &w.weaponOrder[0][0], 14*2)
             .Array("ammocount", w.ammoCount, countof(w.ammoCount))
             ("qavloop", w.qavLoop)
+            ("qavlastTick", w.qavLastTick)
+            ("qavtimer", w.qavTimer)
             ("fusetime", w.fuseTime)
             ("throwtime", w.throwTime)
             ("throwpower", w.throwPower)

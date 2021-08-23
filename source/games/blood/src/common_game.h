@@ -467,6 +467,25 @@ enum
     kAng360 = 2048,
 };
 
+// Weapon numbers
+enum
+{
+    kWeapNone = 0,
+    kWeapPitchFork = 1,
+    kWeapFlareGun = 2,
+    kWeapShotgun = 3,
+    kWeapTommyGun = 4,
+    kWeapNapalm = 5,
+    kWeapDynamite = 6,
+    kWeapSpraycan = 7,
+    kWeapTeslaCannon = 8,
+    kWeapLifeLeech = 9,
+    kWeapVoodooDoll = 10,
+    kWeapProximity = 11,
+    kWeapRemote = 12,
+    kWeapBeast = 13,
+};
+
 // -------------------------------
 
 #pragma pack(push,1)
