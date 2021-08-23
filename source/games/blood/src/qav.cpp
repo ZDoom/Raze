@@ -95,7 +95,7 @@ static void qavInitTileFinderMap()
     });
 }
 
-QAVPrevTileFinder qavGetInterpType(const FString& type)
+static QAVPrevTileFinder qavGetInterpType(const FString& type)
 {
     if (!qavPrevTileFinders.CountUsed()) qavInitTileFinderMap();
     return *qavPrevTileFinders.CheckKey(type);
