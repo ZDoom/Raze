@@ -42,7 +42,7 @@ extern void (*qavClientCallback[])(int, void *);
 
 enum
 {
-    kQAVIsLoopable,
+    kQAVIsLoopable = 1 << 0,
 };
 
 static TMap<FString, QAVPrevTileFinder> qavPrevTileFinders;
@@ -92,7 +92,7 @@ bool GameInterface::IsQAVInterpTypeValid(const FString& type)
 
 void GameInterface::AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata)
 {
-    qavInterpProps.Insert(res_id, { loopable << kQAVIsLoopable, qavGetInterpType(interptype), ignoredata });
+    qavInterpProps.Insert(res_id, { loopable ? kQAVIsLoopable : 0, qavGetInterpType(interptype), ignoredata });
 }
 
 void GameInterface::RemoveQAVInterpProps(const int& res_id)
