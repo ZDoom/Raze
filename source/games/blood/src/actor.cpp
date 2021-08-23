@@ -5961,7 +5961,7 @@ static void actCheckExplosion()
 		// the new flag newSectCheckMethod for GetClosestSpriteSectors() does rectify these issues, but this may cause unintended side effects for level scripted explosions
 		// so only allow this new checking method for dude spawned explosions
 		short gAffectedXWalls[kMaxXWalls];
-		const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
+		const bool newSectCheckMethod = !cl_bloodvanillaexplosions && Owner && Owner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
 		GetClosestSpriteSectors(nSector, x, y, radius, sectormap, gAffectedXWalls, newSectCheckMethod);
 		
 		for (int i = 0; i < kMaxXWalls; i++)
