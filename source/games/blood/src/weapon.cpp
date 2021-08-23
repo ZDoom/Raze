@@ -140,8 +140,6 @@ enum
     nClientAltFireNapalm,
 };
 
-static QAV *weaponQAV[kQAVEnd];
-
 static bool sub_4B1A4(PLAYER *pPlayer)
 {
     switch (pPlayer->curWeapon)
@@ -228,10 +226,10 @@ void WeaponInit(void)
 {
     for (int i = 0; i < kQAVEnd; i++)
     {
-        weaponQAV[i] = getQAV(i);
-        if (!weaponQAV[i])
+        auto pQAV = getQAV(i);
+        if (!pQAV)
             I_Error("Could not load QAV %d\n", i);
-        weaponQAV[i]->nSprite = -1;
+        pQAV->nSprite = -1;
     }
 }
 
@@ -239,8 +237,9 @@ void WeaponPrecache()
 {
     for (int i = 0; i < kQAVEnd; i++)
     {
-        if (weaponQAV[i])
-            weaponQAV[i]->Precache();
+        auto pQAV = getQAV(i);
+        if (pQAV)
+            pQAV->Precache();
     }
 }
 
@@ -249,7 +248,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
     assert(pPlayer != NULL);
     if (pPlayer->weaponQav == kQAVNone)
         return;
-    QAV * pQAV = weaponQAV[pPlayer->weaponQav];
+    auto pQAV = getQAV(pPlayer->weaponQav);
     int duration;
     double smoothratio;
 
@@ -272,7 +271,7 @@ void WeaponPlay(PLAYER *pPlayer)
     assert(pPlayer != NULL);
     if (pPlayer->weaponQav == kQAVNone)
         return;
-    QAV *pQAV = weaponQAV[pPlayer->weaponQav];
+    auto pQAV = getQAV(pPlayer->weaponQav);
     pQAV->nSprite = pPlayer->pSprite->index;
     int nTicks = pQAV->duration - pPlayer->weaponTimer;
     pQAV->Play(nTicks-4, nTicks, pPlayer->qavCallback, pPlayer);
@@ -281,13 +280,14 @@ void WeaponPlay(PLAYER *pPlayer)
 static void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int callback = -1, bool looped = false)
 {
     assert(nWeaponQAV < kQAVEnd);
+    auto pQAV = getQAV(nWeaponQAV);
     pPlayer->weaponQav = nWeaponQAV;
-    pPlayer->weaponTimer = weaponQAV[nWeaponQAV]->duration;
+    pPlayer->weaponTimer = pQAV->duration;
     pPlayer->qavCallback = callback;
     pPlayer->qavLoop = looped;
-    pPlayer->qavLastTick = I_GetTime(weaponQAV[nWeaponQAV]->ticrate);
-    pPlayer->qavTimer = weaponQAV[nWeaponQAV]->duration;
-    //weaponQAV[nWeaponQAV]->Preload();
+    pPlayer->qavLastTick = I_GetTime(pQAV->ticrate);
+    pPlayer->qavTimer = pQAV->duration;
+    //pQAV->Preload();
     WeaponPlay(pPlayer);
     pPlayer->weaponTimer -= 4;
 }
@@ -2029,10 +2029,11 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))
         {
+            auto pQAV = getQAV(pPlayer->weaponQav);
             while (pPlayer->weaponTimer <= 0)
             {
-                pPlayer->weaponTimer += weaponQAV[pPlayer->weaponQav]->duration;
-                pPlayer->qavTimer += weaponQAV[pPlayer->weaponQav]->duration;
+                pPlayer->weaponTimer += pQAV->duration;
+                pPlayer->qavTimer += pQAV->duration;
             }
         }
         else
