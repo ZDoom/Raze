@@ -2540,7 +2540,7 @@ void actInit(bool bSaveLoad)
 	{
 		if (act->s().type == kItemWeaponVoodooDoll)
 		{
-			act->s().type = kAmmoItemVoodooDoll;
+			act->s().type = kItemAmmoVoodooDoll;
 			break;
 		}
 	}
@@ -2661,7 +2661,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 {
 	uint8_t sectmap[(kMaxSectors + 7) >> 3];
 	auto pOwner = source->GetOwner();
-	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
 	GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
 	nDist <<= 4;
 	if (flags & 2)
@@ -3092,7 +3092,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		break;
 
 	case kDudeTinyCaleb:
-		if (VanillaMode() || DemoRecordStatus())
+		if (cl_bloodvanillaenemies || VanillaMode())
 			break;
 		if (damageType == kDamageBurn && pXSprite->medium == kMediumNormal)
 		{
@@ -3936,7 +3936,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				actBurnSprite(missileActor->GetOwner(), actorHit, 360);
 
 			// by NoOne: make Life Leech heal user, just like it was in 1.0x versions
-			if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus() && pDudeInfo != nullptr)
+			if (gGameOptions.weaponsV10x && !VanillaMode() && pDudeInfo != nullptr)
 			{
 				if (missileOwner->IsDudeActor() && missileOwner->hasX() && missileOwner->x().health != 0)
 					actHealDude(missileOwner, nDamage >> 2, getDudeInfo(missileOwner->s().type)->startHealth);
@@ -4012,7 +4012,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		break;
 
 	case kMissileFireball:
-	case kMissileFireballNapam:
+	case kMissileFireballNapalm:
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
 		{
 			if (pThingInfo && pSpriteHit->type == kThingTNTBarrel && actorHit->x().burnTime == 0)
@@ -4042,7 +4042,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				actRadiusDamage(missileOwner, pMissile->x, pMissile->y, pMissile->z, pMissile->sectnum, 16, 20, 10, kDamageBullet, 6, 480);
 
 				// by NoOne: allow additional bullet damage for Flare Gun
-				if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus())
+				if (gGameOptions.weaponsV10x && !VanillaMode())
 				{
 					int nDamage = (20 + Random(10)) << 4;
 					actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
@@ -4646,11 +4646,15 @@ int MoveThing(spritetype *pSprite)
     assert(nSector >= 0 && nSector < kMaxSectors);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
+    const int bakCompat = enginecompatibility_mode;
     if (xvel[nSprite] || yvel[nSprite])
     {
         short bakCstat = pSprite->cstat;
         pSprite->cstat &= ~257;
+        if ((pSprite->owner >= 0) && !cl_bloodvanillaexplosions && !VanillaMode())
+            enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
         v8 = gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite]>>12, yvel[nSprite]>>12, pSprite->clipdist<<2, (pSprite->z-top)/4, (bottom-pSprite->z)/4, CLIPMASK0);
+        enginecompatibility_mode = bakCompat; // restore
         pSprite->cstat = bakCstat;
         assert(nSector >= 0);
         if (pSprite->sectnum != nSector)
@@ -5012,7 +5016,7 @@ void MoveDude(spritetype *pSprite)
     }
     if (pPlayer && zvel[nSprite] > 0x155555 && !pPlayer->fallScream && pXSprite->height > 0)
     {
-        const bool playerAlive = (pXSprite->health > 0) || VanillaMode() || DemoRecordStatus(); // only trigger falling scream if player is alive or vanilla mode
+        const bool playerAlive = (pXSprite->health > 0) || VanillaMode(); // only trigger falling scream if player is alive or vanilla mode
         if (playerAlive)
         {
             pPlayer->fallScream = 1;
@@ -5110,7 +5114,7 @@ void MoveDude(spritetype *pSprite)
                     break;
                 case kDudeBurningCultist:
                 {
-                    const bool fixRandomCultist = (pSprite->inittype >= kDudeBase) && (pSprite->inittype < kDudeMax) && !VanillaMode() && !DemoRecordStatus(); // fix burning cultists randomly switching types underwater
+                    const bool fixRandomCultist = !cl_bloodvanillaenemies && (pSprite->inittype >= kDudeBase) && (pSprite->inittype < kDudeMax) && !VanillaMode(); // fix burning cultists randomly switching types underwater
                     if (Chance(chance))
                         pSprite->type = kDudeCultistTommy;
                     else
@@ -5427,6 +5431,8 @@ int MoveMissile(spritetype *pSprite)
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     int i = 1;
+    const int bakCompat = enginecompatibility_mode;
+    const bool isFlameSprite = (pSprite->type == kMissileFlameSpray || pSprite->type == kMissileFlameHound); // do not use accurate clipmove for flame based sprites (changes damage too much)
     while (1)
     {
         int x = pSprite->x;
@@ -5434,7 +5440,10 @@ int MoveMissile(spritetype *pSprite)
         int z = pSprite->z;
         int nSector2 = pSprite->sectnum;
         clipmoveboxtracenum = 1;
+        if ((pSprite->owner >= 0) && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
+            enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
         int vdx = ClipMove(&x, &y, &z, &nSector2, vx, vy, pSprite->clipdist<<2, (z-top)/4, (bottom-z)/4, CLIPMASK0);
+        enginecompatibility_mode = bakCompat; // restore
         clipmoveboxtracenum = 3;
         short nSector = nSector2;
         if (nSector2 < 0)
@@ -5547,7 +5556,7 @@ void actExplodeSprite(spritetype *pSprite)
 
     switch (pSprite->type)
     {
-    case kMissileFireballNapam:
+    case kMissileFireballNapalm:
         nType = kExplosionNapalm;
         seqSpawn(4, 3, nXSprite, -1);
         if (Chance(0x8000))
@@ -6004,7 +6013,7 @@ void actProcessSprites(void)
         // the new flag newSectCheckMethod for GetClosestSpriteSectors() does rectify these issues, but this may cause unintended side effects for level scripted explosions
         // so only allow this new checking method for dude spawned explosions
         short gAffectedXWalls[kMaxXWalls];
-        const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+        const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
         GetClosestSpriteSectors(nSector, x, y, radius, sectmap, gAffectedXWalls, newSectCheckMethod);
         
         for (int i = 0; i < kMaxXWalls; i++)
@@ -6197,7 +6206,7 @@ void actProcessSprites(void)
         if (nXSprite > 0)
         {
             XSPRITE *pXSprite = &xsprite[nXSprite];
-            const bool fixBurnGlitch = IsBurningDude(pSprite) && !VanillaMode() && !DemoRecordStatus(); // if enemies are burning, always apply burning damage per tick
+            const bool fixBurnGlitch = !cl_bloodvanillaenemies && IsBurningDude(pSprite) && !VanillaMode(); // if enemies are burning, always apply burning damage per tick
             if ((pXSprite->burnTime > 0) || fixBurnGlitch)
             {
                 switch (pSprite->type)
@@ -6710,7 +6719,7 @@ void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite) {
             seqSpawn(2, 3, nXSprite, -1);
             sfxPlay3DSound(pMissile, 493, 0, 0);
             break;
-        case kMissileFireballNapam:
+        case kMissileFireballNapalm:
             seqSpawn(61, 3, nXSprite, nNapalmClient);
             sfxPlay3DSound(pMissile, 441, 0, 0);
             break;

@@ -619,7 +619,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         mdist = 2500;
                         fallthrough__;
                     case kMissileFireball:
-                    case kMissileFireballNapam:
+                    case kMissileFireballNapalm:
                     case kMissileFireballCerberus:
                     case kMissileFireballTchernobog:
                         if (mdist == defDist) mdist = 3000;
@@ -834,7 +834,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 case kMissileTeslaAlt:
                                 case kMissileFlareAlt:
                                 case kMissileFireball:
-                                case kMissileFireballNapam:
+                                case kMissileFireballNapalm:
                                 case kMissileFireballCerberus:
                                 case kMissileFireballTchernobog: {
                                     // allow attack if dude is far from object, but target is close to it
@@ -1328,7 +1328,7 @@ void scaleDamage(XSPRITE* pXSprite) {
                     curScale[kDmgSpirit] = 32 + Random(18);
                     break;
                 case kMissileFireball:
-                case kMissileFireballNapam:
+                case kMissileFireballNapalm:
                 case kMissileFireballCerberus:
                 case kMissileFireballTchernobog:
                     curScale[kDmgBurn] = 50;

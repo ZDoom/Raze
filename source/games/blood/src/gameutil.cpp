@@ -886,23 +886,20 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
                 int x2 = wall[nWallB].x, y2 = wall[nWallB].y;
                 int nLength = approxDist(x1-x2, y1-y2);
                 const int nDist2 = (nDist+(nDist>>1))<<4;
-                if (nLength > nDist2) // if span is greater than range * 1.5, test midsection
+                nLength = ClipRange(nLength / nDist2, 1, 4); // never split more than 4 times
+                for (int k = 0; true; k++) // subdivide span into smaller chunks towards direction
                 {
-                    nLength = ClipRange(nLength / nDist2, 1, 4); // never split more than 4 times
-                    for (int k = 0; k < nLength; k++) // subdivide span into smaller chunks towards direction
-                    {
-                        const int xcenter = (x1+x2)>>1, ycenter = (y1+y2)>>1;
-                        withinRange = CheckProximityPoint(xcenter, ycenter, 0, x, y, 0, nDist);
-                        if (withinRange)
-                            break;
-                        if ((k+1) == nLength) // reached end, no point in calculating direction/center again
-                            break;
-                        const bool bDir = approxDist(x-x1, y-y1) < approxDist(x-x2, y-y2);
-                        if (bDir) // step closer and check again
-                            x2 = xcenter, y2 = ycenter;
-                        else
-                            x1 = xcenter, y1 = ycenter;
-                    }
+                    const int xcenter = (x1+x2)>>1, ycenter = (y1+y2)>>1;
+                    withinRange = CheckProximityPoint(xcenter, ycenter, 0, x, y, 0, nDist);
+                    if (withinRange)
+                        break;
+                    if (k == (nLength-1)) // reached end
+                        break;
+                    const bool bDir = approxDist(x-x1, y-y1) < approxDist(x-x2, y-y2);
+                    if (bDir) // step closer and check again
+                        x2 = xcenter, y2 = ycenter;
+                    else
+                        x1 = xcenter, y1 = ycenter;
                 }
             }
             if (withinRange) // if new sector is within range, set to current sector and test walls

@@ -318,7 +318,7 @@ static AISTATE* allAIStates[] =
 	&spidSearch,
 	&spidBite,
 	&spidJump,
-	&spid13A92C,
+	&spidBirth,
 	&tchernobogIdle,
 	&tchernobogSearch,
 	&tchernobogChase,

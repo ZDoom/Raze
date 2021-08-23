@@ -151,7 +151,7 @@ static bool checkFired6or7(PLAYER *pPlayer)
         case 6:
             return 1;
         case 7:
-            if (VanillaMode() || DemoRecordStatus())
+            if (VanillaMode())
                 return 0;
             return 1;
         }
@@ -717,7 +717,7 @@ void WeaponLower(PLAYER *pPlayer)
             }
             break;
         case 7: // throwing ignited alt fire spray
-            if (VanillaMode() || DemoRecordStatus() || (pPlayer->newWeapon != 0))
+            if (VanillaMode() || (pPlayer->newWeapon != 0))
                 break;
             pPlayer->weaponState = 1;
             StartQAV(pPlayer, 11, -1, 0);
@@ -1465,7 +1465,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
 
         // by NoOne: trying to simulate v1.0x voodoo here.
         // dunno how exactly it works, but at least it not spend all the ammo on alt fire
-        if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) {
+        if (gGameOptions.weaponsV10x && !VanillaMode()) {
             int nCount = ClipHigh(pPlayer->ammoCount[9], pPlayer->aimTargetsCount);
             if (nCount > 0)
             {
@@ -1622,7 +1622,7 @@ void FireNapalm(int nTrigger, PLAYER *pPlayer)
         offset = 50;
         break;
     }
-    playerFireMissile(pPlayer, offset, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapam);
+    playerFireMissile(pPlayer, offset, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapalm);
     sfxPlay3DSound(pSprite, 480, 2, 0);
     UseAmmo(pPlayer, 4, 1);
     pPlayer->flashEffect = 1;
@@ -1631,8 +1631,8 @@ void FireNapalm(int nTrigger, PLAYER *pPlayer)
 void FireNapalm2(int , PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
-    playerFireMissile(pPlayer, -120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapam);
-    playerFireMissile(pPlayer, 120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapam);
+    playerFireMissile(pPlayer, -120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapalm);
+    playerFireMissile(pPlayer, 120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapalm);
     sfxPlay3DSound(pSprite, 480, 2, 0);
     UseAmmo(pPlayer, 4, 2);
     pPlayer->flashEffect = 1;
@@ -2196,7 +2196,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     if (pPlayer->newWeapon)
     {
-        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkFired6or7(pPlayer) && !VanillaMode() && !DemoRecordStatus()) // skip banned weapons when underwater and using next/prev weapon key inputs
+        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !checkFired6or7(pPlayer) && !VanillaMode()) // skip banned weapons when underwater and using next/prev weapon key inputs
         {
             if (prevNewWeaponVal == WeaponSel_Next || prevNewWeaponVal == WeaponSel_Prev) // if player switched weapons
             {
@@ -2247,7 +2247,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                     pPlayer->newWeapon = kWeapRemote;
             }
         }
-        else if ((pPlayer->newWeapon == kWeapSpraycan) && !VanillaMode() && !DemoRecordStatus())
+        else if ((pPlayer->newWeapon == kWeapSpraycan) && !VanillaMode())
         {
             if ((pPlayer->curWeapon == kWeapSpraycan) && (pPlayer->weaponState == 2)) // fix spray can state glitch when switching from spray to tnt and back quickly
             {
@@ -2570,10 +2570,10 @@ void WeaponProcess(PLAYER *pPlayer) {
         case kWeapNapalm:
             if (powerupCheck(pPlayer, kPwUpTwoGuns))
                 // by NoOne: allow napalm launcher alt fire act like in v1.0x versions
-                if (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) StartQAV(pPlayer, kQAV2NAPFIR2, nClientFireNapalm2);
-                else StartQAV(pPlayer, kQAV2NAPFIRE, nClientAltFireNapalm, 0);
+                if (gGameOptions.weaponsV10x && !VanillaMode()) StartQAV(pPlayer, kQAV2NAPFIR2, nClientFireNapalm2);
+                else StartQAV(pPlayer, kQAV2NAPFIRE, nClientAltFireNapalm);
             else
-                StartQAV(pPlayer, kQAVNAPFIRE, (gGameOptions.weaponsV10x && !VanillaMode() && !DemoRecordStatus()) ? nClientFireNapalm : nClientAltFireNapalm);
+                StartQAV(pPlayer, kQAVNAPFIRE, (gGameOptions.weaponsV10x && !VanillaMode()) ? nClientFireNapalm : nClientAltFireNapalm);
             return;
         case kWeapFlareGun:
             if (CheckAmmo(pPlayer, 1, 8))
@@ -2618,7 +2618,7 @@ void teslaHit(spritetype *pMissile, int a2)
     int nDist = 300;
     int nSector = pMissile->sectnum;
     int nOwner = pMissile->owner;
-    const bool newSectCheckMethod = !VanillaMode() && !DemoRecordStatus(); // use new sector checking logic
+    const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
     GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
     bool v4 = true;
     DBloodActor* actor = nullptr;
