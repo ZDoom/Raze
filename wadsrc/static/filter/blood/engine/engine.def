@@ -211,7 +211,7 @@ defineqav 10021 {
 	interpolate {
 		type "index"
 		ignore {
-			frames 6-65 tiles 0-7
+			frames 6-65 tiles all
 		}
 	}
 }
@@ -488,7 +488,7 @@ defineqav 10066 {
 		type "index"
 		loopable
 		ignore {
-			frames 0-7 tiles 0
+			frames all tiles 0
 		}
 	}
 }
@@ -523,10 +523,10 @@ defineqav 10071 {
 		type "index"
 		loopable
 		ignore {
-			frames 0-7 tiles 0
+			frames all tiles 0
 		}
 		ignore {
-			frames 0-7 tiles 2
+			frames all tiles 2
 		}
 	}
 }
@@ -859,7 +859,7 @@ defineqav 10256 {
 		type "x"
 		loopable
 		ignore {
-			frames 0-23 tiles 0
+			frames all tiles 0
 		}
 	}
 }

@@ -2045,18 +2045,25 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id
 
 	auto arraybuilder = [&](const FString& input, TArray<int>& output, const int& maxvalue) -> bool
 	{
-		// Split input if it is an array, otherwise push the singular value twice.
-		if (input.IndexOf("-") != -1)
+		if (input.CompareNoCase("all") == 0)
 		{
+			// All indices from 0 through to maxvalue are to be added to output array.
+			output.Push(0);
+			output.Push(maxvalue);
+		}
+		else if (input.IndexOf("-") != -1)
+		{
+			// Input is a range of values, split on the hypthen and add each value to the output array.
 			auto temparray = input.Split("-");
 			for (auto& value : temparray) output.Push(atoi(value));
 		}
 		else
 		{
+			// We just have a number. Convert the string into an int and push it twice to the output array.
 			auto tempvalue = atoi(input);
 			for (auto i = 0; i < 2; i++) output.Push(tempvalue);
 		}
-		if (output.Size() != 2 || output[0] > output[1] || output[1] > maxvalue)
+		if (output.Size() != 2 || output[0] > output[1] || output[0] < 0 || output[1] > maxvalue)
 		{
 			pos.Message(MSG_ERROR, "defineqav (%d): interpolate: ignore: value of '%s' is malformed, unable to continue", res_id, input.GetChars());
 			return false;
