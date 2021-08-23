@@ -914,7 +914,7 @@ LumpShortName& FileSystem::GetShortName(int i)
 
 FString& FileSystem::GetLongName(int i)
 {
-	if ((unsigned)i >= NumEntries) I_Error("GetShortName: Invalid index");
+	if ((unsigned)i >= NumEntries) I_Error("GetLongName: Invalid index");
 	return FileInfo[i].longName;
 }
 
