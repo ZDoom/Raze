@@ -260,7 +260,7 @@ class ListMenu : Menu
 			{
 				for(int i=0;i<mDesc.mItems.Size(); i++)
 				{
-					if (mDesc.mItems[i].CheckCoordinate(x, y))
+					if (mDesc.mItems[i].Selectable() && mDesc.mItems[i].CheckCoordinate(x, y))
 					{
 						if (i != mDesc.mSelectedItem)
 						{
