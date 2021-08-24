@@ -374,8 +374,9 @@ grpinfo
 
 grpinfo
 {
-    name "Duke: Alien World Order"
-    dependency DUKE15_CRC
+	name "Duke: Alien World Order"
+	dependency DUKE15_CRC
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
 	mustcontain "FIREFLYTROOPER.CON", "FLAMETHROWER.CON", "music/E5L1_BulletDam.ogg", "sound/VO_E5L1_Duke_CreamAndSugar.ogg"
 	gamefilter "Duke.Worldtour"
 	GameID "DukeWorldTour"
