@@ -840,9 +840,6 @@ TArray<GrpEntry> GrpScan()
 	sortedFileList.Delete(0, findex + 1);
 	sortedGroupList.Delete(0, gindex + 1);
 
-	if (sortedGroupList.Size() == 0 || sortedFileList.Size() == 0)
-		return foundGames;
-
 	for (auto entry : sortedFileList)
 	{
 		GetCRC(entry, cachedCRCs);
