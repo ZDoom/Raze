@@ -117,25 +117,21 @@ void GameInterface::RemoveQAVInterpProps(const int& res_id)
 }
 
 
-void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int stat, int shade, int palnum, bool to3dview)
+void DrawFrame(double x, double y, double z, double a, double alpha, int picnum, int stat, int shade, int palnum, bool to3dview)
 {
-    stat |= pTile->stat;
-    if (palnum <= 0) palnum = pTile->palnum;
-
     if (!to3dview)
     {
-		auto tex = tileGetTexture(pTile->picnum);
+		auto tex = tileGetTexture(picnum);
 		double scale = z * (1. / 65536.);
 		double angle = a * BAngToDegree;
 		int renderstyle = (stat & RS_NOMASK)? STYLE_Normal : STYLE_Translucent;
-		double alpha = (stat & RS_TRANS1)? glblend[0].def[!!(stat & RS_TRANS2)].alpha : 1.;
 		int pin = (stat & kQavOrientationLeft)? -1 : (stat & RS_ALIGN_R)? 1:0;
 		auto translation = TRANSLATION(Translation_Remap, palnum);
 		bool topleft = !!(stat & RS_TOPLEFT);
 
 		bool xflip = !!(stat & 0x100); // repurposed flag
 		bool yflip = !!(stat & RS_YFLIP);
-		auto color = shadeToLight(pTile->shade + shade);
+		auto color = shadeToLight(shade);
 
 		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
 					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, FSMode_Fit320x200, DTA_FlipOffsets, true, DTA_Color, color,
@@ -151,7 +147,7 @@ void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int st
 		if ((stat & kQavOrientationLeft)) stat |= RS_ALIGN_L;
         stat &= ~kQavOrientationLeft;
 
-		hud_drawsprite(x, y, z, a, pTile->picnum, pTile->shade + shade, palnum, stat);
+		hud_drawsprite(x, y, z, a, picnum, shade, palnum, stat, alpha);
     }
 }
 
@@ -184,6 +180,9 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
             double tileY = y;
             double tileZ;
             double tileA;
+            double tileAlpha;
+            int tileShade;
+            auto const tileStat = stat | thisTile->stat;
 
             if (prevTile)
             {
@@ -191,6 +190,10 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
                 tileY += interpolatedvaluef(prevTile->y, thisTile->y, smoothratio);
                 tileZ = interpolatedvaluef(prevTile->z, thisTile->z, smoothratio);
                 tileA = interpolatedangle(buildang(prevTile->angle), buildang(thisTile->angle), smoothratio).asbuildf();
+                tileShade = interpolatedvalue(prevTile->shade, thisTile->shade, smoothratio) + shade;
+                auto prevAlpha = ((stat | prevTile->stat) & RS_TRANS1) ? glblend[0].def[!!((stat | prevTile->stat) & RS_TRANS2)].alpha : 1.;
+                auto thisAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.;
+                tileAlpha = interpolatedvaluef(prevAlpha, thisAlpha, smoothratio);
             }
             else
             {
@@ -198,9 +201,11 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
                 tileY += thisTile->y;
                 tileZ = thisTile->z;
                 tileA = thisTile->angle;
+                tileShade = thisTile->shade + shade;
+                tileAlpha = (tileStat & RS_TRANS1) ? glblend[0].def[!!(tileStat & RS_TRANS2)].alpha : 1.;
             }
 
-            DrawFrame(tileX, tileY, tileZ, tileA, thisTile, stat, shade, palnum, to3dview);
+            DrawFrame(tileX, tileY, tileZ, tileA, tileAlpha, thisTile->picnum, tileStat, tileShade, (palnum <= 0 ? thisTile->palnum : palnum), to3dview);
         }
     }
 }
