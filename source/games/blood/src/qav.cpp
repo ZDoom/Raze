@@ -49,8 +49,8 @@ using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO*
 
 struct QAVInterpProps
 {
-    int flags;
     QAVPrevTileFinder PrevTileFinder;
+    int flags;
     TMap<int, TArray<int>> IgnoreData;
 
     bool CanInterpFrameTile(const int& nFrame, const int& i)
@@ -108,7 +108,7 @@ bool GameInterface::IsQAVInterpTypeValid(const FString& type)
 
 void GameInterface::AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata)
 {
-    qavInterpProps.Insert(res_id, { loopable ? kQAVIsLoopable : 0, qavGetInterpType(interptype), ignoredata });
+    qavInterpProps.Insert(res_id, { qavGetInterpType(interptype), loopable ? kQAVIsLoopable : 0, ignoredata });
 }
 
 void GameInterface::RemoveQAVInterpProps(const int& res_id)
@@ -156,7 +156,7 @@ void DrawFrame(double x, double y, double z, double a, TILE_FRAME *pTile, int st
 }
 
 
-static QAVInterpProps forcedinterpdata{ 0, qavGetInterpType("picnum") };
+static QAVInterpProps forcedinterpdata{qavGetInterpType("picnum")};
 
 void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio)
 {
