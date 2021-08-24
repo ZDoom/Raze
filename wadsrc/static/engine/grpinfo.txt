@@ -464,22 +464,6 @@ grpinfo
 
 grpinfo
 {
-	name "BLOOD: One Unit Whole Blood"
-	size 9570681
-	crc BLOOD_CRC
-	defname "blood.def"
-	scriptname "BLOOD.INI"
-	flags GAMEFLAG_BLOOD
-	dependency 0
-	loadgrp "SOUNDS.RFF", "GUI.RFF"
-	gamefilter "Blood.Blood"
-	FgColor 0
-	BkColor 0x7f002f
-	GameID "Blood"
-}
-
-grpinfo
-{
 	// This is for identifying older Blood versions. Since I have no information, all I can do is testing for a few known files.
 	name "BLOOD: Unknown Version"
 	mustcontain "help1.qav", "normal.plu", "inverse.clu", "cosine.dat", "blood.pal"
