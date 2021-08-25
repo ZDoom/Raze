@@ -5406,7 +5406,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 		if (clipmoveresult.type == kHitSprite)
 		{
-			gHitInfo.hitsprite = clipmoveresult.legacyVal;
+			gHitInfo.hitsprite = clipmoveresult.legacyVal & kHitIndexMask;
 			cliptype = 3;
 		}
 		else if (clipmoveresult.type == kHitWall)
