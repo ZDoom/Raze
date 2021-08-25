@@ -869,8 +869,12 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
             if (TestBitString(sectbits, nNextSector)) // if we've already checked this sector, skip
                 continue;
             bool setSectBit = true;
-            bool withinRange = CheckProximityWall(pWall->point2, x, y, nDist);
-            if (newSectCheckMethod && !withinRange) // if range check failed, try comparing midpoints/subdivides of wall span
+            bool withinRange = false;
+            if (!newSectCheckMethod) // original method
+            {
+                withinRange = CheckProximityWall(pWall->point2, x, y, nDist);
+            }
+            else // new method - first test edges and then wall span midpoints
             {
                 for (int k = (j+1); k < nEndWall; k++) // scan through the rest of the sector's walls
                 {
@@ -884,27 +888,34 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
                 const int nWallB = wall[nWallA].point2;
                 int x1 = wall[nWallA].x, y1 = wall[nWallA].y;
                 int x2 = wall[nWallB].x, y2 = wall[nWallB].y;
+                int point1Dist = approxDist(x-x1, y-y1); // setup edge distance needed for below loop (determines which point to shift closer to center)
+                int point2Dist = approxDist(x-x2, y-y2);
                 int nLength = approxDist(x1-x2, y1-y2);
-                const int nDist2 = (nDist+(nDist>>1))<<4;
-                nLength = ClipRange(nLength / nDist2, 1, 4); // never split more than 4 times
-                for (int k = 0; true; k++) // subdivide span into smaller chunks towards direction
+                const int nDist4 = nDist<<4;
+                nLength = ClipRange(nLength / (nDist4+(nDist4>>1)), 1, 4); // always test midpoint at least once, and never split more than 4 times
+                for (int k = 0; true; k++) // check both points of wall and subdivide span into smaller chunks towards target
                 {
-                    const int xcenter = (x1+x2)>>1, ycenter = (y1+y2)>>1;
-                    withinRange = CheckProximityPoint(xcenter, ycenter, 0, x, y, 0, nDist);
+                    withinRange = (point1Dist < nDist4) || (point2Dist < nDist4); // check if both points of span is within radius
                     if (withinRange)
                         break;
-                    if (k == (nLength-1)) // reached end
+                    if (k == nLength) // reached end
                         break;
-                    const bool bDir = approxDist(x-x1, y-y1) < approxDist(x-x2, y-y2);
-                    if (bDir) // step closer and check again
+                    const int xcenter = (x1+x2)>>1, ycenter = (y1+y2)>>1;
+                    if (point1Dist < point2Dist) // shift closest side of wall towards target point, and refresh point distance values
+                    {
                         x2 = xcenter, y2 = ycenter;
+                        point2Dist = approxDist(x-x2, y-y2);
+                    }
                     else
+                    {
                         x1 = xcenter, y1 = ycenter;
+                        point1Dist = approxDist(x-x1, y-y1);
+                    }
                 }
             }
             if (withinRange) // if new sector is within range, set to current sector and test walls
             {
-                setSectBit = true; // sector is within range, set as checked
+                setSectBit = true; // sector is within range, set the sector as checked
                 if (pSectBit)
                     SetBitString(pSectBit, nNextSector);
                 pSectors[n++] = nNextSector;
