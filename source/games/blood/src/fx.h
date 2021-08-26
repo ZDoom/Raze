@@ -91,16 +91,16 @@ enum FX_ID {
 
 class CFX {
 public:
-    void destroy(int);
-    void remove(int);
+    void destroy(DBloodActor*);
+    void remove(DBloodActor*);
     DBloodActor* fxSpawnActor(FX_ID, int, int, int, int, unsigned int);
     void fxProcess(void);
 };
 
-void fxSpawnBlood(spritetype *pSprite, int a2);
-void sub_746D4(spritetype *pSprite, int a2);
-void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4);
-void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4);
+void fxSpawnBlood(DBloodActor* pSprite, int a2);
+void fxSpawnPodStuff(DBloodActor *pSprite, int a2);
+void fxSpawnEjectingBrass(DBloodActor*pSprite, int z, int a3, int a4);
+void fxSpawnEjectingShell(DBloodActor*pSprite, int z, int a3, int a4);
 
 extern CFX gFX;
 

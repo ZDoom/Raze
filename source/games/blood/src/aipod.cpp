@@ -117,7 +117,7 @@ void podAttack(int, DBloodActor* actor)
         break;
     }
     for (int i = 0; i < 4; i++)
-        sub_746D4(pSprite, 240);
+        fxSpawnPodStuff(actor, 240);
 }
 
 //---------------------------------------------------------------------------
