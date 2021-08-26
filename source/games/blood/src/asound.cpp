@@ -45,17 +45,15 @@ void ambProcess(void)
 {
     if (!SoundEnabled())
         return;
-    int nSprite;
-    StatIterator it(kStatAmbience);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatAmbience);
+    while (DBloodActor* actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype *pSprite = &actor->s();
         if (pSprite->owner < 0 || pSprite->owner >= kMaxAmbChannel)
             continue;
-        int nXSprite = pSprite->extra;
-        if (nXSprite > 0 && nXSprite < kMaxXSprites)
+        if (actor->hasX())
         {
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            XSPRITE *pXSprite = &actor->x();
             if (pXSprite->state)
             {
                 int dx = pSprite->x-gMe->pSprite->x;
@@ -109,13 +107,13 @@ void ambInit(void)
 {
     ambKillAll();
     memset(ambChannels, 0, sizeof(ambChannels));
-    int nSprite;
-    StatIterator it(kStatAmbience);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatAmbience);
+    while (DBloodActor* actor = it.Next())
     {
-        if (sprite[nSprite].extra <= 0 || sprite[nSprite].extra >= kMaxXSprites) continue;
+        spritetype* pSprite = &actor->s();
+        if (!actor->hasX()) continue;
         
-        XSPRITE *pXSprite = &xsprite[sprite[nSprite].extra];
+        XSPRITE* pXSprite = &actor->x();
         if (pXSprite->data1 >= pXSprite->data2) continue;
         
         int i; AMB_CHANNEL *pChannel = ambChannels;
@@ -125,7 +123,7 @@ void ambInit(void)
         if (i == nAmbChannels) {
             
             if (i >= kMaxAmbChannel) {
-                sprite[nSprite].owner = -1;
+                pSprite->owner = -1;
                 continue;
             }
                     
@@ -133,8 +131,8 @@ void ambInit(void)
             auto snd = soundEngine->FindSoundByResID(nSFX);
             if (!snd) {
                 //I_Error("Missing sound #%d used in ambient sound generator %d\n", nSFX);
-                viewSetSystemMessage("Missing sound #%d used in ambient sound generator #%d\n", nSFX, nSprite);
-                actPostSprite(nSprite, kStatDecoration);
+                viewSetSystemMessage("Missing sound #%d used in ambient sound generator #%d\n", nSFX, actor->s().index);
+                actPostSprite(actor, kStatDecoration);
                 continue;
             }
 
@@ -145,7 +143,7 @@ void ambInit(void)
 
         }
 
-        sprite[nSprite].owner = i;
+        pSprite->owner = i;
     }
 }
 
