@@ -40,17 +40,12 @@ extern void (*qavClientCallback[])(int, void *);
 //
 //==========================================================================
 
-enum
-{
-    kQAVIsLoopable = 1 << 0,
-};
-
 using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i);
 
 struct QAVInterpProps
 {
     QAVPrevTileFinder PrevTileFinder;
-    int flags;
+    bool loopable;
     TMap<int, TArray<int>> IgnoreData;
 
     bool CanInterpFrameTile(const int& nFrame, const int& i)
@@ -108,7 +103,7 @@ bool GameInterface::IsQAVInterpTypeValid(const FString& type)
 
 void GameInterface::AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata)
 {
-    qavInterpProps.Insert(res_id, { qavGetInterpType(interptype), loopable ? kQAVIsLoopable : 0, ignoredata });
+    qavInterpProps.Insert(res_id, { qavGetInterpType(interptype), loopable, ignoredata });
 }
 
 void GameInterface::RemoveQAVInterpProps(const int& res_id)
@@ -164,7 +159,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
     auto const nFrame = clamp(ticks / ticksPerFrame, 0, nFrames - 1);
     FRAMEINFO* const thisFrame = &frames[nFrame];
 
-    auto const oFrame = clamp((nFrame == 0 && (interpdata && (interpdata->flags & kQAVIsLoopable)) ? nFrames : nFrame) - 1, 0, nFrames - 1);
+    auto const oFrame = clamp((nFrame == 0 && interpdata && interpdata->loopable ? nFrames : nFrame) - 1, 0, nFrames - 1);
     FRAMEINFO* const prevFrame = &frames[oFrame];
 
     bool const interpolate = interpdata && cl_hudinterpolation && cl_bloodqavinterp && (nFrames > 1) && (nFrame != oFrame) && (smoothratio != MaxSmoothRatio);
