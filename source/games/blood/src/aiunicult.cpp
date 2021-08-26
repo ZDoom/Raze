@@ -1890,7 +1890,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
                 {
                     missile->SetOwner(actor);
                     pXSprite->stateTimer = 1;
-                    evPost(pSprite->index, 3, t2, kCallbackLeechStateTimer);
+                    evPost(actor, t2, kCallbackLeechStateTimer);
                     pXSprite->data3 = ClipLow(pXSprite->data3 - 1, 0);
                 }
                 pSprite->ang = angBak;

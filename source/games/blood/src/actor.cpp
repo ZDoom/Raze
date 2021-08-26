@@ -6656,14 +6656,13 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 {
 	auto pMissile = &spawned->s();
-    int nMissile = pMissile->index;
 	switch (pMissile->type)
     {
         case kMissileLifeLeechRegular:
-            evPost(nMissile, 3, 0, kCallbackFXFlameLick);
+            evPost(spawned, 0, kCallbackFXFlameLick);
             break;
         case kMissileTeslaAlt:
-            evPost(nMissile, 3, 0, kCallbackFXTeslaAlt);
+            evPost(spawned, 0, kCallbackFXTeslaAlt);
             break;
         case kMissilePukeGreen:
 		seqSpawn(29, spawned, -1);

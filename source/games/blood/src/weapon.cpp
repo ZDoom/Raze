@@ -1086,7 +1086,7 @@ void ThrowCan(int, PLAYER *pPlayer)
     if (pSprite)
     {
         sfxPlay3DSound(pSprite, 441, 0, 0);
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPost_(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
         pXSprite->Impact = 1;
@@ -1101,7 +1101,7 @@ void DropCan(int, PLAYER *pPlayer)
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
     if (pSprite)
     {
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPost_(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
     }
 }
@@ -1110,7 +1110,7 @@ void ExplodeCan(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, -1, 441);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
-    evPost(pSprite->index, 3, 0, kCmdOn);
+    evPost_(pSprite->index, 3, 0, kCmdOn);
     UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
     StartQAV(pPlayer, kQAVCANBOOM);
     pPlayer->curWeapon = kWeapNone;
@@ -1128,7 +1128,7 @@ void ThrowBundle(int, PLAYER *pPlayer)
     if (pPlayer->fuseTime < 0)
         pXSprite->Impact = 1;
     else
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPost_(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
     pPlayer->throwPower = 0;
 }
@@ -1137,7 +1137,7 @@ void DropBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
-    evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+    evPost_(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
 }
 
@@ -1145,7 +1145,7 @@ void ExplodeBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
-    evPost(pSprite->index, 3, 0, kCmdOn);
+    evPost_(pSprite->index, 3, 0, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
     StartQAV(pPlayer, kQAVDYNEXPLO);
     pPlayer->curWeapon = kWeapNone;
@@ -1157,7 +1157,7 @@ void ThrowProx(int, PLAYER *pPlayer)
     int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
     spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedProxBomb, nSpeed);
-    evPost(pSprite->index, 3, 240, kCmdOn);
+    evPost_(pSprite->index, 3, 240, kCmdOn);
     UseAmmo(pPlayer, 10, 1);
     pPlayer->throwPower = 0;
 }
@@ -1165,7 +1165,7 @@ void ThrowProx(int, PLAYER *pPlayer)
 void DropProx(int, PLAYER *pPlayer)
 {
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedProxBomb, 0);
-    evPost(pSprite->index, 3, 240, kCmdOn);
+    evPost_(pSprite->index, 3, 240, kCmdOn);
     UseAmmo(pPlayer, 10, 1);
 }
 
@@ -1577,7 +1577,7 @@ void DropVoodoo(int , PLAYER *pPlayer)
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
         pXSprite->data1 = pPlayer->ammoCount[9];
-        evPost(pSprite->index, 3, 90, kCallbackDropVoodoo);
+        evPost_(pSprite->index, 3, 90, kCallbackDropVoodoo);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
         UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);
         pPlayer->hasWeapon[10] = 0;
@@ -1679,7 +1679,7 @@ void AltFireNapalm(int , PLAYER *pPlayer)
         UseAmmo(pPlayer, 4, pXSprite->data4);
         seqSpawn(22, 3, pMissile->extra, -1);
         actBurnSprite(pPlayer->pSprite->index, pXSprite, 600);
-        evPost(pMissile->index, 3, 0, kCallbackFXFlameLick);
+        evPost_(pMissile->index, 3, 0, kCallbackFXFlameLick);
         sfxPlay3DSound(pMissile, 480, 2, 0);
         pPlayer->visibility = 30;
         pPlayer->flashEffect = 1;
@@ -1722,7 +1722,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
         pXSprite->DudeLockout = 1;
         pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         pXSprite->stateTimer = 1;
-        evPost(pMissile->index, 3, 120, kCallbackLeechStateTimer);
+        evPost_(pMissile->index, 3, 120, kCallbackLeechStateTimer);
         if (gGameOptions.nGameType <= 1)
         {
             int nAmmo = pPlayer->ammoCount[8];

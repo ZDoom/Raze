@@ -77,7 +77,8 @@ void FlareBurst(DBloodActor* actor, int) // 2
     int nRadius = 0x55555;
     for (int i = 0; i < 8; i++)
     {
-        spritetype *pSpawn = &actSpawnSprite(actor, 5)->s();
+        auto spawnedactor = actSpawnSprite(actor, 5);
+        spritetype *pSpawn = &spawnedactor->s();
         pSpawn->picnum = 2424;
         pSpawn->shade = -128;
         pSpawn->xrepeat = pSpawn->yrepeat = 32;
@@ -97,7 +98,7 @@ void FlareBurst(DBloodActor* actor, int) // 2
         xvel[pSpawn->index] += dx;
         yvel[pSpawn->index] += dy;
         zvel[pSpawn->index] += dz;
-        evPost(pSpawn->index, 3, 960, kCallbackRemove);
+        evPost(spawnedactor, 960, kCallbackRemove);
     }
     evPost(actor, 0, kCallbackRemove);
 }
@@ -369,7 +370,7 @@ void CounterCheck(DBloodActor*, int nSector) // 12
     }
         
     if (nCount < nReq) {
-        evPost(nSector, 6, 5, kCallbackCounterCheck);
+        evPostSector(nSector, 5, kCallbackCounterCheck);
         return;
     } else {
         //pXSector->waitTimeA = 0; //do not reset necessary objects counter to zero
@@ -519,7 +520,7 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
                 break;
         }
     }
-    evPost(pSprite->index, 3, 0, kCallbackRemove);
+    evPost(actor, 0, kCallbackRemove);
 }
 
 void fxPodBloodSpray(DBloodActor* actor, int) // 18

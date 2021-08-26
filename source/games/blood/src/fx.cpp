@@ -189,7 +189,7 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
     if (a6 == 0)
         a6 = pFX->ate;
     if (a6)
-        evPost((int)pSprite->index, 3, a6+Random2(a6>>1), kCallbackRemove);
+        evPost(actor, a6+Random2(a6>>1), kCallbackRemove);
     return pSprite;
 }
 
@@ -275,11 +275,12 @@ void fxSpawnBlood(spritetype *pSprite, int )
     spritetype *pBlood = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pBlood)
     {
+        auto bloodactor = &bloodActors[pBlood->index];
         pBlood->ang = 1024;
-        xvel[pBlood->index] = Random2(0x6aaaa);
-        yvel[pBlood->index] = Random2(0x6aaaa);
-        zvel[pBlood->index] = -(int)Random(0x10aaaa)-100;
-        evPost(pBlood->index, 3, 8, kCallbackFXBloodSpurt);
+        bloodactor->xvel() = Random2(0x6aaaa);
+        bloodactor->yvel() = Random2(0x6aaaa);
+        bloodactor->zvel() = -(int)Random(0x10aaaa)-100;
+        evPost(bloodactor, 8, kCallbackFXBloodSpurt);
     }
 }
 
@@ -299,11 +300,12 @@ void sub_746D4(spritetype *pSprite, int )
         pSpawn = gFX.fxSpawn(FX_54, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pSpawn)
     {
+        auto spawnactor = &bloodActors[pSpawn->index];
         pSpawn->ang = 1024;
-        xvel[pSpawn->index] = Random2(0x6aaaa);
-        yvel[pSpawn->index] = Random2(0x6aaaa);
-        zvel[pSpawn->index] = -(int)Random(0x10aaaa)-100;
-        evPost(pSpawn->index, 3, 8, kCallbackFXPodBloodSpray);
+        spawnactor->xvel() = Random2(0x6aaaa);
+        spawnactor->yvel() = Random2(0x6aaaa);
+        spawnactor->zvel() = -(int)Random(0x10aaaa)-100;
+        evPost(spawnactor, 8, kCallbackFXPodBloodSpray);
     }
 }
 
