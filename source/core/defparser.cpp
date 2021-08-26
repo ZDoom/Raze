@@ -2026,7 +2026,7 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id
 
 	if (sc.StartBraces(&blockend))
 	{
-		pos.Message(MSG_ERROR, "defineqav (%d): interpolate: malformed syntax, unable to continue", res_id);
+		pos.Message(MSG_ERROR, "defineqav (%d): interpolate: ignore: malformed syntax, unable to continue", res_id);
 		return false;
 	}
 	while (!sc.FoundEndBrace(blockend))
@@ -2039,7 +2039,7 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id
 	// Confirm we received something for 'frames' and 'tiles'.
 	if (scframes.IsEmpty() || sctiles.IsEmpty())
 	{
-		pos.Message(MSG_ERROR, "defineqav (%d): interpolate: unable to get any values for 'frames' or 'tiles', unable to continue", res_id);
+		pos.Message(MSG_ERROR, "defineqav (%d): interpolate: ignore: unable to get any values for 'frames' or 'tiles', unable to continue", res_id);
 		return false;
 	}
 
@@ -2102,7 +2102,7 @@ static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int& res_id, cons
 
 	if (sc.StartBraces(&blockend))
 	{
-		pos.Message(MSG_ERROR, "defineqav (%d): interpolate (%s): malformed syntax, unable to continue", res_id, interptype.GetChars());
+		pos.Message(MSG_ERROR, "defineqav (%d): interpolate: malformed syntax, unable to continue", res_id);
 		return false;
 	}
 	while (!sc.FoundEndBrace(blockend))
@@ -2112,13 +2112,13 @@ static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int& res_id, cons
 		{
 			if (interptype.IsNotEmpty())
 			{
-				pos.Message(MSG_ERROR, "defineqav (%d): interpolate (%s): more than one interpolation type defined, unable to continue", res_id, interptype.GetChars());
+				pos.Message(MSG_ERROR, "defineqav (%d): interpolate: more than one interpolation type defined, unable to continue", res_id);
 				return false;
 			}
 			sc.GetString(interptype);
 			if (!gi->IsQAVInterpTypeValid(interptype))
 			{
-				pos.Message(MSG_ERROR, "defineqav (%d): interpolate (%s): interpolation type not found", res_id, interptype.GetChars());
+				pos.Message(MSG_ERROR, "defineqav (%d): interpolate: interpolation type not found", res_id);
 				return false;
 			}
 		}
