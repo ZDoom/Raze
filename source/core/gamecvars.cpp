@@ -90,6 +90,7 @@ CVARD(Bool, cl_bloodqavinterp, true, CVAR_ARCHIVE, "enable/disable Blood's QAV i
 CVARD(Bool, cl_bloodqavforcedinterp, false, CVAR_ARCHIVE, "enable/disable Blood's QAV interpolation forcefully for QAVs that aren't defined as interpolatable")
 CVARD(Bool, cl_bloodweapinterp, false, CVAR_ARCHIVE, "enable/disable Blood's weapon interpolation. Depends on 'cl_bloodqavinterp'")
 CVARD(Bool, cl_bloodoldweapbalance, false, CVAR_ARCHIVE, "enable/disable legacy 1.0 weapon handling for Blood")
+CVARD(Bool, cl_loadingscreens, true, CVAR_ARCHIVE, "enable/disable loading screens for games")
 
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")

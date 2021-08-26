@@ -222,10 +222,10 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 				if  (tocluster == nullptr || !CreateCutscene(&tocluster->intro, runner, toMap, !!fromMap))
 					CreateCutscene(&globalCutscenes.DefaultMapIntro, runner, toMap, !!fromMap);
 			}
-			// Skip the load screen if the level is started from the console.
+			// Skip the load screen if the level is started from the console or loading screens are disabled.
 			// In this case the load screen is not helpful as it blocks the actual level start, 
 			// requiring closing and reopening the console first before entering any commands that need the level.
-			if (ConsoleState == c_up || ConsoleState == c_rising)
+			if ((ConsoleState == c_up || ConsoleState == c_rising) && cl_loadingscreens)
 				CreateCutscene(&globalCutscenes.LoadingScreen, runner, toMap, true);
 		}
 		else if (isShareware())
