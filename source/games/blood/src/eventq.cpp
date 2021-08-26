@@ -518,7 +518,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 //
 //---------------------------------------------------------------------------
 
-void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
+void evPost_(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 {
 	assert(command != kCmdCallback);
 	if (command == kCmdState) command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
@@ -527,7 +527,7 @@ void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 	queue.insert(evn);
 }
 
-void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
+void evPost_(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 {
 	EVENT evn = { (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
@@ -536,12 +536,22 @@ void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 
 void evPost(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost(actor->s().index, 3, nDelta, command);
+	evPost_(actor->s().index, OBJ_SPRITE, nDelta, command);
 }
 
 void evPost(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost(actor->s().index, 3, nDelta, callback);
+	evPost_(actor->s().index, OBJ_SPRITE, nDelta, callback);
+}
+
+void evPostSector(int index, unsigned int nDelta, COMMAND_ID command)
+{
+	evPost_(index, OBJ_SECTOR, nDelta, command);
+}
+
+void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback)
+{
+	evPost_(index, OBJ_SECTOR, nDelta, callback);
 }
 
 //---------------------------------------------------------------------------

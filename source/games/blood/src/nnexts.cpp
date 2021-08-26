@@ -1544,7 +1544,7 @@ void debrisBubble(int nSprite)
     }
     
     if (Chance(0x2000))
-        evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
+        evPost_(nSprite, 3, 0, kCallbackEnemeyBubble);
 }
 
 void debrisMove(int listIndex) 
@@ -1666,10 +1666,10 @@ void debrisMove(int listIndex)
                     if (!spriteIsUnderwater(actor)) {
                     evKill(pSprite->index, 3, kCallbackEnemeyBubble);
                     } else {
-                        evPost(pSprite->index, 3, 0, kCallbackEnemeyBubble);
+                        evPost_(pSprite->index, 3, 0, kCallbackEnemeyBubble);
                     for (int i = 2; i <= 5; i++) {
                             if (Chance(0x5000 * i))
-                                evPost(pSprite->index, 3, Random(5), kCallbackEnemeyBubble);
+                                evPost_(pSprite->index, 3, Random(5), kCallbackEnemeyBubble);
                     }
                 }
                 break;
@@ -2259,7 +2259,7 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
             gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
             gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
             gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
-            evPost(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+            evPost_(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
 
         }
 
@@ -2806,7 +2806,7 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
             
             fxId = gEffectGenCallbacks[fxId - kEffectGenCallbackBase];
             evKill(pSprite->index, OBJ_SPRITE, (CALLBACK_ID)fxId);
-            evPost(pSprite->index, OBJ_SPRITE, 0, (CALLBACK_ID)fxId);
+            evPost_(pSprite->index, OBJ_SPRITE, 0, (CALLBACK_ID)fxId);
 
         }
         
@@ -3082,7 +3082,7 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
                     if (pXSprite->burnTime > 0) break;
                     actBurnSprite(pSource->index, pXSprite, ClipLow(dmg >> 1, 128));
                     evKill(pSprite->index, OBJ_SPRITE, kCallbackFXFlameLick);
-                    evPost(pSprite->index, OBJ_SPRITE, 0, kCallbackFXFlameLick); // show flames
+                    evPost_(pSprite->index, OBJ_SPRITE, 0, kCallbackFXFlameLick); // show flames
                     break;
                 case kDmgElectric:
                     forceRecoil = true; // show tesla recoil animation
@@ -3234,7 +3234,7 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
                             }
 
                             // should be: the more is seqs, the shorter is timer
-                            evPost(nSprite, OBJ_SPRITE, 1000, kCallbackRemove);
+                            evPost_(nSprite, OBJ_SPRITE, 1000, kCallbackRemove);
                         }
                     } else {
 
@@ -4165,7 +4165,7 @@ char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
     
     evKill(nSprite, 3);
     if (pXSprite->restState != nState && pXSprite->waitTime > 0)
-        evPost(nSprite, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+        evPost_(nSprite, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
 
     if (pXSprite->txID != 0 && ((pXSprite->triggerOn && pXSprite->state) || (pXSprite->triggerOff && !pXSprite->state)))
         modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
@@ -4649,7 +4649,7 @@ void sectorContinueMotion(int nSector, EVENT event) {
     switch (event.cmd) {
         case kCmdOff:
             if (pXSector->busy == 0) {
-                if (pXSector->reTriggerB && waitTimeB) evPost(nSector, OBJ_SECTOR, (waitTimeB * 120) / 10, kCmdOff);
+                if (pXSector->reTriggerB && waitTimeB) evPost_(nSector, OBJ_SECTOR, (waitTimeB * 120) / 10, kCmdOff);
                 return;
             }
             pXSector->state = 1;
@@ -4657,7 +4657,7 @@ void sectorContinueMotion(int nSector, EVENT event) {
             break;
         case kCmdOn:
             if (pXSector->busy == 65536) {
-                if (pXSector->reTriggerA && waitTimeA) evPost(nSector, OBJ_SECTOR, (waitTimeA * 120) / 10, kCmdOn);
+                if (pXSector->reTriggerA && waitTimeA) evPost_(nSector, OBJ_SECTOR, (waitTimeA * 120) / 10, kCmdOn);
                 return;
             }
             pXSector->state = 0;
@@ -4727,7 +4727,7 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
             case kSectorCounter:
                 if (pXSector->locked != 1) break;
                 SetSectorState(nSector, pXSector, 0);
-                evPost(nSector, 6, 0, kCallbackCounterCheck);
+                evPost_(nSector, 6, 0, kCallbackCounterCheck);
                 break;
         }
 
@@ -4835,8 +4835,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 else aiPatrolFlagsMgr(&sprite[event.index], &xsprite[sprite[event.index].extra], pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
                 break;
             default:
-                if (!pXSprite->state) evPost(nSprite, OBJ_SPRITE, 0, kCmdOn);
-                else evPost(nSprite, OBJ_SPRITE, 0, kCmdOff);
+                if (!pXSprite->state) evPost_(nSprite, OBJ_SPRITE, 0, kCmdOn);
+                else evPost_(nSprite, OBJ_SPRITE, 0, kCmdOff);
                 break;
         }
 
@@ -4904,11 +4904,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     }
 
                     if (pXSprite->busyTime > 0)
-                        evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
+                        evPost_(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
                             break;
                 default:
-                    if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
-                    else evPost(nSprite, 3, 0, kCmdOff);
+                    if (pXSprite->state == 0) evPost_(nSprite, 3, 0, kCmdOn);
+                    else evPost_(nSprite, 3, 0, kCmdOff);
                             break;
                     }
                 return true;
@@ -4952,11 +4952,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     else useEffectGen(pXSprite, NULL);
             
                     if (pXSprite->busyTime > 0)
-                        evPost(nSprite, 3, ClipLow((int(pXSprite->busyTime) + Random2(pXSprite->data1)) * 120 / 10, 0), kCmdRepeat);
+                        evPost_(nSprite, 3, ClipLow((int(pXSprite->busyTime) + Random2(pXSprite->data1)) * 120 / 10, 0), kCmdRepeat);
                     break;
                 default:
-                    if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
-                    else evPost(nSprite, 3, 0, kCmdOff);
+                    if (pXSprite->state == 0) evPost_(nSprite, 3, 0, kCmdOn);
+                    else evPost_(nSprite, 3, 0, kCmdOff);
                     break;
             }
             return true;
@@ -4974,11 +4974,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     else useSectorWindGen(pXSprite, NULL);
 
-                    if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
+                    if (pXSprite->busyTime > 0) evPost_(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
                     break;
                 default:
-                    if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
-                    else evPost(nSprite, 3, 0, kCmdOff);
+                    if (pXSprite->state == 0) evPost_(nSprite, 3, 0, kCmdOn);
+                    else evPost_(nSprite, 3, 0, kCmdOff);
                     break;
             }
             return true;
@@ -5001,17 +5001,17 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 case kCmdRepeat:
                     if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(pXSprite)) {
                         aiFightFreeAllTargets(pXSprite);
-                        evPost(nSprite, 3, 0, kCmdOff);
+                        evPost_(nSprite, 3, 0, kCmdOff);
                         break;
                     } else {
                         modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     }
 
-                    if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
+                    if (pXSprite->busyTime > 0) evPost_(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
                     break;
                 default:
-                    if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
-                    else evPost(nSprite, 3, 0, kCmdOff);
+                    if (pXSprite->state == 0) evPost_(nSprite, 3, 0, kCmdOn);
+                    else evPost_(nSprite, 3, 0, kCmdOff);
                     break;
             }
             pXSprite->dropMsg = uint8_t(pXSprite->data4);
@@ -5028,16 +5028,16 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 case kCmdRepeat:
                     // force OFF after *all* TX objects reach the goal value
                     if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(pXSprite)) {
-                        evPost(nSprite, 3, 0, kCmdOff);
+                        evPost_(nSprite, 3, 0, kCmdOff);
                         break;
                     }
                     
                     modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
+                    if (pXSprite->busyTime > 0) evPost_(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
                     break;
                 default:
-                    if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
-                    else evPost(nSprite, 3, 0, kCmdOff);
+                    if (pXSprite->state == 0) evPost_(nSprite, 3, 0, kCmdOn);
+                    else evPost_(nSprite, 3, 0, kCmdOff);
                     break;
             }
             return true;
@@ -5054,11 +5054,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 case kCmdRepeat:
                     useRandomItemGen(pSprite, pXSprite);
                     if (pXSprite->busyTime > 0)
-                        evPost(nSprite, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                        evPost_(nSprite, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
                     break;
                 default:
-                    if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
-                    else evPost(nSprite, 3, 0, kCmdOff);
+                    if (pXSprite->state == 0) evPost_(nSprite, 3, 0, kCmdOn);
+                    else evPost_(nSprite, 3, 0, kCmdOff);
                     break;
             }
             return true;
@@ -5068,7 +5068,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 case kCmdSpriteProximity:
                     if (pXSprite->state) break;
                     sfxPlay3DSound(pSprite, 452, 0, 0);
-                    evPost(nSprite, 3, 30, kCmdOff);
+                    evPost_(nSprite, 3, 30, kCmdOff);
                     pXSprite->state = 1;
                     fallthrough__;
                 case kCmdOn:
@@ -5196,11 +5196,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 else useSoundGen(pXSprite, pSprite);
                 
                 if (pXSprite->busyTime > 0)
-                    evPost(nSprite, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                    evPost_(nSprite, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
                             break;
             default:
-                if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
-                else evPost(nSprite, 3, 0, kCmdOff);
+                if (pXSprite->state == 0) evPost_(nSprite, 3, 0, kCmdOn);
+                else evPost_(nSprite, 3, 0, kCmdOff);
                             break;
                     }
             return true;
@@ -5218,12 +5218,12 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     else useUniMissileGen(pXSprite, pSprite);
                     
                     if (pXSprite->busyTime > 0)
-                        evPost(nSprite, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                        evPost_(nSprite, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
 
                     break;
                 default:
-                    if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
-                    else evPost(nSprite, 3, 0, kCmdOff);
+                    if (pXSprite->state == 0) evPost_(nSprite, 3, 0, kCmdOn);
+                    else evPost_(nSprite, 3, 0, kCmdOff);
                     break;
             }
             return true;
@@ -5409,7 +5409,7 @@ int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) {
 
             pXSource->restState = 1;
             evKill(pSource->index, OBJ_SPRITE);
-            evPost(pSource->index, OBJ_SPRITE, (pXSource->waitTime * 120) / 10, kCmdRepeat);
+            evPost_(pSource->index, OBJ_SPRITE, (pXSource->waitTime * 120) / 10, kCmdRepeat);
             return -1;
 
         }
@@ -5575,7 +5575,7 @@ void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
 
         // add bursting for missiles
         if (pMissile->type != kMissileFlareAlt && pXSource->data4 > 0)
-            evPost(pMissile->index, 3, ClipHigh(pXSource->data4, 500), kCallbackMissileBurst);
+            evPost_(pMissile->index, 3, ClipHigh(pXSource->data4, 500), kCallbackMissileBurst);
 
     }
 
@@ -6432,7 +6432,7 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
                         case kDudeModernCustomBurning:
                             gGenDudeExtra[objIndex].updReq[kGenDudePropertyWeapon] = true;
                             gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
-                            evPost(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+                            evPost_(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
                             break;
                     }
                     return true;
@@ -6446,7 +6446,7 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
                             gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
                             gGenDudeExtra[objIndex].updReq[kGenDudePropertyStates] = true;
                             gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
-                            evPost(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+                            evPost_(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
                             break;
                     }
                     return true;
@@ -7851,7 +7851,7 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
         pBurst->cstat = pSprite->cstat;
         if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
             pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
-            evPost(pBurst->index, 3, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
+            evPost_(pBurst->index, 3, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
         }
 
         pBurst->pal = pSprite->pal;
@@ -7877,7 +7877,7 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
         xvel[pBurst->index] += dx;
         yvel[pBurst->index] += dy;
         zvel[pBurst->index] += dz;
-        evPost(pBurst->index, 3, 960, kCallbackRemove);
+        evPost_(pBurst->index, 3, 960, kCallbackRemove);
     }
     evPost(actor, 0, kCallbackRemove);
 }

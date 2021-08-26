@@ -663,7 +663,7 @@ void seqProcess(int nTicks)
 							{
 								evKill(nSprite, SS_SPRITE);
 								if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
-									evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+								evPost_(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
 								else deletesprite(nSprite);	// safe to not use actPostSprite here
 							}
 						}

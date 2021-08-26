@@ -56,7 +56,7 @@ void sub_71A90(int, DBloodActor* actor)
 	int nTarget = pTarget->index;
 	int nOwner = pSprite->owner;
 	if (pXTarget->burnTime == 0)
-		evPost(nTarget, 3, 0, kCallbackFXFlameLick);
+		evPost(actor->GetTarget(), 0, kCallbackFXFlameLick);
 	actBurnSprite(nOwner, pXTarget, 40);
 	if (Chance(0x6000))
 		aiNewState(actor, &tcherno13A9D4);
