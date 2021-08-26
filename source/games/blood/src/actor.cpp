@@ -5858,7 +5858,7 @@ static void actCheckThings()
 #ifdef NOONE_EXTENSIONS
 					case kModernThingThrowableRock:
 						seqSpawn(24, actor, -1);
-						if (hit.type = kHitSprite)
+						if (hit.type == kHitSprite)
 						{
 							pSprite->xrepeat = 32;
 							pSprite->yrepeat = 32;
@@ -5868,7 +5868,7 @@ static void actCheckThings()
 #endif
 					case kThingBone:
 						seqSpawn(24, actor, -1);
-						if (hit.type = kHitSprite)
+						if (hit.type == kHitSprite)
 						{
 							actDamageSprite(actor->GetOwner(), hit.actor, kDamageFall, 12);
 						}
