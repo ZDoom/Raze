@@ -214,7 +214,7 @@ void SpawnBulletEject(PLAYER *pPlayer, int a2, int a3)
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int dz = pPlayer->zWeapon-(pPlayer->zWeapon-pPlayer->zView)/2;
-    fxSpawnEjectingBrass(pPlayer->pSprite, dz, a2, a3);
+    fxSpawnEjectingBrass(pPlayer->actor(), dz, a2, a3);
 }
 
 void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
@@ -223,7 +223,7 @@ void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int t = pPlayer->zWeapon - pPlayer->zView;
     int dz = pPlayer->zWeapon-t+(t>>2);
-    fxSpawnEjectingShell(pPlayer->pSprite, dz, a2, a3);
+    fxSpawnEjectingShell(pPlayer->actor(), dz, a2, a3);
 }
 
 void WeaponInit(void)
@@ -1447,7 +1447,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     case 0:
     {
         sfxPlay3DSound(pSprite, 460, 2, 0);
-        fxSpawnBlood(pTarget, 17<<4);
+        fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 17<<4);
         UseAmmo(pPlayer, 9, nDamage/4);
         break;
@@ -1455,7 +1455,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     case 1:
     {
         sfxPlay3DSound(pSprite, 460, 2, 0);
-        fxSpawnBlood(pTarget, 17<<4);
+        fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 9<<4);
         if (IsPlayerSprite(pTarget))
             WeaponLower(&gPlayer[pTarget->type-kDudePlayer1]);
@@ -1465,7 +1465,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     case 3:
     {
         sfxPlay3DSound(pSprite, 463, 2, 0);
-        fxSpawnBlood(pTarget, 17<<4);
+        fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 49<<4);
         UseAmmo(pPlayer, 9, nDamage/4);
         break;
@@ -1473,7 +1473,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     case 2:
     {
         sfxPlay3DSound(pSprite, 460, 2, 0);
-        fxSpawnBlood(pTarget, 17<<4);
+        fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 11<<4);
         if (IsPlayerSprite(pTarget))
         {
@@ -1519,7 +1519,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                             if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
                                 powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
                         }
-                        fxSpawnBlood(pTarget, 0);
+                        fxSpawnBlood(targetactor, 0);
                     }
                 }
             }
@@ -1558,7 +1558,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                         if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
                             powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
                     }
-                    fxSpawnBlood(pTarget, 0);
+                    fxSpawnBlood(targetactor, 0);
                 }
             }
         }

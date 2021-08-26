@@ -107,34 +107,30 @@ FXDATA gFXData[] = {
     { kCallbackNone, 1, 70, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-void CFX::destroy(int nSprite)
+void CFX::destroy(DBloodActor* actor)
 {
-    if (nSprite < 0 || nSprite >= kMaxSprites)
-        return;
-    evKill_(nSprite, 3);
-    if (sprite[nSprite].extra > 0)
-        seqKill(3, sprite[nSprite].extra);
-    DeleteSprite(nSprite);
+    if (!actor) return;
+    evKill(actor);
+    if (actor->hasX()) seqKill(actor);
+    DeleteSprite(actor);
 }
 
-void CFX::remove(int nSprite)
+void CFX::remove(DBloodActor* actor)
 {
-    if (nSprite < 0 || nSprite >= kMaxSprites)
-        return;
-    spritetype *pSprite = &sprite[nSprite];
-    if (pSprite->extra > 0)
-        seqKill(3, pSprite->extra);
+    if (!actor) return;
+    spritetype *pSprite = &actor->s();
+    if (actor->hasX()) seqKill(actor);
     if (pSprite->statnum != kStatFree)
-        actPostSprite(nSprite, kStatFree);
+        actPostSprite(actor, kStatFree);
 }
 
 DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
 {
     if (nSector < 0 || nSector >= numsectors)
-        return NULL;
+        return nullptr;
     int nSector2 = nSector;
     if (!FindSector(x, y, z, &nSector2))
-        return NULL;
+        return nullptr;
     if (adult_lockout && gGameOptions.nGameType <= 0)
     {
         switch (nFx)
@@ -147,13 +143,13 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
         case FX_34:
         case FX_35:
         case FX_36:
-            return NULL;
+            return nullptr;
         default:
             break;
         }
     }
     if (nFx < 0 || nFx >= kFXMax)
-        return NULL;
+        return nullptr;
     FXDATA *pFX = &gFXData[nFx];
     if (gStatCount[1] == 512)
     {
@@ -162,8 +158,8 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
         while (iactor && (iactor->s().flags & 32))
             iactor = it.Next();
         if (!iactor)
-            return NULL;
-        destroy(iactor->s().index);
+            return nullptr;
+        destroy(iactor);
     }
     auto actor = actSpawnSprite(nSector, x, y, z, 1, 0);
     spritetype* pSprite = &actor->s();
@@ -195,76 +191,73 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
 
 void CFX::fxProcess(void)
 {
-    int nSprite;
-    StatIterator it(kStatFX);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatFX);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        viewBackupSpriteLoc(nSprite, pSprite);
+        spritetype *pSprite = &actor->s();
+        viewBackupSpriteLoc(actor);
         short nSector = pSprite->sectnum;
         assert(nSector >= 0 && nSector < kMaxSectors);
         assert(pSprite->type < kFXMax);
         FXDATA *pFXData = &gFXData[pSprite->type];
         actAirDrag(&bloodActors[pSprite->index], pFXData->drag);
-        if (xvel[nSprite])
-            pSprite->x += xvel[nSprite]>>12;
-        if (yvel[nSprite])
-            pSprite->y += yvel[nSprite]>>12;
-        if (zvel[nSprite])
-            pSprite->z += zvel[nSprite]>>8;
+        pSprite->x += actor->xvel()>>12;
+        pSprite->y += actor->yvel()>>12;
+        pSprite->z += actor->zvel()>>8;
         // Weird...
-        if (xvel[nSprite] || (yvel[nSprite] && pSprite->z >= sector[pSprite->sectnum].floorz))
+        if (actor->xvel() || (actor->yvel() && pSprite->z >= sector[pSprite->sectnum].floorz))
         {
             updatesector(pSprite->x, pSprite->y, &nSector);
             if (nSector == -1)
             {
-                remove(nSprite);
+                remove(actor);
                 continue;
             }
             if (getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y) <= pSprite->z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
-                    remove(nSprite);
+                    remove(actor);
                     continue;
                 }
-                assert(gCallback[pFXData->funcID] != NULL);
-                gCallback[pFXData->funcID](&bloodActors[nSprite], 0);
+                assert(gCallback[pFXData->funcID] != nullptr);
+                gCallback[pFXData->funcID](actor, 0);
                 continue;
             }
             if (nSector != pSprite->sectnum)
             {
                 assert(nSector >= 0 && nSector < kMaxSectors);
-                ChangeSpriteSect(nSprite, nSector);
+                ChangeSpriteSect(actor->s().index, nSector);
             }
         }
-        if (xvel[nSprite] || yvel[nSprite] || zvel[nSprite])
+        if (actor->xvel() || actor->yvel() || actor->zvel())
         {
             int32_t floorZ, ceilZ;
             getzsofslope(nSector, pSprite->x, pSprite->y, &ceilZ, &floorZ);
             if (ceilZ > pSprite->z && !(sector[nSector].ceilingstat&1))
             {
-                remove(nSprite);
+                remove(actor);
                 continue;
             }
             if (floorZ < pSprite->z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
-                    remove(nSprite);
+                    remove(actor);
                     continue;
                 }
-                assert(gCallback[pFXData->funcID] != NULL);
-                gCallback[pFXData->funcID](&bloodActors[nSprite], 0);
+                assert(gCallback[pFXData->funcID] != nullptr);
+                gCallback[pFXData->funcID](actor, 0);
                 continue;
             }
         }
-        zvel[nSprite] += pFXData->gravity;
+        actor->zvel() += pFXData->gravity;
     }
 }
 
-void fxSpawnBlood(spritetype *pSprite, int )
+void fxSpawnBlood(DBloodActor *actor, int )
 {
+    spritetype* pSprite = &actor->s();
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
     int nSector = pSprite->sectnum;
@@ -283,8 +276,9 @@ void fxSpawnBlood(spritetype *pSprite, int )
     }
 }
 
-void sub_746D4(spritetype *pSprite, int )
+void fxSpawnPodStuff(DBloodActor* actor, int )
 {
+    auto pSprite = &actor->s();
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
     int nSector = pSprite->sectnum;
@@ -307,8 +301,9 @@ void sub_746D4(spritetype *pSprite, int )
     }
 }
 
-void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4)
+void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 {
+    auto pSprite = &actor->s();
     int x = pSprite->x+MulScale(pSprite->clipdist-4, Cos(pSprite->ang), 28);
     int y = pSprite->y+MulScale(pSprite->clipdist-4, Sin(pSprite->ang), 28);
     x += MulScale(a3, Cos(pSprite->ang+512), 30);
@@ -326,8 +321,9 @@ void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4)
     }
 }
 
-void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
+void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 {
+    auto pSprite = &actor->s();
     int x = pSprite->x+MulScale(pSprite->clipdist-4, Cos(pSprite->ang), 28);
     int y = pSprite->y+MulScale(pSprite->clipdist-4, Sin(pSprite->ang), 28);
     x += MulScale(a3, Cos(pSprite->ang+512), 30);

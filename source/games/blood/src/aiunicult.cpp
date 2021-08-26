@@ -2607,7 +2607,7 @@ void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
                 GibSprite(pSprite, (GIBTYPE)pDudeInfo->nGibType[i], NULL, NULL);
 
         for (int i = 0; i < 4; i++)
-            fxSpawnBlood(pSprite, damage);
+            fxSpawnBlood(actor, damage);
     }
     
     gKillMgr.AddKill(pSprite);

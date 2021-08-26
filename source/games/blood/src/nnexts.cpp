@@ -3082,18 +3082,18 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
                 case kDmgBurn:
                     if (pXSprite->burnTime > 0) break;
                     actBurnSprite(pSource->index, pXSprite, ClipLow(dmg >> 1, 128));
-                    evKill_(pSprite->index, OBJ_SPRITE, kCallbackFXFlameLick);
-                    evPost_(pSprite->index, OBJ_SPRITE, 0, kCallbackFXFlameLick); // show flames
+                    evKill(actor, kCallbackFXFlameLick);
+                    evPost(actor, 0, kCallbackFXFlameLick); // show flames
                     break;
                 case kDmgElectric:
                     forceRecoil = true; // show tesla recoil animation
                     break;
                 case kDmgBullet:
-                    evKill_(pSprite->index, OBJ_SPRITE, kCallbackFXBloodSpurt);
+                    evKill(actor, kCallbackFXBloodSpurt);
                     for (int i = 1; i < 6; i++) {
                         
                         if (Chance(0x16000 >> i))
-                            fxSpawnBlood(pSprite, dmg << 4);
+                            fxSpawnBlood(actor, dmg << 4);
                     }
                     break;
                 case kDmgChoke:

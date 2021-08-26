@@ -3654,7 +3654,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 			if (pDudeInfo->nGibType[i] > -1)
 				GibSprite(pSprite, (GIBTYPE)pDudeInfo->nGibType[i], nullptr, nullptr);
 		for (int i = 0; i < 4; i++)
-			fxSpawnBlood(pSprite, damage);
+			fxSpawnBlood(actor, damage);
 	}
 	gKillMgr.AddKill(pSprite);
 	actCheckRespawn(actor);
@@ -5618,7 +5618,7 @@ void actExplodeSprite(DBloodActor* actor)
 		seqSpawn(9, actor, -1);
 		sfxPlay3DSound(actor, 307, -1, 0);
 		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
-		sub_746D4(pSprite, 240);
+		fxSpawnPodStuff(actor, 240);
 		break;
 
 	default:
@@ -7106,7 +7106,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				}
 				for (int i = 0; i < pVectorData->bloodSplats; i++)
 					if (Chance(pVectorData->splatChance))
-						fxSpawnBlood(pSprite, pVectorData->dmg << 4);
+						fxSpawnBlood(actor, pVectorData->dmg << 4);
 			}
 #ifdef NOONE_EXTENSIONS
 			// add impulse for sprites from physics list

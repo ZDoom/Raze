@@ -1974,8 +1974,8 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 CGibVelocity gibVel(xvel[pSprite->index]>>1, yvel[pSprite->index]>>1, -0xccccc);
                 GibSprite(pSprite, GIBTYPE_27, &gibPos, &gibVel);
                 GibSprite(pSprite, GIBTYPE_7, NULL, NULL);
-                fxSpawnBlood(pSprite, nDamage<<4);
-                fxSpawnBlood(pSprite, nDamage<<4);
+                fxSpawnBlood(pActor, nDamage<<4);
+                fxSpawnBlood(pActor, nDamage<<4);
                 nDeathSeqID = 17;
                 break;
             }

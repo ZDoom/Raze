@@ -416,7 +416,7 @@ void fxBloodBits(DBloodActor* actor, int) // 14
         if (pFX)
             pFX->s().ang = nAngle;
     }
-    gFX.remove(actor->s().index);
+    gFX.remove(actor);
 }
 
 
@@ -575,7 +575,7 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
         if (pFX)
             pFX->s().ang = nAngle;
     }
-    gFX.remove(actor->s().index);
+    gFX.remove(actor);
 }
 
 
