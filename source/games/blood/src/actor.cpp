@@ -7272,10 +7272,13 @@ void actPostProcess(void)
         int nStatus = pPost->status;
         if (nStatus == kStatFree)
         {
-            evKill(nSprite, 3);
-            if (sprite[nSprite].extra > 0)
-                seqKill(3, sprite[nSprite].extra);
-            DeleteSprite(nSprite);
+			if (pSprite->statnum != kStatFree)
+			{
+				evKill(nSprite, 3);
+				if (sprite[nSprite].extra > 0)
+					seqKill(3, pSprite->extra);
+				DeleteSprite(nSprite);
+			}
         }
         else
             ChangeSpriteStat(nSprite, nStatus);
