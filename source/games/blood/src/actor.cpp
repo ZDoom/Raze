@@ -4904,7 +4904,7 @@ void MoveDude(DBloodActor* actor)
 			{
 				HITINFO hitInfo = gHitInfo;
 				gHitInfo.hitsprite = pSprite->index;
-				actImpactMissile(actor, 3);
+				actImpactMissile(coll.actor, 3);
 				gHitInfo = hitInfo;
 			}
 #ifdef NOONE_EXTENSIONS
