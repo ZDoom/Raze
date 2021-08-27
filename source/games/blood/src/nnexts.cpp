@@ -255,27 +255,35 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
 // for actor.cpp
 //-------------------------------------------------------------------------
 
-spritetype* nnExtSpawnDude(XSPRITE* pXSource, spritetype* pSprite, short nType, int a3, int a4)
-{
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
+static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin, short nType, int a3, int a4)
+{
     DBloodActor* pDudeActor = nullptr;
-    spritetype* pSource = &sprite[pXSource->reference];
-    if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(&bloodActors[pSprite->index], kStatDude)) == NULL)
+    auto pSource = &sourceActor->s();
+    auto pXSource = &sourceActor->x();
+    auto pOrigin = &origin->s();
+
+    if (nType < kDudeBase || nType >= kDudeMax || (pDudeActor = actSpawnSprite(origin, kStatDude)) == NULL)
         return NULL;
 
     spritetype* pDude = &pDudeActor->s();
     XSPRITE* pXDude = &pDudeActor->x();
 
-    int angle = pSprite->ang;
-    int x, y, z = a4 + pSprite->z;
+    int angle = pOrigin->ang;
+    int x, y, z = a4 + pOrigin->z;
     if (a3 < 0)
     {
-        x = pSprite->x;
-        y = pSprite->y;
+        x = pOrigin->x;
+        y = pOrigin->y;
     } else
     {
-        x = pSprite->x + mulscale30r(Cos(angle), a3);
-        y = pSprite->y + mulscale30r(Sin(angle), a3);
+        x = pOrigin->x + mulscale30r(Cos(angle), a3);
+        y = pOrigin->y + mulscale30r(Sin(angle), a3);
     }
 
     vec3_t pos = { x, y, z };
@@ -331,7 +339,7 @@ spritetype* nnExtSpawnDude(XSPRITE* pXSource, spritetype* pSprite, short nType, 
     if ((burning || (pSource->flags & kModernTypeFlag3)) && !pXDude->dudeFlag4)
         aiActivateDude(pDudeActor);
 
-    return pDude;
+    return pDudeActor;
 }
 
 
@@ -967,12 +975,12 @@ spritetype* randomDropPickupObject(spritetype* pSource, short prevItem)
 // this function spawns random dude using dudeSpawn
 spritetype* randomSpawnDude(XSPRITE* pXSource, spritetype* pSprite, int a3, int a4)
 {
-    spritetype* pSprite2 = NULL; int selected = -1;
+    DBloodActor* pSprite2 = NULL; int selected = -1;
     
     if ((selected = randomGetDataValue(pXSource, kRandomizeDude)) > 0)
-        pSprite2 = nnExtSpawnDude(pXSource, pSprite, selected, a3, 0);
+        pSprite2 = nnExtSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], selected, a3, 0);
 
-    return pSprite2;
+    return pSprite2? &pSprite2->s() : nullptr;
 }
 
 //-------------------------
@@ -4780,7 +4788,7 @@ void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
 void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
 
     if (randomSpawnDude(pXSource, pSprite, pSprite->clipdist << 1, 0) == NULL)
-        nnExtSpawnDude(pXSource, pSprite, pXSource->data1, pSprite->clipdist << 1, 0);
+        nnExtSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pXSource->data1, pSprite->clipdist << 1, 0);
 }
 
 bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event) {
