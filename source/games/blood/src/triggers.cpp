@@ -54,25 +54,26 @@ unsigned int GetWaveValue(unsigned int nPhase, int nType)
 
 char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
 {
+    auto actor = &bloodActors[nSprite];
     if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
         return 0;
     pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
-    evKillActor(&bloodActors[nSprite]);
+    evKillActor(actor);
     if ((sprite[nSprite].flags & kHitagRespawn) != 0 && sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax)
     {
         pXSprite->respawnPending = 3;
-        evPostActor(&bloodActors[nSprite], gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+        evPostActor(actor, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
         return 1;
     }
     if (pXSprite->restState != nState && pXSprite->waitTime > 0)
-        evPostActor(&bloodActors[nSprite], (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+        evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
     if (pXSprite->txID)
     {
         if (pXSprite->command != kCmdLink && pXSprite->triggerOn && pXSprite->state)
-            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+            evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
         if (pXSprite->command != kCmdLink && pXSprite->triggerOff && !pXSprite->state)
-            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+            evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
     }
     return 1;
 }
@@ -91,9 +92,9 @@ char SetWallState(int nWall, XWALL *pXWall, int nState)
     if (pXWall->txID)
     {
         if (pXWall->command != kCmdLink && pXWall->triggerOn && pXWall->state)
-            evSend(nWall, 0, pXWall->txID, (COMMAND_ID)pXWall->command);
+            evSendWall(nWall, pXWall->txID, (COMMAND_ID)pXWall->command);
         if (pXWall->command != kCmdLink && pXWall->triggerOff && !pXWall->state)
-            evSend(nWall, 0, pXWall->txID, (COMMAND_ID)pXWall->command);
+            evSendWall(nWall, pXWall->txID, (COMMAND_ID)pXWall->command);
     }
     return 1;
 }
@@ -108,7 +109,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
     if (nState == 1)
     {
         if (pXSector->command != kCmdLink && pXSector->triggerOn && pXSector->txID)
-            evSend(nSector, 6, pXSector->txID, (COMMAND_ID)pXSector->command);
+            evSendSector(nSector,pXSector->txID, (COMMAND_ID)pXSector->command);
         if (pXSector->stopOn)
         {
             pXSector->stopOn = 0;
@@ -120,7 +121,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
     else
     {
         if (pXSector->command != kCmdLink && pXSector->triggerOff && pXSector->txID)
-            evSend(nSector, 6, pXSector->txID, (COMMAND_ID)pXSector->command);
+            evSendSector(nSector,pXSector->txID, (COMMAND_ID)pXSector->command);
         if (pXSector->stopOff)
         {
             pXSector->stopOn = 0;
@@ -450,7 +451,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         sfxPlay3DSound(pSprite, pXSprite->data4, -1, 0);
         
         if (pXSprite->command == kCmdLink && pXSprite->txID > 0)
-            evSend(nSprite, 3, pXSprite->txID, kCmdLink);
+            evSendActor(actor, pXSprite->txID, kCmdLink);
 
         if (pXSprite->data1 == pXSprite->data2) 
             SetSpriteState(nSprite, pXSprite, 1);
@@ -562,7 +563,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 break;
             case kCmdRepeat:
                 if (pSprite->type != kGenTrigger) ActivateGenerator(nSprite);
-                if (pXSprite->txID) evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                if (pXSprite->txID) evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                 if (pXSprite->busyTime > 0) {
                     int nRand = Random2(pXSprite->data1);
                     evPostActor(actor, 120*(nRand+pXSprite->busyTime) / 10, kCmdRepeat);
@@ -1077,7 +1078,7 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
         sector[nSector].floorz = v10;
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSend(nSector, 6, pXSector->txID, kCmdLink);
+        evSendSector(nSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1130,7 +1131,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     }
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSend(nSector, 6, pXSector->txID, kCmdLink);
+        evSendSector(nSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1230,7 +1231,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     ZTranslateSector(nSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSend(nSector, 6, pXSector->txID, kCmdLink);
+        evSendSector(nSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1258,7 +1259,7 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
     ZTranslateSector(nSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSend(nSector, 6, pXSector->txID, kCmdLink);
+        evSendSector(nSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1285,7 +1286,7 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
     ZTranslateSector(nSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSend(nSector, 6, pXSector->txID, kCmdLink);
+        evSendSector(nSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1318,7 +1319,7 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
     }
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSend(nSector, 6, pXSector->txID, kCmdLink);
+        evSendSector(nSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1338,7 +1339,7 @@ int GenSectorBusy(unsigned int nSector, unsigned int a2)
     XSECTOR *pXSector = &xsector[nXSector];
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSend(nSector, 6, pXSector->txID, kCmdLink);
+        evSendSector(nSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1736,7 +1737,7 @@ void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command) {
             pXSector->isTriggered = 1;
         
         if (pXSector->decoupled && pXSector->txID > 0)
-            evSend(nSector, 6, pXSector->txID, (COMMAND_ID)pXSector->command);
+            evSendSector(nSector,pXSector->txID, (COMMAND_ID)pXSector->command);
         
         else {
             EVENT event;
@@ -1755,7 +1756,7 @@ void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command) {
             pXWall->isTriggered = 1;
         
         if (pXWall->decoupled && pXWall->txID > 0)
-            evSend(nWall, 0, pXWall->txID, (COMMAND_ID)pXWall->command);
+            evSendWall(nWall, pXWall->txID, (COMMAND_ID)pXWall->command);
 
         else {
             EVENT event;
@@ -1773,7 +1774,7 @@ void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command) {
             pXSprite->isTriggered = 1;
 
         if (pXSprite->Decoupled && pXSprite->txID > 0)
-           evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+           evSendActor(&bloodActors[nSprite], pXSprite->txID, (COMMAND_ID)pXSprite->command);
         
         else {
             EVENT event;
@@ -2170,17 +2171,17 @@ void trInit(void)
         }
     }
     
-    evSend(0, 0, kChannelLevelStart, kCmdOn);
+    evSendGame(kChannelLevelStart, kCmdOn);
     switch (gGameOptions.nGameType) {
         case 1:
-            evSend(0, 0, kChannelLevelStartCoop, kCmdOn);
+            evSendGame(kChannelLevelStartCoop, kCmdOn);
             break;
         case 2:
-            evSend(0, 0, kChannelLevelStartMatch, kCmdOn);
+            evSendGame(kChannelLevelStartMatch, kCmdOn);
             break;
         case 3:
-            evSend(0, 0, kChannelLevelStartMatch, kCmdOn);
-            evSend(0, 0, kChannelLevelStartTeamsOnly, kCmdOn);
+            evSendGame(kChannelLevelStartMatch, kCmdOn);
+            evSendGame(kChannelLevelStartTeamsOnly, kCmdOn);
             break;
     }
 }

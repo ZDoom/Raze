@@ -601,6 +601,26 @@ void evKillSector(int sec)
 	evKill_(sec, OBJ_SECTOR);
 }
 
+// these have no target.
+void evSendGame(int rxId, COMMAND_ID command)
+{
+	evSend(0, 0, rxId, command);
+}
+
+void evSendActor(DBloodActor* actor, int rxId, COMMAND_ID command)
+{
+	evSend(actor->s().index, OBJ_SPRITE, rxId, command);
+}
+
+void evSendSector(int index, int rxId, COMMAND_ID command)
+{
+	evSend(index, OBJ_SECTOR, rxId, command);
+}
+
+void evSendWall(int index, int rxId, COMMAND_ID command)
+{
+	evSend(index, OBJ_WALL, rxId, command);
+}
 
 //---------------------------------------------------------------------------
 //

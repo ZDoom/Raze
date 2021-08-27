@@ -1192,7 +1192,7 @@ void DropRemote(int, PLAYER *pPlayer)
 
 void FireRemote(int, PLAYER *pPlayer)
 {
-    evSend(0, 0, 90+(pPlayer->pSprite->type-kDudePlayer1), kCmdOn);
+    evSendGame(90+(pPlayer->pSprite->type-kDudePlayer1), kCmdOn);
 }
 
 enum { kMaxShotgunBarrels = 4 };
