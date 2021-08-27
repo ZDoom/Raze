@@ -140,7 +140,7 @@ enum
     nClientAltFireNapalm,
 };
 
-static bool checkFired6or7(PLAYER *pPlayer)
+bool checkFired6or7(PLAYER *pPlayer)
 {
     switch (pPlayer->curWeapon)
     {
