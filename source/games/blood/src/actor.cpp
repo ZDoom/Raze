@@ -5888,7 +5888,7 @@ static void actCheckThings()
 						break;
 
 					case kThingPodFireBall:
-						if (hit.type == kHitSprite)	actExplodeSprite(actor);
+						actExplodeSprite(actor);
 						break;
 					}
 				}
