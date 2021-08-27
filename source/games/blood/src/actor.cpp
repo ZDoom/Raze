@@ -4210,7 +4210,7 @@ static void actTouchFloor(DBloodActor* actor, int nSector)
 
 		actDamageSprite(actor, actor, nDamageType, scale(4, nDamage, 120) << 4);
 	}
-	if (tileGetSurfType(nSector + 0x4000) == kSurfLava)
+	if (tileGetSurfType(sector[nSector].floorpicnum) == kSurfLava)
 	{
 		actDamageSprite(actor, actor, kDamageBurn, 16);
 		sfxPlay3DSound(actor, 352, 5, 2);
@@ -5244,7 +5244,7 @@ void MoveDude(DBloodActor* actor)
 			else
 				pSprite->flags |= 4;
 
-			switch (tileGetSurfType(floorColl.legacyVal))
+			switch (tileGetSurfType(floorColl))
 			{
 			case kSurfWater:
 				gFX.fxSpawnActor(FX_9, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
@@ -7341,7 +7341,7 @@ void MakeSplash(DBloodActor* actor)
 	pSprite->flags &= ~2;
 	int nXSprite = pSprite->extra;
 	pSprite->z -= 4 << 8;
-	int nSurface = tileGetSurfType(actor->hit().florhit.legacyVal);
+	int nSurface = tileGetSurfType(actor->hit().florhit);
 	switch (pSprite->type)
 	{
 	case kThingDripWater:

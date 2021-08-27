@@ -107,6 +107,8 @@ extern int nPrecacheCount;
 
 void tilePrecacheTile(int nTile, int nType, int palette);
 
-char tileGetSurfType(int hit);
+struct Collision;
+int tileGetSurfType(int hit);
+int tileGetSurfType(Collision& hit);
 
 END_BLD_NS

@@ -1556,7 +1556,7 @@ int getSpriteMassBySize(DBloodActor* actor)
     int yrepeat = pSprite->yrepeat;
 
     // take surface type into account
-    switch (tileGetSurfType(pSprite->index + 0xc000)) 
+    switch (tileGetSurfType(pSprite->picnum)) 
     {
         case 1:  massDiv = 16; break; // stone
         case 2:  massDiv = 18; break; // metal
@@ -1855,7 +1855,7 @@ void debrisMove(int listIndex)
 
             moveHit = floorColl;
             DBloodActor* pFX = NULL, *pFX2 = NULL;
-            switch (tileGetSurfType(floorColl.legacyVal)) {
+            switch (tileGetSurfType(floorColl)) {
             case kSurfLava:
                 if ((pFX = gFX.fxSpawnActor(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0)) == NULL) break;
                 for (i = 0; i < 7; i++) {
