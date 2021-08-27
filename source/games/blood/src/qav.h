@@ -240,7 +240,7 @@ struct QAV
 
 QAV* getQAV(int res_id);
 void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick);
-void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration = false);
+void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration = false, bool const ignoreWeaponTimer = false);
 
 inline bool qavIsOriginal(const int& res_id)
 {

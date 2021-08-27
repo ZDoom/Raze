@@ -256,7 +256,7 @@ void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum
     int duration;
     double smoothratio;
 
-    qavProcessTimer(pPlayer, pQAV, &duration, &smoothratio, pPlayer->weaponState == -1 || (pPlayer->curWeapon == kWeapShotgun && pPlayer->weaponState == 7));
+    qavProcessTimer(pPlayer, pQAV, &duration, &smoothratio, pPlayer->weaponState == -1, pPlayer->curWeapon == kWeapShotgun && pPlayer->weaponState == 7);
 
     pQAV->x = int(xpos);
     pQAV->y = int(ypos);
