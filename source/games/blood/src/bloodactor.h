@@ -318,4 +318,13 @@ inline void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1)
 	sfxKill3DSound(&pSprite->s(), a2, a3);
 }
 
+void ChangeActorStat(DBloodActor* actor, int stat)
+{
+	ChangeSpriteStat(actor->s().index, stat);
+}
+
+void ChangeActorSect(DBloodActor* actor, int stat)
+{
+	ChangeSpriteSect(actor->s().index, stat);
+}
 END_BLD_NS

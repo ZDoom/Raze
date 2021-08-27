@@ -227,7 +227,7 @@ void CFX::fxProcess(void)
             if (nSector != pSprite->sectnum)
             {
                 assert(nSector >= 0 && nSector < kMaxSectors);
-                ChangeSpriteSect(actor->s().index, nSector);
+                ChangeActorSect(actor, nSector);
             }
         }
         if (actor->xvel() || actor->yvel() || actor->zvel())

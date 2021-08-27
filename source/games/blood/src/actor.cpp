@@ -4652,7 +4652,7 @@ int MoveThing(DBloodActor* actor)
 		if (pSprite->sectnum != nSector)
 		{
 			assert(nSector >= 0 && nSector < kMaxSectors);
-			ChangeSpriteSect(pSprite->index, nSector);
+			ChangeActorSect(actor, nSector);
 		}
 
 		Collision coll(actor->hit().hit);
@@ -4963,7 +4963,7 @@ void MoveDude(DBloodActor* actor)
 			pXSector = nullptr;
 		if (pXSector && pXSector->Exit && (pPlayer || !pXSector->dudeLockout))
 			trTriggerSector(pSprite->sectnum, pXSector, kCmdSectorExit);
-		ChangeSpriteSect(pSprite->index, nSector);
+		ChangeActorSect(actor, nSector);
 
 		nXSector = sector[nSector].extra;
 		pXSector = (nXSector > 0) ? &xsector[nXSector] : nullptr;
@@ -5471,7 +5471,7 @@ int MoveMissile(DBloodActor* actor)
 		if (nSector >= 0 && nSector != pSprite->sectnum)
 		{
 			assert(nSector >= 0 && nSector < kMaxSectors);
-			ChangeSpriteSect(pSprite->index, nSector);
+			ChangeActorSect(actor, nSector);
 		}
 		CheckLink(pSprite);
 		gHitInfo.hitsect = pSprite->sectnum;
