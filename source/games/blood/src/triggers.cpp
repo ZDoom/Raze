@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 
 #include "blood.h"
+#include "misc.h"
 #include "d_net.h"
 
 BEGIN_BLD_NS
