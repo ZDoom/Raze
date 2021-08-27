@@ -4165,17 +4165,18 @@ char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
 }
 
 void modernTypeSendCommand(int nSprite, int destChannel, COMMAND_ID command) {
+    auto actor = &bloodActors[nSprite];
     switch (command) {
     case kCmdLink:
-        evSend(nSprite, 3, destChannel, kCmdModernUse); // just send command to change properties
+        evSendActor(actor, destChannel, kCmdModernUse); // just send command to change properties
         return;
     case kCmdUnlock:
-        evSend(nSprite, 3, destChannel, command); // send normal command first
-        evSend(nSprite, 3, destChannel, kCmdModernUse);  // then send command to change properties
+        evSendActor(actor, destChannel, command); // send normal command first
+        evSendActor(actor, destChannel, kCmdModernUse);  // then send command to change properties
         return;
     default:
-        evSend(nSprite, 3, destChannel, kCmdModernUse); // send first command to change properties
-        evSend(nSprite, 3, destChannel, command); // then send normal command
+        evSendActor(actor, destChannel, kCmdModernUse); // send first command to change properties
+        evSendActor(actor, destChannel, command); // then send normal command
         return;
     }
 }
@@ -4863,12 +4864,12 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kMarkerDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
             else if (!(pSprite->flags & kModernTypeFlag4)) useDudeSpawn(pXSprite, pSprite);
-            else if (pXSprite->txID) evSend(nSprite, OBJ_SPRITE, pXSprite->txID, kCmdModernUse);
+            else if (pXSprite->txID) evSendActor(actor, pXSprite->txID, kCmdModernUse);
             return true;
         case kModernCustomDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
             else if (!(pSprite->flags & kModernTypeFlag4)) useCustomDudeSpawn(actor, actor);
-            else if (pXSprite->txID) evSend(nSprite, OBJ_SPRITE, pXSprite->txID, kCmdModernUse);
+            else if (pXSprite->txID) evSendActor(actor, pXSprite->txID, kCmdModernUse);
             return true;
         case kModernRandomTX: // random Event Switch takes random data field and uses it as TX ID
         case kModernSequentialTX: // sequential Switch takes values from data fields starting from data1 and uses it as TX ID
@@ -5265,19 +5266,19 @@ bool txIsRanged(XSPRITE* pXSource) {
 }
 
 void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernSend) {
-    
+    auto actor = &bloodActors[nIndex];
     bool ranged = txIsRanged(pXSource);
     if (ranged) {
         for (pXSource->txID = pXSource->data1; pXSource->txID <= pXSource->data4; pXSource->txID++) {
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
-            else if (!modernSend) evSend(nIndex, 3, pXSource->txID, cmd);
+            else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
             else modernTypeSendCommand(nIndex, pXSource->txID, cmd);
         }
     } else {
         for (int i = 0; i <= 3; i++) {
             pXSource->txID = GetDataVal(&sprite[pXSource->reference], i);
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
-            else if (!modernSend) evSend(nIndex, 3, pXSource->txID, cmd);
+            else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
             else modernTypeSendCommand(nIndex, pXSource->txID, cmd);
         }
     }
@@ -5307,7 +5308,7 @@ void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
     pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
         SetSpriteState(pSource->index, pXSource, pXSource->state ^ 1);
-        //evSend(pSource->index, OBJ_SPRITE, pXSource->txID, (COMMAND_ID)pXSource->command);
+        //evSendActor(pSource->index, pXSource->txID, (COMMAND_ID)pXSource->command);
 }
 
 void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
@@ -5363,7 +5364,7 @@ void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
     pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
         SetSpriteState(pSource->index, pXSource, pXSource->state ^ 1);
-        //evSend(pSource->index, OBJ_SPRITE, pXSource->txID, (COMMAND_ID)pXSource->command);
+        //evSendActor(pSource->index, pXSource->txID, (COMMAND_ID)pXSource->command);
 
 }
 
@@ -5435,7 +5436,7 @@ int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) {
 
         // send command to rx bucket
         if (pXSource->txID)
-            evSend(pSource->index, OBJ_SPRITE, pXSource->txID, (COMMAND_ID)pXSource->command);
+            evSendActor(&bloodActors[pSource->index], pXSource->txID, (COMMAND_ID)pXSource->command);
 
         if (pSource->flags) {
         
@@ -7521,7 +7522,9 @@ void aiPatrolThink(DBloodActor* actor) {
         return;
     }
     
-    spritetype* pMarker = &sprite[nMarker]; XSPRITE* pXMarker = &xsprite[pMarker->extra];
+    auto markeractor = &bloodActors[nMarker];
+    spritetype* pMarker = &markeractor->s();
+    XSPRITE* pXMarker = &markeractor->x();
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
     bool isFinal = ((!pXSprite->unused2 && pXMarker->data2 == -1) || (pXSprite->unused2 && pXMarker->data1 == -1));
     bool reached = false;
@@ -7564,7 +7567,7 @@ void aiPatrolThink(DBloodActor* actor) {
             // send command
             if (pXMarker->txID) {
 
-                evSend(nMarker, OBJ_SPRITE, pXMarker->txID, (COMMAND_ID)pXMarker->command);
+                evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
             } else if (pXMarker->command == kCmdDudeFlagsSet) {
@@ -7639,7 +7642,7 @@ void aiPatrolThink(DBloodActor* actor) {
                 // send command
                 if (pXMarker->txID) {
 
-                    evSend(nMarker, OBJ_SPRITE, pXMarker->txID, (COMMAND_ID)pXMarker->command);
+                    evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
                 } else if (pXMarker->command == kCmdDudeFlagsSet) {
@@ -7677,11 +7680,11 @@ void aiPatrolThink(DBloodActor* actor) {
 
                     // send command at arrival
                     if (pXMarker->triggerOn)
-                        evSend(nMarker, OBJ_SPRITE, pXMarker->txID, (COMMAND_ID)pXMarker->command);
+                        evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                     // send command at departure
                     if (pXMarker->triggerOff)
-                        evSend(nMarker, OBJ_SPRITE, pXMarker->txID, (COMMAND_ID)pXMarker->command);
+                        evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
                 } else if (pXMarker->command == kCmdDudeFlagsSet) {

@@ -933,7 +933,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->used2[1] = -1;
                         team_score[pPlayer->teamId] += 10;
                         team_ticker[pPlayer->teamId] += 240;
-                        evSend(0, 0, 81, kCmdOn);
+                        evSendGame(81, kCmdOn);
                         sprintf(buffer, "%s captured Red Flag!", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8001, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -970,7 +970,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         pPlayer->used2[0] = -1;
                         team_score[pPlayer->teamId] += 10;
                         team_ticker[pPlayer->teamId] += 240;
-                        evSend(0, 0, 80, kCmdOn);
+                        evSendGame(80, kCmdOn);
                         sprintf(buffer, "%s captured Blue Flag!", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8000, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -1866,16 +1866,16 @@ void FragPlayer(PLAYER *pPlayer, int nSprite)
         if (nTeam1 == 0)
         {
             if (nTeam1 != nTeam2)
-                evSend(0, 0, 15, kCmdToggle);
+                evSendGame(15, kCmdToggle);
             else
-                evSend(0, 0, 16, kCmdToggle);
+                evSendGame(16, kCmdToggle);
         }
         else
         {
             if (nTeam1 == nTeam2)
-                evSend(0, 0, 16, kCmdToggle);
+                evSendGame(16, kCmdToggle);
             else
-                evSend(0, 0, 15, kCmdToggle);
+                evSendGame(15, kCmdToggle);
         }
     }
 }
