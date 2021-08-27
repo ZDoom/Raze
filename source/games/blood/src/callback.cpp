@@ -741,8 +741,20 @@ void callbackCondition(DBloodActor* actor, int)
 
     TRCONDITION* pCond = &gCondition[pXSprite->sysData1];
     for (unsigned i = 0; i < pCond->length; i++) {
-        EVENT evn;  evn.index_ = pCond->obj[i].index;   evn.type = pCond->obj[i].type;
-        evn.cmd = pCond->obj[i].cmd; evn.funcID = kCallbackCondition;
+        EVENT evn;  
+        evn.type = pCond->obj[i].type;
+        if (evn.type == SS_SPRITE)
+        {
+            evn.index_ = 0;
+            evn.actor = &bloodActors[pCond->obj[i].index];
+        }
+        else
+        {
+            evn.actor = nullptr;
+            evn.index_ = pCond->obj[i].index;
+        }
+        evn.cmd = pCond->obj[i].cmd; 
+        evn.funcID = kCallbackCondition;
         useCondition(&sprite[pXSprite->reference], pXSprite, evn);
     }
 
