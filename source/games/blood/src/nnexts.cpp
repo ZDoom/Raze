@@ -280,7 +280,8 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
     {
         x = pOrigin->x;
         y = pOrigin->y;
-    } else
+    } 
+    else
     {
         x = pOrigin->x + mulscale30r(Cos(angle), a3);
         y = pOrigin->y + mulscale30r(Sin(angle), a3);
@@ -342,15 +343,25 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
     return pDudeActor;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-bool nnExtIsImmune(spritetype* pSprite, int dmgType, int minScale) {
-
-    if (dmgType >= kDmgFall && dmgType < kDmgMax && pSprite->extra >= 0 && xsprite[pSprite->extra].locked != 1) {
+bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale) 
+{
+    auto pSprite = &actor->s();
+    if (dmgType >= kDmgFall && dmgType < kDmgMax && actor->hasX() && actor->x().locked != 1) 
+    {
         if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
+        {
             return (thingInfo[pSprite->type - kThingBase].dmgControl[dmgType] <= minScale);
-        else if (IsDudeSprite(pSprite)) {
-            if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType]);
-            else if (pSprite->type == kDudeModernCustom) return (gGenDudeExtra[pSprite->index].dmgControl[dmgType] <= minScale);
+        }
+        else if (actor->IsDudeActor()) 
+        {
+            if (actor->IsPlayerActor()) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType]);
+            else if (pSprite->type == kDudeModernCustom) return (actor->genDudeExtra().dmgControl[dmgType] <= minScale);
             else return (getDudeInfo(pSprite->type)->damageVal[dmgType] <= minScale);
         }
     }
@@ -3047,13 +3058,13 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
     if (dmgType >= kDmgFall) {
         if (dmg < (int)pXSprite->health << 4) {
 
-            if (!nnExtIsImmune(pSprite, dmgType, 0)) {
-
-                if (pPlayer) {
-
+            if (!nnExtIsImmune(actor, dmgType, 0)) 
+            {
+                if (pPlayer) 
+                {
                     playerDamageArmor(pPlayer, (DAMAGE_TYPE)dmgType, dmg);
                     for (int i = 0; i < 3; armor[i] = pPlayer->armor[i], pPlayer->armor[i] = 0, i++);
-                actDamageSprite(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
+                    actDamageSprite(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
                     for (int i = 0; i < 3; pPlayer->armor[i] = armor[i], i++);
 
                 }
@@ -3967,13 +3978,13 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case 31: 
                 if (arg1 == -1) {
                     for (var = 0; var < kDmgMax; var++) {
-                        if (!nnExtIsImmune(pSpr, arg1, 0))
+                        if (!nnExtIsImmune(spractor, arg1, 0))
                             return false;
                     }
 
                     return true;
                 }
-                return nnExtIsImmune(pSpr, arg1, 0);
+                return nnExtIsImmune(spractor, arg1, 0);
             case 35: // hitscan: ceil?
             case 36: // hitscan: floor?
             case 37: // hitscan: wall?
@@ -6512,6 +6523,7 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
 // a replacement of vanilla CanMove for patrol dudes
 bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
 
+    auto actor = &bloodActors[pSprite->index];
     int x = pSprite->x, y = pSprite->y, z = pSprite->z, nSector = pSprite->sectnum;
     HitScan(pSprite, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
     int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
@@ -6526,7 +6538,7 @@ bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
     if (sector[nSector].extra > 0) {
 
         XSECTOR* pXSector = &xsector[sector[nSector].extra];
-        return !((sector[nSector].type == kSectorDamage || pXSector->damageType > 0) && pXSector->state && !nnExtIsImmune(pSprite, pXSector->damageType, 16));
+        return !((sector[nSector].type == kSectorDamage || pXSector->damageType > 0) && pXSector->state && !nnExtIsImmune(actor, pXSector->damageType, 16));
 
     }
 

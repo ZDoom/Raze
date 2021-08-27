@@ -230,7 +230,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 #ifdef NOONE_EXTENSIONS
 	case kDudeModernCustom:
 	case kDudeModernCustomBurning:
-		if ((Crusher && !nnExtIsImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(actor))) return false;
+		if ((Crusher && !nnExtIsImmune(actor, pXSector->damageType)) || ((Water || Underwater) && !canSwim(actor))) return false;
 		return true;
 		[[fallthrough]];
 #endif
