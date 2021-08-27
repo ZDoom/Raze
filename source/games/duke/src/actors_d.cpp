@@ -775,13 +775,13 @@ void movefta_d(void)
 							else s->shade = sector[s->sectnum].floorshade;
 
 							act->timetosleep = 0;
-							changespritestat(act, STAT_STANDABLE);
+							changeactorstat(act, STAT_STANDABLE);
 							break;
 
 						default:
 							act->timetosleep = 0;
 							check_fta_sounds_d(act);
-							changespritestat(act, STAT_ACTOR);
+							changeactorstat(act, STAT_ACTOR);
 							break;
 					}
 					else act->timetosleep = 0;
@@ -1586,7 +1586,7 @@ static bool movefireball(DDukeActor* actor)
 			FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
 			
 			fire.Insert(ball->GetIndex(), proj);
-			changespritestat(ball, STAT_PROJECTILE);
+			changeactorstat(ball, STAT_PROJECTILE);
 		}
 		actor->temp_data[0]++;
 	}
@@ -2345,7 +2345,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->timetosleep > SLEEPTIME)
 		{
 			actor->timetosleep = 0;
-			changespritestat(actor, 2);
+			changeactorstat(actor, 2);
 			return;
 		}
 	}
@@ -4042,7 +4042,7 @@ void checktimetosleep_d(DDukeActor *actor)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changespritestat(actor, STAT_ZOMBIEACTOR);
+				changeactorstat(actor, STAT_ZOMBIEACTOR);
 			break;
 		}
 	}

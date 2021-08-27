@@ -3689,7 +3689,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changespritestat(actor, STAT_ZOMBIEACTOR);
+				changeactorstat(actor, STAT_ZOMBIEACTOR);
 		}
 
 		else if (actor->s->statnum == 6)
@@ -3797,7 +3797,7 @@ void execute(DDukeActor *actor,int p,int x)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changespritestat(actor, STAT_ZOMBIEACTOR);
+				changeactorstat(actor, STAT_ZOMBIEACTOR);
 		}
 
 		else if (actor->s->statnum == STAT_STANDABLE)
