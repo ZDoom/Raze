@@ -310,7 +310,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
     case kCheatMcGee:
     {
         if (!gMe->pXSprite->burnTime)
-            evPost(gMe->actor(), 0, kCallbackFXFlameLick);
+            evPostActor(gMe->actor(), 0, kCallbackFXFlameLick);
         actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
         return GStrings("TXTB_FIRED");
     }
@@ -323,7 +323,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         actHealDude(gMe->actor(), 200, 200);
         gMe->armor[1] = VanillaMode() ? 200 : 3200;
         if (!gMe->pXSprite->burnTime)
-            evPost(gMe->actor(), 0, kCallbackFXFlameLick);
+            evPostActor(gMe->actor(), 0, kCallbackFXFlameLick);
         actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
         return GStrings("TXTB_RETARD");
     }

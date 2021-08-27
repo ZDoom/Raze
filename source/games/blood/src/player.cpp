@@ -2074,7 +2074,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             
             DBloodActor* pItem = nullptr;
             if (pPlayer->pXSprite->dropMsg && (pItem = actDropItem(pActor, pPlayer->pXSprite->dropMsg)) != NULL)
-                evPost(pItem, 500, kCallbackRemove);
+                evPostActor(pItem, 500, kCallbackRemove);
 
             if (pPlayer->pXSprite->key) {
                 
@@ -2085,7 +2085,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 }
                 
                 if (i == 0 && (pItem = actDropKey(pActor, (pPlayer->pXSprite->key + kItemKeyBase) - 1)) != NULL)
-                    evPost(pItem, 500, kCallbackRemove);
+                    evPostActor(pItem, 500, kCallbackRemove);
 
             }
 

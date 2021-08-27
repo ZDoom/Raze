@@ -531,12 +531,12 @@ void evPost_(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 }
 
 
-void evPost(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
+void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
 {
 	evPost_(actor->s().index, OBJ_SPRITE, nDelta, command);
 }
 
-void evPost(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
+void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 {
 	evPost_(actor->s().index, OBJ_SPRITE, nDelta, callback);
 }
@@ -575,12 +575,12 @@ void evKill_(int index, int type, CALLBACK_ID cb)
 	}
 }
 
-void evKill(DBloodActor* actor)
+void evKillActor(DBloodActor* actor)
 {
 	evKill_(actor->s().index, 3);
 }
 
-void evKill(DBloodActor* actor, CALLBACK_ID cb)
+void evKillActor(DBloodActor* actor, CALLBACK_ID cb)
 {
 	evKill_(actor->s().index, 3, cb);
 }

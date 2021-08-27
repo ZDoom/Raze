@@ -405,14 +405,14 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             pXSpawned->stateTimer = 1;
                 
             actor->genDudeExtra().pLifeLeech = spawned;
-            evPost(spawned, 80, kCallbackLeechStateTimer);
+            evPostActor(spawned, 80, kCallbackLeechStateTimer);
             return;
     }
 
     if (impact == true && dist <= 7680) pXSpawned->Impact = true;
     else {
         pXSpawned->Impact = false;
-        evPost(spawned, 120 * Random(2) + 120, kCmdOn);
+        evPostActor(spawned, 120 * Random(2) + 120, kCmdOn);
     }
 }
 
@@ -1889,7 +1889,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
                 {
                     missile->SetOwner(actor);
                     pXSprite->stateTimer = 1;
-                    evPost(actor, t2, kCallbackLeechStateTimer);
+                    evPostActor(actor, t2, kCallbackLeechStateTimer);
                     pXSprite->data3 = ClipLow(pXSprite->data3 - 1, 0);
                 }
                 pSprite->ang = angBak;
