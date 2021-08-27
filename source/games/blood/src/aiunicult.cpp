@@ -2058,7 +2058,7 @@ void genDudeTransform(DBloodActor* actor)
     if (actIncarnation == NULL) 
     {
         if (pXSprite->sysData1 == kGenDudeTransformStatus) pXSprite->sysData1 = 0;
-        trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
+        trTriggerSprite(actor, kCmdOff);
         return;
     }
     
@@ -2075,7 +2075,7 @@ void genDudeTransform(DBloodActor* actor)
     pXIncarnation->triggerOff = false;
 
     // trigger dude death before transform
-    trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
+    trTriggerSprite(actor, kCmdOff);
 
     pSprite->type = pSprite->inittype = pIncarnation->type;
     pSprite->flags = pIncarnation->flags;
