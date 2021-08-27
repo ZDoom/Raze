@@ -72,7 +72,7 @@ short gTrackingCondsCount;
 
 std::default_random_engine gStdRandom;
 
-VECTORINFO_EXTRA gVectorInfoExtra[] = {
+const VECTORINFO_EXTRA gVectorInfoExtra[] = {
     1207,1207,      1001,1001,      4001,4002,
     431,431,        1002,1002,      359,359,
     521,521,        513,513,        499,499,
@@ -83,7 +83,7 @@ VECTORINFO_EXTRA gVectorInfoExtra[] = {
     0,0,            357,499
 };
 
-MISSILEINFO_EXTRA gMissileInfoExtra[] = {
+const MISSILEINFO_EXTRA gMissileInfoExtra[] = {
     1207, 1207,    false, false, false, false, false, true, false,     true,
     420, 420,      false, true, true, false, false, false, false,      true,
     471, 471,      false, false, false, false, false, false, true,     false,
@@ -104,7 +104,7 @@ MISSILEINFO_EXTRA gMissileInfoExtra[] = {
     520, 520,      false, false, false, false, false, true, false,     true,
 };
 
-THINGINFO_EXTRA gThingInfoExtra[] = {
+const THINGINFO_EXTRA gThingInfoExtra[] = {
     true,   true,   true,   false,  false,
     false,  false,  false,  false,  false,
     false,  false,  false,  false,  false,
@@ -115,7 +115,7 @@ THINGINFO_EXTRA gThingInfoExtra[] = {
     true,
 };
 
-DUDEINFO_EXTRA gDudeInfoExtra[] = {
+const DUDEINFO_EXTRA gDudeInfoExtra[] = {
     
     { false,  false,  -1, -1, -1, -1, -1, -1 },     // 200
     { false,  false,  0, 9, 13, 13, 17, 14 },       // 201
@@ -1338,13 +1338,13 @@ void nnExtProcessSuperSprites() {
 
 // this function plays sound predefined in missile info
 void sfxPlayMissileSound(spritetype* pSprite, int missileId) {
-    MISSILEINFO_EXTRA* pMissType = &gMissileInfoExtra[missileId - kMissileBase];
+    const MISSILEINFO_EXTRA* pMissType = &gMissileInfoExtra[missileId - kMissileBase];
     sfxPlay3DSound(pSprite, Chance(0x5000) ? pMissType->fireSound[0] : pMissType->fireSound[1], -1, 0);
 }
 
 // this function plays sound predefined in vector info
 void sfxPlayVectorSound(spritetype* pSprite, int vectorId) {
-    VECTORINFO_EXTRA* pVectorData = &gVectorInfoExtra[vectorId];
+    const VECTORINFO_EXTRA* pVectorData = &gVectorInfoExtra[vectorId];
     sfxPlay3DSound(pSprite, Chance(0x5000) ? pVectorData->fireSound[0] : pVectorData->fireSound[1], -1, 0);
 }
 
@@ -6559,7 +6559,7 @@ void aiPatrolState(spritetype* pSprite, int state) {
     bool nSeqOverride = false, crouch = false;
     int i, seq = -1, start = 0, end = kPatrolStateSize;
     
-    DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
+    const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
     
     switch (state) {
         case kAiStatePatrolWaitL:
@@ -6656,7 +6656,7 @@ bool aiPatrolMarkerReached(spritetype* pSprite, XSPRITE* pXSprite) {
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 
         auto actor = &bloodActors[pSprite->index];
-    DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
+    const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
     if (spriRangeIsFine(pXSprite->target_i) && sprite[pXSprite->target_i].type == kMarkerPath) {
             
             spritetype* pMarker = &sprite[pXSprite->target_i];
@@ -6916,7 +6916,7 @@ void aiPatrolMove(DBloodActor* actor) {
     spritetype* pTarget = &sprite[pXSprite->target_i];
     XSPRITE* pXTarget   = &xsprite[pTarget->extra];
     DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
-    DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
+    const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
     
     int dx = (pTarget->x - pSprite->x);
     int dy = (pTarget->y - pSprite->y);
@@ -7512,7 +7512,7 @@ void aiPatrolThink(DBloodActor* actor) {
     }
     
     spritetype* pMarker = &sprite[nMarker]; XSPRITE* pXMarker = &xsprite[pMarker->extra];
-    DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
+    const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
     bool isFinal = ((!pXSprite->unused2 && pXMarker->data2 == -1) || (pXSprite->unused2 && pXMarker->data1 == -1));
     bool reached = false;
     
