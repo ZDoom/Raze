@@ -1012,21 +1012,28 @@ static int randomGetDataValue(DBloodActor* actor, int randType)
     return -1;
 }
 
+//---------------------------------------------------------------------------
+//
 // this function drops random item using random pickup generator(s)
-spritetype* randomDropPickupObject(spritetype* pSource, short prevItem) 
-{
-    auto sourceactor = &bloodActors[pSource->index];
+//
+//---------------------------------------------------------------------------
 
-    spritetype* pSprite2 = NULL; int selected = -1; int maxRetries = 9;
+static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevItem) 
+{
+    DBloodActor* spawned = nullptr; 
+    int selected = -1; 
+    int maxRetries = 9;
     if (sourceactor->hasX())
     {
+        auto pSource = &sourceactor->s();
         XSPRITE* pXSource = &sourceactor->x();
         while ((selected = randomGetDataValue(sourceactor, kRandomizeItem)) == prevItem) if (maxRetries-- <= 0) break;
         if (selected > 0) 
         {
-            DBloodActor* spawned = actDropObject(sourceactor, selected);
-            if (spawned) {
-                pSprite2 = &spawned->s();
+            spawned = actDropObject(sourceactor, selected);
+            if (spawned) 
+            {
+                auto pSprite2 = &spawned->s();
 
                 pXSource->dropMsg = uint8_t(pSprite2->type); // store dropped item type in dropMsg
                 pSprite2->x = pSource->x;
@@ -1034,9 +1041,9 @@ spritetype* randomDropPickupObject(spritetype* pSource, short prevItem)
                 pSprite2->z = pSource->z;
 
                 if ((pSource->flags & kModernTypeFlag1) && (pXSource->txID > 0 || (pXSource->txID != 3 && pXSource->lockMsg > 0)) &&
-                    dbInsertXSprite(pSprite2->index) > 0) {
-
-                    XSPRITE* pXSprite2 = &xsprite[pSprite2->extra];
+                    dbInsertXSprite(pSprite2->index) > 0) 
+                {
+                    XSPRITE* pXSprite2 = &spawned->x();
 
                     // inherit spawn sprite trigger settings, so designer can send command when item picked up.
                     pXSprite2->txID = pXSource->txID;
@@ -1050,19 +1057,23 @@ spritetype* randomDropPickupObject(spritetype* pSource, short prevItem)
             }
         }
     }
-    return pSprite2;
+    return spawned;
 }
 
+//---------------------------------------------------------------------------
+//
 // this function spawns random dude using dudeSpawn
-spritetype* randomSpawnDude(XSPRITE* pXSource, spritetype* pSprite, int a3, int a4)
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int a3, int a4)
 {
-    auto sourceactor = &bloodActors[pXSource->reference];
-    DBloodActor* pSprite2 = NULL; int selected = -1;
+    DBloodActor* spawned = NULL; int selected = -1;
     
     if ((selected = randomGetDataValue(sourceactor, kRandomizeDude)) > 0)
-        pSprite2 = nnExtSpawnDude(sourceactor, &bloodActors[pSprite->index], selected, a3, 0);
+        spawned = nnExtSpawnDude(sourceactor, origin, selected, a3, 0);
 
-    return pSprite2? &pSprite2->s() : nullptr;
+    return spawned;
 }
 
 //-------------------------
@@ -4867,7 +4878,7 @@ void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
 
 void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
 
-    if (randomSpawnDude(pXSource, pSprite, pSprite->clipdist << 1, 0) == NULL)
+    if (randomSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pSprite->clipdist << 1, 0) == nullptr)
         nnExtSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pXSource->data1, pSprite->clipdist << 1, 0);
 }
 
@@ -5580,11 +5591,12 @@ void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
     }
 
     // then drop item
-    spritetype* pDrop = randomDropPickupObject(pSource, pXSource->dropMsg);
+    auto dropactor = randomDropPickupObject(&bloodActors[pSource->index], pXSource->dropMsg);
     
 
-    if (pDrop != NULL) {
-        
+    if (dropactor != NULL) 
+    {
+        auto pDrop = &dropactor->s();
         clampSprite(pDrop);
 
         // check if generator affected by physics
