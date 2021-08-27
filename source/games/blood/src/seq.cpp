@@ -662,9 +662,9 @@ void seqProcess(int nTicks)
 							if (nSprite > 0)
 							{
 								assert(nSprite >= 0 && nSprite < kMaxSprites);
-								evKill_(nSprite, SS_SPRITE);
+							evKillActor(&bloodActors[nSprite]);
 								if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
-								evPost_(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+								evPostActor(&bloodActors[nSprite], gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
 								else deletesprite(nSprite);	// safe to not use actPostSprite here
 							}
 						}

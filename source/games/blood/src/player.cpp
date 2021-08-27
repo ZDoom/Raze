@@ -870,6 +870,7 @@ char findDroppedLeech(PLAYER *a1, spritetype *a2)
 
 char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
     
+    auto itemactor = &bloodActors[pItem->index];
     spritetype *pSprite = pPlayer->pSprite; XSPRITE *pXSprite = pPlayer->pXSprite;
     char buffer[80]; int pickupSnd = 775; int nType = pItem->type - kItemBase;
 
@@ -2042,7 +2043,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 nKneelingPlayer = nPlayerKneelClient;
                 powerupActivate(pPlayer, kPwUpDeliriumShroom);
                 pXSprite->target_i = nSource;
-                evPost_(pSprite->index, 3, 15, kCallbackFinishHim);
+                evPostActor(&bloodActors[pSprite->index], 15, kCallbackFinishHim);
             }
             else
             {
