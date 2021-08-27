@@ -38,9 +38,6 @@ BEGIN_BLD_NS
 
 inline int mulscale8(int a, int b) { return MulScale(a, b, 8); }
 
-enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
-PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
-
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
 DBloodActor* gProxySpritesList[];  // list of additional sprites which can be triggered by Proximity
@@ -254,15 +251,6 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
     {kCondSpriteBase,   kCondSpriteMax, "Sprite"},
 
 };
-
-void nnExResetPatrolBonkles() {
-
-    for (int i = 0; i < kMaxPatrolFoundSounds; i++) {
-        patrolBonkles[i].snd = patrolBonkles[i].cur = 0;
-        patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
-    }
-
-}
 
 // for actor.cpp
 //-------------------------------------------------------------------------
@@ -7143,10 +7131,17 @@ bool readyForCrit(spritetype* pHunter, spritetype* pVictim) {
 
 int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
    
+    enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
+    PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
+
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); PLAYER* pPlayer = NULL;
     
-    nnExResetPatrolBonkles();
+    for (int i = 0; i < kMaxPatrolFoundSounds; i++) {
+        patrolBonkles[i].snd = patrolBonkles[i].cur = 0;
+        patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
+    }
+
     int i, j, f, mod, x, y, z, dx, dy, nDist, eyeAboveZ, target = -1, sndCnt = 0, seeDist, hearDist, feelDist, seeChance, hearChance;
     bool stealth = (pXSprite->unused1 & kDudeFlagStealth); bool blind = (pXSprite->dudeGuard); bool deaf = (pXSprite->dudeDeaf);
 
