@@ -237,12 +237,13 @@ struct TRPLAYERCTRL { // this one for controlling the player using triggers (mov
 struct OBJECTS_TO_TRACK {
     int8_t type;
     uint8_t cmd;
-    int index;
+    unsigned int index_;
+    DBloodActor* actor;
 };
 
 struct TRCONDITION {
-    signed   int xindex;
-    unsigned int length;
+    int16_t xindex;
+    uint8_t length;
     OBJECTS_TO_TRACK obj[kMaxTracedObjects];
 };
 
