@@ -171,7 +171,7 @@ void ReverseBusy(int a1, BUSYID a2)
 
 unsigned int GetSourceBusy(EVENT a1)
 {
-    int nIndex = a1.index;
+    int nIndex = a1.index_;
     switch (a1.type)
     {
     case 6:
@@ -209,7 +209,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
             PLAYER *pPlayer = &gPlayer[nPlayer];
             if (pPlayer->pXSprite->health > 0)
             {
-                evKill(actor);
+                evKillActor(actor);
                 pPlayer->ammoCount[8] = ClipHigh(pPlayer->ammoCount[8]+pXSprite->data3, gAmmoInfo[8].max);
                 pPlayer->hasWeapon[9] = 1;
                 if (pPlayer->curWeapon != kWeapLifeLeech)
@@ -1698,7 +1698,7 @@ void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
         {
             if (event.type == 3)
             {
-                int nSprite2 = event.index;
+                int nSprite2 = event.index_;
                 int nXSprite2 = sprite[nSprite2].extra;
                 assert(nXSprite2 > 0 && nXSprite2 < kMaxXSprites);
                 pXSprite->data1 = xsprite[nXSprite2].data1;

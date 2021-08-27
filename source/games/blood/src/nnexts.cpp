@@ -1054,7 +1054,7 @@ void nnExtProcessSuperSprites() {
             if (pXCond->data1 >= kCondGameBase && pXCond->data1 < kCondGameMax) {
 
                 EVENT evn;
-                evn.index = pXCond->reference;     evn.cmd = (int8_t)pXCond->command;
+                evn.index_ = pXCond->reference;     evn.cmd = (int8_t)pXCond->command;
                 evn.type = OBJ_SPRITE;            evn.funcID = kCallbackMax;
                 useCondition(&sprite[pXCond->reference], pXCond, evn);
 
@@ -1064,7 +1064,7 @@ void nnExtProcessSuperSprites() {
                 for (unsigned k = 0; k < pCond->length; k++) {
 
                     EVENT evn;
-                    evn.index = pCond->obj[k].index;    evn.cmd    = pCond->obj[k].cmd;
+                    evn.index_ = pCond->obj[k].index;    evn.cmd    = pCond->obj[k].cmd;
                     evn.type  = pCond->obj[k].type;     evn.funcID = kCallbackMax;
                     useCondition(&sprite[pXCond->reference], pXCond, evn);
 
@@ -3082,14 +3082,14 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
                 case kDmgBurn:
                     if (pXSprite->burnTime > 0) break;
                     actBurnSprite(pSource->index, pXSprite, ClipLow(dmg >> 1, 128));
-                    evKill(actor, kCallbackFXFlameLick);
-                    evPost(actor, 0, kCallbackFXFlameLick); // show flames
+                    evKillActor(actor, kCallbackFXFlameLick);
+                    evPostActor(actor, 0, kCallbackFXFlameLick); // show flames
                     break;
                 case kDmgElectric:
                     forceRecoil = true; // show tesla recoil animation
                     break;
                 case kDmgBullet:
-                    evKill(actor, kCallbackFXBloodSpurt);
+                    evKillActor(actor, kCallbackFXBloodSpurt);
                     for (int i = 1; i < 6; i++) {
                         
                         if (Chance(0x16000 >> i))
@@ -4194,7 +4194,7 @@ void modernTypeSendCommand(int nSprite, int destChannel, COMMAND_ID command) {
 void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
 
     if (event.type != OBJ_SPRITE) return;
-    spritetype* pSource = &sprite[event.index];
+    spritetype* pSource = &sprite[event.index_];
 
     if (!xspriRangeIsFine(pSource->extra)) return;
     XSPRITE* pXSource = &xsprite[pSource->extra];
@@ -4811,10 +4811,10 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             viewSetSystemMessage("Only sprites could use command #%d", event.cmd);
             return true;
 
-        } else if (xspriRangeIsFine(sprite[event.index].extra)) {
+        } else if (xspriRangeIsFine(sprite[event.index_].extra)) {
            
             // copy dude flags from the source to destination sprite
-            aiPatrolFlagsMgr(&sprite[event.index], &xsprite[sprite[event.index].extra], pSprite, pXSprite, true, false);
+            aiPatrolFlagsMgr(&sprite[event.index_], &xsprite[sprite[event.index_].extra], pSprite, pXSprite, true, false);
 
     }
 
@@ -4841,8 +4841,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 }
                 break;
             case kCmdDudeFlagsSet:
-                if (!xspriRangeIsFine(sprite[event.index].extra)) break;
-                else aiPatrolFlagsMgr(&sprite[event.index], &xsprite[sprite[event.index].extra], pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
+                if (!xspriRangeIsFine(sprite[event.index_].extra)) break;
+                else aiPatrolFlagsMgr(&sprite[event.index_], &xsprite[sprite[event.index_].extra], pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
                 break;
             default:
                 if (!pXSprite->state) evPost_(nSprite, OBJ_SPRITE, 0, kCmdOn);
@@ -5379,7 +5379,7 @@ void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
 
 int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) {
 
-    int objType = event.type; int objIndex = event.index;
+    int objType = event.type; int objIndex = event.index_;
     bool srcIsCondition = false;
     if (objType == OBJ_SPRITE && objIndex != pSource->index)
         srcIsCondition = (sprite[objIndex].type == kModernCondition || sprite[objIndex].type == kModernConditionFalse);
@@ -7897,7 +7897,7 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
         zvel[pBurst->index] += dz;
         evPost_(pBurst->index, 3, 960, kCallbackRemove);
     }
-    evPost(actor, 0, kCallbackRemove);
+    evPostActor(actor, 0, kCallbackRemove);
 }
 
 

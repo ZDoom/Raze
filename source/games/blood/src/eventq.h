@@ -150,7 +150,7 @@ inline bool channelRangeIsFine(int channel) {
 struct EVENT
 {
 	DBloodActor* actor;
-	int16_t index;
+	int16_t index_;
 	int8_t type;
 	int8_t cmd;
 	int16_t funcID;
@@ -166,8 +166,8 @@ void evInit(void);
 void evSend(int nIndex, int nType, int rxId, COMMAND_ID command);
 //void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command);
 //void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback);
-void evPost(DBloodActor*, unsigned int nDelta, COMMAND_ID command);
-void evPost(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
+void evPostActor(DBloodActor*, unsigned int nDelta, COMMAND_ID command);
+void evPostActor(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
 
 void evPostSector(int index, unsigned int nDelta, COMMAND_ID command);
 void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback);
@@ -175,7 +175,7 @@ void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback);
 void evProcess(unsigned int nTime);
 void evKill_(int a1, int a2);
 void evKill_(int a1, int a2, CALLBACK_ID a3);
-void evKill(DBloodActor*);
-void evKill(DBloodActor*, CALLBACK_ID a3);
+void evKillActor(DBloodActor*);
+void evKillActor(DBloodActor*, CALLBACK_ID a3);
 
 END_BLD_NS

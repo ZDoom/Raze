@@ -368,7 +368,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 
 	EVENT event;
 	event.actor = nType == SS_SPRITE? &bloodActors[nIndex] : nullptr;
-	event.index = nIndex;
+	event.index_ = nIndex;
 	event.type = nType;
 	event.cmd = command;
 
@@ -482,7 +482,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 #endif
 	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++) 
 	{
-		if (event.type != rxBucket[i].type || (event.type != OBJ_SPRITE && event.index != rxBucket[i].rxindex) || (event.type == OBJ_SPRITE && event.actor != rxBucket[i].GetActor())) 
+		if (event.type != rxBucket[i].type || (event.type != OBJ_SPRITE && event.index_ != rxBucket[i].rxindex) || (event.type == OBJ_SPRITE && event.actor != rxBucket[i].GetActor())) 
 		{
 			switch (rxBucket[i].type) 
 			{
@@ -531,12 +531,12 @@ void evPost_(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 }
 
 
-void evPost(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
+void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
 {
 	evPost_(actor->s().index, OBJ_SPRITE, nDelta, command);
 }
 
-void evPost(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
+void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 {
 	evPost_(actor->s().index, OBJ_SPRITE, nDelta, callback);
 }
@@ -561,7 +561,7 @@ void evKill_(int index, int type)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
-		if (ev->index == index && ev->type == type) ev = queue.erase(ev);
+		if (ev->index_ == index && ev->type == type) ev = queue.erase(ev);
 		else ev++;
 	}
 }
@@ -570,17 +570,17 @@ void evKill_(int index, int type, CALLBACK_ID cb)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
-		if (ev->index == index && ev->type == type && ev->funcID == cb) ev = queue.erase(ev);
+		if (ev->index_ == index && ev->type == type && ev->funcID == cb) ev = queue.erase(ev);
 		else ev++;
 	}
 }
 
-void evKill(DBloodActor* actor)
+void evKillActor(DBloodActor* actor)
 {
 	evKill_(actor->s().index, 3);
 }
 
-void evKill(DBloodActor* actor, CALLBACK_ID cb)
+void evKillActor(DBloodActor* actor, CALLBACK_ID cb)
 {
 	evKill_(actor->s().index, 3, cb);
 }
@@ -602,21 +602,21 @@ void evProcess(unsigned int time)
 		{
 			assert(event.funcID < kCallbackMax);
 			assert(gCallback[event.funcID] != nullptr);
-			if (event.type == OBJ_SPRITE) gCallback[event.funcID](&bloodActors[event.index], 0);
-			else gCallback[event.funcID](nullptr, event.index);
+			if (event.type == OBJ_SPRITE) gCallback[event.funcID](&bloodActors[event.index_], 0);
+			else gCallback[event.funcID](nullptr, event.index_);
 		}
 		else
 		{
 			switch (event.type)
 			{
 			case SS_SECTOR:
-				trMessageSector(event.index, event);
+				trMessageSector(event.index_, event);
 				break;
 			case SS_WALL:
-				trMessageWall(event.index, event);
+				trMessageWall(event.index_, event);
 				break;
 			case SS_SPRITE:
-				trMessageSprite(event.index, event);
+				trMessageSprite(event.index_, event);
 				break;
 			}
 		}
@@ -633,7 +633,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, EVENT& w, EVENT* d
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.index)
+		arc("index", w.index_)
 			("type", w.type)
 			("command", w.cmd)
 			("func", w.funcID)

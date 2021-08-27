@@ -110,7 +110,7 @@ FXDATA gFXData[] = {
 void CFX::destroy(DBloodActor* actor)
 {
     if (!actor) return;
-    evKill(actor);
+    evKillActor(actor);
     if (actor->hasX()) seqKill(actor);
     DeleteSprite(actor);
 }
@@ -185,7 +185,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
     if (a6 == 0)
         a6 = pFX->ate;
     if (a6)
-        evPost(actor, a6+Random2(a6>>1), kCallbackRemove);
+        evPostActor(actor, a6+Random2(a6>>1), kCallbackRemove);
     return actor;
 }
 
@@ -272,7 +272,7 @@ void fxSpawnBlood(DBloodActor *actor, int )
         bloodactor->xvel() = Random2(0x6aaaa);
         bloodactor->yvel() = Random2(0x6aaaa);
         bloodactor->zvel() = -(int)Random(0x10aaaa)-100;
-        evPost(bloodactor, 8, kCallbackFXBloodSpurt);
+        evPostActor(bloodactor, 8, kCallbackFXBloodSpurt);
     }
 }
 
@@ -297,7 +297,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int )
         spawnactor->xvel() = Random2(0x6aaaa);
         spawnactor->yvel() = Random2(0x6aaaa);
         spawnactor->zvel() = -(int)Random(0x10aaaa)-100;
-        evPost(spawnactor, 8, kCallbackFXPodBloodSpray);
+        evPostActor(spawnactor, 8, kCallbackFXPodBloodSpray);
     }
 }
 

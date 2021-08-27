@@ -55,14 +55,14 @@ void fxFlameLick(DBloodActor* actor, int) // 0
         }
     }
     if (pXSprite->burnTime > 0)
-        evPost(actor, 5, kCallbackFXFlameLick);
+        evPostActor(actor, 5, kCallbackFXFlameLick);
 }
 
 void Remove(DBloodActor* actor, int) // 1
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    evKill(actor, kCallbackFXFlareSpark);
+    evKillActor(actor, kCallbackFXFlareSpark);
     if (pSprite->extra > 0)
         seqKill(3, pSprite->extra);
     sfxKill3DSound(pSprite, 0, -1);
@@ -98,9 +98,9 @@ void FlareBurst(DBloodActor* actor, int) // 2
         spawnedactor->xvel() += dx;
         spawnedactor->yvel() += dy;
         spawnedactor->zvel() += dz;
-        evPost(spawnedactor, 960, kCallbackRemove);
+        evPostActor(spawnedactor, 960, kCallbackRemove);
     }
-    evPost(actor, 0, kCallbackRemove);
+    evPostActor(actor, 0, kCallbackRemove);
 }
 
 void fxFlareSpark(DBloodActor* actor, int) // 3
@@ -114,7 +114,7 @@ void fxFlareSpark(DBloodActor* actor, int) // 3
         pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
         pFX->zvel() = actor->zvel() - Random(0x1aaaa);
     }
-    evPost(actor, 4, kCallbackFXFlareSpark);
+    evPostActor(actor, 4, kCallbackFXFlareSpark);
 }
 
 void fxFlareSparkLite(DBloodActor* actor, int) // 4
@@ -128,7 +128,7 @@ void fxFlareSparkLite(DBloodActor* actor, int) // 4
         pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
         pFX->zvel() = actor->zvel() - Random(0x1aaaa);
     }
-    evPost(actor, 12, kCallbackFXFlareSparkLite);
+    evPostActor(actor, 12, kCallbackFXFlareSparkLite);
 }
 
 void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
@@ -149,12 +149,12 @@ void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
     }
     if (pXSprite->data1 > 0)
     {
-        evPost(actor, 4, kCallbackFXZombieSpurt);
+        evPostActor(actor, 4, kCallbackFXZombieSpurt);
         pXSprite->data1 -= 4;
     }
     else if (pXSprite->data2 > 0)
     {
-        evPost(actor, 60, kCallbackFXZombieSpurt);
+        evPostActor(actor, 60, kCallbackFXZombieSpurt);
         pXSprite->data1 = 40;
         pXSprite->data2--;
     }
@@ -172,7 +172,7 @@ void fxBloodSpurt(DBloodActor* actor, int) // 6
         pFX->yvel() = actor->yvel()>>8;
         pFX->zvel() = actor->zvel()>>8;
     }
-    evPost(actor, 6, kCallbackFXBloodSpurt);
+    evPostActor(actor, 6, kCallbackFXBloodSpurt);
 }
 
 
@@ -187,7 +187,7 @@ void fxArcSpark(DBloodActor* actor, int) // 7
         pFX->yvel() = actor->yvel() + Random2(0x10000);
         pFX->zvel() = actor->zvel() - Random(0x1aaaa);
     }
-    evPost(actor, 3, kCallbackFXArcSpark);
+    evPostActor(actor, 3, kCallbackFXArcSpark);
 }
 
 
@@ -209,7 +209,7 @@ void fxDynPuff(DBloodActor* actor, int) // 8
             pFX->zvel() = actor->zvel();
         }
     }
-    evPost(actor, 12, kCallbackFXDynPuff);
+    evPostActor(actor, 12, kCallbackFXDynPuff);
 }
 
 void Respawn(DBloodActor* actor, int) // 9
@@ -231,13 +231,13 @@ void Respawn(DBloodActor* actor, int) // 9
         case 1: {
             int nTime = MulScale(actGetRespawnTime(actor), 0x4000, 16);
             pXSprite->respawnPending = 2;
-            evPost(actor, nTime, kCallbackRespawn);
+            evPostActor(actor, nTime, kCallbackRespawn);
             break;
         }
         case 2: {
             int nTime = MulScale(actGetRespawnTime(actor), 0x2000, 16);
             pXSprite->respawnPending = 3;
-            evPost(actor, nTime, kCallbackRespawn);
+            evPostActor(actor, nTime, kCallbackRespawn);
             break;
         }
         case 3: {
@@ -324,7 +324,7 @@ void PlayerBubble(DBloodActor* actor, int) // 10
                 pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
             }
         }
-        evPost(actor, 4, kCallbackPlayerBubble);
+        evPostActor(actor, 4, kCallbackPlayerBubble);
     }
 }
 
@@ -349,7 +349,7 @@ void EnemyBubble(DBloodActor* actor, int) // 11
             pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
         }
     }
-    evPost(actor, 4, kCallbackEnemeyBubble);
+    evPostActor(actor, 4, kCallbackEnemeyBubble);
 }
 
 void CounterCheck(DBloodActor*, int nSector) // 12
@@ -431,7 +431,7 @@ void fxTeslaAlt(DBloodActor* actor, int) // 15
         pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
         pFX->zvel() = actor->zvel() - Random(0x1aaaa);
     }
-    evPost(actor, 3, kCallbackFXTeslaAlt);
+    evPostActor(actor, 3, kCallbackFXTeslaAlt);
 }
 
 
@@ -520,7 +520,7 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
                 break;
         }
     }
-    evPost(actor, 0, kCallbackRemove);
+    evPostActor(actor, 0, kCallbackRemove);
 }
 
 void fxPodBloodSpray(DBloodActor* actor, int) // 18
@@ -539,7 +539,7 @@ void fxPodBloodSpray(DBloodActor* actor, int) // 18
         pFX->yvel() = actor->yvel() >> 8;
         pFX->zvel() = actor->zvel() >> 8;
     }
-    evPost(actor, 6, kCallbackFXPodBloodSpray);
+    evPostActor(actor, 6, kCallbackFXPodBloodSpray);
 }
 
 void fxPodBloodSplat(DBloodActor* actor, int) // 19
@@ -623,7 +623,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
     int nOwner = pSprite->owner;
     if (nOwner < 0 || nOwner >= kMaxSprites)
     {
-        evPost(actor, 0, kCallbackRemove);
+        evPostActor(actor, 0, kCallbackRemove);
         return;
     }
     spritetype *pOwner = &sprite[nOwner];
@@ -634,7 +634,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
         pPlayer = NULL;
     if (!pPlayer)
     {
-        evPost(actor, 0, kCallbackRemove);
+        evPostActor(actor, 0, kCallbackRemove);
         return;
     }
     pSprite->ang = getangle(pOwner->x-pSprite->x, pOwner->y-pSprite->y);
@@ -644,7 +644,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
         XSPRITE *pXSprite = &actor->x();
         if (pXSprite->data1 == 0)
         {
-            evPost(actor, 0, kCallbackRemove);
+            evPostActor(actor, 0, kCallbackRemove);
             return;
         }
         int nSprite2;
@@ -681,7 +681,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
                             int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, pXSprite->data1<<4);
                             pXSprite->data1 = ClipLow(pXSprite->data1-nDmg, 0);
                             sub_76A08(actor2, pSprite, pPlayer2);
-                            evPost(actor, 0, kCallbackRemove);
+                            evPostActor(actor, 0, kCallbackRemove);
                             return;
                         }
                     }
@@ -722,7 +722,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
                         if (vd && (Chance(vd) || nNextSprite < 0))
                         {
                             sub_76A08(actor2, pSprite, NULL);
-                            evPost(actor, 0, kCallbackRemove);
+                            evPostActor(actor, 0, kCallbackRemove);
                             return;
                         }
                     }
@@ -730,7 +730,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
             }
         }
         pXSprite->data1 = ClipLow(pXSprite->data1-1, 0);
-        evPost(actor, 0, kCallbackRemove);
+        evPostActor(actor, 0, kCallbackRemove);
     }
 }
 
@@ -741,12 +741,12 @@ void callbackCondition(DBloodActor* actor, int)
 
     TRCONDITION* pCond = &gCondition[pXSprite->sysData1];
     for (unsigned i = 0; i < pCond->length; i++) {
-        EVENT evn;  evn.index = pCond->obj[i].index;   evn.type = pCond->obj[i].type;
+        EVENT evn;  evn.index_ = pCond->obj[i].index;   evn.type = pCond->obj[i].type;
         evn.cmd = pCond->obj[i].cmd; evn.funcID = kCallbackCondition;
         useCondition(&sprite[pXSprite->reference], pXSprite, evn);
     }
 
-    evPost(actor, pXSprite->busyTime, kCallbackCondition);
+    evPostActor(actor, pXSprite->busyTime, kCallbackCondition);
     return;
 }
 
