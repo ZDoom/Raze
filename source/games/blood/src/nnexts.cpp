@@ -847,7 +847,8 @@ void nnExtInitModernStuff(bool bSaveLoad)
     BloodStatIterator it(kStatModernCondition);
     while (auto iactor = it.Next())
     {
-        spritetype* pSprite = &iactor->s(); XSPRITE* pXSprite = &iactor->x();
+        spritetype* pSprite = &iactor->s(); 
+        XSPRITE* pXSprite = &iactor->x();
 
         if (pXSprite->busyTime <= 0 || pXSprite->isTriggered) continue;
         else if (gTrackingCondsCount >= kMaxTrackingConditions)
@@ -932,28 +933,40 @@ void nnExtInitModernStuff(bool bSaveLoad)
 
 
 // The following functions required for random event features
-//-------------------------
-int nnExtRandom(int a, int b) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int nnExtRandom(int a, int b) 
+{
     if (!gAllowTrueRandom) return Random(((b + 1) - a)) + a;
     // used for better randomness in single player
     std::uniform_int_distribution<int> dist_a_b(a, b);
     return dist_a_b(gStdRandom);
 }
 
-int GetDataVal(spritetype* pSprite, int data) {
-    assert(xspriRangeIsFine(pSprite->extra));
+int GetDataVal(DBloodActor* actor, int data) 
+{
+    if (!actor->hasX()) return -1;
     
     switch (data) {
-        case 0: return xsprite[pSprite->extra].data1;
-        case 1: return xsprite[pSprite->extra].data2;
-        case 2: return xsprite[pSprite->extra].data3;
-        case 3: return xsprite[pSprite->extra].data4;
+        case 0: return actor->x().data1;
+        case 1: return actor->x().data2;
+        case 2: return actor->x().data3;
+        case 3: return actor->x().data4;
     }
 
     return -1;
 }
 
+//---------------------------------------------------------------------------
+//
 // tries to get random data field of sprite
+//
+//---------------------------------------------------------------------------
+
 int randomGetDataValue(XSPRITE* pXSprite, int randType) {
     if (pXSprite == NULL) return -1;
     int random = 0; int bad = 0; int maxRetries = kMaxRandomizeRetries;
@@ -5358,7 +5371,7 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
         }
     } else {
         for (int i = 0; i <= 3; i++) {
-            pXSource->txID = GetDataVal(&sprite[pXSource->reference], i);
+            pXSource->txID = GetDataVal(&bloodActors[pXSource->reference], i);
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
             else modernTypeSendCommand(nIndex, pXSource->txID, cmd);
@@ -5395,7 +5408,8 @@ void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
 
 void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
     
-    spritetype* pSource = &sprite[pXSource->reference];
+    auto sourceactor = &bloodActors[pXSource->reference];
+    spritetype* pSource = &sourceactor->s();
     bool range = txIsRanged(pXSource); int cnt = 3; int tx = 0;
 
     if (range) {
@@ -5417,7 +5431,7 @@ void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
             if (!range) {
                 while (cnt-- >= 0) { // skip empty data fields
                     if (pXSource->sysData1-- < 0) pXSource->sysData1 = 3;
-                    if ((tx = GetDataVal(pSource, pXSource->sysData1)) <= 0) continue;
+                    if ((tx = GetDataVal(sourceactor, pXSource->sysData1)) <= 0) continue;
                     else break;
                 }
             } else {
@@ -5429,7 +5443,7 @@ void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
             if (!range) {
                 while (cnt-- >= 0) { // skip empty data fields
                     if (pXSource->sysData1 > 3) pXSource->sysData1 = 0;
-                    if ((tx = GetDataVal(pSource, pXSource->sysData1++)) <= 0) continue;
+                    if ((tx = GetDataVal(sourceactor, pXSource->sysData1++)) <= 0) continue;
                     else break;
                 }
             } else {
@@ -7808,13 +7822,13 @@ int listTx(XSPRITE* pXRedir, int tx) {
     } else {
         if (tx == -1) {
             for (int i = 0; i <= 3; i++) {
-                if ((tx = GetDataVal(&sprite[pXRedir->reference], i)) <= 0) continue;
+                if ((tx = GetDataVal(&bloodActors[pXRedir->reference], i)) <= 0) continue;
                 else return tx;
             }
         } else {
             int saved = tx; bool savedFound = false;
             for (int i = 0; i <= 3; i++) {
-                tx = GetDataVal(&sprite[pXRedir->reference], i);
+                tx = GetDataVal(&bloodActors[pXRedir->reference], i);
                 if (savedFound && tx > 0) return tx;
                 else if (tx != saved) continue;
                 else savedFound = true;
