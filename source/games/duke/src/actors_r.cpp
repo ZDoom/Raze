@@ -597,7 +597,7 @@ void movefta_r(void)
 						else s->shade = sector[s->sectnum].floorshade;
 
 						act->timetosleep = 0;
-						changespritestat(act, STAT_STANDABLE);
+						changeactorstat(act, STAT_STANDABLE);
 						break;
 					default:
 #if 0
@@ -606,7 +606,7 @@ void movefta_r(void)
 #endif
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
-						changespritestat(act, STAT_ACTOR);
+						changeactorstat(act, STAT_ACTOR);
 						break;
 					}
 					else act->timetosleep = 0;
@@ -624,7 +624,7 @@ void movefta_r(void)
 					{
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
-						changespritestat(act, STAT_ACTOR);
+						changeactorstat(act, STAT_ACTOR);
 					}
 				}
 			}
@@ -4248,7 +4248,7 @@ void checktimetosleep_r(DDukeActor *actor)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changespritestat(actor, STAT_ZOMBIEACTOR);
+				changeactorstat(actor, STAT_ZOMBIEACTOR);
 			break;
 		}
 	}

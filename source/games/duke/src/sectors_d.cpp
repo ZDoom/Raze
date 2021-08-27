@@ -1418,7 +1418,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 				if (s->statnum == 2)
 				{
-					changespritestat(targ, 1);
+					changeactorstat(targ, 1);
 					targ->timetosleep = SLEEPTIME;
 				}
 				if ((s->xrepeat < 24 || s->picnum == SHARK) && pspr->picnum == SHRINKSPARK) return;

@@ -156,7 +156,7 @@ int spawn_r(int j, int pn)
 				sp->clipdist = 0;
 				act->SetOwner(act);
 				sp->extra = 0;
-				changespritestat(act,115);
+				changeactorstat(act,115);
 				break;
 			case RRTILE8593:
 				if (!isRRRA()) goto default_case;
@@ -164,7 +164,7 @@ int spawn_r(int j, int pn)
 				sp->clipdist = 0;
 				act->SetOwner(act);
 				sp->extra = 0;
-				changespritestat(act,122);
+				changeactorstat(act,122);
 				break;
 			case RRTILE285:
 			case RRTILE286:
@@ -1052,10 +1052,10 @@ int spawn_r(int j, int pn)
 					{
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
-						changespritestat(act, STAT_ACTOR);
+						changeactorstat(act, STAT_ACTOR);
 						sp->shade = spj->shade;
 					}
-					else changespritestat(act, STAT_ZOMBIEACTOR);
+					else changeactorstat(act, STAT_ZOMBIEACTOR);
 
 				}
 
@@ -1063,7 +1063,7 @@ int spawn_r(int j, int pn)
 			case LOCATORS:
 //                sp->xrepeat=sp->yrepeat=0;
 				sp->cstat |= 32768;
-				changespritestat(act, STAT_LOCATOR);
+				changeactorstat(act, STAT_LOCATOR);
 				break;
 				
 			case ACTIVATORLOCKED:
@@ -1072,13 +1072,13 @@ int spawn_r(int j, int pn)
 				sp->cstat |= 32768;
 				if (sp->picnum == ACTIVATORLOCKED)
 					sector[sect].lotag ^= 16384;
-				changespritestat(act, STAT_ACTIVATOR);
+				changeactorstat(act, STAT_ACTIVATOR);
 				break;
 			case DOORSHOCK:
 				sp->cstat |= 1+256;
 				sp->shade = -12;
 
-				changespritestat(act, STAT_STANDABLE);
+				changeactorstat(act, STAT_STANDABLE);
 				break;
 
 			case OOZ:
@@ -1088,7 +1088,7 @@ int spawn_r(int j, int pn)
 					if( spj->picnum == NUKEBARREL )
 						sp->pal = 8;
 
-				changespritestat(act, STAT_STANDABLE);
+				changeactorstat(act, STAT_STANDABLE);
 
 				getglobalz(act);
 
@@ -1172,7 +1172,7 @@ int spawn_r(int j, int pn)
 				if( ( ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill) )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(act, STAT_MISC);
+					changeactorstat(act, STAT_MISC);
 					break;
 				}
 
@@ -1198,10 +1198,10 @@ int spawn_r(int j, int pn)
 
 				sp->shade = -17;
 
-				if(j >= 0) changespritestat(act, STAT_ACTOR);
+				if(j >= 0) changeactorstat(act, STAT_ACTOR);
 				else
 				{
-					changespritestat(act, STAT_ZOMBIEACTOR);
+					changeactorstat(act, STAT_ZOMBIEACTOR);
 					makeitfall(act);
 				}
 				switch (sp->picnum)
@@ -1358,7 +1358,7 @@ int spawn_r(int j, int pn)
 					ssp(act, CLIPMASK0);
 				}
 			case CEILINGSTEAM:
-				changespritestat(act, STAT_STANDABLE);
+				changeactorstat(act, STAT_STANDABLE);
 				break;
 			case SECTOREFFECTOR:
 				spawneffector(act);
@@ -1376,7 +1376,7 @@ int spawn_r(int j, int pn)
 				else sp->cstat = 1+256;
 				sp->extra = gs.impact_damage<<2;
 				act->SetOwner(act);
-				changespritestat(act, STAT_STANDABLE);
+				changeactorstat(act, STAT_STANDABLE);
 				break;
 
 			case CRACK1:
@@ -1394,7 +1394,7 @@ int spawn_r(int j, int pn)
 
 				sp->pal = 0;
 				act->SetOwner(act);
-				changespritestat(act, STAT_STANDABLE);
+				changeactorstat(act, STAT_STANDABLE);
 				sp->xvel = 8;
 				ssp(act, CLIPMASK0);
 				break;
@@ -1413,7 +1413,7 @@ int spawn_r(int j, int pn)
 				act->saved_ammo = 100;
 				sp->cstat = 257;
 				sp->lotag = 1;
-				changespritestat(act, STAT_ACTOR);
+				changeactorstat(act, STAT_ACTOR);
 				break;
 			case EMPTYBOAT:
 				if (!isRRRA()) goto default_case;
@@ -1464,19 +1464,19 @@ int spawn_r(int j, int pn)
 				if( ud.monsters_off == 1 && sp->picnum == EGG )
 				{
 					sp->xrepeat = sp->yrepeat = 0;
-					changespritestat(act, STAT_MISC);
+					changeactorstat(act, STAT_MISC);
 				}
 				else
 				{
 					if(sp->picnum == EGG)
 						sp->clipdist = 24;
 					sp->cstat = 257|(krand()&4);
-					changespritestat(act, STAT_ZOMBIEACTOR);
+					changeactorstat(act, STAT_ZOMBIEACTOR);
 				}
 				break;
 			case TOILETWATER:
 				sp->shade = -16;
-				changespritestat(act, STAT_STANDABLE);
+				changeactorstat(act, STAT_STANDABLE);
 				break;
 			case RRTILE63:
 				sp->cstat |= 32768;

@@ -3840,7 +3840,7 @@ HORIZONLY:
 					S_PlayActorSound(404, clip.actor);
 				else
 					check_fta_sounds_r(clip.actor);
-				changespritestat(clip.actor, 1);
+				changeactorstat(clip.actor, 1);
 			}
 		}
 		else if (!isRRRA() && clip.actor->s->picnum == RRTILE3410)

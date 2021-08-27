@@ -95,15 +95,9 @@ inline int player_struct::GetPlayerNum()
 }
 
 // Refactoring helpers/intermediates
-inline void changespritestat(DDukeActor* a, int newstat)
+inline void changeactorstat(DDukeActor* a, int newstat)
 {
 	::changespritestat(a->GetIndex(), newstat);
-}
-
-// The int version also needs to be wrapped due to namespacing issues.
-inline void changespritestat(int i, int newstat)
-{
-	::changespritestat(i, newstat);
 }
 
 inline void changespritesect(DDukeActor* a, int newsect)

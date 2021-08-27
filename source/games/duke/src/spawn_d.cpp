@@ -96,7 +96,7 @@ int spawn_d(int j, int pn)
 			if ((sp->lotag > ud.player_skill) || ud.monsters_off) 
             {
 				sp->xrepeat = sp->yrepeat = 0;
-				changespritestat(act, STAT_MISC);
+				changeactorstat(act, STAT_MISC);
 				break;
 			} 
             else 
@@ -1026,10 +1026,10 @@ int spawn_d(int j, int pn)
 
                 sp->shade = -17;
 
-                if(j >= 0) changespritestat(act, STAT_ACTOR);
+                if(j >= 0) changeactorstat(act, STAT_ACTOR);
                 else
                 {
-                    changespritestat(act, STAT_ZOMBIEACTOR);
+                    changeactorstat(act, STAT_ZOMBIEACTOR);
                     makeitfall(act);
                 }
                 break;
@@ -1044,12 +1044,12 @@ int spawn_d(int j, int pn)
             case BOX:
                 sp->cstat = 257; // Make it hitable
                 sp->extra = 1;
-                changespritestat(act, STAT_STANDABLE);
+                changeactorstat(act, STAT_STANDABLE);
                 break;
 
             case FLOORFLAME:
                 sp->shade = -127;
-                changespritestat(act, STAT_STANDABLE);
+                changeactorstat(act, STAT_STANDABLE);
                 break;
 
             case BOUNCEMINE:
@@ -1058,7 +1058,7 @@ int spawn_d(int j, int pn)
                 sp->xrepeat = sp->yrepeat = 24;
                 sp->shade = -127;
                 sp->extra = gs.impact_damage<<2;
-                changespritestat(act, STAT_ZOMBIEACTOR);
+                changeactorstat(act, STAT_ZOMBIEACTOR);
                 break;
 
             case CAMERA1:
@@ -1116,7 +1116,7 @@ int spawn_d(int j, int pn)
                 else sp->cstat = 1+256;
                 sp->extra = gs.impact_damage<<2;
                 act->SetOwner(act);
-                changespritestat(act, STAT_STANDABLE);
+                changeactorstat(act, STAT_STANDABLE);
                 break;
 
             case CRACK1:
@@ -1144,7 +1144,7 @@ int spawn_d(int j, int pn)
 
                 sp->pal = 0;
                 act->SetOwner(act);
-                changespritestat(act, STAT_STANDABLE);
+                changeactorstat(act, STAT_STANDABLE);
                 sp->xvel = 8;
                 ssp(act, CLIPMASK0);
                 break;
@@ -1182,7 +1182,7 @@ int spawn_d(int j, int pn)
                 if( ud.monsters_off == 1 && sp->picnum == EGG )
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(act, STAT_MISC);
+                    changeactorstat(act, STAT_MISC);
                 }
                 else
                 {
@@ -1192,12 +1192,12 @@ int spawn_d(int j, int pn)
                         ps[connecthead].max_actors_killed++;
                     }
                     sp->cstat = 257|(krand()&4);
-                    changespritestat(act, STAT_ZOMBIEACTOR);
+                    changeactorstat(act, STAT_ZOMBIEACTOR);
                 }
                 break;
             case TOILETWATER:
                 sp->shade = -16;
-                changespritestat(act, STAT_STANDABLE);
+                changeactorstat(act, STAT_STANDABLE);
                 break;
     }
     return i;
