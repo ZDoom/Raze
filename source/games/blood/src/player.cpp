@@ -988,7 +988,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 spritetype* pOwner = &sprite[pItem->owner];
                 XSPRITE* pXOwner = &xsprite[pOwner->extra];
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
-                sprintf(buffer, "%s returned Blue Flag", gProfile[pPlayer->nPlayer].name);
+                sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8003, 255, 2, 0);
                 viewSetMessage(buffer);
                 break;
@@ -997,7 +997,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             pPlayer->used2[0] = pItem->owner;
             if (enemyTeam)
             {
-                sprintf(buffer, "%s stole Blue Flag", gProfile[pPlayer->nPlayer].name);
+                sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8007, 255, 2, 0);
                 viewSetMessage(buffer);
             }
@@ -1013,7 +1013,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 spritetype* pOwner = &sprite[pItem->owner];
                 XSPRITE* pXOwner = &xsprite[pOwner->extra];
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
-                sprintf(buffer, "%s returned Red Flag", gProfile[pPlayer->nPlayer].name);
+                sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8002, 255, 2, 0);
                 viewSetMessage(buffer);
                 break;
@@ -1022,7 +1022,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             pPlayer->used2[1] = pItem->owner;
             if (enemyTeam)
             {
-                sprintf(buffer, "%s stole Red Flag", gProfile[pPlayer->nPlayer].name);
+                sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8006, 255, 2, 0);
                 viewSetMessage(buffer);
             }
