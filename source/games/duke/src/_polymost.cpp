@@ -215,7 +215,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		DukeSectIterator it(tgsect);
 		while (auto act = it.Next())
 		{
-			changespritesect(act, geosectorwarp[gs]);
+			changeactorsect(act, geosectorwarp[gs]);
 			setsprite(act, act->s->x -= geox[gs], act->s->y -= geoy[gs], act->s->z);
 		}
 		if (geosector[gs] == sect)
@@ -235,7 +235,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		DukeSectIterator it(tgsect);
 		while (auto act = it.Next())
 		{
-			changespritesect(act, geosector[gs]);
+			changeactorsect(act, geosector[gs]);
 			setsprite(act, act->s->x += geox[gs], act->s->y += geoy[gs], act->s->z);
 		}
 	}
@@ -247,7 +247,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		DukeSectIterator it(tgsect);
 		while (auto act = it.Next())
 		{
-			changespritesect(act, geosectorwarp2[gs]);
+			changeactorsect(act, geosectorwarp2[gs]);
 			setsprite(act, act->s->x -= geox2[gs], act->s->y -= geoy2[gs], act->s->z);
 		}
 		if (geosector[gs] == sect)
@@ -267,7 +267,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		DukeSectIterator it(tgsect);
 		while (auto act = it.Next())
 		{
-			changespritesect(act, geosector[gs]);
+			changeactorsect(act, geosector[gs]);
 			setsprite(act, act->s->x += geox2[gs], act->s->y += geoy2[gs], act->s->z);
 		}
 	}
