@@ -353,7 +353,7 @@ static bool evGetSourceState(int type, int nIndex)
 //
 //---------------------------------------------------------------------------
 
-void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
+void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID command)
 {
 	switch (command) {
 	case kCmdState:
@@ -367,7 +367,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 	}
 
 	EVENT event;
-	event.actor = nullptr;
+	event.actor = actor;
 	event.index_ = nIndex;
 	event.type = nType;
 	event.cmd = command;
@@ -482,7 +482,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 #endif
 	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++) 
 	{
-		if (event.type != rxBucket[i].type || (event.type != OBJ_SPRITE && event.index_ != rxBucket[i].rxindex) || (event.type == OBJ_SPRITE && event.actor != rxBucket[i].GetActor())) 
+		if (!event.isObject(rxBucket[i].type, rxBucket[i].actor, rxBucket[i].rxindex))
 		{
 			switch (rxBucket[i].type) 
 			{
@@ -533,27 +533,27 @@ void evPost_(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(actor->s().index, OBJ_SPRITE, nDelta, command);
+	evPost_(actor->s().index, SS_SPRITE, nDelta, command);
 }
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost_(actor->s().index, OBJ_SPRITE, nDelta, callback);
+	evPost_(actor->s().index, SS_SPRITE, nDelta, callback);
 }
 
 void evPostSector(int index, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(index, OBJ_SECTOR, nDelta, command);
+	evPost_(index, SS_SECTOR, nDelta, command);
 }
 
 void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost_(index, OBJ_SECTOR, nDelta, callback);
+	evPost_(index, SS_SECTOR, nDelta, callback);
 }
 
 void evPostWall(int index, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(index, OBJ_WALL, nDelta, command);
+	evPost_(index, SS_WALL, nDelta, command);
 }
 
 
@@ -563,63 +563,63 @@ void evPostWall(int index, unsigned int nDelta, COMMAND_ID command)
 //
 //---------------------------------------------------------------------------
 
-void evKill_(int index, int type)
+void evKill_(DBloodActor* actor, int index, int type)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
-		if (ev->index_ == index && ev->type == type) ev = queue.erase(ev);
+		if (ev->isObject(type, actor, index)) ev = queue.erase(ev);
 		else ev++;
 	}
 }
 
-void evKill_(int index, int type, CALLBACK_ID cb)
+void evKill_(DBloodActor* actor, int index, int type, CALLBACK_ID cb)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
-		if (ev->index_ == index && ev->type == type && ev->funcID == cb) ev = queue.erase(ev);
+		if (ev->isObject(type, actor, index) && ev->funcID == cb) ev = queue.erase(ev);
 		else ev++;
 	}
 }
 
 void evKillActor(DBloodActor* actor)
 {
-	evKill_(actor->s().index, 3);
+	evKill_(actor, 0, SS_SPRITE);
 }
 
 void evKillActor(DBloodActor* actor, CALLBACK_ID cb)
 {
-	evKill_(actor->s().index, 3, cb);
+	evKill_(actor, 0, SS_SPRITE, cb);
 }
 
 void evKillWall(int wal)
 {
-	evKill_(wal, OBJ_WALL);
+	evKill_(nullptr, wal, SS_WALL);
 }
 
 void evKillSector(int sec)
 {
-	evKill_(sec, OBJ_SECTOR);
+	evKill_(nullptr, sec, SS_SECTOR);
 }
 
 // these have no target.
 void evSendGame(int rxId, COMMAND_ID command)
 {
-	evSend(0, 0, rxId, command);
+	evSend(nullptr, 0, 0, rxId, command);
 }
 
 void evSendActor(DBloodActor* actor, int rxId, COMMAND_ID command)
 {
-	evSend(actor->s().index, OBJ_SPRITE, rxId, command);
+	evSend(actor, 0, SS_SPRITE, rxId, command);
 }
 
 void evSendSector(int index, int rxId, COMMAND_ID command)
 {
-	evSend(index, OBJ_SECTOR, rxId, command);
+	evSend(nullptr, index, SS_SECTOR, rxId, command);
 }
 
 void evSendWall(int index, int rxId, COMMAND_ID command)
 {
-	evSend(index, OBJ_WALL, rxId, command);
+	evSend(nullptr, index, SS_WALL, rxId, command);
 }
 
 //---------------------------------------------------------------------------
@@ -639,8 +639,7 @@ void evProcess(unsigned int time)
 		{
 			assert(event.funcID < kCallbackMax);
 			assert(gCallback[event.funcID] != nullptr);
-			if (event.type == OBJ_SPRITE) gCallback[event.funcID](&bloodActors[event.index_], 0);
-			else gCallback[event.funcID](nullptr, event.index_);
+			gCallback[event.funcID](event.actor, event.index_);
 		}
 		else
 		{
@@ -653,7 +652,7 @@ void evProcess(unsigned int time)
 				trMessageWall(event.index_, event);
 				break;
 			case SS_SPRITE:
-				trMessageSprite(event.index_, event);
+				trMessageSprite(event.actor->s().index, event);
 				break;
 			}
 		}
@@ -671,6 +670,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, EVENT& w, EVENT* d
 	if (arc.BeginObject(keyname))
 	{
 		arc("index", w.index_)
+			("actor", w.actor)
 			("type", w.type)
 			("command", w.cmd)
 			("func", w.funcID)

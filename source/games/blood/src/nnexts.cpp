@@ -1042,8 +1042,11 @@ void nnExtProcessSuperSprites() {
             if (pXCond->data1 >= kCondGameBase && pXCond->data1 < kCondGameMax) {
 
                 EVENT evn;
-                evn.index_ = pXCond->reference;     evn.cmd = (int8_t)pXCond->command;
-                evn.type = OBJ_SPRITE;            evn.funcID = kCallbackMax;
+                evn.index_ = 0; 
+                evn.actor = &bloodActors[pXCond->reference];
+                evn.cmd = (int8_t)pXCond->command;
+                evn.type = OBJ_SPRITE;            
+                evn.funcID = kCallbackMax;
                 useCondition(&sprite[pXCond->reference], pXCond, evn);
 
             } else if (pCond->length > 0) {
@@ -1052,8 +1055,20 @@ void nnExtProcessSuperSprites() {
                 for (unsigned k = 0; k < pCond->length; k++) {
 
                     EVENT evn;
-                    evn.index_ = pCond->obj[k].index;    evn.cmd    = pCond->obj[k].cmd;
-                    evn.type  = pCond->obj[k].type;     evn.funcID = kCallbackMax;
+                    // temporary mess.
+                    if (pCond->obj[k].type == OBJ_SPRITE)
+                    {
+                        evn.actor = &bloodActors[pCond->obj[k].type];
+                        evn.index_ = 0;
+                    }
+                    else
+                    {
+                        evn.actor = nullptr;
+                        evn.index_ = pCond->obj[k].index;
+                    }
+                    evn.cmd    = pCond->obj[k].cmd;
+                    evn.type  = pCond->obj[k].type;     
+                    evn.funcID = kCallbackMax;
                     useCondition(&sprite[pXCond->reference], pXCond, evn);
 
                 }
@@ -4182,11 +4197,9 @@ void modernTypeSendCommand(int nSprite, int destChannel, COMMAND_ID command) {
 // this function used by various new modern types.
 void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
 
-    if (event.type != OBJ_SPRITE) return;
-    spritetype* pSource = &sprite[event.index_];
-
-    if (!xspriRangeIsFine(pSource->extra)) return;
-    XSPRITE* pXSource = &xsprite[pSource->extra];
+    if (event.type != OBJ_SPRITE || !event.actor || !event.actor->hasX()) return;
+    spritetype* pSource = &event.actor->s();
+    XSPRITE* pXSource = &event.actor->x();
 
     switch (destObjType) {
         case OBJ_SECTOR:
@@ -4797,13 +4810,13 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         
         if (event.type != OBJ_SPRITE) {
            
-            viewSetSystemMessage("Only sprites could use command #%d", event.cmd);
+            viewSetSystemMessage("Only sprites can use command #%d", event.cmd);
             return true;
 
-        } else if (xspriRangeIsFine(sprite[event.index_].extra)) {
+        } else if (event.actor && event.actor->hasX()) {
            
             // copy dude flags from the source to destination sprite
-            aiPatrolFlagsMgr(&sprite[event.index_], &xsprite[sprite[event.index_].extra], pSprite, pXSprite, true, false);
+            aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, true, false);
 
     }
 
@@ -4830,8 +4843,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 }
                 break;
             case kCmdDudeFlagsSet:
-                if (!xspriRangeIsFine(sprite[event.index_].extra)) break;
-                else aiPatrolFlagsMgr(&sprite[event.index_], &xsprite[sprite[event.index_].extra], pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
+                if (!event.actor || !event.actor->hasX()) break;
+                else aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
                 break;
             default:
                 if (!pXSprite->state) evPostActor(actor, 0, kCmdOn);
@@ -5369,10 +5382,10 @@ void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
 int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) {
 
     auto sourceactor = &bloodActors[pSource->index];
-
-    int objType = event.type; int objIndex = event.index_;
+    int objType = event.type; 
+    int objIndex = event.index_;
     bool srcIsCondition = false;
-    if (objType == OBJ_SPRITE && objIndex != pSource->index)
+    if (objType == OBJ_SPRITE && event.actor != sourceactor)
         srcIsCondition = (sprite[objIndex].type == kModernCondition || sprite[objIndex].type == kModernConditionFalse);
 
     // if it's a tracking condition, it must ignore all the commands sent from objects

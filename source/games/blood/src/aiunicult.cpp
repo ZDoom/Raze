@@ -1511,7 +1511,7 @@ DBloodActor* getNextIncarnation(DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++)
     {
-        if (rxBucket[i].type != OBJ_SPRITE) continue;
+        if (rxBucket[i].type != SS_SPRITE) continue;
 		auto rxactor = rxBucket[i].GetActor();
         if (actor != rxactor && rxactor->s().statnum == kStatInactive) return rxactor;
     }

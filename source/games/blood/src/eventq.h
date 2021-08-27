@@ -160,12 +160,14 @@ struct EVENT
 	{
 		return priority < other.priority;
 	}
+
+	bool isObject(int type, DBloodActor* actor, int index) const
+	{
+		return (this->type == type && (this->type != SS_SPRITE ? (this->index_ == index) : (this->actor == actor)));
+	}
 };
 
 void evInit(void);
-void evSend(int nIndex, int nType, int rxId, COMMAND_ID command);
-//void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command);
-//void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback);
 void evPostActor(DBloodActor*, unsigned int nDelta, COMMAND_ID command);
 void evPostActor(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
 
@@ -173,8 +175,6 @@ void evPostSector(int index, unsigned int nDelta, COMMAND_ID command);
 void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback);
 
 void evProcess(unsigned int nTime);
-void evKill_(int a1, int a2);
-void evKill_(int a1, int a2, CALLBACK_ID a3);
 void evKillActor(DBloodActor*);
 void evKillActor(DBloodActor*, CALLBACK_ID a3);
 

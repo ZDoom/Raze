@@ -189,9 +189,7 @@ unsigned int GetSourceBusy(EVENT a1)
     }
     case 3:
     {
-        int nXIndex = sprite[nIndex].extra;
-        assert(nXIndex > 0 && nXIndex < kMaxXSprites);
-        return xsprite[nXIndex].busy;
+        return a1.actor && a1.actor->hasX() ? a1.actor->x().busy : false;
     }
     }
     return 0;
@@ -1698,12 +1696,11 @@ void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
     switch (pSprite->type)  {
         case kSwitchCombo:
         {
-            if (event.type == 3)
+            if (event.type == OBJ_SPRITE)
             {
-                int nSprite2 = event.index_;
-                int nXSprite2 = sprite[nSprite2].extra;
-                assert(nXSprite2 > 0 && nXSprite2 < kMaxXSprites);
-                pXSprite->data1 = xsprite[nXSprite2].data1;
+                auto actor2 = event.actor;
+
+                pXSprite->data1 = actor2 && actor2->hasX()? actor2->x().data1 : 0;
                 if (pXSprite->data1 == pXSprite->data2)
                     SetSpriteState(nSprite, pXSprite, 1);
                 else
