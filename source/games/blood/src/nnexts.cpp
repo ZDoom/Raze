@@ -559,7 +559,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 break;
             case kDudeModernCustom:
             case kDudeModernCustomBurning:
-                getSpriteMassBySize(pSprite); // create mass cache
+                getSpriteMassBySize(actor); // create mass cache
                 break;
             case kModernCondition:
             case kModernConditionFalse:
@@ -579,7 +579,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
             if (pXSprite->physAttr != 0) 
             {
                 gPhysSpritesList[gPhysSpritesCount++] = &bloodActors[pSprite->index]; // add sprite index
-                getSpriteMassBySize(pSprite); // create mass cache
+                getSpriteMassBySize(actor); // create mass cache
             }
 
             if (pXSprite->data3 != pXSprite->sysData1) 
@@ -1146,9 +1146,10 @@ static void windGenDoVerticalWind(int factor, int nSector)
 void nnExtProcessSuperSprites()
 {
     // process tracking conditions
-    if (gTrackingCondsCount > 0) {
-        for (int i = 0; i < gTrackingCondsCount; i++) {
-
+    if (gTrackingCondsCount > 0) 
+    {
+        for (int i = 0; i < gTrackingCondsCount; i++) 
+        {
             TRCONDITION* pCond = &gCondition[i];
             XSPRITE* pXCond = &pCond->actor->x();
             if (pXCond->locked || pXCond->isTriggered || ++pXCond->busy < pXCond->busyTime)
@@ -1257,7 +1258,6 @@ void nnExtProcessSuperSprites()
 
             if (!pXProxSpr->DudeLockout)
             {
-                int nAffected;
                 BloodStatIterator it(kStatDude);
                 while (auto affected = it.Next())
                 {
@@ -1467,25 +1467,46 @@ void nnExtProcessSuperSprites()
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // this function plays sound predefined in missile info
-void sfxPlayMissileSound(spritetype* pSprite, int missileId) {
+//
+//---------------------------------------------------------------------------
+
+void sfxPlayMissileSound(DBloodActor* actor, int missileId) 
+{
     const MISSILEINFO_EXTRA* pMissType = &gMissileInfoExtra[missileId - kMissileBase];
-    sfxPlay3DSound(pSprite, Chance(0x5000) ? pMissType->fireSound[0] : pMissType->fireSound[1], -1, 0);
+    sfxPlay3DSound(actor, Chance(0x5000) ? pMissType->fireSound[0] : pMissType->fireSound[1], -1, 0);
 }
 
+//---------------------------------------------------------------------------
+//
 // this function plays sound predefined in vector info
-void sfxPlayVectorSound(spritetype* pSprite, int vectorId) {
+//
+//---------------------------------------------------------------------------
+
+void sfxPlayVectorSound(DBloodActor* actor, int vectorId) 
+{
     const VECTORINFO_EXTRA* pVectorData = &gVectorInfoExtra[vectorId];
-    sfxPlay3DSound(pSprite, Chance(0x5000) ? pVectorData->fireSound[0] : pVectorData->fireSound[1], -1, 0);
+    sfxPlay3DSound(actor, Chance(0x5000) ? pVectorData->fireSound[0] : pVectorData->fireSound[1], -1, 0);
 }
 
-int getSpriteMassBySize(spritetype* pSprite) {
-    auto actor = &bloodActors[pSprite->index];
-    int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist; Seq* pSeq = NULL;
-    if (pSprite->extra < 0) {
-        I_Error("getSpriteMassBySize: pSprite->extra < 0");
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    } else if (IsDudeSprite(pSprite)) {
+int getSpriteMassBySize(DBloodActor* actor)
+{
+    auto pSprite = &actor->s();
+    int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist; Seq* pSeq = NULL;
+    if (!actor->hasX())
+    {
+        I_Error("getSpriteMassBySize: pSprite->extra < 0");
+    }
+    else if (actor->IsDudeActor()) 
+    {
 
         switch (pSprite->type) {
         case kDudePodMother: // fake dude, no seq
@@ -2447,6 +2468,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
         }
         break;
         case OBJ_SPRITE: {
+            auto actor = &bloodActors[objIndex];
             spritetype* pSprite = &sprite[objIndex]; bool thing2debris = false;
             XSPRITE* pXSprite = &xsprite[pSprite->extra]; int old = -1;
 
@@ -2624,7 +2646,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
 
                             gPhysSpritesList[nIndex] = &bloodActors[objIndex];
                             if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
-                            getSpriteMassBySize(pSprite); // create physics cache
+                            getSpriteMassBySize(actor); // create physics cache
 
                         }
 
@@ -4223,7 +4245,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 return false;
             }
             case 70:
-                return condCmp(getSpriteMassBySize(pSpr), arg1, arg2, cmpOp); // mass of the sprite in a range?
+                return condCmp(getSpriteMassBySize(spractor), arg1, arg2, cmpOp); // mass of the sprite in a range?
         }
     } else {
         switch (cond) {
@@ -5629,7 +5651,7 @@ void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
 
             gPhysSpritesList[nIndex] = &bloodActors[pDrop->index];
                 if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
-                getSpriteMassBySize(pDrop); // create mass cache
+                getSpriteMassBySize(dropactor); // create mass cache
             }
         
         }
