@@ -7342,32 +7342,32 @@ void actPostProcess(void)
 
 void MakeSplash(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    pSprite->flags &= ~2;
-    int nXSprite = pSprite->extra;
-    pSprite->z -= 4 << 8;
+	auto pXSprite = &actor->x();
+	auto pSprite = &actor->s();
+	pSprite->flags &= ~2;
+	int nXSprite = pSprite->extra;
+	pSprite->z -= 4 << 8;
 	int nSurface = tileGetSurfType(actor->hit().florhit);
 	switch (pSprite->type)
 	{
-        case kThingDripWater:
+	case kThingDripWater:
 		switch (nSurface)
 		{
-                case kSurfWater:
+		case kSurfWater:
 			seqSpawn(6, actor, -1);
 			sfxPlay3DSound(actor, 356, -1, 0);
-                    break;
-                default:
+			break;
+		default:
 			seqSpawn(7, actor, -1);
 			sfxPlay3DSound(actor, 354, -1, 0);
-                    break;
-            }
-            break;
-        case kThingDripBlood:
+			break;
+		}
+		break;
+	case kThingDripBlood:
 		seqSpawn(8, actor, -1);
 		sfxPlay3DSound(actor, 354, -1, 0);
-            break;
-    }
+		break;
+	}
 }
 
 //---------------------------------------------------------------------------

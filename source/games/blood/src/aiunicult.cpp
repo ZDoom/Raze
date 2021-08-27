@@ -1643,7 +1643,7 @@ static void scaleDamage(DBloodActor* actor)
     }
 
     // take in account yrepeat of sprite
-    short yrepeat = sprite[pXSprite->reference].yrepeat;
+    short yrepeat = actor->s().yrepeat;
     if (yrepeat < 64) 
     {
         for (int i = 0; i < kDmgMax; i++) curScale[i] += (64 - yrepeat);
@@ -1654,7 +1654,7 @@ static void scaleDamage(DBloodActor* actor)
     }
 
     // take surface type into account
-    int surfType = tileGetSurfType(sprite[pXSprite->reference].index + 0xc000);
+    int surfType = tileGetSurfType(actor->s().picnum);
     switch (surfType) 
     {
         case 1:  // stone
