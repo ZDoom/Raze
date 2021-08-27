@@ -435,7 +435,6 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 	case kChannelTeamAFlagCaptured:
 	case kChannelTeamBFlagCaptured:
 	{
-		int nSprite;
 		BloodStatIterator it(kStatItem);
 		while (auto actor = it.Next())
 		{

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 
 BEGIN_BLD_NS
-void sleeveStopBouncing(spritetype* pSprite);
+void sleeveStopBouncing(DBloodActor* pSprite);
 
 enum CALLBACK_ID {
     kCallbackNone = -1,

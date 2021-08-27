@@ -382,37 +382,39 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
         getzsofslope(nSector, x, y, &ceilZ, &floorZ);
         int dz1 = floorZ-z;
         int dz2 = z-ceilZ;
-        spritetype *pGib = &actSpawnThing(nSector, x, y, z, pGThing->type)->s();
+        auto gibactor = actSpawnThing(nSector, x, y, z, pGThing->type);
+        if (!gibactor) return;
+        spritetype *pGib = &gibactor->s();
         assert(pGib != NULL);
         if (pGThing->Kills > -1)
             pGib->picnum = pGThing->Kills;
         if (pVel)
         {
-            xvel[pGib->index] = pVel->vx+Random2(pGThing->atc);
-            yvel[pGib->index] = pVel->vy+Random2(pGThing->atc);
-            zvel[pGib->index] = pVel->vz-Random(pGThing->at10);
+            gibactor->xvel() = pVel->vx+Random2(pGThing->atc);
+            gibactor->yvel() = pVel->vy+Random2(pGThing->atc);
+            gibactor->zvel() = pVel->vz-Random(pGThing->at10);
         }
         else
         {
-            xvel[pGib->index] = Random2((pGThing->atc<<18)/120);
-            yvel[pGib->index] = Random2((pGThing->atc<<18)/120);
+            gibactor->xvel() = Random2((pGThing->atc<<18)/120);
+            gibactor->yvel() = Random2((pGThing->atc<<18)/120);
             switch (pSprite->cstat&48)
             {
             case 16:
-                zvel[pGib->index] = Random2((pGThing->at10<<18)/120);
+                gibactor->zvel() = Random2((pGThing->at10<<18)/120);
                 break;
             default:
                 if (dz2 < dz1 && dz2 < 0x4000)
                 {
-                    zvel[pGib->index] = 0;
+                    gibactor->zvel() = 0;
                 }
                 else if (dz2 > dz1 && dz1 < 0x4000)
                 {
-                    zvel[pGib->index] = -(int)Random((pGThing->at10<<18)/120);
+                    gibactor->zvel() = -(int)Random((pGThing->at10<<18)/120);
                 }
                 else
                 {
-                    zvel[pGib->index] = Random2((pGThing->at10<<18)/120);
+                    gibactor->zvel() = Random2((pGThing->at10<<18)/120);
                 }
                 break;
             }
