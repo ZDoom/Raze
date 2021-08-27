@@ -179,8 +179,8 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
         pSprite->cstat |= 8;
     if (pFX->seq)
     {
-        int nXSprite = dbInsertXSprite(pSprite->index);
-        seqSpawn(pFX->seq, 3, nXSprite, -1);
+        actor->addX();
+        seqSpawn(pFX->seq, actor, -1);
     }
     if (a6 == 0)
         a6 = pFX->ate;

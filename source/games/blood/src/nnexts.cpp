@@ -1040,9 +1040,9 @@ static DBloodActor* randomDropPickupObject(DBloodActor* sourceactor, int prevIte
                 pSprite2->y = pSource->y;
                 pSprite2->z = pSource->z;
 
-                if ((pSource->flags & kModernTypeFlag1) && (pXSource->txID > 0 || (pXSource->txID != 3 && pXSource->lockMsg > 0)) &&
-                    dbInsertXSprite(pSprite2->index) > 0) 
+                if ((pSource->flags & kModernTypeFlag1) && (pXSource->txID > 0 || (pXSource->txID != 3 && pXSource->lockMsg > 0))) 
                 {
+                    spawned->addX();
                     XSPRITE* pXSprite2 = &spawned->x();
 
                     // inherit spawn sprite trigger settings, so designer can send command when item picked up.
@@ -1617,12 +1617,20 @@ int getSpriteMassBySize(DBloodActor* actor)
     return cached->mass;
 }
 
-int debrisGetIndex(int nSprite) {
-    if (sprite[nSprite].extra < 0 || xsprite[sprite[nSprite].extra].physAttr == 0)
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static int debrisGetIndex(DBloodActor* actor) 
+{
+    if (!actor->hasX() || actor->x().physAttr == 0)
         return -1;
 
-    for (int i = 0; i < gPhysSpritesCount; i++) {
-        if (gPhysSpritesList[i] != &bloodActors[nSprite]) continue;
+    for (int i = 0; i < gPhysSpritesCount; i++) 
+    {
+        if (gPhysSpritesList[i] != actor) continue;
         return i;
     }
 
@@ -2635,7 +2643,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
 
                     }
 
-                    int nIndex = debrisGetIndex(objIndex); // check if there is no sprite in list
+                    int nIndex = debrisGetIndex(&bloodActors[objIndex]); // check if there is no sprite in list
 
                     // adding physics sprite in list
                     if ((flags & kPhysGravity) != 0 || (flags & kPhysMove) != 0) {
@@ -3293,7 +3301,8 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
         return;
     }
 
-    spritetype* pSource = &sprite[pXSource->reference];
+    auto sourceactor = &bloodActors[pXSource->reference];
+    spritetype* pSource = &sourceactor->s();
     switch (objType) {
         case OBJ_SECTOR:
             if (pXSource->data2 <= 0) {
@@ -3356,60 +3365,63 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
             
             if (pXSource->data2 <= 0) seqKill(3, sprite[index].extra);
             else if (sectRangeIsFine(sprite[index].sectnum)) {
-                    if (pXSource->data3 > 0) {
-                        int nSprite = InsertSprite(sprite[index].sectnum, kStatDecoration);
-                        int top, bottom; GetSpriteExtents(&sprite[index], &top, &bottom);
-                        sprite[nSprite].x = sprite[index].x;
-                        sprite[nSprite].y = sprite[index].y;
-                        switch (pXSource->data3) {
-                            default:
-                                sprite[nSprite].z = sprite[index].z;
-                                break;
-                            case 2:
-                                sprite[nSprite].z = bottom;
-                                break;
-                            case 3:
-                                sprite[nSprite].z = top;
-                                break;
-                            case 4:
-                                sprite[nSprite].z = sprite[index].z + tileHeight(sprite[index].picnum) / 2 + tileTopOffset(sprite[index].picnum);
-                                break;
-                            case 5:
-                            case 6:
-                                if (!sectRangeIsFine(sprite[index].sectnum)) sprite[nSprite].z = top;
-                                else sprite[nSprite].z = (pXSource->data3 == 5) ? sector[sprite[nSprite].sectnum].floorz : sector[sprite[nSprite].sectnum].ceilingz;
-                                break;
-                        }
-                        
-                        if (nSprite >= 0) {
-                            
-                            int nXSprite = dbInsertXSprite(nSprite);
-                            seqSpawn(pXSource->data2, 3, nXSprite, -1);
-                            if (pSource->flags & kModernTypeFlag1) {
-
-                                sprite[nSprite].pal = pSource->pal;
-                                sprite[nSprite].shade = pSource->shade;
-                                sprite[nSprite].xrepeat = pSource->xrepeat;
-                                sprite[nSprite].yrepeat = pSource->yrepeat;
-                                sprite[nSprite].xoffset = pSource->xoffset;
-                                sprite[nSprite].yoffset = pSource->yoffset;
-
-                            }
-
-                            if (pSource->flags & kModernTypeFlag2) {
-                                
-                                sprite[nSprite].cstat |= pSource->cstat;
-
-                            }
-
-                            // should be: the more is seqs, the shorter is timer
-                            evPostActor(&bloodActors[nSprite], 1000, kCallbackRemove);
-                        }
-                    } else {
-
-                seqSpawn(pXSource->data2, 3, sprite[index].extra, -1);
-
+                if (pXSource->data3 > 0) {
+                    int nSprite = InsertSprite(sprite[index].sectnum, kStatDecoration);
+                    auto spawned = &bloodActors[nSprite];
+                    auto pSpawned = &spawned->s();
+                    int top, bottom; GetSpriteExtents(&sprite[index], &top, &bottom);
+                    pSpawned->x = sprite[index].x;
+                    pSpawned->y = sprite[index].y;
+                    switch (pXSource->data3) {
+                    default:
+                        pSpawned->z = sprite[index].z;
+                        break;
+                    case 2:
+                        pSpawned->z = bottom;
+                        break;
+                    case 3:
+                        pSpawned->z = top;
+                        break;
+                    case 4:
+                        pSpawned->z = sprite[index].z + tileHeight(sprite[index].picnum) / 2 + tileTopOffset(sprite[index].picnum);
+                        break;
+                    case 5:
+                    case 6:
+                        if (!sectRangeIsFine(sprite[index].sectnum)) pSpawned->z = top;
+                        else pSpawned->z = (pXSource->data3 == 5) ? sector[pSpawned->sectnum].floorz : sector[pSpawned->sectnum].ceilingz;
+                        break;
                     }
+
+                    if (nSprite >= 0) {
+
+                        spawned->addX();
+                        seqSpawn(pXSource->data2, spawned, -1);
+                        if (pSource->flags & kModernTypeFlag1) {
+
+                            pSpawned->pal = pSource->pal;
+                            pSpawned->shade = pSource->shade;
+                            pSpawned->xrepeat = pSource->xrepeat;
+                            pSpawned->yrepeat = pSource->yrepeat;
+                            pSpawned->xoffset = pSource->xoffset;
+                            pSpawned->yoffset = pSource->yoffset;
+
+                        }
+
+                        if (pSource->flags & kModernTypeFlag2) {
+
+                            pSpawned->cstat |= pSource->cstat;
+
+                        }
+
+                        // should be: the more is seqs, the shorter is timer
+                        evPostActor(spawned, 1000, kCallbackRemove);
+                    }
+                }
+                else {
+
+                    seqSpawn(pXSource->data2, 3, sprite[index].extra, -1);
+
+                }
                 if (pXSource->data4 > 0)
                     sfxPlay3DSound(&sprite[index], pXSource->data4, -1, 0);
             }
@@ -5679,14 +5691,16 @@ void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
         clampSprite(pDrop);
 
         // check if generator affected by physics
-        if (debrisGetIndex(pSource->index) != -1 && (pDrop->extra >= 0 || dbInsertXSprite(pDrop->index) > 0)) {
-            
+        if (debrisGetIndex(&bloodActors[pSource->index]) != -1) 
+        {
+            dropactor->addX();
             int nIndex = debrisGetFreeIndex();
-            if (nIndex >= 0) {
-                xsprite[pDrop->extra].physAttr |= kPhysMove | kPhysGravity | kPhysFalling; // must fall always
+            if (nIndex >= 0)
+            {
+                dropactor->x().physAttr |= kPhysMove | kPhysGravity | kPhysFalling; // must fall always
                 pSource->cstat &= ~CSTAT_SPRITE_BLOCK;
 
-            gPhysSpritesList[nIndex] = &bloodActors[pDrop->index];
+                gPhysSpritesList[nIndex] = dropactor;
                 if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
                 getSpriteMassBySize(dropactor); // create mass cache
             }
