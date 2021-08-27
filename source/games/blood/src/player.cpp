@@ -2155,7 +2155,7 @@ void playerLandingSound(PLAYER *pPlayer)
     {
         if (!gGameOptions.bFriendlyFire && pHit->florhit.type == kHitSprite && IsTargetTeammate(pPlayer, &pHit->florhit.actor->s()))
             return;
-        char nSurf = tileGetSurfType(pHit->florhit.legacyVal);
+        int nSurf = tileGetSurfType(pHit->florhit);
         if (nSurf)
             sfxPlay3DSound(pSprite, surfaceSound[nSurf], -1, 0);
     }
