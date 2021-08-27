@@ -8117,6 +8117,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, OBJECTS_TO_TRACK& 
     {
         arc("type", w.type, &nul.type)
             ("index", w.index_, &nul.index_)
+            ("actor", w.actor, &nul.actor)
             ("xrepeat", w.cmd, &nul.cmd)
             .EndObject();
     }
@@ -8130,7 +8131,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRCONDITION& w, TR
     if (arc.BeginObject(keyname))
     {
         arc("length", w.length, &nul.length)
-            ("xindex", w.xindex, &nul.xindex)
+            ("actor", w.actor, &nul.actor)
             .Array("obj", w.obj, w.length)
             .EndObject();
     }
