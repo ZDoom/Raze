@@ -904,7 +904,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), actor->dudeSlope, dist, 1);
                                 if (actor == gHitInfo.hitactor) break;
                                 
-                                bool immune = nnExtIsImmune(pHSprite, gVectorData[curWeapon].dmgType);
+                                bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
                                 if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) 
                                 {
                                     if ((approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) <= 1500 && !blck)
@@ -1007,7 +1007,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                         // check also for damage resistance (all possible damages missile can use)
                                         for (int i = 0; i < kDmgMax; i++) 
                                         {
-                                            if (gMissileInfoExtra[curWeapon - kMissileBase].dmgType[i] && (failed = nnExtIsImmune(pHSprite, i)) == false)
+                                            if (gMissileInfoExtra[curWeapon - kMissileBase].dmgType[i] && (failed = nnExtIsImmune(hitactor, i)) == false)
                                                 break;
                                         }
                                     }

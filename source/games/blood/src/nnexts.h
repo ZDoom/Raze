@@ -295,7 +295,7 @@ inline bool xsprIsFine(spritetype* pSpr) {
 bool nnExtEraseModernStuff(spritetype* pSprite, XSPRITE* pXSprite);
 void nnExtInitModernStuff(bool bSaveLoad);
 void nnExtProcessSuperSprites(void);
-bool nnExtIsImmune(spritetype* pSprite, int dmgType, int minScale = 16);
+bool nnExtIsImmune(DBloodActor* pSprite, int dmgType, int minScale = 16);
 int nnExtRandom(int a, int b);
 void nnExtResetGlobals();
 void nnExtTriggerObject(int objType, int objIndex, int command);
