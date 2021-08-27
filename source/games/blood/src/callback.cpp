@@ -605,7 +605,7 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
     pSprite->y = pSprite2->y;
     pSprite->z = sector[pSprite2->sectnum].floorz-(bottom-pSprite->z);
     pSprite->ang = pSprite2->ang;
-    ChangeSpriteSect(pSprite->index, pSprite2->sectnum);
+    ChangeActorSect(actor, pSprite2->sectnum);
     sfxPlay3DSound(pSprite2, 201, -1, 0);
     actor->xvel() = actor->yvel() = actor->zvel() = 0;
     viewBackupSpriteLoc(pSprite->index, pSprite);
