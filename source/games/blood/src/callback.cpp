@@ -501,11 +501,13 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
-    if (pSprite->owner >= 0 && pSprite->owner < kMaxSprites)
+    auto owner = actor->GetOwner();
+    if (owner)
     {
-        spritetype* pOwner = &sprite[pSprite->owner];
-        XSPRITE* pXOwner = &xsprite[pOwner->extra];
-        switch (pSprite->type) {
+        spritetype* pOwner = &owner->s();
+        XSPRITE* pXOwner = &owner->x();
+        switch (pSprite->type) 
+        {
             case kItemFlagA:
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
                 sndStartSample(8003, 255, 2, 0);
