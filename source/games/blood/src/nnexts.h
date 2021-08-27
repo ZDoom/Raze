@@ -235,14 +235,14 @@ struct TRPLAYERCTRL { // this one for controlling the player using triggers (mov
 };
 
 struct OBJECTS_TO_TRACK {
-    signed int type:     3;
-    unsigned int index:  16;
-    unsigned int cmd:    8;
+    int8_t type;
+    uint8_t cmd;
+    int index;
 };
 
 struct TRCONDITION {
-    signed   int xindex:    16;
-    unsigned int length:    8;
+    signed   int xindex;
+    unsigned int length;
     OBJECTS_TO_TRACK obj[kMaxTracedObjects];
 };
 

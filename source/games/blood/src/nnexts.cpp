@@ -1919,7 +1919,7 @@ void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
             for (unsigned k = 0; k < pCond->length; k++) {
                 if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].index != pXSource->reference) continue;
                 pCond->obj[k].index = pPlayer->nSprite;
-                pCond->obj[k].cmd = pPlayer->pXSprite->command;
+                pCond->obj[k].cmd = (uint8_t)pPlayer->pXSprite->command;
                 break;
             }
 
@@ -7912,6 +7912,34 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEMASS& w, SPR
     return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, OBJECTS_TO_TRACK& w, OBJECTS_TO_TRACK* def)
+{
+    static OBJECTS_TO_TRACK nul;
+    if (arc.isReading()) w = {};
+    if (arc.BeginObject(keyname))
+    {
+        arc("type", w.type, &nul.type)
+            ("index", w.index, &nul.index)
+            ("xrepeat", w.cmd, &nul.cmd)
+            .EndObject();
+    }
+    return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, TRCONDITION& w, TRCONDITION* def)
+{
+    static TRCONDITION nul;
+    if (arc.isReading()) w = {};
+    if (arc.BeginObject(keyname))
+    {
+        arc("length", w.length, &nul.length)
+            ("xindex", w.xindex, &nul.xindex)
+            .Array("obj", w.obj, w.length)
+            .EndObject();
+    }
+    return arc;
+}
+
 void SerializeNNExts(FSerializer& arc)
 {
     if (arc.BeginObject("nnexts"))
@@ -7938,6 +7966,8 @@ void SerializeNNExts(FSerializer& arc)
             ("impactspritescount", gImpactSpritesCount)
             .Array("impactspriteslist", gImpactSpritesList, gImpactSpritesCount)
             ("eventredirects", gEventRedirectsUsed)
+            ("trconditioncount",  gTrackingCondsCount)
+            .Array("trcondition", gCondition, gTrackingCondsCount)
             .EndObject();
     }
 }
