@@ -58,15 +58,15 @@ char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
         return 0;
     pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
-    evKill_(nSprite, 3);
+    evKillActor(&bloodActors[nSprite]);
     if ((sprite[nSprite].flags & kHitagRespawn) != 0 && sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax)
     {
         pXSprite->respawnPending = 3;
-        evPost_(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+        evPostActor(&bloodActors[nSprite], gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
         return 1;
     }
     if (pXSprite->restState != nState && pXSprite->waitTime > 0)
-        evPost_(nSprite, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+        evPostActor(&bloodActors[nSprite], (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
     if (pXSprite->txID)
     {
         if (pXSprite->command != kCmdLink && pXSprite->triggerOn && pXSprite->state)
@@ -85,9 +85,9 @@ char SetWallState(int nWall, XWALL *pXWall, int nState)
         return 0;
     pXWall->busy  = IntToFixed(nState);
     pXWall->state = nState;
-    evKill_(nWall, 0);
+    evKillWall(nWall);
     if (pXWall->restState != nState && pXWall->waitTime > 0)
-        evPost_(nWall, 0, (pXWall->waitTime*120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
+        evPostWall(nWall, (pXWall->waitTime*120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
     if (pXWall->txID)
     {
         if (pXWall->command != kCmdLink && pXWall->triggerOn && pXWall->state)
@@ -104,7 +104,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
         return 0;
     pXSector->busy = IntToFixed(nState);
     pXSector->state = nState;
-    evKill_(nSector, 6);
+    evKillSector(nSector);
     if (nState == 1)
     {
         if (pXSector->command != kCmdLink && pXSector->triggerOn && pXSector->txID)
@@ -115,7 +115,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
             pXSector->stopOff = 0;
         }
         else if (pXSector->reTriggerA)
-            evPost_(nSector, 6, (pXSector->waitTimeA * 120) / 10, kCmdOff);
+            evPostSector(nSector, (pXSector->waitTimeA * 120) / 10, kCmdOff);
     }
     else
     {
@@ -127,7 +127,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
             pXSector->stopOff = 0;
         }
         else if (pXSector->reTriggerB)
-            evPost_(nSector, 6, (pXSector->waitTimeB * 120) / 10, kCmdOn);
+            evPostSector(nSector, (pXSector->waitTimeB * 120) / 10, kCmdOn);
     }
     return 1;
 }
@@ -264,7 +264,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                         {
                             missile->SetOwner(actor);
                             pXSprite->stateTimer = 1;
-                            evPost_(pSprite->index, 3, t2, kCallbackLeechStateTimer);
+                            evPostActor(&bloodActors[pSprite->index], t2, kCallbackLeechStateTimer);
                             pXSprite->data3 = ClipLow(pXSprite->data3-1, 0);
                         }
                         pSprite->ang = angBak;
@@ -282,6 +282,7 @@ void ActivateGenerator(int);
 
 void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
 {
+    auto actor = &bloodActors[nSprite];
     spritetype *pSprite = &sprite[nSprite];
     
     #ifdef NOONE_EXTENSIONS
@@ -520,7 +521,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             if (event.cmd != kCmdOn) actExplodeSprite(&bloodActors[pSprite->index]);
             else {
                 sfxPlay3DSound(pSprite, 454, 0, 0);
-                evPost_(nSprite, 3, 18, kCmdOff);
+                evPostActor(actor, 18, kCmdOff);
             }
         }
         break;    
@@ -530,7 +531,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 case kCmdSpriteProximity:
                     if (pXSprite->state) break;
                     sfxPlay3DSound(pSprite, 452, 0, 0);
-                    evPost_(nSprite, 3, 30, kCmdOff);
+                    evPostActor(actor, 30, kCmdOff);
                     pXSprite->state = 1;
                     fallthrough__;
                 case kCmdOn:
@@ -564,13 +565,13 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 if (pXSprite->txID) evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                 if (pXSprite->busyTime > 0) {
                     int nRand = Random2(pXSprite->data1);
-                    evPost_(nSprite, 3, 120*(nRand+pXSprite->busyTime) / 10, kCmdRepeat);
+                    evPostActor(actor, 120*(nRand+pXSprite->busyTime) / 10, kCmdRepeat);
                 }
                 break;
             default:
                 if (!pXSprite->state) {
                     SetSpriteState(nSprite, pXSprite, 1);
-                    evPost_(nSprite, 3, 0, kCmdRepeat);
+                    evPostActor(actor, 0, kCmdRepeat);
                 }
                 break;
         }
@@ -1365,7 +1366,7 @@ int PathBusy(unsigned int nSector, unsigned int a2)
     pXSector->busy = a2;
     if ((a2&0xffff) == 0)
     {
-        evPost_(nSector, 6, (120*pXSprite2->waitTime)/10, kCmdOn);
+        evPostSector(nSector, (120*pXSprite2->waitTime)/10, kCmdOn);
         pXSector->state = 0;
         pXSector->busy = 0;
         if (pXSprite1->data4)
@@ -1657,7 +1658,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
     pXSector->marker0 = nSprite;
     basePath[nSector] = nSprite;
     if (pXSector->state)
-        evPost_(nSector, 6, 0, kCmdOn);
+        evPostSector(nSector, 0, kCmdOn);
 }
 
 void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
@@ -2054,7 +2055,7 @@ void trInit(void)
                 else
                 #endif
                 pXSector->triggerOnce = 1;
-                evPost_(i, 6, 0, kCallbackCounterCheck);
+                evPostSector(i, 0, kCallbackCounterCheck);
                 break;
             case kSectorZMotion:
             case kSectorZMotionSprite:
@@ -2130,9 +2131,9 @@ void trInit(void)
             case kModernRandom:
             case kModernRandom2:
                 if (!gModernMap || pXSprite->state == pXSprite->restState) break;
-                evPost_(i, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                evPostActor(&bloodActors[i], (120 * pXSprite->busyTime) / 10, kCmdRepeat);
                 if (pXSprite->waitTime > 0)
-                    evPost_(i, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+                    evPostActor(&bloodActors[i], (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             case kModernSeqSpawner:
             case kModernObjDataAccumulator:
@@ -2140,9 +2141,9 @@ void trInit(void)
             case kModernEffectSpawner:
             case kModernWindGenerator:
                 if (pXSprite->state == pXSprite->restState) break;
-                evPost_(i, 3, 0, kCmdRepeat);
+                evPostActor(&bloodActors[i], 0, kCmdRepeat);
                 if (pXSprite->waitTime > 0)
-                    evPost_(i, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+                    evPostActor(&bloodActors[i], (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             #endif
             case kGenTrigger:
@@ -2206,7 +2207,7 @@ void InitGenerator(int nSprite)
             break;
     }
     if (pXSprite->state != pXSprite->restState && pXSprite->busyTime > 0)
-        evPost_(nSprite, 3, (120*(pXSprite->busyTime+Random2(pXSprite->data1)))/10, kCmdRepeat);
+        evPostActor(&bloodActors[nSprite], (120*(pXSprite->busyTime+Random2(pXSprite->data1)))/10, kCmdRepeat);
 }
 
 void ActivateGenerator(int nSprite)
@@ -2273,7 +2274,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
         {
             pXSprite->data2--;
             if (pXSprite->data2 == 0)
-                evPost_(pXSprite->reference, 3, 1, kCmdOff);
+                evPostActor(&bloodActors[pXSprite->reference], 1, kCmdOff);
         }
         int dx = CosScale16(pSprite->ang)+Random2(1000);
         int dy = SinScale16(pSprite->ang)+Random2(1000);

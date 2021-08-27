@@ -150,7 +150,7 @@ inline bool channelRangeIsFine(int channel) {
 struct EVENT
 {
 	DBloodActor* actor;
-	int16_t index_;
+	int index_;
 	int8_t type;
 	int8_t cmd;
 	int16_t funcID;

@@ -551,6 +551,12 @@ void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback)
 	evPost_(index, OBJ_SECTOR, nDelta, callback);
 }
 
+void evPostWall(int index, unsigned int nDelta, COMMAND_ID command)
+{
+	evPost_(index, OBJ_WALL, nDelta, command);
+}
+
+
 //---------------------------------------------------------------------------
 //
 //
@@ -584,6 +590,17 @@ void evKillActor(DBloodActor* actor, CALLBACK_ID cb)
 {
 	evKill_(actor->s().index, 3, cb);
 }
+
+void evKillWall(int wal)
+{
+	evKill_(wal, OBJ_WALL);
+}
+
+void evKillSector(int sec)
+{
+	evKill_(sec, OBJ_SECTOR);
+}
+
 
 //---------------------------------------------------------------------------
 //
