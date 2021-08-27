@@ -369,8 +369,17 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
     return true;
 }
 
-bool nnExtEraseModernStuff(spritetype* pSprite, XSPRITE* pXSprite) {
-    
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool nnExtEraseModernStuff(DBloodActor* actor) 
+{
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+
     bool erased = false;
     switch (pSprite->type) {
         // erase all modern types if the map is not extended
