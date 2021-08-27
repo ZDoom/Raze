@@ -451,7 +451,8 @@ void nnExtResetGlobals() {
         for (int i = 0; i < gTrackingCondsCount; i++) {
             TRCONDITION* pCond = &gCondition[i];
             for (unsigned k = 0; k < pCond->length; k++) {
-                pCond->obj[k].index = pCond->obj[k].cmd = 0;
+                pCond->obj[k].actor = nullptr;
+                pCond->obj[k].index_ = pCond->obj[k].cmd = 0;
                 pCond->obj[k].type = -1;
             }
 
@@ -813,7 +814,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
             pCond->obj[count].type = OBJ_SPRITE;
-            pCond->obj[count].index = index;
+            pCond->obj[count].index_ = 0;
+            pCond->obj[count].actor = &bloodActors[index];
             pCond->obj[count++].cmd = cmd;
         }
 
@@ -823,7 +825,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
             pCond->obj[count].type = OBJ_SECTOR;
-            pCond->obj[count].index = xsector[i].reference;
+            pCond->obj[count].actor = nullptr;
+            pCond->obj[count].index_ = xsector[i].reference;
             pCond->obj[count++].cmd = xsector[i].command;
         }
 
@@ -842,7 +845,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
                 
             pCond->obj[count].type = OBJ_WALL;
-            pCond->obj[count].index = xwall[i].reference;
+            pCond->obj[count].index_ = xwall[i].reference;
+            pCond->obj[count].actor = nullptr;
             pCond->obj[count++].cmd = xwall[i].command;
         }
 
@@ -1055,17 +1059,8 @@ void nnExtProcessSuperSprites() {
                 for (unsigned k = 0; k < pCond->length; k++) {
 
                     EVENT evn;
-                    // temporary mess.
-                    if (pCond->obj[k].type == OBJ_SPRITE)
-                    {
-                        evn.actor = &bloodActors[pCond->obj[k].type];
-                        evn.index_ = 0;
-                    }
-                    else
-                    {
-                        evn.actor = nullptr;
-                        evn.index_ = pCond->obj[k].index;
-                    }
+                    evn.actor = pCond->obj[k].actor;
+                    evn.index_ = pCond->obj[k].index_;
                     evn.cmd    = pCond->obj[k].cmd;
                     evn.type  = pCond->obj[k].type;     
                     evn.funcID = kCallbackMax;
@@ -1901,6 +1896,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer) {
 
 void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
 
+    auto sourceactor = &bloodActors[pXSource->reference];
     // save player's sprite index to let the tracking condition know it after savegame loading...
     pXSource->sysData1                  = pPlayer->nSprite;
     
@@ -1941,8 +1937,9 @@ void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
                 
             // search for player control sprite and replace it with actual player sprite
             for (unsigned k = 0; k < pCond->length; k++) {
-                if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].index != pXSource->reference) continue;
-                pCond->obj[k].index = pPlayer->nSprite;
+                if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].actor != sourceactor) continue;
+                pCond->obj[k].actor = pPlayer->actor();
+                pCond->obj[k].index_ = 0;
                 pCond->obj[k].cmd = (uint8_t)pPlayer->pXSprite->command;
                 break;
             }
@@ -4126,20 +4123,26 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 }
 
 // this updates index of object in all conditions
-void condUpdateObjectIndex(int objType, int oldIndex, int newIndex) {
+void condUpdateObjectIndex(int objType, int oldIndex, int newIndex) 
+{
+    // this only gets called for player respawns
+    auto oldActor = &bloodActors[oldIndex];
+    auto newActor = &bloodActors[newIndex];
 
     // update index in tracking conditions first
-    for (int i = 0; i < gTrackingCondsCount; i++) {
+    for (int i = 0; i < gTrackingCondsCount; i++) 
+    {
 
         TRCONDITION* pCond = &gCondition[i];
-        for (unsigned k = 0; k < pCond->length; k++) {
-            if (pCond->obj[k].type != objType || pCond->obj[k].index != oldIndex) continue;
-            pCond->obj[k].index = newIndex;
+        for (unsigned k = 0; k < pCond->length; k++) 
+        {
+            if (pCond->obj[k].type != objType || pCond->obj[k].actor != oldActor) continue;
+            pCond->obj[k].actor = newActor;
             break;
         }
-
     }
 
+    // puke...
     int oldSerial = condSerialize(objType, oldIndex);
     int newSerial = condSerialize(objType, newIndex);
 
@@ -7998,7 +8001,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, OBJECTS_TO_TRACK& 
     if (arc.BeginObject(keyname))
     {
         arc("type", w.type, &nul.type)
-            ("index", w.index, &nul.index)
+            ("index", w.index_, &nul.index_)
             ("xrepeat", w.cmd, &nul.cmd)
             .EndObject();
     }
