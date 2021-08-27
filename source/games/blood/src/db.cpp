@@ -189,8 +189,9 @@ int InsertSprite(int nSector, int nStat)
         return nSprite;
     }
     RemoveSpriteStat(nSprite);
-    spritetype *pSprite = &sprite[nSprite];
-    memset(&sprite[nSprite], 0, sizeof(spritetype));
+    DBloodActor* actor = &bloodActors[nSprite];
+    spritetype *pSprite = &actor->s();
+    memset(pSprite, 0, sizeof(spritetype));
     InsertSpriteStat(nSprite, nStat);
     InsertSpriteSect(nSprite, nSector);
     pSprite->cstat = 128;
@@ -199,7 +200,7 @@ int InsertSprite(int nSector, int nStat)
     pSprite->owner = -1;
     pSprite->extra = -1;
     pSprite->index = nSprite;
-    xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
+    actor->xvel() = actor->yvel() = actor->zvel() = 0;
 
     Numsprites++;
 

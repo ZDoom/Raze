@@ -448,12 +448,12 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
     
     int zv = actor->zvel() - velFloor[pSprite->sectnum];
     
-    if (actor->zvel() == 0) sleeveStopBouncing(pSprite);
+    if (actor->zvel() == 0) sleeveStopBouncing(actor);
     else if (zv > 0) {
         actFloorBounceVector((int*)& actor->xvel(), (int*)& actor->yvel(), &zv, pSprite->sectnum, 0x9000);
         actor->zvel() = zv;
         if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel()) < 0x20000)  {
-            sleeveStopBouncing(pSprite);
+            sleeveStopBouncing(actor);
             return;
         }
 
@@ -474,8 +474,10 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
 }
 
 
-void sleeveStopBouncing(spritetype* pSprite) {
-    xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
+void sleeveStopBouncing(DBloodActor* actor) 
+{
+    auto pSprite = &actor->s();
+    actor->xvel() = actor->yvel() = actor->zvel() = 0;
     if (pSprite->extra > 0) seqKill(3, pSprite->extra);
     sfxKill3DSound(pSprite, -1, -1);
 

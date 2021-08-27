@@ -578,8 +578,6 @@ void nnExtInitModernStuff(bool bSaveLoad)
             // add in list of physics affected sprites
             if (pXSprite->physAttr != 0) 
             {
-                //xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
-
                 gPhysSpritesList[gPhysSpritesCount++] = &bloodActors[pSprite->index]; // add sprite index
                 getSpriteMassBySize(pSprite); // create mass cache
             }
@@ -1329,39 +1327,39 @@ void nnExtProcessSuperSprites() {
                 continue;
             }
 
-            int idx = pDebris->index;
+            int nDebris = pDebris->index;
 
             XSECTOR* pXSector = (sector[pDebris->sectnum].extra >= 0) ? &xsector[sector[pDebris->sectnum].extra] : NULL;
-            viewBackupSpriteLoc(idx, pDebris);
+            viewBackupSpriteLoc(nDebris, pDebris);
             
             bool uwater = false;
             int mass = debrisactor->spriteMass.mass;
             int airVel = debrisactor->spriteMass.airVel;
 
-                    int top, bottom;
-                    GetSpriteExtents(pDebris, &top, &bottom);
+            int top, bottom;
+            GetSpriteExtents(pDebris, &top, &bottom);
             
             if (pXSector != NULL) {
-                
+
                 if ((uwater = pXSector->Underwater) != 0) airVel <<= 6;
                 if (pXSector->panVel != 0 && getflorzofslope(pDebris->sectnum, pDebris->x, pDebris->y) <= bottom) {
-                    
+
                     int angle = pXSector->panAngle; int speed = 0;
                     if (pXSector->panAlways || pXSector->state || pXSector->busy) {
-                            speed = pXSector->panVel << 9;
-                            if (!pXSector->panAlways && pXSector->busy)
-                                speed = MulScale(speed, pXSector->busy, 16);
-                        }
-                        if (sector[pDebris->sectnum].floorstat & 64)
-                            angle = (angle + GetWallAngle(sector[pDebris->sectnum].wallptr) + 512) & 2047;
-                        int dx = MulScale(speed, Cos(angle), 30);
-                        int dy = MulScale(speed, Sin(angle), 30);
-                    xvel[idx] += dx;
-                    yvel[idx] += dy;
-
+                        speed = pXSector->panVel << 9;
+                        if (!pXSector->panAlways && pXSector->busy)
+                            speed = MulScale(speed, pXSector->busy, 16);
                     }
-                
+                    if (sector[pDebris->sectnum].floorstat & 64)
+                        angle = (angle + GetWallAngle(sector[pDebris->sectnum].wallptr) + 512) & 2047;
+                    int dx = MulScale(speed, Cos(angle), 30);
+                    int dy = MulScale(speed, Sin(angle), 30);
+                    debrisactor->xvel() += dx;
+                    debrisactor->yvel() += dy;
+
                 }
+
+            }
 
             actAirDrag(&bloodActors[pDebris->index], airVel);
 
@@ -1369,13 +1367,13 @@ void nnExtProcessSuperSprites() {
                 PLAYER* pPlayer = NULL;
                 for (int a = connecthead; a != -1; a = connectpoint2[a]) {
                     pPlayer = &gPlayer[a];
-                    if ((gSpriteHit[pPlayer->pSprite->extra].hit & 0xc000) == 0xc000  && (gSpriteHit[pPlayer->pSprite->extra].hit & 0x3fff) == idx) {
+                    if ((gSpriteHit[pPlayer->pSprite->extra].hit & 0xc000) == 0xc000  && (gSpriteHit[pPlayer->pSprite->extra].hit & 0x3fff) == nDebris) {
                         
                             int nSpeed = approxDist(xvel[pPlayer->pSprite->index], yvel[pPlayer->pSprite->index]);
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
 
-                            xvel[idx] += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
-                            yvel[idx] += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
+                            debrisactor->xvel() += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
+                            debrisactor->yvel() += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
                             
                             gSpriteHit[pDebris->extra].hit = pPlayer->pSprite->index | 0xc000;
 
@@ -1384,25 +1382,25 @@ void nnExtProcessSuperSprites() {
             }
             
             if (pXDebris->physAttr & kPhysGravity) pXDebris->physAttr |= kPhysFalling;
-            if ((pXDebris->physAttr & kPhysFalling) || xvel[idx] || yvel[idx] || zvel[idx] || velFloor[pDebris->sectnum] || velCeil[pDebris->sectnum])
+            if ((pXDebris->physAttr & kPhysFalling) || debrisactor->xvel() || debrisactor->yvel() || debrisactor->zvel() || velFloor[pDebris->sectnum] || velCeil[pDebris->sectnum])
             debrisMove(i);
 
-            if (xvel[idx] || yvel[idx])
-                pXDebris->goalAng = getangle(xvel[idx], yvel[idx]) & 2047;
+            if (debrisactor->xvel() || debrisactor->yvel())
+                pXDebris->goalAng = getangle(debrisactor->xvel(), debrisactor->yvel()) & 2047;
 
             int ang = pDebris->ang & 2047;
             if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
             else if (Chance(0x1000 - mass)) {
                 
-                if (zvel[idx] > 0x100) debrisBubble(idx);
+                if (debrisactor->zvel() > 0x100) debrisBubble(nDebris);
                 if (ang == pXDebris->goalAng) {
                    pXDebris->goalAng = (pDebris->ang + Random3(kAng60)) & 2047;
-                   debrisBubble(idx);
+                   debrisBubble(nDebris);
         }
 
     }
 
-            int angStep = ClipLow(mulscale8(1, ((abs(xvel[idx]) + abs(yvel[idx])) >> 5)), (uwater) ? 1 : 0);
+            int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->xvel()) + abs(debrisactor->yvel())) >> 5)), (uwater) ? 1 : 0);
             if (ang < pXDebris->goalAng) pDebris->ang = ClipHigh(ang + angStep, pXDebris->goalAng);
             else if (ang > pXDebris->goalAng) pDebris->ang = ClipLow(ang - angStep, pXDebris->goalAng);
 
