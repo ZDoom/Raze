@@ -255,11 +255,6 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
 // for actor.cpp
 //-------------------------------------------------------------------------
 
-void changeactorstat(DBloodActor* actor, int stat)
-{
-    changespritestat(actor->s().index, stat);
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -416,7 +411,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
         case kModernThingTNTProx:
         case kModernThingEnemyLifeLeech:
             pSprite->type = kSpriteDecoration;
-            changeactorstat(actor, kStatDecoration);
+            ChangeActorStat(actor, kStatDecoration);
             erased = true;
             break;
         // also erase some modernized vanilla types which was not active
@@ -652,11 +647,11 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 case kModernSequentialTX:
                     if (pXSprite->command != kCmdLink) break;
                     // add statnum for faster redirects search
-                    changeactorstat(actor, kStatModernEventRedirector);
+                    ChangeActorStat(actor, kStatModernEventRedirector);
                     break;
                 case kModernWindGenerator:
                     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
-                    changeactorstat(actor, kStatModernWindGen);
+                    ChangeActorStat(actor, kStatModernWindGen);
                     break;
                 case kModernDudeTargetChanger:
                 case kModernObjDataAccumulator:
@@ -669,18 +664,18 @@ void nnExtInitModernStuff(bool bSaveLoad)
                     {
                         // stealth regions for patrolling enemies
                         case kModernStealthRegion:
-                            changeactorstat(actor, kStatModernStealthRegion);
+                            ChangeActorStat(actor, kStatModernStealthRegion);
                             break;
                         // add statnum for faster dude searching
                         case kModernDudeTargetChanger:
-                            changeactorstat(actor, kStatModernDudeTargetChanger);
+                            ChangeActorStat(actor, kStatModernDudeTargetChanger);
                             if (pXSprite->busyTime <= 0) pXSprite->busyTime = 5;
                             pXSprite->command = kCmdLink;
                             break;
                             // remove kStatItem status from random item generators
                         case kModernRandom:
                         case kModernRandom2:
-                            changeactorstat(actor, kStatDecoration);
+                            ChangeActorStat(actor, kStatDecoration);
                             pXSprite->sysData1 = pXSprite->command; // save the command so spawned item can inherit it
                             pXSprite->command  = kCmdLink;  // generator itself can't send commands
                             break;
@@ -699,7 +694,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                         XSPRITE* pXSpr = &iactor->x();
                         if (pXSpr->rxID != pXSprite->txID) continue;
                         else if (found) I_Error("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", pXSprite->txID);
-                        changeactorstat(iactor, kStatInactive);
+                        ChangeActorStat(iactor, kStatInactive);
                         found++;
                     }
                     break;
@@ -736,12 +731,12 @@ void nnExtInitModernStuff(bool bSaveLoad)
                             }
                             pXSprite->sysData1 = -1;
                             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
-                            changeactorstat(actor, kStatModernPlayerLinker);
+                            ChangeActorStat(actor, kStatModernPlayerLinker);
                             break;
                         }
                         case 67: // play qav animation
                             if (pXSprite->txID && !pXSprite->waitTime) pXSprite->waitTime = 1;
-                            changeactorstat(actor, kStatModernQavScene);
+                            ChangeActorStat(actor, kStatModernQavScene);
                             break;
                     }
                     break;
@@ -767,7 +762,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                     
                     pXSprite->targetX = pXSprite->targetY = pXSprite->targetZ = pXSprite->sysData2 = -1;
                     actor->SetTarget(nullptr);
-                    changespritestat(pSprite->index, kStatModernCondition);
+                    ChangeActorStat(actor, kStatModernCondition);
                     int oldStat = pSprite->cstat; pSprite->cstat = 0x30;
                     
                     if (oldStat & CSTAT_SPRITE_BLOCK) 
