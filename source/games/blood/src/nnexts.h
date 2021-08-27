@@ -302,7 +302,6 @@ void nnExtTriggerObject(int objType, int objIndex, int command);
 //  -------------------------------------------------------------------------   //
 spritetype* randomDropPickupObject(spritetype* pSprite, short prevItem);
 spritetype* randomSpawnDude(XSPRITE* pXSource, spritetype* pSprite, int a3, int a4);
-int randomGetDataValue(XSPRITE* pXSprite, int randType);
 void sfxPlayMissileSound(spritetype* pSprite, int missileId);
 void sfxPlayVectorSound(spritetype* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //

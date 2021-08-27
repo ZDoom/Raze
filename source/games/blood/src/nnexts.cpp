@@ -947,7 +947,7 @@ int nnExtRandom(int a, int b)
     return dist_a_b(gStdRandom);
 }
 
-int GetDataVal(DBloodActor* actor, int data) 
+static int GetDataVal(DBloodActor* actor, int data) 
 {
     if (!actor->hasX()) return -1;
     
@@ -967,15 +967,18 @@ int GetDataVal(DBloodActor* actor, int data)
 //
 //---------------------------------------------------------------------------
 
-int randomGetDataValue(XSPRITE* pXSprite, int randType) {
-    if (pXSprite == NULL) return -1;
+static int randomGetDataValue(DBloodActor* actor, int randType) 
+{
+    if (actor == NULL || !actor->hasX()) return -1;
+    auto pXSprite = &actor->x();
     int random = 0; int bad = 0; int maxRetries = kMaxRandomizeRetries;
 
     int rData[4];
     rData[0] = pXSprite->data1; rData[2] = pXSprite->data3;
     rData[1] = pXSprite->data2; rData[3] = pXSprite->data4;
     // randomize only in case if at least 2 data fields fits.
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) 
+    {
         switch (randType) {
         case kRandomizeItem:
             if (rData[i] >= kItemWeaponBase && rData[i] < kItemMax) break;
@@ -995,9 +998,11 @@ int randomGetDataValue(XSPRITE* pXSprite, int randType) {
         }
     }
 
-    if (bad < 3) {
+    if (bad < 3) 
+    {
         // try randomize few times
-        while (maxRetries > 0) {
+        while (maxRetries > 0) 
+        {
             random = nnExtRandom(0, 3);
             if (rData[random] > 0) return rData[random];
             else maxRetries--;
@@ -1010,15 +1015,16 @@ int randomGetDataValue(XSPRITE* pXSprite, int randType) {
 // this function drops random item using random pickup generator(s)
 spritetype* randomDropPickupObject(spritetype* pSource, short prevItem) 
 {
-    auto actor = &bloodActors[pSource->index];
+    auto sourceactor = &bloodActors[pSource->index];
 
     spritetype* pSprite2 = NULL; int selected = -1; int maxRetries = 9;
-    if (xspriRangeIsFine(pSource->extra)) {
-        XSPRITE* pXSource = &xsprite[pSource->extra];
-        while ((selected = randomGetDataValue(pXSource, kRandomizeItem)) == prevItem) if (maxRetries-- <= 0) break;
+    if (sourceactor->hasX())
+    {
+        XSPRITE* pXSource = &sourceactor->x();
+        while ((selected = randomGetDataValue(sourceactor, kRandomizeItem)) == prevItem) if (maxRetries-- <= 0) break;
         if (selected > 0) 
         {
-            DBloodActor* spawned = actDropObject(actor, selected);
+            DBloodActor* spawned = actDropObject(sourceactor, selected);
             if (spawned) {
                 pSprite2 = &spawned->s();
 
@@ -1050,10 +1056,11 @@ spritetype* randomDropPickupObject(spritetype* pSource, short prevItem)
 // this function spawns random dude using dudeSpawn
 spritetype* randomSpawnDude(XSPRITE* pXSource, spritetype* pSprite, int a3, int a4)
 {
+    auto sourceactor = &bloodActors[pXSource->reference];
     DBloodActor* pSprite2 = NULL; int selected = -1;
     
-    if ((selected = randomGetDataValue(pXSource, kRandomizeDude)) > 0)
-        pSprite2 = nnExtSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], selected, a3, 0);
+    if ((selected = randomGetDataValue(sourceactor, kRandomizeDude)) > 0)
+        pSprite2 = nnExtSpawnDude(sourceactor, &bloodActors[pSprite->index], selected, a3, 0);
 
     return pSprite2? &pSprite2->s() : nullptr;
 }
@@ -5384,8 +5391,8 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
 
 void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
     
-  
-    spritetype* pSource = &sprite[pXSource->reference];
+    auto sourceactor = &bloodActors[pXSource->reference];
+    spritetype* pSource = &sourceactor->s();
     int tx = 0; int maxRetries = kMaxRandomizeRetries;
     
     if (txIsRanged(pXSource)) {
@@ -5395,7 +5402,7 @@ void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
         }
     } else {
         while (maxRetries-- >= 0) {
-            if ((tx = randomGetDataValue(pXSource, kRandomizeTX)) > 0 && tx != pXSource->txID)
+            if ((tx = randomGetDataValue(sourceactor, kRandomizeTX)) > 0 && tx != pXSource->txID)
                 break;
         }
     }
