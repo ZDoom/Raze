@@ -2571,7 +2571,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 #ifdef NOONE_EXTENSIONS
 			if (pSprite->type == kDudeModernCustom || pSprite->type == kDudeModernCustomBurning)
 			{
-				mass = getSpriteMassBySize(pSprite);
+				mass = getSpriteMassBySize(actor);
 			}
 #endif
 		}
@@ -4267,7 +4267,7 @@ static void checkCeilHit(DBloodActor* actor)
 						{
 						case kDudeModernCustom:
 						case kDudeModernCustomBurning:
-							mass2 = getSpriteMassBySize(pSprite);
+							mass2 = getSpriteMassBySize(actor);
 							break;
 						}
 						if (mass1 > mass2)
@@ -4292,7 +4292,7 @@ static void checkCeilHit(DBloodActor* actor)
 						case kDudeModernCustom:
 						case kDudeModernCustomBurning:
 							int dmg = 0;
-							if (!actor->IsDudeActor() || (dmg = ClipLow((getSpriteMassBySize(pSprite2) - getSpriteMassBySize(pSprite)) >> 1, 0)) == 0)
+							if (!actor->IsDudeActor() || (dmg = ClipLow((getSpriteMassBySize(actor2) - getSpriteMassBySize(actor)) >> 1, 0)) == 0)
 								break;
 
 							if (!actor->IsPlayerActor())
@@ -4359,7 +4359,7 @@ static void checkHit(DBloodActor* actor)
 					{
 					case kDudeModernCustom:
 					case kDudeModernCustomBurning:
-						mass2 = getSpriteMassBySize(pSprite2);
+						mass2 = getSpriteMassBySize(actor2);
 						break;
 					}
 					if (mass1 > mass2)
@@ -4436,7 +4436,7 @@ static void checkFloorHit(DBloodActor* actor)
 				{
 				case kDudeModernCustom:
 				case kDudeModernCustomBurning:
-					mass2 = getSpriteMassBySize(pSprite2);
+					mass2 = getSpriteMassBySize(actor2);
 					break;
 				}
 
@@ -5241,8 +5241,8 @@ void MoveDude(DBloodActor* actor)
 				pSprite->flags &= ~4;
 			}
 			else
-
 				pSprite->flags |= 4;
+
 			switch (tileGetSurfType(floorHit))
 			{
 			case kSurfWater:
@@ -7046,7 +7046,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					{
 					case kDudeModernCustom:
 					case kDudeModernCustomBurning:
-						t = getSpriteMassBySize(pSprite);
+                            t = getSpriteMassBySize(actor);
 						break;
 					}
 				}

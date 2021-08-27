@@ -300,8 +300,8 @@ int nnExtRandom(int a, int b);
 void nnExtResetGlobals();
 void nnExtTriggerObject(int objType, int objIndex, int command);
 //  -------------------------------------------------------------------------   //
-void sfxPlayMissileSound(spritetype* pSprite, int missileId);
-void sfxPlayVectorSound(spritetype* pSprite, int vectorId);
+void sfxPlayMissileSound(DBloodActor* pSprite, int missileId);
+void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
 int debrisGetIndex(int nSprite);
 int debrisGetFreeIndex(void);
@@ -398,7 +398,7 @@ int getDataFieldOfObject(int objType, int objIndex, DBloodActor* objActor, int d
 bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value);
 bool incDecGoalValueIsReached(XSPRITE* pXSprite);
 void windGenStopWindOnSectors(XSPRITE* pXSource);
-int getSpriteMassBySize(spritetype* pSprite);
+int getSpriteMassBySize(DBloodActor* pSprite);
 bool ceilIsTooLow(spritetype* pSprite);
 void levelEndLevelCustom(int nLevel);
 int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event);

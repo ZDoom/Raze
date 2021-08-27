@@ -256,7 +256,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 
         actFireVector(actor, 0, 0, dx, dy, dz,(VECTOR_TYPE)pExtra->curWeapon);
         if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
-            sfxPlayVectorSound(pSprite, pExtra->curWeapon);
+            sfxPlayVectorSound(actor, pExtra->curWeapon);
     } 
     else if (pExtra->weaponType == kGenDudeWeaponSummon) 
     {
@@ -292,7 +292,7 @@ void genDudeAttack1(int, DBloodActor* actor)
 
         actFireMissile(actor, 0, 0, dx, dy, dz, pExtra->curWeapon);
         if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
-            sfxPlayMissileSound(pSprite, pExtra->curWeapon);
+            sfxPlayMissileSound(actor, pExtra->curWeapon);
     }
 }
 
@@ -1809,9 +1809,8 @@ int getBaseChanceModifier(int baseChance)
 
 int getRecoilChance(DBloodActor* actor) 
 {
-    auto const pSprite = &actor->s();
     auto const pXSprite = &actor->x();
-    int mass = getSpriteMassBySize(pSprite);
+    int mass = getSpriteMassBySize(actor);
     int baseChance = (!dudeIsMelee(actor) ? 0x8000 : 0x4000);
     baseChance = getBaseChanceModifier(baseChance) + pXSprite->data3;
     
@@ -1821,9 +1820,8 @@ int getRecoilChance(DBloodActor* actor)
 
 int getDodgeChance(DBloodActor* actor) 
 {
-    auto const pSprite = &actor->s();
     auto const pXSprite = &actor->x();
-    int mass = getSpriteMassBySize(pSprite);
+    int mass = getSpriteMassBySize(actor);
     int baseChance = (!dudeIsMelee(actor) ? 0x6000 : 0x1000);
     baseChance = getBaseChanceModifier(baseChance) + pXSprite->data3;
 
@@ -2417,7 +2415,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
             SPRITEMASS* pMass = &actor->spriteMass;
             pMass->seqId = pMass->picnum = pMass->xrepeat = pMass->yrepeat = pMass->clipdist = 0;
             pMass->mass = pMass->airVel = pMass->fraction = 0;
-            getSpriteMassBySize(pSprite);
+            getSpriteMassBySize(actor);
             if (propId) break;
             [[fallthrough]];
         }
