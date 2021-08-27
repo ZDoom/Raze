@@ -292,7 +292,7 @@ inline bool xsprIsFine(spritetype* pSpr) {
     return (pSpr && xspriRangeIsFine(pSpr->extra) && !(pSpr->flags & kHitagFree) && !(pSpr->flags & kHitagRespawn));
 }
 // - FUNCTIONS ------------------------------------------------------------------
-bool nnExtEraseModernStuff(spritetype* pSprite, XSPRITE* pXSprite);
+bool nnExtEraseModernStuff(DBloodActor* actor);
 void nnExtInitModernStuff(bool bSaveLoad);
 void nnExtProcessSuperSprites(void);
 bool nnExtIsImmune(DBloodActor* pSprite, int dmgType, int minScale = 16);

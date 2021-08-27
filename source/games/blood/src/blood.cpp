@@ -123,10 +123,12 @@ void StartLevel(MapRecord* level, bool newgame)
 	int modernTypesErased = 0;
 	for (int i = 0; i < kMaxSprites; i++)
 	{
-		spritetype* pSprite = &sprite[i];
-		if (pSprite->statnum < kMaxStatus && pSprite->extra > 0) {
+		DBloodActor* actor = &bloodActors[i];
+		spritetype* pSprite = &actor->s();
+		if (pSprite->statnum < kMaxStatus && actor->hasX()) 
+		{
 
-			XSPRITE* pXSprite = &xsprite[pSprite->extra];
+			XSPRITE* pXSprite = &actor->x();
 			if ((pXSprite->lSkill & (1 << gGameOptions.nDifficulty)) || (pXSprite->lS && gGameOptions.nGameType == 0)
 				|| (pXSprite->lB && gGameOptions.nGameType == 2) || (pXSprite->lT && gGameOptions.nGameType == 3)
 				|| (pXSprite->lC && gGameOptions.nGameType == 1)) {
@@ -137,7 +139,7 @@ void StartLevel(MapRecord* level, bool newgame)
 
 
 #ifdef NOONE_EXTENSIONS
-			if (!gModernMap && nnExtEraseModernStuff(pSprite, pXSprite))
+			if (!gModernMap && nnExtEraseModernStuff(actor))
 				modernTypesErased++;
 #endif
 		}
