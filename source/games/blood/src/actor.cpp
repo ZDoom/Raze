@@ -6402,7 +6402,7 @@ DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool se
 	pSprite->type = kSpriteDecoration;
 	if (setextra && !actor->hasX())
 	{
-		actor->addExtra();
+		actor->addX();
 		actor->hit().florhit = 0;
 		actor->hit().ceilhit = 0;
 		if (!VanillaMode()) actor->SetTarget(nullptr);

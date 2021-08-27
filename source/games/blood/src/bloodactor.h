@@ -205,12 +205,6 @@ public:
 			return true;
 		}
 	}
-
-	void addExtra()
-	{
-		if (s().extra <= 0) s().extra = dbInsertXSprite(index);
-	}
-
 };
 
 extern DBloodActor bloodActors[kMaxSprites];

@@ -303,7 +303,6 @@ void nnExtTriggerObject(int objType, int objIndex, int command);
 void sfxPlayMissileSound(DBloodActor* pSprite, int missileId);
 void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
-int debrisGetIndex(int nSprite);
 int debrisGetFreeIndex(void);
 void debrisBubble(int nSprite);
 void debrisMove(int listIndex);
