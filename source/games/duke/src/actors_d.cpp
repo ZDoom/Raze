@@ -612,7 +612,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 
 	if (dasectnum >= 0)
 		if ((dasectnum != spri->sectnum))
-			changespritesect(actor, dasectnum);
+			changeactorsect(actor, dasectnum);
 	daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
 		spri->z = daz;
@@ -1119,7 +1119,7 @@ static void movetripbomb(DDukeActor *actor)
 		int16_t       curSectNum = s->sectnum;
 
 		updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
-		changespritesect(actor, curSectNum);
+		changeactorsect(actor, curSectNum);
 
 		DDukeActor* hit;
 		x = hitasprite(actor, &hit);
@@ -1154,10 +1154,10 @@ static void movetripbomb(DDukeActor *actor)
 				if (curSectNum == -1)
 					break;
 
-				changespritesect(actor, curSectNum);
+				changeactorsect(actor, curSectNum);
 
 				// this is a hack to work around the LASERLINE sprite's art tile offset
-				changespritesect(spawned, curSectNum);
+				changeactorsect(spawned, curSectNum);
 
 			}
 		}
@@ -1165,7 +1165,7 @@ static void movetripbomb(DDukeActor *actor)
 		actor->temp_data[0]++;
 		s->x = actor->temp_data[3]; s->y = actor->temp_data[4];
 		s->z += (3 << 8);
-		changespritesect(actor, oldSectNum);
+		changeactorsect(actor, oldSectNum);
 		actor->temp_data[3] = 0;
 		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -2049,7 +2049,7 @@ void movetransports_d(void)
 							ps[p].bobposy = ps[p].oposy = ps[p].posy = Owner->s->y;
 							ps[p].oposz = ps[p].posz = Owner->s->z - gs.playerheight;
 							
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 							ps[p].cursectnum = spr2->sectnum;
 							
 							if (spr->pal == 0)
@@ -2078,7 +2078,7 @@ void movetransports_d(void)
 							auto pa = ps[p].GetActor();
 							pa->s->opos = ps[p].pos;
 							
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 							ps[p].cursectnum = Owner->s->sectnum;
 							
 							break;
@@ -2130,7 +2130,7 @@ void movetransports_d(void)
 							ps[p].transporter_hold = -2;
 						ps[p].cursectnum = Owner->s->sectnum;
 						
-						changespritesect(act2, Owner->s->sectnum);
+						changeactorsect(act2, Owner->s->sectnum);
 						setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + gs.playerheight);
 						
 						if ((krand() & 255) < 32)
@@ -2256,7 +2256,7 @@ void movetransports_d(void)
 										Owner->temp_data[0] = 13;
 									}
 									
-									changespritesect(act2, Owner->s->sectnum);
+									changeactorsect(act2, Owner->s->sectnum);
 								}
 							}
 							else
@@ -2267,7 +2267,7 @@ void movetransports_d(void)
 								
 								spr2->backupz();
 								
-								changespritesect(act2, Owner->s->sectnum);
+								changeactorsect(act2, Owner->s->sectnum);
 							}
 							break;
 						case 1:
@@ -2277,7 +2277,7 @@ void movetransports_d(void)
 							
 							spr2->backupz();
 							
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 							
 							break;
 						case 2:
@@ -2287,7 +2287,7 @@ void movetransports_d(void)
 							
 							spr2->backupz();
 							
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 							
 							break;
 						}

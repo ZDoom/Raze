@@ -3778,7 +3778,7 @@ HORIZONLY:
 		p->posx += p->posxv >> 14;
 		p->posy += p->posyv >> 14;
 		updatesector(p->posx, p->posy, &p->cursectnum);
-		changespritesect(pact, p->cursectnum);
+		changeactorsect(pact, p->cursectnum);
 	}
 	else
 		clipmove_ex(&p->posx, &p->posy,
@@ -3910,7 +3910,7 @@ HORIZONLY:
 				S_PlayActorSound(DUKE_ONWATER, pact);
 
 	if (p->cursectnum != s->sectnum)
-		changespritesect(pact, p->cursectnum);
+		changeactorsect(pact, p->cursectnum);
 
 	int j;
 	if (ud.clipping == 0)

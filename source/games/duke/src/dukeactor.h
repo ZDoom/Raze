@@ -100,14 +100,9 @@ inline void changeactorstat(DDukeActor* a, int newstat)
 	::changespritestat(a->GetIndex(), newstat);
 }
 
-inline void changespritesect(DDukeActor* a, int newsect)
+inline void changeactorsect(DDukeActor* a, int newsect)
 {
 	::changespritesect(a->GetIndex(), newsect);
-}
-
-inline void changespritesect(int i, int newsect)
-{
-	::changespritesect(i, newsect);
 }
 
 inline int setsprite(DDukeActor* a, int x, int y, int z)
@@ -215,5 +210,6 @@ inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16
 	::neartag(xs, ys, zs, sectnum, ange, neartagsector, neartagwall, &nts, neartaghitdist, neartagrange, tagsearch);
 	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
 }
+
 
 END_DUKE_NS

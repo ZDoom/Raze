@@ -1011,7 +1011,7 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 			spri->picnum = 0;	// give it a picnum without any behavior attached, just in case
 			spri->cstat |= CSTAT_SPRITE_INVISIBLE;
 			spri->cstat2 |= CSTAT2_SPRITE_NOFIND;
-			changespritestat(actor, STAT_REMOVED);
+			changeactorstat(actor, STAT_REMOVED);
 		}
 	}
 }
@@ -4028,7 +4028,7 @@ void handle_se17(DDukeActor* actor)
 				ps[p].truecz = act3->ceilingz;
 				ps[p].bobcounter = 0;
 
-				changespritesect(act3, spr2->sectnum);
+				changeactorsect(act3, spr2->sectnum);
 				ps[p].cursectnum = spr2->sectnum;
 			}
 			else if (spr3->statnum != STAT_EFFECTOR)
@@ -4039,7 +4039,7 @@ void handle_se17(DDukeActor* actor)
 
 				spr3->backupz();
 
-				changespritesect(act3, spr2->sectnum);
+				changeactorsect(act3, spr2->sectnum);
 				setsprite(act3, spr3->pos);
 
 				act3->floorz = sector[spr2->sectnum].floorz;
@@ -5319,7 +5319,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 					pushmove(&x, &y, &z, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
 					s->x = x; s->y = y; s->z = z;
 					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
-						changespritesect(actor, j);
+						changeactorsect(actor, j);
 
 					S_PlayActorSound(thud, actor);
 				}
