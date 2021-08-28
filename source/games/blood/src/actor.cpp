@@ -7451,11 +7451,6 @@ void HITINFO::set(hitdata_t* hit)
 }
 
 
-void actPostSprite(int nSprite, int nStatus)
-{
-	actPostSprite(&bloodActors[nSprite], nStatus);
-}
-
 void aiSetTarget_(XSPRITE* pXSprite, int nTarget)
 {
 	aiSetTarget(&bloodActors[pXSprite->reference], &bloodActors[nTarget]);

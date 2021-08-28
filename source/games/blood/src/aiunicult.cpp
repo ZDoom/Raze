@@ -1481,7 +1481,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
         if (delSprite) 
         {
             pLeech->type = kSpriteDecoration;
-            actPostSprite(pLeech->index, kStatFree);
+            actPostSprite(actLeech, kStatFree);
         }
 
 
@@ -1842,7 +1842,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 
     if (event.cmd == kCmdOff) 
     {
-        actPostSprite(pSprite->index, kStatFree);
+        actPostSprite(actor, kStatFree);
         return;
     }
 

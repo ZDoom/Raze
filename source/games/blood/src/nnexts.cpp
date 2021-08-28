@@ -5940,15 +5940,14 @@ int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) {
 void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
     // let's first search for previously dropped items and remove it
     if (pXSource->dropMsg > 0) {
-        int nItem;
-        StatIterator it(kStatItem);
-        while ((nItem = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatItem);
+        while (auto iactor = it.Next())
         {
-            spritetype* pItem = &sprite[nItem];
+            spritetype* pItem = &iactor->s();
             if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->x == pSource->x && pItem->y == pSource->y && pItem->z == pSource->z) {
                 gFX.fxSpawnActor((FX_ID)29, pSource->sectnum, pSource->x, pSource->y, pSource->z, 0);
                 pItem->type = kSpriteDecoration;
-                actPostSprite(nItem, kStatFree);
+                actPostSprite(iactor, kStatFree);
                 break;
             }
         }
