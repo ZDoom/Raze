@@ -352,4 +352,9 @@ inline DBloodActor* Collision::Actor(int a)
 	return &bloodActors[a];
 }
 
+inline void setActorPos(DBloodActor* actor, vec3_t* pos)
+{
+	setsprite(actor->s().index, pos);
+}
+
 END_BLD_NS

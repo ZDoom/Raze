@@ -3938,7 +3938,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		}
 		else
 		{
-			actPostSprite(pMissile->index, kStatFree);
+			actPostSprite(missileActor, kStatFree);
 		}
 
 		break;
@@ -4047,7 +4047,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				pXMissile->targetZ = pMissile->z - pSpriteHit->z;
 				pXMissile->goalAng = getangle(pMissile->x - pSpriteHit->x, pMissile->y - pSpriteHit->y) - pSpriteHit->ang;
 				pXMissile->state = 1;
-				actPostSprite(pMissile->index, kStatFlare);
+				actPostSprite(missileActor, kStatFlare);
 				pMissile->cstat &= ~257;
 				break;
 			}
@@ -4101,7 +4101,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileEctoSkull:
 		sfxKill3DSound(pMissile, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 522, pMissile->sectnum);
-		actPostSprite(pMissile->index, kStatDebris);
+		actPostSprite(missileActor, kStatDebris);
 		seqSpawn(20, 3, pMissile->extra, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
@@ -6334,7 +6334,7 @@ void actCheckFlares()
 			int y = pTarget->y + mulscale30r(Sin(pXSprite->goalAng + pTarget->ang), pTarget->clipdist * 2);
 			int z = pTarget->z + pXSprite->targetZ;
 			vec3_t pos = { x, y, z };
-			setsprite(pSprite->index, &pos);
+			setActorPos(actor, &pos);
 			actor->xvel() = target->xvel();
 			actor->yvel() = target->yvel();
 			actor->zvel() = target->zvel();
@@ -6378,21 +6378,24 @@ void actProcessSprites(void)
 
 DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool setextra)
 {
+	DBloodActor* actor;
 	int nSprite = InsertSprite(nSector, nStat);
-	if (nSprite >= 0) sprite[nSprite].extra = -1;
+	if (nSprite >= 0)
+	{
+		sprite[nSprite].extra = -1;
+		actor = &bloodActors[nSprite];
+	}
 	else
 	{
 		BloodStatIterator it(kStatPurge);
-		nSprite = it.NextIndex();
-		assert(nSprite >= 0);
-		assert(nSector >= 0 && nSector < kMaxSectors);
-		ChangeSpriteSect(nSprite, nSector);
-		actPostSprite(nSprite, nStat);
+		actor = it.Next();
+		assert(actor != nullptr);
+		ChangeActorSect(actor, nSector);
+		actPostSprite(actor, nStat);
 	}
-	DBloodActor* actor = &bloodActors[nSprite];
 
 	vec3_t pos = { x, y, z };
-	setsprite(nSprite, &pos);
+	setActorPos(actor, &pos);
 	spritetype* pSprite = &actor->s();
 	pSprite->type = kSpriteDecoration;
 	if (setextra && !actor->hasX())
@@ -6473,7 +6476,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, short nType, int a3, int a4)
 	pSprite2->type = nType;
 	pSprite2->ang = angle;
 	vec3_t pos = { x, y, z };
-	setsprite(pSprite2->index, &pos);
+    setActorPos(spawned, &pos);
 	pSprite2->cstat |= 0x1101;
 	pSprite2->clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
 	pXSprite2->health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
