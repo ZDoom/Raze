@@ -4786,15 +4786,15 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
                 switch (pSpr->type) 
                 {
                         case kModernRandomTX:
-                            useRandomTx(pXSpr, (COMMAND_ID)pXSource->command, false); // set random TX id
+                    useRandomTx(destactor, (COMMAND_ID)pXSource->command, false); // set random TX id
                             break;
                         case kModernSequentialTX:
                     if (pSpr->flags & kModernTypeFlag1) 
                     {
-                                seqTxSendCmdAll(pXSpr, pSource->index, (COMMAND_ID)pXSource->command, true);
+                        seqTxSendCmdAll(destactor, event.actor, (COMMAND_ID)pXSource->command, true);
                                 return;
                             }
-                            useSequentialTx(pXSpr, (COMMAND_ID)pXSource->command, false); // set next TX id
+                    useSequentialTx(destactor, (COMMAND_ID)pXSource->command, false); // set next TX id
                             break;
                     }
                     if (pXSpr->txID <= 0 || pXSpr->txID >= kChannelUserMax) return;
@@ -5613,12 +5613,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
             switch (pSprite->type) 
             {
                 case kModernRandomTX:
-                    useRandomTx(pXSprite, (COMMAND_ID)pXSprite->command, true);
+                    useRandomTx(actor, (COMMAND_ID)pXSprite->command, true);
                     break;
 
                 case kModernSequentialTX:
-                    if (!(pSprite->flags & kModernTypeFlag1)) useSequentialTx(pXSprite, (COMMAND_ID)pXSprite->command, true);
-                    else seqTxSendCmdAll(pXSprite, pSprite->index, (COMMAND_ID)pXSprite->command, false);
+                    if (!(pSprite->flags & kModernTypeFlag1)) useSequentialTx(actor, (COMMAND_ID)pXSprite->command, true);
+                    else seqTxSendCmdAll(actor, actor, (COMMAND_ID)pXSprite->command, false);
                     break;
             }
             return true;
@@ -5992,9 +5992,17 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
     }
 }
 
-bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event) 
+{
     
-    switch (pWall->type) {
+    switch (pWall->type) 
+    {
         case kSwitchOneWay:
             switch (event.cmd) {
                 case kCmdOff:
@@ -6011,12 +6019,22 @@ bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT even
         default:
             return false; // no modern type found to work with, go normal OperateWall();
     }
-    
 }
 
-bool txIsRanged(XSPRITE* pXSource) {
-    if (pXSource->data1 > 0 && pXSource->data2 <= 0 && pXSource->data3 <= 0 && pXSource->data4 > 0) {
-        if (pXSource->data1 > pXSource->data4) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool txIsRanged(DBloodActor* source) 
+{
+    if (!source->hasX()) return false;
+    auto pXSource = &source->x();
+    if (pXSource->data1 > 0 && pXSource->data2 <= 0 && pXSource->data3 <= 0 && pXSource->data4 > 0) 
+    {
+        if (pXSource->data1 > pXSource->data4) 
+        {
             // data1 must be less than data4
             int tmp = pXSource->data1; pXSource->data1 = pXSource->data4;
             pXSource->data4 = tmp;
@@ -6026,41 +6044,62 @@ bool txIsRanged(XSPRITE* pXSource) {
     return false;
 }
 
-void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernSend) {
-    auto actor = &bloodActors[nIndex];
-    bool ranged = txIsRanged(pXSource);
-    if (ranged) {
-        for (pXSource->txID = pXSource->data1; pXSource->txID <= pXSource->data4; pXSource->txID++) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void seqTxSendCmdAll(DBloodActor* source, DBloodActor* actor, COMMAND_ID cmd, bool modernSend) 
+{
+    bool ranged = txIsRanged(source);
+    auto pXSource = &source->x();
+    if (ranged)
+    {
+        for (pXSource->txID = pXSource->data1; pXSource->txID <= pXSource->data4; pXSource->txID++) 
+        {
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
             else modernTypeSendCommand(actor, pXSource->txID, cmd);
         }
-    } else {
-        for (int i = 0; i <= 3; i++) {
+    } 
+    else 
+    {
+        for (int i = 0; i <= 3; i++) 
+        {
             pXSource->txID = GetDataVal(&bloodActors[pXSource->reference], i);
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
             else modernTypeSendCommand(actor, pXSource->txID, cmd);
         }
     }
-    
     pXSource->txID = pXSource->sysData1 = 0;
-    return;
 }
 
-void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
-    
-    auto sourceactor = &bloodActors[pXSource->reference];
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState) 
+{
     spritetype* pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
     int tx = 0; int maxRetries = kMaxRandomizeRetries;
     
-    if (txIsRanged(pXSource)) {
-        while (maxRetries-- >= 0) {
+    if (txIsRanged(sourceactor)) 
+    {
+        while (maxRetries-- >= 0) 
+        {
             if ((tx = nnExtRandom(pXSource->data1, pXSource->data4)) != pXSource->txID)
                 break;
         }
-    } else {
-        while (maxRetries-- >= 0) {
+    } 
+    else 
+    {
+        while (maxRetries-- >= 0) 
+        {
             if ((tx = randomGetDataValue(sourceactor, kRandomizeTX)) > 0 && tx != pXSource->txID)
                 break;
         }
@@ -6068,53 +6107,71 @@ void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
 
     pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
-        SetSpriteState(pSource->index, pXSource, pXSource->state ^ 1);
+        SetSpriteState(sourceactor, pXSource->state ^ 1);
         //evSendActor(pSource->index, pXSource->txID, (COMMAND_ID)pXSource->command);
 }
 
-void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
-    
-    auto sourceactor = &bloodActors[pXSource->reference];
-    spritetype* pSource = &sourceactor->s();
-    bool range = txIsRanged(pXSource); int cnt = 3; int tx = 0;
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    if (range) {
-        
+void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState) 
+{
+    spritetype* pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
+
+    bool range = txIsRanged(sourceactor); int cnt = 3; int tx = 0;
+
+    if (range) 
+    {
         // make sure sysData is correct as we store current index of TX ID here.
         if (pXSource->sysData1 < pXSource->data1) pXSource->sysData1 = pXSource->data1;
         else if (pXSource->sysData1 > pXSource->data4) pXSource->sysData1 = pXSource->data4;
 
-    } else {
-        
+    }
+    else 
+    {
         // make sure sysData is correct as we store current index of data field here.
         if (pXSource->sysData1 > 3) pXSource->sysData1 = 0;
         else if (pXSource->sysData1 < 0) pXSource->sysData1 = 3;
-
     }
 
-    switch (cmd) {
+    switch (cmd) 
+    {
         case kCmdOff:
-            if (!range) {
-                while (cnt-- >= 0) { // skip empty data fields
+            if (!range) 
+            {
+                while (cnt-- >= 0) // skip empty data fields
+                {
                     if (pXSource->sysData1-- < 0) pXSource->sysData1 = 3;
                     if ((tx = GetDataVal(sourceactor, pXSource->sysData1)) <= 0) continue;
                     else break;
                 }
-            } else {
+            } 
+            else 
+            {
                 if (--pXSource->sysData1 < pXSource->data1) pXSource->sysData1 = pXSource->data4;
                 tx = pXSource->sysData1;
             }
             break;
+
         default:
-            if (!range) {
-                while (cnt-- >= 0) { // skip empty data fields
+            if (!range) 
+            {
+                while (cnt-- >= 0) // skip empty data fields
+                {
                     if (pXSource->sysData1 > 3) pXSource->sysData1 = 0;
                     if ((tx = GetDataVal(sourceactor, pXSource->sysData1++)) <= 0) continue;
                     else break;
                 }
-            } else {
+            } 
+            else 
+            {
                 tx = pXSource->sysData1;
-                if (pXSource->sysData1 >= pXSource->data4) {
+                if (pXSource->sysData1 >= pXSource->data4) 
+                {
                     pXSource->sysData1 = pXSource->data1;
                     break;
                 }
@@ -6125,12 +6182,18 @@ void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
 
     pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
-        SetSpriteState(pSource->index, pXSource, pXSource->state ^ 1);
+        SetSpriteState(sourceactor, pXSource->state ^ 1);
         //evSendActor(pSource->index, pXSource->txID, (COMMAND_ID)pXSource->command);
 
 }
 
-int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event)
 {
     auto sourceactor = &bloodActors[pSource->index];
     int objType = event.type; 
@@ -8488,7 +8551,7 @@ void aiPatrolThink(DBloodActor* actor) {
 // ------------------------------------------------
 
 int listTx(XSPRITE* pXRedir, int tx) {
-    if (txIsRanged(pXRedir)) {
+    if (txIsRanged(&bloodActors[pXRedir->reference])) {
         if (tx == -1) tx = pXRedir->data1;
         else if (tx < pXRedir->data4) tx++;
         else tx = -1;
