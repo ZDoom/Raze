@@ -981,20 +981,9 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemFlagA: {
             if (gGameOptions.nGameType != 3) return 0;
             gBlueFlagDropped = false;
-            const bool enemyTeam = (pPlayer->teamId&1) == 1;
-            if (!enemyTeam && (pItem->owner >= 0) && (pItem->owner < kMaxSprites)) {
-                pPlayer->hasFlag &= ~1;
-                pPlayer->used2[0] = -1;
-                spritetype* pOwner = &sprite[pItem->owner];
-                XSPRITE* pXOwner = &xsprite[pOwner->extra];
-                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
-                sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
-                sndStartSample(8003, 255, 2, 0);
-                viewSetMessage(buffer);
-                break;
-            }
             pPlayer->hasFlag |= 1;
             pPlayer->used2[0] = pItem->owner;
+            const bool enemyTeam = (pPlayer->teamId&1) == 1;
             if (enemyTeam)
             {
                 sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
@@ -1006,20 +995,9 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemFlagB: {
             if (gGameOptions.nGameType != 3) return 0;
             gRedFlagDropped = false;
-            const bool enemyTeam = (pPlayer->teamId&1) == 0;
-            if (!enemyTeam && (pItem->owner >= 0) && (pItem->owner < kMaxSprites)) {
-                pPlayer->hasFlag &= ~2;
-                pPlayer->used2[1] = -1;
-                spritetype* pOwner = &sprite[pItem->owner];
-                XSPRITE* pXOwner = &xsprite[pOwner->extra];
-                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
-                sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
-                sndStartSample(8002, 255, 2, 0);
-                viewSetMessage(buffer);
-                break;
-            }
             pPlayer->hasFlag |= 2;
             pPlayer->used2[1] = pItem->owner;
+            const bool enemyTeam = (pPlayer->teamId&1) == 0;
             if (enemyTeam)
             {
                 sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));

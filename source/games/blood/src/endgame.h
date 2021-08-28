@@ -33,6 +33,7 @@ public:
     void SetCount(int);
     void AddNewKill(int);
     void AddKill(spritetype *pSprite);
+    void RemoveKill(spritetype *pSprite);
     void CountTotalKills(void);
     void Clear(void);
 };

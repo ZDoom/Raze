@@ -377,6 +377,11 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     {
         if (r_shadows)
         {
+            if (!VanillaMode()) // if floor has ror, don't render shadow
+            {
+                if ((sector[pTSprite->sectnum].floorpicnum >= 4080) && (sector[pTSprite->sectnum].floorpicnum <= 4095))
+                    break;
+            }
             auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
             if (!pNSprite)
                 break;
@@ -411,6 +416,11 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     }
     case kViewEffectCeilGlow:
     {
+        if (!VanillaMode()) // if ceiling has ror, don't render shadow
+        {
+            if ((sector[pTSprite->sectnum].ceilingpicnum >= 4080) && (sector[pTSprite->sectnum].ceilingpicnum <= 4095))
+                break;
+        }
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
         if (!pNSprite)
             break;
@@ -418,7 +428,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         sectortype *pSector = &sector[pTSprite->sectnum];
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
-        pNSprite->z = pSector->ceilingz;
+        pNSprite->z = VanillaMode() ? pSector->ceilingz : getceilzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y);
         pNSprite->picnum = 624;
         pNSprite->shade = ((pTSprite->z-pSector->ceilingz)>>8)-64;
         pNSprite->pal = 2;
@@ -430,6 +440,11 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     }
     case kViewEffectFloorGlow:
     {
+        if (!VanillaMode()) // if floor has ror, don't render shadow
+        {
+            if ((sector[pTSprite->sectnum].floorpicnum >= 4080) && (sector[pTSprite->sectnum].floorpicnum <= 4095))
+                break;
+        }
         auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
         if (!pNSprite)
             break;
@@ -437,7 +452,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         sectortype *pSector = &sector[pTSprite->sectnum];
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
-        pNSprite->z = pSector->floorz;
+        pNSprite->z = VanillaMode() ? pSector->floorz : getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y);
         pNSprite->picnum = 624;
         char nShade = (pSector->floorz-pTSprite->z)>>8; 
         pNSprite->shade = nShade-32;

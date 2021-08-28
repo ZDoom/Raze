@@ -5690,6 +5690,8 @@ static void actCheckProximity()
 		if (actor->hasX())
 		{
 			XSPRITE* pXSprite = &actor->x();
+			if ((pXSprite->respawnPending > 0) && !VanillaMode()) // don't process currently respawning thing
+				continue;
 			switch (pSprite->type)
 			{
 			case kThingBloodBits:
