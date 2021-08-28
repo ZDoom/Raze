@@ -297,6 +297,14 @@ static void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int callback = -1, bool lo
     pPlayer->weaponTimer -= 4;
 }
 
+static void SetQAV(PLAYER *pPlayer, int nWeaponQAV)
+{
+    assert(nWeaponQAV < kQAVEnd);
+    pPlayer->weaponQav = qavGetCorrectID(nWeaponQAV);
+    pPlayer->qavTimer = 0;
+    pPlayer->qavLastTick = 0;
+}
+
 struct WEAPONTRACK
 {
     int aimSpeedHorz;
@@ -833,7 +841,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
     switch (lastWeapon)
     {
     case kWeapPitchFork:
-        pPlayer->weaponQav = qavGetCorrectID(kQAVFORKIDLE);
+        SetQAV(pPlayer, kQAVFORKIDLE);
         break;
     case kWeapSpraycan:
         switch (vb)
@@ -849,15 +857,15 @@ void WeaponUpdateState(PLAYER *pPlayer)
                 StartQAV(pPlayer, kQAVCANPREF);
             }
             else
-                pPlayer->weaponQav = qavGetCorrectID(kQAVLITEIDLE);
+                SetQAV(pPlayer, kQAVLITEIDLE);
             break;
         case 3:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVCANIDLE);
+            SetQAV(pPlayer, kQAVCANIDLE);
             break;
         case 4:
             if (CheckAmmo(pPlayer, 6, 1))
             {
-                pPlayer->weaponQav = qavGetCorrectID(kQAVCANIDLE);
+                SetQAV(pPlayer, kQAVCANIDLE);
                 pPlayer->weaponState = 3;
             }
             else
@@ -890,10 +898,10 @@ void WeaponUpdateState(PLAYER *pPlayer)
                 StartQAV(pPlayer, kQAVBUNUP);
             }
             else
-                pPlayer->weaponQav = qavGetCorrectID(kQAVLITEIDLE);
+                SetQAV(pPlayer, kQAVLITEIDLE);
             break;
         case 3:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVBUNIDLE);
+            SetQAV(pPlayer, kQAVBUNIDLE);
             break;
         }
         break;
@@ -901,7 +909,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
         switch (vb)
         {
         case 7:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVPROXIDLE);
+            SetQAV(pPlayer, kQAVPROXIDLE);
             break;
         case 8:
             pPlayer->weaponState = 7;
@@ -913,10 +921,10 @@ void WeaponUpdateState(PLAYER *pPlayer)
         switch (vb)
         {
         case 10:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVREMIDLE1);
+            SetQAV(pPlayer, kQAVREMIDLE1);
             break;
         case 11:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVREMIDLE2);
+            SetQAV(pPlayer, kQAVREMIDLE2);
             break;
         case 12:
             if (pPlayer->ammoCount[11] > 0)
@@ -939,7 +947,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
                 pPlayer->weaponState = 1;
             break;
         case 7:
-            pPlayer->weaponQav = qavGetCorrectID(kQAV2SHOTI);
+            SetQAV(pPlayer, kQAV2SHOTI);
             break;
         case 1:
             if (CheckAmmo(pPlayer, 2, 1))
@@ -952,25 +960,25 @@ void WeaponUpdateState(PLAYER *pPlayer)
                     pPlayer->weaponState = 2;
             }
             else
-                pPlayer->weaponQav = qavGetCorrectID(kQAVSHOTI3);
+                SetQAV(pPlayer, kQAVSHOTI3);
             break;
         case 2:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVSHOTI2);
+            SetQAV(pPlayer, kQAVSHOTI2);
             break;
         case 3:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVSHOTI1);
+            SetQAV(pPlayer, kQAVSHOTI1);
             break;
         }
         break;
     case kWeapTommyGun:
         if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
         {
-            pPlayer->weaponQav = qavGetCorrectID(kQAV2TOMIDLE);
+            SetQAV(pPlayer, kQAV2TOMIDLE);
             pPlayer->weaponState = 1;
         }
         else
         {
-            pPlayer->weaponQav = qavGetCorrectID(kQAVTOMIDLE);
+            SetQAV(pPlayer, kQAVTOMIDLE);
             pPlayer->weaponState = 0;
         }
         break;
@@ -978,33 +986,33 @@ void WeaponUpdateState(PLAYER *pPlayer)
         if (powerupCheck(pPlayer, kPwUpTwoGuns))
         {
             if (vb == 3 && checkAmmo2(pPlayer, 1, 2))
-                pPlayer->weaponQav = qavGetCorrectID(kQAVFLAR2I);
+                SetQAV(pPlayer, kQAVFLAR2I);
             else
             {
-                pPlayer->weaponQav = qavGetCorrectID(kQAVFLARIDLE);
+                SetQAV(pPlayer, kQAVFLARIDLE);
                 pPlayer->weaponState = 2;
             }
         }
         else
-            pPlayer->weaponQav = qavGetCorrectID(kQAVFLARIDLE);
+            SetQAV(pPlayer, kQAVFLARIDLE);
         break;
     case kWeapVoodooDoll:
         if (pXSprite->height < 256 && pPlayer->swayHeight != 0)
             StartQAV(pPlayer, kQAVVDIDLE2);
         else
-            pPlayer->weaponQav = qavGetCorrectID(kQAVVDIDLE1);
+            SetQAV(pPlayer, kQAVVDIDLE1);
         break;
     case kWeapTeslaCannon:
         switch (vb)
         {
         case 2:
             if (checkAmmo2(pPlayer, 7, 10) && powerupCheck(pPlayer, kPwUpTwoGuns))
-                pPlayer->weaponQav = qavGetCorrectID(kQAV2SGUNIDL);
+                SetQAV(pPlayer, kQAV2SGUNIDL);
             else
-                pPlayer->weaponQav = qavGetCorrectID(kQAVSGUNIDL1);
+                SetQAV(pPlayer, kQAVSGUNIDL1);
             break;
         case 3:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVSGUNIDL2);
+            SetQAV(pPlayer, kQAVSGUNIDL2);
             break;
         }
         break;
@@ -1013,12 +1021,12 @@ void WeaponUpdateState(PLAYER *pPlayer)
         {
         case 3:
             if (powerupCheck(pPlayer, kPwUpTwoGuns) && (gInfiniteAmmo || CheckAmmo(pPlayer,4, 4)))
-                pPlayer->weaponQav = qavGetCorrectID(kQAV2NAPIDLE);
+                SetQAV(pPlayer, kQAV2NAPIDLE);
             else
-                pPlayer->weaponQav = qavGetCorrectID(kQAVNAPIDLE);
+                SetQAV(pPlayer, kQAVNAPIDLE);
             break;
         case 2:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVNAPIDLE);
+            SetQAV(pPlayer, kQAVNAPIDLE);
             break;
         }
         break;
@@ -1026,12 +1034,12 @@ void WeaponUpdateState(PLAYER *pPlayer)
         switch (vb)
         {
         case 2:
-            pPlayer->weaponQav = qavGetCorrectID(kQAVSTAFIDL1);
+            SetQAV(pPlayer, kQAVSTAFIDL1);
             break;
         }
         break;
     case kWeapBeast:
-        pPlayer->weaponQav = qavGetCorrectID(kQAVBSTIDLE);
+        SetQAV(pPlayer, kQAVBSTIDLE);
         break;
     }
 }
@@ -1586,7 +1594,7 @@ void FireTesla(int nTrigger, PLAYER *pPlayer)
             if (!checkAmmo2(pPlayer, 7, pMissile->ammouse))
             {
                 pPlayer->weaponState = -1;
-                pPlayer->weaponQav = qavGetCorrectID(kQAVSGUNIDL2);
+                SetQAV(pPlayer, kQAVSGUNIDL2);
                 pPlayer->flashEffect = 0;
                 return;
             }
@@ -2355,7 +2363,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             switch (pPlayer->weaponState)
             {
             case 7:
-                pPlayer->weaponQav = qavGetCorrectID(kQAVPROXIDLE);
+                SetQAV(pPlayer, kQAVPROXIDLE);
                 pPlayer->weaponState = 9;
                 pPlayer->throwTime = PlayClock;
                 return;
@@ -2365,7 +2373,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             switch (pPlayer->weaponState)
             {
             case 10:
-                pPlayer->weaponQav = qavGetCorrectID(kQAVREMIDLE1);
+                SetQAV(pPlayer, kQAVREMIDLE1);
                 pPlayer->weaponState = 13;
                 pPlayer->throwTime = PlayClock;
                 return;

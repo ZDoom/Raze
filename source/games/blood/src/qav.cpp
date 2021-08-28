@@ -294,7 +294,7 @@ void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, doub
         // Process clock based on QAV's ticrate and last tick value.
         qavProcessTicker(pQAV, &pPlayer->qavTimer, &pPlayer->qavLastTick);
 
-        if (pPlayer->weaponTimer == 0 && !ignoreWeaponTimer)
+        if (pPlayer->weaponTimer == 0 && pPlayer->qavTimer == 0 && !ignoreWeaponTimer)
         {
             // Check if we're playing an idle QAV as per the ticker's weapon timer.
             *duration = fixedduration ? pQAV->duration - 1 : I_GetBuildTime() % pQAV->duration;
