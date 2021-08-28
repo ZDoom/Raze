@@ -77,13 +77,12 @@ void CKillMgr::AddKill(spritetype* pSprite)
 void CKillMgr::CountTotalKills(void)
 {
 	TotalKills = 0;
-	int nSprite;
-	StatIterator it(kStatDude);
-	while ((nSprite = it.NextIndex()) >= 0)
+	BloodStatIterator it(kStatDude);
+	while (auto actor = it.Next())
 	{
-		spritetype* pSprite = &sprite[nSprite];
+		spritetype* pSprite = &actor->s();
 		if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
-			I_Error("Non-enemy sprite (%d) in the enemy sprite list.", nSprite);
+			I_Error("Non-enemy sprite (%d) in the enemy sprite list.", actor->GetIndex());
 		if (pSprite->statnum == kStatDude && pSprite->type != kDudeBat && pSprite->type != kDudeRat && pSprite->type != kDudeInnocent && pSprite->type != kDudeBurningInnocent)
 			TotalKills++;
 	}
