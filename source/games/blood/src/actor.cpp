@@ -2985,7 +2985,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 	{
 		pXSprite->locked = 1; // lock while transforming
 
-		aiSetGenIdleState(pSprite, pXSprite); // set idle state
+		aiSetGenIdleState(actor); // set idle state
 
 		if (pXSprite->key > 0) // drop keys
 			actDropObject(actor, kItemKeyBase + pXSprite->key - 1);

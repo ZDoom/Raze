@@ -1921,11 +1921,9 @@ void debrisMove(int listIndex)
     }
     else 
     {
-
         actor->hit().florhit = 0;
         if (pXSprite->physAttr & kPhysGravity)
             pXSprite->physAttr |= kPhysFalling;
-
     }
 
     if (top <= ceilZ) 
@@ -1975,26 +1973,36 @@ void debrisMove(int listIndex)
         actor->xvel() = actor->yvel() = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-
-bool ceilIsTooLow(spritetype* pSprite) {
-    if (pSprite != NULL) {
-
-        sectortype* pSector = &sector[pSprite->sectnum];
+bool ceilIsTooLow(DBloodActor* actor) 
+{
+    if (actor != nullptr) 
+    {
+        sectortype* pSector = &sector[actor->s().sectnum];
         int a = pSector->ceilingz - pSector->floorz;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         int b = top - bottom;
         if (a > b) return true;
     }
-
     return false;
 }
 
-void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void aiSetGenIdleState(DBloodActor* actor)
 {
-    auto actor = &bloodActors[pXSprite->reference];
-    switch (pSprite->type) {
+    switch (actor->s().type) 
+    {
     case kDudeModernCustom:
     case kDudeModernCustomBurning:
         aiGenDudeNewState(actor, &genIdle);
@@ -2005,27 +2013,39 @@ void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // this function stops wind on all TX sectors affected by WindGen after it goes off state.
-void windGenStopWindOnSectors(XSPRITE* pXSource) {
-    spritetype* pSource = &sprite[pXSource->reference];
-    if (pXSource->txID <= 0 && xsectRangeIsFine(sector[pSource->sectnum].extra)) {
+//
+//---------------------------------------------------------------------------
+
+void windGenStopWindOnSectors(DBloodActor* sourceactor) 
+{
+    spritetype* pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
+    if (pXSource->txID <= 0 && xsectRangeIsFine(sector[pSource->sectnum].extra)) 
+    {
         xsector[sector[pSource->sectnum].extra].windVel = 0;
         return;
     }
 
-    for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) {
+    for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) 
+    {
         if (rxBucket[i].type != OBJ_SECTOR) continue;
         XSECTOR* pXSector = &xsector[sector[rxBucket[i].rxindex].extra];
         if ((pXSector->state == 1 && !pXSector->windAlways)
-            || ((pSource->flags & kModernTypeFlag1) && !(pSource->flags & kModernTypeFlag2))) {
+            || ((pSource->flags & kModernTypeFlag1) && !(pSource->flags & kModernTypeFlag2))) 
+        {
                 pXSector->windVel = 0;
         }
     }
     
     // check redirected TX buckets
-    int rx = -1; XSPRITE* pXRedir = NULL;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSource->reference].extra, pXRedir, &rx)) != NULL) {
-        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+    int rx = -1; XSPRITE* pXRedir = nullptr;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSource->reference].extra, pXRedir, &rx)) != nullptr) 
+    {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+        {
             if (rxBucket[i].type != OBJ_SECTOR) continue;
             XSECTOR* pXSector = &xsector[sector[rxBucket[i].rxindex].extra];
             if ((pXSector->state == 1 && !pXSector->windAlways) || (pSource->flags & kModernTypeFlag2))
@@ -5202,7 +5222,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kModernWindGenerator:
             switch (event.cmd) {
                 case kCmdOff:
-                    windGenStopWindOnSectors(pXSprite);
+                    windGenStopWindOnSectors(actor);
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
@@ -6172,7 +6192,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
         auto actLeech = leechIsDropped(actor);
         if (pXSource->data4 == 3) {
             aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
-            aiSetGenIdleState(pSprite, pXSprite);
+            aiSetGenIdleState(&bloodActors[pSprite->index]);
             if (pSprite->type == kDudeModernCustom && actLeech)
                 removeLeech(actLeech);
         } else if (pXSource->data4 == 4) {

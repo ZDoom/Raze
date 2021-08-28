@@ -267,7 +267,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
                     pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 }
 
-                if (ceilIsTooLow(pPlayer->pSprite))
+                if (ceilIsTooLow(pPlayer->actor()))
                     actDamageSprite(pPlayer->actor(), pPlayer->actor(), kDamageExplode, 65535);
             }
             break;
@@ -315,7 +315,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
         case kItemShroomShrink:
             if (gModernMap) {
                 playerSizeReset(pPlayer);
-                if (ceilIsTooLow(pPlayer->pSprite))
+                if (ceilIsTooLow(pPlayer->actor()))
                     actDamageSprite(pPlayer->actor(), pPlayer->actor(), kDamageExplode, 65535);
             }
             break;
