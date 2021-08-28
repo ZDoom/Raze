@@ -2054,29 +2054,35 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
+void trPlayerCtrlStartScene(DBloodActor* sourceactor, PLAYER* pPlayer, bool force) 
+{
+    auto pXSource = &sourceactor->x();
+    TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
 
-    int nSource = pXSource->reference; TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
-
-    if (pCtrl->qavScene.index >= 0 && !force) return;
+    if (pCtrl->qavScene.initiator != nullptr && !force) return;
     
     QAV* pQav = playerQavSceneLoad(pXSource->data2);
-    if (pQav != NULL) {
-
+    if (pQav != nullptr) 
+    {
         // save current weapon
         pXSource->dropMsg = pPlayer->curWeapon;
 
-        short nIndex = pCtrl->qavScene.index;
-        if (nIndex > -1 && nIndex != nSource && sprite[nIndex].extra >= 0)
-            pXSource->dropMsg = xsprite[sprite[nIndex].extra].dropMsg;
+        auto initiator = pCtrl->qavScene.initiator;
+        if (initiator != nullptr && initiator != sourceactor && initiator->hasX())
+            pXSource->dropMsg = initiator->x().dropMsg;
 
-        if (nIndex < 0)
+        if (initiator == nullptr)
             WeaponLower(pPlayer);
 
         pXSource->sysData1 = ClipLow((pQav->duration * pXSource->waitTime) / 4, 0); // how many times animation should be played
 
-        pCtrl->qavScene.index = nSource;
+        pCtrl->qavScene.initiator = sourceactor;
         pCtrl->qavScene.qavResrc = pQav;
         pCtrl->qavScene.dummy = -1;
 
@@ -2088,27 +2094,35 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force) {
         pPlayer->qavLoop = false;
         pPlayer->qavLastTick = I_GetTime(pCtrl->qavScene.qavResrc->ticrate);
         pPlayer->qavTimer = pCtrl->qavScene.qavResrc->duration;
-
     }
-
 }
 
-void trPlayerCtrlStopScene(PLAYER* pPlayer) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void trPlayerCtrlStopScene(PLAYER* pPlayer)
+{
     TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
-    int scnIndex = pCtrl->qavScene.index; XSPRITE* pXSource = NULL;
-    if (spriRangeIsFine(scnIndex)) {
-        pXSource = &xsprite[sprite[scnIndex].extra];
+    auto initiator = pCtrl->qavScene.initiator;
+    XSPRITE* pXSource = nullptr;
+    if (initiator->hasX())
+    {
+        pXSource = &initiator->x();
         pXSource->sysData1 = 0;
     }
 
-    if (pCtrl->qavScene.index >= 0) {
-        pCtrl->qavScene.index = -1;
-        pCtrl->qavScene.qavResrc = NULL;
+    if (pCtrl->qavScene.initiator != nullptr) 
+    {
+        pCtrl->qavScene.initiator = nullptr;
+        pCtrl->qavScene.qavResrc = nullptr;
         pPlayer->sceneQav = -1;
 
         // restore weapon
-        if (pPlayer->pXSprite->health > 0) {
+        if (pPlayer->pXSprite->health > 0) 
+        {
             int oldWeapon = (pXSource && pXSource->dropMsg != 0) ? pXSource->dropMsg : 1;
             pPlayer->newWeapon = pPlayer->curWeapon = oldWeapon;
             WeaponRaise(pPlayer);
@@ -2210,7 +2224,7 @@ void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer) {
 void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer) {
     
     int speed = ClipRange(pXSource->data2, 0, 500);
-    for (int i = 0; i < kModeMax; i++) {
+    for (int i = 0; i < kModeMax; i++)
     {
         for (int a = 0; a < kPostureMax; a++) 
         {
@@ -2320,7 +2334,7 @@ void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
 
 void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
     
-    switch (pXSource->data2) {
+    switch (pXSource->data2)
     {
         case 0: // erase all
             [[fallthrough]];
@@ -2413,13 +2427,16 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                     }
                     break;
             }
-            if (pPlayer->hasWeapon[weapon] && pXSource->data4 == 0) { // switch on it
+            if (pPlayer->hasWeapon[weapon] && pXSource->data4 == 0) // switch on it
+            {
                 pPlayer->nextWeapon = kWeapNone;
 
-                if (pPlayer->sceneQav >= 0 && spriRangeIsFine(pCtrl->qavScene.index)) {
-                    XSPRITE* pXScene = &xsprite[sprite[pCtrl->qavScene.index].extra];
-                    pXScene->dropMsg = weapon;
-                } else if (pPlayer->curWeapon != weapon) {
+                if (pPlayer->sceneQav >= 0 && pCtrl->qavScene.initiator && pCtrl->qavScene.initiator->hasX())
+                {
+                    pCtrl->qavScene.initiator->x().dropMsg = weapon;
+                } 
+                else if (pPlayer->curWeapon != weapon) 
+                {
                     pPlayer->newWeapon = weapon;
                     WeaponRaise(pPlayer);
                 }
@@ -2435,7 +2452,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
 //---------------------------------------------------------------------------
 
 void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
-    unsigned int invItem = data2 - 1;
+    unsigned int invItem = pXSource->data2 - 1;
     switch (evCmd) 
     {
         case kCmdOn:
@@ -2449,7 +2466,7 @@ void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
             break;
     }
 
-    switch (data4) 
+    switch (pXSource->data4) 
     {
         case 2: // both
         case 0: // switch on it
@@ -3491,7 +3508,7 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
         return;
     }
 
-    spritetype* pSource = &sourceactor->s();
+    spritetype* pSource = &sprite[pXSource->reference];
 
     switch (objType) 
     {
@@ -5532,7 +5549,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     else trPlayerCtrlSetScreenEffect(pXSprite, pPlayer);
                     break;
                 case 3: // 67 (start playing qav scene)
-                    trPlayerCtrlStartScene(pXSprite, pPlayer, (pXSprite->data4 == 1) ? true : false);
+                    trPlayerCtrlStartScene(actor, pPlayer, (pXSprite->data4 == 1) ? true : false);
                     break;
                 case 4: // 68 (stop playing qav scene)
                     if (pXSprite->data2 > 0 && pXSprite->data2 != pPlayer->sceneQav) break;
@@ -6586,27 +6603,28 @@ QAV* playerQavSceneLoad(int qavId) {
     return pQav;
 }
 
-void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
-    int nIndex = pQavScene->index;
-    auto qavactor = &bloodActors[nIndex];
-    if (qavactor->hasX()) {
-        
-        XSPRITE* pXSprite = &xsprite[sprite[nIndex].extra];
+void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) 
+{
+    auto initiator = pQavScene->initiator;
+    if (initiator->hasX())
+    {
+        XSPRITE* pXSprite = &initiator->x();
         if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) {
             if (pXSprite->txID >= kChannelUser) {
                 
-                XSPRITE* pXSpr = NULL;
-                for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-                    if (rxBucket[i].type == OBJ_SPRITE) {
-                        
+                for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
+                {
+                    if (rxBucket[i].type == OBJ_SPRITE) 
+                    {
                         auto rxactor = rxBucket[i].GetActor();
-                        if (!rxactor || !rxactor->hasX() || rxactor == qavactor) continue;
-                        spritetype* pSpr = &rxactor->s();
+                        if (!rxactor || !rxactor->hasX() || rxactor == initiator) continue;
 
-                        pXSpr = &xsprite[pSpr->extra];
-                        if (pSpr->type == kModernPlayerControl && pXSpr->command == 67) {
+                        spritetype* pSpr = &rxactor->s();
+                        auto pXSpr = &rxactor->x();
+                        if (pSpr->type == kModernPlayerControl && pXSpr->command == 67) 
+                        {
                             if (pXSpr->data2 == pXSprite->data2 || pXSpr->locked) continue;
-                            else trPlayerCtrlStartScene(pXSpr, pPlayer, true);
+                            else trPlayerCtrlStartScene(rxactor, pPlayer, true);
                             return;
                         }
                         nnExtTriggerObject(rxBucket[i].type, rxactor->s().index, pXSprite->command);
@@ -6629,7 +6647,8 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
         }
     } else {
         
-        pQavScene->index = pPlayer->sceneQav = -1;
+        pQavScene->initiator = nullptr;
+        pPlayer->sceneQav = -1;
         pQavScene->qavResrc = NULL;
     }
 }
@@ -6638,7 +6657,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-    spritetype* pSprite = &sprite[pQavScene->index];
+    spritetype* pSprite = &pQavScene->initiator->s();
 
     if (pQavScene->qavResrc != NULL) {
 
@@ -6674,8 +6693,8 @@ void playerQavScenePlay(PLAYER* pPlayer) {
     if (pPlayer == NULL) return;
     
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-    if (pPlayer->sceneQav == -1 && pQavScene->index >= 0)
-        pPlayer->sceneQav = xsprite[sprite[pQavScene->index].extra].data2;
+    if (pPlayer->sceneQav == -1 && pQavScene->initiator != nullptr)
+        pPlayer->sceneQav = pQavScene->initiator->x().data2;
 
     if (pQavScene->qavResrc != NULL) {
         QAV* pQAV = pQavScene->qavResrc;
@@ -6687,7 +6706,8 @@ void playerQavScenePlay(PLAYER* pPlayer) {
 
 void playerQavSceneReset(PLAYER* pPlayer) {
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-    pQavScene->index = pQavScene->dummy = pPlayer->sceneQav = -1;
+    pQavScene->initiator = nullptr;
+    pQavScene->dummy = pPlayer->sceneQav = -1;
     pQavScene->qavResrc = NULL;
 }
 

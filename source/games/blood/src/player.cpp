@@ -2355,7 +2355,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRPLAYERCTRL& w, T
 {
     if (arc.BeginObject(keyname))
     {
-        arc("index", w.qavScene.index)
+        arc("initiator", w.qavScene.initiator)
             ("dummy", w.qavScene.dummy)
             .EndObject();
     }
