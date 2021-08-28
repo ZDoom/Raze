@@ -525,7 +525,7 @@ void nnExtResetGlobals()
 //
 //---------------------------------------------------------------------------
 
-void nnExtInitModernStuff(bool bSaveLoad) 
+void nnExtInitModernStuff() 
 {
     nnExtResetGlobals();
 
@@ -563,8 +563,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 break;
             case kModernCondition:
             case kModernConditionFalse:
-                if (bSaveLoad) break;
-                else if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(pXSprite,"\nThe condition must have RX ID!\nSPRITE #%d", actor->GetIndex());
+                if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(pXSprite,"\nThe condition must have RX ID!\nSPRITE #%d", actor->GetIndex());
                 else if (!pXSprite->txID && !pSprite->flags) 
                 {
                     Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
@@ -572,219 +571,190 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 break;
         }
 
-        // init after loading save file
-        if (bSaveLoad) 
+        // auto set going On and going Off if both are empty
+        if (pXSprite->txID && !pXSprite->triggerOn && !pXSprite->triggerOff)
+            pXSprite->triggerOn = pXSprite->triggerOff = true;
+            
+        // copy custom start health to avoid overwrite by kThingBloodChunks
+        if (actor->IsDudeActor())
+            pXSprite->sysData2 = pXSprite->data4;
+            
+        // check reserved statnums
+        if (pSprite->statnum >= kStatModernBase && pSprite->statnum < kStatModernMax) 
         {
-            // add in list of physics affected sprites
-            if (pXSprite->physAttr != 0) 
+            bool sysStat = true;
+            switch (pSprite->statnum) 
             {
-                gPhysSpritesList[gPhysSpritesCount++] = actor; // add sprite index
-                getSpriteMassBySize(actor); // create mass cache
+                case kStatModernStealthRegion:
+                    sysStat = (pSprite->type != kModernStealthRegion);
+                    break;
+                case kStatModernDudeTargetChanger:
+                    sysStat = (pSprite->type != kModernDudeTargetChanger);
+                    break;
+                case kStatModernCondition:
+                    sysStat = (pSprite->type != kModernCondition && pSprite->type != kModernConditionFalse);
+                    break;
+                case kStatModernEventRedirector:
+                    sysStat = (pSprite->type != kModernRandomTX && pSprite->type != kModernSequentialTX);
+                    break;
+                case kStatModernWindGen:
+                    sysStat = (pSprite->type != kModernWindGenerator);
+                    break;
+                case kStatModernPlayerLinker:
+                case kStatModernQavScene:
+                    sysStat = (pSprite->type != kModernPlayerControl);
+                    break;
             }
 
-            if (pXSprite->data3 != pXSprite->sysData1) 
-            {
-                switch (pSprite->statnum) 
-                {
-                case kStatDude:
-                    switch (pSprite->type) 
-                    {
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                        pXSprite->data3 = pXSprite->sysData1; // move sndStartId back from sysData1 to data3 
-                        break;
-                    }
-                    break;
-                }
-            }
-        } 
-        else 
+            if (sysStat)
+                I_Error("Sprite statnum %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->statnum, actor->GetIndex(), kStatModernBase, kStatModernMax);
+        }
+
+        switch (pSprite->type) 
         {
-            // auto set going On and going Off if both are empty
-            if (pXSprite->txID && !pXSprite->triggerOn && !pXSprite->triggerOff)
-                pXSprite->triggerOn = pXSprite->triggerOff = true;
-            
-            // copy custom start health to avoid overwrite by kThingBloodChunks
-            if (actor->IsDudeActor())
-                pXSprite->sysData2 = pXSprite->data4;
-            
-            // check reserved statnums
-            if (pSprite->statnum >= kStatModernBase && pSprite->statnum < kStatModernMax) 
-            {
-                bool sysStat = true;
-                switch (pSprite->statnum) 
+            case kModernRandomTX:
+            case kModernSequentialTX:
+                if (pXSprite->command != kCmdLink) break;
+                // add statnum for faster redirects search
+                ChangeActorStat(actor, kStatModernEventRedirector);
+                break;
+            case kModernWindGenerator:
+                pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+                ChangeActorStat(actor, kStatModernWindGen);
+                break;
+            case kModernDudeTargetChanger:
+            case kModernObjDataAccumulator:
+            case kModernRandom:
+            case kModernRandom2:
+            case kModernStealthRegion:
+                pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+                pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                switch (pSprite->type) 
                 {
-                    case kStatModernStealthRegion:
-                        sysStat = (pSprite->type != kModernStealthRegion);
+                    // stealth regions for patrolling enemies
+                    case kModernStealthRegion:
+                        ChangeActorStat(actor, kStatModernStealthRegion);
                         break;
-                    case kStatModernDudeTargetChanger:
-                        sysStat = (pSprite->type != kModernDudeTargetChanger);
+                    // add statnum for faster dude searching
+                    case kModernDudeTargetChanger:
+                        ChangeActorStat(actor, kStatModernDudeTargetChanger);
+                        if (pXSprite->busyTime <= 0) pXSprite->busyTime = 5;
+                        pXSprite->command = kCmdLink;
                         break;
-                    case kStatModernCondition:
-                        sysStat = (pSprite->type != kModernCondition && pSprite->type != kModernConditionFalse);
-                        break;
-                    case kStatModernEventRedirector:
-                        sysStat = (pSprite->type != kModernRandomTX && pSprite->type != kModernSequentialTX);
-                        break;
-                    case kStatModernWindGen:
-                        sysStat = (pSprite->type != kModernWindGenerator);
-                        break;
-                    case kStatModernPlayerLinker:
-                    case kStatModernQavScene:
-                        sysStat = (pSprite->type != kModernPlayerControl);
+                        // remove kStatItem status from random item generators
+                    case kModernRandom:
+                    case kModernRandom2:
+                        ChangeActorStat(actor, kStatDecoration);
+                        pXSprite->sysData1 = pXSprite->command; // save the command so spawned item can inherit it
+                        pXSprite->command  = kCmdLink;  // generator itself can't send commands
                         break;
                 }
-
-                if (sysStat)
-                    I_Error("Sprite statnum %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->statnum, actor->GetIndex(), kStatModernBase, kStatModernMax);
-            }
-
-            switch (pSprite->type) 
+                break;
+            case kModernThingTNTProx:
+                pXSprite->Proximity = true;
+                break;
+            case kDudeModernCustom: 
             {
-                case kModernRandomTX:
-                case kModernSequentialTX:
-                    if (pXSprite->command != kCmdLink) break;
-                    // add statnum for faster redirects search
-                    ChangeActorStat(actor, kStatModernEventRedirector);
-                    break;
-                case kModernWindGenerator:
-                    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
-                    ChangeActorStat(actor, kStatModernWindGen);
-                    break;
-                case kModernDudeTargetChanger:
-                case kModernObjDataAccumulator:
-                case kModernRandom:
-                case kModernRandom2:
-                case kModernStealthRegion:
-                    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
-                    pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
-                    switch (pSprite->type) 
-                    {
-                        // stealth regions for patrolling enemies
-                        case kModernStealthRegion:
-                            ChangeActorStat(actor, kStatModernStealthRegion);
-                            break;
-                        // add statnum for faster dude searching
-                        case kModernDudeTargetChanger:
-                            ChangeActorStat(actor, kStatModernDudeTargetChanger);
-                            if (pXSprite->busyTime <= 0) pXSprite->busyTime = 5;
-                            pXSprite->command = kCmdLink;
-                            break;
-                            // remove kStatItem status from random item generators
-                        case kModernRandom:
-                        case kModernRandom2:
-                            ChangeActorStat(actor, kStatDecoration);
-                            pXSprite->sysData1 = pXSprite->command; // save the command so spawned item can inherit it
-                            pXSprite->command  = kCmdLink;  // generator itself can't send commands
-                            break;
-                    }
-                    break;
-                case kModernThingTNTProx:
-                    pXSprite->Proximity = true;
-                    break;
-                case kDudeModernCustom: 
+                if (pXSprite->txID <= 0) break;
+                int found = 0;
+                BloodStatIterator it(kStatDude);
+                while (DBloodActor* iactor = it.Next())
                 {
-                    if (pXSprite->txID <= 0) break;
-                    int found = 0;
-                    BloodStatIterator it(kStatDude);
-                    while (DBloodActor* iactor = it.Next())
-                    {
-                        XSPRITE* pXSpr = &iactor->x();
-                        if (pXSpr->rxID != pXSprite->txID) continue;
-                        else if (found) I_Error("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", pXSprite->txID);
-                        ChangeActorStat(iactor, kStatInactive);
-                        found++;
-                    }
-                    break;
+                    XSPRITE* pXSpr = &iactor->x();
+                    if (pXSpr->rxID != pXSprite->txID) continue;
+                    else if (found) I_Error("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", pXSprite->txID);
+                    ChangeActorStat(iactor, kStatInactive);
+                    found++;
                 }
-                case kDudePodMother:
-                case kDudeTentacleMother:
-                    pXSprite->state = 1;
-                    break;
-                case kModernPlayerControl:
-                    switch (pXSprite->command) 
-                    {
-                        case kCmdLink:
-                        {
-                            if (pXSprite->data1 < 1 || pXSprite->data1 > kMaxPlayers)
-                                I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", actor->GetIndex(), pXSprite->data1);
-
-                            //if (numplayers < pXSprite->data1)
-                                //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
-
-                            if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
-                                I_Error("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", actor->GetIndex());
-
-                            if (pXSprite->txID && pXSprite->txID < kChannelUser)
-                                I_Error("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", actor->GetIndex(), kChannelUser, kChannelMax);
-
-                            // only one linker per player allowed
-                            int nSprite;
-                            StatIterator it(kStatModernPlayerLinker);
-                            while ((nSprite = it.NextIndex()) >= 0)
-                            {
-                                XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
-                                if (pXSprite->data1 == pXCtrl->data1)
-                                    I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), pXSprite->data1, nSprite);
-                            }
-                            pXSprite->sysData1 = -1;
-                            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
-                            ChangeActorStat(actor, kStatModernPlayerLinker);
-                            break;
-                        }
-                        case 67: // play qav animation
-                            if (pXSprite->txID && !pXSprite->waitTime) pXSprite->waitTime = 1;
-                            ChangeActorStat(actor, kStatModernQavScene);
-                            break;
-                    }
-                    break;
-                case kModernCondition:
-                case kModernConditionFalse:
-                    if (pXSprite->busyTime > 0) 
-                    {
-                        if (pXSprite->waitTime > 0) 
-                        {
-                            pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
-                            Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
-                        }
-                        pXSprite->busy = pXSprite->busyTime;
-                    }
-                    
-                    if (pXSprite->waitTime && pXSprite->command >= kCmdNumberic)
-                        condError(pXSprite, "Delay is not available when using numberic commands (%d - %d)", kCmdNumberic, 255);
-
-                    pXSprite->Decoupled = false; // must go through operateSprite always
-                    pXSprite->Sight     = pXSprite->Impact  = pXSprite->Touch   = pXSprite->triggerOff     = false;
-                    pXSprite->Proximity = pXSprite->Push    = pXSprite->Vector  = pXSprite->triggerOn      = false;
-                    pXSprite->state = pXSprite->restState = 0;
-                    
-                    pXSprite->targetX = pXSprite->targetY = pXSprite->targetZ = pXSprite->sysData2 = -1;
-                    actor->SetTarget(nullptr);
-                    ChangeActorStat(actor, kStatModernCondition);
-                    int oldStat = pSprite->cstat; pSprite->cstat = 0x30;
-                    
-                    if (oldStat & CSTAT_SPRITE_BLOCK) 
-                        pSprite->cstat |= CSTAT_SPRITE_BLOCK;
-                    
-                    if (oldStat & 0x2000) pSprite->cstat |= 0x2000;
-                    else if (oldStat & 0x4000) pSprite->cstat |= 0x4000;
-
-                    pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
-                    break;
+                break;
             }
+            case kDudePodMother:
+            case kDudeTentacleMother:
+                pXSprite->state = 1;
+                break;
+            case kModernPlayerControl:
+                switch (pXSprite->command) 
+                {
+                    case kCmdLink:
+                    {
+                        if (pXSprite->data1 < 1 || pXSprite->data1 > kMaxPlayers)
+                            I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", actor->GetIndex(), pXSprite->data1);
 
-            // the following trigger flags are senseless to have together
-            if ((pXSprite->Touch && (pXSprite->Proximity || pXSprite->Sight) && pXSprite->DudeLockout)
-                    || (pXSprite->Touch && pXSprite->Proximity && !pXSprite->Sight)) pXSprite->Touch = false;
+                        //if (numplayers < pXSprite->data1)
+                            //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
 
-            if (pXSprite->Proximity && pXSprite->Sight && pXSprite->DudeLockout)
-                pXSprite->Proximity = false;
+                        if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
+                            I_Error("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", actor->GetIndex());
+
+                        if (pXSprite->txID && pXSprite->txID < kChannelUser)
+                            I_Error("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", actor->GetIndex(), kChannelUser, kChannelMax);
+
+                        // only one linker per player allowed
+                        int nSprite;
+                        StatIterator it(kStatModernPlayerLinker);
+                        while ((nSprite = it.NextIndex()) >= 0)
+                        {
+                            XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
+                            if (pXSprite->data1 == pXCtrl->data1)
+                                I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), pXSprite->data1, nSprite);
+                        }
+                        pXSprite->sysData1 = -1;
+                        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+                        ChangeActorStat(actor, kStatModernPlayerLinker);
+                        break;
+                    }
+                    case 67: // play qav animation
+                        if (pXSprite->txID && !pXSprite->waitTime) pXSprite->waitTime = 1;
+                        ChangeActorStat(actor, kStatModernQavScene);
+                        break;
+                }
+                break;
+            case kModernCondition:
+            case kModernConditionFalse:
+                if (pXSprite->busyTime > 0) 
+                {
+                    if (pXSprite->waitTime > 0) 
+                    {
+                        pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
+                        Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
+                    }
+                    pXSprite->busy = pXSprite->busyTime;
+                }
+                    
+                if (pXSprite->waitTime && pXSprite->command >= kCmdNumberic)
+                    condError(pXSprite, "Delay is not available when using numberic commands (%d - %d)", kCmdNumberic, 255);
+
+                pXSprite->Decoupled = false; // must go through operateSprite always
+                pXSprite->Sight     = pXSprite->Impact  = pXSprite->Touch   = pXSprite->triggerOff     = false;
+                pXSprite->Proximity = pXSprite->Push    = pXSprite->Vector  = pXSprite->triggerOn      = false;
+                pXSprite->state = pXSprite->restState = 0;
+                    
+                pXSprite->targetX = pXSprite->targetY = pXSprite->targetZ = pXSprite->sysData2 = -1;
+                actor->SetTarget(nullptr);
+                ChangeActorStat(actor, kStatModernCondition);
+                int oldStat = pSprite->cstat; pSprite->cstat = 0x30;
+                    
+                if (oldStat & CSTAT_SPRITE_BLOCK) 
+                    pSprite->cstat |= CSTAT_SPRITE_BLOCK;
+                    
+                if (oldStat & 0x2000) pSprite->cstat |= 0x2000;
+                else if (oldStat & 0x4000) pSprite->cstat |= 0x4000;
+
+                pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                break;
+        }
+
+        // the following trigger flags are senseless to have together
+        if ((pXSprite->Touch && (pXSprite->Proximity || pXSprite->Sight) && pXSprite->DudeLockout)
+                || (pXSprite->Touch && pXSprite->Proximity && !pXSprite->Sight)) pXSprite->Touch = false;
+
+        if (pXSprite->Proximity && pXSprite->Sight && pXSprite->DudeLockout)
+            pXSprite->Proximity = false;
             
-            // very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
-            if (pSprite->sectnum >= 0 && pXSprite->Touch && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
-                if (pSprite->z == sector[pSprite->sectnum].floorz) pSprite->z--;
-                else if (pSprite->z == sector[pSprite->sectnum].ceilingz) pSprite->z++;
-            }
+        // very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
+        if (pSprite->sectnum >= 0 && pXSprite->Touch && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
+            if (pSprite->z == sector[pSprite->sectnum].floorz) pSprite->z--;
+            else if (pSprite->z == sector[pSprite->sectnum].ceilingz) pSprite->z++;
         }
 
         // make Proximity flag work not just for dudes and things...
@@ -865,17 +835,11 @@ void nnExtInitModernStuff(bool bSaveLoad)
 
             XSPRITE* pXSpr = &actor->x();
             spritetype* pSpr = &actor->s();
-            int index = pXSpr->reference; int cmd = pXSpr->command;
-            switch (pSpr->type) {
+            switch (pSpr->type) 
+            {
                 case kSwitchToggle: // exceptions
                 case kSwitchOneWay: // exceptions
                     continue;
-                case kModernPlayerControl:
-                    if (pSpr->statnum != kStatModernPlayerLinker || !bSaveLoad) break;
-                    // assign player sprite after savegame loading
-                    index = pXSpr->sysData1;
-                    cmd = xsprite[sprite[index].extra].command;
-                    break;
             }
 
             if (pSpr->type == kModernCondition || pSpr->type == kModernConditionFalse)
@@ -886,8 +850,8 @@ void nnExtInitModernStuff(bool bSaveLoad)
 
             pCond->obj[count].type = OBJ_SPRITE;
             pCond->obj[count].index_ = 0;
-            pCond->obj[count].actor = &bloodActors[index];
-            pCond->obj[count++].cmd = cmd;
+            pCond->obj[count].actor = actor;
+            pCond->obj[count++].cmd = pXSpr->command;
         }
 
         for (int i = 0; i < kMaxXSectors; i++) 

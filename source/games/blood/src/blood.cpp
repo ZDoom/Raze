@@ -177,7 +177,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	}
 	InitSectorFX();
 	warpInit();
-	actInit(false);
+	actInit();
 	evInit();
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
