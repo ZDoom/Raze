@@ -3678,63 +3678,34 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
 //
 //---------------------------------------------------------------------------
 
-int condSerialize(DBloodActor* objActor) 
+ConditionElement condSerialize(DBloodActor* objActor) 
 {
     // this one only gets used for players
-    return kCondSerialSprite + objActor->GetIndex();
+    return { kCondSerialSprite, -1, objActor };
 }
 
-void condPush(DBloodActor* actor, int objType, int objIndex, DBloodActor* objActor) {
-    int r = -1;
-    switch (objType) {
-    case OBJ_SECTOR: r = kCondSerialSector + objIndex; break;
-    case OBJ_WALL:   r = kCondSerialWall + objIndex; break;
-    case OBJ_SPRITE: r = kCondSerialSprite + objActor->GetIndex(); break;
-    }
-    if (r == -1) I_Error("Unknown object type %d, index %d", objType, objIndex);
-    // condition-target
-    else actor->x().targetX = r;
-    
+
+bool condPush(DBloodActor* actor, int type, int index, DBloodActor* iactor)
+{
+    actor->condition[0] = { type, index, actor };
+    return true;
 }
 
-void condUnserialize(DBloodActor* serialActor, int* objType, int* objIndex, DBloodActor** objActor) {
-    // condition-target
-    int serial = serialActor->x().targetX;
-    if (serial >= kCondSerialSector && serial < kCondSerialWall) {
-        
-        *objIndex = serial - kCondSerialSector;
-        *objType = OBJ_SECTOR; 
-        *objActor = nullptr;
-
-    } else if (serial >= kCondSerialWall && serial < kCondSerialSprite) {
-        
-        *objIndex = serial - kCondSerialWall;
-        *objType = OBJ_WALL; 
-        *objActor = nullptr;
-
-    } else if (serial >= kCondSerialSprite && serial < kCondSerialMax) {
-        
-        *objIndex = serial - kCondSerialSprite;
-        *objType = OBJ_SPRITE; 
-        *objActor = &bloodActors[*objIndex];
-
-    } else {
-        
-        I_Error("%d is not condition serial!", serial);
-
-    }
+void condUnserialize(DBloodActor* actor, int* objType, int* objIndex, DBloodActor** objActor) 
+{
+	*objType = actor->condition[0].type;
+	*objIndex = actor->condition[0].index;
+	*objActor = actor->condition[0].actor;
 }
 
 void condBackup(DBloodActor* actor)
 {
-    // condition-target
-    actor->x().targetY = actor->x().targetX;
+    actor->condition[1] = actor->condition[0];
 }
 
 void condRestore(DBloodActor* actor)
 {
-    // condition-target
-    actor->x().targetX = actor->x().targetY;
+    actor->condition[0] = actor->condition[1];
 }
 
 // normal comparison
@@ -4737,18 +4708,15 @@ void condUpdateObjectIndex(DBloodActor* oldActor, DBloodActor* newActor)
     }
 
     // puke...
-    int oldSerial = condSerialize(oldActor);
-    int newSerial = condSerialize(newActor);
+    auto oldSerial = condSerialize(oldActor);
+    auto newSerial = condSerialize(newActor);
 
     // then update serials
     BloodStatIterator it(kStatModernCondition);
-    while (auto iactor = it.Next())
+    while (auto iActor = it.Next())
     {
-        XSPRITE* pXCond = &iactor->x();
-        // condition-target
-        // condition-target
-        if (pXCond->targetX == oldSerial) pXCond->targetX = newSerial;
-        if (pXCond->targetY == oldSerial) pXCond->targetY = newSerial;
+        if (iActor->condition[0] == oldSerial) iActor->condition[0] = newSerial;
+        if (iActor->condition[1] == oldSerial) iActor->condition[1] = newSerial;
 
     }
 }
@@ -6261,9 +6229,8 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
     } 
     else  // or grab serials of objects from previous conditions
     {
-        // condition-target
-        pXSource->targetX = event.actor->x().targetX;
-        pXSource->targetY = event.actor->x().targetY;
+        sourceactor->condition[0] = event.actor->condition[0];
+        sourceactor->condition[1] = event.actor->condition[1];
 
     }
     
@@ -6325,8 +6292,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
             }
 
             // send it for initial object
-            // condition-target
-            if ((pSource->flags & kModernTypeFlag2) && (pXSource->targetX != pXSource->targetY || !(pSource->hitag & kModernTypeFlag1))) {
+            if ((pSource->flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(pSource->hitag & kModernTypeFlag1))) {
                 DBloodActor* objActor = nullptr;
                 condUnserialize(sourceactor, &objType, &objIndex, &objActor);
                 nnExtTriggerObject(objType, objIndex, objActor, pXSource->command);
