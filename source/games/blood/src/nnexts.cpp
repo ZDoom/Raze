@@ -521,7 +521,7 @@ void nnExtResetGlobals()
 //
 //---------------------------------------------------------------------------
 
-void nnExtInitModernStuff(bool bSaveLoad) 
+void nnExtInitModernStuff() 
 {
     nnExtResetGlobals();
 
@@ -567,34 +567,6 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 break;
         }
 
-        // init after loading save file
-        if (bSaveLoad) 
-        {
-            // add in list of physics affected sprites
-            if (pXSprite->physAttr != 0) 
-            {
-                gPhysSpritesList[gPhysSpritesCount++] = actor; // add sprite index
-                getSpriteMassBySize(actor); // create mass cache
-            }
-
-            if (pXSprite->data3 != pXSprite->sysData1) 
-            {
-                switch (pSprite->statnum) 
-                {
-                case kStatDude:
-                    switch (pSprite->type) 
-                    {
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                        pXSprite->data3 = pXSprite->sysData1; // move sndStartId back from sysData1 to data3 
-                        break;
-                    }
-                    break;
-                }
-            }
-        } 
-        else 
-        {
             // auto set going On and going Off if both are empty
             if (pXSprite->txID && !pXSprite->triggerOn && !pXSprite->triggerOff)
                 pXSprite->triggerOn = pXSprite->triggerOff = true;
@@ -779,7 +751,6 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 if (pSprite->z == sector[pSprite->sectnum].floorz) pSprite->z--;
                 else if (pSprite->z == sector[pSprite->sectnum].ceilingz) pSprite->z++;
             }
-        }
 
         // make Proximity flag work not just for dudes and things...
         if (pXSprite->Proximity && gProxySpritesCount < kMaxSuperXSprites) 
@@ -859,17 +830,11 @@ void nnExtInitModernStuff(bool bSaveLoad)
 
             XSPRITE* pXSpr = &iactor2->x();
             spritetype* pSpr = &iactor2->s();
-            int index = pXSpr->reference; int cmd = pXSpr->command;
-            switch (pSpr->type) {
+            switch (pSpr->type) 
+            {
                 case kSwitchToggle: // exceptions
                 case kSwitchOneWay: // exceptions
                     continue;
-                case kModernPlayerControl:
-                    if (pSpr->statnum != kStatModernPlayerLinker || !bSaveLoad) break;
-                    // assign player sprite after savegame loading
-                    index = pXSpr->sysData1;
-                    cmd = xsprite[sprite[index].extra].command;
-                    break;
             }
 
             if (pSpr->type == kModernCondition || pSpr->type == kModernConditionFalse)

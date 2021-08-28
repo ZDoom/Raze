@@ -289,7 +289,7 @@ extern AISTATE genPatrolStates[kPatrolStateSize];
 
 // - FUNCTIONS ------------------------------------------------------------------
 bool nnExtEraseModernStuff(DBloodActor* actor);
-void nnExtInitModernStuff(bool bSaveLoad);
+void nnExtInitModernStuff();
 void nnExtProcessSuperSprites(void);
 bool nnExtIsImmune(DBloodActor* pSprite, int dmgType, int minScale = 16);
 int nnExtRandom(int a, int b);
