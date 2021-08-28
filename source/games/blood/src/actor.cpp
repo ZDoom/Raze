@@ -6415,16 +6415,17 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 {
 	auto pSource = &source->s();
 	int nSprite = InsertSprite(pSource->sectnum, nStat);
+	DBloodActor* actor;
 	if (nSprite < 0)
 	{
-		StatIterator it(kStatPurge);
-		nSprite = it.NextIndex();
-		assert(nSprite >= 0);
+		BloodStatIterator it(kStatPurge);
+		actor = it.Next();
+		assert(actor);
 		assert(pSource->sectnum >= 0 && pSource->sectnum < kMaxSectors);
-		ChangeSpriteSect(nSprite, pSource->sectnum);
-		actPostSprite(nSprite, nStat);
+		ChangeActorSect(actor, pSource->sectnum);
+		actPostSprite(actor, nStat);
 	}
-	auto actor = &bloodActors[nSprite];
+	else actor = &bloodActors[nSprite];
 
 	spritetype* pSprite = &actor->s();
 	pSprite->x = pSource->x;

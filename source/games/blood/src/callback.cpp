@@ -630,13 +630,13 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int nOwner = pSprite->owner;
-    if (nOwner < 0 || nOwner >= kMaxSprites)
+    auto Owner = actor->GetOwner();
+    if (Owner == nullptr)
     {
         evPostActor(actor, 0, kCallbackRemove);
         return;
     }
-    spritetype *pOwner = &sprite[nOwner];
+    spritetype *pOwner = &Owner->s();
     PLAYER *pPlayer;
     if (IsPlayerSprite(pOwner))
         pPlayer = &gPlayer[pOwner->type-kDudePlayer1];
@@ -657,24 +657,23 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
             evPostActor(actor, 0, kCallbackRemove);
             return;
         }
-        int nSprite2;
-        StatIterator it(kStatDude);
-        while ((nSprite2 = it.NextIndex()) >= 0)
+
+        BloodStatIterator it(kStatDude);
+        while (auto actor2 = it.Next())
         {
-            int nNextSprite = it.PeekIndex();
-            if (nOwner == nSprite2)
+            auto nextactor = it.Peek();
+            if (Owner == actor2)
                 continue;
-            auto actor2 = &bloodActors[nSprite2];
-            spritetype *pSprite2 = &sprite[nSprite2];
-            int nXSprite2 = pSprite2->extra;
-            if (nXSprite2 > 0 && nXSprite2 < kMaxXSprites)
+            spritetype *pSprite2 = &actor2->s();
+            if (actor2->hasX())
             {
-                XSPRITE *pXSprite2 = &xsprite[nXSprite2];
+                XSPRITE *pXSprite2 = &actor2->x();
                 PLAYER *pPlayer2;
-                if (IsPlayerSprite(pSprite2))
+                if (actor2->IsPlayerActor())
                     pPlayer2 = &gPlayer[pSprite2->type-kDudePlayer1];
                 else
-                    pPlayer2 = NULL;
+                    pPlayer2 = nullptr;
+
                 if (pXSprite2->health > 0 && (pPlayer2 || pXSprite2->key == 0))
                 {
                     if (pPlayer2)
@@ -686,7 +685,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
                         int t = 0x8000/ClipLow(gNetPlayers-1, 1);
                         if (!powerupCheck(pPlayer2, kPwUpDeathMask))
                             t += ((3200-pPlayer2->armor[2])<<15)/3200;
-                        if (Chance(t) || nNextSprite < 0)
+                        if (Chance(t) || nextactor == nullptr)
                         {
                             int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, pXSprite->data1<<4);
                             pXSprite->data1 = ClipLow(pXSprite->data1-nDmg, 0);
@@ -729,7 +728,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
                             vd = 0;
                             break;
                         }
-                        if (vd && (Chance(vd) || nNextSprite < 0))
+                        if (vd && (Chance(vd) || nextactor == nullptr))
                         {
                             sub_76A08(actor2, pSprite, NULL);
                             evPostActor(actor, 0, kCallbackRemove);
