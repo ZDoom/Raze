@@ -3570,8 +3570,8 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             SectIterator it(objIndex);
             while ((nSprite = it.NextIndex()) >= 0)
             {
-                if (!condCmp(sprite[var].type, arg1, arg2, cmpOp)) continue;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
+                if (!condCmp(sprite[nSprite].type, arg1, arg2, cmpOp)) continue;
+                else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
                 return true;
             }
             return false;
