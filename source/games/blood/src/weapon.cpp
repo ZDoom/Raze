@@ -228,23 +228,35 @@ void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
 
 void WeaponInit(void)
 {
-    for (int i = 0; i < kQAVEnd; i++)
+    auto doInit = [](const int base)
     {
-        auto pQAV = getQAV(i);
-        if (!pQAV)
-            I_Error("Could not load QAV %d\n", i);
-        pQAV->nSprite = -1;
-    }
+        for (int i = base; i < (kQAVEnd + base); i++)
+        {
+            auto pQAV = getQAV(i);
+            if (!pQAV)
+                I_Error("Could not load QAV %d\n", i);
+            pQAV->nSprite = -1;
+        }
+    };
+
+    doInit(0);
+    doInit(10000);
 }
 
 void WeaponPrecache()
 {
-    for (int i = 0; i < kQAVEnd; i++)
+    auto doPrecache = [](const int base)
     {
-        auto pQAV = getQAV(i);
-        if (pQAV)
-            pQAV->Precache();
-    }
+        for (int i = base; i < (kQAVEnd + base); i++)
+        {
+            auto pQAV = getQAV(i);
+            if (pQAV)
+                pQAV->Precache();
+        }
+    };
+
+    doPrecache(0);
+    doPrecache(10000);
 }
 
 void WeaponDraw(PLAYER *pPlayer, int shade, double xpos, double ypos, int palnum)
