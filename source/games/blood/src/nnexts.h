@@ -321,7 +321,7 @@ void aiFightActivateDudes(int rx);
 //  -------------------------------------------------------------------------   //
 void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex);
 void damageSprites(DBloodActor* pXSource, DBloodActor* pSprite);
-void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource);
+void useRandomItemGen(DBloodActor* pSource);
 void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite);
 void useSoundGen(XSPRITE* pXSource, spritetype* pSprite);
 void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex);
@@ -371,7 +371,7 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite);
 int getSpriteMassBySize(DBloodActor* pSprite);
 bool ceilIsTooLow(DBloodActor* pSprite);
 void levelEndLevelCustom(int nLevel);
-int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event);
+int useCondition(DBloodActor*, const EVENT& event);
 bool condPush(XSPRITE* pXSprite, int objType, int objIndex);
 bool condRestore(XSPRITE* pXSprite);
 bool condCmp(int val, int arg1, int arg2, int comOp);

@@ -756,7 +756,7 @@ void callbackCondition(DBloodActor* actor, int)
         evn.index_ = pCond->obj[i].index_;
         evn.cmd = pCond->obj[i].cmd; 
         evn.funcID = kCallbackCondition;
-        useCondition(&sprite[pXSprite->reference], pXSprite, evn);
+        useCondition(actor, evn);
     }
 
     evPostActor(actor, pXSprite->busyTime, kCallbackCondition);

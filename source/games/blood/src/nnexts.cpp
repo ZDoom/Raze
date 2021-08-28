@@ -1165,7 +1165,7 @@ void nnExtProcessSuperSprites()
                 evn.cmd = (int8_t)pXCond->command;
                 evn.type = OBJ_SPRITE;            
                 evn.funcID = kCallbackMax;
-                useCondition(&pCond->actor->s(), pXCond, evn);
+                useCondition(pCond->actor, evn);
             }
             else if (pCond->length > 0)
             {
@@ -1178,7 +1178,7 @@ void nnExtProcessSuperSprites()
                     evn.cmd    = pCond->obj[k].cmd;
                     evn.type = pCond->obj[k].type;
                     evn.funcID = kCallbackMax;
-                    useCondition(&pCond->actor->s(), pXCond, evn);
+                    useCondition(pCond->actor, evn);
                 }
             }
             
@@ -5526,7 +5526,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
 
         case kModernCondition:
         case kModernConditionFalse:
-            if (!pXSprite->isTriggered) useCondition(pSprite, pXSprite, event);
+            if (!pXSprite->isTriggered) useCondition(actor, event);
             return true;
 
         // add spawn random dude feature - works only if at least 2 data fields are not empty.
@@ -5742,7 +5742,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                     if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    useRandomItemGen(pSprite, pXSprite);
+                    useRandomItemGen(actor);
                     if (pXSprite->busyTime > 0)
                         evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
                     break;
@@ -6128,12 +6128,16 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 //
 //---------------------------------------------------------------------------
 
-int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event)
+int useCondition(DBloodActor* sourceactor, const EVENT& event)
 {
-    auto sourceactor = &bloodActors[pSource->index];
-    int objType = event.type; 
+    spritetype* pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
+
+    int objType = event.type;
     int objIndex = event.index_;
     bool srcIsCondition = false;
+    if (objType == OBJ_SPRITE && event.actor == nullptr) return -1;
+    if (objType == OBJ_SPRITE) objIndex = event.actor->s().index;    // need this below for calling nnExtTriggerObject
     if (objType == OBJ_SPRITE && event.actor != sourceactor)
         srcIsCondition = (sprite[objIndex].type == kModernCondition || sprite[objIndex].type == kModernConditionFalse);
 
@@ -6196,7 +6200,7 @@ int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event)
 
         // send command to rx bucket
         if (pXSource->txID)
-            evSendActor(&bloodActors[pSource->index], pXSource->txID, (COMMAND_ID)pXSource->command);
+            evSendActor(sourceactor, pXSource->txID, (COMMAND_ID)pXSource->command);
 
         if (pSource->flags) {
         
@@ -6219,14 +6223,26 @@ int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event)
     return pXSource->state;
 }
 
-void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useRandomItemGen(DBloodActor* actor) 
+{
+    spritetype* pSource = &actor->s(); 
+    XSPRITE* pXSource = &actor->x();
+
     // let's first search for previously dropped items and remove it
-    if (pXSource->dropMsg > 0) {
+    if (pXSource->dropMsg > 0) 
+    {
         BloodStatIterator it(kStatItem);
         while (auto iactor = it.Next())
         {
             spritetype* pItem = &iactor->s();
-            if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->x == pSource->x && pItem->y == pSource->y && pItem->z == pSource->z) {
+            if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->x == pSource->x && pItem->y == pSource->y && pItem->z == pSource->z) 
+            {
                 gFX.fxSpawnActor((FX_ID)29, pSource->sectnum, pSource->x, pSource->y, pSource->z, 0);
                 pItem->type = kSpriteDecoration;
                 actPostSprite(iactor, kStatFree);
@@ -6236,16 +6252,15 @@ void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
     }
 
     // then drop item
-    auto dropactor = randomDropPickupObject(&bloodActors[pSource->index], pXSource->dropMsg);
-    
+    auto dropactor = randomDropPickupObject(actor, pXSource->dropMsg);
 
-    if (dropactor != NULL) 
+    if (dropactor != nullptr) 
     {
         auto pDrop = &dropactor->s();
         clampSprite(pDrop);
 
         // check if generator affected by physics
-        if (debrisGetIndex(&bloodActors[pSource->index]) != -1) 
+        if (debrisGetIndex(actor) != -1) 
         {
             dropactor->addX();
             int nIndex = debrisGetFreeIndex();
@@ -6258,12 +6273,8 @@ void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
                 if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
                 getSpriteMassBySize(dropactor); // create mass cache
             }
-        
         }
-    
-    
     }
-
 }
 
 void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
