@@ -2526,85 +2526,98 @@ void trPlayerCtrlUsePowerup(DBloodActor* sourceactor, PLAYER* pPlayer, int evCmd
 
 }
 
-void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
-    switch (objType) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void useObjResizer(DBloodActor* sourceactor, int targType, int targIndex, DBloodActor* targetactor) 
+{
+    auto pXSource = &sourceactor->x();
+    switch (targType) 
+    {
     // for sectors
-    case 6:
+    case OBJ_SECTOR:
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            sector[objIndex].floorxpan_ = (float)ClipRange(pXSource->data1, 0, 255);
+            sector[targIndex].floorxpan_ = (float)ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            sector[objIndex].floorypan_ = (float)ClipRange(pXSource->data2, 0, 255);
+            sector[targIndex].floorypan_ = (float)ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            sector[objIndex].ceilingxpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+            sector[targIndex].ceilingxpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            sector[objIndex].ceilingypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+            sector[targIndex].ceilingypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     // for sprites
-    case OBJ_SPRITE: {
-
+    case OBJ_SPRITE: 
+    {
         bool fit = false;
+        auto pTarget = &targetactor->s();
         // resize by seq scaling
-        if (sprite[pXSource->reference].flags & kModernTypeFlag1) {
-            
-            if (valueIsBetween(pXSource->data1, -255, 32767)) {
+        if (sourceactor->s().flags & kModernTypeFlag1) 
+        {
+            if (valueIsBetween(pXSource->data1, -255, 32767))
+            {
                 int mulDiv = (valueIsBetween(pXSource->data2, 0, 257)) ? pXSource->data2 : 256;
-                if (pXSource->data1 > 0) xsprite[sprite[objIndex].extra].scale = mulDiv * ClipHigh(pXSource->data1, 25);
-                else if (pXSource->data1 < 0) xsprite[sprite[objIndex].extra].scale = mulDiv / ClipHigh(abs(pXSource->data1), 25);
-                else xsprite[sprite[objIndex].extra].scale = 0;
+                if (pXSource->data1 > 0) targetactor->x().scale = mulDiv * ClipHigh(pXSource->data1, 25);
+                else if (pXSource->data1 < 0) targetactor->x().scale = mulDiv / ClipHigh(abs(pXSource->data1), 25);
+                else targetactor->x().scale = 0;
                 fit = true;
                 }
 
         // resize by repeats
-        } else {
-
-            if (valueIsBetween(pXSource->data1, -1, 32767)) {
-                sprite[objIndex].xrepeat = ClipRange(pXSource->data1, 0, 255);
+        }
+        else 
+        {
+            if (valueIsBetween(pXSource->data1, -1, 32767)) 
+            {
+                pTarget->xrepeat = ClipRange(pXSource->data1, 0, 255);
                 fit = true;
             }
             
-            if (valueIsBetween(pXSource->data2, -1, 32767)) {
-                sprite[objIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
+            if (valueIsBetween(pXSource->data2, -1, 32767)) 
+            {
+                pTarget->yrepeat = ClipRange(pXSource->data2, 0, 255);
                 fit = true;
             }
-
         }
 
-        if (fit && (sprite[objIndex].type == kDudeModernCustom || sprite[objIndex].type == kDudeModernCustomBurning)) {
-            
+        if (fit && (pTarget->type == kDudeModernCustom || pTarget->type == kDudeModernCustomBurning))
+        {
             // request properties update for custom dude
-            gGenDudeExtra[objIndex].updReq[kGenDudePropertySpriteSize] = true;
-            gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
-            gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
-            gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
-            evPostActor(&bloodActors[objIndex], kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+            
+            targetactor->genDudeExtra().updReq[kGenDudePropertySpriteSize] = true;
+            targetactor->genDudeExtra().updReq[kGenDudePropertyAttack] = true;
+            targetactor->genDudeExtra().updReq[kGenDudePropertyMass] = true;
+            targetactor->genDudeExtra().updReq[kGenDudePropertyDmgScale] = true;
+            evPostActor(targetactor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
 
         }
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            sprite[objIndex].xoffset = ClipRange(pXSource->data3, 0, 255);
+            pTarget->xoffset = ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            sprite[objIndex].yoffset = ClipRange(pXSource->data4, 0, 255);
+            pTarget->yoffset = ClipRange(pXSource->data4, 0, 255);
         break;
     }
     case OBJ_WALL:
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            wall[objIndex].xrepeat = ClipRange(pXSource->data1, 0, 255);
+            wall[targIndex].xrepeat = ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            wall[objIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
+            wall[targIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            wall[objIndex].xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+            wall[targIndex].xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            wall[objIndex].ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+            wall[targIndex].ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     }
-
 }
 
 //---------------------------------------------------------------------------
@@ -4617,6 +4630,7 @@ void modernTypeSendCommand(int nSprite, int destChannel, COMMAND_ID command) {
 void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
 
     if (event.type != OBJ_SPRITE || !event.actor || !event.actor->hasX()) return;
+    auto destactor = destObjType == OBJ_SPRITE? &bloodActors[destObjIndex] : nullptr;
     spritetype* pSource = &event.actor->s();
     XSPRITE* pXSource = &event.actor->x();
 
@@ -4700,7 +4714,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             break;
         // size and pan changer of sprite/wall/sector via TX ID
         case kModernObjSizeChanger:
-            useObjResizer(pXSource, destObjType, destObjIndex);
+            useObjResizer(event.actor, destObjType, destObjIndex, destactor);
             break;
         // iterate data filed value of destination object
         case kModernObjDataAccumulator:
