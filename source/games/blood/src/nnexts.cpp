@@ -288,7 +288,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
     }
 
     vec3_t pos = { x, y, z };
-    setsprite(pDude->index, &pos);
+    setActorPos(pDudeActor, &pos);
 
     pDude->type = nType;
     pDude->ang = angle;
@@ -3374,7 +3374,7 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, int objIndex, DBloo
 
     sectortype* pSector = &sector[pSource->sectnum];
 
-    int top, bottom, i;
+    int top, bottom;
     bool floor, ceil, wall, enter;
 
     switch (objType) 
