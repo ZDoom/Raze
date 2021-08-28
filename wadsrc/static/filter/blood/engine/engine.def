@@ -662,45 +662,24 @@ defineqav 10092 {
 }
 defineqav 10093 {
 	file "qavs/BSTUP.QAV"
-	interpolate {
-		type "index"
-	}
 }
 defineqav 10094 {
 	file "qavs/BSTIDLE.QAV"
-	interpolate {
-		type "index"
-	}
 }
 defineqav 10095 {
 	file "qavs/BSTATAK1.QAV"
-	interpolate {
-		type "index"
-	}
 }
 defineqav 10096 {
 	file "qavs/BSTATAK2.QAV"
-	interpolate {
-		type "index"
-	}
 }
 defineqav 10097 {
 	file "qavs/BSTATAK3.QAV"
-	interpolate {
-		type "index"
-	}
 }
 defineqav 10098 {
 	file "qavs/BSTATAK4.QAV"
-	interpolate {
-		type "index"
-	}
 }
 defineqav 10099 {
 	file "qavs/BSTDOWN.QAV"
-	interpolate {
-		type "index"
-	}
 }
 defineqav 10100 {
 	file "qavs/VDUP.QAV"
