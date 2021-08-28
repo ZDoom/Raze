@@ -70,6 +70,12 @@ struct SPRITEHIT
 };
 extern SPRITEHIT gSpriteHit[kMaxXSprites];
 
+struct ConditionElement
+{
+	int type;
+	int index_;
+	DBloodActor* actor;
+};
 
 // Due to the messed up array storage of all the game data we cannot do any direct references here yet. We have to access everything via wrapper functions for now.
 // Note that the indexing is very inconsistent - partially by sprite index, partially by xsprite index.
@@ -83,7 +89,9 @@ public:
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 
+	// transient data (not written to savegame)
 	int cumulDamage;
+	ConditionElement condition[2];
 
 	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
 	DBloodActor& operator=(const DBloodActor& other) = default;

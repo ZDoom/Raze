@@ -109,6 +109,7 @@ void seqKillAll(void);
 int seqGetStatus(int a1, int a2);
 int seqGetStatus(DBloodActor*);
 int seqGetID(int a1, int a2);
+int seqGetID(DBloodActor*);
 void seqProcess(int a1);
 
 Seq* getSequence(int res_id);

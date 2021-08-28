@@ -489,6 +489,11 @@ int seqGetStatus(DBloodActor* actor)
 	return seqGetStatus(SS_SPRITE, actor->s().extra);
 }
 
+int seqGetID(DBloodActor* actor)
+{
+	return seqGetID(3, actor->s().index);
+}
+
 void seqKill(int type, int nXIndex)
 {
 	activeList.remove(type, nXIndex);
