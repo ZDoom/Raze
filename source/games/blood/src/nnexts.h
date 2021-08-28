@@ -308,7 +308,7 @@ void debrisBubble(DBloodActor* nSprite);
 void debrisMove(int listIndex);
 void debrisConcuss(DBloodActor* nOwner, int listIndex, int x, int y, int z, int dmg);
 //  -------------------------------------------------------------------------   //
-void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite);
+void aiSetGenIdleState(DBloodActor*);
 
 // triggers related
 //  -------------------------------------------------------------------------   //
@@ -396,9 +396,8 @@ bool isActive(int nSprite);
 int getDataFieldOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex);
 bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value);
 bool incDecGoalValueIsReached(XSPRITE* pXSprite);
-void windGenStopWindOnSectors(XSPRITE* pXSource);
 int getSpriteMassBySize(DBloodActor* pSprite);
-bool ceilIsTooLow(spritetype* pSprite);
+bool ceilIsTooLow(DBloodActor* pSprite);
 void levelEndLevelCustom(int nLevel);
 int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event);
 bool condPush(XSPRITE* pXSprite, int objType, int objIndex);
