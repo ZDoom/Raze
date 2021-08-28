@@ -548,7 +548,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
     for (int i = 0; i < kMaxXSprites; i++) 
     {
         auto actor = &bloodActors[i];
-        if (!actor->hasX()) continue;
+        if (actor->s().statnum == kStatFree || !actor->hasX()) continue;
         XSPRITE* pXSprite = &actor->x();
         spritetype* pSprite = &actor->s();
         
@@ -578,7 +578,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
             // add in list of physics affected sprites
             if (pXSprite->physAttr != 0) 
             {
-                gPhysSpritesList[gPhysSpritesCount++] = &bloodActors[pSprite->index]; // add sprite index
+                gPhysSpritesList[gPhysSpritesCount++] = actor; // add sprite index
                 getSpriteMassBySize(actor); // create mass cache
             }
 
@@ -859,10 +859,12 @@ void nnExtInitModernStuff(bool bSaveLoad)
 
         for (int i = 0; i < kMaxXSprites; i++) 
         {
-            if (!spriRangeIsFine(xsprite[i].reference) || xsprite[i].txID != pXSprite->rxID || xsprite[i].reference == pSprite->index)
+            auto actor = &bloodActors[i];
+            if (actor->s().statnum == kStatFree || !actor->hasX() || xsprite[i].txID != pXSprite->rxID || actor == iactor)
                 continue;
 
-            XSPRITE* pXSpr = &xsprite[i]; spritetype* pSpr = &sprite[pXSpr->reference];
+            XSPRITE* pXSpr = &actor->x();
+            spritetype* pSpr = &actor->s();
             int index = pXSpr->reference; int cmd = pXSpr->command;
             switch (pSpr->type) {
                 case kSwitchToggle: // exceptions
