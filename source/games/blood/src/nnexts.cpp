@@ -4628,14 +4628,18 @@ void condUpdateObjectIndex(int objType, int oldIndex, int newIndex)
     return;
 }
 
-bool valueIsBetween(int val, int min, int max) {
-    return (val > min && val < max);
-}
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
-    auto actor = &bloodActors[nSprite];
+bool modernTypeSetSpriteState(DBloodActor* actor, int nState) 
+{
+    auto pXSprite = &actor->x();
+
     if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
-        return 0;
+        return false;
 
     pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
@@ -4645,14 +4649,21 @@ char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
         evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
 
     if (pXSprite->txID != 0 && ((pXSprite->triggerOn && pXSprite->state) || (pXSprite->triggerOff && !pXSprite->state)))
-        modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+        modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
 
-    return 1;
+    return true;
 }
 
-void modernTypeSendCommand(int nSprite, int destChannel, COMMAND_ID command) {
-    auto actor = &bloodActors[nSprite];
-    switch (command) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID command) 
+{
+    switch (command) 
+    {
     case kCmdLink:
         evSendActor(actor, destChannel, kCmdModernUse); // just send command to change properties
         return;
@@ -4707,7 +4718,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
                             break;
                     }
                     if (pXSpr->txID <= 0 || pXSpr->txID >= kChannelUserMax) return;
-                    modernTypeSendCommand(pSource->index, pXSpr->txID, (COMMAND_ID)pXSource->command);
+                    modernTypeSendCommand(event.actor, pXSpr->txID, (COMMAND_ID)pXSource->command);
                     return;
             }
             break;
@@ -5379,7 +5390,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     else if (pXSprite->data1 == 0 && sectRangeIsFine(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sectnum, nullptr);
                     else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(actor, -1, -1, nullptr);
                     else {
@@ -5419,7 +5430,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kModernObjPicnumChanger:
         case kModernSectorFXChanger:
         case kModernObjDataChanger:
-            modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
+            modernTypeSetSpriteState(actor, pXSprite->state ^ 1);
             return true;
         case kModernSeqSpawner:
         case kModernEffectSpawner:
@@ -5433,7 +5444,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(pXSprite);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     else if (pSprite->type == kModernSeqSpawner) useSeqSpawnerGen(actor, 3, 0, actor);
                     else useEffectGen(actor, nullptr);
             
@@ -5457,7 +5468,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     else useSectorWindGen(actor, nullptr);
 
                     if (pXSprite->busyTime > 0) evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
@@ -5490,7 +5501,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         evPostActor(actor, 0, kCmdOff);
                         break;
                     } else {
-                        modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                        modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     }
 
                     if (pXSprite->busyTime > 0) evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
@@ -5518,7 +5529,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         break;
                     }
                     
-                    modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     if (pXSprite->busyTime > 0) evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
                     break;
                 default:
@@ -5573,7 +5584,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kModernPlayerControl: { // WIP
             PLAYER* pPlayer = NULL; int cmd = (event.cmd >= kCmdNumberic) ? event.cmd : pXSprite->command;
             if ((pPlayer = getPlayerById(pXSprite->data1)) == NULL
-                    || ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1)))
+                    || ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(actor, pXSprite->state ^ 1)))
                         return true;
 
             TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
@@ -5679,7 +5690,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                if (pXSprite->txID)  modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                 else useSoundGen(pXSprite, pSprite);
                 
                 if (pXSprite->busyTime > 0)
@@ -5701,7 +5712,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID)  modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     else useUniMissileGen(pXSprite, pSprite);
                     
                     if (pXSprite->busyTime > 0)
@@ -5758,14 +5769,14 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
         for (pXSource->txID = pXSource->data1; pXSource->txID <= pXSource->data4; pXSource->txID++) {
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
-            else modernTypeSendCommand(nIndex, pXSource->txID, cmd);
+            else modernTypeSendCommand(actor, pXSource->txID, cmd);
         }
     } else {
         for (int i = 0; i <= 3; i++) {
             pXSource->txID = GetDataVal(&bloodActors[pXSource->reference], i);
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
-            else modernTypeSendCommand(nIndex, pXSource->txID, cmd);
+            else modernTypeSendCommand(actor, pXSource->txID, cmd);
         }
     }
     

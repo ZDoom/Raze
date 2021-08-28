@@ -350,11 +350,10 @@ void trPlayerCtrlLink(DBloodActor* pXSource, PLAYER* pPlayer, bool checkConditio
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
 //  -------------------------------------------------------------------------   //
 void modernTypeTrigger(int type, int nDest, EVENT event);
-char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState);
 bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, EVENT event);
 bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event);
 bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event);
-void modernTypeSendCommand(int nSprite, int channel, COMMAND_ID command);
+void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command);
 //  -------------------------------------------------------------------------   //
 bool playerSizeShrink(PLAYER* pPlayer, int divider);
 bool playerSizeGrow(PLAYER* pPlayer, int multiplier);
@@ -374,7 +373,6 @@ void callbackGenDudeUpdate(DBloodActor* actor, int nSprite);
 PLAYER* getPlayerById(short id);
 bool isGrown(spritetype* pSprite);
 bool isShrinked(spritetype* pSprite);
-bool valueIsBetween(int val, int min, int max);
 bool IsBurningDude(spritetype* pSprite);
 bool IsKillableDude(spritetype* pSprite);
 bool isActive(int nSprite);
@@ -442,6 +440,12 @@ bool readyForCrit(spritetype* pHunter, spritetype* pVictim);
 int sectorInMotion(int nSector);
 void clampSprite(spritetype* pSprite, int which = 0x03);
 #endif
+
+inline bool valueIsBetween(int val, int min, int max)
+{
+    return (val > min && val < max);
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // This file provides modern features for mappers.
