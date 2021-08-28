@@ -240,7 +240,6 @@ int actGetRespawnTime(DBloodActor *pSprite);
 bool actCheckRespawn(DBloodActor *pSprite);
 bool actCanSplatWall(int nWall);
 void actFireVector(DBloodActor *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType);
-void actPostSprite(int nSprite, int nStatus);
 void actPostSprite(DBloodActor* actor, int status);
 void actPostProcess(void);
 void MakeSplash(DBloodActor *actor);

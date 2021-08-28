@@ -263,7 +263,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                         {
                             missile->SetOwner(actor);
                             pXSprite->stateTimer = 1;
-                            evPostActor(&bloodActors[pSprite->index], t2, kCallbackLeechStateTimer);
+                            evPostActor(actor, t2, kCallbackLeechStateTimer);
                             pXSprite->data3 = ClipLow(pXSprite->data3-1, 0);
                         }
                         pSprite->ang = angBak;
@@ -274,7 +274,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
         return;
     }
     }
-    actPostSprite(pSprite->index, kStatFree);
+    actPostSprite(actor, kStatFree);
 }
 
 void ActivateGenerator(int);
@@ -344,11 +344,11 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         break;
     case kThingWallCrack:
         if (SetSpriteState(nSprite, pXSprite, 0))
-            actPostSprite(nSprite, kStatFree);
+            actPostSprite(actor, kStatFree);
         break;
     case kThingCrateFace:
         if (SetSpriteState(nSprite, pXSprite, 0))
-            actPostSprite(nSprite, kStatFree);
+            actPostSprite(actor, kStatFree);
         break;
     case kTrapZapSwitchable:
         switch (event.cmd) {

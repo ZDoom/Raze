@@ -1190,7 +1190,7 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
     }
         
     if (!actCheckRespawn(actor)) 
-        actPostSprite(pSprite->index, kStatFree);
+        actPostSprite(actor, kStatFree);
 
     pPlayer->pickupEffect = 30;
     if (pPlayer == gMe) {
@@ -1394,7 +1394,7 @@ void ProcessInput(PLAYER *pPlayer)
             {
                 if (pPlayer->pSprite)
                     pPlayer->pSprite->type = kThingBloodChunks;
-                actPostSprite(pPlayer->nSprite, kStatThing);
+                actPostSprite(pPlayer->actor(), kStatThing);
                 seqSpawn(pPlayer->pDudeInfo->seqStartID+15, 3, pPlayer->pSprite->extra, -1);
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
