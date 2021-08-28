@@ -199,8 +199,8 @@ struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
 };
 
 struct QAVSCENE { // this one stores qavs anims that can be played by trigger
-    short index = -1;  // index of sprite which triggered qav scene
-    QAV* qavResrc = NULL;
+    DBloodActor* initiator = nullptr;  // index of sprite which triggered qav scene
+    QAV* qavResrc = nullptr;
     short dummy = -1;
 };
 
@@ -354,7 +354,6 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
 //  -------------------------------------------------------------------------   //
 void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force);
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
 void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer);

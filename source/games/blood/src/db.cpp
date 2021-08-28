@@ -227,7 +227,9 @@ int DeleteSprite(int nSprite)
     assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
     RemoveSpriteSect(nSprite);
     InsertSpriteStat(nSprite, kMaxStatus);
-
+#ifdef NOONE_EXTENSIONS
+    for (auto& ctrl : gPlayerCtrl) if (ctrl.qavScene.initiator == &bloodActors[nSprite]) ctrl.qavScene.initiator = nullptr;
+#endif
     Numsprites--;
 
     return nSprite;
@@ -519,6 +521,11 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     memset(sector, 0, sizeof(*sector) * MAXSECTORS);
     memset(wall, 0, sizeof(*wall) * MAXWALLS);
     memset(sprite, 0, sizeof(*sector) * MAXSPRITES);
+
+#ifdef NOONE_EXTENSIONS
+    for (auto& ctrl : gPlayerCtrl) ctrl.qavScene.initiator = nullptr;
+#endif
+
 
 #ifdef USE_OPENGL
     Polymost::Polymost_prepare_loadboard();

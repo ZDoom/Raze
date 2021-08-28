@@ -2031,7 +2031,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
     
     #ifdef NOONE_EXTENSIONS
-    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.index >= 0 && pPlayer->pXSprite->health > 0) {
+    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.initiator != nullptr && pPlayer->pXSprite->health > 0) {
         playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->nPlayer].qavScene);
         UpdateAimVector(pPlayer);
         return;
