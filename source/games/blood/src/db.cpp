@@ -49,8 +49,6 @@ XSPRITE xsprite[kMaxXSprites];
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
 
-SPRITEHIT gSpriteHit[kMaxXSprites];
-
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
 unsigned short nextXSprite[kMaxXSprites];
@@ -309,7 +307,7 @@ unsigned short dbInsertXSprite(int nSprite)
         I_Error("Out of free XSprites");
     }
     memset(&xsprite[nXSprite], 0, sizeof(XSPRITE));
-    memset(&gSpriteHit[nXSprite], 0, sizeof(SPRITEHIT));
+    bloodActors[nSprite].hit = {};
     xsprite[nXSprite].reference = nSprite;
     sprite[nSprite].extra = nXSprite;
     return nXSprite;

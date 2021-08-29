@@ -2855,8 +2855,8 @@ static DBloodActor* actDropKey(DBloodActor* actor, int nType)
 			act2->addX();
 			auto pSprite2 = &act2->s();
 			act2->x().respawn = 3;
-			act2->hit().florhit = 0;
-			act2->hit().ceilhit = 0;
+			act2->hit.florhit = 0;
+			act2->hit.ceilhit = 0;
 		}
 		return act2;
 	}
@@ -4228,7 +4228,7 @@ static void checkCeilHit(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
-	Collision coll(actor->hit().ceilhit);
+	Collision coll(actor->hit.ceilhit);
 	switch (coll.type)
 	{
 	case kHitWall:
@@ -4336,7 +4336,7 @@ static void checkHit(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
-	Collision coll(actor->hit().hit);
+	Collision coll(actor->hit.hit);
 	switch (coll.type)
 	{
 	case kHitWall:
@@ -4410,7 +4410,7 @@ static void checkFloorHit(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
-	Collision coll(actor->hit().florhit);
+	Collision coll(actor->hit.florhit);
 	switch (coll.type)
 	{
 	case kHitWall:
@@ -4548,7 +4548,7 @@ static void ProcessTouchObjects(DBloodActor* actor)
 	if (gModernMap && actor->IsDudeActor())
 	{
 		DBloodActor* actor2 = nullptr;
-		for (Collision* coll : { &actor->hit().hit, &actor->hit().florhit, &actor->hit().ceilhit})
+		for (Collision* coll : { &actor->hit.hit, &actor->hit.florhit, &actor->hit.ceilhit})
 		{
 			if (coll->type == kHitSprite)
 			{
@@ -4565,7 +4565,7 @@ static void ProcessTouchObjects(DBloodActor* actor)
 		}
 
 		// Touch walls
-		Collision coll = actor->hit().hit;
+		Collision coll = actor->hit.hit;
 		int nHWall = -1;
 		if (coll.type == kHitWall)
 		{
@@ -4645,7 +4645,7 @@ static Collision MoveThing(DBloodActor* actor)
 		pSprite->cstat &= ~257;
 		if ((pSprite->owner >= 0) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		lhit = actor->hit().hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
+		lhit = actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakCstat;
 		assert(nSector >= 0);
@@ -4655,7 +4655,7 @@ static Collision MoveThing(DBloodActor* actor)
 			ChangeActorSect(actor, nSector);
 		}
 
-		Collision &coll = actor->hit().hit;
+		Collision &coll = actor->hit.hit;
 		if (coll.type == kHitWall)
 		{
 			int nHitWall = coll.index;
@@ -4716,7 +4716,7 @@ static Collision MoveThing(DBloodActor* actor)
 	if (bottom >= floorZ)
 	{
 		actTouchFloor(actor, pSprite->sectnum);
-		actor->hit().florhit = floorColl;
+		actor->hit.florhit = floorColl;
 		pSprite->z += floorZ - bottom;
 
 		int v20 = actor->zvel() - velFloor[pSprite->sectnum];
@@ -4763,7 +4763,7 @@ static Collision MoveThing(DBloodActor* actor)
 	}
 	else
 	{
-		actor->hit().florhit = 0;
+		actor->hit.florhit = 0;
 
 		if (pSprite->flags & 2)
 			pSprite->flags |= 4;
@@ -4771,7 +4771,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 	if (top <= ceilZ)
 	{
-		actor->hit().ceilhit = ceilColl;
+		actor->hit.ceilhit = ceilColl;
 		pSprite->z += ClipLow(ceilZ - top, 0);
 		if (actor->zvel() < 0)
 		{
@@ -4796,7 +4796,7 @@ static Collision MoveThing(DBloodActor* actor)
 			}
 		}
 	}
-	else actor->hit().ceilhit = 0;
+	else actor->hit.ceilhit = 0;
 
 	if (bottom >= floorZ)
 	{
@@ -4812,7 +4812,7 @@ static Collision MoveThing(DBloodActor* actor)
 			{
 				actor->xvel() += MulScale(4, pSprite->x - hitSpr->x, 2);
 				actor->yvel() += MulScale(4, pSprite->y - hitSpr->y, 2);
-				lhit = actor->hit().hit;
+				lhit = actor->hit.hit;
 			}
 		}
 		if (nVel > 0)
@@ -4869,7 +4869,7 @@ void MoveDude(DBloodActor* actor)
 		{
 			short bakCstat = pSprite->cstat;
 			pSprite->cstat &= ~257;
-			actor->hit().hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, wd, tz, bz, CLIPMASK0);
+			actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, wd, tz, bz, CLIPMASK0);
 			if (nSector == -1)
 			{
 				nSector = pSprite->sectnum;
@@ -4888,7 +4888,7 @@ void MoveDude(DBloodActor* actor)
 			assert(nSector >= 0);
 			pSprite->cstat = bakCstat;
 		}
-		const Collision& coll = actor->hit().hit;
+		const Collision& coll = actor->hit.hit;
 		switch (coll.type)
 		{
 		case kHitSprite:
@@ -5216,7 +5216,7 @@ void MoveDude(DBloodActor* actor)
 	}
 	if (floorZ <= bottom)
 	{
-		actor->hit().florhit = floorColl;
+		actor->hit.florhit = floorColl;
 		pSprite->z += floorZ - bottom;
 		int v30 = actor->zvel() - velFloor[pSprite->sectnum];
 		if (v30 > 0)
@@ -5276,21 +5276,21 @@ void MoveDude(DBloodActor* actor)
 	}
 	else
 	{
-		actor->hit().florhit = 0;
+		actor->hit.florhit = 0;
 
 		if (pSprite->flags & 2)
 			pSprite->flags |= 4;
 	}
 	if (top <= ceilZ)
 	{
-		actor->hit().ceilhit = ceilColl;
+		actor->hit.ceilhit = ceilColl;
 		pSprite->z += ClipLow(ceilZ - top, 0);
 
 		if (actor->zvel() <= 0 && (pSprite->flags & 4))
 			actor->zvel() = MulScale(-actor->zvel(), 0x2000, 16);
 	}
 	else
-		actor->hit().ceilhit = 0;
+		actor->hit.ceilhit = 0;
 
 	GetActorExtents(actor, &top, &bottom);
 
@@ -5451,13 +5451,13 @@ int MoveMissile(DBloodActor* actor)
 		bottom += vz;
 		if (bottom >= floorZ)
 		{
-			actor->hit().florhit = floorColl;
+			actor->hit.florhit = floorColl;
 			vz += floorZ - bottom;
 			cliptype = 2;
 		}
 		if (top <= ceilZ)
 		{
-			actor->hit().ceilhit = ceilColl;
+			actor->hit.ceilhit = ceilColl;
 			vz += ClipLow(ceilZ - top, 0);
 			cliptype = 1;
 		}
@@ -5528,7 +5528,7 @@ void actExplodeSprite(DBloodActor* actor)
 
 	case kThingArmedTNTStick:
 		nType = kExplosionSmall;
-		if (actor->hit().florhit.type == kHitNone) seqSpawn(4, actor, -1);
+		if (actor->hit.florhit.type == kHitNone) seqSpawn(4, actor, -1);
 		else seqSpawn(3, actor, -1);
 		sfxPlay3DSound(actor, 303, -1, 0);
 		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
@@ -5541,7 +5541,7 @@ void actExplodeSprite(DBloodActor* actor)
 	case kModernThingTNTProx:
 #endif
 		nType = kExplosionStandard;
-		if (actor->hit().florhit.type == kHitNone) seqSpawn(4, actor, -1);
+		if (actor->hit.florhit.type == kHitNone) seqSpawn(4, actor, -1);
 		else
 			seqSpawn(3, actor, -1);
 		sfxPlay3DSound(actor, 304, -1, 0);
@@ -6402,8 +6402,8 @@ DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool se
 	if (setextra && !actor->hasX())
 	{
 		actor->addX();
-		actor->hit().florhit = 0;
-		actor->hit().ceilhit = 0;
+		actor->hit.florhit = 0;
+		actor->hit.ceilhit = 0;
 		if (!VanillaMode()) actor->SetTarget(nullptr);
 	}
 	return actor;
@@ -6440,8 +6440,8 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 	actor->zvel() = source->zvel();
 	pSprite->flags = 0;
 	actor->addX();
-	actor->hit().florhit = 0;
-	actor->hit().ceilhit = 0;
+	actor->hit.florhit = 0;
+	actor->hit.ceilhit = 0;
 	if (!VanillaMode()) actor->SetTarget(nullptr);
 	return actor;
 }
@@ -7346,7 +7346,7 @@ void MakeSplash(DBloodActor* actor)
 	pSprite->flags &= ~2;
 	int nXSprite = pSprite->extra;
 	pSprite->z -= 4 << 8;
-	int nSurface = tileGetSurfType(actor->hit().florhit);
+	int nSurface = tileGetSurfType(actor->hit.florhit);
 	switch (pSprite->type)
 	{
 	case kThingDripWater:
@@ -7426,7 +7426,6 @@ void SerializeActor(FSerializer& arc)
 	if (arc.BeginObject("actor"))
 	{
 		arc("maxdist20", gVectorData[kVectorTchernobogBurn].maxDist)    // The code messes around with this field so better save it.
-			.SparseArray("spritehit", gSpriteHit, kMaxSprites, activeXSprites)
 			.EndObject();
 
 		if (arc.isReading() && gGameOptions.nMonsterSettings != 0)

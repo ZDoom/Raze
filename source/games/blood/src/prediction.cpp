@@ -69,7 +69,7 @@ void viewInitializePrediction(void)
 	predict.at48 = gMe->posture;
 	predict.spin = gMe->angle.spin;
 	predict.at6e = !!(gMe->input.actions & SB_CENTERVIEW);
-	memcpy(&predict.at75,&gSpriteHit[gMe->pSprite->extra],sizeof(SPRITEHIT));
+	predict.at75 = gMe->actor()->hit;
 	predict.bobPhase = gMe->bobPhase;
 	predict.Kills = gMe->bobAmp;
 	predict.bobHeight = gMe->bobHeight;

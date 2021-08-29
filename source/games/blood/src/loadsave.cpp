@@ -484,12 +484,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra)
 				("explosionflag", w.explosionhackflag, def->explosionhackflag)
-				("prevmarker", w.prevmarker, def->prevmarker);
+				("spritehit", w.hit, def->hit);
 
 			if (gModernMap)
 			{
+				arc("spritemass", w.spriteMass, def->spriteMass); // no treatment for old savegames. If this gets lost it is not critical
 #ifndef OLD_SAVEGAME
-				arc("spritemass", w.spriteMass, def->spriteMass);
+					("prevmarker", w.prevmarker, def->prevmarker);
 
 				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
 				if (w.s().type == kDudeModernCustom || w.s().time == kDudeModernCustomBurning)

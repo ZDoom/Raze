@@ -417,7 +417,7 @@ inline bool aiInPatrolState(int nAiStateType) {
 //  -------------------------------------------------------------------------   //
 bool readyForCrit(DBloodActor* pHunter, DBloodActor* pVictim);
 int sectorInMotion(int nSector);
-void clampSprite(spritetype* pSprite, int which = 0x03);
+void clampSprite(DBloodActor* actor, int which = 3);
 #endif
 
 inline bool valueIsBetween(int val, int min, int max)

@@ -1420,7 +1420,7 @@ void nnExtProcessSuperSprites()
                 {
                     pPlayer = &gPlayer[a];
                     auto pact = pPlayer->actor();
-                    if (pact->hit().hit.type == kHitSprite && pact->hit().hit.index == nDebris) 
+                    if (pact->hit.hit.type == kHitSprite && pact->hit.hit.index == nDebris) 
                     {
                         int nSpeed = approxDist(pact->xvel(), pact->yvel());
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
@@ -1428,7 +1428,7 @@ void nnExtProcessSuperSprites()
                             debrisactor->xvel() += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
                             debrisactor->yvel() += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
 
-                        debrisactor->hit().hit = pPlayer->pSprite->index | 0xc000;
+                        debrisactor->hit.hit = pPlayer->pSprite->index | 0xc000;
                     }
                 }
             }
@@ -1771,7 +1771,7 @@ void debrisMove(int listIndex)
         short oldcstat = pSprite->cstat;
         pSprite->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        moveHit = actor->hit().hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12,
+        moveHit = actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12,
             actor->yvel() >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
 
         pSprite->cstat = oldcstat;
@@ -1788,9 +1788,9 @@ void debrisMove(int listIndex)
                 nSector = nSector2;
         }
 
-        if (actor->hit().hit.type == kHitWall)
+        if (actor->hit.hit.type == kHitWall)
         {
-            moveHit = actor->hit().hit;
+            moveHit = actor->hit.hit;
             i = moveHit.index;
             actWallBounceVector(&actor->xvel(), &actor->yvel(), i, tmpFraction);
         }
@@ -1880,7 +1880,7 @@ void debrisMove(int listIndex)
 
     if (floorZ <= bottom) {
 
-        actor->hit().florhit = floorColl;
+        actor->hit.florhit = floorColl;
         int v30 = actor->zvel() - velFloor[pSprite->sectnum];
 
         if (v30 > 0) 
@@ -1922,14 +1922,14 @@ void debrisMove(int listIndex)
     }
     else 
     {
-        actor->hit().florhit.setNone();
+        actor->hit.florhit.setNone();
         if (pXSprite->physAttr & kPhysGravity)
             pXSprite->physAttr |= kPhysFalling;
     }
 
     if (top <= ceilZ) 
     {
-        actor->hit().ceilhit = moveHit = ceilColl;
+        actor->hit.ceilhit = moveHit = ceilColl;
         pSprite->z += ClipLow(ceilZ - top, 0);
         if (actor->zvel() <= 0 && (pXSprite->physAttr & kPhysFalling))
             actor->zvel() = MulScale(-actor->zvel(), 0x2000, 16);
@@ -1937,7 +1937,7 @@ void debrisMove(int listIndex)
     }
     else 
     {
-        actor->hit().ceilhit.setNone();
+        actor->hit.ceilhit.setNone();
         GetActorExtents(actor, &top, &bottom);
     }
 
@@ -3059,7 +3059,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     GetActorExtents(sourceactor, &zTop, &zBot);
     pSprite->z = zBot;
 
-    clampSprite(pSprite, 0x01);
+    clampSprite(actor, 0x01);
 
     if (pSource->flags & kModernTypeFlag1) // force telefrag
         TeleFrag(pSprite->index, pSource->sectnum);
@@ -3394,7 +3394,7 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, int objIndex, DBloo
             BloodSectIterator it(objIndex);
             while (auto iactor = it.Next())
             {
-                auto& hit = iactor->hit();
+                auto& hit = iactor->hit;
 
                 if (!iactor->IsDudeActor() || !iactor->hasX())
                     continue;
@@ -4646,16 +4646,16 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax) var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
                 return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
-                if (objActor->hit().ceilhit.type != kHitSector) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit().ceilhit.index, nullptr);
+                if (objActor->hit.ceilhit.type != kHitSector) return false;
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit.ceilhit.index, nullptr);
                 return true;
             case 56: // touching floor of sector?
-                if (objActor->hit().florhit.type != kHitSector) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit().florhit.index, nullptr);
+                if (objActor->hit.florhit.type != kHitSector) return false;
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit.florhit.index, nullptr);
                 return true;
             case 57: // touching walls of sector?
-                if (objActor->hit().hit.type != kHitWall) return false;
-                else if (PUSH) condPush(aCond, OBJ_WALL, objActor->hit().hit.index, nullptr);
+                if (objActor->hit.hit.type != kHitWall) return false;
+                else if (PUSH) condPush(aCond, OBJ_WALL, objActor->hit.hit.index, nullptr);
                 return true;
             case 58: // touching another sprite?
             {
@@ -4664,15 +4664,15 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 {
                     case 0:
                     case 1:
-                    if (objActor->hit().florhit.type == kHitSprite) actorvar = objActor->hit().florhit.actor;
+                    if (objActor->hit.florhit.type == kHitSprite) actorvar = objActor->hit.florhit.actor;
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 2:
-                    if (objActor->hit().hit.type == kHitSprite) actorvar = objActor->hit().hit.actor;
+                    if (objActor->hit.hit.type == kHitSprite) actorvar = objActor->hit.hit.actor;
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 3:
-                    if (objActor->hit().ceilhit.type == kHitSprite) actorvar = objActor->hit().ceilhit.actor;
+                    if (objActor->hit.ceilhit.type == kHitSprite) actorvar = objActor->hit.ceilhit.actor;
                         break;
                 }
                 if (actorvar == nullptr) 
@@ -4684,7 +4684,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                         auto iactor = &bloodActors[idx];
 
                         if (iactor->s().flags & kHitagRespawn) continue;
-                        auto& hit = iactor->hit();
+                        auto& hit = iactor->hit;
                         switch (arg3) 
                         {
                             case 0:
@@ -6408,8 +6408,7 @@ void useRandomItemGen(DBloodActor* actor)
 
     if (dropactor != nullptr) 
     {
-        auto pDrop = &dropactor->s();
-        clampSprite(pDrop);
+        clampSprite(dropactor);
 
         // check if generator affected by physics
         if (debrisGetIndex(actor) != -1) 
@@ -8165,9 +8164,9 @@ void aiPatrolMove(DBloodActor* actor)
         return;
     }
    
-    if (actor->hit().hit.type == kHitSprite)
+    if (actor->hit.hit.type == kHitSprite)
     {
-        auto hitactor = actor->hit().hit.actor;
+        auto hitactor = actor->hit.hit.actor;
         hitactor->x().dodgeDir =  -1;
         pXSprite->dodgeDir  =   1;
         aiMoveDodge(hitactor);
@@ -8311,7 +8310,7 @@ bool spritesTouching(DBloodActor *actor1, DBloodActor* actor2)
     if (!actor1->hasX() || !actor2->hasX())
         return false;
 
-    auto hit = &actor1->hit();
+    auto hit = &actor1->hit;
     DBloodActor* hitactor = nullptr;
     if (hit->hit.type == kHitSprite) hitactor = hit->hit.actor;
     else if (hit->florhit.type == kHitSprite) hitactor = hit->florhit.actor;
@@ -8961,7 +8960,12 @@ void aiPatrolThink(DBloodActor* actor)
     return;
 
 }
-// ------------------------------------------------
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int listTx(DBloodActor* actor, int tx) 
 {
@@ -9133,13 +9137,24 @@ void seqSpawnerOffSameTx(DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // this function can be called via sending numbered command to TX kChannelModernEndLevelCustom
 // it allows to set custom next level instead of taking it from INI file.
-void levelEndLevelCustom(int nLevel) {
+//
+//---------------------------------------------------------------------------
 
+void levelEndLevelCustom(int nLevel) 
+{
     gGameOptions.uGameFlags |= GF_AdvanceLevel;
     gNextLevel = FindMapByIndex(currentLevel->cluster, nLevel + 1);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 {
@@ -9152,7 +9167,8 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
     for (int i = 0; i < 8; i++)
     {
         auto burstactor = actSpawnSprite(actor, 5);
-        auto pBurst = &burstactor->s();
+        if (!burstactor) break;
+        spritetype* pBurst = &burstactor->s();
 
         pBurst->type = pSprite->type;
         pBurst->shade = pSprite->shade;
@@ -9160,9 +9176,10 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 
         
         pBurst->cstat = pSprite->cstat;
-        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
+        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) 
+        {
             pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
-            evPostActor(&bloodActors[pBurst->index], 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
+            evPostActor(burstactor, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
         }
 
         pBurst->pal = pSprite->pal;
@@ -9173,7 +9190,7 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
         pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].angleOfs) & 2047);
         pBurst->owner = pSprite->owner;
 
-        actBuildMissile(&bloodActors[pBurst->index], &bloodActors[pSprite->index]);
+        actBuildMissile(burstactor, actor);
 
         int nAngle2 = (i << 11) / 8;
         int dx = 0;
@@ -9188,11 +9205,17 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
         burstactor->xvel() += dx;
         burstactor->yvel() += dy;
         burstactor->zvel() += dz;
-        evPostActor(&bloodActors[pBurst->index], 960, kCallbackRemove);
+        evPostActor(burstactor, 960, kCallbackRemove);
     }
     evPostActor(actor, 0, kCallbackRemove);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void callbackMakeMissileBlocking(DBloodActor* actor, int) // 23
 {
@@ -9206,11 +9229,12 @@ void callbackGenDudeUpdate(DBloodActor* actor, int) // 24
         genDudeUpdate(actor);
 }
 
-void clampSprite(spritetype* pSprite, int which) {
-
+void clampSprite(DBloodActor* actor, int which) 
+{
+    auto pSprite = &actor->s();
     int zTop, zBot;
-    if (pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors) {
-
+    if (pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors) 
+    {
         GetSpriteExtents(pSprite, &zTop, &zBot);
         if (which & 0x01)
             pSprite->z += ClipHigh(getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y) - zBot, 0);

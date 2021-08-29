@@ -1338,7 +1338,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 {
     auto* const pSprite = pPlayer->pSprite;
     auto* const pXSprite = pPlayer->pXSprite;
-    int const florhit = gSpriteHit[pSprite->extra].florhit.type;
+    int const florhit = pPlayer->actor()->hit.florhit.type;
     char const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
     pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
 }
@@ -2150,7 +2150,7 @@ void playerLandingSound(PLAYER *pPlayer)
         603
     };
     spritetype *pSprite = pPlayer->pSprite;
-    SPRITEHIT *pHit = &gSpriteHit[pSprite->extra];
+    SPRITEHIT* pHit = &pPlayer->actor()->hit;
     if (pHit->florhit.type != kHitNone)
     {
         if (!gGameOptions.bFriendlyFire && pHit->florhit.type == kHitSprite && IsTargetTeammate(pPlayer, &pHit->florhit.actor->s()))

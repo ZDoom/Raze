@@ -936,7 +936,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                             else pXSprite->dodgeDir = -1;
                                         }
 
-                                        if (actor->hit().hit.type == kHitWall || actor->hit().hit.type == kHitSprite) 
+                                        if (actor->hit.hit.type == kHitWall || actor->hit.hit.type == kHitSprite) 
                                         {
                                             if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
                                             else aiGenDudeNewState(actor, &genDudeChaseL);

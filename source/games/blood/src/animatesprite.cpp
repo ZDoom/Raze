@@ -602,7 +602,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             {
                 if (nXSprite > 0)
                 {
-                    if (gSpriteHit[nXSprite].florhit.type == kHitNone)
+                    if (owneractor->hit.florhit.type == kHitNone)
                         nAnim = 1;
                 }
                 else
@@ -927,7 +927,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         case kStatThing: {
             viewApplyDefaultPal(pTSprite, pSector);
 
-            if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || gSpriteHit[nXSprite].florhit.type == kHitNone)
+            if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
             {
                 if ((pTSprite->flags & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
