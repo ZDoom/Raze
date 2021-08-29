@@ -7468,14 +7468,14 @@ bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int 
 //
 //---------------------------------------------------------------------------
 
-bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
-
-    auto actor = &bloodActors[pSprite->index];
+bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange) 
+{
+    auto pSprite = &actor->s();
     int x = pSprite->x, y = pSprite->y, z = pSprite->z, nSector = pSprite->sectnum;
     HitScan(pSprite, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
     int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
-    if (nTarget >= 0 && nDist - (pSprite->clipdist << 2) < nRange)
-        return (nTarget == gHitInfo.hitactor->s().index);
+    if (target != nullptr && nDist - (pSprite->clipdist << 2) < nRange)
+        return (target == gHitInfo.hitactor);
 
     x += MulScale(nRange, Cos(nAngle), 30);
     y += MulScale(nRange, Sin(nAngle), 30);
@@ -7499,40 +7499,42 @@ bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
 //
 //---------------------------------------------------------------------------
 
-void nnExtAiSetDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3) {
-    
+void nnExtAiSetDirection(DBloodActor* actor, int a3) 
+{
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     
     int nSprite = pSprite->index;
     int vc = ((a3 + 1024 - pSprite->ang) & 2047) - 1024;
-    int t1 = DMulScale(xvel[nSprite], Cos(pSprite->ang), yvel[nSprite], Sin(pSprite->ang), 30);
+    int t1 = DMulScale(actor->xvel(), Cos(pSprite->ang), actor->yvel(), Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2;
     int v8 = 341;
     
     if (vc < 0)
         v8 = -341;
 
-    if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + vc, vsi))
+    if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + vc, vsi))
         pXSprite->goalAng = pSprite->ang + vc;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + vc / 2, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang + vc / 2;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang - vc / 2, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang - vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang - vc / 2;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + v8, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + v8, vsi))
         pXSprite->goalAng = pSprite->ang + v8;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang, vsi))
         pXSprite->goalAng = pSprite->ang;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang - v8, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang - v8, vsi))
         pXSprite->goalAng = pSprite->ang - v8;
     else
         pXSprite->goalAng = pSprite->ang + 341;
 
-    if (pXSprite->dodgeDir) {
-        
-        if (!nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + pXSprite->dodgeDir * 512, 512))
+    if (pXSprite->dodgeDir) 
+        {
+        if (!nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512))
         {
             pXSprite->dodgeDir = -pXSprite->dodgeDir;
-            if (!nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + pXSprite->dodgeDir * 512, 512))
+            if (!nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512))
                 pXSprite->dodgeDir = 0;
         }
     }
@@ -8697,7 +8699,7 @@ void aiPatrolThink(DBloodActor* actor) {
 
     }
     
-    nnExtAiSetDirection(pSprite, pXSprite, getangle(pMarker->x - pSprite->x, pMarker->y - pSprite->y));
+    nnExtAiSetDirection(actor, getangle(pMarker->x - pSprite->x, pMarker->y - pSprite->y));
 
     if (aiPatrolMoving(pXSprite->aiState) && !reached) return;
     else if (uwater) aiPatrolState(pSprite, kAiStatePatrolMoveW);
