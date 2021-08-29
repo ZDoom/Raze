@@ -508,45 +508,45 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 //
 //---------------------------------------------------------------------------
 
-void evPost_(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
+void evPost_(DBloodActor* actor, int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 {
 	assert(command != kCmdCallback);
-	if (command == kCmdState) command = evGetSourceState(nType, nIndex, &bloodActors[nIndex]) ? kCmdOn : kCmdOff;
-	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex, &bloodActors[nIndex]) ? kCmdOff : kCmdOn;
-	EVENT evn = { &bloodActors[nIndex], (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
+	if (command == kCmdState) command = evGetSourceState(nType, nIndex, actor) ? kCmdOn : kCmdOff;
+	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex, actor) ? kCmdOff : kCmdOn;
+	EVENT evn = {actor, (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
-void evPost_(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
+void evPost_(DBloodActor* actor, int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 {
-	EVENT evn = {&bloodActors[nIndex], (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
+	EVENT evn = {actor, (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(actor->s().index, SS_SPRITE, nDelta, command);
+	evPost_(actor, 0, SS_SPRITE, nDelta, command);
 }
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost_(actor->s().index, SS_SPRITE, nDelta, callback);
+	evPost_(actor, 0, SS_SPRITE, nDelta, callback);
 }
 
 void evPostSector(int index, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(index, SS_SECTOR, nDelta, command);
+	evPost_(nullptr, index, SS_SECTOR, nDelta, command);
 }
 
 void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost_(index, SS_SECTOR, nDelta, callback);
+	evPost_(nullptr, index, SS_SECTOR, nDelta, callback);
 }
 
 void evPostWall(int index, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(index, SS_WALL, nDelta, command);
+	evPost_(nullptr, index, SS_WALL, nDelta, command);
 }
 
 
