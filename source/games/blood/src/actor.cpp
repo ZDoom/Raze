@@ -4259,7 +4259,7 @@ static void checkCeilHit(DBloodActor* actor)
 
 #ifdef NOONE_EXTENSIONS
 					// add size shroom abilities
-					if ((actor->IsPlayerActor() && isShrinked(pSprite)) || (actor2->IsPlayerActor() && isGrown(pSprite2))) {
+					if ((actor->IsPlayerActor() && isShrinked(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
 
 						int mass1 = getDudeInfo(pSprite2->type)->mass;
 						int mass2 = getDudeInfo(pSprite->type)->mass;
@@ -4349,7 +4349,7 @@ static void checkHit(DBloodActor* actor)
 
 #ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
-			if ((actor2->IsPlayerActor() && isShrinked(pSprite2)) || (actor->IsPlayerActor() && isGrown(pSprite)))
+			if ((actor2->IsPlayerActor() && isShrinked(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
 			{
 				if (actor->xvel() != 0 && actor2->IsDudeActor())
 				{
@@ -4427,7 +4427,7 @@ static void checkFloorHit(DBloodActor* actor)
 
 #ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
-			if ((actor2->IsPlayerActor() && isShrinked(pSprite2)) || (actor->IsPlayerActor() && isGrown(pSprite)))
+			if ((actor2->IsPlayerActor() && isShrinked(actor2)) || (actor->IsPlayerActor() && isGrown(actor)))
 			{
 
 				int mass1 = getDudeInfo(pSprite->type)->mass;
@@ -4519,7 +4519,7 @@ static void checkFloorHit(DBloodActor* actor)
 			case kDudePlayer7:
 			case kDudePlayer8:
 #ifdef NOONE_EXTENSIONS
-				if (pPlayer && !isShrinked(pSprite))
+				if (pPlayer && !isShrinked(actor))
 #else
 				if (pPlayer)
 #endif
@@ -6158,7 +6158,7 @@ static void actCheckDudes()
 		if (actor->hasX())
 		{
 			XSPRITE* pXSprite = &actor->x();
-			const bool fixBurnGlitch = !cl_bloodvanillaenemies && IsBurningDude(pSprite) && !VanillaMode(); // if enemies are burning, always apply burning damage per tick
+			const bool fixBurnGlitch = !cl_bloodvanillaenemies && IsBurningDude(actor) && !VanillaMode(); // if enemies are burning, always apply burning damage per tick
 			if ((pXSprite->burnTime > 0) || fixBurnGlitch)
 			{
 				switch (pSprite->type)

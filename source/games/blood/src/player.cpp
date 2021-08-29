@@ -254,12 +254,12 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
             break;
         case kItemShroomShrink:
             if (!gModernMap) break;
-            else if (isGrown(pPlayer->pSprite)) playerDeactivateShrooms(pPlayer);
+            else if (isGrown(pPlayer->actor())) playerDeactivateShrooms(pPlayer);
             else playerSizeShrink(pPlayer, 2);
             break;
         case kItemShroomGrow:
             if (!gModernMap) break;
-            else if (isShrinked(pPlayer->pSprite)) playerDeactivateShrooms(pPlayer);
+            else if (isShrinked(pPlayer->actor())) playerDeactivateShrooms(pPlayer);
             else {
                 playerSizeGrow(pPlayer, 2);
                 if (powerupCheck(&gPlayer[pPlayer->pSprite->type - kDudePlayer1], kPwUpShadowCloak) > 0) {
@@ -877,7 +877,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
     switch (pItem->type) {
         case kItemShadowCloak:
             #ifdef NOONE_EXTENSIONS
-            if (isGrown(pPlayer->pSprite) || !powerupActivate(pPlayer, nType)) return false;
+            if (isGrown(pPlayer->actor()) || !powerupActivate(pPlayer, nType)) return false;
             #else
             if (!powerupActivate(pPlayer, nType)) return false;
             #endif
@@ -889,10 +889,10 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             if (gModernMap) {
                 switch (pItem->type) {
                     case kItemShroomShrink:
-                        if (isShrinked(pSprite)) return false;
+                        if (isShrinked(pPlayer->actor())) return false;
                         break;
                     case kItemShroomGrow:
-                        if (isGrown(pSprite)) return false;
+                        if (isGrown(pPlayer->actor())) return false;
                         break;
                 }
 
