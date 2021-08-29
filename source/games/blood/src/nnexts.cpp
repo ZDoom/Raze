@@ -545,10 +545,10 @@ void nnExtInitModernStuff(bool bSaveLoad)
         }
     }
     
-    for (int i = 0; i < kMaxXSprites; i++) 
+    BloodLinearSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        auto actor = &bloodActors[i];
-        if (actor->s().statnum == kStatFree || !actor->hasX()) continue;
+        if (!actor->hasX()) continue;
         XSPRITE* pXSprite = &actor->x();
         spritetype* pSprite = &actor->s();
         
@@ -842,8 +842,8 @@ void nnExtInitModernStuff(bool bSaveLoad)
     }
 
     // collect objects for tracking conditions
-    BloodStatIterator it(kStatModernCondition);
-    while (auto iactor = it.Next())
+    BloodStatIterator it2(kStatModernCondition);
+    while (auto iactor = it2.Next())
     {
         spritetype* pSprite = &iactor->s(); 
         XSPRITE* pXSprite = &iactor->x();
@@ -855,14 +855,14 @@ void nnExtInitModernStuff(bool bSaveLoad)
         int count = 0;
         TRCONDITION* pCond = &gCondition[gTrackingCondsCount];
 
-        for (int i = 0; i < kMaxXSprites; i++) 
+        BloodLinearSpriteIterator it;
+        while (auto iactor2 = it.Next())
         {
-            auto actor = &bloodActors[i];
-            if (actor->s().statnum == kStatFree || !actor->hasX() || actor->x().txID != pXSprite->rxID || actor == iactor)
+            if (!iactor2->hasX() || iactor2->x().txID != pXSprite->rxID || iactor2 == iactor)
                 continue;
 
-            XSPRITE* pXSpr = &actor->x();
-            spritetype* pSpr = &actor->s();
+            XSPRITE* pXSpr = &iactor2->x();
+            spritetype* pSpr = &iactor2->s();
             int index = pXSpr->reference; int cmd = pXSpr->command;
             switch (pSpr->type) {
                 case kSwitchToggle: // exceptions
@@ -884,8 +884,8 @@ void nnExtInitModernStuff(bool bSaveLoad)
 
             pCond->obj[count].type = OBJ_SPRITE;
             pCond->obj[count].index_ = 0;
-            pCond->obj[count].actor = &bloodActors[index];
-            pCond->obj[count++].cmd = cmd;
+            pCond->obj[count].actor = iactor2;
+            pCond->obj[count++].cmd = (uint8_t)pXSpr->command;
         }
 
         for (int i = 0; i < kMaxXSectors; i++) 
@@ -4678,11 +4678,9 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 if (actorvar == nullptr) 
                 { 
                     // check if something is touching this sprite
-                    for (int i = kMaxXSprites - 1, idx = i; i > 0; idx = xsprite[--i].reference) 
+                    BloodSpriteIterator it;
+                    while (auto iactor = it.Next())
                     {
-                        if (idx < 0) continue;
-                        auto iactor = &bloodActors[idx];
-
                         if (iactor->s().flags & kHitagRespawn) continue;
                         auto& hit = iactor->hit;
                         switch (arg3) 
@@ -6152,7 +6150,7 @@ void seqTxSendCmdAll(DBloodActor* source, DBloodActor* actor, COMMAND_ID cmd, bo
     {
         for (int i = 0; i <= 3; i++) 
         {
-            pXSource->txID = GetDataVal(&bloodActors[pXSource->reference], i);
+            pXSource->txID = GetDataVal(source, i);
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
             else modernTypeSendCommand(actor, pXSource->txID, cmd);
@@ -9124,10 +9122,10 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
 void seqSpawnerOffSameTx(DBloodActor* actor) 
 {
     auto pXSource = &actor->x();
-    for (int i = 0; i < kMaxXSprites; i++) 
+    BloodSpriteIterator it;
+    while (auto iactor = it.Next())
     {
-        auto iactor = &bloodActors[i];
-        if (iactor->s().statnum == kStatFree || iactor->s().type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
+        if (iactor->s().type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
         XSPRITE* pXSprite = &iactor->x();
         if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) 
         {

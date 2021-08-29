@@ -269,6 +269,47 @@ public:
 	}
 };
 
+// An iterator to iterate over all sprites.
+class BloodSpriteIterator
+{
+	BloodStatIterator it;
+	int stat = kStatDecoration;
+
+public:
+	BloodSpriteIterator() : it(kStatDecoration) {}
+
+	DBloodActor* Next()
+	{
+		while (stat < kStatFree)
+		{
+			auto ac = it.Next();
+			if (ac) return ac;
+			stat++;
+			if (stat < kStatFree) it.Reset(stat);
+		}
+		return nullptr;
+	}
+};
+
+// For iterating linearly over map spawned sprites.
+class BloodLinearSpriteIterator
+{
+	int index = 0;
+public:
+
+	DBloodActor* Next()
+	{
+		while (index < MAXSPRITES)
+		{
+			auto p = &bloodActors[index++];
+			if (p->s().statnum != kStatFree) return p;
+		}
+		return nullptr;
+	}
+};
+
+
+
 inline int DeleteSprite(DBloodActor* nSprite)
 {
 	if (nSprite) return DeleteSprite(nSprite->s().index);
