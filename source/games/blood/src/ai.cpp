@@ -1547,7 +1547,7 @@ void aiThinkTarget(DBloodActor* actor)
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
 			PLAYER* pPlayer = &gPlayer[p];
-            if (pSprite->owner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
@@ -1595,7 +1595,7 @@ void aiLookForTarget(DBloodActor* actor)
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
 			PLAYER* pPlayer = &gPlayer[p];
-            if (pSprite->owner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
