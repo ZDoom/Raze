@@ -97,13 +97,15 @@ public:
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
 
-	int cumulDamage;
+	int cumulDamage; // this one's transient and does not need to be saved.
+	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
 
 	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
 	DBloodActor& operator=(const DBloodActor& other) = default;
 
 	void Clear()
 	{
+		explosionhackflag = false;
 		dudeSlope = 0;
 		dudeExtra = {};
 		spriteMass = {};

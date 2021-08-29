@@ -6995,7 +6995,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
             if (aiFightDudeCanSeeTarget(actor, pDudeInfo, pMateTargetActor)) 
             {
-                if (pXMateTarget->target_i < 0) 
+                if (pMateTargetActor->GetTarget() == nullptr) 
                 {
                     aiSetTarget(pMateTargetActor, actor);
                     if (pMateTargetActor->IsDudeActor() && !isActive(pMateTargetActor))

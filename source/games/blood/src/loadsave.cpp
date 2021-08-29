@@ -482,7 +482,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		if (w.hasX())
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
-				("dudeextra", w.dudeExtra, def->dudeExtra);
+				("dudeextra", w.dudeExtra, def->dudeExtra)
+				("explosionflag", w.explosionhackflag, def->explosionhackflag);
 
 			if (gModernMap)
 			{

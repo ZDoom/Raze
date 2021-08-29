@@ -5633,6 +5633,7 @@ void actExplodeSprite(DBloodActor* actor)
 	pSprite->type = nType;
 	const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
 	actor->SetTarget(nullptr);
+	actor->explosionhackflag = true;
 	pXSprite->data1 = pExplodeInfo->ticks;
 	pXSprite->data2 = pExplodeInfo->quakeEffect;
 	pXSprite->data3 = pExplodeInfo->flashEffect;
@@ -5976,9 +5977,9 @@ static void actCheckExplosion()
 			{
 				if (pXSprite->data1 && CheckProximity(pDude, x, y, z, nSector, radius))
 				{
-					if (pExplodeInfo->dmg && pXSprite->target_i == 0)
+					if (pExplodeInfo->dmg && actor->explosionhackflag)
 					{
-						pXSprite->target_i = 1;
+						actor->explosionhackflag = false;
 						actDamageSprite(Owner, dudeactor, kDamageFall, (pExplodeInfo->dmg + Random(pExplodeInfo->dmgRng)) << 4);
 					}
 					if (pExplodeInfo->dmgType) ConcussSprite(actor, dudeactor, x, y, z, pExplodeInfo->dmgType);
