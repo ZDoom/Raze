@@ -1978,21 +1978,22 @@ void aiInitSprite(DBloodActor* actor)
 
 			// make dude follow the markers
 			bool uwater = spriteIsUnderwater(actor);
-            if (pXSprite->target_i <= 0 || sprite[pXSprite->target_i].type != kMarkerPath) 
+            if (actor->GetTarget() == nullptr || actor->GetTarget()->s().type != kMarkerPath) 
             {
                 actor->SetTarget(nullptr);
                 aiPatrolSetMarker(pSprite, pXSprite);
 			}
 
-			if (stateTimer > 0) {
-				if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
-				else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
-				else aiPatrolState(pSprite, kAiStatePatrolWaitL);
+            if (stateTimer > 0) 
+            {
+                if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
+                else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+                else aiPatrolState(actor, kAiStatePatrolWaitL);
 				pXSprite->stateTimer = stateTimer; // restore state timer
 			}
-			else if (uwater) aiPatrolState(pSprite, kAiStatePatrolMoveW);
-			else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolMoveC);
-			else aiPatrolState(pSprite, kAiStatePatrolMoveL);
+            else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
+            else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolMoveC);
+            else aiPatrolState(actor, kAiStatePatrolMoveL);
 		}
 	}
 #endif

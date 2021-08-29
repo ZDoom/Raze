@@ -5089,7 +5089,7 @@ void MoveDude(DBloodActor* actor)
 
 #ifdef NOONE_EXTENSIONS
 				if (actor->IsDudeActor() && pXSprite->health > 0 && aiInPatrolState(nAiStateType))
-					aiPatrolState(pSprite, kAiStatePatrolMoveL); // continue patrol when going from water
+					aiPatrolState(actor, kAiStatePatrolMoveL); // continue patrol when going from water
 #endif
 			}
 			break;
@@ -5192,7 +5192,7 @@ void MoveDude(DBloodActor* actor)
 
 					// continue patrol when fall into water
 					if (actor->IsDudeActor() && pXSprite->health > 0 && aiInPatrolState(nAiStateType))
-						aiPatrolState(pSprite, kAiStatePatrolMoveW);
+						aiPatrolState(actor, kAiStatePatrolMoveW);
 
 				}
 #endif
@@ -5632,7 +5632,7 @@ void actExplodeSprite(DBloodActor* actor)
 	pSprite->flags &= ~3;
 	pSprite->type = nType;
 	const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
-	pXSprite->target_i = 0;
+	actor->SetTarget(nullptr);
 	pXSprite->data1 = pExplodeInfo->ticks;
 	pXSprite->data2 = pExplodeInfo->quakeEffect;
 	pXSprite->data3 = pExplodeInfo->flashEffect;
