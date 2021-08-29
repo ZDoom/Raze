@@ -361,7 +361,7 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
         else if (actor->IsDudeActor()) 
         {
             if (actor->IsPlayerActor()) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType]);
-            else if (pSprite->type == kDudeModernCustom) return (actor->genDudeExtra().dmgControl[dmgType] <= minScale);
+            else if (pSprite->type == kDudeModernCustom) return (actor->genDudeExtra.dmgControl[dmgType] <= minScale);
             else return (getDudeInfo(pSprite->type)->damageVal[dmgType] <= minScale);
         }
     }
@@ -1480,7 +1480,7 @@ int getSpriteMassBySize(DBloodActor* actor)
         case kDudeModernCustom:
         case kDudeModernCustomBurning:
             seqId = actor->x().data2;
-            clipDist = actor->genDudeExtra().initVals[2];
+            clipDist = actor->genDudeExtra.initVals[2];
             break;
         default:
             seqId = getDudeInfo(pSprite->type)->seqStartID;
@@ -2554,10 +2554,10 @@ void useObjResizer(DBloodActor* sourceactor, int objType, int objIndex, DBloodAc
         {
             // request properties update for custom dude
             
-            targetactor->genDudeExtra().updReq[kGenDudePropertySpriteSize] = true;
-            targetactor->genDudeExtra().updReq[kGenDudePropertyAttack] = true;
-            targetactor->genDudeExtra().updReq[kGenDudePropertyMass] = true;
-            targetactor->genDudeExtra().updReq[kGenDudePropertyDmgScale] = true;
+            targetactor->genDudeExtra.updReq[kGenDudePropertySpriteSize] = true;
+            targetactor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
+            targetactor->genDudeExtra.updReq[kGenDudePropertyMass] = true;
+            targetactor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
             evPostActor(targetactor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
 
         }
@@ -4380,7 +4380,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                 switch (cond) {
                     case 20: // life leech is thrown?
                         {
-                            auto act = actor->genDudeExtra().pLifeLeech;
+                        auto act = actor->genDudeExtra.pLifeLeech;
                             if (!act) return false;
                         else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, act);
                         return true;
@@ -4388,7 +4388,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 
                     case 21: // life leech is destroyed?
                         {
-                            auto act = actor->genDudeExtra().pLifeLeech;
+                        auto act = actor->genDudeExtra.pLifeLeech;
                             if (!act) return false;
                             if (pSpr->owner == kMaxSprites - 1) return true;
                         else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, act);
@@ -4396,24 +4396,24 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                         }
 
                     case 22: // are required amount of dudes is summoned?
-                        return condCmp(actor->genDudeExtra().slaveCount, arg1, arg2, cmpOp);
+                        return condCmp(actor->genDudeExtra.slaveCount, arg1, arg2, cmpOp);
 
                     case 23: // check if dude can...
                         switch (arg3) 
                         {
-                            case 1: return actor->genDudeExtra().canAttack;
-                            case 2: return actor->genDudeExtra().canBurn;
-                            case 3: return actor->genDudeExtra().canDuck;
-                            case 4: return actor->genDudeExtra().canElectrocute;
-                            case 5: return actor->genDudeExtra().canFly;
-                            case 6: return actor->genDudeExtra().canRecoil;
-                            case 7: return actor->genDudeExtra().canSwim;
-                            case 8: return actor->genDudeExtra().canWalk;
+                            case 1: return actor->genDudeExtra.canAttack;
+                            case 2: return actor->genDudeExtra.canBurn;
+                            case 3: return actor->genDudeExtra.canDuck;
+                            case 4: return actor->genDudeExtra.canElectrocute;
+                            case 5: return actor->genDudeExtra.canFly;
+                            case 6: return actor->genDudeExtra.canRecoil;
+                            case 7: return actor->genDudeExtra.canSwim;
+                            case 8: return actor->genDudeExtra.canWalk;
                             default: condError(aCond, "Invalid argument %d", arg3); break;
                         }
                         break;
                     case 24: // compare weapon dispersion
-                        return condCmp(actor->genDudeExtra().baseDispersion, arg1, arg2, cmpOp);
+                        return condCmp(actor->genDudeExtra.baseDispersion, arg1, arg2, cmpOp);
                 }
                 break;
             default:
@@ -7320,8 +7320,8 @@ bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int 
                             break;
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            objActor->genDudeExtra().updReq[kGenDudePropertyWeapon] = true;
-                            objActor->genDudeExtra().updReq[kGenDudePropertyDmgScale] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyWeapon] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
                             evPostActor(objActor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
                             break;
                     }
@@ -7332,11 +7332,11 @@ bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int 
                     {
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            objActor->genDudeExtra().updReq[kGenDudePropertySpriteSize] = true;
-                            objActor->genDudeExtra().updReq[kGenDudePropertyMass] = true;
-                            objActor->genDudeExtra().updReq[kGenDudePropertyDmgScale] = true;
-                            objActor->genDudeExtra().updReq[kGenDudePropertyStates] = true;
-                            objActor->genDudeExtra().updReq[kGenDudePropertyAttack] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertySpriteSize] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyMass] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyStates] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
                             evPostActor(objActor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
                             break;
                     }
@@ -7990,12 +7990,13 @@ bool spritesTouching(int nXSprite1, int nXSprite2) {
     return hitactor->hasX() && hitactor->s().extra == nXSprite2;
 }
 
-bool aiCanCrouch(spritetype* pSprite) {
-    
+bool aiCanCrouch(DBloodActor* actor) 
+{
+    auto pSprite = &actor->s();
     if (pSprite->type >= kDudeBase && pSprite->type < kDudeVanillaMax)
         return (gDudeInfoExtra[pSprite->type - kDudeBase].idlcseqofs >= 0 && gDudeInfoExtra[pSprite->type - kDudeBase].mvecseqofs >= 0);
     else if (pSprite->type == kDudeModernCustom || pSprite->type == kDudeModernCustomBurning)
-        return gGenDudeExtra[pSprite->index].canDuck;
+        return actor->genDudeExtra.canDuck;
 
     return false;
 
@@ -8502,7 +8503,7 @@ void aiPatrolThink(DBloodActor* actor) {
             
             if ((pMarker->flags & kModernTypeFlag2) && (pMarker->flags & kModernTypeFlag1)) crouch = !crouch;
             else if (pMarker->flags & kModernTypeFlag2) crouch = false;
-            else if ((pMarker->flags & kModernTypeFlag1) && aiCanCrouch(pSprite)) crouch = true;
+            else if ((pMarker->flags & kModernTypeFlag1) && aiCanCrouch(actor)) crouch = true;
 
         }
 
@@ -8894,18 +8895,6 @@ void SerializeNNExts(FSerializer& arc)
 {
     if (arc.BeginObject("nnexts"))
     {
-        // the GenDudeArray only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save the relevant entries as these are not small.
-        bool foundsome = false;
-        for (int i = 0; i < kMaxSprites; i++)
-        {
-            if (activeSprites[i] && (sprite[i].type == kDudeModernCustom ||  sprite[i].type == kDudeModernCustomBurning))
-            {
-                if (!foundsome) arc.BeginArray("gendudeextra");
-                foundsome = true;
-                arc(nullptr, gGenDudeExtra[i]);
-            }
-        }
-        if (foundsome) arc.EndArray();
         arc ("proxyspritescount", gProxySpritesCount)
             .Array("proxyspriteslist", gProxySpritesList, gProxySpritesCount)
             ("sightspritescount", gSightSpritesCount)

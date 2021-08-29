@@ -95,6 +95,7 @@ public:
 	int dudeSlope;
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
+	GENDUDEEXTRA genDudeExtra;
 
 	// transient data (not written to savegame)
 	int cumulDamage;
@@ -122,7 +123,6 @@ public:
 	int& zvel() { return Blood::zvel[index]; }
 	int GetIndex() { return s().index; }	// this is for error printing only!
 
-	GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
 	POINT3D& basePoint() { return Blood::baseSprite[index]; }
 
 	void SetOwner(DBloodActor* own)

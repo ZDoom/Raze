@@ -2945,7 +2945,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 {
 	auto pSprite = &actor->s();
 	auto pXSprite = &actor->x();
-	GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
+	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	removeDudeStuff(actor);
 	if (pXSprite->txID <= 0 || getNextIncarnation(actor) == nullptr)
 	{
@@ -3194,7 +3194,7 @@ static int checkDamageType(DBloodActor* actor, DAMAGE_TYPE damageType)
 		case kDudeModernCustomBurning:
 		{
 			playGenDudeSound(actor, kGenDudeSndDeathExplode);
-			GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
+			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 			if (!pExtra->availDeaths[damageType])
 			{
 				nSeq = 1;
@@ -3342,7 +3342,7 @@ static void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 	int dudeToGib = (actCheckRespawn(actor)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
 	if (nSeq == 3)
 	{
-		GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
+		GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 		if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, actor, dudeToGib);
 		else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, actor, dudeToGib);
 		else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, actor, dudeToGib);
@@ -3371,7 +3371,7 @@ static void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 
 	if (Chance(0x4000)) spawnGibs(actor, GIBTYPE_27, -0xccccc);
 
-	GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
+	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	int seqofs = actor->x().data2;
 	if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + seqofs, actor, dudeToGib);
 	else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + seqofs, actor, dudeToGib);
@@ -3684,7 +3684,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 	int nDamageFactor = getDudeInfo(nType + kDudeBase)->damageVal[damageType];
 #ifdef NOONE_EXTENSIONS
 	if (pSprite->type == kDudeModernCustom)
-		nDamageFactor = actor->genDudeExtra().dmgControl[damageType];
+		nDamageFactor = actor->genDudeExtra.dmgControl[damageType];
 #endif
 
 	if (!nDamageFactor) return 0;
