@@ -4341,18 +4341,17 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
         case 9: return (pXSpr->unused1 & kDudeFlagStealth);
         case 10: // check if the marker is busy with another dude
         case 11: // check if the marker is reached
-                if (!pXSpr->dudeFlag4 || !spriRangeIsFine(pXSpr->target_i) || sprite[pXSpr->target_i].type != kMarkerPath) return false;
+                if (!pXSpr->dudeFlag4 || !actor->GetTarget() || actor->GetTarget()->s().type != kMarkerPath) return false;
             switch (cond) {
                 case 10:
                 {
-                    auto ivar = aiPatrolMarkerBusy(pSpr->index, pXSpr->target_i);
-                    auto var = ivar >= 0 ? &bloodActors[ivar] : nullptr;
+                    auto var = aiPatrolMarkerBusy(actor, actor->GetTarget());
                     if (!var) return false;
                     else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, var);
                     break;
                 }
                 case 11:
-                    if (!aiPatrolMarkerReached(pSpr, pXSpr)) return false;
+                    if (!aiPatrolMarkerReached(actor)) return false;
                     else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, targ);
                     break;
             }
@@ -7598,18 +7597,23 @@ void nnExtAiSetDirection(DBloodActor* actor, int a3)
 }
 
 
+//---------------------------------------------------------------------------
+//
 /// patrol functions
-// ------------------------------------------------
-void aiPatrolState(spritetype* pSprite, int state) {
-    auto actor = &bloodActors[pSprite->index];
+//
+//---------------------------------------------------------------------------
 
-    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+void aiPatrolState(DBloodActor* actor, int state) 
+{
+    spritetype* pSprite = &actor->s();
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax && actor->hasX());
+    assert(actor->GetTarget());
     
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    XSPRITE* pXSprite = &actor->x();
     
-    spritetype* pMarker = &sprite[pXSprite->target_i];
-    XSPRITE* pXMarker = &xsprite[pMarker->extra];
+    auto markeractor = actor->GetTarget();
+    spritetype* pMarker = &markeractor->s();
+    XSPRITE* pXMarker = &markeractor->x();
     assert(pMarker->type == kMarkerPath);
 
     bool nSeqOverride = false, crouch = false;
@@ -7667,82 +7671,91 @@ void aiPatrolState(spritetype* pSprite, int state) {
     if (seq < 0)
         return aiPatrolStop(pSprite, -1);
 
-    for (i = start; i < end; i++) {
-
+    for (i = start; i < end; i++) 
+    {
         AISTATE* newState = &genPatrolStates[i];
         if (newState->stateType != state || (!nSeqOverride && seq != newState->seqId))
             continue;
 
         if (pSprite->type == kDudeModernCustom) aiGenDudeNewState(actor, newState);
-        else aiNewState(&bloodActors[pXSprite->reference], newState);
+        else aiNewState(actor, newState);
 
         if (crouch) pXSprite->unused1 |= kDudeFlagCrouch;
         else pXSprite->unused1 &= ~kDudeFlagCrouch;
 
         if (nSeqOverride)
-            seqSpawn(seq, OBJ_SPRITE, pSprite->extra);
+            seqSpawn(seq, actor);
 
         return;
-
     }
 
-    if (i == end) {
-        viewSetSystemMessage("No patrol state #%d found for dude #%d (type = %d)", state, pSprite->index, pSprite->type);
+    if (i == end) 
+    {
+        viewSetSystemMessage("No patrol state #%d found for dude #%d (type = %d)", state, actor->GetIndex(), pSprite->type);
         aiPatrolStop(pSprite, -1);
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // check if some dude already follows the given marker
-int aiPatrolMarkerBusy(int nExcept, int nMarker) {
-    for (int i = headspritestat[kStatDude]; i != -1; i = nextspritestat[i]) {
-        if (!IsDudeSprite(&sprite[i]) || sprite[i].index == nExcept || !xspriRangeIsFine(sprite[i].extra))
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker) 
+{
+    BloodStatIterator it(kStatDude);
+    while (auto actor = it.Next())
+    {
+        if (!actor->IsDudeActor() || actor == except || !actor->hasX())
             continue;
 
-        XSPRITE* pXDude = &xsprite[sprite[i].extra];
-        if (pXDude->health > 0 && pXDude->target_i >= 0 && sprite[pXDude->target_i].type == kMarkerPath && pXDude->target_i == nMarker)
-            return sprite[i].index;
+        auto targ = actor->GetTarget();
+        if (actor->x().health > 0 && targ != nullptr && targ->s().type == kMarkerPath && targ == marker)
+            return actor;
     }
-
-    return -1;
+    return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+// check if some dude already follows the given marker
+//
+//---------------------------------------------------------------------------
 
-bool aiPatrolMarkerReached(spritetype* pSprite, XSPRITE* pXSprite) {
-
+bool aiPatrolMarkerReached(DBloodActor* actor) 
+{
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 
-        auto actor = &bloodActors[pSprite->index];
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
-    if (spriRangeIsFine(pXSprite->target_i) && sprite[pXSprite->target_i].type == kMarkerPath) {
-            
-            spritetype* pMarker = &sprite[pXSprite->target_i];
-        short okDist = ClipLow(pMarker->clipdist << 1, 4);
+    auto markeractor = actor->GetTarget();
+    if (markeractor && markeractor->s().type == kMarkerPath) 
+    {
+        spritetype* pMarker = &markeractor->s();
+        int okDist = ClipLow(pMarker->clipdist << 1, 4);
         int oX = abs(pMarker->x - pSprite->x) >> 4;
         int oY = abs(pMarker->y - pSprite->y) >> 4;
 
-        if (approxDist(oX, oY) <= okDist) {
-            
-            if (spriteIsUnderwater(actor) || pExtra->flying) {
-
+        if (approxDist(oX, oY) <= okDist) 
+        {
+            if (spriteIsUnderwater(actor) || pExtra->flying) 
+            {
                 okDist = pMarker->clipdist << 4;
                 int ztop, zbot, ztop2, zbot2;
-                GetSpriteExtents(pSprite, &ztop, &zbot);
-                GetSpriteExtents(pMarker, &ztop2, &zbot2);
+                GetActorExtents(actor, &ztop, &zbot);
+                GetActorExtents(markeractor, &ztop2, &zbot2);
 
                 int oZ1 = abs(zbot - ztop2) >> 6;
                 int oZ2 = abs(ztop - zbot2) >> 6;
                 if (oZ1 > okDist && oZ2 > okDist)
                     return false;
-
             }
-                
             return true;
         }
-
     }
-
     return false;
-
 }
 
 int findNextMarker(XSPRITE* pXMark, bool back) {
@@ -7850,7 +7863,7 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
                 continue;
             
             if (firstFinePath == -1) firstFinePath = pXNext->reference;
-            if (aiPatrolMarkerBusy(pSprite->index, pXNext->reference) >= 0 && !Chance(0x0010)) continue;
+            if (aiPatrolMarkerBusy(&bloodActors[pSprite->index], &bloodActors[pXNext->reference]) && !Chance(0x0010)) continue;
             else path = pXNext->reference;
             
             breakChance += nnExtRandom(1, 5);
@@ -7998,12 +8011,11 @@ void aiPatrolMove(DBloodActor* actor) {
     int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
     pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
     
-    if (abs(nAng) > goalAng || ((pXTarget->waitTime > 0 || pXTarget->data1 == pXTarget->data2) && aiPatrolMarkerReached(pSprite, pXSprite))) {
-
+    if (abs(nAng) > goalAng || ((pXTarget->waitTime > 0 || pXTarget->data1 == pXTarget->data2) && aiPatrolMarkerReached(actor))) 
+    {
        actor->xvel() = 0;
        actor->yvel() = 0;
-        return;
-
+       return;
     }
    
     if (gSpriteHit[pSprite->extra].hit.type == kHitSprite)
@@ -8529,8 +8541,8 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
             
             
             aiPatrolSetMarker(pDest, pXDest);
-            if (spriteIsUnderwater(destactor)) aiPatrolState(pDest, kAiStatePatrolWaitW);
-            else aiPatrolState(pDest, kAiStatePatrolWaitL);
+            if (spriteIsUnderwater(destactor)) aiPatrolState(destactor, kAiStatePatrolWaitW);
+            else aiPatrolState(destactor, kAiStatePatrolWaitL);
             pXDest->data3 = 0; // reset the spot progress
 
         }
@@ -8590,9 +8602,9 @@ void aiPatrolThink(DBloodActor* actor) {
                 
                 if (--pXSprite->unused4 <= 0) {
                     
-                    if (uwater) aiPatrolState(pSprite, kAiStatePatrolTurnW);
-                    else if (crouch) aiPatrolState(pSprite, kAiStatePatrolTurnC);
-                    else aiPatrolState(pSprite, kAiStatePatrolTurnL);
+                    if (uwater) aiPatrolState(actor, kAiStatePatrolTurnW);
+                    else if (crouch) aiPatrolState(actor, kAiStatePatrolTurnC);
+                    else aiPatrolState(actor, kAiStatePatrolTurnL);
                     pXSprite->unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
 
                 }
@@ -8643,9 +8655,9 @@ void aiPatrolThink(DBloodActor* actor) {
             // save imer for waiting
             stateTimer = pXSprite->stateTimer;
             
-            if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
-            else if (crouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
-            else aiPatrolState(pSprite, kAiStatePatrolWaitL);
+            if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
+            else if (crouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+            else aiPatrolState(actor, kAiStatePatrolWaitL);
             
             // must restore it
             pXSprite->stateTimer = stateTimer;
@@ -8655,7 +8667,7 @@ void aiPatrolThink(DBloodActor* actor) {
         
         return;
 
-    } else if ((reached = aiPatrolMarkerReached(pSprite, pXSprite)) == true) {
+    } else if ((reached = aiPatrolMarkerReached(actor)) == true) {
 
         pXMarker->isTriggered = pXMarker->triggerOnce; // can't select this marker for path anymore if true
 
@@ -8678,8 +8690,8 @@ void aiPatrolThink(DBloodActor* actor) {
 
             }
 
-            if (pMarker->owner == pSprite->index)
-                pMarker->owner = aiPatrolMarkerBusy(pSprite->index, pMarker->index);
+            if (markeractor->GetOwner() == actor)
+                markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
             // trigger at arrival
             if (pXMarker->triggerOn) {
@@ -8700,9 +8712,9 @@ void aiPatrolThink(DBloodActor* actor) {
             
             }
 
-            if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
-            else if (crouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
-            else aiPatrolState(pSprite, kAiStatePatrolWaitL);
+            if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
+            else if (crouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+            else aiPatrolState(actor, kAiStatePatrolWaitL);
 
             if (pXMarker->waitTime)
                 pXSprite->stateTimer = (pXMarker->waitTime * 120) / 10;
@@ -8716,9 +8728,9 @@ void aiPatrolThink(DBloodActor* actor) {
         
         } else {
         
-            if (pMarker->owner == pSprite->index)
-                pMarker->owner = aiPatrolMarkerBusy(pSprite->index, pMarker->index);
-            
+            if (markeractor->GetOwner() == actor)
+                markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
+
             if (pXMarker->triggerOn || pXMarker->triggerOff) {
 
                 if (pXMarker->txID) {
@@ -8758,9 +8770,9 @@ void aiPatrolThink(DBloodActor* actor) {
     nnExtAiSetDirection(actor, getangle(pMarker->x - pSprite->x, pMarker->y - pSprite->y));
 
     if (aiPatrolMoving(pXSprite->aiState) && !reached) return;
-    else if (uwater) aiPatrolState(pSprite, kAiStatePatrolMoveW);
-    else if (crouch) aiPatrolState(pSprite, kAiStatePatrolMoveC);
-    else aiPatrolState(pSprite, kAiStatePatrolMoveL);
+    else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
+    else if (crouch) aiPatrolState(actor, kAiStatePatrolMoveC);
+    else aiPatrolState(actor, kAiStatePatrolMoveL);
     return;
 
 }
