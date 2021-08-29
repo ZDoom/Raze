@@ -222,12 +222,12 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
     }
     case kCmdSpriteProximity:
     {
-        int nTarget = pXSprite->target_i;
-        if (nTarget >= 0 && nTarget < kMaxSprites)
+        auto target = actor->GetTarget();
+        if (target)
         {
             if (!pXSprite->stateTimer)
             {
-                spritetype *pTarget = &sprite[nTarget];
+                spritetype *pTarget = &target->s();
                 if (pTarget->statnum == kStatDude && !(pTarget->flags&32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites)
                 {
                     int top, bottom;
@@ -242,8 +242,8 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                     if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum))
                     {
                         int t = DivScale(nDist, 0x1aaaaa, 12);
-                        x += (xvel[nTarget]*t)>>12;
-                        y += (yvel[nTarget]*t)>>12;
+                        x += (target->xvel()*t)>>12;
+                        y += (target->yvel()*t)>>12;
                         int angBak = pSprite->ang;
                         pSprite->ang = getangle(x-pSprite->x, y-pSprite->y);
                         int dx = bcos(pSprite->ang);
@@ -471,7 +471,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                     case kDudeBurningBeast: {
                         pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
-                        pXSpawn->target_i = -1;
+                        spawned->SetTarget(nullptr);
                         aiActivateDude(spawned);
                         break;
                     default:

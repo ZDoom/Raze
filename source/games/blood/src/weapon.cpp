@@ -482,7 +482,7 @@ void UpdateAimVector(PLAYER * pPlayer)
     pPlayer->aim = pPlayer->relAim;
     RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, pPSprite->ang);
     pPlayer->aim.dz += pPlayer->slope;
-    pPlayer->aimTarget = nTarget;
+    pPlayer->aimTarget = &bloodActors[nTarget];
 }
 
 struct t_WeaponModes
@@ -1443,8 +1443,8 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
         actDamageSprite(actor, actor, kDamageBullet, 1<<4);
         return;
     }
-    assert(pPlayer->voodooTarget >= 0);
-    auto targetactor = &bloodActors[pPlayer->voodooTarget];
+    assert(pPlayer->voodooTarget != nullptr);
+    auto targetactor = pPlayer->voodooTarget;
     spritetype *pTarget = &targetactor->s();
     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
         return;
@@ -1703,8 +1703,9 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
     spritetype *pMissile = playerFireMissile(pPlayer, 0, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, 315);
     if (pMissile)
     {
+        auto missileActor = &bloodActors[pMissile->index];
         XSPRITE *pXSprite = &xsprite[pMissile->extra];
-        pXSprite->target_i = pPlayer->aimTarget;
+        missileActor->SetTarget(pPlayer->aimTarget);
         pMissile->ang = (nTrigger==2) ? 1024 : 0;
     }
     if (checkAmmo2(pPlayer, 8, 1))
@@ -2452,7 +2453,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             {
             }
             pPlayer->voodooTarget = pPlayer->aimTarget;
-            if (pPlayer->voodooTarget == -1 || sprite[pPlayer->voodooTarget].statnum != kStatDude)
+            if (pPlayer->voodooTarget == nullptr || pPlayer->voodooTarget->s().statnum != kStatDude)
                 i = 4;
             StartQAV(pPlayer,kQAVVDFIRE1 + i, nClientFireVoodoo);
             return;

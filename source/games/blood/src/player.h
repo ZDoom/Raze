@@ -139,7 +139,7 @@ struct PLAYER
     //int               relAim;
     //int               at1ce;
     //int               at1d2;
-    int                 aimTarget;  // aim target sprite
+    DBloodActor*        aimTarget;  // aim target sprite
     int                 aimTargetsCount;
     short               aimTargets[16];
     int                 deathTime;
@@ -164,7 +164,7 @@ struct PLAYER
     int                 armor[3];      // armor
     //int               at342;
     //int               at346;
-    int                 voodooTarget;
+    DBloodActor*        voodooTarget;
     int                 voodooTargets;  // --> useless
     int                 voodooVar1;     // --> useless
     int                 vodooVar2;      // --> useless

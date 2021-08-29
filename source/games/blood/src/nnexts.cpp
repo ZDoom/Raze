@@ -8545,8 +8545,8 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init) {
-
+void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init) 
+{
     auto destactor = &bloodActors[pDest->index];
     // copy flags
     if (copy) {
