@@ -4816,7 +4816,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
         // updated vanilla sound gen that now allows to play sounds on TX ID sprites
         case kGenModernSound:
             if (destObjType != OBJ_SPRITE) break;
-            useSoundGen(pXSource, &destactor->s());
+            useSoundGen(event.actor, destactor);
             break;
         // updated ecto skull gen that allows to fire missile from TX ID sprites
         case kGenModernMissileUniversal:
@@ -5889,7 +5889,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                     [[fallthrough]];
                 case kCmdRepeat:
                 if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                else useSoundGen(pXSprite, pSprite);
+                else useSoundGen(actor, actor);
                 
                 if (pXSprite->busyTime > 0)
                     evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
@@ -6363,11 +6363,24 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 }
 
-void useSoundGen(XSPRITE* pXSource, spritetype* pSprite) {
-    //spritetype* pSource = &sprite[pXSource->reference];
-    int pitch = pXSource->data4 << 1; if (pitch < 2000) pitch = 0;
-    sfxPlay3DSoundCP(pSprite, pXSource->data2, -1, 0, pitch, pXSource->data3);
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
+{
+    int pitch = sourceactor->x().data4 << 1; 
+    if (pitch < 2000) pitch = 0;
+    sfxPlay3DSoundCP(actor, sourceactor->x().data2, -1, 0, pitch, sourceactor->x().data3);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
     char buffer[5]; int data = -65535; short tmp = 0; int dataIndex = 0;
