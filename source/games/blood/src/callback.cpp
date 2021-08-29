@@ -251,7 +251,8 @@ void Respawn(DBloodActor* actor, int) // 9
             pXSprite->respawnPending = 0;
             pXSprite->burnTime = 0;
             pXSprite->isTriggered = 0;
-            if (IsDudeSprite(pSprite)) {
+            if (actor->IsDudeActor()) 
+            {
                 int nType = pSprite->type-kDudeBase;
                 pSprite->x = actor->basePoint().x;
                 pSprite->y = actor->basePoint().y;

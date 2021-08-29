@@ -448,7 +448,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 
 //---------------------------------------------------------------------------
 //
-// todo later. This depends on condSerialize.
+
 //
 //---------------------------------------------------------------------------
 
@@ -2970,12 +2970,11 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                 }
 
                 // search for dudes in this sector and change their underwater status
-                int nSprite;
-                SectIterator it(objIndex);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodSectIterator it(objIndex);
+                while (auto iactor = it.Next())
                 {
-                    spritetype* pSpr = &sprite[nSprite];
-                    if (pSpr->statnum != kStatDude || !IsDudeSprite(pSpr) || !xspriRangeIsFine(pSpr->extra))
+                    spritetype* pSpr = &iactor->s();
+                    if (pSpr->statnum != kStatDude || !iactor->IsDudeActor() || ! iactor->hasX())
                         continue;
 
                     PLAYER* pPlayer = getPlayerById(pSpr->type);
@@ -4445,7 +4444,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
                     var = HitScan(pSpr, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
                 else if (IsDudeSprite(pSpr))
-                    var = HitScan(pSpr, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), (!xspriRangeIsFine(pSpr->extra)) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
+                var = HitScan(pSpr, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), (!spractor->hasX()) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
                 else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) {
                     
                     var3 = (var2 & 0x0008) ? 0x10000 << 1 : -(0x10000 << 1);
@@ -5476,7 +5475,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
 
     }
 
-    if (pSprite->statnum == kStatDude && IsDudeSprite(pSprite)) 
+    if (pSprite->statnum == kStatDude && actor->IsDudeActor()) 
     {
         switch (event.cmd) 
         {
