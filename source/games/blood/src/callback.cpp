@@ -385,9 +385,7 @@ void FinishHim(DBloodActor* actor, int) // 13
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
-    int nXSprite = pSprite->extra;
-    XSPRITE* pXSprite = &actor->x();
-    if (IsPlayerSprite(pSprite) && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target_i == gMe->nSprite)
+    if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && actor == gMe->actor())
         sndStartSample(3313, -1, 1, 0);
 }
 
