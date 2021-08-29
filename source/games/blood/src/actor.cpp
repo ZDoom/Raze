@@ -7324,7 +7324,7 @@ void actPostProcess(void)
 			{
 				evKillActor(p.sprite);
 				if (p.sprite->hasX()) seqKill(p.sprite);
-				DeleteSprite(p.sprite->s().index);
+				DeleteSprite(p.sprite);
 			}
 		}
 		else
