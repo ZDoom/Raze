@@ -465,6 +465,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra);
+				("prevmarker", w.prevmarker, def->prevmarker);
 
 			if (gModernMap)
 			{

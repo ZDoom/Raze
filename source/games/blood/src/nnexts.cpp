@@ -7815,75 +7815,87 @@ bool markerIsNode(DBloodActor* mark, bool back)
 //
 //---------------------------------------------------------------------------
 
-void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
+void aiPatrolSetMarker(DBloodActor* actor)
+{
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+    auto targetactor = actor->GetTarget();
 
-    
-    spritetype* pNext = NULL;   XSPRITE* pXNext = NULL;
-    spritetype* pCur = NULL;    XSPRITE* pXCur = NULL;
-    spritetype* pPrev = NULL;   XSPRITE* pXPrev = NULL;
-
-    bool back = false;
-    int path = -1; int firstFinePath = -1; int prev = -1, next, i, dist, zt1, zb1, zt2, zb2, closest = 200000;
+    DBloodActor* selected = nullptr;
+    int closest = 200000;
 
     // select closest marker that dude can see
-    if (pXSprite->target_i <= 0) {
+    if (targetactor == nullptr)
+    {
+        int zt1, zb1, zt2, zb2, dist;
+        GetActorExtents(actor, &zt2, &zb2);
 
-        for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-            
-            if (!xspriRangeIsFine(sprite[i].extra))
-                continue;
+        BloodStatIterator it(kStatPathMarker);
+        while (auto nextactor = it.Next())
+        {
+            if (!nextactor->hasX()) continue;
 
-            pNext = &sprite[i]; pXNext = &xsprite[pNext->extra];
+            auto pNext = &nextactor->s();
+            auto pXNext = &nextactor->x();
+
             if (pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout || (dist = approxDist(pNext->x - pSprite->x, pNext->y - pSprite->y)) > closest)
                 continue;
 
-            GetSpriteExtents(pNext, &zt1, &zb1); GetSpriteExtents(pSprite, &zt2, &zb2);
-            if (cansee(pNext->x, pNext->y, zt1, pNext->sectnum, pSprite->x, pSprite->y, zt2, pSprite->sectnum)) {
+            GetActorExtents(nextactor, &zt1, &zb1); 
+            if (cansee(pNext->x, pNext->y, zt1, pNext->sectnum, pSprite->x, pSprite->y, zt2, pSprite->sectnum)) 
+            {
                 closest = dist;
-                path = pNext->index;
+                selected = nextactor;
             }
         }
-
+    } 
     // set next marker
-    } else if (sprite[pXSprite->target_i].type == kMarkerPath && xspriRangeIsFine(sprite[pXSprite->target_i].extra)) {
-
+    else if (targetactor->s().type == kMarkerPath && targetactor->hasX())
+    {
         // idea: which one of next (allowed) markers are closer to the potential target?
         // idea: -3 select random next marker that dude can see in radius of reached marker
         // if reached marker is in radius of another marker with -3, but greater radius, use that marker
         // idea: for nodes only flag32 = specify if enemy must return back to node or allowed to select
         // another marker which belongs that node?
+        spritetype* pPrev = NULL;   XSPRITE* pXPrev = NULL;
+        DBloodActor* prevactor = nullptr;
+
+        DBloodActor* firstFinePath = nullptr;
+        int next;
 
         int breakChance = 0;
-        pCur  = &sprite[pXSprite->target_i];
-        pXCur = &xsprite[pCur->extra];
-        if (pXSprite->targetX >= 0)
+        auto pCur = &targetactor->s();
+        auto pXCur = &targetactor->x();
+        if (actor->prevmarker)
         {
-            pPrev = &sprite[pXSprite->targetX];
-            pXPrev = &xsprite[pPrev->extra];
+            prevactor = actor->prevmarker;
+            pPrev = &prevactor->s();
+            pXPrev = &prevactor->x();
         }
-        prev = pCur->index;
 
-        bool node = markerIsNode(&bloodActors[pXSprite->target_i], false);
+        bool node = markerIsNode(targetactor, false);
         pXSprite->unused2 = aiPatrolGetPathDir(pXSprite, pXCur); // decide if it should go back or forward
         if (pXSprite->unused2 == kPatrolMoveBackward && Chance(0x8000) && node)
             pXSprite->unused2 = kPatrolMoveForward;
 
-        back = (pXSprite->unused2 == kPatrolMoveBackward); next = (back) ? pXCur->data1 : pXCur->data2;
-        for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-            
-            if (sprite[i].index == pXSprite->target_i || !xspriRangeIsFine(sprite[i].extra)) continue;
-            else if (pXSprite->targetX >= 0 && sprite[i].index == pPrev->index && node) {
+        bool back = (pXSprite->unused2 == kPatrolMoveBackward); next = (back) ? pXCur->data1 : pXCur->data2;
+        BloodStatIterator it(kStatPathMarker);
+        while(auto nextactor = it.Next())
+        {
+            if (nextactor == targetactor || !nextactor->hasX()) continue;
+            else if (pXSprite->targetX >= 0 && nextactor == prevactor && node) 
+            {
                 if (pXCur->data2 == pXPrev->data1)
                     continue;
             }
 
-            pXNext = &xsprite[sprite[i].extra];
+            auto pXNext = &nextactor->x();
             if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != next) || (!back && pXNext->data1 != next))
                 continue;
             
-            if (firstFinePath == -1) firstFinePath = pXNext->reference;
-            if (aiPatrolMarkerBusy(&bloodActors[pSprite->index], &bloodActors[pXNext->reference]) && !Chance(0x0010)) continue;
-            else path = pXNext->reference;
+            if (firstFinePath == nullptr) firstFinePath = nextactor;
+            if (aiPatrolMarkerBusy(actor, nextactor) && !Chance(0x0010)) continue;
+            else selected = nextactor;
             
             breakChance += nnExtRandom(1, 5);
             if (breakChance >= 5)
@@ -7891,25 +7903,22 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
 
         }
 
-        if (firstFinePath == -1) {
-            
+        if (firstFinePath == nullptr) 
+        {
             viewSetSystemMessage("No markers with id #%d found for dude #%d! (back = %d)", next, pSprite->index, back);
             return;
-
         }
 
-        if (path == -1)
-            path = firstFinePath;
-
+        if (selected == nullptr)
+            selected = firstFinePath;
     }
 
-    if (!spriRangeIsFine(path))
+    if (!selected)
         return;
 
-    pXSprite->target_i = path;
-    pXSprite->targetX = prev; // keep previous marker index here, use actual sprite coords when selecting direction
-    sprite[path].owner = pSprite->index;
-
+    actor->SetTarget(selected);
+    selected->SetOwner(actor);
+    actor->prevmarker = targetactor; // keep previous marker index here, use actual sprite coords when selecting direction
 }
 
 //---------------------------------------------------------------------------
@@ -7927,6 +7936,7 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
         pXSprite->data3 = 0; // reset spot progress
         pXSprite->unused1 &= ~kDudeFlagCrouch; // reset the crouch status
         pXSprite->unused2 = kPatrolMoveForward; // reset path direction
+        actor->prevmarker = nullptr;
         pXSprite->targetX = -1; // reset the previous marker index
         if (pXSprite->health <= 0)
             return;
@@ -8582,7 +8592,7 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
             pXDest->stateTimer = 0;
             
             
-            aiPatrolSetMarker(pDest, pXDest);
+            aiPatrolSetMarker(destactor);
             if (spriteIsUnderwater(destactor)) aiPatrolState(destactor, kAiStatePatrolWaitW);
             else aiPatrolState(destactor, kAiStatePatrolWaitL);
             pXDest->data3 = 0; // reset the spot progress
@@ -8687,7 +8697,7 @@ void aiPatrolThink(DBloodActor* actor) {
         }
 
         // move next marker
-        aiPatrolSetMarker(pSprite, pXSprite);
+        aiPatrolSetMarker(actor);
 
     } else if (aiPatrolTurning(pXSprite->aiState)) {
 
@@ -8803,7 +8813,7 @@ void aiPatrolThink(DBloodActor* actor) {
             }
 
             // move the next marker
-            aiPatrolSetMarker(pSprite, pXSprite);
+            aiPatrolSetMarker(actor);
 
         }
 

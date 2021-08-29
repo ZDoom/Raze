@@ -96,6 +96,7 @@ public:
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
+	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 
 	// transient data (not written to savegame)
 	int cumulDamage;
@@ -108,6 +109,7 @@ public:
 	void Clear()
 	{
 		explosionhackflag = false;
+		prevmarker = nullptr;
 		dudeSlope = 0;
 		dudeExtra = {};
 		spriteMass = {};

@@ -2003,7 +2003,7 @@ void aiInitSprite(DBloodActor* actor)
             if (actor->GetTarget() == nullptr || actor->GetTarget()->s().type != kMarkerPath) 
             {
                 actor->SetTarget(nullptr);
-                aiPatrolSetMarker(pSprite, pXSprite);
+                aiPatrolSetMarker(actor);
             }
 
             if (stateTimer > 0) 
