@@ -464,12 +464,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		if (w.s().extra > 0)
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
-				("dudeextra", w.dudeExtra, def->dudeExtra);
-				("prevmarker", w.prevmarker, def->prevmarker);
+				("dudeextra", w.dudeExtra, def->dudeExtra)
+				("spritehit", w.hit, def->hit);
 
 			if (gModernMap)
 			{
-				arc("spritemass", w.spriteMass, def->spriteMass);
+				arc("spritemass", w.spriteMass, def->spriteMass)
+					("prevmarker", w.prevmarker, def->prevmarker);
 
 				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
 				if (w.s().type == kDudeModernCustom || w.s().time == kDudeModernCustomBurning)

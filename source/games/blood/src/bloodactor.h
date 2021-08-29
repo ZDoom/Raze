@@ -68,7 +68,6 @@ struct SPRITEHIT
 {
 	Collision hit, ceilhit, florhit;
 };
-extern SPRITEHIT gSpriteHit[kMaxXSprites];
 
 struct ConditionElement
 {
@@ -93,6 +92,7 @@ class DBloodActor
 
 public:
 	int dudeSlope;
+	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
@@ -113,6 +113,7 @@ public:
 		dudeSlope = 0;
 		dudeExtra = {};
 		spriteMass = {};
+		hit = {};
 	}
 	bool hasX() { return sprite[index].extra > 0; }
 	void addX()
@@ -121,7 +122,6 @@ public:
 	}
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
-	SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }
 	int& xvel() { return Blood::xvel[index]; }
 	int& yvel() { return Blood::yvel[index]; }
 	int& zvel() { return Blood::zvel[index]; }
