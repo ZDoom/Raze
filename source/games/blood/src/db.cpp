@@ -195,7 +195,7 @@ int InsertSprite(int nSector, int nStat)
     pSprite->cstat = 128;
     pSprite->clipdist = 32;
     pSprite->xrepeat = pSprite->yrepeat = 64;
-    pSprite->owner = -1;
+    actor->SetOwner(nullptr);
     pSprite->extra = -1;
     pSprite->index = nSprite;
     actor->xvel() = actor->yvel() = actor->zvel() = 0;

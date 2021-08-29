@@ -3963,7 +3963,6 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		seqKill(missileActor);
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
 		{
-			int nOwner = pMissile->owner;
 			int nDamage = (15 + Random(7)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
 		}
@@ -4643,7 +4642,7 @@ static Collision MoveThing(DBloodActor* actor)
 	{
 		short bakCstat = pSprite->cstat;
 		pSprite->cstat &= ~257;
-		if ((pSprite->owner >= 0) && !cl_bloodvanillaexplosions && !VanillaMode())
+		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
 		lhit = actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
 		enginecompatibility_mode = bakCompat; // restore
@@ -5765,7 +5764,7 @@ static void actCheckProximity()
 							default:
 								break;
 							}
-							if (pSprite->owner == -1) pSprite->owner = pSprite2->index;
+							if (actor->GetOwner() == nullptr) actor->SetOwner(dudeactor);
 							trTriggerSprite(actor, kCmdSpriteProximity);
 						}
 					}
@@ -6637,7 +6636,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	}
 	auto fired = actSpawnThing(pSprite->sectnum, x, y, z, thingType);
 	spritetype* pThing = &fired->s();
-	pThing->owner = pSprite->index;
+	fired->SetOwner(actor);
 	pThing->ang = pSprite->ang;
 	fired->xvel() = MulScale(a6, Cos(pThing->ang), 30);
 	fired->yvel() = MulScale(a6, Sin(pThing->ang), 30);
@@ -6777,7 +6776,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	spawned->xvel() = MulScale(pMissileInfo->velocity, a4, 14);
 	spawned->yvel() = MulScale(pMissileInfo->velocity, a5, 14);
 	spawned->zvel() = MulScale(pMissileInfo->velocity, a6, 14);
-	pMissile->owner = pSprite->index;
+	spawned->SetOwner(actor);
 	pMissile->cstat |= 1;
 	spawned->SetTarget(nullptr);
 	evPostActor(spawned, 600, kCallbackRemove);
@@ -7156,14 +7155,14 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 
         auto pFX2 = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx2, nSector, x, y, z, 0);
 		if (pFX2 && gModernMap)
-			pFX2->s().owner = pShooter->index;
+			pFX2->SetOwner(shooter);
 	}
 
 	if (pVectorData->surfHit[nSurf].fx3 >= 0) {
 
         auto pFX3 = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx3, nSector, x, y, z, 0);
 		if (pFX3 && gModernMap)
-			pFX3->s().owner = pShooter->index;
+			pFX3->SetOwner(shooter);
 
 	}
 

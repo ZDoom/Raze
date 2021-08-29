@@ -264,8 +264,7 @@ void genDudeAttack1(int, DBloodActor* actor)
         {
             if ((spawned = actSpawnDude(actor, pExtra->curWeapon, dist + Random(dist), 0)) != NULL) 
             {
-                spritetype* pSpawned = &spawned->s();
-                pSpawned->owner = pSprite->index;
+                spawned->SetOwner(actor);
 
                 if (spawned->hasX()) 
                 {
@@ -357,8 +356,8 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     auto const pXSpawned = &spawned->x();
     if (pThinkInfo->picnum < 0 && pSpawned->type != kModernThingThrowableRock) pSpawned->picnum = 0;
             
-    pSpawned->owner = pSprite->index;
-            
+    spawned->SetOwner(actor);
+
     switch (curWeapon) {
         case kThingNapalmBall:
             pSpawned->xrepeat = pSpawned->yrepeat = 24;
@@ -1915,7 +1914,7 @@ bool doExplosion(DBloodActor* actor, int nType)
     
     pExplosion->type = nType;
     pExplosion->cstat |= CSTAT_SPRITE_INVISIBLE;
-    pExplosion->owner = pSprite->index;
+    actExplosion->SetOwner(actor);
     pExplosion->shade = -127;
 
     pExplosion->yrepeat = pExplosion->xrepeat = pExpl->repeat;

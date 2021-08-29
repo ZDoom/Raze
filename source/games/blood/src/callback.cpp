@@ -83,7 +83,7 @@ void FlareBurst(DBloodActor* actor, int) // 2
         pSpawn->xrepeat = pSpawn->yrepeat = 32;
         pSpawn->type = kMissileFlareAlt;
         pSpawn->clipdist = 2;
-        pSpawn->owner = pSprite->owner;
+        spawnedactor->SetOwner(actor);
         int nAngle2 = (i<<11)/8;
         int dx = 0;
         int dy = mulscale30r(nRadius, Sin(nAngle2));
@@ -244,7 +244,7 @@ void Respawn(DBloodActor* actor, int) // 9
             assert(pSprite->owner >= 0 && pSprite->owner < kMaxStatus);
             ChangeActorStat(actor, pSprite->owner);
             pSprite->type = pSprite->inittype;
-            pSprite->owner = -1;
+            actor->SetOwner(nullptr);
             pSprite->flags &= ~kHitagRespawn;
             actor->xvel() = actor->yvel() = actor->zvel() = 0;
             pXSprite->respawnPending = 0;
@@ -503,19 +503,19 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
-    auto owner = actor->GetOwner();
-    if (owner)
+    auto aOwner = actor->GetOwner();
+    if (aOwner)
     {
         switch (pSprite->type) 
         {
             case kItemFlagA:
-                trTriggerSprite(owner, kCmdOn);
+                trTriggerSprite(aOwner, kCmdOn);
                 sndStartSample(8003, 255, 2, 0);
                 gBlueFlagDropped = false;
                 viewSetMessage("Blue Flag returned to base.");
                 break;
             case kItemFlagB:
-                trTriggerSprite(owner, kCmdOn);
+                trTriggerSprite(aOwner, kCmdOn);
                 sndStartSample(8002, 255, 2, 0);
                 gRedFlagDropped = false;
                 viewSetMessage("Red Flag returned to base.");

@@ -1658,7 +1658,7 @@ int debrisGetFreeIndex(void)
 //
 //---------------------------------------------------------------------------
 
-void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int dmg)
+void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, int dmg)
 {
     auto actor = gPhysSpritesList[listIndex];
     if (actor != nullptr && actor->hasX())
@@ -1668,7 +1668,7 @@ void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int d
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (pSprite->type >= kThingBase && pSprite->type < kThingMax);
         int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
-        if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) 
+        if (actor->x().physAttr & kPhysDebrisExplode) 
         {
             if (actor->spriteMass.mass > 0) 
             {
@@ -1683,7 +1683,7 @@ void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int d
                 pSprite->statnum = kStatThing; // temporary change statnum property
         }
 
-        actDamageSprite(owner, actor, kDamageExplode, dmg);
+        actDamageSprite(owneractor, actor, kDamageExplode, dmg);
         
         if (thing)
             pSprite->statnum = kStatDecoration; // return statnum property back
@@ -2914,25 +2914,35 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                 
                 pXSector->Underwater = (pXSource->data1) ? true : false;
 
-                spritetype* pLower = (gLowerLink[objIndex] >= 0) ? &sprite[gLowerLink[objIndex]] : NULL;
-                XSPRITE* pXLower = NULL; spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
                 
-                if (pLower) {
+                spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
                     
-                    pXLower = &xsprite[pLower->extra];
+                auto aLower = getLowerLink(objIndex);
+                spritetype* pLower = nullptr;
+                XSPRITE* pXLower = nullptr;
+                if (aLower)
+                {
+                    pLower = &aLower->s();
+                    pXLower = &aLower->x();
 
                     // must be sure we found exact same upper link
-                    for (int i = 0; i < kMaxSectors; i++) {
-                        if (gUpperLink[i] < 0 || xsprite[sprite[gUpperLink[i]].extra].data1 != pXLower->data1) continue;
-                        pUpper = &sprite[gUpperLink[i]]; pXUpper = &xsprite[pUpper->extra];
+                    for (int i = 0; i < kMaxSectors; i++) 
+                    {
+                        auto aUpper = getUpperLink(i);
+                        if (aUpper == nullptr || aUpper->x().data1 != pXLower->data1) continue;
+                        pUpper = &aUpper->s();
+                        pXUpper = &aUpper->x();
                         break;
                     }
                 }
                 
                 // treat sectors that have links, so warp can detect underwater status properly
-                if (pLower) {
-                    if (pXSector->Underwater) {
-                        switch (pLower->type) {
+                if (pLower) 
+                {
+                    if (pXSector->Underwater) 
+                    {
+                        switch (pLower->type) 
+                        {
                             case kMarkerLowStack:
                             case kMarkerLowLink:
                                 pXLower->sysData1 = pLower->type;
@@ -2949,9 +2959,12 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                     else pLower->type = kMarkerLowStack;
                 }
 
-                if (pUpper) {
-                    if (pXSector->Underwater) {
-                        switch (pUpper->type) {
+                if (pUpper) 
+                {
+                    if (pXSector->Underwater) 
+                    {
+                        switch (pUpper->type) 
+                        {
                             case kMarkerUpStack:
                             case kMarkerUpLink:
                                 pXUpper->sysData1 = pUpper->type;
@@ -2977,13 +2990,16 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                         continue;
 
                     PLAYER* pPlayer = getPlayerById(pSpr->type);
-                    if (pXSector->Underwater) {
+                    if (pXSector->Underwater) 
+                    {
                         if (pLower)
-                            xsprite[pSpr->extra].medium = (pLower->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+                            iactor->x().medium = (pLower->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
-                        if (pPlayer) {
+                        if (pPlayer) 
+                        {
                             int waterPal = kMediumWater;
-                            if (pLower) {
+                            if (pLower) 
+                            {
                                 if (pXLower->data2 > 0) waterPal = pXLower->data2;
                                 else if (pLower->type == kMarkerUpGoo) waterPal = kMediumGoo;
                             }
@@ -2993,10 +3009,12 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                             pPlayer->pXSprite->burnTime = 0;
                         }
 
-                    } else {
-
-                        xsprite[pSpr->extra].medium = kMediumNormal;
-                        if (pPlayer) {
+                    }
+                    else 
+                    {
+                        iactor->x().medium = kMediumNormal;
+                        if (pPlayer)
+                        {
                             pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
                             pPlayer->nWaterPal = 0;
                         }
@@ -3075,26 +3093,29 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
         if (pXSector->Underwater) 
         {
-            spritetype* pLink = (gLowerLink[pSource->sectnum] >= 0) ? &sprite[gLowerLink[pSource->sectnum]] : NULL;
-            if (pLink) 
+            auto aLink = getLowerLink(pSource->sectnum);
+            spritetype* pLink = nullptr;
+            if (aLink) 
             {
                 // must be sure we found exact same upper link
-                for (int i = 0; i < kMaxSectors; i++) {
-                    if (gUpperLink[i] < 0 || xsprite[sprite[gUpperLink[i]].extra].data1 != xsprite[pLink->extra].data1) continue;
-                    pLink = &sprite[gUpperLink[i]];
+                for (int i = 0; i < kMaxSectors; i++) 
+                {
+                    auto aUpper = getUpperLink(i);
+                    if (aUpper == nullptr || aUpper->x().data1 != aLink->x().data1) continue;
+                    pLink = &aLink->s();
                     break;
                 }
             }
 
             if (pLink)
-                xsprite[pSprite->extra].medium = (pLink->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+                actor->x().medium = (pLink->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
             if (pPlayer) 
             {
                 int waterPal = kMediumWater;
                 if (pLink) 
                 {
-                    if (xsprite[pLink->extra].data2 > 0) waterPal = xsprite[pLink->extra].data2;
+                    if (aLink->x().data2 > 0) waterPal = aLink->x().data2;
                     else if (pLink->type == kMarkerUpGoo) waterPal = kMediumGoo;
                 }
 
@@ -3102,7 +3123,6 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
                 pPlayer->posture = kPostureSwim;
                 pPlayer->pXSprite->burnTime = 0;
             }
-
         } 
         else 
         {
@@ -3219,7 +3239,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
         if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, pSprite->sectnum, pSprite->x, pSprite->y, pos, 0)) != NULL) 
         {
             auto pEffectSpr = &pEffect->s();
-            pEffectSpr->owner = pSource->index;
+            pEffect->SetOwner(sourceactor);
 
             if (pSource->flags & kModernTypeFlag1) 
             {
@@ -4540,7 +4560,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
         case 7: return condCmp(spriteGetSlope(pSpr), arg1, arg2, cmpOp);
             case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
             case 15:
-                if (!spriRangeIsFine(pSpr->owner)) return false;
+            if (!objActor->GetOwner()) return false;
             else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, objActor->GetOwner());
                 return true;
             case 20: // stays in a sector?
@@ -8440,7 +8460,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                         sndy = emitter->y;
 
                         // sound attached to the sprite
-                        if (pSpr->index != emitter->index && emitter->owner != pSpr->index) 
+                        if (pSpr != emitter && emitter->owner != pSpr->index) 
                         {
 
                             if (!sectRangeIsFine(emitter->sectnum)) return false;
@@ -9186,7 +9206,7 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
         pBurst->xrepeat = pSprite->xrepeat / 2;
         pBurst->yrepeat = pSprite->yrepeat / 2;
         pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].angleOfs) & 2047);
-        pBurst->owner = pSprite->owner;
+        burstactor->SetOwner(actor);
 
         actBuildMissile(burstactor, actor);
 

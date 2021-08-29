@@ -2658,7 +2658,7 @@ void teslaHit(spritetype *pMissile, int a2)
     int z = pMissile->z;
     int nDist = 300;
     int nSector = pMissile->sectnum;
-    auto owner = missileactor->GetOwner();
+    auto owneractor = missileactor->GetOwner();
     const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
     GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
     bool v4 = true;
@@ -2669,7 +2669,7 @@ void teslaHit(spritetype *pMissile, int a2)
     BloodStatIterator it(kStatDude);
     while (auto hitactor = it.Next())
     {
-        if (hitactor != owner || v4)
+        if (hitactor != owneractor || v4)
         {
             spritetype *pHitSprite = &hitactor->s();
             if (pHitSprite->flags&32)
@@ -2679,9 +2679,9 @@ void teslaHit(spritetype *pMissile, int a2)
                 int dx = pMissile->x-pHitSprite->x;
                 int dy = pMissile->y-pHitSprite->y;
                 int nDamage = ClipLow((nDist-(ksqrt(dx*dx+dy*dy)>>4)+20)>>1, 10);
-                if (hitactor == owner)
+                if (hitactor == owneractor)
                     nDamage /= 2;
-                actDamageSprite(owner, hitactor, kDamageTesla, nDamage<<4);
+                actDamageSprite(owneractor, hitactor, kDamageTesla, nDamage<<4);
             }
         }
     }
@@ -2699,7 +2699,7 @@ void teslaHit(spritetype *pMissile, int a2)
                 int dx = pMissile->x-pHitSprite->x;
                 int dy = pMissile->y-pHitSprite->y;
                 int nDamage = ClipLow(nDist-(ksqrt(dx*dx+dy*dy)>>4)+20, 20);
-                actDamageSprite(owner, hitactor, kDamageTesla, nDamage << 4);
+                actDamageSprite(owneractor, hitactor, kDamageTesla, nDamage << 4);
             }
         }
     }
