@@ -425,7 +425,7 @@ inline bool aiInPatrolState(int nAiStateType) {
     return (nAiStateType >= kAiStatePatrolBase && nAiStateType < kAiStatePatrolMax);
 }
 //  -------------------------------------------------------------------------   //
-bool readyForCrit(spritetype* pHunter, spritetype* pVictim);
+bool readyForCrit(DBloodActor* pHunter, DBloodActor* pVictim);
 int sectorInMotion(int nSector);
 void clampSprite(spritetype* pSprite, int which = 0x03);
 #endif

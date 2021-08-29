@@ -8149,20 +8149,33 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
     }
 }
 
-bool spritesTouching(int nXSprite1, int nXSprite2) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (!xspriRangeIsFine(nXSprite1) || !xspriRangeIsFine(nXSprite2))
+bool spritesTouching(DBloodActor *actor1, DBloodActor* actor2) 
+{
+    if (!actor1->hasX() || !actor2->hasX())
         return false;
 
+    auto hit = &actor1->hit();
     DBloodActor* hitactor = nullptr;
-    if (gSpriteHit[nXSprite1].hit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].hit.actor;
-    else if (gSpriteHit[nXSprite1].florhit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].florhit.actor;
-    else if (gSpriteHit[nXSprite1].ceilhit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].ceilhit.actor;
+    if (hit->hit.type == kHitSprite) hitactor = hit->hit.actor;
+    else if (hit->florhit.type == kHitSprite) hitactor = hit->florhit.actor;
+    else if (hit->ceilhit.type == kHitSprite) hitactor = hit->ceilhit.actor;
     else return false;
-    return hitactor->hasX() && hitactor->s().extra == nXSprite2;
+    return hitactor->hasX() && hitactor == actor2;
 }
 
-bool aiCanCrouch(DBloodActor* actor) 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool aiCanCrouch(DBloodActor* actor)
 {
     auto pSprite = &actor->s();
     if (pSprite->type >= kDudeBase && pSprite->type < kDudeVanillaMax)
@@ -8174,9 +8187,16 @@ bool aiCanCrouch(DBloodActor* actor)
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-bool readyForCrit(spritetype* pHunter, spritetype* pVictim) {
-
+bool readyForCrit(DBloodActor* hunter, DBloodActor* victim) 
+{
+    auto pHunter = &hunter->s();
+    auto pVictim = &victim->s();
     if (!(pHunter->type >= kDudeBase && pHunter->type < kDudeMax) || !(pVictim->type >= kDudeBase && pVictim->type < kDudeMax))
         return false;
 
@@ -8189,10 +8209,15 @@ bool readyForCrit(spritetype* pHunter, spritetype* pVictim) {
     return (abs(((getangle(dx, dy) + 1024 - pVictim->ang) & 2047) - 1024) <= kAng45);
 }
 
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
    
+    auto actor = &bloodActors[pSprite->index];
     enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
     PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
@@ -8241,13 +8266,12 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
         }
 
         bool invisible = (powerupCheck(pPlayer, kPwUpShadowCloak) > 0);
-        if (spritesTouching(pSprite->extra, pSpr->extra) || spritesTouching(pSpr->extra, pSprite->extra)) {
-
+        if (spritesTouching(actor, pPlayer->actor()) || spritesTouching(pPlayer->actor(), actor)) 
+        {
             DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", pSprite->index, pPlayer->nPlayer + 1);
             if (invisible) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
             target = pSpr->index;
             break;
-
         }
 
         if (!deaf) {
