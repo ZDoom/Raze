@@ -2599,7 +2599,7 @@ void genDudePostDeath(DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
         DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
         for (int i = 0; i < 3; i++)
             if (pDudeInfo->nGibType[i] > -1)
-                GibSprite(pSprite, (GIBTYPE)pDudeInfo->nGibType[i], NULL, NULL);
+                GibSprite(actor, (GIBTYPE)pDudeInfo->nGibType[i], NULL, NULL);
 
         for (int i = 0; i < 4; i++)
             fxSpawnBlood(actor, damage);

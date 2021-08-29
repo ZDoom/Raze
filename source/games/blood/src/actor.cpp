@@ -2740,7 +2740,7 @@ static void actNapalmMove(DBloodActor* actor)
 
 	if (pXSprite->data4 > 1)
 	{
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		int spawnparam[2];
 		spawnparam[0] = pXSprite->data4 >> 1;
 		spawnparam[1] = pXSprite->data4 - spawnparam[0];
@@ -3023,7 +3023,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 				GetActorExtents(actor, &top, &bottom);
 				CGibPosition gibPos(pSprite->x, pSprite->y, top);
 				CGibVelocity gibVel(actor->xvel() >> 1, actor->yvel() >> 1, -0xccccc);
-				GibSprite(pSprite, nGibType, &gibPos, &gibVel);
+				GibSprite(actor, nGibType, &gibPos, &gibVel);
 			}
 		}
 
@@ -3268,7 +3268,7 @@ static void spawnGibs(DBloodActor* actor, int type, int velz)
 	GetActorExtents(actor, &top, &bottom);
 	CGibPosition gibPos(actor->s().x, actor->s().y, top);
 	CGibVelocity gibVel(actor->xvel() >> 1, actor->yvel() >> 1, velz);
-	GibSprite(&actor->s(), GIBTYPE_27, &gibPos, &gibVel);
+	GibSprite(actor, GIBTYPE_27, &gibPos, &gibVel);
 }
 
 //---------------------------------------------------------------------------
@@ -3319,7 +3319,7 @@ static void burningCultistDeath(DBloodActor* actor, int nSeq)
 	if (Chance(0x8000))
 	{
 		for (int i = 0; i < 3; i++)
-			GibSprite(pSprite, GIBTYPE_7, nullptr, nullptr);
+			GibSprite(actor, GIBTYPE_7, nullptr, nullptr);
 		seqSpawn(dudeInfo[nType].seqStartID + 16 - Random(1), actor, nDudeToGibClient1);
 	}
 	else
@@ -3652,7 +3652,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 		DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 		for (int i = 0; i < 3; i++)
 			if (pDudeInfo->nGibType[i] > -1)
-				GibSprite(pSprite, (GIBTYPE)pDudeInfo->nGibType[i], nullptr, nullptr);
+				GibSprite(actor, (GIBTYPE)pDudeInfo->nGibType[i], nullptr, nullptr);
 		for (int i = 0; i < 4; i++)
 			fxSpawnBlood(actor, damage);
 	}
@@ -3735,7 +3735,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 #ifdef NOONE_EXTENSIONS
 		case kModernThingEnemyLifeLeech:
 #endif
-			GibSprite(pSprite, GIBTYPE_14, nullptr, nullptr);
+			GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
 			pXSprite->data1 = pXSprite->data2 = pXSprite->data3 = pXSprite->DudeLockout = 0;
 			pXSprite->stateTimer = pXSprite->data4 = pXSprite->isTriggered = 0;
 
@@ -3772,7 +3772,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 
 		case kThingFluorescent:
 			seqSpawn(12, 3, pSprite->extra, -1);
-			GibSprite(pSprite, GIBTYPE_6, nullptr, nullptr);
+			GibSprite(actor, GIBTYPE_6, nullptr, nullptr);
 			break;
 
 		case kThingSpiderWeb:
@@ -3781,14 +3781,14 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 
 		case kThingMetalGrate:
 			seqSpawn(21, 3, pSprite->extra, -1);
-			GibSprite(pSprite, GIBTYPE_4, nullptr, nullptr);
+			GibSprite(actor, GIBTYPE_4, nullptr, nullptr);
 			break;
 
 		case kThingFlammableTree:
 			switch (pXSprite->data1)
 			{
 			case -1:
-				GibSprite(pSprite, GIBTYPE_14, nullptr, nullptr);
+				GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
 				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 312, pSprite->sectnum);
 				actPostSprite(actor, kStatFree);
 				break;
@@ -3955,7 +3955,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			}
 			break;
 		}
-		GibSprite(pMissile, GIBTYPE_24, NULL, NULL);
+		GibSprite(missileActor, GIBTYPE_24, NULL, NULL);
 		actPostSprite(missileActor, kStatFree);
 		break;
 
@@ -3973,7 +3973,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileArcGargoyle:
 		sfxKill3DSound(pMissile, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sectnum);
-		GibSprite(pMissile, GIBTYPE_6, NULL, NULL);
+		GibSprite(missileActor, GIBTYPE_6, NULL, NULL);
 
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
 		{
@@ -4052,7 +4052,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				break;
 			}
 		}
-		GibSprite(pMissile, GIBTYPE_17, NULL, NULL);
+		GibSprite(missileActor, GIBTYPE_17, NULL, NULL);
 		actPostSprite(missileActor, kStatFree);
 		break;
 
@@ -4134,7 +4134,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileTeslaRegular:
 		sfxKill3DSound(pMissile, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 518, pMissile->sectnum);
-		GibSprite(pMissile, (hitCode == 2) ? GIBTYPE_23 : GIBTYPE_22, NULL, NULL);
+		GibSprite(missileActor, (hitCode == 2) ? GIBTYPE_23 : GIBTYPE_22, NULL, NULL);
 		evKillActor(missileActor);
 		seqKill(missileActor);
 		actPostSprite(missileActor, kStatFree);
@@ -5507,7 +5507,7 @@ void actExplodeSprite(DBloodActor* actor)
 		seqSpawn(4, actor, -1);
 		if (Chance(0x8000)) pSprite->cstat |= 4;
 		sfxPlay3DSound(actor, 303, -1, 0);
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 
 	case kMissileFlareAlt:
@@ -5515,7 +5515,7 @@ void actExplodeSprite(DBloodActor* actor)
 		seqSpawn(9, actor, -1);
 		if (Chance(0x8000)) pSprite->cstat |= 4;
 		sfxPlay3DSound(actor, 306, 24 + (pSprite->index & 3), FX_GlobalChannel); // ouch...
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 
 	case kMissileFireballCerberus:
@@ -5523,7 +5523,7 @@ void actExplodeSprite(DBloodActor* actor)
 		nType = kExplosionFireball;
 		seqSpawn(5, actor, -1);
 		sfxPlay3DSound(actor, 304, -1, 0);
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 
 	case kThingArmedTNTStick:
@@ -5531,7 +5531,7 @@ void actExplodeSprite(DBloodActor* actor)
 		if (actor->hit.florhit.type == kHitNone) seqSpawn(4, actor, -1);
 		else seqSpawn(3, actor, -1);
 		sfxPlay3DSound(actor, 303, -1, 0);
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 
 	case kThingArmedProxBomb:
@@ -5545,14 +5545,14 @@ void actExplodeSprite(DBloodActor* actor)
 		else
 			seqSpawn(3, actor, -1);
 		sfxPlay3DSound(actor, 304, -1, 0);
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 
 	case kThingArmedSpray:
 		nType = kExplosionSpray;
 		seqSpawn(5, actor, -1);
 		sfxPlay3DSound(actor, 307, -1, 0);
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 
 	case kThingTNTBarrel:
@@ -5573,7 +5573,7 @@ void actExplodeSprite(DBloodActor* actor)
 		pXSprite = &spawned->x();
 
 		sfxPlay3DSound(actor, 305, -1, 0);
-		GibSprite(pSprite, GIBTYPE_14, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
 		break;
 	}
 	case kTrapExploder:
@@ -5613,7 +5613,7 @@ void actExplodeSprite(DBloodActor* actor)
 		nType = kExplosionFireball;
 		seqSpawn(9, actor, -1);
 		sfxPlay3DSound(actor, 307, -1, 0);
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		fxSpawnPodStuff(actor, 240);
 		break;
 
@@ -5622,7 +5622,7 @@ void actExplodeSprite(DBloodActor* actor)
 		seqSpawn(4, actor, -1);
 		if (Chance(0x8000)) pSprite->cstat |= 4;
 		sfxPlay3DSound(actor, 303, -1, 0);
-		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
+		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 	}
 	actor->xvel() = actor->yvel() = actor->zvel() = 0;
@@ -5656,9 +5656,9 @@ void actActivateGibObject(DBloodActor* actor)
 	int sound = pXSprite->data4;
 	int dropmsg = pXSprite->dropMsg;
 
-	if (gib1 > 0) GibSprite(pSprite, (GIBTYPE)(gib1 - 1), nullptr, nullptr);
-	if (gib2 > 0) GibSprite(pSprite, (GIBTYPE)(gib2 - 1), nullptr, nullptr);
-	if (gib3 > 0 && pXSprite->burnTime > 0) GibSprite(pSprite, (GIBTYPE)(gib3 - 1), nullptr, nullptr);
+	if (gib1 > 0) GibSprite(actor, (GIBTYPE)(gib1 - 1), nullptr, nullptr);
+	if (gib2 > 0) GibSprite(actor, (GIBTYPE)(gib2 - 1), nullptr, nullptr);
+	if (gib3 > 0 && pXSprite->burnTime > 0) GibSprite(actor, (GIBTYPE)(gib3 - 1), nullptr, nullptr);
 	if (sound > 0) sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, sound, pSprite->sectnum);
 	if (dropmsg > 0) actDropObject(actor, dropmsg);
 
@@ -6326,7 +6326,7 @@ void actCheckFlares()
 		auto pXTarget = target->hasX() ? &target->x() : nullptr;
 		if (pTarget->statnum == kMaxStatus)
 		{
-			GibSprite(pSprite, GIBTYPE_17, NULL, NULL);
+			GibSprite(actor, GIBTYPE_17, NULL, NULL);
 			actPostSprite(actor, kStatFree);
 		}
 		if (pXTarget && pXTarget->health > 0)
@@ -6342,7 +6342,7 @@ void actCheckFlares()
 		}
 		else
 		{
-			GibSprite(pSprite, GIBTYPE_17, NULL, NULL);
+			GibSprite(actor, GIBTYPE_17, NULL, NULL);
 			actPostSprite(actor, kStatFree);
 		}
 	}

@@ -1962,8 +1962,8 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 sfxPlay3DSound(pSprite, 716, 0, 0);
                 break;
             case kDamageExplode:
-                GibSprite(pSprite, GIBTYPE_7, NULL, NULL);
-                GibSprite(pSprite, GIBTYPE_15, NULL, NULL);
+                GibSprite(pActor, GIBTYPE_7, NULL, NULL);
+                GibSprite(pActor, GIBTYPE_15, NULL, NULL);
                 pPlayer->pSprite->cstat |= 32768;
                 nDeathSeqID = 17;
                 break;
@@ -1973,8 +1973,8 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 GetSpriteExtents(pSprite, &top, &bottom);
                 CGibPosition gibPos(pSprite->x, pSprite->y, top);
                 CGibVelocity gibVel(xvel[pSprite->index]>>1, yvel[pSprite->index]>>1, -0xccccc);
-                GibSprite(pSprite, GIBTYPE_27, &gibPos, &gibVel);
-                GibSprite(pSprite, GIBTYPE_7, NULL, NULL);
+                GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
+                GibSprite(pActor, GIBTYPE_7, NULL, NULL);
                 fxSpawnBlood(pActor, nDamage<<4);
                 fxSpawnBlood(pActor, nDamage<<4);
                 nDeathSeqID = 17;
@@ -2022,8 +2022,8 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         {
         case kDamageExplode:
             sfxPlay3DSound(pSprite, 717, 0, 0);
-            GibSprite(pSprite, GIBTYPE_7, NULL, NULL);
-            GibSprite(pSprite, GIBTYPE_15, NULL, NULL);
+            GibSprite(pActor, GIBTYPE_7, NULL, NULL);
+            GibSprite(pActor, GIBTYPE_15, NULL, NULL);
             pPlayer->pSprite->cstat |= 32768;
             nDeathSeqID = 2;
             break;
