@@ -294,21 +294,18 @@ void evInit()
 		}
 	}
 
-	for (int i = 0; i < kMaxSprites; i++)
+	BloodLinearSpriteIterator it;
+	while (auto actor = it.Next())
 	{
-		if (sprite[i].statnum < kMaxStatus)
+		if (actor->hasX() && actor->x().rxID > 0)
 		{
-			int nXSprite = sprite[i].extra;
-			if (nXSprite > 0 && xsprite[nXSprite].rxID > 0)
-			{
 				assert(nCount < kChannelMax);
 				rxBucket[nCount].type = SS_SPRITE;
-				rxBucket[nCount].rxindex = i;
-				rxBucket[nCount].actor = &bloodActors[i];
+				rxBucket[nCount].rxindex = 0;
+				rxBucket[nCount].actor = actor;
 				nCount++;
 			}
 		}
-	}
 
 	SortRXBucket(nCount);
 	bucketCount = nCount;

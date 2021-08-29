@@ -216,7 +216,7 @@ void Respawn(DBloodActor* actor, int) // 9
     if (!actor) return;
     spritetype *pSprite = &actor->s();
     assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
-    XSPRITE *pXSprite = &xsprite[pSprite->extra];
+    XSPRITE *pXSprite = &actor->x();
     
     if (pSprite->statnum != kStatRespawn && pSprite->statnum != kStatThing) {
         viewSetSystemMessage("Sprite #%d is not on Respawn or Thing list\n", actor->GetIndex());
@@ -405,8 +405,7 @@ void fxBloodBits(DBloodActor* actor, int) // 14
     gFX.fxSpawnActor(FX_48, pSprite->sectnum, x, y, pSprite->z, 0);
     if (pSprite->ang == 1024)
     {
-        int nChannel = 28+(pSprite->index&2);
-        assert(nChannel < 32);
+        int nChannel = 28 + (actor->GetIndex() & 2);    // this is a little stupid...
         sfxPlay3DSound(pSprite, 385, nChannel, 1);
     }
     if (Chance(0x5000))
@@ -459,8 +458,7 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
             return;
         }
 
-        int nChannel = 28 + (pSprite->index & 2);
-        assert(nChannel < 32);
+        int nChannel = 28 + (actor->GetIndex() & 2);
         
         // tommy sleeve
         if (pSprite->type >= 37 && pSprite->type <= 39) {
@@ -508,18 +506,16 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
     auto owner = actor->GetOwner();
     if (owner)
     {
-        spritetype* pOwner = &owner->s();
-        XSPRITE* pXOwner = &owner->x();
         switch (pSprite->type) 
         {
             case kItemFlagA:
-                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
+                trTriggerSprite(owner, kCmdOn);
                 sndStartSample(8003, 255, 2, 0);
                 gBlueFlagDropped = false;
                 viewSetMessage("Blue Flag returned to base.");
                 break;
             case kItemFlagB:
-                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
+                trTriggerSprite(owner, kCmdOn);
                 sndStartSample(8002, 255, 2, 0);
                 gRedFlagDropped = false;
                 viewSetMessage("Red Flag returned to base.");
@@ -565,7 +561,7 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
     int y = pSprite->y+MulScale(nDist, Sin(nAngle), 28);
     if (pSprite->ang == 1024)
     {
-        int nChannel = 28+(pSprite->index&2);
+        int nChannel = 28 + (actor->GetIndex() & 2);
         assert(nChannel < 32);
         sfxPlay3DSound(pSprite, 385, nChannel, 1);
     }
@@ -598,7 +594,7 @@ void LeechStateTimer(DBloodActor* actor, int) // 20
             #ifdef NOONE_EXTENSIONS
             case kModernThingEnemyLifeLeech:
             #endif
-                xsprite[pSprite->extra].stateTimer = 0;
+                actor->x().stateTimer = 0;
                 break;
         }
     }
