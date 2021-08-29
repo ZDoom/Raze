@@ -4871,7 +4871,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
             break;
         // change picture and palette of TX ID object
         case kModernObjPicnumChanger:
-            usePictureChanger(pXSource, destObjType, destObjIndex);
+            usePictureChanger(event.actor, destObjType, destObjIndex, destactor);
             break;
         // change various properties
         case kModernObjPropertiesChanger:
@@ -7083,9 +7083,15 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     }
 }
 
-void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
-    
-    //spritetype* pSource = &sprite[pXSource->reference];
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void usePictureChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor)
+{
+    auto pXSource = &sourceactor->x();
     
     switch (objType) {
         case OBJ_SECTOR:
@@ -7103,13 +7109,13 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
             break;
         case OBJ_SPRITE:
             if (valueIsBetween(pXSource->data1, -1, 32767))
-                sprite[objIndex].picnum = pXSource->data1;
+                objActor->s().picnum = pXSource->data1;
 
-            if (pXSource->data2 >= 0) sprite[objIndex].shade = (pXSource->data2 > 127) ? 127 : pXSource->data2;
-            else if (pXSource->data2 < -1) sprite[objIndex].shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
+            if (pXSource->data2 >= 0) objActor->s().shade = (pXSource->data2 > 127) ? 127 : pXSource->data2;
+            else if (pXSource->data2 < -1) objActor->s().shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
-                sprite[objIndex].pal = uint8_t(pXSource->data3);
+                objActor->s().pal = uint8_t(pXSource->data3);
             break;
         case OBJ_WALL:
             if (valueIsBetween(pXSource->data1, -1, 32767))
@@ -7124,25 +7130,35 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
     }
 }
 
-//---------------------------------------
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-// player related
-QAV* playerQavSceneLoad(int qavId) {
+QAV* playerQavSceneLoad(int qavId) 
+{
     QAV* pQav = getQAV(qavId);
-
     if (!pQav) viewSetSystemMessage("Failed to load QAV animation #%d", qavId);
     return pQav;
 }
 
-void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
 {
     auto initiator = pQavScene->initiator;
     if (initiator->hasX())
     {
         XSPRITE* pXSprite = &initiator->x();
-        if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) {
-            if (pXSprite->txID >= kChannelUser) {
-                
+        if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) 
+        {
+            if (pXSprite->txID >= kChannelUser) 
+            {
                 for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
                 {
                     if (rxBucket[i].type == OBJ_SPRITE) 
@@ -7162,19 +7178,17 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
                     ConditionElement condi = { rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor };
                     nnExtTriggerObject(condi, pXSprite->command);
                 }
-            } //else {
-                
-                trPlayerCtrlStopScene(pPlayer);
-
-            //}
-
-        } else {
-            
+            }
+            trPlayerCtrlStopScene(pPlayer);
+        }
+        else 
+        {
             playerQavScenePlay(pPlayer);
             pPlayer->weaponTimer = ClipLow(pPlayer->weaponTimer -= 4, 0);
-
         }
-    } else {
+    }
+    else 
+    {
         
         pQavScene->initiator = nullptr;
         pPlayer->sceneQav = -1;
@@ -7182,14 +7196,21 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
+{
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
     spritetype* pSprite = &pQavScene->initiator->s();
 
-    if (pQavScene->qavResrc != NULL) {
-
+    if (pQavScene->qavResrc != NULL) 
+    {
         QAV* pQAV = pQavScene->qavResrc;
         int v4;
         double smoothratio;
@@ -7197,35 +7218,44 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
         qavProcessTimer(pPlayer, pQAV, &v4, &smoothratio);
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-        if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32))) {
+        if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32))) 
+        {
             a2 = -128; flags |= 1;
         }
 
         // draw as weapon
-        if (!(pSprite->flags & kModernTypeFlag1)) {
-
+        if (!(pSprite->flags & kModernTypeFlag1)) 
+        {
             pQAV->x = int(a3); pQAV->y = int(a4);
             pQAV->Draw(a3, a4, v4, flags, a2, a5, true, smoothratio);
 
             // draw fullscreen (currently 4:3 only)
-        } else {
+        }
+        else 
+        {
             // What an awful hack. This throws proper ordering out of the window, but there is no way to reproduce this better with strict layering of elements.
 			// From the above commit it seems to be incomplete anyway...
             pQAV->Draw(v4, flags, a2, a5, false, smoothratio);
         }
-
     }
-
 }
 
-void playerQavScenePlay(PLAYER* pPlayer) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void playerQavScenePlay(PLAYER* pPlayer)
+{
     if (pPlayer == NULL) return;
     
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
     if (pPlayer->sceneQav == -1 && pQavScene->initiator != nullptr)
         pPlayer->sceneQav = pQavScene->initiator->x().data2;
 
-    if (pQavScene->qavResrc != NULL) {
+    if (pQavScene->qavResrc != NULL) 
+    {
         QAV* pQAV = pQavScene->qavResrc;
         pQAV->nSprite = pPlayer->pSprite->index;
         int nTicks = pQAV->duration - pPlayer->weaponTimer;
@@ -7233,32 +7263,37 @@ void playerQavScenePlay(PLAYER* pPlayer) {
     }
 }
 
-void playerQavSceneReset(PLAYER* pPlayer) {
+void playerQavSceneReset(PLAYER* pPlayer) 
+{
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
     pQavScene->initiator = nullptr;
     pQavScene->dummy = pPlayer->sceneQav = -1;
     pQavScene->qavResrc = NULL;
 }
 
-bool playerSizeShrink(PLAYER* pPlayer, int divider) {
+bool playerSizeShrink(PLAYER* pPlayer, int divider) 
+{
     pPlayer->pXSprite->scale = 256 / divider;
     playerSetRace(pPlayer, kModeHumanShrink);
     return true;
 }
 
-bool playerSizeGrow(PLAYER* pPlayer, int multiplier) {
+bool playerSizeGrow(PLAYER* pPlayer, int multiplier) 
+{
     pPlayer->pXSprite->scale = 256 * multiplier;
     playerSetRace(pPlayer, kModeHumanGrown);
     return true;
 }
 
-bool playerSizeReset(PLAYER* pPlayer) {
+bool playerSizeReset(PLAYER* pPlayer) 
+{
     playerSetRace(pPlayer, kModeHuman);
     pPlayer->pXSprite->scale = 0;
     return true;
 }
 
-void playerDeactivateShrooms(PLAYER* pPlayer) {
+void playerDeactivateShrooms(PLAYER* pPlayer) 
+{
     powerupDeactivate(pPlayer, kPwUpGrowShroom);
     pPlayer->pwUpTime[kPwUpGrowShroom] = 0;
 
@@ -7266,21 +7301,30 @@ void playerDeactivateShrooms(PLAYER* pPlayer) {
     pPlayer->pwUpTime[kPwUpShrinkShroom] = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-
-PLAYER* getPlayerById(short id) {
-
+PLAYER* getPlayerById(short id) 
+{
     // relative to connected players
-    if (id >= 1 && id <= kMaxPlayers) {
+    if (id >= 1 && id <= kMaxPlayers) 
+    {
         id = id - 1;
-        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
+        for (int i = connecthead; i >= 0; i = connectpoint2[i]) 
+        {
             if (id == gPlayer[i].nPlayer)
                 return &gPlayer[i];
         }
 
     // absolute sprite type
-    } else if (id >= kDudePlayer1 && id <= kDudePlayer8) {
-        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
+    } 
+    else if (id >= kDudePlayer1 && id <= kDudePlayer8) 
+    {
+        for (int i = connecthead; i >= 0; i = connectpoint2[i]) 
+        {
             if (id == gPlayer[i].pSprite->type)
                 return &gPlayer[i];
         }
@@ -7290,7 +7334,12 @@ PLAYER* getPlayerById(short id) {
     return NULL;
 }
 
-// misc functions
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool IsBurningDude(spritetype* pSprite) {
     if (pSprite == NULL) return false;
     switch (pSprite->type) {
