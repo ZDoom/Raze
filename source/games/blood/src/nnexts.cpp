@@ -4457,7 +4457,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
             case 0: return condCmp((pSpr->ang & 2047), arg1, arg2, cmpOp);
             case 5: return condCmp(pSpr->statnum, arg1, arg2, cmpOp);
             case 6: return ((pSpr->flags & kHitagRespawn) || pSpr->statnum == kStatRespawn);
-            case 7: return condCmp(spriteGetSlope(pSpr->index), arg1, arg2, cmpOp);
+        case 7: return condCmp(spriteGetSlope(pSpr), arg1, arg2, cmpOp);
             case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
             case 15:
                 if (!spriRangeIsFine(pSpr->owner)) return false;
@@ -4819,7 +4819,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
             {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSlopeChanger(pXSource, destObjType, destObjIndex);
+                    useSlopeChanger(event.actor, destObjType, destObjIndex, destactor);
                     break;
             }
             break;
@@ -6517,41 +6517,56 @@ void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodA
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void sprite2sectorSlope(spritetype* pSprite, sectortype* pSector, char rel, bool forcez) {
-    
+void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool forcez) 
+{
+    auto pSprite = &actor->s();
     int slope = 0, z = 0;
     switch (rel) {
         default:
             z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-            if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && pSprite->extra > 0 && xsprite[pSprite->extra].Touch) z--;
+            if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->x().Touch) z--;
             slope = pSector->floorheinum;
             break;
         case 1:
             z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-            if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && pSprite->extra > 0 && xsprite[pSprite->extra].Touch) z++;
+            if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->x().Touch) z++;
             slope = pSector->ceilingheinum;
             break;
     }
 
-    spriteSetSlope(pSprite->index, slope);
+    spriteSetSlope(pSprite, slope);
     if (forcez) pSprite->z = z;
 }
 
-void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor) 
+{
+    auto pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
 
     int slope, oslope, i;
-    spritetype* pSource = &sprite[pXSource->reference];
     bool flag2 = (pSource->flags & kModernTypeFlag2);
 
     if (pSource->flags & kModernTypeFlag1) slope = ClipRange(pXSource->data2, -32767, 32767);
     else slope = (32767 / kPercFull) * ClipRange(pXSource->data2, -kPercFull, kPercFull);
 
-    if (objType == OBJ_SECTOR) {
-    
+    if (objType == OBJ_SECTOR) 
+    {
         sectortype* pSect = &sector[objIndex];
 
-        switch (pXSource->data1) {
+        switch (pXSource->data1)
+        {
             case 2:
             case 0:
             if (slope == 0) pSect->floorstat &= ~0x0002;
@@ -6559,28 +6574,31 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
                     pSect->floorstat |= 0x0002;
 
             // just set floor slope
-            if (flag2) {
-
+            if (flag2)
+            {
                 pSect->floorheinum = slope;
-
-            } else {
-
+            }
+            else
+            {
                 // force closest floor aligned sprites to inherit slope of the sector's floor
-                for (i = headspritesect[objIndex], oslope = pSect->floorheinum; i != -1; i = nextspritesect[i]) {
-                    if (!(sprite[i].cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-                    else if (getflorzofslope(objIndex, sprite[i].x, sprite[i].y) - kSlopeDist <= sprite[i].z) {
-
-                        sprite2sectorSlope(&sprite[i], &sector[objIndex], 0, true);
+                oslope = pSect->floorheinum;
+                BloodSectIterator it(objIndex);
+                while (auto iactor = it.Next())
+                {
+                    auto spr = &iactor->s();
+                    if (!(spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
+                    else if (getflorzofslope(objIndex, spr->x, spr->y) - kSlopeDist <= spr->z)
+                    {
+                        sprite2sectorSlope(iactor, &sector[objIndex], 0, true);
 
                         // set new slope of floor
                         pSect->floorheinum = slope;
 
                         // force sloped sprites to be on floor slope z
-                        sprite2sectorSlope(&sprite[i], &sector[objIndex], 0, true);
+                        sprite2sectorSlope(iactor, &sector[objIndex], 0, true);
 
                         // restore old slope for next sprite
                         pSect->floorheinum = oslope;
-
                 }
                 }
 
@@ -6597,28 +6615,30 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
                     pSect->ceilingstat |= 0x0002;
 
             // just set ceiling slope
-            if (flag2) {
-
+            if (flag2)
+            {
                 pSect->ceilingheinum = slope;
-
-            } else {
-
-                // force closest floor aligned sprites to inherit slope of the sector's ceiling
-                for (i = headspritesect[objIndex], oslope = pSect->ceilingheinum; i != -1; i = nextspritesect[i]) {
-                    if (!(sprite[i].cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-                    else if (getceilzofslope(objIndex, sprite[i].x, sprite[i].y) + kSlopeDist >= sprite[i].z) {
-
-                        sprite2sectorSlope(&sprite[i], &sector[objIndex], 1, true);
+            }
+            else
+            { 
+                oslope = pSect->ceilingheinum;
+                BloodSectIterator it(objIndex);
+                while (auto iactor = it.Next())
+                {
+                    auto spr = &iactor->s();
+                    if (!(spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
+                    else if (getceilzofslope(objIndex, spr->x, spr->y) + kSlopeDist >= spr->z)
+                    {
+                        sprite2sectorSlope(iactor, &sector[objIndex], 1, true);
 
                         // set new slope of ceiling
                         pSect->ceilingheinum = slope;
 
                         // force sloped sprites to be on ceiling slope z
-                        sprite2sectorSlope(&sprite[i], &sector[objIndex], 1, true);
+                        sprite2sectorSlope(iactor, &sector[objIndex], 1, true);
 
                         // restore old slope for next sprite
                         pSect->ceilingheinum = oslope;
-
                 }
                 }
 
@@ -6630,42 +6650,48 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
         }
 
         // let's give a little impulse to the physics sprites...
-        for (i = headspritesect[objIndex]; i != -1; i = nextspritesect[i]) {
-
-                if (sprite[i].extra > 0 && xsprite[sprite[i].extra].physAttr > 0) {
-                xsprite[sprite[i].extra].physAttr |= kPhysFalling;
-                zvel[i]++;
-                
-            } else if ((sprite[i].statnum == kStatThing || sprite[i].statnum == kStatDude) && (sprite[i].flags & kPhysGravity)) {
-                sprite[i].flags |= kPhysFalling;
-                zvel[i]++;
+        BloodSectIterator it(objIndex);
+        while (auto iactor = it.Next())
+        {
+            auto spr = &iactor->s();
+            auto xspr = &iactor->x();
+            if (spr->extra > 0 && xspr->physAttr > 0) 
+            {
+                xspr->physAttr |= kPhysFalling;
+                iactor->zvel()++;
+            } 
+            else if ((spr->statnum == kStatThing || spr->statnum == kStatDude) && (spr->flags & kPhysGravity))
+            {
+                spr->flags |= kPhysFalling;
+                iactor->zvel()++;
                 }
-
             }
-
-    } else if (objType == OBJ_SPRITE) {
-        
-        spritetype* pSpr = &sprite[objIndex];
+    } 
+    else if (objType == OBJ_SPRITE) 
+    {
+        spritetype* pSpr = &objActor->s();
         if (!(pSpr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) pSpr->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
         if ((pSpr->cstat & CSTAT_SPRITE_ALIGNMENT_SLOPE) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
             pSpr->cstat |= CSTAT_SPRITE_ALIGNMENT_SLOPE;
 
-        switch (pXSource->data4) {
+        switch (pXSource->data4) 
+        {
             case 1:
             case 2:
             case 3:
                 if (!sectRangeIsFine(pSpr->sectnum)) break;
-                switch (pXSource->data4) {
-                    case 1: sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 0, flag2); break;
-                    case 2: sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 1, flag2); break;
+                switch (pXSource->data4) 
+                {
+                    case 1: sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 0, flag2); break;
+                    case 2: sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 1, flag2); break;
                     case 3:
-                        if (getflorzofslope(pSpr->sectnum, pSpr->x, pSpr->y) - kSlopeDist <= pSpr->z) sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 0, flag2);
-                        if (getceilzofslope(pSpr->sectnum, pSpr->x, pSpr->y) + kSlopeDist >= pSpr->z) sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 1, flag2);
+                        if (getflorzofslope(pSpr->sectnum, pSpr->x, pSpr->y) - kSlopeDist <= pSpr->z) sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 0, flag2);
+                        if (getceilzofslope(pSpr->sectnum, pSpr->x, pSpr->y) + kSlopeDist >= pSpr->z) sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 1, flag2);
                         break;
                 }
                 break;
             default:
-        spriteSetSlope(objIndex, slope);
+                spriteSetSlope(pSpr, slope);
                 break;
     }
     }
