@@ -331,7 +331,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
 
     gKillMgr.AddNewKill(1);
 
-    bool burning = IsBurningDude(pDude);
+    bool burning = IsBurningDude(pDudeActor);
     if (burning) {
         pXDude->burnTime = 10;
         pDudeActor->SetTarget(nullptr);
@@ -4205,11 +4205,9 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
         return false;
     }
 
-    spritetype* pSpr = pPlayer->pSprite;
-
     switch (cond) {
         case 0: // check if this player is connected
-            if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || !spriRangeIsFine(pPlayer->nSprite)) return false;
+            if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || pPlayer->actor() == nullptr) return false;
             else if (PUSH) condPush(aCond, OBJ_SPRITE, 0,  pPlayer->actor());
             return (pPlayer->nPlayer >= 0);
         case 1: return condCmp((gGameOptions.nGameType != 3) ? 0 : pPlayer->teamId + 1, arg1, arg2, cmpOp); // compare team
@@ -4252,8 +4250,8 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
         case 14: return condCmp(pPlayer->posture + 1, arg1, arg2, cmpOp);
         case 46: return condCmp(pPlayer->sceneQav, arg1, arg2, cmpOp);
         case 47: return (pPlayer->godMode || powerupCheck(pPlayer, kPwUpDeathMask));
-        case 48: return isShrinked(pSpr);
-        case 49: return isGrown(pSpr);
+        case 48: return isShrinked(pPlayer->actor());
+        case 49: return isGrown(pPlayer->actor());
     }
 
     condError(aCond, "Unexpected condition #%d!", cond);
@@ -4925,7 +4923,7 @@ DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDis
         if (dist < minDist || dist > maxDist) continue;
         else if (actor->GetTarget() == targactor) return targactor;
         else if (!targactor->IsDudeActor() || targactor == actor || targactor->IsPlayerActor()) continue;
-        else if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || pTarget->owner == pSprite->index) continue;
+        else if (IsBurningDude(targactor) || !IsKillableDude(targactor) || targactor->GetOwner() == actor) continue;
         else if ((teamMode == 1 && pXSprite->rxID == pXTarget->rxID) || aiFightMatesHaveSameTarget(actor, targactor, 1)) continue;
         else if (data == 666 || pXTarget->data1 == data) 
         {
@@ -6824,7 +6822,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     // dude is burning?
     if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) 
     {
-        if (IsBurningDude(pSprite)) return;
+        if (IsBurningDude(actor)) return;
         else 
         {
             auto burnactor = actor->GetBurnSource();
@@ -7017,7 +7015,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             // if Target Changer have data1 = 666, everyone can be target, except AI team mates.
             else if (pXSource->data1 != 666 && pXSource->data1 != pXNewTarg->data1) continue;
             // don't attack immortal, burning dudes and mates
-            if (IsBurningDude(&newtargactor->s()) || !IsKillableDude(&newtargactor->s()) || (pXSource->data2 == 1 && pXSprite->rxID == pXNewTarg->rxID))
+            if (IsBurningDude(newtargactor) || !IsKillableDude(newtargactor) || (pXSource->data2 == 1 && pXSprite->rxID == pXNewTarg->rxID))
                 continue;
 
             if (pXSource->data2 == 0 || (pXSource->data2 == 1 && !aiFightMatesHaveSameTarget(actor, newtargactor, matesPerEnemy))) 
@@ -7340,9 +7338,11 @@ PLAYER* getPlayerById(short id)
 //
 //---------------------------------------------------------------------------
 
-bool IsBurningDude(spritetype* pSprite) {
-    if (pSprite == NULL) return false;
-    switch (pSprite->type) {
+bool IsBurningDude(DBloodActor* actor) 
+{
+    if (actor == NULL) return false;
+    switch (actor->s().type) 
+    {
     case kDudeBurningInnocent:
     case kDudeBurningCultist:
     case kDudeBurningZombieAxe:
@@ -7356,26 +7356,30 @@ bool IsBurningDude(spritetype* pSprite) {
     return false;
 }
 
-bool IsKillableDude(spritetype* pSprite) {
-    switch (pSprite->type) {
+bool IsKillableDude(DBloodActor* actor)
+{
+    switch (actor->s().type) 
+    {
     case kDudeGargoyleStatueFlesh:
     case kDudeGargoyleStatueStone:
         return false;
     default:
-        if (!IsDudeSprite(pSprite) || xsprite[pSprite->extra].locked == 1) return false;
+        if (!actor->IsDudeActor() || actor->x().locked == 1) return false;
         return true;
     }
 }
 
-bool isGrown(spritetype* pSprite) {
-    if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpGrowShroom) > 0) return true;
-    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale >= 512) return true;
+bool isGrown(DBloodActor* actor)
+{
+    if (powerupCheck(&gPlayer[actor->s().type - kDudePlayer1], kPwUpGrowShroom) > 0) return true;
+    else if (actor->hasX() && actor->x().scale >= 512) return true;
     else return false;
 }
 
-bool isShrinked(spritetype* pSprite) {
-    if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpShrinkShroom) > 0) return true;
-    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale > 0 && xsprite[pSprite->extra].scale <= 128) return true;
+bool isShrinked(DBloodActor* actor)
+{
+    if (powerupCheck(&gPlayer[actor->s().type - kDudePlayer1], kPwUpShrinkShroom) > 0) return true;
+    else if (actor->hasX() && actor->x().scale > 0 && actor->x().scale <= 128) return true;
     else return false;
 }
 
