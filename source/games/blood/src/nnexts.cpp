@@ -7904,8 +7904,8 @@ void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
             
             // alarm only when in non-recoil state?
             //if (((pXSprite->unused1 & kDudeFlagStealth) && stype != kAiStateRecoil) || !(pXSprite->unused1 & kDudeFlagStealth)) {
-                if (alarm) aiPatrolAlarmFull(pSprite, &targetactor->x(), Chance(0x0100));
-                else aiPatrolAlarmLite(pSprite, &targetactor->x());
+                if (alarm) aiPatrolAlarmFull(actor, targetactor, Chance(0x0100));
+                else aiPatrolAlarmLite(actor, targetactor);
             //}
 
         }
@@ -8040,81 +8040,86 @@ void aiPatrolMove(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget) {
-    
-    if (!xsprIsFine(pSprite) || !IsDudeSprite(pSprite))
+void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor) 
+{
+    if (!actor->hasX() || !actor->IsDudeActor())
         return;
 
-    auto targetactor = &bloodActors[pXTarget->reference];
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pTarget = &targetactor->s();
+    XSPRITE* pXTarget = &targetactor->x();
+
     if (pXSprite->health <= 0)
         return;
 
-    spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
-    spritetype* pTarget = &sprite[pXTarget->reference];
-    
     int zt1, zb1, zt2, zb2; //int eaz1 = (getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat) << 2;
-    GetSpriteExtents(pSprite, &zt1, &zb1); GetSpriteExtents(pTarget, &zt2, &zb2);
+    GetActorExtents(actor, &zt1, &zb1); 
+    GetActorExtents(targetactor, &zt2, &zb2);
     
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-
-        auto dudeactor = &bloodActors[nSprite];
-        pDude = &dudeactor->s();
-        if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || IsPlayerSprite(pDude) || pDude->extra < 0)
+    BloodStatIterator it(kStatDude);
+    while (auto dudeactor = it.Next())
+    {
+        auto pDude = &dudeactor->s();
+        if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
-        pXDude = &dudeactor->x();
+        auto pXDude = &dudeactor->x();
         if (pXDude->health <= 0)
             continue;
 
         int eaz2 = (getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat) << 2;
         int nDist = approxDist(pDude->x - pSprite->x, pDude->y - pSprite->y);
-        if (nDist >= kPatrolAlarmSeeDist || !cansee(pSprite->x, pSprite->y, zt1, pSprite->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum)) {
-            
+        if (nDist >= kPatrolAlarmSeeDist || !cansee(pSprite->x, pSprite->y, zt1, pSprite->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum)) 
+        {
             nDist = approxDist(pDude->x - pTarget->x, pDude->y - pTarget->y);
             if (nDist >= kPatrolAlarmSeeDist || !cansee(pTarget->x, pTarget->y, zt2, pTarget->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum))
                 continue;
-        
         }
 
         if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
-        if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
+        if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
             continue;
 
         aiSetTarget(dudeactor, targetactor);
         aiActivateDude(dudeactor);
-
     }
-
 }
 
-void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (!xsprIsFine(pSprite) || !IsDudeSprite(pSprite))
+void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain) 
+{
+    if (!actor->hasX() || !actor->IsDudeActor())
         return;
 
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pTarget = &targetactor->s();
+    XSPRITE* pXTarget = &targetactor->x();
+
     if (pXSprite->health <= 0)
         return;
-
-    spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
-    spritetype* pTarget = &sprite[pXTarget->reference];
 
     int eaz2 = (getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat) << 2;
     int x2 = pSprite->x, y2 = pSprite->y, z2 = pSprite->z - eaz2, sect2 = pSprite->sectnum;
     
-    int tzt, tzb; GetSpriteExtents(pTarget, &tzt, &tzb);
+    int tzt, tzb; 
+    GetActorExtents(targetactor, &tzt, &tzb);
     int x3 = pTarget->x, y3 = pTarget->y, z3 = tzt, sect3 = pTarget->sectnum;
 
-
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-
-        auto dudeactor = &bloodActors[nSprite];
-        pDude = &dudeactor->s();
-        if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || IsPlayerSprite(pDude) || pDude->extra < 0)
+    BloodStatIterator it(kStatDude);
+    while (auto dudeactor = it.Next())
+    {
+        auto pDude = &dudeactor->s();
+        if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
-        pXDude = &dudeactor->x();
+        auto pXDude = &dudeactor->x();
         if (pXDude->health <= 0)
             continue;
 
@@ -8130,22 +8135,18 @@ void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
             ((nDist1 < sdist && cansee(x1, y1, z1, sect1, x2, y2, z2, sect2)) || (nDist2 < sdist && cansee(x1, y1, z1, sect1, x3, y3, z3, sect3)))) {
 
             if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
-            if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
+            if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
                 continue;
 
-            if (spriRangeIsFine(pXSprite->target_i)) aiSetTarget(dudeactor, &bloodActors[pXSprite->target_i]);
+            if (actor->GetTarget() ) aiSetTarget(dudeactor, actor->GetTarget());
             else aiSetTarget(dudeactor, pSprite->x, pSprite->y, pSprite->z);
             aiActivateDude(dudeactor);
 
             if (chain)
-                aiPatrolAlarmFull(pDude, pXTarget, Chance(0x0010));
-
+                aiPatrolAlarmFull(dudeactor, targetactor, Chance(0x0010));
             //Printf("Dude #%d alarms dude #%d", pSprite->index, pDude->index);
-
         }
-
     }
-
 }
 
 bool spritesTouching(int nXSprite1, int nXSprite2) {
