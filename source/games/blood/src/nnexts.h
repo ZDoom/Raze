@@ -328,7 +328,7 @@ void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodA
 void useDataChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor);
 void useSectorLigthChanger(DBloodActor* pXSource, XSECTOR* pXSector);
 void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor);
-void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex);
+void usePictureChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor);
 void useSequentialTx(DBloodActor* pXSource, COMMAND_ID cmd, bool setState);
 void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState);
 void useDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);

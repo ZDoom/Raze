@@ -4807,7 +4807,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
             break;
         // change picture and palette of TX ID object
         case kModernObjPicnumChanger:
-            usePictureChanger(pXSource, destObjType, destObjIndex);
+            usePictureChanger(event.actor, destObjType, destObjIndex, destactor);
             break;
         // change various properties
         case kModernObjPropertiesChanger:
@@ -7030,9 +7030,9 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
-    
-    //spritetype* pSource = &sprite[pXSource->reference];
+void usePictureChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor)
+{
+    auto pXSource = &sourceactor->x();
     
     switch (objType) {
         case OBJ_SECTOR:
@@ -7050,13 +7050,13 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
             break;
         case OBJ_SPRITE:
             if (valueIsBetween(pXSource->data1, -1, 32767))
-                sprite[objIndex].picnum = pXSource->data1;
+                objActor->s().picnum = pXSource->data1;
 
-            if (pXSource->data2 >= 0) sprite[objIndex].shade = (pXSource->data2 > 127) ? 127 : pXSource->data2;
-            else if (pXSource->data2 < -1) sprite[objIndex].shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
+            if (pXSource->data2 >= 0) objActor->s().shade = (pXSource->data2 > 127) ? 127 : pXSource->data2;
+            else if (pXSource->data2 < -1) objActor->s().shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
-                sprite[objIndex].pal = uint8_t(pXSource->data3);
+                objActor->s().pal = uint8_t(pXSource->data3);
             break;
         case OBJ_WALL:
             if (valueIsBetween(pXSource->data1, -1, 32767))
