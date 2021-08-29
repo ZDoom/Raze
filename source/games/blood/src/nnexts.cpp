@@ -3956,7 +3956,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                     {
                         case 41: case 42:
                         case 43: case 44:
-                            return condCmp(getDataFieldOfObject(OBJ_SPRITE, pXObj->reference, 1 + cond - 41), arg1, arg2, cmpOp);
+                            return condCmp(getDataFieldOfObject(OBJ_SPRITE, pXObj->reference, condi.actor, 1 + cond - 41), arg1, arg2, cmpOp);
                         case 50: return condCmp(pXObj->rxID, arg1, arg2, cmpOp);
                         case 51: return condCmp(pXObj->txID, arg1, arg2, cmpOp);
                         case 52: return pXObj->locked;
@@ -4881,7 +4881,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
         // updated vanilla sound gen that now allows to play sounds on TX ID sprites
         case kGenModernSound:
             if (destObjType != OBJ_SPRITE) break;
-            useSoundGen(pXSource, &destactor->s());
+            useSoundGen(event.actor, destactor);
             break;
         // updated ecto skull gen that allows to fire missile from TX ID sprites
         case kGenModernMissileUniversal:
@@ -5954,7 +5954,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                     [[fallthrough]];
                 case kCmdRepeat:
                 if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                else useSoundGen(pXSprite, pSprite);
+                else useSoundGen(actor, actor);
                 
                 if (pXSprite->busyTime > 0)
                     evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
@@ -6424,11 +6424,24 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 
 }
 
-void useSoundGen(XSPRITE* pXSource, spritetype* pSprite) {
-    //spritetype* pSource = &sprite[pXSource->reference];
-    int pitch = pXSource->data4 << 1; if (pitch < 2000) pitch = 0;
-    sfxPlay3DSoundCP(pSprite, pXSource->data2, -1, 0, pitch, pXSource->data3);
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
+{
+    int pitch = sourceactor->x().data4 << 1; 
+    if (pitch < 2000) pitch = 0;
+    sfxPlay3DSoundCP(actor, sourceactor->x().data2, -1, 0, pitch, sourceactor->x().data3);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
     char buffer[5]; int data = -65535; short tmp = 0; int dataIndex = 0;
@@ -6436,7 +6449,7 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
     
     for (int i = 0; i < len; i++) {
         dataIndex = (buffer[i] - 52) + 4;
-        if ((data = getDataFieldOfObject(objType, objIndex, dataIndex)) == -65535) {
+        if ((data = getDataFieldOfObject(objType, objIndex, &bloodActors[objIndex], dataIndex)) == -65535) {
             Printf(PRINT_HIGH, "\nWrong index of data (%c) for IncDec Gen #%d! Only 1, 2, 3 and 4 indexes allowed!\n", buffer[i], objIndex);
             continue;
         }
@@ -7237,19 +7250,23 @@ bool isActive(int nSprite) {
     }
 }
 
-int getDataFieldOfObject(int objType, int objIndex, int dataIndex) {
+int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex) 
+{
     int data = -65535;
-    switch (objType) {
+    switch (objType) 
+    {
         case OBJ_SPRITE:
-            switch (dataIndex) {
-                case 1: return xsprite[sprite[objIndex].extra].data1;
-                case 2: return xsprite[sprite[objIndex].extra].data2;
+            switch (dataIndex) 
+            {
+                case 1: return actor->x().data1;
+                case 2: return actor->x().data2;
                 case 3:
-                    switch (sprite[objIndex].type) {
-                        case kDudeModernCustom: return xsprite[sprite[objIndex].extra].sysData1;
-                        default: return xsprite[sprite[objIndex].extra].data3;
+                    switch (actor->s().type) 
+                    {
+                        case kDudeModernCustom: return actor->x().sysData1;
+                        default: return actor->x().data3;
                     }
-                case 4:return xsprite[sprite[objIndex].extra].data4;
+                case 4: return actor->x().data4;
                 default: return data;
             }
         case OBJ_SECTOR: return xsector[sector[objIndex].extra].data;
@@ -8655,7 +8672,7 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
         if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].GetActor())) continue;
         for (int a = 0; a < len; a++) {
-            if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, (buffer[a] - 52) + 4) != pXSprite->data3)
+            if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;
         }
     }
@@ -8664,7 +8681,7 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
             for (int a = 0; a < len; a++) {
-                if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, (buffer[a] - 52) + 4) != pXSprite->data3)
+                if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
                     return false;
             }
         }
