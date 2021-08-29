@@ -488,6 +488,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 			{
 #ifndef OLD_SAVEGAME
 				arc("spritemass", w.spriteMass, def->spriteMass);
+
+				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
+				if (w.s().type == kDudeModernCustom || w.s().time == kDudeModernCustomBurning)
+				{
+					arc("gendudeextra", w.genDudeExtra);
+				}
 #endif
 			}
 		}

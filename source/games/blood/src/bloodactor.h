@@ -95,6 +95,7 @@ public:
 	int dudeSlope;
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
+	GENDUDEEXTRA genDudeExtra;
 
 	int cumulDamage;
 
@@ -120,7 +121,6 @@ public:
 	int& zvel() { return Blood::zvel[index]; }
 	int GetIndex() { return s().time; }	// For error printing only! This is only identical with the sprite index for items spawned at map start.
 
-	GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
 	POINT3D& basePoint() { return Blood::baseSprite[index]; }
 
 	void SetOwner(DBloodActor* own)

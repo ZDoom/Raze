@@ -193,8 +193,6 @@ struct GENDUDEEXTRA
     };
 };
 
-extern GENDUDEEXTRA gGenDudeExtra[kMaxSprites];
-
 DBloodActor* getNextIncarnation(DBloodActor* actor);
 void killDudeLeech(DBloodActor* pLeech);
 void removeLeech(DBloodActor* pLeech, bool delSprite = true);
