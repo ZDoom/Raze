@@ -311,7 +311,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
     {
         if (!gMe->pXSprite->burnTime)
             evPostActor(gMe->actor(), 0, kCallbackFXFlameLick);
-        actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
+        actBurnSprite(gMe->actor(), gMe->actor(), 2400);
         return GStrings("TXTB_FIRED");
     }
     case kCheatEdmark:
@@ -324,7 +324,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         gMe->armor[1] = VanillaMode() ? 200 : 3200;
         if (!gMe->pXSprite->burnTime)
             evPostActor(gMe->actor(), 0, kCallbackFXFlameLick);
-        actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
+        actBurnSprite(gMe->actor(), gMe->actor(), 2400);
         return GStrings("TXTB_RETARD");
     }
     case kCheatSterno:

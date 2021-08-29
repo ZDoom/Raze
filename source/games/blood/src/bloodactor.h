@@ -125,7 +125,7 @@ public:
 	int& xvel() { return Blood::xvel[index]; }
 	int& yvel() { return Blood::yvel[index]; }
 	int& zvel() { return Blood::zvel[index]; }
-	int GetIndex() { return s().index; }	// this is for error printing only!
+	int GetIndex() { return index; }	// this is for error printing only!
 
 	POINT3D& basePoint() { return Blood::baseSprite[index]; }
 
@@ -275,13 +275,6 @@ inline int DeleteSprite(DBloodActor* nSprite)
 {
 	if (nSprite) return DeleteSprite(nSprite->s().index);
 	return 0;
-}
-
-inline void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
-{
-	auto pXSprite = &pTarget->x();
-	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
-	pXSprite->burnSource = pSource? pSource->s().index : -1;
 }
 
 inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)

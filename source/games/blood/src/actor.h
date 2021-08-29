@@ -198,11 +198,6 @@ template<typename T> bool IsAmmoSprite(T const * const pSprite)
     return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
 }
 
-inline void actBurnSprite(int nSource, XSPRITE *pXSprite, int nTime)
-{
-    pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
-    pXSprite->burnSource = nSource;
-}
 
 #ifdef POLYMER
 void actAddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange, int lightColor, int lightPrio);
@@ -235,6 +230,8 @@ DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
 DBloodActor * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
 DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6);
 DBloodActor* actFireMissile(DBloodActor *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
+
+void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
 
 int actGetRespawnTime(DBloodActor *pSprite);
 bool actCheckRespawn(DBloodActor *pSprite);
