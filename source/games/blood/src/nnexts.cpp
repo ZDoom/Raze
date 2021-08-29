@@ -4821,7 +4821,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
         // updated ecto skull gen that allows to fire missile from TX ID sprites
         case kGenModernMissileUniversal:
             if (destObjType != OBJ_SPRITE) break;
-            useUniMissileGen(pXSource, &destactor->s());
+            useUniMissileGen(event.actor, destactor);
             break;
         // spawn enemies on TX ID sprites
         case kMarkerDudeSpawn:
@@ -5912,7 +5912,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else useUniMissileGen(pXSprite, pSprite);
+                    else useUniMissileGen(actor, actor);
                     
                     if (pXSprite->busyTime > 0)
                         evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
@@ -6277,21 +6277,31 @@ void useRandomItemGen(DBloodActor* actor)
     }
 }
 
-void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor) 
+{
+    if (actor == nullptr) actor = sourceactor;
+    XSPRITE* pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
+    spritetype* pSprite = &actor->s();
 
     int dx = 0, dy = 0, dz = 0;
-    spritetype* pSource = &sprite[pXSource->reference];
-    if (pSprite == NULL)
-        pSprite = pSource;
-    auto actor = &bloodActors[pSprite->index];
 
     if (pXSource->data1 < kMissileBase || pXSource->data1 >= kMissileMax)
         return;
 
-    if (pSprite->cstat & 32) {
+    if (pSprite->cstat & 32) 
+    {
         if (pSprite->cstat & 8) dz = 0x4000;
         else dz = -0x4000;
-    } else {
+    }
+    else 
+    {
         dx = bcos(pSprite->ang);
         dy = bsin(pSprite->ang);
         dz = pXSource->data3 << 6; // add slope controlling
@@ -6299,30 +6309,30 @@ void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
         else if (dz < -0x10000) dz = -0x10000;
     }
 
-    auto missile = actFireMissile(actor, 0, 0, dx, dy, dz, actor->x().data1);
-    if (missile != NULL) {
-        auto pMissile = &missile->s();
+    auto missileactor = actFireMissile(actor, 0, 0, dx, dy, dz, actor->x().data1);
+    if (missileactor) 
+    {
+        auto pMissile = &missileactor->s();
         int from; // inherit some properties of the generator
-        if ((from = (pSource->flags & kModernTypeFlag3)) > 0) {
-
-            
+        if ((from = (pSource->flags & kModernTypeFlag3)) > 0) 
+        {
             int canInherit = 0xF;
-            if (xspriRangeIsFine(pMissile->extra) && seqGetStatus(OBJ_SPRITE, pMissile->extra) >= 0) {
-                
+            if (missileactor->hasX() && seqGetStatus(missileactor) >= 0) 
+            {
                 canInherit &= ~0x8;
                
-                SEQINST* pInst = GetInstance(OBJ_SPRITE, pMissile->extra); Seq* pSeq = pInst->pSequence;
-                for (int i = 0; i < pSeq->nFrames; i++) {
+                SEQINST* pInst = GetInstance(missileactor); 
+                Seq* pSeq = pInst->pSequence;
+                for (int i = 0; i < pSeq->nFrames; i++) 
+                {
                     if ((canInherit & 0x4) && pSeq->frames[i].palette != 0) canInherit &= ~0x4;
                     if ((canInherit & 0x2) && pSeq->frames[i].xrepeat != 0) canInherit &= ~0x2;
                     if ((canInherit & 0x1) && pSeq->frames[i].yrepeat != 0) canInherit &= ~0x1;
                 }
-
-
             }
 
-            if (canInherit != 0) {
-                
+            if (canInherit != 0) 
+            {
                 if (canInherit & 0x2)
                     pMissile->xrepeat = (from == kModernTypeFlag1) ? pSource->xrepeat : pSprite->xrepeat;
                 
@@ -6334,25 +6344,21 @@ void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
                 
                 if (canInherit & 0x8)
                     pMissile->shade = (from == kModernTypeFlag1) ? pSource->shade : pSprite->shade;
-
             }
-
         }
 
         // add velocity controlling
-        if (pXSource->data2 > 0) {
-
+        if (pXSource->data2 > 0) 
+        {
             int velocity = pXSource->data2 << 12;
-            xvel[pMissile->index] = MulScale(velocity, dx, 14);
-            yvel[pMissile->index] = MulScale(velocity, dy, 14);
-            zvel[pMissile->index] = MulScale(velocity, dz, 14);
-
+            missileactor->xvel() = MulScale(velocity, dx, 14);
+            missileactor->yvel() = MulScale(velocity, dy, 14);
+            missileactor->zvel() = MulScale(velocity, dz, 14);
         }
 
         // add bursting for missiles
         if (pMissile->type != kMissileFlareAlt && pXSource->data4 > 0)
-            evPostActor(&bloodActors[pMissile->index], ClipHigh(pXSource->data4, 500), kCallbackMissileBurst);
-
+            evPostActor(missileactor, ClipHigh(pXSource->data4, 500), kCallbackMissileBurst);
     }
 
 }

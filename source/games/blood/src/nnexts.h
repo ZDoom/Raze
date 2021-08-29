@@ -322,7 +322,7 @@ void aiFightActivateDudes(int rx);
 void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex);
 void damageSprites(DBloodActor* pXSource, DBloodActor* pSprite);
 void useRandomItemGen(DBloodActor* pSource);
-void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite);
+void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor);
 void useSoundGen(XSPRITE* pXSource, spritetype* pSprite);
 void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex);
 void useDataChanger(XSPRITE* pXSource, int objType, int objIndex);
