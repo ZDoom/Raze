@@ -388,7 +388,7 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
 int listTx(XSPRITE* pXRedir, int tx);
 void seqSpawnerOffSameTx(XSPRITE* pXSource);
 //  -------------------------------------------------------------------------   //
-void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite);
+void aiPatrolSetMarker(DBloodActor* actor);
 void aiPatrolThink(DBloodActor* actor);
 void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm = false);
 void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain);

@@ -96,6 +96,7 @@ public:
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
+	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 
 	int cumulDamage; // this one's transient and does not need to be saved.
 	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
@@ -106,6 +107,7 @@ public:
 	void Clear()
 	{
 		explosionhackflag = false;
+		prevmarker = nullptr;
 		dudeSlope = 0;
 		dudeExtra = {};
 		spriteMass = {};
