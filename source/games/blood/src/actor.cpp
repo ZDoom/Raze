@@ -7432,7 +7432,6 @@ void HITINFO::set(hitdata_t* hit)
 {
 	hitsect = hit->sect;
 	hitwall = hit->wall;
-	hitsprite = hit->sprite;
 	hitactor = hit->sprite >= 0 ? &bloodActors[hit->sprite] : nullptr;
 	hitx = hit->pos.x;
 	hity = hit->pos.y;

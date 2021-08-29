@@ -373,4 +373,12 @@ void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
 void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC);
 
+inline XSECTOR* getxsector(int index)
+{
+    return index <= 0? nullptr : &xsector[sector[index].extra];
+}
+inline XWALL* getxwall(int index)
+{
+    return index <= 0 ? nullptr : &xwall[sector[index].extra];
+}
 END_BLD_NS
