@@ -3690,7 +3690,7 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 	if (!nDamageFactor) return 0;
 	else if (nDamageFactor != 256) damage = MulScale(damage, nDamageFactor, 8);
 
-	if (!IsPlayerSprite(pSprite))
+	if (!actor->IsPlayerActor())
 	{
 		if (pXSprite->health <= 0) return 0;
 		damage = aiDamageSprite(source, actor, damageType, damage);
@@ -4259,7 +4259,7 @@ static void checkCeilHit(DBloodActor* actor)
 
 #ifdef NOONE_EXTENSIONS
 					// add size shroom abilities
-					if ((actor->IsPlayerActor() && isShrinked(pSprite)) || (IsPlayerSprite(pSprite2) && isGrown(pSprite2))) {
+					if ((actor->IsPlayerActor() && isShrinked(pSprite)) || (actor2->IsPlayerActor() && isGrown(pSprite2))) {
 
 						int mass1 = getDudeInfo(pSprite2->type)->mass;
 						int mass2 = getDudeInfo(pSprite->type)->mass;
@@ -5088,7 +5088,7 @@ void MoveDude(DBloodActor* actor)
 				}
 
 #ifdef NOONE_EXTENSIONS
-				if (IsDudeSprite(pSprite) && pXSprite->health > 0 && aiInPatrolState(nAiStateType))
+				if (actor->IsDudeActor() && pXSprite->health > 0 && aiInPatrolState(nAiStateType))
 					aiPatrolState(pSprite, kAiStatePatrolMoveL); // continue patrol when going from water
 #endif
 			}
@@ -5191,7 +5191,7 @@ void MoveDude(DBloodActor* actor)
 					}
 
 					// continue patrol when fall into water
-					if (IsDudeSprite(pSprite) && pXSprite->health > 0 && aiInPatrolState(nAiStateType))
+					if (actor->IsDudeActor() && pXSprite->health > 0 && aiInPatrolState(nAiStateType))
 						aiPatrolState(pSprite, kAiStatePatrolMoveW);
 
 				}

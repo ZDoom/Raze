@@ -267,7 +267,7 @@ void genDudeAttack1(int, DBloodActor* actor)
                 spritetype* pSpawned = &spawned->s();
                 pSpawned->owner = pSprite->index;
 
-                if (xspriRangeIsFine(pSpawned->extra)) 
+                if (spawned->hasX()) 
                 {
                     spawned->SetTarget(actor->GetTarget());
                     if (spawned->GetTarget() != nullptr)
