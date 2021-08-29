@@ -2976,7 +2976,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			else
 			{
 				pXSprite->burnTime = 0;
-				pXSprite->burnSource = -1;
+				actor->SetBurnSource(nullptr);
 				damageType = kDamageFall;
 			}
 		}
@@ -7367,6 +7367,13 @@ void MakeSplash(DBloodActor* actor)
 		sfxPlay3DSound(actor, 354, -1, 0);
 		break;
 	}
+}
+
+void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
+{
+	auto pXSprite = &pTarget->x();
+	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
+	pTarget->SetBurnSource(pSource);
 }
 
 //---------------------------------------------------------------------------

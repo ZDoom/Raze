@@ -684,7 +684,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pSprite->clipdist = pDudeInfo->clipdist;
     pSprite->flags = 15;
     pXSprite->burnTime = 0;
-    pXSprite->burnSource = -1;
+    actor->SetBurnSource(nullptr);
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
     pPlayer->pSprite->cstat &= (unsigned short)~32768;
     pPlayer->bloodlust = 0;

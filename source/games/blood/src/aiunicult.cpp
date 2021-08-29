@@ -745,7 +745,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             else aiGenDudeNewState(actor, &genDudeDodgeShortW);
                             return;
                         }
-                        else if (dist <= 4000 && pXTarget->burnTime >= 2000 && pXTarget->burnSource == pSprite->index) 
+                        else if (dist <= 4000 && pXTarget->burnTime >= 2000 && targetactor->GetBurnSource() == actor)
                         {
                             if (dist > meleeVector->maxDist) aiGenDudeNewState(actor, &genDudeChaseL);
                             else aiGenDudeNewState(actor, &genDudePunch);

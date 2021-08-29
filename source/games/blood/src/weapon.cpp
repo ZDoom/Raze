@@ -1684,7 +1684,7 @@ void AltFireNapalm(int , PLAYER *pPlayer)
         pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         UseAmmo(pPlayer, 4, pXSprite->data4);
         seqSpawn(22, 3, pMissile->extra, -1);
-        actBurnSprite(pPlayer->pSprite->index, pXSprite, 600);
+        actBurnSprite(pPlayer->actor(), &bloodActors[pMissile->index], 600);
         evPostActor(&bloodActors[pMissile->index], 0, kCallbackFXFlameLick);
         sfxPlay3DSound(pMissile, 480, 2, 0);
         pPlayer->visibility = 30;

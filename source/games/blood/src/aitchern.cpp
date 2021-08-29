@@ -51,13 +51,10 @@ void sub_71A90(int, DBloodActor* actor)
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
-	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int nTarget = pTarget->index;
-	int nOwner = pSprite->owner;
-	if (pXTarget->burnTime == 0)
-		evPostActor(actor->GetTarget(), 0, kCallbackFXFlameLick);
-	actBurnSprite(nOwner, pXTarget, 40);
+	auto target = actor->GetTarget();
+	if (target->x().burnTime == 0)
+		evPostActor(target, 0, kCallbackFXFlameLick);
+	actBurnSprite(actor->GetOwner(), target, 40);
 	if (Chance(0x6000))
 		aiNewState(actor, &tcherno13A9D4);
 }

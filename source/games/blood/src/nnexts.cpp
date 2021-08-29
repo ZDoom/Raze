@@ -4710,7 +4710,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
             case 65: // compare burn time (in %)
                 var = (objActor->IsDudeActor()) ? 2400 : 1200;
                 if (!condCmp((kPercFull * pXSpr->burnTime) / var, arg1, arg2, cmpOp)) return false;
-                else if (PUSH && spriRangeIsFine(pXSpr->burnSource)) condPush(aCond, OBJ_SPRITE, 0, objActor->GetBurnSource());
+                else if (PUSH && objActor->GetBurnSource()) condPush(aCond, OBJ_SPRITE, 0, objActor->GetBurnSource());
                 return true;
 
             case 66: // any flares stuck in this sprite?
@@ -6913,7 +6913,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     int matesPerEnemy = 1;
 
     // dude is burning?
-    if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) 
+    if (pXSprite->burnTime > 0 && actor->GetBurnSource())
     {
         if (IsBurningDude(actor)) return;
         else 
@@ -6985,7 +6985,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 if (actor->GetBurnSource() == targetactor) 
                 {
                     pXSprite->burnTime = 0;
-                    pXSprite->burnSource = -1;
+                    actor->SetBurnSource(nullptr);
                 }
 
                 // force stop attack dude
@@ -6993,7 +6993,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 if (targetactor->GetBurnSource() == actor) 
                 {
                     pXTarget->burnTime = 0;
-                    pXTarget->burnSource = -1;
+                    targetactor->SetBurnSource(nullptr);
                 }
             }
         }
