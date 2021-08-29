@@ -98,7 +98,7 @@ struct BloodPlayer native
 	native int        throwTime;
 	native int        throwPower;
 	//native Aim        aim;  // world
-	native int        aimTarget;  // aim target sprite
+	//native int        aimTarget;  // aim target sprite
 	native int        aimTargetsCount;
 	native short      aimTargets[16];
 	native int        deathTime;
@@ -118,7 +118,7 @@ struct BloodPlayer native
 	native int        packItemId;    // pack id 1: diving suit, 2: crystal ball, 3: beast vision 4: jump boots
 	native PACKINFO   packSlots[5];  // at325 [1]: diving suit, [2]: crystal ball, [3]: beast vision [4]: jump boots
 	native int        armor[3];      // armor
-	native int        voodooTarget;
+	//native int        voodooTarget;
 	native int        flickerEffect;
 	native int        tiltEffect;
 	native int        visibility;

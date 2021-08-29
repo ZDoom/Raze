@@ -698,7 +698,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->laughCount = 0;
     pPlayer->angle.spin = 0;
     pPlayer->posture = 0;
-    pPlayer->voodooTarget = -1;
+    pPlayer->voodooTarget = nullptr;
     pPlayer->voodooTargets = 0;
     pPlayer->voodooVar1 = 0;
     pPlayer->vodooVar2 = 0;
@@ -707,7 +707,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->relAim.dx = 0x4000;
     pPlayer->relAim.dy = 0;
     pPlayer->relAim.dz = 0;
-    pPlayer->aimTarget = -1;
+    pPlayer->aimTarget = nullptr;
     pPlayer->zViewVel = pPlayer->zWeaponVel;
     if (!(gGameOptions.nGameType == 1 && gGameOptions.bKeepKeysOnRespawn && !bNewLevel))
         for (int i = 0; i < 8; i++)
@@ -1943,7 +1943,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
 
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
-    auto pActor = &bloodActors[pSprite->index];
+    auto pActor = pPlayer->actor();
     int nXSprite = pSprite->extra;
     int nXSector = sector[pSprite->sectnum].extra;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -2042,7 +2042,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 nDeathSeqID = 16;
                 nKneelingPlayer = nPlayerKneelClient;
                 powerupActivate(pPlayer, kPwUpDeliriumShroom);
-                pXSprite->target_i = nSource;
+                pActor->SetTarget(source);
                 evPostActor(&bloodActors[pSprite->index], 15, kCallbackFinishHim);
             }
             else
@@ -2448,7 +2448,6 @@ DEFINE_FIELD_X(BloodPlayer, PLAYER, fuseTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, throwTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, throwPower)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, aim)  // world
-DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTarget)  // aim target sprite
 DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargetsCount)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargets)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, deathTime)
@@ -2468,7 +2467,7 @@ DEFINE_FIELD_X(BloodPlayer, PLAYER, packItemTime)  // pack timer
 DEFINE_FIELD_X(BloodPlayer, PLAYER, packItemId)    // pack id 1: diving suit, 2: crystal ball, 3:
 DEFINE_FIELD_X(BloodPlayer, PLAYER, packSlots)  // at325 1]: diving suit, [2]: crystal ball, 
 DEFINE_FIELD_X(BloodPlayer, PLAYER, armor)      // armor
-DEFINE_FIELD_X(BloodPlayer, PLAYER, voodooTarget)
+//DEFINE_FIELD_X(BloodPlayer, PLAYER, voodooTarget)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, flickerEffect)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, tiltEffect)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, visibility)
