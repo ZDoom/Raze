@@ -4,9 +4,9 @@ BEGIN_BLD_NS
 
 class DBloodActor;
 void FireballSeqCallback(int, DBloodActor*);
-void sub_38938(int, DBloodActor*);
+void Fx33Callback(int, DBloodActor*);
 void NapalmSeqCallback(int, DBloodActor*);
-void sub_3888C(int, DBloodActor*);
+void Fx32Callback(int, DBloodActor*);
 void TreeToGibCallback(int, DBloodActor*);
 void DudeToGibCallback1(int, DBloodActor*);
 void DudeToGibCallback2(int, DBloodActor*);

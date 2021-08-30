@@ -36,9 +36,9 @@ BEGIN_BLD_NS
 
 static void (*seqClientCallback[])(int, DBloodActor*) = {
 	FireballSeqCallback,
-	sub_38938,
+	Fx33Callback,
 	NapalmSeqCallback,
-	sub_3888C,
+	Fx32Callback,
 	TreeToGibCallback,
 	DudeToGibCallback1,
 	DudeToGibCallback2,
