@@ -301,7 +301,6 @@ void postSerializePanelSprites(FSerializer& arc)
 		}
 		arc.EndArray();
 	}
-	pspAsArray.Clear();
 }
 
 //---------------------------------------------------------------------------
@@ -1222,6 +1221,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* d
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
+	pspAsArray.Clear();
     Saveable_Init();
 
     if (arc.BeginObject("state"))
