@@ -6513,9 +6513,11 @@ void
 pClearSpriteList(PLAYERp pp)
 {
     PANEL_SPRITEp psp=nullptr, next_psp=nullptr;
+    auto l = &pp->PanelSpriteList;
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next_psp)
+    for (psp = l->Next; next_psp = psp->Next, (LIST)psp != (LIST)l; psp = next_psp)
     {
+        if (psp->Next == nullptr || psp->Prev == nullptr) return; // this can happen when cleaning up a fatal error.
         pKillSprite(psp);
     }
 }
