@@ -950,13 +950,13 @@ bool movementBlocked(player_struct *p)
 	auto blockingweapon = [=]()
 	{
 		if (isRR()) return false;
-		if (isWW2GI()) return aplWeaponWorksLike[p->curr_weapon][p->i] == TRIPBOMB_WEAPON;
+		if (isWW2GI()) return aplWeaponWorksLike[p->curr_weapon][p->GetPlayerNum()] == TRIPBOMB_WEAPON;
 		else return p->curr_weapon == TRIPBOMB_WEAPON;
 	};
 
 	auto weapondelay = [=]()
 	{
-		if (isWW2GI()) return aplWeaponFireDelay[p->curr_weapon][p->i];
+		if (isWW2GI()) return aplWeaponFireDelay[p->curr_weapon][p->GetPlayerNum()];
 		else return 4;
 	};
 
