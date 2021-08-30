@@ -283,4 +283,12 @@ inline void viewBackupSpriteLoc(DBloodActor* actor)
 	viewBackupSpriteLoc(actor->s().index, &actor->s());
 }
 
+inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)
+{
+	int index = int(w - bloodActors);
+	Serialize(arc, keyname, index, nullptr);
+	if (arc.isReading()) w = &bloodActors[index];
+	return arc;
+}
+
 END_BLD_NS
