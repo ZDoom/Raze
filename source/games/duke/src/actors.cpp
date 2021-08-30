@@ -173,7 +173,7 @@ void checkavailweapon(struct player_struct* player)
 	player->curr_weapon = weap;
 	if (isWW2GI())
 	{
-		SetGameVarID(g_iWeaponVarID, player->curr_weapon, player->GetActor(), snum); // snum is playerindex!
+		SetGameVarID(g_iWeaponVarID, player->curr_weapon, player->GetActor(), snum); // snum is player index!
 		if (player->curr_weapon >= 0)
 		{
 			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[player->curr_weapon][snum], player->GetActor(), snum);
@@ -1010,7 +1010,7 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 			// with no checking if it got reused in the mean time.
 			spri->picnum = 0;	// give it a picnum without any behavior attached, just in case
 			spri->cstat |= CSTAT_SPRITE_INVISIBLE|CSTAT_SPRITE_NOFIND;
-			changespritestat(actor->GetIndex(), STAT_REMOVED);
+			changespritestat(actor, STAT_REMOVED);
 		}
 	}
 }
@@ -5316,7 +5316,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 					short j = s->sectnum;
 					int x = s->x, y = s->y, z = s->z;
 					pushmove(&x, &y, &z, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
-					setspritepos(actor->GetIndex(), x, y, z);	// wrap this for safety. The renderer may need processing of the new position.
+					s->x = x; s->y = y; s->z = z;
 					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
 						changespritesect(actor, j);
 
