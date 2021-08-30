@@ -239,8 +239,8 @@ DBloodActor * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
 DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6);
 DBloodActor* actFireMissile(DBloodActor *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
 
-int actGetRespawnTime(spritetype *pSprite);
-bool actCheckRespawn(spritetype *pSprite);
+int actGetRespawnTime(DBloodActor *pSprite);
+bool actCheckRespawn(DBloodActor *pSprite);
 bool actCanSplatWall(int nWall);
 void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType);
 void actPostSprite(int nSprite, int nStatus);

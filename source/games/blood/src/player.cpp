@@ -1113,7 +1113,9 @@ char PickupAmmo(PLAYER* pPlayer, spritetype* pAmmo) {
     return 1;
 }
 
-char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
+char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) 
+{
+    auto actor = &bloodActors[pWeapon->index];
     const WEAPONITEMDATA *pWeaponItemData = &gWeaponItemData[pWeapon->type - kItemWeaponBase];
     int nWeaponType = pWeaponItemData->type;
     int nAmmoType = pWeaponItemData->ammoType;
@@ -1139,7 +1141,7 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
         return 1;
     }
     
-    if (!actGetRespawnTime(pWeapon) || nAmmoType == -1 || pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;    
+    if (!actGetRespawnTime(actor) || nAmmoType == -1 || pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;    
     #ifdef NOONE_EXTENSIONS
         else if (gModernMap && pWeapon->extra >= 0 && xsprite[pWeapon->extra].data1 > 0)
             pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].max);
@@ -1153,6 +1155,7 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
 
 void PickUp(PLAYER *pPlayer, spritetype *pSprite)
 {
+    auto actor = &bloodActors[pSprite->index];
 	const char *msg = nullptr;
     int nType = pSprite->type;
     char pickedUp = 0;
@@ -1185,7 +1188,7 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
             trTriggerSprite(pSprite->index, pXSprite, kCmdSpritePickup);
     }
         
-    if (!actCheckRespawn(pSprite)) 
+    if (!actCheckRespawn(actor)) 
         actPostSprite(pSprite->index, kStatFree);
 
     pPlayer->pickupEffect = 30;

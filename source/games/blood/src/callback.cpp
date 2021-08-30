@@ -208,6 +208,7 @@ void fxDynPuff(int nSprite) // 8
 
 void Respawn(int nSprite) // 9
 {
+    auto actor = &bloodActors[nSprite];
     spritetype *pSprite = &sprite[nSprite];
     assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
@@ -222,13 +223,13 @@ void Respawn(int nSprite) // 9
 
     switch (pXSprite->respawnPending) {
         case 1: {
-            int nTime = MulScale(actGetRespawnTime(pSprite), 0x4000, 16);
+            int nTime = MulScale(actGetRespawnTime(actor), 0x4000, 16);
             pXSprite->respawnPending = 2;
             evPost(nSprite, 3, nTime, kCallbackRespawn);
             break;
         }
         case 2: {
-            int nTime = MulScale(actGetRespawnTime(pSprite), 0x2000, 16);
+            int nTime = MulScale(actGetRespawnTime(actor), 0x2000, 16);
             pXSprite->respawnPending = 3;
             evPost(nSprite, 3, nTime, kCallbackRespawn);
             break;
