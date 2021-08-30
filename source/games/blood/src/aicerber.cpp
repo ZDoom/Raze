@@ -74,9 +74,9 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
     }
     spritetype *pTarget = &sprite[pXSprite->target];
     int dz = pTarget->z-pSprite->z;
-    actFireVector(pSprite, 350, -100, dx, dy, dz, kVectorCerberusHack);
-    actFireVector(pSprite, -350, 0, dx, dy, dz, kVectorCerberusHack);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorCerberusHack);
+    actFireVector(actor, 350, -100, dx, dy, dz, kVectorCerberusHack);
+    actFireVector(actor, -350, 0, dx, dy, dz, kVectorCerberusHack);
+    actFireVector(actor, 0, 0, dx, dy, dz, kVectorCerberusHack);
 }
 
 void cerberusBurnSeqCallback(int, DBloodActor* actor)

@@ -2275,7 +2275,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
         int dx = CosScale16(pSprite->ang)+Random2(1000);
         int dy = SinScale16(pSprite->ang)+Random2(1000);
         int dz = Random2(1000);
-        actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorBullet);
+        actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
         sfxPlay3DSound(pSprite, 359, -1, 0);
     }
 }

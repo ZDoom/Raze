@@ -53,7 +53,7 @@ void HandJumpSeqCallback(int, DBloodActor* actor)
         if (!pPlayer->hand)
         {
             pPlayer->hand = 1;
-            actPostSprite(pSprite->index, kStatFree);
+            actPostSprite(actor, kStatFree);
         }
     }
 }

@@ -6143,7 +6143,7 @@ static void actCheckTraps()
 				dy = SinScale16(pSprite->ang);
 				dx = CosScale16(pSprite->ang);
 				gVectorData[kVectorTchernobogBurn].maxDist = pXSprite->data1 << 9;
-				actFireVector(pSprite, 0, 0, dx, dy, Random2(0x8888), kVectorTchernobogBurn);
+				actFireVector(actor, 0, 0, dx, dy, Random2(0x8888), kVectorTchernobogBurn);
 			}
 			break;
 		}
@@ -6889,63 +6889,75 @@ bool actCheckRespawn(DBloodActor* actor)
     return  0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool actCanSplatWall(int nWall)
 {
     assert(nWall >= 0 && nWall < kMaxWalls);
-    walltype *pWall = &wall[nWall];
-    if (pWall->cstat & 16384)
-        return 0;
-    if (pWall->cstat & 32768)
-        return 0;
+	walltype* pWall = &wall[nWall];
+	if (pWall->cstat & 16384) return 0;
+	if (pWall->cstat & 32768) return 0;
+
     int nType = GetWallType(nWall);
-    if (nType >= kWallBase && nType < kWallMax)
-        return 0;
+	if (nType >= kWallBase && nType < kWallMax) return 0;
+
     if (pWall->nextsector != -1)
     {
-        sectortype *pSector = &sector[pWall->nextsector];
-        if (pSector->type >= kSectorBase && pSector->type < kSectorMax)
-            return 0;
+		sectortype* pSector = &sector[pWall->nextsector];
+		if (pSector->type >= kSectorBase && pSector->type < kSectorMax) return 0;
     }
     return 1;
 }
 
-void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType)
 {
-    int nShooter = pShooter->index;
+	auto pShooter = &shooter->s();
     assert(vectorType >= 0 && vectorType < kVectorMax);
-    const VECTORDATA *pVectorData = &gVectorData[vectorType];
+	const VECTORDATA* pVectorData = &gVectorData[vectorType];
     int nRange = pVectorData->maxDist;
     int hit = VectorScan(pShooter, a2, a3, a4, a5, a6, nRange, 1);
     if (hit == 3)
     {
-        int nSprite = gHitInfo.hitsprite;
-        assert(nSprite >= 0 && nSprite < kMaxSprites);
-        spritetype *pSprite = &sprite[nSprite];
+        int nSprite_ = gHitInfo.hitsprite;
+        assert(nSprite_ >= 0 && nSprite_ < kMaxSprites);
+		auto actor = &bloodActors[nSprite_];
+		spritetype* pSprite = &actor->s();
         if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pShooter, pSprite)) return;
-        if (IsPlayerSprite(pSprite)) {
-            PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
+		if (IsPlayerSprite(pSprite))
+		{
+			PLAYER* pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
             if (powerupCheck(pPlayer, kPwUpReflectShots))
             {
-                gHitInfo.hitsprite = nShooter;
+				gHitInfo.hitsprite = pShooter->index;
                 gHitInfo.hitx = pShooter->x;
                 gHitInfo.hity = pShooter->y;
                 gHitInfo.hitz = pShooter->z;
             }
         }
     }
-    int x = gHitInfo.hitx-MulScale(a4, 16, 14);
-    int y = gHitInfo.hity-MulScale(a5, 16, 14);
-    int z = gHitInfo.hitz-MulScale(a6, 256, 14);
+	int x = gHitInfo.hitx - MulScale(a4, 16, 14);
+	int y = gHitInfo.hity - MulScale(a5, 16, 14);
+	int z = gHitInfo.hitz - MulScale(a6, 256, 14);
     short nSector = gHitInfo.hitsect;
     uint8_t nSurf = kSurfNone;
-    if (nRange == 0 || approxDist(gHitInfo.hitx-pShooter->x, gHitInfo.hity-pShooter->y) < nRange)
+	if (nRange == 0 || approxDist(gHitInfo.hitx - pShooter->x, gHitInfo.hity - pShooter->y) < nRange)
     {
         switch (hit)
         {
         case 1:
         {
             int nSector = gHitInfo.hitsect;
-            if (sector[nSector].ceilingstat&1)
+			if (sector[nSector].ceilingstat & 1)
                 nSurf = kSurfNone;
             else
                 nSurf = surfType[sector[nSector].ceilingpicnum];
@@ -6954,7 +6966,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         case 2:
         {
             int nSector = gHitInfo.hitsect;
-            if (sector[nSector].floorstat&1)
+			if (sector[nSector].floorstat & 1)
                 nSurf = kSurfNone;
             else
                 nSurf = surfType[sector[nSector].floorpicnum];
@@ -6967,18 +6979,18 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
             nSurf = surfType[wall[nWall].picnum];
             if (actCanSplatWall(nWall))
             {
-                int x = gHitInfo.hitx-MulScale(a4, 16, 14);
-                int y = gHitInfo.hity-MulScale(a5, 16, 14);
-                int z = gHitInfo.hitz-MulScale(a6, 256, 14);
+				int x = gHitInfo.hitx - MulScale(a4, 16, 14);
+				int y = gHitInfo.hity - MulScale(a5, 16, 14);
+				int z = gHitInfo.hitz - MulScale(a6, 256, 14);
                 int nSurf = surfType[wall[nWall].picnum];
                 assert(nSurf < kSurfMax);
                 if (pVectorData->surfHit[nSurf].fx1 >= 0)
                 {
-                    spritetype *pFX = gFX.fxSpawn(pVectorData->surfHit[nSurf].fx1, nSector, x, y, z, 0);
+					auto pFX = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx1, nSector, x, y, z, 0);
                     if (pFX)
                     {
-                        pFX->ang = (GetWallAngle(nWall)+512)&2047;
-                        pFX->cstat |= 16;
+						pFX->s().ang = (GetWallAngle(nWall) + 512) & 2047;
+						pFX->s().cstat |= 16;
                     }
                 }
             }
@@ -6992,7 +7004,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
             int nXWall = wall[nWall].extra;
             if (nXWall > 0)
             {
-                XWALL *pXWall = &xwall[nXWall];
+				XWALL* pXWall = &xwall[nXWall];
                 if (pXWall->triggerVector)
                     trTriggerWall(nWall, pXWall, kCmdWallImpact);
             }
@@ -7001,69 +7013,63 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         case 3:
         {
             int nSprite = gHitInfo.hitsprite;
-            nSurf = surfType[sprite[nSprite].picnum];
             assert(nSprite >= 0 && nSprite < kMaxSprites);
-            spritetype *pSprite = &sprite[nSprite];
+			auto actor = &bloodActors[nSprite];
+			spritetype* pSprite = &actor->s();
+			nSurf = surfType[pSprite->picnum];
             x -= MulScale(a4, 112, 14);
             y -= MulScale(a5, 112, 14);
-            z -= MulScale(a6, 112<<4, 14);
+			z -= MulScale(a6, 112 << 4, 14);
             int shift = 4;
-            if (vectorType == kVectorTine && !IsPlayerSprite(pSprite))
-                shift = 3;
-            actDamageSprite(nShooter, pSprite, pVectorData->dmgType, pVectorData->dmg<<shift);
-            int nXSprite = pSprite->extra;
-            if (nXSprite > 0)
-            {
-                XSPRITE *pXSprite = &xsprite[nXSprite];
-                if (pXSprite->Vector)
-                    trTriggerSprite(nSprite, pXSprite, kCmdSpriteImpact);
-            }
+			if (vectorType == kVectorTine && !actor->IsPlayerActor()) shift = 3;
+
+			actDamageSprite(shooter, actor, pVectorData->dmgType, pVectorData->dmg << shift);
+			if (actor->hasX() && actor->x().Vector) trTriggerSprite(actor, kCmdSpriteImpact);
+
             if (pSprite->statnum == kStatThing)
             {
-                int t = thingInfo[pSprite->type-kThingBase].mass;
+				int t = thingInfo[pSprite->type - kThingBase].mass;
                 if (t > 0 && pVectorData->impulse)
                 {
                     int t2 = DivScale(pVectorData->impulse, t, 8);
-                    xvel[nSprite] += MulScale(a4, t2, 16);
-                    yvel[nSprite] += MulScale(a5, t2, 16);
-                    zvel[nSprite] += MulScale(a6, t2, 16);
+					actor->xvel() += MulScale(a4, t2, 16);
+					actor->yvel() += MulScale(a5, t2, 16);
+					actor->zvel() += MulScale(a6, t2, 16);
                 }
                 if (pVectorData->burnTime)
                 {
-                    XSPRITE *pXSprite = &xsprite[nXSprite];
-                    if (!pXSprite->burnTime)
-                        evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                    actBurnSprite(sprite[nShooter].owner, pXSprite, pVectorData->burnTime);
+					if (!actor->x().burnTime) evPost(actor, 0, kCallbackFXFlameLick);
+					actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
                 }
             }
-            if (pSprite->statnum == kStatDude)
+            if (pSprite->statnum == kStatDude && actor->hasX())
             {
                 int t = getDudeInfo(pSprite->type)->mass;
-                
-                #ifdef NOONE_EXTENSIONS
-                if (IsDudeSprite(pSprite)) {
-                    switch (pSprite->type) {
+
+#ifdef NOONE_EXTENSIONS
+				if (actor->IsDudeActor())
+				{
+					switch (pSprite->type)
+					{
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
                             t = getSpriteMassBySize(pSprite);
                             break;
                     }
                 }
-                #endif
+#endif
 
                 if (t > 0 && pVectorData->impulse)
                 {
                     int t2 = DivScale(pVectorData->impulse, t, 8);
-                    xvel[nSprite] += MulScale(a4, t2, 16);
-                    yvel[nSprite] += MulScale(a5, t2, 16);
-                    zvel[nSprite] += MulScale(a6, t2, 16);
+					actor->xvel() += MulScale(a4, t2, 16);
+					actor->yvel() += MulScale(a5, t2, 16);
+					actor->zvel() += MulScale(a6, t2, 16);
                 }
                 if (pVectorData->burnTime)
                 {
-                    XSPRITE *pXSprite = &xsprite[nXSprite];
-                    if (!pXSprite->burnTime)
-                        evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                    actBurnSprite(sprite[nShooter].owner, pXSprite, pVectorData->burnTime);
+					if (!actor->x().burnTime) evPost(actor, 0, kCallbackFXFlameLick);
+					actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
                 }
                 if (Chance(pVectorData->fxChance))
                 {
@@ -7073,7 +7079,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                     a6 += Random3(4000);
                     if (HitScan(pSprite, gHitInfo.hitz, a4, a5, a6, CLIPMASK1, t) == 0)
                     {
-                        if (approxDist(gHitInfo.hitx-pSprite->x, gHitInfo.hity-pSprite->y) <= t)
+						if (approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) <= t)
                         {
                             int nWall = gHitInfo.hitwall;
                             int nSector = gHitInfo.hitsect;
@@ -7081,21 +7087,20 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                             {
                                 int x = gHitInfo.hitx - MulScale(a4, 16, 14);
                                 int y = gHitInfo.hity - MulScale(a5, 16, 14);
-                                int z = gHitInfo.hitz - MulScale(a6, 16<<4, 14);
+								int z = gHitInfo.hitz - MulScale(a6, 16 << 4, 14);
                                 int nSurf = surfType[wall[nWall].picnum];
-                                const VECTORDATA *pVectorData = &gVectorData[19];
+								const VECTORDATA* pVectorData = &gVectorData[19];
                                 FX_ID t2 = pVectorData->surfHit[nSurf].fx2;
                                 FX_ID t3 = pVectorData->surfHit[nSurf].fx3;
-                                spritetype *pFX = NULL;
-                                if (t2 > FX_NONE && (t3 == FX_NONE || Chance(0x4000)))
-                                    pFX = gFX.fxSpawn(t2, nSector, x, y, z, 0);
-                                else if(t3 > FX_NONE)
-                                    pFX = gFX.fxSpawn(t3, nSector, x, y, z, 0);
+
+								DBloodActor* pFX = nullptr;
+								if (t2 > FX_NONE && (t3 == FX_NONE || Chance(0x4000))) pFX = gFX.fxSpawnActor(t2, nSector, x, y, z, 0);
+								else if (t3 > FX_NONE) pFX = gFX.fxSpawnActor(t3, nSector, x, y, z, 0);
                                 if (pFX)
                                 {
-                                    zvel[pFX->index] = 0x2222;
-                                    pFX->ang = (GetWallAngle(nWall)+512)&2047;
-                                    pFX->cstat |= 16;
+									pFX->zvel() = 0x2222;
+									pFX->s().ang = (GetWallAngle(nWall) + 512) & 2047;
+									pFX->s().cstat |= 16;
                                 }
                             }
                         }
@@ -7103,15 +7108,16 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                 }
                 for (int i = 0; i < pVectorData->bloodSplats; i++)
                     if (Chance(pVectorData->splatChance))
-                        fxSpawnBlood(pSprite, pVectorData->dmg<<4);
+						fxSpawnBlood(pSprite, pVectorData->dmg << 4);
             }
-            #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
             // add impulse for sprites from physics list
-            if (gPhysSpritesCount > 0 && pVectorData->impulse) {
+			if (gPhysSpritesCount > 0 && pVectorData->impulse)
+			{
                 
-                if (xspriRangeIsFine(pSprite->extra)) {
-                    
-                    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+                if (actor->hasX()) 
+				{
+                    XSPRITE* pXSprite = &actor->x();
                     if (pXSprite->physAttr & kPhysDebrisVector) {
                         
                         int impulse = DivScale(pVectorData->impulse, ClipLow(gSpriteMass[pSprite->extra].mass, 10), 6);
@@ -7120,13 +7126,13 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                         zvel[nSprite] += MulScale(a6, impulse, 16);
 
                         if (pVectorData->burnTime != 0) {
-                            if (!xsprite[nXSprite].burnTime) evPost(nSprite, 3, 0, kCallbackFXFlameLick);
-                            actBurnSprite(sprite[nShooter].owner, &xsprite[nXSprite], pVectorData->burnTime);
+                            if (!pXSprite->burnTime) evPost(nSprite, 3, 0, kCallbackFXFlameLick);
+                            actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
                         }
 
                         if (pSprite->type >= kThingBase && pSprite->type < kThingMax) {
                             pSprite->statnum = kStatThing; // temporary change statnum property
-                            actDamageSprite(nShooter, pSprite, pVectorData->dmgType, pVectorData->dmg << 4);
+                            actDamageSprite(shooter, actor, pVectorData->dmgType, pVectorData->dmg << 4);
                             pSprite->statnum = kStatDecoration; // return statnum property back
                         }
 
@@ -7173,6 +7179,11 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
         sfxPlay3DSound(x, y, z, pVectorData->surfHit[nSurf].fxSnd, nSector);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 void FireballSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
