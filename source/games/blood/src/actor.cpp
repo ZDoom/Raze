@@ -3952,8 +3952,8 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		case 4:
 			if (pWallHit)
 			{
-				spritetype* pFX = gFX.fxSpawn(FX_52, pMissile->sectnum, pMissile->x, pMissile->y, pMissile->z, 0);
-				if (pFX) pFX->ang = (GetWallAngle(pWallHit) + 512) & 2047;
+				auto pFX = gFX.fxSpawnActor(FX_52, pMissile->sectnum, pMissile->x, pMissile->y, pMissile->z, 0);
+				if (pFX) pFX->s().ang = (GetWallAngle(pWallHit) + 512) & 2047;
 			}
 			break;
 		}
@@ -5248,16 +5248,17 @@ void MoveDude(DBloodActor* actor)
 			switch (tileGetSurfType(floorHit))
 			{
 			case kSurfWater:
-				gFX.fxSpawn(FX_9, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
+				gFX.fxSpawnActor(FX_9, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
 				break;
 			case kSurfLava:
 			{
-				spritetype* pFX = gFX.fxSpawn(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
+				auto pFX = gFX.fxSpawnActor(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
 				if (pFX)
 				{
+					auto pFXs = &pFX->s();
 					for (int i = 0; i < 7; i++)
 					{
-						auto pFX2 = gFX.fxSpawnActor(FX_14, pFX->sectnum, pFX->x, pFX->y, pFX->z, 0);
+						auto pFX2 = gFX.fxSpawnActor(FX_14, pFXs->sectnum, pFXs->x, pFXs->y, pFXs->z, 0);
 						if (pFX2)
 						{
 							pFX2->xvel() = Random2(0x6aaaa);
@@ -6062,18 +6063,14 @@ static void actCheckExplosion()
 				for (int i = 0; i < gImpactSpritesCount; i++)
 				{
 					if (gImpactSpritesList[i] == -1) continue;
+
 					auto impactactor = &bloodActors[gImpactSpritesList[i]];
-					auto impactsprite = &impactactor->s();
-					if (impactsprite->sectnum < 0 || (impactsprite->flags & kHitagFree) != 0)
+					if (impactactor->s().sectnum < 0 || (impactactor->s().flags & kHitagFree) != 0)	continue;
+
+					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, impactactor->s().sectnum) || !CheckProximity(&impactactor->s(), x, y, z, nSector, radius))
 						continue;
 
-					if (impactsprite->extra <= 0)
-						continue;
-					XSPRITE* pXImpact = &impactactor->x();
-					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, impactsprite->sectnum) || !CheckProximity(impactsprite, x, y, z, nSector, radius))
-						continue;
-
-					trTriggerSprite(impactsprite->index, pXImpact, kCmdSpriteImpact);
+					trTriggerSprite(impactactor, kCmdSpriteImpact);
 				}
 			}
 
@@ -7196,66 +7193,65 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 //
 //
 //---------------------------------------------------------------------------
+
 void FireballSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE* pXSprite = &actor->x();
-    int nSprite = pXSprite->reference;
-    spritetype *pSprite = &actor->s();
-    spritetype *pFX = gFX.fxSpawn(FX_11, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+	auto pSprite = &actor->s();
+	auto pFX = gFX.fxSpawnActor(FX_11, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        int nFX = pFX->index;
-        xvel[nFX] = actor->xvel();
-        yvel[nFX] = actor->yvel();
-        zvel[nFX] = actor->zvel();
+		pFX->xvel() = actor->xvel();
+		pFX->yvel() = actor->yvel();
+		pFX->zvel() = actor->zvel();
     }
 }
-
 
 void NapalmSeqCallback(int, DBloodActor* actor)
 {
-    XSPRITE* pXSprite = &actor->x();
-    spritetype *pSprite = &actor->s();
-    spritetype *pFX = gFX.fxSpawn(FX_12, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+	auto pSprite = &actor->s();
+	auto pFX = gFX.fxSpawnActor(FX_12, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        int nFX = pFX->index;
-        xvel[nFX] = actor->xvel();
-        yvel[nFX] = actor->yvel();
-        zvel[nFX] = actor->zvel();
+		pFX->xvel() = actor->xvel();
+		pFX->yvel() = actor->yvel();
+		pFX->zvel() = actor->zvel();
     }
 }
 
-void sub_3888C(int, DBloodActor* actor)
+void Fx32Callback(int, DBloodActor* actor)
 {
-    spritetype* pSprite = &actor->s();
-    spritetype *pFX = gFX.fxSpawn(FX_32, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+	auto pSprite = &actor->s();
+	auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        int nFX = pFX->index;
-        xvel[nFX] = actor->xvel();
-        yvel[nFX] = actor->yvel();
-        zvel[nFX] = actor->zvel();
+		pFX->xvel() = actor->xvel();
+		pFX->yvel() = actor->yvel();
+		pFX->zvel() = actor->zvel();
     }
 }
 
-void sub_38938(int, DBloodActor* actor)
+void Fx33Callback(int, DBloodActor* actor)
 {
-    spritetype *pSprite = &actor->s();
-    spritetype *pFX = gFX.fxSpawn(FX_33, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+	auto pSprite = &actor->s();
+	auto pFX = gFX.fxSpawnActor(FX_33, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        int nFX = pFX->index;
-        xvel[nFX] = actor->xvel();
-        yvel[nFX] = actor->yvel();
-        zvel[nFX] = actor->zvel();
+		pFX->xvel() = actor->xvel();
+		pFX->yvel() = actor->yvel();
+		pFX->zvel() = actor->zvel();
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void TreeToGibCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
-    spritetype *pSprite = &actor->s();
+	spritetype* pSprite = &actor->s();
     pSprite->type = kThingObjectExplode;
     pXSprite->state = 1;
     pXSprite->data1 = 15;
@@ -7360,22 +7356,24 @@ void MakeSplash(DBloodActor* actor)
     pSprite->flags &= ~2;
     int nXSprite = pSprite->extra;
     pSprite->z -= 4 << 8;
-    int nSurface = tileGetSurfType(gSpriteHit[nXSprite].florhit);
-    switch (pSprite->type) {
+	int nSurface = tileGetSurfType(actor->hit().florhit);
+	switch (pSprite->type)
+	{
         case kThingDripWater:
-            switch (nSurface) {
+		switch (nSurface)
+		{
                 case kSurfWater:
-                    seqSpawn(6, 3, nXSprite, -1);
+			seqSpawn(6, actor, -1);
                     sfxPlay3DSound(pSprite, 356, -1, 0);
                     break;
                 default:
-                    seqSpawn(7, 3, nXSprite, -1);
+			seqSpawn(7, actor, -1);
                     sfxPlay3DSound(pSprite, 354, -1, 0);
                     break;
             }
             break;
         case kThingDripBlood:
-            seqSpawn(8, 3, nXSprite, -1);
+		seqSpawn(8, actor, -1);
             sfxPlay3DSound(pSprite, 354, -1, 0);
             break;
     }
