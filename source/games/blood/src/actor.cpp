@@ -2324,14 +2324,13 @@ const int DudeDifficulty[5] = {
 	512, 384, 256, 208, 160
 };
 
-int gPostCount = 0;
-
-struct POSTPONE {
-	short sprite;
-	short status;
+struct POSTPONE 
+{
+	DBloodActor* sprite;
+	int status;
 };
 
-POSTPONE gPost[kMaxSprites];
+TArray<POSTPONE> gPost;
 
 //---------------------------------------------------------------------------
 //
@@ -7264,58 +7263,58 @@ void DudeToGibCallback2(int, DBloodActor* actor)
     pXSprite->state = 1;
 }
 
-void actPostSprite(int nSprite, int nStatus)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void actPostSprite(DBloodActor* actor, int nStatus)
 {
-    int n;
-    assert(gPostCount < kMaxSprites);
-    assert(nSprite < kMaxSprites && sprite[nSprite].statnum < kMaxStatus);
     assert(nStatus >= 0 && nStatus <= kStatFree);
-    if (sprite[nSprite].flags&32)
+	auto sp = &actor->s();
+	if (sp->flags & 32)
     {
-        for (n = 0; n < gPostCount; n++)
-            if (gPost[n].sprite == nSprite)
-                break;
-        assert(n < gPostCount);
-    }
+		for (auto& post : gPost)
+			if (post.sprite == actor)
+			{
+				post.status = nStatus;
+				return;
+		}
+	}
     else
     {
-        n = gPostCount;
-        sprite[nSprite].flags |= 32;
-        gPostCount++;
+		sp->flags |= 32;
+		gPost.Push({ actor, nStatus });
     }
-    gPost[n].sprite = nSprite;
-    gPost[n].status = nStatus;
-}
-
-void actPostSprite(DBloodActor* actor, int status)
-{
-    actPostSprite(actor->s().index, status);
 }
 
 void actPostProcess(void)
 {
-    for (int i = 0; i < gPostCount; i++)
+	for (auto& p : gPost)
     {
-        POSTPONE *pPost = &gPost[i];
-        int nSprite = pPost->sprite;
-        spritetype *pSprite = &sprite[nSprite];
-        pSprite->flags &= ~32;
-        int nStatus = pPost->status;
+		p.sprite->s().flags &= ~32;
+		int nStatus = p.status;
         if (nStatus == kStatFree)
         {
-			if (pSprite->statnum != kStatFree)
+			if (p.sprite->s().statnum != kStatFree)
 			{
-				evKill(nSprite, 3);
-				if (sprite[nSprite].extra > 0)
-					seqKill(3, pSprite->extra);
-				DeleteSprite(nSprite);
+				evKill(p.sprite);
+				if (p.sprite->hasX()) seqKill(p.sprite);
+				DeleteSprite(p.sprite->s().index);
 			}
         }
         else
-            ChangeSpriteStat(nSprite, nStatus);
+			ChangeSpriteStat(p.sprite->s().index, nStatus);
     }
-    gPostCount = 0;
+	gPost.Clear();
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void MakeSplash(DBloodActor* actor)
 {
@@ -7351,17 +7350,6 @@ void MakeSplash(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, POSTPONE& w, POSTPONE* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc("sprite", w.sprite)
-			("status", w.status)
-			.EndObject();
-	}
-	return arc;
-}
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRITEHIT* def)
 {
     int empty = 0;
@@ -7382,11 +7370,9 @@ void SerializeActor(FSerializer& arc)
 	{
 		arc("maxdist20", gVectorData[kVectorTchernobogBurn].maxDist)    // The code messes around with this field so better save it.
 			.SparseArray("spritehit", gSpriteHit, kMaxSprites, activeXSprites)
-			("postcount", gPostCount)
-			.Array("post", gPost, gPostCount)
 			.EndObject();
 
-		if (arc.isReading() && gGameOptions.nMonsterSettings != 0) 
+		if (arc.isReading() && gGameOptions.nMonsterSettings != 0)
 		{
 			for (int i = 0; i < kDudeMax - kDudeBase; i++)
 				for (int j = 0; j < 7; j++)
@@ -7414,6 +7400,11 @@ void actKillDude(int a1, spritetype* pSprite, DAMAGE_TYPE a3, int a4)
 int actDamageSprite(int nSource, spritetype* pSprite, DAMAGE_TYPE damageType, int damage)
 {
     return actDamageSprite(nSource == -1 ? nullptr : &bloodActors[nSource], &bloodActors[pSprite->index], damageType, damage);
+}
+
+void actPostSprite(int nSprite, int nStatus)
+{
+	actPostSprite(&bloodActors[nSprite], nStatus);
 }
 
 
