@@ -391,13 +391,20 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 		return;
 #endif
 	case kChannelSetTotalSecrets:
-		if (command >= kCmdNumberic) levelSetupSecret(command - kCmdNumberic);
+		if (command >= kCmdNumberic) gSecretMgr.SetCount(command - kCmdNumberic);
 		else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
 		break;
 	case kChannelSecretFound:
 		if (SECRET_Trigger(nIndex + 65536 * nType)) // if the hint system knows this secret it's a retrigger - skip that.
 		{
-			if (command >= kCmdNumberic) levelTriggerSecret(command - kCmdNumberic);
+			if (command >= kCmdNumberic)
+			{
+				gSecretMgr.Found(command - kCmdNumberic);
+				if (gGameOptions.nGameType == 0)
+				{
+					viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), 0, MESSAGE_PRIORITY_SECRET);
+				}
+			}
 			else viewSetSystemMessage("Invalid Trigger-Secret command by xobject #%d (object type %d)", nIndex, nType);
 		}
 		break;

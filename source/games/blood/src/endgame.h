@@ -29,7 +29,6 @@ BEGIN_BLD_NS
 class CKillMgr {
 public:
     int TotalKills, Kills;
-    CKillMgr();
     void SetCount(int);
     void AddNewKill(int);
     void AddKill(spritetype *pSprite);
@@ -40,7 +39,6 @@ public:
 class CSecretMgr {
 public:
     int Total, Founds, Super;
-    CSecretMgr();
     void SetCount(int);
     void Found(int);
     void Clear(void);
