@@ -74,9 +74,9 @@ void SlashSeqCallback(int, DBloodActor* actor)
     int dz = pSprite->z-pTarget->z;
     dx += Random3(4000-700*gGameOptions.nDifficulty);
     dy += Random3(4000-700*gGameOptions.nDifficulty);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorGargSlash);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorGargSlash);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorGargSlash);
+    actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
+    actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
+    actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
     sfxPlay3DSound(pSprite, 9012+Random(2), -1, 0);
 }
 

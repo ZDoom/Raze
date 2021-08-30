@@ -199,7 +199,7 @@ void punchCallback(int, DBloodActor* actor)
         if (!playGenDudeSound(pSprite, kGenDudeSndAttackMelee))
             sfxPlay3DSound(pSprite, 530, 1, 0);
 
-        actFireVector(pSprite, 0, 0, dx, dy, dz,kVectorGenDudePunch);
+        actFireVector(actor, 0, 0, dx, dy, dz,kVectorGenDudePunch);
     }
 }
 
@@ -226,7 +226,7 @@ void genDudeAttack1(int, DBloodActor* actor)
             dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion);
         }
 
-        actFireVector(pSprite, 0, 0, dx, dy, dz,(VECTOR_TYPE)pExtra->curWeapon);
+        actFireVector(actor, 0, 0, dx, dy, dz,(VECTOR_TYPE)pExtra->curWeapon);
         if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
             sfxPlayVectorSound(pSprite, pExtra->curWeapon);
             

@@ -89,13 +89,13 @@ void SlashFSeqCallback(int, DBloodActor* actor)
     int dz = height-height2;
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorGargSlash);
+    actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
     int r1 = Random(50);
     int r2 = Random(50);
-    actFireVector(pSprite, 0, 0, dx+r2, dy-r1, dz, kVectorGargSlash);
+    actFireVector(actor, 0, 0, dx+r2, dy-r1, dz, kVectorGargSlash);
     r1 = Random(50);
     r2 = Random(50);
-    actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, kVectorGargSlash);
+    actFireVector(actor, 0, 0, dx-r2, dy+r1, dz, kVectorGargSlash);
 }
 
 void ThrowFSeqCallback(int, DBloodActor* actor)

@@ -2111,6 +2111,7 @@ int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec)
 
 void voodooTarget(PLAYER *pPlayer)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     int v4 = pPlayer->aim.dz;
     int dz = pPlayer->zWeapon-pPlayer->pSprite->z;
     if (UseAmmo(pPlayer, 9, 0) < 8)
@@ -2121,9 +2122,9 @@ void voodooTarget(PLAYER *pPlayer)
     for (int i = 0; i < 4; i++)
     {
         int ang1 = (pPlayer->voodooVar1+pPlayer->vodooVar2)&2047;
-        actFireVector(pPlayer->pSprite, 0, dz, CosScale16(ang1), SinScale16(ang1), v4, kVectorVoodoo10);
+        actFireVector(actor, 0, dz, CosScale16(ang1), SinScale16(ang1), v4, kVectorVoodoo10);
         int ang2 = (pPlayer->voodooVar1+2048-pPlayer->vodooVar2)&2047;
-        actFireVector(pPlayer->pSprite, 0, dz, CosScale16(ang2), SinScale16(ang2), v4, kVectorVoodoo10);
+        actFireVector(actor, 0, dz, CosScale16(ang2), SinScale16(ang2), v4, kVectorVoodoo10);
     }
     pPlayer->voodooTargets = ClipLow(pPlayer->voodooTargets-1, 0);
 }
