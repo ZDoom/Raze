@@ -3341,7 +3341,7 @@ static void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 	auto pXSprite = &actor->x();
 
 	playGenDudeSound(pSprite, kGenDudeSndDeathNormal);
-	int dudeToGib = (actCheckRespawn(pSprite)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
+	int dudeToGib = (actCheckRespawn(actor)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
 	if (nSeq == 3)
 	{
 		GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
@@ -3369,7 +3369,7 @@ static void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 	auto pSprite = &actor->s();
 
 	playGenDudeSound(pSprite, kGenDudeSndDeathExplode);
-	int dudeToGib = (actCheckRespawn(pSprite)) ? -1 : nDudeToGibClient1;
+	int dudeToGib = (actCheckRespawn(actor)) ? -1 : nDudeToGibClient1;
 
 	if (Chance(0x4000)) spawnGibs(actor, GIBTYPE_27, -0xccccc);
 
@@ -3659,7 +3659,7 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 			fxSpawnBlood(pSprite, damage);
 	}
 	gKillMgr.AddKill(pSprite);
-	actCheckRespawn(pSprite);
+	actCheckRespawn(actor);
 	pSprite->type = kThingBloodChunks;
 	actPostSprite(actor, kStatThing);
 }
@@ -5566,7 +5566,7 @@ void actExplodeSprite(DBloodActor* actor)
 	{
 		auto spawned = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0, 1);
 		spawned->SetOwner(actor->GetOwner());
-		if (actCheckRespawn(pSprite))
+		if (actCheckRespawn(actor))
 		{
 			pXSprite->state = 1;
 			pXSprite->health = thingInfo[0].startHealth << 4;
@@ -6796,38 +6796,48 @@ void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite) {
     }
 }
 
-int actGetRespawnTime(spritetype *pSprite) {
-    if (pSprite->extra <= 0) return -1; 
-    XSPRITE *pXSprite = &xsprite[pSprite->extra];
-    if (IsDudeSprite(pSprite) && !IsPlayerSprite(pSprite)) {
-        if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nMonsterSettings == 2)) 
+int actGetRespawnTime(DBloodActor* actor)
+{
+	spritetype* pSprite = &actor->s();
+	if (!actor->hasX()) return -1;
+
+	XSPRITE* pXSprite = &actor->x();
+
+	if (actor->IsDudeActor() && !actor->IsPlayerActor())
+	{
+		if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nMonsterSettings == 2))
             return gGameOptions.nMonsterRespawnTime;
         return -1;
     }
 
-    if (IsWeaponSprite(pSprite)) {
+	if (actor->IsWeaponActor())
+	{
         if (pXSprite->respawn == 3 || gGameOptions.nWeaponSettings == 1) return 0;
-        else if (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0) 
+		else if (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0)
             return gGameOptions.nWeaponRespawnTime;
         return -1;
     }
 
-    if (IsAmmoSprite(pSprite)) {
-        if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0)) 
+	if (actor->IsAmmoActor())
+	{
+		if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nWeaponSettings != 0))
             return gGameOptions.nWeaponRespawnTime;
         return -1;
     }
 
-    if (IsItemSprite(pSprite)) {
+	if (actor->IsItemActor())
+	{
         if (pXSprite->respawn == 3 && gGameOptions.nGameType == 1) return 0;
-        else if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nItemSettings != 0)) {
-            switch (pSprite->type) {
+		else if (pXSprite->respawn == 2 || (pXSprite->respawn != 1 && gGameOptions.nItemSettings != 0))
+		{
+			switch (pSprite->type)
+			{
                 case kItemShadowCloak:
                 case kItemTwoGuns:
                 case kItemReflectShots:
                     return gGameOptions.nSpecialRespawnTime;
                 case kItemDeathMask:
-                    return gGameOptions.nSpecialRespawnTime<<1;
+				return gGameOptions.nSpecialRespawnTime << 1;
                 default:
                     return gGameOptions.nItemRespawnTime;
             }
@@ -6837,38 +6847,42 @@ int actGetRespawnTime(spritetype *pSprite) {
     return -1;
 }
 
-bool actCheckRespawn(spritetype *pSprite)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool actCheckRespawn(DBloodActor* actor)
 {
-    int nSprite = pSprite->index;
-    int nXSprite = pSprite->extra;
-    if (nXSprite > 0)
+	spritetype* pSprite = &actor->s();
+	if (actor->hasX())
     {
-        XSPRITE *pXSprite = &xsprite[nXSprite];
-        int nRespawnTime = actGetRespawnTime(pSprite);
-        if (nRespawnTime < 0)
-            return 0;
+		XSPRITE* pXSprite = &actor->x();
+		int nRespawnTime = actGetRespawnTime(actor);
+		if (nRespawnTime < 0) return 0;
+
         pXSprite->respawnPending = 1;
         if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
         {
             pXSprite->respawnPending = 3;
-            if (pSprite->type == kThingTNTBarrel)
-                pSprite->cstat |= 32768;
+			if (pSprite->type == kThingTNTBarrel) pSprite->cstat |= 32768;
         }
         if (nRespawnTime > 0)
         {
-            if (pXSprite->respawnPending == 1)
-                nRespawnTime = MulScale(nRespawnTime, 0xa000, 16);
+			if (pXSprite->respawnPending == 1) nRespawnTime = MulScale(nRespawnTime, 0xa000, 16);
             pSprite->owner = pSprite->statnum;
-            actPostSprite(pSprite->index, kStatRespawn);
+			actPostSprite(actor, kStatRespawn);
             pSprite->flags |= kHitagRespawn;
+
             if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
             {
                 pSprite->cstat &= ~257;
-                pSprite->x = baseSprite[nSprite].x;
-                pSprite->y = baseSprite[nSprite].y;
-                pSprite->z = baseSprite[nSprite].z;
+				pSprite->x = actor->basePoint().x;
+				pSprite->y = actor->basePoint().y;
+				pSprite->z = actor->basePoint().z;
             }
-            evPost(nSprite, 3, nRespawnTime, kCallbackRespawn);
+			evPost(actor, nRespawnTime, kCallbackRespawn);
         }
         return 1;
     }
