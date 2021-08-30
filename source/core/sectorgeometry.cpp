@@ -346,6 +346,7 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 	for (int i = 0; i < numvertices; i++)
 	{
 		auto sline = &sectionLines[sec->lines[i]];
+		if (sline->point2index < 0) continue; // Exhumed LEV14 triggers this on sector 169.
 
 		auto wallp = &wall[sline->startpoint];
 		vertexes[j].p = { wallp->x * (1 / 16.), wallp->y * (1 / -16.) };
