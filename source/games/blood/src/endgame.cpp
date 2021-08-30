@@ -58,11 +58,6 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 }
 
 
-CKillMgr::CKillMgr()
-{
-	Clear();
-}
-
 void CKillMgr::SetCount(int nCount)
 {
 	TotalKills = nCount;
@@ -99,11 +94,6 @@ void CKillMgr::Clear(void)
 	TotalKills = Kills = 0;
 }
 
-CSecretMgr::CSecretMgr(void)
-{
-	Clear();
-}
-
 void CSecretMgr::SetCount(int nCount)
 {
 	Total = nCount;
@@ -117,10 +107,6 @@ void CSecretMgr::Found(int nType)
 		return;
 	}
 	else Super++;
-
-	if (gGameOptions.nGameType == 0) {
-		viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), 0, MESSAGE_PRIORITY_SECRET);
-	}
 }
 
 void CSecretMgr::Clear(void)
