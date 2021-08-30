@@ -768,9 +768,9 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 static void FinalizeInput(player_struct *p, InputPacket& input)
 {
-	if (movementBlocked(p) || p->GetActor()->s->extra <= 0 || (p->dead_flag && !ud.god && !p->resurrected))
+	if (gamestate != GS_LEVEL || movementBlocked(p) || p->GetActor()->s->extra <= 0 || (p->dead_flag && !ud.god && !p->resurrected))
 	{
-		// neutralize all movement when blocked or in automap follow mode
+		// neutralize all movement when not in a game, blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
 		loc.avel = loc.horz = 0;
 		input.avel = input.horz = 0;
@@ -804,7 +804,7 @@ static void FinalizeInput(player_struct *p, InputPacket& input)
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-	if (paused)
+	if (paused || gamestate != GS_LEVEL)
 	{
 		loc = {};
 		return;
