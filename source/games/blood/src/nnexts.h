@@ -397,7 +397,7 @@ bool valueIsBetween(int val, int min, int max);
 bool IsBurningDude(spritetype* pSprite);
 bool IsKillableDude(spritetype* pSprite);
 bool isActive(int nSprite);
-int getDataFieldOfObject(int objType, int objIndex, int dataIndex);
+int getDataFieldOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex);
 bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value);
 bool incDecGoalValueIsReached(XSPRITE* pXSprite);
 void windGenStopWindOnSectors(XSPRITE* pXSource);
