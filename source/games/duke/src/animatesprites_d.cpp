@@ -51,7 +51,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 	int l, t1, t3, t4;
 	spritetype* s;
 	tspritetype* t;
-	weaponhit* h;
+	DDukeActor* h;
 
 	for (j = 0; j < spritesortcnt; j++)
 	{

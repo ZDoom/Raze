@@ -20,7 +20,7 @@ struct STATUSBARTYPE
 	bool gotweapon[MAX_WEAPONS];
 };
 
-struct weaponhit
+struct DDukeActor
 {
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
@@ -34,14 +34,14 @@ struct weaponhit
 		int palvals;
 	};
 	int temp_data[6];
-	weaponhit* temp_actor, *seek_actor;
+	DDukeActor* temp_actor, *seek_actor;
 	spritetype* s;	// direct reference to the corresponding sprite.
 
-	static weaponhit* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
+	static DDukeActor* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
 
-	weaponhit() : s(&sprite[this - array()]) {}			// little trick to initialize the reference automatically. ;)
-	weaponhit(const weaponhit& other) = delete;				// we also do not want to allow copies.
-	weaponhit& operator=(const weaponhit& other) = delete;
+	DDukeActor() : s(&sprite[this - array()]) {}			// little trick to initialize the reference automatically. ;)
+	DDukeActor(const DDukeActor& other) = delete;				// we also do not want to allow copies.
+	DDukeActor& operator=(const DDukeActor& other) = delete;
 	void clear()
 	{
 		cgg = spriteextra = 0;
@@ -52,23 +52,23 @@ struct weaponhit
 	int GetIndex() const { return int(this - array()); }
 
 	// Wrapper around some ugliness. The 'owner' field gets abused by some actors, so better wrap its real use in access functions to keep things in order.
-	inline weaponhit* GetOwner()
+	inline DDukeActor* GetOwner()
 	{
 		return s->owner < 0 ? nullptr : &array()[s->owner];
 	}
 
-	inline void SetOwner(weaponhit* a)
+	inline void SetOwner(DDukeActor* a)
 	{
 		s->owner = a? a->GetIndex() : -1;
 	}
 
 	// same for the 'hittype' owner - which is normally the shooter in an attack.
-	inline weaponhit* GetHitOwner()
+	inline DDukeActor* GetHitOwner()
 	{
 		return owner < 0 ? nullptr : &array()[owner];
 	}
 
-	inline void SetHitOwner(weaponhit* a)
+	inline void SetHitOwner(DDukeActor* a)
 	{
 		owner = a ? a->GetIndex() : -1;
 	}
@@ -93,10 +93,8 @@ struct weaponhit
 
 
 };
-extern weaponhit hittype[MAXSPRITES + 1];
-inline weaponhit* weaponhit::array() { return hittype; }
-
-using DDukeActor = weaponhit; // we do not really want that stupid name in our interface (but also not rename the struct yet.) The preceding 'D' is for the DObject interface this should be transitioned to later.
+extern DDukeActor hittype[MAXSPRITES + 1];
+inline DDukeActor* DDukeActor::array() { return hittype; }
 
 struct animwalltype
 {
