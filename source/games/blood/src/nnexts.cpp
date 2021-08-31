@@ -3760,6 +3760,7 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
     if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
         condError(pXCond, "Object #%d (objType: %d) is not a sprite!", objIndex, objType);
 
+    auto actor = &bloodActors[objIndex];
     spritetype* pSpr = &sprite[objIndex];
     if (!xsprIsFine(pSpr) || pSpr->type == kThingBloodChunks)
         condError(pXCond, "Object #%d (objType: %d) is dead!", objIndex, objType);
@@ -3846,12 +3847,12 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case kDudeModernCustomBurning:
                 switch (cond) {
                     case 20: // life leech is thrown?
-                        var = genDudeExtra(pSpr)->nLifeLeech;
+                            var = actor->genDudeExtra().nLifeLeech;
                         if (!spriRangeIsFine(var)) return false;
                         else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
                         return true;
                     case 21: // life leech is destroyed?
-                        var = genDudeExtra(pSpr)->nLifeLeech;
+                            var = actor->genDudeExtra().nLifeLeech;
                         if (!spriRangeIsFine(var) && pSpr->owner == kMaxSprites - 1) return true;
                         else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
                         return false;
@@ -3859,19 +3860,19 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                         return condCmp(gGenDudeExtra[pSpr->index].slaveCount, arg1, arg2, cmpOp);
                     case 23: // check if dude can...
                         switch (arg3) {
-                            case 1: return genDudeExtra(pSpr)->canAttack;
-                            case 2: return genDudeExtra(pSpr)->canBurn;
-                            case 3: return genDudeExtra(pSpr)->canDuck;
-                            case 4: return genDudeExtra(pSpr)->canElectrocute;
-                            case 5: return genDudeExtra(pSpr)->canFly;
-                            case 6: return genDudeExtra(pSpr)->canRecoil;
-                            case 7: return genDudeExtra(pSpr)->canSwim;
-                            case 8: return genDudeExtra(pSpr)->canWalk;
+                            case 1: return actor->genDudeExtra().canAttack;
+                            case 2: return actor->genDudeExtra().canBurn;
+                            case 3: return actor->genDudeExtra().canDuck;
+                            case 4: return actor->genDudeExtra().canElectrocute;
+                            case 5: return actor->genDudeExtra().canFly;
+                            case 6: return actor->genDudeExtra().canRecoil;
+                            case 7: return actor->genDudeExtra().canSwim;
+                            case 8: return actor->genDudeExtra().canWalk;
                             default: condError(pXCond, "Invalid argument %d", arg3); break;
                         }
                         break;
                     case 24: // compare weapon dispersion
-                        return condCmp(genDudeExtra(pSpr)->baseDispersion, arg1, arg2, cmpOp);
+                        return condCmp(actor->genDudeExtra().baseDispersion, arg1, arg2, cmpOp);
                 }
                 break;
             default:

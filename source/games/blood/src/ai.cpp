@@ -1068,7 +1068,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
 			if (pSprite->type == kDudeModernCustom) 
 			{
-                GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+				GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
                 if (nDmgType == kDamageBurn) 
 				{
                     if (pXSprite->health > (uint32_t)pDudeInfo->fleeHealth) return nDamage;
@@ -1283,7 +1283,7 @@ void RecoilDude(DBloodActor* actor)
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustom:
 		{
-            GENDUDEEXTRA* pExtra = genDudeExtra(pSprite); int rChance = getRecoilChance(pSprite);
+            GENDUDEEXTRA* pExtra = &actor->genDudeExtra(); int rChance = getRecoilChance(pSprite);
 			if (pExtra->canElectrocute && pDudeExtra->recoil && !spriteIsUnderwater(pSprite, false))
 			{
                 if (Chance(rChance << 3) || (dudeIsMelee(pXSprite) && Chance(rChance << 4))) aiGenDudeNewState(pSprite, &genDudeRecoilTesla);
@@ -1674,7 +1674,7 @@ void aiProcessDudes(void)
 #ifdef NOONE_EXTENSIONS
             case kDudeModernCustom:
             case kDudeModernCustomBurning: {
-                GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
+				GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
                 if (pExtra->slaveCount > 0) updateTargetOfSlaves(pSprite);
                 if (pExtra->nLifeLeech >= 0) updateTargetOfLeech(pSprite);
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
