@@ -316,10 +316,10 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
 
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites))
+    if (actor->GetTarget() == nullptr)
         return;
 
-    spritetype * pTarget = &sprite[pXSprite->target_i];
+    spritetype * pTarget = &actor->GetTarget()->s();
     if (!(pTarget->type >= kDudeBase && pTarget->type < kDudeMax))
         return;
 
@@ -353,30 +353,31 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     DBloodActor* spawned = nullptr;
     if ((spawned = actFireThing(actor, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == nullptr) return;
             
-    spritetype* pThing = &spawned->s();
-    if (pThinkInfo->picnum < 0 && pThing->type != kModernThingThrowableRock) pThing->picnum = 0;
+    auto const pSpawned = &spawned->s();
+    auto const pXSpawned = &spawned->x();
+    if (pThinkInfo->picnum < 0 && pSpawned->type != kModernThingThrowableRock) pSpawned->picnum = 0;
             
-    pThing->owner = pSprite->index;
+    pSpawned->owner = pSprite->index;
             
     switch (curWeapon) {
         case kThingNapalmBall:
-            pThing->xrepeat = pThing->yrepeat = 24;
-            xsprite[pThing->extra].data4 = 3 + gGameOptions.nDifficulty;
+            pSpawned->xrepeat = pSpawned->yrepeat = 24;
+            pXSpawned->data4 = 3 + gGameOptions.nDifficulty;
             impact = true;
             break;
         case kModernThingThrowableRock:
-            pThing->picnum  = gCustomDudeDebrisPics[Random(5)];
-            pThing->xrepeat = pThing->yrepeat = 24 + Random(42);
-            pThing->cstat |= 0x0001;
-            pThing->pal = 5;
+            pSpawned->picnum  = gCustomDudeDebrisPics[Random(5)];
+            pSpawned->xrepeat = pSpawned->yrepeat = 24 + Random(42);
+            pSpawned->cstat |= 0x0001;
+            pSpawned->pal = 5;
 
-            if (Chance(0x5000)) pThing->cstat |= 0x0004;
-            if (Chance(0x5000)) pThing->cstat |= 0x0008;
+            if (Chance(0x5000)) pSpawned->cstat |= 0x0004;
+            if (Chance(0x5000)) pSpawned->cstat |= 0x0008;
 
-            if (pThing->xrepeat > 60) xsprite[pThing->extra].data1 = 43;
-            else if (pThing->xrepeat > 40) xsprite[pThing->extra].data1 = 33;
-            else if (pThing->xrepeat > 30) xsprite[pThing->extra].data1 = 23;
-            else xsprite[pThing->extra].data1 = 12;
+            if (pSpawned->xrepeat > 60) pXSpawned->data1 = 43;
+            else if (pSpawned->xrepeat > 40) pXSpawned->data1 = 33;
+            else if (pSpawned->xrepeat > 30) pXSpawned->data1 = 23;
+            else pXSpawned->data1 = 12;
             return;
         case kThingTNTBarrel:
         case kThingArmedProxBomb:
@@ -384,33 +385,32 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             impact = false;
             break;
         case kModernThingTNTProx:
-            xsprite[pThing->extra].state = 0;
-            xsprite[pThing->extra].Proximity = true;
+            pXSpawned->state = 0;
+            pXSpawned->Proximity = true;
             return;
         case kModernThingEnemyLifeLeech:
-            XSPRITE* pXThing = &xsprite[pThing->extra];
-            if (pLeech != NULL) pXThing->health = pXLeech->health;
-            else pXThing->health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
+            if (pLeech != NULL) pXSpawned->health = pXLeech->health;
+            else pXSpawned->health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
 
             sfxPlay3DSound(actor, 490, -1, 0);
 
-            pXThing->data3 = 512 / (gGameOptions.nDifficulty + 1);
-            pThing->cstat &= ~CSTAT_SPRITE_BLOCK;
-            pThing->pal = 6;
-            pThing->clipdist = 0;
-            pXThing->target_i = pTarget->index;
-            pXThing->Proximity = true;
-            pXThing->stateTimer = 1;
+            pXSpawned->data3 = 512 / (gGameOptions.nDifficulty + 1);
+            pSpawned->cstat &= ~CSTAT_SPRITE_BLOCK;
+            pSpawned->pal = 6;
+            pSpawned->clipdist = 0;
+            pXSpawned->target_i = pTarget->index;
+            pXSpawned->Proximity = true;
+            pXSpawned->stateTimer = 1;
                 
-            actor->genDudeExtra().nLifeLeech = pThing->index;
-            evPost(pThing->index, 3, 80, kCallbackLeechStateTimer);
+            actor->genDudeExtra().nLifeLeech = pSpawned->index;
+            evPost(spawned, 80, kCallbackLeechStateTimer);
             return;
     }
 
-    if (impact == true && dist <= 7680) xsprite[pThing->extra].Impact = true;
+    if (impact == true && dist <= 7680) pXSpawned->Impact = true;
     else {
-        xsprite[pThing->extra].Impact = false;
-        evPost(pThing->index, 3, 120 * Random(2) + 120, kCmdOn);
+        pXSpawned->Impact = false;
+        evPost(spawned, 120 * Random(2) + 120, kCmdOn);
     }
 }
 
