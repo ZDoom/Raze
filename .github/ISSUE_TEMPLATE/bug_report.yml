@@ -50,6 +50,20 @@ body:
         - Other
     validations:
       required: false
+  - type: dropdown
+    id: gameid
+    attributes:
+      label: Which game are you running with Raze?
+      multiple: false
+      options:
+        - Blood
+        - Duke Nukem 3D
+        - Exhumed/Powerslave
+        - Redneck Rampage
+        - Shadow Warrior
+        - Other
+    validations:
+      required: false
   - type: input
     id: other
     attributes:
@@ -100,9 +114,9 @@ body:
     attributes:
       label: Your configuration
       description: |
-        Share the config file(s) you've been using to run the program. (`dosbox-staging.conf`) 
+        Share the config file(s) you've been using to run the program. (`raze.ini`) 
         Please avoid pasting the full config, _use attachments or links_
-      placeholder: "example: texture_renderer = opengl"
+      placeholder: "example: cl_autorun=true"
       render: ini # syntax highlighting
     validations:
       required: false
