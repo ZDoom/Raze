@@ -111,3 +111,7 @@ body:
       options:
         - label: Yes, I agree.
           required: true
+  - type: markdown
+    attributes:
+      value: |
+        * Make sure you have properly filled in the title of this feature request
