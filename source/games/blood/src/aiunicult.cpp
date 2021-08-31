@@ -269,16 +269,17 @@ void genDudeAttack1(int, DBloodActor* actor)
                 spritetype* pSpawned = &spawned->s();
                 pSpawned->owner = pSprite->index;
 
-                if (xspriRangeIsFine(pSpawned->extra)) {
-                    xsprite[pSpawned->extra].target_i = pXSprite->target_i;
-                    if (pXSprite->target_i > -1)
-                        aiActivateDude(&bloodActors[pSpawned->index]);
+                if (xspriRangeIsFine(pSpawned->extra)) 
+                {
+                    spawned->SetTarget(actor->GetTarget());
+                    if (spawned->GetTarget() != nullptr)
+                        aiActivateDude(spawned);
                 }
 
                 gKillMgr.AddNewKill(1);
                 pExtra->slave[pExtra->slaveCount++] = pSpawned->index;
                 if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
-                    sfxPlay3DSoundCP(pSprite, 379, 1, 0, 0x10000 - Random3(0x3000));
+                    sfxPlay3DSoundCP(actor, 379, 1, 0, 0x10000 - Random3(0x3000));
             }
         }
     } 
@@ -494,8 +495,7 @@ static void unicultThinkChase(DBloodActor* actor)
     } 
 
     auto const pTarget = &targetactor->s();
-    XSPRITE* pXTarget = (!IsDudeSprite(pTarget) || !xspriRangeIsFine(pTarget->extra)) ? NULL : &xsprite[pTarget->extra];
-
+    XSPRITE* pXTarget = !targetactor->IsDudeActor() || !targetactor->GetTarget() ? nullptr : &targetactor->x();
     if (pXTarget->health <= 0) // target is dead
     {
         PLAYER* pPlayer = NULL;
@@ -512,13 +512,15 @@ static void unicultThinkChase(DBloodActor* actor)
     }
     
     // check target
-    int dx = pTarget->x - pSprite->x; int dy = pTarget->y - pSprite->y;
+    int dx = pTarget->x - pSprite->x; 
+    int dy = pTarget->y - pSprite->y;
     int dist = ClipLow((int)approxDist(dx, dy), 1);
 
     // quick hack to prevent spinning around or changing attacker's sprite angle on high movement speeds
     // when attacking the target. It happens because vanilla function takes in account x and y velocity, 
     // so i use fake velocity with fixed value and pass it as argument.
-    int xvelocity = xvel[pSprite->index]; int yvelocity = yvel[pSprite->index];
+    int xvelocity = actor->xvel();
+    int yvelocity = actor->yvel();
     if (inAttack(pXSprite->aiState))
        xvelocity = yvelocity = ClipLow(pSprite->clipdist >> 1, 1);
 
@@ -753,8 +755,9 @@ static void unicultThinkChase(DBloodActor* actor)
             else if (weaponType == kGenDudeWeaponKamikaze) 
             {
                 int nType = curWeapon - kTrapExploder; const EXPLOSION* pExpl = &explodeInfo[nType];
-                if (CheckProximity(pSprite, pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pExpl->radius >> 1)) {
-                    xvel[pSprite->index] = zvel[pSprite->index] = yvel[pSprite->index] = 0;
+                if (CheckProximity(pSprite, pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pExpl->radius >> 1)) 
+                {
+                    actor->xvel() = actor->yvel() = actor->zvel() = 0;
                     if (doExplosion(pSprite, nType) && pXSprite->health > 0)
                             actDamageSprite(&bloodActors[pSprite->index], &bloodActors[pSprite->index], kDamageExplode, 65535);
                 }
