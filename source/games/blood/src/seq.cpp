@@ -260,7 +260,8 @@ void UpdateSprite(int nXSprite, SEQFRAME* pFrame)
 {
 	assert(nXSprite > 0 && nXSprite < kMaxXSprites);
 	int nSprite = xsprite[nXSprite].reference;
-	assert(nSprite >= 0 && nSprite < kMaxSprites);
+	if (!(nSprite >= 0 && nSprite < kMaxSprites)) return; // sprite may have been deleted already.
+
 	spritetype* pSprite = &sprite[nSprite];
 	assert(pSprite->extra == nXSprite);
 	if (pSprite->flags & 2)
@@ -657,12 +658,15 @@ void seqProcess(int nTicks)
 					{
 						if (pInst->type == SS_SPRITE)
 						{
-							short nSprite = (short)xsprite[index].reference;
-							assert(nSprite >= 0 && nSprite < kMaxSprites);
-							evKill(nSprite, SS_SPRITE);
-							if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
-								evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
-							else deletesprite(nSprite);	// safe to not use actPostSprite here
+							int nSprite = xsprite[index].reference;
+							if (nSprite > 0)
+							{
+								assert(nSprite >= 0 && nSprite < kMaxSprites);
+								evKill(nSprite, SS_SPRITE);
+								if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
+									evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+								else deletesprite(nSprite);	// safe to not use actPostSprite here
+							}
 						}
 
 						if (pInst->type == SS_MASKED)
