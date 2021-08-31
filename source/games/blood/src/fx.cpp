@@ -272,11 +272,10 @@ void fxSpawnBlood(spritetype *pSprite, int )
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
-    spritetype *pBlood = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-    if (pBlood)
+    auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    if (bloodactor)
     {
-        auto bloodactor = &bloodActors[pBlood->index];
-        pBlood->ang = 1024;
+        bloodactor->s().ang = 1024;
         bloodactor->xvel() = Random2(0x6aaaa);
         bloodactor->yvel() = Random2(0x6aaaa);
         bloodactor->zvel() = -(int)Random(0x10aaaa)-100;
@@ -293,15 +292,14 @@ void sub_746D4(spritetype *pSprite, int )
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
-    spritetype *pSpawn;
+    DBloodActor *spawnactor;
     if (pSprite->type == kDudePodGreen)
-        pSpawn = gFX.fxSpawn(FX_53, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+        spawnactor = gFX.fxSpawnActor(FX_53, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     else
-        pSpawn = gFX.fxSpawn(FX_54, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-    if (pSpawn)
+        spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    if (spawnactor)
     {
-        auto spawnactor = &bloodActors[pSpawn->index];
-        pSpawn->ang = 1024;
+        spawnactor->s().ang = 1024;
         spawnactor->xvel() = Random2(0x6aaaa);
         spawnactor->yvel() = Random2(0x6aaaa);
         spawnactor->zvel() = -(int)Random(0x10aaaa)-100;
@@ -315,16 +313,16 @@ void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4)
     int y = pSprite->y+MulScale(pSprite->clipdist-4, Sin(pSprite->ang), 28);
     x += MulScale(a3, Cos(pSprite->ang+512), 30);
     y += MulScale(a3, Sin(pSprite->ang+512), 30);
-    spritetype *pBrass = gFX.fxSpawn((FX_ID)(FX_37+Random(3)), pSprite->sectnum, x, y, z, 0);
+    auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37+Random(3)), pSprite->sectnum, x, y, z, 0);
     if (pBrass)
     {
         if (!VanillaMode())
-            pBrass->ang = Random(2047);
+            pBrass->s().ang = Random(2047);
         int nDist = (a4<<18)/120+Random2(((a4/4)<<18)/120);
         int nAngle = pSprite->ang+Random2(56)+512;
-        xvel[pBrass->index] = MulScale(nDist, Cos(nAngle), 30);
-        yvel[pBrass->index] = MulScale(nDist, Sin(nAngle), 30);
-        zvel[pBrass->index] = zvel[pSprite->index]-(0x20000+(Random2(40)<<18)/120);
+        pBrass->xvel() = MulScale(nDist, Cos(nAngle), 30);
+        pBrass->yvel() = MulScale(nDist, Sin(nAngle), 30);
+        pBrass->zvel() = zvel[pSprite->index]-(0x20000+(Random2(40)<<18)/120);
     }
 }
 
@@ -334,16 +332,16 @@ void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
     int y = pSprite->y+MulScale(pSprite->clipdist-4, Sin(pSprite->ang), 28);
     x += MulScale(a3, Cos(pSprite->ang+512), 30);
     y += MulScale(a3, Sin(pSprite->ang+512), 30);
-    spritetype *pShell = gFX.fxSpawn((FX_ID)(FX_40+Random(3)), pSprite->sectnum, x, y, z, 0);
+    auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40+Random(3)), pSprite->sectnum, x, y, z, 0);
     if (pShell)
     {
         if (!VanillaMode())
-            pShell->ang = Random(2047);
+            pShell->s().ang = Random(2047);
         int nDist = (a4<<18)/120+Random2(((a4/4)<<18)/120);
         int nAngle = pSprite->ang+Random2(56)+512;
-        xvel[pShell->index] = MulScale(nDist, Cos(nAngle), 30);
-        yvel[pShell->index] = MulScale(nDist, Sin(nAngle), 30);
-        zvel[pShell->index] = zvel[pSprite->index]-(0x20000+(Random2(20)<<18)/120);
+        pShell->xvel() = MulScale(nDist, Cos(nAngle), 30);
+        pShell->yvel() = MulScale(nDist, Sin(nAngle), 30);
+        pShell->zvel() = zvel[pSprite->index]-(0x20000+(Random2(20)<<18)/120);
     }
 }
 

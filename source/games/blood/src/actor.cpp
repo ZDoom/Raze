@@ -7153,24 +7153,24 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 
 	if (pVectorData->surfHit[nSurf].fx2 >= 0) {
 
-		spritetype* pFX2 = gFX.fxSpawn(pVectorData->surfHit[nSurf].fx2, nSector, x, y, z, 0);
+        auto pFX2 = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx2, nSector, x, y, z, 0);
 		if (pFX2 && gModernMap)
-			pFX2->owner = pShooter->index;
+			pFX2->s().owner = pShooter->index;
 	}
 
 	if (pVectorData->surfHit[nSurf].fx3 >= 0) {
 
-		spritetype* pFX3 = gFX.fxSpawn(pVectorData->surfHit[nSurf].fx3, nSector, x, y, z, 0);
+        auto pFX3 = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx3, nSector, x, y, z, 0);
 		if (pFX3 && gModernMap)
-			pFX3->owner = pShooter->index;
+			pFX3->s().owner = pShooter->index;
 
 	}
 
 #else
 	if (pVectorData->surfHit[nSurf].fx2 >= 0)
-		gFX.fxSpawn(pVectorData->surfHit[nSurf].fx2, nSector, x, y, z, 0);
+        gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx2, nSector, x, y, z, 0);
 	if (pVectorData->surfHit[nSurf].fx3 >= 0)
-		gFX.fxSpawn(pVectorData->surfHit[nSurf].fx3, nSector, x, y, z, 0);
+        gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx3, nSector, x, y, z, 0);
 #endif
 
 	if (pVectorData->surfHit[nSurf].fxSnd >= 0)

@@ -307,41 +307,41 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
             gPos.y = pSprite->y+MulScale(pSprite->clipdist<<2, Sin(nAngle), 30);
             gPos.z = bottom-Random(bottom-top);
         }
-        spritetype *pFX = gFX.fxSpawn(pGFX->fxId, nSector, gPos.x, gPos.y, gPos.z, 0);
+        auto pFX = gFX.fxSpawnActor(pGFX->fxId, nSector, gPos.x, gPos.y, gPos.z, 0);
         if (pFX)
         {
             if (pGFX->at1 < 0)
-                pFX->pal = pSprite->pal;
+                pFX->s().pal = pSprite->pal;
             if (pVel)
             {
-                xvel[pFX->index] = pVel->vx+Random2(pGFX->atd);
-                yvel[pFX->index] = pVel->vy+Random2(pGFX->atd);
-                zvel[pFX->index] = pVel->vz-Random(pGFX->at11);
+                pFX->xvel() = pVel->vx+Random2(pGFX->atd);
+                pFX->yvel() = pVel->vy+Random2(pGFX->atd);
+                pFX->zvel() = pVel->vz-Random(pGFX->at11);
             }
             else
             {
-                xvel[pFX->index] = Random2((pGFX->atd<<18)/120);
-                yvel[pFX->index] = Random2((pGFX->atd<<18)/120);
+                pFX->xvel() = Random2((pGFX->atd<<18)/120);
+                pFX->yvel() = Random2((pGFX->atd<<18)/120);
                 switch(pSprite->cstat&48)
                 {
                 case 16:
-                    zvel[pFX->index] = Random2((pGFX->at11<<18)/120);
+                    pFX->zvel() = Random2((pGFX->at11<<18)/120);
                     break;
                 default:
                     if (dz2 < dz1 && dz2 < 0x4000)
                     {
-                        zvel[pFX->index] = 0;
+                        pFX->zvel() = 0;
                     }
                     else if (dz2 > dz1 && dz1 < 0x4000)
                     {
-                        zvel[pFX->index] = -(int)Random((abs(pGFX->at11)<<18)/120);
+                        pFX->zvel() = -(int)Random((abs(pGFX->at11)<<18)/120);
                     }
                     else
                     {
                         if ((pGFX->at11<<18)/120 < 0)
-                            zvel[pFX->index] = -(int)Random((abs(pGFX->at11)<<18)/120);
+                            pFX->zvel() = -(int)Random((abs(pGFX->at11)<<18)/120);
                         else
-                            zvel[pFX->index] = Random2((pGFX->at11<<18)/120);
+                            pFX->zvel() = Random2((pGFX->at11<<18)/120);
                     }
                     break;
                 }
@@ -452,22 +452,22 @@ void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity
         int r1 = Random(a6);
         int r2 = Random(a5);
         int r3 = Random(a4);
-        spritetype *pGib = gFX.fxSpawn(pGFX->fxId, nSector, pWall->x+r3, pWall->y+r2, a3+r1, 0);
+        auto pGib = gFX.fxSpawnActor(pGFX->fxId, nSector, pWall->x+r3, pWall->y+r2, a3+r1, 0);
         if (pGib)
         {
             if (pGFX->at1 < 0)
-                pGib->pal = pWall->pal;
+                pGib->s().pal = pWall->pal;
             if (!pVel)
             {
-                xvel[pGib->index] = Random2((pGFX->atd<<18)/120);
-                yvel[pGib->index] = Random2((pGFX->atd<<18)/120);
-                zvel[pGib->index] = -(int)Random((pGFX->at11<<18)/120);
+                pGib->xvel() = Random2((pGFX->atd<<18)/120);
+                pGib->yvel() = Random2((pGFX->atd<<18)/120);
+                pGib->zvel() = -(int)Random((pGFX->at11<<18)/120);
             }
             else
             {
-                xvel[pGib->index] = Random2((pVel->vx<<18)/120);
-                yvel[pGib->index] = Random2((pVel->vy<<18)/120);
-                zvel[pGib->index] = -(int)Random((pVel->vz<<18)/120);
+                pGib->xvel() = Random2((pVel->vx << 18) / 120);
+                pGib->yvel() = Random2((pVel->vy << 18) / 120);
+                pGib->zvel() = -(int)Random((pVel->vz<<18)/120);
             }
         }
     }

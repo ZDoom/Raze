@@ -1462,9 +1462,10 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
     if (actLeech != NULL) 
     {
         auto const pLeech = &actLeech->s();
-        spritetype* pEffect = gFX.fxSpawn((FX_ID)52, pLeech->sectnum, pLeech->x, pLeech->y, pLeech->z, pLeech->ang);
-        if (pEffect != NULL) 
+        auto effectactor = gFX.fxSpawnActor((FX_ID)52, pLeech->sectnum, pLeech->x, pLeech->y, pLeech->z, pLeech->ang);
+        if (effectactor != NULL) 
         {
+            spritetype* pEffect = &effectactor->s();
             pEffect->cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
             pEffect->pal = 6;
             int repeat = 64 + Random(50);
