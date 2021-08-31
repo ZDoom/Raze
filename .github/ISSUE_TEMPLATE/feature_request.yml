@@ -59,8 +59,10 @@ body:
         - Blood
         - Duke Nukem 3D
         - Exhumed/Powerslave
+        - NAM
         - Redneck Rampage
         - Shadow Warrior
+        - WW2 GI
         - Other
     validations:
       required: false
@@ -103,14 +105,6 @@ body:
       placeholder: "Ex. Screenshot or Link"
     validations:
       required: false
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Code of Conduct & Contributing Guidelines
-      description: By submitting this issue, you agree to follow our [contributing guidelines](https://docs.github.com/articles/github-community-guidelines) and code of conduct.
-      options:
-        - label: Yes, I agree.
-          required: true
   - type: markdown
     attributes:
       value: |
