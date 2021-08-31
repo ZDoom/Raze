@@ -1020,7 +1020,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						if (((100 * pXSprite->health) / fullHp) <= 75)
 						{
 							actor->cumulDamage += nDamage << 4; // to be sure any enemy will play the recoil animation
-							RecoilDude(&bloodActors[pXSprite->reference]);
+                            RecoilDude(actor);
 						}
 					}
 
