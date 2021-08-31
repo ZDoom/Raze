@@ -230,7 +230,7 @@ int getRangeAttackDist(spritetype* pSprite, int minDist = 3000, int maxDist = 80
 int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp);
 void scaleDamage(XSPRITE* pXSprite);
 bool genDudePrepare(spritetype* pSprite, int propId);
-void genDudeUpdate(spritetype* pSprite);
+void genDudeUpdate(DBloodActor* pSprite);
 void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage);
 void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite);
 #endif
