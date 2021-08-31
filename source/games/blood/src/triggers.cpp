@@ -2247,7 +2247,7 @@ void ActivateGenerator(int nSprite)
         case kGenBubbleMulti: {
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
-            gFX.fxSpawn((pSprite->type == kGenBubble) ? FX_23 : FX_26, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
+            gFX.fxSpawnActor((pSprite->type == kGenBubble) ? FX_23 : FX_26, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
             break;
         }
     }
