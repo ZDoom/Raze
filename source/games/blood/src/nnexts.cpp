@@ -7865,7 +7865,7 @@ void callbackMakeMissileBlocking(int nSprite) // 23
 void callbackGenDudeUpdate(int nSprite) // 24
 {
     if (spriRangeIsFine(nSprite))
-        genDudeUpdate(&sprite[nSprite]);
+        genDudeUpdate(&bloodActors[nSprite]);
 }
 
 void clampSprite(spritetype* pSprite, int which) {

@@ -178,15 +178,17 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
 
 }
 
-GENDUDEEXTRA* genDudeExtra(spritetype* pGenDude) {
-    return &gGenDudeExtra[pGenDude->index];
-}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void genDudeUpdate(spritetype* pSprite) {
-    auto actor = &bloodActors[pSprite->index];
+void genDudeUpdate(DBloodActor* actor)
+{
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
     for (int i = 0; i < kGenDudePropertyMax; i++) {
-        if (pExtra->updReq[i]) genDudePrepare(pSprite, i);
+        if (pExtra->updReq[i]) genDudePrepare(&actor->s(), i);
     }
 }
 
@@ -477,10 +479,10 @@ static void unicultThinkChase(DBloodActor* actor)
         if(spriteIsUnderwater(pSprite,false)) aiGenDudeNewState(actor, &genDudeGotoW);
         else aiGenDudeNewState(actor, &genDudeGotoL);
         return;
-    } else {
-        
-        genDudeUpdate(pSprite);
-
+    }
+    else 
+    {
+        genDudeUpdate(actor);
     }
 
     if (targetactor == nullptr)  // target lost
