@@ -5500,7 +5500,7 @@ void actExplodeSprite(DBloodActor* actor)
 
 	if (pSprite->statnum == kStatExplosion) return;
 	sfxKill3DSound(pSprite, -1, -1);
-	evKill(pSprite->index, 3);
+	evKill(actor);
 
 	int nType = kExplosionStandard;
 
@@ -5849,7 +5849,7 @@ static void actCheckThings()
 					{
 					case kThingDripWater:
 					case kThingDripBlood:
-						MakeSplash(&bloodActors[pXSprite->reference]);
+						MakeSplash(actor);
 						break;
 #ifdef NOONE_EXTENSIONS
 					case kModernThingThrowableRock:
@@ -5910,7 +5910,7 @@ static void actCheckProjectiles()
 			continue;
 		viewBackupSpriteLoc(actor);
 		int hit = MoveMissile(actor);
-		if (hit >= 0) actImpactMissile(&bloodActors[pSprite->index], hit);
+		if (hit >= 0) actImpactMissile(actor, hit);
 	}
 }
 
