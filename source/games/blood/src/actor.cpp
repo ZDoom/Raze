@@ -2946,7 +2946,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 {
 	auto pSprite = &actor->s();
 	auto pXSprite = &actor->x();
-	GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+	GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
 	removeDudeStuff(pSprite);
 	if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == nullptr)
 	{
@@ -3343,7 +3343,7 @@ static void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 	int dudeToGib = (actCheckRespawn(actor)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
 	if (nSeq == 3)
 	{
-		GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+		GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
 		if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, actor, dudeToGib);
 		else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, actor, dudeToGib);
 		else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, actor, dudeToGib);

@@ -123,7 +123,7 @@ static void forcePunch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (gGenDudeExtra[pSprite->index].forcePunch && seqGetStatus(3, pSprite->extra) == -1)
+    if (actor->genDudeExtra().forcePunch && seqGetStatus(3, pSprite->extra) == -1)
         punchCallback(0, actor);
 }
 
@@ -146,7 +146,7 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
     {
         int fStart = 0; 
         int fEnd = 0; 
-        GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+        GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
         unsigned int clipMask = (weaponType == kGenDudeWeaponMissile) ? CLIPMASK0 : CLIPMASK1;
 
         for (int i = -8191; i < 8192; i += by) 
@@ -185,7 +185,8 @@ GENDUDEEXTRA* genDudeExtra(spritetype* pGenDude) {
 }
 
 void genDudeUpdate(spritetype* pSprite) {
-    GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+    auto actor = &bloodActors[pSprite->index];
+    GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
     for (int i = 0; i < kGenDudePropertyMax; i++) {
         if (pExtra->updReq[i]) genDudePrepare(pSprite, i);
     }
@@ -239,7 +240,7 @@ void genDudeAttack1(int, DBloodActor* actor)
     int dx, dy, dz;
     actor->xvel() = actor->yvel() = 0;
     
-    GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+    GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
     short dispersion = pExtra->baseDispersion;
     if (inDuck(pXSprite->aiState))
         dispersion = ClipLow(dispersion >> 1, kGenDudeMinDispesion);
@@ -322,8 +323,8 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     if (!(pTarget->type >= kDudeBase && pTarget->type < kDudeMax))
         return;
 
-    short curWeapon = gGenDudeExtra[sprite[pXSprite->reference].index].curWeapon;
-    short weaponType = gGenDudeExtra[sprite[pXSprite->reference].index].weaponType;
+    int curWeapon = actor->genDudeExtra().curWeapon;
+    int weaponType = actor->genDudeExtra().weaponType;
     if (weaponType != kGenDudeWeaponThrow) return;
 
     const THINGINFO* pThinkInfo = &thingInfo[curWeapon - kThingBase];
@@ -401,7 +402,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             pXThing->Proximity = true;
             pXThing->stateTimer = 1;
                 
-            gGenDudeExtra[pSprite->index].nLifeLeech = pThing->index;
+            actor->genDudeExtra().nLifeLeech = pThing->index;
             evPost(pThing->index, 3, 80, kCallbackLeechStateTimer);
             return;
     }
@@ -520,7 +521,7 @@ static void unicultThinkChase(DBloodActor* actor)
     //aiChooseDirection(actor,getangle(dx, dy));
     aiGenDudeChooseDirection(pSprite, pXSprite, getangle(dx, dy), xvelocity, yvelocity);
 
-    GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
+    GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
     if (!pExtra->canAttack) 
     {
         if (pExtra->canWalk) aiSetTarget(actor, actor); // targeting self???
@@ -558,8 +559,8 @@ static void unicultThinkChase(DBloodActor* actor)
 
         actor->dudeSlope = DivScale(pTarget->z - pSprite->z, dist, 10);
 
-        short curWeapon = gGenDudeExtra[pSprite->index].curWeapon; 
-		short weaponType = gGenDudeExtra[pSprite->index].weaponType;
+        int curWeapon = actor->genDudeExtra().curWeapon; 
+        int weaponType = actor->genDudeExtra().weaponType;
         spritetype* pLeech = leechIsDropped(pSprite); 
         const VECTORDATA* meleeVector = &gVectorData[22];
         if (weaponType == kGenDudeWeaponThrow) 
@@ -653,7 +654,7 @@ static void unicultThinkChase(DBloodActor* actor)
         } else {
 
             int vdist; int mdist; int defDist;
-            defDist = vdist = mdist = gGenDudeExtra[pSprite->index].fireDist;
+            defDist = vdist = mdist = actor->genDudeExtra().fireDist;
 
             if (weaponType == kGenDudeWeaponHitscan) {
                 if ((vdist = gVectorData[curWeapon].maxDist) <= 0)
@@ -667,7 +668,7 @@ static void unicultThinkChase(DBloodActor* actor)
                     aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
                     return;
                 } 
-				else if (gGenDudeExtra[pSprite->index].slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist)
+                else if (actor->genDudeExtra().slaveCount > gGameOptions.nDifficulty || dist < meleeVector->maxDist) 
                 {
                     if (dist <= meleeVector->maxDist) 
                     {
@@ -1071,7 +1072,7 @@ void aiGenDudeMoveForward(DBloodActor* actor)
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-    GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
+    GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
     int maxTurn = pDudeInfo->angSpeed * 4 >> 4;
 
     if (pExtra->canFly) 
@@ -1168,11 +1169,13 @@ void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState) {
         Printf(PRINT_HIGH, "!xspriRangeIsFine(pSprite->extra)");
         return;
     }
+    auto actor = &bloodActors[pSprite->index];
 
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
 
     // redirect dudes which cannot walk to non-walk states
-    if (!gGenDudeExtra[pSprite->index].canWalk) {
+    if (!actor->genDudeExtra().canWalk) 
+    {
     
         if (pAIState == &genDudeDodgeL || pAIState == &genDudeDodgeShortL || pAIState == &genDudeDodgeShorterL) 
             pAIState = &genDudeRecoilL;
@@ -1234,7 +1237,7 @@ bool playGenDudeSound(spritetype* pSprite, int mode) {
     const GENDUDESND* sndInfo =& gCustomDudeSnd[mode]; bool gotSnd = false;
     short sndStartId = xsprite[pSprite->extra].sysData1; int rand = sndInfo->randomRange;
     int sndId = (sndStartId <= 0) ? sndInfo->defaultSndId : sndStartId + sndInfo->sndIdOffset;
-    GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+    GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
 
     // let's check if there same sounds already played by other dudes
     // so we won't get a lot of annoying screams in the same time and ensure sound played in it's full length (if not interruptable)
@@ -1966,8 +1969,10 @@ void updateTargetOfSlaves(spritetype* pSprite) {
         return;
     }
     
+    auto actor = &bloodActors[pSprite->index];
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    GENDUDEEXTRA* pExtra = genDudeExtra(pSprite); short* slave = pExtra->slave;
+    GENDUDEEXTRA* pExtra = &actor->genDudeExtra(); 
+    short* slave = pExtra->slave;
     spritetype* pTarget = (pXSprite->target_i >= 0 && IsDudeSprite(&sprite[pXSprite->target_i])) ? &sprite[pXSprite->target_i] : NULL;
     XSPRITE* pXTarget = (pTarget != NULL && xspriRangeIsFine(pTarget->extra) && xsprite[pTarget->extra].health > 0) ? &xsprite[pTarget->extra] : NULL;
 
