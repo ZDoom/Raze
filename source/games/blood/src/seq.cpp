@@ -479,12 +479,12 @@ SEQINST* GetInstance(int type, int nXIndex)
 
 SEQINST* GetInstance(DBloodActor* actor)
 {
-	return activeList.get(3, actor->s().index);
+	return activeList.get(3, actor->s().extra);
 }
 
 int seqGetStatus(DBloodActor* actor)
 {
-	return seqGetStatus(3, actor->s().index);
+	return seqGetStatus(3, actor->s().extra);
 }
 
 void seqKill(int type, int nXIndex)
