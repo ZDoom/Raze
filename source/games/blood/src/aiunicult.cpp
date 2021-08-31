@@ -171,11 +171,9 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
                 const MissileType* pMissile = &missileInfo[pExtra->curWeapon - kMissileBase];
                 actor->dudeSlope = (fStart - ((fStart - fEnd) >> 2)) - (pMissile->clipDist << 1);
             }
-
             return true;
         }
     }
-
     return false;
 
 }
@@ -523,7 +521,7 @@ static void unicultThinkChase(DBloodActor* actor)
        xvelocity = yvelocity = ClipLow(pSprite->clipdist >> 1, 1);
 
     //aiChooseDirection(actor,getangle(dx, dy));
-    aiGenDudeChooseDirection(pSprite, pXSprite, getangle(dx, dy), xvelocity, yvelocity);
+    aiGenDudeChooseDirection(actor, getangle(dx, dy), xvelocity, yvelocity);
 
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
     if (!pExtra->canAttack) 
@@ -1098,12 +1096,20 @@ int checkAttackState(DBloodActor* actor)
     return 0;
 }
 
-///// For gen dude
-int getGenDudeMoveSpeed(spritetype* pSprite,int which, bool mul, bool shift) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static int getGenDudeMoveSpeed(DBloodActor *actor,int which, bool mul, bool shift) 
+{
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
     int speed = -1; int step = 2500; int maxSpeed = 146603;
-    switch(which){
+    switch(which)
+    {
         case 0:
             speed = pDudeInfo->frontSpeed;
             break;
@@ -1120,9 +1126,8 @@ int getGenDudeMoveSpeed(spritetype* pSprite,int which, bool mul, bool shift) {
             return -1;
     }
     if (pXSprite->busyTime > 0) speed /=3;
-    if (speed > 0 && mul) {
-            
-
+    if (speed > 0 && mul) 
+    {
         if (pXSprite->busyTime > 0)
             speed += (step * pXSprite->busyTime);
     }
@@ -1199,12 +1204,15 @@ void aiGenDudeMoveForward(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, int xvel, int yvel) {
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+void aiGenDudeChooseDirection(DBloodActor* actor, int a3, int xvel, int yvel) 
+{
+    auto const pXSprite = &actor->x();
+    auto const pSprite = &actor->s();
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) 
+    {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    auto actor = &bloodActors[pSprite->index];
 
     // TO-DO: Take in account if sprite is flip-x, so enemy select correct angle
 
@@ -1229,7 +1237,8 @@ void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, in
     
     pXSprite->dodgeDir = (Chance(0x8000)) ? 1 : -1;
 
-    if (!CanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512)) {
+    if (!CanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512)) 
+    {
         pXSprite->dodgeDir = -pXSprite->dodgeDir;
         if (!CanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512))
             pXSprite->dodgeDir = 0;
@@ -2173,7 +2182,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
     switch (propId) {
         case kGenDudePropertyAll:
         case kGenDudePropertyInitVals:
-            pExtra->moveSpeed = getGenDudeMoveSpeed(pSprite, 0, true, false);
+            pExtra->moveSpeed = getGenDudeMoveSpeed(actor, 0, true, false);
             pExtra->initVals[0] = pSprite->xrepeat;
             pExtra->initVals[1] = pSprite->yrepeat;
             pExtra->initVals[2] = pSprite->clipdist;
