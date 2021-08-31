@@ -2218,7 +2218,6 @@ void updateTargetOfSlaves(DBloodActor* actor)
     auto actTarget = actor->GetTarget();
     if (!actTarget || !actTarget->IsDudeActor() || !actTarget->hasX() || actTarget->x().health <= 0) actTarget = nullptr;
 
-    int newCnt = pExtra->slaveCount;
     for (int i = 0; i <= gGameOptions.nDifficulty; i++) 
     {
         if (slave[i] != nullptr) 
@@ -2227,7 +2226,6 @@ void updateTargetOfSlaves(DBloodActor* actor)
             {
                 slave[i]->SetOwner(nullptr);
                 slave[i] = nullptr;
-                newCnt--;
                 continue;
             }
 
@@ -2244,8 +2242,16 @@ void updateTargetOfSlaves(DBloodActor* actor)
             }
         } 
     }
-    
-    pExtra->slaveCount = newCnt;
+    // compact the array after processing.
+    int writeindex = 0;
+    for (int i = 0; i <= gGameOptions.nDifficulty; i++)
+    {
+        if (slave[i] != nullptr)
+        {
+            slave[writeindex++] = slave[i];
+        }
+    }
+    pExtra->slaveCount = writeindex;
 }
 
 short inDodge(AISTATE* aiState) {
