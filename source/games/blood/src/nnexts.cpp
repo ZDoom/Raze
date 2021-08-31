@@ -1779,7 +1779,7 @@ void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite)
     switch (pSprite->type) {
     case kDudeModernCustom:
     case kDudeModernCustomBurning:
-        aiGenDudeNewState(pSprite, &genIdle);
+        aiGenDudeNewState(actor, &genIdle);
         break;
     default:
         aiNewState(actor, &genIdle);
@@ -6594,7 +6594,7 @@ void aiPatrolState(spritetype* pSprite, int state) {
         if (newState->stateType != state || (!nSeqOverride && seq != newState->seqId))
             continue;
 
-        if (pSprite->type == kDudeModernCustom) aiGenDudeNewState(pSprite, newState);
+        if (pSprite->type == kDudeModernCustom) aiGenDudeNewState(actor, newState);
         else aiNewState(&bloodActors[pXSprite->reference], newState);
 
         if (crouch) pXSprite->unused1 |= kDudeFlagCrouch;

@@ -204,7 +204,7 @@ bool spriteIsUnderwater(spritetype* pSprite, bool oldWay = false);
 bool playGenDudeSound(spritetype* pSprite, int mode);
 void aiGenDudeMoveForward(DBloodActor* actor);
 void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, int aXvel = -1, int aYvel = -1);
-void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState);
+void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState);
 int getGenDudeMoveSpeed(spritetype* pSprite, int which, bool mul, bool shift);
 int checkAttackState(DBloodActor* actor);
 bool doExplosion(spritetype* pSprite, int nType);

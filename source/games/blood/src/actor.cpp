@@ -2966,7 +2966,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 					if (pXSprite->data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
 						pSprite->pal = 0;
 
-					aiGenDudeNewState(pSprite, &genDudeBurnGoto);
+					aiGenDudeNewState(actor, &genDudeBurnGoto);
 					actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
 					if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
 					actor->dudeExtra.time = PlayClock + 360;
