@@ -47,7 +47,7 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 	info.maxkills = gKillMgr.TotalKills;
 	info.secrets = gSecretMgr.Founds;
 	info.maxsecrets = gSecretMgr.Total;
-	info.time = gSecretMgr.Super;
+	info.supersecrets = gSecretMgr.Super;
 	info.endofgame = map == nullptr;
 
 	ShowIntermission(currentLevel, map, &info, [=](bool)
