@@ -451,20 +451,20 @@ void aiActivateDude(DBloodActor* actor)
 		pDudeExtraE->active = 1;
 		if (actor->GetTarget() == nullptr)
 		{
-			if (spriteIsUnderwater(pSprite, false))  aiGenDudeNewState(pSprite, &genDudeSearchW);
-			else aiGenDudeNewState(pSprite, &genDudeSearchL);
+			if (spriteIsUnderwater(pSprite, false))  aiGenDudeNewState(actor, &genDudeSearchW);
+			else aiGenDudeNewState(actor, &genDudeSearchL);
 		}
 		else
 		{
 			if (Chance(0x4000)) playGenDudeSound(pSprite, kGenDudeSndTargetSpot);
-			if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeChaseW);
-			else aiGenDudeNewState(pSprite, &genDudeChaseL);
+			if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(actor, &genDudeChaseW);
+			else aiGenDudeNewState(actor, &genDudeChaseL);
 		}
 		break;
 	}
 	case kDudeModernCustomBurning:
-		if (actor->GetTarget() == nullptr) aiGenDudeNewState(pSprite, &genDudeBurnSearch);
-		else aiGenDudeNewState(pSprite, &genDudeBurnChase);
+		if (actor->GetTarget() == nullptr) aiGenDudeNewState(actor, &genDudeBurnSearch);
+		else aiGenDudeNewState(actor, &genDudeBurnChase);
 		break;
 #endif
 	case kDudeCultistTommyProne:
@@ -1043,7 +1043,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 					pSprite->type = kDudeModernCustom;
 					pXSprite->burnTime = 0;
 					pXSprite->health = 1; // so it can be killed with flame weapons while underwater and if already was burning dude before.
-					aiGenDudeNewState(pSprite, &genDudeGotoW);
+					aiGenDudeNewState(actor, &genDudeGotoW);
 				}
 
 				return nDamage;
@@ -1081,7 +1081,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 							if (pXSprite->data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
 								pSprite->pal = 0;
 
-							aiGenDudeNewState(pSprite, &genDudeBurnGoto);
+							aiGenDudeNewState(actor, &genDudeBurnGoto);
 							actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
 							actor->dudeExtra.time = PlayClock + 360;
 							evKill(actor, kCallbackFXFlameLick);
@@ -1101,8 +1101,8 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						{
 							if (!spriteIsUnderwater(pSprite))
 							{
-								if (!canDuck(pSprite) || !dudeIsPlayingSeq(actor, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
-								else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
+								if (!canDuck(pSprite) || !dudeIsPlayingSeq(actor, 14))  aiGenDudeNewState(actor, &genDudeDodgeShortL);
+								else aiGenDudeNewState(actor, &genDudeDodgeShortD);
 
 								if (Chance(0x0200))
 									playGenDudeSound(pSprite, kGenDudeSndGotHit);
@@ -1110,7 +1110,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 							}
 							else if (dudeIsPlayingSeq(actor, 13))
 							{
-								aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
+								aiGenDudeNewState(actor, &genDudeDodgeShortW);
 							}
 						}
 					}
@@ -1277,23 +1277,22 @@ void RecoilDude(DBloodActor* actor)
 			int rChance = getRecoilChance(pSprite);
 			if (pExtra->canElectrocute && pDudeExtra->teslaHit && !spriteIsUnderwater(pSprite, false))
 			{
-
-				if (Chance(rChance << 3) || (dudeIsMelee(pXSprite) && Chance(rChance << 4))) aiGenDudeNewState(pSprite, &genDudeRecoilTesla);
-				else if (pExtra->canRecoil && Chance(rChance)) aiGenDudeNewState(pSprite, &genDudeRecoilL);
+				if (Chance(rChance << 3) || (dudeIsMelee(pXSprite) && Chance(rChance << 4))) aiGenDudeNewState(actor, &genDudeRecoilTesla);
+				else if (pExtra->canRecoil && Chance(rChance)) aiGenDudeNewState(actor, &genDudeRecoilL);
 				else if (canWalk(pSprite))
 				{
 
-					if (Chance(rChance >> 2)) aiGenDudeNewState(pSprite, &genDudeDodgeL);
-					else if (Chance(rChance >> 1)) aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
+					if (Chance(rChance >> 2)) aiGenDudeNewState(actor, &genDudeDodgeL);
+					else if (Chance(rChance >> 1)) aiGenDudeNewState(actor, &genDudeDodgeShortL);
 
 				}
 
 			}
 			else if (pExtra->canRecoil && Chance(rChance))
 			{
-				if (inDuck(pXSprite->aiState) && Chance(rChance >> 2)) aiGenDudeNewState(pSprite, &genDudeRecoilD);
-				else if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeRecoilW);
-				else aiGenDudeNewState(pSprite, &genDudeRecoilL);
+				if (inDuck(pXSprite->aiState) && Chance(rChance >> 2)) aiGenDudeNewState(actor, &genDudeRecoilD);
+				else if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(actor, &genDudeRecoilW);
+				else aiGenDudeNewState(actor, &genDudeRecoilL);
 			}
 
 			short rState = inRecoil(pXSprite->aiState);
@@ -1359,7 +1358,7 @@ void RecoilDude(DBloodActor* actor)
 			break;
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustomBurning:
-			aiGenDudeNewState(pSprite, &genDudeBurnGoto);
+			aiGenDudeNewState(actor, &genDudeBurnGoto);
 			break;
 #endif
 		case kDudeZombieButcher:
@@ -1675,7 +1674,7 @@ void aiProcessDudes(void)
 			if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
 				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0))
 			{
-				aiGenDudeNewState(pSprite, pXSprite->aiState->nextState);
+					aiGenDudeNewState(actor, pXSprite->aiState->nextState);
 			}
 			int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
 			if (pXSprite->health <= 0 || hinder > actor->cumulDamage) break;
