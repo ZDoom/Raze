@@ -338,7 +338,7 @@ spritetype* nnExtSpawnDude(XSPRITE* pXSource, spritetype* pSprite, short nType, 
     bool burning = IsBurningDude(pDude);
     if (burning) {
         pXDude->burnTime = 10;
-        pXDude->target_i = -1;
+        pDudeActor->SetTarget(nullptr);
     }
 
     if ((burning || (pSource->flags & kModernTypeFlag3)) && !pXDude->dudeFlag4)
@@ -511,7 +511,9 @@ void nnExtInitModernStuff(bool bSaveLoad) {
     for (int i = 0; i < kMaxXSprites; i++) {
 
         if (xsprite[i].reference < 0) continue;
-        XSPRITE* pXSprite = &xsprite[i];  spritetype* pSprite = &sprite[pXSprite->reference];
+        auto actor = &bloodActors[i];
+        XSPRITE* pXSprite = &actor->x();
+        spritetype* pSprite = &actor->s();
         
         switch (pSprite->type) {
             case kModernRandomTX:
@@ -711,7 +713,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     pXSprite->Proximity = pXSprite->Push    = pXSprite->Vector  = pXSprite->triggerOn      = false;
                     pXSprite->state = pXSprite->restState = 0;
                     
-                    pXSprite->targetX = pXSprite->targetY = pXSprite->targetZ = pXSprite->target_i = pXSprite->sysData2 = -1;
+                    pXSprite->targetX = pXSprite->targetY = pXSprite->targetZ = pXSprite->sysData2 = -1;
+                    actor->SetTarget(nullptr);
                     changespritestat(pSprite->index, kStatModernCondition);
                     int oldStat = pSprite->cstat; pSprite->cstat = 0x30;
                     
@@ -2739,13 +2742,15 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
     if (pSprite->statnum == kStatDude && IsDudeSprite(pSprite) && !IsPlayerSprite(pSprite)) {
         XSPRITE* pXDude = &xsprite[pSprite->extra];
         int x = pXDude->targetX; int y = pXDude->targetY; int z = pXDude->targetZ;
-        int target = pXDude->target_i;
+        auto target = actor->GetTarget();
         
         aiInitSprite(actor);
 
-        if (target >= 0) {
+        if (target != nullptr) 
+        {
             pXDude->targetX = x; pXDude->targetY = y; pXDude->targetZ = z;
-            pXDude->target_i = target; aiActivateDude(&bloodActors[pXDude->reference]);
+            actor->SetTarget(target);
+            aiActivateDude(&bloodActors[pXDude->reference]);
         }
     }
 
