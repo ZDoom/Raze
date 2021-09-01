@@ -1676,7 +1676,7 @@ void aiProcessDudes(void)
             case kDudeModernCustom:
             case kDudeModernCustomBurning: {
 				GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
-                if (pExtra->slaveCount > 0) updateTargetOfSlaves(pSprite);
+				if (pExtra->slaveCount > 0) updateTargetOfSlaves(actor);
 				if (pExtra->pLifeLeech != nullptr) updateTargetOfLeech(actor);
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
 				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0))
