@@ -1511,11 +1511,11 @@ DBloodActor* getNextIncarnation(DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++)
     {
-        if (rxBucket[i].type != OBJ_SPRITE || rxBucket[i].index == pXSprite->reference)
+        if (rxBucket[i].type != OBJ_SPRITE || rxBucket[i].rxindex == pXSprite->reference)
             continue;
 
-        if (sprite[rxBucket[i].index].statnum == kStatInactive)
-            return &bloodActors[sprite[rxBucket[i].index].index];
+        if (sprite[rxBucket[i].rxindex].statnum == kStatInactive)
+            return &bloodActors[sprite[rxBucket[i].rxindex].index];
     }
     return NULL;
 }

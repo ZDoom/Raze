@@ -52,17 +52,17 @@ static int GetBucketChannel(const RXBUCKET* pBucket)
 	switch (pBucket->type)
 	{
 	case SS_SECTOR:
-		nXIndex = sector[pBucket->index].extra;
+		nXIndex = sector[pBucket->rxindex].extra;
 		assert(nXIndex > 0);
 		return xsector[nXIndex].rxID;
 
 	case SS_WALL:
-		nXIndex = wall[pBucket->index].extra;
+		nXIndex = wall[pBucket->rxindex].extra;
 		assert(nXIndex > 0);
 		return xwall[nXIndex].rxID;
 
 	case SS_SPRITE:
-		nXIndex = sprite[pBucket->index].extra;
+		nXIndex = sprite[pBucket->rxindex].extra;
 		assert(nXIndex > 0);
 		return xsprite[nXIndex].rxID;
 	}
@@ -279,7 +279,7 @@ void evInit()
 		{
 			assert(nCount < kChannelMax);
 			rxBucket[nCount].type = SS_SECTOR;
-			rxBucket[nCount].index = i;
+			rxBucket[nCount].rxindex = i;
 			nCount++;
 		}
 	}
@@ -291,7 +291,7 @@ void evInit()
 		{
 			assert(nCount < kChannelMax);
 			rxBucket[nCount].type = SS_WALL;
-			rxBucket[nCount].index = i;
+			rxBucket[nCount].rxindex = i;
 			nCount++;
 		}
 	}
@@ -305,7 +305,7 @@ void evInit()
 			{
 				assert(nCount < kChannelMax);
 				rxBucket[nCount].type = SS_SPRITE;
-				rxBucket[nCount].index = i;
+				rxBucket[nCount].rxindex = i;
 				nCount++;
 			}
 		}
@@ -482,19 +482,19 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 #endif
 	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++) 
 	{
-		if (event.type != rxBucket[i].type || event.index != rxBucket[i].index) 
+		if (event.type != rxBucket[i].type || event.index != rxBucket[i].rxindex) 
 		{
 			switch (rxBucket[i].type) 
 			{
 			case 6:
-				trMessageSector(rxBucket[i].index, event);
+				trMessageSector(rxBucket[i].rxindex, event);
 				break;
 			case 0:
-				trMessageWall(rxBucket[i].index, event);
+				trMessageWall(rxBucket[i].rxindex, event);
 				break;
 			case 3:
 			{
-				int nSprite = rxBucket[i].index;
+				int nSprite = rxBucket[i].rxindex;
 				spritetype* pSprite = &sprite[nSprite];
 				if (pSprite->flags & 32)
 					continue;
@@ -650,7 +650,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RXBUCKET& w, RXBUC
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.index)
+		arc("index", w.rxindex)
 			("type", w.type)
 			.EndObject();
 	}

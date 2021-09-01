@@ -74,7 +74,7 @@ enum {
 struct RXBUCKET
 {
 	DBloodActor* actor;
-    int index;
+    int rxindex;
     uint8_t type;
 };
 extern RXBUCKET rxBucket[];
