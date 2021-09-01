@@ -1320,7 +1320,7 @@ void nnExtProcessSuperSprites() {
                 pXDebris->goalAng = getangle(xvel[idx], yvel[idx]) & 2047;
 
             int ang = pDebris->ang & 2047;
-            if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKill(idx, 3, kCallbackEnemeyBubble);
+            if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKill_(idx, 3, kCallbackEnemeyBubble);
             else if (Chance(0x1000 - mass)) {
                 
                 if (zvel[idx] > 0x100) debrisBubble(idx);
@@ -1662,7 +1662,7 @@ void debrisMove(int listIndex)
                 int pitch = (150000 - (actor->spriteMass.mass << 9)) + Random3(8192);
                 sfxPlay3DSoundCP(pSprite, 720, -1, 0, pitch, 75 - Random(40));
                     if (!spriteIsUnderwater(actor)) {
-                    evKill(pSprite->index, 3, kCallbackEnemeyBubble);
+                    evKill_(pSprite->index, 3, kCallbackEnemeyBubble);
                     } else {
                         evPost_(pSprite->index, 3, 0, kCallbackEnemeyBubble);
                     for (int i = 2; i <= 5; i++) {
@@ -2803,7 +2803,7 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
         if (fxId < kEffectGenCallbackBase + length) {
             
             fxId = gEffectGenCallbacks[fxId - kEffectGenCallbackBase];
-            evKill(pSprite->index, OBJ_SPRITE, (CALLBACK_ID)fxId);
+            evKill_(pSprite->index, OBJ_SPRITE, (CALLBACK_ID)fxId);
             evPost_(pSprite->index, OBJ_SPRITE, 0, (CALLBACK_ID)fxId);
 
         }
@@ -3080,14 +3080,14 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
                 case kDmgBurn:
                     if (pXSprite->burnTime > 0) break;
                     actBurnSprite(pSource->index, pXSprite, ClipLow(dmg >> 1, 128));
-                    evKill(pSprite->index, OBJ_SPRITE, kCallbackFXFlameLick);
+                    evKill_(pSprite->index, OBJ_SPRITE, kCallbackFXFlameLick);
                     evPost_(pSprite->index, OBJ_SPRITE, 0, kCallbackFXFlameLick); // show flames
                     break;
                 case kDmgElectric:
                     forceRecoil = true; // show tesla recoil animation
                     break;
                 case kDmgBullet:
-                    evKill(pSprite->index, OBJ_SPRITE, kCallbackFXBloodSpurt);
+                    evKill_(pSprite->index, OBJ_SPRITE, kCallbackFXBloodSpurt);
                     for (int i = 1; i < 6; i++) {
                         
                         if (Chance(0x16000 >> i))
@@ -4162,7 +4162,7 @@ char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
     pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
     
-    evKill(nSprite, 3);
+    evKill_(nSprite, 3);
     if (pXSprite->restState != nState && pXSprite->waitTime > 0)
         evPost_(nSprite, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
 
@@ -4603,7 +4603,7 @@ void sectorPauseMotion(int nSector) {
     XSECTOR* pXSector = &xsector[sector[nSector].extra];
     pXSector->unused1 = 1;
     
-    evKill(nSector, OBJ_SECTOR);
+    evKill_(nSector, OBJ_SECTOR);
 
     sectorKillSounds(nSector);
     if ((pXSector->busy == 0 && !pXSector->state) || (pXSector->busy == 65536 && pXSector->state))
@@ -4888,7 +4888,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
-                    evKill(nSprite, 3); // queue overflow protect
+                    evKill_(nSprite, 3); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     fallthrough__;
                 case kCmdRepeat:
@@ -4941,7 +4941,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
-                    evKill(nSprite, 3); // queue overflow protect
+                    evKill_(nSprite, 3); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(pXSprite);
                     fallthrough__;
@@ -4966,7 +4966,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
-                    evKill(nSprite, 3); // queue overflow protect
+                    evKill_(nSprite, 3); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     fallthrough__;
                 case kCmdRepeat:
@@ -4994,7 +4994,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
-                    evKill(nSprite, 3); // queue overflow protect
+                    evKill_(nSprite, 3); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     fallthrough__;
                 case kCmdRepeat:
@@ -5021,7 +5021,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
-                    evKill(nSprite, 3); // queue overflow protect
+                    evKill_(nSprite, 3); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     fallthrough__;
                 case kCmdRepeat:
@@ -5047,7 +5047,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
-                    evKill(nSprite, 3); // queue overflow protect
+                    evKill_(nSprite, 3); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     fallthrough__;
                 case kCmdRepeat:
@@ -5187,7 +5187,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
-                    evKill(nSprite, 3); // queue overflow protect
+                    evKill_(nSprite, 3); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     fallthrough__;
                 case kCmdRepeat:
@@ -5209,7 +5209,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
                 case kCmdOn:
-                    evKill(nSprite, 3); // queue overflow protect
+                    evKill_(nSprite, 3); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     fallthrough__;
                 case kCmdRepeat:
@@ -5407,7 +5407,7 @@ int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) {
         if (pXSource->waitTime > 0 && pXSource->state > 0) {
 
             pXSource->restState = 1;
-            evKill(pSource->index, OBJ_SPRITE);
+            evKill_(pSource->index, OBJ_SPRITE);
             evPost_(pSource->index, OBJ_SPRITE, (pXSource->waitTime * 120) / 10, kCmdRepeat);
             return -1;
 
@@ -7815,7 +7815,7 @@ void seqSpawnerOffSameTx(XSPRITE* pXSource) {
         if (pXSprite->reference != pXSource->reference && spriRangeIsFine(pXSprite->reference)) {
             if (sprite[pXSprite->reference].type != kModernSeqSpawner) continue;
             else if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) {
-                evKill(pXSprite->reference, OBJ_SPRITE);
+                evKill_(pXSprite->reference, OBJ_SPRITE);
                 pXSprite->state = 0;
             }
         }

@@ -58,7 +58,7 @@ char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
         return 0;
     pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
-    evKill(nSprite, 3);
+    evKill_(nSprite, 3);
     if ((sprite[nSprite].flags & kHitagRespawn) != 0 && sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax)
     {
         pXSprite->respawnPending = 3;
@@ -85,7 +85,7 @@ char SetWallState(int nWall, XWALL *pXWall, int nState)
         return 0;
     pXWall->busy  = IntToFixed(nState);
     pXWall->state = nState;
-    evKill(nWall, 0);
+    evKill_(nWall, 0);
     if (pXWall->restState != nState && pXWall->waitTime > 0)
         evPost_(nWall, 0, (pXWall->waitTime*120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
     if (pXWall->txID)
@@ -104,7 +104,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
         return 0;
     pXSector->busy = IntToFixed(nState);
     pXSector->state = nState;
-    evKill(nSector, 6);
+    evKill_(nSector, 6);
     if (nState == 1)
     {
         if (pXSector->command != kCmdLink && pXSector->triggerOn && pXSector->txID)
@@ -209,7 +209,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
             PLAYER *pPlayer = &gPlayer[nPlayer];
             if (pPlayer->pXSprite->health > 0)
             {
-                evKill(pSprite->index, 3);
+                evKill(actor);
                 pPlayer->ammoCount[8] = ClipHigh(pPlayer->ammoCount[8]+pXSprite->data3, gAmmoInfo[8].max);
                 pPlayer->hasWeapon[9] = 1;
                 if (pPlayer->curWeapon != kWeapLifeLeech)

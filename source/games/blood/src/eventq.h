@@ -73,7 +73,8 @@ enum {
 
 struct RXBUCKET
 {
-    uint16_t index;
+	DBloodActor* actor;
+    int index;
     uint8_t type;
 };
 extern RXBUCKET rxBucket[];
@@ -147,6 +148,7 @@ inline bool channelRangeIsFine(int channel) {
 
 struct EVENT
 {
+	DBloodActor* actor;
 	int16_t index;
 	int8_t type;
 	int8_t cmd;
@@ -170,8 +172,8 @@ void evPostSector(int index, unsigned int nDelta, COMMAND_ID command);
 void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback);
 
 void evProcess(unsigned int nTime);
-void evKill(int a1, int a2);
-void evKill(int a1, int a2, CALLBACK_ID a3);
+void evKill_(int a1, int a2);
+void evKill_(int a1, int a2, CALLBACK_ID a3);
 void evKill(DBloodActor*);
 void evKill(DBloodActor*, CALLBACK_ID a3);
 
