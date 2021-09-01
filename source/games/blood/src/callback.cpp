@@ -32,6 +32,7 @@ BEGIN_BLD_NS
 
 void fxFlameLick(DBloodActor* actor, int) // 0
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     XSPRITE *pXSprite = &actor->x();
     int top, bottom;
@@ -59,6 +60,7 @@ void fxFlameLick(DBloodActor* actor, int) // 0
 
 void Remove(DBloodActor* actor, int) // 1
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     evKill(actor, kCallbackFXFlareSpark);
     if (pSprite->extra > 0)
@@ -69,7 +71,7 @@ void Remove(DBloodActor* actor, int) // 1
 
 void FlareBurst(DBloodActor* actor, int) // 2
 {
-    assert(actor != nullptr);
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     int nAngle = getangle(actor->xvel(), actor->yvel());
     int nRadius = 0x55555;
@@ -102,6 +104,7 @@ void FlareBurst(DBloodActor* actor, int) // 2
 
 void fxFlareSpark(DBloodActor* actor, int) // 3
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_28, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
@@ -115,6 +118,7 @@ void fxFlareSpark(DBloodActor* actor, int) // 3
 
 void fxFlareSparkLite(DBloodActor* actor, int) // 4
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_28, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
@@ -128,7 +132,7 @@ void fxFlareSparkLite(DBloodActor* actor, int) // 4
 
 void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
 {
-    assert(actor != nullptr);
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     int nXSprite = pSprite->extra;
     assert(nXSprite > 0 && nXSprite < kMaxXSprites);
@@ -157,6 +161,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
 
 void fxBloodSpurt(DBloodActor* actor, int) // 6
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     spritetype *pFX = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
@@ -172,6 +177,7 @@ void fxBloodSpurt(DBloodActor* actor, int) // 6
 
 void fxArcSpark(DBloodActor* actor, int) // 7
 {
+    if (!actor) return;
     spritetype* pSprite = &actor->s();
     spritetype* pFX = gFX.fxSpawn(FX_15, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
@@ -186,6 +192,7 @@ void fxArcSpark(DBloodActor* actor, int) // 7
 
 void fxDynPuff(DBloodActor* actor, int) // 8
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     if (actor->zvel())
     {
@@ -206,6 +213,7 @@ void fxDynPuff(DBloodActor* actor, int) // 8
 
 void Respawn(DBloodActor* actor, int) // 9
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
@@ -290,6 +298,7 @@ void Respawn(DBloodActor* actor, int) // 9
 
 void PlayerBubble(DBloodActor* actor, int) // 10
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     if (IsPlayerSprite(pSprite))
     {
@@ -320,6 +329,7 @@ void PlayerBubble(DBloodActor* actor, int) // 10
 
 void EnemyBubble(DBloodActor* actor, int) // 11
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
@@ -343,7 +353,7 @@ void EnemyBubble(DBloodActor* actor, int) // 11
 
 void CounterCheck(DBloodActor*, int nSector) // 12
 {
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    if (nSector < 0 || nSector >= kMaxSectors) return;
     if (sector[nSector].type != kSectorCounter) return;
     if (sector[nSector].extra <= 0) return;
     
@@ -371,6 +381,7 @@ void CounterCheck(DBloodActor*, int nSector) // 12
 
 void FinishHim(DBloodActor* actor, int) // 13
 {
+    if (!actor) return;
     spritetype* pSprite = &actor->s();
     int nXSprite = pSprite->extra;
     XSPRITE* pXSprite = &actor->x();
@@ -380,6 +391,7 @@ void FinishHim(DBloodActor* actor, int) // 13
 
 void fxBloodBits(DBloodActor* actor, int) // 14
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     int ceilZ, ceilHit, floorZ, floorHit;
     GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
@@ -409,6 +421,7 @@ void fxBloodBits(DBloodActor* actor, int) // 14
 
 void fxTeslaAlt(DBloodActor* actor, int) // 15
 {
+    if (!actor) return;
     spritetype* pSprite = &actor->s();
     spritetype* pFX = gFX.fxSpawn(FX_49, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
@@ -426,6 +439,7 @@ int sawedOffSleeveSnd[] = { 610, 612 };
 
 void fxBouncingSleeve(DBloodActor* actor, int) // 16
 {
+    if (!actor) return;
     spritetype* pSprite = &actor->s(); int ceilZ, ceilHit, floorZ, floorHit;
     GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
     int top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
@@ -484,6 +498,7 @@ void sleeveStopBouncing(spritetype* pSprite) {
 
 void returnFlagToBase(DBloodActor* actor, int) // 17
 {
+    if (!actor) return;
     spritetype* pSprite = &actor->s();
     if (pSprite->owner >= 0 && pSprite->owner < kMaxSprites)
     {
@@ -509,6 +524,7 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
 
 void fxPodBloodSpray(DBloodActor* actor, int) // 18
 {
+    if (!actor) return;
     spritetype* pSprite = &actor->s();
     spritetype* pFX;
     if (pSprite->type == 53)
@@ -527,6 +543,7 @@ void fxPodBloodSpray(DBloodActor* actor, int) // 18
 
 void fxPodBloodSplat(DBloodActor* actor, int) // 19
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     int ceilZ, ceilHit, floorZ, floorHit;
     GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
@@ -564,6 +581,7 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
 
 void LeechStateTimer(DBloodActor* actor, int) // 20
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     if (pSprite->statnum == kStatThing && !(pSprite->flags & 32)) {
         switch (pSprite->type) {
@@ -599,6 +617,7 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
 
 void DropVoodooCb(DBloodActor* actor, int) // unused
 {
+    if (!actor) return;
     spritetype *pSprite = &actor->s();
     int nOwner = pSprite->owner;
     if (nOwner < 0 || nOwner >= kMaxSprites)
