@@ -4446,9 +4446,9 @@ bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* p
 void aiFightActivateDudes(int rx) {
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        spritetype* pDude = &sprite[rxBucket[i].rxindex]; XSPRITE* pXDude = &xsprite[pDude->extra];
-        if (!IsDudeSprite(pDude) || pXDude->aiState->stateType != kAiStateGenIdle) continue;
-        aiInitSprite(&bloodActors[pDude->index]);
+        auto dudeactor = rxBucket[i].GetActor();
+        if (!dudeactor || !dudeactor->hasX() || !dudeactor->IsDudeActor() || dudeactor->x().aiState->stateType != kAiStateGenIdle) continue;
+        aiInitSprite(dudeactor);
     }
 }
 
@@ -4470,9 +4470,12 @@ void aiFightFreeTargets(int nSprite) {
 // this function sets target to -1 for all targets that hunting for dudes affected by selected kModernDudeTargetChanger
 void aiFightFreeAllTargets(XSPRITE* pXSource) {
     if (pXSource->txID <= 0) return;
-    for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) {
-        if (rxBucket[i].type == OBJ_SPRITE && sprite[rxBucket[i].rxindex].extra >= 0)
-            aiFightFreeTargets(rxBucket[i].rxindex);
+    for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) 
+	{
+        if (rxBucket[i].type != OBJ_SPRITE) continue;
+		auto rxactor = rxBucket[i].GetActor();
+        if (rxactor && rxactor->hasX())
+            aiFightFreeTargets(rxactor->s().index);
     }
 
     return;
@@ -4490,9 +4493,9 @@ bool aiFightDudeIsAffected(XSPRITE* pXDude) {
         for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
             if (rxBucket[i].type != OBJ_SPRITE) continue;
 
-            spritetype* pSprite = &sprite[rxBucket[i].rxindex];
-            if (pSprite->extra < 0 || !IsDudeSprite(pSprite)) continue;
-            else if (pSprite->index == sprite[pXDude->reference].index) return true;
+            auto actor = rxBucket[i].GetActor();
+            if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
+            else if (actor->s().index == sprite[pXDude->reference].index) return true;
         }
     }
     return false;
@@ -4507,17 +4510,19 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        else if (IsDudeSprite(&sprite[rxBucket[i].rxindex]) &&
-            xsprite[sprite[rxBucket[i].rxindex].extra].health > 0) return true;
+        auto actor = rxBucket[i].GetActor();
+        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
+        if (actor->x().health > 0) return true;
     }
 
     // check redirected TX buckets
     int rx = -1; XSPRITE* pXRedir = NULL;
     while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-            if (rxBucket[i].type != OBJ_SPRITE) continue;
-            else if (IsDudeSprite(&sprite[rxBucket[i].rxindex]) &&
-                xsprite[sprite[rxBucket[i].rxindex].extra].health > 0) return true;
+	        if (rxBucket[i].type != OBJ_SPRITE) continue;
+	        auto actor = rxBucket[i].GetActor();
+	        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
+	        if (actor->x().health > 0) return true;
         }
     }
     return false;
