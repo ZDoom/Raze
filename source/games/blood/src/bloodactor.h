@@ -37,6 +37,7 @@ public:
 	int& xvel() { return Blood::xvel[index]; }
 	int& yvel() { return Blood::yvel[index]; }
 	int& zvel() { return Blood::zvel[index]; }
+	int GetIndex() { return s().index; }	// this is for error printing only!
 
 	GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
 	POINT3D& basePoint() { return Blood::baseSprite[index]; }

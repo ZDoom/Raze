@@ -7831,13 +7831,11 @@ void levelEndLevelCustom(int nLevel) {
     gNextLevel = FindMapByIndex(currentLevel->cluster, nLevel + 1);
 }
 
-void callbackUniMissileBurst(int nSprite) // 22
+void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 {
-    auto actor = &bloodActors[nSprite];
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    if (sprite[nSprite].statnum != kStatProjectile) return;
-    spritetype* pSprite = &sprite[nSprite];
-    int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
+    spritetype* pSprite = &actor->s();
+    if (pSprite->statnum != kStatProjectile) return;
+    int nAngle = getangle(actor->xvel(), actor->yvel());
     int nRadius = 0x55555;
 
     for (int i = 0; i < 8; i++)
@@ -7880,21 +7878,20 @@ void callbackUniMissileBurst(int nSprite) // 22
         zvel[pBurst->index] += dz;
         evPost(pBurst->index, 3, 960, kCallbackRemove);
     }
-    evPost(nSprite, 3, 0, kCallbackRemove);
+    evPost(actor, 0, kCallbackRemove);
 }
 
 
-void callbackMakeMissileBlocking(int nSprite) // 23
+void callbackMakeMissileBlocking(DBloodActor* actor, int) // 23
 {
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    if (sprite[nSprite].statnum != kStatProjectile) return;
-    sprite[nSprite].cstat |= CSTAT_SPRITE_BLOCK;
+    if (!actor || actor->s().statnum != kStatProjectile) return;
+    actor->s().cstat |= CSTAT_SPRITE_BLOCK;
 }
 
-void callbackGenDudeUpdate(int nSprite) // 24
+void callbackGenDudeUpdate(DBloodActor* actor, int) // 24
 {
-    if (spriRangeIsFine(nSprite))
-        genDudeUpdate(&bloodActors[nSprite]);
+    if (actor)
+        genDudeUpdate(actor);
 }
 
 void clampSprite(spritetype* pSprite, int which) {

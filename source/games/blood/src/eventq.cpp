@@ -595,7 +595,8 @@ void evProcess(unsigned int time)
 		{
 			assert(event.funcID < kCallbackMax);
 			assert(gCallback[event.funcID] != nullptr);
-			gCallback[event.funcID](event.index);
+			if (event.type == OBJ_SPRITE) gCallback[event.funcID](&bloodActors[event.index], 0);
+			else gCallback[event.funcID](nullptr, event.index);
 		}
 		else
 		{
