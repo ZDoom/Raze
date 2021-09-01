@@ -242,7 +242,7 @@ struct OBJECTS_TO_TRACK {
 };
 
 struct TRCONDITION {
-    int16_t xindex;
+    DBloodActor* actor;
     uint8_t length;
     OBJECTS_TO_TRACK obj[kMaxTracedObjects];
 };
