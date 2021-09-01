@@ -43,7 +43,6 @@ PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
-SPRITEMASS gSpriteMass[];   // cache for getSpriteMassBySize();
 DBloodActor* gProxySpritesList[];  // list of additional sprites which can be triggered by Proximity
 short gProxySpritesCount;   // current count
 DBloodActor* gSightSpritesList[];  // list of additional sprites which can be triggered by Sight
@@ -475,16 +474,9 @@ void nnExtResetGlobals() {
     }
 
     // clear sprite mass cache
-    for (int i = 0; i < kMaxSprites; i++) {
-        
-        gSpriteMass[i].seqId        = 0;
-        gSpriteMass[i].picnum       = 0;
-        gSpriteMass[i].xrepeat      = 0;
-        gSpriteMass[i].yrepeat      = 0;
-        gSpriteMass[i].mass         = 0;
-        gSpriteMass[i].airVel       = 0;
-        gSpriteMass[i].fraction     = 0;
-    
+    for (int i = 0; i < kMaxSprites; i++) 
+    {
+        bloodActors[i].spriteMass = {};
     }
 
 }
@@ -1272,8 +1264,8 @@ void nnExtProcessSuperSprites() {
             viewBackupSpriteLoc(idx, pDebris);
             
             bool uwater = false;
-            int mass = gSpriteMass[pDebris->extra].mass;
-            int airVel = gSpriteMass[pDebris->extra].airVel;
+            int mass = debrisactor->spriteMass.mass;
+            int airVel = debrisactor->spriteMass.airVel;
 
                     int top, bottom;
                     GetSpriteExtents(pDebris, &top, &bottom);
@@ -1369,6 +1361,7 @@ void sfxPlayVectorSound(spritetype* pSprite, int vectorId) {
 }
 
 int getSpriteMassBySize(spritetype* pSprite) {
+    auto actor = &bloodActors[pSprite->index];
     int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist; Seq* pSeq = NULL;
     if (pSprite->extra < 0) {
         I_Error("getSpriteMassBySize: pSprite->extra < 0");
@@ -1394,7 +1387,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
 
     }
 
-    SPRITEMASS* cached = &gSpriteMass[pSprite->extra];
+    SPRITEMASS* cached = &actor->spriteMass;
     if (((seqId >= 0 && seqId == cached->seqId) || pSprite->picnum == cached->picnum) && pSprite->xrepeat == cached->xrepeat &&
         pSprite->yrepeat == cached->yrepeat && clipDist == cached->clipdist) {
         return cached->mass;
@@ -1497,16 +1490,17 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg)
 {
     auto owner = &bloodActors[nOwner];
     auto actor = gPhysSpritesList[listIndex];
-    spritetype* pSprite = (actor != nullptr) ? &actor->s() : NULL;
-    if (pSprite != NULL && xspriRangeIsFine(pSprite->extra)) 
+    if (actor != nullptr && actor->hasX())
     {
+        spritetype* pSprite = &actor->s();
         int dx = pSprite->x - x; int dy = pSprite->y - y; int dz = (pSprite->z - z) >> 4;
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (pSprite->type >= kThingBase && pSprite->type < kThingMax);
         int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
         if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) {
-            if (gSpriteMass[pSprite->extra].mass > 0) {
-                int t = scale(dmg, size, gSpriteMass[pSprite->extra].mass);
+            if (actor->spriteMass.mass > 0) 
+            {
+                int t = scale(dmg, size, actor->spriteMass.mass);
 
                 xvel[pSprite->index] += MulScale(t, dx, 16);
                 yvel[pSprite->index] += MulScale(t, dy, 16);
@@ -1524,8 +1518,9 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg)
     }
 }
 
-void debrisBubble(int nSprite) {
-    
+void debrisBubble(int nSprite) 
+{
+ 
     spritetype* pSprite = &sprite[nSprite];
     
     int top, bottom;
@@ -1576,10 +1571,10 @@ void debrisMove(int listIndex)
     int floorDist = (bottom - pSprite->z) >> 2;
     int ceilDist = (pSprite->z - top) >> 2;
     int clipDist = pSprite->clipdist << 2;
-    int mass = actor->spriteMass().mass;
+    int mass = actor->spriteMass.mass;
 
     bool uwater = false;
-    int tmpFraction = gSpriteMass[pSprite->extra].fraction;
+    int tmpFraction = actor->spriteMass.fraction;
     if (sector[nSector].extra >= 0 && xsector[sector[nSector].extra].Underwater) {
         tmpFraction >>= 1;
         uwater = true;
@@ -1664,7 +1659,7 @@ void debrisMove(int listIndex)
             switch (i) {
             case kMarkerUpWater:
             case kMarkerUpGoo:
-                int pitch = (150000 - (gSpriteMass[pSprite->extra].mass << 9)) + Random3(8192);
+                int pitch = (150000 - (actor->spriteMass.mass << 9)) + Random3(8192);
                 sfxPlay3DSoundCP(pSprite, 720, -1, 0, pitch, 75 - Random(40));
                     if (!spriteIsUnderwater(actor)) {
                     evKill(pSprite->index, 3, kCallbackEnemeyBubble);
@@ -7998,7 +7993,7 @@ void SerializeNNExts(FSerializer& arc)
         bool foundsome = false;
         for (int i = 0; i < kMaxSprites; i++)
         {
-            if (activeSprites[i] && (sprite[i].type == kDudeModernCustom || sprite[i].type == kDudeModernCustomBurning))
+            if (activeSprites[i] && (sprite[i].type == kDudeModernCustom ||  sprite[i].type == kDudeModernCustomBurning))
             {
                 if (!foundsome) arc.BeginArray("gendudeextra");
                 foundsome = true;
@@ -8006,8 +8001,7 @@ void SerializeNNExts(FSerializer& arc)
             }
         }
         if (foundsome) arc.EndArray();
-        arc.SparseArray("spritemass", gSpriteMass, kMaxSprites, activeXSprites)
-            ("proxyspritescount", gProxySpritesCount)
+        arc ("proxyspritescount", gProxySpritesCount)
             .Array("proxyspriteslist", gProxySpritesList, gProxySpritesCount)
             ("sightspritescount", gSightSpritesCount)
             .Array("sightspriteslist", gSightSpritesList, gSightSpritesCount)

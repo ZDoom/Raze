@@ -465,6 +465,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra);
+
+			if (gModernMap)
+			{
+				arc("spritemass", w.spriteMass, def->spriteMass);
+			}
 		}
 		arc.EndObject();
 	}
