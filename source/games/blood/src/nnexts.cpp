@@ -7742,13 +7742,15 @@ int listTx(XSPRITE* pXRedir, int tx) {
     return tx;
 }
 
-XSPRITE* evrIsRedirector(int nSprite) {
-    if (spriRangeIsFine(nSprite)) {
-        switch (sprite[nSprite].type) {
+DBloodActor* evrIsRedirector(DBloodActor* actor) 
+{
+    if (actor) 
+    {
+        switch (actor->s().type) 
+        {
         case kModernRandomTX:
         case kModernSequentialTX:
-            if (xspriRangeIsFine(sprite[nSprite].extra) && xsprite[sprite[nSprite].extra].command == kCmdLink
-                && !xsprite[sprite[nSprite].extra].locked) return &xsprite[sprite[nSprite].extra];
+            if (actor->hasX() && actor->x().command == kCmdLink && !actor->x().locked) return actor;
             break;
         }
     }
@@ -7782,10 +7784,11 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
     int nIndex = (pXRedir) ? pXRedir->reference : -1; bool prevFound = false;
     for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        XSPRITE* pXSpr = evrIsRedirector(rxBucket[i].rxindex);
-        if (!pXSpr) continue;
-        else if (prevFound || nIndex == -1) { *tx = listTx(pXSpr, *tx); return pXSpr; }
-        else if (nIndex != pXSpr->reference) continue;
+        auto rxactor = evrIsRedirector(rxBucket[i].GetActor());
+        if (!rxactor || !rxactor->hasX()) continue;
+
+        if (prevFound || nIndex == -1) { *tx = listTx(&rxactor->x(), *tx); return &rxactor->x(); }
+        else if (nIndex != rxactor->s().index) continue;
         else prevFound = true;
     }
 
@@ -7799,7 +7802,7 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     if (pXSprite->data3 != pXSprite->sysData1) return false;
     char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = int(strlen(buffer)); int rx = -1;
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].rxindex)) continue;
+        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].GetActor())) continue;
         for (int a = 0; a < len; a++) {
             if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;

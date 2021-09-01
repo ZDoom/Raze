@@ -418,7 +418,6 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH);
 bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH);
 void condUpdateObjectIndex(int objType, int oldIndex, int newIndex);
 XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx);
-XSPRITE* evrIsRedirector(int nSprite);
 int listTx(XSPRITE* pXRedir, int tx);
 void seqSpawnerOffSameTx(XSPRITE* pXSource);
 //  -------------------------------------------------------------------------   //
