@@ -6044,8 +6044,8 @@ static void actCheckExplosion()
 			{
 				for (int i = 0; i < gPhysSpritesCount; i++)
 				{
-					if (gPhysSpritesList[i] == -1) continue;
-					auto physactor = &bloodActors[gPhysSpritesList[i]];
+					if (gPhysSpritesList[i] == nullptr) continue;
+					auto physactor = gPhysSpritesList[i];
 					spritetype* pDebris = &physactor->s();
 					if (pDebris->sectnum < 0 || (pDebris->flags & kHitagFree) != 0) continue;
 
@@ -6058,9 +6058,9 @@ static void actCheckExplosion()
 			if (gImpactSpritesCount > 0) {
 				for (int i = 0; i < gImpactSpritesCount; i++)
 				{
-					if (gImpactSpritesList[i] == -1) continue;
+					if (gImpactSpritesList[i] == nullptr) continue;
 
-					auto impactactor = &bloodActors[gImpactSpritesList[i]];
+					auto impactactor = gImpactSpritesList[i];
 					if (impactactor->s().sectnum < 0 || (impactactor->s().flags & kHitagFree) != 0)	continue;
 
 					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, impactactor->s().sectnum) || !CheckProximity(&impactactor->s(), x, y, z, nSector, radius))
