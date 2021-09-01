@@ -62,9 +62,7 @@ static int GetBucketChannel(const RXBUCKET* pBucket)
 		return xwall[nXIndex].rxID;
 
 	case SS_SPRITE:
-		nXIndex = sprite[pBucket->rxindex].extra;
-		assert(nXIndex > 0);
-		return xsprite[nXIndex].rxID;
+		return pBucket->GetActor()? pBucket->GetActor()->x().rxID : 0;
 	}
 
 	Printf(PRINT_HIGH, "Unexpected rxBucket type %d", pBucket->type);
@@ -368,6 +366,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 	}
 
 	EVENT event;
+	event.actor = nullptr;
 	event.index = nIndex;
 	event.type = nType;
 	event.cmd = command;
@@ -482,7 +481,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 #endif
 	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++) 
 	{
-		if (event.type != rxBucket[i].type || event.index != rxBucket[i].rxindex) 
+		if (event.type != rxBucket[i].type || (event.type != OBJ_SPRITE && event.index != rxBucket[i].rxindex) || (event.type == OBJ_SPRITE && event.actor != rxBucket[i].GetActor())) 
 		{
 			switch (rxBucket[i].type) 
 			{
@@ -494,16 +493,13 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 				break;
 			case 3:
 			{
-				int nSprite = rxBucket[i].rxindex;
-				spritetype* pSprite = &sprite[nSprite];
-				if (pSprite->flags & 32)
-					continue;
-				int nXSprite = pSprite->extra;
-				if (nXSprite > 0)
+				auto actor = rxBucket[i].GetActor();
+
+				if (actor && actor->hasX() && !(actor->s().flags & 32))
 				{
-					XSPRITE* pXSprite = &xsprite[nXSprite];
-					if (pXSprite->rxID > 0)
-						trMessageSprite(nSprite, event);
+					XSPRITE* pXSprite = &actor->x();
+					if (actor->x().rxID > 0)
+						trMessageSprite(actor->s().index, event);
 				}
 				break;
 			}

@@ -7435,6 +7435,8 @@ void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z)
 	aiSetTarget(&bloodActors[pXSprite->reference], x, y, z);
 }
 
+DBloodActor* RXBUCKET::GetActor() const { return &bloodActors[rxindex]; }
+
 
 
 END_BLD_NS
