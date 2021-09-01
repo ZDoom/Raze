@@ -128,7 +128,7 @@ void CFX::remove(int nSprite)
         actPostSprite(nSprite, kStatFree);
 }
 
-spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
+DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
 {
     if (nSector < 0 || nSector >= numsectors)
         return NULL;
@@ -157,13 +157,13 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
     FXDATA *pFX = &gFXData[nFx];
     if (gStatCount[1] == 512)
     {
-        StatIterator it(kStatFX);
-        int nSprite = it.NextIndex();
-        while (nSprite != -1 && (sprite[nSprite].flags & 32))
-            nSprite = it.NextIndex();
-        if (nSprite == -1)
+        BloodStatIterator it(kStatFX);
+        auto iactor = it.Next();
+        while (iactor && (iactor->s().flags & 32))
+            iactor = it.Next();
+        if (!iactor)
             return NULL;
-        destroy(nSprite);
+        destroy(iactor->s().index);
     }
     auto actor = actSpawnSprite(nSector, x, y, z, 1, 0);
     spritetype* pSprite = &actor->s();
@@ -190,7 +190,7 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
         a6 = pFX->ate;
     if (a6)
         evPost(actor, a6+Random2(a6>>1), kCallbackRemove);
-    return pSprite;
+    return actor;
 }
 
 void CFX::fxProcess(void)
@@ -355,11 +355,5 @@ void fxPrecache()
     }
 }
 
-
-DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
-{
-    auto spr = fxSpawn(nFx, nSector, x, y, z, a6);
-    return spr ? &bloodActors[spr->index] : nullptr;
-}
 
 END_BLD_NS
