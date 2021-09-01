@@ -170,7 +170,7 @@ struct GENDUDEEXTRA
     unsigned short slaveCount;              // how many dudes is summoned
     //unsigned short incarnationsCount;
     DBloodActor* pLifeLeech;        // spritenum of dropped dude's leech
-    signed short slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
+    DBloodActor* slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
     signed short dmgControl[kDamageMax];    // depends of current weapon, drop armor item, sprite yrepeat and surface type
     bool updReq[kGenDudePropertyMax]; // update requests
     union
@@ -213,7 +213,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& a3);
 int getDodgeChance(DBloodActor* pSprite);
 int getRecoilChance(DBloodActor* pSprite);
 bool dudeIsMelee(DBloodActor* pXSprite);
-void updateTargetOfSlaves(spritetype* pSprite);
+void updateTargetOfSlaves(DBloodActor* pSprite);
 void updateTargetOfLeech(DBloodActor* pSprite);
 bool canSwim(spritetype* pSprite);
 bool canDuck(spritetype* pSprite);

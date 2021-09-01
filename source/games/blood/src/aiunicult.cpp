@@ -277,7 +277,7 @@ void genDudeAttack1(int, DBloodActor* actor)
                 }
 
                 gKillMgr.AddNewKill(1);
-                pExtra->slave[pExtra->slaveCount++] = spawned->s().index;
+                pExtra->slave[pExtra->slaveCount++] = spawned;
                 if (!playGenDudeSound(actor, kGenDudeSndAttackNormal))
                     sfxPlay3DSoundCP(actor, 379, 1, 0, 0x10000 - Random3(0x3000));
             }
@@ -2206,36 +2206,41 @@ void updateTargetOfLeech(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void updateTargetOfSlaves(spritetype* pSprite) {
-    if (!xspriRangeIsFine(pSprite->extra)) {
-        Printf(PRINT_HIGH, "!xspriRangeIsFine(pSprite->extra)");
-        return;
-    }
-    
-    auto actor = &bloodActors[pSprite->index];
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+void updateTargetOfSlaves(DBloodActor* actor)
+{
+    if (!actor->hasX()) return;
+
+    auto const pSprite = &actor->s();
+    auto const pXSprite = &actor->x();
+
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra(); 
-    short* slave = pExtra->slave;
-    spritetype* pTarget = (pXSprite->target_i >= 0 && IsDudeSprite(&sprite[pXSprite->target_i])) ? &sprite[pXSprite->target_i] : NULL;
-    XSPRITE* pXTarget = (pTarget != NULL && xspriRangeIsFine(pTarget->extra) && xsprite[pTarget->extra].health > 0) ? &xsprite[pTarget->extra] : NULL;
+    auto slave = pExtra->slave;
+    auto actTarget = actor->GetTarget();
+    if (!actTarget || !actTarget->IsDudeActor() || !actTarget->hasX() || actTarget->x().health <= 0) actTarget = nullptr;
 
     int newCnt = pExtra->slaveCount;
-    for (int i = 0; i <= gGameOptions.nDifficulty; i++) {
-        if (spriRangeIsFine(slave[i])) {
-            spritetype* pSlave = &sprite[slave[i]];
-            if (!IsDudeSprite(pSlave) || !xspriRangeIsFine(pSlave->extra) || xsprite[pSlave->extra].health < 0) {
-                slave[i] = pSlave->owner = -1; newCnt--;
+    for (int i = 0; i <= gGameOptions.nDifficulty; i++) 
+    {
+        if (slave[i] != nullptr) 
+        {
+            if (!slave[i]->IsDudeActor() || !slave[i]->hasX() || slave[i]->x().health <= 0) 
+            {
+                slave[i]->SetOwner(nullptr);
+                slave[i] = nullptr;
+                newCnt--;
                 continue;
             }
 
-            XSPRITE* pXSlave = &xsprite[pSlave->index];
-            if (pXTarget != NULL) {
-                if (pXSprite->target_i != pXSlave->target_i) aiSetTarget_(pXSlave, pXSprite->target_i);
+            if (actTarget != nullptr) 
+            {
+                if (actTarget != slave[i]->GetTarget()) aiSetTarget(slave[i], actTarget);
                 // check if slave have proper target
-                if (!spriRangeIsFine(pXSlave->target_i) || sprite[pXSlave->target_i].owner == pSprite->index)
-                    aiSetTarget_(pXSlave, pSprite->x, pSprite->y, pSprite->z);
-            } else {
-                aiSetTarget_(pXSlave, pSprite->x, pSprite->y, pSprite->z); // try return to master
+                if (slave[i]->GetTarget() == nullptr || slave[i]->GetTarget()->GetOwner() == actor)
+                    aiSetTarget(slave[i], pSprite->x, pSprite->y, pSprite->z);
+            }
+            else 
+            {
+                aiSetTarget(slave[i], pSprite->x, pSprite->y, pSprite->z); // try return to master
             }
         } 
     }
@@ -2532,7 +2537,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                     continue;
                 }
 
-                pExtra->slave[pExtra->slaveCount++] = nSprite;
+                pExtra->slave[pExtra->slaveCount++] = &bloodActors[nSprite];
                 if (pExtra->slaveCount > gGameOptions.nDifficulty)
                     break;
             }
