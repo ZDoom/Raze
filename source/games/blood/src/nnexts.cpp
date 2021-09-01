@@ -4371,19 +4371,23 @@ spritetype* aiFightTargetIsPlayer(XSPRITE* pXSprite) {
 
     return NULL;
 }
-spritetype* aiFightGetMateTargets(XSPRITE* pXSprite) {
-    int rx = pXSprite->rxID; spritetype* pMate = NULL; XSPRITE* pXMate = NULL;
+spritetype* aiFightGetMateTargets(XSPRITE* pXSprite) 
+{
+    auto actor = &bloodActors[pXSprite->reference];
+    int rx = pXSprite->rxID; 
 
-    for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-        if (rxBucket[i].type == OBJ_SPRITE) {
-            pMate = &sprite[rxBucket[i].rxindex];
-            if (pMate->extra < 0 || pMate->index == sprite[pXSprite->reference].index || !IsDudeSprite(pMate))
+    for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+    {
+        if (rxBucket[i].type == OBJ_SPRITE) 
+        {
+            auto mate = rxBucket[i].GetActor();
+            if (!mate || !mate->hasX() || mate == actor || !mate->IsDudeActor())
                 continue;
 
-            pXMate = &xsprite[pMate->extra];
-            if (pXMate->target_i > -1) {
-                if (!IsPlayerSprite(&sprite[pXMate->target_i]))
-                    return &sprite[pXMate->target_i];
+            if (mate->GetTarget())
+            {
+                if (!mate->GetTarget()->IsPlayerActor())
+                    return &mate->GetTarget()->s();
             }
 
         }
@@ -4393,6 +4397,7 @@ spritetype* aiFightGetMateTargets(XSPRITE* pXSprite) {
 }
 
 bool aiFightMatesHaveSameTarget(XSPRITE* pXLeader, spritetype* pTarget, int allow) {
+    auto actor = &bloodActors[pXLeader->reference];
     int rx = pXLeader->rxID; spritetype* pMate = NULL; XSPRITE* pXMate = NULL;
 
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
@@ -4400,12 +4405,11 @@ bool aiFightMatesHaveSameTarget(XSPRITE* pXLeader, spritetype* pTarget, int allo
         if (rxBucket[i].type != OBJ_SPRITE)
             continue;
 
-        pMate = &sprite[rxBucket[i].rxindex];
-        if (pMate->extra < 0 || pMate->index == sprite[pXLeader->reference].index || !IsDudeSprite(pMate))
-            continue;
+            auto mate = rxBucket[i].GetActor();
+            if (!mate || !mate->hasX() || mate == actor || !mate->IsDudeActor())
+                continue;
 
-        pXMate = &xsprite[pMate->extra];
-        if (pXMate->target_i == pTarget->index && allow-- <= 0)
+        if (&(mate->GetTarget()->s()) == pTarget && allow-- <= 0)
             return true;
     }
 
