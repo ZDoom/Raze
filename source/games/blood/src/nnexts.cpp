@@ -255,6 +255,11 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
 // for actor.cpp
 //-------------------------------------------------------------------------
 
+void changeactorstat(DBloodActor* actor, int stat)
+{
+    changespritestat(actor->s().index, stat);
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -411,7 +416,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
         case kModernThingTNTProx:
         case kModernThingEnemyLifeLeech:
             pSprite->type = kSpriteDecoration;
-            changespritestat(pSprite->index, kStatDecoration);
+            changeactorstat(actor, kStatDecoration);
             erased = true;
             break;
         // also erase some modernized vanilla types which was not active
@@ -543,14 +548,12 @@ void nnExtInitModernStuff(bool bSaveLoad)
             else if (dist_a_b(gStdRandom) != 0)
                 gAllowTrueRandom = true;
         }
-
     }
-
     
     for (int i = 0; i < kMaxXSprites; i++) 
     {
-        if (xsprite[i].reference < 0) continue;
         auto actor = &bloodActors[i];
+        if (!actor->hasX()) continue;
         XSPRITE* pXSprite = &actor->x();
         spritetype* pSprite = &actor->s();
         
@@ -566,7 +569,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
             case kModernCondition:
             case kModernConditionFalse:
                 if (bSaveLoad) break;
-                else if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(pXSprite,"\nThe condition must have RX ID!\nSPRITE #%d", pSprite->index);
+                else if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(pXSprite,"\nThe condition must have RX ID!\nSPRITE #%d", actor->GetIndex());
                 else if (!pXSprite->txID && !pSprite->flags) 
                 {
                     Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
@@ -609,7 +612,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 pXSprite->triggerOn = pXSprite->triggerOff = true;
             
             // copy custom start health to avoid overwrite by kThingBloodChunks
-            if (IsDudeSprite(pSprite))
+            if (actor->IsDudeActor())
                 pXSprite->sysData2 = pXSprite->data4;
             
             // check reserved statnums
@@ -640,7 +643,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 }
 
                 if (sysStat)
-                    I_Error("Sprite statnum %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->statnum, pSprite->index, kStatModernBase, kStatModernMax);
+                    I_Error("Sprite statnum %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->statnum, actor->GetIndex(), kStatModernBase, kStatModernMax);
             }
 
             switch (pSprite->type) 
@@ -649,11 +652,11 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 case kModernSequentialTX:
                     if (pXSprite->command != kCmdLink) break;
                     // add statnum for faster redirects search
-                    changespritestat(pSprite->index, kStatModernEventRedirector);
+                    changeactorstat(actor, kStatModernEventRedirector);
                     break;
                 case kModernWindGenerator:
                     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
-                    changespritestat(pSprite->index, kStatModernWindGen);
+                    changeactorstat(actor, kStatModernWindGen);
                     break;
                 case kModernDudeTargetChanger:
                 case kModernObjDataAccumulator:
@@ -666,18 +669,18 @@ void nnExtInitModernStuff(bool bSaveLoad)
                     {
                         // stealth regions for patrolling enemies
                         case kModernStealthRegion:
-                            changespritestat(pSprite->index, kStatModernStealthRegion);
+                            changeactorstat(actor, kStatModernStealthRegion);
                             break;
                         // add statnum for faster dude searching
                         case kModernDudeTargetChanger:
-                            changespritestat(pSprite->index, kStatModernDudeTargetChanger);
+                            changeactorstat(actor, kStatModernDudeTargetChanger);
                             if (pXSprite->busyTime <= 0) pXSprite->busyTime = 5;
                             pXSprite->command = kCmdLink;
                             break;
                             // remove kStatItem status from random item generators
                         case kModernRandom:
                         case kModernRandom2:
-                            changespritestat(pSprite->index, kStatDecoration);
+                            changeactorstat(actor, kStatDecoration);
                             pXSprite->sysData1 = pXSprite->command; // save the command so spawned item can inherit it
                             pXSprite->command  = kCmdLink;  // generator itself can't send commands
                             break;
@@ -689,14 +692,14 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 case kDudeModernCustom: 
                 {
                     if (pXSprite->txID <= 0) break;
-                    int nSprite, found = 0;
-                    StatIterator it(kStatDude);
-                    while ((nSprite = it.NextIndex()) >= 0)
+                    int found = 0;
+                    BloodStatIterator it(kStatDude);
+                    while (DBloodActor* iactor = it.Next())
                     {
-                        XSPRITE* pXSpr = &xsprite[sprite[nSprite].extra];
+                        XSPRITE* pXSpr = &iactor->x();
                         if (pXSpr->rxID != pXSprite->txID) continue;
                         else if (found) I_Error("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", pXSprite->txID);
-                        changespritestat(nSprite, kStatInactive);
+                        changeactorstat(iactor, kStatInactive);
                         found++;
                     }
                     break;
@@ -711,16 +714,16 @@ void nnExtInitModernStuff(bool bSaveLoad)
                         case kCmdLink:
                         {
                             if (pXSprite->data1 < 1 || pXSprite->data1 > kMaxPlayers)
-                                I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index, pXSprite->data1);
+                                I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", actor->GetIndex(), pXSprite->data1);
 
                             //if (numplayers < pXSprite->data1)
                                 //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
 
                             if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
-                                I_Error("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index);
+                                I_Error("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", actor->GetIndex());
 
                             if (pXSprite->txID && pXSprite->txID < kChannelUser)
-                                I_Error("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index, kChannelUser, kChannelMax);
+                                I_Error("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", actor->GetIndex(), kChannelUser, kChannelMax);
 
                             // only one linker per player allowed
                             int nSprite;
@@ -729,16 +732,16 @@ void nnExtInitModernStuff(bool bSaveLoad)
                             {
                                 XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
                                 if (pXSprite->data1 == pXCtrl->data1)
-                                    I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index, pXSprite->data1, nSprite);
+                                    I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), pXSprite->data1, nSprite);
                             }
                             pXSprite->sysData1 = -1;
                             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
-                            changespritestat(pSprite->index, kStatModernPlayerLinker);
+                            changeactorstat(actor, kStatModernPlayerLinker);
                             break;
                         }
                         case 67: // play qav animation
                             if (pXSprite->txID && !pXSprite->waitTime) pXSprite->waitTime = 1;
-                            changespritestat(pSprite->index, kStatModernQavScene);
+                            changeactorstat(actor, kStatModernQavScene);
                             break;
                     }
                     break;
@@ -751,7 +754,6 @@ void nnExtInitModernStuff(bool bSaveLoad)
                             pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
                             Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
                         }
-
                         pXSprite->busy = pXSprite->busyTime;
                     }
                     
@@ -804,7 +806,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 case kStatModernPlayerLinker:
                     break;
                 default:
-                    gProxySpritesList[gProxySpritesCount++] = &bloodActors[pSprite->index];
+                    gProxySpritesList[gProxySpritesCount++] = actor;
                     if (gProxySpritesCount == kMaxSuperXSprites)
                         I_Error("Max (%d) *additional* Proximity sprites reached!", kMaxSuperXSprites);
                     break;
@@ -822,7 +824,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 case kStatPathMarker:   case kStatModernPlayerLinker:
                     break;
                 default:
-                    gSightSpritesList[gSightSpritesCount++] = &bloodActors[pSprite->index];
+                    gSightSpritesList[gSightSpritesCount++] = actor;
                     if (gSightSpritesCount == kMaxSuperXSprites)
                         I_Error("Max (%d) Sight sprites reached!", kMaxSuperXSprites);
                     break;
@@ -840,7 +842,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 case kStatPathMarker:   case kStatModernPlayerLinker:
                     break;
                 default:
-                    gImpactSpritesList[gImpactSpritesCount++] = &bloodActors[pSprite->index];
+                    gImpactSpritesList[gImpactSpritesCount++] = actor;
                     if (gImpactSpritesCount == kMaxSuperXSprites)
                         I_Error("Max (%d) *additional* Impact sprites reached!", kMaxSuperXSprites);
                     break;
@@ -849,11 +851,10 @@ void nnExtInitModernStuff(bool bSaveLoad)
     }
 
     // collect objects for tracking conditions
-    int i;
-    StatIterator it(kStatModernCondition);
-    while ((i = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatModernCondition);
+    while (auto iactor = it.Next())
     {
-        spritetype* pSprite = &sprite[i]; XSPRITE* pXSprite = &xsprite[pSprite->extra];
+        spritetype* pSprite = &iactor->s(); XSPRITE* pXSprite = &iactor->x();
 
         if (pXSprite->busyTime <= 0 || pXSprite->isTriggered) continue;
         else if (gTrackingCondsCount >= kMaxTrackingConditions)
@@ -893,7 +894,8 @@ void nnExtInitModernStuff(bool bSaveLoad)
             pCond->obj[count++].cmd = cmd;
         }
 
-        for (int i = 0; i < kMaxXSectors; i++) {
+        for (int i = 0; i < kMaxXSectors; i++) 
+        {
             if (!sectRangeIsFine(xsector[i].reference) || xsector[i].txID != pXSprite->rxID) continue;
             else if (count >= kMaxTracedObjects)
                 condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
@@ -904,7 +906,8 @@ void nnExtInitModernStuff(bool bSaveLoad)
             pCond->obj[count++].cmd = xsector[i].command;
         }
 
-        for (int i = 0; i < kMaxXWalls; i++) {
+        for (int i = 0; i < kMaxXWalls; i++) 
+        {
             if (!wallRangeIsFine(xwall[i].reference) || xwall[i].txID != pXSprite->rxID)
                 continue;
 
