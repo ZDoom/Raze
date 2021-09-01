@@ -6183,7 +6183,8 @@ QAV* playerQavSceneLoad(int qavId) {
 
 void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
     int nIndex = pQavScene->index;
-    if (xspriRangeIsFine(sprite[nIndex].extra)) {
+    auto qavactor = &bloodActors[nIndex];
+    if (qavactor->hasX()) {
         
         XSPRITE* pXSprite = &xsprite[sprite[nIndex].extra];
         if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) {
@@ -6193,9 +6194,9 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
                 for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
                     if (rxBucket[i].type == OBJ_SPRITE) {
                         
-                        spritetype* pSpr = &sprite[rxBucket[i].rxindex];
-                        if (pSpr->index == nIndex || !xspriRangeIsFine(pSpr->extra))
-                            continue;
+                        auto rxactor = rxBucket[i].GetActor();
+                        if (!rxactor || !rxactor->hasX() || rxactor == qavactor) continue;
+                        spritetype* pSpr = &rxactor->s();
 
                         pXSpr = &xsprite[pSpr->extra];
                         if (pSpr->type == kModernPlayerControl && pXSpr->command == 67) {
@@ -6203,10 +6204,10 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
                             else trPlayerCtrlStartScene(pXSpr, pPlayer, true);
                             return;
                         }
+                        nnExtTriggerObject(rxBucket[i].type, rxactor->s().index, pXSprite->command);
 
                     }
-
-                    nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, pXSprite->command);
+                    else nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, pXSprite->command);
 
                 }
             } //else {
