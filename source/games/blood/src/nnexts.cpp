@@ -7833,6 +7833,7 @@ void levelEndLevelCustom(int nLevel) {
 
 void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 {
+    if (!actor) return;
     spritetype* pSprite = &actor->s();
     if (pSprite->statnum != kStatProjectile) return;
     int nAngle = getangle(actor->xvel(), actor->yvel());
