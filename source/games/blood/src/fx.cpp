@@ -111,7 +111,7 @@ void CFX::destroy(int nSprite)
 {
     if (nSprite < 0 || nSprite >= kMaxSprites)
         return;
-    evKill(nSprite, 3);
+    evKill_(nSprite, 3);
     if (sprite[nSprite].extra > 0)
         seqKill(3, sprite[nSprite].extra);
     DeleteSprite(nSprite);
@@ -354,6 +354,5 @@ void fxPrecache()
             seqPrecacheId(gFXData[i].seq, 0);
     }
 }
-
 
 END_BLD_NS

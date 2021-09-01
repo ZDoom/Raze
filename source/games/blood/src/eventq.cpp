@@ -523,13 +523,13 @@ void evPost_(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 	assert(command != kCmdCallback);
 	if (command == kCmdState) command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
 	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
-	EVENT evn = { (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
+	EVENT evn = {nullptr, (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
 void evPost_(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 {
-	EVENT evn = { (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
+	EVENT evn = {nullptr, (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
@@ -560,7 +560,7 @@ void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback)
 //
 //---------------------------------------------------------------------------
 
-void evKill(int index, int type)
+void evKill_(int index, int type)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
@@ -569,7 +569,7 @@ void evKill(int index, int type)
 	}
 }
 
-void evKill(int index, int type, CALLBACK_ID cb)
+void evKill_(int index, int type, CALLBACK_ID cb)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
@@ -580,12 +580,12 @@ void evKill(int index, int type, CALLBACK_ID cb)
 
 void evKill(DBloodActor* actor)
 {
-	evKill(actor->s().index, 3);
+	evKill_(actor->s().index, 3);
 }
 
 void evKill(DBloodActor* actor, CALLBACK_ID cb)
 {
-	evKill(actor->s().index, 3, cb);
+	evKill_(actor->s().index, 3, cb);
 }
 
 //---------------------------------------------------------------------------
