@@ -422,14 +422,17 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
             break;
     }
 
-    if (pXSprite->Sight) {
+    if (pXSprite->Sight) 
+    {
         pXSprite->Sight = false; // it does not work in vanilla at all
         erased = true;
     }
 
-    if (pXSprite->Proximity) {
+    if (pXSprite->Proximity) 
+    {
         // proximity works only for things and dudes in vanilla
-        switch (pSprite->statnum) {
+        switch (pSprite->statnum) 
+        {
             case kStatThing:
             case kStatDude:
                 break;
@@ -443,8 +446,16 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
     return erased;
 }
 
-void nnExtTriggerObject(int objType, int objIndex, int command) {
-    switch (objType) {
+//---------------------------------------------------------------------------
+//
+// todo later. This depends on condSerialize.
+//
+//---------------------------------------------------------------------------
+
+void nnExtTriggerObject(int objType, int objIndex, int command) 
+{
+    switch (objType) 
+    {
         case OBJ_SECTOR:
             if (!xsectRangeIsFine(sector[objIndex].extra)) break;
             trTriggerSector(objIndex, &xsector[sector[objIndex].extra], command);
@@ -462,7 +473,14 @@ void nnExtTriggerObject(int objType, int objIndex, int command) {
     return;
 }
 
-void nnExtResetGlobals() {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void nnExtResetGlobals() 
+{
     gAllowTrueRandom = gEventRedirectsUsed = false;
 
     // reset counters
@@ -475,10 +493,13 @@ void nnExtResetGlobals() {
     memset(gImpactSpritesList, 0, sizeof(gImpactSpritesList));
 
     // reset tracking conditions, if any
-    if (gTrackingCondsCount > 0) {
-        for (int i = 0; i < gTrackingCondsCount; i++) {
+    if (gTrackingCondsCount > 0) 
+    {
+        for (int i = 0; i < gTrackingCondsCount; i++) 
+        {
             TRCONDITION* pCond = &gCondition[i];
-            for (unsigned k = 0; k < pCond->length; k++) {
+            for (unsigned k = 0; k < pCond->length; k++) 
+            {
                 pCond->obj[k].actor = nullptr;
                 pCond->obj[k].index_ = pCond->obj[k].cmd = 0;
                 pCond->obj[k].type = -1;
@@ -498,18 +519,25 @@ void nnExtResetGlobals() {
 
 }
 
-void nnExtInitModernStuff(bool bSaveLoad) {
-    
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void nnExtInitModernStuff(bool bSaveLoad) 
+{
     nnExtResetGlobals();
 
     // use true random only for single player mode, otherwise use Blood's default one.
-    if (gGameOptions.nGameType == 0 && !VanillaMode()) {
-        
+    if (gGameOptions.nGameType == 0 && !VanillaMode()) 
+    {
         gStdRandom.seed(std::random_device()());
 
         // since true random is not working if compiled with old mingw versions, we should
         // check if it works in game and if not - switch to using in-game random function.
-        for (int i = kMaxRandomizeRetries; i >= 0; i--) {
+        for (int i = kMaxRandomizeRetries; i >= 0; i--) 
+        {
             std::uniform_int_distribution<int> dist_a_b(0, 100);
             if (gAllowTrueRandom || i <= 0) break;
             else if (dist_a_b(gStdRandom) != 0)
@@ -519,8 +547,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
     }
 
     
-    for (int i = 0; i < kMaxXSprites; i++) {
-
+    for (int i = 0; i < kMaxXSprites; i++) 
+    {
         if (xsprite[i].reference < 0) continue;
         auto actor = &bloodActors[i];
         XSPRITE* pXSprite = &actor->x();
@@ -539,27 +567,32 @@ void nnExtInitModernStuff(bool bSaveLoad) {
             case kModernConditionFalse:
                 if (bSaveLoad) break;
                 else if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(pXSprite,"\nThe condition must have RX ID!\nSPRITE #%d", pSprite->index);
-                else if (!pXSprite->txID && !pSprite->flags) {
+                else if (!pXSprite->txID && !pSprite->flags) 
+                {
                     Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
                 }
                 break;
         }
 
         // init after loading save file
-        if (bSaveLoad) {
-
+        if (bSaveLoad) 
+        {
             // add in list of physics affected sprites
-            if (pXSprite->physAttr != 0) {
+            if (pXSprite->physAttr != 0) 
+            {
                 //xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
 
                 gPhysSpritesList[gPhysSpritesCount++] = &bloodActors[pSprite->index]; // add sprite index
                 getSpriteMassBySize(pSprite); // create mass cache
             }
 
-            if (pXSprite->data3 != pXSprite->sysData1) {
-                switch (pSprite->statnum) {
+            if (pXSprite->data3 != pXSprite->sysData1) 
+            {
+                switch (pSprite->statnum) 
+                {
                 case kStatDude:
-                    switch (pSprite->type) {
+                    switch (pSprite->type) 
+                    {
                     case kDudeModernCustom:
                     case kDudeModernCustomBurning:
                         pXSprite->data3 = pXSprite->sysData1; // move sndStartId back from sysData1 to data3 
@@ -568,9 +601,9 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     break;
                 }
             }
-
-        } else {
-            
+        } 
+        else 
+        {
             // auto set going On and going Off if both are empty
             if (pXSprite->txID && !pXSprite->triggerOn && !pXSprite->triggerOff)
                 pXSprite->triggerOn = pXSprite->triggerOff = true;
@@ -580,9 +613,11 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 pXSprite->sysData2 = pXSprite->data4;
             
             // check reserved statnums
-            if (pSprite->statnum >= kStatModernBase && pSprite->statnum < kStatModernMax) {
+            if (pSprite->statnum >= kStatModernBase && pSprite->statnum < kStatModernMax) 
+            {
                 bool sysStat = true;
-                switch (pSprite->statnum) {
+                switch (pSprite->statnum) 
+                {
                     case kStatModernStealthRegion:
                         sysStat = (pSprite->type != kModernStealthRegion);
                         break;
@@ -608,7 +643,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     I_Error("Sprite statnum %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->statnum, pSprite->index, kStatModernBase, kStatModernMax);
             }
 
-            switch (pSprite->type) {
+            switch (pSprite->type) 
+            {
                 case kModernRandomTX:
                 case kModernSequentialTX:
                     if (pXSprite->command != kCmdLink) break;
@@ -626,7 +662,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 case kModernStealthRegion:
                     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
                     pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
-                    switch (pSprite->type) {
+                    switch (pSprite->type) 
+                    {
                         // stealth regions for patrolling enemies
                         case kModernStealthRegion:
                             changespritestat(pSprite->index, kStatModernStealthRegion);
@@ -669,7 +706,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     pXSprite->state = 1;
                     break;
                 case kModernPlayerControl:
-                    switch (pXSprite->command) {
+                    switch (pXSprite->command) 
+                    {
                         case kCmdLink:
                         {
                             if (pXSprite->data1 < 1 || pXSprite->data1 > kMaxPlayers)
@@ -706,9 +744,10 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     break;
                 case kModernCondition:
                 case kModernConditionFalse:
-                    if (pXSprite->busyTime > 0) {
-                        
-                        if (pXSprite->waitTime > 0) {
+                    if (pXSprite->busyTime > 0) 
+                    {
+                        if (pXSprite->waitTime > 0) 
+                        {
                             pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
                             Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
                         }
@@ -754,8 +793,10 @@ void nnExtInitModernStuff(bool bSaveLoad) {
         }
 
         // make Proximity flag work not just for dudes and things...
-        if (pXSprite->Proximity && gProxySpritesCount < kMaxSuperXSprites) {
-            switch (pSprite->statnum) {
+        if (pXSprite->Proximity && gProxySpritesCount < kMaxSuperXSprites) 
+        {
+            switch (pSprite->statnum) 
+            {
                 case kStatFX:           case kStatExplosion:            case kStatItem:
                 case kStatPurge:        case kStatSpares:               case kStatFlare:
                 case kStatInactive:     case kStatFree:                 case kStatMarker:
@@ -771,8 +812,10 @@ void nnExtInitModernStuff(bool bSaveLoad) {
         }
 
         // make Sight, Screen, Aim flags work not just for dudes and things...
-        if ((pXSprite->Sight || pXSprite->unused3) && gSightSpritesCount < kMaxSuperXSprites) {
-            switch (pSprite->statnum) {
+        if ((pXSprite->Sight || pXSprite->unused3) && gSightSpritesCount < kMaxSuperXSprites) 
+        {
+            switch (pSprite->statnum) 
+            {
                 case kStatFX:           case kStatExplosion:            case kStatItem:
                 case kStatPurge:        case kStatSpares:               case kStatFlare:
                 case kStatInactive:     case kStatFree:                 case kStatMarker:
@@ -787,8 +830,10 @@ void nnExtInitModernStuff(bool bSaveLoad) {
         }
 
         // make Impact flag work for sprites that affected by explosions...
-        if (pXSprite->Impact && gImpactSpritesCount < kMaxSuperXSprites) {
-            switch (pSprite->statnum) {
+        if (pXSprite->Impact && gImpactSpritesCount < kMaxSuperXSprites) 
+        {
+            switch (pSprite->statnum) 
+            {
                 case kStatFX:           case kStatExplosion:            case kStatItem:
                 case kStatPurge:        case kStatSpares:               case kStatFlare:
                 case kStatInactive:     case kStatFree:                 case kStatMarker:
@@ -817,7 +862,8 @@ void nnExtInitModernStuff(bool bSaveLoad) {
         int count = 0;
         TRCONDITION* pCond = &gCondition[gTrackingCondsCount];
 
-        for (int i = 0; i < kMaxXSprites; i++) {
+        for (int i = 0; i < kMaxXSprites; i++) 
+        {
             if (!spriRangeIsFine(xsprite[i].reference) || xsprite[i].txID != pXSprite->rxID || xsprite[i].reference == pSprite->index)
                 continue;
 
@@ -2552,8 +2598,8 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
             }
 
             // data4 = sprite cstat
-            if (valueIsBetween(pXSource->data4, -1, 65535)) {
-
+            if (valueIsBetween(pXSource->data4, -1, 65535)) 
+            {
                 old = pSprite->cstat;
 
                 // set new cstat
@@ -2564,22 +2610,20 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                 if ((old & 0x1000) && !(pSprite->cstat & 0x1000)) pSprite->cstat |= 0x1000; //kSpritePushable
                 if ((old & 0x80) && !(pSprite->cstat & 0x80)) pSprite->cstat |= 0x80; // kSpriteOriginAlign
 
-                if (old & 0x6000) {
-
+                if (old & 0x6000) 
+                {
                     if (!(pSprite->cstat & 0x6000))
                         pSprite->cstat |= 0x6000; // kSpriteMoveMask
 
                     if ((old & 0x0) && !(pSprite->cstat & 0x0)) pSprite->cstat |= 0x0; // kSpriteMoveNone
                     else if ((old & 0x2000) && !(pSprite->cstat & 0x2000)) pSprite->cstat |= 0x2000; // kSpriteMoveForward, kSpriteMoveFloor
                     else if ((old & 0x4000) && !(pSprite->cstat & 0x4000)) pSprite->cstat |= 0x4000; // kSpriteMoveReverse, kSpriteMoveCeiling
-
                 }
-
             }
         }
         break;
-        case OBJ_SECTOR: {
-
+        case OBJ_SECTOR: 
+        {
             sectortype* pSector = &sector[objIndex];
             XSECTOR* pXSector = &xsector[sector[objIndex].extra];
 
