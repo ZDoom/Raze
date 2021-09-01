@@ -835,7 +835,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         case 3:
                             if (pHSprite->statnum == kStatFX || pHSprite->statnum == kStatProjectile || pHSprite->statnum == kStatDebris)
                                 break;
-                            if (IsDudeSprite(pHSprite) && (weaponType != kGenDudeWeaponHitscan || hscn)) 
+                            if (hitactor->IsDudeActor() && (weaponType != kGenDudeWeaponHitscan || hscn)) 
                             {
                                 // dodge a bit in sides
                                 if (hitactor->GetTarget() != actor) 
@@ -2539,12 +2539,11 @@ bool genDudePrepare(DBloodActor* actor, int propId)
         case kGenDudePropertyLeech:
             pExtra->pLifeLeech = nullptr;
             if (pSprite->owner != kMaxSprites - 1) {
-                int nSprite;
-                StatIterator it(kStatThing);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodStatIterator it(kStatThing);
+                while (auto actor2 = it.Next())
                 {
-                    if (sprite[nSprite].owner == pSprite->index && sprite[nSprite].type == kModernThingEnemyLifeLeech) {
-                        pExtra->pLifeLeech = &bloodActors[nSprite];
+                    if (actor2->GetOwner() == actor && actor2->s().type == kModernThingEnemyLifeLeech) {
+                        pExtra->pLifeLeech = actor2;
                         break;
                     }
                 }
@@ -2555,17 +2554,16 @@ bool genDudePrepare(DBloodActor* actor, int propId)
         case kGenDudePropertySlaves:
         {
             pExtra->slaveCount = 0; memset(pExtra->slave, -1, sizeof(pExtra->slave));
-            int nSprite;
-            StatIterator it(kStatDude);
-            while ((nSprite = it.NextIndex()) >= 0)
+            BloodStatIterator it(kStatDude);
+            while (auto actor2 = it.Next())
             {
-                if (sprite[nSprite].owner != pSprite->index) continue;
-                else if (!IsDudeSprite(&sprite[nSprite]) || !xspriRangeIsFine(sprite[nSprite].extra) || xsprite[sprite[nSprite].extra].health <= 0) {
-                    sprite[nSprite].owner = -1;
+                if (actor2->GetOwner() != actor) continue;
+                else if (!actor2->IsDudeActor() || !actor2->hasX() || actor2->x().health <= 0) {
+                    actor2->SetOwner(nullptr);
                     continue;
                 }
 
-                pExtra->slave[pExtra->slaveCount++] = &bloodActors[nSprite];
+                pExtra->slave[pExtra->slaveCount++] = actor2;
                 if (pExtra->slaveCount > gGameOptions.nDifficulty)
                     break;
             }
@@ -2573,7 +2571,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
             [[fallthrough]];
         }
         case kGenDudePropertySpriteSize: {
-            if (seqGetStatus(3, pSprite->extra) == -1)
+            if (seqGetStatus(actor) == -1)
                 seqSpawn(pXSprite->data2 + pXSprite->aiState->seqId, 3, pSprite->extra, -1);
 
             // make sure dudes aren't in the floor or ceiling

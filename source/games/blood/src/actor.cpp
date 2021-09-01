@@ -4440,7 +4440,7 @@ static void checkFloorHit(DBloodActor* actor)
 					break;
 				}
 
-				if (mass1 > mass2 && IsDudeSprite(pSprite2))
+				if (mass1 > mass2 && actor2->IsDudeActor())
 				{
 					if ((IsPlayerSprite(pSprite2) && Chance(0x500)) || !IsPlayerSprite(pSprite2))
 						actKickObject(actor, actor2);
