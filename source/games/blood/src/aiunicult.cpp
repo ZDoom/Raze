@@ -1512,13 +1512,11 @@ DBloodActor* getNextIncarnation(DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++)
     {
-        if (rxBucket[i].type != OBJ_SPRITE || rxBucket[i].rxindex == pXSprite->reference)
-            continue;
-
-        if (sprite[rxBucket[i].rxindex].statnum == kStatInactive)
-            return &bloodActors[sprite[rxBucket[i].rxindex].index];
+        if (rxBucket[i].type != OBJ_SPRITE) continue;
+		auto rxactor = rxBucket[i].GetActor();
+        if (actor != rxactor && rxactor->s().statnum == kStatInactive) return rxactor;
     }
-    return NULL;
+    return nullptr;
 }
 
 bool dudeIsMelee(DBloodActor* actor)

@@ -73,6 +73,7 @@ enum {
 
 struct RXBUCKET
 {
+	DBloodActor* GetActor() const;
 	DBloodActor* actor;
     int rxindex;
     uint8_t type;
