@@ -304,6 +304,7 @@ void evInit()
 				assert(nCount < kChannelMax);
 				rxBucket[nCount].type = SS_SPRITE;
 				rxBucket[nCount].rxindex = i;
+				rxBucket[nCount].actor = &bloodActors[i];
 				nCount++;
 			}
 		}
