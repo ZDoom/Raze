@@ -1548,7 +1548,7 @@ void debrisBubble(int nSprite)
 void debrisMove(int listIndex) 
 {
     auto actor = gPhysSpritesList[listIndex];
-    XSPRITE* pXDebris = &actor->x();
+    XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();   
     int nSector = pSprite->sectnum;
 
@@ -1627,7 +1627,7 @@ void debrisMove(int listIndex)
     GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
     GetSpriteExtents(pSprite, &top, &bottom);
 
-    if ((pXDebris->physAttr & kPhysDebrisSwim) && uwater) {
+    if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) {
 
         int vc = 0;
         int cz = getceilzofslope(nSector, pSprite->x, pSprite->y);
@@ -1635,7 +1635,7 @@ void debrisMove(int listIndex)
         int div = ClipLow(bottom - top, 1);
 
         if (gLowerLink[nSector] >= 0) cz += (cz < 0) ? 0x500 : -0x500;
-        if (top > cz && (!(pXDebris->physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
+        if (top > cz && (!(pXSprite->physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
             zvel[nSprite] -= DivScale((bottom - ceilZ) >> 6, mass, 8);
 
         if (fz < bottom)
@@ -1646,7 +1646,7 @@ void debrisMove(int listIndex)
             zvel[nSprite] += vc;
         }
 
-    } else if ((pXDebris->physAttr & kPhysGravity) && bottom < floorZ) {
+    } else if ((pXSprite->physAttr & kPhysGravity) && bottom < floorZ) {
 
         pSprite->z += 455;
         zvel[nSprite] += 58254;
@@ -1684,13 +1684,13 @@ void debrisMove(int listIndex)
 
         if (v30 > 0) {
 
-            pXDebris->physAttr |= kPhysFalling;
+            pXSprite->physAttr |= kPhysFalling;
             actFloorBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], (int*)&v30, pSprite->sectnum, tmpFraction);
             zvel[nSprite] = v30;
 
             if (abs(zvel[nSprite]) < 0x10000) {
                 zvel[nSprite] = velFloor[pSprite->sectnum];
-                pXDebris->physAttr &= ~kPhysFalling;
+                pXSprite->physAttr &= ~kPhysFalling;
             }
 
             moveHit = floorHit;
@@ -1712,15 +1712,15 @@ void debrisMove(int listIndex)
 
         } else if (zvel[nSprite] == 0) {
 
-            pXDebris->physAttr &= ~kPhysFalling;
+            pXSprite->physAttr &= ~kPhysFalling;
 
         }
 
     } else {
 
         gSpriteHit[nXSprite].florhit = 0;
-        if (pXDebris->physAttr & kPhysGravity)
-            pXDebris->physAttr |= kPhysFalling;
+        if (pXSprite->physAttr & kPhysGravity)
+            pXSprite->physAttr |= kPhysFalling;
 
     }
 
@@ -1728,7 +1728,7 @@ void debrisMove(int listIndex)
 
         gSpriteHit[nXSprite].ceilhit = moveHit = ceilHit;
         pSprite->z += ClipLow(ceilZ - top, 0);
-        if (zvel[nSprite] <= 0 && (pXDebris->physAttr & kPhysFalling))
+        if (zvel[nSprite] <= 0 && (pXSprite->physAttr & kPhysFalling))
             zvel[nSprite] = MulScale(-zvel[nSprite], 0x2000, 16);
 
     } else {
@@ -1738,11 +1738,11 @@ void debrisMove(int listIndex)
 
     }
 
-    if (moveHit && pXDebris->Impact && !pXDebris->locked && !pXDebris->isTriggered && (pXDebris->state == pXDebris->restState || pXDebris->Interrutable)) {
+    if (moveHit && pXSprite->Impact && !pXSprite->locked && !pXSprite->isTriggered && (pXSprite->state == pXSprite->restState || pXSprite->Interrutable)) {
         if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
             changespritestat(nSprite, kStatThing);
 
-        trTriggerSprite(pSprite->index, pXDebris, kCmdToggle);
+        trTriggerSprite(pSprite->index, pXSprite, kCmdToggle);
 
     }
 
@@ -1757,13 +1757,13 @@ void debrisMove(int listIndex)
             }
         }
 
-    pXDebris->height = ClipLow(floorZ - bottom, 0) >> 8;
-    if (uwater || pXDebris->height >= 0x100)
+    pXSprite->height = ClipLow(floorZ - bottom, 0) >> 8;
+    if (uwater || pXSprite->height >= 0x100)
         return;
 
     int nDrag = 0x2a00;
-    if (pXDebris->height > 0)
-        nDrag -= scale(nDrag, pXDebris->height, 0x100);
+    if (pXSprite->height > 0)
+        nDrag -= scale(nDrag, pXSprite->height, 0x100);
 
     xvel[nSprite] -= mulscale16r(xvel[nSprite], nDrag);
     yvel[nSprite] -= mulscale16r(yvel[nSprite], nDrag);
