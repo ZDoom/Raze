@@ -78,6 +78,7 @@ const char *GetVersionString();
 #define SAVEVER_BLD 11
 #define SAVEVER_SW 12
 #define SAVEVER_PS 13
+#define OLD_SAVEGAME 1	// this is to keep writing out the old format in Blood, even when data has been refactored. 
 
 #define NETGAMEVERSION 1
 

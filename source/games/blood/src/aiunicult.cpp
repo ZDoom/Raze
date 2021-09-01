@@ -614,7 +614,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 return;
                             }
 
-                            XSPRITE* pXLeech = &xsprite[pLeech->extra];
+                            XSPRITE* pXLeech = &actLeech->x();
                             int ldist = aiFightGetTargetDist(pTarget, pDudeInfo, pLeech);
                             if (ldist > 3 || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum,
                                 pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || actLeech->GetTarget() == nullptr) 
@@ -2415,7 +2415,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 
         case kGenDudePropertyMass: {
             // to ensure mass gets updated, let's clear all cache
-            SPRITEMASS* pMass = &gSpriteMass[pSprite->extra];
+            SPRITEMASS* pMass = &actor->spriteMass;
             pMass->seqId = pMass->picnum = pMass->xrepeat = pMass->yrepeat = pMass->clipdist = 0;
             pMass->mass = pMass->airVel = pMass->fraction = 0;
             getSpriteMassBySize(pSprite);

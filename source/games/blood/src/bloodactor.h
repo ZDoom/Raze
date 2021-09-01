@@ -13,6 +13,8 @@ class DBloodActor
 public:
 	int dudeSlope;
 	DUDEEXTRA dudeExtra;
+	SPRITEMASS spriteMass;
+
 	int cumulDamage;
 
 	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
@@ -22,6 +24,7 @@ public:
 	{
 		dudeSlope = 0;
 		dudeExtra = {};
+		spriteMass = {};
 	}
 	bool hasX() { return sprite[index].extra > 0; }
 	void addX()
@@ -35,7 +38,6 @@ public:
 	int& yvel() { return Blood::yvel[index]; }
 	int& zvel() { return Blood::zvel[index]; }
 
-	SPRITEMASS& spriteMass() { return gSpriteMass[sprite[index].extra]; }
 	GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
 	POINT3D& basePoint() { return Blood::baseSprite[index]; }
 

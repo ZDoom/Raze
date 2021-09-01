@@ -7119,7 +7119,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					XSPRITE* pXSprite = &actor->x();
 					if (pXSprite->physAttr & kPhysDebrisVector) {
 
-						int impulse = DivScale(pVectorData->impulse, ClipLow(gSpriteMass[pSprite->extra].mass, 10), 6);
+                        int impulse = DivScale(pVectorData->impulse, ClipLow(actor->spriteMass.mass, 10), 6);
 						actor->xvel() += MulScale(a4, impulse, 16);
 						actor->yvel() += MulScale(a5, impulse, 16);
 						actor->zvel() += MulScale(a6, impulse, 16);

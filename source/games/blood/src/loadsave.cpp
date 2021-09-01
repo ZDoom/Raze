@@ -446,6 +446,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 
 	if (arc.BeginObject(keyname))
 	{
+#ifdef OLD_SAVEGAME
 		// Note: birthCounter/thinkTime are a union and share the same value (this is used for savefile backwards compatibility - see correct implementation below)
 		arc("time", w.time, &empty)
 			("recoil", w.teslaHit, &empty2)
@@ -454,7 +455,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 			("x2", w.stats.thinkTime, &empty)
 			("x3", w.stats.active, &empty2)
 			.EndObject();
-#if 0
+#else
 		arc("time", w.time, &empty)
 			("teslaHit", w.teslaHit, &empty2)
 			("prio", w.prio, &empty)
@@ -478,10 +479,17 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 	if (arc.BeginObject(keyname))
 	{
 		// The rest is only relevant if the actor has an xsprite.
-		if (w.s().extra > 0)
+		if (w.hasX())
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra);
+
+			if (gModernMap)
+			{
+#ifndef OLD_SAVEGAME
+				arc("spritemass", w.spriteMass, def->spriteMass);
+#endif
+			}
 		}
 		arc.EndObject();
 	}

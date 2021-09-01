@@ -273,7 +273,6 @@ extern const VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
 extern const MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
 extern const DUDEINFO_EXTRA gDudeInfoExtra[kDudeMax];
 extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
-extern SPRITEMASS gSpriteMass[kMaxXSprites];
 extern TRCONDITION gCondition[kMaxTrackingConditions];
 extern DBloodActor* gProxySpritesList[kMaxSuperXSprites];
 extern DBloodActor* gSightSpritesList[kMaxSuperXSprites];
