@@ -229,7 +229,7 @@ void CFX::fxProcess(void)
                     continue;
                 }
                 assert(gCallback[pFXData->funcID] != NULL);
-                gCallback[pFXData->funcID](nSprite);
+                gCallback[pFXData->funcID](&bloodActors[nSprite], 0);
                 continue;
             }
             if (nSector != pSprite->sectnum)
@@ -255,7 +255,7 @@ void CFX::fxProcess(void)
                     continue;
                 }
                 assert(gCallback[pFXData->funcID] != NULL);
-                gCallback[pFXData->funcID](nSprite);
+                gCallback[pFXData->funcID](&bloodActors[nSprite], 0);
                 continue;
             }
         }

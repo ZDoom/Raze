@@ -154,7 +154,10 @@ bool CanMove(DBloodActor *actor, DBloodActor* target, int nAngle, int nRange)
         return false;
     int floorZ = getflorzofslope(nSector, x, y);
     int nXSector = sector[nSector].extra;
-    char Underwater = 0; char Water = 0; char Depth = 0; char Crusher = 0;
+    bool Underwater = 0; 
+    bool Water = 0; 
+    bool Depth = 0; 
+    bool Crusher = 0;
     XSECTOR* pXSector = NULL;
     if (nXSector > 0)
     {

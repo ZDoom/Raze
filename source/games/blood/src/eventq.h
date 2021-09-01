@@ -76,7 +76,6 @@ struct RXBUCKET
     uint16_t index;
     uint8_t type;
 };
-extern void (*gCallback[])(int);
 extern RXBUCKET rxBucket[];
 extern unsigned short bucketHead[];
 

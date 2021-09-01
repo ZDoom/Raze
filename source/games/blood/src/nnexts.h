@@ -386,9 +386,9 @@ void playerQavScenePlay(PLAYER* pPlayer);
 void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5);
 void playerQavSceneReset(PLAYER* pPlayer);
 //  -------------------------------------------------------------------------   //
-void callbackUniMissileBurst(int nSprite);
-void callbackMakeMissileBlocking(int nSprite);
-void callbackGenDudeUpdate(int nSprite);
+void callbackUniMissileBurst(DBloodActor*actor, int nSprite);
+void callbackMakeMissileBlocking(DBloodActor* actor, int nSprite);
+void callbackGenDudeUpdate(DBloodActor* actor, int nSprite);
 //  -------------------------------------------------------------------------   //
 PLAYER* getPlayerById(short id);
 bool isGrown(spritetype* pSprite);
