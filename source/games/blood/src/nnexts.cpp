@@ -1133,14 +1133,17 @@ void nnExtProcessSuperSprites() {
             if (!xsprIsFine(&sprite[gProxySpritesList[i]]))
                 continue;
 
-            spritetype* pProxSpr = &sprite[gProxySpritesList[i]]; XSPRITE* pXProxSpr = &xsprite[pProxSpr->extra];
+            spritetype* pProxSpr = &sprite[gProxySpritesList[i]]; 
+			XSPRITE* pXProxSpr = &xsprite[pProxSpr->extra];
             if ((!pXProxSpr->Interrutable && pXProxSpr->state != pXProxSpr->restState) || pXProxSpr->locked == 1 || pXProxSpr->isTriggered)
                 continue;  // don't process locked or triggered sprites
 
-            short okDist = (IsDudeSprite(pProxSpr)) ? 96 : ClipLow(pProxSpr->clipdist * 3, 32);
-            int x = sprite[gProxySpritesList[i]].x;	int y = sprite[gProxySpritesList[i]].y;
-            int z = sprite[gProxySpritesList[i]].z;	int index = sprite[gProxySpritesList[i]].index;
-            int sectnum = sprite[gProxySpritesList[i]].sectnum;
+            int okDist = (IsDudeSprite(pProxSpr)) ? 96 : ClipLow(pProxSpr->clipdist * 3, 32);
+            int x = pProxSpr->x;
+            int y = pProxSpr->y;
+            int z = pProxSpr->z;	
+            int index = pProxSpr->index;
+            int sectnum = pProxSpr->sectnum;
 
             if (!pXProxSpr->DudeLockout) {
 
