@@ -2480,7 +2480,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
                         bool oldStatus = pExtra->canWalk;
                         pExtra->canWalk = !!getSequence(i);
                         if (oldStatus != pExtra->canWalk) {
-                            if (!spriRangeIsFine(pXSprite->target_i)) 
+                            if (actor->GetTarget() == nullptr)
                             {
                                 if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeIdleW);
                                 else aiGenDudeNewState(actor, &genDudeIdleL);

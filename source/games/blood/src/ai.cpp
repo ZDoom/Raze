@@ -1997,8 +1997,10 @@ void aiInitSprite(DBloodActor* actor)
 
             // make dude follow the markers
 			bool uwater = spriteIsUnderwater(actor);
-            if (pXSprite->target_i <= 0 || sprite[pXSprite->target_i].type != kMarkerPath) {
-                pXSprite->target_i = -1; aiPatrolSetMarker(pSprite, pXSprite);
+            if (pXSprite->target_i <= 0 || sprite[pXSprite->target_i].type != kMarkerPath) 
+            {
+                actor->SetTarget(nullptr);
+                aiPatrolSetMarker(pSprite, pXSprite);
             }
 
             if (stateTimer > 0) {
