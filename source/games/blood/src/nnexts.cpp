@@ -44,13 +44,13 @@ PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
 SPRITEMASS gSpriteMass[];   // cache for getSpriteMassBySize();
-short gProxySpritesList[];  // list of additional sprites which can be triggered by Proximity
+DBloodActor* gProxySpritesList[];  // list of additional sprites which can be triggered by Proximity
 short gProxySpritesCount;   // current count
-short gSightSpritesList[];  // list of additional sprites which can be triggered by Sight
+DBloodActor* gSightSpritesList[];  // list of additional sprites which can be triggered by Sight
 short gSightSpritesCount;   // current count
-short gPhysSpritesList[];   // list of additional sprites which can be affected by physics
+DBloodActor* gPhysSpritesList[];   // list of additional sprites which can be affected by physics
 short gPhysSpritesCount;    // current count
-short gImpactSpritesList[];
+DBloodActor* gImpactSpritesList[];
 short gImpactSpritesCount;
 
 
@@ -454,8 +454,10 @@ void nnExtResetGlobals() {
     gProxySpritesCount = gSightSpritesCount = gPhysSpritesCount = gImpactSpritesCount = 0;
 
     // fill arrays with negative values to avoid index 0 situation
-    memset(gSightSpritesList, -1, sizeof(gSightSpritesList));   memset(gProxySpritesList, -1, sizeof(gProxySpritesList));
-    memset(gPhysSpritesList, -1, sizeof(gPhysSpritesList));     memset(gImpactSpritesList, -1, sizeof(gImpactSpritesList));
+    memset(gSightSpritesList, 0, sizeof(gSightSpritesList));   
+    memset(gProxySpritesList, 0, sizeof(gProxySpritesList));
+    memset(gPhysSpritesList, 0, sizeof(gPhysSpritesList));  
+    memset(gImpactSpritesList, 0, sizeof(gImpactSpritesList));
 
     // reset tracking conditions, if any
     if (gTrackingCondsCount > 0) {
@@ -541,7 +543,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
             if (pXSprite->physAttr != 0) {
                 //xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
 
-                gPhysSpritesList[gPhysSpritesCount++] = pSprite->index; // add sprite index
+                gPhysSpritesList[gPhysSpritesCount++] = &bloodActors[pSprite->index]; // add sprite index
                 getSpriteMassBySize(pSprite); // create mass cache
             }
 
@@ -752,7 +754,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 case kStatModernPlayerLinker:
                     break;
                 default:
-                    gProxySpritesList[gProxySpritesCount++] = pSprite->index;
+                    gProxySpritesList[gProxySpritesCount++] = &bloodActors[pSprite->index];
                     if (gProxySpritesCount == kMaxSuperXSprites)
                         I_Error("Max (%d) *additional* Proximity sprites reached!", kMaxSuperXSprites);
                     break;
@@ -768,7 +770,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 case kStatPathMarker:   case kStatModernPlayerLinker:
                     break;
                 default:
-                    gSightSpritesList[gSightSpritesCount++] = pSprite->index;
+                    gSightSpritesList[gSightSpritesCount++] = &bloodActors[pSprite->index];
                     if (gSightSpritesCount == kMaxSuperXSprites)
                         I_Error("Max (%d) Sight sprites reached!", kMaxSuperXSprites);
                     break;
@@ -784,7 +786,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 case kStatPathMarker:   case kStatModernPlayerLinker:
                     break;
                 default:
-                    gImpactSpritesList[gImpactSpritesCount++] = pSprite->index;
+                    gImpactSpritesList[gImpactSpritesCount++] = &bloodActors[pSprite->index];
                     if (gImpactSpritesCount == kMaxSuperXSprites)
                         I_Error("Max (%d) *additional* Impact sprites reached!", kMaxSuperXSprites);
                     break;
@@ -1133,19 +1135,17 @@ void nnExtProcessSuperSprites() {
     // process additional proximity sprites
     if (gProxySpritesCount > 0) {
         for (int i = 0; i < gProxySpritesCount; i++) {
-            if (!xsprIsFine(&sprite[gProxySpritesList[i]]))
-                continue;
+            if (!gProxySpritesList[i] || !gProxySpritesList[i]->hasX()) continue;
 
-            spritetype* pProxSpr = &sprite[gProxySpritesList[i]]; 
-			XSPRITE* pXProxSpr = &xsprite[pProxSpr->extra];
-            if ((!pXProxSpr->Interrutable && pXProxSpr->state != pXProxSpr->restState) || pXProxSpr->locked == 1 || pXProxSpr->isTriggered)
-                continue;  // don't process locked or triggered sprites
+            auto const pProxSpr = &gProxySpritesList[i]->s();
+            XSPRITE* pXProxSpr = &gProxySpritesList[i]->x();
+            if (!pXProxSpr->Proximity || (!pXProxSpr->Interrutable && pXProxSpr->state != pXProxSpr->restState) || pXProxSpr->locked == 1
+                || pXProxSpr->isTriggered) continue;  // don't process locked or triggered sprites
 
             int okDist = (IsDudeSprite(pProxSpr)) ? 96 : ClipLow(pProxSpr->clipdist * 3, 32);
             int x = pProxSpr->x;
             int y = pProxSpr->y;
             int z = pProxSpr->z;	
-            int index = pProxSpr->index;
             int sectnum = pProxSpr->sectnum;
 
             if (!pXProxSpr->DudeLockout) {
@@ -1156,7 +1156,7 @@ void nnExtProcessSuperSprites() {
                 {
                     if (!xsprIsFine(&sprite[nAffected]) || xsprite[sprite[nAffected].extra].health <= 0) continue;
                     else if (CheckProximity(&sprite[nAffected], x, y, z, sectnum, okDist)) {
-                        trTriggerSprite(index, pXProxSpr, kCmdSpriteProximity);
+                        trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
                     }
                 }
@@ -1170,7 +1170,7 @@ void nnExtProcessSuperSprites() {
                         continue;
 
                     if (gPlayer[a].pXSprite->health > 0 && CheckProximity(gPlayer[a].pSprite, x, y, z, sectnum, okDist)) {
-                        trTriggerSprite(index, pXProxSpr, kCmdSpriteProximity);
+                        trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
                     }
 
@@ -1183,25 +1183,28 @@ void nnExtProcessSuperSprites() {
     // process sight sprites (for players only)
     if (gSightSpritesCount > 0) {
         for (int i = 0; i < gSightSpritesCount; i++) {
-            if (!xsprIsFine(&sprite[gSightSpritesList[i]]))
-                continue;
+            if (!gSightSpritesList[i] || !gSightSpritesList[i]->hasX()) continue;
 
-            XSPRITE* pXSightSpr = &xsprite[sprite[gSightSpritesList[i]].extra];
+            auto const pSightSpr = &gSightSpritesList[i]->s();
+            XSPRITE* pXSightSpr = &gSightSpritesList[i]->x();
+
             if ((!pXSightSpr->Interrutable && pXSightSpr->state != pXSightSpr->restState) || pXSightSpr->locked == 1 ||
                 pXSightSpr->isTriggered) continue; // don't process locked or triggered sprites
 
-            int index = sprite[gSightSpritesList[i]].index;
+            int index = pSightSpr->index;
 
             // sprite is drawn for one of players
-            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (sprite[gSightSpritesList[i]].cstat2 & CSTAT2_SPRITE_MAPPED))
+            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (gSightSpritesList[i]->s().cstat2 & CSTAT2_SPRITE_MAPPED))
             {
                 trTriggerSprite(index, pXSightSpr, kCmdSpriteSight);
-                sprite[gSightSpritesList[i]].cstat2 &= ~CSTAT2_SPRITE_MAPPED;
+                gSightSpritesList[i]->s().cstat2 &= ~CSTAT2_SPRITE_MAPPED;
                 continue;
             }
 
-            int x = sprite[gSightSpritesList[i]].x;	int y = sprite[gSightSpritesList[i]].y;
-            int z = sprite[gSightSpritesList[i]].z; int sectnum = sprite[gSightSpritesList[i]].sectnum;
+            int x = pSightSpr->x;	
+            int y = pSightSpr->y;
+            int z = pSightSpr->z; 
+            int sectnum = pSightSpr->sectnum;
             int ztop2, zbot2;
             
             for (int a = connecthead; a >= 0; a = connectpoint2[a]) {
@@ -1215,7 +1218,7 @@ void nnExtProcessSuperSprites() {
                 if (cansee(x, y, z, sectnum, pPlaySprite->x, pPlaySprite->y, ztop2, pPlaySprite->sectnum)) {
 
                     if (pXSightSpr->Sight) {
-                        trTriggerSprite(index, pXSightSpr, kCmdSpriteSight);
+                    trTriggerSprite(gSightSpritesList[i], kCmdSpriteSight);
                         break;
                     }
 
@@ -1248,20 +1251,22 @@ void nnExtProcessSuperSprites() {
     // process Debris sprites for movement
     if (gPhysSpritesCount > 0) {
         for (int i = 0; i < gPhysSpritesCount; i++) {
-            if (gPhysSpritesList[i] == -1) continue;
-            else if (sprite[gPhysSpritesList[i]].statnum == kStatFree || (sprite[gPhysSpritesList[i]].flags & kHitagFree) != 0) {
-                gPhysSpritesList[i] = -1;
+
+            auto debrisactor = gPhysSpritesList[i];
+            if (debrisactor == nullptr || !debrisactor->hasX()) continue;
+            auto const pDebris = &debrisactor->s();
+
+            if (pDebris->statnum == kStatFree || (pDebris->flags & kHitagFree) != 0) {
+                gPhysSpritesList[i] = nullptr;
                 continue;
             }
 
-            XSPRITE* pXDebris = &xsprite[sprite[gPhysSpritesList[i]].extra];
+            XSPRITE* pXDebris = &debrisactor->x();
             if (!(pXDebris->physAttr & kPhysMove) && !(pXDebris->physAttr & kPhysGravity)) {
-                gPhysSpritesList[i] = -1;
+                gPhysSpritesList[i] = nullptr;
                 continue;
             }
 
-            auto debrisactor = &bloodActors[gPhysSpritesList[i]];
-            spritetype* pDebris = &sprite[gPhysSpritesList[i]];
             int idx = pDebris->index;
 
             XSECTOR* pXSector = (sector[pDebris->sectnum].extra >= 0) ? &xsector[sector[pDebris->sectnum].extra] : NULL;
@@ -1470,7 +1475,7 @@ int debrisGetIndex(int nSprite) {
         return -1;
 
     for (int i = 0; i < gPhysSpritesCount; i++) {
-        if (gPhysSpritesList[i] != nSprite) continue;
+        if (gPhysSpritesList[i] != &bloodActors[nSprite]) continue;
         return i;
     }
 
@@ -1479,10 +1484,12 @@ int debrisGetIndex(int nSprite) {
 
 int debrisGetFreeIndex(void) {
     for (int i = 0; i < kMaxSuperXSprites; i++) {
-        if (gPhysSpritesList[i] == -1 || sprite[gPhysSpritesList[i]].statnum == kStatFree) return i;
+        if (gPhysSpritesList[i] == nullptr) return i;
+        auto spr = &gPhysSpritesList[i]->s();
+        if (spr->statnum == kStatFree) return i;
 
-        else if ((sprite[gPhysSpritesList[i]].flags & kHitagFree) || sprite[gPhysSpritesList[i]].extra < 0) return i;
-        else if (xsprite[sprite[gPhysSpritesList[i]].extra].physAttr == 0) return i;
+        else if ((spr->flags & kHitagFree) || !gPhysSpritesList[i]->hasX()) return i;
+        else if (gPhysSpritesList[i]->x().physAttr == 0) return i;
     }
 
     return -1;
@@ -1491,10 +1498,10 @@ int debrisGetFreeIndex(void) {
 void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) 
 {
     auto owner = &bloodActors[nOwner];
-    spritetype* pSprite = (gPhysSpritesList[listIndex] >= 0) ? &sprite[gPhysSpritesList[listIndex]] : NULL;
+    auto actor = gPhysSpritesList[listIndex];
+    spritetype* pSprite = (actor != nullptr) ? &actor->s() : NULL;
     if (pSprite != NULL && xspriRangeIsFine(pSprite->extra)) 
     {
-        auto actor = &bloodActors[pSprite->index];
         int dx = pSprite->x - x; int dy = pSprite->y - y; int dz = (pSprite->z - z) >> 4;
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (pSprite->type >= kThingBase && pSprite->type < kThingMax);
@@ -1545,29 +1552,33 @@ void debrisBubble(int nSprite) {
         evPost(nSprite, 3, 0, kCallbackEnemeyBubble);
 }
 
-void debrisMove(int listIndex) {
+void debrisMove(int listIndex) 
+{
+    auto actor = gPhysSpritesList[listIndex];
+    XSPRITE* pXDebris = &actor->x();
+    spritetype* pSprite = &actor->s();   
+    int nSector = pSprite->sectnum;
 
-    if (!(sprite[gPhysSpritesList[listIndex]].extra > 0 && sprite[gPhysSpritesList[listIndex]].extra < kMaxXSprites)) {
-        gPhysSpritesList[listIndex] = -1;
+    if (!actor->hasX())
+    {
+        gPhysSpritesList[listIndex] = nullptr;
         return;
-    } else if (!(sprite[gPhysSpritesList[listIndex]].sectnum >= 0 && sprite[gPhysSpritesList[listIndex]].sectnum < kMaxSectors)) {
-        gPhysSpritesList[listIndex] = -1;
+    }
+    else if (pSprite->sectnum < 0 || pSprite->sectnum >= kMaxSectors)
+    {
+        gPhysSpritesList[listIndex] = nullptr;
         return;
     }
 
-    int nSprite = gPhysSpritesList[listIndex];
-    int nXSprite = sprite[nSprite].extra;       XSPRITE* pXDebris = &xsprite[nXSprite];
-    spritetype* pSprite = &sprite[nSprite];     int nSector = pSprite->sectnum;
-    auto actor = &bloodActors[nSprite];
 
     int top, bottom, i;
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
 
     int moveHit = 0;
     int floorDist = (bottom - pSprite->z) >> 2;
     int ceilDist = (pSprite->z - top) >> 2;
     int clipDist = pSprite->clipdist << 2;
-    int mass = gSpriteMass[nXSprite].mass;
+    int mass = actor->spriteMass().mass;
 
     bool uwater = false;
     int tmpFraction = gSpriteMass[pSprite->extra].fraction;
@@ -1575,6 +1586,8 @@ void debrisMove(int listIndex) {
         tmpFraction >>= 1;
         uwater = true;
     }
+    int nSprite = pSprite->index;
+    int nXSprite = pSprite->extra;
 
     if (xvel[nSprite] || yvel[nSprite]) {
 
@@ -2495,7 +2508,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                             if (pXSprite->physAttr & kPhysDebrisVector)
                                 pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                            gPhysSpritesList[nIndex] = objIndex;
+                            gPhysSpritesList[nIndex] = &bloodActors[objIndex];
                             if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
                             getSpriteMassBySize(pSprite); // create physics cache
 
@@ -5481,7 +5494,7 @@ void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
                 xsprite[pDrop->extra].physAttr |= kPhysMove | kPhysGravity | kPhysFalling; // must fall always
                 pSource->cstat &= ~CSTAT_SPRITE_BLOCK;
 
-                gPhysSpritesList[nIndex] = pDrop->index;
+            gPhysSpritesList[nIndex] = &bloodActors[pDrop->index];
                 if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
                 getSpriteMassBySize(pDrop); // create mass cache
             }
