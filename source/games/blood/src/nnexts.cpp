@@ -1096,9 +1096,9 @@ void nnExtProcessSuperSprites() {
                 if (rxBucket[j].type != OBJ_SECTOR)
                     continue;
 
-                XSECTOR* pXSector = &xsector[sector[rxBucket[j].index].extra];
+                XSECTOR* pXSector = &xsector[sector[rxBucket[j].rxindex].extra];
                 if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                    windGenDoVerticalWind(pXWind, rxBucket[j].index);
+                    windGenDoVerticalWind(pXWind, rxBucket[j].rxindex);
             }
 
             XSPRITE* pXRedir = NULL; // check redirected TX buckets
@@ -1107,9 +1107,9 @@ void nnExtProcessSuperSprites() {
                     if (rxBucket[j].type != OBJ_SECTOR)
                         continue;
 
-                    XSECTOR* pXSector = &xsector[sector[rxBucket[j].index].extra];
+                    XSECTOR* pXSector = &xsector[sector[rxBucket[j].rxindex].extra];
                     if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                        windGenDoVerticalWind(pXWind, rxBucket[j].index);
+                        windGenDoVerticalWind(pXWind, rxBucket[j].rxindex);
                 }
             }
 
@@ -1814,7 +1814,7 @@ void windGenStopWindOnSectors(XSPRITE* pXSource) {
 
     for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) {
         if (rxBucket[i].type != OBJ_SECTOR) continue;
-        XSECTOR* pXSector = &xsector[sector[rxBucket[i].index].extra];
+        XSECTOR* pXSector = &xsector[sector[rxBucket[i].rxindex].extra];
         if ((pXSector->state == 1 && !pXSector->windAlways)
             || ((pSource->flags & kModernTypeFlag1) && !(pSource->flags & kModernTypeFlag2))) {
                 pXSector->windVel = 0;
@@ -1826,7 +1826,7 @@ void windGenStopWindOnSectors(XSPRITE* pXSource) {
     while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSource->reference].extra, pXRedir, &rx)) != NULL) {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
             if (rxBucket[i].type != OBJ_SECTOR) continue;
-            XSECTOR* pXSector = &xsector[sector[rxBucket[i].index].extra];
+            XSECTOR* pXSector = &xsector[sector[rxBucket[i].rxindex].extra];
             if ((pXSector->state == 1 && !pXSector->windAlways) || (pSource->flags & kModernTypeFlag2))
                 pXSector->windVel = 0;
         }
@@ -4378,7 +4378,7 @@ spritetype* aiFightGetMateTargets(XSPRITE* pXSprite) {
 
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
         if (rxBucket[i].type == OBJ_SPRITE) {
-            pMate = &sprite[rxBucket[i].index];
+            pMate = &sprite[rxBucket[i].rxindex];
             if (pMate->extra < 0 || pMate->index == sprite[pXSprite->reference].index || !IsDudeSprite(pMate))
                 continue;
 
@@ -4402,7 +4402,7 @@ bool aiFightMatesHaveSameTarget(XSPRITE* pXLeader, spritetype* pTarget, int allo
         if (rxBucket[i].type != OBJ_SPRITE)
             continue;
 
-        pMate = &sprite[rxBucket[i].index];
+        pMate = &sprite[rxBucket[i].rxindex];
         if (pMate->extra < 0 || pMate->index == sprite[pXLeader->reference].index || !IsDudeSprite(pMate))
             continue;
 
@@ -4444,7 +4444,7 @@ bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* p
 void aiFightActivateDudes(int rx) {
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        spritetype* pDude = &sprite[rxBucket[i].index]; XSPRITE* pXDude = &xsprite[pDude->extra];
+        spritetype* pDude = &sprite[rxBucket[i].rxindex]; XSPRITE* pXDude = &xsprite[pDude->extra];
         if (!IsDudeSprite(pDude) || pXDude->aiState->stateType != kAiStateGenIdle) continue;
         aiInitSprite(&bloodActors[pDude->index]);
     }
@@ -4469,8 +4469,8 @@ void aiFightFreeTargets(int nSprite) {
 void aiFightFreeAllTargets(XSPRITE* pXSource) {
     if (pXSource->txID <= 0) return;
     for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) {
-        if (rxBucket[i].type == OBJ_SPRITE && sprite[rxBucket[i].index].extra >= 0)
-            aiFightFreeTargets(rxBucket[i].index);
+        if (rxBucket[i].type == OBJ_SPRITE && sprite[rxBucket[i].rxindex].extra >= 0)
+            aiFightFreeTargets(rxBucket[i].rxindex);
     }
 
     return;
@@ -4488,7 +4488,7 @@ bool aiFightDudeIsAffected(XSPRITE* pXDude) {
         for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
             if (rxBucket[i].type != OBJ_SPRITE) continue;
 
-            spritetype* pSprite = &sprite[rxBucket[i].index];
+            spritetype* pSprite = &sprite[rxBucket[i].rxindex];
             if (pSprite->extra < 0 || !IsDudeSprite(pSprite)) continue;
             else if (pSprite->index == sprite[pXDude->reference].index) return true;
         }
@@ -4505,8 +4505,8 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        else if (IsDudeSprite(&sprite[rxBucket[i].index]) &&
-            xsprite[sprite[rxBucket[i].index].extra].health > 0) return true;
+        else if (IsDudeSprite(&sprite[rxBucket[i].rxindex]) &&
+            xsprite[sprite[rxBucket[i].rxindex].extra].health > 0) return true;
     }
 
     // check redirected TX buckets
@@ -4514,8 +4514,8 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
             if (rxBucket[i].type != OBJ_SPRITE) continue;
-            else if (IsDudeSprite(&sprite[rxBucket[i].index]) &&
-                xsprite[sprite[rxBucket[i].index].extra].health > 0) return true;
+            else if (IsDudeSprite(&sprite[rxBucket[i].rxindex]) &&
+                xsprite[sprite[rxBucket[i].rxindex].extra].health > 0) return true;
         }
     }
     return false;
@@ -6186,7 +6186,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
                 for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
                     if (rxBucket[i].type == OBJ_SPRITE) {
                         
-                        spritetype* pSpr = &sprite[rxBucket[i].index];
+                        spritetype* pSpr = &sprite[rxBucket[i].rxindex];
                         if (pSpr->index == nIndex || !xspriRangeIsFine(pSpr->extra))
                             continue;
 
@@ -6199,7 +6199,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
 
                     }
 
-                    nnExtTriggerObject(rxBucket[i].type, rxBucket[i].index, pXSprite->command);
+                    nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, pXSprite->command);
 
                 }
             } //else {
@@ -7772,7 +7772,7 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
     int nIndex = (pXRedir) ? pXRedir->reference : -1; bool prevFound = false;
     for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        XSPRITE* pXSpr = evrIsRedirector(rxBucket[i].index);
+        XSPRITE* pXSpr = evrIsRedirector(rxBucket[i].rxindex);
         if (!pXSpr) continue;
         else if (prevFound || nIndex == -1) { *tx = listTx(pXSpr, *tx); return pXSpr; }
         else if (nIndex != pXSpr->reference) continue;
@@ -7789,9 +7789,9 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     if (pXSprite->data3 != pXSprite->sysData1) return false;
     char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = int(strlen(buffer)); int rx = -1;
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].index)) continue;
+        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].rxindex)) continue;
         for (int a = 0; a < len; a++) {
-            if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
+            if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;
         }
     }
@@ -7800,7 +7800,7 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
             for (int a = 0; a < len; a++) {
-                if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
+                if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, (buffer[a] - 52) + 4) != pXSprite->data3)
                     return false;
             }
         }
