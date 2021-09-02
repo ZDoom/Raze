@@ -2,6 +2,74 @@
 
 BEGIN_BLD_NS
 
+class DBloodActor;
+
+// Wrapper around the insane collision info mess from Build.
+struct Collision
+{
+	int type;
+	int index;
+	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
+	DBloodActor* actor;
+
+	Collision() = default;
+	Collision(int legacyval) { setFromEngine(legacyval); }
+
+	// need forward declarations of these.
+	int actorIndex(DBloodActor*);
+	DBloodActor* Actor(int);
+
+	int setNone()
+	{
+		type = kHitNone;
+		index = -1;
+		legacyVal = 0;
+		actor = nullptr;
+		return kHitNone;
+	}
+
+	int setSector(int num)
+	{
+		type = kHitSector;
+		index = num;
+		legacyVal = type | index;
+		actor = nullptr;
+		return kHitSector;
+	}
+	int setWall(int num)
+	{
+		type = kHitWall;
+		index = num;
+		legacyVal = type | index;
+		actor = nullptr;
+		return kHitWall;
+	}
+	int setSprite(DBloodActor* num)
+	{
+		type = kHitSprite;
+		index = -1;
+		legacyVal = type | actorIndex(num);
+		actor = num;
+		return kHitSprite;
+	}
+
+	int setFromEngine(int value)
+	{
+		legacyVal = value;
+		type = value & kHitTypeMask;
+		if (type == 0) { index = -1; actor = nullptr; }
+		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
+		else { index = -1; actor = Actor(value & kHitIndexMask); }
+		return type;
+	}
+};
+
+struct SPRITEHIT
+{
+	Collision hit, ceilhit, florhit;
+};
+extern SPRITEHIT gSpriteHit[kMaxXSprites];
+
 
 // Due to the messed up array storage of all the game data we cannot do any direct references here yet. We have to access everything via wrapper functions for now.
 // Note that the indexing is very inconsistent - partially by sprite index, partially by xsprite index.
@@ -224,62 +292,6 @@ inline DBloodActor* PLAYER::actor()
 }
 
 
-// Wrapper around the insane collision info mess from Build.
-struct Collision
-{
-	int type;
-	int index;
-	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
-	DBloodActor* actor;
-
-	Collision() = default;
-	Collision(int legacyval) { setFromEngine(legacyval); }
-
-	int setNone()
-	{
-		type = kHitNone;
-		index = -1;
-		legacyVal = 0;
-		actor = nullptr;
-		return kHitNone;
-	}
-
-	int setSector(int num)
-	{
-		type = kHitSector;
-		index = num;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitSector;
-	}
-	int setWall(int num)
-	{
-		type = kHitWall;
-		index = num;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitWall;
-	}
-	int setSprite(DBloodActor* num)
-	{
-		type = kHitSprite;
-		index = -1;
-		legacyVal = type | int(num - bloodActors);
-		actor = num;
-		return kHitSprite;
-	}
-
-	int setFromEngine(int value)
-	{
-		legacyVal = value;
-		type = value & kHitTypeMask;
-		if (type == 0) { index = -1; actor = nullptr; }
-		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
-		else { index = -1; actor = &bloodActors[value & kHitIndexMask]; }
-		return type;
-	}
-};
-
 inline DBloodActor* getUpperLink(int sect)
 {
 	auto l = gUpperLink[sect];
@@ -290,11 +302,6 @@ inline DBloodActor* getLowerLink(int sect)
 {
 	auto l = gLowerLink[sect];
 	return l == -1 ? nullptr : &bloodActors[l];
-}
-
-inline void viewBackupSpriteLoc(DBloodActor* actor)
-{
-	viewBackupSpriteLoc(actor->s().index, &actor->s());
 }
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)
@@ -318,13 +325,24 @@ inline void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1)
 	sfxKill3DSound(&pSprite->s(), a2, a3);
 }
 
-void ChangeActorStat(DBloodActor* actor, int stat)
+inline void ChangeActorStat(DBloodActor* actor, int stat)
 {
 	ChangeSpriteStat(actor->s().index, stat);
 }
 
-void ChangeActorSect(DBloodActor* actor, int stat)
+inline void ChangeActorSect(DBloodActor* actor, int stat)
 {
 	ChangeSpriteSect(actor->s().index, stat);
 }
+
+inline int Collision::actorIndex(DBloodActor* actor)
+{
+	return int(actor - bloodActors);
+}
+
+inline DBloodActor* Collision::Actor(int a)
+{
+	return &bloodActors[a];
+}
+
 END_BLD_NS

@@ -1338,8 +1338,8 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 {
     auto* const pSprite = pPlayer->pSprite;
     auto* const pXSprite = pPlayer->pXSprite;
-    int const florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
-    char const va = pXSprite->height < 16 && (florhit == 0x4000 || florhit == 0) ? 1 : 0;
+    int const florhit = gSpriteHit[pSprite->extra].florhit.type;
+    char const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
     pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
 }
 
@@ -2151,11 +2151,11 @@ void playerLandingSound(PLAYER *pPlayer)
     };
     spritetype *pSprite = pPlayer->pSprite;
     SPRITEHIT *pHit = &gSpriteHit[pSprite->extra];
-    if (pHit->florhit)
+    if (pHit->florhit.type != kHitNone)
     {
-        if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, &sprite[pHit->florhit & 0x3fff]))
+        if (!gGameOptions.bFriendlyFire && pHit->florhit.type == kHitSprite && IsTargetTeammate(pPlayer, &pHit->florhit.actor->s()))
             return;
-        char nSurf = tileGetSurfType(pHit->florhit);
+        char nSurf = tileGetSurfType(pHit->florhit.legacyVal);
         if (nSurf)
             sfxPlay3DSound(pSprite, surfaceSound[nSurf], -1, 0);
     }

@@ -1420,7 +1420,7 @@ void nnExtProcessSuperSprites()
                 {
                     auto pact = pPlayer->actor();
                     pPlayer = &gPlayer[a];
-                    if ((pact->hit().hit & 0xc000) == 0xc000 && (pact->hit().hit & 0x3fff) == nDebris) 
+                    if (pact->hit().hit.type == kHitSprite && pact->hit().hit.index == nDebris) 
                     {
                         int nSpeed = approxDist(pact->xvel(), pact->yvel());
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
@@ -1722,7 +1722,8 @@ void debrisMove(int listIndex)
     int top, bottom, i;
     GetActorExtents(actor, &top, &bottom);
 
-    int moveHit = 0;
+    Collision moveHit;
+    moveHit.setNone();
     int floorDist = (bottom - pSprite->z) >> 2;
     int ceilDist = (pSprite->z - top) >> 2;
     int clipDist = pSprite->clipdist << 2;
@@ -1757,8 +1758,10 @@ void debrisMove(int listIndex)
                 nSector = nSector2;
         }
 
-        if ((gSpriteHit[nXSprite].hit & 0xc000) == 0x8000) {
-            i = moveHit = gSpriteHit[nXSprite].hit & 0x3fff;
+        if (gSpriteHit[nXSprite].hit.type == kHitWall)
+        {
+            moveHit = gSpriteHit[nXSprite].hit;
+            i = moveHit.index;
             actWallBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], i, tmpFraction);
         }
 
@@ -1778,8 +1781,9 @@ void debrisMove(int listIndex)
     if (zvel[nSprite])
         pSprite->z += zvel[nSprite] >> 8;
 
-    int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+    int ceilZ, floorZ;
+    Collision ceilColl, floorColl;
+    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
     GetSpriteExtents(pSprite, &top, &bottom);
 
     if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) {
@@ -1809,7 +1813,7 @@ void debrisMove(int listIndex)
     }
 
     if ((i = CheckLink(pSprite)) != 0) {
-        GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+        GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
         if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE)) {
             switch (i) {
             case kMarkerUpWater:
@@ -1834,7 +1838,7 @@ void debrisMove(int listIndex)
 
     if (floorZ <= bottom) {
 
-        gSpriteHit[nXSprite].florhit = floorHit;
+        gSpriteHit[nXSprite].florhit = floorColl;
         int v30 = zvel[nSprite] - velFloor[pSprite->sectnum];
 
         if (v30 > 0) {
@@ -1848,9 +1852,9 @@ void debrisMove(int listIndex)
                 pXSprite->physAttr &= ~kPhysFalling;
             }
 
-            moveHit = floorHit;
+            moveHit = floorColl;
             DBloodActor* pFX = NULL, *pFX2 = NULL;
-            switch (tileGetSurfType(floorHit)) {
+            switch (tileGetSurfType(floorColl.legacyVal)) {
             case kSurfLava:
                 if ((pFX = gFX.fxSpawnActor(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0)) == NULL) break;
                 for (i = 0; i < 7; i++) {
@@ -1881,7 +1885,7 @@ void debrisMove(int listIndex)
 
     if (top <= ceilZ) {
 
-        gSpriteHit[nXSprite].ceilhit = moveHit = ceilHit;
+        gSpriteHit[nXSprite].ceilhit = moveHit = ceilColl;
         pSprite->z += ClipLow(ceilZ - top, 0);
         if (zvel[nSprite] <= 0 && (pXSprite->physAttr & kPhysFalling))
             zvel[nSprite] = MulScale(-zvel[nSprite], 0x2000, 16);
@@ -1893,7 +1897,7 @@ void debrisMove(int listIndex)
 
     }
 
-    if (moveHit && pXSprite->Impact && !pXSprite->locked && !pXSprite->isTriggered && (pXSprite->state == pXSprite->restState || pXSprite->Interrutable)) {
+    if (moveHit.type != kHitNone && pXSprite->Impact && !pXSprite->locked && !pXSprite->isTriggered && (pXSprite->state == pXSprite->restState || pXSprite->Interrutable)) {
         if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
             changespritestat(nSprite, kStatThing);
 
@@ -1902,12 +1906,13 @@ void debrisMove(int listIndex)
     }
 
     if (!xvel[nSprite] && !yvel[nSprite]) return;
-    else if ((floorHit & 0xc000) == 0xc000) {
+    else if (floorColl.type == kHitSprite)
+    {
 
-            int nHitSprite = floorHit & 0x3fff;
-        if ((sprite[nHitSprite].cstat & 0x30) == 0) {
-                xvel[nSprite] += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
-                yvel[nSprite] += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
+        if ((floorColl.actor->s().cstat & 0x30) == 0)
+        {
+            xvel[nSprite] += MulScale(4, pSprite->x - floorColl.actor->s().x, 2);
+            yvel[nSprite] += MulScale(4, pSprite->y - floorColl.actor->s().y, 2);
             return;
         }
     }
@@ -3127,22 +3132,29 @@ void useSpriteDamager(XSPRITE* pXSource, int objType, int objIndex) {
             damageSprites(pXSource, &sprite[objIndex]);
             break;
         case OBJ_SECTOR:
+        {
             GetSpriteExtents(pSource, &top, &bottom);
-            floor = (bottom >= pSector->floorz);    ceil = (top <= pSector->ceilingz);
-            wall = (pSource->cstat & 0x10);         enter = (!floor && !ceil && !wall);
-            for (i = headspritesect[objIndex]; i != -1; i = nextspritesect[i]) {
+            floor = (bottom >= pSector->floorz);    
+            ceil = (top <= pSector->ceilingz);
+            wall = (pSource->cstat & 0x10);        
+            enter = (!floor && !ceil && !wall);
+            for (i = headspritesect[objIndex]; i != -1; i = nextspritesect[i]) 
+            {
+                auto& hit = gSpriteHit[sprite[i].extra];
+
                 if (!IsDudeSprite(&sprite[i]) || !xspriRangeIsFine(sprite[i].extra))
                     continue;
                 else if (enter)
                     damageSprites(pXSource, &sprite[i]);
-                else if (floor && (gSpriteHit[sprite[i].extra].florhit & 0xc000) == 0x4000 && (gSpriteHit[sprite[i].extra].florhit & 0x3fff) == objIndex)
+                else if (floor && hit.florhit.type == kHitSector && hit.florhit.index == objIndex)
                     damageSprites(pXSource, &sprite[i]);
-                else if (ceil && (gSpriteHit[sprite[i].extra].ceilhit & 0xc000) == 0x4000 && (gSpriteHit[sprite[i].extra].ceilhit & 0x3fff) == objIndex)
+                else if (ceil && hit.ceilhit.type == kHitSector && hit.ceilhit.index == objIndex)
                     damageSprites(pXSource, &sprite[i]);
-                else if (wall && (gSpriteHit[sprite[i].extra].hit & 0xc000) == 0x8000 && sectorofwall(gSpriteHit[sprite[i].extra].hit & 0x3fff) == objIndex)
+                else if (wall && hit.hit.type == kHitWall && sectorofwall(hit.hit.index) == objIndex)
                     damageSprites(pXSource, &sprite[i]);
             }
             break;
+        }
         case -1:
             for (i = headspritestat[kStatDude]; i != -1; i = nextspritestat[i]) {
                 if (sprite[i].statnum != kStatDude) continue;
@@ -4189,54 +4201,63 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax) var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
                 return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
-                if ((gSpriteHit[pSpr->extra].ceilhit & 0xc000) != 0x4000) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].ceilhit & 0x3fff);
+                if (gSpriteHit[pSpr->extra].ceilhit.type != kHitSector) return false;
+                else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].ceilhit.index);
                 return true;
             case 56: // touching floor of sector?
-                if ((gSpriteHit[pSpr->extra].florhit & 0xc000) != 0x4000) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].florhit & 0x3fff);
+                if (gSpriteHit[pSpr->extra].florhit.type != kHitSector) return false;
+                else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].florhit.index);
                 return true;
             case 57: // touching walls of sector?
-                if ((gSpriteHit[pSpr->extra].hit & 0xc000) != 0x8000) return false;
-                else if (PUSH) condPush(pXCond, OBJ_WALL, gSpriteHit[pSpr->extra].hit & 0x3fff);
+                if (gSpriteHit[pSpr->extra].hit.type != kHitWall) return false;
+                else if (PUSH) condPush(pXCond, OBJ_WALL, gSpriteHit[pSpr->extra].hit.index);
                 return true;
             case 58: // touching another sprite?
+            {
+                DBloodActor* actorvar = nullptr;
                 switch (arg3) {
-                    case 0:
-                    case 1:
-                        if ((gSpriteHit[pSpr->extra].florhit & 0xc000) == 0xc000) var = gSpriteHit[pSpr->extra].florhit & 0x3fff;
-                        if (arg3 || var >= 0) break;
-                        fallthrough__;
-                    case 2:
-                        if ((gSpriteHit[pSpr->extra].hit & 0xc000) == 0xc000) var = gSpriteHit[pSpr->extra].hit & 0x3fff;
-                        if (arg3 || var >= 0) break;
-                        fallthrough__;
-                    case 3:
-                        if ((gSpriteHit[pSpr->extra].ceilhit & 0xc000) == 0xc000) var = gSpriteHit[pSpr->extra].ceilhit & 0x3fff;
-                        break;
+                case 0:
+                case 1:
+                    if (gSpriteHit[pSpr->extra].florhit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].florhit.actor;
+                    if (arg3 || var >= 0) break;
+                    fallthrough__;
+                case 2:
+                    if (gSpriteHit[pSpr->extra].hit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].hit.actor;
+                    if (arg3 || var >= 0) break;
+                    fallthrough__;
+                case 3:
+                    if (gSpriteHit[pSpr->extra].ceilhit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].ceilhit.actor;
+                    break;
                 }
-                if (var < 0) { // check if something touching this sprite
-                    for (int i = kMaxXSprites - 1, idx = i; i > 0; idx = xsprite[--i].reference) {
+                if (actorvar == nullptr) 
+                { 
+                    // check if something touching this sprite
+                    for (int i = kMaxXSprites - 1, idx = i; i > 0; idx = xsprite[--i].reference) 
+                    {
                         if (idx < 0 || (sprite[idx].flags & kHitagRespawn)) continue;
+                        auto iactor = &bloodActors[idx];
+                        auto objactor = &bloodActors[objIndex];
+                        auto& hit = gSpriteHit[i];
                         switch (arg3) {
-                            case 0:
-                            case 1:
-                                if ((gSpriteHit[i].ceilhit & 0xc000) == 0xc000 && (gSpriteHit[i].ceilhit & 0x3fff) == objIndex) var = idx;
-                                if (arg3 || var >= 0) break;
-                                fallthrough__;
-                            case 2:
-                                if ((gSpriteHit[i].hit & 0xc000) == 0xc000 && (gSpriteHit[i].hit & 0x3fff) == objIndex) var = idx;
-                                if (arg3 || var >= 0) break;
-                                fallthrough__;
-                            case 3:
-                                if ((gSpriteHit[i].florhit & 0xc000) == 0xc000 && (gSpriteHit[i].florhit & 0x3fff) == objIndex) var = idx;
-                                break;
+                        case 0:
+                        case 1:
+                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.actor == objactor) actorvar = iactor;
+                            if (arg3 || actorvar) break;
+                            fallthrough__;
+                        case 2:
+                            if (hit.hit.type == kHitSprite && hit.hit.actor == objactor) actorvar = iactor;
+                            if (arg3 || actorvar) break;
+                            fallthrough__;
+                        case 3:
+                            if (hit.florhit.type == kHitSprite && hit.florhit.actor == objactor) actorvar = iactor;
+                            break;
                         }
                     }
                 }
-                if (var < 0) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
+                if (actorvar == nullptr) return false;
+                else if (PUSH) condPush(pXCond, OBJ_SPRITE, actorvar->s().index);
                 return true;
+            }
             case 65: // compare burn time (in %)
                 var = (IsDudeSprite(pSpr)) ? 2400 : 1200;
                 if (!condCmp((kPercFull * pXSpr->burnTime) / var, arg1, arg2, cmpOp)) return false;
@@ -7124,21 +7145,20 @@ void aiPatrolMove(DBloodActor* actor) {
     
     if (abs(nAng) > goalAng || ((pXTarget->waitTime > 0 || pXTarget->data1 == pXTarget->data2) && aiPatrolMarkerReached(pSprite, pXSprite))) {
 
-        xvel[pSprite->index] = 0;
-        yvel[pSprite->index] = 0;
+       actor->xvel() = 0;
+       actor->yvel() = 0;
         return;
 
     }
    
-    if ((gSpriteHit[pSprite->extra].hit & 0xc000) == 0xc000) {
-        
-        int nHSprite = gSpriteHit[pSprite->extra].hit & 0x3fff;
-        XSPRITE* pXSprite2 = &xsprite[sprite[nHSprite].extra];
+    if (gSpriteHit[pSprite->extra].hit.type == kHitSprite)
+    {
+        auto hitactor = gSpriteHit[pSprite->extra].hit.actor;
 
-        pXSprite2->dodgeDir =  -1;
+        hitactor->x().dodgeDir =  -1;
         pXSprite->dodgeDir  =   1;
 
-        aiMoveDodge(&bloodActors[pXSprite->reference]);
+        aiMoveDodge(hitactor);
 
     } else {
 
@@ -7268,11 +7288,11 @@ bool spritesTouching(int nXSprite1, int nXSprite2) {
     if (!xspriRangeIsFine(nXSprite1) || !xspriRangeIsFine(nXSprite2))
         return false;
 
-    int nHSprite = -1;
-    if ((gSpriteHit[nXSprite1].hit & 0xc000) == 0xc000) nHSprite = gSpriteHit[nXSprite1].hit & 0x3fff;
-    else if ((gSpriteHit[nXSprite1].florhit & 0xc000) == 0xc000) nHSprite = gSpriteHit[nXSprite1].florhit & 0x3fff;
-    else if ((gSpriteHit[nXSprite1].ceilhit & 0xc000) == 0xc000) nHSprite = gSpriteHit[nXSprite1].ceilhit & 0x3fff;
-    return (spriRangeIsFine(nHSprite) && sprite[nHSprite].extra == nXSprite2);
+    DBloodActor* hitactor = nullptr;
+    if (gSpriteHit[nXSprite1].hit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].hit.actor;
+    else if (gSpriteHit[nXSprite1].florhit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].florhit.actor;
+    else if (gSpriteHit[nXSprite1].ceilhit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].ceilhit.actor;
+    return hitactor->hasX() && hitactor->s().extra == nXSprite2;
 }
 
 bool aiCanCrouch(spritetype* pSprite) {
