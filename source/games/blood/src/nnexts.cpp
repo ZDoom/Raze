@@ -3526,7 +3526,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
         return;
     }
 
-    spritetype* pSource = &sprite[pXSource->reference];
+    spritetype* pSource = &sourceactor->s();
 
     switch (objType) 
     {
