@@ -113,7 +113,7 @@ void podAttack(int, DBloodActor* actor)
 			pMissile = actFireThing(actor, 0, -8000, dz / 128 - 14500, kThingPodFireBall, (nDist2 << 23) / 120);
         }
         if (pMissile)
-            seqSpawn(22, actor, -1);
+            seqSpawn(22, pMissile, -1);
         break;
     }
     for (int i = 0; i < 4; i++)
