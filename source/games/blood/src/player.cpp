@@ -749,14 +749,14 @@ void playerStart(int nPlayer, int bNewLevel)
     // assign or update player's sprite index for conditions
     if (gModernMap) {
 
-        int nSprite;
-        StatIterator it(kStatModernPlayerLinker);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatModernPlayerLinker);
+        while (auto iactor = it.Next())
         {
-            XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
-            if (pXCtrl->data1 == pPlayer->nPlayer + 1) {
+            XSPRITE* pXCtrl = &iactor->x();
+            if (pXCtrl->data1 == pPlayer->nPlayer + 1) 
+            {
                 int nSpriteOld = pXCtrl->sysData1;
-                trPlayerCtrlLink(pXCtrl, pPlayer, (nSpriteOld < 0) ? true : false);
+                trPlayerCtrlLink(iactor, pPlayer, (nSpriteOld < 0) ? true : false);
                 if (nSpriteOld > 0)
                     condUpdateObjectIndex(OBJ_SPRITE, nSpriteOld, pXCtrl->sysData1);
             }

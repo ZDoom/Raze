@@ -2138,9 +2138,9 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
-
-    auto sourceactor = &bloodActors[pXSource->reference];
+void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondition) 
+{
+    auto pXSource = &sourceactor->x();
     // save player's sprite index to let the tracking condition know it after savegame loading...
     pXSource->sysData1                  = pPlayer->nSprite;
     
@@ -2199,8 +2199,9 @@ void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer) {
-    playerSetRace(pPlayer, pXSource->data2);
+void trPlayerCtrlSetRace(int value, PLAYER* pPlayer) 
+{
+    playerSetRace(pPlayer, value);
     switch (pPlayer->lifeMode) 
     {
         case kModeHuman:
@@ -2222,10 +2223,10 @@ void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer) {
-    
-    int speed = ClipRange(pXSource->data2, 0, 500);
-    for (int i = 0; i < kModeMax; i++)
+void trPlayerCtrlSetMoveSpeed(int value, PLAYER* pPlayer) 
+{
+    int speed = ClipRange(value, 0, 500);
+    for (int i = 0; i < kModeMax; i++) 
     {
         for (int a = 0; a < kPostureMax; a++) 
         {
@@ -2243,9 +2244,9 @@ void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer) {
-    
-    int jump = ClipRange(pXSource->data3, 0, 500);
+void trPlayerCtrlSetJumpHeight(int value, PLAYER* pPlayer) 
+{
+    int jump = ClipRange(value, 0, 500);
     for (int i = 0; i < kModeMax; i++) 
     {
         POSTURE* curPosture = &pPlayer->pPosture[i][kPostureStand]; POSTURE* defPosture = &gPostureDefaults[i][kPostureStand];
@@ -2260,9 +2261,10 @@ void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer) {
-    
-    int eff = ClipLow(pXSource->data2, 0); int time = (eff > 0) ? pXSource->data3 : 0;
+void trPlayerCtrlSetScreenEffect(int value, int timeval, PLAYER* pPlayer) 
+{
+    int eff = ClipLow(value, 0); 
+    int time = (eff > 0) ? timeval : 0;
     switch (eff) {
         case 0: // clear all
         case 1: // tilting
@@ -2302,12 +2304,13 @@ void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
+void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 {
-    double const upAngle = 289; double const downAngle = -347;
+    double const upAngle = 289; 
+    double const downAngle = -347;
     double const lookStepUp = 4.0 * upAngle / 60.0;
     double const lookStepDown = -4.0 * downAngle / 60.0;
-    double const look = pXSource->data2 << 5;
+    double const look = value << 5;
     double adjustment;
 
     if (look > 0) 
@@ -2333,9 +2336,10 @@ void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
+void trPlayerCtrlEraseStuff(int value, PLAYER* pPlayer)
+{
     
-    switch (pXSource->data2)
+    switch (value) 
     {
         case 0: // erase all
             [[fallthrough]];
@@ -2353,11 +2357,11 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
             pPlayer->nextWeapon = kWeapPitchFork;
 
             WeaponRaise(pPlayer);
-            if (pXSource->data2) break;
+            if (value) break;
             [[fallthrough]];
         case 2: // erase all armor
             for (int i = 0; i < 3; i++) pPlayer->armor[i] = 0;
-            if (pXSource->data2) break;
+            if (value) break;
             [[fallthrough]];
         case 3: // erase all pack items
             for (int i = 0; i < 5; i++) {
@@ -2365,11 +2369,11 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
                 pPlayer->packSlots[i].curAmount = 0;
             }
             pPlayer->packItemId = -1;
-            if (pXSource->data2) break;
+            if (value) break;
             [[fallthrough]];
         case 4: // erase all keys
             for (int i = 0; i < 8; i++) pPlayer->hasKey[i] = false;
-            if (pXSource->data2) break;
+            if (value) break;
             [[fallthrough]];
         case 5: // erase powerups
             for (int i = 0; i < kMaxPowerUps; i++) pPlayer->pwUpTime[i] = 0;
@@ -2384,17 +2388,18 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCtrl) {
-    
-    int weapon = pXSource->data3;
-    switch (pXSource->data2) {
+void trPlayerCtrlGiveStuff(int data2, int weapon, int data4, PLAYER* pPlayer, TRPLAYERCTRL* pCtrl) 
+{
+    switch (data2) 
+    {
         case 1: // give N weapon and default ammo for it
         case 2: // give just N ammo for selected weapon
             if (weapon <= 0 || weapon > 13) 
             {
                 Printf(PRINT_HIGH, "Weapon #%d is out of a weapons range!", weapon);
                 break;
-            } else if (pXSource->data2 == 2 && pXSource->data4 == 0) {
+            } else if (data2 == 2 && data4 == 0) 
+            {
                 Printf(PRINT_HIGH, "Zero ammo for weapon #%d is specified!", weapon);
                 break;
             }
@@ -2404,7 +2409,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                 case kWeapRemote: // prox bomb
                     pPlayer->hasWeapon[weapon] = true;
                     weapon--;
-                    pPlayer->ammoCount[weapon] = ClipHigh(pPlayer->ammoCount[weapon] + ((pXSource->data2 == 2) ? pXSource->data4 : 1), gAmmoInfo[weapon].max);
+                    pPlayer->ammoCount[weapon] = ClipHigh(pPlayer->ammoCount[weapon] + ((data2 == 2) ? data4 : 1), gAmmoInfo[weapon].max);
                     weapon++;
                     break;
                 default:
@@ -2414,21 +2419,21 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
 
                         const WEAPONITEMDATA* pWeaponData = &gWeaponItemData[i]; 
                         int nAmmoType = pWeaponData->ammoType;
-                        switch (pXSource->data2) {
+                        switch (data2) {
                             case 1:
                                 pPlayer->hasWeapon[weapon] = true;
                                 if (pPlayer->ammoCount[nAmmoType] >= pWeaponData->count) break;
                                 pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponData->count, gAmmoInfo[nAmmoType].max);
                                 break;
                             case 2:
-                                pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pXSource->data4, gAmmoInfo[nAmmoType].max);
+                                pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + data4, gAmmoInfo[nAmmoType].max);
                                 break;
                         }
                         break;
                     }
                     break;
             }
-            if (pPlayer->hasWeapon[weapon] && pXSource->data4 == 0) // switch on it
+            if (pPlayer->hasWeapon[weapon] && data4 == 0) // switch on it
             {
                 pPlayer->nextWeapon = kWeapNone;
 
@@ -2452,8 +2457,9 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
-    unsigned int invItem = pXSource->data2 - 1;
+void trPlayerCtrlUsePackItem(int data2, int data3, int data4, PLAYER* pPlayer, int evCmd)
+{
+    unsigned int invItem = data2 - 1;
     switch (evCmd) 
     {
         case kCmdOn:
@@ -2467,12 +2473,12 @@ void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
             break;
     }
 
-    switch (pXSource->data4)
+    switch (data4) 
     {
         case 2: // both
         case 0: // switch on it
             if (pPlayer->packSlots[invItem].curAmount > 0) pPlayer->packItemId = invItem;
-            if (!pXSource->data4) break;
+            if (!data4) break;
             [[fallthrough]];
         case 1: // force remove after use
             pPlayer->packSlots[invItem].isActive = false;
@@ -2487,14 +2493,14 @@ void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlUsePowerup(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
+void trPlayerCtrlUsePowerup(DBloodActor* sourceactor, PLAYER* pPlayer, int evCmd)
+{
 
-    spritetype* pSource = &sprite[pXSource->reference];
-    bool relative = (pSource->flags & kModernTypeFlag1);
+    bool relative = (sourceactor->s().flags & kModernTypeFlag1);
 
-    int nPower = (kMinAllowedPowerup + pXSource->data2) - 1;
-    int nTime = ClipRange(abs(pXSource->data3) * 100, -gPowerUpInfo[nPower].maxTime, gPowerUpInfo[nPower].maxTime);
-    if (pXSource->data3 < 0)
+    int nPower = (kMinAllowedPowerup + sourceactor->x().data2) - 1;
+    int nTime = ClipRange(abs(sourceactor->x().data3) * 100, -gPowerUpInfo[nPower].maxTime, gPowerUpInfo[nPower].maxTime);
+    if (sourceactor->x().data3 < 0)
         nTime = -nTime;
 
     if (pPlayer->pwUpTime[nPower]) 
@@ -5535,20 +5541,20 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             switch (cmd) {
                 case 0: // 64 (player life form)
                     if (pXSprite->data2 < kModeHuman || pXSprite->data2 > kModeHumanGrown) break;
-                    else trPlayerCtrlSetRace(pXSprite, pPlayer);
+                    else trPlayerCtrlSetRace(pXSprite->data2, pPlayer);
                     break;
                 case 1: // 65 (move speed and jump height)
                     // player movement speed (for all races and postures)
                     if (valueIsBetween(pXSprite->data2, -1, 32767))
-                        trPlayerCtrlSetMoveSpeed(pXSprite, pPlayer);
+                        trPlayerCtrlSetMoveSpeed(pXSprite->data2, pPlayer);
 
                     // player jump height (for all races and stand posture only)
                     if (valueIsBetween(pXSprite->data3, -1, 32767))
-                        trPlayerCtrlSetJumpHeight(pXSprite, pPlayer);
+                        trPlayerCtrlSetJumpHeight(pXSprite->data3, pPlayer);
                     break;
                 case 2: // 66 (player screen effects)
                     if (pXSprite->data3 < 0) break;
-                    else trPlayerCtrlSetScreenEffect(pXSprite, pPlayer);
+                    else trPlayerCtrlSetScreenEffect(pXSprite->data2, pXSprite->data3, pPlayer);
                     break;
                 case 3: // 67 (start playing qav scene)
                     trPlayerCtrlStartScene(actor, pPlayer, (pXSprite->data4 == 1) ? true : false);
@@ -5561,19 +5567,19 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     //data4 is reserved
                     if (pXSprite->data4 != 0) break;
                     else if (valueIsBetween(pXSprite->data2, -128, 128))
-                        trPlayerCtrlSetLookAngle(pXSprite, pPlayer);
+                        trPlayerCtrlSetLookAngle(pXSprite->data2, pPlayer);
                     break;
                 case 6: // 70 (erase player stuff...)
                     if (pXSprite->data2 < 0) break;
-                    else trPlayerCtrlEraseStuff(pXSprite, pPlayer);
+                    else trPlayerCtrlEraseStuff(pXSprite->data2, pPlayer);
                     break;
                 case 7: // 71 (give something to player...)
                     if (pXSprite->data2 <= 0) break;
-                    else trPlayerCtrlGiveStuff(pXSprite, pPlayer, pCtrl);
+                    else trPlayerCtrlGiveStuff(pXSprite->data2, pXSprite->data3,pXSprite->data4, pPlayer, pCtrl);
                     break;
                 case 8: // 72 (use inventory item)
                     if (pXSprite->data2 < 1 || pXSprite->data2 > 5) break;
-                    else trPlayerCtrlUsePackItem(pXSprite, pPlayer, event.cmd);
+                    else trPlayerCtrlUsePackItem(pXSprite->data2, pXSprite->data3, pXSprite->data4, pPlayer, event.cmd);
                     break;
                 case 9: // 73 (set player's sprite angle, TO-DO: if tx > 0, take a look on TX ID sprite)
                     //data4 is reserved
@@ -5590,7 +5596,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     break;
                 case 10: // 74 (de)activate powerup
                     if (pXSprite->data2 <= 0 || pXSprite->data2 > (kMaxAllowedPowerup - (kMinAllowedPowerup << 1) + 1)) break;
-                    trPlayerCtrlUsePowerup(pXSprite, pPlayer, event.cmd);
+                    trPlayerCtrlUsePowerup(actor, pPlayer, event.cmd);
                     break;
                // case 11: // 75 (print the book)
                     // data2: RFF TXT id
