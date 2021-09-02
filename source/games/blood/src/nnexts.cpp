@@ -1637,8 +1637,10 @@ static int debrisGetIndex(DBloodActor* actor)
     return -1;
 }
 
-int debrisGetFreeIndex(void) {
-    for (int i = 0; i < kMaxSuperXSprites; i++) {
+int debrisGetFreeIndex(void) 
+{
+    for (int i = 0; i < kMaxSuperXSprites; i++) 
+    {
         if (gPhysSpritesList[i] == nullptr) return i;
         auto spr = &gPhysSpritesList[i]->s();
         if (spr->statnum == kStatFree) return i;
@@ -1649,6 +1651,12 @@ int debrisGetFreeIndex(void) {
 
     return -1;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) 
 {
@@ -1682,6 +1690,12 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void debrisBubble(int nSprite) 
 {
  
@@ -1708,6 +1722,12 @@ void debrisBubble(int nSprite)
     if (Chance(0x2000))
         evPostActor(&bloodActors[nSprite], 0, kCallbackEnemeyBubble);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void debrisMove(int listIndex) 
 {
@@ -1740,7 +1760,8 @@ void debrisMove(int listIndex)
 
     bool uwater = false;
     int tmpFraction = actor->spriteMass.fraction;
-    if (sector[nSector].extra >= 0 && xsector[sector[nSector].extra].Underwater) {
+    if (sector[nSector].extra >= 0 && xsector[sector[nSector].extra].Underwater) 
+    {
         tmpFraction >>= 1;
         uwater = true;
     }
@@ -1756,12 +1777,14 @@ void debrisMove(int listIndex)
             yvel[nSprite] >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
 
         pSprite->cstat = oldcstat;
-        if (pSprite->sectnum != nSector) {
+        if (pSprite->sectnum != nSector) 
+        {
             if (!sectRangeIsFine(nSector)) return;
             else ChangeSpriteSect(nSprite, nSector);
         }
 
-        if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate) {
+        if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate) 
+        {
             int nSector2 = nSector;
             if (pushmove(&pSprite->pos, &nSector2, clipDist, ceilDist, floorDist, CLIPMASK0) != -1)
                 nSector = nSector2;
@@ -1774,11 +1797,14 @@ void debrisMove(int listIndex)
             actWallBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], i, tmpFraction);
         }
 
-    } else if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector)) {
+    } 
+    else if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector)) 
+    {
         return;
     }
 
-        if (pSprite->sectnum != nSector) {
+    if (pSprite->sectnum != nSector)
+    {
             assert(nSector >= 0 && nSector < kMaxSectors);
             ChangeSpriteSect(nSprite, nSector);
         nSector = pSprite->sectnum;
@@ -1795,8 +1821,8 @@ void debrisMove(int listIndex)
     GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
     GetSpriteExtents(pSprite, &top, &bottom);
 
-    if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) {
-
+    if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) 
+    {
         int vc = 0;
         int cz = getceilzofslope(nSector, pSprite->x, pSprite->y);
         int fz = getflorzofslope(nSector, pSprite->x, pSprite->y);
@@ -1809,31 +1835,40 @@ void debrisMove(int listIndex)
         if (fz < bottom)
             vc = 58254 + ((bottom - fz) * -80099) / div;
 
-        if (vc) {
+        if (vc) 
+        {
             pSprite->z += ((vc << 2) >> 1) >> 8;
             zvel[nSprite] += vc;
         }
 
-    } else if ((pXSprite->physAttr & kPhysGravity) && bottom < floorZ) {
-
+    }
+    else if ((pXSprite->physAttr & kPhysGravity) && bottom < floorZ) 
+    {
         pSprite->z += 455;
         zvel[nSprite] += 58254;
 
     }
 
-    if ((i = CheckLink(pSprite)) != 0) {
+    if ((i = CheckLink(pSprite)) != 0)
+    {
         GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
-        if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE)) {
-            switch (i) {
+        if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
+        {
+            switch (i)
+            {
             case kMarkerUpWater:
             case kMarkerUpGoo:
                 int pitch = (150000 - (actor->spriteMass.mass << 9)) + Random3(8192);
                 sfxPlay3DSoundCP(pSprite, 720, -1, 0, pitch, 75 - Random(40));
-                    if (!spriteIsUnderwater(actor)) {
+                if (!spriteIsUnderwater(actor))
+                {
                     evKillActor(actor, kCallbackEnemeyBubble);
-                    } else {
+                }
+                else
+                {
                         evPostActor(actor, 0, kCallbackEnemeyBubble);
-                    for (int i = 2; i <= 5; i++) {
+                    for (int i = 2; i <= 5; i++)
+                    {
                             if (Chance(0x5000 * i))
                                 evPostActor(actor, Random(5), kCallbackEnemeyBubble);
                     }
@@ -1850,8 +1885,8 @@ void debrisMove(int listIndex)
         gSpriteHit[nXSprite].florhit = floorColl;
         int v30 = zvel[nSprite] - velFloor[pSprite->sectnum];
 
-        if (v30 > 0) {
-
+        if (v30 > 0) 
+        {
             pXSprite->physAttr |= kPhysFalling;
             actFloorBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], (int*)&v30, pSprite->sectnum, tmpFraction);
             zvel[nSprite] = v30;
@@ -1863,10 +1898,12 @@ void debrisMove(int listIndex)
 
             moveHit = floorColl;
             DBloodActor* pFX = NULL, *pFX2 = NULL;
-            switch (tileGetSurfType(floorColl)) {
+            switch (tileGetSurfType(floorColl)) 
+            {
             case kSurfLava:
                 if ((pFX = gFX.fxSpawnActor(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0)) == NULL) break;
-                for (i = 0; i < 7; i++) {
+                for (i = 0; i < 7; i++) 
+                {
                     if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->s().sectnum, pFX->s().x, pFX->s().y, pFX->s().z, 0)) == NULL) continue;
                     pFX2->xvel() = Random2(0x6aaaa);
                     pFX2->yvel() = Random2(0x6aaaa);
@@ -1878,32 +1915,32 @@ void debrisMove(int listIndex)
                 break;
             }
 
-        } else if (zvel[nSprite] == 0) {
-
-            pXSprite->physAttr &= ~kPhysFalling;
-
         }
+        else if (zvel[nSprite] == 0)
+        {
+            pXSprite->physAttr &= ~kPhysFalling;
+        }
+    }
+    else 
+    {
 
-    } else {
-
-        gSpriteHit[nXSprite].florhit = 0;
         if (pXSprite->physAttr & kPhysGravity)
             pXSprite->physAttr |= kPhysFalling;
 
     }
 
-    if (top <= ceilZ) {
-
+    if (top <= ceilZ) 
+    {
         gSpriteHit[nXSprite].ceilhit = moveHit = ceilColl;
         pSprite->z += ClipLow(ceilZ - top, 0);
         if (zvel[nSprite] <= 0 && (pXSprite->physAttr & kPhysFalling))
             zvel[nSprite] = MulScale(-zvel[nSprite], 0x2000, 16);
 
-    } else {
-
+    }
+    else 
+    {
         gSpriteHit[nXSprite].ceilhit = 0;
         GetSpriteExtents(pSprite, &top, &bottom);
-
     }
 
     if (moveHit.type != kHitNone && pXSprite->Impact && !pXSprite->locked && !pXSprite->isTriggered && (pXSprite->state == pXSprite->restState || pXSprite->Interrutable)) {
@@ -1911,7 +1948,6 @@ void debrisMove(int listIndex)
             changespritestat(nSprite, kStatThing);
 
         trTriggerSprite(pSprite->index, pXSprite, kCmdToggle);
-
     }
 
     if (!xvel[nSprite] && !yvel[nSprite]) return;
