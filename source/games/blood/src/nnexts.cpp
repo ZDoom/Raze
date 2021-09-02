@@ -1657,9 +1657,8 @@ int debrisGetFreeIndex(void)
 //
 //---------------------------------------------------------------------------
 
-void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) 
+void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int dmg)
 {
-    auto owner = &bloodActors[nOwner];
     auto actor = gPhysSpritesList[listIndex];
     if (actor != nullptr && actor->hasX())
     {
@@ -1668,14 +1667,15 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg)
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (pSprite->type >= kThingBase && pSprite->type < kThingMax);
         int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
-        if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) {
+        if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) 
+        {
             if (actor->spriteMass.mass > 0) 
             {
                 int t = scale(dmg, size, actor->spriteMass.mass);
 
-                xvel[pSprite->index] += MulScale(t, dx, 16);
-                yvel[pSprite->index] += MulScale(t, dy, 16);
-                zvel[pSprite->index] += MulScale(t, dz, 16);
+                actor->xvel() += MulScale(t, dx, 16);
+                actor->yvel() += MulScale(t, dy, 16);
+                actor->zvel() += MulScale(t, dz, 16);
             }
 
             if (thing)
@@ -1695,11 +1695,10 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg)
 //
 //---------------------------------------------------------------------------
 
-void debrisBubble(int nSprite) 
+void debrisBubble(DBloodActor* actor)
 {
+    spritetype* pSprite = &actor->s();
  
-    spritetype* pSprite = &sprite[nSprite];
-    
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     for (unsigned int i = 0; i < 1 + Random(5); i++) {
@@ -1711,15 +1710,15 @@ void debrisBubble(int nSprite)
         int z = bottom - Random(bottom - top);
         auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), pSprite->sectnum, x, y, z, 0);
         if (pFX) {
-            pFX->xvel() = xvel[nSprite] + Random2(0x1aaaa);
-            pFX->yvel() = yvel[nSprite] + Random2(0x1aaaa);
-            pFX->zvel() = zvel[nSprite] + Random2(0x1aaaa);
+            pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
+            pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
+            pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
         }
 
     }
     
     if (Chance(0x2000))
-        evPostActor(&bloodActors[nSprite], 0, kCallbackEnemeyBubble);
+        evPostActor(actor, 0, kCallbackEnemeyBubble);
 }
 
 //---------------------------------------------------------------------------
@@ -1728,7 +1727,7 @@ void debrisBubble(int nSprite)
 //
 //---------------------------------------------------------------------------
 
-void debrisMove(int listIndex) 
+void debrisMove(int listIndex)
 {
     auto actor = gPhysSpritesList[listIndex];
     XSPRITE* pXSprite = &actor->x();
@@ -1764,22 +1763,21 @@ void debrisMove(int listIndex)
         tmpFraction >>= 1;
         uwater = true;
     }
-    int nSprite = pSprite->index;
-    int nXSprite = pSprite->extra;
 
-    if (xvel[nSprite] || yvel[nSprite]) {
+    if (actor->xvel() || actor->yvel()) 
+    {
 
         short oldcstat = pSprite->cstat;
         pSprite->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        moveHit = gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite] >> 12,
-            yvel[nSprite] >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
+        moveHit = actor->hit().hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, actor->xvel() >> 12,
+            actor->yvel() >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
 
         pSprite->cstat = oldcstat;
         if (pSprite->sectnum != nSector) 
         {
             if (!sectRangeIsFine(nSector)) return;
-            else ChangeSpriteSect(nSprite, nSector);
+            else ChangeActorSect(actor, nSector);
         }
 
         if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate) 
@@ -1789,11 +1787,11 @@ void debrisMove(int listIndex)
                 nSector = nSector2;
         }
 
-        if (gSpriteHit[nXSprite].hit.type == kHitWall)
+        if (actor->hit().hit.type == kHitWall)
         {
-            moveHit = gSpriteHit[nXSprite].hit;
+            moveHit = actor->hit().hit;
             i = moveHit.index;
-            actWallBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], i, tmpFraction);
+            actWallBounceVector(&actor->xvel(), &actor->yvel(), i, tmpFraction);
         }
 
     } 
@@ -1804,16 +1802,16 @@ void debrisMove(int listIndex)
 
     if (pSprite->sectnum != nSector)
     {
-            assert(nSector >= 0 && nSector < kMaxSectors);
-            ChangeSpriteSect(nSprite, nSector);
+        assert(nSector >= 0 && nSector < kMaxSectors);
+        ChangeActorSect(actor, nSector);
         nSector = pSprite->sectnum;
-        }
+    }
 
     if (sector[nSector].extra > 0)
         uwater = xsector[sector[nSector].extra].Underwater;
 
-    if (zvel[nSprite])
-        pSprite->z += zvel[nSprite] >> 8;
+    if (actor->zvel())
+        pSprite->z += actor->zvel() >> 8;
 
     int ceilZ, floorZ;
     Collision ceilColl, floorColl;
@@ -1829,7 +1827,7 @@ void debrisMove(int listIndex)
 
         if (gLowerLink[nSector] >= 0) cz += (cz < 0) ? 0x500 : -0x500;
         if (top > cz && (!(pXSprite->physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
-            zvel[nSprite] -= DivScale((bottom - ceilZ) >> 6, mass, 8);
+            actor->zvel() -= DivScale((bottom - ceilZ) >> 6, mass, 8);
 
         if (fz < bottom)
             vc = 58254 + ((bottom - fz) * -80099) / div;
@@ -1837,14 +1835,14 @@ void debrisMove(int listIndex)
         if (vc) 
         {
             pSprite->z += ((vc << 2) >> 1) >> 8;
-            zvel[nSprite] += vc;
+            actor->zvel() += vc;
         }
 
     }
     else if ((pXSprite->physAttr & kPhysGravity) && bottom < floorZ) 
     {
         pSprite->z += 455;
-        zvel[nSprite] += 58254;
+        actor->zvel() += 58254;
 
     }
 
@@ -1877,21 +1875,22 @@ void debrisMove(int listIndex)
         }
     }
 
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
 
     if (floorZ <= bottom) {
 
-        gSpriteHit[nXSprite].florhit = floorColl;
-        int v30 = zvel[nSprite] - velFloor[pSprite->sectnum];
+        actor->hit().florhit = floorColl;
+        int v30 = actor->zvel() - velFloor[pSprite->sectnum];
 
         if (v30 > 0) 
         {
             pXSprite->physAttr |= kPhysFalling;
-            actFloorBounceVector((int*)&xvel[nSprite], (int*)&yvel[nSprite], (int*)&v30, pSprite->sectnum, tmpFraction);
-            zvel[nSprite] = v30;
+            actFloorBounceVector(&actor->xvel(), &actor->yvel(), &v30, pSprite->sectnum, tmpFraction);
+            actor->zvel() = v30;
 
-            if (abs(zvel[nSprite]) < 0x10000) {
-                zvel[nSprite] = velFloor[pSprite->sectnum];
+            if (abs(actor->zvel()) < 0x10000)
+            {
+                actor->zvel() = velFloor[pSprite->sectnum];
                 pXSprite->physAttr &= ~kPhysFalling;
             }
 
@@ -1915,7 +1914,7 @@ void debrisMove(int listIndex)
             }
 
         }
-        else if (zvel[nSprite] == 0)
+        else if (actor->zvel() == 0) 
         {
             pXSprite->physAttr &= ~kPhysFalling;
         }
@@ -1923,6 +1922,7 @@ void debrisMove(int listIndex)
     else 
     {
 
+        actor->hit().florhit = 0;
         if (pXSprite->physAttr & kPhysGravity)
             pXSprite->physAttr |= kPhysFalling;
 
@@ -1930,33 +1930,33 @@ void debrisMove(int listIndex)
 
     if (top <= ceilZ) 
     {
-        gSpriteHit[nXSprite].ceilhit = moveHit = ceilColl;
+        actor->hit().ceilhit = moveHit = ceilColl;
         pSprite->z += ClipLow(ceilZ - top, 0);
-        if (zvel[nSprite] <= 0 && (pXSprite->physAttr & kPhysFalling))
-            zvel[nSprite] = MulScale(-zvel[nSprite], 0x2000, 16);
+        if (actor->zvel() <= 0 && (pXSprite->physAttr & kPhysFalling))
+            actor->zvel() = MulScale(-actor->zvel(), 0x2000, 16);
 
     }
     else 
     {
-        gSpriteHit[nXSprite].ceilhit = 0;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        actor->hit().ceilhit = 0;
+        GetActorExtents(actor, &top, &bottom);
     }
 
     if (moveHit.type != kHitNone && pXSprite->Impact && !pXSprite->locked && !pXSprite->isTriggered && (pXSprite->state == pXSprite->restState || pXSprite->Interrutable)) {
         if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
-            changespritestat(nSprite, kStatThing);
+            ChangeActorStat(actor, kStatThing);
 
-        trTriggerSprite(pSprite->index, pXSprite, kCmdToggle);
+        trTriggerSprite(actor, kCmdToggle);
     }
 
-    if (!xvel[nSprite] && !yvel[nSprite]) return;
+    if (!actor->xvel() && !actor->yvel()) return;
     else if (floorColl.type == kHitSprite)
     {
 
         if ((floorColl.actor->s().cstat & 0x30) == 0)
         {
-            xvel[nSprite] += MulScale(4, pSprite->x - floorColl.actor->s().x, 2);
-            yvel[nSprite] += MulScale(4, pSprite->y - floorColl.actor->s().y, 2);
+            actor->xvel() += MulScale(4, pSprite->x - floorColl.actor->s().x, 2);
+            actor->yvel() += MulScale(4, pSprite->y - floorColl.actor->s().y, 2);
             return;
         }
     }
@@ -1969,11 +1969,10 @@ void debrisMove(int listIndex)
     if (pXSprite->height > 0)
         nDrag -= scale(nDrag, pXSprite->height, 0x100);
 
-    xvel[nSprite] -= mulscale16r(xvel[nSprite], nDrag);
-    yvel[nSprite] -= mulscale16r(yvel[nSprite], nDrag);
-    if (approxDist(xvel[nSprite], yvel[nSprite]) < 0x1000)
-        xvel[nSprite] = yvel[nSprite] = 0;
-
+    actor->xvel() -= mulscale16r(actor->xvel(), nDrag);
+    actor->yvel() -= mulscale16r(actor->yvel(), nDrag);
+    if (approxDist(actor->xvel(), actor->yvel()) < 0x1000)
+        actor->xvel() = actor->yvel() = 0;
 }
 
 
