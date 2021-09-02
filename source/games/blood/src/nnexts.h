@@ -352,16 +352,8 @@ void useCustomDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
 bool txIsRanged(XSPRITE* pXSource);
 void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernSend);
 //  -------------------------------------------------------------------------   //
-void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition);
-void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer);
+void trPlayerCtrlLink(DBloodActor* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
-void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCtrl);
-void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd);
 //  -------------------------------------------------------------------------   //
 void modernTypeTrigger(int type, int nDest, EVENT event);
 char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState);
