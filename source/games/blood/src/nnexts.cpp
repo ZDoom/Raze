@@ -3041,24 +3041,28 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
 //
 //---------------------------------------------------------------------------
 
-void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
-    auto actor = &bloodActors[pSprite->index];
-    spritetype* pSource = &sprite[pXSource->reference]; PLAYER* pPlayer = getPlayerById(pSprite->type);
+void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor) 
+{
+    auto pSprite = &actor->s();
+    auto pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
+
+    PLAYER* pPlayer = getPlayerById(pSprite->type);
     XSECTOR* pXSector = (sector[pSource->sectnum].extra >= 0) ? &xsector[sector[pSource->sectnum].extra] : NULL;
-    bool isDude = (!pPlayer && IsDudeSprite(pSprite));
+    bool isDude = (!pPlayer && actor->IsDudeActor());
 
     if (pSprite->sectnum != pSource->sectnum)
-        changespritesect(pSprite->index, pSource->sectnum);
+        ChangeActorSect(actor, pSource->sectnum);
 
     pSprite->x = pSource->x; pSprite->y = pSource->y;
-    int zTop, zBot; GetSpriteExtents(pSource, &zTop, &zBot);
+    int zTop, zBot; 
+    GetActorExtents(sourceactor, &zTop, &zBot);
     pSprite->z = zBot;
 
     clampSprite(pSprite, 0x01);
 
     if (pSource->flags & kModernTypeFlag1) // force telefrag
         TeleFrag(pSprite->index, pSource->sectnum);
-
 
     if (pSprite->flags & kPhysGravity)
         pSprite->flags |= kPhysFalling;
@@ -3102,7 +3106,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
         } 
         else 
         {
-            xsprite[pSprite->extra].medium = kMediumNormal;
+            actor->x().medium = kMediumNormal;
             if (pPlayer) 
             {
                 pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
@@ -3112,18 +3116,23 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
         }
     }
 
-    if (pSprite->statnum == kStatDude && IsDudeSprite(pSprite) && !IsPlayerSprite(pSprite)) {
-        XSPRITE* pXDude = &xsprite[pSprite->extra];
-        int x = pXDude->targetX; int y = pXDude->targetY; int z = pXDude->targetZ;
+    if (pSprite->statnum == kStatDude && actor->IsDudeActor() && !actor->IsPlayerActor()) 
+    {
+        XSPRITE* pXDude = &actor->x();
+        int x = pXDude->targetX;
+        int y = pXDude->targetY; 
+        int z = pXDude->targetZ;
         auto target = actor->GetTarget();
         
         aiInitSprite(actor);
 
         if (target != nullptr) 
         {
-            pXDude->targetX = x; pXDude->targetY = y; pXDude->targetZ = z;
+            pXDude->targetX = x; 
+            pXDude->targetY = y; 
+            pXDude->targetZ = z;
             actor->SetTarget(target);
-            aiActivateDude(&bloodActors[pXDude->reference]);
+            aiActivateDude(actor);
         }
     }
 
@@ -3134,12 +3143,12 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
             pPlayer->angle.settarget(pSource->ang);
             pPlayer->angle.lockinput();
         }
-        else if (isDude) xsprite[pSprite->extra].goalAng = pSprite->ang = pSource->ang;
+        else if (isDude) pXSource->goalAng = pSprite->ang = pSource->ang;
         else pSprite->ang = pSource->ang;
     }
 
     if (pXSource->data3 == 1)
-        xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
+        actor->xvel() = actor->yvel() = actor->zvel() = 0;
 
     viewBackupSpriteLoc(pSprite->index, pSprite);
 
@@ -4681,7 +4690,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
         // allows teleport any sprite from any location to the source destination
         case kMarkerWarpDest:
             if (destObjType != OBJ_SPRITE) break;
-            useTeleportTarget(pXSource, &sprite[destObjIndex]);
+            useTeleportTarget(event.actor, destactor);
             break;
         // changes slope of sprite or sector
         case kModernSlopeChanger:
@@ -5365,7 +5374,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
                 if (pPlayer != NULL && SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1) == 1)
-                    useTeleportTarget(pXSprite, pPlayer->pSprite);
+                    useTeleportTarget(&bloodActors[nSprite], pPlayer->actor());
                 return true;
             }
             [[fallthrough]];
