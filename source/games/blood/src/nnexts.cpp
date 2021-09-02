@@ -851,7 +851,7 @@ void nnExtInitModernStuff()
             pCond->obj[count].type = OBJ_SPRITE;
             pCond->obj[count].index_ = 0;
             pCond->obj[count].actor = actor;
-            pCond->obj[count++].cmd = pXSpr->command;
+            pCond->obj[count++].cmd = (uint8_t)pXSpr->command;
         }
 
         for (int i = 0; i < kMaxXSectors; i++) 

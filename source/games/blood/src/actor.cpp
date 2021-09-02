@@ -2524,11 +2524,11 @@ static void actInitDudes()
 //
 //---------------------------------------------------------------------------
 
-void actInit(bool bSaveLoad)
+void actInit()
 {
 #ifdef NOONE_EXTENSIONS
 	if (!gModernMap) nnExtResetGlobals();
-	else nnExtInitModernStuff(bSaveLoad);
+	else nnExtInitModernStuff();
 #endif
 
 	BloodStatIterator it(kStatItem);
