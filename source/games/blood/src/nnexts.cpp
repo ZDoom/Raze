@@ -1507,50 +1507,57 @@ int getSpriteMassBySize(DBloodActor* actor)
     }
     else if (actor->IsDudeActor()) 
     {
-
-        switch (pSprite->type) {
+        switch (pSprite->type) 
+        {
         case kDudePodMother: // fake dude, no seq
             break;
         case kDudeModernCustom:
         case kDudeModernCustomBurning:
-            seqId = xsprite[pSprite->extra].data2;
-            clipDist = gGenDudeExtra[pSprite->index].initVals[2];
+            seqId = actor->x().data2;
+            clipDist = actor->genDudeExtra().initVals[2];
             break;
         default:
             seqId = getDudeInfo(pSprite->type)->seqStartID;
             break;
         }
-
-    } else  {
-
+    } 
+    else  
+    {
         seqId = seqGetID(3, pSprite->extra);
-
     }
 
     SPRITEMASS* cached = &actor->spriteMass;
     if (((seqId >= 0 && seqId == cached->seqId) || pSprite->picnum == cached->picnum) && pSprite->xrepeat == cached->xrepeat &&
-        pSprite->yrepeat == cached->yrepeat && clipDist == cached->clipdist) {
+        pSprite->yrepeat == cached->yrepeat && clipDist == cached->clipdist) 
+    {
         return cached->mass;
     }
 
-    short picnum = pSprite->picnum;
-    short massDiv = 30;  short addMul = 2; short subMul = 2;
+    int picnum = pSprite->picnum;
+    int massDiv = 30; 
+    int addMul = 2; 
+    int subMul = 2;
 
-    if (seqId >= 0) {
+    if (seqId >= 0) 
+    {
         auto pSeq = getSequence(seqId);
         if (pSeq)
         {
             picnum = seqGetTile(&pSeq->frames[0]);
-        } else
+        } 
+        else
             picnum = pSprite->picnum;
     }
 
     clipDist = ClipLow(pSprite->clipdist, 1);
-    short x = tileWidth(picnum);        short y = tileHeight(picnum);
-    short xrepeat = pSprite->xrepeat; 	short yrepeat = pSprite->yrepeat;
+    int x = tileWidth(picnum);        
+    int y = tileHeight(picnum);
+    int xrepeat = pSprite->xrepeat; 	
+    int yrepeat = pSprite->yrepeat;
 
     // take surface type into account
-    switch (tileGetSurfType(pSprite->index + 0xc000)) {
+    switch (tileGetSurfType(pSprite->index + 0xc000)) 
+    {
         case 1:  massDiv = 16; break; // stone
         case 2:  massDiv = 18; break; // metal
         case 3:  massDiv = 21; break; // wood
@@ -1570,9 +1577,12 @@ int getSpriteMassBySize(DBloodActor* actor)
     mass = ((x + y) * (clipDist / 2)) / massDiv;
 
     if (xrepeat > 64) mass += ((xrepeat - 64) * addMul);
-    else if (xrepeat < 64 && mass > 0) {
-        for (int i = 64 - xrepeat; i > 0; i--) {
-            if ((mass -= subMul) <= 100 && subMul-- <= 1) {
+    else if (xrepeat < 64 && mass > 0) 
+    {
+        for (int i = 64 - xrepeat; i > 0; i--) 
+        {
+            if ((mass -= subMul) <= 100 && subMul-- <= 1) 
+            {
                 mass -= i;
                 break;
             }
@@ -1580,9 +1590,12 @@ int getSpriteMassBySize(DBloodActor* actor)
     }
 
     if (yrepeat > 64) mass += ((yrepeat - 64) * addMul);
-    else if (yrepeat < 64 && mass > 0) {
-        for (int i = 64 - yrepeat; i > 0; i--) {
-            if ((mass -= subMul) <= 100 && subMul-- <= 1) {
+    else if (yrepeat < 64 && mass > 0) 
+    {
+        for (int i = 64 - yrepeat; i > 0; i--) 
+        {
+            if ((mass -= subMul) <= 100 && subMul-- <= 1) 
+            {
                 mass -= i;
                 break;
             }
@@ -1595,8 +1608,10 @@ int getSpriteMassBySize(DBloodActor* actor)
     cached->airVel = ClipRange(400 - cached->mass, 32, 400);
     cached->fraction = ClipRange(60000 - (cached->mass << 7), 8192, 60000);
 
-    cached->xrepeat = pSprite->xrepeat;             cached->yrepeat = pSprite->yrepeat;
-    cached->picnum = pSprite->picnum;               cached->seqId = seqId;
+    cached->xrepeat = pSprite->xrepeat;             
+    cached->yrepeat = pSprite->yrepeat;
+    cached->picnum = pSprite->picnum;              
+    cached->seqId = seqId;
     cached->clipdist = pSprite->clipdist;
 
     return cached->mass;
@@ -1895,8 +1910,8 @@ void debrisMove(int listIndex)
                 xvel[nSprite] += MulScale(4, pSprite->x - sprite[nHitSprite].x, 2);
                 yvel[nSprite] += MulScale(4, pSprite->y - sprite[nHitSprite].y, 2);
             return;
-            }
         }
+    }
 
     pXSprite->height = ClipLow(floorZ - bottom, 0) >> 8;
     if (uwater || pXSprite->height >= 0x100)
