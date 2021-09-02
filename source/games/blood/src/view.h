@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "messages.h"
 #include "player.h"
 #include "interpolate.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -181,6 +182,10 @@ inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
     }
 }
 
-void viewBackupSpriteLoc(DBloodActor* actor);
+inline void viewBackupSpriteLoc(DBloodActor* actor)
+{
+    viewBackupSpriteLoc(actor->s().index, &actor->s());
+}
+
 
 END_BLD_NS

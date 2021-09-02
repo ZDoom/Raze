@@ -4548,12 +4548,11 @@ static void ProcessTouchObjects(DBloodActor* actor)
 	if (gModernMap && actor->IsDudeActor())
 	{
 		DBloodActor* actor2 = nullptr;
-		for (int i : { actor->hit().hit, actor->hit().florhit, actor->hit().ceilhit})
+		for (Collision* coll : { &actor->hit().hit, &actor->hit().florhit, &actor->hit().ceilhit})
 		{
-			Collision coll = i;
-			if (coll.type == kHitSprite)
+			if (coll->type == kHitSprite)
 			{
-				actor2 = coll.actor;
+				actor2 = coll->actor;
 				break;
 			}
 		}
@@ -4625,18 +4624,19 @@ void actAirDrag(DBloodActor* actor, int a2)
 //
 //---------------------------------------------------------------------------
 
-int MoveThing(DBloodActor* actor)
+static Collision MoveThing(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
 	assert(actor->hasX());
 	XSPRITE* pXSprite = &actor->x();
-	int lhit = 0;
 	assert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
 	const THINGINFO* pThingInfo = &thingInfo[pSprite->type - kThingBase];
 	int nSector = pSprite->sectnum;
 	assert(nSector >= 0 && nSector < kMaxSectors);
 	int top, bottom;
+	Collision lhit;
 
+	lhit.setNone();
 	GetActorExtents(actor, &top, &bottom);
 	const int bakCompat = enginecompatibility_mode;
 	if (actor->xvel() || actor->yvel())
@@ -4655,7 +4655,7 @@ int MoveThing(DBloodActor* actor)
 			ChangeActorSect(actor, nSector);
 		}
 
-		Collision coll(actor->hit().hit);
+		Collision &coll = actor->hit().hit;
 		if (coll.type == kHitWall)
 		{
 			int nHitWall = coll.index;
@@ -4681,8 +4681,9 @@ int MoveThing(DBloodActor* actor)
 
 	pSprite->z += actor->zvel() >> 8;
 
-	int ceilZ, ceilHit, floorZ, floorHit;
-	GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0);
+	int ceilZ, floorZ;
+	Collision ceilColl, floorColl;
+	GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
 	GetActorExtents(actor, &top, &bottom);
 
 	if ((pSprite->flags & 2) && bottom < floorZ)
@@ -4709,13 +4710,13 @@ int MoveThing(DBloodActor* actor)
 			}
 		}
 	}
-	if (CheckLink(pSprite)) GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0);
+	if (CheckLink(pSprite)) GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
 
 	GetActorExtents(actor, &top, &bottom);
 	if (bottom >= floorZ)
 	{
 		actTouchFloor(actor, pSprite->sectnum);
-		actor->hit().florhit = floorHit;
+		actor->hit().florhit = floorColl;
 		pSprite->z += floorZ - bottom;
 
 		int v20 = actor->zvel() - velFloor[pSprite->sectnum];
@@ -4770,7 +4771,7 @@ int MoveThing(DBloodActor* actor)
 
 	if (top <= ceilZ)
 	{
-		actor->hit().ceilhit = ceilHit;
+		actor->hit().ceilhit = ceilColl;
 		pSprite->z += ClipLow(ceilZ - top, 0);
 		if (actor->zvel() < 0)
 		{
@@ -4801,7 +4802,7 @@ int MoveThing(DBloodActor* actor)
 	{
 		int nVel = approxDist(actor->xvel(), actor->yvel());
 		int nVelClipped = ClipHigh(nVel, 0x11111);
-		Collision coll(floorHit);
+		Collision& coll = floorColl;
 
 		if (coll.type == kHitSprite)
 		{
@@ -4887,8 +4888,8 @@ void MoveDude(DBloodActor* actor)
 			assert(nSector >= 0);
 			pSprite->cstat = bakCstat;
 		}
-		Collision coll = actor->hit().hit;
-		switch (actor->hit().hit & 0xc000)
+		const Collision& coll = actor->hit().hit;
+		switch (coll.type)
 		{
 		case kHitSprite:
 		{
@@ -4991,8 +4992,9 @@ void MoveDude(DBloodActor* actor)
 	if (pPlayer) wd += 16;
 	if (actor->zvel()) pSprite->z += actor->zvel() >> 8;
 
-	int ceilZ, ceilHit, floorZ, floorHit;
-	GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+	int ceilZ, floorZ;
+	Collision ceilColl, floorColl;
+	GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 	GetActorExtents(actor, &top, &bottom);
 
 	if (pSprite->flags & 2)
@@ -5041,7 +5043,7 @@ void MoveDude(DBloodActor* actor)
 	int nLink = CheckLink(pSprite);
 	if (nLink)
 	{
-		GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (pPlayer)
 			playerCorrectInertia(pPlayer, &oldpos);
 		switch (nLink)
@@ -5204,17 +5206,17 @@ void MoveDude(DBloodActor* actor)
 	if (pPlayer && bottom >= floorZ)
 	{
 		int floorZ2 = floorZ;
-		int floorHit2 = floorHit;
-		GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		auto floorColl2 = floorColl;
+		GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (bottom <= floorZ && pSprite->z - floorZ2 < bz)
 		{
 			floorZ = floorZ2;
-			floorHit = floorHit2;
+			floorColl = floorColl2;
 		}
 	}
 	if (floorZ <= bottom)
 	{
-		actor->hit().florhit = floorHit;
+		actor->hit().florhit = floorColl;
 		pSprite->z += floorZ - bottom;
 		int v30 = actor->zvel() - velFloor[pSprite->sectnum];
 		if (v30 > 0)
@@ -5237,13 +5239,12 @@ void MoveDude(DBloodActor* actor)
 			if (abs(actor->zvel()) < 0x10000)
 			{
 				actor->zvel() = velFloor[pSprite->sectnum];
-
 				pSprite->flags &= ~4;
 			}
 			else
 				pSprite->flags |= 4;
 
-			switch (tileGetSurfType(floorHit))
+			switch (tileGetSurfType(floorColl.legacyVal))
 			{
 			case kSurfWater:
 				gFX.fxSpawnActor(FX_9, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
@@ -5282,7 +5283,7 @@ void MoveDude(DBloodActor* actor)
 	}
 	if (top <= ceilZ)
 	{
-		actor->hit().ceilhit = ceilHit;
+		actor->hit().ceilhit = ceilColl;
 		pSprite->z += ClipLow(ceilZ - top, 0);
 
 		if (actor->zvel() <= 0 && (pSprite->flags & 4))
@@ -5296,10 +5297,9 @@ void MoveDude(DBloodActor* actor)
 	pXSprite->height = ClipLow(floorZ - bottom, 0) >> 8;
 	if (actor->xvel() || actor->yvel())
 	{
-		Collision coll = floorHit;
-		if (coll.type == kHitSprite)
+		if (floorColl.type == kHitSprite)
 		{
-			auto hitAct = coll.actor;
+			auto hitAct = floorColl.actor;
 			if ((hitAct->s().cstat & 0x30) == 0)
 			{
 				actor->xvel() += MulScale(4, pSprite->x - hitAct->s().x, 2);
@@ -5443,20 +5443,21 @@ int MoveMissile(DBloodActor* actor)
 			updatesector(pos.x, pos.y, &nSector);
 			nSector2 = nSector;
 		}
-		int ceilZ, ceilHit, floorZ, floorHit;
-		GetZRangeAtXYZ(pos.x, pos.y, pos.z, nSector2, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0);
+		int ceilZ, floorZ;
+		Collision ceilColl, floorColl;
+		GetZRangeAtXYZ(pos.x, pos.y, pos.z, nSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
 		GetActorExtents(actor, &top, &bottom);
 		top += vz;
 		bottom += vz;
 		if (bottom >= floorZ)
 		{
-			actor->hit().florhit = floorHit;
+			actor->hit().florhit = floorColl;
 			vz += floorZ - bottom;
 			cliptype = 2;
 		}
 		if (top <= ceilZ)
 		{
-			actor->hit().ceilhit = ceilHit;
+			actor->hit().ceilhit = ceilColl;
 			vz += ClipLow(ceilZ - top, 0);
 			cliptype = 1;
 		}
@@ -5527,7 +5528,7 @@ void actExplodeSprite(DBloodActor* actor)
 
 	case kThingArmedTNTStick:
 		nType = kExplosionSmall;
-		if (actor->hit().florhit == 0) seqSpawn(4, actor, -1);
+		if (actor->hit().florhit.type == kHitNone) seqSpawn(4, actor, -1);
 		else seqSpawn(3, actor, -1);
 		sfxPlay3DSound(actor, 303, -1, 0);
 		GibSprite(pSprite, GIBTYPE_5, nullptr, nullptr);
@@ -5540,7 +5541,7 @@ void actExplodeSprite(DBloodActor* actor)
 	case kModernThingTNTProx:
 #endif
 		nType = kExplosionStandard;
-		if (actor->hit().florhit == 0) seqSpawn(4, actor, -1);
+		if (actor->hit().florhit.type == kHitNone) seqSpawn(4, actor, -1);
 		else
 			seqSpawn(3, actor, -1);
 		sfxPlay3DSound(actor, 304, -1, 0);
@@ -7340,7 +7341,7 @@ void MakeSplash(DBloodActor* actor)
 	pSprite->flags &= ~2;
 	int nXSprite = pSprite->extra;
 	pSprite->z -= 4 << 8;
-	int nSurface = tileGetSurfType(actor->hit().florhit);
+	int nSurface = tileGetSurfType(actor->hit().florhit.legacyVal);
 	switch (pSprite->type)
 	{
 	case kThingDripWater:
@@ -7369,17 +7370,49 @@ void MakeSplash(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRITEHIT* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Collision& w, Collision* def)
 {
 	int empty = 0;
 	if (arc.isReading()) w = {};
 	if (arc.BeginObject(keyname))
 	{
-		arc("hit", w.hit, &empty)
-			("ceilhit", w.ceilhit, &empty)
-			("florhit", w.florhit, &empty)
+		arc("type", w.type, &empty)
+			("index", w.index, &empty)
+			("legacyval", w.legacyVal, &empty)
+			("actor", w.actor)
 			.EndObject();
 	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRITEHIT* def)
+{
+#ifdef OLD_SAVEGAME
+	int empty = 0;
+	int hit = w.hit.legacyVal, ceilhit = w.ceilhit.legacyVal, florhit = w.florhit.legacyVal;
+	if (arc.isReading()) w = {};
+	if (arc.BeginObject(keyname))
+	{
+		arc("hit", hit, &empty)
+			("ceilhit", ceilhit, &empty)
+			("florhit", florhit, &empty)
+			.EndObject();
+		if (arc.isReading())
+		{
+			w.hit.setFromEngine(hit);
+			w.florhit.setFromEngine(florhit);
+			w.ceilhit.setFromEngine(ceilhit);
+	}
+	}
+#else
+	if (arc.BeginObject(keyname))
+	{
+        arc("hit", w.hit)
+            ("ceilhit", w.ceilhit)
+            ("florhit", w.florhit)
+			.EndObject();
+	}
+#endif
 	return arc;
 }
 

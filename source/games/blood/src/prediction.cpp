@@ -232,9 +232,9 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 #endif
 
     int nSector = predict.sectnum;
-    int florhit = predict.at75.florhit & 0xc000;
+    int florhit = predict.at75.florhit.type;
     char va;
-    if (predict.floordist < 16 && (florhit == 0x4000 || florhit == 0))
+    if (predict.floordist < 16 && (florhit == kHitSector || florhit == 0))
         va = 1;
     else
         va = 0;
@@ -399,11 +399,11 @@ static void fakeMoveDude(spritetype *pSprite)
 
             pSprite->cstat = bakCstat;
         }
-        switch (predict.at75.hit&0xc000)
+        switch (predict.at75.hit.type)
         {
-        case 0x8000:
+        case kHitSprite:
         {
-            int nHitWall = predict.at75.hit&0x3fff;
+            int nHitWall = predict.at75.hit.index;
             walltype *pHitWall = &wall[nHitWall];
             if (pHitWall->nextsector != -1)
             {
@@ -453,8 +453,9 @@ static void fakeMoveDude(spritetype *pSprite)
     pTempSprite->y = predict.y;
     pTempSprite->z = predict.z;
     pTempSprite->sectnum = predict.sectnum;
-    int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pTempSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, wd, CLIPMASK0);
+    int ceilZ, floorZ;
+    Collision ceilColl, floorColl;
+    GetZRange(pTempSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0);
     GetSpriteExtents(pTempSprite, &top, &bottom);
     if (predict.at73 & 2)
     {
@@ -493,17 +494,17 @@ static void fakeMoveDude(spritetype *pSprite)
     if (bottom >= floorZ)
     {
         int floorZ2 = floorZ;
-        int floorHit2 = floorHit;
-        GetZRange(pTempSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist<<2, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
+        auto floorHit2 = floorColl;
+        GetZRange(pTempSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist<<2, CLIPMASK0, PARALLAXCLIP_CEILING|PARALLAXCLIP_FLOOR);
         if (bottom <= floorZ && predict.z-floorZ2 < bz)
         {
             floorZ = floorZ2;
-            floorHit = floorHit2;
+            floorColl = floorHit2;
         }
     }
     if (floorZ <= bottom)
     {
-        predict.at75.florhit = floorHit;
+        predict.at75.florhit = floorColl;
         predict.z += floorZ-bottom;
         int var44 = predict.zvel-velFloor[predict.sectnum];
         if (var44 > 0)
@@ -523,13 +524,13 @@ static void fakeMoveDude(spritetype *pSprite)
     }
     else
     {
-        predict.at75.florhit = 0;
+        predict.at75.florhit.setNone();
         if (predict.at73 & 2)
             predict.at73 |= 4;
     }
     if (top <= ceilZ)
     {
-        predict.at75.ceilhit = ceilHit;
+        predict.at75.ceilhit = ceilColl;
         predict.z += ClipLow(ceilZ-top, 0);
         if (predict.zvel <= 0 && (predict.at73&4))
             predict.zvel = MulScale(-predict.zvel, 0x2000, 16);
@@ -542,13 +543,13 @@ static void fakeMoveDude(spritetype *pSprite)
     predict.floordist = ClipLow(floorZ-bottom, 0)>>8;
     if (predict.xvel || predict.yvel)
     {
-        if ((floorHit & 0xc000) == 0xc000)
+        if (floorColl.type == kHitSprite)
         {
-            int nHitSprite = floorHit & 0x3fff;
-            if ((sprite[nHitSprite].cstat & 0x30) == 0)
+            auto hitactor = floorColl.actor;
+            if ((hitactor->s().cstat & 0x30) == 0)
             {
-                predict.xvel += MulScale(4, predict.x - sprite[nHitSprite].x, 2);
-                predict.yvel += MulScale(4, predict.y - sprite[nHitSprite].y, 2);
+                predict.xvel += MulScale(4, predict.x - hitactor->s().x, 2);
+                predict.yvel += MulScale(4, predict.y - hitactor->s().y, 2);
                 return;
             }
         }

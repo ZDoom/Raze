@@ -394,8 +394,9 @@ void fxBloodBits(DBloodActor* actor, int) // 14
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
+    int ceilZ, floorZ;
+    Collision floorColl, ceilColl;
+    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ-bottom;
@@ -441,8 +442,11 @@ int sawedOffSleeveSnd[] = { 610, 612 };
 void fxBouncingSleeve(DBloodActor* actor, int) // 16
 {
     if (!actor) return;
-    spritetype* pSprite = &actor->s(); int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
+    spritetype* pSprite = &actor->s(); 
+    int ceilZ, floorZ;
+    Collision floorColl, ceilColl;
+
+    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ - bottom;
     
@@ -550,8 +554,10 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
+    int ceilZ, floorZ;
+    Collision floorColl, ceilColl;
+
+    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ-bottom;
