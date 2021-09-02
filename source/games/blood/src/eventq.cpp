@@ -669,10 +669,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, EVENT& w, EVENT* d
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.index_)
-			("actor", w.actor)
-			("type", w.type)
-			("command", w.cmd)
+		arc("type", w.type);
+		if (w.type != SS_SPRITE) arc("index", w.index_);
+		else arc("index", w.actor);
+		arc("command", w.cmd)
 			("func", w.funcID)
 			("prio", w.priority)
 			.EndObject();
@@ -684,9 +684,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RXBUCKET& w, RXBUC
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.rxindex)
-			("type", w.type)
-			.EndObject();
+		arc("type", w.type);
+		if (w.type != SS_SPRITE) arc("index", w.rxindex);
+		else arc("index", w.actor);
+		arc.EndObject();
 	}
 	return arc;
 }
