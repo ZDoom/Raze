@@ -2531,7 +2531,7 @@ void trPlayerCtrlUsePowerup(DBloodActor* sourceactor, PLAYER* pPlayer, int evCmd
 //
 //---------------------------------------------------------------------------
 
-void useObjResizer(DBloodActor* sourceactor, short objType, int objIndex, DBloodActor* targetactor) 
+void useObjResizer(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* targetactor) 
 {
     auto pXSource = &sourceactor->x();
     switch (objType) 
@@ -2625,9 +2625,10 @@ void useObjResizer(DBloodActor* sourceactor, short objType, int objIndex, DBlood
 //
 //---------------------------------------------------------------------------
 
-void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
-
-    spritetype* pSource = &sprite[pXSource->reference];
+void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex, DBloodActor* targetactor)
+{
+    auto pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
 
     switch (objType) 
     {
@@ -2669,10 +2670,12 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
             }
         }
         break;
-        case OBJ_SPRITE: {
-            auto actor = &bloodActors[objIndex];
-            spritetype* pSprite = &sprite[objIndex]; bool thing2debris = false;
-            XSPRITE* pXSprite = &xsprite[pSprite->extra]; int old = -1;
+        case OBJ_SPRITE: 
+        {
+            spritetype* pSprite = &targetactor->s(); 
+            XSPRITE* pXSprite = &targetactor->x();
+            bool thing2debris = false;
+            int old = -1;
 
             // data3 = set sprite hitag
             if (valueIsBetween(pXSource->data3, -1, 32767)) 
@@ -2823,14 +2826,14 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                         }
                     }
 
-                    int nIndex = debrisGetIndex(&bloodActors[objIndex]); // check if there is no sprite in list
+                    int nIndex = debrisGetIndex(targetactor); // check if there is no sprite in list
 
                     // adding physics sprite in list
                     if ((flags & kPhysGravity) != 0 || (flags & kPhysMove) != 0) 
                     {
 
                         if (oldFlags == 0)
-                            xvel[objIndex] = yvel[objIndex] = zvel[objIndex] = 0;
+                            targetactor->xvel() = targetactor->yvel() = targetactor->zvel() = 0;
 
                         if (nIndex != -1) 
                         {
@@ -2845,31 +2848,31 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                             pXSprite->physAttr = flags; // update physics attributes
 
                             // allow things to became debris, so they use different physics...
-                            if (pSprite->statnum == kStatThing) changespritestat(objIndex, 0);
+                            if (pSprite->statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
                             // set random goal ang for swimming so they start turning
-                            if ((flags & kPhysDebrisSwim) && !xvel[objIndex] && !yvel[objIndex] && !zvel[objIndex])
+                            if ((flags & kPhysDebrisSwim) && !targetactor->xvel() && !targetactor->yvel() && !targetactor->zvel())
                                 pXSprite->goalAng = (pSprite->ang + Random3(kAng45)) & 2047;
                             
                             if (pXSprite->physAttr & kPhysDebrisVector)
                                 pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                            gPhysSpritesList[nIndex] = &bloodActors[objIndex];
+                            gPhysSpritesList[nIndex] = targetactor;
                             if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
-                            getSpriteMassBySize(actor); // create physics cache
+                            getSpriteMassBySize(targetactor); // create physics cache
 
                         }
 
                     // removing physics from sprite in list (don't remove sprite from list)
-                    } else if (nIndex != -1) {
+                    }
+                    else if (nIndex != -1) 
+                    {
 
                         pXSprite->physAttr = flags;
-                        xvel[objIndex] = yvel[objIndex] = zvel[objIndex] = 0;
+                        targetactor->xvel() = targetactor->yvel() = targetactor->zvel() = 0;
                         if (pSprite->lotag >= kThingBase && pSprite->lotag < kThingMax)
-                            changespritestat(objIndex, kStatThing);  // if it was a thing - restore statnum
-
+                            ChangeActorStat(targetactor, kStatThing);  // if it was a thing - restore statnum
                     }
-
                     break;
                 }
             }
@@ -4738,7 +4741,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             break;
         // change various properties
         case kModernObjPropertiesChanger:
-            usePropertiesChanger(pXSource, destObjType, destObjIndex);
+            usePropertiesChanger(event.actor, destObjType, destObjIndex, destactor);
             break;
         // updated vanilla sound gen that now allows to play sounds on TX ID sprites
         case kGenModernSound:
@@ -5367,7 +5370,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kModernObjPropertiesChanger:
             if (pXSprite->txID <= 0) {
                 if (SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1) == 1)
-                    usePropertiesChanger(pXSprite, -1, -1);
+                    usePropertiesChanger(&bloodActors[nSprite], -1, -1, nullptr);
                 return true;
             }
             [[fallthrough]];
