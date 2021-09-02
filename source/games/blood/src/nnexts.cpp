@@ -5429,8 +5429,10 @@ void useDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
 bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event) {
 
     auto actor = &bloodActors[pSprite->index];
-    if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) {
-        switch (event.cmd) {
+    if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdLock:
                 pXSprite->locked = 1;
                 break;
@@ -5442,7 +5444,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 break;
         }
 
-        switch (pSprite->type) {
+        switch (pSprite->type) 
+        {
             case kModernCondition:
             case kModernConditionFalse:
                 pXSprite->restState = 0;
@@ -5450,16 +5453,18 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 else if (!pXSprite->locked) pXSprite->busy = 0;
                 break;
         }
-       
         return true;
-    } else if (event.cmd == kCmdDudeFlagsSet) {
-        
-        if (event.type != OBJ_SPRITE) {
-           
+    }
+    else if (event.cmd == kCmdDudeFlagsSet)
+    {
+        if (event.type != OBJ_SPRITE) 
+        {
             viewSetSystemMessage("Only sprites can use command #%d", event.cmd);
             return true;
 
-        } else if (event.actor && event.actor->hasX()) {
+        } 
+		else if (event.actor && event.actor->hasX()) 
+		{
            
             // copy dude flags from the source to destination sprite
             aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, true, false);
@@ -5468,9 +5473,10 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
 
     }
 
-    if (pSprite->statnum == kStatDude && IsDudeSprite(pSprite)) {
-
-        switch (event.cmd) {
+    if (pSprite->statnum == kStatDude && IsDudeSprite(pSprite)) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdOff:
                 if (pXSprite->state) SetSpriteState(nSprite, pXSprite, 0);
                 break;
@@ -5480,28 +5486,30 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 else if (pXSprite->aiState->stateType >= kAiStatePatrolBase && pXSprite->aiState->stateType < kAiStatePatrolMax)
                     break;
 
-                
-                switch (pXSprite->aiState->stateType) {
+                switch (pXSprite->aiState->stateType) 
+                {
                     case kAiStateIdle:
                     case kAiStateGenIdle:
                         aiActivateDude(actor);
                         break;
                 }
                 break;
+
             case kCmdDudeFlagsSet:
                 if (!event.actor || !event.actor->hasX()) break;
                 else aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
                 break;
+
             default:
                 if (!pXSprite->state) evPostActor(actor, 0, kCmdOn);
                 else evPostActor(actor, 0, kCmdOff);
                 break;
         }
-
         return true;
     }
 
-    switch (pSprite->type) {
+    switch (pSprite->type) 
+    {
         default:
             return false; // no modern type found to work with, go normal OperateSprite();
         case kThingBloodBits:
@@ -5513,36 +5521,44 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             else if (event.cmd != kCmdToggle && event.cmd != kCmdOff && event.cmd != kCmdSpriteImpact) return true;
             DudeToGibCallback1(nSprite, actor); // set proper gib type just in case DATAs was changed from the outside.
             return false;
+
         case kModernCondition:
         case kModernConditionFalse:
             if (!pXSprite->isTriggered) useCondition(pSprite, pXSprite, event);
             return true;
+
         // add spawn random dude feature - works only if at least 2 data fields are not empty.
         case kMarkerDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
             else if (!(pSprite->flags & kModernTypeFlag4)) useDudeSpawn(actor, actor);
             else if (pXSprite->txID) evSendActor(actor, pXSprite->txID, kCmdModernUse);
             return true;
+
         case kModernCustomDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
             else if (!(pSprite->flags & kModernTypeFlag4)) useCustomDudeSpawn(actor, actor);
             else if (pXSprite->txID) evSendActor(actor, pXSprite->txID, kCmdModernUse);
             return true;
+
         case kModernRandomTX: // random Event Switch takes random data field and uses it as TX ID
         case kModernSequentialTX: // sequential Switch takes values from data fields starting from data1 and uses it as TX ID
             if (pXSprite->command == kCmdLink) return true; // work as event redirector
-            switch (pSprite->type) {
+            switch (pSprite->type) 
+            {
                 case kModernRandomTX:
                     useRandomTx(pXSprite, (COMMAND_ID)pXSprite->command, true);
                     break;
+
                 case kModernSequentialTX:
                     if (!(pSprite->flags & kModernTypeFlag1)) useSequentialTx(pXSprite, (COMMAND_ID)pXSprite->command, true);
                     else seqTxSendCmdAll(pXSprite, pSprite->index, (COMMAND_ID)pXSprite->command, false);
                     break;
             }
             return true;
+
         case kModernSpriteDamager:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
@@ -5554,8 +5570,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     else if (pXSprite->data1 == 0 && sectRangeIsFine(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sectnum, nullptr);
                     else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(actor, -1, -1, nullptr);
-                    else {
-
+                    else
+                    {
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
                         if (pPlayer != NULL)
                             useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->actor());
@@ -5593,9 +5609,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kModernObjDataChanger:
             modernTypeSetSpriteState(actor, pXSprite->state ^ 1);
             return true;
+
         case kModernSeqSpawner:
         case kModernEffectSpawner:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
@@ -5618,8 +5636,10 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     break;
             }
             return true;
+
         case kModernWindGenerator:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
                     windGenStopWindOnSectors(actor);
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
@@ -5647,7 +5667,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             if (pXSprite->dropMsg == 3 && 3 != pXSprite->data4)
                 aiFightActivateDudes(pXSprite->txID);
 
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
                     if (pXSprite->data4 == 3) aiFightActivateDudes(pXSprite->txID);
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
@@ -5657,11 +5678,14 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(actor)) {
+                    if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(actor)) 
+                    {
                         aiFightFreeAllTargets(actor);
                         evPostActor(actor, 0, kCmdOff);
                         break;
-                    } else {
+                    }
+                    else 
+                    {
                         modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     }
 
@@ -5701,7 +5725,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             return true;
         case kModernRandom:
         case kModernRandom2:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
@@ -5720,9 +5745,12 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     break;
             }
             return true;
+
         case kModernThingTNTProx:
-            if (pSprite->statnum != kStatRespawn) {
-                switch (event.cmd) {
+            if (pSprite->statnum != kStatRespawn) 
+            {
+                switch (event.cmd) 
+                {
                 case kCmdSpriteProximity:
                     if (pXSprite->state) break;
                     sfxPlay3DSound(pSprite, 452, 0, 0);
@@ -5752,7 +5780,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
 
             /// !!! COMMANDS OF THE CURRENT SPRITE, NOT OF THE EVENT !!! ///
             if ((cmd -= kCmdNumberic) < 0) return true;
-            else if (pPlayer->pXSprite->health <= 0) {
+            else if (pPlayer->pXSprite->health <= 0) 
+            {
                         
                 switch (cmd) {
                     case 36:
@@ -5760,12 +5789,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         pPlayer->curWeapon = kWeapPitchFork;
                         break;
                 }
-                        
                 return true;
-
             }
 
-            switch (cmd) {
+            switch (cmd) 
+            {
                 case 0: // 64 (player life form)
                     if (pXSprite->data2 < kModeHuman || pXSprite->data2 > kModeHumanGrown) break;
                     else trPlayerCtrlSetRace(pXSprite->data2, pPlayer);
@@ -5816,7 +5844,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         pPlayer->angle.settarget(pSprite->ang);
                         pPlayer->angle.lockinput();
                     }
-                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) {
+                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) 
+                    {
                         pPlayer->angle.settarget(pXSprite->data2);
                         pPlayer->angle.lockinput();
                     }
@@ -5864,7 +5893,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     }
             return true;
         case kGenModernMissileUniversal:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
                     if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
                     break;
