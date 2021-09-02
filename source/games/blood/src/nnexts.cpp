@@ -3369,9 +3369,11 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 //
 //---------------------------------------------------------------------------
 
-void useSpriteDamager(XSPRITE* pXSource, int objType, int objIndex) {
+void useSpriteDamager(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* targetactor) 
+{
+    auto pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
 
-    spritetype* pSource = &sprite[pXSource->reference];
     sectortype* pSector = &sector[pSource->sectnum];
 
     int top, bottom, i;
@@ -3380,50 +3382,56 @@ void useSpriteDamager(XSPRITE* pXSource, int objType, int objIndex) {
     switch (objType) 
     {
         case OBJ_SPRITE:
-            damageSprites(pXSource, &sprite[objIndex]);
+            damageSprites(sourceactor, targetactor);
             break;
         case OBJ_SECTOR:
         {
-            GetSpriteExtents(pSource, &top, &bottom);
+            GetActorExtents(sourceactor, &top, &bottom);
             floor = (bottom >= pSector->floorz);    
             ceil = (top <= pSector->ceilingz);
             wall = (pSource->cstat & 0x10);        
             enter = (!floor && !ceil && !wall);
-            for (i = headspritesect[objIndex]; i != -1; i = nextspritesect[i]) 
+            BloodSectIterator it(objIndex);
+            while (auto iactor = it.Next())
             {
-                auto& hit = gSpriteHit[sprite[i].extra];
+                auto& hit = iactor->hit();
 
-                if (!IsDudeSprite(&sprite[i]) || !xspriRangeIsFine(sprite[i].extra))
+                if (!iactor->IsDudeActor() || !iactor->hasX())
                     continue;
                 else if (enter)
-                    damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
                 else if (floor && hit.florhit.type == kHitSector && hit.florhit.index == objIndex)
-                    damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
                 else if (ceil && hit.ceilhit.type == kHitSector && hit.ceilhit.index == objIndex)
-                    damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
                 else if (wall && hit.hit.type == kHitWall && sectorofwall(hit.hit.index) == objIndex)
-                    damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
             }
             break;
         }
         case -1:
-            for (i = headspritestat[kStatDude]; i != -1; i = nextspritestat[i]) {
-                if (sprite[i].statnum != kStatDude) continue;
-                switch (pXSource->data1) {
+        {
+            BloodStatIterator it(kStatDude);
+            while (auto iactor = it.Next())
+            {
+                if (iactor->s().statnum != kStatDude) continue;
+                switch (pXSource->data1) 
+                {
                     case 667:
-                        if (IsPlayerSprite(&sprite[i])) continue;
-                        damageSprites(pXSource, &sprite[i]);
+                    if (iactor->IsPlayerActor()) continue;
+                    damageSprites(sourceactor, iactor);
                         break;
                     case 668:
-                        if (!IsPlayerSprite(&sprite[i])) continue;
-                        damageSprites(pXSource, &sprite[i]);
+                    if (iactor->IsPlayerActor()) continue;
+                    damageSprites(sourceactor, iactor);
                         break;
                     default:
-                        damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
                         break;
                 }
             }
             break;
+    }
     }
 }
 
@@ -3434,20 +3442,22 @@ void useSpriteDamager(XSPRITE* pXSource, int objType, int objIndex) {
 //---------------------------------------------------------------------------
 
 
-void damageSprites(XSPRITE* pXSource, spritetype* pSprite) 
+void damageSprites(DBloodActor* sourceactor, DBloodActor* actor) 
 {
-    auto actor = &bloodActors[pSprite->index];
-    auto sourceactor = &bloodActors[pXSource->reference];
     spritetype* pSource = &sourceactor->s();
-    if (!IsDudeSprite(pSprite) || !xspriRangeIsFine(pSprite->extra) || xsprite[pSprite->extra].health <= 0 || pXSource->data3 < 0)
+    if (!actor->IsDudeActor() || !actor->hasX() || actor->x().health <= 0 || sourceactor->x().data3 < 0)
         return;
     
 
     int health = 0;
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+    auto pXSource = &sourceactor->x();
+
     PLAYER* pPlayer = getPlayerById(pSprite->type);
     int dmgType = (pXSource->data2 >= kDmgFall) ? ClipHigh(pXSource->data2, kDmgElectric) : -1;
-    int dmg = pXSprite->health << 4; int armor[3];
+    int dmg = pXSprite->health << 4; 
+    int armor[3];
 
     bool godMode = (pPlayer && ((dmgType >= 0 && pPlayer->damageControl[dmgType]) || powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode)); // kneeling
 
@@ -3485,12 +3495,12 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
                 //Printf(PRINT_HIGH, "Dude type %d is immune to damage type %d!", pSprite->type, dmgType);
         }
         }
-        else if (!pPlayer) actKillDude(&bloodActors[pSource->index], &bloodActors[pSprite->index], (DAMAGE_TYPE)dmgType, dmg);
-        else playerDamageSprite(&bloodActors[pSource->index], pPlayer, (DAMAGE_TYPE)dmgType, dmg);
+        else if (!pPlayer) actKillDude(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
+        else playerDamageSprite(sourceactor, pPlayer, (DAMAGE_TYPE)dmgType, dmg);
     }
     else if ((pXSprite->health = ClipLow(health, 1)) > 16);
-    else if (!pPlayer) actKillDude(&bloodActors[pSource->index], &bloodActors[pSprite->index], kDamageBullet, dmg);
-    else playerDamageSprite(&bloodActors[pSource->index], pPlayer, kDamageBullet, dmg);
+    else if (!pPlayer) actKillDude(sourceactor, actor, kDamageBullet, dmg);
+    else playerDamageSprite(sourceactor, pPlayer, kDamageBullet, dmg);
 
     if (pXSprite->health > 0) 
     {
@@ -3506,7 +3516,7 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
             {
                 case kDmgBurn:
                     if (pXSprite->burnTime > 0) break;
-                    actBurnSprite(pSource->index, pXSprite, ClipLow(dmg >> 1, 128));
+                    actBurnSprite(sourceactor, actor, ClipLow(dmg >> 1, 128));
                     evKillActor(actor, kCallbackFXFlameLick);
                     evPostActor(actor, 0, kCallbackFXFlameLick); // show flames
                     break;
@@ -3532,7 +3542,7 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
             pXSprite->data3 = 32767;
             actor->dudeExtra.teslaHit = (dmgType == kDmgElectric) ? 1 : 0;
             if (pXSprite->aiState->stateType != kAiStateRecoil)
-                RecoilDude(&bloodActors[pXSprite->reference]);
+                RecoilDude(actor);
         }
     }
 }
@@ -4716,7 +4726,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             switch (destObjType) {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSpriteDamager(pXSource, destObjType, destObjIndex);
+                    useSpriteDamager(event.actor, destObjType, destObjIndex, destactor);
             break;
             }
             break;
@@ -5361,13 +5371,13 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else if (pXSprite->data1 == 0 && sectRangeIsFine(pSprite->sectnum)) useSpriteDamager(pXSprite, OBJ_SECTOR, pSprite->sectnum);
-                    else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(pXSprite, -1, -1);
+                    else if (pXSprite->data1 == 0 && sectRangeIsFine(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sectnum, nullptr);
+                    else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(actor, -1, -1, nullptr);
                     else {
 
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
                         if (pPlayer != NULL)
-                            useSpriteDamager(pXSprite, OBJ_SPRITE, pPlayer->pSprite->index);
+                            useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->actor());
                     }
 
                     if (pXSprite->busyTime > 0)
