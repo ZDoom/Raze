@@ -304,9 +304,9 @@ void sfxPlayMissileSound(DBloodActor* pSprite, int missileId);
 void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
 int debrisGetFreeIndex(void);
-void debrisBubble(int nSprite);
+void debrisBubble(DBloodActor* nSprite);
 void debrisMove(int listIndex);
-void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg);
+void debrisConcuss(DBloodActor* nOwner, int listIndex, int x, int y, int z, int dmg);
 //  -------------------------------------------------------------------------   //
 void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite);
 

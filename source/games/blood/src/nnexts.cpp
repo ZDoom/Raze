@@ -1128,10 +1128,10 @@ static void windGenDoVerticalWind(int factor, int nSector)
         }
 
         val = -MulScale(factor * 64, 0x10000, 16);
-        if (zvel[pSpr->index] >= 0) zvel[pSpr->index] += val;
-        else zvel[pSpr->index] = val;
+        if (actor->zvel() >= 0) actor->zvel() += val;
+        else actor->zvel() = val;
 
-        pSpr->z += zvel[pSpr->index] >> 12;
+        pSpr->z += actor->zvel() >> 12;
 
     }
 
@@ -1444,11 +1444,11 @@ void nnExtProcessSuperSprites()
             if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
             else if (Chance(0x1000 - mass)) 
             {
-                if (debrisactor->zvel() > 0x100) debrisBubble(nDebris);
+                if (debrisactor->zvel() > 0x100) debrisBubble(debrisactor);
                 if (ang == pXDebris->goalAng) 
                 {
                    pXDebris->goalAng = (pDebris->ang + Random3(kAng60)) & 2047;
-                   debrisBubble(nDebris);
+                    debrisBubble(debrisactor);
         }
     }
 
