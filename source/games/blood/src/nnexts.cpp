@@ -3555,14 +3555,15 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
-
-    if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) {
+void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodActor* iactor) 
+{
+    auto pXSource = &sourceactor->x();
+    if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) 
+    {
         Printf(PRINT_HIGH, "Missing sequence #%d", pXSource->data2);
         return;
     }
 
-    auto sourceactor = &bloodActors[pXSource->reference];
     spritetype* pSource = &sourceactor->s();
 
     switch (objType) 
@@ -3631,19 +3632,23 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
             return;
 
         case OBJ_SPRITE:
-            
-            if (pXSource->data2 <= 0) seqKill(3, sprite[index].extra);
-            else if (sectRangeIsFine(sprite[index].sectnum)) {
-                if (pXSource->data3 > 0) {
-                    int nSprite = InsertSprite(sprite[index].sectnum, kStatDecoration);
-                    auto spawned = &bloodActors[nSprite];
+        {
+            auto pSprite = &iactor->s();
+            if (pXSource->data2 <= 0) seqKill(iactor);
+            else if (sectRangeIsFine(pSprite->sectnum))
+            {
+                if (pXSource->data3 > 0)
+                {
+                    int nSpawned = InsertSprite(pSprite->sectnum, kStatDecoration);
+                    auto spawned = &bloodActors[nSpawned];
                     auto pSpawned = &spawned->s();
                     int top, bottom; GetSpriteExtents(&sprite[index], &top, &bottom);
-                    pSpawned->x = sprite[index].x;
-                    pSpawned->y = sprite[index].y;
-                    switch (pXSource->data3) {
-                    default:
-                        pSpawned->z = sprite[index].z;
+                    pSpawned->x = pSprite->x;
+                    pSpawned->y = pSprite->y;
+                    switch (pXSource->data3) 
+                    {                    
+					default:
+                        pSpawned->z = pSprite->z;
                         break;
                     case 2:
                         pSpawned->z = bottom;
@@ -3652,16 +3657,17 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
                         pSpawned->z = top;
                         break;
                     case 4:
-                        pSpawned->z = sprite[index].z + tileHeight(sprite[index].picnum) / 2 + tileTopOffset(sprite[index].picnum);
+                        pSpawned->z = pSprite->z + tileHeight(pSprite->picnum) / 2 + tileTopOffset(pSprite->picnum);
                         break;
                     case 5:
                     case 6:
-                        if (!sectRangeIsFine(sprite[index].sectnum)) pSpawned->z = top;
+                        if (!sectRangeIsFine(pSprite->sectnum)) pSpawned->z = top;
                         else pSpawned->z = (pXSource->data3 == 5) ? sector[pSpawned->sectnum].floorz : sector[pSpawned->sectnum].ceilingz;
                         break;
                     }
 
-                    if (nSprite >= 0) {
+                    if (spawned != nullptr)
+                    {
 
                         spawned->addX();
                         seqSpawn(pXSource->data2, spawned, -1);
@@ -3686,13 +3692,14 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
                 }
                 else 
                 {
-                    seqSpawn(pXSource->data2, 3, sprite[index].extra, -1);
+                    seqSpawn(pXSource->data2, iactor, -1);
                 }
 
                 if (pXSource->data4 > 0)
-                    sfxPlay3DSound(&sprite[index], pXSource->data4, -1, 0);
+                    sfxPlay3DSound(iactor, pXSource->data4, -1, 0);
             }
             return;
+    }
     }
 }
 
@@ -4739,7 +4746,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             break;
         // takes data2 as SEQ ID and spawns it on it's or TX ID object
         case kModernSeqSpawner:
-            useSeqSpawnerGen(pXSource, destObjType, destObjIndex);
+            useSeqSpawnerGen(event.actor, destObjType, destObjIndex, destactor);
             break;
         // creates wind on TX ID sector
         case kModernWindGenerator:
@@ -5427,7 +5434,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else if (pSprite->type == kModernSeqSpawner) useSeqSpawnerGen(pXSprite, 3, pSprite->index);
+                    else if (pSprite->type == kModernSeqSpawner) useSeqSpawnerGen(actor, 3, 0, actor);
                     else useEffectGen(actor, nullptr);
             
                     if (pXSprite->busyTime > 0)
