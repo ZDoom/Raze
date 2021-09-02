@@ -78,8 +78,6 @@ char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
     return 1;
 }
 
-
-
 char SetWallState(int nWall, XWALL *pXWall, int nState)
 {
     if ((pXWall->busy&0xffff) == 0 && pXWall->state == nState)
@@ -285,7 +283,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     spritetype *pSprite = &sprite[nSprite];
     
     #ifdef NOONE_EXTENSIONS
-    if (gModernMap && modernTypeOperateSprite(nSprite, pSprite, pXSprite, event))
+    if (gModernMap && modernTypeOperateSprite(actor, event))
         return;
     #endif
 

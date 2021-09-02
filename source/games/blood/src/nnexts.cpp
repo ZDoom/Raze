@@ -5426,9 +5426,11 @@ void useDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
 //
 //---------------------------------------------------------------------------
 
-bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event) {
+bool modernTypeOperateSprite(DBloodActor* actor, EVENT event) 
+{
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
 
-    auto actor = &bloodActors[pSprite->index];
     if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) 
     {
         switch (event.cmd) 
@@ -5478,11 +5480,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         switch (event.cmd) 
         {
             case kCmdOff:
-                if (pXSprite->state) SetSpriteState(nSprite, pXSprite, 0);
+                if (pXSprite->state) SetSpriteState(actor, 0);
                 break;
             case kCmdOn:
-                if (!pXSprite->state) SetSpriteState(nSprite, pXSprite, 1);
-                if (!IsDudeSprite(pSprite) || IsPlayerSprite(pSprite) || pXSprite->health <= 0) break;
+                if (!pXSprite->state) SetSpriteState(actor, 1);
+                if (!actor->IsDudeActor() || actor->IsPlayerActor() || pXSprite->health <= 0) break;
                 else if (pXSprite->aiState->stateType >= kAiStatePatrolBase && pXSprite->aiState->stateType < kAiStatePatrolMax)
                     break;
 
@@ -5519,7 +5521,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             // let's allow only specific commands here to avoid this.
             if (pSprite->inittype < kDudeBase || pSprite->inittype >= kDudeMax) return false;
             else if (event.cmd != kCmdToggle && event.cmd != kCmdOff && event.cmd != kCmdSpriteImpact) return true;
-            DudeToGibCallback1(nSprite, actor); // set proper gib type just in case DATAs was changed from the outside.
+            DudeToGibCallback1(0, actor); // set proper gib type just in case DATAs was changed from the outside.
             return false;
 
         case kModernCondition:
@@ -5560,11 +5562,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             switch (event.cmd) 
             {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
@@ -5580,25 +5582,28 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->busyTime > 0)
                         evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
                             break;
+
                 default:
                     if (pXSprite->state == 0) evPostActor(actor, 0, kCmdOn);
                     else evPostActor(actor, 0, kCmdOff);
                             break;
                     }
                 return true;
+
         case kMarkerWarpDest:
             if (pXSprite->txID <= 0) {
                
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
-                if (pPlayer != NULL && SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1) == 1)
-                    useTeleportTarget(&bloodActors[nSprite], pPlayer->actor());
+                if (pPlayer != NULL && SetSpriteState(actor, pXSprite->state ^ 1) == 1)
+                    useTeleportTarget(actor, pPlayer->actor());
                 return true;
             }
             [[fallthrough]];
         case kModernObjPropertiesChanger:
-            if (pXSprite->txID <= 0) {
-                if (SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1) == 1)
-                    usePropertiesChanger(&bloodActors[nSprite], -1, -1, nullptr);
+            if (pXSprite->txID <= 0) 
+            {
+                if (SetSpriteState(actor, pXSprite->state ^ 1) == 1)
+                    usePropertiesChanger(actor, -1, -1, nullptr);
                 return true;
             }
             [[fallthrough]];
@@ -5615,11 +5620,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             switch (event.cmd) 
             {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(pXSprite);
                     [[fallthrough]];
                 case kCmdRepeat:
@@ -5642,11 +5647,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             {
                 case kCmdOff:
                     windGenStopWindOnSectors(actor);
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
@@ -5671,11 +5676,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             {
                 case kCmdOff:
                     if (pXSprite->data4 == 3) aiFightActivateDudes(pXSprite->txID);
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(actor)) 
@@ -5698,18 +5703,20 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             }
             pXSprite->dropMsg = uint8_t(pXSprite->data4);
             return true;
+
         case kModernObjDataAccumulator:
             switch (event.cmd) {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
                     // force OFF after *all* TX objects reach the goal value
-                    if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(pXSprite)) {
+                    if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(pXSprite)) 
+                    {
                         evPostActor(actor, 0, kCmdOff);
                         break;
                     }
@@ -5728,11 +5735,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             switch (event.cmd) 
             {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
                     useRandomItemGen(pSprite, pXSprite);
@@ -5762,7 +5769,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     pXSprite->Proximity = 1;
                     break;
                 default:
-                    actExplodeSprite(&bloodActors[pSprite->index]);
+                    actExplodeSprite(actor);
                     break;
                 }
             }
@@ -5870,14 +5877,15 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             }
         }
         return true;
+
         case kGenModernSound:
             switch (event.cmd) {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
                 if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
@@ -5896,11 +5904,11 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             switch (event.cmd) 
             {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);

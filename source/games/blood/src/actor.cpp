@@ -7461,4 +7461,12 @@ void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z)
 	aiSetTarget(&bloodActors[pXSprite->reference], x, y, z);
 }
 
+char SetSpriteState(DBloodActor* actor, int nState)
+{
+	return SetSpriteState(actor->GetIndex(), &actor->x(), nState);
+}
+
+
+
+
 END_BLD_NS
