@@ -3163,17 +3163,23 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
-    
+void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
+{
+    if (!actor) actor = sourceactor;
+    auto pSprite = &actor->s();
+    auto pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
+
     int fxId = (pXSource->data3 <= 0) ? pXSource->data2 : pXSource->data2 + Random(pXSource->data3 + 1);
-    spritetype* pSource = &sprite[pXSource->reference];
-    if (pSprite == NULL)
-        pSprite = pSource;
-    auto actor = &bloodActors[pSprite->index];
 
 
-    if (!xspriRangeIsFine(pSprite->extra)) return;
+    if (!actor->hasX()) return;
     else if (fxId >= kEffectGenCallbackBase) 
     {
         int length = sizeof(gEffectGenCallbacks) / sizeof(gEffectGenCallbacks[0]);
@@ -3187,7 +3193,8 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
     } 
     else if (valueIsBetween(fxId, 0, kFXMax)) 
     {
-        int pos, top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
+        int pos, top, bottom; 
+        GetActorExtents(actor, &top, &bottom);
         DBloodActor* pEffect = nullptr;
 
         // select where exactly effect should be spawned
@@ -3243,10 +3250,13 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
 //
 //---------------------------------------------------------------------------
 
-void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
+void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector) 
+{
+    auto pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
 
-    spritetype* pSource = &sprite[pXSource->reference];
-    XSECTOR* pXSector = NULL; int nXSector = 0;
+    XSECTOR* pXSector = nullptr;
+    int nXSector = 0;
     
     if (pSector != nullptr) 
     {
@@ -4713,7 +4723,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
         // can spawn any effect passed in data2 on it's or txID sprite
         case kModernEffectSpawner:
             if (destObjType != OBJ_SPRITE) break;
-            useEffectGen(pXSource, &sprite[destObjIndex]);
+            useEffectGen(event.actor, destactor);
             break;
         // takes data2 as SEQ ID and spawns it on it's or TX ID object
         case kModernSeqSpawner:
@@ -4722,7 +4732,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
         // creates wind on TX ID sector
         case kModernWindGenerator:
             if (destObjType != OBJ_SECTOR || pXSource->data2 < 0) break;
-            useSectorWindGen(pXSource, &sector[destObjIndex]);
+            useSectorWindGen(event.actor, &sector[destObjIndex]);
             break;
         // size and pan changer of sprite/wall/sector via TX ID
         case kModernObjSizeChanger:
@@ -5406,7 +5416,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     else if (pSprite->type == kModernSeqSpawner) useSeqSpawnerGen(pXSprite, 3, pSprite->index);
-                    else useEffectGen(pXSprite, NULL);
+                    else useEffectGen(actor, nullptr);
             
                     if (pXSprite->busyTime > 0)
                         evPostActor(actor, ClipLow((int(pXSprite->busyTime) + Random2(pXSprite->data1)) * 120 / 10, 0), kCmdRepeat);
@@ -5429,7 +5439,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else useSectorWindGen(pXSprite, NULL);
+                    else useSectorWindGen(actor, nullptr);
 
                     if (pXSprite->busyTime > 0) evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
                     break;
