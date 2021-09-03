@@ -4301,7 +4301,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
             else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, targ);
             return true;
         }
-        case 1: return aiFightDudeIsAffected(pXSpr); // dude affected by ai fight?
+        case 1: return aiFightDudeIsAffected(actor); // dude affected by ai fight?
         case 2: // distance to the target in a range?
         case 3: // is the target visible?
         case 4: // is the target visible with periphery?
@@ -4891,7 +4891,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
         // spawn enemies on TX ID sprites
         case kMarkerDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useDudeSpawn(pXSource, &destactor->s());
+            useDudeSpawn(event.actor, destactor);
             break;
          // spawn custom dude on TX ID sprites
         case kModernCustomDudeSpawn:
@@ -4922,19 +4922,18 @@ DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDis
         auto pTarget = &targactor->s();
         auto pXTarget = &targactor->x();
 
-        int dist = aiFightGetTargetDist(pSprite, pDudeInfo, pTarget);
+        int dist = aiFightGetTargetDist(actor, pDudeInfo, targactor);
         if (dist < minDist || dist > maxDist) continue;
         else if (actor->GetTarget() == targactor) return targactor;
         else if (!targactor->IsDudeActor() || targactor == actor || targactor->IsPlayerActor()) continue;
         else if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || pTarget->owner == pSprite->index) continue;
-        else if ((teamMode == 1 && aiFightIsMateOf(pXSprite, pXTarget)) || aiFightMatesHaveSameTarget(actor, targactor, 1)) continue;
+        else if ((teamMode == 1 && pXSprite->rxID == pXTarget->rxID) || aiFightMatesHaveSameTarget(actor, targactor, 1)) continue;
         else if (data == 666 || pXTarget->data1 == data) 
         {
             if (actor->GetTarget())
             {
-                auto cTarget = &actor->GetTarget()->s();
-                int fineDist1 = aiFightGetFineTargetDist(pSprite, cTarget);
-                int fineDist2 = aiFightGetFineTargetDist(pSprite, pTarget);
+                int fineDist1 = aiFightGetFineTargetDist(actor, actor->GetTarget());
+                int fineDist2 = aiFightGetFineTargetDist(actor, targactor);
                 if (fineDist1 < fineDist2)
                     continue;
             }
@@ -5100,28 +5099,32 @@ void aiFightFreeAllTargets(DBloodActor* sourceactor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-bool aiFightDudeIsAffected(XSPRITE* pXDude) {
+bool aiFightDudeIsAffected(DBloodActor* dudeactor) 
+{
+    auto pXDude = &dudeactor->x();
     if (pXDude->rxID <= 0 || pXDude->locked == 1) return false;
-    int nSprite;
-    StatIterator it(kStatModernDudeTargetChanger);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatModernDudeTargetChanger);
+    while (auto actor = it.Next())
     {
-        XSPRITE* pXSprite = (sprite[nSprite].extra >= 0) ? &xsprite[sprite[nSprite].extra] : NULL;
-        if (pXSprite == NULL || pXSprite->txID <= 0 || pXSprite->state != 1) continue;
-        for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
+        if (!actor->hasX()) continue;
+        XSPRITE* pXSprite = &actor->x();
+        if (pXSprite->txID <= 0 || pXSprite->state != 1) continue;
+        for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
+        {
             if (rxBucket[i].type != OBJ_SPRITE) continue;
 
-            auto actor = rxBucket[i].GetActor();
-            if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
-            else if (actor->s().index == sprite[pXDude->reference].index) return true;
+            auto rxactor = rxBucket[i].actor;
+            if (!rxactor || !rxactor->hasX() || !rxactor->IsDudeActor()) continue;
+            else if (rxactor == dudeactor) return true;
         }
     }
     return false;
-}
-
-bool aiFightIsMateOf(XSPRITE* pXDude, XSPRITE* pXSprite) {
-    return (pXDude->rxID == pXSprite->rxID);
 }
 
 //---------------------------------------------------------------------------
@@ -5130,9 +5133,11 @@ bool aiFightIsMateOf(XSPRITE* pXDude, XSPRITE* pXSprite) {
 //
 //---------------------------------------------------------------------------
 
-bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
-    
-    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
+bool aiFightGetDudesForBattle(DBloodActor* actor) 
+{
+    auto txID = actor->x().txID;
+    for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
+    {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
         auto actor = rxBucket[i].GetActor();
         if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
@@ -5140,9 +5145,12 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     }
 
     // check redirected TX buckets
-    int rx = -1; XSPRITE* pXRedir = NULL;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
-        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+    int rx = -1; 
+    XSPRITE* pXRedir = NULL;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, actor->s().extra, pXRedir, &rx)) != NULL) 
+    {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+        {
 	        if (rxBucket[i].type != OBJ_SPRITE) continue;
 	        auto actor = rxBucket[i].GetActor();
 	        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
@@ -5158,24 +5166,27 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
 //
 //---------------------------------------------------------------------------
 
-void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
-    spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+void aiFightAlarmDudesInSight(DBloodActor* actor, int max) 
+{
+    auto pSprite = &actor->s();
+    auto pSXprite = &actor->x();
+
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+
+    BloodStatIterator it(kStatDude);
+    while (auto dudeactor = it.Next())
     {
-        pDude = &sprite[nSprite];
-        if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || pDude->extra < 0)
+        if (dudeactor == actor || !dudeactor->IsDudeActor() || !dudeactor->hasX())
             continue;
-        pXDude = &xsprite[pDude->extra];
-        if (aiFightDudeCanSeeTarget(&bloodActors[pXSprite->reference], pDudeInfo, &bloodActors[nSprite])) {
-            if (pXDude->target_i != -1 || pXDude->rxID > 0)
+
+        if (aiFightDudeCanSeeTarget(actor, pDudeInfo, dudeactor)) 
+        {
+            if (dudeactor->GetTarget() != nullptr || dudeactor->x().rxID > 0)
                 continue;
 
-            aiSetTarget_(pXDude, pDude->x, pDude->y, pDude->z);
-            aiActivateDude(&bloodActors[pXDude->reference]);
+            auto pDude = &dudeactor->s();
+            aiSetTarget(dudeactor, pDude->x, pDude->y, pDude->z);
+            aiActivateDude(dudeactor);
             if (max-- < 1)
                 break;
         }
@@ -5188,13 +5199,15 @@ void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
 //
 //---------------------------------------------------------------------------
 
-bool aiFightUnitCanFly(spritetype* pDude) {
-    return (IsDudeSprite(pDude) && gDudeInfoExtra[pDude->type - kDudeBase].flying);
+bool aiFightUnitCanFly(DBloodActor* dude) 
+{
+    return (dude->IsDudeActor() && gDudeInfoExtra[dude->s().type - kDudeBase].flying);
 }
 
-bool aiFightIsMeleeUnit(spritetype* pDude) {
-    if (pDude->type == kDudeModernCustom) return (pDude->extra >= 0 && dudeIsMelee(&bloodActors[pDude->index]));
-    else return (IsDudeSprite(pDude) && gDudeInfoExtra[pDude->type - kDudeBase].melee);
+bool aiFightIsMeleeUnit(DBloodActor* dude)
+{
+    if (dude->s().type == kDudeModernCustom) return (dude->hasX() && dudeIsMelee(dude));
+    else return (dude->IsDudeActor() && gDudeInfoExtra[dude->s().type - kDudeBase].melee);
 }
 
 //---------------------------------------------------------------------------
@@ -5203,9 +5216,10 @@ bool aiFightIsMeleeUnit(spritetype* pDude) {
 //
 //---------------------------------------------------------------------------
 
-int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget) {
-    int x = pTarget->x; int y = pTarget->y;
-    int dx = x - pSprite->x; int dy = y - pSprite->y;
+int aiFightGetTargetDist(DBloodActor* actor, DUDEINFO* pDudeInfo, DBloodActor* target) 
+{
+    int dx = target->s().x - actor->s().x;
+    int dy = target->s().y - actor->s().y;
 
     int dist = approxDist(dx, dy);
     if (dist <= pDudeInfo->meleeDist) return 0;
@@ -5230,9 +5244,10 @@ int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* p
 //
 //---------------------------------------------------------------------------
 
-int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget) {
-    int x = pTarget->x; int y = pTarget->y;
-    int dx = x - pSprite->x; int dy = y - pSprite->y;
+int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target)
+{
+    int dx = target->s().x - actor->s().x;
+    int dy = target->s().y - actor->s().y;
 
     int dist = approxDist(dx, dy);
     return dist;
@@ -5260,10 +5275,13 @@ int sectorInMotion(int nSector)
 //
 //---------------------------------------------------------------------------
 
-void sectorKillSounds(int nSector) {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
-        if (sprite[nSprite].type != kSoundSector) continue;
-        sfxKill3DSound(&sprite[nSprite]);
+void sectorKillSounds(int nSector)
+{
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
+    {
+        if (actor->s().type != kSoundSector) continue;
+        sfxKill3DSound(actor);
     }
 }
 
@@ -5286,6 +5304,10 @@ void sectorPauseMotion(int nSector)
     SectorEndSound(nSector, xsector[sector[nSector].extra].state);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
 //---------------------------------------------------------------------------
 
 void sectorContinueMotion(int nSector, EVENT event) 
@@ -5387,8 +5409,13 @@ void sectorContinueMotion(int nSector, EVENT event)
     gBusy[gBusyCount].busy = pXSector->busy;
     gBusy[gBusyCount].type = (BUSYID)busyFunc;
     gBusyCount++;
-
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, const EVENT& event) 
 {
@@ -5442,15 +5469,20 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
 }
 
 //---------------------------------------------------------------------------
-void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite) 
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
 {
     genDudeSpawn(pSource, pSprite, pSprite->s().clipdist << 1);
 }
 
-void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
-
-    if (randomSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pSprite->clipdist << 1, 0) == nullptr)
-        nnExtSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pXSource->data1, pSprite->clipdist << 1, 0);
+void useDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
+{
+    if (randomSpawnDude(pSource, pSprite, pSprite->s().clipdist << 1, 0) == nullptr)
+        nnExtSpawnDude(pSource, pSprite, pSource->x().data1, pSprite->s().clipdist << 1, 0);
 }
 
 //---------------------------------------------------------------------------
@@ -5553,7 +5585,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         // add spawn random dude feature - works only if at least 2 data fields are not empty.
         case kMarkerDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
-            else if (!(pSprite->flags & kModernTypeFlag4)) useDudeSpawn(pXSprite, pSprite);
+            else if (!(pSprite->flags & kModernTypeFlag4)) useDudeSpawn(actor, actor);
             else if (pXSprite->txID) evSendActor(actor, pXSprite->txID, kCmdModernUse);
             return true;
         case kModernCustomDudeSpawn:
@@ -5690,7 +5722,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(pXSprite)) {
+                    if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(actor)) {
                         aiFightFreeAllTargets(actor);
                         evPostActor(actor, 0, kCmdOff);
                         break;
@@ -6602,7 +6634,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
         else {
             spritetype* pBurnSource = &sprite[pXSprite->burnSource];
             if (pBurnSource->extra >= 0) {
-                if (pXSource->data2 == 1 && aiFightIsMateOf(pXSprite, &xsprite[pBurnSource->extra])) {
+                if (pXSource->data2 == 1 && pXSprite->rxID == xsprite[pBurnSource->extra].rxID) {
                     pXSprite->burnTime = 0;
                     
                     // heal dude a bit in case of friendly fire
@@ -6635,11 +6667,12 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
 
     int maxAlarmDudes = 8 + Random(8);
     if (pXSprite->target_i > -1 && sprite[pXSprite->target_i].extra > -1 && playeractor == nullptr) {
-        pTarget = &sprite[pXSprite->target_i]; pXTarget = &xsprite[pTarget->extra];
+        pTarget = &sprite[pXSprite->target_i]; 
+        pXTarget = &xsprite[pTarget->extra];
 
-        if (aiFightUnitCanFly(pSprite) && aiFightIsMeleeUnit(pTarget) && !aiFightUnitCanFly(pTarget))
+        if (aiFightUnitCanFly(actor) && aiFightIsMeleeUnit(&bloodActors[pXSprite->target_i]) && !aiFightUnitCanFly(&bloodActors[pXSprite->target_i]))
             pSprite->flags |= 0x0002;
-        else if (aiFightUnitCanFly(pSprite))
+        else if (aiFightUnitCanFly(actor))
             pSprite->flags &= ~0x0002;
 
         if (!IsDudeSprite(pTarget) || pXTarget->health < 1 || !aiFightDudeCanSeeTarget(actor, pDudeInfo, &bloodActors[pTarget->index])) {
@@ -6647,7 +6680,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
         }
         // dude attack or attacked by target that does not fit by data id?
         else if (pXSource->data1 != 666 && pXTarget->data1 != pXSource->data1) {
-            if (aiFightDudeIsAffected(pXTarget)) {
+            if (aiFightDudeIsAffected(&bloodActors[pXTarget->reference])) {
 
                 // force stop attack target
                 aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
@@ -6665,7 +6698,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             }
 
         }
-        else if (pXSource->data2 == 1 && aiFightIsMateOf(pXSprite, pXTarget)) {
+        else if (pXSource->data2 == 1 && pXSprite->rxID == pXTarget->rxID) {
             spritetype* pMate = pTarget; XSPRITE* pXMate = pXTarget;
 
             // heal dude
@@ -6681,7 +6714,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                 // force mate stop attack dude, if he does
                 if (pXMate->target_i == pSprite->index) {
                     aiSetTarget_(pXMate, pMate->x, pMate->y, pMate->z);
-                } else if (!aiFightIsMateOf(pXSprite, &xsprite[pTarget->extra])) {
+                } else if (pXSprite->rxID != xsprite[pTarget->extra].rxID) {
                     // force dude to attack same target that mate have
                     aiSetTarget_(pXSprite, pTarget->index);
                     return;
@@ -6704,13 +6737,13 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             aiSetTarget_(pXTarget, pSprite->index);
         }
 
-        int mDist = 3; if (aiFightIsMeleeUnit(pSprite)) mDist = 2;
-        if (pXSprite->target_i >= 0 && aiFightGetTargetDist(pSprite, pDudeInfo, &sprite[pXSprite->target_i]) < mDist) {
+        int mDist = 3; if (aiFightIsMeleeUnit(actor)) mDist = 2;
+        if (pXSprite->target_i >= 0 && aiFightGetTargetDist(actor, pDudeInfo, &bloodActors[pXSprite->target_i]) < mDist) {
             if (!isActive(pSprite->index)) aiActivateDude(actor);
             return;
         }
         // lets try to look for target that fits better by distance
-        else if ((PlayClock & 256) != 0 && (pXSprite->target_i < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
+        else if ((PlayClock & 256) != 0 && (pXSprite->target_i < 0 || aiFightGetTargetDist(actor, pDudeInfo, &bloodActors[pXSprite->target_i]) >= mDist)) {
             auto targactor = aiFightGetTargetInRange(actor, 0, mDist, pXSource->data1, pXSource->data2);
             if (targactor != nullptr)
             {
@@ -6762,7 +6795,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             // if Target Changer have data1 = 666, everyone can be target, except AI team mates.
             else if (pXSource->data1 != 666 && pXSource->data1 != pXTarget->data1) continue;
             // don't attack immortal, burning dudes and mates
-            if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || (pXSource->data2 == 1 && aiFightIsMateOf(pXSprite, pXTarget)))
+            if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || (pXSource->data2 == 1 && pXSprite->rxID == pXTarget->rxID))
                 continue;
 
             if (pXSource->data2 == 0 || (pXSource->data2 == 1 && !aiFightMatesHaveSameTarget(&bloodActors[pXSprite->reference], &bloodActors[nSprite], matesPerEnemy))) {
@@ -6779,7 +6812,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                         aiActivateDude(&bloodActors[pXTarget->reference]);
 
                     if (pXSource->data3 == 2)
-                        aiFightAlarmDudesInSight(pTarget, maxAlarmDudes);
+                        aiFightAlarmDudesInSight(&bloodActors[pTarget->index], maxAlarmDudes);
                 }
                 
                 return;

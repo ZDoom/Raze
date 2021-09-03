@@ -311,16 +311,11 @@ void aiSetGenIdleState(DBloodActor*);
 
 // triggers related
 //  -------------------------------------------------------------------------   //
-int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget);
-int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget);
+int aiFightGetTargetDist(DBloodActor* pSprite, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
+int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target);
 bool aiFightDudeCanSeeTarget(DBloodActor* pXDude, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
-bool aiFightUnitCanFly(spritetype* pDude);
-bool aiFightIsMeleeUnit(spritetype* pDude);
-bool aiFightDudeIsAffected(XSPRITE* pXDude);
+bool aiFightDudeIsAffected(DBloodActor* pXDude);
 bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetactor, int allow);
-bool aiFightGetDudesForBattle(XSPRITE* pXSprite);
-bool aiFightIsMateOf(XSPRITE* pXDude, XSPRITE* pXSprite);
-void aiFightAlarmDudesInSight(spritetype* pSprite, int max);
 void aiFightActivateDudes(int rx);
 //  -------------------------------------------------------------------------   //
 void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex);
@@ -335,7 +330,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite);
 void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex);
 void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState);
 void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState);
-void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite);
+void useDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
 void useCustomDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
 bool txIsRanged(XSPRITE* pXSource);
 void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernSend);
