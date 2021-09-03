@@ -830,7 +830,7 @@ void nnExtInitModernStuff()
         for (int i = 0; i < kMaxXSprites; i++) 
         {
             auto actor = &bloodActors[i];
-            if (actor->s().statnum == kStatFree || !actor->hasX() || xsprite[i].txID != pXSprite->rxID || actor == iactor)
+            if (actor->s().statnum == kStatFree || !actor->hasX() || actor->x().txID != pXSprite->rxID || actor == iactor)
                 continue;
 
             XSPRITE* pXSpr = &actor->x();
@@ -5997,17 +5997,17 @@ int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event)
             evSendActor(&bloodActors[pSource->index], pXSource->txID, (COMMAND_ID)pXSource->command);
 
         if (pSource->flags) {
-        
+
             // send it for object currently in the focus
-            if (pSource->flags & kModernTypeFlag1) 
+            if (pSource->flags & kModernTypeFlag1)
             {
                 nnExtTriggerObject(sourceactor->condition[0], pXSource->command);
             }
 
             // send it for initial object
-            if ((pSource->flags & kModernTypeFlag2) && (pXSource->targetX != pXSource->targetY || !(pSource->hitag & kModernTypeFlag1))) 
+            if ((pSource->flags & kModernTypeFlag2) && (!sourceactor->condition[0].compare(sourceactor->condition[1]) || !(pSource->hitag & kModernTypeFlag1)))
             {
-                nnExtTriggerObject(sourceactor->condition[0], pXSource->command);
+                nnExtTriggerObject(sourceactor->condition[1], pXSource->command);
             }
         }
     }

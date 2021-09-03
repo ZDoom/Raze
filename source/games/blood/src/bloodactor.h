@@ -75,6 +75,13 @@ struct ConditionElement
 	int type;
 	int index_;
 	DBloodActor* actor;
+
+	bool compare(const ConditionElement& other)
+	{
+		if (type != other.type) return false;
+		if (type == SS_SPRITE) return actor == other.actor;
+		else return index_ == other.index_;
+	}
 };
 
 // Due to the messed up array storage of all the game data we cannot do any direct references here yet. We have to access everything via wrapper functions for now.
