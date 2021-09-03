@@ -315,9 +315,9 @@ inline DBloodActor* getLowerLink(int sect)
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)
 {
-	int index = int(w - bloodActors);
+	int index = w? -1 : int(w - bloodActors);
 	Serialize(arc, keyname, index, nullptr);
-	if (arc.isReading()) w = &bloodActors[index];
+	if (arc.isReading()) w = index == -1? nullptr : &bloodActors[index];
 	return arc;
 }
 
