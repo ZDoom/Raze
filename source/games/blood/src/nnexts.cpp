@@ -3729,7 +3729,7 @@ void condError(DBloodActor* aCond, const char* pzFormat, ...)
 //
 //---------------------------------------------------------------------------
 
-bool condCheckGame(DBloodActor* aCond, EVENT& event, int cmpOp, bool PUSH)
+bool condCheckGame(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
 {
     auto pXCond = &aCond->x();
 
@@ -3768,7 +3768,7 @@ bool condCheckGame(DBloodActor* aCond, EVENT& event, int cmpOp, bool PUSH)
 //
 //---------------------------------------------------------------------------
 
-bool condCheckMixed(DBloodActor* aCond, EVENT& event, int cmpOp, bool PUSH)
+bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
 {
     auto pXCond = &aCond->x();
 
@@ -4755,7 +4755,7 @@ void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID comma
 //
 //---------------------------------------------------------------------------
 
-void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor, EVENT& event) 
+void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor, const EVENT& event) 
 {
     if (event.type != OBJ_SPRITE || !event.actor || !event.actor->hasX()) return;
     spritetype* pSource = &event.actor->s();
@@ -5124,7 +5124,12 @@ bool aiFightIsMateOf(XSPRITE* pXDude, XSPRITE* pXSprite) {
     return (pXDude->rxID == pXSprite->rxID);
 }
 
+//---------------------------------------------------------------------------
+//
 // this function tells if there any dude found for kModernDudeTargetChanger
+//
+//---------------------------------------------------------------------------
+
 bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
@@ -5146,6 +5151,12 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     }
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
     spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
@@ -5171,6 +5182,12 @@ void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool aiFightUnitCanFly(spritetype* pDude) {
     return (IsDudeSprite(pDude) && gDudeInfoExtra[pDude->type - kDudeBase].flying);
 }
@@ -5179,6 +5196,12 @@ bool aiFightIsMeleeUnit(spritetype* pDude) {
     if (pDude->type == kDudeModernCustom) return (pDude->extra >= 0 && dudeIsMelee(&bloodActors[pDude->index]));
     else return (IsDudeSprite(pDude) && gDudeInfoExtra[pDude->type - kDudeBase].melee);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget) {
     int x = pTarget->x; int y = pTarget->y;
@@ -5201,6 +5224,12 @@ int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* p
     return 12;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget) {
     int x = pTarget->x; int y = pTarget->y;
     int dx = x - pSprite->x; int dy = y - pSprite->y;
@@ -5209,14 +5238,27 @@ int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget) {
     return dist;
 }
 
-int sectorInMotion(int nSector) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int sectorInMotion(int nSector) 
+{
  
-    for (int i = 0; i < kMaxBusyCount; i++) {
+    for (int i = 0; i < kMaxBusyCount; i++) 
+    {
         if (gBusy->index == nSector) return i;
     }
-
     return -1;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void sectorKillSounds(int nSector) {
     for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
@@ -5225,8 +5267,14 @@ void sectorKillSounds(int nSector) {
     }
 }
 
-void sectorPauseMotion(int nSector) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void sectorPauseMotion(int nSector) 
+{
     if (!xsectRangeIsFine(sector[nSector].extra)) return;
     XSECTOR* pXSector = &xsector[sector[nSector].extra];
     pXSector->unused1 = 1;
@@ -5236,14 +5284,15 @@ void sectorPauseMotion(int nSector) {
     sectorKillSounds(nSector);
     if ((pXSector->busy == 0 && !pXSector->state) || (pXSector->busy == 65536 && pXSector->state))
     SectorEndSound(nSector, xsector[sector[nSector].extra].state);
-    
-    return;
 }
 
-void sectorContinueMotion(int nSector, EVENT event) {
-    
+//---------------------------------------------------------------------------
+
+void sectorContinueMotion(int nSector, EVENT event) 
+{
     if (!xsectRangeIsFine(sector[nSector].extra)) return;
-    else if (gBusyCount >= kMaxBusyCount) {
+    else if (gBusyCount >= kMaxBusyCount) 
+    {
         Printf(PRINT_HIGH, "Failed to continue motion for sector #%d. Max (%d) busy objects count reached!", nSector, kMaxBusyCount);
         return;
     }
@@ -5251,45 +5300,52 @@ void sectorContinueMotion(int nSector, EVENT event) {
     XSECTOR* pXSector = &xsector[sector[nSector].extra];
     pXSector->unused1 = 0;
     
-    int busyTimeA = pXSector->busyTimeA;    int waitTimeA = pXSector->waitTimeA;
-    int busyTimeB = pXSector->busyTimeB;    int waitTimeB = pXSector->waitTimeB;
-    if (sector[nSector].type == kSectorPath) {
+    int busyTimeA = pXSector->busyTimeA;   
+    int waitTimeA = pXSector->waitTimeA;
+    int busyTimeB = pXSector->busyTimeB;   
+    int waitTimeB = pXSector->waitTimeB;
+    if (sector[nSector].type == kSectorPath) 
+    {
         if (!spriRangeIsFine(pXSector->marker0)) return;
         busyTimeA = busyTimeB = xsprite[sprite[pXSector->marker0].extra].busyTime;
         waitTimeA = waitTimeB = xsprite[sprite[pXSector->marker0].extra].waitTime;
     }
     
     if (!pXSector->interruptable && event.cmd != kCmdSectorMotionContinue
-        && ((!pXSector->state && pXSector->busy) || (pXSector->state && pXSector->busy != 65536))) {
-            
+        && ((!pXSector->state && pXSector->busy) || (pXSector->state && pXSector->busy != 65536))) 
+    {
             event.cmd = kCmdSectorMotionContinue;
-
-    } else if (event.cmd == kCmdToggle) {
-        
+    } 
+    else if (event.cmd == kCmdToggle) 
+    {
         event.cmd = (pXSector->state) ? kCmdOn : kCmdOff;
-
     }
 
     //viewSetSystemMessage("%d / %d", pXSector->busy, pXSector->state);
 
     int nDelta = 1;
-    switch (event.cmd) {
+    switch (event.cmd) 
+    {
         case kCmdOff:
-            if (pXSector->busy == 0) {
+            if (pXSector->busy == 0) 
+            {
                 if (pXSector->reTriggerB && waitTimeB) evPostSector(nSector, (waitTimeB * 120) / 10, kCmdOff);
                 return;
             }
             pXSector->state = 1;
             nDelta = 65536 / ClipLow((busyTimeB * 120) / 10, 1);
             break;
+
         case kCmdOn:
-            if (pXSector->busy == 65536) {
+            if (pXSector->busy == 65536) 
+            {
                 if (pXSector->reTriggerA && waitTimeA) evPostSector(nSector, (waitTimeA * 120) / 10, kCmdOn);
                 return;
             }
             pXSector->state = 0;
             nDelta = 65536 / ClipLow((busyTimeA * 120) / 10, 1);
             break;
+
         case kCmdSectorMotionContinue:
             nDelta = 65536 / ClipLow((((pXSector->state) ? busyTimeB : busyTimeA) * 120) / 10, 1);
             break;
@@ -5297,7 +5353,8 @@ void sectorContinueMotion(int nSector, EVENT event) {
 
     //bool crush = pXSector->Crush;
     int busyFunc = BUSYID_0;
-    switch (sector[nSector].type) {
+    switch (sector[nSector].type) 
+    {
         case kSectorZMotion:
             busyFunc = BUSYID_2;
             break;
@@ -5330,15 +5387,15 @@ void sectorContinueMotion(int nSector, EVENT event) {
     gBusy[gBusyCount].busy = pXSector->busy;
     gBusy[gBusyCount].type = (BUSYID)busyFunc;
     gBusyCount++;
-    return;
 
 }
 
-bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, EVENT event) {
-
-    if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) {
-        
-        switch (event.cmd) {
+bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, const EVENT& event) 
+{
+    if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdLock:
                 pXSector->locked = 1;
                 break;
@@ -5350,20 +5407,22 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
                 break;
         }
 
-        switch (pSector->type) {
+        switch (pSector->type) 
+        {
             case kSectorCounter:
                 if (pXSector->locked != 1) break;
                 SetSectorState(nSector, pXSector, 0);
                 evPostSector(nSector, 0, kCallbackCounterCheck);
                 break;
         }
-
         return true;
     
     // continue motion of the paused sector
-    } else if (pXSector->unused1) {
-        
-        switch (event.cmd) {
+    } 
+    else if (pXSector->unused1) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdOff:
             case kCmdOn:
             case kCmdToggle:
@@ -5373,17 +5432,16 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
         }
     
     // pause motion of the sector
-    } else if (event.cmd == kCmdSectorMotionPause) {
-        
+    }
+    else if (event.cmd == kCmdSectorMotionPause) 
+    {
         sectorPauseMotion(nSector);
         return true;
-
     }
-
     return false;
-
 }
 
+//---------------------------------------------------------------------------
 void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite) 
 {
     genDudeSpawn(pSource, pSprite, pSprite->s().clipdist << 1);
@@ -5394,6 +5452,12 @@ void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
     if (randomSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pSprite->clipdist << 1, 0) == nullptr)
         nnExtSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pXSource->data1, pSprite->clipdist << 1, 0);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event) {
 
