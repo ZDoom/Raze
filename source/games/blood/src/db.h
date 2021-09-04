@@ -305,8 +305,6 @@ extern FixedBitArray<MAXSPRITES> activeXSprites;
 
 extern char qsector_filler[kMaxSectors];
 
-extern int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
-
 extern int gVisibility;
 extern int gMapRev, gMattId, gSkyCount;
 extern const char *gItemText[];

@@ -272,8 +272,8 @@ static void eelMoveDodgeUp(DBloodActor* actor)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = actor->xvel();
-    int dy = actor->yvel();
+    int dx = actor->xvel;
+    int dy = actor->yvel;
     int t1 = DMulScale(dx, nCos, dy, nSin, 30);
     int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
     if (pXSprite->dodgeDir > 0)
@@ -281,9 +281,9 @@ static void eelMoveDodgeUp(DBloodActor* actor)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel() = -0x8000;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = -0x8000;
 }
 
 //---------------------------------------------------------------------------
@@ -305,8 +305,8 @@ static void eelMoveDodgeDown(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = actor->xvel();
-    int dy = actor->yvel();
+    int dx = actor->xvel;
+    int dy = actor->yvel;
     int t1 = DMulScale(dx, nCos, dy, nSin, 30);
     int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
     if (pXSprite->dodgeDir > 0)
@@ -314,9 +314,9 @@ static void eelMoveDodgeDown(DBloodActor* actor)
     else
         t2 -= pDudeInfo->sideSpeed;
 
-    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel() = 0x44444;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = 0x44444;
 }
 
 //---------------------------------------------------------------------------
@@ -409,16 +409,16 @@ static void eelMoveForward(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = actor->xvel();
-    int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     if (actor->GetTarget() == nullptr)
         t1 += nAccel;
     else
         t1 += nAccel>>1;
-    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 //---------------------------------------------------------------------------
@@ -446,14 +446,14 @@ static void eelMoveSwoop(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = actor->xvel();
-    int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     t1 += nAccel>>1;
-    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel() = 0x22222;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = 0x22222;
 }
 
 //---------------------------------------------------------------------------
@@ -481,14 +481,14 @@ static void eelMoveAscend(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = actor->xvel();
-    int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     t1 += nAccel>>1;
-    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel() = -0x8000;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = -0x8000;
 }
 
 //---------------------------------------------------------------------------

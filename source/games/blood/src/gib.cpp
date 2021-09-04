@@ -315,34 +315,34 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
                 pFX->s().pal = pSprite->pal;
             if (pVel)
             {
-                pFX->xvel() = pVel->vx+Random2(pGFX->atd);
-                pFX->yvel() = pVel->vy+Random2(pGFX->atd);
-                pFX->zvel() = pVel->vz-Random(pGFX->at11);
+                pFX->xvel = pVel->vx+Random2(pGFX->atd);
+                pFX->yvel = pVel->vy+Random2(pGFX->atd);
+                pFX->zvel = pVel->vz-Random(pGFX->at11);
             }
             else
             {
-                pFX->xvel() = Random2((pGFX->atd<<18)/120);
-                pFX->yvel() = Random2((pGFX->atd<<18)/120);
+                pFX->xvel = Random2((pGFX->atd<<18)/120);
+                pFX->yvel = Random2((pGFX->atd<<18)/120);
                 switch(pSprite->cstat&48)
                 {
                 case 16:
-                    pFX->zvel() = Random2((pGFX->at11<<18)/120);
+                    pFX->zvel = Random2((pGFX->at11<<18)/120);
                     break;
                 default:
                     if (dz2 < dz1 && dz2 < 0x4000)
                     {
-                        pFX->zvel() = 0;
+                        pFX->zvel = 0;
                     }
                     else if (dz2 > dz1 && dz1 < 0x4000)
                     {
-                        pFX->zvel() = -(int)Random((abs(pGFX->at11)<<18)/120);
+                        pFX->zvel = -(int)Random((abs(pGFX->at11)<<18)/120);
                     }
                     else
                     {
                         if ((pGFX->at11<<18)/120 < 0)
-                            pFX->zvel() = -(int)Random((abs(pGFX->at11)<<18)/120);
+                            pFX->zvel = -(int)Random((abs(pGFX->at11)<<18)/120);
                         else
-                            pFX->zvel() = Random2((pGFX->at11<<18)/120);
+                            pFX->zvel = Random2((pGFX->at11<<18)/120);
                     }
                     break;
                 }
@@ -392,31 +392,31 @@ void GibThing(DBloodActor* actor, GIBTHING *pGThing, CGibPosition *pPos, CGibVel
             pGib->picnum = pGThing->Kills;
         if (pVel)
         {
-            gibactor->xvel() = pVel->vx+Random2(pGThing->atc);
-            gibactor->yvel() = pVel->vy+Random2(pGThing->atc);
-            gibactor->zvel() = pVel->vz-Random(pGThing->at10);
+            gibactor->xvel = pVel->vx+Random2(pGThing->atc);
+            gibactor->yvel = pVel->vy+Random2(pGThing->atc);
+            gibactor->zvel = pVel->vz-Random(pGThing->at10);
         }
         else
         {
-            gibactor->xvel() = Random2((pGThing->atc<<18)/120);
-            gibactor->yvel() = Random2((pGThing->atc<<18)/120);
+            gibactor->xvel = Random2((pGThing->atc<<18)/120);
+            gibactor->yvel = Random2((pGThing->atc<<18)/120);
             switch (pSprite->cstat&48)
             {
             case 16:
-                gibactor->zvel() = Random2((pGThing->at10<<18)/120);
+                gibactor->zvel = Random2((pGThing->at10<<18)/120);
                 break;
             default:
                 if (dz2 < dz1 && dz2 < 0x4000)
                 {
-                    gibactor->zvel() = 0;
+                    gibactor->zvel = 0;
                 }
                 else if (dz2 > dz1 && dz1 < 0x4000)
                 {
-                    gibactor->zvel() = -(int)Random((pGThing->at10<<18)/120);
+                    gibactor->zvel = -(int)Random((pGThing->at10<<18)/120);
                 }
                 else
                 {
-                    gibactor->zvel() = Random2((pGThing->at10<<18)/120);
+                    gibactor->zvel = Random2((pGThing->at10<<18)/120);
                 }
                 break;
             }
@@ -464,15 +464,15 @@ void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity
                 pGib->s().pal = pWall->pal;
             if (!pVel)
             {
-                pGib->xvel() = Random2((pGFX->atd<<18)/120);
-                pGib->yvel() = Random2((pGFX->atd<<18)/120);
-                pGib->zvel() = -(int)Random((pGFX->at11<<18)/120);
+                pGib->xvel = Random2((pGFX->atd<<18)/120);
+                pGib->yvel = Random2((pGFX->atd<<18)/120);
+                pGib->zvel = -(int)Random((pGFX->at11<<18)/120);
             }
             else
             {
-                pGib->xvel() = Random2((pVel->vx << 18) / 120);
-                pGib->yvel() = Random2((pVel->vy << 18) / 120);
-                pGib->zvel() = -(int)Random((pVel->vz<<18)/120);
+                pGib->xvel = Random2((pVel->vx << 18) / 120);
+                pGib->yvel = Random2((pVel->vy << 18) / 120);
+                pGib->zvel = -(int)Random((pVel->vz<<18)/120);
             }
         }
     }

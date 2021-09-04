@@ -467,6 +467,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 				("dudeextra", w.dudeExtra, def->dudeExtra)
 				("spritehit", w.hit, def->hit)
 				("basepoint", w.basePoint, def->basePoint);
+				("xvel", w.xvel, def->xvel);
+				("yvel", w.yvel, def->yvel);
+				("zvel", w.zvel, def->zvel);
 
 			if (gModernMap)
 			{
@@ -694,9 +697,6 @@ void SerializeState(FSerializer& arc)
 			.Array("xwall", xwall, XWallsUsed)  // todo
 			.Array("xsector", xsector, XSectorsUsed)
 			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites)
-			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
-			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)
-			.SparseArray("zvel", zvel, kMaxSprites, activeSprites)
 			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
 			.EndObject();
 	}
