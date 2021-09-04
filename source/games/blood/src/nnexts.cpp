@@ -8268,9 +8268,11 @@ bool readyForCrit(DBloodActor* hunter, DBloodActor* victim)
 //
 //---------------------------------------------------------------------------
 
-int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
-   
-    auto actor = &bloodActors[pSprite->index];
+DBloodActor* aiPatrolSearchTargets(DBloodActor* actor) 
+{
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+
     enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
     PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
@@ -8283,22 +8285,25 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
         patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
     }
 
-    int i, j, f, mod, x, y, z, dx, dy, nDist, eyeAboveZ, target = -1, sndCnt = 0, seeDist, hearDist, feelDist, seeChance, hearChance;
-    bool stealth = (pXSprite->unused1 & kDudeFlagStealth); bool blind = (pXSprite->dudeGuard); bool deaf = (pXSprite->dudeDeaf);
+    int i, j, f, mod, x, y, z, dx, dy, nDist, eyeAboveZ, sndCnt = 0, seeDist, hearDist, feelDist, seeChance, hearChance;
+    bool stealth = (pXSprite->unused1 & kDudeFlagStealth);
+    bool blind = (pXSprite->dudeGuard); 
+    bool deaf = (pXSprite->dudeDeaf);
 
+    DBloodActor* newtarget;
     // search for player targets
-    for (i = connecthead; i != -1; i = connectpoint2[i]) {
-        
+    for (i = connecthead; i != -1; i = connectpoint2[i]) 
+    {
         pPlayer = &gPlayer[i];
+        if (!pPlayer->actor()->hasX()) continue;
+
         spritetype* pSpr = pPlayer->pSprite;
-        if (!xsprIsFine(pSpr))
-            continue;
-    
-        XSPRITE* pXSpr = &xsprite[pSpr->extra];
+        XSPRITE* pXSpr = &pPlayer->actor()->x();
         if (pXSpr->health <= 0)
             continue;
 
-        target = -1; seeChance = hearChance = 0x0000;
+        newtarget = nullptr;
+        seeChance = hearChance = 0x0000;
         x = pSpr->x, y = pSpr->y, z = pSpr->z, dx = x - pSprite->x, dy = y - pSprite->y; nDist = approxDist(dx, dy);
         seeDist = (stealth) ? pDudeInfo->seeDist / 3 : pDudeInfo->seeDist >> 1;
         hearDist = pDudeInfo->hearDist; feelDist = hearDist >> 1;
@@ -8309,7 +8314,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
         if (nDist <= seeDist) 
         {
             eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-            if (nDist < seeDist >> 3) GetSpriteExtents(pSpr, &z, &j); //use ztop of the target sprite
+            if (nDist < seeDist >> 3) GetActorExtents(pPlayer->actor(), &z, &j); //use ztop of the target sprite
             if (!cansee(x, y, z, pSpr->sectnum, pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sectnum))
                 continue;
         }
@@ -8319,9 +8324,9 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
         bool invisible = (powerupCheck(pPlayer, kPwUpShadowCloak) > 0);
         if (spritesTouching(actor, pPlayer->actor()) || spritesTouching(pPlayer->actor(), actor)) 
         {
-            DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", pSprite->index, pPlayer->nPlayer + 1);
+            DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", actor->GetIndex(), pPlayer->nPlayer + 1);
             if (invisible) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
-            target = pSpr->index;
+            newtarget = pPlayer->actor();
             break;
         }
 
@@ -8375,7 +8380,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     BloodSectIterator it(searchsect);
                     while (auto act = it.Next())
                     {
-                        if (act->GetOwner() == &bloodActors[pSpr->index])
+                        if (act->GetOwner() == pPlayer->actor())
                         {
                             found = true;
                             break;
@@ -8391,12 +8396,11 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
             if (invisible && hearChance >= kMaxPatrolSpotValue >> 2) 
             {
-                target = pSpr->index;
+                newtarget = pPlayer->actor();
                 pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 invisible = false;
                 break;
             }
-
         }
 
         if (!invisible && (!deaf || !blind)) 
@@ -8430,17 +8434,18 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         }
                         break;
                 }
-
             }
 
             bool itCanHear = false; bool itCanSee = false;
-            feelDist = ClipLow(feelDist, 0);  seeDist = ClipLow(seeDist, 0);
+            feelDist = ClipLow(feelDist, 0);  
+            seeDist = ClipLow(seeDist, 0);
 
             if (hearDist) 
             {
+                auto act = pPlayer->actor();
                 itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-                if (itCanHear && nDist < feelDist && (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]))
-                    hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(xvel[pSpr->index]) + abs(yvel[pSpr->index]) + abs(zvel[pSpr->index]))) >> 6, 0)), 0);
+                if (itCanHear && nDist < feelDist && (act->xvel() || act->yvel() || act->zvel()))
+                    hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->xvel()) + abs(act->yvel()) + abs(act->zvel()))) >> 6, 0)), 0);
             }
 
             if (seeDist) 
@@ -8469,12 +8474,13 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
             if (stealth) 
             {
                 // search in stealth regions to modify spot chances
-                for (j = headspritestat[kStatModernStealthRegion]; j != -1; j = nextspritestat[j]) {
-
-                    spritetype* pSteal = &sprite[j];
-                    if (!xspriRangeIsFine(pSteal->extra))
+                BloodStatIterator it(kStatModernStealthRegion);
+                while (auto iactor = it.Next())
+                {
+                    if (!iactor->hasX())
                         continue;
 
+                    spritetype* pSteal = &iactor->s();
                     XSPRITE* pXSteal = &xsprite[pSteal->extra];
                     if (pXSteal->locked) // ignore locked regions
                         continue;
@@ -8538,7 +8544,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
                     // trigger this region if target gonna be spot
                     if (pXSteal->txID && pXSprite->data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
-                        trTriggerSprite(pSteal->index, pXSteal, kCmdToggle);
+                        trTriggerSprite(iactor, kCmdToggle);
                    
                     // continue search another stealth regions to affect chances
                 }
@@ -8546,11 +8552,11 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
             if (itCanHear && hearChance > 0) 
             {
-                DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
+                DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", actor->GetIndex(), pPlayer->nPlayer + 1);
                 pXSprite->data3 = ClipRange(pXSprite->data3 + hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                 if (!stealth) 
                 {
-                    target = pSpr->index;
+                    newtarget = pPlayer->actor();
                     break;
                 }
             }
@@ -8562,7 +8568,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                 pXSprite->data3 = ClipRange(pXSprite->data3 + seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                 if (!stealth) 
                 {
-                    target = pSpr->index;
+                    newtarget = pPlayer->actor();
                     break;
                 }
             }
@@ -8572,7 +8578,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
         if ((pXSprite->data3 = ClipRange(pXSprite->data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue) 
         {
-            target = pSpr->index;
+            newtarget = pPlayer->actor();
             break;
         }
 
@@ -8581,9 +8587,9 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
     }
 
-    if (target >= 0) return target;
+    if (newtarget) return newtarget;
     pXSprite->data3 -= ClipLow(((kPercFull * pXSprite->data3) / kMaxPatrolSpotValue) >> 2, 3);
-    return -1;
+    return nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -8652,9 +8658,11 @@ void aiPatrolThink(DBloodActor* actor) {
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     
 
-    int nTarget, stateTimer, nMarker = pXSprite->target_i;
-    if ((nTarget = aiPatrolSearchTargets(pSprite, pXSprite)) != -1) {
-        aiPatrolStop(actor, &bloodActors[nTarget], pXSprite->dudeAmbush);
+    DBloodActor* targetactor;
+    int stateTimer, nMarker = pXSprite->target_i;
+    if ((targetactor = aiPatrolSearchTargets(actor)) != nullptr) 
+    {
+        aiPatrolStop(actor, targetactor, pXSprite->dudeAmbush);
         return;
     }
 
