@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 POINT2D baseWall[kMaxWalls];
-POINT3D baseSprite[kMaxSprites];
 int baseFloor[kMaxSectors];
 int baseCeil[kMaxSectors];
 int velFloor[kMaxSectors];

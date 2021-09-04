@@ -6879,9 +6879,7 @@ bool actCheckRespawn(DBloodActor* actor)
 			if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
 			{
 				pSprite->cstat &= ~257;
-				pSprite->x = actor->basePoint().x;
-				pSprite->y = actor->basePoint().y;
-				pSprite->z = actor->basePoint().z;
+				pSprite->pos = actor->basePoint;
 			}
 			evPostActor(actor, nRespawnTime, kCallbackRespawn);
 		}

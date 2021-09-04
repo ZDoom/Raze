@@ -884,11 +884,10 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
             }
         }
     }
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype *pSprite = &actor->s();
         // allow to move markers by sector movements in game if flags 1 is added in editor.
         switch (pSprite->statnum) {
             case kStatMarker:
@@ -901,22 +900,22 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
                 break;
         }
 
-        x = baseSprite[nSprite].x;
-        y = baseSprite[nSprite].y;
-        if (sprite[nSprite].cstat&8192)
+        x = actor->basePoint.x;
+        y = actor->basePoint.y;
+        if (pSprite->cstat&8192)
         {
             if (vbp)
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-            viewBackupSpriteLoc(nSprite, pSprite);
+            viewBackupSpriteLoc(pSprite->index, pSprite);
             pSprite->ang = (pSprite->ang+v14)&2047;
             pSprite->x = x+vc-a4;
             pSprite->y = y+v8-a5;
         }
-        else if (sprite[nSprite].cstat&16384)
+        else if (pSprite->cstat&16384)
         {
             if (vbp)
                 RotatePoint((int*)& x, (int*)& y, -vbp, a4, a4);
-            viewBackupSpriteLoc(nSprite, pSprite);
+            viewBackupSpriteLoc(pSprite->index, pSprite);
             pSprite->ang = (pSprite->ang-v14)&2047;
             pSprite->x = x-(vc-a4);
             pSprite->y = y-(v8-a5);
@@ -930,7 +929,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
             {
                 if (v14)
                     RotatePoint((int*)&pSprite->x, (int*)&pSprite->y, v14, v20, v24);
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
                 pSprite->ang = (pSprite->ang+v14)&2047;
                 pSprite->x += v28;
                 pSprite->y += v2c;
@@ -1098,30 +1097,28 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     int dz1 = pXSector->onFloorZ - pXSector->offFloorZ;
     if (dz1 != 0)
     {
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodSectIterator it(nSector);
+        while (auto actor = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype *pSprite = &actor->s();
             if (pSprite->cstat&8192)
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
-                pSprite->z = baseSprite[nSprite].z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
+                pSprite->z = actor->basePoint.z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
     }
     int dz2 = pXSector->onCeilZ - pXSector->offCeilZ;
     if (dz2 != 0)
     {
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodSectIterator it(nSector);
+        while (auto actor = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
-            if (pSprite->cstat&16384)
+            spritetype* pSprite = &actor->s();
+            if (pSprite->cstat & 16384)
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
-                pSprite->z = baseSprite[nSprite].z+MulScale(dz2, GetWaveValue(a2, nWave), 16);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
+                pSprite->z = actor->basePoint.z + MulScale(dz2, GetWaveValue(a2, nWave), 16);
             }
         }
     }
@@ -2006,17 +2003,15 @@ void trInit(void)
         baseWall[i].x = wall[i].x;
         baseWall[i].y = wall[i].y;
     }
-    for (int i = 0; i < kMaxSprites; i++)
+    BloodLinearSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        if (sprite[i].statnum < kStatFree)
+        auto spr = &actor->s();
+        if (spr->statnum < kStatFree)
         {
-            sprite[i].inittype = sprite[i].type;
-            baseSprite[i].x = sprite[i].x;
-            baseSprite[i].y = sprite[i].y;
-            baseSprite[i].z = sprite[i].z;
+            spr->inittype = spr->type;
+            actor->basePoint = spr->pos;
         }
-        else
-            sprite[i].inittype = -1;
     }
     for (int i = 0; i < numwalls; i++)
     {
@@ -2068,13 +2063,10 @@ void trInit(void)
                     baseWall[pSector->wallptr+j].x = wall[pSector->wallptr+j].x;
                     baseWall[pSector->wallptr+j].y = wall[pSector->wallptr+j].y;
                 }
-                int nSprite;
-                SectIterator it(i);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodSectIterator it(i);
+                while (auto actor = it.Next())
                 {
-                    baseSprite[nSprite].x = sprite[nSprite].x;
-                    baseSprite[nSprite].y = sprite[nSprite].y;
-                    baseSprite[nSprite].z = sprite[nSprite].z;
+                    actor->basePoint = actor->s().pos;
                 }
                 TranslateSector(i, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 ZTranslateSector(i, pXSector, pXSector->busy, 1);
@@ -2090,13 +2082,10 @@ void trInit(void)
                     baseWall[pSector->wallptr+j].x = wall[pSector->wallptr+j].x;
                     baseWall[pSector->wallptr+j].y = wall[pSector->wallptr+j].y;
                 }
-                int nSprite;
-                SectIterator it(i);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodSectIterator it(i);
+                while (auto actor = it.Next())
                 {
-                    baseSprite[nSprite].x = sprite[nSprite].x;
-                    baseSprite[nSprite].y = sprite[nSprite].y;
-                    baseSprite[nSprite].z = sprite[nSprite].z;
+                    actor->basePoint = actor->s().pos;
                 }
                 TranslateSector(i, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 ZTranslateSector(i, pXSector, pXSector->busy, 1);

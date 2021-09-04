@@ -253,9 +253,7 @@ void Respawn(DBloodActor* actor, int) // 9
             if (actor->IsDudeActor()) 
             {
                 int nType = pSprite->type-kDudeBase;
-                pSprite->x = actor->basePoint().x;
-                pSprite->y = actor->basePoint().y;
-                pSprite->z = actor->basePoint().z;
+                pSprite->pos = actor->basePoint;
                 pSprite->cstat |= 0x1101;
                 #ifdef NOONE_EXTENSIONS
                 if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[pSprite->type - kDudeBase].startHealth << 4;

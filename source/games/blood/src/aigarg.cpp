@@ -221,7 +221,7 @@ static void gargThinkTarget(DBloodActor* actor)
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
 		pXSprite->goalAng += 256;
-		POINT3D* pTarget = &actor->basePoint();
+        POINT3D* pTarget = &actor->basePoint;
 		aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
 		aiNewState(actor, &gargoyleTurn);
 		return;

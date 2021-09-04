@@ -484,7 +484,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra)
 				("explosionflag", w.explosionhackflag, def->explosionhackflag)
-				("spritehit", w.hit, def->hit);
+				("spritehit", w.hit, def->hit)
+				("basepoint", w.basePoint, def->basePoint);
 
 			if (gModernMap)
 			{
@@ -690,7 +691,6 @@ void SerializeState(FSerializer& arc)
 			("frameclock", PlayClock)
 			("framecount", gFrameCount)
 			.Array("basewall", baseWall, numwalls)
-			.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites)
 			.Array("basefloor", baseFloor, numsectors)
 			.Array("baseceil", baseCeil, numsectors)
 			.Array("velfloor", velFloor, numsectors)
@@ -714,12 +714,20 @@ void SerializeState(FSerializer& arc)
 
 			.Array("xwall", xwall, XWallsUsed)  // todo
 			.Array("xsector", xsector, XSectorsUsed)
+			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
+
 			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites)
 			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
 			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)
-			.SparseArray("zvel", zvel, kMaxSprites, activeSprites)
-			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
-			.EndObject();
+			.SparseArray("zvel", zvel, kMaxSprites, activeSprites);
+
+#ifdef OLD_SAVEGAME
+		POINT3D baseSprite[kMaxSprites];
+		for (int i = 0; i < kMaxSprites; i++) baseSprite[i] = bloodActors[i].basePoint;
+		arc.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites);
+		if (arc.isReading()) for (int i = 0; i < kMaxSprites; i++) if (activeSprites[i]) bloodActors[i].basePoint = baseSprite[i];
+#endif
+		arc.EndObject();
 	}
 }
 
