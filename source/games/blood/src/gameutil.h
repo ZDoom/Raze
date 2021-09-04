@@ -74,7 +74,7 @@ struct Collision;
 bool AreSectorsNeighbors(int sect1, int sect2);
 bool FindSector(int nX, int nY, int nZ, int *nSector);
 bool FindSector(int nX, int nY, int *nSector);
-bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist);
+bool CheckProximity(DBloodActor *pSprite, int nX, int nY, int nZ, int nSector, int nDist);
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist);
 bool CheckProximityWall(int nWall, int x, int y, int nDist);
 int GetWallAngle(int nWall);

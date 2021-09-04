@@ -2672,7 +2672,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 				{
 					if (pSprite2->flags & 0x20) continue;
 					if (!TestBitString(sectmap, pSprite2->sectnum)) continue;
-					if (!CheckProximity(pSprite2, x, y, z, nSector, nDist)) continue;
+					if (!CheckProximity(act2, x, y, z, nSector, nDist)) continue;
 
 					int dx = abs(x - pSprite2->x);
 					int dy = abs(y - pSprite2->y);
@@ -2699,7 +2699,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 
 			if (pSprite2->flags & 0x20) continue;
 			if (!TestBitString(sectmap, pSprite2->sectnum)) continue;
-			if (!CheckProximity(pSprite2, x, y, z, nSector, nDist)) continue;
+			if (!CheckProximity(act2, x, y, z, nSector, nDist)) continue;
 
 			XSPRITE* pXSprite2 = &act2->x();
 			if (pXSprite2->locked) continue;
@@ -5740,7 +5740,7 @@ static void actCheckProximity()
 							proxyDist = 512;
 						}
 
-						if (CheckProximity(pSprite2, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, proxyDist))
+						if (CheckProximity(dudeactor, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, proxyDist))
 						{
 							switch (pSprite->type)
 							{
@@ -5974,7 +5974,7 @@ static void actCheckExplosion()
 
 			if (TestBitString(sectormap, pDude->sectnum))
 			{
-				if (pXSprite->data1 && CheckProximity(pDude, x, y, z, nSector, radius))
+				if (pXSprite->data1 && CheckProximity(dudeactor, x, y, z, nSector, radius))
 				{
 					if (pExplodeInfo->dmg && actor->explosionhackflag)
 					{
@@ -6003,7 +6003,7 @@ static void actCheckExplosion()
 
 			if (TestBitString(sectormap, pThing->sectnum))
 			{
-				if (pXSprite->data1 && CheckProximity(pThing, x, y, z, nSector, radius) && thingactor->hasX())
+				if (pXSprite->data1 && CheckProximity(thingactor, x, y, z, nSector, radius) && thingactor->hasX())
 				{
 					XSPRITE* pXThing = &thingactor->x();
 					if (!pXThing->locked)
@@ -6045,7 +6045,7 @@ static void actCheckExplosion()
 					spritetype* pDebris = &physactor->s();
 					if (pDebris->sectnum < 0 || (pDebris->flags & kHitagFree) != 0) continue;
 
-					if (!TestBitString(sectormap, pDebris->sectnum) || !CheckProximity(pDebris, x, y, z, nSector, radius)) continue;
+					if (!TestBitString(sectormap, pDebris->sectnum) || !CheckProximity(physactor, x, y, z, nSector, radius)) continue;
 					else debrisConcuss(Owner, i, x, y, z, pExplodeInfo->dmgType);
 				}
 			}
@@ -6059,7 +6059,7 @@ static void actCheckExplosion()
 					auto impactactor = gImpactSpritesList[i];
 					if (!impactactor->hasX() || impactactor->s().sectnum < 0 || (impactactor->s().flags & kHitagFree) != 0)	continue;
 
-					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, impactactor->s().sectnum) || !CheckProximity(&impactactor->s(), x, y, z, nSector, radius))
+					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, impactactor->s().sectnum) || !CheckProximity(impactactor, x, y, z, nSector, radius))
 						continue;
 
 					trTriggerSprite(impactactor, kCmdSpriteImpact);
@@ -6205,9 +6205,9 @@ static void actCheckDudes()
 
 					XSPRITE* pXSprite2 = &actor2->x();
 
-					if ((unsigned int)pXSprite2->health > 0 && IsPlayerSprite(pSprite2))
+					if ((unsigned int)pXSprite2->health > 0 && actor2->IsPlayerActor())
 					{
-						if (CheckProximity(pSprite2, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128))
+						if (CheckProximity(actor2, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128))
 							trTriggerSprite(actor, kCmdSpriteProximity);
 					}
 				}

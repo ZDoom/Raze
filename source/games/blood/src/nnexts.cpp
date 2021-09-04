@@ -1258,7 +1258,7 @@ void nnExtProcessSuperSprites()
                 while (auto affected = it.Next())
                 {
                     if (!affected->hasX() || affected->x().health <= 0) continue;
-                    else if (CheckProximity(&affected->s(), x, y, z, sectnum, okDist))
+                    else if (CheckProximity(affected, x, y, z, sectnum, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
@@ -1273,7 +1273,7 @@ void nnExtProcessSuperSprites()
                     if (!pPlayer || !pPlayer->actor()->hasX() || pPlayer->pXSprite->health <= 0)
                         continue;
 
-                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->pSprite, x, y, z, sectnum, okDist))
+                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor(), x, y, z, sectnum, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
