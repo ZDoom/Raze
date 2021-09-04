@@ -1442,11 +1442,10 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
     assert(pDest->statnum == kStatMarker);
     assert(pDest->type == kMarkerWarpDest);
     assert(pDest->sectnum >= 0 && pDest->sectnum < kMaxSectors);
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype *pSprite = &actor->s();
         if (pSprite->statnum == kStatDude)
         {
             PLAYER *pPlayer;
@@ -1463,9 +1462,10 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 pSprite->y = pDest->y;
                 pSprite->z += sector[pDest->sectnum].floorz-sector[nSector].floorz;
                 pSprite->ang = pDest->ang;
-                ChangeSpriteSect(nSprite, pDest->sectnum);
+                ChangeActorSect(actor, pDest->sectnum);
                 sfxPlay3DSound(pDest, 201, -1, 0);
-                xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
+                actor->xvel() = actor->yvel() = actor->zvel() = 0;
+                int nSprite = actor->s().index;
                 gInterpolateSprite.Clear(nSprite);
                 viewBackupSpriteLoc(nSprite, pSprite);
                 if (pPlayer)
