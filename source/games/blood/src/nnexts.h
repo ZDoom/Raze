@@ -397,8 +397,8 @@ void aiPatrolState(DBloodActor* pSprite, int state);
 void aiPatrolMove(DBloodActor* actor);
 DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker);
 bool aiPatrolMarkerReached(DBloodActor*);
-bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker);
-void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init);
+bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker);
+void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool copy, bool init);
 void aiPatrolRandGoalAng(DBloodActor* actor);
 void aiPatrolTurn(DBloodActor* actor);
 inline int aiPatrolGetVelocity(int speed, int value) {

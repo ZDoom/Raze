@@ -5469,8 +5469,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
 		{
            
             // copy dude flags from the source to destination sprite
-            aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, true, false);
-
+            aiPatrolFlagsMgr(event.actor, actor, true, false);
     }
 
     }
@@ -5499,7 +5498,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
 
             case kCmdDudeFlagsSet:
                 if (!event.actor || !event.actor->hasX()) break;
-                else aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
+                else aiPatrolFlagsMgr(event.actor, actor, false, true); // initialize patrol dude with possible new flags
                 break;
 
             default:
@@ -7820,7 +7819,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
         }
 
         bool node = markerIsNode(targetactor, false);
-        pXSprite->unused2 = aiPatrolGetPathDir(pXSprite, pXCur); // decide if it should go back or forward
+        pXSprite->unused2 = aiPatrolGetPathDir(actor, targetactor); // decide if it should go back or forward
         if (pXSprite->unused2 == kPatrolMoveBackward && Chance(0x8000) && node)
             pXSprite->unused2 = kPatrolMoveForward;
 
@@ -8545,9 +8544,11 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init) 
+void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool copy, bool init) 
 {
-    auto destactor = &bloodActors[pDest->index];
+    XSPRITE* pXSource = &sourceactor->x();
+    XSPRITE* pXDest = &destactor->x();
+
     // copy flags
     if (copy) 
     {
@@ -8574,7 +8575,7 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
             if (aiInPatrolState(pXDest->aiState))
                 return;
             
-            pXDest->target_i = -1; // reset the target
+            destactor->SetTarget(nullptr);
             pXDest->stateTimer = 0;
             
             aiPatrolSetMarker(destactor);
@@ -8591,10 +8592,10 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
 //
 //---------------------------------------------------------------------------
 
-bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker) {
-
-    if (pXSprite->unused2 == kPatrolMoveForward) return (pXMarker->data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
-    else return (findNextMarker(&bloodActors[pXMarker->reference], kPatrolMoveBackward) != nullptr) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
+bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker) 
+{
+    if (actor->x().unused2 == kPatrolMoveForward) return (marker->x().data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
+    else return (findNextMarker(marker, kPatrolMoveBackward) != nullptr) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
 }
 
 //---------------------------------------------------------------------------
@@ -8609,10 +8610,10 @@ void aiPatrolThink(DBloodActor* actor)
     auto pSprite = &actor->s();
 
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    
 
     DBloodActor* targetactor;
-    int stateTimer, nMarker = pXSprite->target_i;
+    int stateTimer;
+    auto markeractor = actor->GetTarget();
     if ((targetactor = aiPatrolSearchTargets(actor)) != nullptr) 
     {
         aiPatrolStop(actor, targetactor, pXSprite->dudeAmbush);
@@ -8621,12 +8622,12 @@ void aiPatrolThink(DBloodActor* actor)
 
     
     bool crouch = (pXSprite->unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
-    if (!spriRangeIsFine(nMarker) || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor)))) {
+    if (markeractor == nullptr || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor)))) 
+    {
         aiPatrolStop(actor, nullptr);
         return;
     }
     
-    auto markeractor = &bloodActors[nMarker];
     spritetype* pMarker = &markeractor->s();
     XSPRITE* pXMarker = &markeractor->x();
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
@@ -8637,10 +8638,10 @@ void aiPatrolThink(DBloodActor* actor)
     {
         //viewSetSystemMessage("WAIT %d / %d", pXSprite->targetY, pXSprite->stateTimer);
         
-        if (pXSprite->stateTimer > 0 || pXMarker->data1 == pXMarker->data2) {
-
+        if (pXSprite->stateTimer > 0 || pXMarker->data1 == pXMarker->data2) 
+        {
             if (pExtra->flying)
-                zvel[pSprite->index] = Random2(0x8000);
+                actor->zvel() = Random2(0x8000);
 
             // turn while waiting
             if (pMarker->flags & kModernTypeFlag16) 
@@ -8673,7 +8674,7 @@ void aiPatrolThink(DBloodActor* actor)
             }
             else if (pXMarker->command == kCmdDudeFlagsSet) 
             {
-                aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+                aiPatrolFlagsMgr(markeractor, actor, true, true);
                 if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                     return;
             }
@@ -8742,7 +8743,7 @@ void aiPatrolThink(DBloodActor* actor)
                 else if (pXMarker->command == kCmdDudeFlagsSet) 
                 {
                 // copy dude flags for current dude
-                    aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+                    aiPatrolFlagsMgr(markeractor, actor, true, true);
                     if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                         return;
                 }
@@ -8781,7 +8782,7 @@ void aiPatrolThink(DBloodActor* actor)
                 }
                 else if (pXMarker->command == kCmdDudeFlagsSet) 
                 {
-                    aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+                    aiPatrolFlagsMgr(markeractor, actor, true, true);
                     if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                         return;
                 }
