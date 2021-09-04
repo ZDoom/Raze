@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "blood.h"
 #include "files.h"
+#include "eventq.h"
+#include "callback.h"
 
 
 BEGIN_BLD_NS
@@ -256,14 +258,10 @@ void UpdateMasked(int nXWall, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateSprite(int nXSprite, SEQFRAME* pFrame)
+void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 {
-	assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-	int nSprite = xsprite[nXSprite].reference;
-	if (!(nSprite >= 0 && nSprite < kMaxSprites)) return; // sprite may have been deleted already.
-
-	spritetype* pSprite = &sprite[nSprite];
-	assert(pSprite->extra == nXSprite);
+	spritetype* pSprite = &actor->s();
+	assert(actor->hasX());
 	if (pSprite->flags & 2)
 	{
 		if (tileHeight(pSprite->picnum) != tileHeight(seqGetTile(pFrame)) || tileTopOffset(pSprite->picnum) != tileTopOffset(seqGetTile(pFrame))
@@ -275,7 +273,7 @@ void UpdateSprite(int nXSprite, SEQFRAME* pFrame)
 		pSprite->pal = pFrame->palette;
 	pSprite->shade = pFrame->shade;
 
-	int scale = xsprite[nXSprite].scale; // SEQ size scaling
+	int scale = actor->x().scale; // SEQ size scaling
 	if (pFrame->xrepeat) {
 		if (scale) pSprite->xrepeat = ClipRange(MulScale(pFrame->xrepeat, scale, 8), 0, 255);
 		else pSprite->xrepeat = pFrame->xrepeat;
@@ -340,17 +338,18 @@ void SEQINST::Update()
 	switch (type)
 	{
 	case 0:
-		UpdateWall(index, &pSequence->frames[frameIndex]);
+		UpdateWall(seqindex, &pSequence->frames[frameIndex]);
 		break;
 	case 1:
-		UpdateCeiling(index, &pSequence->frames[frameIndex]);
+		UpdateCeiling(seqindex, &pSequence->frames[frameIndex]);
 		break;
 	case 2:
-		UpdateFloor(index, &pSequence->frames[frameIndex]);
+		UpdateFloor(seqindex, &pSequence->frames[frameIndex]);
 		break;
 	case 3:
 	{
-		UpdateSprite(index, &pSequence->frames[frameIndex]);
+		if (!actor) break;
+		UpdateSprite(actor, &pSequence->frames[frameIndex]);
 		if (pSequence->frames[frameIndex].playsound) {
 
 			int sound = pSequence->soundId;
@@ -359,13 +358,12 @@ void SEQINST::Update()
 			if (!VanillaMode() && pSequence->frames[frameIndex].soundRange > 0)
 				sound += Random(((pSequence->frames[frameIndex].soundRange == 1) ? 2 : pSequence->frames[frameIndex].soundRange));
 
-			sfxPlay3DSound(&sprite[xsprite[index].reference], sound, -1, 0);
+			sfxPlay3DSound(actor, sound, -1, 0);
 		}
 
 
 		// by NoOne: add surfaceSound trigger feature
-		spritetype* pSprite = &sprite[xsprite[index].reference];
-		auto actor = &bloodActors[pSprite->index];
+		spritetype* pSprite = &actor->s();
 		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->zvel == 0 && actor->xvel != 0) {
 
 			if (gUpperLink[pSprite->sectnum] >= 0) break; // don't play surface sound for stacked sectors
@@ -402,7 +400,7 @@ void SEQINST::Update()
 		break;
 	}
 	case 4:
-		UpdateMasked(index, &pSequence->frames[frameIndex]);
+		UpdateMasked(seqindex, &pSequence->frames[frameIndex]);
 		break;
 	}
 
@@ -410,7 +408,7 @@ void SEQINST::Update()
 	if (pSequence->frames[frameIndex].trigger && callback != -1)
 	{
 		assert(type == 3);
-		seqClientCallback[callback](type, &bloodActors[xsprite[index].reference]);
+		if (type == 3) seqClientCallback[callback](type, actor);
 	}
 
 }
@@ -428,7 +426,8 @@ struct ActiveList
 	void clear() { list.Clear(); }
 	int getSize() { return list.Size(); }
 	SEQINST* getInst(int num) { return &list[num]; }
-	int getIndex(int num) { return list[num].index; }
+	int getIndex(int num) { return list[num].seqindex; }
+	DBloodActor* getActor(int num) { return list[num].actor; }
 	int getType(int num) { return list[num].type; }
 
 	void remove(int num)
@@ -447,7 +446,16 @@ struct ActiveList
 	{
 		for (auto& n : list)
 		{
-			if (n.type == type && n.index == index) return &n;
+			if (n.type == type && n.seqindex == index) return &n;
+		}
+		return nullptr;
+	}
+
+	SEQINST* get(DBloodActor* actor)
+	{
+		for (auto& n : list)
+		{
+			if (n.type == 3 && n.actor == actor) return &n;
 		}
 		return nullptr;
 	}
@@ -457,13 +465,27 @@ struct ActiveList
 		for (unsigned i = 0; i < list.Size(); i++)
 		{
 			auto& n = list[i];
-			if (n.type == type && n.index == index)
+			if (n.type == type && n.seqindex == index)
 			{
 				remove(i);
 				return;
 			}
 		}
 	}
+
+	void remove(DBloodActor* actor)
+	{
+		for (unsigned i = 0; i < list.Size(); i++)
+		{
+			auto& n = list[i];
+			if (n.type == 3 && n.actor == actor)
+			{
+				remove(i);
+				return;
+			}
+		}
+	}
+
 };
 
 static ActiveList activeList;
@@ -481,21 +503,26 @@ SEQINST* GetInstance(int type, int nXIndex)
 
 SEQINST* GetInstance(DBloodActor* actor)
 {
-	return activeList.get(SS_SPRITE, actor->s().extra);
+	return activeList.get(actor);
 }
 
 int seqGetStatus(DBloodActor* actor)
 {
-	return seqGetStatus(SS_SPRITE, actor->s().extra);
+	SEQINST* pInst = activeList.get(actor);
+	if (pInst) return pInst->frameIndex;
+	return -1;
 }
 
 int seqGetID(DBloodActor* actor)
 {
-	return seqGetID(3, actor->s().index);
+	SEQINST* pInst = activeList.get(actor);
+	if (pInst) return pInst->nSeqID;
+	return -1;
 }
 
 void seqKill(int type, int nXIndex)
 {
+	assert(type != SS_SPRITE);
 	activeList.remove(type, nXIndex);
 }
 
@@ -506,7 +533,7 @@ void seqKillAll()
 
 void seqKill(DBloodActor* actor)
 {
-	activeList.remove(SS_SPRITE, actor->s().extra);
+	activeList.remove(actor);
 }
 
 
@@ -583,6 +610,7 @@ Seq* getSequence(int res_id)
 
 void seqSpawn(int nSeqID, int type, int nXIndex, int callback)
 {
+	assert(type != SS_SPRITE);
 	Seq* pSequence = getSequence(nSeqID);
 
 	if (pSequence == nullptr) return;
@@ -605,13 +633,38 @@ void seqSpawn(int nSeqID, int type, int nXIndex, int callback)
 	pInst->timeCounter = (short)pSequence->ticksPerFrame;
 	pInst->frameIndex = 0;
 	pInst->type = type;
-	pInst->index = nXIndex;
+	pInst->seqindex = nXIndex;
+	pInst->actor = nullptr;
 	pInst->Update();
 }
 
-void seqSpawn(int a1, DBloodActor* actor, int a4)
+void seqSpawn(int nSeqID, DBloodActor* actor, int callback)
 {
-	seqSpawn(a1, 3, actor->s().extra, a4);
+	Seq* pSequence = getSequence(nSeqID);
+
+	if (pSequence == nullptr) return;
+
+	SEQINST* pInst = activeList.get(actor);
+	if (!pInst)
+	{
+		pInst = activeList.getNew();
+	}
+	else
+	{
+		// already playing this sequence?
+		if (pInst->nSeqID == nSeqID)
+			return;
+	}
+
+	pInst->pSequence = pSequence;
+	pInst->nSeqID = nSeqID;
+	pInst->callback = callback;
+	pInst->timeCounter = (short)pSequence->ticksPerFrame;
+	pInst->frameIndex = 0;
+	pInst->type = SS_SPRITE;
+	pInst->seqindex = 0;
+	pInst->actor = actor;
+	pInst->Update();
 }
 
 //---------------------------------------------------------------------------
@@ -646,7 +699,8 @@ void seqProcess(int nTicks)
 	{
 		SEQINST* pInst = activeList.getInst(i);
 		Seq* pSeq = pInst->pSequence;
-		int index = pInst->index;
+		int index = pInst->seqindex;
+		auto actor = pInst->actor;
 
 		assert(pInst->frameIndex < pSeq->nFrames);
 
@@ -664,17 +718,16 @@ void seqProcess(int nTicks)
 					{
 						if (pInst->type == SS_SPRITE)
 						{
-							int nSprite = xsprite[index].reference;
-							if (nSprite >= 0 && nSprite < kMaxSprites)
+							if (actor)
 							{
-							evKillActor(&bloodActors[nSprite]);
-								if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
-								evPostActor(&bloodActors[nSprite], gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
-								else deletesprite(nSprite);	// safe to not use actPostSprite here
+								evKillActor(actor);
+								if ((actor->s().hitag & kAttrRespawn) != 0 && (actor->s().inittype >= kDudeBase && actor->s().inittype < kDudeMax))
+								evPostActor(actor, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+								else DeleteSprite(actor);	// safe to not use actPostSprite here
 							}
 						}
 
-						if (pInst->type == SS_MASKED)
+						else if (pInst->type == SS_MASKED)
 						{
 							int nWall = xwall[index].reference;
 							assert(nWall >= 0 && nWall < kMaxWalls);
@@ -706,7 +759,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SEQINST& w, SEQINS
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.index)
+		arc("index", w.seqindex)
+			("actor", w.actor)
 			("type", w.type)
 			("callback", w.callback)
 			("seqid", w.nSeqID)

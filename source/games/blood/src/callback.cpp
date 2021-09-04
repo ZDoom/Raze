@@ -263,10 +263,10 @@ void Respawn(DBloodActor* actor, int) // 9
                     default:
                         pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
                         if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
-                            seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                            seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
                         break;
                     case kDudeModernCustom:
-                        seqSpawn(genDudeSeqStartId(actor), 3, pSprite->extra, -1);
+                        seqSpawn(genDudeSeqStartId(actor), actor, -1);
                         break;
                 }
                 
@@ -279,7 +279,7 @@ void Respawn(DBloodActor* actor, int) // 9
                 pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
                 pXSprite->health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
                 if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
-                    seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                    seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
                 #endif
                 aiInitSprite(actor);
                 pXSprite->key = 0;
@@ -475,7 +475,7 @@ void sleeveStopBouncing(DBloodActor* actor)
 {
     auto pSprite = &actor->s();
     actor->xvel = actor->yvel = actor->zvel = 0;
-    if (pSprite->extra > 0) seqKill(3, pSprite->extra);
+    if (pSprite->extra > 0) seqKill(actor);
     sfxKill3DSound(pSprite, -1, -1);
 
     switch (pSprite->type) {

@@ -72,16 +72,12 @@ struct Seq {
 	}
 };
 
-struct ACTIVE
-{
-	uint8_t type;
-	unsigned short xindex;
-};
-
+class DBloodActor;
 struct SEQINST
 {
 	Seq* pSequence;
-	int index, type;
+	DBloodActor* actor;
+	int seqindex, type;
 
 	int nSeqID;
 	int callback;

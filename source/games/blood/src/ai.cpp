@@ -49,7 +49,7 @@ bool dudeIsPlayingSeq(DBloodActor* actor, int nSeq)
 	if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
 	{
 		DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-		if (seqGetID(3, pSprite->extra) == pDudeInfo->seqStartID + nSeq && seqGetStatus(3, pSprite->extra) >= 0)
+        if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
 			return true;
 	}
 	return false;
@@ -1675,7 +1675,7 @@ void aiProcessDudes(void)
 				if (pExtra->slaveCount > 0) updateTargetOfSlaves(actor);
 				if (pExtra->pLifeLeech != nullptr) updateTargetOfLeech(actor);
 			if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
-				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0))
+				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(actor) < 0))
 			{
 					aiGenDudeNewState(actor, pXSprite->aiState->nextState);
 			}

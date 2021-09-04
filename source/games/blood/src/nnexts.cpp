@@ -300,7 +300,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
     pXDude->health = getDudeInfo(nType)->startHealth << 4;
 
     if (fileSystem.FindResource(getDudeInfo(nType)->seqStartID, "SEQ"))
-        seqSpawn(getDudeInfo(nType)->seqStartID, 3, pDude->extra, -1);
+        seqSpawn(getDudeInfo(nType)->seqStartID, pDudeActor, -1);
 
     // add a way to inherit some values of spawner by dude.
     if (pSource->flags & kModernTypeFlag1) {
@@ -1519,7 +1519,7 @@ int getSpriteMassBySize(DBloodActor* actor)
     } 
     else  
     {
-        seqId = seqGetID(3, pSprite->extra);
+        seqId = seqGetID(actor);
     }
 
     SPRITEMASS* cached = &actor->spriteMass;

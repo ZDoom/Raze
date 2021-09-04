@@ -564,8 +564,8 @@ void packNextItem(PLAYER* pPlayer)
 
 char playerSeqPlaying(PLAYER * pPlayer, int nSeq)
 {
-    int nCurSeq = seqGetID(3, pPlayer->pSprite->extra);
-    if (pPlayer->pDudeInfo->seqStartID+nSeq == nCurSeq && seqGetStatus(3,pPlayer->pSprite->extra) >= 0)
+    int nCurSeq = seqGetID(pPlayer->actor());
+    if (pPlayer->pDudeInfo->seqStartID+nSeq == nCurSeq && seqGetStatus(pPlayer->actor()) >= 0)
         return 1;
     return 0;
 }
@@ -670,7 +670,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->pDudeInfo = pDudeInfo;
     playerSetRace(pPlayer, kModeHuman);
     playerResetPosture(pPlayer);
-    seqSpawn(pDudeInfo->seqStartID, 3, pSprite->extra, -1);
+    seqSpawn(pDudeInfo->seqStartID, actor, -1);
     if (pPlayer == gMe)
         actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
     int top, bottom;
@@ -1390,14 +1390,14 @@ void ProcessInput(PLAYER *pPlayer)
             if (bSeqStat)
             {
                 if (pPlayer->deathTime > 360)
-                    seqSpawn(pPlayer->pDudeInfo->seqStartID+14, 3, pPlayer->pSprite->extra, nPlayerSurviveClient);
+                    seqSpawn(pPlayer->pDudeInfo->seqStartID+14, pPlayer->actor(), nPlayerSurviveClient);
             }
-            else if (seqGetStatus(3, pPlayer->pSprite->extra) < 0)
+            else if (seqGetStatus(pPlayer->actor()) < 0)
             {
                 if (pPlayer->pSprite)
                     pPlayer->pSprite->type = kThingBloodChunks;
                 actPostSprite(pPlayer->actor(), kStatThing);
-                seqSpawn(pPlayer->pDudeInfo->seqStartID+15, 3, pPlayer->pSprite->extra, -1);
+                seqSpawn(pPlayer->pDudeInfo->seqStartID+15, pPlayer->actor(), -1);
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
@@ -2093,7 +2093,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
 
     }
     assert(getSequence(pDudeInfo->seqStartID + nDeathSeqID) != NULL);
-    seqSpawn(pDudeInfo->seqStartID+nDeathSeqID, 3, nXSprite, nKneelingPlayer);
+    seqSpawn(pDudeInfo->seqStartID+nDeathSeqID, pPlayer->actor(), nKneelingPlayer);
     return nDamage;
 }
 

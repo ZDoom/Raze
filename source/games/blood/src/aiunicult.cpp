@@ -121,7 +121,7 @@ static void forcePunch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (actor->genDudeExtra.forcePunch && seqGetStatus(3, pSprite->extra) == -1)
+    if (actor->genDudeExtra.forcePunch && seqGetStatus(actor) == -1)
         punchCallback(0, actor);
 }
 
@@ -1044,7 +1044,7 @@ static void unicultThinkChase(DBloodActor* actor)
             } 
             else 
             {
-                if (seqGetID(3, pSprite->extra) == pXSprite->data2 + ((state < 3) ? 8 : 6)) 
+                if (seqGetID(actor) == pXSprite->data2 + ((state < 3) ? 8 : 6)) 
                 {
                     if (state == 1) pXSprite->aiState->nextState = &genDudeChaseW;
                     else if (state == 2) pXSprite->aiState->nextState = &genDudeChaseD;
@@ -1313,7 +1313,7 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
     int stateSeq = pXSprite->data2 + pAIState->seqId;
     if (pAIState->seqId >= 0 && getSequence(stateSeq)) 
     {
-        seqSpawn(stateSeq, 3, pSprite->extra, pAIState->funcId);
+        seqSpawn(stateSeq, actor, pAIState->funcId);
     }
 
     if (pAIState->enterFunc)
@@ -1931,7 +1931,7 @@ bool doExplosion(DBloodActor* actor, int nType)
     else if (nType <= 6) { nSeq = 4; nSnd = 303; }
     else if (nType == 7) { nSeq = 4; nSnd = 303; }
     
-    seqSpawn(nSeq, 3, pExplosion->extra, -1);
+    seqSpawn(nSeq, actExplosion, -1);
     sfxPlay3DSound(actExplosion, nSnd, -1, 0);
 
     return true;
@@ -1983,7 +1983,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
     pXDude->data3 = 0;
 
     // spawn seq
-    seqSpawn(genDudeSeqStartId(spawned), 3, pDude->extra, -1);
+    seqSpawn(genDudeSeqStartId(spawned), spawned, -1);
 
     // inherit movement speed.
     pXDude->busyTime = pXSource->busyTime;
@@ -2132,7 +2132,7 @@ void genDudeTransform(DBloodActor* actor)
             genDudePrepare(actor, kGenDudePropertyMass);
             [[fallthrough]]; // go below
         default:
-            seqSpawn(seqId, 3, pSprite->extra, -1);
+            seqSpawn(seqId, actor, -1);
 
             // save target
             auto target = actor->GetTarget();
@@ -2568,7 +2568,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
         }
         case kGenDudePropertySpriteSize: {
             if (seqGetStatus(actor) == -1)
-                seqSpawn(pXSprite->data2 + pXSprite->aiState->seqId, 3, pSprite->extra, -1);
+                seqSpawn(pXSprite->data2 + pXSprite->aiState->seqId, actor, -1);
 
             // make sure dudes aren't in the floor or ceiling
             int zTop, zBot; GetSpriteExtents(pSprite, &zTop, &zBot);
