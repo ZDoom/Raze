@@ -110,30 +110,32 @@ void InitMirrors(void)
 
         if (sector[i].floorpicnum == 504)
         {
-            int nLink = gUpperLink[i];
-            if (nLink < 0)
+            auto link = getUpperLink(i);
+            if (link == nullptr)
                 continue;
-            int nLink2 = sprite[nLink].owner /*& 0xfff*/;
-            int j = sprite[nLink2].sectnum;
+            auto link2 = link->GetOwner();
+            if (link2 == nullptr)
+                continue;
+            int j = link2->s().sectnum;
             if (sector[j].ceilingpicnum != 504)
                 I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
             mirror[mirrorcnt].type = 2;
-            mirror[mirrorcnt].dx = sprite[nLink2].x-sprite[nLink].x;
-            mirror[mirrorcnt].dy = sprite[nLink2].y-sprite[nLink].y;
-            mirror[mirrorcnt].dz = sprite[nLink2].z-sprite[nLink].z;
+            mirror[mirrorcnt].dx = link2->s().x - link->s().x;
+            mirror[mirrorcnt].dy = link2->s().y - link->s().y;
+            mirror[mirrorcnt].dz = link2->s().z - link->s().z;
             mirror[mirrorcnt].wallnum = i;
             mirror[mirrorcnt].link = j;
-            sector[i].floorpicnum = 4080+mirrorcnt;
+            sector[i].floorpicnum = 4080 + mirrorcnt;
             sector[i].portalflags = PORTAL_SECTOR_FLOOR;
             sector[i].portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
             mirrorcnt++;
             mirror[mirrorcnt].type = 1;
-            mirror[mirrorcnt].dx = sprite[nLink].x-sprite[nLink2].x;
-            mirror[mirrorcnt].dy = sprite[nLink].y-sprite[nLink2].y;
-            mirror[mirrorcnt].dz = sprite[nLink].z-sprite[nLink2].z;
+            mirror[mirrorcnt].dx = link->s().x - link2->s().x;
+            mirror[mirrorcnt].dy = link->s().y - link2->s().y;
+            mirror[mirrorcnt].dz = link->s().z - link2->s().z;
             mirror[mirrorcnt].wallnum = j;
             mirror[mirrorcnt].link = i;
-            sector[j].ceilingpicnum = 4080+mirrorcnt;
+            sector[j].ceilingpicnum = 4080 + mirrorcnt;
             sector[j].portalflags = PORTAL_SECTOR_CEILING;
             sector[j].portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
             mirrorcnt++;
