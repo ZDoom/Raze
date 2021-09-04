@@ -1336,7 +1336,7 @@ void nnExtProcessSuperSprites()
 
                         HitScan(pPlayer->actor(), pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
 
-                        //VectorScan(pPlaySprite, 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
+                        //VectorScan(pPlayer->actor(), 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
 
                         if (!vector)
                             pSightSpr->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;

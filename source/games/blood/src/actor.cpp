@@ -6924,7 +6924,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 	assert(vectorType >= 0 && vectorType < kVectorMax);
 	const VECTORDATA* pVectorData = &gVectorData[vectorType];
 	int nRange = pVectorData->maxDist;
-	int hit = VectorScan(pShooter, a2, a3, a4, a5, a6, nRange, 1);
+    int hit = VectorScan(shooter, a2, a3, a4, a5, a6, nRange, 1);
 	if (hit == 3)
 	{
 		auto hitactor = gHitInfo.hitactor;
