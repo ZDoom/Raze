@@ -630,6 +630,11 @@ void evProcess(unsigned int time)
 	{
 		EVENT event = *queue.begin();
 		queue.erase(queue.begin());
+		if (event.type == SS_SPRITE)
+		{
+			// Don't call events on destroyed actors. Seems to happen occasionally.
+			if (!event.actor || event.actor->s().statnum == kStatFree) continue;
+		}
 
 		if (event.cmd == kCmdCallback)
 		{
