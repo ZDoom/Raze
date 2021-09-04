@@ -3943,7 +3943,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 		break;
 	case kMissileTeslaAlt:
-		teslaHit(pMissile, hitCode);
+		teslaHit(missileActor, hitCode);
 		switch (hitCode)
 		{
 		case 0:

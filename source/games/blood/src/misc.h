@@ -53,7 +53,7 @@ void WeaponLower(PLAYER *pPlayer);
 int WeaponUpgrade(PLAYER *pPlayer, int newWeapon);
 void WeaponProcess(PLAYER *pPlayer);
 void WeaponUpdateState(PLAYER* pPlayer);
-void teslaHit(spritetype *pMissile, int a2);
+void teslaHit(DBloodActor *pMissile, int a2);
 void WeaponPrecache();
 
 struct ZONE {

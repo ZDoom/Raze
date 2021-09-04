@@ -355,7 +355,7 @@ void UpdateAimVector(PLAYER * pPlayer)
     aim.dy = bsin(pPSprite->ang);
     aim.dz = pPlayer->slope;
     WEAPONTRACK *pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
-    int nTarget = -1;
+    DBloodActor* targetactor = nullptr;
     pPlayer->aimTargetsCount = 0;
     int autoaim = Autoaim(pPlayer->nPlayer);
     if (autoaim == 1 || (autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == kWeapVoodooDoll || pPlayer->curWeapon == kWeapLifeLeech)
@@ -415,7 +415,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 aim.dx = bcos(angle);
                 aim.dy = bsin(angle);
                 aim.dz = DivScale(dzCenter, nDist, 10);
-                nTarget = pSprite->index;
+                targetactor = actor;
             }
         }
         if (pWeaponTrack->thingAngle > 0)
@@ -463,7 +463,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                     aim.dx = bcos(angle);
                     aim.dy = bsin(angle);
                     aim.dz = DivScale(dz, nDist, 10);
-                    nTarget = pSprite->index;
+                    targetactor = actor;
                 }
             }
         }
@@ -478,7 +478,7 @@ void UpdateAimVector(PLAYER * pPlayer)
     pPlayer->aim = pPlayer->relAim;
     RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, pPSprite->ang);
     pPlayer->aim.dz += pPlayer->slope;
-    pPlayer->aimTarget = &bloodActors[nTarget];
+    pPlayer->aimTarget = targetactor;
 }
 
 struct t_WeaponModes
@@ -2658,9 +2658,9 @@ void WeaponProcess(PLAYER *pPlayer) {
     WeaponUpdateState(pPlayer);
 }
 
-void teslaHit(spritetype *pMissile, int a2)
+void teslaHit(DBloodActor *missileactor, int a2)
 {
-    auto missileactor = &bloodActors[pMissile->index];
+    auto pMissile = &missileactor->s();
     uint8_t sectmap[(kMaxSectors+7)>>3];
     int x = pMissile->x;
     int y = pMissile->y;
