@@ -10,11 +10,10 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
 {
     int nSector = mirror[i].link;
     int nSector2 = mirror[i].wallnum;
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype* pSprite = &sprite[nSprite];
+        spritetype* pSprite = &actor->s();
         if (pSprite == gView->pSprite)
             continue;
         int top, bottom;
