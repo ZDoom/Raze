@@ -5432,9 +5432,9 @@ void sectorContinueMotion(int nSector, EVENT event)
     int waitTimeB = pXSector->waitTimeB;
     if (sector[nSector].type == kSectorPath) 
     {
-        if (!spriRangeIsFine(pXSector->marker0)) return;
-        busyTimeA = busyTimeB = xsprite[sprite[pXSector->marker0].extra].busyTime;
-        waitTimeA = waitTimeB = xsprite[sprite[pXSector->marker0].extra].waitTime;
+        if (!pXSector->marker0) return;
+        busyTimeA = busyTimeB = pXSector->marker0->x().busyTime;
+        waitTimeA = waitTimeB = pXSector->marker0->x().waitTime;
     }
     
     if (!pXSector->interruptable && event.cmd != kCmdSectorMotionContinue
