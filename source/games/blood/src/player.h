@@ -115,7 +115,7 @@ struct PLAYER
     bool                isUnderwater;
     bool                hasKey[8];
     int8_t              hasFlag;
-    short               used2[8];  // ??
+    DBloodActor*        ctfFlagState[2];
     int                 damageControl[7];
     int8_t              curWeapon;
     int8_t              nextWeapon;

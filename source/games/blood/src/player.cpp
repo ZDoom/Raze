@@ -713,8 +713,8 @@ void playerStart(int nPlayer, int bNewLevel)
         for (int i = 0; i < 8; i++)
             pPlayer->hasKey[i] = gGameOptions.nGameType >= 2;
     pPlayer->hasFlag = 0;
-    for (int i = 0; i < 8; i++)
-        pPlayer->used2[i] = -1;
+    for (int i = 0; i < 2; i++)
+        pPlayer->ctfFlagState[i] = nullptr;
     for (int i = 0; i < 7; i++)
         pPlayer->damageControl[i] = 0;
     if (pPlayer->godMode)
@@ -909,7 +909,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 if (pPlayer->teamId == 1) {
                     if ((pPlayer->hasFlag & 1) == 0 && pXItem->state) {
                         pPlayer->hasFlag |= 1;
-                        pPlayer->used2[0] = pItem->index;
+                        pPlayer->ctfFlagState[0] = itemactor;
                         trTriggerSprite(pItem->index, pXItem, kCmdOff);
                         sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8007, 255, 2, 0);
@@ -921,7 +921,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
 
                     if ((pPlayer->hasFlag & 1) != 0 && !pXItem->state) {
                         pPlayer->hasFlag &= ~1;
-                        pPlayer->used2[0] = -1;
+                        pPlayer->ctfFlagState[0] = nullptr;
                         trTriggerSprite(pItem->index, pXItem, kCmdOn);
                         sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8003, 255, 2, 0);
@@ -930,7 +930,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
 
                     if ((pPlayer->hasFlag & 2) != 0 && pXItem->state) {
                         pPlayer->hasFlag &= ~2;
-                        pPlayer->used2[1] = -1;
+                        pPlayer->ctfFlagState[1] = nullptr;
                         team_score[pPlayer->teamId] += 10;
                         team_ticker[pPlayer->teamId] += 240;
                         evSendGame(81, kCmdOn);
@@ -946,7 +946,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 if (pPlayer->teamId == 0) {
                     if ((pPlayer->hasFlag & 2) == 0 && pXItem->state) {
                         pPlayer->hasFlag |= 2;
-                        pPlayer->used2[1] = pItem->index;
+                        pPlayer->ctfFlagState[1] = itemactor;
                         trTriggerSprite(pItem->index, pXItem, kCmdOff);
                         sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8006, 255, 2, 0);
@@ -958,7 +958,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                     if ((pPlayer->hasFlag & 2) != 0 && !pXItem->state)
                     {
                         pPlayer->hasFlag &= ~2;
-                        pPlayer->used2[1] = -1;
+                        pPlayer->ctfFlagState[1] = nullptr;
                         trTriggerSprite(pItem->index, pXItem, kCmdOn);
                         sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8002, 255, 2, 0);
@@ -967,7 +967,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                     if ((pPlayer->hasFlag & 1) != 0 && pXItem->state)
                     {
                         pPlayer->hasFlag &= ~1;
-                        pPlayer->used2[0] = -1;
+                        pPlayer->ctfFlagState[0] = nullptr;
                         team_score[pPlayer->teamId] += 10;
                         team_ticker[pPlayer->teamId] += 240;
                         evSendGame(80, kCmdOn);
@@ -985,7 +985,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             const bool enemyTeam = (pPlayer->teamId&1) == 1;
             if (!enemyTeam && (pItem->owner >= 0) && (pItem->owner < kMaxSprites)) {
                 pPlayer->hasFlag &= ~1;
-                pPlayer->used2[0] = -1;
+                pPlayer->ctfFlagState[0] = nullptr;
                 spritetype* pOwner = &sprite[pItem->owner];
                 XSPRITE* pXOwner = &xsprite[pOwner->extra];
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
@@ -995,7 +995,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 break;
             }
             pPlayer->hasFlag |= 1;
-            pPlayer->used2[0] = pItem->owner;
+            pPlayer->ctfFlagState[0] = itemactor->GetOwner();
             if (enemyTeam)
             {
                 sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
@@ -1010,7 +1010,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             const bool enemyTeam = (pPlayer->teamId&1) == 0;
             if (!enemyTeam && (pItem->owner >= 0) && (pItem->owner < kMaxSprites)) {
                 pPlayer->hasFlag &= ~2;
-                pPlayer->used2[1] = -1;
+                pPlayer->ctfFlagState[1] = nullptr;
                 spritetype* pOwner = &sprite[pItem->owner];
                 XSPRITE* pXOwner = &xsprite[pOwner->extra];
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
@@ -1020,7 +1020,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 break;
             }
             pPlayer->hasFlag |= 2;
-            pPlayer->used2[1] = pItem->owner;
+            pPlayer->ctfFlagState[1] = itemactor->GetOwner();
             if (enemyTeam)
             {
                 sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
@@ -1575,7 +1575,7 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->handTime = ClipLow(pPlayer->handTime-4*(6-gGameOptions.nDifficulty), 0);
         if (pPlayer->handTime <= 0 && pPlayer->hand)
         {
-            auto pactor = &bloodActors[pPlayer->pSprite->index];
+            auto pactor = pPlayer->actor();
             auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
             spritetype* pSprite2 = &spawned->s();
             pSprite2->ang = (pPlayer->pSprite->ang+1024)&2047;
@@ -1782,14 +1782,14 @@ void playerProcess(PLAYER *pPlayer)
 
 spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6)
 {
-    auto misl = actFireMissile(&bloodActors[pPlayer->pSprite->index], a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
+    auto misl = actFireMissile(pPlayer->actor(), a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
     return misl ? &misl->s() : nullptr;
 }
 
 spritetype * playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    auto misl = actFireThing(&bloodActors[pPlayer->pSprite->index], a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
+    auto misl = actFireThing(pPlayer->actor(), a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
     return misl ? &misl->s() : nullptr;
 }
 
@@ -1904,16 +1904,16 @@ int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 
 spritetype *flagDropped(PLAYER *pPlayer, int a2)
 {
-    auto actor = pPlayer->actor();
+    auto playeractor = pPlayer->actor();
+    DBloodActor* actor;
     char buffer[80];
     spritetype *pSprite = NULL;
     switch (a2)
     {
     case kItemFlagA:
         pPlayer->hasFlag &= ~1;
-        pSprite = &actDropObject(actor, kItemFlagA)->s();
-        if (pSprite)
-            pSprite->owner = pPlayer->used2[0];
+        actor = actDropObject(playeractor, kItemFlagA);
+        if (actor) actor->SetOwner(pPlayer->ctfFlagState[0]);
         gBlueFlagDropped = true;
         sprintf(buffer, "%s dropped Blue Flag", PlayerName(pPlayer->nPlayer));
         sndStartSample(8005, 255, 2, 0);
@@ -1921,9 +1921,8 @@ spritetype *flagDropped(PLAYER *pPlayer, int a2)
         break;
     case kItemFlagB:
         pPlayer->hasFlag &= ~2;
-        pSprite = &actDropObject(actor, kItemFlagB)->s();
-        if (pSprite)
-            pSprite->owner = pPlayer->used2[1];
+        actor = actDropObject(playeractor, kItemFlagB);
+        if (actor) actor->SetOwner(pPlayer->ctfFlagState[1]);
         gRedFlagDropped = true;
         sprintf(buffer, "%s dropped Red Flag", PlayerName(pPlayer->nPlayer));
         sndStartSample(8004, 255, 2, 0);
@@ -2113,7 +2112,7 @@ int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec)
 
 void voodooTarget(PLAYER *pPlayer)
 {
-    auto actor = &bloodActors[pPlayer->pSprite->index];
+    auto actor = pPlayer->actor();
     int v4 = pPlayer->aim.dz;
     int dz = pPlayer->zWeapon-pPlayer->pSprite->z;
     if (UseAmmo(pPlayer, 9, 0) < 8)
@@ -2288,7 +2287,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
             ("underwater", w.isUnderwater)
             .Array("haskey", w.hasKey, 8)
             ("hasflag", w.hasFlag)
-            .Array("used2", w.used2, 8)
+            .Array("ctfflagstate", w.ctfFlagState, 2)
             .Array("dmgcontrol", w.damageControl, 7)
             ("curweapon", w.curWeapon)
             ("nextweapon", w.nextWeapon)
