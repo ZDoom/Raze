@@ -89,12 +89,13 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
         }
         else if (type == SOURCE_Actor)
         {
-            auto actor = (spritetype*)source;
-            assert(actor != nullptr);
-            size_t index = actor - sprite;
+            auto sprt = (spritetype*)source;
+            assert(sprt != nullptr);
+            auto actor = &bloodActors[sprt->index];
+
             // Engine expects velocity in units per second, not units per tic.
-            if (vel) *vel = { xvel[index] * (30 / 65536.f), zvel[index] * (-30 / 65536.f), yvel[index] * (-30 / 65536.f) };
-            *pos = GetSoundPos(&actor->pos);
+            if (vel) *vel = { actor->xvel() * (30 / 65536.f), actor->zvel() * (-30 / 65536.f), actor->yvel() * (-30 / 65536.f) };
+            *pos = GetSoundPos(&sprt->pos);
         }
         else if (type == SOURCE_Ambient)
         {

@@ -62,9 +62,9 @@ void viewInitializePrediction(void)
 	predict.z = gMe->pSprite->z;
 	predict.sectnum = gMe->pSprite->sectnum;
 	predict.at73 = gMe->pSprite->flags;
-	predict.xvel = xvel[gMe->pSprite->index];
-	predict.yvel = yvel[gMe->pSprite->index];
-	predict.zvel = zvel[gMe->pSprite->index];
+	predict.xvel = gMe->actor()->xvel();
+	predict.yvel = gMe->actor()->yvel();
+	predict.zvel = gMe->actor()->zvel();
 	predict.floordist = gMe->pXSprite->height;
 	predict.at48 = gMe->posture;
 	predict.spin = gMe->angle.spin;
