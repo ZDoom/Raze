@@ -8549,8 +8549,8 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
 {
     auto destactor = &bloodActors[pDest->index];
     // copy flags
-    if (copy) {
-    
+    if (copy) 
+    {
         pXDest->dudeFlag4  = pXSource->dudeFlag4;
         pXDest->dudeAmbush = pXSource->dudeAmbush;
         pXDest->dudeGuard  = pXSource->dudeGuard;
@@ -8559,36 +8559,37 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
 
         if (pXSource->unused1 & kDudeFlagStealth) pXDest->unused1 |= kDudeFlagStealth;
         else pXDest->unused1 &= ~kDudeFlagStealth;
-    
     }
 
     // do init
-    if (init) {
-
-        if (!pXDest->dudeFlag4) {
-
+    if (init) 
+    {
+        if (!pXDest->dudeFlag4) 
+        {
             if (aiInPatrolState(pXDest->aiState))
                 aiPatrolStop(destactor, nullptr);
-
-        } else {
-
+        }
+        else 
+        {
             if (aiInPatrolState(pXDest->aiState))
                 return;
             
             pXDest->target_i = -1; // reset the target
             pXDest->stateTimer = 0;
             
-            
             aiPatrolSetMarker(destactor);
             if (spriteIsUnderwater(destactor)) aiPatrolState(destactor, kAiStatePatrolWaitW);
             else aiPatrolState(destactor, kAiStatePatrolWaitL);
             pXDest->data3 = 0; // reset the spot progress
-
         }
-
     }
-
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker) {
 
@@ -8596,9 +8597,14 @@ bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker) {
     else return (findNextMarker(&bloodActors[pXMarker->reference], kPatrolMoveBackward) != nullptr) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void aiPatrolThink(DBloodActor* actor) {
-
+void aiPatrolThink(DBloodActor* actor)
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
 
@@ -8627,8 +8633,8 @@ void aiPatrolThink(DBloodActor* actor) {
     bool isFinal = ((!pXSprite->unused2 && pXMarker->data2 == -1) || (pXSprite->unused2 && pXMarker->data1 == -1));
     bool reached = false;
     
-    if (aiPatrolWaiting(pXSprite->aiState)) {
-        
+    if (aiPatrolWaiting(pXSprite->aiState)) 
+    {
         //viewSetSystemMessage("WAIT %d / %d", pXSprite->targetY, pXSprite->stateTimer);
         
         if (pXSprite->stateTimer > 0 || pXMarker->data1 == pXMarker->data2) {
@@ -8637,50 +8643,45 @@ void aiPatrolThink(DBloodActor* actor) {
                 zvel[pSprite->index] = Random2(0x8000);
 
             // turn while waiting
-            if (pMarker->flags & kModernTypeFlag16) {
-                
+            if (pMarker->flags & kModernTypeFlag16) 
+            {
                 stateTimer = pXSprite->stateTimer;
                 
-                if (--pXSprite->unused4 <= 0) {
-                    
+                if (--pXSprite->unused4 <= 0) 
+                {
                     if (uwater) aiPatrolState(actor, kAiStatePatrolTurnW);
                     else if (crouch) aiPatrolState(actor, kAiStatePatrolTurnC);
                     else aiPatrolState(actor, kAiStatePatrolTurnL);
                     pXSprite->unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
-
                 }
 
                 // must restore stateTimer for waiting
                 pXSprite->stateTimer = stateTimer;
             }
-
-
             return;
-
         }
 
         // trigger at departure
-        if (pXMarker->triggerOff) {
-
+        if (pXMarker->triggerOff) 
+        {
             // send command
-            if (pXMarker->txID) {
-
+            if (pXMarker->txID) 
+            {
                 evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
-            } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
+            }
+            else if (pXMarker->command == kCmdDudeFlagsSet) 
+            {
                 aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
                 if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                     return;
-
             }
-
-
         }
 
         // release the enemy
-        if (isFinal) {
+        if (isFinal) 
+        {
             aiPatrolStop(actor, nullptr);
             return;
         }
@@ -8688,11 +8689,11 @@ void aiPatrolThink(DBloodActor* actor) {
         // move next marker
         aiPatrolSetMarker(actor);
 
-    } else if (aiPatrolTurning(pXSprite->aiState)) {
-
+    } else if (aiPatrolTurning(pXSprite->aiState)) 
+    {
         //viewSetSystemMessage("TURN");
-        if ((int)pSprite->ang == (int)pXSprite->goalAng) {
-            
+        if ((int)pSprite->ang == (int)pXSprite->goalAng) 
+        {
             // save imer for waiting
             stateTimer = pXSprite->stateTimer;
             
@@ -8702,55 +8703,49 @@ void aiPatrolThink(DBloodActor* actor) {
             
             // must restore it
             pXSprite->stateTimer = stateTimer;
-
         }
-        
-        
         return;
 
-    } else if ((reached = aiPatrolMarkerReached(actor)) == true) {
-
+    }
+    else if ((reached = aiPatrolMarkerReached(actor)) == true) 
+    {
         pXMarker->isTriggered = pXMarker->triggerOnce; // can't select this marker for path anymore if true
 
-        if (pMarker->flags > 0) {
-            
+        if (pMarker->flags > 0) 
+        {
             if ((pMarker->flags & kModernTypeFlag2) && (pMarker->flags & kModernTypeFlag1)) crouch = !crouch;
             else if (pMarker->flags & kModernTypeFlag2) crouch = false;
             else if ((pMarker->flags & kModernTypeFlag1) && aiCanCrouch(actor)) crouch = true;
-
         }
 
-        if (pXMarker->waitTime > 0 || pXMarker->data1 == pXMarker->data2) {
-
+        if (pXMarker->waitTime > 0 || pXMarker->data1 == pXMarker->data2) 
+        {
             // take marker's angle
-            if (!(pMarker->flags & kModernTypeFlag4)) {
-
+            if (!(pMarker->flags & kModernTypeFlag4)) 
+            {
                 pXSprite->goalAng = ((!(pMarker->flags & kModernTypeFlag8) && pXSprite->unused2) ? pMarker->ang + kAng180 : pMarker->ang) & 2047;
                 if ((int)pSprite->ang != (int)pXSprite->goalAng) // let the enemy play move animation while turning
                     return;
-
             }
 
             if (markeractor->GetOwner() == actor)
                 markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
             // trigger at arrival
-            if (pXMarker->triggerOn) {
-
+            if (pXMarker->triggerOn) 
+            {
                 // send command
-                if (pXMarker->txID) {
-
+                if (pXMarker->txID) 
+                {
                     evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
-
+                } 
+                else if (pXMarker->command == kCmdDudeFlagsSet) 
+                {
                 // copy dude flags for current dude
-                } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
                     aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
                     if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                         return;
-
                 }
-            
             }
 
             if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
@@ -8760,22 +8755,20 @@ void aiPatrolThink(DBloodActor* actor) {
             if (pXMarker->waitTime)
                 pXSprite->stateTimer = (pXMarker->waitTime * 120) / 10;
 
-
             if (pMarker->flags & kModernTypeFlag16)
                 pXSprite->unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
 
             return;
-
-        
-        } else {
-        
+        }
+        else 
+        {
             if (markeractor->GetOwner() == actor)
                 markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
-            if (pXMarker->triggerOn || pXMarker->triggerOff) {
-
-                if (pXMarker->txID) {
-
+            if (pXMarker->triggerOn || pXMarker->triggerOff) 
+            {
+                if (pXMarker->txID) 
+                {
                     // send command at arrival
                     if (pXMarker->triggerOn)
                         evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
@@ -8785,27 +8778,25 @@ void aiPatrolThink(DBloodActor* actor) {
                         evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
-                } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
+                }
+                else if (pXMarker->command == kCmdDudeFlagsSet) 
+                {
                     aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
                     if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                         return;
-
                 }
-
             }
 
             // release the enemy
-            if (isFinal) {
+            if (isFinal) 
+            {
                 aiPatrolStop(actor, nullptr);
                 return;
             }
 
             // move the next marker
             aiPatrolSetMarker(actor);
-
         }
-
     }
     
     nnExtAiSetDirection(actor, getangle(pMarker->x - pSprite->x, pMarker->y - pSprite->y));
