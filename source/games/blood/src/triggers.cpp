@@ -712,16 +712,13 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
 
 void SectorStartSound(int nSector, int nState)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
+        spritetype *pSprite = &actor->s();
+        if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector && actor->hasX())
         {
-            int nXSprite = pSprite->extra;
-            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            XSPRITE *pXSprite = &actor->x();
             if (nState)
             {
                 if (pXSprite->data3)
@@ -738,16 +735,13 @@ void SectorStartSound(int nSector, int nState)
 
 void SectorEndSound(int nSector, int nState)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
+        spritetype* pSprite = &actor->s();
+        if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector && actor->hasX())
         {
-            int nXSprite = pSprite->extra;
-            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            XSPRITE *pXSprite = &actor->x();
             if (nState)
             {
                 if (pXSprite->data2)
@@ -764,13 +758,12 @@ void SectorEndSound(int nSector, int nState)
 
 void PathSound(int nSector, int nSound)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype* pSprite = &actor->s();
         if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
-            sfxPlay3DSound(pSprite, nSound, 0, 0);
+            sfxPlay3DSound(actor, nSound, 0, 0);
     }
 }
 
@@ -945,25 +938,25 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
         int oldZ = pSector->floorz;
         baseFloor[nSector] = pSector->floorz = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16);
         velFloor[nSector] += (pSector->floorz-oldZ)<<8;
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+
+        BloodSectIterator it(nSector);
+        while (auto actor = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype* pSprite = &actor->s();
             if (pSprite->statnum == kStatMarker || pSprite->statnum == kStatPathMarker)
                 continue;
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
             if (pSprite->cstat&8192)
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
                 pSprite->z += pSector->floorz-oldZ;
             }
             else if (pSprite->flags&2)
                 pSprite->flags |= 4;
             else if (oldZ <= bottom && !(pSprite->cstat&48))
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
                 pSprite->z += pSector->floorz-oldZ;
             }
         }
@@ -974,16 +967,16 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
         int oldZ = pSector->ceilingz;
         baseCeil[nSector] = pSector->ceilingz = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16);
         velCeil[nSector] += (pSector->ceilingz-oldZ)<<8;
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+
+        BloodSectIterator it(nSector);
+        while (auto actor = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype* pSprite = &actor->s();
             if (pSprite->statnum == kStatMarker || pSprite->statnum == kStatPathMarker)
                 continue;
             if (pSprite->cstat&16384)
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
                 pSprite->z += pSector->ceilingz-oldZ;
             }
         }
@@ -994,19 +987,19 @@ int GetHighestSprite(int nSector, int nStatus, int *a3)
 {
     *a3 = sector[nSector].floorz;
     int v8 = -1;
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        if (sprite[nSprite].statnum == nStatus || nStatus == kStatFree)
+        spritetype* pSprite = &actor->s();
+        if (pSprite->statnum == nStatus || nStatus == kStatFree)
         {
-            spritetype *pSprite = &sprite[nSprite];
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
             if (top-pSprite->z > *a3)
             {
                 *a3 = top-pSprite->z;
-                v8 = nSprite;
+                v8 = pSprite->index;
             }
         }
     }
@@ -1020,11 +1013,11 @@ int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
     int vc = -1;
     sectortype *pSector = &sector[nSector];
     int vbp = pSector->ceilingz;
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype* pSprite = &actor->s();
         if (pSprite->statnum == kStatDude || pSprite->statnum == kStatThing)
         {
             int top, bottom;
@@ -1034,7 +1027,7 @@ int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
                 vbp = top;
                 *pzTop = top;
                 *pzBot = bottom;
-                vc = nSprite;
+                vc = pSprite->index;
             }
         }
     }
@@ -1407,13 +1400,13 @@ void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID bu
     }
 }
 
-char SectorContainsDudes(int nSector)
+bool SectorContainsDudes(int nSector)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        if (sprite[nSprite].statnum == kStatDude)
+        spritetype* pSprite = &actor->s();
+        if (pSprite->statnum == kStatDude)
             return 1;
     }
     return 0;
@@ -1481,21 +1474,22 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
 
 void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
 {
-    int nSprite;
+    DBloodActor* actor;
     spritetype *pSprite = NULL;
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
     if (!pXSector->marker0) return;
     spritetype* pSprite2 = &pXSector->marker0->s();
-    XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
+    XSPRITE *pXSprite2 = &pXSector->marker0->x();
     int nId = pXSprite2->data2;
-    StatIterator it(kStatPathMarker);
-    while ((nSprite = it.NextIndex()) >= 0)
+    
+    BloodStatIterator it(kStatPathMarker);
+    while (actor = it.Next())
     {
-        pSprite = &sprite[nSprite];
+        pSprite = &actor->s();
         if (pSprite->type == kMarkerPath)
         {
-            pXSprite = &xsprite[pSprite->extra];
+            pXSprite = &actor->x();
             if (pXSprite->data1 == nId)
                 break;
         }
@@ -1507,14 +1501,14 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
             trTriggerSprite(pSprite2->index, pXSprite2, kCmdOn);
     #endif
 
-    if (nSprite < 0) {
+    if (actor == nullptr) {
         viewSetSystemMessage("Unable to find path marker with id #%d for path sector #%d", nId, nSector);
         pXSector->state = 0;
         pXSector->busy = 0;
         return;
     }
         
-    pXSector->marker1 = &bloodActors[nSprite];
+    pXSector->marker1 = actor;
     pXSector->offFloorZ = pSprite2->z;
     pXSector->onFloorZ = pSprite->z;
     switch (event.cmd) {
@@ -1629,31 +1623,32 @@ void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
 
 void InitPath(unsigned int nSector, XSECTOR *pXSector)
 {
-    int nSprite;
+    DBloodActor* actor = nullptr;
     spritetype *pSprite;
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
     int nId = pXSector->data;
-    StatIterator it(kStatPathMarker);
-    while ((nSprite = it.NextIndex()) >= 0)
+
+    BloodStatIterator it(kStatPathMarker);
+    while (actor = it.Next())
     {
-        pSprite = &sprite[nSprite];
-        if (pSprite->type == kMarkerPath)
+        pSprite = &actor->s();
+        if (pSprite->type == kMarkerPath && actor->hasX())
         {
-            pXSprite = &xsprite[pSprite->extra];
+            pXSprite = &actor->x();
             if (pXSprite->data1 == nId)
                 break;
         }
     }
     
-    if (nSprite < 0) {
+    if (pSprite == nullptr) {
         //I_Error("Unable to find path marker with id #%d", nId);
         viewSetSystemMessage("Unable to find path marker with id #%d for path sector #%d", nId, nSector);
         return;
         
     }
 
-    pXSector->basePath = pXSector->marker0 = &bloodActors[nSprite];
+    pXSector->basePath = pXSector->marker0 = actor;
     if (pXSector->state)
         evPostSector(nSector, 0, kCmdOn);
 }
@@ -1829,9 +1824,11 @@ void trMessageWall(unsigned int nWall, EVENT event) {
 }
 
 void trMessageSprite(unsigned int nSprite, EVENT event) {
-    if (sprite[nSprite].statnum != kStatFree) {
+    auto actor = &bloodActors[nSprite];
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+    if (pSprite->statnum != kStatFree) {
 
-        XSPRITE* pXSprite = &xsprite[sprite[nSprite].extra];
         if (!pXSprite->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
             switch (event.cmd) {
                 case kCmdLink:
@@ -1839,7 +1836,7 @@ void trMessageSprite(unsigned int nSprite, EVENT event) {
                     break;
                 #ifdef NOONE_EXTENSIONS
                 case kCmdModernUse:
-                    modernTypeTrigger(3, 0, &bloodActors[nSprite], event);
+                    modernTypeTrigger(SS_SPRITE, 0, actor, event);
                     break;
                 #endif
                 default:
@@ -1871,14 +1868,14 @@ void ProcessMotion(void)
             else
                 pXSector->bobTheta += MulScale(pXSector->bobSpeed, pXSector->busy, 16);
             int vdi = MulScale(Sin(pXSector->bobTheta), pXSector->bobZRange<<8, 30);
-            int nSprite;
-            SectIterator it(nSector);
-            while ((nSprite = it.NextIndex()) >= 0)
+
+            BloodSectIterator it(nSector);
+            while (auto actor = it.Next())
             {
-                spritetype *pSprite = &sprite[nSprite];
+                auto pSprite = &actor->s();
                 if (pSprite->cstat&24576)
                 {
-                    viewBackupSpriteLoc(nSprite, pSprite);
+                    viewBackupSpriteLoc(pSprite->index, pSprite);
                     pSprite->z += vdi;
                 }
             }
@@ -1887,11 +1884,11 @@ void ProcessMotion(void)
                 int floorZ = pSector->floorz;
                 viewInterpolateSector(nSector, pSector);
                 pSector->floorz = baseFloor[nSector]+vdi;
-                int nSprite;
-                SectIterator it(nSector);
-                while ((nSprite = it.NextIndex()) >= 0)
+
+                BloodSectIterator it(nSector);
+                while (auto actor = it.Next())
                 {
-                    spritetype *pSprite = &sprite[nSprite];
+                    auto pSprite = &actor->s();
                     if (pSprite->flags&2)
                         pSprite->flags |= 4;
                     else
@@ -1900,7 +1897,7 @@ void ProcessMotion(void)
                         GetSpriteExtents(pSprite, &top, &bottom);
                         if (bottom >= floorZ && (pSprite->cstat&48) == 0)
                         {
-                            viewBackupSpriteLoc(nSprite, pSprite);
+                            viewBackupSpriteLoc(pSprite->index, pSprite);
                             pSprite->z += vdi;
                         }
                     }
@@ -1911,16 +1908,16 @@ void ProcessMotion(void)
                 int ceilZ = pSector->ceilingz;
                 viewInterpolateSector(nSector, pSector);
                 pSector->ceilingz = baseCeil[nSector]+vdi;
-                int nSprite;
-                SectIterator it(nSector);
-                while ((nSprite = it.NextIndex()) >= 0)
+
+                BloodSectIterator it(nSector);
+                while (auto actor = it.Next())
                 {
-                    spritetype *pSprite = &sprite[nSprite];
+                    auto pSprite = &actor->s();
                     int top, bottom;
                     GetSpriteExtents(pSprite, &top, &bottom);
                     if (top <= ceilZ && (pSprite->cstat&48) == 0)
                     {
-                        viewBackupSpriteLoc(nSprite, pSprite);
+                        viewBackupSpriteLoc(pSprite->index, pSprite);
                         pSprite->z += vdi;
                     }
                 }

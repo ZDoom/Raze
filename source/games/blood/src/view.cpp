@@ -621,23 +621,18 @@ void viewDrawScreen(bool sceneonly)
         }
         int brightness = 0;
 
-        int nSprite;
-        StatIterator it(kStatExplosion);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatExplosion);
+        while (auto actor = it.Next())
         {
-            spritetype* pSprite = &sprite[nSprite];
-            int nXSprite = pSprite->extra;
-            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-            XSPRITE* pXSprite = &xsprite[nXSprite];
-            if (gotsector[pSprite->sectnum])
+            if (actor->hasX() && gotsector[actor->s().sectnum])
             {
-                brightness += pXSprite->data3 * 32;
+                brightness += actor->x().data3 * 32;
             }
         }
         it.Reset(kStatProjectile);
-        while ((nSprite = it.NextIndex()) >= 0)
+        while (auto actor = it.Next())
         {
-            spritetype* pSprite = &sprite[nSprite];
+            spritetype* pSprite = &actor->s();
             switch (pSprite->type) {
             case kMissileFlareRegular:
             case kMissileTeslaAlt:
@@ -768,7 +763,6 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
     // [MR]: Confirm that this is correct as math doesn't match the variable names.
     int nCos = z * -bsin(a);
     int nSin = z * -bcos(a);
-    int nPSprite = gView->pSprite->index;
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {

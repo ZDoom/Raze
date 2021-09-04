@@ -420,11 +420,10 @@ void UpdateAimVector(PLAYER * pPlayer)
         }
         if (pWeaponTrack->thingAngle > 0)
         {
-            int nSprite;
-            StatIterator it(kStatThing);
-            while ((nSprite = it.NextIndex()) >= 0)
+            BloodStatIterator it(kStatThing);
+            while (auto actor = it.Next())
             {
-                pSprite = &sprite[nSprite];
+                pSprite = &actor->s();
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
                     continue;
                 if (!(pSprite->flags&8))
@@ -450,7 +449,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
                     continue;
                 if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,pSprite->x,pSprite->y,pSprite->z,pSprite->sectnum))
-                    pPlayer->aimTargets[pPlayer->aimTargetsCount++] = nSprite;
+                    pPlayer->aimTargets[pPlayer->aimTargetsCount++] = pSprite->index;
                 // Inlined?
                 int dz2 = (lz-z2)>>8;
                 int dy2 = (ly-y2)>>4;
@@ -464,7 +463,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                     aim.dx = bcos(angle);
                     aim.dy = bsin(angle);
                     aim.dz = DivScale(dz, nDist, 10);
-                    nTarget = nSprite;
+                    nTarget = pSprite->index;
                 }
             }
         }
