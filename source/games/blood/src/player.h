@@ -147,9 +147,7 @@ struct PLAYER
     int                 fragCount;
     int                 fragInfo[8];
     int                 teamId;
-    int                 fraggerId;
-    DBloodActor* fragger();
-    void setFragger(DBloodActor*);
+    DBloodActor*        fragger;
     int                 underwaterTime;
     int                 bubbleTime;
     int                 restTime;

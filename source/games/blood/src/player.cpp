@@ -689,7 +689,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->bloodlust = 0;
     pPlayer->horizon.horiz = pPlayer->horizon.horizoff = q16horiz(0);
     pPlayer->slope = 0;
-    pPlayer->setFragger(0);
+    pPlayer->fragger = nullptr;
     pPlayer->underwaterTime = 1200;
     pPlayer->bubbleTime = 0;
     pPlayer->restTime = 0;
@@ -1375,7 +1375,7 @@ void ProcessInput(PLAYER *pPlayer)
     if (pXSprite->health == 0)
     {
         char bSeqStat = playerSeqPlaying(pPlayer, 16);
-        auto fragger = pPlayer->fragger();
+        auto fragger = pPlayer->fragger;
         if (fragger)
         {
             pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->s().x - pSprite->x, fragger->s().y - pSprite->y)));
@@ -1810,7 +1810,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
     assert(nVictim >= 0 && nVictim < kMaxPlayers);
     if (nKiller == nVictim)
     {
-        pVictim->setFragger(nullptr);
+        pVictim->fragger = nullptr;
         if (VanillaMode() || gGameOptions.nGameType != 1)
         {
             pVictim->fragCount--;
@@ -2014,7 +2014,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         pPlayer->deathTime = 0;
         pPlayer->qavLoop = 0;
         pPlayer->curWeapon = kWeapNone;
-        pPlayer->setFragger(source);
+        pPlayer->fragger = source;
         pPlayer->voodooTargets = 0;
         if (nDamageType == kDamageExplode && nDamage < (9<<4))
             nDamageType = kDamageFall;
@@ -2063,8 +2063,8 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         pSprite->flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
-            if (gPlayer[p].fragger() == pPlayer->actor() && gPlayer[p].deathTime > 0)
-                gPlayer[p].setFragger(nullptr);
+            if (gPlayer[p].fragger == pPlayer->actor() && gPlayer[p].deathTime > 0)
+                gPlayer[p].fragger = nullptr;
         }
         FragPlayer(pPlayer, source);
         trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
@@ -2193,7 +2193,7 @@ void PlayerKneelsOver(int, DBloodActor* actor)
         if (gPlayer[p].pXSprite == pXSprite)
         {
             PLAYER *pPlayer = &gPlayer[p];
-            playerDamageSprite(pPlayer->fragger(), pPlayer, kDamageSpirit, 500<<4);
+            playerDamageSprite(pPlayer->fragger, pPlayer, kDamageSpirit, 500<<4);
             return;
         }
     }
@@ -2314,7 +2314,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
             ("fragcount", w.fragCount)
             .Array("fraginfo", w.fragInfo, countof(w.fragInfo))
             ("teamid", w.teamId)
-            ("fraggerid", w.fraggerId)
+            ("fraggerid", w.fragger)
             ("undserwatertime", w.underwaterTime)
             ("bubbletime", w.bubbleTime)
             ("resttime", w.restTime)
