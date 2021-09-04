@@ -498,7 +498,7 @@ static void unicultThinkChase(DBloodActor* actor)
     if (pXTarget->health <= 0) // target is dead
     {
         PLAYER* pPlayer = NULL;
-        if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fragger() == actor)) 
+        if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fragger == actor)) 
         {
             playGenDudeSound(actor, kGenDudeSndTargetDead);
             if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);

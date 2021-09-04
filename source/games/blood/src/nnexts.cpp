@@ -4326,8 +4326,8 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
             condError(aCond, "Unexpected powerup #%d", arg3);
             return false;
         case 9:
-            if (!pPlayer->fragger()) return false;
-            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, pPlayer->fragger());
+            if (!pPlayer->fragger) return false;
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, pPlayer->fragger);
             return true;
         case 10: // check keys pressed
             switch (arg1) {

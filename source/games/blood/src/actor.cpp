@@ -3461,8 +3461,8 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		if (gPlayer[p].fragger() == actor && gPlayer[p].deathTime > 0)
-			gPlayer[p].setFragger(nullptr);
+		if (gPlayer[p].fragger == actor && gPlayer[p].deathTime > 0)
+			gPlayer[p].fragger = nullptr;
 	}
 	if (pSprite->type != kDudeCultistBeast)
 		trTriggerSprite(actor, kCmdOff);
