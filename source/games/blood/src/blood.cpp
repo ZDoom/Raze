@@ -121,9 +121,9 @@ void StartLevel(MapRecord* level, bool newgame)
 	automapping = 1;
 
 	int modernTypesErased = 0;
-	for (int i = 0; i < kMaxSprites; i++)
+	BloodLinearSpriteIterator it;
+	while (auto actor = it.Next())
 	{
-		DBloodActor* actor = &bloodActors[i];
 		spritetype* pSprite = &actor->s();
 		if (pSprite->statnum < kMaxStatus && actor->hasX()) 
 		{
@@ -133,7 +133,7 @@ void StartLevel(MapRecord* level, bool newgame)
 				|| (pXSprite->lB && gGameOptions.nGameType == 2) || (pXSprite->lT && gGameOptions.nGameType == 3)
 				|| (pXSprite->lC && gGameOptions.nGameType == 1)) {
 
-				DeleteSprite(i);
+				DeleteSprite(actor);
 				continue;
 			}
 

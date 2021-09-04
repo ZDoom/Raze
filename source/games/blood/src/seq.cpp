@@ -350,7 +350,6 @@ void SEQINST::Update()
 		break;
 	case 3:
 	{
-
 		UpdateSprite(index, &pSequence->frames[frameIndex]);
 		if (pSequence->frames[frameIndex].playsound) {
 
@@ -366,7 +365,8 @@ void SEQINST::Update()
 
 		// by NoOne: add surfaceSound trigger feature
 		spritetype* pSprite = &sprite[xsprite[index].reference];
-		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && zvel[pSprite->index] == 0 && xvel[pSprite->index] != 0) {
+		auto actor = &bloodActors[pSprite->index];
+		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->zvel() == 0 && actor->xvel() != 0) {
 
 			if (gUpperLink[pSprite->sectnum] >= 0) break; // don't play surface sound for stacked sectors
 			int surf = tileGetSurfType(sector[pSprite->sectnum].floorpicnum); 

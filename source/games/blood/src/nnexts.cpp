@@ -8162,7 +8162,7 @@ void aiPatrolMove(DBloodActor* actor)
     if (pExtra->flying || spriteIsUnderwater(actor)) 
     {
         goalAng >>= 1;
-        zvel[pSprite->index] = dz;
+        actor->zvel() = dz;
         if (pSprite->flags & kPhysGravity)
             pSprite->flags &= ~kPhysGravity;
     } 

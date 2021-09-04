@@ -363,11 +363,10 @@ void UpdateAimVector(PLAYER * pPlayer)
     if (autoaim == 1 || (autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == kWeapVoodooDoll || pPlayer->curWeapon == kWeapLifeLeech)
     {
         int nClosest = 0x7fffffff;
-        int nSprite;
-        StatIterator it(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatDude);
+        while (auto actor = it.Next())
         {
-            pSprite = &sprite[nSprite];
+            pSprite = &actor->s();
             if (pSprite == pPSprite)
                 continue;
             if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
@@ -384,10 +383,10 @@ void UpdateAimVector(PLAYER * pPlayer)
                 continue;
             if (pWeaponTrack->seeker)
             {
-                int t = DivScale(nDist,pWeaponTrack->seeker, 12);
-                x2 += (xvel[nSprite]*t)>>12;
-                y2 += (yvel[nSprite]*t)>>12;
-                z2 += (zvel[nSprite]*t)>>8;
+                int t = DivScale(nDist, pWeaponTrack->seeker, 12);
+                x2 += (actor->xvel() * t) >> 12;
+                y2 += (actor->yvel() * t) >> 12;
+                z2 += (actor->zvel() * t) >> 8;
             }
             int lx = x + MulScale(Cos(pPSprite->ang), nDist, 30);
             int ly = y + MulScale(Sin(pPSprite->ang), nDist, 30);
@@ -401,7 +400,7 @@ void UpdateAimVector(PLAYER * pPlayer)
             if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->angleRange)
                 continue;
             if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,x2,y2,z2,pSprite->sectnum))
-                pPlayer->aimTargets[pPlayer->aimTargetsCount++] = nSprite;
+                pPlayer->aimTargets[pPlayer->aimTargetsCount++] = pSprite->index;
             // Inlined?
             int dz = (lz-z2)>>8;
             int dy = (ly-y2)>>4;
@@ -418,7 +417,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 aim.dx = bcos(angle);
                 aim.dy = bsin(angle);
                 aim.dz = DivScale(dzCenter, nDist, 10);
-                nTarget = nSprite;
+                nTarget = pSprite->index;
             }
         }
         if (pWeaponTrack->thingAngle > 0)
