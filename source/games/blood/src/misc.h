@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+class DBloodActor;
+
 void playlogos();
 unsigned int qrand(void);
 int wrand(void);
@@ -61,7 +63,7 @@ struct ZONE {
 extern ZONE gStartZone[8];
 
 void warpInit(void);
-int CheckLink(spritetype *pSprite);
+int CheckLink(DBloodActor *pSprite);
 int CheckLink(int *x, int *y, int *z, int *nSector);
 
 int GetOctant(int x, int y);

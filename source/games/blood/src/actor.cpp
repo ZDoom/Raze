@@ -4710,7 +4710,7 @@ static Collision MoveThing(DBloodActor* actor)
 			}
 		}
 	}
-	if (CheckLink(pSprite)) GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
+	if (CheckLink(actor)) GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
 
 	GetActorExtents(actor, &top, &bottom);
 	if (bottom >= floorZ)
@@ -5040,7 +5040,7 @@ void MoveDude(DBloodActor* actor)
 		}
 	}
 	vec3_t const oldpos = pSprite->pos;
-	int nLink = CheckLink(pSprite);
+	int nLink = CheckLink(actor);
 	if (nLink)
 	{
 		GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
@@ -5469,7 +5469,7 @@ int MoveMissile(DBloodActor* actor)
 			assert(nSector >= 0 && nSector < kMaxSectors);
 			ChangeActorSect(actor, nSector);
 		}
-		CheckLink(pSprite);
+		CheckLink(actor);
 		gHitInfo.hitsect = pSprite->sectnum;
 		gHitInfo.hitx = pSprite->x;
 		gHitInfo.hity = pSprite->y;
@@ -7328,7 +7328,7 @@ void actPostProcess(void)
 			}
 		}
 		else
-			ChangeSpriteStat(p.sprite->s().index, nStatus);
+			ChangeActorStat(p.sprite, nStatus);
 	}
 	gPost.Clear();
 }

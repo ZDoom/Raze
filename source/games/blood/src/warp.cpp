@@ -175,14 +175,15 @@ void warpInit(void)
     }
 }
 
-int CheckLink(spritetype *pSprite)
+int CheckLink(DBloodActor *actor)
 {
+    auto pSprite = &actor->s();
     int nSector = pSprite->sectnum;
-    int nUpper = gUpperLink[nSector];
-    int nLower = gLowerLink[nSector];
-    if (nUpper >= 0)
+    auto aUpper = getUpperLink(nSector);
+    auto aLower = getLowerLink(nSector);
+    if (aUpper)
     {
-        spritetype *pUpper = &sprite[nUpper];
+        spritetype* pUpper = &aUpper->s();
         int z;
         if (pUpper->type == kMarkerUpLink)
             z = pUpper->z;
@@ -190,11 +191,11 @@ int CheckLink(spritetype *pSprite)
             z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
         if (z <= pSprite->z)
         {
-            nLower = pUpper->owner;
-            assert(nLower >= 0 && nLower < kMaxSprites);
-            spritetype *pLower = &sprite[nLower];
+            aLower = aUpper->GetOwner();
+            assert(aLower);
+            spritetype *pLower = &aLower->s();
             assert(pLower->sectnum >= 0 && pLower->sectnum < kMaxSectors);
-            ChangeSpriteSect(pSprite->index, pLower->sectnum);
+            ChangeActorSect(actor, pLower->sectnum);
             pSprite->x += pLower->x-pUpper->x;
             pSprite->y += pLower->y-pUpper->y;
             int z2;
@@ -207,9 +208,9 @@ int CheckLink(spritetype *pSprite)
             return pUpper->type;
         }
     }
-    if (nLower >= 0)
+    if (aLower)
     {
-        spritetype *pLower = &sprite[nLower];
+        spritetype *pLower = &aLower->s();
         int z;
         if (pLower->type == kMarkerLowLink)
             z = pLower->z;
@@ -217,11 +218,11 @@ int CheckLink(spritetype *pSprite)
             z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
         if (z >= pSprite->z)
         {
-            nUpper = pLower->owner;
-            assert(nUpper >= 0 && nUpper < kMaxSprites);
-            spritetype *pUpper = &sprite[nUpper];
+            aUpper = aLower->GetOwner();
+            assert(aUpper);
+            spritetype *pUpper = &aUpper->s();
             assert(pUpper->sectnum >= 0 && pUpper->sectnum < kMaxSectors);
-            ChangeSpriteSect(pSprite->index, pUpper->sectnum);
+            ChangeActorSect(actor, pUpper->sectnum);
             pSprite->x += pUpper->x-pLower->x;
             pSprite->y += pUpper->y-pLower->y;
             int z2;

@@ -243,7 +243,7 @@ void Respawn(DBloodActor* actor, int) // 9
         case 3: {
             assert(pSprite->owner != kStatRespawn);
             assert(pSprite->owner >= 0 && pSprite->owner < kMaxStatus);
-            ChangeSpriteStat(actor->s().index, pSprite->owner);
+            ChangeActorStat(actor, pSprite->owner);
             pSprite->type = pSprite->inittype;
             pSprite->owner = -1;
             pSprite->flags &= ~kHitagRespawn;

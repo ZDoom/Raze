@@ -1849,7 +1849,7 @@ void debrisMove(int listIndex)
 
     }
 
-    if ((i = CheckLink(pSprite)) != 0)
+    if ((i = CheckLink(actor)) != 0)
     {
         GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
         if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
