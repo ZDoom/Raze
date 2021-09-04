@@ -2512,7 +2512,7 @@ static void actInitDudes()
 
 			}
 
-			if (getSequence(seqStartId)) seqSpawn(seqStartId, 3, pSprite->extra);
+			if (getSequence(seqStartId)) seqSpawn(seqStartId, act);
 		}
 		aiInit();
 	}
@@ -3767,20 +3767,20 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			}
 			break;
 		case kTrapMachinegun:
-			seqSpawn(28, 3, pSprite->extra, -1);
+			seqSpawn(28, actor, -1);
 			break;
 
 		case kThingFluorescent:
-			seqSpawn(12, 3, pSprite->extra, -1);
+			seqSpawn(12, actor, -1);
 			GibSprite(actor, GIBTYPE_6, nullptr, nullptr);
 			break;
 
 		case kThingSpiderWeb:
-			seqSpawn(15, 3, pSprite->extra, -1);
+			seqSpawn(15, actor, -1);
 			break;
 
 		case kThingMetalGrate:
-			seqSpawn(21, 3, pSprite->extra, -1);
+			seqSpawn(21, actor, -1);
 			GibSprite(actor, GIBTYPE_4, nullptr, nullptr);
 			break;
 
@@ -3799,7 +3799,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 				break;
 
 			case 1:
-				seqSpawn(26, 3, pSprite->extra, nTreeToGibClient);
+				seqSpawn(26, actor, nTreeToGibClient);
 				sfxPlay3DSound(actor, 351, -1, 0);
 				break;
 			}
@@ -4101,7 +4101,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxKill3DSound(pMissile, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 522, pMissile->sectnum);
 		actPostSprite(missileActor, kStatDebris);
-		seqSpawn(20, 3, pMissile->extra, -1);
+		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
 			if (pSpriteHit->statnum == kStatDude)
@@ -4116,7 +4116,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		actPostSprite(missileActor, kStatDebris);
 		pMissile->cstat &= ~16;
 		pMissile->type = kSpriteDecoration;
-		seqSpawn(20, 3, pMissile->extra, -1);
+		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
 			if (pSpriteHit->statnum == kStatDude)

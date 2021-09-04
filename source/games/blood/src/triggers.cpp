@@ -323,11 +323,11 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(nSprite, pXSprite, 0)) break;
-                seqSpawn(40, 3, pSprite->extra, -1);
+                seqSpawn(40, actor, -1);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                seqSpawn(38, 3, pSprite->extra, nMGunOpenClient);
+                seqSpawn(38, actor, nMGunOpenClient);
                 if (pXSprite->data1 > 0)
                     pXSprite->data2 = pXSprite->data1;
                 break;
@@ -368,12 +368,12 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(nSprite, pXSprite, 0)) break;
-                seqSpawn(40, 3, pSprite->extra, -1);
+                seqSpawn(40, actor, -1);
                 sfxKill3DSound(pSprite, 0, -1);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                seqSpawn(38, 3, pSprite->extra, -1);
+                seqSpawn(38, actor, -1);
                 sfxPlay3DSound(pSprite, 441, 0, 0);
                 break;
         }
@@ -385,11 +385,11 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 break;
             case kCmdOn:
                 if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                seqSpawn(37, 3, pSprite->extra, -1);
+                seqSpawn(37, actor, -1);
                 break;
             default:
                 SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
-                if (pXSprite->state) seqSpawn(37, 3, pSprite->extra, -1);
+                if (pXSprite->state) seqSpawn(37, actor, -1);
                 break;
         }
         break;
@@ -2201,6 +2201,7 @@ void InitGenerator(int nSprite)
 void ActivateGenerator(int nSprite)
 {
     assert(nSprite < kMaxSprites);
+    auto actor = &bloodActors[nSprite];
     spritetype *pSprite = &sprite[nSprite];
     assert(pSprite->statnum != kMaxStatus);
     int nXSprite = pSprite->extra;
@@ -2223,10 +2224,10 @@ void ActivateGenerator(int nSprite)
                     FireballTrapSeqCallback(3, &bloodActors[nSprite]);
                     break;
                 case 1:
-                    seqSpawn(35, 3, nXSprite, nFireballTrapClient);
+                    seqSpawn(35, actor, nFireballTrapClient);
                     break;
                 case 2:
-                    seqSpawn(36, 3, nXSprite, nFireballTrapClient);
+                    seqSpawn(36, actor, nFireballTrapClient);
                     break;
             }
             break;
@@ -2274,7 +2275,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
 
 void MGunOpenSeqCallback(int, DBloodActor* actor)
 {
-    seqSpawn(39, 3, actor->s().extra, nMGunFireClient);
+    seqSpawn(39, actor, nMGunFireClient);
 }
 
 
