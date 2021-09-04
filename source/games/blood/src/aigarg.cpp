@@ -401,7 +401,7 @@ static void gargThinkChase(DBloodActor* actor)
 				case kDudeGargoyleFlesh:
 					if (nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
 					{
-						int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                        int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -426,7 +426,7 @@ static void gargThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
 					{
-						int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                        int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -460,7 +460,7 @@ static void gargThinkChase(DBloodActor* actor)
 				case kDudeGargoyleStone:
 					if (nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
 					{
-						int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                        int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:
@@ -485,7 +485,7 @@ static void gargThinkChase(DBloodActor* actor)
 					}
 					else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
 					{
-						int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                        int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 						switch (hit)
 						{
 						case -1:

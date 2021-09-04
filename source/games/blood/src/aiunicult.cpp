@@ -149,7 +149,7 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
 
         for (int i = -8191; i < 8192; i += by) 
         {
-            HitScan(pSprite, pSprite->z, bcos(pSprite->ang), bsin(pSprite->ang), i, clipMask, dist);
+            HitScan(actor, pSprite->z, bcos(pSprite->ang), bsin(pSprite->ang), i, clipMask, dist);
             if (!fStart && actor->GetTarget() == gHitInfo.hitactor) fStart = i;
             else if (fStart && actor->GetTarget() != gHitInfo.hitactor) 
             { 
@@ -587,7 +587,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 }
                 else if (dist < 12264 && dist > 7680 && !spriteIsUnderwater(actor, false) && curWeapon != kModernThingEnemyLifeLeech) 
                 {
-                    int pHit = HitScan(pSprite, pSprite->z, dx, dy, 0, 16777280, 0);
+                    int pHit = HitScan(actor, pSprite->z, dx, dy, 0, 16777280, 0);
                     switch (pHit) {
                         case 0:
                         case 4:
@@ -776,9 +776,9 @@ static void unicultThinkChase(DBloodActor* actor)
                 {
                     int objDist = -1; int targetDist = -1; int hit = -1;
                     if (weaponType == kGenDudeWeaponHitscan)
-                        hit = HitScan(pSprite, pSprite->z, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, CLIPMASK1, dist);
+                        hit = HitScan(actor, pSprite->z, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, CLIPMASK1, dist);
                     else if (weaponType == kGenDudeWeaponMissile)
-                        hit = HitScan(pSprite, pSprite->z, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, CLIPMASK0, dist);
+                        hit = HitScan(actor, pSprite->z, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, CLIPMASK0, dist);
                     
                     if (hit >= 0) 
                     {

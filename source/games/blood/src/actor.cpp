@@ -6629,7 +6629,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	int z = pSprite->z + a3;
 	x += MulScale(pSprite->clipdist, Cos(pSprite->ang), 28);
 	y += MulScale(pSprite->clipdist, Sin(pSprite->ang), 28);
-	if (HitScan(pSprite, z, x - pSprite->x, y - pSprite->y, 0, CLIPMASK0, pSprite->clipdist) != -1)
+	if (HitScan(actor, z, x - pSprite->x, y - pSprite->y, 0, CLIPMASK0, pSprite->clipdist) != -1)
 	{
 		x = gHitInfo.hitx - MulScale(pSprite->clipdist << 1, Cos(pSprite->ang), 28);
 		y = gHitInfo.hity - MulScale(pSprite->clipdist << 1, Sin(pSprite->ang), 28);
@@ -6746,7 +6746,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	int clipdist = pMissileInfo->clipDist + pSprite->clipdist;
 	x += MulScale(clipdist, Cos(pSprite->ang), 28);
 	y += MulScale(clipdist, Sin(pSprite->ang), 28);
-	int hit = HitScan(pSprite, z, x - pSprite->x, y - pSprite->y, 0, CLIPMASK0, clipdist);
+	int hit = HitScan(actor, z, x - pSprite->x, y - pSprite->y, 0, CLIPMASK0, clipdist);
 	if (hit != -1)
 	{
 		if (hit == 3 || hit == 0)
@@ -7073,7 +7073,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					a4 += Random3(4000);
 					a5 += Random3(4000);
 					a6 += Random3(4000);
-					if (HitScan(pSprite, gHitInfo.hitz, a4, a5, a6, CLIPMASK1, t) == 0)
+					if (HitScan(actor, gHitInfo.hitz, a4, a5, a6, CLIPMASK1, t) == 0)
 					{
 						if (approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) <= t)
 						{

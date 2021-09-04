@@ -1248,7 +1248,7 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     int x = bcos(pSprite->ang);
     int y = bsin(pSprite->ang);
     int z = pPlayer->slope;
-    int hit = HitScan(pSprite, pPlayer->zView, x, y, z, 0x10000040, 128);
+    int hit = HitScan(pPlayer->actor(), pPlayer->zView, x, y, z, 0x10000040, 128);
     int hitDist = approxDist(pSprite->x-gHitInfo.hitx, pSprite->y-gHitInfo.hity)>>4;
     if (hitDist < 64)
     {

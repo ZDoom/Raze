@@ -422,7 +422,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 				}
 				else if (nDist < 0x200 && abs(nDeltaAngle) < 85)
 				{
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (pSprite->type) {
 					case kDudeCerberusTwoHead:
 						switch (hit) {

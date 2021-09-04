@@ -192,7 +192,7 @@ static void calebThinkChase(DBloodActor* actor)
 						pXSector = &xsector[nXSector];
 					else
 						pXSector = NULL;
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:

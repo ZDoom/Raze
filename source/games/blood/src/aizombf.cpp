@@ -149,7 +149,7 @@ static void zombfThinkChase(DBloodActor* actor)
 				aiSetTarget(actor, actor->GetTarget());
 				if (nDist < 0x1400 && nDist > 0xe00 && abs(nDeltaAngle) < 85)
 				{
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                    int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -168,7 +168,7 @@ static void zombfThinkChase(DBloodActor* actor)
 				}
 				else if (nDist < 0x1400 && nDist > 0x600 && abs(nDeltaAngle) < 85)
 				{
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                    int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -187,7 +187,7 @@ static void zombfThinkChase(DBloodActor* actor)
 				}
 				else if (nDist < 0x400 && abs(nDeltaAngle) < 85)
 				{
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                    int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:

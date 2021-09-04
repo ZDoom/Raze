@@ -1334,7 +1334,7 @@ void nnExtProcessSuperSprites()
                         if (!vector)
                             pSightSpr->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        HitScan(pPlaySprite, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
+                        HitScan(pPlayer->actor(), pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
 
                         //VectorScan(pPlaySprite, 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
 
@@ -4600,17 +4600,17 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 }
 
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
-                    var = HitScan(pSpr, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
+                    var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
             else if (objActor->IsDudeActor())
-                var = HitScan(pSpr, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
-                else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) {
-                    
+                var = HitScan(objActor, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
+            else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
+            {
                     var3 = (var2 & 0x0008) ? 0x10000 << 1 : -(0x10000 << 1);
-                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, var3, arg1, arg3 << 1);
+                    var = HitScan(objActor, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, var3, arg1, arg3 << 1);
             }
             else
             {
-                    var = HitScan(pSpr, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), 0, arg1, arg3 << 1);
+                    var = HitScan(objActor, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), 0, arg1, arg3 << 1);
                 }
 
             if (var >= 0)
@@ -7638,7 +7638,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
 {
     auto pSprite = &actor->s();
     int x = pSprite->x, y = pSprite->y, z = pSprite->z, nSector = pSprite->sectnum;
-    HitScan(pSprite, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
+    HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
     int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
     if (target != nullptr && nDist - (pSprite->clipdist << 2) < nRange)
         return (target == gHitInfo.hitactor);

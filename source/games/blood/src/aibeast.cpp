@@ -98,7 +98,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
 	GetClosestSpriteSectors(nSector, x, y, vc, sectmap, nullptr, newSectCheckMethod);
 	char v4 = 0;
-	int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+	int hit = HitScan(actor1, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 	DBloodActor* actor2 = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actor2);
 	if (hit == 3 && actor2)
@@ -291,7 +291,7 @@ static void beastThinkChase(DBloodActor* actor)
 						pXSector = &xsector[nXSector];
 					else
 						pXSector = NULL;
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					if (pXTarget->health > (unsigned)gPlayerTemplate[0].startHealth / 2)
 					{
 						switch (hit)
@@ -329,7 +329,7 @@ static void beastThinkChase(DBloodActor* actor)
 						pXSector = &xsector[nXSector];
 					else
 						pXSector = NULL;
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
