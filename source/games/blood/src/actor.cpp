@@ -4682,7 +4682,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
-	GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
 	GetActorExtents(actor, &top, &bottom);
 
 	if ((pSprite->flags & 2) && bottom < floorZ)
@@ -4709,7 +4709,7 @@ static Collision MoveThing(DBloodActor* actor)
 			}
 		}
 	}
-	if (CheckLink(actor)) GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
+	if (CheckLink(actor)) GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
 
 	GetActorExtents(actor, &top, &bottom);
 	if (bottom >= floorZ)
@@ -4993,7 +4993,7 @@ void MoveDude(DBloodActor* actor)
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
-	GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+	GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 	GetActorExtents(actor, &top, &bottom);
 
 	if (pSprite->flags & 2)
@@ -5042,7 +5042,7 @@ void MoveDude(DBloodActor* actor)
 	int nLink = CheckLink(actor);
 	if (nLink)
 	{
-		GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (pPlayer)
 			playerCorrectInertia(pPlayer, &oldpos);
 		switch (nLink)
@@ -5206,7 +5206,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		int floorZ2 = floorZ;
 		auto floorColl2 = floorColl;
-		GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
 		if (bottom <= floorZ && pSprite->z - floorZ2 < bz)
 		{
 			floorZ = floorZ2;

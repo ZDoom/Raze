@@ -357,6 +357,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 
 static void fakeMoveDude(spritetype *pSprite)
 {
+#if 0 // not needed for single player, temporarily disabled due to icompatibilities with the refactored API.
     PLAYER *pPlayer = NULL;
     int bottom, top;
     if (IsPlayerSprite(pSprite))
@@ -566,6 +567,7 @@ static void fakeMoveDude(spritetype *pSprite)
         if (approxDist(predict.xvel, predict.yvel) < 0x1000)
             predict.xvel = predict.yvel = 0;
     }
+#endif
 }
 
 static void fakeActAirDrag(spritetype *, int num)
