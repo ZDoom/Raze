@@ -866,9 +866,9 @@ bool findDroppedLeech(PLAYER *a1, DBloodActor *a2)
     return 0;
 }
 
-char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
-    
-    auto itemactor = &bloodActors[pItem->index];
+char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
+{
+    spritetype* pItem = &itemactor->s();
     spritetype *pSprite = pPlayer->pSprite; XSPRITE *pXSprite = pPlayer->pXSprite;
     char buffer[80]; int pickupSnd = 775; int nType = pItem->type - kItemBase;
 
@@ -902,7 +902,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemFlagABase:
         case kItemFlagBBase: {
             if (gGameOptions.nGameType != 3 || pItem->extra <= 0) return 0;
-            XSPRITE * pXItem = &xsprite[pItem->extra];
+            XSPRITE * pXItem = &itemactor->x();
             if (pItem->type == kItemFlagABase) {
                 if (pPlayer->teamId == 1) {
                     if ((pPlayer->hasFlag & 1) == 0 && pXItem->state) {
@@ -981,11 +981,12 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             if (gGameOptions.nGameType != 3) return 0;
             gBlueFlagDropped = false;
             const bool enemyTeam = (pPlayer->teamId&1) == 1;
-            if (!enemyTeam && (pItem->owner >= 0) && (pItem->owner < kMaxSprites)) {
+            if (!enemyTeam && itemactor->GetOwner())
+            {
                 pPlayer->hasFlag &= ~1;
                 pPlayer->ctfFlagState[0] = nullptr;
-                spritetype* pOwner = &sprite[pItem->owner];
-                XSPRITE* pXOwner = &xsprite[pOwner->extra];
+                spritetype* pOwner = &itemactor->GetOwner()->s();
+                XSPRITE* pXOwner = &itemactor->GetOwner()->x();
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
                 sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8003, 255, 2, 0);
@@ -1006,11 +1007,12 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             if (gGameOptions.nGameType != 3) return 0;
             gRedFlagDropped = false;
             const bool enemyTeam = (pPlayer->teamId&1) == 0;
-            if (!enemyTeam && (pItem->owner >= 0) && (pItem->owner < kMaxSprites)) {
+            if (!enemyTeam && itemactor->GetOwner())
+            {
                 pPlayer->hasFlag &= ~2;
                 pPlayer->ctfFlagState[1] = nullptr;
-                spritetype* pOwner = &sprite[pItem->owner];
-                XSPRITE* pXOwner = &xsprite[pOwner->extra];
+                spritetype* pOwner = &itemactor->GetOwner()->s();
+                XSPRITE* pXOwner = &itemactor->GetOwner()->x();
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
                 sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8002, 255, 2, 0);
@@ -1073,8 +1075,8 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             int addPower = gPowerUpInfo[nType].bonusTime;
             #ifdef NOONE_EXTENSIONS
             // allow custom amount for item
-            if (gModernMap && sprite[pItem->index].extra >= 0 && xsprite[sprite[pItem->index].extra].data1 > 0)
-                addPower = xsprite[sprite[pItem->index].extra].data1;
+            if (gModernMap && itemactor->hasX() && itemactor->x().data1 > 0)
+                addPower = itemactor->x().data1;
             #endif
         
             if (!actHealDude(pPlayer->actor(), addPower, gPowerUpInfo[nType].maxTime)) return 0;
@@ -1095,14 +1097,16 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
     return 1;
 }
 
-char PickupAmmo(PLAYER* pPlayer, spritetype* pAmmo) {
+char PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
+{
+    spritetype* pAmmo = &ammoactor->s();
     const AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[pAmmo->type - kItemAmmoBase];
     int nAmmoType = pAmmoItemData->type;
 
     if (pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
     #ifdef NOONE_EXTENSIONS
-    else if (gModernMap && pAmmo->extra >= 0 && xsprite[pAmmo->extra].data1 > 0) // allow custom amount for item
-        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + xsprite[pAmmo->extra].data1, gAmmoInfo[nAmmoType].max);
+    else if (gModernMap && pAmmo->extra >= 0 && ammoactor->x().data1 > 0) // allow custom amount for item
+        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + ammoactor->x().data1, gAmmoInfo[nAmmoType].max);
     #endif
     else
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pAmmoItemData->count, gAmmoInfo[nAmmoType].max);
@@ -1112,9 +1116,9 @@ char PickupAmmo(PLAYER* pPlayer, spritetype* pAmmo) {
     return 1;
 }
 
-char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) 
+char PickupWeapon(PLAYER *pPlayer, DBloodActor* weaponactor)
 {
-    auto actor = &bloodActors[pWeapon->index];
+    spritetype* pWeapon = &weaponactor->s();
     const WEAPONITEMDATA *pWeaponItemData = &gWeaponItemData[pWeapon->type - kItemWeaponBase];
     int nWeaponType = pWeaponItemData->type;
     int nAmmoType = pWeaponItemData->ammoType;
@@ -1125,8 +1129,8 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon)
         if (nAmmoType == -1) return 0;
         // allow to set custom ammo count for weapon pickups
         #ifdef NOONE_EXTENSIONS
-        else if (gModernMap && pWeapon->extra >= 0 && xsprite[pWeapon->extra].data1 > 0)
-            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].max);
+        else if (gModernMap && weaponactor->hasX() && weaponactor->x().data1 > 0)
+            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + weaponactor->x().data1, gAmmoInfo[nAmmoType].max);
         #endif
         else
             pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
@@ -1140,10 +1144,10 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon)
         return 1;
     }
     
-    if (!actGetRespawnTime(actor) || nAmmoType == -1 || pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;    
+    if (!actGetRespawnTime(weaponactor) || nAmmoType == -1 || pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;    
     #ifdef NOONE_EXTENSIONS
-        else if (gModernMap && pWeapon->extra >= 0 && xsprite[pWeapon->extra].data1 > 0)
-            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].max);
+        else if (gModernMap && weaponactor->hasX() && weaponactor->x().data1 > 0)
+            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + weaponactor->x().data1, gAmmoInfo[nAmmoType].max);
     #endif
     else
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
@@ -1152,37 +1156,38 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon)
     return 1;
 }
 
-void PickUp(PLAYER *pPlayer, spritetype *pSprite)
+void PickUp(PLAYER *pPlayer, DBloodActor* actor)
 {
-    auto actor = &bloodActors[pSprite->index];
+    spritetype* pSprite = &actor->s();
 	const char *msg = nullptr;
     int nType = pSprite->type;
     char pickedUp = 0;
     int customMsg = -1;
     #ifdef NOONE_EXTENSIONS
-        if (gModernMap) { // allow custom INI message instead "Picked up"
-            XSPRITE* pXSprite = (pSprite->extra >= 0) ? &xsprite[pSprite->extra] : NULL;
+        if (gModernMap && actor->hasX()) { // allow custom INI message instead "Picked up"
+            XSPRITE* pXSprite = &actor->x();
             if (pXSprite != NULL && pXSprite->txID != 3 && pXSprite->lockMsg > 0)
                 customMsg = pXSprite->lockMsg;
         }
     #endif
 
     if (nType >= kItemBase && nType <= kItemMax) {
-        pickedUp = PickupItem(pPlayer, pSprite);
+        pickedUp = PickupItem(pPlayer, actor);
         if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_ITEM%02d", int(nType - kItemBase +1)));
     
     } else if (nType >= kItemAmmoBase && nType < kItemAmmoMax) {
-        pickedUp = PickupAmmo(pPlayer, pSprite);
+        pickedUp = PickupAmmo(pPlayer, actor);
         if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_AMMO%02d", int(nType - kItemAmmoBase +1)));
     
     } else if (nType >= kItemWeaponBase && nType < kItemWeaponMax) {
-        pickedUp = PickupWeapon(pPlayer, pSprite);
+        pickedUp = PickupWeapon(pPlayer, actor);
         if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_WPN%02d", int(nType - kItemWeaponBase +1)));
     }
 
     if (!pickedUp) return;
-    else if (pSprite->extra > 0) {
-        XSPRITE *pXSprite = &xsprite[pSprite->extra];
+    else if (actor->hasX())
+    {
+        XSPRITE *pXSprite = &actor->x();
         if (pXSprite->Pickup)
             trTriggerSprite(pSprite->index, pXSprite, kCmdSpritePickup);
     }
@@ -1204,13 +1209,10 @@ void CheckPickUp(PLAYER *pPlayer)
     int y = pSprite->y;
     int z = pSprite->z;
     int nSector = pSprite->sectnum;
-    int nNextSprite;
-    int nSprite;
-    StatIterator it(kStatItem);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatItem);
+    while (auto itemactor = it.Next())
     {
-        spritetype *pItem = &sprite[nSprite];
-        nNextSprite = nextspritestat[nSprite];
+        spritetype *pItem = &itemactor->s();
         if (pItem->flags&32)
             continue;
         int dx = abs(x-pItem->x)>>4;
@@ -1234,7 +1236,7 @@ void CheckPickUp(PLAYER *pPlayer)
         if (cansee(x, y, z, nSector, pItem->x, pItem->y, pItem->z, pItem->sectnum)
          || cansee(x, y, z, nSector, pItem->x, pItem->y, top, pItem->sectnum)
          || cansee(x, y, z, nSector, pItem->x, pItem->y, bottom, pItem->sectnum))
-            PickUp(pPlayer, pItem);
+            PickUp(pPlayer, itemactor);
     }
 }
 
@@ -1373,9 +1375,10 @@ void ProcessInput(PLAYER *pPlayer)
     if (pXSprite->health == 0)
     {
         char bSeqStat = playerSeqPlaying(pPlayer, 16);
-        if (pPlayer->fraggerId != -1)
+        auto fragger = pPlayer->fragger();
+        if (fragger)
         {
-            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y)));
+            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->s().x - pSprite->x, fragger->s().y - pSprite->y)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
@@ -1750,8 +1753,8 @@ void playerProcess(PLAYER *pPlayer)
     {
         pPlayer->isUnderwater = 1;
         int nSector = pSprite->sectnum;
-        int nLink = gLowerLink[nSector];
-        if (nLink > 0 && (sprite[nLink].type == kMarkerLowGoo || sprite[nLink].type == kMarkerLowWater))
+        auto link = getLowerLink(nSector);
+        if (link && (link->s().type == kMarkerLowGoo || link->s().type == kMarkerLowWater))
         {
             if (getceilzofslope(nSector, pSprite->x, pSprite->y) > pPlayer->zView)
                 pPlayer->isUnderwater = 0;
@@ -1807,7 +1810,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
     assert(nVictim >= 0 && nVictim < kMaxPlayers);
     if (nKiller == nVictim)
     {
-        pVictim->fraggerId = -1;
+        pVictim->setFragger(nullptr);
         if (VanillaMode() || gGameOptions.nGameType != 1)
         {
             pVictim->fragCount--;
@@ -1855,14 +1858,11 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
     viewSetMessage(buffer);
 }
 
-void FragPlayer(PLAYER *pPlayer, int nSprite)
+void FragPlayer(PLAYER *pPlayer, DBloodActor* killer)
 {
-    spritetype *pSprite = NULL;
-    if (nSprite >= 0)
-        pSprite = &sprite[nSprite];
-    if (pSprite && IsPlayerSprite(pSprite))
+    if (killer && killer->IsPlayerActor())
     {
-        PLAYER *pKiller = &gPlayer[pSprite->type - kDudePlayer1];
+        PLAYER *pKiller = &gPlayer[killer->s().type - kDudePlayer1];
         playerFrag(pKiller, pPlayer);
         int nTeam1 = pKiller->teamId&1;
         int nTeam2 = pPlayer->teamId&1;
@@ -1936,7 +1936,6 @@ spritetype *flagDropped(PLAYER *pPlayer, int a2)
 
 int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
 {
-    int nSource = source ? source->s().index : -1;
     assert(pPlayer != NULL);
     if (pPlayer->damageControl[nDamageType] || pPlayer->godMode)
         return 0;
@@ -1951,7 +1950,6 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nDeathSeqID = -1;
     int nKneelingPlayer = -1;
-    int nSprite = pSprite->index;
     char va = playerSeqPlaying(pPlayer, 16);
     if (!pXSprite->health)
     {
@@ -2016,7 +2014,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         pPlayer->deathTime = 0;
         pPlayer->qavLoop = 0;
         pPlayer->curWeapon = kWeapNone;
-        pPlayer->fraggerId = nSource;
+        pPlayer->setFragger(source);
         pPlayer->voodooTargets = 0;
         if (nDamageType == kDamageExplode && nDamage < (9<<4))
             nDamageType = kDamageFall;
@@ -2065,11 +2063,11 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         pSprite->flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
-            if (gPlayer[p].fraggerId == nSprite && gPlayer[p].deathTime > 0)
-                gPlayer[p].fraggerId = -1;
+            if (gPlayer[p].fragger() == pPlayer->actor() && gPlayer[p].deathTime > 0)
+                gPlayer[p].setFragger(nullptr);
         }
-        FragPlayer(pPlayer, nSource);
-        trTriggerSprite(nSprite, pXSprite, kCmdOff);
+        FragPlayer(pPlayer, source);
+        trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
 
         #ifdef NOONE_EXTENSIONS
         // allow drop items and keys in multiplayer
