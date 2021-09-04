@@ -378,9 +378,10 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
     return 1;
 }
 
-int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
+int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
 {
-    assert(pSprite != NULL);
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
     assert(dx != 0 || dy != 0);
     gHitInfo.clearObj();
     int x = pSprite->x;

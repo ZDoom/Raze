@@ -118,7 +118,7 @@ void viewDrawAimedPlayerName(void)
     if (!cl_idplayers || (gView->aim.dx == 0 && gView->aim.dy == 0))
         return;
 
-    int hit = HitScan(gView->pSprite, gView->zView, gView->aim.dx, gView->aim.dy, gView->aim.dz, CLIPMASK0, 512);
+    int hit = HitScan(gView->actor(), gView->zView, gView->aim.dx, gView->aim.dy, gView->aim.dz, CLIPMASK0, 512);
     if (hit == 3)
     {
         if (gHitInfo.hitactor && gHitInfo.hitactor->IsPlayerActor())

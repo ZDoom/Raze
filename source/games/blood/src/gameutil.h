@@ -81,7 +81,7 @@ int GetWallAngle(int nWall);
 int GetWallAngle(walltype* pWall);
 void GetWallNormal(int nWall, int *pX, int *pY);
 bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int *ix, int *iy, int *iz);
-int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8);
+int HitScan(DBloodActor *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8);
 int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac);
 void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
