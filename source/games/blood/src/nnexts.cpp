@@ -7271,7 +7271,6 @@ void playerQavScenePlay(PLAYER* pPlayer)
     if (pQavScene->qavResrc != NULL) 
     {
         QAV* pQAV = pQavScene->qavResrc;
-        pQAV->nSprite = pPlayer->pSprite->index;
         int nTicks = pQAV->duration - pPlayer->weaponTimer;
         pQAV->Play(nTicks - 4, nTicks, pPlayer->qavCallback, pPlayer);
     }

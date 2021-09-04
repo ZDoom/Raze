@@ -235,7 +235,6 @@ void WeaponInit(void)
             auto pQAV = getQAV(i);
             if (!pQAV)
                 I_Error("Could not load QAV %d\n", i);
-            pQAV->nSprite = -1;
         }
     };
 
@@ -288,7 +287,6 @@ void WeaponPlay(PLAYER *pPlayer)
     if (pPlayer->weaponQav == kQAVNone)
         return;
     auto pQAV = getQAV(pPlayer->weaponQav);
-    pQAV->nSprite = pPlayer->pSprite->index;
     int nTicks = pQAV->duration - pPlayer->weaponTimer;
     pQAV->Play(nTicks-4, nTicks, pPlayer->qavCallback, pPlayer);
 }
