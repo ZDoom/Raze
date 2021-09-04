@@ -8224,7 +8224,8 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); PLAYER* pPlayer = NULL;
     
-    for (int i = 0; i < kMaxPatrolFoundSounds; i++) {
+    for (int i = 0; i < kMaxPatrolFoundSounds; i++) 
+    {
         patrolBonkles[i].snd = patrolBonkles[i].cur = 0;
         patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
     }
@@ -8252,18 +8253,15 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
         // TO-DO: is there any dudes that sees this patrol dude and sees target?
 
 
-        if (nDist <= seeDist) {
-
+        if (nDist <= seeDist) 
+        {
             eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
             if (nDist < seeDist >> 3) GetSpriteExtents(pSpr, &z, &j); //use ztop of the target sprite
             if (!cansee(x, y, z, pSpr->sectnum, pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sectnum))
                 continue;
-
-        } else {
-        
-            continue;
-        
         }
+        else 
+            continue;
 
         bool invisible = (powerupCheck(pPlayer, kPwUpShadowCloak) > 0);
         if (spritesTouching(actor, pPlayer->actor()) || spritesTouching(pPlayer->actor(), actor)) 
@@ -8274,7 +8272,8 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
             break;
         }
 
-        if (!deaf) {
+        if (!deaf) 
+        {
 
             soundEngine->EnumerateChannels([&](FSoundChan* chan)
                 {
@@ -8288,7 +8287,8 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         sndy = emitter->y;
 
                         // sound attached to the sprite
-                        if (pSpr->index != emitter->index && emitter->owner != pSpr->index) {
+                        if (pSpr->index != emitter->index && emitter->owner != pSpr->index) 
+                        {
 
                             if (!sectRangeIsFine(emitter->sectnum)) return false;
                             searchsect = emitter->sectnum;
@@ -8346,27 +8346,33 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
         }
 
-        if (!invisible && (!deaf || !blind)) {
-
-            if (stealth) {
-
-                switch (pPlayer->lifeMode) {
+        if (!invisible && (!deaf || !blind)) 
+        {
+            if (stealth) 
+            {
+                switch (pPlayer->lifeMode) 
+                {
                     case kModeHuman:
                     case kModeHumanShrink:
-                        if (pPlayer->lifeMode == kModeHumanShrink) {
+                        if (pPlayer->lifeMode == kModeHumanShrink) 
+                        {
                             seeDist  -= mulscale8(164, seeDist);
                             feelDist -= mulscale8(164, feelDist);
                         }
-                        if (pPlayer->posture == kPostureCrouch) {
+                        if (pPlayer->posture == kPostureCrouch) 
+                        {
                             seeDist  -= mulscale8(64, seeDist);
                             feelDist -= mulscale8(128, feelDist);
                         }
                         break;
                     case kModeHumanGrown:
-                        if (pPlayer->posture != kPostureCrouch) {
+                        if (pPlayer->posture != kPostureCrouch) 
+                        {
                             seeDist  += mulscale8(72, seeDist);
                             feelDist += mulscale8(64, feelDist);
-                        } else {
+                        }
+                        else 
+                        {
                             seeDist  += mulscale8(48, seeDist);
                         }
                         break;
@@ -8377,19 +8383,19 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
             bool itCanHear = false; bool itCanSee = false;
             feelDist = ClipLow(feelDist, 0);  seeDist = ClipLow(seeDist, 0);
 
-            if (hearDist) {
-
+            if (hearDist) 
+            {
                 itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
                 if (itCanHear && nDist < feelDist && (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]))
                     hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(xvel[pSpr->index]) + abs(yvel[pSpr->index]) + abs(zvel[pSpr->index]))) >> 6, 0)), 0);
             }
 
-            if (seeDist) {
-
+            if (seeDist) 
+            {
                 int periphery = ClipLow(pDudeInfo->periphery, kAng60);
                 int nDeltaAngle = abs(((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024);
-                if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true) {
-
+                if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true) 
+                {
                     int base = 100 + ((20 * gGameOptions.nDifficulty) - (nDeltaAngle / 5));
                     //seeChance = base - MulScale(ClipRange(5 - gGameOptions.nDifficulty, 1, 4), nDist >> 1, 16);
                     //scale(0x40000, a6, dist2);
@@ -8401,16 +8407,14 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     //seeChance = scale(0x1000, base, t);
                     //viewSetSystemMessage("SEE CHANCE: %d, BASE %d, DIST %d, T %d", seeChance, base, nDist, t);
                     //itCanSee = false;
-
                 }
-
             }
 
             if (!itCanSee && !itCanHear)
                 continue;
 
-            if (stealth) {
-
+            if (stealth) 
+            {
                 // search in stealth regions to modify spot chances
                 for (j = headspritestat[kStatModernStealthRegion]; j != -1; j = nextspritestat[j]) {
 
@@ -8429,36 +8433,36 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     bool crouch = (pSteal->flags & kModernTypeFlag8); // target must crouch
                     //bool floor = (pSteal->cstat & CSTAT_SPRITE_BLOCK); // target (or dude?) must touch floor of the sector
 
-                    if (trgt) {
+                    if (trgt) 
+                    {
 
                         if (pXSteal->data1 > 0)
                         {
                             if (approxDist(abs(pSteal->x - pSpr->x) >> 4, abs(pSteal->y - pSpr->y) >> 4) >= pXSteal->data1)
                                 continue;
 
-                        } else if (pSpr->sectnum != pSteal->sectnum)
+                        } 
+                        else if (pSpr->sectnum != pSteal->sectnum)
                             continue;
 
                         if (crouch && pPlayer->posture == kPostureStand)
                             continue;
-
                     }
 
-
-                    if (dude) {
-
+                    if (dude) 
+                    {
                         if (pXSteal->data1 > 0)
                         {
                             if (approxDist(abs(pSteal->x - pSprite->x) >> 4, abs(pSteal->y - pSprite->y) >> 4) >= pXSteal->data1)
                                 continue;
 
-                        } else if (pSprite->sectnum != pSteal->sectnum)
+                        } 
+                        else if (pSprite->sectnum != pSteal->sectnum)
                             continue;
-
                     }
 
-                    if (itCanHear) {
-
+                    if (itCanHear) 
+                    {
                         if (fixd)
                             hearChance = ClipLow(hearChance, pXSteal->data2);
 
@@ -8466,11 +8470,10 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         if (fixd)  hearChance = mod; else hearChance += mod;
 
                         hearChance = ClipRange(hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-
                     }
 
-                    if (itCanSee) {
-
+                    if (itCanSee) 
+                    {
                         if (fixd)
                             seeChance = ClipLow(seeChance, pXSteal->data3);
 
@@ -8480,42 +8483,42 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         seeChance = ClipRange(seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                     }
 
-
                     // trigger this region if target gonna be spot
                     if (pXSteal->txID && pXSprite->data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
                         trTriggerSprite(pSteal->index, pXSteal, kCmdToggle);
-
                    
                     // continue search another stealth regions to affect chances
-
                 }
-
             }
 
-            if (itCanHear && hearChance > 0) {
+            if (itCanHear && hearChance > 0) 
+            {
                 DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
                 pXSprite->data3 = ClipRange(pXSprite->data3 + hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-                if (!stealth) {
+                if (!stealth) 
+                {
                     target = pSpr->index;
                     break;
-            }
+                }
             }
 
-            if (itCanSee && seeChance > 0) {
+            if (itCanSee && seeChance > 0) 
+            {
                 //DPrintf(DMSG_SPAMMY, "Patrol dude #%d seeing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
                 //pXSprite->data3 += seeChance;
                 pXSprite->data3 = ClipRange(pXSprite->data3 + seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-                if (!stealth) {
+                if (!stealth) 
+                {
                     target = pSpr->index;
                     break;
                 }
             }
-
         }
 
         // add check for corpses?
 
-        if ((pXSprite->data3 = ClipRange(pXSprite->data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue) {
+        if ((pXSprite->data3 = ClipRange(pXSprite->data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue) 
+        {
             target = pSpr->index;
             break;
         }
@@ -8529,6 +8532,12 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
     pXSprite->data3 -= ClipLow(((kPercFull * pXSprite->data3) / kMaxPatrolSpotValue) >> 2, 3);
     return -1;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init) {
 
