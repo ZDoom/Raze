@@ -138,9 +138,10 @@ bool FindSector(int nX, int nY, int *nSector)
     return 0;
 }
 
-bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist)
+bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, int nSector, int nDist)
 {
-    assert(pSprite != NULL);
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
     int oX = abs(nX-pSprite->x)>>4;
     if (oX >= nDist) return 0;
 
@@ -153,7 +154,7 @@ bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, in
     if (approxDist(oX, oY) >= nDist) return 0;
 
     int bottom, top;
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
     if (cansee(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nX, nY, nZ, nSector))
         return 1;
     if (cansee(pSprite->x, pSprite->y, bottom, pSprite->sectnum, nX, nY, nZ, nSector))

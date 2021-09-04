@@ -2667,7 +2667,7 @@ void teslaHit(spritetype *pMissile, int a2)
             spritetype *pHitSprite = &hitactor->s();
             if (pHitSprite->flags&32)
                 continue;
-            if (TestBitString(sectmap, pHitSprite->sectnum) && CheckProximity(pHitSprite, x, y, z, nSector, nDist))
+            if (TestBitString(sectmap, pHitSprite->sectnum) && CheckProximity(hitactor, x, y, z, nSector, nDist))
             {
                 int dx = pMissile->x-pHitSprite->x;
                 int dy = pMissile->y-pHitSprite->y;
@@ -2684,7 +2684,7 @@ void teslaHit(spritetype *pMissile, int a2)
         spritetype *pHitSprite = &hitactor->s();
         if (pHitSprite->flags&32)
             continue;
-        if (TestBitString(sectmap, pHitSprite->sectnum) && CheckProximity(pHitSprite, x, y, z, nSector, nDist))
+        if (TestBitString(sectmap, pHitSprite->sectnum) && CheckProximity(hitactor, x, y, z, nSector, nDist))
         {
             XSPRITE *pXSprite = &hitactor->x();
             if (!pXSprite->locked)
