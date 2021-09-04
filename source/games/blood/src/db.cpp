@@ -371,31 +371,36 @@ void dbInit(void)
 
 void PropagateMarkerReferences(void)
 {
-    int nSprite, nNextSprite;
-    for (nSprite = headspritestat[kStatMarker]; nSprite != -1; nSprite = nNextSprite) {
-        
-        nNextSprite = nextspritestat[nSprite];
-        
-        switch (sprite[nSprite].type)  {
+    BloodStatIterator it(kStatMarker);
+    while (auto actor = it.Next())
+    {
+        switch (actor->s().type)  
+        {
             case kMarkerOff:
             case kMarkerAxis:
-            case kMarkerWarpDest: {
-                int nOwner = sprite[nSprite].owner;
-                if (nOwner >= 0 && nOwner < numsectors) {
+            case kMarkerWarpDest: 
+            {
+                int nOwner = actor->s().owner;
+                if (nOwner >= 0 && nOwner < numsectors) 
+                {
                     int nXSector = sector[nOwner].extra;
-                    if (nXSector > 0 && nXSector < kMaxXSectors) {
-                        xsector[nXSector].marker0 = nSprite;
+                    if (nXSector > 0 && nXSector < kMaxXSectors) 
+                    {
+                        xsector[nXSector].marker0 = actor;
                         continue;
                     }
                 }
             }
             break;
-            case kMarkerOn: {
-                int nOwner = sprite[nSprite].owner;
-                if (nOwner >= 0 && nOwner < numsectors) {
+            case kMarkerOn: 
+            {
+                int nOwner = actor->s().owner;
+                if (nOwner >= 0 && nOwner < numsectors)
+                {
                     int nXSector = sector[nOwner].extra;
-                    if (nXSector > 0 && nXSector < kMaxXSectors) {
-                        xsector[nXSector].marker1 = nSprite;
+                    if (nXSector > 0 && nXSector < kMaxXSectors)
+                    {
+                        xsector[nXSector].marker1 = actor;
                         continue;
                     }
                 }
@@ -403,7 +408,7 @@ void PropagateMarkerReferences(void)
             break;
         }
         
-        DeleteSprite(nSprite);
+        DeleteSprite(actor);
     }
 }
 
@@ -744,8 +749,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSector->onCeilZ = bitReader.readSigned(32);
             pXSector->offFloorZ = bitReader.readSigned(32);
             pXSector->onFloorZ = bitReader.readSigned(32);
-            pXSector->marker0 = bitReader.readUnsigned(16);
-            pXSector->marker1 = bitReader.readUnsigned(16);
+            /*pXSector->marker0 =*/ bitReader.readUnsigned(16);
+            /*pXSector->marker1 =*/ bitReader.readUnsigned(16);
             pXSector->Crush = bitReader.readUnsigned(1);
             pSector->ceilingxpan_ += bitReader.readUnsigned(8) / 256.f;
             pSector->ceilingypan_ += bitReader.readUnsigned(8) / 256.f;

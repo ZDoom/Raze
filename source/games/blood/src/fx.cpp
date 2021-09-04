@@ -168,7 +168,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
     pSprite->cstat |= pFX->cstat;
     pSprite->shade = pFX->shade;
     pSprite->pal = pFX->pal;
-    sprite[pSprite->index].detail = pFX->detail;
+    pSprite->detail = pFX->detail;
     if (pFX->xrepeat > 0)
         pSprite->xrepeat = pFX->xrepeat;
     if (pFX->yrepeat > 0)

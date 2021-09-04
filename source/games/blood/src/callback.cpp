@@ -360,11 +360,10 @@ void CounterCheck(DBloodActor*, int nSector) // 12
     int nReq = pXSector->waitTimeA; int nType = pXSector->data; int nCount = 0;
     if (!nType || !nReq) return;
     
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        if (sprite[nSprite].type == nType) nCount++;
+        if (actor->s().type == nType) nCount++;
     }
         
     if (nCount < nReq) {
