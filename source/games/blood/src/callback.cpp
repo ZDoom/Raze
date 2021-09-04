@@ -61,11 +61,10 @@ void fxFlameLick(DBloodActor* actor, int) // 0
 void Remove(DBloodActor* actor, int) // 1
 {
     if (!actor) return;
-    spritetype *pSprite = &actor->s();
     evKillActor(actor, kCallbackFXFlareSpark);
-    if (pSprite->extra > 0)
-        seqKill(3, pSprite->extra);
-    sfxKill3DSound(pSprite, 0, -1);
+    if (actor->hasX())
+        seqKill(actor);
+    sfxKill3DSound(actor, 0, -1);
     DeleteSprite(actor);
 }
 
