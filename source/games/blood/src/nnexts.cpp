@@ -3656,7 +3656,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
                     int nSpawned = InsertSprite(pSprite->sectnum, kStatDecoration);
                     auto spawned = &bloodActors[nSpawned];
                     auto pSpawned = &spawned->s();
-                    int top, bottom; GetSpriteExtents(&sprite[index], &top, &bottom);
+                    int top, bottom; GetActorExtents(spawned, &top, &bottom);
                     pSpawned->x = pSprite->x;
                     pSpawned->y = pSprite->y;
                     switch (pXSource->data3) 
@@ -6303,7 +6303,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
     if (objType == OBJ_SPRITE && event.actor == nullptr) return -1;
     if (objType == OBJ_SPRITE) objIndex = event.actor->s().index;    // need this below for calling nnExtTriggerObject
     if (objType == OBJ_SPRITE && event.actor != sourceactor)
-        srcIsCondition = (sprite[objIndex].type == kModernCondition || sprite[objIndex].type == kModernConditionFalse);
+        srcIsCondition = (event.actor->s().type == kModernCondition || event.actor->s().type == kModernConditionFalse);
 
     // if it's a tracking condition, it must ignore all the commands sent from objects
     if (pXSource->busyTime > 0 && event.funcID != kCallbackMax) return -1;
@@ -8592,7 +8592,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                         continue;
 
                     spritetype* pSteal = &iactor->s();
-                    XSPRITE* pXSteal = &xsprite[pSteal->extra];
+                    XSPRITE* pXSteal = &iactor->x();
                     if (pXSteal->locked) // ignore locked regions
                         continue;
 
