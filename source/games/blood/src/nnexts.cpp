@@ -1781,7 +1781,7 @@ void debrisMove(int listIndex)
 
     int ceilZ, floorZ;
     Collision ceilColl, floorColl;
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
     GetSpriteExtents(pSprite, &top, &bottom);
 
     if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) 
@@ -1814,7 +1814,7 @@ void debrisMove(int listIndex)
 
     if ((i = CheckLink(actor)) != 0)
     {
-        GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+        GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
         if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
         {
             switch (i)

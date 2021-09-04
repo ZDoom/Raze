@@ -391,7 +391,7 @@ void fxBloodBits(DBloodActor* actor, int) // 14
     spritetype *pSprite = &actor->s();
     int ceilZ, floorZ;
     Collision floorColl, ceilColl;
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ-bottom;
@@ -440,7 +440,7 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
     int ceilZ, floorZ;
     Collision floorColl, ceilColl;
 
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ - bottom;
     
@@ -548,7 +548,7 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
     int ceilZ, floorZ;
     Collision floorColl, ceilColl;
 
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ-bottom;

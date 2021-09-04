@@ -621,10 +621,12 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     return -1;
 }
 
-void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilColl, int *floorZ, Collision *floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ, Collision *floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
+
     int floorHit, ceilHit;
-    assert(pSprite != NULL);
     int bakCstat = pSprite->cstat;
     int32_t nTemp1, nTemp2;
     pSprite->cstat &= ~257;
