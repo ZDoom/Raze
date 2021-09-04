@@ -638,11 +638,10 @@ void playerStart(int nPlayer, int bNewLevel)
 
             if (maxRetries != 0) {
                 // check if there is no spawned player in selected zone
-                int i;
-                SectIterator it(pStartZone->sectnum);
-                while ((i = it.NextIndex()) >= 0)
+                BloodSectIterator it(pStartZone->sectnum);
+                while (auto act = it.Next())
                 {
-                    spritetype* pSprite = &sprite[i];
+                    spritetype* pSprite = &act->s();
                     if (pStartZone->x == pSprite->x && pStartZone->y == pSprite->y && IsPlayerSprite(pSprite)) {
                         pStartZone = NULL;
                         break;
@@ -663,7 +662,7 @@ void playerStart(int nPlayer, int bNewLevel)
     auto actor = actSpawnSprite(pStartZone->sectnum, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
     spritetype* pSprite = &actor->s();
     assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
-    XSPRITE *pXSprite = &xsprite[pSprite->extra];
+    XSPRITE *pXSprite = &actor->x();
     pPlayer->pSprite = pSprite;
     pPlayer->pXSprite = pXSprite;
     pPlayer->nSprite = pSprite->index;
@@ -853,15 +852,14 @@ void playerInit(int nPlayer, unsigned int a2)
         playerReset(pPlayer);
 }
 
-char findDroppedLeech(PLAYER *a1, spritetype *a2)
+bool findDroppedLeech(PLAYER *a1, DBloodActor *a2)
 {
-    int nSprite;
-    StatIterator it(kStatThing);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatThing);
+    while (auto actor = it.Next())
     {
-        if (a2 && a2->index == nSprite)
+        if (a2 == actor)
             continue;
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype *pSprite = &actor->s();
         if (pSprite->type == kThingDroppedLifeLeech && pSprite->owner == a1->nSprite)
             return 1;
     }
@@ -1240,10 +1238,11 @@ void CheckPickUp(PLAYER *pPlayer)
     }
 }
 
-int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
+int ActionScan(PLAYER *pPlayer, int *pIndex, int *pXIndex, DBloodActor** pAct)
 {
-    *a2 = 0;
-    *a3 = 0;
+    *pIndex = 0;
+    *pXIndex = 0;
+    *pAct = nullptr;
     spritetype *pSprite = pPlayer->pSprite;
     int x = bcos(pSprite->ang);
     int y = bsin(pSprite->ang);
@@ -1255,65 +1254,64 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
         switch (hit)
         {
         case 3:
-            *a2 = gHitInfo.hitactor ? gHitInfo.hitactor->s().index : -1;
-            *a3 = sprite[*a2].extra;
-            if (*a3 > 0 && sprite[*a2].statnum == kStatThing)
             {
-                spritetype *pSprite = &sprite[*a2];
-                XSPRITE *pXSprite = &xsprite[*a3];
+            if (!gHitInfo.hitactor || !gHitInfo.hitactor->hasX()) return -1;
+            *pAct = gHitInfo.hitactor;
+            spritetype* pSprite = &gHitInfo.hitactor->s();
+            XSPRITE* pXSprite = &gHitInfo.hitactor->x();
+            if (pSprite->statnum == kStatThing)
+            {
                 if (pSprite->type == kThingDroppedLifeLeech)
                 {
-                    if (gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, pSprite))
+                    if (gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, gHitInfo.hitactor))
                         return -1;
                     pXSprite->data4 = pPlayer->nPlayer;
                     pXSprite->isTriggered = 0;
                 }
             }
-            if (*a3 > 0 && xsprite[*a3].Push)
+            if (pXSprite->Push)
                 return 3;
-            if (sprite[*a2].statnum == kStatDude)
+            if (pSprite->statnum == kStatDude)
             {
-                auto actor = &bloodActors[*a2];
-                spritetype *pSprite = &actor->s();
-                XSPRITE *pXSprite = &xsprite[*a3];
                 int nMass = getDudeInfo(pSprite->type)->mass;
                 if (nMass)
                 {
                     int t2 = DivScale(0xccccc, nMass, 8);
-                    actor->xvel += MulScale(x, t2, 16);
-                    actor->yvel += MulScale(y, t2, 16);
-                    actor->zvel += MulScale(z, t2, 16);
+                    gHitInfo.hitactor->xvel += MulScale(x, t2, 16);
+                    gHitInfo.hitactor->yvel += MulScale(y, t2, 16);
+                    gHitInfo.hitactor->zvel += MulScale(z, t2, 16);
                 }
                 if (pXSprite->Push && !pXSprite->state && !pXSprite->isTriggered)
-                    trTriggerSprite(*a2, pXSprite, kCmdSpritePush);
+                    trTriggerSprite(gHitInfo.hitactor, kCmdSpritePush);
             }
             break;
+        }
         case 0:
         case 4:
-            *a2 = gHitInfo.hitwall;
-            *a3 = wall[*a2].extra;
-            if (*a3 > 0 && xwall[*a3].triggerPush)
+            *pIndex = gHitInfo.hitwall;
+            *pXIndex = wall[*pIndex].extra;
+            if (*pXIndex > 0 && xwall[*pXIndex].triggerPush)
                 return 0;
-            if (wall[*a2].nextsector >= 0)
+            if (wall[*pIndex].nextsector >= 0)
             {
-                *a2 = wall[*a2].nextsector;
-                *a3 = sector[*a2].extra;
-                if (*a3 > 0 && xsector[*a3].Wallpush)
+                *pIndex = wall[*pIndex].nextsector;
+                *pXIndex = sector[*pIndex].extra;
+                if (*pXIndex > 0 && xsector[*pXIndex].Wallpush)
                     return 6;
             }
             break;
         case 1:
         case 2:
-            *a2 = gHitInfo.hitsect;
-            *a3 = sector[*a2].extra;
-            if (*a3 > 0 && xsector[*a3].Push)
+            *pIndex = gHitInfo.hitsect;
+            *pXIndex = sector[*pIndex].extra;
+            if (*pXIndex > 0 && xsector[*pXIndex].Push)
                 return 6;
             break;
         }
     }
-    *a2 = pSprite->sectnum;
-    *a3 = sector[*a2].extra;
-    if (*a3 > 0 && xsector[*a3].Push)
+    *pIndex = pSprite->sectnum;
+    *pXIndex = sector[*pIndex].extra;
+    if (*pXIndex > 0 && xsector[*pXIndex].Push)
         return 6;
     return -1;
 }
@@ -1503,7 +1501,8 @@ void ProcessInput(PLAYER *pPlayer)
     if (pInput->actions & SB_OPEN)
     {
         int a2, a3;
-        int hit = ActionScan(pPlayer, &a2, &a3);
+        DBloodActor* act;
+        int hit = ActionScan(pPlayer, &a2, &a3, &act);
         switch (hit)
         {
         case 6:
@@ -1557,7 +1556,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
         case 3:
         {
-            XSPRITE *pXSprite = &xsprite[a3];
+            XSPRITE *pXSprite = &act->x();
             int key = pXSprite->key;
             if (pXSprite->locked && pPlayer == gMe && pXSprite->lockMsg)
                 trTextOver(pXSprite->lockMsg);
@@ -1577,14 +1576,17 @@ void ProcessInput(PLAYER *pPlayer)
         {
             auto pactor = pPlayer->actor();
             auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
+            if (spawned)
+            {
             spritetype* pSprite2 = &spawned->s();
-            pSprite2->ang = (pPlayer->pSprite->ang+1024)&2047;
+                pSprite2->ang = (pPlayer->pSprite->ang + 1024) & 2047;
             int nSprite = pPlayer->pSprite->index;
             int x = bcos(pPlayer->pSprite->ang);
             int y = bsin(pPlayer->pSprite->ang);
             spawned->xvel = pPlayer->actor()->xvel + MulScale(0x155555, x, 14);
             spawned->yvel = pPlayer->actor()->yvel + MulScale(0x155555, y, 14);
             spawned->zvel = pPlayer->actor()->zvel;
+            }
             pPlayer->hand = 0;
         }
         pInput->actions &= ~SB_OPEN;
