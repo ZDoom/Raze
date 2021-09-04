@@ -108,14 +108,16 @@ public:
 
 	void Clear()
 	{
-		explosionhackflag = false;
-		prevmarker = nullptr;
 		dudeSlope = 0;
+		hit = {};
 		dudeExtra = {};
 		spriteMass = {};
-		hit = {};
+		genDudeExtra = {};
+		prevmarker = nullptr;
 		basePoint = {};
 		xvel = yvel = zvel = 0;
+		explosionhackflag = false;
+		interpolated = false;
 	}
 	bool hasX() { return sprite[index].extra > 0; }
 	void addX()

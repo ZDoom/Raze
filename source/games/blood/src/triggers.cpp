@@ -33,9 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-int basePath[kMaxSectors];
-
-
 unsigned int GetWaveValue(unsigned int nPhase, int nType)
 {
     switch (nType)
@@ -1352,13 +1349,13 @@ int PathBusy(unsigned int nSector, unsigned int a2)
     int nXSector = pSector->extra;
     assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
-    spritetype *pSprite = &sprite[basePath[nSector]];
 
-    if (!pXSector->marker0 || !pXSector->marker1) return 0;
+    if (!pXSector->basePath || !pXSector->marker0 || !pXSector->marker1) return 0;
+    spritetype* pSprite = &pXSector->basePath->s();
     spritetype* pSprite1 = &pXSector->marker0->s();
     spritetype* pSprite2 = &pXSector->marker1->s();
-    XSPRITE *pXSprite1 = &xsprite[pSprite1->extra];
-    XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
+    XSPRITE *pXSprite1 = &pXSector->marker0->x();
+    XSPRITE *pXSprite2 = &pXSector->marker1->x();
 
     int nWave = pXSprite1->wave;
     TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, 1);
@@ -1656,8 +1653,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
         
     }
 
-    pXSector->marker0 = &bloodActors[nSprite];
-    basePath[nSector] = nSprite;
+    pXSector->basePath = pXSector->marker0 = &bloodActors[nSprite];
     if (pXSector->state)
         evPostSector(nSector, 0, kCmdOn);
 }
@@ -2122,6 +2118,7 @@ void trInit(void)
             #ifdef NOONE_EXTENSIONS
             case kModernRandom:
             case kModernRandom2:
+
                 if (!gModernMap || pXSprite->state == pXSprite->restState) break;
                 evPostActor(&bloodActors[i], (120 * pXSprite->busyTime) / 10, kCmdRepeat);
                 if (pXSprite->waitTime > 0)
@@ -2305,9 +2302,22 @@ void SerializeTriggers(FSerializer& arc)
 {
 	if (arc.BeginObject("triggers"))
 	{
+#ifdef OLD_SAVEGAME
+        if (arc.BeginArray("basepath"))
+        {
+            int nul = 0;
+            for (int i = 0; i < numsectors; i++)
+            {
+                if (sector[i].extra > 0)
+                    arc(nullptr, xsector[sector[i].extra].basePath);
+                else
+                    arc(nullptr, nul);
+            }
+            arc.EndArray();
+        }
+#endif
 		arc("busycount", gBusyCount)
 			.Array("busy", gBusy, gBusyCount)
-			.Array("basepath", basePath, numsectors)
 			.EndObject();
 	}
 }

@@ -383,6 +383,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
     bool erased = false;
     switch (pSprite->type) {
         // erase all modern types if the map is not extended
+        case kModernSpriteDamager:
         case kModernCustomDudeSpawn:
         case kModernRandomTX:
         case kModernSequentialTX:
@@ -393,7 +394,6 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
         case kModernDudeTargetChanger:
         case kModernSectorFXChanger:
         case kModernObjDataChanger:
-        case kModernSpriteDamager:
         case kModernObjDataAccumulator:
         case kModernEffectSpawner:
         case kModernWindGenerator:
@@ -493,23 +493,19 @@ void nnExtResetGlobals()
     memset(gImpactSpritesList, 0, sizeof(gImpactSpritesList));
 
     // reset tracking conditions, if any
-    if (gTrackingCondsCount > 0) 
+    for (int i = 0; i < countof(gCondition); i++) 
     {
-        for (int i = 0; i < gTrackingCondsCount; i++) 
-        {
-            TRCONDITION* pCond = &gCondition[i];
+        TRCONDITION* pCond = &gCondition[i];
         for (unsigned k = 0; k < kMaxTracedObjects; k++)
-            {
-                pCond->obj[k].actor = nullptr;
-                pCond->obj[k].index_ = pCond->obj[k].cmd = 0;
-                pCond->obj[k].type = -1;
-            }
-
-            pCond->length = 0;
+        {
+            pCond->obj[k].actor = nullptr;
+            pCond->obj[k].index_ = pCond->obj[k].cmd = 0;
+            pCond->obj[k].type = -1;
         }
-
-        gTrackingCondsCount = 0;
+        pCond->actor = nullptr;
+        pCond->length = 0;
     }
+    gTrackingCondsCount = 0;
 
     // clear sprite mass cache
     for (int i = 0; i < kMaxSprites; i++) 
