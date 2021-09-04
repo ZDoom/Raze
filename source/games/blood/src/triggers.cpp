@@ -242,8 +242,8 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                     if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum))
                     {
                         int t = DivScale(nDist, 0x1aaaaa, 12);
-                        x += (target->xvel()*t)>>12;
-                        y += (target->yvel()*t)>>12;
+                        x += (target->xvel*t)>>12;
+                        y += (target->yvel*t)>>12;
                         int angBak = pSprite->ang;
                         pSprite->ang = getangle(x-pSprite->x, y-pSprite->y);
                         int dx = bcos(pSprite->ang);
@@ -1461,7 +1461,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 pSprite->ang = pDest->ang;
                 ChangeActorSect(actor, pDest->sectnum);
                 sfxPlay3DSound(pDest, 201, -1, 0);
-                actor->xvel() = actor->yvel() = actor->zvel() = 0;
+                actor->xvel = actor->yvel = actor->zvel = 0;
                 int nSprite = actor->s().index;
                 gInterpolateSprite.Clear(nSprite);
                 viewBackupSpriteLoc(nSprite, pSprite);

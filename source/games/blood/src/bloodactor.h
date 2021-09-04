@@ -98,6 +98,7 @@ public:
 	GENDUDEEXTRA genDudeExtra;
 	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 	POINT3D basePoint;
+	int xvel, yvel, zvel;
 
 	int cumulDamage; // this one's transient and does not need to be saved.
 	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
@@ -114,6 +115,7 @@ public:
 		spriteMass = {};
 		hit = {};
 		basePoint = {};
+		xvel = yvel = zvel = 0;
 	}
 	bool hasX() { return sprite[index].extra > 0; }
 	void addX()
@@ -122,9 +124,6 @@ public:
 	}
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
-	int& xvel() { return Blood::xvel[index]; }
-	int& yvel() { return Blood::yvel[index]; }
-	int& zvel() { return Blood::zvel[index]; }
 	int GetIndex() { return s().time; }	// For error printing only! This is only identical with the sprite index for items spawned at map start.
 
 	void SetOwner(DBloodActor* own)

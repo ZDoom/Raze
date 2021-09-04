@@ -332,16 +332,16 @@ static void sub_65D04(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 2;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void sub_65F44(DBloodActor* actor)
@@ -372,14 +372,14 @@ static void sub_65F44(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel() = -dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = -dz;
 }
 
 static void sub_661E0(DBloodActor* actor)
@@ -410,14 +410,14 @@ static void sub_661E0(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel() = dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = dz;
 }
 
 END_BLD_NS

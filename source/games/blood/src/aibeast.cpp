@@ -468,8 +468,8 @@ static void beastMoveForward(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (nDist <= 0x400 && Random(64) < 32)
 		return;
-	actor->xvel() += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
-	actor->yvel() += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
+    actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
+    actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
 }
 
 static void sub_628A0(DBloodActor* actor)
@@ -493,16 +493,16 @@ static void sub_628A0(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 2;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void sub_62AE0(DBloodActor* actor)
@@ -532,14 +532,14 @@ static void sub_62AE0(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel() = -dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = -dz;
 }
 
 static void sub_62D7C(DBloodActor* actor)
@@ -570,14 +570,14 @@ static void sub_62D7C(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel() = dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = dz;
 }
 
 END_BLD_NS

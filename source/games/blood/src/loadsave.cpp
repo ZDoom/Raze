@@ -478,14 +478,22 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 
 	if (arc.BeginObject(keyname))
 	{
+#ifndef OLD_SAVEGAME
+		arc("xvel", w.xvel, def->xvel)
+			("yvel", w.yvel, def->yvel)
+			("zvel", w.zvel, def->zvel);
+#endif
+
 		// The rest is only relevant if the actor has an xsprite.
 		if (w.hasX())
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra)
 				("explosionflag", w.explosionhackflag, def->explosionhackflag)
-				("spritehit", w.hit, def->hit)
-				("basepoint", w.basePoint, def->basePoint);
+				("spritehit", w.hit, def->hit);
+#ifndef OLD_SAVEGAME
+			arc("basepoint", w.basePoint, def->basePoint);
+#endif
 
 			if (gModernMap)
 			{
@@ -715,17 +723,29 @@ void SerializeState(FSerializer& arc)
 			.Array("xwall", xwall, XWallsUsed)  // todo
 			.Array("xsector", xsector, XSectorsUsed)
 			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
-
-			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites)
-			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
-			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)
-			.SparseArray("zvel", zvel, kMaxSprites, activeSprites);
+			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites);
 
 #ifdef OLD_SAVEGAME
 		POINT3D baseSprite[kMaxSprites];
-		for (int i = 0; i < kMaxSprites; i++) baseSprite[i] = bloodActors[i].basePoint;
-		arc.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites);
-		if (arc.isReading()) for (int i = 0; i < kMaxSprites; i++) if (activeSprites[i]) bloodActors[i].basePoint = baseSprite[i];
+		int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
+		for (int i = 0; i < kMaxSprites; i++)
+		{
+			baseSprite[i] = bloodActors[i].basePoint;
+			xvel[i] = bloodActors[i].xvel;
+			yvel[i] = bloodActors[i].yvel;
+			zvel[i] = bloodActors[i].zvel;
+		}
+		arc.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites)
+			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
+			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)
+			.SparseArray("zvel", zvel, kMaxSprites, activeSprites);
+		if (arc.isReading()) for (int i = 0; i < kMaxSprites; i++) if (activeSprites[i])
+		{
+			bloodActors[i].basePoint = baseSprite[i];
+			bloodActors[i].xvel = xvel[i];
+			bloodActors[i].yvel = yvel[i];
+			bloodActors[i].zvel = zvel[i];
+		}
 #endif
 		arc.EndObject();
 	}

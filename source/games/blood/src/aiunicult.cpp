@@ -236,7 +236,7 @@ void genDudeAttack1(int, DBloodActor* actor)
     if (actor->GetTarget() == nullptr) return;
 
     int dx, dy, dz;
-    actor->xvel() = actor->yvel() = 0;
+    actor->xvel = actor->yvel = 0;
     
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
     short dispersion = pExtra->baseDispersion;
@@ -518,8 +518,8 @@ static void unicultThinkChase(DBloodActor* actor)
     // quick hack to prevent spinning around or changing attacker's sprite angle on high movement speeds
     // when attacking the target. It happens because vanilla function takes in account x and y velocity, 
     // so i use fake velocity with fixed value and pass it as argument.
-    int xvelocity = actor->xvel();
-    int yvelocity = actor->yvel();
+    int xvelocity = actor->xvel;
+    int yvelocity = actor->yvel;
     if (inAttack(pXSprite->aiState))
        xvelocity = yvelocity = ClipLow(pSprite->clipdist >> 1, 1);
 
@@ -759,7 +759,7 @@ static void unicultThinkChase(DBloodActor* actor)
                 int nType = curWeapon - kTrapExploder; const EXPLOSION* pExpl = &explodeInfo[nType];
                 if (CheckProximity(pSprite, pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pExpl->radius >> 1)) 
                 {
-                    actor->xvel() = actor->yvel() = actor->zvel() = 0;
+                    actor->xvel = actor->yvel = actor->zvel = 0;
                     if (doExplosion(actor, nType) && pXSprite->health > 0)
                             actDamageSprite(actor, actor, kDamageExplode, 65535);
                 }
@@ -1176,16 +1176,16 @@ void aiGenDudeMoveForward(DBloodActor* actor)
             return;
         int nCos = Cos(pSprite->ang);
         int nSin = Sin(pSprite->ang);
-        int vx = actor->xvel();
-        int vy = actor->yvel();
+        int vx = actor->xvel;
+        int vy = actor->yvel;
         int t1 = DMulScale(vx, nCos, vy, nSin, 30);
         int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
         if (actor->GetTarget() == nullptr)
             t1 += nAccel;
         else
             t1 += nAccel >> 1;
-        actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-        actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+        actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+        actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
     }
     else
     {
@@ -1200,8 +1200,8 @@ void aiGenDudeMoveForward(DBloodActor* actor)
     int cos = Cos(pSprite->ang);
 
         int frontSpeed = actor->genDudeExtra.moveSpeed;
-        actor->xvel() += MulScale(cos, frontSpeed, 30);
-        actor->yvel() += MulScale(sin, frontSpeed, 30);
+        actor->xvel += MulScale(cos, frontSpeed, 30);
+        actor->yvel += MulScale(sin, frontSpeed, 30);
     }
 }
 
@@ -1865,8 +1865,8 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
             if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum)) 
             {
                 int t = DivScale(nDist, 0x1aaaaa, 12);
-                x += (actTarget->xvel() * t) >> 12;
-                y += (actTarget->yvel() * t) >> 12;
+                x += (actTarget->xvel * t) >> 12;
+                y += (actTarget->yvel * t) >> 12;
                 int angBak = pSprite->ang;
                 pSprite->ang = getangle(x - pSprite->x, y - pSprite->y);
                 int dx = bcos(pSprite->ang);

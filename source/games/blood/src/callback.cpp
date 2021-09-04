@@ -49,9 +49,9 @@ void fxFlameLick(DBloodActor* actor, int) // 0
         auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sectnum, x, y, z, 0);
         if (pFX)
         {
-            pFX->xvel() = actor->xvel() + Random2(-dx);
-            pFX->yvel() = actor->yvel() + Random2(-dy);
-            pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+            pFX->xvel = actor->xvel + Random2(-dx);
+            pFX->yvel = actor->yvel + Random2(-dy);
+            pFX->zvel = actor->zvel - Random(0x1aaaa);
         }
     }
     if (pXSprite->burnTime > 0)
@@ -72,7 +72,7 @@ void FlareBurst(DBloodActor* actor, int) // 2
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int nAngle = getangle(actor->xvel(), actor->yvel());
+    int nAngle = getangle(actor->xvel, actor->yvel);
     int nRadius = 0x55555;
     for (int i = 0; i < 8; i++)
     {
@@ -94,9 +94,9 @@ void FlareBurst(DBloodActor* actor, int) // 2
             dz >>= 1;
         }
         RotateVector(&dx, &dy, nAngle);
-        spawnedactor->xvel() += dx;
-        spawnedactor->yvel() += dy;
-        spawnedactor->zvel() += dz;
+        spawnedactor->xvel += dx;
+        spawnedactor->yvel += dy;
+        spawnedactor->zvel += dz;
         evPostActor(spawnedactor, 960, kCallbackRemove);
     }
     evPostActor(actor, 0, kCallbackRemove);
@@ -109,9 +109,9 @@ void fxFlareSpark(DBloodActor* actor, int) // 3
     auto pFX = gFX.fxSpawnActor(FX_28, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-        pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-        pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+        pFX->xvel = actor->xvel + Random2(0x1aaaa);
+        pFX->yvel = actor->yvel + Random2(0x1aaaa);
+        pFX->zvel = actor->zvel - Random(0x1aaaa);
     }
     evPostActor(actor, 4, kCallbackFXFlareSpark);
 }
@@ -123,9 +123,9 @@ void fxFlareSparkLite(DBloodActor* actor, int) // 4
     auto pFX = gFX.fxSpawnActor(FX_28, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-        pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-        pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+        pFX->xvel = actor->xvel + Random2(0x1aaaa);
+        pFX->yvel = actor->yvel + Random2(0x1aaaa);
+        pFX->zvel = actor->zvel - Random(0x1aaaa);
     }
     evPostActor(actor, 12, kCallbackFXFlareSparkLite);
 }
@@ -142,9 +142,9 @@ void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
     auto pFX = gFX.fxSpawnActor(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x11111);
-        pFX->yvel() = actor->yvel() + Random2(0x11111);
-        pFX->zvel() = actor->zvel() - 0x6aaaa;
+        pFX->xvel = actor->xvel + Random2(0x11111);
+        pFX->yvel = actor->yvel + Random2(0x11111);
+        pFX->zvel = actor->zvel - 0x6aaaa;
     }
     if (pXSprite->data1 > 0)
     {
@@ -167,9 +167,9 @@ void fxBloodSpurt(DBloodActor* actor, int) // 6
     if (pFX)
     {
         pFX->s().ang = 0;
-        pFX->xvel() = actor->xvel()>>8;
-        pFX->yvel() = actor->yvel()>>8;
-        pFX->zvel() = actor->zvel()>>8;
+        pFX->xvel = actor->xvel>>8;
+        pFX->yvel = actor->yvel>>8;
+        pFX->zvel = actor->zvel>>8;
     }
     evPostActor(actor, 6, kCallbackFXBloodSpurt);
 }
@@ -182,9 +182,9 @@ void fxArcSpark(DBloodActor* actor, int) // 7
     auto pFX = gFX.fxSpawnActor(FX_15, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x10000);
-        pFX->yvel() = actor->yvel() + Random2(0x10000);
-        pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+        pFX->xvel = actor->xvel + Random2(0x10000);
+        pFX->yvel = actor->yvel + Random2(0x10000);
+        pFX->zvel = actor->zvel - Random(0x1aaaa);
     }
     evPostActor(actor, 3, kCallbackFXArcSpark);
 }
@@ -194,7 +194,7 @@ void fxDynPuff(DBloodActor* actor, int) // 8
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    if (actor->zvel())
+    if (actor->zvel)
     {
         int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int x = pSprite->x + MulScale(nDist, Cos(pSprite->ang-512), 30);
@@ -203,9 +203,9 @@ void fxDynPuff(DBloodActor* actor, int) // 8
         auto pFX = gFX.fxSpawnActor(FX_7, pSprite->sectnum, x, y, z, 0);
         if (pFX)
         {
-            pFX->xvel() = actor->xvel();
-            pFX->yvel() = actor->yvel();
-            pFX->zvel() = actor->zvel();
+            pFX->xvel = actor->xvel;
+            pFX->yvel = actor->yvel;
+            pFX->zvel = actor->zvel;
         }
     }
     evPostActor(actor, 12, kCallbackFXDynPuff);
@@ -246,7 +246,7 @@ void Respawn(DBloodActor* actor, int) // 9
             pSprite->type = pSprite->inittype;
             actor->SetOwner(nullptr);
             pSprite->flags &= ~kHitagRespawn;
-            actor->xvel() = actor->yvel() = actor->zvel() = 0;
+            actor->xvel = actor->yvel = actor->zvel = 0;
             pXSprite->respawnPending = 0;
             pXSprite->burnTime = 0;
             pXSprite->isTriggered = 0;
@@ -317,9 +317,9 @@ void PlayerBubble(DBloodActor* actor, int) // 10
             auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23+Random(3)), pSprite->sectnum, x, y, z, 0);
             if (pFX)
             {
-                pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-                pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-                pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
+                pFX->xvel = actor->xvel + Random2(0x1aaaa);
+                pFX->yvel = actor->yvel + Random2(0x1aaaa);
+                pFX->zvel = actor->zvel + Random2(0x1aaaa);
             }
         }
         evPostActor(actor, 4, kCallbackPlayerBubble);
@@ -332,7 +332,7 @@ void EnemyBubble(DBloodActor* actor, int) // 11
     spritetype *pSprite = &actor->s();
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
-    for (int i = 0; i < (abs(actor->zvel())>>18); i++)
+    for (int i = 0; i < (abs(actor->zvel)>>18); i++)
     {
         int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int nAngle = Random(2048);
@@ -342,9 +342,9 @@ void EnemyBubble(DBloodActor* actor, int) // 11
         auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23+Random(3)), pSprite->sectnum, x, y, z, 0);
         if (pFX)
         {
-            pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-            pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-            pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
+            pFX->xvel = actor->xvel + Random2(0x1aaaa);
+            pFX->yvel = actor->yvel + Random2(0x1aaaa);
+            pFX->zvel = actor->zvel + Random2(0x1aaaa);
         }
     }
     evPostActor(actor, 4, kCallbackEnemeyBubble);
@@ -423,9 +423,9 @@ void fxTeslaAlt(DBloodActor* actor, int) // 15
     auto pFX = gFX.fxSpawnActor(FX_49, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-        pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-        pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+        pFX->xvel = actor->xvel + Random2(0x1aaaa);
+        pFX->yvel = actor->yvel + Random2(0x1aaaa);
+        pFX->zvel = actor->zvel - Random(0x1aaaa);
     }
     evPostActor(actor, 3, kCallbackFXTeslaAlt);
 }
@@ -445,13 +445,13 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
     int top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ - bottom;
     
-    int zv = actor->zvel() - velFloor[pSprite->sectnum];
+    int zv = actor->zvel - velFloor[pSprite->sectnum];
     
-    if (actor->zvel() == 0) sleeveStopBouncing(actor);
+    if (actor->zvel == 0) sleeveStopBouncing(actor);
     else if (zv > 0) {
-        actFloorBounceVector((int*)& actor->xvel(), (int*)& actor->yvel(), &zv, pSprite->sectnum, 0x9000);
-        actor->zvel() = zv;
-        if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel()) < 0x20000)  {
+        actFloorBounceVector((int*)& actor->xvel, (int*)& actor->yvel, &zv, pSprite->sectnum, 0x9000);
+        actor->zvel = zv;
+        if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel) < 0x20000)  {
             sleeveStopBouncing(actor);
             return;
         }
@@ -475,7 +475,7 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
 void sleeveStopBouncing(DBloodActor* actor) 
 {
     auto pSprite = &actor->s();
-    actor->xvel() = actor->yvel() = actor->zvel() = 0;
+    actor->xvel = actor->yvel = actor->zvel = 0;
     if (pSprite->extra > 0) seqKill(3, pSprite->extra);
     sfxKill3DSound(pSprite, -1, -1);
 
@@ -535,9 +535,9 @@ void fxPodBloodSpray(DBloodActor* actor, int) // 18
     if (pFX)
     {
         pFX->s().ang = 0;
-        pFX->xvel() = actor->xvel() >> 8;
-        pFX->yvel() = actor->yvel() >> 8;
-        pFX->zvel() = actor->zvel() >> 8;
+        pFX->xvel = actor->xvel >> 8;
+        pFX->yvel = actor->yvel >> 8;
+        pFX->zvel = actor->zvel >> 8;
     }
     evPostActor(actor, 6, kCallbackFXPodBloodSpray);
 }
@@ -609,7 +609,7 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
     pSprite->ang = pSprite2->ang;
     ChangeActorSect(actor, pSprite2->sectnum);
     sfxPlay3DSound(pSprite2, 201, -1, 0);
-    actor->xvel() = actor->yvel() = actor->zvel() = 0;
+    actor->xvel = actor->yvel = actor->zvel = 0;
     viewBackupSpriteLoc(pSprite->index, pSprite);
     if (pPlayer)
     {

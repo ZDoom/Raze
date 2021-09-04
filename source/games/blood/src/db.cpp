@@ -49,8 +49,6 @@ XSPRITE xsprite[kMaxXSprites];
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
 
-int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
-
 unsigned short nextXSprite[kMaxXSprites];
 int XWallsUsed, XSectorsUsed;
 
@@ -198,7 +196,7 @@ int InsertSprite(int nSector, int nStat)
     actor->SetOwner(nullptr);
     pSprite->extra = -1;
     pSprite->index = nSprite;
-    actor->xvel() = actor->yvel() = actor->zvel() = 0;
+    actor->xvel = actor->yvel = actor->zvel = 0;
 
     Numsprites++;
 

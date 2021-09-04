@@ -366,7 +366,7 @@ void SEQINST::Update()
 		// by NoOne: add surfaceSound trigger feature
 		spritetype* pSprite = &sprite[xsprite[index].reference];
 		auto actor = &bloodActors[pSprite->index];
-		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->zvel() == 0 && actor->xvel() != 0) {
+		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->zvel == 0 && actor->xvel != 0) {
 
 			if (gUpperLink[pSprite->sectnum] >= 0) break; // don't play surface sound for stacked sectors
 			int surf = tileGetSurfType(sector[pSprite->sectnum].floorpicnum); 

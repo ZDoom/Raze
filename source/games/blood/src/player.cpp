@@ -724,7 +724,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->throwPower = 0;
     pPlayer->deathTime = 0;
     pPlayer->nextWeapon = kWeapNone;
-    actor->xvel() = actor->yvel() = actor->zvel() = 0;
+    actor->xvel = actor->yvel = actor->zvel = 0;
     pInput->avel = 0;
     pInput->actions = 0;
     pInput->fvel = 0;
@@ -1280,9 +1280,9 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
                 if (nMass)
                 {
                     int t2 = DivScale(0xccccc, nMass, 8);
-                    actor->xvel() += MulScale(x, t2, 16);
-                    actor->yvel() += MulScale(y, t2, 16);
-                    actor->zvel() += MulScale(z, t2, 16);
+                    actor->xvel += MulScale(x, t2, 16);
+                    actor->yvel += MulScale(y, t2, 16);
+                    actor->zvel += MulScale(z, t2, 16);
                 }
                 if (pXSprite->Push && !pXSprite->state && !pXSprite->isTriggered)
                     trTriggerSprite(*a2, pXSprite, kCmdSpritePush);
@@ -1420,15 +1420,15 @@ void ProcessInput(PLAYER *pPlayer)
                 forward = MulScale(pPosture->frontAccel, forward, 8);
             else
                 forward = MulScale(pPosture->backAccel, forward, 8);
-            actor->xvel() += MulScale(forward, x, 30);
-            actor->yvel() += MulScale(forward, y, 30);
+            actor->xvel += MulScale(forward, x, 30);
+            actor->yvel += MulScale(forward, y, 30);
         }
         if (pInput->svel)
         {
             int strafe = pInput->svel;
             strafe = MulScale(pPosture->sideAccel, strafe, 8);
-            actor->xvel() += MulScale(strafe, y, 30);
-            actor->yvel() -= MulScale(strafe, x, 30);
+            actor->xvel += MulScale(strafe, y, 30);
+            actor->yvel -= MulScale(strafe, x, 30);
         }
     }
     else if (pXSprite->height < 256)
@@ -1447,8 +1447,8 @@ void ProcessInput(PLAYER *pPlayer)
                 forward = MulScale(pPosture->backAccel, forward, 8);
             if (pXSprite->height)
                 forward = MulScale(forward, speed, 16);
-            actor->xvel() += MulScale(forward, x, 30);
-            actor->yvel() += MulScale(forward, y, 30);
+            actor->xvel += MulScale(forward, x, 30);
+            actor->yvel += MulScale(forward, y, 30);
         }
         if (pInput->svel)
         {
@@ -1456,8 +1456,8 @@ void ProcessInput(PLAYER *pPlayer)
             strafe = MulScale(pPosture->sideAccel, strafe, 8);
             if (pXSprite->height)
                 strafe = MulScale(strafe, speed, 16);
-            actor->xvel() += MulScale(strafe, y, 30);
-            actor->yvel() -= MulScale(strafe, x, 30);
+            actor->xvel += MulScale(strafe, y, 30);
+            actor->yvel -= MulScale(strafe, x, 30);
         }
     }
 
@@ -1476,9 +1476,9 @@ void ProcessInput(PLAYER *pPlayer)
     switch (pPlayer->posture) {
     case 1:
         if (pInput->actions & SB_JUMP)
-            actor->zvel() -= pPosture->normalJumpZ;//0x5b05;
+            actor->zvel -= pPosture->normalJumpZ;//0x5b05;
         if (pInput->actions & SB_CROUCH)
-            actor->zvel() += pPosture->normalJumpZ;//0x5b05;
+            actor->zvel += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
         if (!(pInput->actions & SB_CROUCH))
@@ -1491,8 +1491,8 @@ void ProcessInput(PLAYER *pPlayer)
             #endif
                 sfxPlay3DSound(pSprite, 700, 0, 0);
 
-            if (packItemActive(pPlayer, 4)) actor->zvel() = pPosture->pwupJumpZ; //-0x175555;
-            else actor->zvel() = pPosture->normalJumpZ; //-0xbaaaa;
+            if (packItemActive(pPlayer, 4)) actor->zvel = pPosture->pwupJumpZ; //-0x175555;
+            else actor->zvel = pPosture->normalJumpZ; //-0xbaaaa;
             pPlayer->cantJump = 1;
         }
 
@@ -1582,9 +1582,9 @@ void ProcessInput(PLAYER *pPlayer)
             int nSprite = pPlayer->pSprite->index;
             int x = bcos(pPlayer->pSprite->ang);
             int y = bsin(pPlayer->pSprite->ang);
-            spawned->xvel() = pPlayer->actor()->xvel() + MulScale(0x155555, x, 14);
-            spawned->yvel() = pPlayer->actor()->yvel() + MulScale(0x155555, y, 14);
-            spawned->zvel() = pPlayer->actor()->zvel();
+            spawned->xvel = pPlayer->actor()->xvel + MulScale(0x155555, x, 14);
+            spawned->yvel = pPlayer->actor()->yvel + MulScale(0x155555, y, 14);
+            spawned->zvel = pPlayer->actor()->zvel;
             pPlayer->hand = 0;
         }
         pInput->actions &= ~SB_OPEN;
@@ -1683,15 +1683,15 @@ void playerProcess(PLAYER *pPlayer)
         }
     }
     ProcessInput(pPlayer);
-    int nSpeed = approxDist(actor->xvel(), actor->yvel());
-    pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->zvel(), 0x7000);
+    int nSpeed = approxDist(actor->xvel, actor->yvel);
+    pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->zvel, 0x7000);
     int dz = pPlayer->pSprite->z-pPosture->eyeAboveZ-pPlayer->zView;
     if (dz > 0)
         pPlayer->zViewVel += MulScale(dz<<8, 0xa000, 16);
     else
         pPlayer->zViewVel += MulScale(dz<<8, 0x1800, 16);
     pPlayer->zView += pPlayer->zViewVel>>8;
-    pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->zvel(), 0x5000);
+    pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->zvel, 0x5000);
     dz = pPlayer->pSprite->z-pPosture->weaponAboveZ-pPlayer->zWeapon;
     if (dz > 0)
         pPlayer->zWeaponVel += MulScale(dz<<8, 0x8000, 16);
@@ -1973,7 +1973,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 int top, bottom;
                 GetSpriteExtents(pSprite, &top, &bottom);
                 CGibPosition gibPos(pSprite->x, pSprite->y, top);
-                CGibVelocity gibVel(pActor->xvel() >> 1, pActor->yvel() >> 1, -0xccccc);
+                CGibVelocity gibVel(pActor->xvel >> 1, pActor->yvel >> 1, -0xccccc);
                 GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
                 GibSprite(pActor, GIBTYPE_7, NULL, NULL);
                 fxSpawnBlood(pActor, nDamage<<4);
