@@ -616,7 +616,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             {
                 if (nXSprite > 0)
                 {
-                    if (gSpriteHit[nXSprite].florhit == 0)
+                    if (gSpriteHit[nXSprite].florhit.type == kHitNone)
                         nAnim = 1;
                 }
                 else
@@ -821,7 +821,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 case kMissileFlareAlt:
                     if (pTSprite->statnum == kStatFlare) {
                         assert(pTXSprite != NULL);
-                        if (pTXSprite->target == gView->nSprite) {
+                        if (pTXSprite->target_i == gView->nSprite) {
                             pTSprite->xrepeat = 0;
                             break;
                         }
@@ -848,7 +848,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         {
             if (pTSprite->type == kDudeHand && pTXSprite->aiState == &hand13A3B4)
             {
-                spritetype *pTTarget = &sprite[pTXSprite->target];
+                spritetype *pTTarget = &sprite[pTXSprite->target_i];
                 assert(pTXSprite != NULL && pTTarget != NULL);
                 if (IsPlayerSprite(pTTarget))
                 {
@@ -942,7 +942,8 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         case kStatThing: {
             viewApplyDefaultPal(pTSprite, pSector);
 
-            if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || !gSpriteHit[nXSprite].florhit) {
+            if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || gSpriteHit[nXSprite].florhit.type == kHitNone)
+            {
                 if ((pTSprite->flags & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
             }

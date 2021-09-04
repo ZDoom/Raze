@@ -64,6 +64,7 @@ void trProcessBusy(void);
 void trInit(void);
 void trTextOver(int nId);
 char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState);
+char SetSpriteState(DBloodActor* actor, int nState);
 char SetWallState(int nWall, XWALL* pXWall, int nState);
 char SetSectorState(int nSector, XSECTOR* pXSector, int nState);
 void TeleFrag(int nKiller, int nSector);

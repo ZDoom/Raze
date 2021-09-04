@@ -214,7 +214,7 @@ void SpawnBulletEject(PLAYER *pPlayer, int a2, int a3)
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int dz = pPlayer->zWeapon-(pPlayer->zWeapon-pPlayer->zView)/2;
-    fxSpawnEjectingBrass(pPlayer->pSprite, dz, a2, a3);
+    fxSpawnEjectingBrass(pPlayer->actor(), dz, a2, a3);
 }
 
 void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
@@ -223,7 +223,7 @@ void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int t = pPlayer->zWeapon - pPlayer->zView;
     int dz = pPlayer->zWeapon-t+(t>>2);
-    fxSpawnEjectingShell(pPlayer->pSprite, dz, a2, a3);
+    fxSpawnEjectingShell(pPlayer->actor(), dz, a2, a3);
 }
 
 void WeaponInit(void)
@@ -1058,12 +1058,13 @@ void WeaponUpdateState(PLAYER *pPlayer)
 
 void FirePitchfork(int, PLAYER *pPlayer)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     Aim *aim = &pPlayer->aim;
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(2000);
     for (int i = 0; i < 4; i++)
-        actFireVector(pPlayer->pSprite, (2*i-3)*40, pPlayer->zWeapon-pPlayer->pSprite->z, aim->dx+r1, aim->dy+r2, aim->dz+r3, kVectorTine);
+        actFireVector(actor, (2*i-3)*40, pPlayer->zWeapon-pPlayer->pSprite->z, aim->dx+r1, aim->dy+r2, aim->dz+r3, kVectorTine);
 }
 
 void FireSpray(int, PLAYER *pPlayer)
@@ -1085,7 +1086,7 @@ void ThrowCan(int, PLAYER *pPlayer)
     if (pSprite)
     {
         sfxPlay3DSound(pSprite, 441, 0, 0);
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPostActor(&bloodActors[pSprite->index], pPlayer->fuseTime, kCmdOn);
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
         pXSprite->Impact = 1;
@@ -1100,7 +1101,7 @@ void DropCan(int, PLAYER *pPlayer)
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
     if (pSprite)
     {
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPostActor(&bloodActors[pSprite->index], pPlayer->fuseTime, kCmdOn);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
     }
 }
@@ -1109,7 +1110,7 @@ void ExplodeCan(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, -1, 441);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
-    evPost(pSprite->index, 3, 0, kCmdOn);
+    evPostActor(&bloodActors[pSprite->index], 0, kCmdOn);
     UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
     StartQAV(pPlayer, kQAVCANBOOM);
     pPlayer->curWeapon = kWeapNone;
@@ -1127,7 +1128,7 @@ void ThrowBundle(int, PLAYER *pPlayer)
     if (pPlayer->fuseTime < 0)
         pXSprite->Impact = 1;
     else
-        evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+        evPostActor(&bloodActors[pSprite->index], pPlayer->fuseTime, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
     pPlayer->throwPower = 0;
 }
@@ -1136,7 +1137,7 @@ void DropBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
-    evPost(pSprite->index, 3, pPlayer->fuseTime, kCmdOn);
+    evPostActor(&bloodActors[pSprite->index], pPlayer->fuseTime, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
 }
 
@@ -1144,7 +1145,7 @@ void ExplodeBundle(int, PLAYER *pPlayer)
 {
     sfxKill3DSound(pPlayer->pSprite, 16, -1);
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
-    evPost(pSprite->index, 3, 0, kCmdOn);
+    evPostActor(&bloodActors[pSprite->index], 0, kCmdOn);
     UseAmmo(pPlayer, 5, 1);
     StartQAV(pPlayer, kQAVDYNEXPLO);
     pPlayer->curWeapon = kWeapNone;
@@ -1156,7 +1157,7 @@ void ThrowProx(int, PLAYER *pPlayer)
     int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
     sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
     spritetype *pSprite = playerFireThing(pPlayer, 0, -9460, kThingArmedProxBomb, nSpeed);
-    evPost(pSprite->index, 3, 240, kCmdOn);
+    evPostActor(&bloodActors[pSprite->index], 240, kCmdOn);
     UseAmmo(pPlayer, 10, 1);
     pPlayer->throwPower = 0;
 }
@@ -1164,7 +1165,7 @@ void ThrowProx(int, PLAYER *pPlayer)
 void DropProx(int, PLAYER *pPlayer)
 {
     spritetype *pSprite = playerFireThing(pPlayer, 0, 0, kThingArmedProxBomb, 0);
-    evPost(pSprite->index, 3, 240, kCmdOn);
+    evPostActor(&bloodActors[pSprite->index], 240, kCmdOn);
     UseAmmo(pPlayer, 10, 1);
 }
 
@@ -1191,13 +1192,14 @@ void DropRemote(int, PLAYER *pPlayer)
 
 void FireRemote(int, PLAYER *pPlayer)
 {
-    evSend(0, 0, 90+(pPlayer->pSprite->type-kDudePlayer1), kCmdOn);
+    evSendGame(90+(pPlayer->pSprite->type-kDudePlayer1), kCmdOn);
 }
 
 enum { kMaxShotgunBarrels = 4 };
 
 void FireShotgun(int nTrigger, PLAYER *pPlayer)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     assert(nTrigger > 0 && nTrigger <= kMaxShotgunBarrels);
     if (nTrigger == 1)
     {
@@ -1230,7 +1232,7 @@ void FireShotgun(int nTrigger, PLAYER *pPlayer)
             r3 = Random3(1500);
             nType = kVectorShellAP;
         }
-        actFireVector(pPlayer->pSprite, 0, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, nType);
+        actFireVector(actor, 0, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, nType);
     }
     UseAmmo(pPlayer, pPlayer->weaponAmmo, nTrigger);
     pPlayer->flashEffect = 1;
@@ -1244,6 +1246,7 @@ void EjectShell(int, PLAYER *pPlayer)
 
 void FireTommy(int nTrigger, PLAYER *pPlayer)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     Aim *aim = &pPlayer->aim;
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     switch (nTrigger)
@@ -1253,7 +1256,7 @@ void FireTommy(int nTrigger, PLAYER *pPlayer)
         int r1 = Random3(400);
         int r2 = Random3(1200);
         int r3 = Random3(1200);
-        actFireVector(pPlayer->pSprite, 0, pPlayer->zWeapon-pPlayer->pSprite->z, aim->dx+r3, aim->dy+r2, aim->dz+r1, kVectorTommyRegular);
+        actFireVector(actor, 0, pPlayer->zWeapon-pPlayer->pSprite->z, aim->dx+r3, aim->dy+r2, aim->dz+r1, kVectorTommyRegular);
         SpawnBulletEject(pPlayer, -15, -45);
         pPlayer->visibility = 20;
         break;
@@ -1263,12 +1266,12 @@ void FireTommy(int nTrigger, PLAYER *pPlayer)
         int r1 = Random3(400);
         int r2 = Random3(1200);
         int r3 = Random3(1200);
-        actFireVector(pPlayer->pSprite, -120, pPlayer->zWeapon-pPlayer->pSprite->z, aim->dx+r3, aim->dy+r2, aim->dz+r1, kVectorTommyRegular);
+        actFireVector(actor, -120, pPlayer->zWeapon-pPlayer->pSprite->z, aim->dx+r3, aim->dy+r2, aim->dz+r1, kVectorTommyRegular);
         SpawnBulletEject(pPlayer, -140, -45);
         r1 = Random3(400);
         r2 = Random3(1200);
         r3 = Random3(1200);
-        actFireVector(pPlayer->pSprite, 120, pPlayer->zWeapon-pPlayer->pSprite->z, aim->dx+r3, aim->dy+r2, aim->dz+r1, kVectorTommyRegular);
+        actFireVector(actor, 120, pPlayer->zWeapon-pPlayer->pSprite->z, aim->dx+r3, aim->dy+r2, aim->dz+r1, kVectorTommyRegular);
         SpawnBulletEject(pPlayer, 140, 45);
         pPlayer->visibility = 30;
         break;
@@ -1282,6 +1285,7 @@ enum { kMaxSpread = 14 };
 
 void FireSpread(int nTrigger, PLAYER *pPlayer)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1292,7 +1296,7 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
     r1 = Random3(300);
     r2 = Random3(600);
     r3 = Random3(600);
-    actFireVector(pPlayer->pSprite, 0, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
+    actFireVector(actor, 0, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
     r1 = Random2(90);
     r2 = Random2(30);
     SpawnBulletEject(pPlayer, r2, r1);
@@ -1303,6 +1307,7 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1313,14 +1318,14 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
     r1 = Random3(300);
     r2 = Random3(600);
     r3 = Random3(600);
-    actFireVector(pPlayer->pSprite, -120, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
+    actFireVector(actor, -120, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
     r1 = Random2(45);
     r2 = Random2(120);
     SpawnBulletEject(pPlayer, r2, r1);
     r1 = Random3(300);
     r2 = Random3(600);
     r3 = Random3(600);
-    actFireVector(pPlayer->pSprite, 120, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
+    actFireVector(actor, 120, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
     r1 = Random2(-45);
     r2 = Random2(-120);
     SpawnBulletEject(pPlayer, r2, r1);
@@ -1332,6 +1337,7 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1344,14 +1350,14 @@ void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
         r1 = Random3(300);
         r2 = Random3(600);
         r3 = Random3(600);
-        actFireVector(pPlayer->pSprite, -120, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
+        actFireVector(actor, -120, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
         r1 = Random2(45);
         r2 = Random2(120);
         SpawnBulletEject(pPlayer, r2, r1);
         r1 = Random3(300);
         r2 = Random3(600);
         r3 = Random3(600);
-        actFireVector(pPlayer->pSprite, 120, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
+        actFireVector(actor, 120, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
         r1 = Random2(-45);
         r2 = Random2(-120);
         SpawnBulletEject(pPlayer, r2, r1);
@@ -1365,7 +1371,7 @@ void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
         r1 = Random3(300);
         r2 = Random3(600);
         r3 = Random3(600);
-        actFireVector(pPlayer->pSprite, 0, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
+        actFireVector(actor, 0, pPlayer->zWeapon-pPlayer->pSprite->z, dx+r3, dy+r2, aim->dz+r1, kVectorTommyAP);
         r1 = Random2(90);
         r2 = Random2(30);
         SpawnBulletEject(pPlayer, r2, r1);
@@ -1424,15 +1430,16 @@ void AltFireFlare(int nTrigger, PLAYER *pPlayer)
 void FireVoodoo(int nTrigger, PLAYER *pPlayer)
 {
     nTrigger--;
-    int nSprite = pPlayer->nSprite;
+    auto actor = pPlayer->actor();
     spritetype *pSprite = pPlayer->pSprite;
     if (nTrigger == 4)
     {
-        actDamageSprite(nSprite, pSprite, kDamageBullet, 1<<4);
+        actDamageSprite(actor, actor, kDamageBullet, 1<<4);
         return;
     }
     assert(pPlayer->voodooTarget >= 0);
-    spritetype *pTarget = &sprite[pPlayer->voodooTarget];
+    auto targetactor = &bloodActors[pPlayer->voodooTarget];
+    spritetype *pTarget = &targetactor->s();
     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
         return;
     switch (nTrigger)
@@ -1440,16 +1447,16 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     case 0:
     {
         sfxPlay3DSound(pSprite, 460, 2, 0);
-        fxSpawnBlood(pTarget, 17<<4);
-        int nDamage = actDamageSprite(nSprite, pTarget, kDamageSpirit, 17<<4);
+        fxSpawnBlood(targetactor, 17<<4);
+        int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 17<<4);
         UseAmmo(pPlayer, 9, nDamage/4);
         break;
     }
     case 1:
     {
         sfxPlay3DSound(pSprite, 460, 2, 0);
-        fxSpawnBlood(pTarget, 17<<4);
-        int nDamage = actDamageSprite(nSprite, pTarget, kDamageSpirit, 9<<4);
+        fxSpawnBlood(targetactor, 17<<4);
+        int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 9<<4);
         if (IsPlayerSprite(pTarget))
             WeaponLower(&gPlayer[pTarget->type-kDudePlayer1]);
         UseAmmo(pPlayer, 9, nDamage/4);
@@ -1458,16 +1465,16 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     case 3:
     {
         sfxPlay3DSound(pSprite, 463, 2, 0);
-        fxSpawnBlood(pTarget, 17<<4);
-        int nDamage = actDamageSprite(nSprite, pTarget, kDamageSpirit, 49<<4);
+        fxSpawnBlood(targetactor, 17<<4);
+        int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 49<<4);
         UseAmmo(pPlayer, 9, nDamage/4);
         break;
     }
     case 2:
     {
         sfxPlay3DSound(pSprite, 460, 2, 0);
-        fxSpawnBlood(pTarget, 17<<4);
-        int nDamage = actDamageSprite(nSprite, pTarget, kDamageSpirit, 11<<4);
+        fxSpawnBlood(targetactor, 17<<4);
+        int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 11<<4);
         if (IsPlayerSprite(pTarget))
         {
             PLAYER *pOtherPlayer = &gPlayer[pTarget->type - kDudePlayer1];
@@ -1481,6 +1488,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
 
 void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
 {
+    auto actor = pPlayer->actor();
     if (nTrigger == 2) {
 
         // by NoOne: trying to simulate v1.0x voodoo here.
@@ -1492,7 +1500,8 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                 for (int i = 0; i < pPlayer->aimTargetsCount; i++)
                 {
                     int nTarget = pPlayer->aimTargets[i];
-                    spritetype* pTarget = &sprite[nTarget];
+                    auto targetactor = &bloodActors[nTarget];
+                    spritetype* pTarget = &targetactor->s();
                     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                         continue;
                     int nDist = approxDist(pTarget->x - pPlayer->pSprite->x, pTarget->y - pPlayer->pSprite->y);
@@ -1502,7 +1511,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                         int v8 = pPlayer->ammoCount[9] << 1;
                         int nDamage = (v8 + Random(vc)) << 4;
                         nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
-                        nDamage = actDamageSprite(pPlayer->nSprite, pTarget, kDamageSpirit, nDamage);
+                        nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, nDamage);
 
                         if (IsPlayerSprite(pTarget))
                         {
@@ -1510,7 +1519,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                             if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
                                 powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
                         }
-                        fxSpawnBlood(pTarget, 0);
+                        fxSpawnBlood(targetactor, 0);
                     }
                 }
             }
@@ -1528,7 +1537,8 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
             for (int i = 0; i < pPlayer->aimTargetsCount; i++)
             {
                 int nTarget = pPlayer->aimTargets[i];
-                spritetype* pTarget = &sprite[nTarget];
+                auto targetactor = &bloodActors[nTarget];
+                spritetype* pTarget = &targetactor->s();
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                     continue;
                 if (v4 > 0)
@@ -1540,7 +1550,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                     int v8 = pPlayer->ammoCount[9] << 1;
                     int nDamage = (v8 + Random2(vc)) << 4;
                     nDamage = (nDamage * ((51200 - nDist) + 1)) / 51200;
-                    nDamage = actDamageSprite(pPlayer->nSprite, pTarget, kDamageSpirit, nDamage);
+                    nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, nDamage);
                     UseAmmo(pPlayer, 9, nDamage);
                     if (IsPlayerSprite(pTarget))
                     {
@@ -1548,7 +1558,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                         if (!pOtherPlayer->godMode || !powerupCheck(pOtherPlayer, kPwUpDeathMask))
                             powerupActivate(pOtherPlayer, kPwUpDeliriumShroom);
                     }
-                    fxSpawnBlood(pTarget, 0);
+                    fxSpawnBlood(targetactor, 0);
                 }
             }
         }
@@ -1567,7 +1577,7 @@ void DropVoodoo(int , PLAYER *pPlayer)
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite];
         pXSprite->data1 = pPlayer->ammoCount[9];
-        evPost(pSprite->index, 3, 90, kCallbackDropVoodoo);
+        evPostActor(&bloodActors[pSprite->index], 90, kCallbackDropVoodoo);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
         UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);
         pPlayer->hasWeapon[10] = 0;
@@ -1669,7 +1679,7 @@ void AltFireNapalm(int , PLAYER *pPlayer)
         UseAmmo(pPlayer, 4, pXSprite->data4);
         seqSpawn(22, 3, pMissile->extra, -1);
         actBurnSprite(pPlayer->pSprite->index, pXSprite, 600);
-        evPost(pMissile->index, 3, 0, kCallbackFXFlameLick);
+        evPostActor(&bloodActors[pMissile->index], 0, kCallbackFXFlameLick);
         sfxPlay3DSound(pMissile, 480, 2, 0);
         pPlayer->visibility = 30;
         pPlayer->flashEffect = 1;
@@ -1683,22 +1693,24 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(1000);
+    auto actor = pPlayer->actor();
     spritetype *pMissile = playerFireMissile(pPlayer, 0, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, 315);
     if (pMissile)
     {
         XSPRITE *pXSprite = &xsprite[pMissile->extra];
-        pXSprite->target = pPlayer->aimTarget;
+        pXSprite->target_i = pPlayer->aimTarget;
         pMissile->ang = (nTrigger==2) ? 1024 : 0;
     }
     if (checkAmmo2(pPlayer, 8, 1))
         UseAmmo(pPlayer, 8, 1);
     else
-        actDamageSprite(pPlayer->nSprite, pPlayer->pSprite, kDamageSpirit, 16);
+        actDamageSprite(actor, actor, kDamageSpirit, 16);
     pPlayer->visibility = ClipHigh(pPlayer->visibility+5, 50);
 }
 
 void AltFireLifeLeech(int , PLAYER *pPlayer)
 {
+    auto actor = pPlayer->actor();
     sfxPlay3DSound(pPlayer->pSprite, 455, 2, 0);
     spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, kThingDroppedLifeLeech, 0x19999);
     if (pMissile)
@@ -1710,13 +1722,13 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
         pXSprite->DudeLockout = 1;
         pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         pXSprite->stateTimer = 1;
-        evPost(pMissile->index, 3, 120, kCallbackLeechStateTimer);
+        evPostActor(&bloodActors[pMissile->index], 120, kCallbackLeechStateTimer);
         if (gGameOptions.nGameType <= 1)
         {
             int nAmmo = pPlayer->ammoCount[8];
             if (nAmmo < 25 && pPlayer->pXSprite->health > unsigned((25-nAmmo)<<4))
             {
-                actDamageSprite(pPlayer->nSprite, pPlayer->pSprite, kDamageSpirit, ((25-nAmmo)<<4));
+                actDamageSprite(actor, actor, kDamageSpirit, ((25-nAmmo)<<4));
                 nAmmo = 25;
             }
             pXSprite->data3 = nAmmo;
@@ -1733,10 +1745,11 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
 
 void FireBeast(int , PLAYER * pPlayer)
 {
+    auto actor = &bloodActors[pPlayer->pSprite->index];
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(2000);
-    actFireVector(pPlayer->pSprite, 0, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, kVectorBeastSlash);
+    actFireVector(actor, 0, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, kVectorBeastSlash);
 }
 
 uint8_t gWeaponUpgrade[][13] = {
@@ -2012,7 +2025,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
     
     #ifdef NOONE_EXTENSIONS
-    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.index >= 0 && pPlayer->pXSprite->health > 0) {
+    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.initiator != nullptr && pPlayer->pXSprite->health > 0) {
         playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->nPlayer].qavScene);
         UpdateAimVector(pPlayer);
         return;
@@ -2631,13 +2644,14 @@ void WeaponProcess(PLAYER *pPlayer) {
 
 void teslaHit(spritetype *pMissile, int a2)
 {
+    auto missileactor = &bloodActors[pMissile->index];
     uint8_t sectmap[(kMaxSectors+7)>>3];
     int x = pMissile->x;
     int y = pMissile->y;
     int z = pMissile->z;
     int nDist = 300;
     int nSector = pMissile->sectnum;
-    int nOwner = pMissile->owner;
+    auto owner = missileactor->GetOwner();
     const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
     GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
     bool v4 = true;
@@ -2645,41 +2659,40 @@ void teslaHit(spritetype *pMissile, int a2)
     actHitcodeToData(a2, &gHitInfo, &actor);
     if (a2 == 3 && actor && actor->s().statnum == kStatDude)
         v4 = false;
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatDude);
+    while (auto hitactor = it.Next())
     {
-        if (nSprite != nOwner || v4)
+        if (hitactor != owner || v4)
         {
-            spritetype *pSprite = &sprite[nSprite];
-            if (pSprite->flags&32)
+            spritetype *pHitSprite = &hitactor->s();
+            if (pHitSprite->flags&32)
                 continue;
-            if (TestBitString(sectmap, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
+            if (TestBitString(sectmap, pHitSprite->sectnum) && CheckProximity(pHitSprite, x, y, z, nSector, nDist))
             {
-                int dx = pMissile->x-pSprite->x;
-                int dy = pMissile->y-pSprite->y;
+                int dx = pMissile->x-pHitSprite->x;
+                int dy = pMissile->y-pHitSprite->y;
                 int nDamage = ClipLow((nDist-(ksqrt(dx*dx+dy*dy)>>4)+20)>>1, 10);
-                if (nSprite == nOwner)
+                if (hitactor == owner)
                     nDamage /= 2;
-                actDamageSprite(nOwner, pSprite, kDamageTesla, nDamage<<4);
+                actDamageSprite(owner, hitactor, kDamageTesla, nDamage<<4);
             }
         }
     }
     it.Reset(kStatThing);
-    while ((nSprite = it.NextIndex()) >= 0)
+    while (auto hitactor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->flags&32)
+        spritetype *pHitSprite = &hitactor->s();
+        if (pHitSprite->flags&32)
             continue;
-        if (TestBitString(sectmap, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
+        if (TestBitString(sectmap, pHitSprite->sectnum) && CheckProximity(pHitSprite, x, y, z, nSector, nDist))
         {
-            XSPRITE *pXSprite = &xsprite[pSprite->extra];
+            XSPRITE *pXSprite = &hitactor->x();
             if (!pXSprite->locked)
             {
-                int dx = pMissile->x-pSprite->x;
-                int dy = pMissile->y-pSprite->y;
+                int dx = pMissile->x-pHitSprite->x;
+                int dy = pMissile->y-pHitSprite->y;
                 int nDamage = ClipLow(nDist-(ksqrt(dx*dx+dy*dy)>>4)+20, 20);
-                actDamageSprite(nOwner, pSprite, kDamageTesla, nDamage<<4);
+                actDamageSprite(owner, hitactor, kDamageTesla, nDamage << 4);
             }
         }
     }

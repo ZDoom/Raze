@@ -62,11 +62,18 @@ AISTATE batDodgeDown = {kAiStateMove, 6, -1, 120, NULL, batMoveDodgeDown, 0, &ba
 AISTATE batDodgeDownRight = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 AISTATE batDodgeDownLeft = {kAiStateMove, 6, -1, 90, NULL, batMoveDodgeDown, 0, &batChase };
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void batBiteSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype *pSprite = &actor->s();
-    spritetype *pTarget = &sprite[pXSprite->target];
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
+    spritetype *pTarget = &actor->GetTarget()->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -74,9 +81,14 @@ void batBiteSeqCallback(int, DBloodActor* actor)
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    actFireVector(pSprite, 0, 0, dx, dy, height2-height, kVectorBatBite);
+    actFireVector(actor, 0, 0, dx, dy, height2-height, kVectorBatBite);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batThinkTarget(DBloodActor* actor)
 {
@@ -91,8 +103,8 @@ static void batThinkTarget(DBloodActor* actor)
     {
         pDudeExtraE->xval2 = 0;
         pXSprite->goalAng += 256;
-        POINT3D *pTarget = &baseSprite[pSprite->index];
-        aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
+        POINT3D *pTarget = &actor->basePoint();
+        aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &batTurn);
         return;
     }
@@ -117,13 +129,13 @@ static void batThinkTarget(DBloodActor* actor)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, pPlayer->actor());
+                aiActivateDude(actor);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, x, y, z);
+                aiActivateDude(actor);
             }
             else
                 continue;
@@ -132,13 +144,25 @@ static void batThinkTarget(DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
+    aiChooseDirection(actor, pXSprite->goalAng);
     batThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batThinkGoto(DBloodActor* actor)
 {
@@ -150,29 +174,35 @@ static void batThinkGoto(DBloodActor* actor)
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
-    aiChooseDirection(pSprite, pXSprite, nAngle);
+    aiChooseDirection(actor, nAngle);
     if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &batSearch);
     batThinkTarget(actor);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batThinkPonder(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &batSearch);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE *pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
-    aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
+    aiChooseDirection(actor, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
         aiNewState(actor, &batSearch);
@@ -185,10 +215,10 @@ static void batThinkPonder(DBloodActor* actor)
         int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
         int height2 = (getDudeInfo(pTarget->type)->eyeHeight*pTarget->yrepeat)<<2;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
-            aiSetTarget(pXSprite, pXSprite->target);
+            aiSetTarget(actor, actor->GetTarget());
             if (height2-height < 0x3000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
                 aiNewState(actor, &batDodgeUp);
             else if (height2-height > 0x5000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
@@ -209,8 +239,14 @@ static void batThinkPonder(DBloodActor* actor)
         }
     }
     aiNewState(actor, &batGoto);
-    pXSprite->target = -1;
+    actor->SetTarget(nullptr);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batMoveDodgeUp(DBloodActor* actor)
 {
@@ -236,6 +272,12 @@ static void batMoveDodgeUp(DBloodActor* actor)
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     actor->zvel() = -0x52aaa;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batMoveDodgeDown(DBloodActor* actor)
 {
@@ -264,23 +306,29 @@ static void batMoveDodgeDown(DBloodActor* actor)
     actor->zvel() = 0x44444;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &batGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
+    spritetype *pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
-    aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
+    aiChooseDirection(actor, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
         aiNewState(actor, &batSearch);
@@ -299,12 +347,12 @@ static void batThinkChase(DBloodActor* actor)
         // Should be dudeInfo[pTarget->type-kDudeBase]
         int height2 = (pDudeInfo->eyeHeight*pTarget->yrepeat)<<2;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(actor, actor->GetTarget());
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
                 if (height2-height < 0x2000 && nDist < 0x200 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &batBite);
@@ -322,9 +370,15 @@ static void batThinkChase(DBloodActor* actor)
         }
     }
 
-    pXSprite->target = -1;
+    actor->SetTarget(nullptr);
     aiNewState(actor, &batHide);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batMoveForward(DBloodActor* actor)
 {
@@ -338,7 +392,7 @@ static void batMoveForward(DBloodActor* actor)
     int nAccel = pDudeInfo->frontSpeed<<2;
     if (abs(nAng) > 341)
         return;
-    if (pXSprite->target == -1)
+    if (actor->GetTarget() == nullptr)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -351,13 +405,19 @@ static void batMoveForward(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    if (pXSprite->target == -1)
+    if (actor->GetTarget() == nullptr)
         t1 += nAccel;
     else
         t1 += nAccel>>1;
     actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void batMoveSwoop(DBloodActor* actor)
 {
@@ -391,6 +451,12 @@ static void batMoveSwoop(DBloodActor* actor)
     actor->zvel() = 0x44444;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void batMoveFly(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -423,6 +489,12 @@ static void batMoveFly(DBloodActor* actor)
     actor->zvel() = -0x2d555;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void batMoveToCeil(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -439,7 +511,7 @@ void batMoveToCeil(DBloodActor* actor)
         aiNewState(actor, &batIdle);
     }
     else
-        aiSetTarget(pXSprite, x, y, sector[nSector].ceilingz);
+        aiSetTarget(actor, x, y, sector[nSector].ceilingz);
 }
 
 END_BLD_NS

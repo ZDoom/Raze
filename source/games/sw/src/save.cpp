@@ -288,20 +288,19 @@ void preSerializePanelSprites(FSerializer& arc)
 
 void postSerializePanelSprites(FSerializer& arc)
 {
+	if (arc.BeginArray("panelsprites"))
+	{
+		for(unsigned i = 0; i < pspAsArray.Size(); i++)
+		{
+			arc(nullptr, *pspAsArray[i]);
+		}
+		arc.EndArray();
+	}
 	if (arc.isWriting())
 	{
 		unsigned siz = pspAsArray.Size();
 		arc("panelcount", siz);
 	}
-	if (arc.BeginArray("panelsprites"))
-	{
-		for (auto psp : pspAsArray)
-		{
-			arc(nullptr, *psp);
-		}
-		arc.EndArray();
-	}
-	pspAsArray.Clear();
 }
 
 //---------------------------------------------------------------------------
@@ -1222,6 +1221,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* d
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
+	pspAsArray.Clear();
     Saveable_Init();
 
     if (arc.BeginObject("state"))

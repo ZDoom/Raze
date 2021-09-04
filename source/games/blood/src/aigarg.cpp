@@ -30,18 +30,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static void gargThinkTarget(DBloodActor *);
-static void gargThinkSearch(DBloodActor *);
-static void gargThinkGoto(DBloodActor *);
-static void gargMoveDodgeUp(DBloodActor *);
-static void gargMoveDodgeDown(DBloodActor *);
-static void gargThinkChase(DBloodActor *);
-static void entryFStatue(DBloodActor *);
-static void entrySStatue(DBloodActor *);
-static void gargMoveForward(DBloodActor *);
-static void gargMoveSlow(DBloodActor *);
-static void gargMoveSwoop(DBloodActor *);
-static void gargMoveFly(DBloodActor *);
+static void gargThinkTarget(DBloodActor*);
+static void gargThinkSearch(DBloodActor*);
+static void gargThinkGoto(DBloodActor*);
+static void gargMoveDodgeUp(DBloodActor*);
+static void gargMoveDodgeDown(DBloodActor*);
+static void gargThinkChase(DBloodActor*);
+static void entryFStatue(DBloodActor*);
+static void entrySStatue(DBloodActor*);
+static void gargMoveForward(DBloodActor*);
+static void gargMoveSlow(DBloodActor*);
+static void gargMoveSwoop(DBloodActor*);
+static void gargMoveFly(DBloodActor*);
 static void playStatueBreakSnd(DBloodActor*);
 
 AISTATE gargoyleFIdle = { kAiStateIdle, 0, -1, 0, NULL, NULL, gargThinkTarget, NULL };
@@ -68,52 +68,78 @@ AISTATE gargoyleDodgeDown = { kAiStateMove, 0, -1, 120, NULL, gargMoveDodgeDown,
 AISTATE gargoyleFDodgeDownRight = { kAiStateMove, 0, -1, 90, NULL, gargMoveDodgeDown, NULL, &gargoyleFChase };
 AISTATE gargoyleFDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, gargMoveDodgeDown, NULL, &gargoyleFChase };
 
-AISTATE statueFBreakSEQ = { kAiStateOther, 5, -1, 0, entryFStatue, NULL, playStatueBreakSnd, &gargoyleFMorph2};
-AISTATE statueSBreakSEQ = { kAiStateOther, 5, -1, 0, entrySStatue, NULL, playStatueBreakSnd, &gargoyleSMorph2};
+AISTATE statueFBreakSEQ = { kAiStateOther, 5, -1, 0, entryFStatue, NULL, playStatueBreakSnd, &gargoyleFMorph2 };
+AISTATE statueSBreakSEQ = { kAiStateOther, 5, -1, 0, entrySStatue, NULL, playStatueBreakSnd, &gargoyleSMorph2 };
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void playStatueBreakSnd(DBloodActor* actor) {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    aiPlay3DSound(pSprite, 313, AI_SFX_PRIORITY_1, -1);
+    aiPlay3DSound(actor, 313, AI_SFX_PRIORITY_1, -1);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void SlashFSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    spritetype *pTarget = &sprite[pXSprite->target];
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
-    int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
-    int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
-    int dz = height-height2;
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
+	spritetype* pTarget = &actor->GetTarget()->s();
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	DUDEINFO* pDudeInfoT = getDudeInfo(pTarget->type);
+	int height = (pSprite->yrepeat * pDudeInfo->eyeHeight) << 2;
+	int height2 = (pTarget->yrepeat * pDudeInfoT->eyeHeight) << 2;
+	int dz = height - height2;
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    actFireVector(pSprite, 0, 0, dx, dy, dz, kVectorGargSlash);
+    actFireVector(actor, 0, 0, dx, dy, dz, kVectorGargSlash);
     int r1 = Random(50);
     int r2 = Random(50);
-    actFireVector(pSprite, 0, 0, dx+r2, dy-r1, dz, kVectorGargSlash);
+	actFireVector(actor, 0, 0, dx + r2, dy - r1, dz, kVectorGargSlash);
     r1 = Random(50);
     r2 = Random(50);
-    actFireVector(pSprite, 0, 0, dx-r2, dy+r1, dz, kVectorGargSlash);
+	actFireVector(actor, 0, 0, dx - r2, dy + r1, dz, kVectorGargSlash);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ThrowFSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    actFireThing_(&actor->s(), 0, 0, actor->dudeSlope-7500, kThingBone, 0xeeeee);
+	actFireThing(actor, 0, 0, actor->dudeSlope - 7500, kThingBone, 0xeeeee);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void BlastSSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
     wrand(); // ???
-    spritetype *pTarget = &sprite[pXSprite->target];
-    int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
-    int dx = pXSprite->targetX-pSprite->x;
-    int dy = pXSprite->targetY-pSprite->y;
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
+	spritetype* pTarget = &actor->GetTarget()->s();
+	int height = (pSprite->yrepeat * getDudeInfo(pSprite->type)->eyeHeight) << 2;
+	int dx = pXSprite->targetX - pSprite->x;
+	int dy = pXSprite->targetY - pSprite->y;
     int x = pSprite->x;
     int y = pSprite->y;
     int z = height;
@@ -123,45 +149,44 @@ void BlastSSeqCallback(int, DBloodActor* actor)
     aim.dy = SinScale16(pSprite->ang);
     aim.dz = actor->dudeSlope;
     int nClosest = 0x7fffffff;
-    int nSprite2;
-    StatIterator it(kStatDude);
-    while ((nSprite2 = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatDude);
+    while (auto actor2 = it.Next())
     {
-        spritetype *pSprite2 = &sprite[nSprite2];
-        if (pSprite == pSprite2 || !(pSprite2->flags&8))
+        spritetype* pSprite2 = &actor2->s();
+		if (pSprite == pSprite2 || !(pSprite2->flags & 8))
             continue;
         int x2 = pSprite2->x;
         int y2 = pSprite2->y;
         int z2 = pSprite2->z;
-        int nDist = approxDist(x2-x, y2-y);
+		int nDist = approxDist(x2 - x, y2 - y);
         if (nDist == 0 || nDist > 0x2800)
             continue;
         if (tt.at10)
         {
             int t = DivScale(nDist, tt.at10, 12);
-            x2 += (xvel[nSprite2]*t)>>12;
-            y2 += (yvel[nSprite2]*t)>>12;
-            z2 += (zvel[nSprite2]*t)>>8;
+            x2 += (actor->xvel() * t) >> 12;
+            y2 += (actor->yvel() * t) >> 12;
+            z2 += (actor->zvel() * t) >> 8;
         }
-        int tx = x+MulScale(Cos(pSprite->ang), nDist, 30);
-        int ty = y+MulScale(Sin(pSprite->ang), nDist, 30);
-        int tz = z+MulScale(actor->dudeSlope, nDist, 10);
+		int tx = x + MulScale(Cos(pSprite->ang), nDist, 30);
+		int ty = y + MulScale(Sin(pSprite->ang), nDist, 30);
+		int tz = z + MulScale(actor->dudeSlope, nDist, 10);
         int tsr = MulScale(9460, nDist, 10);
         int top, bottom;
-        GetSpriteExtents(pSprite2, &top, &bottom);
+        GetActorExtents(actor2, &top, &bottom);
         if (tz-tsr > bottom || tz+tsr < top)
             continue;
-        int dx = (tx-x2)>>4;
-        int dy = (ty-y2)>>4;
-        int dz = (tz-z2)>>8;
-        int nDist2 = ksqrt(dx*dx+dy*dy+dz*dz);
+		int dx = (tx - x2) >> 4;
+		int dy = (ty - y2) >> 4;
+		int dz = (tz - z2) >> 8;
+		int nDist2 = ksqrt(dx * dx + dy * dy + dz * dz);
         if (nDist2 < nClosest)
         {
-            int nAngle = getangle(x2-x, y2-y);
-            int nDeltaAngle = ((nAngle-pSprite->ang+1024)&2047)-1024;
+			int nAngle = getangle(x2 - x, y2 - y);
+			int nDeltaAngle = ((nAngle - pSprite->ang + 1024) & 2047) - 1024;
             if (abs(nDeltaAngle) <= tt.at8)
             {
-                int tz = pSprite2->z-pSprite->z;
+				int tz = pSprite2->z - pSprite->z;
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
                 {
                     nClosest = nDist2;
@@ -171,11 +196,11 @@ void BlastSSeqCallback(int, DBloodActor* actor)
                     if (tz > -0x333)
                         aim.dz = DivScale(tz, nDist, 10);
                     else if (tz < -0x333 && tz > -0xb33)
-                        aim.dz = DivScale(tz, nDist, 10)+9460;
+						aim.dz = DivScale(tz, nDist, 10) + 9460;
                     else if (tz < -0xb33 && tz > -0x3000)
-                        aim.dz = DivScale(tz, nDist, 10)+9460;
+						aim.dz = DivScale(tz, nDist, 10) + 9460;
                     else if (tz < -0x3000)
-                        aim.dz = DivScale(tz, nDist, 10)-7500;
+						aim.dz = DivScale(tz, nDist, 10) - 7500;
                     else
                         aim.dz = DivScale(tz, nDist, 10);
                 }
@@ -184,26 +209,37 @@ void BlastSSeqCallback(int, DBloodActor* actor)
             }
         }
     }
-    #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
         // allow to fire missile in non-player targets
         if (IsPlayerSprite(pTarget) || gModernMap) {
-            actFireMissile(pSprite, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-            actFireMissile(pSprite, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+            actFireMissile(actor, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+            actFireMissile(actor, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
         }
-    #else
+#else
         if (IsPlayerSprite(pTarget)) {
-            actFireMissile(pSprite, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-            actFireMissile(pSprite, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+            actFireMissile(actor, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+            actFireMissile(actor, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
         }
-    #endif
+#endif
 
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void ThrowSSeqCallback(int, DBloodActor* actor)
 {
-    spritetype* pSprite = &actor->s();
-    actFireThing_(pSprite, 0, 0, actor->dudeSlope - 7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
+    actFireThing(actor, 0, 0, actor->dudeSlope - 7500, kThingBone, Chance(0x6000) ? 0x133333 : 0x111111);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void gargThinkTarget(DBloodActor* actor)
 {
@@ -214,15 +250,15 @@ static void gargThinkTarget(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
     if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
         pDudeExtraE->xval2++;
     else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
         pXSprite->goalAng += 256;
-        POINT3D *pTarget = &baseSprite[pSprite->index];
-        aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
+        POINT3D* pTarget = &actor->basePoint();
+        aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &gargoyleTurn);
         return;
     }
@@ -230,32 +266,32 @@ static void gargThinkTarget(DBloodActor* actor)
     {
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
-            PLAYER *pPlayer = &gPlayer[p];
+			PLAYER* pPlayer = &gPlayer[p];
             if (pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
             int z = pPlayer->pSprite->z;
             int nSector = pPlayer->pSprite->sectnum;
-            int dx = x-pSprite->x;
-            int dy = y-pSprite->y;
+			int dx = x - pSprite->x;
+			int dy = y - pSprite->y;
             int nDist = approxDist(dx, dy);
             if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                 continue;
-            if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z-((pDudeInfo->eyeHeight*pSprite->yrepeat)<<2), pSprite->sectnum))
+			if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sectnum))
                 continue;
-            int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
+			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval2 = 0;
-                aiSetTarget(pXSprite, pPlayer->nSprite);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, pPlayer->actor());
+                aiActivateDude(actor);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 pDudeExtraE->xval2 = 0;
-                aiSetTarget(pXSprite, x, y, z);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, x, y, z);
+                aiActivateDude(actor);
             }
             else
                 continue;
@@ -264,13 +300,24 @@ static void gargThinkTarget(DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void gargThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiLookForTarget(pSprite, pXSprite);
+	aiChooseDirection(actor, pXSprite->goalAng);
+    aiLookForTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void gargThinkGoto(DBloodActor* actor)
 {
@@ -281,16 +328,22 @@ static void gargThinkGoto(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int dx = pXSprite->targetX-pSprite->x;
-    int dy = pXSprite->targetY-pSprite->y;
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int dx = pXSprite->targetX - pSprite->x;
+	int dy = pXSprite->targetY - pSprite->y;
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
-    aiChooseDirection(pSprite, pXSprite, nAngle);
+	aiChooseDirection(actor, nAngle);
     if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
         aiNewState(actor, &gargoyleFSearch);
     aiThinkTarget(actor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void gargMoveDodgeUp(DBloodActor* actor)
 {
@@ -301,10 +354,10 @@ static void gargMoveDodgeUp(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
-    int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
-    pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
+	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
+	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
     int dx = actor->xvel();
@@ -321,6 +374,12 @@ static void gargMoveDodgeUp(DBloodActor* actor)
     actor->zvel() = -0x1d555;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void gargMoveDodgeDown(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -330,10 +389,10 @@ static void gargMoveDodgeDown(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
-    int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
-    pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
+	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
+	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
     if (pXSprite->dodgeDir == 0)
         return;
     int nCos = Cos(pSprite->ang);
@@ -352,11 +411,17 @@ static void gargMoveDodgeDown(DBloodActor* actor)
     actor->zvel() = 0x44444;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void gargThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (actor->GetTarget() == nullptr)
     {
         aiNewState(actor, &gargoyleFGoto);
         return;
@@ -366,23 +431,18 @@ static void gargThinkChase(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
-        return;
-    }
-    spritetype *pTarget = &sprite[pXSprite->target];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
-    int dx = pTarget->x-pSprite->x;
-    int dy = pTarget->y-pSprite->y;
-    aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	spritetype* pTarget = &actor->GetTarget()->s();
+    XSPRITE* pXTarget = &actor->GetTarget()->x();
+	int dx = pTarget->x - pSprite->x;
+	int dy = pTarget->y - pSprite->y;
+	aiChooseDirection(actor, getangle(dx, dy));
     if (pXTarget->health == 0)
     {
         aiNewState(actor, &gargoyleFSearch);
         return;
     }
-    if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type-kDudePlayer1], kPwUpShadowCloak) > 0)
+	if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type - kDudePlayer1], kPwUpShadowCloak) > 0)
     {
         aiNewState(actor, &gargoyleFSearch);
         return;
@@ -390,19 +450,20 @@ static void gargThinkChase(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     if (nDist <= pDudeInfo->seeDist)
     {
-        int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
-        int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
+		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
+		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
         // Should be dudeInfo[pTarget->type-kDudeBase]
-        int height2 = (pDudeInfo->eyeHeight*pTarget->yrepeat)<<2;
+		int height2 = (pDudeInfo->eyeHeight * pTarget->yrepeat) << 2;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(actor, actor->GetTarget());
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-                switch (pSprite->type) {
+				switch (pSprite->type)
+                {
                 case kDudeGargoyleFlesh:
                     if (nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
                     {
@@ -410,21 +471,21 @@ static void gargThinkChase(DBloodActor* actor)
                         switch (hit)
                         {
                         case -1:
-                            sfxPlay3DSound(pSprite, 1408, 0, 0);
+                            sfxPlay3DSound(actor, 1408, 0, 0);
                             aiNewState(actor, &gargoyleFThrow);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleStone)
+                            if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeGargoyleStone)
                             {
-                                sfxPlay3DSound(pSprite, 1408, 0, 0);
+                                sfxPlay3DSound(actor, 1408, 0, 0);
                                 aiNewState(actor, &gargoyleFThrow);
                             }
                             break;
                         default:
-                            sfxPlay3DSound(pSprite, 1408, 0, 0);
+                            sfxPlay3DSound(actor, 1408, 0, 0);
                             aiNewState(actor, &gargoyleFThrow);
                             break;
                         }
@@ -435,32 +496,32 @@ static void gargThinkChase(DBloodActor* actor)
                         switch (hit)
                         {
                         case -1:
-                            sfxPlay3DSound(pSprite, 1406, 0, 0);
+                            sfxPlay3DSound(actor, 1406, 0, 0);
                             aiNewState(actor, &gargoyleFSlash);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleStone)
+                            if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeGargoyleStone)
                             {
-                                sfxPlay3DSound(pSprite, 1406, 0, 0);
+                                sfxPlay3DSound(actor, 1406, 0, 0);
                                 aiNewState(actor, &gargoyleFSlash);
                             }
                             break;
                         default:
-                            sfxPlay3DSound(pSprite, 1406, 0, 0);
+                            sfxPlay3DSound(actor, 1406, 0, 0);
                             aiNewState(actor, &gargoyleFSlash);
                             break;
                         }
                     }
-                    else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0xa00)
+					else if ((height2 - height > 0x2000 || floorZ - bottom > 0x2000) && nDist < 0x1400 && nDist > 0xa00)
                     {
-                        aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
+                        aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
                         aiNewState(actor, &gargoyleSwoop);
                     }
-                    else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && abs(nDeltaAngle) < 85)
-                        aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
+					else if ((height2 - height < 0x2000 || floorZ - bottom < 0x2000) && abs(nDeltaAngle) < 85)
+                        aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
                     break;
                 case kDudeGargoyleStone:
                     if (nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
@@ -469,21 +530,21 @@ static void gargThinkChase(DBloodActor* actor)
                         switch (hit)
                         {
                         case -1:
-                            sfxPlay3DSound(pSprite, 1457, 0, 0);
+                            sfxPlay3DSound(actor, 1457, 0, 0);
                             aiNewState(actor, &gargoyleSBlast);
                             break;
                         case 0:
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
+                            if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeGargoyleFlesh)
                             {
-                                sfxPlay3DSound(pSprite, 1457, 0, 0);
+                                sfxPlay3DSound(actor, 1457, 0, 0);
                                 aiNewState(actor, &gargoyleSBlast);
                             }
                             break;
                         default:
-                            sfxPlay3DSound(pSprite, 1457, 0, 0);
+                            sfxPlay3DSound(actor, 1457, 0, 0);
                             aiNewState(actor, &gargoyleSBlast);
                             break;
                         }
@@ -500,7 +561,7 @@ static void gargThinkChase(DBloodActor* actor)
                         case 4:
                             break;
                         case 3:
-                            if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
+                            if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeGargoyleFlesh)
                                 aiNewState(actor, &gargoyleFSlash);
                             break;
                         default:
@@ -508,16 +569,16 @@ static void gargThinkChase(DBloodActor* actor)
                             break;
                         }
                     }
-                    else if ((height2-height > 0x2000 || floorZ-bottom > 0x2000) && nDist < 0x1400 && nDist > 0x800)
+					else if ((height2 - height > 0x2000 || floorZ - bottom > 0x2000) && nDist < 0x1400 && nDist > 0x800)
                     {
                         if (pSprite->type == kDudeGargoyleFlesh)
-                            aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
+                            aiPlay3DSound(actor, 1400, AI_SFX_PRIORITY_1, -1);
                         else
-                            aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
+                            aiPlay3DSound(actor, 1450, AI_SFX_PRIORITY_1, -1);
                         aiNewState(actor, &gargoyleSwoop);
                     }
-                    else if ((height2-height < 0x2000 || floorZ-bottom < 0x2000) && abs(nDeltaAngle) < 85)
-                        aiPlay3DSound(pSprite, 1450, AI_SFX_PRIORITY_1, -1);
+					else if ((height2 - height < 0x2000 || floorZ - bottom < 0x2000) && abs(nDeltaAngle) < 85)
+                        aiPlay3DSound(actor, 1450, AI_SFX_PRIORITY_1, -1);
                     break;
                 }
             }
@@ -531,26 +592,42 @@ static void gargThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &gargoyleFGoto);
-    pXSprite->target = -1;
+    actor->SetTarget(nullptr);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void entryFStatue(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    DUDEINFO *pDudeInfo = &dudeInfo[6];
-    actHealDude(pXSprite, pDudeInfo->startHealth, pDudeInfo->startHealth);
+	DUDEINFO* pDudeInfo = &dudeInfo[6];
+    actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
     pSprite->type = kDudeGargoyleFlesh;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void entrySStatue(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    DUDEINFO *pDudeInfo = &dudeInfo[7];
-    actHealDude(pXSprite, pDudeInfo->startHealth, pDudeInfo->startHealth);
+	DUDEINFO* pDudeInfo = &dudeInfo[7];
+    actHealDude(actor, pDudeInfo->startHealth, pDudeInfo->startHealth);
     pSprite->type = kDudeGargoyleStone;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void gargMoveForward(DBloodActor* actor)
 {
@@ -561,17 +638,17 @@ static void gargMoveForward(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
-    int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
-    pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
-    int nAccel = pDudeInfo->frontSpeed<<2;
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
+	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
+	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	int nAccel = pDudeInfo->frontSpeed << 2;
     if (abs(nAng) > 341)
         return;
-    if (pXSprite->target == -1)
-        pSprite->ang = (pSprite->ang+256)&2047;
-    int dx = pXSprite->targetX-pSprite->x;
-    int dy = pXSprite->targetY-pSprite->y;
+    if (actor->GetTarget() == nullptr)
+		pSprite->ang = (pSprite->ang + 256) & 2047;
+	int dx = pXSprite->targetX - pSprite->x;
+	int dy = pXSprite->targetY - pSprite->y;
     int nDist = approxDist(dx, dy);
     if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
         return;
@@ -581,13 +658,19 @@ static void gargMoveForward(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    if (pXSprite->target == -1)
+    if (actor->GetTarget() == nullptr)
         t1 += nAccel;
     else
-        t1 += nAccel>>1;
+		t1 += nAccel >> 1;
     actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void gargMoveSlow(DBloodActor* actor)
 {
@@ -598,18 +681,18 @@ static void gargMoveSlow(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
-    int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
-    pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
-    int nAccel = pDudeInfo->frontSpeed<<2;
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
+	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
+	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	int nAccel = pDudeInfo->frontSpeed << 2;
     if (abs(nAng) > 341)
     {
-        pXSprite->goalAng = (pSprite->ang+512)&2047;
+		pXSprite->goalAng = (pSprite->ang + 512) & 2047;
         return;
     }
-    int dx = pXSprite->targetX-pSprite->x;
-    int dy = pXSprite->targetY-pSprite->y;
+	int dx = pXSprite->targetX - pSprite->x;
+	int dy = pXSprite->targetY - pSprite->y;
     int nDist = approxDist(dx, dy);
     if (Chance(0x600) && nDist <= 0x400)
         return;
@@ -619,11 +702,11 @@ static void gargMoveSlow(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    t1 = nAccel>>1;
+	t1 = nAccel >> 1;
     t2 >>= 1;
     actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-    switch (pSprite->type) { 
+	switch (pSprite->type) {
         case kDudeGargoyleFlesh:
             actor->zvel() = 0x44444;
             break;
@@ -632,6 +715,12 @@ static void gargMoveSlow(DBloodActor* actor)
             break;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 static void gargMoveSwoop(DBloodActor* actor)
 {
@@ -642,18 +731,18 @@ static void gargMoveSwoop(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
-    int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
-    pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
-    int nAccel = pDudeInfo->frontSpeed<<2;
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
+	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
+	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	int nAccel = pDudeInfo->frontSpeed << 2;
     if (abs(nAng) > 341)
     {
-        pXSprite->goalAng = (pSprite->ang+512)&2047;
+		pXSprite->goalAng = (pSprite->ang + 512) & 2047;
         return;
     }
-    int dx = pXSprite->targetX-pSprite->x;
-    int dy = pXSprite->targetY-pSprite->y;
+	int dx = pXSprite->targetX - pSprite->x;
+	int dy = pXSprite->targetY - pSprite->y;
     int nDist = approxDist(dx, dy);
     if (Chance(0x600) && nDist <= 0x400)
         return;
@@ -663,7 +752,7 @@ static void gargMoveSwoop(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    t1 += nAccel>>1;
+	t1 += nAccel >> 1;
     actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     switch (pSprite->type) {
@@ -676,6 +765,12 @@ static void gargMoveSwoop(DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void gargMoveFly(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -685,18 +780,18 @@ static void gargMoveFly(DBloodActor* actor)
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
-    int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
-    pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
-    int nAccel = pDudeInfo->frontSpeed<<2;
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
+	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
+	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
+	int nAccel = pDudeInfo->frontSpeed << 2;
     if (abs(nAng) > 341)
     {
-        pSprite->ang = (pSprite->ang+512)&2047;
+		pSprite->ang = (pSprite->ang + 512) & 2047;
         return;
     }
-    int dx = pXSprite->targetX-pSprite->x;
-    int dy = pXSprite->targetY-pSprite->y;
+	int dx = pXSprite->targetX - pSprite->x;
+	int dy = pXSprite->targetY - pSprite->y;
     int nDist = approxDist(dx, dy);
     if (Chance(0x4000) && nDist <= 0x400)
         return;
@@ -706,7 +801,7 @@ static void gargMoveFly(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    t1 += nAccel>>1;
+	t1 += nAccel >> 1;
     actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
     actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
     switch (pSprite->type) {
@@ -717,7 +812,6 @@ static void gargMoveFly(DBloodActor* actor)
             actor->zvel() = -t1;
             break;
     }
-    abs(actor->zvel());
 }
 
 END_BLD_NS

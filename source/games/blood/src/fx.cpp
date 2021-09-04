@@ -107,34 +107,30 @@ FXDATA gFXData[] = {
     { kCallbackNone, 1, 70, 1, -13981, 5120, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-void CFX::destroy(int nSprite)
+void CFX::destroy(DBloodActor* actor)
 {
-    if (nSprite < 0 || nSprite >= kMaxSprites)
-        return;
-    evKill(nSprite, 3);
-    if (sprite[nSprite].extra > 0)
-        seqKill(3, sprite[nSprite].extra);
-    DeleteSprite(nSprite);
+    if (!actor) return;
+    evKillActor(actor);
+    if (actor->hasX()) seqKill(actor);
+    DeleteSprite(actor);
 }
 
-void CFX::remove(int nSprite)
+void CFX::remove(DBloodActor* actor)
 {
-    if (nSprite < 0 || nSprite >= kMaxSprites)
-        return;
-    spritetype *pSprite = &sprite[nSprite];
-    if (pSprite->extra > 0)
-        seqKill(3, pSprite->extra);
+    if (!actor) return;
+    spritetype *pSprite = &actor->s();
+    if (actor->hasX()) seqKill(actor);
     if (pSprite->statnum != kStatFree)
-        actPostSprite(nSprite, kStatFree);
+        actPostSprite(actor, kStatFree);
 }
 
-spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
+DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
 {
     if (nSector < 0 || nSector >= numsectors)
-        return NULL;
+        return nullptr;
     int nSector2 = nSector;
     if (!FindSector(x, y, z, &nSector2))
-        return NULL;
+        return nullptr;
     if (adult_lockout && gGameOptions.nGameType <= 0)
     {
         switch (nFx)
@@ -147,23 +143,23 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
         case FX_34:
         case FX_35:
         case FX_36:
-            return NULL;
+            return nullptr;
         default:
             break;
         }
     }
     if (nFx < 0 || nFx >= kFXMax)
-        return NULL;
+        return nullptr;
     FXDATA *pFX = &gFXData[nFx];
     if (gStatCount[1] == 512)
     {
-        StatIterator it(kStatFX);
-        int nSprite = it.NextIndex();
-        while (nSprite != -1 && (sprite[nSprite].flags & 32))
-            nSprite = it.NextIndex();
-        if (nSprite == -1)
-            return NULL;
-        destroy(nSprite);
+        BloodStatIterator it(kStatFX);
+        auto iactor = it.Next();
+        while (iactor && (iactor->s().flags & 32))
+            iactor = it.Next();
+        if (!iactor)
+            return nullptr;
+        destroy(iactor);
     }
     auto actor = actSpawnSprite(nSector, x, y, z, 1, 0);
     spritetype* pSprite = &actor->s();
@@ -183,88 +179,85 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
         pSprite->cstat |= 8;
     if (pFX->seq)
     {
-        int nXSprite = dbInsertXSprite(pSprite->index);
-        seqSpawn(pFX->seq, 3, nXSprite, -1);
+        actor->addX();
+        seqSpawn(pFX->seq, actor, -1);
     }
     if (a6 == 0)
         a6 = pFX->ate;
     if (a6)
-        evPost((int)pSprite->index, 3, a6+Random2(a6>>1), kCallbackRemove);
-    return pSprite;
+        evPostActor(actor, a6+Random2(a6>>1), kCallbackRemove);
+    return actor;
 }
 
 void CFX::fxProcess(void)
 {
-    int nSprite;
-    StatIterator it(kStatFX);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatFX);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        viewBackupSpriteLoc(nSprite, pSprite);
+        spritetype *pSprite = &actor->s();
+        viewBackupSpriteLoc(actor);
         short nSector = pSprite->sectnum;
         assert(nSector >= 0 && nSector < kMaxSectors);
         assert(pSprite->type < kFXMax);
         FXDATA *pFXData = &gFXData[pSprite->type];
         actAirDrag(&bloodActors[pSprite->index], pFXData->drag);
-        if (xvel[nSprite])
-            pSprite->x += xvel[nSprite]>>12;
-        if (yvel[nSprite])
-            pSprite->y += yvel[nSprite]>>12;
-        if (zvel[nSprite])
-            pSprite->z += zvel[nSprite]>>8;
+        pSprite->x += actor->xvel()>>12;
+        pSprite->y += actor->yvel()>>12;
+        pSprite->z += actor->zvel()>>8;
         // Weird...
-        if (xvel[nSprite] || (yvel[nSprite] && pSprite->z >= sector[pSprite->sectnum].floorz))
+        if (actor->xvel() || (actor->yvel() && pSprite->z >= sector[pSprite->sectnum].floorz))
         {
             updatesector(pSprite->x, pSprite->y, &nSector);
             if (nSector == -1)
             {
-                remove(nSprite);
+                remove(actor);
                 continue;
             }
             if (getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y) <= pSprite->z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
-                    remove(nSprite);
+                    remove(actor);
                     continue;
                 }
-                assert(gCallback[pFXData->funcID] != NULL);
-                gCallback[pFXData->funcID](nSprite);
+                assert(gCallback[pFXData->funcID] != nullptr);
+                gCallback[pFXData->funcID](actor, 0);
                 continue;
             }
             if (nSector != pSprite->sectnum)
             {
                 assert(nSector >= 0 && nSector < kMaxSectors);
-                ChangeSpriteSect(nSprite, nSector);
+                ChangeActorSect(actor, nSector);
             }
         }
-        if (xvel[nSprite] || yvel[nSprite] || zvel[nSprite])
+        if (actor->xvel() || actor->yvel() || actor->zvel())
         {
             int32_t floorZ, ceilZ;
             getzsofslope(nSector, pSprite->x, pSprite->y, &ceilZ, &floorZ);
             if (ceilZ > pSprite->z && !(sector[nSector].ceilingstat&1))
             {
-                remove(nSprite);
+                remove(actor);
                 continue;
             }
             if (floorZ < pSprite->z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
-                    remove(nSprite);
+                    remove(actor);
                     continue;
                 }
-                assert(gCallback[pFXData->funcID] != NULL);
-                gCallback[pFXData->funcID](nSprite);
+                assert(gCallback[pFXData->funcID] != nullptr);
+                gCallback[pFXData->funcID](actor, 0);
                 continue;
             }
         }
-        zvel[nSprite] += pFXData->gravity;
+        actor->zvel() += pFXData->gravity;
     }
 }
 
-void fxSpawnBlood(spritetype *pSprite, int )
+void fxSpawnBlood(DBloodActor *actor, int )
 {
+    spritetype* pSprite = &actor->s();
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
     int nSector = pSprite->sectnum;
@@ -272,19 +265,20 @@ void fxSpawnBlood(spritetype *pSprite, int )
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
-    spritetype *pBlood = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-    if (pBlood)
+    auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    if (bloodactor)
     {
-        pBlood->ang = 1024;
-        xvel[pBlood->index] = Random2(0x6aaaa);
-        yvel[pBlood->index] = Random2(0x6aaaa);
-        zvel[pBlood->index] = -(int)Random(0x10aaaa)-100;
-        evPost(pBlood->index, 3, 8, kCallbackFXBloodSpurt);
+        bloodactor->s().ang = 1024;
+        bloodactor->xvel() = Random2(0x6aaaa);
+        bloodactor->yvel() = Random2(0x6aaaa);
+        bloodactor->zvel() = -(int)Random(0x10aaaa)-100;
+        evPostActor(bloodactor, 8, kCallbackFXBloodSpurt);
     }
 }
 
-void sub_746D4(spritetype *pSprite, int )
+void fxSpawnPodStuff(DBloodActor* actor, int )
 {
+    auto pSprite = &actor->s();
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
     int nSector = pSprite->sectnum;
@@ -292,56 +286,58 @@ void sub_746D4(spritetype *pSprite, int )
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
-    spritetype *pSpawn;
+    DBloodActor *spawnactor;
     if (pSprite->type == kDudePodGreen)
-        pSpawn = gFX.fxSpawn(FX_53, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+        spawnactor = gFX.fxSpawnActor(FX_53, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     else
-        pSpawn = gFX.fxSpawn(FX_54, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
-    if (pSpawn)
+        spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    if (spawnactor)
     {
-        pSpawn->ang = 1024;
-        xvel[pSpawn->index] = Random2(0x6aaaa);
-        yvel[pSpawn->index] = Random2(0x6aaaa);
-        zvel[pSpawn->index] = -(int)Random(0x10aaaa)-100;
-        evPost(pSpawn->index, 3, 8, kCallbackFXPodBloodSpray);
+        spawnactor->s().ang = 1024;
+        spawnactor->xvel() = Random2(0x6aaaa);
+        spawnactor->yvel() = Random2(0x6aaaa);
+        spawnactor->zvel() = -(int)Random(0x10aaaa)-100;
+        evPostActor(spawnactor, 8, kCallbackFXPodBloodSpray);
     }
 }
 
-void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4)
+void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 {
-    int x = pSprite->x+MulScale(pSprite->clipdist-4, Cos(pSprite->ang), 28);
-    int y = pSprite->y+MulScale(pSprite->clipdist-4, Sin(pSprite->ang), 28);
-    x += MulScale(a3, Cos(pSprite->ang+512), 30);
-    y += MulScale(a3, Sin(pSprite->ang+512), 30);
-    spritetype *pBrass = gFX.fxSpawn((FX_ID)(FX_37+Random(3)), pSprite->sectnum, x, y, z, 0);
+    auto pSprite = &actor->s();
+    int x = pSprite->x + MulScale(pSprite->clipdist - 4, Cos(pSprite->ang), 28);
+    int y = pSprite->y + MulScale(pSprite->clipdist - 4, Sin(pSprite->ang), 28);
+    x += MulScale(a3, Cos(pSprite->ang + 512), 30);
+    y += MulScale(a3, Sin(pSprite->ang + 512), 30);
+    auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), pSprite->sectnum, x, y, z, 0);
     if (pBrass)
     {
         if (!VanillaMode())
-            pBrass->ang = Random(2047);
-        int nDist = (a4<<18)/120+Random2(((a4/4)<<18)/120);
-        int nAngle = pSprite->ang+Random2(56)+512;
-        xvel[pBrass->index] = MulScale(nDist, Cos(nAngle), 30);
-        yvel[pBrass->index] = MulScale(nDist, Sin(nAngle), 30);
-        zvel[pBrass->index] = zvel[pSprite->index]-(0x20000+(Random2(40)<<18)/120);
+            pBrass->s().ang = Random(2047);
+        int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
+        int nAngle = pSprite->ang + Random2(56) + 512;
+        pBrass->xvel() = MulScale(nDist, Cos(nAngle), 30);
+        pBrass->yvel() = MulScale(nDist, Sin(nAngle), 30);
+        pBrass->zvel() = actor->zvel() - (0x20000 + (Random2(40) << 18) / 120);
     }
 }
 
-void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
+void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 {
-    int x = pSprite->x+MulScale(pSprite->clipdist-4, Cos(pSprite->ang), 28);
-    int y = pSprite->y+MulScale(pSprite->clipdist-4, Sin(pSprite->ang), 28);
-    x += MulScale(a3, Cos(pSprite->ang+512), 30);
-    y += MulScale(a3, Sin(pSprite->ang+512), 30);
-    spritetype *pShell = gFX.fxSpawn((FX_ID)(FX_40+Random(3)), pSprite->sectnum, x, y, z, 0);
+    auto pSprite = &actor->s();
+    int x = pSprite->x + MulScale(pSprite->clipdist - 4, Cos(pSprite->ang), 28);
+    int y = pSprite->y + MulScale(pSprite->clipdist - 4, Sin(pSprite->ang), 28);
+    x += MulScale(a3, Cos(pSprite->ang + 512), 30);
+    y += MulScale(a3, Sin(pSprite->ang + 512), 30);
+    auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), pSprite->sectnum, x, y, z, 0);
     if (pShell)
     {
         if (!VanillaMode())
-            pShell->ang = Random(2047);
-        int nDist = (a4<<18)/120+Random2(((a4/4)<<18)/120);
-        int nAngle = pSprite->ang+Random2(56)+512;
-        xvel[pShell->index] = MulScale(nDist, Cos(nAngle), 30);
-        yvel[pShell->index] = MulScale(nDist, Sin(nAngle), 30);
-        zvel[pShell->index] = zvel[pSprite->index]-(0x20000+(Random2(20)<<18)/120);
+            pShell->s().ang = Random(2047);
+        int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
+        int nAngle = pSprite->ang + Random2(56) + 512;
+        pShell->xvel() = MulScale(nDist, Cos(nAngle), 30);
+        pShell->yvel() = MulScale(nDist, Sin(nAngle), 30);
+        pShell->zvel() = actor->zvel() - (0x20000 + (Random2(20) << 18) / 120);
     }
 }
 
@@ -353,13 +349,6 @@ void fxPrecache()
         if (gFXData[i].seq)
             seqPrecacheId(gFXData[i].seq, 0);
     }
-}
-
-
-DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
-{
-    auto spr = fxSpawn(nFx, nSector, x, y, z, a6);
-    return spr ? &bloodActors[spr->index] : nullptr;
 }
 
 END_BLD_NS

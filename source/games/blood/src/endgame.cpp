@@ -47,7 +47,7 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 	info.maxkills = gKillMgr.TotalKills;
 	info.secrets = gSecretMgr.Founds;
 	info.maxsecrets = gSecretMgr.Total;
-	info.time = gSecretMgr.Super;
+	info.supersecrets = gSecretMgr.Super;
 	info.endofgame = map == nullptr;
 
 	ShowIntermission(currentLevel, map, &info, [=](bool)
@@ -57,11 +57,6 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 		});
 }
 
-
-CKillMgr::CKillMgr()
-{
-	Clear();
-}
 
 void CKillMgr::SetCount(int nCount)
 {
@@ -90,13 +85,12 @@ void CKillMgr::RemoveKill(spritetype* pSprite)
 void CKillMgr::CountTotalKills(void)
 {
 	TotalKills = 0;
-	int nSprite;
-	StatIterator it(kStatDude);
-	while ((nSprite = it.NextIndex()) >= 0)
+	BloodStatIterator it(kStatDude);
+	while (auto actor = it.Next())
 	{
-		spritetype* pSprite = &sprite[nSprite];
+		spritetype* pSprite = &actor->s();
 		if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
-			I_Error("Non-enemy sprite (%d) in the enemy sprite list.", nSprite);
+			I_Error("Non-enemy sprite (%d) in the enemy sprite list.", actor->GetIndex());
 		if (pSprite->statnum == kStatDude && pSprite->type != kDudeBat && pSprite->type != kDudeRat && pSprite->type != kDudeInnocent && pSprite->type != kDudeBurningInnocent)
 			TotalKills++;
 	}
@@ -105,11 +99,6 @@ void CKillMgr::CountTotalKills(void)
 void CKillMgr::Clear(void)
 {
 	TotalKills = Kills = 0;
-}
-
-CSecretMgr::CSecretMgr(void)
-{
-	Clear();
 }
 
 void CSecretMgr::SetCount(int nCount)
@@ -125,10 +114,6 @@ void CSecretMgr::Found(int nType)
 		return;
 	}
 	else Super++;
-
-	if (gGameOptions.nGameType == 0) {
-		viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), 0, MESSAGE_PRIORITY_SECRET);
-	}
 }
 
 void CSecretMgr::Clear(void)

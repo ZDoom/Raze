@@ -88,21 +88,25 @@ struct TARGETTRACK {
 
 extern const int dword_138BB0[5];
 
-bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq);
-void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
+bool dudeIsPlayingSeq(DBloodActor* pSprite, int nSeq);
+void aiPlay3DSound(DBloodActor* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
 void aiNewState(DBloodActor* actor, AISTATE *pAIState);
-void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3);
+void aiChooseDirection(DBloodActor* actor, int a3);
 void aiMoveForward(DBloodActor*pXSprite);
 void aiMoveTurn(DBloodActor*pXSprite);
 void aiMoveDodge(DBloodActor *actor);
 void aiActivateDude(DBloodActor *actor);
-void aiSetTarget(XSPRITE *pXSprite, int x, int y, int z);
-void aiSetTarget(XSPRITE *pXSprite, int nTarget);
+void aiSetTarget(DBloodActor* pXSprite, int x, int y, int z);
+void aiSetTarget(DBloodActor* actor, DBloodActor* target);
 int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage);
 void aiThinkTarget(DBloodActor* actor);
-void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite);
+void aiLookForTarget(DBloodActor* actor);
 void aiProcessDudes(void);
 void aiInit(void);
-void aiInitSprite(spritetype *pSprite);
-bool CanMove(spritetype* pSprite, int a2, int nAngle, int nRange);
+void aiInitSprite(DBloodActor* pSprite);
+bool CanMove(DBloodActor* pSprite, DBloodActor* target, int nAngle, int nRange);
+
+void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z);
+void aiSetTarget_(XSPRITE* pXSprite, int nTarget);
+
 END_BLD_NS

@@ -382,9 +382,7 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
 {
     assert(pSprite != NULL);
     assert(dx != 0 || dy != 0);
-    gHitInfo.hitsect = -1;
-    gHitInfo.hitwall = -1;
-    gHitInfo.hitsprite = -1;
+    gHitInfo.clearObj();
     int x = pSprite->x;
     int y = pSprite->y;
     int nSector = pSprite->sectnum;
@@ -403,17 +401,12 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
     hitdata_t hitData;
     hitData.pos.z = gHitInfo.hitz;
     hitscan(&pos, nSector, dx, dy, dz << 4, &hitData, nMask);
-    gHitInfo.hitsect = hitData.sect;
-    gHitInfo.hitwall = hitData.wall;
-    gHitInfo.hitsprite = hitData.sprite;
-    gHitInfo.hitx = hitData.pos.x;
-    gHitInfo.hity = hitData.pos.y;
-    gHitInfo.hitz = hitData.pos.z;
+    gHitInfo.set(&hitData);
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
-    if (gHitInfo.hitsprite >= kMaxSprites || gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
+    if (gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
         return -1;
-    if (gHitInfo.hitsprite >= 0)
+    if (gHitInfo.hitactor != nullptr)
         return 3;
     if (gHitInfo.hitwall >= 0)
     {
@@ -434,9 +427,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
 {
     int nNum = 256;
     assert(pSprite != NULL);
-    gHitInfo.hitsect = -1;
-    gHitInfo.hitwall = -1;
-    gHitInfo.hitsprite = -1;
+    gHitInfo.clearObj();
     int x1 = pSprite->x+MulScale(nOffset, Cos(pSprite->ang+512), 30);
     int y1 = pSprite->y+MulScale(nOffset, Sin(pSprite->ang+512), 30);
     int z1 = pSprite->z+nZOffset;
@@ -456,23 +447,18 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
     hitdata_t hitData;
     hitData.pos.z = gHitInfo.hitz;
     hitscan(&pos, nSector, dx, dy, dz << 4, &hitData, CLIPMASK1);
-    gHitInfo.hitsect = hitData.sect;
-    gHitInfo.hitwall = hitData.wall;
-    gHitInfo.hitsprite = hitData.sprite;
-    gHitInfo.hitx = hitData.pos.x;
-    gHitInfo.hity = hitData.pos.y;
-    gHitInfo.hitz = hitData.pos.z;
+    gHitInfo.set(&hitData);
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
     while (nNum--)
     {
-        if (gHitInfo.hitsprite >= kMaxSprites || gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
+        if (gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
             return -1;
         if (nRange && approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) > nRange)
             return -1;
-        if (gHitInfo.hitsprite >= 0)
+        if (gHitInfo.hitactor != nullptr)
         {
-            spritetype *pOther = &sprite[gHitInfo.hitsprite];
+            spritetype *pOther = &gHitInfo.hitactor->s();
             if ((pOther->flags & 8) && !(ac & 1))
                 return 3;
             if ((pOther->cstat & 0x30) != 0)
@@ -509,22 +495,14 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             }
             int bakCstat = pOther->cstat;
             pOther->cstat &= ~256;
-            gHitInfo.hitsect = -1;
-            gHitInfo.hitwall = -1;
-            gHitInfo.hitsprite = -1;
+            gHitInfo.clearObj();
             x1 = gHitInfo.hitx;
             y1 = gHitInfo.hity;
             z1 = gHitInfo.hitz;
             pos = { x1, y1, z1 };
             hitData.pos.z = gHitInfo.hitz;
-            hitscan(&pos, pOther->sectnum,
-                dx, dy, dz << 4, &hitData, CLIPMASK1);
-            gHitInfo.hitsect = hitData.sect;
-            gHitInfo.hitwall = hitData.wall;
-            gHitInfo.hitsprite = hitData.sprite;
-            gHitInfo.hitx = hitData.pos.x;
-            gHitInfo.hity = hitData.pos.y;
-            gHitInfo.hitz = hitData.pos.z;
+            hitscan(&pos, pOther->sectnum, dx, dy, dz << 4, &hitData, CLIPMASK1);
+            gHitInfo.set(&hitData);
             pOther->cstat = bakCstat;
             continue;
         }
@@ -584,9 +562,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 pWall->cstat &= ~64;
                 int bakCstat2 = wall[pWall->nextwall].cstat;
                 wall[pWall->nextwall].cstat &= ~64;
-                gHitInfo.hitsect = -1;
-                gHitInfo.hitwall = -1;
-                gHitInfo.hitsprite = -1;
+                gHitInfo.clearObj();
                 x1 = gHitInfo.hitx;
                 y1 = gHitInfo.hity;
                 z1 = gHitInfo.hitz;
@@ -594,12 +570,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, pWall->nextsector,
                     dx, dy, dz << 4, &hitData, CLIPMASK1);
-                gHitInfo.hitsect = hitData.sect;
-                gHitInfo.hitwall = hitData.wall;
-                gHitInfo.hitsprite = hitData.sprite;
-                gHitInfo.hitx = hitData.pos.x;
-                gHitInfo.hity = hitData.pos.y;
-                gHitInfo.hitz = hitData.pos.z;
+                gHitInfo.set(&hitData);
                 pWall->cstat = bakCstat;
                 wall[pWall->nextwall].cstat = bakCstat2;
                 continue;
@@ -614,21 +585,14 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                     return 2;
                 int nSprite = gUpperLink[gHitInfo.hitsect];
                 int nLink = sprite[nSprite].owner & 0xfff;
-                gHitInfo.hitsect = -1;
-                gHitInfo.hitwall = -1;
-                gHitInfo.hitsprite = -1;
+                gHitInfo.clearObj();
                 x1 = gHitInfo.hitx + sprite[nLink].x - sprite[nSprite].x;
                 y1 = gHitInfo.hity + sprite[nLink].y - sprite[nSprite].y;
                 z1 = gHitInfo.hitz + sprite[nLink].z - sprite[nSprite].z;
                 pos = { x1, y1, z1 };
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, sprite[nLink].sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
-                gHitInfo.hitsect = hitData.sect;
-                gHitInfo.hitwall = hitData.wall;
-                gHitInfo.hitsprite = hitData.sprite;
-                gHitInfo.hitx = hitData.pos.x;
-                gHitInfo.hity = hitData.pos.y;
-                gHitInfo.hitz = hitData.pos.z;
+                gHitInfo.set(&hitData);
                 continue;
             }
             else
@@ -637,21 +601,14 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                     return 1;
                 int nSprite = gLowerLink[gHitInfo.hitsect];
                 int nLink = sprite[nSprite].owner & 0xfff;
-                gHitInfo.hitsect = -1;
-                gHitInfo.hitwall = -1;
-                gHitInfo.hitsprite = -1;
+                gHitInfo.clearObj();
                 x1 = gHitInfo.hitx + sprite[nLink].x - sprite[nSprite].x;
                 y1 = gHitInfo.hity + sprite[nLink].y - sprite[nSprite].y;
                 z1 = gHitInfo.hitz + sprite[nLink].z - sprite[nSprite].z;
                 pos = { x1, y1, z1 };
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, sprite[nLink].sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
-                gHitInfo.hitsect = hitData.sect;
-                gHitInfo.hitwall = hitData.wall;
-                gHitInfo.hitsprite = hitData.sprite;
-                gHitInfo.hitx = hitData.pos.x;
-                gHitInfo.hity = hitData.pos.y;
-                gHitInfo.hitz = hitData.pos.z;
+                gHitInfo.set(&hitData);
                 continue;
             }
         }
@@ -660,16 +617,19 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
     return -1;
 }
 
-void GetZRange(spritetype *pSprite, int *ceilZ, int *ceilHit, int *floorZ, int *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilColl, int *floorZ, Collision *floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
+    int floorHit, ceilHit;
     assert(pSprite != NULL);
     int bakCstat = pSprite->cstat;
     int32_t nTemp1, nTemp2;
     pSprite->cstat &= ~257;
-    getzrange_old(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, (int32_t*)ceilZ, (int32_t*)ceilHit, (int32_t*)floorZ, (int32_t*)floorHit, nDist, nMask);
-    if (((*floorHit) & 0xc000) == 0x4000)
+    getzrange_old(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, (int32_t*)ceilZ, &ceilHit, (int32_t*)floorZ, &floorHit, nDist, nMask);
+    ceilColl->setFromEngine(ceilHit);
+    floorColl->setFromEngine(floorHit);
+    if (floorColl->type == kHitSector)
     {
-        int nSector = (*floorHit) & 0x3fff;
+        int nSector = floorColl->index;
         if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (sector[nSector].floorstat & 1))
             *floorZ = 0x7fffffff;
         if (sector[nSector].extra > 0)
@@ -682,14 +642,14 @@ void GetZRange(spritetype *pSprite, int *ceilZ, int *ceilHit, int *floorZ, int *
             int nSprite = gUpperLink[nSector];
             int nLink = sprite[nSprite].owner & 0xfff;
             getzrange_old(pSprite->x+sprite[nLink].x-sprite[nSprite].x, pSprite->y+sprite[nLink].y-sprite[nSprite].y,
-                pSprite->z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, (int32_t*)floorHit,
-                nDist, nMask);
+                pSprite->z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
             *floorZ -= sprite[nLink].z - sprite[nSprite].z;
+            floorColl->setFromEngine(floorHit);
         }
     }
-    if (((*ceilHit) & 0xc000) == 0x4000)
+    if (ceilColl->type == kHitSector)
     {
-        int nSector = (*ceilHit) & 0x3fff;
+        int nSector = ceilColl->index;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (sector[nSector].ceilingstat & 1))
             *ceilZ = 0x80000000;
         if (gLowerLink[nSector] >= 0)
@@ -697,21 +657,24 @@ void GetZRange(spritetype *pSprite, int *ceilZ, int *ceilHit, int *floorZ, int *
             int nSprite = gLowerLink[nSector];
             int nLink = sprite[nSprite].owner & 0xfff;
             getzrange_old(pSprite->x+sprite[nLink].x-sprite[nSprite].x, pSprite->y+sprite[nLink].y-sprite[nSprite].y,
-                pSprite->z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, (int32_t*)ceilZ, (int32_t*)ceilHit, &nTemp1, &nTemp2,
-                nDist, nMask);
+                pSprite->z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2,nDist, nMask);
             *ceilZ -= sprite[nLink].z - sprite[nSprite].z;
+            ceilColl->setFromEngine(ceilHit);
         }
     }
     pSprite->cstat = bakCstat;
 }
 
-void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, int *ceilHit, int *floorZ, int *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision* ceilColl, int* floorZ, Collision* floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
+    int ceilHit, floorHit;
     int32_t nTemp1, nTemp2;
-    getzrange_old(x, y, z, nSector, (int32_t*)ceilZ, (int32_t*)ceilHit, (int32_t*)floorZ, (int32_t*)floorHit, nDist, nMask);
-    if (((*floorHit) & 0xc000) == 0x4000)
+    getzrange_old(x, y, z, nSector, (int32_t*)ceilZ, &ceilHit, (int32_t*)floorZ, &floorHit, nDist, nMask);
+    ceilColl->setFromEngine(ceilHit);
+    floorColl->setFromEngine(floorHit);
+    if (floorColl->type == kHitSector)
     {
-        int nSector = (*floorHit) & 0x3fff;
+        int nSector = floorColl->index;
         if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (sector[nSector].floorstat & 1))
             *floorZ = 0x7fffffff;
         if (sector[nSector].extra > 0)
@@ -724,14 +687,14 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, int *ceilHit, 
             int nSprite = gUpperLink[nSector];
             int nLink = sprite[nSprite].owner & 0xfff;
             getzrange_old(x+sprite[nLink].x-sprite[nSprite].x, y+sprite[nLink].y-sprite[nSprite].y,
-                z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, (int32_t*)floorHit,
-                nDist, nMask);
+                z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
+            floorColl->setFromEngine(floorHit);
             *floorZ -= sprite[nLink].z - sprite[nSprite].z;
         }
     }
-    if (((*ceilHit) & 0xc000) == 0x4000)
+    if (ceilColl->type == kHitSector)
     {
-        int nSector = (*ceilHit) & 0x3fff;
+        int nSector = ceilColl->index;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (sector[nSector].ceilingstat & 1))
             *ceilZ = 0x80000000;
         if (gLowerLink[nSector] >= 0)
@@ -739,8 +702,8 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, int *ceilHit, 
             int nSprite = gLowerLink[nSector];
             int nLink = sprite[nSprite].owner & 0xfff;
             getzrange_old(x+sprite[nLink].x-sprite[nSprite].x, y+sprite[nLink].y-sprite[nSprite].y,
-                z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, (int32_t*)ceilZ, (int32_t*)ceilHit, &nTemp1, &nTemp2,
-                nDist, nMask);
+                z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2,nDist, nMask);
+            ceilColl->setFromEngine(ceilHit);
             *ceilZ -= sprite[nLink].z - sprite[nSprite].z;
         }
     }

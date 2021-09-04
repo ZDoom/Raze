@@ -63,7 +63,6 @@ map { 2, 2 }
 {
 	interbackground = "LEVELMAP09"
 	rr_startsound = 176
-	clearweapons
 }
 
 map { 2, 3 }

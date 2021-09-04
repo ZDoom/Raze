@@ -112,7 +112,7 @@ struct XSPRITE {
     int16_t data1;            // Data 1
     int16_t data2;            // Data 2
     int16_t data3;            // Data 3
-    int16_t target;           // target sprite
+    int16_t target_i;           // target sprite
     int16_t burnSource;
     uint16_t txID;             // TX ID
     uint16_t rxID;             // RX ID
@@ -289,11 +289,6 @@ struct MAPHEADER2 {
     char pad[52];
 };
 
-struct SPRITEHIT 
-{
-    int hit, ceilhit, florhit;
-};
-
 #pragma pack(pop)
 
 extern unsigned short gStatCount[kMaxStatus + 1];;
@@ -307,7 +302,6 @@ extern XWALL xwall[kMaxXWalls];
 
 extern FixedBitArray<MAXSPRITES> activeXSprites;
 
-extern SPRITEHIT gSpriteHit[kMaxXSprites];
 
 extern char qsector_filler[kMaxSectors];
 
@@ -379,4 +373,12 @@ void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
 void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC);
 
+inline XSECTOR* getxsector(int index)
+{
+    return index <= 0? nullptr : &xsector[sector[index].extra];
+}
+inline XWALL* getxwall(int index)
+{
+    return index <= 0 ? nullptr : &xwall[sector[index].extra];
+}
 END_BLD_NS

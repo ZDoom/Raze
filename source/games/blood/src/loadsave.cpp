@@ -465,6 +465,17 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra);
+
+			if (gModernMap)
+			{
+				arc("spritemass", w.spriteMass, def->spriteMass);
+
+				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
+				if (w.s().type == kDudeModernCustom || w.s().time == kDudeModernCustomBurning)
+				{
+					arc("gendudeextra", w.genDudeExtra);
+				}
+			}
 		}
 		arc.EndObject();
 	}
@@ -575,7 +586,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 			("targetX", w.targetX, def->targetX)
 			("targetY", w.targetY, def->targetY)
 			("targetZ", w.targetZ, def->targetZ)
-			("target", w.target, def->target)
+			("target", w.target_i, def->target_i)
 			("sysdata1", w.sysData1, def->sysData1)
 			("sysdata2", w.sysData2, def->sysData2)
 			("scale", w.scale, def->scale)
@@ -607,7 +618,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, HITINFO& w, HITINF
 	if (arc.BeginObject(keyname))
 	{
 		arc("sect", w.hitsect)
-			("sprite", w.hitsprite)
+			("sprite", w.hitactor)
 			("wall", w.hitwall)
 			("x", w.hitx)
 			("y", w.hity)

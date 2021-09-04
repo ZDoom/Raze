@@ -52,19 +52,17 @@ static int GetBucketChannel(const RXBUCKET* pBucket)
 	switch (pBucket->type)
 	{
 	case SS_SECTOR:
-		nXIndex = sector[pBucket->index].extra;
+		nXIndex = sector[pBucket->rxindex].extra;
 		assert(nXIndex > 0);
 		return xsector[nXIndex].rxID;
 
 	case SS_WALL:
-		nXIndex = wall[pBucket->index].extra;
+		nXIndex = wall[pBucket->rxindex].extra;
 		assert(nXIndex > 0);
 		return xwall[nXIndex].rxID;
 
 	case SS_SPRITE:
-		nXIndex = sprite[pBucket->index].extra;
-		assert(nXIndex > 0);
-		return xsprite[nXIndex].rxID;
+		return pBucket->GetActor()? pBucket->GetActor()->x().rxID : 0;
 	}
 
 	Printf(PRINT_HIGH, "Unexpected rxBucket type %d", pBucket->type);
@@ -279,7 +277,7 @@ void evInit()
 		{
 			assert(nCount < kChannelMax);
 			rxBucket[nCount].type = SS_SECTOR;
-			rxBucket[nCount].index = i;
+			rxBucket[nCount].rxindex = i;
 			nCount++;
 		}
 	}
@@ -291,7 +289,7 @@ void evInit()
 		{
 			assert(nCount < kChannelMax);
 			rxBucket[nCount].type = SS_WALL;
-			rxBucket[nCount].index = i;
+			rxBucket[nCount].rxindex = i;
 			nCount++;
 		}
 	}
@@ -305,7 +303,8 @@ void evInit()
 			{
 				assert(nCount < kChannelMax);
 				rxBucket[nCount].type = SS_SPRITE;
-				rxBucket[nCount].index = i;
+				rxBucket[nCount].rxindex = i;
+				rxBucket[nCount].actor = &bloodActors[i];
 				nCount++;
 			}
 		}
@@ -354,7 +353,7 @@ static bool evGetSourceState(int type, int nIndex)
 //
 //---------------------------------------------------------------------------
 
-void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
+void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID command)
 {
 	switch (command) {
 	case kCmdState:
@@ -368,7 +367,8 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 	}
 
 	EVENT event;
-	event.index = nIndex;
+	event.actor = actor;
+	event.index_ = nIndex;
 	event.type = nType;
 	event.cmd = command;
 
@@ -391,13 +391,20 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 		return;
 #endif
 	case kChannelSetTotalSecrets:
-		if (command >= kCmdNumberic) levelSetupSecret(command - kCmdNumberic);
+		if (command >= kCmdNumberic) gSecretMgr.SetCount(command - kCmdNumberic);
 		else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
 		break;
 	case kChannelSecretFound:
 		if (SECRET_Trigger(nIndex + 65536 * nType)) // if the hint system knows this secret it's a retrigger - skip that.
 		{
-			if (command >= kCmdNumberic) levelTriggerSecret(command - kCmdNumberic);
+			if (command >= kCmdNumberic)
+			{
+				gSecretMgr.Found(command - kCmdNumberic);
+				if (gGameOptions.nGameType == 0)
+				{
+					viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))), 0, MESSAGE_PRIORITY_SECRET);
+				}
+			}
 			else viewSetSystemMessage("Invalid Trigger-Secret command by xobject #%d (object type %d)", nIndex, nType);
 		}
 		break;
@@ -410,19 +417,17 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 	case kChannelRemoteBomb6:
 	case kChannelRemoteBomb7:
 	{
-		int nSprite;
-		StatIterator it(kStatThing);
-		while ((nSprite = it.NextIndex()) >= 0)
+		BloodStatIterator it(kStatThing);
+		while (auto actor = it.Next())
 		{
-			spritetype* pSprite = &sprite[nSprite];
+			spritetype* pSprite = &actor->s();
 			if (pSprite->flags & 32)
 				continue;
-			int nXSprite = pSprite->extra;
-			if (nXSprite > 0)
+			if (actor->hasX())
 			{
-				XSPRITE* pXSprite = &xsprite[nXSprite];
+				XSPRITE* pXSprite = &actor->x();
 				if (pXSprite->rxID == rxId)
-					trMessageSprite(nSprite, event);
+					trMessageSprite(actor->s().index, event);
 			}
 		}
 		return;
@@ -430,19 +435,17 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 	case kChannelTeamAFlagCaptured:
 	case kChannelTeamBFlagCaptured:
 	{
-		int nSprite;
-		StatIterator it(kStatItem);
-		while ((nSprite = it.NextIndex()) >= 0)
+		BloodStatIterator it(kStatItem);
+		while (auto actor = it.Next())
 		{
-			spritetype* pSprite = &sprite[nSprite];
+			spritetype* pSprite = &actor->s();
 			if (pSprite->flags & 32)
 				continue;
-			int nXSprite = pSprite->extra;
-			if (nXSprite > 0)
+			if (actor->hasX())
 			{
-				XSPRITE* pXSprite = &xsprite[nXSprite];
+				XSPRITE* pXSprite = &actor->x();
 				if (pXSprite->rxID == rxId)
-					trMessageSprite(nSprite, event);
+					trMessageSprite(actor->s().index, event);
 			}
 		}
 		return;
@@ -475,28 +478,25 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 #endif
 	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++) 
 	{
-		if (event.type != rxBucket[i].type || event.index != rxBucket[i].index) 
+		if (!event.isObject(rxBucket[i].type, rxBucket[i].actor, rxBucket[i].rxindex))
 		{
 			switch (rxBucket[i].type) 
 			{
 			case 6:
-				trMessageSector(rxBucket[i].index, event);
+				trMessageSector(rxBucket[i].rxindex, event);
 				break;
 			case 0:
-				trMessageWall(rxBucket[i].index, event);
+				trMessageWall(rxBucket[i].rxindex, event);
 				break;
 			case 3:
 			{
-				int nSprite = rxBucket[i].index;
-				spritetype* pSprite = &sprite[nSprite];
-				if (pSprite->flags & 32)
-					continue;
-				int nXSprite = pSprite->extra;
-				if (nXSprite > 0)
+				auto actor = rxBucket[i].GetActor();
+
+				if (actor && actor->hasX() && !(actor->s().flags & 32))
 				{
-					XSPRITE* pXSprite = &xsprite[nXSprite];
-					if (pXSprite->rxID > 0)
-						trMessageSprite(nSprite, event);
+					XSPRITE* pXSprite = &actor->x();
+					if (actor->x().rxID > 0)
+						trMessageSprite(actor->s().index, event);
 				}
 				break;
 			}
@@ -511,31 +511,47 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 //
 //---------------------------------------------------------------------------
 
-void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
+void evPost_(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 {
 	assert(command != kCmdCallback);
 	if (command == kCmdState) command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
 	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
-	EVENT evn = { (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
+	EVENT evn = { &bloodActors[nIndex], (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
-void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
+void evPost_(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 {
-	EVENT evn = { (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
+	EVENT evn = {&bloodActors[nIndex], (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
 
-void evPost(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
+void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost(actor->s().index, 3, nDelta, command);
+	evPost_(actor->s().index, SS_SPRITE, nDelta, command);
 }
 
-void evPost(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
+void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost(actor->s().index, 3, nDelta, callback);
+	evPost_(actor->s().index, SS_SPRITE, nDelta, callback);
 }
+
+void evPostSector(int index, unsigned int nDelta, COMMAND_ID command)
+{
+	evPost_(index, SS_SECTOR, nDelta, command);
+}
+
+void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback)
+{
+	evPost_(index, SS_SECTOR, nDelta, callback);
+}
+
+void evPostWall(int index, unsigned int nDelta, COMMAND_ID command)
+{
+	evPost_(index, SS_WALL, nDelta, command);
+}
+
 
 //---------------------------------------------------------------------------
 //
@@ -543,27 +559,63 @@ void evPost(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 //
 //---------------------------------------------------------------------------
 
-void evKill(int index, int type)
+void evKill_(DBloodActor* actor, int index, int type)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
-		if (ev->index == index && ev->type == type) ev = queue.erase(ev);
+		if (ev->isObject(type, actor, index)) ev = queue.erase(ev);
 		else ev++;
 	}
 }
 
-void evKill(int index, int type, CALLBACK_ID cb)
+void evKill_(DBloodActor* actor, int index, int type, CALLBACK_ID cb)
 {
 	for (auto ev = queue.begin(); ev != queue.end();)
 	{
-		if (ev->index == index && ev->type == type && ev->funcID == cb) ev = queue.erase(ev);
+		if (ev->isObject(type, actor, index) && ev->funcID == cb) ev = queue.erase(ev);
 		else ev++;
 	}
 }
 
-void evKill(DBloodActor* actor)
+void evKillActor(DBloodActor* actor)
 {
-	evKill(actor->s().index, 3);
+	evKill_(actor, 0, SS_SPRITE);
+}
+
+void evKillActor(DBloodActor* actor, CALLBACK_ID cb)
+{
+	evKill_(actor, 0, SS_SPRITE, cb);
+}
+
+void evKillWall(int wal)
+{
+	evKill_(nullptr, wal, SS_WALL);
+}
+
+void evKillSector(int sec)
+{
+	evKill_(nullptr, sec, SS_SECTOR);
+}
+
+// these have no target.
+void evSendGame(int rxId, COMMAND_ID command)
+{
+	evSend(nullptr, 0, 0, rxId, command);
+}
+
+void evSendActor(DBloodActor* actor, int rxId, COMMAND_ID command)
+{
+	evSend(actor, 0, SS_SPRITE, rxId, command);
+}
+
+void evSendSector(int index, int rxId, COMMAND_ID command)
+{
+	evSend(nullptr, index, SS_SECTOR, rxId, command);
+}
+
+void evSendWall(int index, int rxId, COMMAND_ID command)
+{
+	evSend(nullptr, index, SS_WALL, rxId, command);
 }
 
 //---------------------------------------------------------------------------
@@ -583,20 +635,20 @@ void evProcess(unsigned int time)
 		{
 			assert(event.funcID < kCallbackMax);
 			assert(gCallback[event.funcID] != nullptr);
-			gCallback[event.funcID](event.index);
+			gCallback[event.funcID](event.actor, event.index_);
 		}
 		else
 		{
 			switch (event.type)
 			{
 			case SS_SECTOR:
-				trMessageSector(event.index, event);
+				trMessageSector(event.index_, event);
 				break;
 			case SS_WALL:
-				trMessageWall(event.index, event);
+				trMessageWall(event.index_, event);
 				break;
 			case SS_SPRITE:
-				trMessageSprite(event.index, event);
+				trMessageSprite(event.actor->s().index, event);
 				break;
 			}
 		}
@@ -613,9 +665,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, EVENT& w, EVENT* d
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.index)
-			("type", w.type)
-			("command", w.cmd)
+		arc("type", w.type);
+		if (w.type != SS_SPRITE) arc("index", w.index_);
+		else arc("index", w.actor);
+		arc("command", w.cmd)
 			("func", w.funcID)
 			("prio", w.priority)
 			.EndObject();
@@ -627,9 +680,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RXBUCKET& w, RXBUC
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.index)
-			("type", w.type)
-			.EndObject();
+		arc("type", w.type);
+		if (w.type != SS_SPRITE) arc("index", w.rxindex);
+		else arc("index", w.actor);
+		arc.EndObject();
 	}
 	return arc;
 }

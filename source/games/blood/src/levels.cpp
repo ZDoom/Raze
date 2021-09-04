@@ -54,28 +54,6 @@ void levelInitINI(const char *pzIni)
     strncpy(BloodIniFile, pzIni, BMAX_PATH);
 }
 
-
-void levelOverrideINI(const char *pzIni)
-{
-    bINIOverride = true;
-    strcpy(BloodIniFile, pzIni);
-}
-
-void levelClearSecrets(void)
-{
-    gSecretMgr.Clear();
-}
-
-void levelSetupSecret(int nCount)
-{
-    gSecretMgr.SetCount(nCount);
-}
-
-void levelTriggerSecret(int nSecret)
-{
-    gSecretMgr.Found(nSecret);
-}
-
 void CheckSectionAbend(const char *pzSection)
 {
     if (!pzSection || !BloodINI->SectionExists(pzSection))

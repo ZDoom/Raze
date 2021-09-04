@@ -56,9 +56,11 @@ typedef
                                     ((LIST)  list)->Prev = (LIST) nodep,        \
                                     ((LIST) nodep)->Prev->Next = (LIST) nodep)
 
-#define REMOVE(nodep)        ( ((LIST) nodep)->Prev->Next = ((LIST) nodep)->Next, \
-                               ((LIST) nodep)->Next->Prev = ((LIST) nodep)->Prev)
-
+inline void REMOVE(PANEL_SPRITEp nodep)
+{
+    nodep->Prev->Next = nodep->Next;
+    nodep->Next->Prev = nodep->Prev;
+}
 
 #define TRAVERSE(l, o, n)    ASSERT(((LIST)l)->Next && ((LIST)l)->Prev); for (o = (decltype(o))(((LIST)l)->Next);      \
                                                                               n = o->Next, (LIST) o != (LIST) l; \

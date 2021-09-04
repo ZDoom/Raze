@@ -1413,12 +1413,12 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					short j = s->sectnum;
 					pushmove(&s->x, &s->y, &s->z, &j, 128L, (4 << 8), (4 << 8), CLIPMASK0);
 					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
-						changespritesect(targ, j);
+						changeactorsect(targ, j);
 				}
 
 				if (s->statnum == 2)
 				{
-					changespritestat(targ, 1);
+					changeactorstat(targ, 1);
 					targ->timetosleep = SLEEPTIME;
 				}
 				if ((s->xrepeat < 24 || s->picnum == SHARK) && pspr->picnum == SHRINKSPARK) return;

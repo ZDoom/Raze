@@ -121,9 +121,9 @@ void viewDrawAimedPlayerName(void)
     int hit = HitScan(gView->pSprite, gView->zView, gView->aim.dx, gView->aim.dy, gView->aim.dz, CLIPMASK0, 512);
     if (hit == 3)
     {
-        spritetype* pSprite = &sprite[gHitInfo.hitsprite];
-        if (IsPlayerSprite(pSprite))
+        if (gHitInfo.hitactor && gHitInfo.hitactor->IsPlayerActor())
         {
+            spritetype* pSprite = &gHitInfo.hitactor->s();
             int nPlayer = pSprite->type-kDudePlayer1;
             const char* szName = PlayerName(nPlayer);
             int nPalette = (gPlayer[nPlayer].teamId&3)+11;
@@ -697,8 +697,9 @@ void viewDrawScreen(bool sceneonly)
         bDeliriumOld = bDelirium && gDeliriumBlur;
 
         int nClipDist = gView->pSprite->clipdist << 2;
-        int ve8, vec, vf0, vf4;
-        GetZRange(gView->pSprite, &vf4, &vf0, &vec, &ve8, nClipDist, 0);
+        int vec, vf4;
+        Collision c1, c2;
+        GetZRange(gView->pSprite, &vf4, &c1, &vec, &c2, nClipDist, 0);
         if (sceneonly) return;
 #if 0
         int tmpSect = nSectnum;
@@ -786,7 +787,8 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
         if (i == gView->nPlayer || gGameOptions.nGameType == 1)
         {
             int nTile = pSprite->picnum;
-            int ceilZ, ceilHit, floorZ, floorHit;
+            int ceilZ, floorZ;
+            Collision ceilHit, floorHit;
             GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
             int nTop, nBottom;
             GetSpriteExtents(pSprite, &nTop, &nBottom);

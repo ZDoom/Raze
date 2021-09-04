@@ -36,9 +36,9 @@ BEGIN_BLD_NS
 
 static void (*seqClientCallback[])(int, DBloodActor*) = {
 	FireballSeqCallback,
-	sub_38938,
+	Fx33Callback,
 	NapalmSeqCallback,
-	sub_3888C,
+	Fx32Callback,
 	TreeToGibCallback,
 	DudeToGibCallback1,
 	DudeToGibCallback2,
@@ -260,7 +260,8 @@ void UpdateSprite(int nXSprite, SEQFRAME* pFrame)
 {
 	assert(nXSprite > 0 && nXSprite < kMaxXSprites);
 	int nSprite = xsprite[nXSprite].reference;
-	assert(nSprite >= 0 && nSprite < kMaxSprites);
+	if (!(nSprite >= 0 && nSprite < kMaxSprites)) return; // sprite may have been deleted already.
+
 	spritetype* pSprite = &sprite[nSprite];
 	assert(pSprite->extra == nXSprite);
 	if (pSprite->flags & 2)
@@ -368,7 +369,8 @@ void SEQINST::Update()
 		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && zvel[pSprite->index] == 0 && xvel[pSprite->index] != 0) {
 
 			if (gUpperLink[pSprite->sectnum] >= 0) break; // don't play surface sound for stacked sectors
-			int surf = tileGetSurfType(pSprite->sectnum + 0x4000); if (!surf) break;
+			int surf = tileGetSurfType(sector[pSprite->sectnum].floorpicnum); 
+			if (!surf) break;
 			static int surfSfxMove[15][4] = {
 				/* {snd1, snd2, gameVolume, myVolume} */
 				{800,801,80,25},
@@ -479,12 +481,17 @@ SEQINST* GetInstance(int type, int nXIndex)
 
 SEQINST* GetInstance(DBloodActor* actor)
 {
-	return activeList.get(3, actor->s().index);
+	return activeList.get(SS_SPRITE, actor->s().extra);
 }
 
 int seqGetStatus(DBloodActor* actor)
 {
-	return seqGetStatus(3, actor->s().index);
+	return seqGetStatus(SS_SPRITE, actor->s().extra);
+}
+
+int seqGetID(DBloodActor* actor)
+{
+	return seqGetID(3, actor->s().index);
 }
 
 void seqKill(int type, int nXIndex)
@@ -499,7 +506,7 @@ void seqKillAll()
 
 void seqKill(DBloodActor* actor)
 {
-	activeList.remove(4, actor->s().extra);
+	activeList.remove(SS_SPRITE, actor->s().extra);
 }
 
 
@@ -657,12 +664,15 @@ void seqProcess(int nTicks)
 					{
 						if (pInst->type == SS_SPRITE)
 						{
-							short nSprite = (short)xsprite[index].reference;
-							assert(nSprite >= 0 && nSprite < kMaxSprites);
-							evKill(nSprite, SS_SPRITE);
-							if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
-								evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
-							else deletesprite(nSprite);	// safe to not use actPostSprite here
+							int nSprite = xsprite[index].reference;
+							if (nSprite > 0)
+							{
+								assert(nSprite >= 0 && nSprite < kMaxSprites);
+							evKillActor(&bloodActors[nSprite]);
+								if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
+								evPostActor(&bloodActors[nSprite], gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+								else deletesprite(nSprite);	// safe to not use actPostSprite here
+							}
 						}
 
 						if (pInst->type == SS_MASKED)
