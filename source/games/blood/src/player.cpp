@@ -1785,17 +1785,15 @@ void playerProcess(PLAYER *pPlayer)
     }
 }
 
-spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6)
+DBloodActor* playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6)
 {
-    auto misl = actFireMissile(pPlayer->actor(), a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
-    return misl ? &misl->s() : nullptr;
+    return actFireMissile(pPlayer->actor(), a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
 }
 
-spritetype * playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
+DBloodActor* playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    auto misl = actFireThing(pPlayer->actor(), a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
-    return misl ? &misl->s() : nullptr;
+    return actFireThing(pPlayer->actor(), a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
@@ -1904,7 +1902,7 @@ int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
     return nDamage;
 }
 
-spritetype *flagDropped(PLAYER *pPlayer, int a2)
+void flagDropped(PLAYER *pPlayer, int a2)
 {
     auto playeractor = pPlayer->actor();
     DBloodActor* actor;
@@ -1931,7 +1929,6 @@ spritetype *flagDropped(PLAYER *pPlayer, int a2)
         viewSetMessage(buffer);
         break;
     }
-    return pSprite;
 }
 
 int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage)
@@ -2043,7 +2040,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 nKneelingPlayer = nPlayerKneelClient;
                 powerupActivate(pPlayer, kPwUpDeliriumShroom);
                 pActor->SetTarget(source);
-                evPostActor(&bloodActors[pSprite->index], 15, kCallbackFinishHim);
+                evPostActor(pPlayer->actor(), 15, kCallbackFinishHim);
             }
             else
             {
