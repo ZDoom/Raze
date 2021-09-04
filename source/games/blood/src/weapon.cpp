@@ -1058,7 +1058,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
 
 void FirePitchfork(int, PLAYER *pPlayer)
 {
-    auto actor = &bloodActors[pPlayer->pSprite->index];
+    auto actor = pPlayer->actor();
     Aim *aim = &pPlayer->aim;
     int r1 = Random2(2000);
     int r2 = Random2(2000);
@@ -1199,7 +1199,7 @@ enum { kMaxShotgunBarrels = 4 };
 
 void FireShotgun(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = &bloodActors[pPlayer->pSprite->index];
+    auto actor = pPlayer->actor();
     assert(nTrigger > 0 && nTrigger <= kMaxShotgunBarrels);
     if (nTrigger == 1)
     {
@@ -1246,7 +1246,7 @@ void EjectShell(int, PLAYER *pPlayer)
 
 void FireTommy(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = &bloodActors[pPlayer->pSprite->index];
+    auto actor = pPlayer->actor();
     Aim *aim = &pPlayer->aim;
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     switch (nTrigger)
@@ -1285,7 +1285,7 @@ enum { kMaxSpread = 14 };
 
 void FireSpread(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = &bloodActors[pPlayer->pSprite->index];
+    auto actor = pPlayer->actor();
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1307,7 +1307,7 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = &bloodActors[pPlayer->pSprite->index];
+    auto actor = pPlayer->actor();
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1337,7 +1337,7 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = &bloodActors[pPlayer->pSprite->index];
+    auto actor = pPlayer->actor();
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1746,7 +1746,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
 
 void FireBeast(int , PLAYER * pPlayer)
 {
-    auto actor = &bloodActors[pPlayer->pSprite->index];
+    auto actor = pPlayer->actor();
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(2000);
