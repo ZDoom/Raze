@@ -7369,7 +7369,7 @@ void MakeSplash(DBloodActor* actor)
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
 {
 	auto pXSprite = &pTarget->x();
-	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
+	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, pTarget->s().statnum == kStatDude ? 2400 : 1200);
 	pTarget->SetBurnSource(pSource);
 }
 

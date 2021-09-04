@@ -221,8 +221,8 @@ static void myThinkTarget(DBloodActor* actor)
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
 	{
 		PLAYER* pPlayer = &gPlayer[p];
-		int nOwner = (pSprite->owner & 0x1000) ? (pSprite->owner & 0xfff) : -1;
-		if (nOwner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+        auto owneractor = actor->GetOwner();
+        if (owneractor == nullptr || owneractor == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 			continue;
 		int x = pPlayer->pSprite->x;
 		int y = pPlayer->pSprite->y;
