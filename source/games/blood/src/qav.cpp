@@ -203,8 +203,9 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 }
 
 
-void QAV::Play(int start, int end, int nCallback, void *pData)
+void QAV::Play(int start, int end, int nCallback, PLAYER *pData)
 {
+    auto pActor = pData ? pData->actor() : nullptr;
     assert(ticksPerFrame > 0);
     int frame;
     int ticks;
@@ -227,10 +228,10 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
                     SOUNDINFO* pSound2 = &pFrame2->sound;
                     if (pSound2->sound != 0) {
                         if (pSound->sndFlags != kFlagSoundKillAll && pSound2->priority != pSound->priority) continue;
-                        else if (nSprite >= 0) {
+                        else if (pActor) {
                             // We need stop all sounds in a range
                             for (int a = 0; a <= pSound2->sndRange; a++)
-                                sfxKill3DSound(&sprite[nSprite], -1, pSound2->sound + a);
+                                sfxKill3DSound(pActor, -1, pSound2->sound + a);
                         } else {
                             sndKillAllSounds();
                         }
@@ -245,8 +246,8 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
                 if (pSound->sndRange > 0 && !VanillaMode()) 
                     sound += Random((pSound->sndRange == 1) ? 2 : pSound->sndRange);
                 
-                if (nSprite == -1) sndStartSample(sound, -1, -1, 0);
-                else sfxPlay3DSound(&sprite[nSprite], sound, 16+pSound->priority, 6);
+                if (pActor == nullptr) sndStartSample(sound, -1, -1, 0);
+                else sfxPlay3DSound(pActor, sound, 16+pSound->priority, 6);
             }
             
             if (pFrame->nCallbackId > 0 && nCallback != -1) {
@@ -345,7 +346,7 @@ QAV* getQAV(int res_id)
     qavdata->duration = fr.ReadInt32();
     qavdata->x = fr.ReadInt32();
     qavdata->y = fr.ReadInt32();
-    qavdata->nSprite = fr.ReadInt32();
+    /*qavdata->nSprite =*/ fr.ReadInt32(); 
     for (int i = 0; i < 4; i++) fr.ReadUInt8();
 
     // Read FRAMEINFO data.
