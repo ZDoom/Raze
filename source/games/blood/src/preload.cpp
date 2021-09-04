@@ -259,23 +259,21 @@ void PreloadCache()
         if (wall[i].overpicnum >= 0)
             tilePrecacheTile(wall[i].overpicnum, 0, wall[i].pal);
     }
-    for (int i = 0; i < kMaxSprites; i++)
+    BloodSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        if (sprite[i].statnum < kMaxStatus)
+        spritetype *pSprite = &actor->s();
+        switch (pSprite->statnum)
         {
-            spritetype *pSprite = &sprite[i];
-            switch (pSprite->statnum)
-            {
-            case kStatDude:
-                PrecacheDude(pSprite);
-                break;
-            case kStatThing:
-                PrecacheThing(pSprite);
-                break;
-            default:
-                tilePrecacheTile(pSprite->picnum, -1, pSprite->pal);
-                break;
-            }
+        case kStatDude:
+            PrecacheDude(pSprite);
+            break;
+        case kStatThing:
+            PrecacheThing(pSprite);
+            break;
+        default:
+            tilePrecacheTile(pSprite->picnum, -1, pSprite->pal);
+            break;
         }
     }
 

@@ -346,8 +346,8 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 	{
 		predict.at72 = 1;
         int nSector = predict.sectnum;
-        int nLink = gLowerLink[nSector];
-		if (nLink > 0 && (sprite[nLink].type == kMarkerLowGoo || sprite[nLink].type == kMarkerLowWater))
+        auto nLink = getLowerLink(nSector);
+		if (nLink && (nLink->s().type == kMarkerLowGoo || nLink->s().type == kMarkerLowWater))
 		{
 			if (getceilzofslope(nSector, predict.x, predict.y) > predict.viewz)
 				predict.at72 = 0;
@@ -435,11 +435,11 @@ static void fakeMoveDude(spritetype *pSprite)
         if (pXSector->Depth)
             bDepth = 1;
     }
-    int nUpperLink = gUpperLink[nSector];
-    int nLowerLink = gLowerLink[nSector];
-    if (nUpperLink >= 0 && (sprite[nUpperLink].type == kMarkerUpWater || sprite[nUpperLink].type == kMarkerUpGoo))
+    auto nUpperLink = getUpperLink(nSector);
+    auto nLowerLink = getLowerLink(nSector);
+    if (nUpperLink >= 0 && (nUpperLink->s().type == kMarkerUpWater || nUpperLink->s().type == kMarkerUpGoo))
         bDepth = 1;
-    if (nLowerLink >= 0 && (sprite[nLowerLink].type == kMarkerLowWater || sprite[nLowerLink].type == kMarkerLowGoo))
+    if (nLowerLink >= 0 && (nLowerLink->s().type == kMarkerLowWater || nLowerLink->s().type == kMarkerLowGoo))
         bDepth = 1;
     if (pPlayer)
         wd += 16;
