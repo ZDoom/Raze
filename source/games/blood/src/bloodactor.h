@@ -97,6 +97,7 @@ public:
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
 	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
+	POINT3D basePoint;
 
 	// transient data (not written to savegame)
 	int cumulDamage;
@@ -114,6 +115,7 @@ public:
 		dudeExtra = {};
 		spriteMass = {};
 		hit = {};
+		basePoint = {};
 	}
 	bool hasX() { return sprite[index].extra > 0; }
 	void addX()
@@ -126,8 +128,6 @@ public:
 	int& yvel() { return Blood::yvel[index]; }
 	int& zvel() { return Blood::zvel[index]; }
 	int GetIndex() { return index; }	// this is for error printing only!
-
-	POINT3D& basePoint() { return Blood::baseSprite[index]; }
 
 	void SetOwner(DBloodActor* own)
 	{

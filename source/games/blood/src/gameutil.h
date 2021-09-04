@@ -43,7 +43,6 @@ struct HITINFO {
 };
 
 extern POINT2D baseWall[kMaxWalls];
-extern POINT3D baseSprite[kMaxSprites];
 extern int baseFloor[kMaxSectors];
 extern int baseCeil[kMaxSectors];
 extern int velFloor[kMaxSectors];

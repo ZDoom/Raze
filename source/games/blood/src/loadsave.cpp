@@ -465,7 +465,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra)
-				("spritehit", w.hit, def->hit);
+				("spritehit", w.hit, def->hit)
+				("basepoint", w.basePoint, def->basePoint);
 
 			if (gModernMap)
 			{
@@ -669,7 +670,6 @@ void SerializeState(FSerializer& arc)
 			("frameclock", PlayClock)
 			("framecount", gFrameCount)
 			.Array("basewall", baseWall, numwalls)
-			.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites)
 			.Array("basefloor", baseFloor, numsectors)
 			.Array("baseceil", baseCeil, numsectors)
 			.Array("velfloor", velFloor, numsectors)

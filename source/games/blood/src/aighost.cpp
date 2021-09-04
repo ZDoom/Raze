@@ -222,7 +222,7 @@ static void ghostThinkTarget(DBloodActor* actor)
     else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
         pXSprite->goalAng += 256;
-        POINT3D* pTarget = &actor->basePoint();
+        POINT3D* pTarget = &actor->basePoint;
         aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &ghostTurn);
         return;
