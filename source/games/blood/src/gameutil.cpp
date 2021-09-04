@@ -424,8 +424,11 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     return -1;
 }
 
-int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
+int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
 {
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
+
     int nNum = 256;
     assert(pSprite != NULL);
     gHitInfo.clearObj();
