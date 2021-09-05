@@ -381,7 +381,7 @@ void FinishHim(DBloodActor* actor, int) // 13
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
-    if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && actor == gMe->actor())
+    if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && actor == gMe->actor)
         sndStartSample(3313, -1, 1, 0);
 }
 

@@ -459,14 +459,14 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 		if (playerRXRngIsFine(rxId)) 
 		{
 			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)
-				trMessageSprite(pPlayer->actor(), event);
+				trMessageSprite(pPlayer->actor, event);
 		}
 		else if (rxId == kChannelAllPlayers) 
 		{
 			for (int i = 0; i < kMaxPlayers; i++) 
 			{
 				if ((pPlayer = getPlayerById(i)) != nullptr)
-					trMessageSprite(pPlayer->actor(), event);
+					trMessageSprite(pPlayer->actor, event);
 			}
             return;
 		}

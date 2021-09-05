@@ -222,7 +222,7 @@ static void myThinkTarget(DBloodActor* actor)
 	{
 		PLAYER* pPlayer = &gPlayer[p];
         auto owneractor = actor->GetOwner();
-        if (owneractor == nullptr || owneractor == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+        if (owneractor == nullptr || owneractor == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 			continue;
 		int x = pPlayer->pSprite->x;
 		int y = pPlayer->pSprite->y;
@@ -238,7 +238,7 @@ static void myThinkTarget(DBloodActor* actor)
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 		{
-			aiSetTarget(actor, pPlayer->actor());
+            aiSetTarget(actor, pPlayer->actor);
 			aiActivateDude(actor);
 		}
 		else if (nDist < pDudeInfo->hearDist)

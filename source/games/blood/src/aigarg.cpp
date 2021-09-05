@@ -248,7 +248,7 @@ static void gargThinkTarget(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				pDudeExtraE->thinkTime = 0;
-				aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->hearDist)

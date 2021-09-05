@@ -117,7 +117,7 @@ static void batThinkTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
-				aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->hearDist)

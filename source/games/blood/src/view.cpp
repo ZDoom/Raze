@@ -118,7 +118,7 @@ void viewDrawAimedPlayerName(void)
     if (!cl_idplayers || (gView->aim.dx == 0 && gView->aim.dy == 0))
         return;
 
-    int hit = HitScan(gView->actor(), gView->zView, gView->aim.dx, gView->aim.dy, gView->aim.dz, CLIPMASK0, 512);
+    int hit = HitScan(gView->actor, gView->zView, gView->aim.dx, gView->aim.dy, gView->aim.dz, CLIPMASK0, 512);
     if (hit == 3)
     {
         if (gHitInfo.hitactor && gHitInfo.hitactor->IsPlayerActor())
@@ -687,7 +687,7 @@ void viewDrawScreen(bool sceneonly)
         int nClipDist = gView->pSprite->clipdist << 2;
         int vec, vf4;
         Collision c1, c2;
-        GetZRange(gView->actor(), &vf4, &c1, &vec, &c2, nClipDist, 0);
+        GetZRange(gView->actor, &vf4, &c1, &vec, &c2, nClipDist, 0);
         if (sceneonly) return;
 #if 0
         int tmpSect = nSectnum;
@@ -776,7 +776,7 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
             int nTile = pSprite->picnum;
             int ceilZ, floorZ;
             Collision ceilHit, floorHit;
-            GetZRange(gView->actor(), &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+            GetZRange(gView->actor, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
             int nTop, nBottom;
             GetSpriteExtents(pSprite, &nTop, &nBottom);
             int nScale = (pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z;

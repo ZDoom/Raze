@@ -1537,7 +1537,7 @@ void aiThinkTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-            if (actor->GetOwner() == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			int x = pPlayer->pSprite->x;
 			int y = pPlayer->pSprite->y;
@@ -1554,7 +1554,7 @@ void aiThinkTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
-				aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 				return;
 			}
@@ -1585,7 +1585,7 @@ void aiLookForTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-            if (actor->GetOwner() == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			int x = pPlayer->pSprite->x;
 			int y = pPlayer->pSprite->y;
@@ -1601,7 +1601,7 @@ void aiLookForTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
-				aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 				return;
 			}

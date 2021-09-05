@@ -327,12 +327,6 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 	GetSpriteExtents(&actor->s(), top, bottom);
 }
 
-inline DBloodActor* PLAYER::actor()
-{
-	return &bloodActors[pSprite->index];
-}
-
-
 inline DBloodActor* getUpperLink(int sect)
 {
 	return gUpperLink[sect];
