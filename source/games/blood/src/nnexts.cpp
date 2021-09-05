@@ -8816,31 +8816,42 @@ int listTx(XSPRITE* pXRedir, int tx) {
         if (tx == -1) tx = pXRedir->data1;
         else if (tx < pXRedir->data4) tx++;
         else tx = -1;
-    } else {
-        if (tx == -1) {
-            for (int i = 0; i <= 3; i++) {
+    } 
+    else 
+    {
+        if (tx == -1) 
+        {
+            for (int i = 0; i <= 3; i++) 
+            {
                 if ((tx = GetDataVal(&bloodActors[pXRedir->reference], i)) <= 0) continue;
                 else return tx;
             }
-        } else {
+        } 
+        else 
+        {
             int saved = tx; bool savedFound = false;
-            for (int i = 0; i <= 3; i++) {
+            for (int i = 0; i <= 3; i++) 
+            {
                 tx = GetDataVal(&bloodActors[pXRedir->reference], i);
                 if (savedFound && tx > 0) return tx;
                 else if (tx != saved) continue;
                 else savedFound = true;
             }
         }
-        
         tx = -1;
     }
-
     return tx;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 DBloodActor* evrIsRedirector(DBloodActor* actor) 
 {
-    if (actor) 
+    if (actor)
     {
         switch (actor->s().type) 
         {
@@ -8851,8 +8862,14 @@ DBloodActor* evrIsRedirector(DBloodActor* actor)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx) {
     if (!gEventRedirectsUsed) return NULL;
@@ -8860,7 +8877,8 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
         return pXRedir;
 
     int id = 0;
-    switch (objType) {
+    switch (objType) 
+    {
         case OBJ_SECTOR:
             if (!xsectRangeIsFine(objXIndex)) return NULL;
             id = xsector[objXIndex].txID;
@@ -8878,7 +8896,8 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
     }
 
     int nIndex = (pXRedir) ? pXRedir->reference : -1; bool prevFound = false;
-    for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) {
+    for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) 
+    {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
         auto rxactor = evrIsRedirector(rxBucket[i].GetActor());
         if (!rxactor || !rxactor->hasX()) continue;
@@ -8892,14 +8911,20 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
     return NULL;
 }
 
+//---------------------------------------------------------------------------
+//
 // this function checks if all TX objects have the same value
+//
+//---------------------------------------------------------------------------
+
 bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     
     if (pXSprite->data3 != pXSprite->sysData1) return false;
     char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = int(strlen(buffer)); int rx = -1;
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
         if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].GetActor())) continue;
-        for (int a = 0; a < len; a++) {
+        for (int a = 0; a < len; a++) 
+        {
             if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;
         }
@@ -8907,8 +8932,10 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
 
     XSPRITE* pXRedir = NULL; // check redirected TX buckets
     while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
-        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-            for (int a = 0; a < len; a++) {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+        {
+            for (int a = 0; a < len; a++) 
+            {
                 if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
                     return false;
             }
@@ -8918,10 +8945,16 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     return true;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void seqSpawnerOffSameTx(XSPRITE* pXSource) {
 
-    for (int i = 0; i < kMaxXSprites; i++) {
-        
+    for (int i = 0; i < kMaxXSprites; i++) 
+    {
         XSPRITE* pXSprite = &xsprite[i];
         if (pXSprite->reference != pXSource->reference && spriRangeIsFine(pXSprite->reference)) {
             if (sprite[pXSprite->reference].type != kModernSeqSpawner) continue;
@@ -8984,9 +9017,9 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
             dz >>= 1;
         }
         RotateVector(&dx, &dy, nAngle);
-        xvel[pBurst->index] += dx;
-        yvel[pBurst->index] += dy;
-        zvel[pBurst->index] += dz;
+        burstactor->xvel() += dx;
+        burstactor->yvel() += dy;
+        burstactor->zvel() += dz;
         evPostActor(&bloodActors[pBurst->index], 960, kCallbackRemove);
     }
     evPostActor(actor, 0, kCallbackRemove);
