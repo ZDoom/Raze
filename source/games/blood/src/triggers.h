@@ -58,7 +58,7 @@ void trMessageSector(unsigned int nSector, EVENT event);
 void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command);
 void trMessageWall(unsigned int nWall, EVENT event);
 void trTriggerSprite(DBloodActor* actor, int command);
-void trMessageSprite(unsigned int nSprite, EVENT event);
+void trMessageSprite(DBloodActor* actor, EVENT event);
 void trProcessBusy(void);
 void trInit(void);
 void trTextOver(int nId);
