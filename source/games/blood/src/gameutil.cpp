@@ -38,8 +38,8 @@ int baseFloor[kMaxSectors];
 int baseCeil[kMaxSectors];
 int velFloor[kMaxSectors];
 int velCeil[kMaxSectors];
-short gUpperLink[kMaxSectors];
-short gLowerLink[kMaxSectors];
+DBloodActor* gUpperLink[kMaxSectors];
+DBloodActor* gLowerLink[kMaxSectors];
 HITINFO gHitInfo;
 
 bool AreSectorsNeighbors(int sect1, int sect2)
@@ -638,7 +638,6 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         auto actor = getUpperLink(nSector);
         if (actor)
         {
-            int nSprite = gUpperLink[nSector];
             auto link = actor->GetOwner();
             vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
             getzrange(&lpos, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);

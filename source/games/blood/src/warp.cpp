@@ -39,19 +39,18 @@ void warpInit(void)
 {
     for (int i = 0; i < kMaxSectors; i++)
     {
-        gUpperLink[i] = -1;
-        gLowerLink[i] = -1;
+        gUpperLink[i] = nullptr;
+        gLowerLink[i] = nullptr;
     }
     #ifdef NOONE_EXTENSIONS
     int team1 = 0; int team2 = 0; gTeamsSpawnUsed = false; // increment if team start positions specified.
     #endif
-    for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
+    BloodLinearSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        if (sprite[nSprite].statnum < kMaxStatus) {
-            spritetype *pSprite = &sprite[nSprite];
-            int nXSprite = pSprite->extra;
-            if (nXSprite > 0) {
-                XSPRITE *pXSprite = &xsprite[nXSprite];
+        spritetype* pSprite = &actor->s();
+            if (actor->hasX()) {
+                XSPRITE *pXSprite = &actor->x();
                 switch (pSprite->type) {
                     case kMarkerSPStart:
                         if (gGameOptions.nGameType < 2 && pXSprite->data1 >= 0 && pXSprite->data1 < kMaxPlayers) {
@@ -62,7 +61,7 @@ void warpInit(void)
                             pZone->sectnum = pSprite->sectnum;
                             pZone->ang = pSprite->ang;
                         }
-                        DeleteSprite(nSprite);
+                        DeleteSprite(actor);
                         break;
                     case kMarkerMPStart:
                         if (pXSprite->data1 >= 0 && pXSprite->data2 < kMaxPlayers) {
@@ -100,23 +99,23 @@ void warpInit(void)
                                 #endif
 
                             }
-                            DeleteSprite(nSprite);
+                            DeleteSprite(actor);
                         }
                         break;
                     case kMarkerUpLink:
-                        gUpperLink[pSprite->sectnum] = nSprite;
+                        gUpperLink[pSprite->sectnum] = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
                         break;
                     case kMarkerLowLink:
-                        gLowerLink[pSprite->sectnum] = nSprite;
+                        gLowerLink[pSprite->sectnum] = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
                         break;
                     case kMarkerUpWater:
                     case kMarkerUpStack:
                     case kMarkerUpGoo:
-                        gUpperLink[pSprite->sectnum] = nSprite;
+                        gUpperLink[pSprite->sectnum] = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
                         pSprite->z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
@@ -124,14 +123,13 @@ void warpInit(void)
                     case kMarkerLowWater:
                     case kMarkerLowStack:
                     case kMarkerLowGoo:
-                        gLowerLink[pSprite->sectnum] = nSprite;
+                        gLowerLink[pSprite->sectnum] = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
                         pSprite->z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
                         break;
                 }
             }
-        }
     }
     
     #ifdef NOONE_EXTENSIONS
@@ -147,27 +145,23 @@ void warpInit(void)
 
     for (int i = 0; i < kMaxSectors; i++)
     {
-        int nSprite = gUpperLink[i];
-        if (nSprite >= 0)
+        auto actor = getUpperLink(i);
+        if (actor && actor->hasX())
         {
-            spritetype *pSprite = &sprite[nSprite];
-            int nXSprite = pSprite->extra;
-            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            spritetype *pSprite = &actor->s();
+            XSPRITE *pXSprite = &actor->x();
             int nLink = pXSprite->data1;
             for (int j = 0; j < kMaxSectors; j++)
             {
-                int nSprite2 = gLowerLink[j];
-                if (nSprite2 >= 0)
+                auto actor2 = getLowerLink(j);
+                if (actor2 && actor2->hasX())
                 {
-                    spritetype *pSprite2 = &sprite[nSprite2];
-                    int nXSprite = pSprite2->extra;
-                    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-                    XSPRITE *pXSprite2 = &xsprite[nXSprite];
+                    spritetype *pSprite2 = &actor2->s();
+                    XSPRITE *pXSprite2 = &actor2->x();
                     if (pXSprite2->data1 == nLink)
                     {
-                        pSprite->owner = gLowerLink[j];
-                        pSprite2->owner = gUpperLink[i];
+                        actor->SetOwner(actor2);
+                        actor2->SetOwner(actor);
                     }
                 }
             }
@@ -240,11 +234,11 @@ int CheckLink(DBloodActor *actor)
 
 int CheckLink(int *x, int *y, int *z, int *nSector)
 {
-    int nUpper = gUpperLink[*nSector];
-    int nLower = gLowerLink[*nSector];
-    if (nUpper >= 0)
+    auto upper = getUpperLink(*nSector);
+    auto lower = getLowerLink(*nSector);
+    if (upper)
     {
-        spritetype *pUpper = &sprite[nUpper];
+        spritetype *pUpper = &upper->s();
         int z1;
         if (pUpper->type == kMarkerUpLink)
             z1 = pUpper->z;
@@ -252,9 +246,9 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
             z1 = getflorzofslope(*nSector, *x, *y);
         if (z1 <= *z)
         {
-            nLower = pUpper->owner;
-            assert(nLower >= 0 && nLower < kMaxSprites);
-            spritetype *pLower = &sprite[nLower];
+            lower = upper->GetOwner();
+            assert(lower);
+            spritetype *pLower = &lower->s();
             assert(pLower->sectnum >= 0 && pLower->sectnum < kMaxSectors);
             *nSector = pLower->sectnum;
             *x += pLower->x-pUpper->x;
@@ -268,9 +262,9 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
             return pUpper->type;
         }
     }
-    if (nLower >= 0)
+    if (lower)
     {
-        spritetype *pLower = &sprite[nLower];
+        spritetype *pLower = &lower->s();
         int z1;
         if (pLower->type == kMarkerLowLink)
             z1 = pLower->z;
@@ -278,9 +272,9 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
             z1 = getceilzofslope(*nSector, *x, *y);
         if (z1 >= *z)
         {
-            nUpper = pLower->owner;
-            assert(nUpper >= 0 && nUpper < kMaxSprites);
-            spritetype *pUpper = &sprite[nUpper];
+            upper = lower->GetOwner();
+            assert(upper);
+            spritetype *pUpper = &upper->s();
             assert(pUpper->sectnum >= 0 && pUpper->sectnum < kMaxSectors);
             *nSector = pUpper->sectnum;
             *x += pUpper->x-pLower->x;

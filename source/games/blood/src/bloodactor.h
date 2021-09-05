@@ -335,14 +335,12 @@ inline DBloodActor* PLAYER::actor()
 
 inline DBloodActor* getUpperLink(int sect)
 {
-	auto l = gUpperLink[sect];
-	return l == -1 ? nullptr : &bloodActors[l];
+	return gUpperLink[sect];
 }
 
 inline DBloodActor* getLowerLink(int sect)
 {
-	auto l = gLowerLink[sect];
-	return l == -1 ? nullptr : &bloodActors[l];
+	return gLowerLink[sect];
 }
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)

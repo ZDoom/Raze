@@ -1457,8 +1457,8 @@ void nnExtProcessSuperSprites()
             int fz = getflorzofslope(nSector, pDebris->x, pDebris->y);
 
             GetActorExtents(debrisactor, &top, &bottom);
-            if (fz >= bottom && gLowerLink[nSector] < 0 && !(sector[nSector].ceilingstat & 0x1)) pDebris->z += ClipLow(cz - top, 0);
-            if (cz <= top && gUpperLink[nSector] < 0 && !(sector[nSector].floorstat & 0x1)) pDebris->z += ClipHigh(fz - bottom, 0);
+            if (fz >= bottom && getLowerLink(nSector) == nullptr && !(sector[nSector].ceilingstat & 0x1)) pDebris->z += ClipLow(cz - top, 0);
+            if (cz <= top && getUpperLink(nSector) == nullptr && !(sector[nSector].floorstat & 0x1)) pDebris->z += ClipHigh(fz - bottom, 0);
         }
     }
 }
@@ -1822,7 +1822,7 @@ void debrisMove(int listIndex)
         int fz = getflorzofslope(nSector, pSprite->x, pSprite->y);
         int div = ClipLow(bottom - top, 1);
 
-        if (gLowerLink[nSector] >= 0) cz += (cz < 0) ? 0x500 : -0x500;
+        if (getLowerLink(nSector)) cz += (cz < 0) ? 0x500 : -0x500;
         if (top > cz && (!(pXSprite->physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
             actor->zvel -= DivScale((bottom - ceilZ) >> 6, mass, 8);
 

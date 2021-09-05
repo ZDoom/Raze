@@ -649,11 +649,11 @@ void viewDrawScreen(bool sceneonly)
         getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
         if (cZ >= floorZ)
         {
-            cZ = floorZ - (gUpperLink[nSectnum] >= 0 ? 0 : (8 << 8));
+            cZ = floorZ - (getUpperLink(nSectnum) ? 0 : (8 << 8));
         }
         if (cZ <= ceilingZ)
         {
-            cZ = ceilingZ + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
+            cZ = ceilingZ + (getLowerLink(nSectnum) ? 0 : (8 << 8));
         }
         cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
