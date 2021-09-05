@@ -1215,8 +1215,8 @@ void nnExtProcessSuperSprites()
                     windGenDoVerticalWind(pXWind->sysData2, index);
             }
 
-            XSPRITE* pXRedir = NULL; // check redirected TX buckets
-            while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXWind->reference].extra, pXRedir, &rx)) != NULL)
+            DBloodActor* pXRedir = nullptr; // check redirected TX buckets
+            while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, windactor, pXRedir, &rx)) != nullptr)
             {
                 for (j = bucketHead[rx]; j < bucketHead[rx + 1]; j++)
                 {
@@ -2044,8 +2044,9 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
     }
     
     // check redirected TX buckets
-    int rx = -1; XSPRITE* pXRedir = nullptr;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSource->reference].extra, pXRedir, &rx)) != nullptr) 
+    int rx = -1; 
+    DBloodActor* pXRedir = nullptr;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, sourceactor, pXRedir, &rx)) != nullptr) 
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
@@ -2723,7 +2724,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                         else flags &= ~(kPhysGravity | kPhysFalling);
 
                         pSprite->flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
-                        xvel[objIndex] = yvel[objIndex] = zvel[objIndex] = 0;
+                        targetactor->xvel() = targetactor->yvel() = targetactor->zvel() = 0;
                         pXSprite->restState = pXSprite->state;
 
                     } 
@@ -5081,8 +5082,8 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
 
     // check redirected TX buckets
     int rx = -1; 
-    XSPRITE* pXRedir = NULL;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, actor->s().extra, pXRedir, &rx)) != NULL) 
+    DBloodActor* pXRedir = nullptr;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, actor, pXRedir, &rx)) != nullptr) 
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
@@ -5624,7 +5625,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(actor, 1);
-                    if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(pXSprite);
+                    if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(actor);
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
@@ -5714,7 +5715,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                     [[fallthrough]];
                 case kCmdRepeat:
                     // force OFF after *all* TX objects reach the goal value
-                    if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(pXSprite)) 
+                    if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(actor)) 
                     {
                         evPostActor(actor, 0, kCmdOff);
                         break;
@@ -6415,7 +6416,7 @@ void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodA
                     break;
                 case kModernTypeFlag2:
                     if (data > pXSource->data3) data = pXSource->data3;
-                    if (!incDecGoalValueIsReached(pXSource)) break;
+                    if (!incDecGoalValueIsReached(sourceactor)) break;
                     tmp = pXSource->data3;
                     pXSource->data3 = pXSource->data2;
                     pXSource->data2 = tmp;
@@ -6440,7 +6441,7 @@ void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodA
                     break;
                 case kModernTypeFlag2:
                     if (data < pXSource->data3) data = pXSource->data3;
-                    if (!incDecGoalValueIsReached(pXSource)) break;
+                    if (!incDecGoalValueIsReached(sourceactor)) break;
                     tmp = pXSource->data3;
                     pXSource->data3 = pXSource->data2;
                     pXSource->data2 = tmp;
@@ -8811,8 +8812,11 @@ void aiPatrolThink(DBloodActor* actor)
 }
 // ------------------------------------------------
 
-int listTx(XSPRITE* pXRedir, int tx) {
-    if (txIsRanged(&bloodActors[pXRedir->reference])) {
+int listTx(DBloodActor* actor, int tx) 
+{
+    if (txIsRanged(actor)) 
+    {
+        XSPRITE* pXRedir = &actor->x();
         if (tx == -1) tx = pXRedir->data1;
         else if (tx < pXRedir->data4) tx++;
         else tx = -1;
@@ -8823,7 +8827,7 @@ int listTx(XSPRITE* pXRedir, int tx) {
         {
             for (int i = 0; i <= 3; i++) 
             {
-                if ((tx = GetDataVal(&bloodActors[pXRedir->reference], i)) <= 0) continue;
+                if ((tx = GetDataVal(actor, i)) <= 0) continue;
                 else return tx;
             }
         } 
@@ -8832,7 +8836,7 @@ int listTx(XSPRITE* pXRedir, int tx) {
             int saved = tx; bool savedFound = false;
             for (int i = 0; i <= 3; i++) 
             {
-                tx = GetDataVal(&bloodActors[pXRedir->reference], i);
+                tx = GetDataVal(actor, i);
                 if (savedFound && tx > 0) return tx;
                 else if (tx != saved) continue;
                 else savedFound = true;
@@ -8871,7 +8875,8 @@ DBloodActor* evrIsRedirector(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx) {
+DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx) 
+{
     if (!gEventRedirectsUsed) return NULL;
     else if (pXRedir && (*tx = listTx(pXRedir, *tx)) != -1)
         return pXRedir;
@@ -8884,8 +8889,8 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
             id = xsector[objXIndex].txID;
             break;
         case OBJ_SPRITE:
-            if (!xspriRangeIsFine(objXIndex)) return NULL;
-            id = xsprite[objXIndex].txID;
+            if (!objActor) return NULL;
+            id = objActor->x().txID;
             break;
         case OBJ_WALL:
             if (!xwallRangeIsFine(objXIndex)) return NULL;
@@ -8895,15 +8900,18 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
             return NULL;
     }
 
-    int nIndex = (pXRedir) ? pXRedir->reference : -1; bool prevFound = false;
+    bool prevFound = false;
     for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) 
     {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        auto rxactor = evrIsRedirector(rxBucket[i].GetActor());
-        if (!rxactor || !rxactor->hasX()) continue;
-
-        if (prevFound || nIndex == -1) { *tx = listTx(&rxactor->x(), *tx); return &rxactor->x(); }
-        else if (nIndex != rxactor->s().index) continue;
+        auto pXSpr = evrIsRedirector(rxBucket[i].actor);
+        if (!pXSpr) continue;
+        else if (prevFound || pXRedir == nullptr) 
+        {
+            *tx = listTx(pXSpr, *tx); 
+            return pXSpr; 
+        }
+        else if (pXRedir != pXSpr) continue;
         else prevFound = true;
     }
 
@@ -8917,12 +8925,18 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
 //
 //---------------------------------------------------------------------------
 
-bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
-    
+bool incDecGoalValueIsReached(DBloodActor* actor) 
+{
+    XSPRITE* pXSprite = &actor->x();
     if (pXSprite->data3 != pXSprite->sysData1) return false;
-    char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = int(strlen(buffer)); int rx = -1;
-    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].GetActor())) continue;
+    char buffer[5]; 
+    snprintf(buffer, 5, "%d", abs(pXSprite->data1)); 
+    int len = int(strlen(buffer)); 
+    int rx = -1;
+
+    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
+    {
+        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].actor)) continue;
         for (int a = 0; a < len; a++) 
         {
             if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
@@ -8930,8 +8944,9 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
         }
     }
 
-    XSPRITE* pXRedir = NULL; // check redirected TX buckets
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
+    DBloodActor* pXRedir = nullptr; // check redirected TX buckets
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, actor, pXRedir, &rx)) != nullptr) 
+    {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
             for (int a = 0; a < len; a++) 
@@ -8951,17 +8966,18 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
 //
 //---------------------------------------------------------------------------
 
-void seqSpawnerOffSameTx(XSPRITE* pXSource) {
-
+void seqSpawnerOffSameTx(DBloodActor* actor) 
+{
+    auto pXSource = &actor->x();
     for (int i = 0; i < kMaxXSprites; i++) 
     {
-        XSPRITE* pXSprite = &xsprite[i];
-        if (pXSprite->reference != pXSource->reference && spriRangeIsFine(pXSprite->reference)) {
-            if (sprite[pXSprite->reference].type != kModernSeqSpawner) continue;
-            else if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) {
-                evKillActor(&bloodActors[pXSprite->reference]);
-                pXSprite->state = 0;
-            }
+        auto iactor = &bloodActors[i];
+        if (iactor->s().statnum == kStatFree || iactor->s().type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
+        XSPRITE* pXSprite = &iactor->x();
+        if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) 
+        {
+            evKillActor(iactor);
+            pXSprite->state = 0;
         }
     }
 }
@@ -8984,7 +9000,8 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 
     for (int i = 0; i < 8; i++)
     {
-        spritetype* pBurst = &actSpawnSprite(actor, 5)->s();
+        auto burstactor = actSpawnSprite(actor, 5);
+        auto pBurst = &burstactor->s();
 
         pBurst->type = pSprite->type;
         pBurst->shade = pSprite->shade;
