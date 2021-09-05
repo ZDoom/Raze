@@ -310,7 +310,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
             case kCmdSpritePush:
             case kCmdSpriteTouch:
                 if (!pXSprite->state) SetSpriteState(actor, 1);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiActivateDude(actor);
                 break;
         }
 
@@ -456,7 +456,6 @@ void OperateSprite(DBloodActor* actor, EVENT event)
     case kMarkerDudeSpawn:
         if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeMax) 
         {
-            auto actor = &bloodActors[pSprite->index];
             auto spawned = actSpawnDude(actor, pXSprite->data1, -1, 0);
             if (spawned) {
                 XSPRITE *pXSpawn = &spawned->x();
@@ -498,7 +497,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
     case kThingArmedTNTStick:
     case kThingArmedTNTBundle:
     case kThingArmedSpray:
-        actExplodeSprite(&bloodActors[pSprite->index]);
+        actExplodeSprite(actor);
         break;
     case kTrapExploder:
         switch (event.cmd) {
@@ -507,13 +506,13 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 break;
             default:
                 pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
-                actExplodeSprite(&bloodActors[pSprite->index]);
+                actExplodeSprite(actor);
                 break;
         }
         break;
     case kThingArmedRemoteBomb:
         if (pSprite->statnum != kStatRespawn) {
-            if (event.cmd != kCmdOn) actExplodeSprite(&bloodActors[pSprite->index]);
+            if (event.cmd != kCmdOn) actExplodeSprite(actor);
             else {
                 sfxPlay3DSound(pSprite, 454, 0, 0);
                 evPostActor(actor, 18, kCmdOff);
@@ -534,7 +533,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                     pXSprite->Proximity = 1;
                     break;
                 default:
-                    actExplodeSprite(&bloodActors[pSprite->index]);
+                    actExplodeSprite(actor);
                     break;
             }
         }
@@ -588,15 +587,15 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(actor, 0)) break;
-                actActivateGibObject(&bloodActors[pXSprite->reference]);
+                actActivateGibObject(actor);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(actor, 1)) break;
-                actActivateGibObject(&bloodActors[pXSprite->reference]);
+                actActivateGibObject(actor);
                 break;
             default:
                 if (!SetSpriteState(actor, pXSprite->state ^ 1)) break;
-                actActivateGibObject(&bloodActors[pXSprite->reference]);
+                actActivateGibObject(actor);
                 break;
         }
         break;
@@ -1007,13 +1006,13 @@ DBloodActor* GetHighestSprite(int nSector, int nStatus, int *z)
     return found;
 }
 
-int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
+DBloodActor* GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
 {
     assert(pzTop != NULL && pzBot != NULL);
     assert(nSector < (unsigned int)numsectors);
-    int vc = -1;
+    DBloodActor* found = nullptr;
     sectortype *pSector = &sector[nSector];
-    int vbp = pSector->ceilingz;
+    int foundz = pSector->ceilingz;
 
     BloodSectIterator it(nSector);
     while (auto actor = it.Next())
@@ -1023,16 +1022,16 @@ int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
         {
             int top, bottom;
             GetActorExtents(actor, &top, &bottom);
-            if (vbp > top)
+            if (foundz > top)
             {
-                vbp = top;
+                foundz = top;
                 *pzTop = top;
                 *pzBot = bottom;
-                vc = pSprite->index;
+                found = actor;
             }
         }
     }
-    return vc;
+    return found;
 }
 
 int VCrushBusy(unsigned int nSector, unsigned int a2)
@@ -1137,9 +1136,8 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     else
         vbp = -65536/ClipLow((120*pXSector->busyTimeB)/10, 1);
     int top, bottom;
-    int nSprite = GetCrushedSpriteExtents(nSector,&top,&bottom);
-    auto actor = &bloodActors[nSprite];
-    if (nSprite >= 0 && a2 > pXSector->busy)
+    auto actor = GetCrushedSpriteExtents(nSector,&top,&bottom);
+    if (actor && a2 > pXSector->busy)
     {
         spritetype *pSprite = &actor->s();
         assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
@@ -1173,7 +1171,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
             }
         }
     }
-    else if (nSprite >= 0 && a2 < pXSector->busy)
+    else if (actor && a2 < pXSector->busy)
     {
         spritetype* pSprite = &actor->s();
         assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
@@ -2255,7 +2253,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
         {
             pXSprite->data2--;
             if (pXSprite->data2 == 0)
-                evPostActor(&bloodActors[pXSprite->reference], 1, kCmdOff);
+                evPostActor(actor, 1, kCmdOff);
         }
         int dx = bcos(pSprite->ang)+Random2(1000);
         int dy = bsin(pSprite->ang)+Random2(1000);
