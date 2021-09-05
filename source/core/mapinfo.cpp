@@ -40,6 +40,7 @@
 #include "printf.h"
 #include "gamecontrol.h"
 #include "raze_sound.h"
+#include "zstring.h"
 
 FString gSkillNames[MAXSKILLS];
 int gDefaultVolume = 0, gDefaultSkill = 1;
@@ -48,6 +49,7 @@ GlobalCutscenes globalCutscenes;
 TArray<ClusterDef> clusters;
 TArray<VolumeRecord> volumes;
 TArray<TPointer<MapRecord>> mapList;	// must be allocated as pointers because it can whack the currentlLevel pointer if this was a flat array.
+static TMap<FString, FString> musicReplacements;
 MapRecord *currentLevel;	// level that is currently played.
 MapRecord* lastLevel;		// Same here, for the last level.
 
@@ -157,6 +159,23 @@ MapRecord* FindNextSecretMap(MapRecord* thismap)
 	return next? next : FindNextMap(thismap);
 }
 
+void SetMusicReplacement(const char *mapname, const char *music)
+{
+	musicReplacements[mapname] = music;
+}
+
+void ReplaceMusics(bool namehack)
+{
+	TMap<FString, FString>::Iterator it(musicReplacements);
+	TMap<FString, FString>::Pair* pair;
+	while (it.NextPair(pair))
+	{
+		FString mapname = pair->Key;
+		FString music = pair->Value;
+		SetMusicForMap(mapname, music, namehack);
+	}
+	musicReplacements.Clear();
+}
 
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 {
@@ -192,6 +211,7 @@ bool SetMusicForMap(const char* mapname, const char* music, bool namehack)
 		index->music = music;
 		return true;
 	}
+	DPrintf(DMSG_WARNING, "Could not replace %s music with %s\n", mapname, music);
 	return false;
 }
 
