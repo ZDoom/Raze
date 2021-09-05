@@ -130,11 +130,12 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
 {
     assert(nViewEffect >= 0 && nViewEffect < kViewEffectMax);
     auto pTSprite = &tsprite[nTSprite];
+    auto owneractor = &bloodActors[pTSprite->owner];
     if (gDetail < effectDetail[nViewEffect] || nTSprite >= MAXSPRITESONSCREEN) return NULL;
     switch (nViewEffect)
     {
     case kViewEffectSpotProgress: {
-        XSPRITE* pXSprite = &xsprite[pTSprite->extra];
+        XSPRITE* pXSprite = &owneractor->x();
         int perc = (100 * pXSprite->data3) / kMaxPatrolSpotValue;
         int width = (94 * pXSprite->data3) / kMaxPatrolSpotValue;
 
@@ -525,16 +526,15 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         tspritetype *pTSprite = &tsprite[nTSprite];
         auto owneractor = &bloodActors[pTSprite->owner];
         //int nXSprite = pTSprite->extra;
-        int nXSprite = sprite[pTSprite->owner].extra;
         XSPRITE *pTXSprite = NULL;
         if (sprite[pTSprite->owner].detail > gDetail)
         {
             pTSprite->xrepeat = 0;
             continue;
         }
-        if (nXSprite > 0)
+        if (owneractor->hasX())
         {
-            pTXSprite = &xsprite[nXSprite];
+            pTXSprite = &owneractor->x();
         }
         int nTile = pTSprite->picnum;
         if (nTile < 0 || nTile >= kMaxTiles)
@@ -552,14 +552,14 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         switch (picanm[nTile].extra & 7) {
             case 0:
                 //assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-                if (nXSprite <= 0 || nXSprite >= kMaxXSprites) break;
+                if (pTXSprite == nullptr) break;
                 switch (pTSprite->type) {
                     case kSwitchToggle:
                     case kSwitchOneWay:
-                        if (xsprite[nXSprite].state) nAnim = 1;
+                        if (pTXSprite->state) nAnim = 1;
                         break;
                     case kSwitchCombo:
-                        nAnim = xsprite[nXSprite].data1;
+                        nAnim = pTXSprite->data1;
                         break;
                 }
                 break;
@@ -600,7 +600,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             }
             case 3:
             {
-                if (nXSprite > 0)
+                if (pTXSprite)
                 {
                     if (owneractor->hit.florhit.type == kHitNone)
                         nAnim = 1;
@@ -903,7 +903,6 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             }
 
             if (gModernMap) { // add target spot indicator for patrol dudes
-                XSPRITE* pTXSprite = &xsprite[pTSprite->extra];
                 if (pTXSprite->dudeFlag4 && aiInPatrolState(pTXSprite->aiState) && pTXSprite->data3 > 0 && pTXSprite->data3 <= kMaxPatrolSpotValue)
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectSpotProgress);
             }

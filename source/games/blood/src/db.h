@@ -45,10 +45,6 @@ enum
 
 
 // by NoOne: functions to quckly check range of specifical arrays
-inline bool xspriRangeIsFine(int nXindex) {
-    return (nXindex >= 0 && nXindex < kMaxXSprites);
-}
-
 inline bool xsectRangeIsFine(int nXindex) {
     return (nXindex >= 0 && nXindex < kMaxXSectors);
 }
@@ -108,7 +104,6 @@ struct XSPRITE {
     uint32_t health;
     uint32_t busy;
 
-    int16_t reference;
     int16_t data1;            // Data 1
     int16_t data2;            // Data 2
     int16_t data3;            // Data 3
@@ -364,7 +359,6 @@ void InitFreeList(unsigned short *pList, int nCount);
 void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>& activeXSprites);
 void InsertFree(unsigned short *pList, int nIndex);
 unsigned short dbInsertXSprite(int nSprite);
-void dbDeleteXSprite(int nXSprite);
 unsigned short dbInsertXWall(int nWall);
 unsigned short dbInsertXSector(int nSector);
 void dbInit(void);
