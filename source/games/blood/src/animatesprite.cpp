@@ -895,7 +895,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 }
             }
             
-            if (pTSprite->owner != gView->pSprite->index || gViewPos != VIEWPOS_0) {
+            if (pTSprite->owner != gView->actor->GetSpriteIndex() || gViewPos != VIEWPOS_0) {
                 if (getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
                 {
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);

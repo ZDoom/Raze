@@ -129,10 +129,11 @@ public:
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
 	int GetIndex() { return s().time; }	// For error printing only! This is only identical with the sprite index for items spawned at map start.
+	int GetSpriteIndex() { return index; }	// this is only here to mark places that need changing later!
 
 	void SetOwner(DBloodActor* own)
 	{
-		s().owner = own ? own->s().index : -1;
+		s().owner = own ? own->GetSpriteIndex() : -1;
 	}
 
 	DBloodActor* GetOwner()
@@ -143,7 +144,7 @@ public:
 
 	void SetTarget(DBloodActor* own)
 	{
-		x().target_i = own ? own->s().index : -1;
+		x().target_i = own ? own->GetSpriteIndex() : -1;
 	}
 
 	DBloodActor* GetTarget()
@@ -164,7 +165,7 @@ public:
 
 	void SetBurnSource(DBloodActor* own)
 	{
-		x().burnSource = own ? own->s().index : -1;
+		x().burnSource = own ? own->GetSpriteIndex() : -1;
 	}
 
 	DBloodActor* GetBurnSource()
@@ -320,7 +321,7 @@ public:
 
 inline int DeleteSprite(DBloodActor* nSprite)
 {
-	if (nSprite) return DeleteSprite(nSprite->s().index);
+	if (nSprite) return DeleteSprite(nSprite->GetSpriteIndex());
 	return 0;
 }
 
@@ -362,12 +363,12 @@ inline void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1)
 
 inline void ChangeActorStat(DBloodActor* actor, int stat)
 {
-	ChangeSpriteStat(actor->s().index, stat);
+	ChangeSpriteStat(actor->GetSpriteIndex(), stat);
 }
 
 inline void ChangeActorSect(DBloodActor* actor, int stat)
 {
-	ChangeSpriteSect(actor->s().index, stat);
+	ChangeSpriteSect(actor->GetSpriteIndex(), stat);
 }
 
 inline int Collision::actorIndex(DBloodActor* actor)
@@ -382,7 +383,7 @@ inline DBloodActor* Collision::Actor(int a)
 
 inline void setActorPos(DBloodActor* actor, vec3_t* pos)
 {
-	setsprite(actor->s().index, pos);
+	setsprite(actor->GetSpriteIndex(), pos);
 }
 
 END_BLD_NS
