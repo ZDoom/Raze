@@ -896,6 +896,7 @@ static void InitTextures()
 	TileFiles.LoadArtSet("tiles%03d.art"); // it's the same for all games.
 	voxInit();
 	gi->LoadGameTextures(); // loads game-side data that must be present before processing the .def files.
+	LoadDefinitions();
 	InitFont();				// InitFonts may only be called once all texture data has been initialized.
 
 	lookups.postLoadTables();
@@ -1068,7 +1069,6 @@ int RunGame()
 	FMaterial::SetLayerCallback(setpalettelayer);
 	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
 	DeleteStartupScreen();
-	LoadDefinitions();
 
 	V_Init2();
 	twod->Begin(screen->GetWidth(), screen->GetHeight());
