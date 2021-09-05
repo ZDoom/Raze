@@ -314,11 +314,8 @@ static void do_deletespritestat(int16_t deleteme)
 //
 // insertsprite
 //
-int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum) = NULL;
 int32_t insertsprite(int16_t sectnum, int16_t statnum)
 {
-    if (insertsprite_replace)
-        return insertsprite_replace(sectnum, statnum);
     // TODO: guard against bad sectnum?
     int32_t const newspritenum = insertspritestat(statnum);
 

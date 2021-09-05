@@ -37,8 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-FixedBitArray<MAXSPRITES> activeXSprites;
-
 // All AI states for assigning an index.
 static AISTATE* allAIStates[] =
 {
@@ -696,7 +694,6 @@ void SerializeState(FSerializer& arc)
 
 			.Array("xwall", xwall, XWallsUsed)  // todo
 			.Array("xsector", xsector, XSectorsUsed)
-			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites)
 			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
 			.EndObject();
 	}
@@ -718,11 +715,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.isWriting())
 	{
-		activeXSprites.Zero();
-		for (int i = 0; i < kMaxSprites; i++)
-		{
-			//if (activeSprites[i] && bloodActors[i].hasX()) activeXSprites.Set(bloodAc);
-		}
 	}
 	else
 	{
@@ -730,14 +722,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		sfxKillAllSounds();
 		ambKillAll();
 		seqKillAll();
-		if (gamestate != GS_LEVEL)
-		{
-			memset(xsprite, 0, sizeof(xsprite));
-		}
 	}
-	arc.SerializeMemory("activexsprites", activeXSprites.Storage(), activeXSprites.StorageSize());
 	SerializeState(arc);
-	InitFreeList(nextXSprite, kMaxXSprites, activeXSprites);
 	SerializeActor(arc);
 	SerializePlayers(arc);
 	SerializeEvents(arc);

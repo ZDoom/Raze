@@ -45,11 +45,9 @@ DBloodActor bloodActors[kMaxSprites];
 bool gModernMap = false;
 unsigned short gStatCount[kMaxStatus + 1];
 
-XSPRITE xsprite[kMaxXSprites];
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
 
-unsigned short nextXSprite[kMaxXSprites];
 int XWallsUsed, XSectorsUsed;
 
 
@@ -176,13 +174,14 @@ void qinitspritelists(void) // Replace
     Numsprites = 0;
 }
 
-int InsertSprite(int nSector, int nStat)
+DBloodActor* InsertSprite(int nSector, int nStat)
 {
     int nSprite = headspritestat[kMaxStatus];
     assert(nSprite < kMaxSprites);
     if (nSprite < 0)
     {
-        return nSprite;
+        I_Error("Out of sprites!"); // we cannot deal with this - and most of the calling code never checks...
+        return nullptr;
     }
     RemoveSpriteStat(nSprite);
     DBloodActor* actor = &bloodActors[nSprite];
@@ -195,18 +194,12 @@ int InsertSprite(int nSector, int nStat)
     pSprite->clipdist = 32;
     pSprite->xrepeat = pSprite->yrepeat = 64;
     actor->SetOwner(nullptr);
-    pSprite->ex_tra = -1;
     pSprite->index = nSprite;
 
     Numsprites++;
 
     sprite[nSprite].time = leveltimer++;
-    return nSprite;
-}
-
-int qinsertsprite(short nSector, short nStat) // Replace
-{
-    return InsertSprite(nSector, nStat);
+    return actor;
 }
 
 int DeleteSprite(int nSprite)
@@ -214,10 +207,6 @@ int DeleteSprite(int nSprite)
     FVector3 pos = GetSoundPos(&sprite[nSprite].pos);
     soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
 
-    if (sprite[nSprite].ex_tra > 0)
-    {
-        InsertFree(nextXSprite, sprite[nSprite].ex_tra);
-    }
     assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
     RemoveSpriteStat(nSprite);
     assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
@@ -276,40 +265,6 @@ void InitFreeList(unsigned short *pList, int nCount)
     pList[0] = nCount - 1;
 }
 
-void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>&used)
-{
-    int lastfree = 0;
-    for (int i = 1; i < nCount; i++)
-    {
-        if (!used[i])
-        {
-            pList[i] = lastfree;
-            lastfree = i;
-        }
-    }
-    pList[0] = lastfree;
-}
-
-void InsertFree(unsigned short *pList, int nIndex)
-{
-    pList[nIndex] = pList[0];
-    pList[0] = nIndex;
-}
-
-unsigned short dbInsertXSprite(int nSprite)
-{
-    int nXSprite = nextXSprite[0];
-    nextXSprite[0] = nextXSprite[nXSprite];
-    if (nXSprite == 0)
-    {
-        I_Error("Out of free XSprites");
-    }
-    memset(&xsprite[nXSprite], 0, sizeof(XSPRITE));
-    bloodActors[nSprite].hit = {};
-    sprite[nSprite].ex_tra = nXSprite;
-    return nXSprite;
-}
-
 unsigned short dbInsertXWall(int nWall)
 {
     int nXWall = XWallsUsed++;
@@ -338,7 +293,6 @@ unsigned short dbInsertXSector(int nSector)
 
 void dbInit(void)
 {
-    InitFreeList(nextXSprite, kMaxXSprites);
     XWallsUsed = XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
     for (int i = 1; i < kMaxXWalls; i++)
     {
@@ -847,7 +801,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     {
         RemoveSpriteStat(i);
         spritetypedisk load;
-        spritetype *pSprite = &sprite[i];
+        auto actor = &bloodActors[i];
+        actor->Clear();
+        spritetype *pSprite = &actor->s();
         fr.Read(&load, sizeof(spritetypedisk)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
         if (encrypted) // What were these people thinking? :(
         {
@@ -886,9 +842,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         if (pSprite->extra > 0)
         {
             char pBuffer[nXSpriteSize];
-            int nXSprite = dbInsertXSprite(i);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
-            memset(pXSprite, 0, sizeof(XSPRITE));
+            actor->addX();
+            XSPRITE *pXSprite = &actor->x();
             int nCount;
             if (!encrypted)
             {

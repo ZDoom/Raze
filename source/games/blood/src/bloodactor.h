@@ -1,7 +1,5 @@
 #pragma once
 
-#define ex_tra extra
-
 BEGIN_BLD_NS
 
 class DBloodActor;
@@ -94,13 +92,15 @@ class DBloodActor
 
 public:
 	int dudeSlope;
+	int xvel, yvel, zvel;
+	bool hasx;
+	XSPRITE xsprite;
 	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
 	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 	POINT3D basePoint;
-	int xvel, yvel, zvel;
 
 	// transient data (not written to savegame)
 	int cumulDamage;
@@ -119,15 +119,15 @@ public:
 		spriteMass = {};
 		hit = {};
 		basePoint = {};
+		xsprite = {};
+		hasx = false;
 		xvel = yvel = zvel = 0;
 	}
-	bool hasX() { return sprite[index].ex_tra > 0; }
-	void addX()
-	{
-		if (s().ex_tra == -1) dbInsertXSprite(s().index);
-	}
+	bool hasX() { return hasx; }
+	void addX() { hasx = true; }
+
 	spritetype& s() { return sprite[index]; }
-	XSPRITE& x() { return xsprite[sprite[index].ex_tra]; }	// calling this does not validate the xsprite!
+	XSPRITE& x() { return xsprite; }	// calling this does not validate the xsprite!
 	int GetIndex() { return index; }	// this is for error printing only!
 
 	void SetOwner(DBloodActor* own)
