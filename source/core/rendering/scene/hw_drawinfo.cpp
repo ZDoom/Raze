@@ -282,7 +282,7 @@ void HWDrawInfo::DispatchSprites()
 			continue;
 
 		if ((unsigned)spritenum < MAXSPRITES)
-			show2dsprite.Set(spritenum);
+			sprite[spritenum].cstat2 |= CSTAT2_SPRITE_MAPPED;
 
 		setgotpic(tilenum);
 

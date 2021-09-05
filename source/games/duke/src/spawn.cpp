@@ -119,8 +119,8 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 		s->hitag = 0;
 	}
 
-	if (show2dsector[s->sectnum]) show2dsprite.Set(i);
-	else show2dsprite.Clear(i);
+	if (show2dsector[s->sectnum]) act->s->cstat2 |= CSTAT2_SPRITE_MAPPED;
+	else act->s->cstat2 &= ~CSTAT2_SPRITE_MAPPED;
 
 	spriteext[i] = {};
 	spritesmooth[i] = {};
@@ -995,7 +995,7 @@ void spawneffector(DDukeActor* actor)
 				if (!found)
 				{
 					sp->picnum = 0;
-					sp->cstat = CSTAT_SPRITE_NOFIND;
+					sp->cstat2 = CSTAT2_SPRITE_NOFIND;
 					changeactorsect(actor, STAT_REMOVED);
 					Printf("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", sp->x, sp->y);
 					return;

@@ -6525,7 +6525,7 @@ DBloodActor* actSpawnThing(int nSector, int x, int y, int z, int nThingType)
     pSprite->pal = pThingInfo->pal;
 	if (pThingInfo->xrepeat) pSprite->xrepeat = pThingInfo->xrepeat;
 	if (pThingInfo->yrepeat) pSprite->yrepeat = pThingInfo->yrepeat;
-    show2dsprite.Set(actor->GetIndex());
+	pSprite->cstat2 |= CSTAT2_SPRITE_MAPPED;
 	switch (nThingType)
 	{
     case kThingVoodooHead:
@@ -6741,7 +6741,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	}
 	auto spawned = actSpawnSprite(pSprite->sectnum, x, y, z, 5, 1);
 	spritetype* pMissile = &spawned->s();
-	show2dsprite.Set(spawned->GetIndex());
+	pMissile->cstat2 |= CSTAT2_SPRITE_MAPPED;
 	pMissile->type = nType;
 	pMissile->shade = pMissileInfo->shade;
 	pMissile->pal = 0;

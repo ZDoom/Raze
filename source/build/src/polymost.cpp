@@ -3253,7 +3253,7 @@ void polymost_drawsprite(int32_t snum)
     }
 
     if ((unsigned)spritenum < MAXSPRITES)
-        show2dsprite.Set(spritenum);
+        sprite[spritenum].cstat2 |= CSTAT2_SPRITE_MAPPED;
 
 _drawsprite_return:
     ;
@@ -3807,7 +3807,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     if ((tspr->cstat & 48) == 32)
         return 0;
 
-    if ((tspr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
+    if ((tspr->cstat2 & CSTAT2_SPRITE_MDLROTATE) || rotate)
     {
         int myclock = (PlayClock << 3) + MulScale(4 << 3, pm_smoothratio, 16);
         tspr->ang = (tspr->ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.
