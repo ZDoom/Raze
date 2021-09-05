@@ -3045,7 +3045,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     clampSprite(actor, 0x01);
 
     if (pSource->flags & kModernTypeFlag1) // force telefrag
-        TeleFrag(pSprite->index, pSource->sectnum);
+        TeleFrag(actor, pSource->sectnum);
 
     if (pSprite->flags & kPhysGravity)
         pSprite->flags |= kPhysFalling;

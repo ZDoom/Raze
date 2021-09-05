@@ -191,10 +191,10 @@ unsigned int GetSourceBusy(EVENT a1)
     return 0;
 }
 
-void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
+void LifeLeechOperate(DBloodActor* actor, EVENT event)
 {
-    auto actor = &bloodActors[pSprite->index];
-
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
     switch (event.cmd) {
     case kCmdSpritePush:
     {
@@ -275,11 +275,11 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
 
 void ActivateGenerator(int);
 
-void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
+void OperateSprite(DBloodActor* actor, EVENT event)
 {
-    auto actor = &bloodActors[nSprite];
-    spritetype *pSprite = &sprite[nSprite];
-    
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+
     #ifdef NOONE_EXTENSIONS
     if (gModernMap && modernTypeOperateSprite(actor, event))
         return;
@@ -540,7 +540,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         }
         break;
     case kThingDroppedLifeLeech:
-        LifeLeechOperate(pSprite, pXSprite, event);
+        LifeLeechOperate(actor, event);
         break;
     case kGenTrigger:
     case kGenDripWater:
@@ -556,7 +556,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 SetSpriteState(actor, 0);
                 break;
             case kCmdRepeat:
-                if (pSprite->type != kGenTrigger) ActivateGenerator(nSprite);
+                if (pSprite->type != kGenTrigger) ActivateGenerator(pSprite->index);
                 if (pXSprite->txID) evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                 if (pXSprite->busyTime > 0) {
                     int nRand = Random2(pXSprite->data1);
@@ -984,10 +984,10 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
     }
 }
 
-int GetHighestSprite(int nSector, int nStatus, int *a3)
+DBloodActor* GetHighestSprite(int nSector, int nStatus, int *z)
 {
-    *a3 = sector[nSector].floorz;
-    int v8 = -1;
+    *z = sector[nSector].floorz;
+    DBloodActor* found = nullptr;
 
     BloodSectIterator it(nSector);
     while (auto actor = it.Next())
@@ -997,14 +997,14 @@ int GetHighestSprite(int nSector, int nStatus, int *a3)
         {
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
-            if (top-pSprite->z > *a3)
+            if (top-pSprite->z > *z)
             {
-                *a3 = top-pSprite->z;
-                v8 = pSprite->index;
+                *z = top-pSprite->z;
+                found = actor;
             }
         }
     }
-    return v8;
+    return found;
 }
 
 int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
@@ -1022,7 +1022,7 @@ int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
         if (pSprite->statnum == kStatDude || pSprite->statnum == kStatThing)
         {
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
+            GetActorExtents(actor, &top, &bottom);
             if (vbp > top)
             {
                 vbp = top;
@@ -1055,7 +1055,7 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
     if (dz2 != 0)
         v10 += MulScale(dz2, GetWaveValue(a2, nWave), 16);
     int v18;
-    if (GetHighestSprite(nSector, 6, &v18) >= 0 && vc >= v18)
+    if (GetHighestSprite(nSector, 6, &v18) && vc >= v18)
         return 1;
     viewInterpolateSector(nSector, &sector[nSector]);
     if (dz1 != 0)
@@ -1413,9 +1413,8 @@ bool SectorContainsDudes(int nSector)
     return 0;
 }
 
-void TeleFrag(int nKiller, int nSector)
+void TeleFrag(DBloodActor* killer, int nSector)
 {
-    auto killer = &bloodActors[nKiller];
     BloodSectIterator it(nSector);
     while (auto victim = it.Next())
     {
@@ -1451,7 +1450,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
             if (bPlayer || !SectorContainsDudes(pDest->sectnum))
             {
                 if (!(gGameOptions.uNetGameFlags&2))
-                    TeleFrag(pXSector->data, pDest->sectnum);
+                    TeleFrag(&bloodActors[pXSector->data], pDest->sectnum);
                 pSprite->x = pDest->x;
                 pSprite->y = pDest->y;
                 pSprite->z += sector[pDest->sectnum].floorz-sector[nSector].floorz;
@@ -1499,7 +1498,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     // trigger marker after it gets reached
     #ifdef NOONE_EXTENSIONS
         if (gModernMap && pXSprite2->state != 1)
-            trTriggerSprite(pSprite2->index, pXSprite2, kCmdOn);
+            trTriggerSprite(pXSector->marker0, kCmdOn);
     #endif
 
     if (actor == nullptr) {
@@ -1683,9 +1682,10 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
     }
 }
 
-void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
-    auto actor = &bloodActors[nSprite];
-    spritetype *pSprite = &sprite[nSprite];
+void LinkSprite(DBloodActor* actor, EVENT event) 
+{
+    spritetype *pSprite = &actor->s();
+    auto pXSprite = &actor->x();
     int nBusy = GetSourceBusy(event);
 
     switch (pSprite->type)  {
@@ -1759,28 +1759,26 @@ void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command) {
     }
 }
 
-void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command) {
+void trTriggerSprite(DBloodActor* actor, int command) 
+{
+    auto pXSprite = &actor->x();
+
     if (!pXSprite->locked && !pXSprite->isTriggered) {
         
         if (pXSprite->triggerOnce)
             pXSprite->isTriggered = 1;
 
         if (pXSprite->Decoupled && pXSprite->txID > 0)
-           evSendActor(&bloodActors[nSprite], pXSprite->txID, (COMMAND_ID)pXSprite->command);
+           evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
         
         else {
             EVENT event;
             event.cmd = command;
-            OperateSprite(nSprite, pXSprite, event);
+            OperateSprite(actor, event);
         }
 
     }
 }
-
-void trTriggerSprite(DBloodActor* actor, int command) {
-    trTriggerSprite(actor->s().index, &actor->x(), command);
-}
-
 
 void trMessageSector(unsigned int nSector, EVENT event) {
     assert(nSector < (unsigned int)numsectors);
@@ -1834,7 +1832,7 @@ void trMessageSprite(unsigned int nSprite, EVENT event) {
         if (!pXSprite->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
             switch (event.cmd) {
                 case kCmdLink:
-                    LinkSprite(nSprite, pXSprite, event);
+                    LinkSprite(actor, event);
                     break;
                 #ifdef NOONE_EXTENSIONS
                 case kCmdModernUse:
@@ -1842,7 +1840,7 @@ void trMessageSprite(unsigned int nSprite, EVENT event) {
                     break;
                 #endif
                 default:
-                    OperateSprite(nSprite, pXSprite, event);
+                    OperateSprite(actor, event);
                     break;
             }
         }
