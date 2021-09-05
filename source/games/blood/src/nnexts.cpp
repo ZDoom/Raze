@@ -7704,6 +7704,12 @@ bool aiPatrolMarkerReached(DBloodActor* actor)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int findNextMarker(XSPRITE* pXMark, bool back) {
     
     XSPRITE* pXNext = NULL; int i;
@@ -7722,6 +7728,12 @@ int findNextMarker(XSPRITE* pXMark, bool back) {
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool markerIsNode(XSPRITE* pXMark, bool back) {
 
     XSPRITE* pXNext = NULL; int i; int cnt = 0;
@@ -7736,10 +7748,14 @@ bool markerIsNode(XSPRITE* pXMark, bool back) {
         if (++cnt > 1)
             return true;
     }
-
     return false;
-
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
 
@@ -7768,7 +7784,6 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
                 closest = dist;
                 path = pNext->index;
             }
-
         }
 
     // set next marker
@@ -7839,12 +7854,17 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void aiPatrolStop(spritetype* pSprite, int target, bool alarm) 
 {
     auto actor = &bloodActors[pSprite->index];
     if (xspriRangeIsFine(pSprite->extra)) 
     {
-
         XSPRITE* pXSprite = &xsprite[pSprite->extra];
         pXSprite->data3 = 0; // reset spot progress
         pXSprite->unused1 &= ~kDudeFlagCrouch; // reset the crouch status
@@ -7870,22 +7890,25 @@ void aiPatrolStop(spritetype* pSprite, int target, bool alarm)
                 else aiPatrolAlarmLite(pSprite, &xsprite[sprite[target].extra]);
             //}
 
-        } else {
-
-            
+        }
+        else 
+        {
             aiInitSprite(actor);
             aiSetTarget_(pXSprite, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
-            
-
         }
         
         pXSprite->dudeFlag4 = patrol; // this must be kept so enemy can patrol after respawn again
     }
-    return;
 }
 
-void aiPatrolRandGoalAng(DBloodActor* actor) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void aiPatrolRandGoalAng(DBloodActor* actor) 
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     
@@ -7902,8 +7925,14 @@ void aiPatrolRandGoalAng(DBloodActor* actor) {
     pXSprite->goalAng = (pSprite->ang + goal) & 2047;
 }
 
-void aiPatrolTurn(DBloodActor* actor) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void aiPatrolTurn(DBloodActor* actor)
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
 
@@ -7913,8 +7942,14 @@ void aiPatrolTurn(DBloodActor* actor) {
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void aiPatrolMove(DBloodActor* actor) {
+void aiPatrolMove(DBloodActor* actor) 
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
 
@@ -7923,7 +7958,8 @@ void aiPatrolMove(DBloodActor* actor) {
 
 
     int dudeIdx = pSprite->type - kDudeBase;
-    switch (pSprite->type) {
+    switch (pSprite->type) 
+    {
         case kDudeCultistShotgunProne:  dudeIdx = kDudeCultistShotgun - kDudeBase;  break;
         case kDudeCultistTommyProne:    dudeIdx = kDudeCultistTommy - kDudeBase;    break;
     }
@@ -7939,18 +7975,16 @@ void aiPatrolMove(DBloodActor* actor) {
     int vel = (pXSprite->unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
     int goalAng = 341;
 
-    if (pExtra->flying || spriteIsUnderwater(actor)) {
-
+    if (pExtra->flying || spriteIsUnderwater(actor)) 
+    {
         goalAng >>= 1;
         zvel[pSprite->index] = dz;
         if (pSprite->flags & kPhysGravity)
             pSprite->flags &= ~kPhysGravity;
-
-
-    } else if (!pExtra->flying) {
-
+    } 
+    else if (!pExtra->flying) 
+    {
         pSprite->flags |= kPhysGravity | kPhysFalling;
-
     }
 
     int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
@@ -7967,18 +8001,15 @@ void aiPatrolMove(DBloodActor* actor) {
     if (gSpriteHit[pSprite->extra].hit.type == kHitSprite)
     {
         auto hitactor = gSpriteHit[pSprite->extra].hit.actor;
-
         hitactor->x().dodgeDir =  -1;
         pXSprite->dodgeDir  =   1;
-
         aiMoveDodge(hitactor);
-
-    } else {
-
+    }
+    else 
+    {
         int frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, pXTarget->busyTime);
         xvel[pSprite->index] += MulScale(frontSpeed, Cos(pSprite->ang), 30);
         yvel[pSprite->index] += MulScale(frontSpeed, Sin(pSprite->ang), 30);
-
     }
 
     vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
@@ -7987,6 +8018,11 @@ void aiPatrolMove(DBloodActor* actor) {
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget) {
     
