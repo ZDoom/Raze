@@ -141,7 +141,7 @@ struct PLAYER
     //int               at1d2;
     DBloodActor*        aimTarget;  // aim target sprite
     int                 aimTargetsCount;
-    short               aimTargets[16];
+    DBloodActor*        aimTargets[16];
     int                 deathTime;
     int                 pwUpTime[kMaxPowerUps];
     int                 fragCount;
