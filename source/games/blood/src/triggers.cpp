@@ -273,7 +273,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
     actPostSprite(actor, kStatFree);
 }
 
-void ActivateGenerator(int);
+void ActivateGenerator(DBloodActor*);
 
 void OperateSprite(DBloodActor* actor, EVENT event)
 {
@@ -556,7 +556,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 SetSpriteState(actor, 0);
                 break;
             case kCmdRepeat:
-                if (pSprite->type != kGenTrigger) ActivateGenerator(pSprite->index);
+                if (pSprite->type != kGenTrigger) ActivateGenerator(actor);
                 if (pXSprite->txID) evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                 if (pXSprite->busyTime > 0) {
                     int nRand = Random2(pXSprite->data1);
@@ -1823,8 +1823,8 @@ void trMessageWall(unsigned int nWall, EVENT event) {
     }
 }
 
-void trMessageSprite(unsigned int nSprite, EVENT event) {
-    auto actor = &bloodActors[nSprite];
+void trMessageSprite(DBloodActor* actor, EVENT event) 
+{
     auto pSprite = &actor->s();
     auto pXSprite = &actor->x();
     if (pSprite->statnum != kStatFree) {
@@ -1993,7 +1993,7 @@ void trProcessBusy(void)
     AlignSlopes();
 }
 
-void InitGenerator(int);
+void InitGenerator(DBloodActor*);
 
 void trInit(void)
 {
@@ -2099,16 +2099,17 @@ void trInit(void)
             }
         }
     }
-    for (int i = 0; i < kMaxSprites; i++)
+
+    it.Reset();
+    while (auto actor = it.Next())
     {
-        int nXSprite = sprite[i].extra;
-        if (sprite[i].statnum < kStatFree && nXSprite > 0)
+        auto pSprite = &actor->s();
+        if (pSprite->statnum < kStatFree && actor->hasX())
         {
-            assert(nXSprite < kMaxXSprites);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            auto pXSprite = &actor->x();
             if (pXSprite->state)
                 pXSprite->busy = 65536;
-            switch (sprite[i].type) {
+            switch (pSprite->type) {
             case kSwitchPadlock:
                 pXSprite->triggerOnce = 1;
                 break;
@@ -2116,9 +2117,9 @@ void trInit(void)
             case kModernRandom:
             case kModernRandom2:
                 if (!gModernMap || pXSprite->state == pXSprite->restState) break;
-                evPostActor(&bloodActors[i], (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
                 if (pXSprite->waitTime > 0)
-                    evPostActor(&bloodActors[i], (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+                    evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             case kModernSeqSpawner:
             case kModernObjDataAccumulator:
@@ -2126,9 +2127,9 @@ void trInit(void)
             case kModernEffectSpawner:
             case kModernWindGenerator:
                 if (pXSprite->state == pXSprite->restState) break;
-                evPostActor(&bloodActors[i], 0, kCmdRepeat);
+                evPostActor(actor, 0, kCmdRepeat);
                 if (pXSprite->waitTime > 0)
-                    evPostActor(&bloodActors[i], (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+                    evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             #endif
             case kGenTrigger:
@@ -2140,18 +2141,18 @@ void trInit(void)
             case kGenBubbleMulti:
             case kGenMissileEctoSkull:
             case kGenSound:
-                InitGenerator(i);
+                InitGenerator(actor);
                 break;
             case kThingArmedProxBomb:
                 pXSprite->Proximity = 1;
                 break;
             case kThingFallingRock:
-                if (pXSprite->state) sprite[i].flags |= 7;
-                else sprite[i].flags &= ~7;
+                if (pXSprite->state) pSprite->flags |= 7;
+                else pSprite->flags &= ~7;
                 break;
             }
-            if (pXSprite->Vector) sprite[i].cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
-            if (pXSprite->Push) sprite[i].cstat |= 4096;
+            if (pXSprite->Vector) pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
+            if (pXSprite->Push) pSprite->cstat |= 4096;
         }
     }
     
@@ -2177,38 +2178,31 @@ void trTextOver(int nId)
         viewSetMessage(pzMessage, VanillaMode() ? 0 : 8, MESSAGE_PRIORITY_INI); // 8: gold
 }
 
-void InitGenerator(int nSprite)
+void InitGenerator(DBloodActor* actor)
 {
-    assert(nSprite < kMaxSprites);
-    spritetype *pSprite = &sprite[nSprite];
-    assert(pSprite->statnum != kMaxStatus);
-    int nXSprite = pSprite->extra;
-    assert(nXSprite > 0);
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    switch (sprite[nSprite].type) {
+    spritetype *pSprite = &actor->s();
+    assert(actor->hasX());
+    XSPRITE *pXSprite = &actor->x();
+    switch (pSprite->type) {
         case kGenTrigger:
             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
             pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
             break;
     }
     if (pXSprite->state != pXSprite->restState && pXSprite->busyTime > 0)
-        evPostActor(&bloodActors[nSprite], (120*(pXSprite->busyTime+Random2(pXSprite->data1)))/10, kCmdRepeat);
+        evPostActor(actor, (120*(pXSprite->busyTime+Random2(pXSprite->data1)))/10, kCmdRepeat);
 }
 
-void ActivateGenerator(int nSprite)
+void ActivateGenerator(DBloodActor* actor)
 {
-    assert(nSprite < kMaxSprites);
-    auto actor = &bloodActors[nSprite];
-    spritetype *pSprite = &sprite[nSprite];
-    assert(pSprite->statnum != kMaxStatus);
-    int nXSprite = pSprite->extra;
-    assert(nXSprite > 0);
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    spritetype *pSprite = &actor->s();
+    assert(actor->hasX());
+    XSPRITE *pXSprite = &actor->x();
     switch (pSprite->type) {
         case kGenDripWater:
         case kGenDripBlood: {
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
+            GetActorExtents(actor, &top, &bottom);
             actSpawnThing(pSprite->sectnum, pSprite->x, pSprite->y, bottom, (pSprite->type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
             break;
         }
@@ -2218,7 +2212,7 @@ void ActivateGenerator(int nSprite)
         case kGenMissileFireball:
             switch (pXSprite->data2) {
                 case 0:
-                    FireballTrapSeqCallback(3, &bloodActors[nSprite]);
+                    FireballTrapSeqCallback(3, actor);
                     break;
                 case 1:
                     seqSpawn(35, actor, nFireballTrapClient);
@@ -2233,7 +2227,7 @@ void ActivateGenerator(int nSprite)
         case kGenBubble:
         case kGenBubbleMulti: {
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
+            GetActorExtents(actor, &top, &bottom);
             gFX.fxSpawnActor((pSprite->type == kGenBubble) ? FX_23 : FX_26, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
             break;
         }

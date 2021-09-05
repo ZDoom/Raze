@@ -422,7 +422,7 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 			{
 				XSPRITE* pXSprite = &actor->x();
 				if (pXSprite->rxID == rxId)
-					trMessageSprite(actor->s().index, event);
+					trMessageSprite(actor, event);
 			}
 		}
 		return;
@@ -440,7 +440,7 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 			{
 				XSPRITE* pXSprite = &actor->x();
 				if (pXSprite->rxID == rxId)
-					trMessageSprite(actor->s().index, event);
+					trMessageSprite(actor, event);
 			}
 		}
 		return;
@@ -457,14 +457,14 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 		if (playerRXRngIsFine(rxId)) 
 		{
 			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)
-				trMessageSprite(pPlayer->nSprite, event);
+				trMessageSprite(pPlayer->actor(), event);
 		}
 		else if (rxId == kChannelAllPlayers) 
 		{
 			for (int i = 0; i < kMaxPlayers; i++) 
 			{
 				if ((pPlayer = getPlayerById(i)) != nullptr)
-					trMessageSprite(pPlayer->nSprite, event);
+					trMessageSprite(pPlayer->actor(), event);
 			}
             return;
 		}
@@ -491,7 +491,7 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 				{
 					XSPRITE* pXSprite = &actor->x();
 					if (actor->x().rxID > 0)
-						trMessageSprite(actor->s().index, event);
+						trMessageSprite(actor, event);
 				}
 				break;
 			}
@@ -648,7 +648,7 @@ void evProcess(unsigned int time)
 				trMessageWall(event.index_, event);
 				break;
 			case SS_SPRITE:
-				trMessageSprite(event.actor->s().index, event);
+				trMessageSprite(event.actor, event);
 				break;
 			}
 		}
