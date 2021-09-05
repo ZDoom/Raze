@@ -12,7 +12,6 @@ extern bool automapping;
 extern bool gFullMap;
 extern FixedBitArray<MAXSECTORS> show2dsector;
 extern FixedBitArray<MAXWALLS> show2dwall;
-extern FixedBitArray<MAXSPRITES> show2dsprite;
 
 void SerializeAutomap(FSerializer& arc);
 void ClearAutomap();

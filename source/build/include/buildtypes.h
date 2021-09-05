@@ -191,6 +191,7 @@ enum
 {
     CSTAT2_SPRITE_MDLROTATE = 1,   // Only for tsprites: rotate if this is a model or voxel.
     CSTAT2_SPRITE_NOFIND = 2,      // Invisible to neartag and hitscan
+    CSTAT2_SPRITE_MAPPED = 4,      // sprite was mapped for automap
 
 };
 enum

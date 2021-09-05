@@ -119,8 +119,8 @@ DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed ch
 		s->hitag = 0;
 	}
 
-	if (show2dsector[s->sectnum]) show2dsprite.Set(i);
-	else show2dsprite.Clear(i);
+	if (show2dsector[s->sectnum]) act->s->cstat2 |= CSTAT2_SPRITE_MAPPED;
+	else act->s->cstat2 &= ~CSTAT2_SPRITE_MAPPED;
 
 	spriteext[i] = {};
 	spritesmooth[i] = {};

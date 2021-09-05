@@ -1738,7 +1738,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                     goto SHOWSPRITE;
                 }
             }
-            if (gFullMap || show2dsprite[j])
+            if (gFullMap || (sprite[j].cstat2 & CSTAT2_SPRITE_MAPPED))
             {
             SHOWSPRITE:
                 spr = &sprite[j];

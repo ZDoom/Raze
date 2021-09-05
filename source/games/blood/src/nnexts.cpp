@@ -1193,9 +1193,9 @@ void nnExtProcessSuperSprites() {
             int index = sprite[gSightSpritesList[i]].index;
 
             // sprite is drawn for one of players
-            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && show2dsprite[index]) {
+            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (gSightSpritesList[i]->s().cstat2 & CSTAT2_SPRITE_MAPPED))
                 trTriggerSprite(index, pXSightSpr, kCmdSpriteSight);
-                show2dsprite.Clear(index);
+                gSightSpritesList[i]->s().cstat2 &= ~CSTAT2_SPRITE_MAPPED;
                 continue;
             }
 
@@ -2521,7 +2521,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
 
                 // set new cstat
                 if ((pSource->flags & kModernTypeFlag1)) pSprite->cstat |= pXSource->data4; // relative
-                else pSprite->cstat = pXSource->data4; // absolute
+                else pSprite->cstat = pXSource->data4 & 0xffff; // absolute
 
                 // and handle exceptions
                 if ((old & 0x1000) && !(pSprite->cstat & 0x1000)) pSprite->cstat |= 0x1000; //kSpritePushable
@@ -7839,6 +7839,7 @@ void callbackUniMissileBurst(int nSprite) // 22
         pBurst->shade = pSprite->shade;
         pBurst->picnum = pSprite->picnum;
 
+        
         pBurst->cstat = pSprite->cstat;
         if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
             pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
