@@ -572,6 +572,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTO
 			("marker0", w.marker0, def->marker0)
 			("marker1", w.marker1, def->marker1)
 			("basepath", w.basePath, def->basePath)
+			("actordata", w.actordata, def->actordata)
 			("windang", w.windAng, def->windAng)
 			("bobtheta", w.bobTheta, def->bobTheta)
 			("bobspeed", w.bobSpeed, def->bobSpeed)

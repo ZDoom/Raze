@@ -100,7 +100,7 @@ struct BloodPlayer native
 	//native Aim        aim;  // world
 	//native int        aimTarget;  // aim target sprite
 	native int        aimTargetsCount;
-	native short      aimTargets[16];
+	//native short      aimTargets[16];
 	native int        deathTime;
 	native int        pwUpTime[51];	// kMaxPowerUps
 	native int        fragCount;

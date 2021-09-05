@@ -2445,7 +2445,7 @@ DEFINE_FIELD_X(BloodPlayer, PLAYER, throwTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, throwPower)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, aim)  // world
 DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargetsCount)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargets)
+//DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargets)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, deathTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, pwUpTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, teamId)

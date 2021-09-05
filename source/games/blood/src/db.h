@@ -203,6 +203,7 @@ struct XSECTOR {
     DBloodActor* marker0;
     DBloodActor* marker1;
     DBloodActor* basePath;
+    DBloodActor* actordata;
     uint16_t windAng;          // Wind ang
     uint16_t bobTheta;         // Motion Theta
     int16_t bobSpeed;           // Motion speed

@@ -398,7 +398,7 @@ void UpdateAimVector(PLAYER * pPlayer)
             if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->angleRange)
                 continue;
             if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,x2,y2,z2,pSprite->sectnum))
-                pPlayer->aimTargets[pPlayer->aimTargetsCount++] = pSprite->index;
+                pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
             // Inlined?
             int dz = (lz-z2)>>8;
             int dy = (ly-y2)>>4;
@@ -449,7 +449,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
                     continue;
                 if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,pSprite->x,pSprite->y,pSprite->z,pSprite->sectnum))
-                    pPlayer->aimTargets[pPlayer->aimTargetsCount++] = pSprite->index;
+                    pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
                 // Inlined?
                 int dz2 = (lz-z2)>>8;
                 int dy2 = (ly-y2)>>4;
@@ -1517,8 +1517,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
             {
                 for (int i = 0; i < pPlayer->aimTargetsCount; i++)
                 {
-                    int nTarget = pPlayer->aimTargets[i];
-                    auto targetactor = &bloodActors[nTarget];
+                    auto targetactor = pPlayer->aimTargets[i];
                     spritetype* pTarget = &targetactor->s();
                     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                         continue;
@@ -1554,8 +1553,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
             int v4 = pPlayer->ammoCount[9] - (pPlayer->ammoCount[9] / nCount) * nCount;
             for (int i = 0; i < pPlayer->aimTargetsCount; i++)
             {
-                int nTarget = pPlayer->aimTargets[i];
-                auto targetactor = &bloodActors[nTarget];
+                auto targetactor = pPlayer->aimTargets[i];
                 spritetype* pTarget = &targetactor->s();
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                     continue;
@@ -1738,7 +1736,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
         pXSprite->DudeLockout = 1;
         pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         pXSprite->stateTimer = 1;
-        evPostActor(&bloodActors[pMissile->index], 120, kCallbackLeechStateTimer);
+        evPostActor(missile, 120, kCallbackLeechStateTimer);
         if (gGameOptions.nGameType <= 1)
         {
             int nAmmo = pPlayer->ammoCount[8];

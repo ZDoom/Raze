@@ -4970,7 +4970,7 @@ void MoveDude(DBloodActor* actor)
 		if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout))
 		{
 			if (sector[nSector].type == kSectorTeleport)
-				pXSector->data = pPlayer ? pSprite->index : -1;
+				pXSector->actordata = actor;
 			trTriggerSector(nSector, pXSector, kCmdSectorEnter);
 		}
 

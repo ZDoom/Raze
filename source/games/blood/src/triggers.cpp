@@ -1447,8 +1447,10 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 pPlayer = NULL;
             if (bPlayer || !SectorContainsDudes(pDest->sectnum))
             {
-                if (!(gGameOptions.uNetGameFlags&2))
-                    TeleFrag(&bloodActors[pXSector->data], pDest->sectnum);
+                if (!(gGameOptions.uNetGameFlags & 2))
+                {
+                    TeleFrag(pXSector->actordata, pDest->sectnum);
+                }
                 pSprite->x = pDest->x;
                 pSprite->y = pDest->y;
                 pSprite->z += sector[pDest->sectnum].floorz-sector[nSector].floorz;
