@@ -671,7 +671,7 @@ void playerStart(int nPlayer, int bNewLevel)
     playerResetPosture(pPlayer);
     seqSpawn(pDudeInfo->seqStartID, actor, -1);
     if (pPlayer == gMe)
-        actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
+    actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z -= bottom - pSprite->z;

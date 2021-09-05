@@ -165,7 +165,6 @@ void qinitspritelists(void) // Replace
     for (int i = 0; i < kMaxSprites; i++)
     {
         sprite[i].sectnum = -1;
-        sprite[i].index = -1;
         InsertSpriteStat(i, kMaxStatus);
     }
     memset(gStatCount, 0, sizeof(gStatCount));
@@ -192,7 +191,6 @@ DBloodActor* InsertSprite(int nSector, int nStat)
     pSprite->clipdist = 32;
     pSprite->xrepeat = pSprite->yrepeat = 64;
     actor->SetOwner(nullptr);
-    pSprite->index = nSprite;
 
     Numsprites++;
 
@@ -806,7 +804,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
         pSprite->statnum = LittleShort(load.statnum);
         pSprite->ang = LittleShort(load.ang);
         pSprite->owner = LittleShort(load.owner);
-        pSprite->index = LittleShort(load.index);
+        pSprite->xvel = LittleShort(load.index);
         pSprite->yvel = LittleShort(load.yvel);
         pSprite->inittype = LittleShort(load.inittype);
         pSprite->type = LittleShort(load.type);
@@ -827,7 +825,6 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
         InsertSpriteSect(i, pSprite->sectnum);
         InsertSpriteStat(i, pSprite->statnum);
         Numsprites++;
-        pSprite->index = i;
         if (pSprite->extra > 0)
         {
             char pBuffer[nXSpriteSize];
@@ -896,7 +893,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             pXSprite->dudeAmbush = bitReader.readUnsigned(1);
             pXSprite->dudeGuard = bitReader.readUnsigned(1);
             pXSprite->dudeFlag4 = bitReader.readUnsigned(1);
-            pXSprite->target_i = bitReader.readSigned(16);
+            /*pXSprite->target_i = */ bitReader.readSigned(16);
             pXSprite->targetX = bitReader.readSigned(32);
             pXSprite->targetY = bitReader.readSigned(32);
             pXSprite->targetZ = bitReader.readSigned(32);
