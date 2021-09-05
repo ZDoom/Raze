@@ -57,7 +57,6 @@ void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command);
 void trMessageSector(unsigned int nSector, EVENT event);
 void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command);
 void trMessageWall(unsigned int nWall, EVENT event);
-void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command);
 void trTriggerSprite(DBloodActor* actor, int command);
 void trMessageSprite(unsigned int nSprite, EVENT event);
 void trProcessBusy(void);
@@ -66,7 +65,7 @@ void trTextOver(int nId);
 bool SetSpriteState(DBloodActor* actor, int nState);
 bool SetWallState(int nWall, XWALL* pXWall, int nState);
 bool SetSectorState(int nSector, XSECTOR* pXSector, int nState);
-void TeleFrag(int nKiller, int nSector);
+void TeleFrag(DBloodActor* killer, int nSector);
 void SectorStartSound(int nSector, int nState);
 void SectorEndSound(int nSector, int nState);
 

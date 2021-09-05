@@ -908,7 +908,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                     if ((pPlayer->hasFlag & 1) == 0 && pXItem->state) {
                         pPlayer->hasFlag |= 1;
                         pPlayer->ctfFlagState[0] = itemactor;
-                        trTriggerSprite(pItem->index, pXItem, kCmdOff);
+                        trTriggerSprite(itemactor, kCmdOff);
                         sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8007, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -920,7 +920,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                     if ((pPlayer->hasFlag & 1) != 0 && !pXItem->state) {
                         pPlayer->hasFlag &= ~1;
                         pPlayer->ctfFlagState[0] = nullptr;
-                        trTriggerSprite(pItem->index, pXItem, kCmdOn);
+                        trTriggerSprite(itemactor, kCmdOn);
                         sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8003, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -945,7 +945,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                     if ((pPlayer->hasFlag & 2) == 0 && pXItem->state) {
                         pPlayer->hasFlag |= 2;
                         pPlayer->ctfFlagState[1] = itemactor;
-                        trTriggerSprite(pItem->index, pXItem, kCmdOff);
+                        trTriggerSprite(itemactor, kCmdOff);
                         sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8006, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -957,7 +957,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                     {
                         pPlayer->hasFlag &= ~2;
                         pPlayer->ctfFlagState[1] = nullptr;
-                        trTriggerSprite(pItem->index, pXItem, kCmdOn);
+                        trTriggerSprite(itemactor, kCmdOn);
                         sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8002, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -987,7 +987,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                 pPlayer->ctfFlagState[0] = nullptr;
                 spritetype* pOwner = &itemactor->GetOwner()->s();
                 XSPRITE* pXOwner = &itemactor->GetOwner()->x();
-                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
+                trTriggerSprite(itemactor->GetOwner(), kCmdOn);
                 sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8003, 255, 2, 0);
                 viewSetMessage(buffer);
@@ -1013,7 +1013,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                 pPlayer->ctfFlagState[1] = nullptr;
                 spritetype* pOwner = &itemactor->GetOwner()->s();
                 XSPRITE* pXOwner = &itemactor->GetOwner()->x();
-                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
+                trTriggerSprite(itemactor->GetOwner(), kCmdOn);
                 sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8002, 255, 2, 0);
                 viewSetMessage(buffer);
@@ -1187,9 +1187,8 @@ void PickUp(PLAYER *pPlayer, DBloodActor* actor)
     if (!pickedUp) return;
     else if (actor->hasX())
     {
-        XSPRITE *pXSprite = &actor->x();
-        if (pXSprite->Pickup)
-            trTriggerSprite(pSprite->index, pXSprite, kCmdSpritePickup);
+        if (actor->x().Pickup)
+            trTriggerSprite(actor, kCmdSpritePickup);
     }
         
     if (!actCheckRespawn(actor)) 
@@ -1564,7 +1563,7 @@ void ProcessInput(PLAYER *pPlayer)
             if (pXSprite->locked && pPlayer == gMe && pXSprite->lockMsg)
                 trTextOver(pXSprite->lockMsg);
             if (!key || pPlayer->hasKey[key])
-                trTriggerSprite(act->GetIndex(), pXSprite, kCmdSpritePush);
+                trTriggerSprite(act, kCmdSpritePush);
             else if (pPlayer == gMe)
             {
                 viewSetMessage(GStrings("TXTB_KEY"));
@@ -2064,7 +2063,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 gPlayer[p].fragger = nullptr;
         }
         FragPlayer(pPlayer, source);
-        trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
+        trTriggerSprite(pActor, kCmdOff);
 
         #ifdef NOONE_EXTENSIONS
         // allow drop items and keys in multiplayer
