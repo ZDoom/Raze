@@ -1848,7 +1848,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
     if (actTarget != nullptr && actTarget != actor->GetOwner())
     {
         spritetype* pTarget = &actTarget->s();
-        if (pTarget->statnum == kStatDude && !(pTarget->flags & 32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites && !pXSprite->stateTimer) 
+        if (pTarget->statnum == kStatDude && !(pTarget->flags & 32) && actTarget->hasX() && !pXSprite->stateTimer) 
         {
             if (IsPlayerSprite(pTarget)) 
             {
@@ -1908,7 +1908,7 @@ bool doExplosion(DBloodActor* actor, int nType)
     auto actExplosion = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
     auto const pExplosion = &actExplosion->s();
     auto const pXExplosion = &actExplosion->x();
-    if (pExplosion->extra < 0 || pExplosion->extra >= kMaxXSprites)
+    if (!actExplosion->hasX())
         return false;
 
     int nSeq = 4; int nSnd = 304; const EXPLOSION* pExpl = &explodeInfo[nType];

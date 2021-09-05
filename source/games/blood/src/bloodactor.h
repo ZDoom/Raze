@@ -1,5 +1,7 @@
 #pragma once
 
+#define ex_tra extra
+
 BEGIN_BLD_NS
 
 class DBloodActor;
@@ -119,13 +121,13 @@ public:
 		basePoint = {};
 		xvel = yvel = zvel = 0;
 	}
-	bool hasX() { return sprite[index].extra > 0; }
+	bool hasX() { return sprite[index].ex_tra > 0; }
 	void addX()
 	{
-		if (s().extra == -1) dbInsertXSprite(s().index);
+		if (s().ex_tra == -1) dbInsertXSprite(s().index);
 	}
 	spritetype& s() { return sprite[index]; }
-	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
+	XSPRITE& x() { return xsprite[sprite[index].ex_tra]; }	// calling this does not validate the xsprite!
 	int GetIndex() { return index; }	// this is for error printing only!
 
 	void SetOwner(DBloodActor* own)

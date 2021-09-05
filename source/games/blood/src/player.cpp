@@ -661,7 +661,7 @@ void playerStart(int nPlayer, int bNewLevel)
 
     auto actor = actSpawnSprite(pStartZone->sectnum, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
     spritetype* pSprite = &actor->s();
-    assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+    assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
     pPlayer->pSprite = pSprite;
     pPlayer->pXSprite = pXSprite;
@@ -901,7 +901,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
         #endif
         case kItemFlagABase:
         case kItemFlagBBase: {
-            if (gGameOptions.nGameType != 3 || pItem->extra <= 0) return 0;
+            if (gGameOptions.nGameType != 3 || !itemactor->hasX()) return 0;
             XSPRITE * pXItem = &itemactor->x();
             if (pItem->type == kItemFlagABase) {
                 if (pPlayer->teamId == 1) {
@@ -1105,7 +1105,7 @@ char PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
 
     if (pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
     #ifdef NOONE_EXTENSIONS
-    else if (gModernMap && pAmmo->extra >= 0 && ammoactor->x().data1 > 0) // allow custom amount for item
+    else if (gModernMap && ammoactor->hasX() && ammoactor->x().data1 > 0) // allow custom amount for item
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + ammoactor->x().data1, gAmmoInfo[nAmmoType].max);
     #endif
     else
@@ -1941,7 +1941,6 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     auto pActor = pPlayer->actor;
-    int nXSprite = pSprite->extra;
     int nXSector = sector[pSprite->sectnum].extra;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nDeathSeqID = -1;

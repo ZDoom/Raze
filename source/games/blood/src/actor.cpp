@@ -2407,7 +2407,7 @@ static void actInitThings()
 			break;
 		case kThingBloodChunks:
 		{
-			SEQINST* pInst = GetInstance(3, pSprite->extra);
+			SEQINST* pInst = GetInstance(act);
 			if (pInst)
 			{
 				auto seq = getSequence(pInst->nSeqID);
@@ -3929,7 +3929,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			}
 		}
 
-		if (pMissile->extra > 0)
+		if (missileActor->hasX())
 		{
 			actPostSprite(missileActor, kStatDecoration);
 			if (pMissile->ang == 1024) sfxPlay3DSound(pMissile, 307, -1, 0);
@@ -6387,7 +6387,6 @@ DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool se
 	int nSprite = InsertSprite(nSector, nStat);
 	if (nSprite >= 0)
 	{
-		sprite[nSprite].extra = -1;
 		actor = &bloodActors[nSprite];
 	}
 	else
@@ -7347,7 +7346,6 @@ void MakeSplash(DBloodActor* actor)
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	pSprite->flags &= ~2;
-	int nXSprite = pSprite->extra;
 	pSprite->z -= 4 << 8;
 	int nSurface = tileGetSurfType(actor->hit.florhit);
 	switch (pSprite->type)

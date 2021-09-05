@@ -6669,7 +6669,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
         {
             auto spr = &iactor->s();
             auto xspr = &iactor->x();
-            if (spr->extra > 0 && xspr->physAttr > 0) 
+            if (iactor->hasX() && xspr->physAttr > 0) 
             {
                 xspr->physAttr |= kPhysFalling;
                 iactor->zvel++;

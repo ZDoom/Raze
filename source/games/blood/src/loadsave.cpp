@@ -461,7 +461,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 	if (arc.BeginObject(keyname))
 	{
 		// The rest is only relevant if the actor has an xsprite.
-		if (w.s().extra > 0)
+		if (w.hasX())
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra)
@@ -721,7 +721,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		activeXSprites.Zero();
 		for (int i = 0; i < kMaxSprites; i++)
 		{
-			if (activeSprites[i] && sprite[i].extra > 0) activeXSprites.Set(sprite[i].extra);
+			//if (activeSprites[i] && bloodActors[i].hasX()) activeXSprites.Set(bloodAc);
 		}
 	}
 	else

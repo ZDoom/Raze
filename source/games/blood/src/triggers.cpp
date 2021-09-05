@@ -226,7 +226,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
             if (!pXSprite->stateTimer)
             {
                 spritetype *pTarget = &target->s();
-                if (pTarget->statnum == kStatDude && !(pTarget->flags&32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites)
+                if (pTarget->statnum == kStatDude && !(pTarget->flags&32) && target->hasX())
                 {
                     int top, bottom;
                     GetSpriteExtents(pSprite, &top, &bottom);
@@ -1140,7 +1140,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     if (actor && a2 > pXSector->busy)
     {
         spritetype *pSprite = &actor->s();
-        assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+        assert(actor->hasX());
         XSPRITE *pXSprite = &actor->x();
         if (pXSector->onCeilZ > pXSector->offCeilZ || pXSector->onFloorZ < pXSector->offFloorZ)
         {
@@ -1174,7 +1174,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     else if (actor && a2 < pXSector->busy)
     {
         spritetype* pSprite = &actor->s();
-        assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+        assert(actor->hasX());
         XSPRITE* pXSprite = &actor->x();
         if (pXSector->offCeilZ > pXSector->onCeilZ || pXSector->offFloorZ < pXSector->onFloorZ)
         {

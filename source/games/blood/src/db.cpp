@@ -186,6 +186,7 @@ int InsertSprite(int nSector, int nStat)
     }
     RemoveSpriteStat(nSprite);
     DBloodActor* actor = &bloodActors[nSprite];
+    actor->Clear();
     spritetype *pSprite = &actor->s();
     memset(pSprite, 0, sizeof(spritetype));
     InsertSpriteStat(nSprite, nStat);
@@ -194,9 +195,8 @@ int InsertSprite(int nSector, int nStat)
     pSprite->clipdist = 32;
     pSprite->xrepeat = pSprite->yrepeat = 64;
     actor->SetOwner(nullptr);
-    pSprite->extra = -1;
+    pSprite->ex_tra = -1;
     pSprite->index = nSprite;
-    actor->xvel = actor->yvel = actor->zvel = 0;
 
     Numsprites++;
 
@@ -214,9 +214,9 @@ int DeleteSprite(int nSprite)
     FVector3 pos = GetSoundPos(&sprite[nSprite].pos);
     soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
 
-    if (sprite[nSprite].extra > 0)
+    if (sprite[nSprite].ex_tra > 0)
     {
-        InsertFree(nextXSprite, sprite[nSprite].extra);
+        InsertFree(nextXSprite, sprite[nSprite].ex_tra);
     }
     assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
     RemoveSpriteStat(nSprite);
@@ -306,7 +306,7 @@ unsigned short dbInsertXSprite(int nSprite)
     }
     memset(&xsprite[nXSprite], 0, sizeof(XSPRITE));
     bloodActors[nSprite].hit = {};
-    sprite[nSprite].extra = nXSprite;
+    sprite[nSprite].ex_tra = nXSprite;
     return nXSprite;
 }
 
@@ -879,11 +879,11 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->shade = load.shade;
         pSprite->blend = 0;
 
-        InsertSpriteSect(i, sprite[i].sectnum);
-        InsertSpriteStat(i, sprite[i].statnum);
+        InsertSpriteSect(i, pSprite->sectnum);
+        InsertSpriteStat(i, pSprite->statnum);
         Numsprites++;
-        sprite[i].index = i;
-        if (sprite[i].extra > 0)
+        pSprite->index = i;
+        if (pSprite->extra > 0)
         {
             char pBuffer[nXSpriteSize];
             int nXSprite = dbInsertXSprite(i);
