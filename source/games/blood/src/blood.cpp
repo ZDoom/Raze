@@ -110,7 +110,6 @@ void StartLevel(MapRecord* level, bool newgame)
 			gHealthTemp[i] = gPlayer[i].actor->x().health;
 		}
 	}
-	memset(xsprite, 0, sizeof(xsprite));
 	//drawLoadingScreen();
 	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsectnum, nullptr);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);

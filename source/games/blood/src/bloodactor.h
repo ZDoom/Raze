@@ -112,18 +112,20 @@ class DBloodActor
 
 public:
 	int dudeSlope;
+	int xvel, yvel, zvel;
+	bool hasx;
+	XSPRITE xsprite;
 	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
 	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 	POINT3D basePoint;
-	int xvel, yvel, zvel;
+	ConditionElement condition[2];
+	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
 
 	// transient data (not written to savegame)
 	int cumulDamage;
-	ConditionElement condition[2];
-	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
 	bool interpolated;
 
 	DBloodActor() :index(int(this - base())) {}
@@ -138,18 +140,18 @@ public:
 		genDudeExtra = {};
 		prevmarker = nullptr;
 		basePoint = {};
+		xsprite = {};
+		hasx = false;
 		interpolated = false;
 		xvel = yvel = zvel = 0;
 		explosionhackflag = false;
 		interpolated = false;
 	}
-	bool hasX() { return sprite[index].extra > 0; }
-	void addX()
-	{
-		if (s().extra == -1) dbInsertXSprite(s().index);
-	}
+	bool hasX() { return hasx; }
+	void addX() { hasx = true; }
+
 	spritetype& s() { return sprite[index]; }
-	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
+	XSPRITE& x() { return xsprite; }	// calling this does not validate the xsprite!
 	int GetIndex() { return s().time; }	// For error printing only! This is only identical with the sprite index for items spawned at map start.
 	int GetSpriteIndex() { return index; }	// this is only here to mark places that need changing later!
 

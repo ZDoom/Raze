@@ -293,12 +293,8 @@ extern unsigned short gStatCount[kMaxStatus + 1];;
 extern bool drawtile2048, encrypted;
 extern MAPHEADER2 byte_19AE44;
 
-extern XSPRITE xsprite[kMaxXSprites];
 extern XSECTOR xsector[kMaxXSectors];
 extern XWALL xwall[kMaxXWalls];
-
-extern FixedBitArray<MAXSPRITES> activeXSprites;
-
 
 extern uint8_t qsector_filler[kMaxSectors];
 
@@ -308,7 +304,6 @@ extern const char *gItemText[];
 extern const char *gAmmoText[];
 extern const char *gWeaponText[];
 
-extern unsigned short nextXSprite[kMaxXSprites];
 extern int XWallsUsed, XSectorsUsed;
 
 static inline int GetWallType(int nWall)
@@ -348,15 +343,12 @@ void RemoveSpriteSect(int nSprite);
 void InsertSpriteStat(int nSprite, int nStat);
 void RemoveSpriteStat(int nSprite);
 void qinitspritelists(void);
-int InsertSprite(int nSector, int nStat);
+DBloodActor* InsertSprite(int nSector, int nStat);
 int DeleteSprite(int nSprite);
 int ChangeSpriteSect(int nSprite, int nSector);
 int qchangespritesect(short nSprite, short nSector);
 int ChangeSpriteStat(int nSprite, int nStatus);
 void InitFreeList(unsigned short *pList, int nCount);
-void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>& activeXSprites);
-void InsertFree(unsigned short *pList, int nIndex);
-unsigned short dbInsertXSprite(int nSprite);
 unsigned short dbInsertXWall(int nWall);
 unsigned short dbInsertXSector(int nSector);
 void dbInit(void);

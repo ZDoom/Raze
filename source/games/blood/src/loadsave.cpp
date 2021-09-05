@@ -38,9 +38,6 @@ BEGIN_BLD_NS
 
 void validateLinks();
 
-
-FixedBitArray<MAXSPRITES> activeXSprites;
-
 // All AI states for assigning an index.
 static AISTATE* allAIStates[] =
 {
@@ -448,26 +445,31 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 
 	if (arc.BeginObject(keyname))
 	{
-#ifdef OLD_SAVEGAME
 		// Note: birthCounter/thinkTime are a union and share the same value (this is used for savefile backwards compatibility - see correct implementation below)
-		arc("time", w.time, &empty)
-			("recoil", w.teslaHit, &empty2)
-			("prio", w.prio, &empty)
-			("x1", w.stats.birthCounter, &empty)
-			("x2", w.stats.thinkTime, &empty)
-			("x3", w.stats.active, &empty2)
-			.EndObject();
-#else
 		arc("time", w.time, &empty)
 			("teslaHit", w.teslaHit, &empty2)
 			("prio", w.prio, &empty)
 			("thinkTime", w.stats.thinkTime, &empty)
-			("active", w.stats.active, &empty2)
-#endif
+			("active", w.stats.active, &empty2);
 	}
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, ConditionElement& w, ConditionElement* def)
+{
+	int empty = 0;
+	DBloodActor* empty2 = nullptr;
+	if (arc.isReading()) w = {};
+
+	if (arc.BeginObject(keyname))
+	{
+		arc("type", w.type, &empty)
+			("index", w.index, &empty)
+			("actor", w.actor, &empty2)
+			.EndObject();
+	}
+	return arc;
+}
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DBloodActor* def)
 {
@@ -480,37 +482,37 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 
 	if (arc.BeginObject(keyname))
 	{
-#ifndef OLD_SAVEGAME
 		arc("xvel", w.xvel, def->xvel)
 			("yvel", w.yvel, def->yvel)
-			("zvel", w.zvel, def->zvel);
-#endif
+			("zvel", w.zvel, def->zvel)
+			("hasx", w.hasx, def->hasx);
 
 		// The rest is only relevant if the actor has an xsprite.
 		if (w.hasX())
 		{
-			arc("dudeslope", w.dudeSlope, def->dudeSlope)
+			arc ("xsprite", w.xsprite, def->xsprite)
+				("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra)
 				("explosionflag", w.explosionhackflag, def->explosionhackflag)
-				("spritehit", w.hit, def->hit);
-#ifndef OLD_SAVEGAME
-			arc("basepoint", w.basePoint, def->basePoint);
-#endif
+				("spritehit", w.hit, def->hit)
+				("basepoint", w.basePoint, def->basePoint);
 
+#ifdef NOONE_EXTENSIONS
 			if (gModernMap)
 			{
-				arc("spritemass", w.spriteMass, def->spriteMass); // no treatment for old savegames. If this gets lost it is not critical
-#ifndef OLD_SAVEGAME
-					("prevmarker", w.prevmarker, def->prevmarker);
+				arc("spritemass", w.spriteMass, def->spriteMass) // no treatment for old savegames. If this gets lost it is not critical
+					("prevmarker", w.prevmarker, def->prevmarker)
+					.Array("conditions", w.condition, def->condition, 2);
+				
 
 				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
 				if (w.s().type == kDudeModernCustom || w.s().time == kDudeModernCustomBurning)
 				{
 					arc("gendudeextra", w.genDudeExtra);
 				}
+			}
 #endif
 			}
-		}
 		arc.EndObject();
 	}
 	return arc;
@@ -725,31 +727,8 @@ void SerializeState(FSerializer& arc)
 
 			.Array("xwall", xwall, XWallsUsed)  // todo
 			.Array("xsector", xsector, XSectorsUsed)
-			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
-			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites);
+			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites);
 
-#ifdef OLD_SAVEGAME
-		POINT3D baseSprite[kMaxSprites];
-		int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
-		for (int i = 0; i < kMaxSprites; i++)
-		{
-			baseSprite[i] = bloodActors[i].basePoint;
-			xvel[i] = bloodActors[i].xvel;
-			yvel[i] = bloodActors[i].yvel;
-			zvel[i] = bloodActors[i].zvel;
-		}
-		arc.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites)
-			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
-			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)
-			.SparseArray("zvel", zvel, kMaxSprites, activeSprites);
-		if (arc.isReading()) for (int i = 0; i < kMaxSprites; i++) if (activeSprites[i])
-		{
-			bloodActors[i].basePoint = baseSprite[i];
-			bloodActors[i].xvel = xvel[i];
-			bloodActors[i].yvel = yvel[i];
-			bloodActors[i].zvel = zvel[i];
-		}
-#endif
 		arc.EndObject();
 	}
 }
@@ -770,26 +749,15 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.isWriting())
 	{
-		activeXSprites.Zero();
-		for (int i = 0; i < kMaxSprites; i++)
-		{
-			if (activeSprites[i] && sprite[i].extra > 0) activeXSprites.Set(sprite[i].extra);
 		}
-	}
 	else
 	{
 		sndKillAllSounds();
 		sfxKillAllSounds();
 		ambKillAll();
 		seqKillAll();
-		if (gamestate != GS_LEVEL)
-		{
-			memset(xsprite, 0, sizeof(xsprite));
 		}
-	}
-	arc.SerializeMemory("activexsprites", activeXSprites.Storage(), activeXSprites.StorageSize());
 	SerializeState(arc);
-	InitFreeList(nextXSprite, kMaxXSprites, activeXSprites);
 	SerializeActor(arc);
 	SerializePlayers(arc);
 	SerializeEvents(arc);

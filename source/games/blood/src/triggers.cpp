@@ -2292,20 +2292,6 @@ void SerializeTriggers(FSerializer& arc)
 {
 	if (arc.BeginObject("triggers"))
 	{
-#ifdef OLD_SAVEGAME
-        if (arc.BeginArray("basepath"))
-        {
-            int nul = 0;
-            for (int i = 0; i < numsectors; i++)
-            {
-                if (sector[i].extra > 0)
-                    arc(nullptr, xsector[sector[i].extra].basePath);
-                else
-                    arc(nullptr, nul);
-            }
-            arc.EndArray();
-        }
-#endif
 		arc("busycount", gBusyCount)
 			.Array("busy", gBusy, gBusyCount)
 			.EndObject();

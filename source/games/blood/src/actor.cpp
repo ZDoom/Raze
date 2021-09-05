@@ -6356,21 +6356,7 @@ void actProcessSprites(void)
 
 DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool setextra)
 {
-	DBloodActor* actor;
-	int nSprite = InsertSprite(nSector, nStat);
-	if (nSprite >= 0)
-	{
-		sprite[nSprite].extra = -1;
-		actor = &bloodActors[nSprite];
-	}
-	else
-	{
-		BloodStatIterator it(kStatPurge);
-		actor = it.Next();
-		assert(actor != nullptr);
-		ChangeActorSect(actor, nSector);
-		actPostSprite(actor, nStat);
-	}
+	DBloodActor* actor = InsertSprite(nSector, nStat);
 
 	vec3_t pos = { x, y, z };
 	setActorPos(actor, &pos);
@@ -6395,18 +6381,7 @@ DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool se
 DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 {
 	auto pSource = &source->s();
-	int nSprite = InsertSprite(pSource->sectnum, nStat);
-	DBloodActor* actor;
-	if (nSprite < 0)
-	{
-		BloodStatIterator it(kStatPurge);
-		actor = it.Next();
-		assert(actor);
-		assert(validSectorIndex(pSource->sectnum));
-		ChangeActorSect(actor, pSource->sectnum);
-		actPostSprite(actor, nStat);
-	}
-	else actor = &bloodActors[nSprite];
+	DBloodActor* actor = InsertSprite(pSource->sectnum, nStat);
 
 	spritetype* pSprite = &actor->s();
 	pSprite->x = pSource->x;

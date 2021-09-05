@@ -3608,8 +3608,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
             {
                 if (pXSource->data3 > 0)
                 {
-                    int nSpawned = InsertSprite(pSprite->sectnum, kStatDecoration);
-                    auto spawned = &bloodActors[nSpawned];
+                    auto spawned = InsertSprite(pSprite->sectnum, kStatDecoration);
                     auto pSpawned = &spawned->s();
                     int top, bottom; GetActorExtents(spawned, &top, &bottom);
                     pSpawned->x = pSprite->x;
@@ -9239,36 +9238,6 @@ void SerializeNNExts(FSerializer& arc)
 {
     if (arc.BeginObject("nnexts"))
     {
-#ifdef OLD_SAVEGAME
-        // the GenDudeArray only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save the relevant entries as these are not small.
-        bool foundsome = false;
-        for (int i = 0; i < kMaxSprites; i++)
-        {
-            if (activeSprites[i] && (sprite[i].type == kDudeModernCustom ||  sprite[i].type == kDudeModernCustomBurning))
-            {
-                if (!foundsome) arc.BeginArray("gendudeextra");
-                foundsome = true;
-                arc(nullptr, bloodActors[i].genDudeExtra);
-            }
-        }
-        if (foundsome) arc.EndArray();
-
-        // In compatibility mode write this out as a sparse array sorted by xsprite index.
-        SPRITEMASS gSpriteMass[kMaxSprites];
-        for (int i = 0; i < kMaxSprites; i++)
-        {
-            int x = sprite[i].extra;
-            if (x <= 0) continue;
-            gSpriteMass[x] = bloodActors[i].spriteMass;
-        }
-        arc.SparseArray("spritemass", gSpriteMass, kMaxSprites, activeXSprites);
-        for (int i = 0; i < kMaxSprites; i++)
-        {
-            int x = sprite[i].extra;
-            if (x <= 0) continue;
-            if (activeXSprites[x]) bloodActors[i].spriteMass = gSpriteMass[x];
-        }
-#endif
         arc ("proxyspritescount", gProxySpritesCount)
             .Array("proxyspriteslist", gProxySpritesList, gProxySpritesCount)
             ("sightspritescount", gSightSpritesCount)
