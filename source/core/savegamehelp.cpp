@@ -465,6 +465,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 			("extra", c.extra, def->extra)
 			("detail", c.detail, def->detail)
 			("time", c.time, def->time)
+			("cstat2", c.cstat2, def->cstat2)
 			.EndObject();
 	}
 	return arc;
