@@ -601,8 +601,6 @@ void fakeActProcessSprites(void)
 	spritetype *pSprite = gMe->pSprite;
 	if (pSprite->statnum == kStatDude)
 	{
-		int nXSprite = pSprite->extra;
-		assert(nXSprite > 0 && nXSprite < kMaxXSprites);
 		int nSector = predict.sectnum;
 		int nXSector = sector[nSector].extra;
         XSECTOR *pXSector = NULL;

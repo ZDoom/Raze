@@ -113,7 +113,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 		if (actor1 != actor2 || v4)
 		{
 			spritetype* pSprite2 = &actor2->s();
-			if (pSprite2->extra > 0 && pSprite2->extra < kMaxXSprites)
+            if (actor2->hasX())
 			{
 				if (pSprite2->type == kDudeBeast)
 					continue;

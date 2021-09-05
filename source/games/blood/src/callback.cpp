@@ -134,8 +134,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int nXSprite = pSprite->extra;
-    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
+    assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
@@ -215,7 +214,7 @@ void Respawn(DBloodActor* actor, int) // 9
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+    assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
     
     if (pSprite->statnum != kStatRespawn && pSprite->statnum != kStatThing) {
@@ -475,7 +474,7 @@ void sleeveStopBouncing(DBloodActor* actor)
 {
     auto pSprite = &actor->s();
     actor->xvel = actor->yvel = actor->zvel = 0;
-    if (pSprite->extra > 0) seqKill(actor);
+    if (actor->hasX()) seqKill(actor);
     sfxKill3DSound(pSprite, -1, -1);
 
     switch (pSprite->type) {
@@ -639,8 +638,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
         return;
     }
     pSprite->ang = getangle(pOwner->x-pSprite->x, pOwner->y-pSprite->y);
-    int nXSprite = pSprite->extra;
-    if (nXSprite > 0)
+    if (actor->hasX())
     {
         XSPRITE *pXSprite = &actor->x();
         if (pXSprite->data1 == 0)

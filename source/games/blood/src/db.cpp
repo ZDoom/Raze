@@ -186,6 +186,7 @@ int InsertSprite(int nSector, int nStat)
     }
     RemoveSpriteStat(nSprite);
     DBloodActor* actor = &bloodActors[nSprite];
+    actor->Clear();
     spritetype *pSprite = &actor->s();
     memset(pSprite, 0, sizeof(spritetype));
     InsertSpriteStat(nSprite, nStat);
@@ -196,7 +197,6 @@ int InsertSprite(int nSector, int nStat)
     actor->SetOwner(nullptr);
     pSprite->extra = -1;
     pSprite->index = nSprite;
-    actor->xvel = actor->yvel = actor->zvel = 0;
 
     Numsprites++;
 
@@ -897,11 +897,11 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->time = i;
         ValidateSprite(*pSprite);
 
-        InsertSpriteSect(i, sprite[i].sectnum);
-        InsertSpriteStat(i, sprite[i].statnum);
+        InsertSpriteSect(i, pSprite->sectnum);
+        InsertSpriteStat(i, pSprite->statnum);
         Numsprites++;
-        sprite[i].index = i;
-        if (sprite[i].extra > 0)
+        pSprite->index = i;
+        if (pSprite->extra > 0)
         {
             char pBuffer[nXSpriteSize];
             int nXSprite = dbInsertXSprite(i);
