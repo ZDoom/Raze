@@ -7909,9 +7909,6 @@ void aiPatrolStop(spritetype* pSprite, int target, bool alarm)
 
 void aiPatrolRandGoalAng(DBloodActor* actor) 
 {
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    
     int goal = kAng90;
     if (Chance(0x4000))
         goal = kAng120;
@@ -7922,7 +7919,7 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
     if (Chance(0x8000))
         goal = -goal;
 
-    pXSprite->goalAng = (pSprite->ang + goal) & 2047;
+    actor->x().goalAng = (actor->s().ang + goal) & 2047;
 }
 
 //---------------------------------------------------------------------------
@@ -7952,8 +7949,9 @@ void aiPatrolMove(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
+    auto targetactor = actor->GetTarget();
 
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax) || !spriRangeIsFine(pXSprite->target_i))
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax) || !targetactor)
         return;
 
 
@@ -7964,8 +7962,8 @@ void aiPatrolMove(DBloodActor* actor)
         case kDudeCultistTommyProne:    dudeIdx = kDudeCultistTommy - kDudeBase;    break;
     }
 
-    spritetype* pTarget = &sprite[pXSprite->target_i];
-    XSPRITE* pXTarget   = &xsprite[pTarget->extra];
+    spritetype* pTarget = &targetactor->s();
+    XSPRITE* pXTarget   = &targetactor->x();
     DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
     
@@ -7998,9 +7996,9 @@ void aiPatrolMove(DBloodActor* actor)
         return;
     }
    
-    if (gSpriteHit[pSprite->extra].hit.type == kHitSprite)
+    if (actor->hit().hit.type == kHitSprite)
     {
-        auto hitactor = gSpriteHit[pSprite->extra].hit.actor;
+        auto hitactor = actor->hit().hit.actor;
         hitactor->x().dodgeDir =  -1;
         pXSprite->dodgeDir  =   1;
         aiMoveDodge(hitactor);
@@ -8008,13 +8006,13 @@ void aiPatrolMove(DBloodActor* actor)
     else 
     {
         int frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, pXTarget->busyTime);
-        xvel[pSprite->index] += MulScale(frontSpeed, Cos(pSprite->ang), 30);
-        yvel[pSprite->index] += MulScale(frontSpeed, Sin(pSprite->ang), 30);
+        actor->xvel() += MulScale(frontSpeed, Cos(pSprite->ang), 30);
+        actor->yvel() += MulScale(frontSpeed, Sin(pSprite->ang), 30);
     }
 
     vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
-    xvel[pSprite->index] = ClipRange(xvel[pSprite->index], -vel, vel);
-    yvel[pSprite->index] = ClipRange(yvel[pSprite->index], -vel, vel);
+    actor->xvel() = ClipRange(actor->xvel(), -vel, vel);
+    actor->yvel() = ClipRange(actor->yvel(), -vel, vel);
     return;
 }
 
