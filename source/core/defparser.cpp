@@ -815,7 +815,7 @@ void parseMusic(FScanner& sc, FScriptPosition& pos)
 		if (sc.Compare("id")) sc.GetString(id);
 		else if (sc.Compare("file")) sc.GetString(file);
 	}
-	SetMusicForMap(id, file, true);
+	SetMusicReplacement(id, file);
 }
 
 //===========================================================================

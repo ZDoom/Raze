@@ -209,6 +209,8 @@ struct SummaryInfo
 extern GlobalCutscenes globalCutscenes;
 extern MapRecord *currentLevel;	
 
+void SetMusicReplacement(const char *mapname, const char *music);
+void ReplaceMusics(bool namehack = false);
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack = false);
 
 MapRecord *FindMapByName(const char *nm);
