@@ -1390,7 +1390,7 @@ void nnExtProcessSuperSprites()
                             debrisactor->xvel += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
                             debrisactor->yvel += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
 
-                        debrisactor->hit.hit = pPlayer->actor->GetIndex() | 0xc000;
+                        debrisactor->hit.hit.setSprite(pPlayer->actor);
                     }
                 }
             }
@@ -7572,7 +7572,6 @@ void nnExtAiSetDirection(DBloodActor* actor, int a3)
     XSPRITE* pXSprite = &actor->x();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     
-    int nSprite = actor->GetIndex();
     int vc = ((a3 + 1024 - pSprite->ang) & 2047) - 1024;
     int t1 = DMulScale(actor->xvel, Cos(pSprite->ang), actor->yvel, Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2;
@@ -8356,7 +8355,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                         sndy = emitter->y;
 
                         // sound attached to the sprite
-                        if (pSpr != emitter && emitter->owner != actor->GetIndex())
+                        if (pSpr != emitter && emitter->owner != actor->GetSpriteIndex())
                         {
 
                             if (!sectRangeIsFine(emitter->sectnum)) return false;

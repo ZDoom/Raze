@@ -49,7 +49,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 pTSprite->yoffset = pSprite->yoffset;
                 pTSprite->cstat = pSprite->cstat;
                 pTSprite->statnum = kStatDecoration;
-                pTSprite->owner = actor->GetIndex();
+                pTSprite->owner = actor->GetSpriteIndex();
                 pTSprite->flags = pSprite->hitag | 0x200;
                 pTSprite->x = dx + interpolatedvalue(pSprite->ox, pSprite->x, interpolation);
                 pTSprite->y = dy + interpolatedvalue(pSprite->oy, pSprite->y, interpolation);
