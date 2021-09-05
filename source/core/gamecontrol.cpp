@@ -1056,6 +1056,7 @@ int RunGame()
 	gi->app_init();
 	StartScreen->Progress();
 	G_ParseMapInfo();
+	ReplaceMusics(true);
 	CreateStatusBar();
 	SetDefaultMenuColors();
 	M_Init();
