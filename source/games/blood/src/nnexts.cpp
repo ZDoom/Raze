@@ -7710,22 +7710,22 @@ bool aiPatrolMarkerReached(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int findNextMarker(XSPRITE* pXMark, bool back) {
-    
-    XSPRITE* pXNext = NULL; int i;
-    for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-        if (!xspriRangeIsFine(sprite[i].extra) || sprite[i].index == pXMark->reference)
-            continue;
+DBloodActor* findNextMarker(DBloodActor* mark, bool back) 
+{
+    auto pXMark = &mark->x();
 
-        pXNext = &xsprite[sprite[i].extra];
+    BloodStatIterator it(kStatPathMarker);
+    while (auto next = it.Next())
+    {
+        if (!next->hasX() || next == mark) continue;
+
+        XSPRITE* pXNext = &next->x();
         if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != pXMark->data1) || (!back && pXNext->data1 != pXMark->data2))
             continue;
 
-        return sprite[i].index;
+        return next;
     }
-
-    return -1;
-
+    return nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -7734,14 +7734,18 @@ int findNextMarker(XSPRITE* pXMark, bool back) {
 //
 //---------------------------------------------------------------------------
 
-bool markerIsNode(XSPRITE* pXMark, bool back) {
+bool markerIsNode(DBloodActor* mark, bool back) 
+{
+    auto pXMark = &mark->x();
+    int cnt = 0;
 
-    XSPRITE* pXNext = NULL; int i; int cnt = 0;
-    for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-        if (!xspriRangeIsFine(sprite[i].extra) || sprite[i].index == pXMark->reference)
-            continue;
+    BloodStatIterator it(kStatPathMarker);
+    while (auto next = it.Next())
+    {
+        if (!next->hasX() || next == mark) continue;
 
-        pXNext = &xsprite[sprite[i].extra];
+        XSPRITE* pXNext = &next->x();
+
         if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != pXMark->data1) || (!back && pXNext->data1 != pXMark->data2))
             continue;
 
@@ -7805,7 +7809,7 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
         }
         prev = pCur->index;
 
-        bool node = markerIsNode(pXCur, false);
+        bool node = markerIsNode(&bloodActors[pXSprite->target_i], false);
         pXSprite->unused2 = aiPatrolGetPathDir(pXSprite, pXCur); // decide if it should go back or forward
         if (pXSprite->unused2 == kPatrolMoveBackward && Chance(0x8000) && node)
             pXSprite->unused2 = kPatrolMoveForward;
@@ -8539,7 +8543,7 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
 bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker) {
 
     if (pXSprite->unused2 == kPatrolMoveForward) return (pXMarker->data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
-    else return (findNextMarker(pXMarker, kPatrolMoveBackward) >= 0) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
+    else return (findNextMarker(&bloodActors[pXMarker->reference], kPatrolMoveBackward) != nullptr) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
 }
 
 
