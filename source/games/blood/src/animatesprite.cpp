@@ -806,7 +806,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 case kMissileFlareRegular:
                 case kMissileFlareAlt:
                     if (pTSprite->statnum == kStatFlare) {
-                        if (owneractor->GetTarget() == gView->actor())
+                        if (owneractor->GetTarget() == gView->actor)
                         {
                             pTSprite->xrepeat = 0;
                             break;

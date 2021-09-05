@@ -208,7 +208,7 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 
 void QAV::Play(int start, int end, int nCallback, PLAYER *pData)
 {
-    auto pActor = pData ? pData->actor() : nullptr;
+    auto pActor = pData ? pData->actor : nullptr;
     assert(ticksPerFrame > 0);
     int frame;
     int ticks;

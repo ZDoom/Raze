@@ -1240,10 +1240,10 @@ void nnExtProcessSuperSprites()
                 for (int a = connecthead; a >= 0; a = connectpoint2[a])
                 {
                     PLAYER* pPlayer = &gPlayer[a];
-                    if (!pPlayer || !pPlayer->actor()->hasX() || pPlayer->pXSprite->health <= 0)
+                    if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->pXSprite->health <= 0)
                         continue;
 
-                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor(), x, y, z, sectnum, okDist))
+                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor, x, y, z, sectnum, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
@@ -1285,7 +1285,7 @@ void nnExtProcessSuperSprites()
             for (int a = connecthead; a >= 0; a = connectpoint2[a])
             {
                 PLAYER* pPlayer = &gPlayer[a];
-                if (!pPlayer || !pPlayer->actor()->hasX() || pPlayer->pXSprite->health <= 0)
+                if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->pXSprite->health <= 0)
                     continue;
 
                 spritetype* pPlaySprite = pPlayer->pSprite;
@@ -1304,9 +1304,9 @@ void nnExtProcessSuperSprites()
                         if (!vector)
                             pSightSpr->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        HitScan(pPlayer->actor(), pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
+                        HitScan(pPlayer->actor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
 
-                        //VectorScan(pPlayer->actor(), 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
+                        //VectorScan(pPlayer->actor, 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
 
                         if (!vector)
                             pSightSpr->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -1384,7 +1384,7 @@ void nnExtProcessSuperSprites()
                 PLAYER* pPlayer = NULL;
                 for (int a = connecthead; a != -1; a = connectpoint2[a]) 
                 {
-                    auto pact = pPlayer->actor();
+                    auto pact = pPlayer->actor;
                     pPlayer = &gPlayer[a];
                     if (pact->hit.hit.type == kHitSprite && pact->hit.hit.index == nDebris) 
                     {
@@ -2108,7 +2108,7 @@ void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondi
 {
     auto pXSource = &sourceactor->x();
     // save player's sprite index to let the tracking condition know it after savegame loading...
-    pXSource->sysData1                  = pPlayer->nSprite;
+    sourceactor->prevmarker             = pPlayer->actor;
     
     pPlayer->pXSprite->txID             = pXSource->txID;
     pPlayer->pXSprite->command          = kCmdToggle;
@@ -2150,7 +2150,7 @@ void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondi
             for (unsigned k = 0; k < pCond->length; k++) 
             {
                 if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].actor != sourceactor) continue;
-                pCond->obj[k].actor = pPlayer->actor();
+                pCond->obj[k].actor = pPlayer->actor;
                 pCond->obj[k].index_ = 0;
                 pCond->obj[k].cmd = (uint8_t)pPlayer->pXSprite->command;
                 break;
@@ -4215,7 +4215,7 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 
     for (int i = 0; i < kMaxPlayers; i++) 
     {
-        if (condi.actor != gPlayer[i].actor()) continue;
+        if (condi.actor != gPlayer[i].actor) continue;
         pPlayer = &gPlayer[i];
         break;
     }
@@ -4228,8 +4228,8 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
 
     switch (cond) {
         case 0: // check if this player is connected
-            if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || pPlayer->actor() == nullptr) return false;
-            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0,  pPlayer->actor());
+            if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || pPlayer->actor == nullptr) return false;
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0,  pPlayer->actor);
             return (pPlayer->nPlayer >= 0);
         case 1: return condCmp((gGameOptions.nGameType != 3) ? 0 : pPlayer->teamId + 1, arg1, arg2, cmpOp); // compare team
         case 2: return (arg1 > 0 && arg1 < 8 && pPlayer->hasKey[arg1 - 1]);
@@ -4271,8 +4271,8 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
         case 14: return condCmp(pPlayer->posture + 1, arg1, arg2, cmpOp);
         case 46: return condCmp(pPlayer->sceneQav, arg1, arg2, cmpOp);
         case 47: return (pPlayer->godMode || powerupCheck(pPlayer, kPwUpDeathMask));
-        case 48: return isShrinked(pPlayer->actor());
-        case 49: return isGrown(pPlayer->actor());
+        case 48: return isShrinked(pPlayer->actor);
+        case 49: return isGrown(pPlayer->actor);
     }
 
     condError(aCond, "Unexpected condition #%d!", cond);
@@ -5655,7 +5655,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                     {
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
                         if (pPlayer != NULL)
-                            useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->actor());
+                            useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->actor);
                     }
 
                     if (pXSprite->busyTime > 0)
@@ -5674,7 +5674,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
                 if (pPlayer != NULL && SetSpriteState(actor, pXSprite->state ^ 1) == 1)
-                    useTeleportTarget(actor, pPlayer->actor());
+                    useTeleportTarget(actor, pPlayer->actor);
                 return true;
             }
             [[fallthrough]];
@@ -5871,7 +5871,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                         
                 switch (cmd) {
                     case 36:
-                        actHealDude(pPlayer->actor(), ((pXSprite->data2 > 0) ? ClipHigh(pXSprite->data2, 200) : getDudeInfo(pPlayer->pSprite->type)->startHealth), 200);
+                        actHealDude(pPlayer->actor, ((pXSprite->data2 > 0) ? ClipHigh(pXSprite->data2, 200) : getDudeInfo(pPlayer->pSprite->type)->startHealth), 200);
                         pPlayer->curWeapon = kWeapPitchFork;
                         break;
                 }
@@ -8311,10 +8311,10 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
     for (i = connecthead; i != -1; i = connectpoint2[i]) 
     {
         pPlayer = &gPlayer[i];
-        if (!pPlayer->actor()->hasX()) continue;
+        if (!pPlayer->actor->hasX()) continue;
 
         spritetype* pSpr = pPlayer->pSprite;
-        XSPRITE* pXSpr = &pPlayer->actor()->x();
+        XSPRITE* pXSpr = &pPlayer->actor->x();
         if (pXSpr->health <= 0)
             continue;
 
@@ -8330,7 +8330,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
         if (nDist <= seeDist) 
         {
             eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-            if (nDist < seeDist >> 3) GetActorExtents(pPlayer->actor(), &z, &j); //use ztop of the target sprite
+            if (nDist < seeDist >> 3) GetActorExtents(pPlayer->actor, &z, &j); //use ztop of the target sprite
             if (!cansee(x, y, z, pSpr->sectnum, pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sectnum))
                 continue;
         }
@@ -8338,11 +8338,11 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
             continue;
 
         bool invisible = (powerupCheck(pPlayer, kPwUpShadowCloak) > 0);
-        if (spritesTouching(actor, pPlayer->actor()) || spritesTouching(pPlayer->actor(), actor)) 
+        if (spritesTouching(actor, pPlayer->actor) || spritesTouching(pPlayer->actor, actor)) 
         {
             DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", actor->GetIndex(), pPlayer->nPlayer + 1);
             if (invisible) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
-            newtarget = pPlayer->actor();
+            newtarget = pPlayer->actor;
             break;
         }
 
@@ -8396,7 +8396,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     BloodSectIterator it(searchsect);
                     while (auto act = it.Next())
                     {
-                        if (act->GetOwner() == pPlayer->actor())
+                        if (act->GetOwner() == pPlayer->actor)
                         {
                             found = true;
                             break;
@@ -8412,7 +8412,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
             if (invisible && hearChance >= kMaxPatrolSpotValue >> 2) 
             {
-                newtarget = pPlayer->actor();
+                newtarget = pPlayer->actor;
                 pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 invisible = false;
                 break;
@@ -8458,7 +8458,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
             if (hearDist) 
             {
-                auto act = pPlayer->actor();
+                auto act = pPlayer->actor;
                 itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
                 if (itCanHear && nDist < feelDist && (act->xvel || act->yvel || act->zvel))
                     hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->xvel) + abs(act->yvel) + abs(act->zvel))) >> 6, 0)), 0);
@@ -8572,7 +8572,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                 pXSprite->data3 = ClipRange(pXSprite->data3 + hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                 if (!stealth) 
                 {
-                    newtarget = pPlayer->actor();
+                    newtarget = pPlayer->actor;
                     break;
                 }
             }
@@ -8584,7 +8584,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                 pXSprite->data3 = ClipRange(pXSprite->data3 + seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                 if (!stealth) 
                 {
-                    newtarget = pPlayer->actor();
+                    newtarget = pPlayer->actor;
                     break;
                 }
             }
@@ -8594,7 +8594,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
         if ((pXSprite->data3 = ClipRange(pXSprite->data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue) 
         {
-            newtarget = pPlayer->actor();
+            newtarget = pPlayer->actor;
             break;
         }
 

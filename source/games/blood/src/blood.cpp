@@ -107,7 +107,7 @@ void StartLevel(MapRecord* level, bool newgame)
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			memcpy(&gPlayerTemp[i], &gPlayer[i], sizeof(PLAYER));
-			gHealthTemp[i] = gPlayer[i].actor()->x().health;
+			gHealthTemp[i] = gPlayer[i].actor->x().health;
 		}
 	}
 	memset(xsprite, 0, sizeof(xsprite));

@@ -73,7 +73,7 @@ struct BloodPlayer native
 	native int        swayHeight;
 	native int        swayWidth;
 	native int        nPlayer;  // Connect id
-	native int        nSprite;
+	//native int        nSprite;
 	native int        lifeMode;
 	native int        zView;
 	native int        zViewVel;

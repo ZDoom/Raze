@@ -1449,7 +1449,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
             {
                 if (!(gGameOptions.uNetGameFlags & 2))
                 {
-                    auto plr = pXSector->data != -1 ? gPlayer[pXSector->data].actor() : nullptr;
+                    auto plr = pXSector->data != -1 ? gPlayer[pXSector->data].actor : nullptr;
                     TeleFrag(plr, pDest->sectnum);
                 }
                 pSprite->x = pDest->x;
