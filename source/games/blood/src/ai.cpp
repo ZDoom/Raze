@@ -1009,7 +1009,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			// for enemies in patrol mode
 			if (aiInPatrolState(pXSprite->aiState))
 			{
-				aiPatrolStop(pSprite, pSource->index, pXSprite->dudeAmbush);
+                aiPatrolStop(actor, source, pXSprite->dudeAmbush);
 
 				PLAYER* pPlayer = getPlayerById(pSource->type);
 				if (!pPlayer) return nDamage;

@@ -7615,7 +7615,7 @@ void aiPatrolState(DBloodActor* actor, int state)
         seq = 11537, nSeqOverride = true;  // these don't have idle crouch seq for some reason...
 
     if (seq < 0)
-        return aiPatrolStop(pSprite, -1);
+        return aiPatrolStop(actor, nullptr);
 
     for (i = start; i < end; i++) 
     {
@@ -7638,7 +7638,7 @@ void aiPatrolState(DBloodActor* actor, int state)
     if (i == end) 
     {
         viewSetSystemMessage("No patrol state #%d found for dude #%d (type = %d)", state, actor->GetIndex(), pSprite->type);
-        aiPatrolStop(pSprite, -1);
+        aiPatrolStop(actor, nullptr);
     }
 }
 
@@ -7860,11 +7860,9 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
 //
 //---------------------------------------------------------------------------
 
-void aiPatrolStop(spritetype* pSprite, int target, bool alarm) 
+void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 {
-    auto actor = &bloodActors[pSprite->index];
-    auto targetactor = &bloodActors[target];
-
+    auto pSprite = &actor->s();
     if (actor->hasX()) 
     {
         XSPRITE* pXSprite = &actor->x();
@@ -8065,7 +8063,7 @@ void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget) {
         
         }
 
-        if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(pDude, pXDude->target_i);
+        if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
         if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
             continue;
 
@@ -8117,7 +8115,7 @@ void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
         if (//(nDist1 < hdist || nDist2 < hdist) ||
             ((nDist1 < sdist && cansee(x1, y1, z1, sect1, x2, y2, z2, sect2)) || (nDist2 < sdist && cansee(x1, y1, z1, sect1, x3, y3, z3, sect3)))) {
 
-            if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(pDude, pXDude->target_i);
+            if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
             if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
                 continue;
 
@@ -8516,7 +8514,7 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
         if (!pXDest->dudeFlag4) {
 
             if (aiInPatrolState(pXDest->aiState))
-                aiPatrolStop(pDest, -1);
+                aiPatrolStop(destactor, nullptr);
 
         } else {
 
@@ -8555,14 +8553,14 @@ void aiPatrolThink(DBloodActor* actor) {
 
     int nTarget, stateTimer, nMarker = pXSprite->target_i;
     if ((nTarget = aiPatrolSearchTargets(pSprite, pXSprite)) != -1) {
-        aiPatrolStop(pSprite, nTarget, pXSprite->dudeAmbush);
+        aiPatrolStop(actor, &bloodActors[nTarget], pXSprite->dudeAmbush);
         return;
     }
 
     
     bool crouch = (pXSprite->unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
     if (!spriRangeIsFine(nMarker) || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor)))) {
-        aiPatrolStop(pSprite, -1);
+        aiPatrolStop(actor, nullptr);
         return;
     }
     
@@ -8627,7 +8625,7 @@ void aiPatrolThink(DBloodActor* actor) {
 
         // release the enemy
         if (isFinal) {
-            aiPatrolStop(pSprite, -1);
+            aiPatrolStop(actor, nullptr);
             return;
         }
 
@@ -8743,7 +8741,7 @@ void aiPatrolThink(DBloodActor* actor) {
 
             // release the enemy
             if (isFinal) {
-                aiPatrolStop(pSprite, -1);
+                aiPatrolStop(actor, nullptr);
                 return;
             }
 

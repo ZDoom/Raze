@@ -390,7 +390,7 @@ void seqSpawnerOffSameTx(XSPRITE* pXSource);
 //  -------------------------------------------------------------------------   //
 void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite);
 void aiPatrolThink(DBloodActor* actor);
-void aiPatrolStop(spritetype* pSprite, int target, bool alarm = false);
+void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm = false);
 void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain);
 void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget);
 void aiPatrolState(DBloodActor* pSprite, int state);
