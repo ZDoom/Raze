@@ -102,8 +102,9 @@ public:
 
 	int cumulDamage; // this one's transient and does not need to be saved.
 	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
+	bool interpolated;
 
-	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
+	DBloodActor() :index(int(this - base())) {}
 	DBloodActor& operator=(const DBloodActor& other) = default;
 
 	void Clear()
@@ -115,6 +116,7 @@ public:
 		genDudeExtra = {};
 		prevmarker = nullptr;
 		basePoint = {};
+		interpolated = false;
 		xvel = yvel = zvel = 0;
 		explosionhackflag = false;
 		interpolated = false;

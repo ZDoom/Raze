@@ -264,7 +264,9 @@ void GameInterface::Ticker()
 		if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
 	}
 
-	gInterpolateSprite.Zero();
+	BloodSpriteIterator it;
+	while (DBloodActor* act = it.Next()) act->interpolated = false;
+
 	ClearMovementInterpolations();
 	UpdateInterpolations();
 

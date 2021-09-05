@@ -543,7 +543,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         }
 
         int nSprite = pTSprite->owner;
-        if (cl_interpolate && gInterpolateSprite[nSprite] && !(pTSprite->flags&512))
+        if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags&512))
         {
             pTSprite->pos = pTSprite->interpolatedvec3(gInterpolate);
             pTSprite->ang = pTSprite->interpolatedang(gInterpolate);

@@ -165,8 +165,7 @@ void qinitspritelists(void) // Replace
     {
         headspritestat[i] = -1;
     }
-    int const nMaxSprites = kMaxSprites;
-    for (short i = 0; i < nMaxSprites; i++)
+    for (short i = 0; i < kMaxSprites; i++)
     {
         sprite[i].sectnum = -1;
         sprite[i].index = -1;

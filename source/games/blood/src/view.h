@@ -136,7 +136,6 @@ extern int gScreenTilt;
 extern int deliriumTilt, deliriumTurn, deliriumPitch;
 extern int gScreenTiltO, deliriumTurnO, deliriumPitchO;
 extern int gShowFrameRate;
-extern FixedBitArray<kMaxSprites> gInterpolateSprite;
 extern int gLastPal;
 extern double gInterpolate;
 
@@ -173,18 +172,13 @@ inline void viewInterpolateWall(int nWall, walltype *pWall)
     StartInterpolation(nWall, Interp_Wall_Y);
 }
 
-inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
-{
-    if (!gInterpolateSprite[nSprite])
-    {
-        pSprite->backuploc();
-        gInterpolateSprite.Set(nSprite);
-    }
-}
-
 inline void viewBackupSpriteLoc(DBloodActor* actor)
 {
-    viewBackupSpriteLoc(actor->s().index, &actor->s());
+    if (!actor->interpolated)
+    {
+        actor->s().backuploc();
+        actor->interpolated = true;
+    }
 }
 
 

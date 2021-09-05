@@ -198,7 +198,7 @@ int CheckLink(DBloodActor *actor)
             else
                 z2 = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
             pSprite->z += z2-z;
-            gInterpolateSprite.Clear(pSprite->index);
+            actor->interpolated = false;
             return pUpper->type;
         }
     }
@@ -225,7 +225,7 @@ int CheckLink(DBloodActor *actor)
             else
                 z2 = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
             pSprite->z += z2-z;
-            gInterpolateSprite.Clear(pSprite->index);
+            actor->interpolated = false;
             return pLower->type;
         }
     }

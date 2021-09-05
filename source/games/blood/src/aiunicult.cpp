@@ -598,7 +598,7 @@ static void unicultThinkChase(DBloodActor* actor)
                     }
 
                 } 
-                else if (dist > 4072 && dist <= 11072 && !spriteIsUnderwater(actor, false) && pSprite->owner != (kMaxSprites - 1)) 
+                else if (dist > 4072 && dist <= 11072 && !spriteIsUnderwater(actor, false) && !actor->GetSpecialOwner())
                 {
                     switch (curWeapon) 
                     {
@@ -2534,7 +2534,8 @@ bool genDudePrepare(DBloodActor* actor, int propId)
         }
         case kGenDudePropertyLeech:
             pExtra->pLifeLeech = nullptr;
-            if (pSprite->owner != kMaxSprites - 1) {
+            if (!actor->GetSpecialOwner())
+            {
                 BloodStatIterator it(kStatThing);
                 while (auto actor2 = it.Next())
                 {

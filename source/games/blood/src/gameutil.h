@@ -58,10 +58,6 @@ enum {
 
 
 // by NoOne: functions to quickly check range of specifical arrays
-inline bool spriRangeIsFine(int nIndex) {
-    return (nIndex >= 0 && nIndex < kMaxSprites);
-}
-
 inline bool sectRangeIsFine(int nIndex) {
     return (nIndex >= 0 && nIndex < kMaxSectors);
 }

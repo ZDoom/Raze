@@ -4484,7 +4484,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                         {
                         auto act = objActor->genDudeExtra.pLifeLeech;
                             if (!act) return false;
-                            if (pSpr->owner == kMaxSprites - 1) return true;
+                            if (objActor->GetSpecialOwner()) return true;
                         else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, act);
                         return false;
                         }

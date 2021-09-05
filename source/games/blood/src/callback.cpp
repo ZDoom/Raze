@@ -608,7 +608,7 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
     ChangeActorSect(actor, pSprite2->sectnum);
     sfxPlay3DSound(pSprite2, 201, -1, 0);
     actor->xvel = actor->yvel = actor->zvel = 0;
-    viewBackupSpriteLoc(pSprite->index, pSprite);
+    viewBackupSpriteLoc(actor);
     if (pPlayer)
     {
         playerResetInertia(pPlayer);
