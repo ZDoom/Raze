@@ -321,7 +321,7 @@ void evInit()
 //
 //---------------------------------------------------------------------------
 
-static bool evGetSourceState(int type, int nIndex)
+static bool evGetSourceState(int type, int nIndex, DBloodActor* actor)
 {
 	int nXIndex;
 
@@ -338,9 +338,8 @@ static bool evGetSourceState(int type, int nIndex)
 		return xwall[nXIndex].state != 0;
 
 	case SS_SPRITE:
-		nXIndex = sprite[nIndex].extra;
-		assert(nXIndex > 0 && nXIndex < kMaxXSprites);
-		return xsprite[nXIndex].state != 0;
+		if (actor->hasX())
+			return actor->x().state != 0;
 	}
 
 	// shouldn't reach this point
@@ -357,10 +356,10 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 {
 	switch (command) {
 	case kCmdState:
-		command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
+		command = evGetSourceState(nType, nIndex, actor) ? kCmdOn : kCmdOff;
 		break;
 	case kCmdNotState:
-		command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
+		command = evGetSourceState(nType, nIndex, actor) ? kCmdOff : kCmdOn;
 		break;
 	default:
 		break;
@@ -514,8 +513,8 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 void evPost_(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 {
 	assert(command != kCmdCallback);
-	if (command == kCmdState) command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
-	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
+	if (command == kCmdState) command = evGetSourceState(nType, nIndex, &bloodActors[nIndex]) ? kCmdOn : kCmdOff;
+	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex, &bloodActors[nIndex]) ? kCmdOff : kCmdOn;
 	EVENT evn = { &bloodActors[nIndex], (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
