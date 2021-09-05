@@ -2094,7 +2094,7 @@ void genDudeTransform(DBloodActor* actor)
     pXSprite->respawnPending = pXIncarnation->respawnPending;
 
     pXSprite->burnTime = 0;
-    pXSprite->burnSource = -1;
+    actor->SetBurnSource(nullptr);
 
     pXSprite->data1 = pXIncarnation->data1;
     pXSprite->data2 = pXIncarnation->data2;
