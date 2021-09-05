@@ -49,7 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 EXTERN_CVAR(Bool, testnewrenderer)
 BEGIN_BLD_NS
 
-FixedBitArray<kMaxSprites> gInterpolateSprite;
 VIEW gPrevView[kMaxPlayers];
 VIEWPOS gViewPos;
 int gViewIndex;

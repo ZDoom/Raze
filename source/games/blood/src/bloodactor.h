@@ -105,9 +105,10 @@ public:
 	// transient data (not written to savegame)
 	int cumulDamage;
 	bool explosionhackflag;		// this originally hijacked the target field which is not safe when working with pointers.
+	bool interpolated;
 	ConditionElement condition[2];
 
-	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
+	DBloodActor() :index(int(this - base())) {}
 	DBloodActor& operator=(const DBloodActor& other) = default;
 
 	void Clear()
@@ -121,6 +122,7 @@ public:
 		basePoint = {};
 		xsprite = {};
 		hasx = false;
+		interpolated = false;
 		xvel = yvel = zvel = 0;
 	}
 	bool hasX() { return hasx; }
