@@ -377,16 +377,25 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
     {
         if (r_shadows)
         {
-            if (!VanillaMode()) // if floor has ror, don't render shadow
-            {
-                if ((sector[pTSprite->sectnum].floorpicnum >= 4080) && (sector[pTSprite->sectnum].floorpicnum <= 4095))
-                    break;
-            }
             auto pNSprite = viewInsertTSprite(tsprite, spritesortcnt, pTSprite->sectnum, 32767, pTSprite);
             if (!pNSprite)
                 break;
 
             pNSprite->z = getflorzofslope(pTSprite->sectnum, pNSprite->x, pNSprite->y);
+            if ((sector[pTSprite->sectnum].floorpicnum >= 4080) && (sector[pTSprite->sectnum].floorpicnum <= 4095) && !VanillaMode()) // if floor has ror, find actual floor
+            {
+                int cX = pNSprite->x, cY = pNSprite->y, cZ = pNSprite->z, nSectnum = pNSprite->sectnum;
+                for (int i = 0; i < 16; i++) // scan through max stacked sectors
+                {
+                    if (!CheckLink(&cX, &cY, &cZ, &nSectnum))
+                        break;
+                    cZ = getflorzofslope(nSectnum, cX, cY);
+                }
+                pNSprite->x = cX;
+                pNSprite->y = cY;
+                pNSprite->z = cZ;
+                pNSprite->sectnum = nSectnum;
+            }
             pNSprite->shade = 127;
             pNSprite->cstat |= 2;
             pNSprite->xrepeat = pTSprite->xrepeat;
