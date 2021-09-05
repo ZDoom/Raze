@@ -7863,9 +7863,11 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
 void aiPatrolStop(spritetype* pSprite, int target, bool alarm) 
 {
     auto actor = &bloodActors[pSprite->index];
-    if (xspriRangeIsFine(pSprite->extra)) 
+    auto targetactor = &bloodActors[target];
+
+    if (actor->hasX()) 
     {
-        XSPRITE* pXSprite = &xsprite[pSprite->extra];
+        XSPRITE* pXSprite = &actor->x();
         pXSprite->data3 = 0; // reset spot progress
         pXSprite->unused1 &= ~kDudeFlagCrouch; // reset the crouch status
         pXSprite->unused2 = kPatrolMoveForward; // reset path direction
@@ -7873,28 +7875,32 @@ void aiPatrolStop(spritetype* pSprite, int target, bool alarm)
         if (pXSprite->health <= 0)
             return;
 
-        if (pXSprite->target_i >= 0 && sprite[pXSprite->target_i].type == kMarkerPath) {
-            if (target < 0) pSprite->ang = sprite[pXSprite->target_i].ang & 2047;
+        auto mytarget = actor->GetTarget();
+
+        if (mytarget && mytarget->s().type == kMarkerPath) 
+        {
+            if (targetactor == nullptr) pSprite->ang = mytarget->s().ang & 2047;
             actor->SetTarget(nullptr);
         }
 
-        bool patrol = pXSprite->dudeFlag4; pXSprite->dudeFlag4 = 0;
-        if (spriRangeIsFine(target) && IsDudeSprite(&sprite[target]) && xspriRangeIsFine(sprite[target].extra)) {
-
-            aiSetTarget_(pXSprite, target);
-            aiActivateDude(&bloodActors[pXSprite->reference]);
+        bool patrol = pXSprite->dudeFlag4; 
+        pXSprite->dudeFlag4 = 0;
+        if (targetactor && targetactor->hasX() && targetactor->IsDudeActor())
+        {
+            aiSetTarget(actor, targetactor);
+            aiActivateDude(actor);
             
             // alarm only when in non-recoil state?
             //if (((pXSprite->unused1 & kDudeFlagStealth) && stype != kAiStateRecoil) || !(pXSprite->unused1 & kDudeFlagStealth)) {
-                if (alarm) aiPatrolAlarmFull(pSprite, &xsprite[sprite[target].extra], Chance(0x0100));
-                else aiPatrolAlarmLite(pSprite, &xsprite[sprite[target].extra]);
+                if (alarm) aiPatrolAlarmFull(pSprite, &targetactor->x(), Chance(0x0100));
+                else aiPatrolAlarmLite(pSprite, &targetactor->x());
             //}
 
         }
         else 
         {
             aiInitSprite(actor);
-            aiSetTarget_(pXSprite, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
+            aiSetTarget(actor, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
         }
         
         pXSprite->dudeFlag4 = patrol; // this must be kept so enemy can patrol after respawn again
