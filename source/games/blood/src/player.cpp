@@ -1564,7 +1564,7 @@ void ProcessInput(PLAYER *pPlayer)
             if (pXSprite->locked && pPlayer == gMe && pXSprite->lockMsg)
                 trTextOver(pXSprite->lockMsg);
             if (!key || pPlayer->hasKey[key])
-                trTriggerSprite(a2, pXSprite, kCmdSpritePush);
+                trTriggerSprite(act->GetIndex(), pXSprite, kCmdSpritePush);
             else if (pPlayer == gMe)
             {
                 viewSetMessage(GStrings("TXTB_KEY"));
