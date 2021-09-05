@@ -7434,13 +7434,4 @@ void HITINFO::set(hitdata_t* hit)
 	hitz = hit->pos.z;
 }
 
-
-char SetSpriteState(DBloodActor* actor, int nState)
-{
-	return SetSpriteState(actor->GetIndex(), &actor->x(), nState);
-}
-
-
-
-
 END_BLD_NS
