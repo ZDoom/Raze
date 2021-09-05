@@ -35,7 +35,6 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 tspritetype* pTSprite = &pm_tsprite[pm_spritesortcnt++];
                 *pTSprite = {};
                 pTSprite->type = pSprite->type;
-                pTSprite->index = pSprite->index;
                 pTSprite->sectnum = nSector2;
                 pTSprite->x = pSprite->x + dx;
                 pTSprite->y = pSprite->y + dy;
@@ -50,7 +49,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 pTSprite->yoffset = pSprite->yoffset;
                 pTSprite->cstat = pSprite->cstat;
                 pTSprite->statnum = kStatDecoration;
-                pTSprite->owner = pSprite->index;
+                pTSprite->owner = actor->GetIndex();
                 pTSprite->flags = pSprite->hitag | 0x200;
                 pTSprite->x = dx + interpolatedvalue(pSprite->ox, pSprite->x, interpolation);
                 pTSprite->y = dy + interpolatedvalue(pSprite->oy, pSprite->y, interpolation);

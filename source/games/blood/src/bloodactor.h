@@ -132,7 +132,7 @@ public:
 
 	void SetOwner(DBloodActor* own)
 	{
-		s().owner = own ? own->s().index : -1;
+		s().owner = own ? own->GetIndex() : -1;
 	}
 
 	DBloodActor* GetOwner()
@@ -143,7 +143,7 @@ public:
 
 	void SetTarget(DBloodActor* own)
 	{
-		x().target_i = own ? own->s().index : -1;
+		x().target_i = own ? own->GetIndex() : -1;
 	}
 
 	DBloodActor* GetTarget()
@@ -164,7 +164,7 @@ public:
 
 	void SetBurnSource(DBloodActor* own)
 	{
-		x().burnSource = own ? own->s().index : -1;
+		x().burnSource = own ? own->GetIndex() : -1;
 	}
 
 	DBloodActor* GetBurnSource()
@@ -320,7 +320,7 @@ public:
 
 inline int DeleteSprite(DBloodActor* nSprite)
 {
-	if (nSprite) return DeleteSprite(nSprite->s().index);
+	if (nSprite) return DeleteSprite(nSprite->GetIndex());
 	return 0;
 }
 
@@ -362,12 +362,12 @@ inline void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1)
 
 inline void ChangeActorStat(DBloodActor* actor, int stat)
 {
-	ChangeSpriteStat(actor->s().index, stat);
+	ChangeSpriteStat(actor->GetIndex(), stat);
 }
 
 inline void ChangeActorSect(DBloodActor* actor, int stat)
 {
-	ChangeSpriteSect(actor->s().index, stat);
+	ChangeSpriteSect(actor->GetIndex(), stat);
 }
 
 inline int Collision::actorIndex(DBloodActor* actor)
@@ -382,7 +382,7 @@ inline DBloodActor* Collision::Actor(int a)
 
 inline void setActorPos(DBloodActor* actor, vec3_t* pos)
 {
-	setsprite(actor->s().index, pos);
+	setsprite(actor->GetIndex(), pos);
 }
 
 END_BLD_NS

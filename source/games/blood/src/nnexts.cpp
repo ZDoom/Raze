@@ -1266,13 +1266,11 @@ void nnExtProcessSuperSprites()
             if ((!pXSightSpr->Interrutable && pXSightSpr->state != pXSightSpr->restState) || pXSightSpr->locked == 1 ||
                 pXSightSpr->isTriggered) continue; // don't process locked or triggered sprites
 
-            int index = pSightSpr->index;
-
             // sprite is drawn for one of players
-            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && show2dsprite[index])
+            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && show2dsprite[gSightSpritesList[i]->GetIndex()])
             {
                 trTriggerSprite(gSightSpritesList[i], kCmdSpriteSight);
-                show2dsprite.Clear(index);
+                show2dsprite.Clear(gSightSpritesList[i]->GetIndex());
                 continue;
             }
 
@@ -1392,7 +1390,7 @@ void nnExtProcessSuperSprites()
                             debrisactor->xvel += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
                             debrisactor->yvel += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
 
-                        debrisactor->hit.hit = pPlayer->pSprite->index | 0xc000;
+                        debrisactor->hit.hit = pPlayer->actor->GetIndex() | 0xc000;
                     }
                 }
             }
@@ -7574,7 +7572,7 @@ void nnExtAiSetDirection(DBloodActor* actor, int a3)
     XSPRITE* pXSprite = &actor->x();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     
-    int nSprite = pSprite->index;
+    int nSprite = actor->GetIndex();
     int vc = ((a3 + 1024 - pSprite->ang) & 2047) - 1024;
     int t1 = DMulScale(actor->xvel, Cos(pSprite->ang), actor->yvel, Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2;
@@ -8358,7 +8356,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                         sndy = emitter->y;
 
                         // sound attached to the sprite
-                        if (pSpr != emitter && emitter->owner != pSpr->index) 
+                        if (pSpr != emitter && emitter->owner != actor->GetIndex())
                         {
 
                             if (!sectRangeIsFine(emitter->sectnum)) return false;

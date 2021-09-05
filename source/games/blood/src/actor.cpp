@@ -5517,7 +5517,7 @@ void actExplodeSprite(DBloodActor* actor)
 		nType = kExplosionFireball;
 		seqSpawn(9, actor, -1);
 		if (Chance(0x8000)) pSprite->cstat |= 4;
-		sfxPlay3DSound(actor, 306, 24 + (pSprite->index & 3), FX_GlobalChannel); // ouch...
+		sfxPlay3DSound(actor, 306, 24 + (actor->GetIndex() & 3), FX_GlobalChannel); // ouch...
 		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 
@@ -5837,7 +5837,7 @@ static void actCheckThings()
 			}
 			actAirDrag(actor, 128);
 
-			if (((pSprite->index >> 8) & 15) == (gFrameCount & 15) && (pSprite->flags & 2))	pSprite->flags |= 4;
+			if (((actor->GetIndex() >> 8) & 15) == (gFrameCount & 15) && (pSprite->flags & 2))	pSprite->flags |= 4;
 			if ((pSprite->flags & 4) || actor->xvel || actor->yvel || actor->zvel || velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
 			{
 				Collision hit = MoveThing(actor);
@@ -6525,7 +6525,7 @@ DBloodActor* actSpawnThing(int nSector, int x, int y, int z, int nThingType)
     pSprite->pal = pThingInfo->pal;
 	if (pThingInfo->xrepeat) pSprite->xrepeat = pThingInfo->xrepeat;
 	if (pThingInfo->yrepeat) pSprite->yrepeat = pThingInfo->yrepeat;
-    show2dsprite.Set(pSprite->index);
+    show2dsprite.Set(actor->GetIndex());
 	switch (nThingType)
 	{
     case kThingVoodooHead:
@@ -6741,8 +6741,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	}
 	auto spawned = actSpawnSprite(pSprite->sectnum, x, y, z, 5, 1);
 	spritetype* pMissile = &spawned->s();
-	int nMissile = pMissile->index;
-	show2dsprite.Set(nMissile);
+	show2dsprite.Set(spawned->GetIndex());
 	pMissile->type = nType;
 	pMissile->shade = pMissileInfo->shade;
 	pMissile->pal = 0;

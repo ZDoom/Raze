@@ -1670,7 +1670,7 @@ void aiProcessDudes(void)
         if (pXSprite->aiState && pXSprite->aiState->moveFunc)
             pXSprite->aiState->moveFunc(actor);
 
-        if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (pSprite->index & 3)) // ouch, ouch! :(
+        if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (actor->GetIndex() & 3)) // ouch, ouch! :(
             pXSprite->aiState->thinkFunc(actor);
 
         switch (pSprite->type) {

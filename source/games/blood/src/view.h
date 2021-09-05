@@ -180,7 +180,7 @@ inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
 
 inline void viewBackupSpriteLoc(DBloodActor* actor)
 {
-    viewBackupSpriteLoc(actor->s().index, &actor->s());
+    viewBackupSpriteLoc(actor->GetIndex(), &actor->s());
 }
 
 
