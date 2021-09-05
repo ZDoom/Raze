@@ -287,10 +287,6 @@ extern short gTrackingCondsCount;
 extern AISTATE genPatrolStates[kPatrolStateSize];
 
 
-// - INLINES -------------------------------------------------------------------
-inline bool xsprIsFine(spritetype* pSpr) {
-    return (pSpr && xspriRangeIsFine(pSpr->extra) && !(pSpr->flags & kHitagFree) && !(pSpr->flags & kHitagRespawn));
-}
 // - FUNCTIONS ------------------------------------------------------------------
 bool nnExtEraseModernStuff(DBloodActor* actor);
 void nnExtInitModernStuff(bool bSaveLoad);
