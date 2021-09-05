@@ -209,7 +209,7 @@ int DeleteSprite(int nSprite)
 
     if (sprite[nSprite].extra > 0)
     {
-        dbDeleteXSprite(sprite[nSprite].extra);
+        InsertFree(nextXSprite, sprite[nSprite].extra);
     }
     assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
     RemoveSpriteStat(nSprite);
@@ -289,18 +289,8 @@ unsigned short dbInsertXSprite(int nSprite)
     }
     memset(&xsprite[nXSprite], 0, sizeof(XSPRITE));
     bloodActors[nSprite].hit = {};
-    xsprite[nXSprite].reference = nSprite;
     sprite[nSprite].extra = nXSprite;
     return nXSprite;
-}
-
-void dbDeleteXSprite(int nXSprite)
-{
-    assert(xsprite[nXSprite].reference >= 0);
-    assert(sprite[xsprite[nXSprite].reference].extra == nXSprite);
-    InsertFree(nextXSprite, nXSprite);
-    sprite[xsprite[nXSprite].reference].extra = -1;
-    xsprite[nXSprite].reference = -1;
 }
 
 unsigned short dbInsertXWall(int nWall)
@@ -332,10 +322,6 @@ unsigned short dbInsertXSector(int nSector)
 void dbInit(void)
 {
     InitFreeList(nextXSprite, kMaxXSprites);
-    for (int i = 1; i < kMaxXSprites; i++)
-    {
-        xsprite[i].reference = -1;
-    }
     XWallsUsed = XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
     for (int i = 1; i < kMaxXWalls; i++)
     {
@@ -900,7 +886,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             assert(nCount <= nXSpriteSize);
             fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
-            pXSprite->reference = bitReader.readSigned(14);
+            /*pXSprite->reference =*/ bitReader.readSigned(14);
             pXSprite->state = bitReader.readUnsigned(1);
             pXSprite->busy = bitReader.readUnsigned(17);
             pXSprite->txID = bitReader.readUnsigned(10);
@@ -961,10 +947,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             pXSprite->stateTimer = bitReader.readUnsigned(16);
             pXSprite->aiState = NULL;
             bitReader.skipBits(32);
-            xsprite[sprite[i].extra].reference = i;
-            xsprite[sprite[i].extra].busy = IntToFixed(xsprite[sprite[i].extra].state);
+            pXSprite->busy = IntToFixed(pXSprite->state);
             if (!encrypted) {
-                xsprite[sprite[i].extra].lT |= xsprite[sprite[i].extra].lB;
+                pXSprite->lT |= pXSprite->lB;
             }
 
             #ifdef NOONE_EXTENSIONS

@@ -611,7 +611,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 		arc("flags", w.flags, def->flags)
 			("aistate", w.aiState, def->aiState)
 			("busy", w.busy, def->busy)
-			("reference", w.reference, def->reference)
 			("txid", w.txID, def->txID)
 			("rxid", w.rxID, def->rxID)
 			("command", w.command, def->command)
