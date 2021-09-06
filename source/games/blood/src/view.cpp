@@ -660,7 +660,7 @@ void viewDrawScreen(bool sceneonly)
         }
         if (cZ <= ceilingZ)
         {
-            cZ = ceilingZ + (getLowerLink(nSectnum) >= 0 ? 0 : (8 << 8));
+            cZ = ceilingZ + (getLowerLink(nSectnum) ? 0 : (8 << 8));
         }
         cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
