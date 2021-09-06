@@ -75,9 +75,10 @@ void DestroySnake(int nSnake)
     for (int i = 0; i < kSnakeSprites; i++)
     {
         short nSprite = SnakeList[nSnake].nSprites[i];
+		auto pSprite = &sprite[nSprite];
 
-        runlist_DoSubRunRec(sprite[nSprite].lotag - 1);
-        runlist_DoSubRunRec(sprite[nSprite].owner);
+        runlist_DoSubRunRec(pSprite->lotag - 1);
+        runlist_DoSubRunRec(pSprite->owner);
 
         mydeletesprite(nSprite);
     }
@@ -92,6 +93,7 @@ void DestroySnake(int nSnake)
 
 void ExplodeSnakeSprite(int nSprite, short nPlayer)
 {
+	auto pSprite = &sprite[nSprite];
     short nDamage = BulletInfo[kWeaponStaff].nDamage;
 
     if (PlayerList[nPlayer].nDouble > 0) {
@@ -99,16 +101,16 @@ void ExplodeSnakeSprite(int nSprite, short nPlayer)
     }
 
     // take a copy of this, to revert after call to runlist_RadialDamageEnemy()
-    short nOwner = sprite[nSprite].owner;
-    sprite[nSprite].owner = PlayerList[nPlayer].nSprite;
+    short nOwner = pSprite->owner;
+    pSprite->owner = PlayerList[nPlayer].nSprite;
 
     runlist_RadialDamageEnemy(nSprite, nDamage, BulletInfo[kWeaponStaff].nRadius);
 
-    sprite[nSprite].owner = nOwner;
+    pSprite->owner = nOwner;
 
-    BuildAnim(-1, 23, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, 40, 4);
+    BuildAnim(-1, 23, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 40, 4);
 
-    AddFlash(sprite[nSprite].sectnum, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, 128);
+    AddFlash(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 128);
 
     StopSpriteSound(nSprite);
 }
@@ -159,9 +161,10 @@ int BuildSnake(short nPlayer, short zVal)
     {
         BackUpBullet(&hitx, &hity, nAngle);
         nSprite = insertsprite(hitsect, 202);
-        sprite[nSprite].x = hitx;
-        sprite[nSprite].y = hity;
-        sprite[nSprite].z = hitz;
+		auto pSprite = &sprite[nSprite];
+        pSprite->x = hitx;
+        pSprite->y = hity;
+        pSprite->z = hitz;
 
         ExplodeSnakeSprite(nSprite, nPlayer);
         mydeletesprite(nSprite);
@@ -188,48 +191,49 @@ int BuildSnake(short nPlayer, short zVal)
         for (int i = 0; i < kSnakeSprites; i++)
         {
             nSprite = insertsprite(nViewSect, 202);
+			auto pSprite = &sprite[nSprite];
             assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-            sprite[nSprite].owner = nPlayerSprite;
-            sprite[nSprite].picnum = nPic;
+            pSprite->owner = nPlayerSprite;
+            pSprite->picnum = nPic;
 
             if (i == 0)
             {
-                sprite[nSprite].x = sprite[nPlayerSprite].x;
-                sprite[nSprite].y = sprite[nPlayerSprite].y;
-                sprite[nSprite].z = sprite[nPlayerSprite].z + zVal;
-                sprite[nSprite].xrepeat = 32;
-                sprite[nSprite].yrepeat = 32;
-                nViewSect = sprite[nSprite].sectnum;
+                pSprite->x = sprite[nPlayerSprite].x;
+                pSprite->y = sprite[nPlayerSprite].y;
+                pSprite->z = sprite[nPlayerSprite].z + zVal;
+                pSprite->xrepeat = 32;
+                pSprite->yrepeat = 32;
+                nViewSect = pSprite->sectnum;
                 var_24 = nSprite;
             }
             else
             {
-                sprite[nSprite].x = sprite[var_24].x;
-                sprite[nSprite].y = sprite[var_24].y;
-                sprite[nSprite].z = sprite[var_24].z;
-                sprite[nSprite].xrepeat = 40 - 3*i;
-                sprite[nSprite].yrepeat = 40 - 3*i;
+                pSprite->x = sprite[var_24].x;
+                pSprite->y = sprite[var_24].y;
+                pSprite->z = sprite[var_24].z;
+                pSprite->xrepeat = 40 - 3*i;
+                pSprite->yrepeat = 40 - 3*i;
             }
 
-            sprite[nSprite].clipdist = 10;
-            sprite[nSprite].cstat = 0;
-            sprite[nSprite].shade = -64;
-            sprite[nSprite].pal = 0;
-            sprite[nSprite].xoffset = 0;
-            sprite[nSprite].yoffset = 0;
-            sprite[nSprite].ang = sprite[nPlayerSprite].ang;
-            sprite[nSprite].xvel = 0;
-            sprite[nSprite].yvel = 0;
-            sprite[nSprite].zvel = 0;
-            sprite[nSprite].hitag = 0;
-            sprite[nSprite].extra = -1;
-            sprite[nSprite].lotag = runlist_HeadRun() + 1;
-            sprite[nSprite].backuppos();
+            pSprite->clipdist = 10;
+            pSprite->cstat = 0;
+            pSprite->shade = -64;
+            pSprite->pal = 0;
+            pSprite->xoffset = 0;
+            pSprite->yoffset = 0;
+            pSprite->ang = sprite[nPlayerSprite].ang;
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+            pSprite->zvel = 0;
+            pSprite->hitag = 0;
+            pSprite->extra = -1;
+            pSprite->lotag = runlist_HeadRun() + 1;
+            pSprite->backuppos();
 
             SnakeList[nSnake].nSprites[i] = nSprite;
 
-            sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, ((nSnake << 8) | i) | 0x110000);
+            pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, ((nSnake << 8) | i) | 0x110000);
         }
 
         SnakeList[nSnake].nRun = runlist_AddRunRec(NewRun, nSnake | 0x110000);
@@ -265,9 +269,10 @@ int FindSnakeEnemy(short nSnake)
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
     short nSprite = SnakeList[nSnake].nSprites[0]; // CHECKME
+	auto pSprite = &sprite[nSprite];
 
-    short nAngle = sprite[nSprite].ang;
-    short nSector = sprite[nSprite].sectnum;
+    short nAngle = pSprite->ang;
+    short nSector = pSprite->sectnum;
 
     int esi = 2048;
 
@@ -320,6 +325,7 @@ void FuncSnake(int a, int, int nRun)
             assert(nSnake >= 0 && nSnake < kMaxSnakes);
 
             short nSprite = SnakeList[nSnake].nSprites[0];
+			auto pSprite = &sprite[nSprite];
 
             seq_MoveSequence(nSprite, SeqOffsets[kSeqSnakehed], 0);
 
@@ -332,8 +338,8 @@ void FuncSnake(int a, int, int nRun)
             {
 SEARCH_ENEMY:
                 nMov = movesprite(nSprite,
-                    600 * bcos(sprite[nSprite].ang),
-                    600 * bsin(sprite[nSprite].ang),
+                    600 * bcos(pSprite->ang),
+                    600 * bsin(pSprite->ang),
                     bsin(SnakeList[nSnake].sE, -5),
                     0, 0, CLIPMASK1);
 
@@ -349,11 +355,11 @@ SEARCH_ENEMY:
                     goto SEARCH_ENEMY;
                 }
 
-                zVal = sprite[nSprite].z;
+                zVal = pSprite->z;
 
                 nMov = AngleChase(nSprite, nEnemySprite, 1200, SnakeList[nSnake].sE, 32);
 
-                zVal = sprite[nSprite].z - zVal;
+                zVal = pSprite->z - zVal;
             }
 
             if (nMov)
@@ -368,7 +374,7 @@ SEARCH_ENEMY:
             }
             else
             {
-                short nAngle = sprite[nSprite].ang;
+                short nAngle = pSprite->ang;
                 int var_30 = -bcos(nAngle, 6);
                 int var_34 = -bsin(nAngle, 6);
 
@@ -377,11 +383,11 @@ SEARCH_ENEMY:
                 SnakeList[nSnake].sE = (SnakeList[nSnake].sE + 64) & 0x7FF;
 
                 int var_28 = (nAngle + 512) & kAngleMask;
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
 
-                int x = sprite[nSprite].x;
-                int y = sprite[nSprite].y;
-                int z = sprite[nSprite].z;
+                int x = pSprite->x;
+                int y = pSprite->y;
+                int z = pSprite->z;
 
                 for (int i = 7; i > 0; i--)
                 {

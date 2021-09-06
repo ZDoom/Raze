@@ -64,23 +64,24 @@ int COVERinsertsprite(short sectnum, short stat)
 {
     short spnum;
     spnum = insertsprite(sectnum, stat);
+    auto pSprite = &sprite[spnum];
 
     PRODUCTION_ASSERT(spnum >= 0);
 
-    sprite[spnum].x = sprite[spnum].y = sprite[spnum].z = 0;
-    sprite[spnum].cstat = 0;
-    sprite[spnum].picnum = 0;
-    sprite[spnum].shade = 0;
-    sprite[spnum].pal = 0;
-    sprite[spnum].clipdist = 0;
-    sprite[spnum].xrepeat = sprite[spnum].yrepeat = 0;
-    sprite[spnum].xoffset = sprite[spnum].yoffset = 0;
-    sprite[spnum].ang = 0;
-    sprite[spnum].owner = -1;
-    sprite[spnum].xvel = sprite[spnum].yvel = sprite[spnum].zvel = 0;
-    sprite[spnum].lotag = 0;
-    sprite[spnum].hitag = 0;
-    sprite[spnum].extra = 0;
+    pSprite->x = sprite[spnum].y = sprite[spnum].z = 0;
+    pSprite->cstat = 0;
+    pSprite->picnum = 0;
+    pSprite->shade = 0;
+    pSprite->pal = 0;
+    pSprite->clipdist = 0;
+    pSprite->xrepeat = sprite[spnum].yrepeat = 0;
+    pSprite->xoffset = sprite[spnum].yoffset = 0;
+    pSprite->ang = 0;
+    pSprite->owner = -1;
+    pSprite->xvel = sprite[spnum].yvel = sprite[spnum].zvel = 0;
+    pSprite->lotag = 0;
+    pSprite->hitag = 0;
+    pSprite->extra = 0;
 
     return spnum;
 }

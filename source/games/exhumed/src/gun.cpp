@@ -338,6 +338,7 @@ void MoveWeapons(short nPlayer)
         nTemperature[nPlayer] = 0;
 
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
+	auto pPlayerSprite = &sprite[nPlayerSprite];
     short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
     if (nWeapon < -1)
@@ -630,12 +631,12 @@ loc_flag:
 
         if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (nFrameFlag & 4))
         {
-            BuildFlash(nPlayer, sprite[nPlayerSprite].sectnum, 512);
+            BuildFlash(nPlayer, pPlayerSprite->sectnum, 512);
             AddFlash(
-                sprite[nPlayerSprite].sectnum,
-                sprite[nPlayerSprite].x,
-                sprite[nPlayerSprite].y,
-                sprite[nPlayerSprite].z,
+                pPlayerSprite->sectnum,
+                pPlayerSprite->x,
+                pPlayerSprite->y,
+                pPlayerSprite->z,
                 0);
         }
 
@@ -666,13 +667,13 @@ loc_flag:
             }
 
             short nAmmoType = WeaponInfo[nWeapon].nAmmoType;
-            short nAngle = sprite[nPlayerSprite].ang;
-            int theX = sprite[nPlayerSprite].x;
-            int theY = sprite[nPlayerSprite].y;
-            int theZ = sprite[nPlayerSprite].z;
+            short nAngle = pPlayerSprite->ang;
+            int theX = pPlayerSprite->x;
+            int theY = pPlayerSprite->y;
+            int theZ = pPlayerSprite->z;
 
-            int ebp = bcos(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
-            int ebx = bsin(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
+            int ebp = bcos(nAngle) * (pPlayerSprite->clipdist << 3);
+            int ebx = bsin(nAngle) * (pPlayerSprite->clipdist << 3);
 
             if (WeaponInfo[nWeapon].c)
             {
@@ -706,7 +707,7 @@ loc_flag:
                 }
             }
 
-            short nSectorB = sprite[nPlayerSprite].sectnum;
+            short nSectorB = pPlayerSprite->sectnum;
 
             switch (nWeapon)
             {
@@ -830,8 +831,8 @@ loc_flag:
                         {
                             // only autoaim if target is in front of the player.
                             auto pTargetSprite = &sprite[t];
-                            int angletotarget = bvectangbam(pTargetSprite->x - sprite[nPlayerSprite].x, pTargetSprite->y - sprite[nPlayerSprite].y).asbuild();
-                            int anglediff = (sprite[nPlayerSprite].ang - angletotarget) & 2047;
+                            int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
+                            int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
                             if (anglediff < 512 || anglediff > 1536) target = t + 10000;
                         }
                     }
@@ -850,8 +851,8 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 512;
 
-                    nXDamage[nPlayer] -= bcos(sprite[nPlayerSprite].ang, 9);
-                    nYDamage[nPlayer] -= bsin(sprite[nPlayerSprite].ang, 9);
+                    nXDamage[nPlayer] -= bcos(pPlayerSprite->ang, 9);
+                    nYDamage[nPlayer] -= bsin(pPlayerSprite->ang, 9);
                     break;
                 }
                 case kWeaponRing:

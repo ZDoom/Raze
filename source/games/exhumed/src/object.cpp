@@ -429,11 +429,12 @@ int BuildWallSprite(int nSector)
     int y2 = wall[nWall + 1].y;
 
     int nSprite = insertsprite(nSector, 401);
+	auto pSprite = &sprite[nSprite];
 
-    sprite[nSprite].x = (x + x2) / 2;
-    sprite[nSprite].y = (y + y2) / 2;
-    sprite[nSprite].z = (sector[nSector].floorz + sector[nSector].ceilingz) / 2;
-    sprite[nSprite].cstat = 0x8000;
+    pSprite->x = (x + x2) / 2;
+    pSprite->y = (y + y2) / 2;
+    pSprite->z = (sector[nSector].floorz + sector[nSector].ceilingz) / 2;
+    pSprite->cstat = 0x8000;
 
     return nSprite;
 }
@@ -501,14 +502,15 @@ short FindWallSprites(short nSector)
     if (nSprite < 0)
     {
         nSprite = insertsprite(nSector, 401);
+		auto pSprite = &sprite[nSprite];
 
-        sprite[nSprite].x = (var_24 + esi) / 2;
-        sprite[nSprite].y = (ecx + edi) / 2;
-        sprite[nSprite].z = sector[nSector].floorz;
-        sprite[nSprite].cstat = 0x8000;
-        sprite[nSprite].owner = -1;
-        sprite[nSprite].lotag = 0;
-        sprite[nSprite].hitag = 0;
+        pSprite->x = (var_24 + esi) / 2;
+        pSprite->y = (ecx + edi) / 2;
+        pSprite->z = sector[nSector].floorz;
+        pSprite->cstat = 0x8000;
+        pSprite->owner = -1;
+        pSprite->lotag = 0;
+        pSprite->hitag = 0;
     }
 
     return nSprite;
@@ -643,7 +645,8 @@ int CheckSectorSprites(short nSector, int nVal)
         SectIterator it(nSector);
         while ((nSprite = it.NextIndex()) >= 0)
         {
-            if ((sprite[nSprite].cstat & 0x101) && (nZDiff < GetSpriteHeight(nSprite)))
+			auto pSprite = &sprite[nSprite];
+            if ((pSprite->cstat & 0x101) && (nZDiff < GetSpriteHeight(nSprite)))
             {
                 if (nVal != 1) {
                     return 1;
@@ -653,13 +656,13 @@ int CheckSectorSprites(short nSector, int nVal)
 
                 runlist_DamageEnemy(nSprite, -1, 5);
 
-                if (sprite[nSprite].statnum == 100 && PlayerList[GetPlayerFromSprite(nSprite)].nHealth <= 0)
+                if (pSprite->statnum == 100 && PlayerList[GetPlayerFromSprite(nSprite)].nHealth <= 0)
                 {
                     PlayFXAtXYZ(StaticSound[kSoundJonFDie],
-                        sprite[nSprite].x,
-                        sprite[nSprite].y,
-                        sprite[nSprite].z,
-                        sprite[nSprite].sectnum | 0x4000);
+                        pSprite->x,
+                        pSprite->y,
+                        pSprite->z,
+                        pSprite->sectnum | 0x4000);
                 }
             }
         }
@@ -691,10 +694,11 @@ void MoveSectorSprites(int nSector, int z)
     SectIterator it(nSector);
     while ((nSprite = it.NextIndex()) >= 0)
     {
-        int z = sprite[nSprite].z;
-        if ((sprite[nSprite].statnum != 200 && z >= minz && z <= maxz) || sprite[nSprite].statnum >= 900)
+		auto pSprite = &sprite[nSprite];
+        int z = pSprite->z;
+        if ((pSprite->statnum != 200 && z >= minz && z <= maxz) || pSprite->statnum >= 900)
         {
-            sprite[nSprite].z = newz;
+            pSprite->z = newz;
         }
     }
 }
@@ -1111,13 +1115,14 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
 
 
     int nSprite = insertsprite(nSector, 899);
+	auto pSprite = &sprite[nSprite];
 
     SlideData[nSlide].nSprite = nSprite;
-    sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].x = wall[nStartWall].x;
-    sprite[nSprite].y = wall[nStartWall].y;
-    sprite[nSprite].z = sector[nSector].floorz;
-    sprite[nSprite].backuppos();
+    pSprite->cstat = 0x8000;
+    pSprite->x = wall[nStartWall].x;
+    pSprite->y = wall[nStartWall].y;
+    pSprite->z = sector[nSector].floorz;
+    pSprite->backuppos();
 
     SlideData[nSlide].field_8a = 0;
 
@@ -1296,6 +1301,7 @@ void FuncSlide(int a, int, int nRun)
 
 int BuildTrap(int nSprite, int edx, int ebx, int ecx)
 {
+	auto pSprite = &sprite[nSprite];
     int var_14 = edx;
     int var_18 = ebx;
     int var_10 = ecx;
@@ -1304,15 +1310,15 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
 
     changespritestat(nSprite, 0);
 
-    sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].extra = -1;
+    pSprite->cstat = 0x8000;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->extra = -1;
 
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].hitag = runlist_AddRunRec(NewRun, nTrap | 0x1F0000);
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nTrap | 0x1F0000);
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->hitag = runlist_AddRunRec(NewRun, nTrap | 0x1F0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nTrap | 0x1F0000);
 
 //	GrabTimeSlot(3);
 
@@ -1335,7 +1341,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     sTrap[nTrap].field_6 = -1;
     sTrap[nTrap].field_8 = -1;
 
-    short nSector = sprite[nSprite].sectnum;
+    short nSector = pSprite->sectnum;
     short nWall = sector[nSector].wallptr;
 
     int i = 0;
@@ -1364,7 +1370,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
         ecx++;
         nWall++;
     }
-    sprite[nSprite].backuppos();
+    pSprite->backuppos();
 
 }
 
@@ -1372,6 +1378,7 @@ void FuncTrap(int a, int, int nRun)
 {
     short nTrap = RunData[nRun].nVal;
     short nSprite = sTrap[nTrap].nSprite;
+    auto pSprite = &sprite[nSprite];
 
     int nMessage = a & 0x7F0000;
 
@@ -1430,7 +1437,7 @@ void FuncTrap(int a, int, int nRun)
                         return;
                     }
 
-                    int nBullet = BuildBullet(nSprite, nType, 0, 0, 0, sprite[nSprite].ang, 0, 1);
+                    int nBullet = BuildBullet(nSprite, nType, 0, 0, 0, pSprite->ang, 0, 1);
                     if (nBullet > -1)
                     {
                         short nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)
@@ -1490,7 +1497,8 @@ int BuildFireBall(int nSprite, int a, int b)
 
 int BuildSpark(int nSprite, int nVal)
 {
-    int var_14 = insertsprite(sprite[nSprite].sectnum, 0);
+	auto pSprite = &sprite[nSprite];
+    int var_14 = insertsprite(pSprite->sectnum, 0);
 
     if (var_14 < 0) {
         return -1;
@@ -1499,8 +1507,8 @@ int BuildSpark(int nSprite, int nVal)
 
     assert(var_14 < kMaxSprites);
 
-    spr->x = sprite[nSprite].x;
-    spr->y = sprite[nSprite].y;
+    spr->x = pSprite->x;
+    spr->y = pSprite->y;
     spr->cstat = 0;
     spr->shade = -127;
     spr->pal = 1;
@@ -1521,13 +1529,13 @@ int BuildSpark(int nSprite, int nVal)
         }
         else
         {
-            spr->xrepeat = sprite[nSprite].xrepeat + 15;
-            spr->yrepeat = sprite[nSprite].xrepeat + 15;
+            spr->xrepeat = pSprite->xrepeat + 15;
+            spr->yrepeat = pSprite->xrepeat + 15;
         }
     }
     else
     {
-        int nAngle = (sprite[nSprite].ang + 256) - RandomSize(9);
+        int nAngle = (pSprite->ang + 256) - RandomSize(9);
 
         if (nVal)
         {
@@ -1544,7 +1552,7 @@ int BuildSpark(int nSprite, int nVal)
         spr->picnum = kTile985 + nVal;
     }
 
-    spr->z = sprite[nSprite].z;
+    spr->z = pSprite->z;
     spr->lotag = runlist_HeadRun() + 1;
     spr->clipdist = 1;
     spr->hitag = 0;
@@ -1562,6 +1570,8 @@ int BuildSpark(int nSprite, int nVal)
 void FuncSpark(int a, int, int nRun)
 {
     int nSprite = RunData[nRun].nVal;
+	auto pSprite = &sprite[nSprite];
+
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
     int nMessage = a & 0x7F0000;
@@ -1570,46 +1580,46 @@ void FuncSpark(int a, int, int nRun)
         return;
     }
 
-    sprite[nSprite].shade += 3;
-    sprite[nSprite].xrepeat -= 2;
+    pSprite->shade += 3;
+    pSprite->xrepeat -= 2;
 
-    if (sprite[nSprite].xrepeat >= 4 && sprite[nSprite].shade <= 100)
+    if (pSprite->xrepeat >= 4 && pSprite->shade <= 100)
     {
-        sprite[nSprite].yrepeat -= 2;
+        pSprite->yrepeat -= 2;
 
         // calling BuildSpark() with 2nd parameter as '1' will set kTile986
-        if (sprite[nSprite].picnum == kTile986 && (sprite[nSprite].xrepeat & 2))
+        if (pSprite->picnum == kTile986 && (pSprite->xrepeat & 2))
         {
             BuildSpark(nSprite, 2);
         }
 
-        if (sprite[nSprite].picnum >= kTile3000) {
+        if (pSprite->picnum >= kTile3000) {
             return;
         }
 
-        sprite[nSprite].zvel += 128;
+        pSprite->zvel += 128;
 
-        int nMov = movesprite(nSprite, sprite[nSprite].xvel << 12, sprite[nSprite].yvel << 12, sprite[nSprite].zvel, 2560, -2560, CLIPMASK1);
+        int nMov = movesprite(nSprite, pSprite->xvel << 12, pSprite->yvel << 12, pSprite->zvel, 2560, -2560, CLIPMASK1);
         if (!nMov) {
             return;
         }
 
-        if (sprite[nSprite].zvel <= 0) {
+        if (pSprite->zvel <= 0) {
             return;
         }
     }
 
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
 
-    if (sprite[nSprite].picnum > kTile3000) {
+    if (pSprite->picnum > kTile3000) {
         nSmokeSparks--;
     }
 
-    runlist_DoSubRunRec(sprite[nSprite].owner);
-    runlist_FreeRun(sprite[nSprite].lotag - 1);
-    runlist_SubRunRec(sprite[nSprite].hitag);
+    runlist_DoSubRunRec(pSprite->owner);
+    runlist_FreeRun(pSprite->lotag - 1);
+    runlist_SubRunRec(pSprite->hitag);
     mydeletesprite(nSprite);
 }
 
@@ -1796,7 +1806,9 @@ void KillCreatures()
 
 void ExplodeEnergyBlock(int nSprite)
 {
-    short nSector = sprite[nSprite].sectnum;
+	auto pSprite = &sprite[nSprite];
+
+    short nSector = pSprite->sectnum;
 
     short startwall = sector[nSector].wallptr;
     short nWalls = sector[nSector].wallnum;
@@ -1826,24 +1838,24 @@ void ExplodeEnergyBlock(int nSprite)
 
     sector[nSector].floorshade = 50;
     sector[nSector].extra = -1;
-    sector[nSector].floorz = sprite[nSprite].z;
+    sector[nSector].floorz = pSprite->z;
 
-    sprite[nSprite].z = (sprite[nSprite].z + sector[nSector].floorz) / 2;
+    pSprite->z = (pSprite->z + sector[nSector].floorz) / 2;
 
     BuildSpark(nSprite, 3);
 
-    sprite[nSprite].cstat = 0;
-    sprite[nSprite].xrepeat = 100;
+    pSprite->cstat = 0;
+    pSprite->xrepeat = 100;
 
     PlayFX2(StaticSound[kSound78], nSprite);
 
-    sprite[nSprite].xrepeat = 0;
+    pSprite->xrepeat = 0;
 
     nEnergyTowers--;
 
     for (i = 0; i < 20; i++)
     {
-        sprite[nSprite].ang = RandomSize(11);
+        pSprite->ang = RandomSize(11);
         BuildSpark(nSprite, 1); // shoot out blue orbs
     }
 
@@ -1949,11 +1961,12 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
                 spr->xrepeat -= nDamage;
 
                 int nSprite2 = insertsprite(lasthitsect, 0);
+                auto pSprite2 = &sprite[nSprite2];
 
-                sprite[nSprite2].ang = a & 0xFFFF;
-                sprite[nSprite2].x = lasthitx;
-                sprite[nSprite2].y = lasthity;
-                sprite[nSprite2].z = lasthitz;
+                pSprite2->ang = a & 0xFFFF;
+                pSprite2->x = lasthitx;
+                pSprite2->y = lasthity;
+                pSprite2->z = lasthitz;
 
                 BuildSpark(nSprite2, 0); // shoot out blue orb when damaged
                 mydeletesprite(nSprite2);
@@ -2011,12 +2024,13 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag)
         }
 
         int nSprite2 = insertsprite(spr->sectnum, 0);
+        auto pSprite2 = &sprite[nSprite2];
         ObjectList[nObject].field_10 = nSprite2;
 
-        sprite[nSprite2].cstat = 0x8000;
-        sprite[nSprite2].x = spr->x;
-        sprite[nSprite2].y = spr->y;
-        sprite[nSprite2].z = spr->z;
+        pSprite2->cstat = 0x8000;
+        pSprite2->x = spr->x;
+        pSprite2->y = spr->y;
+        pSprite2->z = spr->z;
     }
     else
     {
@@ -2038,13 +2052,14 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag)
 // in-game destructable wall mounted screen
 void ExplodeScreen(short nSprite)
 {
-    sprite[nSprite].z -= GetSpriteHeight(nSprite) / 2;
+	auto pSprite = &sprite[nSprite];
+    pSprite->z -= GetSpriteHeight(nSprite) / 2;
 
     for (int i = 0; i < 30; i++) {
         BuildSpark(nSprite, 0); // shoot out blue orbs
     }
 
-    sprite[nSprite].cstat = 0x8000;
+    pSprite->cstat = 0x8000;
     PlayFX2(StaticSound[kSound78], nSprite);
 }
 
@@ -2053,7 +2068,8 @@ void FuncObject(int a, int b, int nRun)
     short nObject = RunData[nRun].nVal;
 
     short nSprite = ObjectList[nObject].nSprite;
-    short nStat = sprite[nSprite].statnum;
+	auto pSprite = &sprite[nSprite];
+    short nStat = pSprite->statnum;
     short bx = ObjectList[nObject].field_8;
 
     int nMessage = a & 0x7F0000;
@@ -2109,7 +2125,7 @@ void FuncObject(int a, int b, int nRun)
 
         case 0xA0000:
         {
-            if (ObjectList[nObject].nHealth > 0 && sprite[nSprite].cstat & 0x101
+            if (ObjectList[nObject].nHealth > 0 && pSprite->cstat & 0x101
                 && (nStat != kStatExplodeTarget
                     || sprite[nRadialSpr].statnum == 201
                     || (nRadialBullet != 3 && nRadialBullet > -1)
@@ -2120,28 +2136,28 @@ void FuncObject(int a, int b, int nRun)
                     return;
                 }
 
-                if (sprite[nSprite].statnum != kStatAnubisDrum) {
+                if (pSprite->statnum != kStatAnubisDrum) {
                     ObjectList[nObject].nHealth -= nDamage;
                 }
 
-                if (sprite[nSprite].statnum == kStatExplodeTarget)
+                if (pSprite->statnum == kStatExplodeTarget)
                 {
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
-                    sprite[nSprite].zvel = 0;
+                    pSprite->xvel = 0;
+                    pSprite->yvel = 0;
+                    pSprite->zvel = 0;
                 }
-                else if (sprite[nSprite].statnum != kStatAnubisDrum)
+                else if (pSprite->statnum != kStatAnubisDrum)
                 {
-                    sprite[nSprite].xvel >>= 1;
-                    sprite[nSprite].yvel >>= 1;
-                    sprite[nSprite].zvel >>= 1;
+                    pSprite->xvel >>= 1;
+                    pSprite->yvel >>= 1;
+                    pSprite->zvel >>= 1;
                 }
 
                 if (ObjectList[nObject].nHealth > 0) {
                     return;
                 }
 
-                if (sprite[nSprite].statnum == kStatExplodeTarget)
+                if (pSprite->statnum == kStatExplodeTarget)
                 {
                     ObjectList[nObject].nHealth = -1;
                     short ax = ObjectList[nObject].field_10;
@@ -2152,7 +2168,7 @@ void FuncObject(int a, int b, int nRun)
 
                     ObjectList[ax].nHealth = -1;
                 }
-                else if (sprite[nSprite].statnum == kStatDestructibleSprite)
+                else if (pSprite->statnum == kStatDestructibleSprite)
                 {
                     ObjectList[nObject].nHealth = 0;
 
@@ -2169,7 +2185,7 @@ void FuncObject(int a, int b, int nRun)
 
         case 0x20000:
         {
-            if (nStat == 97 || (!(sprite[nSprite].cstat & 0x101))) {
+            if (nStat == 97 || (!(pSprite->cstat & 0x101))) {
                 return;
             }
 
@@ -2185,7 +2201,7 @@ void FuncObject(int a, int b, int nRun)
                     ObjectList[nObject].field_0 = 0;
                 }
 
-                sprite[nSprite].picnum = seq_GetSeqPicnum2(bx, ObjectList[nObject].field_0);
+                pSprite->picnum = seq_GetSeqPicnum2(bx, ObjectList[nObject].field_0);
             }
 
             if (ObjectList[nObject].nHealth >= 0) {
@@ -2199,22 +2215,22 @@ void FuncObject(int a, int b, int nRun)
 FUNCOBJECT_GOTO:
                 if (nStat != kStatExplodeTarget)
                 {
-                    int nMov = movesprite(nSprite, sprite[nSprite].xvel << 6, sprite[nSprite].yvel << 6, sprite[nSprite].zvel, 0, 0, CLIPMASK0);
+                    int nMov = movesprite(nSprite, pSprite->xvel << 6, pSprite->yvel << 6, pSprite->zvel, 0, 0, CLIPMASK0);
 
-                    if (sprite[nSprite].statnum == kStatExplodeTrigger) {
-                        sprite[nSprite].pal = 1;
+                    if (pSprite->statnum == kStatExplodeTrigger) {
+                        pSprite->pal = 1;
                     }
 
                     if (nMov & 0x20000)
                     {
-                        sprite[nSprite].xvel -= sprite[nSprite].xvel >> 3;
-                        sprite[nSprite].yvel -= sprite[nSprite].yvel >> 3;
+                        pSprite->xvel -= pSprite->xvel >> 3;
+                        pSprite->yvel -= pSprite->yvel >> 3;
                     }
 
                     if (((nMov & 0xC000) > 0x8000) && ((nMov & 0xC000) == 0xC000))
                     {
-                        sprite[nSprite].yvel = 0;
-                        sprite[nSprite].xvel = 0;
+                        pSprite->yvel = 0;
+                        pSprite->xvel = 0;
                     }
                 }
 
@@ -2225,7 +2241,7 @@ FUNCOBJECT_GOTO:
                 int var_18;
 
                 // red branch
-                if ((nStat == kStatExplodeTarget) || (sprite[nSprite].z < sector[sprite[nSprite].sectnum].floorz))
+                if ((nStat == kStatExplodeTarget) || (pSprite->z < sector[pSprite->sectnum].floorz))
                 {
                     var_18 = 36;
                 }
@@ -2234,8 +2250,8 @@ FUNCOBJECT_GOTO:
                     var_18 = 34;
                 }
 
-                AddFlash(sprite[nSprite].sectnum, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, 128);
-                BuildAnim(-1, var_18, 0, sprite[nSprite].x, sprite[nSprite].y, sector[sprite[nSprite].sectnum].floorz, sprite[nSprite].sectnum, 240, 4);
+                AddFlash(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 128);
+                BuildAnim(-1, var_18, 0, pSprite->x, pSprite->y, sector[pSprite->sectnum].floorz, pSprite->sectnum, 240, 4);
 
 //				int edi = nSprite | 0x4000;
 
@@ -2256,7 +2272,7 @@ FUNCOBJECT_GOTO:
 
                 if (!(currentLevel->gameflags & LEVEL_EX_MULTI) || nStat != kStatExplodeTrigger)
                 {
-                    runlist_SubRunRec(sprite[nSprite].owner);
+                    runlist_SubRunRec(pSprite->owner);
                     runlist_SubRunRec(ObjectList[nObject].field_4);
 
                     mydeletesprite(nSprite);
@@ -2267,9 +2283,9 @@ FUNCOBJECT_GOTO:
                     StartRegenerate(nSprite);
                     ObjectList[nObject].nHealth = 120;
 
-                    sprite[nSprite].x = sprite[ObjectList[nObject].field_10].x;
-                    sprite[nSprite].y = sprite[ObjectList[nObject].field_10].y;
-                    sprite[nSprite].z = sprite[ObjectList[nObject].field_10].z;
+                    pSprite->x = sprite[ObjectList[nObject].field_10].x;
+                    pSprite->y = sprite[ObjectList[nObject].field_10].y;
+                    pSprite->z = sprite[ObjectList[nObject].field_10].z;
 
                     mychangespritesect(nSprite, sprite[ObjectList[nObject].field_10].sectnum);
                     return;
@@ -2281,10 +2297,11 @@ FUNCOBJECT_GOTO:
 
 void BuildDrip(int nSprite)
 {
+	auto pSprite = &sprite[nSprite];
     auto nDrips = sDrip.Reserve(1);
     sDrip[nDrips].nSprite = nSprite;
     sDrip[nDrips].field_2 = RandomSize(8) + 90;
-    sprite[nSprite].cstat = 0x8000u;
+    pSprite->cstat = 0x8000u;
 }
 
 void DoDrips()
@@ -2295,10 +2312,11 @@ void DoDrips()
         if (sDrip[i].field_2 <= 0)
         {
             short nSprite = sDrip[i].nSprite;
+			auto pSprite = &sprite[nSprite];
 
             short nSeqOffset = SeqOffsets[kSeqDrips];
 
-            if (!(SectFlag[sprite[nSprite].sectnum] & kSectLava)) {
+            if (!(SectFlag[pSprite->sectnum] & kSectLava)) {
                 nSeqOffset++;
             }
 
@@ -2413,10 +2431,11 @@ int FindTrail(int nVal)
 // ok ?
 void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
 {
+	auto pSprite = &sprite[nSprite];
     auto nPoint = sTrailPoint.Reserve(1);
 
-    sTrailPoint[nPoint].x = sprite[nSprite].x;
-    sTrailPoint[nPoint].y = sprite[nSprite].y;
+    sTrailPoint[nPoint].x = pSprite->x;
+    sTrailPoint[nPoint].y = pSprite->y;
 
     int nTrail = FindTrail(nHitag);
 
@@ -2752,7 +2771,8 @@ void PostProcess()
                 {
                     wall[nWall].pal = 1;
                     int nSprite = insertsprite(i, 407);
-                    sprite[nSprite].cstat = 0x8000;
+					auto pSprite = &sprite[nSprite];
+                    pSprite->cstat = 0x8000;
                 }
 
                 nWall++;

@@ -88,8 +88,9 @@ void InitWasps()
 
 void SetWaspVel(short nSprite)
 {
-    sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-    sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
+	auto pSprite = &sprite[nSprite];
+    pSprite->xvel = bcos(pSprite->ang);
+    pSprite->yvel = bsin(pSprite->ang);
 }
 
 int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
@@ -100,48 +101,50 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     if (nSprite == -2) {
         bEggWasp = true;
     }
+	auto pSprite = &sprite[nSprite];
 
     if (nSprite < 0)
     {
         nSprite = insertsprite(nSector, 107);
         assert(nSprite >= 0 && nSprite < kMaxSprites);
+		pSprite = &sprite[nSprite];
 
-        sprite[nSprite].x = x;
-        sprite[nSprite].y = y;
-        sprite[nSprite].z = z;
+        pSprite->x = x;
+        pSprite->y = y;
+        pSprite->z = z;
     }
     else
     {
-        nAngle = sprite[nSprite].ang;
+        nAngle = pSprite->ang;
         changespritestat(nSprite, 107);
     }
 
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
-    sprite[nSprite].clipdist = 70;
+    pSprite->shade = -12;
+    pSprite->cstat = 0x101;
+    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->clipdist = 70;
 
     if (bEggWasp)
     {
-        sprite[nSprite].xrepeat = 20;
-        sprite[nSprite].yrepeat = 20;
+        pSprite->xrepeat = 20;
+        pSprite->yrepeat = 20;
     }
     else
     {
-        sprite[nSprite].xrepeat = 50;
-        sprite[nSprite].yrepeat = 50;
+        pSprite->xrepeat = 50;
+        pSprite->yrepeat = 50;
     }
 
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].ang = nAngle;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].extra = -1;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->picnum = 1;
+    pSprite->ang = nAngle;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->hitag = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->extra = -1;
 
 //	GrabTimeSlot(3);
 
@@ -166,7 +169,7 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     WaspList[nWasp].nVel = 0;
     WaspList[nWasp].nAngle2 = RandomSize(7) + 127;
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nWasp | 0x1E0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nWasp | 0x1E0000);
 
     WaspList[nWasp].nRun = runlist_AddRunRec(NewRun, nWasp | 0x1E0000);
 
@@ -178,6 +181,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 {
     short nWasp = RunData[nRun].nVal;
     short nSprite = WaspList[nWasp].nSprite;
+	auto pSprite = &sprite[nSprite];
     short nAction = WaspList[nWasp].nAction;
 
     short nTarget = -1;
@@ -196,7 +200,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 
         case 0xA0000:
         {
-            if (!(sprite[nSprite].cstat & 0x101))
+            if (!(pSprite->cstat & 0x101))
                 return;
 
             nDamage = runlist_CheckRadialDamage(nSprite);
@@ -223,12 +227,12 @@ void FuncWasp(int a, int nDamage, int nRun)
                     }
 
                     WaspList[nWasp].nAction = 1;
-                    sprite[nSprite].ang += RandomSize(9) + 768;
-                    sprite[nSprite].ang &= kAngleMask;
+                    pSprite->ang += RandomSize(9) + 768;
+                    pSprite->ang &= kAngleMask;
 
                     WaspList[nWasp].nVel = 3000;
 
-                    sprite[nSprite].zvel = (-20) - RandomSize(6);
+                    pSprite->zvel = (-20) - RandomSize(6);
                 }
                 else
                 {
@@ -236,12 +240,12 @@ void FuncWasp(int a, int nDamage, int nRun)
                     WaspList[nWasp].nAction = 4;
                     WaspList[nWasp].nFrame  = 0;
 
-                    sprite[nSprite].cstat = 0;
-                    sprite[nSprite].ang = (sprite[nSprite].ang + 1024) & kAngleMask;
+                    pSprite->cstat = 0;
+                    pSprite->ang = (pSprite->ang + 1024) & kAngleMask;
 
                     SetWaspVel(nSprite);
 
-                    sprite[nSprite].zvel = 512;
+                    pSprite->zvel = 512;
 
                     nCreaturesKilled++;
                 }
@@ -253,7 +257,7 @@ void FuncWasp(int a, int nDamage, int nRun)
         {
             short nSeq = SeqOffsets[kSeqWasp] + WaspSeq[nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, WaspList[nWasp].nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, WaspList[nWasp].nFrame);
 
             seq_MoveSequence(nSprite, nSeq, WaspList[nWasp].nFrame);
 
@@ -285,7 +289,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 
                 case 0:
                 {
-                    sprite[nSprite].zvel = bsin(WaspList[nWasp].nAngle, -4);
+                    pSprite->zvel = bsin(WaspList[nWasp].nAngle, -4);
 
                     WaspList[nWasp].nAngle += WaspList[nWasp].nAngle2;
                     WaspList[nWasp].nAngle &= kAngleMask;
@@ -301,7 +305,7 @@ void FuncWasp(int a, int nDamage, int nRun)
                         }
                         else
                         {
-                            sprite[nSprite].zvel = 0;
+                            pSprite->zvel = 0;
                             WaspList[nWasp].nAction = 1;
                             WaspList[nWasp].nFrame  = 0;
                             WaspList[nWasp].nVel = 1500;
@@ -346,8 +350,8 @@ void FuncWasp(int a, int nDamage, int nRun)
                             short nSprite2 = (nChaseVal & 0x3FFF);
                             if (nSprite2 == nTarget)
                             {
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
+                                pSprite->xvel = 0;
+                                pSprite->yvel = 0;
                                 runlist_DamageEnemy(nSprite2, nSprite, WaspList[nWasp].nDamage);
                                 WaspList[nWasp].nAction = 2;
                                 WaspList[nWasp].nFrame = 0;
@@ -364,9 +368,9 @@ void FuncWasp(int a, int nDamage, int nRun)
                 {
                     if (bVal)
                     {
-                        sprite[nSprite].ang += RandomSize(9) + 768;
-                        sprite[nSprite].ang &= kAngleMask;
-                        sprite[nSprite].zvel = (-20) - RandomSize(6);
+                        pSprite->ang += RandomSize(9) + 768;
+                        pSprite->ang &= kAngleMask;
+                        pSprite->zvel = (-20) - RandomSize(6);
 
                         WaspList[nWasp].nAction = 1; 
                         WaspList[nWasp].nVel = 3000;
@@ -380,9 +384,9 @@ void FuncWasp(int a, int nDamage, int nRun)
 
                     if (nMove)
                     {
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
-                        sprite[nSprite].zvel = 1024;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
+                        pSprite->zvel = 1024;
                         WaspList[nWasp].nAction = 5;
                         WaspList[nWasp].nFrame = 0;
                     }
@@ -391,21 +395,21 @@ void FuncWasp(int a, int nDamage, int nRun)
                 }
                 case 5:
                 {
-                    short nSector = sprite[nSprite].sectnum;
+                    short nSector = pSprite->sectnum;
 
-                    sprite[nSprite].z += sprite[nSprite].zvel;
+                    pSprite->z += pSprite->zvel;
 
-                    if (sprite[nSprite].z >= sector[nSector].floorz)
+                    if (pSprite->z >= sector[nSector].floorz)
                     {
                         if (SectBelow[nSector] > -1)
                         {
                             BuildSplash(nSprite, nSector);
-                            sprite[nSprite].cstat |= 0x8000;
+                            pSprite->cstat |= 0x8000;
                         }
 
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
-                        sprite[nSprite].zvel = 0;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
+                        pSprite->zvel = 0;
                         WaspList[nWasp].nAction = 6;
                         WaspList[nWasp].nFrame = 0;
                         runlist_SubRunRec(WaspList[nWasp].nRun);

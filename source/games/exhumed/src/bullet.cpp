@@ -146,9 +146,10 @@ int GrabBullet()
 void DestroyBullet(short nBullet)
 {
     short nSprite = BulletList[nBullet].nSprite;
+	auto pSprite = &sprite[nSprite];
 
     runlist_DoSubRunRec(BulletList[nBullet].field_6);
-    runlist_DoSubRunRec(sprite[nSprite].lotag - 1);
+    runlist_DoSubRunRec(pSprite->lotag - 1);
     runlist_SubRunRec(BulletList[nBullet].field_8);
 
     StopSpriteSound(nSprite);
@@ -159,9 +160,11 @@ void DestroyBullet(short nBullet)
 
 void IgniteSprite(int nSprite)
 {
-    sprite[nSprite].hitag += 2;
+	auto pSprite = &sprite[nSprite];
 
-    int nAnim = BuildAnim(-1, 38, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, 40, 20);
+    pSprite->hitag += 2;
+
+    int nAnim = BuildAnim(-1, 38, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 40, 20);
     short nAnimSprite = GetAnimSprite(nAnim);
 
     sprite[nAnimSprite].hitag = nSprite;
@@ -393,7 +396,7 @@ MOVEEND:
             }
         }
 
-        // sprite[nSprite].sectnum may have changed since we set nSectFlag ?
+        // pSprite->sectnum may have changed since we set nSectFlag ?
         short nFlagVal = nSectFlag ^ SectFlag[pSprite->sectnum];
         if (nFlagVal & kSectUnderwater)
         {
@@ -403,10 +406,10 @@ MOVEEND:
 
         if (nVal == 0 && nType != 15 && nType != 3)
         {
-            AddFlash(sprite[nSprite].sectnum, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, 0);
+            AddFlash(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
 
-            if (sprite[nSprite].pal != 5) {
-                sprite[nSprite].pal = 1;
+            if (pSprite->pal != 5) {
+                pSprite->pal = 1;
             }
         }
     }
@@ -555,6 +558,7 @@ void SetBulletEnemy(short nBullet, short nEnemy)
 
 int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int val2, int val3)
 {
+	auto pSprite = &sprite[nSprite];
     Bullet sBullet;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
 
@@ -567,19 +571,19 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
             short nTargetSprite = val2;
             spritetype *pTargetSprite = &sprite[nTargetSprite];
 
-//			assert(sprite[nTargetSprite].sectnum <= kMaxSectors);
+//			assert(pTargetSprite->sectnum <= kMaxSectors);
 
             if (pTargetSprite->cstat & 0x101)
             {
                 sBullet.nType = nType;
                 sBullet.field_13 = val3;
 
-                sBullet.nSprite = insertsprite(sprite[nSprite].sectnum, 200);
+                sBullet.nSprite = insertsprite(pSprite->sectnum, 200);
                 sprite[sBullet.nSprite].ang = nAngle;
 
                 int nHeight = GetSpriteHeight(nTargetSprite);
 
-                assert(sprite[nTargetSprite].sectnum >= 0 && sprite[nTargetSprite].sectnum < kMaxSectors);
+                assert(pTargetSprite->sectnum >= 0 && pTargetSprite->sectnum < kMaxSectors);
 
                 BulletHitsSprite(&sBullet, nSprite, nTargetSprite, pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
                 mydeletesprite(sBullet.nSprite);
@@ -599,16 +603,17 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
     short nSector;
 
-    if (sprite[nSprite].statnum == 100)
+    if (pSprite->statnum == 100)
     {
         nSector = nPlayerViewSect[GetPlayerFromSprite(nSprite)];
     }
     else
     {
-        nSector = sprite[nSprite].sectnum;
+        nSector = pSprite->sectnum;
     }
 
     short nBulletSprite = insertsprite(nSector, 200);
+	auto pBulletSprite = &sprite[nBulletSprite];
     int nHeight = GetSpriteHeight(nSprite);
     nHeight = nHeight - (nHeight >> 2);
 
@@ -616,9 +621,9 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         val1 = -nHeight;
     }
 
-    sprite[nBulletSprite].x = sprite[nSprite].x;
-    sprite[nBulletSprite].y = sprite[nSprite].y;
-    sprite[nBulletSprite].z = sprite[nSprite].z;
+    pBulletSprite->x = pSprite->x;
+    pBulletSprite->y = pSprite->y;
+    pBulletSprite->z = pSprite->z;
 
     // why is this done here???
     assert(nBulletSprite >= 0 && nBulletSprite < kMaxSprites);
@@ -627,35 +632,35 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
     pBullet->enemy = -1;
 
-    sprite[nBulletSprite].cstat = 0;
-    sprite[nBulletSprite].shade = -64;
+    pBulletSprite->cstat = 0;
+    pBulletSprite->shade = -64;
 
     if (pBulletInfo->nFlags & 4) {
-        sprite[nBulletSprite].pal = 4;
+        pBulletSprite->pal = 4;
     }
     else {
-        sprite[nBulletSprite].pal = 0;
+        pBulletSprite->pal = 0;
     }
 
-    sprite[nBulletSprite].clipdist = 25;
+    pBulletSprite->clipdist = 25;
 
     short nRepeat = pBulletInfo->xyRepeat;
     if (nRepeat < 0) {
         nRepeat = 30;
     }
 
-    sprite[nBulletSprite].xrepeat = (uint8_t)nRepeat;
-    sprite[nBulletSprite].yrepeat = (uint8_t)nRepeat;
-    sprite[nBulletSprite].xoffset = 0;
-    sprite[nBulletSprite].yoffset = 0;
-    sprite[nBulletSprite].ang = nAngle;
-    sprite[nBulletSprite].xvel = 0;
-    sprite[nBulletSprite].yvel = 0;
-    sprite[nBulletSprite].zvel = 0;
-    sprite[nBulletSprite].owner = nSprite;
-    sprite[nBulletSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nBulletSprite].extra = -1;
-    sprite[nBulletSprite].hitag = 0;
+    pBulletSprite->xrepeat = (uint8_t)nRepeat;
+    pBulletSprite->yrepeat = (uint8_t)nRepeat;
+    pBulletSprite->xoffset = 0;
+    pBulletSprite->yoffset = 0;
+    pBulletSprite->ang = nAngle;
+    pBulletSprite->xvel = 0;
+    pBulletSprite->yvel = 0;
+    pBulletSprite->zvel = 0;
+    pBulletSprite->owner = nSprite;
+    pBulletSprite->lotag = runlist_HeadRun() + 1;
+    pBulletSprite->extra = -1;
+    pBulletSprite->hitag = 0;
 
 //	GrabTimeSlot(3);
 
@@ -678,30 +683,30 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
     pBullet->nSeq = nSeq;
 
-    sprite[nBulletSprite].picnum = seq_GetSeqPicnum(nSeq, 0, 0);
+    pBulletSprite->picnum = seq_GetSeqPicnum(nSeq, 0, 0);
 
     if (nSeq == kSeqBullet) {
-        sprite[nBulletSprite].cstat |= 0x8000;
+        pBulletSprite->cstat |= 0x8000;
     }
 
     pBullet->field_C = val2;
     pBullet->nType = nType;
     pBullet->nSprite = nBulletSprite;
-    pBullet->field_6 = runlist_AddRunRec(sprite[nBulletSprite].lotag - 1, nBullet | 0xB0000);
+    pBullet->field_6 = runlist_AddRunRec(pBulletSprite->lotag - 1, nBullet | 0xB0000);
     pBullet->field_8 = runlist_AddRunRec(NewRun, nBullet | 0xB0000);
     pBullet->field_13 = val3;
-    sprite[nBulletSprite].z += val1;
-    sprite[nBulletSprite].backuppos();
+    pBulletSprite->z += val1;
+    pBulletSprite->backuppos();
 
     int var_18;
 
-    nSector = sprite[nBulletSprite].sectnum;
+    nSector = pBulletSprite->sectnum;
 
-    while (sprite[nBulletSprite].z < sector[nSector].ceilingz)
+    while (pBulletSprite->z < sector[nSector].ceilingz)
     {
         if (SectAbove[nSector] == -1)
         {
-            sprite[nBulletSprite].z = sector[nSector].ceilingz;
+            pBulletSprite->z = sector[nSector].ceilingz;
             break;
         }
 
@@ -718,6 +723,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         val2 -= 10000;
 
         short nTargetSprite = val2;
+		auto pTargetSprite = &sprite[nTargetSprite];
 
         if ((unsigned int)pBulletInfo->field_4 > 30000)
         {
@@ -727,7 +733,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         {
             nHeight = GetSpriteHeight(nTargetSprite);
 
-            if (sprite[nTargetSprite].statnum == 100)
+            if (pTargetSprite->statnum == 100)
             {
                 nHeight -= nHeight >> 2;
             }
@@ -736,19 +742,19 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
                 nHeight -= nHeight >> 1;
             }
 
-            int var_20 = sprite[nTargetSprite].z - nHeight;
+            int var_20 = pTargetSprite->z - nHeight;
 
             int x, y;
 
-            if (nSprite != -1 && sprite[nSprite].statnum != 100)
+            if (nSprite != -1 && pSprite->statnum != 100)
             {
-                x = sprite[nTargetSprite].x;
-                y = sprite[nTargetSprite].y;
+                x = pTargetSprite->x;
+                y = pTargetSprite->y;
 
-                if (sprite[nTargetSprite].statnum != 100)
+                if (pTargetSprite->statnum != 100)
                 {
-                    x += (sprite[nTargetSprite].xvel * 20) >> 6;
-                    y += (sprite[nTargetSprite].yvel * 20) >> 6;
+                    x += (pTargetSprite->xvel * 20) >> 6;
+                    y += (pTargetSprite->yvel * 20) >> 6;
                 }
                 else
                 {
@@ -760,23 +766,23 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
                     }
                 }
 
-                x -= sprite[nBulletSprite].x;
-                y -= sprite[nBulletSprite].y;
+                x -= pBulletSprite->x;
+                y -= pBulletSprite->y;
 
                 nAngle = GetMyAngle(x, y);
-                sprite[nSprite].ang = nAngle;
+                pSprite->ang = nAngle;
             }
             else
             {
                 // loc_2ABA3:
-                x = sprite[nTargetSprite].x - sprite[nBulletSprite].x;
-                y = sprite[nTargetSprite].y - sprite[nBulletSprite].y;
+                x = pTargetSprite->x - pBulletSprite->x;
+                y = pTargetSprite->y - pBulletSprite->y;
             }
 
             int nSqrt = lsqrt(y*y + x*x);
             if ((unsigned int)nSqrt > 0)
             {
-                var_18 = ((var_20 - sprite[nBulletSprite].z) * pBulletInfo->field_4) / nSqrt;
+                var_18 = ((var_20 - pBulletSprite->z) * pBulletInfo->field_4) / nSqrt;
             }
             else
             {
@@ -786,8 +792,8 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     }
 
     pBullet->z = 0;
-    pBullet->x = (sprite[nSprite].clipdist << 2) * bcos(nAngle);
-    pBullet->y = (sprite[nSprite].clipdist << 2) * bsin(nAngle);
+    pBullet->x = (pSprite->clipdist << 2) * bcos(nAngle);
+    pBullet->y = (pSprite->clipdist << 2) * bsin(nAngle);
     BulletList[nBullet].enemy = -1;
 
     if (MoveBullet(nBullet))
@@ -812,6 +818,7 @@ void FuncBullet(int a, int, int nRun)
 
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
     short nSprite = BulletList[nBullet].nSprite;
+	auto pSprite = &sprite[nSprite];
 
     int nMessage = a & kMessageMask;
 
@@ -825,7 +832,7 @@ void FuncBullet(int a, int, int nRun)
 
             if (nFlag & 0x80)
             {
-                BuildAnim(-1, 45, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 0);
+                BuildAnim(-1, 45, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 0);
             }
 
             BulletList[nBullet].nFrame++;

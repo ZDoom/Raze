@@ -122,33 +122,37 @@ void SerializeItems(FSerializer& arc)
 
 void BuildItemAnim(short nSprite)
 {
-    int nItem = sprite[nSprite].statnum - 906;
+	auto pSprite = &sprite[nSprite];
+
+    int nItem = pSprite->statnum - 906;
 
     if (nItemAnimInfo[nItem].a >= 0)
     {
-        int nAnim = BuildAnim(nSprite, 41, nItemAnimInfo[nItem].a, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, nItemAnimInfo[nItem].repeat, 20);
+        int nAnim = BuildAnim(nSprite, 41, nItemAnimInfo[nItem].a, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nItemAnimInfo[nItem].repeat, 20);
         int nAnimSprite = GetAnimSprite(nAnim);
 
         if (nItem == 44) {
             sprite[nAnimSprite].cstat |= 2;
         }
 
-        changespritestat(nAnimSprite, sprite[nSprite].statnum);
+        changespritestat(nAnimSprite, pSprite->statnum);
 
         sprite[nAnimSprite].owner = nAnim;
-        sprite[nAnimSprite].hitag = sprite[nSprite].hitag;
+        sprite[nAnimSprite].hitag = pSprite->hitag;
     }
     else
     {
-        sprite[nSprite].owner = -1;
-        sprite[nSprite].yrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
-        sprite[nSprite].xrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
+        pSprite->owner = -1;
+        pSprite->yrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
+        pSprite->xrepeat = (uint8_t)nItemAnimInfo[nItem].repeat;
     }
 }
 
 void DestroyItemAnim(short nSprite)
 {
-    short nAnim = sprite[nSprite].owner;
+	auto pSprite = &sprite[nSprite];
+
+    short nAnim = pSprite->owner;
 
     if (nAnim >= 0) {
         DestroyAnim(nAnim);
@@ -185,11 +189,12 @@ static bool UseEye(short nPlayer)
         PlayerList[nPlayer].nInvisible = 900;
 
     int nSprite = PlayerList[nPlayer].nSprite;
+	auto pSprite = &sprite[nSprite];
 
-    sprite[nSprite].cstat |= 0x8000;
+    pSprite->cstat |= 0x8000;
 
     if (nPlayerFloorSprite[nPlayer] >= 0) {
-        sprite[nSprite].cstat |= 0x8000;
+        pSprite->cstat |= 0x8000;
     }
 
     if (nPlayer == nLocalPlayer)
@@ -334,6 +339,8 @@ int GrabItem(short nPlayer, short nItem)
 
 void DropMagic(short nSprite)
 {
+	auto pSprite = &sprite[nSprite];
+
     if (lFinaleStart) {
         return;
     }
@@ -346,10 +353,10 @@ void DropMagic(short nSprite)
             -1,
             64,
             0,
-            sprite[nSprite].x,
-            sprite[nSprite].y,
-            sprite[nSprite].z,
-            sprite[nSprite].sectnum,
+            pSprite->x,
+            pSprite->y,
+            pSprite->z,
+            pSprite->sectnum,
             48,
             4);
 
@@ -409,7 +416,7 @@ void StartRegenerate(short nSprite)
                 }
                 else
                 {
-                    sprite[edi].ang = sprite[nSprite].ang;
+                    sprite[edi].ang = pSprite->ang;
                 }
 
                 nRegenerates--;
@@ -437,16 +444,17 @@ void StartRegenerate(short nSprite)
 void DoRegenerates()
 {
     int nSprite = nFirstRegenerate;
+	auto pSprite = &sprite[nSprite];
 
-    for (int i = nRegenerates; i > 0; i--, nSprite = sprite[nSprite].ang)
+    for (int i = nRegenerates; i > 0; i--, nSprite = pSprite->ang)
     {
-        if (sprite[nSprite].extra > 0)
+        if (pSprite->extra > 0)
         {
-            sprite[nSprite].extra--;
+            pSprite->extra--;
 
-            if (sprite[nSprite].extra <= 0)
+            if (pSprite->extra <= 0)
             {
-                BuildAnim(-1, 38, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, 64, 4);
+                BuildAnim(-1, 38, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 64, 4);
                 D3PlayFX(StaticSound[kSoundTorchOn], nSprite);
             }
             else {
@@ -455,27 +463,27 @@ void DoRegenerates()
         }
         else
         {
-            if (sprite[nSprite].xrepeat < sprite[nSprite].xvel)
+            if (pSprite->xrepeat < pSprite->xvel)
             {
-                sprite[nSprite].xrepeat += 2;
-                sprite[nSprite].yrepeat += 2;
+                pSprite->xrepeat += 2;
+                pSprite->yrepeat += 2;
                 continue;
             }
         }
 
-        sprite[nSprite].zvel = 0;
-        sprite[nSprite].yrepeat = (uint8_t)sprite[nSprite].xvel;
-        sprite[nSprite].xrepeat = (uint8_t)sprite[nSprite].xvel;
-        sprite[nSprite].pal  = (uint8_t)sprite[nSprite].yvel;
-        sprite[nSprite].yvel = sprite[nSprite].zvel; // setting to 0
-        sprite[nSprite].xvel = sprite[nSprite].zvel; // setting to 0
+        pSprite->zvel = 0;
+        pSprite->yrepeat = (uint8_t)pSprite->xvel;
+        pSprite->xrepeat = (uint8_t)pSprite->xvel;
+        pSprite->pal  = (uint8_t)pSprite->yvel;
+        pSprite->yvel = pSprite->zvel; // setting to 0
+        pSprite->xvel = pSprite->zvel; // setting to 0
         nRegenerates--;
 
-        if (sprite[nSprite].statnum == kStatExplodeTrigger) {
-            sprite[nSprite].cstat = 0x101;
+        if (pSprite->statnum == kStatExplodeTrigger) {
+            pSprite->cstat = 0x101;
         }
         else {
-            sprite[nSprite].cstat = 0;
+            pSprite->cstat = 0;
         }
 
         if (nRegenerates == 0) {

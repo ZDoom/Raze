@@ -244,7 +244,8 @@ void InitPlayerInventory(short nPlayer)
 
 short GetPlayerFromSprite(short nSprite)
 {
-    return RunData[sprite[nSprite].owner].nVal;
+	auto pSprite = &sprite[nSprite];
+    return RunData[pSprite->owner].nVal;
 }
 
 void RestartPlayer(short nPlayer)
@@ -478,9 +479,10 @@ void StartDeathSeq(int nPlayer, int nVal)
     FreeRa(nPlayer);
 
     short nSprite = PlayerList[nPlayer].nSprite;
+	auto pSprite = &sprite[nSprite];
     PlayerList[nPlayer].nHealth = 0;
 
-    short nLotag = sector[sprite[nSprite].sectnum].lotag;
+    short nLotag = sector[pSprite->sectnum].lotag;
 
     if (nLotag > 0) {
         runlist_SignalRun(nLotag - 1, nPlayer | 0x70000);
@@ -498,7 +500,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
             if (nWeapon > kWeaponSword && nWeapon <= kWeaponRing)
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 if (SectBelow[nSector] > -1) {
                     nSector = SectBelow[nSector];
                 }
@@ -506,8 +508,8 @@ void StartDeathSeq(int nPlayer, int nVal)
                 int nGunSprite = GrabBodyGunSprite();
                 changespritesect(nGunSprite, nSector);
 
-                sprite[nGunSprite].x = sprite[nSprite].x;
-                sprite[nGunSprite].y = sprite[nSprite].y;
+                sprite[nGunSprite].x = pSprite->x;
+                sprite[nGunSprite].y = pSprite->y;
                 sprite[nGunSprite].z = sector[nSector].floorz - 512;
 
                 changespritestat(nGunSprite, nGunLotag[nWeapon] + 900);
@@ -526,11 +528,11 @@ void StartDeathSeq(int nPlayer, int nVal)
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
 
-    sprite[nSprite].cstat &= 0x7FFF;
+    pSprite->cstat &= 0x7FFF;
 
     SetNewWeaponImmediate(nPlayer, -2);
 
-    if (SectDamage[sprite[nSprite].sectnum] <= 0)
+    if (SectDamage[pSprite->sectnum] <= 0)
     {
         nDeathType[nPlayer] = nVal;
     }
@@ -541,7 +543,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     nVal *= 2;
 
-    if (nVal || !(SectFlag[sprite[nSprite].sectnum] & kSectUnderwater))
+    if (nVal || !(SectFlag[pSprite->sectnum] & kSectUnderwater))
     {
         PlayerList[nPlayer].nAction = nVal + 17;
     }
@@ -551,7 +553,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     PlayerList[nPlayer].field_2 = 0;
 
-    sprite[nSprite].cstat &= 0xFEFE;
+    pSprite->cstat &= 0xFEFE;
 
     if (nTotalPlayers == 1)
     {
@@ -599,9 +601,10 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
     int nSprite = PlayerList[nPlayer].nSprite;
+	auto pSprite = &sprite[nSprite];
 
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->xvel = 0;
 
     PlayerList[nPlayer].bIsMummified = bIsMummified;
 
@@ -659,6 +662,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
+	auto pPlayerSprite = &sprite[nPlayerSprite];
 
     short nDopple = nDoppleSprite[nPlayer];
 
@@ -733,7 +737,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    if (SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater)
+                    if (SectFlag[pPlayerSprite->sectnum] & kSectUnderwater)
                     {
                         if (nAction != 12)
                         {
@@ -805,8 +809,8 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
         case 0x20000:
         {
-            sprite[nPlayerSprite].xvel = sPlayerInput[nPlayer].xVel >> 14;
-            sprite[nPlayerSprite].yvel = sPlayerInput[nPlayer].yVel >> 14;
+            pPlayerSprite->xvel = sPlayerInput[nPlayer].xVel >> 14;
+            pPlayerSprite->yvel = sPlayerInput[nPlayer].yVel >> 14;
 
             if (sPlayerInput[nPlayer].nItem > -1)
             {
@@ -816,8 +820,8 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
             int var_EC = PlayerList[nPlayer].field_2;
 
-            sprite[nPlayerSprite].picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
-            sprite[nDopple].picnum = sprite[nPlayerSprite].picnum;
+            pPlayerSprite->picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
+            sprite[nDopple].picnum = pPlayerSprite->picnum;
 
             if (PlayerList[nPlayer].nTorch > 0)
             {
@@ -831,10 +835,10 @@ void FuncPlayer(int a, int nDamage, int nRun)
                     if (nPlayer != nLocalPlayer)
                     {
                         nFlashDepth = 5;
-                        AddFlash(sprite[nPlayerSprite].sectnum,
-                            sprite[nPlayerSprite].x,
-                            sprite[nPlayerSprite].y,
-                            sprite[nPlayerSprite].z, 0);
+                        AddFlash(pPlayerSprite->sectnum,
+                            pPlayerSprite->x,
+                            pPlayerSprite->y,
+                            pPlayerSprite->z, 0);
                     }
                 }
             }
@@ -852,7 +856,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 PlayerList[nPlayer].nInvisible--;
                 if (PlayerList[nPlayer].nInvisible == 0)
                 {
-                    sprite[nPlayerSprite].cstat &= 0x7FFF; // set visible
+                    pPlayerSprite->cstat &= 0x7FFF; // set visible
                     short nFloorSprite = nPlayerFloorSprite[nPlayerSprite];
 
                     if (nFloorSprite > -1) {
@@ -892,29 +896,29 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 UpdatePlayerSpriteAngle(pPlayer);
             }
 
-            // sprite[nPlayerSprite].zvel is modified within Gravity()
-            short zVel = sprite[nPlayerSprite].zvel;
+            // pPlayerSprite->zvel is modified within Gravity()
+            short zVel = pPlayerSprite->zvel;
 
             Gravity(nPlayerSprite);
 
-            if (sprite[nPlayerSprite].zvel >= 6500 && zVel < 6500)
+            if (pPlayerSprite->zvel >= 6500 && zVel < 6500)
             {
                 D3PlayFX(StaticSound[kSound17], nPlayerSprite);
             }
 
             // loc_1A4E6
-            short nSector = sprite[nPlayerSprite].sectnum;
+            short nSector = pPlayerSprite->sectnum;
             short nSectFlag = SectFlag[nPlayerViewSect[nPlayer]];
 
-            int playerX = sprite[nPlayerSprite].x;
-            int playerY = sprite[nPlayerSprite].y;
+            int playerX = pPlayerSprite->x;
+            int playerY = pPlayerSprite->y;
 
             int x = (sPlayerInput[nPlayer].xVel * 4) >> 2;
             int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
-            int z = (sprite[nPlayerSprite].zvel * 4) >> 2;
+            int z = (pPlayerSprite->zvel * 4) >> 2;
 
-            if (sprite[nPlayerSprite].zvel > 8192)
-                sprite[nPlayerSprite].zvel = 8192;
+            if (pPlayerSprite->zvel > 8192)
+                pPlayerSprite->zvel = 8192;
 
             if (PlayerList[nPlayer].bIsMummified)
             {
@@ -922,15 +926,15 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 y /= 2;
             }
 
-            int spr_x = sprite[nPlayerSprite].x;
-            int spr_y = sprite[nPlayerSprite].y;
-            int spr_z = sprite[nPlayerSprite].z;
-            int spr_sectnum = sprite[nPlayerSprite].sectnum;
+            int spr_x = pPlayerSprite->x;
+            int spr_y = pPlayerSprite->y;
+            int spr_z = pPlayerSprite->z;
+            int spr_sectnum = pPlayerSprite->sectnum;
 
             // TODO
             // nSectFlag & kSectUnderwater;
 
-            zVel = sprite[nPlayerSprite].zvel;
+            zVel = pPlayerSprite->zvel;
 
             int nMove = 0; // TEMP
 
@@ -938,41 +942,41 @@ void FuncPlayer(int a, int nDamage, int nRun)
             {
                 nMove = 0;
 
-                sprite[nPlayerSprite].x += (x >> 14);
-                sprite[nPlayerSprite].y += (y >> 14);
+                pPlayerSprite->x += (x >> 14);
+                pPlayerSprite->y += (y >> 14);
 
-                vec3_t pos = { sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z };
+                vec3_t pos = { pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z };
                 setsprite(nPlayerSprite, &pos);
 
-                sprite[nPlayerSprite].z = sector[sprite[nPlayerSprite].sectnum].floorz;
+                pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
             }
             else
             {
                 nMove = movesprite(nPlayerSprite, x, y, z, 5120, -5120, CLIPMASK0);
 
-                short var_54 = sprite[nPlayerSprite].sectnum;
+                short var_54 = pPlayerSprite->sectnum;
 
-                pushmove_old(&sprite[nPlayerSprite].x, &sprite[nPlayerSprite].y, &sprite[nPlayerSprite].z, &var_54, sprite[nPlayerSprite].clipdist << 2, 5120, -5120, CLIPMASK0);
-                if (var_54 != sprite[nPlayerSprite].sectnum) {
+                pushmove_old(&pPlayerSprite->x, &pPlayerSprite->y, &pPlayerSprite->z, &var_54, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
+                if (var_54 != pPlayerSprite->sectnum) {
                     mychangespritesect(nPlayerSprite, var_54);
                 }
             }
 
             // loc_1A6E4
-            if (inside(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].sectnum) != 1)
+            if (inside(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->sectnum) != 1)
             {
                 mychangespritesect(nPlayerSprite, spr_sectnum);
 
-                sprite[nPlayerSprite].x = spr_x;
-                sprite[nPlayerSprite].y = spr_y;
+                pPlayerSprite->x = spr_x;
+                pPlayerSprite->y = spr_y;
 
-                if (zVel < sprite[nPlayerSprite].zvel) {
-                    sprite[nPlayerSprite].zvel = zVel;
+                if (zVel < pPlayerSprite->zvel) {
+                    pPlayerSprite->zvel = zVel;
                 }
             }
 
 //			int _bTouchFloor = bTouchFloor;
-            short bUnderwater = SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater;
+            short bUnderwater = SectFlag[pPlayerSprite->sectnum] & kSectUnderwater;
 
             if (bUnderwater)
             {
@@ -981,22 +985,22 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
             // Trigger Ramses?
-            if ((SectFlag[sprite[nPlayerSprite].sectnum] & 0x8000) && bTouchFloor)
+            if ((SectFlag[pPlayerSprite->sectnum] & 0x8000) && bTouchFloor)
             {
                 if (nTotalPlayers <= 1)
                 {
                     auto ang = GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask;
                     PlayerList[nPlayer].angle.settarget(ang, true);
-                    sprite[nPlayerSprite].ang = ang;
+                    pPlayerSprite->ang = ang;
 
                     PlayerList[nPlayer].horizon.settarget(0, true);
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
 
-                    sprite[nPlayerSprite].xvel = 0;
-                    sprite[nPlayerSprite].yvel = 0;
-                    sprite[nPlayerSprite].zvel = 0;
+                    pPlayerSprite->xvel = 0;
+                    pPlayerSprite->yvel = 0;
+                    pPlayerSprite->zvel = 0;
 
                     if (nFreeze < 1)
                     {
@@ -1040,18 +1044,18 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
                     if (zVel >= 6500)
                     {
-                        sprite[nPlayerSprite].xvel >>= 2;
-                        sprite[nPlayerSprite].yvel >>= 2;
+                        pPlayerSprite->xvel >>= 2;
+                        pPlayerSprite->yvel >>= 2;
 
                         runlist_DamageEnemy(nPlayerSprite, -1, ((zVel - 6500) >> 7) + 10);
 
                         if (PlayerList[nPlayer].nHealth <= 0)
                         {
-                            sprite[nPlayerSprite].xvel = 0;
-                            sprite[nPlayerSprite].yvel = 0;
+                            pPlayerSprite->xvel = 0;
+                            pPlayerSprite->yvel = 0;
 
                             StopSpriteSound(nPlayerSprite);
-    					    PlayFXAtXYZ(StaticSound[kSoundJonFDie], sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum, CHANF_NONE, 1); // CHECKME
+    					    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, CHANF_NONE, 1); // CHECKME
                         }
                         else
                         {
@@ -1078,7 +1082,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         if ((sector[sectnum].hitag == 45) && bTouchFloor)
                         {
                             int nNormal = GetWallNormal(nMove & 0x3FFF);
-                            int nDiff = AngleDiff(nNormal, (sprite[nPlayerSprite].ang + 1024) & kAngleMask);
+                            int nDiff = AngleDiff(nNormal, (pPlayerSprite->ang + 1024) & kAngleMask);
 
                             if (nDiff < 0) {
                                 nDiff = -nDiff;
@@ -1105,9 +1109,9 @@ void FuncPlayer(int a, int nDamage, int nRun)
                                 }
                                 else
                                 {
-                                    sprite[nPlayerSprite].x = spr_x;
-                                    sprite[nPlayerSprite].y = spr_y;
-                                    sprite[nPlayerSprite].z = spr_z;
+                                    pPlayerSprite->x = spr_x;
+                                    pPlayerSprite->y = spr_y;
+                                    pPlayerSprite->z = spr_z;
 
                                     mychangespritesect(nPlayerSprite, spr_sectnum);
                                 }
@@ -1134,11 +1138,11 @@ void FuncPlayer(int a, int nDamage, int nRun)
 sectdone:
             if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
             {
-                PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((spr_z - sprite[nPlayerSprite].z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
+                PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((spr_z - pPlayerSprite->z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
             }
 
-            playerX -= sprite[nPlayerSprite].x;
-            playerY -= sprite[nPlayerSprite].y;
+            playerX -= pPlayerSprite->x;
+            playerY -= pPlayerSprite->y;
 
             uint32_t sqrtNum = playerX * playerX + playerY * playerY;
 
@@ -1151,9 +1155,9 @@ sectdone:
             ototalvel[nPlayer] = totalvel[nPlayer];
             totalvel[nPlayer] = ksqrt(sqrtNum);
 
-            int nViewSect = sprite[nPlayerSprite].sectnum;
+            int nViewSect = pPlayerSprite->sectnum;
 
-            int EyeZ = eyelevel[nPlayer] + sprite[nPlayerSprite].z + nQuake[nPlayer];
+            int EyeZ = eyelevel[nPlayer] + pPlayerSprite->z + nQuake[nPlayer];
 
             while (1)
             {
@@ -1171,34 +1175,34 @@ sectdone:
             // Do underwater sector check
             if (bUnderwater)
             {
-                if (nViewSect != sprite[nPlayerSprite].sectnum)
+                if (nViewSect != pPlayerSprite->sectnum)
                 {
                     if ((nMove & 0xC000) == 0x8000)
                     {
-                        int var_C4 = sprite[nPlayerSprite].x;
-                        int var_D4 = sprite[nPlayerSprite].y;
-                        int var_C8 = sprite[nPlayerSprite].z;
+                        int var_C4 = pPlayerSprite->x;
+                        int var_D4 = pPlayerSprite->y;
+                        int var_C8 = pPlayerSprite->z;
 
                         mychangespritesect(nPlayerSprite, nViewSect);
 
-                        sprite[nPlayerSprite].x = spr_x;
-                        sprite[nPlayerSprite].y = spr_y;
+                        pPlayerSprite->x = spr_x;
+                        pPlayerSprite->y = spr_y;
 
                         int var_FC = sector[nViewSect].floorz + (-5120);
 
-                        sprite[nPlayerSprite].z = var_FC;
+                        pPlayerSprite->z = var_FC;
 
                         if ((movesprite(nPlayerSprite, x, y, 0, 5120, 0, CLIPMASK0) & 0xC000) == 0x8000)
                         {
-                            mychangespritesect(nPlayerSprite, sprite[nPlayerSprite].sectnum);
+                            mychangespritesect(nPlayerSprite, pPlayerSprite->sectnum);
 
-                            sprite[nPlayerSprite].x = var_C4;
-                            sprite[nPlayerSprite].y = var_D4;
-                            sprite[nPlayerSprite].z = var_C8;
+                            pPlayerSprite->x = var_C4;
+                            pPlayerSprite->y = var_D4;
+                            pPlayerSprite->z = var_C8;
                         }
                         else
                         {
-                            sprite[nPlayerSprite].z = var_FC - 256;
+                            pPlayerSprite->z = var_FC - 256;
                             D3PlayFX(StaticSound[kSound42], nPlayerSprite);
                         }
                     }
@@ -1208,8 +1212,8 @@ sectdone:
             // loc_1ADAF
             nPlayerViewSect[nPlayer] = nViewSect;
 
-            nPlayerDX[nPlayer] = sprite[nPlayerSprite].x - spr_x;
-            nPlayerDY[nPlayer] = sprite[nPlayerSprite].y - spr_y;
+            nPlayerDX[nPlayer] = pPlayerSprite->x - spr_x;
+            nPlayerDY[nPlayer] = pPlayerSprite->y - spr_y;
 
             int var_5C = SectFlag[nViewSect] & kSectUnderwater;
 
@@ -1290,9 +1294,9 @@ sectdone:
                 }
                 else
                 {
-                    int nTmpSectNum = sprite[nPlayerSprite].sectnum;
+                    int nTmpSectNum = pPlayerSprite->sectnum;
 
-                    if (totalvel[nPlayer] > 25 && sprite[nPlayerSprite].z > sector[nTmpSectNum].floorz)
+                    if (totalvel[nPlayer] > 25 && pPlayerSprite->z > sector[nTmpSectNum].floorz)
                     {
                         if (SectDepth[nTmpSectNum] && !SectSpeed[nTmpSectNum] && !SectDamage[nTmpSectNum])
                         {
@@ -1328,15 +1332,15 @@ sectdone:
                 {
                     int nFloorSprite = nPlayerFloorSprite[nPlayer];
 
-                    sprite[nFloorSprite].x = sprite[nPlayerSprite].x;
-                    sprite[nFloorSprite].y = sprite[nPlayerSprite].y;
+                    sprite[nFloorSprite].x = pPlayerSprite->x;
+                    sprite[nFloorSprite].y = pPlayerSprite->y;
 
-                    if (sprite[nFloorSprite].sectnum != sprite[nPlayerSprite].sectnum)
+                    if (sprite[nFloorSprite].sectnum != pPlayerSprite->sectnum)
                     {
-                        mychangespritesect(nFloorSprite, sprite[nPlayerSprite].sectnum);
+                        mychangespritesect(nFloorSprite, pPlayerSprite->sectnum);
                     }
 
-                    sprite[nFloorSprite].z = sector[sprite[nPlayerSprite].sectnum].floorz;
+                    sprite[nFloorSprite].z = sector[pPlayerSprite->sectnum].floorz;
                 }
 
                 int var_30 = 0;
@@ -1358,19 +1362,20 @@ sectdone:
                 short nValB;
 
                 // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-                neartag(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum, sprite[nPlayerSprite].ang,
+                neartag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang,
                     &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2, NULL);
 
-                feebtag(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum,
+                feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum,
                     &nValB, var_30, 768);
 
+				auto pSprite = &sprite[nValB];
                 // Item pickup code
-                if (nValB >= 0 && sprite[nValB].statnum >= 900)
+                if (nValB >= 0 && pSprite->statnum >= 900)
                 {
                     int var_8C = 16;
                     int var_88 = 9;
 
-                    int var_70 = sprite[nValB].statnum - 900;
+                    int var_70 = pSprite->statnum - 900;
                     int var_44 = 0;
 
                     // item lotags start at 6 (1-5 reserved?) so 0-offset them
@@ -1416,7 +1421,7 @@ do_default_b:
                             }
                             case 0: // Speed Loader
                             {
-                                if (AddAmmo(nPlayer, 1, sprite[nValB].hitag))
+                                if (AddAmmo(nPlayer, 1, pSprite->hitag))
                                 {
                                     var_88 = StaticSound[kSoundAmmoPickup];
                                     goto do_default;
@@ -1426,7 +1431,7 @@ do_default_b:
                             }
                             case 1: // Fuel Canister
                             {
-                                if (AddAmmo(nPlayer, 3, sprite[nValB].hitag))
+                                if (AddAmmo(nPlayer, 3, pSprite->hitag))
                                 {
                                     var_88 = StaticSound[kSoundAmmoPickup];
                                     goto do_default;
@@ -1435,7 +1440,7 @@ do_default_b:
                             }
                             case 2: // M - 60 Ammo Belt
                             {
-                                if (AddAmmo(nPlayer, 2, sprite[nValB].hitag))
+                                if (AddAmmo(nPlayer, 2, pSprite->hitag))
                                 {
                                     var_88 = StaticSound[kSoundAmmoPickup];
                                     CheckClip(nPlayer);
@@ -1458,7 +1463,7 @@ do_default_b:
 
                                     if (var_70 == 55)
                                     {
-                                        sprite[nValB].cstat = 0x8000;
+                                        pSprite->cstat = 0x8000;
                                         DestroyItemAnim(nValB);
 
                                         // loc_1BA74: - repeated block, see in default case
@@ -1514,7 +1519,7 @@ do_default_b:
 
                             case 6: // Berry Twig
                             {
-                                if (sprite[nValB].hitag == 0) {
+                                if (pSprite->hitag == 0) {
                                     break;
                                 }
 
@@ -1542,8 +1547,8 @@ do_default_b:
 
                                     if (var_70 == 12)
                                     {
-                                        sprite[nValB].hitag = 0;
-                                        sprite[nValB].picnum++;
+                                        pSprite->hitag = 0;
+                                        pSprite->picnum++;
 
                                         changespritestat(nValB, 0);
 
@@ -1611,8 +1616,8 @@ do_default_b:
 
                                     if (var_70 == 12)
                                     {
-                                        sprite[nValB].hitag = 0;
-                                        sprite[nValB].picnum++;
+                                        pSprite->hitag = 0;
+                                        pSprite->picnum++;
 
                                         changespritestat(nValB, 0);
 
@@ -1680,8 +1685,8 @@ do_default_b:
 
                                     if (var_70 == 12)
                                     {
-                                        sprite[nValB].hitag = 0;
-                                        sprite[nValB].picnum++;
+                                        pSprite->hitag = 0;
+                                        pSprite->picnum++;
 
                                         changespritestat(nValB, 0);
 
@@ -1847,7 +1852,7 @@ do_default_b:
                                     goto do_default;
                                 }
 
-                                sprite[nValB].cstat = 0x8000;
+                                pSprite->cstat = 0x8000;
                                 DestroyItemAnim(nValB);
 ////
                                 // loc_1BA74: - repeated block, see in default case
@@ -1909,7 +1914,7 @@ do_default_b:
                                     goto do_default;
                                 }
 
-                                sprite[nValB].cstat = 0x8000;
+                                pSprite->cstat = 0x8000;
                                 DestroyItemAnim(nValB);
 ////
                                 // loc_1BA74: - repeated block, see in default case
@@ -1971,7 +1976,7 @@ do_default_b:
                                     goto do_default;
                                 }
 
-                                sprite[nValB].cstat = 0x8000;
+                                pSprite->cstat = 0x8000;
                                 DestroyItemAnim(nValB);
 ////
                                 // loc_1BA74: - repeated block, see in default case
@@ -2033,7 +2038,7 @@ do_default_b:
                                     goto do_default;
                                 }
 
-                                sprite[nValB].cstat = 0x8000;
+                                pSprite->cstat = 0x8000;
                                 DestroyItemAnim(nValB);
 ////
                                 // loc_1BA74: - repeated block, see in default case
@@ -2095,7 +2100,7 @@ do_default_b:
                                     goto do_default;
                                 }
 
-                                sprite[nValB].cstat = 0x8000;
+                                pSprite->cstat = 0x8000;
                                 DestroyItemAnim(nValB);
 ////
                                 // loc_1BA74: - repeated block, see in default case
@@ -2157,7 +2162,7 @@ do_default_b:
                                     goto do_default;
                                 }
 
-                                sprite[nValB].cstat = 0x8000;
+                                pSprite->cstat = 0x8000;
                                 DestroyItemAnim(nValB);
 ////
                                 // loc_1BA74: - repeated block, see in default case
@@ -2192,7 +2197,7 @@ do_default_b:
 
                             case 32: // Raw Energy
                             {
-                                if (AddAmmo(nPlayer, 6, sprite[nValB].hitag)) {
+                                if (AddAmmo(nPlayer, 6, pSprite->hitag)) {
                                     var_88 = StaticSound[kSoundAmmoPickup];
                                     goto do_default;
                                 }
@@ -2247,7 +2252,7 @@ do_default_b:
                             {
                                 if (nLocalPlayer == nPlayer)
                                 {
-                                    short nAnim = sprite[nValB].owner;
+                                    short nAnim = pSprite->owner;
                                     AnimList[nAnim].nSeq++;
                                     AnimList[nAnim].AnimFlags &= 0xEF;
                                     AnimList[nAnim].field_2 = 0;
@@ -2255,7 +2260,7 @@ do_default_b:
                                     changespritestat(nValB, 899);
                                 }
 
-                                SetSavePoint(nPlayer, sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum, sprite[nPlayerSprite].ang);
+                                SetSavePoint(nPlayer, pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang);
                                 break;
                             }
 
@@ -2277,22 +2282,22 @@ do_default_b:
                 // CORRECT ? // loc_1BAF9:
                 if (bTouchFloor)
                 {
-                    if (sector[sprite[nPlayerSprite].sectnum].lotag > 0)
+                    if (sector[pPlayerSprite->sectnum].lotag > 0)
                     {
-                        runlist_SignalRun(sector[sprite[nPlayerSprite].sectnum].lotag - 1, nPlayer | 0x50000);
+                        runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer | 0x50000);
                     }
                 }
 
-                if (nSector != sprite[nPlayerSprite].sectnum)
+                if (nSector != pPlayerSprite->sectnum)
                 {
                     if (sector[nSector].lotag > 0)
                     {
                         runlist_SignalRun(sector[nSector].lotag - 1, nPlayer | 0x70000);
                     }
 
-                    if (sector[sprite[nPlayerSprite].sectnum].lotag > 0)
+                    if (sector[pPlayerSprite->sectnum].lotag > 0)
                     {
-                        runlist_SignalRun(sector[sprite[nPlayerSprite].sectnum].lotag - 1, nPlayer | 0x60000);
+                        runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer | 0x60000);
                     }
                 }
 
@@ -2325,8 +2330,8 @@ do_default_b:
 
                     // loc_1BC57:
 
-                    // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to sprite[nPlayerSprite].sectnum so we can make this code a bit neater. Don't assume sprite[nPlayerSprite].sectnum == nSector here!!
-                    if (nStandHeight > (sector[sprite[nPlayerSprite].sectnum].floorz - sector[sprite[nPlayerSprite].sectnum].ceilingz)) {
+                    // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerSprite->sectnum so we can make this code a bit neater. Don't assume pPlayerSprite->sectnum == nSector here!!
+                    if (nStandHeight > (sector[pPlayerSprite->sectnum].floorz - sector[pPlayerSprite->sectnum].ceilingz)) {
                         var_48 = 1;
                     }
 
@@ -2335,14 +2340,14 @@ do_default_b:
                     {
                         if (bUnderwater)
                         {
-                            sprite[nPlayerSprite].zvel = -2048;
+                            pPlayerSprite->zvel = -2048;
                             nActionB = 10;
                         }
                         else if (bTouchFloor)
                         {
                             if (nAction < 6 || nAction > 8)
                             {
-                                sprite[nPlayerSprite].zvel = -3584;
+                                pPlayerSprite->zvel = -3584;
                                 nActionB = 3;
                             }
                         }
@@ -2353,7 +2358,7 @@ do_default_b:
                     {
                         if (bUnderwater)
                         {
-                            sprite[nPlayerSprite].zvel = 2048;
+                            pPlayerSprite->zvel = 2048;
                             nActionB = 10;
                         }
                         else
@@ -2522,9 +2527,9 @@ loc_1BD2E:
                         {
                             if (nAction != 20)
                             {
-                                sprite[nPlayerSprite].picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
-                                sprite[nPlayerSprite].cstat = 0;
-                                sprite[nPlayerSprite].z = sector[sprite[nPlayerSprite].sectnum].floorz;
+                                pPlayerSprite->picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
+                                pPlayerSprite->cstat = 0;
+                                pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
                             }
 
                             // will invalidate nPlayerSprite
@@ -2572,8 +2577,8 @@ loc_1BD2E:
                     case 16:
                         PlayerList[nPlayer].field_2 = SeqSize[var_AC] - 1;
 
-                        if (sprite[nPlayerSprite].z < sector[sprite[nPlayerSprite].sectnum].floorz) {
-                            sprite[nPlayerSprite].z += 256;
+                        if (pPlayerSprite->z < sector[pPlayerSprite->sectnum].floorz) {
+                            pPlayerSprite->z += 256;
                         }
 
                         if (!RandomSize(5))
@@ -2582,14 +2587,14 @@ loc_1BD2E:
                             short mouthSect;
                             WheresMyMouth(nPlayer, &mouthX, &mouthY, &mouthZ, &mouthSect);
 
-                            BuildAnim(-1, 71, 0, mouthX, mouthY, sprite[nPlayerSprite].z + 3840, mouthSect, 75, 128);
+                            BuildAnim(-1, 71, 0, mouthX, mouthY, pPlayerSprite->z + 3840, mouthSect, 75, 128);
                         }
                         break;
                     case 17:
                         PlayerList[nPlayer].nAction = 18;
                         break;
                     case 19:
-                        sprite[nPlayerSprite].cstat |= 0x8000;
+                        pPlayerSprite->cstat |= 0x8000;
                         PlayerList[nPlayer].nAction = 20;
                         break;
                 }
@@ -2598,11 +2603,11 @@ loc_1BD2E:
             // loc_1C3B4:
             if (nPlayer == nLocalPlayer)
             {
-                initx = sprite[nPlayerSprite].x;
-                inity = sprite[nPlayerSprite].y;
-                initz = sprite[nPlayerSprite].z;
-                initsect = sprite[nPlayerSprite].sectnum;
-                inita = sprite[nPlayerSprite].ang;
+                initx = pPlayerSprite->x;
+                inity = pPlayerSprite->y;
+                initz = pPlayerSprite->z;
+                initsect = pPlayerSprite->sectnum;
+                inita = pPlayerSprite->ang;
             }
 
             if (!PlayerList[nPlayer].nHealth)
@@ -2632,7 +2637,7 @@ loc_1BD2E:
                         }
                         else if (PlayerList[nPlayer].horizon.horiz.asq16() <= 0)
                         {
-                            if (!(SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater))
+                            if (!(SectFlag[pPlayerSprite->sectnum] & kSectUnderwater))
                             {
                                 SetNewWeapon(nPlayer, nDeathType[nPlayer] + 8);
                             }
@@ -2644,14 +2649,14 @@ loc_1BD2E:
             }
 
             // loc_1C4E1
-            sprite[nDopple].x = sprite[nPlayerSprite].x;
-            sprite[nDopple].y = sprite[nPlayerSprite].y;
-            sprite[nDopple].z = sprite[nPlayerSprite].z;
+            sprite[nDopple].x = pPlayerSprite->x;
+            sprite[nDopple].y = pPlayerSprite->y;
+            sprite[nDopple].z = pPlayerSprite->z;
 
-            if (SectAbove[sprite[nPlayerSprite].sectnum] > -1)
+            if (SectAbove[pPlayerSprite->sectnum] > -1)
             {
-                sprite[nDopple].ang = sprite[nPlayerSprite].ang;
-                mychangespritesect(nDopple, SectAbove[sprite[nPlayerSprite].sectnum]);
+                sprite[nDopple].ang = pPlayerSprite->ang;
+                mychangespritesect(nDopple, SectAbove[pPlayerSprite->sectnum]);
                 sprite[nDopple].cstat = 0x101;
             }
             else

@@ -1531,25 +1531,27 @@ void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag)
 
 int runlist_CheckRadialDamage(short nSprite)
 {
+	auto pSprite = &sprite[nSprite];
+
     if (nSprite == nRadialSpr) {
         return 0;
     }
 
-    if (!(sprite[nSprite].cstat & 0x101)) {
+    if (!(pSprite->cstat & 0x101)) {
         return 0;
     }
 
-    if (sprite[nSprite].statnum >= kMaxStatus || sprite[nRadialSpr].statnum >= kMaxStatus) {
+    if (pSprite->statnum >= kMaxStatus || sprite[nRadialSpr].statnum >= kMaxStatus) {
         return 0;
     }
 
-    if (sprite[nSprite].statnum != 100 && nSprite == nRadialOwner) {
+    if (pSprite->statnum != 100 && nSprite == nRadialOwner) {
         return 0;
     }
 
-    int x = (sprite[nSprite].x - sprite[nRadialSpr].x) >> 8;
-    int y = (sprite[nSprite].y - sprite[nRadialSpr].y) >> 8;
-    int z = (sprite[nSprite].z - sprite[nRadialSpr].z) >> 12;
+    int x = (pSprite->x - sprite[nRadialSpr].x) >> 8;
+    int y = (pSprite->y - sprite[nRadialSpr].y) >> 8;
+    int z = (pSprite->z - sprite[nRadialSpr].z) >> 12;
 
     if (abs(x) > nDamageRadius) {
         return 0;
@@ -1580,18 +1582,18 @@ int runlist_CheckRadialDamage(short nSprite)
 
     if (nDist < nDamageRadius)
     {
-        uint16_t nCStat = sprite[nSprite].cstat;
-        sprite[nSprite].cstat = 0x101;
+        uint16_t nCStat = pSprite->cstat;
+        pSprite->cstat = 0x101;
 
-        if (((kStatExplodeTarget - sprite[nSprite].statnum) <= 1) ||
+        if (((kStatExplodeTarget - pSprite->statnum) <= 1) ||
             cansee(sprite[nRadialSpr].x,
                 sprite[nRadialSpr].y,
                 sprite[nRadialSpr].z - 512,
                 sprite[nRadialSpr].sectnum,
-                sprite[nSprite].x,
-                sprite[nSprite].y,
-                sprite[nSprite].z - 8192,
-                sprite[nSprite].sectnum))
+                pSprite->x,
+                pSprite->y,
+                pSprite->z - 8192,
+                pSprite->sectnum))
         {
             edi = (nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius;
 
@@ -1602,17 +1604,17 @@ int runlist_CheckRadialDamage(short nSprite)
             {
                 int nAngle = GetMyAngle(x, y);
 
-                sprite[nSprite].xvel += (edi * bcos(nAngle)) >> 3;
-                sprite[nSprite].yvel += (edi * bsin(nAngle)) >> 3;
-                sprite[nSprite].zvel -= edi * 24;
+                pSprite->xvel += (edi * bcos(nAngle)) >> 3;
+                pSprite->yvel += (edi * bsin(nAngle)) >> 3;
+                pSprite->zvel -= edi * 24;
 
-                if (sprite[nSprite].zvel < -3584) {
-                    sprite[nSprite].zvel = -3584;
+                if (pSprite->zvel < -3584) {
+                    pSprite->zvel = -3584;
                 }
             }
         }
 
-        sprite[nSprite].cstat = nCStat;
+        pSprite->cstat = nCStat;
     }
 
     if (edi > 0x7FFF) {
@@ -1624,6 +1626,8 @@ int runlist_CheckRadialDamage(short nSprite)
 
 void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius)
 {
+	auto pSprite = &sprite[nSprite];
+
     if (!nRadius) {
         return;
     }
@@ -1633,7 +1637,7 @@ void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius)
         nRadialDamage = nDamage * 4;
         nDamageRadius = nRadius;
         nRadialSpr = nSprite;
-        nRadialOwner = sprite[nSprite].owner;
+        nRadialOwner = pSprite->owner;
 
         runlist_ExplodeSignalRun();
 
@@ -1643,11 +1647,13 @@ void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius)
 
 void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
 {
-    if (sprite[nSprite].statnum >= kMaxStatus) {
+	auto pSprite = &sprite[nSprite];
+
+    if (pSprite->statnum >= kMaxStatus) {
         return;
     }
 
-    short nRun = sprite[nSprite].owner;
+    short nRun = pSprite->owner;
     if (nRun <= -1) {
         return;
     }
