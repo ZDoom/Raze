@@ -199,6 +199,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
             }
 
             short nTarget = ap->nTarget;
+			auto pTarget = nTarget < 0? nullptr : &sprite[nTarget];
 
             short nFrame = SeqBase[nSeq] + ap->nFrame;
             short nFlag = FrameFlag[nFrame];
@@ -249,7 +250,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
                         {
                             if ((nMov & 0x3FFF) == nTarget)
                             {
-                                int nAng = getangle(sprite[nTarget].x - sp->x, sprite[nTarget].y - sp->y);
+                                int nAng = getangle(pTarget->x - sp->x, pTarget->y - sp->y);
                                 int nAngDiff = AngleDiff(sp->ang, nAng);
 
                                 if (nAngDiff < 64)
@@ -283,11 +284,11 @@ void FuncAnubis(int a, int nDamage, int nRun)
                                 if (nTarget > -1) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                                 {
                                     if (cansee(sp->x, sp->y, sp->z - GetSpriteHeight(nSprite), sp->sectnum,
-                                        sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
+                                        pTarget->x, pTarget->y, pTarget->z - GetSpriteHeight(nTarget), pTarget->sectnum))
                                     {
                                         sp->xvel = 0;
                                         sp->yvel = 0;
-                                        sp->ang = GetMyAngle(sprite[nTarget].x - sp->x, sprite[nTarget].y - sp->y);
+                                        sp->ang = GetMyAngle(pTarget->x - sp->x, pTarget->y - sp->y);
 
                                         ap->nAction = 3;
                                         ap->nFrame = 0;
@@ -397,7 +398,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
             // loc_2564C:
             if (nAction && nTarget != -1)
             {
-                if (!(sprite[nTarget].cstat & 0x101))
+                if (!(pTarget->cstat & 0x101))
                 {
                     ap->nAction = 0;
                     ap->nFrame = 0;
@@ -444,8 +445,9 @@ void FuncAnubis(int a, int nDamage, int nRun)
                     if (nTarget < 0) {
                         return;
                     }
+					auto pTarget = &sprite[nTarget];
 
-                    if (sprite[nTarget].statnum == 100 || sprite[nTarget].statnum < 199)
+                    if (pTarget->statnum == 100 || pTarget->statnum < 199)
                     {
                         if (!RandomSize(5)) {
                             ap->nTarget = nTarget;
@@ -457,13 +459,14 @@ void FuncAnubis(int a, int nDamage, int nRun)
                         if (nAction >= 6 && nAction <= 10)
                         {
                             int nDrumSprite = insertsprite(sp->sectnum, kStatAnubisDrum);
+							auto pDrumSprite = &sprite[nDrumSprite];
 
-                            sprite[nDrumSprite].x = sp->x;
-                            sprite[nDrumSprite].y = sp->y;
-                            sprite[nDrumSprite].z = sector[sprite[nDrumSprite].sectnum].floorz;
-                            sprite[nDrumSprite].xrepeat = 40;
-                            sprite[nDrumSprite].yrepeat = 40;
-                            sprite[nDrumSprite].shade = -64;
+                            pDrumSprite->x = sp->x;
+                            pDrumSprite->y = sp->y;
+                            pDrumSprite->z = sector[pDrumSprite->sectnum].floorz;
+                            pDrumSprite->xrepeat = 40;
+                            pDrumSprite->yrepeat = 40;
+                            pDrumSprite->shade = -64;
 
                             BuildObject(nDrumSprite, 2, 0);
                         }

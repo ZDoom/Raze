@@ -89,40 +89,42 @@ void InitSets()
 int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
     auto nSet = SetList.Reserve(1);
+	auto pSprite = &sprite[nSprite];
     if (nSprite == -1)
     {
         nSprite = insertsprite(nSector, 120);
+		pSprite = &sprite[nSprite];
     }
     else
     {
         changespritestat(nSprite, 120);
-        x = sprite[nSprite].x;
-        y = sprite[nSprite].y;
-        z = sector[sprite[nSprite].sectnum].floorz;
-        nAngle = sprite[nSprite].ang;
+        x = pSprite->x;
+        y = pSprite->y;
+        z = sector[pSprite->sectnum].floorz;
+        nAngle = pSprite->ang;
     }
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-    sprite[nSprite].x = x;
-    sprite[nSprite].y = y;
-    sprite[nSprite].z = z;
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].clipdist = 110;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].xrepeat = 87;
-    sprite[nSprite].yrepeat = 96;
-    sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].ang = nAngle;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].extra = -1;
+    pSprite->x = x;
+    pSprite->y = y;
+    pSprite->z = z;
+    pSprite->cstat = 0x101;
+    pSprite->shade = -12;
+    pSprite->clipdist = 110;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->xrepeat = 87;
+    pSprite->yrepeat = 96;
+    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->ang = nAngle;
+    pSprite->picnum = 1;
+    pSprite->hitag = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->extra = -1;
 
     //	GrabTimeSlot(3);
 
@@ -137,7 +139,7 @@ int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, in
 
     SetList[nSet].nChannel = nChannel;
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nSet | 0x190000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nSet | 0x190000);
 
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, nSet | 0x190000);
@@ -151,35 +153,36 @@ int BuildSoul(int nSet)
 {
     int nSetSprite = SetList[nSet].nSprite;
     int nSprite = insertsprite(sprite[nSetSprite].sectnum, 0);
+	auto pSprite = &sprite[nSprite];
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-    sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].shade = -127;
-    sprite[nSprite].xrepeat = 1;
-    sprite[nSprite].yrepeat = 1;
-    sprite[nSprite].pal = 0;
-    sprite[nSprite].clipdist = 5;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
-    sprite[nSprite].ang = RandomSize(11);
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = (-256) - RandomSize(10);
-    sprite[nSprite].x = sprite[nSetSprite].x;
-    sprite[nSprite].y = sprite[nSetSprite].y;
+    pSprite->cstat = 0x8000;
+    pSprite->shade = -127;
+    pSprite->xrepeat = 1;
+    pSprite->yrepeat = 1;
+    pSprite->pal = 0;
+    pSprite->clipdist = 5;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->picnum = seq_GetSeqPicnum(kSeqSet, 75, 0);
+    pSprite->ang = RandomSize(11);
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = (-256) - RandomSize(10);
+    pSprite->x = sprite[nSetSprite].x;
+    pSprite->y = sprite[nSetSprite].y;
 
-    short nSector = sprite[nSprite].sectnum;
-    sprite[nSprite].z = (RandomSize(8) << 8) + 8192 + sector[nSector].ceilingz - GetSpriteHeight(nSprite);
+    short nSector = pSprite->sectnum;
+    pSprite->z = (RandomSize(8) << 8) + 8192 + sector[nSector].ceilingz - GetSpriteHeight(nSprite);
 
-    sprite[nSprite].hitag = nSet;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].extra = 0;
+    pSprite->hitag = nSet;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->extra = 0;
 
 //	GrabTimeSlot(3);
 
-    sprite[nSprite].owner = runlist_AddRunRec(NewRun, nSprite | 0x230000);
+    pSprite->owner = runlist_AddRunRec(NewRun, nSprite | 0x230000);
 
     return nSprite | 0x230000;
 }
@@ -187,6 +190,7 @@ int BuildSoul(int nSet)
 void FuncSoul(int a, int, int nRun)
 {
     short nSprite = RunData[nRun].nVal;
+	auto pSprite = &sprite[nSprite];
 
     int nMessage = a & kMessageMask;
 
@@ -196,28 +200,28 @@ void FuncSoul(int a, int, int nRun)
         {
             seq_MoveSequence(nSprite, SeqOffsets[kSeqSet] + 75, 0);
 
-            if (sprite[nSprite].xrepeat < 32)
+            if (pSprite->xrepeat < 32)
             {
-                sprite[nSprite].xrepeat++;
-                sprite[nSprite].yrepeat++;
+                pSprite->xrepeat++;
+                pSprite->yrepeat++;
             }
 
-            sprite[nSprite].extra += (nSprite & 0x0F) + 5;
-            sprite[nSprite].extra &= kAngleMask;
+            pSprite->extra += (nSprite & 0x0F) + 5;
+            pSprite->extra &= kAngleMask;
 
-            int nVel = bcos(sprite[nSprite].extra, -7);
+            int nVel = bcos(pSprite->extra, -7);
 
-            if (movesprite(nSprite, bcos(sprite[nSprite].ang) * nVel, bsin(sprite[nSprite].ang) * nVel, sprite[nSprite].zvel, 5120, 0, CLIPMASK0) & 0x10000)
+            if (movesprite(nSprite, bcos(pSprite->ang) * nVel, bsin(pSprite->ang) * nVel, pSprite->zvel, 5120, 0, CLIPMASK0) & 0x10000)
             {
-                int nSet = sprite[nSprite].hitag;
+                int nSet = pSprite->hitag;
                 int nSetSprite = SetList[nSet].nSprite;
 
-                sprite[nSprite].cstat = 0;
-                sprite[nSprite].yrepeat = 1;
-                sprite[nSprite].xrepeat = 1;
-                sprite[nSprite].x = sprite[nSetSprite].x;
-                sprite[nSprite].y = sprite[nSetSprite].y;
-                sprite[nSprite].z = sprite[nSetSprite].z - (GetSpriteHeight(nSetSprite) >> 1);
+                pSprite->cstat = 0;
+                pSprite->yrepeat = 1;
+                pSprite->xrepeat = 1;
+                pSprite->x = sprite[nSetSprite].x;
+                pSprite->y = sprite[nSetSprite].y;
+                pSprite->z = sprite[nSetSprite].z - (GetSpriteHeight(nSetSprite) >> 1);
                 mychangespritesect(nSprite, sprite[nSetSprite].sectnum);
                 return;
             }
@@ -240,6 +244,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
     short nSprite = SetList[nSet].nSprite;
     short nAction = SetList[nSet].nAction;
+	auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
 
@@ -274,10 +279,10 @@ void FuncSet(int a, int nDamage, int nRun)
 
                 if (SetList[nSet].nHealth <= 0)
                 {
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
-                    sprite[nSprite].zvel = 0;
-                    sprite[nSprite].cstat &= 0xFEFE;
+                    pSprite->xvel = 0;
+                    pSprite->yvel = 0;
+                    pSprite->zvel = 0;
+                    pSprite->cstat &= 0xFEFE;
 
                     SetList[nSet].nHealth = 0;
 
@@ -309,7 +314,7 @@ void FuncSet(int a, int nDamage, int nRun)
             Gravity(nSprite);
 
             short nSeq = SeqOffsets[kSeqSet] + SetSeq[SetList[nSet].nAction].a;
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, SetList[nSet].nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, SetList[nSet].nFrame);
             seq_MoveSequence(nSprite, nSeq, SetList[nSet].nFrame);
 
             if (nAction == 3)
@@ -342,9 +347,9 @@ void FuncSet(int a, int nDamage, int nRun)
 
             int nMov = MoveCreature(nSprite);
 
-            pushmove_old(&sprite[nSprite].x, &sprite[nSprite].y, &sprite[nSprite].z, &sprite[nSprite].sectnum, sprite[nSprite].clipdist << 2, 5120, -5120, CLIPMASK0);
+            pushmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &pSprite->sectnum, pSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
 
-            if (sprite[nSprite].zvel > 4000)
+            if (pSprite->zvel > 4000)
             {
                 if (nMov & 0x20000)
                 {
@@ -372,8 +377,8 @@ void FuncSet(int a, int nDamage, int nRun)
                             SetList[nSet].nFrame  = 0;
                             SetList[nSet].nTarget = nTarget;
 
-                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
-                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
+                            pSprite->xvel = bcos(pSprite->ang, -1);
+                            pSprite->yvel = bsin(pSprite->ang, -1);
                         }
                     }
 
@@ -403,8 +408,8 @@ void FuncSet(int a, int nDamage, int nRun)
                         SetList[nSet].nIndex = 0;
                         SetList[nSet].nFrame  = 0;
 
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
 
                         SetList[nSet].nTarget = FindPlayer(nSprite, 1000);
                     }
@@ -434,8 +439,8 @@ void FuncSet(int a, int nDamage, int nRun)
                                     SetList[nSet].nIndex = 0;
                                     SetList[nSet].nAction = 7;
                                     SetList[nSet].nFrame  = 0;
-                                    sprite[nSprite].xvel = 0;
-                                    sprite[nSprite].yvel = 0;
+                                    pSprite->xvel = 0;
+                                    pSprite->yvel = 0;
                                     return;
                                 }
                                 case 1:
@@ -445,8 +450,8 @@ void FuncSet(int a, int nDamage, int nRun)
                                     SetList[nSet].nAction = 6;
                                     SetList[nSet].nFrame  = 0;
                                     SetList[nSet].nRun = 5;
-                                    sprite[nSprite].xvel = 0;
-                                    sprite[nSprite].yvel = 0;
+                                    pSprite->xvel = 0;
+                                    pSprite->yvel = 0;
                                     return;
                                 }
                                 default:
@@ -465,14 +470,14 @@ void FuncSet(int a, int nDamage, int nRun)
                         }
 
                         // loc_338E2
-                        int nAngle = sprite[nSprite].ang & 0xFFF8;
-                        sprite[nSprite].xvel = bcos(nAngle, -1);
-                        sprite[nSprite].yvel = bsin(nAngle, -1);
+                        int nAngle = pSprite->ang & 0xFFF8;
+                        pSprite->xvel = bcos(nAngle, -1);
+                        pSprite->yvel = bsin(nAngle, -1);
 
                         if (SetList[nSet].nIndex2)
                         {
-                            sprite[nSprite].xvel *= 2;
-                            sprite[nSprite].yvel *= 2;
+                            pSprite->xvel *= 2;
+                            pSprite->yvel *= 2;
                         }
 
                         if ((nMov & 0xC000) == 0x8000)
@@ -482,31 +487,31 @@ void FuncSet(int a, int nDamage, int nRun)
 
                             if (nSector >= 0)
                             {
-                                if ((sprite[nSprite].z - sector[nSector].floorz) < 55000)
+                                if ((pSprite->z - sector[nSector].floorz) < 55000)
                                 {
-                                    if (sprite[nSprite].z > sector[nSector].ceilingz)
+                                    if (pSprite->z > sector[nSector].ceilingz)
                                     {
                                         SetList[nSet].nIndex = 1;
                                         SetList[nSet].nAction = 7;
                                         SetList[nSet].nFrame  = 0;
-                                        sprite[nSprite].xvel = 0;
-                                        sprite[nSprite].yvel = 0;
+                                        pSprite->xvel = 0;
+                                        pSprite->yvel = 0;
                                         return;
                                     }
                                 }
                             }
 
-                            sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
-                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
+                            pSprite->ang = (pSprite->ang + 256) & kAngleMask;
+                            pSprite->xvel = bcos(pSprite->ang, -1);
+                            pSprite->yvel = bsin(pSprite->ang, -1);
                             break;
                         }
                         else if ((nMov & 0xC000) == 0xC000)
                         {
                             if (nTarget == (nMov & 0x3FFF))
                             {
-                                int nAng = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-                                if (AngleDiff(sprite[nSprite].ang, nAng) < 64)
+                                int nAng = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
+                                if (AngleDiff(pSprite->ang, nAng) < 64)
                                 {
                                     SetList[nSet].nAction = 4;
                                     SetList[nSet].nFrame  = 0;
@@ -518,8 +523,8 @@ void FuncSet(int a, int nDamage, int nRun)
                                 SetList[nSet].nIndex = 1;
                                 SetList[nSet].nAction = 7;
                                 SetList[nSet].nFrame  = 0;
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
+                                pSprite->xvel = 0;
+                                pSprite->yvel = 0;
                                 return;
                             }
                         }
@@ -571,7 +576,7 @@ void FuncSet(int a, int nDamage, int nRun)
                     if (nFlag & 0x80)
                     {
                         // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
-                        int nBullet = BuildBullet(nSprite, 11, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1);
+                        int nBullet = BuildBullet(nSprite, 11, 0, 0, -1, pSprite->ang, nTarget + 10000, 1);
                         SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
 
                         SetList[nSet].nRun--;
@@ -590,18 +595,18 @@ void FuncSet(int a, int nDamage, int nRun)
                     {
                         if (SetList[nSet].nIndex)
                         {
-                            sprite[nSprite].zvel = -10000;
+                            pSprite->zvel = -10000;
                         }
                         else
                         {
-                            sprite[nSprite].zvel = -(PlotCourseToSprite(nSprite, nTarget));
+                            pSprite->zvel = -(PlotCourseToSprite(nSprite, nTarget));
                         }
 
                         SetList[nSet].nAction = 8;
                         SetList[nSet].nFrame  = 0;
 
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
+                        pSprite->xvel = bcos(pSprite->ang);
+                        pSprite->yvel = bsin(pSprite->ang);
                     }
                     return;
                 }
@@ -624,13 +629,13 @@ void FuncSet(int a, int nDamage, int nRun)
 
                 case 9:
                 {
-                    sprite[nSprite].xvel >>= 1;
-                    sprite[nSprite].yvel >>= 1;
+                    pSprite->xvel >>= 1;
+                    pSprite->yvel >>= 1;
 
                     if (bVal)
                     {
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
 
                         PlotCourseToSprite(nSprite, nTarget);
 
@@ -638,8 +643,8 @@ void FuncSet(int a, int nDamage, int nRun)
                         SetList[nSet].nFrame  = 0;
                         SetList[nSet].nRun = 5;
 
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
                     }
                     return;
                 }
@@ -648,9 +653,9 @@ void FuncSet(int a, int nDamage, int nRun)
                 {
                     if (nFlag & 0x80)
                     {
-                        sprite[nSprite].z -= GetSpriteHeight(nSprite);
+                        pSprite->z -= GetSpriteHeight(nSprite);
                         BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqSet, 76, 0));
-                        sprite[nSprite].z += GetSpriteHeight(nSprite);
+                        pSprite->z += GetSpriteHeight(nSprite);
                     }
 
                     if (bVal)
@@ -670,7 +675,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
                 case 11:
                 {
-                    sprite[nSprite].cstat &= 0xFEFE;
+                    pSprite->cstat &= 0xFEFE;
                     return;
                 }
             }
@@ -686,8 +691,8 @@ void FuncSet(int a, int nDamage, int nRun)
                         SetList[nSet].nFrame  = 0;
                         SetList[nSet].nCount = 100;
                         SetList[nSet].nTarget = -1;
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
                     }
                 }
             }

@@ -101,45 +101,50 @@ void InitRats()
 
 void SetRatVel(short nSprite)
 {
-    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
-    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
+	auto pSprite = &sprite[nSprite];
+
+    pSprite->xvel = bcos(pSprite->ang, -2);
+    pSprite->yvel = bsin(pSprite->ang, -2);
 }
 
 int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
 {
     auto nRat = RatList.Reserve(1);
 
+	auto pSprite = &sprite[nSprite];
+
     if (nSprite < 0)
     {
         nSprite = insertsprite(nSector, 108);
         assert(nSprite >= 0 && nSprite < kMaxSprites);
+		pSprite = &sprite[nSprite];
 
-        sprite[nSprite].x = x;
-        sprite[nSprite].y = y;
-        sprite[nSprite].z = z;
+        pSprite->x = x;
+        pSprite->y = y;
+        pSprite->z = z;
     }
     else
     {
-        nAngle = sprite[nSprite].ang;
+        nAngle = pSprite->ang;
         changespritestat(nSprite, 108);
     }
 
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
-    sprite[nSprite].clipdist = 30;
-    sprite[nSprite].ang = nAngle;
-    sprite[nSprite].xrepeat = 50;
-    sprite[nSprite].yrepeat = 50;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].extra = -1;
+    pSprite->cstat = 0x101;
+    pSprite->shade = -12;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->picnum = 1;
+    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->clipdist = 30;
+    pSprite->ang = nAngle;
+    pSprite->xrepeat = 50;
+    pSprite->yrepeat = 50;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->hitag = 0;
+    pSprite->extra = -1;
 
     if (nAngle >= 0) {
         RatList[nRat].nAction = 2;
@@ -154,7 +159,7 @@ int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
     RatList[nRat].nCount = RandomSize(5);
     RatList[nRat].nIndex = RandomSize(3);
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nRat | 0x240000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nRat | 0x240000);
 
     RatList[nRat].nRun = runlist_AddRunRec(NewRun, nRat | 0x240000);
     return 0;
@@ -162,10 +167,12 @@ int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
 
 int FindFood(short nSprite)
 {
-    short nSector = sprite[nSprite].sectnum;
-    int x = sprite[nSprite].x;
-    int y = sprite[nSprite].y;
-    int z = sprite[nSprite].z;
+	auto pSprite = &sprite[nSprite];
+
+    short nSector = pSprite->sectnum;
+    int x = pSprite->x;
+    int y = pSprite->y;
+    int z = pSprite->z;
 
     int z2 = (z + sector[nSector].ceilingz) / 2;
 
@@ -203,6 +210,7 @@ void FuncRat(int a, int nDamage, int nRun)
     short nRat = RunData[nRun].nVal;
     short nSprite = RatList[nRat].nSprite;
     short nAction = RatList[nRat].nAction;
+	auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
 
@@ -226,9 +234,9 @@ void FuncRat(int a, int nDamage, int nRun)
         {
             if (nDamage)
             {
-                sprite[nSprite].cstat = 0;
-                sprite[nSprite].xvel = 0;
-                sprite[nSprite].yvel = 0;
+                pSprite->cstat = 0;
+                pSprite->xvel = 0;
+                pSprite->yvel = 0;
                 RatList[nRat].nAction = 3;
                 RatList[nRat].nFrame = 0;
             }
@@ -244,7 +252,7 @@ void FuncRat(int a, int nDamage, int nRun)
         case 0x20000:
         {
             int nSeq = SeqOffsets[kSeqRat] + RatSeq[nAction].a;
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RatList[nRat].nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, RatList[nRat].nFrame);
 
             seq_MoveSequence(nSprite, nSeq, RatList[nRat].nFrame);
 
@@ -271,8 +279,8 @@ void FuncRat(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    int xVal = abs(sprite[nSprite].x - sprite[nTarget].x);
-                    int yVal = abs(sprite[nSprite].y - sprite[nTarget].y);
+                    int xVal = abs(pSprite->x - sprite[nTarget].x);
+                    int yVal = abs(pSprite->y - sprite[nTarget].y);
 
                     if (xVal > 50 || yVal > 50)
                     {
@@ -280,8 +288,8 @@ void FuncRat(int a, int nDamage, int nRun)
                         RatList[nRat].nFrame  = 0;
                         RatList[nRat].nTarget = -1;
 
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
                         return;
                     }
 
@@ -318,14 +326,14 @@ void FuncRat(int a, int nDamage, int nRun)
                         RatList[nRat].nFrame = 0;
                         RatList[nRat].nTarget = -1;
 
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
                     }
 
                     MoveCreature(nSprite);
 
-                    int xVal = abs(sprite[nSprite].x - sprite[nTarget].x);
-                    int yVal = abs(sprite[nSprite].y - sprite[nTarget].y);
+                    int xVal = abs(pSprite->x - sprite[nTarget].x);
+                    int yVal = abs(pSprite->y - sprite[nTarget].y);
 
                     if (xVal >= 50 || yVal >= 50)
                     {
@@ -345,13 +353,13 @@ void FuncRat(int a, int nDamage, int nRun)
                     RatList[nRat].nFrame  = 0;
                     RatList[nRat].nIndex = RandomSize(3);
 
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
+                    pSprite->xvel = 0;
+                    pSprite->yvel = 0;
                     return;
                 }
                 case 2:
                 {
-                    if (sprite[nSprite].xvel || sprite[nSprite].yvel || sprite[nSprite].zvel) {
+                    if (pSprite->xvel || pSprite->yvel || pSprite->zvel) {
                         MoveCreature(nSprite);
                     }
 
@@ -363,14 +371,14 @@ void FuncRat(int a, int nDamage, int nRun)
                         if (RatList[nRat].nTarget <= -1)
                         {
                             RatList[nRat].nCount = RandomSize(6);
-                            if (sprite[nSprite].xvel || sprite[nSprite].yvel)
+                            if (pSprite->xvel || pSprite->yvel)
                             {
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
+                                pSprite->xvel = 0;
+                                pSprite->yvel = 0;
                                 return;
                             }
 
-                            sprite[nSprite].ang = RandomSize(11);
+                            pSprite->ang = RandomSize(11);
                             SetRatVel(nSprite);
                             return;
                         }
@@ -391,11 +399,11 @@ void FuncRat(int a, int nDamage, int nRun)
                 {
                     if (bVal)
                     {
-                        runlist_DoSubRunRec(sprite[nSprite].owner);
-                        runlist_FreeRun(sprite[nSprite].lotag - 1);
+                        runlist_DoSubRunRec(pSprite->owner);
+                        runlist_FreeRun(pSprite->lotag - 1);
                         runlist_SubRunRec(RatList[nRat].nRun);
 
-                        sprite[nSprite].cstat = 0x8000;
+                        pSprite->cstat = 0x8000;
                         mydeletesprite(nSprite);
                     }
                     return;

@@ -352,27 +352,28 @@ void AddFlash(short nSector, int x, int y, int z, int val)
         SectIterator it(nSector);
         while ((nSprite = it.NextIndex()) >= 0)
         {
-            if (sprite[nSprite].pal < 4)
+			auto pSprite = &sprite[nSprite];
+            if (pSprite->pal < 4)
             {
                 short nFlash3 = GrabFlash();
                 if (nFlash3 >= 0)
                 {
                     sFlash[nFlash3].field_0 = var_20 | 4;
-                    sFlash[nFlash3].shade = sprite[nSprite].shade;
+                    sFlash[nFlash3].shade = pSprite->shade;
                     sFlash[nFlash3].field_1 = nSprite;
 
-                    sprite[nSprite].pal += 7;
+                    pSprite->pal += 7;
 
                     int eax = -255;
 
                     if (!var_18)
                     {
-                        int xDiff = x - sprite[nSprite].x;
+                        int xDiff = x - pSprite->x;
                         if (xDiff < 0) {
                             xDiff = -xDiff;
                         }
 
-                        int yDiff = y - sprite[nSprite].y;
+                        int yDiff = y - pSprite->y;
                         if (yDiff < 0) {
                             yDiff = -yDiff;
                         }
@@ -382,12 +383,12 @@ void AddFlash(short nSector, int x, int y, int z, int val)
 
                     if (eax < 0)
                     {
-                        short shade = sprite[nSprite].shade + eax;
+                        short shade = pSprite->shade + eax;
                         if (shade < -127) {
                             shade = -127;
                         }
 
-                        sprite[nSprite].shade = (int8_t)shade;
+                        pSprite->shade = (int8_t)shade;
                     }
                 }
             }

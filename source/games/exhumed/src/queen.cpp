@@ -236,10 +236,11 @@ void BlowChunks(int nSprite)
 void DestroyEgg(short nEgg)
 {
     short nSprite = QueenEgg[nEgg].nSprite;
+	auto pSprite = &sprite[nSprite];
 
     if (QueenEgg[nEgg].nAction != 4)
     {
-        BuildAnim(-1, 34, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 4);
+        BuildAnim(-1, 34, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
     }
     else
     {
@@ -249,8 +250,8 @@ void DestroyEgg(short nEgg)
         }
     }
 
-    runlist_DoSubRunRec(sprite[nSprite].owner);
-    runlist_DoSubRunRec(sprite[nSprite].lotag - 1);
+    runlist_DoSubRunRec(pSprite->owner);
+    runlist_DoSubRunRec(pSprite->lotag - 1);
     runlist_SubRunRec(QueenEgg[nEgg].nRunPtr);
 
     QueenEgg[nEgg].nRunPtr = -1;
@@ -272,10 +273,11 @@ void DestroyAllEggs()
 
 void SetHeadVel(short nSprite)
 {
-    short nAngle = sprite[nSprite].ang;
+	auto pSprite = &sprite[nSprite];
+    short nAngle = pSprite->ang;
 
-    sprite[nSprite].xvel = bcos(nAngle, nVelShift);
-    sprite[nSprite].yvel = bsin(nAngle, nVelShift);
+    pSprite->xvel = bcos(nAngle, nVelShift);
+    pSprite->yvel = bsin(nAngle, nVelShift);
 }
 
 int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
@@ -329,7 +331,7 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
                 nAngDelta = val2;
         }
 
-        nAngle = (nAngDelta + sprite[nSprite].ang) & kAngleMask;
+        nAngle = (nAngDelta + pSprite->ang) & kAngleMask;
 
         pSprite->zvel = (AngleDelta(pSprite->zvel, var_14, 24) + pSprite->zvel) & kAngleMask;
     }
@@ -382,39 +384,41 @@ int DestroyTailPart()
 void BuildTail()
 {
     short nSprite = QueenHead.nSprite;
+	auto pSprite = &sprite[nSprite];
 
-    int x = sprite[nSprite].x;
-    int y = sprite[nSprite].x;
-    int z = sprite[nSprite].x;
-    short nSector = sprite[nSprite].sectnum;
+    int x = pSprite->x;
+    int y = pSprite->x;
+    int z = pSprite->x;
+    short nSector = pSprite->sectnum;
 
     int i;
 
     for (i = 0; i < kMaxTails; i++)
     {
         short nTailSprite = insertsprite(nSector, 121);
+        auto pTailSprite = &sprite[nTailSprite];
         tailspr[i] = nTailSprite;
 
         if (nTailSprite < 0) {
             I_Error("Can't create queen's tail!\n");
         }
 
-        sprite[nTailSprite].lotag = runlist_HeadRun() + 1;
-        sprite[nTailSprite].owner = runlist_AddRunRec(sprite[nTailSprite].lotag - 1, (i + 1) | 0x1B0000);
-        sprite[nTailSprite].shade = -12;
-        sprite[nTailSprite].x = x;
-        sprite[nTailSprite].y = y;
-        sprite[nTailSprite].hitag = 0;
-        sprite[nTailSprite].cstat = 0;
-        sprite[nTailSprite].clipdist = 100;
-        sprite[nTailSprite].xrepeat = 80;
-        sprite[nTailSprite].yrepeat = 80;
-        sprite[nTailSprite].picnum = 1;
-        sprite[nTailSprite].pal = sector[sprite[nTailSprite].sectnum].ceilingpal;
-        sprite[nTailSprite].xoffset = 0;
-        sprite[nTailSprite].yoffset = 0;
-        sprite[nTailSprite].z = z;
-        sprite[nTailSprite].extra = -1;
+        pTailSprite->lotag = runlist_HeadRun() + 1;
+        pTailSprite->owner = runlist_AddRunRec(sprite[nTailSprite].lotag - 1, (i + 1) | 0x1B0000);
+        pTailSprite->shade = -12;
+        pTailSprite->x = x;
+        pTailSprite->y = y;
+        pTailSprite->hitag = 0;
+        pTailSprite->cstat = 0;
+        pTailSprite->clipdist = 100;
+        pTailSprite->xrepeat = 80;
+        pTailSprite->yrepeat = 80;
+        pTailSprite->picnum = 1;
+        pTailSprite->pal = sector[sprite[nTailSprite].sectnum].ceilingpal;
+        pTailSprite->xoffset = 0;
+        pTailSprite->yoffset = 0;
+        pTailSprite->z = z;
+        pTailSprite->extra = -1;
     }
 
     for (i = 0; i < 24 + 1; i++)
@@ -438,50 +442,52 @@ int BuildQueenEgg(short nQueen, int nVal)
     }
 
     short nSprite = QueenList[nQueen].nSprite;
+	auto pSprite = &sprite[nSprite];
 
-    int x = sprite[nSprite].x;
-    int y = sprite[nSprite].y;
-    short nSector = sprite[nSprite].sectnum;
+    int x = pSprite->x;
+    int y = pSprite->y;
+    short nSector = pSprite->sectnum;
     int nFloorZ = sector[nSector].floorz;
-    short nAngle = sprite[nSprite].ang;
+    short nAngle = pSprite->ang;
 
     int nSprite2 = insertsprite(nSector, 121);
     assert(nSprite2 >= 0 && nSprite2 < kMaxSprites);
+	auto pSprite2 = &sprite[nSprite2];
 
-    sprite[nSprite2].x = x;
-    sprite[nSprite2].y = y;
-    sprite[nSprite2].z = nFloorZ;
-    sprite[nSprite2].pal = 0;
-    sprite[nSprite2].clipdist = 50;
-    sprite[nSprite2].xoffset = 0;
-    sprite[nSprite2].yoffset = 0;
-    sprite[nSprite2].shade = -12;
-    sprite[nSprite2].picnum = 1;
-    sprite[nSprite2].ang = (RandomSize(9) + (nAngle - 256)) & kAngleMask;
-    sprite[nSprite2].backuppos();
+    pSprite2->x = x;
+    pSprite2->y = y;
+    pSprite2->z = nFloorZ;
+    pSprite2->pal = 0;
+    pSprite2->clipdist = 50;
+    pSprite2->xoffset = 0;
+    pSprite2->yoffset = 0;
+    pSprite2->shade = -12;
+    pSprite2->picnum = 1;
+    pSprite2->ang = (RandomSize(9) + (nAngle - 256)) & kAngleMask;
+    pSprite2->backuppos();
 
     if (!nVal)
     {
-        sprite[nSprite2].xrepeat = 30;
-        sprite[nSprite2].yrepeat = 30;
-        sprite[nSprite2].xvel = bcos(sprite[nSprite2].ang);
-        sprite[nSprite2].yvel = bsin(sprite[nSprite2].ang);
-        sprite[nSprite2].zvel = -6000;
-        sprite[nSprite2].cstat = 0;
+        pSprite2->xrepeat = 30;
+        pSprite2->yrepeat = 30;
+        pSprite2->xvel = bcos(pSprite2->ang);
+        pSprite2->yvel = bsin(pSprite2->ang);
+        pSprite2->zvel = -6000;
+        pSprite2->cstat = 0;
     }
     else
     {
-        sprite[nSprite2].xrepeat = 60;
-        sprite[nSprite2].yrepeat = 60;
-        sprite[nSprite2].xvel = 0;
-        sprite[nSprite2].yvel = 0;
-        sprite[nSprite2].zvel = -2000;
-        sprite[nSprite2].cstat = 0x101;
+        pSprite2->xrepeat = 60;
+        pSprite2->yrepeat = 60;
+        pSprite2->xvel = 0;
+        pSprite2->yvel = 0;
+        pSprite2->zvel = -2000;
+        pSprite2->cstat = 0x101;
     }
 
-    sprite[nSprite2].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite2].extra = -1;
-    sprite[nSprite2].hitag = 0;
+    pSprite2->lotag = runlist_HeadRun() + 1;
+    pSprite2->extra = -1;
+    pSprite2->hitag = 0;
 
     GrabTimeSlot(3);
 
@@ -499,7 +505,7 @@ int BuildQueenEgg(short nQueen, int nVal)
 
     QueenEgg[nEgg].nAction = nVal;
 
-    sprite[nSprite2].owner = runlist_AddRunRec(sprite[nSprite2].lotag - 1, nEgg | 0x1D0000);
+    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, nEgg | 0x1D0000);
     QueenEgg[nEgg].nRunPtr = runlist_AddRunRec(NewRun, nEgg | 0x1D0000);
 
     return 0;
@@ -511,6 +517,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
     Egg *pEgg = &QueenEgg[nEgg];
     short nSprite = pEgg->nSprite;
+	auto pSprite = &sprite[nSprite];
     short nAction = pEgg->nAction;
 
     short nTarget;
@@ -541,7 +548,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
             short nSeq = SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, pEgg->nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, pEgg->nFrame);
 
             if (nAction != 4)
             {
@@ -606,9 +613,9 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                             break;
                         }
 
-                        sprite[nSprite].ang = nAngle;
-                        sprite[nSprite].xvel = bcos(nAngle, -1);
-                        sprite[nSprite].yvel = bsin(nAngle, -1);
+                        pSprite->ang = nAngle;
+                        pSprite->xvel = bcos(nAngle, -1);
+                        pSprite->yvel = bsin(nAngle, -1);
                     }
 
                     break;
@@ -619,7 +626,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                     if (bVal)
                     {
                         pEgg->nAction = 3;
-                        sprite[nSprite].cstat = 0x101;
+                        pSprite->cstat = 0x101;
                     }
                     break;
                 }
@@ -638,11 +645,11 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                         }
                         fallthrough__;
                     case 0x8000:
-                        sprite[nSprite].ang += (RandomSize(9) + 768);
-                        sprite[nSprite].ang &= kAngleMask;
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -3);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -3);
-                        sprite[nSprite].zvel = -RandomSize(5);
+                        pSprite->ang += (RandomSize(9) + 768);
+                        pSprite->ang &= kAngleMask;
+                        pSprite->xvel = bcos(pSprite->ang, -3);
+                        pSprite->yvel = bsin(pSprite->ang, -3);
+                        pSprite->zvel = -RandomSize(5);
                         break;
                     }
 
@@ -655,18 +662,18 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
                     if (nMov & 0x20000)
                     {
-                        sprite[nSprite].zvel = -(sprite[nSprite].zvel - 256);
-                        if (sprite[nSprite].zvel < -512)
+                        pSprite->zvel = -(pSprite->zvel - 256);
+                        if (pSprite->zvel < -512)
                         {
-                            sprite[nSprite].zvel = 0;
+                            pSprite->zvel = 0;
                         }
                     }
 
                     pEgg->field_C--;
                     if (pEgg->field_C <= 0)
                     {
-                        short nWaspSprite = BuildWasp(-2, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].ang);
-                        sprite[nSprite].z = sprite[nWaspSprite].z;
+                        short nWaspSprite = BuildWasp(-2, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang);
+                        pSprite->z = sprite[nWaspSprite].z;
 
                         DestroyEgg(nEgg);
                     }
@@ -678,7 +685,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
         case 0xA0000:
         {
-            if (sprite[nRadialSpr].statnum != 121 && (sprite[nSprite].cstat & 0x101) != 0)
+            if (sprite[nRadialSpr].statnum != 121 && (pSprite->cstat & 0x101) != 0)
             {
                 nDamage = runlist_CheckRadialDamage(nSprite);
 
@@ -710,37 +717,39 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 int BuildQueenHead(short nQueen)
 {
     short nSprite = QueenList[nQueen].nSprite;
+    auto pSprite = &sprite[nSprite];
 
-    int x = sprite[nSprite].x;
-    int y = sprite[nSprite].y;
-    short nAngle = sprite[nSprite].ang;
-    short nSector = sprite[nSprite].sectnum;
+    int x = pSprite->x;
+    int y = pSprite->y;
+    short nAngle = pSprite->ang;
+    short nSector = pSprite->sectnum;
     int z = sector[nSector].floorz;
 
     int nSprite2 = insertsprite(nSector, 121);
     assert(nSprite2 >= 0 && nSprite2 < kMaxSprites);
+	auto pSprite2 = &sprite[nSprite2];
 
-    sprite[nSprite2].x = x;
-    sprite[nSprite2].y = y;
-    sprite[nSprite2].z = z;
-    sprite[nSprite2].clipdist = 70;
-    sprite[nSprite2].xrepeat = 80;
-    sprite[nSprite2].yrepeat = 80;
-    sprite[nSprite2].cstat = 0;
-    sprite[nSprite2].picnum = 1;
-    sprite[nSprite2].shade = -12;
-    sprite[nSprite2].pal = 0;
-    sprite[nSprite2].xoffset = 0;
-    sprite[nSprite2].yoffset = 0;
-    sprite[nSprite2].ang = nAngle;
+    pSprite2->x = x;
+    pSprite2->y = y;
+    pSprite2->z = z;
+    pSprite2->clipdist = 70;
+    pSprite2->xrepeat = 80;
+    pSprite2->yrepeat = 80;
+    pSprite2->cstat = 0;
+    pSprite2->picnum = 1;
+    pSprite2->shade = -12;
+    pSprite2->pal = 0;
+    pSprite2->xoffset = 0;
+    pSprite2->yoffset = 0;
+    pSprite2->ang = nAngle;
 
     nVelShift = 2;
     SetHeadVel(nSprite2);
 
-    sprite[nSprite2].zvel = -8192;
-    sprite[nSprite2].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite2].hitag = 0;
-    sprite[nSprite2].extra = -1;
+    pSprite2->zvel = -8192;
+    pSprite2->lotag = runlist_HeadRun() + 1;
+    pSprite2->hitag = 0;
+    pSprite2->extra = -1;
 
     GrabTimeSlot(3);
 
@@ -751,7 +760,7 @@ int BuildQueenHead(short nQueen)
     QueenHead.nSprite = nSprite2;
     QueenHead.field_C = 0;
 
-    sprite[nSprite2].owner = runlist_AddRunRec(sprite[nSprite2].lotag - 1, 0x1B0000);
+    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, 0x1B0000);
 
     QueenHead.field_8 = runlist_AddRunRec(NewRun, 0x1B0000);
     QueenHead.tails = 0;
@@ -764,7 +773,9 @@ void FuncQueenHead(int a, int nDamage, int nRun)
     short nHead = RunData[nRun].nVal;
 
     short nSprite = QueenHead.nSprite;
-    int nSector = sprite[nSprite].sectnum;
+	auto pSprite = &sprite[nSprite];
+
+    int nSector = pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
 
     short nAction = QueenHead.nAction;
@@ -787,7 +798,7 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
             seq_MoveSequence(nSprite, nSeq, QueenHead.nFrame);
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, QueenHead.nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, QueenHead.nFrame);
 
             QueenHead.nFrame++;
             if (QueenHead.nFrame >= SeqSize[nSeq])
@@ -824,11 +835,11 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
                             QueenHead.nAction = 6;
                             nHeadVel = 800;
-                            sprite[nSprite].cstat = 0x101;
+                            pSprite->cstat = 0x101;
                         }
                         else if (QueenHead.field_C < 60)
                         {
-                            sprite[nSprite].shade--;
+                            pSprite->shade--;
                         }
                     }
                     else
@@ -836,7 +847,7 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                         int nMov = MoveCreature(nSprite);
 
                         // original BUG - this line doesn't exist in original code?
-                        short nNewAng = sprite[nSprite].ang;
+                        short nNewAng = pSprite->ang;
 
                         switch (nMov & 0xFC000)
                         {
@@ -849,18 +860,18 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                             nNewAng = GetWallNormal(nMov & 0x3FFF);
                             break;
                         case 0x20000:
-                            sprite[nSprite].zvel = -(sprite[nSprite].zvel >> 1);
+                            pSprite->zvel = -(pSprite->zvel >> 1);
 
-                            if (sprite[nSprite].zvel > -256)
+                            if (pSprite->zvel > -256)
                             {
                                 nVelShift = 100;
-                                sprite[nSprite].zvel = 0;
+                                pSprite->zvel = 0;
                             }
                             break;
                         }
 
                         // original BUG - var_18 isn't being set if the check above == 0x20000 ?
-                        sprite[nSprite].ang = nNewAng;
+                        pSprite->ang = nNewAng;
                         nVelShift++;
 
                         if (nVelShift < 5)
@@ -869,10 +880,10 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                         }
                         else
                         {
-                            sprite[nSprite].xvel = 0;
-                            sprite[nSprite].yvel = 0;
+                            pSprite->xvel = 0;
+                            pSprite->yvel = 0;
 
-                            if (sprite[nSprite].zvel == 0)
+                            if (pSprite->zvel == 0)
                             {
                                 QueenHead.field_C = 120;
                             }
@@ -891,14 +902,14 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                     fallthrough__;
 
                 case 1:
-                    if ((sprite[nTarget].z - 51200) > sprite[nSprite].z)
+                    if ((sprite[nTarget].z - 51200) > pSprite->z)
                     {
                         QueenHead.nAction = 4;
                         QueenHead.nFrame = 0;
                     }
                     else
                     {
-                        sprite[nSprite].z -= 2048;
+                        pSprite->z -= 2048;
                         goto __MOVEQS;
                     }
                     break;
@@ -938,10 +949,10 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                                 runlist_DamageEnemy(nTarget, nSprite, 10);
                                 D3PlayFX(StaticSound[kSoundQTail] | 0x2000, nSprite);
 
-                                sprite[nSprite].ang += RandomSize(9) + 768;
-                                sprite[nSprite].ang &= kAngleMask;
+                                pSprite->ang += RandomSize(9) + 768;
+                                pSprite->ang &= kAngleMask;
 
-                                sprite[nSprite].zvel = (-20) - RandomSize(6);
+                                pSprite->zvel = (-20) - RandomSize(6);
 
                                 SetHeadVel(nSprite);
                             }
@@ -951,12 +962,12 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
                     // switch break. MoveQS stuff?
 __MOVEQS:
-                    MoveQX[nQHead] = sprite[nSprite].x;
-                    MoveQY[nQHead] = sprite[nSprite].y;
-                    MoveQZ[nQHead] = sprite[nSprite].z;
-                    assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
-                    MoveQS[nQHead] = sprite[nSprite].sectnum;
-                    MoveQA[nQHead] = sprite[nSprite].ang;
+                    MoveQX[nQHead] = pSprite->x;
+                    MoveQY[nQHead] = pSprite->y;
+                    MoveQZ[nQHead] = pSprite->z;
+                    assert(pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors);
+                    MoveQS[nQHead] = pSprite->sectnum;
+                    MoveQA[nQHead] = pSprite->ang;
 
                     nHd = nQHead;
 
@@ -1001,16 +1012,16 @@ __MOVEQS:
                         {
                             if (QueenHead.tails >= 15 || QueenHead.tails < 10)
                             {
-                                int x = sprite[nSprite].x;
-                                int y = sprite[nSprite].y;
-                                int z = sprite[nSprite].z;
-                                short nSector = sprite[nSprite].sectnum;
+                                int x = pSprite->x;
+                                int y = pSprite->y;
+                                int z = pSprite->z;
+                                short nSector = pSprite->sectnum;
                                 int nAngle = RandomSize(11) & kAngleMask;
 
-                                sprite[nSprite].xrepeat = 127 - QueenHead.tails;
-                                sprite[nSprite].yrepeat = 127 - QueenHead.tails;
+                                pSprite->xrepeat = 127 - QueenHead.tails;
+                                pSprite->yrepeat = 127 - QueenHead.tails;
 
-                                sprite[nSprite].cstat = 0x8000;
+                                pSprite->cstat = 0x8000;
 
                                 // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
                                 // This behavior probably would be needed emulated for demo compatibility
@@ -1025,9 +1036,9 @@ __MOVEQS:
 
                                 mychangespritesect(nSprite, nSector);
 
-                                sprite[nSprite].x = x;
-                                sprite[nSprite].y = y;
-                                sprite[nSprite].z = z;
+                                pSprite->x = x;
+                                pSprite->y = y;
+                                pSprite->z = z;
 
                                 if (QueenHead.tails < 10) {
                                     for (int i = (10 - QueenHead.tails) * 2; i > 0; i--)
@@ -1053,7 +1064,7 @@ __MOVEQS:
                                 BuildLavaLimb(nSprite, i, GetSpriteHeight(nSprite));
                             }
 
-                            runlist_SubRunRec(sprite[nSprite].owner);
+                            runlist_SubRunRec(pSprite->owner);
                             runlist_SubRunRec(QueenHead.field_8);
                             mydeletesprite(nSprite);
                             runlist_ChangeChannel(QueenChan[0], 1);
@@ -1065,7 +1076,7 @@ __MOVEQS:
         }
 
         case 0xA0000:
-            if (sprite[nRadialSpr].statnum != 121 && (sprite[nSprite].cstat & 0x101) != 0)
+            if (sprite[nRadialSpr].statnum != 121 && (pSprite->cstat & 0x101) != 0)
             {
                 nDamage = runlist_CheckRadialDamage(nSprite);
                 if (!nDamage)
@@ -1101,7 +1112,7 @@ __MOVEQS:
                         QueenHead.nFrame = 0;
                         QueenHead.field_C = 0;
                         QueenHead.tails = 80;
-                        sprite[nSprite].cstat = 0;
+                        pSprite->cstat = 0;
                     }
                 }
             }
@@ -1144,41 +1155,44 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
     if (nQueen < 0) {
         return -1;
     }
+	auto pSprite = &sprite[nSprite];
 
     if (nSprite == -1)
     {
         nSprite = insertsprite(nSector, 121);
+		pSprite = &sprite[nSprite];
+
     }
     else
     {
         changespritestat(nSprite, 121);
-        x = sprite[nSprite].x;
-        y = sprite[nSprite].y;
-        z = sector[sprite[nSprite].sectnum].floorz;
-        nAngle = sprite[nSprite].ang;
+        x = pSprite->x;
+        y = pSprite->y;
+        z = sector[pSprite->sectnum].floorz;
+        nAngle = pSprite->ang;
     }
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-    sprite[nSprite].x = x;
-    sprite[nSprite].y = y;
-    sprite[nSprite].z = z;
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].pal = 0;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].clipdist = 100;
-    sprite[nSprite].xrepeat = 80;
-    sprite[nSprite].yrepeat = 80;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].ang = nAngle;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].hitag = 0;
+    pSprite->x = x;
+    pSprite->y = y;
+    pSprite->z = z;
+    pSprite->cstat = 0x101;
+    pSprite->pal = 0;
+    pSprite->shade = -12;
+    pSprite->clipdist = 100;
+    pSprite->xrepeat = 80;
+    pSprite->yrepeat = 80;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->picnum = 1;
+    pSprite->ang = nAngle;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->extra = -1;
+    pSprite->hitag = 0;
 
     GrabTimeSlot(3);
 
@@ -1195,7 +1209,7 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
 
     nHeadVel = 800;
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nQueen | 0x1A0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nQueen | 0x1A0000);
 
     runlist_AddRunRec(NewRun, nQueen | 0x1A0000);
 
@@ -1206,8 +1220,10 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
 
 void SetQueenSpeed(short nSprite, int nSpeed)
 {
-    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -(2 - nSpeed));
-    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -(2 - nSpeed));
+	auto pSprite = &sprite[nSprite];
+
+    pSprite->xvel = bcos(pSprite->ang, -(2 - nSpeed));
+    pSprite->yvel = bsin(pSprite->ang, -(2 - nSpeed));
 }
 
 void FuncQueen(int a, int nDamage, int nRun)
@@ -1216,6 +1232,7 @@ void FuncQueen(int a, int nDamage, int nRun)
     assert(nQueen >= 0 && nQueen < kMaxQueens);
 
     short nSprite = QueenList[nQueen].nSprite;
+	auto pSprite = &sprite[nSprite];
     short nAction = QueenList[nQueen].nAction;
     short si = QueenList[nQueen].field_A;
     short nTarget = QueenList[nQueen].nTarget;
@@ -1241,7 +1258,7 @@ void FuncQueen(int a, int nDamage, int nRun)
 
             short nSeq = SeqOffsets[kSeqQueen] + QueenSeq[nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, QueenList[nQueen].nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, QueenList[nQueen].nFrame);
 
             seq_MoveSequence(nSprite, nSeq, QueenList[nQueen].nFrame);
 
@@ -1258,7 +1275,7 @@ void FuncQueen(int a, int nDamage, int nRun)
             {
                 if (nAction < 7)
                 {
-                    if (!(sprite[nSprite].cstat & 0x101))
+                    if (!(pSprite->cstat & 0x101))
                     {
                         nTarget = -1;
                         QueenList[nQueen].nTarget = -1;
@@ -1312,8 +1329,8 @@ void FuncQueen(int a, int nDamage, int nRun)
                             if (QueenList[nQueen].field_C <= 0)
                             {
                                 QueenList[nQueen].nFrame = 0;
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
+                                pSprite->xvel = 0;
+                                pSprite->yvel = 0;
                                 QueenList[nQueen].nAction = si + 4;
                                 QueenList[nQueen].field_C = RandomSize(6) + 30;
                                 break;
@@ -1363,8 +1380,8 @@ void FuncQueen(int a, int nDamage, int nRun)
                             }
                             fallthrough__;
                         case 0x8000:
-                            sprite[nSprite].ang += 256;
-                            sprite[nSprite].ang &= kAngleMask;
+                            pSprite->ang += 256;
+                            pSprite->ang &= kAngleMask;
 
                             SetQueenSpeed(nSprite, si);
                             break;
@@ -1380,8 +1397,8 @@ void FuncQueen(int a, int nDamage, int nRun)
                             QueenList[nQueen].field_C = 100;
                             QueenList[nQueen].nTarget = -1;
 
-                            sprite[nSprite].xvel = 0;
-                            sprite[nSprite].yvel = 0;
+                            pSprite->xvel = 0;
+                            pSprite->yvel = 0;
                         }
                     }
 
@@ -1406,7 +1423,7 @@ void FuncQueen(int a, int nDamage, int nRun)
 
                             if (!si)
                             {
-                                BuildBullet(nSprite, 12, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1);
+                                BuildBullet(nSprite, 12, 0, 0, -1, pSprite->ang, nTarget + 10000, 1);
                             }
                             else
                             {
@@ -1439,7 +1456,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                             QueenList[nQueen].field_C--;
                             if (QueenList[nQueen].field_C <= 0)
                             {
-                                sprite[nSprite].cstat = 0;
+                                pSprite->cstat = 0;
 
                                 for (int i = 0; i < 20; i++)
                                 {
@@ -1458,10 +1475,10 @@ void FuncQueen(int a, int nDamage, int nRun)
 
                                 PlayFXAtXYZ(
                                     StaticSound[kSound40],
-                                    sprite[nSprite].x,
-                                    sprite[nSprite].y,
-                                    sprite[nSprite].z,
-                                    sprite[nSprite].sectnum);
+                                    pSprite->x,
+                                    pSprite->y,
+                                    pSprite->z,
+                                    pSprite->sectnum);
 
                                 BuildQueenHead(nQueen);
 
@@ -1477,7 +1494,7 @@ void FuncQueen(int a, int nDamage, int nRun)
 
                 case 10:
                 {
-                    sprite[nSprite].cstat &= 0xFEFE;
+                    pSprite->cstat &= 0xFEFE;
                     break;
                 }
             }
@@ -1486,7 +1503,7 @@ void FuncQueen(int a, int nDamage, int nRun)
 
         case 0xA0000:
         {
-            if (sprite[nRadialSpr].statnum != 121 && (sprite[nSprite].cstat & 0x101) != 0)
+            if (sprite[nRadialSpr].statnum != 121 && (pSprite->cstat & 0x101) != 0)
             {
                 nDamage = runlist_CheckRadialDamage(nSprite);
 
@@ -1508,9 +1525,9 @@ void FuncQueen(int a, int nDamage, int nRun)
 
                 if (QueenList[nQueen].nHealth <= 0)
                 {
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
-                    sprite[nSprite].zvel = 0;
+                    pSprite->xvel = 0;
+                    pSprite->yvel = 0;
+                    pSprite->zvel = 0;
 
                     QueenList[nQueen].field_A++;
 
@@ -1520,7 +1537,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                         QueenList[nQueen].nHealth = 4000;
                         QueenList[nQueen].nAction = 7;
 
-                        BuildAnim(-1, 36, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - 7680, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 4);
+                        BuildAnim(-1, 36, 0, pSprite->x, pSprite->y, pSprite->z - 7680, pSprite->sectnum, pSprite->xrepeat, 4);
                         break;
                     case 2:
                         QueenList[nQueen].nHealth = 4000;

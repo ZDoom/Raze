@@ -212,18 +212,20 @@ void DrawView(double smoothRatio, bool sceneonly)
     pm_smoothratio = (int)smoothRatio;
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
-    int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
+	auto pPlayerSprite = &sprite[nPlayerSprite];
+    int nPlayerOldCstat = pPlayerSprite->cstat;
     int nDoppleOldCstat = sprite[nDoppleSprite[nLocalPlayer]].cstat;
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
         int nSprite = SnakeList[nSnakeCam].nSprites[0];
+		auto pSprite = &sprite[nSprite];
 
-        playerX = sprite[nSprite].x;
-        playerY = sprite[nSprite].y;
-        playerZ = sprite[nSprite].z;
-        nSector = sprite[nSprite].sectnum;
-        nAngle = buildang(sprite[nSprite].ang);
+        playerX = pSprite->x;
+        playerY = pSprite->y;
+        playerZ = pSprite->z;
+        nSector = pSprite->sectnum;
+        nAngle = buildang(pSprite->ang);
         rotscrnang = buildang(0);
 
         SetGreenPal();
@@ -265,12 +267,12 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!bCamera)
         {
-            sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
+            pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         else
         {
-            sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_TRANSLUCENT;
+            pPlayerSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
             sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
@@ -286,7 +288,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         viewz = playerZ + nQuake[nLocalPlayer];
-        int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
+        int floorZ = sector[pPlayerSprite->sectnum].floorz;
 
         if (viewz > floorZ)
             viewz = floorZ;
@@ -393,9 +395,9 @@ void DrawView(double smoothRatio, bool sceneonly)
                 {
                     nHeadStage = 5;
 
-                    sprite[nPlayerSprite].cstat |= 0x8000;
+                    pPlayerSprite->cstat |= 0x8000;
 
-                    int ang2 = nCameraa.asbuild() - sprite[nPlayerSprite].ang;
+                    int ang2 = nCameraa.asbuild() - pPlayerSprite->ang;
                     if (ang2 < 0)
                         ang2 = -ang2;
 
@@ -451,7 +453,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         twod->ClearScreen();
     }
 
-    sprite[nPlayerSprite].cstat = nPlayerOldCstat;
+    pPlayerSprite->cstat = nPlayerOldCstat;
     sprite[nDoppleSprite[nLocalPlayer]].cstat = nDoppleOldCstat;
     RestoreInterpolations();
 

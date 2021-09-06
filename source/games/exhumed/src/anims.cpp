@@ -72,10 +72,11 @@ void DestroyAnim(int nAnim)
 
     if (nSprite >= 0)
     {
+		auto pSprite = &sprite[nSprite];
         StopSpriteSound(nSprite);
         runlist_SubRunRec(AnimList[nAnim].AnimRunRec);
-        runlist_DoSubRunRec(sprite[nSprite].extra);
-        runlist_FreeRun(sprite[nSprite].lotag - 1);
+        runlist_DoSubRunRec(pSprite->extra);
+        runlist_FreeRun(pSprite->lotag - 1);
     }
 
     AnimList.Release(nAnim);
@@ -91,43 +92,44 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
     if (nSprite == -1) {
         nSprite = insertsprite(nSector, 500);
     }
+	auto pSprite = &sprite[nSprite];
 
-    sprite[nSprite].x = x;
-    sprite[nSprite].y = y;
-    sprite[nSprite].z = z;
-    sprite[nSprite].cstat = 0;
+    pSprite->x = x;
+    pSprite->y = y;
+    pSprite->z = z;
+    pSprite->cstat = 0;
 
     if (nFlag & 4)
     {
-        sprite[nSprite].pal = 4;
-        sprite[nSprite].shade = -64;
+        pSprite->pal = 4;
+        pSprite->shade = -64;
     }
     else
     {
-        sprite[nSprite].pal = 0;
-        sprite[nSprite].shade = -12;
+        pSprite->pal = 0;
+        pSprite->shade = -12;
     }
 
-    sprite[nSprite].clipdist = 10;
-    sprite[nSprite].xrepeat = nRepeat;
-    sprite[nSprite].yrepeat = nRepeat;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].ang = 0;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].backuppos();
+    pSprite->clipdist = 10;
+    pSprite->xrepeat = nRepeat;
+    pSprite->yrepeat = nRepeat;
+    pSprite->picnum = 1;
+    pSprite->ang = 0;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->backuppos();
 
     // CHECKME - where is hitag set otherwise?
-    if (sprite[nSprite].statnum < 900) {
-        sprite[nSprite].hitag = -1;
+    if (pSprite->statnum < 900) {
+        pSprite->hitag = -1;
     }
 
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].owner = -1;
-    sprite[nSprite].extra = runlist_AddRunRec(sprite[nSprite].lotag - 1, nAnim | 0x100000);
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->owner = -1;
+    pSprite->extra = runlist_AddRunRec(pSprite->lotag - 1, nAnim | 0x100000);
 
     AnimList[nAnim].AnimRunRec = runlist_AddRunRec(NewRun, nAnim | 0x100000);
     AnimList[nAnim].nSprite = nSprite;
@@ -137,7 +139,7 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
     AnimList[nAnim].field_4 = 256;
 
     if (nFlag & 0x80) {
-        sprite[nSprite].cstat |= 0x2; // set transluscence
+        pSprite->cstat |= 0x2; // set transluscence
     }
 
     return nAnim;
@@ -155,6 +157,7 @@ void FuncAnim(int a, int, int nRun)
 
     short nSprite = AnimList[nAnim].nSprite;
     short nSeq = AnimList[nAnim].nSeq;
+	auto pSprite = &sprite[nSprite];
 
     assert(nSprite != -1);
 
@@ -166,23 +169,24 @@ void FuncAnim(int a, int, int nRun)
         {
             short var_1C = AnimList[nAnim].field_2;
 
-            if (!(sprite[nSprite].cstat & 0x8000))
+            if (!(pSprite->cstat & 0x8000))
             {
                 seq_MoveSequence(nSprite, nSeq, var_1C);
             }
 
-            if (sprite[nSprite].statnum == kStatIgnited)
+            if (pSprite->statnum == kStatIgnited)
             {
-                short nSpriteB = sprite[nSprite].hitag;
+                short nSpriteB = pSprite->hitag;
                 if (nSpriteB > -1)
                 {
-                    sprite[nSprite].x = sprite[nSpriteB].x;
-                    sprite[nSprite].y = sprite[nSpriteB].y;
-                    sprite[nSprite].z = sprite[nSpriteB].z;
+					auto pSpriteB = &sprite[nSpriteB];
+                    pSprite->x = pSpriteB->x;
+                    pSprite->y = pSpriteB->y;
+                    pSprite->z = pSpriteB->z;
 
-                    if (sprite[nSpriteB].sectnum != sprite[nSprite].sectnum)
+                    if (pSpriteB->sectnum != pSprite->sectnum)
                     {
-                        if (sprite[nSpriteB].sectnum < 0 || sprite[nSpriteB].sectnum >= kMaxSectors)
+                        if (pSpriteB->sectnum < 0 || pSpriteB->sectnum >= kMaxSectors)
                         {
                             DestroyAnim(nAnim);
                             mydeletesprite(nSprite);
@@ -190,28 +194,28 @@ void FuncAnim(int a, int, int nRun)
                         }
                         else
                         {
-                            mychangespritesect(nSprite, sprite[nSpriteB].sectnum);
+                            mychangespritesect(nSprite, pSpriteB->sectnum);
                         }
                     }
 
                     if (!var_1C)
                     {
-                        if (sprite[nSpriteB].cstat != 0x8000)
+                        if (pSpriteB->cstat != 0x8000)
                         {
-                            short hitag2 = sprite[nSpriteB].hitag;
-                            sprite[nSpriteB].hitag--;
+                            short hitag2 = pSpriteB->hitag;
+                            pSpriteB->hitag--;
 
                             if (hitag2 >= 15)
                             {
-                                runlist_DamageEnemy(nSpriteB, -1, (sprite[nSpriteB].hitag - 14) * 2);
+                                runlist_DamageEnemy(nSpriteB, -1, (pSpriteB->hitag - 14) * 2);
 
-                                if (sprite[nSpriteB].shade < 100)
+                                if (pSpriteB->shade < 100)
                                 {
-                                    sprite[nSpriteB].pal = 0;
-                                    sprite[nSpriteB].shade++;
+                                    pSpriteB->pal = 0;
+                                    pSpriteB->shade++;
                                 }
 
-                                if (!(sprite[nSpriteB].cstat & 101))
+                                if (!(pSpriteB->cstat & 101))
                                 {
                                     DestroyAnim(nAnim);
                                     mydeletesprite(nSprite);
@@ -220,14 +224,14 @@ void FuncAnim(int a, int, int nRun)
                             }
                             else
                             {
-                                sprite[nSpriteB].hitag = 1;
+                                pSpriteB->hitag = 1;
                                 DestroyAnim(nAnim);
                                 mydeletesprite(nSprite);
                             }
                         }
                         else
                         {
-                            sprite[nSpriteB].hitag = 1;
+                            pSpriteB->hitag = 1;
                             DestroyAnim(nAnim);
                             mydeletesprite(nSprite);
                         }
@@ -289,7 +293,9 @@ void FuncAnim(int a, int, int nRun)
 
 void BuildExplosion(short nSprite)
 {
-    short nSector = sprite[nSprite].sectnum;
+    auto pSprite = &sprite[nSprite];
+ 
+    short nSector = pSprite->sectnum;
 
     int edx = 36;
 
@@ -297,21 +303,22 @@ void BuildExplosion(short nSprite)
     {
         edx = 75;
     }
-    else if (sprite[nSprite].z == sector[nSector].floorz)
+    else if (pSprite->z == sector[nSector].floorz)
     {
         edx = 34;
     }
 
-    BuildAnim(-1, edx, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 4);
+    BuildAnim(-1, edx, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
 }
 
 int BuildSplash(int nSprite, int nSector)
 {
+    auto pSprite = &sprite[nSprite];
     int nRepeat, nSound;
 
-    if (sprite[nSprite].statnum != 200)
+    if (pSprite->statnum != 200)
     {
-        nRepeat = sprite[nSprite].xrepeat + (RandomWord() % sprite[nSprite].xrepeat);
+        nRepeat = pSprite->xrepeat + (RandomWord() % pSprite->xrepeat);
         nSound = kSound0;
     }
     else
@@ -335,7 +342,7 @@ int BuildSplash(int nSprite, int nSector)
         nFlag = 0;
     }
 
-    int nAnim = BuildAnim(-1, edx, 0, sprite[nSprite].x, sprite[nSprite].y, sector[nSector].floorz, nSector, nRepeat, nFlag);
+    int nAnim = BuildAnim(-1, edx, 0, pSprite->x, pSprite->y, sector[nSector].floorz, nSector, nRepeat, nFlag);
 
     if (!bIsLava)
     {

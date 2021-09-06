@@ -331,6 +331,7 @@ void InitSectFlag()
 
 void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
 {
+	auto pSprite = &sprite[nSprite];
     int nChannel = runlist_AllocChannel(nHitag % 1000);
 
     int nSpeed = nLotag / 1000;
@@ -402,33 +403,33 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
         case 58:
         case 60:
         {
-            sprite[nSprite].hitag = nVal;
+            pSprite->hitag = nVal;
             changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
+            pSprite->cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
         }
         case 12: // berry twig
         {
-            sprite[nSprite].hitag = 40;
+            pSprite->hitag = 40;
             changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
+            pSprite->cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
         }
         case 13: // blood bowl
         {
-            sprite[nSprite].hitag = 160;
+            pSprite->hitag = 160;
             changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
+            pSprite->cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
         }
         case 14: // venom bowl
         {
-            sprite[nSprite].hitag = -200;
+            pSprite->hitag = -200;
             changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
+            pSprite->cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
         }
@@ -449,18 +450,18 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             else
             {
-                sprite[nSprite].hitag = nVal;
+                pSprite->hitag = nVal;
                 changespritestat(nSprite, nLotag + 900);
-                sprite[nSprite].cstat &= 0xFEFE;
+                pSprite->cstat &= 0xFEFE;
                 BuildItemAnim(nSprite);
                 return;
             }
         }
         case 27:
         {
-            sprite[nSprite].hitag = 1;
+            pSprite->hitag = 1;
             changespritestat(nSprite, 9 + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
+            pSprite->cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
         }
@@ -469,9 +470,9 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
         {
             nVal++;
             nVal--; // CHECKME ??
-            sprite[nSprite].hitag = nVal;
+            pSprite->hitag = nVal;
             changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
+            pSprite->cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
         }
@@ -490,12 +491,12 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
         {
             case 999:
             {
-                AddFlicker(sprite[nSprite].sectnum, nSpeed);
+                AddFlicker(pSprite->sectnum, nSpeed);
                 break;
             }
             case 998:
             {
-                AddGlow(sprite[nSprite].sectnum, nSpeed);
+                AddGlow(pSprite->sectnum, nSpeed);
                 break;
             }
             case 118: // Anubis with drum
@@ -640,7 +641,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 99: // underwater type 2
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SetAbove(nSector, nHitag);
                 SectFlag[nSector] |= kSectUnderwater;
 
@@ -649,7 +650,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 98:
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SetBelow(nSector, nHitag);
                 SnapSectors(nSector, nHitag, 1);
 
@@ -658,7 +659,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 97:
             {
-                AddSectorBob(sprite[nSprite].sectnum, nHitag, 1);
+                AddSectorBob(pSprite->sectnum, nHitag, 1);
 
                 mydeletesprite(nSprite);
                 return;
@@ -670,7 +671,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     nDamage = 1;
                 }
 
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
 
                 SectDamage[nSector] = nDamage;
                 SectFlag[nSector] |= kSectLava;
@@ -680,14 +681,14 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 95:
             {
-                AddSectorBob(sprite[nSprite].sectnum, nHitag, 0);
+                AddSectorBob(pSprite->sectnum, nHitag, 0);
 
                 mydeletesprite(nSprite);
                 return;
             }
             case 94: // water
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SectDepth[nSector] = nHitag << 8;
 
                 mydeletesprite(nSprite);
@@ -706,10 +707,10 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 79:
             case 89:
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
 
                 SectSpeed[nSector] = nSpeed;
-                SectFlag[nSector] |= sprite[nSprite].ang;
+                SectFlag[nSector] |= pSprite->ang;
 
                 mydeletesprite(nSprite);
                 return;
@@ -723,7 +724,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 80: // underwater
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SectFlag[nSector] |= kSectUnderwater;
 
                 mydeletesprite(nSprite);
@@ -733,7 +734,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             {
                 AddFlow(nSprite, nSpeed, 1);
 
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SectFlag[nSector] |= 0x8000;
 
                 mydeletesprite(nSprite);
@@ -771,13 +772,13 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 63:
             {
                 changespritestat(nSprite, 405);
-                sprite[nSprite].cstat = 0x8000;
+                pSprite->cstat = 0x8000;
                 return;
             }
             case 62:
             {
                 nNetStartSprite[nNetStartSprites] = nSprite;
-                sprite[nSprite].cstat = 0x8000;
+                pSprite->cstat = 0x8000;
 
                 nNetStartSprites++;
                 return;
@@ -785,7 +786,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case kTagRamses: // Ramses head
             {
                 nSpiritSprite = nSprite;
-                sprite[nSprite].cstat |= 0x8000;
+                pSprite->cstat |= 0x8000;
                 return;
             }
             default: // TODO - checkme!
@@ -806,16 +807,18 @@ void ExamineSprites()
 
     for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
     {
-        int nStatus = sprite[nSprite].statnum;
+		auto pSprite = &sprite[nSprite];
+
+        int nStatus = pSprite->statnum;
         if (!nStatus)
         {
-            short lotag = sprite[nSprite].lotag;
-            short hitag = sprite[nSprite].hitag;
+            short lotag = pSprite->lotag;
+            short hitag = pSprite->hitag;
 
             if ((nStatus < kMaxStatus) && lotag)
             {
-                sprite[nSprite].lotag = 0;
-                sprite[nSprite].hitag = 0;
+                pSprite->lotag = 0;
+                pSprite->hitag = 0;
 
                 ProcessSpriteTag(nSprite, lotag, hitag);
             }
@@ -829,10 +832,12 @@ void ExamineSprites()
     if (nNetPlayerCount)
     {
         int nSprite = insertsprite(initsect, 0);
-        sprite[nSprite].x = initx;
-        sprite[nSprite].y = inity;
-        sprite[nSprite].z = initz;
-        sprite[nSprite].cstat = 0x8000;
+		auto pSprite = &sprite[nSprite];
+
+        pSprite->x = initx;
+        pSprite->y = inity;
+        pSprite->z = initz;
+        pSprite->cstat = 0x8000;
         nNetStartSprite[nNetStartSprites] = nSprite;
         nNetStartSprites++;
     }
