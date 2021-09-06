@@ -1485,7 +1485,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     int nId = pXSprite2->data2;
     
     BloodStatIterator it(kStatPathMarker);
-    while (actor = it.Next())
+    while ((actor = it.Next()))
     {
         pSprite = &actor->s();
         if (pSprite->type == kMarkerPath)
@@ -1631,7 +1631,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
     int nId = pXSector->data;
 
     BloodStatIterator it(kStatPathMarker);
-    while (actor = it.Next())
+    while ((actor = it.Next()))
     {
         pSprite = &actor->s();
         if (pSprite->type == kMarkerPath && actor->hasX())
