@@ -819,7 +819,6 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->statnum = LittleShort(load.statnum);
         pSprite->ang = LittleShort(load.ang);
         pSprite->owner = LittleShort(load.owner);
-        pSprite->index = LittleShort(load.index);
         pSprite->yvel = LittleShort(load.yvel);
         pSprite->inittype = LittleShort(load.inittype);
         pSprite->type = LittleShort(load.type);

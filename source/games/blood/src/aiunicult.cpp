@@ -2356,7 +2356,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
         Printf(PRINT_HIGH, "pSprite->type != kDudeModernCustom");
         return false;
     } else if (propId < kGenDudePropertyAll || propId >= kGenDudePropertyMax) {
-        viewSetSystemMessage("Unknown custom dude #%d property (%d)", pSprite->index, propId);
+        viewSetSystemMessage("Unknown custom dude #%d property (%d)", actor->GetIndex(), propId);
         return false;
     }
     
@@ -2446,7 +2446,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
                         if (!pSeq) 
                         {
                             pXSprite->data2 = getDudeInfo(pSprite->type)->seqStartID;
-                            viewSetSystemMessage("No SEQ animation id %d found for custom dude #%d!", i, pSprite->index);
+                            viewSetSystemMessage("No SEQ animation id %d found for custom dude #%d!", i, actor->GetIndex());
                             viewSetSystemMessage("SEQ base id: %d", seqStartId);
                         } 
                         else if ((i - seqStartId) == kGenDudeSeqAttackPunch) 

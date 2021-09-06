@@ -1582,7 +1582,6 @@ void ProcessInput(PLAYER *pPlayer)
             {
                 spritetype* pSprite2 = &spawned->s();
                 pSprite2->ang = (pPlayer->pSprite->ang + 1024) & 2047;
-                int nSprite = pPlayer->pSprite->index;
                 int x = CosScale16(pPlayer->pSprite->ang);
                 int y = SinScale16(pPlayer->pSprite->ang);
                 spawned->xvel = pPlayer->actor->xvel + MulScale(0x155555, x, 14);

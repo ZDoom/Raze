@@ -131,7 +131,7 @@ void ambInit(void)
             auto snd = soundEngine->FindSoundByResID(nSFX);
             if (!snd) {
                 //I_Error("Missing sound #%d used in ambient sound generator %d\n", nSFX);
-                viewSetSystemMessage("Missing sound #%d used in ambient sound generator #%d\n", nSFX, actor->s().index);
+                viewSetSystemMessage("Missing sound #%d used in ambient sound generator #%d\n", nSFX, actor->GetIndex());
                 actPostSprite(actor, kStatDecoration);
                 continue;
             }
