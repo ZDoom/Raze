@@ -281,7 +281,7 @@ void HWDrawInfo::DispatchSprites()
 		if (spritenum < 0 || (unsigned)tilenum >= MAXTILES)
 			continue;
 
-		if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
+		if ((unsigned)spritenum < MAXSPRITES)
 			show2dsprite.Set(spritenum);
 
 		setgotpic(tilenum);
