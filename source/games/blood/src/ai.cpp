@@ -982,7 +982,6 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 	if (source)
 	{
 		spritetype* pSource = &source->s();
-		int nSource = pSource->index;
 		if (pSprite == pSource) return 0;
 		else if (actor->GetTarget() == nullptr) // if no target, give the dude a target
 		{
@@ -1027,7 +1026,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						}
 					}
 
-					DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, pSprite->index);
+                    DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, actor->GetIndex());
 				}
 
 				return nDamage;

@@ -310,7 +310,7 @@ static void sub_6CB00(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	int nSprite = pSprite->index;
+
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;

@@ -2454,7 +2454,7 @@ static void actInitDudes()
 		{
 			spritetype* pSprite = &act->s();
 			if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
-				I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", pSprite->index);
+				I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", act->GetIndex());
 			unk[pSprite->type - kDudeBase] = 1;
 		}
 
@@ -2581,7 +2581,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 		}
 		else
 		{
-			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", (int)pSprite->index, (int)pSprite->type, (int)pSprite->statnum);
+			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", actor->GetIndex(), (int)pSprite->type, (int)pSprite->statnum);
 			return;
 		}
 
@@ -2589,7 +2589,6 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 		{
 			int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
 			int t = scale(damage, size, mass);
-			int nSprite = pSprite->index;
 			actor->xvel += MulScale(t, dx, 16);
 			actor->yvel += MulScale(t, dy, 16);
 			actor->zvel += MulScale(t, dz, 16);
@@ -6738,7 +6737,6 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	assert(nType >= kMissileBase && nType < kMissileMax);
 	char v4 = 0;
 	auto pSprite = &actor->s();
-	int nSprite = pSprite->index;
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
 	int x = pSprite->x + MulScale(a2, Cos(pSprite->ang + 512), 30);
 	int y = pSprite->y + MulScale(a2, Sin(pSprite->ang + 512), 30);

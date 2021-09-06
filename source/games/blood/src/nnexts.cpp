@@ -562,7 +562,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(actor,"\nThe condition must have RX ID!\nSPRITE #%d", actor->GetIndex());
                 else if (!pXSprite->txID && !pSprite->flags) 
                 {
-                    Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
+                    Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, actor->GetIndex());
                 }
                 break;
         }
@@ -705,7 +705,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                                 I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", actor->GetIndex(), pXSprite->data1);
 
                             //if (numplayers < pXSprite->data1)
-                                //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
+                            //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", actor->GetIndex(), pXSprite->data1);
 
                             if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
                                 I_Error("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", actor->GetIndex());
@@ -739,7 +739,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                         if (pXSprite->waitTime > 0) 
                         {
                             pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
-                            Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
+                        Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", actor->GetIndex(), pXSprite->rxID, pXSprite->busyTime);
                         }
                         pXSprite->busy = pXSprite->busyTime;
                     }
@@ -918,7 +918,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
         }
 
         if (pXSprite->data1 > kCondGameMax && count == 0)
-            Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", pSprite->index, pXSprite->rxID);
+            Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", iactor->GetIndex(), pXSprite->rxID);
 
         pCond->length = count;
         pCond->actor = iactor;
@@ -8014,7 +8014,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
 
         if (firstFinePath == nullptr) 
         {
-            viewSetSystemMessage("No markers with id #%d found for dude #%d! (back = %d)", next, pSprite->index, back);
+            viewSetSystemMessage("No markers with id #%d found for dude #%d! (back = %d)", next, actor->GetIndex(), back);
             return;
         }
 
@@ -8307,7 +8307,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
 
             if (chain)
                 aiPatrolAlarmFull(dudeactor, targetactor, Chance(0x0010));
-            //Printf("Dude #%d alarms dude #%d", pSprite->index, pDude->index);
+            //Printf("Dude #%d alarms dude #%d", actor->GetIndex(), pDude->index);
         }
     }
 }
@@ -8673,7 +8673,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
             if (itCanSee && seeChance > 0) 
             {
-                //DPrintf(DMSG_SPAMMY, "Patrol dude #%d seeing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
+                //DPrintf(DMSG_SPAMMY, "Patrol dude #%d seeing the Player #%d.", actor->GetIndex(), pPlayer->nPlayer + 1);
                 //pXSprite->data3 += seeChance;
                 pXSprite->data3 = ClipRange(pXSprite->data3 + seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                 if (!stealth) 
