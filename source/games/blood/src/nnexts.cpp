@@ -1374,10 +1374,8 @@ void nnExtProcessSuperSprites()
                 continue;
             }
 
-            int nDebris = pDebris->index;
-
             XSECTOR* pXSector = (sector[pDebris->sectnum].extra >= 0) ? &xsector[sector[pDebris->sectnum].extra] : nullptr;
-            viewBackupSpriteLoc(nDebris, pDebris);
+            viewBackupSpriteLoc(debrisactor);
 
             bool uwater = false;
             int mass = debrisactor->spriteMass.mass;
@@ -1416,7 +1414,8 @@ void nnExtProcessSuperSprites()
                 {
                     pPlayer = &gPlayer[a];
                     auto pact = pPlayer->actor;
-                    if (pact->hit.hit.type == kHitSprite && pact->hit.hit.index == nDebris) 
+
+                    if (pact->hit.hit.type == kHitSprite && pact->hit.hit.actor == debrisactor) 
                     {
                         int nSpeed = approxDist(pact->xvel, pact->yvel);
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
@@ -3166,7 +3165,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     if (pXSource->data3 == 1)
         actor->xvel = actor->yvel = actor->zvel = 0;
 
-    viewBackupSpriteLoc(pSprite->index, pSprite);
+    viewBackupSpriteLoc(actor);
 
     if (pXSource->data4 > 0)
         sfxPlay3DSound(pSource, pXSource->data4, -1, 0);

@@ -896,7 +896,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
         {
             if (vbp)
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-            viewBackupSpriteLoc(pSprite->index, pSprite);
+            viewBackupSpriteLoc(actor);
             pSprite->ang = (pSprite->ang+v14)&2047;
             pSprite->x = x+vc-a4;
             pSprite->y = y+v8-a5;
@@ -905,7 +905,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
         {
             if (vbp)
                 RotatePoint((int*)& x, (int*)& y, -vbp, a4, a4);
-            viewBackupSpriteLoc(pSprite->index, pSprite);
+            viewBackupSpriteLoc(actor);
             pSprite->ang = (pSprite->ang-v14)&2047;
             pSprite->x = x-(vc-a4);
             pSprite->y = y-(v8-a5);
@@ -919,7 +919,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
             {
                 if (v14)
                     RotatePoint((int*)&pSprite->x, (int*)&pSprite->y, v14, v20, v24);
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->ang = (pSprite->ang+v14)&2047;
                 pSprite->x += v28;
                 pSprite->y += v2c;
@@ -949,14 +949,14 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
             GetSpriteExtents(pSprite, &top, &bottom);
             if (pSprite->cstat&8192)
             {
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->floorz-oldZ;
             }
             else if (pSprite->flags&2)
                 pSprite->flags |= 4;
             else if (oldZ <= bottom && !(pSprite->cstat&48))
             {
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->floorz-oldZ;
             }
         }
@@ -976,7 +976,7 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
                 continue;
             if (pSprite->cstat&16384)
             {
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->ceilingz-oldZ;
             }
         }
@@ -1093,7 +1093,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
             spritetype *pSprite = &actor->s();
             if (pSprite->cstat&8192)
             {
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z = actor->basePoint.z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
@@ -1107,7 +1107,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
             spritetype* pSprite = &actor->s();
             if (pSprite->cstat & 16384)
             {
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z = actor->basePoint.z + MulScale(dz2, GetWaveValue(a2, nWave), 16);
             }
         }
@@ -1460,7 +1460,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 actor->xvel = actor->yvel = actor->zvel = 0;
                 int nSprite = actor->s().index;
                 gInterpolateSprite.Clear(nSprite);
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(actor);
                 if (pPlayer)
                 {
                     playerResetInertia(pPlayer);
@@ -1875,7 +1875,7 @@ void ProcessMotion(void)
                 auto pSprite = &actor->s();
                 if (pSprite->cstat&24576)
                 {
-                    viewBackupSpriteLoc(pSprite->index, pSprite);
+                    viewBackupSpriteLoc(actor);
                     pSprite->z += vdi;
                 }
             }
@@ -1897,7 +1897,7 @@ void ProcessMotion(void)
                         GetSpriteExtents(pSprite, &top, &bottom);
                         if (bottom >= floorZ && (pSprite->cstat&48) == 0)
                         {
-                            viewBackupSpriteLoc(pSprite->index, pSprite);
+                            viewBackupSpriteLoc(actor);
                             pSprite->z += vdi;
                         }
                     }
@@ -1917,7 +1917,7 @@ void ProcessMotion(void)
                     GetSpriteExtents(pSprite, &top, &bottom);
                     if (top <= ceilZ && (pSprite->cstat&48) == 0)
                     {
-                        viewBackupSpriteLoc(pSprite->index, pSprite);
+                        viewBackupSpriteLoc(actor);
                         pSprite->z += vdi;
                     }
                 }
