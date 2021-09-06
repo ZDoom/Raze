@@ -110,7 +110,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
     const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
     GetClosestSpriteSectors(nSector, x, y, vc, sectmap, nullptr, newSectCheckMethod);
     char v4 = 0;
-    int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+    int hit = HitScan(actor1, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
     DBloodActor* actor2 = nullptr;
     actHitcodeToData(hit, &gHitInfo, &actor2);
     if (hit == 3 && actor2)
@@ -131,7 +131,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
                     continue;
                 if (pSprite2->flags&32)
                     continue;
-                if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
+                if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(actor2, x, y, z, nSector, vc))
                 {
                     int top, bottom;
                     GetActorExtents(actor1, &top, &bottom);
@@ -162,7 +162,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
         spritetype *pSprite2 = &actor2->s();
         if (pSprite2->flags&32)
             continue;
-        if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
+        if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(actor2, x, y, z, nSector, vc))
         {
             XSPRITE *pXSprite = &actor2->x();
             if (pXSprite->locked)
@@ -327,7 +327,7 @@ static void beastThinkChase(DBloodActor* actor)
                         pXSector = &xsector[nXSector];
                     else
                         pXSector = NULL;
-                    int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                    int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                     if (pXTarget->health > (unsigned)gPlayerTemplate[0].startHealth/2)
                     {
                         switch (hit)
@@ -365,7 +365,7 @@ static void beastThinkChase(DBloodActor* actor)
                         pXSector = &xsector[nXSector];
                     else
                         pXSector = NULL;
-                    int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                    int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                     switch (hit)
                     {
                     case -1:
@@ -522,8 +522,8 @@ static void beastMoveForward(DBloodActor* actor)
     int nDist = approxDist(dx, dy);
     if (nDist <= 0x400 && Random(64) < 32)
         return;
-    actor->xvel() += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
-    actor->yvel() += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
+    actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
+    actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
 }
 
 //---------------------------------------------------------------------------
@@ -553,16 +553,16 @@ static void sub_628A0(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = actor->xvel();
-    int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     if (actor->GetTarget() == nullptr)
         t1 += nAccel;
     else
         t1 += nAccel>>2;
-    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 //---------------------------------------------------------------------------
@@ -598,14 +598,14 @@ static void sub_62AE0(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = actor->xvel();
-    int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     t1 += nAccel;
-    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel() = -dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = -dz;
 }
 
 //---------------------------------------------------------------------------
@@ -642,14 +642,14 @@ static void sub_62D7C(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = actor->xvel();
-    int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     t1 += nAccel>>1;
-    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-    actor->zvel() = dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = dz;
 }
 
 END_BLD_NS

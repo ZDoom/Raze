@@ -33,9 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-int basePath[kMaxSectors];
-
-
 unsigned int GetWaveValue(unsigned int nPhase, int nType)
 {
     switch (nType)
@@ -222,12 +219,12 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
     }
     case kCmdSpriteProximity:
     {
-        int nTarget = pXSprite->target_i;
-        if (nTarget >= 0 && nTarget < kMaxSprites)
+        auto target = actor->GetTarget();
+        if (target)
         {
             if (!pXSprite->stateTimer)
             {
-                spritetype *pTarget = &sprite[nTarget];
+                spritetype *pTarget = &target->s();
                 if (pTarget->statnum == kStatDude && !(pTarget->flags&32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites)
                 {
                     int top, bottom;
@@ -242,8 +239,8 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                     if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum))
                     {
                         int t = DivScale(nDist, 0x1aaaaa, 12);
-                        x += (xvel[nTarget]*t)>>12;
-                        y += (yvel[nTarget]*t)>>12;
+                        x += (target->xvel*t)>>12;
+                        y += (target->yvel*t)>>12;
                         int angBak = pSprite->ang;
                         pSprite->ang = getangle(x-pSprite->x, y-pSprite->y);
                         int dx = CosScale16(pSprite->ang);
@@ -471,7 +468,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                     case kDudeBurningBeast: {
                         pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
-                        pXSpawn->target_i = -1;
+                        spawned->SetTarget(nullptr);
                         aiActivateDude(spawned);
                         break;
                     default:
@@ -884,11 +881,10 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
             }
         }
     }
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype *pSprite = &actor->s();
         // allow to move markers by sector movements in game if flags 1 is added in editor.
         switch (pSprite->statnum) {
             case kStatMarker:
@@ -901,22 +897,22 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
                 break;
         }
 
-        x = baseSprite[nSprite].x;
-        y = baseSprite[nSprite].y;
-        if (sprite[nSprite].cstat&8192)
+        x = actor->basePoint.x;
+        y = actor->basePoint.y;
+        if (pSprite->cstat&8192)
         {
             if (vbp)
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-            viewBackupSpriteLoc(nSprite, pSprite);
+            viewBackupSpriteLoc(pSprite->index, pSprite);
             pSprite->ang = (pSprite->ang+v14)&2047;
             pSprite->x = x+vc-a4;
             pSprite->y = y+v8-a5;
         }
-        else if (sprite[nSprite].cstat&16384)
+        else if (pSprite->cstat&16384)
         {
             if (vbp)
                 RotatePoint((int*)& x, (int*)& y, -vbp, a4, a4);
-            viewBackupSpriteLoc(nSprite, pSprite);
+            viewBackupSpriteLoc(pSprite->index, pSprite);
             pSprite->ang = (pSprite->ang-v14)&2047;
             pSprite->x = x-(vc-a4);
             pSprite->y = y-(v8-a5);
@@ -930,7 +926,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
             {
                 if (v14)
                     RotatePoint((int*)&pSprite->x, (int*)&pSprite->y, v14, v20, v24);
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
                 pSprite->ang = (pSprite->ang+v14)&2047;
                 pSprite->x += v28;
                 pSprite->y += v2c;
@@ -1098,30 +1094,28 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     int dz1 = pXSector->onFloorZ - pXSector->offFloorZ;
     if (dz1 != 0)
     {
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodSectIterator it(nSector);
+        while (auto actor = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype *pSprite = &actor->s();
             if (pSprite->cstat&8192)
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
-                pSprite->z = baseSprite[nSprite].z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
+                pSprite->z = actor->basePoint.z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
     }
     int dz2 = pXSector->onCeilZ - pXSector->offCeilZ;
     if (dz2 != 0)
     {
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodSectIterator it(nSector);
+        while (auto actor = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
-            if (pSprite->cstat&16384)
+            spritetype* pSprite = &actor->s();
+            if (pSprite->cstat & 16384)
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
-                pSprite->z = baseSprite[nSprite].z+MulScale(dz2, GetWaveValue(a2, nWave), 16);
+                viewBackupSpriteLoc(pSprite->index, pSprite);
+                pSprite->z = actor->basePoint.z + MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
     }
@@ -1249,8 +1243,9 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
         nWave = pXSector->busyWaveA;
     else
         nWave = pXSector->busyWaveB;
-    spritetype *pSprite1 = &sprite[pXSector->marker0];
-    spritetype *pSprite2 = &sprite[pXSector->marker1];
+    if (!pXSector->marker0 || !pXSector->marker1) return 0;
+    spritetype *pSprite1 = &pXSector->marker0->s();
+    spritetype *pSprite2 = &pXSector->marker1->s();
     TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
     ZTranslateSector(nSector, pXSector, a2, nWave);
     pXSector->busy = a2;
@@ -1277,7 +1272,8 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
         nWave = pXSector->busyWaveA;
     else
         nWave = pXSector->busyWaveB;
-    spritetype *pSprite = &sprite[pXSector->marker0];
+    if (!pXSector->marker0) return 0;
+    spritetype* pSprite = &pXSector->marker0->s();
     TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, 0, pSprite->x, pSprite->y, pSprite->ang, pSector->type == kSectorRotate);
     ZTranslateSector(nSector, pXSector, a2, nWave);
     pXSector->busy = a2;
@@ -1299,7 +1295,8 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
     int nXSector = pSector->extra;
     assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
-    spritetype *pSprite = &sprite[pXSector->marker0];
+    if (!pXSector->marker0) return 0;
+    spritetype* pSprite = &pXSector->marker0->s();
     int vbp;
     if (pXSector->busy < a2)
     {
@@ -1352,11 +1349,14 @@ int PathBusy(unsigned int nSector, unsigned int a2)
     int nXSector = pSector->extra;
     assert(nXSector > 0 && nXSector < kMaxXSectors);
     XSECTOR *pXSector = &xsector[nXSector];
-    spritetype *pSprite = &sprite[basePath[nSector]];
-    spritetype *pSprite1 = &sprite[pXSector->marker0];
-    XSPRITE *pXSprite1 = &xsprite[pSprite1->extra];
-    spritetype *pSprite2 = &sprite[pXSector->marker1];
-    XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
+
+    if (!pXSector->basePath || !pXSector->marker0 || !pXSector->marker1) return 0;
+    spritetype* pSprite = &pXSector->basePath->s();
+    spritetype* pSprite1 = &pXSector->marker0->s();
+    spritetype* pSprite2 = &pXSector->marker1->s();
+    XSPRITE *pXSprite1 = &pXSector->marker0->x();
+    XSPRITE *pXSprite2 = &pXSector->marker1->x();
+
     int nWave = pXSprite1->wave;
     TranslateSector(nSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, 1);
     ZTranslateSector(nSector, pXSector, a2, nWave);
@@ -1436,17 +1436,16 @@ void TeleFrag(int nKiller, int nSector)
 void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
 {
     assert(nSector < (unsigned int)numsectors);
-    int nDest = pXSector->marker0;
-    assert(nDest < kMaxSprites);
-    spritetype *pDest = &sprite[nDest];
+    auto nDest = pXSector->marker0;
+    assert(nDest != nullptr);
+    spritetype *pDest = &nDest->s();
     assert(pDest->statnum == kStatMarker);
     assert(pDest->type == kMarkerWarpDest);
     assert(pDest->sectnum >= 0 && pDest->sectnum < kMaxSectors);
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype *pSprite = &actor->s();
         if (pSprite->statnum == kStatDude)
         {
             PLAYER *pPlayer;
@@ -1463,9 +1462,10 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 pSprite->y = pDest->y;
                 pSprite->z += sector[pDest->sectnum].floorz-sector[nSector].floorz;
                 pSprite->ang = pDest->ang;
-                ChangeSpriteSect(nSprite, pDest->sectnum);
+                ChangeActorSect(actor, pDest->sectnum);
                 sfxPlay3DSound(pDest, 201, -1, 0);
-                xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
+                actor->xvel = actor->yvel = actor->zvel = 0;
+                int nSprite = actor->s().index;
                 gInterpolateSprite.Clear(nSprite);
                 viewBackupSpriteLoc(nSprite, pSprite);
                 if (pPlayer)
@@ -1485,7 +1485,8 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     spritetype *pSprite = NULL;
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
-    spritetype *pSprite2 = &sprite[pXSector->marker0];
+    if (!pXSector->marker0) return;
+    spritetype* pSprite2 = &pXSector->marker0->s();
     XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
     int nId = pXSprite2->data2;
     StatIterator it(kStatPathMarker);
@@ -1513,7 +1514,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
         return;
     }
         
-    pXSector->marker1 = nSprite;
+    pXSector->marker1 = &bloodActors[nSprite];
     pXSector->offFloorZ = pSprite2->z;
     pXSector->onFloorZ = pSprite->z;
     switch (event.cmd) {
@@ -1652,8 +1653,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
         
     }
 
-    pXSector->marker0 = nSprite;
-    basePath[nSector] = nSprite;
+    pXSector->basePath = pXSector->marker0 = &bloodActors[nSprite];
     if (pXSector->state)
         evPostSector(nSector, 0, kCmdOn);
 }
@@ -2006,17 +2006,15 @@ void trInit(void)
         baseWall[i].x = wall[i].x;
         baseWall[i].y = wall[i].y;
     }
-    for (int i = 0; i < kMaxSprites; i++)
+    BloodLinearSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        if (sprite[i].statnum < kStatFree)
+        auto spr = &actor->s();
+        if (spr->statnum < kStatFree)
         {
-            sprite[i].inittype = sprite[i].type;
-            baseSprite[i].x = sprite[i].x;
-            baseSprite[i].y = sprite[i].y;
-            baseSprite[i].z = sprite[i].z;
+            spr->inittype = spr->type;
+            actor->basePoint = spr->pos;
         }
-        else
-            sprite[i].inittype = -1;
     }
     for (int i = 0; i < numwalls; i++)
     {
@@ -2060,21 +2058,18 @@ void trInit(void)
             case kSectorSlideMarked:
             case kSectorSlide:
             {
-                spritetype *pSprite1 = &sprite[pXSector->marker0];
-                spritetype *pSprite2 = &sprite[pXSector->marker1];
+                spritetype* pSprite1 = &pXSector->marker0->s();
+                spritetype* pSprite2 = &pXSector->marker1->s();
                 TranslateSector(i, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 for (int j = 0; j < pSector->wallnum; j++)
                 {
                     baseWall[pSector->wallptr+j].x = wall[pSector->wallptr+j].x;
                     baseWall[pSector->wallptr+j].y = wall[pSector->wallptr+j].y;
                 }
-                int nSprite;
-                SectIterator it(i);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodSectIterator it(i);
+                while (auto actor = it.Next())
                 {
-                    baseSprite[nSprite].x = sprite[nSprite].x;
-                    baseSprite[nSprite].y = sprite[nSprite].y;
-                    baseSprite[nSprite].z = sprite[nSprite].z;
+                    actor->basePoint = actor->s().pos;
                 }
                 TranslateSector(i, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 ZTranslateSector(i, pXSector, pXSector->busy, 1);
@@ -2083,20 +2078,17 @@ void trInit(void)
             case kSectorRotateMarked:
             case kSectorRotate:
             {
-                spritetype *pSprite1 = &sprite[pXSector->marker0];
+                spritetype* pSprite1 = &pXSector->marker0->s();
                 TranslateSector(i, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 for (int j = 0; j < pSector->wallnum; j++)
                 {
                     baseWall[pSector->wallptr+j].x = wall[pSector->wallptr+j].x;
                     baseWall[pSector->wallptr+j].y = wall[pSector->wallptr+j].y;
                 }
-                int nSprite;
-                SectIterator it(i);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodSectIterator it(i);
+                while (auto actor = it.Next())
                 {
-                    baseSprite[nSprite].x = sprite[nSprite].x;
-                    baseSprite[nSprite].y = sprite[nSprite].y;
-                    baseSprite[nSprite].z = sprite[nSprite].z;
+                    actor->basePoint = actor->s().pos;
                 }
                 TranslateSector(i, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 ZTranslateSector(i, pXSector, pXSector->busy, 1);
@@ -2311,7 +2303,6 @@ void SerializeTriggers(FSerializer& arc)
 	{
 		arc("busycount", gBusyCount)
 			.Array("busy", gBusy, gBusyCount)
-			.Array("basepath", basePath, numsectors)
 			.EndObject();
 	}
 }

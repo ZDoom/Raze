@@ -91,7 +91,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 	if (IsPlayerSprite(pTarget))
     {
 
-        int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+        int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
         if (hit == 3 && gHitInfo.hitactor->IsPlayerActor()) 
         {
             dz += pTarget->z - pSprite->z;
@@ -150,9 +150,9 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
             case kDudeSpiderBrown:
             case kDudeSpiderRed:
             case kDudeSpiderBlack:
-                actor->xvel() = IntToFixed(dx);
-                actor->yvel() = IntToFixed(dy);
-                actor->zvel() = IntToFixed(dz);
+                actor->xvel = IntToFixed(dx);
+                actor->yvel = IntToFixed(dy);
+                actor->zvel = IntToFixed(dz);
                 break;
         }
     }

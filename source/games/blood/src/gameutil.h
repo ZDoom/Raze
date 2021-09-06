@@ -43,7 +43,6 @@ struct HITINFO {
 };
 
 extern POINT2D baseWall[kMaxWalls];
-extern POINT3D baseSprite[kMaxSprites];
 extern int baseFloor[kMaxSectors];
 extern int baseCeil[kMaxSectors];
 extern int velFloor[kMaxSectors];
@@ -75,16 +74,16 @@ struct Collision;
 bool AreSectorsNeighbors(int sect1, int sect2);
 bool FindSector(int nX, int nY, int nZ, int *nSector);
 bool FindSector(int nX, int nY, int *nSector);
-bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist);
+bool CheckProximity(DBloodActor *pSprite, int nX, int nY, int nZ, int nSector, int nDist);
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist);
 bool CheckProximityWall(int nWall, int x, int y, int nDist);
 int GetWallAngle(int nWall);
 int GetWallAngle(walltype* pWall);
 void GetWallNormal(int nWall, int *pX, int *pY);
 bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int *ix, int *iy, int *iz);
-int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8);
-int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac);
-void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
+int HitScan(DBloodActor *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8);
+int VectorScan(DBloodActor *pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac);
+void GetZRange(DBloodActor *pSprite, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3);
 unsigned int ClipMove(int *x, int *y, int *z, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask);

@@ -464,11 +464,17 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		if (w.s().extra > 0)
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
-				("dudeextra", w.dudeExtra, def->dudeExtra);
+				("dudeextra", w.dudeExtra, def->dudeExtra)
+				("spritehit", w.hit, def->hit)
+				("basepoint", w.basePoint, def->basePoint);
+				("xvel", w.xvel, def->xvel);
+				("yvel", w.yvel, def->yvel);
+				("zvel", w.zvel, def->zvel);
 
 			if (gModernMap)
 			{
-				arc("spritemass", w.spriteMass, def->spriteMass);
+				arc("spritemass", w.spriteMass, def->spriteMass)
+					("prevmarker", w.prevmarker, def->prevmarker);
 
 				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
 				if (w.s().type == kDudeModernCustom || w.s().time == kDudeModernCustomBurning)
@@ -539,6 +545,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTO
 			("panangle", w.panAngle, def->panAngle)
 			("marker0", w.marker0, def->marker0)
 			("marker1", w.marker1, def->marker1)
+			("basepath", w.basePath, def->basePath)
 			("windang", w.windAng, def->windAng)
 			("bobtheta", w.bobTheta, def->bobTheta)
 			("bobspeed", w.bobSpeed, def->bobSpeed)
@@ -667,7 +674,6 @@ void SerializeState(FSerializer& arc)
 			("frameclock", PlayClock)
 			("framecount", gFrameCount)
 			.Array("basewall", baseWall, numwalls)
-			.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites)
 			.Array("basefloor", baseFloor, numsectors)
 			.Array("baseceil", baseCeil, numsectors)
 			.Array("velfloor", velFloor, numsectors)
@@ -692,9 +698,6 @@ void SerializeState(FSerializer& arc)
 			.Array("xwall", xwall, XWallsUsed)  // todo
 			.Array("xsector", xsector, XSectorsUsed)
 			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites)
-			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
-			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)
-			.SparseArray("zvel", zvel, kMaxSprites, activeSprites)
 			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
 			.EndObject();
 	}

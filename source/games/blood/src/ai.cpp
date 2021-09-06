@@ -138,7 +138,7 @@ bool CanMove(DBloodActor *actor, DBloodActor* target, int nAngle, int nRange)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
-    HitScan(pSprite, z, CosScale16(nAngle), SinScale16(nAngle), 0, CLIPMASK0, nRange);
+    HitScan(actor, z, CosScale16(nAngle), SinScale16(nAngle), 0, CLIPMASK0, nRange);
     int nDist = approxDist(x-gHitInfo.hitx, y-gHitInfo.hity);
     if (nDist - (pSprite->clipdist << 2) < nRange)
     {
@@ -262,8 +262,8 @@ void aiChooseDirection(DBloodActor* actor, int a3)
     int vc = ((a3+1024-pSprite->ang)&2047)-1024;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-	int dx = actor->xvel();
-	int dy = actor->yvel();
+	int dx = actor->xvel;
+	int dy = actor->yvel;
     int t1 = DMulScale(dx, nCos, dy, nSin, 30);
     int vsi = ((t1*15)>>12) / 2;
     int v8 = 341;
@@ -314,8 +314,8 @@ void aiMoveForward(DBloodActor* actor)
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
     if (abs(nAng) > 341)
         return;
-    actor->xvel() += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
-    actor->yvel() += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
+    actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
+    actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
 }
 
 //---------------------------------------------------------------------------
@@ -354,8 +354,8 @@ void aiMoveDodge(DBloodActor* actor)
     {
         int nCos = Cos(pSprite->ang);
         int nSin = Sin(pSprite->ang);
-        int dx = actor->xvel();
-        int dy = actor->yvel();
+        int dx = actor->xvel;
+        int dy = actor->yvel;
         int t1 = DMulScale(dx, nCos, dy, nSin, 30);
         int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
         if (pXSprite->dodgeDir > 0)
@@ -363,8 +363,8 @@ void aiMoveDodge(DBloodActor* actor)
         else
             t2 -= pDudeInfo->sideSpeed;
 
-        actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-        actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+        actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+        actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
     }
 }
 
@@ -1025,12 +1025,12 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             // for enemies in patrol mode
 			if (aiInPatrolState(pXSprite->aiState)) 
 			{
-                aiPatrolStop(pSprite, pSource->index, pXSprite->dudeAmbush);
+                aiPatrolStop(actor, source, pXSprite->dudeAmbush);
 
                 PLAYER* pPlayer = getPlayerById(pSource->type);
                 if (!pPlayer) return nDamage;
                 if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
-				if (readyForCrit(pSource, pSprite)) 
+				if (readyForCrit(source, actor)) 
 				{
 					nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
 					if (pXSprite->health > 0) 
@@ -1547,7 +1547,7 @@ void aiThinkTarget(DBloodActor* actor)
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
 			PLAYER* pPlayer = &gPlayer[p];
-            if (pSprite->owner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
@@ -1595,7 +1595,7 @@ void aiLookForTarget(DBloodActor* actor)
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
 			PLAYER* pPlayer = &gPlayer[p];
-            if (pSprite->owner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
@@ -2003,7 +2003,7 @@ void aiInitSprite(DBloodActor* actor)
             if (actor->GetTarget() == nullptr || actor->GetTarget()->s().type != kMarkerPath) 
             {
                 actor->SetTarget(nullptr);
-                aiPatrolSetMarker(pSprite, pXSprite);
+                aiPatrolSetMarker(actor);
             }
 
             if (stateTimer > 0) 

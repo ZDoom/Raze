@@ -115,7 +115,7 @@ struct PLAYER
     bool                isUnderwater;
     bool                hasKey[8];
     int8_t              hasFlag;
-    short               used2[8];  // ??
+    DBloodActor*        used2[8];  // ??
     int                 damageControl[7];
     int8_t              curWeapon;
     int8_t              nextWeapon;
@@ -139,7 +139,7 @@ struct PLAYER
     //int               relAim;
     //int               at1ce;
     //int               at1d2;
-    int                 aimTarget;  // aim target sprite
+    DBloodActor*        aimTarget;  // aim target sprite
     int                 aimTargetsCount;
     short               aimTargets[16];
     int                 deathTime;
@@ -147,9 +147,7 @@ struct PLAYER
     int                 fragCount;
     int                 fragInfo[8];
     int                 teamId;
-    int                 fraggerId;
-    DBloodActor* fragger();
-    void setFragger(DBloodActor*);
+    DBloodActor*        fragger;
     int                 underwaterTime;
     int                 bubbleTime;
     int                 restTime;
@@ -164,7 +162,7 @@ struct PLAYER
     int                 armor[3];      // armor
     //int               at342;
     //int               at346;
-    int                 voodooTarget;
+    DBloodActor*        voodooTarget;
     int                 voodooTargets;  // --> useless
     int                 voodooVar1;     // --> useless
     int                 vodooVar2;      // --> useless
@@ -262,21 +260,13 @@ void        playerCorrectInertia(PLAYER *pPlayer, vec3_t const *oldpos);
 void        playerStart(int nPlayer, int bNewLevel = 0);
 void playerReset(PLAYER *pPlayer);
 void playerInit(int nPlayer, unsigned int a2);
-char findDroppedLeech(PLAYER *a1, spritetype *a2);
-char PickupItem(PLAYER *pPlayer, spritetype *pItem);
-char PickupAmmo(PLAYER *pPlayer, spritetype *pAmmo);
-char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon);
-void PickUp(PLAYER *pPlayer, spritetype *pSprite);
 void CheckPickUp(PLAYER *pPlayer);
-int ActionScan(PLAYER *pPlayer, int *a2, int *a3);
 void ProcessInput(PLAYER *pPlayer);
 void playerProcess(PLAYER *pPlayer);
-spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6);
-spritetype *playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5);
+DBloodActor *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6);
+DBloodActor *playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5);
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim);
-void FragPlayer(PLAYER *pPlayer, int nSprite);
 int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage);
-spritetype *flagDropped(PLAYER *pPlayer, int a2);
 int playerDamageSprite(DBloodActor* nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage);
 int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec);
 void voodooTarget(PLAYER *pPlayer);

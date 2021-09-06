@@ -68,7 +68,6 @@ struct SPRITEHIT
 {
 	Collision hit, ceilhit, florhit;
 };
-extern SPRITEHIT gSpriteHit[kMaxXSprites];
 
 struct ConditionElement
 {
@@ -93,13 +92,17 @@ class DBloodActor
 
 public:
 	int dudeSlope;
+	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
+	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
+	POINT3D basePoint;
+	int xvel, yvel, zvel;
 
 	// transient data (not written to savegame)
 	int cumulDamage;
-	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
+	bool explosionhackflag;		// this originally hijacked the target field which is not safe when working with pointers.
 	ConditionElement condition[2];
 
 	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
@@ -108,9 +111,13 @@ public:
 	void Clear()
 	{
 		explosionhackflag = false;
+		prevmarker = nullptr;
 		dudeSlope = 0;
 		dudeExtra = {};
 		spriteMass = {};
+		hit = {};
+		basePoint = {};
+		xvel = yvel = zvel = 0;
 	}
 	bool hasX() { return sprite[index].extra > 0; }
 	void addX()
@@ -119,13 +126,7 @@ public:
 	}
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
-	SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }
-	int& xvel() { return Blood::xvel[index]; }
-	int& yvel() { return Blood::yvel[index]; }
-	int& zvel() { return Blood::zvel[index]; }
-	int GetIndex() { return s().index; }	// this is for error printing only!
-
-	POINT3D& basePoint() { return Blood::baseSprite[index]; }
+	int GetIndex() { return index; }	// this is for error printing only!
 
 	void SetOwner(DBloodActor* own)
 	{
@@ -269,32 +270,56 @@ public:
 	}
 };
 
+// An iterator to iterate over all sprites.
+class BloodSpriteIterator
+{
+	BloodStatIterator it;
+	int stat = kStatDecoration;
+
+public:
+	BloodSpriteIterator() : it(kStatDecoration) {}
+
+	DBloodActor* Next()
+	{
+		while (stat < kStatFree)
+		{
+			auto ac = it.Next();
+			if (ac) return ac;
+			stat++;
+			if (stat < kStatFree) it.Reset(stat);
+		}
+		return nullptr;
+	}
+};
+
+// For iterating linearly over map spawned sprites.
+class BloodLinearSpriteIterator
+{
+	int index = 0;
+public:
+
+	DBloodActor* Next()
+	{
+		while (index < MAXSPRITES)
+		{
+			auto p = &bloodActors[index++];
+			if (p->s().statnum != kStatFree) return p;
+		}
+		return nullptr;
+	}
+};
+
+
+
 inline int DeleteSprite(DBloodActor* nSprite)
 {
 	if (nSprite) return DeleteSprite(nSprite->s().index);
 	return 0;
 }
 
-inline void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
-{
-	auto pXSprite = &pTarget->x();
-	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
-	pXSprite->burnSource = pSource? pSource->s().index : -1;
-}
-
 inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 {
 	GetSpriteExtents(&actor->s(), top, bottom);
-}
-
-inline DBloodActor *PLAYER::fragger()
-{
-	return fraggerId == -1? nullptr : &bloodActors[fraggerId];
-}
-
-inline void PLAYER::setFragger(DBloodActor* actor)
-{
-	fraggerId = actor == nullptr ? -1 : actor->s().index;
 }
 
 inline DBloodActor* PLAYER::actor()

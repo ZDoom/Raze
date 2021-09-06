@@ -119,9 +119,9 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
         if (tt1.at10)
         {
             int t = DivScale(nDist, tt1.at10, 12);
-            x2 += (actor2->xvel() * t) >> 12;
-            y2 += (actor2->yvel() * t) >> 12;
-            z2 += (actor2->zvel() * t) >> 8;
+            x2 += (actor2->xvel * t) >> 12;
+            y2 += (actor2->yvel * t) >> 12;
+            z2 += (actor2->zvel * t) >> 8;
         }
 		int tx = x + MulScale(Cos(pSprite->ang), nDist, 30);
 		int ty = y + MulScale(Sin(pSprite->ang), nDist, 30);
@@ -205,9 +205,9 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
         if (tt1.at10)
         {
             int t = DivScale(nDist, tt1.at10, 12);
-            x2 += (actor->xvel() * t) >> 12;
-            y2 += (actor->yvel() * t) >> 12;
-            z2 += (actor->zvel() * t) >> 8;
+            x2 += (actor->xvel * t) >> 12;
+            y2 += (actor->yvel * t) >> 12;
+            z2 += (actor->zvel * t) >> 8;
         }
 		int tx = x + MulScale(Cos(pSprite->ang), nDist, 30);
 		int ty = y + MulScale(Sin(pSprite->ang), nDist, 30);
@@ -289,7 +289,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
     else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
     {
         pXSprite->goalAng += 256;
-        POINT3D* pTarget = &actor->basePoint();
+        POINT3D* pTarget = &actor->basePoint;
         aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
         if (pSprite->type == kDudeCerberusTwoHead)
             aiNewState(actor, &cerberus139890);
@@ -464,7 +464,7 @@ static void cerberusThinkChase(DBloodActor* actor)
                 }
                 else if (nDist < 0x200 && abs(nDeltaAngle) < 85)
                 {
-                    int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+                    int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
                     switch (pSprite->type) {
                     case kDudeCerberusTwoHead:
                         switch (hit) {

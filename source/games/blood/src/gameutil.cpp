@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 POINT2D baseWall[kMaxWalls];
-POINT3D baseSprite[kMaxSprites];
 int baseFloor[kMaxSectors];
 int baseCeil[kMaxSectors];
 int velFloor[kMaxSectors];
@@ -139,9 +138,10 @@ bool FindSector(int nX, int nY, int *nSector)
     return 0;
 }
 
-bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist)
+bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, int nSector, int nDist)
 {
-    assert(pSprite != NULL);
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
     int oX = abs(nX-pSprite->x)>>4;
     if (oX >= nDist) return 0;
 
@@ -154,7 +154,7 @@ bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, in
     if (approxDist(oX, oY) >= nDist) return 0;
 
     int bottom, top;
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
     if (cansee(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nX, nY, nZ, nSector))
         return 1;
     if (cansee(pSprite->x, pSprite->y, bottom, pSprite->sectnum, nX, nY, nZ, nSector))
@@ -378,9 +378,10 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
     return 1;
 }
 
-int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
+int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
 {
-    assert(pSprite != NULL);
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
     assert(dx != 0 || dy != 0);
     gHitInfo.clearObj();
     int x = pSprite->x;
@@ -423,8 +424,11 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
     return -1;
 }
 
-int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
+int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
 {
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
+
     int nNum = 256;
     assert(pSprite != NULL);
     gHitInfo.clearObj();
@@ -581,33 +585,31 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
         {
             if (dz > 0)
             {
-                if (gUpperLink[gHitInfo.hitsect] < 0)
-                    return 2;
-                int nSprite = gUpperLink[gHitInfo.hitsect];
-                int nLink = sprite[nSprite].owner & 0xfff;
+                auto actor = getUpperLink(gHitInfo.hitsect);
+                if (!actor) return 2;
+                auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitx + sprite[nLink].x - sprite[nSprite].x;
-                y1 = gHitInfo.hity + sprite[nLink].y - sprite[nSprite].y;
-                z1 = gHitInfo.hitz + sprite[nLink].z - sprite[nSprite].z;
+                x1 = gHitInfo.hitx + link->s().x - actor->s().x;
+                y1 = gHitInfo.hity + link->s().y - actor->s().y;
+                z1 = gHitInfo.hitz + link->s().z - actor->s().z;
                 pos = { x1, y1, z1 };
                 hitData.pos.z = gHitInfo.hitz;
-                hitscan(&pos, sprite[nLink].sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
+                hitscan(&pos, link->s().sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
                 continue;
             }
             else
             {
-                if (gLowerLink[gHitInfo.hitsect] < 0)
-                    return 1;
-                int nSprite = gLowerLink[gHitInfo.hitsect];
-                int nLink = sprite[nSprite].owner & 0xfff;
+                auto actor = getLowerLink(gHitInfo.hitsect);
+                if (!actor) return 1;
+                auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitx + sprite[nLink].x - sprite[nSprite].x;
-                y1 = gHitInfo.hity + sprite[nLink].y - sprite[nSprite].y;
-                z1 = gHitInfo.hitz + sprite[nLink].z - sprite[nSprite].z;
+                x1 = gHitInfo.hitx + link->s().x - actor->s().x;
+                y1 = gHitInfo.hity + link->s().y - actor->s().y;
+                z1 = gHitInfo.hitz + link->s().z - actor->s().z;
                 pos = { x1, y1, z1 };
                 hitData.pos.z = gHitInfo.hitz;
-                hitscan(&pos, sprite[nLink].sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
+                hitscan(&pos, link->s().sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
                 continue;
             }
@@ -617,10 +619,12 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
     return -1;
 }
 
-void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilColl, int *floorZ, Collision *floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ, Collision *floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
+
     int floorHit, ceilHit;
-    assert(pSprite != NULL);
     int bakCstat = pSprite->cstat;
     int32_t nTemp1, nTemp2;
     pSprite->cstat &= ~257;
@@ -637,13 +641,13 @@ void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilColl, int *floorZ
             XSECTOR *pXSector = &xsector[sector[nSector].extra];
             *floorZ += pXSector->Depth << 10;
         }
-        if (gUpperLink[nSector] >= 0)
+        auto actor = getUpperLink(nSector);
+        if (actor)
         {
-            int nSprite = gUpperLink[nSector];
-            int nLink = sprite[nSprite].owner & 0xfff;
-            getzrange_old(pSprite->x+sprite[nLink].x-sprite[nSprite].x, pSprite->y+sprite[nLink].y-sprite[nSprite].y,
-                pSprite->z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
-            *floorZ -= sprite[nLink].z - sprite[nSprite].z;
+            auto link = actor->GetOwner();
+            getzrange_old(pSprite->x + link->s().x - actor->s().x, pSprite->y + link->s().y - actor->s().y,
+                pSprite->z + link->s().z - actor->s().z, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
+            *floorZ -= link->s().z - actor->s().z;
             floorColl->setFromEngine(floorHit);
         }
     }
@@ -652,13 +656,13 @@ void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilColl, int *floorZ
         int nSector = ceilColl->index;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (sector[nSector].ceilingstat & 1))
             *ceilZ = 0x80000000;
-        if (gLowerLink[nSector] >= 0)
+        auto actor = getLowerLink(nSector);
+        if (actor)
         {
-            int nSprite = gLowerLink[nSector];
-            int nLink = sprite[nSprite].owner & 0xfff;
-            getzrange_old(pSprite->x+sprite[nLink].x-sprite[nSprite].x, pSprite->y+sprite[nLink].y-sprite[nSprite].y,
-                pSprite->z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2,nDist, nMask);
-            *ceilZ -= sprite[nLink].z - sprite[nSprite].z;
+            auto link = actor->GetOwner();
+            getzrange_old(pSprite->x + link->s().x - actor->s().x, pSprite->y + link->s().y - actor->s().y,
+                pSprite->z + link->s().z - actor->s().z, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
+            *ceilZ -= link->s().z - actor->s().z;
             ceilColl->setFromEngine(ceilHit);
         }
     }
@@ -682,14 +686,14 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision* cei
             XSECTOR *pXSector = &xsector[sector[nSector].extra];
             *floorZ += pXSector->Depth << 10;
         }
-        if (gUpperLink[nSector] >= 0)
+        auto actor = getUpperLink(nSector);
+        if (actor)
         {
-            int nSprite = gUpperLink[nSector];
-            int nLink = sprite[nSprite].owner & 0xfff;
-            getzrange_old(x+sprite[nLink].x-sprite[nSprite].x, y+sprite[nLink].y-sprite[nSprite].y,
-                z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
+            auto link = actor->GetOwner();
+            getzrange_old(x+link->s().x-actor->s().x, y+link->s().y-actor->s().y,
+                z+link->s().z-actor->s().z, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
             floorColl->setFromEngine(floorHit);
-            *floorZ -= sprite[nLink].z - sprite[nSprite].z;
+            *floorZ -= link->s().z - actor->s().z;
         }
     }
     if (ceilColl->type == kHitSector)
@@ -697,14 +701,14 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision* cei
         int nSector = ceilColl->index;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (sector[nSector].ceilingstat & 1))
             *ceilZ = 0x80000000;
-        if (gLowerLink[nSector] >= 0)
+        auto actor = getLowerLink(nSector);
+        if (actor)
         {
-            int nSprite = gLowerLink[nSector];
-            int nLink = sprite[nSprite].owner & 0xfff;
-            getzrange_old(x+sprite[nLink].x-sprite[nSprite].x, y+sprite[nLink].y-sprite[nSprite].y,
-                z+sprite[nLink].z-sprite[nSprite].z, sprite[nLink].sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2,nDist, nMask);
+            auto link = actor->GetOwner();
+            getzrange_old(x+link->s().x-actor->s().x, y+link->s().y-actor->s().y,
+                z+link->s().z-actor->s().z, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2,nDist, nMask);
             ceilColl->setFromEngine(ceilHit);
-            *ceilZ -= sprite[nLink].z - sprite[nSprite].z;
+            *ceilZ -= link->s().z - actor->s().z;
         }
     }
 }

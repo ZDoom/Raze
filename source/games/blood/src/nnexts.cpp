@@ -545,10 +545,10 @@ void nnExtInitModernStuff()
         }
     }
     
-    for (int i = 0; i < kMaxXSprites; i++) 
+    BloodLinearSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        auto actor = &bloodActors[i];
-        if (actor->s().statnum == kStatFree || !actor->hasX()) continue;
+        if (!actor->hasX()) continue;
         XSPRITE* pXSprite = &actor->x();
         spritetype* pSprite = &actor->s();
         
@@ -814,8 +814,8 @@ void nnExtInitModernStuff()
     }
 
     // collect objects for tracking conditions
-    BloodStatIterator it(kStatModernCondition);
-    while (auto iactor = it.Next())
+    BloodStatIterator it2(kStatModernCondition);
+    while (auto iactor = it2.Next())
     {
         spritetype* pSprite = &iactor->s(); 
         XSPRITE* pXSprite = &iactor->x();
@@ -827,14 +827,14 @@ void nnExtInitModernStuff()
         int count = 0;
         TRCONDITION* pCond = &gCondition[gTrackingCondsCount];
 
-        for (int i = 0; i < kMaxXSprites; i++) 
+        BloodLinearSpriteIterator it;
+        while (auto iactor2 = it.Next())
         {
-            auto actor = &bloodActors[i];
-            if (actor->s().statnum == kStatFree || !actor->hasX() || actor->x().txID != pXSprite->rxID || actor == iactor)
+            if (!iactor2->hasX() || iactor2->x().txID != pXSprite->rxID || iactor2 == iactor)
                 continue;
 
-            XSPRITE* pXSpr = &actor->x();
-            spritetype* pSpr = &actor->s();
+            XSPRITE* pXSpr = &iactor2->x();
+            spritetype* pSpr = &iactor2->s();
             switch (pSpr->type) 
             {
                 case kSwitchToggle: // exceptions
@@ -850,7 +850,7 @@ void nnExtInitModernStuff()
 
             pCond->obj[count].type = OBJ_SPRITE;
             pCond->obj[count].index_ = 0;
-            pCond->obj[count].actor = actor;
+            pCond->obj[count].actor = iactor2;
             pCond->obj[count++].cmd = (uint8_t)pXSpr->command;
         }
 
@@ -1074,7 +1074,7 @@ static void windGenDoVerticalWind(int factor, int nSector)
             case kStatFree:
                 continue;
             case kStatFX:
-                if (actor->zvel()) break;
+                if (actor->zvel) break;
                 continue;
             case kStatThing:
             case kStatDude:
@@ -1088,16 +1088,16 @@ static void windGenDoVerticalWind(int factor, int nSector)
         if (maxZfound && pSpr->z <= maxZ) 
         {
             zdiff = pSpr->z - maxZ;
-            if (actor->zvel() < 0) actor->zvel() += MulScale(actor->zvel() >> 4, zdiff, 16);
+            if (actor->zvel < 0) actor->zvel += MulScale(actor->zvel >> 4, zdiff, 16);
             continue;
 
         }
 
         val = -MulScale(factor * 64, 0x10000, 16);
-        if (actor->zvel() >= 0) actor->zvel() += val;
-        else actor->zvel() = val;
+        if (actor->zvel >= 0) actor->zvel += val;
+        else actor->zvel = val;
 
-        pSpr->z += actor->zvel() >> 12;
+        pSpr->z += actor->zvel >> 12;
 
     }
 
@@ -1179,8 +1179,8 @@ void nnExtProcessSuperSprites()
                     windGenDoVerticalWind(pXWind->sysData2, index);
             }
 
-            XSPRITE* pXRedir = NULL; // check redirected TX buckets
-            while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXWind->reference].extra, pXRedir, &rx)) != NULL)
+            DBloodActor* pXRedir = nullptr; // check redirected TX buckets
+            while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, windactor, pXRedir, &rx)) != nullptr)
             {
                 for (j = bucketHead[rx]; j < bucketHead[rx + 1]; j++)
                 {
@@ -1228,7 +1228,7 @@ void nnExtProcessSuperSprites()
                 while (auto affected = it.Next())
                 {
                     if (!affected->hasX() || affected->x().health <= 0) continue;
-                    else if (CheckProximity(&affected->s(), x, y, z, sectnum, okDist))
+                    else if (CheckProximity(affected, x, y, z, sectnum, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
@@ -1243,7 +1243,7 @@ void nnExtProcessSuperSprites()
                     if (!pPlayer || !pPlayer->actor()->hasX() || pPlayer->pXSprite->health <= 0)
                         continue;
 
-                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->pSprite, x, y, z, sectnum, okDist))
+                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor(), x, y, z, sectnum, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
@@ -1304,9 +1304,9 @@ void nnExtProcessSuperSprites()
                         if (!vector)
                             pSightSpr->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        HitScan(pPlaySprite, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
+                        HitScan(pPlayer->actor(), pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
 
-                        //VectorScan(pPlaySprite, 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
+                        //VectorScan(pPlayer->actor(), 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
 
                         if (!vector)
                             pSightSpr->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -1372,8 +1372,8 @@ void nnExtProcessSuperSprites()
                         angle = (angle + GetWallAngle(sector[pDebris->sectnum].wallptr) + 512) & 2047;
                     int dx = MulScale(speed, Cos(angle), 30);
                     int dy = MulScale(speed, Sin(angle), 30);
-                    debrisactor->xvel() += dx;
-                    debrisactor->yvel() += dy;
+                    debrisactor->xvel += dx;
+                    debrisactor->yvel += dy;
                 }
             }
 
@@ -1386,31 +1386,31 @@ void nnExtProcessSuperSprites()
                 {
                     auto pact = pPlayer->actor();
                     pPlayer = &gPlayer[a];
-                    if (pact->hit().hit.type == kHitSprite && pact->hit().hit.index == nDebris) 
+                    if (pact->hit.hit.type == kHitSprite && pact->hit.hit.index == nDebris) 
                     {
-                        int nSpeed = approxDist(pact->xvel(), pact->yvel());
+                        int nSpeed = approxDist(pact->xvel, pact->yvel);
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
 
-                            debrisactor->xvel() += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
-                            debrisactor->yvel() += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
+                            debrisactor->xvel += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
+                            debrisactor->yvel += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
 
-                        debrisactor->hit().hit = pPlayer->pSprite->index | 0xc000;
+                        debrisactor->hit.hit = pPlayer->pSprite->index | 0xc000;
                     }
                 }
             }
 
             if (pXDebris->physAttr & kPhysGravity) pXDebris->physAttr |= kPhysFalling;
-            if ((pXDebris->physAttr & kPhysFalling) || debrisactor->xvel() || debrisactor->yvel() || debrisactor->zvel() || velFloor[pDebris->sectnum] || velCeil[pDebris->sectnum])
+            if ((pXDebris->physAttr & kPhysFalling) || debrisactor->xvel || debrisactor->yvel || debrisactor->zvel || velFloor[pDebris->sectnum] || velCeil[pDebris->sectnum])
             debrisMove(i);
 
-            if (debrisactor->xvel() || debrisactor->yvel())
-                pXDebris->goalAng = getangle(debrisactor->xvel(), debrisactor->yvel()) & 2047;
+            if (debrisactor->xvel || debrisactor->yvel)
+                pXDebris->goalAng = getangle(debrisactor->xvel, debrisactor->yvel) & 2047;
 
             int ang = pDebris->ang & 2047;
             if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
             else if (Chance(0x1000 - mass)) 
             {
-                if (debrisactor->zvel() > 0x100) debrisBubble(debrisactor);
+                if (debrisactor->zvel > 0x100) debrisBubble(debrisactor);
                 if (ang == pXDebris->goalAng) 
                 {
                    pXDebris->goalAng = (pDebris->ang + Random3(kAng60)) & 2047;
@@ -1418,7 +1418,7 @@ void nnExtProcessSuperSprites()
         }
     }
 
-            int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->xvel()) + abs(debrisactor->yvel())) >> 5)), (uwater) ? 1 : 0);
+            int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->xvel) + abs(debrisactor->yvel)) >> 5)), (uwater) ? 1 : 0);
             if (ang < pXDebris->goalAng) pDebris->ang = ClipHigh(ang + angStep, pXDebris->goalAng);
             else if (ang > pXDebris->goalAng) pDebris->ang = ClipLow(ang - angStep, pXDebris->goalAng);
 
@@ -1623,7 +1623,7 @@ int debrisGetFreeIndex(void)
 //
 //---------------------------------------------------------------------------
 
-void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int dmg)
+void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, int dmg)
 {
     auto actor = gPhysSpritesList[listIndex];
     if (actor != nullptr && actor->hasX())
@@ -1633,22 +1633,22 @@ void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int d
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (pSprite->type >= kThingBase && pSprite->type < kThingMax);
         int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
-        if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) 
+        if (actor->x().physAttr & kPhysDebrisExplode) 
         {
             if (actor->spriteMass.mass > 0) 
             {
                 int t = scale(dmg, size, actor->spriteMass.mass);
 
-                actor->xvel() += MulScale(t, dx, 16);
-                actor->yvel() += MulScale(t, dy, 16);
-                actor->zvel() += MulScale(t, dz, 16);
+                actor->xvel += MulScale(t, dx, 16);
+                actor->yvel += MulScale(t, dy, 16);
+                actor->zvel += MulScale(t, dz, 16);
             }
 
             if (thing)
                 pSprite->statnum = kStatThing; // temporary change statnum property
         }
 
-        actDamageSprite(owner, actor, kDamageExplode, dmg);
+        actDamageSprite(owneractor, actor, kDamageExplode, dmg);
         
         if (thing)
             pSprite->statnum = kStatDecoration; // return statnum property back
@@ -1676,9 +1676,9 @@ void debrisBubble(DBloodActor* actor)
         int z = bottom - Random(bottom - top);
         auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), pSprite->sectnum, x, y, z, 0);
         if (pFX) {
-            pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-            pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-            pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
+            pFX->xvel = actor->xvel + Random2(0x1aaaa);
+            pFX->yvel = actor->yvel + Random2(0x1aaaa);
+            pFX->zvel = actor->zvel + Random2(0x1aaaa);
         }
 
     }
@@ -1730,14 +1730,14 @@ void debrisMove(int listIndex)
         uwater = true;
     }
 
-    if (actor->xvel() || actor->yvel()) 
+    if (actor->xvel || actor->yvel) 
     {
 
         short oldcstat = pSprite->cstat;
         pSprite->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        moveHit = actor->hit().hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, actor->xvel() >> 12,
-            actor->yvel() >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
+        moveHit = actor->hit.hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, actor->xvel >> 12,
+            actor->yvel >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
 
         pSprite->cstat = oldcstat;
         if (pSprite->sectnum != nSector) 
@@ -1753,11 +1753,11 @@ void debrisMove(int listIndex)
                 nSector = nSector2;
         }
 
-        if (actor->hit().hit.type == kHitWall)
+        if (actor->hit.hit.type == kHitWall)
         {
-            moveHit = actor->hit().hit;
+            moveHit = actor->hit.hit;
             i = moveHit.index;
-            actWallBounceVector(&actor->xvel(), &actor->yvel(), i, tmpFraction);
+            actWallBounceVector(&actor->xvel, &actor->yvel, i, tmpFraction);
         }
 
     } 
@@ -1776,12 +1776,12 @@ void debrisMove(int listIndex)
     if (sector[nSector].extra > 0)
         uwater = xsector[sector[nSector].extra].Underwater;
 
-    if (actor->zvel())
-        pSprite->z += actor->zvel() >> 8;
+    if (actor->zvel)
+        pSprite->z += actor->zvel >> 8;
 
     int ceilZ, floorZ;
     Collision ceilColl, floorColl;
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
     GetSpriteExtents(pSprite, &top, &bottom);
 
     if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) 
@@ -1793,7 +1793,7 @@ void debrisMove(int listIndex)
 
         if (gLowerLink[nSector] >= 0) cz += (cz < 0) ? 0x500 : -0x500;
         if (top > cz && (!(pXSprite->physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
-            actor->zvel() -= DivScale((bottom - ceilZ) >> 6, mass, 8);
+            actor->zvel -= DivScale((bottom - ceilZ) >> 6, mass, 8);
 
         if (fz < bottom)
             vc = 58254 + ((bottom - fz) * -80099) / div;
@@ -1801,20 +1801,20 @@ void debrisMove(int listIndex)
         if (vc) 
         {
             pSprite->z += ((vc << 2) >> 1) >> 8;
-            actor->zvel() += vc;
+            actor->zvel += vc;
         }
 
     }
     else if ((pXSprite->physAttr & kPhysGravity) && bottom < floorZ) 
     {
         pSprite->z += 455;
-        actor->zvel() += 58254;
+        actor->zvel += 58254;
 
     }
 
-    if ((i = CheckLink(pSprite)) != 0)
+    if ((i = CheckLink(actor)) != 0)
     {
-        GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+        GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
         if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
         {
             switch (i)
@@ -1845,18 +1845,18 @@ void debrisMove(int listIndex)
 
     if (floorZ <= bottom) {
 
-        actor->hit().florhit = floorColl;
-        int v30 = actor->zvel() - velFloor[pSprite->sectnum];
+        actor->hit.florhit = floorColl;
+        int v30 = actor->zvel - velFloor[pSprite->sectnum];
 
         if (v30 > 0) 
         {
             pXSprite->physAttr |= kPhysFalling;
-            actFloorBounceVector(&actor->xvel(), &actor->yvel(), &v30, pSprite->sectnum, tmpFraction);
-            actor->zvel() = v30;
+            actFloorBounceVector(&actor->xvel, &actor->yvel, &v30, pSprite->sectnum, tmpFraction);
+            actor->zvel = v30;
 
-            if (abs(actor->zvel()) < 0x10000)
+            if (abs(actor->zvel) < 0x10000)
             {
-                actor->zvel() = velFloor[pSprite->sectnum];
+                actor->zvel = velFloor[pSprite->sectnum];
                 pXSprite->physAttr &= ~kPhysFalling;
             }
 
@@ -1869,9 +1869,9 @@ void debrisMove(int listIndex)
                 for (i = 0; i < 7; i++) 
                 {
                     if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->s().sectnum, pFX->s().x, pFX->s().y, pFX->s().z, 0)) == NULL) continue;
-                    pFX2->xvel() = Random2(0x6aaaa);
-                    pFX2->yvel() = Random2(0x6aaaa);
-                    pFX2->zvel() = -(int)Random(0xd5555);
+                    pFX2->xvel = Random2(0x6aaaa);
+                    pFX2->yvel = Random2(0x6aaaa);
+                    pFX2->zvel = -(int)Random(0xd5555);
                 }
                 break;
             case kSurfWater:
@@ -1880,29 +1880,29 @@ void debrisMove(int listIndex)
             }
 
         }
-        else if (actor->zvel() == 0) 
+        else if (actor->zvel == 0) 
         {
             pXSprite->physAttr &= ~kPhysFalling;
         }
     }
     else 
     {
-        actor->hit().florhit = 0;
+        actor->hit.florhit = 0;
         if (pXSprite->physAttr & kPhysGravity)
             pXSprite->physAttr |= kPhysFalling;
     }
 
     if (top <= ceilZ) 
     {
-        actor->hit().ceilhit = moveHit = ceilColl;
+        actor->hit.ceilhit = moveHit = ceilColl;
         pSprite->z += ClipLow(ceilZ - top, 0);
-        if (actor->zvel() <= 0 && (pXSprite->physAttr & kPhysFalling))
-            actor->zvel() = MulScale(-actor->zvel(), 0x2000, 16);
+        if (actor->zvel <= 0 && (pXSprite->physAttr & kPhysFalling))
+            actor->zvel = MulScale(-actor->zvel, 0x2000, 16);
 
     }
     else 
     {
-        actor->hit().ceilhit = 0;
+        actor->hit.ceilhit = 0;
         GetActorExtents(actor, &top, &bottom);
     }
 
@@ -1913,14 +1913,14 @@ void debrisMove(int listIndex)
         trTriggerSprite(actor, kCmdToggle);
     }
 
-    if (!actor->xvel() && !actor->yvel()) return;
+    if (!actor->xvel && !actor->yvel) return;
     else if (floorColl.type == kHitSprite)
     {
 
         if ((floorColl.actor->s().cstat & 0x30) == 0)
         {
-            actor->xvel() += MulScale(4, pSprite->x - floorColl.actor->s().x, 2);
-            actor->yvel() += MulScale(4, pSprite->y - floorColl.actor->s().y, 2);
+            actor->xvel += MulScale(4, pSprite->x - floorColl.actor->s().x, 2);
+            actor->yvel += MulScale(4, pSprite->y - floorColl.actor->s().y, 2);
             return;
         }
     }
@@ -1933,10 +1933,10 @@ void debrisMove(int listIndex)
     if (pXSprite->height > 0)
         nDrag -= scale(nDrag, pXSprite->height, 0x100);
 
-    actor->xvel() -= mulscale16r(actor->xvel(), nDrag);
-    actor->yvel() -= mulscale16r(actor->yvel(), nDrag);
-    if (approxDist(actor->xvel(), actor->yvel()) < 0x1000)
-        actor->xvel() = actor->yvel() = 0;
+    actor->xvel -= mulscale16r(actor->xvel, nDrag);
+    actor->yvel -= mulscale16r(actor->yvel, nDrag);
+    if (approxDist(actor->xvel, actor->yvel) < 0x1000)
+        actor->xvel = actor->yvel = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -2007,8 +2007,9 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
     }
     
     // check redirected TX buckets
-    int rx = -1; XSPRITE* pXRedir = nullptr;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSource->reference].extra, pXRedir, &rx)) != nullptr) 
+    int rx = -1; 
+    DBloodActor* pXRedir = nullptr;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, sourceactor, pXRedir, &rx)) != nullptr) 
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
@@ -2686,7 +2687,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex,
                         else flags &= ~(kPhysGravity | kPhysFalling);
 
                         pSprite->flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
-                        xvel[objIndex] = yvel[objIndex] = zvel[objIndex] = 0;
+                        targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
                         pXSprite->restState = pXSprite->state;
 
                     } 
@@ -2799,7 +2800,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex,
                     {
 
                         if (oldFlags == 0)
-                            targetactor->xvel() = targetactor->yvel() = targetactor->zvel() = 0;
+                            targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
 
                         if (nIndex != -1) 
                         {
@@ -2817,7 +2818,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex,
                             if (pSprite->statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
                             // set random goal ang for swimming so they start turning
-                            if ((flags & kPhysDebrisSwim) && !targetactor->xvel() && !targetactor->yvel() && !targetactor->zvel())
+                            if ((flags & kPhysDebrisSwim) && !targetactor->xvel && !targetactor->yvel && !targetactor->zvel)
                                 pXSprite->goalAng = (pSprite->ang + Random3(kAng45)) & 2047;
                             
                             if (pXSprite->physAttr & kPhysDebrisVector)
@@ -2835,7 +2836,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex,
                     {
 
                         pXSprite->physAttr = flags;
-                        targetactor->xvel() = targetactor->yvel() = targetactor->zvel() = 0;
+                        targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
                         if (pSprite->lotag >= kThingBase && pSprite->lotag < kThingMax)
                             ChangeActorStat(targetactor, kStatThing);  // if it was a thing - restore statnum
                     }
@@ -2878,25 +2879,35 @@ void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex,
                 
                 pXSector->Underwater = (pXSource->data1) ? true : false;
 
-                spritetype* pLower = (gLowerLink[objIndex] >= 0) ? &sprite[gLowerLink[objIndex]] : NULL;
-                XSPRITE* pXLower = NULL; spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
                 
-                if (pLower) {
+                spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
                     
-                    pXLower = &xsprite[pLower->extra];
+                auto aLower = getLowerLink(objIndex);
+                spritetype* pLower = nullptr;
+                XSPRITE* pXLower = nullptr;
+                if (aLower)
+                {
+                    pLower = &aLower->s();
+                    pXLower = &aLower->x();
 
                     // must be sure we found exact same upper link
-                    for (int i = 0; i < kMaxSectors; i++) {
-                        if (gUpperLink[i] < 0 || xsprite[sprite[gUpperLink[i]].extra].data1 != pXLower->data1) continue;
-                        pUpper = &sprite[gUpperLink[i]]; pXUpper = &xsprite[pUpper->extra];
+                    for (int i = 0; i < kMaxSectors; i++) 
+                    {
+                        auto aUpper = getUpperLink(i);
+                        if (aUpper == nullptr || aUpper->x().data1 != pXLower->data1) continue;
+                        pUpper = &aUpper->s();
+                        pXUpper = &aUpper->x();
                         break;
                     }
                 }
                 
                 // treat sectors that have links, so warp can detect underwater status properly
-                if (pLower) {
-                    if (pXSector->Underwater) {
-                        switch (pLower->type) {
+                if (pLower) 
+                {
+                    if (pXSector->Underwater) 
+                    {
+                        switch (pLower->type) 
+                        {
                             case kMarkerLowStack:
                             case kMarkerLowLink:
                                 pXLower->sysData1 = pLower->type;
@@ -2913,9 +2924,12 @@ void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex,
                     else pLower->type = kMarkerLowStack;
                 }
 
-                if (pUpper) {
-                    if (pXSector->Underwater) {
-                        switch (pUpper->type) {
+                if (pUpper) 
+                {
+                    if (pXSector->Underwater) 
+                    {
+                        switch (pUpper->type) 
+                        {
                             case kMarkerUpStack:
                             case kMarkerUpLink:
                                 pXUpper->sysData1 = pUpper->type;
@@ -2941,13 +2955,16 @@ void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex,
                         continue;
 
                     PLAYER* pPlayer = getPlayerById(pSpr->type);
-                    if (pXSector->Underwater) {
+                    if (pXSector->Underwater) 
+                    {
                         if (pLower)
-                            xsprite[pSpr->extra].medium = (pLower->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+                            iactor->x().medium = (pLower->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
-                        if (pPlayer) {
+                        if (pPlayer) 
+                        {
                             int waterPal = kMediumWater;
-                            if (pLower) {
+                            if (pLower) 
+                            {
                                 if (pXLower->data2 > 0) waterPal = pXLower->data2;
                                 else if (pLower->type == kMarkerUpGoo) waterPal = kMediumGoo;
                             }
@@ -2957,10 +2974,12 @@ void usePropertiesChanger(DBloodActor* sourceactor, short objType, int objIndex,
                             pPlayer->pXSprite->burnTime = 0;
                         }
 
-                    } else {
-
-                        xsprite[pSpr->extra].medium = kMediumNormal;
-                        if (pPlayer) {
+                    }
+                    else 
+                    {
+                        iactor->x().medium = kMediumNormal;
+                        if (pPlayer)
+                        {
                             pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
                             pPlayer->nWaterPal = 0;
                         }
@@ -3023,7 +3042,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     GetActorExtents(sourceactor, &zTop, &zBot);
     pSprite->z = zBot;
 
-    clampSprite(pSprite, 0x01);
+    clampSprite(actor, 0x01);
 
     if (pSource->flags & kModernTypeFlag1) // force telefrag
         TeleFrag(pSprite->index, pSource->sectnum);
@@ -3039,26 +3058,29 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
         if (pXSector->Underwater) 
         {
-            spritetype* pLink = (gLowerLink[pSource->sectnum] >= 0) ? &sprite[gLowerLink[pSource->sectnum]] : NULL;
-            if (pLink) 
+            auto aLink = getLowerLink(pSource->sectnum);
+            spritetype* pLink = nullptr;
+            if (aLink) 
             {
                 // must be sure we found exact same upper link
-                for (int i = 0; i < kMaxSectors; i++) {
-                    if (gUpperLink[i] < 0 || xsprite[sprite[gUpperLink[i]].extra].data1 != xsprite[pLink->extra].data1) continue;
-                    pLink = &sprite[gUpperLink[i]];
+                for (int i = 0; i < kMaxSectors; i++) 
+                {
+                    auto aUpper = getUpperLink(i);
+                    if (aUpper == nullptr || aUpper->x().data1 != aLink->x().data1) continue;
+                    pLink = &aLink->s();
                     break;
                 }
             }
 
             if (pLink)
-                xsprite[pSprite->extra].medium = (pLink->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+                actor->x().medium = (pLink->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
             if (pPlayer) 
             {
                 int waterPal = kMediumWater;
                 if (pLink) 
                 {
-                    if (xsprite[pLink->extra].data2 > 0) waterPal = xsprite[pLink->extra].data2;
+                    if (aLink->x().data2 > 0) waterPal = aLink->x().data2;
                     else if (pLink->type == kMarkerUpGoo) waterPal = kMediumGoo;
                 }
 
@@ -3066,7 +3088,6 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
                 pPlayer->posture = kPostureSwim;
                 pPlayer->pXSprite->burnTime = 0;
             }
-
         } 
         else 
         {
@@ -3112,7 +3133,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     }
 
     if (pXSource->data3 == 1)
-        actor->xvel() = actor->yvel() = actor->zvel() = 0;
+        actor->xvel = actor->yvel = actor->zvel = 0;
 
     viewBackupSpriteLoc(pSprite->index, pSprite);
 
@@ -3182,7 +3203,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
         if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, pSprite->sectnum, pSprite->x, pSprite->y, pos, 0)) != NULL) 
         {
             auto pEffectSpr = &pEffect->s();
-            pEffectSpr->owner = pSource->index;
+            pEffect->SetOwner(sourceactor);
 
             if (pSource->flags & kModernTypeFlag1) 
             {
@@ -3357,7 +3378,7 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, int objIndex, DBloo
             BloodSectIterator it(objIndex);
             while (auto iactor = it.Next())
             {
-                auto& hit = iactor->hit();
+                auto& hit = iactor->hit;
 
                 if (!iactor->IsDudeActor() || !iactor->hasX())
                     continue;
@@ -3603,7 +3624,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
                     int nSpawned = InsertSprite(pSprite->sectnum, kStatDecoration);
                     auto spawned = &bloodActors[nSpawned];
                     auto pSpawned = &spawned->s();
-                    int top, bottom; GetSpriteExtents(&sprite[index], &top, &bottom);
+                    int top, bottom; GetActorExtents(spawned, &top, &bottom);
                     pSpawned->x = pSprite->x;
                     pSpawned->y = pSprite->y;
                     switch (pXSource->data3) 
@@ -4225,8 +4246,8 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
             condError(aCond, "Unexpected powerup #%d", arg3);
             return false;
         case 9:
-            if (!pPlayer->fragger()) return false;
-            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, pPlayer->fragger());
+            if (!pPlayer->fragger) return false;
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, pPlayer->fragger);
             return true;
         case 10: // check keys pressed
             switch (arg1) {
@@ -4457,7 +4478,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
         case 7: return condCmp(spriteGetSlope(pSpr), arg1, arg2, cmpOp);
             case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
             case 15:
-                if (!spriRangeIsFine(pSpr->owner)) return false;
+            if (!spractor->GetOwner()) return false;
             else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, spractor->GetOwner());
                 return true;
             case 20: // stays in a sector?
@@ -4467,10 +4488,10 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
             case 25:
             switch (arg1)
             {
-            case 0: return (spractor->xvel() || spractor->yvel() || spractor->zvel());
-            case 1: return (spractor->xvel());
-            case 2: return (spractor->yvel());
-            case 3: return (spractor->zvel());
+            case 0: return (spractor->xvel || spractor->yvel || spractor->zvel);
+            case 1: return (spractor->xvel);
+            case 2: return (spractor->yvel);
+            case 3: return (spractor->zvel);
                 }
                 break;
             case 30:
@@ -4501,17 +4522,17 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 }
 
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
-                    var = HitScan(pSpr, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
+                    var = HitScan(spractor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
             else if (spractor->IsDudeActor())
-                var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), (!spractor->hasX()) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
+                var = HitScan(spractor, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), (!spractor->hasX()) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
             else if (var2 & CSTAT_SPRITE_ALIGNMENT_FLOOR)
             {
                     var3 = (var2 & 0x0008) ? 0x10000 << 1 : -(0x10000 << 1);
-                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, var3, arg1, arg3 << 1);
+                    var = HitScan(spractor, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, var3, arg1, arg3 << 1);
             }
             else
             {
-                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), 0, arg1, arg3 << 1);
+                    var = HitScan(spractor, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), 0, arg1, arg3 << 1);
                 }
 
             if (var >= 0)
@@ -4563,16 +4584,16 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax) var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
                 return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
-                if (spractor->hit().ceilhit.type != kHitSector) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, spractor->hit().ceilhit.index);
+                if (spractor->hit.ceilhit.type != kHitSector) return false;
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, spractor->hit.ceilhit.index);
                 return true;
             case 56: // touching floor of sector?
-                if (spractor->hit().florhit.type != kHitSector) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, spractor->hit().florhit.index);
+                if (spractor->hit.florhit.type != kHitSector) return false;
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, spractor->hit.florhit.index);
                 return true;
             case 57: // touching walls of sector?
-                if (spractor->hit().hit.type != kHitWall) return false;
-                else if (PUSH) condPush(aCond, OBJ_WALL, spractor->hit().hit.index);
+                if (spractor->hit.hit.type != kHitWall) return false;
+                else if (PUSH) condPush(aCond, OBJ_WALL, spractor->hit.hit.index);
                 return true;
             case 58: // touching another sprite?
             {
@@ -4581,27 +4602,25 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 {
                 case 0:
                 case 1:
-                    if (spractor->hit().florhit.type == kHitSprite) actorvar = spractor->hit().florhit.actor;
+                    if (spractor->hit.florhit.type == kHitSprite) actorvar = spractor->hit.florhit.actor;
                     if (arg3 || var >= 0) break;
                     [[fallthrough]];
                 case 2:
-                    if (spractor->hit().hit.type == kHitSprite) actorvar = spractor->hit().hit.actor;
+                    if (spractor->hit.hit.type == kHitSprite) actorvar = spractor->hit.hit.actor;
                     if (arg3 || var >= 0) break;
                     [[fallthrough]];
                 case 3:
-                    if (spractor->hit().ceilhit.type == kHitSprite) actorvar = spractor->hit().ceilhit.actor;
+                    if (spractor->hit.ceilhit.type == kHitSprite) actorvar = spractor->hit.ceilhit.actor;
                     break;
                 }
                 if (actorvar == nullptr) 
                 { 
                     // check if something is touching this sprite
-                    for (int i = kMaxXSprites - 1, idx = i; i > 0; idx = xsprite[--i].reference) 
+                    BloodSpriteIterator it;
+                    while (auto iactor = it.Next())
                     {
-                        if (idx < 0) continue;
-                        auto iactor = &bloodActors[idx];
-
                         if (iactor->s().flags & kHitagRespawn) continue;
-                        auto& hit = iactor->hit();
+                        auto& hit = iactor->hit;
                         switch (arg3) 
                         {
                         case 0:
@@ -4627,7 +4646,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
             case 65: // compare burn time (in %)
                 var = (spractor->IsDudeActor()) ? 2400 : 1200;
                 if (!condCmp((kPercFull * pXSpr->burnTime) / var, arg1, arg2, cmpOp)) return false;
-                else if (PUSH && spriRangeIsFine(pXSpr->burnSource)) condPush(aCond, OBJ_SPRITE, 0, spractor->GetBurnSource());
+                else if (PUSH && spractor->GetBurnSource()) condPush(aCond, OBJ_SPRITE, 0, spractor->GetBurnSource());
                 return true;
 
             case 66: // any flares stuck in this sprite?
@@ -5142,8 +5161,8 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
 
     // check redirected TX buckets
     int rx = -1; 
-    XSPRITE* pXRedir = NULL;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, actor->s().extra, pXRedir, &rx)) != NULL) 
+    DBloodActor* pXRedir = nullptr;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, actor, pXRedir, &rx)) != nullptr) 
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
@@ -5324,9 +5343,9 @@ void sectorContinueMotion(int nSector, EVENT event)
     int waitTimeB = pXSector->waitTimeB;
     if (sector[nSector].type == kSectorPath) 
     {
-        if (!spriRangeIsFine(pXSector->marker0)) return;
-        busyTimeA = busyTimeB = xsprite[sprite[pXSector->marker0].extra].busyTime;
-        waitTimeA = waitTimeB = xsprite[sprite[pXSector->marker0].extra].waitTime;
+        if (!pXSector->marker0) return;
+        busyTimeA = busyTimeB = pXSector->marker0->x().busyTime;
+        waitTimeA = waitTimeB = pXSector->marker0->x().waitTime;
     }
     
     if (!pXSector->interruptable && event.cmd != kCmdSectorMotionContinue
@@ -5530,8 +5549,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
 		{
            
             // copy dude flags from the source to destination sprite
-            aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, true, false);
-
+            aiPatrolFlagsMgr(event.actor, actor, true, false);
     }
 
     }
@@ -5560,7 +5578,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
 
             case kCmdDudeFlagsSet:
                 if (!event.actor || !event.actor->hasX()) break;
-                else aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
+                else aiPatrolFlagsMgr(event.actor, actor, false, true); // initialize patrol dude with possible new flags
                 break;
 
             default:
@@ -5686,7 +5704,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
                     if (pXSprite->state == 0) SetSpriteState(actor, 1);
-                    if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(pXSprite);
+                    if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(actor);
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
@@ -5776,7 +5794,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                     [[fallthrough]];
                 case kCmdRepeat:
                     // force OFF after *all* TX objects reach the goal value
-                    if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(pXSprite)) 
+                    if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(actor)) 
                     {
                         evPostActor(actor, 0, kCmdOff);
                         break;
@@ -6063,7 +6081,7 @@ void seqTxSendCmdAll(DBloodActor* source, DBloodActor* actor, COMMAND_ID cmd, bo
     {
         for (int i = 0; i <= 3; i++) 
         {
-            pXSource->txID = GetDataVal(&bloodActors[pXSource->reference], i);
+            pXSource->txID = GetDataVal(source, i);
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
             else modernTypeSendCommand(actor, pXSource->txID, cmd);
@@ -6199,7 +6217,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
     bool srcIsCondition = false;
     if (objType == OBJ_SPRITE && event.actor == nullptr) return -1;
     if (objType == OBJ_SPRITE && event.actor != sourceactor)
-        srcIsCondition = (sprite[objIndex].type == kModernCondition || sprite[objIndex].type == kModernConditionFalse);
+        srcIsCondition = (event.actor->s().type == kModernCondition || event.actor->s().type == kModernConditionFalse);
 
     // if it's a tracking condition, it must ignore all the commands sent from objects
     if (pXSource->busyTime > 0 && event.funcID != kCallbackMax) return -1;
@@ -6313,8 +6331,7 @@ void useRandomItemGen(DBloodActor* actor)
 
     if (dropactor != nullptr) 
     {
-        auto pDrop = &dropactor->s();
-        clampSprite(pDrop);
+        clampSprite(dropactor);
 
         // check if generator affected by physics
         if (debrisGetIndex(actor) != -1) 
@@ -6408,9 +6425,9 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
         if (pXSource->data2 > 0) 
         {
             int velocity = pXSource->data2 << 12;
-            missileactor->xvel() = MulScale(velocity, dx, 14);
-            missileactor->yvel() = MulScale(velocity, dy, 14);
-            missileactor->zvel() = MulScale(velocity, dz, 14);
+            missileactor->xvel = MulScale(velocity, dx, 14);
+            missileactor->yvel = MulScale(velocity, dy, 14);
+            missileactor->zvel = MulScale(velocity, dz, 14);
         }
 
         // add bursting for missiles
@@ -6473,7 +6490,7 @@ void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodA
                     break;
                 case kModernTypeFlag2:
                     if (data > pXSource->data3) data = pXSource->data3;
-                    if (!incDecGoalValueIsReached(pXSource)) break;
+                    if (!incDecGoalValueIsReached(sourceactor)) break;
                     tmp = pXSource->data3;
                     pXSource->data3 = pXSource->data2;
                     pXSource->data2 = tmp;
@@ -6498,7 +6515,7 @@ void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodA
                     break;
                 case kModernTypeFlag2:
                     if (data < pXSource->data3) data = pXSource->data3;
-                    if (!incDecGoalValueIsReached(pXSource)) break;
+                    if (!incDecGoalValueIsReached(sourceactor)) break;
                     tmp = pXSource->data3;
                     pXSource->data3 = pXSource->data2;
                     pXSource->data2 = tmp;
@@ -6655,12 +6672,12 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
             if (spr->extra > 0 && xspr->physAttr > 0) 
             {
                 xspr->physAttr |= kPhysFalling;
-                iactor->zvel()++;
+                iactor->zvel++;
             } 
             else if ((spr->statnum == kStatThing || spr->statnum == kStatDude) && (spr->flags & kPhysGravity))
             {
                 spr->flags |= kPhysFalling;
-                iactor->zvel()++;
+                iactor->zvel++;
                 }
             }
     } 
@@ -6819,7 +6836,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     int matesPerEnemy = 1;
 
     // dude is burning?
-    if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) 
+    if (pXSprite->burnTime > 0 && actor->GetBurnSource())
     {
         if (IsBurningDude(actor)) return;
         else 
@@ -6891,7 +6908,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 if (actor->GetBurnSource() == targetactor) 
                 {
                     pXSprite->burnTime = 0;
-                    pXSprite->burnSource = -1;
+                    actor->SetBurnSource(nullptr);
                 }
 
                 // force stop attack dude
@@ -6899,7 +6916,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 if (targetactor->GetBurnSource() == actor) 
                 {
                     pXTarget->burnTime = 0;
-                    pXTarget->burnSource = -1;
+                    targetactor->SetBurnSource(nullptr);
                 }
             }
         }
@@ -7528,7 +7545,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
 {
     auto pSprite = &actor->s();
     int x = pSprite->x, y = pSprite->y, z = pSprite->z, nSector = pSprite->sectnum;
-    HitScan(pSprite, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
+    HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
     int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
     if (target != nullptr && nDist - (pSprite->clipdist << 2) < nRange)
         return (target == gHitInfo.hitactor);
@@ -7563,7 +7580,7 @@ void nnExtAiSetDirection(DBloodActor* actor, int a3)
     
     int nSprite = pSprite->index;
     int vc = ((a3 + 1024 - pSprite->ang) & 2047) - 1024;
-    int t1 = DMulScale(actor->xvel(), Cos(pSprite->ang), actor->yvel(), Sin(pSprite->ang), 30);
+    int t1 = DMulScale(actor->xvel, Cos(pSprite->ang), actor->yvel, Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2;
     int v8 = 341;
     
@@ -7669,7 +7686,7 @@ void aiPatrolState(DBloodActor* actor, int state)
         seq = 11537, nSeqOverride = true;  // these don't have idle crouch seq for some reason...
 
     if (seq < 0)
-        return aiPatrolStop(pSprite, -1);
+        return aiPatrolStop(actor, nullptr);
 
     for (i = start; i < end; i++) 
     {
@@ -7692,7 +7709,7 @@ void aiPatrolState(DBloodActor* actor, int state)
     if (i == end) 
     {
         viewSetSystemMessage("No patrol state #%d found for dude #%d (type = %d)", state, actor->GetIndex(), pSprite->type);
-        aiPatrolStop(pSprite, -1);
+        aiPatrolStop(actor, nullptr);
     }
 }
 
@@ -7758,113 +7775,144 @@ bool aiPatrolMarkerReached(DBloodActor* actor)
     return false;
 }
 
-int findNextMarker(XSPRITE* pXMark, bool back) {
-    
-    XSPRITE* pXNext = NULL; int i;
-    for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-        if (!xspriRangeIsFine(sprite[i].extra) || sprite[i].index == pXMark->reference)
-            continue;
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-        pXNext = &xsprite[sprite[i].extra];
+DBloodActor* findNextMarker(DBloodActor* mark, bool back) 
+{
+    auto pXMark = &mark->x();
+
+    BloodStatIterator it(kStatPathMarker);
+    while (auto next = it.Next())
+    {
+        if (!next->hasX() || next == mark) continue;
+
+        XSPRITE* pXNext = &next->x();
         if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != pXMark->data1) || (!back && pXNext->data1 != pXMark->data2))
             continue;
 
-        return sprite[i].index;
+        return next;
     }
-
-    return -1;
-
+    return nullptr;
 }
 
-bool markerIsNode(XSPRITE* pXMark, bool back) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    XSPRITE* pXNext = NULL; int i; int cnt = 0;
-    for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-        if (!xspriRangeIsFine(sprite[i].extra) || sprite[i].index == pXMark->reference)
-            continue;
+bool markerIsNode(DBloodActor* mark, bool back) 
+{
+    auto pXMark = &mark->x();
+    int cnt = 0;
 
-        pXNext = &xsprite[sprite[i].extra];
+    BloodStatIterator it(kStatPathMarker);
+    while (auto next = it.Next())
+    {
+        if (!next->hasX() || next == mark) continue;
+
+        XSPRITE* pXNext = &next->x();
+
         if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != pXMark->data1) || (!back && pXNext->data1 != pXMark->data2))
             continue;
 
         if (++cnt > 1)
             return true;
     }
-
     return false;
-
 }
 
-void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    
-    spritetype* pNext = NULL;   XSPRITE* pXNext = NULL;
-    spritetype* pCur = NULL;    XSPRITE* pXCur = NULL;
-    spritetype* pPrev = NULL;   XSPRITE* pXPrev = NULL;
+void aiPatrolSetMarker(DBloodActor* actor)
+{
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+    auto targetactor = actor->GetTarget();
 
-    bool back = false;
-    int path = -1; int firstFinePath = -1; int prev = -1, next, i, dist, zt1, zb1, zt2, zb2, closest = 200000;
+    DBloodActor* selected = nullptr;
+    int closest = 200000;
 
     // select closest marker that dude can see
-    if (pXSprite->target_i <= 0) {
+    if (targetactor == nullptr)
+    {
+        int zt1, zb1, zt2, zb2, dist;
+        GetActorExtents(actor, &zt2, &zb2);
 
-        for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-            
-            if (!xspriRangeIsFine(sprite[i].extra))
-                continue;
+        BloodStatIterator it(kStatPathMarker);
+        while (auto nextactor = it.Next())
+        {
+            if (!nextactor->hasX()) continue;
 
-            pNext = &sprite[i]; pXNext = &xsprite[pNext->extra];
+            auto pNext = &nextactor->s();
+            auto pXNext = &nextactor->x();
+
             if (pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout || (dist = approxDist(pNext->x - pSprite->x, pNext->y - pSprite->y)) > closest)
                 continue;
 
-            GetSpriteExtents(pNext, &zt1, &zb1); GetSpriteExtents(pSprite, &zt2, &zb2);
-            if (cansee(pNext->x, pNext->y, zt1, pNext->sectnum, pSprite->x, pSprite->y, zt2, pSprite->sectnum)) {
+            GetActorExtents(nextactor, &zt1, &zb1); 
+            if (cansee(pNext->x, pNext->y, zt1, pNext->sectnum, pSprite->x, pSprite->y, zt2, pSprite->sectnum)) 
+            {
                 closest = dist;
-                path = pNext->index;
+                selected = nextactor;
             }
-
         }
-
+    } 
     // set next marker
-    } else if (sprite[pXSprite->target_i].type == kMarkerPath && xspriRangeIsFine(sprite[pXSprite->target_i].extra)) {
-
+    else if (targetactor->s().type == kMarkerPath && targetactor->hasX())
+    {
         // idea: which one of next (allowed) markers are closer to the potential target?
         // idea: -3 select random next marker that dude can see in radius of reached marker
         // if reached marker is in radius of another marker with -3, but greater radius, use that marker
         // idea: for nodes only flag32 = specify if enemy must return back to node or allowed to select
         // another marker which belongs that node?
+        spritetype* pPrev = NULL;   XSPRITE* pXPrev = NULL;
+        DBloodActor* prevactor = nullptr;
+
+        DBloodActor* firstFinePath = nullptr;
+        int next;
 
         int breakChance = 0;
-        pCur  = &sprite[pXSprite->target_i];
-        pXCur = &xsprite[pCur->extra];
-        if (pXSprite->targetX >= 0)
+        auto pCur = &targetactor->s();
+        auto pXCur = &targetactor->x();
+        if (actor->prevmarker)
         {
-            pPrev = &sprite[pXSprite->targetX];
-            pXPrev = &xsprite[pPrev->extra];
+            prevactor = actor->prevmarker;
+            pPrev = &prevactor->s();
+            pXPrev = &prevactor->x();
         }
-        prev = pCur->index;
 
-        bool node = markerIsNode(pXCur, false);
-        pXSprite->unused2 = aiPatrolGetPathDir(pXSprite, pXCur); // decide if it should go back or forward
+        bool node = markerIsNode(targetactor, false);
+        pXSprite->unused2 = aiPatrolGetPathDir(actor, targetactor); // decide if it should go back or forward
         if (pXSprite->unused2 == kPatrolMoveBackward && Chance(0x8000) && node)
             pXSprite->unused2 = kPatrolMoveForward;
 
-        back = (pXSprite->unused2 == kPatrolMoveBackward); next = (back) ? pXCur->data1 : pXCur->data2;
-        for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-            
-            if (sprite[i].index == pXSprite->target_i || !xspriRangeIsFine(sprite[i].extra)) continue;
-            else if (pXSprite->targetX >= 0 && sprite[i].index == pPrev->index && node) {
+        bool back = (pXSprite->unused2 == kPatrolMoveBackward); next = (back) ? pXCur->data1 : pXCur->data2;
+        BloodStatIterator it(kStatPathMarker);
+        while(auto nextactor = it.Next())
+        {
+            if (nextactor == targetactor || !nextactor->hasX()) continue;
+            else if (pXSprite->targetX >= 0 && nextactor == prevactor && node) 
+            {
                 if (pXCur->data2 == pXPrev->data1)
                     continue;
             }
 
-            pXNext = &xsprite[sprite[i].extra];
+            auto pXNext = &nextactor->x();
             if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != next) || (!back && pXNext->data1 != next))
                 continue;
             
-            if (firstFinePath == -1) firstFinePath = pXNext->reference;
-            if (aiPatrolMarkerBusy(&bloodActors[pSprite->index], &bloodActors[pXNext->reference]) && !Chance(0x0010)) continue;
-            else path = pXNext->reference;
+            if (firstFinePath == nullptr) firstFinePath = nextactor;
+            if (aiPatrolMarkerBusy(actor, nextactor) && !Chance(0x0010)) continue;
+            else selected = nextactor;
             
             breakChance += nnExtRandom(1, 5);
             if (breakChance >= 5)
@@ -7872,77 +7920,84 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
 
         }
 
-        if (firstFinePath == -1) {
-            
+        if (firstFinePath == nullptr) 
+        {
             viewSetSystemMessage("No markers with id #%d found for dude #%d! (back = %d)", next, pSprite->index, back);
             return;
-
         }
 
-        if (path == -1)
-            path = firstFinePath;
-
+        if (selected == nullptr)
+            selected = firstFinePath;
     }
 
-    if (!spriRangeIsFine(path))
+    if (!selected)
         return;
 
-    pXSprite->target_i = path;
-    pXSprite->targetX = prev; // keep previous marker index here, use actual sprite coords when selecting direction
-    sprite[path].owner = pSprite->index;
-
+    actor->SetTarget(selected);
+    selected->SetOwner(actor);
+    actor->prevmarker = targetactor; // keep previous marker index here, use actual sprite coords when selecting direction
 }
 
-void aiPatrolStop(spritetype* pSprite, int target, bool alarm) 
-{
-    auto actor = &bloodActors[pSprite->index];
-    if (xspriRangeIsFine(pSprite->extra)) 
-    {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-        XSPRITE* pXSprite = &xsprite[pSprite->extra];
+void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
+{
+    auto pSprite = &actor->s();
+    if (actor->hasX()) 
+    {
+        XSPRITE* pXSprite = &actor->x();
         pXSprite->data3 = 0; // reset spot progress
         pXSprite->unused1 &= ~kDudeFlagCrouch; // reset the crouch status
         pXSprite->unused2 = kPatrolMoveForward; // reset path direction
+        actor->prevmarker = nullptr;
         pXSprite->targetX = -1; // reset the previous marker index
         if (pXSprite->health <= 0)
             return;
 
-        if (pXSprite->target_i >= 0 && sprite[pXSprite->target_i].type == kMarkerPath) {
-            if (target < 0) pSprite->ang = sprite[pXSprite->target_i].ang & 2047;
+        auto mytarget = actor->GetTarget();
+
+        if (mytarget && mytarget->s().type == kMarkerPath) 
+        {
+            if (targetactor == nullptr) pSprite->ang = mytarget->s().ang & 2047;
             actor->SetTarget(nullptr);
         }
 
-        bool patrol = pXSprite->dudeFlag4; pXSprite->dudeFlag4 = 0;
-        if (spriRangeIsFine(target) && IsDudeSprite(&sprite[target]) && xspriRangeIsFine(sprite[target].extra)) {
-
-            aiSetTarget_(pXSprite, target);
-            aiActivateDude(&bloodActors[pXSprite->reference]);
+        bool patrol = pXSprite->dudeFlag4; 
+        pXSprite->dudeFlag4 = 0;
+        if (targetactor && targetactor->hasX() && targetactor->IsDudeActor())
+        {
+            aiSetTarget(actor, targetactor);
+            aiActivateDude(actor);
             
             // alarm only when in non-recoil state?
             //if (((pXSprite->unused1 & kDudeFlagStealth) && stype != kAiStateRecoil) || !(pXSprite->unused1 & kDudeFlagStealth)) {
-                if (alarm) aiPatrolAlarmFull(pSprite, &xsprite[sprite[target].extra], Chance(0x0100));
-                else aiPatrolAlarmLite(pSprite, &xsprite[sprite[target].extra]);
+                if (alarm) aiPatrolAlarmFull(actor, targetactor, Chance(0x0100));
+                else aiPatrolAlarmLite(actor, targetactor);
             //}
 
-        } else {
-
-            
+        }
+        else 
+        {
             aiInitSprite(actor);
-            aiSetTarget_(pXSprite, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
-            
-
+            aiSetTarget(actor, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
         }
         
         pXSprite->dudeFlag4 = patrol; // this must be kept so enemy can patrol after respawn again
     }
-    return;
 }
 
-void aiPatrolRandGoalAng(DBloodActor* actor) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    
+void aiPatrolRandGoalAng(DBloodActor* actor) 
+{
     int goal = kAng90;
     if (Chance(0x4000))
         goal = kAng120;
@@ -7953,11 +8008,17 @@ void aiPatrolRandGoalAng(DBloodActor* actor) {
     if (Chance(0x8000))
         goal = -goal;
 
-    pXSprite->goalAng = (pSprite->ang + goal) & 2047;
+    actor->x().goalAng = (actor->s().ang + goal) & 2047;
 }
 
-void aiPatrolTurn(DBloodActor* actor) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void aiPatrolTurn(DBloodActor* actor)
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
 
@@ -7967,23 +8028,31 @@ void aiPatrolTurn(DBloodActor* actor) {
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void aiPatrolMove(DBloodActor* actor) {
+void aiPatrolMove(DBloodActor* actor) 
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
+    auto targetactor = actor->GetTarget();
 
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax) || !spriRangeIsFine(pXSprite->target_i))
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax) || !targetactor)
         return;
 
 
     int dudeIdx = pSprite->type - kDudeBase;
-    switch (pSprite->type) {
+    switch (pSprite->type) 
+    {
         case kDudeCultistShotgunProne:  dudeIdx = kDudeCultistShotgun - kDudeBase;  break;
         case kDudeCultistTommyProne:    dudeIdx = kDudeCultistTommy - kDudeBase;    break;
     }
 
-    spritetype* pTarget = &sprite[pXSprite->target_i];
-    XSPRITE* pXTarget   = &xsprite[pTarget->extra];
+    spritetype* pTarget = &targetactor->s();
+    XSPRITE* pXTarget   = &targetactor->x();
     DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
     
@@ -7993,18 +8062,16 @@ void aiPatrolMove(DBloodActor* actor) {
     int vel = (pXSprite->unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
     int goalAng = 341;
 
-    if (pExtra->flying || spriteIsUnderwater(actor)) {
-
+    if (pExtra->flying || spriteIsUnderwater(actor)) 
+    {
         goalAng >>= 1;
-        zvel[pSprite->index] = dz;
+        actor->zvel = dz;
         if (pSprite->flags & kPhysGravity)
             pSprite->flags &= ~kPhysGravity;
-
-
-    } else if (!pExtra->flying) {
-
+    } 
+    else if (!pExtra->flying) 
+    {
         pSprite->flags |= kPhysGravity | kPhysFalling;
-
     }
 
     int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
@@ -8013,110 +8080,117 @@ void aiPatrolMove(DBloodActor* actor) {
     
     if (abs(nAng) > goalAng || ((pXTarget->waitTime > 0 || pXTarget->data1 == pXTarget->data2) && aiPatrolMarkerReached(actor))) 
     {
-       actor->xvel() = 0;
-       actor->yvel() = 0;
+       actor->xvel = 0;
+       actor->yvel = 0;
        return;
     }
    
-    if (gSpriteHit[pSprite->extra].hit.type == kHitSprite)
+    if (actor->hit.hit.type == kHitSprite)
     {
-        auto hitactor = gSpriteHit[pSprite->extra].hit.actor;
-
+        auto hitactor = actor->hit.hit.actor;
         hitactor->x().dodgeDir =  -1;
         pXSprite->dodgeDir  =   1;
-
         aiMoveDodge(hitactor);
-
-    } else {
-
+    }
+    else 
+    {
         int frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, pXTarget->busyTime);
-        xvel[pSprite->index] += MulScale(frontSpeed, Cos(pSprite->ang), 30);
-        yvel[pSprite->index] += MulScale(frontSpeed, Sin(pSprite->ang), 30);
-
+        actor->xvel += MulScale(frontSpeed, Cos(pSprite->ang), 30);
+        actor->yvel += MulScale(frontSpeed, Sin(pSprite->ang), 30);
     }
 
     vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
-    xvel[pSprite->index] = ClipRange(xvel[pSprite->index], -vel, vel);
-    yvel[pSprite->index] = ClipRange(yvel[pSprite->index], -vel, vel);
+    actor->xvel = ClipRange(actor->xvel, -vel, vel);
+    actor->yvel = ClipRange(actor->yvel, -vel, vel);
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget) {
-    
-    if (!xsprIsFine(pSprite) || !IsDudeSprite(pSprite))
+void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor) 
+{
+    if (!actor->hasX() || !actor->IsDudeActor())
         return;
 
-    auto targetactor = &bloodActors[pXTarget->reference];
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pTarget = &targetactor->s();
+    XSPRITE* pXTarget = &targetactor->x();
+
     if (pXSprite->health <= 0)
         return;
 
-    spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
-    spritetype* pTarget = &sprite[pXTarget->reference];
-    
     int zt1, zb1, zt2, zb2; //int eaz1 = (getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat) << 2;
-    GetSpriteExtents(pSprite, &zt1, &zb1); GetSpriteExtents(pTarget, &zt2, &zb2);
+    GetActorExtents(actor, &zt1, &zb1); 
+    GetActorExtents(targetactor, &zt2, &zb2);
     
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-
-        auto dudeactor = &bloodActors[nSprite];
-        pDude = &dudeactor->s();
-        if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || IsPlayerSprite(pDude) || pDude->extra < 0)
+    BloodStatIterator it(kStatDude);
+    while (auto dudeactor = it.Next())
+    {
+        auto pDude = &dudeactor->s();
+        if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
-        pXDude = &dudeactor->x();
+        auto pXDude = &dudeactor->x();
         if (pXDude->health <= 0)
             continue;
 
         int eaz2 = (getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat) << 2;
         int nDist = approxDist(pDude->x - pSprite->x, pDude->y - pSprite->y);
-        if (nDist >= kPatrolAlarmSeeDist || !cansee(pSprite->x, pSprite->y, zt1, pSprite->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum)) {
-            
+        if (nDist >= kPatrolAlarmSeeDist || !cansee(pSprite->x, pSprite->y, zt1, pSprite->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum)) 
+        {
             nDist = approxDist(pDude->x - pTarget->x, pDude->y - pTarget->y);
             if (nDist >= kPatrolAlarmSeeDist || !cansee(pTarget->x, pTarget->y, zt2, pTarget->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum))
                 continue;
-        
         }
 
-        if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(pDude, pXDude->target_i);
-        if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
-        continue;
+        if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
+        if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
+            continue;
 
         aiSetTarget(dudeactor, targetactor);
         aiActivateDude(dudeactor);
-
     }
-
 }
 
-void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (!xsprIsFine(pSprite) || !IsDudeSprite(pSprite))
+void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain) 
+{
+    if (!actor->hasX() || !actor->IsDudeActor())
         return;
 
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pTarget = &targetactor->s();
+    XSPRITE* pXTarget = &targetactor->x();
+
     if (pXSprite->health <= 0)
         return;
-
-    spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
-    spritetype* pTarget = &sprite[pXTarget->reference];
 
     int eaz2 = (getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat) << 2;
     int x2 = pSprite->x, y2 = pSprite->y, z2 = pSprite->z - eaz2, sect2 = pSprite->sectnum;
     
-    int tzt, tzb; GetSpriteExtents(pTarget, &tzt, &tzb);
+    int tzt, tzb; 
+    GetActorExtents(targetactor, &tzt, &tzb);
     int x3 = pTarget->x, y3 = pTarget->y, z3 = tzt, sect3 = pTarget->sectnum;
 
-
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-
-        auto dudeactor = &bloodActors[nSprite];
-        pDude = &dudeactor->s();
-        if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || IsPlayerSprite(pDude) || pDude->extra < 0)
+    BloodStatIterator it(kStatDude);
+    while (auto dudeactor = it.Next())
+    {
+        auto pDude = &dudeactor->s();
+        if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
-        pXDude = &dudeactor->x();
+        auto pXDude = &dudeactor->x();
         if (pXDude->health <= 0)
             continue;
 
@@ -8131,38 +8205,47 @@ void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
         if (//(nDist1 < hdist || nDist2 < hdist) ||
             ((nDist1 < sdist && cansee(x1, y1, z1, sect1, x2, y2, z2, sect2)) || (nDist2 < sdist && cansee(x1, y1, z1, sect1, x3, y3, z3, sect3)))) {
 
-            if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(pDude, pXDude->target_i);
-            if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
+            if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
+            if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
                 continue;
 
-            if (spriRangeIsFine(pXSprite->target_i)) aiSetTarget(dudeactor, &bloodActors[pXSprite->target_i]);
+            if (actor->GetTarget() ) aiSetTarget(dudeactor, actor->GetTarget());
             else aiSetTarget(dudeactor, pSprite->x, pSprite->y, pSprite->z);
             aiActivateDude(dudeactor);
 
             if (chain)
-                aiPatrolAlarmFull(pDude, pXTarget, Chance(0x0010));
-
+                aiPatrolAlarmFull(dudeactor, targetactor, Chance(0x0010));
             //Printf("Dude #%d alarms dude #%d", pSprite->index, pDude->index);
-
         }
-
     }
-
 }
 
-bool spritesTouching(int nXSprite1, int nXSprite2) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (!xspriRangeIsFine(nXSprite1) || !xspriRangeIsFine(nXSprite2))
+bool spritesTouching(DBloodActor *actor1, DBloodActor* actor2) 
+{
+    if (!actor1->hasX() || !actor2->hasX())
         return false;
 
+    auto hit = &actor1->hit;
     DBloodActor* hitactor = nullptr;
-    if (gSpriteHit[nXSprite1].hit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].hit.actor;
-    else if (gSpriteHit[nXSprite1].florhit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].florhit.actor;
-    else if (gSpriteHit[nXSprite1].ceilhit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].ceilhit.actor;
-    return hitactor->hasX() && hitactor->s().extra == nXSprite2;
+    if (hit->hit.type == kHitSprite) hitactor = hit->hit.actor;
+    else if (hit->florhit.type == kHitSprite) hitactor = hit->florhit.actor;
+    else if (hit->ceilhit.type == kHitSprite) hitactor = hit->ceilhit.actor;
+    return hitactor->hasX() && hitactor == actor2;
 }
 
-bool aiCanCrouch(DBloodActor* actor) 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool aiCanCrouch(DBloodActor* actor)
 {
     auto pSprite = &actor->s();
     if (pSprite->type >= kDudeBase && pSprite->type < kDudeVanillaMax)
@@ -8174,9 +8257,16 @@ bool aiCanCrouch(DBloodActor* actor)
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-bool readyForCrit(spritetype* pHunter, spritetype* pVictim) {
-
+bool readyForCrit(DBloodActor* hunter, DBloodActor* victim) 
+{
+    auto pHunter = &hunter->s();
+    auto pVictim = &victim->s();
     if (!(pHunter->type >= kDudeBase && pHunter->type < kDudeMax) || !(pVictim->type >= kDudeBase && pVictim->type < kDudeMax))
         return false;
 
@@ -8189,37 +8279,48 @@ bool readyForCrit(spritetype* pHunter, spritetype* pVictim) {
     return (abs(((getangle(dx, dy) + 1024 - pVictim->ang) & 2047) - 1024) <= kAng45);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+DBloodActor* aiPatrolSearchTargets(DBloodActor* actor) 
+{
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
 
-int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
-   
     enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
     PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); PLAYER* pPlayer = NULL;
     
-    for (int i = 0; i < kMaxPatrolFoundSounds; i++) {
+    for (int i = 0; i < kMaxPatrolFoundSounds; i++) 
+    {
         patrolBonkles[i].snd = patrolBonkles[i].cur = 0;
         patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
     }
 
-    int i, j, f, mod, x, y, z, dx, dy, nDist, eyeAboveZ, target = -1, sndCnt = 0, seeDist, hearDist, feelDist, seeChance, hearChance;
-    bool stealth = (pXSprite->unused1 & kDudeFlagStealth); bool blind = (pXSprite->dudeGuard); bool deaf = (pXSprite->dudeDeaf);
+    int i, j, f, mod, x, y, z, dx, dy, nDist, eyeAboveZ, sndCnt = 0, seeDist, hearDist, feelDist, seeChance, hearChance;
+    bool stealth = (pXSprite->unused1 & kDudeFlagStealth);
+    bool blind = (pXSprite->dudeGuard); 
+    bool deaf = (pXSprite->dudeDeaf);
 
+    DBloodActor* newtarget;
     // search for player targets
-    for (i = connecthead; i != -1; i = connectpoint2[i]) {
-        
+    for (i = connecthead; i != -1; i = connectpoint2[i]) 
+    {
         pPlayer = &gPlayer[i];
+        if (!pPlayer->actor()->hasX()) continue;
+
         spritetype* pSpr = pPlayer->pSprite;
-        if (!xsprIsFine(pSpr))
-            continue;
-    
-        XSPRITE* pXSpr = &xsprite[pSpr->extra];
+        XSPRITE* pXSpr = &pPlayer->actor()->x();
         if (pXSpr->health <= 0)
             continue;
 
-        target = -1; seeChance = hearChance = 0x0000;
+        newtarget = nullptr;
+        seeChance = hearChance = 0x0000;
         x = pSpr->x, y = pSpr->y, z = pSpr->z, dx = x - pSprite->x, dy = y - pSprite->y; nDist = approxDist(dx, dy);
         seeDist = (stealth) ? pDudeInfo->seeDist / 3 : pDudeInfo->seeDist >> 1;
         hearDist = pDudeInfo->hearDist; feelDist = hearDist >> 1;
@@ -8227,30 +8328,27 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
         // TO-DO: is there any dudes that sees this patrol dude and sees target?
 
 
-        if (nDist <= seeDist) {
-
+        if (nDist <= seeDist) 
+        {
             eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-            if (nDist < seeDist >> 3) GetSpriteExtents(pSpr, &z, &j); //use ztop of the target sprite
+            if (nDist < seeDist >> 3) GetActorExtents(pPlayer->actor(), &z, &j); //use ztop of the target sprite
             if (!cansee(x, y, z, pSpr->sectnum, pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sectnum))
                 continue;
-
-        } else {
-        
-            continue;
-        
         }
+        else 
+            continue;
 
         bool invisible = (powerupCheck(pPlayer, kPwUpShadowCloak) > 0);
-        if (spritesTouching(pSprite->extra, pSpr->extra) || spritesTouching(pSpr->extra, pSprite->extra)) {
-
-            DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", pSprite->index, pPlayer->nPlayer + 1);
+        if (spritesTouching(actor, pPlayer->actor()) || spritesTouching(pPlayer->actor(), actor)) 
+        {
+            DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", actor->GetIndex(), pPlayer->nPlayer + 1);
             if (invisible) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
-            target = pSpr->index;
+            newtarget = pPlayer->actor();
             break;
-
         }
 
-        if (!deaf) {
+        if (!deaf) 
+        {
 
             soundEngine->EnumerateChannels([&](FSoundChan* chan)
                 {
@@ -8264,7 +8362,8 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         sndy = emitter->y;
 
                         // sound attached to the sprite
-                        if (pSpr->index != emitter->index && emitter->owner != pSpr->index) {
+                        if (pSpr != emitter && emitter->owner != pSpr->index) 
+                        {
 
                             if (!sectRangeIsFine(emitter->sectnum)) return false;
                             searchsect = emitter->sectnum;
@@ -8298,7 +8397,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     BloodSectIterator it(searchsect);
                     while (auto act = it.Next())
                     {
-                        if (act->GetOwner() == &bloodActors[pSpr->index])
+                        if (act->GetOwner() == pPlayer->actor())
                         {
                             found = true;
                             break;
@@ -8314,58 +8413,64 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
             if (invisible && hearChance >= kMaxPatrolSpotValue >> 2) 
             {
-                target = pSpr->index;
+                newtarget = pPlayer->actor();
                 pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 invisible = false;
                 break;
             }
-
         }
 
-        if (!invisible && (!deaf || !blind)) {
-
-            if (stealth) {
-
-                switch (pPlayer->lifeMode) {
+        if (!invisible && (!deaf || !blind)) 
+        {
+            if (stealth) 
+            {
+                switch (pPlayer->lifeMode) 
+                {
                     case kModeHuman:
                     case kModeHumanShrink:
-                        if (pPlayer->lifeMode == kModeHumanShrink) {
+                        if (pPlayer->lifeMode == kModeHumanShrink) 
+                        {
                             seeDist  -= mulscale8(164, seeDist);
                             feelDist -= mulscale8(164, feelDist);
                         }
-                        if (pPlayer->posture == kPostureCrouch) {
+                        if (pPlayer->posture == kPostureCrouch) 
+                        {
                             seeDist  -= mulscale8(64, seeDist);
                             feelDist -= mulscale8(128, feelDist);
                         }
                         break;
                     case kModeHumanGrown:
-                        if (pPlayer->posture != kPostureCrouch) {
+                        if (pPlayer->posture != kPostureCrouch) 
+                        {
                             seeDist  += mulscale8(72, seeDist);
                             feelDist += mulscale8(64, feelDist);
-                        } else {
+                        }
+                        else 
+                        {
                             seeDist  += mulscale8(48, seeDist);
                         }
                         break;
                 }
-
             }
 
             bool itCanHear = false; bool itCanSee = false;
-            feelDist = ClipLow(feelDist, 0);  seeDist = ClipLow(seeDist, 0);
+            feelDist = ClipLow(feelDist, 0);  
+            seeDist = ClipLow(seeDist, 0);
 
-            if (hearDist) {
-
+            if (hearDist) 
+            {
+                auto act = pPlayer->actor();
                 itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-                if (itCanHear && nDist < feelDist && (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]))
-                    hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(xvel[pSpr->index]) + abs(yvel[pSpr->index]) + abs(zvel[pSpr->index]))) >> 6, 0)), 0);
+                if (itCanHear && nDist < feelDist && (act->xvel || act->yvel || act->zvel))
+                    hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->xvel) + abs(act->yvel) + abs(act->zvel))) >> 6, 0)), 0);
             }
 
-            if (seeDist) {
-
+            if (seeDist) 
+            {
                 int periphery = ClipLow(pDudeInfo->periphery, kAng60);
                 int nDeltaAngle = abs(((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024);
-                if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true) {
-
+                if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true) 
+                {
                     int base = 100 + ((20 * gGameOptions.nDifficulty) - (nDeltaAngle / 5));
                     //seeChance = base - MulScale(ClipRange(5 - gGameOptions.nDifficulty, 1, 4), nDist >> 1, 16);
                     //scale(0x40000, a6, dist2);
@@ -8377,24 +8482,23 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     //seeChance = scale(0x1000, base, t);
                     //viewSetSystemMessage("SEE CHANCE: %d, BASE %d, DIST %d, T %d", seeChance, base, nDist, t);
                     //itCanSee = false;
-
                 }
-
             }
 
             if (!itCanSee && !itCanHear)
                 continue;
 
-            if (stealth) {
-
+            if (stealth) 
+            {
                 // search in stealth regions to modify spot chances
-                for (j = headspritestat[kStatModernStealthRegion]; j != -1; j = nextspritestat[j]) {
-
-                    spritetype* pSteal = &sprite[j];
-                    if (!xspriRangeIsFine(pSteal->extra))
+                BloodStatIterator it(kStatModernStealthRegion);
+                while (auto iactor = it.Next())
+                {
+                    if (!iactor->hasX())
                         continue;
 
-                    XSPRITE* pXSteal = &xsprite[pSteal->extra];
+                    spritetype* pSteal = &iactor->s();
+                    XSPRITE* pXSteal = &actor->x();
                     if (pXSteal->locked) // ignore locked regions
                         continue;
 
@@ -8405,36 +8509,36 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     bool crouch = (pSteal->flags & kModernTypeFlag8); // target must crouch
                     //bool floor = (pSteal->cstat & CSTAT_SPRITE_BLOCK); // target (or dude?) must touch floor of the sector
 
-                    if (trgt) {
+                    if (trgt) 
+                    {
 
                         if (pXSteal->data1 > 0)
                         {
                             if (approxDist(abs(pSteal->x - pSpr->x) >> 4, abs(pSteal->y - pSpr->y) >> 4) >= pXSteal->data1)
                                 continue;
 
-                        } else if (pSpr->sectnum != pSteal->sectnum)
+                        } 
+                        else if (pSpr->sectnum != pSteal->sectnum)
                             continue;
 
                         if (crouch && pPlayer->posture == kPostureStand)
                             continue;
-
                     }
 
-
-                    if (dude) {
-
+                    if (dude) 
+                    {
                         if (pXSteal->data1 > 0)
                         {
                             if (approxDist(abs(pSteal->x - pSprite->x) >> 4, abs(pSteal->y - pSprite->y) >> 4) >= pXSteal->data1)
                                 continue;
 
-                        } else if (pSprite->sectnum != pSteal->sectnum)
+                        } 
+                        else if (pSprite->sectnum != pSteal->sectnum)
                             continue;
-
                     }
 
-                    if (itCanHear) {
-
+                    if (itCanHear) 
+                    {
                         if (fixd)
                             hearChance = ClipLow(hearChance, pXSteal->data2);
 
@@ -8442,11 +8546,10 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         if (fixd)  hearChance = mod; else hearChance += mod;
 
                         hearChance = ClipRange(hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-
                     }
 
-                    if (itCanSee) {
-
+                    if (itCanSee) 
+                    {
                         if (fixd)
                             seeChance = ClipLow(seeChance, pXSteal->data3);
 
@@ -8456,43 +8559,43 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         seeChance = ClipRange(seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                     }
 
-
                     // trigger this region if target gonna be spot
                     if (pXSteal->txID && pXSprite->data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
-                        trTriggerSprite(pSteal->index, pXSteal, kCmdToggle);
-
+                        trTriggerSprite(iactor, kCmdToggle);
                    
                     // continue search another stealth regions to affect chances
-
                 }
-
             }
 
-            if (itCanHear && hearChance > 0) {
-                DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
+            if (itCanHear && hearChance > 0) 
+            {
+                DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", actor->GetIndex(), pPlayer->nPlayer + 1);
                 pXSprite->data3 = ClipRange(pXSprite->data3 + hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-                if (!stealth) {
-                    target = pSpr->index;
+                if (!stealth) 
+                {
+                    newtarget = pPlayer->actor();
                     break;
-            }
+                }
             }
 
-            if (itCanSee && seeChance > 0) {
+            if (itCanSee && seeChance > 0) 
+            {
                 //DPrintf(DMSG_SPAMMY, "Patrol dude #%d seeing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
                 //pXSprite->data3 += seeChance;
                 pXSprite->data3 = ClipRange(pXSprite->data3 + seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-                if (!stealth) {
-                    target = pSpr->index;
+                if (!stealth) 
+                {
+                    newtarget = pPlayer->actor();
                     break;
                 }
             }
-
         }
 
         // add check for corpses?
 
-        if ((pXSprite->data3 = ClipRange(pXSprite->data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue) {
-            target = pSpr->index;
+        if ((pXSprite->data3 = ClipRange(pXSprite->data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue) 
+        {
+            newtarget = pPlayer->actor();
             break;
         }
 
@@ -8501,17 +8604,25 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
     }
 
-    if (target >= 0) return target;
+    if (newtarget) return newtarget;
     pXSprite->data3 -= ClipLow(((kPercFull * pXSprite->data3) / kMaxPatrolSpotValue) >> 2, 3);
-    return -1;
+    return nullptr;
 }
 
-void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    auto destactor = &bloodActors[pDest->index];
+void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool copy, bool init) 
+{
+    XSPRITE* pXSource = &sourceactor->x();
+    XSPRITE* pXDest = &destactor->x();
+
     // copy flags
-    if (copy) {
-    
+    if (copy) 
+    {
         pXDest->dudeFlag4  = pXSource->dudeFlag4;
         pXDest->dudeAmbush = pXSource->dudeAmbush;
         pXDest->dudeGuard  = pXSource->dudeGuard;
@@ -8520,138 +8631,141 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
 
         if (pXSource->unused1 & kDudeFlagStealth) pXDest->unused1 |= kDudeFlagStealth;
         else pXDest->unused1 &= ~kDudeFlagStealth;
-    
     }
 
     // do init
-    if (init) {
-
-        if (!pXDest->dudeFlag4) {
-
+    if (init) 
+    {
+        if (!pXDest->dudeFlag4) 
+        {
             if (aiInPatrolState(pXDest->aiState))
-                aiPatrolStop(pDest, -1);
-
-        } else {
-
+                aiPatrolStop(destactor, nullptr);
+        }
+        else 
+        {
             if (aiInPatrolState(pXDest->aiState))
                 return;
             
-            pXDest->target_i = -1; // reset the target
+            destactor->SetTarget(nullptr);
             pXDest->stateTimer = 0;
             
-            
-            aiPatrolSetMarker(pDest, pXDest);
+            aiPatrolSetMarker(destactor);
             if (spriteIsUnderwater(destactor)) aiPatrolState(destactor, kAiStatePatrolWaitW);
             else aiPatrolState(destactor, kAiStatePatrolWaitL);
             pXDest->data3 = 0; // reset the spot progress
-
         }
-
     }
-
 }
 
-bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (pXSprite->unused2 == kPatrolMoveForward) return (pXMarker->data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
-    else return (findNextMarker(pXMarker, kPatrolMoveBackward) >= 0) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
+bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker) 
+{
+    if (actor->x().unused2 == kPatrolMoveForward) return (marker->x().data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
+    else return (findNextMarker(marker, kPatrolMoveBackward) != nullptr) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void aiPatrolThink(DBloodActor* actor) {
-
+void aiPatrolThink(DBloodActor* actor)
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
 
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    
 
-    int nTarget, stateTimer, nMarker = pXSprite->target_i;
-    if ((nTarget = aiPatrolSearchTargets(pSprite, pXSprite)) != -1) {
-        aiPatrolStop(pSprite, nTarget, pXSprite->dudeAmbush);
+    DBloodActor* targetactor;
+    int stateTimer;
+    auto markeractor = actor->GetTarget();
+    if ((targetactor = aiPatrolSearchTargets(actor)) != nullptr) 
+    {
+        aiPatrolStop(actor, targetactor, pXSprite->dudeAmbush);
         return;
     }
 
     
     bool crouch = (pXSprite->unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
-    if (!spriRangeIsFine(nMarker) || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor)))) {
-        aiPatrolStop(pSprite, -1);
+    if (markeractor == nullptr || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor)))) 
+    {
+        aiPatrolStop(actor, nullptr);
         return;
     }
     
-    auto markeractor = &bloodActors[nMarker];
     spritetype* pMarker = &markeractor->s();
     XSPRITE* pXMarker = &markeractor->x();
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
     bool isFinal = ((!pXSprite->unused2 && pXMarker->data2 == -1) || (pXSprite->unused2 && pXMarker->data1 == -1));
     bool reached = false;
     
-    if (aiPatrolWaiting(pXSprite->aiState)) {
-        
+    if (aiPatrolWaiting(pXSprite->aiState)) 
+    {
         //viewSetSystemMessage("WAIT %d / %d", pXSprite->targetY, pXSprite->stateTimer);
         
-        if (pXSprite->stateTimer > 0 || pXMarker->data1 == pXMarker->data2) {
-
+        if (pXSprite->stateTimer > 0 || pXMarker->data1 == pXMarker->data2) 
+        {
             if (pExtra->flying)
-                zvel[pSprite->index] = Random2(0x8000);
+                actor->zvel = Random2(0x8000);
 
             // turn while waiting
-            if (pMarker->flags & kModernTypeFlag16) {
-                
+            if (pMarker->flags & kModernTypeFlag16) 
+            {
                 stateTimer = pXSprite->stateTimer;
                 
-                if (--pXSprite->unused4 <= 0) {
-                    
+                if (--pXSprite->unused4 <= 0) 
+                {
                     if (uwater) aiPatrolState(actor, kAiStatePatrolTurnW);
                     else if (crouch) aiPatrolState(actor, kAiStatePatrolTurnC);
                     else aiPatrolState(actor, kAiStatePatrolTurnL);
                     pXSprite->unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
-
                 }
 
                 // must restore stateTimer for waiting
                 pXSprite->stateTimer = stateTimer;
             }
-
-
             return;
-
         }
 
         // trigger at departure
-        if (pXMarker->triggerOff) {
-
+        if (pXMarker->triggerOff) 
+        {
             // send command
-            if (pXMarker->txID) {
-
+            if (pXMarker->txID) 
+            {
                 evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
-            } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
-                aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+            }
+            else if (pXMarker->command == kCmdDudeFlagsSet) 
+            {
+                aiPatrolFlagsMgr(markeractor, actor, true, true);
                 if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                     return;
-
             }
-
-
         }
 
         // release the enemy
-        if (isFinal) {
-            aiPatrolStop(pSprite, -1);
+        if (isFinal) 
+        {
+            aiPatrolStop(actor, nullptr);
             return;
         }
 
         // move next marker
-        aiPatrolSetMarker(pSprite, pXSprite);
+        aiPatrolSetMarker(actor);
 
-    } else if (aiPatrolTurning(pXSprite->aiState)) {
-
+    } else if (aiPatrolTurning(pXSprite->aiState)) 
+    {
         //viewSetSystemMessage("TURN");
-        if ((int)pSprite->ang == (int)pXSprite->goalAng) {
-            
+        if ((int)pSprite->ang == (int)pXSprite->goalAng) 
+        {
             // save imer for waiting
             stateTimer = pXSprite->stateTimer;
             
@@ -8661,55 +8775,49 @@ void aiPatrolThink(DBloodActor* actor) {
             
             // must restore it
             pXSprite->stateTimer = stateTimer;
-
         }
-        
-        
         return;
 
-    } else if ((reached = aiPatrolMarkerReached(actor)) == true) {
-
+    }
+    else if ((reached = aiPatrolMarkerReached(actor)) == true) 
+    {
         pXMarker->isTriggered = pXMarker->triggerOnce; // can't select this marker for path anymore if true
 
-        if (pMarker->flags > 0) {
-            
+        if (pMarker->flags > 0) 
+        {
             if ((pMarker->flags & kModernTypeFlag2) && (pMarker->flags & kModernTypeFlag1)) crouch = !crouch;
             else if (pMarker->flags & kModernTypeFlag2) crouch = false;
             else if ((pMarker->flags & kModernTypeFlag1) && aiCanCrouch(actor)) crouch = true;
-
         }
 
-        if (pXMarker->waitTime > 0 || pXMarker->data1 == pXMarker->data2) {
-
+        if (pXMarker->waitTime > 0 || pXMarker->data1 == pXMarker->data2) 
+        {
             // take marker's angle
-            if (!(pMarker->flags & kModernTypeFlag4)) {
-
+            if (!(pMarker->flags & kModernTypeFlag4)) 
+            {
                 pXSprite->goalAng = ((!(pMarker->flags & kModernTypeFlag8) && pXSprite->unused2) ? pMarker->ang + kAng180 : pMarker->ang) & 2047;
                 if ((int)pSprite->ang != (int)pXSprite->goalAng) // let the enemy play move animation while turning
                     return;
-
             }
 
             if (markeractor->GetOwner() == actor)
                 markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
             // trigger at arrival
-            if (pXMarker->triggerOn) {
-
+            if (pXMarker->triggerOn) 
+            {
                 // send command
-                if (pXMarker->txID) {
-
+                if (pXMarker->txID) 
+                {
                     evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
-
+                } 
+                else if (pXMarker->command == kCmdDudeFlagsSet) 
+                {
                 // copy dude flags for current dude
-                } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
-                    aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+                    aiPatrolFlagsMgr(markeractor, actor, true, true);
                     if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                         return;
-
                 }
-            
             }
 
             if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
@@ -8719,22 +8827,20 @@ void aiPatrolThink(DBloodActor* actor) {
             if (pXMarker->waitTime)
                 pXSprite->stateTimer = (pXMarker->waitTime * 120) / 10;
 
-
             if (pMarker->flags & kModernTypeFlag16)
                 pXSprite->unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
 
             return;
-
-        
-        } else {
-        
+        }
+        else 
+        {
             if (markeractor->GetOwner() == actor)
                 markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
-            if (pXMarker->triggerOn || pXMarker->triggerOff) {
-
-                if (pXMarker->txID) {
-
+            if (pXMarker->triggerOn || pXMarker->triggerOff) 
+            {
+                if (pXMarker->txID) 
+                {
                     // send command at arrival
                     if (pXMarker->triggerOn)
                         evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
@@ -8744,27 +8850,25 @@ void aiPatrolThink(DBloodActor* actor) {
                         evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
-                } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
-                    aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+                }
+                else if (pXMarker->command == kCmdDudeFlagsSet) 
+                {
+                    aiPatrolFlagsMgr(markeractor, actor, true, true);
                     if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                         return;
-
                 }
-
             }
 
             // release the enemy
-            if (isFinal) {
-                aiPatrolStop(pSprite, -1);
+            if (isFinal) 
+            {
+                aiPatrolStop(actor, nullptr);
                 return;
             }
 
             // move the next marker
-            aiPatrolSetMarker(pSprite, pXSprite);
-
+            aiPatrolSetMarker(actor);
         }
-
     }
     
     nnExtAiSetDirection(actor, getangle(pMarker->x - pSprite->x, pMarker->y - pSprite->y));
@@ -8776,38 +8880,57 @@ void aiPatrolThink(DBloodActor* actor) {
     return;
 
 }
-// ------------------------------------------------
 
-int listTx(XSPRITE* pXRedir, int tx) {
-    if (txIsRanged(&bloodActors[pXRedir->reference])) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int listTx(DBloodActor* actor, int tx) 
+{
+    if (txIsRanged(actor)) 
+    {
+        XSPRITE* pXRedir = &actor->x();
         if (tx == -1) tx = pXRedir->data1;
         else if (tx < pXRedir->data4) tx++;
         else tx = -1;
-    } else {
-        if (tx == -1) {
-            for (int i = 0; i <= 3; i++) {
-                if ((tx = GetDataVal(&bloodActors[pXRedir->reference], i)) <= 0) continue;
+    } 
+    else 
+    {
+        if (tx == -1) 
+        {
+            for (int i = 0; i <= 3; i++) 
+            {
+                if ((tx = GetDataVal(actor, i)) <= 0) continue;
                 else return tx;
             }
-        } else {
+        } 
+        else 
+        {
             int saved = tx; bool savedFound = false;
-            for (int i = 0; i <= 3; i++) {
-                tx = GetDataVal(&bloodActors[pXRedir->reference], i);
+            for (int i = 0; i <= 3; i++) 
+            {
+                tx = GetDataVal(actor, i);
                 if (savedFound && tx > 0) return tx;
                 else if (tx != saved) continue;
                 else savedFound = true;
             }
         }
-        
         tx = -1;
     }
-
     return tx;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 DBloodActor* evrIsRedirector(DBloodActor* actor) 
 {
-    if (actor) 
+    if (actor)
     {
         switch (actor->s().type) 
         {
@@ -8818,23 +8941,31 @@ DBloodActor* evrIsRedirector(DBloodActor* actor)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
-XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx) 
+{
     if (!gEventRedirectsUsed) return NULL;
     else if (pXRedir && (*tx = listTx(pXRedir, *tx)) != -1)
         return pXRedir;
 
     int id = 0;
-    switch (objType) {
+    switch (objType) 
+    {
         case OBJ_SECTOR:
             if (!xsectRangeIsFine(objXIndex)) return NULL;
             id = xsector[objXIndex].txID;
             break;
         case OBJ_SPRITE:
-            if (!xspriRangeIsFine(objXIndex)) return NULL;
-            id = xsprite[objXIndex].txID;
+            if (!objActor) return NULL;
+            id = objActor->x().txID;
             break;
         case OBJ_WALL:
             if (!xwallRangeIsFine(objXIndex)) return NULL;
@@ -8844,14 +8975,18 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
             return NULL;
     }
 
-    int nIndex = (pXRedir) ? pXRedir->reference : -1; bool prevFound = false;
-    for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) {
+    bool prevFound = false;
+    for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) 
+    {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        auto rxactor = evrIsRedirector(rxBucket[i].GetActor());
-        if (!rxactor || !rxactor->hasX()) continue;
-
-        if (prevFound || nIndex == -1) { *tx = listTx(&rxactor->x(), *tx); return &rxactor->x(); }
-        else if (nIndex != rxactor->s().index) continue;
+        auto pXSpr = evrIsRedirector(rxBucket[i].actor);
+        if (!pXSpr) continue;
+        else if (prevFound || pXRedir == nullptr) 
+        {
+            *tx = listTx(pXSpr, *tx); 
+            return pXSpr; 
+        }
+        else if (pXRedir != pXSpr) continue;
         else prevFound = true;
     }
 
@@ -8859,23 +8994,38 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
     return NULL;
 }
 
+//---------------------------------------------------------------------------
+//
 // this function checks if all TX objects have the same value
-bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
-    
+//
+//---------------------------------------------------------------------------
+
+bool incDecGoalValueIsReached(DBloodActor* actor) 
+{
+    XSPRITE* pXSprite = &actor->x();
     if (pXSprite->data3 != pXSprite->sysData1) return false;
-    char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = int(strlen(buffer)); int rx = -1;
-    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].GetActor())) continue;
-        for (int a = 0; a < len; a++) {
+    char buffer[5]; 
+    snprintf(buffer, 5, "%d", abs(pXSprite->data1)); 
+    int len = int(strlen(buffer)); 
+    int rx = -1;
+
+    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
+    {
+        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].actor)) continue;
+        for (int a = 0; a < len; a++) 
+        {
             if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;
         }
     }
 
-    XSPRITE* pXRedir = NULL; // check redirected TX buckets
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
-        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-            for (int a = 0; a < len; a++) {
+    DBloodActor* pXRedir = nullptr; // check redirected TX buckets
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, actor, pXRedir, &rx)) != nullptr) 
+    {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+        {
+            for (int a = 0; a < len; a++) 
+            {
                 if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
                     return false;
             }
@@ -8885,49 +9035,70 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     return true;
 }
 
-void seqSpawnerOffSameTx(XSPRITE* pXSource) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    for (int i = 0; i < kMaxXSprites; i++) {
-        
-        XSPRITE* pXSprite = &xsprite[i];
-        if (pXSprite->reference != pXSource->reference && spriRangeIsFine(pXSprite->reference)) {
-            if (sprite[pXSprite->reference].type != kModernSeqSpawner) continue;
-            else if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) {
-                evKillActor(&bloodActors[pXSprite->reference]);
-                pXSprite->state = 0;
-            }
+void seqSpawnerOffSameTx(DBloodActor* actor) 
+{
+    auto pXSource = &actor->x();
+    BloodSpriteIterator it;
+    while (auto iactor = it.Next())
+    {
+        if (iactor->s().type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
+        XSPRITE* pXSprite = &iactor->x();
+        if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) 
+        {
+            evKillActor(iactor);
+            pXSprite->state = 0;
         }
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // this function can be called via sending numbered command to TX kChannelModernEndLevelCustom
 // it allows to set custom next level instead of taking it from INI file.
-void levelEndLevelCustom(int nLevel) {
+//
+//---------------------------------------------------------------------------
 
+void levelEndLevelCustom(int nLevel) 
+{
     gGameOptions.uGameFlags |= GF_AdvanceLevel;
     gNextLevel = FindMapByIndex(currentLevel->cluster, nLevel + 1);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
     if (pSprite->statnum != kStatProjectile) return;
-    int nAngle = getangle(actor->xvel(), actor->yvel());
+    int nAngle = getangle(actor->xvel, actor->yvel);
     int nRadius = 0x55555;
 
     for (int i = 0; i < 8; i++)
     {
-        spritetype* pBurst = &actSpawnSprite(actor, 5)->s();
+        auto burstactor = actSpawnSprite(actor, 5);
+        if (!burstactor) break;
+        spritetype* pBurst = &burstactor->s();
 
         pBurst->type = pSprite->type;
         pBurst->shade = pSprite->shade;
         pBurst->picnum = pSprite->picnum;
 
         pBurst->cstat = pSprite->cstat;
-        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
+        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) 
+        {
             pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
-            evPostActor(&bloodActors[pBurst->index], 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
+            evPostActor(burstactor, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
         }
 
         pBurst->pal = pSprite->pal;
@@ -8936,9 +9107,9 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
         pBurst->xrepeat = pSprite->xrepeat / 2;
         pBurst->yrepeat = pSprite->yrepeat / 2;
         pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].angleOfs) & 2047);
-        pBurst->owner = pSprite->owner;
+        burstactor->SetOwner(actor);
 
-        actBuildMissile(&bloodActors[pBurst->index], &bloodActors[pSprite->index]);
+        actBuildMissile(burstactor, actor);
 
         int nAngle2 = (i << 11) / 8;
         int dx = 0;
@@ -8950,14 +9121,20 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
             dz >>= 1;
         }
         RotateVector(&dx, &dy, nAngle);
-        xvel[pBurst->index] += dx;
-        yvel[pBurst->index] += dy;
-        zvel[pBurst->index] += dz;
-        evPostActor(&bloodActors[pBurst->index], 960, kCallbackRemove);
+        burstactor->xvel += dx;
+        burstactor->yvel += dy;
+        burstactor->zvel += dz;
+        evPostActor(burstactor, 960, kCallbackRemove);
     }
     evPostActor(actor, 0, kCallbackRemove);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void callbackMakeMissileBlocking(DBloodActor* actor, int) // 23
 {
@@ -8971,11 +9148,12 @@ void callbackGenDudeUpdate(DBloodActor* actor, int) // 24
         genDudeUpdate(actor);
 }
 
-void clampSprite(spritetype* pSprite, int which) {
-
+void clampSprite(DBloodActor* actor, int which) 
+{
+    auto pSprite = &actor->s();
     int zTop, zBot;
-    if (pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors) {
-
+    if (pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors) 
+    {
         GetSpriteExtents(pSprite, &zTop, &zBot);
         if (which & 0x01)
             pSprite->z += ClipHigh(getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y) - zBot, 0);

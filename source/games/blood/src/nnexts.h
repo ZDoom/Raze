@@ -366,7 +366,7 @@ bool IsKillableDude(DBloodActor* pSprite);
 bool isActive(DBloodActor* nSprite);
 int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex);
 bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex, int value);
-bool incDecGoalValueIsReached(XSPRITE* pXSprite);
+bool incDecGoalValueIsReached(DBloodActor* pXSprite);
 int getSpriteMassBySize(DBloodActor* pSprite);
 bool ceilIsTooLow(DBloodActor* pSprite);
 void levelEndLevelCustom(int nLevel);
@@ -380,21 +380,20 @@ bool condCheckSprite(DBloodActor* pXCond, int cmpOp, bool PUSH);
 bool condCheckPlayer(DBloodActor* pXCond, int cmpOp, bool PUSH);
 bool condCheckDude(DBloodActor* pXCond, int cmpOp, bool PUSH);
 void condUpdateObjectIndex(DBloodActor* oldplayer, DBloodActor* newplayer);
-XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx);
-int listTx(XSPRITE* pXRedir, int tx);
-void seqSpawnerOffSameTx(XSPRITE* pXSource);
+DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActor, DBloodActor* redir, int* tx);
+void seqSpawnerOffSameTx(DBloodActor* pXSource);
 //  -------------------------------------------------------------------------   //
-void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite);
+void aiPatrolSetMarker(DBloodActor* actor);
 void aiPatrolThink(DBloodActor* actor);
-void aiPatrolStop(spritetype* pSprite, int target, bool alarm = false);
-void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain);
-void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget);
+void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm = false);
+void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain);
+void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor);
 void aiPatrolState(DBloodActor* pSprite, int state);
 void aiPatrolMove(DBloodActor* actor);
 DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker);
 bool aiPatrolMarkerReached(DBloodActor*);
-bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker);
-void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init);
+bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker);
+void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool copy, bool init);
 void aiPatrolRandGoalAng(DBloodActor* actor);
 void aiPatrolTurn(DBloodActor* actor);
 inline int aiPatrolGetVelocity(int speed, int value) {
@@ -421,9 +420,9 @@ inline bool aiInPatrolState(int nAiStateType) {
     return (nAiStateType >= kAiStatePatrolBase && nAiStateType < kAiStatePatrolMax);
 }
 //  -------------------------------------------------------------------------   //
-bool readyForCrit(spritetype* pHunter, spritetype* pVictim);
+bool readyForCrit(DBloodActor* pHunter, DBloodActor* pVictim);
 int sectorInMotion(int nSector);
-void clampSprite(spritetype* pSprite, int which = 0x03);
+void clampSprite(DBloodActor* actor, int which = 3);
 #endif
 
 inline bool valueIsBetween(int val, int min, int max)
