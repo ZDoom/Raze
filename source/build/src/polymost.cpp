@@ -3252,7 +3252,7 @@ void polymost_drawsprite(int32_t snum)
             break;
     }
 
-    if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
+    if ((unsigned)spritenum < MAXSPRITES)
         show2dsprite.Set(spritenum);
 
 _drawsprite_return:
