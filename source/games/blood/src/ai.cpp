@@ -49,7 +49,7 @@ bool dudeIsPlayingSeq(DBloodActor *actor, int nSeq)
     if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
     {
         DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-        if (seqGetID(3, pSprite->extra) == pDudeInfo->seqStartID + nSeq && seqGetStatus(3, pSprite->extra) >= 0)
+        if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
             return true;
     }
     return false;
@@ -998,7 +998,6 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
     if (source)
     {
         spritetype *pSource = &source->s();
-        int nSource = pSource->index;
         if (pSprite == pSource) return 0;
         else if (actor->GetTarget() == nullptr) // if no target, give the dude a target
         {
@@ -1043,7 +1042,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                         }
                     }
 
-                    DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, pSprite->index);
+                    DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, actor->GetIndex());
                 }
 
                 return nDamage;
@@ -1547,7 +1546,7 @@ void aiThinkTarget(DBloodActor* actor)
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
 			PLAYER* pPlayer = &gPlayer[p];
-            if (actor->GetOwner() == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
@@ -1564,7 +1563,7 @@ void aiThinkTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
                 aiActivateDude(actor);
                 return;
             }
@@ -1595,7 +1594,7 @@ void aiLookForTarget(DBloodActor* actor)
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
 			PLAYER* pPlayer = &gPlayer[p];
-            if (actor->GetOwner() == pPlayer->actor() || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
                 continue;
             int x = pPlayer->pSprite->x;
             int y = pPlayer->pSprite->y;
@@ -1611,7 +1610,7 @@ void aiLookForTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
                 aiActivateDude(actor);
                 return;
             }
@@ -1671,7 +1670,7 @@ void aiProcessDudes(void)
         if (pXSprite->aiState && pXSprite->aiState->moveFunc)
             pXSprite->aiState->moveFunc(actor);
 
-        if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (pSprite->index & 3)) // ouch, ouch! :(
+        if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (actor->GetIndex() & 3)) // ouch, ouch! :(
             pXSprite->aiState->thinkFunc(actor);
 
         switch (pSprite->type) {
@@ -1682,7 +1681,7 @@ void aiProcessDudes(void)
 				if (pExtra->slaveCount > 0) updateTargetOfSlaves(actor);
 				if (pExtra->pLifeLeech != nullptr) updateTargetOfLeech(actor);
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
-				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0))
+				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(actor) < 0))
 				{
 					aiGenDudeNewState(actor, pXSprite->aiState->nextState);
                 }

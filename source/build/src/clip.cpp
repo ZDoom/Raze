@@ -1081,7 +1081,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
             const int32_t cstat = sprite[j].cstat;
             int32_t daz, daz2;
 
-            if (cstat & CSTAT_SPRITE_NOFIND) continue;
+            if (sprite[j].cstat2 & CSTAT2_SPRITE_NOFIND) continue;
             if (cstat&dasprclipmask)
             {
                 int32_t clipyou = 0;
@@ -1417,7 +1417,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
             auto const spr = (uspriteptr_t)&sprite[z];
             uint32_t const cstat = spr->cstat;
 
-            if (cstat & CSTAT_SPRITE_NOFIND)
+            if (spr->cstat2 & CSTAT2_SPRITE_NOFIND)
                 continue;
 
 #ifdef USE_OPENGL

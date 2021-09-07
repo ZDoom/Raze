@@ -688,7 +688,6 @@ extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
 
 extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
 extern void(*initspritelists_replace)(void);
-extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);
 extern int32_t(*deletesprite_replace)(int16_t spritenum);
 extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
 extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum);

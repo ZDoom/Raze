@@ -60,7 +60,6 @@ CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widesc
 		data = getQAV(fileSystem.GetResourceId(fileSystem.FindFile(name)));
 		if (data)
 		{
-			data->nSprite = -1;
 			data->x = a3;
 			data->y = a4;
 			duration = data->duration;

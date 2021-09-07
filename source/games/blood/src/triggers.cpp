@@ -49,15 +49,16 @@ unsigned int GetWaveValue(unsigned int nPhase, int nType)
     return nPhase;
 }
 
-char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
+bool SetSpriteState(DBloodActor* actor, int nState)
 {
-    auto actor = &bloodActors[nSprite];
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
     if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
         return 0;
     pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
     evKillActor(actor);
-    if ((sprite[nSprite].flags & kHitagRespawn) != 0 && sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax)
+    if ((pSprite->flags & kHitagRespawn) != 0 && pSprite->inittype >= kDudeBase && pSprite->inittype < kDudeMax)
     {
         pXSprite->respawnPending = 3;
         evPostActor(actor, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
@@ -75,7 +76,7 @@ char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
     return 1;
 }
 
-char SetWallState(int nWall, XWALL *pXWall, int nState)
+bool SetWallState(int nWall, XWALL *pXWall, int nState)
 {
     if ((pXWall->busy&0xffff) == 0 && pXWall->state == nState)
         return 0;
@@ -94,7 +95,7 @@ char SetWallState(int nWall, XWALL *pXWall, int nState)
     return 1;
 }
 
-char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
+bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
 {
     if ((pXSector->busy&0xffff) == 0 && pXSector->state == nState)
         return 0;
@@ -190,10 +191,10 @@ unsigned int GetSourceBusy(EVENT a1)
     return 0;
 }
 
-void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
+void LifeLeechOperate(DBloodActor* actor, EVENT event)
 {
-    auto actor = &bloodActors[pSprite->index];
-
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
     switch (event.cmd) {
     case kCmdSpritePush:
     {
@@ -225,7 +226,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
             if (!pXSprite->stateTimer)
             {
                 spritetype *pTarget = &target->s();
-                if (pTarget->statnum == kStatDude && !(pTarget->flags&32) && pTarget->extra > 0 && pTarget->extra < kMaxXSprites)
+                if (pTarget->statnum == kStatDude && !(pTarget->flags&32) && target->hasX())
                 {
                     int top, bottom;
                     GetSpriteExtents(pSprite, &top, &bottom);
@@ -272,13 +273,13 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
     actPostSprite(actor, kStatFree);
 }
 
-void ActivateGenerator(int);
+void ActivateGenerator(DBloodActor*);
 
-void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
+void OperateSprite(DBloodActor* actor, EVENT event)
 {
-    auto actor = &bloodActors[nSprite];
-    spritetype *pSprite = &sprite[nSprite];
-    
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+
     #ifdef NOONE_EXTENSIONS
     if (gModernMap && modernTypeOperateSprite(actor, event))
         return;
@@ -300,7 +301,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         
         switch (event.cmd) {
             case kCmdOff:
-                SetSpriteState(nSprite, pXSprite, 0);
+                SetSpriteState(actor, 0);
                 break;
             case kCmdSpriteProximity:
                 if (pXSprite->state) break;
@@ -308,8 +309,8 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             case kCmdOn:
             case kCmdSpritePush:
             case kCmdSpriteTouch:
-                if (!pXSprite->state) SetSpriteState(nSprite, pXSprite, 1);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                if (!pXSprite->state) SetSpriteState(actor, 1);
+                aiActivateDude(actor);
                 break;
         }
 
@@ -322,27 +323,27 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         if (pXSprite->health <= 0) break; 
         switch (event.cmd) {
             case kCmdOff:
-                if (!SetSpriteState(nSprite, pXSprite, 0)) break;
-                seqSpawn(40, 3, pSprite->extra, -1);
+                if (!SetSpriteState(actor, 0)) break;
+                seqSpawn(40, actor, -1);
                 break;
             case kCmdOn:
-                if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                seqSpawn(38, 3, pSprite->extra, nMGunOpenClient);
+                if (!SetSpriteState(actor, 1)) break;
+                seqSpawn(38, actor, nMGunOpenClient);
                 if (pXSprite->data1 > 0)
                     pXSprite->data2 = pXSprite->data1;
                 break;
         }
         break;
     case kThingFallingRock:
-        if (SetSpriteState(nSprite, pXSprite, 1))
+        if (SetSpriteState(actor, 1))
             pSprite->flags |= 7;
         break;
     case kThingWallCrack:
-        if (SetSpriteState(nSprite, pXSprite, 0))
+        if (SetSpriteState(actor, 0))
             actPostSprite(actor, kStatFree);
         break;
     case kThingCrateFace:
-        if (SetSpriteState(nSprite, pXSprite, 0))
+        if (SetSpriteState(actor, 0))
             actPostSprite(actor, kStatFree);
         break;
     case kTrapZapSwitchable:
@@ -367,13 +368,13 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     case kTrapFlame:
         switch (event.cmd) {
             case kCmdOff:
-                if (!SetSpriteState(nSprite, pXSprite, 0)) break;
-                seqSpawn(40, 3, pSprite->extra, -1);
+                if (!SetSpriteState(actor, 0)) break;
+                seqSpawn(40, actor, -1);
                 sfxKill3DSound(pSprite, 0, -1);
                 break;
             case kCmdOn:
-                if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                seqSpawn(38, 3, pSprite->extra, -1);
+                if (!SetSpriteState(actor, 1)) break;
+                seqSpawn(38, actor, -1);
                 sfxPlay3DSound(pSprite, 441, 0, 0);
                 break;
         }
@@ -381,30 +382,30 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     case kSwitchPadlock:
         switch (event.cmd) {
             case kCmdOff:
-                SetSpriteState(nSprite, pXSprite, 0);
+                SetSpriteState(actor, 0);
                 break;
             case kCmdOn:
-                if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                seqSpawn(37, 3, pSprite->extra, -1);
+                if (!SetSpriteState(actor, 1)) break;
+                seqSpawn(37, actor, -1);
                 break;
             default:
-                SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
-                if (pXSprite->state) seqSpawn(37, 3, pSprite->extra, -1);
+                SetSpriteState(actor, pXSprite->state ^ 1);
+                if (pXSprite->state) seqSpawn(37, actor, -1);
                 break;
         }
         break;
     case kSwitchToggle:
         switch (event.cmd) {
             case kCmdOff:
-                if (!SetSpriteState(nSprite, pXSprite, 0)) break;
+                if (!SetSpriteState(actor, 0)) break;
                 sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
                 break;
             case kCmdOn:
-                if (!SetSpriteState(nSprite, pXSprite, 1)) break;
+                if (!SetSpriteState(actor, 1)) break;
                 sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
                 break;
             default:
-                if (!SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1)) break;
+                if (!SetSpriteState(actor, pXSprite->state ^ 1)) break;
                 if (pXSprite->state) sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
                 else sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
                 break;
@@ -413,15 +414,15 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     case kSwitchOneWay:
         switch (event.cmd) {
             case kCmdOff:
-                if (!SetSpriteState(nSprite, pXSprite, 0)) break;
+                if (!SetSpriteState(actor, 0)) break;
                 sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
                 break;
             case kCmdOn:
-                if (!SetSpriteState(nSprite, pXSprite, 1)) break;
+                if (!SetSpriteState(actor, 1)) break;
                 sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
                 break;
             default:
-                if (!SetSpriteState(nSprite, pXSprite, pXSprite->restState ^ 1)) break;
+                if (!SetSpriteState(actor, pXSprite->restState ^ 1)) break;
                 if (pXSprite->state) sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
                 else sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
                 break;
@@ -447,15 +448,14 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             evSendActor(actor, pXSprite->txID, kCmdLink);
 
         if (pXSprite->data1 == pXSprite->data2) 
-            SetSpriteState(nSprite, pXSprite, 1);
+            SetSpriteState(actor, 1);
         else 
-            SetSpriteState(nSprite, pXSprite, 0);
+            SetSpriteState(actor, 0);
 
         break;
     case kMarkerDudeSpawn:
         if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeMax) 
         {
-            auto actor = &bloodActors[pSprite->index];
             auto spawned = actSpawnDude(actor, pXSprite->data1, -1, 0);
             if (spawned) {
                 XSPRITE *pXSpawn = &spawned->x();
@@ -481,7 +481,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     case kMarkerEarthQuake:
         pXSprite->triggerOn = 0;
         pXSprite->isTriggered = 1;
-        SetSpriteState(nSprite, pXSprite, 1);
+        SetSpriteState(actor, 1);
         for (int p = connecthead; p >= 0; p = connectpoint2[p]) {
             spritetype *pPlayerSprite = gPlayer[p].pSprite;
             int dx = (pSprite->x - pPlayerSprite->x)>>4;
@@ -497,22 +497,22 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     case kThingArmedTNTStick:
     case kThingArmedTNTBundle:
     case kThingArmedSpray:
-        actExplodeSprite(&bloodActors[pSprite->index]);
+        actExplodeSprite(actor);
         break;
     case kTrapExploder:
         switch (event.cmd) {
             case kCmdOn:
-                SetSpriteState(nSprite, pXSprite, 1);
+                SetSpriteState(actor, 1);
                 break;
             default:
                 pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
-                actExplodeSprite(&bloodActors[pSprite->index]);
+                actExplodeSprite(actor);
                 break;
         }
         break;
     case kThingArmedRemoteBomb:
         if (pSprite->statnum != kStatRespawn) {
-            if (event.cmd != kCmdOn) actExplodeSprite(&bloodActors[pSprite->index]);
+            if (event.cmd != kCmdOn) actExplodeSprite(actor);
             else {
                 sfxPlay3DSound(pSprite, 454, 0, 0);
                 evPostActor(actor, 18, kCmdOff);
@@ -533,13 +533,13 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                     pXSprite->Proximity = 1;
                     break;
                 default:
-                    actExplodeSprite(&bloodActors[pSprite->index]);
+                    actExplodeSprite(actor);
                     break;
             }
         }
         break;
     case kThingDroppedLifeLeech:
-        LifeLeechOperate(pSprite, pXSprite, event);
+        LifeLeechOperate(actor, event);
         break;
     case kGenTrigger:
     case kGenDripWater:
@@ -552,10 +552,10 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     case kGenSound:
         switch (event.cmd) {
             case kCmdOff:
-                SetSpriteState(nSprite, pXSprite, 0);
+                SetSpriteState(actor, 0);
                 break;
             case kCmdRepeat:
-                if (pSprite->type != kGenTrigger) ActivateGenerator(nSprite);
+                if (pSprite->type != kGenTrigger) ActivateGenerator(actor);
                 if (pXSprite->txID) evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                 if (pXSprite->busyTime > 0) {
                     int nRand = Random2(pXSprite->data1);
@@ -564,7 +564,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 break;
             default:
                 if (!pXSprite->state) {
-                    SetSpriteState(nSprite, pXSprite, 1);
+                    SetSpriteState(actor, 1);
                     evPostActor(actor, 0, kCmdRepeat);
                 }
                 break;
@@ -586,29 +586,29 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     case kThingZombieHead:
         switch (event.cmd) {
             case kCmdOff:
-                if (!SetSpriteState(nSprite, pXSprite, 0)) break;
-                actActivateGibObject(&bloodActors[pXSprite->reference]);
+                if (!SetSpriteState(actor, 0)) break;
+                actActivateGibObject(actor);
                 break;
             case kCmdOn:
-                if (!SetSpriteState(nSprite, pXSprite, 1)) break;
-                actActivateGibObject(&bloodActors[pXSprite->reference]);
+                if (!SetSpriteState(actor, 1)) break;
+                actActivateGibObject(actor);
                 break;
             default:
-                if (!SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1)) break;
-                actActivateGibObject(&bloodActors[pXSprite->reference]);
+                if (!SetSpriteState(actor, pXSprite->state ^ 1)) break;
+                actActivateGibObject(actor);
                 break;
         }
         break;
     default:
         switch (event.cmd) {
             case kCmdOff:
-                SetSpriteState(nSprite, pXSprite, 0);
+                SetSpriteState(actor, 0);
                 break;
             case kCmdOn:
-                SetSpriteState(nSprite, pXSprite, 1);
+                SetSpriteState(actor, 1);
                 break;
             default:
-                SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
+                SetSpriteState(actor, pXSprite->state ^ 1);
                 break;
         }
         break;
@@ -712,16 +712,13 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
 
 void SectorStartSound(int nSector, int nState)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
+        spritetype *pSprite = &actor->s();
+        if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector && actor->hasX())
         {
-            int nXSprite = pSprite->extra;
-            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            XSPRITE *pXSprite = &actor->x();
             if (nState)
             {
                 if (pXSprite->data3)
@@ -738,16 +735,13 @@ void SectorStartSound(int nSector, int nState)
 
 void SectorEndSound(int nSector, int nState)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
+        spritetype* pSprite = &actor->s();
+        if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector && actor->hasX())
         {
-            int nXSprite = pSprite->extra;
-            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            XSPRITE *pXSprite = &actor->x();
             if (nState)
             {
                 if (pXSprite->data2)
@@ -764,13 +758,12 @@ void SectorEndSound(int nSector, int nState)
 
 void PathSound(int nSector, int nSound)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype* pSprite = &actor->s();
         if (pSprite->statnum == kStatDecoration && pSprite->type == kSoundSector)
-            sfxPlay3DSound(pSprite, nSound, 0, 0);
+            sfxPlay3DSound(actor, nSound, 0, 0);
     }
 }
 
@@ -903,7 +896,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
         {
             if (vbp)
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-            viewBackupSpriteLoc(pSprite->index, pSprite);
+            viewBackupSpriteLoc(actor);
             pSprite->ang = (pSprite->ang+v14)&2047;
             pSprite->x = x+vc-a4;
             pSprite->y = y+v8-a5;
@@ -912,7 +905,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
         {
             if (vbp)
                 RotatePoint((int*)& x, (int*)& y, -vbp, a4, a4);
-            viewBackupSpriteLoc(pSprite->index, pSprite);
+            viewBackupSpriteLoc(actor);
             pSprite->ang = (pSprite->ang-v14)&2047;
             pSprite->x = x-(vc-a4);
             pSprite->y = y-(v8-a5);
@@ -926,7 +919,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
             {
                 if (v14)
                     RotatePoint((int*)&pSprite->x, (int*)&pSprite->y, v14, v20, v24);
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->ang = (pSprite->ang+v14)&2047;
                 pSprite->x += v28;
                 pSprite->y += v2c;
@@ -945,25 +938,25 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
         int oldZ = pSector->floorz;
         baseFloor[nSector] = pSector->floorz = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16);
         velFloor[nSector] += (pSector->floorz-oldZ)<<8;
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+
+        BloodSectIterator it(nSector);
+        while (auto actor = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype* pSprite = &actor->s();
             if (pSprite->statnum == kStatMarker || pSprite->statnum == kStatPathMarker)
                 continue;
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
             if (pSprite->cstat&8192)
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->floorz-oldZ;
             }
             else if (pSprite->flags&2)
                 pSprite->flags |= 4;
             else if (oldZ <= bottom && !(pSprite->cstat&48))
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->floorz-oldZ;
             }
         }
@@ -974,71 +967,71 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
         int oldZ = pSector->ceilingz;
         baseCeil[nSector] = pSector->ceilingz = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16);
         velCeil[nSector] += (pSector->ceilingz-oldZ)<<8;
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+
+        BloodSectIterator it(nSector);
+        while (auto actor = it.Next())
         {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype* pSprite = &actor->s();
             if (pSprite->statnum == kStatMarker || pSprite->statnum == kStatPathMarker)
                 continue;
             if (pSprite->cstat&16384)
             {
-                viewBackupSpriteLoc(nSprite, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->ceilingz-oldZ;
             }
         }
     }
 }
 
-int GetHighestSprite(int nSector, int nStatus, int *a3)
+DBloodActor* GetHighestSprite(int nSector, int nStatus, int *z)
 {
-    *a3 = sector[nSector].floorz;
-    int v8 = -1;
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    *z = sector[nSector].floorz;
+    DBloodActor* found = nullptr;
+
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        if (sprite[nSprite].statnum == nStatus || nStatus == kStatFree)
+        spritetype* pSprite = &actor->s();
+        if (pSprite->statnum == nStatus || nStatus == kStatFree)
         {
-            spritetype *pSprite = &sprite[nSprite];
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
-            if (top-pSprite->z > *a3)
+            if (top-pSprite->z > *z)
             {
-                *a3 = top-pSprite->z;
-                v8 = nSprite;
+                *z = top-pSprite->z;
+                found = actor;
             }
         }
     }
-    return v8;
+    return found;
 }
 
-int GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
+DBloodActor* GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
 {
     assert(pzTop != NULL && pzBot != NULL);
     assert(nSector < (unsigned int)numsectors);
-    int vc = -1;
+    DBloodActor* found = nullptr;
     sectortype *pSector = &sector[nSector];
-    int vbp = pSector->ceilingz;
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    int foundz = pSector->ceilingz;
+
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+        spritetype* pSprite = &actor->s();
         if (pSprite->statnum == kStatDude || pSprite->statnum == kStatThing)
         {
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
-            if (vbp > top)
+            GetActorExtents(actor, &top, &bottom);
+            if (foundz > top)
             {
-                vbp = top;
+                foundz = top;
                 *pzTop = top;
                 *pzBot = bottom;
-                vc = nSprite;
+                found = actor;
             }
         }
     }
-    return vc;
+    return found;
 }
 
 int VCrushBusy(unsigned int nSector, unsigned int a2)
@@ -1061,7 +1054,7 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
     if (dz2 != 0)
         v10 += MulScale(dz2, GetWaveValue(a2, nWave), 16);
     int v18;
-    if (GetHighestSprite(nSector, 6, &v18) >= 0 && vc >= v18)
+    if (GetHighestSprite(nSector, 6, &v18) && vc >= v18)
         return 1;
     viewInterpolateSector(nSector, &sector[nSector]);
     if (dz1 != 0)
@@ -1100,7 +1093,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
             spritetype *pSprite = &actor->s();
             if (pSprite->cstat&8192)
             {
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z = actor->basePoint.z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
@@ -1114,7 +1107,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
             spritetype* pSprite = &actor->s();
             if (pSprite->cstat & 16384)
             {
-                viewBackupSpriteLoc(pSprite->index, pSprite);
+                viewBackupSpriteLoc(actor);
                 pSprite->z = actor->basePoint.z + MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
@@ -1143,12 +1136,11 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     else
         vbp = -65536/ClipLow((120*pXSector->busyTimeB)/10, 1);
     int top, bottom;
-    int nSprite = GetCrushedSpriteExtents(nSector,&top,&bottom);
-    auto actor = &bloodActors[nSprite];
-    if (nSprite >= 0 && a2 > pXSector->busy)
+    auto actor = GetCrushedSpriteExtents(nSector,&top,&bottom);
+    if (actor && a2 > pXSector->busy)
     {
         spritetype *pSprite = &actor->s();
-        assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+        assert(actor->hasX());
         XSPRITE *pXSprite = &actor->x();
         if (pXSector->onCeilZ > pXSector->offCeilZ || pXSector->onFloorZ < pXSector->offFloorZ)
         {
@@ -1179,10 +1171,10 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
             }
         }
     }
-    else if (nSprite >= 0 && a2 < pXSector->busy)
+    else if (actor && a2 < pXSector->busy)
     {
         spritetype* pSprite = &actor->s();
-        assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+        assert(actor->hasX());
         XSPRITE* pXSprite = &actor->x();
         if (pXSector->offCeilZ > pXSector->onCeilZ || pXSector->offFloorZ < pXSector->onFloorZ)
         {
@@ -1407,21 +1399,20 @@ void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID bu
     }
 }
 
-char SectorContainsDudes(int nSector)
+bool SectorContainsDudes(int nSector)
 {
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        if (sprite[nSprite].statnum == kStatDude)
+        spritetype* pSprite = &actor->s();
+        if (pSprite->statnum == kStatDude)
             return 1;
     }
     return 0;
 }
 
-void TeleFrag(int nKiller, int nSector)
+void TeleFrag(DBloodActor* killer, int nSector)
 {
-    auto killer = &bloodActors[nKiller];
     BloodSectIterator it(nSector);
     while (auto victim = it.Next())
     {
@@ -1456,8 +1447,11 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 pPlayer = NULL;
             if (bPlayer || !SectorContainsDudes(pDest->sectnum))
             {
-                if (!(gGameOptions.uNetGameFlags&2))
-                    TeleFrag(pXSector->data, pDest->sectnum);
+                if (!(gGameOptions.uNetGameFlags & 2))
+                {
+                    auto plr = pXSector->data != -1 ? gPlayer[pXSector->data].actor : nullptr;
+                    TeleFrag(plr, pDest->sectnum);
+                }
                 pSprite->x = pDest->x;
                 pSprite->y = pDest->y;
                 pSprite->z += sector[pDest->sectnum].floorz-sector[nSector].floorz;
@@ -1465,9 +1459,8 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 ChangeActorSect(actor, pDest->sectnum);
                 sfxPlay3DSound(pDest, 201, -1, 0);
                 actor->xvel = actor->yvel = actor->zvel = 0;
-                int nSprite = actor->s().index;
-                gInterpolateSprite.Clear(nSprite);
-                viewBackupSpriteLoc(nSprite, pSprite);
+                actor->interpolated = false;
+                viewBackupSpriteLoc(actor);
                 if (pPlayer)
                 {
                     playerResetInertia(pPlayer);
@@ -1481,21 +1474,22 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
 
 void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
 {
-    int nSprite;
+    DBloodActor* actor;
     spritetype *pSprite = NULL;
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
     if (!pXSector->marker0) return;
     spritetype* pSprite2 = &pXSector->marker0->s();
-    XSPRITE *pXSprite2 = &xsprite[pSprite2->extra];
+    XSPRITE *pXSprite2 = &pXSector->marker0->x();
     int nId = pXSprite2->data2;
-    StatIterator it(kStatPathMarker);
-    while ((nSprite = it.NextIndex()) >= 0)
+    
+    BloodStatIterator it(kStatPathMarker);
+    while ((actor = it.Next()))
     {
-        pSprite = &sprite[nSprite];
+        pSprite = &actor->s();
         if (pSprite->type == kMarkerPath)
         {
-            pXSprite = &xsprite[pSprite->extra];
+            pXSprite = &actor->x();
             if (pXSprite->data1 == nId)
                 break;
         }
@@ -1504,17 +1498,17 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     // trigger marker after it gets reached
     #ifdef NOONE_EXTENSIONS
         if (gModernMap && pXSprite2->state != 1)
-            trTriggerSprite(pSprite2->index, pXSprite2, kCmdOn);
+            trTriggerSprite(pXSector->marker0, kCmdOn);
     #endif
 
-    if (nSprite < 0) {
+    if (actor == nullptr) {
         viewSetSystemMessage("Unable to find path marker with id #%d for path sector #%d", nId, nSector);
         pXSector->state = 0;
         pXSector->busy = 0;
         return;
     }
         
-    pXSector->marker1 = &bloodActors[nSprite];
+    pXSector->marker1 = actor;
     pXSector->offFloorZ = pSprite2->z;
     pXSector->onFloorZ = pSprite->z;
     switch (event.cmd) {
@@ -1629,31 +1623,32 @@ void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
 
 void InitPath(unsigned int nSector, XSECTOR *pXSector)
 {
-    int nSprite;
+    DBloodActor* actor = nullptr;
     spritetype *pSprite;
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
     int nId = pXSector->data;
-    StatIterator it(kStatPathMarker);
-    while ((nSprite = it.NextIndex()) >= 0)
+
+    BloodStatIterator it(kStatPathMarker);
+    while ((actor = it.Next()))
     {
-        pSprite = &sprite[nSprite];
-        if (pSprite->type == kMarkerPath)
+        pSprite = &actor->s();
+        if (pSprite->type == kMarkerPath && actor->hasX())
         {
-            pXSprite = &xsprite[pSprite->extra];
+            pXSprite = &actor->x();
             if (pXSprite->data1 == nId)
                 break;
         }
     }
     
-    if (nSprite < 0) {
+    if (pSprite == nullptr) {
         //I_Error("Unable to find path marker with id #%d", nId);
         viewSetSystemMessage("Unable to find path marker with id #%d for path sector #%d", nId, nSector);
         return;
         
     }
 
-    pXSector->basePath = pXSector->marker0 = &bloodActors[nSprite];
+    pXSector->basePath = pXSector->marker0 = actor;
     if (pXSector->state)
         evPostSector(nSector, 0, kCmdOn);
 }
@@ -1687,8 +1682,10 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
     }
 }
 
-void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
-    spritetype *pSprite = &sprite[nSprite];
+void LinkSprite(DBloodActor* actor, EVENT event) 
+{
+    spritetype *pSprite = &actor->s();
+    auto pXSprite = &actor->x();
     int nBusy = GetSourceBusy(event);
 
     switch (pSprite->type)  {
@@ -1700,9 +1697,9 @@ void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
 
                 pXSprite->data1 = actor2 && actor2->hasX()? actor2->x().data1 : 0;
                 if (pXSprite->data1 == pXSprite->data2)
-                    SetSpriteState(nSprite, pXSprite, 1);
+                    SetSpriteState(actor, 1);
                 else
-                    SetSpriteState(nSprite, pXSprite, 0);
+                    SetSpriteState(actor, 0);
             }
         }
         break;
@@ -1710,7 +1707,7 @@ void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
         {
             pXSprite->busy = nBusy;
             if ((pXSprite->busy & 0xffff) == 0)
-                SetSpriteState(nSprite, pXSprite, FixedToInt(nBusy));
+                SetSpriteState(actor, FixedToInt(nBusy));
         }
         break;
     }
@@ -1762,28 +1759,26 @@ void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command) {
     }
 }
 
-void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command) {
+void trTriggerSprite(DBloodActor* actor, int command) 
+{
+    auto pXSprite = &actor->x();
+
     if (!pXSprite->locked && !pXSprite->isTriggered) {
         
         if (pXSprite->triggerOnce)
             pXSprite->isTriggered = 1;
 
         if (pXSprite->Decoupled && pXSprite->txID > 0)
-           evSendActor(&bloodActors[nSprite], pXSprite->txID, (COMMAND_ID)pXSprite->command);
+           evSendActor(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
         
         else {
             EVENT event;
             event.cmd = command;
-            OperateSprite(nSprite, pXSprite, event);
+            OperateSprite(actor, event);
         }
 
     }
 }
-
-void trTriggerSprite(DBloodActor* actor, int command) {
-    trTriggerSprite(actor->s().index, &actor->x(), command);
-}
-
 
 void trMessageSector(unsigned int nSector, EVENT event) {
     assert(nSector < (unsigned int)numsectors);
@@ -1828,22 +1823,24 @@ void trMessageWall(unsigned int nWall, EVENT event) {
     }
 }
 
-void trMessageSprite(unsigned int nSprite, EVENT event) {
-    if (sprite[nSprite].statnum != kStatFree) {
+void trMessageSprite(DBloodActor* actor, EVENT event) 
+{
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+    if (pSprite->statnum != kStatFree) {
 
-        XSPRITE* pXSprite = &xsprite[sprite[nSprite].extra];
         if (!pXSprite->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
             switch (event.cmd) {
                 case kCmdLink:
-                    LinkSprite(nSprite, pXSprite, event);
+                    LinkSprite(actor, event);
                     break;
                 #ifdef NOONE_EXTENSIONS
                 case kCmdModernUse:
-                    modernTypeTrigger(3, 0, &bloodActors[nSprite], event);
+                    modernTypeTrigger(SS_SPRITE, 0, actor, event);
                     break;
                 #endif
                 default:
-                    OperateSprite(nSprite, pXSprite, event);
+                    OperateSprite(actor, event);
                     break;
             }
         }
@@ -1871,14 +1868,14 @@ void ProcessMotion(void)
             else
                 pXSector->bobTheta += MulScale(pXSector->bobSpeed, pXSector->busy, 16);
             int vdi = MulScale(Sin(pXSector->bobTheta), pXSector->bobZRange<<8, 30);
-            int nSprite;
-            SectIterator it(nSector);
-            while ((nSprite = it.NextIndex()) >= 0)
+
+            BloodSectIterator it(nSector);
+            while (auto actor = it.Next())
             {
-                spritetype *pSprite = &sprite[nSprite];
+                auto pSprite = &actor->s();
                 if (pSprite->cstat&24576)
                 {
-                    viewBackupSpriteLoc(nSprite, pSprite);
+                    viewBackupSpriteLoc(actor);
                     pSprite->z += vdi;
                 }
             }
@@ -1887,11 +1884,11 @@ void ProcessMotion(void)
                 int floorZ = pSector->floorz;
                 viewInterpolateSector(nSector, pSector);
                 pSector->floorz = baseFloor[nSector]+vdi;
-                int nSprite;
-                SectIterator it(nSector);
-                while ((nSprite = it.NextIndex()) >= 0)
+
+                BloodSectIterator it(nSector);
+                while (auto actor = it.Next())
                 {
-                    spritetype *pSprite = &sprite[nSprite];
+                    auto pSprite = &actor->s();
                     if (pSprite->flags&2)
                         pSprite->flags |= 4;
                     else
@@ -1900,7 +1897,7 @@ void ProcessMotion(void)
                         GetSpriteExtents(pSprite, &top, &bottom);
                         if (bottom >= floorZ && (pSprite->cstat&48) == 0)
                         {
-                            viewBackupSpriteLoc(nSprite, pSprite);
+                            viewBackupSpriteLoc(actor);
                             pSprite->z += vdi;
                         }
                     }
@@ -1911,16 +1908,16 @@ void ProcessMotion(void)
                 int ceilZ = pSector->ceilingz;
                 viewInterpolateSector(nSector, pSector);
                 pSector->ceilingz = baseCeil[nSector]+vdi;
-                int nSprite;
-                SectIterator it(nSector);
-                while ((nSprite = it.NextIndex()) >= 0)
+
+                BloodSectIterator it(nSector);
+                while (auto actor = it.Next())
                 {
-                    spritetype *pSprite = &sprite[nSprite];
+                    auto pSprite = &actor->s();
                     int top, bottom;
                     GetSpriteExtents(pSprite, &top, &bottom);
                     if (top <= ceilZ && (pSprite->cstat&48) == 0)
                     {
-                        viewBackupSpriteLoc(nSprite, pSprite);
+                        viewBackupSpriteLoc(actor);
                         pSprite->z += vdi;
                     }
                 }
@@ -1996,7 +1993,7 @@ void trProcessBusy(void)
     AlignSlopes();
 }
 
-void InitGenerator(int);
+void InitGenerator(DBloodActor*);
 
 void trInit(void)
 {
@@ -2102,16 +2099,17 @@ void trInit(void)
             }
         }
     }
-    for (int i = 0; i < kMaxSprites; i++)
+
+    it.Reset();
+    while (auto actor = it.Next())
     {
-        int nXSprite = sprite[i].extra;
-        if (sprite[i].statnum < kStatFree && nXSprite > 0)
+        auto pSprite = &actor->s();
+        if (pSprite->statnum < kStatFree && actor->hasX())
         {
-            assert(nXSprite < kMaxXSprites);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            auto pXSprite = &actor->x();
             if (pXSprite->state)
                 pXSprite->busy = 65536;
-            switch (sprite[i].type) {
+            switch (pSprite->type) {
             case kSwitchPadlock:
                 pXSprite->triggerOnce = 1;
                 break;
@@ -2119,9 +2117,9 @@ void trInit(void)
             case kModernRandom:
             case kModernRandom2:
                 if (!gModernMap || pXSprite->state == pXSprite->restState) break;
-                evPostActor(&bloodActors[i], (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
                 if (pXSprite->waitTime > 0)
-                    evPostActor(&bloodActors[i], (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+                    evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             case kModernSeqSpawner:
             case kModernObjDataAccumulator:
@@ -2129,9 +2127,9 @@ void trInit(void)
             case kModernEffectSpawner:
             case kModernWindGenerator:
                 if (pXSprite->state == pXSprite->restState) break;
-                evPostActor(&bloodActors[i], 0, kCmdRepeat);
+                evPostActor(actor, 0, kCmdRepeat);
                 if (pXSprite->waitTime > 0)
-                    evPostActor(&bloodActors[i], (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
+                    evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             #endif
             case kGenTrigger:
@@ -2143,18 +2141,18 @@ void trInit(void)
             case kGenBubbleMulti:
             case kGenMissileEctoSkull:
             case kGenSound:
-                InitGenerator(i);
+                InitGenerator(actor);
                 break;
             case kThingArmedProxBomb:
                 pXSprite->Proximity = 1;
                 break;
             case kThingFallingRock:
-                if (pXSprite->state) sprite[i].flags |= 7;
-                else sprite[i].flags &= ~7;
+                if (pXSprite->state) pSprite->flags |= 7;
+                else pSprite->flags &= ~7;
                 break;
             }
-            if (pXSprite->Vector) sprite[i].cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
-            if (pXSprite->Push) sprite[i].cstat |= 4096;
+            if (pXSprite->Vector) pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
+            if (pXSprite->Push) pSprite->cstat |= 4096;
         }
     }
     
@@ -2180,37 +2178,31 @@ void trTextOver(int nId)
         viewSetMessage(pzMessage, VanillaMode() ? 0 : 8, MESSAGE_PRIORITY_INI); // 8: gold
 }
 
-void InitGenerator(int nSprite)
+void InitGenerator(DBloodActor* actor)
 {
-    assert(nSprite < kMaxSprites);
-    spritetype *pSprite = &sprite[nSprite];
-    assert(pSprite->statnum != kMaxStatus);
-    int nXSprite = pSprite->extra;
-    assert(nXSprite > 0);
-    XSPRITE *pXSprite = &xsprite[nXSprite];
-    switch (sprite[nSprite].type) {
+    spritetype *pSprite = &actor->s();
+    assert(actor->hasX());
+    XSPRITE *pXSprite = &actor->x();
+    switch (pSprite->type) {
         case kGenTrigger:
             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
             pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
             break;
     }
     if (pXSprite->state != pXSprite->restState && pXSprite->busyTime > 0)
-        evPostActor(&bloodActors[nSprite], (120*(pXSprite->busyTime+Random2(pXSprite->data1)))/10, kCmdRepeat);
+        evPostActor(actor, (120*(pXSprite->busyTime+Random2(pXSprite->data1)))/10, kCmdRepeat);
 }
 
-void ActivateGenerator(int nSprite)
+void ActivateGenerator(DBloodActor* actor)
 {
-    assert(nSprite < kMaxSprites);
-    spritetype *pSprite = &sprite[nSprite];
-    assert(pSprite->statnum != kMaxStatus);
-    int nXSprite = pSprite->extra;
-    assert(nXSprite > 0);
-    XSPRITE *pXSprite = &xsprite[nXSprite];
+    spritetype *pSprite = &actor->s();
+    assert(actor->hasX());
+    XSPRITE *pXSprite = &actor->x();
     switch (pSprite->type) {
         case kGenDripWater:
         case kGenDripBlood: {
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
+            GetActorExtents(actor, &top, &bottom);
             actSpawnThing(pSprite->sectnum, pSprite->x, pSprite->y, bottom, (pSprite->type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
             break;
         }
@@ -2220,13 +2212,13 @@ void ActivateGenerator(int nSprite)
         case kGenMissileFireball:
             switch (pXSprite->data2) {
                 case 0:
-                    FireballTrapSeqCallback(3, &bloodActors[nSprite]);
+                    FireballTrapSeqCallback(3, actor);
                     break;
                 case 1:
-                    seqSpawn(35, 3, nXSprite, nFireballTrapClient);
+                    seqSpawn(35, actor, nFireballTrapClient);
                     break;
                 case 2:
-                    seqSpawn(36, 3, nXSprite, nFireballTrapClient);
+                    seqSpawn(36, actor, nFireballTrapClient);
                     break;
             }
             break;
@@ -2235,7 +2227,7 @@ void ActivateGenerator(int nSprite)
         case kGenBubble:
         case kGenBubbleMulti: {
             int top, bottom;
-            GetSpriteExtents(pSprite, &top, &bottom);
+            GetActorExtents(actor, &top, &bottom);
             gFX.fxSpawnActor((pSprite->type == kGenBubble) ? FX_23 : FX_26, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
             break;
         }
@@ -2262,7 +2254,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
         {
             pXSprite->data2--;
             if (pXSprite->data2 == 0)
-                evPostActor(&bloodActors[pXSprite->reference], 1, kCmdOff);
+                evPostActor(actor, 1, kCmdOff);
         }
         int dx = CosScale16(pSprite->ang)+Random2(1000);
         int dy = SinScale16(pSprite->ang)+Random2(1000);
@@ -2274,7 +2266,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
 
 void MGunOpenSeqCallback(int, DBloodActor* actor)
 {
-    seqSpawn(39, 3, actor->s().extra, nMGunFireClient);
+    seqSpawn(39, actor, nMGunFireClient);
 }
 
 

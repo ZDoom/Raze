@@ -73,7 +73,7 @@ struct BloodPlayer native
 	native int        swayHeight;
 	native int        swayWidth;
 	native int        nPlayer;  // Connect id
-	native int        nSprite;
+	//native int        nSprite;
 	native int        lifeMode;
 	native int        zView;
 	native int        zViewVel;
@@ -100,7 +100,7 @@ struct BloodPlayer native
 	//native Aim        aim;  // world
 	//native int        aimTarget;  // aim target sprite
 	native int        aimTargetsCount;
-	native short      aimTargets[16];
+	//native short      aimTargets[16];
 	native int        deathTime;
 	native int        pwUpTime[51];	// kMaxPowerUps
 	native int        fragCount;

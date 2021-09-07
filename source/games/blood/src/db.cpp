@@ -45,11 +45,9 @@ DBloodActor bloodActors[kMaxSprites];
 bool gModernMap = false;
 unsigned short gStatCount[kMaxStatus + 1];
 
-XSPRITE xsprite[kMaxXSprites];
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
 
-unsigned short nextXSprite[kMaxXSprites];
 int XWallsUsed, XSectorsUsed;
 
 
@@ -165,27 +163,27 @@ void qinitspritelists(void) // Replace
     {
         headspritestat[i] = -1;
     }
-    int const nMaxSprites = kMaxSprites;
-    for (short i = 0; i < nMaxSprites; i++)
+    for (short i = 0; i < kMaxSprites; i++)
     {
         sprite[i].sectnum = -1;
-        sprite[i].index = -1;
         InsertSpriteStat(i, kMaxStatus);
     }
     memset(gStatCount, 0, sizeof(gStatCount));
     Numsprites = 0;
 }
 
-int InsertSprite(int nSector, int nStat)
+DBloodActor* InsertSprite(int nSector, int nStat)
 {
     int nSprite = headspritestat[kMaxStatus];
     assert(nSprite < kMaxSprites);
     if (nSprite < 0)
     {
-        return nSprite;
+        I_Error("Out of sprites!"); // we cannot deal with this - and most of the calling code never checks...
+        return nullptr;
     }
     RemoveSpriteStat(nSprite);
     DBloodActor* actor = &bloodActors[nSprite];
+    actor->Clear();
     spritetype *pSprite = &actor->s();
     memset(pSprite, 0, sizeof(spritetype));
     InsertSpriteStat(nSprite, nStat);
@@ -194,19 +192,11 @@ int InsertSprite(int nSector, int nStat)
     pSprite->clipdist = 32;
     pSprite->xrepeat = pSprite->yrepeat = 64;
     actor->SetOwner(nullptr);
-    pSprite->extra = -1;
-    pSprite->index = nSprite;
-    actor->xvel = actor->yvel = actor->zvel = 0;
 
     Numsprites++;
 
     sprite[nSprite].time = leveltimer++;
-    return nSprite;
-}
-
-int qinsertsprite(short nSector, short nStat) // Replace
-{
-    return InsertSprite(nSector, nStat);
+    return actor;
 }
 
 int DeleteSprite(int nSprite)
@@ -214,10 +204,6 @@ int DeleteSprite(int nSprite)
     FVector3 pos = GetSoundPos(&sprite[nSprite].pos);
     soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
 
-    if (sprite[nSprite].extra > 0)
-    {
-        dbDeleteXSprite(sprite[nSprite].extra);
-    }
     assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
     RemoveSpriteStat(nSprite);
     assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
@@ -276,50 +262,6 @@ void InitFreeList(unsigned short *pList, int nCount)
     pList[0] = nCount - 1;
 }
 
-void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>&used)
-{
-    int lastfree = 0;
-    for (int i = 1; i < nCount; i++)
-    {
-        if (!used[i])
-        {
-            pList[i] = lastfree;
-            lastfree = i;
-        }
-    }
-    pList[0] = lastfree;
-}
-
-void InsertFree(unsigned short *pList, int nIndex)
-{
-    pList[nIndex] = pList[0];
-    pList[0] = nIndex;
-}
-
-unsigned short dbInsertXSprite(int nSprite)
-{
-    int nXSprite = nextXSprite[0];
-    nextXSprite[0] = nextXSprite[nXSprite];
-    if (nXSprite == 0)
-    {
-        I_Error("Out of free XSprites");
-    }
-    memset(&xsprite[nXSprite], 0, sizeof(XSPRITE));
-    bloodActors[nSprite].hit = {};
-    xsprite[nXSprite].reference = nSprite;
-    sprite[nSprite].extra = nXSprite;
-    return nXSprite;
-}
-
-void dbDeleteXSprite(int nXSprite)
-{
-    assert(xsprite[nXSprite].reference >= 0);
-    assert(sprite[xsprite[nXSprite].reference].extra == nXSprite);
-    InsertFree(nextXSprite, nXSprite);
-    sprite[xsprite[nXSprite].reference].extra = -1;
-    xsprite[nXSprite].reference = -1;
-}
-
 unsigned short dbInsertXWall(int nWall)
 {
     int nXWall = XWallsUsed++;
@@ -348,11 +290,6 @@ unsigned short dbInsertXSector(int nSector)
 
 void dbInit(void)
 {
-    InitFreeList(nextXSprite, kMaxXSprites);
-    for (int i = 1; i < kMaxXSprites; i++)
-    {
-        xsprite[i].reference = -1;
-    }
     XWallsUsed = XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
     for (int i = 1; i < kMaxXWalls; i++)
     {
@@ -861,7 +798,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     {
         RemoveSpriteStat(i);
         spritetypedisk load;
-        spritetype *pSprite = &sprite[i];
+        auto actor = &bloodActors[i];
+        actor->Clear();
+        spritetype *pSprite = &actor->s();
         fr.Read(&load, sizeof(spritetypedisk)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
         if (encrypted) // What were these people thinking? :(
         {
@@ -877,7 +816,6 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->statnum = LittleShort(load.statnum);
         pSprite->ang = LittleShort(load.ang);
         pSprite->owner = LittleShort(load.owner);
-        pSprite->index = LittleShort(load.index);
         pSprite->yvel = LittleShort(load.yvel);
         pSprite->inittype = LittleShort(load.inittype);
         pSprite->type = LittleShort(load.type);
@@ -893,16 +831,14 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->shade = load.shade;
         pSprite->blend = 0;
 
-        InsertSpriteSect(i, sprite[i].sectnum);
-        InsertSpriteStat(i, sprite[i].statnum);
+        InsertSpriteSect(i, pSprite->sectnum);
+        InsertSpriteStat(i, pSprite->statnum);
         Numsprites++;
-        sprite[i].index = i;
-        if (sprite[i].extra > 0)
+        if (pSprite->extra > 0)
         {
             char pBuffer[nXSpriteSize];
-            int nXSprite = dbInsertXSprite(i);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
-            memset(pXSprite, 0, sizeof(XSPRITE));
+            actor->addX();
+            XSPRITE *pXSprite = &actor->x();
             int nCount;
             if (!encrypted)
             {
@@ -915,7 +851,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             assert(nCount <= nXSpriteSize);
             fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
-            pXSprite->reference = bitReader.readSigned(14);
+            /*pXSprite->reference =*/ bitReader.readSigned(14);
             pXSprite->state = bitReader.readUnsigned(1);
             pXSprite->busy = bitReader.readUnsigned(17);
             pXSprite->txID = bitReader.readUnsigned(10);
@@ -966,7 +902,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->dudeAmbush = bitReader.readUnsigned(1);
             pXSprite->dudeGuard = bitReader.readUnsigned(1);
             pXSprite->dudeFlag4 = bitReader.readUnsigned(1);
-            pXSprite->target_i = bitReader.readSigned(16);
+            /*pXSprite->target_i = */ bitReader.readSigned(16);
             pXSprite->targetX = bitReader.readSigned(32);
             pXSprite->targetY = bitReader.readSigned(32);
             pXSprite->targetZ = bitReader.readSigned(32);
@@ -976,10 +912,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->stateTimer = bitReader.readUnsigned(16);
             pXSprite->aiState = NULL;
             bitReader.skipBits(32);
-            xsprite[sprite[i].extra].reference = i;
-            xsprite[sprite[i].extra].busy = IntToFixed(xsprite[sprite[i].extra].state);
+            pXSprite->busy = IntToFixed(pXSprite->state);
             if (!encrypted) {
-                xsprite[sprite[i].extra].lT |= xsprite[sprite[i].extra].lB;
+                pXSprite->lT |= pXSprite->lB;
             }
 
             #ifdef NOONE_EXTENSIONS

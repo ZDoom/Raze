@@ -61,7 +61,6 @@ bool automapping;
 bool gFullMap;
 FixedBitArray<MAXSECTORS> show2dsector;
 FixedBitArray<MAXWALLS> show2dwall;
-FixedBitArray<MAXSPRITES> show2dsprite;
 static int x_min_bound = INT_MAX, y_min_bound, x_max_bound, y_max_bound;
 
 CVAR(Color, am_twosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
@@ -269,7 +268,6 @@ void SerializeAutomap(FSerializer& arc)
 			// Only store what's needed. Unfortunately for sprites it is not that easy
 			.SerializeMemory("mappedsectors", show2dsector.Storage(), (numsectors + 7) / 8)
 			.SerializeMemory("mappedwalls", show2dwall.Storage(), (numwalls + 7) / 8)
-			.SerializeMemory("mappedsprites", show2dsprite.Storage(), MAXSPRITES / 8)
 			.EndObject();
 	}
 }
@@ -285,7 +283,6 @@ void ClearAutomap()
 {
 	show2dsector.Zero();
 	show2dwall.Zero();
-	show2dsprite.Zero();
 	x_min_bound = INT_MAX;
 }
 
@@ -623,7 +620,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	vertices.Resize(4);
 	for (auto sn : floorsprites)
 	{
-		if (!gFullMap && !show2dsprite[sn]) continue;
+		if (!gFullMap && !(sprite[sn].cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
 		auto spr = &sprite[sn];
 		vec2_t pp[4];
 		GetFlatSpritePosition(spr, spr->pos.vec2, pp, true);

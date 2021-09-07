@@ -49,7 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 EXTERN_CVAR(Bool, testnewrenderer)
 BEGIN_BLD_NS
 
-FixedBitArray<kMaxSprites> gInterpolateSprite;
 VIEW gPrevView[kMaxPlayers];
 VIEWPOS gViewPos;
 int gViewIndex;
@@ -118,7 +117,7 @@ void viewDrawAimedPlayerName(void)
     if (!cl_idplayers || (gView->aim.dx == 0 && gView->aim.dy == 0))
         return;
 
-    int hit = HitScan(gView->actor(), gView->zView, gView->aim.dx, gView->aim.dy, gView->aim.dz, CLIPMASK0, 512);
+    int hit = HitScan(gView->actor, gView->zView, gView->aim.dx, gView->aim.dy, gView->aim.dz, CLIPMASK0, 512);
     if (hit == 3)
     {
         if (gHitInfo.hitactor && gHitInfo.hitactor->IsPlayerActor())
@@ -628,23 +627,18 @@ void viewDrawScreen(bool sceneonly)
         }
         int brightness = 0;
 
-        int nSprite;
-        StatIterator it(kStatExplosion);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatExplosion);
+        while (auto actor = it.Next())
         {
-            spritetype* pSprite = &sprite[nSprite];
-            int nXSprite = pSprite->extra;
-            assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-            XSPRITE* pXSprite = &xsprite[nXSprite];
-            if (gotsector[pSprite->sectnum])
+            if (actor->hasX() && gotsector[actor->s().sectnum])
             {
-                brightness += pXSprite->data3 * 32;
+                brightness += actor->x().data3 * 32;
             }
         }
         it.Reset(kStatProjectile);
-        while ((nSprite = it.NextIndex()) >= 0)
+        while (auto actor = it.Next())
         {
-            spritetype* pSprite = &sprite[nSprite];
+            spritetype* pSprite = &actor->s();
             switch (pSprite->type) {
             case kMissileFlareRegular:
             case kMissileTeslaAlt:
@@ -661,11 +655,11 @@ void viewDrawScreen(bool sceneonly)
         getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
         if (cZ >= floorZ)
         {
-            cZ = floorZ - (gUpperLink[nSectnum] >= 0 ? 0 : (8 << 8));
+            cZ = floorZ - (getUpperLink(nSectnum) ? 0 : (8 << 8));
         }
         if (cZ <= ceilingZ)
         {
-            cZ = ceilingZ + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
+            cZ = ceilingZ + (getLowerLink(nSectnum) ? 0 : (8 << 8));
         }
         cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
@@ -699,7 +693,7 @@ void viewDrawScreen(bool sceneonly)
         int nClipDist = gView->pSprite->clipdist << 2;
         int vec, vf4;
         Collision c1, c2;
-        GetZRange(gView->actor(), &vf4, &c1, &vec, &c2, nClipDist, 0);
+        GetZRange(gView->actor, &vf4, &c1, &vec, &c2, nClipDist, 0);
         if (sceneonly) return;
 #if 0
         int tmpSect = nSectnum;
@@ -775,7 +769,6 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
     // [MR]: Confirm that this is correct as math doesn't match the variable names.
     int nCos = z * -bsin(a);
     int nSin = z * -bcos(a);
-    int nPSprite = gView->pSprite->index;
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
@@ -789,7 +782,7 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
             int nTile = pSprite->picnum;
             int ceilZ, floorZ;
             Collision ceilHit, floorHit;
-            GetZRange(gView->actor(), &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+            GetZRange(gView->actor, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
             int nTop, nBottom;
             GetSpriteExtents(pSprite, &nTop, &nBottom);
             int nScale = (pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z;

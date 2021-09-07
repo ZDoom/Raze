@@ -10,11 +10,10 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
 {
     int nSector = mirror[i].link;
     int nSector2 = mirror[i].wallnum;
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype* pSprite = &sprite[nSprite];
+        spritetype* pSprite = &actor->s();
         if (pSprite == gView->pSprite)
             continue;
         int top, bottom;
@@ -36,7 +35,6 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 tspritetype* pTSprite = &pm_tsprite[pm_spritesortcnt++];
                 *pTSprite = {};
                 pTSprite->type = pSprite->type;
-                pTSprite->index = pSprite->index;
                 pTSprite->sectnum = nSector2;
                 pTSprite->x = pSprite->x + dx;
                 pTSprite->y = pSprite->y + dy;
@@ -51,8 +49,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 pTSprite->yoffset = pSprite->yoffset;
                 pTSprite->cstat = pSprite->cstat;
                 pTSprite->statnum = kStatDecoration;
-                pTSprite->owner = pSprite->index;
-                pTSprite->extra = pSprite->extra;
+                pTSprite->owner = actor->GetSpriteIndex();
                 pTSprite->flags = pSprite->hitag | 0x200;
                 pTSprite->x = dx + interpolatedvalue(pSprite->ox, pSprite->x, interpolation);
                 pTSprite->y = dy + interpolatedvalue(pSprite->oy, pSprite->y, interpolation);
@@ -139,11 +136,11 @@ void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fix
     getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
     if (cZ >= floorZ)
     {
-        cZ = floorZ - (gUpperLink[nSectnum] >= 0 ? 0 : (8 << 8));
+        cZ = floorZ - (getUpperLink(nSectnum) ? 0 : (8 << 8));
     }
     if (cZ <= ceilingZ)
     {
-        cZ = ceilingZ + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
+        cZ = ceilingZ + (getLowerLink(nSectnum) ? 0 : (8 << 8));
     }
     cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 RORHACK:

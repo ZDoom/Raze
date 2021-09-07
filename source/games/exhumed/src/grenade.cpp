@@ -114,30 +114,32 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
 
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
+	auto pGrenadeSprite = &sprite[nGrenadeSprite];
+	auto pPlayerSprite = &sprite[nPlayerSprite];
 
-    short nAngle = sprite[nPlayerSprite].ang;
+    short nAngle = pPlayerSprite->ang;
 
     mychangespritesect(nGrenadeSprite, nPlayerViewSect[nPlayer]);
 
-    sprite[nGrenadeSprite].x = sprite[nPlayerSprite].x;
-    sprite[nGrenadeSprite].y = sprite[nPlayerSprite].y;
-    sprite[nGrenadeSprite].z = sprite[nPlayerSprite].z;
+    pGrenadeSprite->x = pPlayerSprite->x;
+    pGrenadeSprite->y = pPlayerSprite->y;
+    pGrenadeSprite->z = pPlayerSprite->z;
 
     if (nAngle < 0) {
-        nAngle = sprite[nPlayerSprite].ang;
+        nAngle = pPlayerSprite->ang;
     }
 
-    sprite[nGrenadeSprite].cstat &= 0x7FFF;
-    sprite[nGrenadeSprite].ang = nAngle;
+    pGrenadeSprite->cstat &= 0x7FFF;
+    pGrenadeSprite->ang = nAngle;
 
     if (push1 >= -3000)
     {
         int nVel = totalvel[nPlayer] << 5;
 
         GrenadeList[nGrenade].field_10 = ((90 - GrenadeList[nGrenade].field_E) * (90 - GrenadeList[nGrenade].field_E)) + nVel;
-        sprite[nGrenadeSprite].zvel = (-64 * push1) - 4352;
+        pGrenadeSprite->zvel = (-64 * push1) - 4352;
 
-        int nMov = movesprite(nGrenadeSprite, bcos(nAngle) * (sprite[nPlayerSprite].clipdist << 3), bsin(nAngle) * (sprite[nPlayerSprite].clipdist << 3), ecx, 0, 0, CLIPMASK1);
+        int nMov = movesprite(nGrenadeSprite, bcos(nAngle) * (pPlayerSprite->clipdist << 3), bsin(nAngle) * (pPlayerSprite->clipdist << 3), ecx, 0, 0, CLIPMASK1);
         if (nMov & 0x8000)
         {
             nAngle = GetWallNormal(nMov & 0x3FFF);
@@ -147,7 +149,7 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
     else
     {
         GrenadeList[nGrenade].field_10 = 0;
-        sprite[nGrenadeSprite].zvel = sprite[nPlayerSprite].zvel;
+        pGrenadeSprite->zvel = pPlayerSprite->zvel;
     }
 
     GrenadeList[nGrenade].x = bcos(nAngle, -4) * GrenadeList[nGrenade].field_10;
@@ -165,30 +167,32 @@ int BuildGrenade(int nPlayer)
 
     int nSprite = insertsprite(nPlayerViewSect[nPlayer], 201);
     assert(nSprite >= 0 && nSprite < kMaxSprites);
+	auto pSprite = &sprite[nSprite];
 
     int nPlayerSprite = PlayerList[nPlayer].nSprite;
+	auto pPlayerSprite = &sprite[nPlayerSprite];
 
-    sprite[nSprite].x = sprite[nPlayerSprite].x;
-    sprite[nSprite].y = sprite[nPlayerSprite].y;
-    sprite[nSprite].z = sprite[nPlayerSprite].z - 3840;
-    sprite[nSprite].shade = -64;
-    sprite[nSprite].xrepeat = 20;
-    sprite[nSprite].yrepeat = 20;
-    sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].pal = 0;
-    sprite[nSprite].clipdist = 30;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].ang = sprite[nPlayerSprite].ang;
-    sprite[nSprite].owner = nPlayerSprite;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].backuppos();
+    pSprite->x = pPlayerSprite->x;
+    pSprite->y = pPlayerSprite->y;
+    pSprite->z = pPlayerSprite->z - 3840;
+    pSprite->shade = -64;
+    pSprite->xrepeat = 20;
+    pSprite->yrepeat = 20;
+    pSprite->cstat = 0x8000;
+    pSprite->picnum = 1;
+    pSprite->pal = 0;
+    pSprite->clipdist = 30;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->ang = pPlayerSprite->ang;
+    pSprite->owner = nPlayerSprite;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->hitag = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->extra = -1;
+    pSprite->backuppos();
 
 //	GrabTimeSlot(3);
 
@@ -199,7 +203,7 @@ int BuildGrenade(int nPlayer)
     GrenadeList[nGrenade].nSprite = nSprite;
     GrenadeList[nGrenade].field_A = 0;
     GrenadeList[nGrenade].field_C = 0;
-    GrenadeList[nGrenade].field_6 = runlist_AddRunRec(sprite[nSprite].lotag - 1, nGrenade | 0x0F0000);
+    GrenadeList[nGrenade].field_6 = runlist_AddRunRec(pSprite->lotag - 1, nGrenade | 0x0F0000);
     GrenadeList[nGrenade].field_8 = runlist_AddRunRec(NewRun, nGrenade | 0x0F0000);
 
     nGrenadePlayer[nGrenade] = nPlayer;
@@ -214,7 +218,8 @@ void ExplodeGrenade(short nGrenade)
 
     short nPlayer = nGrenadePlayer[nGrenade];
     int nGrenadeSprite = GrenadeList[nGrenade].nSprite;
-    short nGrenadeSect = sprite[nGrenadeSprite].sectnum;
+	auto pGrenadeSprite = &sprite[nGrenadeSprite];
+    short nGrenadeSect = pGrenadeSprite->sectnum;
 
     GrenadeList[nGrenade].field_C = 1;
 
@@ -225,7 +230,7 @@ void ExplodeGrenade(short nGrenade)
     }
     else
     {
-        if (sprite[nGrenadeSprite].z < sector[nGrenadeSect].floorz)
+        if (pGrenadeSprite->z < sector[nGrenadeSect].floorz)
         {
             var_20 = 200;
             var_28 = 36;
@@ -244,13 +249,14 @@ void ExplodeGrenade(short nGrenade)
     if (GrenadeList[nGrenade].field_10 < 0)
     {
         short nPlayerSprite = PlayerList[nPlayer].nSprite;
-        short nAngle = sprite[nPlayerSprite].ang;
+		auto pPlayerSprite = &sprite[nPlayerSprite];
+        short nAngle = pPlayerSprite->ang;
 
-        sprite[nGrenadeSprite].z = sprite[nPlayerSprite].z;
-        sprite[nGrenadeSprite].x = bcos(nAngle, -5) + sprite[nPlayerSprite].x;
-        sprite[nGrenadeSprite].y = bsin(nAngle, -5) + sprite[nPlayerSprite].y;
+        pGrenadeSprite->z = pPlayerSprite->z;
+        pGrenadeSprite->x = bcos(nAngle, -5) + pPlayerSprite->x;
+        pGrenadeSprite->y = bsin(nAngle, -5) + pPlayerSprite->y;
 
-        changespritesect(nGrenadeSprite, sprite[nPlayerSprite].sectnum);
+        changespritesect(nGrenadeSprite, pPlayerSprite->sectnum);
 
         if (!PlayerList[nPlayer].invincibility) {
             PlayerList[nPlayer].nHealth = 1;
@@ -265,8 +271,8 @@ void ExplodeGrenade(short nGrenade)
 
     runlist_RadialDamageEnemy(nGrenadeSprite, nDamage, BulletInfo[kWeaponGrenade].nRadius);
 
-    BuildAnim(-1, var_28, 0, sprite[nGrenadeSprite].x, sprite[nGrenadeSprite].y, sprite[nGrenadeSprite].z, sprite[nGrenadeSprite].sectnum, var_20, 4);
-    AddFlash(sprite[nGrenadeSprite].sectnum, sprite[nGrenadeSprite].x, sprite[nGrenadeSprite].y, sprite[nGrenadeSprite].z, 128);
+    BuildAnim(-1, var_28, 0, pGrenadeSprite->x, pGrenadeSprite->y, pGrenadeSprite->z, pGrenadeSprite->sectnum, var_20, 4);
+    AddFlash(pGrenadeSprite->sectnum, pGrenadeSprite->x, pGrenadeSprite->y, pGrenadeSprite->z, 128);
 
     nGrenadePlayer[nGrenade] = -1;
     DestroyGrenade(nGrenade);
@@ -278,6 +284,7 @@ void FuncGrenade(int a, int, int nRun)
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
 
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
+	auto pGrenadeSprite = &sprite[nGrenadeSprite];
     short nSeq;
 
     if (GrenadeList[nGrenade].field_C)
@@ -308,7 +315,7 @@ void FuncGrenade(int a, int, int nRun)
         case 0x20000:
         {
             seq_MoveSequence(nGrenadeSprite, nSeq, GrenadeList[nGrenade].field_2 >> 8);
-            sprite[nGrenadeSprite].picnum = seq_GetSeqPicnum2(nSeq, GrenadeList[nGrenade].field_2 >> 8);
+            pGrenadeSprite->picnum = seq_GetSeqPicnum2(nSeq, GrenadeList[nGrenade].field_2 >> 8);
 
             GrenadeList[nGrenade].field_E--;
             if (!GrenadeList[nGrenade].field_E)
@@ -370,10 +377,10 @@ void FuncGrenade(int a, int, int nRun)
                     return;
                 }
 
-                int zVel = sprite[nGrenadeSprite].zvel;
+                int zVel = pGrenadeSprite->zvel;
 
                 Gravity(nGrenadeSprite);
-                int nMov = movesprite(nGrenadeSprite, GrenadeList[nGrenade].x, GrenadeList[nGrenade].y, sprite[nGrenadeSprite].zvel, sprite[nGrenadeSprite].clipdist >> 1, sprite[nGrenadeSprite].clipdist >> 1, CLIPMASK1);
+                int nMov = movesprite(nGrenadeSprite, GrenadeList[nGrenade].x, GrenadeList[nGrenade].y, pGrenadeSprite->zvel, pGrenadeSprite->clipdist >> 1, pGrenadeSprite->clipdist >> 1, CLIPMASK1);
 
                 if (!nMov)
                     return;
@@ -382,7 +389,7 @@ void FuncGrenade(int a, int, int nRun)
                 {
                     if (zVel)
                     {
-                        if (SectDamage[sprite[nGrenadeSprite].sectnum] > 0)
+                        if (SectDamage[pGrenadeSprite->sectnum] > 0)
                         {
                             ExplodeGrenade(nGrenade);
                             return;
@@ -392,14 +399,14 @@ void FuncGrenade(int a, int, int nRun)
 
                         D3PlayFX(StaticSound[kSound3], nGrenadeSprite);
 
-                        sprite[nGrenadeSprite].zvel = -(zVel >> 1);
+                        pGrenadeSprite->zvel = -(zVel >> 1);
 
-                        if (sprite[nGrenadeSprite].zvel > -1280)
+                        if (pGrenadeSprite->zvel > -1280)
                         {
                             D3PlayFX(StaticSound[kSound5], nGrenadeSprite);
                             GrenadeList[nGrenade].field_0 = 0;
                             GrenadeList[nGrenade].field_2 = 0;
-                            sprite[nGrenadeSprite].zvel = 0;
+                            pGrenadeSprite->zvel = 0;
                             GrenadeList[nGrenade].field_A = 1;
                         }
                     }

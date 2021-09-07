@@ -214,7 +214,7 @@ void SpawnBulletEject(PLAYER *pPlayer, int a2, int a3)
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int dz = pPlayer->zWeapon-(pPlayer->zWeapon-pPlayer->zView)/2;
-    fxSpawnEjectingBrass(pPlayer->actor(), dz, a2, a3);
+    fxSpawnEjectingBrass(pPlayer->actor, dz, a2, a3);
 }
 
 void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
@@ -223,7 +223,7 @@ void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int t = pPlayer->zWeapon - pPlayer->zView;
     int dz = pPlayer->zWeapon-t+(t>>2);
-    fxSpawnEjectingShell(pPlayer->actor(), dz, a2, a3);
+    fxSpawnEjectingShell(pPlayer->actor, dz, a2, a3);
 }
 
 void WeaponInit(void)
@@ -235,7 +235,6 @@ void WeaponInit(void)
             auto pQAV = getQAV(i);
             if (!pQAV)
                 I_Error("Could not load QAV %d\n", i);
-            pQAV->nSprite = -1;
         }
     };
 
@@ -288,7 +287,6 @@ void WeaponPlay(PLAYER *pPlayer)
     if (pPlayer->weaponQav == kQAVNone)
         return;
     auto pQAV = getQAV(pPlayer->weaponQav);
-    pQAV->nSprite = pPlayer->pSprite->index;
     int nTicks = pQAV->duration - pPlayer->weaponTimer;
     pQAV->Play(nTicks-4, nTicks, pPlayer->qavCallback, pPlayer);
 }
@@ -357,7 +355,7 @@ void UpdateAimVector(PLAYER * pPlayer)
     aim.dy = SinScale16(pPSprite->ang);
     aim.dz = pPlayer->slope;
     WEAPONTRACK *pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
-    int nTarget = -1;
+    DBloodActor* targetactor = nullptr;
     pPlayer->aimTargetsCount = 0;
     int autoaim = Autoaim(pPlayer->nPlayer);
     if (autoaim == 1 || (autoaim == 2 && !pWeaponTrack->bIsProjectile) || pPlayer->curWeapon == kWeapVoodooDoll || pPlayer->curWeapon == kWeapLifeLeech)
@@ -400,7 +398,7 @@ void UpdateAimVector(PLAYER * pPlayer)
             if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->angleRange)
                 continue;
             if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,x2,y2,z2,pSprite->sectnum))
-                pPlayer->aimTargets[pPlayer->aimTargetsCount++] = pSprite->index;
+                pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
             // Inlined?
             int dz = (lz-z2)>>8;
             int dy = (ly-y2)>>4;
@@ -417,16 +415,15 @@ void UpdateAimVector(PLAYER * pPlayer)
                 aim.dx = CosScale16(angle);
                 aim.dy = SinScale16(angle);
                 aim.dz = DivScale(dzCenter, nDist, 10);
-                nTarget = pSprite->index;
+                targetactor = actor;
             }
         }
         if (pWeaponTrack->thingAngle > 0)
         {
-            int nSprite;
-            StatIterator it(kStatThing);
-            while ((nSprite = it.NextIndex()) >= 0)
+            BloodStatIterator it(kStatThing);
+            while (auto actor = it.Next())
             {
-                pSprite = &sprite[nSprite];
+                pSprite = &actor->s();
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pSprite))
                     continue;
                 if (!(pSprite->flags&8))
@@ -452,7 +449,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
                     continue;
                 if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,pSprite->x,pSprite->y,pSprite->z,pSprite->sectnum))
-                    pPlayer->aimTargets[pPlayer->aimTargetsCount++] = nSprite;
+                    pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
                 // Inlined?
                 int dz2 = (lz-z2)>>8;
                 int dy2 = (ly-y2)>>4;
@@ -466,7 +463,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                     aim.dx = CosScale16(angle);
                     aim.dy = SinScale16(angle);
                     aim.dz = DivScale(dz, nDist, 10);
-                    nTarget = nSprite;
+                    targetactor = actor;
                 }
             }
         }
@@ -481,7 +478,7 @@ void UpdateAimVector(PLAYER * pPlayer)
     pPlayer->aim = pPlayer->relAim;
     RotateVector((int*)&pPlayer->aim.dx, (int*)&pPlayer->aim.dy, pPSprite->ang);
     pPlayer->aim.dz += pPlayer->slope;
-    pPlayer->aimTarget = &bloodActors[nTarget];
+    pPlayer->aimTarget = targetactor;
 }
 
 struct t_WeaponModes
@@ -1057,7 +1054,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
 
 void FirePitchfork(int, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     Aim *aim = &pPlayer->aim;
     int r1 = Random2(2000);
     int r2 = Random2(2000);
@@ -1214,7 +1211,7 @@ enum { kMaxShotgunBarrels = 4 };
 
 void FireShotgun(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     assert(nTrigger > 0 && nTrigger <= kMaxShotgunBarrels);
     if (nTrigger == 1)
     {
@@ -1261,7 +1258,7 @@ void EjectShell(int, PLAYER *pPlayer)
 
 void FireTommy(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     Aim *aim = &pPlayer->aim;
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     switch (nTrigger)
@@ -1300,7 +1297,7 @@ enum { kMaxSpread = 14 };
 
 void FireSpread(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1322,7 +1319,7 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1352,7 +1349,7 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1445,7 +1442,7 @@ void AltFireFlare(int nTrigger, PLAYER *pPlayer)
 void FireVoodoo(int nTrigger, PLAYER *pPlayer)
 {
     nTrigger--;
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     spritetype *pSprite = pPlayer->pSprite;
     if (nTrigger == 4)
     {
@@ -1503,7 +1500,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
 
 void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     if (nTrigger == 2) {
 
         // by NoOne: trying to simulate v1.0x voodoo here.
@@ -1514,8 +1511,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
             {
                 for (int i = 0; i < pPlayer->aimTargetsCount; i++)
                 {
-                    int nTarget = pPlayer->aimTargets[i];
-                    auto targetactor = &bloodActors[nTarget];
+                    auto targetactor = pPlayer->aimTargets[i];
                     spritetype* pTarget = &targetactor->s();
                     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                         continue;
@@ -1551,8 +1547,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
             int v4 = pPlayer->ammoCount[9] - (pPlayer->ammoCount[9] / nCount) * nCount;
             for (int i = 0; i < pPlayer->aimTargetsCount; i++)
             {
-                int nTarget = pPlayer->aimTargets[i];
-                auto targetactor = &bloodActors[nTarget];
+                auto targetactor = pPlayer->aimTargets[i];
                 spritetype* pTarget = &targetactor->s();
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                     continue;
@@ -1691,7 +1686,7 @@ void AltFireNapalm(int , PLAYER *pPlayer)
         pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         UseAmmo(pPlayer, 4, pXSprite->data4);
         seqSpawn(22, missile, -1);
-        actBurnSprite(pPlayer->actor(), missile, 600);
+        actBurnSprite(pPlayer->actor, missile, 600);
         evPostActor(missile, 0, kCallbackFXFlameLick);
         sfxPlay3DSound(missile, 480, 2, 0);
         pPlayer->visibility = 30;
@@ -1706,7 +1701,7 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(1000);
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     auto missileActor = playerFireMissile(pPlayer, 0, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, 315);
     if (missileActor)
     {
@@ -1722,7 +1717,7 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
 
 void AltFireLifeLeech(int , PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     sfxPlay3DSound(pPlayer->pSprite, 455, 2, 0);
     auto missile = playerFireThing(pPlayer, 0, -4730, kThingDroppedLifeLeech, 0x19999);
     if (missile)
@@ -1735,7 +1730,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
         pXSprite->DudeLockout = 1;
         pXSprite->data4 = ClipHigh(pPlayer->ammoCount[4], 12);
         pXSprite->stateTimer = 1;
-        evPostActor(&bloodActors[pMissile->index], 120, kCallbackLeechStateTimer);
+        evPostActor(missile, 120, kCallbackLeechStateTimer);
         if (gGameOptions.nGameType <= 1)
         {
             int nAmmo = pPlayer->ammoCount[8];
@@ -1758,7 +1753,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
 
 void FireBeast(int , PLAYER * pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(2000);
@@ -2655,9 +2650,9 @@ void WeaponProcess(PLAYER *pPlayer) {
     WeaponUpdateState(pPlayer);
 }
 
-void teslaHit(spritetype *pMissile, int a2)
+void teslaHit(DBloodActor *missileactor, int a2)
 {
-    auto missileactor = &bloodActors[pMissile->index];
+    auto pMissile = &missileactor->s();
     uint8_t sectmap[(kMaxSectors+7)>>3];
     int x = pMissile->x;
     int y = pMissile->y;

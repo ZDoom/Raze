@@ -37,8 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-FixedBitArray<MAXSPRITES> activeXSprites;
-
 // All AI states for assigning an index.
 static AISTATE* allAIStates[] =
 {
@@ -461,7 +459,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 	if (arc.BeginObject(keyname))
 	{
 		// The rest is only relevant if the actor has an xsprite.
-		if (w.s().extra > 0)
+		if (w.hasX())
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra)
@@ -582,7 +580,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 		arc("flags", w.flags, def->flags)
 			("aistate", w.aiState, def->aiState)
 			("busy", w.busy, def->busy)
-			("reference", w.reference, def->reference)
 			("txid", w.txID, def->txID)
 			("rxid", w.rxID, def->rxID)
 			("command", w.command, def->command)
@@ -697,7 +694,6 @@ void SerializeState(FSerializer& arc)
 
 			.Array("xwall", xwall, XWallsUsed)  // todo
 			.Array("xsector", xsector, XSectorsUsed)
-			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites)
 			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
 			.EndObject();
 	}
@@ -719,11 +715,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.isWriting())
 	{
-		activeXSprites.Zero();
-		for (int i = 0; i < kMaxSprites; i++)
-		{
-			if (activeSprites[i] && sprite[i].extra > 0) activeXSprites.Set(sprite[i].extra);
-		}
 	}
 	else
 	{
@@ -731,14 +722,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		sfxKillAllSounds();
 		ambKillAll();
 		seqKillAll();
-		if (gamestate != GS_LEVEL)
-		{
-			memset(xsprite, 0, sizeof(xsprite));
-		}
 	}
-	arc.SerializeMemory("activexsprites", activeXSprites.Storage(), activeXSprites.StorageSize());
 	SerializeState(arc);
-	InitFreeList(nextXSprite, kMaxXSprites, activeXSprites);
 	SerializeActor(arc);
 	SerializePlayers(arc);
 	SerializeEvents(arc);

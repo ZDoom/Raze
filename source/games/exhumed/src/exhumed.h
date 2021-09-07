@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screenjob.h"
 #include "gamestruct.h"
 #include "names.h"
+#include "exhumedactor.h"
 
 BEGIN_PS_NS
 

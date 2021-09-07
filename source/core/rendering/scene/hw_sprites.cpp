@@ -459,7 +459,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 	voxel = vox;
 
 	auto ang = spr->ang + sprext->angoff;
-	if ((spr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
+	if ((spr->cstat2 & CSTAT2_SPRITE_MDLROTATE) || rotate)
 	{
 		int myclock = (PlayClock << 3) + MulScale(4 << 3, (int)di->Viewpoint.TicFrac, 16);
 		ang = (ang + myclock) & 2047;

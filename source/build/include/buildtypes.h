@@ -185,10 +185,13 @@ enum
     CSTAT_SPRITE_RESERVED5 = 1u<<14u, // used by Duke 3D (Polymer), Shadow Warrior, Blood
 
     CSTAT_SPRITE_INVISIBLE = 1u<<15u,
+};
 
-    // Raze extensions, using the higher bits to avoid conflitcs with the reserved and undocumented bits above.
-    CSTAT_SPRITE_MDLROTATE = 1u<<16u,   // Only for tsprites: rotate if this is a model or voxel.
-    CSTAT_SPRITE_NOFIND = 1u<<17u,      // Invisible to neartag and hitscan
+enum
+{
+    CSTAT2_SPRITE_MDLROTATE = 1,   // Only for tsprites: rotate if this is a model or voxel.
+    CSTAT2_SPRITE_NOFIND = 2,      // Invisible to neartag and hitscan
+    CSTAT2_SPRITE_MAPPED = 4,      // sprite was mapped for automap
 
 };
 enum
@@ -245,7 +248,7 @@ struct spritetype
         };
         vec3_t opos;
     };
-    uint32_t cstat;
+    uint16_t cstat;
     int16_t picnum;
     int8_t shade;
     uint8_t pal, clipdist, blend;
@@ -253,13 +256,11 @@ struct spritetype
     int8_t xoffset, yoffset;
     int16_t sectnum, statnum;
     int16_t oang, ang, owner;
-        union {
-            int16_t xvel, index;
-        };
-        int16_t yvel;
-        union {
-            int16_t zvel, inittype;
-        };
+    int16_t xvel;
+    int16_t yvel;
+    union {
+        int16_t zvel, inittype;
+    };
     union {
         int16_t lotag, type;
     };
@@ -270,6 +271,7 @@ struct spritetype
     int16_t detail;
     int time;
     int16_t wall;
+    uint16_t cstat2;
     int8_t wdist;
 
 

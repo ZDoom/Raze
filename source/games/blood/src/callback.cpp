@@ -134,8 +134,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int nXSprite = pSprite->extra;
-    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
+    assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
@@ -215,7 +214,7 @@ void Respawn(DBloodActor* actor, int) // 9
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+    assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
     
     if (pSprite->statnum != kStatRespawn && pSprite->statnum != kStatThing) {
@@ -265,10 +264,10 @@ void Respawn(DBloodActor* actor, int) // 9
                     default:
                         pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
                         if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
-                            seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                            seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
                         break;
                     case kDudeModernCustom:
-                        seqSpawn(genDudeSeqStartId(actor), 3, pSprite->extra, -1);
+                        seqSpawn(genDudeSeqStartId(actor), actor, -1);
                         break;
                 }
                 
@@ -281,7 +280,7 @@ void Respawn(DBloodActor* actor, int) // 9
                 pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
                 pXSprite->health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
                 if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
-                    seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                    seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
                 #endif
                 aiInitSprite(actor);
                 pXSprite->key = 0;
@@ -383,7 +382,7 @@ void FinishHim(DBloodActor* actor, int) // 13
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
-    if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && actor == gMe->actor())
+    if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && actor == gMe->actor)
         sndStartSample(3313, -1, 1, 0);
 }
 
@@ -477,7 +476,7 @@ void sleeveStopBouncing(DBloodActor* actor)
 {
     auto pSprite = &actor->s();
     actor->xvel = actor->yvel = actor->zvel = 0;
-    if (pSprite->extra > 0) seqKill(3, pSprite->extra);
+    if (actor->hasX()) seqKill(actor);
     sfxKill3DSound(pSprite, -1, -1);
 
     switch (pSprite->type) {
@@ -611,7 +610,7 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
     ChangeActorSect(actor, pSprite2->sectnum);
     sfxPlay3DSound(pSprite2, 201, -1, 0);
     actor->xvel = actor->yvel = actor->zvel = 0;
-    viewBackupSpriteLoc(pSprite->index, pSprite);
+    viewBackupSpriteLoc(actor);
     if (pPlayer)
     {
         playerResetInertia(pPlayer);
@@ -641,8 +640,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
         return;
     }
     pSprite->ang = getangle(pOwner->x-pSprite->x, pOwner->y-pSprite->y);
-    int nXSprite = pSprite->extra;
-    if (nXSprite > 0)
+    if (actor->hasX())
     {
         XSPRITE *pXSprite = &actor->x();
         if (pXSprite->data1 == 0)

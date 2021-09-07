@@ -45,10 +45,6 @@ enum
 
 
 // by NoOne: functions to quckly check range of specifical arrays
-inline bool xspriRangeIsFine(int nXindex) {
-    return (nXindex >= 0 && nXindex < kMaxXSprites);
-}
-
 inline bool xsectRangeIsFine(int nXindex) {
     return (nXindex >= 0 && nXindex < kMaxXSectors);
 }
@@ -108,7 +104,6 @@ struct XSPRITE {
     uint32_t health;
     uint32_t busy;
 
-    int16_t reference;
     int16_t data1;            // Data 1
     int16_t data2;            // Data 2
     int16_t data3;            // Data 3
@@ -297,12 +292,8 @@ extern unsigned short gStatCount[kMaxStatus + 1];;
 extern bool drawtile2048, encrypted;
 extern MAPHEADER2 byte_19AE44;
 
-extern XSPRITE xsprite[kMaxXSprites];
 extern XSECTOR xsector[kMaxXSectors];
 extern XWALL xwall[kMaxXWalls];
-
-extern FixedBitArray<MAXSPRITES> activeXSprites;
-
 
 extern char qsector_filler[kMaxSectors];
 
@@ -312,7 +303,6 @@ extern const char *gItemText[];
 extern const char *gAmmoText[];
 extern const char *gWeaponText[];
 
-extern unsigned short nextXSprite[kMaxXSprites];
 extern int XWallsUsed, XSectorsUsed;
 
 static inline int GetWallType(int nWall)
@@ -352,8 +342,7 @@ void RemoveSpriteSect(int nSprite);
 void InsertSpriteStat(int nSprite, int nStat);
 void RemoveSpriteStat(int nSprite);
 void qinitspritelists(void);
-int InsertSprite(int nSector, int nStat);
-int qinsertsprite(short nSector, short nStat);
+DBloodActor* InsertSprite(int nSector, int nStat);
 int DeleteSprite(int nSprite);
 int qdeletesprite(short nSprite);
 int ChangeSpriteSect(int nSprite, int nSector);
@@ -361,10 +350,6 @@ int qchangespritesect(short nSprite, short nSector);
 int ChangeSpriteStat(int nSprite, int nStatus);
 int qchangespritestat(short nSprite, short nStatus);
 void InitFreeList(unsigned short *pList, int nCount);
-void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>& activeXSprites);
-void InsertFree(unsigned short *pList, int nIndex);
-unsigned short dbInsertXSprite(int nSprite);
-void dbDeleteXSprite(int nXSprite);
 unsigned short dbInsertXWall(int nWall);
 unsigned short dbInsertXSector(int nSector);
 void dbInit(void);

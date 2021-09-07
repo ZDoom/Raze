@@ -254,12 +254,12 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
             break;
         case kItemShroomShrink:
             if (!gModernMap) break;
-            else if (isGrown(pPlayer->actor())) playerDeactivateShrooms(pPlayer);
+            else if (isGrown(pPlayer->actor)) playerDeactivateShrooms(pPlayer);
             else playerSizeShrink(pPlayer, 2);
             break;
         case kItemShroomGrow:
             if (!gModernMap) break;
-            else if (isShrinked(pPlayer->actor())) playerDeactivateShrooms(pPlayer);
+            else if (isShrinked(pPlayer->actor)) playerDeactivateShrooms(pPlayer);
             else {
                 playerSizeGrow(pPlayer, 2);
                 if (powerupCheck(&gPlayer[pPlayer->pSprite->type - kDudePlayer1], kPwUpShadowCloak) > 0) {
@@ -267,8 +267,8 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
                     pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 }
 
-                if (ceilIsTooLow(pPlayer->actor()))
-                    actDamageSprite(pPlayer->actor(), pPlayer->actor(), kDamageExplode, 65535);
+                if (ceilIsTooLow(pPlayer->actor))
+                    actDamageSprite(pPlayer->actor, pPlayer->actor, kDamageExplode, 65535);
             }
             break;
         #endif
@@ -315,8 +315,8 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
         case kItemShroomShrink:
             if (gModernMap) {
                 playerSizeReset(pPlayer);
-                if (ceilIsTooLow(pPlayer->actor()))
-                    actDamageSprite(pPlayer->actor(), pPlayer->actor(), kDamageExplode, 65535);
+                if (ceilIsTooLow(pPlayer->actor))
+                    actDamageSprite(pPlayer->actor, pPlayer->actor, kDamageExplode, 65535);
             }
             break;
         case kItemShroomGrow:
@@ -486,7 +486,7 @@ void packUseItem(PLAYER *pPlayer, int nPack)
             if (health < 100)
             {
                 int heal = ClipHigh(100-health, pPlayer->packSlots[0].curAmount);
-                actHealDude(pPlayer->actor(), heal, 100);
+                actHealDude(pPlayer->actor, heal, 100);
                 pPlayer->packSlots[0].curAmount -= heal;
             }
             break;
@@ -564,8 +564,8 @@ void packNextItem(PLAYER* pPlayer)
 
 char playerSeqPlaying(PLAYER * pPlayer, int nSeq)
 {
-    int nCurSeq = seqGetID(3, pPlayer->pSprite->extra);
-    if (pPlayer->pDudeInfo->seqStartID+nSeq == nCurSeq && seqGetStatus(3,pPlayer->pSprite->extra) >= 0)
+    int nCurSeq = seqGetID(pPlayer->actor);
+    if (pPlayer->pDudeInfo->seqStartID+nSeq == nCurSeq && seqGetStatus(pPlayer->actor) >= 0)
         return 1;
     return 0;
 }
@@ -661,18 +661,18 @@ void playerStart(int nPlayer, int bNewLevel)
 
     auto actor = actSpawnSprite(pStartZone->sectnum, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
     spritetype* pSprite = &actor->s();
-    assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
+    assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
     pPlayer->pSprite = pSprite;
     pPlayer->pXSprite = pXSprite;
-    pPlayer->nSprite = pSprite->index;
+    pPlayer->actor = actor;
     DUDEINFO *pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
     pPlayer->pDudeInfo = pDudeInfo;
     playerSetRace(pPlayer, kModeHuman);
     playerResetPosture(pPlayer);
-    seqSpawn(pDudeInfo->seqStartID, 3, pSprite->extra, -1);
+    seqSpawn(pDudeInfo->seqStartID, actor, -1);
     if (pPlayer == gMe)
-        show2dsprite.Set(pSprite->index);
+        actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z -= bottom - pSprite->z;
@@ -754,10 +754,10 @@ void playerStart(int nPlayer, int bNewLevel)
             XSPRITE* pXCtrl = &iactor->x();
             if (pXCtrl->data1 == pPlayer->nPlayer + 1) 
             {
-                int nSpriteOld = pXCtrl->sysData1;
-                trPlayerCtrlLink(iactor, pPlayer, (nSpriteOld < 0) ? true : false);
-                if (nSpriteOld > 0)
-                    condUpdateObjectIndex(&bloodActors[nSpriteOld], &bloodActors[pXCtrl->sysData1]);
+                auto SpriteOld = iactor->prevmarker;
+                trPlayerCtrlLink(iactor, pPlayer, (SpriteOld == nullptr));
+                if (SpriteOld)
+                    condUpdateObjectIndex(SpriteOld, iactor->prevmarker);
             }
         }
 
@@ -860,7 +860,7 @@ bool findDroppedLeech(PLAYER *a1, DBloodActor *a2)
         if (a2 == actor)
             continue;
         spritetype *pSprite = &actor->s();
-        if (pSprite->type == kThingDroppedLifeLeech && pSprite->owner == a1->nSprite)
+        if (pSprite->type == kThingDroppedLifeLeech && actor->GetOwner() == a1->actor)
             return 1;
     }
     return 0;
@@ -875,7 +875,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
     switch (pItem->type) {
         case kItemShadowCloak:
             #ifdef NOONE_EXTENSIONS
-            if (isGrown(pPlayer->actor()) || !powerupActivate(pPlayer, nType)) return false;
+            if (isGrown(pPlayer->actor) || !powerupActivate(pPlayer, nType)) return false;
             #else
             if (!powerupActivate(pPlayer, nType)) return false;
             #endif
@@ -887,10 +887,10 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             if (gModernMap) {
                 switch (pItem->type) {
                     case kItemShroomShrink:
-                        if (isShrinked(pPlayer->actor())) return false;
+                        if (isShrinked(pPlayer->actor)) return false;
                         break;
                     case kItemShroomGrow:
-                        if (isGrown(pPlayer->actor())) return false;
+                        if (isGrown(pPlayer->actor)) return false;
                         break;
                 }
 
@@ -901,14 +901,14 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
         #endif
         case kItemFlagABase:
         case kItemFlagBBase: {
-            if (gGameOptions.nGameType != 3 || pItem->extra <= 0) return 0;
+            if (gGameOptions.nGameType != 3 || !itemactor->hasX()) return 0;
             XSPRITE * pXItem = &itemactor->x();
             if (pItem->type == kItemFlagABase) {
                 if (pPlayer->teamId == 1) {
                     if ((pPlayer->hasFlag & 1) == 0 && pXItem->state) {
                         pPlayer->hasFlag |= 1;
                         pPlayer->used2[0] = itemactor;
-                        trTriggerSprite(pItem->index, pXItem, kCmdOff);
+                        trTriggerSprite(itemactor, kCmdOff);
                         sprintf(buffer, "%s stole Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8007, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -920,7 +920,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                     if ((pPlayer->hasFlag & 1) != 0 && !pXItem->state) {
                         pPlayer->hasFlag &= ~1;
                         pPlayer->used2[0] = nullptr;
-                        trTriggerSprite(pItem->index, pXItem, kCmdOn);
+                        trTriggerSprite(itemactor, kCmdOn);
                         sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8003, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -945,7 +945,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                     if ((pPlayer->hasFlag & 2) == 0 && pXItem->state) {
                         pPlayer->hasFlag |= 2;
                         pPlayer->used2[1] = itemactor;
-                        trTriggerSprite(pItem->index, pXItem, kCmdOff);
+                        trTriggerSprite(itemactor, kCmdOff);
                         sprintf(buffer, "%s stole Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8006, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -957,7 +957,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                     {
                         pPlayer->hasFlag &= ~2;
                         pPlayer->used2[1] = nullptr;
-                        trTriggerSprite(pItem->index, pXItem, kCmdOn);
+                        trTriggerSprite(itemactor, kCmdOn);
                         sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                         sndStartSample(8002, 255, 2, 0);
                         viewSetMessage(buffer);
@@ -1055,7 +1055,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
                 addPower = itemactor->x().data1;
             #endif
         
-            if (!actHealDude(pPlayer->actor(), addPower, gPowerUpInfo[nType].maxTime)) return 0;
+            if (!actHealDude(pPlayer->actor, addPower, gPowerUpInfo[nType].maxTime)) return 0;
             return 1;
         }
         case kItemHealthDoctorBag:
@@ -1081,7 +1081,7 @@ char PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
 
     if (pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
     #ifdef NOONE_EXTENSIONS
-    else if (gModernMap && pAmmo->extra >= 0 && ammoactor->x().data1 > 0) // allow custom amount for item
+    else if (gModernMap && ammoactor->hasX() && ammoactor->x().data1 > 0) // allow custom amount for item
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + ammoactor->x().data1, gAmmoInfo[nAmmoType].max);
     #endif
     else
@@ -1163,9 +1163,8 @@ void PickUp(PLAYER *pPlayer, DBloodActor* actor)
     if (!pickedUp) return;
     else if (actor->hasX())
     {
-        XSPRITE *pXSprite = &actor->x();
-        if (pXSprite->Pickup)
-            trTriggerSprite(pSprite->index, pXSprite, kCmdSpritePickup);
+        if (actor->x().Pickup)
+            trTriggerSprite(actor, kCmdSpritePickup);
     }
         
     if (!actCheckRespawn(actor)) 
@@ -1225,7 +1224,7 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, int *pXIndex, DBloodActor** pAct)
     int x = CosScale16(pSprite->ang);
     int y = SinScale16(pSprite->ang);
     int z = pPlayer->slope;
-    int hit = HitScan(pPlayer->actor(), pPlayer->zView, x, y, z, 0x10000040, 128);
+    int hit = HitScan(pPlayer->actor, pPlayer->zView, x, y, z, 0x10000040, 128);
     int hitDist = approxDist(pSprite->x-gHitInfo.hitx, pSprite->y-gHitInfo.hity)>>4;
     if (hitDist < 64)
     {
@@ -1260,7 +1259,7 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, int *pXIndex, DBloodActor** pAct)
                     gHitInfo.hitactor->zvel += MulScale(z, t2, 16);
                 }
                 if (pXSprite->Push && !pXSprite->state && !pXSprite->isTriggered)
-                    trTriggerSprite(*pIndex, pXSprite, kCmdSpritePush);
+                    trTriggerSprite(gHitInfo.hitactor, kCmdSpritePush);
             }
             break;
         }
@@ -1315,7 +1314,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 {
     auto* const pSprite = pPlayer->pSprite;
     auto* const pXSprite = pPlayer->pXSprite;
-    int const florhit = pPlayer->actor()->hit.florhit.type;
+    int const florhit = pPlayer->actor->hit.florhit.type;
     char const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
     pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
 }
@@ -1333,7 +1332,7 @@ void ProcessInput(PLAYER *pPlayer)
     pPlayer->horizon.resetadjustment();
     pPlayer->angle.resetadjustment();
 
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
@@ -1366,14 +1365,14 @@ void ProcessInput(PLAYER *pPlayer)
             if (bSeqStat)
             {
                 if (pPlayer->deathTime > 360)
-                    seqSpawn(pPlayer->pDudeInfo->seqStartID+14, 3, pPlayer->pSprite->extra, nPlayerSurviveClient);
+                    seqSpawn(pPlayer->pDudeInfo->seqStartID+14, pPlayer->actor, nPlayerSurviveClient);
             }
-            else if (seqGetStatus(3, pPlayer->pSprite->extra) < 0)
+            else if (seqGetStatus(pPlayer->actor) < 0)
             {
                 if (pPlayer->pSprite)
                     pPlayer->pSprite->type = kThingBloodChunks;
-                actPostSprite(pPlayer->actor(), kStatThing);
-                seqSpawn(pPlayer->pDudeInfo->seqStartID+15, 3, pPlayer->pSprite->extra, -1);
+                actPostSprite(pPlayer->actor, kStatThing);
+                seqSpawn(pPlayer->pDudeInfo->seqStartID+15, pPlayer->actor, -1);
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
@@ -1540,7 +1539,7 @@ void ProcessInput(PLAYER *pPlayer)
             if (pXSprite->locked && pPlayer == gMe && pXSprite->lockMsg)
                 trTextOver(pXSprite->lockMsg);
             if (!key || pPlayer->hasKey[key])
-                trTriggerSprite(a2, pXSprite, kCmdSpritePush);
+                trTriggerSprite(act, kCmdSpritePush);
             else if (pPlayer == gMe)
             {
                 viewSetMessage(GStrings("TXTB_KEY"));
@@ -1553,18 +1552,17 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->handTime = ClipLow(pPlayer->handTime-4*(6-gGameOptions.nDifficulty), 0);
         if (pPlayer->handTime <= 0 && pPlayer->hand)
         {
-            auto pactor = pPlayer->actor();
+            auto pactor = pPlayer->actor;
             auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
             if (spawned)
             {
                 spritetype* pSprite2 = &spawned->s();
                 pSprite2->ang = (pPlayer->pSprite->ang + 1024) & 2047;
-                int nSprite = pPlayer->pSprite->index;
                 int x = CosScale16(pPlayer->pSprite->ang);
                 int y = SinScale16(pPlayer->pSprite->ang);
-                spawned->xvel = pPlayer->actor()->xvel + MulScale(0x155555, x, 14);
-                spawned->yvel = pPlayer->actor()->yvel + MulScale(0x155555, y, 14);
-                spawned->zvel = pPlayer->actor()->zvel;
+                spawned->xvel = pPlayer->actor->xvel + MulScale(0x155555, x, 14);
+                spawned->yvel = pPlayer->actor->yvel + MulScale(0x155555, y, 14);
+                spawned->zvel = pPlayer->actor->zvel;
             }
             pPlayer->hand = 0;
         }
@@ -1637,7 +1635,7 @@ void ProcessInput(PLAYER *pPlayer)
 
 void playerProcess(PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
@@ -1763,13 +1761,13 @@ void playerProcess(PLAYER *pPlayer)
 
 DBloodActor* playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6)
 {
-    return actFireMissile(pPlayer->actor(), a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
+    return actFireMissile(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
 }
 
 DBloodActor* playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    return actFireThing(pPlayer->actor(), a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
+    return actFireThing(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
@@ -1880,7 +1878,7 @@ int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 
 void flagDropped(PLAYER *pPlayer, int a2)
 {
-    auto playeractor = pPlayer->actor();
+    auto playeractor = pPlayer->actor;
     DBloodActor* actor;
     char buffer[80];
     spritetype *pSprite = NULL;
@@ -1917,8 +1915,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
 
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
-    auto pActor = pPlayer->actor();
-    int nXSprite = pSprite->extra;
+    auto pActor = pPlayer->actor;
     int nXSector = sector[pSprite->sectnum].extra;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nDeathSeqID = -1;
@@ -2016,7 +2013,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 nKneelingPlayer = nPlayerKneelClient;
                 powerupActivate(pPlayer, kPwUpDeliriumShroom);
                 pActor->SetTarget(source);
-                evPostActor(pPlayer->actor(), 15, kCallbackFinishHim);
+                evPostActor(pPlayer->actor, 15, kCallbackFinishHim);
             }
             else
             {
@@ -2036,11 +2033,11 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         pSprite->flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
-            if (gPlayer[p].fragger == pPlayer->actor() && gPlayer[p].deathTime > 0)
+            if (gPlayer[p].fragger == pPlayer->actor && gPlayer[p].deathTime > 0)
                 gPlayer[p].fragger = nullptr;
         }
         FragPlayer(pPlayer, source);
-        trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
+        trTriggerSprite(pActor, kCmdOff);
 
         #ifdef NOONE_EXTENSIONS
         // allow drop items and keys in multiplayer
@@ -2069,7 +2066,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
 
     }
     assert(getSequence(pDudeInfo->seqStartID + nDeathSeqID) != NULL);
-    seqSpawn(pDudeInfo->seqStartID+nDeathSeqID, 3, nXSprite, nKneelingPlayer);
+    seqSpawn(pDudeInfo->seqStartID+nDeathSeqID, pPlayer->actor, nKneelingPlayer);
     return nDamage;
 }
 
@@ -2085,7 +2082,7 @@ int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec)
 
 void voodooTarget(PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor();
+    auto actor = pPlayer->actor;
     int v4 = pPlayer->aim.dz;
     int dz = pPlayer->zWeapon-pPlayer->pSprite->z;
     if (UseAmmo(pPlayer, 9, 0) < 8)
@@ -2123,7 +2120,7 @@ void playerLandingSound(PLAYER *pPlayer)
         603
     };
     spritetype *pSprite = pPlayer->pSprite;
-    SPRITEHIT* pHit = &pPlayer->actor()->hit;
+    SPRITEHIT* pHit = &pPlayer->actor->hit;
     if (pHit->florhit.type != kHitNone)
     {
         if (!gGameOptions.bFriendlyFire && pHit->florhit.type == kHitSprite && IsTargetTeammate(pPlayer, &pHit->florhit.actor->s()))
@@ -2231,7 +2228,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYER& w, PLAYER*
     if (arc.isReading()) playerResetPosture(&w);
     if (arc.BeginObject(keyname))
     {
-        arc("spritenum", w.nSprite)
+        arc("spritenum", w.actor)
             ("horizon", w.horizon)
             ("angle", w.angle)
             ("newweapon", w.newWeapon)
@@ -2355,8 +2352,8 @@ void SerializePlayers(FSerializer& arc)
     {
         for (int i = 0; i < gNetPlayers; i++) 
         {
-            gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
-            gPlayer[i].pXSprite = &xsprite[gPlayer[i].pSprite->extra];
+            gPlayer[i].pSprite = &gPlayer[i].actor->s();
+            gPlayer[i].pXSprite = &gPlayer[i].actor->x();
             gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type - kDudeBase];
 
 #ifdef NOONE_EXTENSIONS
@@ -2396,7 +2393,6 @@ DEFINE_FIELD_X(BloodPlayer, PLAYER, swayAmp)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, swayHeight)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, swayWidth)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, nPlayer)  // Connect id
-DEFINE_FIELD_X(BloodPlayer, PLAYER, nSprite)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, lifeMode)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, zView)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, zViewVel)
@@ -2422,7 +2418,7 @@ DEFINE_FIELD_X(BloodPlayer, PLAYER, throwTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, throwPower)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, aim)  // world
 DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargetsCount)
-DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargets)
+//DEFINE_FIELD_X(BloodPlayer, PLAYER, aimTargets)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, deathTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, pwUpTime)
 DEFINE_FIELD_X(BloodPlayer, PLAYER, teamId)

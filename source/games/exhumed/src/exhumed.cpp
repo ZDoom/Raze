@@ -193,8 +193,9 @@ void DoRedAlert(int nVal)
     {
         if (nVal)
         {
-            PlayFXAtXYZ(StaticSound[kSoundAlarm], sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum);
-            AddFlash(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, 192);
+			auto spri = &sprite[i];
+            PlayFXAtXYZ(StaticSound[kSoundAlarm], spri->x, spri->y, spri->z, spri->sectnum);
+            AddFlash(spri->sectnum, spri->x, spri->y, spri->z, 192);
         }
     }
 }
@@ -253,7 +254,7 @@ void GameMove(void)
 
     for (int i = 0; i < MAXSPRITES; i++)
     {
-        sprite[i].backuploc();
+		sprite[i].backuploc();
     }
 
     if (currentLevel->gameflags & LEVEL_EX_COUNTDOWN)

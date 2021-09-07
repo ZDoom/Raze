@@ -79,34 +79,36 @@ void InitLava()
 
 int BuildLavaLimb(int nSprite, int edx, int ebx)
 {
-    short nSector = sprite[nSprite].sectnum;
+    auto pSprite = &sprite[nSprite];
+    short nSector = pSprite->sectnum;
 
     int nLimbSprite = insertsprite(nSector, 118);
     assert(nLimbSprite >= 0 && nLimbSprite < kMaxSprites);
+	auto pLimbSprite = &sprite[nLimbSprite];
 
-    sprite[nLimbSprite].x = sprite[nSprite].x;
-    sprite[nLimbSprite].y = sprite[nSprite].y;
-    sprite[nLimbSprite].z = sprite[nSprite].z - RandomLong() % ebx;
-    sprite[nLimbSprite].cstat = 0;
-    sprite[nLimbSprite].shade = -127;
-    sprite[nLimbSprite].pal = 1;
-    sprite[nLimbSprite].xvel = (RandomSize(5) - 16) << 8;
-    sprite[nLimbSprite].yvel = (RandomSize(5) - 16) << 8;
-    sprite[nLimbSprite].zvel = 2560 - (RandomSize(5) << 8);
-    sprite[nLimbSprite].xoffset = 0;
-    sprite[nLimbSprite].yoffset = 0;
-    sprite[nLimbSprite].xrepeat = 90;
-    sprite[nLimbSprite].yrepeat = 90;
-    sprite[nLimbSprite].picnum = (edx & 3) % 3;
-    sprite[nLimbSprite].hitag = 0;
-    sprite[nLimbSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nLimbSprite].clipdist = 0;
+    pLimbSprite->x = pSprite->x;
+    pLimbSprite->y = pSprite->y;
+    pLimbSprite->z = pSprite->z - RandomLong() % ebx;
+    pLimbSprite->cstat = 0;
+    pLimbSprite->shade = -127;
+    pLimbSprite->pal = 1;
+    pLimbSprite->xvel = (RandomSize(5) - 16) << 8;
+    pLimbSprite->yvel = (RandomSize(5) - 16) << 8;
+    pLimbSprite->zvel = 2560 - (RandomSize(5) << 8);
+    pLimbSprite->xoffset = 0;
+    pLimbSprite->yoffset = 0;
+    pLimbSprite->xrepeat = 90;
+    pLimbSprite->yrepeat = 90;
+    pLimbSprite->picnum = (edx & 3) % 3;
+    pLimbSprite->hitag = 0;
+    pLimbSprite->lotag = runlist_HeadRun() + 1;
+    pLimbSprite->clipdist = 0;
 
 //	GrabTimeSlot(3);
 
-    sprite[nLimbSprite].extra = -1;
-    sprite[nLimbSprite].owner = runlist_AddRunRec(sprite[nLimbSprite].lotag - 1, nLimbSprite | 0x160000);
-    sprite[nLimbSprite].hitag = runlist_AddRunRec(NewRun, nLimbSprite | 0x160000);
+    pLimbSprite->extra = -1;
+    pLimbSprite->owner = runlist_AddRunRec(pLimbSprite->lotag - 1, nLimbSprite | 0x160000);
+    pLimbSprite->hitag = runlist_AddRunRec(NewRun, nLimbSprite | 0x160000);
 
     return nLimbSprite;
 }
@@ -115,6 +117,7 @@ void FuncLavaLimb(int a, int, int nRun)
 {
     short nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
+	auto pSprite = &sprite[nSprite];
 
     int nMessage = a & kMessageMask;
 
@@ -122,19 +125,19 @@ void FuncLavaLimb(int a, int, int nRun)
     {
         case 0x20000:
         {
-            sprite[nSprite].shade += 3;
+            pSprite->shade += 3;
 
-            int nRet = movesprite(nSprite, sprite[nSprite].xvel << 12, sprite[nSprite].yvel << 12, sprite[nSprite].zvel, 2560, -2560, CLIPMASK1);
+            int nRet = movesprite(nSprite, pSprite->xvel << 12, pSprite->yvel << 12, pSprite->zvel, 2560, -2560, CLIPMASK1);
 
-            if (nRet || sprite[nSprite].shade > 100)
+            if (nRet || pSprite->shade > 100)
             {
-                sprite[nSprite].xvel = 0;
-                sprite[nSprite].yvel = 0;
-                sprite[nSprite].zvel = 0;
+                pSprite->xvel = 0;
+                pSprite->yvel = 0;
+                pSprite->zvel = 0;
 
-                runlist_DoSubRunRec(sprite[nSprite].owner);
-                runlist_FreeRun(sprite[nSprite].lotag - 1);
-                runlist_SubRunRec(sprite[nSprite].hitag);
+                runlist_DoSubRunRec(pSprite->owner);
+                runlist_FreeRun(pSprite->lotag - 1);
+                runlist_SubRunRec(pSprite->hitag);
 
                 mydeletesprite(nSprite);
             }
@@ -143,7 +146,7 @@ void FuncLavaLimb(int a, int, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, (SeqOffsets[kSeqLavag] + 30) + sprite[nSprite].picnum, 0, 1);
+            seq_PlotSequence(a & 0xFFFF, (SeqOffsets[kSeqLavag] + 30) + pSprite->picnum, 0, 1);
             break;
         }
 
@@ -156,44 +159,46 @@ int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int
 {
     auto nLava = LavaList.Reserve(1);
 
+    auto pSprite = &sprite[nSprite];
     if (nSprite == -1)
     {
         nSprite = insertsprite(nSector, 118);
+        pSprite = &sprite[nSprite];
     }
     else
     {
-        nSector = sprite[nSprite].sectnum;
-        nAngle = sprite[nSprite].ang;
-        x = sprite[nSprite].x;
-        y = sprite[nSprite].y;
+        nSector = pSprite->sectnum;
+        nAngle = pSprite->ang;
+        x = pSprite->x;
+        y = pSprite->y;
 
         changespritestat(nSprite, 118);
     }
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-    sprite[nSprite].x = x;
-    sprite[nSprite].y = y;
-    sprite[nSprite].z = sector[nSector].floorz;
-    sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].xrepeat = 200;
-    sprite[nSprite].yrepeat = 200;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].pal = 0;
-    sprite[nSprite].clipdist = 127;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].ang = nAngle;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
+    pSprite->x = x;
+    pSprite->y = y;
+    pSprite->z = sector[nSector].floorz;
+    pSprite->cstat = 0x8000;
+    pSprite->xrepeat = 200;
+    pSprite->yrepeat = 200;
+    pSprite->shade = -12;
+    pSprite->pal = 0;
+    pSprite->clipdist = 127;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->picnum = seq_GetSeqPicnum(kSeqLavag, LavadudeSeq[3].a, 0);
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->ang = nAngle;
+    pSprite->hitag = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
 
 //	GrabTimeSlot(3);
 
-    sprite[nSprite].extra = -1;
+    pSprite->extra = -1;
 
     LavaList[nLava].nAction = 0;
     LavaList[nLava].nHealth = 4000;
@@ -202,7 +207,7 @@ int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int
     LavaList[nLava].nIndex = nChannel;
     LavaList[nLava].nFrame = 0;
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nLava | 0x150000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nLava | 0x150000);
     LavaList[nLava].nRun = runlist_AddRunRec(NewRun, nLava | 0x150000);
 
     nCreaturesTotal++;
@@ -218,6 +223,7 @@ void FuncLava(int a, int nDamage, int nRun)
     short nAction = LavaList[nLava].nAction;
     short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
     short nSprite = LavaList[nLava].nSprite;
+    auto pSprite = &sprite[nSprite];
 
     int nMessage = a & kMessageMask;
 
@@ -257,7 +263,7 @@ void FuncLava(int a, int nDamage, int nRun)
 
                 nCreaturesKilled++;
 
-                sprite[nSprite].cstat &= 0xFEFE;
+                pSprite->cstat &= 0xFEFE;
             }
             else
             {
@@ -277,7 +283,7 @@ void FuncLava(int a, int nDamage, int nRun)
                     {
                         LavaList[nLava].nAction = 4;
                         LavaList[nLava].nFrame  = 0;
-                        sprite[nSprite].cstat = 0;
+                        pSprite->cstat = 0;
                     }
                 }
 
@@ -289,7 +295,7 @@ void FuncLava(int a, int nDamage, int nRun)
 
         case 0x20000:
         {
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, LavaList[nLava].nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, LavaList[nLava].nFrame);
             int var_38 = LavaList[nLava].nFrame;
 
             short nFlag = FrameFlag[SeqBase[nSeq] + var_38];
@@ -336,36 +342,36 @@ void FuncLava(int a, int nDamage, int nRun)
 
                         PlotCourseToSprite(nSprite, nTarget);
 
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
+                        pSprite->xvel = bcos(pSprite->ang);
+                        pSprite->yvel = bsin(pSprite->ang);
 
                         if (nTarget >= 0 && !RandomSize(1))
                         {
                             LavaList[nLava].nTarget = nTarget;
                             LavaList[nLava].nAction = 2;
-                            sprite[nSprite].cstat = 0x101;
+                            pSprite->cstat = 0x101;
                             LavaList[nLava].nFrame = 0;
                             break;
                         }
                     }
 
-                    int x = sprite[nSprite].x;
-                    int y = sprite[nSprite].y;
-                    int z = sprite[nSprite].z;
-                    short nSector = sprite[nSprite].sectnum;
+                    int x = pSprite->x;
+                    int y = pSprite->y;
+                    int z = pSprite->z;
+                    short nSector = pSprite->sectnum;
 
-                    int nVal = movesprite(nSprite, sprite[nSprite].xvel << 8, sprite[nSprite].yvel << 8, 0, 0, 0, CLIPMASK0);
+                    int nVal = movesprite(nSprite, pSprite->xvel << 8, pSprite->yvel << 8, 0, 0, 0, CLIPMASK0);
 
-                    if (nSector != sprite[nSprite].sectnum)
+                    if (nSector != pSprite->sectnum)
                     {
                         changespritesect(nSprite, nSector);
-                        sprite[nSprite].x = x;
-                        sprite[nSprite].y = y;
-                        sprite[nSprite].z = z;
+                        pSprite->x = x;
+                        pSprite->y = y;
+                        pSprite->z = z;
 
-                        sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
+                        pSprite->ang = (pSprite->ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+                        pSprite->xvel = bcos(pSprite->ang);
+                        pSprite->yvel = bsin(pSprite->ang);
                         break;
                     }
 
@@ -375,21 +381,21 @@ void FuncLava(int a, int nDamage, int nRun)
 
                     if ((nVal & 0xC000) == 0x8000)
                     {
-                        sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
+                        pSprite->ang = (pSprite->ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+                        pSprite->xvel = bcos(pSprite->ang);
+                        pSprite->yvel = bsin(pSprite->ang);
                         break;
                     }
                     else if ((nVal & 0xC000) == 0xC000)
                     {
                         if ((nVal & 0x3FFF) == nTarget)
                         {
-                            int nAng = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-                            if (AngleDiff(sprite[nSprite].ang, nAng) < 64)
+                            int nAng = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
+                            if (AngleDiff(pSprite->ang, nAng) < 64)
                             {
                                 LavaList[nLava].nAction = 2;
                                 LavaList[nLava].nFrame = 0;
-                                sprite[nSprite].cstat = 0x101;
+                                pSprite->cstat = 0x101;
                                 break;
                             }
                         }
@@ -413,7 +419,7 @@ void FuncLava(int a, int nDamage, int nRun)
 
                         PlotCourseToSprite(nSprite, nTarget);
 
-                        sprite[nSprite].cstat |= 0x101;
+                        pSprite->cstat |= 0x101;
                     }
 
                     break;
@@ -426,7 +432,7 @@ void FuncLava(int a, int nDamage, int nRun)
                         int nHeight = GetSpriteHeight(nSprite);
                         GetUpAngle(nSprite, -64000, nTarget, (-(nHeight >> 1)));
 
-                        BuildBullet(nSprite, 10, bcos(sprite[nSprite].ang, 8), bsin(sprite[nSprite].ang, 8), -1, sprite[nSprite].ang, nTarget + 10000, 1);
+                        BuildBullet(nSprite, 10, bcos(pSprite->ang, 8), bsin(pSprite->ang, 8), -1, pSprite->ang, nTarget + 10000, 1);
                     }
                     else if (var_1C)
                     {
@@ -443,7 +449,7 @@ void FuncLava(int a, int nDamage, int nRun)
                     if (var_1C)
                     {
                         LavaList[nLava].nAction = 7;
-                        sprite[nSprite].cstat &= 0xFEFE;
+                        pSprite->cstat &= 0xFEFE;
                     }
 
                     break;
@@ -482,8 +488,8 @@ void FuncLava(int a, int nDamage, int nRun)
                         }
                         while (ecx < 30);
 
-                        runlist_DoSubRunRec(sprite[nSprite].owner);
-                        runlist_FreeRun(sprite[nSprite].lotag - 1);
+                        runlist_DoSubRunRec(pSprite->owner);
+                        runlist_FreeRun(pSprite->lotag - 1);
                         runlist_SubRunRec(LavaList[nLava].nRun);
                         mydeletesprite(nSprite);
                     }
@@ -507,14 +513,14 @@ void FuncLava(int a, int nDamage, int nRun)
                     {
                         LavaList[nLava].nAction = 0;
                         LavaList[nLava].nFrame = 0;
-                        sprite[nSprite].cstat = 0x8000;
+                        pSprite->cstat = 0x8000;
                     }
                     break;
                 }
             }
 
             // loc_31521:
-            sprite[nSprite].pal = 1;
+            pSprite->pal = 1;
         }
     }
 }

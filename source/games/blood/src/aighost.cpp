@@ -249,7 +249,7 @@ static void ghostThinkTarget(DBloodActor* actor)
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval2 = 0;
-                aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
                 aiActivateDude(actor);
                 return;
             }
@@ -314,7 +314,6 @@ static void ghostMoveDodgeUp(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    int nSprite = pSprite->index;
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -350,7 +349,6 @@ static void ghostMoveDodgeDown(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    int nSprite = pSprite->index;
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");

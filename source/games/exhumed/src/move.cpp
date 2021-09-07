@@ -284,8 +284,9 @@ void BuildNear(int x, int y, int walldist, int nSector)
 
 int BelowNear(short nSprite)
 {
-    short nSector = sprite[nSprite].sectnum;
-    int z = sprite[nSprite].z;
+	auto pSprite = &sprite[nSprite];
+    short nSector = pSprite->sectnum;
+    int z = pSprite->z;
 
     int var_24, z2;
 
@@ -325,11 +326,11 @@ int BelowNear(short nSprite)
         }
     }
 
-    if (z2 < sprite[nSprite].z)
+    if (z2 < pSprite->z)
     {
-        sprite[nSprite].z = z2;
+        pSprite->z = z2;
         overridesect = nSector;
-        sprite[nSprite].zvel = 0;
+        pSprite->zvel = 0;
 
         bTouchFloor = true;
 
@@ -516,7 +517,8 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
 
 int GetSpriteHeight(int nSprite)
 {
-    return tileHeight(sprite[nSprite].picnum) * sprite[nSprite].yrepeat * 4;
+	auto pSprite = &sprite[nSprite];
+    return tileHeight(pSprite->picnum) * pSprite->yrepeat * 4;
 }
 
 int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigned int clipmask)
@@ -601,65 +603,68 @@ int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigne
 
 void Gravity(short nSprite)
 {
-    short nSector = sprite[nSprite].sectnum;
+    auto pSprite = &sprite[nSprite];
+    short nSector = pSprite->sectnum;
 
     if (SectFlag[nSector] & kSectUnderwater)
     {
-        if (sprite[nSprite].statnum != 100)
+        if (pSprite->statnum != 100)
         {
-            if (sprite[nSprite].zvel <= 1024)
+            if (pSprite->zvel <= 1024)
             {
-                if (sprite[nSprite].zvel < 2048) {
-                    sprite[nSprite].zvel += 512;
+                if (pSprite->zvel < 2048) {
+                    pSprite->zvel += 512;
                 }
             }
             else
             {
-                sprite[nSprite].zvel -= 64;
+                pSprite->zvel -= 64;
             }
         }
         else
         {
-            if (sprite[nSprite].zvel > 0)
+            if (pSprite->zvel > 0)
             {
-                sprite[nSprite].zvel -= 64;
-                if (sprite[nSprite].zvel < 0) {
-                    sprite[nSprite].zvel = 0;
+                pSprite->zvel -= 64;
+                if (pSprite->zvel < 0) {
+                    pSprite->zvel = 0;
                 }
             }
-            else if (sprite[nSprite].zvel < 0)
+            else if (pSprite->zvel < 0)
             {
-                sprite[nSprite].zvel += 64;
-                if (sprite[nSprite].zvel > 0) {
-                    sprite[nSprite].zvel = 0;
+                pSprite->zvel += 64;
+                if (pSprite->zvel > 0) {
+                    pSprite->zvel = 0;
                 }
             }
         }
     }
     else
     {
-        sprite[nSprite].zvel += 512;
-        if (sprite[nSprite].zvel > 16384) {
-            sprite[nSprite].zvel = 16384;
+        pSprite->zvel += 512;
+        if (pSprite->zvel > 16384) {
+            pSprite->zvel = 16384;
         }
     }
 }
 
 int MoveCreature(short nSprite)
 {
-    return movesprite(nSprite, sprite[nSprite].xvel << 8, sprite[nSprite].yvel << 8, sprite[nSprite].zvel, 15360, -5120, CLIPMASK0);
+    auto pSprite = &sprite[nSprite];
+    return movesprite(nSprite, pSprite->xvel << 8, pSprite->yvel << 8, pSprite->zvel, 15360, -5120, CLIPMASK0);
 }
 
 int MoveCreatureWithCaution(int nSprite)
 {
-    int x = sprite[nSprite].x;
-    int y = sprite[nSprite].y;
-    int z = sprite[nSprite].z;
-    short nSectorPre = sprite[nSprite].sectnum;
+    auto pSprite = &sprite[nSprite];
+    int x = pSprite->x;
+    int y = pSprite->y;
+    int z = pSprite->z;
+    short nSectorPre = pSprite->sectnum;
 
     int ecx = MoveCreature(nSprite);
 
-    short nSector = sprite[nSprite].sectnum;
+    short nSector = pSprite->sectnum;
 
     if (nSector != nSectorPre)
     {
@@ -670,15 +675,15 @@ int MoveCreatureWithCaution(int nSprite)
 
         if (zDiff > 15360 || (SectFlag[nSector] & kSectUnderwater) || (SectBelow[nSector] > -1 && SectFlag[SectBelow[nSector]]) || SectDamage[nSector])
         {
-            sprite[nSprite].x = x;
-            sprite[nSprite].y = y;
-            sprite[nSprite].z = z;
+            pSprite->x = x;
+            pSprite->y = y;
+            pSprite->z = z;
 
             mychangespritesect(nSprite, nSectorPre);
 
-            sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
-            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
+            pSprite->ang = (pSprite->ang + 256) & kAngleMask;
+            pSprite->xvel = bcos(pSprite->ang, -2);
+            pSprite->yvel = bsin(pSprite->ang, -2);
             return 0;
         }
     }
@@ -691,7 +696,10 @@ int GetAngleToSprite(int nSprite1, int nSprite2)
     if (nSprite1 < 0 || nSprite2 < 0)
         return -1;
 
-    return GetMyAngle(sprite[nSprite2].x - sprite[nSprite1].x, sprite[nSprite2].y - sprite[nSprite1].y);
+	auto pSprite1 = &sprite[nSprite1];
+	auto pSprite2 = &sprite[nSprite2];
+
+    return GetMyAngle(pSprite2->x - pSprite1->x, pSprite2->y - pSprite1->y);
 }
 
 int PlotCourseToSprite(int nSprite1, int nSprite2)
@@ -699,10 +707,12 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
     if (nSprite1 < 0 || nSprite2 < 0)
         return -1;
 
-    int x = sprite[nSprite2].x - sprite[nSprite1].x;
-    int y = sprite[nSprite2].y - sprite[nSprite1].y;
+	auto pSprite1 = &sprite[nSprite1];
+	auto pSprite2 = &sprite[nSprite2];
+    int x = pSprite2->x - pSprite1->x;
+    int y = pSprite2->y - pSprite1->y;
 
-    sprite[nSprite1].ang = GetMyAngle(x, y);
+    pSprite1->ang = GetMyAngle(x, y);
 
     uint32_t x2 = abs(x);
     uint32_t y2 = abs(y);
@@ -720,6 +730,7 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
 
 int FindPlayer(int nSprite, int nDistance)
 {
+	auto pSprite = &sprite[nSprite];
     int var_18 = 0;
     if (nSprite >= 0)
         var_18 = 1;
@@ -730,11 +741,11 @@ int FindPlayer(int nSprite, int nDistance)
     if (nDistance < 0)
         nDistance = 100;
 
-    int x = sprite[nSprite].x;
-    int y = sprite[nSprite].y;
-    short nSector = sprite[nSprite].sectnum;
+    int x = pSprite->x;
+    int y = pSprite->y;
+    short nSector = pSprite->sectnum;
 
-    int z = sprite[nSprite].z - GetSpriteHeight(nSprite);
+    int z = pSprite->z - GetSpriteHeight(nSprite);
 
     nDistance <<= 8;
 
@@ -798,11 +809,13 @@ void CheckSectorFloor(short nSector, int z, int *x, int *y)
 
 int GetUpAngle(short nSprite1, int nVal, short nSprite2, int ecx)
 {
-    int x = sprite[nSprite2].x - sprite[nSprite1].x;
-    int y = sprite[nSprite2].y - sprite[nSprite1].y;
+	auto pSprite1 = &sprite[nSprite1];
+	auto pSprite2 = &sprite[nSprite2];
+    int x = pSprite2->x - pSprite1->x;
+    int y = pSprite2->y - pSprite1->y;
 
-    int ebx = (sprite[nSprite2].z + ecx) - (sprite[nSprite1].z + nVal);
-    int edx = (sprite[nSprite2].z + ecx) - (sprite[nSprite1].z + nVal);
+    int ebx = (pSprite2->z + ecx) - (pSprite1->z + nVal);
+    int edx = (pSprite2->z + ecx) - (pSprite1->z + nVal);
 
     ebx >>= 4;
     edx >>= 8;
@@ -854,13 +867,14 @@ void CreatePushBlock(int nSector)
     sBlockInfo[nBlock].y = yAvg;
 
     int nSprite = insertsprite(nSector, 0);
+    auto pSprite = &sprite[nSprite];
 
     sBlockInfo[nBlock].nSprite = nSprite;
 
-    sprite[nSprite].x = xAvg;
-    sprite[nSprite].y = yAvg;
-    sprite[nSprite].z = sector[nSector].floorz - 256;
-    sprite[nSprite].cstat = 0x8000;
+    pSprite->x = xAvg;
+    pSprite->y = yAvg;
+    pSprite->z = sector[nSector].floorz - 256;
+    pSprite->cstat = 0x8000;
 
     int var_28 = 0;
 
@@ -885,7 +899,7 @@ void CreatePushBlock(int nSector)
 
     sBlockInfo[nBlock].field_8 = var_28;
 
-    sprite[nSprite].clipdist = (var_28 & 0xFF) << 2;
+    pSprite->clipdist = (var_28 & 0xFF) << 2;
     sector[nSector].extra = nBlock;
 }
 
@@ -1133,8 +1147,9 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
 
 void SetQuake(short nSprite, int nVal)
 {
-    int x = sprite[nSprite].x;
-    int y = sprite[nSprite].y;
+    auto pSprite = &sprite[nSprite];
+    int x = pSprite->x;
+    int y = pSprite->y;
 
     nVal *= 256;
 
@@ -1181,7 +1196,8 @@ void SetQuake(short nSprite, int nVal)
 
 int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 {
-    int nClipType = sprite[nSprite].statnum != 107;
+    auto pSprite = &sprite[nSprite];
+    int nClipType = pSprite->statnum != 107;
 
     /* bjd - need to handle cliptype to clipmask change that occured in later build engine version */
     if (nClipType == 1) {
@@ -1195,17 +1211,19 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
     if (nSprite2 < 0)
     {
-        sprite[nSprite].zvel = 0;
-        nAngle = sprite[nSprite].ang;
+        pSprite->zvel = 0;
+        nAngle = pSprite->ang;
     }
     else
     {
-        int nHeight = tileHeight(sprite[nSprite2].picnum) * sprite[nSprite2].yrepeat * 2;
+		auto pSprite2 = &sprite[nSprite2];
 
-        int nMyAngle = GetMyAngle(sprite[nSprite2].x - sprite[nSprite].x, sprite[nSprite2].y - sprite[nSprite].y);
+        int nHeight = tileHeight(pSprite2->picnum) * pSprite2->yrepeat * 2;
 
-        uint32_t xDiff = abs(sprite[nSprite2].x - sprite[nSprite].x);
-        uint32_t yDiff = abs(sprite[nSprite2].y - sprite[nSprite].y);
+        int nMyAngle = GetMyAngle(pSprite2->x - pSprite->x, pSprite2->y - pSprite->y);
+
+        uint32_t xDiff = abs(pSprite2->x - pSprite->x);
+        uint32_t yDiff = abs(pSprite2->y - pSprite->y);
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -1217,9 +1235,9 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
         int nSqrt = ksqrt(sqrtNum);
 
-        int var_18 = GetMyAngle(nSqrt, ((sprite[nSprite2].z - nHeight) - sprite[nSprite].z) >> 8);
+        int var_18 = GetMyAngle(nSqrt, ((pSprite2->z - nHeight) - pSprite->z) >> 8);
 
-        int nAngDelta = AngleDelta(sprite[nSprite].ang, nMyAngle, 1024);
+        int nAngDelta = AngleDelta(pSprite->ang, nMyAngle, 1024);
         int nAngDelta2 = abs(nAngDelta);
 
         if (nAngDelta2 > 63)
@@ -1243,15 +1261,15 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
                 nAngDelta = -push1;
         }
 
-        nAngle = (nAngDelta + sprite[nSprite].ang) & kAngleMask;
-        int nAngDeltaD = AngleDelta(sprite[nSprite].zvel, var_18, 24);
+        nAngle = (nAngDelta + pSprite->ang) & kAngleMask;
+        int nAngDeltaD = AngleDelta(pSprite->zvel, var_18, 24);
 
-        sprite[nSprite].zvel = (sprite[nSprite].zvel + nAngDeltaD) & kAngleMask;
+        pSprite->zvel = (pSprite->zvel + nAngDeltaD) & kAngleMask;
     }
 
-    sprite[nSprite].ang = nAngle;
+    pSprite->ang = nAngle;
 
-    int eax = abs(bcos(sprite[nSprite].zvel));
+    int eax = abs(bcos(pSprite->zvel));
 
     int x = ((bcos(nAngle) * ebx) >> 14) * eax;
     int y = ((bsin(nAngle) * ebx) >> 14) * eax;
@@ -1267,7 +1285,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
         sqrtNum = INT_MAX;
     }
 
-    int z = bsin(sprite[nSprite].zvel) * ksqrt(sqrtNum);
+    int z = bsin(pSprite->zvel) * ksqrt(sqrtNum);
 
     return movesprite(nSprite, x >> 2, y >> 2, (z >> 13) + bsin(ecx, -5), 0, 0, nClipType);
 }
@@ -1285,18 +1303,19 @@ int GetWallNormal(short nWall)
 void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum)
 {
     int nSprite = PlayerList[nPlayer].nSprite;
+    auto pSprite = &sprite[nSprite];
 
-    *x = sprite[nSprite].x;
-    *y = sprite[nSprite].y;
+    *x = pSprite->x;
+    *y = pSprite->y;
 
     int height = GetSpriteHeight(nSprite) / 2;
 
-    *z = sprite[nSprite].z - height;
-    *sectnum = sprite[nSprite].sectnum;
+    *z = pSprite->z - height;
+    *sectnum = pSprite->sectnum;
 
     clipmove_old((int32_t*)x, (int32_t*)y, (int32_t*)z, sectnum,
-        bcos(sprite[nSprite].ang, 7),
-        bsin(sprite[nSprite].ang, 7),
+        bcos(pSprite->ang, 7),
+        bsin(pSprite->ang, 7),
         5120, 1280, 1280, CLIPMASK1);
 }
 
@@ -1315,25 +1334,27 @@ void InitChunks()
 int GrabBodyGunSprite()
 {
     int nSprite = nBodyGunSprite[nCurBodyGunNum];
+    auto pSprite = &sprite[nSprite];
 
     if (nSprite == -1)
     {
         nSprite = insertsprite(0, 899);
+        pSprite = &sprite[nSprite];
         nBodyGunSprite[nCurBodyGunNum] = nSprite;
 
-        sprite[nSprite].lotag = -1;
-        sprite[nSprite].owner = -1;
+        pSprite->lotag = -1;
+        pSprite->owner = -1;
     }
     else
     {
-        int nAnim = sprite[nSprite].owner;
+        int nAnim = pSprite->owner;
 
         if (nAnim != -1) {
             DestroyAnim(nAnim);
         }
 
-        sprite[nSprite].lotag = -1;
-        sprite[nSprite].owner = -1;
+        pSprite->lotag = -1;
+        pSprite->owner = -1;
     }
 
     nCurBodyGunNum++;
@@ -1341,7 +1362,7 @@ int GrabBodyGunSprite()
         nCurBodyGunNum = 0;
     }
 
-    sprite[nSprite].cstat = 0;
+    pSprite->cstat = 0;
 
     return nSprite;
 }
@@ -1350,41 +1371,46 @@ int GrabBody()
 {
     int nSprite;
 
+    spritetype* pSprite = nullptr;
     do
     {
         nSprite = nBodySprite[nCurBodyNum];
+        pSprite = &sprite[nSprite];
 
         if (nSprite == -1)
         {
             nSprite = insertsprite(0, 899);
+            pSprite = &sprite[nSprite];
             nBodySprite[nCurBodyNum] = nSprite;
-            sprite[nSprite].cstat = 0x8000;
+            pSprite->cstat = 0x8000;
         }
 
         nCurBodyNum++;
         if (nCurBodyNum >= 50) {
             nCurBodyNum = 0;
         }
-    } while (sprite[nSprite].cstat & 0x101);
+    } while (pSprite->cstat & 0x101);
 
     if (nBodyTotal < 50) {
         nBodyTotal++;
     }
 
-    sprite[nSprite].cstat = 0;
+    pSprite->cstat = 0;
     return nSprite;
 }
 
 int GrabChunkSprite()
 {
     int nSprite = nChunkSprite[nCurChunkNum];
+	auto pSprite = &sprite[nSprite];
 
     if (nSprite == -1)
     {
         nSprite = insertsprite(0, 899);
+        pSprite = &sprite[nSprite];
         nChunkSprite[nCurChunkNum] = nSprite;
     }
-    else if (sprite[nSprite].statnum)
+    else if (pSprite->statnum)
     {
 // TODO	MonoOut("too many chunks being used at once!\n");
         return -1;
@@ -1399,7 +1425,7 @@ int GrabChunkSprite()
     if (nChunkTotal < kMaxMoveChunks)
         nChunkTotal++;
 
-    sprite[nSprite].cstat = 0x80;
+    pSprite->cstat = 0x80;
 
     return nSprite;
 }
@@ -1413,6 +1439,7 @@ int BuildCreatureChunk(int nVal, int nPic)
     if (nSprite == -1) {
         return -1;
     }
+	auto pSprite = &sprite[nSprite];
 
     if (nVal & 0x4000)
     {
@@ -1426,40 +1453,40 @@ int BuildCreatureChunk(int nVal, int nPic)
 
     nVal &= 0xFFFF;
 
-    sprite[nSprite].x = sprite[nVal].x;
-    sprite[nSprite].y = sprite[nVal].y;
-    sprite[nSprite].z = sprite[nVal].z;
+    pSprite->x = sprite[nVal].x;
+    pSprite->y = sprite[nVal].y;
+    pSprite->z = sprite[nVal].z;
 
     mychangespritesect(nSprite, sprite[nVal].sectnum);
 
-    sprite[nSprite].cstat = 0x80;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].pal = 0;
+    pSprite->cstat = 0x80;
+    pSprite->shade = -12;
+    pSprite->pal = 0;
 
-    sprite[nSprite].xvel = (RandomSize(5) - 16) << 7;
-    sprite[nSprite].yvel = (RandomSize(5) - 16) << 7;
-    sprite[nSprite].zvel = (-(RandomSize(8) + 512)) << 3;
+    pSprite->xvel = (RandomSize(5) - 16) << 7;
+    pSprite->yvel = (RandomSize(5) - 16) << 7;
+    pSprite->zvel = (-(RandomSize(8) + 512)) << 3;
 
     if (var_14)
     {
-        sprite[nSprite].xvel *= 4;
-        sprite[nSprite].yvel *= 4;
-        sprite[nSprite].zvel *= 2;
+        pSprite->xvel *= 4;
+        pSprite->yvel *= 4;
+        pSprite->zvel *= 2;
     }
 
-    sprite[nSprite].xrepeat = 64;
-    sprite[nSprite].yrepeat = 64;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = nPic;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].clipdist = 40;
+    pSprite->xrepeat = 64;
+    pSprite->yrepeat = 64;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->picnum = nPic;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->clipdist = 40;
 
 //	GrabTimeSlot(3);
 
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nSprite | 0xD0000);
-    sprite[nSprite].hitag = runlist_AddRunRec(NewRun, nSprite | 0xD0000);
+    pSprite->extra = -1;
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nSprite | 0xD0000);
+    pSprite->hitag = runlist_AddRunRec(NewRun, nSprite | 0xD0000);
 
     return nSprite | 0xD0000;
 }
@@ -1468,6 +1495,7 @@ void FuncCreatureChunk(int a, int, int nRun)
 {
     int nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
+	auto pSprite = &sprite[nSprite];
 
     int nMessage = a & 0x7F0000;
 
@@ -1476,20 +1504,20 @@ void FuncCreatureChunk(int a, int, int nRun)
 
     Gravity(nSprite);
 
-    int nSector = sprite[nSprite].sectnum;
-    sprite[nSprite].pal = sector[nSector].ceilingpal;
+    int nSector = pSprite->sectnum;
+    pSprite->pal = sector[nSector].ceilingpal;
 
-    int nVal = movesprite(nSprite, sprite[nSprite].xvel << 10, sprite[nSprite].yvel << 10, sprite[nSprite].zvel, 2560, -2560, CLIPMASK1);
+    int nVal = movesprite(nSprite, pSprite->xvel << 10, pSprite->yvel << 10, pSprite->zvel, 2560, -2560, CLIPMASK1);
 
-    if (sprite[nSprite].z >= sector[nSector].floorz)
+    if (pSprite->z >= sector[nSector].floorz)
     {
         // re-grab this variable as it may have changed in movesprite(). Note the check above is against the value *before* movesprite so don't change it.
-        nSector = sprite[nSprite].sectnum;
+        nSector = pSprite->sectnum;
 
-        sprite[nSprite].xvel = 0;
-        sprite[nSprite].yvel = 0;
-        sprite[nSprite].zvel = 0;
-        sprite[nSprite].z = sector[nSector].floorz;
+        pSprite->xvel = 0;
+        pSprite->yvel = 0;
+        pSprite->zvel = 0;
+        pSprite->z = sector[nSector].floorz;
     }
     else
     {
@@ -1500,15 +1528,15 @@ void FuncCreatureChunk(int a, int, int nRun)
 
         if (nVal & 0x20000)
         {
-            sprite[nSprite].cstat = 0x8000;
+            pSprite->cstat = 0x8000;
         }
         else
         {
             if ((nVal & 0x3C000) == 0x10000)
             {
-                sprite[nSprite].xvel >>= 1;
-                sprite[nSprite].yvel >>= 1;
-                sprite[nSprite].zvel = -sprite[nSprite].zvel;
+                pSprite->xvel >>= 1;
+                pSprite->yvel >>= 1;
+                pSprite->zvel = -pSprite->zvel;
                 return;
             }
             else if ((nVal & 0x3C000) == 0xC000)
@@ -1525,22 +1553,22 @@ void FuncCreatureChunk(int a, int, int nRun)
             }
 
             // loc_16E0C
-            int nSqrt = lsqrt(((sprite[nSprite].yvel >> 10) * (sprite[nSprite].yvel >> 10)
-                + (sprite[nSprite].xvel >> 10) * (sprite[nSprite].xvel >> 10)) >> 8);
+            int nSqrt = lsqrt(((pSprite->yvel >> 10) * (pSprite->yvel >> 10)
+                + (pSprite->xvel >> 10) * (pSprite->xvel >> 10)) >> 8);
 
-            sprite[nSprite].xvel = bcos(nAngle) * (nSqrt >> 1);
-            sprite[nSprite].yvel = bsin(nAngle) * (nSqrt >> 1);
+            pSprite->xvel = bcos(nAngle) * (nSqrt >> 1);
+            pSprite->yvel = bsin(nAngle) * (nSqrt >> 1);
             return;
         }
     }
 
-    runlist_DoSubRunRec(sprite[nSprite].owner);
-    runlist_FreeRun(sprite[nSprite].lotag - 1);
-    runlist_SubRunRec(sprite[nSprite].hitag);
+    runlist_DoSubRunRec(pSprite->owner);
+    runlist_FreeRun(pSprite->lotag - 1);
+    runlist_SubRunRec(pSprite->hitag);
 
     changespritestat(nSprite, 0);
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].lotag = 0;
+    pSprite->hitag = 0;
+    pSprite->lotag = 0;
 }
 
 short UpdateEnemy(short *nEnemy)

@@ -38,8 +38,8 @@ int baseFloor[kMaxSectors];
 int baseCeil[kMaxSectors];
 int velFloor[kMaxSectors];
 int velCeil[kMaxSectors];
-short gUpperLink[kMaxSectors];
-short gLowerLink[kMaxSectors];
+DBloodActor* gUpperLink[kMaxSectors];
+DBloodActor* gLowerLink[kMaxSectors];
 HITINFO gHitInfo;
 
 bool AreSectorsNeighbors(int sect1, int sect2)

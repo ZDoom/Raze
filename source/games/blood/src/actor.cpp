@@ -2407,7 +2407,7 @@ static void actInitThings()
 			break;
 		case kThingBloodChunks:
 		{
-			SEQINST* pInst = GetInstance(3, pSprite->extra);
+			SEQINST* pInst = GetInstance(act);
 			if (pInst)
 			{
 				auto seq = getSequence(pInst->nSeqID);
@@ -2454,7 +2454,7 @@ static void actInitDudes()
 		{
 			spritetype* pSprite = &act->s();
 			if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
-				I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", pSprite->index);
+				I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", act->GetIndex());
 			unk[pSprite->type - kDudeBase] = 1;
 		}
 
@@ -2512,7 +2512,7 @@ static void actInitDudes()
 
 			}
 
-			if (getSequence(seqStartId)) seqSpawn(seqStartId, 3, pSprite->extra);
+			if (getSequence(seqStartId)) seqSpawn(seqStartId, act);
 		}
 		aiInit();
 	}
@@ -2581,7 +2581,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 		}
 		else
 		{
-			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", (int)pSprite->index, (int)pSprite->type, (int)pSprite->statnum);
+			Printf(PRINT_HIGH, "Unexpected type in ConcussSprite(): Sprite: %d  Type: %d  Stat: %d", actor->GetIndex(), (int)pSprite->type, (int)pSprite->statnum);
 			return;
 		}
 
@@ -2589,7 +2589,6 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 		{
 			int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
 			int t = scale(damage, size, mass);
-			int nSprite = pSprite->index;
 			actor->xvel += MulScale(t, dx, 16);
 			actor->yvel += MulScale(t, dy, 16);
 			actor->zvel += MulScale(t, dz, 16);
@@ -3767,20 +3766,20 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			}
 			break;
 		case kTrapMachinegun:
-			seqSpawn(28, 3, pSprite->extra, -1);
+			seqSpawn(28, actor, -1);
 			break;
 
 		case kThingFluorescent:
-			seqSpawn(12, 3, pSprite->extra, -1);
+			seqSpawn(12, actor, -1);
 			GibSprite(actor, GIBTYPE_6, nullptr, nullptr);
 			break;
 
 		case kThingSpiderWeb:
-			seqSpawn(15, 3, pSprite->extra, -1);
+			seqSpawn(15, actor, -1);
 			break;
 
 		case kThingMetalGrate:
-			seqSpawn(21, 3, pSprite->extra, -1);
+			seqSpawn(21, actor, -1);
 			GibSprite(actor, GIBTYPE_4, nullptr, nullptr);
 			break;
 
@@ -3799,7 +3798,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 				break;
 
 			case 1:
-				seqSpawn(26, 3, pSprite->extra, nTreeToGibClient);
+				seqSpawn(26, actor, nTreeToGibClient);
 				sfxPlay3DSound(actor, 351, -1, 0);
 				break;
 			}
@@ -3929,7 +3928,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			}
 		}
 
-		if (pMissile->extra > 0)
+		if (missileActor->hasX())
 		{
 			actPostSprite(missileActor, kStatDecoration);
 			if (pMissile->ang == 1024) sfxPlay3DSound(pMissile, 307, -1, 0);
@@ -3943,7 +3942,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 		break;
 	case kMissileTeslaAlt:
-		teslaHit(pMissile, hitCode);
+		teslaHit(missileActor, hitCode);
 		switch (hitCode)
 		{
 		case 0:
@@ -4101,7 +4100,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxKill3DSound(pMissile, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 522, pMissile->sectnum);
 		actPostSprite(missileActor, kStatDebris);
-		seqSpawn(20, 3, pMissile->extra, -1);
+		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
 			if (pSpriteHit->statnum == kStatDude)
@@ -4116,7 +4115,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		actPostSprite(missileActor, kStatDebris);
 		pMissile->cstat &= ~16;
 		pMissile->type = kSpriteDecoration;
-		seqSpawn(20, 3, pMissile->extra, -1);
+		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
 			if (pSpriteHit->statnum == kStatDude)
@@ -4970,7 +4969,7 @@ void MoveDude(DBloodActor* actor)
 		if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout))
 		{
 			if (sector[nSector].type == kSectorTeleport)
-				pXSector->data = pPlayer ? pSprite->index : -1;
+				pXSector->data = pPlayer ? pSprite->type - kDudePlayer1 : -1;
 			trTriggerSector(nSector, pXSector, kCmdSectorEnter);
 		}
 
@@ -5518,7 +5517,7 @@ void actExplodeSprite(DBloodActor* actor)
 		nType = kExplosionFireball;
 		seqSpawn(9, actor, -1);
 		if (Chance(0x8000)) pSprite->cstat |= 4;
-		sfxPlay3DSound(actor, 306, 24 + (pSprite->index & 3), FX_GlobalChannel); // ouch...
+		sfxPlay3DSound(actor, 306, 24 + (actor->GetIndex() & 3), FX_GlobalChannel); // ouch...
 		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
 
@@ -5840,7 +5839,7 @@ static void actCheckThings()
 			}
 			actAirDrag(actor, 128);
 
-			if (((pSprite->index >> 8) & 15) == (gFrameCount & 15) && (pSprite->flags & 2))	pSprite->flags |= 4;
+			if (((actor->GetIndex() >> 8) & 15) == (gFrameCount & 15) && (pSprite->flags & 2))	pSprite->flags |= 4;
 			if ((pSprite->flags & 4) || actor->xvel || actor->yvel || actor->zvel || velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
 			{
 				Collision hit = MoveThing(actor);
@@ -6385,21 +6384,7 @@ void actProcessSprites(void)
 
 DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool setextra)
 {
-	DBloodActor* actor;
-	int nSprite = InsertSprite(nSector, nStat);
-	if (nSprite >= 0)
-	{
-		sprite[nSprite].extra = -1;
-		actor = &bloodActors[nSprite];
-	}
-	else
-	{
-		BloodStatIterator it(kStatPurge);
-		actor = it.Next();
-		assert(actor != nullptr);
-		ChangeActorSect(actor, nSector);
-		actPostSprite(actor, nStat);
-	}
+	DBloodActor* actor = InsertSprite(nSector, nStat);
 
 	vec3_t pos = { x, y, z };
 	setActorPos(actor, &pos);
@@ -6424,18 +6409,7 @@ DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool se
 DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 {
 	auto pSource = &source->s();
-	int nSprite = InsertSprite(pSource->sectnum, nStat);
-	DBloodActor* actor;
-	if (nSprite < 0)
-	{
-		BloodStatIterator it(kStatPurge);
-		actor = it.Next();
-		assert(actor);
-		assert(pSource->sectnum >= 0 && pSource->sectnum < kMaxSectors);
-		ChangeActorSect(actor, pSource->sectnum);
-		actPostSprite(actor, nStat);
-	}
-	else actor = &bloodActors[nSprite];
+	DBloodActor* actor = InsertSprite(pSource->sectnum, nStat);
 
 	spritetype* pSprite = &actor->s();
 	pSprite->x = pSource->x;
@@ -6553,7 +6527,7 @@ DBloodActor* actSpawnThing(int nSector, int x, int y, int z, int nThingType)
     pSprite->pal = pThingInfo->pal;
 	if (pThingInfo->xrepeat) pSprite->xrepeat = pThingInfo->xrepeat;
 	if (pThingInfo->yrepeat) pSprite->yrepeat = pThingInfo->yrepeat;
-    show2dsprite.Set(pSprite->index);
+	pSprite->cstat2 |= CSTAT2_SPRITE_MAPPED;
 	switch (nThingType)
 	{
     case kThingVoodooHead:
@@ -6745,7 +6719,6 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	assert(nType >= kMissileBase && nType < kMissileMax);
 	char v4 = 0;
 	auto pSprite = &actor->s();
-	int nSprite = pSprite->index;
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
 	int x = pSprite->x + MulScale(a2, Cos(pSprite->ang + 512), 30);
 	int y = pSprite->y + MulScale(a2, Sin(pSprite->ang + 512), 30);
@@ -6770,8 +6743,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	}
 	auto spawned = actSpawnSprite(pSprite->sectnum, x, y, z, 5, 1);
 	spritetype* pMissile = &spawned->s();
-	int nMissile = pMissile->index;
-	show2dsprite.Set(nMissile);
+	pMissile->cstat2 |= CSTAT2_SPRITE_MAPPED;
 	pMissile->type = nType;
 	pMissile->shade = pMissileInfo->shade;
 	pMissile->pal = 0;
@@ -7349,7 +7321,6 @@ void MakeSplash(DBloodActor* actor)
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	pSprite->flags &= ~2;
-	int nXSprite = pSprite->extra;
 	pSprite->z -= 4 << 8;
 	int nSurface = tileGetSurfType(actor->hit.florhit);
 	switch (pSprite->type)
@@ -7443,14 +7414,5 @@ void HITINFO::set(hitdata_t* hit)
 	hity = hit->pos.y;
 	hitz = hit->pos.z;
 }
-
-
-char SetSpriteState(DBloodActor* actor, int nState)
-{
-	return SetSpriteState(actor->GetIndex(), &actor->x(), nState);
-}
-
-
-
 
 END_BLD_NS

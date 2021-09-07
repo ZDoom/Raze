@@ -64,10 +64,11 @@ void FreeRa(short nPlayer)
 {
     int nRun = Ra[nPlayer].nRun;
     int nSprite = Ra[nPlayer].nSprite;
+	auto pSprite = &sprite[nSprite];
 
     runlist_SubRunRec(nRun);
-    runlist_DoSubRunRec(sprite[nSprite].owner);
-    runlist_FreeRun(sprite[nSprite].lotag - 1);
+    runlist_DoSubRunRec(pSprite->owner);
+    runlist_FreeRun(pSprite->lotag - 1);
 
     mydeletesprite(nSprite);
 }
@@ -77,21 +78,22 @@ int BuildRa(short nPlayer)
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
     int nSprite = insertsprite(sprite[nPlayerSprite].sectnum, 203);
+	auto pSprite = &sprite[nSprite];
 
-    sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nPlayer | 0x210000);
-    sprite[nSprite].pal = 1;
-    sprite[nSprite].xrepeat = 64;
-    sprite[nSprite].yrepeat = 64;
-    sprite[nSprite].x = sprite[nPlayerSprite].x;
-    sprite[nSprite].y = sprite[nPlayerSprite].y;
-    sprite[nSprite].z = sprite[nPlayerSprite].z;
+    pSprite->cstat = 0x8000;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->extra = -1;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->hitag = 0;
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nPlayer | 0x210000);
+    pSprite->pal = 1;
+    pSprite->xrepeat = 64;
+    pSprite->yrepeat = 64;
+    pSprite->x = sprite[nPlayerSprite].x;
+    pSprite->y = sprite[nPlayerSprite].y;
+    pSprite->z = sprite[nPlayerSprite].z;
 
 //	GrabTimeSlot(3);
 
@@ -117,6 +119,7 @@ void MoveRaToEnemy(short nPlayer)
     short nTarget = Ra[nPlayer].nTarget;
     short nSprite = Ra[nPlayer].nSprite;
     short nAction = Ra[nPlayer].nAction;
+	auto pSprite = &sprite[nSprite];
 
     if (nTarget != -1)
     {
@@ -133,7 +136,7 @@ void MoveRaToEnemy(short nPlayer)
         }
         else
         {
-            if (sprite[nSprite].sectnum != sprite[nTarget].sectnum) {
+            if (pSprite->sectnum != sprite[nTarget].sectnum) {
                 mychangespritesect(nSprite, sprite[nTarget].sectnum);
             }
         }
@@ -151,15 +154,15 @@ void MoveRaToEnemy(short nPlayer)
             return;
         }
 
-        sprite[nSprite].cstat = 0x8000;
+        pSprite->cstat = 0x8000;
         nTarget = PlayerList[nPlayer].nSprite;
     }
 
-    sprite[nSprite].x = sprite[nTarget].x;
-    sprite[nSprite].y = sprite[nTarget].y;
-    sprite[nSprite].z = sprite[nTarget].z - GetSpriteHeight(nTarget);
+    pSprite->x = sprite[nTarget].x;
+    pSprite->y = sprite[nTarget].y;
+    pSprite->z = sprite[nTarget].z - GetSpriteHeight(nTarget);
 
-    if (sprite[nSprite].sectnum != sprite[nTarget].sectnum) {
+    if (pSprite->sectnum != sprite[nTarget].sectnum) {
         mychangespritesect(nSprite, sprite[nTarget].sectnum);
     }
 }
@@ -171,6 +174,7 @@ void FuncRa(int a, int, int nRun)
 
     short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
     short nSprite = Ra[nPlayer].nSprite;
+	auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
 
@@ -191,7 +195,7 @@ void FuncRa(int a, int, int nRun)
         case 0x20000:
         {
             Ra[nPlayer].nTarget = sPlayerInput[nPlayer].nTarget;
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
 
             if (Ra[nPlayer].nAction)
             {
@@ -213,11 +217,11 @@ void FuncRa(int a, int, int nRun)
 
                     if (!Ra[nPlayer].field_C || Ra[nPlayer].nTarget <= -1)
                     {
-                        sprite[nSprite].cstat = 0x8000;
+                        pSprite->cstat = 0x8000;
                     }
                     else
                     {
-                        sprite[nSprite].cstat &= 0x7FFF;
+                        pSprite->cstat &= 0x7FFF;
                         Ra[nPlayer].nAction = 1;
                         Ra[nPlayer].nFrame  = 0;
                     }
@@ -288,7 +292,7 @@ void FuncRa(int a, int, int nRun)
                 {
                     if (bVal)
                     {
-                        sprite[nSprite].cstat |= 0x8000;
+                        pSprite->cstat |= 0x8000;
                         Ra[nPlayer].nAction = 0;
                         Ra[nPlayer].nFrame  = 0;
                         Ra[nPlayer].field_C = 0;

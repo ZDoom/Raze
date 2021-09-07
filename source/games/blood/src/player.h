@@ -81,7 +81,7 @@ extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
 struct PLAYER
 {
-    DBloodActor*        actor();
+    DBloodActor*        actor;
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
@@ -104,7 +104,6 @@ struct PLAYER
     int                 swayHeight;
     int                 swayWidth;
     int                 nPlayer;  // Connect id
-    int                 nSprite;
     int                 lifeMode;
     int                 bloodlust;  // ---> useless
     int                 zView;
@@ -141,7 +140,7 @@ struct PLAYER
     //int               at1d2;
     DBloodActor*        aimTarget;  // aim target sprite
     int                 aimTargetsCount;
-    short               aimTargets[16];
+    DBloodActor*        aimTargets[16];
     int                 deathTime;
     int                 pwUpTime[kMaxPowerUps];
     int                 fragCount;

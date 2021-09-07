@@ -1009,7 +1009,8 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 			// This originally depended on undefined behavior as the deleted sprite was still used for the sound
 			// with no checking if it got reused in the mean time.
 			spri->picnum = 0;	// give it a picnum without any behavior attached, just in case
-			spri->cstat |= CSTAT_SPRITE_INVISIBLE|CSTAT_SPRITE_NOFIND;
+			spri->cstat |= CSTAT_SPRITE_INVISIBLE;
+			spri->cstat2 |= CSTAT2_SPRITE_NOFIND;
 			changeactorstat(actor, STAT_REMOVED);
 		}
 	}
@@ -4955,10 +4956,10 @@ void getglobalz(DDukeActor* actor)
 			zr = 4;
 		else zr = 127;
 
-		auto cc = s->cstat;
-		s->cstat |= CSTAT_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
+		auto cc = s->cstat2;
+		s->cstat2 |= CSTAT2_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
 		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sectnum, &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
-		s->cstat = cc;
+		s->cstat2 = cc;
 
 		if( lz.type == kHitSprite && (lz.actor->s->cstat&48) == 0 )
 		{

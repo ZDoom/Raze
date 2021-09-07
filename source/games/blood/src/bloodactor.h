@@ -92,20 +92,23 @@ class DBloodActor
 
 public:
 	int dudeSlope;
+	int xvel, yvel, zvel;
+	bool hasx;
+	XSPRITE xsprite;
 	SPRITEHIT hit;
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
 	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 	POINT3D basePoint;
-	int xvel, yvel, zvel;
 
 	// transient data (not written to savegame)
 	int cumulDamage;
 	bool explosionhackflag;		// this originally hijacked the target field which is not safe when working with pointers.
+	bool interpolated;
 	ConditionElement condition[2];
 
-	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
+	DBloodActor() :index(int(this - base())) {}
 	DBloodActor& operator=(const DBloodActor& other) = default;
 
 	void Clear()
@@ -117,20 +120,22 @@ public:
 		spriteMass = {};
 		hit = {};
 		basePoint = {};
+		xsprite = {};
+		hasx = false;
+		interpolated = false;
 		xvel = yvel = zvel = 0;
 	}
-	bool hasX() { return sprite[index].extra > 0; }
-	void addX()
-	{
-		if (s().extra == -1) dbInsertXSprite(s().index);
-	}
+	bool hasX() { return hasx; }
+	void addX() { hasx = true; }
+
 	spritetype& s() { return sprite[index]; }
-	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
-	int GetIndex() { return index; }	// this is for error printing only!
+	XSPRITE& x() { return xsprite; }	// calling this does not validate the xsprite!
+	int GetIndex() { return index; }	// should only be for error reporting or for masking to a slot index
+	int GetSpriteIndex() { return index; }	// this is only here to mark places that need changing later!
 
 	void SetOwner(DBloodActor* own)
 	{
-		s().owner = own ? own->s().index : -1;
+		s().owner = own ? own->GetSpriteIndex() : -1;
 	}
 
 	DBloodActor* GetOwner()
@@ -141,7 +146,7 @@ public:
 
 	void SetTarget(DBloodActor* own)
 	{
-		x().target_i = own ? own->s().index : -1;
+		x().target_i = own ? own->GetSpriteIndex() : -1;
 	}
 
 	DBloodActor* GetTarget()
@@ -162,7 +167,7 @@ public:
 
 	void SetBurnSource(DBloodActor* own)
 	{
-		x().burnSource = own ? own->s().index : -1;
+		x().burnSource = own ? own->GetSpriteIndex() : -1;
 	}
 
 	DBloodActor* GetBurnSource()
@@ -298,6 +303,11 @@ class BloodLinearSpriteIterator
 	int index = 0;
 public:
 
+	void Reset()
+	{
+		index = 0;
+	}
+
 	DBloodActor* Next()
 	{
 		while (index < MAXSPRITES)
@@ -313,7 +323,7 @@ public:
 
 inline int DeleteSprite(DBloodActor* nSprite)
 {
-	if (nSprite) return DeleteSprite(nSprite->s().index);
+	if (nSprite) return DeleteSprite(nSprite->GetSpriteIndex());
 	return 0;
 }
 
@@ -322,22 +332,14 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 	GetSpriteExtents(&actor->s(), top, bottom);
 }
 
-inline DBloodActor* PLAYER::actor()
-{
-	return &bloodActors[pSprite->index];
-}
-
-
 inline DBloodActor* getUpperLink(int sect)
 {
-	auto l = gUpperLink[sect];
-	return l == -1 ? nullptr : &bloodActors[l];
+	return gUpperLink[sect];
 }
 
 inline DBloodActor* getLowerLink(int sect)
 {
-	auto l = gLowerLink[sect];
-	return l == -1 ? nullptr : &bloodActors[l];
+	return gLowerLink[sect];
 }
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)
@@ -363,12 +365,12 @@ inline void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1)
 
 inline void ChangeActorStat(DBloodActor* actor, int stat)
 {
-	ChangeSpriteStat(actor->s().index, stat);
+	ChangeSpriteStat(actor->GetSpriteIndex(), stat);
 }
 
 inline void ChangeActorSect(DBloodActor* actor, int stat)
 {
-	ChangeSpriteSect(actor->s().index, stat);
+	ChangeSpriteSect(actor->GetSpriteIndex(), stat);
 }
 
 inline int Collision::actorIndex(DBloodActor* actor)
@@ -383,7 +385,7 @@ inline DBloodActor* Collision::Actor(int a)
 
 inline void setActorPos(DBloodActor* actor, vec3_t* pos)
 {
-	setsprite(actor->s().index, pos);
+	setsprite(actor->GetSpriteIndex(), pos);
 }
 
 END_BLD_NS

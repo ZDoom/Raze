@@ -91,41 +91,44 @@ int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, 
 {
     auto nScorp = scorpion.Reserve(1);
 
+	auto pSprite = &sprite[nSprite];
+
     if (nSprite == -1)
     {
         nSprite = insertsprite(nSector, 122);
+		pSprite = &sprite[nSprite];
     }
     else
     {
         changespritestat(nSprite, 122);
 
-        x = sprite[nSprite].x;
-        y = sprite[nSprite].y;
-        z = sector[sprite[nSprite].sectnum].floorz;
-        nAngle = sprite[nSprite].ang;
+        x = pSprite->x;
+        y = pSprite->y;
+        z = sector[pSprite->sectnum].floorz;
+        nAngle = pSprite->ang;
     }
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
-    sprite[nSprite].x = x;
-    sprite[nSprite].y = y;
-    sprite[nSprite].z = z;
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].clipdist = 70;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].xrepeat = 80;
-    sprite[nSprite].yrepeat = 80;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].ang = nAngle;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].hitag = 0;
+    pSprite->x = x;
+    pSprite->y = y;
+    pSprite->z = z;
+    pSprite->cstat = 0x101;
+    pSprite->clipdist = 70;
+    pSprite->shade = -12;
+    pSprite->xrepeat = 80;
+    pSprite->yrepeat = 80;
+    pSprite->picnum = 1;
+    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->ang = nAngle;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->extra = -1;
+    pSprite->hitag = 0;
 
 //	GrabTimeSlot(3);
 
@@ -139,7 +142,7 @@ int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, 
 
     scorpion[nScorp].nChannel = nChannel;
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nScorp | 0x220000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nScorp | 0x220000);
     scorpion[nScorp].nRun = runlist_AddRunRec(NewRun, nScorp | 0x220000);
 
     nCreaturesTotal++;
@@ -154,6 +157,7 @@ void FuncScorp(int a, int nDamage, int nRun)
 
     short nSprite = scorpion[nScorp].nSprite;
     short nAction = scorpion[nScorp].nAction;
+	auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
 
@@ -200,10 +204,10 @@ void FuncScorp(int a, int nDamage, int nRun)
                 scorpion[nScorp].nFrame = 0;
                 scorpion[nScorp].nCount = 10;
 
-                sprite[nSprite].xvel = 0;
-                sprite[nSprite].yvel = 0;
-                sprite[nSprite].zvel = 0;
-                sprite[nSprite].cstat &= 0xFEFE;
+                pSprite->xvel = 0;
+                pSprite->yvel = 0;
+                pSprite->zvel = 0;
+                pSprite->cstat &= 0xFEFE;
 
                 nCreaturesKilled++;
                 return;
@@ -214,7 +218,7 @@ void FuncScorp(int a, int nDamage, int nRun)
 
                 if (nTarget >= 0)
                 {
-                    if (sprite[nSprite].statnum == 100 || (sprite[nSprite].statnum < 199 && !RandomSize(5)))
+                    if (pSprite->statnum == 100 || (pSprite->statnum < 199 && !RandomSize(5)))
                     {
                         scorpion[nScorp].nTarget = nTarget;
                     }
@@ -245,7 +249,7 @@ void FuncScorp(int a, int nDamage, int nRun)
 
             int nSeq = SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, scorpion[nScorp].nFrame);
+            pSprite->picnum = seq_GetSeqPicnum2(nSeq, scorpion[nScorp].nFrame);
             seq_MoveSequence(nSprite, nSeq, scorpion[nScorp].nFrame);
 
             scorpion[nScorp].nFrame++;
@@ -283,8 +287,8 @@ void FuncScorp(int a, int nDamage, int nRun)
                                 D3PlayFX(StaticSound[kSound41], nSprite);
 
                                 scorpion[nScorp].nFrame = 0;
-                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
+                                pSprite->xvel = bcos(pSprite->ang);
+                                pSprite->yvel = bsin(pSprite->ang);
 
                                 scorpion[nScorp].nAction = 1;
                                 scorpion[nScorp].nTarget = nTarget;
@@ -312,8 +316,8 @@ void FuncScorp(int a, int nDamage, int nRun)
                         {
                             if (nTarget == (nMov & 0x3FFF))
                             {
-                                int nAngle = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-                                if (AngleDiff(sprite[nSprite].ang, nAngle) < 64)
+                                int nAngle = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
+                                if (AngleDiff(pSprite->ang, nAngle) < 64)
                                 {
                                     scorpion[nScorp].nAction = 2;
                                     scorpion[nScorp].nFrame = 0;
@@ -368,8 +372,8 @@ void FuncScorp(int a, int nDamage, int nRun)
                         {
                             scorpion[nScorp].nAction = 1;
 
-                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
+                            pSprite->xvel = bcos(pSprite->ang);
+                            pSprite->yvel = bsin(pSprite->ang);
 
                             scorpion[nScorp].nFrame = 0;
                             return;
@@ -380,7 +384,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    short nBulletSprite = BuildBullet(nSprite, 16, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1) & 0xFFFF;
+                    short nBulletSprite = BuildBullet(nSprite, 16, 0, 0, -1, pSprite->ang, nTarget + 10000, 1) & 0xFFFF;
                     if (nBulletSprite > -1)
                     {
                         PlotCourseToSprite(nBulletSprite, nTarget);
@@ -430,7 +434,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    int nSpider = BuildSpider(-1, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].ang);
+                    int nSpider = BuildSpider(-1, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang);
                     if (nSpider != -1)
                     {
                         short nSpiderSprite = nSpider & 0xFFFF;
@@ -449,13 +453,13 @@ void FuncScorp(int a, int nDamage, int nRun)
 
                 case 9:
                 {
-                    sprite[nSprite].cstat &= 0xFEFE;
+                    pSprite->cstat &= 0xFEFE;
 
                     if (bVal)
                     {
                         runlist_SubRunRec(scorpion[nScorp].nRun);
-                        runlist_DoSubRunRec(sprite[nSprite].owner);
-                        runlist_FreeRun(sprite[nSprite].lotag - 1);
+                        runlist_DoSubRunRec(pSprite->owner);
+                        runlist_FreeRun(pSprite->lotag - 1);
 
                         mydeletesprite(nSprite);
                     }
@@ -470,11 +474,11 @@ void FuncScorp(int a, int nDamage, int nRun)
 
 FS_Pink_A:
     PlotCourseToSprite(nSprite, nTarget);
-    sprite[nSprite].ang += RandomSize(7) - 63;
-    sprite[nSprite].ang &= kAngleMask;
+    pSprite->ang += RandomSize(7) - 63;
+    pSprite->ang &= kAngleMask;
 
-    sprite[nSprite].xvel = bcos(sprite[nSprite].ang);
-    sprite[nSprite].yvel = bsin(sprite[nSprite].ang);
+    pSprite->xvel = bcos(pSprite->ang);
+    pSprite->yvel = bsin(pSprite->ang);
 
 FS_Pink_B:
     if (scorpion[nScorp].nCount)
@@ -485,12 +489,12 @@ FS_Pink_B:
     {
         scorpion[nScorp].nCount = 45;
 
-        if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - GetSpriteHeight(nSprite), sprite[nSprite].sectnum,
+        if (cansee(pSprite->x, pSprite->y, pSprite->z - GetSpriteHeight(nSprite), pSprite->sectnum,
             sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
         {
-            sprite[nSprite].xvel = 0;
-            sprite[nSprite].yvel = 0;
-            sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+            pSprite->ang = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
 
             scorpion[nScorp].nIndex = RandomSize(2) + RandomSize(3);
 
@@ -517,8 +521,8 @@ FS_Red:
         scorpion[nScorp].nCount = 30;
         scorpion[nScorp].nTarget = -1;
 
-        sprite[nSprite].xvel = 0;
-        sprite[nSprite].yvel = 0;
+        pSprite->xvel = 0;
+        pSprite->yvel = 0;
     }
 }
 END_PS_NS

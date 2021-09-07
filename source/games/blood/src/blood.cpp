@@ -107,10 +107,9 @@ void StartLevel(MapRecord* level, bool newgame)
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			memcpy(&gPlayerTemp[i], &gPlayer[i], sizeof(PLAYER));
-			gHealthTemp[i] = xsprite[gPlayer[i].pSprite->extra].health;
+			gHealthTemp[i] = gPlayer[i].actor->x().health;
 		}
 	}
-	memset(xsprite, 0, sizeof(xsprite));
 	//drawLoadingScreen();
 	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsectnum, nullptr);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
@@ -264,7 +263,9 @@ void GameInterface::Ticker()
 		if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
 	}
 
-	gInterpolateSprite.Zero();
+	BloodSpriteIterator it;
+	while (DBloodActor* act = it.Next()) act->interpolated = false;
+
 	ClearMovementInterpolations();
 	UpdateInterpolations();
 
