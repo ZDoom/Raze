@@ -658,13 +658,13 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
 //
 //==========================================================================
 
-void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags chanflags)
+void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags chanflags, int sectf)
 {
     soundx = x;
     soundy = y;
     soundz = z;
-    soundsect = nSector&0x3fff;
-    PlayFX2(ax, -1, nSector & 0x4000, chanflags);
+    soundsect = nSector;
+    PlayFX2(ax, -1, sectf, chanflags);
 }
 
 //==========================================================================
