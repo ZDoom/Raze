@@ -557,7 +557,7 @@ void GameInterface::UpdateSounds()
 int soundx, soundy, soundz;
 short soundsect;
 
-void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanflags)
+void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanflags, int sprflags)
 {
     if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
@@ -569,9 +569,8 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
     bool fullvol = false, hiprio = false;
     if (nSprite >= 0)
     {
-        fullvol = (nSprite & 0x2000) != 0;
-        hiprio = (nSprite & 0x4000) != 0;
-        nSprite &= 0xfff;
+        fullvol = (sprflags & 0x2000) != 0;
+        hiprio = (sprflags & 0x4000) != 0;
         soundx = sprite[nSprite].x;
         soundy = sprite[nSprite].y;
         soundz = sprite[nSprite].z;

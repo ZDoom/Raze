@@ -1101,7 +1101,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                                     short nBlock = sector[nPlayerPushSect[nPlayer]].extra;
                                     int nBlockSprite = sBlockInfo[nBlock].nSprite;
 
-                                    D3PlayFX(StaticSound[kSound23], nBlockSprite | 0x4000);
+                                    D3PlayFX(StaticSound[kSound23], nBlockSprite, 0x4000);
                                 }
                                 else
                                 {

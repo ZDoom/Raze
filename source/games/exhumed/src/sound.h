@@ -131,11 +131,11 @@ int LoadSound(const char* sound);
 void BendAmbientSound();
 void CheckAmbience(short nSector);
 
-void PlayFX2(unsigned short nSound, short nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE);
+void PlayFX2(unsigned short nSound, short nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
 void PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector, EChanFlags chanflags = CHANF_NONE);
-inline void D3PlayFX(unsigned short nSound, short nVal)
+inline void D3PlayFX(unsigned short nSound, short nVal, short flags = 0)
 {
-    PlayFX2(nSound, nVal);
+    PlayFX2(nSound, nVal, 0, CHANF_NONE, flags);
 }
 void StopSpriteSound(short nSprite);
 
