@@ -1699,5 +1699,60 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
     }
 }
 
+// This is only temporary so that the event system can be refactored in smaller steps.
+void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun)
+{
+    RunListEvent ev;
+    ev.nMessage = (EMessageType)(nMessage >> 16);
+    ev.nIndex = nObject;
+    switch (ev.nMessage)
+    {
+    case EMessageType::ProcessChannel:
+        ai->ProcessChannel(&ev);
+        break;
+
+    case EMessageType::Tick:
+        ai->Tick(&ev);
+        break;
+
+    case EMessageType::Process:
+        ai->Process(&ev);
+        break;
+
+    case EMessageType::Use:
+        ai->Use(&ev);
+        break;
+
+    case EMessageType::TouchFloor:
+        ai->TouchFloor(&ev);
+        break;
+
+    case EMessageType::LeaveSector:
+        ai->LeaveSector(&ev);
+        break;
+
+    case EMessageType::EnterSector:
+        ai->EnterSector(&ev);
+        break;
+
+    case EMessageType::Damage:
+        ev.pActor = &exhumedActors[nObject];
+        ai->Damage(&ev);
+        break;
+
+    case EMessageType::Draw:
+        ev.pTSprite = &mytsprite[nObject];
+        ai->Draw(&ev);
+        break;
+
+    case EMessageType::RadialDamage:
+        ev.nRadialDamage = nRadialDamage;
+        ev.nDamageRadius = nDamageRadius;
+        ev.pActor = &exhumedActors[nRadialSpr];
+        ai->RadialDamage(&ev);
+        break;
+    }
+}
+
 
 END_PS_NS

@@ -389,6 +389,49 @@ struct RunChannel
     short d;
 };
 
+enum class EMessageType
+{
+    ProcessChannel = 1,
+    Tick,
+    Process,
+    Use,
+    TouchFloor,
+    LeaveSector,
+    EnterSector,
+    Damage,
+    Draw,
+    RadialDamage
+};
+
+struct RunListEvent
+{
+    EMessageType nMessage;
+    int nIndex;                 // mostly the player, sometimes the channel list
+    tspritetype* pTSprite;      // for the draw event
+    DExhumedActor* pActor;      // for the damage event, radialSpr for radial damage - owner will not be passed as it can be retrieved from this.
+    int nDamage, nRun;
+
+    int nRadialDamage;          // Radial damage needs a bit more info.
+    int nDamageRadius;
+};
+
+struct ExhumedAI
+{
+    virtual ~ExhumedAI() = default;
+    virtual void ProcessChannel(RunListEvent* ev) {}
+    virtual void Tick(RunListEvent* ev) {}
+    virtual void Process(RunListEvent* ev) {}
+    virtual void Use(RunListEvent* ev) {}
+    virtual void TouchFloor(RunListEvent* ev) {}
+    virtual void LeaveSector(RunListEvent* ev) {}
+    virtual void EnterSector(RunListEvent* ev) {}
+    virtual void Damage(RunListEvent* ev) {}
+    virtual void Draw(RunListEvent* ev) {}
+    virtual void RadialDamage(RunListEvent* ev) {}
+};
+
+void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
+
 typedef void(*AiFunc)(int, int, int, int nRun);
 
 extern FreeListArray<RunStruct, kMaxRuns> RunData;
