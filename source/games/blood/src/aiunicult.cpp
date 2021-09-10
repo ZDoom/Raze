@@ -481,7 +481,7 @@ static void unicultThinkChase(DBloodActor* actor)
     }
 
     auto const targetactor = actor->GetTarget();
-	XSPRITE* pXTarget = !targetactor || !targetactor->IsDudeActor() || !targetactor->GetTarget() ? nullptr : &targetactor->x();
+	XSPRITE* pXTarget = !targetactor || !targetactor->IsDudeActor() || !targetactor->hasX() ? nullptr : &targetactor->x();
 
     if (pXTarget == nullptr)  // target lost
     {
