@@ -403,9 +403,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 			if (w == cstate)
 			{
 				arc(keyname, i);
-				break;
+				return arc;
 			}
 			i++;
+		}
+		if (w >= genPatrolStates && w < genPatrolStates + kPatrolStateSize)
+		{
+			i = int(w - genPatrolStates) + 1000;
+			arc(keyname, i);
 		}
 	}
 	else
@@ -414,6 +419,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 		if (i < countof(allAIStates))
 		{
 			w = allAIStates[i];
+		}
+		else if (i >= 1000 && i < 1000 + kPatrolStateSize)
+		{
+			w = genPatrolStates + i;
 		}
 		else
 		{
