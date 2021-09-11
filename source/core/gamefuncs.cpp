@@ -302,7 +302,7 @@ void checkRotatedWalls()
 
 FSerializer& Serialize(FSerializer& arc, const char* key, vec2_t& c, vec2_t* def)
 {
-	if (def && !memcmp(&c, def, sizeof(c))) return arc;
+	if (arc.isWriting() && def && !memcmp(&c, def, sizeof(c))) return arc;
 	if (arc.BeginObject(key))
 	{
 		arc("x", c.x, def ? &def->x : nullptr)
@@ -314,7 +314,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, vec2_t& c, vec2_t* def
 
 FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def)
 {
-	if (def && !memcmp(&c, def, sizeof(c))) return arc;
+	if (arc.isWriting() && def && !memcmp(&c, def, sizeof(c))) return arc;
 	if (arc.BeginObject(key))
 	{
 		arc("x", c.x, def ? &def->x : nullptr)
