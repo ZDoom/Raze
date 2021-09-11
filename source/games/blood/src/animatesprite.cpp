@@ -391,11 +391,10 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
                     if (!CheckLink(&cX, &cY, &cZ, &nSectnum))
                         break;
                     cZ = getflorzofslope(nSectnum, cX, cY);
+                    if ((sector[nSectnum].floorpicnum < 4080) || (sector[nSectnum].floorpicnum > 4095)) // if current sector is not open air, use as floor for shadow casting, otherwise continue to next sector
+                        break;
                 }
-                pNSprite->x = cX;
-                pNSprite->y = cY;
-                pNSprite->z = cZ;
-                pNSprite->sectnum = nSectnum;
+                pNSprite->x = cX, pNSprite->y = cY, pNSprite->z = cZ, pNSprite->sectnum = nSectnum;
             }
             pNSprite->shade = 127;
             pNSprite->cstat |= 2;
