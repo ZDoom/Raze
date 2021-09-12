@@ -499,7 +499,7 @@ void seqKillAll()
 
 void seqKill(DBloodActor* actor)
 {
-	activeList.remove(4, actor->s().extra);
+	activeList.remove(3, actor->s().extra);
 }
 
 
