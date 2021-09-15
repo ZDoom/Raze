@@ -132,7 +132,7 @@ static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 //
 //---------------------------------------------------------------------------
 
-bool CanMove(DBloodActor *actor, int a2, int nAngle, int nRange)
+bool CanMove(DBloodActor *actor, DBloodActor* target, int nAngle, int nRange)
 {
     auto pSprite = &actor->s();
     int top, bottom;
@@ -144,7 +144,7 @@ bool CanMove(DBloodActor *actor, int a2, int nAngle, int nRange)
     int nDist = approxDist(x-gHitInfo.hitx, y-gHitInfo.hity);
     if (nDist - (pSprite->clipdist << 2) < nRange)
     {
-        if (gHitInfo.hitsprite < 0 || a2 != gHitInfo.hitsprite)
+		if (gHitInfo.hitsprite < 0 || target == nullptr || target->s().index != gHitInfo.hitsprite)
             return false;
         return true;
     }
@@ -269,17 +269,17 @@ void aiChooseDirection(DBloodActor* actor, int a3)
     int v8 = 341;
     if (vc < 0)
         v8 = -341;
-    if (CanMove(actor, pXSprite->target_i, pSprite->ang+vc, vsi))
+	if (CanMove(actor, actor->GetTarget(), pSprite->ang+vc, vsi))
         pXSprite->goalAng = pSprite->ang+vc;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang+vc/2, vsi))
+	else if (CanMove(actor, actor->GetTarget(), pSprite->ang+vc/2, vsi))
         pXSprite->goalAng = pSprite->ang+vc/2;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang-vc/2, vsi))
+	else if (CanMove(actor, actor->GetTarget(), pSprite->ang-vc/2, vsi))
         pXSprite->goalAng = pSprite->ang-vc/2;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang+v8, vsi))
+	else if (CanMove(actor, actor->GetTarget(), pSprite->ang+v8, vsi))
         pXSprite->goalAng = pSprite->ang+v8;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang, vsi))
+	else if (CanMove(actor, actor->GetTarget(), pSprite->ang, vsi))
         pXSprite->goalAng = pSprite->ang;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang-v8, vsi))
+	else if (CanMove(actor, actor->GetTarget(), pSprite->ang-v8, vsi))
         pXSprite->goalAng = pSprite->ang-v8;
     //else if (pSprite->flags&2)
         //pXSprite->goalAng = pSprite->ang+341;
@@ -289,10 +289,10 @@ void aiChooseDirection(DBloodActor* actor, int a3)
         pXSprite->dodgeDir = 1;
     else
         pXSprite->dodgeDir = -1;
-    if (!CanMove(actor, pXSprite->target_i, pSprite->ang+pXSprite->dodgeDir*512, 512))
+	if (!CanMove(actor, actor->GetTarget(), pSprite->ang+pXSprite->dodgeDir*512, 512))
     {
         pXSprite->dodgeDir = -pXSprite->dodgeDir;
-        if (!CanMove(actor, pXSprite->target_i, pSprite->ang+pXSprite->dodgeDir*512, 512))
+		if (!CanMove(actor, actor->GetTarget(), pSprite->ang+pXSprite->dodgeDir*512, 512))
             pXSprite->dodgeDir = 0;
     }
 }
@@ -392,7 +392,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &ghostSearch);
         else
         {
@@ -410,7 +410,7 @@ void aiActivateDude(DBloodActor* actor)
         DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1) 
+		if (actor->GetTarget() == nullptr)
         {
             switch (pXSprite->medium) 
             {
@@ -455,10 +455,13 @@ void aiActivateDude(DBloodActor* actor)
         DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1) {
+		if (actor->GetTarget() == nullptr) 
+		{
             if (spriteIsUnderwater(pSprite, false))  aiGenDudeNewState(pSprite, &genDudeSearchW);
             else aiGenDudeNewState(pSprite, &genDudeSearchL);
-        } else {
+		}
+		else
+		{
             if (Chance(0x4000)) playGenDudeSound(pSprite, kGenDudeSndTargetSpot);
             if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeChaseW);
             else aiGenDudeNewState(pSprite, &genDudeChaseL);
@@ -466,7 +469,7 @@ void aiActivateDude(DBloodActor* actor)
         break;
     }
     case kDudeModernCustomBurning:
-        if (pXSprite->target_i == -1) aiGenDudeNewState(pSprite, &genDudeBurnSearch);
+		if (actor->GetTarget() == nullptr) aiGenDudeNewState(pSprite, &genDudeBurnSearch);
         else aiGenDudeNewState(pSprite, &genDudeBurnChase);
     break;
 #endif
@@ -475,7 +478,7 @@ void aiActivateDude(DBloodActor* actor)
         DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 1; pDudeExtraE->xval1 = 0;
         pSprite->type = kDudeCultistTommy;
-        if (pXSprite->target_i == -1) 
+		if (actor->GetTarget() == nullptr)
         {
             switch (pXSprite->medium) 
             {
@@ -513,7 +516,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
         pSprite->type = kDudeCultistShotgun;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
         {
             switch (pXSprite->medium)
             {
@@ -546,7 +549,7 @@ void aiActivateDude(DBloodActor* actor)
         break;
     }
     case kDudeBurningCultist:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &cultistBurnSearch);
         else
             aiNewState(actor, &cultistBurnChase);
@@ -559,7 +562,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval1 = 0;
         if (!pSprite->flags)
             pSprite->flags = 9;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &batSearch);
         else
         {
@@ -575,7 +578,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &eelSearch);
         else
         {
@@ -596,7 +599,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval1 = 0;
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 1;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
         {
             if (pXSector && pXSector->Underwater)
                 aiNewState(actor, &gillBeastSwimSearch);
@@ -621,7 +624,7 @@ void aiActivateDude(DBloodActor* actor)
         DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &zombieASearch);
         else
         {
@@ -667,7 +670,7 @@ void aiActivateDude(DBloodActor* actor)
         DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &zombieFSearch);
         else
         {
@@ -680,13 +683,13 @@ void aiActivateDude(DBloodActor* actor)
         break;
     }
     case kDudeBurningZombieAxe:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &zombieABurnSearch);
         else
             aiNewState(actor, &zombieABurnChase);
         break;
     case kDudeBurningZombieButcher:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &zombieFBurnSearch);
         else
             aiNewState(actor, &zombieFBurnChase);
@@ -696,7 +699,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &gargoyleFSearch);
         else
         {
@@ -714,7 +717,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval2 = 0;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &gargoyleFSearch);
         else
         {
@@ -753,7 +756,7 @@ void aiActivateDude(DBloodActor* actor)
         #endif
         break;
     case kDudeCerberusTwoHead:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &cerberusSearch);
         else
         {
@@ -762,7 +765,7 @@ void aiActivateDude(DBloodActor* actor)
         }
         break;
     case kDudeCerberusOneHead:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &cerberus2Search);
         else
         {
@@ -771,7 +774,7 @@ void aiActivateDude(DBloodActor* actor)
         }
         break;
     case kDudeHellHound:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &houndSearch);
         else
         {
@@ -780,7 +783,7 @@ void aiActivateDude(DBloodActor* actor)
         }
         break;
     case kDudeHand:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &handSearch);
         else
         {
@@ -789,7 +792,7 @@ void aiActivateDude(DBloodActor* actor)
         }
         break;
     case kDudeRat:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &ratSearch);
         else
         {
@@ -798,7 +801,7 @@ void aiActivateDude(DBloodActor* actor)
         }
         break;
     case kDudeInnocent:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &innocentSearch);
         else
         {
@@ -808,7 +811,7 @@ void aiActivateDude(DBloodActor* actor)
         }
         break;
     case kDudeTchernobog:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &tchernobogSearch);
         else
         {
@@ -821,7 +824,7 @@ void aiActivateDude(DBloodActor* actor)
     case kDudeSpiderBlack:
         pSprite->flags |= 2;
         pSprite->cstat &= ~8;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &spidSearch);
         else
         {
@@ -836,7 +839,7 @@ void aiActivateDude(DBloodActor* actor)
         pDudeExtraE->xval1 = 0;
         pSprite->flags |= 2;
         pSprite->cstat &= ~8;
-        if (pXSprite->target_i == -1) 
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &spidSearch);
         else
         {
@@ -850,7 +853,7 @@ void aiActivateDude(DBloodActor* actor)
         DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
         {
             switch (pXSprite->medium)
             {
@@ -883,7 +886,7 @@ void aiActivateDude(DBloodActor* actor)
         DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
         {
             switch (pXSprite->medium)
             {
@@ -914,7 +917,7 @@ void aiActivateDude(DBloodActor* actor)
     }
     case kDudePodGreen:
     case kDudePodFire:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &podSearch);
         else
         {
@@ -927,7 +930,7 @@ void aiActivateDude(DBloodActor* actor)
         break;
     case kDudeTentacleGreen:
     case kDudeTentacleFire:
-        if (pXSprite->target_i == -1)
+		if (actor->GetTarget() == nullptr)
             aiNewState(actor, &tentacleSearch);
         else
         {
@@ -967,6 +970,11 @@ void aiSetTarget(XSPRITE *pXSprite, int nTarget)
             pXSprite->targetZ = pTarget->z-((pDudeInfo->eyeHeight*pTarget->yrepeat)<<2);
         }
     }
+}
+
+void aiSetTarget(DBloodActor* actor, DBloodActor* target)
+{
+    aiSetTarget(&actor->x(), target ? target->x().reference : -1);
 }
 
 

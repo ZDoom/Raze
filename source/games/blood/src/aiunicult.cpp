@@ -1048,26 +1048,26 @@ void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, in
     int t1 = DMulScale(xvel, Cos(pSprite->ang), yvel, Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
     
-    if (CanMove(actor, pXSprite->target_i, pSprite->ang + vc, vsi))
+    if (CanMove(actor, actor->GetTarget(), pSprite->ang + vc, vsi))
         pXSprite->goalAng = pSprite->ang + vc;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang + vc / 2, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang + vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang + vc / 2;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang - vc / 2, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang - vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang - vc / 2;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang + v8, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang + v8, vsi))
         pXSprite->goalAng = pSprite->ang + v8;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang, vsi))
         pXSprite->goalAng = pSprite->ang;
-    else if (CanMove(actor, pXSprite->target_i, pSprite->ang - v8, vsi))
+    else if (CanMove(actor, actor->GetTarget(), pSprite->ang - v8, vsi))
         pXSprite->goalAng = pSprite->ang - v8;
     else
         pXSprite->goalAng = pSprite->ang + 341;
     
     pXSprite->dodgeDir = (Chance(0x8000)) ? 1 : -1;
 
-    if (!CanMove(actor, pXSprite->target_i, pSprite->ang + pXSprite->dodgeDir * 512, 512)) {
+    if (!CanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512)) {
         pXSprite->dodgeDir = -pXSprite->dodgeDir;
-        if (!CanMove(actor, pXSprite->target_i, pSprite->ang + pXSprite->dodgeDir * 512, 512))
+        if (!CanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512))
             pXSprite->dodgeDir = 0;
     }
 }

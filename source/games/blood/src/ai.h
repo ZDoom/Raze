@@ -98,6 +98,7 @@ void aiMoveDodge(DBloodActor *actor);
 void aiActivateDude(DBloodActor *actor);
 void aiSetTarget(XSPRITE *pXSprite, int x, int y, int z);
 void aiSetTarget(XSPRITE *pXSprite, int nTarget);
+void aiSetTarget(DBloodActor* actor, DBloodActor* target);
 int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage);
 void aiThinkTarget(DBloodActor* actor);
 void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite);

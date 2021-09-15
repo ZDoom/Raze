@@ -2396,7 +2396,8 @@ static void actInitThings()
 		if (pSprite->flags & kPhysGravity) pSprite->flags |= kPhysFalling;
 		act->xvel() = act->yvel() = act->zvel() = 0;
 
-		switch (pSprite->type) {
+		switch (pSprite->type) 
+		{
 		case kThingArmedProxBomb:
 		case kTrapMachinegun:
 #ifdef NOONE_EXTENSIONS
@@ -5347,7 +5348,7 @@ int MoveMissile(DBloodActor* actor)
 	gHitInfo.hitsprite = -1;
 	if (pSprite->type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
 
-	if (pXSprite->target_i != -1 && (actor->xvel() || actor->yvel() || actor->zvel()))
+	if (actor->GetTarget() != nullptr && (actor->xvel() || actor->yvel() || actor->zvel()))
 	{
 		auto target = actor->GetTarget();
 		spritetype* pTarget = &target->s();
@@ -5710,7 +5711,7 @@ static void actCheckProximity()
 					continue;
 #endif
 
-				if (pSprite->type == kThingDroppedLifeLeech) pXSprite->target_i = -1;
+				if (pSprite->type == kThingDroppedLifeLeech) actor->SetTarget(nullptr);
 				BloodStatIterator it1(kStatDude);
 				while (auto dudeactor = it1.Next())
 				{
@@ -5730,7 +5731,7 @@ static void actCheckProximity()
 
 						if (pSprite->type == kModernThingEnemyLifeLeech) proxyDist = 512;
 #endif
-						if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target_i == -1)
+						if (pSprite->type == kThingDroppedLifeLeech && actor->GetTarget() == nullptr)
 						{
 							auto Owner = actor->GetOwner();
 							if (!Owner->IsPlayerActor()) continue;
@@ -5751,7 +5752,7 @@ static void actCheckProximity()
 							{
 							case kThingDroppedLifeLeech:
 								if (!Chance(0x4000) && nextdude) continue;
-								if (pSprite2->cstat & CLIPMASK0) pXSprite->target_i = pSprite2->index;
+								if (pSprite2->cstat & CLIPMASK0) actor->SetTarget(dudeactor);
 								else continue;
 								break;
 
@@ -5762,7 +5763,7 @@ static void actCheckProximity()
 								break;
 
 							case kModernThingEnemyLifeLeech:
-								if (pXSprite->target_i != pSprite2->index) continue;
+								if (actor->GetTarget() != dudeactor) continue;
 								break;
 #endif
 
@@ -6196,7 +6197,7 @@ static void actCheckDudes()
 				{
 					pXSprite->health = dudeInfo[28].startHealth << 4;
 					pSprite->type = kDudeCerberusOneHead;
-					if (pXSprite->target_i != -1) aiSetTarget(pXSprite, pXSprite->target_i);
+					if (actor->GetTarget() != nullptr) aiSetTarget(actor, actor->GetTarget());
 					aiActivateDude(actor);
 				}
 			}
