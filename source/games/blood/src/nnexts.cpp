@@ -6514,6 +6514,7 @@ void nnExtAiSetDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3) {
 /// patrol functions
 // ------------------------------------------------
 void aiPatrolState(spritetype* pSprite, int state) {
+    auto actor = &bloodActors[pSprite->index];
 
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     

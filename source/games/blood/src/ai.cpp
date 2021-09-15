@@ -96,11 +96,11 @@ void aiNewState(DBloodActor* actor, AISTATE *pAIState)
     {
         seqStartId += pAIState->seqId;
         if (getSequence(seqStartId))
-            seqSpawn(seqStartId, 3, pSprite->extra, pAIState->funcId);
+            seqSpawn(seqStartId, actor, pAIState->funcId);
     }
     
     if (pAIState->enterFunc) 
-        pAIState->enterFunc(&bloodActors[pXSprite->reference]);
+        pAIState->enterFunc(actor);
 }
 
 //---------------------------------------------------------------------------
@@ -109,17 +109,18 @@ void aiNewState(DBloodActor* actor, AISTATE *pAIState)
 //
 //---------------------------------------------------------------------------
 
-bool isImmune(spritetype* pSprite, int dmgType, int minScale) 
+static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 {
 
-    if (dmgType >= kDmgFall && dmgType < kDmgMax && pSprite->extra >= 0 && xsprite[pSprite->extra].locked != 1) 
+    if (dmgType >= kDmgFall && dmgType < kDmgMax && actor->hasX() && actor->x().locked != 1) 
     {
-        if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
-            return (thingInfo[pSprite->type - kThingBase].dmgControl[dmgType] <= minScale);
-        else if (IsDudeSprite(pSprite)) 
+        int type = actor->s().type;
+        if (type >= kThingBase && type < kThingMax)
+            return (thingInfo[type - kThingBase].dmgControl[dmgType] <= minScale);
+        else if (actor->IsDudeActor()) 
         {
-            if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].godMode || gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
-            else return (dudeInfo[pSprite->type - kDudeBase].damageVal[dmgType] <= minScale);
+            if (actor->IsPlayerActor()) return (gPlayer[type - kDudePlayer1].godMode || gPlayer[type - kDudePlayer1].damageControl[dmgType] <= minScale);
+            else return (dudeInfo[type - kDudeBase].damageVal[dmgType] <= minScale);
         }
     }
     return true;
@@ -131,8 +132,9 @@ bool isImmune(spritetype* pSprite, int dmgType, int minScale)
 //
 //---------------------------------------------------------------------------
 
-bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
+bool CanMove(DBloodActor *actor, int a2, int nAngle, int nRange)
 {
+    auto pSprite = &actor->s();
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     int x = pSprite->x;
@@ -207,7 +209,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         // It makes ignore danger if enemy immune to N damageType. As result Cerberus start acting like
         // in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
         // i don't think it will broke something in game.
-        if (!cl_bloodvanillaenemies && !VanillaMode() && Crusher && isImmune(pSprite, pXSector->damageType, 16)) return true;
+        if (!cl_bloodvanillaenemies && !VanillaMode() && Crusher && isImmune(actor, pXSector->damageType, 16)) return true;
         [[fallthrough]];
     case kDudeZombieButcher:
     case kDudeSpiderBrown:
@@ -250,8 +252,11 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
 //
 //---------------------------------------------------------------------------
 
-void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
+void aiChooseDirection(DBloodActor* actor, int a3)
 {
+    auto pXSprite = &actor->x();
+    auto pSprite = &actor->s();
+
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int vc = ((a3+1024-pSprite->ang)&2047)-1024;
@@ -264,17 +269,17 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
     int v8 = 341;
     if (vc < 0)
         v8 = -341;
-    if (CanMove(pSprite, pXSprite->target, pSprite->ang+vc, vsi))
+    if (CanMove(actor, pXSprite->target, pSprite->ang+vc, vsi))
         pXSprite->goalAng = pSprite->ang+vc;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang+vc/2, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang+vc/2, vsi))
         pXSprite->goalAng = pSprite->ang+vc/2;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang-vc/2, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang-vc/2, vsi))
         pXSprite->goalAng = pSprite->ang-vc/2;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang+v8, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang+v8, vsi))
         pXSprite->goalAng = pSprite->ang+v8;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang, vsi))
         pXSprite->goalAng = pSprite->ang;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang-v8, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang-v8, vsi))
         pXSprite->goalAng = pSprite->ang-v8;
     //else if (pSprite->flags&2)
         //pXSprite->goalAng = pSprite->ang+341;
@@ -284,10 +289,10 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
         pXSprite->dodgeDir = 1;
     else
         pXSprite->dodgeDir = -1;
-    if (!CanMove(pSprite, pXSprite->target, pSprite->ang+pXSprite->dodgeDir*512, 512))
+    if (!CanMove(actor, pXSprite->target, pSprite->ang+pXSprite->dodgeDir*512, 512))
     {
         pXSprite->dodgeDir = -pXSprite->dodgeDir;
-        if (!CanMove(pSprite, pXSprite->target, pSprite->ang+pXSprite->dodgeDir*512, 512))
+        if (!CanMove(actor, pXSprite->target, pSprite->ang+pXSprite->dodgeDir*512, 512))
             pXSprite->dodgeDir = 0;
     }
 }
@@ -376,7 +381,7 @@ void aiActivateDude(DBloodActor* actor)
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!pXSprite->state) 
     {
-        aiChooseDirection(pSprite, pXSprite, getangle(pXSprite->targetX-pSprite->x, pXSprite->targetY-pSprite->y));
+        aiChooseDirection(actor, getangle(pXSprite->targetX-pSprite->x, pXSprite->targetY-pSprite->y));
         pXSprite->state = 1;
     }
     switch (pSprite->type) 

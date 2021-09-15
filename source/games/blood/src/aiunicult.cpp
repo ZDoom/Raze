@@ -386,7 +386,7 @@ static void unicultThinkSearch(DBloodActor* actor)
     // TO DO: if can't see the target, but in fireDist range - stop moving and look around
     
     //viewSetSystemMessage("IN SEARCH");
-    aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
+    aiChooseDirection(actor,pXSprite->goalAng);
     aiLookForTarget(pSprite, pXSprite);
 }
 
@@ -403,7 +403,7 @@ static void unicultThinkGoto(DBloodActor* actor)
     int dy = pXSprite->targetY - pSprite->y;
     int nAngle = getangle(dx, dy);
 
-    aiChooseDirection(pSprite, pXSprite, nAngle);
+    aiChooseDirection(actor,nAngle);
 
     // if reached target, change to search mode
     if (approxDist(dx, dy) < 5120 && abs(pSprite->ang - nAngle) < getDudeInfo(pSprite->type)->periphery) {
@@ -461,7 +461,7 @@ static void unicultThinkChase(DBloodActor* actor)
     if (inAttack(pXSprite->aiState))
        xvelocity = yvelocity = ClipLow(pSprite->clipdist >> 1, 1);
 
-    //aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
+    //aiChooseDirection(actor,getangle(dx, dy));
     aiGenDudeChooseDirection(pSprite, pXSprite, getangle(dx, dy), xvelocity, yvelocity);
 
     GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
@@ -1040,33 +1040,34 @@ void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, in
         Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    
+    auto actor = &bloodActors[pSprite->index];
+
     // TO-DO: Take in account if sprite is flip-x, so enemy select correct angle
 
     int vc = ((a3 + 1024 - pSprite->ang) & 2047) - 1024;
     int t1 = DMulScale(xvel, Cos(pSprite->ang), yvel, Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2; int v8 = (vc >= 0) ? 341 : -341;
     
-    if (CanMove(pSprite, pXSprite->target, pSprite->ang + vc, vsi))
+    if (CanMove(actor, pXSprite->target, pSprite->ang + vc, vsi))
         pXSprite->goalAng = pSprite->ang + vc;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang + vc / 2, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang + vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang + vc / 2;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang - vc / 2, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang - vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang - vc / 2;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang + v8, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang + v8, vsi))
         pXSprite->goalAng = pSprite->ang + v8;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang, vsi))
         pXSprite->goalAng = pSprite->ang;
-    else if (CanMove(pSprite, pXSprite->target, pSprite->ang - v8, vsi))
+    else if (CanMove(actor, pXSprite->target, pSprite->ang - v8, vsi))
         pXSprite->goalAng = pSprite->ang - v8;
     else
         pXSprite->goalAng = pSprite->ang + 341;
     
     pXSprite->dodgeDir = (Chance(0x8000)) ? 1 : -1;
 
-    if (!CanMove(pSprite, pXSprite->target, pSprite->ang + pXSprite->dodgeDir * 512, 512)) {
+    if (!CanMove(actor, pXSprite->target, pSprite->ang + pXSprite->dodgeDir * 512, 512)) {
         pXSprite->dodgeDir = -pXSprite->dodgeDir;
-        if (!CanMove(pSprite, pXSprite->target, pSprite->ang + pXSprite->dodgeDir * 512, 512))
+        if (!CanMove(actor, pXSprite->target, pSprite->ang + pXSprite->dodgeDir * 512, 512))
             pXSprite->dodgeDir = 0;
     }
 }
