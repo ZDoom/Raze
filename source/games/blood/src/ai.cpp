@@ -39,6 +39,12 @@ AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 
 const int dword_138BB0[5] = {0x2000, 0x4000, 0x8000, 0xa000, 0xe000};
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq)
 {
     if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
@@ -49,6 +55,12 @@ bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq)
     }
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
 {
@@ -65,6 +77,12 @@ void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void aiNewState(DBloodActor* actor, AISTATE *pAIState)
 {
     auto pXSprite = &actor->x();
@@ -74,7 +92,8 @@ void aiNewState(DBloodActor* actor, AISTATE *pAIState)
     pXSprite->aiState = pAIState;
     int seqStartId = pDudeInfo->seqStartID;
 
-    if (pAIState->seqId >= 0) {
+    if (pAIState->seqId >= 0) 
+    {
         seqStartId += pAIState->seqId;
         if (getSequence(seqStartId))
             seqSpawn(seqStartId, 3, pSprite->extra, pAIState->funcId);
@@ -83,6 +102,12 @@ void aiNewState(DBloodActor* actor, AISTATE *pAIState)
     if (pAIState->enterFunc) 
         pAIState->enterFunc(&bloodActors[pXSprite->reference]);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool isImmune(spritetype* pSprite, int dmgType, int minScale) 
 {
@@ -97,9 +122,14 @@ bool isImmune(spritetype* pSprite, int dmgType, int minScale)
             else return (dudeInfo[pSprite->type - kDudeBase].damageVal[dmgType] <= minScale);
         }
     }
-
     return true;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
 {
@@ -178,7 +208,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         // in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
         // i don't think it will broke something in game.
         if (!cl_bloodvanillaenemies && !VanillaMode() && Crusher && isImmune(pSprite, pXSector->damageType, 16)) return true;
-        fallthrough__;
+        [[fallthrough]];
     case kDudeZombieButcher:
     case kDudeSpiderBrown:
     case kDudeSpiderRed:
@@ -199,7 +229,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
     case kDudeModernCustomBurning:
         if ((Crusher && !nnExtIsImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
         return true;
-        fallthrough__;
+        [[fallthrough]];
     #endif
     case kDudeZombieAxeNormal:
     case kDudePhantasm:
@@ -213,6 +243,12 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
     }
     return 1;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
 {
@@ -256,6 +292,12 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void aiMoveForward(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -271,6 +313,12 @@ void aiMoveForward(DBloodActor* actor)
     actor->yvel() += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void aiMoveTurn(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
@@ -281,6 +329,12 @@ void aiMoveTurn(DBloodActor* actor)
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void aiMoveDodge(DBloodActor* actor)
 {
@@ -309,16 +363,24 @@ void aiMoveDodge(DBloodActor* actor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// todo: split this up.
+//
+//---------------------------------------------------------------------------
+
 void aiActivateDude(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    if (!pXSprite->state) {
+    if (!pXSprite->state) 
+    {
         aiChooseDirection(pSprite, pXSprite, getangle(pXSprite->targetX-pSprite->x, pXSprite->targetY-pSprite->y));
         pXSprite->state = 1;
     }
-    switch (pSprite->type) {
+    switch (pSprite->type) 
+    {
     case kDudePhantasm:
     {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
@@ -343,11 +405,14 @@ void aiActivateDude(DBloodActor* actor)
         DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
-        if (pXSprite->target == -1) {
-            switch (pXSprite->medium) {
+        if (pXSprite->target == -1) 
+        {
+            switch (pXSprite->medium) 
+            {
                 case kMediumNormal:
                     aiNewState(actor, &cultistSearch);
-                    if (Chance(0x8000)) {
+                    if (Chance(0x8000)) 
+                    {
                         if (pSprite->type == kDudeCultistTommy) aiPlay3DSound(pSprite, 4008+Random(5), AI_SFX_PRIORITY_1, -1);
                         else aiPlay3DSound(pSprite, 1008+Random(5), AI_SFX_PRIORITY_1, -1);
                     }
@@ -357,12 +422,16 @@ void aiActivateDude(DBloodActor* actor)
                     aiNewState(actor, &cultistSwimSearch);
                     break;
             }
-        } else {
-            if (Chance(0x8000)) {
+        }
+        else 
+        {
+            if (Chance(0x8000)) 
+            {
                 if (pSprite->type == kDudeCultistTommy) aiPlay3DSound(pSprite, 4003+Random(4), AI_SFX_PRIORITY_1, -1);
                 else aiPlay3DSound(pSprite, 1003+Random(4), AI_SFX_PRIORITY_1, -1);
             }
-            switch (pXSprite->medium) {
+            switch (pXSprite->medium) 
+            {
                 case kMediumNormal:
                     if (pSprite->type == kDudeCultistTommy) aiNewState(actor, &fanaticChase);
                     else aiNewState(actor, &cultistChase);
@@ -396,12 +465,15 @@ void aiActivateDude(DBloodActor* actor)
         else aiGenDudeNewState(pSprite, &genDudeBurnChase);
     break;
 #endif
-    case kDudeCultistTommyProne: {
+    case kDudeCultistTommyProne: 
+    {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 1; pDudeExtraE->xval1 = 0;
         pSprite->type = kDudeCultistTommy;
-        if (pXSprite->target == -1) {
-            switch (pXSprite->medium) {
+        if (pXSprite->target == -1) 
+        {
+            switch (pXSprite->medium) 
+            {
                 case 0:
                     aiNewState(actor, &cultistSearch);
                     if (Chance(0x8000))
@@ -412,11 +484,14 @@ void aiActivateDude(DBloodActor* actor)
                     aiNewState(actor, &cultistSwimSearch);
                     break;
             }
-        } else {
+        } 
+        else
+        {
             if (Chance(0x8000))
                 aiPlay3DSound(pSprite, 4008+Random(5), AI_SFX_PRIORITY_1, -1);
             
-            switch (pXSprite->medium) {
+            switch (pXSprite->medium) 
+            {
                 case kMediumNormal:
                     aiNewState(actor, &cultistProneChase);
                     break;
@@ -508,7 +583,8 @@ void aiActivateDude(DBloodActor* actor)
         }
         break;
     }
-    case kDudeGillBeast: {
+    case kDudeGillBeast: 
+    {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
         XSECTOR *pXSector = NULL;
         if (sector[pSprite->sectnum].extra > 0)
@@ -536,7 +612,8 @@ void aiActivateDude(DBloodActor* actor)
         }
         break;
     }
-    case kDudeZombieAxeNormal: {
+    case kDudeZombieAxeNormal: 
+    {
         DUDEEXTRA_at6_u2 *pDudeExtraE = &actor->dudeExtra.at6.u2;
         pDudeExtraE->xval2 = 1;
         pDudeExtraE->xval1 = 0;
@@ -651,10 +728,13 @@ void aiActivateDude(DBloodActor* actor)
         
         #ifdef NOONE_EXTENSIONS
         // play gargoyle statue breaking animation if data1 = 1.
-        if (gModernMap && pXSprite->data1 == 1) {
+        if (gModernMap && pXSprite->data1 == 1) 
+        {
             if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(actor, &statueFBreakSEQ);
             else aiNewState(actor, &statueSBreakSEQ);
-        } else {
+        }
+        else
+        {
             if (Chance(0x4000)) aiPlay3DSound(pSprite, 1401, AI_SFX_PRIORITY_1, -1);
             else aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
             
@@ -746,7 +826,8 @@ void aiActivateDude(DBloodActor* actor)
             aiNewState(actor, &spidChase);
         }
         break;
-    case kDudeSpiderMother: {
+    case kDudeSpiderMother: 
+    {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
         pDudeExtraE->xval3 = 1;
         pDudeExtraE->xval1 = 0;
@@ -853,6 +934,12 @@ void aiActivateDude(DBloodActor* actor)
         break;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void aiSetTarget(XSPRITE *pXSprite, int x, int y, int z)
 {
@@ -1797,7 +1884,7 @@ void aiInitSprite(spritetype *pSprite)
     #ifdef NOONE_EXTENSIONS
     case kDudePodMother: // FakeDude type
         if (gModernMap) break;
-        fallthrough__;
+        [[fallthrough]];
     // Allow put pods and tentacles on ceilings if sprite is y-flipped.
     case kDudePodGreen:
     case kDudeTentacleGreen:
@@ -1809,7 +1896,7 @@ void aiInitSprite(spritetype *pSprite)
                 pSprite->flags = kHitagAutoAim;
             break;
         }
-        fallthrough__;
+        [[fallthrough]];
     // go default
     #endif
     default:
