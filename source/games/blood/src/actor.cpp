@@ -7411,5 +7411,15 @@ void actPostSprite(int nSprite, int nStatus)
 	actPostSprite(&bloodActors[nSprite], nStatus);
 }
 
+bool dudeIsPlayingSeq(spritetype* pSprite, int nSeq)
+{
+	return dudeIsPlayingSeq(&bloodActors[pSprite->index], nSeq);
+}
+
+void aiPlay3DSound(spritetype* pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
+{
+	return aiPlay3DSound(&bloodActors[pSprite->index], a2, a3, a4);
+}
+
 
 END_BLD_NS

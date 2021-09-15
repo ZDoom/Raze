@@ -88,8 +88,8 @@ struct TARGETTRACK {
 
 extern const int dword_138BB0[5];
 
-bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq);
-void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
+bool dudeIsPlayingSeq(DBloodActor* pSprite, int nSeq);
+void aiPlay3DSound(DBloodActor* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
 void aiNewState(DBloodActor* actor, AISTATE *pAIState);
 void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3);
 void aiMoveForward(DBloodActor*pXSprite);
@@ -105,4 +105,8 @@ void aiProcessDudes(void);
 void aiInit(void);
 void aiInitSprite(spritetype *pSprite);
 bool CanMove(spritetype* pSprite, int a2, int nAngle, int nRange);
+
+bool dudeIsPlayingSeq(spritetype* pSprite, int nSeq); // deprecated
+void aiPlay3DSound(spritetype* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
+
 END_BLD_NS

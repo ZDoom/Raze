@@ -296,4 +296,17 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor
 	return arc;
 }
 
+inline void sfxPlay3DSound(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0)
+{
+	sfxPlay3DSound(&pSprite->s(), soundId, a3, a4);
+}
+inline void sfxPlay3DSoundCP(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0, int pitch = 0, int volume = 0)
+{
+	sfxPlay3DSoundCP(&pSprite->s(), soundId, a3, a4, pitch, volume);
+}
+inline void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1)
+{
+	sfxKill3DSound(&pSprite->s(), a2, a3);
+}
+
 END_BLD_NS
