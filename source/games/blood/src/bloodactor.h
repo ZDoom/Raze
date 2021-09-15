@@ -55,13 +55,13 @@ public:
 
 	void SetTarget(DBloodActor* own)
 	{
-		x().target = own ? own->s().index : -1;
+		x().target_i = own ? own->s().index : -1;
 	}
 
 	DBloodActor* GetTarget()
 	{
-		if (x().target == -1 || x().target == kMaxSprites - 1) return nullptr;
-		return base() + x().target;
+		if (x().target_i == -1 || x().target_i == kMaxSprites - 1) return nullptr;
+		return base() + x().target_i;
 	}
 
 	void SetBurnSource(DBloodActor* own)

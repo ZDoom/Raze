@@ -223,7 +223,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
     }
     case kCmdSpriteProximity:
     {
-        int nTarget = pXSprite->target;
+        int nTarget = pXSprite->target_i;
         if (nTarget >= 0 && nTarget < kMaxSprites)
         {
             if (!pXSprite->stateTimer)
@@ -471,7 +471,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                     case kDudeBurningBeast: {
                         pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
-                        pXSpawn->target = -1;
+                        pXSpawn->target_i = -1;
                         aiActivateDude(&bloodActors[pXSpawn->reference]);
                         break;
                     default:

@@ -5347,7 +5347,7 @@ int MoveMissile(DBloodActor* actor)
 	gHitInfo.hitsprite = -1;
 	if (pSprite->type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
 
-	if (pXSprite->target != -1 && (actor->xvel() || actor->yvel() || actor->zvel()))
+	if (pXSprite->target_i != -1 && (actor->xvel() || actor->yvel() || actor->zvel()))
 	{
 		auto target = actor->GetTarget();
 		spritetype* pTarget = &target->s();
@@ -5637,7 +5637,7 @@ void actExplodeSprite(DBloodActor* actor)
 	pSprite->flags &= ~3;
 	pSprite->type = nType;
 	const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
-	pXSprite->target = 0;
+	pXSprite->target_i = 0;
 	pXSprite->data1 = pExplodeInfo->ticks;
 	pXSprite->data2 = pExplodeInfo->quakeEffect;
 	pXSprite->data3 = pExplodeInfo->flashEffect;
@@ -5710,7 +5710,7 @@ static void actCheckProximity()
 					continue;
 #endif
 
-				if (pSprite->type == kThingDroppedLifeLeech) pXSprite->target = -1;
+				if (pSprite->type == kThingDroppedLifeLeech) pXSprite->target_i = -1;
 				BloodStatIterator it1(kStatDude);
 				while (auto dudeactor = it1.Next())
 				{
@@ -5730,7 +5730,7 @@ static void actCheckProximity()
 
 						if (pSprite->type == kModernThingEnemyLifeLeech) proxyDist = 512;
 #endif
-						if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target == -1)
+						if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target_i == -1)
 						{
 							auto Owner = actor->GetOwner();
 							if (!Owner->IsPlayerActor()) continue;
@@ -5751,7 +5751,7 @@ static void actCheckProximity()
 							{
 							case kThingDroppedLifeLeech:
 								if (!Chance(0x4000) && nextdude) continue;
-								if (pSprite2->cstat & CLIPMASK0) pXSprite->target = pSprite2->index;
+								if (pSprite2->cstat & CLIPMASK0) pXSprite->target_i = pSprite2->index;
 								else continue;
 								break;
 
@@ -5762,7 +5762,7 @@ static void actCheckProximity()
 								break;
 
 							case kModernThingEnemyLifeLeech:
-								if (pXSprite->target != pSprite2->index) continue;
+								if (pXSprite->target_i != pSprite2->index) continue;
 								break;
 #endif
 
@@ -5981,9 +5981,9 @@ static void actCheckExplosion()
 			{
 				if (pXSprite->data1 && CheckProximity(pDude, x, y, z, nSector, radius))
 				{
-					if (pExplodeInfo->dmg && pXSprite->target == 0)
+					if (pExplodeInfo->dmg && pXSprite->target_i == 0)
 					{
-						pXSprite->target = 1;
+						pXSprite->target_i = 1;
 						actDamageSprite(Owner, dudeactor, kDamageFall, (pExplodeInfo->dmg + Random(pExplodeInfo->dmgRng)) << 4);
 					}
 					if (pExplodeInfo->dmgType) ConcussSprite(actor, dudeactor, x, y, z, pExplodeInfo->dmgType);
@@ -6196,7 +6196,7 @@ static void actCheckDudes()
 				{
 					pXSprite->health = dudeInfo[28].startHealth << 4;
 					pSprite->type = kDudeCerberusOneHead;
-					if (pXSprite->target != -1) aiSetTarget(pXSprite, pXSprite->target);
+					if (pXSprite->target_i != -1) aiSetTarget(pXSprite, pXSprite->target_i);
 					aiActivateDude(actor);
 				}
 			}
@@ -6704,7 +6704,7 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
     pMissile->cstat |= 1;
     int nXSprite = pMissile->extra;
     assert(nXSprite > 0 && nXSprite < kMaxXSprites);
-    xsprite[nXSprite].target = -1;
+    xsprite[nXSprite].target_i = -1;
     evPost(nMissile, 3, 600, kCallbackRemove);
    
     actBuildMissile(pMissile, nXSprite, nSprite);

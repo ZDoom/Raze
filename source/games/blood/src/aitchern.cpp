@@ -50,7 +50,7 @@ void sub_71A90(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int nTarget = pTarget->index;
     int nOwner = pSprite->owner;
@@ -67,9 +67,9 @@ void sub_71BD4(int, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pSprite->yrepeat*pDudeInfo->eyeHeight;
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
+        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
         return;
     }
     int x = pSprite->x;
@@ -140,9 +140,9 @@ void sub_720AC(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
+        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
@@ -306,7 +306,7 @@ static void sub_72934(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
     {
         aiNewState(actor, &tcherno13A9B8);
         return;
@@ -317,12 +317,12 @@ static void sub_72934(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
+        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
         return;
     }
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -346,7 +346,7 @@ static void sub_72934(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 if (nDist < 0x1f00 && nDist > 0xd00 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &tcherno13AA0C);
                 else if (nDist < 0xd00 && nDist > 0xb00 && abs(nDeltaAngle) < 85)
@@ -359,7 +359,7 @@ static void sub_72934(DBloodActor* actor)
     }
 
     aiNewState(actor, &tcherno13A9B8);
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 END_BLD_NS

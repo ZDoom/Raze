@@ -67,7 +67,7 @@ void SlashSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype *pSprite = &actor->s();
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
     // Correct ?
@@ -222,7 +222,7 @@ static void beastThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
     {
         XSECTOR *pXSector;
         int nXSector = sector[pSprite->sectnum].extra;
@@ -238,8 +238,8 @@ static void beastThinkChase(DBloodActor* actor)
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -281,7 +281,7 @@ static void beastThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 actor->dudeSlope = DivScale(pTarget->z-pSprite->z, nDist, 10);
                 if (nDist < 0x1400 && nDist > 0xa00 && abs(nDeltaAngle) < 85 && (pTarget->flags&2)
                     && IsPlayerSprite(pTarget) && Chance(0x8000))
@@ -378,7 +378,7 @@ static void beastThinkChase(DBloodActor* actor)
         aiNewState(actor, &beastSwimGoto);
     else
         aiNewState(actor, &beastGoto);
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 static void beastThinkSwimGoto(DBloodActor* actor)
@@ -401,15 +401,15 @@ static void beastThinkSwimChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
     {
         aiNewState(actor, &beastSwimGoto);
         return;
     }
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -435,7 +435,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 if (nDist < 0x400 && abs(nDeltaAngle) < 85)
                     aiNewState(actor, &beastSwimSlash);
                 else
@@ -450,7 +450,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
         return;
     }
     aiNewState(actor, &beastSwimGoto);
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 static void beastMoveForward(DBloodActor* actor)
@@ -485,7 +485,7 @@ static void sub_628A0(DBloodActor* actor)
     int nAccel = pDudeInfo->frontSpeed<<2;
     if (abs(nAng) > 341)
         return;
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -498,7 +498,7 @@ static void sub_628A0(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
         t1 += nAccel;
     else
         t1 += nAccel>>2;
@@ -512,7 +512,7 @@ static void sub_62AE0(DBloodActor* actor)
     auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
     int z2 = pTarget->z + getDudeInfo(pTarget->type)->eyeHeight;
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -549,7 +549,7 @@ static void sub_62D7C(DBloodActor* actor)
     int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
     int z2 = pTarget->z + getDudeInfo(pTarget->type)->eyeHeight;
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;

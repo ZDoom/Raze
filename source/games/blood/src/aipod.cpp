@@ -65,13 +65,13 @@ void podAttack(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
+        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
         return;
     }
     
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
 
     ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -182,7 +182,7 @@ static void aiPodChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1) {
+    if (pXSprite->target_i == -1) {
         switch (pSprite->type) {
             case kDudePodGreen:
             case kDudePodFire:
@@ -201,12 +201,12 @@ static void aiPodChase(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
+        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
         return;
     }
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -234,7 +234,7 @@ static void aiPodChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 if (abs(nDeltaAngle) < 85 && pTarget->type != kDudePodGreen && pTarget->type != kDudePodFire) {
                     switch (pSprite->type) {
                         case kDudePodGreen:
@@ -262,7 +262,7 @@ static void aiPodChase(DBloodActor* actor)
             aiNewState(actor, &tentacleMove);
             break;
     }
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 END_BLD_NS

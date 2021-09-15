@@ -65,7 +65,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
@@ -93,7 +93,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
     wrand(); // ???
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -333,7 +333,7 @@ static void ghostThinkChase(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
     {
         aiNewState(actor, &ghostGoto);
         return;
@@ -344,12 +344,12 @@ static void ghostThinkChase(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
+    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
+        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
         return;
     }
-    spritetype *pTarget = &sprite[pXSprite->target];
+    spritetype *pTarget = &sprite[pXSprite->target_i];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
     int dx = pTarget->x-pSprite->x;
     int dy = pTarget->y-pSprite->y;
@@ -377,7 +377,7 @@ static void ghostThinkChase(DBloodActor* actor)
         {
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget(pXSprite, pXSprite->target);
+                aiSetTarget(pXSprite, pXSprite->target_i);
                 int floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
                 switch (pSprite->type) {
                 case kDudePhantasm:
@@ -440,7 +440,7 @@ static void ghostThinkChase(DBloodActor* actor)
     }
 
     aiNewState(actor, &ghostGoto);
-    pXSprite->target = -1;
+    pXSprite->target_i = -1;
 }
 
 static void ghostMoveForward(DBloodActor* actor)
@@ -459,7 +459,7 @@ static void ghostMoveForward(DBloodActor* actor)
     int nAccel = pDudeInfo->frontSpeed<<2;
     if (abs(nAng) > 341)
         return;
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
@@ -472,7 +472,7 @@ static void ghostMoveForward(DBloodActor* actor)
     int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
-    if (pXSprite->target == -1)
+    if (pXSprite->target_i == -1)
         t1 += nAccel;
     else
         t1 += nAccel>>1;
