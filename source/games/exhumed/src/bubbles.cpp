@@ -37,14 +37,14 @@ struct Bubble
     short nFrame;
     short nSeq;
     short nSprite;
-    short nRun;
+    short nRunIndex;
 };
 
 struct machine
 {
-    short _0;
+    short nCount;
     short nSprite;
-    short _4;
+    short nFrame;
 };
 
 short nMachineCount;
@@ -58,7 +58,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bubble& w, Bubble*
     {
         arc("seq", w.nSeq)
             ("frame", w.nFrame)
-            ("run", w.nRun)
+            ("run", w.nRunIndex)
             ("sprite", w.nSprite)
             .EndObject();
     }
@@ -69,8 +69,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, machine& w, machin
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w._0)
-            ("at4", w._4)
+        arc("at0", w.nCount)
+            ("at4", w.nFrame)
             ("sprite", w.nSprite)
             .EndObject();
     }
@@ -101,7 +101,7 @@ void DestroyBubble(short nBubble)
 
     runlist_DoSubRunRec(pSprite->lotag - 1);
     runlist_DoSubRunRec(pSprite->owner);
-    runlist_SubRunRec(BubbleList[nBubble].nRun);
+    runlist_SubRunRec(BubbleList[nBubble].nRunIndex);
 
     mydeletesprite(nSprite);
 
@@ -158,7 +158,7 @@ int BuildBubble(int x, int y, int z, short nSector)
 
     pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nBubble, 0x140000);
 
-    BubbleList[nBubble].nRun = runlist_AddRunRec(NewRun, nBubble, 0x140000);
+    BubbleList[nBubble].nRunIndex = runlist_AddRunRec(NewRun, nBubble, 0x140000);
     return nBubble | 0x140000;
 }
 
@@ -214,11 +214,11 @@ void DoBubbleMachines()
 {
     for (int i = 0; i < nMachineCount; i++)
     {
-        Machine[i]._0--;
+        Machine[i].nCount--;
 
-        if (Machine[i]._0 <= 0)
+        if (Machine[i].nCount <= 0)
         {
-            Machine[i]._0 = (RandomWord() % Machine[i]._4) + 30;
+            Machine[i].nCount = (RandomWord() % Machine[i].nFrame) + 30;
 
             int nSprite = Machine[i].nSprite;
 			auto pSprite = &sprite[nSprite];
@@ -234,9 +234,9 @@ void BuildBubbleMachine(int nSprite)
         exit(-1);
     }
 
-    Machine[nMachineCount]._4 = 75;
+    Machine[nMachineCount].nFrame = 75;
     Machine[nMachineCount].nSprite = nSprite;
-    Machine[nMachineCount]._0 = Machine[nMachineCount]._4;
+    Machine[nMachineCount].nCount = Machine[nMachineCount].nFrame;
     nMachineCount++;
 
 	auto pSprite = &sprite[nSprite];
