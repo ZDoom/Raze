@@ -7403,6 +7403,7 @@ void SerializeActor(FSerializer& arc)
 	}
 }
 
+// dumping ground for temporary wrappers.
 int actDamageSprite(int nSource, spritetype* pSprite, DAMAGE_TYPE damageType, int damage)
 {
     return actDamageSprite(nSource == -1 ? nullptr : &bloodActors[nSource], &bloodActors[pSprite->index], damageType, damage);
@@ -7422,6 +7423,17 @@ void aiPlay3DSound(spritetype* pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
 {
 	return aiPlay3DSound(&bloodActors[pSprite->index], a2, a3, a4);
 }
+
+void aiSetTarget_(XSPRITE* pXSprite, int nTarget)
+{
+	aiSetTarget(&bloodActors[pXSprite->reference], &bloodActors[nTarget]);
+}
+
+void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z)
+{
+	aiSetTarget(&bloodActors[pXSprite->reference], x, y, z);
+}
+
 
 
 END_BLD_NS

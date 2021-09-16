@@ -6948,6 +6948,7 @@ void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget) {
     if (!xsprIsFine(pSprite) || !IsDudeSprite(pSprite))
         return;
 
+    auto targetactor = &bloodActors[pXTarget->reference];
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
     if (pXSprite->health <= 0)
         return;
@@ -6960,11 +6961,12 @@ void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget) {
     
     for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
 
-        pDude = &sprite[nSprite];
+        auto dudeactor = &bloodActors[nSprite];
+        pDude = &dudeactor->s();
         if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || IsPlayerSprite(pDude) || pDude->extra < 0)
             continue;
 
-        pXDude = &xsprite[pDude->extra];
+        pXDude = &dudeactor->x();
         if (pXDude->health <= 0)
             continue;
 
@@ -6982,8 +6984,8 @@ void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget) {
         if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
             continue;
 
-        aiSetTarget_(pXDude, pXTarget->reference);
-        aiActivateDude(&bloodActors[pXDude->reference]);
+        aiSetTarget(dudeactor, targetactor);
+        aiActivateDude(dudeactor);
 
     }
 
@@ -7010,11 +7012,12 @@ void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
 
     for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
 
-        pDude = &sprite[nSprite];
+        auto dudeactor = &bloodActors[nSprite];
+        pDude = &dudeactor->s();
         if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || IsPlayerSprite(pDude) || pDude->extra < 0)
             continue;
 
-        pXDude = &xsprite[pDude->extra];
+        pXDude = &dudeactor->x();
         if (pXDude->health <= 0)
             continue;
 
@@ -7033,9 +7036,9 @@ void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
             if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
                 continue;
 
-            if (spriRangeIsFine(pXSprite->target_i)) aiSetTarget_(pXDude, pXSprite->target_i);
-            else aiSetTarget_(pXDude, pSprite->x, pSprite->y, pSprite->z);
-            aiActivateDude(&bloodActors[pXDude->reference]);
+            if (spriRangeIsFine(pXSprite->target_i)) aiSetTarget(dudeactor, &bloodActors[pXSprite->target_i]);
+            else aiSetTarget(dudeactor, pSprite->x, pSprite->y, pSprite->z);
+            aiActivateDude(dudeactor);
 
             if (chain)
                 aiPatrolAlarmFull(pDude, pXTarget, Chance(0x0010));

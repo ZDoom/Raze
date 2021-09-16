@@ -930,36 +930,36 @@ void aiActivateDude(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiSetTarget_(XSPRITE *pXSprite, int x, int y, int z)
+void aiSetTarget(DBloodActor*actor, int x, int y, int z)
 {
-    pXSprite->target_i = -1;
+	auto pXSprite = &actor->x();
+	actor->SetTarget(nullptr);
     pXSprite->targetX = x;
     pXSprite->targetY = y;
     pXSprite->targetZ = z;
 }
 
-void aiSetTarget_(XSPRITE *pXSprite, int nTarget)
+void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 {
-    assert(nTarget >= 0 && nTarget < kMaxSprites);
-    spritetype *pTarget = &sprite[nTarget];
+	if (target == nullptr)
+	{
+		actor->SetTarget(nullptr);
+		return;
+	}
+	auto pXSprite = &actor->x();
+	spritetype* pTarget = &target->s();
     if (pTarget->type >= kDudeBase && pTarget->type < kDudeMax)
     {
-        if (sprite[pXSprite->reference].owner != nTarget)
+		if (actor->GetOwner() != target)
         {
-            pXSprite->target_i = nTarget;
-            DUDEINFO *pDudeInfo = getDudeInfo(pTarget->type);
+			actor->SetTarget(target);
+			DUDEINFO* pDudeInfo = getDudeInfo(pTarget->type);
             pXSprite->targetX = pTarget->x;
             pXSprite->targetY = pTarget->y;
-            pXSprite->targetZ = pTarget->z-((pDudeInfo->eyeHeight*pTarget->yrepeat)<<2);
+			pXSprite->targetZ = pTarget->z - ((pDudeInfo->eyeHeight * pTarget->yrepeat) << 2);
         }
     }
 }
-
-void aiSetTarget(DBloodActor* actor, DBloodActor* target)
-{
-    aiSetTarget_(&actor->x(), target ? target->x().reference : -1);
-}
-
 
 int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage)
 {
@@ -991,7 +991,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 nThresh *= pDudeInfo->changeTarget;
             if (Chance(nThresh))
             {
-                aiSetTarget_(pXSprite, nSource);
+                aiSetTarget(actor, source);
                 aiActivateDude(&bloodActors[pXSprite->reference]);
             }
         }
