@@ -223,7 +223,7 @@ static void gargThinkTarget(DBloodActor* actor)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
-        aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
+        aiSetTarget_(pXSprite, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &gargoyleTurn);
         return;
     }
@@ -249,13 +249,13 @@ static void gargThinkTarget(DBloodActor* actor)
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval2 = 0;
-                aiSetTarget(pXSprite, pPlayer->nSprite);
+                aiSetTarget_(pXSprite, pPlayer->nSprite);
                 aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 pDudeExtraE->xval2 = 0;
-                aiSetTarget(pXSprite, x, y, z);
+                aiSetTarget_(pXSprite, x, y, z);
                 aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else

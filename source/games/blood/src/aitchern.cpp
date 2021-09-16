@@ -241,7 +241,7 @@ static void sub_725A4(DBloodActor* actor)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
-        aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
+        aiSetTarget_(pXSprite, pTarget->x, pTarget->y, pTarget->z);
         aiNewState(actor, &tcherno13AA28);
         return;
     }
@@ -267,13 +267,13 @@ static void sub_725A4(DBloodActor* actor)
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
                 pDudeExtraE->xval1 = 0;
-                aiSetTarget(pXSprite, pPlayer->nSprite);
+                aiSetTarget_(pXSprite, pPlayer->nSprite);
                 aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
                 pDudeExtraE->xval1 = 0;
-                aiSetTarget(pXSprite, x, y, z);
+                aiSetTarget_(pXSprite, x, y, z);
                 aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else
