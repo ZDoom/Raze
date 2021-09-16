@@ -223,7 +223,6 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 DBloodActor *actDropObject(DBloodActor *pSprite, int nType);
 bool actHealDude(DBloodActor* pXDude, int a2, int a3);
 void actKillDude(DBloodActor* a1, DBloodActor* pSprite, DAMAGE_TYPE a3, int a4);
-int actDamageSprite_(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
 int actDamageSprite(DBloodActor* pSource, DBloodActor* pTarget, DAMAGE_TYPE damageType, int damage);
 void actHitcodeToData(int a1, HITINFO *pHitInfo, DBloodActor **actor, walltype **a7 = nullptr);
 void actAirDrag(DBloodActor *pSprite, int a2);

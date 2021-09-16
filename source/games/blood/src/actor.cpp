@@ -7404,11 +7404,6 @@ void SerializeActor(FSerializer& arc)
 }
 
 // dumping ground for temporary wrappers.
-int actDamageSprite_(int nSource, spritetype* pSprite, DAMAGE_TYPE damageType, int damage)
-{
-    return actDamageSprite(nSource == -1 ? nullptr : &bloodActors[nSource], &bloodActors[pSprite->index], damageType, damage);
-}
-
 void actPostSprite(int nSprite, int nStatus)
 {
 	actPostSprite(&bloodActors[nSprite], nStatus);

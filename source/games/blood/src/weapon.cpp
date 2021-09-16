@@ -1728,7 +1728,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
             int nAmmo = pPlayer->ammoCount[8];
             if (nAmmo < 25 && pPlayer->pXSprite->health > unsigned((25-nAmmo)<<4))
             {
-                actDamageSprite_(pPlayer->nSprite, pPlayer->pSprite, kDamageSpirit, ((25-nAmmo)<<4));
+                actDamageSprite(actor, actor, kDamageSpirit, ((25-nAmmo)<<4));
                 nAmmo = 25;
             }
             pXSprite->data3 = nAmmo;
