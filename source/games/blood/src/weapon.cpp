@@ -2644,13 +2644,14 @@ void WeaponProcess(PLAYER *pPlayer) {
 
 void teslaHit(spritetype *pMissile, int a2)
 {
+    auto missileactor = &bloodActors[pMissile->index];
     uint8_t sectmap[(kMaxSectors+7)>>3];
     int x = pMissile->x;
     int y = pMissile->y;
     int z = pMissile->z;
     int nDist = 300;
     int nSector = pMissile->sectnum;
-    int nOwner = pMissile->owner;
+    auto owner = missileactor->GetOwner();
     const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
     GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
     bool v4 = true;
@@ -2658,41 +2659,40 @@ void teslaHit(spritetype *pMissile, int a2)
     actHitcodeToData(a2, &gHitInfo, &actor);
     if (a2 == 3 && actor && actor->s().statnum == kStatDude)
         v4 = false;
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatDude);
+    while (auto hitactor = it.Next())
     {
-        if (nSprite != nOwner || v4)
+        if (hitactor != owner || v4)
         {
-            spritetype *pSprite = &sprite[nSprite];
-            if (pSprite->flags&32)
+            spritetype *pHitSprite = &hitactor->s();
+            if (pHitSprite->flags&32)
                 continue;
-            if (TestBitString(sectmap, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
+            if (TestBitString(sectmap, pHitSprite->sectnum) && CheckProximity(pHitSprite, x, y, z, nSector, nDist))
             {
-                int dx = pMissile->x-pSprite->x;
-                int dy = pMissile->y-pSprite->y;
+                int dx = pMissile->x-pHitSprite->x;
+                int dy = pMissile->y-pHitSprite->y;
                 int nDamage = ClipLow((nDist-(ksqrt(dx*dx+dy*dy)>>4)+20)>>1, 10);
-                if (nSprite == nOwner)
+                if (hitactor == owner)
                     nDamage /= 2;
-                actDamageSprite_(nOwner, pSprite, kDamageTesla, nDamage<<4);
+                actDamageSprite(owner, hitactor, kDamageTesla, nDamage<<4);
             }
         }
     }
     it.Reset(kStatThing);
-    while ((nSprite = it.NextIndex()) >= 0)
+    while (auto hitactor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
-        if (pSprite->flags&32)
+        spritetype *pHitSprite = &hitactor->s();
+        if (pHitSprite->flags&32)
             continue;
-        if (TestBitString(sectmap, pSprite->sectnum) && CheckProximity(pSprite, x, y, z, nSector, nDist))
+        if (TestBitString(sectmap, pHitSprite->sectnum) && CheckProximity(pHitSprite, x, y, z, nSector, nDist))
         {
-            XSPRITE *pXSprite = &xsprite[pSprite->extra];
+            XSPRITE *pXSprite = &hitactor->x();
             if (!pXSprite->locked)
             {
-                int dx = pMissile->x-pSprite->x;
-                int dy = pMissile->y-pSprite->y;
+                int dx = pMissile->x-pHitSprite->x;
+                int dy = pMissile->y-pHitSprite->y;
                 int nDamage = ClipLow(nDist-(ksqrt(dx*dx+dy*dy)>>4)+20, 20);
-                actDamageSprite_(nOwner, pSprite, kDamageTesla, nDamage<<4);
+                actDamageSprite(owner, hitactor, kDamageTesla, nDamage << 4);
             }
         }
     }
