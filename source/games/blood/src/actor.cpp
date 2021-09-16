@@ -2953,7 +2953,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (pExtra->weaponType == kGenDudeWeaponKamikaze && Chance(0x4000) && damageType != kDamageSpirit && damageType != kDamageDrown)
 		{
 			doExplosion(pSprite, pXSprite->data1 - kTrapExploder);
-			if (Chance(0x9000)) damageType = (DAMAGE_TYPE)3;
+			if (Chance(0x9000)) damageType = kDamageExplode;
 		}
 
 		if (damageType == kDamageBurn)
@@ -3966,7 +3966,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		{
 			int nOwner = pMissile->owner;
 			int nDamage = (15 + Random(7)) << 4;
-			actDamageSprite_(nOwner, pSpriteHit, kDamageBullet, nDamage);
+			actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
 		}
 		actPostSprite(missileActor, kStatFree);
 		break;
@@ -4276,7 +4276,7 @@ static void checkCeilHit(DBloodActor* actor)
 							int dmg = abs((mass1 - mass2) * (pSprite2->clipdist - pSprite->clipdist));
 							if (actor2->IsDudeActor())
 							{
-								if (dmg > 0) actDamageSprite_(pSprite2->index, pSprite, (Chance(0x2000)) ? kDamageFall : (Chance(0x4000)) ? kDamageExplode : kDamageBullet, dmg);
+								if (dmg > 0) actDamageSprite(actor2, actor, (Chance(0x2000)) ? kDamageFall : (Chance(0x4000)) ? kDamageExplode : kDamageBullet, dmg);
 								if (Chance(0x0200)) actKickObject(actor2, actor);
 							}
 						}
@@ -4475,7 +4475,7 @@ static void checkFloorHit(DBloodActor* actor)
 				}
 				actKickObject(actor, actor2);
 				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
-				actDamageSprite_(-1, pSprite2, kDamageFall, 80);
+				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
 			case kTrapSawCircular:
 				if (!pXSprite2->state) actDamageSprite(actor, actor, kDamageBullet, 1);
@@ -4874,7 +4874,7 @@ void MoveDude(DBloodActor* actor)
 			{
 				nSector = pSprite->sectnum;
 				if (pSprite->statnum == kStatDude || pSprite->statnum == kStatThing)
-					actDamageSprite_(pSprite->index, pSprite, kDamageFall, 1000 << 4);
+					actDamageSprite(actor, actor, kDamageFall, 1000 << 4);
 			}
 
 			if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate)

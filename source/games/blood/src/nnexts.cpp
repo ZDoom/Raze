@@ -1504,8 +1504,6 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) {
         
         if (thing)
             pSprite->statnum = kStatDecoration; // return statnum property back
-
-        return;
     }
 }
 
