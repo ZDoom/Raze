@@ -75,11 +75,11 @@ void SeqAttackCallback(int, DBloodActor* actor)
         actFireVector(actor, 0, 0, dx+r3, dy+r2, dz+r1, kVectorShell);
     }
     if (Chance(0x8000))
-        sfxPlay3DSound(pSprite, 10000+Random(5), -1, 0);
+        sfxPlay3DSound(actor, 10000+Random(5), -1, 0);
     if (Chance(0x8000))
-        sfxPlay3DSound(pSprite, 1001, -1, 0);
+        sfxPlay3DSound(actor, 1001, -1, 0);
     else
-        sfxPlay3DSound(pSprite, 1002, -1, 0);
+        sfxPlay3DSound(actor, 1002, -1, 0);
 }
 
 static void calebThinkSearch(DBloodActor* actor)
@@ -241,7 +241,7 @@ static void calebThinkChase(DBloodActor* actor)
     else
         aiNewState(actor, &tinycalebGoto);
     if (Chance(0x2000))
-        sfxPlay3DSound(pSprite, 10000 + Random(5), -1, 0);
+        sfxPlay3DSound(actor, 10000 + Random(5), -1, 0);
     actor->SetTarget(nullptr);
 }
 

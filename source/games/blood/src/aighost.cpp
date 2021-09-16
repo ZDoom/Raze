@@ -74,7 +74,7 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
     int dz = height-height2;
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
-    sfxPlay3DSound(pSprite, 1406, 0, 0);
+    sfxPlay3DSound(actor, 1406, 0, 0);
     actFireVector(actor, 0, 0, dx, dy, dz, kVectorGhost);
     int r1 = Random(50);
     int r2 = Random(50);
@@ -172,12 +172,12 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
     #ifdef NOONE_EXTENSIONS
         // allow fire missile in non-player targets if not a demo
         if (IsPlayerSprite(pTarget) || gModernMap) {
-            sfxPlay3DSound(pSprite, 489, 0, 0);
+            sfxPlay3DSound(actor, 489, 0, 0);
             actFireMissile(pSprite, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
         }
     #else
         if (IsPlayerSprite(pTarget)) {
-            sfxPlay3DSound(pSprite, 489, 0, 0);
+            sfxPlay3DSound(actor, 489, 0, 0);
             actFireMissile(pSprite, 0, 0, aim.dx, aim.dy, aim.dz, kMissileEctoSkull);
         }
     #endif

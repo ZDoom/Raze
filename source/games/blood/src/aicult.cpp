@@ -84,7 +84,7 @@ void TommySeqCallback(int, DBloodActor* actor)
     dy += Random3((5-gGameOptions.nDifficulty)*1000);
     dz += Random3((5-gGameOptions.nDifficulty)*500);
     actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
-    sfxPlay3DSound(pSprite, 4001, -1, 0);
+    sfxPlay3DSound(actor, 4001, -1, 0);
 }
 
 void TeslaSeqCallback(int, DBloodActor* actor)
@@ -100,7 +100,7 @@ void TeslaSeqCallback(int, DBloodActor* actor)
         dy += Random3((5-gGameOptions.nDifficulty)*1000);
         dz += Random3((5-gGameOptions.nDifficulty)*500);
         actFireMissile(pSprite, 0, 0, dx, dy, dz, kMissileTeslaRegular);
-        sfxPlay3DSound(pSprite, 470, -1, 0);
+        sfxPlay3DSound(actor, 470, -1, 0);
     }
 }
 
@@ -122,9 +122,9 @@ void ShotSeqCallback(int, DBloodActor* actor)
         actFireVector(actor, 0, 0, dx+r3, dy+r2, dz+r1, kVectorShell);
     }
     if (Chance(0x8000))
-        sfxPlay3DSound(pSprite, 1001, -1, 0);
+        sfxPlay3DSound(actor, 1001, -1, 0);
     else
-        sfxPlay3DSound(pSprite, 1002, -1, 0);
+        sfxPlay3DSound(actor, 1002, -1, 0);
 }
 
 void cultThrowSeqCallback(int, DBloodActor* actor)
@@ -135,7 +135,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
     char v4 = Chance(0x6000);
-    sfxPlay3DSound(pSprite, 455, -1, 0);
+    sfxPlay3DSound(actor, 455, -1, 0);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &actor->GetTarget()->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -160,7 +160,7 @@ void sub_68170(int, DBloodActor* actor)
     int nMissile = kThingArmedTNTStick;
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
-    sfxPlay3DSound(pSprite, 455, -1, 0);
+    sfxPlay3DSound(actor, 455, -1, 0);
     auto pMissile = actFireThing(actor, 0, 0, actor->dudeSlope - 9460, nMissile, 0x133333);
 	evPost(pMissile, 120 * (2 + Random(2)), kCmdOn);
 }
@@ -172,7 +172,7 @@ void sub_68230(int, DBloodActor* actor)
     int nMissile = kThingArmedTNTStick;
     if (gGameOptions.nDifficulty > 2)
         nMissile = kThingArmedTNTBundle;
-    sfxPlay3DSound(pSprite, 455, -1, 0);
+    sfxPlay3DSound(actor, 455, -1, 0);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &actor->GetTarget()->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
