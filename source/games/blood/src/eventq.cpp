@@ -573,6 +573,11 @@ void evKill(DBloodActor* actor)
 	evKill(actor->s().index, 3);
 }
 
+void evKill(DBloodActor* actor, CALLBACK_ID cb)
+{
+	evKill(actor->s().index, 3, cb);
+}
+
 //---------------------------------------------------------------------------
 //
 //

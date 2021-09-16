@@ -171,5 +171,6 @@ void evProcess(unsigned int nTime);
 void evKill(int a1, int a2);
 void evKill(int a1, int a2, CALLBACK_ID a3);
 void evKill(DBloodActor*);
+void evKill(DBloodActor*, CALLBACK_ID a3);
 
 END_BLD_NS

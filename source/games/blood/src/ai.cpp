@@ -975,9 +975,9 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
     if (!pXSprite->health)
         return 0;
     pXSprite->health = ClipLow(pXSprite->health - nDamage, 0);
-    cumulDamage[pSprite->extra] += nDamage;
+    actor->cumulDamage() += nDamage;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int nSprite = pXSprite->reference;
+
     if (source)
     {
         spritetype *pSource = &source->s();
@@ -988,7 +988,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             aiSetTarget(actor, source);
             aiActivateDude(&bloodActors[pXSprite->reference]);
         }
-        else if (nSource != pXSprite->target_i) // if found a new target, retarget
+        else if (source != actor->GetTarget()) // if found a new target, retarget
         {
             int nThresh = nDamage;
             if (pSprite->type == pSource->type)
@@ -998,7 +998,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             if (Chance(nThresh))
             {
                 aiSetTarget(actor, source);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiActivateDude(actor);
             }
         }
 
@@ -1021,7 +1021,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                         int fullHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : getDudeInfo(pSprite->type)->startHealth << 4;
 						if (((100 * pXSprite->health) / fullHp) <= 75) 
 						{
-                            cumulDamage[pSprite->extra] += nDamage << 4; // to be sure any enemy will play the recoil animation
+							actor->cumulDamage() += nDamage << 4; // to be sure any enemy will play the recoil animation
                             RecoilDude(&bloodActors[pXSprite->reference]);
                         }
                     }
@@ -1086,7 +1086,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                             aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                             actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
                             actor->dudeExtra.time = PlayClock + 360;
-                            evKill(nSprite, 3, kCallbackFXFlameLick);
+							evKill(actor, kCallbackFXFlameLick);
 
                         }
 					}
@@ -1109,7 +1109,9 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                                 if (Chance(0x0200))
                                     playGenDudeSound(pSprite, kGenDudeSndGotHit);
 
-                            } else if (dudeIsPlayingSeq(pSprite, 13)) {
+							} 
+							else if (dudeIsPlayingSeq(actor, 13)) 
+							{
                                 aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
                             }
                         }
@@ -1143,22 +1145,22 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
         case kDudeCultistTNT:
             if (nDmgType != kDamageBurn)
             {
-                if (!dudeIsPlayingSeq(pSprite, 14) && !pXSprite->medium)
+				if (!dudeIsPlayingSeq(actor, 14) && !pXSprite->medium)
                     aiNewState(actor, &cultistDodge);
-                else if (dudeIsPlayingSeq(pSprite, 14) && !pXSprite->medium)
+				else if (dudeIsPlayingSeq(actor, 14) && !pXSprite->medium)
                     aiNewState(actor, &cultistProneDodge);
-                else if (dudeIsPlayingSeq(pSprite, 13) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
+				else if (dudeIsPlayingSeq(actor, 13) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
                     aiNewState(actor, &cultistSwimDodge);
             }
             else if (nDmgType == kDamageBurn && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth/* && (pXSprite->at17_6 != 1 || pXSprite->at17_6 != 2)*/)
             {
                 pSprite->type = kDudeBurningCultist;
                 aiNewState(actor, &cultistBurnGoto);
-                aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
+				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
+				aiPlay3DSound(actor, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
                 actor->dudeExtra.time = PlayClock+360;
                 actHealDude(actor, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
-                evKill(nSprite, 3, kCallbackFXFlameLick);
+				evKill(actor, kCallbackFXFlameLick);
             }
             break;
         case kDudeInnocent:
@@ -1166,16 +1168,16 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             {
                 pSprite->type = kDudeBurningInnocent;
                 aiNewState(actor, &cultistBurnGoto);
-                aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
+				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
                 actor->dudeExtra.time = PlayClock+360;
                 actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
-                evKill(nSprite, 3, kCallbackFXFlameLick);
+				evKill(actor, kCallbackFXFlameLick);
             }
             break;
         case kDudeBurningCultist:
             if (Chance(0x4000) && actor->dudeExtra.time < PlayClock)
             {
-                aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
+				aiPlay3DSound(actor, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
                 actor->dudeExtra.time = PlayClock+360;
             }
             if (Chance(0x600) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
@@ -1200,12 +1202,12 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
             break;
         case kDudeZombieButcher:
             if (nDmgType == kDamageBurn && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth) {
-                aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                aiPlay3DSound(pSprite, 1202, AI_SFX_PRIORITY_2, -1);
+				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
+				aiPlay3DSound(actor, 1202, AI_SFX_PRIORITY_2, -1);
                 pSprite->type = kDudeBurningZombieButcher;
                 aiNewState(actor, &zombieFBurnGoto);
                 actHealDude(actor, dudeInfo[42].startHealth, dudeInfo[42].startHealth);
-                evKill(nSprite, 3, kCallbackFXFlameLick);
+				evKill(actor, kCallbackFXFlameLick);
             }
             break;
         case kDudeTinyCaleb:
@@ -1224,14 +1226,14 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 actor->dudeExtra.time = PlayClock+360;
                 actHealDude(actor, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
-                evKill(nSprite, 3, kCallbackFXFlameLick);
+				evKill(actor, kCallbackFXFlameLick);
             }
             break;
         case kDudeCultistBeast:
             if (pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth)
             {
                 pSprite->type = kDudeBeast;
-                aiPlay3DSound(pSprite, 9008, AI_SFX_PRIORITY_1, -1);
+				aiPlay3DSound(actor, 9008, AI_SFX_PRIORITY_1, -1);
                 aiNewState(actor, &beastMorphFromCultist);
                 actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
             }
@@ -1240,12 +1242,12 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
         case kDudeZombieAxeBuried:
             if (nDmgType == kDamageBurn && pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth)
             {
-                aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                aiPlay3DSound(pSprite, 1106, AI_SFX_PRIORITY_2, -1);
+				aiPlay3DSound(actor, 361, AI_SFX_PRIORITY_0, -1);
+				aiPlay3DSound(actor, 1106, AI_SFX_PRIORITY_2, -1);
                 pSprite->type = kDudeBurningZombieAxe;
                 aiNewState(actor, &zombieABurnGoto);
                 actHealDude(actor, dudeInfo[41].startHealth, dudeInfo[41].startHealth);
-                evKill(nSprite, 3, kCallbackFXFlameLick);
+				evKill(actor, kCallbackFXFlameLick);
             }
             break;
         }
