@@ -961,6 +961,12 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage)
 {
     auto pSprite = &actor->s();
@@ -1000,18 +1006,21 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
         if (gModernMap) {
             
             // for enemies in patrol mode
-            if (aiInPatrolState(pXSprite->aiState)) {
-
+			if (aiInPatrolState(pXSprite->aiState)) 
+			{
                 aiPatrolStop(pSprite, pSource->index, pXSprite->dudeAmbush);
 
                 PLAYER* pPlayer = getPlayerById(pSource->type);
                 if (!pPlayer) return nDamage;
                 if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
-                if (readyForCrit(pSource, pSprite)) {
+				if (readyForCrit(pSource, pSprite)) 
+				{
                     nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
-                    if (pXSprite->health > 0) {
+					if (pXSprite->health > 0) 
+					{
                         int fullHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : getDudeInfo(pSprite->type)->startHealth << 4;
-                        if (((100 * pXSprite->health) / fullHp) <= 75) {
+						if (((100 * pXSprite->health) / fullHp) <= 75) 
+						{
                             cumulDamage[pSprite->extra] += nDamage << 4; // to be sure any enemy will play the recoil animation
                             RecoilDude(&bloodActors[pXSprite->reference]);
                         }
@@ -1031,7 +1040,8 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                 }
 
                 if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
-                if (spriteIsUnderwater(pSprite, false)) {
+				if (spriteIsUnderwater(pSprite, false)) 
+				{
                     pSprite->type = kDudeModernCustom;
                     pXSprite->burnTime = 0;
                     pXSprite->health = 1; // so it can be killed with flame weapons while underwater and if already was burning dude before.
@@ -1042,19 +1052,21 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
             }
 
-            if (pSprite->type == kDudeModernCustom) {
-
+			if (pSprite->type == kDudeModernCustom) 
+			{
                 GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
-                if (nDmgType == kDamageBurn) {
-
+                if (nDmgType == kDamageBurn) 
+				{
                     if (pXSprite->health > (uint32_t)pDudeInfo->fleeHealth) return nDamage;
-                    else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == NULL) {
+					else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == nullptr) 
+					{
                         removeDudeStuff(pSprite);
 
                         if (pExtra->weaponType == kGenDudeWeaponKamikaze)
                             doExplosion(pSprite, pXSprite->data1 - kTrapExploder);
 
-                        if (spriteIsUnderwater(pSprite)) {
+						if (spriteIsUnderwater(pSprite)) 
+						{
                             pXSprite->health = 0;
                             return nDamage;
                         }
@@ -1077,16 +1089,20 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                             evKill(nSprite, 3, kCallbackFXFlameLick);
 
                         }
-
-                    } else {
+					}
+					else 
+					{
                         actKillDude(actor, actor, kDamageFall, 65535);
                     }
-
-                } else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState)) {
-
-                    if (!dudeIsMelee(pXSprite)) {
-                        if (inIdle(pXSprite->aiState) || Chance(getDodgeChance(pSprite))) {
-                            if (!spriteIsUnderwater(pSprite)) {
+				} 
+				else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState)) 
+				{
+					if (!dudeIsMelee(pXSprite)) 
+					{
+						if (inIdle(pXSprite->aiState) || Chance(getDodgeChance(pSprite))) 
+						{
+							if (!spriteIsUnderwater(pSprite)) 
+							{
                                 if (!canDuck(pSprite) || !dudeIsPlayingSeq(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
                                 else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
 
@@ -1097,14 +1113,13 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                                 aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
                             }
                         }
-                    } else if (Chance(0x0200)) {
+					}
+					else if (Chance(0x0200)) 
+					{
                         playGenDudeSound(pSprite, kGenDudeSndGotHit);
                     }
-
                 }
-                
                 return nDamage;
-
             }
         }
         #endif
