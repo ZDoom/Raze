@@ -3966,7 +3966,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		{
 			int nOwner = pMissile->owner;
 			int nDamage = (15 + Random(7)) << 4;
-			actDamageSprite(nOwner, pSpriteHit, kDamageBullet, nDamage);
+			actDamageSprite_(nOwner, pSpriteHit, kDamageBullet, nDamage);
 		}
 		actPostSprite(missileActor, kStatFree);
 		break;
@@ -4276,7 +4276,7 @@ static void checkCeilHit(DBloodActor* actor)
 							int dmg = abs((mass1 - mass2) * (pSprite2->clipdist - pSprite->clipdist));
 							if (actor2->IsDudeActor())
 							{
-								if (dmg > 0) actDamageSprite(pSprite2->index, pSprite, (Chance(0x2000)) ? kDamageFall : (Chance(0x4000)) ? kDamageExplode : kDamageBullet, dmg);
+								if (dmg > 0) actDamageSprite_(pSprite2->index, pSprite, (Chance(0x2000)) ? kDamageFall : (Chance(0x4000)) ? kDamageExplode : kDamageBullet, dmg);
 								if (Chance(0x0200)) actKickObject(actor2, actor);
 							}
 						}
@@ -4475,7 +4475,7 @@ static void checkFloorHit(DBloodActor* actor)
 				}
 				actKickObject(actor, actor2);
 				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
-				actDamageSprite(-1, pSprite2, kDamageFall, 80);
+				actDamageSprite_(-1, pSprite2, kDamageFall, 80);
 				break;
 			case kTrapSawCircular:
 				if (!pXSprite2->state) actDamageSprite(actor, actor, kDamageBullet, 1);
@@ -4874,7 +4874,7 @@ void MoveDude(DBloodActor* actor)
 			{
 				nSector = pSprite->sectnum;
 				if (pSprite->statnum == kStatDude || pSprite->statnum == kStatThing)
-					actDamageSprite(pSprite->index, pSprite, kDamageFall, 1000 << 4);
+					actDamageSprite_(pSprite->index, pSprite, kDamageFall, 1000 << 4);
 			}
 
 			if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate)
@@ -7404,7 +7404,7 @@ void SerializeActor(FSerializer& arc)
 }
 
 // dumping ground for temporary wrappers.
-int actDamageSprite(int nSource, spritetype* pSprite, DAMAGE_TYPE damageType, int damage)
+int actDamageSprite_(int nSource, spritetype* pSprite, DAMAGE_TYPE damageType, int damage)
 {
     return actDamageSprite(nSource == -1 ? nullptr : &bloodActors[nSource], &bloodActors[pSprite->index], damageType, damage);
 }

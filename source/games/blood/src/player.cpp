@@ -268,7 +268,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
                 }
 
                 if (ceilIsTooLow(pPlayer->pSprite))
-                    actDamageSprite(pPlayer->pSprite->index, pPlayer->pSprite, kDamageExplode, 65535);
+                    actDamageSprite_(pPlayer->pSprite->index, pPlayer->pSprite, kDamageExplode, 65535);
             }
             break;
         #endif
@@ -316,7 +316,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
             if (gModernMap) {
                 playerSizeReset(pPlayer);
                 if (ceilIsTooLow(pPlayer->pSprite))
-                    actDamageSprite(pPlayer->pSprite->index, pPlayer->pSprite, kDamageExplode, 65535);
+                    actDamageSprite_(pPlayer->pSprite->index, pPlayer->pSprite, kDamageExplode, 65535);
             }
             break;
         case kItemShroomGrow:
@@ -1669,13 +1669,13 @@ void playerProcess(PLAYER *pPlayer)
     {
         short nSector = pSprite->sectnum;
         if (pushmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, dw, dzt, dzb, CLIPMASK0) == -1)
-            actDamageSprite(nSprite, pSprite, kDamageFall, 500<<4);
+            actDamageSprite_(nSprite, pSprite, kDamageFall, 500<<4);
         if (pSprite->sectnum != nSector)
         {
             if (nSector == -1)
             {
                 nSector = pSprite->sectnum;
-                actDamageSprite(nSprite, pSprite, kDamageFall, 500<<4);
+                actDamageSprite_(nSprite, pSprite, kDamageFall, 500<<4);
             }
             assert(nSector >= 0 && nSector < kMaxSectors);
             ChangeSpriteSect(nSprite, nSector);

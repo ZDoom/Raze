@@ -1500,7 +1500,7 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) {
                 pSprite->statnum = kStatThing; // temporary change statnum property
         }
 
-        actDamageSprite(nOwner, pSprite, kDamageExplode, dmg);
+        actDamageSprite_(nOwner, pSprite, kDamageExplode, dmg);
         
         if (thing)
             pSprite->statnum = kStatDecoration; // return statnum property back
@@ -3019,13 +3019,13 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite) {
 
                     playerDamageArmor(pPlayer, (DAMAGE_TYPE)dmgType, dmg);
                     for (int i = 0; i < 3; armor[i] = pPlayer->armor[i], pPlayer->armor[i] = 0, i++);
-                    actDamageSprite(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
+                    actDamageSprite_(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
                     for (int i = 0; i < 3; pPlayer->armor[i] = armor[i], i++);
 
                 }
                 else {
 
-                    actDamageSprite(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
+                    actDamageSprite_(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
 
                 }
 
