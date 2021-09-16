@@ -268,9 +268,8 @@ static void gargThinkTarget(DBloodActor* actor)
 static void gargThinkSearch(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
     aiChooseDirection(actor,pXSprite->goalAng);
-    aiLookForTarget(pSprite, pXSprite);
+    aiLookForTarget(actor);
 }
 
 static void gargThinkGoto(DBloodActor* actor)

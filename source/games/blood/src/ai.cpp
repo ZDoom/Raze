@@ -32,8 +32,6 @@ BEGIN_BLD_NS
 
 void RecoilDude(DBloodActor* actor);
 
-int cumulDamage[kMaxXSprites];
-
 AISTATE genIdle = {kAiStateGenIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
 AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 
@@ -975,7 +973,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
     if (!pXSprite->health)
         return 0;
     pXSprite->health = ClipLow(pXSprite->health - nDamage, 0);
-    actor->cumulDamage() += nDamage;
+	actor->cumulDamage += nDamage;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
 
     if (source)
@@ -1021,7 +1019,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
                         int fullHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : getDudeInfo(pSprite->type)->startHealth << 4;
 						if (((100 * pXSprite->health) / fullHp) <= 75) 
 						{
-							actor->cumulDamage() += nDamage << 4; // to be sure any enemy will play the recoil animation
+							actor->cumulDamage += nDamage << 4; // to be sure any enemy will play the recoil animation
                             RecoilDude(&bloodActors[pXSprite->reference]);
                         }
                     }
@@ -1573,9 +1571,10 @@ void aiThinkTarget(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
+void aiLookForTarget(DBloodActor* actor)
 {
-	auto actor = &bloodActors[pSprite->index];
+	auto pSprite = &actor->s();
+	auto pXSprite = &actor->x();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
@@ -1645,24 +1644,22 @@ void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
 
 void aiProcessDudes(void) 
 {
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatDude);
+    while (auto actor = it.Next())
     {
-        spritetype *pSprite = &sprite[nSprite];
+		auto pSprite = &actor->s();
         if (pSprite->flags & 32) continue;
-        int nXSprite = pSprite->extra;
-        XSPRITE *pXSprite = &xsprite[nXSprite]; 
+		auto pXSprite = &actor->x();
         DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-        auto actor = &bloodActors[pXSprite->reference];
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
+
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
 
         if (pXSprite->aiState && pXSprite->aiState->moveFunc)
-            pXSprite->aiState->moveFunc(&bloodActors[pXSprite->reference]);
+            pXSprite->aiState->moveFunc(actor);
 
-        if (pXSprite->aiState && pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (nSprite & 3))
-            pXSprite->aiState->thinkFunc(&bloodActors[pXSprite->reference]);
+        if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (pSprite->index & 3)) // ouch, ouch! :(
+            pXSprite->aiState->thinkFunc(actor);
 
         switch (pSprite->type) {
             #ifdef NOONE_EXTENSIONS
@@ -1672,13 +1669,14 @@ void aiProcessDudes(void)
                 if (pExtra->slaveCount > 0) updateTargetOfSlaves(pSprite);
                 if (pExtra->nLifeLeech >= 0) updateTargetOfLeech(pSprite);
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
-                    && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0)) {
+                    && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0)) 
+				{
                     aiGenDudeNewState(pSprite, pXSprite->aiState->nextState);
                 }
                 int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
-                if (pXSprite->health <= 0 || hinder > cumulDamage[pSprite->extra]) break;
-                pXSprite->data3 = cumulDamage[pSprite->extra];
-                RecoilDude(&bloodActors[pXSprite->reference]);
+                if (pXSprite->health <= 0 || hinder > actor->cumulDamage) break;
+                pXSprite->data3 = actor->cumulDamage;
+                RecoilDude(actor);
                 break;
             }
             #endif
@@ -1686,18 +1684,24 @@ void aiProcessDudes(void)
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState) {
                     if (pXSprite->aiState->stateTicks > 0)
                         aiNewState(actor, pXSprite->aiState->nextState);
-                    else if (seqGetStatus(3, nXSprite) < 0)
+                    else if (seqGetStatus(actor) < 0)
                         aiNewState(actor, pXSprite->aiState->nextState);
                 }
 
-                if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= cumulDamage[nXSprite])) {
-                    pXSprite->data3 = cumulDamage[nXSprite];
-                    RecoilDude(&bloodActors[pXSprite->reference]);
+                if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= actor->cumulDamage)) 
+				{
+                    pXSprite->data3 = actor->cumulDamage;
+                    RecoilDude(actor);
                 }
                 break;
         }
     }
-    memset(cumulDamage, 0, sizeof(cumulDamage));
+
+	it.Reset(kStatDude);
+	while (auto actor = it.Next())
+	{
+		actor->cumulDamage = 0;
+	}
 }
 
 void aiInit(void)
