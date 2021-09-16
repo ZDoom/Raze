@@ -2994,7 +2994,8 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		if (pXSprite->dropMsg > 0) // drop items
 			actDropObject(actor, pXSprite->dropMsg);
 
-		pSprite->flags &= ~kPhysMove; xvel[pSprite->index] = yvel[pSprite->index] = 0;
+		pSprite->flags &= ~kPhysMove; 
+		actor->xvel() = actor->yvel() = 0;
 
 		playGenDudeSound(pSprite, kGenDudeSndTransforming);
 		int seqId = pXSprite->data2 + kGenDudeSeqTransform;

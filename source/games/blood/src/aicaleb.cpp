@@ -315,7 +315,6 @@ static void sub_65D04(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
@@ -333,26 +332,26 @@ static void sub_65D04(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     if (actor->GetTarget() == nullptr)
         t1 += nAccel;
     else
         t1 += nAccel>>2;
-    xvel[nSprite] = DMulScale(t1, nCos, t2, nSin, 30);
-    yvel[nSprite] = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void sub_65F44(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
+
     spritetype *pTarget = &actor->GetTarget()->s();
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
     int z2 = pTarget->z + getDudeInfo(pTarget->type)->eyeHeight;
@@ -373,24 +372,24 @@ static void sub_65F44(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     t1 += nAccel;
-    xvel[nSprite] = DMulScale(t1, nCos, t2, nSin, 30);
-    yvel[nSprite] = DMulScale(t1, nSin, -t2, nCos, 30);
-    zvel[nSprite] = -dz;
+    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel() = -dz;
 }
 
 static void sub_661E0(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
+
     spritetype *pTarget = &actor->GetTarget()->s();
     int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
     int z2 = pTarget->z + getDudeInfo(pTarget->type)->eyeHeight;
@@ -411,14 +410,14 @@ static void sub_661E0(DBloodActor* actor)
         return;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int vx = xvel[nSprite];
-    int vy = yvel[nSprite];
+    int vx = actor->xvel();
+    int vy = actor->yvel();
     int t1 = DMulScale(vx, nCos, vy, nSin, 30);
     int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
     t1 += nAccel>>1;
-    xvel[nSprite] = DMulScale(t1, nCos, t2, nSin, 30);
-    yvel[nSprite] = DMulScale(t1, nSin, -t2, nCos, 30);
-    zvel[nSprite] = dz;
+    actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel() = dz;
 }
 
 END_BLD_NS

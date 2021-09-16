@@ -211,7 +211,7 @@ void genDudeAttack1(int, DBloodActor* actor)
     if (pXSprite->target_i < 0) return;
 
     int dx, dy, dz;
-    xvel[pSprite->index] = yvel[pSprite->index] = 0;
+    actor->xvel() = actor->yvel() = 0;
     
     GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
     short dispersion = pExtra->baseDispersion;

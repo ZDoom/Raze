@@ -257,13 +257,12 @@ void aiChooseDirection(DBloodActor* actor, int a3)
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
 
-    int nSprite = pSprite->index;
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     int vc = ((a3+1024-pSprite->ang)&2047)-1024;
     int nCos = Cos(pSprite->ang);
     int nSin = Sin(pSprite->ang);
-    int dx = xvel[nSprite];
-    int dy = yvel[nSprite];
+	int dx = actor->xvel();
+	int dy = actor->yvel();
     int t1 = DMulScale(dx, nCos, dy, nSin, 30);
     int vsi = ((t1*15)>>12) / 2;
     int v8 = 341;
