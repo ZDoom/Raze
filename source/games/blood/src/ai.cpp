@@ -986,7 +986,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
         else if (actor->GetTarget() == nullptr) // if no target, give the dude a target
         {
             aiSetTarget(actor, source);
-            aiActivateDude(&bloodActors[pXSprite->reference]);
+			aiActivateDude(actor);
         }
         else if (source != actor->GetTarget()) // if found a new target, retarget
         {
@@ -1530,14 +1530,14 @@ void aiThinkTarget(DBloodActor* actor)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget_(pXSprite, pPlayer->nSprite);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, pPlayer->actor());
+                aiActivateDude(actor);
                 return;
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                aiSetTarget_(pXSprite, x, y, z);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, x, y, z);
+                aiActivateDude(actor);
                 return;
             }
         }
@@ -1546,6 +1546,7 @@ void aiThinkTarget(DBloodActor* actor)
 
 void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
+	auto actor = &bloodActors[pSprite->index];
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
@@ -1569,14 +1570,14 @@ void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                aiSetTarget_(pXSprite, pPlayer->nSprite);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, pPlayer->actor());
+                aiActivateDude(actor);
                 return;
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                aiSetTarget_(pXSprite, x, y, z);
-                aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, x, y, z);
+                aiActivateDude(actor);
                 return;
             }
         }
@@ -1586,11 +1587,10 @@ void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
             const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
             GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, sectmap, nullptr, newSectCheckMethod);
 
-            int nSprite2;
-            StatIterator it(kStatDude);
-            while ((nSprite2 = it.NextIndex()) >= 0)
+            BloodStatIterator it(kStatDude);
+            while (DBloodActor* actor2 = it.Next())
             {
-                spritetype *pSprite2 = &sprite[nSprite2];
+				spritetype* pSprite2 = &actor2->s();
                 int dx = pSprite2->x-pSprite->x;
                 int dy = pSprite2->y-pSprite->y;
                 int nDist = approxDist(dx, dy);
@@ -1599,8 +1599,8 @@ void aiLookForTarget(spritetype *pSprite, XSPRITE *pXSprite)
                     DUDEINFO *pDudeInfo = getDudeInfo(pSprite2->type);
                     if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                         continue;
-                    aiSetTarget_(pXSprite, pSprite2->index);
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                    aiSetTarget(actor, actor2);
+                    aiActivateDude(actor);
                     return;
                 }
             }
