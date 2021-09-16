@@ -68,11 +68,7 @@ void sub_71BD4(int, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pSprite->yrepeat*pDudeInfo->eyeHeight;
-    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
-        return;
-    }
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     int x = pSprite->x;
     int y = pSprite->y;
     int z = height;
@@ -141,11 +137,8 @@ void sub_720AC(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    ///assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites");
-        return;
-    }
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
+
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pSprite->yrepeat*pDudeInfo->eyeHeight;
     int ax, ay, az;

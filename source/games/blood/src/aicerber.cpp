@@ -81,11 +81,8 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pDudeInfo->eyeHeight*pSprite->yrepeat;
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
-        return;
-    }
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
+
     int x = pSprite->x;
     int y = pSprite->y;
     int z = height; // ???
@@ -161,11 +158,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
-        return;
-    }
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pDudeInfo->eyeHeight*pSprite->yrepeat;
     
@@ -367,11 +360,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
 
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
-        return;
-    }
+    if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &actor->GetTarget()->s();
     XSPRITE* pXTarget = &actor->GetTarget()->x();
     int dx = pTarget->x-pSprite->x;
