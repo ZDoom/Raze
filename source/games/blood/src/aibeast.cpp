@@ -85,7 +85,6 @@ void StompSeqCallback(int, DBloodActor* actor1)
 {
     uint8_t sectmap[(kMaxSectors+7)>>3];
     XSPRITE* pXSprite = &actor1->x();
-    int nSprite = pXSprite->reference;
     spritetype *pSprite = &actor1->s();
     int dx = CosScale16(pSprite->ang);
     int dy = SinScale16(pSprite->ang);
@@ -108,13 +107,12 @@ void StompSeqCallback(int, DBloodActor* actor1)
             v4 = 0;
     }
     vc <<= 4;
-    int nSprite2;
-    StatIterator it1(kStatDude);
-    while ((nSprite2 = it1.NextIndex()) >= 0)
+    BloodStatIterator it1(kStatDude);
+    while (auto actor2 = it1.Next())
     {
-        if (nSprite != nSprite2 || v4)
+        if (actor1 != actor2 || v4)
         {
-            spritetype *pSprite2 = &sprite[nSprite2];
+            spritetype *pSprite2 = &actor2->s();
             if (pSprite2->extra > 0 && pSprite2->extra < kMaxXSprites)
             {
                 if (pSprite2->type == kDudeBeast)
@@ -139,7 +137,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
                                 nDamage = v1c + ((vc-nDist2)*v10)/vc;
                             if (IsPlayerSprite(pSprite2))
                                 gPlayer[pSprite2->type-kDudePlayer1].quakeEffect += nDamage*4;
-                            actDamageSprite_(nSprite, pSprite2, kDamageFall, nDamage<<4);
+                            actDamageSprite(actor1, actor2, kDamageFall, nDamage<<4);
                         }
                     }
                 }
@@ -147,9 +145,9 @@ void StompSeqCallback(int, DBloodActor* actor1)
         }
     }
     it1.Reset(kStatThing);
-    while ((nSprite2 = it1.NextIndex()) >= 0)
+    while (auto actor2 = it1.Next())
     {
-        spritetype *pSprite2 = &sprite[nSprite2];
+        spritetype *pSprite2 = &actor2->s();
         if (pSprite2->flags&32)
             continue;
         if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
@@ -169,7 +167,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
                     nDamage = v1c + ((vc-nDist2)*v10)/vc;
                 if (IsPlayerSprite(pSprite2))
                     gPlayer[pSprite2->type-kDudePlayer1].quakeEffect += nDamage*4;
-                actDamageSprite_(nSprite, pSprite2, kDamageFall, nDamage<<4);
+                actDamageSprite(actor1, actor2, kDamageFall, nDamage<<4);
             }
         }
     }
