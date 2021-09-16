@@ -1103,7 +1103,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						{
 							if (!spriteIsUnderwater(pSprite)) 
 							{
-                                if (!canDuck(pSprite) || !dudeIsPlayingSeq(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
+								if (!canDuck(pSprite) || !dudeIsPlayingSeq(actor, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
                                 else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
 
                                 if (Chance(0x0200))

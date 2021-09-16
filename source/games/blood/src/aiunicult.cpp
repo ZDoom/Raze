@@ -928,9 +928,9 @@ int checkAttackState(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
-    if (dudeIsPlayingSeq(pSprite, 14) || spriteIsUnderwater(pSprite,false))
+    if (dudeIsPlayingSeq(actor, 14) || spriteIsUnderwater(pSprite,false))
     {
-        if ( !dudeIsPlayingSeq(pSprite, 14) || spriteIsUnderwater(pSprite,false))
+        if ( !dudeIsPlayingSeq(actor, 14) || spriteIsUnderwater(pSprite,false))
         {
             if (spriteIsUnderwater(pSprite,false))
             {
