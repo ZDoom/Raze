@@ -1323,7 +1323,7 @@ void InitChunks()
 {
     nCurChunkNum = 0;
     memset(nChunkSprite,   0, sizeof(nChunkSprite));
-    memset(nBodyGunSprite, -1, sizeof(nBodyGunSprite));
+    memset(nBodyGunSprite, 0, sizeof(nBodyGunSprite));
     memset(nBodySprite,    0, sizeof(nBodySprite));
     nCurBodyNum    = 0;
     nCurBodyGunNum = 0;
@@ -1331,22 +1331,22 @@ void InitChunks()
     nChunkTotal = 0;
 }
 
-int GrabBodyGunSprite()
+DExhumedActor* GrabBodyGunSprite()
 {
-    int nSprite = nBodyGunSprite[nCurBodyGunNum];
-    auto pSprite = &sprite[nSprite];
-
-    if (nSprite == -1)
+    auto pActor = nBodyGunSprite[nCurBodyGunNum];
+	spritetype* pSprite;
+    if (pActor == nullptr)
     {
-        nSprite = insertsprite(0, 899);
-        pSprite = &sprite[nSprite];
-        nBodyGunSprite[nCurBodyGunNum] = nSprite;
+        pActor = insertActor(0, 899);
+		pSprite = &pActor->s();
+        nBodyGunSprite[nCurBodyGunNum] = pActor;
 
         pSprite->lotag = -1;
         pSprite->owner = -1;
     }
     else
     {
+		auto pSprite = &pActor->s();
         int nAnim = pSprite->owner;
 
         if (nAnim != -1) {
@@ -1364,7 +1364,7 @@ int GrabBodyGunSprite()
 
     pSprite->cstat = 0;
 
-    return nSprite;
+    return pActor;
 }
 
 DExhumedActor* GrabBody()

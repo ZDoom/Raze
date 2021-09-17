@@ -45,7 +45,7 @@ short inita, initsect;
 
 short nCurChunkNum = 0;
 
-short nBodyGunSprite[50];
+DExhumedActor* nBodyGunSprite[50];
 int movefifoend;
 int movefifopos;
 

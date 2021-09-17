@@ -242,7 +242,7 @@ int MoveCreatureWithCaution(int nSprite);
 void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum);
 int GetSpriteHeight(int nSprite);
 DExhumedActor* GrabBody();
-int GrabBodyGunSprite();
+DExhumedActor* GrabBodyGunSprite();
 void CreatePushBlock(int nSector);
 void FuncCreatureChunk(int a, int, int nRun);
 int FindPlayer(int nSprite, int nDistance);

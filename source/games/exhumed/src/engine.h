@@ -62,7 +62,7 @@ extern short inita;
 extern short initsect;
 
 extern short nCurChunkNum;
-extern short nBodyGunSprite[50];
+extern DExhumedActor* nBodyGunSprite[50];
 extern int movefifoend;
 extern int movefifopos;
 extern short nCurBodyGunNum;

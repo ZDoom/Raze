@@ -505,18 +505,19 @@ void StartDeathSeq(int nPlayer, int nVal)
                     nSector = SectBelow[nSector];
                 }
 
-                int nGunSprite = GrabBodyGunSprite();
-                changespritesect(nGunSprite, nSector);
+                auto pGunActor = GrabBodyGunSprite();
+                ChangeActorSect(pGunActor, nSector);
+				auto pGunSprite = &pGunActor->s();
 
-                sprite[nGunSprite].x = pSprite->x;
-                sprite[nGunSprite].y = pSprite->y;
-                sprite[nGunSprite].z = sector[nSector].floorz - 512;
+                pGunSprite->x = pSprite->x;
+                pGunSprite->y = pSprite->y;
+                pGunSprite->z = sector[nSector].floorz - 512;
 
-                changespritestat(nGunSprite, nGunLotag[nWeapon] + 900);
+                ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
 
-                sprite[nGunSprite].picnum = nGunPicnum[nWeapon];
+                pGunSprite->picnum = nGunPicnum[nWeapon];
 
-                BuildItemAnim(nGunSprite);
+                BuildItemAnim(pGunActor->GetSpriteIndex());
             }
         }
     }
