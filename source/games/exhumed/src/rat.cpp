@@ -190,13 +190,14 @@ int FindFood(short nSprite)
         return -1;
     }
 
-    int nSprite2 = nBodySprite[RandomSize(7) % nBodyTotal];
-    if (nSprite2 != -1)
+    auto pActor2 = nBodySprite[RandomSize(7) % nBodyTotal];
+    if (pActor2 != nullptr)
     {
-        if (nPlayerPic == sprite[nSprite2].picnum)
+		auto pSprite2 = &pActor2->s();
+        if (nPlayerPic == pSprite2->picnum)
         {
-            if (cansee(x, y, z, nSector, sprite[nSprite2].x, sprite[nSprite2].y, sprite[nSprite2].z, sprite[nSprite2].sectnum)) {
-                return nSprite2;
+            if (cansee(x, y, z, nSector, pSprite2->x, pSprite2->y, pSprite2->z, pSprite2->sectnum)) {
+                return pActor2->GetSpriteIndex();
             }
         }
     }

@@ -38,7 +38,7 @@ short nPushBlocks;
 short overridesect;
 short NearCount = -1;
 
-short nBodySprite[50];
+DExhumedActor* nBodySprite[50];
 
 int hihit, sprceiling, sprfloor, lohit;
 
@@ -1324,7 +1324,7 @@ void InitChunks()
     nCurChunkNum = 0;
     memset(nChunkSprite,   -1, sizeof(nChunkSprite));
     memset(nBodyGunSprite, -1, sizeof(nBodyGunSprite));
-    memset(nBodySprite,    -1, sizeof(nBodySprite));
+    memset(nBodySprite,    0, sizeof(nBodySprite));
     nCurBodyNum    = 0;
     nCurBodyGunNum = 0;
     nBodyTotal  = 0;
@@ -1367,23 +1367,24 @@ int GrabBodyGunSprite()
     return nSprite;
 }
 
-int GrabBody()
+DExhumedActor GrabBody()
 {
-    int nSprite;
-
+	DExhumedActor* pActor = nullptr;
     spritetype* pSprite = nullptr;
     do
     {
-        nSprite = nBodySprite[nCurBodyNum];
-        pSprite = &sprite[nSprite];
+        pActor = nBodySprite[nCurBodyNum];
 
-        if (nSprite == -1)
+        if (pActor == nullptr)
         {
-            nSprite = insertsprite(0, 899);
-            pSprite = &sprite[nSprite];
-            nBodySprite[nCurBodyNum] = nSprite;
+            pActor = insertActor(0, 899);
+            pSprite = &pActor->s();
+            nBodySprite[nCurBodyNum] = pActor;
             pSprite->cstat = 0x8000;
         }
+		else
+			pSprite = &pActor->s();
+
 
         nCurBodyNum++;
         if (nCurBodyNum >= 50) {
@@ -1396,7 +1397,7 @@ int GrabBody()
     }
 
     pSprite->cstat = 0;
-    return nSprite;
+    return pActor;
 }
 
 int GrabChunkSprite()

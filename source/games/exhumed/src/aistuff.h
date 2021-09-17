@@ -228,7 +228,7 @@ extern BlockInfo sBlockInfo[];
 
 extern int hihit;
 extern short nChunkSprite[];
-extern short nBodySprite[];
+extern DExhumedActor* nBodySprite[];
 
 signed int lsqrt(int a1);
 void MoveThings();
@@ -241,7 +241,7 @@ int MoveCreature(short nSprite);
 int MoveCreatureWithCaution(int nSprite);
 void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum);
 int GetSpriteHeight(int nSprite);
-int GrabBody();
+DExhumedActor* GrabBody();
 int GrabBodyGunSprite();
 void CreatePushBlock(int nSector);
 void FuncCreatureChunk(int a, int, int nRun);

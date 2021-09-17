@@ -49,6 +49,7 @@ extern int lPlayerYVel;
 
 struct Player
 {
+	DExhumedActor* Actor() { return nSprite == -1? nullptr : &exhumedActors[nSprite]; }
     short nHealth;
     short nLives;
     short nDouble;
