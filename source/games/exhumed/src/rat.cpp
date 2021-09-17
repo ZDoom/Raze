@@ -177,11 +177,12 @@ int FindFood(short nSprite)
 
     if (nChunkTotal)
     {
-        int nSprite2 = nChunkSprite[RandomSize(7) % nChunkTotal];
-        if (nSprite2 != -1)
-        {
-            if (cansee(x, y, z2, nSector, sprite[nSprite2].x, sprite[nSprite2].y, sprite[nSprite2].z, sprite[nSprite2].sectnum)) {
-                return nSprite2;
+        auto pActor2 = nChunkSprite[RandomSize(7) % nChunkTotal];
+		if (pActor2 != nullptr)
+		{
+			auto pSprite2 = &pActor2->s();
+            if (cansee(x, y, z2, nSector, pSprite2->x, pSprite2->y, pSprite2->z, pSprite2->sectnum)) {
+                return pActor2->GetSpriteIndex();
             }
         }
     }

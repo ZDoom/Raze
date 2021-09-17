@@ -227,7 +227,7 @@ struct BlockInfo
 extern BlockInfo sBlockInfo[];
 
 extern int hihit;
-extern short nChunkSprite[];
+extern DExhumedActor* nChunkSprite[];
 extern DExhumedActor* nBodySprite[];
 
 signed int lsqrt(int a1);

@@ -51,7 +51,7 @@ enum
 // think this belongs in init.c?
 BlockInfo sBlockInfo[kMaxPushBlocks];
 
-short nChunkSprite[kMaxMoveChunks];
+DExhumedActor *nChunkSprite[kMaxMoveChunks];
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, BlockInfo& w, BlockInfo* def)
 {
@@ -1322,7 +1322,7 @@ void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum)
 void InitChunks()
 {
     nCurChunkNum = 0;
-    memset(nChunkSprite,   -1, sizeof(nChunkSprite));
+    memset(nChunkSprite,   0, sizeof(nChunkSprite));
     memset(nBodyGunSprite, -1, sizeof(nBodyGunSprite));
     memset(nBodySprite,    0, sizeof(nBodySprite));
     nCurBodyNum    = 0;
@@ -1367,7 +1367,7 @@ int GrabBodyGunSprite()
     return nSprite;
 }
 
-DExhumedActor GrabBody()
+DExhumedActor* GrabBody()
 {
 	DExhumedActor* pActor = nullptr;
     spritetype* pSprite = nullptr;
@@ -1400,24 +1400,22 @@ DExhumedActor GrabBody()
     return pActor;
 }
 
-int GrabChunkSprite()
+DExhumedActor* GrabChunkSprite()
 {
-    int nSprite = nChunkSprite[nCurChunkNum];
-	auto pSprite = &sprite[nSprite];
+    auto pActor = nChunkSprite[nCurChunkNum];
 
-    if (nSprite == -1)
+    if (pActor == nullptr)
     {
-        nSprite = insertsprite(0, 899);
-        pSprite = &sprite[nSprite];
-        nChunkSprite[nCurChunkNum] = nSprite;
+        pActor = insertActor(0, 899);
+		nChunkSprite[nCurChunkNum] = pActor;
     }
-    else if (pSprite->statnum)
+    else if (pActor->s().statnum)
     {
 // TODO	MonoOut("too many chunks being used at once!\n");
-        return -1;
+        return nullptr;
     }
 
-    changespritestat(nSprite, 899);
+    ChangeActorStat(pActor, 899);
 
     nCurChunkNum++;
     if (nCurChunkNum >= kMaxMoveChunks)
@@ -1426,9 +1424,9 @@ int GrabChunkSprite()
     if (nChunkTotal < kMaxMoveChunks)
         nChunkTotal++;
 
-    pSprite->cstat = 0x80;
+    pActor->s().cstat = 0x80;
 
-    return nSprite;
+    return pActor;
 }
 
 int BuildCreatureChunk(int nVal, int nPic)
