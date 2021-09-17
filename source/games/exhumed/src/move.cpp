@@ -1302,13 +1302,13 @@ int GetWallNormal(short nWall)
 
 void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum)
 {
-    int nSprite = PlayerList[nPlayer].nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = PlayerList[nPlayer].Actor();
+	auto pSprite = &pActor->s();
 
     *x = pSprite->x;
     *y = pSprite->y;
 
-    int height = GetSpriteHeight(nSprite) / 2;
+    int height = GetSpriteHeight(pActor) / 2;
 
     *z = pSprite->z - height;
     *sectnum = pSprite->sectnum;
