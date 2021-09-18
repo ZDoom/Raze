@@ -5700,7 +5700,7 @@ static void actCheckProximity()
 			if (pXSprite->burnTime > 0)
 			{
 				pXSprite->burnTime = ClipLow(pXSprite->burnTime - 4, 0);
-				actDamageSprite(actor->GetBurnSource(), actor, kDamageFall, 8);
+				actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
 			}
 
 			if (pXSprite->Proximity)
