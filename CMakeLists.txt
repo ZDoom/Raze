@@ -258,7 +258,7 @@ if( MSVC )
 	string(REPLACE " /GR" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
 else()
 	set( REL_LINKER_FLAGS "" )
-	set( ALL_C_FLAGS "-ffp-contract=off" )
+	set( ALL_C_FLAGS "-ffp-contract=off -DUSE_OPENGL=1 -DNOASM=1" )
 
 	if ( HAVE_VULKAN )
 		set( ALL_C_FLAGS "${ALL_C_FLAGS} -DHAVE_VULKAN" )
