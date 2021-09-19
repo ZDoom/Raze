@@ -1324,7 +1324,6 @@ void scaleDamage(XSPRITE* pXSprite) {
                 case kThingPodFireBall:
                 case kThingNapalmBall:
                     curScale[kDmgBurn] = 32;
-                    curScale[kDmgExplode] -= 32;
                     break;
                 case kMissileLifeLeechRegular:
                     curScale[kDmgBurn] = 60 + Random(4);
@@ -1338,7 +1337,7 @@ void scaleDamage(XSPRITE* pXSprite) {
                 case kMissileFireballCerberus:
                 case kMissileFireballTchernobog:
                     curScale[kDmgBurn] = 50;
-                    curScale[kDmgExplode] = 32;
+                    curScale[kDmgExplode] -= 32;
                     curScale[kDmgFall] = 65 + Random(15);
                     break;
                 case kThingTNTBarrel:
@@ -1348,7 +1347,7 @@ void scaleDamage(XSPRITE* pXSprite) {
                 case kThingArmedTNTStick:
                 case kModernThingTNTProx:
                     curScale[kDmgBurn] -= 32;
-                    curScale[kDmgExplode] = 32;
+                    curScale[kDmgExplode] -= 32;
                     curScale[kDmgFall] = 65 + Random(15);
                     break;
                 case kMissileTeslaAlt:
