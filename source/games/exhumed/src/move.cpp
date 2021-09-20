@@ -282,9 +282,9 @@ void BuildNear(int x, int y, int walldist, int nSector)
     }
 }
 
-int BelowNear(short nSprite)
+int BelowNear(DExhumedActor* pActor)
 {
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
     short nSector = pSprite->sectnum;
     int z = pSprite->z;
 
@@ -509,7 +509,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
     if (pSprite->statnum == 100)
     {
         BuildNear(pSprite->x, pSprite->y, clipdist + (clipdist / 2), pSprite->sectnum);
-        nRet |= BelowNear(nSprite);
+        nRet |= BelowNear(&exhumedActors[nSprite]);
     }
 
     return nRet;
