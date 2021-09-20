@@ -311,7 +311,7 @@ void DoLighting(void)
 
                 if ((RANDOM_P2(128 << 8) >> 8) > 64)
                 {
-                    sp->shade = -LIGHT_MaxBright(sp) + RANDOM_RANGE(LIGHT_MaxBright(sp) + LIGHT_MaxDark(sp));
+                    sp->shade = -LIGHT_MaxBright(sp) + RandomRange(LIGHT_MaxBright(sp) + LIGHT_MaxDark(sp));
                     SectorLightShade(sp, sp->shade);
                     DiffuseLighting(sp);
                 }
@@ -403,7 +403,7 @@ void DoLighting(void)
 
                 if ((RANDOM_P2(128 << 8) >> 8) > 64)
                 {
-                    sp->shade = -LIGHT_MaxBright(sp) + RANDOM_RANGE(LIGHT_MaxBright(sp) + LIGHT_MaxDark(sp));
+                    sp->shade = -LIGHT_MaxBright(sp) + RandomRange(LIGHT_MaxBright(sp) + LIGHT_MaxDark(sp));
                     SectorLightShade(sp, sp->shade);
                     DiffuseLighting(sp);
                 }

@@ -2735,7 +2735,7 @@ SpriteSetup(void)
                         SP_TAG10(sp) = 20;
 
                     // interval in seconds
-                    u->WaitTics = RANDOM_RANGE(SP_TAG10(sp)) * 120;
+                    u->WaitTics = RandomRange(SP_TAG10(sp)) * 120;
 
                     // time to erupt
                     if (SP_TAG9(sp) == 0)

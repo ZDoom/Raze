@@ -984,7 +984,7 @@ InitRipper2Hang(short SpriteNum)
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -(RANDOM_RANGE(400)+100));
+    PickJumpMaxSpeed(SpriteNum, -(RandomRange(400)+100));
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -1116,7 +1116,7 @@ DoRipper2BeginJumpAttack(short SpriteNum)
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -(RANDOM_RANGE(400)+100));
+    PickJumpMaxSpeed(SpriteNum, -(RandomRange(400)+100));
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);

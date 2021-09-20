@@ -191,7 +191,7 @@ void DoPlayerChooseYell(PLAYERp pp)
 {
     int choose_snd = 0;
 
-    if (RANDOM_RANGE(1000) < 990) return;
+    if (RandomRange(1000) < 990) return;
 
     choose_snd = STD_RANDOM_RANGE(MAX_YELLSOUNDS);
 
@@ -273,7 +273,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
         {
             int choosesnd = 0;
 
-            choosesnd = RANDOM_RANGE(MAX_PAIN);
+            choosesnd = RandomRange(MAX_PAIN);
 
             if (u->Health > 50)
             {
@@ -1076,7 +1076,7 @@ pSwordSlideDown(PANEL_SPRITEp psp)
                 psp->oy = psp->y = SWORD_YOFF;
                 psp->backupboby();
                 psp->ang = 1024;
-                psp->PlayerP->SwordAng = SwordAngTable[RANDOM_RANGE(SIZ(SwordAngTable))];
+                psp->PlayerP->SwordAng = SwordAngTable[RandomRange(SIZ(SwordAngTable))];
                 psp->vel = 2500;
                 DoPlayerSpriteThrow(psp->PlayerP);
                 return;
@@ -1141,7 +1141,7 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
                 psp->ox = psp->x = SWORD_XOFF + 80;
                 psp->oy = psp->y = SWORD_YOFF;
                 psp->backupboby();
-                psp->PlayerP->SwordAng = SwordAngTable[RANDOM_RANGE(SIZ(SwordAngTable))];
+                psp->PlayerP->SwordAng = SwordAngTable[RandomRange(SIZ(SwordAngTable))];
                 psp->ang = 1024;
                 psp->vel = 2500;
                 DoPlayerSpriteThrow(psp->PlayerP);
@@ -1218,7 +1218,7 @@ pSwordRest(PANEL_SPRITEp psp)
             psp->vel = 2500;
 
             psp->ang = 1024;
-            psp->PlayerP->SwordAng = SwordAngTable[RANDOM_RANGE(SIZ(SwordAngTable))];
+            psp->PlayerP->SwordAng = SwordAngTable[RandomRange(SIZ(SwordAngTable))];
             DoPlayerSpriteThrow(psp->PlayerP);
         }
     }
@@ -4675,7 +4675,7 @@ pHeartAttack(PANEL_SPRITEp psp)
     // CTW MODIFICATION END
 
     PlaySound(DIGI_HEARTFIRE, pp, v3df_follow|v3df_dontpan);
-    if (RANDOM_RANGE(1000) > 800)
+    if (RandomRange(1000) > 800)
         PlayerSound(DIGI_JG9009, v3df_follow|v3df_dontpan,pp);
     InitHeartAttack(psp->PlayerP);
 }
@@ -4760,12 +4760,12 @@ SpawnHeartBlood(PANEL_SPRITEp psp)
         blood->ox = blood->x;
         blood->y = psp->y + hsp->yoff;
         blood->oy = blood->y;
-        blood->xspeed = hsp->lo_xspeed + (RANDOM_RANGE((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
+        blood->xspeed = hsp->lo_xspeed + (RandomRange((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
         SET(blood->flags, PANF_WEAPON_SPRITE);
 
-        blood->scale = 20000 + RANDOM_RANGE(50000 - 20000);
+        blood->scale = 20000 + RandomRange(50000 - 20000);
 
-        blood->jump_speed = hsp->lo_jump_speed + (RANDOM_RANGE((hsp->hi_jump_speed + hsp->lo_jump_speed)>>4) << 4);
+        blood->jump_speed = hsp->lo_jump_speed + (RandomRange((hsp->hi_jump_speed + hsp->lo_jump_speed)>>4) << 4);
         DoBeginPanelJump(blood);
     }
 }
@@ -4796,12 +4796,12 @@ SpawnSmallHeartBlood(PANEL_SPRITEp psp)
         blood->ox = blood->x;
         blood->y = psp->y + hsp->yoff;
         blood->oy = blood->y;
-        blood->xspeed = hsp->lo_xspeed + (RANDOM_RANGE((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
+        blood->xspeed = hsp->lo_xspeed + (RandomRange((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
         SET(blood->flags, PANF_WEAPON_SPRITE);
 
-        blood->scale = 10000 + RANDOM_RANGE(30000 - 10000);
+        blood->scale = 10000 + RandomRange(30000 - 10000);
 
-        blood->jump_speed = hsp->lo_jump_speed + (RANDOM_RANGE((hsp->hi_jump_speed + hsp->lo_jump_speed)>>4) << 4);
+        blood->jump_speed = hsp->lo_jump_speed + (RandomRange((hsp->hi_jump_speed + hsp->lo_jump_speed)>>4) << 4);
         DoBeginPanelJump(blood);
     }
 }
@@ -5553,7 +5553,7 @@ InitChops(PLAYERp pp)
 
     PlaySound(DIGI_BUZZZ, psp->PlayerP,v3df_none);
 
-    if (RANDOM_RANGE(1000) > 750)
+    if (RandomRange(1000) > 750)
         PlayerSound(DIGI_MRFLY,v3df_follow|v3df_dontpan,psp->PlayerP);
 
 }
@@ -5564,7 +5564,7 @@ pChopsClick(PANEL_SPRITEp psp)
     int16_t rnd_rng;
     PlaySound(DIGI_CHOP_CLICK,psp->PlayerP,v3df_none);
 
-    rnd_rng = RANDOM_RANGE(1000);
+    rnd_rng = RandomRange(1000);
     if (rnd_rng > 950)
         PlayerSound(DIGI_SEARCHWALL,v3df_follow|v3df_dontpan,psp->PlayerP);
     else if (rnd_rng > 900)
@@ -5637,7 +5637,7 @@ pChopsWait(PANEL_SPRITEp psp)
         psp->ox = psp->x = CHOPS_XOFF + (RANDOM_P2(128) - 64);
 
         PlaySound(DIGI_BUZZZ,psp->PlayerP,v3df_none);
-        pSetState(psp, psp_ChopsAttack[RANDOM_RANGE(SIZ(psp_ChopsAttack))]);
+        pSetState(psp, psp_ChopsAttack[RandomRange(SIZ(psp_ChopsAttack))]);
     }
 }
 
@@ -5659,7 +5659,7 @@ pChopsRetract(PANEL_SPRITEp psp)
 
     if (psp->y >= CHOPS_YOFF + tileHeight(picnum))
     {
-        if (RANDOM_RANGE(1000) > 800)
+        if (RandomRange(1000) > 800)
             PlayerSound(DIGI_GETTINGSTIFF,v3df_follow|v3df_dontpan,psp->PlayerP);
         psp->PlayerP->Chops = nullptr;
         pKillSprite(psp);
@@ -5971,7 +5971,7 @@ pFistPresent(PANEL_SPRITEp psp)
         psp->oy = psp->y = FIST_YOFF;
         psp->backupboby();
 
-        rnd = RANDOM_RANGE(1000);
+        rnd = RandomRange(1000);
         if (rnd > 500)
         {
             psp->PresentState = ps_PresentFist;
@@ -6041,9 +6041,9 @@ pFistSlideDown(PANEL_SPRITEp psp)
             {
                 DoPlayerChooseYell(psp->PlayerP);
 
-                if (RANDOM_RANGE(1000) > 500)
+                if (RandomRange(1000) > 500)
                 {
-                    //if(RANDOM_RANGE(1000) > 300)
+                    //if(RandomRange(1000) > 300)
                     //    {
                     psp->ActionState = ps_FistSwing;
                     psp->PlayerP->WpnKungFuMove = 0;
@@ -6057,7 +6057,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
                     psp->ox = psp->x = FIST_XOFF;
                     psp->oy = psp->y = FIST_YOFF;
                     psp->backupboby();
-                    psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
+                    psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
                     psp->ang = 1024;
                     psp->vel = vel;
                     DoPlayerSpriteThrow(psp->PlayerP);
@@ -6074,7 +6074,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
                 psp->oy = psp->y = FIST_YOFF;
                 psp->backupboby();
                 psp->ang = 1024;
-                psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
+                psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
                 psp->vel = vel;
                 DoPlayerSpriteThrow(psp->PlayerP);
                 return;
@@ -6144,7 +6144,7 @@ pFistSlideDownR(PANEL_SPRITEp psp)
             {
                 DoPlayerChooseYell(psp->PlayerP);
 
-                if (RANDOM_RANGE(1000) > 500)
+                if (RandomRange(1000) > 500)
                 {
                     psp->ActionState = ps_FistSwing+5;
                     psp->PlayerP->WpnKungFuMove = 0;
@@ -6154,7 +6154,7 @@ pFistSlideDownR(PANEL_SPRITEp psp)
                     psp->oy = psp->y = FIST_YOFF;
                     psp->backupboby();
                     psp->ang = 1024;
-                    psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
+                    psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
                     psp->vel = vel;
                     DoPlayerSpriteThrow(psp->PlayerP);
                     return;
@@ -6169,7 +6169,7 @@ pFistSlideDownR(PANEL_SPRITEp psp)
                 psp->ox = psp->x = FIST_XOFF;
                 psp->oy = psp->y = FIST_YOFF;
                 psp->backupboby();
-                psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
+                psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
                 psp->ang = 1024;
                 psp->vel = vel;
                 DoPlayerSpriteThrow(psp->PlayerP);
@@ -6254,7 +6254,7 @@ pFistRest(PANEL_SPRITEp psp)
             psp->vel = 5500;
 
             psp->ang = 1024;
-            psp->PlayerP->FistAng = FistAngTable[RANDOM_RANGE(SIZ(FistAngTable))];
+            psp->PlayerP->FistAng = FistAngTable[RandomRange(SIZ(FistAngTable))];
             DoPlayerSpriteThrow(psp->PlayerP);
         }
     }

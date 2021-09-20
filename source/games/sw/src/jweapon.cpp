@@ -262,7 +262,7 @@ DoWallBloodDrip(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
-    //sp->z += (300+RANDOM_RANGE(2300)) >> 1;
+    //sp->z += (300+RandomRange(2300)) >> 1;
 
     // sy & sz are the ceiling and floor of the sector you are sliding down
     if (u->sz != u->sy)
@@ -275,13 +275,13 @@ DoWallBloodDrip(short SpriteNum)
         }
         else
         {
-            sp->zvel = (300+RANDOM_RANGE(2300)) >> 1;
+            sp->zvel = (300+RandomRange(2300)) >> 1;
             sp->z += sp->zvel;
         }
     }
     else
     {
-        sp->zvel = (300+RANDOM_RANGE(2300)) >> 1;
+        sp->zvel = (300+RandomRange(2300)) >> 1;
         sp->z += sp->zvel;
     }
 
@@ -313,8 +313,8 @@ SpawnMidSplash(short SpriteNum)
 
     //SetOwner(Weapon, New);
     np->shade = -12;
-    np->xrepeat = 70-RANDOM_RANGE(20);
-    np->yrepeat = 70-RANDOM_RANGE(20);
+    np->xrepeat = 70-RandomRange(20);
+    np->yrepeat = 70-RandomRange(20);
     np->opos = sp->opos;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
     RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -347,8 +347,8 @@ SpawnFloorSplash(short SpriteNum)
 
     //SetOwner(Weapon, New);
     np->shade = -12;
-    np->xrepeat = 70-RANDOM_RANGE(20);
-    np->yrepeat = 70-RANDOM_RANGE(20);
+    np->xrepeat = 70-RandomRange(20);
+    np->yrepeat = 70-RandomRange(20);
     np->opos = sp->opos;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
     RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -480,7 +480,7 @@ DoBloodSpray(int16_t Weapon)
                 }
 
                 sp->xvel = sp->yvel = u->xchange = u->ychange = 0;
-                sp->xrepeat = sp->yrepeat = 70 - RANDOM_RANGE(25);
+                sp->xrepeat = sp->yrepeat = 70 - RandomRange(25);
                 sp->x = sprite[wb].x;
                 sp->y = sprite[wb].y;
 
@@ -567,8 +567,8 @@ DoBloodSpray(int16_t Weapon)
 
         SetOwner(Weapon, New);
         np->shade = -12;
-        np->xrepeat = 40-RANDOM_RANGE(30);
-        np->yrepeat = 40-RANDOM_RANGE(30);
+        np->xrepeat = 40-RandomRange(30);
+        np->yrepeat = 40-RandomRange(30);
         np->opos = sp->opos;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -790,8 +790,8 @@ DoPhosphorus(int16_t Weapon)
         np->hitag = LUMINOUS;           // Always full brightness
         SetOwner(Weapon, New);
         np->shade = -40;
-        np->xrepeat = 12 + RANDOM_RANGE(10);
-        np->yrepeat = 12 + RANDOM_RANGE(10);
+        np->xrepeat = 12 + RandomRange(10);
+        np->yrepeat = 12 + RandomRange(10);
         np->opos = sp->opos;
         SET(np->cstat, CSTAT_SPRITE_YCENTER);
         RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -1479,7 +1479,7 @@ InitSpriteChemBomb(int16_t SpriteNum)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     SET(wp->cstat, CSTAT_SPRITE_BLOCK);
 
-    wp->zvel = short(-RANDOM_RANGE(100) * HORIZ_MULT);
+    wp->zvel = short(-RandomRange(100) * HORIZ_MULT);
 
     wp->clipdist = 80L >> 2;
 
@@ -1541,7 +1541,7 @@ InitChemBomb(short SpriteNum)
     if (SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wp->zvel = short(-RANDOM_RANGE(100) * HORIZ_MULT);
+    wp->zvel = short(-RandomRange(100) * HORIZ_MULT);
     wp->clipdist = 0;
 
     if (u->ID == MUSHROOM_CLOUD || u->ID == 3121 || u->ID == SUMO_RUN_R0) // 3121 == GRENADE_EXP
@@ -1624,7 +1624,7 @@ PlayerInitFlashBomb(PLAYERp pp)
                 {
                     int choosesnd = 0;
 
-                    choosesnd = RANDOM_RANGE(MAX_PAIN);
+                    choosesnd = RandomRange(MAX_PAIN);
 
                     PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 }
@@ -1684,7 +1684,7 @@ InitFlashBomb(int16_t SpriteNum)
                 {
                     int choosesnd = 0;
 
-                    choosesnd = RANDOM_RANGE(MAX_PAIN);
+                    choosesnd = RandomRange(MAX_PAIN);
 
                     PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 }
@@ -1824,7 +1824,7 @@ PlayerInitCaltrops(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
     w = SpawnSprite(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursectnum,
-                    nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RANDOM_RANGE(CHEMBOMB_VELOCITY)) / 2);
+                    nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
     wp = &sprite[w];
     wu = User[w].Data();
@@ -1852,7 +1852,7 @@ PlayerInitCaltrops(PLAYERp pp)
         SET(wu->Flags, SPR_UNDERWATER);
 
     // They go out at different angles
-//        wp->ang = NORM_ANGLE(pp->angle.ang.asbuild() + (RANDOM_RANGE(50) - 25));
+//        wp->ang = NORM_ANGLE(pp->angle.ang.asbuild() + (RandomRange(50) - 25));
 
     wp->zvel = -pp->horizon.horiz.asq16() >> 9;
 
@@ -1920,7 +1920,7 @@ InitCaltrops(int16_t SpriteNum)
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    wp->zvel = short(-RANDOM_RANGE(100) * HORIZ_MULT);
+    wp->zvel = short(-RandomRange(100) * HORIZ_MULT);
 
     // wp->clipdist = 80L>>2;
 
@@ -1950,7 +1950,7 @@ InitPhosphorus(int16_t SpriteNum)
     ny = sp->y;
     nz = sp->z;
 
-    daang = NORM_ANGLE(RANDOM_RANGE(2048));
+    daang = NORM_ANGLE(RandomRange(2048));
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -1982,7 +1982,7 @@ InitPhosphorus(int16_t SpriteNum)
     wu->floor_dist = Z(3);
     wu->Counter = 0;
 
-    wp->zvel = short(-RANDOM_RANGE(100) * HORIZ_MULT);
+    wp->zvel = short(-RandomRange(100) * HORIZ_MULT);
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -2004,13 +2004,13 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
 
 
     if (dogib)
-        cnt = RANDOM_RANGE(3)+1;
+        cnt = RandomRange(3)+1;
     else
         cnt = 1;
 
     //if(dogib)
     //    {
-    rnd = RANDOM_RANGE(1000);
+    rnd = RandomRange(1000);
     if (rnd > 650)
         PlaySound(DIGI_GIBS1, sp, v3df_none);
     else if (rnd > 350)
@@ -2026,14 +2026,14 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
     {
 
         if (velocity == -1)
-            vel = 105+RANDOM_RANGE(320);
+            vel = 105+RandomRange(320);
         else if (velocity == -2)
-            vel = 105+RANDOM_RANGE(100);
+            vel = 105+RandomRange(100);
 
         if (dogib)
-            ang = NORM_ANGLE(ang + 512 + RANDOM_RANGE(200));
+            ang = NORM_ANGLE(ang + 512 + RandomRange(200));
         else
-            ang = NORM_ANGLE(ang+1024+256 - RANDOM_RANGE(256));
+            ang = NORM_ANGLE(ang+1024+256 - RandomRange(256));
 
         nx = sp->x;
         ny = sp->y;
@@ -2057,8 +2057,8 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
         wp->shade = -12;
 
         SetOwner(SpriteNum, w);
-        wp->yrepeat = 64-RANDOM_RANGE(35);
-        wp->xrepeat = 64-RANDOM_RANGE(35);
+        wp->yrepeat = 64-RandomRange(35);
+        wp->xrepeat = 64-RandomRange(35);
         wp->shade = -15;
         wp->clipdist = sp->clipdist;
         wu->WeaponNum = u->WeaponNum;
@@ -2067,7 +2067,7 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
         wu->floor_dist = Z(3);
         wu->Counter = 0;
 
-        wp->zvel = short((-10 - RANDOM_RANGE(50)) * HORIZ_MULT);
+        wp->zvel = short((-10 - RandomRange(50)) * HORIZ_MULT);
 
         wu->xchange = MOVEx(wp->xvel, wp->ang);
         wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -2471,12 +2471,12 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
     case -3:
         id = UZI_SHELL;
         p = s_UziShellShrap;
-        velocity = 1500 + RANDOM_RANGE(1000);
+        velocity = 1500 + RandomRange(1000);
         break;
     case -4:
         id = SHOT_SHELL;
         p = s_ShotgunShellShrap;
-        velocity = 2000 + RANDOM_RANGE(1000);
+        velocity = 2000 + RandomRange(1000);
         break;
     }
 
@@ -2552,7 +2552,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
     //if (TEST(u->PlayerP->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
     //    SET(wu->Flags, SPR_UNDERWATER);
     wu->jump_speed = 200;
-    wu->jump_speed += RANDOM_RANGE(400);
+    wu->jump_speed += RandomRange(400);
     wu->jump_speed = -wu->jump_speed;
 
     DoBeginJump(w);

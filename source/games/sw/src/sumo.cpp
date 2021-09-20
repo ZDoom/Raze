@@ -775,7 +775,7 @@ int InitSumoClap(short SpriteNum)
     extern int InitMiniSumoClap(short SpriteNum);
     extern int InitSumoSkull(short SpriteNum);
 
-    if (sp->pal == 16 && RANDOM_RANGE(1000) <= 800)
+    if (sp->pal == 16 && RandomRange(1000) <= 800)
         InitMiniSumoClap(SpriteNum);
     else
         InitSumoSkull(SpriteNum);

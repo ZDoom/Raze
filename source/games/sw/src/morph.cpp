@@ -282,7 +282,7 @@ void ScaleRandomPoint(SECTOR_OBJECTp sop, short k, short ang, int x, int y, int 
         //sop->scale_point_speed[k] = SCALE_POINT_SPEED;
         short half = sop->scale_point_base_speed/2;
         short quart = sop->scale_point_base_speed/4;
-        sop->scale_point_speed[k] = sop->scale_point_base_speed + (RANDOM_RANGE(half) - quart);
+        sop->scale_point_speed[k] = sop->scale_point_base_speed + (RandomRange(half) - quart);
     }
 
     xmul = (sop->scale_point_dist[k] * sop->scale_x_mult)>>8;

@@ -1239,11 +1239,11 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
             {
                 if (snd[0] && snd[1])
                 {
-                    snd2play = snd[RANDOM_RANGE(2)];
+                    snd2play = snd[RandomRange(2)];
                 }
                 else if (snd[0] && snd[1] && snd[2])
                 {
-                    snd2play = snd[RANDOM_RANGE(3)];
+                    snd2play = snd[RandomRange(3)];
                 }
             }
             else if (snd[sound_num])
@@ -1699,7 +1699,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
     case MECHANICGIRL_R0:
     case SAILORGIRL_R0:
     case PRUNEGIRL_R0:
-        //if(RANDOM_RANGE(1000) < 500) return(true);
+        //if(RandomRange(1000) < 500) return(true);
         //if(u->FlagOwner == 0)
     {
         short choose_snd;
@@ -1785,7 +1785,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
+        u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(SpriteNum,s_Pachinko1Operate);
 
         return true;
@@ -1796,7 +1796,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
+        u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(SpriteNum,s_Pachinko2Operate);
 
         return true;
@@ -1807,7 +1807,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
+        u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(SpriteNum,s_Pachinko3Operate);
 
         return true;
@@ -1818,7 +1818,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
+        u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(SpriteNum,s_Pachinko4Operate);
 
         return true;

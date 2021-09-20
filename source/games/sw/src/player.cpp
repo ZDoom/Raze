@@ -3290,7 +3290,7 @@ DoPlayerFall(PLAYERp pp)
             {
 
                 PlayerSound(DIGI_PLAYERPAIN2, v3df_follow|v3df_dontpan,pp);
-                // PlayerUpdateHealth(pp, -RANDOM_RANGE(PLAYER_FALL_DAMAGE_AMOUNT) - 2);
+                // PlayerUpdateHealth(pp, -RandomRange(PLAYER_FALL_DAMAGE_AMOUNT) - 2);
 
                 if (pp->jump_speed > 1700 && pp->jump_speed < 4000)
                 {
@@ -4664,7 +4664,7 @@ DoPlayerDive(PLAYERp pp)
             pp->DiveDamageTics = PLAYER_DIVE_DAMAGE_TIME;
             //PlayerUpdateHealth(pp, PLAYER_DIVE_DAMAGE_AMOUNT);
             PlayerSound(DIGI_WANGDROWNING, v3df_dontpan|v3df_follow, pp);
-            PlayerUpdateHealth(pp, -3 -(RANDOM_RANGE(7<<8)>>8));
+            PlayerUpdateHealth(pp, -3 -(RandomRange(7<<8)>>8));
             PlayerCheckDeath(pp, -1);
             if (TEST(pp->Flags, PF_DEAD))
                 return;
@@ -4801,7 +4801,7 @@ DoPlayerDive(PLAYERp pp)
     DoPlayerMove(pp);
 
     // Random bubble sounds
-    // if((RANDOM_RANGE(1000<<5)>>5) < 100)
+    // if((RandomRange(1000<<5)>>5) < 100)
     //     PlaySound(DIGI_BUBBLES, pp, v3df_dontpan|v3df_follow);
 
     if ((!Prediction && pp->z_speed && ((RANDOM_P2(1024<<5)>>5) < 64)) ||
@@ -5676,7 +5676,7 @@ DoPlayerDeathFall(PLAYERp pp)
             if (loz != pp->loz)
                 SpawnSplash(pp->PlayerSprite);
 
-            if (RANDOM_RANGE(1000) > 500)
+            if (RandomRange(1000) > 500)
                 PlaySound(DIGI_BODYFALL1, pp, v3df_dontpan);
             else
                 PlaySound(DIGI_BODYFALL2, pp, v3df_dontpan);
@@ -5839,7 +5839,7 @@ DoPlayerBeginDie(PLAYERp pp)
     StopPlayerSound(pp);
 
     // Do the death scream
-    choosesnd = RANDOM_RANGE(MAX_PAIN);
+    choosesnd = RandomRange(MAX_PAIN);
 
     PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
@@ -6088,7 +6088,7 @@ void DoPlayerDeathHurl(PLAYERp pp)
                 if (MoveSkip4 == 0)
                 {
                     SpawnShrap(pp->PlayerSprite, -1);
-                    if (RANDOM_RANGE(1000) > 400)
+                    if (RandomRange(1000) > 400)
                         PlayerSound(DIGI_DHVOMIT, v3df_dontpan|v3df_follow,pp);
                 }
                 return;
@@ -7286,7 +7286,7 @@ int SearchSpawnPosition(PLAYERp pp)
     do
     {
         // get a spawn position
-        pos_num = RANDOM_RANGE(MAX_SW_PLAYERS);
+        pos_num = RandomRange(MAX_SW_PLAYERS);
         spawn_sprite = StatIterator::First(STAT_MULTI_START + pos_num);
         if (spawn_sprite <= -1)
             return 0;
@@ -7499,7 +7499,7 @@ void CheckFootPrints(PLAYERp pp)
     if (pp->NumFootPrints <= 0 || FootMode != WATER_FOOT)
     {
         // Hey, you just got your feet wet!
-        pp->NumFootPrints = RANDOM_RANGE(10)+3;
+        pp->NumFootPrints = RandomRange(10)+3;
         FootMode = WATER_FOOT;
     }
 }

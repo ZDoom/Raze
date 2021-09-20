@@ -304,7 +304,7 @@ void UseInventoryCloak(PLAYERp pp)
     sp->shade = 100;
 
     PlaySound(DIGI_GASPOP, pp, v3df_none);
-    //if(RANDOM_RANGE(1000) > 950)
+    //if(RandomRange(1000) > 950)
     if (pp == Player+myconnectindex)
         PlayerSound(DIGI_IAMSHADOW, v3df_follow|v3df_dontpan,pp);
 }

@@ -1969,7 +1969,7 @@ DoNinjaHariKari(short SpriteNum)
 
     SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
 
-    cnt = RANDOM_RANGE(4)+1;
+    cnt = RandomRange(4)+1;
     for (i=0; i<=cnt; i++)
         InitBloodSpray(SpriteNum,true,-2);
 

@@ -157,7 +157,7 @@ DoActorDie(short SpriteNum, short weapon)
             }
             else
             {
-                if (RANDOM_RANGE(1000) > 500)
+                if (RandomRange(1000) > 500)
                 {
                     SPRITEp wp = &sprite[weapon];
                     InitPlasmaFountain(wp, sp);
@@ -166,8 +166,8 @@ DoActorDie(short SpriteNum, short weapon)
                 ChangeState(SpriteNum, u->StateEnd);
                 u->RotNum = 0;
                 u->ActorActionFunc = nullptr;
-                sp->xvel = 200 + RANDOM_RANGE(200);
-                u->jump_speed = -200 - RANDOM_RANGE(250);
+                sp->xvel = 200 + RandomRange(200);
+                u->jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(SpriteNum);
                 sprite[SpriteNum].ang = sprite[weapon].ang;
             }
@@ -175,7 +175,7 @@ DoActorDie(short SpriteNum, short weapon)
         else
         {
             // test for gibable dead bodies
-            if (RANDOM_RANGE(1000) > 500)
+            if (RandomRange(1000) > 500)
                 SET(sp->cstat, CSTAT_SPRITE_YFLIP);
             ChangeState(SpriteNum, u->StateEnd);
             sp->xvel = 0;
@@ -203,7 +203,7 @@ DoActorDie(short SpriteNum, short weapon)
         break;
 
     case UZI_SMOKE:
-        if (RANDOM_RANGE(1000) > 500)
+        if (RandomRange(1000) > 500)
             SET(sp->cstat, CSTAT_SPRITE_YFLIP);
         ChangeState(SpriteNum, u->StateEnd);
         u->RotNum = 0;
@@ -211,13 +211,13 @@ DoActorDie(short SpriteNum, short weapon)
         if (u->ID == RIPPER_RUN_R0 || u->ID == RIPPER2_RUN_R0)
         {
             sp->xvel <<= 1;
-            u->jump_speed = -100 - RANDOM_RANGE(250);
+            u->jump_speed = -100 - RandomRange(250);
             DoActorBeginJump(SpriteNum);
         }
         else
         {
             sp->xvel = 0;
-            u->jump_speed = -10 - RANDOM_RANGE(25);
+            u->jump_speed = -10 - RandomRange(25);
             DoActorBeginJump(SpriteNum);
         }
         u->ActorActionFunc = nullptr;
@@ -226,7 +226,7 @@ DoActorDie(short SpriteNum, short weapon)
         break;
 
     case UZI_SMOKE+1: // Shotgun
-        if (RANDOM_RANGE(1000) > 500)
+        if (RandomRange(1000) > 500)
             SET(sp->cstat, CSTAT_SPRITE_YFLIP);
         ChangeState(SpriteNum, u->StateEnd);
         u->RotNum = 0;
@@ -234,13 +234,13 @@ DoActorDie(short SpriteNum, short weapon)
         // Rippers still gotta jump or they fall off walls weird
         if (u->ID == RIPPER_RUN_R0 || u->ID == RIPPER2_RUN_R0)
         {
-            sp->xvel = 75 + RANDOM_RANGE(100);
-            u->jump_speed = -100 - RANDOM_RANGE(150);
+            sp->xvel = 75 + RandomRange(100);
+            u->jump_speed = -100 - RandomRange(150);
         }
         else
         {
-            sp->xvel = 100 + RANDOM_RANGE(200);
-            u->jump_speed = -100 - RANDOM_RANGE(250);
+            sp->xvel = 100 + RandomRange(200);
+            u->jump_speed = -100 - RandomRange(250);
         }
         DoActorBeginJump(SpriteNum);
         u->ActorActionFunc = nullptr;
@@ -258,19 +258,19 @@ DoActorDie(short SpriteNum, short weapon)
             break;
 
         default:
-            if (RANDOM_RANGE(1000) > 700)
+            if (RandomRange(1000) > 700)
             {
                 SPRITEp wp = &sprite[weapon];
                 InitPlasmaFountain(wp, sp);
             }
 
-            if (RANDOM_RANGE(1000) > 500)
+            if (RandomRange(1000) > 500)
                 SET(sp->cstat, CSTAT_SPRITE_YFLIP);
             ChangeState(SpriteNum, u->StateEnd);
             u->RotNum = 0;
             u->ActorActionFunc = nullptr;
-            sp->xvel = 300 + RANDOM_RANGE(400);
-            u->jump_speed = -300 - RANDOM_RANGE(350);
+            sp->xvel = 300 + RandomRange(400);
+            u->jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(SpriteNum);
             sprite[SpriteNum].ang = sprite[weapon].ang;
             break;

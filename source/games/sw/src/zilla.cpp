@@ -765,7 +765,7 @@ int DoZillaDeathMelt(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
-    if (RANDOM_RANGE(1000) > 800)
+    if (RandomRange(1000) > 800)
         SpawnGrenadeExp(SpriteNum);
 
     u->ID = ZILLA_RUN_R0;

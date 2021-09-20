@@ -116,11 +116,6 @@ inline int RANDOM(void)
 }
 
 #define RANDOM_P2(pwr_of_2) (MOD_P2(RANDOM(),(pwr_of_2)))
-#define RANDOM_RANGE(range) (RandomRange(range))
-
-
-#define PRINT(line,str) DebugPrint(line,str)
-
 
 //
 // Map directions/degrees

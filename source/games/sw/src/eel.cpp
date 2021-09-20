@@ -487,7 +487,7 @@ int DoEelMatchPlayerZ(short SpriteNum)
     zdiff = (SPRITEp_BOS(tsp) - Z(8)) - u->sz;
 
     // check z diff of the player and the sprite
-    zdist = Z(20 + RANDOM_RANGE(64)); // put a random amount
+    zdist = Z(20 + RandomRange(64)); // put a random amount
     if (labs(zdiff) > zdist)
     {
         if (zdiff > 0)
@@ -588,9 +588,9 @@ DoEelDeath(short SpriteNum)
     if (sp->z >= u->loz)
     {
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
-        if (RANDOM_RANGE(1000) > 500)
+        if (RandomRange(1000) > 500)
             SET(sp->cstat, CSTAT_SPRITE_XFLIP);
-        if (RANDOM_RANGE(1000) > 500)
+        if (RandomRange(1000) > 500)
             SET(sp->cstat, CSTAT_SPRITE_YFLIP);
         NewStateGroup(SpriteNum, u->ActorActionSet->Dead);
         return 0;

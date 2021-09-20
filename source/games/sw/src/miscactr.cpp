@@ -160,7 +160,7 @@ int DoToiletGirl(short SpriteNum)
 
     if (u->FlagOwner != 1)
     {
-        if (RANDOM_RANGE(1000) > 980)
+        if (RandomRange(1000) > 980)
         {
             short choose_snd;
 
@@ -181,13 +181,13 @@ int DoToiletGirl(short SpriteNum)
     {
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
-            if (RANDOM_RANGE(1000<<8)>>8 > 500)
+            if (RandomRange(1000<<8)>>8 > 500)
                 PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan, CHAN_AnimeMad);
             else
                 PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(SpriteNum,s_ToiletGirlUzi);
-        u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
+        u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
 
@@ -226,13 +226,13 @@ int NullToiletGirl(short SpriteNum)
     {
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
-            if (RANDOM_RANGE(1000<<8)>>8 > 500)
+            if (RandomRange(1000<<8)>>8 > 500)
                 PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan, CHAN_AnimeMad);
             else
                 PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(SpriteNum,s_ToiletGirlUzi);
-        u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
+        u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
 
@@ -248,7 +248,7 @@ int ToiletGirlUzi(short SpriteNum)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        u->WaitTics = RANDOM_RANGE(240)+120;
+        u->WaitTics = RandomRange(240)+120;
         ChangeState(SpriteNum,s_ToiletGirlStand);
         u->FlagOwner = 0;
     }
@@ -397,7 +397,7 @@ int DoWashGirl(short SpriteNum)
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
 
-    if (RANDOM_RANGE(1000) > 980 && u->ShellNum <= 0)
+    if (RandomRange(1000) > 980 && u->ShellNum <= 0)
     {
         if (!SoundValidAndActive(sp, CHAN_AnimeSing))
         {
@@ -408,7 +408,7 @@ int DoWashGirl(short SpriteNum)
         }
 
         ChangeState(SpriteNum,s_WashGirlStandScrub);
-        u->ShellNum = RANDOM_RANGE(2*120)+240;
+        u->ShellNum = RandomRange(2*120)+240;
     }
     else
     {
@@ -429,13 +429,13 @@ int DoWashGirl(short SpriteNum)
     {
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
-            if (RANDOM_RANGE(1000<<8)>>8 > 500)
+            if (RandomRange(1000<<8)>>8 > 500)
                 PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan, CHAN_AnimeMad);
             else
                 PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(SpriteNum,s_WashGirlUzi);
-        u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
+        u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
 
@@ -471,13 +471,13 @@ int NullWashGirl(short SpriteNum)
     {
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
-            if (RANDOM_RANGE(1000<<8)>>8 > 500)
+            if (RandomRange(1000<<8)>>8 > 500)
                 PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan, CHAN_AnimeMad);
             else
                 PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(SpriteNum,s_WashGirlUzi);
-        u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
+        u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
 
@@ -493,7 +493,7 @@ int WashGirlUzi(short SpriteNum)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        u->WaitTics = RANDOM_RANGE(240)+120;
+        u->WaitTics = RandomRange(240)+120;
         ChangeState(SpriteNum,s_WashGirlStand);
         u->FlagOwner = 0;
     }
@@ -816,8 +816,8 @@ int PachinkoCheckWin(short SpriteNum)
     if (TEST_BOOL1(sp)) return 0;
 
     // Well? Did I win????!
-    /*short rnd = */RANDOM_RANGE(1000);
-    if (RANDOM_RANGE(1000) > 900 || Pachinko_Win_Cheat)
+    /*short rnd = */RandomRange(1000);
+    if (RandomRange(1000) > 900 || Pachinko_Win_Cheat)
     {
         int i;
         SPRITEp tsp;
@@ -874,10 +874,10 @@ int Pachinko1Operate(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     short rnd;
 
-    rnd = RANDOM_RANGE(1000);
+    rnd = RandomRange(1000);
     if (rnd > 900)
     {
-        rnd = RANDOM_RANGE(1000);  // TEMP SOUNDS: Need pachinko sounds!
+        rnd = RandomRange(1000);  // TEMP SOUNDS: Need pachinko sounds!
         if (rnd > 700)
             PlaySound(DIGI_PROLL1, sp, v3df_none);
         else if (rnd > 400)
@@ -1276,7 +1276,7 @@ int DoCarGirl(short SpriteNum)
             if (!SoundValidAndActive(sp, CHAN_AnimeMad))
             {
                 short choose;
-                choose = RANDOM_RANGE(1000);
+                choose = RandomRange(1000);
 
                 if (choose > 750)
                     PlaySound(DIGI_LANI049, sp, v3df_dontpan, CHAN_AnimeMad);
@@ -1288,7 +1288,7 @@ int DoCarGirl(short SpriteNum)
                     PlaySound(DIGI_LANI054, sp, v3df_dontpan, CHAN_AnimeMad);
             }
             ChangeState(SpriteNum,s_CarGirlUzi);
-            u->WaitTics = SEC(3)+SEC(RANDOM_RANGE(2<<8)>>8);
+            u->WaitTics = SEC(3)+SEC(RandomRange(2<<8)>>8);
             u->FlagOwner = 0;
         }
     }
@@ -1329,7 +1329,7 @@ int NullCarGirl(short SpriteNum)
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
             short choose;
-            choose = RANDOM_RANGE(1000);
+            choose = RandomRange(1000);
 
             if (choose > 750)
                 PlaySound(DIGI_LANI049, sp, v3df_dontpan, CHAN_AnimeMad);
@@ -1341,7 +1341,7 @@ int NullCarGirl(short SpriteNum)
                 PlaySound(DIGI_LANI054, sp, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(SpriteNum,s_CarGirlUzi);
-        u->WaitTics = SEC(3)+SEC(RANDOM_RANGE(2<<8)>>8);
+        u->WaitTics = SEC(3)+SEC(RandomRange(2<<8)>>8);
         u->FlagOwner = 0;
     }
 
@@ -1357,7 +1357,7 @@ int CarGirlUzi(short SpriteNum)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        u->WaitTics = RANDOM_RANGE(240)+120;
+        u->WaitTics = RandomRange(240)+120;
         ChangeState(SpriteNum,s_CarGirlStand);
         u->FlagOwner = 0;
     }
@@ -1495,7 +1495,7 @@ int DoMechanicGirl(short SpriteNum)
             if (!SoundValidAndActive(sp, CHAN_AnimeMad))
             {
                 short choose;
-                choose = RANDOM_RANGE(1000);
+                choose = RandomRange(1000);
 
                 if (choose > 750)
                     PlaySound(DIGI_LANI073, sp, v3df_dontpan, CHAN_AnimeMad);
@@ -1507,7 +1507,7 @@ int DoMechanicGirl(short SpriteNum)
                     PlaySound(DIGI_LANI079, sp, v3df_dontpan, CHAN_AnimeMad);
             }
             ChangeState(SpriteNum,s_MechanicGirlDrill);
-            u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(2<<8)>>8);
+            u->WaitTics = SEC(1)+SEC(RandomRange(2<<8)>>8);
             u->FlagOwner = 0;
         }
     }
@@ -1548,7 +1548,7 @@ int NullMechanicGirl(short SpriteNum)
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
             short choose;
-            choose = RANDOM_RANGE(1000);
+            choose = RandomRange(1000);
 
             if (choose > 750)
                 PlaySound(DIGI_LANI073, sp, v3df_dontpan, CHAN_AnimeMad);
@@ -1560,7 +1560,7 @@ int NullMechanicGirl(short SpriteNum)
                 PlaySound(DIGI_LANI079, sp, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(SpriteNum,s_MechanicGirlDrill);
-        u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(2<<8)>>8);
+        u->WaitTics = SEC(1)+SEC(RandomRange(2<<8)>>8);
         u->FlagOwner = 0;
     }
 
@@ -1576,7 +1576,7 @@ int MechanicGirlDrill(short SpriteNum)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        u->WaitTics = RANDOM_RANGE(240)+120;
+        u->WaitTics = RandomRange(240)+120;
         ChangeState(SpriteNum,s_MechanicGirlStand);
         u->FlagOwner = 0;
     }
@@ -1715,7 +1715,7 @@ int DoSailorGirl(short SpriteNum)
             if (!SoundValidAndActive(sp, CHAN_AnimeMad))
             {
                 short choose;
-                choose = RANDOM_RANGE(1000);
+                choose = RandomRange(1000);
 
                 if (choose > 750 && alreadythrew < 3)
                 {
@@ -1731,7 +1731,7 @@ int DoSailorGirl(short SpriteNum)
                     PlaySound(DIGI_LANI066, sp, v3df_dontpan, CHAN_AnimeMad);
             }
             ChangeState(SpriteNum,s_SailorGirlThrow);
-            u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
+            u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
             u->FlagOwner = 0;
         }
     }
@@ -1773,7 +1773,7 @@ int NullSailorGirl(short SpriteNum)
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
             short choose;
-            choose = RANDOM_RANGE(1000);
+            choose = RandomRange(1000);
 
             if (choose > 750 && alreadythrew < 3)
             {
@@ -1789,7 +1789,7 @@ int NullSailorGirl(short SpriteNum)
                 PlaySound(DIGI_LANI066, sp, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(SpriteNum,s_SailorGirlThrow);
-        u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
+        u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
 
@@ -1805,7 +1805,7 @@ int SailorGirlThrow(short SpriteNum)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        u->WaitTics = RANDOM_RANGE(240)+120;
+        u->WaitTics = RandomRange(240)+120;
         ChangeState(SpriteNum,s_SailorGirlStand);
         u->FlagOwner = 0;
     }
@@ -1938,7 +1938,7 @@ int DoPruneGirl(short SpriteNum)
                 else
                     PlaySound(DIGI_LANI095, sp, v3df_dontpan, CHAN_AnimeMad);
             }
-            u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
+            u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
             u->FlagOwner = 0;
         }
     }
@@ -1996,7 +1996,7 @@ int NullPruneGirl(short SpriteNum)
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
             short choose;
-            choose = RANDOM_RANGE(1000);
+            choose = RandomRange(1000);
 
             if (choose > 750)
                 PlaySound(DIGI_LANI089, sp, v3df_dontpan, CHAN_AnimeMad);
@@ -2007,7 +2007,7 @@ int NullPruneGirl(short SpriteNum)
             else
                 PlaySound(DIGI_LANI095, sp, v3df_dontpan, CHAN_AnimeMad);
         }
-        u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
+        u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
 
@@ -2023,7 +2023,7 @@ int PruneGirlUzi(short SpriteNum)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        u->WaitTics = RANDOM_RANGE(240)+120;
+        u->WaitTics = RandomRange(240)+120;
         ChangeState(SpriteNum,s_PruneGirlStand);
         u->FlagOwner = 0;
     }

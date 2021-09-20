@@ -158,7 +158,7 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum
                 match_rand[ndx++] = SP_TAG8(sp);
 
             // reset the match you are looking for
-            match = match_rand[RANDOM_RANGE(ndx)];
+            match = match_rand[RandomRange(ndx)];
         }
         break;
     case WARP_CEILING_PLANE:

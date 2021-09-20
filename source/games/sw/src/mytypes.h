@@ -61,9 +61,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define MOD_P2(number,modby)  ((number) & ((modby)-1))
 
-// Truncates to select 2 power numbers
-
-#define TRUNC4(x) ((x) & ~3)
 
 
 /*

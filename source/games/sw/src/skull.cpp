@@ -313,7 +313,7 @@ DoSkullBeginDeath(int16_t SpriteNum)
         if (num_ord > 10) num_ord = 10;
         for (i=0; i<num_ord; i++)
         {
-            sp->ang = NORM_ANGLE(RANDOM_RANGE(2048));
+            sp->ang = NORM_ANGLE(RandomRange(2048));
             InitCaltrops(SpriteNum);
         }
         break;
@@ -338,7 +338,7 @@ DoSkullBeginDeath(int16_t SpriteNum)
         SpawnMineExp(SpriteNum);
         for (i=0; i<3; i++)
         {
-            sp->ang = NORM_ANGLE(RANDOM_RANGE(2048));
+            sp->ang = NORM_ANGLE(RandomRange(2048));
             InitPhosphorus(SpriteNum);
         }
         break;
@@ -470,7 +470,7 @@ int DoSkullWait(short SpriteNum)
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
         PlaySound(DIGI_AHSCREAM, sp, v3df_none);
-        u->WaitTics = SEC(3) + RANDOM_RANGE(360);
+        u->WaitTics = SEC(3) + RandomRange(360);
     }
 
     // below the floor type
@@ -727,7 +727,7 @@ DoBettyBeginDeath(int16_t SpriteNum)
         if (num_ord > 10) num_ord = 10;
         for (i=0; i<num_ord; i++)
         {
-            sp->ang = NORM_ANGLE(RANDOM_RANGE(2048));
+            sp->ang = NORM_ANGLE(RandomRange(2048));
             InitCaltrops(SpriteNum);
         }
         break;
@@ -750,7 +750,7 @@ DoBettyBeginDeath(int16_t SpriteNum)
     default:
         for (i=0; i<5; i++)
         {
-            sp->ang = NORM_ANGLE(RANDOM_RANGE(2048));
+            sp->ang = NORM_ANGLE(RandomRange(2048));
             InitPhosphorus(SpriteNum);
             SpawnMineExp(SpriteNum);
         }

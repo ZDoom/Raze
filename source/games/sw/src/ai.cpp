@@ -678,7 +678,7 @@ DoActorActionDecide(short SpriteNum)
         // If target was actor, retarget to player it actor died
         // or just randomly give the target actor a break
         //if ((User[u->tgt_sp-sprite] &&
-        //    User[u->tgt_sp-sprite]->Health <= 0) || RANDOM_RANGE(1000) > 950)
+        //    User[u->tgt_sp-sprite]->Health <= 0) || RandomRange(1000) > 950)
         //    {
         //    DoActorPickClosePlayer(SpriteNum);
         //    InitActorReposition(SpriteNum);
