@@ -1273,7 +1273,8 @@ void RecoilDude(DBloodActor* actor)
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustom:
 		{
-            GENDUDEEXTRA* pExtra = &actor->genDudeExtra(); int rChance = getRecoilChance(pSprite);
+			GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
+			int rChance = getRecoilChance(pSprite);
 			if (pExtra->canElectrocute && pDudeExtra->teslaHit && !spriteIsUnderwater(pSprite, false))
 			{
 
