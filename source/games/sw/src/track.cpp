@@ -53,10 +53,6 @@ ANIMATOR NinjaJumpActionFunc;
 #define ACTOR_STD_JUMP (-384)
 int GlobSpeedSO;
 
-#undef BOUND_4PIX
-//#define BOUND_4PIX(x) ( TRUNC4((x) + MOD4(x)) )
-#define BOUND_4PIX(x) (x)
-
 // determine if moving down the track will get you closer to the player
 short
 TrackTowardPlayer(SPRITEp sp, TRACKp t, TRACK_POINTp start_point)
@@ -1636,8 +1632,8 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         pp->RevolveDeltaAng = 0;
     }
 
-    pp->posx += BOUND_4PIX(nx);
-    pp->posy += BOUND_4PIX(ny);
+    pp->posx += nx;
+    pp->posy += ny;
 
     if (TEST(sop->flags, SOBJ_DONT_ROTATE))
     {
@@ -1664,8 +1660,8 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         // Player is NOT moving
 
         // Move saved x&y variables
-        pp->RevolveX += BOUND_4PIX(nx);
-        pp->RevolveY += BOUND_4PIX(ny);
+        pp->RevolveX += nx;
+        pp->RevolveY += ny;
 
         // Last known angle is now adjusted by the delta angle
         pp->RevolveAng = pp->angle.ang - buildang(pp->RevolveDeltaAng);
@@ -1705,8 +1701,8 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
         PlayerMove = false;
 
     // move along little midpoint
-    sop->xmid += BOUND_4PIX(nx);
-    sop->ymid += BOUND_4PIX(ny);
+    sop->xmid += nx;
+    sop->ymid += ny;
 
     if (sop->xmid >= MAXSO)
         PlayerMove = false;
@@ -1738,12 +1734,12 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(k, wp->x += BOUND_4PIX(nx), wp->y += BOUND_4PIX(ny), 0);
+                dragpoint(k, wp->x += nx, wp->y += ny, 0);
             }
             else
             {
-                wp->x += BOUND_4PIX(nx);
-                wp->y += BOUND_4PIX(ny);
+                wp->x += nx;
+                wp->y += ny;
             }
 
             rot_ang = delta_ang;

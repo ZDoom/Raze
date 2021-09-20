@@ -65,9 +65,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define TRUNC4(x) ((x) & ~3)
 
-// moves value to closest power of 2 pixel boundry
-
-#define BOUND_4PIX(x) ( TRUNC4((x) + MOD4(x)) )
 
 /*
 ===========================
