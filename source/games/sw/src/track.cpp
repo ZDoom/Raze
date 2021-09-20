@@ -3027,19 +3027,12 @@ DoActorHitTrackEndPoint(USERp u)
     // jump the current track & determine if you should go to another
     if (TEST(u->Flags, SPR_RUN_AWAY))
     {
-        short FindTrackAwayFromPlayer(USERp);
-
-        //DSPRINTF(ds, "End Of Track - Looking for another!\n");
-        MONO_PRINT(ds);
-
         // look for another track leading away from the player
         u->track = FindTrackAwayFromPlayer(u);
 
         if (u->track >= 0)
         {
             sp->ang = NORM_ANGLE(getangle((Track[u->track].TrackPoint + u->point)->x - sp->x, (Track[u->track].TrackPoint + u->point)->y - sp->y));
-            //DSPRINTF(ds, "Track Away From Player!\n");
-            MONO_PRINT(ds);
         }
         else
         {
@@ -3050,11 +3043,6 @@ DoActorHitTrackEndPoint(USERp u)
     }
     else if (TEST(u->Flags, SPR_FIND_PLAYER))
     {
-        short FindTrackToPlayer(USERp);
-
-        //DSPRINTF(ds, "End Of Track - Looking for another!\n");
-        MONO_PRINT(ds);
-
         // look for another track leading away from the player
         u->track = FindTrackToPlayer(u);
 
@@ -3071,10 +3059,7 @@ DoActorHitTrackEndPoint(USERp u)
     }
     else
     {
-        //DSPRINTF(ds, "End Of Track - DONT Look for another!\n");
-        MONO_PRINT(ds);
-
-        u->track = -1;
+         u->track = -1;
     }
 }
 
@@ -3109,9 +3094,6 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
     USERp u = User[SpriteNum].Data();
 
     sp = u->SpriteP;
-
-    //DSPRINTF(ds,"tpoint->tag_low = %d, u->ID = %d\n",tpoint->tag_low,u->ID);
-    MONO_PRINT(ds);
 
     switch (tpoint->tag_low)
     {

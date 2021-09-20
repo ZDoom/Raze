@@ -45,7 +45,6 @@ ANIMATOR InitActorRunToward;
 bool FAF_Sector(short);
 bool DropAhead(short SpriteNum, short min_height);
 
-short FindTrackToPlayer(USERp u);
 ANIMATORp ChooseAction(DECISION decision[]);
 
 

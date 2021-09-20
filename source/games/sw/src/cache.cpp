@@ -353,111 +353,113 @@ PreCacheActor(void)
 
 	for (i=0; i < MAXSPRITES; i++)
 	{
-		if (sprite[i].statnum >= MAXSTATUS)
+		auto pUsr = User[i].Data();
+		auto pSpr = &sprite[i];
+		if (pSpr->statnum >= MAXSTATUS)
 			continue;
 
-		if (User[i].Data())
-			pic = User[i]->ID;
+		if (pUsr)
+			pic = pUsr->ID;
 		else
-			pic = sprite[i].picnum;
+			pic = pSpr->picnum;
 
 		switch (pic)
 		{
 		case COOLIE_RUN_R0:
-			PreCacheCoolie(sprite[i].pal);
+			PreCacheCoolie(pSpr->pal);
 			break;
 
 		case NINJA_RUN_R0:
 		case NINJA_CRAWL_R0:
-			PreCacheNinja(sprite[i].pal);
+			PreCacheNinja(pSpr->pal);
 			break;
 
 		case GORO_RUN_R0:
-			PreCacheGuardian(sprite[i].pal);
+			PreCacheGuardian(pSpr->pal);
 			break;
 
 		case 1441:
 		case COOLG_RUN_R0:
-			PreCacheGhost(sprite[i].pal);
+			PreCacheGhost(pSpr->pal);
 			break;
 
 		case EEL_RUN_R0:
-			PreCacheEel(sprite[i].pal);
+			PreCacheEel(pSpr->pal);
 			break;
 
 		case SUMO_RUN_R0:
-			PreCacheZilla(sprite[i].pal);
+			PreCacheZilla(pSpr->pal);
 			break;
 
 		case ZILLA_RUN_R0:
-			PreCacheSumo(sprite[i].pal);
+			PreCacheSumo(pSpr->pal);
 			break;
 
 		case TOILETGIRL_R0:
-			PreCacheToiletGirl(sprite[i].pal);
+			PreCacheToiletGirl(pSpr->pal);
 			break;
 
 		case WASHGIRL_R0:
-			PreCacheWashGirl(sprite[i].pal);
+			PreCacheWashGirl(pSpr->pal);
 			break;
 
 		case CARGIRL_R0:
-			PreCacheCarGirl(sprite[i].pal);
+			PreCacheCarGirl(pSpr->pal);
 			break;
 
 		case MECHANICGIRL_R0:
-			PreCacheMechanicGirl(sprite[i].pal);
+			PreCacheMechanicGirl(pSpr->pal);
 			break;
 
 		case SAILORGIRL_R0:
-			PreCacheSailorGirl(sprite[i].pal);
+			PreCacheSailorGirl(pSpr->pal);
 			break;
 
 		case PRUNEGIRL_R0:
-			PreCachePruneGirl(sprite[i].pal);
+			PreCachePruneGirl(pSpr->pal);
 			break;
 
 		case TRASHCAN:
-			PreCacheTrash(sprite[i].pal);
+			PreCacheTrash(pSpr->pal);
 			break;
 
 		case BUNNY_RUN_R0:
-			PreCacheBunny(sprite[i].pal);
+			PreCacheBunny(pSpr->pal);
 			break;
 
 		case RIPPER_RUN_R0:
-			PreCacheRipper(sprite[i].pal);
+			PreCacheRipper(pSpr->pal);
 			break;
 
 		case RIPPER2_RUN_R0:
-			PreCacheRipper2(sprite[i].pal);
+			PreCacheRipper2(pSpr->pal);
 			break;
 
 		case SERP_RUN_R0:
-			PreCacheSerpent(sprite[i].pal);
+			PreCacheSerpent(pSpr->pal);
 			break;
 
 		case LAVA_RUN_R0:
 			break;
 
 		case SKEL_RUN_R0:
-			PreCacheSkel(sprite[i].pal);
+			PreCacheSkel(pSpr->pal);
 			break;
 
 		case HORNET_RUN_R0:
-			PreCacheHornet(sprite[i].pal);
+			PreCacheHornet(pSpr->pal);
 			break;
 
 		case SKULL_R0:
-			PreCacheSkull(sprite[i].pal);
+			PreCacheSkull(pSpr->pal);
 			break;
 
 		case BETTY_R0:
-			PreCacheBetty(sprite[i].pal);
+			PreCacheBetty(pSpr->pal);
 			break;
 
 		case GIRLNINJA_RUN_R0:
-			PreCacheNinjaGirl(sprite[i].pal);
+			PreCacheNinjaGirl(pSpr->pal);
 			break;
 
 		case 623:   // Pachinko win light
@@ -465,11 +467,11 @@ PreCacheActor(void)
 		case PACHINKO2:
 		case PACHINKO3:
 		case PACHINKO4:
-			PreCachePachinko(sprite[i].pal);
+			PreCachePachinko(pSpr->pal);
 			break;
 
 		default:
-			markTileForPrecache(pic, sprite[i].pal);
+			markTileForPrecache(pic, pSpr->pal);
 		}
 	}
 }
