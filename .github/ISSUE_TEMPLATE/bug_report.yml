@@ -11,43 +11,15 @@ body:
         ## Please fill out forms as cleanly as possible.
         #### Make sure that you have
         * properly edited & filled in the title of this bug report
-  - type: dropdown
+  - type: input
     id: version
     attributes:
       label: Raze version
       description: |
         What version are you using?
-        Run `raze --version`
+        Run `raze --version` or check in the console in game.
         Make sure to update to latest [release](https://github.com/coelckers/Raze/releases) version and test again before continuing.
-      multiple: false
-      options:
-        - 1.1.3
-        - 1.1.2
-        - 1.1.1
-        - 1.1.0
-        - 1.0.3
-        - 1.0.2
-        - 1.0.1
-        - Git
-        - Other
-    validations:
-      required: true
-  - type: dropdown
-    id: OS
-    attributes:
-      label: What Operating System are you using?
-      multiple: false
-      options:
-        - Windows 11
-        - Windows 10
-        - Windows 8
-        - Windows 7
-        - Windows Other
-        - Mac OS
-        - Linux x86
-        - Linux x86_64
-        - Linux ARM (Raspberry Pi)
-        - Other
+      placeholder: "ex: Raze 1.0.0, Git version, Branch, other"
     validations:
       required: false
   - type: dropdown
@@ -63,6 +35,24 @@ body:
         - Redneck Rampage
         - Shadow Warrior
         - WW2 GI
+        - Other
+    validations:
+      required: false
+  - type: dropdown
+    id: OS
+    attributes:
+      label: What Operating System are you using?
+      multiple: false
+      options:
+        - Windows 11
+        - Windows 10
+        - Windows 8
+        - Windows 7
+        - Windows Other
+        - Mac OS
+        - Linux x86
+        - Linux x86_64
+        - Linux ARM (Raspberry Pi)
         - Other
     validations:
       required: false
