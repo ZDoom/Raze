@@ -7396,24 +7396,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Collision& w, Coll
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRITEHIT* def)
 {
-#ifdef OLD_SAVEGAME
-	int empty = 0;
-	int hit = w.hit.legacyVal, ceilhit = w.ceilhit.legacyVal, florhit = w.florhit.legacyVal;
-	if (arc.isReading()) w = {};
-	if (arc.BeginObject(keyname))
-	{
-		arc("hit", hit, &empty)
-			("ceilhit", ceilhit, &empty)
-			("florhit", florhit, &empty)
-			.EndObject();
-		if (arc.isReading())
-		{
-			w.hit.setFromEngine(hit);
-			w.florhit.setFromEngine(florhit);
-			w.ceilhit.setFromEngine(ceilhit);
-	}
-	}
-#else
 	if (arc.BeginObject(keyname))
 	{
         arc("hit", w.hit)
@@ -7421,7 +7403,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRI
             ("florhit", w.florhit)
 			.EndObject();
 	}
-#endif
 	return arc;
 }
 
