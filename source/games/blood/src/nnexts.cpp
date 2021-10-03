@@ -1413,7 +1413,7 @@ void nnExtProcessSuperSprites()
                 }
             }
 
-            actAirDrag(&bloodActors[pDebris->index], airVel);
+            actAirDrag(debrisactor, airVel);
 
             if (pXDebris->physAttr & kPhysDebrisTouch) 
             {
@@ -4830,34 +4830,43 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // the following functions required for kModernDudeTargetChanger
-//---------------------------------------
-spritetype* aiFightGetTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode) {
-    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; spritetype* cTarget = NULL;
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDist, int data, int teamMode) 
+{
+    auto pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+    
+    BloodStatIterator it(kStatDude);
+    while (auto targactor = it.Next())
     {
-        pTarget = &sprite[nSprite];  pXTarget = &xsprite[pTarget->extra];
+        auto pTarget = &targactor->s();  
+        auto pXTarget = &targactor->x();
         if (!aiFightDudeCanSeeTarget(pXSprite, pDudeInfo, pTarget)) continue;
 
         int dist = aiFightGetTargetDist(pSprite, pDudeInfo, pTarget);
         if (dist < minDist || dist > maxDist) continue;
-        else if (pXSprite->target_i == pTarget->index) return pTarget;
-        else if (!IsDudeSprite(pTarget) || pTarget->index == pSprite->index || IsPlayerSprite(pTarget)) continue;
+        else if (actor->GetTarget() == targactor) return targactor;
+        else if (!targactor->IsDudeActor() || targactor == actor || targactor->IsPlayerActor()) continue;
         else if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || pTarget->owner == pSprite->index) continue;
         else if ((teamMode == 1 && aiFightIsMateOf(pXSprite, pXTarget)) || aiFightMatesHaveSameTarget(pXSprite, pTarget, 1)) continue;
-        else if (data == 666 || pXTarget->data1 == data) {
-
-            if (pXSprite->target_i > 0) {
-                cTarget = &sprite[pXSprite->target_i];
+        else if (data == 666 || pXTarget->data1 == data) 
+        {
+            if (actor->GetTarget())
+            {
+                auto cTarget = &actor->GetTarget()->s();
                 int fineDist1 = aiFightGetFineTargetDist(pSprite, cTarget);
                 int fineDist2 = aiFightGetFineTargetDist(pSprite, pTarget);
                 if (fineDist1 < fineDist2)
                     continue;
             }
-            return pTarget;
+            return targactor;
         }
     }
     return nullptr;
@@ -6524,14 +6533,16 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
 
         int mDist = 3; if (aiFightIsMeleeUnit(pSprite)) mDist = 2;
         if (pXSprite->target_i >= 0 && aiFightGetTargetDist(pSprite, pDudeInfo, &sprite[pXSprite->target_i]) < mDist) {
-            if (!isActive(pSprite->index)) aiActivateDude(&bloodActors[pXSprite->reference]);
+            if (!isActive(pSprite->index)) aiActivateDude(actor);
             return;
         }
         // lets try to look for target that fits better by distance
         else if ((PlayClock & 256) != 0 && (pXSprite->target_i < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
-            pTarget = aiFightGetTargetInRange(pSprite, 0, mDist, pXSource->data1, pXSource->data2);
-            if (pTarget != NULL) {
-                pXTarget = &xsprite[pTarget->extra];
+            auto targactor = aiFightGetTargetInRange(actor, 0, mDist, pXSource->data1, pXSource->data2);
+            if (targactor != nullptr)
+            {
+                pTarget = &targactor->s();
+                pXTarget = &targactor->x();
 
                 // Make prev target not aim in dude
                 if (pXSprite->target_i > -1) {
