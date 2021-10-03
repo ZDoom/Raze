@@ -314,20 +314,15 @@ void aiSetGenIdleState(DBloodActor*);
 //  -------------------------------------------------------------------------   //
 int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget);
 int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget);
-bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* pTarget);
+bool aiFightDudeCanSeeTarget(DBloodActor* pXDude, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
 bool aiFightUnitCanFly(spritetype* pDude);
 bool aiFightIsMeleeUnit(spritetype* pDude);
 bool aiFightDudeIsAffected(XSPRITE* pXDude);
-bool aiFightMatesHaveSameTarget(XSPRITE* pXLeader, spritetype* pTarget, int allow);
+bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetactor, int allow);
 bool aiFightGetDudesForBattle(XSPRITE* pXSprite);
 bool aiFightIsMateOf(XSPRITE* pXDude, XSPRITE* pXSprite);
 void aiFightAlarmDudesInSight(spritetype* pSprite, int max);
 void aiFightActivateDudes(int rx);
-void aiFightFreeTargets(int nSprite);
-void aiFightFreeAllTargets(XSPRITE* pXSource);
-spritetype* aiFightGetTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode);
-spritetype* aiFightTargetIsPlayer(XSPRITE* pXSprite);
-spritetype* aiFightGetMateTargets(XSPRITE* pXSprite);
 //  -------------------------------------------------------------------------   //
 void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex);
 void damageSprites(DBloodActor* pXSource, DBloodActor* pSprite);
