@@ -615,7 +615,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             }
 
                             XSPRITE* pXLeech = &actLeech->x();
-                            int ldist = aiFightGetTargetDist(pTarget, pDudeInfo, pLeech);
+                            int ldist = aiFightGetTargetDist(targetactor, pDudeInfo, actLeech);
                             if (ldist > 3 || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum,
                                 pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || actLeech->GetTarget() == nullptr) 
                             {

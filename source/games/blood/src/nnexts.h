@@ -312,8 +312,8 @@ void aiSetGenIdleState(DBloodActor*);
 
 // triggers related
 //  -------------------------------------------------------------------------   //
-int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget);
-int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget);
+int aiFightGetTargetDist(DBloodActor* pSprite, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
+int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target);
 bool aiFightDudeCanSeeTarget(DBloodActor* pXDude, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
 bool aiFightUnitCanFly(spritetype* pDude);
 bool aiFightIsMeleeUnit(spritetype* pDude);
