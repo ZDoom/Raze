@@ -1798,7 +1798,7 @@ void trMessageSector(unsigned int nSector, EVENT event) {
                 break;
             #ifdef NOONE_EXTENSIONS
             case kCmdModernUse:
-                modernTypeTrigger(6, nSector, event);
+                modernTypeTrigger(6, nSector, nullptr, event);
                 break;
             #endif
             default:
@@ -1820,7 +1820,7 @@ void trMessageWall(unsigned int nWall, EVENT event) {
                 break;
             #ifdef NOONE_EXTENSIONS
             case kCmdModernUse:
-                modernTypeTrigger(0, nWall, event);
+                modernTypeTrigger(0, nWall, nullptr, event);
                 break;
             #endif
             default:
@@ -1841,7 +1841,7 @@ void trMessageSprite(unsigned int nSprite, EVENT event) {
                     break;
                 #ifdef NOONE_EXTENSIONS
                 case kCmdModernUse:
-                    modernTypeTrigger(3, nSprite, event);
+                    modernTypeTrigger(3, 0, &bloodActors[nSprite], event);
                     break;
                 #endif
                 default:

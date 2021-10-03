@@ -4678,11 +4678,15 @@ void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID comma
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // this function used by various new modern types.
-void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
+//
+//---------------------------------------------------------------------------
 
+void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor, const EVENT& event) 
+{
     if (event.type != OBJ_SPRITE || !event.actor || !event.actor->hasX()) return;
-    auto destactor = destObjType == OBJ_SPRITE? &bloodActors[destObjIndex] : nullptr;
     spritetype* pSource = &event.actor->s();
     XSPRITE* pXSource = &event.actor->x();
 
@@ -4694,16 +4698,19 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             if (!xwallRangeIsFine(wall[destObjIndex].extra)) return;
             break;
         case OBJ_SPRITE:
-            if (!xspriRangeIsFine(sprite[destObjIndex].extra)) return;
-            else if (sprite[destObjIndex].flags & kHitagFree) return;
+        {
+            if (!destactor) return;
+            auto pSpr = &destactor->s();
+            if (pSpr->flags & kHitagFree) return;
 
             // allow redirect events received from some modern types.
             // example: it allows to spawn FX effect if event was received from kModernEffectGen
             // on many TX channels instead of just one.
-            switch (sprite[destObjIndex].type) {
+            switch (pSpr->type) 
+            {
                 case kModernRandomTX:
                 case kModernSequentialTX:
-                    spritetype* pSpr = &sprite[destObjIndex]; XSPRITE* pXSpr = &xsprite[pSpr->extra];
+                XSPRITE* pXSpr = &destactor->x();
                     if (pXSpr->command != kCmdLink || pXSpr->locked) break; // no redirect mode detected
                 switch (pSpr->type) 
                 {
@@ -4790,7 +4797,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
         // change target of dudes and make it fight
         case kModernDudeTargetChanger:
             if (destObjType != OBJ_SPRITE) break;
-            useTargetChanger(pXSource, &sprite[destObjIndex]);
+            useTargetChanger(pXSource, &destactor->s());
             break;
         // change picture and palette of TX ID object
         case kModernObjPicnumChanger:
@@ -4803,22 +4810,22 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
         // updated vanilla sound gen that now allows to play sounds on TX ID sprites
         case kGenModernSound:
             if (destObjType != OBJ_SPRITE) break;
-            useSoundGen(pXSource, &sprite[destObjIndex]);
+            useSoundGen(pXSource, &destactor->s());
             break;
         // updated ecto skull gen that allows to fire missile from TX ID sprites
         case kGenModernMissileUniversal:
             if (destObjType != OBJ_SPRITE) break;
-            useUniMissileGen(pXSource, &sprite[destObjIndex]);
+            useUniMissileGen(pXSource, &destactor->s());
             break;
         // spawn enemies on TX ID sprites
         case kMarkerDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useDudeSpawn(pXSource, &sprite[destObjIndex]);
+            useDudeSpawn(pXSource, &destactor->s());
             break;
          // spawn custom dude on TX ID sprites
         case kModernCustomDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useCustomDudeSpawn(&bloodActors[pXSource->reference], &bloodActors[destObjIndex]);
+            useCustomDudeSpawn(event.actor, destactor);
             break;
     }
 }

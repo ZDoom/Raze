@@ -349,7 +349,7 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
 void trPlayerCtrlLink(DBloodActor* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
 //  -------------------------------------------------------------------------   //
-void modernTypeTrigger(int type, int nDest, EVENT event);
+void modernTypeTrigger(int type, int nDest, DBloodActor* actor, const EVENT& event);
 bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, EVENT event);
 bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event);
 bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event);
