@@ -4789,7 +4789,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
             break;
         // iterate data filed value of destination object
         case kModernObjDataAccumulator:
-            useIncDecGen(pXSource, destObjType, destObjIndex);
+            useIncDecGen(event.actor, destObjType, destObjIndex, destactor);
             break;
         // change data field value of destination object
         case kModernObjDataChanger:
@@ -6382,17 +6382,26 @@ void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
-    char buffer[5]; int data = -65535; short tmp = 0; int dataIndex = 0;
-    sprintf(buffer, "%d", abs(pXSource->data1)); int len = int(strlen(buffer));
+void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodActor* objactor) 
+{
+    auto pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
+
+    char buffer[7]; 
+    int data = -65535; 
+    short tmp = 0; 
+    int dataIndex = 0;
+    snprintf(buffer, 7, "%d", abs(pXSource->data1)); 
+    int len = int(strlen(buffer));
     
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) 
+    {
         dataIndex = (buffer[i] - 52) + 4;
-        if ((data = getDataFieldOfObject(objType, objIndex, &bloodActors[objIndex], dataIndex)) == -65535) {
+        if ((data = getDataFieldOfObject(objType, objIndex, objactor, dataIndex)) == -65535) 
+        {
             Printf(PRINT_HIGH, "\nWrong index of data (%c) for IncDec Gen #%d! Only 1, 2, 3 and 4 indexes allowed!\n", buffer[i], objIndex);
             continue;
         }
-        spritetype* pSource = &sprite[pXSource->reference];
         
         if (pXSource->data2 < pXSource->data3) 
         {
@@ -6444,7 +6453,7 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
             }
         }
         pXSource->sysData1 = data;
-        setDataValueOfObject(objType, objIndex, dataIndex, data);
+        setDataValueOfObject(objType, objIndex, objactor, dataIndex, data);
     }
 }
 
@@ -6604,28 +6613,29 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
 
 void useDataChanger(XSPRITE* pXSource, int objType, int objIndex) {
     
+    auto objActor = &bloodActors[objIndex];
     spritetype* pSource = &sprite[pXSource->reference];
     switch (objType) {
         case OBJ_SECTOR:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, 1, pXSource->data1);
+                setDataValueOfObject(objType, objIndex, nullptr, 1, pXSource->data1);
             break;
         case OBJ_SPRITE:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, 1, pXSource->data1);
+                setDataValueOfObject(objType, objIndex, objActor, 1, pXSource->data1);
 
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data2 != -1 && pXSource->data2 != 32767))
-                setDataValueOfObject(objType, objIndex, 2, pXSource->data2);
+                setDataValueOfObject(objType, objIndex, objActor, 2, pXSource->data2);
 
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data3 != -1 && pXSource->data3 != 32767))
-                setDataValueOfObject(objType, objIndex, 3, pXSource->data3);
+                setDataValueOfObject(objType, objIndex, objActor, 3, pXSource->data3);
 
             if ((pSource->flags & kModernTypeFlag1) || pXSource->data4 != 65535)
-                setDataValueOfObject(objType, objIndex, 4, pXSource->data4);
+                setDataValueOfObject(objType, objIndex, objActor, 4, pXSource->data4);
             break;
         case OBJ_WALL:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, 1, pXSource->data1);
+                setDataValueOfObject(objType, objIndex, nullptr, 1, pXSource->data1);
             break;
     }
 }
@@ -7220,16 +7230,18 @@ int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int data
     }
 }
 
-bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
+bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex, int value)
+{
     switch (objType) 
     {
         case OBJ_SPRITE: 
         {
-            XSPRITE* pXSprite = &xsprite[sprite[objIndex].extra];
+            XSPRITE* pXSprite = &objActor->x();
+            int type = objActor->s().type;
 
             // exceptions
-            if (IsDudeSprite(&sprite[objIndex]) && pXSprite->health <= 0) return true;
-            switch (sprite[objIndex].type)
+            if (objActor->IsDudeActor() && pXSprite->health <= 0) return true;
+            switch (type)
             {
                 case kThingBloodBits:
                 case kThingBloodChunks:
@@ -7241,45 +7253,48 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
             switch (dataIndex) 
             {
                 case 1:
-                    xsprite[sprite[objIndex].extra].data1 = value;
-                    switch (sprite[objIndex].type) {
+                    pXSprite->data1 = value;
+                    switch (type) 
+                    {
                         case kSwitchCombo:
-                            if (value == xsprite[sprite[objIndex].extra].data2) SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 1);
-                            else SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 0);
+                            if (value == pXSprite->data2) SetSpriteState(objActor, 1);
+                            else SetSpriteState(objActor, 0);
                             break;
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyWeapon] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
-                            evPostActor(&bloodActors[objIndex], kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+                            objActor->genDudeExtra().updReq[kGenDudePropertyWeapon] = true;
+                            objActor->genDudeExtra().updReq[kGenDudePropertyDmgScale] = true;
+                            evPostActor(objActor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
                             break;
                     }
                     return true;
                 case 2:
-                    xsprite[sprite[objIndex].extra].data2 = value;
-                    switch (sprite[objIndex].type) {
+                    pXSprite->data2 = value;
+                    switch (type) 
+                    {
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertySpriteSize] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyStates] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
-                            evPostActor(&bloodActors[objIndex], kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+                            objActor->genDudeExtra().updReq[kGenDudePropertySpriteSize] = true;
+                            objActor->genDudeExtra().updReq[kGenDudePropertyMass] = true;
+                            objActor->genDudeExtra().updReq[kGenDudePropertyDmgScale] = true;
+                            objActor->genDudeExtra().updReq[kGenDudePropertyStates] = true;
+                            objActor->genDudeExtra().updReq[kGenDudePropertyAttack] = true;
+                            evPostActor(objActor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
                             break;
                     }
                     return true;
                 case 3:
-                    xsprite[sprite[objIndex].extra].data3 = value;
-                    switch (sprite[objIndex].type) {
+                    pXSprite->data3 = value;
+                    switch (type)
+                    {
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            xsprite[sprite[objIndex].extra].sysData1 = value;
+                            pXSprite->sysData1 = value;
                             break;
                     }
                     return true;
                 case 4:
-                    xsprite[sprite[objIndex].extra].data4 = value;
+                    pXSprite->data4 = value;
                     return true;
                 default:
                     return false;
