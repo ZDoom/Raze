@@ -4826,7 +4826,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
         // spawn enemies on TX ID sprites
         case kMarkerDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useDudeSpawn(pXSource, &destactor->s());
+            useDudeSpawn(event.actor, destactor);
             break;
          // spawn custom dude on TX ID sprites
         case kModernCustomDudeSpawn:
@@ -5210,10 +5210,13 @@ int sectorInMotion(int nSector)
 //
 //---------------------------------------------------------------------------
 
-void sectorKillSounds(int nSector) {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
-        if (sprite[nSprite].type != kSoundSector) continue;
-        sfxKill3DSound(&sprite[nSprite]);
+void sectorKillSounds(int nSector)
+{
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
+    {
+        if (actor->s().type != kSoundSector) continue;
+        sfxKill3DSound(actor);
     }
 }
 
@@ -5411,10 +5414,10 @@ void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
     genDudeSpawn(pSource, pSprite, pSprite->s().clipdist << 1);
 }
 
-void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
-
-    if (randomSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pSprite->clipdist << 1, 0) == nullptr)
-        nnExtSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pXSource->data1, pSprite->clipdist << 1, 0);
+void useDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
+{
+    if (randomSpawnDude(pSource, pSprite, pSprite->s().clipdist << 1, 0) == nullptr)
+        nnExtSpawnDude(pSource, pSprite, pSource->x().data1, pSprite->s().clipdist << 1, 0);
 }
 
 //---------------------------------------------------------------------------
@@ -5517,7 +5520,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         // add spawn random dude feature - works only if at least 2 data fields are not empty.
         case kMarkerDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
-            else if (!(pSprite->flags & kModernTypeFlag4)) useDudeSpawn(pXSprite, pSprite);
+            else if (!(pSprite->flags & kModernTypeFlag4)) useDudeSpawn(actor, actor);
             else if (pXSprite->txID) evSendActor(actor, pXSprite->txID, kCmdModernUse);
             return true;
         case kModernCustomDudeSpawn:

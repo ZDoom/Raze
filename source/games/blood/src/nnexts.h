@@ -331,7 +331,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite);
 void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex);
 void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState);
 void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState);
-void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite);
+void useDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
 void useCustomDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
 bool txIsRanged(XSPRITE* pXSource);
 void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernSend);
