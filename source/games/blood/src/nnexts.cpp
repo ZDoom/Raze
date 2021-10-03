@@ -4705,12 +4705,14 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
                 case kModernSequentialTX:
                     spritetype* pSpr = &sprite[destObjIndex]; XSPRITE* pXSpr = &xsprite[pSpr->extra];
                     if (pXSpr->command != kCmdLink || pXSpr->locked) break; // no redirect mode detected
-                    switch (pSpr->type) {
+                switch (pSpr->type) 
+                {
                         case kModernRandomTX:
                             useRandomTx(pXSpr, (COMMAND_ID)pXSource->command, false); // set random TX id
                             break;
                         case kModernSequentialTX:
-                            if (pSpr->flags & kModernTypeFlag1) {
+                    if (pSpr->flags & kModernTypeFlag1) 
+                    {
                                 seqTxSendCmdAll(pXSpr, pSource->index, (COMMAND_ID)pXSource->command, true);
                                 return;
                             }
@@ -4722,11 +4724,13 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
                     return;
             }
             break;
+        }
         default:
             return;
     }
 
-    switch (pSource->type) {
+    switch (pSource->type) 
+    {
         // allows teleport any sprite from any location to the source destination
         case kMarkerWarpDest:
             if (destObjType != OBJ_SPRITE) break;
@@ -4734,7 +4738,8 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             break;
         // changes slope of sprite or sector
         case kModernSlopeChanger:
-            switch (destObjType) {
+            switch (destObjType) 
+            {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
                     useSlopeChanger(pXSource, destObjType, destObjIndex);
@@ -4743,7 +4748,8 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             break;
         case kModernSpriteDamager:
         // damages xsprite via TX ID or xsprites in a sector
-            switch (destObjType) {
+            switch (destObjType) 
+            {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
                     useSpriteDamager(event.actor, destObjType, destObjIndex, destactor);
@@ -4847,8 +4853,7 @@ spritetype* aiFightGetTargetInRange(spritetype* pSprite, int minDist, int maxDis
             return pTarget;
         }
     }
-
-    return NULL;
+    return nullptr;
 }
 
 spritetype* aiFightTargetIsPlayer(XSPRITE* pXSprite) {
