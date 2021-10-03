@@ -4262,7 +4262,7 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             else if (!IsDudeSprite(&sprite[pXSpr->target_i]) && sprite[pXSpr->target_i].type != kMarkerPath) return false;
             else if (PUSH) condPush(pXCond, OBJ_SPRITE, pXSpr->target_i);
             return true;
-        case 1: return aiFightDudeIsAffected(pXSpr); // dude affected by ai fight?
+        case 1: return aiFightDudeIsAffected(actor); // dude affected by ai fight?
         case 2: // distance to the target in a range?
         case 3: // is the target visible?
         case 4: // is the target visible with periphery?
@@ -5034,21 +5034,29 @@ void aiFightFreeAllTargets(DBloodActor* sourceactor)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-bool aiFightDudeIsAffected(XSPRITE* pXDude) {
+bool aiFightDudeIsAffected(DBloodActor* dudeactor) 
+{
+    auto pXDude = &dudeactor->x();
     if (pXDude->rxID <= 0 || pXDude->locked == 1) return false;
-    int nSprite;
-    StatIterator it(kStatModernDudeTargetChanger);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatModernDudeTargetChanger);
+    while (auto actor = it.Next())
     {
-        XSPRITE* pXSprite = (sprite[nSprite].extra >= 0) ? &xsprite[sprite[nSprite].extra] : NULL;
-        if (pXSprite == NULL || pXSprite->txID <= 0 || pXSprite->state != 1) continue;
-        for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
+        if (!actor->hasX()) continue;
+        XSPRITE* pXSprite = &actor->x();
+        if (pXSprite->txID <= 0 || pXSprite->state != 1) continue;
+        for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
+        {
             if (rxBucket[i].type != OBJ_SPRITE) continue;
 
-            auto actor = rxBucket[i].GetActor();
-            if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
-            else if (actor->s().index == sprite[pXDude->reference].index) return true;
+            auto rxactor = rxBucket[i].actor;
+            if (!rxactor || !rxactor->hasX() || !rxactor->IsDudeActor()) continue;
+            else if (rxactor == dudeactor) return true;
         }
     }
     return false;
@@ -5060,9 +5068,11 @@ bool aiFightDudeIsAffected(XSPRITE* pXDude) {
 //
 //---------------------------------------------------------------------------
 
-bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
-    
-    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
+bool aiFightGetDudesForBattle(DBloodActor* actor) 
+{
+    auto txID = actor->x().txID;
+    for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
+    {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
         auto actor = rxBucket[i].GetActor();
         if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
@@ -5070,9 +5080,12 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     }
 
     // check redirected TX buckets
-    int rx = -1; XSPRITE* pXRedir = NULL;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
-        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+    int rx = -1; 
+    XSPRITE* pXRedir = NULL;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, actor->s().extra, pXRedir, &rx)) != NULL) 
+    {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+        {
 	        if (rxBucket[i].type != OBJ_SPRITE) continue;
 	        auto actor = rxBucket[i].GetActor();
 	        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
@@ -5636,7 +5649,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(pXSprite)) {
+                    if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(actor)) {
                         aiFightFreeAllTargets(actor);
                         evPostActor(actor, 0, kCmdOff);
                         break;
@@ -6596,7 +6609,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
         }
         // dude attack or attacked by target that does not fit by data id?
         else if (pXSource->data1 != 666 && pXTarget->data1 != pXSource->data1) {
-            if (aiFightDudeIsAffected(pXTarget)) {
+            if (aiFightDudeIsAffected(&bloodActors[pXTarget->reference])) {
 
                 // force stop attack target
                 aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);

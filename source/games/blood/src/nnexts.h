@@ -315,13 +315,8 @@ void aiSetGenIdleState(DBloodActor*);
 int aiFightGetTargetDist(DBloodActor* pSprite, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
 int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target);
 bool aiFightDudeCanSeeTarget(DBloodActor* pXDude, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
-bool aiFightUnitCanFly(spritetype* pDude);
-bool aiFightIsMeleeUnit(spritetype* pDude);
-bool aiFightDudeIsAffected(XSPRITE* pXDude);
+bool aiFightDudeIsAffected(DBloodActor* pXDude);
 bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetactor, int allow);
-bool aiFightGetDudesForBattle(XSPRITE* pXSprite);
-bool aiFightIsMateOf(XSPRITE* pXDude, XSPRITE* pXSprite);
-void aiFightAlarmDudesInSight(spritetype* pSprite, int max);
 void aiFightActivateDudes(int rx);
 //  -------------------------------------------------------------------------   //
 void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex);
