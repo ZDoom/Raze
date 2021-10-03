@@ -6394,11 +6394,13 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
         }
         spritetype* pSource = &sprite[pXSource->reference];
         
-        if (pXSource->data2 < pXSource->data3) {
-
+        if (pXSource->data2 < pXSource->data3) 
+        {
             data = ClipRange(data, pXSource->data2, pXSource->data3);
-            if ((data += pXSource->data4) >= pXSource->data3) {
-                switch (pSource->flags) {
+            if ((data += pXSource->data4) >= pXSource->data3) 
+            {
+                switch (pSource->flags) 
+                {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
                     if (data > pXSource->data3) data = pXSource->data3;
@@ -6416,11 +6418,14 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
                 }
             }
 
-        } else if (pXSource->data2 > pXSource->data3) {
-
+        }
+        else if (pXSource->data2 > pXSource->data3) 
+        {
             data = ClipRange(data, pXSource->data3, pXSource->data2);
-            if ((data -= pXSource->data4) <= pXSource->data3) {
-                switch (pSource->flags) {
+            if ((data -= pXSource->data4) <= pXSource->data3) 
+            {
+                switch (pSource->flags) 
+                {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
                     if (data < pXSource->data3) data = pXSource->data3;
@@ -6438,11 +6443,9 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
                 }
             }
         }
-
         pXSource->sysData1 = data;
         setDataValueOfObject(objType, objIndex, dataIndex, data);
     }
-
 }
 
 
@@ -7218,13 +7221,16 @@ int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int data
 }
 
 bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
-    switch (objType) {
-        case OBJ_SPRITE: {
+    switch (objType) 
+    {
+        case OBJ_SPRITE: 
+        {
             XSPRITE* pXSprite = &xsprite[sprite[objIndex].extra];
 
             // exceptions
             if (IsDudeSprite(&sprite[objIndex]) && pXSprite->health <= 0) return true;
-            switch (sprite[objIndex].type) {
+            switch (sprite[objIndex].type)
+            {
                 case kThingBloodBits:
                 case kThingBloodChunks:
                 case kThingZombieHead:
@@ -7232,7 +7238,8 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
                     break;
             }
 
-            switch (dataIndex) {
+            switch (dataIndex) 
+            {
                 case 1:
                     xsprite[sprite[objIndex].extra].data1 = value;
                     switch (sprite[objIndex].type) {
