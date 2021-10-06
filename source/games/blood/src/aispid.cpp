@@ -146,14 +146,14 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (!actor->ValidateTarget(__FUNCTION__)) return;
     spritetype *pTarget = &actor->GetTarget()->s();
-    DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
+    DUDEEXTRA_STATS *pDudeExtraE = &actor->dudeExtra.stats;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     
     DBloodActor* spawned = nullptr;
-    if (IsPlayerSprite(pTarget) && pDudeExtraE->xval2 < 10) 
+    if (IsPlayerSprite(pTarget) && pDudeExtraE->birthCounter < 10) 
     {
         if (nDist < 0x1a00 && nDist > 0x1400 && abs(pSprite->ang-nAngle) < pDudeInfo->periphery)
             spawned = actSpawnDude(actor, kDudeSpiderRed, pSprite->clipdist, 0);
@@ -164,7 +164,7 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 
         if (spawned) 
         {
-            pDudeExtraE->xval2++;
+            pDudeExtraE->birthCounter++;
             spawned->SetOwner(spawned);
             gKillMgr.AddNewKill(1);
         }
