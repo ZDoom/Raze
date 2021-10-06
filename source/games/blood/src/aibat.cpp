@@ -84,12 +84,12 @@ static void batThinkTarget(DBloodActor* actor)
     auto pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
-    if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
-        pDudeExtraE->xval2++;
-    else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
+    DUDEEXTRA_STATS *pDudeExtraE = &actor->dudeExtra.stats;
+    if (pDudeExtraE->active && pDudeExtraE->thinkTime < 10)
+        pDudeExtraE->thinkTime++;
+    else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
     {
-        pDudeExtraE->xval2 = 0;
+        pDudeExtraE->thinkTime = 0;
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);
@@ -433,8 +433,8 @@ void batMoveToCeil(DBloodActor* actor)
     int nSector = pSprite->sectnum;
     if (z - pXSprite->targetZ < 0x1000)
     {
-        DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
-        pDudeExtraE->xval3 = 0;
+        DUDEEXTRA_STATS *pDudeExtraE = &actor->dudeExtra.stats;
+        pDudeExtraE->thinkTime = 0;
         pSprite->flags = 0;
         aiNewState(actor, &batIdle);
     }

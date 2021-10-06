@@ -262,10 +262,10 @@ static void cerberusThinkTarget(DBloodActor* actor)
         return;
     }
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    DUDEEXTRA_at6_u1 *pDudeExtraE = &actor->dudeExtra.at6.u1;
-    if (pDudeExtraE->xval3 && pDudeExtraE->xval2 < 10)
-        pDudeExtraE->xval2++;
-    else if (pDudeExtraE->xval2 >= 10 && pDudeExtraE->xval3)
+    DUDEEXTRA_STATS *pDudeExtraE = &actor->dudeExtra.stats;
+    if (pDudeExtraE->active && pDudeExtraE->thinkTime < 10)
+        pDudeExtraE->thinkTime++;
+    else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
     {
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
@@ -297,13 +297,13 @@ static void cerberusThinkTarget(DBloodActor* actor)
             int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
             if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
             {
-                pDudeExtraE->xval1 = 0;
+                pDudeExtraE->thinkTime = 0;
                 aiSetTarget(pXSprite, pPlayer->nSprite);
                 aiActivateDude(&bloodActors[pXSprite->reference]);
             }
             else if (nDist < pDudeInfo->hearDist)
             {
-                pDudeExtraE->xval1 = 0;
+                pDudeExtraE->thinkTime = 0;
                 aiSetTarget(pXSprite, x, y, z);
                 aiActivateDude(&bloodActors[pXSprite->reference]);
             }

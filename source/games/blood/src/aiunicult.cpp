@@ -2230,8 +2230,8 @@ void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite)
     auto actor = &bloodActors[pSprite->index];
     switch (pSprite->type) {
         case kDudeModernCustom: {
-            DUDEEXTRA_at6_u1* pDudeExtraE = &actor->dudeExtra.at6.u1;
-            pDudeExtraE->xval3 = pDudeExtraE->xval1 = 0;
+            DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
+            pDudeExtraE->active = 0;
             aiGenDudeNewState(pSprite, &genDudeIdleL);
             break;
         }

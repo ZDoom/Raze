@@ -438,11 +438,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 	if (arc.BeginObject(keyname))
 	{
 		arc("time", w.time, &empty)
-			("recoil", w.recoil, &empty)
+			("teslaHit", w.teslaHit, &empty2)
 			("prio", w.prio, &empty)
-			("x1", w.at6.u1.xval1, &empty)
-			("x2", w.at6.u1.xval2, &empty)
-			("x3", w.at6.u1.xval3, &empty2)
+			("thinkTime", w.stats.thinkTime, &empty)
+			("active", w.stats.active, &empty2)
 			.EndObject();
 	}
 	return arc;

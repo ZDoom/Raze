@@ -3552,17 +3552,17 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 		break;
 
 	case kDudeSpiderBrown:
-		if (Owner) Owner->dudeExtra.at6.u1.xval2--;
+		if (Owner) Owner->dudeExtra.stats.birthCounter--;
 		genericDeath(actor, nSeq, 1803, dudeInfo[nType].seqStartID + nSeq);
 		break;
 
 	case kDudeSpiderRed:
-		if (Owner) Owner->dudeExtra.at6.u1.xval2--;
+		if (Owner) Owner->dudeExtra.stats.birthCounter--;
 		genericDeath(actor, nSeq, 1803, dudeInfo[nType].seqStartID + nSeq);
 		break;
 
 	case kDudeSpiderBlack:
-		if (Owner) Owner->dudeExtra.at6.u1.xval2--;
+		if (Owner) Owner->dudeExtra.stats.birthCounter--;
 		genericDeath(actor, nSeq, 1803, dudeInfo[nType].seqStartID + nSeq);
 		break;
 
