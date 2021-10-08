@@ -116,13 +116,13 @@ bool FGLRenderState::ApplyShader()
 		addLights = (int(lightPtr[3]) - int(lightPtr[2])) / LIGHT_VEC4_NUM;
 
 		// Here we limit the number of lights, but dont' change the light data so priority has to be mod, sub then add
-		if (modLights > gles.maxlights)
+		if (modLights > (int)gles.maxlights)
 			modLights = gles.maxlights;
 
-		if (modLights + subLights > gles.maxlights)
+		if (modLights + subLights > (int)gles.maxlights)
 			subLights = gles.maxlights - modLights;
 
-		if (modLights + subLights + addLights > gles.maxlights)
+		if (modLights + subLights + addLights > (int)gles.maxlights)
 			addLights = gles.maxlights - modLights - subLights;
 		
 		totalLights = modLights + subLights + addLights;
@@ -332,7 +332,7 @@ bool FGLRenderState::ApplyShader()
 		// Calculate the total number of vec4s we need
 		int totalVectors = totalLights * LIGHT_VEC4_NUM;
 	
-		if (totalVectors > gles.numlightvectors)
+		if (totalVectors > (int)gles.numlightvectors)
 			totalVectors = gles.numlightvectors;
 
 		glUniform4fv(activeShader->cur->lights_index, totalVectors, lightPtr);
