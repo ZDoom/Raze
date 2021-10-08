@@ -1236,7 +1236,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 					}
 					else if (k == GROW_WEAPON)	// JBF: this is handling next/previous with the grower selected
 					{
-						if (j == (unsigned int)-1)
+						if (j == -1)
 							k = 5;
 						else k = 7;
 
@@ -1375,7 +1375,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 				PlayerSetInput(snum, SB_HOLSTER);
 				p->oweapon_pos = p->weapon_pos = -9;
 			}
-			else if (j >= MIN_WEAPON && p->gotweapon[j] && (unsigned int)p->curr_weapon != j) switch (j)
+			else if (j >= MIN_WEAPON && p->gotweapon[j] && p->curr_weapon != j) switch (j)
 			{
 			case KNEE_WEAPON:
 				fi.addweapon(p, KNEE_WEAPON);
@@ -2021,7 +2021,7 @@ int operateTripbomb(int snum)
 
 	DDukeActor* j;
 	DukeSectIterator it(sect);
-	while (j = it.Next())
+	while ((j = it.Next()))
 	{
 		auto sj = j->s;
 		if (sj->picnum == TRIPBOMB &&

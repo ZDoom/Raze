@@ -4737,7 +4737,7 @@ void handle_se128(DDukeActor *actor)
 
 	auto wal = &wall[t[2]];
 
-	if (wal->cstat | 32)
+//	if (wal->cstat | 32) // this has always been bugged, the condition can never be false.
 	{
 		wal->cstat &= (255 - 32);
 		wal->cstat |= 16;
@@ -4747,7 +4747,7 @@ void handle_se128(DDukeActor *actor)
 			wall[wal->nextwall].cstat |= 16;
 		}
 	}
-	else return;
+//	else return;
 
 	wal->overpicnum++;
 	if (wal->nextwall >= 0)

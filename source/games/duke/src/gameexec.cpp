@@ -1142,6 +1142,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	{
 		// if they've asked for 'this', then use 'this'...
 		act = sActor;
+		iActor = ActorToScriptIndex(sActor);
 	}
 	else
 	{

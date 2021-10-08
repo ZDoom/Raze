@@ -208,7 +208,7 @@ static void WeaponCheat(int player)
     if (!SW_SHAREWARE) p->WpnFlags = 0xFFFFFFFF;
     else p->WpnFlags = 0x0000207F;  // Disallows high weapon cheat in shareware
 
-    for (int i = 0; i < SIZ(p->WpnAmmo); i++)
+    for (size_t i = 0; i < SIZ(p->WpnAmmo); i++)
     {
         p->WpnAmmo[i] = DamageData[i].max_ammo;
     }
@@ -286,7 +286,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         p->WpnRocketHeat = 5;
         p->WpnRocketNuke = 1;
 
-        for (int i = 0; i < SIZ(p->WpnAmmo); i++)
+        for (size_t i = 0; i < SIZ(p->WpnAmmo); i++)
         {
             p->WpnAmmo[i] = DamageData[i].max_ammo;
         }

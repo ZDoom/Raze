@@ -618,7 +618,7 @@ void movefta_r(void)
 					s->shade = sector[s->sectnum].ceilingshade;
 				else s->shade = sector[s->sectnum].floorshade;
 
-				if (s->picnum != HEN || s->picnum != COW || s->picnum != PIG || s->picnum != DOGRUN || ((isRRRA()) && s->picnum != RABBIT))
+				if (s->picnum == HEN || s->picnum == COW || s->picnum == PIG || s->picnum == DOGRUN || ((isRRRA()) && s->picnum == RABBIT))
 				{
 					if (wakeup(act, p))
 					{

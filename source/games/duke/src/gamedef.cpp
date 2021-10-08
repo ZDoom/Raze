@@ -990,7 +990,7 @@ int ConCompiler::parsecommand()
 					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate move '%s' ignored.\n", fn, line_number, parselabel.GetChars());
 					break;
 				}
-			if (i == labels.Size())
+			if (i == (int)labels.Size())
 				appendlabeladdress(LABEL_MOVE);
 			for (j = 0; j < 2; j++)
 			{
