@@ -350,7 +350,7 @@ void parseCopyTile(FScanner& sc, FScriptPosition& pos)
 
 				if ((unsigned)temppal >= MAXREALPAL)
 				{
-					pos.Message(MSG_ERROR, "copytile: palette number %d out of range (max=%d)\n", MAXREALPAL - 1);
+					pos.Message(MSG_ERROR, "copytile: palette number %d out of range (max=%d)\n", temppal, MAXREALPAL - 1);
 					break;
 				}
 			}
@@ -1665,7 +1665,7 @@ void parseDefineModelFrame(FScanner& sc, FScriptPosition& pos)
 		int err = (md_defineframe(mdglobal.lastmodelid, framename, i, max(0, mdglobal.modelskin), 0.0f, 0));
 		if (err < 0) ok = false; 
 		if (err == -2) pos.Message(MSG_ERROR, "Invalid tile number %d", i);
-		else if (err == -3) pos.Message(MSG_ERROR, "Invalid frame name", framename.GetChars());
+		else if (err == -3) pos.Message(MSG_ERROR, "Invalid frame name '%s'", framename.GetChars());
 	}
 	mdglobal.seenframe = 1;
 }

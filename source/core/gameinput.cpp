@@ -77,7 +77,7 @@ void updateTurnHeldAmt(double const scaleAdjust)
 	turnheldtime += scaleAdjust * (120. / GameTicRate);
 }
 
-bool const isTurboTurnTime()
+bool isTurboTurnTime()
 {
 	return turnheldtime >= 590. / GameTicRate;
 }

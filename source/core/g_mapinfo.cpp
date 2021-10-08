@@ -306,7 +306,7 @@ void FMapInfoParser::ParseCluster()
 
 bool FMapInfoParser::CheckLegacyMapDefinition(FString& mapname)
 {
-	if (Internal && (g_gameType & GAMEFLAG_BLOOD | GAMEFLAG_DUKECOMPAT | GAMEFLAG_SW) && sc.CheckString("{"))
+	if (Internal && (g_gameType & (GAMEFLAG_BLOOD | GAMEFLAG_DUKECOMPAT | GAMEFLAG_SW)) && sc.CheckString("{"))
 	{
 		sc.MustGetNumber();
 		int vol = sc.Number;

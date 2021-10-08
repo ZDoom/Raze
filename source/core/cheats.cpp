@@ -180,25 +180,20 @@ CCMD(give)
 		Printf("give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item\n");
 		return;
 	}
-	size_t found = -1;
+
 	for (size_t i = 0; i < countof(type); i++)
 	{
 		if (!stricmp(argv[1], type[i]))
 		{
-			found = i;
-			break;
+			if (!CheckCheatmode(true, true))
+			{
+				Net_WriteByte(DEM_GIVE);
+				Net_WriteByte((uint8_t)i);
+			}
+			return;
 		}
 	}
-	if (found == -1)
-	{
-		Printf("Unable to give %s\n", argv[1]);
-		return;
-	}
-	if (!CheckCheatmode(true, true))
-	{
-		Net_WriteByte(DEM_GIVE);
-		Net_WriteByte((uint8_t)found);
-	}
+	Printf("Unable to give %s\n", argv[1]);
 }
 
 //---------------------------------------------------------------------------
@@ -522,7 +517,7 @@ CCMD(skill)
 			}
 			else if (currentSkill == -1)
 			{
-				Printf("Current skill is not set (%d)\n");
+				Printf("Current skill is not set\n");
 			}
 			else if (currentSkill == -2)
 			{
@@ -530,7 +525,7 @@ CCMD(skill)
 			}
 			else
 			{
-				Printf("Current skill is an unknown/unsupported value (%d)\n");
+				Printf("Current skill is an unknown/unsupported value (%d)\n", currentSkill);
 			}
 		}
 		else if (argsCount == 2)

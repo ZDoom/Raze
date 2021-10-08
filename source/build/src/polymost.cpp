@@ -1957,7 +1957,7 @@ void polymost_scansector(int32_t sectnum)
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
-            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < countof(sectorborder))
+            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < (int)countof(sectorborder))
             if (gotsector[nextsectnum] == 0)
             {
                 double const d = fp1.X* fp2.Y - fp2.X * fp1.Y;

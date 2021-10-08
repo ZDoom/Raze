@@ -64,7 +64,7 @@ inline void mergePortals()
 								for (int n = 0; n < numsectors; n++)
 								{
 									//Printf("Merged %d and %d\n", i, j);
-									if (sector[n].portalnum == j) sector[n].portalnum = i;
+									if (sector[n].portalnum == (int)j) sector[n].portalnum = i;
 								}
 								didsomething = true;
 								break;

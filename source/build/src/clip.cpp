@@ -1048,7 +1048,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                 if (da.x >= da.y)
                     continue;
                 //It actually got here, through all the continue's!!!
-                int32_t daz, daz2;
+                int32_t daz = 0, daz2 = 0;
                 closest = pos->vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                     getsectordist(closest, k, &closest);
