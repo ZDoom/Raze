@@ -465,7 +465,7 @@ uint8_t RFS::GetNextTag()
                     break;
                 }
 
-                if (eax == 0 && strlen(tags[i]._value) == ebp)
+                if (eax == 0 && (int)strlen(tags[i]._value) == ebp)
                 {
                     scriptBuffer[ebp] = 0;
                     return tags[i]._index;

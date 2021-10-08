@@ -394,7 +394,7 @@ static AISTATE* allAIStates[] =
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
 {
-	int i = 0;
+	unsigned i = 0;
 	if (arc.isWriting())
 	{
 		if (def && w == *def) return arc;
@@ -411,7 +411,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 	else
 	{
 		arc(keyname, i);
-		if (i >= 0 && i < countof(allAIStates))
+		if (i < countof(allAIStates))
 		{
 			w = allAIStates[i];
 		}
