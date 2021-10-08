@@ -418,7 +418,7 @@ static const char * const cinpalfname[] = {
 
 void uploadCinemaPalettes()
 {
-    for (int i = 0; i < countof(cinpalfname); i++)
+    for (unsigned i = 0; i < countof(cinpalfname); i++)
     {
         uint8_t palette[768] = {};
         auto hFile = fileSystem.OpenFileReader(cinpalfname[i]);

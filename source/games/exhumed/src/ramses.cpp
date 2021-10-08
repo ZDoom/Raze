@@ -183,7 +183,7 @@ void CopyHeadToWorkTile(short nTile)
 	const uint8_t* pSrc = tilePtr(nTile);
     uint8_t *pDest = &Worktile[212 * 49 + 53];
 
-    for (int i = 0; i < kSpiritY; i++)
+    for (unsigned i = 0; i < kSpiritY; i++)
     {
         memcpy(pDest, pSrc, kSpiritX);
 

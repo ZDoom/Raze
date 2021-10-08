@@ -167,7 +167,7 @@ int seq_ReadSequence(const char *seqName)
         return 0;
     }
 
-    short tag;
+    unsigned short tag;
     hFile.Read(&tag, sizeof(tag));
     if (tag < MAKE_ID('I', 'H', 0, 0) || (tag > MAKE_ID('I', 'H', 0, 0) && tag != MAKE_ID('D', 'S', 0, 0)))
     {

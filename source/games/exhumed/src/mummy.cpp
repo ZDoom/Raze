@@ -144,7 +144,7 @@ void CheckMummyRevive(short nMummy)
 
     for (unsigned i = 0; i < MummyList.Size(); i++)
     {
-        if (i != nMummy)
+        if ((int)i != nMummy)
         {
             short nSprite2 = MummyList[i].nSprite;
             if (sprite[nSprite2].statnum != 102) {
