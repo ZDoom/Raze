@@ -324,9 +324,9 @@ void MoveSpritesWithSpike(short sectnum)
     }
 }
 
-int DoSpike(short SpriteNum)
+int DoSpike(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     int *lptr;
 
@@ -442,9 +442,9 @@ int DoSpike(short SpriteNum)
     return 0;
 }
 
-int DoSpikeAuto(short SpriteNum)
+int DoSpikeAuto(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     int *lptr;
 

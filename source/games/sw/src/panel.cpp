@@ -105,7 +105,7 @@ int ChangeWeapon(PLAYERp);
 ANIMATOR InitFire;
 
 int
-NullAnimator(short)
+NullAnimator(USER*)
 {
     return 0;
 }
@@ -433,7 +433,6 @@ void PlayerUpdateArmor(PLAYERp pp, short value)
 int WeaponOperate(PLAYERp pp)
 {
     short weapon;
-    int DoPlayerSpriteReset(short SpriteNum);
     USERp u = User[pp->PlayerSprite].Data();
 
 

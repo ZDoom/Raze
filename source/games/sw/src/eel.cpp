@@ -354,7 +354,7 @@ ACTOR_ACTION_SET EelActionSet =
     nullptr
 };
 
-int DoEelMatchPlayerZ(short SpriteNum);
+int DoEelMatchPlayerZ(USER* SpriteNum);
 
 
 void
@@ -413,9 +413,9 @@ SetupEel(short SpriteNum)
 
 #if 0
 int
-NewEel(short SpriteNum)
+NewEel(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     USERp nu;
     SPRITEp np;
@@ -443,24 +443,24 @@ NewEel(short SpriteNum)
 }
 #endif
 
-int NullEel(short SpriteNum)
+int NullEel(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
-    DoEelMatchPlayerZ(SpriteNum);
+    DoEelMatchPlayerZ(u);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }
 
-int DoEelMatchPlayerZ(short SpriteNum)
+int DoEelMatchPlayerZ(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     SPRITEp tsp = User[SpriteNum]->tgt_sp;
     int zdiff,zdist;
     int loz,hiz;
@@ -558,10 +558,10 @@ int DoEelMatchPlayerZ(short SpriteNum)
 }
 
 int
-DoEelDeath(short SpriteNum)
+DoEelDeath(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int nx, ny;
     if (TEST(u->Flags, SPR_FALLING))
     {
@@ -575,7 +575,7 @@ DoEelDeath(short SpriteNum)
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     // slide while falling
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -599,9 +599,9 @@ DoEelDeath(short SpriteNum)
     return 0;
 }
 
-int DoEelMove(short SpriteNum)
+int DoEelMove(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     ASSERT(u->Rot != nullptr);
 
@@ -609,16 +609,16 @@ int DoEelMove(short SpriteNum)
         NewStateGroup(SpriteNum, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(u);
 
-    DoEelMatchPlayerZ(SpriteNum);
+    DoEelMatchPlayerZ(u);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 

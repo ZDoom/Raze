@@ -537,7 +537,7 @@ STATEp sg_BunnyFall[] =
 //////////////////////
 
 #define BUNNY_JUMP_ATTACK_RATE 35
-int DoBunnyBeginJumpAttack(short SpriteNum);
+int DoBunnyBeginJumpAttack(USER* SpriteNum);
 
 STATE s_BunnyJumpAttack[5][6] =
 {
@@ -850,10 +850,10 @@ PickBunnyJumpSpeed(short SpriteNum, int pix_height)
 //
 
 int
-DoBunnyBeginJumpAttack(short SpriteNum)
+DoBunnyBeginJumpAttack(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     SPRITEp psp = User[SpriteNum]->tgt_sp;
     short tang;
 
@@ -885,10 +885,9 @@ DoBunnyBeginJumpAttack(short SpriteNum)
 }
 
 int
-DoBunnyMoveJump(short SpriteNum)
+DoBunnyMoveJump(USERp u)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = u->s();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -898,32 +897,32 @@ DoBunnyMoveJump(short SpriteNum)
         nx = MulScale(sp->xvel, bcos(sp->ang), 14);
         ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
-        move_actor(SpriteNum, nx, ny, 0L);
+        move_actor(u->SpriteNum, nx, ny, 0L);
 
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(u);
         else
-            DoActorFall(SpriteNum);
+            DoActorFall(u);
     }
 
-    DoActorZrange(SpriteNum);
+    DoActorZrange(u->SpriteNum);
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
 //        if (DoBunnyQuickJump(SpriteNum))
 //            return (0);
 
-        InitActorDecide(SpriteNum);
+        InitActorDecide(u);
     }
 
     return 0;
 }
 
 int
-DoPickCloseBunny(short SpriteNum)
+DoPickCloseBunny(USERp u)
 {
-    USERp u = User[SpriteNum].Data(), tu;
-    SPRITEp sp = &sprite[SpriteNum],tsp;
+	USERp tu;
+    SPRITEp sp = u->s(),tsp;
     int dist, near_dist = 1000, a,b,c;
     int i;
     //short BunnyCount=0, Bunny_Result = -1;
@@ -960,15 +959,15 @@ DoPickCloseBunny(short SpriteNum)
 }
 
 int
-DoBunnyQuickJump(short SpriteNum)
+DoBunnyQuickJump(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if (u->spal != PALETTE_PLAYER8) return false;
 
     if (!u->lo_sp && u->spal == PALETTE_PLAYER8 && MoveSkip4)
-        DoPickCloseBunny(SpriteNum);
+        DoPickCloseBunny(u);
 
     // Random Chance of like sexes fighting
     if (u->lo_sp)
@@ -1096,17 +1095,16 @@ DoBunnyQuickJump(short SpriteNum)
 
 
 int
-NullBunny(short SpriteNum)
+NullBunny(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(u);
         else
-            DoActorFall(SpriteNum);
+            DoActorFall(u);
     }
 
     // stay on floor unless doing certain things
@@ -1114,29 +1112,29 @@ NullBunny(short SpriteNum)
         KeepActorOnFloor(SpriteNum);
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }
 
 
-int DoBunnyPain(short SpriteNum)
+int DoBunnyPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
-    NullBunny(SpriteNum);
+    NullBunny(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(u);
     return 0;
 }
 
-int DoBunnyRipHeart(short SpriteNum)
+int DoBunnyRipHeart(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     SPRITEp tsp = u->tgt_sp;
 
@@ -1148,12 +1146,12 @@ int DoBunnyRipHeart(short SpriteNum)
     return 0;
 }
 
-int DoBunnyStandKill(short SpriteNum)
+int DoBunnyStandKill(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
-    NullBunny(SpriteNum);
+    NullBunny(u);
 
     // Growl like the bad ass bunny you are!
     if (RandomRange(1000) > 800)
@@ -1236,7 +1234,7 @@ void BunnyHatch(short Weapon)
         // if I didn't do this here they get stuck in the air sometimes
         DoActorZrange(New);
 
-        DoActorJump(New);
+        DoActorJump(nu);
     }
 }
 
@@ -1306,16 +1304,16 @@ int BunnyHatch2(short Weapon)
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(New);
 
-    DoActorJump(New);
+    DoActorJump(nu);
 
     return New;
 }
 
 int
-DoBunnyMove(short SpriteNum)
+DoBunnyMove(USER* u)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+	auto sp = u->s();
+    int SpriteNum = u->SpriteNum;
 
     // Parental lock crap
     if (TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
@@ -1333,30 +1331,30 @@ DoBunnyMove(short SpriteNum)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(u);
         else
-            DoActorFall(SpriteNum);
+            DoActorFall(u);
     }
 
     // if on a player/enemy sprite jump quickly
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        DoBunnyQuickJump(SpriteNum);
+        DoBunnyQuickJump(u);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(u);
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     if (RandomRange(1000) > 985 && sp->pal != PALETTE_PLAYER1 && u->track < 0)
     {
@@ -1377,7 +1375,7 @@ DoBunnyMove(short SpriteNum)
         default:
             sp->ang = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
             u->jump_speed = -350;
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
             u->ActorActionFunc = DoActorMoveJump;
             break;
         }
@@ -1387,42 +1385,43 @@ DoBunnyMove(short SpriteNum)
 }
 
 int
-BunnySpew(short SpriteNum)
+BunnySpew(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     //InitBloodSpray(SpriteNum,true,-1);
     InitBloodSpray(SpriteNum,true,-1);
     return 0;
 }
 
 int
-DoBunnyEat(short SpriteNum)
+DoBunnyEat(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(u);
         else
-            DoActorFall(SpriteNum);
+            DoActorFall(u);
     }
 
     // if on a player/enemy sprite jump quickly
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        DoBunnyQuickJump(SpriteNum);
+        DoBunnyQuickJump(u);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     switch (sector[sp->sectnum].floorpicnum)
     {
@@ -1447,27 +1446,27 @@ DoBunnyEat(short SpriteNum)
 }
 
 int
-DoBunnyScrew(short SpriteNum)
+DoBunnyScrew(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(u);
         else
-            DoActorFall(SpriteNum);
+            DoActorFall(u);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     if (RandomRange(1000) > 990) // Bunny sex sounds
     {
@@ -1496,10 +1495,10 @@ DoBunnyScrew(short SpriteNum)
 }
 
 int
-DoBunnyGrowUp(short SpriteNum)
+DoBunnyGrowUp(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if (sp->pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies
 

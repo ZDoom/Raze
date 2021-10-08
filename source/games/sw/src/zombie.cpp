@@ -880,9 +880,9 @@ SpawnZombie2(short Weapon)
 }
 
 int
-DoZombieMove(short SpriteNum)
+DoZombieMove(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
@@ -900,21 +900,21 @@ DoZombieMove(short SpriteNum)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(u);
         else if (TEST(u->Flags, SPR_FALLING))
-            DoActorFall(SpriteNum);
+            DoActorFall(u);
     }
 
     // sliding
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     // Do track or call current action function - such as DoActorMoveCloser()
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(u);
     }
 
     // stay on floor unless doing certain things
@@ -924,15 +924,15 @@ DoZombieMove(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }
 
 int
-NullZombie(short SpriteNum)
+NullZombie(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
@@ -950,25 +950,25 @@ NullZombie(short SpriteNum)
         u->WaitTics -= ACTORMOVETICS;
 
     if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }
 
 
-int DoZombiePain(short SpriteNum)
+int DoZombiePain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
-    NullZombie(SpriteNum);
+    NullZombie(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(u);
 
     return 0;
 }

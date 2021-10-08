@@ -197,7 +197,7 @@ extern short target_ang;
 #if 1
 #define PLAYER_NINJA_RATE 14
 
-int DoFootPrints(short SpriteNum);
+int DoFootPrints(USERp SpriteNum);
 
 STATE s_PlayerNinjaRun[5][6] =
 {
@@ -360,7 +360,7 @@ STATEp sg_PlayerNinjaStand[] =
 #define PLAYER_NINJA_STAR_RATE 12
 
 extern STATEp sg_NinjaRun[];
-int DoPlayerSpriteReset(short SpriteNum);
+int DoPlayerSpriteReset(USERp SpriteNum);
 
 #if 0
 STATE s_PlayerNinjaThrow[5][4] =
@@ -1077,9 +1077,9 @@ DoPlayerSpriteThrow(PLAYERp pp)
 }
 
 int
-DoPlayerSpriteReset(short SpriteNum)
+DoPlayerSpriteReset(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     PLAYERp pp;
 
     if (!u->PlayerP)
@@ -2621,6 +2621,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     while ((i = it2.NextIndex()) >= 0)
     {
         sp = &sprite[i];
+		auto u = User[i].Data();
 
         if (testpointinquad(sp->x, sp->y, x, y))
         {
@@ -2632,7 +2633,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             if (vel < 9000)
             {
                 DoActorBeginSlide(i, getangle(pp->xvect, pp->yvect), vel/8, 5);
-                if (DoActorSlide(i))
+                if (DoActorSlide(u))
                     continue;
             }
 
@@ -6792,7 +6793,7 @@ PlayerStateControl(int16_t SpriteNum)
         while (TEST(u->State->Tics, SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*u->State->Animator)(SpriteNum);
+            (*u->State->Animator)(u);
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
@@ -6816,7 +6817,7 @@ PlayerStateControl(int16_t SpriteNum)
     // Call the correct animator
     if (TEST(u->State->Tics, SF_PLAYER_FUNC))
         if (u->State->Animator)
-            (*u->State->Animator)(SpriteNum);
+            (*u->State->Animator)(u);
 
     return;
 }
@@ -7473,9 +7474,9 @@ InitMultiPlayerInfo(void)
 
 // If player stepped in something gooey, track it all over the place.
 int
-DoFootPrints(short SpriteNum)
+DoFootPrints(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+    int SpriteNum = u->SpriteNum;
 
     if (u->PlayerP)
     {

@@ -676,36 +676,36 @@ SetupSumo(short SpriteNum)
     return 0;
 }
 
-int NullSumo(short SpriteNum)
+int NullSumo(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(SpriteNum);
+    //DoActorSlide(u);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }
 
-int DoSumoMove(short SpriteNum)
+int DoSumoMove(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(SpriteNum);
+    //DoActorSlide(u);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(u);
 
     KeepActorOnFloor(SpriteNum);
 
-    if (DoActorSectorDamage(SpriteNum))
+    if (DoActorSectorDamage(u))
     {
         return 0;
     }
@@ -714,10 +714,10 @@ int DoSumoMove(short SpriteNum)
 }
 
 #if 0
-int InitSumoCharge(short SpriteNum)
+int InitSumoCharge(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if (RANDOM_P2(1024) > 950)
         PlaySound(DIGI_SUMOALERT, sp, v3df_follow);
@@ -732,18 +732,19 @@ int InitSumoCharge(short SpriteNum)
 }
 #endif
 
-int DoSumoRumble(short SpriteNum)
+int DoSumoRumble(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     SetSumoQuake(SpriteNum);
 
     return 0;
 }
 
-int InitSumoFart(short SpriteNum)
+int InitSumoFart(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitSumoNapalm(short SpriteNum);
 
@@ -757,8 +758,9 @@ int InitSumoFart(short SpriteNum)
     return 0;
 }
 
-int InitSumoStomp(short SpriteNum)
+int InitSumoStomp(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitSumoStompAttack(short SpriteNum);
 
@@ -769,8 +771,9 @@ int InitSumoStomp(short SpriteNum)
     return 0;
 }
 
-int InitSumoClap(short SpriteNum)
+int InitSumoClap(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitMiniSumoClap(short SpriteNum);
     extern int InitSumoSkull(short SpriteNum);
@@ -782,10 +785,10 @@ int InitSumoClap(short SpriteNum)
     return 0;
 }
 
-int DoSumoDeathMelt(short SpriteNum)
+int DoSumoDeathMelt(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     PlaySound(DIGI_SUMOFART, sp, v3df_follow);
 

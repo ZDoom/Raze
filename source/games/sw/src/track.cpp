@@ -969,7 +969,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         break;
                 }
 
-                ASSERT(sn < SIZ(sop->sp_num) - 1);
+                ASSERT(sn < (int)SIZ(sop->sp_num) - 1);
 
                 sop->sp_num[sn] = sp_num;
                 so_setspriteinterpolation(sop, sp);
@@ -3193,7 +3193,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             else
                 u->jump_speed = -tpoint->tag_high;
 
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
             u->ActorActionFunc = DoActorMoveJump;
         }
 
@@ -3240,7 +3240,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
                 u->jump_speed = PickJumpSpeed(SpriteNum, zdiff);
             }
 
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
             u->ActorActionFunc = DoActorMoveJump;
 
             return false;
@@ -3252,8 +3252,6 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
         if (u->ActorActionSet->Jump)
         {
-            int DoActorMoveJump(short SpriteNum);
-
             sp->ang = tpoint->ang;
 
             ActorLeaveTrack(SpriteNum);
@@ -3267,7 +3265,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
                 u->jump_speed = -350;
             }
 
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
             u->ActorActionFunc = DoActorMoveJump;
             return false;
         }
@@ -3288,7 +3286,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
         if (u->Rot != u->ActorActionSet->Duck)
         {
-            int DoActorDuck(short SpriteNum);
+            int DoActorDuck(USERp SpriteNum);
 
             sp->ang = tpoint->ang;
 
@@ -3299,7 +3297,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             else
                 u->WaitTics = tpoint->tag_high * 128;
 
-            InitActorDuck(SpriteNum);
+            InitActorDuck(u);
             u->ActorActionFunc = DoActorDuck;
             return false;
         }
@@ -3385,7 +3383,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             else
                 u->jump_speed = -tpoint->tag_high;
 
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
         }
 
         break;
@@ -3398,7 +3396,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             else
                 u->jump_speed = -tpoint->tag_high;
 
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
         }
 
         break;
@@ -3460,7 +3458,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             SET(u->Flags, SPR_DEAD);
             sp->xvel <<= 1;
             u->jump_speed = -495;
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
             NewStateGroup(SpriteNum, u->ActorActionSet->DeathJump);
         }
 
@@ -3767,7 +3765,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
                 DoActorSetSpeed(SpriteNum, SLOW_SPEED);
                 u->ActorActionFunc = NinjaJumpActionFunc;
                 u->jump_speed = -650;
-                DoActorBeginJump(SpriteNum);
+                DoActorBeginJump(u);
 
                 return true;
             }

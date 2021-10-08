@@ -149,9 +149,9 @@ SetupToiletGirl(short SpriteNum)
     return 0;
 }
 
-int DoToiletGirl(short SpriteNum)
+int DoToiletGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -201,15 +201,15 @@ int DoToiletGirl(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullToiletGirl(short SpriteNum)
+int NullToiletGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -239,9 +239,9 @@ int NullToiletGirl(short SpriteNum)
     return 0;
 }
 
-int ToiletGirlUzi(short SpriteNum)
+int ToiletGirlUzi(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -256,11 +256,11 @@ int ToiletGirlUzi(short SpriteNum)
     return 0;
 }
 
-int ToiletGirlPain(short SpriteNum)
+int ToiletGirlPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
-    NullToiletGirl(SpriteNum);
+    NullToiletGirl(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_ToiletGirlStand);
@@ -388,9 +388,9 @@ SetupWashGirl(short SpriteNum)
     return 0;
 }
 
-int DoWashGirl(short SpriteNum)
+int DoWashGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -446,15 +446,15 @@ int DoWashGirl(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullWashGirl(short SpriteNum)
+int NullWashGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -484,9 +484,9 @@ int NullWashGirl(short SpriteNum)
     return 0;
 }
 
-int WashGirlUzi(short SpriteNum)
+int WashGirlUzi(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -501,11 +501,10 @@ int WashGirlUzi(short SpriteNum)
     return 0;
 }
 
-int WashGirlPain(short SpriteNum)
+int WashGirlPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-
-    NullWashGirl(SpriteNum);
+	int SpriteNum = u->SpriteNum;
+    NullWashGirl(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_WashGirlStand);
@@ -597,16 +596,16 @@ SetupTrashCan(short SpriteNum)
     return 0;
 }
 
-int DoTrashCan(short SpriteNum)
+int DoTrashCan(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //(*u->ActorActionFunc) (SpriteNum);
 
     // stay on floor unless doing certain things
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
@@ -618,12 +617,12 @@ int DoTrashCan(short SpriteNum)
     return 0;
 }
 
-int TrashCanPain(short SpriteNum)
+int TrashCanPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -705,10 +704,10 @@ SetupPachinkoLight(short SpriteNum)
     return 0;
 }
 
-int PachinkoLightOperate(short SpriteNum)
+int PachinkoLightOperate(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -804,10 +803,10 @@ SetupPachinko1(short SpriteNum)
     return 0;
 }
 
-int PachinkoCheckWin(short SpriteNum)
+int PachinkoCheckWin(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     u->WaitTics = 0;  // Can operate it again now
 
@@ -869,9 +868,9 @@ int PachinkoCheckWin(short SpriteNum)
     return 0;
 }
 
-int Pachinko1Operate(short SpriteNum)
+int Pachinko1Operate(USER* u)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = u->s();
     short rnd;
 
     rnd = RandomRange(1000);
@@ -1260,9 +1259,9 @@ SetupCarGirl(short SpriteNum)
     return 0;
 }
 
-int DoCarGirl(short SpriteNum)
+int DoCarGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1303,15 +1302,15 @@ int DoCarGirl(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullCarGirl(short SpriteNum)
+int NullCarGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1348,9 +1347,9 @@ int NullCarGirl(short SpriteNum)
     return 0;
 }
 
-int CarGirlUzi(short SpriteNum)
+int CarGirlUzi(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1365,11 +1364,10 @@ int CarGirlUzi(short SpriteNum)
     return 0;
 }
 
-int CarGirlPain(short SpriteNum)
+int CarGirlPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-
-    NullCarGirl(SpriteNum);
+	int SpriteNum = u->SpriteNum;
+    NullCarGirl(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_CarGirlStand);
@@ -1479,9 +1477,9 @@ SetupMechanicGirl(short SpriteNum)
     return 0;
 }
 
-int DoMechanicGirl(short SpriteNum)
+int DoMechanicGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1522,15 +1520,15 @@ int DoMechanicGirl(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullMechanicGirl(short SpriteNum)
+int NullMechanicGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1567,10 +1565,9 @@ int NullMechanicGirl(short SpriteNum)
     return 0;
 }
 
-int MechanicGirlDrill(short SpriteNum)
+int MechanicGirlDrill(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-
+	int SpriteNum = u->SpriteNum;
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
@@ -1584,11 +1581,11 @@ int MechanicGirlDrill(short SpriteNum)
     return 0;
 }
 
-int MechanicGirlPain(short SpriteNum)
+int MechanicGirlPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
-    NullMechanicGirl(SpriteNum);
+    NullMechanicGirl(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_MechanicGirlStand);
@@ -1699,9 +1696,9 @@ SetupSailorGirl(short SpriteNum)
     return 0;
 }
 
-int DoSailorGirl(short SpriteNum)
+int DoSailorGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1746,15 +1743,15 @@ int DoSailorGirl(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullSailorGirl(short SpriteNum)
+int NullSailorGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
     static short alreadythrew = 0;
@@ -1796,9 +1793,9 @@ int NullSailorGirl(short SpriteNum)
     return 0;
 }
 
-int SailorGirlThrow(short SpriteNum)
+int SailorGirlThrow(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1813,11 +1810,10 @@ int SailorGirlThrow(short SpriteNum)
     return 0;
 }
 
-int SailorGirlPain(short SpriteNum)
+int SailorGirlPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-
-    NullSailorGirl(SpriteNum);
+	int SpriteNum = u->SpriteNum;
+    NullSailorGirl(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_SailorGirlStand);
@@ -1911,9 +1907,9 @@ SetupPruneGirl(short SpriteNum)
     return 0;
 }
 
-int DoPruneGirl(short SpriteNum)
+int DoPruneGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1970,15 +1966,15 @@ int DoPruneGirl(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullPruneGirl(short SpriteNum)
+int NullPruneGirl(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -2014,9 +2010,9 @@ int NullPruneGirl(short SpriteNum)
     return 0;
 }
 
-int PruneGirlUzi(short SpriteNum)
+int PruneGirlUzi(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -2031,11 +2027,11 @@ int PruneGirlUzi(short SpriteNum)
     return 0;
 }
 
-int PruneGirlPain(short SpriteNum)
+int PruneGirlPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
-    NullPruneGirl(SpriteNum);
+    NullPruneGirl(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_PruneGirlStand);

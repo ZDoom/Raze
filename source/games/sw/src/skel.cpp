@@ -533,8 +533,9 @@ SetupSkel(short SpriteNum)
     return 0;
 }
 
-int DoSkelInitTeleport(short SpriteNum)
+int DoSkelInitTeleport(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -544,8 +545,9 @@ int DoSkelInitTeleport(short SpriteNum)
     return 0;
 }
 
-int DoSkelTeleport(short SpriteNum)
+int DoSkelTeleport(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int x,y;
 
@@ -577,8 +579,9 @@ int DoSkelTeleport(short SpriteNum)
     return 0;
 }
 
-int DoSkelTermTeleport(short SpriteNum)
+int DoSkelTermTeleport(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -586,46 +589,45 @@ int DoSkelTermTeleport(short SpriteNum)
     return 0;
 }
 
-int NullSkel(short SpriteNum)
+int NullSkel(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-
+	int SpriteNum = u->SpriteNum;
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     KeepActorOnFloor(SpriteNum);
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }
 
-int DoSkelPain(short SpriteNum)
+int DoSkelPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
-    NullSkel(SpriteNum);
+    NullSkel(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(u);
 
     return 0;
 }
 
-int DoSkelMove(short SpriteNum)
+int DoSkelMove(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(u);
 
     KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }

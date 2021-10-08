@@ -453,9 +453,9 @@ int DoVatorMove(short SpriteNum, int *lptr)
 }
 
 
-int DoVator(short SpriteNum)
+int DoVator(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;
@@ -622,9 +622,9 @@ int DoVator(short SpriteNum)
     return 0;
 }
 
-int DoVatorAuto(short SpriteNum)
+int DoVatorAuto(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;

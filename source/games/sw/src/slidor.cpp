@@ -679,10 +679,10 @@ int DoSlidorMove(short SpriteNum)
     return 0;
 }
 
-int DoSlidor(short SpriteNum)
+int DoSlidor(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    int SpriteNum = u->SpriteNum;
+    SPRITEp sp = &sprite[SpriteNum];
     SECTORp sectp = &sector[sp->sectnum];
 
     DoSlidorMove(SpriteNum);

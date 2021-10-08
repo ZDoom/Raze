@@ -527,7 +527,8 @@ typedef struct PANEL_SPRITEstruct PANEL_SPRITE, *PANEL_SPRITEp;
 struct ANIMstruct;
 typedef struct ANIMstruct ANIM, *ANIMp;
 
-typedef int ANIMATOR (int16_t SpriteNum);
+struct USER;
+typedef int ANIMATOR (USER* SpriteNum);
 typedef ANIMATOR *ANIMATORp;
 
 typedef void pANIMATOR (PANEL_SPRITEp);
@@ -566,7 +567,7 @@ struct STATEstruct
 typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
 
 extern FOOT_TYPE FootMode;
-int QueueFloorBlood(short hit_sprite);                // Weapon.c
+int QueueFloorBlood(USER* hit_sprite);                // Weapon.c
 int QueueFootPrint(short hit_sprite);                 // Weapon.c
 int QueueGeneric(short SpriteNum, short pic);        // Weapon.c
 int QueueLoWangs(short SpriteNum);                   // Weapon.c
@@ -1129,6 +1130,7 @@ struct USER
     short   SpriteNum;
     short   Attach;  // attach to sprite if needed - electro snake
     SPRITEp SpriteP;
+	SPRITEp s() { return SpriteP;}
 
     // if a player's sprite points to player structure
     PLAYERp PlayerP;
@@ -1854,6 +1856,7 @@ ANIMATOR NullAnimator;
 int Distance(int x1, int y1, int x2, int y2);
 
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
+int NewStateGroup(USERp user, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(short SpriteNum, short id, STATEp state);
 
@@ -2075,7 +2078,6 @@ int PickJumpMaxSpeed(short SpriteNum, short max_speed); // ripper.c
 int DoRipperRipHeart(short SpriteNum);  // ripper.c
 int DoRipper2RipHeart(short SpriteNum); // ripper2.c
 int BunnyHatch2(short Weapon);  // bunny.c
-int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 
 void TerminateLevel(void);  // game.c
 void DrawMenuLevelScreen(void); // game.c

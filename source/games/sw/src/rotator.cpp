@@ -433,10 +433,9 @@ int DoRotatorMove(short SpriteNum)
     return 0;
 }
 
-int DoRotator(short SpriteNum)
+int DoRotator(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    int SpriteNum = u->SpriteNum;
 
     // could move this inside sprite control
     DoRotatorMove(SpriteNum);

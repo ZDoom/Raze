@@ -558,9 +558,10 @@ SetupCoolie(short SpriteNum)
 
 
 int NewCoolg(short);
-int SpawnCoolg(short SpriteNum)
+int SpawnCoolg(USER* u)
 {
-
+	int SpriteNum = u->SpriteNum;
+	
     // Don't do a ghost every time
     if (RandomRange(1000) > 700 || Skill < MinEnemySkill - 1)
     {
@@ -574,55 +575,55 @@ int SpawnCoolg(short SpriteNum)
     return 0;
 }
 
-int CooliePain(short SpriteNum)
+int CooliePain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(u);
 
     return 0;
 }
 
-int NullCoolie(short SpriteNum)
+int NullCoolie(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }
 
-int DoCoolieMove(short SpriteNum)
+int DoCoolieMove(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(u);
 
     KeepActorOnFloor(SpriteNum);
 
-    if (DoActorSectorDamage(SpriteNum))
+    if (DoActorSectorDamage(u))
     {
         return 0;
     }
@@ -638,8 +639,9 @@ int DoCoolieMove(short SpriteNum)
     return 0;
 }
 
-int InitCoolieCharge(short SpriteNum)
+int InitCoolieCharge(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (RANDOM_P2(1024) > 950)
@@ -647,7 +649,7 @@ int InitCoolieCharge(short SpriteNum)
 
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 
-    InitActorMoveCloser(SpriteNum);
+    InitActorMoveCloser(u);
 
     NewStateGroup(SpriteNum, sg_CoolieCharge);
 
@@ -656,11 +658,9 @@ int InitCoolieCharge(short SpriteNum)
 
 
 int
-DoCoolieWaitBirth(short SpriteNum)
+DoCoolieWaitBirth(USER* u)
 {
-    USERp u;
-
-    u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if ((u->Counter -= ACTORMOVETICS) <= 0)
     {

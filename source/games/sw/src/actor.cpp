@@ -53,7 +53,7 @@ extern STATE s_NinjaDieSlicedHack[];
 
 extern STATEp sg_NinjaGrabThroat[];
 
-int DoActorStopFall(short SpriteNum);
+int DoActorStopFall(USERp SpriteNum);
 
 
 int
@@ -168,7 +168,7 @@ DoActorDie(short SpriteNum, short weapon)
                 u->ActorActionFunc = nullptr;
                 sp->xvel = 200 + RandomRange(200);
                 u->jump_speed = -200 - RandomRange(250);
-                DoActorBeginJump(SpriteNum);
+                DoActorBeginJump(u);
                 sprite[SpriteNum].ang = sprite[weapon].ang;
             }
         }
@@ -180,7 +180,7 @@ DoActorDie(short SpriteNum, short weapon)
             ChangeState(SpriteNum, u->StateEnd);
             sp->xvel = 0;
             u->jump_speed = 0;
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
         }
 
         u->RotNum = 0;
@@ -212,13 +212,13 @@ DoActorDie(short SpriteNum, short weapon)
         {
             sp->xvel <<= 1;
             u->jump_speed = -100 - RandomRange(250);
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
         }
         else
         {
             sp->xvel = 0;
             u->jump_speed = -10 - RandomRange(25);
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
         }
         u->ActorActionFunc = nullptr;
         // Get angle to player
@@ -242,7 +242,7 @@ DoActorDie(short SpriteNum, short weapon)
             sp->xvel = 100 + RandomRange(200);
             u->jump_speed = -100 - RandomRange(250);
         }
-        DoActorBeginJump(SpriteNum);
+        DoActorBeginJump(u);
         u->ActorActionFunc = nullptr;
         // Get angle to player
         sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y) + 1024);
@@ -271,7 +271,7 @@ DoActorDie(short SpriteNum, short weapon)
             u->ActorActionFunc = nullptr;
             sp->xvel = 300 + RandomRange(400);
             u->jump_speed = -300 - RandomRange(350);
-            DoActorBeginJump(SpriteNum);
+            DoActorBeginJump(u);
             sprite[SpriteNum].ang = sprite[weapon].ang;
             break;
         }
@@ -326,10 +326,10 @@ DoDebrisCurrent(SPRITEp sp)
 }
 
 int
-DoActorSectorDamage(short SpriteNum)
+DoActorSectorDamage(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
@@ -408,10 +408,10 @@ move_debris(short SpriteNum, int xchange, int ychange, int zchange)
 // current move with the current.
 
 int
-DoActorDebris(short SpriteNum)
+DoActorDebris(USER* u)
 {
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     SECTORp sectp = &sector[sp->sectnum];
     int nx, ny;
 
@@ -472,10 +472,10 @@ DoActorDebris(short SpriteNum)
 
 
 int
-DoFireFly(short SpriteNum)
+DoFireFly(USER* u)
 {
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
     nx = 4 * ACTORMOVETICS * bcos(sp->ang) >> 14;
@@ -627,7 +627,7 @@ DoActorBeginSlide(int SpriteNum, short ang, short vel, short dec)
     u->slide_vel = vel;
     u->slide_dec = dec;
 
-    //DoActorSlide(SpriteNum);
+    //DoActorSlide(u);
 
     return 0;
 }
@@ -636,9 +636,9 @@ DoActorBeginSlide(int SpriteNum, short ang, short vel, short dec)
 // Has its own set of variables
 
 int
-DoActorSlide(short SpriteNum)
+DoActorSlide(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     int nx, ny;
 
     nx = MulScale(u->slide_vel, bcos(u->slide_ang), 14);
@@ -663,9 +663,9 @@ DoActorSlide(short SpriteNum)
 // !AIC - Actor jumping and falling
 
 int
-DoActorBeginJump(short SpriteNum)
+DoActorBeginJump(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -687,15 +687,15 @@ DoActorBeginJump(short SpriteNum)
 
     //DO NOT CALL DoActorJump! DoActorStopFall can cause an infinite loop and
     //stack overflow if it is called.
-    //DoActorJump(SpriteNum);
+    //DoActorJump(u);
 
     return 0;
 }
 
 int
-DoActorJump(short SpriteNum)
+DoActorJump(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int jump_adj;
@@ -711,7 +711,7 @@ DoActorJump(short SpriteNum)
         MONO_PRINT(ds);
 
         // Start falling
-        DoActorBeginFall(SpriteNum);
+        DoActorBeginFall(u);
         return 0;
     }
 
@@ -731,7 +731,7 @@ DoActorJump(short SpriteNum)
         MONO_PRINT(ds);
 
         // Change sprites state to falling
-        DoActorBeginFall(SpriteNum);
+        DoActorBeginFall(u);
     }
 
     return 0;
@@ -739,10 +739,8 @@ DoActorJump(short SpriteNum)
 
 
 int
-DoActorBeginFall(short SpriteNum)
+DoActorBeginFall(USERp u)
 {
-    USERp u = User[SpriteNum].Data();
-
     SET(u->Flags, SPR_FALLING);
     RESET(u->Flags, SPR_JUMPING);
 
@@ -753,28 +751,27 @@ DoActorBeginFall(short SpriteNum)
     {
         if (TEST(u->Flags, SPR_DEAD))
         {
-            NewStateGroup(SpriteNum, u->ActorActionSet->DeathFall);
+            NewStateGroup(u, u->ActorActionSet->DeathFall);
         }
         else
-            NewStateGroup(SpriteNum, u->ActorActionSet->Fall);
+            NewStateGroup(u, u->ActorActionSet->Fall);
 
         if (u->StateFallOverride)
         {
-            NewStateGroup(SpriteNum, u->StateFallOverride);
+            NewStateGroup(u, u->StateFallOverride);
         }
     }
 
-    DoActorFall(SpriteNum);
+    DoActorFall(u);
 
     return 0;
 }
 
 
 int
-DoActorFall(short SpriteNum)
+DoActorFall(USERp u)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = u->s();
 
     // adjust jump speed by gravity
     u->jump_speed += u->jump_grav * ACTORMOVETICS;
@@ -785,16 +782,16 @@ DoActorFall(short SpriteNum)
     // Stick like glue when you hit the ground
     if (sp->z > u->loz)
     {
-        DoActorStopFall(SpriteNum);
+        DoActorStopFall(u);
     }
 
     return 0;
 }
 
 int
-DoActorStopFall(short SpriteNum)
+DoActorStopFall(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     sp->z = u->loz;
@@ -813,7 +810,7 @@ DoActorStopFall(short SpriteNum)
         //DSPRINTF(ds,"StopFall: sp_num %d, sp->picnum %d, lo_num %d, lo_sp->picnum %d",SpriteNum, sp->picnum, u->lo_sp - sprite, u->lo_sp->picnum);
         MONO_PRINT(ds);
 
-        DoActorBeginJump(SpriteNum);
+        DoActorBeginJump(u);
         return 0;
     }
 
@@ -843,20 +840,19 @@ DoActorStopFall(short SpriteNum)
 }
 
 int
-DoActorDeathMove(short SpriteNum)
+DoActorDeathMove(USER* u)
 {
-    ANIMATOR DoFindGround;
+	int SpriteNum = u->SpriteNum;
 
-    USERp u = User[SpriteNum].Data();
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(u);
         else
-            DoActorFall(SpriteNum);
+            DoActorFall(u);
     }
 
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);

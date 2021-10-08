@@ -332,16 +332,16 @@ SetupHornet(short SpriteNum)
     return 0;
 }
 
-int NullHornet(short SpriteNum)
+int NullHornet(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     DoHornetMatchPlayerZ(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }
@@ -421,10 +421,10 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     return 0;
 }
 
-int InitHornetCircle(short SpriteNum)
+int InitHornetCircle(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     u->ActorActionFunc = DoHornetCircle;
 
@@ -448,15 +448,15 @@ int InitHornetCircle(short SpriteNum)
 
     u->WaitTics = (RandomRange(3)+1) * 60;
 
-    (*u->ActorActionFunc)(SpriteNum);
+    (*u->ActorActionFunc)(u);
 
     return 0;
 }
 
-int DoHornetCircle(short SpriteNum)
+int DoHornetCircle(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int nx,ny,bound;
 
     sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
@@ -476,7 +476,7 @@ int DoHornetCircle(short SpriteNum)
 
         if (!move_actor(SpriteNum, nx, ny, 0L))
         {
-            InitActorReposition(SpriteNum);
+            InitActorReposition(u);
             return 0;
         }
     }
@@ -489,14 +489,14 @@ int DoHornetCircle(short SpriteNum)
     {
         // bumped something
         u->sz = bound;
-        InitActorReposition(SpriteNum);
+        InitActorReposition(u);
         return 0;
     }
 
     // time out
     if ((u->WaitTics -= ACTORMOVETICS) < 0)
     {
-        InitActorReposition(SpriteNum);
+        InitActorReposition(u);
         u->WaitTics = 0;
         return 0;
     }
@@ -506,10 +506,10 @@ int DoHornetCircle(short SpriteNum)
 
 
 int
-DoHornetDeath(short SpriteNum)
+DoHornetDeath(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
     if (TEST(u->Flags, SPR_FALLING))
@@ -528,7 +528,7 @@ DoHornetDeath(short SpriteNum)
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     // slide while falling
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -550,11 +550,12 @@ DoHornetDeath(short SpriteNum)
 }
 
 // Hornets can swarm around other hornets or whatever is tagged as swarm target
-int DoCheckSwarm(short SpriteNum)
+int DoCheckSwarm(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     int i;
     SPRITEp sp = &sprite[SpriteNum], tsp;
-    USERp u = User[SpriteNum].Data(), tu;
+    USERp tu;
     int dist, pdist, a,b,c;
     PLAYERp pp;
 
@@ -596,28 +597,28 @@ int DoCheckSwarm(short SpriteNum)
 
 }
 
-int DoHornetMove(short SpriteNum)
+int DoHornetMove(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     // Check for swarming
     // lotag of 1 = Swarm around lotags of 2
     // lotag of 0 is normal
     if (sp->hitag == TAG_SWARMSPOT && sp->lotag == 1)
-        DoCheckSwarm(SpriteNum);
+        DoCheckSwarm(u);
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(u);
 
     DoHornetMatchPlayerZ(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
 
     return 0;
 }

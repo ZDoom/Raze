@@ -51,35 +51,36 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR SetupCoolie;
-ANIMATOR SetupNinja;
-ANIMATOR SetupGoro;
-ANIMATOR SetupCoolg;
-ANIMATOR SetupEel;
-ANIMATOR SetupSumo;
-ANIMATOR SetupZilla;
-ANIMATOR SetupToiletGirl;
-ANIMATOR SetupWashGirl;
-ANIMATOR SetupCarGirl;
-ANIMATOR SetupMechanicGirl;
-ANIMATOR SetupSailorGirl;
-ANIMATOR SetupPruneGirl;
-ANIMATOR SetupTrashCan;
-ANIMATOR SetupBunny;
-ANIMATOR SetupRipper;
-ANIMATOR SetupRipper2;
-ANIMATOR SetupSerp;
-ANIMATOR SetupLava;
-ANIMATOR SetupSkel;
-ANIMATOR SetupHornet;
-ANIMATOR SetupSkull;
-ANIMATOR SetupBetty;
-ANIMATOR SetupPachinkoLight;
-ANIMATOR SetupPachinko1;
-ANIMATOR SetupPachinko2;
-ANIMATOR SetupPachinko3;
-ANIMATOR SetupPachinko4;
-ANIMATOR SetupGirlNinja;
+
+int SetupCoolie(short);
+int SetupNinja(short);
+int SetupGoro(short);
+int SetupCoolg(short);
+int SetupEel(short);
+int SetupSumo(short);
+int SetupZilla(short);
+int SetupToiletGirl(short);
+int SetupWashGirl(short);
+int SetupCarGirl(short);
+int SetupMechanicGirl(short);
+int SetupSailorGirl(short);
+int SetupPruneGirl(short);
+int SetupTrashCan(short);
+int SetupBunny(short);
+int SetupRipper(short);
+int SetupRipper2(short);
+int SetupSerp(short);
+int SetupLava(short);
+int SetupSkel(short);
+int SetupHornet(short);
+int SetupSkull(short);
+int SetupBetty(short);
+int SetupPachinkoLight(short);
+int SetupPachinko1(short);
+int SetupPachinko2(short);
+int SetupPachinko3(short);
+int SetupPachinko4(short);
+int SetupGirlNinja(short);
 ANIMATOR DoVator, DoVatorAuto;
 ANIMATOR DoRotator;
 ANIMATOR DoSlidor;
@@ -4671,6 +4672,11 @@ NewStateGroup(short SpriteNum, STATEp StateGroup[])
     return 0;
 }
 
+int NewStateGroup(USERp user, STATEp StateGroup[])
+{
+	return NewStateGroup(user->SpriteNum, StateGroup);
+}
+
 
 bool
 SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
@@ -5141,16 +5147,18 @@ move_actor(short SpriteNum, int xchange, int ychange, int zchange)
 }
 
 int
-DoStayOnFloor(short SpriteNum)
+DoStayOnFloor(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     sprite[SpriteNum].z = sector[sprite[SpriteNum].sectnum].floorz;
     //sprite[SpriteNum].z = getflorzofslope(sprite[SpriteNum].sectnum, sprite[SpriteNum].x, sprite[SpriteNum].y);
     return 0;
 }
 
 int
-DoGrating(short SpriteNum)
+DoGrating(USER* u)
 {
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int dir;
 #define GRATE_FACTOR 3
@@ -5217,59 +5225,25 @@ DoSpriteFade(short SpriteNum)
 }
 #endif
 
-int
-SpearOnFloor(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    if (!TEST(u->Flags, SPR_SO_ATTACHED))
-    {
-        // if on a sprite bridge, stay with the sprite otherwize stay with
-        // the floor
-        if (u->lo_sp)
-            sp->z = u->loz;
-        else
-            sp->z = sector[sp->sectnum].floorz + u->sz;
-    }
-    return 0;
-}
 
 int
-SpearOnCeiling(short SpriteNum)
+DoKey(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    if (!TEST(u->Flags, SPR_SO_ATTACHED))
-    {
-        // if on a sprite bridge, stay with the sprite otherwize stay with
-        // the floor
-        if (u->hi_sp)
-            sp->z = u->hiz;
-        else
-            sp->z = sector[sp->sectnum].ceilingz + u->sz;
-    }
-    return 0;
-}
-
-int
-DoKey(short SpriteNum)
-{
+	int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     sp->ang = NORM_ANGLE(sp->ang + (14 * ACTORMOVETICS));
 
     //DoSpriteFade(SpriteNum);
 
-    DoGet(SpriteNum);
+    DoGet(u);
     return 0;
 }
 
 int
-DoCoin(short SpriteNum)
+DoCoin(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
     int offset;
 
     u->WaitTics -= ACTORMOVETICS * 2;
@@ -5541,9 +5515,10 @@ struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL] =
 #define ITEMFLASHAMT  -8
 #define ITEMFLASHCLR  144
 int
-DoGet(short SpriteNum)
+DoGet(USER* u)
 {
-    USERp u = User[SpriteNum].Data(), pu;
+	int SpriteNum = u->SpriteNum;
+	USERp pu;
     SPRITEp sp = u->SpriteP;
     PLAYERp pp;
     short pnum, key_num;
@@ -6515,92 +6490,6 @@ AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
     }
 }
 
-/*
-
-  !AIC KEY - Main processing loop for sprites.  Sprites are separated and
-  traversed by STAT lists.  Note the STAT_MISC, STAT_ENEMY, STAT_VATOR below.
-  Most everything here calls StateControl().
-
-*/
-
-
-#if DEBUG
-#define INLINE_STATE 0
-#else
-#define INLINE_STATE 1
-#endif
-
-#define STATE_CONTROL(SpriteNum, sp, u, StateTics)                                  \
-    if (!(u)->State)                                                                \
-    {                                                                           \
-        ASSERT((u)->ActorActionFunc);                                               \
-        ((u)->ActorActionFunc)((SpriteNum));                                        \
-    }                                                                           \
-    else                                                                            \
-    {                                                                           \
-        if ((sp)->statnum >= STAT_SKIP4_START && (sp)->statnum <= STAT_SKIP4_END)   \
-            (u)->Tics += ACTORMOVETICS * 2;                                         \
-        else                                                                        \
-            (u)->Tics += ACTORMOVETICS;                                             \
-                                                                                    \
-        while ((u)->Tics >= TEST((u)->State->Tics, SF_TICS_MASK))                   \
-        {                                                                       \
-            (StateTics) = TEST((u)->State->Tics, SF_TICS_MASK);                     \
-                                                                                    \
-            if (TEST((u)->State->Tics, SF_TIC_ADJUST))                              \
-            {                                                                   \
-                ASSERT((u)->Attrib);                                                \
-                ASSERT((u)->speed < MAX_SPEED);                                     \
-                ASSERT((StateTics) > -(u)->Attrib->TicAdjust[(u)->speed]);          \
-                                                                                    \
-                (StateTics) += (u)->Attrib->TicAdjust[(u)->speed];                  \
-            }                                                                   \
-                                                                                    \
-            (u)->Tics -= (StateTics);                                               \
-                                                                                    \
-            (u)->State = (u)->State->NextState;                                     \
-                                                                                    \
-            while (TEST((u)->State->Tics, SF_QUICK_CALL))                           \
-            {                                                                   \
-                (*(u)->State->Animator)((SpriteNum));                              \
-                ASSERT(u);                                                          \
-                                                                                    \
-                if (!(u))                                                           \
-                    break;                                                          \
-                                                                                    \
-                if (TEST((u)->State->Tics, SF_QUICK_CALL))                          \
-                    (u)->State = (u)->State->NextState;                             \
-            }                                                                   \
-                                                                                    \
-            if (!(u))                                                               \
-                break;                                                              \
-                                                                                    \
-            if (!(u)->State->Pic)                                                   \
-            {                                                                   \
-                NewStateGroup((SpriteNum), (STATEp *) (u)->State->NextState);       \
-            }                                                                   \
-        }                                                                       \
-                                                                                    \
-        if (u)                                                                      \
-        {                                                                       \
-            if (TEST((u)->State->Tics, SF_WALL_STATE))                              \
-            {                                                                   \
-                ASSERT((u)->WallP);                                                 \
-                (u)->WallP->picnum = (u)->State->Pic;                               \
-            }                                                                   \
-            else                                                                    \
-            {                                                                   \
-                if ((u)->RotNum > 1)                                                \
-                    (sp)->picnum = (u)->Rot[0]->Pic;                                \
-                else                                                                \
-                    (sp)->picnum = (u)->State->Pic;                                 \
-            }                                                                   \
-                                                                                    \
-            if ((u)->State->Animator && (u)->State->Animator != NullAnimator)       \
-                (*(u)->State->Animator)((SpriteNum));                              \
-        }                                                                       \
-    }
-
 
 /*
 
@@ -6620,7 +6509,7 @@ StateControl(int16_t SpriteNum)
     if (!u->State)
     {
         ASSERT(u->ActorActionFunc);
-        (u->ActorActionFunc)(SpriteNum);
+        (u->ActorActionFunc)(u);
         return 0;
     }
 
@@ -6653,7 +6542,7 @@ StateControl(int16_t SpriteNum)
         while (TEST(u->State->Tics, SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*u->State->Animator)(SpriteNum);
+            (*u->State->Animator)(u);
 
             ASSERT(u); //put this in to see if actor was getting killed with in his QUICK_CALL state
 
@@ -6695,7 +6584,7 @@ StateControl(int16_t SpriteNum)
 
         // Call the correct animator
         if (u->State->Animator && u->State->Animator != NullAnimator)
-            (*u->State->Animator)(SpriteNum);
+            (*u->State->Animator)(u);
     }
 
     return 0;
@@ -6717,17 +6606,8 @@ SpriteControl(void)
     StatIterator it(STAT_MISC);
     while ((i = it.NextIndex()) >= 0)
     {
-#if INLINE_STATE
-        ASSERT(User[i].Data());
-        u = User[i].Data();
-        sp = User[i]->SpriteP;
-        STATE_CONTROL(i, sp, u, StateTics)
-        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
-#else
-        ASSERT(User[i]);
         StateControl(i);
         // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
-#endif
     }
 
     // Items and skip2 things
@@ -6738,17 +6618,7 @@ SpriteControl(void)
             StatIterator it(stat);
             while ((i = it.NextIndex()) >= 0)
             {
-#if INLINE_STATE
-                ASSERT(User[i].Data());
-                u = User[i].Data();
-                sp = User[i]->SpriteP;
-                STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
-#else
-                ASSERT(User[i]);
                 StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
-#endif
             }
         }
     }
@@ -6788,13 +6658,7 @@ SpriteControl(void)
             // Only update the ones close to ANY player
             if (CloseToPlayer)
             {
-#if INLINE_STATE
-                u = User[i].Data();
-                sp = User[i]->SpriteP;
-                STATE_CONTROL(i, sp, u, StateTics)
-#else
                 StateControl(i);
-#endif
                 ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
             }
             else
@@ -6813,17 +6677,7 @@ SpriteControl(void)
             StatIterator it(stat);
             while ((i = it.NextIndex()) >= 0)
             {
-#if INLINE_STATE
-                ASSERT(User[i].Data());
-                u = User[i].Data();
-                sp = User[i]->SpriteP;
-                STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
-#else
-                ASSERT(User[i]);
-                StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
-#endif
+				StateControl(i);
             }
         }
     }
@@ -6832,8 +6686,7 @@ SpriteControl(void)
     while ((i = it.NextIndex()) >= 0)
     {
         if (User[i].Data() && User[i]->ActorActionFunc)
-            (*User[i]->ActorActionFunc)(i);
-        ASSERT(it.PeekIndex() >= 0 ? sprite[it.PeekIndex()].statnum != MAXSTATUS : true);
+            (*User[i]->ActorActionFunc)(User[i].Data());
     }
 
     if (MoveSkip8 == 0)
@@ -6852,10 +6705,7 @@ SpriteControl(void)
         it.Reset(STAT_WALLBLOOD_QUEUE);
         while ((i = it.NextIndex()) >= 0)
         {
-            ASSERT(User[i].Data());
-            u = User[i].Data();
-            sp = User[i]->SpriteP;
-            STATE_CONTROL(i, sp, u, StateTics)
+			StateControl(i);
             ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
 
         }
@@ -6881,7 +6731,7 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(i);
+        (*User[i]->ActorActionFunc)(u);
     }
 
     it.Reset(STAT_SPIKE);
@@ -6903,7 +6753,7 @@ SpriteControl(void)
         if (i == 69 && it.PeekIndex() == -1)
             continue;
 
-        (*User[i]->ActorActionFunc)(i);
+        (*User[i]->ActorActionFunc)(u);
     }
 
     it.Reset(STAT_ROTATOR);
@@ -6922,7 +6772,7 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(i);
+        (*User[i]->ActorActionFunc)(u);
     }
 
     it.Reset(STAT_SLIDOR);
@@ -6941,7 +6791,7 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(i);
+        (*User[i]->ActorActionFunc)(u);
     }
 
     it.Reset(STAT_SUICIDE);
@@ -7531,7 +7381,6 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     return retval;
 }
 
-
 #include "saveable.h"
 
 static saveable_code saveable_sprite_code[] =
@@ -7540,8 +7389,6 @@ static saveable_code saveable_sprite_code[] =
     SAVE_CODE(DoActorGlobZ),
     SAVE_CODE(DoStayOnFloor),
     SAVE_CODE(DoGrating),
-    SAVE_CODE(SpearOnFloor),
-    SAVE_CODE(SpearOnCeiling),
     SAVE_CODE(DoKey),
     SAVE_CODE(DoCoin),
     SAVE_CODE(KillGet),

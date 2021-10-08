@@ -51,7 +51,7 @@ BEGIN_SW_NS
 #define LAVAMAXDROPS 32
 #define DEFAULT_DOOR_SPEED 800
 
-int InitFireballTrap(short SpriteNum);
+int InitFireballTrap(USER* SpriteNum);
 ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYERp);
 
@@ -1112,9 +1112,9 @@ DoExplodeSector(short match)
 }
 
 
-int DoSpawnSpot(short SpriteNum)
+int DoSpawnSpot(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= synctics) < 0)
     {
@@ -2043,7 +2043,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitFireballTrap(i);
+                InitFireballTrap(u);
             }
         }
 
@@ -2055,7 +2055,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitBoltTrap(i);
+                InitBoltTrap(u);
             }
         }
 
@@ -2246,7 +2246,7 @@ OperateContinuousTrigger(PLAYERp pp)
                 if (u->WaitTics <= 0)
                 {
                     u->WaitTics = 1 * 120;
-                    InitFireballTrap(i);
+                    InitFireballTrap(u);
                 }
             }
 
@@ -2258,7 +2258,7 @@ OperateContinuousTrigger(PLAYERp pp)
                 if (u->WaitTics <= 0)
                 {
                     u->WaitTics = 1 * 120;
-                    InitBoltTrap(i);
+                    InitBoltTrap(u);
                 }
             }
 

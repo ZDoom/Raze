@@ -513,53 +513,47 @@ SetupGoro(short SpriteNum)
     return 0;
 }
 
-int NullGoro(short SpriteNum)
+int NullGoro(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-
-    ASSERT(SpriteNum >= 0);
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
     return 0;
 }
 
-int DoGoroPain(short SpriteNum)
+int DoGoroPain(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
+	int SpriteNum = u->SpriteNum;
 
-    ASSERT(SpriteNum >= 0);
-
-    NullGoro(SpriteNum);
+    NullGoro(u);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(u);
     return 0;
 }
 
-int DoGoroMove(short SpriteNum)
+int DoGoroMove(USER* u)
 {
-    USERp u = User[SpriteNum].Data();
-
-    ASSERT(SpriteNum >= 0);
+	int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(u);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(u);
 
     ASSERT(User[SpriteNum].Data());
 
     KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(u);
     return 0;
 }
 
