@@ -161,28 +161,6 @@ extern bool MenuInputMode;
 // dist at which actors roam about on their own
 #define MIN_ACTIVE_RANGE 20000
 
-// REDEFINABLE PLAYER KEYS NUMBERS
-
-#define PK_FORWARD      0
-#define PK_BACKWARD     1
-#define PK_LEFT         2
-#define PK_RIGHT        3
-#define PK_RUN          4
-#define PK_STRAFE       5
-#define PK_SHOOT        6
-#define PK_OPERATE      7
-#define PK_JUMP         8
-#define PK_CRAWL        9
-#define PK_LOOK_UP      10
-#define PK_LOOK_DOWN    11
-#define PK_STRAFE_LEFT  12
-#define PK_STRAFE_RIGHT 13
-#define PK_MAP          14
-#define PK_MULTI_VIEW   15
-#define PK_ZOOM_IN      16
-#define PK_ZOOM_OUT     17
-#define PK_MESSAGE      18
-
 inline int32_t FIXED(int32_t msw, int32_t lsw)
 {
     return IntToFixed(msw) | lsw;
@@ -362,19 +340,6 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 
 #define CEILING_DIST (Z(4))
 #define FLOOR_DIST (Z(4))
-
-// Attributes for monochrome text
-#define MDA_BLANK          0x00
-#define MDA_NORMAL         0x07
-#define MDA_BLINK          0x87
-#define MDA_HIGH           0x0F
-#define MDA_HIGHBLINK      0x8F
-#define MDA_UNDER          0x01
-#define MDA_UNDERBLINK     0x81
-#define MDA_UNDERHIGH      0x09
-#define MDA_UNDERHIGHBLINK 0x89
-#define MDA_REVERSE        0x70
-#define MDA_REVERSEBLINK   0xF0
 
 // defines for move_sprite return value
 #define HIT_MASK (BIT(14)|BIT(15)|BIT(16))
