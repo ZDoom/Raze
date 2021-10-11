@@ -168,8 +168,9 @@ void CopySectorMatch(short match)
                 itsec.Reset(src_sp->sectnum);
                 while ((src_move = itsec.NextIndex()) >= 0)
                 {
+                    auto sp = &sprite[src_move];
                     // don't move ST1 Copy Tags
-                    if (SPRITE_TAG1(src_move) != SECT_COPY_SOURCE)
+                    if (SP_TAG1(sp) != SECT_COPY_SOURCE)
                     {
                         int sx,sy,dx,dy,src_xoff,src_yoff,trash;
 
@@ -180,12 +181,12 @@ void CopySectorMatch(short match)
                         SectorMidPoint(dest_sp->sectnum, &dx, &dy, &trash);
 
                         // get offset
-                        src_xoff = sx - sprite[src_move].x;
-                        src_yoff = sy - sprite[src_move].y;
+                        src_xoff = sx - sp->x;
+                        src_yoff = sy - sp->y;
 
                         // move sprite to dest sector
-                        sprite[src_move].x = dx - src_xoff;
-                        sprite[src_move].y = dy - src_yoff;
+                        sp->x = dx - src_xoff;
+                        sp->y = dy - src_yoff;
 
                         // change sector
                         changespritesect(src_move, dest_sp->sectnum);
@@ -196,7 +197,7 @@ void CopySectorMatch(short match)
                             SECTOR_OBJECTp sop;
 
                             // find and add sprite to SO
-                            sop = DetectSectorObject(&sector[sprite[src_move].sectnum]);
+                            sop = DetectSectorObject(&sector[sp->sectnum]);
                             AddSpriteToSectorObject(src_move, sop);
 
                             // update sprites postions so they aren't in the

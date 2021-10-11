@@ -198,7 +198,6 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = LittleShort((short)val)
 #define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = LittleShort((short)val)
 
-#define SPRITE_TAG1(sp) (sprite[sp].hitag)
 #define SPRITE_TAG2(sp) (sprite[sp].lotag)
 #define SPRITE_TAG3(sp) (sprite[sp].clipdist)
 #define SPRITE_TAG4(sp) (sprite[sp].ang)
