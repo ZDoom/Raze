@@ -82,19 +82,9 @@ inline double SpriteX(spritetype* spr)
     return spr->x * (1 / 16.);
 }
 
-inline double SpriteX(int wallnum)
-{
-    return sprite[wallnum].x * (1 / 16.);
-}
-
 inline double SpriteY(spritetype* spr)
 {
     return spr->y * (1 / -16.);
-}
-
-inline double SpriteY(int wallnum)
-{
-    return sprite[wallnum].y * (1 / -16.);
 }
 
 inline DVector2 SpritePos(spritetype* spr)
