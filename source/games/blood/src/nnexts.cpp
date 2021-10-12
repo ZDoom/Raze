@@ -1444,11 +1444,11 @@ void nnExtProcessSuperSprites()
             if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
             else if (Chance(0x1000 - mass)) 
             {
-                if (debrisactor->zvel() > 0x100) debrisBubble(nDebris);
+                if (debrisactor->zvel() > 0x100) debrisBubble(debrisactor);
                 if (ang == pXDebris->goalAng) 
                 {
                    pXDebris->goalAng = (pDebris->ang + Random3(kAng60)) & 2047;
-                   debrisBubble(nDebris);
+                    debrisBubble(debrisactor);
         }
     }
 
@@ -1658,9 +1658,8 @@ int debrisGetFreeIndex(void)
 //
 //---------------------------------------------------------------------------
 
-void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg) 
+void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int dmg)
 {
-    auto owner = &bloodActors[nOwner];
     auto actor = gPhysSpritesList[listIndex];
     if (actor != nullptr && actor->hasX())
     {
@@ -1669,14 +1668,15 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg)
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (pSprite->type >= kThingBase && pSprite->type < kThingMax);
         int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
-        if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) {
+        if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) 
+        {
             if (actor->spriteMass.mass > 0) 
             {
                 int t = scale(dmg, size, actor->spriteMass.mass);
 
-                xvel[pSprite->index] += MulScale(t, dx, 16);
-                yvel[pSprite->index] += MulScale(t, dy, 16);
-                zvel[pSprite->index] += MulScale(t, dz, 16);
+                actor->xvel() += MulScale(t, dx, 16);
+                actor->yvel() += MulScale(t, dy, 16);
+                actor->zvel() += MulScale(t, dz, 16);
             }
 
             if (thing)
@@ -1696,11 +1696,10 @@ void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg)
 //
 //---------------------------------------------------------------------------
 
-void debrisBubble(int nSprite) 
+void debrisBubble(DBloodActor* actor)
 {
+    spritetype* pSprite = &actor->s();
  
-    spritetype* pSprite = &sprite[nSprite];
-    
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     for (unsigned int i = 0; i < 1 + Random(5); i++) {
@@ -1712,15 +1711,15 @@ void debrisBubble(int nSprite)
         int z = bottom - Random(bottom - top);
         auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), pSprite->sectnum, x, y, z, 0);
         if (pFX) {
-            pFX->xvel() = xvel[nSprite] + Random2(0x1aaaa);
-            pFX->yvel() = yvel[nSprite] + Random2(0x1aaaa);
-            pFX->zvel() = zvel[nSprite] + Random2(0x1aaaa);
+            pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
+            pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
+            pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
         }
 
     }
     
     if (Chance(0x2000))
-        evPostActor(&bloodActors[nSprite], 0, kCallbackEnemeyBubble);
+        evPostActor(actor, 0, kCallbackEnemeyBubble);
 }
 
 //---------------------------------------------------------------------------

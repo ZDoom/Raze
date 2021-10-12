@@ -6046,7 +6046,7 @@ static void actCheckExplosion()
 					if (pDebris->sectnum < 0 || (pDebris->flags & kHitagFree) != 0) continue;
 
 					if (!TestBitString(sectormap, pDebris->sectnum) || !CheckProximity(pDebris, x, y, z, nSector, radius)) continue;
-					else debrisConcuss(Owner ? Owner->s().index : -1, i, x, y, z, pExplodeInfo->dmgType);
+					else debrisConcuss(Owner, i, x, y, z, pExplodeInfo->dmgType);
 				}
 			}
 
