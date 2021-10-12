@@ -1506,19 +1506,20 @@ void DoDeleteSpriteMatch(short match)
             StatIterator it(StatList[stat]);
             while ((i = it.NextIndex()) >= 0)
             {
-                if (del_x == sprite[i].x && del_y == sprite[i].y)
+                auto sp = &sprite[i];
+                if (del_x == sp->x && del_y == sp->y)
                 {
                     // special case lighting delete of Fade On/off after fades
                     if (StatList[stat] == STAT_LIGHTING)
                     {
                         // set shade to darkest and then kill it
-                        sprite[i].shade = int8_t(SPRITE_TAG6(i));
-                        sprite[i].pal = 0;
-                        SectorLightShade(&sprite[i], sprite[i].shade);
+                        sp->shade = int8_t(SP_TAG6(sp));
+                        sp->pal = 0;
+                        SectorLightShade(&sprite[i], sp->shade);
                         DiffuseLighting(&sprite[i]);
                     }
 
-                    ////DSPRINTF(ds,"Delete Sprite stat %d, x %d, y %d",sprite[i].statnum, sprite[i].x, sprite[i].y);
+                    ////DSPRINTF(ds,"Delete Sprite stat %d, x %d, y %d",sp->statnum, sp->x, sp->y);
                     //MONO_PRINT(ds);
                     SpriteQueueDelete(i);
                     KillSprite(i);

@@ -63,7 +63,8 @@ void PreCacheOverride(void)
 	StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
 	while ((i = it.NextIndex()) >= 0)
 	{
-		int j = SPRITE_TAG2(i);
+		auto sp = &sprite[i];
+		int j = SP_TAG2(sp);
 		if(j >= 0 && j <= MAXTILES)
 			markTileForPrecache(j, 0);
 	}

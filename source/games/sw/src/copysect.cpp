@@ -128,8 +128,8 @@ void CopySectorMatch(short match)
         {
             src_sp = &sprite[ss];
 
-            if (SP_TAG2(src_sp) == SPRITE_TAG2(ed) &&
-                SP_TAG3(src_sp) == SPRITE_TAG3(ed))
+            if (SP_TAG2(src_sp) == SP_TAG2(dest_sp) &&
+                SP_TAG3(src_sp) == SP_TAG3(dest_sp))
             {
                 int src_move;
                 ssectp = &sector[src_sp->sectnum];

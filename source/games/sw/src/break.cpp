@@ -540,7 +540,8 @@ short FindBreakSpriteMatch(short match)
     StatIterator it(STAT_BREAKABLE);
     while ((i = it.NextIndex()) >= 0)
     {
-        if (SPRITE_TAG2(i) == match && sprite[i].picnum == ST1)
+        auto sp = &sprite[i];
+        if (SP_TAG2(sp) == match && sp->picnum == ST1)
         {
             return i;
         }
