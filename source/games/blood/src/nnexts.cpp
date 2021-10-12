@@ -925,7 +925,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
             Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", pSprite->index, pXSprite->rxID);
 
         pCond->length = count;
-        pCond->xindex = pSprite->extra;
+        pCond->actor = iactor;
         gTrackingCondsCount++;
 
     }
@@ -1150,7 +1150,7 @@ void nnExtProcessSuperSprites()
         for (int i = 0; i < gTrackingCondsCount; i++) {
 
             TRCONDITION* pCond = &gCondition[i];
-			XSPRITE* pXCond = &xsprite[pCond->xindex];
+            XSPRITE* pXCond = &pCond->actor->x();
             if (pXCond->locked || pXCond->isTriggered || ++pXCond->busy < pXCond->busyTime)
                 continue;
 
@@ -1158,11 +1158,11 @@ void nnExtProcessSuperSprites()
             {
                 EVENT evn;
                 evn.index_ = 0; 
-                evn.actor = &bloodActors[pXCond->reference];
+                evn.actor = pCond->actor;
                 evn.cmd = (int8_t)pXCond->command;
                 evn.type = OBJ_SPRITE;            
                 evn.funcID = kCallbackMax;
-                useCondition(&sprite[pXCond->reference], pXCond, evn);
+                useCondition(&pCond->actor->s(), pXCond, evn);
             }
             else if (pCond->length > 0)
             {
@@ -1175,7 +1175,7 @@ void nnExtProcessSuperSprites()
                     evn.cmd    = pCond->obj[k].cmd;
                     evn.type = pCond->obj[k].type;
                     evn.funcID = kCallbackMax;
-                    useCondition(&sprite[pXCond->reference], pXCond, evn);
+                    useCondition(&pCond->actor->s(), pXCond, evn);
                 }
             }
             
@@ -1183,13 +1183,15 @@ void nnExtProcessSuperSprites()
     }
     
     // process floor oriented kModernWindGenerator to create a vertical wind in the sectors
-    for (int i = headspritestat[kStatModernWindGen]; i != -1; i = nextspritestat[i]) {
-        
-        spritetype* pWind = &sprite[i];
-        if (!(pWind->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) || pWind->statnum >= kMaxStatus || pWind->extra <= 0)
+    BloodStatIterator it(kStatModernWindGen);
+    while (auto windactor = it.Next())
+    {
+
+        spritetype* pWind = &windactor->s();
+        if (!(pWind->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) || pWind->statnum >= kMaxStatus || !windactor->hasX())
             continue;
 
-        XSPRITE* pXWind = &xsprite[pWind->extra];
+        XSPRITE* pXWind = &windactor->x();
         if (!pXWind->state || pXWind->locked)
             continue;
 
@@ -1255,12 +1257,12 @@ void nnExtProcessSuperSprites()
 
             if (!pXProxSpr->DudeLockout)
             {
-                int nAffected;
-                StatIterator it(kStatDude);
-                while ((nAffected = it.NextIndex()) >= 0)
+                BloodStatIterator it(kStatDude);
+                while (auto affected = it.Next())
                 {
-                    if (!xsprIsFine(&sprite[nAffected]) || xsprite[sprite[nAffected].extra].health <= 0) continue;
-                    else if (CheckProximity(&sprite[nAffected], x, y, z, sectnum, okDist)) {
+                    if (!affected->hasX() || affected->x().health <= 0) continue;
+                    else if (CheckProximity(&affected->s(), x, y, z, sectnum, okDist))
+                    {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
                     }
@@ -1302,7 +1304,7 @@ void nnExtProcessSuperSprites()
             // sprite is drawn for one of players
             if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (gSightSpritesList[i]->s().cstat2 & CSTAT2_SPRITE_MAPPED))
             {
-                trTriggerSprite(index, pXSightSpr, kCmdSpriteSight);
+                trTriggerSprite(gSightSpritesList[i], kCmdSpriteSight);
                 gSightSpritesList[i]->s().cstat2 &= ~CSTAT2_SPRITE_MAPPED;
                 continue;
             }
@@ -2049,7 +2051,7 @@ void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
         for (int i = 0; i < gTrackingCondsCount; i++) {
             
             TRCONDITION* pCond = &gCondition[i];
-            if (xsprite[pCond->xindex].rxID != pXSource->txID)
+            if (pCond->actor->x().rxID != pXSource->txID)
                 continue;
                 
             // search for player control sprite and replace it with actual player sprite
@@ -8133,7 +8135,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRCONDITION& w, TR
     if (arc.BeginObject(keyname))
     {
         arc("length", w.length, &nul.length)
-            ("xindex", w.xindex, &nul.xindex)
+            ("xindex", w.actor, &nul.actor)
             .Array("obj", w.obj, w.length)
             .EndObject();
     }
