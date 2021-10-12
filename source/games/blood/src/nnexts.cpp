@@ -1082,53 +1082,52 @@ DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int 
 //
 //---------------------------------------------------------------------------
 
-void windGenDoVerticalWind(XSPRITE* pXSource, int nSector) {
-
-
-    //spritetype* pSource = &sprite[pXSource->reference];
-    int j, val, maxZ, zdiff; bool maxZfound = false;
+static void windGenDoVerticalWind(int factor, int nSector) 
+{
+    int val, maxZ, zdiff; bool maxZfound = false;
    
     // find maxz marker first
-    for (j = headspritesect[nSector]; j != -1; j = nextspritesect[j]) {
-        if (sprite[j].type == kMarkerOn && sprite[j].statnum != kStatMarker) {
-
-            maxZ = sprite[j].z;
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
+    {
+        auto sp = &actor->s();
+        if (sp->type == kMarkerOn && sp->statnum != kStatMarker) 
+        {
+            maxZ = sp->z;
             maxZfound = true;
             break;
-
         }
     }
 
-
-    for (j = headspritesect[nSector]; j != -1; j = nextspritesect[j]) {
-
-        spritetype* pSpr = &sprite[j];
-        
-        switch (pSpr->statnum) {
+    it.Reset(nSector);
+    while (auto actor = it.Next())
+    {
+        auto pSpr = &actor->s();
+        switch (pSpr->statnum) 
+        {
             case kStatFree:
                 continue;
             case kStatFX:
-                if (zvel[pSpr->index]) break;
+                if (actor->zvel()) break;
                 continue;
             case kStatThing:
             case kStatDude:
                 if (pSpr->flags & kPhysGravity) break;
                 continue;
             default:
-                if (pSpr->extra > 0 && xsprite[pSpr->extra].physAttr & kPhysGravity) break;
+                if (actor->hasX() && actor->x().physAttr & kPhysGravity) break;
                 continue;
         }
 
-        
-        if (maxZfound && pSpr->z <= maxZ) {
-            
+        if (maxZfound && pSpr->z <= maxZ) 
+        {
             zdiff = pSpr->z - maxZ;
-            if (zvel[pSpr->index] < 0) zvel[pSpr->index] += MulScale(zvel[pSpr->index] >> 4, zdiff, 16);
+            if (actor->zvel() < 0) actor->zvel() += MulScale(actor->zvel() >> 4, zdiff, 16);
             continue;
 
         }
 
-        val = -MulScale(pXSource->sysData2 * 64, 0x10000, 16);
+        val = -MulScale(factor * 64, 0x10000, 16);
         if (zvel[pSpr->index] >= 0) zvel[pSpr->index] += val;
         else zvel[pSpr->index] = val;
 
@@ -1204,9 +1203,10 @@ void nnExtProcessSuperSprites()
                 if (rxBucket[j].type != OBJ_SECTOR)
                     continue;
 
-                XSECTOR* pXSector = &xsector[sector[rxBucket[j].rxindex].extra];
+                int index = rxBucket[j].rxindex;
+                XSECTOR* pXSector = &xsector[sector[index].extra];
                 if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                    windGenDoVerticalWind(pXWind, rxBucket[j].rxindex);
+                    windGenDoVerticalWind(pXWind->sysData2, index);
             }
 
             XSPRITE* pXRedir = NULL; // check redirected TX buckets
@@ -1217,9 +1217,10 @@ void nnExtProcessSuperSprites()
                     if (rxBucket[j].type != OBJ_SECTOR)
                         continue;
 
-                    XSECTOR* pXSector = &xsector[sector[rxBucket[j].rxindex].extra];
+                    int index = rxBucket[j].rxindex;
+                    XSECTOR* pXSector = &xsector[sector[index].extra];
                     if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                        windGenDoVerticalWind(pXWind, rxBucket[j].rxindex);
+                        windGenDoVerticalWind(pXWind->sysData2, index);
                 }
             }
 
@@ -1229,7 +1230,7 @@ void nnExtProcessSuperSprites()
             sectortype* pSect = &sector[pWind->sectnum];
             XSECTOR* pXSector = (pSect->extra > 0) ? &xsector[pSect->extra] : NULL;
             if ((fWindAlways) || (pXSector && !pXSector->locked && (pXSector->windAlways || pXSector->busy)))
-                windGenDoVerticalWind(pXWind, pWind->sectnum);
+                windGenDoVerticalWind(pXWind->sysData2, pWind->sectnum);
 
         }
 
