@@ -54,6 +54,7 @@
 #include "gamehud.h"
 
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
+EXTERN_CVAR(Int, vid_preferbackend)
 bool hw_int_useindexedcolortextures;
 CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
 {
@@ -98,7 +99,7 @@ void GLInstance::DoDraw()
 
 	if (rendercommands.Size() > 0)
 	{
-		if (!useMapFog) hw_int_useindexedcolortextures = hw_useindexedcolortextures;
+		if (!useMapFog && vid_preferbackend != 3) hw_int_useindexedcolortextures = hw_useindexedcolortextures;
 
 		lastState.Flags = ~rendercommands[0].StateFlags;	// Force ALL flags to be considered 'changed'.
 		lastState.DepthFunc = INT_MIN;						// Something totally invalid.
