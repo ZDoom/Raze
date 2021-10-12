@@ -1128,10 +1128,10 @@ static void windGenDoVerticalWind(int factor, int nSector)
         }
 
         val = -MulScale(factor * 64, 0x10000, 16);
-        if (zvel[pSpr->index] >= 0) zvel[pSpr->index] += val;
-        else zvel[pSpr->index] = val;
+        if (actor->zvel() >= 0) actor->zvel() += val;
+        else actor->zvel() = val;
 
-        pSpr->z += zvel[pSpr->index] >> 12;
+        pSpr->z += actor->zvel() >> 12;
 
     }
 
