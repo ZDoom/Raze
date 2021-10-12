@@ -1149,12 +1149,13 @@ void nnExtProcessSuperSprites()
     if (gTrackingCondsCount > 0) {
         for (int i = 0; i < gTrackingCondsCount; i++) {
 
-            TRCONDITION* pCond = &gCondition[i]; XSPRITE* pXCond = &xsprite[pCond->xindex];
+            TRCONDITION* pCond = &gCondition[i];
+			XSPRITE* pXCond = &xsprite[pCond->xindex];
             if (pXCond->locked || pXCond->isTriggered || ++pXCond->busy < pXCond->busyTime)
                 continue;
 
-            if (pXCond->data1 >= kCondGameBase && pXCond->data1 < kCondGameMax) {
-
+            if (pXCond->data1 >= kCondGameBase && pXCond->data1 < kCondGameMax)
+            {
                 EVENT evn;
                 evn.index_ = 0; 
                 evn.actor = &bloodActors[pXCond->reference];
@@ -1231,9 +1232,7 @@ void nnExtProcessSuperSprites()
             XSECTOR* pXSector = (pSect->extra > 0) ? &xsector[pSect->extra] : NULL;
             if ((fWindAlways) || (pXSector && !pXSector->locked && (pXSector->windAlways || pXSector->busy)))
                 windGenDoVerticalWind(pXWind->sysData2, pWind->sectnum);
-
         }
-
     }
 
     // process additional proximity sprites
@@ -1248,7 +1247,7 @@ void nnExtProcessSuperSprites()
             if (!pXProxSpr->Proximity || (!pXProxSpr->Interrutable && pXProxSpr->state != pXProxSpr->restState) || pXProxSpr->locked == 1
                 || pXProxSpr->isTriggered) continue;  // don't process locked or triggered sprites
 
-            int okDist = (IsDudeSprite(pProxSpr)) ? 96 : ClipLow(pProxSpr->clipdist * 3, 32);
+            int okDist = (gProxySpritesList[i]->IsDudeActor()) ? 96 : ClipLow(pProxSpr->clipdist * 3, 32);
             int x = pProxSpr->x;
             int y = pProxSpr->y;
             int z = pProxSpr->z;	
@@ -1272,16 +1271,15 @@ void nnExtProcessSuperSprites()
                 for (int a = connecthead; a >= 0; a = connectpoint2[a])
                 {
                     PLAYER* pPlayer = &gPlayer[a];
-                    if (!pPlayer || !xsprIsFine(pPlayer->pSprite) || pPlayer->pXSprite->health <= 0)
+                    if (!pPlayer || !pPlayer->actor()->hasX() || pPlayer->pXSprite->health <= 0)
                         continue;
 
-                    if (gPlayer[a].pXSprite->health > 0 && CheckProximity(gPlayer[a].pSprite, x, y, z, sectnum, okDist)) {
+                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->pSprite, x, y, z, sectnum, okDist))
+                    {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
                     }
-
                 }
-
             }
         }
     }
@@ -1315,10 +1313,10 @@ void nnExtProcessSuperSprites()
             int sectnum = pSightSpr->sectnum;
             int ztop2, zbot2;
             
-            for (int a = connecthead; a >= 0; a = connectpoint2[a]) {
-                
+            for (int a = connecthead; a >= 0; a = connectpoint2[a])
+            {
                 PLAYER* pPlayer = &gPlayer[a];
-                if (!pPlayer || !xsprIsFine(pPlayer->pSprite) || pPlayer->pXSprite->health <= 0)
+                if (!pPlayer || !pPlayer->actor()->hasX() || pPlayer->pXSprite->health <= 0)
                     continue;
 
                 spritetype* pPlaySprite = pPlayer->pSprite;
@@ -1350,9 +1348,7 @@ void nnExtProcessSuperSprites()
                             break;
                         }
                     }
-
                 }
-
             }
         }
     }
@@ -1389,7 +1385,7 @@ void nnExtProcessSuperSprites()
             int airVel = debrisactor->spriteMass.airVel;
 
             int top, bottom;
-            GetSpriteExtents(pDebris, &top, &bottom);
+            GetActorExtents(debrisactor, &top, &bottom);
             
             if (pXSector != nullptr)
             {
@@ -1420,16 +1416,16 @@ void nnExtProcessSuperSprites()
                 for (int a = connecthead; a != -1; a = connectpoint2[a]) 
                 {
                     pPlayer = &gPlayer[a];
-                    if ((gSpriteHit[pPlayer->pSprite->extra].hit & 0xc000) == 0xc000  && (gSpriteHit[pPlayer->pSprite->extra].hit & 0x3fff) == nDebris) {
-                        
-                            int nSpeed = approxDist(xvel[pPlayer->pSprite->index], yvel[pPlayer->pSprite->index]);
+                    auto pact = pPlayer->actor();
+                    if ((pact->hit().hit & 0xc000) == 0xc000 && (pact->hit().hit & 0x3fff) == nDebris) 
+                    {
+                        int nSpeed = approxDist(pact->xvel(), pact->yvel());
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
 
                             debrisactor->xvel() += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
                             debrisactor->yvel() += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
-                            
-                            gSpriteHit[pDebris->extra].hit = pPlayer->pSprite->index | 0xc000;
 
+                        debrisactor->hit().hit = pPlayer->pSprite->index | 0xc000;
                     }
                 }
             }
@@ -1461,7 +1457,7 @@ void nnExtProcessSuperSprites()
             int cz = getceilzofslope(nSector, pDebris->x, pDebris->y);
             int fz = getflorzofslope(nSector, pDebris->x, pDebris->y);
 
-            GetSpriteExtents(pDebris, &top, &bottom);
+            GetActorExtents(debrisactor, &top, &bottom);
             if (fz >= bottom && gLowerLink[nSector] < 0 && !(sector[nSector].ceilingstat & 0x1)) pDebris->z += ClipLow(cz - top, 0);
             if (cz <= top && gUpperLink[nSector] < 0 && !(sector[nSector].floorstat & 0x1)) pDebris->z += ClipHigh(fz - bottom, 0);
         }
