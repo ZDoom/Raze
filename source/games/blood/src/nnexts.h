@@ -364,7 +364,7 @@ bool isGrown(spritetype* pSprite);
 bool isShrinked(spritetype* pSprite);
 bool IsBurningDude(spritetype* pSprite);
 bool IsKillableDude(spritetype* pSprite);
-bool isActive(int nSprite);
+bool isActive(DBloodActor* nSprite);
 int getDataFieldOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex);
 bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex, int value);
 bool incDecGoalValueIsReached(XSPRITE* pXSprite);

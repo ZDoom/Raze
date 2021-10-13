@@ -6729,6 +6729,12 @@ void useSectorLigthChanger(DBloodActor* sourceactor, XSECTOR* pXSector)
     }
 }
 
+inline bool isActive(int nSprite)
+{
+    return isActive(&bloodActors[nSprite]);
+}
+
+
 //---------------------------------------------------------------------------
 //
 //
@@ -6822,7 +6828,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
         if (!IsDudeSprite(pTarget) || pXTarget->health < 1 || !aiFightDudeCanSeeTarget(actor, pDudeInfo, &bloodActors[pTarget->index])) 
         {
-            aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+            aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
         }
         // dude attack or attacked by target that does not fit by data id?
         else if (pXSource->data1 != 666 && pXTarget->data1 != pXSource->data1) 
@@ -6830,7 +6836,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             if (aiFightDudeIsAffected(&bloodActors[pXTarget->reference])) {
 
                 // force stop attack target
-                aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+                aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
                 if (pXSprite->burnSource == pTarget->index) 
                 {
                     pXSprite->burnTime = 0;
@@ -6852,7 +6858,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
             // heal dude
             int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
-            if (pXSprite->health < (unsigned)startHp) actHealDude(&bloodActors[pXSprite->reference], receiveHp, startHp);
+            if (pXSprite->health < (unsigned)startHp) actHealDude(actor, receiveHp, startHp);
 
             // heal mate
             startHp = (pXMate->sysData2 > 0) ? ClipRange(pXMate->sysData2 << 4, 1, 65535) : getDudeInfo(pMate->type)->startHealth << 4;
@@ -6895,7 +6901,7 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
         if (pXSprite->target_i >= 0 && aiFightGetTargetDist(actor, pDudeInfo, &bloodActors[pXSprite->target_i]) < mDist) 
         {
-            if (!isActive(pSprite->index)) aiActivateDude(actor);
+            if (!isActive(actor)) aiActivateDude(actor);
             return;
         }
         // lets try to look for target that fits better by distance
@@ -6918,8 +6924,8 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
                 // Change target for dude
                 aiSetTarget_(pXSprite, pTarget->index);
-                if (!isActive(pSprite->index))
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                if (!isActive(actor))
+                    aiActivateDude(actor);
 
                 // ...and change target of target to dude to force it fight
                 if (pXSource->data3 > 0 && pXTarget->target_i != pSprite->index) 
@@ -6963,8 +6969,8 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             {
                 // Change target for dude
                 aiSetTarget_(pXSprite, pTarget->index);
-                if (!isActive(pSprite->index))
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                if (!isActive(actor))
+                    aiActivateDude(actor);
 
                 // ...and change target of target to dude to force it fight
                 if (pXSource->data3 > 0 && pXTarget->target_i != pSprite->index) {
@@ -6982,7 +6988,8 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     }
 
     // got no target - let's ask mates if they have targets
-    if ((pXSprite->target_i < 0 || playeractor != NULL) && pXSource->data2 == 1 && (PlayClock & 64) != 0) {
+    if ((actor->GetTarget() == nullptr || playeractor != nullptr) && pXSource->data2 == 1 && (PlayClock & 64) != 0) 
+    {
         DBloodActor* pMateTargetActor = aiFightGetMateTargets(actor);
         if (pMateTargetActor != nullptr && pMateTargetActor->hasX()) 
         {
@@ -6999,8 +7006,8 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 }
 
                 aiSetTarget_(pXSprite, pMateTarget->index);
-                if (!isActive(pSprite->index))
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                if (!isActive(actor))
+                    aiActivateDude(actor);
                 return;
 
                 // try walk in mate direction in case if not see the target
@@ -7012,8 +7019,8 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
                 pXSprite->targetX = pMate->x;
                 pXSprite->targetY = pMate->y;
                 pXSprite->targetZ = pMate->z;
-                if (!isActive(pSprite->index))
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                if (!isActive(actor))
+                    aiActivateDude(actor);
                 return;
             }
         }
@@ -7269,12 +7276,13 @@ bool isShrinked(spritetype* pSprite) {
     else return false;
 }
 
-bool isActive(int nSprite) {
-    if (sprite[nSprite].extra < 0 || sprite[nSprite].extra >= kMaxXSprites)
+bool isActive(DBloodActor* actor) 
+{
+    if (!actor->hasX())
         return false;
 
-    XSPRITE* pXDude = &xsprite[sprite[nSprite].extra];
-    switch (pXDude->aiState->stateType) {
+    switch (actor->x().aiState->stateType) 
+    {
     case kAiStateIdle:
     case kAiStateGenIdle:
     case kAiStateSearch:
