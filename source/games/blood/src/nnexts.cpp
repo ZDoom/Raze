@@ -4514,23 +4514,23 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
 //
 //---------------------------------------------------------------------------
 
-bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
+{
+    auto pXCond = &aCond->x();
 
-    auto aCond = &bloodActors[pXCond->reference];
     int var = -1, var2 = -1, var3 = -1; PLAYER* pPlayer = NULL; bool retn = false;
     int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
     
-    int objType = -1; int objIndex = -1;
+    int objType = -1, objIndex = -1;
     DBloodActor* objActor = nullptr;
     condUnserialize(aCond, &objType, &objIndex, &objActor);
 
-    if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
-        condError(aCond, "Object #%d (objType: %d) is not a sprite!", cond, objIndex, objType);
+    if (objType != OBJ_SPRITE || !objActor)
+        condError(aCond, "Object #%d (objType: %d) is not a sprite!", cond, objActor->GetIndex(), objType);
 
-    spritetype* pSpr = &sprite[objIndex];
-    XSPRITE* pXSpr = (xspriRangeIsFine(pSpr->extra)) ? &xsprite[pSpr->extra] : NULL;
-    DBloodActor* spractor = &bloodActors[pXSpr->reference];
+    spritetype* pSpr = &objActor->s();
+    XSPRITE* pXSpr = objActor->hasX()? &objActor->x() : nullptr;
     
     if (cond < (kCondRange >> 1)) 
     {
@@ -4544,36 +4544,36 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
             case 15:
                 if (!spriRangeIsFine(pSpr->owner)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, pSpr->owner);
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, objActor->GetOwner());
                 return true;
             case 20: // stays in a sector?
                 if (!sectRangeIsFine(pSpr->sectnum)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
+            else if (PUSH) condPush(aCond, OBJ_SECTOR, pSpr->sectnum, nullptr);
                 return true;
             case 25:
             switch (arg1)
             {
-                    case 0: return (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]);
-                    case 1: return (xvel[pSpr->index]);
-                    case 2: return (yvel[pSpr->index]);
-                    case 3: return (zvel[pSpr->index]);
+            case 0: return (objActor->xvel() || objActor->yvel() || objActor->zvel());
+            case 1: return (objActor->xvel());
+            case 2: return (objActor->yvel());
+            case 3: return (objActor->zvel());
                 }
                 break;
             case 30:
-                if (!spriteIsUnderwater(spractor) && !spriteIsUnderwater(spractor, true)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
+                if (!spriteIsUnderwater(objActor) && !spriteIsUnderwater(objActor, true)) return false;
+            else if (PUSH) condPush(aCond, OBJ_SECTOR, pSpr->sectnum, nullptr);
                 return true;
         case 31:
             if (arg1 == -1)
             {
                 for (var = 0; var < kDmgMax; var++)
                 {
-                        if (!nnExtIsImmune(spractor, arg1, 0))
+                        if (!nnExtIsImmune(objActor, arg1, 0))
                             return false;
                     }
                     return true;
                 }
-                return nnExtIsImmune(spractor, arg1, 0);
+                return nnExtIsImmune(objActor, arg1, 0);
 
             case 35: // hitscan: ceil?
             case 36: // hitscan: floor?
@@ -4588,8 +4588,8 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
                     var = HitScan(pSpr, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
-                else if (IsDudeSprite(pSpr))
-                var = HitScan(pSpr, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), (!spractor->hasX()) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
+            else if (objActor->IsDudeActor())
+                var = HitScan(pSpr, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
                 else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) {
                     
                     var3 = (var2 & 0x0008) ? 0x10000 << 1 : -(0x10000 << 1);
@@ -4613,25 +4613,25 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                     if (!PUSH) return retn;
                 switch (var)
                 {
-                        case 0: case 4: condPush(pXCond, OBJ_WALL, gHitInfo.hitwall);       break;
-                        case 1: case 2: condPush(pXCond, OBJ_SECTOR, gHitInfo.hitsect);     break;
-                    case 3:         condPush(pXCond, OBJ_SPRITE, gHitInfo.hitactor? gHitInfo.hitactor->s().index : -1);   break;
+                case 0: case 4: condPush(aCond, OBJ_WALL, gHitInfo.hitwall, nullptr);       break;
+                case 1: case 2: condPush(aCond, OBJ_SECTOR, gHitInfo.hitsect, nullptr);     break;
+                case 3:         condPush(aCond, OBJ_SPRITE, 0, gHitInfo.hitactor);   break;
                     }
 
                 }
                 return retn;
-            case 45: // this sprite is a target of some dude?
-                int nSprite;
-                StatIterator it(kStatDude);
-                while ((nSprite = it.NextIndex()) >= 0)
-                {
-                    if (pSpr->index == nSprite) continue;
 
-                    spritetype* pDude = &sprite[nSprite];
-                    if (IsDudeSprite(pDude) && xspriRangeIsFine(pDude->extra)) {
-                        XSPRITE* pXDude = &xsprite[pDude->extra];
-                        if (pXDude->health <= 0 || pXDude->target_i != pSpr->index) continue;
-                        else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
+            case 45: // this sprite is a target of some dude?
+            BloodStatIterator it(kStatDude);
+            while (auto iactor = it.Next())
+                {
+                if (objActor == iactor) continue;
+
+                if (iactor->IsDudeActor() && iactor->hasX())
+                {
+                    XSPRITE* pXDude = &iactor->x();
+                    if (pXDude->health <= 0 || iactor->GetTarget() != objActor) continue;
+                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, iactor);
                         return true;
                     }
                 }
@@ -4644,21 +4644,21 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         {
             default: break;
             case 50: // compare hp (in %)
-                if (IsDudeSprite(pSpr)) var = (pXSpr->sysData2 > 0) ? ClipRange(pXSpr->sysData2 << 4, 1, 65535) : getDudeInfo(pSpr->type)->startHealth << 4;
+                if (objActor->IsDudeActor()) var = (pXSpr->sysData2 > 0) ? ClipRange(pXSpr->sysData2 << 4, 1, 65535) : getDudeInfo(pSpr->type)->startHealth << 4;
                 else if (pSpr->type == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax) var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
                 return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
-                if (gSpriteHit[pSpr->extra].ceilhit.type != kHitSector) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].ceilhit.index);
+                if (objActor->hit().ceilhit.type != kHitSector) return false;
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit().ceilhit.index, nullptr);
                 return true;
             case 56: // touching floor of sector?
-                if (gSpriteHit[pSpr->extra].florhit.type != kHitSector) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].florhit.index);
+                if (objActor->hit().florhit.type != kHitSector) return false;
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit().florhit.index, nullptr);
                 return true;
             case 57: // touching walls of sector?
-                if (gSpriteHit[pSpr->extra].hit.type != kHitWall) return false;
-                else if (PUSH) condPush(pXCond, OBJ_WALL, gSpriteHit[pSpr->extra].hit.index);
+                if (objActor->hit().hit.type != kHitWall) return false;
+                else if (PUSH) condPush(aCond, OBJ_WALL, objActor->hit().hit.index, nullptr);
                 return true;
             case 58: // touching another sprite?
             {
@@ -4667,70 +4667,71 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 {
                     case 0:
                     case 1:
-                    if (gSpriteHit[pSpr->extra].florhit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].florhit.actor;
+                    if (objActor->hit().florhit.type == kHitSprite) actorvar = objActor->hit().florhit.actor;
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 2:
-                    if (gSpriteHit[pSpr->extra].hit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].hit.actor;
+                    if (objActor->hit().hit.type == kHitSprite) actorvar = objActor->hit().hit.actor;
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 3:
-                    if (gSpriteHit[pSpr->extra].ceilhit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].ceilhit.actor;
+                    if (objActor->hit().ceilhit.type == kHitSprite) actorvar = objActor->hit().ceilhit.actor;
                         break;
                 }
                 if (actorvar == nullptr) 
                 { 
-                    // check if something touching this sprite
+                    // check if something is touching this sprite
                     for (int i = kMaxXSprites - 1, idx = i; i > 0; idx = xsprite[--i].reference) 
                     {
-                        if (idx < 0 || (sprite[idx].flags & kHitagRespawn)) continue;
+                        if (idx < 0) continue;
                         auto iactor = &bloodActors[idx];
-                        auto objactor = &bloodActors[objIndex];
-                        auto& hit = gSpriteHit[i];
-                        switch (arg3) {
+
+                        if (iactor->s().flags & kHitagRespawn) continue;
+                        auto& hit = iactor->hit();
+                        switch (arg3) 
+                        {
                             case 0:
                             case 1:
-                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.actor == objactor) actorvar = iactor;
+                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.actor == objActor) actorvar = iactor;
                             if (arg3 || actorvar) break;
                             [[fallthrough]];
                             case 2:
-                            if (hit.hit.type == kHitSprite && hit.hit.actor == objactor) actorvar = iactor;
+                            if (hit.hit.type == kHitSprite && hit.hit.actor == objActor) actorvar = iactor;
                             if (arg3 || actorvar) break;
                             [[fallthrough]];
                             case 3:
-                            if (hit.florhit.type == kHitSprite && hit.florhit.actor == objactor) actorvar = iactor;
+                            if (hit.florhit.type == kHitSprite && hit.florhit.actor == objActor) actorvar = iactor;
                                 break;
                         }
                     }
                 }
                 if (actorvar == nullptr) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, actorvar->s().index);
+                else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, actorvar);
                 return true;
             }
+
             case 65: // compare burn time (in %)
-                var = (IsDudeSprite(pSpr)) ? 2400 : 1200;
+                var = (objActor->IsDudeActor()) ? 2400 : 1200;
                 if (!condCmp((kPercFull * pXSpr->burnTime) / var, arg1, arg2, cmpOp)) return false;
-                else if (PUSH && spriRangeIsFine(pXSpr->burnSource)) condPush(pXCond, OBJ_SPRITE, pXSpr->burnSource);
+                else if (PUSH && spriRangeIsFine(pXSpr->burnSource)) condPush(aCond, OBJ_SPRITE, 0, objActor->GetBurnSource());
                 return true;
+
             case 66: // any flares stuck in this sprite?
             {
-                int nSprite;
-                StatIterator it(kStatFlare);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodStatIterator it(kStatFlare);
+                while (auto flareactor = it.Next())
                 {
-                    spritetype* pFlare = &sprite[nSprite];
-                    if (!xspriRangeIsFine(pFlare->extra) || (pFlare->flags & kHitagFree))
+                    if (!flareactor->hasX() || (flareactor->s().flags & kHitagFree))
                         continue;
 
-                    XSPRITE* pXFlare = &xsprite[pFlare->extra];
-                    if (!spriRangeIsFine(pXFlare->target_i) || pXFlare->target_i != objIndex) continue;
-                    else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
+                    if (flareactor->GetTarget() != objActor) continue;
+                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, flareactor);
                     return true;
                 }
                 return false;
             }
             case 70:
-                return condCmp(getSpriteMassBySize(spractor), arg1, arg2, cmpOp); // mass of the sprite in a range?
+                return condCmp(getSpriteMassBySize(objActor), arg1, arg2, cmpOp); // mass of the sprite in a range?
         }
     }
     else 
@@ -6321,8 +6322,8 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
         else if (cond >= kCondSectorBase && cond < kCondSectorMax) ok = condCheckSector(sourceactor, comOp, PUSH);
         else if (cond >= kCondPlayerBase && cond < kCondPlayerMax) ok = condCheckPlayer(sourceactor, comOp, PUSH);
         else if (cond >= kCondDudeBase && cond < kCondDudeMax) ok = condCheckDude(sourceactor, comOp, PUSH);
-        else if (cond >= kCondSpriteBase && cond < kCondSpriteMax) ok = condCheckSprite(pXSource, comOp, PUSH);
-        else condError(sourceactor, "Unexpected condition id %d!", cond);
+        else if (cond >= kCondSpriteBase && cond < kCondSpriteMax) ok = condCheckSprite(sourceactor, comOp, PUSH);
+        else condError(sourceactor,"Unexpected condition id %d!", cond);
 
         pXSource->state = (ok ^ RVRS);
         
