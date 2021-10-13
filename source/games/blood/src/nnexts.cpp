@@ -6729,12 +6729,6 @@ void useSectorLigthChanger(DBloodActor* sourceactor, XSECTOR* pXSector)
     }
 }
 
-inline bool isActive(int nSprite)
-{
-    return isActive(&bloodActors[nSprite]);
-}
-
-
 //---------------------------------------------------------------------------
 //
 //
@@ -6763,8 +6757,6 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     auto pXSource = &sourceactor->x();
     XSPRITE* pXSprite = &actor->x();
 
-    spritetype* pTarget = NULL; 
-    XSPRITE* pXTarget = NULL; 
     int receiveHp = 33 + Random(33);
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); 
     int matesPerEnemy = 1;
@@ -6820,8 +6812,8 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     auto targetactor = actor->GetTarget();
     if (targetactor && targetactor->hasX() && playeractor == nullptr) 
     {
-        pTarget = &targetactor->s(); 
-        pXTarget = &targetactor->x();
+        auto pTarget = &targetactor->s(); 
+        auto pXTarget = &targetactor->x();
 
         if (aiFightUnitCanFly(actor) && aiFightIsMeleeUnit(targetactor) && !aiFightUnitCanFly(targetactor))
             pSprite->flags |= 0x0002;
@@ -7005,22 +6997,22 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             {
                 if (pXMateTarget->target_i < 0) 
                 {
-                    aiSetTarget_(pXMateTarget, pSprite->index);
-                    if (IsDudeSprite(pMateTarget) && !isActive(pMateTarget->index))
-                        aiActivateDude(&bloodActors[pXMateTarget->reference]);
+                    aiSetTarget(pMateTargetActor, actor);
+                    if (pMateTargetActor->IsDudeActor() && !isActive(pMateTargetActor))
+                        aiActivateDude(pMateTargetActor);
                 }
 
-                aiSetTarget_(pXSprite, pMateTarget->index);
+                aiSetTarget(actor, pMateTargetActor);
                 if (!isActive(actor))
                     aiActivateDude(actor);
                 return;
 
                 // try walk in mate direction in case if not see the target
             } 
-			else if (pXMateTarget->target_i >= 0 && aiFightDudeCanSeeTarget(actor, pDudeInfo, &bloodActors[pXMateTarget->target_i])) 
+            else if (pMateTargetActor->GetTarget() && aiFightDudeCanSeeTarget(actor, pDudeInfo, pMateTargetActor->GetTarget()))
             {
-                spritetype* pMate = &sprite[pXMateTarget->target_i];
-                pXSprite->target_i = pMateTarget->index;
+                actor->SetTarget(pMateTargetActor);
+                spritetype* pMate = &pMateTargetActor->GetTarget()->s();
                 pXSprite->targetX = pMate->x;
                 pXSprite->targetY = pMate->y;
                 pXSprite->targetZ = pMate->z;
