@@ -6856,7 +6856,9 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
         }
         else if (pXSource->data2 == 1 && pXSprite->rxID == pXTarget->rxID) 
         {
-            spritetype* pMate = pTarget; XSPRITE* pXMate = pXTarget;
+            auto mateactor = targetactor;
+            spritetype* pMate = pTarget; 
+            XSPRITE* pXMate = pXTarget;
 
             // heal dude
             int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
@@ -6864,42 +6866,44 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 
             // heal mate
             startHp = (pXMate->sysData2 > 0) ? ClipRange(pXMate->sysData2 << 4, 1, 65535) : getDudeInfo(pMate->type)->startHealth << 4;
-            if (pXMate->health < (unsigned)startHp) actHealDude(&bloodActors[pXMate->reference], receiveHp, startHp);
+            if (pXMate->health < (unsigned)startHp) actHealDude(mateactor, receiveHp, startHp);
 
-            if (pXMate->target_i > -1 && sprite[pXMate->target_i].extra >= 0) 
+            auto matetarget = mateactor->GetTarget();
+            if (matetarget != nullptr && matetarget->hasX())
             {
-                pTarget = &sprite[pXMate->target_i];
+                auto pMateTarget = &matetarget->s();
                 // force mate stop attack dude, if he does
-                if (pXMate->target_i == pSprite->index) 
+                if (matetarget == actor)
                 {
-                    aiSetTarget_(pXMate, pMate->x, pMate->y, pMate->z);
+                    aiSetTarget(mateactor, pMate->x, pMate->y, pMate->z);
                 }
-				else if (pXSprite->rxID != xsprite[pTarget->extra].rxID) 
+                else if (pXSprite->rxID != matetarget->x().rxID) 
                 {
                     // force dude to attack same target that mate have
-                    aiSetTarget_(pXSprite, pTarget->index);
+                    aiSetTarget(actor, matetarget);
                     return;
                 }
                 else 
                 {
                     // force mate to stop attack another mate
-                    aiSetTarget_(pXMate, pMate->x, pMate->y, pMate->z);
+                    aiSetTarget(mateactor, pMate->x, pMate->y, pMate->z);
                 }
             }
 
             // force dude stop attack mate, if target was not changed previously
-            if (pXSprite->target_i == pMate->index)
-                aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+            if (actor == mateactor)
+                aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
 
 
         }
         // check if targets aims player then force this target to fight with dude
         else if (aiFightTargetIsPlayer(actor) != nullptr)
         {
-            aiSetTarget_(pXTarget, pSprite->index);
+            aiSetTarget(targetactor, actor);
         }
 
-        int mDist = 3; if (aiFightIsMeleeUnit(actor)) mDist = 2;
+        int mDist = 3; 
+        if (aiFightIsMeleeUnit(actor)) mDist = 2;
 
         if (pXSprite->target_i >= 0 && aiFightGetTargetDist(actor, pDudeInfo, &bloodActors[pXSprite->target_i]) < mDist) 
         {
