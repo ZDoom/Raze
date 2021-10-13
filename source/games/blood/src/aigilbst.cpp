@@ -173,7 +173,7 @@ static void gillThinkChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->dudeSlope = DivScale(pTarget->z - pSprite->z, nDist, 10);
+				actor->dudeSlope = nDist == 0 ? 0 : DivScale(pTarget->z - pSprite->z, nDist, 10);
 				if (nDist < 921 && abs(nDeltaAngle) < 28)
 				{
 					XSECTOR* pXSector;

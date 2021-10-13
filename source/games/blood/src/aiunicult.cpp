@@ -568,7 +568,7 @@ static void unicultThinkChase(DBloodActor* actor)
         if ((PlayClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(actor, false))
             playGenDudeSound(actor, kGenDudeSndChasing);
 
-        actor->dudeSlope = DivScale(pTarget->z - pSprite->z, dist, 10);
+        actor->dudeSlope = dist == 0 ? 0 : DivScale(pTarget->z - pSprite->z, dist, 10);
 
         int curWeapon = actor->genDudeExtra().curWeapon; 
         int weaponType = actor->genDudeExtra().weaponType;

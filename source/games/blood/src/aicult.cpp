@@ -297,7 +297,7 @@ static void cultThinkChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->dudeSlope = DivScale(pTarget->z - pSprite->z, nDist, 10);
+				actor->dudeSlope = nDist == 0 ? 0 : DivScale(pTarget->z - pSprite->z, nDist, 10);
 				switch (pSprite->type) {
 				case kDudeCultistTommy:
 					if (nDist < 0x1e00 && nDist > 0xe00 && abs(nDeltaAngle) < 85 && !TargetNearExplosion(pTarget)

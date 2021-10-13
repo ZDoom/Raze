@@ -281,7 +281,7 @@ static void beastThinkChase(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->dudeSlope = DivScale(pTarget->z - pSprite->z, nDist, 10);
+				actor->dudeSlope = nDist == 0? 0 : DivScale(pTarget->z - pSprite->z, nDist, 10);
 				if (nDist < 0x1400 && nDist > 0xa00 && abs(nDeltaAngle) < 85 && (pTarget->flags & 2)
 					&& IsPlayerSprite(pTarget) && Chance(0x8000))
 				{
