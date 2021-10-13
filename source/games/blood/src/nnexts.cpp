@@ -6817,35 +6817,37 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
     }
 
     int maxAlarmDudes = 8 + Random(8);
-    if (pXSprite->target_i > -1 && sprite[pXSprite->target_i].extra > -1 && playeractor == nullptr) {
-        pTarget = &sprite[pXSprite->target_i]; 
-        pXTarget = &xsprite[pTarget->extra];
+    auto targetactor = actor->GetTarget();
+    if (targetactor && targetactor->hasX() && playeractor == nullptr) 
+    {
+        pTarget = &targetactor->s(); 
+        pXTarget = &targetactor->x();
 
-        if (aiFightUnitCanFly(actor) && aiFightIsMeleeUnit(&bloodActors[pXSprite->target_i]) && !aiFightUnitCanFly(&bloodActors[pXSprite->target_i]))
+        if (aiFightUnitCanFly(actor) && aiFightIsMeleeUnit(targetactor) && !aiFightUnitCanFly(targetactor))
             pSprite->flags |= 0x0002;
         else if (aiFightUnitCanFly(actor))
             pSprite->flags &= ~0x0002;
 
-        if (!IsDudeSprite(pTarget) || pXTarget->health < 1 || !aiFightDudeCanSeeTarget(actor, pDudeInfo, &bloodActors[pTarget->index])) 
+        if (!targetactor->IsDudeActor() || pXTarget->health < 1 || !aiFightDudeCanSeeTarget(actor, pDudeInfo, targetactor))
         {
             aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
         }
         // dude attack or attacked by target that does not fit by data id?
         else if (pXSource->data1 != 666 && pXTarget->data1 != pXSource->data1) 
         {
-            if (aiFightDudeIsAffected(&bloodActors[pXTarget->reference])) {
-
+            if (aiFightDudeIsAffected(targetactor)) 
+            {
                 // force stop attack target
                 aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
-                if (pXSprite->burnSource == pTarget->index) 
+                if (actor->GetBurnSource() == targetactor) 
                 {
                     pXSprite->burnTime = 0;
                     pXSprite->burnSource = -1;
                 }
 
                 // force stop attack dude
-                aiSetTarget_(pXTarget, pTarget->x, pTarget->y, pTarget->z);
-                if (pXTarget->burnSource == pSprite->index) 
+                aiSetTarget(targetactor, pTarget->x, pTarget->y, pTarget->z);
+                if (targetactor->GetBurnSource() == actor) 
                 {
                     pXTarget->burnTime = 0;
                     pXTarget->burnSource = -1;
