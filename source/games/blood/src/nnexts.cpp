@@ -3721,11 +3721,13 @@ void condPush(DBloodActor* actor, int objType, int objIndex, DBloodActor* objAct
     case OBJ_SPRITE: r = kCondSerialSprite + objActor->GetIndex(); break;
     }
     if (r == -1) I_Error("Unknown object type %d, index %d", objType, objIndex);
+    // condition-target
     else actor->x().targetX = r;
     
 }
 
 void condUnserialize(DBloodActor* serialActor, int* objType, int* objIndex, DBloodActor** objActor) {
+    // condition-target
     int serial = serialActor->x().targetX;
     if (serial >= kCondSerialSector && serial < kCondSerialWall) {
         
@@ -3760,11 +3762,13 @@ bool condPush(XSPRITE* pXSprite, int objType, int objIndex) {
 
 void condBackup(DBloodActor* actor)
 {
+    // condition-target
     actor->x().targetY = actor->x().targetX;
 }
 
 void condRestore(DBloodActor* actor)
 {
+    // condition-target
     actor->x().targetX = actor->x().targetY;
 }
 
@@ -4779,6 +4783,8 @@ void condUpdateObjectIndex(DBloodActor* oldActor, DBloodActor* newActor)
     while (auto iactor = it.Next())
     {
         XSPRITE* pXCond = &iactor->x();
+        // condition-target
+        // condition-target
         if (pXCond->targetX == oldSerial) pXCond->targetX = newSerial;
         if (pXCond->targetY == oldSerial) pXCond->targetY = newSerial;
 
@@ -6300,6 +6306,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
     } 
     else  // or grab serials of objects from previous conditions
     {
+        // condition-target
         pXSource->targetX = event.actor->x().targetX;
         pXSource->targetY = event.actor->x().targetY;
 
@@ -6363,6 +6370,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
             }
 
             // send it for initial object
+            // condition-target
             if ((pSource->flags & kModernTypeFlag2) && (pXSource->targetX != pXSource->targetY || !(pSource->hitag & kModernTypeFlag1))) {
                 DBloodActor* objActor = nullptr;
                 condUnserialize(sourceactor, &objType, &objIndex, &objActor);
