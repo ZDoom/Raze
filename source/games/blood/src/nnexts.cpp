@@ -3754,12 +3754,6 @@ void condUnserialize(DBloodActor* serialActor, int* objType, int* objIndex, DBlo
     }
 }
 
-bool condPush(XSPRITE* pXSprite, int objType, int objIndex) {
-    auto actor = &bloodActors[pXSprite->reference];
-    condPush(actor, objType, objIndex, &bloodActors[objIndex]);
-    return true;
-}
-
 void condBackup(DBloodActor* actor)
 {
     // condition-target
@@ -4436,7 +4430,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                 {
                     auto var = aiPatrolMarkerBusy(objActor, targ);
                     if (!var) return false;
-                    else if (PUSH) condPush(pXCond, OBJ_SPRITE, var->s().index);
+                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, var);
                     break;
                 }
                 case 11:
