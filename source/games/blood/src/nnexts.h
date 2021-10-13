@@ -319,7 +319,7 @@ bool aiFightDudeIsAffected(DBloodActor* pXDude);
 bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetactor, int allow);
 void aiFightActivateDudes(int rx);
 //  -------------------------------------------------------------------------   //
-void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex);
+void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor);
 void damageSprites(DBloodActor* pXSource, DBloodActor* pSprite);
 void useRandomItemGen(DBloodActor* pSource);
 void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor);
