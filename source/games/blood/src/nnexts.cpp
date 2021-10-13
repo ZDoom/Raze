@@ -6478,6 +6478,12 @@ void sprite2sectorSlope(spritetype* pSprite, sectortype* pSector, char rel, bool
     if (forcez) pSprite->z = z;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
 
     int slope, oslope, i;
@@ -6487,11 +6493,12 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
     if (pSource->flags & kModernTypeFlag1) slope = ClipRange(pXSource->data2, -32767, 32767);
     else slope = (32767 / kPercFull) * ClipRange(pXSource->data2, -kPercFull, kPercFull);
 
-    if (objType == OBJ_SECTOR) {
-    
+    if (objType == OBJ_SECTOR) 
+    {
         sectortype* pSect = &sector[objIndex];
 
-        switch (pXSource->data1) {
+        switch (pXSource->data1)
+        {
             case 2:
             case 0:
             if (slope == 0) pSect->floorstat &= ~0x0002;
@@ -6499,12 +6506,12 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
                     pSect->floorstat |= 0x0002;
 
             // just set floor slope
-            if (flag2) {
-
+            if (flag2)
+            {
                 pSect->floorheinum = slope;
-
-            } else {
-
+            }
+            else
+            {
                 // force closest floor aligned sprites to inherit slope of the sector's floor
                 for (i = headspritesect[objIndex], oslope = pSect->floorheinum; i != -1; i = nextspritesect[i]) {
                     if (!(sprite[i].cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
@@ -6537,12 +6544,12 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
                     pSect->ceilingstat |= 0x0002;
 
             // just set ceiling slope
-            if (flag2) {
-
+            if (flag2)
+            {
                 pSect->ceilingheinum = slope;
-
-            } else {
-
+            }
+            else
+            { 
                 // force closest floor aligned sprites to inherit slope of the sector's ceiling
                 for (i = headspritesect[objIndex], oslope = pSect->ceilingheinum; i != -1; i = nextspritesect[i]) {
                     if (!(sprite[i].cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
@@ -6580,22 +6587,23 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
                 sprite[i].flags |= kPhysFalling;
                 zvel[i]++;
                 }
-
             }
-
-    } else if (objType == OBJ_SPRITE) {
-        
+    } 
+    else if (objType == OBJ_SPRITE) 
+    {
         spritetype* pSpr = &sprite[objIndex];
         if (!(pSpr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) pSpr->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
         if ((pSpr->cstat & CSTAT_SPRITE_ALIGNMENT_SLOPE) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
             pSpr->cstat |= CSTAT_SPRITE_ALIGNMENT_SLOPE;
 
-        switch (pXSource->data4) {
+        switch (pXSource->data4) 
+        {
             case 1:
             case 2:
             case 3:
                 if (!sectRangeIsFine(pSpr->sectnum)) break;
-                switch (pXSource->data4) {
+                switch (pXSource->data4) 
+                {
                     case 1: sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 0, flag2); break;
                     case 2: sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 1, flag2); break;
                     case 3:
