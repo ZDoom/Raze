@@ -6905,40 +6905,39 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
         int mDist = 3; 
         if (aiFightIsMeleeUnit(actor)) mDist = 2;
 
-        if (pXSprite->target_i >= 0 && aiFightGetTargetDist(actor, pDudeInfo, &bloodActors[pXSprite->target_i]) < mDist) 
+        if (targetactor != nullptr && aiFightGetTargetDist(actor, pDudeInfo, targetactor) < mDist) 
         {
             if (!isActive(actor)) aiActivateDude(actor);
             return;
         }
         // lets try to look for target that fits better by distance
-        else if ((PlayClock & 256) != 0 && (pXSprite->target_i < 0 || aiFightGetTargetDist(actor, pDudeInfo, &bloodActors[pXSprite->target_i]) >= mDist)) 
+        else if ((PlayClock & 256) != 0 && (targetactor == nullptr || aiFightGetTargetDist(actor, pDudeInfo, targetactor) >= mDist)) 
         {
-            auto targactor = aiFightGetTargetInRange(actor, 0, mDist, pXSource->data1, pXSource->data2);
-            if (targactor != nullptr)
+            auto newtargactor = aiFightGetTargetInRange(actor, 0, mDist, pXSource->data1, pXSource->data2);
+            if (newtargactor != nullptr)
             {
-                pTarget = &targactor->s();
-                pXTarget = &targactor->x();
+                auto pNewTarg = &newtargactor->s();
+                auto pXNewTarg = &newtargactor->x();
 
                 // Make prev target not aim in dude
-                if (pXSprite->target_i > -1) 
+                if (targetactor)
                 {
-                    spritetype* prvTarget = &sprite[pXSprite->target_i];
-                    aiSetTarget_(&xsprite[prvTarget->extra], prvTarget->x, prvTarget->y, prvTarget->z);
-                    if (!isActive(pTarget->index))
-                        aiActivateDude(&bloodActors[pXTarget->reference]);
+                    aiSetTarget(targetactor, targetactor->s().x, targetactor->s().y, targetactor->s().z);
+                    if (!isActive(newtargactor))
+                        aiActivateDude(newtargactor);
                 }
 
                 // Change target for dude
-                aiSetTarget_(pXSprite, pTarget->index);
+                aiSetTarget(actor, newtargactor);
                 if (!isActive(actor))
                     aiActivateDude(actor);
 
                 // ...and change target of target to dude to force it fight
-                if (pXSource->data3 > 0 && pXTarget->target_i != pSprite->index) 
+                if (pXSource->data3 > 0 && newtargactor->GetTarget() != actor) 
                 {
-                    aiSetTarget_(pXTarget, pSprite->index);
-                    if (!isActive(pTarget->index))
-                        aiActivateDude(&bloodActors[pXTarget->reference]);
+                    aiSetTarget(newtargactor, actor);
+                    if (!isActive(newtargactor))
+                        aiActivateDude(newtargactor);
                 }
 
                 return;
