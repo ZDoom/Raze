@@ -374,7 +374,7 @@ int useCondition(DBloodActor*, const EVENT& event);
 bool condCmp(int val, int arg1, int arg2, int comOp);
 bool condCmpne(int arg1, int arg2, int comOp);
 void condError(DBloodActor* pXCond, const char* pzFormat, ...);
-void condUpdateObjectIndex(int objType, int oldIndex, int newIndex);
+void condUpdateObjectIndex(DBloodActor* oldplayer, DBloodActor* newplayer);
 DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx);
 void seqSpawnerOffSameTx(DBloodActor* actor);
 //  -------------------------------------------------------------------------   //

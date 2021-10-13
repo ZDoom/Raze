@@ -758,7 +758,7 @@ void playerStart(int nPlayer, int bNewLevel)
                 int nSpriteOld = pXCtrl->sysData1;
                 trPlayerCtrlLink(iactor, pPlayer, (nSpriteOld < 0) ? true : false);
                 if (nSpriteOld > 0)
-                    condUpdateObjectIndex(OBJ_SPRITE, nSpriteOld, pXCtrl->sysData1);
+                    condUpdateObjectIndex(&bloodActors[nSpriteOld], &bloodActors[pXCtrl->sysData1]);
             }
         }
 

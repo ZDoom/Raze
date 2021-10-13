@@ -452,7 +452,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void nnExtTriggerObject(int objType, int objIndex, int command) 
+void nnExtTriggerObject(int objType, int objIndex, DBloodActor* objActor, int command) 
 {
     switch (objType) 
     {
@@ -465,8 +465,8 @@ void nnExtTriggerObject(int objType, int objIndex, int command)
             trTriggerWall(objIndex, &xwall[wall[objIndex].extra], command);
             break;
         case OBJ_SPRITE:
-            if (!xspriRangeIsFine(sprite[objIndex].extra)) break;
-            trTriggerSprite(objIndex, &xsprite[sprite[objIndex].extra], command);
+            if (!objActor || !objActor->hasX()) break;
+            trTriggerSprite(objActor->GetIndex(), &objActor->x(), command);
             break;
     }
 
@@ -718,13 +718,12 @@ void nnExtInitModernStuff(bool bSaveLoad)
                                 I_Error("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", actor->GetIndex(), kChannelUser, kChannelMax);
 
                             // only one linker per player allowed
-                            int nSprite;
-                            StatIterator it(kStatModernPlayerLinker);
-                            while ((nSprite = it.NextIndex()) >= 0)
+                        BloodStatIterator it(kStatModernPlayerLinker);
+                        while (auto iactor = it.Next())
                             {
-                                XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
+                            XSPRITE* pXCtrl = &iactor->x();
                                 if (pXSprite->data1 == pXCtrl->data1)
-                                    I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), pXSprite->data1, nSprite);
+                                I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), pXSprite->data1, iactor->GetIndex());
                             }
                             pXSprite->sysData1 = -1;
                             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
@@ -859,7 +858,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
         for (int i = 0; i < kMaxXSprites; i++) 
         {
             auto actor = &bloodActors[i];
-            if (actor->s().statnum == kStatFree || !actor->hasX() || xsprite[i].txID != pXSprite->rxID || actor == iactor)
+            if (actor->s().statnum == kStatFree || !actor->hasX() || actor->x().txID != pXSprite->rxID || actor == iactor)
                 continue;
 
             XSPRITE* pXSpr = &actor->x();
@@ -4750,36 +4749,36 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
 // this updates index of object in all conditions
-void condUpdateObjectIndex(int objType, int oldIndex, int newIndex) 
-{
-    // this only gets called for player respawns
-    auto oldActor = &bloodActors[oldIndex];
-    auto newActor = &bloodActors[newIndex];
+// only used when spawning players
+//
+//---------------------------------------------------------------------------
 
+void condUpdateObjectIndex(DBloodActor* oldActor, DBloodActor* newActor) 
+{
     // update index in tracking conditions first
     for (int i = 0; i < gTrackingCondsCount; i++) 
     {
-
         TRCONDITION* pCond = &gCondition[i];
         for (unsigned k = 0; k < pCond->length; k++) 
         {
-            if (pCond->obj[k].type != objType || pCond->obj[k].actor != oldActor) continue;
+            if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].actor != oldActor) continue;
             pCond->obj[k].actor = newActor;
             break;
         }
     }
 
     // puke...
-    int oldSerial = condSerialize(&bloodActors[oldIndex]);
-    int newSerial = condSerialize(&bloodActors[newIndex]);
+    int oldSerial = condSerialize(oldActor);
+    int newSerial = condSerialize(newActor);
 
     // then update serials
-    int nSpr;
-    StatIterator it(kStatModernCondition);
-    while ((nSpr = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatModernCondition);
+    while (auto iactor = it.Next())
     {
-        XSPRITE* pXCond = &xsprite[sprite[nSpr].extra];
+        XSPRITE* pXCond = &iactor->x();
         if (pXCond->targetX == oldSerial) pXCond->targetX = newSerial;
         if (pXCond->targetY == oldSerial) pXCond->targetY = newSerial;
 
@@ -6360,14 +6359,14 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
             // send it for object currently in the focus
             if (pSource->flags & kModernTypeFlag1)
             {
-                nnExtTriggerObject(objType, objIndex, pXSource->command);
+                nnExtTriggerObject(objType, objIndex, event.actor, pXSource->command);
             }
 
             // send it for initial object
             if ((pSource->flags & kModernTypeFlag2) && (pXSource->targetX != pXSource->targetY || !(pSource->hitag & kModernTypeFlag1))) {
                 DBloodActor* objActor = nullptr;
                 condUnserialize(sourceactor, &objType, &objIndex, &objActor);
-                nnExtTriggerObject(objType, objIndex, pXSource->command);
+                nnExtTriggerObject(objType, objIndex, objActor, pXSource->command);
             }
         }
     }
@@ -7266,10 +7265,9 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
                             else trPlayerCtrlStartScene(rxactor, pPlayer, true);
                             return;
                         }
-                        nnExtTriggerObject(rxBucket[i].type, rxactor->s().index, pXSprite->command);
 
                     }
-                    else nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, pXSprite->command);
+                    nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, pXSprite->command);
 
                 }
             }
