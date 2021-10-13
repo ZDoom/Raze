@@ -252,17 +252,21 @@ static void myThinkTarget(DBloodActor* actor)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void myThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	myThinkTarget(actor);
 }
 
 static void entryEZombie(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	pSprite->type = kDudeZombieAxeNormal;
 	pSprite->flags |= 1;
