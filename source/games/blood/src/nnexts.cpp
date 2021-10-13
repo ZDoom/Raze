@@ -1193,9 +1193,10 @@ void nnExtProcessSuperSprites() {
             int index = sprite[gSightSpritesList[i]].index;
 
             // sprite is drawn for one of players
-            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (gSightSpritesList[i]->s().cstat2 & CSTAT2_SPRITE_MAPPED))
+            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (sprite[gSightSpritesList[i]].cstat2 & CSTAT2_SPRITE_MAPPED))
+            {
                 trTriggerSprite(index, pXSightSpr, kCmdSpriteSight);
-                gSightSpritesList[i]->s().cstat2 &= ~CSTAT2_SPRITE_MAPPED;
+                sprite[gSightSpritesList[i]].cstat2 &= ~CSTAT2_SPRITE_MAPPED;
                 continue;
             }
 
