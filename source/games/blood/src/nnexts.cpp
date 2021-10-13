@@ -4106,14 +4106,22 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
     return false;
 }
 
-bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
-	auto aCond = &bloodActors[pXCond->reference];
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH) 
+{
+    auto pXCond = &aCond->x();
 
     int var = -1;
-    int cond = pXCond->data1 - kCondSectorBase; int arg1 = pXCond->data2;
+    int cond = pXCond->data1 - kCondSectorBase; 
+    int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
     
-    int objType = -1; int objIndex = -1;
+    int objType = -1, objIndex = -1;
     DBloodActor* objActor = nullptr;
     condUnserialize(aCond, &objType, &objIndex, &objActor);
 
@@ -4132,12 +4140,11 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         case 5: return condCmp(pSect->floorheinum, arg1, arg2, cmpOp);
         case 6: return condCmp(pSect->ceilingheinum, arg1, arg2, cmpOp);
         case 10: // required sprite type is in current sector?
-            int nSprite;
-            SectIterator it(objIndex);
-            while ((nSprite = it.NextIndex()) >= 0)
+            BloodSectIterator it(objIndex);
+            while (auto iactor = it.Next())
             {
-                if (!condCmp(sprite[nSprite].type, arg1, arg2, cmpOp)) continue;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
+                if (!condCmp(iactor->s().type, arg1, arg2, cmpOp)) continue;
+                else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, iactor);
                 return true;
             }
             return false;
@@ -4199,14 +4206,15 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 //
 //---------------------------------------------------------------------------
 
-bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
-	auto aCond = &bloodActors[pXCond->reference];
+bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH) 
+{
+    auto pXCond = &aCond->x();
 
     int var = -1;
     int cond = pXCond->data1 - kCondWallBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
     
-    int objType = -1; int objIndex = -1;
+    int objType = -1, objIndex = -1;
     DBloodActor* objActor = nullptr;
     condUnserialize(aCond, &objType, &objIndex, &objActor);
 
@@ -4225,21 +4233,21 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 return condCmp(pWall->overpicnum, arg1, arg2, cmpOp);
             case 5:
                 if (!sectRangeIsFine((var = sectorofwall(objIndex)))) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, var, nullptr);
                 return true;
             case 10: // this wall is a mirror?                          // must be as constants here
                 return (pWall->type != kWallStack && condCmp(pWall->picnum, 4080, (4080 + 16) - 1, 0));
             case 15:
                 if (!sectRangeIsFine(pWall->nextsector)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, pWall->nextsector);
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, pWall->nextsector, nullptr);
                 return true;
             case 20:
                 if (!wallRangeIsFine(pWall->nextwall)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_WALL, pWall->nextwall);
+                else if (PUSH) condPush(aCond, OBJ_WALL, pWall->nextwall, nullptr);
                 return true;
             case 25: // next wall belongs to sector?
                 if (!sectRangeIsFine(var = sectorofwall(pWall->nextwall))) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, var, nullptr);
                 return true;
         }
     }
@@ -6300,8 +6308,8 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
         if (cond == 0) ok = true; // dummy
         else if (cond >= kCondGameBase && cond < kCondGameMax) ok = condCheckGame(sourceactor, event, comOp, PUSH);
         else if (cond >= kCondMixedBase && cond < kCondMixedMax) ok = condCheckMixed(sourceactor, event, comOp, PUSH);
-        else if (cond >= kCondWallBase && cond < kCondWallMax) ok = condCheckWall(pXSource, comOp, PUSH);
-        else if (cond >= kCondSectorBase && cond < kCondSectorMax) ok = condCheckSector(pXSource, comOp, PUSH);
+        else if (cond >= kCondWallBase && cond < kCondWallMax) ok = condCheckWall(sourceactor, comOp, PUSH);
+        else if (cond >= kCondSectorBase && cond < kCondSectorMax) ok = condCheckSector(sourceactor, comOp, PUSH);
         else if (cond >= kCondPlayerBase && cond < kCondPlayerMax) ok = condCheckPlayer(pXSource, comOp, PUSH);
         else if (cond >= kCondDudeBase && cond < kCondDudeMax) ok = condCheckDude(pXSource, comOp, PUSH);
         else if (cond >= kCondSpriteBase && cond < kCondSpriteMax) ok = condCheckSprite(pXSource, comOp, PUSH);
