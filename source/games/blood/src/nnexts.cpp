@@ -6637,11 +6637,18 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void useDataChanger(XSPRITE* pXSource, int objType, int objIndex) {
     
     auto objActor = &bloodActors[objIndex];
     spritetype* pSource = &sprite[pXSource->reference];
-    switch (objType) {
+    switch (objType) 
+    {
         case OBJ_SECTOR:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
                 setDataValueOfObject(objType, objIndex, nullptr, 1, pXSource->data1);
@@ -6666,6 +6673,12 @@ void useDataChanger(XSPRITE* pXSource, int objType, int objIndex) {
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector) {
     
     spritetype* pSource = &sprite[pXSource->reference];
@@ -6682,26 +6695,27 @@ void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector) {
     if (valueIsBetween(pXSource->data4, -1, 65535))
         pXSector->phase = ClipHigh(pXSource->data4, 255);
 
-    if (pSource->flags) {
-        if (pSource->flags != kModernTypeFlag1) {
-            
+    if (pSource->flags) 
+    {
+        if (pSource->flags != kModernTypeFlag1) 
+        {
             pXSector->shadeAlways   = (pSource->flags & 0x0001) ? true : false;
             pXSector->shadeFloor    = (pSource->flags & 0x0002) ? true : false;
             pXSector->shadeCeiling  = (pSource->flags & 0x0004) ? true : false;
             pXSector->shadeWalls    = (pSource->flags & 0x0008) ? true : false;
-
-        } else {
-
+        }
+        else 
+        {
             pXSector->shadeAlways   = true;
-
         }
     }
 
     // add to shadeList if amplitude was set to 0 previously
-    if (oldAmplitude != pXSector->amplitude && shadeCount < kMaxXSectors) {
-
+    if (oldAmplitude != pXSector->amplitude && shadeCount < kMaxXSectors) 
+    {
         bool found = false;
-        for (int i = 0; i < shadeCount; i++) {
+        for (int i = 0; i < shadeCount; i++) 
+        {
             if (shadeList[i] != sector[pXSector->reference].extra) continue;
             found = true;
             break;
@@ -6712,11 +6726,18 @@ void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector) {
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     
     
     if (!IsDudeSprite(pSprite) || pSprite->statnum != kStatDude) {
-        switch (pSprite->type) { // can be dead dude turned in gib
+        switch (pSprite->type) // can be dead dude turned in gib
+        {
             // make current target and all other dudes not attack this dude anymore
         case kThingBloodBits:
         case kThingBloodChunks:
@@ -6728,18 +6749,17 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     }
     
     
-    //spritetype* pSource = &sprite[pXSource->reference];
-    
     auto actor = &bloodActors[pSprite->index];
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
     spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; int receiveHp = 33 + Random(33);
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); int matesPerEnemy = 1;
 
     // dude is burning?
-    if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) {
-
+    if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) 
+    {
         if (IsBurningDude(pSprite)) return;
-        else {
+        else 
+        {
             spritetype* pBurnSource = &sprite[pXSprite->burnSource];
             if (pBurnSource->extra >= 0) {
                 if (pXSource->data2 == 1 && pXSprite->rxID == xsprite[pBurnSource->extra].rxID) {
@@ -6761,12 +6781,15 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     {
         auto pPlayer = &playeractor->s();
         auto actLeech = leechIsDropped(actor);
-        if (pXSource->data4 == 3) {
+        if (pXSource->data4 == 3) 
+        {
             aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
             aiSetGenIdleState(&bloodActors[pSprite->index]);
             if (pSprite->type == kDudeModernCustom && actLeech)
                 removeLeech(actLeech);
-        } else if (pXSource->data4 == 4) {
+        }
+        else if (pXSource->data4 == 4) 
+        {
             aiSetTarget_(pXSprite, pPlayer->x, pPlayer->y, pPlayer->z);
             if (pSprite->type == kDudeModernCustom && actLeech)
                 removeLeech(actLeech);
