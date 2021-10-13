@@ -4399,7 +4399,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case 0: return condCmp((pSpr->ang & 2047), arg1, arg2, cmpOp);
             case 5: return condCmp(pSpr->statnum, arg1, arg2, cmpOp);
             case 6: return ((pSpr->flags & kHitagRespawn) || pSpr->statnum == kStatRespawn);
-            case 7: return condCmp(spriteGetSlope(pSpr->index), arg1, arg2, cmpOp);
+        case 7: return condCmp(spriteGetSlope(pSpr), arg1, arg2, cmpOp);
             case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
             case 15:
                 if (!spriRangeIsFine(pSpr->owner)) return false;
@@ -6474,7 +6474,7 @@ void sprite2sectorSlope(spritetype* pSprite, sectortype* pSector, char rel, bool
             break;
     }
 
-    spriteSetSlope(pSprite->index, slope);
+    spriteSetSlope(pSprite, slope);
     if (forcez) pSprite->z = z;
 }
 
@@ -6613,7 +6613,7 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
                 }
                 break;
             default:
-        spriteSetSlope(objIndex, slope);
+                spriteSetSlope(pSpr, slope);
                 break;
     }
     }

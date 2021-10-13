@@ -132,9 +132,8 @@ inline void copyfloorpal(spritetype* spr, const sectortype* sect)
     if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
 }
 
-inline void spriteSetSlope(int spritenum, int heinum)
+inline void spriteSetSlope(spritetype* spr, int heinum)
 {
-    auto spr = &sprite[spritenum];
     int cstat = spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK;
     if (spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
@@ -144,9 +143,8 @@ inline void spriteSetSlope(int spritenum, int heinum)
     }
 }
 
-inline int spriteGetSlope(int spritenum)
+inline int spriteGetSlope(spritetype* spr)
 {
-    auto spr = &sprite[spritenum];
     return ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
 }
 
