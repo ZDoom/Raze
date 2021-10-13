@@ -30,7 +30,6 @@ struct HITINFO {
     DBloodActor* hitactor;
     short hitsect;
     short hitwall;
-    short hitsprite;
     int hitx;
     int hity;
     int hitz;
@@ -38,7 +37,6 @@ struct HITINFO {
     void clearObj()
     {
         hitsect = hitwall = -1;
-        hitsprite = -1;
         hitactor = nullptr;
     }
     void set(hitdata_t* hit);

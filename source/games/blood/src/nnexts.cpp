@@ -1336,20 +1336,20 @@ void nnExtProcessSuperSprites()
 
                     if (pXSightSpr->unused3 & kTriggerSpriteAim)
                     {
-                        bool vector = (sprite[index].cstat & CSTAT_SPRITE_BLOCK_HITSCAN);
+                        bool vector = (pSightSpr->cstat & CSTAT_SPRITE_BLOCK_HITSCAN);
                         if (!vector)
-                            sprite[index].cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
+                            pSightSpr->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
                         HitScan(pPlaySprite, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
 
                         //VectorScan(pPlaySprite, 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
 
                         if (!vector)
-                            sprite[index].cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
+                            pSightSpr->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        if (gHitInfo.hitsprite == index)
+                        if (gHitInfo.hitactor == gSightSpritesList[i])
                         {
-                            trTriggerSprite(index, pXSightSpr, kCmdSpriteSight);
+                            trTriggerSprite(gHitInfo.hitactor, kCmdSpriteSight);
                             break;
                         }
                     }
@@ -7344,7 +7344,13 @@ bool isActive(DBloodActor* actor)
     }
 }
 
-int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex)
 {
     int data = -65535;
     switch (objType) 
@@ -7368,6 +7374,12 @@ int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int data
         default: return data;
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex, int value)
 {
@@ -7450,7 +7462,12 @@ bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int 
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // a replacement of vanilla CanMove for patrol dudes
+//
+//---------------------------------------------------------------------------
+
 bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
 
     auto actor = &bloodActors[pSprite->index];
@@ -7458,7 +7475,7 @@ bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
     HitScan(pSprite, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
     int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
     if (nTarget >= 0 && nDist - (pSprite->clipdist << 2) < nRange)
-        return (nTarget == gHitInfo.hitsprite);
+        return (nTarget == gHitInfo.hitactor->s().index);
 
     x += MulScale(nRange, Cos(nAngle), 30);
     y += MulScale(nRange, Sin(nAngle), 30);
@@ -7476,8 +7493,12 @@ bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
 
 }
 
-
+//---------------------------------------------------------------------------
+//
 // a replacement of vanilla aiChooseDirection for patrol dudes
+//
+//---------------------------------------------------------------------------
+
 void nnExtAiSetDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3) {
     
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
@@ -7514,7 +7535,6 @@ void nnExtAiSetDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3) {
             if (!nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + pXSprite->dodgeDir * 512, 512))
                 pXSprite->dodgeDir = 0;
         }
-
     }
 }
 
