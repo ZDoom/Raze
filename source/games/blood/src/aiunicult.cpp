@@ -499,7 +499,7 @@ static void unicultThinkChase(DBloodActor* actor)
     if (pXTarget->health <= 0) // target is dead
     {
         PLAYER* pPlayer = NULL;
-        if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fraggerId == pSprite->index)) 
+        if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fragger() == actor)) 
         {
             playGenDudeSound(actor, kGenDudeSndTargetDead);
             if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
@@ -2155,7 +2155,7 @@ void genDudeTransform(DBloodActor* actor)
     /*// remove the incarnation in case if non-locked
     if (pXIncarnation->locked == 0) {
         pXIncarnation->txID = pIncarnation->type = 0;
-        actPostSprite(pIncarnation->index, kStatFree);
+        actPostSprite(pIncarnation, kStatFree);
         // or restore triggerOn and off options
     } else {
         pXIncarnation->triggerOn = triggerOn;

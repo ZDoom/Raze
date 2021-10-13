@@ -690,7 +690,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->bloodlust = 0;
     pPlayer->horizon.horiz = pPlayer->horizon.horizoff = q16horiz(0);
     pPlayer->slope = 0;
-    pPlayer->fraggerId = -1;
+    pPlayer->setFragger(0);
     pPlayer->underwaterTime = 1200;
     pPlayer->bubbleTime = 0;
     pPlayer->restTime = 0;

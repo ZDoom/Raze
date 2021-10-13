@@ -298,7 +298,6 @@ void nnExtProcessSuperSprites(void);
 bool nnExtIsImmune(DBloodActor* pSprite, int dmgType, int minScale = 16);
 int nnExtRandom(int a, int b);
 void nnExtResetGlobals();
-void nnExtTriggerObject(int objType, int objIndex, int command);
 //  -------------------------------------------------------------------------   //
 void sfxPlayMissileSound(DBloodActor* pSprite, int missileId);
 void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
@@ -372,8 +371,6 @@ int getSpriteMassBySize(DBloodActor* pSprite);
 bool ceilIsTooLow(DBloodActor* pSprite);
 void levelEndLevelCustom(int nLevel);
 int useCondition(DBloodActor*, const EVENT& event);
-bool condPush(XSPRITE* pXSprite, int objType, int objIndex);
-bool condRestore(XSPRITE* pXSprite);
 bool condCmp(int val, int arg1, int arg2, int comOp);
 bool condCmpne(int arg1, int arg2, int comOp);
 void condError(XSPRITE* pXCond, const char* pzFormat, ...);
@@ -385,7 +382,6 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH);
 bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH);
 void condUpdateObjectIndex(int objType, int oldIndex, int newIndex);
 DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx);
-int listTx(XSPRITE* pXRedir, int tx);
 void seqSpawnerOffSameTx(DBloodActor* actor);
 //  -------------------------------------------------------------------------   //
 void aiPatrolSetMarker(DBloodActor* actor);
