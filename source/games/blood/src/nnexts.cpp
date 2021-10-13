@@ -563,8 +563,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 break;
             case kModernCondition:
             case kModernConditionFalse:
-                if (bSaveLoad) break;
-                else if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(pXSprite,"\nThe condition must have RX ID!\nSPRITE #%d", actor->GetIndex());
+                if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(actor,"\nThe condition must have RX ID!\nSPRITE #%d", actor->GetIndex());
                 else if (!pXSprite->txID && !pSprite->flags) 
                 {
                     Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
@@ -751,7 +750,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                     }
                     
                     if (pXSprite->waitTime && pXSprite->command >= kCmdNumberic)
-                        condError(pXSprite, "Delay is not available when using numberic commands (%d - %d)", kCmdNumberic, 255);
+                    condError(actor, "Delay is not available when using numberic commands (%d - %d)", kCmdNumberic, 255);
 
                     pXSprite->Decoupled = false; // must go through operateSprite always
                     pXSprite->Sight     = pXSprite->Impact  = pXSprite->Touch   = pXSprite->triggerOff     = false;
@@ -879,10 +878,10 @@ void nnExtInitModernStuff(bool bSaveLoad)
             }
 
             if (pSpr->type == kModernCondition || pSpr->type == kModernConditionFalse)
-                condError(pXSprite, "Tracking condition always must be first in condition sequence!");
+                condError(iactor, "Tracking condition always must be first in condition sequence!");
 
             if (count >= kMaxTracedObjects)
-                condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
+                condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
             pCond->obj[count].type = OBJ_SPRITE;
             pCond->obj[count].index_ = 0;
@@ -894,7 +893,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
         {
             if (!sectRangeIsFine(xsector[i].reference) || xsector[i].txID != pXSprite->rxID) continue;
             else if (count >= kMaxTracedObjects)
-                condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
+                condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
             pCond->obj[count].type = OBJ_SECTOR;
             pCond->obj[count].actor = nullptr;
@@ -915,7 +914,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
             }
 
             if (count >= kMaxTracedObjects)
-                condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
+                condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
                 
             pCond->obj[count].type = OBJ_WALL;
             pCond->obj[count].index_ = xwall[i].reference;
@@ -3763,10 +3762,20 @@ bool condCmp(int val, int arg1, int arg2, int comOp) {
     else return (val == arg1);
 }
 
-void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
-   
-    char buffer[256]; char buffer2[512]; FString condType = "Unknown";
-    for (int i = 0; i < 7; i++) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void condError(DBloodActor* aCond, const char* pzFormat, ...)
+{
+    char buffer[256]; 
+    char buffer2[512]; 
+    FString condType = "Unknown";
+    auto pXCond = &aCond->x();
+    for (int i = 0; i < 7; i++) 
+    {
         if (pXCond->data1 < gCondTypeNames[i].rng1 || pXCond->data1 >= gCondTypeNames[i].rng2) continue;
         condType = gCondTypeNames[i].name;
         condType.ToUpper();
@@ -3781,6 +3790,7 @@ void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
 }
 
 bool condCheckGame(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
+	auto aCond = &bloodActors[pXCond->reference];
 
     //int var = -1;
     int cond = pXCond->data1 - kCondGameBase; int arg1 = pXCond->data2;
@@ -3803,10 +3813,9 @@ bool condCheckGame(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
         /*----------------------------------------------------------------------------------------------------------------------------------*/
         case 47: return condCmp(gStatCount[ClipRange(arg3, 0, kMaxStatus)], arg1, arg2, cmpOp); // compare counter of specific statnum sprites
         case 48: return condCmp(Numsprites, arg1, arg2, cmpOp);                                 // compare counter of total sprites
-    
     }
 
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
@@ -3818,6 +3827,7 @@ bool condCheckGame(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
 
 bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) 
 {
+	auto aCond = &bloodActors[pXCond->reference];
     //int var = -1;
     int cond = pXCond->data1 - kCondMixedBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
@@ -4035,11 +4045,12 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH)
         case 99: return condCmp(event.cmd, arg1, arg2, cmpOp);  // this codition received specified command?
     }
 
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
 bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+	auto aCond = &bloodActors[pXCond->reference];
 
     int var = -1;
     int cond = pXCond->data1 - kCondSectorBase; int arg1 = pXCond->data2;
@@ -4049,7 +4060,7 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
     condUnserialize(pXCond->targetX, &objType, &objIndex);
 
     if (objType != OBJ_SECTOR || !sectRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a sector!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not a sector!", objIndex, objType);
 
     sectortype* pSect = &sector[objIndex];
     XSECTOR* pXSect = (xsectRangeIsFine(pSect->extra)) ? &xsector[pSect->extra] : NULL;
@@ -4092,7 +4103,7 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                     }
                     return condCmp((kPercFull * curH) / h, arg1, arg2, cmpOp);
                 default:
-                    condError(pXCond, "Usupported sector type %d", pSect->type);
+                    condError(aCond, "Usupported sector type %d", pSect->type);
                     return false;
                 }
             }
@@ -4108,11 +4119,12 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         }
     }
     
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
 bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+	auto aCond = &bloodActors[pXCond->reference];
 
     int var = -1;
     int cond = pXCond->data1 - kCondWallBase; int arg1 = pXCond->data2;
@@ -4122,7 +4134,7 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
     condUnserialize(pXCond->targetX, &objType, &objIndex);
 
     if (objType != OBJ_WALL || !wallRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a wall!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not a wall!", objIndex, objType);
         
     walltype* pWall = &wall[objIndex];
     //XWALL* pXWall = (xwallRangeIsFine(pWall->extra)) ? &xwall[pWall->extra] : NULL;
@@ -4153,11 +4165,12 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         }
     }
 
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
 bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+	auto aCond = &bloodActors[pXCond->reference];
 
     int var = -1; PLAYER* pPlayer = NULL;
     int cond = pXCond->data1 - kCondPlayerBase; int arg1 = pXCond->data2;
@@ -4167,7 +4180,7 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
     condUnserialize(pXCond->targetX, &objType, &objIndex);
 
     if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a sprite!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not a sprite!", objIndex, objType);
 
     for (int i = 0; i < kMaxPlayers; i++) {
         if (objIndex != gPlayer[i].nSprite) continue;
@@ -4176,7 +4189,7 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
     }
     
     if (!pPlayer) {
-        condError(pXCond, "Object #%d (objType: %d) is not a player!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not a player!", objIndex, objType);
         return false;
     }
 
@@ -4197,7 +4210,7 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 var = (kMinAllowedPowerup + arg3) - 1; // allowable powerups
                 return condCmp(pPlayer->pwUpTime[var] / 100, arg1, arg2, cmpOp);
             }
-            condError(pXCond, "Unexpected powerup #%d", arg3);
+            condError(aCond, "Unexpected powerup #%d", arg3);
             return false;
         case 9:
             if (!spriRangeIsFine(pPlayer->fraggerId)) return false;
@@ -4215,7 +4228,7 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case 8:  return !!(pPlayer->input.actions & SB_ALTFIRE);     // alt fire weapon
             case 9:  return !!(pPlayer->input.actions & SB_OPEN);        // use
             default:
-                condError(pXCond, "Specify a correct key!");
+                condError(aCond, "Specify a correct key!");
                 break;
             }
             return false;
@@ -4229,11 +4242,12 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         case 49: return isGrown(pPlayer->actor());
     }
 
-    condError(pXCond, "Unexpected condition #%d!", cond);
+    condError(aCond, "Unexpected condition #%d!", cond);
     return false;
 }
 
 bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+	auto aCond = &bloodActors[pXCond->reference];
 
     int var = -1;
     int cond = pXCond->data1 - kCondDudeBase; int arg1 = pXCond->data2;
@@ -4242,15 +4256,15 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
     int objType = -1; int objIndex = -1;
     condUnserialize(pXCond->targetX, &objType, &objIndex);
     if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a sprite!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not a sprite!", objIndex, objType);
 
     auto actor = &bloodActors[objIndex];
     spritetype* pSpr = &sprite[objIndex];
     if (!xsprIsFine(pSpr) || pSpr->type == kThingBloodChunks)
-        condError(pXCond, "Object #%d (objType: %d) is dead!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is dead!", objIndex, objType);
     
     if (!IsDudeSprite(pSpr) || IsPlayerSprite(pSpr))
-        condError(pXCond, "Object #%d (objType: %d) is not an enemy!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not an enemy!", objIndex, objType);
 
     XSPRITE* pXSpr = &xsprite[pSpr->extra];
     switch (cond) {
@@ -4267,7 +4281,7 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         {
 
             if (!spriRangeIsFine(pXSpr->target_i))
-                condError(pXCond, "Dude #%d have no target!", objIndex);
+                condError(aCond, "Dude #%d have no target!", objIndex);
 
             spritetype* pTrgt = &sprite[pXSpr->target_i];
             DUDEINFO* pInfo = getDudeInfo(pSpr->type);
@@ -4360,7 +4374,7 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                             case 6: return actor->genDudeExtra.canRecoil;
                             case 7: return actor->genDudeExtra.canSwim;
                             case 8: return actor->genDudeExtra.canWalk;
-                            default: condError(pXCond, "Invalid argument %d", arg3); break;
+                            default: condError(aCond, "Invalid argument %d", arg3); break;
                         }
                         break;
                     case 24: // compare weapon dispersion
@@ -4368,18 +4382,18 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 }
                 break;
             default:
-                condError(pXCond, "Dude #%d is not a Custom Dude!", objIndex);
+                condError(aCond, "Dude #%d is not a Custom Dude!", actor->GetIndex());
                 return false;
             }
     }
 
-    condError(pXCond, "Unexpected condition #%d!", cond);
+    condError(aCond, "Unexpected condition #%d!", cond);
     return false;
 }
 
 bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
-    auto actor = &bloodActors[pXCond->reference];
+    auto aCond = &bloodActors[pXCond->reference];
     int var = -1, var2 = -1, var3 = -1; PLAYER* pPlayer = NULL; bool retn = false;
     int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
@@ -4388,7 +4402,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
     condUnserialize(pXCond->targetX, &objType, &objIndex);
 
     if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a sprite!", cond, objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not a sprite!", cond, objIndex, objType);
 
     spritetype* pSpr = &sprite[objIndex];
     XSPRITE* pXSpr = (xspriRangeIsFine(pSpr->extra)) ? &xsprite[pSpr->extra] : NULL;
@@ -4593,7 +4607,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         }
     }
 
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
@@ -6168,7 +6182,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
         else if (cond >= kCondPlayerBase && cond < kCondPlayerMax) ok = condCheckPlayer(pXSource, comOp, PUSH);
         else if (cond >= kCondDudeBase && cond < kCondDudeMax) ok = condCheckDude(pXSource, comOp, PUSH);
         else if (cond >= kCondSpriteBase && cond < kCondSpriteMax) ok = condCheckSprite(pXSource, comOp, PUSH);
-        else condError(pXSource,"Unexpected condition id %d!", cond);
+        else condError(sourceactor,"Unexpected condition id %d!", cond);
 
         pXSource->state = (ok ^ RVRS);
         

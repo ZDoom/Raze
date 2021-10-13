@@ -373,7 +373,7 @@ void levelEndLevelCustom(int nLevel);
 int useCondition(DBloodActor*, const EVENT& event);
 bool condCmp(int val, int arg1, int arg2, int comOp);
 bool condCmpne(int arg1, int arg2, int comOp);
-void condError(XSPRITE* pXCond, const char* pzFormat, ...);
+void condError(DBloodActor* pXCond, const char* pzFormat, ...);
 bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH);
 bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH);
 bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH);
