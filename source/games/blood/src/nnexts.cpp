@@ -6945,46 +6945,46 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
         }
     }
     
-    if ((pXSprite->target_i < 0 || playeractor != nullptr) && (PlayClock & 32) != 0) 
+    if ((targetactor == nullptr || playeractor != nullptr) && (PlayClock & 32) != 0) 
     {
         // try find first target that dude can see
-        int nSprite;
-        StatIterator it(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatDude);
+        while (auto newtargactor = it.Next())
         {
-            pTarget = &sprite[nSprite]; pXTarget = &xsprite[pTarget->extra];
+            auto pXNewTarg = &newtargactor->x();
 
-            if (pXTarget->target_i == pSprite->index) 
+            if (newtargactor->GetTarget() == actor)
             {
-                aiSetTarget_(pXSprite, pTarget->index);
+                aiSetTarget(actor, newtargactor);
                 return;
             }
 
             // skip non-dudes and players
-            if (!IsDudeSprite(pTarget) || (IsPlayerSprite(pTarget) && pXSource->data4 > 0) || pTarget->owner == pSprite->index) continue;
+            if (!newtargactor->IsDudeActor() || (newtargactor->IsPlayerActor() && pXSource->data4 > 0) || newtargactor->GetOwner() == actor) continue;
             // avoid self aiming, those who dude can't see, and those who dude own
-            else if (!aiFightDudeCanSeeTarget(actor, pDudeInfo, &bloodActors[pTarget->index]) || pSprite->index == pTarget->index) continue;
+            else if (!aiFightDudeCanSeeTarget(actor, pDudeInfo, newtargactor) || actor == newtargactor) continue;
             // if Target Changer have data1 = 666, everyone can be target, except AI team mates.
-            else if (pXSource->data1 != 666 && pXSource->data1 != pXTarget->data1) continue;
+            else if (pXSource->data1 != 666 && pXSource->data1 != pXNewTarg->data1) continue;
             // don't attack immortal, burning dudes and mates
-            if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || (pXSource->data2 == 1 && pXSprite->rxID == pXTarget->rxID))
+            if (IsBurningDude(&newtargactor->s()) || !IsKillableDude(&newtargactor->s()) || (pXSource->data2 == 1 && pXSprite->rxID == pXNewTarg->rxID))
                 continue;
 
-            if (pXSource->data2 == 0 || (pXSource->data2 == 1 && !aiFightMatesHaveSameTarget(&bloodActors[pXSprite->reference], &bloodActors[pTarget->index], matesPerEnemy))) 
+            if (pXSource->data2 == 0 || (pXSource->data2 == 1 && !aiFightMatesHaveSameTarget(actor, newtargactor, matesPerEnemy))) 
             {
                 // Change target for dude
-                aiSetTarget_(pXSprite, pTarget->index);
+                aiSetTarget(actor, newtargactor);
                 if (!isActive(actor))
                     aiActivateDude(actor);
 
                 // ...and change target of target to dude to force it fight
-                if (pXSource->data3 > 0 && pXTarget->target_i != pSprite->index) {
-                    aiSetTarget_(pXTarget, pSprite->index);
-                    if (playeractor == NULL && !isActive(pTarget->index))
-                        aiActivateDude(&bloodActors[pXTarget->reference]);
+                if (pXSource->data3 > 0 && newtargactor->GetTarget() != actor) 
+                {
+                    aiSetTarget(newtargactor, actor);
+                    if (playeractor == nullptr && !isActive(newtargactor))
+                        aiActivateDude(newtargactor);
 
                     if (pXSource->data3 == 2)
-                        aiFightAlarmDudesInSight(&bloodActors[pTarget->index], maxAlarmDudes);
+                        aiFightAlarmDudesInSight(newtargactor, maxAlarmDudes);
                 }
                 return;
             }
