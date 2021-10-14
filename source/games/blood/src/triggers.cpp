@@ -266,6 +266,8 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                             pXSprite->stateTimer = 1;
                             evPost(pSprite->index, 3, t2, kCallbackLeechStateTimer);
                             pXSprite->data3 = ClipLow(pXSprite->data3-1, 0);
+                            if (!VanillaMode()) // disable collisions so lifeleech doesn't do that weird bobbing
+                                missile->s().cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
                         }
                         pSprite->ang = angBak;
                     }
