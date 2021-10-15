@@ -472,6 +472,13 @@ class AIFishLimb : public ExhumedAI
     void Draw(RunListEvent* ev) override;
 };
 
+struct AIGrenade : public ExhumedAI
+{
+    void Tick(RunListEvent* ev) override;
+    void Draw(RunListEvent* ev) override;
+    void RadialDamage(RunListEvent* ev) override;
+};
+
 
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 

@@ -276,173 +276,164 @@ void ExplodeGrenade(short nGrenade)
     DestroyGrenade(nGrenade);
 }
 
-void FuncGrenade(int nObject, int nMessage, int, int nRun)
+void AIGrenade::Draw(RunListEvent* ev)
 {
-    short nGrenade = RunData[nRun].nVal;
+    short nGrenade = RunData[ev->nRun].nVal;
+    assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
+    short nSeq = GrenadeList[nGrenade].field_C ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].field_A;
+    seq_PlotSequence(ev->nIndex, nSeq, GrenadeList[nGrenade].field_2 >> 8, 1);
+}
+
+
+void AIGrenade::Tick(RunListEvent* ev)
+{
+    short nGrenade = RunData[ev->nRun].nVal;
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
 
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
-	auto pGrenadeSprite = &sprite[nGrenadeSprite];
-    short nSeq;
+    auto pGrenadeSprite = &sprite[nGrenadeSprite];
+    short nSeq = GrenadeList[nGrenade].field_C ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].field_A;
 
-    if (GrenadeList[nGrenade].field_C)
+    seq_MoveSequence(nGrenadeSprite, nSeq, GrenadeList[nGrenade].field_2 >> 8);
+    pGrenadeSprite->picnum = seq_GetSeqPicnum2(nSeq, GrenadeList[nGrenade].field_2 >> 8);
+
+    GrenadeList[nGrenade].field_E--;
+    if (!GrenadeList[nGrenade].field_E)
     {
-        nSeq = SeqOffsets[kSeqGrenBoom];
-    }
-    else
-    {
-        nSeq = SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].field_A;
-    }
+        short nPlayer = nGrenadePlayer[nGrenade];
 
-    switch (nMessage)
-    {
-        case 0x90000:
+        if (GrenadeList[nGrenade].field_10 < 0)
         {
-            seq_PlotSequence(nObject, nSeq, GrenadeList[nGrenade].field_2 >> 8, 1);
-            break;
-        }
+            PlayerList[nPlayer].field_3A = 0;
+            PlayerList[nPlayer].field_3FOUR = 0;
 
-        default:
-        {
-            Printf("unknown msg %d for grenade\n", nMessage);
-            return;
-        }
-
-        case 0x20000:
-        {
-            seq_MoveSequence(nGrenadeSprite, nSeq, GrenadeList[nGrenade].field_2 >> 8);
-            pGrenadeSprite->picnum = seq_GetSeqPicnum2(nSeq, GrenadeList[nGrenade].field_2 >> 8);
-
-            GrenadeList[nGrenade].field_E--;
-            if (!GrenadeList[nGrenade].field_E)
+            if (PlayerList[nPlayer].nAmmo[kWeaponGrenade])
             {
-                short nPlayer = nGrenadePlayer[nGrenade];
-
-                if (GrenadeList[nGrenade].field_10 < 0)
-                {
-                    PlayerList[nPlayer].field_3A = 0;
-                    PlayerList[nPlayer].field_3FOUR = 0;
-
-                    if (PlayerList[nPlayer].nAmmo[kWeaponGrenade])
-                    {
-                        PlayerList[nPlayer].bIsFiring = false;
-                    }
-                    else
-                    {
-                        SelectNewWeapon(nPlayer);
-
-                        PlayerList[nPlayer].nCurrentWeapon = PlayerList[nPlayer].field_38;
-                        PlayerList[nPlayer].field_38 = -1;
-                    }
-                }
-
-                ExplodeGrenade(nGrenade);
-                return;
+                PlayerList[nPlayer].bIsFiring = false;
             }
             else
             {
-                if (GrenadeList[nGrenade].field_10 < 0) {
-                    return;
-                }
+                SelectNewWeapon(nPlayer);
 
-                int ebp = (GrenadeList[nGrenade].field_2 + GrenadeList[nGrenade].field_0) >> 8;
+                PlayerList[nPlayer].nCurrentWeapon = PlayerList[nPlayer].field_38;
+                PlayerList[nPlayer].field_38 = -1;
+            }
+        }
 
-                GrenadeList[nGrenade].field_2 += GrenadeList[nGrenade].field_0;
+        ExplodeGrenade(nGrenade);
+        return;
+    }
+    else
+    {
+        if (GrenadeList[nGrenade].field_10 < 0) {
+            return;
+        }
 
-                if (ebp < 0)
+        int ebp = (GrenadeList[nGrenade].field_2 + GrenadeList[nGrenade].field_0) >> 8;
+
+        GrenadeList[nGrenade].field_2 += GrenadeList[nGrenade].field_0;
+
+        if (ebp < 0)
+        {
+            GrenadeList[nGrenade].field_2 += SeqSize[nSeq] << 8;
+        }
+        else
+        {
+            if (ebp >= SeqSize[nSeq])
+            {
+                if (GrenadeList[nGrenade].field_C)
                 {
-                    GrenadeList[nGrenade].field_2 += SeqSize[nSeq] << 8;
+                    DestroyGrenade(nGrenade);
+                    return;
                 }
                 else
                 {
-                    if (ebp >= SeqSize[nSeq])
-                    {
-                        if (GrenadeList[nGrenade].field_C)
-                        {
-                            DestroyGrenade(nGrenade);
-                            return;
-                        }
-                        else
-                        {
-                            GrenadeList[nGrenade].field_2 = GrenadeList[nGrenade].field_C;
-                        }
-                    }
+                    GrenadeList[nGrenade].field_2 = GrenadeList[nGrenade].field_C;
                 }
-
-                if (GrenadeList[nGrenade].field_C) {
-                    return;
-                }
-
-                int zVel = pGrenadeSprite->zvel;
-
-                Gravity(nGrenadeSprite);
-                int nMov = movesprite(nGrenadeSprite, GrenadeList[nGrenade].x, GrenadeList[nGrenade].y, pGrenadeSprite->zvel, pGrenadeSprite->clipdist >> 1, pGrenadeSprite->clipdist >> 1, CLIPMASK1);
-
-                if (!nMov)
-                    return;
-
-                if (nMov & 0x20000)
-                {
-                    if (zVel)
-                    {
-                        if (SectDamage[pGrenadeSprite->sectnum] > 0)
-                        {
-                            ExplodeGrenade(nGrenade);
-                            return;
-                        }
-
-                        GrenadeList[nGrenade].field_0 = (uint8_t)totalmoves; // limit to 8bits?
-
-                        D3PlayFX(StaticSound[kSound3], nGrenadeSprite);
-
-                        pGrenadeSprite->zvel = -(zVel >> 1);
-
-                        if (pGrenadeSprite->zvel > -1280)
-                        {
-                            D3PlayFX(StaticSound[kSound5], nGrenadeSprite);
-                            GrenadeList[nGrenade].field_0 = 0;
-                            GrenadeList[nGrenade].field_2 = 0;
-                            pGrenadeSprite->zvel = 0;
-                            GrenadeList[nGrenade].field_A = 1;
-                        }
-                    }
-
-                    GrenadeList[nGrenade].field_0 = 255 - (RandomByte() * 2);
-                    GrenadeList[nGrenade].x -= (GrenadeList[nGrenade].x >> 4);
-                    GrenadeList[nGrenade].y -= (GrenadeList[nGrenade].y >> 4);
-                }
-
-                // loc_2CF60:
-                if ((nMov & 0xC000) >= 0x8000)
-                {
-                    if ((nMov & 0xC000) <= 0x8000)
-                    {
-                        BounceGrenade(nGrenade, GetWallNormal(nMov & 0x3FFF));
-                    }
-                    else if ((nMov & 0xC000) == 0xC000)
-                    {
-                        BounceGrenade(nGrenade, sprite[nMov & 0x3FFF].ang);
-                    }
-                }
-
-                GrenadeList[nGrenade].field_2 = 0;
-                return;
             }
-
-            break;
         }
 
-        case 0xA0000:
+        if (GrenadeList[nGrenade].field_C) {
+            return;
+        }
+
+        int zVel = pGrenadeSprite->zvel;
+
+        Gravity(nGrenadeSprite);
+        int nMov = movesprite(nGrenadeSprite, GrenadeList[nGrenade].x, GrenadeList[nGrenade].y, pGrenadeSprite->zvel, pGrenadeSprite->clipdist >> 1, pGrenadeSprite->clipdist >> 1, CLIPMASK1);
+
+        if (!nMov)
+            return;
+
+        if (nMov & 0x20000)
         {
-            if (nGrenadeSprite != nRadialSpr && !GrenadeList[nGrenade].field_C)
+            if (zVel)
             {
-                if (runlist_CheckRadialDamage(nGrenadeSprite) > 280)
+                if (SectDamage[pGrenadeSprite->sectnum] > 0)
                 {
-                    GrenadeList[nGrenade].field_E = RandomSize(4) + 1;
+                    ExplodeGrenade(nGrenade);
+                    return;
+                }
+
+                GrenadeList[nGrenade].field_0 = (uint8_t)totalmoves; // limit to 8bits?
+
+                D3PlayFX(StaticSound[kSound3], nGrenadeSprite);
+
+                pGrenadeSprite->zvel = -(zVel >> 1);
+
+                if (pGrenadeSprite->zvel > -1280)
+                {
+                    D3PlayFX(StaticSound[kSound5], nGrenadeSprite);
+                    GrenadeList[nGrenade].field_0 = 0;
+                    GrenadeList[nGrenade].field_2 = 0;
+                    pGrenadeSprite->zvel = 0;
+                    GrenadeList[nGrenade].field_A = 1;
                 }
             }
-            break;
+
+            GrenadeList[nGrenade].field_0 = 255 - (RandomByte() * 2);
+            GrenadeList[nGrenade].x -= (GrenadeList[nGrenade].x >> 4);
+            GrenadeList[nGrenade].y -= (GrenadeList[nGrenade].y >> 4);
+        }
+
+        // loc_2CF60:
+        if ((nMov & 0xC000) >= 0x8000)
+        {
+            if ((nMov & 0xC000) <= 0x8000)
+            {
+                BounceGrenade(nGrenade, GetWallNormal(nMov & 0x3FFF));
+            }
+            else if ((nMov & 0xC000) == 0xC000)
+            {
+                BounceGrenade(nGrenade, sprite[nMov & 0x3FFF].ang);
+            }
+        }
+
+        GrenadeList[nGrenade].field_2 = 0;
+    }
+}
+
+void AIGrenade::RadialDamage(RunListEvent* ev)
+{
+    short nGrenade = RunData[ev->nRun].nVal;
+    assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
+
+    short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
+    auto pGrenadeSprite = &sprite[nGrenadeSprite];
+
+    if (nGrenadeSprite != nRadialSpr && !GrenadeList[nGrenade].field_C)
+    {
+        if (runlist_CheckRadialDamage(nGrenadeSprite) > 280)
+        {
+            GrenadeList[nGrenade].field_E = RandomSize(4) + 1;
         }
     }
 }
+
+void FuncGrenade(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIGrenade ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
+}
+
 END_PS_NS
