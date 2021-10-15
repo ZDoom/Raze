@@ -1491,14 +1491,11 @@ int BuildCreatureChunk(int nVal, int nPic)
     return nSprite | 0xD0000;
 }
 
-void FuncCreatureChunk(int nObject, int nMessage, int, int nRun)
+void AICreatureChunk::Tick(RunListEvent* ev)
 {
-    int nSprite = RunData[nRun].nVal;
+    int nSprite = RunData[ev->nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
-	auto pSprite = &sprite[nSprite];
-
-    if (nMessage != 0x20000)
-        return;
+    auto pSprite = &sprite[nSprite];
 
     Gravity(nSprite);
 
@@ -1567,6 +1564,13 @@ void FuncCreatureChunk(int nObject, int nMessage, int, int nRun)
     changespritestat(nSprite, 0);
     pSprite->hitag = 0;
     pSprite->lotag = 0;
+}
+
+void  FuncCreatureChunk(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AICreatureChunk ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
+
 }
 
 short UpdateEnemy(short *nEnemy)
