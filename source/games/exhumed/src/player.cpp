@@ -652,7 +652,7 @@ void UpdatePlayerSpriteAngle(Player* pPlayer)
     inita = sprite[pPlayer->nSprite].ang = pPlayer->angle.ang.asbuild();
 }
 
-void FuncPlayer(int a, int nDamage, int nRun)
+void FuncPlayer(int nObject, int nMessage, int nDamage, int nRun)
 {
     int var_48 = 0;
     int var_40;
@@ -669,8 +669,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
     short nAction = PlayerList[nPlayer].nAction;
     short nActionB = PlayerList[nPlayer].nAction;
 
-    int nMessage = a & kMessageMask;
-
     short nSprite2;
 
     PlayerList[nPlayer].angle.backup();
@@ -683,7 +681,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
     {
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].field_2, PlayerSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].field_2, PlayerSeq[nAction].b);
             return;
         }
 
@@ -712,7 +710,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                     return;
                 }
 
-                nSprite2 = a & 0xFFFF;
+                nSprite2 = nObject;
             }
 
             // ok continue case 0x80000 as normal, loc_1C57C

@@ -811,7 +811,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     return nBulletSprite | (nBullet << 16);
 }
 
-void FuncBullet(int a, int, int nRun)
+void FuncBullet(int nObject, int nMessage, int, int nRun)
 {
     short nBullet = RunData[nRun].nVal;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
@@ -819,8 +819,6 @@ void FuncBullet(int a, int, int nRun)
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
     short nSprite = BulletList[nBullet].nSprite;
 	auto pSprite = &sprite[nSprite];
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -860,7 +858,7 @@ void FuncBullet(int a, int, int nRun)
 
         case 0x90000:
         {
-            short nSprite2 = a & 0xFFFF;
+            short nSprite2 = nObject;
             mytsprite[nSprite2].statnum = 1000;
 
             if (BulletList[nBullet].nType == 15)

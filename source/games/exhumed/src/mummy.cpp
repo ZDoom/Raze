@@ -173,7 +173,7 @@ void CheckMummyRevive(short nMummy)
     }
 }
 
-void FuncMummy(int a, int nDamage, int nRun)
+void FuncMummy(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nMummy = RunData[nRun].nVal;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
@@ -183,8 +183,6 @@ void FuncMummy(int a, int nDamage, int nRun)
     short nSprite = MummyList[nMummy].nSprite;
 	auto pSprite = &sprite[nSprite];
     short nAction = MummyList[nMummy].nAction;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -478,7 +476,7 @@ void FuncMummy(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].nFrame, MummySeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].nFrame, MummySeq[nAction].b);
             return;
         }
 

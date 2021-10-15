@@ -266,7 +266,7 @@ void runlist_SubRunRec(int RunPtr)
     RunData[RunPtr].nRef = -totalmoves;
 }
 
-void runlist_SendMessageToRunRec(int nRun, int nMessage, int nDamage)
+void runlist_SendMessageToRunRec(int nRun, int nObject, int nMessage, int nDamage)
 {
     int nFunc = RunData[nRun].nRef >> 16;
 
@@ -283,7 +283,7 @@ void runlist_SendMessageToRunRec(int nRun, int nMessage, int nDamage)
     assert(nFunc < kFuncMax); // REMOVE
 
     // do function pointer call here.
-    aiFunctions[nFunc](nMessage, nDamage, nRun);
+    aiFunctions[nFunc](nObject, nMessage, nDamage, nRun);
 }
 
 void runlist_ExplodeSignalRun()
@@ -307,7 +307,7 @@ void runlist_ExplodeSignalRun()
 
         if (val >= 0)
         {
-            runlist_SendMessageToRunRec(runPtr, 0xA0000, 0);
+            runlist_SendMessageToRunRec(runPtr, 0, 0xA0000, 0);
         }
     }
 }
@@ -360,7 +360,7 @@ void runlist_SignalRun(int NxtPtr, int edx)
                 NxtPtr = RunData[RunPtr].next;
 
                 if (val >= 0) {
-                    runlist_SendMessageToRunRec(RunPtr, edx, 0);
+                    runlist_SendMessageToRunRec(RunPtr, edx & 0xffff, edx & ~0xffff, 0);
                 }
             }
         }
@@ -1664,7 +1664,7 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
 
     short nPreCreaturesKilled = nCreaturesKilled;
 
-    runlist_SendMessageToRunRec(nRun, (nSprite2 & 0xFFFF) | 0x80000, nDamage * 4);
+    runlist_SendMessageToRunRec(nRun, nSprite2, 0x80000, nDamage * 4);
 
     // is there now one less creature? (has one died)
     if (nPreCreaturesKilled < nCreaturesKilled && nSprite2 > -1)

@@ -165,7 +165,7 @@ void MoveRaToEnemy(short nPlayer)
     }
 }
 
-void FuncRa(int a, int, int nRun)
+void FuncRa(int nObject, int nMessage, int, int nRun)
 {
     short nPlayer = RunData[nRun].nVal;
     short nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
@@ -175,8 +175,6 @@ void FuncRa(int a, int, int nRun)
 	auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -306,7 +304,7 @@ void FuncRa(int a, int, int nRun)
 
         case 0x90000:
         {
-            short nSprite2 = a & 0xFFFF;
+            short nSprite2 = nObject;
             seq_PlotSequence(nSprite2, nSeq, Ra[nPlayer].nFrame, 1);
             mytsprite[nSprite2].owner = -1;
             return;

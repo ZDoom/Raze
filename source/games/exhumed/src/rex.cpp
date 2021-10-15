@@ -137,7 +137,7 @@ void BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, i
     nCreaturesTotal++;
 }
 
-void FuncRex(int a, int nDamage, int nRun)
+void FuncRex(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nRex = RunData[nRun].nVal;
     assert(nRex >= 0 && nRex < (int)RexList.Size());
@@ -147,8 +147,6 @@ void FuncRex(int a, int nDamage, int nRun)
 	auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -172,7 +170,7 @@ void FuncRex(int a, int nDamage, int nRun)
         {
             if (nDamage)
             {
-                short nTarget = a & 0xFFFF;
+                short nTarget = nObject;
                 if (nTarget >= 0 && sprite[nTarget].statnum == 100)
                 {
                     RexList[nRex].nTarget = nTarget;
@@ -206,7 +204,7 @@ void FuncRex(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqRex] + RexSeq[nAction].a, RexList[nRex].nFrame, RexSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqRex] + RexSeq[nAction].a, RexList[nRex].nFrame, RexSeq[nAction].b);
             return;
         }
 

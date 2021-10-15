@@ -151,7 +151,7 @@ void GoRoach(short nSprite)
     pSprite->yvel = bsin(pSprite->ang, -1) - bsin(pSprite->ang, -3);
 }
 
-void FuncRoach(int a, int nDamage, int nRun)
+void FuncRoach(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nRoach = RunData[nRun].nVal;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
@@ -161,8 +161,6 @@ void FuncRoach(int a, int nDamage, int nRun)
     short nAction = RoachList[nRoach].nAction;
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -174,7 +172,7 @@ void FuncRoach(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].nFrame, RoachSeq[nAction].b);
+            seq_PlotSequence(nObject, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].nFrame, RoachSeq[nAction].b);
             return;
         }
 
@@ -212,7 +210,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                 }
                 else
                 {
-                    short nSprite2 = a & 0xFFFF;
+                    short nSprite2 = nObject;
                     if (nSprite2 >= 0)
                     {
                         if (sprite[nSprite2].statnum < 199) {

@@ -509,7 +509,7 @@ void BuildQueenEgg(short nQueen, int nVal)
     QueenEgg[nEgg].nRunPtr = runlist_AddRunRec(NewRun, nEgg, 0x1D0000);
 }
 
-void FuncQueenEgg(int a, int nDamage, int nRun)
+void FuncQueenEgg(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nEgg = RunData[nRun].nVal;
 
@@ -521,8 +521,6 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
     short nTarget;
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -706,7 +704,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a, pEgg->nFrame, EggSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a, pEgg->nFrame, EggSeq[nAction].b);
             break;
         }
         }
@@ -764,7 +762,7 @@ void BuildQueenHead(short nQueen)
     QueenHead.tails = 0;
 }
 
-void FuncQueenHead(int a, int nDamage, int nRun)
+void FuncQueenHead(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nHead = RunData[nRun].nVal;
 
@@ -779,8 +777,6 @@ void FuncQueenHead(int a, int nDamage, int nRun)
     short nTarget, nHd;
 
     int var_14 = 0;
-
-    int nMessage = a & 0x7F0000;
 
     switch (nMessage)
     {
@@ -1090,7 +1086,7 @@ __MOVEQS:
 
                 if (!RandomSize(4))
                 {
-                    QueenHead.nTarget = a & 0xFFFF;
+                    QueenHead.nTarget = nObject;
                     QueenHead.nAction = 7;
                     QueenHead.nFrame = 0;
                 }
@@ -1131,13 +1127,13 @@ __MOVEQS:
                 nSeq += 73;
             }
 
-            seq_PlotSequence(a & 0xFFFF, nSeq, QueenHead.nFrame, edx);
+            seq_PlotSequence(nObject, nSeq, QueenHead.nFrame, edx);
             break;
         }
 
         default:
         {
-            DebugOut("unknown msg %d for Queenhead\n", a & 0x7F0000);
+            DebugOut("unknown msg %d for Queenhead\n", nMessage);
             break;
         }
     }
@@ -1220,7 +1216,7 @@ void SetQueenSpeed(short nSprite, int nSpeed)
     pSprite->yvel = bsin(pSprite->ang, -(2 - nSpeed));
 }
 
-void FuncQueen(int a, int nDamage, int nRun)
+void FuncQueen(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nQueen = RunData[nRun].nVal;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
@@ -1232,8 +1228,6 @@ void FuncQueen(int a, int nDamage, int nRun)
     short nTarget = QueenList[nQueen].nTarget;
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -1564,7 +1558,7 @@ void FuncQueen(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueen] + QueenSeq[nAction].a, QueenList[nQueen].nFrame, QueenSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqQueen] + QueenSeq[nAction].a, QueenList[nQueen].nFrame, QueenSeq[nAction].b);
             break;
         }
         }

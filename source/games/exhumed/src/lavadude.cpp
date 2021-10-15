@@ -113,13 +113,11 @@ int BuildLavaLimb(int nSprite, int edx, int ebx)
     return nLimbSprite;
 }
 
-void FuncLavaLimb(int a, int, int nRun)
+void FuncLavaLimb(int nObject, int nMessage, int, int nRun)
 {
     short nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 	auto pSprite = &sprite[nSprite];
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -146,7 +144,7 @@ void FuncLavaLimb(int a, int, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, (SeqOffsets[kSeqLavag] + 30) + pSprite->picnum, 0, 1);
+            seq_PlotSequence(nObject, (SeqOffsets[kSeqLavag] + 30) + pSprite->picnum, 0, 1);
             break;
         }
 
@@ -213,7 +211,7 @@ void BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, in
     nCreaturesTotal++;
 }
 
-void FuncLava(int a, int nDamage, int nRun)
+void FuncLava(int nObject, int nMessage, int nDamage, int nRun)
 {
     unsigned nLava = RunData[nRun].nVal;
     assert(nLava < LavaList.Size());
@@ -222,8 +220,6 @@ void FuncLava(int a, int nDamage, int nRun)
     short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
     short nSprite = LavaList[nLava].nSprite;
     auto pSprite = &sprite[nSprite];
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -235,8 +231,8 @@ void FuncLava(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, nSeq, LavaList[nLava].nFrame, LavadudeSeq[nAction].b);
-            mytsprite[a & 0xFFFF].owner = -1;
+            seq_PlotSequence(nObject, nSeq, LavaList[nLava].nFrame, LavadudeSeq[nAction].b);
+            mytsprite[nObject].owner = -1;
             return;
         }
 
@@ -265,7 +261,7 @@ void FuncLava(int a, int nDamage, int nRun)
             }
             else
             {
-                short nTarget = a & 0xFFFF;
+                short nTarget = nObject;
 
                 if (nTarget >= 0)
                 {

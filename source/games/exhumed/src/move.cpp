@@ -1491,13 +1491,11 @@ int BuildCreatureChunk(int nVal, int nPic)
     return nSprite | 0xD0000;
 }
 
-void FuncCreatureChunk(int a, int, int nRun)
+void FuncCreatureChunk(int nObject, int nMessage, int, int nRun)
 {
     int nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 	auto pSprite = &sprite[nSprite];
-
-    int nMessage = a & 0x7F0000;
 
     if (nMessage != 0x20000)
         return;

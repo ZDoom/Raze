@@ -135,12 +135,10 @@ std::pair<int, int> BuildSwReady(int nChannel, short nLink)
     return { SwitchCount, 0x10000 };
 }
 
-void FuncSwReady(int a, int, int nRun)
+void FuncSwReady(int nObject, int nMessage, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
-
-    int nMessage = a & 0x7F0000;
 
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
@@ -189,12 +187,10 @@ std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx)
     return { SwitchCount, 0x20000 };
 }
 
-void FuncSwPause(int a, int, int nRun)
+void FuncSwPause(int nObject, int nMessage, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
-
-    int nMessage = a & 0x7F0000;
 
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
@@ -278,7 +274,7 @@ std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector)
     return { nSwitch , 0x30000 };
 }
 
-void FuncSwStepOn(int a, int, int nRun)
+void FuncSwStepOn(int nObject, int nMessage, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
@@ -290,8 +286,6 @@ void FuncSwStepOn(int a, int, int nRun)
     assert(sRunChannels[nChannel].c < 8);
 
     int8_t var_14 = LinkMap[nLink].v[sRunChannels[nChannel].c];
-
-    int nMessage = a & 0x7F0000;
 
     switch (nMessage)
     {
@@ -349,12 +343,10 @@ std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int 
     return { nSwitch, 0x40000 };
 }
 
-void FuncSwNotOnPause(int a, int, int nRun)
+void FuncSwNotOnPause(int nObject, int nMessage, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
-
-    int nMessage = a & 0x7F0000;
 
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
@@ -438,16 +430,13 @@ std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int
     return { nSwitch, 0x50000 };
 }
 
-void FuncSwPressSector(int a, int, int nRun)
+void FuncSwPressSector(int nPlayer, int nMessage, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
-    int nMessage = a & 0x7F0000;
-
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
-    short nPlayer = a & 0xFFFF;
 
     switch (nMessage)
     {
@@ -510,19 +499,13 @@ std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall)
     return { SwitchCount, 0x60000 };
 }
 
-void FuncSwPressWall(int a, int, int nRun)
+void FuncSwPressWall(int, int nMessage, int, int nRun)
 {
     short nSwitch = RunData[nRun].nVal;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
-
-    // TEMP
-//	assert(nLink < 1024);
-//	assert(nChannel < 8);
-
-    int nMessage = a & 0x7F0000;
 
     switch (nMessage)
     {

@@ -32,7 +32,7 @@ int GrabPlayer();
 void InitPlayerInventory(short nPlayer);
 void RestartPlayer(short nPlayer);
 
-void FuncPlayer(int nSector, int nSprite, int nRun);
+void FuncPlayer(int, int nSector, int nSprite, int nRun);
 
 enum
 {

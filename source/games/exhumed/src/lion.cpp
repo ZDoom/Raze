@@ -139,7 +139,7 @@ void BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
     nCreaturesTotal++;
 }
 
-void FuncLion(int a, int nDamage, int nRun)
+void FuncLion(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nLion = RunData[nRun].nVal;
     assert(nLion >= 0 && nLion < (int)LionList.Size());
@@ -149,8 +149,6 @@ void FuncLion(int a, int nDamage, int nRun)
     short nAction = LionList[nLion].nAction;
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -162,7 +160,7 @@ void FuncLion(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a, SeqOffsets[kSeqLion] + LionSeq[nAction].a, LionList[nLion].nFrame, LionSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqLion] + LionSeq[nAction].a, LionList[nLion].nFrame, LionSeq[nAction].b);
             return;
         }
 
@@ -207,7 +205,7 @@ void FuncLion(int a, int nDamage, int nRun)
                 }
                 else
                 {
-                    short nTarget = a & 0xFFFF;
+                    short nTarget = nObject;
 
                     if (nTarget > -1)
                     {

@@ -147,7 +147,7 @@ void BuildBlood(int x, int y, int z, short nSector)
     BuildAnim(-1, kSeqFish, 36, x, y, z, nSector, 75, 128);
 }
 
-void FuncFishLimb(int a, int, int nRun)
+void FuncFishLimb(int nObject, int nMessage, int, int nRun)
 {
     short nFish = RunData[nRun].nVal;
     short nSprite = FishChunk[nFish].nSprite;
@@ -155,8 +155,6 @@ void FuncFishLimb(int a, int, int nRun)
 	auto pSprite = &sprite[nSprite];
 
     int nSeq = SeqOffsets[kSeqFish] + FishChunk[nFish].nSeqIndex;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -211,7 +209,7 @@ void FuncFishLimb(int a, int, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, nSeq, FishChunk[nFish].nIndex, 1);
+            seq_PlotSequence(nObject, nSeq, FishChunk[nFish].nIndex, 1);
             return;
         }
     }
@@ -312,7 +310,7 @@ void DestroyFish(short nFish)
     mydeletesprite(nSprite);
 }
 
-void FuncFish(int a, int nDamage, int nRun)
+void FuncFish(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nFish = RunData[nRun].nVal;
     assert(nFish >= 0 && nFish < (int)FishList.Size());
@@ -320,8 +318,6 @@ void FuncFish(int a, int nDamage, int nRun)
     short nSprite = FishList[nFish].nSprite;
     short nAction = FishList[nFish].nAction;
 	auto pSprite = &sprite[nSprite];
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -333,8 +329,8 @@ void FuncFish(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqFish] + FishSeq[nAction].a, FishList[nFish].nFrame, FishSeq[nAction].b);
-            mytsprite[a & 0xFFFF].owner = -1;
+            seq_PlotSequence(nObject, SeqOffsets[kSeqFish] + FishSeq[nAction].a, FishList[nFish].nFrame, FishSeq[nAction].b);
+            mytsprite[nObject].owner = -1;
             return;
         }
 
@@ -389,7 +385,7 @@ void FuncFish(int a, int nDamage, int nRun)
             }
             else
             {
-                short nTarget = a & 0xFFFF;
+                short nTarget = nObject;
                 if (nTarget >= 0 && sprite[nTarget].statnum < 199)
                 {
                     FishList[nFish].nTarget = nTarget;

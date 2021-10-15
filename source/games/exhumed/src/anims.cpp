@@ -150,7 +150,7 @@ short GetAnimSprite(short nAnim)
     return AnimList[nAnim].nSprite;
 }
 
-void FuncAnim(int a, int, int nRun)
+void FuncAnim(int nObject, int nMessage, int, int nRun)
 {
     short nAnim = RunData[nRun].nVal;
     assert(nAnim >= 0 && nAnim < kMaxAnims);
@@ -160,8 +160,6 @@ void FuncAnim(int a, int, int nRun)
 	auto pSprite = &sprite[nSprite];
 
     assert(nSprite != -1);
-
-    int nMessage = a & 0x7F0000;
 
     switch (nMessage)
     {
@@ -273,8 +271,8 @@ void FuncAnim(int a, int, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, nSeq, AnimList[nAnim].field_2, 0x101);
-            mytsprite[a & 0xFFFF].owner = -1;
+            seq_PlotSequence(nObject, nSeq, AnimList[nAnim].field_2, 0x101);
+            mytsprite[nObject].owner = -1;
             return;
         }
 
@@ -285,7 +283,7 @@ void FuncAnim(int a, int, int nRun)
 
         default:
         {
-            Printf("unknown msg %x for anim\n", a & 0x7F0000);
+            Printf("unknown msg %x for anim\n", nMessage);
             return;
         }
     }

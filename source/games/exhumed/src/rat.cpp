@@ -204,7 +204,7 @@ int FindFood(short nSprite)
     return -1;
 }
 
-void FuncRat(int a, int nDamage, int nRun)
+void FuncRat(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nRat = RunData[nRun].nVal;
     short nSprite = RatList[nRat].nSprite;
@@ -212,8 +212,6 @@ void FuncRat(int a, int nDamage, int nRun)
 	auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -244,7 +242,7 @@ void FuncRat(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqRat] + RatSeq[nAction].a, RatList[nRat].nFrame, RatSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqRat] + RatSeq[nAction].a, RatList[nRat].nFrame, RatSeq[nAction].b);
             return;
         }
 

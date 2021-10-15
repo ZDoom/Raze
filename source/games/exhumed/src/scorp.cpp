@@ -148,7 +148,7 @@ void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle,
     nCreaturesTotal++;
 }
 
-void FuncScorp(int a, int nDamage, int nRun)
+void FuncScorp(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nScorp = RunData[nRun].nVal;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
@@ -161,8 +161,6 @@ void FuncScorp(int a, int nDamage, int nRun)
 
     short nTarget = -1;
 
-    int nMessage = a & kMessageMask;
-
     switch (nMessage)
     {
         default:
@@ -173,7 +171,7 @@ void FuncScorp(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, scorpion[nScorp].nFrame, ScorpSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, scorpion[nScorp].nFrame, ScorpSeq[nAction].b);
             return;
         }
 
@@ -212,7 +210,7 @@ void FuncScorp(int a, int nDamage, int nRun)
             }
             else
             {
-                nTarget = a & 0xFFFF;
+                nTarget = nObject;
 
                 if (nTarget >= 0)
                 {

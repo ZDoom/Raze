@@ -311,10 +311,8 @@ int FindSnakeEnemy(short nSnake)
     return nEnemy;
 }
 
-void FuncSnake(int a, int, int nRun)
+void FuncSnake(int nObject, int nMessage, int, int nRun)
 {
-    int nMessage = a & kMessageMask;
-
     switch (nMessage)
     {
         case 0x20000:
@@ -412,7 +410,7 @@ SEARCH_ENEMY:
         case 0x90000:
         {
             short nSnake = RunData[nRun].nVal;
-            short nSprite = a & 0xFFFF;
+            short nSprite = nObject;
 
             if ((nSnake & 0xFF) == 0) {
                 seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakehed], 0, 0);

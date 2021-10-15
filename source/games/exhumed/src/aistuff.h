@@ -45,7 +45,7 @@ void DestroyAnim(int nAnim);
 int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag);
 short GetAnimSprite(short nAnim);
 
-void FuncAnim(int, int, int);
+void FuncAnim(int, int, int, int);
 void BuildExplosion(short nSprite);
 int BuildSplash(int nSprite, int nSector);
 
@@ -53,7 +53,7 @@ int BuildSplash(int nSprite, int nSector);
 
 void InitAnubis();
 void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer);
-void FuncAnubis(int a, int b, int c);
+void FuncAnubis(int, int a, int b, int c);
 
 // bubbles
 
@@ -61,7 +61,7 @@ void InitBubbles();
 void BuildBubbleMachine(int nSprite);
 void DoBubbleMachines();
 void DoBubbles(int nPlayer);
-void FuncBubble(int, int, int);
+void FuncBubble(int, int, int, int);
 
 // bullet
 
@@ -94,14 +94,14 @@ int MoveBullet(short nBullet);
 void SetBulletEnemy(short nBullet, short nEnemy);
 int BuildBullet(short nSprite, int nType, int ebx, int ecx, int val1, int nAngle, int val2, int val3);
 void IgniteSprite(int nSprite);
-void FuncBullet(int, int, int);
+void FuncBullet(int, int, int, int);
 void BackUpBullet(int *x, int *y, short nAngle);
 
 // fish
 
 void InitFishes();
 void BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle);
-void FuncFish(int, int, int);
+void FuncFish(int, int, int, int);
 void FuncFishLimb(int a, int b, int c);
 
 // grenade
@@ -112,7 +112,7 @@ void InitGrenades();
 void BuildGrenade(int nPlayer);
 void DestroyGrenade(short nGrenade);
 int ThrowGrenade(short nPlayer, int edx, int ebx, int ecx, int push1);
-void FuncGrenade(int, int, int);
+void FuncGrenade(int, int, int, int);
 
 // gun
 
@@ -189,8 +189,8 @@ void DoRegenerates();
 void InitLava();
 void BuildLava(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 int BuildLavaLimb(int nSprite, int edx, int ebx);
-void FuncLavaLimb(int, int, int);
-void FuncLava(int, int, int);
+void FuncLavaLimb(int, int, int, int);
+void FuncLava(int, int, int, int);
 
 // lighting
 
@@ -212,7 +212,7 @@ extern short bTorch;
 
 void InitLion();
 void BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle);
-void FuncLion(int, int, int);
+void FuncLion(int, int, int, int);
 
 // move
 
@@ -291,13 +291,13 @@ void DoMovingSects();
 void DoFinale();
 void PostProcess();
 
-void FuncElev(int, int, int);
-void FuncWallFace(int, int, int);
-void FuncSlide(int, int, int);
-void FuncObject(int, int, int);
-void FuncTrap(int, int, int);
-void FuncEnergyBlock(int, int, int);
-void FuncSpark(int, int, int);
+void FuncElev(int, int, int, int);
+void FuncWallFace(int, int, int, int);
+void FuncSlide(int, int, int, int);
+void FuncObject(int, int, int, int);
+void FuncTrap(int, int, int, int);
+void FuncEnergyBlock(int, int, int, int);
+void FuncSpark(int, int, int, int);
 void SnapBobs(short nSectorA, short nSectorB);
 short FindWallSprites(short nSector);
 void AddMovingSector(int nSector, int edx, int ebx, int ecx);
@@ -318,9 +318,9 @@ int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int 
 
 void InitQueens();
 void BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nVal);
-void FuncQueenEgg(int, int, int);
-void FuncQueenHead(int, int, int);
-void FuncQueen(int, int, int);
+void FuncQueenEgg(int, int, int, int);
+void FuncQueenHead(int, int, int, int);
+void FuncQueen(int, int, int, int);
 
 // ra
 
@@ -343,7 +343,7 @@ void FreeRa(short nPlayer);
 void BuildRa(short nPlayer);
 void InitRa();
 void MoveRaToEnemy(short nPlayer);
-void FuncRa(int, int, int);
+void FuncRa(int, int, int, int);
 
 // rat
 
@@ -351,19 +351,19 @@ void InitRats();
 void SetRatVel(short nSprite);
 void BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle);
 int FindFood(short nSprite);
-void FuncRat(int a, int b, int nRun);
+void FuncRat(int a, int, int b, int nRun);
 
 // rex
 
 void InitRexs();
 void BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
-void FuncRex(int, int, int);
+void FuncRex(int, int, int, int);
 
 // roach
 
 void InitRoachs();
 void BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle);
-void FuncRoach(int a, int nDamage, int nRun);
+void FuncRoach(int a, int, int nDamage, int nRun);
 
 // runlist
 
@@ -389,7 +389,7 @@ struct RunChannel
     short d;
 };
 
-typedef void(*AiFunc)(int, int, int nRun);
+typedef void(*AiFunc)(int, int, int, int nRun);
 
 extern FreeListArray<RunStruct, kMaxRuns> RunData;
 extern RunChannel sRunChannels[kMaxChannels];
@@ -423,14 +423,14 @@ void runlist_ExecObjects();
 
 void InitScorp();
 void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
-void FuncScorp(int, int, int);
+void FuncScorp(int, int, int, int);
 
 // set
 
 void InitSets();
 void BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
-void FuncSoul(int, int, int);
-void FuncSet(int, int, int);
+void FuncSoul(int, int, int, int);
+void FuncSet(int, int, int, int);
 
 // snake
 
@@ -457,25 +457,25 @@ extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 void InitSnakes();
 short GrabSnake();
 void BuildSnake(short nPlayer, short zVal);
-void FuncSnake(int, int, int);
+void FuncSnake(int, int, int, int);
 
 // spider
 
 void InitSpider();
 int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle);
-void FuncSpider(int a, int b, int nRun);
+void FuncSpider(int a, int, int b, int nRun);
 
 // switch
 
 void InitLink();
 void InitSwitch();
 
-void FuncSwReady(int, int, int);
-void FuncSwPause(int, int, int);
-void FuncSwStepOn(int, int, int);
-void FuncSwNotOnPause(int, int, int);
-void FuncSwPressSector(int, int, int);
-void FuncSwPressWall(int, int, int);
+void FuncSwReady(int, int, int, int);
+void FuncSwPause(int, int, int, int);
+void FuncSwStepOn(int, int, int, int);
+void FuncSwNotOnPause(int, int, int, int);
+void FuncSwPressSector(int, int, int, int);
+void FuncSwPressWall(int, int, int, int);
 
 std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx);
 std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx);
@@ -492,7 +492,7 @@ int WaspCount();
 
 void InitWasps();
 int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle);
-void FuncWasp(int eax, int edx, int nRun);
+void FuncWasp(int eax, int, int edx, int nRun);
 
 
 

@@ -177,7 +177,7 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     return nSprite;
 }
 
-void FuncWasp(int a, int nDamage, int nRun)
+void FuncWasp(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nWasp = RunData[nRun].nVal;
     short nSprite = WaspList[nWasp].nSprite;
@@ -188,13 +188,11 @@ void FuncWasp(int a, int nDamage, int nRun)
 
     bool bVal = false;
 
-    int nMessage = a & kMessageMask;
-
     switch (nMessage)
     {
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqWasp] + WaspSeq[nAction].a, WaspList[nWasp].nFrame, WaspSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqWasp] + WaspSeq[nAction].a, WaspList[nWasp].nFrame, WaspSeq[nAction].b);
             return;
         }
 

@@ -133,7 +133,7 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
     return nSprite;
 }
 
-void FuncSpider(int a, int nDamage, int nRun)
+void FuncSpider(int nObject, int nMessage, int nDamage, int nRun)
 {
     int nSpider = RunData[nRun].nVal;
     auto spp = &SpiderList[nSpider];
@@ -144,8 +144,6 @@ void FuncSpider(int a, int nDamage, int nRun)
     int nSprite = spp->nSprite;
     auto sp = &sprite[nSprite];
     short nAction = spp->nAction;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -399,7 +397,7 @@ void FuncSpider(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
             break;
         }
 
@@ -418,7 +416,7 @@ void FuncSpider(int a, int nDamage, int nRun)
             if (!nDamage)
                 return;
 
-            short nTarget = a & 0xFFFF;
+            short nTarget = nObject;
 
             spp->nHealth -= dmgAdjust(nDamage);
             if (spp->nHealth > 0)

@@ -276,7 +276,7 @@ void ExplodeGrenade(short nGrenade)
     DestroyGrenade(nGrenade);
 }
 
-void FuncGrenade(int a, int, int nRun)
+void FuncGrenade(int nObject, int nMessage, int, int nRun)
 {
     short nGrenade = RunData[nRun].nVal;
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
@@ -294,13 +294,11 @@ void FuncGrenade(int a, int, int nRun)
         nSeq = SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].field_A;
     }
 
-    int nMessage = a & kMessageMask;
-
     switch (nMessage)
     {
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, nSeq, GrenadeList[nGrenade].field_2 >> 8, 1);
+            seq_PlotSequence(nObject, nSeq, GrenadeList[nGrenade].field_2 >> 8, 1);
             break;
         }
 

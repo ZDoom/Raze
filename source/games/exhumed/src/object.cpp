@@ -717,7 +717,7 @@ void StartElevSound(short nSprite, int nVal)
     D3PlayFX(StaticSound[nSound], nSprite);
 }
 
-void FuncElev(int a, int, int nRun)
+void FuncElev(int nObject, int nMessage, int, int nRun)
 {
     short nElev = RunData[nRun].nVal;
     assert(nElev >= 0 && nElev < (int)Elevator.Size());
@@ -726,8 +726,6 @@ void FuncElev(int a, int, int nRun)
     short var_18 = Elevator[nElev].field_0;
 
     assert(nChannel >= 0 && nChannel < kMaxChannels);
-
-    int nMessage = a & 0x7F0000;
 
     if (nMessage < 0x10000) {
         return;
@@ -972,14 +970,14 @@ int BuildWallFace(short nChannel, short nWall, int nCount, ...)
     return WallFaceCount;
 }
 
-void FuncWallFace(int a, int, int nRun)
+void FuncWallFace(int, int nMessage, int, int nRun)
 {
     int nWallFace = RunData[nRun].nVal;
     assert(nWallFace >= 0 && nWallFace < (int)WallFace.Size());
 
     short nChannel = WallFace[nWallFace].nChannel;
 
-    if ((a & 0x7F0000) != 0x10000)
+    if (nMessage != 0x10000)
         return;
 
     short si = sRunChannels[nChannel].c;
@@ -1129,14 +1127,12 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
     return nSlide;
 }
 
-void FuncSlide(int a, int, int nRun)
+void FuncSlide(int, int nMessage , int, int nRun)
 {
     int nSlide = RunData[nRun].nVal;
     assert(nSlide >= 0 && nSlide < (int)SlideData.Size());
 
     short nChannel = SlideData[nSlide].nChannel;
-
-    int nMessage = a & 0x7F0000;
 
     int ebp = 0;
 
@@ -1374,19 +1370,17 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
 
 }
 
-void FuncTrap(int a, int, int nRun)
+void FuncTrap(int nObject, int nMessage, int, int nRun)
 {
     short nTrap = RunData[nRun].nVal;
     short nSprite = sTrap[nTrap].nSprite;
     auto pSprite = &sprite[nSprite];
 
-    int nMessage = a & 0x7F0000;
-
     switch (nMessage)
     {
         case 0x10000:
         {
-            short nChannel = a & 0x3FFF;
+            short nChannel = nObject & 0x3FFF;
 
             if (sRunChannels[nChannel].c > 0)
             {
@@ -1480,7 +1474,7 @@ void FuncTrap(int a, int, int nRun)
             return;
 
         default:
-            DebugOut("unknown msg %d for trap\n", a & 0x7F0000);
+            DebugOut("unknown msg %d for trap\n", nMessage);
             return;
     }
 }
@@ -1567,14 +1561,12 @@ int BuildSpark(int nSprite, int nVal)
     return var_14;
 }
 
-void FuncSpark(int a, int, int nRun)
+void FuncSpark(int, int nMessage, int, int nRun)
 {
     int nSprite = RunData[nRun].nVal;
 	auto pSprite = &sprite[nSprite];
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
-
-    int nMessage = a & 0x7F0000;
 
     if (nMessage != 0x20000) {
         return;
@@ -1906,12 +1898,10 @@ void ExplodeEnergyBlock(int nSprite)
     changespritestat(nSprite, 0);
 }
 
-void FuncEnergyBlock(int a, int nDamage, int nRun)
+void FuncEnergyBlock(int nObject, int nMessage, int nDamage, int nRun)
 {
     int const nSprite = RunData[nRun].nVal;
     auto spr = &sprite[nSprite];
-
-    int nMessage = a & 0x7F0000;
 
     switch (nMessage)
     {
@@ -1963,7 +1953,7 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
                 int nSprite2 = insertsprite(lasthitsect, 0);
                 auto pSprite2 = &sprite[nSprite2];
 
-                pSprite2->ang = a & 0xFFFF;
+                pSprite2->ang = nObject;
                 pSprite2->x = lasthitx;
                 pSprite2->y = lasthity;
                 pSprite2->z = lasthitz;
@@ -2063,22 +2053,21 @@ void ExplodeScreen(short nSprite)
     PlayFX2(StaticSound[kSound78], nSprite);
 }
 
-void FuncObject(int a, int b, int nRun)
+void FuncObject(int nMessageParm, int nMessage, int b, int nRun)
 {
     short nObject = RunData[nRun].nVal;
+    auto pObject = &ObjectList[nObject];
 
-    short nSprite = ObjectList[nObject].nSprite;
+    short nSprite = pObject->nSprite;
 	auto pSprite = &sprite[nSprite];
     short nStat = pSprite->statnum;
-    short bx = ObjectList[nObject].field_8;
-
-    int nMessage = a & 0x7F0000;
+    short bx = pObject->field_8;
 
     switch (nMessage)
     {
         default:
         {
-            DebugOut("unknown msg %d for Object\n", a & 0x7F0000);
+            DebugOut("unknown msg %d for Object\n", nMessage);
             return;
         }
 
@@ -2087,7 +2076,7 @@ void FuncObject(int a, int b, int nRun)
 
         case 0x80000:
         {
-            if (nStat >= 150 || ObjectList[nObject].nHealth <= 0) {
+            if (nStat >= 150 || pObject->nHealth <= 0) {
                 return;
             }
 
@@ -2097,8 +2086,8 @@ void FuncObject(int a, int b, int nRun)
                 return;
             }
 
-            ObjectList[nObject].nHealth -= (short)b;
-            if (ObjectList[nObject].nHealth > 0) {
+            pObject->nHealth -= (short)b;
+            if (pObject->nHealth > 0) {
                 return;
             }
 
@@ -2108,7 +2097,7 @@ void FuncObject(int a, int b, int nRun)
             }
             else
             {
-                ObjectList[nObject].nHealth = -(RandomSize(3) + 1);
+                pObject->nHealth = -(RandomSize(3) + 1);
             }
 
             return;
@@ -2118,14 +2107,14 @@ void FuncObject(int a, int b, int nRun)
         {
             if (bx > -1)
             {
-                seq_PlotSequence(a & 0xFFFF, bx, ObjectList[nObject].field_0, 1);
+                seq_PlotSequence(nMessageParm, bx, pObject->field_0, 1);
             }
             return;
         }
 
         case 0xA0000:
         {
-            if (ObjectList[nObject].nHealth > 0 && pSprite->cstat & 0x101
+            if (pObject->nHealth > 0 && pSprite->cstat & 0x101
                 && (nStat != kStatExplodeTarget
                     || sprite[nRadialSpr].statnum == 201
                     || (nRadialBullet != 3 && nRadialBullet > -1)
@@ -2137,7 +2126,7 @@ void FuncObject(int a, int b, int nRun)
                 }
 
                 if (pSprite->statnum != kStatAnubisDrum) {
-                    ObjectList[nObject].nHealth -= nDamage;
+                    pObject->nHealth -= nDamage;
                 }
 
                 if (pSprite->statnum == kStatExplodeTarget)
@@ -2153,14 +2142,14 @@ void FuncObject(int a, int b, int nRun)
                     pSprite->zvel >>= 1;
                 }
 
-                if (ObjectList[nObject].nHealth > 0) {
+                if (pObject->nHealth > 0) {
                     return;
                 }
 
                 if (pSprite->statnum == kStatExplodeTarget)
                 {
-                    ObjectList[nObject].nHealth = -1;
-                    short ax = ObjectList[nObject].field_10;
+                    pObject->nHealth = -1;
+                    short ax = pObject->field_10;
 
                     if (ax < 0 || ObjectList[ax].nHealth <= 0) {
                         return;
@@ -2170,13 +2159,13 @@ void FuncObject(int a, int b, int nRun)
                 }
                 else if (pSprite->statnum == kStatDestructibleSprite)
                 {
-                    ObjectList[nObject].nHealth = 0;
+                    pObject->nHealth = 0;
 
                     ExplodeScreen(nSprite);
                 }
                 else
                 {
-                    ObjectList[nObject].nHealth = -(RandomSize(4) + 1);
+                    pObject->nHealth = -(RandomSize(4) + 1);
                 }
             }
 
@@ -2196,21 +2185,21 @@ void FuncObject(int a, int b, int nRun)
             // do animation
             if (bx != -1)
             {
-                ObjectList[nObject].field_0++;
-                if (ObjectList[nObject].field_0 >= SeqSize[bx]) {
-                    ObjectList[nObject].field_0 = 0;
+                pObject->field_0++;
+                if (pObject->field_0 >= SeqSize[bx]) {
+                    pObject->field_0 = 0;
                 }
 
-                pSprite->picnum = seq_GetSeqPicnum2(bx, ObjectList[nObject].field_0);
+                pSprite->picnum = seq_GetSeqPicnum2(bx, pObject->field_0);
             }
 
-            if (ObjectList[nObject].nHealth >= 0) {
+            if (pObject->nHealth >= 0) {
                 goto FUNCOBJECT_GOTO;
             }
 
-            ObjectList[nObject].nHealth++;
+            pObject->nHealth++;
 
-            if (ObjectList[nObject].nHealth)
+            if (pObject->nHealth)
             {
 FUNCOBJECT_GOTO:
                 if (nStat != kStatExplodeTarget)
@@ -2273,7 +2262,7 @@ FUNCOBJECT_GOTO:
                 if (!(currentLevel->gameflags & LEVEL_EX_MULTI) || nStat != kStatExplodeTrigger)
                 {
                     runlist_SubRunRec(pSprite->owner);
-                    runlist_SubRunRec(ObjectList[nObject].field_4);
+                    runlist_SubRunRec(pObject->field_4);
 
                     mydeletesprite(nSprite);
                     return;
@@ -2281,13 +2270,13 @@ FUNCOBJECT_GOTO:
                 else
                 {
                     StartRegenerate(nSprite);
-                    ObjectList[nObject].nHealth = 120;
+                    pObject->nHealth = 120;
 
-                    pSprite->x = sprite[ObjectList[nObject].field_10].x;
-                    pSprite->y = sprite[ObjectList[nObject].field_10].y;
-                    pSprite->z = sprite[ObjectList[nObject].field_10].z;
+                    pSprite->x = sprite[pObject->field_10].x;
+                    pSprite->y = sprite[pObject->field_10].y;
+                    pSprite->z = sprite[pObject->field_10].z;
 
-                    mychangespritesect(nSprite, sprite[ObjectList[nObject].field_10].sectnum);
+                    mychangespritesect(nSprite, sprite[pObject->field_10].sectnum);
                     return;
                 }
             }

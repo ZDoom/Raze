@@ -183,12 +183,10 @@ void BuildSoul(int nSet)
     pSprite->owner = runlist_AddRunRec(NewRun, nSprite, 0x230000);
 }
 
-void FuncSoul(int a, int, int nRun)
+void FuncSoul(int nObject, int nMessage, int, int nRun)
 {
     short nSprite = RunData[nRun].nVal;
 	auto pSprite = &sprite[nSprite];
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -233,7 +231,7 @@ void FuncSoul(int a, int, int nRun)
     }
 }
 
-void FuncSet(int a, int nDamage, int nRun)
+void FuncSet(int nObject, int nMessage, int nDamage, int nRun)
 {
     short nSet = RunData[nRun].nVal;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
@@ -243,8 +241,6 @@ void FuncSet(int a, int nDamage, int nRun)
 	auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -301,7 +297,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a, SeqOffsets[kSeqSet] + SetSeq[nAction].a, SetList[nSet].nFrame, SetSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqSet] + SetSeq[nAction].a, SetList[nSet].nFrame, SetSeq[nAction].b);
             return;
         }
 

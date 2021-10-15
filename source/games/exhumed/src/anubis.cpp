@@ -155,7 +155,7 @@ void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint
     nCreaturesTotal++;
 }
 
-void FuncAnubis(int a, int nDamage, int nRun)
+void FuncAnubis(int nObject, int nMessage, int nDamage, int nRun)
 {
     int nAnubis = RunData[nRun].nVal;
     auto ap = &AnubisList[nAnubis];
@@ -166,8 +166,6 @@ void FuncAnubis(int a, int nDamage, int nRun)
     short nAction = ap->nAction;
 
     bool bVal = false;
-
-    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -413,7 +411,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a, ap->nFrame, AnubisSeq[nAction].b);
+            seq_PlotSequence(nObject, SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a, ap->nFrame, AnubisSeq[nAction].b);
             break;
         }
 
@@ -437,7 +435,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
 
                 if (ap->nHealth > 0)
                 {
-                    short nTarget = a & 0xFFFF;
+                    int nTarget = nObject;
 
                     // loc_258D6:
                     if (nTarget < 0) {
