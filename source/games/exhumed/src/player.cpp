@@ -652,24 +652,158 @@ void UpdatePlayerSpriteAngle(Player* pPlayer)
     inita = sprite[pPlayer->nSprite].ang = pPlayer->angle.ang.asbuild();
 }
 
-void FuncPlayer(int nObject, int nMessage, int nDamage, int nRun)
+void AIPlayer::Draw(RunListEvent* ev)
 {
-    int var_48 = 0;
-    int var_40;
-	bool mplevel = (currentLevel->gameflags & LEVEL_EX_MULTI);
+    short nPlayer = RunData[ev->nRun].nVal;
+    assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
+    short nAction = PlayerList[nPlayer].nAction;
 
-    short nPlayer = RunData[nRun].nVal;
+    seq_PlotSequence(ev->nIndex, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].field_2, PlayerSeq[nAction].b);
+}
+
+void AIPlayer::RadialDamage(RunListEvent* ev)
+{
+    short nPlayer = RunData[ev->nRun].nVal;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
-	auto pPlayerSprite = &sprite[nPlayerSprite];
+
+    if (PlayerList[nPlayer].nHealth <= 0)
+    {
+        return;
+    }
+
+    ev->nDamage = runlist_CheckRadialDamage(nPlayerSprite);
+    Damage(ev);
+}
+
+void AIPlayer::Damage(RunListEvent* ev)
+{
+    int nSprite2;
+    int nDamage = ev->nDamage;
+    short nPlayer = RunData[ev->nRun].nVal;
+    short nAction = PlayerList[nPlayer].nAction;
+    short nPlayerSprite = PlayerList[nPlayer].nSprite;
+    auto pPlayerSprite = &sprite[nPlayerSprite];
+    short nDopple = nDoppleSprite[nPlayer];
+
+    if (!nDamage) {
+        return;
+    }
+
+    if (ev->nMessage != EMessageType::RadialDamage)
+    {
+        nSprite2 = ev->nIndex;
+    }
+    else nSprite2 = nRadialOwner;
+
+    // ok continue case 0x80000 as normal, loc_1C57C
+    if (!PlayerList[nPlayer].nHealth) {
+        return;
+    }
+
+    if (!PlayerList[nPlayer].invincibility)
+    {
+        PlayerList[nPlayer].nHealth -= nDamage;
+        if (nPlayer == nLocalPlayer)
+        {
+            TintPalette(nDamage, 0, 0);
+        }
+    }
+
+    if (PlayerList[nPlayer].nHealth > 0)
+    {
+        if (nDamage > 40 || (totalmoves & 0xF) < 2)
+        {
+            if (PlayerList[nPlayer].invincibility) {
+                return;
+            }
+
+            if (SectFlag[pPlayerSprite->sectnum] & kSectUnderwater)
+            {
+                if (nAction != 12)
+                {
+                    PlayerList[nPlayer].field_2 = 0;
+                    PlayerList[nPlayer].nAction = 12;
+                    return;
+                }
+            }
+            else
+            {
+                if (nAction != 4)
+                {
+                    PlayerList[nPlayer].field_2 = 0;
+                    PlayerList[nPlayer].nAction = 4;
+
+                    if (nSprite2 > -1)
+                    {
+                        nPlayerSwear[nPlayer]--;
+                        if (nPlayerSwear[nPlayer] <= 0)
+                        {
+                            D3PlayFX(StaticSound[kSound52], nDopple);
+                            nPlayerSwear[nPlayer] = RandomSize(3) + 4;
+                        }
+                    }
+                }
+            }
+        }
+
+        return;
+    }
+    else
+    {
+        // player has died
+        if (nSprite2 > -1 && sprite[nSprite2].statnum == 100)
+        {
+            short nPlayer2 = GetPlayerFromSprite(nSprite2);
+
+            if (nPlayer2 == nPlayer) // player caused their own death
+            {
+                nPlayerScore[nPlayer]--;
+            }
+            else
+            {
+                nPlayerScore[nPlayer]++;
+            }
+        }
+        else if (nSprite2 < 0)
+        {
+            nPlayerScore[nPlayer]--;
+        }
+
+        if (ev->nMessage == EMessageType::RadialDamage)
+        {
+            for (int i = 122; i <= 131; i++)
+            {
+                BuildCreatureChunk(nPlayerSprite, seq_GetSeqPicnum(kSeqJoe, i, 0));
+            }
+
+            StartDeathSeq(nPlayer, 1);
+        }
+        else
+        {
+            StartDeathSeq(nPlayer, 0);
+        }
+    }
+}
+
+
+void AIPlayer::Tick(RunListEvent* ev)
+{
+    int var_48 = 0;
+    int var_40;
+    bool mplevel = (currentLevel->gameflags & LEVEL_EX_MULTI);
+
+    short nPlayer = RunData[ev->nRun].nVal;
+    assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
+
+    short nPlayerSprite = PlayerList[nPlayer].nSprite;
+    auto pPlayerSprite = &sprite[nPlayerSprite];
 
     short nDopple = nDoppleSprite[nPlayer];
 
     short nAction = PlayerList[nPlayer].nAction;
     short nActionB = PlayerList[nPlayer].nAction;
-
-    short nSprite2;
 
     PlayerList[nPlayer].angle.backup();
     PlayerList[nPlayer].horizon.backup();
@@ -677,1996 +811,1870 @@ void FuncPlayer(int nObject, int nMessage, int nDamage, int nRun)
     PlayerList[nPlayer].horizon.resetadjustment();
     oeyelevel[nPlayer] = eyelevel[nPlayer];
 
-    switch (nMessage)
+    pPlayerSprite->xvel = sPlayerInput[nPlayer].xVel >> 14;
+    pPlayerSprite->yvel = sPlayerInput[nPlayer].yVel >> 14;
+
+    if (sPlayerInput[nPlayer].nItem > -1)
     {
-        case 0x90000:
+        UseItem(nPlayer, sPlayerInput[nPlayer].nItem);
+        sPlayerInput[nPlayer].nItem = -1;
+    }
+
+    int var_EC = PlayerList[nPlayer].field_2;
+
+    pPlayerSprite->picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
+    sprite[nDopple].picnum = pPlayerSprite->picnum;
+
+    if (PlayerList[nPlayer].nTorch > 0)
+    {
+        PlayerList[nPlayer].nTorch--;
+        if (PlayerList[nPlayer].nTorch == 0)
         {
-            seq_PlotSequence(nObject, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].field_2, PlayerSeq[nAction].b);
-            return;
+            SetTorch(nPlayer, 0);
+        }
+        else
+        {
+            if (nPlayer != nLocalPlayer)
+            {
+                nFlashDepth = 5;
+                AddFlash(pPlayerSprite->sectnum,
+                    pPlayerSprite->x,
+                    pPlayerSprite->y,
+                    pPlayerSprite->z, 0);
+            }
+        }
+    }
+
+    if (PlayerList[nPlayer].nDouble > 0)
+    {
+        PlayerList[nPlayer].nDouble--;
+        if (PlayerList[nPlayer].nDouble == 150 && nPlayer == nLocalPlayer) {
+            PlayAlert("WEAPON POWER IS ABOUT TO EXPIRE");
+        }
+    }
+
+    if (PlayerList[nPlayer].nInvisible > 0)
+    {
+        PlayerList[nPlayer].nInvisible--;
+        if (PlayerList[nPlayer].nInvisible == 0)
+        {
+            pPlayerSprite->cstat &= 0x7FFF; // set visible
+            short nFloorSprite = nPlayerFloorSprite[nPlayerSprite];
+
+            if (nFloorSprite > -1) {
+                sprite[nFloorSprite].cstat &= 0x7FFF; // set visible
+            }
+        }
+        else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
+        {
+            PlayAlert("INVISIBILITY IS ABOUT TO EXPIRE");
+        }
+    }
+
+    if (PlayerList[nPlayer].invincibility > 0)
+    {
+        PlayerList[nPlayer].invincibility--;
+        if (PlayerList[nPlayer].invincibility == 150 && nPlayer == nLocalPlayer) {
+            PlayAlert("INVINCIBILITY IS ABOUT TO EXPIRE");
+        }
+    }
+
+    if (nQuake[nPlayer] != 0)
+    {
+        nQuake[nPlayer] = -nQuake[nPlayer];
+        if (nQuake[nPlayer] > 0)
+        {
+            nQuake[nPlayer] -= 512;
+            if (nQuake[nPlayer] < 0)
+                nQuake[nPlayer] = 0;
+        }
+    }
+
+    // loc_1A494:
+    if (SyncInput())
+    {
+        Player* pPlayer = &PlayerList[nPlayer];
+        pPlayer->angle.applyinput(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
+        UpdatePlayerSpriteAngle(pPlayer);
+    }
+
+    // pPlayerSprite->zvel is modified within Gravity()
+    short zVel = pPlayerSprite->zvel;
+
+    Gravity(nPlayerSprite);
+
+    if (pPlayerSprite->zvel >= 6500 && zVel < 6500)
+    {
+        D3PlayFX(StaticSound[kSound17], nPlayerSprite);
+    }
+
+    // loc_1A4E6
+    short nSector = pPlayerSprite->sectnum;
+    short nSectFlag = SectFlag[nPlayerViewSect[nPlayer]];
+
+    int playerX = pPlayerSprite->x;
+    int playerY = pPlayerSprite->y;
+
+    int x = (sPlayerInput[nPlayer].xVel * 4) >> 2;
+    int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
+    int z = (pPlayerSprite->zvel * 4) >> 2;
+
+    if (pPlayerSprite->zvel > 8192)
+        pPlayerSprite->zvel = 8192;
+
+    if (PlayerList[nPlayer].bIsMummified)
+    {
+        x /= 2;
+        y /= 2;
+    }
+
+    int spr_x = pPlayerSprite->x;
+    int spr_y = pPlayerSprite->y;
+    int spr_z = pPlayerSprite->z;
+    int spr_sectnum = pPlayerSprite->sectnum;
+
+    // TODO
+    // nSectFlag & kSectUnderwater;
+
+    zVel = pPlayerSprite->zvel;
+
+    int nMove = 0; // TEMP
+
+    if (bSlipMode)
+    {
+        nMove = 0;
+
+        pPlayerSprite->x += (x >> 14);
+        pPlayerSprite->y += (y >> 14);
+
+        vec3_t pos = { pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z };
+        setsprite(nPlayerSprite, &pos);
+
+        pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
+    }
+    else
+    {
+        nMove = movesprite(nPlayerSprite, x, y, z, 5120, -5120, CLIPMASK0);
+
+        short var_54 = pPlayerSprite->sectnum;
+
+        pushmove_old(&pPlayerSprite->x, &pPlayerSprite->y, &pPlayerSprite->z, &var_54, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
+        if (var_54 != pPlayerSprite->sectnum) {
+            mychangespritesect(nPlayerSprite, var_54);
+        }
+    }
+
+    // loc_1A6E4
+    if (inside(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->sectnum) != 1)
+    {
+        mychangespritesect(nPlayerSprite, spr_sectnum);
+
+        pPlayerSprite->x = spr_x;
+        pPlayerSprite->y = spr_y;
+
+        if (zVel < pPlayerSprite->zvel) {
+            pPlayerSprite->zvel = zVel;
+        }
+    }
+
+    //			int _bTouchFloor = bTouchFloor;
+    short bUnderwater = SectFlag[pPlayerSprite->sectnum] & kSectUnderwater;
+
+    if (bUnderwater)
+    {
+        nXDamage[nPlayer] /= 2;
+        nYDamage[nPlayer] /= 2;
+    }
+
+    // Trigger Ramses?
+    if ((SectFlag[pPlayerSprite->sectnum] & 0x8000) && bTouchFloor)
+    {
+        if (nTotalPlayers <= 1)
+        {
+            auto ang = GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask;
+            PlayerList[nPlayer].angle.settarget(ang, true);
+            pPlayerSprite->ang = ang;
+
+            PlayerList[nPlayer].horizon.settarget(0, true);
+
+            lPlayerXVel = 0;
+            lPlayerYVel = 0;
+
+            pPlayerSprite->xvel = 0;
+            pPlayerSprite->yvel = 0;
+            pPlayerSprite->zvel = 0;
+
+            if (nFreeze < 1)
+            {
+                nFreeze = 1;
+                StopAllSounds();
+                StopLocalSound();
+                InitSpiritHead();
+
+                PlayerList[nPlayer].nDestVertPan = q16horiz(0);
+                PlayerList[nPlayer].horizon.settarget(currentLevel->ex_ramses_horiz);
+            }
+        }
+        else
+        {
+            LevelFinished();
         }
 
-        case 0xA0000:
+        return;
+    }
+
+    if (nMove & 0x3C000)
+    {
+        if (bTouchFloor)
         {
-            if (PlayerList[nPlayer].nHealth <= 0) {
-                return;
-            }
+            // Damage stuff..
+            nXDamage[nPlayer] /= 2;
+            nYDamage[nPlayer] /= 2;
 
-            nDamage = runlist_CheckRadialDamage(nPlayerSprite);
-            if (!nDamage) {
-                return;
-            }
-
-            nSprite2 = nRadialOwner;
-            // fall through to case 0x80000
-            fallthrough__;
-        }
-
-        case 0x80000:
-        {
-            // Dunno how to do this otherwise... we fall through from above but don't want to do this check..
-            if (nMessage != 0xA0000)
+            if (nPlayer == nLocalPlayer)
             {
-                if (!nDamage) {
-                    return;
+                short zVelB = zVel;
+
+                if (zVelB < 0) {
+                    zVelB = -zVelB;
                 }
 
-                nSprite2 = nObject;
+                if (zVelB > 512 && !PlayerList[nPlayer].horizon.horiz.asq16() && cl_slopetilting) {
+                    PlayerList[nPlayer].nDestVertPan = q16horiz(0);
+                }
             }
 
-            // ok continue case 0x80000 as normal, loc_1C57C
-            if (!PlayerList[nPlayer].nHealth) {
-                return;
-            }
-
-            if (!PlayerList[nPlayer].invincibility)
+            if (zVel >= 6500)
             {
-                PlayerList[nPlayer].nHealth -= nDamage;
-                if (nPlayer == nLocalPlayer)
+                pPlayerSprite->xvel >>= 2;
+                pPlayerSprite->yvel >>= 2;
+
+                runlist_DamageEnemy(nPlayerSprite, -1, ((zVel - 6500) >> 7) + 10);
+
+                if (PlayerList[nPlayer].nHealth <= 0)
                 {
-                    TintPalette(nDamage, 0, 0);
-                }
-            }
+                    pPlayerSprite->xvel = 0;
+                    pPlayerSprite->yvel = 0;
 
-            if (PlayerList[nPlayer].nHealth > 0)
-            {
-                if (nDamage > 40 || (totalmoves & 0xF) < 2)
-                {
-                    if (PlayerList[nPlayer].invincibility) {
-                        return;
-                    }
-
-                    if (SectFlag[pPlayerSprite->sectnum] & kSectUnderwater)
-                    {
-                        if (nAction != 12)
-                        {
-                            PlayerList[nPlayer].field_2 = 0;
-                            PlayerList[nPlayer].nAction = 12;
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        if (nAction != 4)
-                        {
-                            PlayerList[nPlayer].field_2 = 0;
-                            PlayerList[nPlayer].nAction = 4;
-
-                            if (nSprite2 > -1)
-                            {
-                                nPlayerSwear[nPlayer]--;
-                                if (nPlayerSwear[nPlayer] <= 0)
-                                {
-                                    D3PlayFX(StaticSound[kSound52], nDopple);
-                                    nPlayerSwear[nPlayer] = RandomSize(3) + 4;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return;
-            }
-            else
-            {
-                // player has died
-                if (nSprite2 > -1 && sprite[nSprite2].statnum == 100)
-                {
-                    short nPlayer2 = GetPlayerFromSprite(nSprite2);
-
-                    if (nPlayer2 == nPlayer) // player caused their own death
-                    {
-                        nPlayerScore[nPlayer]--;
-                    }
-                    else
-                    {
-                        nPlayerScore[nPlayer]++;
-                    }
-                }
-                else if (nSprite2 < 0)
-                {
-                    nPlayerScore[nPlayer]--;
-                }
-
-                if (nMessage == 0xA0000)
-                {
-                    for (int i = 122; i <= 131; i++)
-                    {
-                        BuildCreatureChunk(nPlayerSprite, seq_GetSeqPicnum(kSeqJoe, i, 0));
-                    }
-
-                    StartDeathSeq(nPlayer, 1);
+                    StopSpriteSound(nPlayerSprite);
+                    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, CHANF_NONE, 1); // CHECKME
                 }
                 else
                 {
-                    StartDeathSeq(nPlayer, 0);
+                    D3PlayFX(StaticSound[kSound27] | 0x2000, nPlayerSprite);
                 }
             }
-
-            return;
         }
 
-        case 0x20000:
+        if (((nMove & 0xC000) == 0x4000) || ((nMove & 0xC000) == 0x8000))
         {
-            pPlayerSprite->xvel = sPlayerInput[nPlayer].xVel >> 14;
-            pPlayerSprite->yvel = sPlayerInput[nPlayer].yVel >> 14;
+            int sectnum = 0;
 
-            if (sPlayerInput[nPlayer].nItem > -1)
+            if ((nMove & 0xC000) == 0x4000)
             {
-                UseItem(nPlayer, sPlayerInput[nPlayer].nItem);
-                sPlayerInput[nPlayer].nItem = -1;
+                sectnum = nMove & 0x3FFF;
+            }
+            else if ((nMove & 0xC000) == 0x8000)
+            {
+                sectnum = wall[nMove & 0x3FFF].nextsector;
             }
 
-            int var_EC = PlayerList[nPlayer].field_2;
-
-            pPlayerSprite->picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
-            sprite[nDopple].picnum = pPlayerSprite->picnum;
-
-            if (PlayerList[nPlayer].nTorch > 0)
+            if (sectnum >= 0)
             {
-                PlayerList[nPlayer].nTorch--;
-                if (PlayerList[nPlayer].nTorch == 0)
+                if ((sector[sectnum].hitag == 45) && bTouchFloor)
                 {
-                    SetTorch(nPlayer, 0);
-                }
-                else
-                {
-                    if (nPlayer != nLocalPlayer)
+                    int nNormal = GetWallNormal(nMove & 0x3FFF);
+                    int nDiff = AngleDiff(nNormal, (pPlayerSprite->ang + 1024) & kAngleMask);
+
+                    if (nDiff < 0) {
+                        nDiff = -nDiff;
+                    }
+
+                    if (nDiff <= 256)
                     {
-                        nFlashDepth = 5;
-                        AddFlash(pPlayerSprite->sectnum,
-                            pPlayerSprite->x,
-                            pPlayerSprite->y,
-                            pPlayerSprite->z, 0);
+                        nPlayerPushSect[nPlayer] = sectnum;
+
+                        int xvel = sPlayerInput[nPlayer].xVel;
+                        int yvel = sPlayerInput[nPlayer].yVel;
+                        int nMyAngle = GetMyAngle(xvel, yvel);
+
+                        setsectinterpolate(sectnum);
+                        MoveSector(sectnum, nMyAngle, &xvel, &yvel);
+
+                        if (nPlayerPushSound[nPlayer] <= -1)
+                        {
+                            nPlayerPushSound[nPlayer] = 1;
+                            short nBlock = sector[nPlayerPushSect[nPlayer]].extra;
+                            int nBlockSprite = sBlockInfo[nBlock].nSprite;
+
+                            D3PlayFX(StaticSound[kSound23], nBlockSprite, 0x4000);
+                        }
+                        else
+                        {
+                            pPlayerSprite->x = spr_x;
+                            pPlayerSprite->y = spr_y;
+                            pPlayerSprite->z = spr_z;
+
+                            mychangespritesect(nPlayerSprite, spr_sectnum);
+                        }
+
+                        movesprite(nPlayerSprite, xvel, yvel, z, 5120, -5120, CLIPMASK0);
+                        goto sectdone;
                     }
                 }
             }
+        }
+    }
 
-            if (PlayerList[nPlayer].nDouble > 0)
+    // loc_1AB46:
+    if (nPlayerPushSound[nPlayer] > -1)
+    {
+        if (nPlayerPushSect[nPlayer] > -1)
+        {
+            StopSpriteSound(sBlockInfo[sector[nPlayerPushSect[nPlayer]].extra].nSprite);
+        }
+
+        nPlayerPushSound[nPlayer] = -1;
+    }
+
+sectdone:
+    if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
+    {
+        PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((spr_z - pPlayerSprite->z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
+    }
+
+    playerX -= pPlayerSprite->x;
+    playerY -= pPlayerSprite->y;
+
+    uint32_t sqrtNum = playerX * playerX + playerY * playerY;
+
+    if (sqrtNum > INT_MAX)
+    {
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    ototalvel[nPlayer] = totalvel[nPlayer];
+    totalvel[nPlayer] = ksqrt(sqrtNum);
+
+    int nViewSect = pPlayerSprite->sectnum;
+
+    int EyeZ = eyelevel[nPlayer] + pPlayerSprite->z + nQuake[nPlayer];
+
+    while (1)
+    {
+        int nCeilZ = sector[nViewSect].ceilingz;
+
+        if (EyeZ >= nCeilZ)
+            break;
+
+        if (SectAbove[nViewSect] <= -1)
+            break;
+
+        nViewSect = SectAbove[nViewSect];
+    }
+
+    // Do underwater sector check
+    if (bUnderwater)
+    {
+        if (nViewSect != pPlayerSprite->sectnum)
+        {
+            if ((nMove & 0xC000) == 0x8000)
             {
-                PlayerList[nPlayer].nDouble--;
-                if (PlayerList[nPlayer].nDouble == 150 && nPlayer == nLocalPlayer) {
-                    PlayAlert("WEAPON POWER IS ABOUT TO EXPIRE");
-                }
-            }
+                int var_C4 = pPlayerSprite->x;
+                int var_D4 = pPlayerSprite->y;
+                int var_C8 = pPlayerSprite->z;
 
-            if (PlayerList[nPlayer].nInvisible > 0)
-            {
-                PlayerList[nPlayer].nInvisible--;
-                if (PlayerList[nPlayer].nInvisible == 0)
-                {
-                    pPlayerSprite->cstat &= 0x7FFF; // set visible
-                    short nFloorSprite = nPlayerFloorSprite[nPlayerSprite];
-
-                    if (nFloorSprite > -1) {
-                        sprite[nFloorSprite].cstat &= 0x7FFF; // set visible
-                    }
-                }
-                else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
-                {
-                    PlayAlert("INVISIBILITY IS ABOUT TO EXPIRE");
-                }
-            }
-
-            if (PlayerList[nPlayer].invincibility > 0)
-            {
-                PlayerList[nPlayer].invincibility--;
-                if (PlayerList[nPlayer].invincibility == 150 && nPlayer == nLocalPlayer) {
-                    PlayAlert("INVINCIBILITY IS ABOUT TO EXPIRE");
-                }
-            }
-
-            if (nQuake[nPlayer] != 0)
-            {
-                nQuake[nPlayer] = -nQuake[nPlayer];
-                if (nQuake[nPlayer] > 0)
-                {
-                    nQuake[nPlayer] -= 512;
-                    if (nQuake[nPlayer] < 0)
-                        nQuake[nPlayer] = 0;
-                }
-            }
-
-            // loc_1A494:
-            if (SyncInput())
-            {
-                Player* pPlayer = &PlayerList[nPlayer];
-                pPlayer->angle.applyinput(sPlayerInput[nPlayer].nAngle, &sPlayerInput[nLocalPlayer].actions);
-                UpdatePlayerSpriteAngle(pPlayer);
-            }
-
-            // pPlayerSprite->zvel is modified within Gravity()
-            short zVel = pPlayerSprite->zvel;
-
-            Gravity(nPlayerSprite);
-
-            if (pPlayerSprite->zvel >= 6500 && zVel < 6500)
-            {
-                D3PlayFX(StaticSound[kSound17], nPlayerSprite);
-            }
-
-            // loc_1A4E6
-            short nSector = pPlayerSprite->sectnum;
-            short nSectFlag = SectFlag[nPlayerViewSect[nPlayer]];
-
-            int playerX = pPlayerSprite->x;
-            int playerY = pPlayerSprite->y;
-
-            int x = (sPlayerInput[nPlayer].xVel * 4) >> 2;
-            int y = (sPlayerInput[nPlayer].yVel * 4) >> 2;
-            int z = (pPlayerSprite->zvel * 4) >> 2;
-
-            if (pPlayerSprite->zvel > 8192)
-                pPlayerSprite->zvel = 8192;
-
-            if (PlayerList[nPlayer].bIsMummified)
-            {
-                x /= 2;
-                y /= 2;
-            }
-
-            int spr_x = pPlayerSprite->x;
-            int spr_y = pPlayerSprite->y;
-            int spr_z = pPlayerSprite->z;
-            int spr_sectnum = pPlayerSprite->sectnum;
-
-            // TODO
-            // nSectFlag & kSectUnderwater;
-
-            zVel = pPlayerSprite->zvel;
-
-            int nMove = 0; // TEMP
-
-            if (bSlipMode)
-            {
-                nMove = 0;
-
-                pPlayerSprite->x += (x >> 14);
-                pPlayerSprite->y += (y >> 14);
-
-                vec3_t pos = { pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z };
-                setsprite(nPlayerSprite, &pos);
-
-                pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
-            }
-            else
-            {
-                nMove = movesprite(nPlayerSprite, x, y, z, 5120, -5120, CLIPMASK0);
-
-                short var_54 = pPlayerSprite->sectnum;
-
-                pushmove_old(&pPlayerSprite->x, &pPlayerSprite->y, &pPlayerSprite->z, &var_54, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
-                if (var_54 != pPlayerSprite->sectnum) {
-                    mychangespritesect(nPlayerSprite, var_54);
-                }
-            }
-
-            // loc_1A6E4
-            if (inside(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->sectnum) != 1)
-            {
-                mychangespritesect(nPlayerSprite, spr_sectnum);
+                mychangespritesect(nPlayerSprite, nViewSect);
 
                 pPlayerSprite->x = spr_x;
                 pPlayerSprite->y = spr_y;
 
-                if (zVel < pPlayerSprite->zvel) {
-                    pPlayerSprite->zvel = zVel;
-                }
-            }
+                int var_FC = sector[nViewSect].floorz + (-5120);
 
-//			int _bTouchFloor = bTouchFloor;
-            short bUnderwater = SectFlag[pPlayerSprite->sectnum] & kSectUnderwater;
+                pPlayerSprite->z = var_FC;
 
-            if (bUnderwater)
-            {
-                nXDamage[nPlayer] /= 2;
-                nYDamage[nPlayer] /= 2;
-            }
-
-            // Trigger Ramses?
-            if ((SectFlag[pPlayerSprite->sectnum] & 0x8000) && bTouchFloor)
-            {
-                if (nTotalPlayers <= 1)
+                if ((movesprite(nPlayerSprite, x, y, 0, 5120, 0, CLIPMASK0) & 0xC000) == 0x8000)
                 {
-                    auto ang = GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask;
-                    PlayerList[nPlayer].angle.settarget(ang, true);
-                    pPlayerSprite->ang = ang;
+                    mychangespritesect(nPlayerSprite, pPlayerSprite->sectnum);
 
-                    PlayerList[nPlayer].horizon.settarget(0, true);
-
-                    lPlayerXVel = 0;
-                    lPlayerYVel = 0;
-
-                    pPlayerSprite->xvel = 0;
-                    pPlayerSprite->yvel = 0;
-                    pPlayerSprite->zvel = 0;
-
-                    if (nFreeze < 1)
-                    {
-                        nFreeze = 1;
-                        StopAllSounds();
-                        StopLocalSound();
-                        InitSpiritHead();
-
-                        PlayerList[nPlayer].nDestVertPan = q16horiz(0);
-                        PlayerList[nPlayer].horizon.settarget(currentLevel->ex_ramses_horiz);
-                    }
+                    pPlayerSprite->x = var_C4;
+                    pPlayerSprite->y = var_D4;
+                    pPlayerSprite->z = var_C8;
                 }
                 else
                 {
-                    LevelFinished();
-                }
-
-                return;
-            }
-
-            if (nMove & 0x3C000)
-            {
-                if (bTouchFloor)
-                {
-                    // Damage stuff..
-                    nXDamage[nPlayer] /= 2;
-                    nYDamage[nPlayer] /= 2;
-
-                    if (nPlayer == nLocalPlayer)
-                    {
-                        short zVelB = zVel;
-
-                        if (zVelB < 0) {
-                            zVelB = -zVelB;
-                        }
-
-                        if (zVelB > 512 && !PlayerList[nPlayer].horizon.horiz.asq16() && cl_slopetilting) {
-                            PlayerList[nPlayer].nDestVertPan = q16horiz(0);
-                        }
-                    }
-
-                    if (zVel >= 6500)
-                    {
-                        pPlayerSprite->xvel >>= 2;
-                        pPlayerSprite->yvel >>= 2;
-
-                        runlist_DamageEnemy(nPlayerSprite, -1, ((zVel - 6500) >> 7) + 10);
-
-                        if (PlayerList[nPlayer].nHealth <= 0)
-                        {
-                            pPlayerSprite->xvel = 0;
-                            pPlayerSprite->yvel = 0;
-
-                            StopSpriteSound(nPlayerSprite);
-    					    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, CHANF_NONE, 1); // CHECKME
-                        }
-                        else
-                        {
-                            D3PlayFX(StaticSound[kSound27] | 0x2000, nPlayerSprite);
-                        }
-                    }
-                }
-
-                if (((nMove & 0xC000) == 0x4000) || ((nMove & 0xC000) == 0x8000))
-                {
-                    int sectnum = 0;
-
-                    if ((nMove & 0xC000) == 0x4000)
-                    {
-                        sectnum = nMove & 0x3FFF;
-                    }
-                    else if ((nMove & 0xC000) == 0x8000)
-                    {
-                        sectnum = wall[nMove & 0x3FFF].nextsector;
-                    }
-
-                    if (sectnum >= 0)
-                    {
-                        if ((sector[sectnum].hitag == 45) && bTouchFloor)
-                        {
-                            int nNormal = GetWallNormal(nMove & 0x3FFF);
-                            int nDiff = AngleDiff(nNormal, (pPlayerSprite->ang + 1024) & kAngleMask);
-
-                            if (nDiff < 0) {
-                                nDiff = -nDiff;
-                            }
-
-                            if (nDiff <= 256)
-                            {
-                                nPlayerPushSect[nPlayer] = sectnum;
-
-                                int xvel = sPlayerInput[nPlayer].xVel;
-                                int yvel = sPlayerInput[nPlayer].yVel;
-                                int nMyAngle = GetMyAngle(xvel, yvel);
-
-                                setsectinterpolate(sectnum);
-                                MoveSector(sectnum, nMyAngle, &xvel, &yvel);
-
-                                if (nPlayerPushSound[nPlayer] <= -1)
-                                {
-                                    nPlayerPushSound[nPlayer] = 1;
-                                    short nBlock = sector[nPlayerPushSect[nPlayer]].extra;
-                                    int nBlockSprite = sBlockInfo[nBlock].nSprite;
-
-                                    D3PlayFX(StaticSound[kSound23], nBlockSprite, 0x4000);
-                                }
-                                else
-                                {
-                                    pPlayerSprite->x = spr_x;
-                                    pPlayerSprite->y = spr_y;
-                                    pPlayerSprite->z = spr_z;
-
-                                    mychangespritesect(nPlayerSprite, spr_sectnum);
-                                }
-
-                                movesprite(nPlayerSprite, xvel, yvel, z, 5120, -5120, CLIPMASK0);
-                                goto sectdone;
-                            }
-                        }
-                    }
+                    pPlayerSprite->z = var_FC - 256;
+                    D3PlayFX(StaticSound[kSound42], nPlayerSprite);
                 }
             }
+        }
+    }
 
-            // loc_1AB46:
-            if (nPlayerPushSound[nPlayer] > -1)
-            {
-                if (nPlayerPushSect[nPlayer] > -1)
-                {
-                    StopSpriteSound(sBlockInfo[sector[nPlayerPushSect[nPlayer]].extra].nSprite);
-                }
+    // loc_1ADAF
+    nPlayerViewSect[nPlayer] = nViewSect;
 
-                nPlayerPushSound[nPlayer] = -1;
+    nPlayerDX[nPlayer] = pPlayerSprite->x - spr_x;
+    nPlayerDY[nPlayer] = pPlayerSprite->y - spr_y;
+
+    int var_5C = SectFlag[nViewSect] & kSectUnderwater;
+
+    uint16_t buttons = sPlayerInput[nPlayer].buttons;
+    auto actions = sPlayerInput[nPlayer].actions;
+
+    // loc_1AEF5:
+    if (PlayerList[nPlayer].nHealth > 0)
+    {
+        if (PlayerList[nPlayer].nMaskAmount > 0)
+        {
+            PlayerList[nPlayer].nMaskAmount--;
+            if (PlayerList[nPlayer].nMaskAmount == 150 && nPlayer == nLocalPlayer) {
+                PlayAlert("MASK IS ABOUT TO EXPIRE");
             }
+        }
 
-sectdone:
-            if (!PlayerList[nPlayer].bPlayerPan && !PlayerList[nPlayer].bLockPan)
+        if (!PlayerList[nPlayer].invincibility)
+        {
+            // Handle air
+            nBreathTimer[nPlayer]--;
+
+            if (nBreathTimer[nPlayer] <= 0)
             {
-                PlayerList[nPlayer].nDestVertPan = q16horiz(clamp((spr_z - pPlayerSprite->z) << 9, gi->playerHorizMin(), gi->playerHorizMax()));
-            }
+                nBreathTimer[nPlayer] = 90;
 
-            playerX -= pPlayerSprite->x;
-            playerY -= pPlayerSprite->y;
-
-            uint32_t sqrtNum = playerX * playerX + playerY * playerY;
-
-            if (sqrtNum > INT_MAX)
-            {
-                DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
-                sqrtNum = INT_MAX;
-            }
-
-            ototalvel[nPlayer] = totalvel[nPlayer];
-            totalvel[nPlayer] = ksqrt(sqrtNum);
-
-            int nViewSect = pPlayerSprite->sectnum;
-
-            int EyeZ = eyelevel[nPlayer] + pPlayerSprite->z + nQuake[nPlayer];
-
-            while (1)
-            {
-                int nCeilZ = sector[nViewSect].ceilingz;
-
-                if (EyeZ >= nCeilZ)
-                    break;
-
-                if (SectAbove[nViewSect] <= -1)
-                    break;
-
-                nViewSect = SectAbove[nViewSect];
-            }
-
-            // Do underwater sector check
-            if (bUnderwater)
-            {
-                if (nViewSect != pPlayerSprite->sectnum)
+                // if underwater
+                if (var_5C)
                 {
-                    if ((nMove & 0xC000) == 0x8000)
+                    if (PlayerList[nPlayer].nMaskAmount > 0)
                     {
-                        int var_C4 = pPlayerSprite->x;
-                        int var_D4 = pPlayerSprite->y;
-                        int var_C8 = pPlayerSprite->z;
+                        D3PlayFX(StaticSound[kSound30], nPlayerSprite);
 
-                        mychangespritesect(nPlayerSprite, nViewSect);
-
-                        pPlayerSprite->x = spr_x;
-                        pPlayerSprite->y = spr_y;
-
-                        int var_FC = sector[nViewSect].floorz + (-5120);
-
-                        pPlayerSprite->z = var_FC;
-
-                        if ((movesprite(nPlayerSprite, x, y, 0, 5120, 0, CLIPMASK0) & 0xC000) == 0x8000)
-                        {
-                            mychangespritesect(nPlayerSprite, pPlayerSprite->sectnum);
-
-                            pPlayerSprite->x = var_C4;
-                            pPlayerSprite->y = var_D4;
-                            pPlayerSprite->z = var_C8;
-                        }
-                        else
-                        {
-                            pPlayerSprite->z = var_FC - 256;
-                            D3PlayFX(StaticSound[kSound42], nPlayerSprite);
-                        }
-                    }
-                }
-            }
-
-            // loc_1ADAF
-            nPlayerViewSect[nPlayer] = nViewSect;
-
-            nPlayerDX[nPlayer] = pPlayerSprite->x - spr_x;
-            nPlayerDY[nPlayer] = pPlayerSprite->y - spr_y;
-
-            int var_5C = SectFlag[nViewSect] & kSectUnderwater;
-
-            uint16_t buttons = sPlayerInput[nPlayer].buttons;
-            auto actions = sPlayerInput[nPlayer].actions;
-
-            // loc_1AEF5:
-            if (PlayerList[nPlayer].nHealth > 0)
-            {
-                if (PlayerList[nPlayer].nMaskAmount > 0)
-                {
-                    PlayerList[nPlayer].nMaskAmount--;
-                    if (PlayerList[nPlayer].nMaskAmount == 150 && nPlayer == nLocalPlayer) {
-                        PlayAlert("MASK IS ABOUT TO EXPIRE");
-                    }
-                }
-
-                if (!PlayerList[nPlayer].invincibility)
-                {
-                    // Handle air
-                    nBreathTimer[nPlayer]--;
-
-                    if (nBreathTimer[nPlayer] <= 0)
-                    {
-                        nBreathTimer[nPlayer] = 90;
-
-                        // if underwater
-                        if (var_5C)
-                        {
-                            if (PlayerList[nPlayer].nMaskAmount > 0)
-                            {
-                                D3PlayFX(StaticSound[kSound30], nPlayerSprite);
-
-                                PlayerList[nPlayer].nAir = 100;
-                            }
-                            else
-                            {
-                                PlayerList[nPlayer].nAir -= 25;
-                                if (PlayerList[nPlayer].nAir > 0)
-                                {
-                                    D3PlayFX(StaticSound[kSound25], nPlayerSprite);
-                                }
-                                else
-                                {
-                                    PlayerList[nPlayer].nHealth += (PlayerList[nPlayer].nAir << 2);
-                                    if (PlayerList[nPlayer].nHealth <= 0)
-                                    {
-                                        PlayerList[nPlayer].nHealth = 0;
-                                        StartDeathSeq(nPlayer, 0);
-                                    }
-
-                                    PlayerList[nPlayer].nAir = 0;
-
-                                    if (PlayerList[nPlayer].nHealth < 300)
-                                    {
-                                        D3PlayFX(StaticSound[kSound79], nPlayerSprite);
-                                    }
-                                    else
-                                    {
-                                        D3PlayFX(StaticSound[kSound19], nPlayerSprite);
-                                    }
-                                }
-                            }
-
-                            DoBubbles(nPlayer);
-                        }
-                    }
-                }
-
-                // loc_1B0B9
-                if (var_5C) // if underwater
-                {
-                    if (PlayerList[nPlayer].nTorch > 0)
-                    {
-                        PlayerList[nPlayer].nTorch = 0;
-                        SetTorch(nPlayer, 0);
-                    }
-                }
-                else
-                {
-                    int nTmpSectNum = pPlayerSprite->sectnum;
-
-                    if (totalvel[nPlayer] > 25 && pPlayerSprite->z > sector[nTmpSectNum].floorz)
-                    {
-                        if (SectDepth[nTmpSectNum] && !SectSpeed[nTmpSectNum] && !SectDamage[nTmpSectNum])
-                        {
-                            D3PlayFX(StaticSound[kSound42], nPlayerSprite);
-                        }
-                    }
-
-                    // CHECKME - wrong place?
-                    if (nSectFlag & kSectUnderwater)
-                    {
-                        if (PlayerList[nPlayer].nAir < 50)
-                        {
-                            D3PlayFX(StaticSound[kSound14], nPlayerSprite);
-                        }
-
-                        nBreathTimer[nPlayer] = 1;
-                    }
-
-                    nBreathTimer[nPlayer]--;
-                    if (nBreathTimer[nPlayer] <= 0)
-                    {
-                        nBreathTimer[nPlayer] = 90;
-                    }
-
-                    if (PlayerList[nPlayer].nAir < 100)
-                    {
                         PlayerList[nPlayer].nAir = 100;
                     }
-                }
-
-                // loc_1B1EB
-                if (nTotalPlayers > 1)
-                {
-                    int nFloorSprite = nPlayerFloorSprite[nPlayer];
-
-                    sprite[nFloorSprite].x = pPlayerSprite->x;
-                    sprite[nFloorSprite].y = pPlayerSprite->y;
-
-                    if (sprite[nFloorSprite].sectnum != pPlayerSprite->sectnum)
-                    {
-                        mychangespritesect(nFloorSprite, pPlayerSprite->sectnum);
-                    }
-
-                    sprite[nFloorSprite].z = sector[pPlayerSprite->sectnum].floorz;
-                }
-
-                int var_30 = 0;
-
-                if (PlayerList[nPlayer].nHealth >= 800)
-                {
-                    var_30 = 2;
-                }
-
-                if (PlayerList[nPlayer].nMagic >= 1000)
-                {
-                    var_30 |= 1;
-                }
-
-                // code to handle item pickup?
-                short nearTagSector, nearTagWall, nearTagSprite;
-                int nearHitDist;
-
-                short nValB;
-
-                // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-                neartag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang,
-                    &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2, NULL);
-
-                feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum,
-                    &nValB, var_30, 768);
-
-				auto pSprite = &sprite[nValB];
-                // Item pickup code
-                if (nValB >= 0 && pSprite->statnum >= 900)
-                {
-                    int var_8C = 16;
-                    int var_88 = 9;
-
-                    int var_70 = pSprite->statnum - 900;
-                    int var_44 = 0;
-
-                    // item lotags start at 6 (1-5 reserved?) so 0-offset them
-                    int itemtype = var_70 - 6;
-
-                    if (itemtype <= 54)
-                    {
-                        switch (itemtype)
-                        {
-do_default:
-                            default:
-                            {
-                                // loc_1B3C7
-
-                                // CHECKME - is order of evaluation correct?
-                                if (!mplevel || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
-                                {
-                                    DestroyItemAnim(nValB);
-                                    mydeletesprite(nValB);
-                                }
-                                else
-                                {
-                                    StartRegenerate(nValB);
-                                }
-do_default_b:
-                                // loc_1BA74
-                                if (nPlayer == nLocalPlayer)
-                                {
-                                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                    {
-                                        pickupMessage(var_70);
-                                    }
-
-                                    TintPalette(var_44*4, var_8C*4, 0);
-
-                                    if (var_88 > -1)
-                                    {
-                                        PlayLocalSound(var_88, 0);
-                                    }
-                                }
-
-                                break;
-                            }
-                            case 0: // Speed Loader
-                            {
-                                if (AddAmmo(nPlayer, 1, pSprite->hitag))
-                                {
-                                    var_88 = StaticSound[kSoundAmmoPickup];
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-                            case 1: // Fuel Canister
-                            {
-                                if (AddAmmo(nPlayer, 3, pSprite->hitag))
-                                {
-                                    var_88 = StaticSound[kSoundAmmoPickup];
-                                    goto do_default;
-                                }
-                                break;
-                            }
-                            case 2: // M - 60 Ammo Belt
-                            {
-                                if (AddAmmo(nPlayer, 2, pSprite->hitag))
-                                {
-                                    var_88 = StaticSound[kSoundAmmoPickup];
-                                    CheckClip(nPlayer);
-                                    goto do_default;
-                                }
-                                break;
-                            }
-                            case 3: // Grenade
-                            case 21:
-                            case 49:
-                            {
-                                if (AddAmmo(nPlayer, 4, 1))
-                                {
-                                    var_88 = StaticSound[kSoundAmmoPickup];
-                                    if (!(nPlayerWeapons[nPlayer] & 0x10))
-                                    {
-                                        nPlayerWeapons[nPlayer] |= 0x10;
-                                        SetNewWeaponIfBetter(nPlayer, 4);
-                                    }
-
-                                    if (var_70 == 55)
-                                    {
-                                        pSprite->cstat = 0x8000;
-                                        DestroyItemAnim(nValB);
-
-                                        // loc_1BA74: - repeated block, see in default case
-                                        if (nPlayer == nLocalPlayer)
-                                        {
-                                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                            {
-                                                pickupMessage(var_70);
-                                            }
-
-                                            TintPalette(var_44*4, var_8C*4, 0);
-
-                                            if (var_88 > -1)
-                                            {
-                                                PlayLocalSound(var_88, 0);
-                                            }
-                                        }
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        goto do_default;
-                                    }
-                                }
-                                break;
-                            }
-
-                            case 4: // Pickable item
-                            case 9: // Pickable item
-                            case 10: // Reserved
-                            case 18:
-                            case 25:
-                            case 28:
-                            case 29:
-                            case 30:
-                            case 33:
-                            case 34:
-                            case 35:
-                            case 36:
-                            case 37:
-                            case 38:
-                            case 45:
-                            case 52:
-                            {
-                                goto do_default;
-                            }
-
-                            case 5: // Map
-                            {
-                                GrabMap();
-                                goto do_default;
-                            }
-
-                            case 6: // Berry Twig
-                            {
-                                if (pSprite->hitag == 0) {
-                                    break;
-                                }
-
-                                var_88 = 20;
-                                int edx = 40;
-
-                                if (edx <= 0 || (!(var_30 & 2)))
-                                {
-                                    if (!PlayerList[nPlayer].invincibility || edx > 0)
-                                    {
-                                        PlayerList[nPlayer].nHealth += edx;
-                                        if (PlayerList[nPlayer].nHealth > 800)
-                                        {
-                                            PlayerList[nPlayer].nHealth = 800;
-                                        }
-                                        else
-                                        {
-                                            if (PlayerList[nPlayer].nHealth < 0)
-                                            {
-                                                var_88 = -1;
-                                                StartDeathSeq(nPlayer, 0);
-                                            }
-                                        }
-                                    }
-
-                                    if (var_70 == 12)
-                                    {
-                                        pSprite->hitag = 0;
-                                        pSprite->picnum++;
-
-                                        changespritestat(nValB, 0);
-
-                                        // loc_1BA74: - repeated block, see in default case
-                                        if (nPlayer == nLocalPlayer)
-                                        {
-                                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                            {
-                                                pickupMessage(var_70);
-                                            }
-
-                                            TintPalette(var_44*4, var_8C*4, 0);
-
-                                            if (var_88 > -1)
-                                            {
-                                                PlayLocalSound(var_88, 0);
-                                            }
-                                        }
-
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        if (var_70 != 14)
-                                        {
-                                            var_88 = 21;
-                                        }
-                                        else
-                                        {
-                                            var_44 = var_8C;
-                                            var_88 = 22;
-                                            var_8C = 0;
-                                        }
-
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
-
-                            case 7: // Blood Bowl
-                            {
-                                int edx = 160;
-
-                                // Same code as case 6 now till break
-                                if (edx <= 0 || (!(var_30 & 2)))
-                                {
-                                    if (!PlayerList[nPlayer].invincibility || edx > 0)
-                                    {
-                                        PlayerList[nPlayer].nHealth += edx;
-                                        if (PlayerList[nPlayer].nHealth > 800)
-                                        {
-                                            PlayerList[nPlayer].nHealth = 800;
-                                        }
-                                        else
-                                        {
-                                            if (PlayerList[nPlayer].nHealth < 0)
-                                            {
-                                                var_88 = -1;
-                                                StartDeathSeq(nPlayer, 0);
-                                            }
-                                        }
-                                    }
-
-                                    if (var_70 == 12)
-                                    {
-                                        pSprite->hitag = 0;
-                                        pSprite->picnum++;
-
-                                        changespritestat(nValB, 0);
-
-                                        // loc_1BA74: - repeated block, see in default case
-                                        if (nPlayer == nLocalPlayer)
-                                        {
-                                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                            {
-                                                pickupMessage(var_70);
-                                            }
-
-                                            TintPalette(var_44*4, var_8C*4, 0);
-
-                                            if (var_88 > -1)
-                                            {
-                                                PlayLocalSound(var_88, 0);
-                                            }
-                                        }
-
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        if (var_70 != 14)
-                                        {
-                                            var_88 = 21;
-                                        }
-                                        else
-                                        {
-                                            var_44 = var_8C;
-                                            var_88 = 22;
-                                            var_8C = 0;
-                                        }
-
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
-
-                            case 8: // Cobra Venom Bowl
-                            {
-                                int edx = -200;
-
-                                // Same code as case 6 and 7 from now till break
-                                if (edx <= 0 || (!(var_30 & 2)))
-                                {
-                                    if (!PlayerList[nPlayer].invincibility || edx > 0)
-                                    {
-                                        PlayerList[nPlayer].nHealth += edx;
-                                        if (PlayerList[nPlayer].nHealth > 800)
-                                        {
-                                            PlayerList[nPlayer].nHealth = 800;
-                                        }
-                                        else
-                                        {
-                                            if (PlayerList[nPlayer].nHealth < 0)
-                                            {
-                                                var_88 = -1;
-                                                StartDeathSeq(nPlayer, 0);
-                                            }
-                                        }
-                                    }
-
-                                    if (var_70 == 12)
-                                    {
-                                        pSprite->hitag = 0;
-                                        pSprite->picnum++;
-
-                                        changespritestat(nValB, 0);
-
-                                        // loc_1BA74: - repeated block, see in default case
-                                        if (nPlayer == nLocalPlayer)
-                                        {
-                                            if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                            {
-                                                pickupMessage(var_70);
-                                            }
-
-                                            TintPalette(var_44*4, var_8C*4, 0);
-
-                                            if (var_88 > -1)
-                                            {
-                                                PlayLocalSound(var_88, 0);
-                                            }
-                                        }
-
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        if (var_70 != 14)
-                                        {
-                                            var_88 = 21;
-                                        }
-                                        else
-                                        {
-                                            var_44 = var_8C;
-                                            var_88 = 22;
-                                            var_8C = 0;
-                                        }
-
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
-
-                            case 11: // Bubble Nest
-                            {
-                                PlayerList[nPlayer].nAir += 10;
-                                if (PlayerList[nPlayer].nAir > 100) {
-                                    PlayerList[nPlayer].nAir = 100; // TODO - constant
-                                }
-
-                                if (nBreathTimer[nPlayer] < 89)
-                                {
-                                    D3PlayFX(StaticSound[kSound13], nPlayerSprite);
-                                }
-
-                                nBreathTimer[nPlayer] = 90;
-                                break;
-                            }
-
-                            case 12: // Still Beating Heart
-                            {
-                                if (GrabItem(nPlayer, kItemHeart)) {
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-
-                            case 13: // Scarab amulet(Invicibility)
-                            {
-                                if (GrabItem(nPlayer, kItemInvincibility)) {
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-
-                            case 14: // Severed Slave Hand(double damage)
-                            {
-                                if (GrabItem(nPlayer, kItemDoubleDamage)) {
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-
-                            case 15: // Unseen eye(Invisibility)
-                            {
-                                if (GrabItem(nPlayer, kItemInvisibility)) {
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-
-                            case 16: // Torch
-                            {
-                                if (GrabItem(nPlayer, kItemTorch)) {
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-
-                            case 17: // Sobek Mask
-                            {
-                                if (GrabItem(nPlayer, kItemMask)) {
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-
-                            case 19: // Extra Life
-                            {
-                                var_88 = -1;
-
-                                if (PlayerList[nPlayer].nLives >= kMaxPlayerLives) {
-                                    break;
-                                }
-
-                                PlayerList[nPlayer].nLives++;
-
-                                var_8C = 32;
-                                var_44 = 32;
-                                goto do_default;
-                            }
-
-                            // FIXME - lots of repeated code from here down!!
-                            case 20: // sword pickup??
-                            {
-                                var_40 = 0;
-                                int ebx = 0;
-
-                                // loc_1B75D
-                                int var_18 = 1 << var_40;
-
-                                short weapons = nPlayerWeapons[nPlayer];
-
-                                if (weapons & var_18)
-                                {
-                                    if (mplevel)
-                                    {
-                                        AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                                    }
-                                }
-                                else
-                                {
-                                    weapons = var_40;
-
-                                    SetNewWeaponIfBetter(nPlayer, weapons);
-
-                                    nPlayerWeapons[nPlayer] |= var_18;
-
-                                    AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                                    var_88 = StaticSound[kSound72];
-                                }
-
-                                if (var_40 == 2) {
-                                    CheckClip(nPlayer);
-                                }
-
-                                if (var_70 <= 50) {
-                                    goto do_default;
-                                }
-
-                                pSprite->cstat = 0x8000;
-                                DestroyItemAnim(nValB);
-////
-                                // loc_1BA74: - repeated block, see in default case
-                                if (nPlayer == nLocalPlayer)
-                                {
-                                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                    {
-                                        pickupMessage(var_70);
-                                    }
-
-                                    TintPalette(var_44*4, var_8C*4, 0);
-
-                                    if (var_88 > -1)
-                                    {
-                                        PlayLocalSound(var_88, 0);
-                                    }
-                                }
-
-                                break;
-/////
-                            }
-
-                            case 22: // .357 Magnum Revolver
-                            case 46:
-                            {
-                                var_40 = 1;
-                                int ebx = 6;
-
-                                // loc_1B75D
-                                int var_18 = 1 << var_40;
-
-                                short weapons = nPlayerWeapons[nPlayer];
-
-                                if (weapons & var_18)
-                                {
-                                    if (mplevel)
-                                    {
-                                        AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                                    }
-                                }
-                                else
-                                {
-                                    weapons = var_40;
-
-                                    SetNewWeaponIfBetter(nPlayer, weapons);
-
-                                    nPlayerWeapons[nPlayer] |= var_18;
-
-                                    AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                                    var_88 = StaticSound[kSound72];
-                                }
-
-                                if (var_40 == 2) {
-                                    CheckClip(nPlayer);
-                                }
-
-                                if (var_70 <= 50) {
-                                    goto do_default;
-                                }
-
-                                pSprite->cstat = 0x8000;
-                                DestroyItemAnim(nValB);
-////
-                                // loc_1BA74: - repeated block, see in default case
-                                if (nPlayer == nLocalPlayer)
-                                {
-                                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                    {
-                                        pickupMessage(var_70);
-                                    }
-
-                                    TintPalette(var_44*4, var_8C*4, 0);
-
-                                    if (var_88 > -1)
-                                    {
-                                        PlayLocalSound(var_88, 0);
-                                    }
-                                }
-
-                                break;
-/////
-                            }
-
-                            case 23: // M - 60 Machine Gun
-                            case 47:
-                            {
-                                var_40 = 2;
-                                int ebx = 24;
-
-                                // loc_1B75D
-                                int var_18 = 1 << var_40;
-
-                                short weapons = nPlayerWeapons[nPlayer];
-
-                                if (weapons & var_18)
-                                {
-                                    if (mplevel)
-                                    {
-                                        AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                                    }
-                                }
-                                else
-                                {
-                                    weapons = var_40;
-
-                                    SetNewWeaponIfBetter(nPlayer, weapons);
-
-                                    nPlayerWeapons[nPlayer] |= var_18;
-
-                                    AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                                    var_88 = StaticSound[kSound72];
-                                }
-
-                                if (var_40 == 2) {
-                                    CheckClip(nPlayer);
-                                }
-
-                                if (var_70 <= 50) {
-                                    goto do_default;
-                                }
-
-                                pSprite->cstat = 0x8000;
-                                DestroyItemAnim(nValB);
-////
-                                // loc_1BA74: - repeated block, see in default case
-                                if (nPlayer == nLocalPlayer)
-                                {
-                                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                    {
-                                        pickupMessage(var_70);
-                                    }
-
-                                    TintPalette(var_44*4, var_8C*4, 0);
-
-                                    if (var_88 > -1)
-                                    {
-                                        PlayLocalSound(var_88, 0);
-                                    }
-                                }
-
-                                break;
-/////
-                            }
-
-                            case 24: // Flame Thrower
-                            case 48:
-                            {
-                                var_40 = 3;
-                                int ebx = 100;
-
-                                // loc_1B75D
-                                int var_18 = 1 << var_40;
-
-                                short weapons = nPlayerWeapons[nPlayer];
-
-                                if (weapons & var_18)
-                                {
-                                    if (mplevel)
-                                    {
-                                        AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                                    }
-                                }
-                                else
-                                {
-                                    weapons = var_40;
-
-                                    SetNewWeaponIfBetter(nPlayer, weapons);
-
-                                    nPlayerWeapons[nPlayer] |= var_18;
-
-                                    AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                                    var_88 = StaticSound[kSound72];
-                                }
-
-                                if (var_40 == 2) {
-                                    CheckClip(nPlayer);
-                                }
-
-                                if (var_70 <= 50) {
-                                    goto do_default;
-                                }
-
-                                pSprite->cstat = 0x8000;
-                                DestroyItemAnim(nValB);
-////
-                                // loc_1BA74: - repeated block, see in default case
-                                if (nPlayer == nLocalPlayer)
-                                {
-                                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                    {
-                                        pickupMessage(var_70);
-                                    }
-
-                                    TintPalette(var_44*4, var_8C*4, 0);
-
-                                    if (var_88 > -1)
-                                    {
-                                        PlayLocalSound(var_88, 0);
-                                    }
-                                }
-
-                                break;
-/////
-                            }
-
-                            case 26: // Cobra Staff
-                            case 50:
-                            {
-                                var_40 = 5;
-                                int ebx = 20;
-
-                                // loc_1B75D
-                                int var_18 = 1 << var_40;
-
-                                short weapons = nPlayerWeapons[nPlayer];
-
-                                if (weapons & var_18)
-                                {
-                                    if (mplevel)
-                                    {
-                                        AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                                    }
-                                }
-                                else
-                                {
-                                    weapons = var_40;
-
-                                    SetNewWeaponIfBetter(nPlayer, weapons);
-
-                                    nPlayerWeapons[nPlayer] |= var_18;
-
-                                    AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                                    var_88 = StaticSound[kSound72];
-                                }
-
-                                if (var_40 == 2) {
-                                    CheckClip(nPlayer);
-                                }
-
-                                if (var_70 <= 50) {
-                                    goto do_default;
-                                }
-
-                                pSprite->cstat = 0x8000;
-                                DestroyItemAnim(nValB);
-////
-                                // loc_1BA74: - repeated block, see in default case
-                                if (nPlayer == nLocalPlayer)
-                                {
-                                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                    {
-                                        pickupMessage(var_70);
-                                    }
-
-                                    TintPalette(var_44*4, var_8C*4, 0);
-
-                                    if (var_88 > -1)
-                                    {
-                                        PlayLocalSound(var_88, 0);
-                                    }
-                                }
-
-                                break;
-/////
-                            }
-
-                            case 27: // Eye of Ra Gauntlet
-                            case 51:
-                            {
-                                var_40 = 6;
-                                int ebx = 2;
-
-                                // loc_1B75D
-                                int var_18 = 1 << var_40;
-
-                                short weapons = nPlayerWeapons[nPlayer];
-
-                                if (weapons & var_18)
-                                {
-                                    if (mplevel)
-                                    {
-                                        AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
-                                    }
-                                }
-                                else
-                                {
-                                    weapons = var_40;
-
-                                    SetNewWeaponIfBetter(nPlayer, weapons);
-
-                                    nPlayerWeapons[nPlayer] |= var_18;
-
-                                    AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
-
-                                    var_88 = StaticSound[kSound72];
-                                }
-
-                                if (var_40 == 2) {
-                                    CheckClip(nPlayer);
-                                }
-
-                                if (var_70 <= 50) {
-                                    goto do_default;
-                                }
-
-                                pSprite->cstat = 0x8000;
-                                DestroyItemAnim(nValB);
-////
-                                // loc_1BA74: - repeated block, see in default case
-                                if (nPlayer == nLocalPlayer)
-                                {
-                                    if (nItemText[var_70] > -1 && nTotalPlayers == 1)
-                                    {
-                                        pickupMessage(var_70);
-                                    }
-
-                                    TintPalette(var_44*4, var_8C*4, 0);
-
-                                    if (var_88 > -1)
-                                    {
-                                        PlayLocalSound(var_88, 0);
-                                    }
-                                }
-
-                                break;
-/////
-                            }
-
-                            case 31: // Cobra staff ammo
-                            {
-                                if (AddAmmo(nPlayer, 5, 1)) {
-                                    var_88 = StaticSound[kSoundAmmoPickup];
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-
-                            case 32: // Raw Energy
-                            {
-                                if (AddAmmo(nPlayer, 6, pSprite->hitag)) {
-                                    var_88 = StaticSound[kSoundAmmoPickup];
-                                    goto do_default;
-                                }
-
-                                break;
-                            }
-
-                            case 39: // Power key
-                            case 40: // Time key
-                            case 41: // War key
-                            case 42: // Earth key
-                            {
-                                int keybit = 4096 << (itemtype - 39);
-
-                                var_88 = -1;
-
-                                if (!(PlayerList[nPlayer].keys & keybit))
-                                {
-                                    PlayerList[nPlayer].keys |= keybit;
-
-                                    if (nTotalPlayers > 1)
-                                    {
-                                        goto do_default_b;
-                                    }
-                                    else
-                                    {
-                                        goto do_default;
-                                    }
-                                }
-
-                                break;
-                            }
-
-                            case 43: // Magical Essence
-                            case 44: // ?
-                            {
-                                if (PlayerList[nPlayer].nMagic >= 1000) {
-                                    break;
-                                }
-
-                                var_88 = StaticSound[kSoundMana1];
-
-                                PlayerList[nPlayer].nMagic += 100;
-                                if (PlayerList[nPlayer].nMagic >= 1000) {
-                                    PlayerList[nPlayer].nMagic = 1000;
-                                }
-
-                                goto do_default;
-                            }
-
-                            case 53: // Scarab (Checkpoint)
-                            {
-                                if (nLocalPlayer == nPlayer)
-                                {
-                                    short nAnim = pSprite->owner;
-                                    AnimList[nAnim].nSeq++;
-                                    AnimList[nAnim].AnimFlags &= 0xEF;
-                                    AnimList[nAnim].field_2 = 0;
-
-                                    changespritestat(nValB, 899);
-                                }
-
-                                SetSavePoint(nPlayer, pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang);
-                                break;
-                            }
-
-                            case 54: // Golden Sarcophagus (End Level)
-                            {
-                                if (!bInDemo) 
-                                {
-                                    LevelFinished();
-                                }
-
-                                DestroyItemAnim(nValB);
-                                mydeletesprite(nValB);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // CORRECT ? // loc_1BAF9:
-                if (bTouchFloor)
-                {
-                    if (sector[pPlayerSprite->sectnum].lotag > 0)
-                    {
-                        runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer | 0x50000);
-                    }
-                }
-
-                if (nSector != pPlayerSprite->sectnum)
-                {
-                    if (sector[nSector].lotag > 0)
-                    {
-                        runlist_SignalRun(sector[nSector].lotag - 1, nPlayer | 0x70000);
-                    }
-
-                    if (sector[pPlayerSprite->sectnum].lotag > 0)
-                    {
-                        runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer | 0x60000);
-                    }
-                }
-
-                if (!PlayerList[nPlayer].bIsMummified)
-                {
-                    if (actions & SB_OPEN)
-                    {
-                        ClearSpaceBar(nPlayer);
-
-                        if (nearTagWall >= 0 && wall[nearTagWall].lotag > 0)
-                        {
-                            runlist_SignalRun(wall[nearTagWall].lotag - 1, nPlayer | 0x40000);
-                        }
-
-                        if (nearTagSector >= 0 && sector[nearTagSector].lotag > 0)
-                        {
-                            runlist_SignalRun(sector[nearTagSector].lotag - 1, nPlayer | 0x40000);
-                        }
-                    }
-
-                    // was int var_38 = buttons & 0x8
-                    if (actions & SB_FIRE)
-                    {
-                        FireWeapon(nPlayer);
-                    }
                     else
                     {
-                        StopFiringWeapon(nPlayer);
-                    }
-
-                    // loc_1BC57:
-
-                    // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerSprite->sectnum so we can make this code a bit neater. Don't assume pPlayerSprite->sectnum == nSector here!!
-                    if (nStandHeight > (sector[pPlayerSprite->sectnum].floorz - sector[pPlayerSprite->sectnum].ceilingz)) {
-                        var_48 = 1;
-                    }
-
-                    // Jumping
-                    if (actions & SB_JUMP)
-                    {
-                        if (bUnderwater)
+                        PlayerList[nPlayer].nAir -= 25;
+                        if (PlayerList[nPlayer].nAir > 0)
                         {
-                            pPlayerSprite->zvel = -2048;
-                            nActionB = 10;
-                        }
-                        else if (bTouchFloor)
-                        {
-                            if (nAction < 6 || nAction > 8)
-                            {
-                                pPlayerSprite->zvel = -3584;
-                                nActionB = 3;
-                            }
-                        }
-
-                        // goto loc_1BE70:
-                    }
-                    else if (actions & SB_CROUCH)
-                    {
-                        if (bUnderwater)
-                        {
-                            pPlayerSprite->zvel = 2048;
-                            nActionB = 10;
+                            D3PlayFX(StaticSound[kSound25], nPlayerSprite);
                         }
                         else
                         {
-                            if (eyelevel[nPlayer] < -8320) {
-                                eyelevel[nPlayer] += ((-8320 - eyelevel[nPlayer]) >> 1);
-                            }
-
-loc_1BD2E:
-                            if (totalvel[nPlayer] < 1) {
-                                nActionB = 6;
-                            }
-                            else {
-                                nActionB = 7;
-                            }
-                        }
-
-                        // goto loc_1BE70:
-                    }
-                    else
-                    {
-                        if (PlayerList[nPlayer].nHealth > 0)
-                        {
-                            int var_EC = nActionEyeLevel[nAction];
-                            eyelevel[nPlayer] += (var_EC - eyelevel[nPlayer]) >> 1;
-
-                            if (bUnderwater)
+                            PlayerList[nPlayer].nHealth += (PlayerList[nPlayer].nAir << 2);
+                            if (PlayerList[nPlayer].nHealth <= 0)
                             {
-                                if (totalvel[nPlayer] <= 1)
-                                    nActionB = 9;
-                                else
-                                    nActionB = 10;
+                                PlayerList[nPlayer].nHealth = 0;
+                                StartDeathSeq(nPlayer, 0);
+                            }
+
+                            PlayerList[nPlayer].nAir = 0;
+
+                            if (PlayerList[nPlayer].nHealth < 300)
+                            {
+                                D3PlayFX(StaticSound[kSound79], nPlayerSprite);
                             }
                             else
                             {
-                                // CHECKME - confirm branching in this area is OK
-                                if (var_48)
-                                {
-                                    goto loc_1BD2E;
-                                }
-                                else
-                                {
-                                    if (totalvel[nPlayer] <= 1) {
-                                        nActionB = 0;//bUnderwater; // this is just setting to 0
-                                    }
-                                    else if (totalvel[nPlayer] <= 30) {
-                                        nActionB = 2;
-                                    }
-                                    else
-                                    {
-                                        nActionB = 1;
-                                    }
-                                }
-                            }
-                        }
-                        // loc_1BE30
-                        if (actions & SB_FIRE) // was var_38
-                        {
-                            if (bUnderwater)
-                            {
-                                nActionB = 11;
-                            }
-                            else
-                            {
-                                if (nActionB != 2 && nActionB != 1)
-                                {
-                                    nActionB = 5;
-                                }
+                                D3PlayFX(StaticSound[kSound19], nPlayerSprite);
                             }
                         }
                     }
 
-                    // loc_1BE70:
-                    // Handle player pressing number keys to change weapon
-                    uint8_t var_90 = sPlayerInput[nPlayer].getNewWeapon();
-
-                    if (var_90)
-                    {
-                        var_90--;
-
-                        if (nPlayerWeapons[nPlayer] & (1 << var_90))
-                        {
-                            SetNewWeapon(nPlayer, var_90);
-                        }
-                    }
-                }
-                else // player is mummified
-                {
-                    if (actions & SB_FIRE)
-                    {
-                        FireWeapon(nPlayer);
-                    }
-
-                    if (nAction != 15)
-                    {
-                        if (totalvel[nPlayer] <= 1)
-                        {
-                            nActionB = 13;
-                        }
-                        else
-                        {
-                            nActionB = 14;
-                        }
-                    }
-                }
-
-                // loc_1BF09
-                if (nActionB != nAction && nAction != 4)
-                {
-                    nAction = nActionB;
-                    PlayerList[nPlayer].nAction = nActionB;
-                    PlayerList[nPlayer].field_2 = 0;
-                }
-
-                Player* pPlayer = &PlayerList[nPlayer];
-
-                if (SyncInput())
-                {
-                    pPlayer->horizon.applyinput(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
-                }
-
-                if (actions & (SB_LOOK_UP | SB_LOOK_DOWN) || sPlayerInput[nPlayer].pan)
-                {
-                    pPlayer->nDestVertPan = pPlayer->horizon.horiz;
-                    pPlayer->bPlayerPan = pPlayer->bLockPan = true;
-                }
-                else if (actions & (SB_AIM_UP | SB_AIM_DOWN | SB_CENTERVIEW))
-                {
-                    pPlayer->nDestVertPan = pPlayer->horizon.horiz;
-                    pPlayer->bPlayerPan = pPlayer->bLockPan = false;
-                }
-
-                if (totalvel[nPlayer] > 20)
-                {
-                    pPlayer->bPlayerPan = false;
-                }
-
-                if (cl_slopetilting)
-                {
-                    double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asbuildf() * 0.25;
-                    if (nVertPan != 0)
-                    {
-                        pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4, 4) : nVertPan * 2.);
-                    }
+                    DoBubbles(nPlayer);
                 }
             }
-            else // else, player's health is less than 0
+        }
+
+        // loc_1B0B9
+        if (var_5C) // if underwater
+        {
+            if (PlayerList[nPlayer].nTorch > 0)
             {
-                // loc_1C0E9
-                if (actions & SB_OPEN)
+                PlayerList[nPlayer].nTorch = 0;
+                SetTorch(nPlayer, 0);
+            }
+        }
+        else
+        {
+            int nTmpSectNum = pPlayerSprite->sectnum;
+
+            if (totalvel[nPlayer] > 25 && pPlayerSprite->z > sector[nTmpSectNum].floorz)
+            {
+                if (SectDepth[nTmpSectNum] && !SectSpeed[nTmpSectNum] && !SectDamage[nTmpSectNum])
                 {
-                    ClearSpaceBar(nPlayer);
-
-                    if (nAction >= 16)
-                    {
-                        if (nPlayer == nLocalPlayer)
-                        {
-                            StopAllSounds();
-                            StopLocalSound();
-                            GrabPalette();
-                        }
-
-                        PlayerList[nPlayer].nCurrentWeapon = nPlayerOldWeapon[nPlayer];
-
-                        if (PlayerList[nPlayer].nLives && nNetTime)
-                        {
-                            if (nAction != 20)
-                            {
-                                pPlayerSprite->picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
-                                pPlayerSprite->cstat = 0;
-                                pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
-                            }
-
-                            // will invalidate nPlayerSprite
-                            RestartPlayer(nPlayer);
-
-                            nPlayerSprite = PlayerList[nPlayer].nSprite;
-                            nDopple = nDoppleSprite[nPlayer];
-                        }
-                        else
-                        {
-                            DoGameOverScene(mplevel);
-                            return;
-                        }
-                    }
+                    D3PlayFX(StaticSound[kSound42], nPlayerSprite);
                 }
             }
 
-            // loc_1C201:
-            if (nLocalPlayer == nPlayer)
+            // CHECKME - wrong place?
+            if (nSectFlag & kSectUnderwater)
             {
-                nLocalEyeSect = nPlayerViewSect[nLocalPlayer];
-                CheckAmbience(nLocalEyeSect);
-            }
-
-            int var_AC = SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a;
-
-            seq_MoveSequence(nPlayerSprite, var_AC, PlayerList[nPlayer].field_2);
-            PlayerList[nPlayer].field_2++;
-
-            if (PlayerList[nPlayer].field_2 >= SeqSize[var_AC])
-            {
-                PlayerList[nPlayer].field_2 = 0;
-
-                switch (PlayerList[nPlayer].nAction)
+                if (PlayerList[nPlayer].nAir < 50)
                 {
-                    default:
-                        break;
-
-                    case 3:
-                        PlayerList[nPlayer].field_2 = SeqSize[var_AC] - 1;
-                        break;
-                    case 4:
-                        PlayerList[nPlayer].nAction = 0;
-                        break;
-                    case 16:
-                        PlayerList[nPlayer].field_2 = SeqSize[var_AC] - 1;
-
-                        if (pPlayerSprite->z < sector[pPlayerSprite->sectnum].floorz) {
-                            pPlayerSprite->z += 256;
-                        }
-
-                        if (!RandomSize(5))
-                        {
-                            int mouthX, mouthY, mouthZ;
-                            short mouthSect;
-                            WheresMyMouth(nPlayer, &mouthX, &mouthY, &mouthZ, &mouthSect);
-
-                            BuildAnim(-1, 71, 0, mouthX, mouthY, pPlayerSprite->z + 3840, mouthSect, 75, 128);
-                        }
-                        break;
-                    case 17:
-                        PlayerList[nPlayer].nAction = 18;
-                        break;
-                    case 19:
-                        pPlayerSprite->cstat |= 0x8000;
-                        PlayerList[nPlayer].nAction = 20;
-                        break;
+                    D3PlayFX(StaticSound[kSound14], nPlayerSprite);
                 }
+
+                nBreathTimer[nPlayer] = 1;
             }
 
-            // loc_1C3B4:
-            if (nPlayer == nLocalPlayer)
+            nBreathTimer[nPlayer]--;
+            if (nBreathTimer[nPlayer] <= 0)
             {
-                initx = pPlayerSprite->x;
-                inity = pPlayerSprite->y;
-                initz = pPlayerSprite->z;
-                initsect = pPlayerSprite->sectnum;
-                inita = pPlayerSprite->ang;
+                nBreathTimer[nPlayer] = 90;
             }
 
-            if (!PlayerList[nPlayer].nHealth)
+            if (PlayerList[nPlayer].nAir < 100)
             {
-                nYDamage[nPlayer] = 0;
-                nXDamage[nPlayer] = 0;
+                PlayerList[nPlayer].nAir = 100;
+            }
+        }
 
-                if (eyelevel[nPlayer] >= -2816)
+        // loc_1B1EB
+        if (nTotalPlayers > 1)
+        {
+            int nFloorSprite = nPlayerFloorSprite[nPlayer];
+
+            sprite[nFloorSprite].x = pPlayerSprite->x;
+            sprite[nFloorSprite].y = pPlayerSprite->y;
+
+            if (sprite[nFloorSprite].sectnum != pPlayerSprite->sectnum)
+            {
+                mychangespritesect(nFloorSprite, pPlayerSprite->sectnum);
+            }
+
+            sprite[nFloorSprite].z = sector[pPlayerSprite->sectnum].floorz;
+        }
+
+        int var_30 = 0;
+
+        if (PlayerList[nPlayer].nHealth >= 800)
+        {
+            var_30 = 2;
+        }
+
+        if (PlayerList[nPlayer].nMagic >= 1000)
+        {
+            var_30 |= 1;
+        }
+
+        // code to handle item pickup?
+        short nearTagSector, nearTagWall, nearTagSprite;
+        int nearHitDist;
+
+        short nValB;
+
+        // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
+        neartag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang,
+            &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2, NULL);
+
+        feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum,
+            &nValB, var_30, 768);
+
+        auto pSprite = &sprite[nValB];
+        // Item pickup code
+        if (nValB >= 0 && pSprite->statnum >= 900)
+        {
+            int var_8C = 16;
+            int var_88 = 9;
+
+            int var_70 = pSprite->statnum - 900;
+            int var_44 = 0;
+
+            // item lotags start at 6 (1-5 reserved?) so 0-offset them
+            int itemtype = var_70 - 6;
+
+            if (itemtype <= 54)
+            {
+                switch (itemtype)
                 {
-                    eyelevel[nPlayer] = -2816;
-                    dVertPan[nPlayer] = 0;
-                }
-                else
+                do_default:
+                default:
                 {
-                    if (PlayerList[nPlayer].horizon.horiz.asq16() < 0)
+                    // loc_1B3C7
+
+                    // CHECKME - is order of evaluation correct?
+                    if (!mplevel || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
                     {
-                        PlayerList[nPlayer].horizon.settarget(0);
-                        eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
+                        DestroyItemAnim(nValB);
+                        mydeletesprite(nValB);
                     }
                     else
                     {
-                        PlayerList[nPlayer].horizon.addadjustment(dVertPan[nPlayer]);
-
-                        if (PlayerList[nPlayer].horizon.horiz.asq16() > gi->playerHorizMax())
+                        StartRegenerate(nValB);
+                    }
+                do_default_b:
+                    // loc_1BA74
+                    if (nPlayer == nLocalPlayer)
+                    {
+                        if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                         {
-                            PlayerList[nPlayer].horizon.settarget(gi->playerHorizMax());
+                            pickupMessage(var_70);
                         }
-                        else if (PlayerList[nPlayer].horizon.horiz.asq16() <= 0)
+
+                        TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                        if (var_88 > -1)
                         {
-                            if (!(SectFlag[pPlayerSprite->sectnum] & kSectUnderwater))
+                            PlayLocalSound(var_88, 0);
+                        }
+                    }
+
+                    break;
+                }
+                case 0: // Speed Loader
+                {
+                    if (AddAmmo(nPlayer, 1, pSprite->hitag))
+                    {
+                        var_88 = StaticSound[kSoundAmmoPickup];
+                        goto do_default;
+                    }
+
+                    break;
+                }
+                case 1: // Fuel Canister
+                {
+                    if (AddAmmo(nPlayer, 3, pSprite->hitag))
+                    {
+                        var_88 = StaticSound[kSoundAmmoPickup];
+                        goto do_default;
+                    }
+                    break;
+                }
+                case 2: // M - 60 Ammo Belt
+                {
+                    if (AddAmmo(nPlayer, 2, pSprite->hitag))
+                    {
+                        var_88 = StaticSound[kSoundAmmoPickup];
+                        CheckClip(nPlayer);
+                        goto do_default;
+                    }
+                    break;
+                }
+                case 3: // Grenade
+                case 21:
+                case 49:
+                {
+                    if (AddAmmo(nPlayer, 4, 1))
+                    {
+                        var_88 = StaticSound[kSoundAmmoPickup];
+                        if (!(nPlayerWeapons[nPlayer] & 0x10))
+                        {
+                            nPlayerWeapons[nPlayer] |= 0x10;
+                            SetNewWeaponIfBetter(nPlayer, 4);
+                        }
+
+                        if (var_70 == 55)
+                        {
+                            pSprite->cstat = 0x8000;
+                            DestroyItemAnim(nValB);
+
+                            // loc_1BA74: - repeated block, see in default case
+                            if (nPlayer == nLocalPlayer)
                             {
-                                SetNewWeapon(nPlayer, nDeathType[nPlayer] + 8);
+                                if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                                {
+                                    pickupMessage(var_70);
+                                }
+
+                                TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                                if (var_88 > -1)
+                                {
+                                    PlayLocalSound(var_88, 0);
+                                }
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            goto do_default;
+                        }
+                    }
+                    break;
+                }
+
+                case 4: // Pickable item
+                case 9: // Pickable item
+                case 10: // Reserved
+                case 18:
+                case 25:
+                case 28:
+                case 29:
+                case 30:
+                case 33:
+                case 34:
+                case 35:
+                case 36:
+                case 37:
+                case 38:
+                case 45:
+                case 52:
+                {
+                    goto do_default;
+                }
+
+                case 5: // Map
+                {
+                    GrabMap();
+                    goto do_default;
+                }
+
+                case 6: // Berry Twig
+                {
+                    if (pSprite->hitag == 0) {
+                        break;
+                    }
+
+                    var_88 = 20;
+                    int edx = 40;
+
+                    if (edx <= 0 || (!(var_30 & 2)))
+                    {
+                        if (!PlayerList[nPlayer].invincibility || edx > 0)
+                        {
+                            PlayerList[nPlayer].nHealth += edx;
+                            if (PlayerList[nPlayer].nHealth > 800)
+                            {
+                                PlayerList[nPlayer].nHealth = 800;
+                            }
+                            else
+                            {
+                                if (PlayerList[nPlayer].nHealth < 0)
+                                {
+                                    var_88 = -1;
+                                    StartDeathSeq(nPlayer, 0);
+                                }
                             }
                         }
 
-                        dVertPan[nPlayer]--;
+                        if (var_70 == 12)
+                        {
+                            pSprite->hitag = 0;
+                            pSprite->picnum++;
+
+                            changespritestat(nValB, 0);
+
+                            // loc_1BA74: - repeated block, see in default case
+                            if (nPlayer == nLocalPlayer)
+                            {
+                                if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                                {
+                                    pickupMessage(var_70);
+                                }
+
+                                TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                                if (var_88 > -1)
+                                {
+                                    PlayLocalSound(var_88, 0);
+                                }
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            if (var_70 != 14)
+                            {
+                                var_88 = 21;
+                            }
+                            else
+                            {
+                                var_44 = var_8C;
+                                var_88 = 22;
+                                var_8C = 0;
+                            }
+
+                            goto do_default;
+                        }
                     }
+
+                    break;
+                }
+
+                case 7: // Blood Bowl
+                {
+                    int edx = 160;
+
+                    // Same code as case 6 now till break
+                    if (edx <= 0 || (!(var_30 & 2)))
+                    {
+                        if (!PlayerList[nPlayer].invincibility || edx > 0)
+                        {
+                            PlayerList[nPlayer].nHealth += edx;
+                            if (PlayerList[nPlayer].nHealth > 800)
+                            {
+                                PlayerList[nPlayer].nHealth = 800;
+                            }
+                            else
+                            {
+                                if (PlayerList[nPlayer].nHealth < 0)
+                                {
+                                    var_88 = -1;
+                                    StartDeathSeq(nPlayer, 0);
+                                }
+                            }
+                        }
+
+                        if (var_70 == 12)
+                        {
+                            pSprite->hitag = 0;
+                            pSprite->picnum++;
+
+                            changespritestat(nValB, 0);
+
+                            // loc_1BA74: - repeated block, see in default case
+                            if (nPlayer == nLocalPlayer)
+                            {
+                                if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                                {
+                                    pickupMessage(var_70);
+                                }
+
+                                TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                                if (var_88 > -1)
+                                {
+                                    PlayLocalSound(var_88, 0);
+                                }
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            if (var_70 != 14)
+                            {
+                                var_88 = 21;
+                            }
+                            else
+                            {
+                                var_44 = var_8C;
+                                var_88 = 22;
+                                var_8C = 0;
+                            }
+
+                            goto do_default;
+                        }
+                    }
+
+                    break;
+                }
+
+                case 8: // Cobra Venom Bowl
+                {
+                    int edx = -200;
+
+                    // Same code as case 6 and 7 from now till break
+                    if (edx <= 0 || (!(var_30 & 2)))
+                    {
+                        if (!PlayerList[nPlayer].invincibility || edx > 0)
+                        {
+                            PlayerList[nPlayer].nHealth += edx;
+                            if (PlayerList[nPlayer].nHealth > 800)
+                            {
+                                PlayerList[nPlayer].nHealth = 800;
+                            }
+                            else
+                            {
+                                if (PlayerList[nPlayer].nHealth < 0)
+                                {
+                                    var_88 = -1;
+                                    StartDeathSeq(nPlayer, 0);
+                                }
+                            }
+                        }
+
+                        if (var_70 == 12)
+                        {
+                            pSprite->hitag = 0;
+                            pSprite->picnum++;
+
+                            changespritestat(nValB, 0);
+
+                            // loc_1BA74: - repeated block, see in default case
+                            if (nPlayer == nLocalPlayer)
+                            {
+                                if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                                {
+                                    pickupMessage(var_70);
+                                }
+
+                                TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                                if (var_88 > -1)
+                                {
+                                    PlayLocalSound(var_88, 0);
+                                }
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            if (var_70 != 14)
+                            {
+                                var_88 = 21;
+                            }
+                            else
+                            {
+                                var_44 = var_8C;
+                                var_88 = 22;
+                                var_8C = 0;
+                            }
+
+                            goto do_default;
+                        }
+                    }
+
+                    break;
+                }
+
+                case 11: // Bubble Nest
+                {
+                    PlayerList[nPlayer].nAir += 10;
+                    if (PlayerList[nPlayer].nAir > 100) {
+                        PlayerList[nPlayer].nAir = 100; // TODO - constant
+                    }
+
+                    if (nBreathTimer[nPlayer] < 89)
+                    {
+                        D3PlayFX(StaticSound[kSound13], nPlayerSprite);
+                    }
+
+                    nBreathTimer[nPlayer] = 90;
+                    break;
+                }
+
+                case 12: // Still Beating Heart
+                {
+                    if (GrabItem(nPlayer, kItemHeart)) {
+                        goto do_default;
+                    }
+
+                    break;
+                }
+
+                case 13: // Scarab amulet(Invicibility)
+                {
+                    if (GrabItem(nPlayer, kItemInvincibility)) {
+                        goto do_default;
+                    }
+
+                    break;
+                }
+
+                case 14: // Severed Slave Hand(double damage)
+                {
+                    if (GrabItem(nPlayer, kItemDoubleDamage)) {
+                        goto do_default;
+                    }
+
+                    break;
+                }
+
+                case 15: // Unseen eye(Invisibility)
+                {
+                    if (GrabItem(nPlayer, kItemInvisibility)) {
+                        goto do_default;
+                    }
+
+                    break;
+                }
+
+                case 16: // Torch
+                {
+                    if (GrabItem(nPlayer, kItemTorch)) {
+                        goto do_default;
+                    }
+
+                    break;
+                }
+
+                case 17: // Sobek Mask
+                {
+                    if (GrabItem(nPlayer, kItemMask)) {
+                        goto do_default;
+                    }
+
+                    break;
+                }
+
+                case 19: // Extra Life
+                {
+                    var_88 = -1;
+
+                    if (PlayerList[nPlayer].nLives >= kMaxPlayerLives) {
+                        break;
+                    }
+
+                    PlayerList[nPlayer].nLives++;
+
+                    var_8C = 32;
+                    var_44 = 32;
+                    goto do_default;
+                }
+
+                // FIXME - lots of repeated code from here down!!
+                case 20: // sword pickup??
+                {
+                    var_40 = 0;
+                    int ebx = 0;
+
+                    // loc_1B75D
+                    int var_18 = 1 << var_40;
+
+                    short weapons = nPlayerWeapons[nPlayer];
+
+                    if (weapons & var_18)
+                    {
+                        if (mplevel)
+                        {
+                            AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
+                        }
+                    }
+                    else
+                    {
+                        weapons = var_40;
+
+                        SetNewWeaponIfBetter(nPlayer, weapons);
+
+                        nPlayerWeapons[nPlayer] |= var_18;
+
+                        AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                        var_88 = StaticSound[kSound72];
+                    }
+
+                    if (var_40 == 2) {
+                        CheckClip(nPlayer);
+                    }
+
+                    if (var_70 <= 50) {
+                        goto do_default;
+                    }
+
+                    pSprite->cstat = 0x8000;
+                    DestroyItemAnim(nValB);
+                    ////
+                            // loc_1BA74: - repeated block, see in default case
+                    if (nPlayer == nLocalPlayer)
+                    {
+                        if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                        {
+                            pickupMessage(var_70);
+                        }
+
+                        TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                        if (var_88 > -1)
+                        {
+                            PlayLocalSound(var_88, 0);
+                        }
+                    }
+
+                    break;
+                    /////
+                }
+
+                case 22: // .357 Magnum Revolver
+                case 46:
+                {
+                    var_40 = 1;
+                    int ebx = 6;
+
+                    // loc_1B75D
+                    int var_18 = 1 << var_40;
+
+                    short weapons = nPlayerWeapons[nPlayer];
+
+                    if (weapons & var_18)
+                    {
+                        if (mplevel)
+                        {
+                            AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
+                        }
+                    }
+                    else
+                    {
+                        weapons = var_40;
+
+                        SetNewWeaponIfBetter(nPlayer, weapons);
+
+                        nPlayerWeapons[nPlayer] |= var_18;
+
+                        AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                        var_88 = StaticSound[kSound72];
+                    }
+
+                    if (var_40 == 2) {
+                        CheckClip(nPlayer);
+                    }
+
+                    if (var_70 <= 50) {
+                        goto do_default;
+                    }
+
+                    pSprite->cstat = 0x8000;
+                    DestroyItemAnim(nValB);
+                    ////
+                            // loc_1BA74: - repeated block, see in default case
+                    if (nPlayer == nLocalPlayer)
+                    {
+                        if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                        {
+                            pickupMessage(var_70);
+                        }
+
+                        TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                        if (var_88 > -1)
+                        {
+                            PlayLocalSound(var_88, 0);
+                        }
+                    }
+
+                    break;
+                    /////
+                }
+
+                case 23: // M - 60 Machine Gun
+                case 47:
+                {
+                    var_40 = 2;
+                    int ebx = 24;
+
+                    // loc_1B75D
+                    int var_18 = 1 << var_40;
+
+                    short weapons = nPlayerWeapons[nPlayer];
+
+                    if (weapons & var_18)
+                    {
+                        if (mplevel)
+                        {
+                            AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
+                        }
+                    }
+                    else
+                    {
+                        weapons = var_40;
+
+                        SetNewWeaponIfBetter(nPlayer, weapons);
+
+                        nPlayerWeapons[nPlayer] |= var_18;
+
+                        AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                        var_88 = StaticSound[kSound72];
+                    }
+
+                    if (var_40 == 2) {
+                        CheckClip(nPlayer);
+                    }
+
+                    if (var_70 <= 50) {
+                        goto do_default;
+                    }
+
+                    pSprite->cstat = 0x8000;
+                    DestroyItemAnim(nValB);
+                    ////
+                            // loc_1BA74: - repeated block, see in default case
+                    if (nPlayer == nLocalPlayer)
+                    {
+                        if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                        {
+                            pickupMessage(var_70);
+                        }
+
+                        TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                        if (var_88 > -1)
+                        {
+                            PlayLocalSound(var_88, 0);
+                        }
+                    }
+
+                    break;
+                    /////
+                }
+
+                case 24: // Flame Thrower
+                case 48:
+                {
+                    var_40 = 3;
+                    int ebx = 100;
+
+                    // loc_1B75D
+                    int var_18 = 1 << var_40;
+
+                    short weapons = nPlayerWeapons[nPlayer];
+
+                    if (weapons & var_18)
+                    {
+                        if (mplevel)
+                        {
+                            AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
+                        }
+                    }
+                    else
+                    {
+                        weapons = var_40;
+
+                        SetNewWeaponIfBetter(nPlayer, weapons);
+
+                        nPlayerWeapons[nPlayer] |= var_18;
+
+                        AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                        var_88 = StaticSound[kSound72];
+                    }
+
+                    if (var_40 == 2) {
+                        CheckClip(nPlayer);
+                    }
+
+                    if (var_70 <= 50) {
+                        goto do_default;
+                    }
+
+                    pSprite->cstat = 0x8000;
+                    DestroyItemAnim(nValB);
+                    ////
+                            // loc_1BA74: - repeated block, see in default case
+                    if (nPlayer == nLocalPlayer)
+                    {
+                        if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                        {
+                            pickupMessage(var_70);
+                        }
+
+                        TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                        if (var_88 > -1)
+                        {
+                            PlayLocalSound(var_88, 0);
+                        }
+                    }
+
+                    break;
+                    /////
+                }
+
+                case 26: // Cobra Staff
+                case 50:
+                {
+                    var_40 = 5;
+                    int ebx = 20;
+
+                    // loc_1B75D
+                    int var_18 = 1 << var_40;
+
+                    short weapons = nPlayerWeapons[nPlayer];
+
+                    if (weapons & var_18)
+                    {
+                        if (mplevel)
+                        {
+                            AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
+                        }
+                    }
+                    else
+                    {
+                        weapons = var_40;
+
+                        SetNewWeaponIfBetter(nPlayer, weapons);
+
+                        nPlayerWeapons[nPlayer] |= var_18;
+
+                        AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                        var_88 = StaticSound[kSound72];
+                    }
+
+                    if (var_40 == 2) {
+                        CheckClip(nPlayer);
+                    }
+
+                    if (var_70 <= 50) {
+                        goto do_default;
+                    }
+
+                    pSprite->cstat = 0x8000;
+                    DestroyItemAnim(nValB);
+                    ////
+                            // loc_1BA74: - repeated block, see in default case
+                    if (nPlayer == nLocalPlayer)
+                    {
+                        if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                        {
+                            pickupMessage(var_70);
+                        }
+
+                        TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                        if (var_88 > -1)
+                        {
+                            PlayLocalSound(var_88, 0);
+                        }
+                    }
+
+                    break;
+                    /////
+                }
+
+                case 27: // Eye of Ra Gauntlet
+                case 51:
+                {
+                    var_40 = 6;
+                    int ebx = 2;
+
+                    // loc_1B75D
+                    int var_18 = 1 << var_40;
+
+                    short weapons = nPlayerWeapons[nPlayer];
+
+                    if (weapons & var_18)
+                    {
+                        if (mplevel)
+                        {
+                            AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
+                        }
+                    }
+                    else
+                    {
+                        weapons = var_40;
+
+                        SetNewWeaponIfBetter(nPlayer, weapons);
+
+                        nPlayerWeapons[nPlayer] |= var_18;
+
+                        AddAmmo(nPlayer, WeaponInfo[weapons].nAmmoType, ebx);
+
+                        var_88 = StaticSound[kSound72];
+                    }
+
+                    if (var_40 == 2) {
+                        CheckClip(nPlayer);
+                    }
+
+                    if (var_70 <= 50) {
+                        goto do_default;
+                    }
+
+                    pSprite->cstat = 0x8000;
+                    DestroyItemAnim(nValB);
+                    ////
+                            // loc_1BA74: - repeated block, see in default case
+                    if (nPlayer == nLocalPlayer)
+                    {
+                        if (nItemText[var_70] > -1 && nTotalPlayers == 1)
+                        {
+                            pickupMessage(var_70);
+                        }
+
+                        TintPalette(var_44 * 4, var_8C * 4, 0);
+
+                        if (var_88 > -1)
+                        {
+                            PlayLocalSound(var_88, 0);
+                        }
+                    }
+
+                    break;
+                    /////
+                }
+
+                case 31: // Cobra staff ammo
+                {
+                    if (AddAmmo(nPlayer, 5, 1)) {
+                        var_88 = StaticSound[kSoundAmmoPickup];
+                        goto do_default;
+                    }
+
+                    break;
+                }
+
+                case 32: // Raw Energy
+                {
+                    if (AddAmmo(nPlayer, 6, pSprite->hitag)) {
+                        var_88 = StaticSound[kSoundAmmoPickup];
+                        goto do_default;
+                    }
+
+                    break;
+                }
+
+                case 39: // Power key
+                case 40: // Time key
+                case 41: // War key
+                case 42: // Earth key
+                {
+                    int keybit = 4096 << (itemtype - 39);
+
+                    var_88 = -1;
+
+                    if (!(PlayerList[nPlayer].keys & keybit))
+                    {
+                        PlayerList[nPlayer].keys |= keybit;
+
+                        if (nTotalPlayers > 1)
+                        {
+                            goto do_default_b;
+                        }
+                        else
+                        {
+                            goto do_default;
+                        }
+                    }
+
+                    break;
+                }
+
+                case 43: // Magical Essence
+                case 44: // ?
+                {
+                    if (PlayerList[nPlayer].nMagic >= 1000) {
+                        break;
+                    }
+
+                    var_88 = StaticSound[kSoundMana1];
+
+                    PlayerList[nPlayer].nMagic += 100;
+                    if (PlayerList[nPlayer].nMagic >= 1000) {
+                        PlayerList[nPlayer].nMagic = 1000;
+                    }
+
+                    goto do_default;
+                }
+
+                case 53: // Scarab (Checkpoint)
+                {
+                    if (nLocalPlayer == nPlayer)
+                    {
+                        short nAnim = pSprite->owner;
+                        AnimList[nAnim].nSeq++;
+                        AnimList[nAnim].AnimFlags &= 0xEF;
+                        AnimList[nAnim].field_2 = 0;
+
+                        changespritestat(nValB, 899);
+                    }
+
+                    SetSavePoint(nPlayer, pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang);
+                    break;
+                }
+
+                case 54: // Golden Sarcophagus (End Level)
+                {
+                    if (!bInDemo)
+                    {
+                        LevelFinished();
+                    }
+
+                    DestroyItemAnim(nValB);
+                    mydeletesprite(nValB);
+                    break;
+                }
+                }
+            }
+        }
+
+        // CORRECT ? // loc_1BAF9:
+        if (bTouchFloor)
+        {
+            if (sector[pPlayerSprite->sectnum].lotag > 0)
+            {
+                runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer | 0x50000);
+            }
+        }
+
+        if (nSector != pPlayerSprite->sectnum)
+        {
+            if (sector[nSector].lotag > 0)
+            {
+                runlist_SignalRun(sector[nSector].lotag - 1, nPlayer | 0x70000);
+            }
+
+            if (sector[pPlayerSprite->sectnum].lotag > 0)
+            {
+                runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer | 0x60000);
+            }
+        }
+
+        if (!PlayerList[nPlayer].bIsMummified)
+        {
+            if (actions & SB_OPEN)
+            {
+                ClearSpaceBar(nPlayer);
+
+                if (nearTagWall >= 0 && wall[nearTagWall].lotag > 0)
+                {
+                    runlist_SignalRun(wall[nearTagWall].lotag - 1, nPlayer | 0x40000);
+                }
+
+                if (nearTagSector >= 0 && sector[nearTagSector].lotag > 0)
+                {
+                    runlist_SignalRun(sector[nearTagSector].lotag - 1, nPlayer | 0x40000);
                 }
             }
 
-            // loc_1C4E1
-            sprite[nDopple].x = pPlayerSprite->x;
-            sprite[nDopple].y = pPlayerSprite->y;
-            sprite[nDopple].z = pPlayerSprite->z;
-
-            if (SectAbove[pPlayerSprite->sectnum] > -1)
+            // was int var_38 = buttons & 0x8
+            if (actions & SB_FIRE)
             {
-                sprite[nDopple].ang = pPlayerSprite->ang;
-                mychangespritesect(nDopple, SectAbove[pPlayerSprite->sectnum]);
-                sprite[nDopple].cstat = 0x101;
+                FireWeapon(nPlayer);
             }
             else
             {
-                sprite[nDopple].cstat = 0x8000;
+                StopFiringWeapon(nPlayer);
             }
 
-            MoveWeapons(nPlayer);
+            // loc_1BC57:
 
-            return;
+            // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerSprite->sectnum so we can make this code a bit neater. Don't assume pPlayerSprite->sectnum == nSector here!!
+            if (nStandHeight > (sector[pPlayerSprite->sectnum].floorz - sector[pPlayerSprite->sectnum].ceilingz)) {
+                var_48 = 1;
+            }
+
+            // Jumping
+            if (actions & SB_JUMP)
+            {
+                if (bUnderwater)
+                {
+                    pPlayerSprite->zvel = -2048;
+                    nActionB = 10;
+                }
+                else if (bTouchFloor)
+                {
+                    if (nAction < 6 || nAction > 8)
+                    {
+                        pPlayerSprite->zvel = -3584;
+                        nActionB = 3;
+                    }
+                }
+
+                // goto loc_1BE70:
+            }
+            else if (actions & SB_CROUCH)
+            {
+                if (bUnderwater)
+                {
+                    pPlayerSprite->zvel = 2048;
+                    nActionB = 10;
+                }
+                else
+                {
+                    if (eyelevel[nPlayer] < -8320) {
+                        eyelevel[nPlayer] += ((-8320 - eyelevel[nPlayer]) >> 1);
+                    }
+
+                loc_1BD2E:
+                    if (totalvel[nPlayer] < 1) {
+                        nActionB = 6;
+                    }
+                    else {
+                        nActionB = 7;
+                    }
+                }
+
+                // goto loc_1BE70:
+            }
+            else
+            {
+                if (PlayerList[nPlayer].nHealth > 0)
+                {
+                    int var_EC = nActionEyeLevel[nAction];
+                    eyelevel[nPlayer] += (var_EC - eyelevel[nPlayer]) >> 1;
+
+                    if (bUnderwater)
+                    {
+                        if (totalvel[nPlayer] <= 1)
+                            nActionB = 9;
+                        else
+                            nActionB = 10;
+                    }
+                    else
+                    {
+                        // CHECKME - confirm branching in this area is OK
+                        if (var_48)
+                        {
+                            goto loc_1BD2E;
+                        }
+                        else
+                        {
+                            if (totalvel[nPlayer] <= 1) {
+                                nActionB = 0;//bUnderwater; // this is just setting to 0
+                            }
+                            else if (totalvel[nPlayer] <= 30) {
+                                nActionB = 2;
+                            }
+                            else
+                            {
+                                nActionB = 1;
+                            }
+                        }
+                    }
+                }
+                // loc_1BE30
+                if (actions & SB_FIRE) // was var_38
+                {
+                    if (bUnderwater)
+                    {
+                        nActionB = 11;
+                    }
+                    else
+                    {
+                        if (nActionB != 2 && nActionB != 1)
+                        {
+                            nActionB = 5;
+                        }
+                    }
+                }
+            }
+
+            // loc_1BE70:
+            // Handle player pressing number keys to change weapon
+            uint8_t var_90 = sPlayerInput[nPlayer].getNewWeapon();
+
+            if (var_90)
+            {
+                var_90--;
+
+                if (nPlayerWeapons[nPlayer] & (1 << var_90))
+                {
+                    SetNewWeapon(nPlayer, var_90);
+                }
+            }
+        }
+        else // player is mummified
+        {
+            if (actions & SB_FIRE)
+            {
+                FireWeapon(nPlayer);
+            }
+
+            if (nAction != 15)
+            {
+                if (totalvel[nPlayer] <= 1)
+                {
+                    nActionB = 13;
+                }
+                else
+                {
+                    nActionB = 14;
+                }
+            }
+        }
+
+        // loc_1BF09
+        if (nActionB != nAction && nAction != 4)
+        {
+            nAction = nActionB;
+            PlayerList[nPlayer].nAction = nActionB;
+            PlayerList[nPlayer].field_2 = 0;
+        }
+
+        Player* pPlayer = &PlayerList[nPlayer];
+
+        if (SyncInput())
+        {
+            pPlayer->horizon.applyinput(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
+        }
+
+        if (actions & (SB_LOOK_UP | SB_LOOK_DOWN) || sPlayerInput[nPlayer].pan)
+        {
+            pPlayer->nDestVertPan = pPlayer->horizon.horiz;
+            pPlayer->bPlayerPan = pPlayer->bLockPan = true;
+        }
+        else if (actions & (SB_AIM_UP | SB_AIM_DOWN | SB_CENTERVIEW))
+        {
+            pPlayer->nDestVertPan = pPlayer->horizon.horiz;
+            pPlayer->bPlayerPan = pPlayer->bLockPan = false;
+        }
+
+        if (totalvel[nPlayer] > 20)
+        {
+            pPlayer->bPlayerPan = false;
+        }
+
+        if (cl_slopetilting)
+        {
+            double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asbuildf() * 0.25;
+            if (nVertPan != 0)
+            {
+                pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4, 4) : nVertPan * 2.);
+            }
         }
     }
+    else // else, player's health is less than 0
+    {
+        // loc_1C0E9
+        if (actions & SB_OPEN)
+        {
+            ClearSpaceBar(nPlayer);
+
+            if (nAction >= 16)
+            {
+                if (nPlayer == nLocalPlayer)
+                {
+                    StopAllSounds();
+                    StopLocalSound();
+                    GrabPalette();
+                }
+
+                PlayerList[nPlayer].nCurrentWeapon = nPlayerOldWeapon[nPlayer];
+
+                if (PlayerList[nPlayer].nLives && nNetTime)
+                {
+                    if (nAction != 20)
+                    {
+                        pPlayerSprite->picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
+                        pPlayerSprite->cstat = 0;
+                        pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
+                    }
+
+                    // will invalidate nPlayerSprite
+                    RestartPlayer(nPlayer);
+
+                    nPlayerSprite = PlayerList[nPlayer].nSprite;
+                    nDopple = nDoppleSprite[nPlayer];
+                }
+                else
+                {
+                    DoGameOverScene(mplevel);
+                    return;
+                }
+            }
+        }
+    }
+
+    // loc_1C201:
+    if (nLocalPlayer == nPlayer)
+    {
+        nLocalEyeSect = nPlayerViewSect[nLocalPlayer];
+        CheckAmbience(nLocalEyeSect);
+    }
+
+    int var_AC = SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a;
+
+    seq_MoveSequence(nPlayerSprite, var_AC, PlayerList[nPlayer].field_2);
+    PlayerList[nPlayer].field_2++;
+
+    if (PlayerList[nPlayer].field_2 >= SeqSize[var_AC])
+    {
+        PlayerList[nPlayer].field_2 = 0;
+
+        switch (PlayerList[nPlayer].nAction)
+        {
+        default:
+            break;
+
+        case 3:
+            PlayerList[nPlayer].field_2 = SeqSize[var_AC] - 1;
+            break;
+        case 4:
+            PlayerList[nPlayer].nAction = 0;
+            break;
+        case 16:
+            PlayerList[nPlayer].field_2 = SeqSize[var_AC] - 1;
+
+            if (pPlayerSprite->z < sector[pPlayerSprite->sectnum].floorz) {
+                pPlayerSprite->z += 256;
+            }
+
+            if (!RandomSize(5))
+            {
+                int mouthX, mouthY, mouthZ;
+                short mouthSect;
+                WheresMyMouth(nPlayer, &mouthX, &mouthY, &mouthZ, &mouthSect);
+
+                BuildAnim(-1, 71, 0, mouthX, mouthY, pPlayerSprite->z + 3840, mouthSect, 75, 128);
+            }
+            break;
+        case 17:
+            PlayerList[nPlayer].nAction = 18;
+            break;
+        case 19:
+            pPlayerSprite->cstat |= 0x8000;
+            PlayerList[nPlayer].nAction = 20;
+            break;
+        }
+    }
+
+    // loc_1C3B4:
+    if (nPlayer == nLocalPlayer)
+    {
+        initx = pPlayerSprite->x;
+        inity = pPlayerSprite->y;
+        initz = pPlayerSprite->z;
+        initsect = pPlayerSprite->sectnum;
+        inita = pPlayerSprite->ang;
+    }
+
+    if (!PlayerList[nPlayer].nHealth)
+    {
+        nYDamage[nPlayer] = 0;
+        nXDamage[nPlayer] = 0;
+
+        if (eyelevel[nPlayer] >= -2816)
+        {
+            eyelevel[nPlayer] = -2816;
+            dVertPan[nPlayer] = 0;
+        }
+        else
+        {
+            if (PlayerList[nPlayer].horizon.horiz.asq16() < 0)
+            {
+                PlayerList[nPlayer].horizon.settarget(0);
+                eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
+            }
+            else
+            {
+                PlayerList[nPlayer].horizon.addadjustment(dVertPan[nPlayer]);
+
+                if (PlayerList[nPlayer].horizon.horiz.asq16() > gi->playerHorizMax())
+                {
+                    PlayerList[nPlayer].horizon.settarget(gi->playerHorizMax());
+                }
+                else if (PlayerList[nPlayer].horizon.horiz.asq16() <= 0)
+                {
+                    if (!(SectFlag[pPlayerSprite->sectnum] & kSectUnderwater))
+                    {
+                        SetNewWeapon(nPlayer, nDeathType[nPlayer] + 8);
+                    }
+                }
+
+                dVertPan[nPlayer]--;
+            }
+        }
+    }
+
+    // loc_1C4E1
+    sprite[nDopple].x = pPlayerSprite->x;
+    sprite[nDopple].y = pPlayerSprite->y;
+    sprite[nDopple].z = pPlayerSprite->z;
+
+    if (SectAbove[pPlayerSprite->sectnum] > -1)
+    {
+        sprite[nDopple].ang = pPlayerSprite->ang;
+        mychangespritesect(nDopple, SectAbove[pPlayerSprite->sectnum]);
+        sprite[nDopple].cstat = 0x101;
+    }
+    else
+    {
+        sprite[nDopple].cstat = 0x8000;
+    }
+
+    MoveWeapons(nPlayer);
+}
+
+
+
+void FuncPlayer(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIPlayer ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 
@@ -2759,7 +2767,7 @@ void SerializePlayer(FSerializer& arc)
             .Array("netstartsprite", nNetStartSprite, PlayerCount)
             .Array("grenade", nPlayerGrenade, PlayerCount)
             .Array("d282a", word_D282A, PlayerCount);
-            arc.EndObject();
+        arc.EndObject();
     }
 }
 
@@ -2777,7 +2785,7 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, invincibility);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nAir);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nSeq);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nMaskAmount);
-DEFINE_FIELD_X(ExhumedPlayer, Player,  keys);
+DEFINE_FIELD_X(ExhumedPlayer, Player, keys);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nMagic);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nItem);
 DEFINE_FIELD_X(ExhumedPlayer, Player, items);
