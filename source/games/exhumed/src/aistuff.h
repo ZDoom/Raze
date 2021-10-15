@@ -587,6 +587,12 @@ struct AIQueen : public ExhumedAI
     void RadialDamage(RunListEvent* ev) override;
 };
 
+struct AIRa : public ExhumedAI
+{
+    void Tick(RunListEvent* ev) override;
+    void Draw(RunListEvent* ev) override;
+};
+
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
 typedef void(*AiFunc)(int, int, int, int nRun);
