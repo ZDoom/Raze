@@ -75,7 +75,7 @@ void DestroySnake(int nSnake)
     for (int i = 0; i < kSnakeSprites; i++)
     {
         short nSprite = SnakeList[nSnake].nSprites[i];
-		auto pSprite = &sprite[nSprite];
+        auto pSprite = &sprite[nSprite];
 
         runlist_DoSubRunRec(pSprite->lotag - 1);
         runlist_DoSubRunRec(pSprite->owner);
@@ -93,7 +93,7 @@ void DestroySnake(int nSnake)
 
 void ExplodeSnakeSprite(int nSprite, short nPlayer)
 {
-	auto pSprite = &sprite[nSprite];
+    auto pSprite = &sprite[nSprite];
     short nDamage = BulletInfo[kWeaponStaff].nDamage;
 
     if (PlayerList[nPlayer].nDouble > 0) {
@@ -161,7 +161,7 @@ void BuildSnake(short nPlayer, short zVal)
     {
         BackUpBullet(&hitx, &hity, nAngle);
         nSprite = insertsprite(hitsect, 202);
-		auto pSprite = &sprite[nSprite];
+        auto pSprite = &sprite[nSprite];
         pSprite->x = hitx;
         pSprite->y = hity;
         pSprite->z = hitz;
@@ -184,14 +184,14 @@ void BuildSnake(short nPlayer, short zVal)
         short nSnake = GrabSnake();
         if (nSnake == -1) return;
 
-//		GrabTimeSlot(3);
+        //		GrabTimeSlot(3);
 
         short var_24;
 
         for (int i = 0; i < kSnakeSprites; i++)
         {
             nSprite = insertsprite(nViewSect, 202);
-			auto pSprite = &sprite[nSprite];
+            auto pSprite = &sprite[nSprite];
             assert(nSprite >= 0 && nSprite < kMaxSprites);
 
             pSprite->owner = nPlayerSprite;
@@ -212,8 +212,8 @@ void BuildSnake(short nPlayer, short zVal)
                 pSprite->x = sprite[var_24].x;
                 pSprite->y = sprite[var_24].y;
                 pSprite->z = sprite[var_24].z;
-                pSprite->xrepeat = 40 - 3*i;
-                pSprite->yrepeat = 40 - 3*i;
+                pSprite->xrepeat = 40 - 3 * i;
+                pSprite->yrepeat = 40 - 3 * i;
             }
 
             pSprite->clipdist = 10;
@@ -267,7 +267,7 @@ int FindSnakeEnemy(short nSnake)
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
     short nSprite = SnakeList[nSnake].nSprites[0]; // CHECKME
-	auto pSprite = &sprite[nSprite];
+    auto pSprite = &sprite[nSprite];
 
     short nAngle = pSprite->ang;
     short nSector = pSprite->sectnum;
@@ -311,128 +311,116 @@ int FindSnakeEnemy(short nSnake)
     return nEnemy;
 }
 
-void FuncSnake(int nObject, int nMessage, int, int nRun)
+void AISnake::Tick(RunListEvent* ev)
 {
-    switch (nMessage)
+    short nSnake = RunData[ev->nRun].nVal;
+    assert(nSnake >= 0 && nSnake < kMaxSnakes);
+
+    short nSprite = SnakeList[nSnake].nSprites[0];
+    auto pSprite = &sprite[nSprite];
+
+    seq_MoveSequence(nSprite, SeqOffsets[kSeqSnakehed], 0);
+
+    short nEnemySprite = SnakeList[nSnake].nEnemy;
+
+    int nMov;
+    int zVal;
+
+    if (nEnemySprite < 0)
     {
-        case 0x20000:
+    SEARCH_ENEMY:
+        nMov = movesprite(nSprite,
+            600 * bcos(pSprite->ang),
+            600 * bsin(pSprite->ang),
+            bsin(SnakeList[nSnake].sE, -5),
+            0, 0, CLIPMASK1);
+
+        FindSnakeEnemy(nSnake);
+
+        zVal = 0;
+    }
+    else
+    {
+        if (!(sprite[nEnemySprite].cstat & 0x101))
         {
-            short nSnake = RunData[nRun].nVal;
-            assert(nSnake >= 0 && nSnake < kMaxSnakes);
-
-            short nSprite = SnakeList[nSnake].nSprites[0];
-			auto pSprite = &sprite[nSprite];
-
-            seq_MoveSequence(nSprite, SeqOffsets[kSeqSnakehed], 0);
-
-            short nEnemySprite = SnakeList[nSnake].nEnemy;
-
-            int nMov;
-            int zVal;
-
-            if (nEnemySprite < 0)
-            {
-SEARCH_ENEMY:
-                nMov = movesprite(nSprite,
-                    600 * bcos(pSprite->ang),
-                    600 * bsin(pSprite->ang),
-                    bsin(SnakeList[nSnake].sE, -5),
-                    0, 0, CLIPMASK1);
-
-                FindSnakeEnemy(nSnake);
-
-                zVal = 0;
-            }
-            else
-            {
-                if (!(sprite[nEnemySprite].cstat&0x101))
-                {
-                    SnakeList[nSnake].nEnemy = -1;
-                    goto SEARCH_ENEMY;
-                }
-
-                zVal = pSprite->z;
-
-                nMov = AngleChase(nSprite, nEnemySprite, 1200, SnakeList[nSnake].sE, 32);
-
-                zVal = pSprite->z - zVal;
-            }
-
-            if (nMov)
-            {
-                short nPlayer = SnakeList[nSnake].nSnakePlayer;
-                ExplodeSnakeSprite(SnakeList[nSnake].nSprites[0], nPlayer);
-
-                nPlayerSnake[nPlayer] = -1;
-                SnakeList[nSnake].nSnakePlayer = -1;
-
-                DestroySnake(nSnake);
-            }
-            else
-            {
-                short nAngle = pSprite->ang;
-                int var_30 = -bcos(nAngle, 6);
-                int var_34 = -bsin(nAngle, 6);
-
-                int var_20 = SnakeList[nSnake].sE;
-
-                SnakeList[nSnake].sE = (SnakeList[nSnake].sE + 64) & 0x7FF;
-
-                int var_28 = (nAngle + 512) & kAngleMask;
-                short nSector = pSprite->sectnum;
-
-                int x = pSprite->x;
-                int y = pSprite->y;
-                int z = pSprite->z;
-
-                for (int i = 7; i > 0; i--)
-                {
-                    int nSprite2 = SnakeList[nSnake].nSprites[i];
-
-                    sprite[nSprite2].ang = nAngle;
-                    sprite[nSprite2].x = x;
-                    sprite[nSprite2].y = y;
-                    sprite[nSprite2].z = z;
-
-                    mychangespritesect(nSprite2, nSector);
-
-                    int eax = (bsin(var_20) * SnakeList[nSnake].c[i]) >> 9;
-
-                    movesprite(nSprite2, var_30 + var_30 * i + eax * bcos(var_28), var_30 + var_34 * i + eax * bsin(var_28),
-                        -zVal*(i-1), 0, 0, CLIPMASK1);
-
-                    var_20 = (var_20 + 128) & kAngleMask;
-                }
-            }
-            break;
+            SnakeList[nSnake].nEnemy = -1;
+            goto SEARCH_ENEMY;
         }
 
-        case 0x90000:
+        zVal = pSprite->z;
+
+        nMov = AngleChase(nSprite, nEnemySprite, 1200, SnakeList[nSnake].sE, 32);
+
+        zVal = pSprite->z - zVal;
+    }
+
+    if (nMov)
+    {
+        short nPlayer = SnakeList[nSnake].nSnakePlayer;
+        ExplodeSnakeSprite(SnakeList[nSnake].nSprites[0], nPlayer);
+
+        nPlayerSnake[nPlayer] = -1;
+        SnakeList[nSnake].nSnakePlayer = -1;
+
+        DestroySnake(nSnake);
+    }
+    else
+    {
+        short nAngle = pSprite->ang;
+        int var_30 = -bcos(nAngle, 6);
+        int var_34 = -bsin(nAngle, 6);
+
+        int var_20 = SnakeList[nSnake].sE;
+
+        SnakeList[nSnake].sE = (SnakeList[nSnake].sE + 64) & 0x7FF;
+
+        int var_28 = (nAngle + 512) & kAngleMask;
+        short nSector = pSprite->sectnum;
+
+        int x = pSprite->x;
+        int y = pSprite->y;
+        int z = pSprite->z;
+
+        for (int i = 7; i > 0; i--)
         {
-            short nSnake = RunData[nRun].nVal;
-            short nSprite = nObject;
+            int nSprite2 = SnakeList[nSnake].nSprites[i];
 
-            if ((nSnake & 0xFF) == 0) {
-                seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakehed], 0, 0);
-            }
-            else {
-                seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakBody], 0, 0);
-            }
+            sprite[nSprite2].ang = nAngle;
+            sprite[nSprite2].x = x;
+            sprite[nSprite2].y = y;
+            sprite[nSprite2].z = z;
 
-            mytsprite[nSprite].owner = -1;
-            break;
-        }
+            mychangespritesect(nSprite2, nSector);
 
-        case 0xA0000:
-        {
-            break;
-        }
+            int eax = (bsin(var_20) * SnakeList[nSnake].c[i]) >> 9;
 
-        default:
-        {
-            Printf("unknown msg %x for bullet\n", nMessage);
-            break;
+            movesprite(nSprite2, var_30 + var_30 * i + eax * bcos(var_28), var_30 + var_34 * i + eax * bsin(var_28),
+                -zVal * (i - 1), 0, 0, CLIPMASK1);
+
+            var_20 = (var_20 + 128) & kAngleMask;
         }
     }
+}
+
+void AISnake::Draw(RunListEvent* ev)
+{
+    short nSnake = RunData[ev->nRun].nVal;
+    short nSprite = ev->nIndex;
+
+    if ((nSnake & 0xFF) == 0) {
+        seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakehed], 0, 0);
+    }
+    else {
+        seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakBody], 0, 0);
+    }
+
+    mytsprite[nSprite].owner = -1;
+}
+
+
+void FuncSnake(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AISnake ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 END_PS_NS
