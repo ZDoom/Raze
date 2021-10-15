@@ -661,6 +661,43 @@ struct AIWasp : public ExhumedAI
     void RadialDamage(RunListEvent* ev) override;
 };
 
+struct AISWReady : public ExhumedAI
+{
+    void Process(RunListEvent* ev) override;
+};
+
+struct AISWPause : public ExhumedAI
+{
+    void ProcessChannel(RunListEvent* ev) override;
+    void Tick(RunListEvent* ev) override;
+    void Process(RunListEvent* ev) override;
+};
+
+struct AISWStepOn : public ExhumedAI
+{
+    void ProcessChannel(RunListEvent* ev) override;
+    void TouchFloor(RunListEvent* ev) override;
+};
+
+struct AISWNotOnPause : public ExhumedAI
+{
+    void ProcessChannel(RunListEvent* ev) override;
+    void Tick(RunListEvent* ev) override;
+    void Process(RunListEvent* ev) override;
+    void TouchFloor(RunListEvent* ev) override;
+};
+
+struct AISWPressSector : public ExhumedAI
+{
+    void ProcessChannel(RunListEvent* ev) override;
+    void Use(RunListEvent* ev) override;
+};
+
+struct AISWPressWall : public ExhumedAI
+{
+    void Process(RunListEvent* ev) override;
+    void Use(RunListEvent* ev) override;
+};
 
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
