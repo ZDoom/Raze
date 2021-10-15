@@ -162,60 +162,52 @@ int BuildBubble(int x, int y, int z, short nSector)
     return nBubble | 0x140000;
 }
 
-void FuncBubble(int nObject, int nMessage, int, int nRun)
+void AIBubble::Tick(RunListEvent* ev) 
 {
-    short nBubble = RunData[nRun].nVal;
+    short nBubble = RunData[ev->nRun].nVal;
     assert(nBubble >= 0 && nBubble < kMaxBubbles);
 
     short nSprite = BubbleList[nBubble].nSprite;
     short nSeq = BubbleList[nBubble].nSeq;
-	auto pSprite = &sprite[nSprite];
+    auto pSprite = &sprite[nSprite];
 
-    switch (nMessage)
-    {
-        case 0x20000:
-        {
-            seq_MoveSequence(nSprite, nSeq, BubbleList[nBubble].nFrame);
+    seq_MoveSequence(nSprite, nSeq, BubbleList[nBubble].nFrame);
 
-            BubbleList[nBubble].nFrame++;
+    BubbleList[nBubble].nFrame++;
 
-            if (BubbleList[nBubble].nFrame >= SeqSize[nSeq]) {
-                BubbleList[nBubble].nFrame = 0;
-            }
-
-            pSprite->z += pSprite->zvel;
-
-            short nSector = pSprite->sectnum;
-
-            if (pSprite->z <= sector[nSector].ceilingz)
-            {
-                short nSectAbove = SectAbove[nSector];
-
-                if (pSprite->hitag > -1 && nSectAbove != -1) {
-                    BuildAnim(-1, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);
-                }
-
-                DestroyBubble(nBubble);
-            }
-
-            return;
-        }
-
-        case 0x90000:
-        {
-            seq_PlotSequence(nObject, nSeq, BubbleList[nBubble].nFrame, 1);
-            mytsprite[nObject].owner = -1;
-            return;
-        }
-
-        case 0x80000:
-        case 0xA0000:
-            return;
-
-        default:
-            Printf("unknown msg %d for Bubble\n", nMessage);
-            return;
+    if (BubbleList[nBubble].nFrame >= SeqSize[nSeq]) {
+        BubbleList[nBubble].nFrame = 0;
     }
+
+    pSprite->z += pSprite->zvel;
+
+    short nSector = pSprite->sectnum;
+
+    if (pSprite->z <= sector[nSector].ceilingz)
+    {
+        short nSectAbove = SectAbove[nSector];
+
+        if (pSprite->hitag > -1 && nSectAbove != -1) {
+            BuildAnim(-1, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);
+        }
+
+        DestroyBubble(nBubble);
+    }
+}
+
+void AIBubble::Draw(RunListEvent* ev)
+{
+    short nBubble = RunData[ev->nRun].nVal;
+    assert(nBubble >= 0 && nBubble < kMaxBubbles);
+
+    seq_PlotSequence(ev->nIndex, BubbleList[nBubble].nSeq, BubbleList[nBubble].nFrame, 1);
+    ev->pTSprite->owner = -1;
+}
+
+void  FuncBubble(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIBubble ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 void DoBubbleMachines()

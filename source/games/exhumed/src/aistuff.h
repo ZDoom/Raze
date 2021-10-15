@@ -446,6 +446,12 @@ struct AIAnubis : public ExhumedAI
     void Damage(RunListEvent* ev) override;
 };
 
+struct AIBubble : ExhumedAI
+{
+    void Tick(RunListEvent* ev) override;
+    void Draw(RunListEvent* ev) override;
+};
+
 
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
