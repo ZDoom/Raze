@@ -1073,22 +1073,23 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
         it.Reset(nNextSector);
         while ((i = it.NextIndex()) >= 0)
         {
-            if (sprite[i].statnum >= 99)
+            auto pSprite = &sprite[i];
+            if (pSprite->statnum >= 99)
             {
-                x = sprite[i].x;
-                y = sprite[i].y;
-                z = sprite[i].z;
+                x = pSprite->x;
+                y = pSprite->y;
+                z = pSprite->z;
                 nSectorB = nNextSector;
 
                 clipmove_old((int32_t*)&x, (int32_t*)&y, (int32_t*)&z, &nSectorB,
-                    -xvect - (bcos(nAngle) * (4 * sprite[i].clipdist)),
-                    -yvect - (bsin(nAngle) * (4 * sprite[i].clipdist)),
-                    4 * sprite[i].clipdist, 0, 0, CLIPMASK0);
+                    -xvect - (bcos(nAngle) * (4 * pSprite->clipdist)),
+                    -yvect - (bsin(nAngle) * (4 * pSprite->clipdist)),
+                    4 * pSprite->clipdist, 0, 0, CLIPMASK0);
 
 
                 if (nSectorB != nNextSector && (nSectorB == nSector || nNextSector == nSector))
                 {
-                    if (nSectorB != nSector || nFloorZ >= sprite[i].z)
+                    if (nSectorB != nSector || nFloorZ >= pSprite->z)
                     {
                         if (nSectorB >= 0 && nSectorB < kMaxSectors) {
                             mychangespritesect(i, nSectorB);
@@ -1097,8 +1098,8 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
                     else
                     {
                         movesprite(i,
-                            (xvect << 14) + bcos(nAngle) * sprite[i].clipdist,
-                            (yvect << 14) + bsin(nAngle) * sprite[i].clipdist,
+                            (xvect << 14) + bcos(nAngle) * pSprite->clipdist,
+                            (yvect << 14) + bsin(nAngle) * pSprite->clipdist,
                             0, 0, 0, CLIPMASK0);
                     }
                 }
@@ -1125,10 +1126,11 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
         SectIterator it(nSector);
         while ((i = it.NextIndex()) >= 0)
         {
-            if (sprite[i].statnum >= 99 && nZVal == sprite[i].z && !(sprite[i].cstat & 0x8000))
+            auto pSprite = &sprite[i];
+            if (pSprite->statnum >= 99 && nZVal == pSprite->z && !(pSprite->cstat & 0x8000))
             {
                 nSectorB = nSector;
-                clipmove_old(&sprite[i].x, &sprite[i].y, &sprite[i].z, &nSectorB, xvect, yvect, 4 * sprite[i].clipdist, 5120, -5120, CLIPMASK0);
+                clipmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSectorB, xvect, yvect, 4 * pSprite->clipdist, 5120, -5120, CLIPMASK0);
             }
         }
     }
@@ -1149,12 +1151,13 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
         Can cause local player sounds to play off-centre.
         TODO: Might need to be done elsewhere too?
     */
-    int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
-    initx = sprite[nPlayerSprite].x;
-    inity = sprite[nPlayerSprite].y;
-    initz = sprite[nPlayerSprite].z;
-    inita = sprite[nPlayerSprite].ang;
-    initsect = sprite[nPlayerSprite].sectnum;
+    auto pActor = PlayerList[nLocalPlayer].Actor();
+    auto pSprite = &pActor->s();
+    initx = pSprite->x;
+    inity = pSprite->y;
+    initz = pSprite->z;
+    inita = pSprite->ang;
+    initsect = pSprite->sectnum;
 }
 
 void SetQuake(short nSprite, int nVal)
