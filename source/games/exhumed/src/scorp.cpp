@@ -91,12 +91,12 @@ void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle,
 {
     auto nScorp = scorpion.Reserve(1);
 
-	auto pSprite = &sprite[nSprite];
+    auto pSprite = &sprite[nSprite];
 
     if (nSprite == -1)
     {
         nSprite = insertsprite(nSector, 122);
-		pSprite = &sprite[nSprite];
+        pSprite = &sprite[nSprite];
     }
     else
     {
@@ -130,7 +130,7 @@ void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle,
     pSprite->extra = -1;
     pSprite->hitag = 0;
 
-//	GrabTimeSlot(3);
+    //	GrabTimeSlot(3);
 
     scorpion[nScorp].nHealth = 20000;
     scorpion[nScorp].nFrame = 0;
@@ -148,362 +148,376 @@ void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle,
     nCreaturesTotal++;
 }
 
-void FuncScorp(int nObject, int nMessage, int nDamage, int nRun)
+void AIScorp::Draw(RunListEvent* ev)
 {
-    short nScorp = RunData[nRun].nVal;
+    short nScorp = RunData[ev->nRun].nVal;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
-
-    short nSprite = scorpion[nScorp].nSprite;
     short nAction = scorpion[nScorp].nAction;
-	auto pSprite = &sprite[nSprite];
+
+    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, scorpion[nScorp].nFrame, ScorpSeq[nAction].b);
+}
+
+void AIScorp::RadialDamage(RunListEvent* ev)
+{
+    short nScorp = RunData[ev->nRun].nVal;
+    assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
+    short nSprite = scorpion[nScorp].nSprite;
+
+    ev->nDamage = runlist_CheckRadialDamage(nSprite);
+    if (ev->nDamage) Damage(ev);
+}
+
+
+void AIScorp::Damage(RunListEvent* ev)
+{
+    short nScorp = RunData[ev->nRun].nVal;
+    assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
+    short nSprite = scorpion[nScorp].nSprite;
+
+    short nAction = scorpion[nScorp].nAction;
+    auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
 
     short nTarget = -1;
 
-    switch (nMessage)
-    {
-        default:
-        {
-            Printf("unknown msg %d for Scorp\n", nMessage);
-            return;
-        }
-
-        case 0x90000:
-        {
-            seq_PlotSequence(nObject, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, scorpion[nScorp].nFrame, ScorpSeq[nAction].b);
-            return;
-        }
-
-        case 0xA0000:
-        {
-            nDamage = runlist_CheckRadialDamage(nSprite);
-            if (!nDamage) {
-                return;
-            }
-            // else fall through to case 0x80000
-            fallthrough__;
-        }
-
-        case 0x80000:
-        {
-            if (scorpion[nScorp].nHealth <= 0) {
-                return;
-            }
-
-            scorpion[nScorp].nHealth -= dmgAdjust(nDamage);
-
-            if (scorpion[nScorp].nHealth <= 0)
-            {
-                scorpion[nScorp].nHealth = 0;
-                scorpion[nScorp].nAction = 4;
-                scorpion[nScorp].nFrame = 0;
-                scorpion[nScorp].nCount = 10;
-
-                pSprite->xvel = 0;
-                pSprite->yvel = 0;
-                pSprite->zvel = 0;
-                pSprite->cstat &= 0xFEFE;
-
-                nCreaturesKilled++;
-                return;
-            }
-            else
-            {
-                nTarget = nObject;
-
-                if (nTarget >= 0)
-                {
-                    if (pSprite->statnum == 100 || (pSprite->statnum < 199 && !RandomSize(5)))
-                    {
-                        scorpion[nScorp].nTarget = nTarget;
-                    }
-                }
-
-                if (!RandomSize(5))
-                {
-                    scorpion[nScorp].nAction = RandomSize(2) + 4;
-                    scorpion[nScorp].nFrame = 0;
-                    return;
-                }
-
-                if (RandomSize(2)) {
-                    return;
-                }
-
-                D3PlayFX(StaticSound[kSound41], nSprite);
-
-                goto FS_Pink_A;
-            }
-        }
-
-        case 0x20000:
-        {
-            if (scorpion[nScorp].nHealth) {
-                Gravity(nSprite);
-            }
-
-            int nSeq = SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a;
-
-            pSprite->picnum = seq_GetSeqPicnum2(nSeq, scorpion[nScorp].nFrame);
-            seq_MoveSequence(nSprite, nSeq, scorpion[nScorp].nFrame);
-
-            scorpion[nScorp].nFrame++;
-
-            if (scorpion[nScorp].nFrame >= SeqSize[nSeq])
-            {
-                scorpion[nScorp].nFrame = 0;
-                bVal = true;
-            }
-
-            int nFlag = FrameFlag[SeqBase[nSeq] + scorpion[nScorp].nFrame];
-            nTarget = scorpion[nScorp].nTarget;
-
-            switch (nAction)
-            {
-                default:
-                    return;
-
-                case 0:
-                {
-                    if (scorpion[nScorp].nCount > 0)
-                    {
-                        scorpion[nScorp].nCount--;
-                        return;
-                    }
-
-                    if ((nScorp & 0x1F) == (totalmoves & 0x1F))
-                    {
-                        if (nTarget < 0)
-                        {
-                            nTarget = FindPlayer(nSprite, 500);
-
-                            if (nTarget >= 0)
-                            {
-                                D3PlayFX(StaticSound[kSound41], nSprite);
-
-                                scorpion[nScorp].nFrame = 0;
-                                pSprite->xvel = bcos(pSprite->ang);
-                                pSprite->yvel = bsin(pSprite->ang);
-
-                                scorpion[nScorp].nAction = 1;
-                                scorpion[nScorp].nTarget = nTarget;
-                            }
-                        }
-                    }
-
-                    return;
-                }
-
-                case 1:
-                {
-                    scorpion[nScorp].nIndex2--;
-
-                    if (scorpion[nScorp].nIndex2 <= 0)
-                    {
-                        scorpion[nScorp].nIndex2 = RandomSize(5);
-                        // GOTO FS_Pink_A:
-                        goto FS_Pink_A;
-                    }
-                    else
-                    {
-                        int nMov = MoveCreatureWithCaution(nSprite);
-                        if ((nMov & 0xC000) == 0xC000)
-                        {
-                            if (nTarget == (nMov & 0x3FFF))
-                            {
-                                int nAngle = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
-                                if (AngleDiff(pSprite->ang, nAngle) < 64)
-                                {
-                                    scorpion[nScorp].nAction = 2;
-                                    scorpion[nScorp].nFrame = 0;
-                                }
-
-                                goto FS_Red;
-                            }
-                            else
-                            {
-                                goto FS_Pink_A;
-                            }
-                        }
-                        else if ((nMov & 0xC000) == 0x8000)
-                        {
-                            goto FS_Pink_A;
-                        }
-                        else
-                        {
-                            goto FS_Pink_B;
-                        }
-                    }
-                }
-
-                case 2:
-                {
-                    if (nTarget == -1)
-                    {
-                        scorpion[nScorp].nAction = 0;
-                        scorpion[nScorp].nCount = 5;
-                    }
-                    else
-                    {
-                        if (PlotCourseToSprite(nSprite, nTarget) >= 768)
-                        {
-                            scorpion[nScorp].nAction = 1;
-                        }
-                        else if (nFlag & 0x80)
-                        {
-                            runlist_DamageEnemy(nTarget, nSprite, 7);
-                        }
-                    }
-
-                    goto FS_Red;
-                }
-
-                case 3:
-                {
-                    if (bVal)
-                    {
-                        scorpion[nScorp].nIndex--;
-                        if (scorpion[nScorp].nIndex <= 0)
-                        {
-                            scorpion[nScorp].nAction = 1;
-
-                            pSprite->xvel = bcos(pSprite->ang);
-                            pSprite->yvel = bsin(pSprite->ang);
-
-                            scorpion[nScorp].nFrame = 0;
-                            return;
-                        }
-                    }
-
-                    if (!(nFlag & 0x80)) {
-                        return;
-                    }
-
-                    int nBulletSprite = BuildBullet(nSprite, 16, 0, 0, -1, pSprite->ang, nTarget + 10000, 1);
-                    if (nBulletSprite > -1)
-                    {
-                        PlotCourseToSprite(nBulletSprite & 0xffff, nTarget);
-                    }
-
-                    return;
-                }
-
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                {
-                    if (!bVal) {
-                        return;
-                    }
-
-                    if (scorpion[nScorp].nHealth > 0)
-                    {
-                        scorpion[nScorp].nAction = 1;
-                        scorpion[nScorp].nFrame = 0;
-                        scorpion[nScorp].nCount = 0;
-                        return;
-                    }
-
-                    scorpion[nScorp].nCount--;
-                    if (scorpion[nScorp].nCount <= 0)
-                    {
-                        scorpion[nScorp].nAction = 8;
-                    }
-                    else
-                    {
-                        scorpion[nScorp].nAction = RandomBit() + 6;
-                    }
-
-                    return;
-                }
-
-                case 8:
-                {
-                    if (bVal)
-                    {
-                        scorpion[nScorp].nAction++; // set to 9
-                        scorpion[nScorp].nFrame = 0;
-
-                        runlist_ChangeChannel(scorpion[nScorp].nChannel, 1);
-                        return;
-                    }
-
-                    int nSpiderSprite = BuildSpider(-1, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang);
-                    if (nSpiderSprite != -1)
-                    {
-                        sprite[nSpiderSprite].ang = RandomSize(11);
-
-                        int nVel = RandomSize(5) + 1;
-
-                        sprite[nSpiderSprite].xvel = bcos(sprite[nSpiderSprite].ang, -8) * nVel;
-                        sprite[nSpiderSprite].yvel = bsin(sprite[nSpiderSprite].ang, -8) * nVel;
-                        sprite[nSpiderSprite].zvel = (-(RandomSize(5) + 3)) << 8;
-                    }
-
-                    return;
-                }
-
-                case 9:
-                {
-                    pSprite->cstat &= 0xFEFE;
-
-                    if (bVal)
-                    {
-                        runlist_SubRunRec(scorpion[nScorp].nRun);
-                        runlist_DoSubRunRec(pSprite->owner);
-                        runlist_FreeRun(pSprite->lotag - 1);
-
-                        mydeletesprite(nSprite);
-                    }
-
-                    return;
-                }
-            }
-
-            break;
-        }
+    if (scorpion[nScorp].nHealth <= 0) {
+        return;
     }
 
-FS_Pink_A:
-    PlotCourseToSprite(nSprite, nTarget);
-    pSprite->ang += RandomSize(7) - 63;
-    pSprite->ang &= kAngleMask;
+    scorpion[nScorp].nHealth -= dmgAdjust(ev->nDamage);
 
-    pSprite->xvel = bcos(pSprite->ang);
-    pSprite->yvel = bsin(pSprite->ang);
-
-FS_Pink_B:
-    if (scorpion[nScorp].nCount)
+    if (scorpion[nScorp].nHealth <= 0)
     {
-        scorpion[nScorp].nCount--;
+        scorpion[nScorp].nHealth = 0;
+        scorpion[nScorp].nAction = 4;
+        scorpion[nScorp].nFrame = 0;
+        scorpion[nScorp].nCount = 10;
+
+        pSprite->xvel = 0;
+        pSprite->yvel = 0;
+        pSprite->zvel = 0;
+        pSprite->cstat &= 0xFEFE;
+
+        nCreaturesKilled++;
+        return;
     }
     else
     {
-        scorpion[nScorp].nCount = 45;
+        nTarget = ev->nIndex;
 
-        if (cansee(pSprite->x, pSprite->y, pSprite->z - GetSpriteHeight(nSprite), pSprite->sectnum,
-            sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
+        if (nTarget >= 0)
         {
-            pSprite->xvel = 0;
-            pSprite->yvel = 0;
-            pSprite->ang = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
+            if (pSprite->statnum == 100 || (pSprite->statnum < 199 && !RandomSize(5)))
+            {
+                scorpion[nScorp].nTarget = nTarget;
+            }
+        }
 
-            scorpion[nScorp].nIndex = RandomSize(2) + RandomSize(3);
+        if (!RandomSize(5))
+        {
+            scorpion[nScorp].nAction = RandomSize(2) + 4;
+            scorpion[nScorp].nFrame = 0;
+            return;
+        }
 
-            if (!scorpion[nScorp].nIndex) {
-                scorpion[nScorp].nCount = RandomSize(5);
+        if (RandomSize(2)) {
+            return;
+        }
+
+        D3PlayFX(StaticSound[kSound41], nSprite);
+        Effect(ev, nTarget, 0);
+    }
+}
+
+void AIScorp::Tick(RunListEvent* ev)
+{
+    short nScorp = RunData[ev->nRun].nVal;
+    assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
+    short nSprite = scorpion[nScorp].nSprite;
+
+    short nAction = scorpion[nScorp].nAction;
+    auto pSprite = &sprite[nSprite];
+
+    bool bVal = false;
+
+    short nTarget = -1;
+
+    if (scorpion[nScorp].nHealth) {
+        Gravity(nSprite);
+    }
+
+    int nSeq = SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a;
+
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, scorpion[nScorp].nFrame);
+    seq_MoveSequence(nSprite, nSeq, scorpion[nScorp].nFrame);
+
+    scorpion[nScorp].nFrame++;
+
+    if (scorpion[nScorp].nFrame >= SeqSize[nSeq])
+    {
+        scorpion[nScorp].nFrame = 0;
+        bVal = true;
+    }
+
+    int nFlag = FrameFlag[SeqBase[nSeq] + scorpion[nScorp].nFrame];
+    nTarget = scorpion[nScorp].nTarget;
+
+    switch (nAction)
+    {
+    default:
+        return;
+
+    case 0:
+    {
+        if (scorpion[nScorp].nCount > 0)
+        {
+            scorpion[nScorp].nCount--;
+            return;
+        }
+
+        if ((nScorp & 0x1F) == (totalmoves & 0x1F))
+        {
+            if (nTarget < 0)
+            {
+                nTarget = FindPlayer(nSprite, 500);
+
+                if (nTarget >= 0)
+                {
+                    D3PlayFX(StaticSound[kSound41], nSprite);
+
+                    scorpion[nScorp].nFrame = 0;
+                    pSprite->xvel = bcos(pSprite->ang);
+                    pSprite->yvel = bsin(pSprite->ang);
+
+                    scorpion[nScorp].nAction = 1;
+                    scorpion[nScorp].nTarget = nTarget;
+                }
+            }
+        }
+
+        return;
+    }
+
+    case 1:
+    {
+        scorpion[nScorp].nIndex2--;
+
+        if (scorpion[nScorp].nIndex2 <= 0)
+        {
+            scorpion[nScorp].nIndex2 = RandomSize(5);
+            Effect(ev, nTarget, 0);
+        }
+        else
+        {
+            int nMov = MoveCreatureWithCaution(nSprite);
+            if ((nMov & 0xC000) == 0xC000)
+            {
+                if (nTarget == (nMov & 0x3FFF))
+                {
+                    int nAngle = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
+                    if (AngleDiff(pSprite->ang, nAngle) < 64)
+                    {
+                        scorpion[nScorp].nAction = 2;
+                        scorpion[nScorp].nFrame = 0;
+                    }
+                    Effect(ev, nTarget, 2);
+                }
+                else
+                {
+                    Effect(ev, nTarget, 0);
+                }
+                return;
+            }
+            else if ((nMov & 0xC000) == 0x8000)
+            {
+                Effect(ev, nTarget, 0);
             }
             else
             {
-                scorpion[nScorp].nAction = 3;
+                Effect(ev, nTarget, 1);
+            }
+        }
+        return;
+    }
+
+    case 2:
+    {
+        if (nTarget == -1)
+        {
+            scorpion[nScorp].nAction = 0;
+            scorpion[nScorp].nCount = 5;
+        }
+        else
+        {
+            if (PlotCourseToSprite(nSprite, nTarget) >= 768)
+            {
+                scorpion[nScorp].nAction = 1;
+            }
+            else if (nFlag & 0x80)
+            {
+                runlist_DamageEnemy(nTarget, nSprite, 7);
+            }
+        }
+        Effect(ev, nTarget, 2);
+        return;
+    }
+
+    case 3:
+    {
+        if (bVal)
+        {
+            scorpion[nScorp].nIndex--;
+            if (scorpion[nScorp].nIndex <= 0)
+            {
+                scorpion[nScorp].nAction = 1;
+
+                pSprite->xvel = bcos(pSprite->ang);
+                pSprite->yvel = bsin(pSprite->ang);
+
                 scorpion[nScorp].nFrame = 0;
+                return;
+            }
+        }
+
+        if (!(nFlag & 0x80)) {
+            return;
+        }
+
+        int nBulletSprite = BuildBullet(nSprite, 16, 0, 0, -1, pSprite->ang, nTarget + 10000, 1);
+        if (nBulletSprite > -1)
+        {
+            PlotCourseToSprite(nBulletSprite & 0xffff, nTarget);
+        }
+
+        return;
+    }
+
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    {
+        if (!bVal) {
+            return;
+        }
+
+        if (scorpion[nScorp].nHealth > 0)
+        {
+            scorpion[nScorp].nAction = 1;
+            scorpion[nScorp].nFrame = 0;
+            scorpion[nScorp].nCount = 0;
+            return;
+        }
+
+        scorpion[nScorp].nCount--;
+        if (scorpion[nScorp].nCount <= 0)
+        {
+            scorpion[nScorp].nAction = 8;
+        }
+        else
+        {
+            scorpion[nScorp].nAction = RandomBit() + 6;
+        }
+
+        return;
+    }
+
+    case 8:
+    {
+        if (bVal)
+        {
+            scorpion[nScorp].nAction++; // set to 9
+            scorpion[nScorp].nFrame = 0;
+
+            runlist_ChangeChannel(scorpion[nScorp].nChannel, 1);
+            return;
+        }
+
+        int nSpiderSprite = BuildSpider(-1, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang);
+        if (nSpiderSprite != -1)
+        {
+            sprite[nSpiderSprite].ang = RandomSize(11);
+
+            int nVel = RandomSize(5) + 1;
+
+            sprite[nSpiderSprite].xvel = bcos(sprite[nSpiderSprite].ang, -8) * nVel;
+            sprite[nSpiderSprite].yvel = bsin(sprite[nSpiderSprite].ang, -8) * nVel;
+            sprite[nSpiderSprite].zvel = (-(RandomSize(5) + 3)) << 8;
+        }
+
+        return;
+    }
+
+    case 9:
+    {
+        pSprite->cstat &= 0xFEFE;
+
+        if (bVal)
+        {
+            runlist_SubRunRec(scorpion[nScorp].nRun);
+            runlist_DoSubRunRec(pSprite->owner);
+            runlist_FreeRun(pSprite->lotag - 1);
+
+            mydeletesprite(nSprite);
+        }
+
+        return;
+    }
+    }
+}
+
+void AIScorp::Effect(RunListEvent* ev, int nTarget, int mode)
+{
+    short nScorp = RunData[ev->nRun].nVal;
+    assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
+    short nSprite = scorpion[nScorp].nSprite;
+
+    short nAction = scorpion[nScorp].nAction;
+    auto pSprite = &sprite[nSprite];
+
+    bool bVal = false;
+
+    if (mode == 0)
+    {
+        PlotCourseToSprite(nSprite, nTarget);
+        pSprite->ang += RandomSize(7) - 63;
+        pSprite->ang &= kAngleMask;
+
+        pSprite->xvel = bcos(pSprite->ang);
+        pSprite->yvel = bsin(pSprite->ang);
+    }
+    if (mode <= 1)
+    {
+        if (scorpion[nScorp].nCount)
+        {
+            scorpion[nScorp].nCount--;
+        }
+        else
+        {
+            scorpion[nScorp].nCount = 45;
+
+            if (cansee(pSprite->x, pSprite->y, pSprite->z - GetSpriteHeight(nSprite), pSprite->sectnum,
+                sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
+            {
+                pSprite->xvel = 0;
+                pSprite->yvel = 0;
+                pSprite->ang = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
+
+                scorpion[nScorp].nIndex = RandomSize(2) + RandomSize(3);
+
+                if (!scorpion[nScorp].nIndex) {
+                    scorpion[nScorp].nCount = RandomSize(5);
+                }
+                else
+                {
+                    scorpion[nScorp].nAction = 3;
+                    scorpion[nScorp].nFrame = 0;
+                }
             }
         }
     }
 
-FS_Red:
     if (!nAction || nTarget == -1) {
         return;
     }
@@ -518,5 +532,12 @@ FS_Red:
         pSprite->xvel = 0;
         pSprite->yvel = 0;
     }
+}
+
+
+void FuncScorp(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIScorp ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 END_PS_NS

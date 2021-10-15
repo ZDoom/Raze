@@ -617,6 +617,15 @@ struct AIRoach : public ExhumedAI
     void RadialDamage(RunListEvent* ev) override;
 };
 
+struct AIScorp : public ExhumedAI
+{
+    void Effect(RunListEvent* ev, int nTarget, int mode);
+    void Tick(RunListEvent* ev) override;
+    void Damage(RunListEvent* ev) override;
+    void Draw(RunListEvent* ev) override;
+    void RadialDamage(RunListEvent* ev) override;
+};
+
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
 typedef void(*AiFunc)(int, int, int, int nRun);
