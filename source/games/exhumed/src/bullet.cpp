@@ -811,76 +811,70 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     return nBulletSprite | (nBullet << 16);
 }
 
-void FuncBullet(int nObject, int nMessage, int, int nRun)
+void AIBullet::Tick(RunListEvent* ev)
 {
-    short nBullet = RunData[nRun].nVal;
+    short nBullet = RunData[ev->nRun].nVal;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
     short nSprite = BulletList[nBullet].nSprite;
-	auto pSprite = &sprite[nSprite];
+    auto pSprite = &sprite[nSprite];
 
-    switch (nMessage)
+    short nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].nFrame];
+
+    seq_MoveSequence(nSprite, nSeq, BulletList[nBullet].nFrame);
+
+    if (nFlag & 0x80)
     {
-        case 0x20000:
-        {
-            short nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].nFrame];
-
-            seq_MoveSequence(nSprite, nSeq, BulletList[nBullet].nFrame);
-
-            if (nFlag & 0x80)
-            {
-                BuildAnim(-1, 45, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 0);
-            }
-
-            BulletList[nBullet].nFrame++;
-            if (BulletList[nBullet].nFrame >= SeqSize[nSeq])
-            {
-                if (!BulletList[nBullet].field_12)
-                {
-                    BulletList[nBullet].nSeq = BulletInfo[BulletList[nBullet].nType].nSeq;
-                    BulletList[nBullet].field_12++;
-                }
-
-                BulletList[nBullet].nFrame = 0;
-            }
-
-            if (BulletList[nBullet].field_E != -1 && --BulletList[nBullet].field_E == 0)
-            {
-                DestroyBullet(nBullet);
-            }
-            else
-            {
-                MoveBullet(nBullet);
-            }
-            break;
-        }
-
-        case 0x90000:
-        {
-            short nSprite2 = nObject;
-            mytsprite[nSprite2].statnum = 1000;
-
-            if (BulletList[nBullet].nType == 15)
-            {
-                seq_PlotArrowSequence(nSprite2, nSeq, BulletList[nBullet].nFrame);
-            }
-            else
-            {
-                seq_PlotSequence(nSprite2, nSeq, BulletList[nBullet].nFrame, 0);
-                mytsprite[nSprite2].owner = -1;
-            }
-            break;
-        }
-
-        case 0xA0000:
-            break;
-
-        default:
-        {
-            Printf("unknown msg %d for bullet\n", nMessage);
-            return;
-        }
+        BuildAnim(-1, 45, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 0);
     }
+
+    BulletList[nBullet].nFrame++;
+    if (BulletList[nBullet].nFrame >= SeqSize[nSeq])
+    {
+        if (!BulletList[nBullet].field_12)
+        {
+            BulletList[nBullet].nSeq = BulletInfo[BulletList[nBullet].nType].nSeq;
+            BulletList[nBullet].field_12++;
+        }
+
+        BulletList[nBullet].nFrame = 0;
+    }
+
+    if (BulletList[nBullet].field_E != -1 && --BulletList[nBullet].field_E == 0)
+    {
+        DestroyBullet(nBullet);
+    }
+    else
+    {
+        MoveBullet(nBullet);
+    }
+}
+
+void AIBullet::Draw(RunListEvent* ev)
+{
+    short nBullet = RunData[ev->nRun].nVal;
+    assert(nBullet >= 0 && nBullet < kMaxBullets);
+
+    short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
+
+    short nSprite2 = ev->nIndex;
+    mytsprite[nSprite2].statnum = 1000;
+
+    if (BulletList[nBullet].nType == 15)
+    {
+        seq_PlotArrowSequence(nSprite2, nSeq, BulletList[nBullet].nFrame);
+    }
+    else
+    {
+        seq_PlotSequence(nSprite2, nSeq, BulletList[nBullet].nFrame, 0);
+        ev->pTSprite->owner = -1;
+    }
+}
+
+void FuncBullet(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIBullet ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 END_PS_NS

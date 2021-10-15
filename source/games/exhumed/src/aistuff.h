@@ -452,6 +452,12 @@ struct AIBubble : ExhumedAI
     void Draw(RunListEvent* ev) override;
 };
 
+class AIBullet : public ExhumedAI
+{
+    void Tick(RunListEvent* ev) override;
+    void Draw(RunListEvent* ev) override;
+};
+
 
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
