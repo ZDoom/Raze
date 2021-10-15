@@ -521,6 +521,18 @@ int GetSpriteHeight(int nSprite)
     return tileHeight(pSprite->picnum) * pSprite->yrepeat * 4;
 }
 
+int GetActorHeight(DExhumedActor* actor)
+{
+    return tileHeight(actor->s().picnum) * actor->s().yrepeat * 4;
+}
+
+DExhumedActor* insertActor(int sect, int stat)
+{
+    int ndx = insertsprite(sect, stat);
+    return ndx >= 0 ? &exhumedActors[ndx] : nullptr;
+}
+
+
 int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigned int clipmask)
 {
     spritetype *pSprite = &sprite[nSprite];
@@ -1308,7 +1320,7 @@ void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum)
     *x = pSprite->x;
     *y = pSprite->y;
 
-    int height = GetSpriteHeight(pActor) / 2;
+    int height = GetActorHeight(pActor) / 2;
 
     *z = pSprite->z - height;
     *sectnum = pSprite->sectnum;
@@ -1433,12 +1445,12 @@ int BuildCreatureChunk(int nVal, int nPic)
 {
     int var_14;
 
-    int nSprite = GrabChunkSprite();
+    auto actor = GrabChunkSprite();
 
-    if (nSprite == -1) {
+    if (actor == nullptr) {
         return -1;
     }
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &actor->s();
 
     if (nVal & 0x4000)
     {
@@ -1456,7 +1468,7 @@ int BuildCreatureChunk(int nVal, int nPic)
     pSprite->y = sprite[nVal].y;
     pSprite->z = sprite[nVal].z;
 
-    mychangespritesect(nSprite, sprite[nVal].sectnum);
+    mychangespritesect(actor->GetSpriteIndex(), sprite[nVal].sectnum);
 
     pSprite->cstat = 0x80;
     pSprite->shade = -12;
@@ -1484,10 +1496,10 @@ int BuildCreatureChunk(int nVal, int nPic)
 //	GrabTimeSlot(3);
 
     pSprite->extra = -1;
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nSprite, 0xD0000);
-    pSprite->hitag = runlist_AddRunRec(NewRun, nSprite, 0xD0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, actor->GetSpriteIndex(), 0xD0000);
+    pSprite->hitag = runlist_AddRunRec(NewRun, actor->GetSpriteIndex(), 0xD0000);
 
-    return nSprite | 0xD0000;
+    return actor->GetSpriteIndex();
 }
 
 void AICreatureChunk::Tick(RunListEvent* ev)

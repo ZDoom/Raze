@@ -279,8 +279,9 @@ void RestartPlayer(short nPlayer)
 		}
 	}
 
-	nSprite = GrabBody();
-	nSpr = &sprite[nSprite];
+    auto actor = GrabBody();
+	nSprite = actor->GetSpriteIndex();
+	nSpr = &actor->s();
 
 	mychangespritesect(nSprite, sPlayerSave[nPlayer].nSector);
 	changespritestat(nSprite, 100);

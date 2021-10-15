@@ -241,6 +241,8 @@ int MoveCreature(short nSprite);
 int MoveCreatureWithCaution(int nSprite);
 void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum);
 int GetSpriteHeight(int nSprite);
+int GetActorHeight(DExhumedActor* nSprite);
+DExhumedActor* insertActor(int, int);
 DExhumedActor* GrabBody();
 DExhumedActor* GrabBodyGunSprite();
 void CreatePushBlock(int nSector);
