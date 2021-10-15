@@ -413,11 +413,13 @@ struct RunListEvent
 
     int nRadialDamage;          // Radial damage needs a bit more info.
     int nDamageRadius;
+
+    int RunValue() const;
 };
 
 struct ExhumedAI
 {
-    virtual ~ExhumedAI() = default;
+    //virtual ~ExhumedAI() = default;
     virtual void ProcessChannel(RunListEvent* ev) {}
     virtual void Tick(RunListEvent* ev) {}
     virtual void Process(RunListEvent* ev) {}
@@ -430,11 +432,25 @@ struct ExhumedAI
     virtual void RadialDamage(RunListEvent* ev) {}
 };
 
+struct AIAnim : public ExhumedAI
+{
+    void Tick(RunListEvent* ev) override;
+    void Draw(RunListEvent* ev) override;
+};
+
+
+
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
 typedef void(*AiFunc)(int, int, int, int nRun);
 
 extern FreeListArray<RunStruct, kMaxRuns> RunData;
+
+inline int RunListEvent::RunValue() const
+{
+    return RunData[nRun].nVal;
+}
+
 extern RunChannel sRunChannels[kMaxChannels];
 extern short NewRun;
 extern int nRadialOwner;

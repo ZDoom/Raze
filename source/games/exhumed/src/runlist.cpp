@@ -1702,9 +1702,11 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
 // This is only temporary so that the event system can be refactored in smaller steps.
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun)
 {
-    RunListEvent ev;
+    RunListEvent ev{};
     ev.nMessage = (EMessageType)(nMessage >> 16);
     ev.nIndex = nObject;
+    ev.nDamage = nDamage;
+    ev.nRun = nRun;
     switch (ev.nMessage)
     {
     case EMessageType::ProcessChannel:

@@ -150,143 +150,132 @@ short GetAnimSprite(short nAnim)
     return AnimList[nAnim].nSprite;
 }
 
-void FuncAnim(int nObject, int nMessage, int, int nRun)
+void AIAnim::Tick(RunListEvent* ev)
 {
-    short nAnim = RunData[nRun].nVal;
+    short nAnim = RunData[ev->nRun].nVal;
     assert(nAnim >= 0 && nAnim < kMaxAnims);
 
     short nSprite = AnimList[nAnim].nSprite;
     short nSeq = AnimList[nAnim].nSeq;
-	auto pSprite = &sprite[nSprite];
+    auto pSprite = &sprite[nSprite];
 
     assert(nSprite != -1);
 
-    switch (nMessage)
-    {
-        case 0x20000:
-        {
-            short var_1C = AnimList[nAnim].field_2;
+    short var_1C = AnimList[nAnim].field_2;
 
-            if (!(pSprite->cstat & 0x8000))
+    if (!(pSprite->cstat & 0x8000))
+    {
+        seq_MoveSequence(nSprite, nSeq, var_1C);
+    }
+
+    if (pSprite->statnum == kStatIgnited)
+    {
+        short nSpriteB = pSprite->hitag;
+        if (nSpriteB > -1)
+        {
+            auto pSpriteB = &sprite[nSpriteB];
+            pSprite->x = pSpriteB->x;
+            pSprite->y = pSpriteB->y;
+            pSprite->z = pSpriteB->z;
+
+            if (pSpriteB->sectnum != pSprite->sectnum)
             {
-                seq_MoveSequence(nSprite, nSeq, var_1C);
+                if (pSpriteB->sectnum < 0 || pSpriteB->sectnum >= kMaxSectors)
+                {
+                    DestroyAnim(nAnim);
+                    mydeletesprite(nSprite);
+                    return;
+                }
+                else
+                {
+                    mychangespritesect(nSprite, pSpriteB->sectnum);
+                }
             }
 
-            if (pSprite->statnum == kStatIgnited)
+            if (!var_1C)
             {
-                short nSpriteB = pSprite->hitag;
-                if (nSpriteB > -1)
+                if (pSpriteB->cstat != 0x8000)
                 {
-					auto pSpriteB = &sprite[nSpriteB];
-                    pSprite->x = pSpriteB->x;
-                    pSprite->y = pSpriteB->y;
-                    pSprite->z = pSpriteB->z;
+                    short hitag2 = pSpriteB->hitag;
+                    pSpriteB->hitag--;
 
-                    if (pSpriteB->sectnum != pSprite->sectnum)
+                    if (hitag2 >= 15)
                     {
-                        if (pSpriteB->sectnum < 0 || pSpriteB->sectnum >= kMaxSectors)
+                        runlist_DamageEnemy(nSpriteB, -1, (pSpriteB->hitag - 14) * 2);
+
+                        if (pSpriteB->shade < 100)
+                        {
+                            pSpriteB->pal = 0;
+                            pSpriteB->shade++;
+                        }
+
+                        if (!(pSpriteB->cstat & 101))
                         {
                             DestroyAnim(nAnim);
                             mydeletesprite(nSprite);
                             return;
                         }
-                        else
-                        {
-                            mychangespritesect(nSprite, pSpriteB->sectnum);
-                        }
                     }
-
-                    if (!var_1C)
+                    else
                     {
-                        if (pSpriteB->cstat != 0x8000)
-                        {
-                            short hitag2 = pSpriteB->hitag;
-                            pSpriteB->hitag--;
-
-                            if (hitag2 >= 15)
-                            {
-                                runlist_DamageEnemy(nSpriteB, -1, (pSpriteB->hitag - 14) * 2);
-
-                                if (pSpriteB->shade < 100)
-                                {
-                                    pSpriteB->pal = 0;
-                                    pSpriteB->shade++;
-                                }
-
-                                if (!(pSpriteB->cstat & 101))
-                                {
-                                    DestroyAnim(nAnim);
-                                    mydeletesprite(nSprite);
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                pSpriteB->hitag = 1;
-                                DestroyAnim(nAnim);
-                                mydeletesprite(nSprite);
-                            }
-                        }
-                        else
-                        {
-                            pSpriteB->hitag = 1;
-                            DestroyAnim(nAnim);
-                            mydeletesprite(nSprite);
-                        }
+                        pSpriteB->hitag = 1;
+                        DestroyAnim(nAnim);
+                        mydeletesprite(nSprite);
                     }
-                }
-            }
-
-            AnimList[nAnim].field_2++;
-            if (AnimList[nAnim].field_2 >= SeqSize[nSeq])
-            {
-                if (AnimList[nAnim].AnimFlags & 0x10)
-                {
-                    AnimList[nAnim].field_2 = 0;
-                }
-                else if (nSeq == nPreMagicSeq)
-                {
-                    AnimList[nAnim].field_2 = 0;
-                    AnimList[nAnim].nSeq = nMagicSeq;
-                    short nAnimSprite = AnimList[nAnim].nSprite;
-                    AnimList[nAnim].AnimFlags |= 0x10;
-                    sprite[nAnimSprite].cstat |= 2;
-                }
-                else if (nSeq == nSavePointSeq)
-                {
-                    AnimList[nAnim].field_2 = 0;
-                    AnimList[nAnim].nSeq++;
-                    AnimList[nAnim].AnimFlags |= 0x10;
                 }
                 else
                 {
+                    pSpriteB->hitag = 1;
                     DestroyAnim(nAnim);
                     mydeletesprite(nSprite);
                 }
-                return;
             }
-
-            return;
-        }
-
-        case 0x90000:
-        {
-            seq_PlotSequence(nObject, nSeq, AnimList[nAnim].field_2, 0x101);
-            mytsprite[nObject].owner = -1;
-            return;
-        }
-
-        case 0xA0000:
-        {
-            return;
-        }
-
-        default:
-        {
-            Printf("unknown msg %x for anim\n", nMessage);
-            return;
         }
     }
+
+    AnimList[nAnim].field_2++;
+    if (AnimList[nAnim].field_2 >= SeqSize[nSeq])
+    {
+        if (AnimList[nAnim].AnimFlags & 0x10)
+        {
+            AnimList[nAnim].field_2 = 0;
+        }
+        else if (nSeq == nPreMagicSeq)
+        {
+            AnimList[nAnim].field_2 = 0;
+            AnimList[nAnim].nSeq = nMagicSeq;
+            short nAnimSprite = AnimList[nAnim].nSprite;
+            AnimList[nAnim].AnimFlags |= 0x10;
+            sprite[nAnimSprite].cstat |= 2;
+        }
+        else if (nSeq == nSavePointSeq)
+        {
+            AnimList[nAnim].field_2 = 0;
+            AnimList[nAnim].nSeq++;
+            AnimList[nAnim].AnimFlags |= 0x10;
+        }
+        else
+        {
+            DestroyAnim(nAnim);
+            mydeletesprite(nSprite);
+        }
+    }
+}
+
+void AIAnim::Draw(RunListEvent* ev)
+{
+    short nAnim = RunData[ev->nRun].nVal;
+    assert(nAnim >= 0 && nAnim < kMaxAnims);
+    short nSeq = AnimList[nAnim].nSeq;
+
+    seq_PlotSequence(ev->nIndex, nSeq, AnimList[nAnim].field_2, 0x101);
+    ev->pTSprite->owner = -1;
+}
+
+void  FuncAnim(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIAnim ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 void BuildExplosion(short nSprite)
