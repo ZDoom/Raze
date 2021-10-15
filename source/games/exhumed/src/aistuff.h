@@ -505,6 +505,14 @@ struct AICreatureChunk : public ExhumedAI
     virtual void Tick(RunListEvent* ev) override;
 };
 
+struct AIMummy : public ExhumedAI
+{
+    void Tick(RunListEvent* ev) override;
+    void Damage(RunListEvent* ev) override;
+    void Draw(RunListEvent* ev) override;
+    void RadialDamage(RunListEvent* ev) override;
+};
+
 
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
