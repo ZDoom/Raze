@@ -122,18 +122,17 @@ void InitSwitch()
     memset(SwitchData, 0, sizeof(SwitchData));
 }
 
-int BuildSwReady(int nChannel, short nLink)
+std::pair<int, int> BuildSwReady(int nChannel, short nLink)
 {
     if (SwitchCount <= 0 || nLink < 0) {
         I_Error("Too many switch readys!\n");
-        return -1;
     }
 
     SwitchCount--;
     SwitchData[SwitchCount].nChannel = nChannel;
     SwitchData[SwitchCount].nLink = nLink;
 
-    return SwitchCount | 0x10000;
+    return { SwitchCount, 0x10000 };
 }
 
 void FuncSwReady(int a, int, int nRun)
@@ -167,18 +166,17 @@ void FuncSwReady(int a, int, int nRun)
     }
 }
 
-int BuildSwPause(int nChannel, int nLink, int ebx)
+std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx)
 {
     for (int i = kMaxSwitches - 1; i >= SwitchCount; i--)
     {
         if (SwitchData[i].nChannel == nChannel && SwitchData[i].nWait != 0) {
-            return i | 0x20000;
+            return { i, 0x20000 };
         }
     }
 
     if (SwitchCount <= 0 || nLink < 0) {
         I_Error("Too many switches!\n");
-        return -1;
     }
 
     SwitchCount--;
@@ -188,7 +186,7 @@ int BuildSwPause(int nChannel, int nLink, int ebx)
     SwitchData[SwitchCount].nWait = ebx;
     SwitchData[SwitchCount].nRunPtr = -1;
 
-    return SwitchCount | 0x20000;
+    return { SwitchCount, 0x20000 };
 }
 
 void FuncSwPause(int a, int, int nRun)
@@ -246,7 +244,7 @@ void FuncSwPause(int a, int, int nRun)
                 return;
             }
 
-            SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, RunData[nRun].nMoves);
+            SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, RunData[nRun].nVal, RunData[nRun].nRef);
 
             int eax;
 
@@ -265,7 +263,7 @@ void FuncSwPause(int a, int, int nRun)
     }
 }
 
-int BuildSwStepOn(int nChannel, int nLink, int nSector)
+std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
         I_Error("Too many switches!\n");
@@ -277,7 +275,7 @@ int BuildSwStepOn(int nChannel, int nLink, int nSector)
     SwitchData[nSwitch].nSector = nSector;
     SwitchData[nSwitch].nRun2 = -1;
 
-    return nSwitch | 0x30000;
+    return { nSwitch , 0x30000 };
 }
 
 void FuncSwStepOn(int a, int, int nRun)
@@ -310,7 +308,7 @@ void FuncSwStepOn(int a, int, int nRun)
 
             if (var_14 >= 0)
             {
-                SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[nRun].nMoves);
+                SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[nRun].nVal, RunData[nRun].nRef);
             }
 
             return;
@@ -334,7 +332,7 @@ void FuncSwStepOn(int a, int, int nRun)
 
 }
 
-int BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
+std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
         I_Error("Too many switches!\n");
@@ -348,7 +346,7 @@ int BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
     SwitchData[nSwitch].nRunPtr  = -1;
     SwitchData[nSwitch].nRun2  = -1;
 
-    return nSwitch | 0x40000;
+    return { nSwitch, 0x40000 };
 }
 
 void FuncSwNotOnPause(int a, int, int nRun)
@@ -404,12 +402,12 @@ void FuncSwNotOnPause(int a, int, int nRun)
             {
                 if (SwitchData[nSwitch].nRunPtr < 0)
                 {
-                    SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, RunData[nRun].nMoves);
+                    SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, RunData[nRun].nVal, RunData[nRun].nRef);
 
                     short nSector = SwitchData[nSwitch].nSector;
 
                     SwitchData[nSwitch].nWaitTimer = SwitchData[nSwitch].nWait;
-                    SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[nRun].nMoves);
+                    SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[nRun].nVal, RunData[nRun].nRef);
                 }
             }
 
@@ -424,7 +422,7 @@ void FuncSwNotOnPause(int a, int, int nRun)
     }
 }
 
-int BuildSwPressSector(int nChannel, int nLink, int nSector, int keyMask)
+std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int keyMask)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
         I_Error("Too many switches!\n");
@@ -437,7 +435,7 @@ int BuildSwPressSector(int nChannel, int nLink, int nSector, int keyMask)
     SwitchData[nSwitch].nKeyMask = keyMask;
     SwitchData[nSwitch].nRun2 = -1;
 
-    return nSwitch | 0x50000;
+    return { nSwitch, 0x50000 };
 }
 
 void FuncSwPressSector(int a, int, int nRun)
@@ -472,7 +470,7 @@ void FuncSwPressSector(int a, int, int nRun)
 
             short nSector = SwitchData[nSwitch].nSector;
 
-            SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[nRun].nMoves);
+            SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[nRun].nVal, RunData[nRun].nRef);
             return;
         }
 
@@ -496,7 +494,7 @@ void FuncSwPressSector(int a, int, int nRun)
     }
 }
 
-int BuildSwPressWall(short nChannel, short nLink, short nWall)
+std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall)
 {
     if (SwitchCount <= 0 || nLink < 0 || nWall < 0) {
         I_Error("Too many switches!\n");
@@ -509,7 +507,7 @@ int BuildSwPressWall(short nChannel, short nLink, short nWall)
     SwitchData[SwitchCount].nWall = nWall;
     SwitchData[SwitchCount].nRun3 = -1;
 
-    return SwitchCount | 0x60000;
+    return { SwitchCount, 0x60000 };
 }
 
 void FuncSwPressWall(int a, int, int nRun)
@@ -542,7 +540,7 @@ void FuncSwPressWall(int a, int, int nRun)
             if (LinkMap[nLink].v[sRunChannels[nChannel].c] >= 0)
             {
                 short nWall = SwitchData[nSwitch].nWall;
-                SwitchData[nSwitch].nRun3 = runlist_AddRunRec(wall[nWall].lotag - 1, RunData[nRun].nMoves);
+                SwitchData[nSwitch].nRun3 = runlist_AddRunRec(wall[nWall].lotag - 1, RunData[nRun].nVal, RunData[nRun].nRef);
             }
 
             return;

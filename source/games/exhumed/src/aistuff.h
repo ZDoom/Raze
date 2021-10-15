@@ -52,7 +52,7 @@ int BuildSplash(int nSprite, int nSector);
 // anubis
 
 void InitAnubis();
-int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer);
+void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer);
 void FuncAnubis(int a, int b, int c);
 
 // bubbles
@@ -100,7 +100,7 @@ void BackUpBullet(int *x, int *y, short nAngle);
 // fish
 
 void InitFishes();
-int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle);
+void BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle);
 void FuncFish(int, int, int);
 void FuncFishLimb(int a, int b, int c);
 
@@ -109,7 +109,7 @@ void FuncFishLimb(int a, int b, int c);
 enum { kMaxGrenades = 50 };
 
 void InitGrenades();
-int BuildGrenade(int nPlayer);
+void BuildGrenade(int nPlayer);
 void DestroyGrenade(short nGrenade);
 int ThrowGrenade(short nPlayer, int edx, int ebx, int ecx, int push1);
 void FuncGrenade(int, int, int);
@@ -187,7 +187,7 @@ void DoRegenerates();
 // lavadude
 
 void InitLava();
-int BuildLava(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildLava(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 int BuildLavaLimb(int nSprite, int edx, int ebx);
 void FuncLavaLimb(int, int, int);
 void FuncLava(int, int, int);
@@ -211,7 +211,7 @@ extern short bTorch;
 // lion
 
 void InitLion();
-int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle);
+void BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle);
 void FuncLion(int, int, int);
 
 // move
@@ -263,7 +263,7 @@ void SetQuake(short nSprite, int nVal);
 enum { kMaxMummies = 150 };
 
 void InitMummy();
-int BuildMummy(int val, int x, int y, int z, int nSector, int nAngle);
+void BuildMummy(int val, int x, int y, int z, int nSector, int nAngle);
 void FuncMummy(int nSector, int edx, int nRun);
 
 // object
@@ -317,7 +317,7 @@ int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int 
 // queen
 
 void InitQueens();
-int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nVal);
+void BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nVal);
 void FuncQueenEgg(int, int, int);
 void FuncQueenHead(int, int, int);
 void FuncQueen(int, int, int);
@@ -340,7 +340,7 @@ struct RA
 extern RA Ra[];
 
 void FreeRa(short nPlayer);
-int BuildRa(short nPlayer);
+void BuildRa(short nPlayer);
 void InitRa();
 void MoveRaToEnemy(short nPlayer);
 void FuncRa(int, int, int);
@@ -349,20 +349,20 @@ void FuncRa(int, int, int);
 
 void InitRats();
 void SetRatVel(short nSprite);
-int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle);
+void BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle);
 int FindFood(short nSprite);
 void FuncRat(int a, int b, int nRun);
 
 // rex
 
 void InitRexs();
-int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 void FuncRex(int, int, int);
 
 // roach
 
 void InitRoachs();
-int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle);
+void BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle);
 void FuncRoach(int a, int nDamage, int nRun);
 
 // runlist
@@ -375,21 +375,8 @@ enum
 
 struct RunStruct
 {
-    union
-    {
-        int nMoves;
-        struct
-        {
-#if B_BIG_ENDIAN == 1
-            short nRef;
-            short nVal;
-#else
-            short nVal;
-            short nRef;
-#endif
-        };
-    };
-
+    int nRef;
+    int nVal;
     short next;
     short prev;
 };
@@ -414,7 +401,7 @@ void runlist_InitRun();
 
 int runlist_GrabRun();
 int runlist_FreeRun(int nRun);
-int runlist_AddRunRec(int a, int b);
+int runlist_AddRunRec(int a, int b, int c);
 int runlist_HeadRun();
 void runlist_InitChan();
 void runlist_ChangeChannel(int eax, short dx);
@@ -435,13 +422,13 @@ void runlist_ExecObjects();
 // scorp
 
 void InitScorp();
-int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 void FuncScorp(int, int, int);
 
 // set
 
 void InitSets();
-int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 void FuncSoul(int, int, int);
 void FuncSet(int, int, int);
 
@@ -469,7 +456,7 @@ extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 void InitSnakes();
 short GrabSnake();
-int BuildSnake(short nPlayer, short zVal);
+void BuildSnake(short nPlayer, short zVal);
 void FuncSnake(int, int, int);
 
 // spider
@@ -490,14 +477,14 @@ void FuncSwNotOnPause(int, int, int);
 void FuncSwPressSector(int, int, int);
 void FuncSwPressWall(int, int, int);
 
-int BuildSwPause(int nChannel, int nLink, int ebx);
-int BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx);
+std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx);
+std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx);
 int BuildLink(int nCount, ...);
-int BuildSwPressSector(int nChannel, int nLink, int nSector, int ecx);
-int BuildSwStepOn(int nChannel, int nLink, int nSector);
-int BuildSwReady(int nChannel, short nLink);
+std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int ecx);
+std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector);
+std::pair<int, int> BuildSwReady(int nChannel, short nLink);
 
-int BuildSwPressWall(short nChannel, short nLink, short nWall);
+std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall);
 
 // wasp
 

@@ -124,13 +124,13 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
     spp->nTarget = -1;
     spp->nHealth = 160;
 
-    sp->owner = runlist_AddRunRec(sp->lotag - 1, nSpider | 0xC0000);
+    sp->owner = runlist_AddRunRec(sp->lotag - 1, nSpider, 0xC0000);
 
-    spp->nRun = runlist_AddRunRec(NewRun, nSpider | 0xC0000);
+    spp->nRun = runlist_AddRunRec(NewRun, nSpider, 0xC0000);
 
     nCreaturesTotal++;
 
-    return nSpider | 0xC0000;
+    return nSprite;
 }
 
 void FuncSpider(int a, int nDamage, int nRun)

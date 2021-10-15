@@ -438,11 +438,11 @@ void RestartPlayer(short nPlayer)
 
 	nTauntTimer[nPlayer] = RandomSize(3) + 3;
 
-	nDSpr->owner = runlist_AddRunRec(nDSpr->lotag - 1, nPlayer | 0xA0000);
-	nSpr->owner = runlist_AddRunRec(nSpr->lotag - 1, nPlayer | 0xA0000);
+	nDSpr->owner = runlist_AddRunRec(nDSpr->lotag - 1, nPlayer, 0xA0000);
+	nSpr->owner = runlist_AddRunRec(nSpr->lotag - 1, nPlayer, 0xA0000);
 
 	if (plr->nRun < 0) {
-		plr->nRun = runlist_AddRunRec(NewRun, nPlayer | 0xA0000);
+		plr->nRun = runlist_AddRunRec(NewRun, nPlayer, 0xA0000);
 	}
 
 	BuildRa(nPlayer);

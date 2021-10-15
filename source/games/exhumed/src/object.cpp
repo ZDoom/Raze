@@ -765,7 +765,7 @@ void FuncElev(int a, int, int nRun)
                 {
                     if (Elevator[nElev].field_32 < 0)
                     {
-                        Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, RunData[nRun].nMoves);
+                        Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, RunData[nRun].nVal, RunData[nRun].nRef);
                         StartElevSound(Elevator[nElev].nSprite, var_18);
 
                         edi = 1;
@@ -799,7 +799,7 @@ void FuncElev(int a, int, int nRun)
             {
                 if (Elevator[nElev].field_32 < 0)
                 {
-                    Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, RunData[nRun].nMoves);
+                    Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, RunData[nRun].nVal, RunData[nRun].nRef);
 
                     StartElevSound(Elevator[nElev].nSprite, var_18);
                 }
@@ -969,7 +969,7 @@ int BuildWallFace(short nChannel, short nWall, int nCount, ...)
     }
     va_end(piclist);
 
-    return WallFaceCount | 0x70000;
+    return WallFaceCount;
 }
 
 void FuncWallFace(int a, int, int nRun)
@@ -1126,7 +1126,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
 
     SlideData[nSlide].field_8a = 0;
 
-    return nSlide | 0x80000;
+    return nSlide;
 }
 
 void FuncSlide(int a, int, int nRun)
@@ -1156,7 +1156,7 @@ void FuncSlide(int a, int, int nRun)
                 return;
             }
 
-            SlideData[nSlide].field_4a = runlist_AddRunRec(NewRun, RunData[nRun].nMoves);
+            SlideData[nSlide].field_4a = runlist_AddRunRec(NewRun, RunData[nRun].nVal, RunData[nRun].nRef);
 
             if (SlideData[nSlide].field_8a != sRunChannels[nChannel].c)
             {
@@ -1317,8 +1317,8 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     pSprite->extra = -1;
 
     pSprite->lotag = runlist_HeadRun() + 1;
-    pSprite->hitag = runlist_AddRunRec(NewRun, nTrap | 0x1F0000);
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nTrap | 0x1F0000);
+    pSprite->hitag = runlist_AddRunRec(NewRun, nTrap, 0x1F0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nTrap, 0x1F0000);
 
 //	GrabTimeSlot(3);
 
@@ -1440,7 +1440,7 @@ void FuncTrap(int a, int, int nRun)
                     int nBullet = BuildBullet(nSprite, nType, 0, 0, 0, pSprite->ang, 0, 1);
                     if (nBullet > -1)
                     {
-                        short nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)
+                        int nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)
                         assert(nBulletSprite >= 0);
 
                         if (nType == 15)
@@ -1561,8 +1561,8 @@ int BuildSpark(int nSprite, int nVal)
 //	GrabTimeSlot(3);
 
     spr->extra = -1;
-    spr->owner = runlist_AddRunRec(spr->lotag - 1, var_14 | 0x260000);
-    spr->hitag = runlist_AddRunRec(NewRun, var_14 | 0x260000);
+    spr->owner = runlist_AddRunRec(spr->lotag - 1, var_14, 0x260000);
+    spr->hitag = runlist_AddRunRec(NewRun, var_14, 0x260000);
 
     return var_14;
 }
@@ -1767,7 +1767,7 @@ int BuildEnergyBlock(short nSector)
     spr->extra = -1;
     spr->lotag = runlist_HeadRun() + 1;
     spr->hitag = 0;
-    spr->owner = runlist_AddRunRec(spr->lotag - 1, nSprite | 0x250000);
+    spr->owner = runlist_AddRunRec(spr->lotag - 1, nSprite, 0x250000);
     spr->backuppos();
 
     nEnergyBlocks++;
@@ -1998,7 +1998,7 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag)
     spr->extra = -1;
     spr->lotag = runlist_HeadRun() + 1;
     spr->hitag = 0;
-    spr->owner = runlist_AddRunRec(spr->lotag - 1, nObject | 0x170000);
+    spr->owner = runlist_AddRunRec(spr->lotag - 1, nObject, 0x170000);
 
 //	GrabTimeSlot(3);
 
@@ -2010,7 +2010,7 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag)
     }
 
     ObjectList[nObject].nSprite = nSprite;
-    ObjectList[nObject].field_4 = runlist_AddRunRec(NewRun, nObject | 0x170000);
+    ObjectList[nObject].field_4 = runlist_AddRunRec(NewRun, nObject, 0x170000);
 
     short nSeq = ObjectSeq[nOjectType];
 

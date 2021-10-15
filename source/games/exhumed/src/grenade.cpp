@@ -160,10 +160,10 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
     return nGrenadeSprite;
 }
 
-int BuildGrenade(int nPlayer)
+void BuildGrenade(int nPlayer)
 {
     int nGrenade = GrabGrenade();
-    if (nGrenade < 0) return -1;
+    if (nGrenade < 0) return;
 
     int nSprite = insertsprite(nPlayerViewSect[nPlayer], 201);
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -203,13 +203,11 @@ int BuildGrenade(int nPlayer)
     GrenadeList[nGrenade].nSprite = nSprite;
     GrenadeList[nGrenade].field_A = 0;
     GrenadeList[nGrenade].field_C = 0;
-    GrenadeList[nGrenade].field_6 = runlist_AddRunRec(pSprite->lotag - 1, nGrenade | 0x0F0000);
-    GrenadeList[nGrenade].field_8 = runlist_AddRunRec(NewRun, nGrenade | 0x0F0000);
+    GrenadeList[nGrenade].field_6 = runlist_AddRunRec(pSprite->lotag - 1, nGrenade, 0x0F0000);
+    GrenadeList[nGrenade].field_8 = runlist_AddRunRec(NewRun, nGrenade, 0x0F0000);
 
     nGrenadePlayer[nGrenade] = nPlayer;
     nPlayerGrenade[nPlayer] = nGrenade;
-
-    return nSprite;
 }
 
 void ExplodeGrenade(short nGrenade)

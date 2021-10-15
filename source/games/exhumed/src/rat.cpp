@@ -107,7 +107,7 @@ void SetRatVel(short nSprite)
     pSprite->yvel = bsin(pSprite->ang, -2);
 }
 
-int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
+void BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
 {
     auto nRat = RatList.Reserve(1);
 
@@ -159,10 +159,9 @@ int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
     RatList[nRat].nCount = RandomSize(5);
     RatList[nRat].nIndex = RandomSize(3);
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nRat | 0x240000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nRat, 0x240000);
 
-    RatList[nRat].nRun = runlist_AddRunRec(NewRun, nRat | 0x240000);
-    return 0;
+    RatList[nRat].nRun = runlist_AddRunRec(NewRun, nRat, 0x240000);
 }
 
 int FindFood(short nSprite)

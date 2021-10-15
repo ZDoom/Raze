@@ -692,8 +692,8 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     pBullet->field_C = val2;
     pBullet->nType = nType;
     pBullet->nSprite = nBulletSprite;
-    pBullet->field_6 = runlist_AddRunRec(pBulletSprite->lotag - 1, nBullet | 0xB0000);
-    pBullet->field_8 = runlist_AddRunRec(NewRun, nBullet | 0xB0000);
+    pBullet->field_6 = runlist_AddRunRec(pBulletSprite->lotag - 1, nBullet, 0xB0000);
+    pBullet->field_8 = runlist_AddRunRec(NewRun, nBullet, 0xB0000);
     pBullet->field_13 = val3;
     pBulletSprite->z += val1;
     pBulletSprite->backuppos();
@@ -808,7 +808,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         pBullet->z = var_18 >> 3;
     }
 
-    return nBulletSprite | IntToFixed(nBullet);
+    return nBulletSprite | (nBullet << 16);
 }
 
 void FuncBullet(int a, int, int nRun)

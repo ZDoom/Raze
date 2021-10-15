@@ -81,7 +81,7 @@ void InitLion()
     LionList.Clear();
 }
 
-int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
+void BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 {
     auto nLion = LionList.Reserve(1);
 
@@ -132,13 +132,11 @@ int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
     LionList[nLion].nCount = 0;
     LionList[nLion].nIndex = nLion;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nLion | 0x130000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nLion, 0x130000);
 
-    LionList[nLion].nRun = runlist_AddRunRec(NewRun, nLion | 0x130000);
+    LionList[nLion].nRun = runlist_AddRunRec(NewRun, nLion, 0x130000);
 
     nCreaturesTotal++;
-
-    return nLion | 0x130000;
 }
 
 void FuncLion(int a, int nDamage, int nRun)

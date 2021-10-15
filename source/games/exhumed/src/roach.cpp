@@ -80,7 +80,7 @@ void InitRoachs()
 }
 
 // TODO - make nType a bool?
-int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle)
+void BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle)
 {
     auto RoachCount = RoachList.Reserve(1);
 
@@ -138,12 +138,10 @@ int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int a
     RoachList[RoachCount].nTarget = -1;
     RoachList[RoachCount].nHealth = 600;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, RoachCount | 0x1C0000);
-    RoachList[RoachCount].nRun = runlist_AddRunRec(NewRun, RoachCount | 0x1C0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, RoachCount, 0x1C0000);
+    RoachList[RoachCount].nRun = runlist_AddRunRec(NewRun, RoachCount, 0x1C0000);
 
     nCreaturesTotal++;
-
-    return RoachCount | 0x1C0000;
 }
 
 void GoRoach(short nSprite)

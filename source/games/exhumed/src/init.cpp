@@ -744,7 +744,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             {
                 int nArrow = BuildArrow(nSprite, nSpeed);
 
-                runlist_AddRunRec(sRunChannels[nChannel].a, nArrow);
+                runlist_AddRunRec(sRunChannels[nChannel].a, nArrow, 0x1F0000);
                 return;
             }
             case 76: // Explosion Trigger (Exploding Fire Cauldron)
@@ -761,7 +761,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             {
                 int nFireball = BuildFireBall(nSprite, nHitag, nSpeed);
 
-                runlist_AddRunRec(sRunChannels[nChannel].a, nFireball);
+                runlist_AddRunRec(sRunChannels[nChannel].a, nFireball, 0x1F0000);
                 return;
             }
             case 70:

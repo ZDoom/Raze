@@ -73,7 +73,7 @@ void FreeRa(short nPlayer)
     mydeletesprite(nSprite);
 }
 
-int BuildRa(short nPlayer)
+void BuildRa(short nPlayer)
 {
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
@@ -87,7 +87,7 @@ int BuildRa(short nPlayer)
     pSprite->extra = -1;
     pSprite->lotag = runlist_HeadRun() + 1;
     pSprite->hitag = 0;
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nPlayer | 0x210000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nPlayer, 0x210000);
     pSprite->pal = 1;
     pSprite->xrepeat = 64;
     pSprite->yrepeat = 64;
@@ -99,14 +99,12 @@ int BuildRa(short nPlayer)
 
     Ra[nPlayer].nSprite = nSprite;
 
-    Ra[nPlayer].nRun = runlist_AddRunRec(NewRun, nPlayer | 0x210000);
+    Ra[nPlayer].nRun = runlist_AddRunRec(NewRun, nPlayer, 0x210000);
     Ra[nPlayer].nTarget = -1;
     Ra[nPlayer].nFrame  = 0;
     Ra[nPlayer].nAction = 0;
     Ra[nPlayer].field_C = 0;
     Ra[nPlayer].nPlayer = nPlayer;
-
-    return nPlayer | 0x210000;
 }
 
 void InitRa()

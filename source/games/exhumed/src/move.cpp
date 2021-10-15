@@ -1485,8 +1485,8 @@ int BuildCreatureChunk(int nVal, int nPic)
 //	GrabTimeSlot(3);
 
     pSprite->extra = -1;
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nSprite | 0xD0000);
-    pSprite->hitag = runlist_AddRunRec(NewRun, nSprite | 0xD0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nSprite, 0xD0000);
+    pSprite->hitag = runlist_AddRunRec(NewRun, nSprite, 0xD0000);
 
     return nSprite | 0xD0000;
 }

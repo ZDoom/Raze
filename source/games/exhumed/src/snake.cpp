@@ -115,7 +115,7 @@ void ExplodeSnakeSprite(int nSprite, short nPlayer)
     StopSpriteSound(nSprite);
 }
 
-int BuildSnake(short nPlayer, short zVal)
+void BuildSnake(short nPlayer, short zVal)
 {
 
     zVal -= 1280;
@@ -168,7 +168,7 @@ int BuildSnake(short nPlayer, short zVal)
 
         ExplodeSnakeSprite(nSprite, nPlayer);
         mydeletesprite(nSprite);
-        return -1;
+        return;
     }
     else
     {
@@ -182,7 +182,7 @@ int BuildSnake(short nPlayer, short zVal)
         }
 
         short nSnake = GrabSnake();
-        if (nSnake == -1) return -1;
+        if (nSnake == -1) return;
 
 //		GrabTimeSlot(3);
 
@@ -233,10 +233,10 @@ int BuildSnake(short nPlayer, short zVal)
 
             SnakeList[nSnake].nSprites[i] = nSprite;
 
-            pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, ((nSnake << 8) | i) | 0x110000);
+            pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, ((nSnake << 8) | i), 0x110000);
         }
 
-        SnakeList[nSnake].nRun = runlist_AddRunRec(NewRun, nSnake | 0x110000);
+        SnakeList[nSnake].nRun = runlist_AddRunRec(NewRun, nSnake, 0x110000);
         SnakeList[nSnake].c[1] = 2;
         SnakeList[nSnake].c[5] = 5;
         SnakeList[nSnake].c[2] = 4;
@@ -259,8 +259,6 @@ int BuildSnake(short nPlayer, short zVal)
 
         D3PlayFX(StaticSound[kSound6], var_24);
     }
-
-    return nSprite;
 }
 
 int FindSnakeEnemy(short nSnake)

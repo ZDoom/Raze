@@ -79,7 +79,7 @@ void InitMummy()
     MummyList.Clear();
 }
 
-int BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
+void BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
 {
     auto nMummy = MummyList.Reserve(1);
 	auto pSprite = &sprite[nSprite];
@@ -131,13 +131,11 @@ int BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
     MummyList[nMummy].nIndex = nMummy;
     MummyList[nMummy].nCount = 0;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nMummy | 0xE0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nMummy, 0xE0000);
 
-    MummyList[nMummy].nRun = runlist_AddRunRec(NewRun, nMummy | 0xE0000);
+    MummyList[nMummy].nRun = runlist_AddRunRec(NewRun, nMummy, 0xE0000);
 
     nCreaturesTotal++;
-
-    return (nMummy | 0xE0000);
 }
 
 void CheckMummyRevive(short nMummy)

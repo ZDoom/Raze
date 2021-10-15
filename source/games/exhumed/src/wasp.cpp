@@ -169,9 +169,9 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     WaspList[nWasp].nVel = 0;
     WaspList[nWasp].nAngle2 = RandomSize(7) + 127;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nWasp | 0x1E0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nWasp, 0x1E0000);
 
-    WaspList[nWasp].nRun = runlist_AddRunRec(NewRun, nWasp | 0x1E0000);
+    WaspList[nWasp].nRun = runlist_AddRunRec(NewRun, nWasp, 0x1E0000);
 
     nCreaturesTotal++;
     return nSprite;

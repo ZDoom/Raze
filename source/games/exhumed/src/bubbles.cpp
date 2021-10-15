@@ -156,9 +156,9 @@ int BuildBubble(int x, int y, int z, short nSector)
     BubbleList[nBubble].nFrame = 0;
     BubbleList[nBubble].nSeq = SeqOffsets[kSeqBubble] + nSize;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nBubble | 0x140000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nBubble, 0x140000);
 
-    BubbleList[nBubble].nRun = runlist_AddRunRec(NewRun, nBubble | 0x140000);
+    BubbleList[nBubble].nRun = runlist_AddRunRec(NewRun, nBubble, 0x140000);
     return nBubble | 0x140000;
 }
 

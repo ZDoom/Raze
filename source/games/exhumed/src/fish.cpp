@@ -100,7 +100,7 @@ void InitFishes()
     FishChunk.Clear();
 }
 
-int BuildFishLimb(short nFish, short edx)
+void BuildFishLimb(short nFish, short edx)
 {
     short nSprite = FishList[nFish].nSprite;
 	auto pSprite = &sprite[nSprite];
@@ -138,10 +138,8 @@ int BuildFishLimb(short nFish, short edx)
 //	GrabTimeSlot(3);
 
     pSprite2->extra = -1;
-    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, nFree | 0x200000);
-    pSprite2->hitag = runlist_AddRunRec(NewRun, nFree | 0x200000);
-
-    return nFree | 0x200000;
+    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, nFree, 0x200000);
+    pSprite2->hitag = runlist_AddRunRec(NewRun, nFree, 0x200000);
 }
 
 void BuildBlood(int x, int y, int z, short nSector)
@@ -219,7 +217,7 @@ void FuncFishLimb(int a, int, int nRun)
     }
 }
 
-int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
+void BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
 {
     int nFish = FishList.Reserve(1);
 	auto pSprite = &sprite[nSprite];
@@ -269,12 +267,10 @@ int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
     FishList[nFish].nCount = 60;
     FishList[nFish].nFrame = 0;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nFish | 0x120000);
-    FishList[nFish].nRun = runlist_AddRunRec(NewRun, nFish | 0x120000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nFish, 0x120000);
+    FishList[nFish].nRun = runlist_AddRunRec(NewRun, nFish, 0x120000);
 
     nCreaturesTotal++;
-
-    return nFish | 0x120000;
 }
 
 void IdleFish(short nFish, short edx)

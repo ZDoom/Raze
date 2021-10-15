@@ -87,7 +87,7 @@ void InitScorp()
     scorpion.Clear();
 }
 
-int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
+void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
     auto nScorp = scorpion.Reserve(1);
 
@@ -142,12 +142,10 @@ int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, 
 
     scorpion[nScorp].nChannel = nChannel;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nScorp | 0x220000);
-    scorpion[nScorp].nRun = runlist_AddRunRec(NewRun, nScorp | 0x220000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nScorp, 0x220000);
+    scorpion[nScorp].nRun = runlist_AddRunRec(NewRun, nScorp, 0x220000);
 
     nCreaturesTotal++;
-
-    return nScorp | 0x220000;
 }
 
 void FuncScorp(int a, int nDamage, int nRun)
@@ -384,10 +382,10 @@ void FuncScorp(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    short nBulletSprite = BuildBullet(nSprite, 16, 0, 0, -1, pSprite->ang, nTarget + 10000, 1) & 0xFFFF;
+                    int nBulletSprite = BuildBullet(nSprite, 16, 0, 0, -1, pSprite->ang, nTarget + 10000, 1);
                     if (nBulletSprite > -1)
                     {
-                        PlotCourseToSprite(nBulletSprite, nTarget);
+                        PlotCourseToSprite(nBulletSprite & 0xffff, nTarget);
                     }
 
                     return;
@@ -434,11 +432,9 @@ void FuncScorp(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    int nSpider = BuildSpider(-1, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang);
-                    if (nSpider != -1)
+                    int nSpiderSprite = BuildSpider(-1, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang);
+                    if (nSpiderSprite != -1)
                     {
-                        short nSpiderSprite = nSpider & 0xFFFF;
-
                         sprite[nSpiderSprite].ang = RandomSize(11);
 
                         int nVel = RandomSize(5) + 1;

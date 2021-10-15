@@ -86,7 +86,7 @@ void InitSets()
     SetList.Clear();
 }
 
-int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
+void BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
     auto nSet = SetList.Reserve(1);
 	auto pSprite = &sprite[nSprite];
@@ -139,17 +139,15 @@ int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, in
 
     SetList[nSet].nChannel = nChannel;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nSet | 0x190000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nSet, 0x190000);
 
     // this isn't stored anywhere.
-    runlist_AddRunRec(NewRun, nSet | 0x190000);
+    runlist_AddRunRec(NewRun, nSet, 0x190000);
 
     nCreaturesTotal++;
-
-    return nSet | 0x190000;
 }
 
-int BuildSoul(int nSet)
+void BuildSoul(int nSet)
 {
     int nSetSprite = SetList[nSet].nSprite;
     int nSprite = insertsprite(sprite[nSetSprite].sectnum, 0);
@@ -182,9 +180,7 @@ int BuildSoul(int nSet)
 
 //	GrabTimeSlot(3);
 
-    pSprite->owner = runlist_AddRunRec(NewRun, nSprite | 0x230000);
-
-    return nSprite | 0x230000;
+    pSprite->owner = runlist_AddRunRec(NewRun, nSprite, 0x230000);
 }
 
 void FuncSoul(int a, int, int nRun)
@@ -577,7 +573,7 @@ void FuncSet(int a, int nDamage, int nRun)
                     {
                         // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
                         int nBullet = BuildBullet(nSprite, 11, 0, 0, -1, pSprite->ang, nTarget + 10000, 1);
-                        SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
+                        SetBulletEnemy(nBullet >> 16, nTarget); // isolate the bullet number (shift off the sprite index)
 
                         SetList[nSet].nRun--;
                         if (SetList[nSet].nRun <= 0 || !RandomBit())

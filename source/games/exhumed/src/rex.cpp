@@ -77,7 +77,7 @@ void InitRexs()
     RexList.Clear();
 }
 
-int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
+void BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
     int nRex = RexList.Reserve(1);
 	auto pSprite = &sprite[nSprite];
@@ -129,14 +129,12 @@ int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, in
 
     RexList[nRex].nChannel = nChannel;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nRex | 0x180000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nRex, 0x180000);
 
     // this isn't stored anywhere.
-    runlist_AddRunRec(NewRun, nRex | 0x180000);
+    runlist_AddRunRec(NewRun, nRex, 0x180000);
 
     nCreaturesTotal++;
-
-    return nRex | 0x180000;
 }
 
 void FuncRex(int a, int nDamage, int nRun)

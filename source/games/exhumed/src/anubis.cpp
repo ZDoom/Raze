@@ -83,7 +83,7 @@ void InitAnubis()
     nAnubisDrum = 1;
 }
 
-int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer)
+void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer)
 {
     auto nAnubis = AnubisList.Reserve(1);
     auto ap = &AnubisList[nAnubis];
@@ -149,12 +149,10 @@ int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8
     ap->nTarget = -1;
     ap->nCount = 0;
 
-    sp->owner = runlist_AddRunRec(sp->lotag - 1, nAnubis | 0x90000);
+    sp->owner = runlist_AddRunRec(sp->lotag - 1, nAnubis, 0x90000);
 
-    runlist_AddRunRec(NewRun, nAnubis | 0x90000);
+    runlist_AddRunRec(NewRun, nAnubis, 0x90000);
     nCreaturesTotal++;
-
-    return nAnubis | 0x90000;
 }
 
 void FuncAnubis(int a, int nDamage, int nRun)

@@ -129,9 +129,9 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
 
     pSprite->lotag = runlist_HeadRun() + 1;
     pSprite->owner = -1;
-    pSprite->extra = runlist_AddRunRec(pSprite->lotag - 1, nAnim | 0x100000);
+    pSprite->extra = runlist_AddRunRec(pSprite->lotag - 1, nAnim, 0x100000);
 
-    AnimList[nAnim].AnimRunRec = runlist_AddRunRec(NewRun, nAnim | 0x100000);
+    AnimList[nAnim].AnimRunRec = runlist_AddRunRec(NewRun, nAnim, 0x100000);
     AnimList[nAnim].nSprite = nSprite;
     AnimList[nAnim].AnimFlags = nFlag;
     AnimList[nAnim].field_2 = 0;

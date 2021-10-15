@@ -404,7 +404,7 @@ void BuildTail()
         }
 
         pTailSprite->lotag = runlist_HeadRun() + 1;
-        pTailSprite->owner = runlist_AddRunRec(sprite[nTailSprite].lotag - 1, (i + 1) | 0x1B0000);
+        pTailSprite->owner = runlist_AddRunRec(sprite[nTailSprite].lotag - 1, (i + 1), 0x1B0000);
         pTailSprite->shade = -12;
         pTailSprite->x = x;
         pTailSprite->y = y;
@@ -434,11 +434,11 @@ void BuildTail()
     QueenHead.tails = 7;
 }
 
-int BuildQueenEgg(short nQueen, int nVal)
+void BuildQueenEgg(short nQueen, int nVal)
 {
     int nEgg = GrabEgg();
     if (nEgg < 0) {
-        return -1;
+        return;
     }
 
     short nSprite = QueenList[nQueen].nSprite;
@@ -505,10 +505,8 @@ int BuildQueenEgg(short nQueen, int nVal)
 
     QueenEgg[nEgg].nAction = nVal;
 
-    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, nEgg | 0x1D0000);
-    QueenEgg[nEgg].nRunPtr = runlist_AddRunRec(NewRun, nEgg | 0x1D0000);
-
-    return 0;
+    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, nEgg, 0x1D0000);
+    QueenEgg[nEgg].nRunPtr = runlist_AddRunRec(NewRun, nEgg, 0x1D0000);
 }
 
 void FuncQueenEgg(int a, int nDamage, int nRun)
@@ -714,7 +712,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
         }
 }
 
-int BuildQueenHead(short nQueen)
+void BuildQueenHead(short nQueen)
 {
     short nSprite = QueenList[nQueen].nSprite;
     auto pSprite = &sprite[nSprite];
@@ -760,12 +758,10 @@ int BuildQueenHead(short nQueen)
     QueenHead.nSprite = nSprite2;
     QueenHead.field_C = 0;
 
-    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, 0x1B0000);
+    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, 0, 0x1B0000);
 
-    QueenHead.field_8 = runlist_AddRunRec(NewRun, 0x1B0000);
+    QueenHead.field_8 = runlist_AddRunRec(NewRun, 0, 0x1B0000);
     QueenHead.tails = 0;
-
-    return 0;
 }
 
 void FuncQueenHead(int a, int nDamage, int nRun)
@@ -1147,13 +1143,13 @@ __MOVEQS:
     }
 }
 
-int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel)
+void BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel)
 {
     QueenCount--;
 
     short nQueen = QueenCount;
     if (nQueen < 0) {
-        return -1;
+        return;
     }
 	auto pSprite = &sprite[nSprite];
 
@@ -1209,13 +1205,11 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
 
     nHeadVel = 800;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nQueen | 0x1A0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nQueen, 0x1A0000);
 
-    runlist_AddRunRec(NewRun, nQueen | 0x1A0000);
+    runlist_AddRunRec(NewRun, nQueen, 0x1A0000);
 
     nCreaturesTotal++;
-
-    return nQueen | 0x1A0000;
 }
 
 void SetQueenSpeed(short nSprite, int nSpeed)
