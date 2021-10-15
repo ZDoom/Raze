@@ -513,6 +513,47 @@ struct AIMummy : public ExhumedAI
     void RadialDamage(RunListEvent* ev) override;
 };
 
+struct AIElev : public ExhumedAI
+{
+    void ProcessChannel(RunListEvent* ev) override;
+    void Tick(RunListEvent* ev) override;
+};
+
+struct AIWallFace : public ExhumedAI
+{
+    void ProcessChannel(RunListEvent* ev) override;
+};
+
+struct AISlide : public ExhumedAI
+{
+    void ProcessChannel(RunListEvent* ev) override;
+    void Tick(RunListEvent* ev) override;
+};
+
+struct AITrap : public ExhumedAI
+{
+    void ProcessChannel(RunListEvent* ev) override;
+    void Tick(RunListEvent* ev) override;
+};
+
+struct AISpark : public ExhumedAI
+{
+    void Tick(RunListEvent* ev) override;
+};
+
+struct AIEnergyBlock : public ExhumedAI
+{
+    virtual void Damage(RunListEvent* ev) override;
+    virtual void RadialDamage(RunListEvent* ev) override;
+};
+
+struct AIObject : public ExhumedAI
+{
+    void Tick(RunListEvent* ev) override;
+    void Damage(RunListEvent* ev) override;
+    void Draw(RunListEvent* ev) override;
+    void RadialDamage(RunListEvent* ev) override;
+};
 
 void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
