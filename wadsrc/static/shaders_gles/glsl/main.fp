@@ -115,29 +115,29 @@ const int Tex_Blend_Hardlight = 4;
 	texel.rgb = clamp(texel.rgb, 0.0, 1.0);
 	
 	// Step 5: Apply a blend. This may just be a translucent overlay or one of the blend modes present in current Build engines.
-#if (DEF_BLEND_FLAGS != 0)
+#if ((DEF_BLEND_FLAGS & 7) != 0)
 	
 	vec3 tcol = texel.rgb * 255.0;	// * 255.0 to make it easier to reuse the integer math.
 	vec4 tint = uTextureBlendColor * 255.0;
 
-#if (DEF_BLEND_FLAGS == 1)
+#if ((DEF_BLEND_FLAGS & 7) == 1)
 	
 	tcol.b = tcol.b * (1.0 - uTextureBlendColor.a) + tint.b * uTextureBlendColor.a;
 	tcol.g = tcol.g * (1.0 - uTextureBlendColor.a) + tint.g * uTextureBlendColor.a;
 	tcol.r = tcol.r * (1.0 - uTextureBlendColor.a) + tint.r * uTextureBlendColor.a;
 
-#elif (DEF_BLEND_FLAGS == 2) // Tex_Blend_Screen:
+#elif ((DEF_BLEND_FLAGS & 7) == 2) // Tex_Blend_Screen:
 	tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - tint.r)) / 256.0);
 	tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 256.0);
 	tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - tint.b)) / 256.0);
 
-#elif (DEF_BLEND_FLAGS == 3) // Tex_Blend_Overlay:
+#elif ((DEF_BLEND_FLAGS & 7) == 3) // Tex_Blend_Overlay:
 	
 	tcol.b = tcol.b < 128.0? (tcol.b * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - tint.b)) / 128.0);
 	tcol.g = tcol.g < 128.0? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 128.0);
 	tcol.r = tcol.r < 128.0? (tcol.r * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - tint.r)) / 128.0);
 
-#elif (DEF_BLEND_FLAGS == 4) // Tex_Blend_Hardlight:
+#elif ((DEF_BLEND_FLAGS & 7) == 4) // Tex_Blend_Hardlight:
 
 	tcol.b = tint.b < 128.0 ? (tcol.b * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - tint.b)) / 128.0);
 	tcol.g = tint.g < 128.0 ? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 128.0);
@@ -201,7 +201,7 @@ vec4 getTexel(vec2 st)
 #if (DEF_BLEND_FLAGS != 0)	
 
 	// only apply the texture manipulation if it contains something.
-	texel = ApplyTextureManipulation(texel, DEF_BLEND_FLAGS);
+	texel = ApplyTextureManipulation(texel);
 
 #endif
 
@@ -275,6 +275,7 @@ float R_ZDoomColormap(float light, float z)
 //===========================================================================
 float R_DoomLightingEquation(float light)
 {
+#ifndef PALETTE_EMULATION
 	// z is the depth in view space, positive going into the screen
 	float z;
 
@@ -301,6 +302,9 @@ float R_DoomLightingEquation(float light)
 
 	// Result is the normalized colormap index (0 bright .. 1 dark)
 	return clamp(colormap, 0.0, 31.0) / 32.0;
+#else
+	return 0.0;	// with palette emulation we do not want real lighting.
+#endif
 }
 
 
