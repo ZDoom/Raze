@@ -46,7 +46,7 @@ struct Bullet
     short field_E;
     uint16_t field_10;
     uint8_t field_12;
-    uint8_t field_13;
+    uint8_t nDoubleDamage;
     int x;
     int y;
     int z;
@@ -81,7 +81,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
             ("ate", w.field_E, def->field_E)
             ("at10", w.field_10, def->field_10)
             ("at12", w.field_12, def->field_12)
-            ("at13", w.field_13, def->field_13)
+            ("at13", w.nDoubleDamage, def->nDoubleDamage)
             ("enemy", w.pEnemy, def->pEnemy)
             .EndObject();
     }
@@ -261,7 +261,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
     // BHS_switchBreak:
     short nDamage = pBulletInfo->nDamage;
 
-    if (pBullet->field_13 > 1) {
+    if (pBullet->nDoubleDamage > 1) {
         nDamage *= 2;
     }
 
@@ -496,7 +496,7 @@ HITWALL:
                 if (nSector > -1)
                 {
                     short nDamage = BulletInfo[pBullet->nType].nDamage;
-                    if (pBullet->field_13 > 1) {
+                    if (pBullet->nDoubleDamage > 1) {
                         nDamage *= 2;
                     }
 
@@ -576,7 +576,7 @@ void SetBulletEnemy(short nBullet, DExhumedActor* pEnemy)
     }
 }
 
-int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int val2, int val3)
+int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget, int nDoubleDamage)
 {
 	auto pSprite = &sprite[nSprite];
     Bullet sBullet;
@@ -584,11 +584,11 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
     if (pBulletInfo->field_4 > 30000)
     {
-        if (val2 >= 10000)
+        if (nTarget >= 10000)
         {
-            val2 -= 10000;
+            nTarget -= 10000;
 
-            short nTargetSprite = val2;
+            short nTargetSprite = nTarget;
             spritetype *pTargetSprite = &sprite[nTargetSprite];
 
 //			assert(pTargetSprite->sectnum <= kMaxSectors);
@@ -596,7 +596,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
             if (pTargetSprite->cstat & 0x101)
             {
                 sBullet.nType = nType;
-                sBullet.field_13 = val3;
+                sBullet.nDoubleDamage = nDoubleDamage;
 
                 sBullet.pActor = insertActor(pSprite->sectnum, 200);
                 sBullet.pActor->s().ang = nAngle;
@@ -611,7 +611,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
             }
             else
             {
-                val2 = 0;
+                nTarget = 0;
             }
         }
     }
@@ -637,8 +637,8 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     int nHeight = GetSpriteHeight(nSprite);
     nHeight = nHeight - (nHeight >> 2);
 
-    if (val1 == -1) {
-        val1 = -nHeight;
+    if (nZOffset == -1) {
+        nZOffset = -nHeight;
     }
 
     pBulletSprite->x = pSprite->x;
@@ -706,13 +706,13 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         pBulletSprite->cstat |= 0x8000;
     }
 
-    pBullet->field_C = val2;
+    pBullet->field_C = nTarget;
     pBullet->nType = nType;
     pBullet->pActor = pBulletActor;
     pBullet->field_6 = runlist_AddRunRec(pBulletSprite->lotag - 1, nBullet, 0xB0000);
     pBullet->field_8 = runlist_AddRunRec(NewRun, nBullet, 0xB0000);
-    pBullet->field_13 = val3;
-    pBulletSprite->z += val1;
+    pBullet->nDoubleDamage = nDoubleDamage;
+    pBulletSprite->z += nZOffset;
     pBulletSprite->backuppos();
 
     int var_18;
@@ -731,15 +731,15 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         ChangeActorSect(pBulletActor, nSector);
     }
 
-    if (val2 < 10000)
+    if (nTarget < 10000)
     {
-        var_18 = (-bsin(val2) * pBulletInfo->field_4) >> 11;
+        var_18 = (-bsin(nTarget) * pBulletInfo->field_4) >> 11;
     }
     else
     {
-        val2 -= 10000;
+        nTarget -= 10000;
 
-        short nTargetSprite = val2;
+        short nTargetSprite = nTarget;
 		auto pTargetSprite = &sprite[nTargetSprite];
 
         if ((unsigned int)pBulletInfo->field_4 > 30000)

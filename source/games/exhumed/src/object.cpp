@@ -1427,7 +1427,7 @@ void AITrap::Tick(RunListEvent* ev)
                 return;
             }
 
-            int nBullet = BuildBullet(nSprite, nType, 0, 0, 0, pSprite->ang, 0, 1);
+            int nBullet = BuildBullet(nSprite, nType, 0, pSprite->ang, 0, 1);
             if (nBullet > -1)
             {
                 int nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)

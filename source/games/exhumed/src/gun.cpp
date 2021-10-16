@@ -837,7 +837,7 @@ loc_flag:
                         }
                     }
 
-                    BuildBullet(nPlayerSprite, nAmmoType, ebp, ebx, nHeight, nAngle, target, var_1C);
+                    BuildBullet(nPlayerSprite, nAmmoType, nHeight, nAngle, target, var_1C);
                     break;
                 }
 
