@@ -297,7 +297,6 @@ int BelowNear(DExhumedActor* pActor)
     }
     else
     {
-        var_24 = 0x20000;
         z2 = sector[nSector].floorz + SectDepth[nSector];
 
         if (NearCount > 0)
@@ -334,7 +333,7 @@ int BelowNear(DExhumedActor* pActor)
 
         bTouchFloor = true;
 
-        return var_24;
+        return 0x20000;
     }
     else
     {

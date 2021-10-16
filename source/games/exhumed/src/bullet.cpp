@@ -25,12 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "names.h"
 #include <string.h>
 #include <assert.h>
-#ifndef __WATCOMC__
-//#include <cmath>
-#else
-//#include <math.h>
-#include <stdlib.h>
-#endif
 
 BEGIN_PS_NS
 
@@ -40,9 +34,10 @@ enum { kMaxBullets		= 500 };
 // 32 bytes
 struct Bullet
 {
+    DExhumedActor* pActor;
+
     short nSeq;
     short nFrame;
-    short nSprite;
     short field_6;
     short field_8;
     short nType;
@@ -75,7 +70,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
     {
         arc("seq", w.nSeq, def->nSeq)
             ("frame", w.nFrame, def->nFrame)
-            ("sprite", w.nSprite, def->nSprite)
+            ("sprite", w.pActor, def->pActor)
             ("type", w.nType, def->nType)
             ("x", w.x, def->x)
             ("y", w.y, def->y)
@@ -145,16 +140,16 @@ int GrabBullet()
 
 void DestroyBullet(short nBullet)
 {
-    short nSprite = BulletList[nBullet].nSprite;
-	auto pSprite = &sprite[nSprite];
+    auto pActor = BulletList[nBullet].pActor;
+	auto pSprite = &pActor->s();
 
     runlist_DoSubRunRec(BulletList[nBullet].field_6);
     runlist_DoSubRunRec(pSprite->lotag - 1);
     runlist_SubRunRec(BulletList[nBullet].field_8);
 
-    StopSpriteSound(nSprite);
+    StopActorSound(pActor);
 
-    mydeletesprite(nSprite);
+    DeleteActor(pActor);
     BulletList.Release(nBullet);
 }
 
@@ -185,7 +180,8 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
 
     bulletInfo *pBulletInfo = &BulletInfo[pBullet->nType];
 
-    short nStat = sprite[nHitSprite].statnum;
+    auto pHitSprite = &sprite[nHitSprite];
+    short nStat = pHitSprite->statnum;
 
     switch (pBullet->nType)
     {
@@ -195,9 +191,9 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
                 return;
             }
 
-            sprite[nHitSprite].hitag++;
+            pHitSprite->hitag++;
 
-            if (sprite[nHitSprite].hitag == 15) {
+            if (pHitSprite->hitag == 15) {
                 IgniteSprite(nHitSprite);
             }
 
@@ -229,8 +225,8 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
                 break;
             }
 
-            short nSprite = pBullet->nSprite;
-            spritetype *pSprite = &sprite[nSprite];
+            auto pActor = pBullet->pActor;
+            spritetype *pSprite = &pActor->s();
             spritetype *pHitSprite = &sprite[nHitSprite];
 
             if (nStat == kStatAnubisDrum)
@@ -308,14 +304,14 @@ int MoveBullet(short nBullet)
 {
     short hitsect = -1;
     short hitwall = -1;
-    short hitsprite = -1;
+    DExhumedActor* hitactor = nullptr;
 
     Bullet *pBullet = &BulletList[nBullet];
     short nType = pBullet->nType;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
 
-    short nSprite = BulletList[nBullet].nSprite;
-    spritetype *pSprite = &sprite[nSprite];
+    auto pActor = BulletList[nBullet].pActor;
+    spritetype *pSprite = &pActor->s();
 
     int x = pSprite->x;
     int y = pSprite->y;
@@ -324,7 +320,8 @@ int MoveBullet(short nBullet)
 
     int x2, y2, z2;
 
-    int nVal;
+    int nVal = 0;
+    Collision coll;
 
     if (pBullet->field_10 < 30000)
     {
@@ -335,7 +332,7 @@ int MoveBullet(short nBullet)
                 BulletList[nBullet].enemy = -1;
             else
             {
-                nVal = AngleChase(nSprite, nEnemySprite, pBullet->field_10, 0, 16);
+                coll = AngleChase(pActor, &exhumedActors[nEnemySprite], pBullet->field_10, 0, 16);
                 goto MOVEEND;
             }
         }
@@ -369,34 +366,53 @@ int MoveBullet(short nBullet)
             }
         }
 
-        nVal = movesprite(nSprite, pBullet->x, pBullet->y, pBullet->z, pSprite->clipdist >> 1, pSprite->clipdist >> 1, CLIPMASK1);
+        coll = movesprite(pActor, pBullet->x, pBullet->y, pBullet->z, pSprite->clipdist >> 1, pSprite->clipdist >> 1, CLIPMASK1);
 
 MOVEEND:
-        if (nVal)
+        if (coll.type || coll.exbits)
         {
+            nVal = 1;
             x2 = pSprite->x;
             y2 = pSprite->y;
             z2 = pSprite->z;
             hitsect = pSprite->sectnum;
 
-            if (nVal & 0x30000)
+#if 0
+            // Original code. This was producing some beautiful undefined behavior in the first case because the index can be anything, not just a wall.
+            if (coll.exbits)
             {
-                hitwall = nVal & 0x3FFF;
+                hitwall = coll & 0x3FFF;
                 goto HITWALL;
             }
             else
             {
-                switch (nVal & 0xc000)
+                switch (coll & 0xc000)
                 {
                 case 0x8000:
-                    hitwall = nVal & 0x3FFF;
+                    hitwall = coll & 0x3FFF;
                     goto HITWALL;
                 case 0xc000:
-                    hitsprite = nVal & 0x3FFF;
+                    hitsprite = coll & 0x3FFF;
                     goto HITSPRITE;
                 }
             }
+#else
+            switch (coll.type)
+            {
+            case kHitWall:
+                hitwall = coll.index;
+                goto HITWALL;
+            case 0xc000:
+                if (!coll.exbits)
+                {
+                    hitactor = coll.actor;
+                    goto HITSPRITE;
+                }
+            }
+#endif
         }
+
+        nVal = coll.type || coll.exbits? 1:0;
 
         // pSprite->sectnum may have changed since we set nSectFlag ?
         short nFlagVal = nSectFlag ^ SectFlag[pSprite->sectnum];
@@ -421,11 +437,12 @@ MOVEEND:
 
         if (BulletList[nBullet].enemy > -1)
         {
-            hitsprite = BulletList[nBullet].enemy;
-            x2 = sprite[hitsprite].x;
-            y2 = sprite[hitsprite].y;
-            z2 = sprite[hitsprite].z - (GetSpriteHeight(hitsprite) >> 1);
-            hitsect = sprite[hitsprite].sectnum;
+            hitactor = &exhumedActors[BulletList[nBullet].enemy];
+            auto hitsprite = &hitactor->s();
+            x2 = hitsprite->x;
+            y2 = hitsprite->y;
+            z2 = hitsprite->z - (GetActorHeight(hitactor) >> 1);
+            hitsect = hitsprite->sectnum;
         }
         else
         {
@@ -440,7 +457,7 @@ MOVEEND:
             x2 = hitData.pos.x;
             y2 = hitData.pos.y;
             z2 = hitData.pos.z;
-            hitsprite = hitData.sprite;
+            hitactor = &exhumedActors[hitData.sprite];
             hitsect = hitData.sect;
             hitwall = hitData.wall;
         }
@@ -450,14 +467,15 @@ MOVEEND:
         lasthitz = z2;
         lasthitsect = hitsect;
         lasthitwall = hitwall;
-        lasthitsprite = hitsprite;
+        lasthitsprite = hitactor->GetSpriteIndex();
 
-        if (hitsprite > -1)
+        if (hitactor)
         {
 HITSPRITE:
-            if (pSprite->pal == 5 && sprite[hitsprite].statnum == 100)
+            auto hitsprite = &hitactor->s();
+            if (pSprite->pal == 5 && hitsprite->statnum == 100)
             {
-                short nPlayer = GetPlayerFromSprite(hitsprite);
+                short nPlayer = GetPlayerFromActor(hitactor);
                 if (!PlayerList[nPlayer].bIsMummified)
                 {
                     PlayerList[nPlayer].bIsMummified = true;
@@ -466,7 +484,7 @@ HITSPRITE:
             }
             else
             {
-                BulletHitsSprite(pBullet, pSprite->owner, hitsprite, x2, y2, z2, hitsect);
+                BulletHitsSprite(pBullet, pSprite->owner, hitactor->GetSpriteIndex(), x2, y2, z2, hitsect);
             }
         }
         else if (hitwall > -1)
@@ -491,14 +509,14 @@ HITWALL:
 
         if (hitsect > -1) // NOTE: hitsect can be -1. this check wasn't in original code. TODO: demo compatiblity?
         {
-            if (hitsprite < 0 && hitwall < 0)
+            if (hitactor == nullptr && hitwall < 0)
             {
                 if ((SectBelow[hitsect] >= 0 && (SectFlag[SectBelow[hitsect]] & kSectUnderwater)) || SectDepth[hitsect])
                 {
                     pSprite->x = x2;
                     pSprite->y = y2;
                     pSprite->z = z2;
-                    BuildSplash(&exhumedActors[nSprite], hitsect);
+                    BuildSplash(pActor, hitsect);
                 }
                 else
                 {
@@ -529,14 +547,14 @@ HITWALL:
                     pSprite->y = y2;
                     pSprite->z = z2;
 
-                    mychangespritesect(nSprite, hitsect);
+                    ChangeActorSect(pActor, hitsect);
                 }
 
                 if (BulletInfo[nType].nRadius)
                 {
                     nRadialBullet = nType;
 
-                    runlist_RadialDamageEnemy(nSprite, pBulletInfo->nDamage, pBulletInfo->nRadius);
+                    runlist_RadialDamageEnemy(pActor, pBulletInfo->nDamage, pBulletInfo->nRadius);
 
                     nRadialBullet = -1;
 
@@ -580,15 +598,15 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
                 sBullet.nType = nType;
                 sBullet.field_13 = val3;
 
-                sBullet.nSprite = insertsprite(pSprite->sectnum, 200);
-                sprite[sBullet.nSprite].ang = nAngle;
+                sBullet.pActor = insertActor(pSprite->sectnum, 200);
+                sBullet.pActor->s().ang = nAngle;
 
                 int nHeight = GetSpriteHeight(nTargetSprite);
 
                 assert(pTargetSprite->sectnum >= 0 && pTargetSprite->sectnum < kMaxSectors);
 
                 BulletHitsSprite(&sBullet, nSprite, nTargetSprite, pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
-                mydeletesprite(sBullet.nSprite);
+                DeleteActor(sBullet.pActor);
                 return -1;
             }
             else
@@ -614,8 +632,8 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         nSector = pSprite->sectnum;
     }
 
-    short nBulletSprite = insertsprite(nSector, 200);
-	auto pBulletSprite = &sprite[nBulletSprite];
+    auto pBulletActor = insertActor(nSector, 200);
+	auto pBulletSprite = &pBulletActor->s();
     int nHeight = GetSpriteHeight(nSprite);
     nHeight = nHeight - (nHeight >> 2);
 
@@ -626,9 +644,6 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     pBulletSprite->x = pSprite->x;
     pBulletSprite->y = pSprite->y;
     pBulletSprite->z = pSprite->z;
-
-    // why is this done here???
-    assert(nBulletSprite >= 0 && nBulletSprite < kMaxSprites);
 
     Bullet *pBullet = &BulletList[nBullet];
 
@@ -693,7 +708,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
     pBullet->field_C = val2;
     pBullet->nType = nType;
-    pBullet->nSprite = nBulletSprite;
+    pBullet->pActor = pBulletActor;
     pBullet->field_6 = runlist_AddRunRec(pBulletSprite->lotag - 1, nBullet, 0xB0000);
     pBullet->field_8 = runlist_AddRunRec(NewRun, nBullet, 0xB0000);
     pBullet->field_13 = val3;
@@ -713,7 +728,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         }
 
         nSector = SectAbove[nSector];
-        mychangespritesect(nBulletSprite, nSector);
+        ChangeActorSect(pBulletActor, nSector);
     }
 
     if (val2 < 10000)
@@ -800,7 +815,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
     if (MoveBullet(nBullet))
     {
-        nBulletSprite = -1;
+        pBulletActor = nullptr;
     }
     else
     {
@@ -810,7 +825,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         pBullet->z = var_18 >> 3;
     }
 
-    return nBulletSprite | (nBullet << 16);
+    return pBulletActor->GetSpriteIndex() | (nBullet << 16);
 }
 
 void AIBullet::Tick(RunListEvent* ev)
@@ -819,12 +834,12 @@ void AIBullet::Tick(RunListEvent* ev)
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
-    short nSprite = BulletList[nBullet].nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = BulletList[nBullet].pActor;
+    auto pSprite = &pActor->s();
 
     short nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].nFrame];
 
-    seq_MoveSequence(nSprite, nSeq, BulletList[nBullet].nFrame);
+    seq_MoveSequence(pActor, nSeq, BulletList[nBullet].nFrame);
 
     if (nFlag & 0x80)
     {
