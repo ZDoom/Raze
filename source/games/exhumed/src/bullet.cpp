@@ -35,6 +35,7 @@ enum { kMaxBullets		= 500 };
 struct Bullet
 {
     DExhumedActor* pActor;
+    DExhumedActor* pEnemy;
 
     short nSeq;
     short nFrame;
@@ -49,7 +50,6 @@ struct Bullet
     int x;
     int y;
     int z;
-    int enemy;
 };
 
 FreeListArray<Bullet, kMaxBullets> BulletList;
@@ -82,7 +82,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
             ("at10", w.field_10, def->field_10)
             ("at12", w.field_12, def->field_12)
             ("at13", w.field_13, def->field_13)
-            ("enemy", w.enemy, def->enemy)
+            ("enemy", w.pEnemy, def->pEnemy)
             .EndObject();
     }
     return arc;
@@ -134,7 +134,7 @@ int GrabBullet()
 {
     int grabbed = BulletList.Get();
     if (grabbed < 0) return -1;
-    BulletList[grabbed].enemy = -1;
+    BulletList[grabbed].pEnemy = nullptr;
     return grabbed;
 }
 
@@ -325,14 +325,14 @@ int MoveBullet(short nBullet)
 
     if (pBullet->field_10 < 30000)
     {
-        short nEnemySprite = BulletList[nBullet].enemy;
-        if (nEnemySprite > -1)
+        auto pEnemyActor = BulletList[nBullet].pEnemy;
+        if (pEnemyActor)
         {
-            if (!(sprite[nEnemySprite].cstat & 0x101))
-                BulletList[nBullet].enemy = -1;
+            if (!(pEnemyActor->s().cstat & 0x101))
+                BulletList[nBullet].pEnemy = nullptr;
             else
             {
-                coll = AngleChase(pActor, &exhumedActors[nEnemySprite], pBullet->field_10, 0, 16);
+                coll = AngleChase(pActor, pEnemyActor, pBullet->field_10, 0, 16);
                 goto MOVEEND;
             }
         }
@@ -435,9 +435,9 @@ MOVEEND:
     {
         nVal = 1;
 
-        if (BulletList[nBullet].enemy > -1)
+        if (BulletList[nBullet].pEnemy)
         {
-            hitactor = &exhumedActors[BulletList[nBullet].enemy];
+            hitactor = BulletList[nBullet].pEnemy;
             auto hitsprite = &hitactor->s();
             x2 = hitsprite->x;
             y2 = hitsprite->y;
@@ -457,7 +457,7 @@ MOVEEND:
             x2 = hitData.pos.x;
             y2 = hitData.pos.y;
             z2 = hitData.pos.z;
-            hitactor = &exhumedActors[hitData.sprite];
+            hitactor = GetActor(hitData);
             hitsect = hitData.sect;
             hitwall = hitData.wall;
         }
@@ -569,10 +569,10 @@ HITWALL:
     return nVal;
 }
 
-void SetBulletEnemy(short nBullet, short nEnemy)
+void SetBulletEnemy(short nBullet, DExhumedActor* pEnemy)
 {
     if (nBullet >= 0) {
-        BulletList[nBullet].enemy = nEnemy;
+        BulletList[nBullet].pEnemy = pEnemy;
     }
 }
 
@@ -647,7 +647,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
     Bullet *pBullet = &BulletList[nBullet];
 
-    pBullet->enemy = -1;
+    pBullet->pEnemy = nullptr;
 
     pBulletSprite->cstat = 0;
     pBulletSprite->shade = -64;
@@ -744,7 +744,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
         if ((unsigned int)pBulletInfo->field_4 > 30000)
         {
-            BulletList[nBullet].enemy = nTargetSprite;
+            BulletList[nBullet].pEnemy = &exhumedActors[nTargetSprite];
         }
         else
         {
@@ -811,8 +811,9 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
     pBullet->z = 0;
     pBullet->x = (pSprite->clipdist << 2) * bcos(nAngle);
     pBullet->y = (pSprite->clipdist << 2) * bsin(nAngle);
-    BulletList[nBullet].enemy = -1;
+    BulletList[nBullet].pEnemy = nullptr;
 
+    int pb = pBulletActor->GetSpriteIndex();
     if (MoveBullet(nBullet))
     {
         pBulletActor = nullptr;
@@ -825,7 +826,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         pBullet->z = var_18 >> 3;
     }
 
-    return pBulletActor->GetSpriteIndex() | (nBullet << 16);
+    return pb | (nBullet << 16);
 }
 
 void AIBullet::Tick(RunListEvent* ev)

@@ -343,7 +343,7 @@ void AIMummy::Tick(RunListEvent* ev)
             {
                 if (!RandomSize(3))
                 {
-                    SetBulletEnemy(pBullet->nPhase, pTarget->GetSpriteIndex());
+                    SetBulletEnemy(pBullet->nPhase, pTarget);
                     pBullet->s().pal = 5;
                 }
             }

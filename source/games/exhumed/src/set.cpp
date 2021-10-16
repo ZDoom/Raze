@@ -520,7 +520,7 @@ void AISet::Tick(RunListEvent* ev)
         {
             auto pBullet = BuildBullet(pActor, 11, -1, pSprite->ang, pTarget, 1);
             if (pBullet)
-				SetBulletEnemy(pBullet->nPhase, pTarget->GetSpriteIndex());
+				SetBulletEnemy(pBullet->nPhase, pTarget);
 
             pActor->nRun--;
             if (pActor->nRun <= 0 || !RandomBit())
