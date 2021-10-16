@@ -79,7 +79,7 @@ int MoveBullet(short nBullet);
 void SetBulletEnemy(short nBullet, DExhumedActor* nEnemy);
 DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int val1, int nAngle, DExhumedActor* pTarget, int val3);
 
-void IgniteSprite(int nSprite);
+void IgniteSprite(DExhumedActor* nSprite);
 void FuncBullet(int, int, int, int);
 void BackUpBullet(int *x, int *y, short nAngle);
 

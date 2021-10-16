@@ -465,7 +465,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
                     {
                         if (pSprite->hitag < 15)
                         {
-                            IgniteSprite(nSprite);
+                            IgniteSprite(&exhumedActors[nSprite]);
                             pSprite->hitag = 20;
                         }
                         nSectDamage >>= 2;

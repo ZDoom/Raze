@@ -54,7 +54,7 @@ struct Bullet
 
 FreeListArray<Bullet, kMaxBullets> BulletList;
 int lasthitz, lasthitx, lasthity;
-short lasthitsect, lasthitsprite, lasthitwall;
+short lasthitsect;
 
 short nRadialBullet = 0;
 
@@ -83,6 +83,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
             ("at12", w.field_12, def->field_12)
             ("at13", w.nDoubleDamage, def->nDoubleDamage)
             ("enemy", w.pEnemy, def->pEnemy)
+            //("owner", w.pOwner, def->pOwner)
             .EndObject();
     }
     return arc;
@@ -97,8 +98,6 @@ void SerializeBullet(FSerializer& arc)
             ("lasthity", lasthity)
             ("lasthitz", lasthitz)
             ("lasthitsect", lasthitsect)
-            ("lasthitspr", lasthitsprite)
-            ("lasthitwall", lasthitwall)
             ("radialbullet", nRadialBullet)
             .EndObject();
     }
@@ -153,9 +152,9 @@ void DestroyBullet(short nBullet)
     BulletList.Release(nBullet);
 }
 
-void IgniteSprite(int nSprite)
+void IgniteSprite(DExhumedActor* pActor)
 {
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
 
     pSprite->hitag += 2;
 
@@ -163,7 +162,7 @@ void IgniteSprite(int nSprite)
     
     if (pAnimActor)
     {
-        pAnimActor->pTarget = &exhumedActors[nSprite];
+        pAnimActor->pTarget = pActor;
         ChangeActorStat(pAnimActor, kStatIgnited);
 
         short yRepeat = (tileHeight(pAnimActor->s().picnum) * 32) / nFlameHeight;
@@ -194,7 +193,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
             pHitSprite->hitag++;
 
             if (pHitSprite->hitag == 15) {
-                IgniteSprite(nHitSprite);
+                IgniteSprite(&exhumedActors[nHitSprite]);
             }
 
             if (!RandomSize(2)) {
@@ -466,8 +465,6 @@ MOVEEND:
         lasthity = y2;
         lasthitz = z2;
         lasthitsect = hitsect;
-        lasthitwall = hitwall;
-        lasthitsprite = hitactor->GetSpriteIndex();
 
         if (hitactor)
         {

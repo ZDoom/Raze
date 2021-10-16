@@ -141,7 +141,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
         if (pIgniter)
         {
-            auto pSpriteB = &pActor->pTarget->s(); 
+            auto pSpriteB = &pIgniter->s(); 
             pSprite->x = pSpriteB->x;
             pSprite->y = pSpriteB->y;
             pSprite->z = pSpriteB->z;
