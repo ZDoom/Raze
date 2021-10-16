@@ -113,11 +113,7 @@ public:
 	void SetPalswap(int index);
 	void SetFade(int palette);
 
-	void SetShade(int32_t shade, int numshades)
-	{
-		renderState.drawblack = shade > numshades;
-		renderState.Shade = std::min(shade, numshades-1);
-	}
+	void SetShade(int32_t shade, int numshades);
 
 	void SetVisibility(float visibility)
 	{

@@ -159,6 +159,15 @@ void GLInstance::SetFade(int index)
 	renderState.FogColor = lookups.getFade(index);
 }
 
+extern int globalpal;
+void GLInstance::SetShade(int32_t shade, int numshades)
+{
+	// Ugh... This particular palette does not fade to black. Should be handled better. 
+	// It's really too bad that everything runs through here without being able to identify it anymore.
+	renderState.drawblack = (!(g_gameType & GAMEFLAG_PSEXHUMED) || globalpal != 4) ? shade > numshades : false;
+	renderState.Shade = std::min(shade, numshades - 1);
+}
+
 bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 {
 	// Fog must be done before the texture so that the texture selector can override it.

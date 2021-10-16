@@ -2897,6 +2897,7 @@ void polymost_drawsprite(int32_t snum)
 
             vec2_16_t tempsiz = { (int16_t)tsiz.x, (int16_t)tsiz.y };
             pow2xsplit = 0;
+            if (globalshade > 63) globalshade = 63; // debug
             polymost_drawpoly(pxy, 4, method, tempsiz);
 
             drawpoly_srepeat = 0;
