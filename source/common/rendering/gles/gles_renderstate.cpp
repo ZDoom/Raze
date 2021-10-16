@@ -35,6 +35,9 @@
 #include "gles_renderbuffers.h"
 #include "gles_hwtexture.h"
 #include "gles_buffers.h"
+#include "gles_renderer.h"
+#include "gles_samplers.h"
+
 #include "hw_clock.h"
 #include "printf.h"
 
@@ -479,6 +482,7 @@ void FGLRenderState::ApplyMaterial(FMaterial *mat, int clampmode, int translatio
 			for (int i = 1; i < 3; i++)
 			{
 				auto systex = static_cast<FHardwareTexture*>(mat->GetLayer(i, translation, &layer));
+				GLRenderer->mSamplerManager->Bind(i, CLAMP_NONE, 255);
 				systex->Bind(i, false);
 				maxbound = i;
 			}
