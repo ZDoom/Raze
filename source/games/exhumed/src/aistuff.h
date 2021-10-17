@@ -223,8 +223,7 @@ extern short bTorch;
 
 // lion
 
-void InitLion();
-void BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle);
+void BuildLion(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle);
 void FuncLion(int, int, int, int);
 
 // move

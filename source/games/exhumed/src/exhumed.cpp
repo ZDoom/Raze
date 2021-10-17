@@ -607,6 +607,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor& w, 
             ("target", w.pTarget)
             ("count", w.nCount)
             ("run", w.nRun)
+            //("index", w.nIndex)
             .EndObject();
     }
     return arc;

@@ -78,6 +78,7 @@ enum ECounter
 	kCountAnubis,
 	kCountAnubisDrum,
 	kCountLava,
+	kCountLion,
 
 	kNumCounters
 };
