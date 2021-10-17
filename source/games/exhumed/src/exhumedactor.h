@@ -6,16 +6,24 @@ void mydeletesprite(int nSprite);
 
 class DExhumedActor;
 
+enum
+{
+	kHitAuxMask = 0x30000,
+	kHitAux1 = 0x10000,
+	kHitAux2 = 0x20000,
+};
+
 // Wrapper around the insane collision info mess from Build.
 struct Collision
 {
 	int type;
 	int index;
+	int exbits;
 	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
 	DExhumedActor* actor;
 
 	Collision() = default;
-	Collision(int legacyval) { setFromEngine(legacyval); }
+	explicit Collision(int legacyval) { setFromEngine(legacyval); }
 
 	// need forward declarations of these.
 	int actorIndex(DExhumedActor*);
@@ -25,6 +33,7 @@ struct Collision
 	{
 		type = kHitNone;
 		index = -1;
+		exbits = 0;
 		legacyVal = 0;
 		actor = nullptr;
 		return kHitNone;
@@ -34,6 +43,7 @@ struct Collision
 	{
 		type = kHitSector;
 		index = num;
+		exbits = 0;
 		legacyVal = type | index;
 		actor = nullptr;
 		return kHitSector;
@@ -42,6 +52,7 @@ struct Collision
 	{
 		type = kHitWall;
 		index = num;
+		exbits = 0;
 		legacyVal = type | index;
 		actor = nullptr;
 		return kHitWall;
@@ -50,6 +61,7 @@ struct Collision
 	{
 		type = kHitSprite;
 		index = -1;
+		exbits = 0;
 		legacyVal = type | actorIndex(num);
 		actor = num;
 		return kHitSprite;
@@ -59,6 +71,7 @@ struct Collision
 	{
 		legacyVal = value;
 		type = value & kHitTypeMask;
+		exbits = value & kHitAuxMask;
 		if (type == 0) { index = -1; actor = nullptr; }
 		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
 		else { index = -1; actor = Actor(value & kHitIndexMask); }
@@ -83,22 +96,20 @@ public:
 	spritetype& s() { return sprite[index]; }
 	int GetIndex() { return index; }	// should only be for error reporting or for masking to a slot index
 	int GetSpriteIndex() { return index; }	// this is only here to mark places that need changing later!
-
-	/*
-	void SetOwner(DExhumedActor* own)
-	{
-		s().owner = own ? own->GetSpriteIndex() : -1;
-	}
-
-	DExhumedActor* GetOwner()
-	{
-		if (s().owner == -1 || s().owner == MAXSPRITES - 1) return nullptr;
-		return base() + s().owner;
-	}
-	*/
 };
 
 extern DExhumedActor exhumedActors[MAXSPRITES];
+
+inline DExhumedActor* Collision::Actor(int i)
+{
+	return &exhumedActors[i];
+}
+
+inline int Collision::actorIndex(DExhumedActor* a)
+{
+	return a->GetSpriteIndex();
+}
+
 
 inline DExhumedActor* DExhumedActor::base() { return exhumedActors; }
 
@@ -215,6 +226,11 @@ inline void ChangeActorSect(DExhumedActor* actor, int stat)
 inline void setActorPos(DExhumedActor* actor, vec3_t* pos)
 {
 	setsprite(actor->GetSpriteIndex(), pos);
+}
+
+inline DExhumedActor* GetActor(const hitdata_t& hitData)
+{
+	return &exhumedActors[hitData.sprite];
 }
 
 END_BLD_NS

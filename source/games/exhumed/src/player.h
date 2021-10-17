@@ -123,6 +123,10 @@ extern int nPlayerDY[kMaxPlayers];
 extern int nPlayerDX[kMaxPlayers];
 
 short GetPlayerFromSprite(short nSprite);
+short GetPlayerFromActor(DExhumedActor* actor)
+{
+    return GetPlayerFromSprite(actor->GetSpriteIndex());
+}
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);

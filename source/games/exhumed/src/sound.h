@@ -133,11 +133,20 @@ void CheckAmbience(short nSector);
 
 void PlayFX2(unsigned short nSound, short nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
 void PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector, EChanFlags chanflags = CHANF_NONE, int sectf = 0);
-inline void D3PlayFX(unsigned short nSound, short nVal, short flags = 0)
+inline void D3PlayFX(unsigned short nSound, short nSprite, short flags = 0)
 {
-    PlayFX2(nSound, nVal, 0, CHANF_NONE, flags);
+    PlayFX2(nSound, nSprite, 0, CHANF_NONE, flags);
 }
+inline void D3PlayFX(unsigned short nSound, DExhumedActor* actor, short flags = 0)
+{
+    PlayFX2(nSound, actor->GetSpriteIndex(), 0, CHANF_NONE, flags);
+}
+
 void StopSpriteSound(short nSprite);
+inline void StopActorSound(DExhumedActor* actor)
+{
+    if (actor) StopSpriteSound(actor->GetSpriteIndex());
+}
 
 void StartSwirlies();
 void UpdateSwirlies();

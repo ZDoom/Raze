@@ -38,6 +38,11 @@ enum
 
 
 int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
+inline Collision movesprite(DExhumedActor* spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
+{
+	return Collision(movesprite(spritenum->GetSpriteIndex(), dx, dy, dz, ceildist, flordist, clipmask));
+}
+
 void precache();
 void resettiming();
 
