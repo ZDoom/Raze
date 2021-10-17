@@ -115,7 +115,7 @@ int BuildLavaLimb(int nSprite, int edx, int ebx)
 
 void AILavaDudeLimb::Tick(RunListEvent* ev)
 {
-    short nSprite = RunData[ev->nRun].nVal;
+    short nSprite = RunData[ev->nRun].nObjIndex;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     auto pSprite = &sprite[nSprite];
 
@@ -139,10 +139,10 @@ void AILavaDudeLimb::Tick(RunListEvent* ev)
 
 void AILavaDudeLimb::Draw(RunListEvent* ev)
 {
-    short nSprite = RunData[ev->nRun].nVal;
+    short nSprite = RunData[ev->nRun].nObjIndex;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     auto pSprite = &sprite[nSprite];
-    seq_PlotSequence(ev->nIndex, (SeqOffsets[kSeqLavag] + 30) + pSprite->picnum, 0, 1);
+    seq_PlotSequence(ev->nParam, (SeqOffsets[kSeqLavag] + 30) + pSprite->picnum, 0, 1);
 }
 
 void  FuncLavaLimb(int nObject, int nMessage, int nDamage, int nRun)
@@ -211,20 +211,20 @@ void BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, in
 
 void AILavaDude::Draw(RunListEvent* ev)
 {
-    unsigned nLava = RunData[ev->nRun].nVal;
+    unsigned nLava = RunData[ev->nRun].nObjIndex;
     assert(nLava < LavaList.Size());
 
     short nAction = LavaList[nLava].nAction;
     short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
 
-    seq_PlotSequence(ev->nIndex, nSeq, LavaList[nLava].nFrame, LavadudeSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, nSeq, LavaList[nLava].nFrame, LavadudeSeq[nAction].b);
     ev->pTSprite->owner = -1;
     return;
 }
 
 void AILavaDude::Damage(RunListEvent* ev)
 {
-    unsigned nLava = RunData[ev->nRun].nVal;
+    unsigned nLava = RunData[ev->nRun].nObjIndex;
     assert(nLava < LavaList.Size());
 
     short nAction = LavaList[nLava].nAction;
@@ -250,7 +250,7 @@ void AILavaDude::Damage(RunListEvent* ev)
     }
     else
     {
-        short nTarget = ev->nIndex;
+        short nTarget = ev->nParam;
 
         if (nTarget >= 0)
         {
@@ -276,7 +276,7 @@ void AILavaDude::Damage(RunListEvent* ev)
 
 void AILavaDude::Tick(RunListEvent* ev)
 {
-    unsigned nLava = RunData[ev->nRun].nVal;
+    unsigned nLava = RunData[ev->nRun].nObjIndex;
     assert(nLava < LavaList.Size());
 
     short nAction = LavaList[nLava].nAction;

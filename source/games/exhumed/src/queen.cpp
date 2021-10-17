@@ -511,7 +511,7 @@ void BuildQueenEgg(short nQueen, int nVal)
 
 void AIQueenEgg::Tick(RunListEvent* ev)
 {
-    short nEgg = RunData[ev->nRun].nVal;
+    short nEgg = RunData[ev->nRun].nObjIndex;
     Egg* pEgg = &QueenEgg[nEgg];
     short nSprite = pEgg->nSprite;
     auto pSprite = &sprite[nSprite];
@@ -669,7 +669,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
 
 void AIQueenEgg::RadialDamage(RunListEvent* ev)
 {
-    short nEgg = RunData[ev->nRun].nVal;
+    short nEgg = RunData[ev->nRun].nObjIndex;
     Egg* pEgg = &QueenEgg[nEgg];
     short nSprite = pEgg->nSprite;
     auto pSprite = &sprite[nSprite];
@@ -684,7 +684,7 @@ void AIQueenEgg::RadialDamage(RunListEvent* ev)
 
 void AIQueenEgg::Damage(RunListEvent* ev)
 {
-    short nEgg = RunData[ev->nRun].nVal;
+    short nEgg = RunData[ev->nRun].nObjIndex;
     Egg* pEgg = &QueenEgg[nEgg];
 
     if (ev->nDamage != 0 && pEgg->nHealth > 0)
@@ -698,9 +698,9 @@ void AIQueenEgg::Damage(RunListEvent* ev)
 
 void AIQueenEgg::Draw(RunListEvent* ev)
 {
-    short nEgg = RunData[ev->nRun].nVal;
+    short nEgg = RunData[ev->nRun].nObjIndex;
     Egg* pEgg = &QueenEgg[nEgg];
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqQueenEgg] + EggSeq[pEgg->nAction].a, pEgg->nFrame, EggSeq[pEgg->nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqQueenEgg] + EggSeq[pEgg->nAction].a, pEgg->nFrame, EggSeq[pEgg->nAction].b);
 }
 
 
@@ -764,7 +764,7 @@ void BuildQueenHead(short nQueen)
 
 void AIQueenHead::Tick(RunListEvent* ev)
 {
-    short nHead = RunData[ev->nRun].nVal;
+    short nHead = RunData[ev->nRun].nObjIndex;
 
     short nSprite = QueenHead.nSprite;
     auto pSprite = &sprite[nSprite];
@@ -1062,7 +1062,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
 void AIQueenHead::RadialDamage(RunListEvent* ev)
 {
-    short nHead = RunData[ev->nRun].nVal;
+    short nHead = RunData[ev->nRun].nObjIndex;
 
     short nSprite = QueenHead.nSprite;
     auto pSprite = &sprite[nSprite];
@@ -1077,7 +1077,7 @@ void AIQueenHead::RadialDamage(RunListEvent* ev)
 
 void AIQueenHead::Damage(RunListEvent* ev)
 {
-    short nHead = RunData[ev->nRun].nVal;
+    short nHead = RunData[ev->nRun].nObjIndex;
 
     short nSprite = QueenHead.nSprite;
     auto pSprite = &sprite[nSprite];
@@ -1088,7 +1088,7 @@ void AIQueenHead::Damage(RunListEvent* ev)
 
         if (!RandomSize(4))
         {
-            QueenHead.nTarget = ev->nIndex;
+            QueenHead.nTarget = ev->nParam;
             QueenHead.nAction = 7;
             QueenHead.nFrame = 0;
         }
@@ -1114,7 +1114,7 @@ void AIQueenHead::Damage(RunListEvent* ev)
 
 void AIQueenHead::Draw(RunListEvent* ev)
 {
-    short nHead = RunData[ev->nRun].nVal;
+    short nHead = RunData[ev->nRun].nObjIndex;
     short nAction = QueenHead.nAction;
 
     short nSeq = SeqOffsets[kSeqQueen];
@@ -1132,7 +1132,7 @@ void AIQueenHead::Draw(RunListEvent* ev)
         nSeq += 73;
     }
 
-    seq_PlotSequence(ev->nIndex, nSeq, QueenHead.nFrame, edx);
+    seq_PlotSequence(ev->nParam, nSeq, QueenHead.nFrame, edx);
 }
 
 
@@ -1221,7 +1221,7 @@ void SetQueenSpeed(short nSprite, int nSpeed)
 
 void AIQueen::Tick(RunListEvent* ev)
 {
-    short nQueen = RunData[ev->nRun].nVal;
+    short nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
 
     short nSprite = QueenList[nQueen].nSprite;
@@ -1482,7 +1482,7 @@ void AIQueen::Tick(RunListEvent* ev)
 
 void AIQueen::RadialDamage(RunListEvent* ev)
 {
-    short nQueen = RunData[ev->nRun].nVal;
+    short nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
     short nSprite = QueenList[nQueen].nSprite;
     auto pSprite = &sprite[nSprite];
@@ -1496,7 +1496,7 @@ void AIQueen::RadialDamage(RunListEvent* ev)
 
 void AIQueen::Damage(RunListEvent* ev)
 {
-    short nQueen = RunData[ev->nRun].nVal;
+    short nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
 
     short nSprite = QueenList[nQueen].nSprite;
@@ -1553,10 +1553,10 @@ void AIQueen::Damage(RunListEvent* ev)
 
 void AIQueen::Draw(RunListEvent* ev)
 {
-    short nQueen = RunData[ev->nRun].nVal;
+    short nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
     short nAction = QueenList[nQueen].nAction;
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqQueen] + QueenSeq[nAction].a, QueenList[nQueen].nFrame, QueenSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqQueen] + QueenSeq[nAction].a, QueenList[nQueen].nFrame, QueenSeq[nAction].b);
 }
 
 void FuncQueen(int nObject, int nMessage, int nDamage, int nRun)

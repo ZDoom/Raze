@@ -164,7 +164,7 @@ int BuildBubble(int x, int y, int z, short nSector)
 
 void AIBubble::Tick(RunListEvent* ev) 
 {
-    short nBubble = RunData[ev->nRun].nVal;
+    short nBubble = RunData[ev->nRun].nObjIndex;
     assert(nBubble >= 0 && nBubble < kMaxBubbles);
 
     short nSprite = BubbleList[nBubble].nSprite;
@@ -197,10 +197,10 @@ void AIBubble::Tick(RunListEvent* ev)
 
 void AIBubble::Draw(RunListEvent* ev)
 {
-    short nBubble = RunData[ev->nRun].nVal;
+    short nBubble = RunData[ev->nRun].nObjIndex;
     assert(nBubble >= 0 && nBubble < kMaxBubbles);
 
-    seq_PlotSequence(ev->nIndex, BubbleList[nBubble].nSeq, BubbleList[nBubble].nFrame, 1);
+    seq_PlotSequence(ev->nParam, BubbleList[nBubble].nSeq, BubbleList[nBubble].nFrame, 1);
     ev->pTSprite->owner = -1;
 }
 

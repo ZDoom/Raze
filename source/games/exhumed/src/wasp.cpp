@@ -179,16 +179,16 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
 
 void AIWasp::Draw(RunListEvent* ev)
 {
-    short nWasp = RunData[ev->nRun].nVal;
+    short nWasp = RunData[ev->nRun].nObjIndex;
     short nAction = WaspList[nWasp].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqWasp] + WaspSeq[nAction].a, WaspList[nWasp].nFrame, WaspSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqWasp] + WaspSeq[nAction].a, WaspList[nWasp].nFrame, WaspSeq[nAction].b);
     return;
 }
 
 void AIWasp::RadialDamage(RunListEvent* ev)
 {
-    short nWasp = RunData[ev->nRun].nVal;
+    short nWasp = RunData[ev->nRun].nObjIndex;
     short nSprite = WaspList[nWasp].nSprite;
     auto pSprite = &sprite[nSprite];
 
@@ -201,7 +201,7 @@ void AIWasp::RadialDamage(RunListEvent* ev)
 
 void AIWasp::Damage(RunListEvent* ev)
 {
-    short nWasp = RunData[ev->nRun].nVal;
+    short nWasp = RunData[ev->nRun].nObjIndex;
     short nSprite = WaspList[nWasp].nSprite;
     auto pSprite = &sprite[nSprite];
     short nAction = WaspList[nWasp].nAction;
@@ -251,7 +251,7 @@ void AIWasp::Damage(RunListEvent* ev)
 
 void AIWasp::Tick(RunListEvent* ev)
 {
-    short nWasp = RunData[ev->nRun].nVal;
+    short nWasp = RunData[ev->nRun].nObjIndex;
     short nSprite = WaspList[nWasp].nSprite;
     auto pSprite = &sprite[nSprite];
     short nAction = WaspList[nWasp].nAction;

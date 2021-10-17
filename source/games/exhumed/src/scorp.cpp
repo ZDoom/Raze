@@ -150,16 +150,16 @@ void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle,
 
 void AIScorp::Draw(RunListEvent* ev)
 {
-    short nScorp = RunData[ev->nRun].nVal;
+    short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
     short nAction = scorpion[nScorp].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, scorpion[nScorp].nFrame, ScorpSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, scorpion[nScorp].nFrame, ScorpSeq[nAction].b);
 }
 
 void AIScorp::RadialDamage(RunListEvent* ev)
 {
-    short nScorp = RunData[ev->nRun].nVal;
+    short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
     short nSprite = scorpion[nScorp].nSprite;
 
@@ -170,7 +170,7 @@ void AIScorp::RadialDamage(RunListEvent* ev)
 
 void AIScorp::Damage(RunListEvent* ev)
 {
-    short nScorp = RunData[ev->nRun].nVal;
+    short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
     short nSprite = scorpion[nScorp].nSprite;
 
@@ -204,7 +204,7 @@ void AIScorp::Damage(RunListEvent* ev)
     }
     else
     {
-        nTarget = ev->nIndex;
+        nTarget = ev->nParam;
 
         if (nTarget >= 0)
         {
@@ -232,7 +232,7 @@ void AIScorp::Damage(RunListEvent* ev)
 
 void AIScorp::Tick(RunListEvent* ev)
 {
-    short nScorp = RunData[ev->nRun].nVal;
+    short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
     short nSprite = scorpion[nScorp].nSprite;
 
@@ -469,7 +469,7 @@ void AIScorp::Tick(RunListEvent* ev)
 
 void AIScorp::Effect(RunListEvent* ev, int nTarget, int mode)
 {
-    short nScorp = RunData[ev->nRun].nVal;
+    short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
     short nSprite = scorpion[nScorp].nSprite;
 

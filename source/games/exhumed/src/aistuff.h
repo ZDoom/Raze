@@ -406,8 +406,9 @@ enum
 
 struct RunStruct
 {
-    int nRef;
-    int nVal;
+    int nAIType;                // todo later: replace this with an AI pointer
+    int nObjIndex;              // If object is a non-actor / not refactored yet.
+    DExhumedActor* pObjActor;   // If object is an actor
     short next;
     short prev;
 };
@@ -437,15 +438,15 @@ enum class EMessageType
 struct RunListEvent
 {
     EMessageType nMessage;
-    int nIndex;                 // mostly the player, sometimes the channel list
+    int nParam;                 // mostly the player, sometimes the channel list
+    int nObjIndex;
+    DExhumedActor* pObjActor;
     tspritetype* pTSprite;      // for the draw event
-    DExhumedActor* pActor;      // for the damage event, radialSpr for radial damage - owner will not be passed as it can be retrieved from this.
+    DExhumedActor* pOtherActor;      // for the damage event, radialSpr for radial damage - owner will not be passed as it can be retrieved from this.
     int nDamage, nRun;
 
     int nRadialDamage;          // Radial damage needs a bit more info.
     int nDamageRadius;
-
-    int RunValue() const;
 };
 
 struct ExhumedAI
@@ -736,11 +737,6 @@ typedef void(*AiFunc)(int, int, int, int nRun);
 
 extern FreeListArray<RunStruct, kMaxRuns> RunData;
 
-inline int RunListEvent::RunValue() const
-{
-    return RunData[nRun].nVal;
-}
-
 extern RunChannel sRunChannels[kMaxChannels];
 extern short NewRun;
 extern int nRadialOwner;
@@ -750,7 +746,9 @@ void runlist_InitRun();
 
 int runlist_GrabRun();
 int runlist_FreeRun(int nRun);
-int runlist_AddRunRec(int a, int b, int c);
+int runlist_AddRunRec(int index, int object, int aitype);
+int runlist_AddRunRec(int index, DExhumedActor* object, int aitype);
+int runlist_AddRunRec(int index, RunStruct* other);
 int runlist_HeadRun();
 void runlist_InitChan();
 void runlist_ChangeChannel(int eax, short dx);

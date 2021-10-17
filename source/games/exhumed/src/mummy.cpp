@@ -175,7 +175,7 @@ void CheckMummyRevive(short nMummy)
 
 void AIMummy::Tick(RunListEvent* ev)
 {
-    short nMummy = RunData[ev->nRun].nVal;
+    short nMummy = RunData[ev->nRun].nObjIndex;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
 
     short nTarget = UpdateEnemy(&MummyList[nMummy].nTarget);
@@ -464,17 +464,17 @@ void AIMummy::Tick(RunListEvent* ev)
 
 void AIMummy::Draw(RunListEvent* ev)
 {
-    short nMummy = RunData[ev->nRun].nVal;
+    short nMummy = RunData[ev->nRun].nObjIndex;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
     short nAction = MummyList[nMummy].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].nFrame, MummySeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].nFrame, MummySeq[nAction].b);
     return;
 }
 
 void AIMummy::RadialDamage(RunListEvent* ev)
 {
-    short nMummy = RunData[ev->nRun].nVal;
+    short nMummy = RunData[ev->nRun].nObjIndex;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
     short nSprite = MummyList[nMummy].nSprite;
     auto pSprite = &sprite[nSprite];
@@ -488,7 +488,7 @@ void AIMummy::RadialDamage(RunListEvent* ev)
 
 void AIMummy::Damage(RunListEvent* ev) 
 {
-    short nMummy = RunData[ev->nRun].nVal;
+    short nMummy = RunData[ev->nRun].nObjIndex;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
 
     short nSprite = MummyList[nMummy].nSprite;

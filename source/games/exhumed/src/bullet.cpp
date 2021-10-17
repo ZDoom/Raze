@@ -813,7 +813,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
 
 void AIBullet::Tick(RunListEvent* ev)
 {
-    short nBullet = RunData[ev->nRun].nVal;
+    short nBullet = RunData[ev->nRun].nObjIndex;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
@@ -853,12 +853,12 @@ void AIBullet::Tick(RunListEvent* ev)
 
 void AIBullet::Draw(RunListEvent* ev)
 {
-    short nBullet = RunData[ev->nRun].nVal;
+    short nBullet = RunData[ev->nRun].nObjIndex;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
 
-    short nSprite2 = ev->nIndex;
+    short nSprite2 = ev->nParam;
     mytsprite[nSprite2].statnum = 1000;
 
     if (BulletList[nBullet].nType == 15)

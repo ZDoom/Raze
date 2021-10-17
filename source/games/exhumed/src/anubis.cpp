@@ -157,7 +157,7 @@ void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint
 
 void AIAnubis::Tick(RunListEvent* ev)
 {
-    int nAnubis = ev->RunValue();
+    int nAnubis = RunData[ev->nRun].nObjIndex;
     auto ap = &AnubisList[nAnubis];
     int nSprite = ap->nSprite;
     auto sp = &sprite[nSprite];
@@ -399,13 +399,13 @@ void AIAnubis::Tick(RunListEvent* ev)
 
 void AIAnubis::Draw(RunListEvent* ev)
 {
-    auto ap = &AnubisList[ev->RunValue()];
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqAnubis] + AnubisSeq[ap->nAction].a, ap->nFrame, AnubisSeq[ap->nAction].b);
+    auto ap = &AnubisList[RunData[ev->nRun].nObjIndex];
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqAnubis] + AnubisSeq[ap->nAction].a, ap->nFrame, AnubisSeq[ap->nAction].b);
 }
 
 void AIAnubis::RadialDamage(RunListEvent* ev)
 {
-    auto ap = &AnubisList[ev->RunValue()];
+    auto ap = &AnubisList[RunData[ev->nRun].nObjIndex];
     if (ap->nAction < 11) 
 	{
     	ev->nDamage = runlist_CheckRadialDamage(ap->nSprite);
@@ -415,7 +415,7 @@ void AIAnubis::RadialDamage(RunListEvent* ev)
 
 void AIAnubis::Damage(RunListEvent* ev)
 {
-    auto ap = &AnubisList[ev->RunValue()];
+    auto ap = &AnubisList[RunData[ev->nRun].nObjIndex];
     int nSprite = ap->nSprite;
     auto sp = &sprite[nSprite];
     int nAction = ap->nAction;
@@ -430,7 +430,7 @@ void AIAnubis::Damage(RunListEvent* ev)
 
         if (ap->nHealth > 0)
         {
-            int nTarget = ev->nIndex;
+            int nTarget = ev->nParam;
 
             // loc_258D6:
             if (nTarget < 0) {

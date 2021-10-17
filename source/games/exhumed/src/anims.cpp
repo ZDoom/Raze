@@ -152,7 +152,7 @@ short GetAnimSprite(short nAnim)
 
 void AIAnim::Tick(RunListEvent* ev)
 {
-    short nAnim = RunData[ev->nRun].nVal;
+    short nAnim = RunData[ev->nRun].nObjIndex;
     assert(nAnim >= 0 && nAnim < kMaxAnims);
 
     short nSprite = AnimList[nAnim].nSprite;
@@ -264,11 +264,11 @@ void AIAnim::Tick(RunListEvent* ev)
 
 void AIAnim::Draw(RunListEvent* ev)
 {
-    short nAnim = RunData[ev->nRun].nVal;
+    short nAnim = RunData[ev->nRun].nObjIndex;
     assert(nAnim >= 0 && nAnim < kMaxAnims);
     short nSeq = AnimList[nAnim].nSeq;
 
-    seq_PlotSequence(ev->nIndex, nSeq, AnimList[nAnim].field_2, 0x101);
+    seq_PlotSequence(ev->nParam, nSeq, AnimList[nAnim].field_2, 0x101);
     ev->pTSprite->owner = -1;
 }
 

@@ -208,7 +208,7 @@ int FindFood(short nSprite)
 
 void AIRat::RadialDamage(RunListEvent* ev)
 {
-    short nRat = RunData[ev->nRun].nVal;
+    short nRat = RunData[ev->nRun].nObjIndex;
     short nSprite = RatList[nRat].nSprite;
     ev->nDamage = runlist_CheckRadialDamage(nSprite);
     Damage(ev);
@@ -216,7 +216,7 @@ void AIRat::RadialDamage(RunListEvent* ev)
 
 void AIRat::Damage(RunListEvent* ev)
 {
-    short nRat = RunData[ev->nRun].nVal;
+    short nRat = RunData[ev->nRun].nObjIndex;
     short nSprite = RatList[nRat].nSprite;
     auto pSprite = &sprite[nSprite];
 
@@ -233,16 +233,16 @@ void AIRat::Damage(RunListEvent* ev)
 
 void AIRat::Draw(RunListEvent* ev)
 {
-    short nRat = RunData[ev->nRun].nVal;
+    short nRat = RunData[ev->nRun].nObjIndex;
     short nAction = RatList[nRat].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqRat] + RatSeq[nAction].a, RatList[nRat].nFrame, RatSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqRat] + RatSeq[nAction].a, RatList[nRat].nFrame, RatSeq[nAction].b);
 }
 
 
 void AIRat::Tick(RunListEvent* ev)
 {
-    short nRat = RunData[ev->nRun].nVal;
+    short nRat = RunData[ev->nRun].nObjIndex;
     short nSprite = RatList[nRat].nSprite;
     short nAction = RatList[nRat].nAction;
     auto pSprite = &sprite[nSprite];

@@ -53,8 +53,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RunStruct& w, RunS
 {
     if (arc.BeginObject(keyname))
     {
-        arc("ref", w.nRef)
-            ("val", w.nVal)
+        arc("ref", w.nAIType)
+            ("val", w.nObjIndex)
+            ("actor", w.pObjActor)
             ("_4", w.next)
             ("_6", w.prev)
             .EndObject();
@@ -136,8 +137,9 @@ int runlist_FreeRun(int nRun)
     assert(nRun >= 0 && nRun < kMaxRuns);
 
     RunData[nRun].prev = -1;
-    RunData[nRun].nRef = -1;
-    RunData[nRun].nVal = -1;
+    RunData[nRun].nAIType = -1;
+    RunData[nRun].nObjIndex = -1;
+    RunData[nRun].pObjActor = nullptr;
     RunData[nRun].next = RunData[nRun].prev;
     RunData.Release(nRun);
     return 1;
@@ -162,8 +164,9 @@ void runlist_InitRun()
 
     for (i = 0; i < kMaxRuns; i++)
     {
-        RunData[i].nRef = -1;
-        RunData[i].nVal = -1;
+        RunData[i].nAIType = -1;
+        RunData[i].pObjActor = nullptr;
+        RunData[i].nObjIndex = -1;
         RunData[i].prev = -1;
         RunData[i].next = -1;
     }
@@ -216,16 +219,42 @@ void runlist_InsertRun(int RunLst, int RunNum)
     RunData[RunLst].next = RunNum;
 }
 
-int runlist_AddRunRec(int a, int b, int c)
+int runlist_AddRunRec(int nIndex, int nObject, int nAIType)
 {
     int nRun = runlist_GrabRun();
 
-    RunData[nRun].nRef = c;
-    RunData[nRun].nVal = b;
+    RunData[nRun].nAIType = nAIType;
+    RunData[nRun].nObjIndex = nObject;
+    RunData[nRun].pObjActor = nullptr;
 
-    runlist_InsertRun(a, nRun);
+    runlist_InsertRun(nIndex, nRun);
     return nRun;
 }
+
+int runlist_AddRunRec(int nIndex, DExhumedActor* pObject, int nAIType)
+{
+    int nRun = runlist_GrabRun();
+
+    RunData[nRun].nAIType = nAIType;
+    RunData[nRun].nObjIndex = -1;
+    RunData[nRun].pObjActor = pObject;
+
+    runlist_InsertRun(nIndex, nRun);
+    return nRun;
+}
+
+int runlist_AddRunRec(int nIndex, RunStruct* other)
+{
+    int nRun = runlist_GrabRun();
+
+    RunData[nRun].nAIType = other->nAIType;
+    RunData[nRun].nObjIndex = other->nObjIndex;
+    RunData[nRun].pObjActor = other->pObjActor;
+
+    runlist_InsertRun(nIndex, nRun);
+    return nRun;
+}
+
 
 void runlist_DoSubRunRec(int RunPtr)
 {
@@ -250,7 +279,7 @@ void runlist_CleanRunRecs()
         int runPtr = nextPtr;
         assert(runPtr < kMaxRuns);
 
-        int val = RunData[runPtr].nRef; // >> 16;
+        int val = RunData[runPtr].nAIType; // >> 16;
         nextPtr = RunData[runPtr].next;
 
         if (val < 0) {
@@ -263,12 +292,12 @@ void runlist_SubRunRec(int RunPtr)
 {
     if (!(RunPtr >= 0 && RunPtr < kMaxRuns)) return;
 
-    RunData[RunPtr].nRef = -totalmoves;
+    RunData[RunPtr].nAIType = -totalmoves;
 }
 
 void runlist_SendMessageToRunRec(int nRun, int nObject, int nMessage, int nDamage)
 {
-    int nFunc = RunData[nRun].nRef >> 16;
+    int nFunc = RunData[nRun].nAIType >> 16;
 
     if (nFunc < 0) {
         return;
@@ -302,7 +331,7 @@ void runlist_ExplodeSignalRun()
         int runPtr = nextPtr;
         assert(runPtr < kMaxRuns);
 
-        int val = RunData[runPtr].nVal;
+        int val = RunData[runPtr].nObjIndex;
         nextPtr = RunData[runPtr].next;
 
         if (val >= 0)
@@ -356,7 +385,7 @@ void runlist_SignalRun(int NxtPtr, int edx)
             if (RunPtr >= 0)
             {
                 assert(RunPtr < kMaxRuns);
-                int val = RunData[RunPtr].nVal;
+                int val = RunData[RunPtr].nObjIndex;
                 NxtPtr = RunData[RunPtr].next;
 
                 if (val >= 0) {
@@ -1704,7 +1733,9 @@ void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage
 {
     RunListEvent ev{};
     ev.nMessage = (EMessageType)(nMessage >> 16);
-    ev.nIndex = nObject;
+    ev.nObjIndex = RunData[nRun].nObjIndex;
+    ev.pObjActor = RunData[nRun].pObjActor;
+    ev.nParam = nObject;
     ev.nDamage = nDamage;
     ev.nRun = nRun;
     switch (ev.nMessage)
@@ -1738,7 +1769,7 @@ void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage
         break;
 
     case EMessageType::Damage:
-        ev.pActor = &exhumedActors[nObject];
+        ev.pOtherActor = &exhumedActors[nObject];
         ai->Damage(&ev);
         break;
 
@@ -1750,7 +1781,7 @@ void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage
     case EMessageType::RadialDamage:
         ev.nRadialDamage = nRadialDamage;
         ev.nDamageRadius = nDamageRadius;
-        ev.pActor = &exhumedActors[nRadialSpr];
+        ev.pOtherActor = &exhumedActors[nRadialSpr];
         ai->RadialDamage(&ev);
         break;
     }

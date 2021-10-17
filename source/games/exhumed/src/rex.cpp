@@ -139,7 +139,7 @@ void BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, i
 
 void AIRex::RadialDamage(RunListEvent* ev)
 {
-    short nRex = RunData[ev->nRun].nVal;
+    short nRex = RunData[ev->nRun].nObjIndex;
     assert(nRex >= 0 && nRex < (int)RexList.Size());
 
     short nAction = RexList[nRex].nAction;
@@ -154,7 +154,7 @@ void AIRex::RadialDamage(RunListEvent* ev)
 
 void AIRex::Damage(RunListEvent* ev)
 {
-    short nRex = RunData[ev->nRun].nVal;
+    short nRex = RunData[ev->nRun].nObjIndex;
     assert(nRex >= 0 && nRex < (int)RexList.Size());
 
     short nAction = RexList[nRex].nAction;
@@ -163,7 +163,7 @@ void AIRex::Damage(RunListEvent* ev)
 
     if (ev->nDamage)
     {
-        short nTarget = ev->nIndex;
+        short nTarget = ev->nParam;
         if (nTarget >= 0 && sprite[nTarget].statnum == 100)
         {
             RexList[nRex].nTarget = nTarget;
@@ -196,18 +196,18 @@ void AIRex::Damage(RunListEvent* ev)
 
 void AIRex::Draw(RunListEvent* ev)
 {
-    short nRex = RunData[ev->nRun].nVal;
+    short nRex = RunData[ev->nRun].nObjIndex;
     assert(nRex >= 0 && nRex < (int)RexList.Size());
 
     short nAction = RexList[nRex].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqRex] + RexSeq[nAction].a, RexList[nRex].nFrame, RexSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqRex] + RexSeq[nAction].a, RexList[nRex].nFrame, RexSeq[nAction].b);
     return;
 }
 
 void AIRex::Tick(RunListEvent* ev)
 {
-    short nRex = RunData[ev->nRun].nVal;
+    short nRex = RunData[ev->nRun].nObjIndex;
     assert(nRex >= 0 && nRex < (int)RexList.Size());
 
     short nAction = RexList[nRex].nAction;

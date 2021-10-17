@@ -137,7 +137,7 @@ std::pair<int, int> BuildSwReady(int nChannel, short nLink)
 
 void AISWReady::Process(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;
@@ -181,7 +181,7 @@ std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx)
 
 void AISWPause::ProcessChannel(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     if (SwitchData[nSwitch].nRunPtr >= 0)
     {
         runlist_SubRunRec(SwitchData[nSwitch].nRunPtr);
@@ -191,7 +191,7 @@ void AISWPause::ProcessChannel(RunListEvent* ev)
 
 void AISWPause::Tick(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
 
@@ -210,7 +210,7 @@ void AISWPause::Tick(RunListEvent* ev)
 
 void AISWPause::Process(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
     assert(sRunChannels[nChannel].c < 8);
@@ -223,7 +223,7 @@ void AISWPause::Process(RunListEvent* ev)
         return;
     }
 
-    SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, RunData[ev->nRun].nVal, RunData[ev->nRun].nRef);
+    SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, &RunData[ev->nRun]);
 
     int eax;
 
@@ -262,7 +262,7 @@ std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector)
 
 void AISWStepOn::ProcessChannel(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nLink = SwitchData[nSwitch].nLink;
@@ -281,13 +281,13 @@ void AISWStepOn::ProcessChannel(RunListEvent* ev)
 
     if (var_14 >= 0)
     {
-        SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[ev->nRun].nVal, RunData[ev->nRun].nRef);
+        SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
     }
 }
 
 void AISWStepOn::TouchFloor(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nLink = SwitchData[nSwitch].nLink;
@@ -334,7 +334,7 @@ std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int 
 
 void AISWNotOnPause::ProcessChannel(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     if (SwitchData[nSwitch].nRun2 >= 0)
@@ -354,7 +354,7 @@ void AISWNotOnPause::ProcessChannel(RunListEvent* ev)
 
 void AISWNotOnPause::Tick(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;
@@ -371,7 +371,7 @@ void AISWNotOnPause::Tick(RunListEvent* ev)
 
 void AISWNotOnPause::Process(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;
@@ -383,19 +383,19 @@ void AISWNotOnPause::Process(RunListEvent* ev)
     {
         if (SwitchData[nSwitch].nRunPtr < 0)
         {
-            SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, RunData[ev->nRun].nVal, RunData[ev->nRun].nRef);
+            SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, &RunData[ev->nRun]);
 
             short nSector = SwitchData[nSwitch].nSector;
 
             SwitchData[nSwitch].nWaitTimer = SwitchData[nSwitch].nWait;
-            SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[ev->nRun].nVal, RunData[ev->nRun].nRef);
+            SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
         }
     }
 }
 
 void AISWNotOnPause::TouchFloor(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
 
     SwitchData[nSwitch].nWaitTimer = SwitchData[nSwitch].nWait;
     return;
@@ -425,7 +425,7 @@ std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int
 
 void AISWPressSector::ProcessChannel(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;
@@ -445,17 +445,17 @@ void AISWPressSector::ProcessChannel(RunListEvent* ev)
 
     short nSector = SwitchData[nSwitch].nSector;
 
-    SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, RunData[ev->nRun].nVal, RunData[ev->nRun].nRef);
+    SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
 }
 
 void AISWPressSector::Use(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;
     short nLink = SwitchData[nSwitch].nLink;
-    int nPlayer = ev->nIndex;
+    int nPlayer = ev->nParam;
 
     if ((PlayerList[nPlayer].keys & SwitchData[nSwitch].nKeyMask) == SwitchData[nSwitch].nKeyMask)
     {
@@ -498,7 +498,7 @@ std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall)
 
 void AISWPressWall::Process(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;
@@ -513,13 +513,13 @@ void AISWPressWall::Process(RunListEvent* ev)
     if (LinkMap[nLink].v[sRunChannels[nChannel].c] >= 0)
     {
         short nWall = SwitchData[nSwitch].nWall;
-        SwitchData[nSwitch].nRun3 = runlist_AddRunRec(wall[nWall].lotag - 1, RunData[ev->nRun].nVal, RunData[ev->nRun].nRef);
+        SwitchData[nSwitch].nRun3 = runlist_AddRunRec(wall[nWall].lotag - 1, &RunData[ev->nRun]);
     }
 }
 
 void AISWPressWall::Use(RunListEvent* ev)
 {
-    short nSwitch = RunData[ev->nRun].nVal;
+    short nSwitch = RunData[ev->nRun].nObjIndex;
     assert(nSwitch >= 0 && nSwitch < kMaxSwitches);
 
     short nChannel = SwitchData[nSwitch].nChannel;

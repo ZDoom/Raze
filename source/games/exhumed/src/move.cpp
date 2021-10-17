@@ -1507,7 +1507,7 @@ int BuildCreatureChunk(int nVal, int nPic)
 
 void AICreatureChunk::Tick(RunListEvent* ev)
 {
-    int nSprite = RunData[ev->nRun].nVal;
+    int nSprite = RunData[ev->nRun].nObjIndex;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     auto pSprite = &sprite[nSprite];
 

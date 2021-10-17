@@ -245,7 +245,7 @@ void InitPlayerInventory(short nPlayer)
 short GetPlayerFromSprite(short nSprite)
 {
 	auto pSprite = &sprite[nSprite];
-    return RunData[pSprite->owner].nVal;
+    return RunData[pSprite->owner].nObjIndex;
 }
 
 void RestartPlayer(short nPlayer)
@@ -656,16 +656,16 @@ void UpdatePlayerSpriteAngle(Player* pPlayer)
 
 void AIPlayer::Draw(RunListEvent* ev)
 {
-    short nPlayer = RunData[ev->nRun].nVal;
+    short nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
     short nAction = PlayerList[nPlayer].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].field_2, PlayerSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].field_2, PlayerSeq[nAction].b);
 }
 
 void AIPlayer::RadialDamage(RunListEvent* ev)
 {
-    short nPlayer = RunData[ev->nRun].nVal;
+    short nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
@@ -683,7 +683,7 @@ void AIPlayer::Damage(RunListEvent* ev)
 {
     int nSprite2;
     int nDamage = ev->nDamage;
-    short nPlayer = RunData[ev->nRun].nVal;
+    short nPlayer = RunData[ev->nRun].nObjIndex;
     short nAction = PlayerList[nPlayer].nAction;
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
     auto pPlayerSprite = &sprite[nPlayerSprite];
@@ -695,7 +695,7 @@ void AIPlayer::Damage(RunListEvent* ev)
 
     if (ev->nMessage != EMessageType::RadialDamage)
     {
-        nSprite2 = ev->nIndex;
+        nSprite2 = ev->nParam;
     }
     else nSprite2 = nRadialOwner;
 
@@ -796,7 +796,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int var_40;
     bool mplevel = (currentLevel->gameflags & LEVEL_EX_MULTI);
 
-    short nPlayer = RunData[ev->nRun].nVal;
+    short nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     short nPlayerSprite = PlayerList[nPlayer].nSprite;

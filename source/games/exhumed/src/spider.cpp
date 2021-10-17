@@ -135,7 +135,7 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
 
 void AISpider::Tick(RunListEvent* ev)
 {
-    int nSpider = RunData[ev->nRun].nVal;
+    int nSpider = RunData[ev->nRun].nObjIndex;
     auto spp = &SpiderList[nSpider];
     assert(nSpider >= 0 && nSpider < (int)SpiderList.Size());
 
@@ -385,18 +385,18 @@ void AISpider::Tick(RunListEvent* ev)
 
 void AISpider::Draw(RunListEvent* ev)
 {
-    int nSpider = RunData[ev->nRun].nVal;
+    int nSpider = RunData[ev->nRun].nObjIndex;
     auto spp = &SpiderList[nSpider];
     assert(nSpider >= 0 && nSpider < (int)SpiderList.Size());
 
     short nAction = spp->nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
 }
 
 void AISpider::RadialDamage(RunListEvent* ev)
 {
-    int nSpider = RunData[ev->nRun].nVal;
+    int nSpider = RunData[ev->nRun].nObjIndex;
     assert(nSpider >= 0 && nSpider < (int)SpiderList.Size());
     auto spp = &SpiderList[nSpider];
 
@@ -409,7 +409,7 @@ void AISpider::RadialDamage(RunListEvent* ev)
 
 void AISpider::Damage(RunListEvent* ev)
 {
-    int nSpider = RunData[ev->nRun].nVal;
+    int nSpider = RunData[ev->nRun].nObjIndex;
     assert(nSpider >= 0 && nSpider < (int)SpiderList.Size());
     auto spp = &SpiderList[nSpider];
     int nSprite = spp->nSprite;
@@ -418,7 +418,7 @@ void AISpider::Damage(RunListEvent* ev)
     if (!ev->nDamage)
         return;
 
-    short nTarget = ev->nIndex;
+    short nTarget = ev->nParam;
 
     spp->nHealth -= dmgAdjust(ev->nDamage);
     if (spp->nHealth > 0)

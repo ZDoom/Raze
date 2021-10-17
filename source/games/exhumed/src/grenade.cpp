@@ -278,16 +278,16 @@ void ExplodeGrenade(short nGrenade)
 
 void AIGrenade::Draw(RunListEvent* ev)
 {
-    short nGrenade = RunData[ev->nRun].nVal;
+    short nGrenade = RunData[ev->nRun].nObjIndex;
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
     short nSeq = GrenadeList[nGrenade].field_C ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].field_A;
-    seq_PlotSequence(ev->nIndex, nSeq, GrenadeList[nGrenade].field_2 >> 8, 1);
+    seq_PlotSequence(ev->nParam, nSeq, GrenadeList[nGrenade].field_2 >> 8, 1);
 }
 
 
 void AIGrenade::Tick(RunListEvent* ev)
 {
-    short nGrenade = RunData[ev->nRun].nVal;
+    short nGrenade = RunData[ev->nRun].nObjIndex;
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
 
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
@@ -415,7 +415,7 @@ void AIGrenade::Tick(RunListEvent* ev)
 
 void AIGrenade::RadialDamage(RunListEvent* ev)
 {
-    short nGrenade = RunData[ev->nRun].nVal;
+    short nGrenade = RunData[ev->nRun].nObjIndex;
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
 
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;

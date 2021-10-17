@@ -720,7 +720,7 @@ void StartElevSound(short nSprite, int nVal)
 void AIElev::ProcessChannel(RunListEvent* ev)
 {
     int nRun = ev->nRun;
-    short nElev = RunData[nRun].nVal;
+    short nElev = RunData[nRun].nObjIndex;
     assert(nElev >= 0 && nElev < (int)Elevator.Size());
 
     short nChannel = Elevator[nElev].nChannel;
@@ -749,7 +749,7 @@ void AIElev::ProcessChannel(RunListEvent* ev)
         {
             if (Elevator[nElev].field_32 < 0)
             {
-                Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, RunData[nRun].nVal, RunData[nRun].nRef);
+                Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, &RunData[nRun]);
                 StartElevSound(Elevator[nElev].nSprite, var_18);
 
                 edi = 1;
@@ -783,7 +783,7 @@ void AIElev::ProcessChannel(RunListEvent* ev)
     {
         if (Elevator[nElev].field_32 < 0)
         {
-            Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, RunData[nRun].nVal, RunData[nRun].nRef);
+            Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, &RunData[nRun]);
 
             StartElevSound(Elevator[nElev].nSprite, var_18);
         }
@@ -802,7 +802,7 @@ void AIElev::ProcessChannel(RunListEvent* ev)
 void AIElev::Tick(RunListEvent* ev)
 {
     int nRun = ev->nRun;
-    short nElev = RunData[nRun].nVal;
+    short nElev = RunData[nRun].nObjIndex;
     assert(nElev >= 0 && nElev < (int)Elevator.Size());
 
     short nChannel = Elevator[nElev].nChannel;
@@ -968,7 +968,7 @@ int BuildWallFace(short nChannel, short nWall, int nCount, ...)
 
 void AIWallFace::ProcessChannel(RunListEvent* ev)
 {
-    int nWallFace = RunData[ev->nRun].nVal;
+    int nWallFace = RunData[ev->nRun].nObjIndex;
     assert(nWallFace >= 0 && nWallFace < (int)WallFace.Size());
 
     short nChannel = WallFace[nWallFace].nChannel;
@@ -1129,7 +1129,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
 void AISlide::ProcessChannel(RunListEvent* ev)
 {
     int nRun = ev->nRun;
-    int nSlide = RunData[nRun].nVal;
+    int nSlide = RunData[nRun].nObjIndex;
     assert(nSlide >= 0 && nSlide < (int)SlideData.Size());
 
     short nChannel = SlideData[nSlide].nChannel;
@@ -1144,7 +1144,7 @@ void AISlide::ProcessChannel(RunListEvent* ev)
         return;
     }
 
-    SlideData[nSlide].field_4a = runlist_AddRunRec(NewRun, RunData[nRun].nVal, RunData[nRun].nRef);
+    SlideData[nSlide].field_4a = runlist_AddRunRec(NewRun, &RunData[nRun]);
 
     if (SlideData[nSlide].field_8a != sRunChannels[nChannel].c)
     {
@@ -1156,7 +1156,7 @@ void AISlide::ProcessChannel(RunListEvent* ev)
 void AISlide::Tick(RunListEvent* ev)
 {
     int nRun = ev->nRun;
-    int nSlide = RunData[nRun].nVal;
+    int nSlide = RunData[nRun].nObjIndex;
     assert(nSlide >= 0 && nSlide < (int)SlideData.Size());
 
     short nChannel = SlideData[nSlide].nChannel;
@@ -1373,8 +1373,8 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
 
 void AITrap::ProcessChannel(RunListEvent* ev)
 {
-    short nChannel = ev->nIndex & 0x3FFF;
-    short nTrap = RunData[ev->nRun].nVal;
+    short nChannel = ev->nParam & 0x3FFF;
+    short nTrap = RunData[ev->nRun].nObjIndex;
 
     if (sRunChannels[nChannel].c > 0)
     {
@@ -1388,7 +1388,7 @@ void AITrap::ProcessChannel(RunListEvent* ev)
 
 void AITrap::Tick(RunListEvent* ev)
 {
-    short nTrap = RunData[ev->nRun].nVal;
+    short nTrap = RunData[ev->nRun].nObjIndex;
     short nSprite = sTrap[nTrap].nSprite;
     auto pSprite = &sprite[nSprite];
 
@@ -1551,7 +1551,7 @@ int BuildSpark(int nSprite, int nVal)
 
 void AISpark::Tick(RunListEvent* ev)
 {
-    int nSprite = RunData[ev->nRun].nVal;
+    int nSprite = RunData[ev->nRun].nObjIndex;
     auto pSprite = &sprite[nSprite];
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -1891,7 +1891,7 @@ void ExplodeEnergyBlock(int nSprite)
 
 void AIEnergyBlock::Damage(RunListEvent* ev)
 {
-    int const nSprite = RunData[ev->nRun].nVal;
+    int const nSprite = RunData[ev->nRun].nObjIndex;
     auto spr = &sprite[nSprite];
 
     ev->nDamage >>= 2;
@@ -1906,7 +1906,7 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
         int nSprite2 = insertsprite(lasthitsect, 0);
         auto pSprite2 = &sprite[nSprite2];
 
-        pSprite2->ang = ev->nIndex;
+        pSprite2->ang = ev->nParam;
         pSprite2->x = lasthitx;
         pSprite2->y = lasthity;
         pSprite2->z = lasthitz;
@@ -1923,7 +1923,7 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
 
 void AIEnergyBlock::RadialDamage(RunListEvent* ev)
 {
-    int const nSprite = RunData[ev->nRun].nVal;
+    int const nSprite = RunData[ev->nRun].nObjIndex;
     auto spr = &sprite[nSprite];
 
     short nSector = spr->sectnum;
@@ -2042,7 +2042,7 @@ void ExplodeScreen(short nSprite)
 
 void AIObject::Tick(RunListEvent* ev)
 {
-    short nObject = RunData[ev->nRun].nVal;
+    short nObject = RunData[ev->nRun].nObjIndex;
     auto pObject = &ObjectList[nObject];
 
     short nSprite = pObject->nSprite;
@@ -2160,7 +2160,7 @@ void AIObject::Tick(RunListEvent* ev)
 
 void AIObject::Damage(RunListEvent* ev)
 {
-    short nObject = RunData[ev->nRun].nVal;
+    short nObject = RunData[ev->nRun].nObjIndex;
     auto pObject = &ObjectList[nObject];
 
     short nSprite = pObject->nSprite;
@@ -2195,20 +2195,20 @@ void AIObject::Damage(RunListEvent* ev)
 
 void AIObject::Draw(RunListEvent* ev)
 {
-    short nObject = RunData[ev->nRun].nVal;
+    short nObject = RunData[ev->nRun].nObjIndex;
     auto pObject = &ObjectList[nObject];
     short bx = pObject->field_8;
 
     if (bx > -1)
     {
-        seq_PlotSequence(ev->nIndex, bx, pObject->field_0, 1);
+        seq_PlotSequence(ev->nParam, bx, pObject->field_0, 1);
     }
     return;
 }
 
 void AIObject::RadialDamage(RunListEvent* ev)
 {
-    short nObject = RunData[ev->nRun].nVal;
+    short nObject = RunData[ev->nRun].nObjIndex;
     auto pObject = &ObjectList[nObject];
 
     short nSprite = pObject->nSprite;

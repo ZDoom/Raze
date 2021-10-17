@@ -149,7 +149,7 @@ void BuildBlood(int x, int y, int z, short nSector)
 
 void AIFishLimb::Tick(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nVal;
+    short nFish = RunData[ev->nRun].nObjIndex;
     short nSprite = FishChunk[nFish].nSprite;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     auto pSprite = &sprite[nSprite];
@@ -204,9 +204,9 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
 void AIFishLimb::Draw(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nVal;
+    short nFish = RunData[ev->nRun].nObjIndex;
     int nSeq = SeqOffsets[kSeqFish] + FishChunk[nFish].nSeqIndex;
-    seq_PlotSequence(ev->nIndex, nSeq, FishChunk[nFish].nIndex, 1);
+    seq_PlotSequence(ev->nParam, nSeq, FishChunk[nFish].nIndex, 1);
 }
 
 
@@ -315,18 +315,18 @@ void DestroyFish(short nFish)
 
 void AIFish::Draw(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nVal;
+    short nFish = RunData[ev->nRun].nObjIndex;
     assert(nFish >= 0 && nFish < (int)FishList.Size());
     short nAction = FishList[nFish].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqFish] + FishSeq[nAction].a, FishList[nFish].nFrame, FishSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqFish] + FishSeq[nAction].a, FishList[nFish].nFrame, FishSeq[nAction].b);
     ev->pTSprite->owner = -1;
     return;
 }
 
 void AIFish::RadialDamage(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nVal;
+    short nFish = RunData[ev->nRun].nObjIndex;
     short nSprite = FishList[nFish].nSprite;
 
     if (FishList[nFish].nHealth <= 0) {
@@ -347,7 +347,7 @@ void AIFish::RadialDamage(RunListEvent* ev)
 
 void AIFish::Damage(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nVal;
+    short nFish = RunData[ev->nRun].nObjIndex;
     assert(nFish >= 0 && nFish < (int)FishList.Size());
     short nAction = FishList[nFish].nAction;
     short nSprite = FishList[nFish].nSprite;
@@ -385,7 +385,7 @@ void AIFish::Damage(RunListEvent* ev)
     }
     else
     {
-        short nTarget = ev->nIndex;
+        short nTarget = ev->nParam;
         if (nTarget >= 0 && sprite[nTarget].statnum < 199)
         {
             FishList[nFish].nTarget = nTarget;
@@ -399,7 +399,7 @@ void AIFish::Damage(RunListEvent* ev)
 
 void AIFish::Tick(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nVal;
+    short nFish = RunData[ev->nRun].nObjIndex;
     assert(nFish >= 0 && nFish < (int)FishList.Size());
     short nAction = FishList[nFish].nAction;
     short nSprite = FishList[nFish].nSprite;

@@ -141,16 +141,16 @@ void BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 
 void AILion::Draw(RunListEvent* ev)
 {
-    short nLion = RunData[ev->nRun].nVal;
+    short nLion = RunData[ev->nRun].nObjIndex;
     assert(nLion >= 0 && nLion < (int)LionList.Size());
     short nAction = LionList[nLion].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqLion] + LionSeq[nAction].a, LionList[nLion].nFrame, LionSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqLion] + LionSeq[nAction].a, LionList[nLion].nFrame, LionSeq[nAction].b);
 }
 
 void AILion::RadialDamage(RunListEvent* ev)
 {
-    short nLion = RunData[ev->nRun].nVal;
+    short nLion = RunData[ev->nRun].nObjIndex;
     assert(nLion >= 0 && nLion < (int)LionList.Size());
 
     short nSprite = LionList[nLion].nSprite;
@@ -162,7 +162,7 @@ void AILion::RadialDamage(RunListEvent* ev)
 
 void AILion::Damage(RunListEvent* ev)
 {
-    short nLion = RunData[ev->nRun].nVal;
+    short nLion = RunData[ev->nRun].nObjIndex;
     assert(nLion >= 0 && nLion < (int)LionList.Size());
 
     short nSprite = LionList[nLion].nSprite;
@@ -203,7 +203,7 @@ void AILion::Damage(RunListEvent* ev)
         }
         else
         {
-            short nTarget = ev->nIndex;
+            short nTarget = ev->nParam;
 
             if (nTarget > -1)
             {
@@ -243,7 +243,7 @@ void AILion::Damage(RunListEvent* ev)
 
 void AILion::Tick(RunListEvent* ev)
 {
-    short nLion = RunData[ev->nRun].nVal;
+    short nLion = RunData[ev->nRun].nObjIndex;
     assert(nLion >= 0 && nLion < (int)LionList.Size());
 
     short nSprite = LionList[nLion].nSprite;

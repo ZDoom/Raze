@@ -153,17 +153,17 @@ void GoRoach(short nSprite)
 
 void AIRoach::Draw(RunListEvent* ev)
 {
-    short nRoach = RunData[ev->nRun].nVal;
+    short nRoach = RunData[ev->nRun].nObjIndex;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
     short nAction = RoachList[nRoach].nAction;
 
-    seq_PlotSequence(ev->nIndex, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].nFrame, RoachSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].nFrame, RoachSeq[nAction].b);
     return;
 }
 
 void AIRoach::RadialDamage(RunListEvent* ev)
 {
-    short nRoach = RunData[ev->nRun].nVal;
+    short nRoach = RunData[ev->nRun].nObjIndex;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
     short nSprite = RoachList[nRoach].nSprite;
 
@@ -173,7 +173,7 @@ void AIRoach::RadialDamage(RunListEvent* ev)
 
 void AIRoach::Damage(RunListEvent* ev)
 {
-    short nRoach = RunData[ev->nRun].nVal;
+    short nRoach = RunData[ev->nRun].nObjIndex;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
 
     short nSprite = RoachList[nRoach].nSprite;
@@ -207,7 +207,7 @@ void AIRoach::Damage(RunListEvent* ev)
         }
         else
         {
-            short nSprite2 = ev->nIndex;
+            short nSprite2 = ev->nParam;
             if (nSprite2 >= 0)
             {
                 if (sprite[nSprite2].statnum < 199) {
@@ -235,7 +235,7 @@ void AIRoach::Damage(RunListEvent* ev)
 
 void AIRoach::Tick(RunListEvent* ev)
 {
-    short nRoach = RunData[ev->nRun].nVal;
+    short nRoach = RunData[ev->nRun].nObjIndex;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
 
     short nSprite = RoachList[nRoach].nSprite;

@@ -185,7 +185,7 @@ void BuildSoul(int nSet)
 
 void AISoul::Tick(RunListEvent* ev)
 {
-    short nSprite = RunData[ev->nRun].nVal;
+    short nSprite = RunData[ev->nRun].nObjIndex;
     auto pSprite = &sprite[nSprite];
 
     seq_MoveSequence(nSprite, SeqOffsets[kSeqSet] + 75, 0);
@@ -227,7 +227,7 @@ void FuncSoul(int nObject, int nMessage, int nDamage, int nRun)
 
 void AISet::RadialDamage(RunListEvent* ev)
 {
-    short nSet = RunData[ev->nRun].nVal;
+    short nSet = RunData[ev->nRun].nObjIndex;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
 
     short nSprite = SetList[nSet].nSprite;
@@ -243,7 +243,7 @@ void AISet::RadialDamage(RunListEvent* ev)
 
 void AISet::Damage(RunListEvent* ev)
 {
-    short nSet = RunData[ev->nRun].nVal;
+    short nSet = RunData[ev->nRun].nObjIndex;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
 
     short nSprite = SetList[nSet].nSprite;
@@ -284,18 +284,18 @@ void AISet::Damage(RunListEvent* ev)
 
 void AISet::Draw(RunListEvent* ev)
 {
-    short nSet = RunData[ev->nRun].nVal;
+    short nSet = RunData[ev->nRun].nObjIndex;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
 
     short nAction = SetList[nSet].nAction;
 
-    seq_PlotSequence(ev->nIndex, SeqOffsets[kSeqSet] + SetSeq[nAction].a, SetList[nSet].nFrame, SetSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSet] + SetSeq[nAction].a, SetList[nSet].nFrame, SetSeq[nAction].b);
     return;
 }
 
 void AISet::Tick(RunListEvent* ev)
 {
-    short nSet = RunData[ev->nRun].nVal;
+    short nSet = RunData[ev->nRun].nObjIndex;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
 
     short nSprite = SetList[nSet].nSprite;
