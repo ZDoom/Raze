@@ -68,7 +68,10 @@ void EraseScreen(int eax);
 
 void mychangespritesect(int nSprite, int nSector);
 void mydeletesprite(int nSprite);
-void DeleteActor(DExhumedActor* actor);
+inline void DeleteActor(DExhumedActor* actor)
+{
+    mydeletesprite(actor->GetSpriteIndex());
+}
 
 void GrabPalette();
 
