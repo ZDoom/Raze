@@ -200,9 +200,8 @@ void DoRegenerates();
 
 // lavadude
 
-void InitLava();
-void BuildLava(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
-int BuildLavaLimb(int nSprite, int edx, int ebx);
+void BuildLava(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+DExhumedActor* BuildLavaLimb(DExhumedActor* nSprite, int edx, int ebx);
 void FuncLavaLimb(int, int, int, int);
 void FuncLava(int, int, int, int);
 
@@ -285,12 +284,19 @@ void BuildNear(int x, int y, int walldist, int nSector);
 int PlotCourseToSprite(int nSprite1, int nSprite2);
 inline int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2)
 {
+    if (nSprite1 == nullptr || nSprite2 == nullptr)
+        return -1;
+
     return PlotCourseToSprite(nSprite1->GetSpriteIndex(), nSprite2->GetSpriteIndex());
 }
 void CheckSectorFloor(short nSector, int z, int *x, int *y);
 int GetAngleToSprite(int nSprite1, int nSprite2);
 int GetWallNormal(short nWall);
 int GetUpAngle(short nSprite1, int nVal, short nSprite2, int ecx);
+int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int ecx)
+{
+    return GetUpAngle(nSprite1->GetSpriteIndex(), nVal, nSprite2->GetSpriteIndex(), ecx);
+}
 void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel);
 int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1);
 inline Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1)

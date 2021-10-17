@@ -108,7 +108,6 @@ uint8_t LoadLevel(MapRecord* map)
         ClearAutomap();
         InitBubbles();
         InitObjects();
-        InitLava();
         InitPushBlocks();
         InitSpider();
         InitMummy();
@@ -558,7 +557,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     return;
                 }
 
-                BuildLava(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildLava(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 107:

@@ -374,7 +374,7 @@ int DestroyTailPart()
     for (int i = 0; i < 5; i++)
     {
         short nHeight = GetSpriteHeight(nSprite);
-        BuildLavaLimb(nSprite, i, nHeight);
+        BuildLavaLimb(&exhumedActors[nSprite], i, nHeight);
     }
 
     mydeletesprite(nSprite);
@@ -1029,7 +1029,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     if (QueenHead.tails < 10) {
                         for (int i = (10 - QueenHead.tails) * 2; i > 0; i--)
                         {
-                            BuildLavaLimb(nSprite, i, GetSpriteHeight(nSprite));
+                            BuildLavaLimb(&exhumedActors[nSprite], i, GetSpriteHeight(nSprite));
                         }
                     }
                 }
@@ -1047,7 +1047,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                 for (i = 0; i < 20; i++)
                 {
-                    BuildLavaLimb(nSprite, i, GetSpriteHeight(nSprite));
+                    BuildLavaLimb(&exhumedActors[nSprite], i, GetSpriteHeight(nSprite));
                 }
 
                 runlist_SubRunRec(pSprite->owner);
