@@ -411,8 +411,7 @@ void FuncRat(int a, int, int b, int nRun);
 
 // rex
 
-void InitRexs();
-void BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildRex(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 void FuncRex(int, int, int, int);
 
 // roach

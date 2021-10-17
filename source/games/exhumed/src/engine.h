@@ -80,6 +80,7 @@ enum ECounter
 	kCountLava,
 	kCountLion,
 	kCountMummy,
+	kCountRex,
 
 	kNumCounters
 };
