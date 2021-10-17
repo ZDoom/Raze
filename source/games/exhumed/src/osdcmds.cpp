@@ -93,7 +93,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     else if (!stricmp(c, "roach2")) BuildRoach(1, -1, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "wasp")) BuildWasp(-1, initx, inity, sector[initsect].floorz - 25600, initsect, inita);
     else if (!stricmp(c, "scorp")) BuildScorp(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-    else if (!stricmp(c, "rat")) BuildRat(-1, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "rat")) BuildRat(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else Printf("Unknown creature type %s\n", c);
     return CCMD_OK;
 }

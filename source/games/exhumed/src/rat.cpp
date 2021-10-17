@@ -29,20 +29,6 @@ short nMinChunk;
 short nPlayerPic;
 short nMaxChunk;
 
-struct Rat
-{
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nRun;
-    short nTarget;
-    short nCount;
-    short nIndex;
-};
-
-
-TArray<Rat> RatList;
-
 static actionSeq RatSeq[] = {
     {0, 1},
     {1, 0},
@@ -51,22 +37,6 @@ static actionSeq RatSeq[] = {
     {0, 1}
 };
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Rat& w, Rat* def)
-{
-    if (arc.BeginObject(keyname))
-    {
-        arc("run", w.nRun)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("count", w.nCount)
-            ("index", w.nIndex)
-            .EndObject();
-    }
-    return arc;
-}
-
 void SerializeRat(FSerializer& arc)
 {
     if (arc.BeginObject("rat"))
@@ -74,14 +44,12 @@ void SerializeRat(FSerializer& arc)
         arc("minchunk", nMinChunk)
             ("maxchunk", nMaxChunk)
             ("playerpic", nPlayerPic)
-            ("list", RatList)
             .EndObject();
     }
 }
 
 void InitRats()
 {
-    RatList.Clear();
     nMinChunk = 9999;
     nMaxChunk = -1;
 
@@ -99,35 +67,29 @@ void InitRats()
     nPlayerPic = seq_GetSeqPicnum(kSeqJoe, 120, 0);
 }
 
-void SetRatVel(short nSprite)
+void SetRatVel(spritetype* pSprite)
 {
-	auto pSprite = &sprite[nSprite];
-
     pSprite->xvel = bcos(pSprite->ang, -2);
     pSprite->yvel = bsin(pSprite->ang, -2);
 }
 
-void BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
+void BuildRat(DExhumedActor* pActor, int x, int y, int z, short nSector, int nAngle)
 {
-    auto nRat = RatList.Reserve(1);
-    auto pActor = &RatList[nRat];
-
-	auto pSprite = &sprite[nSprite];
-
-    if (nSprite < 0)
+    spritetype* pSprite;
+    if (pActor == nullptr)
     {
-        nSprite = insertsprite(nSector, 108);
-        assert(nSprite >= 0 && nSprite < kMaxSprites);
-		pSprite = &sprite[nSprite];
-
-        pSprite->x = x;
-        pSprite->y = y;
-        pSprite->z = z;
+        pActor = insertActor(nSector, 108);
+        pSprite = &pActor->s();
     }
     else
     {
+        pSprite = &pActor->s();
+        x = pSprite->x;
+        y = pSprite->y;
+        z = pSprite->z;
         nAngle = pSprite->ang;
-        changespritestat(nSprite, 108);
+
+        ChangeActorStat(pActor, 108);
     }
 
     pSprite->cstat = 0x101;
@@ -155,21 +117,19 @@ void BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
     }
 
     pActor->nFrame = 0;
-    pActor->nSprite = nSprite;
-    pActor->nTarget = -1;
+    pActor->pTarget = nullptr;
     pActor->nCount = RandomSize(5);
-    pActor->nIndex = RandomSize(3);
+    pActor->nPhase = RandomSize(3);
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nRat, 0x240000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x240000);
 
-    pActor->nRun = runlist_AddRunRec(NewRun, nRat, 0x240000);
+    pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x240000);
 }
 
-int FindFood(short nSprite)
+DExhumedActor* FindFood(DExhumedActor* pActor)
 {
-	auto pSprite = &sprite[nSprite];
-
-    short nSector = pSprite->sectnum;
+    auto pSprite = &pActor->s();
+    int nSector = pSprite->sectnum;
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
@@ -183,13 +143,13 @@ int FindFood(short nSprite)
 		{
 			auto pSprite2 = &pActor2->s();
             if (cansee(x, y, z2, nSector, pSprite2->x, pSprite2->y, pSprite2->z, pSprite2->sectnum)) {
-                return pActor2->GetSpriteIndex();
+                return pActor2;
             }
         }
     }
 
     if (!nBodyTotal) {
-        return -1;
+        return nullptr;
     }
 
     auto pActor2 = nBodySprite[RandomSize(7) % nBodyTotal];
@@ -199,29 +159,28 @@ int FindFood(short nSprite)
         if (nPlayerPic == pSprite2->picnum)
         {
             if (cansee(x, y, z, nSector, pSprite2->x, pSprite2->y, pSprite2->z, pSprite2->sectnum)) {
-                return pActor2->GetSpriteIndex();
+                return pActor2;
             }
         }
     }
 
-    return -1;
+    return nullptr;
 }
 
 void AIRat::RadialDamage(RunListEvent* ev)
 {
-    short nRat = RunData[ev->nRun].nObjIndex;
-    auto pActor = &RatList[nRat];
-    short nSprite = pActor->nSprite;
-    ev->nDamage = runlist_CheckRadialDamage(nSprite);
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+
+    ev->nDamage = runlist_CheckRadialDamage(pActor);
     Damage(ev);
 }
 
 void AIRat::Damage(RunListEvent* ev)
 {
-    short nRat = RunData[ev->nRun].nObjIndex;
-    auto pActor = &RatList[nRat];
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
 
     if (ev->nDamage)
     {
@@ -231,13 +190,12 @@ void AIRat::Damage(RunListEvent* ev)
         pActor->nAction = 3;
         pActor->nFrame = 0;
     }
-    return;
 }
 
 void AIRat::Draw(RunListEvent* ev)
 {
-    short nRat = RunData[ev->nRun].nObjIndex;
-    auto pActor = &RatList[nRat];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
     short nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqRat] + RatSeq[nAction].a, pActor->nFrame, RatSeq[nAction].b);
@@ -246,18 +204,18 @@ void AIRat::Draw(RunListEvent* ev)
 
 void AIRat::Tick(RunListEvent* ev)
 {
-    short nRat = RunData[ev->nRun].nObjIndex;
-    auto pActor = &RatList[nRat];
-    short nSprite = pActor->nSprite;
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+
     short nAction = pActor->nAction;
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
 
     bool bVal = false;
 
     int nSeq = SeqOffsets[kSeqRat] + RatSeq[nAction].a;
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
-    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
+    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
     pActor->nFrame++;
     if (pActor->nFrame >= SeqSize[nSeq])
@@ -266,9 +224,9 @@ void AIRat::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
     }
 
-    short nTarget = pActor->nTarget;
+    auto pTarget = pActor->pTarget;
 
-    Gravity(nSprite);
+    Gravity(pActor);
 
     switch (nAction)
     {
@@ -282,14 +240,14 @@ void AIRat::Tick(RunListEvent* ev)
             return;
         }
 
-        int xVal = abs(pSprite->x - sprite[nTarget].x);
-        int yVal = abs(pSprite->y - sprite[nTarget].y);
+        int xVal = abs(pSprite->x - pTarget->s().x);
+        int yVal = abs(pSprite->y - pTarget->s().y);
 
         if (xVal > 50 || yVal > 50)
         {
             pActor->nAction = 2;
             pActor->nFrame = 0;
-            pActor->nTarget = -1;
+            pActor->pTarget = nullptr;
 
             pSprite->xvel = 0;
             pSprite->yvel = 0;
@@ -298,22 +256,22 @@ void AIRat::Tick(RunListEvent* ev)
 
         pActor->nFrame ^= 1;
         pActor->nCount = RandomSize(5) + 4;
-        pActor->nIndex--;
+        pActor->nPhase--;
 
-        if (pActor->nIndex <= 0)
+        if (pActor->nPhase <= 0)
         {
-            short nFoodSprite = FindFood(nSprite);
-            if (nFoodSprite == -1) {
+            auto pFoodSprite = FindFood(pActor);
+            if (pFoodSprite == nullptr) {
                 return;
             }
 
-            pActor->nTarget = nFoodSprite;
+            pActor->pTarget = pFoodSprite;
 
-            PlotCourseToSprite(nSprite, nFoodSprite);
-            SetRatVel(nSprite);
+            PlotCourseToSprite(pActor, pFoodSprite);
+            SetRatVel(pSprite);
 
             pActor->nAction = 1;
-            pActor->nIndex = 900;
+            pActor->nPhase = 900;
             pActor->nFrame = 0;
         }
 
@@ -321,30 +279,30 @@ void AIRat::Tick(RunListEvent* ev)
     }
     case 1:
     {
-        pActor->nIndex--;
+        pActor->nPhase--;
 
-        if (pActor->nIndex <= 0)
+        if (pActor->nPhase <= 0)
         {
             pActor->nAction = 2;
             pActor->nFrame = 0;
-            pActor->nTarget = -1;
+            pActor->pTarget = nullptr;
 
             pSprite->xvel = 0;
             pSprite->yvel = 0;
         }
 
-        MoveCreature(nSprite);
+        MoveCreature(pActor);
 
-        int xVal = abs(pSprite->x - sprite[nTarget].x);
-        int yVal = abs(pSprite->y - sprite[nTarget].y);
+        int xVal = abs(pSprite->x - pTarget->s().x);
+        int yVal = abs(pSprite->y - pTarget->s().y);
 
         if (xVal >= 50 || yVal >= 50)
         {
             pActor->nCount--;
             if (pActor->nCount < 0)
             {
-                PlotCourseToSprite(nSprite, nTarget);
-                SetRatVel(nSprite);
+                PlotCourseToSprite(pActor, pTarget);
+                SetRatVel(pSprite);
 
                 pActor->nCount = 32;
             }
@@ -354,7 +312,7 @@ void AIRat::Tick(RunListEvent* ev)
 
         pActor->nAction = 0;
         pActor->nFrame = 0;
-        pActor->nIndex = RandomSize(3);
+        pActor->nPhase = RandomSize(3);
 
         pSprite->xvel = 0;
         pSprite->yvel = 0;
@@ -363,15 +321,15 @@ void AIRat::Tick(RunListEvent* ev)
     case 2:
     {
         if (pSprite->xvel || pSprite->yvel || pSprite->zvel) {
-            MoveCreature(nSprite);
+            MoveCreature(pActor);
         }
 
         pActor->nCount--;
         if (pActor->nCount <= 0)
         {
-            pActor->nTarget = FindFood(nSprite);
+            pActor->pTarget = FindFood(pActor);
 
-            if (pActor->nTarget <= -1)
+            if (pActor->pTarget == nullptr)
             {
                 pActor->nCount = RandomSize(6);
                 if (pSprite->xvel || pSprite->yvel)
@@ -382,15 +340,15 @@ void AIRat::Tick(RunListEvent* ev)
                 }
 
                 pSprite->ang = RandomSize(11);
-                SetRatVel(nSprite);
+                SetRatVel(pSprite);
                 return;
             }
             else
             {
-                PlotCourseToSprite(nSprite, pActor->nTarget);
-                SetRatVel(nSprite);
+                PlotCourseToSprite(pActor, pActor->pTarget);
+                SetRatVel(pSprite);
                 pActor->nAction = 1;
-                pActor->nIndex = 900;
+                pActor->nPhase = 900;
                 pActor->nFrame = 0;
                 return;
             }
@@ -407,7 +365,7 @@ void AIRat::Tick(RunListEvent* ev)
             runlist_SubRunRec(pActor->nRun);
 
             pSprite->cstat = 0x8000;
-            mydeletesprite(nSprite);
+            DeleteActor(pActor);
         }
         return;
     }

@@ -405,7 +405,7 @@ void FuncRa(int, int, int, int);
 
 void InitRats();
 void SetRatVel(short nSprite);
-void BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle);
+void BuildRat(DExhumedActor* nSprite, int x, int y, int z, short nSector, int nAngle);
 int FindFood(short nSprite);
 void FuncRat(int a, int, int b, int nRun);
 

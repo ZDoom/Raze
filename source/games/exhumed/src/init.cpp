@@ -520,12 +520,12 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 116:
             {
-                BuildRat(nSprite, 0, 0, 0, 0, -1);
+                BuildRat(pActor, 0, 0, 0, 0, -1);
                 return;
             }
             case 115: // Rat (eating)
             {
-                BuildRat(nSprite, 0, 0, 0, 0, 0);
+                BuildRat(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 113:
