@@ -385,10 +385,9 @@ void runlist_SignalRun(int NxtPtr, int edx)
             if (RunPtr >= 0)
             {
                 assert(RunPtr < kMaxRuns);
-                int val = RunData[RunPtr].nObjIndex;
                 NxtPtr = RunData[RunPtr].next;
 
-                if (val >= 0) {
+                if (RunData[RunPtr].nObjIndex >= 0 || RunData[RunPtr].pObjActor) {
                     runlist_SendMessageToRunRec(RunPtr, edx & 0xffff, edx & ~0xffff, 0);
                 }
             }
