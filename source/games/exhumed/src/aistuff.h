@@ -253,6 +253,13 @@ inline void Gravity(DExhumedActor* actor)
     Gravity(actor->GetSpriteIndex());
 }
 short UpdateEnemy(short *nEnemy);
+DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
+{
+    short ndx = (short)(*ppEnemy? (*ppEnemy)->GetSpriteIndex() : -1);
+    int v = UpdateEnemy(&ndx);
+    return v == -1 ? nullptr : &exhumedActors[v];
+}
+
 int MoveCreature(short nSprite);
 Collision MoveCreature(DExhumedActor* nSprite)
 {
@@ -303,13 +310,16 @@ inline Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int
     return Collision(AngleChase(nSprite->GetSpriteIndex(), nSprite2->GetSpriteIndex(), ebx, ecx, push1));
 }
 void SetQuake(short nSprite, int nVal);
+void SetQuake(DExhumedActor* nSprite, int nVal)
+{
+    SetQuake(nSprite->GetSpriteIndex(), nVal);
+}
 
 // mummy
 
 enum { kMaxMummies = 150 };
 
-void InitMummy();
-void BuildMummy(int val, int x, int y, int z, int nSector, int nAngle);
+void BuildMummy(DExhumedActor* val, int x, int y, int z, int nSector, int nAngle);
 void FuncMummy(int nSector, int edx, int nRun);
 
 // object

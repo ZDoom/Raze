@@ -109,7 +109,6 @@ uint8_t LoadLevel(MapRecord* map)
         InitObjects();
         InitPushBlocks();
         InitSpider();
-        InitMummy();
         InitScorp();
         InitPlayer();
         InitItems();
@@ -626,7 +625,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     return;
                 }
 
-                BuildMummy(nSprite, 0, 0, 0, 0, 0);
+                BuildMummy(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 100:

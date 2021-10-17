@@ -48,7 +48,6 @@ void SerializeSnake(FSerializer& arc);
 void SerializeSwitch(FSerializer& arc);
 void SerializeView(FSerializer& arc);
 
-void SerializeMummy(FSerializer& arc);
 void SerializeQueen(FSerializer& arc);
 void SerializeRat(FSerializer& arc);
 void SerializeRex(FSerializer& arc);
@@ -82,7 +81,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		SerializeSwitch(arc);
 		SerializeView(arc);
 
-		SerializeMummy(arc);
 		SerializeQueen(arc);
 		SerializeRat(arc);
 		SerializeRex(arc);

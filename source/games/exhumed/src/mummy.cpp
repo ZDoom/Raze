@@ -25,20 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-struct Mummy
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short nIndex;
-    short nCount;
-    short nRun;
-};
-
-TArray<Mummy> MummyList;
-
 static actionSeq MummySeq[] = {
     {8, 0},
     {0, 0},
@@ -51,56 +37,24 @@ static actionSeq MummySeq[] = {
 };
 
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Mummy& w, Mummy* def)
+void BuildMummy(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle)
 {
-    if (arc.BeginObject(keyname))
+    spritetype* pSprite;
+    if (pActor == nullptr)
     {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("index", w.nIndex)
-            ("count", w.nCount)
-            ("run", w.nRun)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeMummy(FSerializer& arc)
-{
-    arc("mummy", MummyList);
-}
-
-
-void InitMummy()
-{
-    MummyList.Clear();
-}
-
-void BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
-{
-    auto nMummy = MummyList.Reserve(1);
-    auto pActor = &MummyList[nMummy];
-	auto pSprite = &sprite[nSprite];
-
-    if (nSprite == -1)
-    {
-        nSprite = insertsprite(nSector, 102);
-		pSprite = &sprite[nSprite];
+        pActor = insertActor(nSector, 102);
+        pSprite = &pActor->s();
     }
     else
     {
+        pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
         z = pSprite->z;
         nAngle = pSprite->ang;
 
-        changespritestat(nSprite, 102);
+        ChangeActorStat(pActor, 102);
     }
-
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
 
     pSprite->x = x;
     pSprite->y = y;
@@ -127,48 +81,42 @@ void BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
     pActor->nAction = 0;
     pActor->nHealth = 640;
     pActor->nFrame = 0;
-    pActor->nSprite = nSprite;
-    pActor->nTarget = -1;
-    pActor->nIndex = nMummy;
+    pActor->pTarget = nullptr;
     pActor->nCount = 0;
+    pActor->nPhase = Counters[kCountMummy]++;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nMummy, 0xE0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0xE0000);
 
-    pActor->nRun = runlist_AddRunRec(NewRun, nMummy, 0xE0000);
+    pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0xE0000);
 
     nCreaturesTotal++;
 }
 
-void CheckMummyRevive(short nMummy)
+void CheckMummyRevive(DExhumedActor* pActor)
 {
-    auto pActor = &MummyList[nMummy];
-    short nSprite = pActor->nSprite;
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
 
-    for (unsigned i = 0; i < MummyList.Size(); i++)
+    ExhumedStatIterator it(102);
+    while (auto pOther = it.Next())
     {
-        if ((int)i != nMummy)
+        if (pOther != pActor)
         {
-            short nSprite2 = MummyList[i].nSprite;
-            if (sprite[nSprite2].statnum != 102) {
+            if (pOther->nAction != 5) {
                 continue;
             }
+            auto pSprite2 = &pOther->s();
 
-            if (MummyList[i].nAction != 5) {
-                continue;
-            }
-
-            int x = abs(sprite[nSprite2].x - pSprite->x) >> 8;
-            int y = abs(sprite[nSprite2].y - pSprite->y) >> 8;
+            int x = abs(pSprite2->x - pSprite->x) >> 8;
+            int y = abs(pSprite2->y - pSprite->y) >> 8;
 
             if (x <= 20 && y <= 20)
             {
                 if (cansee(pSprite->x, pSprite->y, pSprite->z - 8192, pSprite->sectnum,
-                          sprite[nSprite2].x, sprite[nSprite2].y, sprite[nSprite2].z - 8192, sprite[nSprite2].sectnum))
+                          pSprite2->x, pSprite2->y, pSprite2->z - 8192, pSprite2->sectnum))
                 {
-                    sprite[nSprite2].cstat = 0;
-                    MummyList[i].nAction = 6;
-                    MummyList[i].nFrame = 0;
+                    pSprite2->cstat = 0;
+                    pOther->nAction = 6;
+                    pOther->nFrame = 0;
                 }
             }
         }
@@ -177,17 +125,15 @@ void CheckMummyRevive(short nMummy)
 
 void AIMummy::Tick(RunListEvent* ev)
 {
-    short nMummy = RunData[ev->nRun].nObjIndex;
-    assert(nMummy >= 0 && nMummy < kMaxMummies);
-    auto pActor = &MummyList[nMummy];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
 
-    short nTarget = UpdateEnemy(&pActor->nTarget);
+    auto pTarget = UpdateEnemy(&pActor->pTarget);
 
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
     short nAction = pActor->nAction;
 
-    Gravity(nSprite);
+    Gravity(pActor);
 
     int nSeq = SeqOffsets[kSeqMummy] + MummySeq[nAction].a;
 
@@ -196,7 +142,7 @@ void AIMummy::Tick(RunListEvent* ev)
     short nFrame = SeqBase[nSeq] + pActor->nFrame;
     short nFrameFlag = FrameFlag[nFrame];
 
-    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
+    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
     bool bVal = false;
 
@@ -208,9 +154,9 @@ void AIMummy::Tick(RunListEvent* ev)
         bVal = true;
     }
 
-    if (nTarget != -1 && nAction < 4)
+    if (pTarget != nullptr && nAction < 4)
     {
-        if ((!sprite[nTarget].cstat) && nAction)
+        if ((!pTarget->s().cstat) && nAction)
         {
             pActor->nAction = 0;
             pActor->nFrame = 0;
@@ -219,7 +165,7 @@ void AIMummy::Tick(RunListEvent* ev)
         }
     }
 
-    int nMov = MoveCreatureWithCaution(nSprite);
+    auto nMov = MoveCreatureWithCaution(pActor);
 
     if (nAction > 7)
         return;
@@ -228,18 +174,18 @@ void AIMummy::Tick(RunListEvent* ev)
     {
     case 0:
     {
-        if ((pActor->nIndex & 0x1F) == (totalmoves & 0x1F))
+        if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F))
         {
             pSprite->cstat = 0x101;
 
-            if (nTarget < 0)
+            if (pTarget == nullptr)
             {
-                int nTarget = FindPlayer(nSprite, 100);
-                if (nTarget >= 0)
+                auto pTarget = FindPlayer(pActor, 100);
+                if (pTarget >= 0)
                 {
-                    D3PlayFX(StaticSound[kSound7], nSprite);
+                    D3PlayFX(StaticSound[kSound7], pActor);
                     pActor->nFrame = 0;
-                    pActor->nTarget = nTarget;
+                    pActor->pTarget = pTarget;
                     pActor->nAction = 1;
                     pActor->nCount = 90;
 
@@ -258,18 +204,18 @@ void AIMummy::Tick(RunListEvent* ev)
             pActor->nCount--;
         }
 
-        if ((pActor->nIndex & 0x1F) == (totalmoves & 0x1F))
+        if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F))
         {
             pSprite->cstat = 0x101;
 
-            PlotCourseToSprite(nSprite, nTarget);
+            PlotCourseToSprite(pActor, pTarget);
 
             if (pActor->nAction == 1)
             {
-                if (RandomBit())
+                if (RandomBit() && pTarget)
                 {
-                    if (cansee(pSprite->x, pSprite->y, pSprite->z - GetSpriteHeight(nSprite), pSprite->sectnum,
-                        sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
+                    if (cansee(pSprite->x, pSprite->y, pSprite->z - GetActorHeight(pActor), pSprite->sectnum,
+                        pTarget->s().x, pTarget->s().y, pTarget->s().z - GetActorHeight(pTarget), pTarget->s().sectnum))
                     {
                         pActor->nAction = 3;
                         pActor->nFrame = 0;
@@ -322,35 +268,32 @@ void AIMummy::Tick(RunListEvent* ev)
             }
         }
 
-        if (nMov)
+        switch (nMov.type)
         {
-            switch (nMov & 0xC000)
-            {
-            case 0x8000:
-            {
-                pSprite->ang = (pSprite->ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                pSprite->xvel = bcos(pSprite->ang, -2);
-                pSprite->yvel = bsin(pSprite->ang, -2);
-                return;
-            }
+        case kHitWall:
+        {
+            pSprite->ang = (pSprite->ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pSprite->xvel = bcos(pSprite->ang, -2);
+            pSprite->yvel = bsin(pSprite->ang, -2);
+            return;
+        }
 
-            case 0xC000:
+        case kHitSprite:
+        {
+            if (nMov.actor == pTarget)
             {
-                if ((nMov & 0x3FFF) == nTarget)
+                int nAngle = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                if (AngleDiff(pSprite->ang, nAngle) < 64)
                 {
-                    int nAngle = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
-                    if (AngleDiff(pSprite->ang, nAngle) < 64)
-                    {
-                        pActor->nAction = 2;
-                        pActor->nFrame = 0;
+                    pActor->nAction = 2;
+                    pActor->nFrame = 0;
 
-                        pSprite->xvel = 0;
-                        pSprite->yvel = 0;
-                    }
+                    pSprite->xvel = 0;
+                    pSprite->yvel = 0;
                 }
-                return;
             }
-            }
+            return;
+        }
         }
 
         break;
@@ -358,21 +301,21 @@ void AIMummy::Tick(RunListEvent* ev)
 
     case 2:
     {
-        if (nTarget == -1)
+        if (pTarget == nullptr)
         {
             pActor->nAction = 0;
             pActor->nFrame = 0;
         }
         else
         {
-            if (PlotCourseToSprite(nSprite, nTarget) >= 1024)
+            if (PlotCourseToSprite(pActor, pTarget) >= 1024)
             {
                 pActor->nAction = 1;
                 pActor->nFrame = 0;
             }
             else if (nFrameFlag & 0x80)
             {
-                runlist_DamageEnemy(nTarget, nSprite, 5);
+                runlist_DamageEnemy(pTarget, pActor, 5);
             }
         }
         return;
@@ -385,25 +328,23 @@ void AIMummy::Tick(RunListEvent* ev)
             pActor->nFrame = 0;
             pActor->nAction = 0;
             pActor->nCount = 100;
-            pActor->nTarget = -1;
+            pActor->pTarget = nullptr;
             return;
         }
         else if (nFrameFlag & 0x80)
         {
-            SetQuake(nSprite, 100);
+            SetQuake(pActor, 100);
 
             // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
-            int nBullet = BuildBullet(nSprite, 9, 0, 0, -15360, pSprite->ang, nTarget + 10000, 1);
-            CheckMummyRevive(nMummy);
+            auto pBullet = BuildBullet(pActor, 9, -15360, pSprite->ang, pTarget, 1);
+            CheckMummyRevive(pActor);
 
-            if (nBullet > -1)
+            if (pBullet)
             {
                 if (!RandomSize(3))
                 {
-                    // FIXME CHECKME - nBullet & 0xFFFF can be -1. Original code doesn't handle this??
-
-                    SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
-                    sprite[nBullet & 0xFFFF].pal = 5;
+                    SetBulletEnemy(pBullet->nPhase, pTarget->GetSpriteIndex());
+                    pBullet->s().pal = 5;
                 }
             }
         }
@@ -434,7 +375,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
             pActor->nAction = 0;
             pActor->nHealth = 300;
-            pActor->nTarget = -1;
+            pActor->pTarget = nullptr;
 
             nCreaturesTotal++;
         }
@@ -443,7 +384,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
     case 7:
     {
-        if (nMov & 0x20000)
+        if (nMov.exbits)
         {
             pSprite->xvel >>= 1;
             pSprite->yvel >>= 1;
@@ -457,7 +398,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
             pActor->nAction = 0;
             pActor->nFrame = 0;
-            pActor->nTarget = -1;
+            pActor->pTarget = nullptr;
         }
 
         return;
@@ -467,9 +408,8 @@ void AIMummy::Tick(RunListEvent* ev)
 
 void AIMummy::Draw(RunListEvent* ev)
 {
-    short nMummy = RunData[ev->nRun].nObjIndex;
-    assert(nMummy >= 0 && nMummy < kMaxMummies);
-    auto pActor = &MummyList[nMummy];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
     short nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, pActor->nFrame, MummySeq[nAction].b);
@@ -478,27 +418,22 @@ void AIMummy::Draw(RunListEvent* ev)
 
 void AIMummy::RadialDamage(RunListEvent* ev)
 {
-    short nMummy = RunData[ev->nRun].nObjIndex;
-    assert(nMummy >= 0 && nMummy < kMaxMummies);
-    auto pActor = &MummyList[nMummy];
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
 
     if (pActor->nHealth <= 0)
         return;
 
-    ev->nDamage = runlist_CheckRadialDamage(nSprite);
+    ev->nDamage = runlist_CheckRadialDamage(pActor);
     Damage(ev);
 }
 
 void AIMummy::Damage(RunListEvent* ev) 
 {
-    short nMummy = RunData[ev->nRun].nObjIndex;
-    assert(nMummy >= 0 && nMummy < kMaxMummies);
-    auto pActor = &MummyList[nMummy];
-
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
 
     if (ev->nDamage <= 0)
         return;
@@ -515,7 +450,7 @@ void AIMummy::Damage(RunListEvent* ev)
         pSprite->cstat &= 0xFEFE;
         nCreaturesKilled++;
 
-        DropMagic(nSprite);
+        DropMagic(pActor);
 
         pActor->nFrame = 0;
         pActor->nAction = 4;
