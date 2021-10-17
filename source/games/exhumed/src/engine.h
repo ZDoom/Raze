@@ -72,6 +72,16 @@ extern int movefifoend;
 extern int movefifopos;
 extern short nCurBodyGunNum;
 
+// all static counters combined in an array for easier maintenance.
+enum ECounter
+{
+	kCountAnubis,
+	kCountAnubisDrum,
+
+	kNumCounters
+};
+extern int Counters[kNumCounters];
+
 void SnapSectors(short nSectorA, short nSectorB, short b);
 
 extern short SectSound[];

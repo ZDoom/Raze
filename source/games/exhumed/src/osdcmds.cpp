@@ -80,7 +80,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     if (parm->numparms != 1) return CCMD_SHOWHELP;
     auto c = parm->parms[0];
 
-    if (!stricmp(c, "anubis")) BuildAnubis(-1, initx, inity, sector[initsect].floorz, initsect, inita, false);
+    if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, false);
     else if (!stricmp(c, "spider")) BuildSpider(-1, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "mummy")) BuildMummy(-1, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "fish")) BuildFish(-1, initx, inity, initz + eyelevel[nLocalPlayer], initsect, inita);

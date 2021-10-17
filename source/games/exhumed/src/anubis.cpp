@@ -25,20 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-struct Anubis
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short nCount;
-};
-
-static TArray<Anubis> AnubisList;
-static int nAnubisDrum = 0;
-
-static actionSeq AnubisSeq[] = {
+static const actionSeq AnubisSeq[] = {
     { 0, 0 },
     { 8, 0 },
     { 16, 0 },
@@ -56,56 +43,24 @@ static actionSeq AnubisSeq[] = {
     { 43, 1 },
 };
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Anubis& w, Anubis* def)
+void BuildAnubis(DExhumedActor* ap, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer)
 {
-    if (arc.BeginObject(keyname))
-    {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("count", w.nCount)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeAnubis(FSerializer& arc)
-{
-    arc("anubis", AnubisList)
-        ("anubisdrum", nAnubisDrum);
-}
-
-void InitAnubis()
-{
-    AnubisList.Clear();
-    nAnubisDrum = 1;
-}
-
-void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer)
-{
-    auto nAnubis = AnubisList.Reserve(1);
-    auto ap = &AnubisList[nAnubis];
-
     spritetype* sp;
-    if (nSprite == -1)
+    if (ap == nullptr)
     {
-        nSprite = insertsprite(nSector, 101);
-        sp = &sprite[nSprite];
+        ap = insertActor(nSector, 101);
+        sp = &ap->s();
     }
     else
     {
-        changespritestat(nSprite, 101);
-        sp = &sprite[nSprite];
+        ChangeActorStat(ap, 101);
+        sp = &ap->s();
 
         x = sp->x;
         y = sp->y;
         z = sector[sp->sectnum].floorz;
         nAngle = sp->ang;
     }
-
-    assert(nSprite >=0 && nSprite < kMaxSprites);
 
     sp->x = x;
     sp->y = y;
@@ -131,6 +86,7 @@ void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint
 
     if (bIsDrummer)
     {
+        auto& nAnubisDrum = Counters[kCountAnubisDrum];
         ap->nAction = nAnubisDrum + 6;
         nAnubisDrum++;
 
@@ -143,35 +99,33 @@ void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint
         ap->nAction = 0;
     }
 
+    ap->nPhase = Counters[kCountAnubis]++;
     ap->nHealth = 540;
     ap->nFrame  = 0;
-    ap->nSprite = nSprite;
-    ap->nTarget = -1;
+    ap->pTarget = nullptr;
     ap->nCount = 0;
 
-    sp->owner = runlist_AddRunRec(sp->lotag - 1, nAnubis, 0x90000);
+    sp->owner = runlist_AddRunRec(sp->lotag - 1, ap, 0x90000);
 
-    runlist_AddRunRec(NewRun, nAnubis, 0x90000);
+    runlist_AddRunRec(NewRun, ap, 0x90000);
     nCreaturesTotal++;
 }
 
 void AIAnubis::Tick(RunListEvent* ev)
 {
-    int nAnubis = RunData[ev->nRun].nObjIndex;
-    auto ap = &AnubisList[nAnubis];
-    int nSprite = ap->nSprite;
-    auto sp = &sprite[nSprite];
+    auto ap = ev->pObjActor;
+    auto sp = &ap->s();
     int nAction = ap->nAction;
 
     bool bVal = false;
 
     if (nAction < 11) {
-        Gravity(nSprite);
+        Gravity(ap);
     }
 
     short nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
 
-    seq_MoveSequence(nSprite, nSeq, ap->nFrame);
+    seq_MoveSequence(ap, nSeq, ap->nFrame);
 
     sp->picnum = seq_GetSeqPicnum2(nSeq, ap->nFrame);
 
@@ -182,34 +136,33 @@ void AIAnubis::Tick(RunListEvent* ev)
         bVal = true;
     }
 
-    short nTarget = ap->nTarget;
-    auto pTarget = nTarget < 0 ? nullptr : &sprite[nTarget];
+    auto pTarget = ap->pTarget;
 
     short nFrame = SeqBase[nSeq] + ap->nFrame;
     short nFlag = FrameFlag[nFrame];
 
-    int nMov = 0;
+    Collision move(0);
 
     if (nAction > 0 && nAction < 11) {
-        nMov = MoveCreatureWithCaution(nSprite);
+        move = MoveCreatureWithCaution(ap);
     }
 
     switch (nAction)
     {
     case 0:
     {
-        if ((nAnubis & 0x1F) == (totalmoves & 0x1F))
+        if ((ap->nPhase & 0x1F) == (totalmoves & 0x1F))
         {
-            if (nTarget < 0) {
-                nTarget = FindPlayer(nSprite, 100);
+            if (pTarget == nullptr) {
+                pTarget = FindPlayer(ap, 100);
             }
 
-            if (nTarget >= 0)
+            if (pTarget)
             {
-                D3PlayFX(StaticSound[kSound8], nSprite);
+                D3PlayFX(StaticSound[kSound8], ap);
                 ap->nAction = 1;
                 ap->nFrame = 0;
-                ap->nTarget = nTarget;
+                ap->pTarget = pTarget;
 
                 sp->xvel = bcos(sp->ang, -2);
                 sp->yvel = bsin(sp->ang, -2);
@@ -219,22 +172,22 @@ void AIAnubis::Tick(RunListEvent* ev)
     }
     case 1:
     {
-        if ((nAnubis & 0x1F) == (totalmoves & 0x1F))
+        if ((ap->nPhase & 0x1F) == (totalmoves & 0x1F) && pTarget)
         {
-            PlotCourseToSprite(nSprite, nTarget);
+            PlotCourseToSprite(ap, pTarget);
 
             int nAngle = sp->ang & 0xFFF8;
             sp->xvel = bcos(nAngle, -2);
             sp->yvel = bsin(nAngle, -2);
         }
 
-        switch (nMov & 0xC000)
+        switch (move.type)
         {
-        case 0xC000:
+        case kHitSprite:
         {
-            if ((nMov & 0x3FFF) == nTarget)
+            if (move.actor == pTarget)
             {
-                int nAng = getangle(pTarget->x - sp->x, pTarget->y - sp->y);
+                int nAng = getangle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
                 int nAngDiff = AngleDiff(sp->ang, nAng);
 
                 if (nAngDiff < 64)
@@ -245,9 +198,9 @@ void AIAnubis::Tick(RunListEvent* ev)
                 break;
             }
             // else we fall through to 0x8000
-            fallthrough__;
+            [[fallthrough]];
         }
-        case 0x8000:
+        case kHitWall:
         {
             sp->ang = (sp->ang + 256) & kAngleMask;
             sp->xvel = bcos(sp->ang, -2);
@@ -265,14 +218,14 @@ void AIAnubis::Tick(RunListEvent* ev)
             {
                 ap->nCount = 60;
 
-                if (nTarget > -1) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
+                if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                 {
-                    if (cansee(sp->x, sp->y, sp->z - GetSpriteHeight(nSprite), sp->sectnum,
-                        pTarget->x, pTarget->y, pTarget->z - GetSpriteHeight(nTarget), pTarget->sectnum))
+                    if (cansee(sp->x, sp->y, sp->z - GetActorHeight(ap), sp->sectnum,
+                        pTarget->s().x, pTarget->s().y, pTarget->s().z - GetActorHeight(pTarget), pTarget->s().sectnum))
                     {
                         sp->xvel = 0;
                         sp->yvel = 0;
-                        sp->ang = GetMyAngle(pTarget->x - sp->x, pTarget->y - sp->y);
+                        sp->ang = GetMyAngle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
 
                         ap->nAction = 3;
                         ap->nFrame = 0;
@@ -286,14 +239,14 @@ void AIAnubis::Tick(RunListEvent* ev)
     }
     case 2:
     {
-        if (nTarget == -1)
+        if (pTarget == nullptr)
         {
             ap->nAction = 0;
             ap->nCount = 50;
         }
         else
         {
-            if (PlotCourseToSprite(nSprite, nTarget) >= 768)
+            if (PlotCourseToSprite(ap, pTarget) >= 768)
             {
                 ap->nAction = 1;
             }
@@ -301,7 +254,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             {
                 if (nFlag & 0x80)
                 {
-                    runlist_DamageEnemy(nTarget, nSprite, 7);
+                    runlist_DamageEnemy(pTarget, ap, 7);
                 }
             }
         }
@@ -323,7 +276,7 @@ void AIAnubis::Tick(RunListEvent* ev)
             // loc_25718:
             if (nFlag & 0x80)
             {
-                BuildBullet(nSprite, 8, 0, 0, -1, sp->ang, nTarget + 10000, 1);
+                BuildBullet(ap, 8, -1, sp->ang, pTarget, 1);
             }
         }
 
@@ -380,44 +333,45 @@ void AIAnubis::Tick(RunListEvent* ev)
     }
 
     // loc_2564C:
-    if (nAction && nTarget != -1)
+    if (nAction && pTarget != nullptr)
     {
-        if (!(pTarget->cstat & 0x101))
+        if (!(pTarget->s().cstat & 0x101))
         {
             ap->nAction = 0;
             ap->nFrame = 0;
             ap->nCount = 100;
-            ap->nTarget = -1;
+            ap->pTarget = nullptr;
 
             sp->xvel = 0;
             sp->yvel = 0;
         }
     }
-
-    return;
 }
 
 void AIAnubis::Draw(RunListEvent* ev)
 {
-    auto ap = &AnubisList[RunData[ev->nRun].nObjIndex];
+    auto ap = ev->pObjActor;
+    if (!ap) return;
+
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqAnubis] + AnubisSeq[ap->nAction].a, ap->nFrame, AnubisSeq[ap->nAction].b);
 }
 
 void AIAnubis::RadialDamage(RunListEvent* ev)
 {
-    auto ap = &AnubisList[RunData[ev->nRun].nObjIndex];
+    auto ap = ev->pObjActor;
+    if (!ap) return;
     if (ap->nAction < 11) 
 	{
-    	ev->nDamage = runlist_CheckRadialDamage(ap->nSprite);
+    	ev->nDamage = runlist_CheckRadialDamage(ap);
 	    Damage(ev);
 	}
 }
 
 void AIAnubis::Damage(RunListEvent* ev)
 {
-    auto ap = &AnubisList[RunData[ev->nRun].nObjIndex];
-    int nSprite = ap->nSprite;
-    auto sp = &sprite[nSprite];
+    auto ap = ev->pObjActor;
+    if (!ap) return;
+    auto sp = &ap->s();
     int nAction = ap->nAction;
     int nDamage = ev->nDamage;
 
@@ -430,18 +384,16 @@ void AIAnubis::Damage(RunListEvent* ev)
 
         if (ap->nHealth > 0)
         {
-            int nTarget = ev->nParam;
-
             // loc_258D6:
-            if (nTarget < 0) {
+            if (ev->pOtherActor == nullptr) {
                 return;
             }
-            auto pTarget = &sprite[nTarget];
+            auto pTarget = &ev->pOtherActor->s();
 
             if (pTarget->statnum == 100 || pTarget->statnum < 199)
             {
                 if (!RandomSize(5)) {
-                    ap->nTarget = nTarget;
+                    ap->pTarget = ev->pOtherActor;
                 }
             }
 
@@ -449,8 +401,8 @@ void AIAnubis::Damage(RunListEvent* ev)
             {
                 if (nAction >= 6 && nAction <= 10)
                 {
-                    int nDrumSprite = insertsprite(sp->sectnum, kStatAnubisDrum);
-                    auto pDrumSprite = &sprite[nDrumSprite];
+                    auto pDrumActor = insertActor(sp->sectnum, kStatAnubisDrum);
+                    auto pDrumSprite = &pDrumActor->s();
 
                     pDrumSprite->x = sp->x;
                     pDrumSprite->y = sp->y;
@@ -459,16 +411,17 @@ void AIAnubis::Damage(RunListEvent* ev)
                     pDrumSprite->yrepeat = 40;
                     pDrumSprite->shade = -64;
 
-                    BuildObject(nDrumSprite, 2, 0);
+                    BuildObject(pDrumActor->GetSpriteIndex(), 2, 0);
                 }
 
+                ap->pTarget = ev->pOtherActor;
                 ap->nAction = 4;
                 ap->nFrame = 0;
             }
             else
             {
                 // loc_259B5:
-                D3PlayFX(StaticSound[kSound39], nSprite);
+                D3PlayFX(StaticSound[kSound39], ap);
             }
         }
         else
@@ -486,7 +439,7 @@ void AIAnubis::Damage(RunListEvent* ev)
 
             if (nAction < 11)
             {
-                DropMagic(nSprite);
+                DropMagic(ap);
                 ap->nAction = (ev->nMessage == EMessageType::RadialDamage) + 11;
                 ap->nFrame = 0;
             }

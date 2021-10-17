@@ -85,6 +85,14 @@ class DExhumedActor
 	DExhumedActor* base();
 
 public:
+	DExhumedActor* pTarget;
+
+	short nPhase;
+
+	short nHealth;
+	short nFrame;
+	short nAction;
+	short nCount;
 
 	DExhumedActor() :index(int(this - base())) {}
 	DExhumedActor& operator=(const DExhumedActor& other) = default;

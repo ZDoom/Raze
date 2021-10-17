@@ -596,6 +596,21 @@ extern uint8_t* Worktile;
 extern int lHeadStartClock;
 extern short* pPupData;
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor& w, DExhumedActor* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("phase", w.nPhase)
+            ("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("target", w.pTarget)
+            ("count", w.nCount)
+            .EndObject();
+    }
+    return arc;
+}
+
 void SerializeState(FSerializer& arc)
 {
     int loaded = 0;

@@ -51,8 +51,7 @@ int BuildSplash(int nSprite, int nSector);
 
 // anubis
 
-void InitAnubis();
-void BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer);
+void BuildAnubis(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer);
 void FuncAnubis(int, int a, int b, int c);
 
 // bubbles
@@ -93,6 +92,14 @@ void DestroyBullet(short nRun);
 int MoveBullet(short nBullet);
 void SetBulletEnemy(short nBullet, short nEnemy);
 int BuildBullet(short nSprite, int nType, int ebx, int ecx, int val1, int nAngle, int val2, int val3);
+inline DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int val1, int nAngle, DExhumedActor* pTarget, int val3)
+{
+    int v = BuildBullet(pActor->GetSpriteIndex(), nType, 0, 0, val1, nAngle, pTarget->GetSpriteIndex() + 10000, val3);
+    if (v < 0) return nullptr;
+    auto a = &exhumedActors[v & 0xffff];
+    a->nPhase = (v >> 16);
+    return a;
+}
 void IgniteSprite(int nSprite);
 void FuncBullet(int, int, int, int);
 void BackUpBullet(int *x, int *y, short nAngle);
