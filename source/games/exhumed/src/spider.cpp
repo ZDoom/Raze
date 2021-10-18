@@ -72,19 +72,21 @@ void InitSpider()
     SpiderList.Clear();
 }
 
-int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
+DExhumedActor* BuildSpider(DExhumedActor* pActor, int x, int y, int z, short nSector, int nAngle)
 {
     auto nSpider = SpiderList.Reserve(1);
     auto spp = &SpiderList[nSpider];
 
+	int nSprite;
     spritetype* sp;
-    if (nSprite == -1)
+    if (pActor == nullptr)
     {
         nSprite = insertsprite(nSector, 99);
         sp = &sprite[nSprite];
     }
     else
     {
+        nSprite = pActor->GetSpriteIndex();
         changespritestat(nSprite, 99);
         sp = &sprite[nSprite];
 
@@ -130,7 +132,7 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
 
     nCreaturesTotal++;
 
-    return nSprite;
+    return &exhumedActors[nSprite];
 }
 
 void AISpider::Tick(RunListEvent* ev)

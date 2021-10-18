@@ -81,7 +81,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     auto c = parm->parms[0];
 
     if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, false);
-    else if (!stricmp(c, "spider")) BuildSpider(-1, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "spider")) BuildSpider(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "mummy")) BuildMummy(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "fish")) BuildFish(nullptr, initx, inity, initz + eyelevel[nLocalPlayer], initsect, inita);
     else if (!stricmp(c, "lion")) BuildLion(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
@@ -92,7 +92,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     else if (!stricmp(c, "roach")) BuildRoach(0, nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "roach2")) BuildRoach(1, nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "wasp")) BuildWasp(-1, initx, inity, sector[initsect].floorz - 25600, initsect, inita);
-    else if (!stricmp(c, "scorp")) BuildScorp(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "scorp")) BuildScorp(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
     else if (!stricmp(c, "rat")) BuildRat(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else Printf("Unknown creature type %s\n", c);
     return CCMD_OK;

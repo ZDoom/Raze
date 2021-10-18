@@ -107,8 +107,7 @@ uint8_t LoadLevel(MapRecord* map)
         InitObjects();
         InitPushBlocks();
         InitSpider();
-        InitScorp();
-        InitPlayer();
+		InitPlayer();
         InitItems();
         InitInput();
 
@@ -533,7 +532,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 112:
             {
-                BuildScorp(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildScorp(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 111:
@@ -583,7 +582,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     return;
                 }
 
-                BuildSpider(nSprite, 0, 0, 0, 0, 0);
+                BuildSpider(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 104:

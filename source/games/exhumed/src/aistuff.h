@@ -674,7 +674,7 @@ struct AIRoach : public ExhumedAI
 
 struct AIScorp : public ExhumedAI
 {
-    void Effect(RunListEvent* ev, int nTarget, int mode);
+    void Effect(RunListEvent* ev, DExhumedActor* nTarget, int mode);
     void Tick(RunListEvent* ev) override;
     void Damage(RunListEvent* ev) override;
     void Draw(RunListEvent* ev) override;
@@ -803,8 +803,7 @@ void runlist_ExecObjects();
 
 // scorp
 
-void InitScorp();
-void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 void FuncScorp(int, int, int, int);
 
 // set
@@ -844,7 +843,7 @@ void FuncSnake(int, int, int, int);
 // spider
 
 void InitSpider();
-int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle);
+DExhumedActor* BuildSpider(DExhumedActor* nSprite, int x, int y, int z, short nSector, int nAngle);
 void FuncSpider(int a, int, int b, int nRun);
 
 // switch
