@@ -94,7 +94,9 @@ public:
 	short nAction;
 	short nCount;
 	short nRun;
-	//short nIndex;
+	short nIndex;
+	short nIndex2;
+	short nChannel;
 
 	DExhumedActor() :index(int(this - base())) {}
 	DExhumedActor& operator=(const DExhumedActor& other) = default;

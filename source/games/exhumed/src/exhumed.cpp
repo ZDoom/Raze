@@ -607,7 +607,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor& w, 
             ("target", w.pTarget)
             ("count", w.nCount)
             ("run", w.nRun)
-            //("index", w.nIndex)
+            ("index", w.nIndex)
+			("index2", w.nIndex2) // scorpion
+			("channel", w.nChannel) // scorpion
             .EndObject();
     }
     return arc;

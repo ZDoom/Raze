@@ -94,8 +94,7 @@ uint8_t LoadLevel(MapRecord* map)
 
         InitSets();
         InitQueens();
-        InitRoachs();
-        InitWasps();
+		InitWasps();
         InitRats();
         InitBullets();
         InitWeapons();
@@ -594,7 +593,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     return;
                 }
 
-                BuildRoach(1, nSprite, 0, 0, 0, 0, 0);
+                BuildRoach(1, pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 103:
@@ -604,7 +603,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     return;
                 }
 
-                BuildRoach(0, nSprite, 0, 0, 0, 0, 0);
+                BuildRoach(0, pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 102:

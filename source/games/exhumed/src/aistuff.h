@@ -416,8 +416,7 @@ void FuncRex(int, int, int, int);
 
 // roach
 
-void InitRoachs();
-void BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle);
+void BuildRoach(int nType, DExhumedActor* nSprite, int x, int y, int z, short nSector, int angle);
 void FuncRoach(int a, int, int nDamage, int nRun);
 
 // runlist

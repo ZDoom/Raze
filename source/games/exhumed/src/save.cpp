@@ -50,7 +50,6 @@ void SerializeView(FSerializer& arc);
 
 void SerializeQueen(FSerializer& arc);
 void SerializeRat(FSerializer& arc);
-void SerializeRoach(FSerializer& arc);
 void SerializeScorpion(FSerializer& arc);
 void SerializeSet(FSerializer& arc);
 void SerializeSpider(FSerializer& arc);
@@ -82,7 +81,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 		SerializeQueen(arc);
 		SerializeRat(arc);
-		SerializeRoach(arc);
 		SerializeScorpion(arc);
 		SerializeSet(arc);
 		SerializeSpider(arc);
