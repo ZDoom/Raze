@@ -102,7 +102,6 @@ uint8_t LoadLevel(MapRecord* map)
         InitSnakes();
         InitLights();
         ClearAutomap();
-        InitBubbles();
         InitObjects();
         InitPushBlocks();
 		InitPlayer();
@@ -690,7 +689,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 93:
             {
-                BuildBubbleMachine(nSprite);
+                BuildBubbleMachine(pActor);
                 return;
             }
             case 90:

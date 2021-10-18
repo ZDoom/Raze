@@ -21,7 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "freelistarray.h"
 
+
 BEGIN_PS_NS
+
 
 // anims
 
@@ -41,8 +43,7 @@ void FuncAnubis(int, int a, int b, int c);
 
 // bubbles
 
-void InitBubbles();
-void BuildBubbleMachine(int nSprite);
+void BuildBubbleMachine(DExhumedActor* nSprite);
 void DoBubbleMachines();
 void DoBubbles(int nPlayer);
 void FuncBubble(int, int, int, int);
@@ -310,7 +311,9 @@ enum kStatus
     kStatDestructibleSprite = 97,
     kStatAnubisDrum,
     kStatExplodeTrigger = 141,
-    kStatExplodeTarget = 152
+    kStatExplodeTarget = 152,
+    kStatBubbleMachine = 1022,
+
 };
 
 extern short nSmokeSparks;

@@ -25,109 +25,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-
-enum
+void DestroyBubble(DExhumedActor* pActor)
 {
-	kMaxBubbles		= 200,
-	kMaxMachines	= 125
-};
+	auto pSprite = &pActor->s();
 
-struct Bubble
-{
-    short nFrame;
-    short nSeq;
-    short nSprite;
-    short nRunIndex;
-};
-
-struct machine
-{
-    short nCount;
-    short nSprite;
-    short nFrame;
-};
-
-short nMachineCount;
-machine Machine[kMaxMachines];
-
-FreeListArray<Bubble, kMaxBubbles> BubbleList;
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Bubble& w, Bubble* def)
-{
-    if (arc.BeginObject(keyname))
-    {
-        arc("seq", w.nSeq)
-            ("frame", w.nFrame)
-            ("run", w.nRunIndex)
-            ("sprite", w.nSprite)
-            .EndObject();
-    }
-    return arc;
-}
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, machine& w, machine* def)
-{
-    if (arc.BeginObject(keyname))
-    {
-        arc("at0", w.nCount)
-            ("at4", w.nFrame)
-            ("sprite", w.nSprite)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeBubbles(FSerializer& arc)
-{
-    if (arc.BeginObject("bubbles"))
-    {
-        arc ("machinecount", nMachineCount)
-            ("list", BubbleList)
-            .Array("machines", Machine, nMachineCount)
-            .EndObject();
-    }
-}
-
-void InitBubbles()
-{
-    nMachineCount = 0;
-    BubbleList.Clear();
-}
-
-void DestroyBubble(short nBubble)
-{
-    short nSprite = BubbleList[nBubble].nSprite;
-	auto pSprite = &sprite[nSprite];
-
-    runlist_DoSubRunRec(pSprite->lotag - 1);
+    runlist_DoSubRunRec(pSprite->lotag - 1); 
     runlist_DoSubRunRec(pSprite->owner);
-    runlist_SubRunRec(BubbleList[nBubble].nRunIndex);
-
-    mydeletesprite(nSprite);
-
-    BubbleList.Release(nBubble);
+    runlist_SubRunRec(pActor->nRun);
+    DeleteActor(pActor);
 }
 
-short GetBubbleSprite(int nBubble)
-{
-    return BubbleList[nBubble & 0xffff].nSprite;
-}
-
-int BuildBubble(int x, int y, int z, short nSector)
+DExhumedActor* BuildBubble(int x, int y, int z, short nSector)
 {
     int nSize = RandomSize(3);
     if (nSize > 4) {
         nSize -= 4;
     }
 
-    int nBubble = BubbleList.Get();
-    if (nBubble < 0) {
-        return -1;
-    }
-
-    int nSprite = insertsprite(nSector, 402);
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-	auto pSprite = &sprite[nSprite];
+    auto pActor = insertActor(nSector, 402);
+	auto pSprite = &pActor->s();
 
     pSprite->x = x;
     pSprite->y = y;
@@ -152,31 +68,29 @@ int BuildBubble(int x, int y, int z, short nSector)
 
 //	GrabTimeSlot(3);
 
-    BubbleList[nBubble].nSprite = nSprite;
-    BubbleList[nBubble].nFrame = 0;
-    BubbleList[nBubble].nSeq = SeqOffsets[kSeqBubble] + nSize;
+    pActor->nFrame = 0;
+    pActor->nIndex = SeqOffsets[kSeqBubble] + nSize;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nBubble, 0x140000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x140000);
 
-    BubbleList[nBubble].nRunIndex = runlist_AddRunRec(NewRun, nBubble, 0x140000);
-    return nBubble | 0x140000;
+    pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x140000);
+    return pActor;
 }
 
 void AIBubble::Tick(RunListEvent* ev) 
 {
-    short nBubble = RunData[ev->nRun].nObjIndex;
-    assert(nBubble >= 0 && nBubble < kMaxBubbles);
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
 
-    short nSprite = BubbleList[nBubble].nSprite;
-    short nSeq = BubbleList[nBubble].nSeq;
-    auto pSprite = &sprite[nSprite];
+    short nSeq = pActor->nIndex;
+    auto pSprite = &pActor->s();
 
-    seq_MoveSequence(nSprite, nSeq, BubbleList[nBubble].nFrame);
+    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
-    BubbleList[nBubble].nFrame++;
+    pActor->nFrame++;
 
-    if (BubbleList[nBubble].nFrame >= SeqSize[nSeq]) {
-        BubbleList[nBubble].nFrame = 0;
+    if (pActor->nFrame >= SeqSize[nSeq]) {
+        pActor->nFrame = 0;
     }
 
     pSprite->z += pSprite->zvel;
@@ -191,16 +105,16 @@ void AIBubble::Tick(RunListEvent* ev)
             BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);
         }
 
-        DestroyBubble(nBubble);
+        DestroyBubble(pActor);
     }
 }
 
 void AIBubble::Draw(RunListEvent* ev)
 {
-    short nBubble = RunData[ev->nRun].nObjIndex;
-    assert(nBubble >= 0 && nBubble < kMaxBubbles);
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
 
-    seq_PlotSequence(ev->nParam, BubbleList[nBubble].nSeq, BubbleList[nBubble].nFrame, 1);
+    seq_PlotSequence(ev->nParam, pActor->nIndex, pActor->nFrame, 1);
     ev->pTSprite->owner = -1;
 }
 
@@ -212,35 +126,29 @@ void  FuncBubble(int nObject, int nMessage, int nDamage, int nRun)
 
 void DoBubbleMachines()
 {
-    for (int i = 0; i < nMachineCount; i++)
+    ExhumedStatIterator it(kStatBubbleMachine);
+    while (auto pActor = it.Next())
     {
-        Machine[i].nCount--;
+        pActor->nCount--;
 
-        if (Machine[i].nCount <= 0)
+        if (pActor->nCount <= 0)
         {
-            Machine[i].nCount = (RandomWord() % Machine[i].nFrame) + 30;
+            pActor->nCount = (RandomWord() % pActor->nFrame) + 30;
 
-            int nSprite = Machine[i].nSprite;
-			auto pSprite = &sprite[nSprite];
+			auto pSprite = &pActor->s();
             BuildBubble(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum);
         }
     }
 }
 
-void BuildBubbleMachine(int nSprite)
+void BuildBubbleMachine(DExhumedActor* pActor)
 {
-    if (nMachineCount >= kMaxMachines) {
-        I_Error("too many bubble machines in level %s\n", currentLevel->labelName.GetChars());
-        exit(-1);
-    }
+    pActor->nFrame = 75;
+    pActor->nCount = pActor->nFrame;
 
-    Machine[nMachineCount].nFrame = 75;
-    Machine[nMachineCount].nSprite = nSprite;
-    Machine[nMachineCount].nCount = Machine[nMachineCount].nFrame;
-    nMachineCount++;
-
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
     pSprite->cstat = 0x8000;
+    ChangeActorStat(pActor, kStatBubbleMachine);
 }
 
 void DoBubbles(int nPlayer)
@@ -250,10 +158,7 @@ void DoBubbles(int nPlayer)
 
     WheresMyMouth(nPlayer, &x, &y, &z, &nSector);
 
-    int nBubble = BuildBubble(x, y, z, nSector);
-    int nSprite = GetBubbleSprite(nBubble);
-	auto pSprite = &sprite[nSprite];
-
-    pSprite->hitag = nPlayer;
+    auto pActor = BuildBubble(x, y, z, nSector);
+    pActor->s().hitag = nPlayer;
 }
 END_PS_NS
