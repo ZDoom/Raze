@@ -106,7 +106,6 @@ uint8_t LoadLevel(MapRecord* map)
         InitBubbles();
         InitObjects();
         InitPushBlocks();
-        InitSpider();
 		InitPlayer();
         InitItems();
         InitInput();

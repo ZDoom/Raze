@@ -51,7 +51,6 @@ void SerializeView(FSerializer& arc);
 void SerializeQueen(FSerializer& arc);
 void SerializeRat(FSerializer& arc);
 void SerializeSet(FSerializer& arc);
-void SerializeSpider(FSerializer& arc);
 void SerializeWasp(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
@@ -81,7 +80,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		SerializeQueen(arc);
 		SerializeRat(arc);
 		SerializeSet(arc);
-		SerializeSpider(arc);
 		SerializeWasp(arc);
 	}
 	if (arc.isReading())

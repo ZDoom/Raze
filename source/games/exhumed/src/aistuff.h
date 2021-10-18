@@ -842,7 +842,6 @@ void FuncSnake(int, int, int, int);
 
 // spider
 
-void InitSpider();
 DExhumedActor* BuildSpider(DExhumedActor* nSprite, int x, int y, int z, short nSector, int nAngle);
 void FuncSpider(int a, int, int b, int nRun);
 
