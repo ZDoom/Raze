@@ -150,7 +150,8 @@ void BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, i
 void BuildSoul(int nSet)
 {
     int nSetSprite = SetList[nSet].nSprite;
-    int nSprite = insertsprite(sprite[nSetSprite].sectnum, 0);
+    auto pSetSprite = &sprite[nSetSprite];
+    int nSprite = insertsprite(pSetSprite->sectnum, 0);
     auto pSprite = &sprite[nSprite];
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -168,8 +169,8 @@ void BuildSoul(int nSet)
     pSprite->xvel = 0;
     pSprite->yvel = 0;
     pSprite->zvel = (-256) - RandomSize(10);
-    pSprite->x = sprite[nSetSprite].x;
-    pSprite->y = sprite[nSetSprite].y;
+    pSprite->x = pSetSprite->x;
+    pSprite->y = pSetSprite->y;
 
     short nSector = pSprite->sectnum;
     pSprite->z = (RandomSize(8) << 8) + 8192 + sector[nSector].ceilingz - GetSpriteHeight(nSprite);
@@ -205,14 +206,15 @@ void AISoul::Tick(RunListEvent* ev)
     {
         int nSet = pSprite->hitag;
         int nSetSprite = SetList[nSet].nSprite;
+        auto pSetSprite = &sprite[nSetSprite];
 
         pSprite->cstat = 0;
         pSprite->yrepeat = 1;
         pSprite->xrepeat = 1;
-        pSprite->x = sprite[nSetSprite].x;
-        pSprite->y = sprite[nSetSprite].y;
-        pSprite->z = sprite[nSetSprite].z - (GetSpriteHeight(nSetSprite) >> 1);
-        mychangespritesect(nSprite, sprite[nSetSprite].sectnum);
+        pSprite->x = pSetSprite->x;
+        pSprite->y = pSetSprite->y;
+        pSprite->z = pSetSprite->z - (GetSpriteHeight(nSetSprite) >> 1);
+        mychangespritesect(nSprite, pSetSprite->sectnum);
         return;
     }
 }

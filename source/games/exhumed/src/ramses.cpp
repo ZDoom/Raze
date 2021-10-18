@@ -65,9 +65,10 @@ short nTalkTime = 0;
 void InitSpiritHead()
 {
     nPixels = 0;
+    auto pSpiritSprite = &sprite[nSpiritSprite];
 
-    nSpiritRepeatX = sprite[nSpiritSprite].xrepeat;
-    nSpiritRepeatY = sprite[nSpiritSprite].yrepeat;
+    nSpiritRepeatX = pSpiritSprite->xrepeat;
+    nSpiritRepeatY = pSpiritSprite->yrepeat;
 
     tileLoad(kTileRamsesNormal); // Ramses Normal Head
 
@@ -115,16 +116,16 @@ void InitSpiritHead()
     }
 
 
-    sprite[nSpiritSprite].yrepeat = 140;
-    sprite[nSpiritSprite].xrepeat = 140;
-    sprite[nSpiritSprite].picnum = kTileRamsesWorkTile;
+    pSpiritSprite->yrepeat = 140;
+    pSpiritSprite->xrepeat = 140;
+    pSpiritSprite->picnum = kTileRamsesWorkTile;
 
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
 	Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritY * 2, kSpiritX * 2);
 
-    sprite[nSpiritSprite].cstat &= 0x7FFF;
+    pSpiritSprite->cstat &= 0x7FFF;
 
     nHeadTimeStart = PlayClock;
 
@@ -196,6 +197,7 @@ void CopyHeadToWorkTile(short nTile)
 void DoSpiritHead() 
 {
     static short dimSectCount = 0;
+    auto pSpiritSprite = &sprite[nSpiritSprite];
 
     sPlayerInput[0].actions |= SB_CENTERVIEW;
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
@@ -295,11 +297,11 @@ void DoSpiritHead()
     case 1:
     case 2:
         UpdateSwirlies();
-        if (sprite[nSpiritSprite].shade > -127)
-            sprite[nSpiritSprite].shade--;
+        if (pSpiritSprite->shade > -127)
+            pSpiritSprite->shade--;
         if (--dimSectCount < 0) 
         {
-            DimSector(sprite[nSpiritSprite].sectnum);
+            DimSector(pSpiritSprite->sectnum);
             dimSectCount = 5;
         }
 
@@ -379,17 +381,17 @@ void DoSpiritHead()
 
         if (nHeadStage == 1) 
         {
-            if (sprite[nSpiritSprite].xrepeat > nSpiritRepeatX) 
+            if (pSpiritSprite->xrepeat > nSpiritRepeatX) 
             {
-                sprite[nSpiritSprite].xrepeat -= 2;
-                if (sprite[nSpiritSprite].xrepeat < nSpiritRepeatX)
-                    sprite[nSpiritSprite].xrepeat = (uint8_t)nSpiritRepeatX;
+                pSpiritSprite->xrepeat -= 2;
+                if (pSpiritSprite->xrepeat < nSpiritRepeatX)
+                    pSpiritSprite->xrepeat = (uint8_t)nSpiritRepeatX;
             }
-            if (sprite[nSpiritSprite].yrepeat > nSpiritRepeatY) 
+            if (pSpiritSprite->yrepeat > nSpiritRepeatY) 
             {
-                sprite[nSpiritSprite].yrepeat -= 2;
-                if (sprite[nSpiritSprite].yrepeat < nSpiritRepeatY)
-                    sprite[nSpiritSprite].yrepeat = (uint8_t)nSpiritRepeatY;
+                pSpiritSprite->yrepeat -= 2;
+                if (pSpiritSprite->yrepeat < nSpiritRepeatY)
+                    pSpiritSprite->yrepeat = (uint8_t)nSpiritRepeatY;
             }
 
             int nCount = 0;
@@ -425,9 +427,9 @@ void DoSpiritHead()
 
             if (nCount < (15 * nPixels) / 16) {
                 SoundBigEntrance();
-                AddGlow(sprite[nSpiritSprite].sectnum, 20);
-                AddFlash(sprite[nSpiritSprite].sectnum, sprite[nSpiritSprite].x, sprite[nSpiritSprite].y,
-                    sprite[nSpiritSprite].z, 128);
+                AddGlow(pSpiritSprite->sectnum, 20);
+                AddFlash(pSpiritSprite->sectnum, pSpiritSprite->x, pSpiritSprite->y,
+                    pSpiritSprite->z, 128);
                 nHeadStage = 3;
                 TintPalette(255, 255, 255);
                 CopyHeadToWorkTile(kTileRamsesNormal);

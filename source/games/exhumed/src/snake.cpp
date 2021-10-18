@@ -121,13 +121,14 @@ void BuildSnake(short nPlayer, short zVal)
     zVal -= 1280;
 
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
+    auto pPlayerSprite = &sprite[nPlayerSprite];
     short nViewSect = nPlayerViewSect[nPlayer];
     short nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
 
-    int x = sprite[nPlayerSprite].x;
-    int y = sprite[nPlayerSprite].y;
-    int z = (sprite[nPlayerSprite].z + zVal) - 2560;
-    short nAngle = sprite[nPlayerSprite].ang;
+    int x = pPlayerSprite->x;
+    int y = pPlayerSprite->y;
+    int z = (pPlayerSprite->z + zVal) - 2560;
+    short nAngle = pPlayerSprite->ang;
 
     short hitsect, hitsprite;
     int hitx, hity, hitz;
@@ -136,7 +137,7 @@ void BuildSnake(short nPlayer, short zVal)
 
     vec3_t pos = { x, y, z };
     hitdata_t hitData;
-    hitscan(&pos, sprite[nPlayerSprite].sectnum, bcos(nAngle), bsin(nAngle), 0, &hitData, CLIPMASK1);
+    hitscan(&pos, pPlayerSprite->sectnum, bcos(nAngle), bsin(nAngle), 0, &hitData, CLIPMASK1);
 
     hitx = hitData.pos.x;
     hity = hitData.pos.y;
@@ -199,9 +200,9 @@ void BuildSnake(short nPlayer, short zVal)
 
             if (i == 0)
             {
-                pSprite->x = sprite[nPlayerSprite].x;
-                pSprite->y = sprite[nPlayerSprite].y;
-                pSprite->z = sprite[nPlayerSprite].z + zVal;
+                pSprite->x = pPlayerSprite->x;
+                pSprite->y = pPlayerSprite->y;
+                pSprite->z = pPlayerSprite->z + zVal;
                 pSprite->xrepeat = 32;
                 pSprite->yrepeat = 32;
                 nViewSect = pSprite->sectnum;
@@ -222,7 +223,7 @@ void BuildSnake(short nPlayer, short zVal)
             pSprite->pal = 0;
             pSprite->xoffset = 0;
             pSprite->yoffset = 0;
-            pSprite->ang = sprite[nPlayerSprite].ang;
+            pSprite->ang = pPlayerSprite->ang;
             pSprite->xvel = 0;
             pSprite->yvel = 0;
             pSprite->zvel = 0;
