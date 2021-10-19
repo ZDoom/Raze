@@ -792,8 +792,7 @@ void FuncScorp(int, int, int, int);
 
 // set
 
-void InitSets();
-void BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildSet(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 void FuncSoul(int, int, int, int);
 void FuncSet(int, int, int, int);
 

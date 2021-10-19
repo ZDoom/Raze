@@ -92,7 +92,6 @@ uint8_t LoadLevel(MapRecord* map)
         PlayClock = 0;
         memset(Counters, 0, sizeof(Counters));
 
-        InitSets();
         InitQueens();
         InitRats();
         InitBullets();
@@ -539,7 +538,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     return;
                 }
 
-                BuildSet(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildSet(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 108:

@@ -49,7 +49,6 @@ void SerializeView(FSerializer& arc);
 
 void SerializeQueen(FSerializer& arc);
 void SerializeRat(FSerializer& arc);
-void SerializeSet(FSerializer& arc);
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
@@ -76,7 +75,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 		SerializeQueen(arc);
 		SerializeRat(arc);
-		SerializeSet(arc);
 	}
 	if (arc.isReading())
 	{
