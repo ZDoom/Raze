@@ -434,7 +434,7 @@ void GameInterface::Ticker()
         sPlayerInput[nLocalPlayer].nAngle = localInput.avel;
         sPlayerInput[nLocalPlayer].pan = localInput.horz;
 
-        Ra[nLocalPlayer].nTarget = besttarget;
+        Ra[nLocalPlayer].pTarget = &exhumedActors[besttarget];
 
         lLocalCodes = 0;
 

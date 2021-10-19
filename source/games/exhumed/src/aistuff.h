@@ -366,11 +366,12 @@ void FuncQueen(int, int, int, int);
 
 struct RA
 {
+	DExhumedActor* pActor;
+	DExhumedActor* pTarget;
+	
     short nAction;
     short nFrame;
     short nRun;
-    short nSprite;
-    short nTarget;
     short field_A;
     short field_C;
     short nPlayer;

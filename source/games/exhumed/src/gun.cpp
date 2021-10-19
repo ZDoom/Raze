@@ -404,7 +404,7 @@ void MoveWeapons(short nPlayer)
                             {
                                 if (nWeapon == kWeaponRing)
                                 {
-                                    if (Ra[nPlayer].nTarget == -1)
+                                    if (Ra[nPlayer].pTarget == nullptr)
                                         break;
 
                                     Ra[nPlayer].nAction = 0;
