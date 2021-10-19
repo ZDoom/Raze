@@ -189,13 +189,12 @@ void DoRedAlert(int nVal)
         nRedTicks = 30;
     }
 
-    int i;
-    StatIterator it(405);
-    while ((i = it.NextIndex()) >= 0)
+    ExhumedStatIterator it(405);
+    while (auto ac = it.Next())
     {
         if (nVal)
         {
-			auto spri = &sprite[i];
+			auto spri = &ac->s();
             PlayFXAtXYZ(StaticSound[kSoundAlarm], spri->x, spri->y, spri->z, spri->sectnum);
             AddFlash(spri->sectnum, spri->x, spri->y, spri->z, 192);
         }
@@ -254,9 +253,10 @@ void GameMove(void)
 {
     FixPalette();
 
-    for (int i = 0; i < MAXSPRITES; i++)
+	ExhumedSpriteIterator it;
+    while (auto ac = it.Next())
     {
-		sprite[i].backuploc();
+		ac->s().backuploc();
     }
 
     if (currentLevel->gameflags & LEVEL_EX_COUNTDOWN)

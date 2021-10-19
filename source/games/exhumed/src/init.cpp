@@ -805,9 +805,10 @@ void ExamineSprites()
     nNetStartSprites = 0;
     nCurStartSprite = 0;
 
-    for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
+	ExhumedLinearSpriteIterator it;
+    while (auto ac = it.Next())
     {
-		auto pSprite = &sprite[nSprite];
+		auto pSprite = &ac->s();
 
         int nStatus = pSprite->statnum;
         if (!nStatus)
@@ -820,11 +821,11 @@ void ExamineSprites()
                 pSprite->lotag = 0;
                 pSprite->hitag = 0;
 
-                ProcessSpriteTag(nSprite, lotag, hitag);
+                ProcessSpriteTag(ac->GetSpriteIndex(), lotag, hitag);
             }
             else
             {
-                changespritestat(nSprite, 0);
+                ChangeActorStat(ac, 0);
             }
         }
     }

@@ -37,7 +37,7 @@ BEGIN_PS_NS
 void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
     Player     *nPlayer = &PlayerList[nLocalPlayer];
-    spritetype *pSprite = &sprite[nPlayer->nSprite]; 
+    spritetype *pSprite = &nPlayer->Actor()->s(); 
 
     pSprite->ox = pSprite->x = x;
     pSprite->oy = pSprite->y = y;
