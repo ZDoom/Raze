@@ -64,7 +64,9 @@ static TArray<FString> exclEpisodes;
 
 void GameInterface::AddExcludedEpisode(FString episode)
 {
-	exclEpisodes.Push(FStringTable::MakeMacro(episode.GetChars()));
+	auto s = FStringTable::MakeMacro(episode.GetChars());
+	s.StripRight();
+	exclEpisodes.Push(s);
 }
 
 
@@ -1679,7 +1681,9 @@ int ConCompiler::parsecommand()
 		// We need both a volume and a cluster for this new episode.
 		auto vol = MustFindVolume(j);
 		auto clust = MustFindCluster(j + 1);
-		vol->name = clust->name = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		FString s = FStringTable::MakeMacro(parsebuffer.Data(), i);;
+		s.StripRight();
+		vol->name = clust->name = s;
 		if (j > 0) vol->flags |= VF_SHAREWARELOCK;
 		if (exclEpisodes.Size())
 		{
@@ -1694,6 +1698,7 @@ int ConCompiler::parsecommand()
 		return 0;
 	}
 	case concmd_defineskillname:
+	{
 		popscriptvalue();
 		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
@@ -1708,9 +1713,11 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		gSkillNames[j] = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		FString s = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		s.StripRight();
+		gSkillNames[j] = s;
 		return 0;
-
+	}
 	case concmd_definelevelname:
 	{
 		popscriptvalue();
@@ -1767,6 +1774,7 @@ int ConCompiler::parsecommand()
 		}
 		parsebuffer.Push(0);
 		map->name = FStringTable::MakeMacro(parsebuffer.Data());
+		map->name.StripRight();
 		return 0;
 	}
 	case concmd_definequote:
