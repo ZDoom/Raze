@@ -42,7 +42,7 @@ struct Bullet
     short field_6;
     short field_8;
     short nType;
-    short field_C;
+    short nPitch;
     short field_E;
     uint16_t field_10;
     uint8_t field_12;
@@ -77,7 +77,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
             ("z", w.z, def->z)
             ("at6", w.field_6, def->field_6)
             ("at8", w.field_8, def->field_8)
-            ("atc", w.field_C, def->field_C)
+            ("atc", w.nPitch, def->nPitch)
             ("ate", w.field_E, def->field_E)
             ("at10", w.field_10, def->field_10)
             ("at12", w.field_12, def->field_12)
@@ -450,9 +450,9 @@ MOVEEND:
             hitdata_t hitData;
             int dz;
             if (bVanilla)
-                dz = -bsin(pBullet->field_C, 3);
+                dz = -bsin(pBullet->nPitch, 3);
             else
-                dz = -pBullet->field_C * 512;
+                dz = -pBullet->nPitch * 512;
             hitscan(&startPos, pSprite->sectnum, bcos(pSprite->ang), bsin(pSprite->ang), dz, &hitData, CLIPMASK1);
             x2 = hitData.pos.x;
             y2 = hitData.pos.y;
@@ -576,20 +576,18 @@ void SetBulletEnemy(short nBullet, DExhumedActor* pEnemy)
     }
 }
 
-int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget, int nDoubleDamage)
+DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int nAngle, DExhumedActor* pTarget, int nDoubleDamage)
 {
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
     Bullet sBullet;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
+    int nPitch = 0;
 
     if (pBulletInfo->field_4 > 30000)
     {
-        if (nTarget >= 10000)
+        if (pTarget)
         {
-            nTarget -= 10000;
-
-            short nTargetSprite = nTarget;
-            spritetype *pTargetSprite = &sprite[nTargetSprite];
+            spritetype *pTargetSprite = &pTarget->s();
 
 //			assert(pTargetSprite->sectnum <= kMaxSectors);
 
@@ -601,31 +599,31 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
                 sBullet.pActor = insertActor(pSprite->sectnum, 200);
                 sBullet.pActor->s().ang = nAngle;
 
-                int nHeight = GetSpriteHeight(nTargetSprite);
+                int nHeight = GetActorHeight(pTarget);
 
                 assert(pTargetSprite->sectnum >= 0 && pTargetSprite->sectnum < kMaxSectors);
 
-                BulletHitsSprite(&sBullet, nSprite, nTargetSprite, pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
+                BulletHitsSprite(&sBullet, pActor->GetSpriteIndex(), pTarget->GetSpriteIndex(), pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
                 DeleteActor(sBullet.pActor);
-                return -1;
+                return nullptr;
             }
             else
             {
-                nTarget = 0;
+                nPitch = 0;
             }
         }
     }
 
     int nBullet = GrabBullet();
     if (nBullet < 0) {
-        return -1;
+        return nullptr;
     }
 
     short nSector;
 
     if (pSprite->statnum == 100)
     {
-        nSector = nPlayerViewSect[GetPlayerFromSprite(nSprite)];
+        nSector = nPlayerViewSect[GetPlayerFromActor(pActor)];
     }
     else
     {
@@ -634,7 +632,7 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
 
     auto pBulletActor = insertActor(nSector, 200);
 	auto pBulletSprite = &pBulletActor->s();
-    int nHeight = GetSpriteHeight(nSprite);
+    int nHeight = GetActorHeight(pActor);
     nHeight = nHeight - (nHeight >> 2);
 
     if (nZOffset == -1) {
@@ -674,10 +672,11 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
     pBulletSprite->xvel = 0;
     pBulletSprite->yvel = 0;
     pBulletSprite->zvel = 0;
-    pBulletSprite->owner = nSprite;
+    pBulletSprite->owner = pActor->GetSpriteIndex();
     pBulletSprite->lotag = runlist_HeadRun() + 1;
     pBulletSprite->extra = -1;
     pBulletSprite->hitag = 0;
+    pBulletActor->nPhase = nBullet;
 
 //	GrabTimeSlot(3);
 
@@ -706,7 +705,7 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
         pBulletSprite->cstat |= 0x8000;
     }
 
-    pBullet->field_C = nTarget;
+    pBullet->nPitch = nPitch;
     pBullet->nType = nType;
     pBullet->pActor = pBulletActor;
     pBullet->field_6 = runlist_AddRunRec(pBulletSprite->lotag - 1, nBullet, 0xB0000);
@@ -731,24 +730,21 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
         ChangeActorSect(pBulletActor, nSector);
     }
 
-    if (nTarget < 10000)
+    if (pTarget == nullptr)
     {
-        var_18 = (-bsin(nTarget) * pBulletInfo->field_4) >> 11;
+        var_18 = (-bsin(nPitch) * pBulletInfo->field_4) >> 11;
     }
     else
     {
-        nTarget -= 10000;
-
-        short nTargetSprite = nTarget;
-		auto pTargetSprite = &sprite[nTargetSprite];
+		auto pTargetSprite = &pTarget->s();
 
         if ((unsigned int)pBulletInfo->field_4 > 30000)
         {
-            BulletList[nBullet].pEnemy = &exhumedActors[nTargetSprite];
+            BulletList[nBullet].pEnemy = pTarget;
         }
         else
         {
-            nHeight = GetSpriteHeight(nTargetSprite);
+            nHeight = GetActorHeight(pTarget);
 
             if (pTargetSprite->statnum == 100)
             {
@@ -763,7 +759,7 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
 
             int x, y;
 
-            if (nSprite != -1 && pSprite->statnum != 100)
+            if (pActor != nullptr && pSprite->statnum != 100)
             {
                 x = pTargetSprite->x;
                 y = pTargetSprite->y;
@@ -775,7 +771,7 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
                 }
                 else
                 {
-                    int nPlayer = GetPlayerFromSprite(nTargetSprite);
+                    int nPlayer = GetPlayerFromActor(pTarget);
                     if (nPlayer > -1)
                     {
                         x += nPlayerDX[nPlayer] * 15;
@@ -813,7 +809,7 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
     pBullet->y = (pSprite->clipdist << 2) * bsin(nAngle);
     BulletList[nBullet].pEnemy = nullptr;
 
-    int pb = pBulletActor->GetSpriteIndex();
+
     if (MoveBullet(nBullet))
     {
         pBulletActor = nullptr;
@@ -826,7 +822,7 @@ int BuildBullet(short nSprite, int nType, int nZOffset, int nAngle, int nTarget,
         pBullet->z = var_18 >> 3;
     }
 
-    return pb | (nBullet << 16);
+    return pBulletActor;
 }
 
 void AIBullet::Tick(RunListEvent* ev)

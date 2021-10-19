@@ -1403,7 +1403,7 @@ void AIQueen::Tick(RunListEvent* ev)
 
                 if (!si)
                 {
-                    BuildBullet(nSprite, 12, -1, pSprite->ang, nTarget + 10000, 1);
+                    BuildBullet(&exhumedActors[nSprite], 12, -1, pSprite->ang, &exhumedActors[nTarget], 1);
                 }
                 else
                 {

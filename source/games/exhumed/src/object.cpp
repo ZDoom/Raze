@@ -1427,20 +1427,17 @@ void AITrap::Tick(RunListEvent* ev)
                 return;
             }
 
-            int nBullet = BuildBullet(nSprite, nType, 0, pSprite->ang, 0, 1);
-            if (nBullet > -1)
+            auto pBullet = BuildBullet(&exhumedActors[nSprite], nType, 0, pSprite->ang, nullptr, 1);
+            if (pBullet)
             {
-                int nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)
-                assert(nBulletSprite >= 0);
-
                 if (nType == 15)
                 {
-                    sprite[nBulletSprite].ang = (sprite[nBulletSprite].ang - 512) & kAngleMask;
-                    D3PlayFX(StaticSound[kSound32], nSprite);
+                    pBullet->s().ang = (pBullet->s().ang - 512) & kAngleMask;
+                    D3PlayFX(StaticSound[kSound32], pBullet);
                 }
                 else
                 {
-                    sprite[nBulletSprite].clipdist = 50;
+                    pBullet->s().clipdist = 50;
 
                     short nWall = sTrap[nTrap].field_6;
                     if (nWall > -1)
@@ -1454,7 +1451,7 @@ void AITrap::Tick(RunListEvent* ev)
                         wall[nWall].picnum = sTrap[nTrap].field_C + 1;
                     }
 
-                    D3PlayFX(StaticSound[kSound36], nSprite);
+                    D3PlayFX(StaticSound[kSound36], pBullet);
                 }
             }
         }
