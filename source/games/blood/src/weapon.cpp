@@ -836,6 +836,14 @@ void WeaponLower(PLAYER *pPlayer)
     }
     pPlayer->curWeapon = kWeapNone;
     pPlayer->qavLoop = 0;
+
+    // BloodGDX fix for aerosol lighter just appearing when switching to it.
+    // https://gitlab.com/m210/BloodGDX/-/commit/bea4dedd0c429eb9639333165b6f656483c9a7f7
+    if(!VanillaMode() && pPlayer->curWeapon != kWeapDynamite)
+    {
+        pPlayer->weaponState = 0;
+    }
+
 }
 
 void WeaponUpdateState(PLAYER *pPlayer)
