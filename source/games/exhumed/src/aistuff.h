@@ -803,9 +803,10 @@ enum { kSnakeSprites = 8 }; // or rename to kSnakeParts?
 // 32bytes
 struct Snake
 {
-    short nEnemy;	 // nRun
-    short nSprites[kSnakeSprites];
+    DExhumedActor* pEnemy;	 // nRun
+    DExhumedActor* pSprites[kSnakeSprites];
 
+	short nCountdown;
     short sC;
     short nRun;
 

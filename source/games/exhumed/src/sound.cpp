@@ -428,7 +428,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         if (nSnakeCam > -1)
         {
             Snake* pSnake = &SnakeList[nSnakeCam];
-            spritetype* pSnakeSprite = &sprite[pSnake->nSprites[0]];
+            spritetype* pSnakeSprite = &pSnake->pSprites[0]->s();
             campos.x = pSnakeSprite->x;
             campos.y = pSnakeSprite->y;
             campos.z = pSnakeSprite->z;
@@ -507,7 +507,7 @@ void GameInterface::UpdateSounds()
     if (nSnakeCam > -1)
     {
         Snake *pSnake = &SnakeList[nSnakeCam];
-        spritetype *pSnakeSprite = &sprite[pSnake->nSprites[0]];
+        spritetype *pSnakeSprite = &pSnake->pSprites[0]->s();
         pos = pSnakeSprite->pos;
         ang = pSnakeSprite->ang;
     }

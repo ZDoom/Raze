@@ -60,7 +60,7 @@ bool bCamera = false;
 
 int viewz;
 
-short enemy;
+DExhumedActor* pEnemy;
 
 short nEnemyPal = 0;
 
@@ -218,8 +218,8 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
-        int nSprite = SnakeList[nSnakeCam].nSprites[0];
-		auto pSprite = &sprite[nSprite];
+        auto pActor = SnakeList[nSnakeCam].pSprites[0];
+		auto pSprite = &pActor->s();
 
         playerX = pSprite->x;
         playerY = pSprite->y;
@@ -230,16 +230,16 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         SetGreenPal();
 
-        enemy = SnakeList[nSnakeCam].nEnemy;
+        pEnemy = SnakeList[nSnakeCam].pEnemy;
 
-        if (enemy <= -1 || totalmoves & 1)
+        if (pEnemy == nullptr || totalmoves & 1)
         {
             nEnemyPal = -1;
         }
         else
         {
-            nEnemyPal = sprite[enemy].pal;
-            sprite[enemy].pal = 5;
+            nEnemyPal = pEnemy->s().pal;
+            pEnemy->s().pal = 5;
         }
     }
     else
@@ -441,7 +441,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             {
                 RestoreGreenPal();
                 if (nEnemyPal > -1) {
-                    sprite[enemy].pal = (uint8_t)nEnemyPal;
+                    pEnemy->s().pal = (uint8_t)nEnemyPal;
                 }
 
                 DrawMap(smoothRatio);
@@ -491,7 +491,7 @@ void SerializeView(FSerializer& arc)
         ("camerapan", nCamerapan)
         ("camera", bCamera)
         ("viewz", viewz)
-        ("enemy", enemy)
+        ("enemy", pEnemy)
         ("enemypal", nEnemyPal)
         .Array("vertpan", dVertPan, countof(dVertPan))
         .Array("quake", nQuake, countof(nQuake))
