@@ -794,8 +794,6 @@ void DoLights()
 
 void SetTorch(int nPlayer, int bTorchOnOff)
 {
-    char buf[40];
-
     if (bTorchOnOff == bTorch) {
         return;
     }
@@ -815,16 +813,8 @@ void SetTorch(int nPlayer, int bTorchOnOff)
         PlayLocalSound(StaticSound[kSoundTorchOn], 0);
     }
 
-    strcpy(buf, "TORCH IS ");
-
-    if (bTorch) {
-        strcat(buf, "LIT");
-    }
-    else {
-        strcat(buf, "OUT");
-    }
-
-    StatusMessage(150, buf);
+    const char* buf = bTorch ? "TXT_EX_TORCHLIT" : "TXT_EX_TORCHOUT";
+    StatusMessage(150, GStrings(buf));
 }
 
 void BuildFlash(short nPlayer, short, int nVal)
