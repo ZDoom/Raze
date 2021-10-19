@@ -83,7 +83,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
             ("at12", w.field_12, def->field_12)
             ("at13", w.nDoubleDamage, def->nDoubleDamage)
             ("enemy", w.pEnemy, def->pEnemy)
-            //("owner", w.pOwner, def->pOwner)
             .EndObject();
     }
     return arc;
@@ -173,13 +172,13 @@ void IgniteSprite(DExhumedActor* pActor)
     }
 }
 
-void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, int x, int y, int z, int nSector)
+void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActor* pHitActor, int x, int y, int z, int nSector)
 {
     assert(nSector >= 0 && nSector < kMaxSectors);
 
     bulletInfo *pBulletInfo = &BulletInfo[pBullet->nType];
 
-    auto pHitSprite = &sprite[nHitSprite];
+    auto pHitSprite = &pHitActor->s();
     short nStat = pHitSprite->statnum;
 
     switch (pBullet->nType)
@@ -193,7 +192,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
             pHitSprite->hitag++;
 
             if (pHitSprite->hitag == 15) {
-                IgniteSprite(&exhumedActors[nHitSprite]);
+                IgniteSprite(pHitActor);
             }
 
             if (!RandomSize(2)) {
@@ -208,7 +207,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
                 return;
             }
             // else - fall through to below cases
-            fallthrough__;
+            [[fallthrough]];
         }
         case 1:
         case 2:
@@ -226,7 +225,6 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
 
             auto pActor = pBullet->pActor;
             spritetype *pSprite = &pActor->s();
-            spritetype *pHitSprite = &sprite[nHitSprite];
 
             if (nStat == kStatAnubisDrum)
             {
@@ -244,7 +242,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
                 pHitSprite->xvel = bcos(pSprite->ang, -2);
                 pHitSprite->yvel = bsin(pSprite->ang, -2);
 
-                MoveCreature(nHitSprite);
+                MoveCreature(pHitActor);
 
                 pHitSprite->xvel = xVel;
                 pHitSprite->yvel = yVel;
@@ -264,7 +262,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
         nDamage *= 2;
     }
 
-    runlist_DamageEnemy(nHitSprite, nBulletSprite, nDamage);
+    runlist_DamageEnemy(pHitActor, pBulletActor, nDamage);
 
     if (nStat <= 90 || nStat >= 199)
     {
@@ -481,7 +479,7 @@ HITSPRITE:
             }
             else
             {
-                BulletHitsSprite(pBullet, pSprite->owner, hitactor->GetSpriteIndex(), x2, y2, z2, hitsect);
+                BulletHitsSprite(pBullet, pActor->pTarget, hitactor, x2, y2, z2, hitsect);
             }
         }
         else if (hitwall > -1)
@@ -600,7 +598,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
                 assert(pTargetSprite->sectnum >= 0 && pTargetSprite->sectnum < kMaxSectors);
 
-                BulletHitsSprite(&sBullet, pActor->GetSpriteIndex(), pTarget->GetSpriteIndex(), pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
+                BulletHitsSprite(&sBullet, pActor, pTarget, pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
                 DeleteActor(sBullet.pActor);
                 return nullptr;
             }
@@ -669,10 +667,10 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBulletSprite->xvel = 0;
     pBulletSprite->yvel = 0;
     pBulletSprite->zvel = 0;
-    pBulletSprite->owner = pActor->GetSpriteIndex();
     pBulletSprite->lotag = runlist_HeadRun() + 1;
     pBulletSprite->extra = -1;
     pBulletSprite->hitag = 0;
+    pBulletActor->pTarget = pActor;
     pBulletActor->nPhase = nBullet;
 
 //	GrabTimeSlot(3);
@@ -869,8 +867,7 @@ void AIBullet::Draw(RunListEvent* ev)
 
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
 
-    short nSprite2 = ev->nParam;
-    mytsprite[nSprite2].statnum = 1000;
+    ev->pTSprite->statnum = 1000;
 
     if (BulletList[nBullet].nType == 15)
     {

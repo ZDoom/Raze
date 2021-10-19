@@ -420,7 +420,7 @@ void AISnake::Draw(RunListEvent* ev)
         seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakBody], 0, 0);
     }
 
-    mytsprite[nSprite].owner = -1;
+    ev->pTSprite->owner = -1;
 }
 
 
