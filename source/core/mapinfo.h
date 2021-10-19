@@ -65,12 +65,6 @@ extern int gDefaultVolume, gDefaultSkill;
 
 // Localization capable replacement of the game specific solutions.
 
-inline void MakeStringLocalizable(FString &quote)
-{
-	// Only prepend a quote if the string is localizable.
-	if (quote.Len() > 0 && quote[0] != '$' && GStrings[quote]) quote.Insert(0, "$");
-}
-
 enum
 {
 	MI_FORCEEOG = 1,
@@ -172,7 +166,8 @@ struct MapRecord
 	void SetName(const char *n)
 	{
 		name = n;
-		MakeStringLocalizable(name);
+		name.StripRight();
+		name = FStringTable::MakeMacro(name);
 	}
 	void SetFileName(const char* n)
 	{

@@ -167,8 +167,9 @@ void levelLoadDefaults(void)
         auto cluster = MustFindCluster(i);
         auto volume = MustFindVolume(i);
         CutsceneDef &csB = cluster->outro;
-        auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
-		cluster->name = volume->name = ep_str;
+        FString ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
+        ep_str.StripRight();
+        cluster->name = volume->name = FStringTable::MakeMacro(ep_str);
         if (i > 1) volume->flags |= VF_SHAREWARELOCK;
         if (BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0)) volume->flags |= VF_HIDEFROMSP;
 
