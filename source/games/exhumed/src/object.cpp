@@ -418,7 +418,7 @@ void InitElev()
 }
 
 // done
-int BuildWallSprite(int nSector)
+DExhumedActor* BuildWallSprite(int nSector)
 {
     int nWall = sector[nSector].wallptr;
 
@@ -428,16 +428,16 @@ int BuildWallSprite(int nSector)
     int x2 = wall[nWall + 1].x;
     int y2 = wall[nWall + 1].y;
 
-    int nSprite = insertsprite(nSector, 401);
-    auto pSprite = &sprite[nSprite];
+    auto pActor = insertActor(nSector, 401);
+    auto pSprite = &pActor->s();
 
     pSprite->x = (x + x2) / 2;
     pSprite->y = (y + y2) / 2;
     pSprite->z = (sector[nSector].floorz + sector[nSector].ceilingz) / 2;
     pSprite->cstat = 0x8000;
 
-    return nSprite;
-}
+    return pActor;
+ }
 
 // done
 short FindWallSprites(short nSector)
@@ -479,30 +479,32 @@ short FindWallSprites(short nSector)
     edi += 5;
     var_24 -= 5;
 
-    int nSprite = -1;
+    DExhumedActor* pAct = nullptr;
 
-    for (i = 0; i < kMaxSprites; i++)
+    ExhumedSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        if (sprite[i].lotag == 0)
+        auto spr = &actor->s();
+        if (spr->lotag == 0)
         {
-            if ((sprite[i].cstat & 0x50) == 80)
+            if ((spr->cstat & 0x50) == 80)
             {
-                int var_28 = sprite[i].x;
-                int ebx = sprite[i].y;
+                int var_28 = spr->x;
+                int ebx = spr->y;
 
                 if ((var_28 >= var_24) && (esi >= var_28) && (ebx >= ecx) && (ebx <= edi))
                 {
-                    sprite[i].owner = nSprite;
-                    nSprite = i;
+                    actor->pTarget = pAct;
+                    pAct = actor;
                 }
             }
         }
     }
 
-    if (nSprite < 0)
+    if (pAct == nullptr)
     {
-        nSprite = insertsprite(nSector, 401);
-        auto pSprite = &sprite[nSprite];
+        pAct = insertActor(nSector, 401);
+        auto pSprite = &pAct->s();
 
         pSprite->x = (var_24 + esi) / 2;
         pSprite->y = (ecx + edi) / 2;
@@ -513,7 +515,7 @@ short FindWallSprites(short nSector)
         pSprite->hitag = 0;
     }
 
-    return nSprite;
+    return pAct->GetSpriteIndex();
 }
 
 int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, ...)
@@ -531,7 +533,7 @@ int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5,
     Elevator[ElevCount].field_36 = 0;
 
     if (nWallSprite < 0) {
-        nWallSprite = BuildWallSprite(nSector);
+        nWallSprite = BuildWallSprite(nSector)->GetSpriteIndex();
     }
 
     Elevator[ElevCount].nSprite = nWallSprite;
@@ -579,7 +581,7 @@ int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, i
     Elevator[ElevCount].nSector = nSector;
 
     if (nWallSprite < 0) {
-        nWallSprite = BuildWallSprite(nSector);
+        nWallSprite = BuildWallSprite(nSector)->GetSpriteIndex();
     }
 
     Elevator[ElevCount].nSprite = nWallSprite;
@@ -811,7 +813,7 @@ void AIElev::Tick(RunListEvent* ev)
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
     short nSector = Elevator[nElev].nSector;
-    short di = Elevator[nElev].nSprite;
+    auto pElevSpr = &exhumedActors[Elevator[nElev].nSprite];
 
     int ebp = 0; // initialise to *something*
 
@@ -831,11 +833,11 @@ void AIElev::Tick(RunListEvent* ev)
             if (var_18 & 0x10)
             {
                 Elevator[nElev].nCurZOffset ^= 1;
-                StartElevSound(di, var_18);
+                StartElevSound(pElevSpr->GetSpriteIndex(), var_18);
             }
             else
             {
-                StopSpriteSound(di);
+                StopActorSound(pElevSpr);
                 runlist_SubRunRec(nRun);
                 Elevator[nElev].field_32 = -1;
                 runlist_ReadyChannel(nChannel);
@@ -892,10 +894,11 @@ void AIElev::Tick(RunListEvent* ev)
             if (ceilZ == zVal)
             {
                 if (var_18 & 0x4) {
-                    SetQuake(di, 30);
+                    SetQuake(pElevSpr, 30);
                 }
 
-                PlayFXAtXYZ(StaticSound[kSound26], sprite[di].x, sprite[di].y, sprite[di].z, sprite[di].sectnum);
+                auto sp = &pElevSpr->s();
+                PlayFXAtXYZ(StaticSound[kSound26], sp->x, sp->y, sp->z, sp->sectnum);
             }
 
             if (var_18 & 0x4)
@@ -919,10 +922,10 @@ void AIElev::Tick(RunListEvent* ev)
     }
 
     // maybe this doesn't go here?
-    while (di != -1)
+    while (pElevSpr)
     {
-        sprite[di].z += ebp;
-        di = sprite[di].owner;
+        pElevSpr->s().z += ebp;
+        pElevSpr = pElevSpr->pTarget;
     }
 }
 

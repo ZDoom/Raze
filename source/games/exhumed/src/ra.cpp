@@ -296,7 +296,7 @@ void AIRa::Draw(RunListEvent* ev)
     short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
 
     seq_PlotSequence(ev->nParam, nSeq, Ra[nPlayer].nFrame, 1);
-    mytsprite[ev->nParam].owner = -1;
+    ev->pTSprite->owner = -1;
 }
 
 void FuncRa(int nObject, int nMessage, int nDamage, int nRun)

@@ -273,8 +273,9 @@ void RestartPlayer(short nPlayer)
 
 		if (nDopSprite > -1)
 		{
-			runlist_DoSubRunRec(sprite[nDopSprite].owner);
-			runlist_FreeRun(sprite[nDopSprite].lotag - 1);
+            auto sp = &sprite[nDopSprite];
+			runlist_DoSubRunRec(sp->owner);
+			runlist_FreeRun(sp->lotag - 1);
 			mydeletesprite(nDopSprite);
 		}
 	}
