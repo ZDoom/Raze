@@ -748,14 +748,20 @@ void WeaponLower(PLAYER *pPlayer)
         switch (prevState)
         {
         case 1:
-            if (!VanillaMode() && (pPlayer->newWeapon == kWeapSpraycan)) // do not put away lighter after TNT is thrown if while throwing the weapon was switched already to spray
+            if (VanillaMode())
             {
-                pPlayer->weaponState = 2;
-                StartQAV(pPlayer, kQAVBUNDOWN);
-                WeaponRaise(pPlayer);
-                return;
+                StartQAV(pPlayer, kQAVLITECLO2);
             }
-            StartQAV(pPlayer, kQAVLITECLO2);
+            else
+            {
+                if (pPlayer->newWeapon == kWeapSpraycan) // do not put away lighter if TNT was selected while throwing a spray can
+                {
+                    pPlayer->weaponState = 2;
+                    StartQAV(pPlayer, kQAVCANDOWN);
+                    WeaponRaise(pPlayer);
+                    return;
+                }
+            }
             break;
         case 2:
             WeaponRaise(pPlayer);
@@ -836,14 +842,6 @@ void WeaponLower(PLAYER *pPlayer)
     }
     pPlayer->curWeapon = kWeapNone;
     pPlayer->qavLoop = 0;
-
-    // BloodGDX fix for aerosol lighter just appearing when switching to it.
-    // https://gitlab.com/m210/BloodGDX/-/commit/bea4dedd0c429eb9639333165b6f656483c9a7f7
-    if(!VanillaMode() && pPlayer->curWeapon != kWeapDynamite)
-    {
-        pPlayer->weaponState = 0;
-    }
-
 }
 
 void WeaponUpdateState(PLAYER *pPlayer)
