@@ -610,6 +610,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor& w, 
 			("index2", w.nIndex2)
 			("channel", w.nChannel)
             ("damage", w.nDamage)
+
+            ("turn", w.nTurn)
+            ("x", w.x)
+            ("y", w.y)
             .EndObject();
     }
     return arc;

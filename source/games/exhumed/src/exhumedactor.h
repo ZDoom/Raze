@@ -99,6 +99,12 @@ public:
 	union { short nChannel; short nVel; };	// channel is for scorpion, vel is for wasp.
 	union { short nDamage; short nAction2; }; // nAction2 is for the queen.
 
+	// for the grenade.
+	int nTurn;
+	int x;
+	int y;
+
+
 	DExhumedActor() :index(int(this - base())) {}
 	DExhumedActor& operator=(const DExhumedActor& other) = default;
 

@@ -28,15 +28,15 @@ BEGIN_PS_NS
 
 struct Grenade
 {
-    short field_0;
-    short field_2;
+    short nCount;
+    short nHealth;
     short nSprite;
-    short field_6;
-    short field_8;
-    short field_A;
-    short field_C;
-    short field_E;
-    int field_10;
+    short nPhase;
+    short nRun;
+    short nIndex;
+    short nFrame;
+    short nIndex2;
+    int nTurn;
     int x;
     int y;
 };
@@ -54,14 +54,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Grenade& w, Grenad
     if (arc.BeginObject(keyname))
     {
         arc("sprite", w.nSprite, def->nSprite)
-            ("at0", w.field_0, def->field_0)
-            ("at2", w.field_2, def->field_2)
-            ("at6", w.field_6, def->field_6)
-            ("at8", w.field_8, def->field_8)
-            ("ata", w.field_A, def->field_A)
-            ("atc", w.field_C, def->field_C)
-            ("ate", w.field_E, def->field_E)
-            ("at10", w.field_10, def->field_10)
+            ("at0", w.nCount, def->nCount)
+            ("at2", w.nHealth, def->nHealth)
+            ("at6", w.nPhase, def->nPhase)
+            ("at8", w.nRun, def->nRun)
+            ("ata", w.nIndex, def->nIndex)
+            ("atc", w.nFrame, def->nFrame)
+            ("ate", w.nIndex2, def->nIndex2)
+            ("at10", w.nTurn, def->nTurn)
             ("x", w.x, def->x)
             ("y", w.y, def->y)
             .EndObject();
@@ -87,8 +87,9 @@ short GrabGrenade()
 
 void DestroyGrenade(short nGrenade)
 {
-    runlist_DoSubRunRec(GrenadeList[nGrenade].field_6);
-    runlist_SubRunRec(GrenadeList[nGrenade].field_8);
+    auto pActor = &GrenadeList[nGrenade];
+    runlist_DoSubRunRec(GrenadeList[nGrenade].nPhase);
+    runlist_SubRunRec(GrenadeList[nGrenade].nRun);
     runlist_DoSubRunRec(sprite[GrenadeList[nGrenade].nSprite].lotag - 1);
 
     mydeletesprite(GrenadeList[nGrenade].nSprite);
@@ -97,10 +98,11 @@ void DestroyGrenade(short nGrenade)
 
 void BounceGrenade(short nGrenade, short nAngle)
 {
-    GrenadeList[nGrenade].field_10 >>= 1;
+    auto pActor = &GrenadeList[nGrenade];
+    GrenadeList[nGrenade].nTurn >>= 1;
 
-    GrenadeList[nGrenade].x = bcos(nAngle, -5) * GrenadeList[nGrenade].field_10;
-    GrenadeList[nGrenade].y = bsin(nAngle, -5) * GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].x = bcos(nAngle, -5) * GrenadeList[nGrenade].nTurn;
+    GrenadeList[nGrenade].y = bsin(nAngle, -5) * GrenadeList[nGrenade].nTurn;
 
     D3PlayFX(StaticSound[kSound3], GrenadeList[nGrenade].nSprite);
 }
@@ -111,6 +113,7 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
         return -1;
 
     short nGrenade = nPlayerGrenade[nPlayer];
+    auto pActor = &GrenadeList[nGrenade];
 
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
@@ -136,7 +139,7 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
     {
         int nVel = totalvel[nPlayer] << 5;
 
-        GrenadeList[nGrenade].field_10 = ((90 - GrenadeList[nGrenade].field_E) * (90 - GrenadeList[nGrenade].field_E)) + nVel;
+        GrenadeList[nGrenade].nTurn = ((90 - GrenadeList[nGrenade].nIndex2) * (90 - GrenadeList[nGrenade].nIndex2)) + nVel;
         pGrenadeSprite->zvel = (-64 * push1) - 4352;
 
         int nMov = movesprite(nGrenadeSprite, bcos(nAngle) * (pPlayerSprite->clipdist << 3), bsin(nAngle) * (pPlayerSprite->clipdist << 3), ecx, 0, 0, CLIPMASK1);
@@ -148,12 +151,12 @@ int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
     }
     else
     {
-        GrenadeList[nGrenade].field_10 = 0;
+        GrenadeList[nGrenade].nTurn = 0;
         pGrenadeSprite->zvel = pPlayerSprite->zvel;
     }
 
-    GrenadeList[nGrenade].x = bcos(nAngle, -4) * GrenadeList[nGrenade].field_10;
-    GrenadeList[nGrenade].y = bsin(nAngle, -4) * GrenadeList[nGrenade].field_10;
+    GrenadeList[nGrenade].x = bcos(nAngle, -4) * GrenadeList[nGrenade].nTurn;
+    GrenadeList[nGrenade].y = bsin(nAngle, -4) * GrenadeList[nGrenade].nTurn;
 
     nPlayerGrenade[nPlayer] = -1;
 
@@ -164,6 +167,8 @@ void BuildGrenade(int nPlayer)
 {
     int nGrenade = GrabGrenade();
     if (nGrenade < 0) return;
+
+    auto pActor = &GrenadeList[nGrenade];
 
     int nSprite = insertsprite(nPlayerViewSect[nPlayer], 201);
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -196,15 +201,15 @@ void BuildGrenade(int nPlayer)
 
 //	GrabTimeSlot(3);
 
-    GrenadeList[nGrenade].field_E = 90;
-    GrenadeList[nGrenade].field_2 = 0;
-    GrenadeList[nGrenade].field_0 = 16;
-    GrenadeList[nGrenade].field_10 = -1;
+    GrenadeList[nGrenade].nIndex2 = 90;
+    GrenadeList[nGrenade].nHealth = 0;
+    GrenadeList[nGrenade].nCount = 16;
+    GrenadeList[nGrenade].nTurn = -1;
     GrenadeList[nGrenade].nSprite = nSprite;
-    GrenadeList[nGrenade].field_A = 0;
-    GrenadeList[nGrenade].field_C = 0;
-    GrenadeList[nGrenade].field_6 = runlist_AddRunRec(pSprite->lotag - 1, nGrenade, 0x0F0000);
-    GrenadeList[nGrenade].field_8 = runlist_AddRunRec(NewRun, nGrenade, 0x0F0000);
+    GrenadeList[nGrenade].nIndex = 0;
+    GrenadeList[nGrenade].nFrame = 0;
+    GrenadeList[nGrenade].nPhase = runlist_AddRunRec(pSprite->lotag - 1, nGrenade, 0x0F0000);
+    GrenadeList[nGrenade].nRun = runlist_AddRunRec(NewRun, nGrenade, 0x0F0000);
 
     nGrenadePlayer[nGrenade] = nPlayer;
     nPlayerGrenade[nPlayer] = nGrenade;
@@ -213,13 +218,14 @@ void BuildGrenade(int nPlayer)
 void ExplodeGrenade(short nGrenade)
 {
     int var_28, var_20;
+    auto pActor = &GrenadeList[nGrenade];
 
     short nPlayer = nGrenadePlayer[nGrenade];
     int nGrenadeSprite = GrenadeList[nGrenade].nSprite;
 	auto pGrenadeSprite = &sprite[nGrenadeSprite];
     short nGrenadeSect = pGrenadeSprite->sectnum;
 
-    GrenadeList[nGrenade].field_C = 1;
+    GrenadeList[nGrenade].nFrame = 1;
 
     if (SectFlag[nGrenadeSect] & kSectUnderwater)
     {
@@ -244,7 +250,7 @@ void ExplodeGrenade(short nGrenade)
         }
     }
 
-    if (GrenadeList[nGrenade].field_10 < 0)
+    if (GrenadeList[nGrenade].nTurn < 0)
     {
         short nPlayerSprite = PlayerList[nPlayer].nSprite;
 		auto pPlayerSprite = &sprite[nPlayerSprite];
@@ -279,30 +285,32 @@ void ExplodeGrenade(short nGrenade)
 void AIGrenade::Draw(RunListEvent* ev)
 {
     short nGrenade = RunData[ev->nRun].nObjIndex;
+    auto pActor = &GrenadeList[nGrenade];
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
-    short nSeq = GrenadeList[nGrenade].field_C ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].field_A;
-    seq_PlotSequence(ev->nParam, nSeq, GrenadeList[nGrenade].field_2 >> 8, 1);
+    short nSeq = GrenadeList[nGrenade].nFrame ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].nIndex;
+    seq_PlotSequence(ev->nParam, nSeq, GrenadeList[nGrenade].nHealth >> 8, 1);
 }
 
 
 void AIGrenade::Tick(RunListEvent* ev)
 {
     short nGrenade = RunData[ev->nRun].nObjIndex;
+    auto pActor = &GrenadeList[nGrenade];
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
 
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
     auto pGrenadeSprite = &sprite[nGrenadeSprite];
-    short nSeq = GrenadeList[nGrenade].field_C ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].field_A;
+    short nSeq = GrenadeList[nGrenade].nFrame ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + GrenadeList[nGrenade].nIndex;
 
-    seq_MoveSequence(nGrenadeSprite, nSeq, GrenadeList[nGrenade].field_2 >> 8);
-    pGrenadeSprite->picnum = seq_GetSeqPicnum2(nSeq, GrenadeList[nGrenade].field_2 >> 8);
+    seq_MoveSequence(nGrenadeSprite, nSeq, GrenadeList[nGrenade].nHealth >> 8);
+    pGrenadeSprite->picnum = seq_GetSeqPicnum2(nSeq, GrenadeList[nGrenade].nHealth >> 8);
 
-    GrenadeList[nGrenade].field_E--;
-    if (!GrenadeList[nGrenade].field_E)
+    GrenadeList[nGrenade].nIndex2--;
+    if (!GrenadeList[nGrenade].nIndex2)
     {
         short nPlayer = nGrenadePlayer[nGrenade];
 
-        if (GrenadeList[nGrenade].field_10 < 0)
+        if (GrenadeList[nGrenade].nTurn < 0)
         {
             PlayerList[nPlayer].field_3A = 0;
             PlayerList[nPlayer].field_3FOUR = 0;
@@ -325,35 +333,35 @@ void AIGrenade::Tick(RunListEvent* ev)
     }
     else
     {
-        if (GrenadeList[nGrenade].field_10 < 0) {
+        if (GrenadeList[nGrenade].nTurn < 0) {
             return;
         }
 
-        int ebp = (GrenadeList[nGrenade].field_2 + GrenadeList[nGrenade].field_0) >> 8;
+        int ebp = (GrenadeList[nGrenade].nHealth + GrenadeList[nGrenade].nCount) >> 8;
 
-        GrenadeList[nGrenade].field_2 += GrenadeList[nGrenade].field_0;
+        GrenadeList[nGrenade].nHealth += GrenadeList[nGrenade].nCount;
 
         if (ebp < 0)
         {
-            GrenadeList[nGrenade].field_2 += SeqSize[nSeq] << 8;
+            GrenadeList[nGrenade].nHealth += SeqSize[nSeq] << 8;
         }
         else
         {
             if (ebp >= SeqSize[nSeq])
             {
-                if (GrenadeList[nGrenade].field_C)
+                if (GrenadeList[nGrenade].nFrame)
                 {
                     DestroyGrenade(nGrenade);
                     return;
                 }
                 else
                 {
-                    GrenadeList[nGrenade].field_2 = GrenadeList[nGrenade].field_C;
+                    GrenadeList[nGrenade].nHealth = GrenadeList[nGrenade].nFrame;
                 }
             }
         }
 
-        if (GrenadeList[nGrenade].field_C) {
+        if (GrenadeList[nGrenade].nFrame) {
             return;
         }
 
@@ -375,7 +383,7 @@ void AIGrenade::Tick(RunListEvent* ev)
                     return;
                 }
 
-                GrenadeList[nGrenade].field_0 = (uint8_t)totalmoves; // limit to 8bits?
+                GrenadeList[nGrenade].nCount = (uint8_t)totalmoves; // limit to 8bits?
 
                 D3PlayFX(StaticSound[kSound3], nGrenadeSprite);
 
@@ -384,14 +392,14 @@ void AIGrenade::Tick(RunListEvent* ev)
                 if (pGrenadeSprite->zvel > -1280)
                 {
                     D3PlayFX(StaticSound[kSound5], nGrenadeSprite);
-                    GrenadeList[nGrenade].field_0 = 0;
-                    GrenadeList[nGrenade].field_2 = 0;
+                    GrenadeList[nGrenade].nCount = 0;
+                    GrenadeList[nGrenade].nHealth = 0;
                     pGrenadeSprite->zvel = 0;
-                    GrenadeList[nGrenade].field_A = 1;
+                    GrenadeList[nGrenade].nIndex = 1;
                 }
             }
 
-            GrenadeList[nGrenade].field_0 = 255 - (RandomByte() * 2);
+            GrenadeList[nGrenade].nCount = 255 - (RandomByte() * 2);
             GrenadeList[nGrenade].x -= (GrenadeList[nGrenade].x >> 4);
             GrenadeList[nGrenade].y -= (GrenadeList[nGrenade].y >> 4);
         }
@@ -409,23 +417,24 @@ void AIGrenade::Tick(RunListEvent* ev)
             }
         }
 
-        GrenadeList[nGrenade].field_2 = 0;
+        GrenadeList[nGrenade].nHealth = 0;
     }
 }
 
 void AIGrenade::RadialDamage(RunListEvent* ev)
 {
     short nGrenade = RunData[ev->nRun].nObjIndex;
+    auto pActor = &GrenadeList[nGrenade];
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);
 
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
     auto pGrenadeSprite = &sprite[nGrenadeSprite];
 
-    if (nGrenadeSprite != nRadialSpr && !GrenadeList[nGrenade].field_C)
+    if (nGrenadeSprite != nRadialSpr && !GrenadeList[nGrenade].nFrame)
     {
         if (runlist_CheckRadialDamage(nGrenadeSprite) > 280)
         {
-            GrenadeList[nGrenade].field_E = RandomSize(4) + 1;
+            GrenadeList[nGrenade].nIndex2 = RandomSize(4) + 1;
         }
     }
 }
