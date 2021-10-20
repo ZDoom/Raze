@@ -173,11 +173,10 @@ void DebugOut(const char *fmt, ...)
 
 void DoClockBeep()
 {
-    int i;
-    StatIterator it(407);
-    while ((i = it.NextIndex()) >= 0)
+    ExhumedStatIterator it(407);
+    while (auto i = it.Next())
     {
-        PlayFX2(StaticSound[kSound74], i);
+        PlayFX2(StaticSound[kSound74], i->GetSpriteIndex());
     }
 }
 

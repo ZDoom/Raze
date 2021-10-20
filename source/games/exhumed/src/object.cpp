@@ -643,12 +643,11 @@ int CheckSectorSprites(short nSector, int nVal)
     {
         int nZDiff = sector[nSector].floorz - sector[nSector].ceilingz;
 
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+        ExhumedSectIterator it(nSector);
+        while (auto pActor= it.Next())
         {
-            auto pSprite = &sprite[nSprite];
-            if ((pSprite->cstat & 0x101) && (nZDiff < GetSpriteHeight(nSprite)))
+            auto pSprite = &pActor->s();
+            if ((pSprite->cstat & 0x101) && (nZDiff < GetActorHeight(pActor)))
             {
                 if (nVal != 1) {
                     return 1;
@@ -656,26 +655,25 @@ int CheckSectorSprites(short nSector, int nVal)
 
                 b = 1;
 
-                runlist_DamageEnemy(nSprite, -1, 5);
+                runlist_DamageEnemy(pActor->GetSpriteIndex(), -1, 5);
 
-                if (pSprite->statnum == 100 && PlayerList[GetPlayerFromSprite(nSprite)].nHealth <= 0)
+                if (pSprite->statnum == 100 && PlayerList[GetPlayerFromActor(pActor)].nHealth <= 0)
                 {
                     PlayFXAtXYZ(StaticSound[kSoundJonFDie],
                         pSprite->x,
                         pSprite->y,
                         pSprite->z,
-                        pSprite->sectnum | 0x4000);
+                        pSprite->sectnum, CHANF_NONE, 0x4000);
                 }
             }
         }
     }
     else
     {
-        int i;
-        SectIterator it(nSector);
-        while ((i = it.NextIndex()) >= 0)
+        ExhumedSectIterator it(nSector);
+        while (auto pActor = it.Next())
         {
-            if (sprite[i].cstat & 0x101) {
+            if (pActor->s().cstat & 0x101) {
                 return 1;
             }
         }
@@ -692,11 +690,10 @@ void MoveSectorSprites(int nSector, int z)
     int oldz = newz - z;
     int minz = std::min(newz, oldz);
     int maxz = std::max(newz, oldz);
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    ExhumedSectIterator it(nSector);
+    while (auto pActor = it.Next())
     {
-        auto pSprite = &sprite[nSprite];
+        auto pSprite = &pActor->s();
         int z = pSprite->z;
         if ((pSprite->statnum != 200 && z >= minz && z <= maxz) || pSprite->statnum >= 900)
         {
@@ -1771,11 +1768,10 @@ void KillCreatures()
     {
         if (v0 != 100)
         {
-            int i;
-            StatIterator it(v1);
-            while ((i = it.NextIndex()) >= 0)
+            ExhumedStatIterator it(v1);
+            while (auto i = it.Next())
             {
-                runlist_DamageEnemy(i, -1, 1600);
+                runlist_DamageEnemy(i->GetSpriteIndex(), -1, 1600);
             }
         }
         ++v0;

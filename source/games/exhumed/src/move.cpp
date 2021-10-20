@@ -916,8 +916,6 @@ void CreatePushBlock(int nSector)
 
 void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
 {
-    int i;
-
     if (nSector == -1) {
         return;
     }
@@ -1042,37 +1040,38 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
     // GREEN
     if (yvect || xvect)
     {
-        SectIterator it(nSector);
-        while ((i = it.NextIndex()) >= 0)
+        ExhumedSectIterator it(nSector);
+        while (auto pActor = it.Next())
         {
-            if (sprite[i].statnum < 99)
+            auto sp = &pActor->s();
+            if (sp->statnum < 99)
             {
-                sprite[i].x += xvect;
-                sprite[i].y += yvect;
+                sp->x += xvect;
+                sp->y += yvect;
             }
             else
             {
-                z = sprite[i].z;
+                z = sp->z;
 
-                if ((nSectFlag & kSectUnderwater) || z != nZVal || sprite[i].cstat & 0x8000)
+                if ((nSectFlag & kSectUnderwater) || z != nZVal || sp->cstat & 0x8000)
                 {
-                    x = sprite[i].x;
-                    y = sprite[i].y;
+                    x = sp->x;
+                    y = sp->y;
                     nSectorB = nSector;
 
-                    clipmove_old((int32_t*)&x, (int32_t*)&y, (int32_t*)&z, &nSectorB, -xvect, -yvect, 4 * sprite[i].clipdist, 0, 0, CLIPMASK0);
+                    clipmove_old(&x, &y, &z, &nSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0);
 
                     if (nSectorB >= 0 && nSectorB < kMaxSectors && nSectorB != nSector) {
-                        mychangespritesect(i, nSectorB);
+                        ChangeActorSect(pActor, nSectorB);
                     }
                 }
             }
         }
 
         it.Reset(nNextSector);
-        while ((i = it.NextIndex()) >= 0)
+        while (auto pActor = it.Next())
         {
-            auto pSprite = &sprite[i];
+            auto pSprite = &pActor->s();
             if (pSprite->statnum >= 99)
             {
                 x = pSprite->x;
@@ -1091,12 +1090,12 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
                     if (nSectorB != nSector || nFloorZ >= pSprite->z)
                     {
                         if (nSectorB >= 0 && nSectorB < kMaxSectors) {
-                            mychangespritesect(i, nSectorB);
+                            ChangeActorSect(pActor, nSectorB);
                         }
                     }
                     else
                     {
-                        movesprite(i,
+                        movesprite(pActor,
                             (xvect << 14) + bcos(nAngle) * pSprite->clipdist,
                             (yvect << 14) + bsin(nAngle) * pSprite->clipdist,
                             0, 0, 0, CLIPMASK0);
@@ -1122,10 +1121,10 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
 
     if (!(nSectFlag & kSectUnderwater))
     {
-        SectIterator it(nSector);
-        while ((i = it.NextIndex()) >= 0)
+        ExhumedSectIterator it(nSector);
+        while (auto pActor = it.Next())
         {
-            auto pSprite = &sprite[i];
+            auto pSprite = &pActor->s();
             if (pSprite->statnum >= 99 && nZVal == pSprite->z && !(pSprite->cstat & 0x8000))
             {
                 nSectorB = nSector;

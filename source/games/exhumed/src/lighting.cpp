@@ -348,11 +348,10 @@ void AddFlash(short nSector, int x, int y, int z, int val)
             }
         }
 
-        int nSprite;
-        SectIterator it(nSector);
-        while ((nSprite = it.NextIndex()) >= 0)
+        ExhumedSectIterator it(nSector);
+        while (auto pActor = it.Next())
         {
-			auto pSprite = &sprite[nSprite];
+			auto pSprite = &pActor->s();
             if (pSprite->pal < 4)
             {
                 short nFlash3 = GrabFlash();
@@ -360,7 +359,7 @@ void AddFlash(short nSector, int x, int y, int z, int val)
                 {
                     sFlash[nFlash3].field_0 = var_20 | 4;
                     sFlash[nFlash3].shade = pSprite->shade;
-                    sFlash[nFlash3].field_1 = nSprite;
+                    sFlash[nFlash3].field_1 = pActor->GetSpriteIndex();
 
                     pSprite->pal += 7;
 

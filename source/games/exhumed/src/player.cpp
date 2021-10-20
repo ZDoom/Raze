@@ -157,17 +157,17 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
     {
         if (nSector != -1)
         {
-            int i;
-            SectIterator it(nSector);
-            while ((i = it.NextIndex()) >= 0)
+            ExhumedSectIterator it(nSector);
+            while (auto pActor = it.Next())
             {
-                short nStat = sprite[i].statnum;
+                auto pSprite = &pActor->s();
+                short nStat = pSprite->statnum;
 
-                if (nStat >= 900 && !(sprite[i].cstat & 0x8000))
+                if (nStat >= 900 && !(pSprite->cstat & 0x8000))
                 {
-                    uint32_t xDiff = abs(sprite[i].x - x);
-                    uint32_t yDiff = abs(sprite[i].y - y);
-                    int zDiff = sprite[i].z - z;
+                    uint32_t xDiff = abs(pSprite->x - x);
+                    uint32_t yDiff = abs(pSprite->y - y);
+                    int zDiff = pSprite->z - z;
 
                     if (zDiff < 5120 && zDiff > -25600)
                     {
@@ -184,7 +184,7 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
                         if (theSqrt < nVal3 && ((nStat != 950 && nStat != 949) || !(var_14 & 1)) && ((nStat != 912 && nStat != 913) || !(var_20 & 2)))
                         {
                             nVal3 = theSqrt;
-                            *nSprite = i;
+                            *nSprite = pActor->GetSpriteIndex();
                         }
                     }
                 }

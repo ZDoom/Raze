@@ -341,7 +341,6 @@ void FuncSpark(int, int, int, int);
 void SnapBobs(short nSectorA, short nSectorB);
 short FindWallSprites(short nSector);
 void AddMovingSector(int nSector, int edx, int ebx, int ecx);
-DExhumedActor* BuildWallSprite(int nSector);
 void ProcessTrailSprite(int nSprite, int nLotag, int nHitag);
 void AddSectorBob(int nSector, int nHitag, int bx);
 int BuildObject(int const nSprite, int nOjectType, int nHitag);
