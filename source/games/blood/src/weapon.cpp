@@ -2283,7 +2283,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 if (checkAmmo2(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
                     pPlayer->newWeapon = kWeapDynamite;
                 else if (checkAmmo2(pPlayer, 10, 1))
-                    pPlayer->newWeapon = kWeapVoodooDoll;
+                    pPlayer->newWeapon = kWeapProximity;
                 else if (checkAmmo2(pPlayer, 11, 1))
                     pPlayer->newWeapon = kWeapRemote;
             }
