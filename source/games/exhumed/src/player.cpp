@@ -800,8 +800,9 @@ void AIPlayer::Tick(RunListEvent* ev)
     short nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    short nPlayerSprite = PlayerList[nPlayer].nSprite;
-    auto pPlayerSprite = &sprite[nPlayerSprite];
+    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    int nPlayerSprite = PlayerList[nPlayer].nSprite;
+    auto pPlayerSprite = &pPlayerActor->s();
 
     short nDopple = nDoppleSprite[nPlayer];
 
@@ -904,7 +905,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     // pPlayerSprite->zvel is modified within Gravity()
     short zVel = pPlayerSprite->zvel;
 
-    Gravity(nPlayerSprite);
+    Gravity(pPlayerActor);
 
     if (pPlayerSprite->zvel >= 6500 && zVel < 6500)
     {
@@ -994,7 +995,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         if (nTotalPlayers <= 1)
         {
-            auto ang = GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask;
+            auto ang = GetAngleToSprite(pPlayerActor, &exhumedActors[nSpiritSprite]) & kAngleMask;
             PlayerList[nPlayer].angle.settarget(ang, true);
             pPlayerSprite->ang = ang;
 

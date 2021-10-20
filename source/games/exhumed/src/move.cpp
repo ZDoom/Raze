@@ -702,13 +702,13 @@ int MoveCreatureWithCaution(int nSprite)
     return ecx;
 }
 
-int GetAngleToSprite(int nSprite1, int nSprite2)
+int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
 {
-    if (nSprite1 < 0 || nSprite2 < 0)
+    if (!a1 || !a2)
         return -1;
 
-	auto pSprite1 = &sprite[nSprite1];
-	auto pSprite2 = &sprite[nSprite2];
+	auto pSprite1 = &a1->s();
+	auto pSprite2 = &a2->s();
 
     return GetMyAngle(pSprite2->x - pSprite1->x, pSprite2->y - pSprite1->y);
 }
@@ -1465,7 +1465,7 @@ int BuildCreatureChunk(int nVal, int nPic)
     pSprite->y = sprite[nVal].y;
     pSprite->z = sprite[nVal].z;
 
-    mychangespritesect(actor->GetSpriteIndex(), sprite[nVal].sectnum);
+    ChangeActorSect(actor, sprite[nVal].sectnum);
 
     pSprite->cstat = 0x80;
     pSprite->shade = -12;

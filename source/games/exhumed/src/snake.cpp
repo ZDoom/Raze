@@ -288,7 +288,7 @@ DExhumedActor* FindSnakeEnemy(short nSnake)
         {
             if (pAct2 != pPlayerActor && !(pSpr2->cstat & 0x8000))
             {
-                int nAngle2 = (nAngle - GetAngleToSprite(pActor->GetSpriteIndex(), pAct2->GetSpriteIndex())) & kAngleMask;
+                int nAngle2 = (nAngle - GetAngleToSprite(pActor, pAct2)) & kAngleMask;
                 if (nAngle2 < esi)
                 {
                     pEnemy = pAct2;

@@ -278,7 +278,7 @@ inline int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2)
     return PlotCourseToSprite(nSprite1->GetSpriteIndex(), nSprite2->GetSpriteIndex());
 }
 void CheckSectorFloor(short nSector, int z, int *x, int *y);
-int GetAngleToSprite(int nSprite1, int nSprite2);
+int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 int GetWallNormal(short nWall);
 int GetUpAngle(short nSprite1, int nVal, short nSprite2, int ecx);
 int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int ecx)
