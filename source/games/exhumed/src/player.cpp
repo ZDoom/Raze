@@ -113,8 +113,7 @@ short nNetStartSprite[kMaxPlayers] = { 0 };
 
 short nStandHeight;
 
-short nPlayerGrenade[kMaxPlayers];
-short nGrenadePlayer[50];
+DExhumedActor* nPlayerGrenade[kMaxPlayers];
 
 short word_D282A[32];
 
@@ -426,7 +425,7 @@ void RestartPlayer(short nPlayer)
 		plr->nMagic = 0;
 	}
 
-	nPlayerGrenade[nPlayer] = -1;
+	nPlayerGrenade[nPlayer] = nullptr;
 	oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
 	dVertPan[nPlayer] = 0;
 
@@ -490,7 +489,7 @@ void StartDeathSeq(int nPlayer, int nVal)
         runlist_SignalRun(nLotag - 1, nPlayer | 0x70000);
     }
 
-    if (nPlayerGrenade[nPlayer] >= 0)
+    if (nPlayerGrenade[nPlayer])
     {
         ThrowGrenade(nPlayer, 0, 0, 0, -10000);
     }
@@ -2743,7 +2742,6 @@ void SerializePlayer(FSerializer& arc)
             ("playercount", PlayerCount)
             ("netstartsprites", nNetStartSprites)
             ("localplayer", nLocalPlayer)
-            .Array("grenadeplayer", nGrenadePlayer, countof(nGrenadePlayer))
             .Array("curstartsprite", nNetStartSprite, PlayerCount)
             .Array("breathtimer", nBreathTimer, PlayerCount)
             .Array("playerswear", nPlayerSwear, PlayerCount)

@@ -117,14 +117,13 @@ void ResetPlayerWeapons(short nPlayer)
     PlayerList[nPlayer].field_3A = 0;
     PlayerList[nPlayer].field_3FOUR = 0;
 
-    nPlayerGrenade[nPlayer] = -1;
+    nPlayerGrenade[nPlayer] = nullptr;
     nPlayerWeapons[nPlayer] = 0x1; // turn on bit 1 only
 }
 
 void InitWeapons()
 {
     memset(nPlayerGrenade, 0, sizeof(nPlayerGrenade));
-    memset(nGrenadePlayer, 0, sizeof(nGrenadePlayer));
 }
 
 void SetNewWeapon(short nPlayer, short nWeapon)

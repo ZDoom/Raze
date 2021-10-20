@@ -96,7 +96,6 @@ uint8_t LoadLevel(MapRecord* map)
         InitRats();
         InitBullets();
         InitWeapons();
-        InitGrenades();
         InitAnims();
         InitSnakes();
         InitLights();

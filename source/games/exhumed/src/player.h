@@ -98,8 +98,7 @@ extern short nDoppleSprite[];
 extern uint16_t nPlayerWeapons[];
 
 extern short nPlayerOldWeapon[];
-extern short nPlayerGrenade[kMaxPlayers];
-extern short nGrenadePlayer[50];
+extern DExhumedActor* nPlayerGrenade[kMaxPlayers];
 
 extern short nPistolClip[];
 
