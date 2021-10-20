@@ -221,11 +221,7 @@ void MoveThings();
 void ResetMoveFifo();
 void InitChunks();
 void InitPushBlocks();
-void Gravity(short nSprite);
-inline void Gravity(DExhumedActor* actor)
-{
-    Gravity(actor->GetSpriteIndex());
-}
+void Gravity(DExhumedActor* actor);
 short UpdateEnemy(short *nEnemy);
 DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
 {

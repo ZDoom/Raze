@@ -612,9 +612,9 @@ int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigne
     return nRet;
 }
 
-void Gravity(short nSprite)
+void Gravity(DExhumedActor* actor)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &actor->s();
     short nSector = pSprite->sectnum;
 
     if (SectFlag[nSector] & kSectUnderwater)
@@ -1503,9 +1503,10 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 {
     int nSprite = RunData[ev->nRun].nObjIndex;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
+    auto pActor = &exhumedActors[nSprite];
     auto pSprite = &sprite[nSprite];
 
-    Gravity(nSprite);
+    Gravity(pActor);
 
     int nSector = pSprite->sectnum;
     pSprite->pal = sector[nSector].ceilingpal;

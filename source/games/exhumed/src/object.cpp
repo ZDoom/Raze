@@ -2042,6 +2042,7 @@ void AIObject::Tick(RunListEvent* ev)
     short nObject = RunData[ev->nRun].nObjIndex;
     auto pObject = &ObjectList[nObject];
 
+    auto pActor = &exhumedActors[pObject->nSprite];// ev->pObjActor;
     short nSprite = pObject->nSprite;
     auto pSprite = &sprite[nSprite];
     short nStat = pSprite->statnum;
@@ -2052,7 +2053,7 @@ void AIObject::Tick(RunListEvent* ev)
     }
 
     if (nStat != kStatExplodeTarget) {
-        Gravity(nSprite);
+        Gravity(pActor);
     }
 
     // do animation
