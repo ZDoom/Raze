@@ -659,8 +659,9 @@ void AIQueenEgg::RadialDamage(RunListEvent* ev)
     Egg* pEgg = &QueenEgg[nEgg];
     auto pActor = pEgg->pActor;
     auto pSprite = &pActor->s();
+    auto pRadial = &ev->pRadialActor->s();
 
-    if (sprite[nRadialSpr].statnum != 121 && (pSprite->cstat & 0x101) != 0)
+    if (pRadial->statnum != 121 && (pSprite->cstat & 0x101) != 0)
     {
         int nDamage = runlist_CheckRadialDamage(pActor);
 
@@ -1041,10 +1042,10 @@ void AIQueenHead::Tick(RunListEvent* ev)
 void AIQueenHead::RadialDamage(RunListEvent* ev)
 {
     auto pSprite = &QueenHead.pActor->s();
+    auto pRadial = &ev->pRadialActor->s();
 
-    if (sprite[nRadialSpr].statnum != 121 && (pSprite->cstat & 0x101) != 0)
+    if (pRadial->statnum != 121 && (pSprite->cstat & 0x101) != 0)
     {
-
         ev->nDamage = runlist_CheckRadialDamage(QueenHead.pActor);
         if (ev->nDamage) Damage(ev);
     }
@@ -1456,8 +1457,9 @@ void AIQueen::RadialDamage(RunListEvent* ev)
     assert(nQueen >= 0 && nQueen < kMaxQueens);
     auto pActor = QueenList[nQueen].pActor;
     auto pSprite = &pActor->s();
+    auto pRadial = &ev->pOtherActor->s();
 
-    if (sprite[nRadialSpr].statnum != 121 && (pSprite->cstat & 0x101) != 0)
+    if (pRadial->statnum != 121 && (pSprite->cstat & 0x101) != 0)
     {
         ev->nDamage = runlist_CheckRadialDamage(pActor);
         if (ev->nDamage) Damage(ev);
