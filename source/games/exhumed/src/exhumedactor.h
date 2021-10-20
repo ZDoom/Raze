@@ -213,11 +213,6 @@ public:
 
 
 
-inline void DeleteSprite(DExhumedActor* nSprite)
-{
-	if (nSprite) mydeletesprite(nSprite->GetSpriteIndex());
-}
-
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor*& w, DExhumedActor** def)
 {
 	int index = w? int(w - exhumedActors) : -1;

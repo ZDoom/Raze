@@ -428,7 +428,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
 
         case 16:
             // reserved
-            mydeletesprite(nSprite);
+            DeleteActor(pActor);
             return;
 
         case 25:
@@ -437,7 +437,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             // extra life or checkpoint scarab. Delete for multiplayer
             if (nNetPlayerCount != 0)
             {
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             else
@@ -475,7 +475,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
     if (!userConfig.nomonsters || v6 < 100 || v6 > 118)
     {
         if (v6 > 999) {
-            mydeletesprite(nSprite);
+            DeleteActor(pActor);
             return;
         }
 
@@ -494,7 +494,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 118: // Anubis with drum
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -504,7 +504,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 117:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -534,7 +534,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 111:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -544,7 +544,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 108:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -554,7 +554,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 107:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -564,7 +564,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 106:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -574,7 +574,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 105:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -584,7 +584,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 104:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -594,7 +594,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 103:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -604,7 +604,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 102:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -614,7 +614,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 101:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -624,7 +624,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 100:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
@@ -637,7 +637,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                 SetAbove(nSector, nHitag);
                 SectFlag[nSector] |= kSectUnderwater;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 98:
@@ -646,14 +646,14 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                 SetBelow(nSector, nHitag);
                 SnapSectors(nSector, nHitag, 1);
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 97:
             {
                 AddSectorBob(pSprite->sectnum, nHitag, 1);
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 96: // Lava sector
@@ -668,14 +668,14 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                 SectDamage[nSector] = nDamage;
                 SectFlag[nSector] |= kSectLava;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 95:
             {
                 AddSectorBob(pSprite->sectnum, nHitag, 0);
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 94: // water
@@ -683,7 +683,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                 short nSector = pSprite->sectnum;
                 SectDepth[nSector] = nHitag << 8;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 93:
@@ -704,14 +704,14 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                 SectSpeed[nSector] = nSpeed;
                 SectFlag[nSector] |= pSprite->ang;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 88:
             {
                 AddFlow(nSprite, nSpeed, 0);
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 80: // underwater
@@ -719,7 +719,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                 short nSector = pSprite->sectnum;
                 SectFlag[nSector] |= kSectUnderwater;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 78:
@@ -729,7 +729,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                 short nSector = pSprite->sectnum;
                 SectFlag[nSector] |= 0x8000;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 77:
@@ -783,13 +783,13 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             default: // TODO - checkme!
             {
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
         }
     }
 
-    mydeletesprite(nSprite);
+    DeleteActor(pActor);
 }
 
 void ExamineSprites()
