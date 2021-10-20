@@ -65,8 +65,8 @@ struct Flow
     short type;
     int xdelta;
     int ydelta;
-    int field_C;
-    int field_10;
+    int angcos;
+    int angsin;
     int xacc;
     int yacc;
 };
@@ -137,8 +137,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Flow& w, Flow* def
             ("type", w.type)
             ("xdelta", w.xdelta)
             ("ydelta", w.ydelta)
-            ("atc", w.field_C)
-            ("at10", w.field_10)
+            ("atc", w.angcos)
+            ("at10", w.angsin)
             ("xacc", w.xacc)
             ("yacc", w.yacc)
             .EndObject();
@@ -665,21 +665,21 @@ void AddFlow(int nIndex, int nSpeed, int b)
     short nFlow = nFlowCount;
     nFlowCount++;
 
-    short var_18;
 
     if (b < 2)
     {
-        var_18 = sprite[nIndex].sectnum;
-        short nPic = sector[var_18].floorpicnum;
+        int sectnum = sprite[nIndex].sectnum;
+        short nPic = sector[sectnum].floorpicnum;
         short nAngle = sprite[nIndex].ang;
 
         sFlowInfo[nFlow].xacc = (tileWidth(nPic) << 14) - 1;
         sFlowInfo[nFlow].yacc = (tileHeight(nPic) << 14) - 1;
-        sFlowInfo[nFlow].field_C  = -bcos(nAngle) * nSpeed;
-        sFlowInfo[nFlow].field_10 = bsin(nAngle) * nSpeed;
+        sFlowInfo[nFlow].angcos  = -bcos(nAngle) * nSpeed;
+        sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
+        sFlowInfo[nFlow].objindex = sectnum;
 
-        StartInterpolation(nIndex, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
-        StartInterpolation(nIndex, b ? Interp_Sect_CeilingPanY : Interp_Sect_FloorPanY);
+        StartInterpolation(sectnum, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
+        StartInterpolation(sectnum, b ? Interp_Sect_CeilingPanY : Interp_Sect_FloorPanY);
     }
     else
     {
@@ -695,18 +695,17 @@ void AddFlow(int nIndex, int nSpeed, int b)
             nAngle = 1536;
         }
 
-        var_18 = nIndex;
-        short nPic = wall[var_18].picnum;
+        short nPic = wall[nIndex].picnum;
 
-        sFlowInfo[nFlow].xacc = (tileWidth(nPic) * wall[var_18].xrepeat) << 8;
-        sFlowInfo[nFlow].yacc = (tileHeight(nPic) * wall[var_18].yrepeat) << 8;
-        sFlowInfo[nFlow].field_C = -bcos(nAngle) * nSpeed;
-        sFlowInfo[nFlow].field_10 = bsin(nAngle) * nSpeed;
+        sFlowInfo[nFlow].xacc = (tileWidth(nPic) * wall[nIndex].xrepeat) << 8;
+        sFlowInfo[nFlow].yacc = (tileHeight(nPic) * wall[nIndex].yrepeat) << 8;
+        sFlowInfo[nFlow].angcos = -bcos(nAngle) * nSpeed;
+        sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
+        sFlowInfo[nFlow].objindex = nIndex;
     }
 
     sFlowInfo[nFlow].ydelta = 0;
     sFlowInfo[nFlow].xdelta = 0;
-    sFlowInfo[nFlow].objindex = var_18;
     sFlowInfo[nFlow].type = b;
 }
 
@@ -714,8 +713,8 @@ void DoFlows()
 {
     for (int i = 0; i < nFlowCount; i++)
     {
-        sFlowInfo[i].xdelta += sFlowInfo[i].field_C;
-        sFlowInfo[i].ydelta += sFlowInfo[i].field_10;
+        sFlowInfo[i].xdelta += sFlowInfo[i].angcos;
+        sFlowInfo[i].ydelta += sFlowInfo[i].angsin;
 
         switch (sFlowInfo[i].type)
         {
