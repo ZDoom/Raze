@@ -257,10 +257,11 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
     short hitSect, hitWall, hitSprite;
     int hitX, hitY, hitZ;
 
-    short nSprite = PlayerList[nPlayer].nSprite;
+    auto pActor = PlayerList[nPlayer].Actor();
 
-    int xVect = bcos(sprite[nSprite].ang);
-    int yVect = bsin(sprite[nSprite].ang);
+    int ang = pActor->s().ang;
+    int xVect = bcos(ang);
+    int yVect = bsin(ang);
 
     vec3_t startPos = { *x, *y, *z };
     hitdata_t hitData;
@@ -337,8 +338,7 @@ void MoveWeapons(short nPlayer)
         nTemperature[nPlayer] = 0;
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
-    short nPlayerSprite = PlayerList[nPlayer].nSprite;
-	auto pPlayerSprite = &sprite[nPlayerSprite];
+	auto pPlayerSprite = &pPlayerActor->s();
     short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
     if (nWeapon < -1)
@@ -366,7 +366,7 @@ void MoveWeapons(short nPlayer)
 
     for (frames = var_1C; frames > 0; frames--)
     {
-        seq_MoveSequence(nPlayerSprite, var_3C, PlayerList[nPlayer].field_3FOUR);
+        seq_MoveSequence(pPlayerActor, var_3C, PlayerList[nPlayer].field_3FOUR);
 
         PlayerList[nPlayer].field_3FOUR++;
 
@@ -690,7 +690,7 @@ loc_flag:
                 ebx += bsin(var_44, -11) * ecx;
             }
 
-            int nHeight = (-GetSpriteHeight(nPlayerSprite)) >> 1;
+            int nHeight = (-GetActorHeight(pPlayerActor)) >> 1;
 
             if (nAction < 6)
             {
@@ -746,25 +746,27 @@ loc_flag:
                             }
                             else if ((cRange & 0xC000) == 0xC000) // hit sprite
                             {
-                                short nSprite2 = cRange & 0x3FFF;
+                                //short nSprite2 = cRange & 0x3FFF;
+                                auto pActor2 = &exhumedActors[cRange & 0x3FFF];
+                                auto pSprite2 = &pActor2->s();
 
-                                if (sprite[nSprite2].cstat & 0x50)
+                                if (pSprite2->cstat & 0x50)
                                 {
                                     var_28 += 2;
                                 }
-                                else if (sprite[nSprite2].statnum > 90 && sprite[nSprite2].statnum <= 199)
+                                else if (pSprite2->statnum > 90 && pSprite2->statnum <= 199)
                                 {
-                                    runlist_DamageEnemy(nSprite2, nPlayerSprite, nDamage);
+                                    runlist_DamageEnemy(pActor2, pPlayerActor, nDamage);
 
-                                    if (sprite[nSprite2].statnum < 102) {
+                                    if (pSprite2->statnum < 102) {
                                         var_28++;
                                     }
-                                    else if (sprite[nSprite2].statnum == 102)
+                                    else if (pSprite2->statnum == 102)
                                     {
                                         // loc_27370:
                                         BuildAnim(nullptr, 12, 0, theX, theY, theZ, nSectorB, 30, 0);
                                     }
-                                    else if (sprite[nSprite2].statnum == kStatExplodeTrigger) {
+                                    else if (pSprite2->statnum == kStatExplodeTrigger) {
                                         var_28 += 2;
                                     }
                                     else {
@@ -792,7 +794,7 @@ loc_flag:
                         DoBubbles(nPlayer);
                         PlayerList[nPlayer].field_3A = 1;
                         PlayerList[nPlayer].field_3FOUR = 0;
-                        StopSpriteSound(nPlayerSprite);
+                        StopActorSound(pPlayerActor);
                         break;
                     }
                     else
@@ -805,7 +807,7 @@ loc_flag:
                         }
 
                         // fall through to case 1 (kWeaponPistol)
-                        fallthrough__;
+                        [[fallthrough]];
                     }
                 }
 
@@ -826,12 +828,12 @@ loc_flag:
                     bool gottarg = false;
                     if (sPlayerInput[nPlayer].nTarget >= 0 && Autoaim(nPlayer))
                     {
-                        assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
                         int t = sPlayerInput[nPlayer].nTarget;
                         if (t >= 0 && t < MAXSPRITES)
                         {
                             // only autoaim if target is in front of the player.
                             auto pTargetSprite = &sprite[t];
+                            assert(pTargetSprite->sectnum < kMaxSectors);
                             int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
                             int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
                             if (anglediff < 512 || anglediff > 1536)
@@ -870,7 +872,7 @@ loc_flag:
                         nDamage *= 2;
                     }
 
-                    runlist_RadialDamageEnemy(nPlayerSprite, nDamage, BulletInfo[kWeaponMummified].nRadius);
+                    runlist_RadialDamageEnemy(pPlayerActor, nDamage, BulletInfo[kWeaponMummified].nRadius);
                     break;
                 }
             }
@@ -977,7 +979,7 @@ void DrawWeapons(double smooth)
     }
 
     if (nWeapon < 0) {
-        nShade = sprite[PlayerList[nLocalPlayer].nSprite].shade;
+        nShade = PlayerList[nLocalPlayer].Actor()->s().shade;
     }
 
     double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(smooth);
