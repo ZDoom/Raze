@@ -161,8 +161,9 @@ struct Point
 
 struct Trap
 {
+    DExhumedActor* pActor;
+
     short field_0;
-    short nSprite;
     short nType;
     short field_6;
     short field_8;
@@ -355,7 +356,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Trap& w, Trap* def
     if (arc.BeginObject(keyname))
     {
         arc("at0", w.field_0)
-            ("sprite", w.nSprite)
+            ("sprite", w.pActor)
             ("type", w.nType)
             ("at6", w.field_6)
             ("at8", w.field_8)
@@ -1296,16 +1297,16 @@ void FuncSlide(int nObject, int nMessage, int nDamage, int nRun)
     runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
-int BuildTrap(int nSprite, int edx, int ebx, int ecx)
+int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
     int var_14 = edx;
     int var_18 = ebx;
     int var_10 = ecx;
 
     int nTrap = sTrap.Reserve(1);
 
-    changespritestat(nSprite, 0);
+    ChangeActorStat(pActor, 0);
 
     pSprite->cstat = 0x8000;
     pSprite->xvel = 0;
@@ -1319,7 +1320,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
 
     //	GrabTimeSlot(3);
 
-    sTrap[nTrap].nSprite = nSprite;
+    sTrap[nTrap].pActor = pActor;
     sTrap[nTrap].nType = (var_14 == 0) + 14;
     sTrap[nTrap].field_0 = -1;
 
@@ -1346,7 +1347,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     while (1)
     {
         if (sector[nSector].wallnum >= i) {
-            return nTrap;
+            break;
         }
 
         if (var_18 == wall[nWall].hitag)
@@ -1355,7 +1356,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
             {
                 sTrap[nTrap].field_8 = nWall;
                 sTrap[nTrap].field_C = wall[nWall].picnum;
-                return nTrap;
+                break;
             }
             else
             {
@@ -1368,7 +1369,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
         nWall++;
     }
     pSprite->backuppos();
-
+    return nTrap;
 }
 
 void AITrap::ProcessChannel(RunListEvent* ev)
@@ -1389,8 +1390,8 @@ void AITrap::ProcessChannel(RunListEvent* ev)
 void AITrap::Tick(RunListEvent* ev)
 {
     short nTrap = RunData[ev->nRun].nObjIndex;
-    short nSprite = sTrap[nTrap].nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = sTrap[nTrap].pActor;
+    auto pSprite = &pActor->s();
 
     if (sTrap[nTrap].field_0 >= 0)
     {
@@ -1427,7 +1428,7 @@ void AITrap::Tick(RunListEvent* ev)
                 return;
             }
 
-            auto pBullet = BuildBullet(&exhumedActors[nSprite], nType, 0, pSprite->ang, nullptr, 1);
+            auto pBullet = BuildBullet(pActor, nType, 0, pSprite->ang, nullptr, 1);
             if (pBullet)
             {
                 if (nType == 15)
@@ -1464,12 +1465,12 @@ void FuncTrap(int nObject, int nMessage, int nDamage, int nRun)
     runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
-int BuildArrow(int nSprite, int nVal)
+int BuildArrow(DExhumedActor* nSprite, int nVal)
 {
     return BuildTrap(nSprite, 0, -1, nVal);
 }
 
-int BuildFireBall(int nSprite, int a, int b)
+int BuildFireBall(DExhumedActor* nSprite, int a, int b)
 {
     return BuildTrap(nSprite, 1, a, b);
 }

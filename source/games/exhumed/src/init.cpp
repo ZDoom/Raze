@@ -733,7 +733,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 77:
             {
-                int nArrow = BuildArrow(nSprite, nSpeed);
+                int nArrow = BuildArrow(pActor, nSpeed);
 
                 runlist_AddRunRec(sRunChannels[nChannel].a, nArrow, 0x1F0000);
                 return;
@@ -750,7 +750,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 71:
             {
-                int nFireball = BuildFireBall(nSprite, nHitag, nSpeed);
+                int nFireball = BuildFireBall(pActor, nHitag, nSpeed);
 
                 runlist_AddRunRec(sRunChannels[nChannel].a, nFireball, 0x1F0000);
                 return;
