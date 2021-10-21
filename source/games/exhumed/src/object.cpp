@@ -104,13 +104,12 @@ struct MoveSect
 
 struct Object
 {
-    short field_0;
+    short nFrame;
     short nHealth;
-    short field_4;
+    short nRun;
     short nSprite;
-    short field_8;
-    short field_10;
-    short field_12;
+    short nIndex;
+    short nTarget;
 };
 
 struct wallFace
@@ -282,14 +281,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Object& w, Object*
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
+        arc("at0", w.nFrame)
             ("health", w.nHealth)
-            ("at4", w.field_4)
-            ("at8", w.field_8)
+            ("at4", w.nRun)
+            ("at8", w.nIndex)
             ("sprite", w.nSprite)
-            ("at8", w.field_8)
-            ("at10", w.field_10)
-            ("at12", w.field_12)
+            ("at8", w.nIndex)
+            ("at10", w.nTarget)
             .EndObject();
     }
     return arc;
@@ -1950,14 +1948,14 @@ void FuncEnergyBlock(int nObject, int nMessage, int nDamage, int nRun)
     runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
-int BuildObject(int const nSprite, int nOjectType, int nHitag)
+int BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 {
-    auto spr = &sprite[nSprite];
+    auto spr = &pActor->s();
 
     auto nObject = ObjectList.Reserve(1);
     ObjectList[nObject] = {};
 
-    changespritestat(nSprite, ObjectStatnum[nOjectType]);
+    ChangeActorStat(pActor, ObjectStatnum[nOjectType]);
 
     // 0x7FFD to ensure set as blocking ('B' and 'H') sprite and also disable translucency and set not invisible
     spr->cstat = (spr->cstat | 0x101) & 0x7FFD;
@@ -1970,31 +1968,31 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag)
     spr->owner = runlist_AddRunRec(spr->lotag - 1, nObject, 0x170000);
 
     //	GrabTimeSlot(3);
-
+    auto pObject = &ObjectList[nObject];
     if (spr->statnum == kStatDestructibleSprite) {
-        ObjectList[nObject].nHealth = 4;
+        pObject->nHealth = 4;
     }
     else {
-        ObjectList[nObject].nHealth = 120;
+        pObject->nHealth = 120;
     }
 
-    ObjectList[nObject].nSprite = nSprite;
-    ObjectList[nObject].field_4 = runlist_AddRunRec(NewRun, nObject, 0x170000);
+    pObject->nSprite = pActor->GetSpriteIndex();
+    pObject->nRun = runlist_AddRunRec(NewRun, nObject, 0x170000);
 
     short nSeq = ObjectSeq[nOjectType];
 
     if (nSeq > -1)
     {
-        ObjectList[nObject].field_8 = SeqOffsets[nSeq];
+        pObject->nIndex = SeqOffsets[nSeq];
 
         if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
         {
-            ObjectList[nObject].field_0 = RandomSize(4) % (SeqSize[ObjectList[nObject].field_8] - 1);
+            pObject->nFrame = RandomSize(4) % (SeqSize[pObject->nIndex] - 1);
         }
 
         int nSprite2 = insertsprite(spr->sectnum, 0);
         auto pSprite2 = &sprite[nSprite2];
-        ObjectList[nObject].field_10 = nSprite2;
+        pObject->nTarget = nSprite2;
 
         pSprite2->cstat = 0x8000;
         pSprite2->x = spr->x;
@@ -2003,14 +2001,14 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag)
     }
     else
     {
-        ObjectList[nObject].field_0 = 0;
-        ObjectList[nObject].field_8 = -1;
+        pObject->nFrame = 0;
+        pObject->nIndex = -1;
 
         if (spr->statnum == kStatDestructibleSprite) {
-            ObjectList[nObject].field_10 = -1;
+            pObject->nTarget = -1;
         }
         else {
-            ObjectList[nObject].field_10 = -nHitag;
+            pObject->nTarget = -nHitag;
         }
     }
     spr->backuppos();
@@ -2041,7 +2039,7 @@ void AIObject::Tick(RunListEvent* ev)
     short nSprite = pObject->nSprite;
     auto pSprite = &sprite[nSprite];
     short nStat = pSprite->statnum;
-    short bx = pObject->field_8;
+    short bx = pObject->nIndex;
 
     if (nStat == 97 || (!(pSprite->cstat & 0x101))) {
         return;
@@ -2054,12 +2052,12 @@ void AIObject::Tick(RunListEvent* ev)
     // do animation
     if (bx != -1)
     {
-        pObject->field_0++;
-        if (pObject->field_0 >= SeqSize[bx]) {
-            pObject->field_0 = 0;
+        pObject->nFrame++;
+        if (pObject->nFrame >= SeqSize[bx]) {
+            pObject->nFrame = 0;
         }
 
-        pSprite->picnum = seq_GetSeqPicnum2(bx, pObject->field_0);
+        pSprite->picnum = seq_GetSeqPicnum2(bx, pObject->nFrame);
     }
 
     if (pObject->nHealth >= 0) {
@@ -2131,7 +2129,7 @@ void AIObject::Tick(RunListEvent* ev)
         if (!(currentLevel->gameflags & LEVEL_EX_MULTI) || nStat != kStatExplodeTrigger)
         {
             runlist_SubRunRec(pSprite->owner);
-            runlist_SubRunRec(pObject->field_4);
+            runlist_SubRunRec(pObject->nRun);
 
             mydeletesprite(nSprite);
             return;
@@ -2141,11 +2139,11 @@ void AIObject::Tick(RunListEvent* ev)
             StartRegenerate(pActor);
             pObject->nHealth = 120;
 
-            pSprite->x = sprite[pObject->field_10].x;
-            pSprite->y = sprite[pObject->field_10].y;
-            pSprite->z = sprite[pObject->field_10].z;
+            pSprite->x = sprite[pObject->nTarget].x;
+            pSprite->y = sprite[pObject->nTarget].y;
+            pSprite->z = sprite[pObject->nTarget].z;
 
-            mychangespritesect(nSprite, sprite[pObject->field_10].sectnum);
+            mychangespritesect(nSprite, sprite[pObject->nTarget].sectnum);
             return;
         }
     }
@@ -2159,7 +2157,7 @@ void AIObject::Damage(RunListEvent* ev)
     short nSprite = pObject->nSprite;
     auto pSprite = &sprite[nSprite];
     short nStat = pSprite->statnum;
-    short bx = pObject->field_8;
+    short bx = pObject->nIndex;
 
     if (nStat >= 150 || pObject->nHealth <= 0) {
         return;
@@ -2190,11 +2188,11 @@ void AIObject::Draw(RunListEvent* ev)
 {
     short nObject = RunData[ev->nRun].nObjIndex;
     auto pObject = &ObjectList[nObject];
-    short bx = pObject->field_8;
+    short bx = pObject->nIndex;
 
     if (bx > -1)
     {
-        seq_PlotSequence(ev->nParam, bx, pObject->field_0, 1);
+        seq_PlotSequence(ev->nParam, bx, pObject->nFrame, 1);
     }
     return;
 }
@@ -2243,7 +2241,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
         if (pSprite->statnum == kStatExplodeTarget)
         {
             pObject->nHealth = -1;
-            short ax = pObject->field_10;
+            short ax = pObject->nTarget;
 
             if (ax < 0 || ObjectList[ax].nHealth <= 0) {
                 return;
@@ -2771,20 +2769,20 @@ void PostProcess()
 
         if (sprite[nObjectSprite].statnum == kStatExplodeTarget)
         {
-            if (!ObjectList[i].field_10) {
-                ObjectList[i].field_10 = -1;
+            if (!ObjectList[i].nTarget) {
+                ObjectList[i].nTarget = -1;
             }
             else
             {
-                int edi = ObjectList[i].field_10;
-                ObjectList[i].field_10 = -1;
+                int edi = ObjectList[i].nTarget;
+                ObjectList[i].nTarget = -1;
 
                 for (unsigned j = 0; j < ObjectList.Size(); j++)
                 {
-                    if (i != j && sprite[ObjectList[j].nSprite].statnum == kStatExplodeTarget && edi == ObjectList[j].field_10)
+                    if (i != j && sprite[ObjectList[j].nSprite].statnum == kStatExplodeTarget && edi == ObjectList[j].nTarget)
                     {
-                        ObjectList[i].field_10 = j;
-                        ObjectList[j].field_10 = i;
+                        ObjectList[i].nTarget = j;
+                        ObjectList[j].nTarget = i;
                     }
                 }
             }
