@@ -68,8 +68,8 @@ struct Bob
 
 struct Drip
 {
-    short nSprite;
-    short field_2;
+    DExhumedActor* pActor;
+    short nCount;
 };
 
 // 56 bytes
@@ -226,8 +226,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Drip& w, Drip* def
 {
     if (arc.BeginObject(keyname))
     {
-        arc("sprite", w.nSprite)
-            ("at2", w.field_2)
+        arc("sprite", w.pActor)
+            ("at2", w.nCount)
             .EndObject();
     }
     return arc;
@@ -2237,12 +2237,12 @@ void FuncObject(int nObject, int nMessage, int nDamage, int nRun)
     runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
-void BuildDrip(int nSprite)
+void BuildDrip(DExhumedActor* pActor)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
     auto nDrips = sDrip.Reserve(1);
-    sDrip[nDrips].nSprite = nSprite;
-    sDrip[nDrips].field_2 = RandomSize(8) + 90;
+    sDrip[nDrips].pActor = pActor;
+    sDrip[nDrips].nCount = RandomSize(8) + 90;
     pSprite->cstat = 0x8000u;
 }
 
@@ -2250,11 +2250,11 @@ void DoDrips()
 {
     for (unsigned i = 0; i < sDrip.Size(); i++)
     {
-        sDrip[i].field_2--;
-        if (sDrip[i].field_2 <= 0)
+        sDrip[i].nCount--;
+        if (sDrip[i].nCount <= 0)
         {
-            short nSprite = sDrip[i].nSprite;
-            auto pSprite = &sprite[nSprite];
+            auto pActor = sDrip[i].pActor;
+            auto pSprite = &pActor->s();
 
             short nSeqOffset = SeqOffsets[kSeqDrips];
 
@@ -2262,9 +2262,9 @@ void DoDrips()
                 nSeqOffset++;
             }
 
-            seq_MoveSequence(nSprite, nSeqOffset, RandomSize(2) % SeqSize[nSeqOffset]);
+            seq_MoveSequence(pActor, nSeqOffset, RandomSize(2) % SeqSize[nSeqOffset]);
 
-            sDrip[i].field_2 = RandomSize(8) + 90;
+            sDrip[i].nCount = RandomSize(8) + 90;
         }
     }
 
@@ -2371,9 +2371,9 @@ int FindTrail(int nVal)
 }
 
 // ok ?
-void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
+void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
     auto nPoint = sTrailPoint.Reserve(1);
 
     sTrailPoint[nPoint].x = pSprite->x;
@@ -2427,7 +2427,7 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
         }
     }
 
-    mydeletesprite(nSprite);
+    DeleteActor(pActor);
 }
 
 // ok?

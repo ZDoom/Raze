@@ -334,7 +334,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
 
     if (nLotag >= 900 && nLotag <= 949)
     {
-        ProcessTrailSprite(nSprite, nLotag, nHitag);
+        ProcessTrailSprite(pActor, nLotag, nHitag);
         return;
     }
 
@@ -757,7 +757,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 70:
             {
-                BuildDrip(nSprite);
+                BuildDrip(pActor);
                 return;
             }
             case 63:
