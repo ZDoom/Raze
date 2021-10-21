@@ -32,13 +32,12 @@ enum
 };
 
 
-short nRadialSpr = -1;
+DExhumedActor* pRadialActor;
 short nStackCount = 0;
 short word_966BE = 0;
 short ChannelList = -1;
 short ChannelLast = -1;
 
-int nRadialOwner;
 int nDamageRadius;
 int nRadialDamage;
 short RunChain;
@@ -68,12 +67,10 @@ void SerializeRunList(FSerializer& arc)
     if (arc.BeginObject("runlist"))
     {
         arc("data", RunData)
-            ("radialspr", nRadialSpr)
             ("stackcount", nStackCount)
             ("w966be", word_966BE)
             ("list", ChannelList)
             ("last", ChannelLast)
-            ("radialowner", nRadialOwner)
             ("damageradius", nDamageRadius)
             ("radialdamage", nRadialDamage)
             ("runchain", RunChain)
@@ -179,7 +176,7 @@ void runlist_InitRun()
         PlayerList[i].nRun = -1;
     }
 
-    nRadialSpr = -1;
+    pRadialActor = nullptr;
 }
 
 void runlist_UnlinkRun(int nRun)
@@ -1562,9 +1559,11 @@ void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag)
 
 int runlist_CheckRadialDamage(short nSprite)
 {
+    auto pActor = &exhumedActors[nSprite];
 	auto pSprite = &sprite[nSprite];
+    auto pRadialSpr = &pRadialActor->s();
 
-    if (nSprite == nRadialSpr) {
+    if (nSprite == pRadialActor->GetSpriteIndex()) {
         return 0;
     }
 
@@ -1572,17 +1571,17 @@ int runlist_CheckRadialDamage(short nSprite)
         return 0;
     }
 
-    if (pSprite->statnum >= kMaxStatus || sprite[nRadialSpr].statnum >= kMaxStatus) {
+    if (pSprite->statnum >= kMaxStatus || pRadialSpr->statnum >= kMaxStatus) {
         return 0;
     }
 
-    if (pSprite->statnum != 100 && nSprite == nRadialOwner) {
+    if (pSprite->statnum != 100 && pActor == pRadialActor->pTarget) {
         return 0;
     }
 
-    int x = (pSprite->x - sprite[nRadialSpr].x) >> 8;
-    int y = (pSprite->y - sprite[nRadialSpr].y) >> 8;
-    int z = (pSprite->z - sprite[nRadialSpr].z) >> 12;
+    int x = (pSprite->x - pRadialSpr->x) >> 8;
+    int y = (pSprite->y - pRadialSpr->y) >> 8;
+    int z = (pSprite->z - pRadialSpr->z) >> 12;
 
     if (abs(x) > nDamageRadius) {
         return 0;
@@ -1617,10 +1616,10 @@ int runlist_CheckRadialDamage(short nSprite)
         pSprite->cstat = 0x101;
 
         if (((kStatExplodeTarget - pSprite->statnum) <= 1) ||
-            cansee(sprite[nRadialSpr].x,
-                sprite[nRadialSpr].y,
-                sprite[nRadialSpr].z - 512,
-                sprite[nRadialSpr].sectnum,
+            cansee(pRadialSpr->x,
+                pRadialSpr->y,
+                pRadialSpr->z - 512,
+                pRadialSpr->sectnum,
                 pSprite->x,
                 pSprite->y,
                 pSprite->z - 8192,
@@ -1663,16 +1662,15 @@ void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius)
         return;
     }
 
-    if (nRadialSpr == -1)
+    if (pRadialActor == nullptr)
     {
         nRadialDamage = nDamage * 4;
         nDamageRadius = nRadius;
-        nRadialSpr = nSprite;
-        nRadialOwner = pSprite->owner;
+        pRadialActor = &exhumedActors[nSprite];
 
         runlist_ExplodeSignalRun();
 
-        nRadialSpr = -1;
+        pRadialActor = nullptr;
     }
 }
 
@@ -1780,7 +1778,7 @@ void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage
         ev.nRadialDamage = nRadialDamage;
         ev.nDamageRadius = nDamageRadius;
         ev.pOtherActor = nullptr; // &exhumedActors[nObject]; nObject is always 0 here, this was setting some random invalid target
-        ev.pRadialActor = &exhumedActors[nRadialSpr];
+        ev.pRadialActor = pRadialActor;
         ai->RadialDamage(&ev);
         break;
     }

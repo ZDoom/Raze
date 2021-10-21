@@ -2176,9 +2176,9 @@ void AIObject::RadialDamage(RunListEvent* ev)
 
     if (pActor->nHealth > 0 && pSprite->cstat & 0x101
         && (nStat != kStatExplodeTarget
-            || sprite[nRadialSpr].statnum == 201
+            || ev->pRadialActor->s().statnum == 201
             || (nRadialBullet != 3 && nRadialBullet > -1)
-            || sprite[nRadialSpr].statnum == kStatExplodeTrigger))
+            || ev->pRadialActor->s().statnum == kStatExplodeTrigger))
     {
         int nDamage = runlist_CheckRadialDamage(pActor);
         if (nDamage <= 0) {

@@ -647,7 +647,6 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
 
 void AIPlayer::Damage(RunListEvent* ev)
 {
-    int nSprite2;
     int nDamage = ev->nDamage;
     short nPlayer = RunData[ev->nRun].nObjIndex;
     short nAction = PlayerList[nPlayer].nAction;
@@ -659,11 +658,7 @@ void AIPlayer::Damage(RunListEvent* ev)
         return;
     }
 
-    if (ev->nMessage != EMessageType::RadialDamage)
-    {
-        nSprite2 = ev->nParam;
-    }
-    else nSprite2 = nRadialOwner;
+    DExhumedActor* pActor2 = (ev->nMessage != EMessageType::RadialDamage) ? ev->pOtherActor : ev->pRadialActor->pTarget;
 
     // ok continue case 0x80000 as normal, loc_1C57C
     if (!PlayerList[nPlayer].nHealth) {
@@ -703,7 +698,7 @@ void AIPlayer::Damage(RunListEvent* ev)
                     PlayerList[nPlayer].field_2 = 0;
                     PlayerList[nPlayer].nAction = 4;
 
-                    if (nSprite2 > -1)
+                    if (pActor2)
                     {
                         PlayerList[nPlayer].nPlayerSwear--;
                         if (PlayerList[nPlayer].nPlayerSwear <= 0)
@@ -721,9 +716,9 @@ void AIPlayer::Damage(RunListEvent* ev)
     else
     {
         // player has died
-        if (nSprite2 > -1 && sprite[nSprite2].statnum == 100)
+        if (pActor2 && pActor2->s().statnum == 100)
         {
-            short nPlayer2 = GetPlayerFromSprite(nSprite2);
+            short nPlayer2 = GetPlayerFromActor(pActor2);
 
             if (nPlayer2 == nPlayer) // player caused their own death
             {
@@ -734,7 +729,7 @@ void AIPlayer::Damage(RunListEvent* ev)
                 PlayerList[nPlayer].nPlayerScore++;
             }
         }
-        else if (nSprite2 < 0)
+        else if (pActor2 == nullptr)
         {
             PlayerList[nPlayer].nPlayerScore--;
         }

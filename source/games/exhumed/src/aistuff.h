@@ -738,8 +738,6 @@ extern FreeListArray<RunStruct, kMaxRuns> RunData;
 
 extern RunChannel sRunChannels[kMaxChannels];
 extern short NewRun;
-extern int nRadialOwner;
-extern short nRadialSpr;
 
 void runlist_InitRun();
 
