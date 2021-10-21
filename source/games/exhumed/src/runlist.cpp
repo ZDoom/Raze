@@ -1066,7 +1066,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             int nEnergyBlock = BuildEnergyBlock(nSector);
 
             if (nLotag == 36) {
-                nFinaleSpr = nEnergyBlock;
+                pFinaleSpr = &exhumedActors[nEnergyBlock];
             }
 
             return;

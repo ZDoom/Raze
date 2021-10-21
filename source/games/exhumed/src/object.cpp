@@ -191,7 +191,7 @@ int lFinaleStart;
 
 short nEnergyBlocks;
 short nFinaleStage;
-short nFinaleSpr;
+DExhumedActor* pFinaleSpr;
 
 short nDronePitch = 0;
 short nSmokeSparks = 0;
@@ -387,7 +387,7 @@ void SerializeObjects(FSerializer& arc)
             ("finalestart", lFinaleStart)
             ("energyblocks", nEnergyBlocks)
             ("finalestage", nFinaleStage)
-            ("finalespr", nFinaleSpr)
+            ("finalespr", pFinaleSpr)
             ("dronepitch", nDronePitch)
             ("smokesparks", nSmokeSparks)
             .EndObject();
@@ -1640,13 +1640,13 @@ void DoFinale()
         if (!(dword_96788 & 2))
         {
             int nAng = RandomSize(11);
-            sprite[nFinaleSpr].ang = nAng;
-            BuildSpark(&exhumedActors[nFinaleSpr], 1);
+            pFinaleSpr->s().ang = nAng;
+            BuildSpark(pFinaleSpr, 1);
         }
 
         if (!RandomSize(2))
         {
-            PlayFX2(StaticSound[kSound78] | 0x2000, nFinaleSpr);
+            PlayFX2(StaticSound[kSound78] | 0x2000, pFinaleSpr);
 
             for (int i = 0; i < nTotalPlayers; i++) {
                 nQuake[i] = 1280;
@@ -1847,7 +1847,7 @@ void ExplodeEnergyBlock(int nSprite)
     }
     else
     {
-        nFinaleSpr = nSprite;
+        pFinaleSpr = &exhumedActors[nSprite];
         lFinaleStart = PlayClock;
 
         if (!lFinaleStart) {

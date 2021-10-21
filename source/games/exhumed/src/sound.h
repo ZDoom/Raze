@@ -132,6 +132,11 @@ void BendAmbientSound();
 void CheckAmbience(short nSector);
 
 void PlayFX2(unsigned short nSound, short nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
+inline void PlayFX2(unsigned short nSound, DExhumedActor* actor, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0)
+{
+    PlayFX2(nSound, actor->GetSpriteIndex(), sectf, chanflags, sprflags);
+}
+
 void PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector, EChanFlags chanflags = CHANF_NONE, int sectf = 0);
 inline void D3PlayFX(unsigned short nSound, short nSprite, short flags = 0)
 {

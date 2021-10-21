@@ -309,7 +309,7 @@ enum kStatus
 extern short nSmokeSparks;
 extern short nDronePitch;
 extern int lFinaleStart;
-extern short nFinaleSpr;
+extern DExhumedActor* pFinaleSpr;
 
 void InitObjects();
 void InitElev();
