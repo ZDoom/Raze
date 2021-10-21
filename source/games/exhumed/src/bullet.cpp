@@ -495,9 +495,7 @@ HITWALL:
                         nDamage *= 2;
                     }
 
-                    short nNormal = GetWallNormal(hitwall) & kAngleMask;
-
-                    runlist_DamageEnemy(sector[nSector].extra, nNormal, nDamage);
+                    runlist_DamageEnemy(EnergyBlocks[sector[nSector].extra], pActor, nDamage);
                 }
             }
         }

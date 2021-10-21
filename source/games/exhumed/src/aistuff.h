@@ -71,6 +71,7 @@ extern short lasthitsect;
 extern int lasthitz;
 extern int lasthitx;
 extern int lasthity;
+extern TArray<DExhumedActor*> EnergyBlocks;
 
 void InitBullets();
 int GrabBullet();
@@ -337,7 +338,7 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag);
 int BuildArrow(DExhumedActor* nSprite, int nVal);
 int BuildFireBall(DExhumedActor*, int a, int b);
 void BuildDrip(int nSprite);
-int BuildEnergyBlock(short nSector);
+DExhumedActor* BuildEnergyBlock(short nSector);
 int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, ...);
 int BuildWallFace(short nChannel, short nWall, int nCount, ...);

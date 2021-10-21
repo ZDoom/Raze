@@ -186,10 +186,10 @@ TArray<MoveSect> sMoveSect;
 TArray<slideData> SlideData;
 TArray<wallFace> WallFace;
 TArray<Drip> sDrip;
+TArray<DExhumedActor*> EnergyBlocks;
 
 int lFinaleStart;
 
-short nEnergyBlocks;
 short nFinaleStage;
 DExhumedActor* pFinaleSpr;
 
@@ -385,7 +385,7 @@ void SerializeObjects(FSerializer& arc)
             ("wallface", WallFace)
             ("drips", sDrip)
             ("finalestart", lFinaleStart)
-            ("energyblocks", nEnergyBlocks)
+            ("energyblocks", EnergyBlocks)
             ("finalestage", nFinaleStage)
             ("finalespr", pFinaleSpr)
             ("dronepitch", nDronePitch)
@@ -404,8 +404,8 @@ void InitObjects()
     ObjectList.Clear();
     sMoveSect.Clear();
     sDrip.Clear();
+    EnergyBlocks.Clear();
 
-    nEnergyBlocks = 0;
     nDronePitch = 0;
     nFinaleStage = 0;
     lFinaleStart = 0;
@@ -1692,7 +1692,7 @@ void DoFinale()
     }
 }
 
-int BuildEnergyBlock(short nSector)
+DExhumedActor* BuildEnergyBlock(short nSector)
 {
     short startwall = sector[nSector].wallptr;
     short nWalls = sector[nSector].wallnum;
@@ -1713,8 +1713,8 @@ int BuildEnergyBlock(short nSector)
     int xAvg = x / nWalls;
     int yAvg = y / nWalls;
 
-    int const nSprite = insertsprite(nSector, 406);
-    auto spr = &sprite[nSprite];
+    auto pActor = insertActor(nSector, 406);
+    auto spr = &pActor->s();
 
 
     short nextsector = wall[startwall].nextsector;
@@ -1722,7 +1722,7 @@ int BuildEnergyBlock(short nSector)
     spr->x = xAvg;
     spr->y = yAvg;
 
-    sector[nSector].extra = nSprite;
+    sector[nSector].extra = (int16_t)EnergyBlocks.Push(pActor);
 
     //	GrabTimeSlot(3);
 
@@ -1742,12 +1742,10 @@ int BuildEnergyBlock(short nSector)
     spr->extra = -1;
     spr->lotag = runlist_HeadRun() + 1;
     spr->hitag = 0;
-    spr->owner = runlist_AddRunRec(spr->lotag - 1, nSprite, 0x250000);
+    spr->owner = runlist_AddRunRec(spr->lotag - 1, pActor, 0x250000);
     spr->backuppos();
 
-    nEnergyBlocks++;
-
-    return nSprite | 0x250000;
+    return pActor;
 }
 
 // TODO - tidy
@@ -1766,7 +1764,7 @@ void KillCreatures()
             ExhumedStatIterator it(v1);
             while (auto i = it.Next())
             {
-                runlist_DamageEnemy(i->GetSpriteIndex(), -1, 1600);
+                runlist_DamageEnemy(i, nullptr, 1600);
             }
         }
         ++v0;
@@ -1778,10 +1776,9 @@ void KillCreatures()
     }
 }
 
-void ExplodeEnergyBlock(int nSprite)
+void ExplodeEnergyBlock(DExhumedActor* pActor)
 {
-    auto pActor = &exhumedActors[nSprite];
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
 
     short nSector = pSprite->sectnum;
 
@@ -1822,7 +1819,7 @@ void ExplodeEnergyBlock(int nSprite)
     pSprite->cstat = 0;
     pSprite->xrepeat = 100;
 
-    PlayFX2(StaticSound[kSound78], nSprite);
+    PlayFX2(StaticSound[kSound78], pActor);
 
     pSprite->xrepeat = 0;
 
@@ -1847,7 +1844,7 @@ void ExplodeEnergyBlock(int nSprite)
     }
     else
     {
-        pFinaleSpr = &exhumedActors[nSprite];
+        pFinaleSpr = pActor;
         lFinaleStart = PlayClock;
 
         if (!lFinaleStart) {
@@ -1878,13 +1875,14 @@ void ExplodeEnergyBlock(int nSprite)
         KillCreatures();
     }
 
-    changespritestat(nSprite, 0);
+    ChangeActorStat(pActor, 0);
 }
 
 void AIEnergyBlock::Damage(RunListEvent* ev)
 {
-    int const nSprite = RunData[ev->nRun].nObjIndex;
-    auto spr = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto spr = &pActor->s();
 
     ev->nDamage >>= 2;
     if (ev->nDamage <= 0) {
@@ -1909,14 +1907,15 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
     else
     {
         spr->xrepeat = 0; // using xrepeat to store health
-        ExplodeEnergyBlock(nSprite);
+        ExplodeEnergyBlock(pActor);
     }
 }
 
 void AIEnergyBlock::RadialDamage(RunListEvent* ev)
 {
-    int const nSprite = RunData[ev->nRun].nObjIndex;
-    auto spr = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto spr = &pActor->s();
 
     short nSector = spr->sectnum;
 
@@ -1929,7 +1928,7 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
     sector[nSector].floorz = spr->z;
     spr->z -= 256;
 
-    ev->nDamage = runlist_CheckRadialDamage(nSprite);
+    ev->nDamage = runlist_CheckRadialDamage(pActor);
 
     // restore previous values
     sector[nSector].floorz = nFloorZ;
