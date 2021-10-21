@@ -94,7 +94,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
     spritetype *pPlayerSprite = &sprite[nPlayerSprite];
 
-    besttarget = -1;
+    bestTarget = nullptr;
 
     short nSector = pPlayerSprite->sectnum;
 
@@ -107,7 +107,8 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
     for (nTSprite = spritesortcnt-1, pTSprite = &tsprite[nTSprite]; nTSprite >= 0; nTSprite--, pTSprite--)
     {
         int nSprite = pTSprite->owner;
-        spritetype *pSprite = &sprite[nSprite];
+        auto pActor = &exhumedActors[nSprite];
+        spritetype *pSprite = &pActor->s();
 
         if (pTSprite->sectnum >= 0)
         {
@@ -151,7 +152,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
                 edx = (abs(edx) * 32) / ebx;
                 if (ebx < 1000 && ebx < var_2C && edx < 10)
                 {
-                    besttarget = nSprite;
+                    bestTarget = pActor;
                     var_38 = edx;
                     var_2C = ebx;
                 }
@@ -162,21 +163,21 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
                     {
                         var_38 = edx;
                         var_2C = ebx;
-                        besttarget = nSprite;
+                        bestTarget = pActor;
                     }
                 }
             }
         }
     }
-    if (besttarget != -1)
+    if (bestTarget != nullptr)
     {
-        spritetype *pTarget = &sprite[besttarget];
+        spritetype *pTarget = &bestTarget->s();
 
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, nSector, pTarget->x, pTarget->y, pTarget->z - GetSpriteHeight(besttarget), pTarget->sectnum))
+        if (!cansee(x, y, z, nSector, pTarget->x, pTarget->y, pTarget->z - GetActorHeight(bestTarget), pTarget->sectnum))
         {
-            besttarget = -1;
+            bestTarget = nullptr;
         }
     }
 

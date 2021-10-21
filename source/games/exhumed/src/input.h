@@ -33,10 +33,10 @@ enum {
 // 32 bytes
 struct PlayerInput
 {
+    DExhumedActor* pTarget;
     int xVel;
     int yVel;
     uint16_t buttons;
-    short nTarget;
     float nAngle;
     float pan;
     int8_t nItem;

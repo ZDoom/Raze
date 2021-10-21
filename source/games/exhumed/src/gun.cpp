@@ -824,27 +824,22 @@ loc_flag:
                     int h = PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 14;
                     nHeight -= h;
 
-                    int target = 0;
-                    bool gottarg = false;
-                    if (sPlayerInput[nPlayer].nTarget >= 0 && Autoaim(nPlayer))
+                    DExhumedActor* target = nullptr;
+                    if (sPlayerInput[nPlayer].pTarget != nullptr && Autoaim(nPlayer))
                     {
-                        int t = sPlayerInput[nPlayer].nTarget;
-                        if (t >= 0 && t < MAXSPRITES)
+                        auto t = sPlayerInput[nPlayer].pTarget;
+                        // only autoaim if target is in front of the player.
+                        auto pTargetSprite = &t->s();
+                        assert(pTargetSprite->sectnum < kMaxSectors);
+                        int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
+                        int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
+                        if (anglediff < 512 || anglediff > 1536)
                         {
-                            // only autoaim if target is in front of the player.
-                            auto pTargetSprite = &sprite[t];
-                            assert(pTargetSprite->sectnum < kMaxSectors);
-                            int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
-                            int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
-                            if (anglediff < 512 || anglediff > 1536)
-                            {
-                                target = t;
-                                gottarg = true;
-                            }
+                            target = t;
                         }
                     }
 
-                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle,gottarg? &exhumedActors[target] : nullptr, var_1C);
+                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle, target, var_1C);
                     break;
                 }
 

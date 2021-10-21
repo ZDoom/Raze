@@ -178,9 +178,9 @@ void BuildSnake(short nPlayer, short zVal)
         if (hitactor && hitactor->s().statnum >= 90 && hitactor->s().statnum <= 199) {
             pTarget = hitactor;
         }
-        else if (sPlayerInput[nPlayer].nTarget >= 0) 
+        else if (sPlayerInput[nPlayer].pTarget != nullptr) 
         {
-            pTarget = &exhumedActors[sPlayerInput[nPlayer].nTarget];
+            pTarget = sPlayerInput[nPlayer].pTarget;
         }
 
         short nSnake = GrabSnake();

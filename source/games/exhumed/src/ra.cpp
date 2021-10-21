@@ -177,7 +177,7 @@ void AIRa::Tick(RunListEvent* ev)
 
     bool bVal = false;
 
-    Ra[nPlayer].pTarget =  sPlayerInput[nPlayer].nTarget <= -1? nullptr : &exhumedActors[sPlayerInput[nPlayer].nTarget] ;
+    Ra[nPlayer].pTarget = sPlayerInput[nPlayer].pTarget;
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
 
     if (Ra[nPlayer].nAction)

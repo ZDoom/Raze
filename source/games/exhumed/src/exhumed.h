@@ -66,7 +66,6 @@ void TintPalette(int a, int b, int c);
 
 void EraseScreen(int eax);
 
-void mychangespritesect(int nSprite, int nSector);
 void DeleteActor(DExhumedActor* actor);
 
 void GrabPalette();

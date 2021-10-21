@@ -153,7 +153,7 @@ short bInDemo = false;
 short bSlipMode = false;
 short bDoFlashes = true;
 
-short besttarget;
+DExhumedActor* bestTarget;
 
 short scan_char = 0;
 
@@ -429,11 +429,11 @@ void GameInterface::Ticker()
         sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
         sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
         sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
-        sPlayerInput[nLocalPlayer].nTarget = besttarget;
+        sPlayerInput[nLocalPlayer].pTarget = bestTarget;
         sPlayerInput[nLocalPlayer].nAngle = localInput.avel;
         sPlayerInput[nLocalPlayer].pan = localInput.horz;
 
-        Ra[nLocalPlayer].pTarget = &exhumedActors[besttarget];
+        Ra[nLocalPlayer].pTarget = bestTarget;
 
         lLocalCodes = 0;
 
@@ -521,8 +521,8 @@ void DeleteActor(DExhumedActor* actor)
     deletesprite(actor->GetSpriteIndex());
     actor->s().ox = 0x80000000;
 
-    if (actor->GetSpriteIndex() == besttarget) {
-        besttarget = -1;
+    if (actor == bestTarget) {
+        bestTarget = nullptr;
     }
 }
 
@@ -625,7 +625,7 @@ void SerializeState(FSerializer& arc)
             InitEnergyTile();
     }
 
-        arc ("besttarget", besttarget)
+        arc ("besttarget", bestTarget)
             ("creaturestotal", nCreaturesTotal)
             ("creatureskilled", nCreaturesKilled)
             ("freeze", nFreeze)
