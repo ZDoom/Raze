@@ -693,7 +693,7 @@ void CheckAmbience(short nSector)
                 {
                     if (nSector == nSector2)
                     {
-                        spritetype* pSprite = &sprite[PlayerList[0].nSprite];
+                        spritetype* pSprite = &PlayerList[0].Actor()->s();
                         amb = GetSoundPos(&pSprite->pos);
                     }
                     else
@@ -724,7 +724,7 @@ void UpdateCreepySounds()
 {
     if ((currentLevel->gameflags & LEVEL_EX_COUNTDOWN) || nFreeze || !SoundEnabled())
         return;
-    spritetype* pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
+    spritetype* pSprite = &PlayerList[nLocalPlayer].Actor()->s();
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {

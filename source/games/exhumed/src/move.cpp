@@ -387,7 +387,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
 
         if (SectFlag[edi] & kSectUnderwater)
         {
-            if (nSprite == PlayerList[nLocalPlayer].nSprite) {
+            if (nSprite == PlayerList[nLocalPlayer].Actor()->GetSpriteIndex()) {
                 D3PlayFX(StaticSound[kSound2], nSprite);
             }
 
@@ -512,12 +512,6 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
     }
 
     return nRet;
-}
-
-int GetSpriteHeight(int nSprite)
-{
-	auto pSprite = &sprite[nSprite];
-    return tileHeight(pSprite->picnum) * pSprite->yrepeat * 4;
 }
 
 int GetActorHeight(DExhumedActor* actor)
@@ -1164,10 +1158,11 @@ void SetQuake(DExhumedActor* pActor, int nVal)
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        int nPlayerSprite = PlayerList[i].nSprite;
+        auto pPlayerActor = PlayerList[i].Actor();
 
-        uint32_t xDiff = abs((int32_t)((sprite[nPlayerSprite].x - x) >> 8));
-        uint32_t yDiff = abs((int32_t)((sprite[nPlayerSprite].y - y) >> 8));
+
+        uint32_t xDiff = abs((int32_t)((pPlayerActor->s().x - x) >> 8));
+        uint32_t yDiff = abs((int32_t)((pPlayerActor->s().y - y) >> 8));
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 

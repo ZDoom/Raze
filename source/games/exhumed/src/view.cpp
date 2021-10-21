@@ -87,12 +87,12 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
         }
     }
 
-    short nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
+    auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
 
     int var_38 = 20;
     int var_2C = 30000;
 
-    spritetype *pPlayerSprite = &sprite[nPlayerSprite];
+    spritetype *pPlayerSprite = &pPlayerActor->s();
 
     bestTarget = nullptr;
 
@@ -132,7 +132,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
         {
             runlist_SignalRun(pSprite->lotag - 1, nTSprite | 0x90000);
 
-            if ((pSprite->statnum < 150) && (pSprite->cstat & 0x101) && (nSprite != nPlayerSprite))
+            if ((pSprite->statnum < 150) && (pSprite->cstat & 0x101) && (pActor != pPlayerActor))
             {
                 int xval = pSprite->x - x;
                 int yval = pSprite->y - y;
@@ -212,8 +212,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     DoInterpolations(smoothRatio / 65536.);
     pm_smoothratio = (int)smoothRatio;
 
-    int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
-	auto pPlayerSprite = &sprite[nPlayerSprite];
+    auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
+	auto pPlayerSprite = &pPlayerActor->s();
     int nPlayerOldCstat = pPlayerSprite->cstat;
     auto pDop = &PlayerList[nLocalPlayer].pDoppleSprite->s();
     int nDoppleOldCstat = pDop->cstat;
@@ -246,10 +246,9 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
     else
     {
-        auto psp = &sprite[nPlayerSprite];
-        playerX = psp->interpolatedx(smoothRatio);
-        playerY = psp->interpolatedy(smoothRatio);
-        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
+        playerX = pPlayerSprite->interpolatedx(smoothRatio);
+        playerY = pPlayerSprite->interpolatedy(smoothRatio);
+        playerZ = pPlayerSprite->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
 
         nSector = PlayerList[nLocalPlayer].nPlayerViewSect;
         updatesector(playerX, playerY, &nSector);
@@ -300,10 +299,10 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (bCamera)
         {
             viewz -= 2560;
-            if (!calcChaseCamPos(&playerX, &playerY, &viewz, &sprite[nPlayerSprite], &nSector, nAngle, pan, smoothRatio))
+            if (!calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerSprite, &nSector, nAngle, pan, smoothRatio))
             {
                 viewz += 2560;
-                calcChaseCamPos(&playerX, &playerY, &viewz, &sprite[nPlayerSprite], &nSector, nAngle, pan, smoothRatio);
+                calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerSprite, &nSector, nAngle, pan, smoothRatio);
             }
         }
     }

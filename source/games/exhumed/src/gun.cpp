@@ -397,7 +397,7 @@ void MoveWeapons(short nPlayer)
                             if (!WeaponCanFire(nPlayer))
                             {
                                 if (!dword_96E22) {
-                                    D3PlayFX(StaticSound[4], PlayerList[nPlayer].nSprite);
+                                    D3PlayFX(StaticSound[4], PlayerList[nPlayer].Actor());
                                 }
                             }
                             else

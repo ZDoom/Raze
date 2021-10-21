@@ -53,9 +53,9 @@ void ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
         return;
 
     auto pActor = PlayerList[nPlayer].pPlayerGrenade;
-    short nPlayerSprite = PlayerList[nPlayer].nSprite;
-	auto pGrenadeSprite = &pActor->s();
-	auto pPlayerSprite = &PlayerList[nPlayer].Actor()->s();
+    auto pGrenadeSprite = &pActor->s();
+    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerSprite = &pPlayerActor->s();
 
     short nAngle = pPlayerSprite->ang;
 

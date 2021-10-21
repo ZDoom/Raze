@@ -102,12 +102,12 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, short nPlayer)
     }
 
     // take a copy of this, to revert after call to runlist_RadialDamageEnemy()
-    short nOwner = pSprite->owner;
-    pSprite->owner = PlayerList[nPlayer].nSprite;
+    auto nOwner = pActor->pTarget;
+    pActor->pTarget = PlayerList[nPlayer].pActor;
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponStaff].nRadius);
 
-    pSprite->owner = nOwner;
+    pActor->pTarget = nOwner;
 
     BuildAnim(nullptr, 23, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 40, 4);
 

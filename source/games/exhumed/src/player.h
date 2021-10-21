@@ -58,7 +58,8 @@ struct PlayerSave
 
 struct Player
 {
-	DExhumedActor* Actor() { return nSprite == -1? nullptr : &exhumedActors[nSprite]; }
+	DExhumedActor* Actor() { return pActor; }
+    DExhumedActor* pActor;
     short nHealth;
     short nLives;
     short nDouble;
@@ -66,7 +67,6 @@ struct Player
     short nTorch;
     short field_2;
     short nAction;
-    short nSprite;
     short bIsMummified;
     short invincibility;
     short nAir;

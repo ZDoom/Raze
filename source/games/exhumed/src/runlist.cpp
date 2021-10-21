@@ -1704,8 +1704,8 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
         if (PlayerList[nPlayer].nTauntTimer <= 0)
         {
             // Do a taunt
-            int nPlayerSprite = PlayerList[nPlayer].nSprite;
-            int nSector = sprite[nPlayerSprite].sectnum;
+            auto pPlayerActor = PlayerList[nPlayer].Actor();
+            int nSector = pPlayerActor->s().sectnum;
 
             if (!(SectFlag[nSector] & kSectUnderwater))
             {

@@ -168,7 +168,7 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
 void InitPlayer()
 {
     for (int i = 0; i < kMaxPlayers; i++) {
-        PlayerList[i].nSprite = -1;
+        PlayerList[i].pActor = nullptr;
     }
 }
 
@@ -188,7 +188,7 @@ void InitPlayerInventory(short nPlayer)
 
     PlayerList[nPlayer].nLives = kDefaultLives;
 
-    PlayerList[nPlayer].nSprite = -1;
+    PlayerList[nPlayer].pActor = nullptr;
     PlayerList[nPlayer].nRun = -1;
 
     PlayerList[nPlayer].nPistolClip = 6;
@@ -229,7 +229,7 @@ void RestartPlayer(short nPlayer)
 
 		ChangeActorStat(pActor, 0);
 
-		plr->nSprite = -1;
+        plr->pActor = nullptr;
 
 		auto pFloorSprite = plr->pPlayerFloorSprite;
 		if (pFloorSprite != nullptr) {
@@ -341,7 +341,7 @@ void RestartPlayer(short nPlayer)
 	}
 
 	plr->field_2 = 0;
-	plr->nSprite = pActor->GetSpriteIndex();
+	plr->pActor = pActor;
 	plr->bIsMummified = false;
 
 	if (plr->invincibility >= 0) {
@@ -439,8 +439,8 @@ void StartDeathSeq(int nPlayer, int nVal)
 {
     FreeRa(nPlayer);
 
-    short nSprite = PlayerList[nPlayer].nSprite;
-	auto pSprite = &sprite[nSprite];
+    auto pActor = PlayerList[nPlayer].Actor();
+	auto pSprite = &pActor->s();
     PlayerList[nPlayer].nHealth = 0;
 
     short nLotag = sector[pSprite->sectnum].lotag;
@@ -562,8 +562,8 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
-    int nSprite = PlayerList[nPlayer].nSprite;
-	auto pSprite = &sprite[nSprite];
+    auto pActor = PlayerList[nPlayer].pActor;
+	auto pSprite = &pActor->s();
 
     pSprite->yvel = 0;
     pSprite->xvel = 0;
@@ -611,7 +611,8 @@ static void pickupMessage(int no)
 
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
-    inita = sprite[pPlayer->nSprite].ang = pPlayer->angle.ang.asbuild();
+    inita = pPlayer->angle.ang.asbuild();
+    if (pPlayer->Actor()) pPlayer->Actor()->s().ang = inita;
 }
 
 void AIPlayer::Draw(RunListEvent* ev)
@@ -628,14 +629,14 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
     short nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    short nPlayerSprite = PlayerList[nPlayer].nSprite;
+    auto pPlayerActor = PlayerList[nPlayer].Actor();
 
     if (PlayerList[nPlayer].nHealth <= 0)
     {
         return;
     }
 
-    ev->nDamage = runlist_CheckRadialDamage(nPlayerSprite);
+    ev->nDamage = runlist_CheckRadialDamage(pPlayerActor);
     Damage(ev);
 }
 
@@ -755,7 +756,6 @@ void AIPlayer::Tick(RunListEvent* ev)
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
-    int nPlayerSprite = PlayerList[nPlayer].nSprite;
     auto pPlayerSprite = &pPlayerActor->s();
 
     auto pDopple = PlayerList[nPlayer].pDoppleSprite;
@@ -863,7 +863,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     if (pPlayerSprite->zvel >= 6500 && zVel < 6500)
     {
-        D3PlayFX(StaticSound[kSound17], nPlayerSprite);
+        D3PlayFX(StaticSound[kSound17], pPlayerActor);
     }
 
     // loc_1A4E6
@@ -903,7 +903,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         pPlayerSprite->y += (y >> 14);
 
         vec3_t pos = { pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z };
-        setsprite(nPlayerSprite, &pos);
+        setActorPos(pPlayerActor, &pos);
 
         pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
     }
@@ -1004,19 +1004,19 @@ void AIPlayer::Tick(RunListEvent* ev)
                 pPlayerSprite->xvel >>= 2;
                 pPlayerSprite->yvel >>= 2;
 
-                runlist_DamageEnemy(nPlayerSprite, -1, ((zVel - 6500) >> 7) + 10);
+                runlist_DamageEnemy(pPlayerActor, nullptr, ((zVel - 6500) >> 7) + 10);
 
                 if (PlayerList[nPlayer].nHealth <= 0)
                 {
                     pPlayerSprite->xvel = 0;
                     pPlayerSprite->yvel = 0;
 
-                    StopSpriteSound(nPlayerSprite);
+                    StopActorSound(pPlayerActor);
                     PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, CHANF_NONE, 1); // CHECKME
                 }
                 else
                 {
-                    D3PlayFX(StaticSound[kSound27] | 0x2000, nPlayerSprite);
+                    D3PlayFX(StaticSound[kSound27] | 0x2000, pPlayerActor);
                 }
             }
         }
@@ -1699,7 +1699,7 @@ sectdone:
 
                     if (PlayerList[nPlayer].nBreathTimer < 89)
                     {
-                        D3PlayFX(StaticSound[kSound13], nPlayerSprite);
+                        D3PlayFX(StaticSound[kSound13], pPlayerActor);
                     }
 
                     PlayerList[nPlayer].nBreathTimer = 90;
@@ -2496,7 +2496,7 @@ sectdone:
                     // will invalidate nPlayerSprite
                     RestartPlayer(nPlayer);
 
-                    nPlayerSprite = PlayerList[nPlayer].nSprite;
+                    pPlayerActor = PlayerList[nPlayer].Actor();
                     pDopple = PlayerList[nPlayer].pDoppleSprite;
                 }
                 else
@@ -2517,7 +2517,7 @@ sectdone:
 
     int var_AC = SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a;
 
-    seq_MoveSequence(nPlayerSprite, var_AC, PlayerList[nPlayer].field_2);
+    seq_MoveSequence(pPlayerActor, var_AC, PlayerList[nPlayer].field_2);
     PlayerList[nPlayer].field_2++;
 
     if (PlayerList[nPlayer].field_2 >= SeqSize[var_AC])
@@ -2642,7 +2642,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
         arc("health", w.nHealth)
             ("at2", w.field_2)
             ("action", w.nAction)
-            ("sprite", w.nSprite)
+            ("sprite", w.pActor)
             ("mummy", w.bIsMummified)
             ("invincible", w.invincibility)
             ("air", w.nAir)
@@ -2736,7 +2736,7 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, nInvisible);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nTorch);
 DEFINE_FIELD_X(ExhumedPlayer, Player, field_2);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nAction);
-DEFINE_FIELD_X(ExhumedPlayer, Player, nSprite);
+DEFINE_FIELD_X(ExhumedPlayer, Player, pActor);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bIsMummified);
 DEFINE_FIELD_X(ExhumedPlayer, Player, invincibility);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nAir);
@@ -2783,7 +2783,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(sprite[self->nSprite].ang);
+    ACTION_RETURN_INT(self->Actor()->s().ang);
 }
 
 

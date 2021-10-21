@@ -136,7 +136,7 @@ uint8_t LoadLevel(MapRecord* map)
 
     for (i = 0; i < kMaxPlayers; i++)
     {
-        PlayerList[i].nSprite = -1;
+        PlayerList[i].pActor = nullptr;
     }
 
     psky_t* pSky = tileSetupSky(DEFAULTPSKY);
