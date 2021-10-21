@@ -2712,21 +2712,22 @@ void PostProcess()
                 if (wall[nWall].picnum == kTile3603)
                 {
                     wall[nWall].pal = 1;
-                    int nSprite = insertsprite(i, 407);
-                    auto pSprite = &sprite[nSprite];
-                    pSprite->cstat = 0x8000;
+                    auto pActor = insertActor(i, 407);
+                    pActor->s().cstat = 0x8000;
                 }
 
                 nWall++;
             }
         }
 
-        for (i = 0; i < kMaxSprites; i++)
+        ExhumedLinearSpriteIterator it;
+        while (auto act = it.Next())
         {
-            if (sprite[i].statnum < kMaxStatus && sprite[i].picnum == kTile3603)
+            auto spr = &act->s();
+            if (spr->statnum < kMaxStatus && spr->picnum == kTile3603)
             {
-                changespritestat(i, 407);
-                sprite[i].pal = 1;
+                ChangeActorStat(act, 407);
+                spr->pal = 1;
             }
         }
     }
