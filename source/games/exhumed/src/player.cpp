@@ -518,7 +518,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
                 pGunSprite->picnum = nGunPicnum[nWeapon];
 
-                BuildItemAnim(pGunActor->GetSpriteIndex());
+                BuildItemAnim(pGunActor);
             }
         }
     }

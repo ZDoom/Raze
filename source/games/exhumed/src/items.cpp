@@ -120,15 +120,15 @@ void SerializeItems(FSerializer& arc)
     }
 }
 
-void BuildItemAnim(short nSprite)
+void BuildItemAnim(DExhumedActor* pActor)
 {
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
 
     int nItem = pSprite->statnum - 906;
 
     if (nItemAnimInfo[nItem].a >= 0)
     {
-        auto pAnimActor = BuildAnim(&exhumedActors[nSprite], 41, nItemAnimInfo[nItem].a, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nItemAnimInfo[nItem].repeat, 20);
+        auto pAnimActor = BuildAnim(pActor, 41, nItemAnimInfo[nItem].a, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nItemAnimInfo[nItem].repeat, 20);
 
         if (nItem == 44) {
             pAnimActor->s().cstat |= 2;

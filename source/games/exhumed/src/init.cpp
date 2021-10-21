@@ -395,33 +395,33 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
         case 60:
         {
             pSprite->hitag = nVal;
-            changespritestat(nSprite, nLotag + 900);
+            ChangeActorStat(pActor, nLotag + 900);
             pSprite->cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            BuildItemAnim(pActor);
             return;
         }
         case 12: // berry twig
         {
             pSprite->hitag = 40;
-            changespritestat(nSprite, nLotag + 900);
+            ChangeActorStat(pActor, nLotag + 900);
             pSprite->cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            BuildItemAnim(pActor);
             return;
         }
         case 13: // blood bowl
         {
             pSprite->hitag = 160;
-            changespritestat(nSprite, nLotag + 900);
+            ChangeActorStat(pActor, nLotag + 900);
             pSprite->cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            BuildItemAnim(pActor);
             return;
         }
         case 14: // venom bowl
         {
             pSprite->hitag = -200;
-            changespritestat(nSprite, nLotag + 900);
+            ChangeActorStat(pActor, nLotag + 900);
             pSprite->cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            BuildItemAnim(pActor);
             return;
         }
 
@@ -442,18 +442,18 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             else
             {
                 pSprite->hitag = nVal;
-                changespritestat(nSprite, nLotag + 900);
+                ChangeActorStat(pActor, nLotag + 900);
                 pSprite->cstat &= 0xFEFE;
-                BuildItemAnim(nSprite);
+                BuildItemAnim(pActor);
                 return;
             }
         }
         case 27:
         {
             pSprite->hitag = 1;
-            changespritestat(nSprite, 9 + 900);
+            ChangeActorStat(pActor, 9 + 900);
             pSprite->cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            BuildItemAnim(pActor);
             return;
         }
 
@@ -462,9 +462,9 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             nVal++;
             nVal--; // CHECKME ??
             pSprite->hitag = nVal;
-            changespritestat(nSprite, nLotag + 900);
+            ChangeActorStat(pActor, nLotag + 900);
             pSprite->cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            BuildItemAnim(pActor);
             return;
         }
     }
@@ -762,7 +762,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 63:
             {
-                changespritestat(nSprite, 405);
+                ChangeActorStat(pActor, 405);
                 pSprite->cstat = 0x8000;
                 return;
             }

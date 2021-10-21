@@ -156,7 +156,7 @@ enum
 
 extern short nItemMagic[];
 
-void BuildItemAnim(short nSprite);
+void BuildItemAnim(DExhumedActor* nSprite);
 void DestroyItemAnim(short nSprite);
 void ItemFlash();
 void FillItems(short nPlayer);
