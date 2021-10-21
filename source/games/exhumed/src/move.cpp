@@ -1154,9 +1154,9 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
     initsect = pSprite->sectnum;
 }
 
-void SetQuake(short nSprite, int nVal)
+void SetQuake(DExhumedActor* pActor, int nVal)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
     int x = pSprite->x;
     int y = pSprite->y;
 
@@ -1434,34 +1434,21 @@ DExhumedActor* GrabChunkSprite()
     return pActor;
 }
 
-int BuildCreatureChunk(int nVal, int nPic)
+DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 {
-    int var_14;
-
     auto actor = GrabChunkSprite();
 
     if (actor == nullptr) {
-        return -1;
+        return nullptr;
     }
 	auto pSprite = &actor->s();
+    auto pSrcSpr = &pSrc->s();
 
-    if (nVal & 0x4000)
-    {
-        nVal &= 0x3FFF;
-        var_14 = 1;
-    }
-    else
-    {
-        var_14 = 0;
-    }
+    pSprite->x = pSrcSpr->x;
+    pSprite->y = pSrcSpr->y;
+    pSprite->z = pSrcSpr->z;
 
-    nVal &= 0xFFFF;
-
-    pSprite->x = sprite[nVal].x;
-    pSprite->y = sprite[nVal].y;
-    pSprite->z = sprite[nVal].z;
-
-    ChangeActorSect(actor, sprite[nVal].sectnum);
+    ChangeActorSect(actor, pSrcSpr->sectnum);
 
     pSprite->cstat = 0x80;
     pSprite->shade = -12;
@@ -1471,7 +1458,7 @@ int BuildCreatureChunk(int nVal, int nPic)
     pSprite->yvel = (RandomSize(5) - 16) << 7;
     pSprite->zvel = (-(RandomSize(8) + 512)) << 3;
 
-    if (var_14)
+    if (bSpecial)
     {
         pSprite->xvel *= 4;
         pSprite->yvel *= 4;
@@ -1489,18 +1476,17 @@ int BuildCreatureChunk(int nVal, int nPic)
 //	GrabTimeSlot(3);
 
     pSprite->extra = -1;
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, actor->GetSpriteIndex(), 0xD0000);
-    pSprite->hitag = runlist_AddRunRec(NewRun, actor->GetSpriteIndex(), 0xD0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, actor, 0xD0000);
+    pSprite->hitag = runlist_AddRunRec(NewRun, actor, 0xD0000);
 
-    return actor->GetSpriteIndex();
+    return actor;
 }
 
 void AICreatureChunk::Tick(RunListEvent* ev)
 {
-    int nSprite = RunData[ev->nRun].nObjIndex;
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    auto pActor = &exhumedActors[nSprite];
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
 
     Gravity(pActor);
 
@@ -1578,15 +1564,15 @@ void  FuncCreatureChunk(int nObject, int nMessage, int nDamage, int nRun)
 
 }
 
-short UpdateEnemy(short *nEnemy)
+DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
 {
-    if (*nEnemy >= 0)
+    if (*ppEnemy)
     {
-        if (!(sprite[*nEnemy].cstat & 0x101)) {
-            *nEnemy = -1;
+        if (!((*ppEnemy)->s().cstat & 0x101)) {
+            *ppEnemy = nullptr;
         }
     }
 
-    return *nEnemy;
+    return *ppEnemy;
 }
 END_PS_NS

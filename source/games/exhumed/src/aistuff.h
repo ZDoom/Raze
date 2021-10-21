@@ -218,14 +218,7 @@ void ResetMoveFifo();
 void InitChunks();
 void InitPushBlocks();
 void Gravity(DExhumedActor* actor);
-short UpdateEnemy(short *nEnemy);
-DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
-{
-    short ndx = (short)(*ppEnemy? (*ppEnemy)->GetSpriteIndex() : -1);
-    int v = UpdateEnemy(&ndx);
-    return v == -1 ? nullptr : &exhumedActors[v];
-}
-
+DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy);
 Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
 void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum);
@@ -238,14 +231,7 @@ void CreatePushBlock(int nSector);
 void FuncCreatureChunk(int a, int, int nRun);
 DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage = false);
 
-int BuildCreatureChunk(int nVal, int nPic);
-DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false)
-{
-    int s = pSrc->GetSpriteIndex();
-    if (bSpecial) s |= 0x4000;
-    int c = BuildCreatureChunk(s, nPic);
-    return c < 0 ? nullptr : &exhumedActors[c];
-}
+DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false);
 void BuildNear(int x, int y, int walldist, int nSector);
 int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 void CheckSectorFloor(short nSector, int z, int *x, int *y);
@@ -254,11 +240,7 @@ int GetWallNormal(short nWall);
 int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int ecx);
 void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel);
 Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1);
-void SetQuake(short nSprite, int nVal);
-void SetQuake(DExhumedActor* nSprite, int nVal)
-{
-    SetQuake(nSprite->GetSpriteIndex(), nVal);
-}
+void SetQuake(DExhumedActor* nSprite, int nVal);
 
 // mummy
 

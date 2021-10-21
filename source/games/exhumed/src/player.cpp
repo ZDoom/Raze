@@ -644,9 +644,9 @@ void AIPlayer::Damage(RunListEvent* ev)
 {
     int nDamage = ev->nDamage;
     short nPlayer = RunData[ev->nRun].nObjIndex;
+    auto pPlayerActor = PlayerList[nPlayer].Actor();
     short nAction = PlayerList[nPlayer].nAction;
-    short nPlayerSprite = PlayerList[nPlayer].nSprite;
-    auto pPlayerSprite = &sprite[nPlayerSprite];
+    auto pPlayerSprite = &pPlayerActor->s();
     auto pDopple = PlayerList[nPlayer].pDoppleSprite;
 
     if (!nDamage) {
@@ -733,7 +733,7 @@ void AIPlayer::Damage(RunListEvent* ev)
         {
             for (int i = 122; i <= 131; i++)
             {
-                BuildCreatureChunk(nPlayerSprite, seq_GetSeqPicnum(kSeqJoe, i, 0));
+                BuildCreatureChunk(pPlayerActor, seq_GetSeqPicnum(kSeqJoe, i, 0));
             }
 
             StartDeathSeq(nPlayer, 1);
