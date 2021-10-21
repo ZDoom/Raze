@@ -109,12 +109,12 @@ struct Player
     short nTauntTimer;
     uint16_t nPlayerWeapons; // each set bit represents a weapon the player has
     short nPlayerViewSect;
-    short nPlayerFloorSprite;
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;
     int16_t eyelevel, oeyelevel;
-    DExhumedActor* nPlayerGrenade;
+    DExhumedActor* pPlayerGrenade;
+    DExhumedActor* pPlayerFloorSprite;
 
 };
 

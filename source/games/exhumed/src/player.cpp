@@ -220,7 +220,7 @@ void RestartPlayer(short nPlayer)
 	auto nSpr = &sprite[nSprite];
 	int nDopSprite = PlayerList[nPlayer].nDoppleSprite;
 
-	int floorspr;
+    DExhumedActor* floorsprt;
 
 	if (nSprite > -1)
 	{
@@ -231,9 +231,9 @@ void RestartPlayer(short nPlayer)
 
 		plr->nSprite = -1;
 
-		int nFloorSprite = PlayerList[nPlayer].nPlayerFloorSprite;
-		if (nFloorSprite > -1) {
-			mydeletesprite(nFloorSprite);
+		auto pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
+		if (pFloorSprite != nullptr) {
+			DeleteActor(pFloorSprite);
 		}
 
 		if (nDopSprite > -1)
@@ -249,10 +249,8 @@ void RestartPlayer(short nPlayer)
 	nSprite = actor->GetSpriteIndex();
 	nSpr = &actor->s();
 
-	mychangespritesect(nSprite, PlayerList[nPlayer].sPlayerSave.nSector);
-	changespritestat(nSprite, 100);
-
-	assert(nSprite >= 0 && nSprite < kMaxSprites);
+	ChangeActorSect(actor, PlayerList[nPlayer].sPlayerSave.nSector);
+	ChangeActorStat(actor, 100);
 
 	int nDSprite = insertsprite(nSpr->sectnum, 100);
 	PlayerList[nPlayer].nDoppleSprite = nDSprite;
@@ -276,9 +274,8 @@ void RestartPlayer(short nPlayer)
 		plr->angle.ang = buildang(nstspr->ang&kAngleMask);
 		nSpr->ang = plr->angle.ang.asbuild();
 
-		floorspr = insertsprite(nSpr->sectnum, 0);
-		assert(floorspr >= 0 && floorspr < kMaxSprites);
-		auto fspr = &sprite[floorspr];
+		floorsprt = insertActor(nSpr->sectnum, 0);
+		auto fspr = &floorsprt->s();
 
 		fspr->x = nSpr->x;
 		fspr->y = nSpr->y;
@@ -296,13 +293,13 @@ void RestartPlayer(short nPlayer)
 		plr->angle.ang = buildang(PlayerList[nPlayer].sPlayerSave.nAngle&kAngleMask);
 		nSpr->ang = plr->angle.ang.asbuild();
 
-		floorspr = -1;
+		floorsprt = nullptr;
 	}
 
 	plr->angle.backup();
 	plr->horizon.backup();
 
-	PlayerList[nPlayer].nPlayerFloorSprite = floorspr;
+	PlayerList[nPlayer].pPlayerFloorSprite = floorsprt;
 
 	nSpr->cstat = 0x101;
 	nSpr->shade = -12;
@@ -391,7 +388,7 @@ void RestartPlayer(short nPlayer)
 		plr->nMagic = 0;
 	}
 
-	PlayerList[nPlayer].nPlayerGrenade = nullptr;
+	PlayerList[nPlayer].pPlayerGrenade = nullptr;
 	PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel = -14080;
 	dVertPan[nPlayer] = 0;
 
@@ -455,7 +452,7 @@ void StartDeathSeq(int nPlayer, int nVal)
         runlist_SignalRun(nLotag - 1, nPlayer | 0x70000);
     }
 
-    if (PlayerList[nPlayer].nPlayerGrenade)
+    if (PlayerList[nPlayer].pPlayerGrenade)
     {
         ThrowGrenade(nPlayer, 0, 0, 0, -10000);
     }
@@ -823,10 +820,10 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (PlayerList[nPlayer].nInvisible == 0)
         {
             pPlayerSprite->cstat &= 0x7FFF; // set visible
-            short nFloorSprite = PlayerList[nPlayer].nPlayerFloorSprite;
+            auto pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
 
-            if (nFloorSprite > -1) {
-                sprite[nFloorSprite].cstat &= 0x7FFF; // set visible
+            if (pFloorSprite != nullptr) {
+                pFloorSprite->s().cstat &= 0x7FFF; // set visible
             }
         }
         else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
@@ -1294,19 +1291,20 @@ sectdone:
         }
 
         // loc_1B1EB
-        if (nTotalPlayers > 1)
+        auto pFloorActor = PlayerList[nPlayer].pPlayerFloorSprite;
+        if (nTotalPlayers > 1 && pFloorActor)
         {
-            int nFloorSprite = PlayerList[nPlayer].nPlayerFloorSprite;
+            auto pFloorSprite = &pFloorActor->s();
 
-            sprite[nFloorSprite].x = pPlayerSprite->x;
-            sprite[nFloorSprite].y = pPlayerSprite->y;
+            pFloorSprite->x = pPlayerSprite->x;
+            pFloorSprite->y = pPlayerSprite->y;
 
-            if (sprite[nFloorSprite].sectnum != pPlayerSprite->sectnum)
+            if (pFloorSprite->sectnum != pPlayerSprite->sectnum)
             {
-                mychangespritesect(nFloorSprite, pPlayerSprite->sectnum);
+                ChangeActorSect(pFloorActor, pPlayerSprite->sectnum);
             }
 
-            sprite[nFloorSprite].z = sector[pPlayerSprite->sectnum].floorz;
+            pFloorSprite->z = sector[pPlayerSprite->sectnum].floorz;
         }
 
         int var_30 = 0;
@@ -2691,11 +2689,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("taunttimer", w.nTauntTimer)
             ("weapons", w.nPlayerWeapons)
             ("viewsect", w.nPlayerViewSect)
-            ("floorspr", w.nPlayerFloorSprite)
+            ("floorspr", w.pPlayerFloorSprite)
             ("save", w.sPlayerSave)
             ("totalvel", w.totalvel)
             ("eyelevel", w.eyelevel)
-            ("grenade", w.nPlayerGrenade)
+            ("grenade", w.pPlayerGrenade)
 
             .EndObject();
     }

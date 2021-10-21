@@ -75,9 +75,10 @@ void FreeRa(short nPlayer)
 
 void BuildRa(short nPlayer)
 {
-    short nPlayerSprite = PlayerList[nPlayer].nSprite;
+    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerSprite = &pPlayerActor->s();
 
-    auto pActor = insertActor(sprite[nPlayerSprite].sectnum, 203);
+    auto pActor = insertActor(pPlayerSprite->sectnum, 203);
 	auto pSprite = &pActor->s();
 
     pSprite->cstat = 0x8000;
@@ -91,9 +92,7 @@ void BuildRa(short nPlayer)
     pSprite->pal = 1;
     pSprite->xrepeat = 64;
     pSprite->yrepeat = 64;
-    pSprite->x = sprite[nPlayerSprite].x;
-    pSprite->y = sprite[nPlayerSprite].y;
-    pSprite->z = sprite[nPlayerSprite].z;
+    pSprite->pos = pPlayerSprite->pos;
 
 //	GrabTimeSlot(3);
 

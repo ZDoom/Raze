@@ -184,7 +184,7 @@ static bool UseEye(short nPlayer)
 
     pSprite->cstat |= 0x8000;
 
-    if (PlayerList[nPlayer].nPlayerFloorSprite >= 0) {
+    if (PlayerList[nPlayer].pPlayerFloorSprite != nullptr) {
         pSprite->cstat |= 0x8000;
     }
 

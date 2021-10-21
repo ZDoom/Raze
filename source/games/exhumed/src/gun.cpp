@@ -117,13 +117,13 @@ void ResetPlayerWeapons(short nPlayer)
     PlayerList[nPlayer].field_3A = 0;
     PlayerList[nPlayer].field_3FOUR = 0;
 
-    PlayerList[nPlayer].nPlayerGrenade = nullptr;
+    PlayerList[nPlayer].pPlayerGrenade = nullptr;
     PlayerList[nPlayer].nPlayerWeapons = 0x1; // turn on bit 1 only
 }
 
 void InitWeapons()
 {
-    for (auto& p : PlayerList) p.nPlayerGrenade = nullptr;
+    for (auto& p : PlayerList) p.pPlayerGrenade = nullptr;
 }
 
 void SetNewWeapon(short nPlayer, short nWeapon)
