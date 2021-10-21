@@ -83,7 +83,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, false);
     else if (!stricmp(c, "spider")) BuildSpider(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "mummy")) BuildMummy(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
-    else if (!stricmp(c, "fish")) BuildFish(nullptr, initx, inity, initz + eyelevel[nLocalPlayer], initsect, inita);
+    else if (!stricmp(c, "fish")) BuildFish(nullptr, initx, inity, initz + PlayerList[nLocalPlayer].eyelevel, initsect, inita);
     else if (!stricmp(c, "lion")) BuildLion(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else if (!stricmp(c, "lava")) BuildLava(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
     else if (!stricmp(c, "rex")) BuildRex(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);

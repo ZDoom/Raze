@@ -214,7 +214,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
 	auto pPlayerSprite = &sprite[nPlayerSprite];
     int nPlayerOldCstat = pPlayerSprite->cstat;
-    int nDoppleOldCstat = sprite[nDoppleSprite[nLocalPlayer]].cstat;
+    int nDoppleOldCstat = sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat;
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
@@ -247,9 +247,9 @@ void DrawView(double smoothRatio, bool sceneonly)
         auto psp = &sprite[nPlayerSprite];
         playerX = psp->interpolatedx(smoothRatio);
         playerY = psp->interpolatedy(smoothRatio);
-        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
+        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
 
-        nSector = nPlayerViewSect[nLocalPlayer];
+        nSector = PlayerList[nLocalPlayer].nPlayerViewSect;
         updatesector(playerX, playerY, &nSector);
 
         if (!SyncInput())
@@ -268,12 +268,12 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!bCamera)
         {
             pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
-            sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
+            sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         else
         {
             pPlayerSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-            sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
+            sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
@@ -454,7 +454,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
 
     pPlayerSprite->cstat = nPlayerOldCstat;
-    sprite[nDoppleSprite[nLocalPlayer]].cstat = nDoppleOldCstat;
+    sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat = nDoppleOldCstat;
     RestoreInterpolations();
 
     flash = 0;

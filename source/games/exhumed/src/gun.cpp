@@ -81,7 +81,7 @@ void RestoreMinAmmo(short nPlayer)
             continue;
         }
 
-        if ((1 << i) & nPlayerWeapons[nPlayer])
+        if ((1 << i) & PlayerList[nPlayer].nPlayerWeapons)
         {
             if (nMinAmmo[i] > PlayerList[nPlayer].nAmmo[i]) {
                 PlayerList[nPlayer].nAmmo[i] = nMinAmmo[i];
@@ -94,7 +94,7 @@ void RestoreMinAmmo(short nPlayer)
 
 void FillWeapons(short nPlayer)
 {
-    nPlayerWeapons[nPlayer] = 0xFFFF; // turn on all bits
+    PlayerList[nPlayer].nPlayerWeapons = 0xFFFF; // turn on all bits
 
     for (int i = 0; i < kMaxWeapons; i++)
     {
@@ -117,13 +117,13 @@ void ResetPlayerWeapons(short nPlayer)
     PlayerList[nPlayer].field_3A = 0;
     PlayerList[nPlayer].field_3FOUR = 0;
 
-    nPlayerGrenade[nPlayer] = nullptr;
-    nPlayerWeapons[nPlayer] = 0x1; // turn on bit 1 only
+    PlayerList[nPlayer].nPlayerGrenade = nullptr;
+    PlayerList[nPlayer].nPlayerWeapons = 0x1; // turn on bit 1 only
 }
 
 void InitWeapons()
 {
-    memset(nPlayerGrenade, 0, sizeof(nPlayerGrenade));
+    for (auto& p : PlayerList) p.nPlayerGrenade = nullptr;
 }
 
 void SetNewWeapon(short nPlayer, short nWeapon)
@@ -141,7 +141,7 @@ void SetNewWeapon(short nPlayer, short nWeapon)
     {
         if (nWeapon < 0)
         {
-            nPlayerOldWeapon[nPlayer] = PlayerList[nPlayer].nCurrentWeapon;
+            PlayerList[nPlayer].nPlayerOldWeapon = PlayerList[nPlayer].nCurrentWeapon;
         }
         else if (nWeapon != kWeaponGrenade || PlayerList[nPlayer].nAmmo[kWeaponGrenade] > 0)
         {
@@ -188,7 +188,7 @@ void SelectNewWeapon(short nPlayer)
 {
     int nWeapon = kWeaponRing; // start at the highest weapon number
 
-    uint16_t di = nPlayerWeapons[nPlayer];
+    uint16_t di = PlayerList[nPlayer].nPlayerWeapons;
     uint16_t dx = 0x40; // bit 7 turned on
 
     while (dx)
@@ -231,7 +231,7 @@ void SetWeaponStatus(short nPlayer)
 uint8_t WeaponCanFire(short nPlayer)
 {
     short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
-    short nSector = nPlayerViewSect[nPlayer];
+    short nSector = PlayerList[nPlayer].nPlayerViewSect;
 
     if (!(SectFlag[nSector] & kSectUnderwater) || WeaponInfo[nWeapon].bFireUnderwater)
     {
@@ -306,24 +306,24 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 
 void CheckClip(short nPlayer)
 {
-    if (nPlayerClip[nPlayer] <= 0)
+    if (PlayerList[nPlayer].nPlayerClip <= 0)
     {
-        nPlayerClip[nPlayer] = PlayerList[nPlayer].nAmmo[kWeaponM60];
+        PlayerList[nPlayer].nPlayerClip = PlayerList[nPlayer].nAmmo[kWeaponM60];
 
-        if (nPlayerClip[nPlayer] > 100) {
-            nPlayerClip[nPlayer] = 100;
+        if (PlayerList[nPlayer].nPlayerClip > 100) {
+            PlayerList[nPlayer].nPlayerClip = 100;
         }
     }
 
     // Reset pistol's clip amount.
-    nPistolClip[nPlayer] = PlayerList[nPlayer].nAmmo[kWeaponPistol] % 6;
+    PlayerList[nPlayer].nPistolClip = PlayerList[nPlayer].nAmmo[kWeaponPistol] % 6;
 }
 
 void MoveWeapons(short nPlayer)
 {
     static int dword_96E22 = 0;
 
-    short nSectFlag = SectFlag[nPlayerViewSect[nPlayer]];
+    short nSectFlag = SectFlag[PlayerList[nPlayer].nPlayerViewSect];
 
     if ((nSectFlag & kSectUnderwater) && (totalmoves & 1)) {
         return;
@@ -436,12 +436,12 @@ void MoveWeapons(short nPlayer)
                     case 7:
                     case 8:
                     {
-                        if (nWeapon == kWeaponPistol && nPistolClip[nPlayer] <= 0)
+                        if (nWeapon == kWeaponPistol && PlayerList[nPlayer].nPistolClip <= 0)
                         {
                             PlayerList[nPlayer].field_3A = 3;
                             PlayerList[nPlayer].field_3FOUR = 0;
 
-                            nPistolClip[nPlayer] = std::min<int>(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
+                            PlayerList[nPlayer].nPistolClip = std::min<int>(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
                             break;
                         }
                         else if (nWeapon == kWeaponGrenade)
@@ -858,8 +858,8 @@ loc_flag:
                     BuildSnake(nPlayer, nHeight);
                     nQuake[nPlayer] = 512;
 
-                    nXDamage[nPlayer] -= bcos(pPlayerSprite->ang, 9);
-                    nYDamage[nPlayer] -= bsin(pPlayerSprite->ang, 9);
+                    PlayerList[nPlayer].nXDamage -= bcos(pPlayerSprite->ang, 9);
+                    PlayerList[nPlayer].nYDamage -= bsin(pPlayerSprite->ang, 9);
                     break;
                 }
                 case kWeaponRing:
@@ -887,16 +887,16 @@ loc_flag:
                     }
 
                     if (nWeapon == kWeaponM60) {
-                        nPlayerClip[nPlayer]--;
+                        PlayerList[nPlayer].nPlayerClip--;
                     }
                     else if (nWeapon == kWeaponPistol) {
-                        nPistolClip[nPlayer]--;
+                        PlayerList[nPlayer].nPistolClip--;
                     }
                 }
 
                 if (!WeaponInfo[nWeapon].d || PlayerList[nPlayer].nAmmo[WeaponInfo[nWeapon].nAmmoType])
                 {
-                    if (nWeapon == kWeaponM60 && nPlayerClip[nPlayer] <= 0)
+                    if (nWeapon == kWeaponM60 && PlayerList[nPlayer].nPlayerClip <= 0)
                     {
                         PlayerList[nPlayer].field_3A = 3;
                         PlayerList[nPlayer].field_3FOUR = 0;
@@ -954,12 +954,12 @@ void DrawWeapons(double smooth)
         if (cl_hudinterpolation)
         {
             nBobAngle = interpolatedangle(buildang(obobangle), buildang(bobangle), smooth).asbuildf();
-            nVal = interpolatedvaluef(ototalvel[nLocalPlayer], totalvel[nLocalPlayer], smooth, 16) * 0.5;
+            nVal = interpolatedvaluef(PlayerList[nLocalPlayer].ototalvel, PlayerList[nLocalPlayer].totalvel, smooth, 16) * 0.5;
         }
         else
         {
             nBobAngle = bobangle;
-            nVal = totalvel[nLocalPlayer];
+            nVal = PlayerList[nLocalPlayer].totalvel;
         }
 
         yOffset = MulScaleF(nVal, bsinf(fmod(nBobAngle, 1024.), -8), 9);
@@ -1000,7 +1000,7 @@ void DrawWeapons(double smooth)
 
         case 0:
         {
-            int nClip = nPlayerClip[nLocalPlayer];
+            int nClip = PlayerList[nLocalPlayer].nPlayerClip;
 
             if (nClip <= 0)
                 return;
@@ -1029,7 +1029,7 @@ void DrawWeapons(double smooth)
         }
         case 1:
         {
-            int nClip = nPlayerClip[nLocalPlayer];
+            int nClip = PlayerList[nLocalPlayer].nPlayerClip;
 
             short edx = (nClip % 3) * 4;
 
@@ -1060,7 +1060,7 @@ void DrawWeapons(double smooth)
         }
         case 2:
         {
-            int nClip = nPlayerClip[nLocalPlayer];
+            int nClip = PlayerList[nLocalPlayer].nPlayerClip;
 
             short dx = PlayerList[nLocalPlayer].field_3FOUR;
 
@@ -1096,7 +1096,7 @@ void DrawWeapons(double smooth)
 
         case 5:
         {
-            int nClip = nPlayerClip[nLocalPlayer];
+            int nClip = PlayerList[nLocalPlayer].nPlayerClip;
 
             short ax = PlayerList[nLocalPlayer].field_3FOUR;
 

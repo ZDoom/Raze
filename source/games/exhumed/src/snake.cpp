@@ -123,7 +123,7 @@ void BuildSnake(short nPlayer, short zVal)
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     auto pPlayerSprite = &pPlayerActor->s();
-    short nViewSect = nPlayerViewSect[nPlayer];
+    short nViewSect = PlayerList[nPlayer].nPlayerViewSect;
     short nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
 
     int x = pPlayerSprite->x;

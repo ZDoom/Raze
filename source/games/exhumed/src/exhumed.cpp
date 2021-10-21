@@ -291,7 +291,7 @@ void GameMove(void)
 
     obobangle = bobangle;
 
-    if (totalvel[nLocalPlayer] == 0)
+    if (PlayerList[nLocalPlayer].totalvel == 0)
     {
         bobangle = 0;
     }
@@ -397,7 +397,7 @@ void GameInterface::Ticker()
         if (weap2 == WeaponSel_Next)
         {
             auto newWeap = currWeap == 6 ? 0 : currWeap + 1;
-            while (newWeap != 0 && (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0)))
+            while (newWeap != 0 && (!(PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap)) || (PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0)))
             {
                 newWeap++;
                 if (newWeap > 6) newWeap = 0;
@@ -407,7 +407,7 @@ void GameInterface::Ticker()
         else if (weap2 == WeaponSel_Prev)
         {
             auto newWeap = currWeap == 0 ? 6 : currWeap - 1;
-            while (newWeap != 0 && ((!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))))
+            while (newWeap != 0 && ((!(PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap)) || (PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))))
             {
                 newWeap--;
             }

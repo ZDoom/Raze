@@ -618,7 +618,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
     if (pSprite->statnum == 100)
     {
-        nSector = nPlayerViewSect[GetPlayerFromActor(pActor)];
+        nSector = PlayerList[GetPlayerFromActor(pActor)].nPlayerViewSect;
     }
     else
     {
@@ -769,8 +769,8 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                     int nPlayer = GetPlayerFromActor(pTarget);
                     if (nPlayer > -1)
                     {
-                        x += nPlayerDX[nPlayer] * 15;
-                        y += nPlayerDY[nPlayer] * 15;
+                        x += PlayerList[nPlayer].nPlayerDX * 15;
+                        y += PlayerList[nPlayer].nPlayerDY * 15;
                     }
                 }
 

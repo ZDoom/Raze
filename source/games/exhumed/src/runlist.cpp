@@ -1701,9 +1701,9 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
         }
 
         short nPlayer = GetPlayerFromSprite(nSprite2);
-        nTauntTimer[nPlayer]--;
+        PlayerList[nPlayer].nTauntTimer--;
 
-        if (nTauntTimer[nPlayer] <= 0)
+        if (PlayerList[nPlayer].nTauntTimer <= 0)
         {
             // Do a taunt
             int nPlayerSprite = PlayerList[nPlayer].nSprite;
@@ -1717,11 +1717,11 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
                     ebx = 0x6000;
                 }
 
-                int nDopSprite = nDoppleSprite[nPlayer];
+                int nDopSprite = PlayerList[nPlayer].nDoppleSprite;
                 D3PlayFX(StaticSound[kSoundTauntStart + (RandomSize(3) % 5)], nDopSprite, ebx);
             }
 
-            nTauntTimer[nPlayer] = RandomSize(3) + 3;
+            PlayerList[nPlayer].nTauntTimer = RandomSize(3) + 3;
         }
     }
 }

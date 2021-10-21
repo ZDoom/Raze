@@ -573,12 +573,12 @@ int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigne
 
         if (varB || varA)
         {
-            nXDamage[nPlayer] = varB;
-            nYDamage[nPlayer] = varA;
+            PlayerList[nPlayer].nXDamage = varB;
+            PlayerList[nPlayer].nYDamage = varA;
         }
 
-        dx += nXDamage[nPlayer];
-        dy += nYDamage[nPlayer];
+        dx += PlayerList[nPlayer].nXDamage;
+        dy += PlayerList[nPlayer].nYDamage;
     }
     else
     {

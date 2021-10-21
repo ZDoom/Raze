@@ -361,7 +361,7 @@ short seq_GetFrameFlag(short val, short nFrame)
 
 void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
-    short nSect = nPlayerViewSect[nLocalPlayer];
+    short nSect = PlayerList[nLocalPlayer].nPlayerViewSect;
 
     if (!(SectFlag[nSect] & kSectUnderwater))
     {
@@ -611,7 +611,7 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
         short nSector = pTSprite->sectnum;
         int nFloorZ = sector[nSector].floorz;
 
-        if (nFloorZ <= eyelevel[nLocalPlayer] + initz) {
+        if (nFloorZ <= PlayerList[nLocalPlayer].eyelevel + initz) {
             pTSprite->owner = -1;
         }
         else
