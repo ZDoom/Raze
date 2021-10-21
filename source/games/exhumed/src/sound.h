@@ -147,11 +147,7 @@ inline void D3PlayFX(unsigned short nSound, DExhumedActor* actor, short flags = 
     PlayFX2(nSound, actor->GetSpriteIndex(), 0, CHANF_NONE, flags);
 }
 
-void StopSpriteSound(short nSprite);
-inline void StopActorSound(DExhumedActor* actor)
-{
-    if (actor) StopSpriteSound(actor->GetSpriteIndex());
-}
+void StopActorSound(DExhumedActor* actor);
 
 void StartSwirlies();
 void UpdateSwirlies();

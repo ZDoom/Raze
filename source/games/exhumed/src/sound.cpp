@@ -771,10 +771,10 @@ void UpdateCreepySounds()
 //
 //==========================================================================
 
-void StopSpriteSound(short nSprite)
+void StopActorSound(DExhumedActor *pActor)
 {
-    if (nSprite >= 0 && nSprite < MAXSPRITES)
-        soundEngine->StopSound(SOURCE_Actor, &sprite[nSprite], -1);
+    if (pActor)
+        soundEngine->StopSound(SOURCE_Actor, &pActor->s(), -1);
 }
 
 void StopAllSounds(void)

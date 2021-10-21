@@ -630,7 +630,7 @@ int CheckSectorSprites(short nSector, int nVal)
 
                 b = 1;
 
-                runlist_DamageEnemy(pActor->GetSpriteIndex(), -1, 5);
+                runlist_DamageEnemy(pActor, nullptr, 5);
 
                 if (pSprite->statnum == 100 && PlayerList[GetPlayerFromActor(pActor)].nHealth <= 0)
                 {

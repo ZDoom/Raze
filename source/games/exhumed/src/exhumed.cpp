@@ -174,7 +174,7 @@ void DoClockBeep()
     ExhumedStatIterator it(407);
     while (auto i = it.Next())
     {
-        PlayFX2(StaticSound[kSound74], i->GetSpriteIndex());
+        PlayFX2(StaticSound[kSound74], i);
     }
 }
 
@@ -641,7 +641,7 @@ void SerializeState(FSerializer& arc)
             ("bsnakecam", bSnakeCam)
             ("slipmode", bSlipMode)
             ("PlayClock", PlayClock)
-            ("spiritsprite", nSpiritSprite)
+            ("spiritsprite", pSpiritSprite)
             .EndObject();
     }
 }

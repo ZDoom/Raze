@@ -88,7 +88,7 @@ uint8_t LoadLevel(MapRecord* map)
         nCreaturesKilled = 0;
         nCreaturesTotal = 0;
         nFreeze = 0;
-        nSpiritSprite = -1;
+        pSpiritSprite = nullptr;
         PlayClock = 0;
         memset(Counters, 0, sizeof(Counters));
 
@@ -319,9 +319,8 @@ void InitSectFlag()
     }
 }
 
-void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
+void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
 {
-    auto pActor = &exhumedActors[nSprite];
 	auto pSprite = &pActor->s();
     int nChannel = runlist_AllocChannel(nHitag % 1000);
 
@@ -776,7 +775,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case kTagRamses: // Ramses head
             {
-                nSpiritSprite = nSprite;
+                pSpiritSprite = pActor;
                 pSprite->cstat |= 0x8000;
                 return;
             }
@@ -812,7 +811,7 @@ void ExamineSprites()
                 pSprite->lotag = 0;
                 pSprite->hitag = 0;
 
-                ProcessSpriteTag(ac->GetSpriteIndex(), lotag, hitag);
+                ProcessSpriteTag(ac, lotag, hitag);
             }
             else
             {

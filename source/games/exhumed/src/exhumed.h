@@ -114,7 +114,7 @@ extern short nEnergyTowers;
 
 extern short nEnergyChan;
 
-extern short nSpiritSprite;
+extern DExhumedActor* pSpiritSprite;
 
 extern short bInDemo;
 

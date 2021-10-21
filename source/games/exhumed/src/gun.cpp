@@ -252,7 +252,7 @@ void ResetSwordSeqs()
     WeaponInfo[kWeaponSword].b[3] = 7;
 }
 
-int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
+Collision CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 {
     short hitSect, hitWall, hitSprite;
     int hitX, hitY, hitZ;
@@ -285,9 +285,10 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
         DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
         sqrtNum = INT_MAX;
     }
+    Collision c(0);
 
     if (ksqrt(sqrtNum) >= ecx)
-        return 0;
+        return c;
 
     *x = hitX;
     *y = hitY;
@@ -295,13 +296,13 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
     *nSector = hitSect;
 
     if (hitSprite > -1) {
-        return hitSprite | 0xC000;
+        c.setSprite(&exhumedActors[hitSprite]);
     }
     if (hitWall > -1) {
-        return hitWall | 0x8000;
+        c.setWall(hitWall);
     }
 
-    return 0;
+    return c;
 }
 
 void CheckClip(short nPlayer)
@@ -727,9 +728,9 @@ loc_flag:
                         var_28 = 9;
                     }
 
-                    int cRange = CheckCloseRange(nPlayer, &theX, &theY, &theZ, &nSectorB);
+                    auto cRange = CheckCloseRange(nPlayer, &theX, &theY, &theZ, &nSectorB);
 
-                    if (cRange)
+                    if (cRange.type != kHitNone)
                     {
                         short nDamage = BulletInfo[kWeaponSword].nDamage;
 
@@ -737,17 +738,16 @@ loc_flag:
                             nDamage *= 2;
                         }
 
-                        if ((cRange & 0xC000) >= 0x8000)
+                        //if (cRange.type != kHitNone)
                         {
-                            if ((cRange & 0xC000) == 0x8000) // hit wall
+                            if (cRange.type == kHitWall)
                             {
                                 // loc_2730E:
                                 var_28 += 2;
                             }
-                            else if ((cRange & 0xC000) == 0xC000) // hit sprite
+                            else if (cRange.type == kHitSprite)
                             {
-                                //short nSprite2 = cRange & 0x3FFF;
-                                auto pActor2 = &exhumedActors[cRange & 0x3FFF];
+                                auto pActor2 = cRange.actor;
                                 auto pSprite2 = &pActor2->s();
 
                                 if (pSprite2->cstat & 0x50)

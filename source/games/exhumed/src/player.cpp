@@ -943,7 +943,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         if (nTotalPlayers <= 1)
         {
-            auto ang = GetAngleToSprite(pPlayerActor, &exhumedActors[nSpiritSprite]) & kAngleMask;
+            auto ang = GetAngleToSprite(pPlayerActor, pSpiritSprite) & kAngleMask;
             PlayerList[nPlayer].angle.settarget(ang, true);
             pPlayerSprite->ang = ang;
 
@@ -1085,7 +1085,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         if (PlayerList[nPlayer].nPlayerPushSect > -1)
         {
-            StopSpriteSound(sBlockInfo[sector[PlayerList[nPlayer].nPlayerPushSect].extra].nSprite);
+            StopActorSound(&exhumedActors[sBlockInfo[sector[PlayerList[nPlayer].nPlayerPushSect].extra].nSprite]);
         }
 
         PlayerList[nPlayer].nPlayerPushSound = -1;
