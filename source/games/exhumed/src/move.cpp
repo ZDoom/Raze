@@ -1207,9 +1207,9 @@ void SetQuake(short nSprite, int nVal)
     }
 }
 
-int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
+Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int ecx, int push1) 
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
     int nClipType = pSprite->statnum != 107;
 
     /* bjd - need to handle cliptype to clipmask change that occured in later build engine version */
@@ -1222,14 +1222,14 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
     short nAngle;
 
-    if (nSprite2 < 0)
+    if (pActor2 == nullptr)
     {
         pSprite->zvel = 0;
         nAngle = pSprite->ang;
     }
     else
     {
-		auto pSprite2 = &sprite[nSprite2];
+		auto pSprite2 = &pActor2->s();
 
         int nHeight = tileHeight(pSprite2->picnum) * pSprite2->yrepeat * 2;
 
@@ -1300,7 +1300,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
     int z = bsin(pSprite->zvel) * ksqrt(sqrtNum);
 
-    return movesprite(nSprite, x >> 2, y >> 2, (z >> 13) + bsin(ecx, -5), 0, 0, nClipType);
+    return movesprite(pActor, x >> 2, y >> 2, (z >> 13) + bsin(ecx, -5), 0, 0, nClipType);
 }
 
 int GetWallNormal(short nWall)

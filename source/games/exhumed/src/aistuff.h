@@ -277,11 +277,7 @@ int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int e
     return GetUpAngle(nSprite1->GetSpriteIndex(), nVal, nSprite2->GetSpriteIndex(), ecx);
 }
 void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel);
-int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1);
-inline Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1)
-{
-    return Collision(AngleChase(nSprite->GetSpriteIndex(), nSprite2? nSprite2->GetSpriteIndex() : -1, ebx, ecx, push1));
-}
+Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1);
 void SetQuake(short nSprite, int nVal);
 void SetQuake(DExhumedActor* nSprite, int nVal)
 {
