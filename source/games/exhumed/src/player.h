@@ -102,7 +102,6 @@ struct Player
     short nPistolClip;
     int nXDamage;
     int nYDamage;
-    short nDoppleSprite;
     short nPlayerOldWeapon;
     short nPlayerClip;
     short nPlayerPushSound;
@@ -115,6 +114,7 @@ struct Player
     int16_t eyelevel, oeyelevel;
     DExhumedActor* pPlayerGrenade;
     DExhumedActor* pPlayerFloorSprite;
+    DExhumedActor* pDoppleSprite;
 
 };
 

@@ -214,7 +214,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
 	auto pPlayerSprite = &sprite[nPlayerSprite];
     int nPlayerOldCstat = pPlayerSprite->cstat;
-    int nDoppleOldCstat = sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat;
+    auto pDop = &PlayerList[nLocalPlayer].pDoppleSprite->s();
+    int nDoppleOldCstat = pDop->cstat;
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
@@ -268,12 +269,12 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!bCamera)
         {
             pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
-            sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
+            pDop->cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         else
         {
             pPlayerSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-            sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
+            pDop->cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
@@ -454,7 +455,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
 
     pPlayerSprite->cstat = nPlayerOldCstat;
-    sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat = nDoppleOldCstat;
+    pDop->cstat = nDoppleOldCstat;
     RestoreInterpolations();
 
     flash = 0;

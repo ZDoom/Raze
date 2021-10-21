@@ -218,7 +218,7 @@ void RestartPlayer(short nPlayer)
 	auto plr = &PlayerList[nPlayer];
 	int nSprite = plr->nSprite;
 	auto nSpr = &sprite[nSprite];
-	int nDopSprite = PlayerList[nPlayer].nDoppleSprite;
+	auto pDopSprite = PlayerList[nPlayer].pDoppleSprite;
 
     DExhumedActor* floorsprt;
 
@@ -236,12 +236,12 @@ void RestartPlayer(short nPlayer)
 			DeleteActor(pFloorSprite);
 		}
 
-		if (nDopSprite > -1)
+		if (pDopSprite)
 		{
-            auto sp = &sprite[nDopSprite];
+            auto sp = &pDopSprite->s();
 			runlist_DoSubRunRec(sp->owner);
 			runlist_FreeRun(sp->lotag - 1);
-			mydeletesprite(nDopSprite);
+            DeleteActor(pDopSprite);
 		}
 	}
 
@@ -252,10 +252,8 @@ void RestartPlayer(short nPlayer)
 	ChangeActorSect(actor, PlayerList[nPlayer].sPlayerSave.nSector);
 	ChangeActorStat(actor, 100);
 
-	int nDSprite = insertsprite(nSpr->sectnum, 100);
-	PlayerList[nPlayer].nDoppleSprite = nDSprite;
-
-	assert(nDSprite >= 0 && nDSprite < kMaxSprites);
+	auto pDActor = insertActor(nSpr->sectnum, 100);
+	PlayerList[nPlayer].pDoppleSprite = pDActor;
 
 	if (nTotalPlayers > 1)
 	{
@@ -322,7 +320,7 @@ void RestartPlayer(short nPlayer)
 	nSpr->extra = -1;
 	nSpr->lotag = runlist_HeadRun() + 1;
 
-	auto nDSpr = &sprite[nDSprite];
+    auto nDSpr = &pDActor->s();
 	nDSpr->x = nSpr->x;
 	nDSpr->y = nSpr->y;
 	nDSpr->z = nSpr->z;
@@ -649,7 +647,7 @@ void AIPlayer::Damage(RunListEvent* ev)
     short nAction = PlayerList[nPlayer].nAction;
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
     auto pPlayerSprite = &sprite[nPlayerSprite];
-    short nDopple = PlayerList[nPlayer].nDoppleSprite;
+    auto pDopple = PlayerList[nPlayer].pDoppleSprite;
 
     if (!nDamage) {
         return;
@@ -700,7 +698,7 @@ void AIPlayer::Damage(RunListEvent* ev)
                         PlayerList[nPlayer].nPlayerSwear--;
                         if (PlayerList[nPlayer].nPlayerSwear <= 0)
                         {
-                            D3PlayFX(StaticSound[kSound52], nDopple);
+                            D3PlayFX(StaticSound[kSound52], pDopple);
                             PlayerList[nPlayer].nPlayerSwear = RandomSize(3) + 4;
                         }
                     }
@@ -761,7 +759,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int nPlayerSprite = PlayerList[nPlayer].nSprite;
     auto pPlayerSprite = &pPlayerActor->s();
 
-    short nDopple = PlayerList[nPlayer].nDoppleSprite;
+    auto pDopple = PlayerList[nPlayer].pDoppleSprite;
 
     short nAction = PlayerList[nPlayer].nAction;
     short nActionB = PlayerList[nPlayer].nAction;
@@ -784,7 +782,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int var_EC = PlayerList[nPlayer].field_2;
 
     pPlayerSprite->picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
-    sprite[nDopple].picnum = pPlayerSprite->picnum;
+    pDopple->s().picnum = pPlayerSprite->picnum;
 
     if (PlayerList[nPlayer].nTorch > 0)
     {
@@ -2500,7 +2498,7 @@ sectdone:
                     RestartPlayer(nPlayer);
 
                     nPlayerSprite = PlayerList[nPlayer].nSprite;
-                    nDopple = PlayerList[nPlayer].nDoppleSprite;
+                    pDopple = PlayerList[nPlayer].pDoppleSprite;
                 }
                 else
                 {
@@ -2613,19 +2611,17 @@ sectdone:
     }
 
     // loc_1C4E1
-    sprite[nDopple].x = pPlayerSprite->x;
-    sprite[nDopple].y = pPlayerSprite->y;
-    sprite[nDopple].z = pPlayerSprite->z;
+    pDopple->s().pos = pPlayerSprite->pos;
 
     if (SectAbove[pPlayerSprite->sectnum] > -1)
     {
-        sprite[nDopple].ang = pPlayerSprite->ang;
-        mychangespritesect(nDopple, SectAbove[pPlayerSprite->sectnum]);
-        sprite[nDopple].cstat = 0x101;
+        pDopple->s().ang = pPlayerSprite->ang;
+        ChangeActorSect(pDopple, SectAbove[pPlayerSprite->sectnum]);
+        pDopple->s().cstat = 0x101;
     }
     else
     {
-        sprite[nDopple].cstat = 0x8000;
+        pDopple->s().cstat = 0x8000;
     }
 
     MoveWeapons(nPlayer);
@@ -2682,7 +2678,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("pistolclip", w.nPistolClip)
             ("xdamage", w.nXDamage)
             ("ydamage", w.nYDamage)
-            ("dopplesprite", w.nDoppleSprite)
+            ("dopplesprite", w.pDoppleSprite)
             ("oldweapon", w.nPlayerOldWeapon)
             ("clip", w.nPlayerClip)
             ("pushsound", w.nPlayerPushSound)
