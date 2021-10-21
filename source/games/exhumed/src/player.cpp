@@ -1373,15 +1373,15 @@ sectdone:
         feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum,
             &nValB, var_30, 768);
 
-        auto pActor = &exhumedActors[nValB];
-        auto pSprite = &pActor->s();
+        auto pActorB = &exhumedActors[nValB];
+        auto pSpriteB = &pActorB->s();
         // Item pickup code
-        if (nValB >= 0 && pSprite->statnum >= 900)
+        if (nValB >= 0 && pSpriteB->statnum >= 900)
         {
             int var_8C = 16;
             int var_88 = 9;
 
-            int var_70 = pSprite->statnum - 900;
+            int var_70 = pSpriteB->statnum - 900;
             int var_44 = 0;
 
             // item lotags start at 6 (1-5 reserved?) so 0-offset them
@@ -1399,8 +1399,8 @@ sectdone:
                     // CHECKME - is order of evaluation correct?
                     if (!mplevel || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
                     {
-                        DestroyItemAnim(nValB);
-                        mydeletesprite(nValB);
+                        DestroyItemAnim(pActorB);
+                        DeleteActor(pActorB);
                     }
                     else
                     {
@@ -1427,7 +1427,7 @@ sectdone:
                 }
                 case 0: // Speed Loader
                 {
-                    if (AddAmmo(nPlayer, 1, pSprite->hitag))
+                    if (AddAmmo(nPlayer, 1, pSpriteB->hitag))
                     {
                         var_88 = StaticSound[kSoundAmmoPickup];
                         goto do_default;
@@ -1437,7 +1437,7 @@ sectdone:
                 }
                 case 1: // Fuel Canister
                 {
-                    if (AddAmmo(nPlayer, 3, pSprite->hitag))
+                    if (AddAmmo(nPlayer, 3, pSpriteB->hitag))
                     {
                         var_88 = StaticSound[kSoundAmmoPickup];
                         goto do_default;
@@ -1446,7 +1446,7 @@ sectdone:
                 }
                 case 2: // M - 60 Ammo Belt
                 {
-                    if (AddAmmo(nPlayer, 2, pSprite->hitag))
+                    if (AddAmmo(nPlayer, 2, pSpriteB->hitag))
                     {
                         var_88 = StaticSound[kSoundAmmoPickup];
                         CheckClip(nPlayer);
@@ -1469,8 +1469,8 @@ sectdone:
 
                         if (var_70 == 55)
                         {
-                            pSprite->cstat = 0x8000;
-                            DestroyItemAnim(nValB);
+                            pSpriteB->cstat = 0x8000;
+                            DestroyItemAnim(pActorB);
 
                             // loc_1BA74: - repeated block, see in default case
                             if (nPlayer == nLocalPlayer)
@@ -1525,7 +1525,7 @@ sectdone:
 
                 case 6: // Berry Twig
                 {
-                    if (pSprite->hitag == 0) {
+                    if (pSpriteB->hitag == 0) {
                         break;
                     }
 
@@ -1553,10 +1553,10 @@ sectdone:
 
                         if (var_70 == 12)
                         {
-                            pSprite->hitag = 0;
-                            pSprite->picnum++;
+                            pSpriteB->hitag = 0;
+                            pSpriteB->picnum++;
 
-                            changespritestat(nValB, 0);
+                            ChangeActorStat(pActorB, 0);
 
                             // loc_1BA74: - repeated block, see in default case
                             if (nPlayer == nLocalPlayer)
@@ -1622,10 +1622,10 @@ sectdone:
 
                         if (var_70 == 12)
                         {
-                            pSprite->hitag = 0;
-                            pSprite->picnum++;
+                            pSpriteB->hitag = 0;
+                            pSpriteB->picnum++;
 
-                            changespritestat(nValB, 0);
+                            ChangeActorStat(pActorB, 0);
 
                             // loc_1BA74: - repeated block, see in default case
                             if (nPlayer == nLocalPlayer)
@@ -1691,10 +1691,10 @@ sectdone:
 
                         if (var_70 == 12)
                         {
-                            pSprite->hitag = 0;
-                            pSprite->picnum++;
+                            pSpriteB->hitag = 0;
+                            pSpriteB->picnum++;
 
-                            changespritestat(nValB, 0);
+                            ChangeActorStat(pActorB, 0);
 
                             // loc_1BA74: - repeated block, see in default case
                             if (nPlayer == nLocalPlayer)
@@ -1858,8 +1858,8 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSprite->cstat = 0x8000;
-                    DestroyItemAnim(nValB);
+                    pSpriteB->cstat = 0x8000;
+                    DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
                     if (nPlayer == nLocalPlayer)
@@ -1920,8 +1920,8 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSprite->cstat = 0x8000;
-                    DestroyItemAnim(nValB);
+                    pSpriteB->cstat = 0x8000;
+                    DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
                     if (nPlayer == nLocalPlayer)
@@ -1982,8 +1982,8 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSprite->cstat = 0x8000;
-                    DestroyItemAnim(nValB);
+                    pSpriteB->cstat = 0x8000;
+                    DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
                     if (nPlayer == nLocalPlayer)
@@ -2044,8 +2044,8 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSprite->cstat = 0x8000;
-                    DestroyItemAnim(nValB);
+                    pSpriteB->cstat = 0x8000;
+                    DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
                     if (nPlayer == nLocalPlayer)
@@ -2106,8 +2106,8 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSprite->cstat = 0x8000;
-                    DestroyItemAnim(nValB);
+                    pSpriteB->cstat = 0x8000;
+                    DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
                     if (nPlayer == nLocalPlayer)
@@ -2168,8 +2168,8 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSprite->cstat = 0x8000;
-                    DestroyItemAnim(nValB);
+                    pSpriteB->cstat = 0x8000;
+                    DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
                     if (nPlayer == nLocalPlayer)
@@ -2203,7 +2203,7 @@ sectdone:
 
                 case 32: // Raw Energy
                 {
-                    if (AddAmmo(nPlayer, 6, pSprite->hitag)) {
+                    if (AddAmmo(nPlayer, 6, pSpriteB->hitag)) {
                         var_88 = StaticSound[kSoundAmmoPickup];
                         goto do_default;
                     }
@@ -2258,11 +2258,11 @@ sectdone:
                 {
                     if (nLocalPlayer == nPlayer)
                     {
-                        pActor->nIndex2++;
-                        pActor->nAction &= 0xEF;
-                        pActor->nIndex = 0;
+                        pActorB->nIndex2++;
+                        pActorB->nAction &= 0xEF;
+                        pActorB->nIndex = 0;
 
-                        ChangeActorStat(pActor, 899);
+                        ChangeActorStat(pActorB, 899);
                     }
 
                     SetSavePoint(nPlayer, pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang);
@@ -2276,8 +2276,8 @@ sectdone:
                         LevelFinished();
                     }
 
-                    DestroyItemAnim(nValB);
-                    mydeletesprite(nValB);
+                    DestroyItemAnim(pActorB);
+                    DeleteActor(pActorB);
                     break;
                 }
                 }

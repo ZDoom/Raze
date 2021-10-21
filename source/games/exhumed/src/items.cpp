@@ -146,10 +146,10 @@ void BuildItemAnim(DExhumedActor* pActor)
     }
 }
 
-void DestroyItemAnim(short nSprite)
+void DestroyItemAnim(DExhumedActor* actor)
 {
-    if (sprite[nSprite].owner == 0) 
-        DestroyAnim(&exhumedActors[nSprite]);
+    if (actor && actor->s().owner == 0) 
+        DestroyAnim(actor);
 }
 
 void ItemFlash()
