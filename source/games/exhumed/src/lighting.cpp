@@ -40,7 +40,8 @@ struct Flash
 {
     int8_t nType;
     int8_t shade;
-    short nIndex;
+    DExhumedActor* pActor;
+    int nIndex;
     int next;
 };
 
@@ -359,7 +360,8 @@ void AddFlash(short nSector, int x, int y, int z, int val)
                 {
                     sFlash[nFlash3].nType = var_20 | 4;
                     sFlash[nFlash3].shade = pSprite->shade;
-                    sFlash[nFlash3].nIndex = pActor->GetSpriteIndex();
+                    sFlash[nFlash3].nIndex = -1;
+                    sFlash[nFlash3].pActor = pActor;
 
                     pSprite->pal += 7;
 
@@ -443,11 +445,12 @@ void UndoFlashes()
 
                 case 3:
                 {
-                    assert(nIndex >= 0 && nIndex < kMaxSprites);
-
-                    if (sprite[nIndex].pal >= 7)
+                    auto ac = sFlash[nFlash].pActor;
+                    if (!ac) continue;
+                    auto sp = &ac->s();
+                    if (sp->pal >= 7)
                     {
-                        pShade = &sprite[nIndex].shade;
+                        pShade = &sp->shade;
                     }
                     else {
                         goto loc_1868A;
@@ -505,10 +508,12 @@ void UndoFlashes()
 
             case 3:
             {
-                if (sprite[nIndex].pal >= 7)
+                auto ac = sFlash[nFlash].pActor;
+                auto sp = &ac->s();
+                if (sp->pal >= 7)
                 {
-                    sprite[nIndex].pal -= 7;
-                    sprite[nIndex].shade = sFlash[nFlash].shade;
+                    sp->pal -= 7;
+                    sp->shade = sFlash[nFlash].shade;
                 }
 
                 break;
