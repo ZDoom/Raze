@@ -334,7 +334,7 @@ short FindWallSprites(short nSector);
 void AddMovingSector(int nSector, int edx, int ebx, int ecx);
 void ProcessTrailSprite(int nSprite, int nLotag, int nHitag);
 void AddSectorBob(int nSector, int nHitag, int bx);
-int BuildObject(int const nSprite, int nOjectType, int nHitag);
+DExhumedActor* BuildObject(DExhumedActor* nSprite, int nOjectType, int nHitag);
 int BuildArrow(DExhumedActor* nSprite, int nVal);
 int BuildFireBall(DExhumedActor*, int a, int b);
 void BuildDrip(int nSprite);

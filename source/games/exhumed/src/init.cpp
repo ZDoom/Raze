@@ -692,7 +692,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 90:
             {
-                BuildObject(nSprite, 3, nHitag);
+                BuildObject(pActor, 3, nHitag);
                 return;
             }
             case 79:
@@ -740,12 +740,12 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 76: // Explosion Trigger (Exploding Fire Cauldron)
             {
-                BuildObject(nSprite, 0, nHitag);
+                BuildObject(pActor, 0, nHitag);
                 return;
             }
             case 75: // Explosion Target (Cauldrons, fireballs and grenades will destroy nearby 75 sprites)
             {
-                BuildObject(nSprite, 1, nHitag);
+                BuildObject(pActor, 1, nHitag);
                 return;
             }
             case 71:

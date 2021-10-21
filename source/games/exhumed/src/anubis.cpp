@@ -411,7 +411,7 @@ void AIAnubis::Damage(RunListEvent* ev)
                     pDrumSprite->yrepeat = 40;
                     pDrumSprite->shade = -64;
 
-                    BuildObject(pDrumActor->GetSpriteIndex(), 2, 0);
+                    BuildObject(pDrumActor, 2, 0);
                 }
 
                 ap->pTarget = ev->pOtherActor;
