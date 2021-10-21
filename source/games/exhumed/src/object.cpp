@@ -1475,17 +1475,12 @@ int BuildFireBall(DExhumedActor* nSprite, int a, int b)
     return BuildTrap(nSprite, 1, a, b);
 }
 
-int BuildSpark(int nSprite, int nVal)
+DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 {
-    auto pSprite = &sprite[nSprite];
-    int var_14 = insertsprite(pSprite->sectnum, 0);
+    auto pSprite = &pActor->s();
+    auto pSpark = insertActor(pSprite->sectnum, 0);
 
-    if (var_14 < 0) {
-        return -1;
-    }
-    auto spr = &sprite[var_14];
-
-    assert(var_14 < kMaxSprites);
+    auto spr = &pSpark->s();
 
     spr->x = pSprite->x;
     spr->y = pSprite->y;
@@ -1541,18 +1536,17 @@ int BuildSpark(int nSprite, int nVal)
     //	GrabTimeSlot(3);
 
     spr->extra = -1;
-    spr->owner = runlist_AddRunRec(spr->lotag - 1, var_14, 0x260000);
-    spr->hitag = runlist_AddRunRec(NewRun, var_14, 0x260000);
+    spr->owner = runlist_AddRunRec(spr->lotag - 1, pSpark, 0x260000);
+    spr->hitag = runlist_AddRunRec(NewRun, pSpark, 0x260000);
 
-    return var_14;
+    return pSpark;
 }
 
 void AISpark::Tick(RunListEvent* ev)
 {
-    int nSprite = RunData[ev->nRun].nObjIndex;
-    auto pSprite = &sprite[nSprite];
-
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
 
     pSprite->shade += 3;
     pSprite->xrepeat -= 2;
@@ -1564,7 +1558,7 @@ void AISpark::Tick(RunListEvent* ev)
         // calling BuildSpark() with 2nd parameter as '1' will set kTile986
         if (pSprite->picnum == kTile986 && (pSprite->xrepeat & 2))
         {
-            BuildSpark(nSprite, 2);
+            BuildSpark(pActor, 2);
         }
 
         if (pSprite->picnum >= kTile3000) {
@@ -1573,8 +1567,8 @@ void AISpark::Tick(RunListEvent* ev)
 
         pSprite->zvel += 128;
 
-        int nMov = movesprite(nSprite, pSprite->xvel << 12, pSprite->yvel << 12, pSprite->zvel, 2560, -2560, CLIPMASK1);
-        if (!nMov) {
+        auto nMov = movesprite(pActor, pSprite->xvel << 12, pSprite->yvel << 12, pSprite->zvel, 2560, -2560, CLIPMASK1);
+        if (!nMov.type && !nMov.exbits) {
             return;
         }
 
@@ -1594,7 +1588,7 @@ void AISpark::Tick(RunListEvent* ev)
     runlist_DoSubRunRec(pSprite->owner);
     runlist_FreeRun(pSprite->lotag - 1);
     runlist_SubRunRec(pSprite->hitag);
-    mydeletesprite(nSprite);
+    DeleteActor(pActor);
 }
 
 
@@ -1647,7 +1641,7 @@ void DoFinale()
         {
             int nAng = RandomSize(11);
             sprite[nFinaleSpr].ang = nAng;
-            BuildSpark(nFinaleSpr, 1);
+            BuildSpark(&exhumedActors[nFinaleSpr], 1);
         }
 
         if (!RandomSize(2))
@@ -1786,6 +1780,7 @@ void KillCreatures()
 
 void ExplodeEnergyBlock(int nSprite)
 {
+    auto pActor = &exhumedActors[nSprite];
     auto pSprite = &sprite[nSprite];
 
     short nSector = pSprite->sectnum;
@@ -1822,7 +1817,7 @@ void ExplodeEnergyBlock(int nSprite)
 
     pSprite->z = (pSprite->z + sector[nSector].floorz) / 2;
 
-    BuildSpark(nSprite, 3);
+    BuildSpark(pActor, 3);
 
     pSprite->cstat = 0;
     pSprite->xrepeat = 100;
@@ -1836,7 +1831,7 @@ void ExplodeEnergyBlock(int nSprite)
     for (i = 0; i < 20; i++)
     {
         pSprite->ang = RandomSize(11);
-        BuildSpark(nSprite, 1); // shoot out blue orbs
+        BuildSpark(pActor, 1); // shoot out blue orbs
     }
 
     TintPalette(64, 64, 64);
@@ -1900,16 +1895,16 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
     {
         spr->xrepeat -= ev->nDamage;
 
-        int nSprite2 = insertsprite(lasthitsect, 0);
-        auto pSprite2 = &sprite[nSprite2];
+        auto pActor2 = insertActor(lasthitsect, 0);
+        auto pSprite2 = &pActor2->s();
 
         pSprite2->ang = ev->nParam;
         pSprite2->x = lasthitx;
         pSprite2->y = lasthity;
         pSprite2->z = lasthitz;
 
-        BuildSpark(nSprite2, 0); // shoot out blue orb when damaged
-        mydeletesprite(nSprite2);
+        BuildSpark(pActor2, 0); // shoot out blue orb when damaged
+        DeleteActor(pActor2);
     }
     else
     {
@@ -2031,7 +2026,7 @@ void ExplodeScreen(short nSprite)
     pSprite->z -= GetSpriteHeight(nSprite) / 2;
 
     for (int i = 0; i < 30; i++) {
-        BuildSpark(nSprite, 0); // shoot out blue orbs
+        BuildSpark(&exhumedActors[nSprite], 0); // shoot out blue orbs
     }
 
     pSprite->cstat = 0x8000;
