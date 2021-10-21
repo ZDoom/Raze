@@ -648,7 +648,7 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
     }
 
     // Nuke: added nSprite >= 0 check
-    if (nSprite != nLocalSpr && nSprite >= 0 && (sprite[nSprite].cstat&257))
+    if (nSprite != PlayerList[nLocalPlayer].Actor()->GetSpriteIndex() && nSprite >= 0 && (sprite[nSprite].cstat&257))
         nCreepyTimer = kCreepyCount;
 }
 

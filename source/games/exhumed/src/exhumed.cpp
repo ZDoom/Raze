@@ -100,8 +100,6 @@ short nFreeze;
 
 short nSnakeCam = -1;
 
-short nLocalSpr;
-
 int nNetPlayerCount = 0;
 
 short nClockVal;
@@ -630,7 +628,6 @@ void SerializeState(FSerializer& arc)
             ("creatureskilled", nCreaturesKilled)
             ("freeze", nFreeze)
             ("snakecam", nSnakeCam)
-            ("localspr", nLocalSpr)
             ("clockval", nClockVal)  // kTile3603
             ("redticks", nRedTicks)
             ("alarmticks", nAlarmTicks)

@@ -75,6 +75,7 @@ struct Drip
 // 56 bytes
 struct Elev
 {
+    DExhumedActor* pActor;
     short field_0;
     short nChannel;
     short nSector;
@@ -84,7 +85,6 @@ struct Elev
     short nCurZOffset;
     int zOffsets[8]; // different Z offsets
     short field_32;
-    short nSprite;
     short field_36;
 };
 
@@ -245,7 +245,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Elev& w, Elev* def
             ("curz", w.nCurZOffset)
             .Array("zofs", w.zOffsets, 8)
             ("at32", w.field_32)
-            ("sprite", w.nSprite)
+            ("sprite", w.pActor)
             ("at36", w.field_36)
             .EndObject();
     }
@@ -415,7 +415,7 @@ DExhumedActor* BuildWallSprite(int nSector)
  }
 
 // done
-short FindWallSprites(short nSector)
+DExhumedActor* FindWallSprites(short nSector)
 {
     int var_24 = 0x7FFFFFFF;
     int ecx = 0x7FFFFFFF;
@@ -490,10 +490,10 @@ short FindWallSprites(short nSector)
         pSprite->hitag = 0;
     }
 
-    return pAct->GetSpriteIndex();
+    return pAct;
 }
 
-int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, ...)
+int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...)
 {
     auto ElevCount = Elevator.Reserve(1);
 
@@ -507,11 +507,11 @@ int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5,
     Elevator[ElevCount].nCurZOffset = 0;
     Elevator[ElevCount].field_36 = 0;
 
-    if (nWallSprite < 0) {
-        nWallSprite = BuildWallSprite(nSector)->GetSpriteIndex();
+    if (nWallSprite == nullptr) {
+        nWallSprite = BuildWallSprite(nSector);
     }
 
-    Elevator[ElevCount].nSprite = nWallSprite;
+    Elevator[ElevCount].pActor = nWallSprite;
 
     va_list zlist;
     va_start(zlist, nCount);
@@ -533,7 +533,7 @@ int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5,
     return ElevCount;
 }
 
-int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, int arg6, int nCount, ...)
+int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...)
 {
     int edi = arg5;
 
@@ -555,11 +555,11 @@ int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, i
     Elevator[ElevCount].nChannel = nChannel;
     Elevator[ElevCount].nSector = nSector;
 
-    if (nWallSprite < 0) {
-        nWallSprite = BuildWallSprite(nSector)->GetSpriteIndex();
+    if (nWallSprite == nullptr) {
+        nWallSprite = BuildWallSprite(nSector);
     }
 
-    Elevator[ElevCount].nSprite = nWallSprite;
+    Elevator[ElevCount].pActor = nWallSprite;
 
     va_list zlist;
     va_start(zlist, nCount);
@@ -677,7 +677,7 @@ void MoveSectorSprites(int nSector, int z)
     }
 }
 
-void StartElevSound(short nSprite, int nVal)
+void StartElevSound(DExhumedActor* pActor, int nVal)
 {
     short nSound;
 
@@ -688,7 +688,7 @@ void StartElevSound(short nSprite, int nVal)
         nSound = nStoneSound;
     }
 
-    D3PlayFX(StaticSound[nSound], nSprite);
+    D3PlayFX(StaticSound[nSound], pActor);
 }
 
 void AIElev::ProcessChannel(RunListEvent* ev)
@@ -724,7 +724,7 @@ void AIElev::ProcessChannel(RunListEvent* ev)
             if (Elevator[nElev].field_32 < 0)
             {
                 Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, &RunData[nRun]);
-                StartElevSound(Elevator[nElev].nSprite, var_18);
+                StartElevSound(Elevator[nElev].pActor, var_18);
 
                 edi = 1;
             }
@@ -759,7 +759,7 @@ void AIElev::ProcessChannel(RunListEvent* ev)
         {
             Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, &RunData[nRun]);
 
-            StartElevSound(Elevator[nElev].nSprite, var_18);
+            StartElevSound(Elevator[nElev].pActor, var_18);
         }
     }
     else
@@ -785,7 +785,7 @@ void AIElev::Tick(RunListEvent* ev)
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
     short nSector = Elevator[nElev].nSector;
-    auto pElevSpr = &exhumedActors[Elevator[nElev].nSprite];
+    auto pElevSpr = Elevator[nElev].pActor;
 
     int ebp = 0; // initialise to *something*
 
@@ -805,7 +805,7 @@ void AIElev::Tick(RunListEvent* ev)
             if (var_18 & 0x10)
             {
                 Elevator[nElev].nCurZOffset ^= 1;
-                StartElevSound(pElevSpr->GetSpriteIndex(), var_18);
+                StartElevSound(pElevSpr, var_18);
             }
             else
             {
@@ -814,7 +814,7 @@ void AIElev::Tick(RunListEvent* ev)
                 Elevator[nElev].field_32 = -1;
                 runlist_ReadyChannel(nChannel);
 
-                D3PlayFX(StaticSound[nStopSound], Elevator[nElev].nSprite);
+                D3PlayFX(StaticSound[nStopSound], Elevator[nElev].pActor);
             }
         }
         else
@@ -848,14 +848,14 @@ void AIElev::Tick(RunListEvent* ev)
             {
                 Elevator[nElev].nCurZOffset ^= 1;
 
-                StartElevSound(Elevator[nElev].nSprite, var_18);
+                StartElevSound(Elevator[nElev].pActor, var_18);
             }
             else
             {
                 runlist_SubRunRec(nRun);
                 Elevator[nElev].field_32 = -1;
-                StopSpriteSound(Elevator[nElev].nSprite);
-                D3PlayFX(StaticSound[nStopSound], Elevator[nElev].nSprite);
+                StopActorSound(Elevator[nElev].pActor);
+                D3PlayFX(StaticSound[nStopSound], Elevator[nElev].pActor);
                 runlist_ReadyChannel(nChannel);
             }
 

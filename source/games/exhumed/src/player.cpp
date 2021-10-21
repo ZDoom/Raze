@@ -410,10 +410,7 @@ void RestartPlayer(short nPlayer)
 
 	if (nPlayer == nLocalPlayer)
 	{
-        nLocalSpr = pActor->GetSpriteIndex();
-
 		RestoreGreenPal();
-
         plr->bPlayerPan = plr->bLockPan = false;
 	}
 

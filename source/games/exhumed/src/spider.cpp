@@ -288,10 +288,9 @@ void AISpider::Tick(RunListEvent* ev)
     if (nMov.type == kHitNone && nMov.exbits == 0)
         return;
 
-    Collision HiHit(hihit);    // fixme
     if (nMov.exbits & kHitAux1
         && sp->zvel < 0
-        && HiHit.type != kHitSprite
+        && hiHit.type != kHitSprite
         && !((sector[sp->sectnum].ceilingstat) & 1))
     {
         sp->cstat |= 8;

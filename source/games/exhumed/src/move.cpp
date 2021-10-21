@@ -40,7 +40,8 @@ short NearCount = -1;
 
 DExhumedActor* nBodySprite[50];
 
-int hihit, sprceiling, sprfloor, lohit;
+int sprceiling, sprfloor;
+Collision loHit, hiHit;
 
 enum
 {
@@ -77,10 +78,6 @@ void SerializeMove(FSerializer& arc)
             ("chunkcount", nCurChunkNum)
             .Array("chunks", nChunkSprite, kMaxMoveChunks)
             ("overridesect", overridesect)
-            ("hihit", hihit)
-            ("lohit", lohit)
-            ("sprceiling", sprceiling)
-            ("sprfloor", sprfloor)
             .Array("bodysprite", nBodySprite, 50)
             .EndObject();
     }
@@ -288,12 +285,11 @@ int BelowNear(DExhumedActor* pActor)
     short nSector = pSprite->sectnum;
     int z = pSprite->z;
 
-    int var_24, z2;
+    int z2;
 
-    if ((lohit & 0xC000) == 0xC000)
+    if (loHit.type == kHitSprite)
     {
-        var_24 = lohit & 0xC000;
-        z2 = sprite[lohit & 0x3FFF].z;
+        z2 = loHit.actor->s().z;
     }
     else
     {
@@ -333,7 +329,7 @@ int BelowNear(DExhumedActor* pActor)
 
         bTouchFloor = true;
 
-        return 0x20000;
+        return kHitAux2;
     }
     else
     {
@@ -341,9 +337,9 @@ int BelowNear(DExhumedActor* pActor)
     }
 }
 
-int movespritez(short nSprite, int z, int height, int, int clipdist)
+Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdist)
 {
-    spritetype* pSprite = &sprite[nSprite];
+    spritetype* pSprite = &pActor->s();
     short nSector = pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
 
@@ -355,7 +351,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
 
     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
 
-    int nRet = 0;
+    Collision nRet(0);
 
     short nSectFlags = SectFlag[nSector];
 
@@ -378,7 +374,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
     {
         edi = SectBelow[pSprite->sectnum];
 
-        ChangeActorSect(&exhumedActors[nSprite], edi);
+        ChangeActorSect(pActor, edi);
     }
 
     if (edi != nSector)
@@ -387,8 +383,8 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
 
         if (SectFlag[edi] & kSectUnderwater)
         {
-            if (nSprite == PlayerList[nLocalPlayer].Actor()->GetSpriteIndex()) {
-                D3PlayFX(StaticSound[kSound2], nSprite);
+            if (pActor == PlayerList[nLocalPlayer].Actor()) {
+                D3PlayFX(StaticSound[kSound2], pActor);
             }
 
             if (pSprite->statnum <= 107) {
@@ -402,18 +398,21 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
         {
             edi = SectAbove[pSprite->sectnum];
 
-            ChangeActorSect(&exhumedActors[nSprite], edi);
+            ChangeActorSect(pActor, edi);
         }
     }
 
     // This function will keep the player from falling off cliffs when you're too close to the edge.
     // This function finds the highest and lowest z coordinates that your clipping BOX can get to.
+    int hihit, lohit;
     getzrange_old(pSprite->x, pSprite->y, pSprite->z - 256, pSprite->sectnum,
         &sprceiling, &hihit, &sprfloor, &lohit, 128, CLIPMASK0);
+    hiHit.setFromEngine(hihit);
+    loHit.setFromEngine(lohit);
 
     int mySprfloor = sprfloor;
 
-    if ((lohit & 0xC000) != 0xC000) {
+    if (loHit.type != kHitSprite) {
         mySprfloor += SectDepth[pSprite->sectnum];
     }
 
@@ -423,30 +422,30 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
         {
             bTouchFloor = true;
 
-            if ((lohit & 0xC000) == 0xC000)
+            if (loHit.type == kHitSprite)
             {
                 // Path A
-                short nFloorSprite = lohit & 0x3FFF;
+                auto pFloorSprite = &loHit.actor->s();
 
-                if (pSprite->statnum == 100 && sprite[nFloorSprite].statnum != 0 && sprite[nFloorSprite].statnum < 100)
+                if (pSprite->statnum == 100 && pFloorSprite->statnum != 0 && pFloorSprite->statnum < 100)
                 {
                     short nDamage = (z >> 9);
                     if (nDamage)
                     {
-                        runlist_DamageEnemy(nFloorSprite, nSprite, nDamage << 1);
+                        runlist_DamageEnemy(loHit.actor, pActor, nDamage << 1);
                     }
 
                     pSprite->zvel = -z;
                 }
                 else
                 {
-                    if (sprite[nFloorSprite].statnum == 0 || sprite[nFloorSprite].statnum > 199)
+                    if (pFloorSprite->statnum == 0 || pFloorSprite->statnum > 199)
                     {
-                        nRet |= 0x20000;
+                        nRet.exbits |= kHitAux2;
                     }
                     else
                     {
-                        nRet |= lohit;
+                        nRet = loHit;
                     }
 
                     pSprite->zvel = 0;
@@ -457,7 +456,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
                 // Path B
                 if (SectBelow[pSprite->sectnum] == -1)
                 {
-                    nRet |= 0x20000;
+                    nRet.exbits |= kHitAux2;
 
                     short nSectDamage = SectDamage[pSprite->sectnum];
 
@@ -465,13 +464,13 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
                     {
                         if (pSprite->hitag < 15)
                         {
-                            IgniteSprite(&exhumedActors[nSprite]);
+                            IgniteSprite(pActor);
                             pSprite->hitag = 20;
                         }
                         nSectDamage >>= 2;
                         nSectDamage = nSectDamage - (nSectDamage>>2);
                         if (nSectDamage) {
-                            runlist_DamageEnemy(nSprite, -1, nSectDamage);
+                            runlist_DamageEnemy(pActor, nullptr, nSectDamage);
                         }
                     }
 
@@ -486,10 +485,10 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
     }
     else
     {
-        if ((ebp - height) < sprceiling && ((hihit & 0xC000) == 0xC000 || SectAbove[pSprite->sectnum] == -1))
+        if ((ebp - height) < sprceiling && (hiHit.type == kHitSprite || SectAbove[pSprite->sectnum] == -1))
         {
             ebp = sprceiling + height;
-            nRet |= 0x10000;
+            nRet.exbits |= kHitAux1;
         }
     }
 
@@ -498,7 +497,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
         if ((SectDepth[nSector] != 0) || (edi != nSector && (SectFlag[edi] & kSectUnderwater)))
         {
             assert(nSector >= 0 && nSector < kMaxSectors);
-            BuildSplash(&exhumedActors[nSprite], nSector);
+            BuildSplash(pActor, nSector);
         }
     }
 
@@ -508,7 +507,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
     if (pSprite->statnum == 100)
     {
         BuildNear(pSprite->x, pSprite->y, clipdist + (clipdist / 2), pSprite->sectnum);
-        nRet |= BelowNear(&exhumedActors[nSprite]);
+        nRet.exbits |= BelowNear(pActor);
     }
 
     return nRet;
@@ -544,15 +543,13 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     int floorZ = sector[nSector].floorz;
 
-    int nRet = 0;
-
     if ((SectFlag[nSector] & kSectUnderwater) || (floorZ < z))
     {
         dx >>= 1;
         dy >>= 1;
     }
 
-    nRet |= movespritez(pActor->GetSpriteIndex(), dz, nSpriteHeight, flordist, nClipDist);
+    Collision nRet = movespritez(pActor, dz, nSpriteHeight, flordist, nClipDist);
 
     nSector = pSprite->sectnum; // modified in movespritez so re-grab this variable
 
@@ -579,11 +576,17 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         CheckSectorFloor(overridesect, pSprite->z, &dx, &dy);
     }
 
-    nRet |= (uint16_t)clipmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask);
+    int colv = clipmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask);
+    Collision coll(colv);
+    if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
+    {
+        coll.exbits = nRet.exbits;
+        nRet = coll;
+    }
 
     if ((nSector != pSprite->sectnum) && nSector >= 0)
     {
-        if (nRet & 0x20000) {
+        if (nRet.exbits & kHitAux2) {
             dz = 0;
         }
 
@@ -603,7 +606,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         }
     }
 
-    return Collision(nRet);
+    return nRet;
 }
 
 void Gravity(DExhumedActor* actor)

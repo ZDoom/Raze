@@ -133,8 +133,6 @@ extern short lastfps;
 
 extern int flash;
 
-extern short nLocalSpr;
-
 extern short nSnakeCam;
 
 extern short bCoordinates;

@@ -208,7 +208,7 @@ struct BlockInfo
 };
 extern BlockInfo sBlockInfo[];
 
-extern int hihit;
+extern Collision hiHit;
 extern DExhumedActor* nChunkSprite[];
 extern DExhumedActor* nBodySprite[];
 
@@ -222,7 +222,6 @@ DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy);
 Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
 void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum);
-int GetSpriteHeight(int nSprite);
 int GetActorHeight(DExhumedActor* nSprite);
 DExhumedActor* insertActor(int, int);
 DExhumedActor* GrabBody();
@@ -284,7 +283,7 @@ void FuncTrap(int, int, int, int);
 void FuncEnergyBlock(int, int, int, int);
 void FuncSpark(int, int, int, int);
 void SnapBobs(short nSectorA, short nSectorB);
-short FindWallSprites(short nSector);
+DExhumedActor* FindWallSprites(short nSector);
 void AddMovingSector(int nSector, int edx, int ebx, int ecx);
 void ProcessTrailSprite(DExhumedActor* nSprite, int nLotag, int nHitag);
 void AddSectorBob(int nSector, int nHitag, int bx);
@@ -293,8 +292,8 @@ int BuildArrow(DExhumedActor* nSprite, int nVal);
 int BuildFireBall(DExhumedActor*, int a, int b);
 void BuildDrip(DExhumedActor* nSprite);
 DExhumedActor* BuildEnergyBlock(short nSector);
-int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, int arg6, int nCount, ...);
-int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, ...);
+int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
+int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
 int BuildWallFace(short nChannel, short nWall, int nCount, ...);
 int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3);
 
