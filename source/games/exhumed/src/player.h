@@ -111,7 +111,7 @@ extern short obobangle, bobangle;
 extern int ototalvel[], totalvel[];
 extern int16_t eyelevel[], oeyelevel[];
 
-extern short nNetStartSprite[kMaxPlayers];
+extern DExhumedActor* nNetStartSprite[kMaxPlayers];
 extern short nNetStartSprites;
 extern short nCurStartSprite;
 

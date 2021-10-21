@@ -768,7 +768,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 62:
             {
-                nNetStartSprite[nNetStartSprites] = nSprite;
+                nNetStartSprite[nNetStartSprites] = pActor;
                 pSprite->cstat = 0x8000;
 
                 nNetStartSprites++;
@@ -823,14 +823,14 @@ void ExamineSprites()
 
     if (nNetPlayerCount)
     {
-        int nSprite = insertsprite(initsect, 0);
-		auto pSprite = &sprite[nSprite];
+        auto pActor = insertActor(initsect, 0);
+		auto pSprite = &pActor->s();
 
         pSprite->x = initx;
         pSprite->y = inity;
         pSprite->z = initz;
         pSprite->cstat = 0x8000;
-        nNetStartSprite[nNetStartSprites] = nSprite;
+        nNetStartSprite[nNetStartSprites] = pActor;
         nNetStartSprites++;
     }
 }

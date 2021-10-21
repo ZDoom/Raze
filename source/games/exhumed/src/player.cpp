@@ -109,7 +109,7 @@ PlayerSave sPlayerSave[kMaxPlayers];
 int ototalvel[kMaxPlayers] = { 0 };
 int totalvel[kMaxPlayers] = { 0 };
 int16_t eyelevel[kMaxPlayers], oeyelevel[kMaxPlayers];
-short nNetStartSprite[kMaxPlayers] = { 0 };
+DExhumedActor* nNetStartSprite[kMaxPlayers] = { };
 
 short nStandHeight;
 
@@ -295,8 +295,8 @@ void RestartPlayer(short nPlayer)
 
 	if (nTotalPlayers > 1)
 	{
-		int nNStartSprite = nNetStartSprite[nCurStartSprite];
-		auto nstspr = &sprite[nNStartSprite];
+		auto nNStartSprite = nNetStartSprite[nCurStartSprite];
+		auto nstspr = &nNStartSprite->s();
 		nCurStartSprite++;
 
 		if (nCurStartSprite >= nNetStartSprites) {
@@ -2742,7 +2742,7 @@ void SerializePlayer(FSerializer& arc)
             ("playercount", PlayerCount)
             ("netstartsprites", nNetStartSprites)
             ("localplayer", nLocalPlayer)
-            .Array("curstartsprite", nNetStartSprite, PlayerCount)
+            ("curstartsprite", nCurStartSprite)
             .Array("breathtimer", nBreathTimer, PlayerCount)
             .Array("playerswear", nPlayerSwear, PlayerCount)
             .Array("pushsect", nPlayerPushSect, PlayerCount)
