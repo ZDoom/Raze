@@ -713,13 +713,13 @@ int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
     return GetMyAngle(pSprite2->x - pSprite1->x, pSprite2->y - pSprite1->y);
 }
 
-int PlotCourseToSprite(int nSprite1, int nSprite2)
+int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
 {
-    if (nSprite1 < 0 || nSprite2 < 0)
+    if (pActor1 == nullptr || pActor2 == nullptr)
         return -1;
 
-	auto pSprite1 = &sprite[nSprite1];
-	auto pSprite2 = &sprite[nSprite2];
+	auto pSprite1 = &pActor1->s();
+	auto pSprite2 = &pActor2->s();
     int x = pSprite2->x - pSprite1->x;
     int y = pSprite2->y - pSprite1->y;
 
@@ -739,15 +739,10 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
     return ksqrt(diff);
 }
 
-int FindPlayer(int nSprite, int nDistance, bool dontengage)
+DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
 {
-	auto pSprite = &sprite[nSprite];
-    int var_18 = 0;
-    if (nSprite >= 0 || !dontengage)
-        var_18 = 1;
-
-    if (nSprite < 0)
-        nSprite = -nSprite;
+    auto pSprite = &pActor->s();
+    int var_18 = !dontengage;
 
     if (nDistance < 0)
         nDistance = 100;
@@ -756,29 +751,30 @@ int FindPlayer(int nSprite, int nDistance, bool dontengage)
     int y = pSprite->y;
     short nSector = pSprite->sectnum;
 
-    int z = pSprite->z - GetSpriteHeight(nSprite);
+    int z = pSprite->z - GetActorHeight(pActor);
 
     nDistance <<= 8;
 
-    short nPlayerSprite;
+    DExhumedActor* pPlayerActor = nullptr;
     int i = 0;
 
     while (1)
     {
         if (i >= nTotalPlayers)
-            return -1;
+            return nullptr;
 
-        nPlayerSprite = PlayerList[i].nSprite;
+        pPlayerActor = PlayerList[i].Actor();
+        auto pPlayerSprite = &pPlayerActor->s();
 
-        if ((sprite[nPlayerSprite].cstat & 0x101) && (!(sprite[nPlayerSprite].cstat & 0x8000)))
+        if ((pPlayerSprite->cstat & 0x101) && (!(pPlayerSprite->cstat & 0x8000)))
         {
-            int v9 = abs(sprite[nPlayerSprite].x - x);
+            int v9 = abs(pPlayerSprite->x - x);
 
             if (v9 < nDistance)
             {
-                int v10 = abs(sprite[nPlayerSprite].y - y);
+                int v10 = abs(pPlayerSprite->y - y);
 
-                if (v10 < nDistance && cansee(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z - 7680, sprite[nPlayerSprite].sectnum, x, y, z, nSector))
+                if (v10 < nDistance && cansee(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z - 7680, pPlayerSprite->sectnum, x, y, z, nSector))
                 {
                     break;
                 }
@@ -789,10 +785,10 @@ int FindPlayer(int nSprite, int nDistance, bool dontengage)
     }
 
     if (var_18) {
-        PlotCourseToSprite(nSprite, nPlayerSprite);
+        PlotCourseToSprite(pActor, pPlayerActor);
     }
 
-    return nPlayerSprite;
+    return pPlayerActor;
 }
 
 void CheckSectorFloor(short nSector, int z, int *x, int *y)
@@ -818,10 +814,10 @@ void CheckSectorFloor(short nSector, int z, int *x, int *y)
     }
 }
 
-int GetUpAngle(short nSprite1, int nVal, short nSprite2, int ecx)
+int GetUpAngle(DExhumedActor* pActor1, int nVal, DExhumedActor* pActor2, int ecx)
 {
-	auto pSprite1 = &sprite[nSprite1];
-	auto pSprite2 = &sprite[nSprite2];
+	auto pSprite1 = &pActor1->s();
+	auto pSprite2 = &pActor2->s();
     int x = pSprite2->x - pSprite1->x;
     int y = pSprite2->y - pSprite1->y;
 
