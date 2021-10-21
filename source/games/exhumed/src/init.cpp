@@ -708,7 +708,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 88:
             {
-                AddFlow(nSprite, nSpeed, 0);
+                AddFlow(pSprite->sectnum, nSpeed, 0, pSprite->ang);
 
                 DeleteActor(pActor);
                 return;
@@ -723,7 +723,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 78:
             {
-                AddFlow(nSprite, nSpeed, 1);
+                AddFlow(pSprite->sectnum, nSpeed, 1, pSprite->ang);
 
                 short nSector = pSprite->sectnum;
                 SectFlag[nSector] |= 0x8000;

@@ -661,7 +661,7 @@ void DoFlickers()
 }
 
 // nWall can also be passed in here via nSprite parameter - TODO - rename nSprite parameter :)
-void AddFlow(int nIndex, int nSpeed, int b)
+void AddFlow(int nIndex, int nSpeed, int b, int nAngle)
 {
     if (nFlowCount >= kMaxFlows)
         return;
@@ -672,18 +672,16 @@ void AddFlow(int nIndex, int nSpeed, int b)
 
     if (b < 2)
     {
-        int sectnum = sprite[nIndex].sectnum;
-        short nPic = sector[sectnum].floorpicnum;
-        short nAngle = sprite[nIndex].ang;
+        short nPic = sector[nIndex].floorpicnum;
 
         sFlowInfo[nFlow].xacc = (tileWidth(nPic) << 14) - 1;
         sFlowInfo[nFlow].yacc = (tileHeight(nPic) << 14) - 1;
         sFlowInfo[nFlow].angcos  = -bcos(nAngle) * nSpeed;
         sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
-        sFlowInfo[nFlow].objindex = sectnum;
+        sFlowInfo[nFlow].objindex = nIndex;
 
-        StartInterpolation(sectnum, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
-        StartInterpolation(sectnum, b ? Interp_Sect_CeilingPanY : Interp_Sect_FloorPanY);
+        StartInterpolation(nIndex, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
+        StartInterpolation(nIndex, b ? Interp_Sect_CeilingPanY : Interp_Sect_FloorPanY);
     }
     else
     {
