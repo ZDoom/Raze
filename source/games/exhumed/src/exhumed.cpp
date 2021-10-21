@@ -508,24 +508,20 @@ void GameInterface::app_init()
     enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }
 
-void mychangespritesect(int nSprite, int nSector)
+void DeleteActor(DExhumedActor* actor) 
 {
-    changespritesect(nSprite, nSector);
-}
-
-void mydeletesprite(int nSprite)
-{
-    if (nSprite < 0 || nSprite > kMaxSprites) {
-        I_Error("bad sprite value %d handed to mydeletesprite", nSprite);
+    if (!actor) 
+    {
+        return;
     }
 
-    FVector3 pos = GetSoundPos(&sprite[nSprite].pos);
-    soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
+    FVector3 pos = GetSoundPos(&actor->s().pos);
+    soundEngine->RelinkSound(SOURCE_Actor, &actor->s(), nullptr, &pos);
 
-    deletesprite(nSprite);
-    sprite[nSprite].ox = 0x80000000;
+    deletesprite(actor->GetSpriteIndex());
+    actor->s().ox = 0x80000000;
 
-    if (nSprite == besttarget) {
+    if (actor->GetSpriteIndex() == besttarget) {
         besttarget = -1;
     }
 }

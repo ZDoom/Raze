@@ -378,7 +378,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
     {
         edi = SectBelow[pSprite->sectnum];
 
-        mychangespritesect(nSprite, edi);
+        ChangeActorSect(&exhumedActors[nSprite], edi);
     }
 
     if (edi != nSector)
@@ -402,7 +402,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
         {
             edi = SectAbove[pSprite->sectnum];
 
-            mychangespritesect(nSprite, edi);
+            ChangeActorSect(&exhumedActors[nSprite], edi);
         }
     }
 

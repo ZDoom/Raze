@@ -216,22 +216,22 @@ short GetPlayerFromSprite(short nSprite)
 void RestartPlayer(short nPlayer)
 {
 	auto plr = &PlayerList[nPlayer];
-	int nSprite = plr->nSprite;
-	auto nSpr = &sprite[nSprite];
-	auto pDopSprite = PlayerList[nPlayer].pDoppleSprite;
+    auto pActor = plr->Actor();
+	auto pDopSprite = plr->pDoppleSprite;
 
     DExhumedActor* floorsprt;
 
-	if (nSprite > -1)
+	if (pActor)
 	{
-		runlist_DoSubRunRec(nSpr->owner);
+        auto nSpr = &pActor->s();
+        runlist_DoSubRunRec(nSpr->owner);
 		runlist_FreeRun(nSpr->lotag - 1);
 
-		changespritestat(nSprite, 0);
+		ChangeActorStat(pActor, 0);
 
 		plr->nSprite = -1;
 
-		auto pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
+		auto pFloorSprite = plr->pPlayerFloorSprite;
 		if (pFloorSprite != nullptr) {
 			DeleteActor(pFloorSprite);
 		}
@@ -245,15 +245,14 @@ void RestartPlayer(short nPlayer)
 		}
 	}
 
-    auto actor = GrabBody();
-	nSprite = actor->GetSpriteIndex();
-	nSpr = &actor->s();
+    pActor = GrabBody();
+	auto nSpr = &pActor->s();
 
-	ChangeActorSect(actor, PlayerList[nPlayer].sPlayerSave.nSector);
-	ChangeActorStat(actor, 100);
+	ChangeActorSect(pActor, plr->sPlayerSave.nSector);
+	ChangeActorStat(pActor, 100);
 
 	auto pDActor = insertActor(nSpr->sectnum, 100);
-	PlayerList[nPlayer].pDoppleSprite = pDActor;
+	plr->pDoppleSprite = pDActor;
 
 	if (nTotalPlayers > 1)
 	{
@@ -268,7 +267,7 @@ void RestartPlayer(short nPlayer)
 		nSpr->x = nstspr->x;
 		nSpr->y = nstspr->y;
 		nSpr->z = nstspr->z;
-		mychangespritesect(nSprite, nstspr->sectnum);
+		ChangeActorSect(pActor, nstspr->sectnum);
 		plr->angle.ang = buildang(nstspr->ang&kAngleMask);
 		nSpr->ang = plr->angle.ang.asbuild();
 
@@ -285,10 +284,10 @@ void RestartPlayer(short nPlayer)
 	}
 	else
 	{
-		nSpr->x = PlayerList[nPlayer].sPlayerSave.x;
-		nSpr->y = PlayerList[nPlayer].sPlayerSave.y;
-		nSpr->z = sector[PlayerList[nPlayer].sPlayerSave.nSector].floorz;
-		plr->angle.ang = buildang(PlayerList[nPlayer].sPlayerSave.nAngle&kAngleMask);
+		nSpr->x = plr->sPlayerSave.x;
+		nSpr->y = plr->sPlayerSave.y;
+		nSpr->z = sector[plr->sPlayerSave.nSector].floorz;
+		plr->angle.ang = buildang(plr->sPlayerSave.nAngle&kAngleMask);
 		nSpr->ang = plr->angle.ang.asbuild();
 
 		floorsprt = nullptr;
@@ -297,7 +296,7 @@ void RestartPlayer(short nPlayer)
 	plr->angle.backup();
 	plr->horizon.backup();
 
-	PlayerList[nPlayer].pPlayerFloorSprite = floorsprt;
+	plr->pPlayerFloorSprite = floorsprt;
 
 	nSpr->cstat = 0x101;
 	nSpr->shade = -12;
@@ -309,7 +308,7 @@ void RestartPlayer(short nPlayer)
 	nSpr->yoffset = 0;
 	nSpr->picnum = seq_GetSeqPicnum(kSeqJoe, 18, 0);
 
-	int nHeight = GetSpriteHeight(nSprite);
+	int nHeight = GetActorHeight(pActor);
 	nSpr->xvel = 0;
 	nSpr->yvel = 0;
 	nSpr->zvel = 0;
@@ -342,30 +341,30 @@ void RestartPlayer(short nPlayer)
 	}
 
 	plr->field_2 = 0;
-	plr->nSprite = nSprite;
+	plr->nSprite = pActor->GetSpriteIndex();
 	plr->bIsMummified = false;
 
 	if (plr->invincibility >= 0) {
 		plr->invincibility = 0;
 	}
 
-	PlayerList[nPlayer].nTorch = 0;
+	plr->nTorch = 0;
 	plr->nMaskAmount = 0;
 
 	SetTorch(nPlayer, 0);
 
-	PlayerList[nPlayer].nInvisible = 0;
+	plr->nInvisible = 0;
 
 	plr->bIsFiring = 0;
 	plr->field_3FOUR = 0;
-	PlayerList[nPlayer].nPlayerViewSect = PlayerList[nPlayer].sPlayerSave.nSector;
+	plr->nPlayerViewSect = plr->sPlayerSave.nSector;
 	plr->field_3A = 0;
 
-	PlayerList[nPlayer].nDouble = 0;
+	plr->nDouble = 0;
 
 	plr->nSeq = kSeqJoe;
 
-	PlayerList[nPlayer].nPlayerPushSound = -1;
+	plr->nPlayerPushSound = -1;
 
 	plr->field_38 = -1;
 
@@ -386,19 +385,19 @@ void RestartPlayer(short nPlayer)
 		plr->nMagic = 0;
 	}
 
-	PlayerList[nPlayer].pPlayerGrenade = nullptr;
-	PlayerList[nPlayer].oeyelevel = PlayerList[nPlayer].eyelevel = -14080;
+	plr->pPlayerGrenade = nullptr;
+	plr->oeyelevel = plr->eyelevel = -14080;
 	dVertPan[nPlayer] = 0;
 
 	nTemperature[nPlayer] = 0;
 
-	PlayerList[nPlayer].nYDamage = 0;
-	PlayerList[nPlayer].nXDamage = 0;
+	plr->nYDamage = 0;
+	plr->nXDamage = 0;
 
 	plr->nDestVertPan = plr->horizon.ohoriz = plr->horizon.horiz = q16horiz(0);
-	PlayerList[nPlayer].nBreathTimer = 90;
+	plr->nBreathTimer = 90;
 
-	PlayerList[nPlayer].nTauntTimer = RandomSize(3) + 3;
+	plr->nTauntTimer = RandomSize(3) + 3;
 
 	nDSpr->owner = runlist_AddRunRec(nDSpr->lotag - 1, nPlayer, 0xA0000);
 	nSpr->owner = runlist_AddRunRec(nSpr->lotag - 1, nPlayer, 0xA0000);
@@ -411,19 +410,19 @@ void RestartPlayer(short nPlayer)
 
 	if (nPlayer == nLocalPlayer)
 	{
-		nLocalSpr = nSprite;
+        nLocalSpr = pActor->GetSpriteIndex();
 
 		RestoreGreenPal();
 
         plr->bPlayerPan = plr->bLockPan = false;
 	}
 
-	PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel = 0;
+	plr->ototalvel = plr->totalvel = 0;
 
 	memset(&sPlayerInput[nPlayer], 0, sizeof(PlayerInput));
 	sPlayerInput[nPlayer].nItem = -1;
 
-	PlayerList[nPlayer].nDeathType = 0;
+	plr->nDeathType = 0;
 	nQuake[nPlayer] = 0;
 }
 
