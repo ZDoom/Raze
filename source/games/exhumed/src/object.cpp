@@ -123,10 +123,10 @@ struct wallFace
 
 struct slideData
 {
+    DExhumedActor* pActor;
     short nChannel;
-    short field_2a;
+    short nStart;
     short field_4a;
-    short nSprite;
     short field_8a;
 
     int field_0;
@@ -137,26 +137,26 @@ struct slideData
     int y1;
     int x2;
     int y2;
-    int field_20;
-    int field_24;
-    int field_28;
-    int field_2C;
-    int field_30;
-    int field_34;
-    int field_38;
-    int field_3C;
+    int x3;
+    int y3;
+    int x4;
+    int y4;
+    int x5;
+    int y5;
+    int x6;
+    int y6;
 };
 
 struct Point
 {
-    short field_0;
+    short nSector;
     short field_2;
     short field_4;
     short field_6;
     short field_8;
     short field_A;
     short field_C;
-    short field_E;
+    short nNext;
 };
 
 struct Trap
@@ -317,18 +317,18 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, slideData& w, slid
             ("y1", w.y1)
             ("x2", w.x2)
             ("y2", w.y2)
-            ("at20", w.field_20)
-            ("at24", w.field_24)
-            ("at28", w.field_28)
-            ("at2c", w.field_2C)
-            ("at30", w.field_30)
-            ("at34", w.field_34)
-            ("at38", w.field_38)
-            ("at3c", w.field_3C)
+            ("at20", w.x3)
+            ("at24", w.y3)
+            ("at28", w.x4)
+            ("at2c", w.y4)
+            ("at30", w.x5)
+            ("at34", w.y5)
+            ("at38", w.x6)
+            ("at3c", w.y6)
             ("channel", w.nChannel)
-            ("at2a", w.field_2a)
+            ("at2a", w.nStart)
             ("at4a", w.field_4a)
-            ("at6a", w.nSprite)
+            ("at6a", w.pActor)
             ("at8a", w.field_8a)
             .EndObject();
     }
@@ -338,14 +338,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Point& w, Point* d
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
+        arc("at0", w.nSector)
             ("at2", w.field_2)
             ("at4", w.field_4)
             ("at6", w.field_6)
             ("at8", w.field_8)
             ("ata", w.field_A)
             ("atc", w.field_C)
-            ("ate", w.field_E)
+            ("ate", w.nNext)
             .EndObject();
     }
     return arc;
@@ -1034,31 +1034,31 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
 
     SlideData[nSlide].field_4a = -1;
     SlideData[nSlide].nChannel = nChannel;
-    SlideData[nSlide].field_2a = -1;
+    SlideData[nSlide].nStart = -1;
 
     int nPoint = GrabPoint();
 
-    SlideData[nSlide].field_2a = nPoint;
+    SlideData[nSlide].nStart = nPoint;
 
-    PointList[nPoint].field_E = -1;
-    PointList[nPoint].field_0 = nSector;
+    PointList[nPoint].nNext = -1;
+    PointList[nPoint].nSector = nSector;
 
     short startwall = sector[nSector].wallptr;
     short endwall = startwall + sector[nSector].wallnum;
 
     for (int nWall = startwall; nWall < endwall; nWall++)
     {
-        short ax = SlideData[nSlide].field_2a;
+        short ax = SlideData[nSlide].nStart;
 
         if (ax >= 0)
         {
             while (ax >= 0)
             {
-                if (wall[nWall].nextsector == PointList[ax].field_0) {
+                if (wall[nWall].nextsector == PointList[ax].nSector) {
                     break;
                 }
 
-                ax = PointList[ax].field_E;
+                ax = PointList[ax].nNext;
             }
         }
         else
@@ -1067,10 +1067,10 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
             {
                 nPoint = GrabPoint();
 
-                PointList[nPoint].field_E = SlideData[nSlide].field_2a;
-                PointList[nPoint].field_0 = wall[nWall].nextsector;
+                PointList[nPoint].nNext = SlideData[nSlide].nStart;
+                PointList[nPoint].nSector = wall[nWall].nextsector;
 
-                SlideData[nSlide].field_2a = nPoint;
+                SlideData[nSlide].nStart = nPoint;
             }
         }
     }
@@ -1086,17 +1086,17 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
     SlideData[nSlide].x2 = wall[nWall2].x;
     SlideData[nSlide].y2 = wall[nWall2].y;
 
-    SlideData[nSlide].field_20 = wall[nWall1].x;
-    SlideData[nSlide].field_24 = wall[nWall1].y;
+    SlideData[nSlide].x3 = wall[nWall1].x;
+    SlideData[nSlide].y3 = wall[nWall1].y;
 
-    SlideData[nSlide].field_28 = wall[nWall3].x;
-    SlideData[nSlide].field_2C = wall[nWall3].y;
+    SlideData[nSlide].x4 = wall[nWall3].x;
+    SlideData[nSlide].y4 = wall[nWall3].y;
 
-    SlideData[nSlide].field_30 = wall[ecx].x;
-    SlideData[nSlide].field_34 = wall[ecx].y;
+    SlideData[nSlide].x5 = wall[ecx].x;
+    SlideData[nSlide].y5 = wall[ecx].y;
 
-    SlideData[nSlide].field_38 = wall[nWall4].x;
-    SlideData[nSlide].field_3C = wall[nWall4].y;
+    SlideData[nSlide].x6 = wall[nWall4].x;
+    SlideData[nSlide].y6 = wall[nWall4].y;
 
     StartInterpolation(nStartWall, Interp_Wall_X);
     StartInterpolation(nStartWall, Interp_Wall_Y);
@@ -1111,10 +1111,10 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
     StartInterpolation(nWall3, Interp_Wall_Y);
 
 
-    int nSprite = insertsprite(nSector, 899);
-    auto pSprite = &sprite[nSprite];
+    auto pActor = insertActor(nSector, 899);
+    auto pSprite = &pActor->s();
 
-    SlideData[nSlide].nSprite = nSprite;
+    SlideData[nSlide].pActor = pActor;
     pSprite->cstat = 0x8000;
     pSprite->x = wall[nStartWall].x;
     pSprite->y = wall[nStartWall].y;
@@ -1148,7 +1148,7 @@ void AISlide::ProcessChannel(RunListEvent* ev)
 
     if (SlideData[nSlide].field_8a != sRunChannels[nChannel].c)
     {
-        D3PlayFX(StaticSound[kSound23], SlideData[nSlide].nSprite);
+        D3PlayFX(StaticSound[kSound23], SlideData[nSlide].pActor);
         SlideData[nSlide].field_8a = sRunChannels[nChannel].c;
     }
 }
@@ -1172,16 +1172,16 @@ void AISlide::Tick(RunListEvent* ev)
         int x = wall[nWall].x;
         int y = wall[nWall].y;
 
-        int nSeekA = LongSeek(&x, SlideData[nSlide].field_30, 20, 20);
+        int nSeekA = LongSeek(&x, SlideData[nSlide].x5, 20, 20);
         int var_34 = nSeekA;
         int var_20 = nSeekA;
 
-        int nSeekB = LongSeek(&y, SlideData[nSlide].field_34, 20, 20);
+        int nSeekB = LongSeek(&y, SlideData[nSlide].y5, 20, 20);
         int var_2C = nSeekB;
         int var_24 = nSeekB;
 
         dragpoint(SlideData[nSlide].field_4, x, y, 0);
-        movesprite(SlideData[nSlide].nSprite, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
+        movesprite(SlideData[nSlide].pActor, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
 
         if (var_34 == 0)
         {
@@ -1203,11 +1203,11 @@ void AISlide::Tick(RunListEvent* ev)
         x = wall[nWall].x;
         y = wall[nWall].y;
 
-        int nSeekC = LongSeek(&x, SlideData[nSlide].field_38, 20, 20);
+        int nSeekC = LongSeek(&x, SlideData[nSlide].x6, 20, 20);
         int var_30 = nSeekC;
         var_20 = nSeekC;
 
-        int nSeekD = LongSeek(&y, SlideData[nSlide].field_3C, 20, 20);
+        int nSeekD = LongSeek(&y, SlideData[nSlide].y6, 20, 20);
         int edi = nSeekD;
         var_24 = nSeekD;
 
@@ -1284,7 +1284,7 @@ void AISlide::Tick(RunListEvent* ev)
         runlist_SubRunRec(SlideData[nSlide].field_4a);
 
         SlideData[nSlide].field_4a = -1;
-        D3PlayFX(StaticSound[nStopSound], SlideData[nSlide].nSprite);
+        D3PlayFX(StaticSound[nStopSound], SlideData[nSlide].pActor);
 
         runlist_ReadyChannel(nChannel);
     }
