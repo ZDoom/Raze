@@ -162,13 +162,9 @@ void FillItems(short nPlayer);
 void UseItem(short nPlayer, short nItem);
 void UseCurItem(short nPlayer);
 int GrabItem(short nPlayer, short nItem);
-void DropMagic(short nSprite);
-inline void DropMagic(DExhumedActor* actor)
-{
-    DropMagic(actor->GetSpriteIndex());
-}
+void DropMagic(DExhumedActor* actor);
 void InitItems();
-void StartRegenerate(short nSprite);
+void StartRegenerate(DExhumedActor* nSprite);
 void DoRegenerates();
 
 // lavadude

@@ -2143,7 +2143,7 @@ void AIObject::Tick(RunListEvent* ev)
         }
         else
         {
-            StartRegenerate(nSprite);
+            StartRegenerate(pActor);
             pObject->nHealth = 120;
 
             pSprite->x = sprite[pObject->field_10].x;

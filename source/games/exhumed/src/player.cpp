@@ -1404,7 +1404,7 @@ sectdone:
                     }
                     else
                     {
-                        StartRegenerate(nValB);
+                        StartRegenerate(pActorB);
                     }
                 do_default_b:
                     // loc_1BA74
