@@ -532,16 +532,16 @@ DExhumedActor* insertActor(int sect, int stat)
 }
 
 
-int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigned int clipmask)
+Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
 {
-    spritetype *pSprite = &sprite[nSprite];
+    spritetype *pSprite = &pActor->s();
     bTouchFloor = false;
 
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
 
-    int nSpriteHeight = GetSpriteHeight(nSprite);
+    int nSpriteHeight = GetActorHeight(pActor);
 
     int nClipDist = (int8_t)pSprite->clipdist << 2;
 
@@ -558,13 +558,13 @@ int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigne
         dy >>= 1;
     }
 
-    nRet |= movespritez(nSprite, dz, nSpriteHeight, flordist, nClipDist);
+    nRet |= movespritez(pActor->GetSpriteIndex(), dz, nSpriteHeight, flordist, nClipDist);
 
     nSector = pSprite->sectnum; // modified in movespritez so re-grab this variable
 
     if (pSprite->statnum == 100)
     {
-        short nPlayer = GetPlayerFromSprite(nSprite);
+        short nPlayer = GetPlayerFromActor(pActor);
 
         int varA = 0;
         int varB = 0;
@@ -600,7 +600,7 @@ int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigne
         }
         else
         {
-            mychangespritesect(nSprite, nSector);
+            ChangeActorSect(pActor, nSector);
 
             if (pSprite->pal < 5 && !pSprite->hitag)
             {
@@ -609,7 +609,7 @@ int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigne
         }
     }
 
-    return nRet;
+    return Collision(nRet);
 }
 
 void Gravity(DExhumedActor* actor)
@@ -659,21 +659,21 @@ void Gravity(DExhumedActor* actor)
     }
 }
 
-int MoveCreature(short nSprite)
+Collision MoveCreature(DExhumedActor* pActor)
 {
-    auto pSprite = &sprite[nSprite];
-    return movesprite(nSprite, pSprite->xvel << 8, pSprite->yvel << 8, pSprite->zvel, 15360, -5120, CLIPMASK0);
+    auto pSprite = &pActor->s();
+    return movesprite(pActor, pSprite->xvel << 8, pSprite->yvel << 8, pSprite->zvel, 15360, -5120, CLIPMASK0);
 }
 
-int MoveCreatureWithCaution(int nSprite)
+Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
     short nSectorPre = pSprite->sectnum;
 
-    int ecx = MoveCreature(nSprite);
+    auto ecx = MoveCreature(pActor);
 
     short nSector = pSprite->sectnum;
 
@@ -690,12 +690,12 @@ int MoveCreatureWithCaution(int nSprite)
             pSprite->y = y;
             pSprite->z = z;
 
-            mychangespritesect(nSprite, nSectorPre);
+            ChangeActorSect(pActor, nSectorPre);
 
             pSprite->ang = (pSprite->ang + 256) & kAngleMask;
             pSprite->xvel = bcos(pSprite->ang, -2);
             pSprite->yvel = bsin(pSprite->ang, -2);
-            return 0;
+            return Collision(0);
         }
     }
 
@@ -1507,7 +1507,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     int nSector = pSprite->sectnum;
     pSprite->pal = sector[nSector].ceilingpal;
 
-    int nVal = movesprite(nSprite, pSprite->xvel << 10, pSprite->yvel << 10, pSprite->zvel, 2560, -2560, CLIPMASK1);
+    auto nVal = movesprite(pActor, pSprite->xvel << 10, pSprite->yvel << 10, pSprite->zvel, 2560, -2560, CLIPMASK1);
 
     if (pSprite->z >= sector[nSector].floorz)
     {
@@ -1521,31 +1521,31 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     }
     else
     {
-        if (!nVal)
+        if (!nVal.type && !nVal.exbits)
             return;
 
         short nAngle;
 
-        if (nVal & 0x20000)
+        if (nVal.exbits & kHitAux2)
         {
             pSprite->cstat = 0x8000;
         }
         else
         {
-            if ((nVal & 0x3C000) == 0x10000)
+            if (nVal.exbits & kHitAux1)
             {
                 pSprite->xvel >>= 1;
                 pSprite->yvel >>= 1;
                 pSprite->zvel = -pSprite->zvel;
                 return;
             }
-            else if ((nVal & 0x3C000) == 0xC000)
+            else if (nVal.type == kHitSprite)
             {
-                nAngle = sprite[nVal & 0x3FFF].ang;
+                nAngle = nVal.actor->s().ang;
             }
-            else if ((nVal & 0x3C000) == 0x8000)
+            else if (nVal.type == kHitWall)
             {
-                nAngle = GetWallNormal(nVal & 0x3FFF);
+                nAngle = GetWallNormal(nVal.index);
             }
             else
             {
@@ -1566,7 +1566,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     runlist_FreeRun(pSprite->lotag - 1);
     runlist_SubRunRec(pSprite->hitag);
 
-    changespritestat(nSprite, 0);
+    ChangeActorStat(pActor, 0);
     pSprite->hitag = 0;
     pSprite->lotag = 0;
 }

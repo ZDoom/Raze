@@ -226,16 +226,8 @@ DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
     return v == -1 ? nullptr : &exhumedActors[v];
 }
 
-int MoveCreature(short nSprite);
-Collision MoveCreature(DExhumedActor* nSprite)
-{
-    return Collision(MoveCreature(nSprite->GetSpriteIndex()));
-}
-int MoveCreatureWithCaution(int nSprite);
-inline Collision MoveCreatureWithCaution(DExhumedActor* actor)
-{
-    return Collision(MoveCreatureWithCaution(actor->GetSpriteIndex()));
-}
+Collision MoveCreature(DExhumedActor* nSprite);
+Collision MoveCreatureWithCaution(DExhumedActor* actor);
 void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum);
 int GetSpriteHeight(int nSprite);
 int GetActorHeight(DExhumedActor* nSprite);

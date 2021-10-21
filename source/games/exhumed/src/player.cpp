@@ -897,12 +897,9 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     zVel = pPlayerSprite->zvel;
 
-    int nMove = 0; // TEMP
-
+    Collision nMove(0);
     if (bSlipMode)
     {
-        nMove = 0;
-
         pPlayerSprite->x += (x >> 14);
         pPlayerSprite->y += (y >> 14);
 
@@ -913,20 +910,20 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
     else
     {
-        nMove = movesprite(nPlayerSprite, x, y, z, 5120, -5120, CLIPMASK0);
+        nMove = movesprite(pPlayerActor, x, y, z, 5120, -5120, CLIPMASK0);
 
         short var_54 = pPlayerSprite->sectnum;
 
         pushmove_old(&pPlayerSprite->x, &pPlayerSprite->y, &pPlayerSprite->z, &var_54, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
         if (var_54 != pPlayerSprite->sectnum) {
-            mychangespritesect(nPlayerSprite, var_54);
+            ChangeActorSect(pPlayerActor, var_54);
         }
     }
 
     // loc_1A6E4
     if (inside(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->sectnum) != 1)
     {
-        mychangespritesect(nPlayerSprite, spr_sectnum);
+        ChangeActorSect(pPlayerActor, spr_sectnum);
 
         pPlayerSprite->x = spr_x;
         pPlayerSprite->y = spr_y;
@@ -982,7 +979,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         return;
     }
 
-    if (nMove & 0x3C000)
+    if (nMove.type || nMove.exbits)
     {
         if (bTouchFloor)
         {
@@ -1025,24 +1022,26 @@ void AIPlayer::Tick(RunListEvent* ev)
             }
         }
 
-        if (((nMove & 0xC000) == 0x4000) || ((nMove & 0xC000) == 0x8000))
+        if (nMove.type == kHitSector || nMove.type == kHitWall)
         {
             int sectnum = 0;
+            int nNormal = 0;
 
-            if ((nMove & 0xC000) == 0x4000)
+            if (nMove.type == kHitSector)
             {
-                sectnum = nMove & 0x3FFF;
+                sectnum = nMove.index;
+                // Hm... Normal calculation here was broken.
             }
-            else if ((nMove & 0xC000) == 0x8000)
+            else if (nMove.type == kHitWall)
             {
-                sectnum = wall[nMove & 0x3FFF].nextsector;
+                sectnum = wall[nMove.index].nextsector;
+                nNormal = GetWallNormal(nMove.index);
             }
 
             if (sectnum >= 0)
             {
                 if ((sector[sectnum].hitag == 45) && bTouchFloor)
                 {
-                    int nNormal = GetWallNormal(nMove & 0x3FFF);
                     int nDiff = AngleDiff(nNormal, (pPlayerSprite->ang + 1024) & kAngleMask);
 
                     if (nDiff < 0) {
@@ -1074,10 +1073,10 @@ void AIPlayer::Tick(RunListEvent* ev)
                             pPlayerSprite->y = spr_y;
                             pPlayerSprite->z = spr_z;
 
-                            mychangespritesect(nPlayerSprite, spr_sectnum);
+                            ChangeActorSect(pPlayerActor, spr_sectnum);
                         }
 
-                        movesprite(nPlayerSprite, xvel, yvel, z, 5120, -5120, CLIPMASK0);
+                        movesprite(pPlayerActor, xvel, yvel, z, 5120, -5120, CLIPMASK0);
                         goto sectdone;
                     }
                 }
@@ -1138,13 +1137,13 @@ sectdone:
     {
         if (nViewSect != pPlayerSprite->sectnum)
         {
-            if ((nMove & 0xC000) == 0x8000)
+            if (nMove.type == kHitWall)
             {
                 int var_C4 = pPlayerSprite->x;
                 int var_D4 = pPlayerSprite->y;
                 int var_C8 = pPlayerSprite->z;
 
-                mychangespritesect(nPlayerSprite, nViewSect);
+                ChangeActorSect(pPlayerActor, nViewSect);
 
                 pPlayerSprite->x = spr_x;
                 pPlayerSprite->y = spr_y;
@@ -1153,9 +1152,10 @@ sectdone:
 
                 pPlayerSprite->z = var_FC;
 
-                if ((movesprite(nPlayerSprite, x, y, 0, 5120, 0, CLIPMASK0) & 0xC000) == 0x8000)
+                auto coll = movesprite(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
+                if (coll.type == kHitWall)
                 {
-                    mychangespritesect(nPlayerSprite, pPlayerSprite->sectnum);
+                    ChangeActorSect(pPlayerActor, pPlayerSprite->sectnum);
 
                     pPlayerSprite->x = var_C4;
                     pPlayerSprite->y = var_D4;
@@ -1164,7 +1164,7 @@ sectdone:
                 else
                 {
                     pPlayerSprite->z = var_FC - 256;
-                    D3PlayFX(StaticSound[kSound42], nPlayerSprite);
+                    D3PlayFX(StaticSound[kSound42], pPlayerActor);
                 }
             }
         }
@@ -1206,7 +1206,7 @@ sectdone:
                 {
                     if (PlayerList[nPlayer].nMaskAmount > 0)
                     {
-                        D3PlayFX(StaticSound[kSound30], nPlayerSprite);
+                        D3PlayFX(StaticSound[kSound30], pPlayerActor);
 
                         PlayerList[nPlayer].nAir = 100;
                     }
@@ -1215,7 +1215,7 @@ sectdone:
                         PlayerList[nPlayer].nAir -= 25;
                         if (PlayerList[nPlayer].nAir > 0)
                         {
-                            D3PlayFX(StaticSound[kSound25], nPlayerSprite);
+                            D3PlayFX(StaticSound[kSound25], pPlayerActor);
                         }
                         else
                         {
@@ -1230,11 +1230,11 @@ sectdone:
 
                             if (PlayerList[nPlayer].nHealth < 300)
                             {
-                                D3PlayFX(StaticSound[kSound79], nPlayerSprite);
+                                D3PlayFX(StaticSound[kSound79], pPlayerActor);
                             }
                             else
                             {
-                                D3PlayFX(StaticSound[kSound19], nPlayerSprite);
+                                D3PlayFX(StaticSound[kSound19], pPlayerActor);
                             }
                         }
                     }
@@ -1261,7 +1261,7 @@ sectdone:
             {
                 if (SectDepth[nTmpSectNum] && !SectSpeed[nTmpSectNum] && !SectDamage[nTmpSectNum])
                 {
-                    D3PlayFX(StaticSound[kSound42], nPlayerSprite);
+                    D3PlayFX(StaticSound[kSound42], pPlayerActor);
                 }
             }
 
@@ -1270,7 +1270,7 @@ sectdone:
             {
                 if (PlayerList[nPlayer].nAir < 50)
                 {
-                    D3PlayFX(StaticSound[kSound14], nPlayerSprite);
+                    D3PlayFX(StaticSound[kSound14], pPlayerActor);
                 }
 
                 PlayerList[nPlayer].nBreathTimer = 1;
