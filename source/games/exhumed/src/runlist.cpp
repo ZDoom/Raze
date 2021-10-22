@@ -331,10 +331,9 @@ void runlist_ExplodeSignalRun()
         int runPtr = nextPtr;
         assert(runPtr < kMaxRuns);
 
-        int val = RunData[runPtr].nObjIndex;
         nextPtr = RunData[runPtr].next;
 
-        if (val >= 0)
+        if (RunData[runPtr].nObjIndex >= 0 || RunData[runPtr].pObjActor)
         {
             runlist_SendMessageToRunRec(runPtr, 0, 0xA0000, 0);
         }
