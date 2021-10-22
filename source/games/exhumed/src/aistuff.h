@@ -201,10 +201,10 @@ void FuncLion(int, int, int, int);
 // 16 bytes
 struct BlockInfo
 {
+    DExhumedActor* pActor;
     int x;
     int y;
     int field_8;
-    short nSprite;
 };
 extern BlockInfo sBlockInfo[];
 

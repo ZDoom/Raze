@@ -1059,9 +1059,9 @@ void AIPlayer::Tick(RunListEvent* ev)
                         {
                             PlayerList[nPlayer].nPlayerPushSound = 1;
                             short nBlock = sector[PlayerList[nPlayer].nPlayerPushSect].extra;
-                            int nBlockSprite = sBlockInfo[nBlock].nSprite;
+                            auto pBlockActor = sBlockInfo[nBlock].pActor;
 
-                            D3PlayFX(StaticSound[kSound23], nBlockSprite, 0x4000);
+                            D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
                         }
                         else
                         {
@@ -1085,7 +1085,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         if (PlayerList[nPlayer].nPlayerPushSect > -1)
         {
-            StopActorSound(&exhumedActors[sBlockInfo[sector[PlayerList[nPlayer].nPlayerPushSect].extra].nSprite]);
+            StopActorSound(sBlockInfo[sector[PlayerList[nPlayer].nPlayerPushSect].extra].pActor);
         }
 
         PlayerList[nPlayer].nPlayerPushSound = -1;

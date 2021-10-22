@@ -59,7 +59,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, BlockInfo& w, Bloc
     if (arc.BeginObject(keyname))
     {
         arc("at8", w.field_8)
-            ("sprite", w.nSprite)
+            ("sprite", w.pActor)
             ("x", w.x)
             ("y", w.y)
             .EndObject();
@@ -870,10 +870,10 @@ void CreatePushBlock(int nSector)
     sBlockInfo[nBlock].x = xAvg;
     sBlockInfo[nBlock].y = yAvg;
 
-    int nSprite = insertsprite(nSector, 0);
-    auto pSprite = &sprite[nSprite];
+    auto pActor = insertActor(nSector, 0);
+    auto pSprite = &pActor->s();
 
-    sBlockInfo[nBlock].nSprite = nSprite;
+    sBlockInfo[nBlock].pActor = pActor;
 
     pSprite->x = xAvg;
     pSprite->y = yAvg;
