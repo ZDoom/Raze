@@ -133,11 +133,7 @@ extern short FrameBase[];
 
 void seq_LoadSequences();
 int seq_GetFrameSound(int val, int edx);
-void seq_MoveSequence(short nSprite, short nSeq, short bx);
-inline void seq_MoveSequence(DExhumedActor* actor, short nSeq, short bx)
-{
-    seq_MoveSequence(actor->GetSpriteIndex(), nSeq, bx);
-}
+void seq_MoveSequence(DExhumedActor* actor, short nSeq, short bx);
 
 int seq_GetSeqPicnum2(short nSeq, short nFrame);
 int seq_GetSeqPicnum(short nSeq, short edx, short ebx);

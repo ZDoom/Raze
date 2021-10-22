@@ -128,11 +128,7 @@ extern DExhumedActor* nNetStartSprite[kMaxPlayers];
 extern short nNetStartSprites;
 extern short nCurStartSprite;
 
-short GetPlayerFromSprite(short nSprite);
-short GetPlayerFromActor(DExhumedActor* actor)
-{
-    return GetPlayerFromSprite(actor->GetSpriteIndex());
-}
+short GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);

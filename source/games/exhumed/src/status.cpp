@@ -102,7 +102,7 @@ DEFINE_ACTION_FUNCTION(_Exhumed, MoveStatusSequence)
     PARAM_PROLOGUE;
     PARAM_INT(s1);
     PARAM_INT(s2);
-    seq_MoveSequence(-1, nStatusSeqOffset + s1, s2);
+    seq_MoveSequence(nullptr, nStatusSeqOffset + s1, s2);
     ACTION_RETURN_INT(SeqSize[nStatusSeqOffset + s1]);
 }
 

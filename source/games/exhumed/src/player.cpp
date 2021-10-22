@@ -207,9 +207,9 @@ void InitPlayerInventory(short nPlayer)
     PlayerList[nPlayer].nPlayerColor = pixels[tileWidth(nPlayer + kTile3571) * tileHeight(nPlayer + kTile3571) / 2];
 }
 
-short GetPlayerFromSprite(short nSprite)
+short GetPlayerFromActor(DExhumedActor* pActor)
 {
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
     return RunData[pSprite->owner].nObjIndex;
 }
 

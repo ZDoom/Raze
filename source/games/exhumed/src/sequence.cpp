@@ -437,7 +437,7 @@ int seq_GetFrameSound(int val, int edx)
     return FrameSound[SeqBase[val] + edx];
 }
 
-void seq_MoveSequence(short nSprite, short nSeq, short bx)
+void seq_MoveSequence(DExhumedActor* actor, short nSeq, short bx)
 {
     assert(nSeq >= 0); // TEMP
 
@@ -446,8 +446,8 @@ void seq_MoveSequence(short nSprite, short nSeq, short bx)
         return;
     }
 
-    if (nSprite > -1) {
-        D3PlayFX(nSound, nSprite);
+    if (actor) {
+        D3PlayFX(nSound, actor);
     }
     else {
         PlayLocalSound(nSound, 0);
