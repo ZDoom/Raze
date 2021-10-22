@@ -1332,7 +1332,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     sTrap[nTrap].field_A = 0;
 
     if (var_18 == -1) {
-        return nTrap | 0x1F0000;
+        return nTrap;
     }
 
     sTrap[nTrap].field_6 = -1;
@@ -1346,7 +1346,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     while (1)
     {
         if (sector[nSector].wallnum >= i) {
-            return nTrap | 0x1F0000;
+            return nTrap;
         }
 
         if (var_18 == wall[nWall].hitag)
@@ -1355,7 +1355,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
             {
                 sTrap[nTrap].field_8 = nWall;
                 sTrap[nTrap].field_C = wall[nWall].picnum;
-                return nTrap | 0x1F0000;
+                return nTrap;
             }
             else
             {
