@@ -708,21 +708,9 @@ int runlist_AllocChannel(int a);
 void runlist_DoSubRunRec(int RunPtr);
 void runlist_SubRunRec(int RunPtr);
 void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag);
-int runlist_CheckRadialDamage(short nSprite);
-inline int runlist_CheckRadialDamage(DExhumedActor* actor)
-{
-    return runlist_CheckRadialDamage(actor->GetSpriteIndex());
-}
-void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius);
-inline void runlist_RadialDamageEnemy(DExhumedActor* nSprite, short nSprite2, short nDamage)
-{
-    return runlist_RadialDamageEnemy(nSprite->GetSpriteIndex(), nSprite2, nDamage);
-}
-void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage);
-inline void runlist_DamageEnemy(DExhumedActor* nSprite, DExhumedActor* nSprite2, short nDamage)
-{
-    return runlist_DamageEnemy(nSprite? nSprite->GetSpriteIndex() : -1, nSprite2? nSprite2->GetSpriteIndex() : -1, nDamage);
-}
+int runlist_CheckRadialDamage(DExhumedActor* actor);
+void runlist_RadialDamageEnemy(DExhumedActor* nSprite, short nSprite2, short nDamage);
+void runlist_DamageEnemy(DExhumedActor* nSprite, DExhumedActor* nSprite2, short nDamage);
 void runlist_SignalRun(int NxtPtr, int edx);
 
 void runlist_CleanRunRecs();

@@ -1557,13 +1557,12 @@ void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag)
     }
 }
 
-int runlist_CheckRadialDamage(short nSprite)
+int runlist_CheckRadialDamage(DExhumedActor* pActor)
 {
-    auto pActor = &exhumedActors[nSprite];
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
     auto pRadialSpr = &pRadialActor->s();
 
-    if (nSprite == pRadialActor->GetSpriteIndex()) {
+    if (pActor == pRadialActor) {
         return 0;
     }
 
@@ -1654,9 +1653,9 @@ int runlist_CheckRadialDamage(short nSprite)
     return edi;
 }
 
-void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius)
+void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadius)
 {
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
 
     if (!nRadius) {
         return;
@@ -1666,7 +1665,7 @@ void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius)
     {
         nRadialDamage = nDamage * 4;
         nDamageRadius = nRadius;
-        pRadialActor = &exhumedActors[nSprite];
+        pRadialActor = pActor;
 
         runlist_ExplodeSignalRun();
 
@@ -1674,9 +1673,9 @@ void runlist_RadialDamageEnemy(short nSprite, short nDamage, short nRadius)
     }
 }
 
-void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
+void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, short nDamage)
 {
-	auto pSprite = &sprite[nSprite];
+	auto pSprite = &pActor->s();
 
     if (pSprite->statnum >= kMaxStatus) {
         return;
@@ -1689,16 +1688,16 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
 
     short nPreCreaturesKilled = nCreaturesKilled;
 
-    runlist_SendMessageToRunRec(nRun, nSprite2, 0x80000, nDamage * 4);
+    runlist_SendMessageToRunRec(nRun, pActor2 ? pActor2->GetSpriteIndex(): -1, 0x80000, nDamage * 4);
 
     // is there now one less creature? (has one died)
-    if (nPreCreaturesKilled < nCreaturesKilled && nSprite2 > -1)
+    if (nPreCreaturesKilled < nCreaturesKilled && pActor2 != nullptr)
     {
-        if (sprite[nSprite2].statnum != 100) {
+        if (pActor2->s().statnum != 100) {
             return;
         }
 
-        short nPlayer = GetPlayerFromSprite(nSprite2);
+        short nPlayer = GetPlayerFromActor(pActor2);
         PlayerList[nPlayer].nTauntTimer--;
 
         if (PlayerList[nPlayer].nTauntTimer <= 0)
