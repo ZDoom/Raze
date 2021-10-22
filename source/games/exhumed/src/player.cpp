@@ -107,9 +107,9 @@ void SetSavePoint(int nPlayer, int x, int y, int z, short nSector, short nAngle)
     PlayerList[nPlayer].sPlayerSave.nAngle = nAngle;
 }
 
-void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nVal3)
+void feebtag(int x, int y, int z, int nSector, DExhumedActor **nSprite, int nVal2, int nVal3)
 {
-    *nSprite = -1;
+    *nSprite = nullptr;
 
     int startwall = sector[nSector].wallptr;
 
@@ -149,7 +149,7 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
                         if (theSqrt < nVal3 && ((nStat != 950 && nStat != 949) || !(var_14 & 1)) && ((nStat != 912 && nStat != 913) || !(var_20 & 2)))
                         {
                             nVal3 = theSqrt;
-                            *nSprite = pActor->GetSpriteIndex();
+                            *nSprite = pActor;
                         }
                     }
                 }
@@ -1317,20 +1317,17 @@ sectdone:
         short nearTagSector, nearTagWall, nearTagSprite;
         int nearHitDist;
 
-        short nValB;
-
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
         neartag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang,
-            &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2, NULL);
+            &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2, nullptr);
 
-        feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum,
-            &nValB, var_30, 768);
+        DExhumedActor* pActorB;
+        feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, &pActorB, var_30, 768);
 
-        auto pActorB = &exhumedActors[nValB];
-        auto pSpriteB = &pActorB->s();
         // Item pickup code
-        if (nValB >= 0 && pSpriteB->statnum >= 900)
+        if (pActorB != nullptr && pActorB->s().statnum >= 900)
         {
+            auto pSpriteB = &pActorB->s();
             int var_8C = 16;
             int var_88 = 9;
 
