@@ -102,7 +102,8 @@ void InitFishes()
 
 void BuildFishLimb(short nFish, short edx)
 {
-    short nSprite = FishList[nFish].nSprite;
+    auto pActor = &FishList[nFish];
+    short nSprite = pActor->nSprite;
 	auto pSprite = &sprite[nSprite];
 
     int nFree = FishChunk.Reserve(1);
@@ -220,6 +221,7 @@ void BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
 {
     int nFish = FishList.Reserve(1);
 	auto pSprite = &sprite[nSprite];
+    auto pActor = &FishList[nFish];
 
     if (nSprite == -1)
     {
@@ -259,22 +261,23 @@ void BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
 
 //	GrabTimeSlot(3);
 
-    FishList[nFish].nAction = 0;
-    FishList[nFish].nHealth = 200;
-    FishList[nFish].nSprite = nSprite;
-    FishList[nFish].nTarget = -1;
-    FishList[nFish].nCount = 60;
-    FishList[nFish].nFrame = 0;
+    pActor->nAction = 0;
+    pActor->nHealth = 200;
+    pActor->nSprite = nSprite;
+    pActor->nTarget = -1;
+    pActor->nCount = 60;
+    pActor->nFrame = 0;
 
     pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nFish, 0x120000);
-    FishList[nFish].nRun = runlist_AddRunRec(NewRun, nFish, 0x120000);
+    pActor->nRun = runlist_AddRunRec(NewRun, nFish, 0x120000);
 
     nCreaturesTotal++;
 }
 
 void IdleFish(short nFish, short edx)
 {
-    short nSprite = FishList[nFish].nSprite;
+    auto pActor = &FishList[nFish];
+    short nSprite = pActor->nSprite;
 	auto pSprite = &sprite[nSprite];
 
     pSprite->ang += (256 - RandomSize(9)) + 1024;
@@ -283,8 +286,8 @@ void IdleFish(short nFish, short edx)
     pSprite->xvel = bcos(pSprite->ang, -8);
     pSprite->yvel = bsin(pSprite->ang, -8);
 
-    FishList[nFish].nAction = 0;
-    FishList[nFish].nFrame = 0;
+    pActor->nAction = 0;
+    pActor->nFrame = 0;
 
     pSprite->zvel = RandomSize(9);
 
@@ -302,12 +305,13 @@ void IdleFish(short nFish, short edx)
 
 void DestroyFish(short nFish)
 {
-    short nSprite = FishList[nFish].nSprite;
+    auto pActor = &FishList[nFish];
+    short nSprite = pActor->nSprite;
 	auto pSprite = &sprite[nSprite];
 
     runlist_DoSubRunRec(pSprite->owner);
     runlist_FreeRun(pSprite->lotag - 1);
-    runlist_SubRunRec(FishList[nFish].nRun);
+    runlist_SubRunRec(pActor->nRun);
     mydeletesprite(nSprite);
 }
 
@@ -317,9 +321,10 @@ void AIFish::Draw(RunListEvent* ev)
 {
     short nFish = RunData[ev->nRun].nObjIndex;
     assert(nFish >= 0 && nFish < (int)FishList.Size());
-    short nAction = FishList[nFish].nAction;
+    auto pActor = &FishList[nFish];
+    short nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqFish] + FishSeq[nAction].a, FishList[nFish].nFrame, FishSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqFish] + FishSeq[nAction].a, pActor->nFrame, FishSeq[nAction].b);
     ev->pTSprite->owner = -1;
     return;
 }
@@ -327,9 +332,10 @@ void AIFish::Draw(RunListEvent* ev)
 void AIFish::RadialDamage(RunListEvent* ev)
 {
     short nFish = RunData[ev->nRun].nObjIndex;
-    short nSprite = FishList[nFish].nSprite;
+    auto pActor = &FishList[nFish];
+    short nSprite = pActor->nSprite;
 
-    if (FishList[nFish].nHealth <= 0) {
+    if (pActor->nHealth <= 0) {
         return;
     }
     else
@@ -339,7 +345,7 @@ void AIFish::RadialDamage(RunListEvent* ev)
             return;
         }
 
-        FishList[nFish].nCount = 10;
+        pActor->nCount = 10;
     }
     // fall through
     Damage(ev);
@@ -349,18 +355,19 @@ void AIFish::Damage(RunListEvent* ev)
 {
     short nFish = RunData[ev->nRun].nObjIndex;
     assert(nFish >= 0 && nFish < (int)FishList.Size());
-    short nAction = FishList[nFish].nAction;
-    short nSprite = FishList[nFish].nSprite;
+    auto pActor = &FishList[nFish];
+    short nAction = pActor->nAction;
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
 
     if (!ev->nDamage) {
         return;
     }
 
-    FishList[nFish].nHealth -= dmgAdjust(ev->nDamage);
-    if (FishList[nFish].nHealth <= 0)
+    pActor->nHealth -= dmgAdjust(ev->nDamage);
+    if (pActor->nHealth <= 0)
     {
-        FishList[nFish].nHealth = 0;
+        pActor->nHealth = 0;
         nCreaturesKilled++;
 
         pSprite->cstat &= 0xFEFE;
@@ -377,8 +384,8 @@ void AIFish::Damage(RunListEvent* ev)
         }
         else
         {
-            FishList[nFish].nAction = 9;
-            FishList[nFish].nFrame = 0;
+            pActor->nAction = 9;
+            pActor->nFrame = 0;
         }
 
         return;
@@ -388,12 +395,12 @@ void AIFish::Damage(RunListEvent* ev)
         short nTarget = ev->nParam;
         if (nTarget >= 0 && sprite[nTarget].statnum < 199)
         {
-            FishList[nFish].nTarget = nTarget;
+            pActor->nTarget = nTarget;
         }
 
-        FishList[nFish].nAction = 4;
-        FishList[nFish].nFrame = 0;
-        FishList[nFish].nCount += 10;
+        pActor->nAction = 4;
+        pActor->nFrame = 0;
+        pActor->nCount += 10;
     }
 }
 
@@ -401,8 +408,9 @@ void AIFish::Tick(RunListEvent* ev)
 {
     short nFish = RunData[ev->nRun].nObjIndex;
     assert(nFish >= 0 && nFish < (int)FishList.Size());
-    short nAction = FishList[nFish].nAction;
-    short nSprite = FishList[nFish].nSprite;
+    auto pActor = &FishList[nFish];
+    short nAction = pActor->nAction;
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
 
     if (!(SectFlag[pSprite->sectnum] & kSectUnderwater))
@@ -412,16 +420,16 @@ void AIFish::Tick(RunListEvent* ev)
 
     short nSeq = SeqOffsets[kSeqFish] + FishSeq[nAction].a;
 
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, FishList[nFish].nFrame);
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
-    seq_MoveSequence(nSprite, nSeq, FishList[nFish].nFrame);
+    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
 
-    FishList[nFish].nFrame++;
-    if (FishList[nFish].nFrame >= SeqSize[nSeq]) {
-        FishList[nFish].nFrame = 0;
+    pActor->nFrame++;
+    if (pActor->nFrame >= SeqSize[nSeq]) {
+        pActor->nFrame = 0;
     }
 
-    short nTarget = FishList[nFish].nTarget;
+    short nTarget = pActor->nTarget;
 
     switch (nAction)
     {
@@ -430,20 +438,20 @@ void AIFish::Tick(RunListEvent* ev)
 
     case 0:
     {
-        FishList[nFish].nCount--;
-        if (FishList[nFish].nCount <= 0)
+        pActor->nCount--;
+        if (pActor->nCount <= 0)
         {
             nTarget = FindPlayer(nSprite, 60);
             if (nTarget >= 0)
             {
-                FishList[nFish].nTarget = nTarget;
-                FishList[nFish].nAction = 2;
-                FishList[nFish].nFrame = 0;
+                pActor->nTarget = nTarget;
+                pActor->nAction = 2;
+                pActor->nFrame = 0;
 
                 int nAngle = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].z - pSprite->z);
                 pSprite->zvel = bsin(nAngle, -5);
 
-                FishList[nFish].nCount = RandomSize(6) + 90;
+                pActor->nCount = RandomSize(6) + 90;
             }
             else
             {
@@ -460,8 +468,8 @@ void AIFish::Tick(RunListEvent* ev)
     case 2:
     case 3:
     {
-        FishList[nFish].nCount--;
-        if (FishList[nFish].nCount <= 0)
+        pActor->nCount--;
+        if (pActor->nCount <= 0)
         {
             IdleFish(nFish, 0);
             return;
@@ -491,7 +499,7 @@ void AIFish::Tick(RunListEvent* ev)
 
     case 4:
     {
-        if (FishList[nFish].nFrame == 0)
+        if (pActor->nFrame == 0)
         {
             IdleFish(nFish, 0);
         }
@@ -505,7 +513,7 @@ void AIFish::Tick(RunListEvent* ev)
 
     case 9:
     {
-        if (FishList[nFish].nFrame == 0)
+        if (pActor->nFrame == 0)
         {
             DestroyFish(nFish);
         }
@@ -541,8 +549,8 @@ void AIFish::Tick(RunListEvent* ev)
         {
             if (nAction == 3)
             {
-                FishList[nFish].nAction = 2;
-                FishList[nFish].nFrame = 0;
+                pActor->nAction = 2;
+                pActor->nFrame = 0;
             }
             return;
         }
@@ -557,16 +565,16 @@ void AIFish::Tick(RunListEvent* ev)
             {
                 if (sprite[nMov & 0x3FFF].statnum == 100)
                 {
-                    FishList[nFish].nTarget = nMov & 0x3FFF;
+                    pActor->nTarget = nMov & 0x3FFF;
                     pSprite->ang = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
 
                     if (nAction != 3)
                     {
-                        FishList[nFish].nAction = 3;
-                        FishList[nFish].nFrame = 0;
+                        pActor->nAction = 3;
+                        pActor->nFrame = 0;
                     }
 
-                    if (!FishList[nFish].nFrame)
+                    if (!pActor->nFrame)
                     {
                         runlist_DamageEnemy(nTarget, nSprite, 2);
                     }
