@@ -154,6 +154,7 @@ void  FuncLavaLimb(int nObject, int nMessage, int nDamage, int nRun)
 void BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int nChannel)
 {
     auto nLava = LavaList.Reserve(1);
+    auto pActor = &LavaList[nLava];
 
     auto pSprite = &sprite[nSprite];
     if (nSprite == -1)
@@ -196,15 +197,15 @@ void BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, in
 
     pSprite->extra = -1;
 
-    LavaList[nLava].nAction = 0;
-    LavaList[nLava].nHealth = 4000;
-    LavaList[nLava].nSprite = nSprite;
-    LavaList[nLava].nTarget = -1;
-    LavaList[nLava].nIndex = nChannel;
-    LavaList[nLava].nFrame = 0;
+    pActor->nAction = 0;
+    pActor->nHealth = 4000;
+    pActor->nSprite = nSprite;
+    pActor->nTarget = -1;
+    pActor->nIndex = nChannel;
+    pActor->nFrame = 0;
 
     pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nLava, 0x150000);
-    LavaList[nLava].nRun = runlist_AddRunRec(NewRun, nLava, 0x150000);
+    pActor->nRun = runlist_AddRunRec(NewRun, nLava, 0x150000);
 
     nCreaturesTotal++;
 }
@@ -213,11 +214,12 @@ void AILavaDude::Draw(RunListEvent* ev)
 {
     unsigned nLava = RunData[ev->nRun].nObjIndex;
     assert(nLava < LavaList.Size());
+    auto pActor = &LavaList[nLava];
 
-    short nAction = LavaList[nLava].nAction;
+    short nAction = pActor->nAction;
     short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
 
-    seq_PlotSequence(ev->nParam, nSeq, LavaList[nLava].nFrame, LavadudeSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, LavadudeSeq[nAction].b);
     ev->pTSprite->owner = -1;
     return;
 }
@@ -226,9 +228,10 @@ void AILavaDude::Damage(RunListEvent* ev)
 {
     unsigned nLava = RunData[ev->nRun].nObjIndex;
     assert(nLava < LavaList.Size());
+    auto pActor = &LavaList[nLava];
 
-    short nAction = LavaList[nLava].nAction;
-    short nSprite = LavaList[nLava].nSprite;
+    short nAction = pActor->nAction;
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
 
     if (!ev->nDamage) 
@@ -236,13 +239,13 @@ void AILavaDude::Damage(RunListEvent* ev)
         return;
     }
 
-    LavaList[nLava].nHealth -= dmgAdjust(ev->nDamage, 3);
+    pActor->nHealth -= dmgAdjust(ev->nDamage, 3);
 
-    if (LavaList[nLava].nHealth <= 0)
+    if (pActor->nHealth <= 0)
     {
-        LavaList[nLava].nHealth = 0;
-        LavaList[nLava].nAction = 5;
-        LavaList[nLava].nFrame = 0;
+        pActor->nHealth = 0;
+        pActor->nAction = 5;
+        pActor->nFrame = 0;
 
         nCreaturesKilled++;
 
@@ -256,7 +259,7 @@ void AILavaDude::Damage(RunListEvent* ev)
         {
             if (sprite[nTarget].statnum < 199)
             {
-                LavaList[nLava].nTarget = nTarget;
+                pActor->nTarget = nTarget;
             }
         }
 
@@ -264,8 +267,8 @@ void AILavaDude::Damage(RunListEvent* ev)
         {
             if (!RandomSize(2))
             {
-                LavaList[nLava].nAction = 4;
-                LavaList[nLava].nFrame = 0;
+                pActor->nAction = 4;
+                pActor->nFrame = 0;
                 pSprite->cstat = 0;
             }
         }
@@ -278,15 +281,16 @@ void AILavaDude::Tick(RunListEvent* ev)
 {
     unsigned nLava = RunData[ev->nRun].nObjIndex;
     assert(nLava < LavaList.Size());
+    auto pActor = &LavaList[nLava];
 
-    short nAction = LavaList[nLava].nAction;
+    short nAction = pActor->nAction;
     short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
 
-    short nSprite = LavaList[nLava].nSprite;
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
 
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, LavaList[nLava].nFrame);
-    int var_38 = LavaList[nLava].nFrame;
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    int var_38 = pActor->nFrame;
 
     short nFlag = FrameFlag[SeqBase[nSeq] + var_38];
 
@@ -296,11 +300,11 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         seq_MoveSequence(nSprite, nSeq, var_38);
 
-        LavaList[nLava].nFrame++;
-        if (LavaList[nLava].nFrame >= SeqSize[nSeq])
+        pActor->nFrame++;
+        if (pActor->nFrame >= SeqSize[nSeq])
         {
             var_1C = 1;
-            LavaList[nLava].nFrame = 0;
+            pActor->nFrame = 0;
         }
         else
         {
@@ -308,14 +312,14 @@ void AILavaDude::Tick(RunListEvent* ev)
         }
     }
 
-    short nTarget = LavaList[nLava].nTarget;
+    short nTarget = pActor->nTarget;
 
     if (nTarget >= 0 && nAction < 4)
     {
         if (!(sprite[nTarget].cstat & 0x101) || sprite[nTarget].sectnum >= 1024)
         {
             nTarget = -1;
-            LavaList[nLava].nTarget = -1;
+            pActor->nTarget = -1;
         }
     }
 
@@ -337,10 +341,10 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             if (nTarget >= 0 && !RandomSize(1))
             {
-                LavaList[nLava].nTarget = nTarget;
-                LavaList[nLava].nAction = 2;
+                pActor->nTarget = nTarget;
+                pActor->nAction = 2;
                 pSprite->cstat = 0x101;
-                LavaList[nLava].nFrame = 0;
+                pActor->nFrame = 0;
                 break;
             }
         }
@@ -383,8 +387,8 @@ void AILavaDude::Tick(RunListEvent* ev)
                 int nAng = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAng) < 64)
                 {
-                    LavaList[nLava].nAction = 2;
-                    LavaList[nLava].nFrame = 0;
+                    pActor->nAction = 2;
+                    pActor->nFrame = 0;
                     pSprite->cstat = 0x101;
                     break;
                 }
@@ -404,8 +408,8 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         if (var_1C)
         {
-            LavaList[nLava].nAction = 3;
-            LavaList[nLava].nFrame = 0;
+            pActor->nAction = 3;
+            pActor->nFrame = 0;
 
             PlotCourseToSprite(nSprite, nTarget);
 
@@ -427,8 +431,8 @@ void AILavaDude::Tick(RunListEvent* ev)
         else if (var_1C)
         {
             PlotCourseToSprite(nSprite, nTarget);
-            LavaList[nLava].nAction = 7;
-            LavaList[nLava].nFrame = 0;
+            pActor->nAction = 7;
+            pActor->nFrame = 0;
         }
 
         break;
@@ -438,7 +442,7 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         if (var_1C)
         {
-            LavaList[nLava].nAction = 7;
+            pActor->nAction = 7;
             pSprite->cstat &= 0xFEFE;
         }
 
@@ -449,11 +453,11 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x40)
         {
-            int nLimbSprite = BuildLavaLimb(nSprite, LavaList[nLava].nFrame, 64000);
+            int nLimbSprite = BuildLavaLimb(nSprite, pActor->nFrame, 64000);
             D3PlayFX(StaticSound[kSound26], nLimbSprite);
         }
 
-        if (LavaList[nLava].nFrame)
+        if (pActor->nFrame)
         {
             if (nFlag & 0x80)
             {
@@ -463,7 +467,7 @@ void AILavaDude::Tick(RunListEvent* ev)
                     BuildLavaLimb(nSprite, ecx, 64000);
                     ecx++;
                 } while (ecx < 20);
-                runlist_ChangeChannel(LavaList[nLava].nIndex, 1);
+                runlist_ChangeChannel(pActor->nIndex, 1);
             }
         }
         else
@@ -478,7 +482,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             runlist_DoSubRunRec(pSprite->owner);
             runlist_FreeRun(pSprite->lotag - 1);
-            runlist_SubRunRec(LavaList[nLava].nRun);
+            runlist_SubRunRec(pActor->nRun);
             mydeletesprite(nSprite);
         }
 
@@ -489,8 +493,8 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         if (var_1C)
         {
-            LavaList[nLava].nAction = 8;
-            LavaList[nLava].nFrame = 0;
+            pActor->nAction = 8;
+            pActor->nFrame = 0;
         }
         break;
     }
@@ -499,8 +503,8 @@ void AILavaDude::Tick(RunListEvent* ev)
     {
         if (var_1C)
         {
-            LavaList[nLava].nAction = 0;
-            LavaList[nLava].nFrame = 0;
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
             pSprite->cstat = 0x8000;
         }
         break;
