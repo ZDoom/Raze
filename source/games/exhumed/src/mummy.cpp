@@ -82,6 +82,7 @@ void InitMummy()
 void BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
 {
     auto nMummy = MummyList.Reserve(1);
+    auto pActor = &MummyList[nMummy];
 	auto pSprite = &sprite[nSprite];
 
     if (nSprite == -1)
@@ -123,24 +124,25 @@ void BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
 
 //	GrabTimeSlot(3);
 
-    MummyList[nMummy].nAction = 0;
-    MummyList[nMummy].nHealth = 640;
-    MummyList[nMummy].nFrame = 0;
-    MummyList[nMummy].nSprite = nSprite;
-    MummyList[nMummy].nTarget = -1;
-    MummyList[nMummy].nIndex = nMummy;
-    MummyList[nMummy].nCount = 0;
+    pActor->nAction = 0;
+    pActor->nHealth = 640;
+    pActor->nFrame = 0;
+    pActor->nSprite = nSprite;
+    pActor->nTarget = -1;
+    pActor->nIndex = nMummy;
+    pActor->nCount = 0;
 
     pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nMummy, 0xE0000);
 
-    MummyList[nMummy].nRun = runlist_AddRunRec(NewRun, nMummy, 0xE0000);
+    pActor->nRun = runlist_AddRunRec(NewRun, nMummy, 0xE0000);
 
     nCreaturesTotal++;
 }
 
 void CheckMummyRevive(short nMummy)
 {
-    short nSprite = MummyList[nMummy].nSprite;
+    auto pActor = &MummyList[nMummy];
+    short nSprite = pActor->nSprite;
 	auto pSprite = &sprite[nSprite];
 
     for (unsigned i = 0; i < MummyList.Size(); i++)
@@ -177,30 +179,31 @@ void AIMummy::Tick(RunListEvent* ev)
 {
     short nMummy = RunData[ev->nRun].nObjIndex;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
+    auto pActor = &MummyList[nMummy];
 
-    short nTarget = UpdateEnemy(&MummyList[nMummy].nTarget);
+    short nTarget = UpdateEnemy(&pActor->nTarget);
 
-    short nSprite = MummyList[nMummy].nSprite;
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
-    short nAction = MummyList[nMummy].nAction;
+    short nAction = pActor->nAction;
 
     Gravity(nSprite);
 
     int nSeq = SeqOffsets[kSeqMummy] + MummySeq[nAction].a;
 
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, MummyList[nMummy].nFrame);
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
-    short nFrame = SeqBase[nSeq] + MummyList[nMummy].nFrame;
+    short nFrame = SeqBase[nSeq] + pActor->nFrame;
     short nFrameFlag = FrameFlag[nFrame];
 
-    seq_MoveSequence(nSprite, nSeq, MummyList[nMummy].nFrame);
+    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
 
     bool bVal = false;
 
-    MummyList[nMummy].nFrame++;
-    if (MummyList[nMummy].nFrame >= SeqSize[nSeq])
+    pActor->nFrame++;
+    if (pActor->nFrame >= SeqSize[nSeq])
     {
-        MummyList[nMummy].nFrame = 0;
+        pActor->nFrame = 0;
 
         bVal = true;
     }
@@ -209,8 +212,8 @@ void AIMummy::Tick(RunListEvent* ev)
     {
         if ((!sprite[nTarget].cstat) && nAction)
         {
-            MummyList[nMummy].nAction = 0;
-            MummyList[nMummy].nFrame = 0;
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
             pSprite->xvel = 0;
             pSprite->yvel = 0;
         }
@@ -225,7 +228,7 @@ void AIMummy::Tick(RunListEvent* ev)
     {
     case 0:
     {
-        if ((MummyList[nMummy].nIndex & 0x1F) == (totalmoves & 0x1F))
+        if ((pActor->nIndex & 0x1F) == (totalmoves & 0x1F))
         {
             pSprite->cstat = 0x101;
 
@@ -235,10 +238,10 @@ void AIMummy::Tick(RunListEvent* ev)
                 if (nTarget >= 0)
                 {
                     D3PlayFX(StaticSound[kSound7], nSprite);
-                    MummyList[nMummy].nFrame = 0;
-                    MummyList[nMummy].nTarget = nTarget;
-                    MummyList[nMummy].nAction = 1;
-                    MummyList[nMummy].nCount = 90;
+                    pActor->nFrame = 0;
+                    pActor->nTarget = nTarget;
+                    pActor->nAction = 1;
+                    pActor->nCount = 90;
 
                     pSprite->xvel = bcos(pSprite->ang, -2);
                     pSprite->yvel = bsin(pSprite->ang, -2);
@@ -250,26 +253,26 @@ void AIMummy::Tick(RunListEvent* ev)
 
     case 1:
     {
-        if (MummyList[nMummy].nCount > 0)
+        if (pActor->nCount > 0)
         {
-            MummyList[nMummy].nCount--;
+            pActor->nCount--;
         }
 
-        if ((MummyList[nMummy].nIndex & 0x1F) == (totalmoves & 0x1F))
+        if ((pActor->nIndex & 0x1F) == (totalmoves & 0x1F))
         {
             pSprite->cstat = 0x101;
 
             PlotCourseToSprite(nSprite, nTarget);
 
-            if (MummyList[nMummy].nAction == 1)
+            if (pActor->nAction == 1)
             {
                 if (RandomBit())
                 {
                     if (cansee(pSprite->x, pSprite->y, pSprite->z - GetSpriteHeight(nSprite), pSprite->sectnum,
                         sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
                     {
-                        MummyList[nMummy].nAction = 3;
-                        MummyList[nMummy].nFrame = 0;
+                        pActor->nAction = 3;
+                        pActor->nFrame = 0;
 
                         pSprite->xvel = 0;
                         pSprite->yvel = 0;
@@ -280,7 +283,7 @@ void AIMummy::Tick(RunListEvent* ev)
         }
 
         // loc_2B5A8
-        if (!MummyList[nMummy].nFrame)
+        if (!pActor->nFrame)
         {
             pSprite->xvel = bcos(pSprite->ang, -1);
             pSprite->yvel = bsin(pSprite->ang, -1);
@@ -338,8 +341,8 @@ void AIMummy::Tick(RunListEvent* ev)
                     int nAngle = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
                     if (AngleDiff(pSprite->ang, nAngle) < 64)
                     {
-                        MummyList[nMummy].nAction = 2;
-                        MummyList[nMummy].nFrame = 0;
+                        pActor->nAction = 2;
+                        pActor->nFrame = 0;
 
                         pSprite->xvel = 0;
                         pSprite->yvel = 0;
@@ -357,15 +360,15 @@ void AIMummy::Tick(RunListEvent* ev)
     {
         if (nTarget == -1)
         {
-            MummyList[nMummy].nAction = 0;
-            MummyList[nMummy].nFrame = 0;
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
         }
         else
         {
             if (PlotCourseToSprite(nSprite, nTarget) >= 1024)
             {
-                MummyList[nMummy].nAction = 1;
-                MummyList[nMummy].nFrame = 0;
+                pActor->nAction = 1;
+                pActor->nFrame = 0;
             }
             else if (nFrameFlag & 0x80)
             {
@@ -379,10 +382,10 @@ void AIMummy::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            MummyList[nMummy].nFrame = 0;
-            MummyList[nMummy].nAction = 0;
-            MummyList[nMummy].nCount = 100;
-            MummyList[nMummy].nTarget = -1;
+            pActor->nFrame = 0;
+            pActor->nAction = 0;
+            pActor->nCount = 100;
+            pActor->nTarget = -1;
             return;
         }
         else if (nFrameFlag & 0x80)
@@ -411,15 +414,15 @@ void AIMummy::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            MummyList[nMummy].nFrame = 0;
-            MummyList[nMummy].nAction = 5;
+            pActor->nFrame = 0;
+            pActor->nAction = 5;
         }
         return;
     }
 
     case 5:
     {
-        MummyList[nMummy].nFrame = 0;
+        pActor->nFrame = 0;
         return;
     }
 
@@ -429,9 +432,9 @@ void AIMummy::Tick(RunListEvent* ev)
         {
             pSprite->cstat = 0x101;
 
-            MummyList[nMummy].nAction = 0;
-            MummyList[nMummy].nHealth = 300;
-            MummyList[nMummy].nTarget = -1;
+            pActor->nAction = 0;
+            pActor->nHealth = 300;
+            pActor->nTarget = -1;
 
             nCreaturesTotal++;
         }
@@ -452,9 +455,9 @@ void AIMummy::Tick(RunListEvent* ev)
             pSprite->yvel = 0;
             pSprite->cstat = 0x101;
 
-            MummyList[nMummy].nAction = 0;
-            MummyList[nMummy].nFrame = 0;
-            MummyList[nMummy].nTarget = -1;
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
+            pActor->nTarget = -1;
         }
 
         return;
@@ -466,9 +469,10 @@ void AIMummy::Draw(RunListEvent* ev)
 {
     short nMummy = RunData[ev->nRun].nObjIndex;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
-    short nAction = MummyList[nMummy].nAction;
+    auto pActor = &MummyList[nMummy];
+    short nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].nFrame, MummySeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, pActor->nFrame, MummySeq[nAction].b);
     return;
 }
 
@@ -476,10 +480,11 @@ void AIMummy::RadialDamage(RunListEvent* ev)
 {
     short nMummy = RunData[ev->nRun].nObjIndex;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
-    short nSprite = MummyList[nMummy].nSprite;
+    auto pActor = &MummyList[nMummy];
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
 
-    if (MummyList[nMummy].nHealth <= 0)
+    if (pActor->nHealth <= 0)
         return;
 
     ev->nDamage = runlist_CheckRadialDamage(nSprite);
@@ -490,29 +495,30 @@ void AIMummy::Damage(RunListEvent* ev)
 {
     short nMummy = RunData[ev->nRun].nObjIndex;
     assert(nMummy >= 0 && nMummy < kMaxMummies);
+    auto pActor = &MummyList[nMummy];
 
-    short nSprite = MummyList[nMummy].nSprite;
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
 
     if (ev->nDamage <= 0)
         return;
 
-    if (MummyList[nMummy].nHealth <= 0) {
+    if (pActor->nHealth <= 0) {
         return;
     }
 
-    MummyList[nMummy].nHealth -= dmgAdjust(ev->nDamage);
+    pActor->nHealth -= dmgAdjust(ev->nDamage);
 
-    if (MummyList[nMummy].nHealth <= 0)
+    if (pActor->nHealth <= 0)
     {
-        MummyList[nMummy].nHealth = 0;
+        pActor->nHealth = 0;
         pSprite->cstat &= 0xFEFE;
         nCreaturesKilled++;
 
         DropMagic(nSprite);
 
-        MummyList[nMummy].nFrame = 0;
-        MummyList[nMummy].nAction = 4;
+        pActor->nFrame = 0;
+        pActor->nAction = 4;
 
         pSprite->xvel = 0;
         pSprite->yvel = 0;
@@ -523,8 +529,8 @@ void AIMummy::Damage(RunListEvent* ev)
     {
         if (!RandomSize(2))
         {
-            MummyList[nMummy].nAction = 7;
-            MummyList[nMummy].nFrame = 0;
+            pActor->nAction = 7;
+            pActor->nFrame = 0;
 
             pSprite->xvel = 0;
             pSprite->yvel = 0;
