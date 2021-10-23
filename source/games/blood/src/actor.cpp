@@ -6204,10 +6204,10 @@ static void actCheckDudes()
 				BloodStatIterator it1(kStatDude);
 				while (auto actor2 = it1.Next())
 				{
-					spritetype* pSprite2 = &actor->s();
+					spritetype* pSprite2 = &actor2->s();
 					if (pSprite2->flags & 32) continue;
 
-					XSPRITE* pXSprite2 = &actor->x();
+					XSPRITE* pXSprite2 = &actor2->x();
 
 					if ((unsigned int)pXSprite2->health > 0 && IsPlayerSprite(pSprite2))
 					{
