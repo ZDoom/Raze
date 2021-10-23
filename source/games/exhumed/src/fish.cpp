@@ -39,82 +39,16 @@ static actionSeq FishSeq[] = {
 };
 
 
-struct Fish
+
+void BuildFishLimb(DExhumedActor* pActor, short anim)
 {
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short nCount;
-    short nRun;
-};
+	auto pSprite = &pActor->s();
 
-struct Chunk
-{
-    short nSprite;
-    short nIndex;
-    short nSeqIndex;
-};
+    auto pChunkActor = insertActor(pSprite->sectnum, 99);
+	auto pSprite2 = &pChunkActor->s();
 
-TArray<Fish> FishList;
-TArray<Chunk> FishChunk;
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Fish& w, Fish* def)
-{
-    if (arc.BeginObject(keyname))
-    {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("run", w.nRun)
-            ("count", w.nCount)
-            .EndObject();
-    }
-    return arc;
-}
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Chunk& w, Chunk* def)
-{
-    if (arc.BeginObject(keyname))
-    {
-        arc ("sprite", w.nSprite)
-            ("index", w.nIndex)
-            ("seqindex", w.nSeqIndex)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeFish(FSerializer& arc)
-{
-    arc("fish", FishList)
-        ("fishchunk", FishChunk);
-}
-
-void InitFishes()
-{
-    FishList.Clear();
-    FishChunk.Clear();
-}
-
-void BuildFishLimb(short nFish, short edx)
-{
-    auto pActor = &FishList[nFish];
-    short nSprite = pActor->nSprite;
-	auto pSprite = &sprite[nSprite];
-
-    int nFree = FishChunk.Reserve(1);
-
-    int nSprite2 = insertsprite(pSprite->sectnum, 99);
-    assert(nSprite2 >= 0 && nSprite2 < kMaxSprites);
-	auto pSprite2 = &sprite[nSprite2];
-
-    FishChunk[nFree].nSprite = nSprite2;
-    FishChunk[nFree].nSeqIndex = edx + 40;
-    FishChunk[nFree].nIndex = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + edx + 40];
+    pChunkActor->nCount = anim + 40;
+    pChunkActor->nFrame = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + anim + 40];
 
     pSprite2->x = pSprite->x;
     pSprite2->y = pSprite->y;
@@ -130,42 +64,42 @@ void BuildFishLimb(short nFish, short edx)
     pSprite2->yoffset = 0;
     pSprite2->zvel = (-(RandomByte() + 512)) * 2;
 
-    seq_GetSeqPicnum(kSeqFish, FishChunk[nFree].nSeqIndex, 0);
+    seq_GetSeqPicnum(kSeqFish, pChunkActor->nCount, 0);
 
-    pSprite2->picnum = edx;
+    pSprite2->picnum = anim;
     pSprite2->lotag = runlist_HeadRun() + 1;
     pSprite2->clipdist = 0;
 
 //	GrabTimeSlot(3);
 
     pSprite2->extra = -1;
-    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, nFree, 0x200000);
-    pSprite2->hitag = runlist_AddRunRec(NewRun, nFree, 0x200000);
+    pSprite2->owner = runlist_AddRunRec(pSprite2->lotag - 1, pChunkActor, 0x200000);
+    pSprite2->hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
 }
 
 void BuildBlood(int x, int y, int z, short nSector)
 {
-    BuildAnim(-1, kSeqFish, 36, x, y, z, nSector, 75, 128);
+    BuildAnim(nullptr, kSeqFish, 36, x, y, z, nSector, 75, 128);
 }
 
 void AIFishLimb::Tick(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nObjIndex;
-    short nSprite = FishChunk[nFish].nSprite;
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
 
-    int nSeq = SeqOffsets[kSeqFish] + FishChunk[nFish].nSeqIndex;
+    auto pSprite = &pActor->s();
 
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, FishChunk[nFish].nIndex);
+    int nSeq = SeqOffsets[kSeqFish] + pActor->nCount;
 
-    Gravity(nSprite);
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
-    FishChunk[nFish].nIndex++;
+    Gravity(pActor);
 
-    if (FishChunk[nFish].nIndex >= SeqSize[nSeq])
+    pActor->nFrame++;
+
+    if (pActor->nFrame >= SeqSize[nSeq])
     {
-        FishChunk[nFish].nIndex = 0;
+        pActor->nFrame = 0;
         if (RandomBit()) {
             BuildBlood(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum);
         }
@@ -183,18 +117,17 @@ void AIFishLimb::Tick(RunListEvent* ev)
             runlist_DoSubRunRec(pSprite->owner);
             runlist_FreeRun(pSprite->lotag - 1);
             runlist_SubRunRec(pSprite->hitag);
-            mydeletesprite(nSprite);
+            DeleteActor(pActor);
         }
         else if ((pSprite->z - FloorZ) > 0)
         {
             pSprite->zvel = 1024;
         }
-
-        return;
     }
     else
     {
-        if (movesprite(nSprite, pSprite->xvel << 8, pSprite->yvel << 8, pSprite->zvel, 2560, -2560, CLIPMASK1))
+        auto coll = movesprite(pActor, pSprite->xvel << 8, pSprite->yvel << 8, pSprite->zvel, 2560, -2560, CLIPMASK1);
+        if (coll.type != kHitNone)
         {
             pSprite->xvel = 0;
             pSprite->yvel = 0;
@@ -205,9 +138,10 @@ void AIFishLimb::Tick(RunListEvent* ev)
 
 void AIFishLimb::Draw(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nObjIndex;
-    int nSeq = SeqOffsets[kSeqFish] + FishChunk[nFish].nSeqIndex;
-    seq_PlotSequence(ev->nParam, nSeq, FishChunk[nFish].nIndex, 1);
+    auto pActor = ev->pObjActor;
+    if (pActor == nullptr) return;
+    int nSeq = SeqOffsets[kSeqFish] + pActor->nCount;
+    seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, 1);
 }
 
 
@@ -217,27 +151,24 @@ void  FuncFishLimb(int nObject, int nMessage, int nDamage, int nRun)
     runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
-void BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
+void BuildFish(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle)
 {
-    int nFish = FishList.Reserve(1);
-	auto pSprite = &sprite[nSprite];
-    auto pActor = &FishList[nFish];
+	spritetype* pSprite;
 
-    if (nSprite == -1)
+    if (pActor == nullptr)
     {
-        nSprite = insertsprite(nSector, 103);
-		pSprite = &sprite[nSprite];
+        pActor = insertActor(nSector, 103);
+        pSprite = &pActor->s();
     }
     else
     {
+        pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
         z = pSprite->z;
         nAngle = pSprite->ang;
-        changespritestat(nSprite, 103);
+        ChangeActorStat(pActor, 103);
     }
-
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
 
     pSprite->x = x;
     pSprite->y = y;
@@ -263,22 +194,19 @@ void BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
 
     pActor->nAction = 0;
     pActor->nHealth = 200;
-    pActor->nSprite = nSprite;
-    pActor->nTarget = -1;
+    pActor->pTarget = nullptr;
     pActor->nCount = 60;
     pActor->nFrame = 0;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nFish, 0x120000);
-    pActor->nRun = runlist_AddRunRec(NewRun, nFish, 0x120000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x120000);
+    pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x120000);
 
     nCreaturesTotal++;
 }
 
-void IdleFish(short nFish, short edx)
+void IdleFish(DExhumedActor* pActor, short edx)
 {
-    auto pActor = &FishList[nFish];
-    short nSprite = pActor->nSprite;
-	auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
 
     pSprite->ang += (256 - RandomSize(9)) + 1024;
     pSprite->ang &= kAngleMask;
@@ -303,25 +231,22 @@ void IdleFish(short nFish, short edx)
     }
 }
 
-void DestroyFish(short nFish)
+void DestroyFish(DExhumedActor* pActor)
 {
-    auto pActor = &FishList[nFish];
-    short nSprite = pActor->nSprite;
-	auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
 
     runlist_DoSubRunRec(pSprite->owner);
     runlist_FreeRun(pSprite->lotag - 1);
     runlist_SubRunRec(pActor->nRun);
-    mydeletesprite(nSprite);
+    DeleteActor(pActor);
 }
 
 
 
 void AIFish::Draw(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nObjIndex;
-    assert(nFish >= 0 && nFish < (int)FishList.Size());
-    auto pActor = &FishList[nFish];
+    auto pActor = ev->pObjActor;
+    if (pActor == nullptr) return;
     short nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqFish] + FishSeq[nAction].a, pActor->nFrame, FishSeq[nAction].b);
@@ -331,16 +256,15 @@ void AIFish::Draw(RunListEvent* ev)
 
 void AIFish::RadialDamage(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nObjIndex;
-    auto pActor = &FishList[nFish];
-    short nSprite = pActor->nSprite;
+    auto pActor = ev->pObjActor;
+    if (pActor == nullptr) return;
 
     if (pActor->nHealth <= 0) {
         return;
     }
     else
     {
-        ev->nDamage = runlist_CheckRadialDamage(nSprite);
+        ev->nDamage = runlist_CheckRadialDamage(pActor);
         if (!ev->nDamage) {
             return;
         }
@@ -353,16 +277,13 @@ void AIFish::RadialDamage(RunListEvent* ev)
 
 void AIFish::Damage(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nObjIndex;
-    assert(nFish >= 0 && nFish < (int)FishList.Size());
-    auto pActor = &FishList[nFish];
-    short nAction = pActor->nAction;
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
 
-    if (!ev->nDamage) {
+    if (!ev->nDamage || !pActor) {
         return;
     }
+    auto pSprite = &pActor->s();
+    short nAction = pActor->nAction;
 
     pActor->nHealth -= dmgAdjust(ev->nDamage);
     if (pActor->nHealth <= 0)
@@ -376,11 +297,11 @@ void AIFish::Damage(RunListEvent* ev)
         {
             for (int i = 0; i < 3; i++)
             {
-                BuildFishLimb(nFish, i);
+                BuildFishLimb(pActor, i);
             }
 
             PlayFXAtXYZ(StaticSound[kSound40], pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum);
-            DestroyFish(nFish);
+            DestroyFish(pActor);
         }
         else
         {
@@ -392,10 +313,10 @@ void AIFish::Damage(RunListEvent* ev)
     }
     else
     {
-        short nTarget = ev->nParam;
-        if (nTarget >= 0 && sprite[nTarget].statnum < 199)
+        auto pTarget = ev->pOtherActor;
+        if (pTarget && pTarget->s().statnum < 199)
         {
-            pActor->nTarget = nTarget;
+            pActor->pTarget = pTarget;
         }
 
         pActor->nAction = 4;
@@ -406,30 +327,29 @@ void AIFish::Damage(RunListEvent* ev)
 
 void AIFish::Tick(RunListEvent* ev)
 {
-    short nFish = RunData[ev->nRun].nObjIndex;
-    assert(nFish >= 0 && nFish < (int)FishList.Size());
-    auto pActor = &FishList[nFish];
+    auto pActor = ev->pObjActor;
+    if (pActor == nullptr) return;
+    auto pSprite = &pActor->s();
+
     short nAction = pActor->nAction;
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
 
     if (!(SectFlag[pSprite->sectnum] & kSectUnderwater))
     {
-        Gravity(nSprite);
+        Gravity(pActor);
     }
 
     short nSeq = SeqOffsets[kSeqFish] + FishSeq[nAction].a;
 
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
-    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
+    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
     pActor->nFrame++;
     if (pActor->nFrame >= SeqSize[nSeq]) {
         pActor->nFrame = 0;
     }
 
-    short nTarget = pActor->nTarget;
+    auto pTargetActor = pActor->pTarget;
 
     switch (nAction)
     {
@@ -441,21 +361,21 @@ void AIFish::Tick(RunListEvent* ev)
         pActor->nCount--;
         if (pActor->nCount <= 0)
         {
-            nTarget = FindPlayer(nSprite, 60);
-            if (nTarget >= 0)
+            pTargetActor = FindPlayer(pActor, 60);
+            if (pTargetActor)
             {
-                pActor->nTarget = nTarget;
+                pActor->pTarget = pTargetActor;
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
 
-                int nAngle = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].z - pSprite->z);
+                int nAngle = GetMyAngle(pTargetActor->s().x - pSprite->x, pTargetActor->s().z - pSprite->z);
                 pSprite->zvel = bsin(nAngle, -5);
 
                 pActor->nCount = RandomSize(6) + 90;
             }
             else
             {
-                IdleFish(nFish, 0);
+                IdleFish(pActor, 0);
             }
         }
 
@@ -471,15 +391,15 @@ void AIFish::Tick(RunListEvent* ev)
         pActor->nCount--;
         if (pActor->nCount <= 0)
         {
-            IdleFish(nFish, 0);
+            IdleFish(pActor, 0);
             return;
         }
         else
         {
-            PlotCourseToSprite(nSprite, nTarget);
-            int nHeight = GetSpriteHeight(nSprite) >> 1;
+            PlotCourseToSprite(pActor, pTargetActor);
+            int nHeight = GetActorHeight(pActor) >> 1;
 
-            int z = abs(sprite[nTarget].z - pSprite->z);
+            int z = abs(pTargetActor->s().z - pSprite->z);
 
             if (z <= nHeight)
             {
@@ -492,7 +412,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pSprite->yvel = 0;
             }
 
-            pSprite->zvel = (sprite[nTarget].z - pSprite->z) >> 3;
+            pSprite->zvel = (pTargetActor->s().z - pSprite->z) >> 3;
         }
         break;
     }
@@ -501,7 +421,7 @@ void AIFish::Tick(RunListEvent* ev)
     {
         if (pActor->nFrame == 0)
         {
-            IdleFish(nFish, 0);
+            IdleFish(pActor, 0);
         }
         return;
     }
@@ -515,7 +435,7 @@ void AIFish::Tick(RunListEvent* ev)
     {
         if (pActor->nFrame == 0)
         {
-            DestroyFish(nFish);
+            DestroyFish(pActor);
         }
         return;
     }
@@ -527,16 +447,16 @@ void AIFish::Tick(RunListEvent* ev)
     short nSector = pSprite->sectnum;
 
     // loc_2EF54
-    int nMov = movesprite(nSprite, pSprite->xvel << 13, pSprite->yvel << 13, pSprite->zvel << 2, 0, 0, CLIPMASK0);
+    Collision coll = movesprite(pActor, pSprite->xvel << 13, pSprite->yvel << 13, pSprite->zvel << 2, 0, 0, CLIPMASK0);
 
     if (!(SectFlag[pSprite->sectnum] & kSectUnderwater))
     {
-        mychangespritesect(nSprite, nSector);
+        ChangeActorSect(pActor, nSector);
         pSprite->x = x;
         pSprite->y = y;
         pSprite->z = z;
 
-        IdleFish(nFish, 0);
+        IdleFish(pActor, 0);
         return;
     }
     else
@@ -545,7 +465,7 @@ void AIFish::Tick(RunListEvent* ev)
             return;
         }
 
-        if (!nMov)
+        if (coll.type == kHitNone)
         {
             if (nAction == 3)
             {
@@ -555,18 +475,20 @@ void AIFish::Tick(RunListEvent* ev)
             return;
         }
 
-        if ((nMov & 0x30000) == 0)
+        if (!coll.exbits)
         {
-            if ((nMov & 0xC000) == 0x8000)
+            if (coll.type == kHitWall)
             {
-                IdleFish(nFish, 0);
+                IdleFish(pActor, 0);
             }
-            else if ((nMov & 0xC000) == 0xC000)
+            else if (coll.type == kHitSprite)
             {
-                if (sprite[nMov & 0x3FFF].statnum == 100)
+
+                auto pHitSpr = &coll.actor->s();
+                if (pHitSpr->statnum == 100)
                 {
-                    pActor->nTarget = nMov & 0x3FFF;
-                    pSprite->ang = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
+                    pActor->pTarget = coll.actor;
+                    pSprite->ang = GetMyAngle(pHitSpr->x - pSprite->x, pHitSpr->y - pSprite->y);
 
                     if (nAction != 3)
                     {
@@ -576,18 +498,18 @@ void AIFish::Tick(RunListEvent* ev)
 
                     if (!pActor->nFrame)
                     {
-                        runlist_DamageEnemy(nTarget, nSprite, 2);
+                        runlist_DamageEnemy(coll.actor, pActor, 2);
                     }
                 }
             }
         }
-        else if (nMov & 0x20000)
+        else if (coll.exbits & kHitAux2)
         {
-            IdleFish(nFish, -1);
+            IdleFish(pActor, -1);
         }
         else
         {
-            IdleFish(nFish, 1);
+            IdleFish(pActor, 1);
         }
     }
 }

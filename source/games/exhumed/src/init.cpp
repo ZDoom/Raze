@@ -104,7 +104,6 @@ uint8_t LoadLevel(MapRecord* map)
         InitGrenades();
         InitAnims();
         InitSnakes();
-        InitFishes();
         InitLights();
         ClearAutomap();
         InitBubbles();
@@ -579,7 +578,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     return;
                 }
 
-                BuildFish(nSprite, 0, 0, 0, 0, 0);
+                BuildFish(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 105:

@@ -43,6 +43,10 @@ extern FreeListArray<Anim, kMaxAnims> AnimList;
 void InitAnims();
 void DestroyAnim(int nAnim);
 int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag);
+int BuildAnim(DExhumedActor* nSprite, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag)
+{
+    return BuildAnim(nSprite? nSprite->GetSpriteIndex() : -1, val, val2, x, y, z, nSector, nRepeat, nFlag);
+}
 short GetAnimSprite(short nAnim);
 
 void FuncAnim(int, int, int, int);
@@ -106,8 +110,7 @@ void BackUpBullet(int *x, int *y, short nAngle);
 
 // fish
 
-void InitFishes();
-void BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle);
+void BuildFish(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle);
 void FuncFish(int, int, int, int);
 void FuncFishLimb(int a, int b, int c);
 

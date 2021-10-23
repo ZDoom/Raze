@@ -93,6 +93,8 @@ public:
 	short nFrame;
 	short nAction;
 	short nCount;
+	short nRun;
+
 
 	DExhumedActor() :index(int(this - base())) {}
 	DExhumedActor& operator=(const DExhumedActor& other) = default;
