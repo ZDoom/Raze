@@ -90,6 +90,7 @@ void InitScorp()
 void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
     auto nScorp = scorpion.Reserve(1);
+    auto pActor = &scorpion[nScorp];
 
     auto pSprite = &sprite[nSprite];
 
@@ -132,18 +133,18 @@ void BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle,
 
     //	GrabTimeSlot(3);
 
-    scorpion[nScorp].nHealth = 20000;
-    scorpion[nScorp].nFrame = 0;
-    scorpion[nScorp].nAction = 0;
-    scorpion[nScorp].nSprite = nSprite;
-    scorpion[nScorp].nTarget = -1;
-    scorpion[nScorp].nCount = 0;
-    scorpion[nScorp].nIndex2 = 1;
+    pActor->nHealth = 20000;
+    pActor->nFrame = 0;
+    pActor->nAction = 0;
+    pActor->nSprite = nSprite;
+    pActor->nTarget = -1;
+    pActor->nCount = 0;
+    pActor->nIndex2 = 1;
 
-    scorpion[nScorp].nChannel = nChannel;
+    pActor->nChannel = nChannel;
 
     pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nScorp, 0x220000);
-    scorpion[nScorp].nRun = runlist_AddRunRec(NewRun, nScorp, 0x220000);
+    pActor->nRun = runlist_AddRunRec(NewRun, nScorp, 0x220000);
 
     nCreaturesTotal++;
 }
@@ -152,16 +153,18 @@ void AIScorp::Draw(RunListEvent* ev)
 {
     short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
-    short nAction = scorpion[nScorp].nAction;
+    auto pActor = &scorpion[nScorp];
+    short nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, scorpion[nScorp].nFrame, ScorpSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, pActor->nFrame, ScorpSeq[nAction].b);
 }
 
 void AIScorp::RadialDamage(RunListEvent* ev)
 {
     short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
-    short nSprite = scorpion[nScorp].nSprite;
+    auto pActor = &scorpion[nScorp];
+    short nSprite = pActor->nSprite;
 
     ev->nDamage = runlist_CheckRadialDamage(nSprite);
     if (ev->nDamage) Damage(ev);
@@ -172,27 +175,28 @@ void AIScorp::Damage(RunListEvent* ev)
 {
     short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
-    short nSprite = scorpion[nScorp].nSprite;
+    auto pActor = &scorpion[nScorp];
+    short nSprite = pActor->nSprite;
 
-    short nAction = scorpion[nScorp].nAction;
+    short nAction = pActor->nAction;
     auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
 
     short nTarget = -1;
 
-    if (scorpion[nScorp].nHealth <= 0) {
+    if (pActor->nHealth <= 0) {
         return;
     }
 
-    scorpion[nScorp].nHealth -= dmgAdjust(ev->nDamage);
+    pActor->nHealth -= dmgAdjust(ev->nDamage);
 
-    if (scorpion[nScorp].nHealth <= 0)
+    if (pActor->nHealth <= 0)
     {
-        scorpion[nScorp].nHealth = 0;
-        scorpion[nScorp].nAction = 4;
-        scorpion[nScorp].nFrame = 0;
-        scorpion[nScorp].nCount = 10;
+        pActor->nHealth = 0;
+        pActor->nAction = 4;
+        pActor->nFrame = 0;
+        pActor->nCount = 10;
 
         pSprite->xvel = 0;
         pSprite->yvel = 0;
@@ -210,14 +214,14 @@ void AIScorp::Damage(RunListEvent* ev)
         {
             if (pSprite->statnum == 100 || (pSprite->statnum < 199 && !RandomSize(5)))
             {
-                scorpion[nScorp].nTarget = nTarget;
+                pActor->nTarget = nTarget;
             }
         }
 
         if (!RandomSize(5))
         {
-            scorpion[nScorp].nAction = RandomSize(2) + 4;
-            scorpion[nScorp].nFrame = 0;
+            pActor->nAction = RandomSize(2) + 4;
+            pActor->nFrame = 0;
             return;
         }
 
@@ -234,34 +238,35 @@ void AIScorp::Tick(RunListEvent* ev)
 {
     short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
-    short nSprite = scorpion[nScorp].nSprite;
+    auto pActor = &scorpion[nScorp];
+    short nSprite = pActor->nSprite;
 
-    short nAction = scorpion[nScorp].nAction;
+    short nAction = pActor->nAction;
     auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
 
     short nTarget = -1;
 
-    if (scorpion[nScorp].nHealth) {
+    if (pActor->nHealth) {
         Gravity(nSprite);
     }
 
     int nSeq = SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a;
 
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, scorpion[nScorp].nFrame);
-    seq_MoveSequence(nSprite, nSeq, scorpion[nScorp].nFrame);
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
 
-    scorpion[nScorp].nFrame++;
+    pActor->nFrame++;
 
-    if (scorpion[nScorp].nFrame >= SeqSize[nSeq])
+    if (pActor->nFrame >= SeqSize[nSeq])
     {
-        scorpion[nScorp].nFrame = 0;
+        pActor->nFrame = 0;
         bVal = true;
     }
 
-    int nFlag = FrameFlag[SeqBase[nSeq] + scorpion[nScorp].nFrame];
-    nTarget = scorpion[nScorp].nTarget;
+    int nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
+    nTarget = pActor->nTarget;
 
     switch (nAction)
     {
@@ -270,9 +275,9 @@ void AIScorp::Tick(RunListEvent* ev)
 
     case 0:
     {
-        if (scorpion[nScorp].nCount > 0)
+        if (pActor->nCount > 0)
         {
-            scorpion[nScorp].nCount--;
+            pActor->nCount--;
             return;
         }
 
@@ -286,12 +291,12 @@ void AIScorp::Tick(RunListEvent* ev)
                 {
                     D3PlayFX(StaticSound[kSound41], nSprite);
 
-                    scorpion[nScorp].nFrame = 0;
+                    pActor->nFrame = 0;
                     pSprite->xvel = bcos(pSprite->ang);
                     pSprite->yvel = bsin(pSprite->ang);
 
-                    scorpion[nScorp].nAction = 1;
-                    scorpion[nScorp].nTarget = nTarget;
+                    pActor->nAction = 1;
+                    pActor->nTarget = nTarget;
                 }
             }
         }
@@ -301,11 +306,11 @@ void AIScorp::Tick(RunListEvent* ev)
 
     case 1:
     {
-        scorpion[nScorp].nIndex2--;
+        pActor->nIndex2--;
 
-        if (scorpion[nScorp].nIndex2 <= 0)
+        if (pActor->nIndex2 <= 0)
         {
-            scorpion[nScorp].nIndex2 = RandomSize(5);
+            pActor->nIndex2 = RandomSize(5);
             Effect(ev, nTarget, 0);
         }
         else
@@ -318,8 +323,8 @@ void AIScorp::Tick(RunListEvent* ev)
                     int nAngle = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
                     if (AngleDiff(pSprite->ang, nAngle) < 64)
                     {
-                        scorpion[nScorp].nAction = 2;
-                        scorpion[nScorp].nFrame = 0;
+                        pActor->nAction = 2;
+                        pActor->nFrame = 0;
                     }
                     Effect(ev, nTarget, 2);
                 }
@@ -345,14 +350,14 @@ void AIScorp::Tick(RunListEvent* ev)
     {
         if (nTarget == -1)
         {
-            scorpion[nScorp].nAction = 0;
-            scorpion[nScorp].nCount = 5;
+            pActor->nAction = 0;
+            pActor->nCount = 5;
         }
         else
         {
             if (PlotCourseToSprite(nSprite, nTarget) >= 768)
             {
-                scorpion[nScorp].nAction = 1;
+                pActor->nAction = 1;
             }
             else if (nFlag & 0x80)
             {
@@ -367,15 +372,15 @@ void AIScorp::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            scorpion[nScorp].nIndex--;
-            if (scorpion[nScorp].nIndex <= 0)
+            pActor->nIndex--;
+            if (pActor->nIndex <= 0)
             {
-                scorpion[nScorp].nAction = 1;
+                pActor->nAction = 1;
 
                 pSprite->xvel = bcos(pSprite->ang);
                 pSprite->yvel = bsin(pSprite->ang);
 
-                scorpion[nScorp].nFrame = 0;
+                pActor->nFrame = 0;
                 return;
             }
         }
@@ -402,22 +407,22 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        if (scorpion[nScorp].nHealth > 0)
+        if (pActor->nHealth > 0)
         {
-            scorpion[nScorp].nAction = 1;
-            scorpion[nScorp].nFrame = 0;
-            scorpion[nScorp].nCount = 0;
+            pActor->nAction = 1;
+            pActor->nFrame = 0;
+            pActor->nCount = 0;
             return;
         }
 
-        scorpion[nScorp].nCount--;
-        if (scorpion[nScorp].nCount <= 0)
+        pActor->nCount--;
+        if (pActor->nCount <= 0)
         {
-            scorpion[nScorp].nAction = 8;
+            pActor->nAction = 8;
         }
         else
         {
-            scorpion[nScorp].nAction = RandomBit() + 6;
+            pActor->nAction = RandomBit() + 6;
         }
 
         return;
@@ -427,10 +432,10 @@ void AIScorp::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            scorpion[nScorp].nAction++; // set to 9
-            scorpion[nScorp].nFrame = 0;
+            pActor->nAction++; // set to 9
+            pActor->nFrame = 0;
 
-            runlist_ChangeChannel(scorpion[nScorp].nChannel, 1);
+            runlist_ChangeChannel(pActor->nChannel, 1);
             return;
         }
 
@@ -455,7 +460,7 @@ void AIScorp::Tick(RunListEvent* ev)
 
         if (bVal)
         {
-            runlist_SubRunRec(scorpion[nScorp].nRun);
+            runlist_SubRunRec(pActor->nRun);
             runlist_DoSubRunRec(pSprite->owner);
             runlist_FreeRun(pSprite->lotag - 1);
 
@@ -471,9 +476,10 @@ void AIScorp::Effect(RunListEvent* ev, int nTarget, int mode)
 {
     short nScorp = RunData[ev->nRun].nObjIndex;
     assert(nScorp >= 0 && nScorp < (int)scorpion.Size());
-    short nSprite = scorpion[nScorp].nSprite;
+    auto pActor = &scorpion[nScorp];
+    short nSprite = pActor->nSprite;
 
-    short nAction = scorpion[nScorp].nAction;
+    short nAction = pActor->nAction;
     auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
@@ -489,13 +495,13 @@ void AIScorp::Effect(RunListEvent* ev, int nTarget, int mode)
     }
     if (mode <= 1)
     {
-        if (scorpion[nScorp].nCount)
+        if (pActor->nCount)
         {
-            scorpion[nScorp].nCount--;
+            pActor->nCount--;
         }
         else
         {
-            scorpion[nScorp].nCount = 45;
+            pActor->nCount = 45;
 
             if (cansee(pSprite->x, pSprite->y, pSprite->z - GetSpriteHeight(nSprite), pSprite->sectnum,
                 sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
@@ -504,15 +510,15 @@ void AIScorp::Effect(RunListEvent* ev, int nTarget, int mode)
                 pSprite->yvel = 0;
                 pSprite->ang = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
 
-                scorpion[nScorp].nIndex = RandomSize(2) + RandomSize(3);
+                pActor->nIndex = RandomSize(2) + RandomSize(3);
 
-                if (!scorpion[nScorp].nIndex) {
-                    scorpion[nScorp].nCount = RandomSize(5);
+                if (!pActor->nIndex) {
+                    pActor->nCount = RandomSize(5);
                 }
                 else
                 {
-                    scorpion[nScorp].nAction = 3;
-                    scorpion[nScorp].nFrame = 0;
+                    pActor->nAction = 3;
+                    pActor->nFrame = 0;
                 }
             }
         }
@@ -524,10 +530,10 @@ void AIScorp::Effect(RunListEvent* ev, int nTarget, int mode)
 
     if (!(sprite[nTarget].cstat & 0x101))
     {
-        scorpion[nScorp].nAction = 0;
-        scorpion[nScorp].nFrame = 0;
-        scorpion[nScorp].nCount = 30;
-        scorpion[nScorp].nTarget = -1;
+        pActor->nAction = 0;
+        pActor->nFrame = 0;
+        pActor->nCount = 30;
+        pActor->nTarget = -1;
 
         pSprite->xvel = 0;
         pSprite->yvel = 0;
