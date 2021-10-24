@@ -123,12 +123,9 @@ public:
 		frametime = currentclock;
 
 		int delay = 20;
-		if (frameTicks)
-		{
-			if (curframe == 1) delay = frameTicks[0];
-			else if (curframe < numframes - 2) delay = frameTicks[1];
-			else delay = frameTicks[2];
-		}
+		if (curframe == 1) delay = frameTicks[0];
+		else if (curframe < numframes - 2) delay = frameTicks[1];
+		else delay = frameTicks[2];
 		nextframetime += delay;
 
 		bool nostopsound = (flags & NOSOUNDCUTOFF);
