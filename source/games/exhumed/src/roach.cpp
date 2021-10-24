@@ -155,9 +155,10 @@ void AIRoach::Draw(RunListEvent* ev)
 {
     short nRoach = RunData[ev->nRun].nObjIndex;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
-    short nAction = RoachList[nRoach].nAction;
+    auto pActor = &RoachList[nRoach];
+    short nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].nFrame, RoachSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], pActor->nFrame, RoachSeq[nAction].b);
     return;
 }
 
@@ -165,7 +166,8 @@ void AIRoach::RadialDamage(RunListEvent* ev)
 {
     short nRoach = RunData[ev->nRun].nObjIndex;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
-    short nSprite = RoachList[nRoach].nSprite;
+    auto pActor = &RoachList[nRoach];
+    short nSprite = pActor->nSprite;
 
     ev->nDamage = runlist_CheckRadialDamage(nSprite);
     Damage(ev);
@@ -175,32 +177,33 @@ void AIRoach::Damage(RunListEvent* ev)
 {
     short nRoach = RunData[ev->nRun].nObjIndex;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
+    auto pActor = &RoachList[nRoach];
 
-    short nSprite = RoachList[nRoach].nSprite;
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
-    short nAction = RoachList[nRoach].nAction;
+    short nAction = pActor->nAction;
 
     if (ev->nDamage)
     {
-        if (RoachList[nRoach].nHealth <= 0) {
+        if (pActor->nHealth <= 0) {
             return;
         }
 
-        RoachList[nRoach].nHealth -= dmgAdjust(ev->nDamage);
-        if (RoachList[nRoach].nHealth <= 0)
+        pActor->nHealth -= dmgAdjust(ev->nDamage);
+        if (pActor->nHealth <= 0)
         {
             pSprite->xvel = 0;
             pSprite->yvel = 0;
             pSprite->zvel = 0;
             pSprite->cstat &= 0xFEFE;
 
-            RoachList[nRoach].nHealth = 0;
+            pActor->nHealth = 0;
 
             if (nAction < 5)
             {
                 DropMagic(nSprite);
-                RoachList[nRoach].nAction = 5;
-                RoachList[nRoach].nFrame = 0;
+                pActor->nAction = 5;
+                pActor->nFrame = 0;
             }
 
             nCreaturesKilled++; // NOTE: This was incrementing in original code. Bug?
@@ -211,21 +214,21 @@ void AIRoach::Damage(RunListEvent* ev)
             if (nSprite2 >= 0)
             {
                 if (sprite[nSprite2].statnum < 199) {
-                    RoachList[nRoach].nTarget = nSprite2;
+                    pActor->nTarget = nSprite2;
                 }
 
                 if (nAction == 0)
                 {
-                    RoachList[nRoach].nAction = 2;
+                    pActor->nAction = 2;
                     GoRoach(nSprite);
-                    RoachList[nRoach].nFrame = 0;
+                    pActor->nFrame = 0;
                 }
                 else
                 {
                     if (!RandomSize(4))
                     {
-                        RoachList[nRoach].nAction = 4;
-                        RoachList[nRoach].nFrame = 0;
+                        pActor->nAction = 4;
+                        pActor->nFrame = 0;
                     }
                 }
             }
@@ -237,28 +240,29 @@ void AIRoach::Tick(RunListEvent* ev)
 {
     short nRoach = RunData[ev->nRun].nObjIndex;
     assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
+    auto pActor = &RoachList[nRoach];
 
-    short nSprite = RoachList[nRoach].nSprite;
+    short nSprite = pActor->nSprite;
     auto pSprite = &sprite[nSprite];
-    short nAction = RoachList[nRoach].nAction;
+    short nAction = pActor->nAction;
     bool bVal = false;
 
     Gravity(nSprite);
 
-    int nSeq = SeqOffsets[kSeqRoach] + RoachSeq[RoachList[nRoach].nAction].a;
+    int nSeq = SeqOffsets[kSeqRoach] + RoachSeq[pActor->nAction].a;
 
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, RoachList[nRoach].nFrame);
-    seq_MoveSequence(nSprite, nSeq, RoachList[nRoach].nFrame);
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
 
-    RoachList[nRoach].nFrame++;
-    if (RoachList[nRoach].nFrame >= SeqSize[nSeq])
+    pActor->nFrame++;
+    if (pActor->nFrame >= SeqSize[nSeq])
     {
         bVal = true;
-        RoachList[nRoach].nFrame = 0;
+        pActor->nFrame = 0;
     }
 
-    int nFlag = FrameFlag[SeqBase[nSeq] + RoachList[nRoach].nFrame];
-    short nTarget = RoachList[nRoach].nTarget;
+    int nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
+    short nTarget = pActor->nTarget;
 
     if (nAction > 5) {
         return;
@@ -268,16 +272,16 @@ void AIRoach::Tick(RunListEvent* ev)
     {
     case 0:
     {
-        if (RoachList[nRoach].nFrame == 1)
+        if (pActor->nFrame == 1)
         {
-            RoachList[nRoach].nCount--;
-            if (RoachList[nRoach].nCount <= 0)
+            pActor->nCount--;
+            if (pActor->nCount <= 0)
             {
-                RoachList[nRoach].nCount = RandomSize(6);
+                pActor->nCount = RandomSize(6);
             }
             else
             {
-                RoachList[nRoach].nFrame = 0;
+                pActor->nFrame = 0;
             }
         }
 
@@ -286,9 +290,9 @@ void AIRoach::Tick(RunListEvent* ev)
             short nTarget = FindPlayer(nSprite, 50);
             if (nTarget >= 0)
             {
-                RoachList[nRoach].nAction = 2;
-                RoachList[nRoach].nFrame = 0;
-                RoachList[nRoach].nTarget = nTarget;
+                pActor->nAction = 2;
+                pActor->nFrame = 0;
+                pActor->nTarget = nTarget;
                 GoRoach(nSprite);
             }
         }
@@ -304,9 +308,9 @@ void AIRoach::Tick(RunListEvent* ev)
             short nTarget = FindPlayer(nSprite, 100);
             if (nTarget >= 0)
             {
-                RoachList[nRoach].nAction = 2;
-                RoachList[nRoach].nFrame = 0;
-                RoachList[nRoach].nTarget = nTarget;
+                pActor->nAction = 2;
+                pActor->nFrame = 0;
+                pActor->nTarget = nTarget;
                 GoRoach(nSprite);
             }
         }
@@ -329,14 +333,14 @@ void AIRoach::Tick(RunListEvent* ev)
             if ((nMov & 0x3FFF) == nTarget)
             {
                 // repeated below
-                RoachList[nRoach].nIndex = RandomSize(2) + 1;
-                RoachList[nRoach].nAction = 3;
+                pActor->nIndex = RandomSize(2) + 1;
+                pActor->nAction = 3;
 
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
                 pSprite->ang = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
 
-                RoachList[nRoach].nFrame = 0;
+                pActor->nFrame = 0;
             }
             else
             {
@@ -351,30 +355,30 @@ void AIRoach::Tick(RunListEvent* ev)
         }
         else
         {
-            if (RoachList[nRoach].nCount != 0)
+            if (pActor->nCount != 0)
             {
-                RoachList[nRoach].nCount--;
+                pActor->nCount--;
             }
             else
             {
                 // same as above
-                RoachList[nRoach].nIndex = RandomSize(2) + 1;
-                RoachList[nRoach].nAction = 3;
+                pActor->nIndex = RandomSize(2) + 1;
+                pActor->nAction = 3;
 
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
                 pSprite->ang = GetMyAngle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
 
-                RoachList[nRoach].nFrame = 0;
+                pActor->nFrame = 0;
             }
         }
 
         if (nTarget != -1 && !(sprite[nTarget].cstat & 0x101))
         {
-            RoachList[nRoach].nAction = 1;
-            RoachList[nRoach].nFrame = 0;
-            RoachList[nRoach].nCount = 100;
-            RoachList[nRoach].nTarget = -1;
+            pActor->nAction = 1;
+            pActor->nFrame = 0;
+            pActor->nCount = 100;
+            pActor->nTarget = -1;
             pSprite->xvel = 0;
             pSprite->yvel = 0;
         }
@@ -386,13 +390,13 @@ void AIRoach::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            RoachList[nRoach].nIndex--;
-            if (RoachList[nRoach].nIndex <= 0)
+            pActor->nIndex--;
+            if (pActor->nIndex <= 0)
             {
-                RoachList[nRoach].nAction = 2;
+                pActor->nAction = 2;
                 GoRoach(nSprite);
-                RoachList[nRoach].nFrame = 0;
-                RoachList[nRoach].nCount = RandomSize(7);
+                pActor->nFrame = 0;
+                pActor->nCount = RandomSize(7);
             }
         }
         else
@@ -410,8 +414,8 @@ void AIRoach::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            RoachList[nRoach].nAction = 2;
-            RoachList[nRoach].nFrame = 0;
+            pActor->nAction = 2;
+            pActor->nFrame = 0;
         }
 
         return;
@@ -422,8 +426,8 @@ void AIRoach::Tick(RunListEvent* ev)
         if (bVal)
         {
             pSprite->cstat = 0;
-            RoachList[nRoach].nAction = 6;
-            RoachList[nRoach].nFrame = 0;
+            pActor->nAction = 6;
+            pActor->nFrame = 0;
         }
 
         return;
