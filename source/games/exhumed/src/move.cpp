@@ -1361,7 +1361,7 @@ DExhumedActor* GrabBodyGunSprite()
     }
     else
     {
-		auto pSprite = &pActor->s();
+		pSprite = &pActor->s();
         int nAnim = pSprite->owner;
 
         if (nAnim != -1) {
