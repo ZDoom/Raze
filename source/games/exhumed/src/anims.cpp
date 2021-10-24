@@ -278,9 +278,9 @@ void  FuncAnim(int nObject, int nMessage, int nDamage, int nRun)
     runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
-void BuildExplosion(short nSprite)
+void BuildExplosion(DExhumedActor* pActor)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
  
     short nSector = pSprite->sectnum;
 
@@ -298,9 +298,9 @@ void BuildExplosion(short nSprite)
     BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
 }
 
-int BuildSplash(int nSprite, int nSector)
+void BuildSplash(DExhumedActor* actor, int nSector)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &actor->s();
     int nRepeat, nSound;
 
     if (pSprite->statnum != 200)
@@ -335,7 +335,5 @@ int BuildSplash(int nSprite, int nSector)
     {
         D3PlayFX(StaticSound[nSound] | 0xa00, pActor);
     }
-
-    return AnimList[nAnim].nSprite;
 }
 END_PS_NS

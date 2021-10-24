@@ -369,7 +369,7 @@ int DestroyTailPart()
     short nSprite = tailspr[--QueenHead.tails];
 
     BlowChunks(nSprite);
-    BuildExplosion(nSprite);
+    BuildExplosion(&exhumedActors[nSprite]);
 
     for (int i = 0; i < 5; i++)
     {
@@ -1018,7 +1018,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     movesprite(nSprite, dx, dy, dz, 0, 0, CLIPMASK1);
 
                     BlowChunks(nSprite);
-                    BuildExplosion(nSprite);
+                    BuildExplosion(&exhumedActors[nSprite]);
 
                     mychangespritesect(nSprite, nSector);
 
@@ -1036,7 +1036,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
             else
             {
-                BuildExplosion(nSprite);
+                BuildExplosion(&exhumedActors[nSprite]);
 
                 int i;
 
@@ -1521,7 +1521,7 @@ void AIQueen::Damage(RunListEvent* ev)
                 QueenList[nQueen].nHealth = 4000;
                 QueenList[nQueen].nAction = 7;
 
-                BuildAnim(-1, 36, 0, pSprite->x, pSprite->y, pSprite->z - 7680, pSprite->sectnum, pSprite->xrepeat, 4);
+                BuildAnim(nullptr, 36, 0, pSprite->x, pSprite->y, pSprite->z - 7680, pSprite->sectnum, pSprite->xrepeat, 4);
                 break;
             case 2:
                 QueenList[nQueen].nHealth = 4000;

@@ -50,8 +50,9 @@ int BuildAnim(DExhumedActor* nSprite, int val, int val2, int x, int y, int z, in
 short GetAnimSprite(short nAnim);
 
 void FuncAnim(int, int, int, int);
-void BuildExplosion(short nSprite);
-int BuildSplash(int nSprite, int nSector);
+void BuildExplosion(DExhumedActor* actor);
+void BuildSplash(DExhumedActor* actor, int nSector);
+
 
 // anubis
 

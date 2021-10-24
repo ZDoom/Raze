@@ -499,7 +499,7 @@ int movespritez(short nSprite, int z, int height, int, int clipdist)
         if ((SectDepth[nSector] != 0) || (edi != nSector && (SectFlag[edi] & kSectUnderwater)))
         {
             assert(nSector >= 0 && nSector < kMaxSectors);
-            BuildSplash(nSprite, nSector);
+            BuildSplash(&exhumedActors[nSprite], nSector);
         }
     }
 

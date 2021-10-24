@@ -200,7 +200,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
             }
 
             if (!RandomSize(2)) {
-                BuildAnim(-1, pBulletInfo->field_C, 0, x, y, z, nSector, 40, pBulletInfo->nFlags);
+                BuildAnim(nullptr, pBulletInfo->field_C, 0, x, y, z, nSector, 40, pBulletInfo->nFlags);
             }
 
             return;
@@ -496,7 +496,7 @@ HITWALL:
                     pSprite->x = x2;
                     pSprite->y = y2;
                     pSprite->z = z2;
-                    BuildSplash(nSprite, hitsect);
+                    BuildSplash(&exhumedActors[nSprite], hitsect);
                 }
                 else
                 {
@@ -826,7 +826,7 @@ void AIBullet::Tick(RunListEvent* ev)
 
     if (nFlag & 0x80)
     {
-        BuildAnim(-1, 45, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 0);
+        BuildAnim(nullptr, 45, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 0);
     }
 
     BulletList[nBullet].nFrame++;
