@@ -25,29 +25,9 @@ BEGIN_PS_NS
 
 // anims
 
-struct Anim
-{
-    short nIndex2;
-    short nIndex;
-    short field_4;
-    short nSprite;
-
-    short nRun;
-    uint8_t nAction;
-
-};
-
-enum { kMaxAnims = 400 };
-extern FreeListArray<Anim, kMaxAnims> AnimList;
-
 void InitAnims();
-void DestroyAnim(int nAnim);
-int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag);
-int BuildAnim(DExhumedActor* nSprite, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag)
-{
-    return BuildAnim(nSprite? nSprite->GetSpriteIndex() : -1, val, val2, x, y, z, nSector, nRepeat, nFlag);
-}
-short GetAnimSprite(short nAnim);
+void DestroyAnim(DExhumedActor* nAnim);
+DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag);
 
 void FuncAnim(int, int, int, int);
 void BuildExplosion(DExhumedActor* actor);

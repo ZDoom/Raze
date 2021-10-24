@@ -1362,11 +1362,7 @@ DExhumedActor* GrabBodyGunSprite()
     else
     {
 		pSprite = &pActor->s();
-        int nAnim = pSprite->owner;
-
-        if (nAnim != -1) {
-            DestroyAnim(nAnim);
-        }
+        DestroyAnim(pActor);
 
         pSprite->lotag = -1;
         pSprite->owner = -1;

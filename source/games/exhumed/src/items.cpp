@@ -128,17 +128,15 @@ void BuildItemAnim(short nSprite)
 
     if (nItemAnimInfo[nItem].a >= 0)
     {
-        int nAnim = BuildAnim(nSprite, 41, nItemAnimInfo[nItem].a, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nItemAnimInfo[nItem].repeat, 20);
-        int nAnimSprite = GetAnimSprite(nAnim);
+        auto pAnimActor = BuildAnim(&exhumedActors[nSprite], 41, nItemAnimInfo[nItem].a, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nItemAnimInfo[nItem].repeat, 20);
 
         if (nItem == 44) {
-            sprite[nAnimSprite].cstat |= 2;
+            pAnimActor->s().cstat |= 2;
         }
 
-        changespritestat(nAnimSprite, pSprite->statnum);
-
-        sprite[nAnimSprite].owner = nAnim;
-        sprite[nAnimSprite].hitag = pSprite->hitag;
+        ChangeActorStat(pAnimActor, pSprite->statnum);
+        pAnimActor->s().hitag = pSprite->hitag;
+        pSprite->owner = 0;
     }
     else
     {
@@ -150,13 +148,8 @@ void BuildItemAnim(short nSprite)
 
 void DestroyItemAnim(short nSprite)
 {
-	auto pSprite = &sprite[nSprite];
-
-    short nAnim = pSprite->owner;
-
-    if (nAnim >= 0) {
-        DestroyAnim(nAnim);
-    }
+    if (sprite[nSprite].owner == 0) 
+        DestroyAnim(&exhumedActors[nSprite]);
 }
 
 void ItemFlash()
@@ -349,8 +342,8 @@ void DropMagic(short nSprite)
 
     if (nMagicCount <= 0)
     {
-        int nAnim = BuildAnim(
-            -1,
+        auto pAnimActor = BuildAnim(
+            nullptr,
             64,
             0,
             pSprite->x,
@@ -360,13 +353,11 @@ void DropMagic(short nSprite)
             48,
             4);
 
-        int nAnimSprite = GetAnimSprite(nAnim);
-
-        sprite[nAnimSprite].owner = nAnim;
-
-        AddFlash(sprite[nAnimSprite].sectnum, sprite[nAnimSprite].x, sprite[nAnimSprite].y, sprite[nAnimSprite].z, 128);
-        changespritestat(nAnimSprite, 950);
-
+        if (pAnimActor)
+        {
+            AddFlash(pAnimActor->s().sectnum, pAnimActor->s().x, pAnimActor->s().y, pAnimActor->s().z, 128);
+            ChangeActorStat(pAnimActor, 950);
+        }
         nMagicCount = RandomSize(2);
     }
 }

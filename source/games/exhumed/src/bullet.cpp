@@ -164,17 +164,19 @@ void IgniteSprite(int nSprite)
 
     pSprite->hitag += 2;
 
-    int nAnim = BuildAnim(-1, 38, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 40, 20);
-    short nAnimSprite = GetAnimSprite(nAnim);
+    auto pAnimActor = BuildAnim(nullptr, 38, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 40, 20);
+    
+    if (pAnimActor)
+    {
+        pAnimActor->pTarget = &exhumedActors[nSprite];
+        ChangeActorStat(pAnimActor, kStatIgnited);
 
-    sprite[nAnimSprite].hitag = nSprite;
-    changespritestat(nAnimSprite, kStatIgnited);
+        short yRepeat = (tileHeight(pAnimActor->s().picnum) * 32) / nFlameHeight;
+        if (yRepeat < 1)
+            yRepeat = 1;
 
-    short yRepeat = (tileHeight(sprite[nAnimSprite].picnum) * 32) / nFlameHeight;
-    if (yRepeat < 1)
-        yRepeat = 1;
-
-    sprite[nAnimSprite].yrepeat = (uint8_t)yRepeat;
+        pAnimActor->s().yrepeat = (uint8_t)yRepeat;
+    }
 }
 
 void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, int x, int y, int z, int nSector)
