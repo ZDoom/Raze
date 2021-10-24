@@ -563,8 +563,6 @@ void main()
 	}
 #endif
 
-	gl_FragColor = frag;
-
-	//gl_FragColor = vec4(0.8, 0.2, 0.5, 1);
+	gl_FragColor = vec4(frag.rgb * uDynLightColor.a, frag.a);	// apply a global fade factor.
 
 }
