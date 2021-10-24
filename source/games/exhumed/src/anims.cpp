@@ -68,13 +68,14 @@ void InitAnims()
 
 void DestroyAnim(int nAnim)
 {
-    short nSprite = AnimList[nAnim].nSprite;
+    auto pActor = &AnimList[nAnim];
+    short nSprite = pActor->nSprite;
 
     if (nSprite >= 0)
     {
 		auto pSprite = &sprite[nSprite];
         StopSpriteSound(nSprite);
-        runlist_SubRunRec(AnimList[nAnim].AnimRunRec);
+        runlist_SubRunRec(pActor->AnimRunRec);
         runlist_DoSubRunRec(pSprite->extra);
         runlist_FreeRun(pSprite->lotag - 1);
     }
@@ -88,6 +89,7 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
 	if (nAnim < 0) {
 		return -1;
 	}
+    auto pActor = &AnimList[nAnim];
 
     if (nSprite == -1) {
         nSprite = insertsprite(nSector, 500);
@@ -131,12 +133,12 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
     pSprite->owner = -1;
     pSprite->extra = runlist_AddRunRec(pSprite->lotag - 1, nAnim, 0x100000);
 
-    AnimList[nAnim].AnimRunRec = runlist_AddRunRec(NewRun, nAnim, 0x100000);
-    AnimList[nAnim].nSprite = nSprite;
-    AnimList[nAnim].AnimFlags = nFlag;
-    AnimList[nAnim].field_2 = 0;
-    AnimList[nAnim].nSeq = SeqOffsets[val] + val2;
-    AnimList[nAnim].field_4 = 256;
+    pActor->AnimRunRec = runlist_AddRunRec(NewRun, nAnim, 0x100000);
+    pActor->nSprite = nSprite;
+    pActor->AnimFlags = nFlag;
+    pActor->field_2 = 0;
+    pActor->nSeq = SeqOffsets[val] + val2;
+    pActor->field_4 = 256;
 
     if (nFlag & 0x80) {
         pSprite->cstat |= 0x2; // set transluscence
@@ -147,21 +149,23 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
 
 short GetAnimSprite(short nAnim)
 {
-    return AnimList[nAnim].nSprite;
+    auto pActor = &AnimList[nAnim];
+    return pActor->nSprite;
 }
 
 void AIAnim::Tick(RunListEvent* ev)
 {
     short nAnim = RunData[ev->nRun].nObjIndex;
     assert(nAnim >= 0 && nAnim < kMaxAnims);
+    auto pActor = &AnimList[nAnim];
 
-    short nSprite = AnimList[nAnim].nSprite;
-    short nSeq = AnimList[nAnim].nSeq;
+    short nSprite = pActor->nSprite;
+    short nSeq = pActor->nSeq;
     auto pSprite = &sprite[nSprite];
 
     assert(nSprite != -1);
 
-    short var_1C = AnimList[nAnim].field_2;
+    short var_1C = pActor->field_2;
 
     if (!(pSprite->cstat & 0x8000))
     {
@@ -233,26 +237,26 @@ void AIAnim::Tick(RunListEvent* ev)
         }
     }
 
-    AnimList[nAnim].field_2++;
-    if (AnimList[nAnim].field_2 >= SeqSize[nSeq])
+    pActor->field_2++;
+    if (pActor->field_2 >= SeqSize[nSeq])
     {
-        if (AnimList[nAnim].AnimFlags & 0x10)
+        if (pActor->AnimFlags & 0x10)
         {
-            AnimList[nAnim].field_2 = 0;
+            pActor->field_2 = 0;
         }
         else if (nSeq == nPreMagicSeq)
         {
-            AnimList[nAnim].field_2 = 0;
-            AnimList[nAnim].nSeq = nMagicSeq;
-            short nAnimSprite = AnimList[nAnim].nSprite;
-            AnimList[nAnim].AnimFlags |= 0x10;
+            pActor->field_2 = 0;
+            pActor->nSeq = nMagicSeq;
+            short nAnimSprite = pActor->nSprite;
+            pActor->AnimFlags |= 0x10;
             sprite[nAnimSprite].cstat |= 2;
         }
         else if (nSeq == nSavePointSeq)
         {
-            AnimList[nAnim].field_2 = 0;
-            AnimList[nAnim].nSeq++;
-            AnimList[nAnim].AnimFlags |= 0x10;
+            pActor->field_2 = 0;
+            pActor->nSeq++;
+            pActor->AnimFlags |= 0x10;
         }
         else
         {
@@ -266,9 +270,10 @@ void AIAnim::Draw(RunListEvent* ev)
 {
     short nAnim = RunData[ev->nRun].nObjIndex;
     assert(nAnim >= 0 && nAnim < kMaxAnims);
-    short nSeq = AnimList[nAnim].nSeq;
+    auto pActor = &AnimList[nAnim];
+    short nSeq = pActor->nSeq;
 
-    seq_PlotSequence(ev->nParam, nSeq, AnimList[nAnim].field_2, 0x101);
+    seq_PlotSequence(ev->nParam, nSeq, pActor->field_2, 0x101);
     ev->pTSprite->owner = -1;
 }
 
