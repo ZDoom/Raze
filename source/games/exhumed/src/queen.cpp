@@ -657,8 +657,8 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->field_C--;
         if (pEgg->field_C <= 0)
         {
-            short nWaspSprite = BuildWasp(-2, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang);
-            pSprite->z = sprite[nWaspSprite].z;
+            auto pWaspSprite = BuildWasp(nullptr, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang, true);
+            pSprite->z = pWaspSprite->s().z;
 
             DestroyEgg(nEgg);
         }
@@ -1329,7 +1329,7 @@ void AIQueen::Tick(RunListEvent* ev)
             {
                 if (QueenList[nQueen].field_C <= 0)
                 {
-                    if (WaspCount() < 100)
+                    if (Counters[kCountWasp] < 100)
                     {
                         QueenList[nQueen].nAction = 6;
                         QueenList[nQueen].nFrame = 0;

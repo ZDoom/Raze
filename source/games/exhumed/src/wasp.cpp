@@ -24,23 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-struct Wasp
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nRun;
-    short nTarget;
-    short nCount;
-    short nAngle;
-    short nAngle2;
-    short nVel;
-    short nDamage;
-};
-
-TArray<Wasp> WaspList;
-
 static actionSeq WaspSeq[] = {
     {0,  0},
     {0,  0},
@@ -51,64 +34,19 @@ static actionSeq WaspSeq[] = {
     {29, 1}
 };
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Wasp& w, Wasp* def)
+void SetWaspVel(spritetype* pSprite)
 {
-    if (arc.BeginObject(keyname))
-    {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("run", w.nRun)
-            ("count", w.nCount)
-            ("angle", w.nAngle)
-            ("angle2", w.nAngle2)
-            ("vel", w.nVel)
-            ("damage", w.nDamage)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeWasp(FSerializer& arc)
-{
-    arc("wasp", WaspList);
-}
-
-int WaspCount()
-{
-    return WaspList.Size();
-}
-
-void InitWasps()
-{
-    WaspList.Clear();
-}
-
-void SetWaspVel(short nSprite)
-{
-    auto pSprite = &sprite[nSprite];
     pSprite->xvel = bcos(pSprite->ang);
     pSprite->yvel = bsin(pSprite->ang);
 }
 
-int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
+DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle, bool bEggWasp)
 {
-    auto nWasp = WaspList.Reserve(1);
-    auto pActor = &WaspList[nWasp];
-
-    uint8_t bEggWasp = false;
-    if (nSprite == -2) {
-        bEggWasp = true;
-    }
-    auto pSprite = &sprite[nSprite];
-
-    if (nSprite < 0)
+    spritetype* pSprite;
+    if (pActor == nullptr)
     {
-        nSprite = insertsprite(nSector, 107);
-        assert(nSprite >= 0 && nSprite < kMaxSprites);
-        pSprite = &sprite[nSprite];
+        pActor = insertActor(nSector, 107);
+        pSprite = &pActor->s();
 
         pSprite->x = x;
         pSprite->y = y;
@@ -116,8 +54,9 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     }
     else
     {
+        pSprite = &pActor->s();
         nAngle = pSprite->ang;
-        changespritestat(nSprite, 107);
+        ChangeActorStat(pActor, 107);
     }
 
     pSprite->shade = -12;
@@ -151,10 +90,10 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
 
     pActor->nAction = 0;
     pActor->nFrame = 0;
-    pActor->nSprite = nSprite;
-    pActor->nTarget = -1;
+    pActor->pTarget = nullptr;
     pActor->nHealth = 800;
     pActor->nDamage = 10;
+    pActor->nPhase = Counters[kCountWasp]++;
 
     if (bEggWasp)
     {
@@ -170,18 +109,18 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     pActor->nVel = 0;
     pActor->nAngle2 = RandomSize(7) + 127;
 
-    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nWasp, 0x1E0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x1E0000);
 
-    pActor->nRun = runlist_AddRunRec(NewRun, nWasp, 0x1E0000);
+    pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x1E0000);
 
     nCreaturesTotal++;
-    return nSprite;
+    return pActor;
 }
 
 void AIWasp::Draw(RunListEvent* ev)
 {
-    short nWasp = RunData[ev->nRun].nObjIndex;
-    auto pActor = &WaspList[nWasp];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
     short nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqWasp] + WaspSeq[nAction].a, pActor->nFrame, WaspSeq[nAction].b);
@@ -190,24 +129,22 @@ void AIWasp::Draw(RunListEvent* ev)
 
 void AIWasp::RadialDamage(RunListEvent* ev)
 {
-    short nWasp = RunData[ev->nRun].nObjIndex;
-    auto pActor = &WaspList[nWasp];
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
 
     if (!(pSprite->cstat & 0x101))
         return;
 
-    ev->nDamage = runlist_CheckRadialDamage(nSprite);
+    ev->nDamage = runlist_CheckRadialDamage(pActor);
     Damage(ev);
 }
 
 void AIWasp::Damage(RunListEvent* ev)
 {
-    short nWasp = RunData[ev->nRun].nObjIndex;
-    auto pActor = &WaspList[nWasp];
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
     short nAction = pActor->nAction;
 
     if (!ev->nDamage) {
@@ -243,7 +180,7 @@ void AIWasp::Damage(RunListEvent* ev)
             pSprite->cstat = 0;
             pSprite->ang = (pSprite->ang + 1024) & kAngleMask;
 
-            SetWaspVel(nSprite);
+            SetWaspVel(pSprite);
 
             pSprite->zvel = 512;
 
@@ -255,13 +192,12 @@ void AIWasp::Damage(RunListEvent* ev)
 
 void AIWasp::Tick(RunListEvent* ev)
 {
-    short nWasp = RunData[ev->nRun].nObjIndex;
-    auto pActor = &WaspList[nWasp];
-    short nSprite = pActor->nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
     short nAction = pActor->nAction;
 
-    short nTarget = -1;
+    DExhumedActor* pTarget = nullptr;
 
     bool bVal = false;
 
@@ -269,7 +205,7 @@ void AIWasp::Tick(RunListEvent* ev)
 
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
-    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
+    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
     pActor->nFrame++;
     if (pActor->nFrame >= SeqSize[nSeq])
@@ -280,12 +216,12 @@ void AIWasp::Tick(RunListEvent* ev)
 
     if (pActor->nHealth > 0)
     {
-        nTarget = pActor->nTarget;
+        pTarget = pActor->pTarget;
 
-        if (nTarget > -1 && (!(sprite[nTarget].cstat & 0x101) || (SectFlag[sprite[nTarget].sectnum] & kSectUnderwater)))
+        if (pTarget && (!(pTarget->s().cstat & 0x101) || (SectFlag[pTarget->s().sectnum] & kSectUnderwater)))
         {
             // goto pink
-            pActor->nTarget = -1;
+            pActor->pTarget = nullptr;
             pActor->nAction = 0;
             pActor->nCount = RandomSize(6);
             return;
@@ -304,14 +240,14 @@ void AIWasp::Tick(RunListEvent* ev)
         pActor->nAngle += pActor->nAngle2;
         pActor->nAngle &= kAngleMask;
 
-        MoveCreature(nSprite);
+        MoveCreature(pActor);
 
-        if (nTarget >= 0)
+        if (pTarget)
         {
             pActor->nCount--;
             if (pActor->nCount > 0)
             {
-                PlotCourseToSprite(nSprite, nTarget);
+                PlotCourseToSprite(pActor, pTarget);
             }
             else
             {
@@ -324,8 +260,8 @@ void AIWasp::Tick(RunListEvent* ev)
         }
         else
         {
-            if ((nWasp & 0x1F) == (totalmoves & 0x1F)) {
-                pActor->nTarget = FindPlayer(nSprite, 60);
+            if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F)) {
+                pActor->pTarget = FindPlayer(pActor, 60);
             }
         }
 
@@ -343,26 +279,25 @@ void AIWasp::Tick(RunListEvent* ev)
             return;
         }
 
-        int nChaseVal = AngleChase(nSprite, nTarget, pActor->nVel, 0, 16);
+        auto nChaseVal = AngleChase(pActor, pTarget, pActor->nVel, 0, 16);
 
-        switch (nChaseVal & 0xC000)
+        switch (nChaseVal.type)
         {
         default:
             return;
 
-        case 0x8000:
+        case kHitWall:
         {
             return;
         }
 
-        case 0xC000:
+        case kHitSprite:
         {
-            short nSprite2 = (nChaseVal & 0x3FFF);
-            if (nSprite2 == nTarget)
+            if (nChaseVal.actor == pTarget)
             {
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
-                runlist_DamageEnemy(nSprite2, nSprite, pActor->nDamage);
+                runlist_DamageEnemy(pTarget, pActor, pActor->nDamage);
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
             }
@@ -389,10 +324,9 @@ void AIWasp::Tick(RunListEvent* ev)
     }
     case 4:
     {
-        int nMove = MoveCreature(nSprite) & 0x8000;
-        nMove |= 0xC000;
+        auto nMove = MoveCreature(pActor);
 
-        if (nMove)
+        //if (nMove.type != kHitNone) // The code messed up the return value so this check always was true.
         {
             pSprite->xvel = 0;
             pSprite->yvel = 0;
@@ -413,7 +347,7 @@ void AIWasp::Tick(RunListEvent* ev)
         {
             if (SectBelow[nSector] > -1)
             {
-                BuildSplash(nSprite, nSector);
+                BuildSplash(pActor->GetSpriteIndex(), nSector);
                 pSprite->cstat |= 0x8000;
             }
 

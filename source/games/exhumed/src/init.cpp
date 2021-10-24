@@ -94,7 +94,6 @@ uint8_t LoadLevel(MapRecord* map)
 
         InitSets();
         InitQueens();
-		InitWasps();
         InitRats();
         InitBullets();
         InitWeapons();
@@ -511,7 +510,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     return;
                 }
 
-                BuildWasp(nSprite, 0, 0, 0, 0, 0);
+                BuildWasp(pActor, 0, 0, 0, 0, 0, false);
                 return;
             }
             case 116:

@@ -84,6 +84,7 @@ enum ECounter
 	kCountRoach,
 	kCountScorp,
 	kCountSpider,
+	kCountWasp,
 
 	kNumCounters
 };

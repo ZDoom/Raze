@@ -307,7 +307,7 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel);
 int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1);
 inline Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1)
 {
-    return Collision(AngleChase(nSprite->GetSpriteIndex(), nSprite2->GetSpriteIndex(), ebx, ecx, push1));
+    return Collision(AngleChase(nSprite->GetSpriteIndex(), nSprite2? nSprite2->GetSpriteIndex() : -1, ebx, ecx, push1));
 }
 void SetQuake(short nSprite, int nVal);
 void SetQuake(DExhumedActor* nSprite, int nVal)
@@ -868,10 +868,7 @@ std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall);
 
 // wasp
 
-int WaspCount();
-
-void InitWasps();
-int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle);
+DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, bool bEggWasp);
 void FuncWasp(int eax, int, int edx, int nRun);
 
 
