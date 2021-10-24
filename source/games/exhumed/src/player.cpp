@@ -2257,9 +2257,9 @@ sectdone:
                     if (nLocalPlayer == nPlayer)
                     {
                         short nAnim = pSprite->owner;
-                        AnimList[nAnim].nSeq++;
-                        AnimList[nAnim].AnimFlags &= 0xEF;
-                        AnimList[nAnim].field_2 = 0;
+                        AnimList[nAnim].nIndex2++;
+                        AnimList[nAnim].nAction &= 0xEF;
+                        AnimList[nAnim].nIndex = 0;
 
                         changespritestat(nValB, 899);
                     }

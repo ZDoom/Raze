@@ -35,12 +35,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Anim& w, Anim* def
 {
     if (arc.BeginObject(keyname))
     {
-        arc("seq", w.nSeq)
-            ("val1", w.field_2)
+        arc("seq", w.nIndex2)
+            ("val1", w.nIndex)
             ("val2", w.field_4)
             ("sprite", w.nSprite)
-            ("runrec", w.AnimRunRec)
-            ("flags", w.AnimFlags)
+            ("runrec", w.nRun)
+            ("flags", w.nAction)
             .EndObject();
     }
     return arc;
@@ -75,7 +75,7 @@ void DestroyAnim(int nAnim)
     {
 		auto pSprite = &sprite[nSprite];
         StopSpriteSound(nSprite);
-        runlist_SubRunRec(pActor->AnimRunRec);
+        runlist_SubRunRec(pActor->nRun);
         runlist_DoSubRunRec(pSprite->extra);
         runlist_FreeRun(pSprite->lotag - 1);
     }
@@ -133,11 +133,11 @@ int BuildAnim(int nSprite, int val, int val2, int x, int y, int z, int nSector, 
     pSprite->owner = -1;
     pSprite->extra = runlist_AddRunRec(pSprite->lotag - 1, nAnim, 0x100000);
 
-    pActor->AnimRunRec = runlist_AddRunRec(NewRun, nAnim, 0x100000);
+    pActor->nRun = runlist_AddRunRec(NewRun, nAnim, 0x100000);
     pActor->nSprite = nSprite;
-    pActor->AnimFlags = nFlag;
-    pActor->field_2 = 0;
-    pActor->nSeq = SeqOffsets[val] + val2;
+    pActor->nAction = nFlag;
+    pActor->nIndex = 0;
+    pActor->nIndex2 = SeqOffsets[val] + val2;
     pActor->field_4 = 256;
 
     if (nFlag & 0x80) {
@@ -160,12 +160,12 @@ void AIAnim::Tick(RunListEvent* ev)
     auto pActor = &AnimList[nAnim];
 
     short nSprite = pActor->nSprite;
-    short nSeq = pActor->nSeq;
+    short nSeq = pActor->nIndex2;
     auto pSprite = &sprite[nSprite];
 
     assert(nSprite != -1);
 
-    short var_1C = pActor->field_2;
+    short var_1C = pActor->nIndex;
 
     if (!(pSprite->cstat & 0x8000))
     {
@@ -237,26 +237,26 @@ void AIAnim::Tick(RunListEvent* ev)
         }
     }
 
-    pActor->field_2++;
-    if (pActor->field_2 >= SeqSize[nSeq])
+    pActor->nIndex++;
+    if (pActor->nIndex >= SeqSize[nSeq])
     {
-        if (pActor->AnimFlags & 0x10)
+        if (pActor->nAction & 0x10)
         {
-            pActor->field_2 = 0;
+            pActor->nIndex = 0;
         }
         else if (nSeq == nPreMagicSeq)
         {
-            pActor->field_2 = 0;
-            pActor->nSeq = nMagicSeq;
+            pActor->nIndex = 0;
+            pActor->nIndex2 = nMagicSeq;
             short nAnimSprite = pActor->nSprite;
-            pActor->AnimFlags |= 0x10;
+            pActor->nAction |= 0x10;
             sprite[nAnimSprite].cstat |= 2;
         }
         else if (nSeq == nSavePointSeq)
         {
-            pActor->field_2 = 0;
-            pActor->nSeq++;
-            pActor->AnimFlags |= 0x10;
+            pActor->nIndex = 0;
+            pActor->nIndex2++;
+            pActor->nAction |= 0x10;
         }
         else
         {
@@ -271,9 +271,9 @@ void AIAnim::Draw(RunListEvent* ev)
     short nAnim = RunData[ev->nRun].nObjIndex;
     assert(nAnim >= 0 && nAnim < kMaxAnims);
     auto pActor = &AnimList[nAnim];
-    short nSeq = pActor->nSeq;
+    short nSeq = pActor->nIndex2;
 
-    seq_PlotSequence(ev->nParam, nSeq, pActor->field_2, 0x101);
+    seq_PlotSequence(ev->nParam, nSeq, pActor->nIndex, 0x101);
     ev->pTSprite->owner = -1;
 }
 

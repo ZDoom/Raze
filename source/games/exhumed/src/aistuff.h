@@ -27,13 +27,13 @@ BEGIN_PS_NS
 
 struct Anim
 {
-    short nSeq;
-    short field_2;
+    short nIndex2;
+    short nIndex;
     short field_4;
     short nSprite;
 
-    short AnimRunRec;
-    uint8_t AnimFlags;
+    short nRun;
+    uint8_t nAction;
 
 };
 
