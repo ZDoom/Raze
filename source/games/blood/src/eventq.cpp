@@ -394,6 +394,7 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 		else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
 		break;
 	case kChannelSecretFound:
+		if (actor != nullptr) nIndex = actor->GetIndex();	// the hint system needs the sprite index.
 		if (SECRET_Trigger(nIndex + 65536 * nType)) // if the hint system knows this secret it's a retrigger - skip that.
 		{
 			if (command >= kCmdNumberic)

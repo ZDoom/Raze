@@ -37,7 +37,7 @@ public:
 	int& xvel() { return Blood::xvel[index]; }
 	int& yvel() { return Blood::yvel[index]; }
 	int& zvel() { return Blood::zvel[index]; }
-	int GetIndex() { return s().index; }	// this is for error printing only!
+	int GetIndex() { return s().time; }	// For error printing only! This is only identical with the sprite index for items spawned at map start.
 
 	GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
 	POINT3D& basePoint() { return Blood::baseSprite[index]; }

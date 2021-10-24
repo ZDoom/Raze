@@ -848,6 +848,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         }
     }
     initspritelists();
+    leveltimer = mapHeader.numsprites;
     for (int i = 0; i < mapHeader.numsprites; i++)
     {
         RemoveSpriteStat(i);
@@ -883,6 +884,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->detail = load.detail;
         pSprite->shade = load.shade;
         pSprite->blend = 0;
+        pSprite->time = i;
 
         InsertSpriteSect(i, sprite[i].sectnum);
         InsertSpriteStat(i, sprite[i].statnum);
