@@ -182,10 +182,12 @@ namespace OpenGLESRenderer
 #if USE_GLES2
 		gles.depthStencilAvailable = CheckExtension("GL_OES_packed_depth_stencil");
 		gles.npotAvailable = CheckExtension("GL_OES_texture_npot");
+		gles.depthClampAvailable = CheckExtension("GL_EXT_depth_clamp")
 #else
 		gles.depthStencilAvailable = true;
 		gles.npotAvailable = true;
 		gles.useMappedBuffers = true;
+		gles.depthClampAvailable = true;
 #endif
 		
 		gles.numlightvectors = (gles.maxlights * LIGHT_VEC4_NUM);

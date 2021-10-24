@@ -69,6 +69,7 @@ namespace OpenGLESRenderer
 		bool depthStencilAvailable;
 		bool npotAvailable;
 		bool forceGLSLv100;
+		bool depthClampAvailable;
 		int max_texturesize;
 		char* vendorstring;
 		char* modelstring;
