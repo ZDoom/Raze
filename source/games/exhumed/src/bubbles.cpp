@@ -188,7 +188,7 @@ void AIBubble::Tick(RunListEvent* ev)
         short nSectAbove = SectAbove[nSector];
 
         if (pSprite->hitag > -1 && nSectAbove != -1) {
-            BuildAnim(-1, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);
+            BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);
         }
 
         DestroyBubble(nBubble);

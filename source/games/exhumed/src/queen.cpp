@@ -240,7 +240,7 @@ void DestroyEgg(short nEgg)
 
     if (QueenEgg[nEgg].nAction != 4)
     {
-        BuildAnim(-1, 34, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
+        BuildAnim(nullptr, 34, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
     }
     else
     {

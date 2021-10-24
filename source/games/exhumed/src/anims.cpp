@@ -295,7 +295,7 @@ void BuildExplosion(short nSprite)
         edx = 34;
     }
 
-    BuildAnim(-1, edx, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
+    BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
 }
 
 int BuildSplash(int nSprite, int nSector)
@@ -329,11 +329,11 @@ int BuildSplash(int nSprite, int nSector)
         nFlag = 0;
     }
 
-    int nAnim = BuildAnim(-1, edx, 0, pSprite->x, pSprite->y, sector[nSector].floorz, nSector, nRepeat, nFlag);
+    auto pActor = BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, sector[nSector].floorz, nSector, nRepeat, nFlag);
 
     if (!bIsLava)
     {
-        D3PlayFX(StaticSound[nSound] | 0xa00, AnimList[nAnim].nSprite);
+        D3PlayFX(StaticSound[nSound] | 0xa00, pActor);
     }
 
     return AnimList[nAnim].nSprite;

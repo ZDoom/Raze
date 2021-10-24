@@ -271,7 +271,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
 
     if (nStat <= 90 || nStat >= 199)
     {
-        BuildAnim(-1, pBulletInfo->field_C, 0, x, y, z, nSector, 40, pBulletInfo->nFlags);
+        BuildAnim(nullptr, pBulletInfo->field_C, 0, x, y, z, nSector, 40, pBulletInfo->nFlags);
         return;
     }
 
@@ -283,13 +283,13 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
         case 102:
         case kStatExplodeTrigger:
         case kStatExplodeTarget:
-            BuildAnim(-1, 12, 0, x, y, z, nSector, 40, 0);
+            BuildAnim(nullptr, 12, 0, x, y, z, nSector, 40, 0);
             break;
         default:
-            BuildAnim(-1, 39, 0, x, y, z, nSector, 40, 0);
+            BuildAnim(nullptr, 39, 0, x, y, z, nSector, 40, 0);
             if (pBullet->nType > 2)
             {
-                BuildAnim(-1, pBulletInfo->field_C, 0, x, y, z, nSector, 40, pBulletInfo->nFlags);
+                BuildAnim(nullptr, pBulletInfo->field_C, 0, x, y, z, nSector, 40, pBulletInfo->nFlags);
             }
             break;
     }
@@ -500,7 +500,7 @@ HITWALL:
                 }
                 else
                 {
-                    BuildAnim(-1, pBulletInfo->field_C, 0, x2, y2, z2, hitsect, 40, pBulletInfo->nFlags);
+                    BuildAnim(nullptr, pBulletInfo->field_C, 0, x2, y2, z2, hitsect, 40, pBulletInfo->nFlags);
                 }
             }
             else
@@ -518,7 +518,7 @@ HITWALL:
                         }
 
                         // draws bullet puff on walls when they're shot
-                        BuildAnim(-1, pBulletInfo->field_C, 0, x2, y2, z2 + zOffset + -4096, hitsect, 40, pBulletInfo->nFlags);
+                        BuildAnim(nullptr, pBulletInfo->field_C, 0, x2, y2, z2 + zOffset + -4096, hitsect, 40, pBulletInfo->nFlags);
                     }
                 }
                 else

@@ -762,7 +762,7 @@ loc_flag:
                                     else if (sprite[nSprite2].statnum == 102)
                                     {
                                         // loc_27370:
-                                        BuildAnim(-1, 12, 0, theX, theY, theZ, nSectorB, 30, 0);
+                                        BuildAnim(nullptr, 12, 0, theX, theY, theZ, nSectorB, 30, 0);
                                     }
                                     else if (sprite[nSprite2].statnum == kStatExplodeTrigger) {
                                         var_28 += 2;
@@ -774,7 +774,7 @@ loc_flag:
                                 else
                                 {
                                     // loc_27370:
-                                    BuildAnim(-1, 12, 0, theX, theY, theZ, nSectorB, 30, 0);
+                                    BuildAnim(nullptr, 12, 0, theX, theY, theZ, nSectorB, 30, 0);
                                 }
                             }
                         }

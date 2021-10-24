@@ -2591,7 +2591,7 @@ sectdone:
                 short mouthSect;
                 WheresMyMouth(nPlayer, &mouthX, &mouthY, &mouthZ, &mouthSect);
 
-                BuildAnim(-1, 71, 0, mouthX, mouthY, pPlayerSprite->z + 3840, mouthSect, 75, 128);
+                BuildAnim(nullptr, 71, 0, mouthX, mouthY, pPlayerSprite->z + 3840, mouthSect, 75, 128);
             }
             break;
         case 17:
