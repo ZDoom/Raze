@@ -147,7 +147,7 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 		spawned->picnum = actj->s->picnum;
 		sp = spawned->s;
 		t = spawned->temp_data;
-		i = spawned->GetIndex();
+		i = spawned->GetSpriteIndex();
 	}
 	else
 	{

@@ -78,7 +78,7 @@ void deletesprite(DDukeActor *const actor)
 		S_StopSound(actor->s->lotag, actor);
 	else
 		S_RelinkActorSound(actor, nullptr);
-	::deletesprite(actor->GetIndex());
+	::deletesprite(actor->GetSpriteIndex());
 }
 
 //---------------------------------------------------------------------------

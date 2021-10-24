@@ -39,7 +39,7 @@ struct DDukeActor
 
 	static DDukeActor* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
 
-	DDukeActor() : s(&sprite[this - array()]) {}			// little trick to initialize the reference automatically. ;)
+	DDukeActor() : s(&sprite[this - array()]) {}
 	DDukeActor(const DDukeActor& other) = delete;				// we also do not want to allow copies.
 	DDukeActor& operator=(const DDukeActor& other) = delete;
 	void clear()
@@ -49,7 +49,7 @@ struct DDukeActor
 		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
-	int GetIndex() const { return int(this - array()); }
+	int GetSpriteIndex() const { return int(this - array()); }
 
 	// Wrapper around some ugliness. The 'owner' field gets abused by some actors, so better wrap its real use in access functions to keep things in order.
 	inline DDukeActor* GetOwner()
@@ -59,7 +59,7 @@ struct DDukeActor
 
 	inline void SetOwner(DDukeActor* a)
 	{
-		s->owner = a? a->GetIndex() : -1;
+		s->owner = a? a->GetSpriteIndex() : -1;
 	}
 
 	// same for the 'hittype' owner - which is normally the shooter in an attack.
@@ -70,7 +70,7 @@ struct DDukeActor
 
 	inline void SetHitOwner(DDukeActor* a)
 	{
-		owner = a ? a->GetIndex() : -1;
+		owner = a ? a->GetSpriteIndex() : -1;
 	}
 
 	// This used the Owner field - better move this to something more safe.

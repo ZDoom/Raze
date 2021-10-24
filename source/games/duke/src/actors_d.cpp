@@ -1561,7 +1561,7 @@ static bool movefireball(DDukeActor* actor)
 			int trail = actor->temp_data[1];
 			auto ball = spawn(actor, FIREBALL);
 			auto spr = ball->s;
-			actor->temp_data[1] = ball->GetIndex();
+			actor->temp_data[1] = ball->GetSpriteIndex();
 			
 			spr->xvel = s->xvel;
 			spr->yvel = s->yvel;
@@ -1585,7 +1585,7 @@ static bool movefireball(DDukeActor* actor)
 
 			FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
 			
-			fire.Insert(ball->GetIndex(), proj);
+			fire.Insert(ball->GetSpriteIndex(), proj);
 			changeactorstat(ball, STAT_PROJECTILE);
 		}
 		actor->temp_data[0]++;
