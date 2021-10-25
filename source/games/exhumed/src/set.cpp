@@ -89,6 +89,7 @@ void InitSets()
 void BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel)
 {
     auto nSet = SetList.Reserve(1);
+    auto pActor = &SetList[nSet];
     auto pSprite = &sprite[nSprite];
     if (nSprite == -1)
     {
@@ -128,16 +129,16 @@ void BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, i
 
     //	GrabTimeSlot(3);
 
-    SetList[nSet].nAction = 1;
-    SetList[nSet].nHealth = 8000;
-    SetList[nSet].nSprite = nSprite;
-    SetList[nSet].nFrame = 0;
-    SetList[nSet].nTarget = -1;
-    SetList[nSet].nCount = 90;
-    SetList[nSet].nIndex = 0;
-    SetList[nSet].nIndex2 = 0;
+    pActor->nAction = 1;
+    pActor->nHealth = 8000;
+    pActor->nSprite = nSprite;
+    pActor->nFrame = 0;
+    pActor->nTarget = -1;
+    pActor->nCount = 90;
+    pActor->nIndex = 0;
+    pActor->nIndex2 = 0;
 
-    SetList[nSet].nChannel = nChannel;
+    pActor->nChannel = nChannel;
 
     pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nSet, 0x190000);
 
@@ -149,7 +150,8 @@ void BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, i
 
 void BuildSoul(int nSet)
 {
-    int nSetSprite = SetList[nSet].nSprite;
+    auto pActor = &SetList[nSet];
+    int nSetSprite = pActor->nSprite;
     auto pSetSprite = &sprite[nSetSprite];
     int nSprite = insertsprite(pSetSprite->sectnum, 0);
     auto pSprite = &sprite[nSprite];
@@ -205,7 +207,8 @@ void AISoul::Tick(RunListEvent* ev)
     if (movesprite(nSprite, bcos(pSprite->ang) * nVel, bsin(pSprite->ang) * nVel, pSprite->zvel, 5120, 0, CLIPMASK0) & 0x10000)
     {
         int nSet = pSprite->hitag;
-        int nSetSprite = SetList[nSet].nSprite;
+        auto pActor = &SetList[nSet];
+        int nSetSprite = pActor->nSprite;
         auto pSetSprite = &sprite[nSetSprite];
 
         pSprite->cstat = 0;
@@ -231,9 +234,10 @@ void AISet::RadialDamage(RunListEvent* ev)
 {
     short nSet = RunData[ev->nRun].nObjIndex;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
+    auto pActor = &SetList[nSet];
 
-    short nSprite = SetList[nSet].nSprite;
-    short nAction = SetList[nSet].nAction;
+    short nSprite = pActor->nSprite;
+    short nAction = pActor->nAction;
 
     if (nAction == 5)
     {
@@ -247,39 +251,40 @@ void AISet::Damage(RunListEvent* ev)
 {
     short nSet = RunData[ev->nRun].nObjIndex;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
+    auto pActor = &SetList[nSet];
 
-    short nSprite = SetList[nSet].nSprite;
-    short nAction = SetList[nSet].nAction;
+    short nSprite = pActor->nSprite;
+    short nAction = pActor->nAction;
     auto pSprite = &sprite[nSprite];
 
-    if (ev->nDamage && SetList[nSet].nHealth > 0)
+    if (ev->nDamage && pActor->nHealth > 0)
     {
         if (nAction != 1)
         {
-            SetList[nSet].nHealth -= dmgAdjust(ev->nDamage);
+            pActor->nHealth -= dmgAdjust(ev->nDamage);
         }
 
-        if (SetList[nSet].nHealth <= 0)
+        if (pActor->nHealth <= 0)
         {
             pSprite->xvel = 0;
             pSprite->yvel = 0;
             pSprite->zvel = 0;
             pSprite->cstat &= 0xFEFE;
 
-            SetList[nSet].nHealth = 0;
+            pActor->nHealth = 0;
 
             nCreaturesKilled++;
 
             if (nAction < 10)
             {
-                SetList[nSet].nFrame = 0;
-                SetList[nSet].nAction = 10;
+                pActor->nFrame = 0;
+                pActor->nAction = 10;
             }
         }
         else if (nAction == 1)
         {
-            SetList[nSet].nAction = 2;
-            SetList[nSet].nFrame = 0;
+            pActor->nAction = 2;
+            pActor->nFrame = 0;
         }
     }
 }
@@ -288,10 +293,11 @@ void AISet::Draw(RunListEvent* ev)
 {
     short nSet = RunData[ev->nRun].nObjIndex;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
+    auto pActor = &SetList[nSet];
 
-    short nAction = SetList[nSet].nAction;
+    short nAction = pActor->nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSet] + SetSeq[nAction].a, SetList[nSet].nFrame, SetSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSet] + SetSeq[nAction].a, pActor->nFrame, SetSeq[nAction].b);
     return;
 }
 
@@ -299,43 +305,44 @@ void AISet::Tick(RunListEvent* ev)
 {
     short nSet = RunData[ev->nRun].nObjIndex;
     assert(nSet >= 0 && nSet < (int)SetList.Size());
+    auto pActor = &SetList[nSet];
 
-    short nSprite = SetList[nSet].nSprite;
-    short nAction = SetList[nSet].nAction;
+    short nSprite = pActor->nSprite;
+    short nAction = pActor->nAction;
     auto pSprite = &sprite[nSprite];
 
     bool bVal = false;
 
     Gravity(nSprite);
 
-    short nSeq = SeqOffsets[kSeqSet] + SetSeq[SetList[nSet].nAction].a;
-    pSprite->picnum = seq_GetSeqPicnum2(nSeq, SetList[nSet].nFrame);
-    seq_MoveSequence(nSprite, nSeq, SetList[nSet].nFrame);
+    short nSeq = SeqOffsets[kSeqSet] + SetSeq[pActor->nAction].a;
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    seq_MoveSequence(nSprite, nSeq, pActor->nFrame);
 
     if (nAction == 3)
     {
-        if (SetList[nSet].nIndex2) {
-            SetList[nSet].nFrame++;
+        if (pActor->nIndex2) {
+            pActor->nFrame++;
         }
     }
 
-    SetList[nSet].nFrame++;
-    if (SetList[nSet].nFrame >= SeqSize[nSeq])
+    pActor->nFrame++;
+    if (pActor->nFrame >= SeqSize[nSeq])
     {
-        SetList[nSet].nFrame = 0;
+        pActor->nFrame = 0;
         bVal = true;
     }
 
-    short nFlag = FrameFlag[SeqBase[nSeq] + SetList[nSet].nFrame];
-    short nTarget = SetList[nSet].nTarget;
+    short nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
+    short nTarget = pActor->nTarget;
 
     if (nTarget > -1 && nAction < 10)
     {
         if (!(sprite[nTarget].cstat & 0x101))
         {
-            SetList[nSet].nTarget = -1;
-            SetList[nSet].nAction = 0;
-            SetList[nSet].nFrame = 0;
+            pActor->nTarget = -1;
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
             nTarget = -1;
         }
     }
@@ -368,9 +375,9 @@ void AISet::Tick(RunListEvent* ev)
 
             if (nTarget >= 0)
             {
-                SetList[nSet].nAction = 3;
-                SetList[nSet].nFrame = 0;
-                SetList[nSet].nTarget = nTarget;
+                pActor->nAction = 3;
+                pActor->nFrame = 0;
+                pActor->nTarget = nTarget;
 
                 pSprite->xvel = bcos(pSprite->ang, -1);
                 pSprite->yvel = bsin(pSprite->ang, -1);
@@ -384,11 +391,11 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (FindPlayer(nSprite, 1000) >= 0)
         {
-            SetList[nSet].nCount--;
-            if (SetList[nSet].nCount <= 0)
+            pActor->nCount--;
+            if (pActor->nCount <= 0)
             {
-                SetList[nSet].nAction = 2;
-                SetList[nSet].nFrame = 0;
+                pActor->nAction = 2;
+                pActor->nFrame = 0;
             }
         }
 
@@ -399,14 +406,14 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            SetList[nSet].nAction = 7;
-            SetList[nSet].nIndex = 0;
-            SetList[nSet].nFrame = 0;
+            pActor->nAction = 7;
+            pActor->nIndex = 0;
+            pActor->nFrame = 0;
 
             pSprite->xvel = 0;
             pSprite->yvel = 0;
 
-            SetList[nSet].nTarget = FindPlayer(nSprite, 1000);
+            pActor->nTarget = FindPlayer(nSprite, 1000);
         }
         return;
     }
@@ -431,9 +438,9 @@ void AISet::Tick(RunListEvent* ev)
                 case 0:
                 case 2:
                 {
-                    SetList[nSet].nIndex = 0;
-                    SetList[nSet].nAction = 7;
-                    SetList[nSet].nFrame = 0;
+                    pActor->nIndex = 0;
+                    pActor->nAction = 7;
+                    pActor->nFrame = 0;
                     pSprite->xvel = 0;
                     pSprite->yvel = 0;
                     return;
@@ -442,9 +449,9 @@ void AISet::Tick(RunListEvent* ev)
                 {
                     PlotCourseToSprite(nSprite, nTarget);
 
-                    SetList[nSet].nAction = 6;
-                    SetList[nSet].nFrame = 0;
-                    SetList[nSet].nRun = 5;
+                    pActor->nAction = 6;
+                    pActor->nFrame = 0;
+                    pActor->nRun = 5;
                     pSprite->xvel = 0;
                     pSprite->yvel = 0;
                     return;
@@ -453,11 +460,11 @@ void AISet::Tick(RunListEvent* ev)
                 {
                     if (nCourse <= 100)
                     {
-                        SetList[nSet].nIndex2 = 0;
+                        pActor->nIndex2 = 0;
                     }
                     else
                     {
-                        SetList[nSet].nIndex2 = 1;
+                        pActor->nIndex2 = 1;
                     }
                     break;
                 }
@@ -469,7 +476,7 @@ void AISet::Tick(RunListEvent* ev)
             pSprite->xvel = bcos(nAngle, -1);
             pSprite->yvel = bsin(nAngle, -1);
 
-            if (SetList[nSet].nIndex2)
+            if (pActor->nIndex2)
             {
                 pSprite->xvel *= 2;
                 pSprite->yvel *= 2;
@@ -486,9 +493,9 @@ void AISet::Tick(RunListEvent* ev)
                     {
                         if (pSprite->z > sector[nSector].ceilingz)
                         {
-                            SetList[nSet].nIndex = 1;
-                            SetList[nSet].nAction = 7;
-                            SetList[nSet].nFrame = 0;
+                            pActor->nIndex = 1;
+                            pActor->nAction = 7;
+                            pActor->nFrame = 0;
                             pSprite->xvel = 0;
                             pSprite->yvel = 0;
                             return;
@@ -508,16 +515,16 @@ void AISet::Tick(RunListEvent* ev)
                     int nAng = getangle(sprite[nTarget].x - pSprite->x, sprite[nTarget].y - pSprite->y);
                     if (AngleDiff(pSprite->ang, nAng) < 64)
                     {
-                        SetList[nSet].nAction = 4;
-                        SetList[nSet].nFrame = 0;
+                        pActor->nAction = 4;
+                        pActor->nFrame = 0;
                     }
                     break;
                 }
                 else
                 {
-                    SetList[nSet].nIndex = 1;
-                    SetList[nSet].nAction = 7;
-                    SetList[nSet].nFrame = 0;
+                    pActor->nIndex = 1;
+                    pActor->nAction = 7;
+                    pActor->nFrame = 0;
                     pSprite->xvel = 0;
                     pSprite->yvel = 0;
                     return;
@@ -528,8 +535,8 @@ void AISet::Tick(RunListEvent* ev)
         }
         else
         {
-            SetList[nSet].nAction = 0;
-            SetList[nSet].nFrame = 0;
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
             return;
         }
     }
@@ -538,14 +545,14 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nTarget == -1)
         {
-            SetList[nSet].nAction = 0;
-            SetList[nSet].nCount = 50;
+            pActor->nAction = 0;
+            pActor->nCount = 50;
         }
         else
         {
             if (PlotCourseToSprite(nSprite, nTarget) >= 768)
             {
-                SetList[nSet].nAction = 3;
+                pActor->nAction = 3;
             }
             else if (nFlag & 0x80)
             {
@@ -560,8 +567,8 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            SetList[nSet].nAction = 0;
-            SetList[nSet].nCount = 15;
+            pActor->nAction = 0;
+            pActor->nCount = 15;
         }
         return;
     }
@@ -574,11 +581,11 @@ void AISet::Tick(RunListEvent* ev)
             int nBullet = BuildBullet(nSprite, 11, 0, 0, -1, pSprite->ang, nTarget + 10000, 1);
             SetBulletEnemy(nBullet >> 16, nTarget); // isolate the bullet number (shift off the sprite index)
 
-            SetList[nSet].nRun--;
-            if (SetList[nSet].nRun <= 0 || !RandomBit())
+            pActor->nRun--;
+            if (pActor->nRun <= 0 || !RandomBit())
             {
-                SetList[nSet].nAction = 0;
-                SetList[nSet].nFrame = 0;
+                pActor->nAction = 0;
+                pActor->nFrame = 0;
             }
         }
         return;
@@ -588,7 +595,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            if (SetList[nSet].nIndex)
+            if (pActor->nIndex)
             {
                 pSprite->zvel = -10000;
             }
@@ -597,8 +604,8 @@ void AISet::Tick(RunListEvent* ev)
                 pSprite->zvel = -(PlotCourseToSprite(nSprite, nTarget));
             }
 
-            SetList[nSet].nAction = 8;
-            SetList[nSet].nFrame = 0;
+            pActor->nAction = 8;
+            pActor->nFrame = 0;
 
             pSprite->xvel = bcos(pSprite->ang);
             pSprite->yvel = bsin(pSprite->ang);
@@ -610,14 +617,14 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            SetList[nSet].nFrame = SeqSize[nSeq] - 1;
+            pActor->nFrame = SeqSize[nSeq] - 1;
         }
 
         if (nMov & 0x20000)
         {
             SetQuake(nSprite, 200);
-            SetList[nSet].nAction = 9;
-            SetList[nSet].nFrame = 0;
+            pActor->nAction = 9;
+            pActor->nFrame = 0;
         }
         return;
     }
@@ -634,9 +641,9 @@ void AISet::Tick(RunListEvent* ev)
 
             PlotCourseToSprite(nSprite, nTarget);
 
-            SetList[nSet].nAction = 6;
-            SetList[nSet].nFrame = 0;
-            SetList[nSet].nRun = 5;
+            pActor->nAction = 6;
+            pActor->nFrame = 0;
+            pActor->nRun = 5;
 
             pSprite->xvel = 0;
             pSprite->yvel = 0;
@@ -655,10 +662,10 @@ void AISet::Tick(RunListEvent* ev)
 
         if (bVal)
         {
-            SetList[nSet].nAction = 11;
-            SetList[nSet].nFrame = 0;
+            pActor->nAction = 11;
+            pActor->nFrame = 0;
 
-            runlist_ChangeChannel(SetList[nSet].nChannel, 1);
+            runlist_ChangeChannel(pActor->nChannel, 1);
 
             for (int i = 0; i < 20; i++)
             {
@@ -682,10 +689,10 @@ void AISet::Tick(RunListEvent* ev)
         {
             if (!(sprite[nTarget].cstat & 0x101))
             {
-                SetList[nSet].nAction = 0;
-                SetList[nSet].nFrame = 0;
-                SetList[nSet].nCount = 100;
-                SetList[nSet].nTarget = -1;
+                pActor->nAction = 0;
+                pActor->nFrame = 0;
+                pActor->nCount = 100;
+                pActor->nTarget = -1;
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
             }
