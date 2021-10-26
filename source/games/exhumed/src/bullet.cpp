@@ -871,11 +871,11 @@ void AIBullet::Draw(RunListEvent* ev)
 
     if (BulletList[nBullet].nType == 15)
     {
-        seq_PlotArrowSequence(nSprite2, nSeq, BulletList[nBullet].nFrame);
+        seq_PlotArrowSequence(ev->nParam, nSeq, BulletList[nBullet].nFrame);
     }
     else
     {
-        seq_PlotSequence(nSprite2, nSeq, BulletList[nBullet].nFrame, 0);
+        seq_PlotSequence(ev->nParam, nSeq, BulletList[nBullet].nFrame, 0);
         ev->pTSprite->owner = -1;
     }
 }
