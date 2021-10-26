@@ -225,7 +225,7 @@ void BlowChunks(DExhumedActor* pActor)
 {
     for (int i = 0; i < 4; i++)
     {
-        BuildCreatureChunk(pActor->GetSpriteIndex(), seq_GetSeqPicnum(16, i + 41, 0));
+        BuildCreatureChunk(pActor, seq_GetSeqPicnum(16, i + 41, 0));
     }
 }
 
@@ -242,7 +242,7 @@ void DestroyEgg(short nEgg)
     {
         for (int i = 0; i < 4; i++)
         {
-            BuildCreatureChunk(pActor->GetSpriteIndex(), seq_GetSeqPicnum(kSeqQueenEgg, (i % 2) + 24, 0));
+            BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueenEgg, (i % 2) + 24, 0));
         }
     }
 
@@ -1410,18 +1410,18 @@ void AIQueen::Tick(RunListEvent* ev)
 
                     for (int i = 0; i < 20; i++)
                     {
-                        short nChunkSprite = BuildCreatureChunk(pActor->GetSpriteIndex(), seq_GetSeqPicnum(kSeqQueen, 57, 0)) & 0xFFFF;
+                        auto pChunkActor = BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueen, 57, 0));
 
-                        sprite[nChunkSprite].picnum = kQueenChunk + (i % 3);
-                        sprite[nChunkSprite].xrepeat = 100;
-                        sprite[nChunkSprite].yrepeat = 100;
+                        pChunkActor->s().picnum = kQueenChunk + (i % 3);
+                        pChunkActor->s().xrepeat = 100;
+                        pChunkActor->s().yrepeat = 100;
                     }
 
-                    short nChunkSprite = BuildCreatureChunk(pActor->GetSpriteIndex(), seq_GetSeqPicnum(kSeqQueen, 57, 0));
+                    auto pChunkActor = BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueen, 57, 0));
 
-                    sprite[nChunkSprite].picnum = kTile3126;
-                    sprite[nChunkSprite].yrepeat = 100;
-                    sprite[nChunkSprite].xrepeat = 100;
+                    pChunkActor->s().picnum = kTile3126;
+                    pChunkActor->s().yrepeat = 100;
+                    pChunkActor->s().xrepeat = 100;
 
                     PlayFXAtXYZ(
                         StaticSound[kSound40],

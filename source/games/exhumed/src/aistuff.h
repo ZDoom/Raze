@@ -261,6 +261,13 @@ inline DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool don
 }
 
 int BuildCreatureChunk(int nVal, int nPic);
+DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false)
+{
+    int s = pSrc->GetSpriteIndex();
+    if (bSpecial) s |= 0x4000;
+    int c = BuildCreatureChunk(s, nPic);
+    return c < 0 ? nullptr : &exhumedActors[c];
+}
 void BuildNear(int x, int y, int walldist, int nSector);
 int PlotCourseToSprite(int nSprite1, int nSprite2);
 inline int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2)

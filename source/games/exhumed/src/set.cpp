@@ -597,7 +597,7 @@ void AISet::Tick(RunListEvent* ev)
         if (nFlag & 0x80)
         {
             pSprite->z -= GetActorHeight(pActor);
-            BuildCreatureChunk(pActor->GetSpriteIndex(), seq_GetSeqPicnum(kSeqSet, 76, 0));
+            BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqSet, 76, 0));
             pSprite->z += GetActorHeight(pActor);
         }
 
