@@ -523,7 +523,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 113:
             {
-                BuildQueen(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildQueen(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 112:

@@ -350,7 +350,7 @@ int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int 
 // queen
 
 void InitQueens();
-void BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nVal);
+void BuildQueen(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nVal);
 void FuncQueenEgg(int, int, int, int);
 void FuncQueenHead(int, int, int, int);
 void FuncQueen(int, int, int, int);

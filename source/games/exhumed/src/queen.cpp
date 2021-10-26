@@ -72,11 +72,11 @@ static actionSeq EggSeq[] = {
 
 struct Queen
 {
+    DExhumedActor* pActor;
+    DExhumedActor* pTarget;
     short nHealth;
     short nFrame;
     short nAction;
-    short nSprite;
-    short nTarget;
     short nAction2;
     short nIndex;
     short nIndex2;
@@ -114,7 +114,7 @@ int nQHead = 0;
 short nHeadVel;
 short nVelShift;
 
-short tailspr[kMaxTails];
+DExhumedActor* tailspr[kMaxTails];
 
 
 Queen QueenList[kMaxQueens];
@@ -133,8 +133,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Queen& w, Queen* d
         arc("health", w.nHealth)
             ("frame", w.nFrame)
             ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
+            ("sprite", w.pActor)
+            ("target", w.pTarget)
             ("ata", w.nAction2)
             ("atc", w.nIndex)
             ("at10", w.nIndex2)
@@ -221,11 +221,11 @@ int GrabEgg()
     return egg;
 }
 
-void BlowChunks(int nSprite)
+void BlowChunks(DExhumedActor* pActor)
 {
     for (int i = 0; i < 4; i++)
     {
-        BuildCreatureChunk(nSprite, seq_GetSeqPicnum(16, i + 41, 0));
+        BuildCreatureChunk(pActor->GetSpriteIndex(), seq_GetSeqPicnum(16, i + 41, 0));
     }
 }
 
@@ -362,18 +362,18 @@ int DestroyTailPart()
         return 0;
     }
 
-    short nSprite = tailspr[--QueenHead.nIndex2];
+    auto pActor = tailspr[--QueenHead.nIndex2];
 
-    BlowChunks(nSprite);
-    BuildExplosion(&exhumedActors[nSprite]);
+    BlowChunks(pActor);
+    BuildExplosion(pActor);
 
     for (int i = 0; i < 5; i++)
     {
-        short nHeight = GetSpriteHeight(nSprite);
-        BuildLavaLimb(&exhumedActors[nSprite], i, nHeight);
+        short nHeight = GetActorHeight(pActor);
+        BuildLavaLimb(pActor, i, nHeight);
     }
 
-    mydeletesprite(nSprite);
+    DeleteActor(pActor);
     return 1;
 }
 
@@ -390,16 +390,12 @@ void BuildTail()
 
     for (i = 0; i < kMaxTails; i++)
     {
-        short nTailSprite = insertsprite(nSector, 121);
-        auto pTailSprite = &sprite[nTailSprite];
-        tailspr[i] = nTailSprite;
-
-        if (nTailSprite < 0) {
-            I_Error("Can't create queen's tail!\n");
-        }
+        auto pTailActor = insertActor(nSector, 121);
+        auto pTailSprite = &pTailActor->s();
+        tailspr[i] = pTailActor;
 
         pTailSprite->lotag = runlist_HeadRun() + 1;
-        pTailSprite->owner = runlist_AddRunRec(sprite[nTailSprite].lotag - 1, (i + 1), 0x1B0000);
+        pTailSprite->owner = runlist_AddRunRec(pTailSprite->lotag - 1, (i + 1), 0x1B0000);
         pTailSprite->shade = -12;
         pTailSprite->x = x;
         pTailSprite->y = y;
@@ -409,7 +405,7 @@ void BuildTail()
         pTailSprite->xrepeat = 80;
         pTailSprite->yrepeat = 80;
         pTailSprite->picnum = 1;
-        pTailSprite->pal = sector[sprite[nTailSprite].sectnum].ceilingpal;
+        pTailSprite->pal = sector[pTailSprite->sectnum].ceilingpal;
         pTailSprite->xoffset = 0;
         pTailSprite->yoffset = 0;
         pTailSprite->z = z;
@@ -436,8 +432,8 @@ void BuildQueenEgg(short nQueen, int nVal)
         return;
     }
 
-    short nSprite = QueenList[nQueen].nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = QueenList[nQueen].pActor;
+    auto pSprite = &pActor->s();
 
     int x = pSprite->x;
     int y = pSprite->y;
@@ -488,7 +484,7 @@ void BuildQueenEgg(short nQueen, int nVal)
     QueenEgg[nEgg].nHealth = 200;
     QueenEgg[nEgg].nFrame = 0;
     QueenEgg[nEgg].pActor = pActor2;
-    QueenEgg[nEgg].pTarget = &exhumedActors[QueenList[nQueen].nTarget];
+    QueenEgg[nEgg].pTarget = QueenList[nQueen].pTarget;
 
     if (nVal)
     {
@@ -702,8 +698,8 @@ void FuncQueenEgg(int nObject, int nMessage, int nDamage, int nRun)
 
 void BuildQueenHead(short nQueen)
 {
-    short nSprite = QueenList[nQueen].nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = QueenList[nQueen].pActor;
+    auto pSprite = &pActor->s();
 
     int x = pSprite->x;
     int y = pSprite->y;
@@ -740,7 +736,7 @@ void BuildQueenHead(short nQueen)
 
     QueenHead.nHealth = 800;
     QueenHead.nAction = 0;
-    QueenHead.pTarget = &exhumedActors[QueenList[nQueen].nTarget];
+    QueenHead.pTarget = QueenList[nQueen].pTarget;
     QueenHead.nFrame = 0;
     QueenHead.pActor = pActor2;
     QueenHead.nIndex = 0;
@@ -945,18 +941,21 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
 
             int var_20 = MoveQS[nHd];
-            short nTSprite = tailspr[i];
-
-            if (var_20 != sprite[nTSprite].sectnum)
+            auto pTActor = tailspr[i];
+            if (pTActor)
             {
-                assert(var_20 >= 0 && var_20 < kMaxSectors);
-                mychangespritesect(nTSprite, var_20);
-            }
+                auto pTSprite = &pTActor->s();
+                if (var_20 != pTSprite->sectnum)
+                {
+                    assert(var_20 >= 0 && var_20 < kMaxSectors);
+                    ChangeActorSect(pTActor, var_20);
+                }
 
-            sprite[nTSprite].x = MoveQX[nHd];
-            sprite[nTSprite].y = MoveQY[nHd];
-            sprite[nTSprite].z = MoveQZ[nHd];
-            sprite[nTSprite].ang = MoveQA[nHd];
+                pTSprite->x = MoveQX[nHd];
+                pTSprite->y = MoveQY[nHd];
+                pTSprite->z = MoveQZ[nHd];
+                pTSprite->ang = MoveQA[nHd];
+            }
         }
 
         nQHead++;
@@ -996,7 +995,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                     movesprite(pActor, dx, dy, dz, 0, 0, CLIPMASK1);
 
-                    BlowChunks(pActor->GetSpriteIndex());
+                    BlowChunks(pActor);
                     BuildExplosion(pActor);
 
                     ChangeActorSect(pActor, nSector);
@@ -1021,7 +1020,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                 for (i = 0; i < 10; i++)
                 {
-                    BlowChunks(pActor->GetSpriteIndex());
+                    BlowChunks(pActor);
                 }
 
                 for (i = 0; i < 20; i++)
@@ -1116,7 +1115,7 @@ void FuncQueenHead(int nObject, int nMessage, int nDamage, int nRun)
     runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
-void BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel)
+void BuildQueen(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle, int nChannel)
 {
     QueenCount--;
 
@@ -1124,24 +1123,22 @@ void BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int n
     if (nQueen < 0) {
         return;
     }
-    auto pSprite = &sprite[nSprite];
+    spritetype* pSprite;
 
-    if (nSprite == -1)
+    if (pActor == nullptr)
     {
-        nSprite = insertsprite(nSector, 121);
-        pSprite = &sprite[nSprite];
-
+        pActor = insertActor(nSector, 121);
+        pSprite = &pActor->s();
     }
     else
     {
-        changespritestat(nSprite, 121);
+        ChangeActorStat(pActor, 121);
+        pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
         z = sector[pSprite->sectnum].floorz;
         nAngle = pSprite->ang;
     }
-
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
 
     pSprite->x = x;
     pSprite->y = y;
@@ -1168,8 +1165,8 @@ void BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int n
     QueenList[nQueen].nAction = 0;
     QueenList[nQueen].nHealth = 4000;
     QueenList[nQueen].nFrame = 0;
-    QueenList[nQueen].nSprite = nSprite;
-    QueenList[nQueen].nTarget = -1;
+    QueenList[nQueen].pActor = pActor;
+    QueenList[nQueen].pTarget = nullptr;
     QueenList[nQueen].nAction2 = 0;
     QueenList[nQueen].nIndex2 = 5;
     QueenList[nQueen].nIndex = 0;
@@ -1184,9 +1181,9 @@ void BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int n
     nCreaturesTotal++;
 }
 
-void SetQueenSpeed(short nSprite, int nSpeed)
+void SetQueenSpeed(DExhumedActor* pActor, int nSpeed)
 {
-    auto pSprite = &sprite[nSprite];
+    auto pSprite = &pActor->s();
 
     pSprite->xvel = bcos(pSprite->ang, -(2 - nSpeed));
     pSprite->yvel = bsin(pSprite->ang, -(2 - nSpeed));
@@ -1197,23 +1194,23 @@ void AIQueen::Tick(RunListEvent* ev)
     short nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
 
-    short nSprite = QueenList[nQueen].nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = QueenList[nQueen].pActor;
+    auto pSprite = &pActor->s();
     short nAction = QueenList[nQueen].nAction;
     short si = QueenList[nQueen].nAction2;
-    short nTarget = QueenList[nQueen].nTarget;
+    auto pTarget = QueenList[nQueen].pTarget;
 
     bool bVal = false;
 
     if (si < 3) {
-        Gravity(nSprite);
+        Gravity(pActor);
     }
 
     short nSeq = SeqOffsets[kSeqQueen] + QueenSeq[nAction].a;
 
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, QueenList[nQueen].nFrame);
 
-    seq_MoveSequence(nSprite, nSeq, QueenList[nQueen].nFrame);
+    seq_MoveSequence(pActor, nSeq, QueenList[nQueen].nFrame);
 
     QueenList[nQueen].nFrame++;
     if (QueenList[nQueen].nFrame >= SeqSize[nSeq])
@@ -1224,14 +1221,14 @@ void AIQueen::Tick(RunListEvent* ev)
 
     short nFlag = FrameFlag[SeqBase[nSeq] + QueenList[nQueen].nFrame];
 
-    if (nTarget > -1)
+    if (pActor != nullptr)
     {
         if (nAction < 7)
         {
             if (!(pSprite->cstat & 0x101))
             {
-                nTarget = -1;
-                QueenList[nQueen].nTarget = -1;
+                pTarget = nullptr;
+                QueenList[nQueen].pTarget = nullptr;
                 QueenList[nQueen].nAction = 0;
             }
         }
@@ -1240,19 +1237,19 @@ void AIQueen::Tick(RunListEvent* ev)
     {
     case 0:
     {
-        if (nTarget < 0)
+        if (pTarget == nullptr)
         {
-            nTarget = FindPlayer(nSprite, 60);
+            pTarget = FindPlayer(pActor, 60);
         }
 
-        if (nTarget >= 0)
+        if (pTarget)
         {
             QueenList[nQueen].nAction = QueenList[nQueen].nAction2 + 1;
             QueenList[nQueen].nFrame = 0;
-            QueenList[nQueen].nTarget = nTarget;
+            QueenList[nQueen].pTarget = pTarget;
             QueenList[nQueen].nIndex = RandomSize(7);
 
-            SetQueenSpeed(nSprite, si);
+            SetQueenSpeed(pActor, si);
         }
         break;
     }
@@ -1317,18 +1314,18 @@ void AIQueen::Tick(RunListEvent* ev)
             }
 
             // loc_35B4B
-            PlotCourseToSprite(nSprite, nTarget);
-            SetQueenSpeed(nSprite, si);
+            PlotCourseToSprite(pActor, pTarget);
+            SetQueenSpeed(pActor, si);
         }
 
-        int nMov = MoveCreatureWithCaution(nSprite);
+        auto nMov = MoveCreatureWithCaution(pActor);
 
-        switch (nMov & 0xC000)
+        switch (nMov.type)
         {
-        case 0xC000:
-            if ((si == 2) && ((nMov & 0x3FFF) == nTarget))
+        case kHitSprite:
+            if ((si == 2) && (nMov.actor == pTarget))
             {
-                runlist_DamageEnemy(nTarget, nSprite, 5);
+                runlist_DamageEnemy(pTarget, pActor, 5);
                 break;
             }
             [[fallthrough]];
@@ -1336,19 +1333,19 @@ void AIQueen::Tick(RunListEvent* ev)
             pSprite->ang += 256;
             pSprite->ang &= kAngleMask;
 
-            SetQueenSpeed(nSprite, si);
+            SetQueenSpeed(pActor, si);
             break;
         }
 
         // loc_35BD2
-        if (nAction && nTarget != -1)
+        if (nAction && pTarget != nullptr)
         {
-            if (!(sprite[nTarget].cstat & 0x101))
+            if (!(pTarget->s().cstat & 0x101))
             {
                 QueenList[nQueen].nAction = 0;
                 QueenList[nQueen].nFrame = 0;
                 QueenList[nQueen].nIndex = 100;
-                QueenList[nQueen].nTarget = -1;
+                QueenList[nQueen].pTarget = nullptr;
 
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
@@ -1372,11 +1369,11 @@ void AIQueen::Tick(RunListEvent* ev)
             {
                 QueenList[nQueen].nIndex2--;
 
-                PlotCourseToSprite(nSprite, nTarget);
+                PlotCourseToSprite(pActor, pTarget);
 
                 if (!si)
                 {
-                    BuildBullet(&exhumedActors[nSprite], 12, -1, pSprite->ang, &exhumedActors[nTarget], 1);
+                    BuildBullet(pActor, 12, -1, pSprite->ang, pTarget, 1);
                 }
                 else
                 {
@@ -1413,14 +1410,14 @@ void AIQueen::Tick(RunListEvent* ev)
 
                     for (int i = 0; i < 20; i++)
                     {
-                        short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0)) & 0xFFFF;
+                        short nChunkSprite = BuildCreatureChunk(pActor->GetSpriteIndex(), seq_GetSeqPicnum(kSeqQueen, 57, 0)) & 0xFFFF;
 
                         sprite[nChunkSprite].picnum = kQueenChunk + (i % 3);
                         sprite[nChunkSprite].xrepeat = 100;
                         sprite[nChunkSprite].yrepeat = 100;
                     }
 
-                    short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0));
+                    short nChunkSprite = BuildCreatureChunk(pActor->GetSpriteIndex(), seq_GetSeqPicnum(kSeqQueen, 57, 0));
 
                     sprite[nChunkSprite].picnum = kTile3126;
                     sprite[nChunkSprite].yrepeat = 100;
@@ -1457,12 +1454,12 @@ void AIQueen::RadialDamage(RunListEvent* ev)
 {
     short nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
-    short nSprite = QueenList[nQueen].nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = QueenList[nQueen].pActor;
+    auto pSprite = &pActor->s();
 
     if (sprite[nRadialSpr].statnum != 121 && (pSprite->cstat & 0x101) != 0)
     {
-        ev->nDamage = runlist_CheckRadialDamage(nSprite);
+        ev->nDamage = runlist_CheckRadialDamage(pActor);
         if (ev->nDamage) Damage(ev);
     }
 }
@@ -1472,8 +1469,8 @@ void AIQueen::Damage(RunListEvent* ev)
     short nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
 
-    short nSprite = QueenList[nQueen].nSprite;
-    auto pSprite = &sprite[nSprite];
+    auto pActor = QueenList[nQueen].pActor;
+    auto pSprite = &pActor->s();
     short si = QueenList[nQueen].nAction2;
 
     if (QueenList[nQueen].nHealth > 0)
