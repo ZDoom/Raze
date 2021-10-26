@@ -1964,6 +1964,7 @@ int BuildObject(int const nSprite, int nOjectType, int nHitag)
     auto spr = &sprite[nSprite];
 
     auto nObject = ObjectList.Reserve(1);
+    ObjectList[nObject] = {};
 
     changespritestat(nSprite, ObjectStatnum[nOjectType]);
 
