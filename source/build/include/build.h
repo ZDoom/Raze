@@ -407,15 +407,11 @@ inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
 
-#if !KRANDDEBUG
 inline int32_t krand(void)
 {
-    randomseed = (randomseed * 1664525ul) + 221297ul;
+    randomseed = (randomseed * 27584621) + 1;
     return ((uint32_t) randomseed)>>16;
 }
-#else
-int32_t    krand(void);
-#endif
 
 inline int32_t ksqrt(uint64_t num)
 {
