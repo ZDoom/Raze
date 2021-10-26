@@ -1779,7 +1779,8 @@ void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage
     case EMessageType::RadialDamage:
         ev.nRadialDamage = nRadialDamage;
         ev.nDamageRadius = nDamageRadius;
-        ev.pOtherActor = &exhumedActors[nRadialSpr];
+        ev.pOtherActor = &exhumedActors[nObject];
+        ev.pRadialActor = &exhumedActors[nRadialSpr];
         ai->RadialDamage(&ev);
         break;
     }

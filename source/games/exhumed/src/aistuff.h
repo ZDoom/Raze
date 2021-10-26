@@ -454,6 +454,7 @@ struct RunListEvent
 
     int nRadialDamage;          // Radial damage needs a bit more info.
     int nDamageRadius;
+    DExhumedActor* pRadialActor;
 };
 
 struct ExhumedAI
