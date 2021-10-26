@@ -739,11 +739,11 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
     return ksqrt(diff);
 }
 
-int FindPlayer(int nSprite, int nDistance)
+int FindPlayer(int nSprite, int nDistance, bool dontengage)
 {
 	auto pSprite = &sprite[nSprite];
     int var_18 = 0;
-    if (nSprite >= 0)
+    if (nSprite >= 0 || !dontengage)
         var_18 = 1;
 
     if (nSprite < 0)

@@ -253,10 +253,10 @@ DExhumedActor* GrabBody();
 DExhumedActor* GrabBodyGunSprite();
 void CreatePushBlock(int nSector);
 void FuncCreatureChunk(int a, int, int nRun);
-int FindPlayer(int nSprite, int nDistance);
-inline DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance)
+int FindPlayer(int nSprite, int nDistance, bool dontengage = false);
+inline DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage = false)
 {
-    int targ = FindPlayer(nSprite->GetSpriteIndex(), nDistance);
+    int targ = FindPlayer(nSprite->GetSpriteIndex(), nDistance, dontengage);
     return targ > -1 ? &exhumedActors[targ] : nullptr;
 }
 
