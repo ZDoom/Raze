@@ -276,19 +276,19 @@ void SetHeadVel(DExhumedActor* pActor)
     pSprite->yvel = bsin(nAngle, nVelShift);
 }
 
-int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
+Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val1, int val2)
 {
     short nAngle;
 
-    spritetype* pSprite = &sprite[nSprite];
-    if (nSprite2 < 0)
+    spritetype* pSprite = &pActor->s();
+    if (pActor2 == nullptr)
     {
         pSprite->zvel = 0;
         nAngle = pSprite->ang;
     }
     else
     {
-        spritetype* pSprite2 = &sprite[nSprite2];
+        spritetype* pSprite2 = &pActor2->s();
         int nTileY = (tileHeight(pSprite2->picnum) * pSprite2->yrepeat) * 2;
 
         int nMyAngle = GetMyAngle(pSprite2->x - pSprite->x, pSprite2->y - pSprite->y);
@@ -353,7 +353,7 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
 
     int nSqrt = ksqrt(sqrtNum) * bsin(da);
 
-    return movesprite(nSprite, v26 >> 2, v27 >> 2, bsin(bobangle, -5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
+    return movesprite(pActor, v26 >> 2, v27 >> 2, bsin(bobangle, -5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
 }
 
 int DestroyTailPart()
@@ -609,17 +609,17 @@ void AIQueenEgg::Tick(RunListEvent* ev)
     case 2:
     case 3:
     {
-        int nMov = QueenAngleChase(pActor->GetSpriteIndex(), pTarget->GetSpriteIndex(), nHeadVel, 64);
+        auto nMov = QueenAngleChase(pActor, pTarget, nHeadVel, 64);
 
-        switch (nMov & 0xC000)
+        switch (nMov.type)
         {
-        case 0xC000:
-            if (sprite[nMov & 0x3FFF].statnum != 121)
+        case kHitSprite:
+            if (nMov.actor->s().statnum != 121)
             {
-                runlist_DamageEnemy(nMov & 0x3FFF, pActor->GetSpriteIndex(), 5);
+                runlist_DamageEnemy(nMov.actor, pActor, 5);
             }
-            fallthrough__;
-        case 0x8000:
+            [[fallthrough]];
+        case kHitWall:
             pSprite->ang += (RandomSize(9) + 768);
             pSprite->ang &= kAngleMask;
             pSprite->xvel = bcos(pSprite->ang, -3);
@@ -906,14 +906,11 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
         if (pTarget)
         {
-            int nMov = QueenAngleChase(pActor->GetSpriteIndex(), pTarget->GetSpriteIndex(), nHeadVel, 64);
+            auto nMov = QueenAngleChase(pActor, pTarget, nHeadVel, 64);
 
-            switch (nMov & 0xC000)
+            if (nMov.type == kHitSprite)
             {
-            case 0x8000:
-                break;
-            case 0xC000:
-                if ((nMov & 0x3FFF) == pTarget->GetSpriteIndex())
+                if (nMov.actor == pTarget)
                 {
                     runlist_DamageEnemy(pTarget, pActor, 10);
                     D3PlayFX(StaticSound[kSoundQTail] | 0x2000, pActor);
@@ -925,7 +922,6 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                     SetHeadVel(pActor);
                 }
-                break;
             }
         }
 
@@ -1335,7 +1331,7 @@ void AIQueen::Tick(RunListEvent* ev)
                 runlist_DamageEnemy(nTarget, nSprite, 5);
                 break;
             }
-            fallthrough__;
+            [[fallthrough]];
         case 0x8000:
             pSprite->ang += 256;
             pSprite->ang &= kAngleMask;
