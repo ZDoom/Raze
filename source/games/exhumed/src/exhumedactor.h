@@ -244,7 +244,7 @@ inline void setActorPos(DExhumedActor* actor, vec3_t* pos)
 
 inline DExhumedActor* GetActor(const hitdata_t& hitData)
 {
-	return &exhumedActors[hitData.sprite];
+	return hitData.sprite < 0? nullptr : &exhumedActors[hitData.sprite];
 }
 
 END_BLD_NS
