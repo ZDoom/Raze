@@ -55,7 +55,7 @@ enum SO_SCALE_TYPE
     SO_SCALE_RANDOM_POINT
 };
 
-#define SCALE_POINT_SPEED (4 + RANDOM_RANGE(8))
+#define SCALE_POINT_SPEED (4 + RandomRange(8))
 
 typedef struct
 {

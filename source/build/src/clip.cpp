@@ -480,7 +480,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
     int const initialsectnum = *sectnum;
 
     int32_t const dawalclipmask = (cliptype & 65535);  // CLIPMASK0 = 0x00010001
-    int32_t const dasprclipmask = FixedToInt(cliptype);    // CLIPMASK1 = 0x01000040
+    int32_t const dasprclipmask = (cliptype >> 16);    // CLIPMASK1 = 0x01000040
 
     vec2_t const move = { xvect, yvect };
     vec2_t       goal = { pos->x + (xvect >> 14), pos->y + (yvect >> 14) };
@@ -857,7 +857,7 @@ int pushmove(vec3_t *const vect, int16_t *const sectnum,
     int bad;
 
     const int32_t dawalclipmask = (cliptype&65535);
-    //    const int32_t dasprclipmask = FixedToInt(cliptype);
+    //    const int32_t dasprclipmask = (cliptype >> 16);
 
     if (*sectnum < 0)
         return -1;
@@ -983,7 +983,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     const int32_t xmax = pos->x+extradist, ymax = pos->y+extradist;
 
     const int32_t dawalclipmask = (cliptype&65535);
-    const int32_t dasprclipmask = FixedToInt(cliptype);
+    const int32_t dasprclipmask = (cliptype >> 16);
 
     vec2_t closest = pos->vec2;
     if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
@@ -1048,7 +1048,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                 if (da.x >= da.y)
                     continue;
                 //It actually got here, through all the continue's!!!
-                int32_t daz, daz2;
+                int32_t daz = 0, daz2 = 0;
                 closest = pos->vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                     getsectordist(closest, k, &closest);
@@ -1081,7 +1081,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
             const int32_t cstat = sprite[j].cstat;
             int32_t daz, daz2;
 
-            if (cstat & CSTAT_SPRITE_NOFIND) continue;
+            if (sprite[j].cstat2 & CSTAT2_SPRITE_NOFIND) continue;
             if (cstat&dasprclipmask)
             {
                 int32_t clipyou = 0;
@@ -1298,7 +1298,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     // tmp: { (int32_t)curidx, (spritetype *)curspr, (!=0 if outer sector) }
     intptr_t *tmpptr=NULL;
     const int32_t dawalclipmask = (cliptype&65535);
-    const int32_t dasprclipmask = FixedToInt(cliptype);
+    const int32_t dasprclipmask = (cliptype >> 16);
 
     hit->sect = -1; hit->wall = -1; hit->sprite = -1;
     if (sectnum < 0)
@@ -1417,7 +1417,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
             auto const spr = (uspriteptr_t)&sprite[z];
             uint32_t const cstat = spr->cstat;
 
-            if (cstat & CSTAT_SPRITE_NOFIND)
+            if (spr->cstat2 & CSTAT2_SPRITE_NOFIND)
                 continue;
 
 #ifdef USE_OPENGL

@@ -313,7 +313,7 @@ extern AISTATE spidGoto;
 extern AISTATE spidSearch;
 extern AISTATE spidBite;
 extern AISTATE spidJump;
-extern AISTATE spid13A92C;
+extern AISTATE spidBirth;
 
 extern AISTATE tchernobogIdle;
 extern AISTATE tchernobogSearch;

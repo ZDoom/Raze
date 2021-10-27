@@ -505,7 +505,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 //
 // rintersect (internal)
 //
-// returns: -1 if didn't intersect, coefficient IntToFixed(x3--x4 fraction) else
+// returns: -1 if didn't intersect, coefficient (x3--x4 fraction)<<16 else
 int32_t rintersect_old(int32_t x1, int32_t y1, int32_t z1,
                    int32_t vx, int32_t vy, int32_t vz,
                    int32_t x3, int32_t y3, int32_t x4, int32_t y4,
@@ -880,7 +880,7 @@ int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 {
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
-    if ((void const *) newpos != (void *) &sprite[spritenum])
+    if (newpos != &sprite[spritenum].pos)
         sprite[spritenum].pos = *newpos;
 
     updatesector(newpos->x,newpos->y,&tempsectnum);
@@ -1152,7 +1152,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
         {
             auto const spr = (uspriteptr_t)&sprite[z];
 
-            if (spr->cstat & CSTAT_SPRITE_NOFIND)
+            if (spr->cstat2 & CSTAT2_SPRITE_NOFIND)
                 continue;
             if (blacklist_sprite_func && blacklist_sprite_func(z))
                 continue;

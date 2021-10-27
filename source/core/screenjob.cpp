@@ -188,6 +188,9 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 
 void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_)
 {
+	bool bossexit = g_bossexit;
+	g_bossexit = false;
+
 	completion = completion_;
 	runner = CreateRunner();
 	GC::WriteBarrier(runner);
@@ -201,7 +204,7 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 
 	try
 	{
-		if (fromMap)
+		if (fromMap && (!(fromMap->gameflags & LEVEL_BOSSONLYCUTSCENE) || bossexit))
 		{
 			if (!CreateCutscene(&fromMap->outro, runner, fromMap, !!toMap))
 			{
@@ -213,17 +216,17 @@ void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, C
 		if (fromMap || (g_gameType & GAMEFLAG_PSEXHUMED))
 			CallCreateSummaryFunction(globalCutscenes.SummaryScreen, runner, fromMap, info, toMap);
 
-		if (toMap)
+		if (toMap) 
 		{
 			if (!CreateCutscene(&toMap->intro, runner, toMap, !!fromMap))
 			{
 				if  (tocluster == nullptr || !CreateCutscene(&tocluster->intro, runner, toMap, !!fromMap))
 					CreateCutscene(&globalCutscenes.DefaultMapIntro, runner, toMap, !!fromMap);
 			}
-			// Skip the load screen if the level is started from the console.
+			// Skip the load screen if the level is started from the console or loading screens are disabled.
 			// In this case the load screen is not helpful as it blocks the actual level start, 
 			// requiring closing and reopening the console first before entering any commands that need the level.
-			if (ConsoleState == c_up || ConsoleState == c_rising)
+			if ((ConsoleState == c_up || ConsoleState == c_rising) && cl_loadingscreens)
 				CreateCutscene(&globalCutscenes.LoadingScreen, runner, toMap, true);
 		}
 		else if (isShareware())

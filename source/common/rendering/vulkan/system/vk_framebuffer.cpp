@@ -22,6 +22,8 @@
 
 #include "volk/volk.h"
 
+#include <inttypes.h>
+
 #include "v_video.h"
 #include "m_png.h"
 #include "templates.h"
@@ -207,15 +209,21 @@ void VulkanFrameBuffer::Update()
 	Super::Update();
 }
 
-void VulkanFrameBuffer::DeleteFrameObjects()
+void VulkanFrameBuffer::DeleteFrameObjects(bool uploadOnly)
 {
-	FrameDeleteList.Images.clear();
-	FrameDeleteList.ImageViews.clear();
-	FrameDeleteList.Framebuffers.clear();
-	FrameDeleteList.Buffers.clear();
-	FrameDeleteList.Descriptors.clear();
-	FrameDeleteList.DescriptorPools.clear();
-	FrameDeleteList.CommandBuffers.clear();
+	FrameTextureUpload.Buffers.clear();
+	FrameTextureUpload.TotalSize = 0;
+
+	if (!uploadOnly)
+	{
+		FrameDeleteList.Images.clear();
+		FrameDeleteList.ImageViews.clear();
+		FrameDeleteList.Framebuffers.clear();
+		FrameDeleteList.Buffers.clear();
+		FrameDeleteList.Descriptors.clear();
+		FrameDeleteList.DescriptorPools.clear();
+		FrameDeleteList.CommandBuffers.clear();
+	}
 }
 
 void VulkanFrameBuffer::FlushCommands(VulkanCommandBuffer **commands, size_t count, bool finish, bool lastsubmit)
@@ -249,11 +257,12 @@ void VulkanFrameBuffer::FlushCommands(VulkanCommandBuffer **commands, size_t cou
 	mNextSubmit++;
 }
 
-void VulkanFrameBuffer::FlushCommands(bool finish, bool lastsubmit)
+void VulkanFrameBuffer::FlushCommands(bool finish, bool lastsubmit, bool uploadOnly)
 {
-	mRenderState->EndRenderPass();
+	if (!uploadOnly)
+		mRenderState->EndRenderPass();
 
-	if (mDrawCommands || mTransferCommands)
+	if ((!uploadOnly && mDrawCommands) || mTransferCommands)
 	{
 		VulkanCommandBuffer *commands[2];
 		size_t count = 0;
@@ -265,7 +274,7 @@ void VulkanFrameBuffer::FlushCommands(bool finish, bool lastsubmit)
 			FrameDeleteList.CommandBuffers.push_back(std::move(mTransferCommands));
 		}
 
-		if (mDrawCommands)
+		if (!uploadOnly && mDrawCommands)
 		{
 			mDrawCommands->end();
 			commands[count++] = mDrawCommands.get();
@@ -278,7 +287,7 @@ void VulkanFrameBuffer::FlushCommands(bool finish, bool lastsubmit)
 	}
 }
 
-void VulkanFrameBuffer::WaitForCommands(bool finish)
+void VulkanFrameBuffer::WaitForCommands(bool finish, bool uploadOnly)
 {
 	if (finish)
 	{
@@ -290,7 +299,7 @@ void VulkanFrameBuffer::WaitForCommands(bool finish)
 			mPostprocess->DrawPresentTexture(mOutputLetterbox, true, false);
 	}
 
-	FlushCommands(finish, true);
+	FlushCommands(finish, true, uploadOnly);
 
 	if (finish)
 	{
@@ -308,7 +317,7 @@ void VulkanFrameBuffer::WaitForCommands(bool finish)
 		vkResetFences(device->device, numWaitFences, mSubmitWaitFences);
 	}
 
-	DeleteFrameObjects();
+	DeleteFrameObjects(uploadOnly);
 	mNextSubmit = 0;
 
 	if (finish)
@@ -698,7 +707,7 @@ void VulkanFrameBuffer::PrintStartupLog()
 	const auto &limits = props.limits;
 	Printf("Max. texture size: %d\n", limits.maxImageDimension2D);
 	Printf("Max. uniform buffer range: %d\n", limits.maxUniformBufferRange);
-	Printf("Min. uniform buffer offset alignment: %llu\n", limits.minUniformBufferOffsetAlignment);
+	Printf("Min. uniform buffer offset alignment: %" PRIu64 "\n", limits.minUniformBufferOffsetAlignment);
 }
 
 void VulkanFrameBuffer::CreateFanToTrisIndexBuffer()

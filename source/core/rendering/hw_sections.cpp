@@ -55,6 +55,23 @@ TArray<int> splits;
 
 void hw_BuildSections()
 {
+	for (int i = 0; i < numsectors; i++)
+	{
+		// Fix maps which do not set their wallptr to the first wall. Lo Wang In Time's map 11 is such a case.
+		int wp = sector[i].wallptr;
+		while  (wp > 0 && wall[wp - 1].nextwall >= 0 && wall[wall[wp - 1].nextwall].nextsector == i)
+		{
+			sector[i].wallptr--;
+			sector[i].wallnum++;
+			wp--;
+		}
+		sections[i].sector = i;
+		sections[i].lines.Resize(sector[i].wallnum);
+		for (int j = 0; j < sector[i].wallnum; j++) sections[i].lines[j] = sector[i].wallptr + j;
+		sectionspersector[i].Resize(1);
+		sectionspersector[i][0] = i;
+	}
+
 	// Initial setup just creates a 1:1 mapping of walls to section lines and sectors to sections.
 	numsectionlines = numwalls;
 	numsections = numsectors;
@@ -66,15 +83,6 @@ void hw_BuildSections()
 		sectionLines[i].section = wall[i].sector;
 		sectionLines[i].partnersection = wall[i].nextsector;
 		sectionLines[i].point2index = wall[i].point2 - sector[wall[i].sector].wallptr;
-	}
-
-	for (int i = 0; i < numsectors; i++)
-	{
-		sections[i].sector = i;
-		sections[i].lines.Resize(sector[i].wallnum);
-		for (int j = 0; j < sector[i].wallnum; j++) sections[i].lines[j] = sector[i].wallptr + j;
-		sectionspersector[i].Resize(1);
-		sectionspersector[i][0] = i;
 	}
 
 	for (unsigned i = 0; i < splits.Size(); i += 3)

@@ -54,13 +54,14 @@ void precache()
         markTileForPrecache(j, wall[i].pal);
     }
 
-    for (i = 0; i < kMaxSprites; i++)
+	ExhumedSpriteIterator it;
+	while (auto ac = it.Next())
     {
-        if (sprite[i].statnum < kMaxStatus)
-        {
-            short j = sprite[i].picnum;
-            markTileForPrecache(j, sprite[i].pal);
-        }
+		auto sp = &ac->s();
+        int j = sp->picnum;
+        markTileForPrecache(j, sp->pal);
+        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
+            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sp->pal);
     }
     precacheMarkedTiles();
 }

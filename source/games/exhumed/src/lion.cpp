@@ -40,569 +40,527 @@ static actionSeq LionSeq[] = {
     {53, 1}
 };
 
-struct Lion
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short nIndex;
-    short nCount;
-    short nRun;
-};
 
-TArray<Lion> LionList;
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Lion& w, Lion* def)
+void BuildLion(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle)
 {
-    if (arc.BeginObject(keyname))
+    spritetype* pSprite;
+    if (pActor == nullptr)
     {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("index", w.nIndex)
-            ("count", w.nCount)
-            ("run", w.nRun)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeLion(FSerializer& arc)
-{
-    arc("lion", LionList);
-}
-
-void InitLion()
-{
-    LionList.Clear();
-}
-
-int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
-{
-    auto nLion = LionList.Reserve(1);
-
-    if (nSprite == -1)
-    {
-        nSprite = insertsprite(nSector, 104);
+        pActor = insertActor(nSector, 104);
+		pSprite = &pActor->s();
     }
     else
     {
-        changespritestat(nSprite, 104);
-        x = sprite[nSprite].x;
-        y = sprite[nSprite].y;
-        z = sector[sprite[nSprite].sectnum].floorz;
-        nAngle = sprite[nSprite].ang;
+        ChangeActorStat(pActor, 104);
+        pSprite = &pActor->s();
+        x = pSprite->x;
+        y = pSprite->y;
+        z = sector[pSprite->sectnum].floorz;
+        nAngle = pSprite->ang;
     }
 
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-
-    sprite[nSprite].x = x;
-    sprite[nSprite].y = y;
-    sprite[nSprite].z = z;
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].clipdist = 60;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].xrepeat = 40;
-    sprite[nSprite].yrepeat = 40;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].ang = nAngle;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].extra = -1;
+    pSprite->x = x;
+    pSprite->y = y;
+    pSprite->z = z;
+    pSprite->cstat = 0x101;
+    pSprite->clipdist = 60;
+    pSprite->shade = -12;
+    pSprite->xrepeat = 40;
+    pSprite->yrepeat = 40;
+    pSprite->picnum = 1;
+    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->ang = nAngle;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->hitag = 0;
+    pSprite->extra = -1;
 
 //	GrabTimeSlot(3);
 
-    LionList[nLion].nAction = 0;
-    LionList[nLion].nHealth = 500;
-    LionList[nLion].nFrame = 0;
-    LionList[nLion].nSprite = nSprite;
-    LionList[nLion].nTarget = -1;
-    LionList[nLion].nCount = 0;
-    LionList[nLion].nIndex = nLion;
+    pActor->nAction = 0;
+    pActor->nHealth = 500;
+    pActor->nFrame = 0;
+    pActor->pTarget = nullptr;
+    pActor->nCount = 0;
+    pActor->nPhase = Counters[kCountLion]++;
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nLion | 0x130000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x130000);
 
-    LionList[nLion].nRun = runlist_AddRunRec(NewRun, nLion | 0x130000);
+    pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x130000);
 
     nCreaturesTotal++;
-
-    return nLion | 0x130000;
 }
 
-void FuncLion(int a, int nDamage, int nRun)
+void AILion::Draw(RunListEvent* ev)
 {
-    short nLion = RunData[nRun].nVal;
-    assert(nLion >= 0 && nLion < (int)LionList.Size());
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    short nAction = pActor->nAction;
 
-    short nSprite = LionList[nLion].nSprite;
-    short nAction = LionList[nLion].nAction;
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqLion] + LionSeq[nAction].a, pActor->nFrame, LionSeq[nAction].b);
+}
 
-    bool bVal = false;
+void AILion::RadialDamage(RunListEvent* ev)
+{
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
 
-    int nMessage = a & kMessageMask;
+    ev->nDamage = runlist_CheckRadialDamage(pActor);
+    Damage(ev);
+}
 
-    switch (nMessage)
+void AILion::Damage(RunListEvent* ev)
+{
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+
+    auto pSprite = &pActor->s();
+    short nAction = pActor->nAction;
+
+    if (ev->nDamage && pActor->nHealth > 0)
     {
-        default:
+        pActor->nHealth -= dmgAdjust(ev->nDamage);
+        if (pActor->nHealth <= 0)
         {
-            Printf("unknown msg %d for Lion\n", nMessage);
-            return;
-        }
+            // R.I.P.
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+            pSprite->zvel = 0;
+            pSprite->cstat &= 0xFEFE;
 
-        case 0x90000:
-        {
-            seq_PlotSequence(a, SeqOffsets[kSeqLion] + LionSeq[nAction].a, LionList[nLion].nFrame, LionSeq[nAction].b);
-            return;
-        }
+            pActor->nHealth = 0;
 
-        case 0xA0000:
-        {
-            nDamage = runlist_CheckRadialDamage(nSprite);
-            // now fall through to 0x80000
-            fallthrough__;
-        }
-        case 0x80000:
-        {
-            if (nDamage && LionList[nLion].nHealth > 0)
+            nCreaturesKilled++;
+
+            if (nAction < 10)
             {
-                LionList[nLion].nHealth -= dmgAdjust(nDamage);
-                if (LionList[nLion].nHealth <= 0)
+                DropMagic(pActor);
+
+                if (ev->nMessage == EMessageType::RadialDamage)
                 {
-                    // R.I.P.
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
-                    sprite[nSprite].zvel = 0;
-                    sprite[nSprite].cstat &= 0xFEFE;
-
-                    LionList[nLion].nHealth = 0;
-
-                    nCreaturesKilled++;
-
-                    if (nAction < 10)
-                    {
-                        DropMagic(nSprite);
-
-                        if (nMessage == 0xA0000) {
-                            LionList[nLion].nAction = 11;
-                        }
-                        else
-                        {
-                            LionList[nLion].nAction = 10;
-                        }
-
-                        LionList[nLion].nFrame = 0;
-                        return;
-                    }
+                    pActor->nAction = 11;
                 }
                 else
                 {
-                    short nTarget = a & 0xFFFF;
-
-                    if (nTarget > -1)
-                    {
-                        if (sprite[nTarget].statnum < 199) {
-                            LionList[nLion].nTarget = nTarget;
-                        }
-
-                        if (nAction != 6)
-                        {
-                            if (RandomSize(8) <= (LionList[nLion].nHealth >> 2))
-                            {
-                                LionList[nLion].nAction = 4;
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
-                            }
-                            else if (RandomSize(1))
-                            {
-                                PlotCourseToSprite(nSprite, nTarget);
-                                LionList[nLion].nAction = 5;
-                                LionList[nLion].nCount = RandomSize(3);
-                                sprite[nSprite].ang = (sprite[nSprite].ang - (RandomSize(1) << 8)) + (RandomSize(1) << 8); // NOTE: no angle mask in original code
-                            }
-                            else
-                            {
-                                LionList[nLion].nAction = 8;
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
-                                sprite[nSprite].cstat &= 0xFEFE;
-                            }
-
-                            LionList[nLion].nFrame = 0;
-                        }
-                    }
+                    pActor->nAction = 10;
                 }
+
+                pActor->nFrame = 0;
+                return;
             }
-            return;
         }
-
-        case 0x20000:
+        else
         {
-            if (nAction != 7) {
-                Gravity(nSprite);
-            }
+            auto pTarget = ev->pOtherActor;
 
-            short nSeq = SeqOffsets[kSeqLion] + LionSeq[nAction].a;
-
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, LionList[nLion].nFrame);
-
-            seq_MoveSequence(nSprite, nSeq, LionList[nLion].nFrame);
-
-            LionList[nLion].nFrame++;
-            if (LionList[nLion].nFrame >= SeqSize[nSeq])
+            if (pTarget)
             {
-                LionList[nLion].nFrame = 0;
-                bVal = true;
-            }
-
-            short nFlag = FrameFlag[SeqBase[nSeq] + LionList[nLion].nFrame];
-            short nTarget = LionList[nLion].nTarget;
-
-            int nMov = MoveCreatureWithCaution(nSprite);
-
-            switch (nAction)
-            {
-                default:
-                    return;
-
-                case 0:
-                case 1:
-                {
-                    if ((LionList[nLion].nIndex & 0x1F) == (totalmoves & 0x1F))
-                    {
-                        if (nTarget < 0)
-                        {
-                            nTarget = FindPlayer(nSprite, 40);
-                            if (nTarget >= 0)
-                            {
-                                D3PlayFX(StaticSound[kSound24], nSprite);
-                                LionList[nLion].nAction = 2;
-                                LionList[nLion].nFrame = 0;
-
-                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
-                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
-                                LionList[nLion].nTarget = nTarget;
-                                return;
-                            }
-                        }
-                    }
-
-                    if (nAction && !easy())
-                    {
-                        LionList[nLion].nCount--;
-                        if (LionList[nLion].nCount <= 0)
-                        {
-                            if (RandomBit())
-                            {
-                                sprite[nSprite].ang = RandomWord() & kAngleMask;
-                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
-                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
-                            }
-                            else
-                            {
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
-                            }
-
-                            LionList[nLion].nCount = 100;
-                        }
-                    }
-
-                    return;
+                if (pTarget->s().statnum < 199) {
+                    pActor->pTarget = pTarget;
                 }
 
-                case 2:
+                if (nAction != 6)
                 {
-                    if ((totalmoves & 0x1F) == (LionList[nLion].nIndex & 0x1F))
+                    if (RandomSize(8) <= (pActor->nHealth >> 2))
                     {
-                        PlotCourseToSprite(nSprite, nTarget);
-
-                        int nAng = sprite[nSprite].ang & 0xFFF8;
-
-                        if (sprite[nSprite].cstat & 0x8000)
-                        {
-                            sprite[nSprite].xvel = bcos(nAng, 1);
-                            sprite[nSprite].yvel = bsin(nAng, 1);
-                        }
-                        else
-                        {
-                            sprite[nSprite].xvel = bcos(nAng, -1);
-                            sprite[nSprite].yvel = bsin(nAng, -1);
-                        }
+                        pActor->nAction = 4;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
                     }
-
-                    if ((nMov & 0xC000) < 0x8000)
+                    else if (RandomSize(1))
                     {
-                        break;
-                    }
-                    else if ((nMov & 0xC000) == 0x8000)
-                    {
-                        // loc_378FA:
-                        sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
-                        break;
-                    }
-                    else if ((nMov & 0xC000) == 0xC000)
-                    {
-                        if ((nMov & 0x3FFF) == nTarget)
-                        {
-                            if (sprite[nSprite].cstat & 0x8000)
-                            {
-                                LionList[nLion].nAction = 9;
-                                sprite[nSprite].cstat &= 0x7FFF;
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
-                            }
-                            else
-                            {
-                                int nAng = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-
-                                if (AngleDiff(sprite[nSprite].ang, nAng) < 64)
-                                {
-                                    LionList[nLion].nAction = 3;
-                                }
-                            }
-
-                            LionList[nLion].nFrame = 0;
-                            break;
-                        }
-                        else
-                        {
-                            // loc_378FA:
-                            sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
-                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-
-                case 3:
-                {
-                    if (nTarget == -1)
-                    {
-                        LionList[nLion].nAction = 1;
-                        LionList[nLion].nCount = 50;
+                        PlotCourseToSprite(pActor, pTarget);
+                        pActor->nAction = 5;
+                        pActor->nCount = RandomSize(3);
+                        pSprite->ang = (pSprite->ang - (RandomSize(1) << 8)) + (RandomSize(1) << 8); // NOTE: no angle mask in original code
                     }
                     else
                     {
-                        if (PlotCourseToSprite(nSprite, nTarget) >= 768)
-                        {
-                            LionList[nLion].nAction = 2;
-                        }
-                        else if (nFlag & 0x80)
-                        {
-                            runlist_DamageEnemy(nTarget, nSprite, 10);
-                        }
+                        pActor->nAction = 8;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
+                        pSprite->cstat &= 0xFEFE;
                     }
 
-                    break;
-                }
-
-                case 4:
-                {
-                    if (bVal)
-                    {
-                        LionList[nLion].nAction = 2;
-                        LionList[nLion].nFrame = 0;
-                    }
-
-                    if (nMov & 0x20000)
-                    {
-                        sprite[nSprite].xvel >>= 1;
-                        sprite[nSprite].yvel >>= 1;
-                    }
-
-                    return;
-                }
-
-                case 5: // Jump away when damaged
-                {
-                    LionList[nLion].nCount--;
-                    if (LionList[nLion].nCount <= 0)
-                    {
-                        sprite[nSprite].zvel = -4000;
-                        LionList[nLion].nCount = 0;
-
-                        int x = sprite[nSprite].x;
-                        int y = sprite[nSprite].y;
-                        int z = sprite[nSprite].z - (GetSpriteHeight(nSprite) >> 1);
-
-                        int nCheckDist = 0x7FFFFFFF;
-
-                        short nAngle = sprite[nSprite].ang;
-                        short nScanAngle = (sprite[nSprite].ang - 512) & kAngleMask;
-
-                        for (int i = 0; i < 5; i++)
-                        {
-                            short hitwall;
-                            int hitx, hity;
-                            vec3_t startPos = { x, y, z };
-                            hitdata_t hitData;
-
-                            hitscan(&startPos, sprite[nSprite].sectnum, bcos(nScanAngle), bsin(nScanAngle), 0, &hitData, CLIPMASK1);
-
-                            hitx = hitData.pos.x;
-                            hity = hitData.pos.y;
-                            hitwall = hitData.wall;
-
-                            if (hitwall > -1)
-                            {
-                                int theX = abs(hitx - x);
-                                int theY = abs(hity - y);
-
-                                if ((theX + theY) < nCheckDist)
-                                {
-                                    nCheckDist = theX;
-                                    nAngle = nScanAngle;
-                                }
-                            }
-
-                            nScanAngle += 256;
-                            nScanAngle &= kAngleMask;
-                        }
-
-                        sprite[nSprite].ang = nAngle;
-
-                        LionList[nLion].nAction = 6;
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang) - bcos(sprite[nSprite].ang, -3);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang) - bsin(sprite[nSprite].ang, -3);
-                        D3PlayFX(StaticSound[kSound24], nSprite);
-                    }
-
-                    return;
-                }
-
-                case 6:
-                {
-                    if (nMov & 0x30000)
-                    {
-                        LionList[nLion].nAction = 2;
-                        LionList[nLion].nFrame = 0;
-                        return;
-                    }
-
-                    if ((nMov & 0xC000) == 0x8000)
-                    {
-                        LionList[nLion].nAction = 7;
-                        sprite[nSprite].ang = (GetWallNormal(nMov & 0x3FFF) + 1024) & kAngleMask;
-                        LionList[nLion].nCount = RandomSize(4);
-                        return;
-                    }
-                    else if ((nMov & 0xC000) == 0xC000)
-                    {
-                        if ((nMov & 0x3FFF) == nTarget)
-                        {
-                            int nAng = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-                            if (AngleDiff(sprite[nSprite].ang, nAng) < 64)
-                            {
-                                LionList[nLion].nAction = 3;
-                                LionList[nLion].nFrame = 0;
-                            }
-                        }
-                        else
-                        {
-                            // loc_378FA:
-                            sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
-                            sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
-                            break;
-                        }
-                    }
-
-                    return;
-                }
-
-                case 7:
-                {
-                    LionList[nLion].nCount--;
-
-                    if (LionList[nLion].nCount <= 0)
-                    {
-                        LionList[nLion].nCount = 0;
-                        if (nTarget > -1)
-                        {
-                            PlotCourseToSprite(nSprite, nTarget);
-                        }
-                        else
-                        {
-                            sprite[nSprite].ang = (RandomSize(9) + (sprite[nSprite].ang + 768)) & kAngleMask;
-                        }
-
-                        sprite[nSprite].zvel = -1000;
-
-                        LionList[nLion].nAction = 6;
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang) - bcos(sprite[nSprite].ang, -3);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang) - bsin(sprite[nSprite].ang, -3);
-                        D3PlayFX(StaticSound[kSound24], nSprite);
-                    }
-
-                    return;
-                }
-
-                case 8:
-                {
-                    if (bVal)
-                    {
-                        LionList[nLion].nAction = 2;
-                        LionList[nLion].nFrame  = 0;
-                        sprite[nSprite].cstat |= 0x8000;
-                    }
-                    return;
-                }
-
-                case 9:
-                {
-                    if (bVal)
-                    {
-                        LionList[nLion].nFrame  = 0;
-                        LionList[nLion].nAction = 2;
-                        sprite[nSprite].cstat |= 0x101;
-                    }
-                    return;
-                }
-
-                case 10:
-                case 11:
-                {
-                    if (bVal)
-                    {
-                        runlist_SubRunRec(sprite[nSprite].owner);
-                        runlist_SubRunRec(LionList[nLion].nRun);
-                        sprite[nSprite].cstat = 0x8000;
-                    }
-                    return;
+                    pActor->nFrame = 0;
                 }
             }
-
-            // loc_379AD: ?
-            if (nAction != 1 && nTarget != -1)
-            {
-                if (!(sprite[nTarget].cstat & 0x101))
-                {
-                    LionList[nLion].nAction = 1;
-                    LionList[nLion].nFrame = 0;
-                    LionList[nLion].nCount = 100;
-                    LionList[nLion].nTarget = -1;
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
-                }
-            }
-
-            return;
         }
     }
 }
+
+void AILion::Tick(RunListEvent* ev)
+{
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+
+    auto pSprite = &pActor->s();
+    short nAction = pActor->nAction;
+
+    bool bVal = false;
+
+
+    if (nAction != 7) {
+        Gravity(pActor);
+    }
+
+    short nSeq = SeqOffsets[kSeqLion] + LionSeq[nAction].a;
+
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+
+    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+
+    pActor->nFrame++;
+    if (pActor->nFrame >= SeqSize[nSeq])
+    {
+        pActor->nFrame = 0;
+        bVal = true;
+    }
+
+    short nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
+    auto pTarget = pActor->pTarget;
+
+    auto nMov = MoveCreatureWithCaution(pActor);
+
+    switch (nAction)
+    {
+    default:
+        return;
+
+    case 0:
+    case 1:
+    {
+        if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F))
+        {
+            if (pTarget == nullptr)
+            {
+                pTarget = FindPlayer(pActor, 40);
+                if (pTarget)
+                {
+                    D3PlayFX(StaticSound[kSound24], pActor);
+                    pActor->nAction = 2;
+                    pActor->nFrame = 0;
+
+                    pSprite->xvel = bcos(pSprite->ang, -1);
+                    pSprite->yvel = bsin(pSprite->ang, -1);
+                    pActor->pTarget = pTarget;
+                    return;
+                }
+            }
+        }
+
+        if (nAction && !easy())
+        {
+            pActor->nCount--;
+            if (pActor->nCount <= 0)
+            {
+                if (RandomBit())
+                {
+                    pSprite->ang = RandomWord() & kAngleMask;
+                    pSprite->xvel = bcos(pSprite->ang, -1);
+                    pSprite->yvel = bsin(pSprite->ang, -1);
+                }
+                else
+                {
+                    pSprite->xvel = 0;
+                    pSprite->yvel = 0;
+                }
+
+                pActor->nCount = 100;
+            }
+        }
+
+        return;
+    }
+
+    case 2:
+    {
+        if ((totalmoves & 0x1F) == (pActor->nPhase & 0x1F))
+        {
+            PlotCourseToSprite(pActor, pTarget);
+
+            int nAng = pSprite->ang & 0xFFF8;
+
+            if (pSprite->cstat & 0x8000)
+            {
+                pSprite->xvel = bcos(nAng, 1);
+                pSprite->yvel = bsin(nAng, 1);
+            }
+            else
+            {
+                pSprite->xvel = bcos(nAng, -1);
+                pSprite->yvel = bsin(nAng, -1);
+            }
+        }
+
+        if (nMov.type == kHitWall)
+        {
+            // loc_378FA:
+            pSprite->ang = (pSprite->ang + 256) & kAngleMask;
+            pSprite->xvel = bcos(pSprite->ang, -1);
+            pSprite->yvel = bsin(pSprite->ang, -1);
+            break;
+        }
+        else if (nMov.type == kHitSprite)
+        {
+            if (nMov.actor == pTarget)
+            {
+                if (pSprite->cstat & 0x8000)
+                {
+                    pActor->nAction = 9;
+                    pSprite->cstat &= 0x7FFF;
+                    pSprite->xvel = 0;
+                    pSprite->yvel = 0;
+                }
+                else
+                {
+                    int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+
+                    if (AngleDiff(pSprite->ang, nAng) < 64)
+                    {
+                        pActor->nAction = 3;
+                    }
+                }
+
+                pActor->nFrame = 0;
+                break;
+            }
+            else
+            {
+                // loc_378FA:
+                pSprite->ang = (pSprite->ang + 256) & kAngleMask;
+                pSprite->xvel = bcos(pSprite->ang, -1);
+                pSprite->yvel = bsin(pSprite->ang, -1);
+                break;
+            }
+        }
+
+        break;
+    }
+
+    case 3:
+    {
+        if (pTarget == nullptr)
+        {
+            pActor->nAction = 1;
+            pActor->nCount = 50;
+        }
+        else
+        {
+            if (PlotCourseToSprite(pActor, pTarget) >= 768)
+            {
+                pActor->nAction = 2;
+            }
+            else if (nFlag & 0x80)
+            {
+                runlist_DamageEnemy(pTarget, pActor, 10);
+            }
+        }
+
+        break;
+    }
+
+    case 4:
+    {
+        if (bVal)
+        {
+            pActor->nAction = 2;
+            pActor->nFrame = 0;
+        }
+
+        if (nMov.exbits & kHitAux2)
+        {
+            pSprite->xvel >>= 1;
+            pSprite->yvel >>= 1;
+        }
+
+        return;
+    }
+
+    case 5: // Jump away when damaged
+    {
+        pActor->nCount--;
+        if (pActor->nCount <= 0)
+        {
+            pSprite->zvel = -4000;
+            pActor->nCount = 0;
+
+            int x = pSprite->x;
+            int y = pSprite->y;
+            int z = pSprite->z - (GetActorHeight(pActor) >> 1);
+
+            int nCheckDist = 0x7FFFFFFF;
+
+            short nAngle = pSprite->ang;
+            short nScanAngle = (pSprite->ang - 512) & kAngleMask;
+
+            for (int i = 0; i < 5; i++)
+            {
+                short hitwall;
+                int hitx, hity;
+                vec3_t startPos = { x, y, z };
+                hitdata_t hitData;
+
+                hitscan(&startPos, pSprite->sectnum, bcos(nScanAngle), bsin(nScanAngle), 0, &hitData, CLIPMASK1);
+
+                hitx = hitData.pos.x;
+                hity = hitData.pos.y;
+                hitwall = hitData.wall;
+
+                if (hitwall > -1)
+                {
+                    int theX = abs(hitx - x);
+                    int theY = abs(hity - y);
+
+                    if ((theX + theY) < nCheckDist)
+                    {
+                        nCheckDist = theX;
+                        nAngle = nScanAngle;
+                    }
+                }
+
+                nScanAngle += 256;
+                nScanAngle &= kAngleMask;
+            }
+
+            pSprite->ang = nAngle;
+
+            pActor->nAction = 6;
+            pSprite->xvel = bcos(pSprite->ang) - bcos(pSprite->ang, -3);
+            pSprite->yvel = bsin(pSprite->ang) - bsin(pSprite->ang, -3);
+            D3PlayFX(StaticSound[kSound24], pActor);
+        }
+
+        return;
+    }
+
+    case 6:
+    {
+        if (nMov.exbits)
+        {
+            pActor->nAction = 2;
+            pActor->nFrame = 0;
+            return;
+        }
+
+        if (nMov.type == kHitWall)
+        {
+            pActor->nAction = 7;
+            pSprite->ang = (GetWallNormal(nMov.index) + 1024) & kAngleMask;
+            pActor->nCount = RandomSize(4);
+            return;
+        }
+        else if (nMov.type == kHitSprite)
+        {
+            if (nMov.actor == pTarget)
+            {
+                int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                if (AngleDiff(pSprite->ang, nAng) < 64)
+                {
+                    pActor->nAction = 3;
+                    pActor->nFrame = 0;
+                }
+            }
+            else
+            {
+                // loc_378FA:
+                pSprite->ang = (pSprite->ang + 256) & kAngleMask;
+                pSprite->xvel = bcos(pSprite->ang, -1);
+                pSprite->yvel = bsin(pSprite->ang, -1);
+                break;
+            }
+        }
+
+        return;
+    }
+
+    case 7:
+    {
+        pActor->nCount--;
+
+        if (pActor->nCount <= 0)
+        {
+            pActor->nCount = 0;
+            if (pTarget)
+            {
+                PlotCourseToSprite(pActor, pTarget);
+            }
+            else
+            {
+                pSprite->ang = (RandomSize(9) + (pSprite->ang + 768)) & kAngleMask;
+            }
+
+            pSprite->zvel = -1000;
+
+            pActor->nAction = 6;
+            pSprite->xvel = bcos(pSprite->ang) - bcos(pSprite->ang, -3);
+            pSprite->yvel = bsin(pSprite->ang) - bsin(pSprite->ang, -3);
+            D3PlayFX(StaticSound[kSound24], pActor);
+        }
+
+        return;
+    }
+
+    case 8:
+    {
+        if (bVal)
+        {
+            pActor->nAction = 2;
+            pActor->nFrame = 0;
+            pSprite->cstat |= 0x8000;
+        }
+        return;
+    }
+
+    case 9:
+    {
+        if (bVal)
+        {
+            pActor->nFrame = 0;
+            pActor->nAction = 2;
+            pSprite->cstat |= 0x101;
+        }
+        return;
+    }
+
+    case 10:
+    case 11:
+    {
+        if (bVal)
+        {
+            runlist_SubRunRec(pSprite->owner);
+            runlist_SubRunRec(pActor->nRun);
+            pSprite->cstat = 0x8000;
+        }
+        return;
+    }
+    }
+
+    // loc_379AD: ?
+    if (nAction != 1 && pTarget != nullptr)
+    {
+        if (!(pTarget->s().cstat & 0x101))
+        {
+            pActor->nAction = 1;
+            pActor->nFrame = 0;
+            pActor->nCount = 100;
+            pActor->pTarget = nullptr;
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+        }
+    }
+}
+
+
+
+void FuncLion(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AILion ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
+}
+
 END_PS_NS

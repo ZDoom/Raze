@@ -117,10 +117,10 @@ static TArray<FString> ParseGameInfo(TArray<FString>& pwads, const char* fn, con
 		else if (!nextKey.CompareNoCase("STARTUPCOLORS"))
 		{
 			sc.MustGetString();
-			GameStartupInfo.FgColor = V_GetColor(NULL, sc);
+			GameStartupInfo.FgColor = V_GetColor(sc);
 			sc.MustGetStringName(",");
 			sc.MustGetString();
-			GameStartupInfo.BkColor = V_GetColor(NULL, sc);
+			GameStartupInfo.BkColor = V_GetColor(sc);
 		}
 		else if (!nextKey.CompareNoCase("CON"))
 		{
@@ -288,7 +288,7 @@ const char* iwad_reserved_ex[12] = { ".map", "menudef", "gldefs", "zscript", "ma
 const char** iwad_reserved()
 {
 	return (g_gameType & GAMEFLAG_PSEXHUMED) ? iwad_reserved_ex :
-		(g_gameType & GAMEFLAG_SW) ? iwad_reserved_sw :
+		isSWALL() ? iwad_reserved_sw :
 		(g_gameType & GAMEFLAG_BLOOD) ? iwad_reserved_blood : iwad_reserved_duke;
 }
 

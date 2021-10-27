@@ -31,68 +31,71 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
             int dx = mirror[j].dx;
             int dy = mirror[j].dy;
             int dz = mirror[j].dz;
-            tspritetype* pTSprite = &pm_tsprite[pm_spritesortcnt++];
-            *pTSprite = {};
-            pTSprite->type = pSprite->type;
-            pTSprite->index = pSprite->index;
-            pTSprite->sectnum = nSector2;
-            pTSprite->x = pSprite->x + dx;
-            pTSprite->y = pSprite->y + dy;
-            pTSprite->z = pSprite->z + dz;
-            pTSprite->ang = pSprite->ang;
-            pTSprite->picnum = pSprite->picnum;
-            pTSprite->shade = pSprite->shade;
-            pTSprite->pal = pSprite->pal;
-            pTSprite->xrepeat = pSprite->xrepeat;
-            pTSprite->yrepeat = pSprite->yrepeat;
-            pTSprite->xoffset = pSprite->xoffset;
-            pTSprite->yoffset = pSprite->yoffset;
-            pTSprite->cstat = pSprite->cstat;
-            pTSprite->statnum = kStatDecoration;
-            pTSprite->owner = pSprite->index;
-            pTSprite->extra = pSprite->extra;
-            pTSprite->flags = pSprite->hitag | 0x200;
-            pTSprite->x = dx + interpolatedvalue(pSprite->ox, pSprite->x, interpolation);
-            pTSprite->y = dy + interpolatedvalue(pSprite->oy, pSprite->y, interpolation);
-            pTSprite->z = dz + interpolatedvalue(pSprite->oz, pSprite->z, interpolation);
-            pTSprite->ang = pSprite->interpolatedang(interpolation);
+            if (pm_spritesortcnt < MAXSPRITESONSCREEN)
+            {
+                tspritetype* pTSprite = &pm_tsprite[pm_spritesortcnt++];
+                *pTSprite = {};
+                pTSprite->type = pSprite->type;
+                pTSprite->index = pSprite->index;
+                pTSprite->sectnum = nSector2;
+                pTSprite->x = pSprite->x + dx;
+                pTSprite->y = pSprite->y + dy;
+                pTSprite->z = pSprite->z + dz;
+                pTSprite->ang = pSprite->ang;
+                pTSprite->picnum = pSprite->picnum;
+                pTSprite->shade = pSprite->shade;
+                pTSprite->pal = pSprite->pal;
+                pTSprite->xrepeat = pSprite->xrepeat;
+                pTSprite->yrepeat = pSprite->yrepeat;
+                pTSprite->xoffset = pSprite->xoffset;
+                pTSprite->yoffset = pSprite->yoffset;
+                pTSprite->cstat = pSprite->cstat;
+                pTSprite->statnum = kStatDecoration;
+                pTSprite->owner = pSprite->index;
+                pTSprite->extra = pSprite->extra;
+                pTSprite->flags = pSprite->hitag | 0x200;
+                pTSprite->x = dx + interpolatedvalue(pSprite->ox, pSprite->x, interpolation);
+                pTSprite->y = dy + interpolatedvalue(pSprite->oy, pSprite->y, interpolation);
+                pTSprite->z = dz + interpolatedvalue(pSprite->oz, pSprite->z, interpolation);
+                pTSprite->ang = pSprite->interpolatedang(interpolation);
 
-            int nAnim = 0;
-            switch (picanm[pTSprite->picnum].extra & 7)
-            {
-            case 1:
-            {
-                int dX = x - pTSprite->x;
-                int dY = y - pTSprite->y;
-                RotateVector(&dX, &dY, 128 - pTSprite->ang);
-                nAnim = GetOctant(dX, dY);
-                if (nAnim <= 4)
+                int nAnim = 0;
+                switch (picanm[pTSprite->picnum].extra & 7)
                 {
-                    pTSprite->cstat &= ~4;
-                }
-                else
+                case 1:
                 {
-                    nAnim = 8 - nAnim;
-                    pTSprite->cstat |= 4;
+                    int dX = x - pTSprite->x;
+                    int dY = y - pTSprite->y;
+                    RotateVector(&dX, &dY, 128 - pTSprite->ang);
+                    nAnim = GetOctant(dX, dY);
+                    if (nAnim <= 4)
+                    {
+                        pTSprite->cstat &= ~4;
+                    }
+                    else
+                    {
+                        nAnim = 8 - nAnim;
+                        pTSprite->cstat |= 4;
+                    }
+                    break;
                 }
-                break;
-            }
-            case 2:
-            {
-                int dX = x - pTSprite->x;
-                int dY = y - pTSprite->y;
-                RotateVector(&dX, &dY, 128 - pTSprite->ang);
-                nAnim = GetOctant(dX, dY);
-                break;
-            }
-            }
-            while (nAnim > 0)
-            {
-                pTSprite->picnum += picanm[pTSprite->picnum].num + 1;
-                nAnim--;
-            }
+                case 2:
+                {
+                    int dX = x - pTSprite->x;
+                    int dY = y - pTSprite->y;
+                    RotateVector(&dX, &dY, 128 - pTSprite->ang);
+                    nAnim = GetOctant(dX, dY);
+                    break;
+                }
+                }
+                while (nAnim > 0)
+                {
+                    pTSprite->picnum += picanm[pTSprite->picnum].num + 1;
+                    nAnim--;
+                }
 
-            pm_spritesortcnt++;
+                pm_spritesortcnt++;
+            }
         }
     }
 

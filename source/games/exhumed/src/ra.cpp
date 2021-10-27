@@ -43,8 +43,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RA& w, RA* def)
     {
         arc ("frame", w.nFrame)
             ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
+            ("sprite", w.pActor)
+            ("target", w.pTarget)
             ("run", w.nRun)
             ("ata", w.field_A)
             ("atc", w.field_C)
@@ -63,48 +63,48 @@ void SerializeRa(FSerializer& arc)
 void FreeRa(short nPlayer)
 {
     int nRun = Ra[nPlayer].nRun;
-    int nSprite = Ra[nPlayer].nSprite;
+    auto pActor = Ra[nPlayer].pActor;
+	auto pSprite = &pActor->s();
 
     runlist_SubRunRec(nRun);
-    runlist_DoSubRunRec(sprite[nSprite].owner);
-    runlist_FreeRun(sprite[nSprite].lotag - 1);
+    runlist_DoSubRunRec(pSprite->owner);
+    runlist_FreeRun(pSprite->lotag - 1);
 
-    mydeletesprite(nSprite);
+    DeleteActor(pActor);
 }
 
-int BuildRa(short nPlayer)
+void BuildRa(short nPlayer)
 {
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
-    int nSprite = insertsprite(sprite[nPlayerSprite].sectnum, 203);
+    auto pActor = insertActor(sprite[nPlayerSprite].sectnum, 203);
+	auto pSprite = &pActor->s();
 
-    sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].extra = -1;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nPlayer | 0x210000);
-    sprite[nSprite].pal = 1;
-    sprite[nSprite].xrepeat = 64;
-    sprite[nSprite].yrepeat = 64;
-    sprite[nSprite].x = sprite[nPlayerSprite].x;
-    sprite[nSprite].y = sprite[nPlayerSprite].y;
-    sprite[nSprite].z = sprite[nPlayerSprite].z;
+    pSprite->cstat = 0x8000;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->extra = -1;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->hitag = 0;
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, nPlayer, 0x210000);
+    pSprite->pal = 1;
+    pSprite->xrepeat = 64;
+    pSprite->yrepeat = 64;
+    pSprite->x = sprite[nPlayerSprite].x;
+    pSprite->y = sprite[nPlayerSprite].y;
+    pSprite->z = sprite[nPlayerSprite].z;
 
 //	GrabTimeSlot(3);
 
-    Ra[nPlayer].nSprite = nSprite;
+    Ra[nPlayer].pActor = pActor;
 
-    Ra[nPlayer].nRun = runlist_AddRunRec(NewRun, nPlayer | 0x210000);
-    Ra[nPlayer].nTarget = -1;
+    Ra[nPlayer].nRun = runlist_AddRunRec(NewRun, nPlayer, 0x210000);
+    Ra[nPlayer].pTarget = nullptr;
     Ra[nPlayer].nFrame  = 0;
     Ra[nPlayer].nAction = 0;
     Ra[nPlayer].field_C = 0;
     Ra[nPlayer].nPlayer = nPlayer;
-
-    return nPlayer | 0x210000;
 }
 
 void InitRa()
@@ -114,15 +114,17 @@ void InitRa()
 
 void MoveRaToEnemy(short nPlayer)
 {
-    short nTarget = Ra[nPlayer].nTarget;
-    short nSprite = Ra[nPlayer].nSprite;
+    auto pTarget = Ra[nPlayer].pTarget;
+    auto pActor = Ra[nPlayer].pActor;
     short nAction = Ra[nPlayer].nAction;
+	auto pSprite = &pActor->s();
 
-    if (nTarget != -1)
+    if (pTarget)
     {
-        if (!(sprite[nTarget].cstat & 0x101) || sprite[nTarget].sectnum == MAXSECTORS)
+		auto pTargSprite = &pTarget->s();
+        if (!(pTargSprite->cstat & 0x101) || pTargSprite->sectnum == MAXSECTORS)
         {
-            Ra[nPlayer].nTarget = -1;
+            Ra[nPlayer].pTarget = nullptr;
             if (nAction == 0 || nAction == 3) {
                 return;
             }
@@ -133,8 +135,8 @@ void MoveRaToEnemy(short nPlayer)
         }
         else
         {
-            if (sprite[nSprite].sectnum != sprite[nTarget].sectnum) {
-                mychangespritesect(nSprite, sprite[nTarget].sectnum);
+            if (pSprite->sectnum != pTargSprite->sectnum) {
+                ChangeActorSect(pActor, pTargSprite->sectnum);
             }
         }
     }
@@ -151,164 +153,157 @@ void MoveRaToEnemy(short nPlayer)
             return;
         }
 
-        sprite[nSprite].cstat = 0x8000;
-        nTarget = PlayerList[nPlayer].nSprite;
+        pSprite->cstat = 0x8000;
+        pTarget = PlayerList[nPlayer].Actor();
     }
+	auto pTargSprite = &pTarget->s();
 
-    sprite[nSprite].x = sprite[nTarget].x;
-    sprite[nSprite].y = sprite[nTarget].y;
-    sprite[nSprite].z = sprite[nTarget].z - GetSpriteHeight(nTarget);
+    pSprite->x = pTargSprite->x;
+    pSprite->y = pTargSprite->y;
+    pSprite->z = pTargSprite->z - GetActorHeight(pTarget);
 
-    if (sprite[nSprite].sectnum != sprite[nTarget].sectnum) {
-        mychangespritesect(nSprite, sprite[nTarget].sectnum);
+    if (pSprite->sectnum != pTargSprite->sectnum) {
+        ChangeActorSect(pActor, pTargSprite->sectnum);
     }
 }
 
-void FuncRa(int a, int, int nRun)
+void AIRa::Tick(RunListEvent* ev)
 {
-    short nPlayer = RunData[nRun].nVal;
+    short nPlayer = RunData[ev->nRun].nObjIndex;
     short nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
     short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
-    short nSprite = Ra[nPlayer].nSprite;
+    auto pActor = Ra[nPlayer].pActor;
+    auto pSprite = &pActor->s();
 
     bool bVal = false;
 
-    int nMessage = a & kMessageMask;
+    Ra[nPlayer].pTarget =  sPlayerInput[nPlayer].nTarget <= -1? nullptr : &exhumedActors[sPlayerInput[nPlayer].nTarget] ;
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
 
-    switch (nMessage)
+    if (Ra[nPlayer].nAction)
     {
-        default:
+        seq_MoveSequence(pActor, nSeq, Ra[nPlayer].nFrame);
+
+        Ra[nPlayer].nFrame++;
+        if (Ra[nPlayer].nFrame >= SeqSize[nSeq])
         {
-            Printf("unknown msg %d for Ra\n", nMessage);
-            return;
-        }
-
-        case 0x30000:
-        case 0xA0000:
-            return;
-
-        case 0x20000:
-        {
-            Ra[nPlayer].nTarget = sPlayerInput[nPlayer].nTarget;
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
-
-            if (Ra[nPlayer].nAction)
-            {
-                seq_MoveSequence(nSprite, nSeq, Ra[nPlayer].nFrame);
-
-                Ra[nPlayer].nFrame++;
-                if (Ra[nPlayer].nFrame >= SeqSize[nSeq])
-                {
-                    Ra[nPlayer].nFrame = 0;
-                    bVal = true;
-                }
-            }
-
-            switch (Ra[nPlayer].nAction)
-            {
-                case 0:
-                {
-                    MoveRaToEnemy(nPlayer);
-
-                    if (!Ra[nPlayer].field_C || Ra[nPlayer].nTarget <= -1)
-                    {
-                        sprite[nSprite].cstat = 0x8000;
-                    }
-                    else
-                    {
-                        sprite[nSprite].cstat &= 0x7FFF;
-                        Ra[nPlayer].nAction = 1;
-                        Ra[nPlayer].nFrame  = 0;
-                    }
-
-                    return;
-                }
-
-                case 1:
-                {
-                    if (!Ra[nPlayer].field_C)
-                    {
-                        Ra[nPlayer].nAction = 3;
-                        Ra[nPlayer].nFrame  = 0;
-                    }
-                    else
-                    {
-                        if (bVal) {
-                            Ra[nPlayer].nAction = 2;
-                        }
-
-                        MoveRaToEnemy(nPlayer);
-                    }
-
-                    return;
-                }
-
-                case 2:
-                {
-                    MoveRaToEnemy(nPlayer);
-
-                    if (nCurrentWeapon != kWeaponRing)
-                    {
-                        Ra[nPlayer].nAction = 3;
-                        Ra[nPlayer].nFrame  = 0;
-                    }
-                    else
-                    {
-                        if (Ra[nPlayer].nFrame || Ra[nPlayer].nTarget <= -1)
-                        {
-                            if (!bVal) {
-                                return;
-                            }
-
-                            Ra[nPlayer].nAction = 3;
-                            Ra[nPlayer].nFrame  = 0;
-                        }
-                        else
-                        {
-                            if (PlayerList[nPlayer].nAmmo[kWeaponRing] > 0)
-                            {
-                                runlist_DamageEnemy(Ra[nPlayer].nTarget, PlayerList[Ra[nPlayer].nPlayer].nSprite, BulletInfo[kWeaponRing].nDamage);
-                                AddAmmo(nPlayer, kWeaponRing, -WeaponInfo[kWeaponRing].d);
-                                SetQuake(nSprite, 100);
-                            }
-                            else
-                            {
-                                Ra[nPlayer].nAction = 3;
-                                Ra[nPlayer].nFrame  = 0;
-                                SelectNewWeapon(nPlayer);
-                            }
-                        }
-                    }
-
-                    return;
-                }
-
-                case 3:
-                {
-                    if (bVal)
-                    {
-                        sprite[nSprite].cstat |= 0x8000;
-                        Ra[nPlayer].nAction = 0;
-                        Ra[nPlayer].nFrame  = 0;
-                        Ra[nPlayer].field_C = 0;
-                    }
-
-                    return;
-                }
-
-                default:
-                    return;
-            }
-        }
-
-        case 0x90000:
-        {
-            short nSprite2 = a & 0xFFFF;
-            seq_PlotSequence(nSprite2, nSeq, Ra[nPlayer].nFrame, 1);
-            mytsprite[nSprite2].owner = -1;
-            return;
+            Ra[nPlayer].nFrame = 0;
+            bVal = true;
         }
     }
+
+    switch (Ra[nPlayer].nAction)
+    {
+    case 0:
+    {
+        MoveRaToEnemy(nPlayer);
+
+        if (!Ra[nPlayer].field_C || Ra[nPlayer].pTarget == nullptr)
+        {
+            pSprite->cstat = 0x8000;
+        }
+        else
+        {
+            pSprite->cstat &= 0x7FFF;
+            Ra[nPlayer].nAction = 1;
+            Ra[nPlayer].nFrame = 0;
+        }
+
+        return;
+    }
+
+    case 1:
+    {
+        if (!Ra[nPlayer].field_C)
+        {
+            Ra[nPlayer].nAction = 3;
+            Ra[nPlayer].nFrame = 0;
+        }
+        else
+        {
+            if (bVal) {
+                Ra[nPlayer].nAction = 2;
+            }
+
+            MoveRaToEnemy(nPlayer);
+        }
+
+        return;
+    }
+
+    case 2:
+    {
+        MoveRaToEnemy(nPlayer);
+
+        if (nCurrentWeapon != kWeaponRing)
+        {
+            Ra[nPlayer].nAction = 3;
+            Ra[nPlayer].nFrame = 0;
+        }
+        else
+        {
+            if (Ra[nPlayer].nFrame || Ra[nPlayer].pTarget == nullptr)
+            {
+                if (!bVal) {
+                    return;
+                }
+
+                Ra[nPlayer].nAction = 3;
+                Ra[nPlayer].nFrame = 0;
+            }
+            else
+            {
+                if (PlayerList[nPlayer].nAmmo[kWeaponRing] > 0)
+                {
+                    runlist_DamageEnemy(Ra[nPlayer].pTarget, PlayerList[Ra[nPlayer].nPlayer].Actor(), BulletInfo[kWeaponRing].nDamage);
+                    AddAmmo(nPlayer, kWeaponRing, -WeaponInfo[kWeaponRing].d);
+                    SetQuake(pActor, 100);
+                }
+                else
+                {
+                    Ra[nPlayer].nAction = 3;
+                    Ra[nPlayer].nFrame = 0;
+                    SelectNewWeapon(nPlayer);
+                }
+            }
+        }
+
+        return;
+    }
+
+    case 3:
+    {
+        if (bVal)
+        {
+            pSprite->cstat |= 0x8000;
+            Ra[nPlayer].nAction = 0;
+            Ra[nPlayer].nFrame = 0;
+            Ra[nPlayer].field_C = 0;
+        }
+
+        return;
+    }
+
+    default:
+        return;
+    }
 }
+
+void AIRa::Draw(RunListEvent* ev)
+{
+    short nPlayer = RunData[ev->nRun].nObjIndex;
+    short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
+
+    seq_PlotSequence(ev->nParam, nSeq, Ra[nPlayer].nFrame, 1);
+    ev->pTSprite->owner = -1;
+}
+
+void FuncRa(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIRa ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
+
+}
+
 END_PS_NS

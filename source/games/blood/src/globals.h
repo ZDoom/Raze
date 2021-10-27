@@ -39,10 +39,6 @@ extern bool gNoClip;
 extern bool gInfiniteAmmo;
 extern int32_t gDeliriumBlur;
 
-///////
-extern int gWeaponsV10x;
-//////
-
 extern bool gFogMode;
 
 END_BLD_NS

@@ -51,10 +51,11 @@ enum EMapGameFlags
 	LEVEL_SW_DEATHEXIT_SERPENT = 1024,
 	LEVEL_SW_DEATHEXIT_SUMO = 2048,
 	LEVEL_SW_DEATHEXIT_ZILLA = 4096,
+	LEVEL_SW_DEATHEXIT_SERPENT_NEXT = 8192,
 
-	LEVEL_WT_BOSSSPAWN = 8192,
+	LEVEL_WT_BOSSSPAWN = 16384,
 
-
+	LEVEL_BOSSONLYCUTSCENE = 32768,
 };
 
 // These get filled in by the map definition parsers of the front ends.
@@ -63,12 +64,6 @@ extern int gDefaultVolume, gDefaultSkill;
 
 
 // Localization capable replacement of the game specific solutions.
-
-inline void MakeStringLocalizable(FString &quote)
-{
-	// Only prepend a quote if the string is localizable.
-	if (quote.Len() > 0 && quote[0] != '$' && GStrings[quote]) quote.Insert(0, "$");
-}
 
 enum
 {
@@ -171,7 +166,8 @@ struct MapRecord
 	void SetName(const char *n)
 	{
 		name = n;
-		MakeStringLocalizable(name);
+		name.StripRight();
+		name = FStringTable::MakeMacro(name);
 	}
 	void SetFileName(const char* n)
 	{
@@ -210,6 +206,8 @@ struct SummaryInfo
 extern GlobalCutscenes globalCutscenes;
 extern MapRecord *currentLevel;	
 
+void SetMusicReplacement(const char *mapname, const char *music);
+void ReplaceMusics(bool namehack = false);
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack = false);
 
 MapRecord *FindMapByName(const char *nm);

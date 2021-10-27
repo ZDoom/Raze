@@ -45,6 +45,7 @@
 #include "gamecontrol.h"
 #include "screenjob.h"
 #include "mapinfo.h"
+#include "statistics.h"
 
 CVAR(Bool, sv_cheats, true, CVAR_ARCHIVE|CVAR_SERVERINFO)
 CVAR(Bool, cl_blockcheats, false, 0)
@@ -179,25 +180,20 @@ CCMD(give)
 		Printf("give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item\n");
 		return;
 	}
-	size_t found = -1;
+
 	for (size_t i = 0; i < countof(type); i++)
 	{
 		if (!stricmp(argv[1], type[i]))
 		{
-			found = i;
-			break;
+			if (!CheckCheatmode(true, true))
+			{
+				Net_WriteByte(DEM_GIVE);
+				Net_WriteByte((uint8_t)i);
+			}
+			return;
 		}
 	}
-	if (found == -1)
-	{
-		Printf("Unable to give %s\n", argv[1]);
-		return;
-	}
-	if (!CheckCheatmode(true, true))
-	{
-		Net_WriteByte(DEM_GIVE);
-		Net_WriteByte((uint8_t)found);
-	}
+	Printf("Unable to give %s\n", argv[1]);
 }
 
 //---------------------------------------------------------------------------
@@ -211,6 +207,7 @@ void CompleteLevel(MapRecord* map)
 	gameaction = ga_completed;
 	g_nextmap = !currentLevel || !(currentLevel->flags & MI_FORCEEOG)? map : nullptr;
 	g_nextskill = -1;	// This does not change the skill
+	g_bossexit = false;
 }
 
 //---------------------------------------------------------------------------
@@ -222,6 +219,7 @@ void CompleteLevel(MapRecord* map)
 void changeMap(int player, uint8_t** stream, bool skip)
 {
 	int skill = (int8_t)ReadByte(stream);
+	int bossexit = (int8_t)ReadByte(stream);
 	auto mapname = ReadStringConst(stream);
 	if (skip) return;
 	auto map = FindMapByName(mapname);
@@ -230,6 +228,7 @@ void changeMap(int player, uint8_t** stream, bool skip)
 		gameaction = ga_completed;
 		g_nextmap = map;
 		g_nextskill = skill;
+		g_bossexit = bossexit;
 	}
 }
 
@@ -250,10 +249,11 @@ void endScreenJob(int player, uint8_t** stream, bool skip)
 //
 //---------------------------------------------------------------------------
 
-void ChangeLevel(MapRecord* map, int skill)
+void ChangeLevel(MapRecord* map, int skill, bool bossexit)
 {
 	Net_WriteByte(DEM_CHANGEMAP);
 	Net_WriteByte(skill);
+	Net_WriteByte(bossexit);
 	Net_WriteString(map? map->labelName : nullptr);
 }
 
@@ -263,10 +263,11 @@ void ChangeLevel(MapRecord* map, int skill)
 //
 //---------------------------------------------------------------------------
 
-void DeferedStartGame(MapRecord* map, int skill, bool nostopsound)
+void DeferredStartGame(MapRecord* map, int skill, bool nostopsound)
 {
 	g_nextmap = map;
 	g_nextskill = skill;
+	g_bossexit = false;
 	gameaction = nostopsound? ga_newgamenostopsound : ga_newgame;
 }
 
@@ -333,7 +334,7 @@ CCMD(levelwarp)
 	auto map = levelwarp_common(argv, "levelwarp", "warp to");
 	if (map)
 	{
-		ChangeLevel(map, -1);
+		ChangeLevel(map, g_nextskill);
 	}
 }
 
@@ -354,7 +355,7 @@ CCMD(levelstart)
 	auto map = levelwarp_common(argv, "start game", "start new game at");
 	if (map)
 	{
-		DeferedStartGame(map, -1);
+		DeferredStartGame(map, g_nextskill);
 	}
 }
 
@@ -404,7 +405,7 @@ CCMD(changemap)
 		Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
 	}
 
-	ChangeLevel(map, -1);
+	ChangeLevel(map, g_nextskill);
 }
 
 //---------------------------------------------------------------------------
@@ -444,7 +445,7 @@ CCMD(map)
 			Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
 		}
 
-		DeferedStartGame(map, -1);
+		DeferredStartGame(map, g_nextskill);
 	}
 }
 
@@ -461,7 +462,7 @@ CCMD(restartmap)
 		Printf("Must be in a game to restart a level.\n");
 		return;
 	}
-	ChangeLevel(currentLevel, -1);
+	ChangeLevel(currentLevel, g_nextskill);
 }
 
 //---------------------------------------------------------------------------
@@ -486,5 +487,67 @@ CUSTOM_CVAR(Float, i_timescale, 1.0f, CVAR_NOINITCALL)
 	else
 	{
 		Printf("Time scale must be at least 0.05!\n");
+	}
+}
+
+CCMD(endofgame)
+{
+	STAT_Update(true);
+	ChangeLevel(nullptr, g_nextskill);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CCMD(skill)
+{
+	if (gamestate == GS_LEVEL)
+	{
+		auto argsCount = argv.argc();
+
+		if (argsCount < 2)
+		{
+			auto currentSkill = gi->GetCurrentSkill();
+			if (currentSkill >= 0)
+			{
+				Printf("Current skill is %d (%s)\n", currentSkill, GStrings.localize(gSkillNames[currentSkill]));
+			}
+			else if (currentSkill == -1)
+			{
+				Printf("Current skill is not set\n");
+			}
+			else if (currentSkill == -2)
+			{
+				Printf("This game has no skill settings.\n");
+			}
+			else
+			{
+				Printf("Current skill is an unknown/unsupported value (%d)\n", currentSkill);
+			}
+		}
+		else if (argsCount == 2)
+		{
+			auto newSkill = atoi(argv[1]);
+			if (newSkill >= 0 and newSkill <  MAXSKILLS)
+			{
+				g_nextskill = newSkill;
+				Printf("Skill will be changed for next game.\n");
+			}
+			else
+			{
+				Printf("Please specify a skill level between 0 and %d\n", MAXSKILLS - 1);
+			}
+		}
+		else if (argsCount > 2)
+		{
+			Printf(PRINT_BOLD, "skill <newskill>: returns the current skill level, and optionally sets the skill level for the next game.\n");
+		}
+	}
+	else
+	{
+		Printf("Currently not in a game.\n");
 	}
 }

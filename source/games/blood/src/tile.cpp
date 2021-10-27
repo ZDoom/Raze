@@ -43,7 +43,7 @@ char surfType[kMaxTiles];
 int8_t tileShade[kMaxTiles];
 short voxelIndex[kMaxTiles];
 
-int tileInit()
+void GameInterface::LoadGameTextures()
 {
     auto hFile = fileSystem.OpenFileReader("SURFACE.DAT");
     if (hFile.isOpen())
@@ -69,7 +69,6 @@ int tileInit()
         if (voxelIndex[i] >= 0 && voxelIndex[i] < kMaxVoxels)
             voxreserve.Set(voxelIndex[i]);
     }
-    return 1;
 }
 
 char tileGetSurfType(int hit)

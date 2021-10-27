@@ -36,9 +36,9 @@ BEGIN_BLD_NS
 
 static void (*seqClientCallback[])(int, DBloodActor*) = {
 	FireballSeqCallback,
-	sub_38938,
+	Fx33Callback,
 	NapalmSeqCallback,
-	sub_3888C,
+	Fx32Callback,
 	TreeToGibCallback,
 	DudeToGibCallback1,
 	DudeToGibCallback2,
@@ -75,7 +75,7 @@ static void (*seqClientCallback[])(int, DBloodActor*) = {
 	ratBiteSeqCallback,
 	SpidBiteSeqCallback,
 	SpidJumpSeqCallback,
-	sub_71370,
+	SpidBirthSeqCallback,
 	sub_71BD4,
 	sub_720AC,
 	sub_71A90,
@@ -260,7 +260,8 @@ void UpdateSprite(int nXSprite, SEQFRAME* pFrame)
 {
 	assert(nXSprite > 0 && nXSprite < kMaxXSprites);
 	int nSprite = xsprite[nXSprite].reference;
-	assert(nSprite >= 0 && nSprite < kMaxSprites);
+	if (!(nSprite >= 0 && nSprite < kMaxSprites)) return; // sprite may have been deleted already.
+
 	spritetype* pSprite = &sprite[nSprite];
 	assert(pSprite->extra == nXSprite);
 	if (pSprite->flags & 2)
@@ -479,7 +480,12 @@ SEQINST* GetInstance(int type, int nXIndex)
 
 SEQINST* GetInstance(DBloodActor* actor)
 {
-	return activeList.get(3, actor->s().index);
+	return activeList.get(SS_SPRITE, actor->s().extra);
+}
+
+int seqGetStatus(DBloodActor* actor)
+{
+	return seqGetStatus(SS_SPRITE, actor->s().extra);
 }
 
 void seqKill(int type, int nXIndex)
@@ -494,7 +500,7 @@ void seqKillAll()
 
 void seqKill(DBloodActor* actor)
 {
-	activeList.remove(4, actor->s().extra);
+	activeList.remove(SS_SPRITE, actor->s().extra);
 }
 
 
@@ -652,12 +658,14 @@ void seqProcess(int nTicks)
 					{
 						if (pInst->type == SS_SPRITE)
 						{
-							short nSprite = (short)xsprite[index].reference;
-							assert(nSprite >= 0 && nSprite < kMaxSprites);
-							evKill(nSprite, SS_SPRITE);
-							if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
-								evPost(nSprite, 3, gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
-							else deletesprite(nSprite);	// safe to not use actPostSprite here
+							int nSprite = xsprite[index].reference;
+							if (nSprite >= 0 && nSprite < kMaxSprites)
+							{
+							evKillActor(&bloodActors[nSprite]);
+								if ((sprite[nSprite].hitag & kAttrRespawn) != 0 && (sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax))
+								evPostActor(&bloodActors[nSprite], gGameOptions.nMonsterRespawnTime, kCallbackRespawn);
+								else deletesprite(nSprite);	// safe to not use actPostSprite here
+							}
 						}
 
 						if (pInst->type == SS_MASKED)

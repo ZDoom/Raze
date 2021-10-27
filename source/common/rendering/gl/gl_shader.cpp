@@ -382,7 +382,7 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 			vp_comb = "#version 430 core\n#define SHADER_STORAGE_LIGHTS\n";
 	}
 
-	if (gl.flags & RFL_SHADER_STORAGE_BUFFER)
+	if ((gl.flags & RFL_SHADER_STORAGE_BUFFER) && screen->allowSSBO())
 	{
 		vp_comb << "#define SUPPORTS_SHADOWMAPS\n";
 	}
@@ -404,7 +404,8 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 
 		if (*proc_prog_lump != '#')
 		{
-			int pp_lump = fileSystem.CheckNumForFullName(proc_prog_lump);
+			int pp_lump = fileSystem.CheckNumForFullName(proc_prog_lump, 0);	// if it's a core shader, ignore overrides by user mods.
+			if (pp_lump == -1) pp_lump = fileSystem.CheckNumForFullName(proc_prog_lump);
 			if (pp_lump == -1) I_Error("Unable to load '%s'", proc_prog_lump);
 			FileData pp_data = fileSystem.ReadFile(pp_lump);
 

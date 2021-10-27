@@ -25,18 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-struct Spider
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short nRun;
-};
-
-static TArray<Spider> SpiderList;
-
 static actionSeq SpiderSeq[] = {
     {16, 0},
     {8,  0},
@@ -47,54 +35,25 @@ static actionSeq SpiderSeq[] = {
     {41, 1}
 };
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Spider& w, Spider* def)
-{
-    if (arc.BeginObject(keyname))
-    {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("run", w.nRun)
-            .EndObject();
-    }
-    return arc;
-}
 
-void SerializeSpider(FSerializer& arc)
+DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, short nSector, int nAngle)
 {
-    arc("spider", SpiderList);
-}
-
-void InitSpider()
-{
-    SpiderList.Clear();
-}
-
-int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
-{
-    auto nSpider = SpiderList.Reserve(1);
-    auto spp = &SpiderList[nSpider];
-
     spritetype* sp;
-    if (nSprite == -1)
+    if (spp == nullptr)
     {
-        nSprite = insertsprite(nSector, 99);
-        sp = &sprite[nSprite];
+        spp = insertActor(nSector, 99);
+        sp = &spp->s();
     }
     else
     {
-        changespritestat(nSprite, 99);
-        sp = &sprite[nSprite];
+        ChangeActorStat(spp, 99);
+        sp = &spp->s();
 
         x = sp->x;
         y = sp->y;
         z = sector[sp->sectnum].floorz;
         nAngle = sp->ang;
     }
-
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
 
     sp->x = x;
     sp->y = y;
@@ -120,342 +79,339 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
 
     spp->nAction = 0;
     spp->nFrame = 0;
-    spp->nSprite = nSprite;
-    spp->nTarget = -1;
+    spp->pTarget = nullptr;
     spp->nHealth = 160;
+    spp->nPhase = Counters[kCountSpider]++;
 
-    sp->owner = runlist_AddRunRec(sp->lotag - 1, nSpider | 0xC0000);
+    sp->owner = runlist_AddRunRec(sp->lotag - 1, spp, 0xC0000);
 
-    spp->nRun = runlist_AddRunRec(NewRun, nSpider | 0xC0000);
+    spp->nRun = runlist_AddRunRec(NewRun, spp, 0xC0000);
 
     nCreaturesTotal++;
 
-    return nSpider | 0xC0000;
+    return spp;
 }
 
-void FuncSpider(int a, int nDamage, int nRun)
+void AISpider::Tick(RunListEvent* ev)
 {
-    int nSpider = RunData[nRun].nVal;
-    auto spp = &SpiderList[nSpider];
-    assert(nSpider >= 0 && nSpider < (int)SpiderList.Size());
+    auto spp = ev->pObjActor;
+    if (!spp) return;
 
-    int nVel = 0;
-
-    int nSprite = spp->nSprite;
-    auto sp = &sprite[nSprite];
+    auto sp = &spp->s();
     short nAction = spp->nAction;
 
-    int nMessage = a & kMessageMask;
+    int nVel = 6;
 
-    switch (nMessage)
+    if (spp->nHealth)
     {
-        default:
+        if (sp->cstat & 8)
         {
-            DebugOut("unknown msg %d for Spider\n", nMessage);
-            break;
+            sp->z = sector[sp->sectnum].ceilingz + GetActorHeight(spp);
         }
-
-        case 0x20000:
+        else
         {
-            nVel = 6;
+            Gravity(spp);
+        }
+    }
 
-            if (spp->nHealth)
+    int nSeq = SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a;
+
+    sp->picnum = seq_GetSeqPicnum2(nSeq, spp->nFrame);
+
+    seq_MoveSequence(spp, nSeq, spp->nFrame);
+
+    int nFrameFlag = FrameFlag[SeqBase[nSeq] + spp->nFrame];
+
+    spp->nFrame++;
+    if (spp->nFrame >= SeqSize[nSeq]) {
+        spp->nFrame = 0;
+    }
+
+    auto pTarget = spp->pTarget;
+
+    if (pTarget == nullptr || pTarget->s().cstat & 0x101)
+    {
+        switch (nAction)
+        {
+        default:
+            return;
+
+        case 0:
+        {
+            if ((spp->nPhase & 0x1F) == (totalmoves & 0x1F))
             {
-                if (sp->cstat & 8)
-                {
-                    sp->z = sector[sp->sectnum].ceilingz + GetSpriteHeight(nSprite);
+                if (pTarget == nullptr) {
+                    pTarget = FindPlayer(spp, 100);
                 }
-                else
+
+                if (pTarget)
                 {
-                    Gravity(nSprite);
-                }
-            }
+                    spp->nAction = 1;
+                    spp->nFrame = 0;
+                    spp->pTarget = pTarget;
 
-            int nSeq = SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a;
-
-            sp->picnum = seq_GetSeqPicnum2(nSeq, spp->nFrame);
-
-            seq_MoveSequence(nSprite, nSeq, spp->nFrame);
-
-            int nFrameFlag = FrameFlag[SeqBase[nSeq] + spp->nFrame];
-
-            spp->nFrame++;
-            if (spp->nFrame >= SeqSize[nSeq]) {
-                spp->nFrame = 0;
-            }
-
-            short nTarget = spp->nTarget;
-
-            if (nTarget <= -1 || sprite[nTarget].cstat & 0x101)
-            {
-                switch (nAction)
-                {
-                default:
-                    return;
-
-                case 0:
-                {
-                    if ((nSpider & 0x1F) == (totalmoves & 0x1F))
-                    {
-                        if (nTarget < 0) {
-                            nTarget = FindPlayer(nSprite, 100);
-                        }
-
-                        if (nTarget >= 0)
-                        {
-                            spp->nAction = 1;
-                                spp->nFrame = 0;
-                            spp->nTarget = nTarget;
-
-                            sp->xvel = bcos(sp->ang);
-                            sp->yvel = bsin(sp->ang);
-                            return;
-                        }
-                    }
-
-                    break;
-                }
-                case 1:
-                {
-                    if (nTarget >= 0) {
-                            nVel++;
-                    }
-    goto case_3;
-                    break;
-                }
-                case 4:
-                {
-                        if (!spp->nFrame)
-                    {
-                            spp->nFrame  = 0;
-                        spp->nAction = 1;
-                    }
-                    fallthrough__;
-                }
-                case 3:
-                {
-    case_3:
-                    short nSector = sp->sectnum;
-
-                    if (sp->cstat & 8)
-                    {
-                        sp->zvel = 0;
-                        sp->z = sector[nSector].ceilingz + (tileHeight(sp->picnum) << 5);
-
-                        if (sector[nSector].ceilingstat & 1)
-                        {
-                            sp->cstat ^= 8;
-                            sp->zvel = 1;
-
-                            spp->nAction = 3;
-                                spp->nFrame  = 0;
-                        }
-                    }
-
-                    if ((totalmoves & 0x1F) == (nSpider & 0x1F))
-                    {
-                        PlotCourseToSprite(nSprite, nTarget);
-
-                        if (RandomSize(3))
-                        {
-                            sp->xvel = bcos(sp->ang);
-                            sp->yvel = bsin(sp->ang);
-                        }
-                        else
-                        {
-                            sp->xvel = 0;
-                            sp->yvel = 0;
-                        }
-
-                        if (spp->nAction == 1 && RandomBit())
-                        {
-                            if (sp->cstat & 8)
-                            {
-                                    sp->cstat ^= 8;
-                                sp->zvel = 1;
-                                sp->z = sector[nSector].ceilingz + GetSpriteHeight(nSprite);
-                            }
-                            else
-                            {
-                                sp->zvel = -5120;
-                            }
-
-                            spp->nAction = 3;
-                                spp->nFrame = 0;
-
-                            if (!RandomSize(3)) {
-                                D3PlayFX(StaticSound[kSound29], nSprite);
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 5:
-                {
-                        if (!spp->nFrame)
-                    {
-                        runlist_DoSubRunRec(sp->owner);
-                        runlist_FreeRun(sp->lotag - 1);
-                            runlist_SubRunRec(spp->nRun);
-                        sp->cstat = 0x8000;
-                        mydeletesprite(nSprite);
-                    }
-                    return;
-                }
-                case 2:
-                {
-                    if (nTarget != -1)
-                    {
-                        if (nFrameFlag & 0x80)
-                        {
-                            runlist_DamageEnemy(nTarget, nSprite, 3);
-                            D3PlayFX(StaticSound[kSound38], nSprite);
-                        }
-
-                        if (PlotCourseToSprite(nSprite, nTarget) < 1024) {
-                            return;
-                        }
-
-                        spp->nAction = 1;
-                    }
-                    else
-                    {
-                        spp->nAction = 0;
-                        sp->xvel = 0;
-                        sp->yvel = 0;
-                    }
-
-                        spp->nFrame = 0;
-                    break;
-                }
-                }
-            }
-            else
-            {
-                spp->nTarget = -1;
-                spp->nAction = 0;
-                spp->nFrame = 0;
-
-                sp->xvel = 0;
-                sp->yvel = 0;
-            }
-
-            int nMov = movesprite(nSprite, sp->xvel << nVel, sp->yvel << nVel, sp->zvel, 1280, -1280, CLIPMASK0);
-
-            if (!nMov)
-                return;
-
-            if (nMov & 0x10000
-                && sp->zvel < 0
-                && (hihit & 0xC000) != 0xC000
-                && !((sector[sp->sectnum].ceilingstat) & 1))
-            {
-                sp->cstat |= 8;
-                sp->z = GetSpriteHeight(nSprite) + sector[sp->sectnum].ceilingz;
-                sp->zvel = 0;
-
-                spp->nAction = 1;
-                spp->nFrame = 0;
-                return;
-            }
-            else
-            {
-                switch (nMov & 0xC000)
-                {
-                case 0x8000:
-                {
-                    sp->ang = (sp->ang + 256) & 0x7EF;
                     sp->xvel = bcos(sp->ang);
                     sp->yvel = bsin(sp->ang);
                     return;
                 }
-                case 0xC000:
-                {
-                    if ((nMov & 0x3FFF) == nTarget)
-                    {
-                        int nAng = getangle(sprite[nTarget].x - sp->x, sprite[nTarget].y - sp->y);
-                        if (AngleDiff(sp->ang, nAng) < 64)
-                        {
-                            spp->nAction = 2;
-                                spp->nFrame = 0;
-                        }
-                    }
-                    return;
-                }
-                default:
-                    break;
-                }
-
-                if (spp->nAction == 3)
-                {
-                    spp->nAction = 1;
-                    spp->nFrame = 0;
-                }
-                return;
             }
 
-            return;
-        }
-
-        case 0x90000:
-        {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
             break;
         }
-
-        case 0xA0000:
+        case 1:
         {
-            if (spp->nHealth <= 0)
-                return;
-
-            nDamage = runlist_CheckRadialDamage(nSprite);
-            // fall through
-            fallthrough__;
+            if (pTarget) {
+                nVel++;
+            }
+            goto case_3;
+            break;
         }
-
-        case 0x80000:
+        case 4:
         {
-            if (!nDamage)
-                return;
-
-            short nTarget = a & 0xFFFF;
-
-            spp->nHealth -= dmgAdjust(nDamage);
-            if (spp->nHealth > 0)
+            if (!spp->nFrame)
             {
-                /*
-                NOTE:
-                    nTarget check was added, but should we return if it's invalid instead
-                    or should code below (action set, b set) happen?
-                    Other AI doesn't show consistency in this regard (see Scorpion code)
-                */
-                if (nTarget > -1 && sprite[nTarget].statnum == 100)
+                spp->nFrame = 0;
+                spp->nAction = 1;
+            }
+            [[fallthrough]];
+        }
+        case 3:
+        {
+        case_3:
+            short nSector = sp->sectnum;
+
+            if (sp->cstat & 8)
+            {
+                sp->zvel = 0;
+                sp->z = sector[nSector].ceilingz + (tileHeight(sp->picnum) << 5);
+
+                if (sector[nSector].ceilingstat & 1)
                 {
-                    spp->nTarget = nTarget;
+                    sp->cstat ^= 8;
+                    sp->zvel = 1;
+
+                    spp->nAction = 3;
+                    spp->nFrame = 0;
+                }
+            }
+
+            if ((totalmoves & 0x1F) == (spp->nPhase & 0x1F))
+            {
+                PlotCourseToSprite(spp, pTarget);
+
+                if (RandomSize(3))
+                {
+                    sp->xvel = bcos(sp->ang);
+                    sp->yvel = bsin(sp->ang);
+                }
+                else
+                {
+                    sp->xvel = 0;
+                    sp->yvel = 0;
                 }
 
-                spp->nAction = 4;
-                spp->nFrame  = 0;
+                if (spp->nAction == 1 && RandomBit())
+                {
+                    if (sp->cstat & 8)
+                    {
+                        sp->cstat ^= 8;
+                        sp->zvel = 1;
+                        sp->z = sector[nSector].ceilingz + GetActorHeight(spp);
+                    }
+                    else
+                    {
+                        sp->zvel = -5120;
+                    }
+
+                    spp->nAction = 3;
+                    spp->nFrame = 0;
+
+                    if (!RandomSize(3)) {
+                        D3PlayFX(StaticSound[kSound29], spp);
+                    }
+                }
+            }
+            break;
+        }
+        case 5:
+        {
+            if (!spp->nFrame)
+            {
+                runlist_DoSubRunRec(sp->owner);
+                runlist_FreeRun(sp->lotag - 1);
+                runlist_SubRunRec(spp->nRun);
+                sp->cstat = 0x8000;
+                DeleteActor(spp);
+            }
+            return;
+        }
+        case 2:
+        {
+            if (pTarget)
+            {
+                if (nFrameFlag & 0x80)
+                {
+                    runlist_DamageEnemy(pTarget, spp, 3);
+                    D3PlayFX(StaticSound[kSound38], spp);
+                }
+
+                if (PlotCourseToSprite(spp, pTarget) < 1024) {
+                    return;
+                }
+
+                spp->nAction = 1;
             }
             else
             {
-                // creature is dead, make some chunks
-                spp->nHealth = 0;
-                spp->nAction = 5;
-                spp->nFrame  = 0;
-
-                sp->cstat &= 0xFEFE;
-
-                nCreaturesKilled++;
-
-                for (int i = 0; i < 7; i++)
-                {
-                    BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqSpider, i + 41, 0));
-                }
+                spp->nAction = 0;
+                sp->xvel = 0;
+                sp->yvel = 0;
             }
 
+            spp->nFrame = 0;
+            break;
+        }
+        }
+    }
+    else
+    {
+        spp->pTarget = nullptr;
+        spp->nAction = 0;
+        spp->nFrame = 0;
+
+        sp->xvel = 0;
+        sp->yvel = 0;
+    }
+
+    auto nMov = movesprite(spp, sp->xvel << nVel, sp->yvel << nVel, sp->zvel, 1280, -1280, CLIPMASK0);
+
+    if (nMov.type == kHitNone && nMov.exbits == 0)
+        return;
+
+    Collision HiHit(hihit);    // fixme
+    if (nMov.exbits & kHitAux1
+        && sp->zvel < 0
+        && HiHit.type != kHitSprite
+        && !((sector[sp->sectnum].ceilingstat) & 1))
+    {
+        sp->cstat |= 8;
+        sp->z = GetActorHeight(spp) + sector[sp->sectnum].ceilingz;
+        sp->zvel = 0;
+
+        spp->nAction = 1;
+        spp->nFrame = 0;
+        return;
+    }
+    else
+    {
+        switch (nMov.type)
+        {
+        case kHitWall:
+        {
+            sp->ang = (sp->ang + 256) & 0x7EF;
+            sp->xvel = bcos(sp->ang);
+            sp->yvel = bsin(sp->ang);
             return;
         }
+        case kHitSprite:
+        {
+            if (nMov.actor == pTarget)
+            {
+                int nAng = getangle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
+                if (AngleDiff(sp->ang, nAng) < 64)
+                {
+                    spp->nAction = 2;
+                    spp->nFrame = 0;
+                }
+            }
+            return;
         }
+        default:
+            break;
+        }
+
+        if (spp->nAction == 3)
+        {
+            spp->nAction = 1;
+            spp->nFrame = 0;
+        }
+        return;
+    }
+
+    return;
+}
+
+void AISpider::Draw(RunListEvent* ev)
+{
+    auto spp = ev->pObjActor;
+    if (!spp) return;
+
+    short nAction = spp->nAction;
+
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
+}
+
+void AISpider::RadialDamage(RunListEvent* ev)
+{
+    auto spp = ev->pObjActor;
+    if (!spp) return;
+
+    if (spp->nHealth <= 0)
+        return;
+
+    ev->nDamage = runlist_CheckRadialDamage(spp);
+    Damage(ev);
+}
+
+void AISpider::Damage(RunListEvent* ev)
+{
+    auto spp = ev->pObjActor;
+    if (!spp) return;
+    auto sp = &spp->s();
+
+    if (!ev->nDamage)
+        return;
+
+    DExhumedActor* pTarget = ev->pOtherActor;
+
+    spp->nHealth -= dmgAdjust(ev->nDamage);
+    if (spp->nHealth > 0)
+    {
+        /*
+        NOTE:
+            nTarget check was added, but should we return if it's invalid instead
+            or should code below (action set, b set) happen?
+            Other AI doesn't show consistency in this regard (see Scorpion code)
+        */
+        if (pTarget && pTarget->s().statnum == 100)
+        {
+            spp->pTarget = pTarget;
+        }
+
+        spp->nAction = 4;
+        spp->nFrame = 0;
+    }
+    else
+    {
+        // creature is dead, make some chunks
+        spp->nHealth = 0;
+        spp->nAction = 5;
+        spp->nFrame = 0;
+
+        sp->cstat &= 0xFEFE;
+
+        nCreaturesKilled++;
+
+        for (int i = 0; i < 7; i++)
+        {
+            BuildCreatureChunk(spp, seq_GetSeqPicnum(kSeqSpider, i + 41, 0));
+        }
+    }
+}
+
+void FuncSpider(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AISpider ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 END_PS_NS

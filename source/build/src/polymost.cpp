@@ -1957,7 +1957,7 @@ void polymost_scansector(int32_t sectnum)
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
-            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < countof(sectorborder))
+            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < (int)countof(sectorborder))
             if (gotsector[nextsectnum] == 0)
             {
                 double const d = fp1.X* fp2.Y - fp2.X * fp1.Y;
@@ -2699,10 +2699,6 @@ static int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y
 #define TSPR_OFFSET_FACTOR .0002f
 #define TSPR_OFFSET(tspr) (TSPR_OFFSET_FACTOR + ((tspr->owner != -1 ? tspr->owner & 63 : 0) * TSPR_OFFSET_FACTOR))
 
-#define TSPR_OFFSET_FACTOR2 .000008f
-#define TSPR_OFFSET2(tspr) ((TSPR_OFFSET_FACTOR + ((tspr->owner != -1 ? tspr->owner & 63 : 1) * TSPR_OFFSET_FACTOR)) * (float)sepdist(globalposx - tspr->x, globalposy - tspr->y, globalposz - tspr->z) * 0.025f)
-
-
 void polymost_drawsprite(int32_t snum)
 {
     auto const tspr = tspriteptr[snum];
@@ -2814,8 +2810,6 @@ void polymost_drawsprite(int32_t snum)
             int const ang = (getangle(tspr->x - globalposx, tspr->y - globalposy) + 1024) & 2047;
 
             float foffs = TSPR_OFFSET(tspr);
-            float foffs2 = TSPR_OFFSET(tspr);
-			if (fabs(foffs2) < fabs(foffs)) foffs = foffs2;
 
             vec2f_t const offs = { float(bcosf(ang, -6) * foffs), float(bsinf(ang, -6) * foffs) };
 
@@ -2903,6 +2897,7 @@ void polymost_drawsprite(int32_t snum)
 
             vec2_16_t tempsiz = { (int16_t)tsiz.x, (int16_t)tsiz.y };
             pow2xsplit = 0;
+            if (globalshade > 63) globalshade = 63; // debug
             polymost_drawpoly(pxy, 4, method, tempsiz);
 
             drawpoly_srepeat = 0;
@@ -3258,8 +3253,8 @@ void polymost_drawsprite(int32_t snum)
             break;
     }
 
-    if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
-        show2dsprite.Set(spritenum);
+    if ((unsigned)spritenum < MAXSPRITES)
+        sprite[spritenum].cstat2 |= CSTAT2_SPRITE_MAPPED;
 
 _drawsprite_return:
     ;
@@ -3813,7 +3808,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     if ((tspr->cstat & 48) == 32)
         return 0;
 
-    if ((tspr->cstat & CSTAT_SPRITE_MDLROTATE) || rotate)
+    if ((tspr->cstat2 & CSTAT2_SPRITE_MDLROTATE) || rotate)
     {
         int myclock = (PlayClock << 3) + MulScale(4 << 3, pm_smoothratio, 16);
         tspr->ang = (tspr->ang + myclock) & 2047; // will be applied in md3_vox_calcmat_common.

@@ -131,13 +131,27 @@ int LoadSound(const char* sound);
 void BendAmbientSound();
 void CheckAmbience(short nSector);
 
-void PlayFX2(unsigned short nSound, short nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE);
-void PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector, EChanFlags chanflags = CHANF_NONE);
-inline void D3PlayFX(unsigned short nSound, short nVal)
+void PlayFX2(unsigned short nSound, short nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
+inline void PlayFX2(unsigned short nSound, DExhumedActor* actor, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0)
 {
-    PlayFX2(nSound, nVal);
+    PlayFX2(nSound, actor->GetSpriteIndex(), sectf, chanflags, sprflags);
 }
+
+void PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector, EChanFlags chanflags = CHANF_NONE, int sectf = 0);
+inline void D3PlayFX(unsigned short nSound, short nSprite, short flags = 0)
+{
+    PlayFX2(nSound, nSprite, 0, CHANF_NONE, flags);
+}
+inline void D3PlayFX(unsigned short nSound, DExhumedActor* actor, short flags = 0)
+{
+    PlayFX2(nSound, actor->GetSpriteIndex(), 0, CHANF_NONE, flags);
+}
+
 void StopSpriteSound(short nSprite);
+inline void StopActorSound(DExhumedActor* actor)
+{
+    if (actor) StopSpriteSound(actor->GetSpriteIndex());
+}
 
 void StartSwirlies();
 void UpdateSwirlies();

@@ -159,14 +159,15 @@ const char *AppInfo[] =
 	"Nam/NAM",
 	"Redneck Rampage/Redneck",
 	"Redneck Rampage Rides Again/AGAIN",
-	"Redneck Deer Huntin'/HUNTIN"
+	"Redneck Deer Huntin'/HUNTIN",
 #ifdef __APPLE__
 	"Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D",
 	"Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM",
 	"Shadow Warrior DOS/Shadow Warrior.app/Contents/Resources/sw",
 	"Redneck Rampage/Redneck Rampage.app/Contents/Resources/Redneck Rampage.boxer/C Redneck Rampage.harddisk",
 	// macOS version of Redneck Rampage Rides Again is completely broken on Steam
-	"Redneck Deer Huntin'/Redneck Deer Huntin.app/Contents/Resources/Redneck Deer Huntin.boxer/C.harddisk/INTRPLAY/HUNTIN"
+	"Redneck Deer Huntin'/Redneck Deer Huntin.app/Contents/Resources/Redneck Deer Huntin.boxer/C.harddisk/INTRPLAY/HUNTIN",
+	"PowerslaveCE/Powerslave.app/Contents/Resources/game",
 #endif
 };
 

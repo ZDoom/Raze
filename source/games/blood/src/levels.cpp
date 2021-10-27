@@ -54,28 +54,6 @@ void levelInitINI(const char *pzIni)
     strncpy(BloodIniFile, pzIni, BMAX_PATH);
 }
 
-
-void levelOverrideINI(const char *pzIni)
-{
-    bINIOverride = true;
-    strcpy(BloodIniFile, pzIni);
-}
-
-void levelClearSecrets(void)
-{
-    gSecretMgr.Clear();
-}
-
-void levelSetupSecret(int nCount)
-{
-    gSecretMgr.SetCount(nCount);
-}
-
-void levelTriggerSecret(int nSecret)
-{
-    gSecretMgr.Found(nSecret);
-}
-
 void CheckSectionAbend(const char *pzSection)
 {
     if (!pzSection || !BloodINI->SectionExists(pzSection))
@@ -120,13 +98,25 @@ static const char* DefFile(void)
         for (int i = numlumps - 1; i >= 0; i--)
         {
             int fileno = fileSystem.GetFileContainer(i);
-            if (fileno != -1 && fileno <= fileSystem.GetMaxIwadNum()) break;
+            if (fileno != -1 && fileno <= fileSystem.GetMaxIwadNum()) continue;
             FString fn = fileSystem.GetFileFullName(i, false);
             FString ext = fn.Right(4);
             if (ext.CompareNoCase(".ini") == 0)
             {
                 if (fileSystem.CheckNumForFullName(fn) != i) continue;
-                if (found == -1) found = i;
+                if (found == -1)
+                {
+                    IniFile inif(fn);
+                    for (int j = 1; j <= 6; j++)
+                    {
+                        FStringf key("Episode%d", j);
+                        if (inif.SectionExists(key))
+                        {
+                            found = i;
+                            break;
+                        }
+                    }
+                }
                 else
                 {
                     found = -1;
@@ -144,10 +134,18 @@ static FString cleanPath(const char* pth)
 {
     FString path = pth;
     FixPathSeperator(path);
-    if (FileExists(path)) return path;
+    if (fileSystem.FileExists(path)) return path;
     if (path.Len() > 3 && path[1] == ':' && isalpha(path[0]) && path[2] == '/')
     {
-        return path.Mid(3);
+        path = path.Mid(3);
+        if (fileSystem.FileExists(path)) return path;
+    }
+    // optionally strip the first path component to account for poor logic of the DOS EXE.
+    auto pos = path.IndexOf("/");
+    if (pos >= 0)
+    {
+        auto npath = path.Mid(pos + 1);
+        if (fileSystem.FileExists(npath)) return npath;
     }
     return path;
 }
@@ -166,14 +164,14 @@ void levelLoadDefaults(void)
         sprintf(buffer, "Episode%d", i);
         if (!BloodINI->SectionExists(buffer))
             break;
-        if (BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0))
-            continue;
         auto cluster = MustFindCluster(i);
         auto volume = MustFindVolume(i);
         CutsceneDef &csB = cluster->outro;
-        auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
-		cluster->name = volume->name = ep_str;
+        FString ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
+        ep_str.StripRight();
+        cluster->name = volume->name = FStringTable::MakeMacro(ep_str);
         if (i > 1) volume->flags |= VF_SHAREWARELOCK;
+        if (BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0)) volume->flags |= VF_HIDEFROMSP;
 
         csB.video = cleanPath(BloodINI->GetKeyString(buffer, "CutSceneB", ""));
         int soundint = BloodINI->GetKeyInt(buffer, "CutWavB", -1);

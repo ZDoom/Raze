@@ -354,7 +354,7 @@ int DoSpike(short SpriteNum)
             SetSpikeInactive(SpriteNum);
 
             if (SP_TAG6(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
         }
         else
         // in the OFF position
@@ -377,7 +377,7 @@ int DoSpike(short SpriteNum)
             }
 
             if (SP_TAG6(sp) && TEST_BOOL5(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
         }
 
         // operate only once
@@ -466,7 +466,7 @@ int DoSpikeAuto(short SpriteNum)
             u->Tics = u->WaitTics;
 
             if (SP_TAG6(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
         }
         else
         // in the DOWN position
@@ -479,7 +479,7 @@ int DoSpikeAuto(short SpriteNum)
             u->Tics = u->WaitTics;
 
             if (SP_TAG6(sp) && TEST_BOOL5(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
         }
     }
 
@@ -512,6 +512,6 @@ saveable_module saveable_spike =
     SIZ(saveable_spike_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 END_SW_NS

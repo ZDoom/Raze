@@ -623,7 +623,7 @@ void resetpspritevars(int g)
             else
                 s->pal = ps[j].palookup = ud.user_pals[j];
 
-            ps[j].i = act->GetIndex();
+            ps[j].i = act->GetSpriteIndex();
             ps[j].frag_ps = j;
             act->SetOwner(act);
 
@@ -944,9 +944,9 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
         I_Error("Cannot load user maps with shareware version!\n");
     }
 
+    currentLevel = mi;
     engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &p->cursectnum);
 
-    currentLevel = mi;
     SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);
 

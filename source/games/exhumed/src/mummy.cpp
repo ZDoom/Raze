@@ -25,20 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-struct Mummy
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short nIndex;
-    short nCount;
-    short nRun;
-};
-
-TArray<Mummy> MummyList;
-
 static actionSeq MummySeq[] = {
     {8, 0},
     {0, 0},
@@ -51,485 +37,448 @@ static actionSeq MummySeq[] = {
 };
 
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Mummy& w, Mummy* def)
+void BuildMummy(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle)
 {
-    if (arc.BeginObject(keyname))
+    spritetype* pSprite;
+    if (pActor == nullptr)
     {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("index", w.nIndex)
-            ("count", w.nCount)
-            ("run", w.nRun)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeMummy(FSerializer& arc)
-{
-    arc("mummy", MummyList);
-}
-
-
-void InitMummy()
-{
-    MummyList.Clear();
-}
-
-int BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
-{
-    auto nMummy = MummyList.Reserve(1);
-
-    if (nSprite == -1)
-    {
-        nSprite = insertsprite(nSector, 102);
+        pActor = insertActor(nSector, 102);
+        pSprite = &pActor->s();
     }
     else
     {
-        x = sprite[nSprite].x;
-        y = sprite[nSprite].y;
-        z = sprite[nSprite].z;
-        nAngle = sprite[nSprite].ang;
+        pSprite = &pActor->s();
+        x = pSprite->x;
+        y = pSprite->y;
+        z = pSprite->z;
+        nAngle = pSprite->ang;
 
-        changespritestat(nSprite, 102);
+        ChangeActorStat(pActor, 102);
     }
 
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-
-    sprite[nSprite].x = x;
-    sprite[nSprite].y = y;
-    sprite[nSprite].z = z;
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].clipdist = 32;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].xrepeat = 42;
-    sprite[nSprite].yrepeat = 42;
-    sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].ang = nAngle;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].extra = -1;
+    pSprite->x = x;
+    pSprite->y = y;
+    pSprite->z = z;
+    pSprite->cstat = 0x101;
+    pSprite->shade = -12;
+    pSprite->clipdist = 32;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->xrepeat = 42;
+    pSprite->yrepeat = 42;
+    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->ang = nAngle;
+    pSprite->picnum = 1;
+    pSprite->hitag = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->extra = -1;
 
 //	GrabTimeSlot(3);
 
-    MummyList[nMummy].nAction = 0;
-    MummyList[nMummy].nHealth = 640;
-    MummyList[nMummy].nFrame = 0;
-    MummyList[nMummy].nSprite = nSprite;
-    MummyList[nMummy].nTarget = -1;
-    MummyList[nMummy].nIndex = nMummy;
-    MummyList[nMummy].nCount = 0;
+    pActor->nAction = 0;
+    pActor->nHealth = 640;
+    pActor->nFrame = 0;
+    pActor->pTarget = nullptr;
+    pActor->nCount = 0;
+    pActor->nPhase = Counters[kCountMummy]++;
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nMummy | 0xE0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0xE0000);
 
-    MummyList[nMummy].nRun = runlist_AddRunRec(NewRun, nMummy | 0xE0000);
+    pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0xE0000);
 
     nCreaturesTotal++;
-
-    return (nMummy | 0xE0000);
 }
 
-void CheckMummyRevive(short nMummy)
+void CheckMummyRevive(DExhumedActor* pActor)
 {
-    short nSprite = MummyList[nMummy].nSprite;
+	auto pSprite = &pActor->s();
 
-    for (unsigned i = 0; i < MummyList.Size(); i++)
+    ExhumedStatIterator it(102);
+    while (auto pOther = it.Next())
     {
-        if (i != nMummy)
+        if (pOther != pActor)
         {
-            short nSprite2 = MummyList[i].nSprite;
-            if (sprite[nSprite2].statnum != 102) {
+            if (pOther->nAction != 5) {
                 continue;
             }
+            auto pSprite2 = &pOther->s();
 
-            if (MummyList[i].nAction != 5) {
-                continue;
-            }
-
-            int x = abs(sprite[nSprite2].x - sprite[nSprite].x) >> 8;
-            int y = abs(sprite[nSprite2].y - sprite[nSprite].y) >> 8;
+            int x = abs(pSprite2->x - pSprite->x) >> 8;
+            int y = abs(pSprite2->y - pSprite->y) >> 8;
 
             if (x <= 20 && y <= 20)
             {
-                if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - 8192, sprite[nSprite].sectnum,
-                          sprite[nSprite2].x, sprite[nSprite2].y, sprite[nSprite2].z - 8192, sprite[nSprite2].sectnum))
+                if (cansee(pSprite->x, pSprite->y, pSprite->z - 8192, pSprite->sectnum,
+                          pSprite2->x, pSprite2->y, pSprite2->z - 8192, pSprite2->sectnum))
                 {
-                    sprite[nSprite2].cstat = 0;
-                    MummyList[i].nAction = 6;
-                    MummyList[i].nFrame = 0;
+                    pSprite2->cstat = 0;
+                    pOther->nAction = 6;
+                    pOther->nFrame = 0;
                 }
             }
         }
     }
 }
 
-void FuncMummy(int a, int nDamage, int nRun)
+void AIMummy::Tick(RunListEvent* ev)
 {
-    short nMummy = RunData[nRun].nVal;
-    assert(nMummy >= 0 && nMummy < kMaxMummies);
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
 
-    short nTarget = UpdateEnemy(&MummyList[nMummy].nTarget);
+    auto pTarget = UpdateEnemy(&pActor->pTarget);
 
-    short nSprite = MummyList[nMummy].nSprite;
-    short nAction = MummyList[nMummy].nAction;
+    auto pSprite = &pActor->s();
+    short nAction = pActor->nAction;
 
-    int nMessage = a & kMessageMask;
+    Gravity(pActor);
 
-    switch (nMessage)
+    int nSeq = SeqOffsets[kSeqMummy] + MummySeq[nAction].a;
+
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+
+    short nFrame = SeqBase[nSeq] + pActor->nFrame;
+    short nFrameFlag = FrameFlag[nFrame];
+
+    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+
+    bool bVal = false;
+
+    pActor->nFrame++;
+    if (pActor->nFrame >= SeqSize[nSeq])
     {
-        default:
+        pActor->nFrame = 0;
+
+        bVal = true;
+    }
+
+    if (pTarget != nullptr && nAction < 4)
+    {
+        if ((!pTarget->s().cstat) && nAction)
         {
-            DebugOut("unknown msg %d for Mummy\n", nMessage);
-            break;
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+        }
+    }
+
+    auto nMov = MoveCreatureWithCaution(pActor);
+
+    if (nAction > 7)
+        return;
+
+    switch (nAction)
+    {
+    case 0:
+    {
+        if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F))
+        {
+            pSprite->cstat = 0x101;
+
+            if (pTarget == nullptr)
+            {
+                auto pTarget = FindPlayer(pActor, 100);
+                if (pTarget != nullptr)
+                {
+                    D3PlayFX(StaticSound[kSound7], pActor);
+                    pActor->nFrame = 0;
+                    pActor->pTarget = pTarget;
+                    pActor->nAction = 1;
+                    pActor->nCount = 90;
+
+                    pSprite->xvel = bcos(pSprite->ang, -2);
+                    pSprite->yvel = bsin(pSprite->ang, -2);
+                }
+            }
+        }
+        return;
+    }
+
+    case 1:
+    {
+        if (pActor->nCount > 0)
+        {
+            pActor->nCount--;
         }
 
-        case 0x20000:
+        if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F))
         {
-            Gravity(nSprite);
+            pSprite->cstat = 0x101;
 
-            int nSeq = SeqOffsets[kSeqMummy] + MummySeq[nAction].a;
+            PlotCourseToSprite(pActor, pTarget);
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, MummyList[nMummy].nFrame);
-
-            short nFrame = SeqBase[nSeq] + MummyList[nMummy].nFrame;
-            short nFrameFlag = FrameFlag[nFrame];
-
-            seq_MoveSequence(nSprite, nSeq, MummyList[nMummy].nFrame);
-
-            bool bVal = false;
-
-            MummyList[nMummy].nFrame++;
-            if (MummyList[nMummy].nFrame >= SeqSize[nSeq])
+            if (pActor->nAction == 1)
             {
-                MummyList[nMummy].nFrame = 0;
-
-                bVal = true;
-            }
-
-            if (nTarget != -1 && nAction < 4)
-            {
-                if ((!sprite[nTarget].cstat) && nAction)
+                if (RandomBit() && pTarget)
                 {
-                    MummyList[nMummy].nAction = 0;
-                    MummyList[nMummy].nFrame = 0;
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
-                }
-            }
-
-            int nMov = MoveCreatureWithCaution(nSprite);
-
-            if (nAction > 7)
-                return;
-
-            switch (nAction)
-            {
-                case 0:
-                {
-                    if ((MummyList[nMummy].nIndex & 0x1F) == (totalmoves & 0x1F))
+                    if (cansee(pSprite->x, pSprite->y, pSprite->z - GetActorHeight(pActor), pSprite->sectnum,
+                        pTarget->s().x, pTarget->s().y, pTarget->s().z - GetActorHeight(pTarget), pTarget->s().sectnum))
                     {
-                        sprite[nSprite].cstat = 0x101;
+                        pActor->nAction = 3;
+                        pActor->nFrame = 0;
 
-                        if (nTarget < 0)
-                        {
-                            int nTarget = FindPlayer(nSprite, 100);
-                            if (nTarget >= 0)
-                            {
-                                D3PlayFX(StaticSound[kSound7], nSprite);
-                                MummyList[nMummy].nFrame = 0;
-                                MummyList[nMummy].nTarget = nTarget;
-                                MummyList[nMummy].nAction = 1;
-                                MummyList[nMummy].nCount = 90;
-
-                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
-                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
-                            }
-                        }
-                    }
-                    return;
-                }
-
-                case 1:
-                {
-                    if (MummyList[nMummy].nCount > 0)
-                    {
-                        MummyList[nMummy].nCount--;
-                    }
-
-                    if ((MummyList[nMummy].nIndex & 0x1F) == (totalmoves & 0x1F))
-                    {
-                        sprite[nSprite].cstat = 0x101;
-
-                        PlotCourseToSprite(nSprite, nTarget);
-
-                        if (MummyList[nMummy].nAction == 1)
-                        {
-                            if (RandomBit())
-                            {
-                                if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - GetSpriteHeight(nSprite), sprite[nSprite].sectnum,
-                                    sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
-                                {
-                                    MummyList[nMummy].nAction = 3;
-                                    MummyList[nMummy].nFrame = 0;
-
-                                    sprite[nSprite].xvel = 0;
-                                    sprite[nSprite].yvel = 0;
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    // loc_2B5A8
-                    if (!MummyList[nMummy].nFrame)
-                    {
-                        sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1);
-                        sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1);
-                    }
-
-                    if (sprite[nSprite].xvel || sprite[nSprite].yvel)
-                    {
-                        if (sprite[nSprite].xvel > 0)
-                        {
-                            sprite[nSprite].xvel -= 1024;
-                            if (sprite[nSprite].xvel < 0) {
-                                sprite[nSprite].xvel = 0;
-                            }
-                        }
-                        else if (sprite[nSprite].xvel < 0)
-                        {
-                            sprite[nSprite].xvel += 1024;
-                            if (sprite[nSprite].xvel > 0) {
-                                sprite[nSprite].xvel = 0;
-                            }
-                        }
-
-                        if (sprite[nSprite].yvel > 0)
-                        {
-                            sprite[nSprite].yvel -= 1024;
-                            if (sprite[nSprite].yvel < 0) {
-                                sprite[nSprite].yvel = 0;
-                            }
-                        }
-                        else if (sprite[nSprite].yvel < 0)
-                        {
-                            sprite[nSprite].yvel += 1024;
-                            if (sprite[nSprite].yvel > 0) {
-                                sprite[nSprite].yvel = 0;
-                            }
-                        }
-                    }
-
-                    if (nMov)
-                    {
-                        switch (nMov & 0xC000)
-                        {
-                            case 0x8000:
-                            {
-                                sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                                sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -2);
-                                sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -2);
-                                return;
-                            }
-
-                            case 0xC000:
-                            {
-                                if ((nMov & 0x3FFF) == nTarget)
-                                {
-                                    int nAngle = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-                                    if (AngleDiff(sprite[nSprite].ang, nAngle) < 64)
-                                    {
-                                        MummyList[nMummy].nAction = 2;
-                                        MummyList[nMummy].nFrame = 0;
-
-                                        sprite[nSprite].xvel = 0;
-                                        sprite[nSprite].yvel = 0;
-                                    }
-                                }
-                                return;
-                            }
-                        }
-                    }
-
-                    break;
-                }
-
-                case 2:
-                {
-                    if (nTarget == -1)
-                    {
-                        MummyList[nMummy].nAction = 0;
-                        MummyList[nMummy].nFrame = 0;
-                    }
-                    else
-                    {
-                        if (PlotCourseToSprite(nSprite, nTarget) >= 1024)
-                        {
-                            MummyList[nMummy].nAction = 1;
-                            MummyList[nMummy].nFrame = 0;
-                        }
-                        else if (nFrameFlag & 0x80)
-                        {
-                            runlist_DamageEnemy(nTarget, nSprite, 5);
-                        }
-                    }
-                    return;
-                }
-
-                case 3:
-                {
-                    if (bVal)
-                    {
-                        MummyList[nMummy].nFrame = 0;
-                        MummyList[nMummy].nAction = 0;
-                        MummyList[nMummy].nCount = 100;
-                        MummyList[nMummy].nTarget = -1;
+                        pSprite->xvel = 0;
+                        pSprite->yvel = 0;
                         return;
                     }
-                    else if (nFrameFlag & 0x80)
-                    {
-                        SetQuake(nSprite, 100);
-
-                        // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
-                        int nBullet = BuildBullet(nSprite, 9, 0, 0, -15360, sprite[nSprite].ang, nTarget + 10000, 1);
-                        CheckMummyRevive(nMummy);
-
-                        if (nBullet > -1)
-                        {
-                            if (!RandomSize(3))
-                            {
-                                // FIXME CHECKME - nBullet & 0xFFFF can be -1. Original code doesn't handle this??
-
-                                SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
-                                sprite[nBullet & 0xFFFF].pal = 5;
-                            }
-                        }
-                    }
-                    return;
-                }
-
-                case 4:
-                {
-                    if (bVal)
-                    {
-                        MummyList[nMummy].nFrame = 0;
-                        MummyList[nMummy].nAction = 5;
-                    }
-                    return;
-                }
-
-                case 5:
-                {
-                    MummyList[nMummy].nFrame = 0;
-                    return;
-                }
-
-                case 6:
-                {
-                    if (bVal)
-                    {
-                        sprite[nSprite].cstat = 0x101;
-
-                        MummyList[nMummy].nAction = 0;
-                        MummyList[nMummy].nHealth = 300;
-                        MummyList[nMummy].nTarget = -1;
-
-                        nCreaturesTotal++;
-                    }
-                    return;
-                }
-
-                case 7:
-                {
-                    if (nMov & 0x20000)
-                    {
-                        sprite[nSprite].xvel >>= 1;
-                        sprite[nSprite].yvel >>= 1;
-                    }
-
-                    if (bVal)
-                    {
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
-                        sprite[nSprite].cstat = 0x101;
-
-                        MummyList[nMummy].nAction = 0;
-                        MummyList[nMummy].nFrame = 0;
-                        MummyList[nMummy].nTarget = -1;
-                    }
-
-                    return;
                 }
             }
-
-            return;
         }
 
-        case 0x90000:
+        // loc_2B5A8
+        if (!pActor->nFrame)
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, MummyList[nMummy].nFrame, MummySeq[nAction].b);
-            return;
+            pSprite->xvel = bcos(pSprite->ang, -1);
+            pSprite->yvel = bsin(pSprite->ang, -1);
         }
 
-        case 0xA0000:
+        if (pSprite->xvel || pSprite->yvel)
         {
-            if (MummyList[nMummy].nHealth <= 0)
-                return;
-
-            nDamage = runlist_CheckRadialDamage(nSprite);
-            // fall through to 0x80000
-            fallthrough__;
-        }
-        case 0x80000:
-        {
-            if (nDamage <= 0)
-                return;
-
-            if (MummyList[nMummy].nHealth <= 0) {
-                return;
-            }
-
-            MummyList[nMummy].nHealth -= dmgAdjust(nDamage);
-
-            if (MummyList[nMummy].nHealth <= 0)
+            if (pSprite->xvel > 0)
             {
-                MummyList[nMummy].nHealth = 0;
-                sprite[nSprite].cstat &= 0xFEFE;
-                nCreaturesKilled++;
-
-                DropMagic(nSprite);
-
-                MummyList[nMummy].nFrame = 0;
-                MummyList[nMummy].nAction = 4;
-
-                sprite[nSprite].xvel = 0;
-                sprite[nSprite].yvel = 0;
-                sprite[nSprite].zvel = 0;
-                sprite[nSprite].z = sector[sprite[nSprite].sectnum].floorz;
+                pSprite->xvel -= 1024;
+                if (pSprite->xvel < 0) {
+                    pSprite->xvel = 0;
+                }
             }
-            else
+            else if (pSprite->xvel < 0)
             {
-                if (!RandomSize(2))
-                {
-                    MummyList[nMummy].nAction = 7;
-                    MummyList[nMummy].nFrame = 0;
-
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
+                pSprite->xvel += 1024;
+                if (pSprite->xvel > 0) {
+                    pSprite->xvel = 0;
                 }
             }
 
+            if (pSprite->yvel > 0)
+            {
+                pSprite->yvel -= 1024;
+                if (pSprite->yvel < 0) {
+                    pSprite->yvel = 0;
+                }
+            }
+            else if (pSprite->yvel < 0)
+            {
+                pSprite->yvel += 1024;
+                if (pSprite->yvel > 0) {
+                    pSprite->yvel = 0;
+                }
+            }
+        }
+
+        switch (nMov.type)
+        {
+        case kHitWall:
+        {
+            pSprite->ang = (pSprite->ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+            pSprite->xvel = bcos(pSprite->ang, -2);
+            pSprite->yvel = bsin(pSprite->ang, -2);
+            return;
+        }
+
+        case kHitSprite:
+        {
+            if (nMov.actor == pTarget)
+            {
+                int nAngle = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                if (AngleDiff(pSprite->ang, nAngle) < 64)
+                {
+                    pActor->nAction = 2;
+                    pActor->nFrame = 0;
+
+                    pSprite->xvel = 0;
+                    pSprite->yvel = 0;
+                }
+            }
             return;
         }
         }
+
+        break;
+    }
+
+    case 2:
+    {
+        if (pTarget == nullptr)
+        {
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
+        }
+        else
+        {
+            if (PlotCourseToSprite(pActor, pTarget) >= 1024)
+            {
+                pActor->nAction = 1;
+                pActor->nFrame = 0;
+            }
+            else if (nFrameFlag & 0x80)
+            {
+                runlist_DamageEnemy(pTarget, pActor, 5);
+            }
+        }
+        return;
+    }
+
+    case 3:
+    {
+        if (bVal)
+        {
+            pActor->nFrame = 0;
+            pActor->nAction = 0;
+            pActor->nCount = 100;
+            pActor->pTarget = nullptr;
+            return;
+        }
+        else if (nFrameFlag & 0x80)
+        {
+            SetQuake(pActor, 100);
+
+            // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
+            auto pBullet = BuildBullet(pActor, 9, -15360, pSprite->ang, pTarget, 1);
+            CheckMummyRevive(pActor);
+
+            if (pBullet)
+            {
+                if (!RandomSize(3))
+                {
+                    SetBulletEnemy(pBullet->nPhase, pTarget);
+                    pBullet->s().pal = 5;
+                }
+            }
+        }
+        return;
+    }
+
+    case 4:
+    {
+        if (bVal)
+        {
+            pActor->nFrame = 0;
+            pActor->nAction = 5;
+        }
+        return;
+    }
+
+    case 5:
+    {
+        pActor->nFrame = 0;
+        return;
+    }
+
+    case 6:
+    {
+        if (bVal)
+        {
+            pSprite->cstat = 0x101;
+
+            pActor->nAction = 0;
+            pActor->nHealth = 300;
+            pActor->pTarget = nullptr;
+
+            nCreaturesTotal++;
+        }
+        return;
+    }
+
+    case 7:
+    {
+        if (nMov.exbits)
+        {
+            pSprite->xvel >>= 1;
+            pSprite->yvel >>= 1;
+        }
+
+        if (bVal)
+        {
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+            pSprite->cstat = 0x101;
+
+            pActor->nAction = 0;
+            pActor->nFrame = 0;
+            pActor->pTarget = nullptr;
+        }
+
+        return;
+    }
+    }
 }
+
+void AIMummy::Draw(RunListEvent* ev)
+{
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    short nAction = pActor->nAction;
+
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, pActor->nFrame, MummySeq[nAction].b);
+    return;
+}
+
+void AIMummy::RadialDamage(RunListEvent* ev)
+{
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
+
+    if (pActor->nHealth <= 0)
+        return;
+
+    ev->nDamage = runlist_CheckRadialDamage(pActor);
+    Damage(ev);
+}
+
+void AIMummy::Damage(RunListEvent* ev) 
+{
+    auto pActor = ev->pObjActor;
+    if (!pActor) return;
+    auto pSprite = &pActor->s();
+
+    if (ev->nDamage <= 0)
+        return;
+
+    if (pActor->nHealth <= 0) {
+        return;
+    }
+
+    pActor->nHealth -= dmgAdjust(ev->nDamage);
+
+    if (pActor->nHealth <= 0)
+    {
+        pActor->nHealth = 0;
+        pSprite->cstat &= 0xFEFE;
+        nCreaturesKilled++;
+
+        DropMagic(pActor);
+
+        pActor->nFrame = 0;
+        pActor->nAction = 4;
+
+        pSprite->xvel = 0;
+        pSprite->yvel = 0;
+        pSprite->zvel = 0;
+        pSprite->z = sector[pSprite->sectnum].floorz;
+    }
+    else
+    {
+        if (!RandomSize(2))
+        {
+            pActor->nAction = 7;
+            pActor->nFrame = 0;
+
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+        }
+    }
+
+    return;
+}
+
+void FuncMummy(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIMummy ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
+}
+
 END_PS_NS

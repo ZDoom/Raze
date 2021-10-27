@@ -43,6 +43,9 @@ namespace GC
 	// Number of bytes currently allocated through M_Malloc/M_Realloc.
 	extern size_t AllocBytes;
 
+	// Number of allocated objects since last CheckGC call.
+	extern size_t AllocCount;
+
 	// Amount of memory to allocate before triggering a collection.
 	extern size_t Threshold;
 
@@ -105,10 +108,15 @@ namespace GC
 	}
 
 	// Check if it's time to collect, and do a collection step if it is.
-	static inline void CheckGC()
+	static inline bool CheckGC()
 	{
+		AllocCount = 0;
 		if (AllocBytes >= Threshold)
+		{
 			Step();
+			return true;
+		}
+		return false;
 	}
 
 	// Forces a collection to start now.
@@ -175,7 +183,7 @@ public:
 	TObjPtr() = default;
 	TObjPtr(const TObjPtr<T> &q) = default;
 
-	TObjPtr(T q) throw()
+	TObjPtr(T q) noexcept
 		: pp(q)
 	{
 	}
@@ -207,35 +215,35 @@ public:
 		return *this;
 	}
 
-	T Get() throw()
+	T Get() noexcept
 	{
 		return GC::ReadBarrier(pp);
 	}
 
-	T ForceGet() throw()	//for situations where the read barrier needs to be skipped.
+	T ForceGet() noexcept	//for situations where the read barrier needs to be skipped.
 	{
 		return pp;
 	}
 
-	operator T() throw()
+	operator T() noexcept
 	{
 		return GC::ReadBarrier(pp);
 	}
-	T &operator*()
+	T &operator*() noexcept
 	{
 		T q = GC::ReadBarrier(pp);
 		assert(q != NULL);
 		return *q;
 	}
-	T operator->() throw()
+	T operator->() noexcept
 	{
 		return GC::ReadBarrier(pp);
 	}
-	bool operator!=(T u) throw()
+	bool operator!=(T u) noexcept
 	{
 		return GC::ReadBarrier(o) != u;
 	}
-	bool operator==(T u) throw()
+	bool operator==(T u) noexcept
 	{
 		return GC::ReadBarrier(o) == u;
 	}

@@ -53,216 +53,202 @@ AISTATE tentacleChase = { kAiStateChase, 6, -1, 0, NULL, aiMoveTurn, aiPodChase,
 
 void sub_6FF08(int, DBloodActor* actor)
 {
-    sfxPlay3DSound(&actor->s(), 2503, -1, 0);
+	sfxPlay3DSound(actor, 2503, -1, 0);
 }
 
 void sub_6FF54(int, DBloodActor* actor)
 {
-    sfxPlay3DSound(&actor->s(), 2500, -1, 0);
+	sfxPlay3DSound(actor, 2500, -1, 0);
 }
 
 void podAttack(int, DBloodActor* actor)
 {
-    XSPRITE* pXSprite = &actor->x();
-    spritetype* pSprite = &actor->s();
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
-        return;
-    }
-    
-    spritetype *pTarget = &sprite[pXSprite->target];
+	XSPRITE* pXSprite = &actor->x();
+	spritetype* pSprite = &actor->s();
 
-    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
-        return;
-    }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int x = pTarget->x-pSprite->x;
-    int y = pTarget->y-pSprite->y;
-    int dz = pTarget->z-pSprite->z;
-    x += Random2(1000);
-    y += Random2(1000);
-    int nDist = approxDist(x, y);
-    int nDist2 = nDist / 540;
-    spritetype *pMissile = NULL;
-    switch (pSprite->type)
-    {
-    case kDudePodGreen:
-        dz += 8000;
-        if (pDudeInfo->seeDist*0.1 < nDist)
-        {
-            if (Chance(0x8000))
-                sfxPlay3DSound(pSprite, 2474, -1, 0);
-            else
-                sfxPlay3DSound(pSprite, 2475, -1, 0);
-            pMissile = actFireThing_(pSprite, 0, -8000, dz/128-14500, kThingPodGreenBall, (nDist2<<23)/120);
-        }
-        if (pMissile)
-            seqSpawn(68, 3, pMissile->extra, -1);
-        break;
-    case kDudePodFire:
-        dz += 8000;
-        if (pDudeInfo->seeDist*0.1 < nDist)
-        {
-            sfxPlay3DSound(pSprite, 2454, -1, 0);
-            pMissile = actFireThing_(pSprite, 0, -8000, dz/128-14500, kThingPodFireBall, (nDist2<<23)/120);
-        }
-        if (pMissile)
-            seqSpawn(22, 3, pMissile->extra, -1);
-        break;
-    }
-    for (int i = 0; i < 4; i++)
-        sub_746D4(pSprite, 240);
+	if (!actor->ValidateTarget(__FUNCTION__)) return;
+	spritetype* pTarget = &actor->GetTarget()->s();
+
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int x = pTarget->x - pSprite->x;
+	int y = pTarget->y - pSprite->y;
+	int dz = pTarget->z - pSprite->z;
+	x += Random2(1000);
+	y += Random2(1000);
+	int nDist = approxDist(x, y);
+	int nDist2 = nDist / 540;
+	DBloodActor* pMissile = nullptr;
+	switch (pSprite->type)
+	{
+	case kDudePodGreen:
+		dz += 8000;
+		if (pDudeInfo->seeDist * 0.1 < nDist)
+		{
+			if (Chance(0x8000))
+				sfxPlay3DSound(actor, 2474, -1, 0);
+			else
+				sfxPlay3DSound(actor, 2475, -1, 0);
+			pMissile = actFireThing(actor, 0, -8000, dz / 128 - 14500, kThingPodGreenBall, (nDist2 << 23) / 120);
+		}
+		if (pMissile)
+			seqSpawn(68, pMissile, -1);
+		break;
+	case kDudePodFire:
+		dz += 8000;
+		if (pDudeInfo->seeDist * 0.1 < nDist)
+		{
+			sfxPlay3DSound(actor, 2454, -1, 0);
+			pMissile = actFireThing(actor, 0, -8000, dz / 128 - 14500, kThingPodFireBall, (nDist2 << 23) / 120);
+		}
+		if (pMissile)
+			seqSpawn(22, pMissile, -1);
+		break;
+	}
+	for (int i = 0; i < 4; i++)
+        fxSpawnPodStuff(actor, 240);
 }
 
 void sub_70284(int, DBloodActor* actor)
 {
-    auto pSprite = &actor->s();
-    sfxPlay3DSound(pSprite, 2502, -1, 0);
-    int nDist, nBurn;
-    DAMAGE_TYPE dmgType;
-    switch (pSprite->type) {
-        case kDudeTentacleGreen:
-        default: // ???
-            nBurn = 0;
-            dmgType = kDamageBullet;
-            nDist = 50;
-            break;
-        case kDudeTentacleFire: // ???
-            nBurn = (gGameOptions.nDifficulty*120)>>2;
-            dmgType = kDamageExplode;
-            nDist = 75;
-            break;
-    }
-    actRadiusDamage(actor, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5*(1+gGameOptions.nDifficulty), dmgType, 2, nBurn);
+	auto pSprite = &actor->s();
+	sfxPlay3DSound(actor, 2502, -1, 0);
+	int nDist, nBurn;
+	DAMAGE_TYPE dmgType;
+	switch (pSprite->type) {
+	case kDudeTentacleGreen:
+	default: // ???
+		nBurn = 0;
+		dmgType = kDamageBullet;
+		nDist = 50;
+		break;
+	case kDudeTentacleFire: // ???
+		nBurn = (gGameOptions.nDifficulty * 120) >> 2;
+		dmgType = kDamageExplode;
+		nDist = 75;
+		break;
+	}
+	actRadiusDamage(actor, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
 }
 
 static void aiPodSearch(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    aiChooseDirection(pSprite, pXSprite, pXSprite->goalAng);
-    aiThinkTarget(actor);
+	auto pXSprite = &actor->x();
+	auto pSprite = &actor->s();
+	aiChooseDirection(actor, pXSprite->goalAng);
+	aiThinkTarget(actor);
 }
 
 static void aiPodMove(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
-        return;
-    }
-    
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    int dx = pXSprite->targetX-pSprite->x;
-    int dy = pXSprite->targetY-pSprite->y;
-    int nAngle = getangle(dx, dy);
-    int nDist = approxDist(dx, dy);
-    aiChooseDirection(pSprite, pXSprite, nAngle);
-    if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery) {
-        switch (pSprite->type) {
-            case kDudePodGreen:
-            case kDudePodFire:
-                aiNewState(actor, &podSearch);
-                break;
-            case kDudeTentacleGreen:
-            case kDudeTentacleFire:
-                aiNewState(actor, &tentacleSearch);
-                break;
-        }
-    }
-    aiThinkTarget(actor);
+	auto pXSprite = &actor->x();
+	auto pSprite = &actor->s();
+	///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+	if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+		Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+		return;
+	}
+
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	int dx = pXSprite->targetX - pSprite->x;
+	int dy = pXSprite->targetY - pSprite->y;
+	int nAngle = getangle(dx, dy);
+	int nDist = approxDist(dx, dy);
+	aiChooseDirection(actor, nAngle);
+	if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery) {
+		switch (pSprite->type) {
+		case kDudePodGreen:
+		case kDudePodFire:
+			aiNewState(actor, &podSearch);
+			break;
+		case kDudeTentacleGreen:
+		case kDudeTentacleFire:
+			aiNewState(actor, &tentacleSearch);
+			break;
+		}
+	}
+	aiThinkTarget(actor);
 }
 
 static void aiPodChase(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    if (pXSprite->target == -1) {
-        switch (pSprite->type) {
-            case kDudePodGreen:
-            case kDudePodFire:
-                aiNewState(actor, &podMove);
-                break;
-            case kDudeTentacleGreen:
-            case kDudeTentacleFire:
-                aiNewState(actor, &tentacleMove);
-                break;
-        }
-        return;
-    }
-    ///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
-        return;
-    }
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
-    ///assert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
-    if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
-        Printf(PRINT_HIGH, "pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
-        return;
-    }
-    spritetype *pTarget = &sprite[pXSprite->target];
-    XSPRITE *pXTarget = &xsprite[pTarget->extra];
-    int dx = pTarget->x-pSprite->x;
-    int dy = pTarget->y-pSprite->y;
-    aiChooseDirection(pSprite, pXSprite, getangle(dx, dy));
-    if (pXTarget->health == 0) {
-        
-        switch (pSprite->type) {
-            case kDudePodGreen:
-            case kDudePodFire:
-                aiNewState(actor, &podSearch);
-                break;
-            case kDudeTentacleGreen:
-            case kDudeTentacleFire:
-                aiNewState(actor, &tentacleSearch);
-                break;
-        }
-        return;
-    }
-    int nDist = approxDist(dx, dy);
-    if (nDist <= pDudeInfo->seeDist)
-    {
-        int nDeltaAngle = ((getangle(dx,dy)+1024-pSprite->ang)&2047)-1024;
-        int height = (pDudeInfo->eyeHeight*pSprite->yrepeat)<<2;
-        if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
-        {
-            if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
-            {
-                aiSetTarget(pXSprite, pXSprite->target);
-                if (abs(nDeltaAngle) < 85 && pTarget->type != kDudePodGreen && pTarget->type != kDudePodFire) {
-                    switch (pSprite->type) {
-                        case kDudePodGreen:
-                        case kDudePodFire:
-                            aiNewState(actor, &podStartChase);
-                            break;
-                        case kDudeTentacleGreen:
-                        case kDudeTentacleFire:
-                            aiNewState(actor, &tentacleStartChase);
-                            break;
-                    }
-                }
-                return;
-            }
-        }
-    }
-    
-    switch (pSprite->type) {
-        case kDudePodGreen:
-        case kDudePodFire:
-            aiNewState(actor, &podMove);
-            break;
-        case kDudeTentacleGreen:
-        case kDudeTentacleFire:
-            aiNewState(actor, &tentacleMove);
-            break;
-    }
-    pXSprite->target = -1;
+	auto pXSprite = &actor->x();
+	auto pSprite = &actor->s();
+	if (actor->GetTarget() == nullptr) {
+		switch (pSprite->type) {
+		case kDudePodGreen:
+		case kDudePodFire:
+			aiNewState(actor, &podMove);
+			break;
+		case kDudeTentacleGreen:
+		case kDudeTentacleFire:
+			aiNewState(actor, &tentacleMove);
+			break;
+		}
+		return;
+	}
+	///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+	if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+		Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+		return;
+	}
+	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	spritetype* pTarget = &actor->GetTarget()->s();
+	XSPRITE* pXTarget = &actor->GetTarget()->x();
+	int dx = pTarget->x - pSprite->x;
+	int dy = pTarget->y - pSprite->y;
+	aiChooseDirection(actor, getangle(dx, dy));
+	if (pXTarget->health == 0) {
+
+		switch (pSprite->type) {
+		case kDudePodGreen:
+		case kDudePodFire:
+			aiNewState(actor, &podSearch);
+			break;
+		case kDudeTentacleGreen:
+		case kDudeTentacleFire:
+			aiNewState(actor, &tentacleSearch);
+			break;
+		}
+		return;
+	}
+	int nDist = approxDist(dx, dy);
+	if (nDist <= pDudeInfo->seeDist)
+	{
+		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
+		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
+		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
+		{
+			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
+			{
+				aiSetTarget(actor, actor->GetTarget());
+				if (abs(nDeltaAngle) < 85 && pTarget->type != kDudePodGreen && pTarget->type != kDudePodFire) {
+					switch (pSprite->type) {
+					case kDudePodGreen:
+					case kDudePodFire:
+						aiNewState(actor, &podStartChase);
+						break;
+					case kDudeTentacleGreen:
+					case kDudeTentacleFire:
+						aiNewState(actor, &tentacleStartChase);
+						break;
+					}
+				}
+				return;
+			}
+		}
+	}
+
+	switch (pSprite->type) {
+	case kDudePodGreen:
+	case kDudePodFire:
+		aiNewState(actor, &podMove);
+		break;
+	case kDudeTentacleGreen:
+	case kDudeTentacleFire:
+		aiNewState(actor, &tentacleMove);
+		break;
+	}
+	actor->SetTarget(nullptr);
 }
 
 END_BLD_NS

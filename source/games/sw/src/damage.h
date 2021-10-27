@@ -60,49 +60,49 @@ DAMAGE_ENTRY(WPN_SWORD,           InitWeaponSword,      50,    80,   0,  -1,  -1
 // extra weapons connected to other
 
 // spell
-DAMAGE_ENTRY(DMG_NAPALM,          NULL,                90,   150, 0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_MIRV_METEOR,     NULL,                35,    65, 0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_SERP_METEOR,     NULL,                 7,    15, 0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_NAPALM,          nullptr,                90,   150, 0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_MIRV_METEOR,     nullptr,                35,    65, 0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_SERP_METEOR,     nullptr,                 7,    15, 0, -1, -1, -1)
 
 // radius damage
-DAMAGE_ENTRY(DMG_ELECTRO_SHARD,   NULL,                 2,     6,      0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_SECTOR_EXP,      NULL,                50,   100,   3200, -1, -1, -1)
-DAMAGE_ENTRY(DMG_BOLT_EXP,        NULL,                80,   160,   3200, -1, -1, -1)
-DAMAGE_ENTRY(DMG_TANK_SHELL_EXP,  NULL,                80,   200,   4500, -1, -1, -1)
-DAMAGE_ENTRY(DMG_FIREBALL_EXP,    NULL,                -1,    -1,   1000, -1, -1, -1)
-DAMAGE_ENTRY(DMG_NAPALM_EXP,      NULL,                60,    90,   3200, -1, -1, -1)
-DAMAGE_ENTRY(DMG_SKULL_EXP,       NULL,                40,    75,   4500, -1, -1, -1)
-DAMAGE_ENTRY(DMG_BASIC_EXP,       NULL,                10,    25,   1000, -1, -1, -1)
-DAMAGE_ENTRY(DMG_GRENADE_EXP,     NULL,                70,   140,   6500, -1, -1, -1)
-DAMAGE_ENTRY(DMG_MINE_EXP,        NULL,                85,   115,   6500, -1, -1, -1)
-DAMAGE_ENTRY(DMG_MINE_SHRAP,      NULL,                15,    30,      0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_MICRO_EXP,       NULL,                50,   100,   4500, -1, -1, -1)
-DAMAGE_ENTRY_WPN(DMG_NUCLEAR_EXP, NULL,                 0,   800,  30000, -1, -1, -1,  1, 5)
-DAMAGE_ENTRY(DMG_RADIATION_CLOUD, NULL,                 2,     6,   5000, -1, -1, -1)
-DAMAGE_ENTRY(DMG_FLASHBOMB,       NULL,               100,   150,  16384, -1, -1, -1)
+DAMAGE_ENTRY(DMG_ELECTRO_SHARD,   nullptr,                 2,     6,      0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_SECTOR_EXP,      nullptr,                50,   100,   3200, -1, -1, -1)
+DAMAGE_ENTRY(DMG_BOLT_EXP,        nullptr,                80,   160,   3200, -1, -1, -1)
+DAMAGE_ENTRY(DMG_TANK_SHELL_EXP,  nullptr,                80,   200,   4500, -1, -1, -1)
+DAMAGE_ENTRY(DMG_FIREBALL_EXP,    nullptr,                -1,    -1,   1000, -1, -1, -1)
+DAMAGE_ENTRY(DMG_NAPALM_EXP,      nullptr,                60,    90,   3200, -1, -1, -1)
+DAMAGE_ENTRY(DMG_SKULL_EXP,       nullptr,                40,    75,   4500, -1, -1, -1)
+DAMAGE_ENTRY(DMG_BASIC_EXP,       nullptr,                10,    25,   1000, -1, -1, -1)
+DAMAGE_ENTRY(DMG_GRENADE_EXP,     nullptr,                70,   140,   6500, -1, -1, -1)
+DAMAGE_ENTRY(DMG_MINE_EXP,        nullptr,                85,   115,   6500, -1, -1, -1)
+DAMAGE_ENTRY(DMG_MINE_SHRAP,      nullptr,                15,    30,      0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_MICRO_EXP,       nullptr,                50,   100,   4500, -1, -1, -1)
+DAMAGE_ENTRY_WPN(DMG_NUCLEAR_EXP, nullptr,                 0,   800,  30000, -1, -1, -1,  1, 5)
+DAMAGE_ENTRY(DMG_RADIATION_CLOUD, nullptr,                 2,     6,   5000, -1, -1, -1)
+DAMAGE_ENTRY(DMG_FLASHBOMB,       nullptr,               100,   150,  16384, -1, -1, -1)
 
-DAMAGE_ENTRY(DMG_FIREBALL_FLAMES, NULL,                 2,     6,    300, -1, -1, -1)
+DAMAGE_ENTRY(DMG_FIREBALL_FLAMES, nullptr,                 2,     6,    300, -1, -1, -1)
 
 // actor
-DAMAGE_ENTRY(DMG_RIPPER_SLASH,    NULL,                10,    30,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_SKEL_SLASH,      NULL,                10,    20,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_COOLG_BASH,      NULL,                10,    20,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_COOLG_FIRE,      NULL,                15,    30,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_GORO_CHOP,       NULL,                20,    40,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_GORO_FIREBALL,   NULL,                5,     20,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_SERP_SLASH,      NULL,                75,    75,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_LAVA_BOULDER,    NULL,                100,  100,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_LAVA_SHARD,      NULL,                25,    25,   0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_HORNET_STING,    NULL,                5,     10,    0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_EEL_ELECTRO,     NULL,                10,    40, 3400, -1, -1, -1)
+DAMAGE_ENTRY(DMG_RIPPER_SLASH,    nullptr,                10,    30,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_SKEL_SLASH,      nullptr,                10,    20,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_COOLG_BASH,      nullptr,                10,    20,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_COOLG_FIRE,      nullptr,                15,    30,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_GORO_CHOP,       nullptr,                20,    40,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_GORO_FIREBALL,   nullptr,                5,     20,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_SERP_SLASH,      nullptr,                75,    75,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_LAVA_BOULDER,    nullptr,                100,  100,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_LAVA_SHARD,      nullptr,                25,    25,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_HORNET_STING,    nullptr,                5,     10,    0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_EEL_ELECTRO,     nullptr,                10,    40, 3400, -1, -1, -1)
 
 // misc
-DAMAGE_ENTRY(DMG_SPEAR_TRAP,      NULL,                15,   20,    0, -1, -1, -1)
-DAMAGE_ENTRY(DMG_VOMIT,           NULL,                 5,    15,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_SPEAR_TRAP,      nullptr,                15,   20,    0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_VOMIT,           nullptr,                 5,    15,   0, -1, -1, -1)
 
 // inanimate objects
-DAMAGE_ENTRY(DMG_BLADE,           NULL,                10,    20,   0, -1, -1, -1)
-DAMAGE_ENTRY(MAX_WEAPONS,         NULL,                10,    20,   0, -1, -1, -1)
+DAMAGE_ENTRY(DMG_BLADE,           nullptr,                10,    20,   0, -1, -1, -1)
+DAMAGE_ENTRY(MAX_WEAPONS,         nullptr,                10,    20,   0, -1, -1, -1)
 
 #undef DAMAGE_ENTRY
 #undef DAMAGE_ENTRY_WPN

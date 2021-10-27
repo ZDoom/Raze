@@ -37,7 +37,7 @@ BEGIN_PS_NS
 void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
     Player     *nPlayer = &PlayerList[nLocalPlayer];
-    spritetype *pSprite = &sprite[nPlayer->nSprite]; 
+    spritetype *pSprite = &nPlayer->Actor()->s(); 
 
     pSprite->ox = pSprite->x = x;
     pSprite->oy = pSprite->y = y;
@@ -80,20 +80,20 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     if (parm->numparms != 1) return CCMD_SHOWHELP;
     auto c = parm->parms[0];
 
-    if (!stricmp(c, "anubis")) BuildAnubis(-1, initx, inity, sector[initsect].floorz, initsect, inita, false);
-    else if (!stricmp(c, "spider")) BuildSpider(-1, initx, inity, sector[initsect].floorz, initsect, inita);
-    else if (!stricmp(c, "mummy")) BuildMummy(-1, initx, inity, sector[initsect].floorz, initsect, inita);
-    else if (!stricmp(c, "fish")) BuildFish(-1, initx, inity, initz + eyelevel[nLocalPlayer], initsect, inita);
-    else if (!stricmp(c, "lion")) BuildLion(-1, initx, inity, sector[initsect].floorz, initsect, inita);
-    else if (!stricmp(c, "lava")) BuildLava(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-    else if (!stricmp(c, "rex")) BuildRex(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-    else if (!stricmp(c, "set")) BuildSet(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-    else if (!stricmp(c, "queen")) BuildQueen(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-    else if (!stricmp(c, "roach")) BuildRoach(0, -1, initx, inity, sector[initsect].floorz, initsect, inita);
-    else if (!stricmp(c, "roach2")) BuildRoach(1, -1, initx, inity, sector[initsect].floorz, initsect, inita);
-    else if (!stricmp(c, "wasp")) BuildWasp(-1, initx, inity, sector[initsect].floorz - 25600, initsect, inita);
-    else if (!stricmp(c, "scorp")) BuildScorp(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-    else if (!stricmp(c, "rat")) BuildRat(-1, initx, inity, sector[initsect].floorz, initsect, inita);
+    if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, false);
+    else if (!stricmp(c, "spider")) BuildSpider(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "mummy")) BuildMummy(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "fish")) BuildFish(nullptr, initx, inity, initz + PlayerList[nLocalPlayer].eyelevel, initsect, inita);
+    else if (!stricmp(c, "lion")) BuildLion(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "lava")) BuildLava(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "rex")) BuildRex(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "set")) BuildSet(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "queen")) BuildQueen(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "roach")) BuildRoach(0, nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "roach2")) BuildRoach(1, nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "wasp")) BuildWasp(nullptr, initx, inity, sector[initsect].floorz - 25600, initsect, inita, false);
+    else if (!stricmp(c, "scorp")) BuildScorp(nullptr, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "rat")) BuildRat(nullptr, initx, inity, sector[initsect].floorz, initsect, inita);
     else Printf("Unknown creature type %s\n", c);
     return CCMD_OK;
 }

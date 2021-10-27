@@ -112,7 +112,7 @@ struct XSPRITE {
     int16_t data1;            // Data 1
     int16_t data2;            // Data 2
     int16_t data3;            // Data 3
-    int16_t target;           // target sprite
+    int16_t target_i;           // target sprite
     int16_t burnSource;
     uint16_t txID;             // TX ID
     uint16_t rxID;             // RX ID
@@ -132,6 +132,8 @@ struct XSPRITE {
     uint8_t lockMsg;           // Lock msg
     int8_t dodgeDir;          // Dude dodge direction
     uint8_t unused1;            // modern flags
+    uint8_t unused3;           // something about sight checks
+    uint8_t unused4;           // patrol turn delay
 
 };
 

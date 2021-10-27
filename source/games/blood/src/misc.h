@@ -41,12 +41,11 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
 int qanimateoffs(int a1, int a2);
 void HookReplaceFunctions();
 
-struct QAV;
 struct PLAYER;
-extern QAV* weaponQAV[];
 
+bool checkFired6or7(PLAYER *pPlayer);
 void WeaponInit(void);
-void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int smoothratio);
+void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5);
 void WeaponRaise(PLAYER *pPlayer);
 void WeaponLower(PLAYER *pPlayer);
 int WeaponUpgrade(PLAYER *pPlayer, int newWeapon);
@@ -119,7 +118,6 @@ extern short voxelIndex[MAXTILES];
 
 extern int nPrecacheCount;
 
-int tileInit();
 void tilePrecacheTile(int nTile, int nType, int palette);
 
 char tileGetSurfType(int hit);

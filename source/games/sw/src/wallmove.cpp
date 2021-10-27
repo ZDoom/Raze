@@ -99,7 +99,7 @@ int DoWallMove(SPRITEp sp)
     dang = ((int)SP_TAG10(sp)) << 3;
 
     if (dang)
-        ang = NORM_ANGLE(ang + (RANDOM_RANGE(dang) - dang/2));
+        ang = NORM_ANGLE(ang + (RandomRange(dang) - dang/2));
 
     nx = MulScale(dist, bcos(ang), 14);
     ny = MulScale(dist, bsin(ang), 14);
@@ -230,6 +230,6 @@ saveable_module saveable_wallmove =
     SIZ(saveable_wallmove_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 END_SW_NS

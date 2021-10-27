@@ -58,9 +58,9 @@ double fFindDistance2D(int x, int y)
   if (x<y)
      std::swap(x,y);
 
-  double t = y + (y / 2.);
+  double t = y + (y * (1. / 2.));
 
-  return (x - (x / 32.) - (x / 128.)  + (t / 4.) + (t / 64.));
+  return (x - (x * (1. / 32.)) - (x * (1. / 128.))  + (t * (1. / 4.)) + (t * (1. / 64.)));
 }
 
 

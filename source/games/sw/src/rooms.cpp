@@ -64,23 +64,24 @@ int COVERinsertsprite(short sectnum, short stat)
 {
     short spnum;
     spnum = insertsprite(sectnum, stat);
+    auto pSprite = &sprite[spnum];
 
     PRODUCTION_ASSERT(spnum >= 0);
 
-    sprite[spnum].x = sprite[spnum].y = sprite[spnum].z = 0;
-    sprite[spnum].cstat = 0;
-    sprite[spnum].picnum = 0;
-    sprite[spnum].shade = 0;
-    sprite[spnum].pal = 0;
-    sprite[spnum].clipdist = 0;
-    sprite[spnum].xrepeat = sprite[spnum].yrepeat = 0;
-    sprite[spnum].xoffset = sprite[spnum].yoffset = 0;
-    sprite[spnum].ang = 0;
-    sprite[spnum].owner = -1;
-    sprite[spnum].xvel = sprite[spnum].yvel = sprite[spnum].zvel = 0;
-    sprite[spnum].lotag = 0;
-    sprite[spnum].hitag = 0;
-    sprite[spnum].extra = 0;
+    pSprite->x = sprite[spnum].y = sprite[spnum].z = 0;
+    pSprite->cstat = 0;
+    pSprite->picnum = 0;
+    pSprite->shade = 0;
+    pSprite->pal = 0;
+    pSprite->clipdist = 0;
+    pSprite->xrepeat = sprite[spnum].yrepeat = 0;
+    pSprite->xoffset = sprite[spnum].yoffset = 0;
+    pSprite->ang = 0;
+    pSprite->owner = -1;
+    pSprite->xvel = sprite[spnum].yvel = sprite[spnum].zvel = 0;
+    pSprite->lotag = 0;
+    pSprite->hitag = 0;
+    pSprite->extra = 0;
 
     return spnum;
 }
@@ -544,7 +545,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         if (uppersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
         getzrange_old(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
-        SectorZadjust(*ceilhit, hiz, -1, NULL);
+        SectorZadjust(*ceilhit, hiz, -1, nullptr);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
@@ -566,7 +567,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         if (lowersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
         getzrange_old(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
-        SectorZadjust(-1, NULL, *florhit, loz);
+        SectorZadjust(-1, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }
 }
@@ -612,7 +613,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         if (uppersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
-        SectorZadjust(*ceilhit, hiz, -1, NULL);
+        SectorZadjust(*ceilhit, hiz, -1, nullptr);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
@@ -628,7 +629,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         if (lowersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
         getzrangepoint(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit);
-        SectorZadjust(-1, NULL, *florhit, loz);
+        SectorZadjust(-1, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }
 }
@@ -791,7 +792,7 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     int xoff = 0;
     int yoff = 0;
     int i;
-    SPRITEp sp = NULL;
+    SPRITEp sp = nullptr;
     int pix_diff;
     int newz;
 
@@ -888,7 +889,7 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     int xoff = 0;
     int yoff = 0;
     int i;
-    SPRITEp sp = NULL;
+    SPRITEp sp = nullptr;
     int newz;
     int pix_diff;
 

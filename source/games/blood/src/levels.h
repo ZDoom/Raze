@@ -75,9 +75,6 @@ extern MapRecord* gNextLevel;
 extern bool gGameStarted;
 
 void levelInitINI(const char *pzIni);
-void levelOverrideINI(const char *pzIni);
-void levelSetupSecret(int nCount);
-void levelTriggerSecret(int nSecret);
 void CheckSectionAbend(const char *pzSection);
 void CheckKeyAbend(const char *pzSection, const char *pzKey);
 void levelLoadDefaults(void);

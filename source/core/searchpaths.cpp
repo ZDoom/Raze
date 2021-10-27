@@ -402,7 +402,6 @@ static TArray<GrpDefInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FStr
 	FlagMap.Insert("GAMEFLAG_DUKEBETA", GAMEFLAG_DUKEBETA); // includes 0x20 since it's a shareware beta
 	FlagMap.Insert("GAMEFLAG_RR", GAMEFLAG_RR);
 	FlagMap.Insert("GAMEFLAG_RRRA", GAMEFLAG_RRRA);
-	FlagMap.Insert("GAMEFLAG_DEER", GAMEFLAG_DEER);
 	FlagMap.Insert("GAMEFLAG_BLOOD", GAMEFLAG_BLOOD);
 	FlagMap.Insert("GAMEFLAG_SW", GAMEFLAG_SW);
 	FlagMap.Insert("GAMEFLAG_POWERSLAVE", GAMEFLAG_POWERSLAVE);
@@ -588,6 +587,15 @@ static TArray<GrpDefInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FStr
 					{
 						sc.MustGetToken(TK_StringConst);
 						grp.loadart.Push(sc.String);
+					}
+					while (sc.CheckToken(','));
+				}
+				else if (sc.Compare("exclepisodes"))
+				{
+					do
+					{
+						sc.MustGetToken(TK_StringConst);
+						grp.exclepisodes.Push(sc.String);
 					}
 					while (sc.CheckToken(','));
 				}
@@ -815,10 +823,7 @@ TArray<GrpEntry> GrpScan()
 		if (sizeLookup.CheckKey(entry->FileLength)) matchedFileList.Push(entry);
 	}
 
-	if (matchedFileList.Size() == 0)
-		return foundGames;
-
-	for (auto entry : matchedFileList)
+	for (auto entry : sortedFileList)
 	{
 		GetCRC(entry, cachedCRCs);
 		auto grp = IdentifyGroup(entry, sortedGroupList);
@@ -910,13 +915,10 @@ const char* G_DefaultDefFile(void)
 	if (g_gameType & GAMEFLAG_RR)
 		return "rr.def";
 
-	if (g_gameType & GAMEFLAG_DEER)
-		return "rrdeer.def";
-
-	if (g_gameType & GAMEFLAG_WW2GI)
+	if (isWW2GI())
 		return "ww2gi.def";
 
-	if (g_gameType & GAMEFLAG_SW)
+	if (isSWALL())
 		return "sw.def";
 
 	if (g_gameType & GAMEFLAG_PSEXHUMED)

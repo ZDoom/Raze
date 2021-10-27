@@ -54,6 +54,7 @@
 #include "gamehud.h"
 
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
+EXTERN_CVAR(Int, vid_preferbackend)
 bool hw_int_useindexedcolortextures;
 CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
 {
@@ -98,7 +99,7 @@ void GLInstance::DoDraw()
 
 	if (rendercommands.Size() > 0)
 	{
-		if (!useMapFog) hw_int_useindexedcolortextures = hw_useindexedcolortextures;
+		if (!useMapFog && vid_preferbackend != 3) hw_int_useindexedcolortextures = hw_useindexedcolortextures;
 
 		lastState.Flags = ~rendercommands[0].StateFlags;	// Force ALL flags to be considered 'changed'.
 		lastState.DepthFunc = INT_MIN;						// Something totally invalid.
@@ -156,6 +157,15 @@ void GLInstance::SetPalswap(int index)
 void GLInstance::SetFade(int index)
 {
 	renderState.FogColor = lookups.getFade(index);
+}
+
+extern int globalpal;
+void GLInstance::SetShade(int32_t shade, int numshades)
+{
+	// Ugh... This particular palette does not fade to black. Should be handled better. 
+	// It's really too bad that everything runs through here without being able to identify it anymore.
+	renderState.drawblack = (!(g_gameType & GAMEFLAG_PSEXHUMED) || globalpal != 4) ? shade > numshades : false;
+	renderState.Shade = std::min(shade, numshades - 1);
 }
 
 bool PolymostRenderState::Apply(FRenderState& state, GLState& oldState)

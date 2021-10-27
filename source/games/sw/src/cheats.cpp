@@ -102,7 +102,7 @@ const char *GameInterface::GenericCheat(int player, int cheat)
 bool RestartCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
-	DeferedStartGame(currentLevel, -1);
+	DeferredStartGame(currentLevel, g_nextskill);
     return true;
 }
 
@@ -117,7 +117,7 @@ bool NextCheat(cheatseq_t* c)
     if (!checkCheat(c)) return false;
     if (!currentLevel) return true;
     auto map = FindNextMap(currentLevel);
-	if (map) DeferedStartGame(map, -1);
+	if (map) DeferredStartGame(map, g_nextskill);
     return true;
 }
 
@@ -126,7 +126,7 @@ bool PrevCheat(cheatseq_t* c)
     if (!checkCheat(c)) return false;
     if (!currentLevel) return true;
     auto map = FindMapByLevelNum(currentLevel->levelNumber - 1);
-	if (map) DeferedStartGame(map, -1);
+	if (map) DeferredStartGame(map, g_nextskill);
     return true;
 }
 
@@ -160,7 +160,7 @@ bool WarpCheat(cheatseq_t* c)
     if (TEST(pp->Flags, PF_DEAD))
         return true;
 
-	DeferedStartGame(maprec, -1);
+	DeferredStartGame(maprec, g_nextskill);
     return true;
 }
 
@@ -208,7 +208,7 @@ static void WeaponCheat(int player)
     if (!SW_SHAREWARE) p->WpnFlags = 0xFFFFFFFF;
     else p->WpnFlags = 0x0000207F;  // Disallows high weapon cheat in shareware
 
-    for (int i = 0; i < SIZ(p->WpnAmmo); i++)
+    for (size_t i = 0; i < SIZ(p->WpnAmmo); i++)
     {
         p->WpnAmmo[i] = DamageData[i].max_ammo;
     }
@@ -286,7 +286,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         p->WpnRocketHeat = 5;
         p->WpnRocketNuke = 1;
 
-        for (int i = 0; i < SIZ(p->WpnAmmo); i++)
+        for (size_t i = 0; i < SIZ(p->WpnAmmo); i++)
         {
             p->WpnAmmo[i] = DamageData[i].max_ammo;
         }

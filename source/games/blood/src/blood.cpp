@@ -84,7 +84,6 @@ void StartLevel(MapRecord* level, bool newgame)
 	if (!level) return;
 	gFrameCount = 0;
 	PlayClock = 0;
-	STAT_Update(0);
 	EndLevel();
 	inputState.ClearAllInput();
 	currentLevel = level;
@@ -92,7 +91,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	if (gGameOptions.nGameType == 0)
 	{
 		///////
-		gGameOptions.weaponsV10x = gWeaponsV10x;
+		gGameOptions.weaponsV10x = cl_bloodoldweapbalance;
 		///////
 	}
 #if 0
@@ -201,6 +200,8 @@ void StartLevel(MapRecord* level, bool newgame)
 			pPlayer->qavLoop = gPlayerTemp[i].qavLoop;
 			pPlayer->weaponTimer = gPlayerTemp[i].weaponTimer;
 			pPlayer->nextWeapon = gPlayerTemp[i].nextWeapon;
+			pPlayer->qavLastTick = gPlayerTemp[i].qavLastTick;
+			pPlayer->qavTimer = gPlayerTemp[i].qavTimer;			
 		}
 	}
 	PreloadCache();
@@ -240,6 +241,12 @@ void GameInterface::NextLevel(MapRecord *map, int skill)
 {
 	NewLevel(map, skill, false);
 }
+
+int GameInterface::GetCurrentSkill()
+{
+	return gGameOptions.nDifficulty;
+}
+
 
 void GameInterface::Ticker()
 {
@@ -421,9 +428,6 @@ void GameInterface::app_init()
 	ReadAllRFS();
 
 	HookReplaceFunctions();
-
-	Printf(PRINT_NONOTIFY, "Loading texture tables\n");
-	tileInit();
 
 	levelLoadDefaults();
 

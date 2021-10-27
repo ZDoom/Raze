@@ -470,29 +470,29 @@ ACTOR_ACTION_SET CoolgActionSet =
 {
     sg_CoolgStand,
     sg_CoolgRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL, //climb
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr, //climb
     sg_CoolgPain, //pain
     sg_CoolgDie,
-    NULL,
+    nullptr,
     sg_CoolgDead,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
 //  {sg_CoolgClub},
     {sg_CoolgAttack},
     {1024},
     {sg_CoolgAttack},
     {1024},
-    {NULL,NULL},
-    NULL,
-    NULL
+    {nullptr,nullptr},
+    nullptr,
+    nullptr
 };
 
 int DoCoolgMatchPlayerZ(short SpriteNum);
@@ -651,7 +651,7 @@ int DoCoolgMatchPlayerZ(short SpriteNum)
     zdiff = (SPRITEp_MID(tsp)) - u->sz;
 
     // check z diff of the player and the sprite
-    zdist = Z(20 + RANDOM_RANGE(100)); // put a random amount
+    zdist = Z(20 + RandomRange(100)); // put a random amount
     //zdist = Z(20);
     if (labs(zdiff) > zdist)
     {
@@ -735,7 +735,7 @@ int InitCoolgCircle(short SpriteNum)
     if (labs(u->sz - u->hiz) < labs(u->sz - u->loz))
         u->jump_speed = -u->jump_speed;
 
-    u->WaitTics = (RANDOM_RANGE(3)+1) * 120;
+    u->WaitTics = (RandomRange(3)+1) * 120;
 
     (*u->ActorActionFunc)(SpriteNum);
 
@@ -847,7 +847,7 @@ int DoCoolgMove(short SpriteNum)
             PlaySound(DIGI_VOID3, sp, v3df_follow);
             RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
             SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-            u->ShellNum = SEC(1) + SEC(RANDOM_RANGE(2));
+            u->ShellNum = SEC(1) + SEC(RandomRange(2));
             break;
         case 2:
             SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
@@ -858,7 +858,7 @@ int DoCoolgMove(short SpriteNum)
             PlaySound(DIGI_VOID3, sp, v3df_follow);
             RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-            u->ShellNum = SEC(2) + SEC(RANDOM_RANGE(3));
+            u->ShellNum = SEC(2) + SEC(RandomRange(3));
             break;
         default:
             u->FlagOwner = 0;

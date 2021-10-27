@@ -481,7 +481,7 @@ class Cinema : SkippableScreenJob
 		System.StopAllSounds();
 		if (cdtrack != -1)
 		{
-			Exhumed.playCDtrack(cdtrack, false);
+			Exhumed.playCDtrack(cdtrack+2, false);
 		}
 	}
 
@@ -747,6 +747,7 @@ class ExCredits : ScreenJob
 		if (ticks >= pagetime || skiprequest)
 		{
 			page++;
+			pagelines.Clear();
 			if (page < credits.Size())
 				credits[page].Split(pagelines, "\n");
 			else
@@ -756,9 +757,8 @@ class ExCredits : ScreenJob
 					jobstate = finished;
 					return;
 				}
-				pagelines.Clear();
 			}
-			pagetime = ticks + 60; // 
+			pagetime = ticks + 90; // 
 		}
 	}
 
@@ -766,17 +766,17 @@ class ExCredits : ScreenJob
 	{
 		int y = 100 - ((10 * (pagelines.Size() - 1)) / 2);
 
+		int ptime = clamp((pagetime - ticks - smoothratio) * 1000 / GameTicRate, 0, 2000); // in milliseconds
+		int light;
+
+		if (ptime < 255) light = ptime;
+		else if (ptime > 2000 - 255) light = 2000 - ptime;
+		else light = 255;
+
+		let colr = Color(255, light, light, light);
+
 		for (int i = 0; i < pagelines.Size(); i++)
 		{
-			int ptime = clamp((pagetime - ticks - smoothratio) * 1000 / GameTicRate, 0, 2000); // in milliseconds
-			int light;
-
-			if (ptime < 255) light = ptime;
-			else if (ptime > 2000 - 255) light = 2000 - ptime;
-			else light = 255;
-
-			let colr = Color(light, light, light);
-
 			int nStringWidth = SmallFont.StringWidth(pagelines[i]);
 			Screen.DrawText(SmallFont, Font.CR_UNTRANSLATED, 160 - nStringWidth / 2, y, pagelines[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, colr);
 			y += 10;
@@ -868,7 +868,7 @@ class ExhumedCutscenes
 	//
 	//---------------------------------------------------------------------------
 
-	static void BuildGameOverScene(ScreenJobRunner runner, MapRecord map)
+	static void BuildGameOverScene(ScreenJobRunner runner)
 	{
 		System.StopMusic();
 		Exhumed.PlayLocalSound(ExhumedSnd.kSoundJonLaugh2, 0, false, CHANF_UI);

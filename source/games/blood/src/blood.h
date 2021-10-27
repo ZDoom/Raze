@@ -148,6 +148,11 @@ struct GameInterface : public ::GameInterface
 	void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
 	void EnterPortal(spritetype* viewer, int type) override;
 	void LeavePortal(spritetype* viewer, int type) override;
+	void LoadGameTextures() override;
+	int GetCurrentSkill() override;
+	bool IsQAVInterpTypeValid(const FString& type) override;
+	void AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata) override;
+	void RemoveQAVInterpProps(const int& res_id) override;
 
 	GameStats getStats() override;
 };

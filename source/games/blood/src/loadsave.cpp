@@ -318,7 +318,7 @@ static AISTATE* allAIStates[] =
 	&spidSearch,
 	&spidBite,
 	&spidJump,
-	&spid13A92C,
+	&spidBirth,
 	&tchernobogIdle,
 	&tchernobogSearch,
 	&tchernobogChase,
@@ -394,7 +394,7 @@ static AISTATE* allAIStates[] =
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTATE** def)
 {
-	int i = 0;
+	unsigned i = 0;
 	if (arc.isWriting())
 	{
 		if (def && w == *def) return arc;
@@ -403,17 +403,26 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 			if (w == cstate)
 			{
 				arc(keyname, i);
-				break;
+				return arc;
 			}
 			i++;
+		}
+		if (w >= genPatrolStates && w < genPatrolStates + kPatrolStateSize)
+		{
+			i = int(w - genPatrolStates) + 1000;
+			arc(keyname, i);
 		}
 	}
 	else
 	{
 		arc(keyname, i);
-		if (i >= 0 && i < countof(allAIStates))
+		if (i < countof(allAIStates))
 		{
 			w = allAIStates[i];
+		}
+		else if (i >= 1000 && i < 1000 + kPatrolStateSize)
+		{
+			w = genPatrolStates + i;
 		}
 		else
 		{
@@ -422,6 +431,41 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 	}
 	return arc;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDEEXTRA* def)
+{
+	int empty = 0;
+	char empty2 = 0;
+	if (arc.isReading()) w = {};
+
+	if (arc.BeginObject(keyname))
+	{
+#ifdef OLD_SAVEGAME
+		// Note: birthCounter/thinkTime are a union and share the same value (this is used for savefile backwards compatibility - see correct implementation below)
+		arc("time", w.time, &empty)
+			("recoil", w.teslaHit, &empty2)
+			("prio", w.prio, &empty)
+			("x1", w.stats.birthCounter, &empty)
+			("x2", w.stats.thinkTime, &empty)
+			("x3", w.stats.active, &empty2)
+			.EndObject();
+#else
+		arc("time", w.time, &empty)
+			("teslaHit", w.teslaHit, &empty2)
+			("prio", w.prio, &empty)
+			("thinkTime", w.stats.thinkTime, &empty)
+			("active", w.stats.active, &empty2)
+#endif
+	}
+	return arc;
+}
+
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DBloodActor* def)
 {
@@ -435,9 +479,17 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 	if (arc.BeginObject(keyname))
 	{
 		// The rest is only relevant if the actor has an xsprite.
-		if (w.s().extra > 0)
+		if (w.hasX())
 		{
-			arc("dudeslope", w.dudeSlope, def->dudeSlope);
+			arc("dudeslope", w.dudeSlope, def->dudeSlope)
+				("dudeextra", w.dudeExtra, def->dudeExtra);
+
+			if (gModernMap)
+			{
+#ifndef OLD_SAVEGAME
+				arc("spritemass", w.spriteMass, def->spriteMass);
+#endif
+			}
 		}
 		arc.EndObject();
 	}
@@ -548,7 +600,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 			("targetX", w.targetX, def->targetX)
 			("targetY", w.targetY, def->targetY)
 			("targetZ", w.targetZ, def->targetZ)
-			("target", w.target, def->target)
+			("target", w.target_i, def->target_i)
 			("sysdata1", w.sysData1, def->sysData1)
 			("sysdata2", w.sysData2, def->sysData2)
 			("scale", w.scale, def->scale)
@@ -568,6 +620,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 			("lockmsg", w.lockMsg, def->lockMsg)
 			("dodgedir", w.dodgeDir, def->dodgeDir)
 			("modernflags", w.unused1, def->unused1)
+			("sightstuff", w.unused3, def->unused3)
+			("patrolturndelay", w.unused4, def->unused4)
 			.EndObject();
 	}
 	return arc;
@@ -578,7 +632,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, HITINFO& w, HITINF
 	if (arc.BeginObject(keyname))
 	{
 		arc("sect", w.hitsect)
-			("sprite", w.hitsprite)
+			("sprite", w.hitactor)
 			("wall", w.hitwall)
 			("x", w.hitx)
 			("y", w.hity)
@@ -666,7 +720,6 @@ void SerializeSequences(FSerializer& arc);
 void SerializeWarp(FSerializer& arc);
 void SerializeTriggers(FSerializer& arc);
 void SerializeActor(FSerializer& arc);
-void SerializeAI(FSerializer& arc);
 void SerializeGameStats(FSerializer& arc);
 void SerializePlayers(FSerializer& arc);
 void SerializeView(FSerializer& arc);
@@ -698,7 +751,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	SerializeState(arc);
 	InitFreeList(nextXSprite, kMaxXSprites, activeXSprites);
 	SerializeActor(arc);
-	SerializeAI(arc);
 	SerializePlayers(arc);
 	SerializeEvents(arc);
 	SerializeGameStats(arc);

@@ -2,63 +2,76 @@
 
 BEGIN_BLD_NS
 
-extern int cumulDamage[kMaxXSprites];
 
 // Due to the messed up array storage of all the game data we cannot do any direct references here yet. We have to access everything via wrapper functions for now.
 // Note that the indexing is very inconsistent - partially by sprite index, partially by xsprite index.
 class DBloodActor
 {
 	int index;
-    DBloodActor* base();
+	DBloodActor* base();
 
 public:
-    int dudeSlope;
+	int dudeSlope;
+	DUDEEXTRA dudeExtra;
+	SPRITEMASS spriteMass;
 
-    DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
-    DBloodActor& operator=(const DBloodActor& other) = default;
-	
+	int cumulDamage;
+
+	DBloodActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
+	DBloodActor& operator=(const DBloodActor& other) = default;
+
 	void Clear()
 	{
 		dudeSlope = 0;
+		dudeExtra = {};
+		spriteMass = {};
 	}
-    bool hasX() { return sprite[index].extra > 0; }
+	bool hasX() { return sprite[index].extra > 0; }
 	void addX()
 	{
 		if (s().extra == -1) dbInsertXSprite(s().index);
 	}
 	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite[sprite[index].extra]; }	// calling this does not validate the xsprite!
-    SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }
-    int& xvel() { return Blood::xvel[index]; }
-    int& yvel() { return Blood::yvel[index]; }
-    int& zvel() { return Blood::zvel[index]; }
+	SPRITEHIT& hit() { return gSpriteHit[sprite[index].extra]; }
+	int& xvel() { return Blood::xvel[index]; }
+	int& yvel() { return Blood::yvel[index]; }
+	int& zvel() { return Blood::zvel[index]; }
+	int GetIndex() { return s().time; }	// For error printing only! This is only identical with the sprite index for items spawned at map start.
 
-    int& cumulDamage() { return Blood::cumulDamage[sprite[index].extra]; }
-    DUDEEXTRA& dudeExtra() { return gDudeExtra[sprite[index].extra]; }
-    SPRITEMASS& spriteMass() { return gSpriteMass[sprite[index].extra]; }
-    GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
-    POINT3D& basePoint() { return Blood::baseSprite[index]; }
+	GENDUDEEXTRA& genDudeExtra() { return Blood::gGenDudeExtra[index]; }
+	POINT3D& basePoint() { return Blood::baseSprite[index]; }
 
 	void SetOwner(DBloodActor* own)
 	{
-		s().owner = own? own->s().index : -1;
+		s().owner = own ? own->s().index : -1;
 	}
 
 	DBloodActor* GetOwner()
 	{
-		if (s().owner == -1 || s().owner == kMaxSprites-1) return nullptr;
+		if (s().owner == -1 || s().owner == kMaxSprites - 1) return nullptr;
 		return base() + s().owner;
 	}
 
 	void SetTarget(DBloodActor* own)
 	{
-		x().target = own ? own->s().index : -1;
+		x().target_i = own ? own->s().index : -1;
 	}
 
 	DBloodActor* GetTarget()
 	{
-		if (x().target == -1 || x().target == kMaxSprites - 1) return nullptr;
-		return base() + x().target;
+		if (x().target_i <= -1 || x().target_i == kMaxSprites - 1) return nullptr;
+		return base() + x().target_i;
+	}
+
+	bool ValidateTarget(const char* func)
+	{
+		if (GetTarget() == nullptr)
+		{
+			Printf(PRINT_HIGH | PRINT_NOTIFY, "%s: invalid target in calling actor\n", func);
+			return false;
+		}
+		return true;
 	}
 
 	void SetBurnSource(DBloodActor* own)
@@ -123,6 +136,11 @@ public:
 		default:
 			return true;
 		}
+	}
+
+	void addExtra()
+	{
+		if (s().extra <= 0) s().extra = dbInsertXSprite(index);
 	}
 
 };
@@ -200,6 +218,11 @@ inline void PLAYER::setFragger(DBloodActor* actor)
 	fraggerId = actor == nullptr ? -1 : actor->s().index;
 }
 
+inline DBloodActor* PLAYER::actor()
+{
+	return &bloodActors[pSprite->index];
+}
+
 
 // Wrapper around the insane collision info mess from Build.
 struct Collision
@@ -257,5 +280,42 @@ struct Collision
 	}
 };
 
+inline DBloodActor* getUpperLink(int sect)
+{
+	auto l = gUpperLink[sect];
+	return l == -1 ? nullptr : &bloodActors[l];
+}
+
+inline DBloodActor* getLowerLink(int sect)
+{
+	auto l = gLowerLink[sect];
+	return l == -1 ? nullptr : &bloodActors[l];
+}
+
+inline void viewBackupSpriteLoc(DBloodActor* actor)
+{
+	viewBackupSpriteLoc(actor->s().index, &actor->s());
+}
+
+inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)
+{
+	int index = w? int(w - bloodActors) : -1;
+	Serialize(arc, keyname, index, nullptr);
+	if (arc.isReading()) w = index == -1? nullptr : &bloodActors[index];
+	return arc;
+}
+
+inline void sfxPlay3DSound(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0)
+{
+	sfxPlay3DSound(&pSprite->s(), soundId, a3, a4);
+}
+inline void sfxPlay3DSoundCP(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0, int pitch = 0, int volume = 0)
+{
+	sfxPlay3DSoundCP(&pSprite->s(), soundId, a3, a4, pitch, volume);
+}
+inline void sfxKill3DSound(DBloodActor* pSprite, int a2 = -1, int a3 = -1)
+{
+	sfxKill3DSound(&pSprite->s(), a2, a3);
+}
 
 END_BLD_NS

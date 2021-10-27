@@ -39,7 +39,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 //
 //==========================================================================
 
-template<> FSerializer& Serialize(FSerializer& arc, const char* key, Duke3d::weaponhit*& ht, Duke3d::weaponhit** def)
+template<> FSerializer& Serialize(FSerializer& arc, const char* key, Duke3d::DDukeActor*& ht, Duke3d::DDukeActor** def)
 {
 	int index = ht? int(ht - Duke3d::hittype) : -1;
 	assert(index >= -1 && index < MAXSPRITES);
@@ -268,7 +268,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 }
 
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, weaponhit& w, weaponhit* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DDukeActor& w, DDukeActor* def)
 {
 	if (!def) def = &hittype[MAXSPRITES];
 	if (arc.BeginObject(keyname))

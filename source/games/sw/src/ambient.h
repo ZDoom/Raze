@@ -135,16 +135,16 @@ AMB_ENTRY(30,    DIGI_BREAKINGWOOD,      AMB_INTERMIT,  AMB_120)
 AMB_ENTRY(31,    DIGI_BREAKSTONES,       AMB_NONE,      AMB_NOTICS)
 
 // MOTOR BOAT
-AMB_ENTRY(32,    DIGI_NULL,              AMB_NONE,      AMB_NOTICS)
-AMB_ENTRY(33,    DIGI_NULL,              AMB_NONE,      AMB_NOTICS)
-AMB_ENTRY(34,    DIGI_NULL,              AMB_NONE,      AMB_NOTICS)
+AMB_ENTRY(32,    DIGI_nullptr,              AMB_NONE,      AMB_NOTICS)
+AMB_ENTRY(33,    DIGI_nullptr,              AMB_NONE,      AMB_NOTICS)
+AMB_ENTRY(34,    DIGI_nullptr,              AMB_NONE,      AMB_NOTICS)
 
 // WWII JAP ARMY TANK
-AMB_ENTRY(35,    DIGI_NULL,              AMB_NONE,      AMB_NOTICS)
-AMB_ENTRY(36,    DIGI_NULL,              AMB_NONE,      AMB_NOTICS)
-AMB_ENTRY(37,    DIGI_NULL,              AMB_NONE,      AMB_NOTICS)
-AMB_ENTRY(38,    DIGI_NULL,              AMB_NONE,      AMB_NOTICS)
-AMB_ENTRY(39,    DIGI_NULL,              AMB_NONE,      AMB_NOTICS)
+AMB_ENTRY(35,    DIGI_nullptr,              AMB_NONE,      AMB_NOTICS)
+AMB_ENTRY(36,    DIGI_nullptr,              AMB_NONE,      AMB_NOTICS)
+AMB_ENTRY(37,    DIGI_nullptr,              AMB_NONE,      AMB_NOTICS)
+AMB_ENTRY(38,    DIGI_nullptr,              AMB_NONE,      AMB_NOTICS)
+AMB_ENTRY(39,    DIGI_nullptr,              AMB_NONE,      AMB_NOTICS)
 
 // WWII JAP BOMBER PLANE
 AMB_ENTRY(40,    DIGI_BOMBRFLYING,       AMB_NONE,      AMB_NOTICS)

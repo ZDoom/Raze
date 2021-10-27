@@ -73,10 +73,11 @@ enum {
 
 struct RXBUCKET
 {
-    uint16_t index;
+	DBloodActor* GetActor() const { return actor; }
+	DBloodActor* actor;
+    int rxindex;
     uint8_t type;
 };
-extern void (*gCallback[])(int);
 extern RXBUCKET rxBucket[];
 extern unsigned short bucketHead[];
 
@@ -148,7 +149,8 @@ inline bool channelRangeIsFine(int channel) {
 
 struct EVENT
 {
-	int16_t index;
+	DBloodActor* actor;
+	int index_;
 	int8_t type;
 	int8_t cmd;
 	int16_t funcID;
@@ -158,18 +160,22 @@ struct EVENT
 	{
 		return priority < other.priority;
 	}
+
+	bool isObject(int type, DBloodActor* actor, int index) const
+	{
+		return (this->type == type && (this->type != SS_SPRITE ? (this->index_ == index) : (this->actor == actor)));
+	}
 };
 
 void evInit(void);
-void evSend(int nIndex, int nType, int rxId, COMMAND_ID command);
-void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command);
-void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback);
-void evPost(DBloodActor*, unsigned int nDelta, COMMAND_ID command);
-void evPost(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
+void evPostActor(DBloodActor*, unsigned int nDelta, COMMAND_ID command);
+void evPostActor(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
+
+void evPostSector(int index, unsigned int nDelta, COMMAND_ID command);
+void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback);
 
 void evProcess(unsigned int nTime);
-void evKill(int a1, int a2);
-void evKill(int a1, int a2, CALLBACK_ID a3);
-void evKill(DBloodActor*);
+void evKillActor(DBloodActor*);
+void evKillActor(DBloodActor*, CALLBACK_ID a3);
 
 END_BLD_NS

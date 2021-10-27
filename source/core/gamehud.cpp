@@ -50,9 +50,9 @@
 F2DDrawer twodpsp;
 
 
-void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha)
+void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha)
 {
-	double dz = z / 65536.;
+	sz *= 1. / 65536.;
 	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
 	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
 
@@ -62,7 +62,7 @@ void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dasha
 	auto tex = tileGetTexture(picnum);
 
 	DrawTexture(&twodpsp, tex, sx, sy,
-		DTA_ScaleX, dz, DTA_ScaleY, dz,
+		DTA_ScaleX, sz, DTA_ScaleY, sz,
 		DTA_Color, shadeToLight(dashade),
 		DTA_TranslationIndex, palid,
 		DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
@@ -107,7 +107,9 @@ static FString statFPS()
 	frameCount++;
 	if (frameDelay >= 0)
 	{
-		output.AppendFormat("%5.1f fps (%.1f ms)\n", lastFPS, frameDelay);
+		output.AppendFormat("%5.1f fps", lastFPS);
+		if (frameDelay < 10) output.AppendFormat(" ");
+		output.AppendFormat(" (%.1f ms)\n", frameDelay);
 
 		if (cumulativeFrameDelay >= 1000.0)
 		{

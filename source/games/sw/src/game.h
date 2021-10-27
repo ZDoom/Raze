@@ -116,11 +116,6 @@ inline int RANDOM(void)
 }
 
 #define RANDOM_P2(pwr_of_2) (MOD_P2(RANDOM(),(pwr_of_2)))
-#define RANDOM_RANGE(range) (RandomRange(range))
-
-
-#define PRINT(line,str) DebugPrint(line,str)
-
 
 //
 // Map directions/degrees
@@ -166,28 +161,6 @@ extern bool MenuInputMode;
 // dist at which actors roam about on their own
 #define MIN_ACTIVE_RANGE 20000
 
-// REDEFINABLE PLAYER KEYS NUMBERS
-
-#define PK_FORWARD      0
-#define PK_BACKWARD     1
-#define PK_LEFT         2
-#define PK_RIGHT        3
-#define PK_RUN          4
-#define PK_STRAFE       5
-#define PK_SHOOT        6
-#define PK_OPERATE      7
-#define PK_JUMP         8
-#define PK_CRAWL        9
-#define PK_LOOK_UP      10
-#define PK_LOOK_DOWN    11
-#define PK_STRAFE_LEFT  12
-#define PK_STRAFE_RIGHT 13
-#define PK_MAP          14
-#define PK_MULTI_VIEW   15
-#define PK_ZOOM_IN      16
-#define PK_ZOOM_OUT     17
-#define PK_MESSAGE      18
-
 inline int32_t FIXED(int32_t msw, int32_t lsw)
 {
     return IntToFixed(msw) | lsw;
@@ -224,24 +197,6 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SP_TAG15(sp) ((sp)->z)
 #define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = LittleShort((short)val)
 #define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = LittleShort((short)val)
-
-#define SPRITE_TAG1(sp) (sprite[sp].hitag)
-#define SPRITE_TAG2(sp) (sprite[sp].lotag)
-#define SPRITE_TAG3(sp) (sprite[sp].clipdist)
-#define SPRITE_TAG4(sp) (sprite[sp].ang)
-#define SPRITE_TAG5(sp) (sprite[sp].xvel)
-#define SPRITE_TAG6(sp) (sprite[sp].yvel)
-#define SPRITE_TAG7(sp) (MSB_VAR(sprite[sp].zvel))
-#define SPRITE_TAG8(sp) (LSB_VAR(sprite[sp].zvel))
-#define SPRITE_TAG9(sp) (MSB_VAR(sprite[sp].owner))
-#define SPRITE_TAG10(sp) (LSB_VAR(sprite[sp].owner))
-#define SPRITE_TAG11(sp) (sprite[sp].shade)
-#define SPRITE_TAG12(sp) (sprite[sp].pal)
-#define SPRITE_TAG13(sp) LittleShort(*((short*)&sprite[sp].xoffset))
-#define SPRITE_TAG14(sp) LittleShort(*((short*)&sprite[sp].xrepeat))
-#define SPRITE_TAG15(sp) (sprite[sp].z)
-#define SET_SPRITE_TAG13(sp,val) (*((short*)&sprite[sp].xoffset)) = LittleShort((short)val)
-#define SET_SPRITE_TAG14(sp,val) (*((short*)&sprite[sp].xrepeat)) = LittleShort((short)val)
 
 // OVER and UNDER water macros
 #define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false)
@@ -367,19 +322,6 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 
 #define CEILING_DIST (Z(4))
 #define FLOOR_DIST (Z(4))
-
-// Attributes for monochrome text
-#define MDA_BLANK          0x00
-#define MDA_NORMAL         0x07
-#define MDA_BLINK          0x87
-#define MDA_HIGH           0x0F
-#define MDA_HIGHBLINK      0x8F
-#define MDA_UNDER          0x01
-#define MDA_UNDERBLINK     0x81
-#define MDA_UNDERHIGH      0x09
-#define MDA_UNDERHIGHBLINK 0x89
-#define MDA_REVERSE        0x70
-#define MDA_REVERSEBLINK   0xF0
 
 // defines for move_sprite return value
 #define HIT_MASK (BIT(14)|BIT(15)|BIT(16))
@@ -2095,6 +2037,7 @@ extern USERSAVE puser[MAX_SW_PLAYERS_REG];
 
 extern double smoothratio;
 extern int MoveSkip4, MoveSkip2, MoveSkip8;
+extern int MinEnemySkill;
 
 #define MASTER_SWITCHING 1
 
@@ -2236,7 +2179,6 @@ struct GameInterface : public ::GameInterface
     void LoadGameTextures();
     void loadPalette();
     void clearlocalinputstate() override;
-    void FreeGameData() override;
     void FreeLevelData() override;
     bool GenerateSavePic() override;
 	void MenuSound(EMenuSounds snd) override;
@@ -2273,6 +2215,7 @@ struct GameInterface : public ::GameInterface
     void LeavePortal(spritetype* viewer, int type) override;
     int Voxelize(int sprnum);
     void ExitFromMenu() override;
+    int GetCurrentSkill() override;
 
 
     GameStats getStats() override;

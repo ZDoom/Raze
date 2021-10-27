@@ -167,7 +167,7 @@ int seq_ReadSequence(const char *seqName)
         return 0;
     }
 
-    short tag;
+    unsigned short tag;
     hFile.Read(&tag, sizeof(tag));
     if (tag < MAKE_ID('I', 'H', 0, 0) || (tag > MAKE_ID('I', 'H', 0, 0) && tag != MAKE_ID('D', 'S', 0, 0)))
     {
@@ -361,7 +361,7 @@ short seq_GetFrameFlag(short val, short nFrame)
 
 void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
-    short nSect = nPlayerViewSect[nLocalPlayer];
+    short nSect = PlayerList[nLocalPlayer].nPlayerViewSect;
 
     if (!(SectFlag[nSect] & kSectUnderwater))
     {
@@ -611,7 +611,7 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
         short nSector = pTSprite->sectnum;
         int nFloorZ = sector[nSector].floorz;
 
-        if (nFloorZ <= eyelevel[nLocalPlayer] + initz) {
+        if (nFloorZ <= PlayerList[nLocalPlayer].eyelevel + initz) {
             pTSprite->owner = -1;
         }
         else

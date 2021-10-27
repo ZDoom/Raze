@@ -866,7 +866,7 @@ tspriteptr_t get_tsprite(spritetype* tsprite, int& spritesortcnt, int SpriteNum)
             return &tsprite[tSpriteNum];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -1337,7 +1337,7 @@ void PreDrawStackedWater(void)
                     // spawn a user
                     User[New].Alloc();
                     nu = User[New].Data();
-                    ASSERT(nu != NULL);
+                    ASSERT(nu != nullptr);
 
                     nu->xchange = -989898;
 
@@ -1404,24 +1404,25 @@ void UpdateWallPortalState()
     StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while ((i = it.NextIndex()) >= 0)
     {
-        if (SPRITE_TAG3(i) == 0)
+        auto sp = &sprite[i];
+        if (SP_TAG3(sp) == 0)
         {
             // back up ceilingpicnum and ceilingstat
-            SPRITE_TAG5(i) = sector[sprite[i].sectnum].ceilingpicnum;
-            sector[sprite[i].sectnum].ceilingpicnum = SPRITE_TAG2(i);
-            SPRITE_TAG4(i) = sector[sprite[i].sectnum].ceilingstat;
-            //SET(sector[sprite[i].sectnum].ceilingstat, ((int)SPRITE_TAG7(i))<<7);
-            SET(sector[sprite[i].sectnum].ceilingstat, SPRITE_TAG6(i));
-            RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_PLAX);
+            SP_TAG5(sp) = sector[sp->sectnum].ceilingpicnum;
+            sector[sp->sectnum].ceilingpicnum = SP_TAG2(sp);
+            SP_TAG4(sp) = sector[sp->sectnum].ceilingstat;
+            //SET(sector[sp->sectnum].ceilingstat, ((int)SP_TAG7(sp))<<7);
+            SET(sector[sp->sectnum].ceilingstat, SP_TAG6(sp));
+            RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX);
         }
-        else if (SPRITE_TAG3(i) == 1)
+        else if (SP_TAG3(sp) == 1)
         {
-            SPRITE_TAG5(i) = sector[sprite[i].sectnum].floorpicnum;
-            sector[sprite[i].sectnum].floorpicnum = SPRITE_TAG2(i);
-            SPRITE_TAG4(i) = sector[sprite[i].sectnum].floorstat;
-            //SET(sector[sprite[i].sectnum].floorstat, ((int)SPRITE_TAG7(i))<<7);
-            SET(sector[sprite[i].sectnum].floorstat, SPRITE_TAG6(i));
-            RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_PLAX);
+            SP_TAG5(sp) = sector[sp->sectnum].floorpicnum;
+            sector[sp->sectnum].floorpicnum = SP_TAG2(sp);
+            SP_TAG4(sp) = sector[sp->sectnum].floorstat;
+            //SET(sector[sp->sectnum].floorstat, ((int)SP_TAG7(sp))<<7);
+            SET(sector[sp->sectnum].floorstat, SP_TAG6(sp));
+            RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX);
         }
     }
 
@@ -1433,20 +1434,21 @@ void RestorePortalState()
     StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while ((i = it.NextIndex()) >= 0)
     {
-        if (SPRITE_TAG3(i) == 0)
+        auto sp = &sprite[i];
+        if (SP_TAG3(sp) == 0)
         {
             // restore ceilingpicnum and ceilingstat
-            sector[sprite[i].sectnum].ceilingpicnum = SPRITE_TAG5(i);
-            sector[sprite[i].sectnum].ceilingstat = SPRITE_TAG4(i);
-            //RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_TYPE_MASK);
-            RESET(sector[sprite[i].sectnum].ceilingstat, CEILING_STAT_PLAX);
+            sector[sp->sectnum].ceilingpicnum = SP_TAG5(sp);
+            sector[sp->sectnum].ceilingstat = SP_TAG4(sp);
+            //RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_TYPE_MASK);
+            RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX);
         }
-        else if (SPRITE_TAG3(i) == 1)
+        else if (SP_TAG3(sp) == 1)
         {
-            sector[sprite[i].sectnum].floorpicnum = SPRITE_TAG5(i);
-            sector[sprite[i].sectnum].floorstat = SPRITE_TAG4(i);
-            //RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_TYPE_MASK);
-            RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_PLAX);
+            sector[sp->sectnum].floorpicnum = SP_TAG5(sp);
+            sector[sp->sectnum].floorstat = SP_TAG4(sp);
+            //RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_TYPE_MASK);
+            RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX);
         }
     }
 }
@@ -1736,7 +1738,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                     goto SHOWSPRITE;
                 }
             }
-            if (gFullMap || show2dsprite[j])
+            if (gFullMap || (sprite[j].cstat2 & CSTAT2_SPRITE_MAPPED))
             {
             SHOWSPRITE:
                 spr = &sprite[j];

@@ -102,8 +102,8 @@ void SetWeapons(bool stat)
         {
             // Keep the pitchfork to avoid freeze
             gMe->hasWeapon[1] = 1;
-            gMe->curWeapon = 0;
-            gMe->nextWeapon = 1;
+            gMe->curWeapon = kWeapNone;
+            gMe->nextWeapon = kWeapPitchFork;
         }
         viewSetMessage(GStrings("TXTB_NOWEAP"));
     }
@@ -267,7 +267,8 @@ static int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
     if (!nArg1 || !nArg2 || strlen(pzArgs) < 3)
         return -1;
 	*nArg1 = pzArgs[0] - '0';
-	*nArg2 = (pzArgs[1] - '0')*10+(pzArgs[2]-'0');
+    int a1 = pzArgs[1] == ' ' ? 0 : pzArgs[1] - '0';
+    *nArg2 = a1 * 10 + (pzArgs[2] - '0');
     return 2;
 }
 
@@ -303,26 +304,26 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         SetToys(true);
         break;
     case kCheatKevorkian:
-        actDamageSprite(gMe->nSprite, gMe->pSprite, kDamageBullet, 8000);
+        actDamageSprite(gMe->actor(), gMe->actor(), kDamageBullet, 8000);
         return GStrings("TXTB_KEVORKIAN");
 
     case kCheatMcGee:
     {
         if (!gMe->pXSprite->burnTime)
-            evPost(gMe->nSprite, 3, 0, kCallbackFXFlameLick);
+            evPostActor(gMe->actor(), 0, kCallbackFXFlameLick);
         actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
         return GStrings("TXTB_FIRED");
     }
     case kCheatEdmark:
-        actDamageSprite(gMe->nSprite, gMe->pSprite, kDamageExplode, 8000);
+        actDamageSprite(gMe->actor(), gMe->actor(), kDamageExplode, 8000);
         return GStrings("TXTB_THEDAYS");
 
     case kCheatKrueger:
     {
-        actHealDude(gMe->pXSprite, 200, 200);
+        actHealDude(gMe->actor(), 200, 200);
         gMe->armor[1] = VanillaMode() ? 200 : 3200;
         if (!gMe->pXSprite->burnTime)
-            evPost(gMe->nSprite, 3, 0, kCallbackFXFlameLick);
+            evPostActor(gMe->actor(), 0, kCallbackFXFlameLick);
         actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
         return GStrings("TXTB_RETARD");
     }
@@ -333,7 +334,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         gMe->flickerEffect = 360;
         break;
     case kCheatSpork:
-        actHealDude(gMe->pXSprite, 200, 200);
+        actHealDude(gMe->actor(), 200, 200);
         break;
     case kCheatClarice:
         for (int i = 0; i < 3; i++)
@@ -382,7 +383,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         SetWooMode(true);
         break;
     case kCheatCousteau:
-        actHealDude(gMe->pXSprite, 200, 200);
+        actHealDude(gMe->actor(), 200, 200);
         gMe->packSlots[1].curAmount = 100;
         if (!VanillaMode())
             gMe->pwUpTime[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
@@ -399,8 +400,8 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         powerupActivate(gMe, kPwUpDeliriumShroom);
         gMe->pXSprite->health = 16;
         gMe->hasWeapon[1] = 1;
-        gMe->curWeapon = 0;
-        gMe->nextWeapon = 1;
+        gMe->curWeapon = kWeapNone;
+        gMe->nextWeapon = kWeapPitchFork;
         break;
 
     default:
@@ -421,7 +422,7 @@ static bool cheatMario(cheatseq_t* c)
     if (parseArgs((char*)c->Args, &nEpisode, &nLevel) == 2)
 	{
 		auto map = FindMapByIndex(nEpisode, nLevel);
-		if (map) DeferedStartGame(map, -1);
+		if (map) DeferredStartGame(map, g_nextskill);
 	}
     return true;
 }
@@ -506,7 +507,7 @@ static void cmd_Give(int player, uint8_t **stream, bool skip)
         break;
 
     case GIVE_HEALTH:
-        actHealDude(gMe->pXSprite, 200, 200);
+        actHealDude(gMe->actor(), 200, 200);
         bPlayerCheated = true;
         break;
 

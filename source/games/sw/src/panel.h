@@ -107,10 +107,8 @@ struct PANEL_SPRITEstruct
     PANEL_STATEp State, RetractState, PresentState, ActionState, RestState;
     PLAYERp PlayerP;
     // Do not change the order of this line
-    uint16_t xfract;
-    double x;
-    uint16_t yfract;
-    double y;                            // Do not change the order of this
+    double x, xorig;
+    double y, yorig;                            // Do not change the order of this
     // line
 
     PANEL_SPRITE_OVERLAY over[8];
@@ -120,7 +118,7 @@ struct PANEL_SPRITEstruct
     short picndx;                       // for pip stuff in conpic.h
     short picnum;                       // bypass pip stuff in conpic.h
     short vel, vel_adj;
-    int xorig, yorig, flags, priority;
+    int flags, priority;
     int scale;
     int jump_speed, jump_grav;         // jumping vars
     int xspeed;
@@ -134,6 +132,14 @@ struct PANEL_SPRITEstruct
 
     // Weapon interpolation variables.
     double ox, oy;
+
+    // Inline helpers.
+    void backupx() { ox = x; };
+    void backupy() { oy = y; };
+    void backupcoords() { backupx(); backupy(); };
+    void backupbobx() { xorig = x; };
+    void backupboby() { yorig = y; };
+    void backupbobcoords() { backupbobx(); backupboby(); };
 };
 
 typedef struct

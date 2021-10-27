@@ -185,6 +185,7 @@ void addweapon_r(struct player_struct* p, int weapon)
 
 	p->okickback_pic = p->kickback_pic = 0;
 	p->curr_weapon = cw;
+	p->wantweaponfire = -1;
 
 	switch (weapon)
 	{
@@ -440,7 +441,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 
 	if (dasectnum >= 0)
 		if ((dasectnum != spri->sectnum))
-			changespritesect(actor, dasectnum);
+			changeactorsect(actor, dasectnum);
 	daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
 		spri->z = daz;
@@ -596,7 +597,7 @@ void movefta_r(void)
 						else s->shade = sector[s->sectnum].floorshade;
 
 						act->timetosleep = 0;
-						changespritestat(act, STAT_STANDABLE);
+						changeactorstat(act, STAT_STANDABLE);
 						break;
 					default:
 #if 0
@@ -605,7 +606,7 @@ void movefta_r(void)
 #endif
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
-						changespritestat(act, STAT_ACTOR);
+						changeactorstat(act, STAT_ACTOR);
 						break;
 					}
 					else act->timetosleep = 0;
@@ -617,13 +618,13 @@ void movefta_r(void)
 					s->shade = sector[s->sectnum].ceilingshade;
 				else s->shade = sector[s->sectnum].floorshade;
 
-				if (s->picnum != HEN || s->picnum != COW || s->picnum != PIG || s->picnum != DOGRUN || ((isRRRA()) && s->picnum != RABBIT))
+				if (s->picnum == HEN || s->picnum == COW || s->picnum == PIG || s->picnum == DOGRUN || ((isRRRA()) && s->picnum == RABBIT))
 				{
 					if (wakeup(act, p))
 					{
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
-						changespritestat(act, STAT_ACTOR);
+						changeactorstat(act, STAT_ACTOR);
 					}
 				}
 			}
@@ -1631,7 +1632,7 @@ void movetransports_r(void)
 							ps[p].bobposy = ps[p].oposy = ps[p].posy = Owner->s->y;
 							ps[p].oposz = ps[p].posz = Owner->s->z - (gs.playerheight - (4 << 8));
 
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 							ps[p].cursectnum = spr2->sectnum;
 
 							auto beam = spawn(Owner, TRANSPORTERBEAM);
@@ -1654,7 +1655,7 @@ void movetransports_r(void)
 							else ps[p].posz = Owner->s->z + 6144;
 							ps[p].oposz = ps[p].posz;
 
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 							ps[p].cursectnum = Owner->s->sectnum;
 
 							break;
@@ -1719,7 +1720,7 @@ void movetransports_r(void)
 							ps[p].transporter_hold = -2;
 						ps[p].cursectnum = Owner->s->sectnum;
 
-						changespritesect(act2, Owner->s->sectnum);
+						changeactorsect(act2, Owner->s->sectnum);
 
 						if ((krand() & 255) < 32)
 							spawn(ps[p].GetActor(), WATERSPLASH2);
@@ -1733,7 +1734,7 @@ void movetransports_r(void)
 							ps[p].transporter_hold = -2;
 						ps[p].cursectnum = Owner->s->sectnum;
 
-						changespritesect(act2, Owner->s->sectnum);
+						changeactorsect(act2, Owner->s->sectnum);
 					}
 				}
 				break;
@@ -1859,7 +1860,7 @@ void movetransports_r(void)
 										Owner->temp_data[0] = 13;
 									}
 
-									changespritesect(act2, Owner->s->sectnum);
+									changeactorsect(act2, Owner->s->sectnum);
 								}
 							}
 							else
@@ -1870,7 +1871,7 @@ void movetransports_r(void)
 
 								spr2->backupz();
 
-								changespritesect(act2, Owner->s->sectnum);
+								changeactorsect(act2, Owner->s->sectnum);
 							}
 							break;
 						case ST_1_ABOVE_WATER:
@@ -1880,7 +1881,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 
 							break;
 						case ST_2_UNDERWATER:
@@ -1890,7 +1891,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 
 							break;
 
@@ -1902,7 +1903,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 
 							movesprite_ex(act2, MulScale(spr2->xvel, bcos(spr2->ang), 14),
 								MulScale(spr2->xvel, bsin(spr2->ang), 14), 0, CLIPMASK1, coll);
@@ -1916,7 +1917,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changespritesect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->s->sectnum);
 
 							movesprite_ex(act2, MulScale(spr2->xvel, bcos(spr2->ang), 14),
 								MulScale(spr2->xvel, bsin(spr2->ang), 14), 0, CLIPMASK1, coll);
@@ -2485,7 +2486,7 @@ void rr_specialstats()
 						ps[p].bobposy = ps[p].oposy = ps[p].posy = act2->s->y;
 						ps[p].oposz = ps[p].posz = act2->s->z - (36 << 8);
 						auto pact = ps[p].GetActor();
-						changespritesect(pact, act2->s->sectnum);
+						changeactorsect(pact, act2->s->sectnum);
 						ps[p].cursectnum = pact->s->sectnum;
 						S_PlayActorSound(70, act2);
 						deletesprite(act2);
@@ -4247,7 +4248,7 @@ void checktimetosleep_r(DDukeActor *actor)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changespritestat(actor, STAT_ZOMBIEACTOR);
+				changeactorstat(actor, STAT_ZOMBIEACTOR);
 			break;
 		}
 	}

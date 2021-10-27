@@ -58,6 +58,6 @@ enum CALLBACK_ID {
     kCallbackMax,
 };
 
-extern void (*gCallback[kCallbackMax])(int);
+extern void(*gCallback[kCallbackMax])(DBloodActor*, int);
 
 END_BLD_NS

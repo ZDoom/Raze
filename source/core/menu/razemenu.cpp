@@ -105,7 +105,7 @@ static bool DoStartGame(FNewGameStartup& gs)
 
 	gi->StartGame(gs);	// play game specific effects (like Duke/RR/SW's voice lines when starting a game.)
 
-	DeferedStartGame(map, gs.Skill);
+	DeferredStartGame(map, gs.Skill);
 	return true;
 }
 
@@ -374,9 +374,8 @@ static DMenuItemBase* CreateCustomListMenuItemText(double x, double y, int heigh
 {
 	const char* classname = 
 		isBlood() ? "ListMenuItemBloodTextItem" :
-		(g_gameType & GAMEFLAG_SW) ? "ListMenuItemSWTextItem" :
-		(g_gameType & GAMEFLAG_PSEXHUMED) ? "ListMenuItemExhumedTextItem" : 
-		"ListMenuItemDukeTextItem";
+		isSWALL() ? "ListMenuItemSWTextItem" :
+		(g_gameType & GAMEFLAG_PSEXHUMED) ? "ListMenuItemExhumedTextItem" : "ListMenuItemDukeTextItem";
 	auto c = PClass::FindClass(classname);
 	auto p = c->CreateNew();
 	FString keystr = FString(char(hotkey));
@@ -467,7 +466,7 @@ static void BuildEpisodeMenu()
 		{
 			ld->mItems.Pop(popped);
 		}
-		if (isBlood()) gDefaultSkill = 2;
+		if (isBlood() || isSWALL()) gDefaultSkill = 2;
 		ld->mSelectedItem = gDefaultSkill + ld->mItems.Size(); // account for pre-added items
 		double y = ld->mYpos;
 
@@ -604,7 +603,7 @@ void SetDefaultMenuColors()
 		gameinfo.mSliderColor = "Red";
 		cls = PClass::FindClass("BloodMenuDelegate");
 	}
-	else if (g_gameType & GAMEFLAG_SW)
+	else if (isSWALL())
 	{
 		OptionSettings.mFontColorHeader = CR_DARKRED;
 		OptionSettings.mFontColorHighlight = CR_WHITE;
@@ -631,7 +630,7 @@ void SetDefaultMenuColors()
 	}
 	else
 	{
-		if (g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
+		if (isNamWW2GI())
 		{
 			OptionSettings.mFontColor = CR_DARKGREEN;
 			OptionSettings.mFontColorHeader = CR_DARKGRAY;
@@ -639,7 +638,7 @@ void SetDefaultMenuColors()
 			OptionSettings.mFontColorSelection = CR_DARKGREEN;
 			gameinfo.mSliderColor = "Green";
 		}
-		else if (g_gameType & GAMEFLAG_RRALL)
+		else if (isRR())
 		{
 			OptionSettings.mFontColor = CR_BROWN;
 			OptionSettings.mFontColorHeader = CR_DARKBROWN;

@@ -56,6 +56,22 @@ enum { VERSIONCHECK = 41 };
 
 //---------------------------------------------------------------------------
 //
+// 
+//
+//---------------------------------------------------------------------------
+
+static TArray<FString> exclEpisodes;
+
+void GameInterface::AddExcludedEpisode(FString episode)
+{
+	auto s = FStringTable::MakeMacro(episode.GetChars());
+	s.StripRight();
+	exclEpisodes.Push(s);
+}
+
+
+//---------------------------------------------------------------------------
+//
 // definitions needed by the parser.
 //
 //---------------------------------------------------------------------------
@@ -976,7 +992,7 @@ int ConCompiler::parsecommand()
 					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate move '%s' ignored.\n", fn, line_number, parselabel.GetChars());
 					break;
 				}
-			if (i == labels.Size())
+			if (i == (int)labels.Size())
 				appendlabeladdress(LABEL_MOVE);
 			for (j = 0; j < 2; j++)
 			{
@@ -1665,11 +1681,24 @@ int ConCompiler::parsecommand()
 		// We need both a volume and a cluster for this new episode.
 		auto vol = MustFindVolume(j);
 		auto clust = MustFindCluster(j + 1);
-		vol->name = clust->name = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		FString s = FStringTable::MakeMacro(parsebuffer.Data(), i);;
+		s.StripRight();
+		vol->name = clust->name = s;
 		if (j > 0) vol->flags |= VF_SHAREWARELOCK;
+		if (exclEpisodes.Size())
+		{
+			for (auto& episode : exclEpisodes)
+			{
+				if (vol->name == episode)
+				{
+					vol->flags |= VF_HIDEFROMSP;
+				}
+			}
+		}
 		return 0;
 	}
 	case concmd_defineskillname:
+	{
 		popscriptvalue();
 		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
@@ -1684,9 +1713,11 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		gSkillNames[j] = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		FString s = FStringTable::MakeMacro(parsebuffer.Data(), i);
+		s.StripRight();
+		gSkillNames[j] = s;
 		return 0;
-
+	}
 	case concmd_definelevelname:
 	{
 		popscriptvalue();
@@ -1743,6 +1774,7 @@ int ConCompiler::parsecommand()
 		}
 		parsebuffer.Push(0);
 		map->name = FStringTable::MakeMacro(parsebuffer.Data());
+		map->name.StripRight();
 		return 0;
 	}
 	case concmd_definequote:
@@ -3110,7 +3142,7 @@ static const char* ConFile(void)
 
 	// WW2GI anf NAM special con names got introduced by EDuke32.
 	// Do we really need these?
-	if (g_gameType & GAMEFLAG_WW2GI)
+	if (isWW2GI())
 	{
 		if (fileSystem.FindFile("ww2gi.con") >= 0) return "ww2gi.con";
 	}

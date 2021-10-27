@@ -243,7 +243,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 		int s = start;
 		if (start >= 0 && start < numvertices)
 		{
-			while (!done[start])
+			while (start >= 0 && start < numvertices && !done[start])
 			{
 				auto sline = &sectionLines[sec->lines[start]];
 				auto wallp = &wall[sline->startpoint];
@@ -346,6 +346,7 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 	for (int i = 0; i < numvertices; i++)
 	{
 		auto sline = &sectionLines[sec->lines[i]];
+		if (sline->point2index < 0) continue; // Exhumed LEV14 triggers this on sector 169.
 
 		auto wallp = &wall[sline->startpoint];
 		vertexes[j].p = { wallp->x * (1 / 16.), wallp->y * (1 / -16.) };
@@ -463,9 +464,9 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 nexti:;
 	}
 
-	if (lines.Size() == 0)
+	if (lines.Size() < 4)
 	{
-		// nothing to generate.
+		// nothing to generate. If line count is < 4 this sector is degenerate and should not be processed further.
 		auto& entry = data[secnum].planes[plane];
 		entry.vertices.Clear();
 		entry.texcoords.Clear();

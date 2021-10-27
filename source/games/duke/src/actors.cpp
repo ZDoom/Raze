@@ -78,7 +78,7 @@ void deletesprite(DDukeActor *const actor)
 		S_StopSound(actor->s->lotag, actor);
 	else
 		S_RelinkActorSound(actor, nullptr);
-	::deletesprite(actor->GetIndex());
+	::deletesprite(actor->GetSpriteIndex());
 }
 
 //---------------------------------------------------------------------------
@@ -173,7 +173,7 @@ void checkavailweapon(struct player_struct* player)
 	player->curr_weapon = weap;
 	if (isWW2GI())
 	{
-		SetGameVarID(g_iWeaponVarID, player->curr_weapon, player->GetActor(), snum); // snum is playerindex!
+		SetGameVarID(g_iWeaponVarID, player->curr_weapon, player->GetActor(), snum); // snum is player index!
 		if (player->curr_weapon >= 0)
 		{
 			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[player->curr_weapon][snum], player->GetActor(), snum);
@@ -1009,8 +1009,9 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 			// This originally depended on undefined behavior as the deleted sprite was still used for the sound
 			// with no checking if it got reused in the mean time.
 			spri->picnum = 0;	// give it a picnum without any behavior attached, just in case
-			spri->cstat |= CSTAT_SPRITE_INVISIBLE|CSTAT_SPRITE_NOFIND;
-			changespritestat(actor->GetIndex(), STAT_REMOVED);
+			spri->cstat |= CSTAT_SPRITE_INVISIBLE;
+			spri->cstat2 |= CSTAT2_SPRITE_NOFIND;
+			changeactorstat(actor, STAT_REMOVED);
 		}
 	}
 }
@@ -4027,7 +4028,7 @@ void handle_se17(DDukeActor* actor)
 				ps[p].truecz = act3->ceilingz;
 				ps[p].bobcounter = 0;
 
-				changespritesect(act3, spr2->sectnum);
+				changeactorsect(act3, spr2->sectnum);
 				ps[p].cursectnum = spr2->sectnum;
 			}
 			else if (spr3->statnum != STAT_EFFECTOR)
@@ -4038,7 +4039,7 @@ void handle_se17(DDukeActor* actor)
 
 				spr3->backupz();
 
-				changespritesect(act3, spr2->sectnum);
+				changeactorsect(act3, spr2->sectnum);
 				setsprite(act3, spr3->pos);
 
 				act3->floorz = sector[spr2->sectnum].floorz;
@@ -4736,7 +4737,7 @@ void handle_se128(DDukeActor *actor)
 
 	auto wal = &wall[t[2]];
 
-	if (wal->cstat | 32)
+//	if (wal->cstat | 32) // this has always been bugged, the condition can never be false.
 	{
 		wal->cstat &= (255 - 32);
 		wal->cstat |= 16;
@@ -4746,7 +4747,7 @@ void handle_se128(DDukeActor *actor)
 			wall[wal->nextwall].cstat |= 16;
 		}
 	}
-	else return;
+//	else return;
 
 	wal->overpicnum++;
 	if (wal->nextwall >= 0)
@@ -4955,10 +4956,10 @@ void getglobalz(DDukeActor* actor)
 			zr = 4;
 		else zr = 127;
 
-		auto cc = s->cstat;
-		s->cstat |= CSTAT_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
+		auto cc = s->cstat2;
+		s->cstat2 |= CSTAT2_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
 		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sectnum, &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
-		s->cstat = cc;
+		s->cstat2 = cc;
 
 		if( lz.type == kHitSprite && (lz.actor->s->cstat&48) == 0 )
 		{
@@ -5316,9 +5317,9 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 					short j = s->sectnum;
 					int x = s->x, y = s->y, z = s->z;
 					pushmove(&x, &y, &z, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
-					setspritepos(actor->GetIndex(), x, y, z);	// wrap this for safety. The renderer may need processing of the new position.
+					s->x = x; s->y = y; s->z = z;
 					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
-						changespritesect(actor, j);
+						changeactorsect(actor, j);
 
 					S_PlayActorSound(thud, actor);
 				}

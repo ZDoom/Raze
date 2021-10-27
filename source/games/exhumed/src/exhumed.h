@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screenjob.h"
 #include "gamestruct.h"
 #include "names.h"
+#include "exhumedactor.h"
 
 BEGIN_PS_NS
 
@@ -67,6 +68,10 @@ void EraseScreen(int eax);
 
 void mychangespritesect(int nSprite, int nSector);
 void mydeletesprite(int nSprite);
+inline void DeleteActor(DExhumedActor* actor)
+{
+    mydeletesprite(actor->GetSpriteIndex());
+}
 
 void GrabPalette();
 
@@ -248,6 +253,7 @@ struct GameInterface : public ::GameInterface
     int chaseCamY(binangle ang) { return -ang.bsin() / 12; }
     int chaseCamZ(fixedhoriz horiz) { return horiz.asq16() / 384; }
     void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+    int GetCurrentSkill() override;
 
 	::GameStats getStats() override;
 };

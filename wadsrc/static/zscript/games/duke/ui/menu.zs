@@ -65,7 +65,7 @@ class DukeMenuDelegate : RazeMenuDelegate
 		String picname;
 		if (!right) picname= String.Format("SPINNINGNUKEICON%d", ((mclock >> 3) % frames));
 		else picname = String.Format("SPINNINGNUKEICON%d", frames - 1 - ((frames - 1 + (mclock >> 3)) % frames));
-		int light = 231 + (Raze.calcSinTableValue(mclock<<5) / 768.);
+		int light = 231 + ((Raze.bsin(mclock<<5) * 3) >> 11);
 		let pe = color(255, light, light, light);
 		Screen.DrawTexture(TexMan.CheckForTexture(picname), false, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffsetRel, true);
 	}
@@ -137,7 +137,7 @@ class ListMenuItemDukeLogo : ListMenuItem
 			if (gameinfo.gametype & GAMEFLAG_PLUTOPAK)
 			{
 				int mclock = MSTime() * 120 / 1000;
-				int light = 223 + (Raze.calcSinTableValue(mclock<<4) / 512.);
+				int light = 223 + (Raze.bsin(mclock<<4) >> 9);
 				let pe = Color(255, light, light, light);
 				Screen.DrawTexture(TexMan.CheckForTexture("MENUPLUTOPAKSPRITE"), false, x + 100, 36, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, pe, DTA_CenterOffsetRel, true);
 			}
@@ -176,7 +176,7 @@ class ListMenuItemDukeTextItem : ListMenuItemTextItem
 		if (selected)
 		{
 			int mclock = MSTime() * 120 / 1000;
-			int light = 231 + (Raze.calcSinTableValue(mclock<<5) / 512.);
+			int light = 231 + (Raze.bsin(mclock<<5) >> 9);
 			pe = Color(255, light, light, light);
 		}
 		else

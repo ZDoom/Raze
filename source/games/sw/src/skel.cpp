@@ -66,7 +66,7 @@ DECISION SkelEvasive[] =
 {
     {22,     InitActorDuck             },
     {30,     InitActorEvade            },
-    {1024,   NULL                      },
+    {1024,   nullptr                      },
 };
 
 DECISION SkelLostTarget[] =
@@ -476,28 +476,28 @@ ACTOR_ACTION_SET SkelActionSet =
 {
     sg_SkelStand,
     sg_SkelRun,
-    NULL, //sg_SkelJump,
-    NULL, //sg_SkelFall,
-    NULL, //sg_SkelCrawl,
-    NULL, //sg_SkelSwim,
-    NULL, //sg_SkelFly,
-    NULL, //sg_SkelRise,
-    NULL, //sg_SkelSit,
-    NULL, //sg_SkelLook,
-    NULL, //climb
+    nullptr, //sg_SkelJump,
+    nullptr, //sg_SkelFall,
+    nullptr, //sg_SkelCrawl,
+    nullptr, //sg_SkelSwim,
+    nullptr, //sg_SkelFly,
+    nullptr, //sg_SkelRise,
+    nullptr, //sg_SkelSit,
+    nullptr, //sg_SkelLook,
+    nullptr, //climb
     sg_SkelPain, //pain
     sg_SkelDie,
-    NULL, //sg_SkelHariKari,
-    NULL, //sg_SkelDead,
-    NULL, //sg_SkelDeathJump,
-    NULL, //sg_SkelDeathFall,
+    nullptr, //sg_SkelHariKari,
+    nullptr, //sg_SkelDead,
+    nullptr, //sg_SkelDeathJump,
+    nullptr, //sg_SkelDeathFall,
     {sg_SkelSlash},
     {1024},
     {sg_SkelSpell},
     {1024},
-    {NULL},
+    {nullptr},
     sg_SkelTeleport,
-    NULL
+    nullptr
 };
 
 int

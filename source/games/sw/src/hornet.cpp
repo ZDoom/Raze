@@ -71,7 +71,7 @@ DECISION HornetSurprised[] =
 DECISION HornetEvasive[] =
 {
     {20,     InitHornetCircle          },
-    {1024,   NULL                      },
+    {1024,   nullptr                      },
 };
 
 DECISION HornetLostTarget[] =
@@ -260,28 +260,28 @@ ACTOR_ACTION_SET HornetActionSet =
 {
     sg_HornetStand,
     sg_HornetRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL, //climb
-    NULL, //pain
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr, //climb
+    nullptr, //pain
     sg_HornetDie,
-    NULL,
+    nullptr,
     sg_HornetDead,
-    NULL,
-    NULL,
-    {NULL},
+    nullptr,
+    nullptr,
+    {nullptr},
     {0},
-    {NULL},
+    {nullptr},
     {0},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 int DoHornetMatchPlayerZ(short SpriteNum);
@@ -362,7 +362,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     zdiff = (SPRITEp_MID(tsp)) - u->sz;
 
     // check z diff of the player and the sprite
-    zdist = Z(20 + RANDOM_RANGE(200)); // put a random amount
+    zdist = Z(20 + RandomRange(200)); // put a random amount
     if (labs(zdiff) > zdist)
     {
         if (zdiff > 0)
@@ -446,7 +446,7 @@ int InitHornetCircle(short SpriteNum)
     if (labs(u->sz - u->hiz) < labs(u->sz - u->loz))
         u->jump_speed = -u->jump_speed;
 
-    u->WaitTics = (RANDOM_RANGE(3)+1) * 60;
+    u->WaitTics = (RandomRange(3)+1) * 60;
 
     (*u->ActorActionFunc)(SpriteNum);
 

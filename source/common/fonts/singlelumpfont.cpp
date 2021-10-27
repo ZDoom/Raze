@@ -407,6 +407,7 @@ void FSingleLumpFont::LoadBMF(int lump, const uint8_t *data)
 	count = LastChar - FirstChar + 1;
 	Chars.Resize(count);
 	// BMF palettes are only six bits per component. Fix that.
+	Palette[0] = 0;
 	for (i = 0; i < ActiveColors; ++i)
 	{
 		int r = (data[17 + i * 3] << 2) | (data[17 + i * 3] >> 4);
@@ -526,7 +527,7 @@ void FSingleLumpFont::FixupPalette (uint8_t *identity, const PalEntry *palette, 
 	double minlum = 100000000.0;
 
 	identity[0] = 0;
-	palette += 3;	// Skip the transparent color
+	palette++;	// Skip the transparent color
 
 	for (int i = 1; i < ActiveColors; ++i, palette ++)
 	{

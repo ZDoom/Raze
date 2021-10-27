@@ -193,7 +193,7 @@ public:
         LMFPlayer* pId = (LMFPlayer*)userdata;
         memcpy(buff, &pId->audio.samples[pId->audio.nRead], len);
         pId->audio.nRead += len / 2;
-        if (pId->audio.nRead >= countof(pId->audio.samples)) pId->audio.nRead = 0;
+        if (pId->audio.nRead >= (int)countof(pId->audio.samples)) pId->audio.nRead = 0;
         return true;
     }
 

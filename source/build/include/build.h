@@ -51,13 +51,13 @@ enum
     MAXSTATUS = 1024,
     // Maximum number of component tiles in a multi-psky:
     MAXPSKYTILES = 16,
-    MAXSPRITESONSCREEN = 2560,
+    MAXSPRITESONSCREEN = MAXSPRITES >> 2,
     MAXUNIQHUDID = 256, //Extra slots so HUD models can store animation state without messing game sprites
 
     TSPR_TEMP = 99,
 
-    CLIPMASK0 = (IntToFixed(1)+1),
-    CLIPMASK1 = (IntToFixed(256)+64),
+    CLIPMASK0 = (1 << 16) + 1,
+    CLIPMASK1 = (256 << 16) + 64
 };
 
 
@@ -409,15 +409,11 @@ inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
 
-#if !KRANDDEBUG
 inline int32_t krand(void)
 {
-    randomseed = (randomseed * 1664525ul) + 221297ul;
+    randomseed = (randomseed * 27584621) + 1;
     return ((uint32_t) randomseed)>>16;
 }
-#else
-int32_t    krand(void);
-#endif
 
 inline int32_t ksqrt(uint64_t num)
 {
@@ -532,10 +528,6 @@ inline int32_t   setsprite(int16_t spritenum, int x, int y, int z)
     return setsprite(spritenum, &v);
 }
 
-inline void setspritepos(int spnum, int x, int y, int z)
-{
-    sprite[spnum].pos = { x,y,z };
-}
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
 int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs);

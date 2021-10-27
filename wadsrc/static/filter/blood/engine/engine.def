@@ -59,3 +59,792 @@ tilefromtexture 9277 { file "tiles/9277.png" }
 tilefromtexture 9278 { file "tiles/9278.png" }
 tilefromtexture 9279 { file "tiles/9279.png" }
 tilefromtexture 9280 { file "tiles/9280.png" }
+
+// Patched tiles for QAV interpolation, thanks to Phredreeke for supplying these.
+tilefromtexture 9300 { file "tiles/9300(3227+3228).png" }
+tilefromtexture 9301 { file "tiles/9301(3227+3229).png" }
+tilefromtexture 9302 { file "tiles/9302(3227+3230).png" }
+tilefromtexture 9303 { file "tiles/9303(3227+3231).png" }
+tilefromtexture 9304 { file "tiles/9304(3227+3232).png" }
+tilefromtexture 9305 { file "tiles/9305(3240+3228).png" }
+tilefromtexture 9306 { file "tiles/9306(3240+3229).png" }
+tilefromtexture 9307 { file "tiles/9307(3240+3230).png" }
+tilefromtexture 9308 { file "tiles/9308(3240+3231).png" }
+tilefromtexture 9309 { file "tiles/9309(3240+3232).png" }
+
+// Interpolatable QAV files.
+defineqav 10000 {
+	file "qavs/FORKUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10001 {
+	file "qavs/FORKIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10002 {
+	file "qavs/PFORK.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10003 {
+	file "qavs/FORKDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10004 {
+	file "qavs/LITEOPEN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10005 {
+	file "qavs/LITEFLAM.QAV"
+	interpolate {
+		type "index"
+		ignore {
+			frames 3-last tiles 1
+		}
+	}
+}
+defineqav 10006 {
+	file "qavs/LITEIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10007 {
+	file "qavs/LITECLO2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10008 {
+	file "qavs/CANPREF.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10009 {
+	file "qavs/CANIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10010 {
+	file "qavs/CANFIRE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10011 {
+	file "qavs/CANDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10012 {
+	file "qavs/CANFIRE2.QAV"
+	interpolate {
+		type "index"
+		ignore {
+			frames 14-last tiles 2-3
+		}
+	}
+}
+defineqav 10013 {
+	file "qavs/CANDROP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10014 {
+	file "qavs/CANTHRO.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10015 {
+	file "qavs/CANBOOM.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10016 {
+	file "qavs/BUNUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10017 {
+	file "qavs/BUNDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10018 {
+	file "qavs/BUNUP2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10019 {
+	file "qavs/BUNDOWN2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10020 {
+	file "qavs/BUNIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10021 {
+	file "qavs/BUNFUSE.QAV"
+	interpolate {
+		type "index"
+		ignore {
+			frames 6-last tiles all
+		}
+	}
+}
+defineqav 10022 {
+	file "qavs/BUNDROP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10023 {
+	file "qavs/BUNTHRO.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10024 {
+	file "qavs/DYNEXPLO.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10025 {
+	file "qavs/PROXUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10026 {
+	file "qavs/PROXDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10027 {
+	file "qavs/PROXIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10028 {
+	file "qavs/PROXDROP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10029 {
+	file "qavs/PROXTHRO.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10030 {
+	file "qavs/REMUP1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10031 {
+	file "qavs/REMUP2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10032 {
+	file "qavs/REMUP3.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10033 {
+	file "qavs/REMDOWN1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10034 {
+	file "qavs/REMDOWN2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10035 {
+	file "qavs/REMDOWN3.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10036 {
+	file "qavs/REMIDLE1.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10037 {
+	file "qavs/REMIDLE2.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10038 {
+	file "qavs/REMDROP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10039 {
+	file "qavs/REMTHRO.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10040 {
+	file "qavs/REMFIRE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10041 {
+	file "qavs/FLARUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10042 {
+	file "qavs/FLARIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10043 {
+	file "qavs/FLARFIR2.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10044 {
+	file "qavs/FLARDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10045 {
+	file "qavs/FLAR2UP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10046 {
+	file "qavs/FLAR2I.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10047 {
+	file "qavs/FLAR2F.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10048 {
+	file "qavs/FLAR2FIR.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10049 {
+	file "qavs/FLAR2DWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10050 {
+	file "qavs/SHOTUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10051 {
+	file "qavs/SHOTI3.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10052 {
+	file "qavs/SHOTI2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10053 {
+	file "qavs/SHOTI1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10054 {
+	file "qavs/SHOTF1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10055 {
+	file "qavs/SHOTF2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10056 {
+	file "qavs/SHOTF3.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10057 {
+	file "qavs/SHOTL1.QAV"
+	interpolate {
+		type "picnum"
+	}
+}
+defineqav 10058 {
+	file "qavs/SHOTDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10059 {
+	file "qavs/2SHOTUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10060 {
+	file "qavs/2SHOTI.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10061 {
+	file "qavs/2SHOTF2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10062 {
+	file "qavs/2SHOTFIR.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10063 {
+	file "qavs/2SHOTDWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10064 {
+	file "qavs/TOMUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10065 {
+	file "qavs/TOMIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10066 {
+	file "qavs/TOMFIRE.QAV"
+	interpolate {
+		type "index"
+		loopable
+		ignore {
+			frames all tiles 0
+		}
+	}
+}
+defineqav 10067 {
+	file "qavs/TOMSPRED.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10068 {
+	file "qavs/TOMDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10069 {
+	file "qavs/2TOMUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10070 {
+	file "qavs/2TOMIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10071 {
+	file "qavs/2TOMFIRE.QAV"
+	interpolate {
+		type "index"
+		loopable
+		ignore {
+			frames all tiles 0
+		}
+		ignore {
+			frames all tiles 2
+		}
+	}
+}
+defineqav 10072 {
+	file "qavs/2TOMDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10073 {
+	file "qavs/2TOMALT.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10074 {
+	file "qavs/SGUNUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10075 {
+	file "qavs/SGUNIDL1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10076 {
+	file "qavs/SGUNIDL2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10077 {
+	file "qavs/SGUNFIR1.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10078 {
+	file "qavs/SGUNFIR4.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10079 {
+	file "qavs/SGUNPRE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10080 {
+	file "qavs/SGUNPOST.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10081 {
+	file "qavs/SGUNDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10082 {
+	file "qavs/2SGUNUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10083 {
+	file "qavs/2SGUNIDL.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10084 {
+	file "qavs/2SGUNFIR.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10085 {
+	file "qavs/2SGUNALT.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10086 {
+	file "qavs/2SGUNPRE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10087 {
+	file "qavs/2SGUNPST.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10088 {
+	file "qavs/2SGUNDWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10089 {
+	file "qavs/NAPUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10090 {
+	file "qavs/NAPIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10091 {
+	file "qavs/NAPFIRE.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10092 {
+	file "qavs/NAPDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10093 {
+	file "qavs/BSTUP.QAV"
+}
+defineqav 10094 {
+	file "qavs/BSTIDLE.QAV"
+}
+defineqav 10095 {
+	file "qavs/BSTATAK1.QAV"
+}
+defineqav 10096 {
+	file "qavs/BSTATAK2.QAV"
+}
+defineqav 10097 {
+	file "qavs/BSTATAK3.QAV"
+}
+defineqav 10098 {
+	file "qavs/BSTATAK4.QAV"
+}
+defineqav 10099 {
+	file "qavs/BSTDOWN.QAV"
+}
+defineqav 10100 {
+	file "qavs/VDUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10101 {
+	file "qavs/VDIDLE1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10102 {
+	file "qavs/VDIDLE2.QAV"
+	interpolate {
+		type "index"
+		loopable
+	}
+}
+defineqav 10103 {
+	file "qavs/VDFIRE1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10104 {
+	file "qavs/VDFIRE2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10105 {
+	file "qavs/VDFIRE3.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10106 {
+	file "qavs/VDFIRE4.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10107 {
+	file "qavs/VDFIRE5.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10108 {
+	file "qavs/VDFIRE6.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10109 {
+	file "qavs/VDDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10110 {
+	file "qavs/VDSPEL1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10111 {
+	file "qavs/STAFUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10112 {
+	file "qavs/STAFIDL1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10113 {
+	file "qavs/STAFIDL3.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10114 {
+	file "qavs/STAFIRE1.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10115 {
+	file "qavs/STAFIRE2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10116 {
+	file "qavs/STAFIRE4.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10117 {
+	file "qavs/STAFPRE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10118 {
+	file "qavs/STAFPOST.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10119 {
+	file "qavs/STAFDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10120 {
+	file "qavs/2NAPUP.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10121 {
+	file "qavs/2NAPIDLE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10122 {
+	file "qavs/2NAPFIRE.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10123 {
+	file "qavs/2NAPFIR2.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10124 {
+	file "qavs/2NAPDOWN.QAV"
+	interpolate {
+		type "index"
+	}
+}
+defineqav 10256 {
+	file "qavs/BDRIP.QAV"
+	interpolate {
+		type "x"
+		loopable
+		ignore {
+			frames all tiles 0
+		}
+	}
+}
+defineqav 10257 {
+	file "qavs/CREDITS.QAV"
+	interpolate {
+		type "index"
+	}
+}

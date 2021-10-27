@@ -51,31 +51,21 @@ enum AI_SFX_PRIORITY {
 };
 
 
-struct DUDEEXTRA_at6_u1
+struct DUDEEXTRA_STATS
 {
-    int xval1;
-    int xval2;
-    char xval3;
-};
-
-struct DUDEEXTRA_at6_u2
-{
-    int xval1;
-    char xval2;
+    union {
+        int thinkTime;
+        int birthCounter;
+    };
+    char active;
 };
 
 struct DUDEEXTRA
 {
     int time;
-    int recoil;
+    char teslaHit;
     int prio;
-    // Broken by design... :?
-    union
-    {
-        DUDEEXTRA_at6_u1 u1;
-        DUDEEXTRA_at6_u2 u2;
-    } at6;
-    //DUDEEXTRA_at6 at6;
+    DUDEEXTRA_STATS stats;
 };
 
 struct TARGETTRACK {
@@ -87,23 +77,26 @@ struct TARGETTRACK {
 };
 
 extern const int dword_138BB0[5];
-extern DUDEEXTRA gDudeExtra[];
 
-bool dudeIsPlayingSeq(spritetype *pSprite, int nSeq);
-void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
+bool dudeIsPlayingSeq(DBloodActor* pSprite, int nSeq);
+void aiPlay3DSound(DBloodActor* pSprite, int a2, AI_SFX_PRIORITY a3, int a4);
 void aiNewState(DBloodActor* actor, AISTATE *pAIState);
-void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3);
+void aiChooseDirection(DBloodActor* actor, int a3);
 void aiMoveForward(DBloodActor*pXSprite);
 void aiMoveTurn(DBloodActor*pXSprite);
 void aiMoveDodge(DBloodActor *actor);
 void aiActivateDude(DBloodActor *actor);
-void aiSetTarget(XSPRITE *pXSprite, int x, int y, int z);
-void aiSetTarget(XSPRITE *pXSprite, int nTarget);
+void aiSetTarget(DBloodActor* pXSprite, int x, int y, int z);
+void aiSetTarget(DBloodActor* actor, DBloodActor* target);
 int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType, int nDamage);
 void aiThinkTarget(DBloodActor* actor);
-void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite);
+void aiLookForTarget(DBloodActor* actor);
 void aiProcessDudes(void);
 void aiInit(void);
-void aiInitSprite(spritetype *pSprite);
-bool CanMove(spritetype* pSprite, int a2, int nAngle, int nRange);
+void aiInitSprite(DBloodActor* pSprite);
+bool CanMove(DBloodActor* pSprite, int a2, int nAngle, int nRange);
+
+void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z);
+void aiSetTarget_(XSPRITE* pXSprite, int nTarget);
+
 END_BLD_NS

@@ -1328,7 +1328,7 @@ FxExpression *FxColorCast::Resolve(FCompileContext &ctx)
 			}
 			else
 			{
-				FxExpression *x = new FxConstant(V_GetColor(nullptr, constval.GetString(), &ScriptPosition), ScriptPosition);
+				FxExpression *x = new FxConstant(V_GetColor(constval.GetString(), &ScriptPosition), ScriptPosition);
 				delete this;
 				return x;
 			}
@@ -1449,7 +1449,7 @@ FxFontCast::FxFontCast(FxExpression *x)
 	: FxExpression(EFX_FontCast, x->ScriptPosition)
 {
 	basex = x;
-	ValueType = TypeSound;
+	ValueType = TypeFont;
 }
 
 //==========================================================================
@@ -9823,14 +9823,14 @@ FxExpression *FxIfStatement::Resolve(FCompileContext &ctx)
 {
 	CHECKRESOLVED();
 
+	SAFE_RESOLVE(Condition, ctx);
+
 	if (WhenTrue == nullptr && WhenFalse == nullptr)
 	{ // We don't do anything either way, so disappear
 		delete this;
 		ScriptPosition.Message(MSG_WARNING, "empty if statement");
 		return new FxNop(ScriptPosition);
 	}
-
-	SAFE_RESOLVE(Condition, ctx);
 
 	if (Condition->ValueType != TypeBool)
 	{

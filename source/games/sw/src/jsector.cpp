@@ -189,7 +189,7 @@ JS_SpriteSetup(void)
         if (tag == MIRROR_CAM && sprite[SpriteNum].picnum != ST1)
         {
             // Just change it to static, sprite has all the info I need
-//          u = SpawnUser(SpriteNum, sp->picnum, NULL);
+//          u = SpawnUser(SpriteNum, sp->picnum, nullptr);
 //          RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 //          SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
             change_sprite_stat(SpriteNum, STAT_SPAWN_SPOT);
@@ -219,9 +219,9 @@ JS_SpriteSetup(void)
             }
             else if (tag == TAG_DRIPGEN)
             {
-                u = SpawnUser(SpriteNum, 0, NULL);
+                u = SpawnUser(SpriteNum, 0, nullptr);
 
-                ASSERT(u != NULL);
+                ASSERT(u != nullptr);
                 u->RotNum = 0;
                 u->WaitTics = sp->lotag * 120;
 
@@ -594,7 +594,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 }
 
 
-                SPRITEp sp = NULL;
+                SPRITEp sp = nullptr;
                 int camhoriz;
                 short w;
                 int dx, dy, dz, tdx, tdy, tdz, midx, midy;

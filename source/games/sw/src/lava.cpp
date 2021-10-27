@@ -67,7 +67,7 @@ DECISION LavaSurprised[] =
 DECISION LavaEvasive[] =
 {
     {10,   InitActorEvade  },
-    {1024, NULL            }
+    {1024, nullptr            }
 };
 
 DECISION LavaLostTarget[] =
@@ -427,28 +427,28 @@ ACTOR_ACTION_SET LavaActionSet =
 {
     sg_LavaStand,
     sg_LavaRun,
-    NULL, //sg_LavaJump,
-    NULL, //sg_LavaFall,
-    NULL, //sg_LavaCrawl,
-    NULL, //sg_LavaSwim,
-    NULL, //sg_LavaFly,
-    NULL, //sg_LavaRise,
-    NULL, //sg_LavaSit,
-    NULL, //sg_LavaLook,
-    NULL, //climb
-    NULL, //pain
+    nullptr, //sg_LavaJump,
+    nullptr, //sg_LavaFall,
+    nullptr, //sg_LavaCrawl,
+    nullptr, //sg_LavaSwim,
+    nullptr, //sg_LavaFly,
+    nullptr, //sg_LavaRise,
+    nullptr, //sg_LavaSit,
+    nullptr, //sg_LavaLook,
+    nullptr, //climb
+    nullptr, //pain
     sg_LavaDie,
-    NULL, //sg_LavaHariKari,
+    nullptr, //sg_LavaHariKari,
     sg_LavaDead,
-    NULL, //sg_LavaDeathJump,
-    NULL, //sg_LavaDeathFall,
+    nullptr, //sg_LavaDeathJump,
+    nullptr, //sg_LavaDeathFall,
     {sg_LavaFlame},
     {1024},
     {sg_LavaFlame, sg_LavaThrow, sg_LavaThrow, sg_LavaThrow},
     {256, 512, 768, 1024},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 int

@@ -321,8 +321,8 @@ void InitLevel(MapRecord *maprec)
     }
 
     int16_t ang;
-    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &Player[0].cursectnum);
     currentLevel = maprec;
+    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &Player[0].cursectnum);
 
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
@@ -471,18 +471,18 @@ void TerminateLevel(void)
 
         pp->cookieTime = 0;
         memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
-        pp->DoPlayerAction = NULL;
+        pp->DoPlayerAction = nullptr;
 
-        pp->SpriteP = NULL;
+        pp->SpriteP = nullptr;
         pp->PlayerSprite = -1;
 
-        pp->UnderSpriteP = NULL;
+        pp->UnderSpriteP = nullptr;
         pp->PlayerUnderSprite = -1;
 
         memset(pp->HasKey, 0, sizeof(pp->HasKey));
 
         //pp->WpnFlags = 0;
-        pp->CurWpn = NULL;
+        pp->CurWpn = nullptr;
 
         memset(pp->Wpn, 0, sizeof(pp->Wpn));
         memset(pp->InventoryTics, 0, sizeof(pp->InventoryTics));
@@ -572,6 +572,17 @@ void GameInterface::NewGame(MapRecord *map, int skill, bool)
 	InitLevel(map);
 	InitRunLevel();
     gameaction = ga_level;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int GameInterface::GetCurrentSkill()
+{
+    return Skill;
 }
 
 //---------------------------------------------------------------------------
@@ -741,11 +752,6 @@ GameStats GameInterface::getStats()
 {
 	PLAYERp pp = Player + myconnectindex;
 	return { pp->Kills, TotalKillable, pp->SecretsFound, LevelSecrets, PlayClock / 120, 0 };
-}
-
-void GameInterface::FreeGameData()
-{
-    TerminateLevel();
 }
 
 void GameInterface::FreeLevelData()

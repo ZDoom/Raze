@@ -70,7 +70,7 @@ DECISION SerpSurprised[] =
 DECISION SerpEvasive[] =
 {
     {10,   InitActorEvade  },
-    {1024, NULL            }
+    {1024, nullptr            }
 };
 
 DECISION SerpLostTarget[] =
@@ -671,28 +671,28 @@ ACTOR_ACTION_SET SerpActionSet =
 {
     sg_SerpStand,
     sg_SerpRun,
-    NULL, //sg_SerpJump,
-    NULL, //sg_SerpFall,
-    NULL, //sg_SerpCrawl,
-    NULL, //sg_SerpSwim,
-    NULL, //sg_SerpFly,
-    NULL, //sg_SerpRise,
-    NULL, //sg_SerpSit,
-    NULL, //sg_SerpLook,
-    NULL, //climb
-    NULL, //pain
+    nullptr, //sg_SerpJump,
+    nullptr, //sg_SerpFall,
+    nullptr, //sg_SerpCrawl,
+    nullptr, //sg_SerpSwim,
+    nullptr, //sg_SerpFly,
+    nullptr, //sg_SerpRise,
+    nullptr, //sg_SerpSit,
+    nullptr, //sg_SerpLook,
+    nullptr, //climb
+    nullptr, //pain
     sg_SerpDie,
-    NULL, //sg_SerpHariKari,
+    nullptr, //sg_SerpHariKari,
     sg_SerpDead,
-    NULL, //sg_SerpDeathJump,
-    NULL, //sg_SerpDeathFall,
+    nullptr, //sg_SerpDeathJump,
+    nullptr, //sg_SerpDeathFall,
     {sg_SerpSlash},
     {1024},
     {sg_SerpSlash, sg_SerpSpell, sg_SerpRapidSpell, sg_SerpRapidSpell},
     {256, 724, 900, 1024},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 int
@@ -812,7 +812,7 @@ int DoDeathSpecial(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
-    DoMatchEverything(NULL, sp->lotag, ON);
+    DoMatchEverything(nullptr, sp->lotag, ON);
 
     if (!SW_SHAREWARE)
     {

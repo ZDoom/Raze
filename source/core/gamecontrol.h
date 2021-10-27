@@ -32,6 +32,7 @@ extern bool crouch_toggle;
 struct MapRecord;
 extern MapRecord* g_nextmap;
 extern int g_nextskill;	
+extern int g_bossexit;
 
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
@@ -43,8 +44,8 @@ int GetAutomapZoom(int gZoom);
 
 void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double scale, PalEntry color = 0xffffffff);
 void updatePauseStatus();
-void DeferedStartGame(MapRecord* map, int skill, bool nostopsound = false);
-void ChangeLevel(MapRecord* map, int skill);
+void DeferredStartGame(MapRecord* map, int skill, bool nostopsound = false);
+void ChangeLevel(MapRecord* map, int skill, bool bossexit = false);
 void CompleteLevel(MapRecord* map);
 
 struct UserConfig
@@ -135,6 +136,7 @@ struct GrpDefInfo
 	TArray<FString> tobedeleted;
 	TArray<FString> loadfiles;
 	TArray<FString> loadart;
+	TArray<FString> exclepisodes;
 	uint32_t FgColor = 0, BgColor = 0;
 };
 
@@ -198,6 +200,11 @@ inline bool isShareware()
 inline bool isBlood()
 {
 	return g_gameType & GAMEFLAG_BLOOD;
+}
+
+inline bool isSWALL()
+{
+	return g_gameType & (GAMEFLAG_SW | GAMEFLAG_SWWANTON | GAMEFLAG_SWTWINDRAG);
 }
 
 inline bool isWh2()

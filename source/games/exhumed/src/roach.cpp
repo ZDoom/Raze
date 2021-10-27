@@ -46,387 +46,355 @@ struct Roach
     short nIndex;
 };
 
-TArray<Roach> RoachList;
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Roach& w, Roach* def)
-{
-    if (arc.BeginObject(keyname))
-    {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("run", w.nRun)
-            ("count", w.nCount)
-            ("index", w.nIndex)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeRoach(FSerializer& arc)
-{
-    arc("roach", RoachList);
-}
-
-
-
-/* Kilmaat Sentry */
-
-void InitRoachs()
-{
-    RoachList.Clear();
-}
-
 // TODO - make nType a bool?
-int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle)
+void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, short nSector, int angle)
 {
-    auto RoachCount = RoachList.Reserve(1);
-
-    if (nSprite == -1)
+    spritetype* pSprite;
+    if (pActor == nullptr)
     {
-        nSprite = insertsprite(nSector, 105);
+        pActor = insertActor(nSector, 105);
+        pSprite = &pActor->s();
     }
     else
     {
-        changespritestat(nSprite, 105);
-        x = sprite[nSprite].x;
-        y = sprite[nSprite].y;
-        z = sector[sprite[nSprite].sectnum].floorz;
-        angle = sprite[nSprite].ang;
+        ChangeActorStat(pActor, 105);
+        pSprite = &pActor->s();
+        x = pSprite->x;
+        y = pSprite->y;
+        z = sector[pSprite->sectnum].floorz;
+        angle = pSprite->ang;
     }
 
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-
-    sprite[nSprite].x = x;
-    sprite[nSprite].y = y;
-    sprite[nSprite].z = z;
-    sprite[nSprite].cstat = 0x101;
-    sprite[nSprite].shade = -12;
-    sprite[nSprite].xoffset = 0;
-    sprite[nSprite].yoffset = 0;
-    sprite[nSprite].picnum = 1;
-    sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
-    sprite[nSprite].clipdist = 60;
-    sprite[nSprite].ang = angle;
-    sprite[nSprite].xrepeat = 40;
-    sprite[nSprite].yrepeat = 40;
-    sprite[nSprite].xvel = 0;
-    sprite[nSprite].yvel = 0;
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].hitag = 0;
-    sprite[nSprite].lotag = runlist_HeadRun() + 1;
-    sprite[nSprite].extra = -1;
+    pSprite->x = x;
+    pSprite->y = y;
+    pSprite->z = z;
+    pSprite->cstat = 0x101;
+    pSprite->shade = -12;
+    pSprite->xoffset = 0;
+    pSprite->yoffset = 0;
+    pSprite->picnum = 1;
+    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->clipdist = 60;
+    pSprite->ang = angle;
+    pSprite->xrepeat = 40;
+    pSprite->yrepeat = 40;
+    pSprite->xvel = 0;
+    pSprite->yvel = 0;
+    pSprite->zvel = 0;
+    pSprite->hitag = 0;
+    pSprite->lotag = runlist_HeadRun() + 1;
+    pSprite->extra = -1;
 
     //	GrabTimeSlot(3);
 
     if (nType)
     {
-        RoachList[RoachCount].nAction = 0;
+        pActor->nAction = 0;
     }
     else
     {
-        RoachList[RoachCount].nAction = 1;
+        pActor->nAction = 1;
     }
 
-    RoachList[RoachCount].nSprite = nSprite;
-    RoachList[RoachCount].nFrame = 0;
-    RoachList[RoachCount].nCount = 0;
-    RoachList[RoachCount].nTarget = -1;
-    RoachList[RoachCount].nHealth = 600;
+    pActor->nFrame = 0;
+    pActor->nCount = 0;
+    pActor->pTarget = nullptr;
+    pActor->nHealth = 600;
+	pActor->nPhase = Counters[kCountRoach]++;
 
-    sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, RoachCount | 0x1C0000);
-    RoachList[RoachCount].nRun = runlist_AddRunRec(NewRun, RoachCount | 0x1C0000);
+    pSprite->owner = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x1C0000);
+    pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x1C0000);
 
     nCreaturesTotal++;
-
-    return RoachCount | 0x1C0000;
 }
 
-void GoRoach(short nSprite)
+void GoRoach(spritetype* pSprite)
 {
-    sprite[nSprite].xvel = bcos(sprite[nSprite].ang, -1) - bcos(sprite[nSprite].ang, -3);
-    sprite[nSprite].yvel = bsin(sprite[nSprite].ang, -1) - bsin(sprite[nSprite].ang, -3);
+    pSprite->xvel = bcos(pSprite->ang, -1) - bcos(pSprite->ang, -3);
+    pSprite->yvel = bsin(pSprite->ang, -1) - bsin(pSprite->ang, -3);
 }
 
-void FuncRoach(int a, int nDamage, int nRun)
+void AIRoach::Draw(RunListEvent* ev)
 {
-    short nRoach = RunData[nRun].nVal;
-    assert(nRoach >= 0 && nRoach < (int)RoachList.Size());
-    
-    short nSprite = RoachList[nRoach].nSprite;
-    short nAction = RoachList[nRoach].nAction;
+	auto pActor = ev->pObjActor;
+	if (!pActor) return;
+    short nAction = pActor->nAction;
 
-    bool bVal = false;
+    seq_PlotSequence(ev->nParam, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], pActor->nFrame, RoachSeq[nAction].b);
+    return;
+}
 
-    int nMessage = a & kMessageMask;
+void AIRoach::RadialDamage(RunListEvent* ev)
+{
+	auto pActor = ev->pObjActor;
+	if (!pActor) return;
+ 
+    ev->nDamage = runlist_CheckRadialDamage(pActor);
+    Damage(ev);
+}
 
-    switch (nMessage)
+void AIRoach::Damage(RunListEvent* ev)
+{
+	auto pActor = ev->pObjActor;
+	if (!pActor) return;
+
+	auto pSprite = &pActor->s();
+    short nAction = pActor->nAction;
+
+    if (ev->nDamage)
     {
-        default:
-        {
-            Printf("unknown msg %d for Roach\n", nMessage);
+        if (pActor->nHealth <= 0) {
             return;
         }
 
-        case 0x90000:
+        pActor->nHealth -= dmgAdjust(ev->nDamage);
+        if (pActor->nHealth <= 0)
         {
-            seq_PlotSequence(a & 0xFFFF, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], RoachList[nRoach].nFrame, RoachSeq[nAction].b);
-            return;
-        }
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+            pSprite->zvel = 0;
+            pSprite->cstat &= 0xFEFE;
 
-        case 0xA0000: // fall through to next case
-        {
-            nDamage = runlist_CheckRadialDamage(nSprite);
-            fallthrough__;
-        }
-        case 0x80000:
-        {
-            if (nDamage)
+            pActor->nHealth = 0;
+
+            if (nAction < 5)
             {
-                if (RoachList[nRoach].nHealth <= 0) {
-                    return;
+                DropMagic(pActor);
+                pActor->nAction = 5;
+                pActor->nFrame = 0;
+            }
+
+            nCreaturesKilled++; // NOTE: This was incrementing in original code. Bug?
+        }
+        else
+        {
+            auto pSprite2 = ev->pOtherActor;
+            if (pSprite2)
+            {
+                if (pSprite2->s().statnum < 199) {
+                    pActor->pTarget = pSprite2;
                 }
 
-                RoachList[nRoach].nHealth -= dmgAdjust(nDamage);
-                if (RoachList[nRoach].nHealth <= 0)
+                if (nAction == 0)
                 {
-                    sprite[nSprite].xvel = 0;
-                    sprite[nSprite].yvel = 0;
-                    sprite[nSprite].zvel = 0;
-                    sprite[nSprite].cstat &= 0xFEFE;
-
-                    RoachList[nRoach].nHealth = 0;
-
-                    if (nAction < 5)
-                    {
-                        DropMagic(nSprite);
-                        RoachList[nRoach].nAction = 5;
-                        RoachList[nRoach].nFrame = 0;
-                    }
-
-                    nCreaturesKilled++; // NOTE: This was incrementing in original code. Bug?
+                    pActor->nAction = 2;
+                    GoRoach(pSprite);
+                    pActor->nFrame = 0;
                 }
                 else
                 {
-                    short nSprite2 = a & 0xFFFF;
-                    if (nSprite2 >= 0)
+                    if (!RandomSize(4))
                     {
-                        if (sprite[nSprite2].statnum < 199) {
-                            RoachList[nRoach].nTarget = nSprite2;
-                        }
-
-                        if (nAction == 0)
-                        {
-                            RoachList[nRoach].nAction = 2;
-                            GoRoach(nSprite);
-                            RoachList[nRoach].nFrame = 0;
-                        }
-                        else
-                        {
-                            if (!RandomSize(4))
-                            {
-                                RoachList[nRoach].nAction = 4;
-                                RoachList[nRoach].nFrame = 0;
-                            }
-                        }
+                        pActor->nAction = 4;
+                        pActor->nFrame = 0;
                     }
-                }
-            }
-
-            return;
-        }
-
-        case 0x20000:
-        {
-            Gravity(nSprite);
-
-            int nSeq = SeqOffsets[kSeqRoach] + RoachSeq[RoachList[nRoach].nAction].a;
-
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RoachList[nRoach].nFrame);
-            seq_MoveSequence(nSprite, nSeq, RoachList[nRoach].nFrame);
-
-            RoachList[nRoach].nFrame++;
-            if (RoachList[nRoach].nFrame >= SeqSize[nSeq])
-            {
-                bVal = true;
-                RoachList[nRoach].nFrame = 0;
-            }
-
-            int nFlag = FrameFlag[SeqBase[nSeq] + RoachList[nRoach].nFrame];
-            short nTarget = RoachList[nRoach].nTarget;
-
-            if (nAction > 5) {
-                return;
-            }
-
-            switch (nAction)
-            {
-                case 0:
-                {
-                    if (RoachList[nRoach].nFrame == 1)
-                    {
-                        RoachList[nRoach].nCount--;
-                        if (RoachList[nRoach].nCount <= 0)
-                        {
-                            RoachList[nRoach].nCount = RandomSize(6);
-                        }
-                        else
-                        {
-                            RoachList[nRoach].nFrame = 0;
-                        }
-                    }
-
-                    if (((nRoach & 0xF) == (totalmoves & 0xF)) && nTarget < 0)
-                    {
-                        short nTarget = FindPlayer(nSprite, 50);
-                        if (nTarget >= 0)
-                        {
-                            RoachList[nRoach].nAction = 2;
-                            RoachList[nRoach].nFrame = 0;
-                            RoachList[nRoach].nTarget = nTarget;
-                            GoRoach(nSprite);
-                        }
-                    }
-
-                    return;
-                }
-
-                case 1:
-                {
-                    // partly the same as case 0.
-                    if (((nRoach & 0xF) == (totalmoves & 0xF)) && nTarget < 0)
-                    {
-                        short nTarget = FindPlayer(nSprite, 100);
-                        if (nTarget >= 0)
-                        {
-                            RoachList[nRoach].nAction = 2;
-                            RoachList[nRoach].nFrame = 0;
-                            RoachList[nRoach].nTarget = nTarget;
-                            GoRoach(nSprite);
-                        }
-                    }
-
-                    return;
-                }
-
-                case 2:
-                {
-                    if ((totalmoves & 0xF) == (nRoach & 0xF))
-                    {
-                        PlotCourseToSprite(nSprite, nTarget);
-                        GoRoach(nSprite);
-                    }
-
-                    int nMov = MoveCreatureWithCaution(nSprite);
-
-                    if ((nMov & 0xC000) == 0xC000)
-                    {
-                        if ((nMov & 0x3FFF) == nTarget)
-                        {
-                            // repeated below
-                            RoachList[nRoach].nIndex = RandomSize(2) + 1;
-                            RoachList[nRoach].nAction = 3;
-
-                            sprite[nSprite].xvel = 0;
-                            sprite[nSprite].yvel = 0;
-                            sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-
-                            RoachList[nRoach].nFrame = 0;
-                        }
-                        else
-                        {
-                            sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                            GoRoach(nSprite);
-                        }
-                    }
-                    else if ((nMov & 0xC000) == 0x8000)
-                    {
-                        sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
-                        GoRoach(nSprite);
-                    }
-                    else
-                    {
-                        if (RoachList[nRoach].nCount != 0)
-                        {
-                            RoachList[nRoach].nCount--;
-                        }
-                        else
-                        {
-                            // same as above
-                            RoachList[nRoach].nIndex = RandomSize(2) + 1;
-                            RoachList[nRoach].nAction = 3;
-
-                            sprite[nSprite].xvel = 0;
-                            sprite[nSprite].yvel = 0;
-                            sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-
-                            RoachList[nRoach].nFrame = 0;
-                        }
-                    }
-
-                    if (nTarget != -1 && !(sprite[nTarget].cstat & 0x101))
-                    {
-                        RoachList[nRoach].nAction = 1;
-                        RoachList[nRoach].nFrame = 0;
-                        RoachList[nRoach].nCount = 100;
-                        RoachList[nRoach].nTarget = -1;
-                        sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;
-                    }
-
-                    return;
-                }
-
-                case 3:
-                {
-                    if (bVal)
-                    {
-                        RoachList[nRoach].nIndex--;
-                        if (RoachList[nRoach].nIndex <= 0)
-                        {
-                            RoachList[nRoach].nAction = 2;
-                            GoRoach(nSprite);
-                            RoachList[nRoach].nFrame = 0;
-                            RoachList[nRoach].nCount = RandomSize(7);
-                        }
-                    }
-                    else
-                    {
-                        if (nFlag & 0x80)
-                        {
-                            BuildBullet(nSprite, 13, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1);
-                        }
-                    }
-
-                    return;
-                }
-
-                case 4:
-                {
-                    if (bVal)
-                    {
-                        RoachList[nRoach].nAction = 2;
-                        RoachList[nRoach].nFrame = 0;
-                    }
-
-                    return;
-                }
-
-                case 5:
-                {
-                    if (bVal)
-                    {
-                        sprite[nSprite].cstat = 0;
-                        RoachList[nRoach].nAction = 6;
-                        RoachList[nRoach].nFrame = 0;
-                    }
-
-                    return;
                 }
             }
         }
     }
 }
+
+void AIRoach::Tick(RunListEvent* ev)
+{
+	auto pActor = ev->pObjActor;
+	if (!pActor) return;
+
+	auto pSprite = &pActor->s();
+    short nAction = pActor->nAction;
+    bool bVal = false;
+
+    Gravity(pActor);
+
+    int nSeq = SeqOffsets[kSeqRoach] + RoachSeq[pActor->nAction].a;
+
+    pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
+    seq_MoveSequence(pActor, nSeq, pActor->nFrame);
+
+    pActor->nFrame++;
+    if (pActor->nFrame >= SeqSize[nSeq])
+    {
+        bVal = true;
+        pActor->nFrame = 0;
+    }
+
+    int nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
+    auto pTarget = pActor->pTarget;
+
+    if (nAction > 5) {
+        return;
+    }
+
+    switch (nAction)
+    {
+    case 0:
+    {
+        if (pActor->nFrame == 1)
+        {
+            pActor->nCount--;
+            if (pActor->nCount <= 0)
+            {
+                pActor->nCount = RandomSize(6);
+            }
+            else
+            {
+                pActor->nFrame = 0;
+            }
+        }
+
+        if (((pActor->nPhase & 0xF) == (totalmoves & 0xF)) && pTarget == nullptr)
+        {
+            auto pTarget = FindPlayer(pActor, 50);
+            if (pTarget)
+            {
+                pActor->nAction = 2;
+                pActor->nFrame = 0;
+                pActor->pTarget = pTarget;
+                GoRoach(pSprite);
+            }
+        }
+
+        return;
+    }
+
+    case 1:
+    {
+        // partly the same as case 0.
+        if (((pActor->nPhase & 0xF) == (totalmoves & 0xF)) && pTarget == nullptr)
+        {
+            auto pTarget = FindPlayer(pActor, 100);
+            if (pTarget)
+            {
+                pActor->nAction = 2;
+                pActor->nFrame = 0;
+                pActor->pTarget = pTarget;
+                GoRoach(pSprite);
+            }
+        }
+
+        return;
+    }
+
+    case 2:
+    {
+        if ((totalmoves & 0xF) == (pActor->nPhase & 0xF))
+        {
+            PlotCourseToSprite(pActor, pTarget);
+            GoRoach(pSprite);
+        }
+
+        auto nMov = MoveCreatureWithCaution(pActor);
+
+        if (nMov.type == kHitSprite)
+        {
+            if (nMov.actor == pTarget)
+            {
+                // repeated below
+                pActor->nIndex = RandomSize(2) + 1;
+                pActor->nAction = 3;
+
+                pSprite->xvel = 0;
+                pSprite->yvel = 0;
+                pSprite->ang = GetMyAngle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+
+                pActor->nFrame = 0;
+            }
+            else
+            {
+                pSprite->ang = (pSprite->ang + 256) & kAngleMask;
+                GoRoach(pSprite);
+            }
+        }
+        else if (nMov.type == kHitWall)
+        {
+            pSprite->ang = (pSprite->ang + 256) & kAngleMask;
+            GoRoach(pSprite);
+        }
+        else
+        {
+            if (pActor->nCount != 0)
+            {
+                pActor->nCount--;
+            }
+            else
+            {
+                // same as above
+                pActor->nIndex = RandomSize(2) + 1;
+                pActor->nAction = 3;
+
+                pSprite->xvel = 0;
+                pSprite->yvel = 0;
+                pSprite->ang = GetMyAngle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+
+                pActor->nFrame = 0;
+            }
+        }
+
+        if (pTarget && !(pTarget->s().cstat & 0x101))
+        {
+            pActor->nAction = 1;
+            pActor->nFrame = 0;
+            pActor->nCount = 100;
+            pActor->pTarget = nullptr;
+            pSprite->xvel = 0;
+            pSprite->yvel = 0;
+        }
+
+        return;
+    }
+
+    case 3:
+    {
+        if (bVal)
+        {
+            pActor->nIndex--;
+            if (pActor->nIndex <= 0)
+            {
+                pActor->nAction = 2;
+                GoRoach(pSprite);
+                pActor->nFrame = 0;
+                pActor->nCount = RandomSize(7);
+            }
+        }
+        else
+        {
+            if (nFlag & 0x80)
+            {
+                BuildBullet(pActor, 13, -1, pSprite->ang, pTarget, 1);
+            }
+        }
+
+        return;
+    }
+
+    case 4:
+    {
+        if (bVal)
+        {
+            pActor->nAction = 2;
+            pActor->nFrame = 0;
+        }
+
+        return;
+    }
+
+    case 5:
+    {
+        if (bVal)
+        {
+            pSprite->cstat = 0;
+            pActor->nAction = 6;
+            pActor->nFrame = 0;
+        }
+
+        return;
+    }
+    }
+}
+
+void FuncRoach(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIRoach ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
+}
+
 END_PS_NS

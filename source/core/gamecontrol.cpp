@@ -122,6 +122,7 @@ gameaction_t gameaction = ga_nothing;
 // gameaction state
 MapRecord* g_nextmap;
 int g_nextskill;
+int g_bossexit;
 
 
 FILE* hashfile;
@@ -343,7 +344,7 @@ void UserConfig::ProcessOptions()
 	{
 		gamegrp = "BLOOD.RFF";
 		DefaultCon = "CRYPTIC.INI";
-		const char* argv[] = { "cpart07.ar_" , "cpart15.ar_" };
+		const char* argv[] = { "CPART07.AR_", "CPART15.AR_" };
 		AddArt.reset(new FArgs(2, argv));
 	}
 
@@ -707,8 +708,8 @@ static TArray<GrpEntry> SetupGame()
 		{
 			auto grplower = grp.FileName.MakeLower();
 			FixPathSeperator(grplower);
-			int pos = grplower.LastIndexOf(gamegrplower);
-			if (pos >= 0 && pos == grplower.Len() - gamegrplower.Len())
+			auto pos = grplower.LastIndexOf(gamegrplower);
+			if (pos >= 0 && pos == ptrdiff_t(grplower.Len() - gamegrplower.Len()))
 			{
 				groupno = g;
 				break;
@@ -896,6 +897,7 @@ void GetGames()
 
 static void InitTextures()
 {
+	TexMan.usefullnames = true;
 	TexMan.Init([]() {}, [](BuildInfo&) {});
 	StartScreen->Progress();
 	mdinit();
@@ -912,6 +914,7 @@ static void InitTextures()
 	lookups.postLoadLookups();
 	SetupFontSubstitution();
 	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
+	UpdateUpscaleMask();
 	TileFiles.SetBackup();
 }
 
@@ -920,6 +923,8 @@ static void InitTextures()
 //
 //
 //==========================================================================
+
+static uint8_t palindexmap[256];
 
 int RunGame()
 {
@@ -960,6 +965,13 @@ int RunGame()
 				colorset = true;
 			}
 		}
+		if (grp.FileInfo.exclepisodes.Size())
+		{
+			for (auto& episode : grp.FileInfo.exclepisodes)
+			{
+				gi->AddExcludedEpisode(episode);
+			}
+		}
 	}
 	I_SetIWADInfo();
 
@@ -972,7 +984,7 @@ int RunGame()
 		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
 		am_showlabel.SetGenericRepDefault(true, CVAR_Bool);
 	}
-	if (g_gameType & GAMEFLAG_SW)
+	if (isSWALL())
 	{
 		cl_weaponswitch.SetGenericRepDefault(1, CVAR_Int);
 		if (cl_weaponswitch > 1) cl_weaponswitch = 1;
@@ -1025,7 +1037,11 @@ int RunGame()
 	}
 	GameTicRate = 30;
 	CheckUserMap();
-	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
+
+	palindexmap[0] = 255;
+	for (int i = 1; i <= 255; i++) palindexmap[i] = i;
+	GPalette.Init(MAXPALOOKUPS + 2, palindexmap);    // one slot for each translation, plus a separate one for the base palettes and the internal one
+	int v = ColorMatcher.Pick(0, 0, 0);
 	gi->loadPalette();
 	StartScreen->Progress();
 	InitTextures();
@@ -1053,6 +1069,7 @@ int RunGame()
 	gi->app_init();
 	StartScreen->Progress();
 	G_ParseMapInfo();
+	ReplaceMusics(true);
 	CreateStatusBar();
 	SetDefaultMenuColors();
 	M_Init();
@@ -1490,7 +1507,6 @@ static const gamefilter games[] = {
 	{ "WW2GI", GAMEFLAG_WW2GI},
 	{ "Redneck", GAMEFLAG_RR},
 	{ "RedneckRides", GAMEFLAG_RRRA},
-	{ "Deer", GAMEFLAG_DEER},
 	{ "Blood", GAMEFLAG_BLOOD},
 	{ "ShadowWarrior", GAMEFLAG_SW},
 	{ "Exhumed", GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED},

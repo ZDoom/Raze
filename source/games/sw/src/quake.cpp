@@ -161,7 +161,7 @@ void ProcessQuakeSpot(void)
             rand_test = QUAKE_RandomTest(sp);
             // wrong - all quakes need to happen at the same time on all computerssg
             //if (!rand_test || (rand_test && STD_RANDOM_RANGE(128) < rand_test))
-            if (!rand_test || (rand_test && RANDOM_RANGE(128) < rand_test))
+            if (!rand_test || (rand_test && RandomRange(128) < rand_test))
             {
                 CopyQuakeSpotToOn(sp);
                 // kill quake spot if needed
@@ -180,7 +180,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
 {
     int i;
     SPRITEp sp;
-    SPRITEp save_sp = NULL;
+    SPRITEp save_sp = nullptr;
     int dist,save_dist = 999999;
     int dist_diff, scale_value;
     int ang_amt;
@@ -368,7 +368,7 @@ saveable_module saveable_quake =
     SIZ(saveable_quake_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 
 END_SW_NS

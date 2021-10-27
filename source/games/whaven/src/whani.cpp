@@ -286,7 +286,7 @@ void animateobjs(PLAYER& plr) {
 					(plr.angle.ang.bsin() << TICSPERFRAME) << 8, 0, 4 << 8, 4 << 8, 0);
 
 			spr.cstat |= 0x8000;
-			show2dsprite.Set(i);
+			spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 
 			if (osectnum != spr.sectnum) {
 				sector[osectnum].ceilingshade = (byte) j;

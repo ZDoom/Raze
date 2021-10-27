@@ -218,7 +218,7 @@ int RFS::Open(int lumpnum)
     }
 
 	int fileSize = (int)hFile.GetLength();
-	buffer.Resize(fileSize);
+	buffer.Resize(fileSize+1);
     _ptr = buffer.Data();
     if (_ptr == NULL) {
         Printf("BARF: Not enough memory to read %d", lumpnum);
@@ -226,11 +226,12 @@ int RFS::Open(int lumpnum)
     }
 
     hFile.Read(_ptr, fileSize);
+    buffer[fileSize] = '\n';
 
     _curLine = 0;
     _pUnknown2 = _ptr;
     _curChar = '\n';
-    _pEnd = &_ptr[fileSize - 1];
+    _pEnd = &_ptr[fileSize];
 
     return 0;
 }
@@ -464,7 +465,7 @@ uint8_t RFS::GetNextTag()
                     break;
                 }
 
-                if (eax == 0 && strlen(tags[i]._value) == ebp)
+                if (eax == 0 && (int)strlen(tags[i]._value) == ebp)
                 {
                     scriptBuffer[ebp] = 0;
                     return tags[i]._index;

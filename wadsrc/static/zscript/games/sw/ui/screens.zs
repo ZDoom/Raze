@@ -55,7 +55,7 @@ class SWDRealmsScreen : SkippableScreenJob
 	override void Draw(double sm)
 	{
 		let tex = TexMan.CheckForTexture("THREED_REALMS_PIC", TexMan.Type_Any);
-		int translation = Translation.MakeID(Translation_BasePalette, DREALMSPAL);
+		int translation = TexMan.UseGamePalette(tex) ? Translation.MakeID(Translation_BasePalette, DREALMSPAL) : 0;
 		Screen.DrawTexture(tex, false, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal);
 	}
 }

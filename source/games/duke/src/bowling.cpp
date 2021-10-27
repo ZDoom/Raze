@@ -254,6 +254,7 @@ void resetpins(short sect)
 
 void resetlanepics(void)
 {
+	if (!isRR()) return;
 	int x, y;
 	short i;
 	short tag, pic;

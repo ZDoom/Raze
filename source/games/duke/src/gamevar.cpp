@@ -286,7 +286,7 @@ int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 	}
 	if (id == g_iThisActorID)
 	{
-		return sActor->GetIndex();
+		return sActor->GetSpriteIndex();
 	}
 	if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER )
 	{
@@ -305,7 +305,7 @@ int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 		// for the current actor
 		if(sActor != nullptr)
 		{
-			return aGameVars[id].plArray[sActor->GetIndex()];
+			return aGameVars[id].plArray[sActor->GetSpriteIndex()];
 		}
 		else
 		{
@@ -359,7 +359,7 @@ void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR )
 	{
 		// for the current actor
-		if (sActor != nullptr) aGameVars[id].plArray[sActor->GetIndex()]=lValue;
+		if (sActor != nullptr) aGameVars[id].plArray[sActor->GetSpriteIndex()]=lValue;
 		else for (auto& i : aGameVars[id].plArray) i = lValue; // -1 sets all actors - was undefined OOB access in WW2GI.
 	}
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG )

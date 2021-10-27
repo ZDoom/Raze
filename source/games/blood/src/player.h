@@ -81,6 +81,7 @@ extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
 struct PLAYER
 {
+    DBloodActor*        actor();
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
@@ -127,6 +128,8 @@ struct PLAYER
     //int               at149[14];
     int                 ammoCount[12];
     bool                qavLoop;
+    int                 qavLastTick;
+    int                 qavTimer;
     int                 fuseTime;
     int                 throwTime;
     int                 throwPower;

@@ -172,17 +172,35 @@ enum {
 
     // (weapons)
     kItemWeaponBase = 40,
+    kItemWeaponRandom = kItemWeaponBase,
     kItemWeaponSawedoff = 41,
     kItemWeaponTommygun = 42,
+    kItemWeaponFlarePistol = 43,
     kItemWeaponVoodooDoll = 44,
+    kItemWeaponTeslaCannon = 45,
+    kItemWeaponNapalmLauncher = 46,
+    kItemWeaponPitchfork = 47,
+    kItemWeaponSprayCan = 48,
+    kItemWeaponTNT = 49,
     kItemWeaponLifeLeech = 50,
     kItemWeaponMax = 51,
 
     // items (ammos)
     kItemAmmoBase = 60,
+    kItemAmmoSprayCan = kItemAmmoBase,
+    kItemAmmoTNTBundle = 62,
+    kItemAmmoTNTBox = 63,
+    kItemAmmoProxBombBundle = 64,
+    kItemAmmoRemoteBombBundle = 65,
+    kItemAmmoTrappedSoul = 66,
     kItemAmmoSawedoffFew = 67,
+    kItemAmmoSawedoffBox = 68,
     kItemAmmoTommygunFew = 69,
-    kAmmoItemVoodooDoll = 70,
+    kItemAmmoVoodooDoll = 70,
+    kItemAmmoTommygunDrum = 72,
+    kItemAmmoTeslaCharge = 73,
+    kItemAmmoFlares = 76,
+    kItemAmmoGasolineCan = 79,
     kItemAmmoMax = 81,
 
     kItemBase = 100,
@@ -302,7 +320,7 @@ enum {
     kMissilePukeGreen = 309,
     kMissileUnused = 310,
     kMissileArcGargoyle = 311,
-    kMissileFireballNapam = 312,
+    kMissileFireballNapalm = 312,
     kMissileFireballCerberus = 313,
     kMissileFireballTchernobog = 314,
     kMissileLifeLeechRegular = 315,
@@ -408,6 +426,9 @@ kAiStatePatrolWaitW,
 kAiStatePatrolMoveL,
 kAiStatePatrolMoveC,
 kAiStatePatrolMoveW,
+kAiStatePatrolTurnL,
+kAiStatePatrolTurnC,
+kAiStatePatrolTurnW,
 kAiStatePatrolMax,
 };
 
@@ -444,6 +465,25 @@ enum
     kAng120 = 682,
     kAng180 = 1024,
     kAng360 = 2048,
+};
+
+// Weapon numbers
+enum
+{
+    kWeapNone = 0,
+    kWeapPitchFork = 1,
+    kWeapFlareGun = 2,
+    kWeapShotgun = 3,
+    kWeapTommyGun = 4,
+    kWeapNapalm = 5,
+    kWeapDynamite = 6,
+    kWeapSpraycan = 7,
+    kWeapTeslaCannon = 8,
+    kWeapLifeLeech = 9,
+    kWeapVoodooDoll = 10,
+    kWeapProximity = 11,
+    kWeapRemote = 12,
+    kWeapBeast = 13,
 };
 
 // -------------------------------

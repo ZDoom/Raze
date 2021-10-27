@@ -49,6 +49,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)
+CVAR(Float, am_linealpha, 1.0f, CVAR_ARCHIVE)
+CVAR(Int, am_linethickness, 1, CVAR_ARCHIVE)
 CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
 CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
 CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
@@ -61,7 +63,6 @@ bool automapping;
 bool gFullMap;
 FixedBitArray<MAXSECTORS> show2dsector;
 FixedBitArray<MAXWALLS> show2dwall;
-FixedBitArray<MAXSPRITES> show2dsprite;
 static int x_min_bound = INT_MAX, y_min_bound, x_max_bound, y_max_bound;
 
 CVAR(Color, am_twosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
@@ -269,7 +270,6 @@ void SerializeAutomap(FSerializer& arc)
 			// Only store what's needed. Unfortunately for sprites it is not that easy
 			.SerializeMemory("mappedsectors", show2dsector.Storage(), (numsectors + 7) / 8)
 			.SerializeMemory("mappedwalls", show2dwall.Storage(), (numwalls + 7) / 8)
-			.SerializeMemory("mappedsprites", show2dsprite.Storage(), MAXSPRITES / 8)
 			.EndObject();
 	}
 }
@@ -285,7 +285,6 @@ void ClearAutomap()
 {
 	show2dsector.Zero();
 	show2dwall.Zero();
-	show2dsprite.Zero();
 	x_min_bound = INT_MAX;
 }
 
@@ -322,7 +321,12 @@ void MarkSectorSeen(int i)
 
 void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
 {
-	twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p);
+	if (am_linethickness >= 2) {
+		twod->AddThickLine(x1 / 4096, y1 / 4096, x2 / 4096, y2 / 4096, am_linethickness, p, uint8_t(am_linealpha * 255));
+	} else {
+		// Use more efficient thin line drawing routine.
+		twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p, uint8_t(am_linealpha * 255));
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -372,7 +376,7 @@ CCMD(printpalcol)
 bool ShowRedLine(int j, int i)
 {
 	auto wal = &wall[j];
-	if (!(g_gameType & GAMEFLAG_SW))
+	if (!isSWALL())
 	{
 		return !gFullMap && !show2dsector[wal->nextsector];
 	}
@@ -470,7 +474,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 
 	for (int i = numsectors - 1; i >= 0; i--)
 	{
-		if (!gFullMap && !show2dsector[i] && !(g_gameType & GAMEFLAG_SW)) continue;
+		if (!gFullMap && !show2dsector[i] && !isSWALL()) continue;
 
 		int startwall = sector[i].wallptr;
 		int endwall = sector[i].wallptr + sector[i].wallnum;
@@ -483,7 +487,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 			if (wal->nextwall >= 0) continue;
 			if (!gFullMap && !tileGetTexture(wal->picnum)->isValid()) continue;
 
-			if ((g_gameType & GAMEFLAG_SW) && !gFullMap && !show2dwall[j])
+			if (isSWALL() && !gFullMap && !show2dwall[j])
 				continue;
 
 			int ox = wal->x - cposx;
@@ -623,7 +627,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	vertices.Resize(4);
 	for (auto sn : floorsprites)
 	{
-		if (!gFullMap && !show2dsprite[sn]) continue;
+		if (!gFullMap && !(sprite[sn].cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
 		auto spr = &sprite[sn];
 		vec2_t pp[4];
 		GetFlatSpritePosition(spr, spr->pos.vec2, pp, true);

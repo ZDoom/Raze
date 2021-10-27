@@ -45,7 +45,7 @@ short inita, initsect;
 
 short nCurChunkNum = 0;
 
-short nBodyGunSprite[50];
+DExhumedActor* nBodyGunSprite[50];
 int movefifoend;
 int movefifopos;
 
@@ -59,6 +59,8 @@ int   SectAbove[kMaxSectors]     = { 0 };
 short SectDamage[kMaxSectors]    = { 0 };
 short SectSpeed[kMaxSectors]     = { 0 };
 int   SectBelow[kMaxSectors]     = { 0 };
+
+int Counters[kNumCounters];
 
 
 uint8_t bIsVersion6 = true;
@@ -88,31 +90,19 @@ uint8_t LoadLevel(MapRecord* map)
         nFreeze = 0;
         nSpiritSprite = -1;
         PlayClock = 0;
+        memset(Counters, 0, sizeof(Counters));
 
-        InitLion();
-        InitRexs();
-        InitSets();
         InitQueens();
-        InitRoachs();
-        InitWasps();
         InitRats();
         InitBullets();
         InitWeapons();
-        InitGrenades();
         InitAnims();
         InitSnakes();
-        InitFishes();
         InitLights();
         ClearAutomap();
-        InitBubbles();
         InitObjects();
-        InitLava();
         InitPushBlocks();
-        InitAnubis();
-        InitSpider();
-        InitMummy();
-        InitScorp();
-        InitPlayer();
+		InitPlayer();
         InitItems();
         InitInput();
 
@@ -331,6 +321,8 @@ void InitSectFlag()
 
 void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
 {
+    auto pActor = &exhumedActors[nSprite];
+	auto pSprite = &pActor->s();
     int nChannel = runlist_AllocChannel(nHitag % 1000);
 
     int nSpeed = nLotag / 1000;
@@ -402,40 +394,40 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
         case 58:
         case 60:
         {
-            sprite[nSprite].hitag = nVal;
-            changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            pSprite->hitag = nVal;
+            ChangeActorStat(pActor, nLotag + 900);
+            pSprite->cstat &= 0xFEFE;
+            BuildItemAnim(pActor);
             return;
         }
         case 12: // berry twig
         {
-            sprite[nSprite].hitag = 40;
-            changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            pSprite->hitag = 40;
+            ChangeActorStat(pActor, nLotag + 900);
+            pSprite->cstat &= 0xFEFE;
+            BuildItemAnim(pActor);
             return;
         }
         case 13: // blood bowl
         {
-            sprite[nSprite].hitag = 160;
-            changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            pSprite->hitag = 160;
+            ChangeActorStat(pActor, nLotag + 900);
+            pSprite->cstat &= 0xFEFE;
+            BuildItemAnim(pActor);
             return;
         }
         case 14: // venom bowl
         {
-            sprite[nSprite].hitag = -200;
-            changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            pSprite->hitag = -200;
+            ChangeActorStat(pActor, nLotag + 900);
+            pSprite->cstat &= 0xFEFE;
+            BuildItemAnim(pActor);
             return;
         }
 
         case 16:
             // reserved
-            mydeletesprite(nSprite);
+            DeleteActor(pActor);
             return;
 
         case 25:
@@ -444,24 +436,24 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             // extra life or checkpoint scarab. Delete for multiplayer
             if (nNetPlayerCount != 0)
             {
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             else
             {
-                sprite[nSprite].hitag = nVal;
-                changespritestat(nSprite, nLotag + 900);
-                sprite[nSprite].cstat &= 0xFEFE;
-                BuildItemAnim(nSprite);
+                pSprite->hitag = nVal;
+                ChangeActorStat(pActor, nLotag + 900);
+                pSprite->cstat &= 0xFEFE;
+                BuildItemAnim(pActor);
                 return;
             }
         }
         case 27:
         {
-            sprite[nSprite].hitag = 1;
-            changespritestat(nSprite, 9 + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            pSprite->hitag = 1;
+            ChangeActorStat(pActor, 9 + 900);
+            pSprite->cstat &= 0xFEFE;
+            BuildItemAnim(pActor);
             return;
         }
 
@@ -469,10 +461,10 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
         {
             nVal++;
             nVal--; // CHECKME ??
-            sprite[nSprite].hitag = nVal;
-            changespritestat(nSprite, nLotag + 900);
-            sprite[nSprite].cstat &= 0xFEFE;
-            BuildItemAnim(nSprite);
+            pSprite->hitag = nVal;
+            ChangeActorStat(pActor, nLotag + 900);
+            pSprite->cstat &= 0xFEFE;
+            BuildItemAnim(pActor);
             return;
         }
     }
@@ -482,7 +474,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
     if (!userConfig.nomonsters || v6 < 100 || v6 > 118)
     {
         if (v6 > 999) {
-            mydeletesprite(nSprite);
+            DeleteActor(pActor);
             return;
         }
 
@@ -490,177 +482,177 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
         {
             case 999:
             {
-                AddFlicker(sprite[nSprite].sectnum, nSpeed);
+                AddFlicker(pSprite->sectnum, nSpeed);
                 break;
             }
             case 998:
             {
-                AddGlow(sprite[nSprite].sectnum, nSpeed);
+                AddGlow(pSprite->sectnum, nSpeed);
                 break;
             }
             case 118: // Anubis with drum
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildAnubis(nSprite, 0, 0, 0, 0, 0, 1);
+                BuildAnubis(pActor, 0, 0, 0, 0, 0, 1);
                 return;
             }
             case 117:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildWasp(nSprite, 0, 0, 0, 0, 0);
+                BuildWasp(pActor, 0, 0, 0, 0, 0, false);
                 return;
             }
             case 116:
             {
-                BuildRat(nSprite, 0, 0, 0, 0, -1);
+                BuildRat(pActor, 0, 0, 0, 0, -1);
                 return;
             }
             case 115: // Rat (eating)
             {
-                BuildRat(nSprite, 0, 0, 0, 0, 0);
+                BuildRat(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 113:
             {
-                BuildQueen(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildQueen(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 112:
             {
-                BuildScorp(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildScorp(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 111:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildSet(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildSet(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 108:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildLava(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildLava(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 107:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildRex(nSprite, 0, 0, 0, 0, 0, nChannel);
+                BuildRex(pActor, 0, 0, 0, 0, 0, nChannel);
                 return;
             }
             case 106:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildFish(nSprite, 0, 0, 0, 0, 0);
+                BuildFish(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 105:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildSpider(nSprite, 0, 0, 0, 0, 0);
+                BuildSpider(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 104:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildRoach(1, nSprite, 0, 0, 0, 0, 0);
+                BuildRoach(1, pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 103:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildRoach(0, nSprite, 0, 0, 0, 0, 0);
+                BuildRoach(0, pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 102:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildLion(nSprite, 0, 0, 0, 0, 0);
+                BuildLion(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 101:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildMummy(nSprite, 0, 0, 0, 0, 0);
+                BuildMummy(pActor, 0, 0, 0, 0, 0);
                 return;
             }
             case 100:
             {
                 if (userConfig.nomonsters) {
-                    mydeletesprite(nSprite);
+                    DeleteActor(pActor);
                     return;
                 }
 
-                BuildAnubis(nSprite, 0, 0, 0, 0, 0, 0);
+                BuildAnubis(pActor, 0, 0, 0, 0, 0, 0);
                 return;
             }
             case 99: // underwater type 2
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SetAbove(nSector, nHitag);
                 SectFlag[nSector] |= kSectUnderwater;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 98:
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SetBelow(nSector, nHitag);
                 SnapSectors(nSector, nHitag, 1);
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 97:
             {
-                AddSectorBob(sprite[nSprite].sectnum, nHitag, 1);
+                AddSectorBob(pSprite->sectnum, nHitag, 1);
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 96: // Lava sector
@@ -670,32 +662,32 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     nDamage = 1;
                 }
 
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
 
                 SectDamage[nSector] = nDamage;
                 SectFlag[nSector] |= kSectLava;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 95:
             {
-                AddSectorBob(sprite[nSprite].sectnum, nHitag, 0);
+                AddSectorBob(pSprite->sectnum, nHitag, 0);
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 94: // water
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SectDepth[nSector] = nHitag << 8;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 93:
             {
-                BuildBubbleMachine(nSprite);
+                BuildBubbleMachine(pActor);
                 return;
             }
             case 90:
@@ -706,44 +698,44 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case 79:
             case 89:
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
 
                 SectSpeed[nSector] = nSpeed;
-                SectFlag[nSector] |= sprite[nSprite].ang;
+                SectFlag[nSector] |= pSprite->ang;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 88:
             {
-                AddFlow(nSprite, nSpeed, 0);
+                AddFlow(pSprite->sectnum, nSpeed, 0, pSprite->ang);
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 80: // underwater
             {
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SectFlag[nSector] |= kSectUnderwater;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 78:
             {
-                AddFlow(nSprite, nSpeed, 1);
+                AddFlow(pSprite->sectnum, nSpeed, 1, pSprite->ang);
 
-                short nSector = sprite[nSprite].sectnum;
+                short nSector = pSprite->sectnum;
                 SectFlag[nSector] |= 0x8000;
 
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
             case 77:
             {
-                int nArrow = BuildArrow(nSprite, nSpeed);
+                int nArrow = BuildArrow(pActor, nSpeed);
 
-                runlist_AddRunRec(sRunChannels[nChannel].a, nArrow);
+                runlist_AddRunRec(sRunChannels[nChannel].a, nArrow, 0x1F0000);
                 return;
             }
             case 76: // Explosion Trigger (Exploding Fire Cauldron)
@@ -758,9 +750,9 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 71:
             {
-                int nFireball = BuildFireBall(nSprite, nHitag, nSpeed);
+                int nFireball = BuildFireBall(pActor, nHitag, nSpeed);
 
-                runlist_AddRunRec(sRunChannels[nChannel].a, nFireball);
+                runlist_AddRunRec(sRunChannels[nChannel].a, nFireball, 0x1F0000);
                 return;
             }
             case 70:
@@ -770,14 +762,14 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 63:
             {
-                changespritestat(nSprite, 405);
-                sprite[nSprite].cstat = 0x8000;
+                ChangeActorStat(pActor, 405);
+                pSprite->cstat = 0x8000;
                 return;
             }
             case 62:
             {
-                nNetStartSprite[nNetStartSprites] = nSprite;
-                sprite[nSprite].cstat = 0x8000;
+                nNetStartSprite[nNetStartSprites] = pActor;
+                pSprite->cstat = 0x8000;
 
                 nNetStartSprites++;
                 return;
@@ -785,18 +777,18 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             case kTagRamses: // Ramses head
             {
                 nSpiritSprite = nSprite;
-                sprite[nSprite].cstat |= 0x8000;
+                pSprite->cstat |= 0x8000;
                 return;
             }
             default: // TODO - checkme!
             {
-                mydeletesprite(nSprite);
+                DeleteActor(pActor);
                 return;
             }
         }
     }
 
-    mydeletesprite(nSprite);
+    DeleteActor(pActor);
 }
 
 void ExamineSprites()
@@ -804,36 +796,41 @@ void ExamineSprites()
     nNetStartSprites = 0;
     nCurStartSprite = 0;
 
-    for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
+	ExhumedLinearSpriteIterator it;
+    while (auto ac = it.Next())
     {
-        int nStatus = sprite[nSprite].statnum;
+		auto pSprite = &ac->s();
+
+        int nStatus = pSprite->statnum;
         if (!nStatus)
         {
-            short lotag = sprite[nSprite].lotag;
-            short hitag = sprite[nSprite].hitag;
+            short lotag = pSprite->lotag;
+            short hitag = pSprite->hitag;
 
             if ((nStatus < kMaxStatus) && lotag)
             {
-                sprite[nSprite].lotag = 0;
-                sprite[nSprite].hitag = 0;
+                pSprite->lotag = 0;
+                pSprite->hitag = 0;
 
-                ProcessSpriteTag(nSprite, lotag, hitag);
+                ProcessSpriteTag(ac->GetSpriteIndex(), lotag, hitag);
             }
             else
             {
-                changespritestat(nSprite, 0);
+                ChangeActorStat(ac, 0);
             }
         }
     }
 
     if (nNetPlayerCount)
     {
-        int nSprite = insertsprite(initsect, 0);
-        sprite[nSprite].x = initx;
-        sprite[nSprite].y = inity;
-        sprite[nSprite].z = initz;
-        sprite[nSprite].cstat = 0x8000;
-        nNetStartSprite[nNetStartSprites] = nSprite;
+        auto pActor = insertActor(initsect, 0);
+		auto pSprite = &pActor->s();
+
+        pSprite->x = initx;
+        pSprite->y = inity;
+        pSprite->z = initz;
+        pSprite->cstat = 0x8000;
+        nNetStartSprite[nNetStartSprites] = pActor;
         nNetStartSprites++;
     }
 }
@@ -920,6 +917,7 @@ void SerializeInit(FSerializer& arc)
             .Array("sectdamage", SectDamage, numsectors)
             .Array("sectspeed", SectSpeed, numsectors)
             .Array("sectbelow", SectBelow, numsectors)
+            .Array("counters", Counters, kNumCounters)
             .EndObject();
     }
 }

@@ -382,12 +382,12 @@ SectorSetup(void)
     {
         memset(&SectorObject[ndx], -1, sizeof(SectorObject[0]));
         // 0 pointers
-        //memset(&SectorObject[ndx].sectp, NULL, sizeof(SectorObject[0].sectp));
-        SectorObject[ndx].PreMoveAnimator = NULL;
-        SectorObject[ndx].PostMoveAnimator = NULL;
-        SectorObject[ndx].Animator = NULL;
-        SectorObject[ndx].controller = NULL;
-        SectorObject[ndx].sp_child = NULL;
+        //memset(&SectorObject[ndx].sectp, nullptr, sizeof(SectorObject[0].sectp));
+        SectorObject[ndx].PreMoveAnimator = nullptr;
+        SectorObject[ndx].PostMoveAnimator = nullptr;
+        SectorObject[ndx].Animator = nullptr;
+        SectorObject[ndx].controller = nullptr;
+        SectorObject[ndx].sp_child = nullptr;
         SectorObject[ndx].xmid = INT32_MAX;
     }
 
@@ -1083,7 +1083,7 @@ DoExplodeSector(short match)
             continue;
 
         if (!User[cf].Data())
-            /*u = */SpawnUser(cf, 0, NULL);
+            /*u = */SpawnUser(cf, 0, nullptr);
 
         sectp = &sector[esp->sectnum];
 
@@ -1239,11 +1239,11 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
             {
                 if (snd[0] && snd[1])
                 {
-                    snd2play = snd[RANDOM_RANGE(2)];
+                    snd2play = snd[RandomRange(2)];
                 }
                 else if (snd[0] && snd[1] && snd[2])
                 {
-                    snd2play = snd[RANDOM_RANGE(3)];
+                    snd2play = snd[RandomRange(3)];
                 }
             }
             else if (snd[sound_num])
@@ -1429,7 +1429,7 @@ WeaponExplodeSectorInRange(short weapon)
         // don't use them
         KillMatchingCrackSprites(match);
         DoExplodeSector(match);
-        DoMatchEverything(NULL, match, -1);
+        DoMatchEverything(nullptr, match, -1);
 #else
         // pass in explosion type
         MissileHitMatch(weapon, WPN_ROCKET, i);
@@ -1506,19 +1506,20 @@ void DoDeleteSpriteMatch(short match)
             StatIterator it(StatList[stat]);
             while ((i = it.NextIndex()) >= 0)
             {
-                if (del_x == sprite[i].x && del_y == sprite[i].y)
+                auto sp = &sprite[i];
+                if (del_x == sp->x && del_y == sp->y)
                 {
                     // special case lighting delete of Fade On/off after fades
                     if (StatList[stat] == STAT_LIGHTING)
                     {
                         // set shade to darkest and then kill it
-                        sprite[i].shade = int8_t(SPRITE_TAG6(i));
-                        sprite[i].pal = 0;
-                        SectorLightShade(&sprite[i], sprite[i].shade);
+                        sp->shade = int8_t(SP_TAG6(sp));
+                        sp->pal = 0;
+                        SectorLightShade(&sprite[i], sp->shade);
                         DiffuseLighting(&sprite[i]);
                     }
 
-                    ////DSPRINTF(ds,"Delete Sprite stat %d, x %d, y %d",sprite[i].statnum, sprite[i].x, sprite[i].y);
+                    ////DSPRINTF(ds,"Delete Sprite stat %d, x %d, y %d",sp->statnum, sp->x, sp->y);
                     //MONO_PRINT(ds);
                     SpriteQueueDelete(i);
                     KillSprite(i);
@@ -1592,7 +1593,7 @@ void DoMatchEverything(PLAYERp pp, short match, short state)
 
     bak = GlobPlayerP;
     GlobPlayerP = pp;
-    // CAREFUL! pp == NULL is a valid case for this routine
+    // CAREFUL! pp == nullptr is a valid case for this routine
     DoStopSoundSpotMatch(match);
     DoSoundSpotMatch(match, 1, SOUND_EVERYTHING_TYPE);
     GlobPlayerP = bak;
@@ -1669,7 +1670,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
-    PLAYERp pp = NULL;
+    PLAYERp pp = nullptr;
     short state;
     short key_num=0;
     extern STATE s_Pachinko1Operate[];
@@ -1699,7 +1700,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
     case MECHANICGIRL_R0:
     case SAILORGIRL_R0:
     case PRUNEGIRL_R0:
-        //if(RANDOM_RANGE(1000) < 500) return(true);
+        //if(RandomRange(1000) < 500) return(true);
         //if(u->FlagOwner == 0)
     {
         short choose_snd;
@@ -1785,7 +1786,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
+        u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(SpriteNum,s_Pachinko1Operate);
 
         return true;
@@ -1796,7 +1797,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
+        u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(SpriteNum,s_Pachinko2Operate);
 
         return true;
@@ -1807,7 +1808,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
+        u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(SpriteNum,s_Pachinko3Operate);
 
         return true;
@@ -1818,7 +1819,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
-        u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
+        u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(SpriteNum,s_Pachinko4Operate);
 
         return true;
@@ -1914,7 +1915,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
             map = FindMapByLevelNum(sp->hitag);
         else
             map = FindNextMap(currentLevel);
-		ChangeLevel(map, -1);
+		ChangeLevel(map, g_nextskill);
 
         return true;
     }
@@ -1925,7 +1926,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         change_sprite_stat(SpriteNum, STAT_NO_STATE);
 
-        u = SpawnUser(SpriteNum, 0, NULL);
+        u = SpawnUser(SpriteNum, 0, nullptr);
 
         u->ActorActionFunc = DoGrating;
 
@@ -1951,7 +1952,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
     {
         state = AnimateSwitch(sp, -1);
 
-        DoMatchEverything(NULL, sp->hitag, state);
+        DoMatchEverything(nullptr, sp->hitag, state);
 
         sp->hitag = 0;
         sp->lotag = 0;
@@ -2096,7 +2097,7 @@ OperateTripTrigger(PLAYERp pp)
             map = FindMapByLevelNum(sectp->hitag);
         else
             map = FindNextMap(currentLevel);
-		ChangeLevel(map, -1);
+		ChangeLevel(map, g_nextskill);
         break;
     }
 
@@ -2185,13 +2186,13 @@ OperateTripTrigger(PLAYERp pp)
 
     case TAG_TRIGGER_EXPLODING_SECTOR:
     {
-        DoMatchEverything(NULL, sector[pp->cursectnum].hitag, -1);
+        DoMatchEverything(nullptr, sector[pp->cursectnum].hitag, -1);
         break;
     }
 
     case TAG_SPAWN_ACTOR_TRIGGER:
     {
-        DoMatchEverything(NULL, sector[pp->cursectnum].hitag, -1);
+        DoMatchEverything(nullptr, sector[pp->cursectnum].hitag, -1);
 
         sector[pp->cursectnum].hitag = 0;
         sector[pp->cursectnum].lotag = 0;
@@ -2200,7 +2201,7 @@ OperateTripTrigger(PLAYERp pp)
 
     case TAG_SO_EVENT_TRIGGER:
     {
-        DoMatchEverything(NULL, sector[pp->cursectnum].hitag, -1);
+        DoMatchEverything(nullptr, sector[pp->cursectnum].hitag, -1);
 
         sector[pp->cursectnum].hitag = 0;
         sector[pp->cursectnum].lotag = 0;
@@ -2316,7 +2317,7 @@ bool NearThings(PLAYERp pp)
 
     neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, pp->angle.ang.asbuild(),
             &neartagsect, &neartagwall, &neartagsprite,
-            &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI, NULL);
+            &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI, nullptr);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2414,7 +2415,7 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
 
     neartag(pp->posx, pp->posy, z, pp->cursectnum, pp->angle.ang.asbuild(),
             &neartagsector, &neartagwall, &neartagsprite,
-            &neartaghitdist, dist, type, NULL);
+            &neartaghitdist, dist, type, nullptr);
 
     if (neartagsector >= 0)
     {
@@ -2518,7 +2519,7 @@ BuildNearTagList(NEAR_TAG_INFOp ntip, int size, PLAYERp pp, int z, int dist, int
 
 int DoPlayerGrabStar(PLAYERp pp)
 {
-    SPRITEp sp = NULL;
+    SPRITEp sp = nullptr;
     int i;
     extern short StarQueue[MAX_STAR_QUEUE];
 
@@ -2878,7 +2879,7 @@ DoAnim(int numtics)
         {
             ANIM_CALLBACKp acp = Anim[i].callback;
 
-            // do a callback when done if not NULL
+            // do a callback when done if not nullptr
             if (Anim[i].callback)
                 (*Anim[i].callback)(&Anim[i], Anim[i].callbackdata);
 
@@ -2991,8 +2992,8 @@ AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
     Anim[j].goal = thegoal;
     Anim[j].vel = Z(thevel);
     Anim[j].vel_adj = 0;
-    Anim[j].callback = NULL;
-    Anim[j].callbackdata = NULL;
+    Anim[j].callback = nullptr;
+    Anim[j].callbackdata = nullptr;
 
     if (j == AnimCnt)
         AnimCnt++;
@@ -3271,7 +3272,7 @@ DoSector(void)
             if (pp->sop_riding == sop)
             {
                 riding = true;
-                pp->sop_riding = NULL;
+                pp->sop_riding = nullptr;
                 break;
             }
             else
@@ -3422,7 +3423,7 @@ saveable_module saveable_sector =
     SIZ(saveable_sector_code),
 
     // data
-    NULL,
+    nullptr,
     0
 };
 

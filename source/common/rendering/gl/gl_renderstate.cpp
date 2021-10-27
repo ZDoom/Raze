@@ -124,9 +124,7 @@ bool FGLRenderState::ApplyShader()
 	activeShader->muDesaturation.Set(mStreamData.uDesaturationFactor);
 	activeShader->muFogEnabled.Set(fogset);
 
-	int f = mTextureModeFlags;
-	if (!mBrightmapEnabled) f &= ~(TEXF_Brightmap | TEXF_Glowmap);
-	activeShader->muTextureMode.Set((mTextureMode == TM_NORMAL && mTempTM == TM_OPAQUE ? TM_OPAQUE : mTextureMode) | f);
+	activeShader->muTextureMode.Set(GetTextureModeAndFlags(mTempTM));
 	activeShader->muLightParms.Set(mLightParms);
 	activeShader->muFogColor.Set(mStreamData.uFogColor);
 	activeShader->muObjectColor.Set(mStreamData.uObjectColor);
@@ -204,7 +202,7 @@ bool FGLRenderState::ApplyShader()
 		size_t start, size;
 		index = screen->mLights->GetBinding(index, &start, &size);
 
-		if (start != mLastMappedLightIndex)
+		if (start != mLastMappedLightIndex || screen->mPipelineNbr > 1) // If multiple buffers always bind
 		{
 			mLastMappedLightIndex = start;
 			static_cast<GLDataBuffer*>(screen->mLights->GetBuffer())->BindRange(nullptr, start, size);

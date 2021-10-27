@@ -13,6 +13,8 @@ struct PlayerHorizon
 {
 	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;
 
+	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def);
+
 	void backup()
 	{
 		ohoriz = horiz;
@@ -50,9 +52,24 @@ struct PlayerHorizon
 		__settarget(value, backup);
 	}
 
+	void lockinput()
+	{
+		inputdisabled = true;
+	}
+
+	void unlockinput()
+	{
+		inputdisabled = false;
+	}
+
 	bool targetset()
 	{
 		return target.asq16();
+	}
+
+	bool movementlocked()
+	{
+		return target.asq16() || inputdisabled;
 	}
 
 	void processhelpers(double const scaleAdjust)
@@ -109,6 +126,7 @@ struct PlayerHorizon
 private:
 	fixedhoriz target;
 	double adjustment;
+	bool inputdisabled;
 
 	void __addadjustment(fixedhoriz value)
 	{
@@ -143,6 +161,8 @@ struct PlayerAngle
 {
 	binangle ang, oang, look_ang, olook_ang, rotscrnang, orotscrnang;
 	double spin;
+
+	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
 
 	void backup()
 	{
@@ -183,9 +203,24 @@ struct PlayerAngle
 		__settarget(value, backup);
 	}
 
+	void lockinput()
+	{
+		inputdisabled = true;
+	}
+
+	void unlockinput()
+	{
+		inputdisabled = false;
+	}
+
 	bool targetset()
 	{
 		return target.asbam();
+	}
+
+	bool movementlocked()
+	{
+		return target.asq16() || inputdisabled;
 	}
 
 	void processhelpers(double const scaleAdjust)
@@ -250,6 +285,7 @@ struct PlayerAngle
 private:
 	binangle target;
 	double adjustment;
+	bool inputdisabled;
 
 	void __addadjustment(binangle value)
 	{
@@ -284,6 +320,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 
 
 void updateTurnHeldAmt(double const scaleAdjust);
-bool const isTurboTurnTime();
+bool isTurboTurnTime();
 void resetTurnHeldAmt();
 void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt = 0, bool const allowstrafe = true, double const turnscale = 1);

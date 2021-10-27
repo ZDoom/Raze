@@ -4,9 +4,9 @@ BEGIN_BLD_NS
 
 class DBloodActor;
 void FireballSeqCallback(int, DBloodActor*);
-void sub_38938(int, DBloodActor*);
+void Fx33Callback(int, DBloodActor*);
 void NapalmSeqCallback(int, DBloodActor*);
-void sub_3888C(int, DBloodActor*);
+void Fx32Callback(int, DBloodActor*);
 void TreeToGibCallback(int, DBloodActor*);
 void DudeToGibCallback1(int, DBloodActor*);
 void DudeToGibCallback2(int, DBloodActor*);
@@ -43,7 +43,7 @@ void sub_70284(int, DBloodActor*);
 void ratBiteSeqCallback(int, DBloodActor*);
 void SpidBiteSeqCallback(int, DBloodActor*);
 void SpidJumpSeqCallback(int, DBloodActor*);
-void sub_71370(int, DBloodActor*);
+void SpidBirthSeqCallback(int, DBloodActor*);
 void sub_71A90(int, DBloodActor*);
 void sub_71BD4(int, DBloodActor*);
 void sub_720AC(int, DBloodActor*);
@@ -104,7 +104,7 @@ enum
 	nRatBiteClient,
 	nSpidBiteClient,
 	nSpidJumpClient,
-	dword_279B50,
+	nSpidBirthClient,
 	dword_279B54,
 	dword_279B58,
 	dword_279B5C,

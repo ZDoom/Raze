@@ -95,35 +95,24 @@ inline int player_struct::GetPlayerNum()
 }
 
 // Refactoring helpers/intermediates
-inline void changespritestat(DDukeActor* a, int newstat)
+inline void changeactorstat(DDukeActor* a, int newstat)
 {
-	::changespritestat(a->GetIndex(), newstat);
+	::changespritestat(a->GetSpriteIndex(), newstat);
 }
 
-// The int version also needs to be wrapped due to namespacing issues.
-inline void changespritestat(int i, int newstat)
+inline void changeactorsect(DDukeActor* a, int newsect)
 {
-	::changespritestat(i, newstat);
-}
-
-inline void changespritesect(DDukeActor* a, int newsect)
-{
-	::changespritesect(a->GetIndex(), newsect);
-}
-
-inline void changespritesect(int i, int newsect)
-{
-	::changespritesect(i, newsect);
+	::changespritesect(a->GetSpriteIndex(), newsect);
 }
 
 inline int setsprite(DDukeActor* a, int x, int y, int z)
 {
-	return ::setsprite(a->GetIndex(), x, y, z);
+	return ::setsprite(a->GetSpriteIndex(), x, y, z);
 }
 
 inline int setsprite(DDukeActor* a, const vec3_t& pos)
 {
-	return ::setsprite(a->GetIndex(), pos.x, pos.y, pos.z);
+	return ::setsprite(a->GetSpriteIndex(), pos.x, pos.y, pos.z);
 }
 
 // see comment for changespritestat.
@@ -135,7 +124,7 @@ inline int setsprite(int i, int x, int y, int z)
 inline int ActorToScriptIndex(DDukeActor* a)
 {
 	if (!a) return -1;
-	return a->GetIndex();
+	return a->GetSpriteIndex();
 }
 
 inline DDukeActor* ScriptIndexToActor(int index)
@@ -150,7 +139,7 @@ int spawn_r(int j, int pn);
 
 inline DDukeActor* spawn(DDukeActor* spawner, int type)
 {
-	int i = (isRR()? spawn_r : spawn_d)(spawner ? spawner->GetIndex() : -1, type);
+	int i = (isRR()? spawn_r : spawn_d)(spawner ? spawner->GetSpriteIndex() : -1, type);
 	return i == -1 ? nullptr : &hittype[i];
 }
 
@@ -221,5 +210,6 @@ inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16
 	::neartag(xs, ys, zs, sectnum, ange, neartagsector, neartagwall, &nts, neartaghitdist, neartagrange, tagsearch);
 	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
 }
+
 
 END_DUKE_NS

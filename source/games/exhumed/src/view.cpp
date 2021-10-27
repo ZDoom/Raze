@@ -60,7 +60,7 @@ bool bCamera = false;
 
 int viewz;
 
-short enemy;
+DExhumedActor* pEnemy;
 
 short nEnemyPal = 0;
 
@@ -212,32 +212,34 @@ void DrawView(double smoothRatio, bool sceneonly)
     pm_smoothratio = (int)smoothRatio;
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
-    int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
-    int nDoppleOldCstat = sprite[nDoppleSprite[nLocalPlayer]].cstat;
+	auto pPlayerSprite = &sprite[nPlayerSprite];
+    int nPlayerOldCstat = pPlayerSprite->cstat;
+    int nDoppleOldCstat = sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat;
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
-        int nSprite = SnakeList[nSnakeCam].nSprites[0];
+        auto pActor = SnakeList[nSnakeCam].pSprites[0];
+		auto pSprite = &pActor->s();
 
-        playerX = sprite[nSprite].x;
-        playerY = sprite[nSprite].y;
-        playerZ = sprite[nSprite].z;
-        nSector = sprite[nSprite].sectnum;
-        nAngle = buildang(sprite[nSprite].ang);
+        playerX = pSprite->x;
+        playerY = pSprite->y;
+        playerZ = pSprite->z;
+        nSector = pSprite->sectnum;
+        nAngle = buildang(pSprite->ang);
         rotscrnang = buildang(0);
 
         SetGreenPal();
 
-        enemy = SnakeList[nSnakeCam].nEnemy;
+        pEnemy = SnakeList[nSnakeCam].pEnemy;
 
-        if (enemy <= -1 || totalmoves & 1)
+        if (pEnemy == nullptr || totalmoves & 1)
         {
             nEnemyPal = -1;
         }
         else
         {
-            nEnemyPal = sprite[enemy].pal;
-            sprite[enemy].pal = 5;
+            nEnemyPal = pEnemy->s().pal;
+            pEnemy->s().pal = 5;
         }
     }
     else
@@ -245,9 +247,9 @@ void DrawView(double smoothRatio, bool sceneonly)
         auto psp = &sprite[nPlayerSprite];
         playerX = psp->interpolatedx(smoothRatio);
         playerY = psp->interpolatedy(smoothRatio);
-        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
+        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
 
-        nSector = nPlayerViewSect[nLocalPlayer];
+        nSector = PlayerList[nLocalPlayer].nPlayerViewSect;
         updatesector(playerX, playerY, &nSector);
 
         if (!SyncInput())
@@ -265,13 +267,13 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (!bCamera)
         {
-            sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
-            sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
+            pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+            sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         else
         {
-            sprite[nPlayerSprite].cstat |= CSTAT_SPRITE_TRANSLUCENT;
-            sprite[nDoppleSprite[nLocalPlayer]].cstat |= CSTAT_SPRITE_INVISIBLE;
+            pPlayerSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
+            sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
@@ -286,7 +288,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         viewz = playerZ + nQuake[nLocalPlayer];
-        int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
+        int floorZ = sector[pPlayerSprite->sectnum].floorz;
 
         if (viewz > floorZ)
             viewz = floorZ;
@@ -393,9 +395,9 @@ void DrawView(double smoothRatio, bool sceneonly)
                 {
                     nHeadStage = 5;
 
-                    sprite[nPlayerSprite].cstat |= 0x8000;
+                    pPlayerSprite->cstat |= 0x8000;
 
-                    int ang2 = nCameraa.asbuild() - sprite[nPlayerSprite].ang;
+                    int ang2 = nCameraa.asbuild() - pPlayerSprite->ang;
                     if (ang2 < 0)
                         ang2 = -ang2;
 
@@ -439,7 +441,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             {
                 RestoreGreenPal();
                 if (nEnemyPal > -1) {
-                    sprite[enemy].pal = (uint8_t)nEnemyPal;
+                    pEnemy->s().pal = (uint8_t)nEnemyPal;
                 }
 
                 DrawMap(smoothRatio);
@@ -451,8 +453,8 @@ void DrawView(double smoothRatio, bool sceneonly)
         twod->ClearScreen();
     }
 
-    sprite[nPlayerSprite].cstat = nPlayerOldCstat;
-    sprite[nDoppleSprite[nLocalPlayer]].cstat = nDoppleOldCstat;
+    pPlayerSprite->cstat = nPlayerOldCstat;
+    sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat = nDoppleOldCstat;
     RestoreInterpolations();
 
     flash = 0;
@@ -489,7 +491,7 @@ void SerializeView(FSerializer& arc)
         ("camerapan", nCamerapan)
         ("camera", bCamera)
         ("viewz", viewz)
-        ("enemy", enemy)
+        ("enemy", pEnemy)
         ("enemypal", nEnemyPal)
         .Array("vertpan", dVertPan, countof(dVertPan))
         .Array("quake", nQuake, countof(nQuake))

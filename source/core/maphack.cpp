@@ -38,6 +38,7 @@
 #include "c_dispatch.h"
 #include "md4.h"
 #include "hw_sections.h"
+#include "mapinfo.h"
 
 static TArray<usermaphack_t> usermaphacks;
 TArray<int> blockingpairs[MAXWALLS];
@@ -248,6 +249,10 @@ static int32_t LoadMapHack(const char *filename)
                     sprite[currentsprite].lotag = sc.Number;
                 }
             }
+        }
+        else if (sc.Compare("sw_serp_continue")) // This is a hack for SW's Last Warrior mod to continue from L4 to L5.
+        {
+            currentLevel->gameflags |= LEVEL_SW_DEATHEXIT_SERPENT_NEXT;
         }
 
         else if (sc.Compare("angleoff") || sc.Compare("angoff"))

@@ -123,12 +123,9 @@ public:
 		frametime = currentclock;
 
 		int delay = 20;
-		if (frameTicks)
-		{
-			if (curframe == 1) delay = frameTicks[0];
-			else if (curframe < numframes - 2) delay = frameTicks[1];
-			else delay = frameTicks[2];
-		}
+		if (curframe == 1) delay = frameTicks[0];
+		else if (curframe < numframes - 2) delay = frameTicks[1];
+		else delay = frameTicks[2];
 		nextframetime += delay;
 
 		bool nostopsound = (flags & NOSOUNDCUTOFF);
@@ -532,7 +529,7 @@ public:
 		SmkPlayer* pId = (SmkPlayer*)userdata;
 		memcpy(buff, &pId->adata.samples[pId->adata.nRead], len);
 		pId->adata.nRead += len / 2;
-		if (pId->adata.nRead >= countof(pId->adata.samples)) pId->adata.nRead = 0;
+		if (pId->adata.nRead >= (int)countof(pId->adata.samples)) pId->adata.nRead = 0;
 		return true;
 	}
 
@@ -541,7 +538,7 @@ public:
 		for (unsigned i = 0; i < count; i++)
 		{
 			adata.samples[adata.nWrite] = (audioBuffer[i] - 128) << 8;
-			if (++adata.nWrite >= countof(adata.samples)) adata.nWrite = 0;
+			if (++adata.nWrite >= (int)countof(adata.samples)) adata.nWrite = 0;
 		}
 	}
 
@@ -551,7 +548,7 @@ public:
 		for (unsigned i = 0; i < count/2; i++)
 		{
 			adata.samples[adata.nWrite] = *ptr++;
-			if (++adata.nWrite >= countof(adata.samples)) adata.nWrite = 0;
+			if (++adata.nWrite >= (int)countof(adata.samples)) adata.nWrite = 0;
 		}
 	}
 
@@ -789,7 +786,7 @@ DEFINE_ACTION_FUNCTION(_MoviePlayer, Create)
 	auto movie = OpenMovie(filename, *sndinf, frametime == -1? nullptr : frametimes, flags, error);
 	if (!movie)
 	{
-		Printf(TEXTCOLOR_YELLOW, "%s", error.GetChars());
+		Printf(TEXTCOLOR_YELLOW "%s", error.GetChars());
 	}
 	ACTION_RETURN_POINTER(movie);
 }

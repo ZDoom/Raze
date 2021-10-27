@@ -191,6 +191,7 @@ if( ${TARGET_ARCHITECTURE} MATCHES "x86_64" )
 endif()
 
 option (HAVE_VULKAN "Enable Vulkan support" ON)
+option (HAVE_GLES2 "Enable GLES2 support" ON)
 
 # no, we're not using external asmjit for now, we made too many modifications to our's.
 # if the asmjit author uses our changes then we'll update this.
@@ -207,10 +208,14 @@ if( MSVC )
 	# String pooling
 	# Function-level linking
 	# Disable run-time type information
+	set( ALL_C_FLAGS "/GF /Gy /permissive-" )
+
 	if ( HAVE_VULKAN )
-		set( ALL_C_FLAGS "/GF /Gy /permissive- /DHAVE_VULKAN" )
-	else()
-		set( ALL_C_FLAGS "/GF /Gy /permissive-" )
+		set( ALL_C_FLAGS "${ALL_C_FLAGS} /DHAVE_VULKAN" )
+	endif()
+
+	if ( HAVE_GLES2 )
+		set( ALL_C_FLAGS "${ALL_C_FLAGS} /DHAVE_GLES2" )
 	endif()
 
 	# Use SSE 2 as minimum always as the true color drawers needs it for __vectorcall
@@ -253,12 +258,15 @@ if( MSVC )
 	string(REPLACE " /GR" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
 else()
 	set( REL_LINKER_FLAGS "" )
+	set( ALL_C_FLAGS "-ffp-contract=off -DUSE_OPENGL=1 -DNOASM=1" )
+
 	if ( HAVE_VULKAN )
-		set( ALL_C_FLAGS "-ffp-contract=off -DHAVE_VULKAN" )
-	else()
-		set( ALL_C_FLAGS "-ffp-contract=off" )
+		set( ALL_C_FLAGS "${ALL_C_FLAGS} -DHAVE_VULKAN" )
 	endif()
-	set( ALL_C_FLAGS "${ALL_C_FLAGS} -DUSE_OPENGL=1 -DNOASM=1" )
+
+	if ( HAVE_GLES2 )
+		set( ALL_C_FLAGS "${ALL_C_FLAGS} -DHAVE_GLES2" )
+	endif()
 
 	if ( UNIX )
 		include(CheckSymbolExists)

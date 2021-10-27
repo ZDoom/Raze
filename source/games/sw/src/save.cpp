@@ -288,20 +288,19 @@ void preSerializePanelSprites(FSerializer& arc)
 
 void postSerializePanelSprites(FSerializer& arc)
 {
+	if (arc.BeginArray("panelsprites"))
+	{
+		for(unsigned i = 0; i < pspAsArray.Size(); i++)
+		{
+			arc(nullptr, *pspAsArray[i]);
+		}
+		arc.EndArray();
+	}
 	if (arc.isWriting())
 	{
 		unsigned siz = pspAsArray.Size();
 		arc("panelcount", siz);
 	}
-	if (arc.BeginArray("panelsprites"))
-	{
-		for (auto psp : pspAsArray)
-		{
-			arc(nullptr, *psp);
-		}
-		arc.EndArray();
-	}
-	pspAsArray.Clear();
 }
 
 //---------------------------------------------------------------------------
@@ -350,9 +349,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PANEL_SPRITEstruct
 			("PresentState", w.PresentState)
 			("ActionState", w.ActionState)
 			("RestState", w.RestState)
-			("xfract", w.xfract)
+			("ox", w.ox)
+			("oy", w.oy)
 			("x", w.x)
-			("yfract", w.yfract)
 			("y", w.y)
 			.Array("over", w.over, countof(w.over))
 			("id", w.ID)
@@ -1222,6 +1221,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* d
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
+	pspAsArray.Clear();
     Saveable_Init();
 
     if (arc.BeginObject("state"))
@@ -1270,6 +1270,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			.Array("bosswasseen", bosswasseen, 3)
 			.Array("BossSpriteNum", BossSpriteNum, 3);
 			arc.Array("tracks", Track, countof(Track))
+			("minenemyskill", MinEnemySkill)
             ;
         postSerializePanelSprites(arc);
         arc.EndObject();

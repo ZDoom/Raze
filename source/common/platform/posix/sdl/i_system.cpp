@@ -90,7 +90,7 @@ void Mac_I_FatalError(const char* errortext);
 void Unix_I_FatalError(const char* errortext)
 {
 	// Close window or exit fullscreen and release mouse capture
-	SDL_Quit();
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	const char *str;
 	if((str=getenv("KDE_FULL_SESSION")) && strcmp(str, "true") == 0)
@@ -204,7 +204,7 @@ void I_PrintStr(const char *cp)
 					{ // gray
 						     if (v < 0.33) attrib = 0x8;
 						else if (v < 0.90) attrib = 0x7;
-						else			   attrib = 0x15;
+						else			   attrib = 0xF;
 					}
 					
 					printData.AppendFormat("\033[%um",((attrib & 0x8) ? 90 : 30) + (attrib & 0x7));

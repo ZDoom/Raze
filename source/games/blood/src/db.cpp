@@ -848,6 +848,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         }
     }
     initspritelists();
+    leveltimer = mapHeader.numsprites;
     for (int i = 0; i < mapHeader.numsprites; i++)
     {
         RemoveSpriteStat(i);
@@ -883,6 +884,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->detail = load.detail;
         pSprite->shade = load.shade;
         pSprite->blend = 0;
+        pSprite->time = i;
 
         InsertSpriteSect(i, sprite[i].sectnum);
         InsertSpriteStat(i, sprite[i].statnum);
@@ -935,7 +937,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->Touch = bitReader.readUnsigned(1);
             pXSprite->Sight = bitReader.readUnsigned(1);
             pXSprite->Proximity = bitReader.readUnsigned(1);
-            bitReader.readUnsigned(2);
+            pXSprite->unused3 = bitReader.readUnsigned(2);
             pXSprite->lSkill = bitReader.readUnsigned(5);
             pXSprite->lS = bitReader.readUnsigned(1);
             pXSprite->lB = bitReader.readUnsigned(1);
@@ -950,14 +952,14 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSprite->medium = bitReader.readUnsigned(2);
             pXSprite->respawn = bitReader.readUnsigned(2);
             pXSprite->data4 = bitReader.readUnsigned(16);
-            bitReader.readUnsigned(6);
+            pXSprite->unused4 = bitReader.readUnsigned(6);
             pXSprite->lockMsg = bitReader.readUnsigned(8);
             pXSprite->health = bitReader.readUnsigned(12);
             pXSprite->dudeDeaf = bitReader.readUnsigned(1);
             pXSprite->dudeAmbush = bitReader.readUnsigned(1);
             pXSprite->dudeGuard = bitReader.readUnsigned(1);
             pXSprite->dudeFlag4 = bitReader.readUnsigned(1);
-            pXSprite->target = bitReader.readSigned(16);
+            pXSprite->target_i = bitReader.readSigned(16);
             pXSprite->targetX = bitReader.readSigned(32);
             pXSprite->targetY = bitReader.readSigned(32);
             pXSprite->targetZ = bitReader.readSigned(32);

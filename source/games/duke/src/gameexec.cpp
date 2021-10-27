@@ -1142,6 +1142,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	{
 		// if they've asked for 'this', then use 'this'...
 		act = sActor;
+		iActor = ActorToScriptIndex(sActor);
 	}
 	else
 	{
@@ -3444,7 +3445,7 @@ int ParseState::parse(void)
 		levnume = GetGameVarID(*insptr++, g_ac, g_p);
 		auto level = FindMapByIndex(volnume, levnume);
 		if (level != nullptr)
-			ChangeLevel(level, -1);
+			ChangeLevel(level, g_nextskill);
 		break;
 	}
 	case concmd_myosx:
@@ -3689,7 +3690,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changespritestat(actor, STAT_ZOMBIEACTOR);
+				changeactorstat(actor, STAT_ZOMBIEACTOR);
 		}
 
 		else if (actor->s->statnum == 6)
@@ -3797,7 +3798,7 @@ void execute(DDukeActor *actor,int p,int x)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changespritestat(actor, STAT_ZOMBIEACTOR);
+				changeactorstat(actor, STAT_ZOMBIEACTOR);
 		}
 
 		else if (actor->s->statnum == STAT_STANDABLE)

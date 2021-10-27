@@ -583,7 +583,7 @@ int DoSlidorMove(short SpriteNum)
             SetSlidorInactive(SpriteNum);
 
             if (SP_TAG6(sp) && !TEST_BOOL8(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
 
             // wait a bit and close it
             if (u->WaitTics)
@@ -612,7 +612,7 @@ int DoSlidorMove(short SpriteNum)
             }
 
             if (SP_TAG6(sp) && TEST_BOOL8(sp))
-                DoMatchEverything(NULL, SP_TAG6(sp), -1);
+                DoMatchEverything(nullptr, SP_TAG6(sp), -1);
         }
 
         if (TEST_BOOL2(sp))
@@ -716,6 +716,6 @@ saveable_module saveable_slidor =
     SIZ(saveable_slidor_code),
 
     // data
-    NULL,0
+    nullptr,0
 };
 END_SW_NS

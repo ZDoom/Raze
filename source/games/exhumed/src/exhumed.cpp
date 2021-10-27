@@ -53,6 +53,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+DExhumedActor exhumedActors[MAXSPRITES];
+
 static MapRecord* NextMap;
 
 void uploadCinemaPalettes();
@@ -171,11 +173,10 @@ void DebugOut(const char *fmt, ...)
 
 void DoClockBeep()
 {
-    int i;
-    StatIterator it(407);
-    while ((i = it.NextIndex()) >= 0)
+    ExhumedStatIterator it(407);
+    while (auto i = it.Next())
     {
-        PlayFX2(StaticSound[kSound74], i);
+        PlayFX2(StaticSound[kSound74], i->GetSpriteIndex());
     }
 }
 
@@ -187,14 +188,14 @@ void DoRedAlert(int nVal)
         nRedTicks = 30;
     }
 
-    int i;
-    StatIterator it(405);
-    while ((i = it.NextIndex()) >= 0)
+    ExhumedStatIterator it(405);
+    while (auto ac = it.Next())
     {
         if (nVal)
         {
-            PlayFXAtXYZ(StaticSound[kSoundAlarm], sprite[i].x, sprite[i].y, sprite[i].z, sprite[i].sectnum);
-            AddFlash(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, 192);
+			auto spri = &ac->s();
+            PlayFXAtXYZ(StaticSound[kSoundAlarm], spri->x, spri->y, spri->z, spri->sectnum);
+            AddFlash(spri->sectnum, spri->x, spri->y, spri->z, 192);
         }
     }
 }
@@ -251,9 +252,10 @@ void GameMove(void)
 {
     FixPalette();
 
-    for (int i = 0; i < MAXSPRITES; i++)
+	ExhumedSpriteIterator it;
+    while (auto ac = it.Next())
     {
-        sprite[i].backuploc();
+		ac->s().backuploc();
     }
 
     if (currentLevel->gameflags & LEVEL_EX_COUNTDOWN)
@@ -289,7 +291,7 @@ void GameMove(void)
 
     obobangle = bobangle;
 
-    if (totalvel[nLocalPlayer] == 0)
+    if (PlayerList[nLocalPlayer].totalvel == 0)
     {
         bobangle = 0;
     }
@@ -395,7 +397,7 @@ void GameInterface::Ticker()
         if (weap2 == WeaponSel_Next)
         {
             auto newWeap = currWeap == 6 ? 0 : currWeap + 1;
-            while (newWeap != 0 && (!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0)))
+            while (newWeap != 0 && (!(PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap)) || (PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0)))
             {
                 newWeap++;
                 if (newWeap > 6) newWeap = 0;
@@ -405,7 +407,7 @@ void GameInterface::Ticker()
         else if (weap2 == WeaponSel_Prev)
         {
             auto newWeap = currWeap == 0 ? 6 : currWeap - 1;
-            while (newWeap != 0 && ((!(nPlayerWeapons[nLocalPlayer] & (1 << newWeap)) || (nPlayerWeapons[nLocalPlayer] & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))))
+            while (newWeap != 0 && ((!(PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap)) || (PlayerList[nLocalPlayer].nPlayerWeapons & (1 << newWeap) && PlayerList[nLocalPlayer].nAmmo[newWeap] == 0))))
             {
                 newWeap--;
             }
@@ -431,7 +433,7 @@ void GameInterface::Ticker()
         sPlayerInput[nLocalPlayer].nAngle = localInput.avel;
         sPlayerInput[nLocalPlayer].pan = localInput.horz;
 
-        Ra[nLocalPlayer].nTarget = besttarget;
+        Ra[nLocalPlayer].pTarget = &exhumedActors[besttarget];
 
         lLocalCodes = 0;
 
@@ -592,6 +594,30 @@ extern short cPupData[300];
 extern uint8_t* Worktile;
 extern int lHeadStartClock;
 extern short* pPupData;
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor& w, DExhumedActor* def)
+{
+    if (arc.BeginObject(keyname))
+    {
+        arc("phase", w.nPhase)
+            ("health", w.nHealth)
+            ("frame", w.nFrame)
+            ("action", w.nAction)
+            ("target", w.pTarget)
+            ("count", w.nCount)
+            ("run", w.nRun)
+            ("index", w.nIndex)
+			("index2", w.nIndex2)
+			("channel", w.nChannel)
+            ("damage", w.nDamage)
+
+            ("turn", w.nTurn)
+            ("x", w.x)
+            ("y", w.y)
+            .EndObject();
+    }
+    return arc;
+}
 
 void SerializeState(FSerializer& arc)
 {

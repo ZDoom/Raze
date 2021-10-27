@@ -616,28 +616,28 @@ ACTOR_ACTION_SET ZillaActionSet =
 {
     sg_ZillaStand,
     sg_ZillaRun,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL, //climb
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr, //climb
     sg_ZillaPain, //pain
     sg_ZillaDie,
-    NULL,
+    nullptr,
     sg_ZillaDead,
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     {sg_ZillaUzi,sg_ZillaRail},
     {950,1024},
     {sg_ZillaUzi,sg_ZillaRocket,sg_ZillaRail},
     {400,950,1024},
-    {NULL},
-    NULL,
-    NULL
+    {nullptr},
+    nullptr,
+    nullptr
 };
 
 int
@@ -701,8 +701,8 @@ int NullZilla(short SpriteNum)
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
-    u->lo_sp = NULL;
-    u->hi_sp = NULL;
+    u->lo_sp = nullptr;
+    u->hi_sp = nullptr;
     sp->z = u->loz;
 
     DoActorSectorDamage(SpriteNum);
@@ -765,13 +765,13 @@ int DoZillaDeathMelt(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
-    if (RANDOM_RANGE(1000) > 800)
+    if (RandomRange(1000) > 800)
         SpawnGrenadeExp(SpriteNum);
 
     u->ID = ZILLA_RUN_R0;
     RESET(u->Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
 
-    //DoMatchEverything(NULL, sp->lotag, ON);
+    //DoMatchEverything(nullptr, sp->lotag, ON);
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.
@@ -782,8 +782,8 @@ int DoZillaDeathMelt(short SpriteNum)
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
-    u->lo_sp = NULL;
-    u->hi_sp = NULL;
+    u->lo_sp = nullptr;
+    u->hi_sp = nullptr;
     sp->z = u->loz;
 
     BossSpriteNum[2] = -2;

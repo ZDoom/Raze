@@ -238,7 +238,7 @@ void InitFX(void)
 
 void GetSpriteSoundPitch(int* pVolume, int* pPitch)
 {
-    int nSoundSect = nPlayerViewSect[nLocalPlayer];
+    int nSoundSect = PlayerList[nLocalPlayer].nPlayerViewSect;
     int nLocalSectFlags = SectFlag[nSoundSect];
     if (nLocalSectFlags & kSectUnderwater)
     {
@@ -428,7 +428,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         if (nSnakeCam > -1)
         {
             Snake* pSnake = &SnakeList[nSnakeCam];
-            spritetype* pSnakeSprite = &sprite[pSnake->nSprites[0]];
+            spritetype* pSnakeSprite = &pSnake->pSprites[0]->s();
             campos.x = pSnakeSprite->x;
             campos.y = pSnakeSprite->y;
             campos.z = pSnakeSprite->z;
@@ -500,14 +500,14 @@ void GameInterface::UpdateSounds()
     if (nFreeze)
         return;
 
-    int nLocalSectFlags = SectFlag[nPlayerViewSect[nLocalPlayer]];
+    int nLocalSectFlags = SectFlag[PlayerList[nLocalPlayer].nPlayerViewSect];
 
     vec3_t pos;
     short ang;
     if (nSnakeCam > -1)
     {
         Snake *pSnake = &SnakeList[nSnakeCam];
-        spritetype *pSnakeSprite = &sprite[pSnake->nSprites[0]];
+        spritetype *pSnakeSprite = &pSnake->pSprites[0]->s();
         pos = pSnakeSprite->pos;
         ang = pSnakeSprite->ang;
     }
@@ -557,7 +557,7 @@ void GameInterface::UpdateSounds()
 int soundx, soundy, soundz;
 short soundsect;
 
-void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanflags)
+void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanflags, int sprflags)
 {
     if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
@@ -569,9 +569,8 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
     bool fullvol = false, hiprio = false;
     if (nSprite >= 0)
     {
-        fullvol = (nSprite & 0x2000) != 0;
-        hiprio = (nSprite & 0x4000) != 0;
-        nSprite &= 0xfff;
+        fullvol = (sprflags & 0x2000) != 0;
+        hiprio = (sprflags & 0x4000) != 0;
         soundx = sprite[nSprite].x;
         soundy = sprite[nSprite].y;
         soundz = sprite[nSprite].z;
@@ -659,13 +658,13 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
 //
 //==========================================================================
 
-void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags chanflags)
+void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags chanflags, int sectf)
 {
     soundx = x;
     soundy = y;
     soundz = z;
-    soundsect = nSector&0x3fff;
-    PlayFX2(ax, -1, nSector & 0x4000, chanflags);
+    soundsect = nSector;
+    PlayFX2(ax, -1, sectf, chanflags);
 }
 
 //==========================================================================
@@ -729,7 +728,7 @@ void UpdateCreepySounds()
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
-        if (nCreaturesKilled < nCreaturesTotal && !(SectFlag[nPlayerViewSect[nLocalPlayer]] & 0x2000))
+        if (nCreaturesKilled < nCreaturesTotal && !(SectFlag[PlayerList[nLocalPlayer].nPlayerViewSect] & 0x2000))
         {
             int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves % SeqSize[SeqOffsets[kSeqCreepy]]);
             if (vsi >= 0 && (vsi & 0x1ff) < kMaxSounds)

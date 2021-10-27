@@ -11,6 +11,8 @@ struct Exhumed native
 	native static int MoveStatusSequence(int s1, int s2);
 	native static int SizeOfStatusSequence(int s1);
 	native static ExhumedPlayer GetViewPlayer();
+	native static int GetPistolClip();
+	native static int GetPlayerClip();
 	
 	static void DrawAbs(String img, int x, int y, int shade = 0)
 	{
@@ -50,7 +52,6 @@ struct ExhumedPlayer native
 	native int16 nItem;
 	native uint8 items[8];
 	native int16 nAmmo[7]; // TODO - kMaxWeapons?
-	native int16 pad[2];
 
 	native int16 nCurrentWeapon;
 	native int16 field_3FOUR;

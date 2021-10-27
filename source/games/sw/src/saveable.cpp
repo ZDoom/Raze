@@ -145,7 +145,7 @@ int Saveable_RestoreCodeSym(savedcodesym *sym, void **ptr)
 {
     if (sym->module == 0)
     {
-        *ptr = NULL;
+        *ptr = nullptr;
         return 0;
     }
 
@@ -169,7 +169,7 @@ int Saveable_RestoreDataSym(saveddatasym *sym, void **ptr)
 {
     if (sym->module == 0)
     {
-        *ptr = NULL;
+        *ptr = nullptr;
         return 0;
     }
 

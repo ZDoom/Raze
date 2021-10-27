@@ -172,9 +172,12 @@ bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, i
     int oY = abs(nY2-nY1)>>4;
     if (oY >= nDist)
         return 0;
-    int oZ = abs(nZ2-nZ1)>>4;
-    if (oZ >= nDist)
-        return 0;
+    if (nZ2 != nZ1)
+    {
+        int oZ = abs(nZ2-nZ1)>>8;
+        if (oZ >= nDist)
+            return 0;
+    }
     if (approxDist(oX, oY) >= nDist) return 0;
     return 1;
 }
@@ -379,9 +382,7 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
 {
     assert(pSprite != NULL);
     assert(dx != 0 || dy != 0);
-    gHitInfo.hitsect = -1;
-    gHitInfo.hitwall = -1;
-    gHitInfo.hitsprite = -1;
+    gHitInfo.clearObj();
     int x = pSprite->x;
     int y = pSprite->y;
     int nSector = pSprite->sectnum;
@@ -400,17 +401,12 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
     hitdata_t hitData;
     hitData.pos.z = gHitInfo.hitz;
     hitscan(&pos, nSector, dx, dy, dz << 4, &hitData, nMask);
-    gHitInfo.hitsect = hitData.sect;
-    gHitInfo.hitwall = hitData.wall;
-    gHitInfo.hitsprite = hitData.sprite;
-    gHitInfo.hitx = hitData.pos.x;
-    gHitInfo.hity = hitData.pos.y;
-    gHitInfo.hitz = hitData.pos.z;
+    gHitInfo.set(&hitData);
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
-    if (gHitInfo.hitsprite >= kMaxSprites || gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
+    if (gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
         return -1;
-    if (gHitInfo.hitsprite >= 0)
+    if (gHitInfo.hitactor != nullptr)
         return 3;
     if (gHitInfo.hitwall >= 0)
     {
@@ -431,9 +427,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
 {
     int nNum = 256;
     assert(pSprite != NULL);
-    gHitInfo.hitsect = -1;
-    gHitInfo.hitwall = -1;
-    gHitInfo.hitsprite = -1;
+    gHitInfo.clearObj();
     int x1 = pSprite->x+MulScale(nOffset, Cos(pSprite->ang+512), 30);
     int y1 = pSprite->y+MulScale(nOffset, Sin(pSprite->ang+512), 30);
     int z1 = pSprite->z+nZOffset;
@@ -453,23 +447,18 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
     hitdata_t hitData;
     hitData.pos.z = gHitInfo.hitz;
     hitscan(&pos, nSector, dx, dy, dz << 4, &hitData, CLIPMASK1);
-    gHitInfo.hitsect = hitData.sect;
-    gHitInfo.hitwall = hitData.wall;
-    gHitInfo.hitsprite = hitData.sprite;
-    gHitInfo.hitx = hitData.pos.x;
-    gHitInfo.hity = hitData.pos.y;
-    gHitInfo.hitz = hitData.pos.z;
+    gHitInfo.set(&hitData);
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
     while (nNum--)
     {
-        if (gHitInfo.hitsprite >= kMaxSprites || gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
+        if (gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
             return -1;
         if (nRange && approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) > nRange)
             return -1;
-        if (gHitInfo.hitsprite >= 0)
+        if (gHitInfo.hitactor != nullptr)
         {
-            spritetype *pOther = &sprite[gHitInfo.hitsprite];
+            spritetype *pOther = &gHitInfo.hitactor->s();
             if ((pOther->flags & 8) && !(ac & 1))
                 return 3;
             if ((pOther->cstat & 0x30) != 0)
@@ -506,22 +495,14 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             }
             int bakCstat = pOther->cstat;
             pOther->cstat &= ~256;
-            gHitInfo.hitsect = -1;
-            gHitInfo.hitwall = -1;
-            gHitInfo.hitsprite = -1;
+            gHitInfo.clearObj();
             x1 = gHitInfo.hitx;
             y1 = gHitInfo.hity;
             z1 = gHitInfo.hitz;
             pos = { x1, y1, z1 };
             hitData.pos.z = gHitInfo.hitz;
-            hitscan(&pos, pOther->sectnum,
-                dx, dy, dz << 4, &hitData, CLIPMASK1);
-            gHitInfo.hitsect = hitData.sect;
-            gHitInfo.hitwall = hitData.wall;
-            gHitInfo.hitsprite = hitData.sprite;
-            gHitInfo.hitx = hitData.pos.x;
-            gHitInfo.hity = hitData.pos.y;
-            gHitInfo.hitz = hitData.pos.z;
+            hitscan(&pos, pOther->sectnum, dx, dy, dz << 4, &hitData, CLIPMASK1);
+            gHitInfo.set(&hitData);
             pOther->cstat = bakCstat;
             continue;
         }
@@ -581,9 +562,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 pWall->cstat &= ~64;
                 int bakCstat2 = wall[pWall->nextwall].cstat;
                 wall[pWall->nextwall].cstat &= ~64;
-                gHitInfo.hitsect = -1;
-                gHitInfo.hitwall = -1;
-                gHitInfo.hitsprite = -1;
+                gHitInfo.clearObj();
                 x1 = gHitInfo.hitx;
                 y1 = gHitInfo.hity;
                 z1 = gHitInfo.hitz;
@@ -591,12 +570,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, pWall->nextsector,
                     dx, dy, dz << 4, &hitData, CLIPMASK1);
-                gHitInfo.hitsect = hitData.sect;
-                gHitInfo.hitwall = hitData.wall;
-                gHitInfo.hitsprite = hitData.sprite;
-                gHitInfo.hitx = hitData.pos.x;
-                gHitInfo.hity = hitData.pos.y;
-                gHitInfo.hitz = hitData.pos.z;
+                gHitInfo.set(&hitData);
                 pWall->cstat = bakCstat;
                 wall[pWall->nextwall].cstat = bakCstat2;
                 continue;
@@ -611,21 +585,14 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                     return 2;
                 int nSprite = gUpperLink[gHitInfo.hitsect];
                 int nLink = sprite[nSprite].owner & 0xfff;
-                gHitInfo.hitsect = -1;
-                gHitInfo.hitwall = -1;
-                gHitInfo.hitsprite = -1;
+                gHitInfo.clearObj();
                 x1 = gHitInfo.hitx + sprite[nLink].x - sprite[nSprite].x;
                 y1 = gHitInfo.hity + sprite[nLink].y - sprite[nSprite].y;
                 z1 = gHitInfo.hitz + sprite[nLink].z - sprite[nSprite].z;
                 pos = { x1, y1, z1 };
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, sprite[nLink].sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
-                gHitInfo.hitsect = hitData.sect;
-                gHitInfo.hitwall = hitData.wall;
-                gHitInfo.hitsprite = hitData.sprite;
-                gHitInfo.hitx = hitData.pos.x;
-                gHitInfo.hity = hitData.pos.y;
-                gHitInfo.hitz = hitData.pos.z;
+                gHitInfo.set(&hitData);
                 continue;
             }
             else
@@ -634,21 +601,14 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                     return 1;
                 int nSprite = gLowerLink[gHitInfo.hitsect];
                 int nLink = sprite[nSprite].owner & 0xfff;
-                gHitInfo.hitsect = -1;
-                gHitInfo.hitwall = -1;
-                gHitInfo.hitsprite = -1;
+                gHitInfo.clearObj();
                 x1 = gHitInfo.hitx + sprite[nLink].x - sprite[nSprite].x;
                 y1 = gHitInfo.hity + sprite[nLink].y - sprite[nSprite].y;
                 z1 = gHitInfo.hitz + sprite[nLink].z - sprite[nSprite].z;
                 pos = { x1, y1, z1 };
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, sprite[nLink].sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
-                gHitInfo.hitsect = hitData.sect;
-                gHitInfo.hitwall = hitData.wall;
-                gHitInfo.hitsprite = hitData.sprite;
-                gHitInfo.hitx = hitData.pos.x;
-                gHitInfo.hity = hitData.pos.y;
-                gHitInfo.hitz = hitData.pos.z;
+                gHitInfo.set(&hitData);
                 continue;
             }
         }
@@ -834,8 +794,12 @@ int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, cha
     return n;
 }
 
-int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSectBit, short *walls)
+int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSectBit, short *pWalls, bool newSectCheckMethod)
 {
+    // by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
+    // E6M1: throwing TNT on the stone footpath while standing on the brown road will fail due to the start/end points of the span being too far away. it'll only do damage at one end of the road
+    // E1M2: throwing TNT at the double doors while standing on the train platform
+    // by setting newSectCheckMethod to true these issues will be resolved
     static short pSectors[kMaxSectors];
     uint8_t sectbits[(kMaxSectors+7)>>3];
     memset(sectbits, 0, sizeof(sectbits));
@@ -848,36 +812,84 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
         memset(pSectBit, 0, (kMaxSectors+7)>>3);
         SetBitString(pSectBit, nSector);
     }
-    while (i < n)
+    while (i < n) // scan through sectors
     {
-        int nCurSector = pSectors[i];
-        int nStartWall = sector[nCurSector].wallptr;
-        int nEndWall = nStartWall + sector[nCurSector].wallnum;
-        walltype *pWall = &wall[nStartWall];
-        for (int j = nStartWall; j < nEndWall; j++, pWall++)
+        const int nCurSector = pSectors[i];
+        const int nStartWall = sector[nCurSector].wallptr;
+        const int nEndWall = nStartWall + sector[nCurSector].wallnum;
+        for (int j = nStartWall; j < nEndWall; j++) // scan each wall of current sector for new sectors
         {
-            int nNextSector = pWall->nextsector;
-            if (nNextSector < 0)
+            const walltype *pWall = &wall[j];
+            const int nNextSector = pWall->nextsector;
+            if (nNextSector < 0) // if next wall isn't linked to a sector, skip
                 continue;
-            if (TestBitString(sectbits, nNextSector))
+            if (TestBitString(sectbits, nNextSector)) // if we've already checked this sector, skip
                 continue;
-            SetBitString(sectbits, nNextSector);
-            if (CheckProximityWall(wall[j].point2, x, y, nDist))
+            bool setSectBit = true;
+            bool withinRange = false;
+            if (!newSectCheckMethod) // original method
             {
+                withinRange = CheckProximityWall(pWall->point2, x, y, nDist);
+            }
+            else // new method - first test edges and then wall span midpoints
+            {
+                for (int k = (j+1); k < nEndWall; k++) // scan through the rest of the sector's walls
+                {
+                    if (wall[k].nextsector == nNextSector) // if the next walls still reference the sector, then don't flag the sector as checked (yet)
+                    {
+                        setSectBit = false;
+                        break;
+                    }
+                }
+                const int nWallA = j;
+                const int nWallB = wall[nWallA].point2;
+                int x1 = wall[nWallA].x, y1 = wall[nWallA].y;
+                int x2 = wall[nWallB].x, y2 = wall[nWallB].y;
+                int point1Dist = approxDist(x-x1, y-y1); // setup edge distance needed for below loop (determines which point to shift closer to center)
+                int point2Dist = approxDist(x-x2, y-y2);
+                int nLength = approxDist(x1-x2, y1-y2);
+                const int nDist4 = nDist<<4;
+                nLength = ClipRange(nLength / (nDist4+(nDist4>>1)), 1, 4); // always test midpoint at least once, and never split more than 4 times
+                for (int k = 0; true; k++) // check both points of wall and subdivide span into smaller chunks towards target
+                {
+                    withinRange = (point1Dist < nDist4) || (point2Dist < nDist4); // check if both points of span is within radius
+                    if (withinRange)
+                        break;
+                    if (k == nLength) // reached end
+                        break;
+                    const int xcenter = (x1+x2)>>1, ycenter = (y1+y2)>>1;
+                    if (point1Dist < point2Dist) // shift closest side of wall towards target point, and refresh point distance values
+                    {
+                        x2 = xcenter, y2 = ycenter;
+                        point2Dist = approxDist(x-x2, y-y2);
+                    }
+                    else
+                    {
+                        x1 = xcenter, y1 = ycenter;
+                        point1Dist = approxDist(x-x1, y-y1);
+                    }
+                }
+            }
+            if (withinRange) // if new sector is within range, set to current sector and test walls
+            {
+                setSectBit = true; // sector is within range, set the sector as checked
                 if (pSectBit)
                     SetBitString(pSectBit, nNextSector);
                 pSectors[n++] = nNextSector;
-                if (walls && pWall->extra > 0)
+                if (pWalls && pWall->extra > 0)
                 {
                     XWALL *pXWall = &xwall[pWall->extra];
                     if (pXWall->triggerVector && !pXWall->isTriggered && !pXWall->state)
-                        walls[m++] = j;
+                        pWalls[m++] = j;
                 }
             }
+            if (setSectBit)
+                SetBitString(sectbits, nNextSector);
         }
         i++;
     }
-    if (walls) walls[m] = -1;
+    pSectors[n] = -1;
+    if (pWalls) pWalls[m] = -1;
     return n;
 }
 

@@ -142,6 +142,7 @@ void GameInterface::Render()
 
 void GameInterface::NextLevel(MapRecord* map, int skill)
 {
+	if (skill != -1) ud.player_skill = skill + 1;
 	enterlevel(map, 0);
 }
 

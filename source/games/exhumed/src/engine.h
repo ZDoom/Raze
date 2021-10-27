@@ -38,6 +38,11 @@ enum
 
 
 int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
+inline Collision movesprite(DExhumedActor* spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
+{
+	return Collision(movesprite(spritenum->GetSpriteIndex(), dx, dy, dz, ceildist, flordist, clipmask));
+}
+
 void precache();
 void resettiming();
 
@@ -62,10 +67,30 @@ extern short inita;
 extern short initsect;
 
 extern short nCurChunkNum;
-extern short nBodyGunSprite[50];
+extern DExhumedActor* nBodyGunSprite[50];
 extern int movefifoend;
 extern int movefifopos;
 extern short nCurBodyGunNum;
+
+// all static counters combined in an array for easier maintenance.
+enum ECounter
+{
+	kCountAnubis,
+	kCountAnubisDrum,
+	kCountLava,
+	kCountLion,
+	kCountMummy,
+	kCountRex,
+	kCountRoach,
+	kCountScorp,
+	kCountSet,
+	kCountSoul,
+	kCountSpider,
+	kCountWasp,
+
+	kNumCounters
+};
+extern int Counters[kNumCounters];
 
 void SnapSectors(short nSectorA, short nSectorB, short b);
 

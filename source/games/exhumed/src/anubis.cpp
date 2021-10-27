@@ -25,20 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-struct Anubis
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short nCount;
-};
-
-static TArray<Anubis> AnubisList;
-static int nAnubisDrum = 0;
-
-static actionSeq AnubisSeq[] = {
+static const actionSeq AnubisSeq[] = {
     { 0, 0 },
     { 8, 0 },
     { 16, 0 },
@@ -56,56 +43,24 @@ static actionSeq AnubisSeq[] = {
     { 43, 1 },
 };
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Anubis& w, Anubis* def)
+void BuildAnubis(DExhumedActor* ap, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer)
 {
-    if (arc.BeginObject(keyname))
-    {
-        arc("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("sprite", w.nSprite)
-            ("target", w.nTarget)
-            ("count", w.nCount)
-            .EndObject();
-    }
-    return arc;
-}
-
-void SerializeAnubis(FSerializer& arc)
-{
-    arc("anubis", AnubisList)
-        ("anubisdrum", nAnubisDrum);
-}
-
-void InitAnubis()
-{
-    AnubisList.Clear();
-    nAnubisDrum = 1;
-}
-
-int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer)
-{
-    auto nAnubis = AnubisList.Reserve(1);
-    auto ap = &AnubisList[nAnubis];
-
     spritetype* sp;
-    if (nSprite == -1)
+    if (ap == nullptr)
     {
-        nSprite = insertsprite(nSector, 101);
-        sp = &sprite[nSprite];
+        ap = insertActor(nSector, 101);
+        sp = &ap->s();
     }
     else
     {
-        changespritestat(nSprite, 101);
-        sp = &sprite[nSprite];
+        ChangeActorStat(ap, 101);
+        sp = &ap->s();
 
         x = sp->x;
         y = sp->y;
         z = sector[sp->sectnum].floorz;
         nAngle = sp->ang;
     }
-
-    assert(nSprite >=0 && nSprite < kMaxSprites);
 
     sp->x = x;
     sp->y = y;
@@ -131,6 +86,7 @@ int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8
 
     if (bIsDrummer)
     {
+        auto& nAnubisDrum = Counters[kCountAnubisDrum];
         ap->nAction = nAnubisDrum + 6;
         nAnubisDrum++;
 
@@ -143,364 +99,359 @@ int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8
         ap->nAction = 0;
     }
 
+    ap->nPhase = Counters[kCountAnubis]++;
     ap->nHealth = 540;
     ap->nFrame  = 0;
-    ap->nSprite = nSprite;
-    ap->nTarget = -1;
+    ap->pTarget = nullptr;
     ap->nCount = 0;
 
-    sp->owner = runlist_AddRunRec(sp->lotag - 1, nAnubis | 0x90000);
+    sp->owner = runlist_AddRunRec(sp->lotag - 1, ap, 0x90000);
 
-    runlist_AddRunRec(NewRun, nAnubis | 0x90000);
+    runlist_AddRunRec(NewRun, ap, 0x90000);
     nCreaturesTotal++;
-
-    return nAnubis | 0x90000;
 }
 
-void FuncAnubis(int a, int nDamage, int nRun)
+void AIAnubis::Tick(RunListEvent* ev)
 {
-    int nAnubis = RunData[nRun].nVal;
-    auto ap = &AnubisList[nAnubis];
-    assert(nAnubis >= 0 && nAnubis < (int)AnubisList.Size());
-
-    int nSprite = ap->nSprite;
-    auto sp = &sprite[nSprite];
-    short nAction = ap->nAction;
+    auto ap = ev->pObjActor;
+    auto sp = &ap->s();
+    int nAction = ap->nAction;
 
     bool bVal = false;
 
-    int nMessage = a & kMessageMask;
+    if (nAction < 11) {
+        Gravity(ap);
+    }
 
-    switch (nMessage)
+    short nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
+
+    seq_MoveSequence(ap, nSeq, ap->nFrame);
+
+    sp->picnum = seq_GetSeqPicnum2(nSeq, ap->nFrame);
+
+    ap->nFrame++;
+    if (ap->nFrame >= SeqSize[nSeq])
     {
-        default:
-        {
-            DebugOut("unknown msg %d for Anubis\n", nMessage);
-            return;
-        }
+        ap->nFrame = 0;
+        bVal = true;
+    }
 
-        case 0x20000:
+    auto pTarget = ap->pTarget;
+
+    short nFrame = SeqBase[nSeq] + ap->nFrame;
+    short nFlag = FrameFlag[nFrame];
+
+    Collision move(0);
+
+    if (nAction > 0 && nAction < 11) {
+        move = MoveCreatureWithCaution(ap);
+    }
+
+    switch (nAction)
+    {
+    case 0:
+    {
+        if ((ap->nPhase & 0x1F) == (totalmoves & 0x1F))
         {
-            if (nAction < 11) {
-                Gravity(nSprite);
+            if (pTarget == nullptr) {
+                pTarget = FindPlayer(ap, 100);
             }
 
-            short nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
-
-            seq_MoveSequence(nSprite, nSeq, ap->nFrame);
-
-            sp->picnum = seq_GetSeqPicnum2(nSeq, ap->nFrame);
-
-            ap->nFrame++;
-            if (ap->nFrame >= SeqSize[nSeq])
+            if (pTarget)
             {
+                D3PlayFX(StaticSound[kSound8], ap);
+                ap->nAction = 1;
                 ap->nFrame = 0;
-                bVal = true;
+                ap->pTarget = pTarget;
+
+                sp->xvel = bcos(sp->ang, -2);
+                sp->yvel = bsin(sp->ang, -2);
             }
+        }
+        return;
+    }
+    case 1:
+    {
+        if ((ap->nPhase & 0x1F) == (totalmoves & 0x1F) && pTarget)
+        {
+            PlotCourseToSprite(ap, pTarget);
 
-            short nTarget = ap->nTarget;
-
-            short nFrame = SeqBase[nSeq] + ap->nFrame;
-            short nFlag = FrameFlag[nFrame];
-
-            int nMov = 0;
-
-            if (nAction > 0 && nAction < 11) {
-                nMov = MoveCreatureWithCaution(nSprite);
-            }
-
-            switch (nAction)
-            {
-                case 0:
-                {
-                    if ((nAnubis & 0x1F) == (totalmoves & 0x1F))
-                    {
-                        if (nTarget < 0) {
-                            nTarget = FindPlayer(nSprite, 100);
-                        }
-
-                        if (nTarget >= 0)
-                        {
-                            D3PlayFX(StaticSound[kSound8], nSprite);
-                            ap->nAction = 1;
-                            ap->nFrame = 0;
-                            ap->nTarget = nTarget;
-
-                            sp->xvel = bcos(sp->ang, -2);
-                            sp->yvel = bsin(sp->ang, -2);
-                        }
-                    }
-                    return;
-                }
-                case 1:
-                {
-                    if ((nAnubis & 0x1F) == (totalmoves & 0x1F))
-                    {
-                        PlotCourseToSprite(nSprite, nTarget);
-
-                        int nAngle = sp->ang & 0xFFF8;
-                        sp->xvel = bcos(nAngle, -2);
-                        sp->yvel = bsin(nAngle, -2);
-                    }
-
-                    switch (nMov & 0xC000)
-                    {
-                        case 0xC000:
-                        {
-                            if ((nMov & 0x3FFF) == nTarget)
-                            {
-                                int nAng = getangle(sprite[nTarget].x - sp->x, sprite[nTarget].y - sp->y);
-                                int nAngDiff = AngleDiff(sp->ang, nAng);
-
-                                if (nAngDiff < 64)
-                                {
-                                    ap->nAction = 2;
-                                    ap->nFrame = 0;
-                                }
-                                break;
-                            }
-                            // else we fall through to 0x8000
-                            fallthrough__;
-                        }
-                        case 0x8000:
-                        {
-                            sp->ang = (sp->ang + 256) & kAngleMask;
-                            sp->xvel = bcos(sp->ang, -2);
-                            sp->yvel = bsin(sp->ang, -2);
-                            break;
-                        }
-
-                        default:
-                        {
-                            if (ap->nCount)
-                            {
-                                ap->nCount--;
-                            }
-                            else
-                            {
-                                ap->nCount = 60;
-
-                                if (nTarget > -1) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
-                                {
-                                    if (cansee(sp->x, sp->y, sp->z - GetSpriteHeight(nSprite), sp->sectnum,
-                                        sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
-                                    {
-                                        sp->xvel = 0;
-                                        sp->yvel = 0;
-                                        sp->ang = GetMyAngle(sprite[nTarget].x - sp->x, sprite[nTarget].y - sp->y);
-
-                                        ap->nAction = 3;
-                                        ap->nFrame = 0;
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case 2:
-                {
-                    if (nTarget == -1)
-                    {
-                        ap->nAction = 0;
-                        ap->nCount = 50;
-                    }
-                    else
-                    {
-                        if (PlotCourseToSprite(nSprite, nTarget) >= 768)
-                        {
-                            ap->nAction = 1;
-                        }
-                        else
-                        {
-                            if (nFlag & 0x80)
-                            {
-                                runlist_DamageEnemy(nTarget, nSprite, 7);
-                            }
-                        }
-                    }
-
-                    break;
-                }
-                case 3:
-                {
-                    if (bVal)
-                    {
-                        ap->nAction = 1;
-
-                        sp->xvel = bcos(sp->ang, -2);
-                        sp->yvel = bsin(sp->ang, -2);
-                        ap->nFrame = 0;
-                    }
-                    else
-                    {
-                        // loc_25718:
-                        if (nFlag & 0x80)
-                        {
-                            BuildBullet(nSprite, 8, 0, 0, -1, sp->ang, nTarget + 10000, 1);
-                        }
-                    }
-
-                    return;
-                }
-                case 4:
-                case 5:
-                {
-                    sp->xvel = 0;
-                    sp->yvel = 0;
-
-                    if (bVal)
-                    {
-                        ap->nAction = 1;
-                        ap->nFrame = 0;
-                    }
-                    return;
-                }
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                case 10:
-                {
-                    if (bVal)
-                    {
-                        ap->nAction = (RandomSize(3) % 5) + 6;
-                        ap->nFrame = 0;
-                    }
-                    return;
-                }
-                case 11:
-                case 12:
-                {
-                    if (bVal)
-                    {
-                        ap->nAction = nAction + 2;
-                        ap->nFrame = 0;
-
-                        sp->xvel = 0;
-                        sp->yvel = 0;
-                    }
-                    return;
-                }
-                case 13:
-                case 14:
-                {
-                    sp->cstat &= 0xFEFE;
-                    return;
-                }
-
-                default:
-                    return;
-            }
-
-            // loc_2564C:
-            if (nAction && nTarget != -1)
-            {
-                if (!(sprite[nTarget].cstat & 0x101))
-                {
-                    ap->nAction = 0;
-                    ap->nFrame = 0;
-                    ap->nCount = 100;
-                    ap->nTarget = -1;
-
-                    sp->xvel = 0;
-                    sp->yvel = 0;
-                }
-            }
-
-            return;
+            int nAngle = sp->ang & 0xFFF8;
+            sp->xvel = bcos(nAngle, -2);
+            sp->yvel = bsin(nAngle, -2);
         }
 
-        case 0x90000:
+        switch (move.type)
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a, ap->nFrame, AnubisSeq[nAction].b);
+        case kHitSprite:
+        {
+            if (move.actor == pTarget)
+            {
+                int nAng = getangle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
+                int nAngDiff = AngleDiff(sp->ang, nAng);
+
+                if (nAngDiff < 64)
+                {
+                    ap->nAction = 2;
+                    ap->nFrame = 0;
+                }
+                break;
+            }
+            // else we fall through to 0x8000
+            [[fallthrough]];
+        }
+        case kHitWall:
+        {
+            sp->ang = (sp->ang + 256) & kAngleMask;
+            sp->xvel = bcos(sp->ang, -2);
+            sp->yvel = bsin(sp->ang, -2);
             break;
         }
 
-        case 0xA0000: // fall through to next case
+        default:
         {
-            if (nAction >= 11) {
+            if (ap->nCount)
+            {
+                ap->nCount--;
+            }
+            else
+            {
+                ap->nCount = 60;
+
+                if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
+                {
+                    if (cansee(sp->x, sp->y, sp->z - GetActorHeight(ap), sp->sectnum,
+                        pTarget->s().x, pTarget->s().y, pTarget->s().z - GetActorHeight(pTarget), pTarget->s().sectnum))
+                    {
+                        sp->xvel = 0;
+                        sp->yvel = 0;
+                        sp->ang = GetMyAngle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
+
+                        ap->nAction = 3;
+                        ap->nFrame = 0;
+                    }
+                }
+            }
+            break;
+        }
+        }
+        break;
+    }
+    case 2:
+    {
+        if (pTarget == nullptr)
+        {
+            ap->nAction = 0;
+            ap->nCount = 50;
+        }
+        else
+        {
+            if (PlotCourseToSprite(ap, pTarget) >= 768)
+            {
+                ap->nAction = 1;
+            }
+            else
+            {
+                if (nFlag & 0x80)
+                {
+                    runlist_DamageEnemy(pTarget, ap, 7);
+                }
+            }
+        }
+
+        break;
+    }
+    case 3:
+    {
+        if (bVal)
+        {
+            ap->nAction = 1;
+
+            sp->xvel = bcos(sp->ang, -2);
+            sp->yvel = bsin(sp->ang, -2);
+            ap->nFrame = 0;
+        }
+        else
+        {
+            // loc_25718:
+            if (nFlag & 0x80)
+            {
+                BuildBullet(ap, 8, -1, sp->ang, pTarget, 1);
+            }
+        }
+
+        return;
+    }
+    case 4:
+    case 5:
+    {
+        sp->xvel = 0;
+        sp->yvel = 0;
+
+        if (bVal)
+        {
+            ap->nAction = 1;
+            ap->nFrame = 0;
+        }
+        return;
+    }
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    {
+        if (bVal)
+        {
+            ap->nAction = (RandomSize(3) % 5) + 6;
+            ap->nFrame = 0;
+        }
+        return;
+    }
+    case 11:
+    case 12:
+    {
+        if (bVal)
+        {
+            ap->nAction = nAction + 2;
+            ap->nFrame = 0;
+
+            sp->xvel = 0;
+            sp->yvel = 0;
+        }
+        return;
+    }
+    case 13:
+    case 14:
+    {
+        sp->cstat &= 0xFEFE;
+        return;
+    }
+
+    default:
+        return;
+    }
+
+    // loc_2564C:
+    if (nAction && pTarget != nullptr)
+    {
+        if (!(pTarget->s().cstat & 0x101))
+        {
+            ap->nAction = 0;
+            ap->nFrame = 0;
+            ap->nCount = 100;
+            ap->pTarget = nullptr;
+
+            sp->xvel = 0;
+            sp->yvel = 0;
+        }
+    }
+}
+
+void AIAnubis::Draw(RunListEvent* ev)
+{
+    auto ap = ev->pObjActor;
+    if (!ap) return;
+
+    seq_PlotSequence(ev->nParam, SeqOffsets[kSeqAnubis] + AnubisSeq[ap->nAction].a, ap->nFrame, AnubisSeq[ap->nAction].b);
+}
+
+void AIAnubis::RadialDamage(RunListEvent* ev)
+{
+    auto ap = ev->pObjActor;
+    if (!ap) return;
+    if (ap->nAction < 11) 
+	{
+    	ev->nDamage = runlist_CheckRadialDamage(ap);
+	    Damage(ev);
+	}
+}
+
+void AIAnubis::Damage(RunListEvent* ev)
+{
+    auto ap = ev->pObjActor;
+    if (!ap) return;
+    auto sp = &ap->s();
+    int nAction = ap->nAction;
+    int nDamage = ev->nDamage;
+
+    if (nDamage)
+    {
+        if (ap->nHealth <= 0)
+            return;
+
+        ap->nHealth -= dmgAdjust(nDamage);
+
+        if (ap->nHealth > 0)
+        {
+            // loc_258D6:
+            if (ev->pOtherActor == nullptr) {
                 return;
             }
+            auto pTarget = &ev->pOtherActor->s();
 
-            nDamage = runlist_CheckRadialDamage(nSprite);
-            fallthrough__;
-        }
-        case 0x80000:
-        {
-            if (nDamage)
+            if (pTarget->statnum == 100 || pTarget->statnum < 199)
             {
-                if (ap->nHealth <= 0)
-                    return;
-
-                ap->nHealth -= dmgAdjust(nDamage);
-
-                if (ap->nHealth > 0)
-                {
-                    short nTarget = a & 0xFFFF;
-
-                    // loc_258D6:
-                    if (nTarget < 0) {
-                        return;
-                    }
-
-                    if (sprite[nTarget].statnum == 100 || sprite[nTarget].statnum < 199)
-                    {
-                        if (!RandomSize(5)) {
-                            ap->nTarget = nTarget;
-                        }
-                    }
-
-                    if (RandomSize(1))
-                    {
-                        if (nAction >= 6 && nAction <= 10)
-                        {
-                            int nDrumSprite = insertsprite(sp->sectnum, kStatAnubisDrum);
-
-                            sprite[nDrumSprite].x = sp->x;
-                            sprite[nDrumSprite].y = sp->y;
-                            sprite[nDrumSprite].z = sector[sprite[nDrumSprite].sectnum].floorz;
-                            sprite[nDrumSprite].xrepeat = 40;
-                            sprite[nDrumSprite].yrepeat = 40;
-                            sprite[nDrumSprite].shade = -64;
-
-                            BuildObject(nDrumSprite, 2, 0);
-                        }
-
-                        ap->nAction = 4;
-                        ap->nFrame = 0;
-                    }
-                    else
-                    {
-                        // loc_259B5:
-                        D3PlayFX(StaticSound[kSound39], nSprite);
-                    }
-                }
-                else
-                {
-                    // he ded.
-                    sp->xvel = 0;
-                    sp->yvel = 0;
-                    sp->zvel = 0;
-                    sp->z = sector[sp->sectnum].floorz;
-                    sp->cstat &= 0xFEFE;
-
-                    ap->nHealth = 0;
-
-                    nCreaturesKilled++;
-
-                    if (nAction < 11)
-                    {
-                        DropMagic(nSprite);
-                        ap->nAction = (nMessage == 0xA0000) + 11;
-                        ap->nFrame = 0;
-                    }
+                if (!RandomSize(5)) {
+                    ap->pTarget = ev->pOtherActor;
                 }
             }
 
-            return;
+            if (RandomSize(1))
+            {
+                if (nAction >= 6 && nAction <= 10)
+                {
+                    auto pDrumActor = insertActor(sp->sectnum, kStatAnubisDrum);
+                    auto pDrumSprite = &pDrumActor->s();
+
+                    pDrumSprite->x = sp->x;
+                    pDrumSprite->y = sp->y;
+                    pDrumSprite->z = sector[pDrumSprite->sectnum].floorz;
+                    pDrumSprite->xrepeat = 40;
+                    pDrumSprite->yrepeat = 40;
+                    pDrumSprite->shade = -64;
+
+                    BuildObject(pDrumActor->GetSpriteIndex(), 2, 0);
+                }
+
+                ap->pTarget = ev->pOtherActor;
+                ap->nAction = 4;
+                ap->nFrame = 0;
+            }
+            else
+            {
+                // loc_259B5:
+                D3PlayFX(StaticSound[kSound39], ap);
+            }
         }
+        else
+        {
+            // he ded.
+            sp->xvel = 0;
+            sp->yvel = 0;
+            sp->zvel = 0;
+            sp->z = sector[sp->sectnum].floorz;
+            sp->cstat &= 0xFEFE;
+
+            ap->nHealth = 0;
+
+            nCreaturesKilled++;
+
+            if (nAction < 11)
+            {
+                DropMagic(ap);
+                ap->nAction = (ev->nMessage == EMessageType::RadialDamage) + 11;
+                ap->nFrame = 0;
+            }
         }
+    }
 }
+
+
+void FuncAnubis(int nObject, int nMessage, int nDamage, int nRun)
+{
+    AIAnubis ai;
+    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
+}
+
 END_PS_NS

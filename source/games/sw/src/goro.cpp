@@ -457,28 +457,28 @@ ACTOR_ACTION_SET GoroActionSet =
 {
     sg_GoroStand,
     sg_GoroRun,
-    NULL, //sg_GoroJump,
-    NULL, //sg_GoroFall,
-    NULL, //sg_GoroCrawl,
-    NULL, //sg_GoroSwim,
-    NULL, //sg_GoroFly,
-    NULL, //sg_GoroRise,
-    NULL, //sg_GoroSit,
-    NULL, //sg_GoroLook,
-    NULL, //climb
+    nullptr, //sg_GoroJump,
+    nullptr, //sg_GoroFall,
+    nullptr, //sg_GoroCrawl,
+    nullptr, //sg_GoroSwim,
+    nullptr, //sg_GoroFly,
+    nullptr, //sg_GoroRise,
+    nullptr, //sg_GoroSit,
+    nullptr, //sg_GoroLook,
+    nullptr, //climb
     sg_GoroPain,
     sg_GoroDie,
-    NULL, //sg_GoroHariKari,
+    nullptr, //sg_GoroHariKari,
     sg_GoroDead,
-    NULL, //sg_GoroDeathJump,
-    NULL, //sg_GoroDeathFall,
+    nullptr, //sg_GoroDeathJump,
+    nullptr, //sg_GoroDeathFall,
     {sg_GoroChop},
     {1024},
     {sg_GoroSpell},
     {1024},
-    {NULL,NULL},
-    NULL,
-    NULL
+    {nullptr,nullptr},
+    nullptr,
+    nullptr
 };
 
 int

@@ -209,45 +209,42 @@ void actAddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange
 void actDoLight(int spriteNum);
 #endif
 
+void FireballSeqCallback(int, int);
+void sub_38938(int, int);
+void NapalmSeqCallback(int, int);
+void sub_3888C(int, int);
+void TreeToGibCallback(int, int);
+
 bool IsUnderwaterSector(int nSector);
 void actInit(bool bSaveLoad);
 int actWallBounceVector(int *x, int *y, int nWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
 void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);
-spritetype *actDropObject(spritetype *pSprite, int nType);
+DBloodActor *actDropObject(DBloodActor *pSprite, int nType);
 bool actHealDude(DBloodActor* pXDude, int a2, int a3);
-bool actHealDude(XSPRITE *pXDude, int a2, int a3);
 void actKillDude(DBloodActor* a1, DBloodActor* pSprite, DAMAGE_TYPE a3, int a4);
-void actKillDude(int a1, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
-int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE a3, int a4);
 int actDamageSprite(DBloodActor* pSource, DBloodActor* pTarget, DAMAGE_TYPE damageType, int damage);
 void actHitcodeToData(int a1, HITINFO *pHitInfo, DBloodActor **actor, walltype **a7 = nullptr);
-void actAirDrag(spritetype *pSprite, int a2);
-int MoveThing(spritetype *pSprite);
-void MoveDude(spritetype *pSprite);
-int MoveMissile(spritetype *pSprite);
-void actExplodeSprite(spritetype *pSprite);
+void actAirDrag(DBloodActor *pSprite, int a2);
+void actExplodeSprite(DBloodActor *pSprite);
 void actActivateGibObject(DBloodActor *actor);
-bool IsUnderWater(spritetype *pSprite);
 void actProcessSprites(void);
-spritetype * actSpawnSprite_(int nSector, int x, int y, int z, int nStat, char a6);
 DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool a6);
-spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4);
-spritetype * actSpawnSprite(spritetype *pSource, int nStat);
-spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
-spritetype * actFireThing_(spritetype *pSprite, int a2, int a3, int a4, int thingType, int a6);
+DBloodActor* actSpawnDude(DBloodActor* pSource, short nType, int a3, int a4);
+DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
+DBloodActor * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
 DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6);
+DBloodActor* actFireMissile(DBloodActor *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
 
-spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
-int actGetRespawnTime(spritetype *pSprite);
-bool actCheckRespawn(spritetype *pSprite);
+int actGetRespawnTime(DBloodActor *pSprite);
+bool actCheckRespawn(DBloodActor *pSprite);
 bool actCanSplatWall(int nWall);
-void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType);
+void actFireVector(DBloodActor *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType);
 void actPostSprite(int nSprite, int nStatus);
 void actPostSprite(DBloodActor* actor, int status);
 void actPostProcess(void);
 void MakeSplash(DBloodActor *actor);
-void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite);
+void actBuildMissile(DBloodActor* spawned, DBloodActor* actor);
 
 extern const int DudeDifficulty[];
 
