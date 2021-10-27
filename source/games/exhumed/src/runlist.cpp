@@ -1779,7 +1779,7 @@ void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage
     case EMessageType::RadialDamage:
         ev.nRadialDamage = nRadialDamage;
         ev.nDamageRadius = nDamageRadius;
-        ev.pOtherActor = &exhumedActors[nObject];
+        ev.pOtherActor = nullptr; // &exhumedActors[nObject]; nObject is always 0 here, this was setting some random invalid target
         ev.pRadialActor = &exhumedActors[nRadialSpr];
         ai->RadialDamage(&ev);
         break;
