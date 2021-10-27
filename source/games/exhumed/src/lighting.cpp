@@ -38,9 +38,9 @@ enum
 
 struct Flash
 {
-    char field_0;
+    int8_t nType;
     int8_t shade;
-    short field_1;
+    short nIndex;
     int next;
 };
 
@@ -95,9 +95,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Flash& w, Flash* d
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
+        arc("at0", w.nType)
             ("shade", w.shade)
-            ("at1", w.field_1)
+            ("at1", w.nIndex)
             ("next", w.next)
             .EndObject();
     }
@@ -277,9 +277,9 @@ void AddFlash(short nSector, int x, int y, int z, int val)
                         return;
                     }
 
-                    sFlash[nFlash].field_0 = var_20 | 2;
+                    sFlash[nFlash].nType = var_20 | 2;
                     sFlash[nFlash].shade = wall[i].shade;
-                    sFlash[nFlash].field_1 = i;
+                    sFlash[nFlash].nIndex = i;
 
                     wall[i].pal += 7;
 
@@ -308,8 +308,8 @@ void AddFlash(short nSector, int x, int y, int z, int val)
             return;
         }
 
-        sFlash[nFlash].field_0 = var_20 | 1;
-        sFlash[nFlash].field_1 = nSector;
+        sFlash[nFlash].nType = var_20 | 1;
+        sFlash[nFlash].nIndex = nSector;
         sFlash[nFlash].shade = sector[nSector].floorshade;
 
         sector[nSector].floorpal += 7;
@@ -330,8 +330,8 @@ void AddFlash(short nSector, int x, int y, int z, int val)
                 short nFlash2 = GrabFlash();
                 if (nFlash2 >= 0)
                 {
-                    sFlash[nFlash2].field_0 = var_20 | 3;
-                    sFlash[nFlash2].field_1 = nSector;
+                    sFlash[nFlash2].nType = var_20 | 3;
+                    sFlash[nFlash2].nIndex = nSector;
                     sFlash[nFlash2].shade = sector[nSector].ceilingshade;
 
                     sector[nSector].ceilingpal += 7;
@@ -357,9 +357,9 @@ void AddFlash(short nSector, int x, int y, int z, int val)
                 short nFlash3 = GrabFlash();
                 if (nFlash3 >= 0)
                 {
-                    sFlash[nFlash3].field_0 = var_20 | 4;
+                    sFlash[nFlash3].nType = var_20 | 4;
                     sFlash[nFlash3].shade = pSprite->shade;
-                    sFlash[nFlash3].field_1 = pActor->GetSpriteIndex();
+                    sFlash[nFlash3].nIndex = pActor->GetSpriteIndex();
 
                     pSprite->pal += 7;
 
@@ -405,17 +405,17 @@ void UndoFlashes()
     {
         assert(nFlash < 2000 && nFlash >= 0);
 
-        uint8_t var_28 = sFlash[nFlash].field_0 & 0x3F;
-        short nIndex = sFlash[nFlash].field_1;
+        uint8_t type = sFlash[nFlash].nType & 0x3F;
+        short nIndex = sFlash[nFlash].nIndex;
 
-        if (sFlash[nFlash].field_0 & 0x80)
+        if (sFlash[nFlash].nType & 0x80)
         {
-            int var_20 = var_28 - 1;
-            assert(var_20 >= 0);
+            int flashtype = type - 1;
+            assert(flashtype >= 0);
 
             int8_t *pShade = NULL;
 
-            switch (var_20)
+            switch (flashtype)
             {
                 case 0:
                 {
@@ -474,7 +474,7 @@ void UndoFlashes()
         }
 
         // loc_185FE
-        var_24 = var_28 - 1; // CHECKME - Watcom error "initializer for variable var_24 may not execute
+        var_24 = type - 1; // CHECKME - Watcom error "initializer for variable var_24 may not execute
         assert(var_24 >= 0);
 
         switch (var_24)
