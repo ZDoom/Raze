@@ -173,13 +173,6 @@ void AISoul::Tick(RunListEvent* ev)
 }
 
 
-
-void FuncSoul(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISoul ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 void AISet::RadialDamage(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
@@ -643,9 +636,4 @@ void AISet::Tick(RunListEvent* ev)
     return;
 }
 
-void FuncSet(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISet ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

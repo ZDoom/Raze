@@ -298,11 +298,5 @@ void AIRa::Draw(RunListEvent* ev)
     ev->pTSprite->owner = -1;
 }
 
-void FuncRa(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIRa ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-
-}
 
 END_PS_NS

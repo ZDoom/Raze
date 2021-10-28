@@ -364,10 +364,4 @@ void AIWasp::Tick(RunListEvent* ev)
     }
 }
 
-void FuncWasp(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIWasp ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 END_PS_NS

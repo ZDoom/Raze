@@ -423,10 +423,4 @@ void AISnake::Draw(RunListEvent* ev)
     ev->pTSprite->owner = -1;
 }
 
-
-void FuncSnake(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISnake ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

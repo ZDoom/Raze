@@ -482,9 +482,4 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
 }
 
 
-void FuncScorp(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIScorp ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

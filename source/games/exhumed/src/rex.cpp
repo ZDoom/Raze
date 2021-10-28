@@ -455,9 +455,4 @@ void AIRex::Tick(RunListEvent* ev)
 }
 
 
-void FuncRex(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIRex ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

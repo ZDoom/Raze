@@ -150,12 +150,6 @@ void AISWReady::Process(RunListEvent* ev)
     }
 }
 
-void FuncSwReady(int nObject, int nMessage, int, int nRun)
-{
-    AISWReady ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
-
 std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx)
 {
     for (int i = kMaxSwitches - 1; i >= SwitchCount; i--)
@@ -239,12 +233,6 @@ void AISWPause::Process(RunListEvent* ev)
     SwitchData[nSwitch].nWaitTimer = eax;
 }
 
-void FuncSwPause(int nObject, int nMessage, int, int nRun)
-{
-    AISWPause ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
-
 std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
@@ -307,12 +295,6 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
 
         runlist_ChangeChannel(nChannel, LinkMap[nLink].v[sRunChannels[nChannel].c]);
     }
-}
-
-void FuncSwStepOn(int nObject, int nMessage, int, int nRun)
-{
-    AISWStepOn ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
 }
 
 std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
@@ -401,12 +383,6 @@ void AISWNotOnPause::TouchFloor(RunListEvent* ev)
     return;
 }
 
-void FuncSwNotOnPause(int nObject, int nMessage, int, int nRun)
-{
-    AISWNotOnPause ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
-
 std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int keyMask)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
@@ -474,12 +450,6 @@ void AISWPressSector::Use(RunListEvent* ev)
 
 }
 
-void FuncSwPressSector(int nObject, int nMessage, int, int nRun)
-{
-    AISWPressSector ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
-
 std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall)
 {
     if (SwitchCount <= 0 || nLink < 0 || nWall < 0) {
@@ -541,9 +511,4 @@ void AISWPressWall::Use(RunListEvent* ev)
     PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, 0, nSector, CHANF_LISTENERZ);
 }
 
-void FuncSwPressWall(int nObject, int nMessage, int, int nRun)
-{
-    AISWPressWall ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
 END_PS_NS

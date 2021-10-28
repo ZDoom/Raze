@@ -475,10 +475,4 @@ void AIMummy::Damage(RunListEvent* ev)
     return;
 }
 
-void FuncMummy(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIMummy ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 END_PS_NS

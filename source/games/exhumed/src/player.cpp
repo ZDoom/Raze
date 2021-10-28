@@ -2621,14 +2621,6 @@ sectdone:
 }
 
 
-
-void FuncPlayer(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIPlayer ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player* def)
 {
     if (arc.BeginObject(keyname))

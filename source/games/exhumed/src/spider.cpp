@@ -408,9 +408,4 @@ void AISpider::Damage(RunListEvent* ev)
     }
 }
 
-void FuncSpider(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISpider ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

@@ -81,48 +81,90 @@ void SerializeRunList(FSerializer& arc)
     }
 }
 
-AiFunc aiFunctions[kFuncMax] = {
-    FuncElev,
-    FuncSwReady,
-    FuncSwPause,
-    FuncSwStepOn,
-    FuncSwNotOnPause,
-    FuncSwPressSector,
-    FuncSwPressWall,
-    FuncWallFace,
-    FuncSlide,
-    FuncAnubis,
-    FuncPlayer,
-    FuncBullet,
-    FuncSpider,
-    FuncCreatureChunk,
-    FuncMummy,
-    FuncGrenade,
-    FuncAnim,
-    FuncSnake,
-    FuncFish,
-    FuncLion,
-    FuncBubble,
-    FuncLava,
-    FuncLavaLimb,
-    FuncObject,
-    FuncRex,
-    FuncSet,
-    FuncQueen,
-    FuncQueenHead,
-    FuncRoach,
-    FuncQueenEgg,
-    FuncWasp,
-    FuncTrap,
-    FuncFishLimb,
-    FuncRa,
-    FuncScorp,
-    FuncSoul,
-    FuncRat,
-    FuncEnergyBlock,
-    FuncSpark,
-};
+AIElev aiElev;
+AISWReady aiSwReady;
+AISWPause aiSwPause;
+AISWStepOn aiSwStepOn;
+AISWNotOnPause aiSwNotOnPause;
+AISWPressSector aiSwPressSector;
+AISWPressWall aiSwPressWall;
+AIWallFace aiWallFace;
+AISlide aiSlide;
+AIAnubis aiAnubis;
+AIPlayer aiPlayer;
+AIBullet aiBullet;
+AISpider aiSpider;
+AICreatureChunk aiCreatureChunk;
+AIMummy aiMummy;
+AIGrenade aiGrenade;
+AIAnim aiAnim;
+AISnake aiSnake;
+AIFish aiFish;
+AILion aiLion;
+AIBubble aiBubble;
+AILavaDude aiLava;
+AILavaDudeLimb aiLavaLimb;
+AIObject aiObject;
+AIRex aiRex;
+AISet aiSet;
+AIQueen aiQueen;
+AIQueenHead aiQueenHead;
+AIRoach aiRoach;
+AIQueenEgg aiQueenEgg;
+AIWasp aiWasp;
+AITrap aiTrap;
+AIFishLimb aiFishLimb;
+AIRa aiRa;
+AIScorp aiScorp;
+AISoul aiSoul;
+AIRat aiRat;
+AIEnergyBlock aiEnergyBlock;
+AISpark aiSpark;
 
+
+ExhumedAI* ais[kFuncMax] =
+{
+    &aiElev,
+    &aiSwReady,
+    &aiSwPause,
+    &aiSwStepOn,
+    &aiSwNotOnPause,
+    &aiSwPressSector,
+    &aiSwPressWall,
+    &aiWallFace,
+    &aiSlide,
+    &aiAnubis,
+    &aiPlayer,
+    &aiBullet,
+    &aiSpider,
+    &aiCreatureChunk,
+    &aiMummy,
+    &aiGrenade,
+    &aiAnim,
+    &aiSnake,
+    &aiFish,
+    &aiLion,
+    &aiBubble,
+    &aiLava,
+    &aiLavaLimb,
+    &aiObject,
+    &aiRex,
+    &aiSet,
+    &aiQueen,
+    &aiQueenHead,
+    &aiRoach,
+    &aiQueenEgg,
+    &aiWasp,
+    &aiTrap,
+    &aiFishLimb,
+    &aiRa,
+    &aiScorp,
+    &aiSoul,
+    &aiRat,
+    &aiEnergyBlock,
+    &aiSpark,
+};
+extern AiFunc aiFunctions[kFuncMax];
 
 int runlist_GrabRun()
 {
@@ -1721,66 +1763,5 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, short nD
         }
     }
 }
-
-// This is only temporary so that the event system can be refactored in smaller steps.
-void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun)
-{
-    RunListEvent ev{};
-    ev.nMessage = (EMessageType)(nMessage >> 16);
-    ev.nObjIndex = RunData[nRun].nObjIndex;
-    ev.pObjActor = RunData[nRun].pObjActor;
-    ev.nParam = nObject;
-    ev.nDamage = nDamage;
-    ev.nRun = nRun;
-    switch (ev.nMessage)
-    {
-    case EMessageType::ProcessChannel:
-        ai->ProcessChannel(&ev);
-        break;
-
-    case EMessageType::Tick:
-        ai->Tick(&ev);
-        break;
-
-    case EMessageType::Process:
-        ai->Process(&ev);
-        break;
-
-    case EMessageType::Use:
-        ai->Use(&ev);
-        break;
-
-    case EMessageType::TouchFloor:
-        ai->TouchFloor(&ev);
-        break;
-
-    case EMessageType::LeaveSector:
-        ai->LeaveSector(&ev);
-        break;
-
-    case EMessageType::EnterSector:
-        ai->EnterSector(&ev);
-        break;
-
-    case EMessageType::Damage:
-        ev.pOtherActor = &exhumedActors[nObject];
-        ai->Damage(&ev);
-        break;
-
-    case EMessageType::Draw:
-        ev.pTSprite = &mytsprite[nObject];
-        ai->Draw(&ev);
-        break;
-
-    case EMessageType::RadialDamage:
-        ev.nRadialDamage = nRadialDamage;
-        ev.nDamageRadius = nDamageRadius;
-        ev.pOtherActor = nullptr; // &exhumedActors[nObject]; nObject is always 0 here, this was setting some random invalid target
-        ev.pRadialActor = pRadialActor;
-        ai->RadialDamage(&ev);
-        break;
-    }
-}
-
 
 END_PS_NS

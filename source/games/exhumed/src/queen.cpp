@@ -690,13 +690,6 @@ void AIQueenEgg::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqQueenEgg] + EggSeq[pEgg->nAction].a, pEgg->nFrame, EggSeq[pEgg->nAction].b);
 }
 
-
-void FuncQueenEgg(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIQueenEgg ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 void BuildQueenHead(short nQueen)
 {
     auto pActor = QueenList[nQueen].pActor;
@@ -1107,13 +1100,6 @@ void AIQueenHead::Draw(RunListEvent* ev)
     }
 
     seq_PlotSequence(ev->nParam, nSeq, QueenHead.nFrame, edx);
-}
-
-
-void FuncQueenHead(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIQueenHead ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 void BuildQueen(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle, int nChannel)
@@ -1529,12 +1515,6 @@ void AIQueen::Draw(RunListEvent* ev)
     assert(nQueen >= 0 && nQueen < kMaxQueens);
     short nAction = QueenList[nQueen].nAction;
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqQueen] + QueenSeq[nAction].a, QueenList[nQueen].nFrame, QueenSeq[nAction].b);
-}
-
-void FuncQueen(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIQueen ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 END_PS_NS

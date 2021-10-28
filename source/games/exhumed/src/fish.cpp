@@ -145,12 +145,6 @@ void AIFishLimb::Draw(RunListEvent* ev)
 }
 
 
-void  FuncFishLimb(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIFishLimb ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 void BuildFish(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle)
 {
 	spritetype* pSprite;
@@ -512,13 +506,6 @@ void AIFish::Tick(RunListEvent* ev)
             IdleFish(pActor, 1);
         }
     }
-}
-
-
-void  FuncFish(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIFish ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 END_PS_NS

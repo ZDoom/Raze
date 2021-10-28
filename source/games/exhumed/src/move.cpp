@@ -1555,13 +1555,6 @@ void AICreatureChunk::Tick(RunListEvent* ev)
     pSprite->lotag = 0;
 }
 
-void  FuncCreatureChunk(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AICreatureChunk ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-
-}
-
 DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
 {
     if (*ppEnemy)

@@ -103,11 +103,6 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, (SeqOffsets[kSeqLavag] + 30) + pActor->s().picnum, 0, 1);
 }
 
-void  FuncLavaLimb(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AILavaDudeLimb ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 
 void BuildLava(DExhumedActor* pActor, int x, int y, int, short nSector, short nAngle, int nChannel)
 {
@@ -464,10 +459,4 @@ void AILavaDude::Tick(RunListEvent* ev)
     pSprite->pal = 1;
 }
 
-
-void  FuncLava(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AILavaDude ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

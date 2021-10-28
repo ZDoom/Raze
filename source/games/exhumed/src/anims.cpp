@@ -234,12 +234,6 @@ void AIAnim::Draw(RunListEvent* ev)
     ev->pTSprite->owner = -1;
 }
 
-void  FuncAnim(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIAnim ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 void BuildExplosion(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();

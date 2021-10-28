@@ -391,10 +391,4 @@ void AIRoach::Tick(RunListEvent* ev)
     }
 }
 
-void FuncRoach(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIRoach ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 END_PS_NS

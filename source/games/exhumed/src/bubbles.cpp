@@ -118,11 +118,6 @@ void AIBubble::Draw(RunListEvent* ev)
     ev->pTSprite->owner = -1;
 }
 
-void  FuncBubble(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIBubble ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 
 void DoBubbleMachines()
 {

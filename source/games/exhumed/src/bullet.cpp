@@ -879,9 +879,4 @@ void AIBullet::Draw(RunListEvent* ev)
     }
 }
 
-void FuncBullet(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIBullet ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

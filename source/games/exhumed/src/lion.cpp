@@ -555,12 +555,4 @@ void AILion::Tick(RunListEvent* ev)
     }
 }
 
-
-
-void FuncLion(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AILion ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 END_PS_NS

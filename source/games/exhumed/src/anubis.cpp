@@ -448,10 +448,4 @@ void AIAnubis::Damage(RunListEvent* ev)
 }
 
 
-void FuncAnubis(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIAnubis ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 END_PS_NS

@@ -902,12 +902,6 @@ void AIElev::Tick(RunListEvent* ev)
 }
 
 
-void FuncElev(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIElev ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 // done
 void InitWallFace()
 {
@@ -954,12 +948,6 @@ void AIWallFace::ProcessChannel(RunListEvent* ev)
     {
         wall[WallFace[nWallFace].nWall].picnum = WallFace[nWallFace].field_6[si];
     }
-}
-
-void FuncWallFace(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIWallFace ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 // done
@@ -1265,12 +1253,6 @@ void AISlide::Tick(RunListEvent* ev)
     }
 }
 
-void FuncSlide(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISlide ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 {
     auto pSprite = &pActor->s();
@@ -1433,12 +1415,6 @@ void AITrap::Tick(RunListEvent* ev)
     }
 }
 
-void FuncTrap(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AITrap ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 int BuildArrow(DExhumedActor* nSprite, int nVal)
 {
     return BuildTrap(nSprite, 0, -1, nVal);
@@ -1565,12 +1541,6 @@ void AISpark::Tick(RunListEvent* ev)
     DeleteActor(pActor);
 }
 
-
-void FuncSpark(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISpark ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 
 void DimLights()
 {
@@ -1917,13 +1887,6 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
 }
 
 
-
-void FuncEnergyBlock(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIEnergyBlock ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 {
     auto spr = &pActor->s();
@@ -2228,13 +2191,6 @@ void AIObject::RadialDamage(RunListEvent* ev)
             pActor->nHealth = -(RandomSize(4) + 1);
         }
     }
-}
-
-
-void FuncObject(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIObject ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 void BuildDrip(DExhumedActor* pActor)
