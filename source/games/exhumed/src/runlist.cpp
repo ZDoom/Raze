@@ -1713,7 +1713,7 @@ void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadi
 
     if (pRadialActor == nullptr)
     {
-        nRadialDamage = nDamage;
+        nRadialDamage = nDamage * 4;
         nDamageRadius = nRadius;
         pRadialActor = pActor;
 
