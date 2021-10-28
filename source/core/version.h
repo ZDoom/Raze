@@ -72,12 +72,12 @@ const char *GetVersionString();
 #define MINSAVEVER_DN3D 10
 #define MINSAVEVER_BLD 11
 #define MINSAVEVER_SW 12
-#define MINSAVEVER_PS 12
+#define MINSAVEVER_PS 14
 
 #define SAVEVER_DN3D 11
 #define SAVEVER_BLD 11
 #define SAVEVER_SW 12
-#define SAVEVER_PS 13
+#define SAVEVER_PS 14
 #define OLD_SAVEGAME 1	// this is to keep writing out the old format in Blood, even when data has been refactored. 
 
 #define NETGAMEVERSION 1
