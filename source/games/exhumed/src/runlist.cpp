@@ -1713,7 +1713,7 @@ void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadi
 
     if (pRadialActor == nullptr)
     {
-        nRadialDamage = nDamage * 4;
+        nRadialDamage = nDamage;
         nDamageRadius = nRadius;
         pRadialActor = pActor;
 
@@ -1740,7 +1740,7 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, short nD
 
     RunListEvent ev{};
     ev.pOtherActor = pActor2;
-    ev.nDamage = nDamage;
+    ev.nDamage = nDamage * 4;
     runlist_SendMessage(nRun, -1, &ExhumedAI::Damage, &ev);
 
     // is there now one less creature? (has one died)
