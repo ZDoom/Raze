@@ -399,6 +399,8 @@ struct RunListEvent
     int nRadialDamage;          // Radial damage needs a bit more info.
     int nDamageRadius;
     DExhumedActor* pRadialActor;
+
+    bool isRadialEvent() const { return nMessage == EMessageType::RadialDamage; }
 };
 
 struct ExhumedAI

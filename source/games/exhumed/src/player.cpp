@@ -650,7 +650,7 @@ void AIPlayer::Damage(RunListEvent* ev)
         return;
     }
 
-    DExhumedActor* pActor2 = (ev->nMessage != EMessageType::RadialDamage) ? ev->pOtherActor : ev->pRadialActor->pTarget;
+    DExhumedActor* pActor2 = (!ev->isRadialEvent()) ? ev->pOtherActor : ev->pRadialActor->pTarget;
 
     // ok continue case 0x80000 as normal, loc_1C57C
     if (!PlayerList[nPlayer].nHealth) {
@@ -726,7 +726,7 @@ void AIPlayer::Damage(RunListEvent* ev)
             PlayerList[nPlayer].nPlayerScore--;
         }
 
-        if (ev->nMessage == EMessageType::RadialDamage)
+        if (ev->isRadialEvent())
         {
             for (int i = 122; i <= 131; i++)
             {

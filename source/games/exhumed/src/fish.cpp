@@ -287,7 +287,7 @@ void AIFish::Damage(RunListEvent* ev)
 
         pSprite->cstat &= 0xFEFE;
 
-        if (ev->nMessage == EMessageType::Damage)
+        if (!ev->isRadialEvent())
         {
             for (int i = 0; i < 3; i++)
             {

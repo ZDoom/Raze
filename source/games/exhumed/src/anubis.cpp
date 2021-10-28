@@ -440,7 +440,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             if (nAction < 11)
             {
                 DropMagic(ap);
-                ap->nAction = (ev->nMessage == EMessageType::RadialDamage) + 11;
+                ap->nAction = int(ev->isRadialEvent()) + 11;
                 ap->nFrame = 0;
             }
         }

@@ -140,7 +140,7 @@ void AILion::Damage(RunListEvent* ev)
             {
                 DropMagic(pActor);
 
-                if (ev->nMessage == EMessageType::RadialDamage)
+                if (ev->isRadialEvent())
                 {
                     pActor->nAction = 11;
                 }
