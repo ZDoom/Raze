@@ -164,7 +164,7 @@ ExhumedAI* ais[kFuncMax] =
     &aiEnergyBlock,
     &aiSpark,
 };
-extern AiFunc aiFunctions[kFuncMax];
+
 
 int runlist_GrabRun()
 {
@@ -334,24 +334,27 @@ void runlist_SubRunRec(int RunPtr)
     RunData[RunPtr].nAIType = -totalmoves;
 }
 
-void runlist_SendMessageToRunRec(int nRun, int nObject, int nMessage, int nDamage)
+void runlist_SendMessage(int nRun, int nObject, void(ExhumedAI::* func)(RunListEvent*), RunListEvent* ev)
 {
     int nFunc = RunData[nRun].nAIType >> 16;
 
-    if (nFunc < 0) {
+    if (nFunc < 0 || nFunc >= (int)countof(ais)) {
         return;
     }
 
-    assert(nFunc >= 0 && nFunc <= kFuncMax);
-
-    if (nFunc > kFuncMax) {
-        return;
+    RunListEvent defev;
+    if (!ev)
+    {
+        defev = {};
+        ev = &defev;
     }
+    ev->nObjIndex = RunData[nRun].nObjIndex;
+    ev->pObjActor = RunData[nRun].pObjActor;
+    ev->nParam = nObject;
+    ev->nRun = nRun;
 
-    assert(nFunc < kFuncMax); // REMOVE
 
-    // do function pointer call here.
-    aiFunctions[nFunc](nObject, nMessage, nDamage, nRun);
+    (ais[nFunc]->*func)(ev);
 }
 
 void runlist_ExplodeSignalRun()
@@ -374,7 +377,12 @@ void runlist_ExplodeSignalRun()
 
         if (RunData[runPtr].nObjIndex >= 0 || RunData[runPtr].pObjActor)
         {
-            runlist_SendMessageToRunRec(runPtr, 0, 0xA0000, 0);
+            RunListEvent ev{};
+            ev.nMessage = 1;
+            ev.nRadialDamage = nRadialDamage;
+            ev.nDamageRadius = nDamageRadius;
+            ev.pRadialActor = pRadialActor;
+            runlist_SendMessage(runPtr, 0, &ExhumedAI::RadialDamage, &ev);
         }
     }
 }
@@ -399,7 +407,7 @@ int runlist_PopMoveRun()
     return sRunStack[nStackCount];
 }
 
-void runlist_SignalRun(int NxtPtr, int edx)
+void runlist_SignalRun(int NxtPtr, int edx, void(ExhumedAI::* func)(RunListEvent*), RunListEvent* ev)
 {
     if (NxtPtr == RunChain && word_966BE != 0) {
         runlist_PushMoveRun(edx);
@@ -426,7 +434,7 @@ void runlist_SignalRun(int NxtPtr, int edx)
                 NxtPtr = RunData[RunPtr].next;
 
                 if (RunData[RunPtr].nObjIndex >= 0 || RunData[RunPtr].pObjActor) {
-                    runlist_SendMessageToRunRec(RunPtr, edx & 0xffff, edx & ~0xffff, 0);
+                    runlist_SendMessage(RunPtr, edx, func, ev);
                 }
             }
         }
@@ -502,13 +510,13 @@ void runlist_ProcessChannels()
             if (d & 2)
             {
                 sRunChannels[ChannelList].d = d ^ 2;
-                runlist_SignalRun(sRunChannels[ChannelList].a, ChannelList | 0x10000);
+                runlist_SignalRun(sRunChannels[ChannelList].a, ChannelList, &ExhumedAI::ProcessChannel);
             }
 
             if (d & 1)
             {
                 sRunChannels[ChannelList].d ^= 1;
-                runlist_SignalRun(sRunChannels[ChannelList].a, 0x30000);
+                runlist_SignalRun(sRunChannels[ChannelList].a, 0, &ExhumedAI::Process);
             }
 
             if (sRunChannels[ChannelList].d)
@@ -561,13 +569,13 @@ void runlist_ProcessChannels()
         if (d & 2)
         {
             sRunChannels[nChannel].d = d ^ 2;
-            runlist_SignalRun(sRunChannels[nChannel].a, ChannelList | 0x10000);
+            runlist_SignalRun(sRunChannels[nChannel].a, ChannelList, &ExhumedAI::ProcessChannel);
         }
 
         if (d & 1)
         {
             sRunChannels[nChannel].d = d ^ 1;
-            runlist_SignalRun(sRunChannels[nChannel].a, 0x30000);
+            runlist_SignalRun(sRunChannels[nChannel].a, 0, &ExhumedAI::Process);
         }
 
         if (sRunChannels[nChannel].d == 0)
@@ -625,7 +633,7 @@ int runlist_AllocChannel(int a)
 void runlist_ExecObjects()
 {
     runlist_ProcessChannels();
-    runlist_SignalRun(RunChain, 0x20000);
+    runlist_SignalRun(RunChain, 0, &ExhumedAI::Tick);
 }
 
 void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
@@ -1730,7 +1738,10 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, short nD
 
     short nPreCreaturesKilled = nCreaturesKilled;
 
-    runlist_SendMessageToRunRec(nRun, pActor2 ? pActor2->GetSpriteIndex(): -1, 0x80000, nDamage * 4);
+    RunListEvent ev{};
+    ev.pOtherActor = pActor2;
+    ev.nDamage = nDamage;
+    runlist_SendMessage(nRun, -1, &ExhumedAI::Damage, &ev);
 
     // is there now one less creature? (has one died)
     if (nPreCreaturesKilled < nCreaturesKilled && pActor2 != nullptr)

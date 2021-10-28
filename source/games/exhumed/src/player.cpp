@@ -443,7 +443,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     short nLotag = sector[pSprite->sectnum].lotag;
 
     if (nLotag > 0) {
-        runlist_SignalRun(nLotag - 1, nPlayer | 0x70000);
+        runlist_SignalRun(nLotag - 1, nPlayer, &ExhumedAI::EnterSector);
     }
 
     if (PlayerList[nPlayer].pPlayerGrenade)
@@ -2239,7 +2239,7 @@ sectdone:
         {
             if (sector[pPlayerSprite->sectnum].lotag > 0)
             {
-                runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer | 0x50000);
+                runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
             }
         }
 
@@ -2247,12 +2247,12 @@ sectdone:
         {
             if (sector[nSector].lotag > 0)
             {
-                runlist_SignalRun(sector[nSector].lotag - 1, nPlayer | 0x70000);
+                runlist_SignalRun(sector[nSector].lotag - 1, nPlayer, &ExhumedAI::EnterSector);
             }
 
             if (sector[pPlayerSprite->sectnum].lotag > 0)
             {
-                runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer | 0x60000);
+                runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer, &ExhumedAI::LeaveSector);
             }
         }
 
@@ -2264,12 +2264,12 @@ sectdone:
 
                 if (nearTagWall >= 0 && wall[nearTagWall].lotag > 0)
                 {
-                    runlist_SignalRun(wall[nearTagWall].lotag - 1, nPlayer | 0x40000);
+                    runlist_SignalRun(wall[nearTagWall].lotag - 1, nPlayer, &ExhumedAI::Use);
                 }
 
                 if (nearTagSector >= 0 && sector[nearTagSector].lotag > 0)
                 {
-                    runlist_SignalRun(sector[nearTagSector].lotag - 1, nPlayer | 0x40000);
+                    runlist_SignalRun(sector[nearTagSector].lotag - 1, nPlayer, &ExhumedAI::Use);
                 }
             }
 

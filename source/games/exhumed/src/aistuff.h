@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "freelistarray.h"
+#include "exhumedactor.h"
 
 
 BEGIN_PS_NS
@@ -372,23 +373,10 @@ struct RunChannel
     short d;
 };
 
-enum class EMessageType
-{
-    ProcessChannel = 1,
-    Tick,
-    Process,
-    Use,
-    TouchFloor,
-    LeaveSector,
-    EnterSector,
-    Damage,
-    Draw,
-    RadialDamage
-};
 
 struct RunListEvent
 {
-    EMessageType nMessage;
+    int nMessage;
     int nParam;                 // mostly the player, sometimes the channel list
     int nObjIndex;
     DExhumedActor* pObjActor;
@@ -400,7 +388,7 @@ struct RunListEvent
     int nDamageRadius;
     DExhumedActor* pRadialActor;
 
-    bool isRadialEvent() const { return nMessage == EMessageType::RadialDamage; }
+    bool isRadialEvent() const { return nMessage == 1; }
 };
 
 struct ExhumedAI
@@ -685,7 +673,6 @@ struct AISWPressWall : public ExhumedAI
     void Use(RunListEvent* ev) override;
 };
 
-void runlist_DispatchEvent(ExhumedAI* ai, int nObject, int nMessage, int nDamage, int nRun);
 
 typedef void(*AiFunc)(int, int, int, int nRun);
 
@@ -713,7 +700,7 @@ void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag);
 int runlist_CheckRadialDamage(DExhumedActor* actor);
 void runlist_RadialDamageEnemy(DExhumedActor* nSprite, short nSprite2, short nDamage);
 void runlist_DamageEnemy(DExhumedActor* nSprite, DExhumedActor* nSprite2, short nDamage);
-void runlist_SignalRun(int NxtPtr, int edx);
+void runlist_SignalRun(int NxtPtr, int edx, void(ExhumedAI::* func)(RunListEvent*), RunListEvent* ev = nullptr);
 
 void runlist_CleanRunRecs();
 void runlist_ExecObjects();

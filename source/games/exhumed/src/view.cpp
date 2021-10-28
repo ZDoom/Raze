@@ -130,7 +130,9 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
         if (pSprite->statnum > 0)
         {
-            runlist_SignalRun(pSprite->lotag - 1, nTSprite | 0x90000);
+            RunListEvent ev{};
+            ev.pTSprite = pTSprite;
+            runlist_SignalRun(pSprite->lotag - 1, nTSprite, &ExhumedAI::Draw, &ev);
 
             if ((pSprite->statnum < 150) && (pSprite->cstat & 0x101) && (pActor != pPlayerActor))
             {
