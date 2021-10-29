@@ -11,10 +11,10 @@ ViewSectorInScene(short cursectnum, short level)
     SPRITEp sp;
     short match;
 
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == level)
         {
@@ -102,17 +102,16 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
 
 void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short sectnum)
 {
-    int i;
-    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[i];
+        auto sp = &actor->s();
         if (SP_TAG3(sp) == 0)
         {
             // back up ceilingpicnum and ceilingstat
             SP_TAG5(sp) = sector[sp->sectnum].ceilingpicnum;
             sector[sp->sectnum].ceilingpicnum = SP_TAG2(sp);
-            SP_TAG4(sp) = sector[sprite[i].sectnum].ceilingstat;
+            SP_TAG4(sp) = sector[sp->sectnum].ceilingstat;
             //SET(sp->sectnum].ceilingstat, ((int)SP_TAG7(sp))<<7);
             SET(sector[sp->sectnum].ceilingstat, SP_TAG6(sp));
             RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX);
@@ -131,9 +130,9 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
     renderDrawRoomsQ16(x,y,z,q16ang,q16horiz,sectnum);
 
     it.Reset(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[i];
+        auto sp = &actor->s();
         // manually set gotpic
         if (gotsector[sp->sectnum])
         {
@@ -251,8 +250,6 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     ASSERT(mirror[cnt].camera != -1);
 
                     sp = &sprite[mirror[cnt].camera];
-
-                    ASSERT(sp);
 
                     // Calculate the angle of the mirror wall
                     w = mirror[cnt].mirrorwall;

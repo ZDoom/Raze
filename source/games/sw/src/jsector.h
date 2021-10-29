@@ -40,26 +40,17 @@ typedef enum
 
 typedef struct
 {
-    short mirrorwall;                   // Wall number containing the mirror
-    // tile
-    short mirrorsector;                 // nextsector used internally to draw
-    // mirror rooms
-    short camera;                       // Contains number of ST1 sprite used
-    // as a camera
+    short mirrorwall;                   // Wall number containing the mirror tile
+    short mirrorsector;                 // nextsector used internally to draw mirror rooms
+    short camera;                       // Contains number of ST1 sprite used as a camera
     short camsprite;                    // sprite pointing to campic
-    short campic;                       // Editart tile number to draw a
-    // screen to
+    short campic;                       // Editart tile number to draw a screen to
     short numspawnspots;                // Number of spawnspots used
-    short spawnspots[MAXMIRRORMONSTERS]; // One spot for each possible skill
-    // level for a
-    // max of up to 4 coolie ghosts to spawn.
+    short spawnspots[MAXMIRRORMONSTERS]; // One spot for each possible skill level for a max of up to 4 coolie ghosts to spawn.
     bool ismagic;                       // Is this a magic mirror?
-    uint8_t mstate;                 // What state the mirror is currently
-    // in
-    int maxtics;                       // Tic count used to time mirror
-    // events
-    int tics;                          // How much viewing time has been
-    // used on mirror?
+    uint8_t mstate;                 // What state the mirror is currently in
+    int maxtics;                       // Tic count used to time mirror events
+    int tics;                          // How much viewing time has been used on mirror?
 } MIRRORTYPE, *MIRRORTYPEp;
 
 extern MIRRORTYPE mirror[MAXMIRRORS];
