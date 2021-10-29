@@ -7389,6 +7389,8 @@ static saveable_code saveable_sprite_code[] =
     SAVE_CODE(DoActorGlobZ),
     SAVE_CODE(DoStayOnFloor),
     SAVE_CODE(DoGrating),
+    SAVE_CODE(move_ground_missile), // dead entries, kept for savegame compatibility.
+    SAVE_CODE(move_ground_missile),
     SAVE_CODE(DoKey),
     SAVE_CODE(DoCoin),
     SAVE_CODE(KillGet),

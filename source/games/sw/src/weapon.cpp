@@ -21614,6 +21614,7 @@ static saveable_code saveable_weapon_code[] =
     SAVE_CODE(MissileHitMatch),
     SAVE_CODE(SpawnShrapX),
     SAVE_CODE(DoLavaErupt),
+    SAVE_CODE(QueueLoWangs), // dead entry, for savegame compatibility.
     SAVE_CODE(SpawnShrap),
     SAVE_CODE(DoShrapMove),
     SAVE_CODE(DoVomit),
@@ -21714,6 +21715,7 @@ static saveable_code saveable_weapon_code[] =
     SAVE_CODE(SpawnGrenadeSmallExp),
     SAVE_CODE(SpawnGrenadeExp),
     SAVE_CODE(SpawnMineExp),
+    SAVE_CODE(QueueLoWangs), // dead entry, for savegame compatibility.
     SAVE_CODE(DoSectorExp),
     SAVE_CODE(SpawnSectorExp),
     SAVE_CODE(SpawnLargeExp),

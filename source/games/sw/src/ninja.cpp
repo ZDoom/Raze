@@ -2502,6 +2502,8 @@ SpawnPlayerUnderSprite(PLAYERp pp)
 
 static saveable_code saveable_ninja_code[] =
 {
+    SAVE_CODE(SetupNinja),
+    SAVE_CODE(SetupNinja),
     SAVE_CODE(DoNinjaHariKari),
     SAVE_CODE(DoNinjaGrabThroat),
     SAVE_CODE(DoNinjaMove),
