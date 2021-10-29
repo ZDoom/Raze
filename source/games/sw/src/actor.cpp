@@ -292,12 +292,12 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     return 0;
 }
 
-void
-DoDebrisCurrent(SPRITEp sp)
+void DoDebrisCurrent(DSWActor* actor)
 {
     int nx, ny;
     int ret=0;
-    USERp u = User[sp - sprite].Data();
+    USERp u = actor->u();
+    auto sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
 
     //sp->clipdist = (256+128)>>2;
@@ -323,12 +323,11 @@ DoDebrisCurrent(SPRITEp sp)
     sp->z = u->loz;
 }
 
-int
-DoActorSectorDamage(DSWActor* actor)
+int DoActorSectorDamage(DSWActor* actor)
 {
     USER* u = actor->u();
 	int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
@@ -392,12 +391,11 @@ DoActorSectorDamage(DSWActor* actor)
 }
 
 
-int
-move_debris(short SpriteNum, int xchange, int ychange, int zchange)
+bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
-    u->ret = move_sprite(SpriteNum, xchange, ychange, zchange,
+    u->ret = move_sprite(actor->GetSpriteIndex(), xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
 
     return !u->ret;
@@ -406,12 +404,11 @@ move_debris(short SpriteNum, int xchange, int ychange, int zchange)
 // !AIC - Supposed to allow floating of DEBRIS (dead bodies, flotsam, jetsam).  Or if water has
 // current move with the current.
 
-int
-DoActorDebris(DSWActor* actor)
+int DoActorDebris(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     SECTORp sectp = &sector[sp->sectnum];
     int nx, ny;
 
@@ -438,7 +435,7 @@ DoActorDebris(DSWActor* actor)
     {
         if (TEST(sectp->extra, SECTFX_CURRENT))
         {
-            DoDebrisCurrent(sp);
+            DoDebrisCurrent(actor);
         }
         else
         {
@@ -449,7 +446,7 @@ DoActorDebris(DSWActor* actor)
 
             //sp->clipdist = (256+128)>>2;
 
-            if (!move_debris(SpriteNum, nx, ny, 0L))
+            if (!move_debris(actor, nx, ny, 0L))
             {
                 sp->ang = RANDOM_P2(2048);
             }
@@ -471,12 +468,11 @@ DoActorDebris(DSWActor* actor)
 }
 
 
-int
-DoFireFly(DSWActor* actor)
+int DoFireFly(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     nx = 4 * ACTORMOVETICS * bcos(sp->ang) >> 14;
@@ -494,11 +490,10 @@ DoFireFly(DSWActor* actor)
     return 0;
 }
 
-int
-DoGenerateSewerDebris(short SpriteNum)
+int DoGenerateSewerDebris(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     short n;
 
     static STATEp Debris[] =
@@ -517,7 +512,7 @@ DoGenerateSewerDebris(short SpriteNum)
 
         n = SpawnSprite(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 200);
 
-        SetOwner(SpriteNum, n);
+        SetOwner(u->SpriteNum, n);
     }
 
     return 0;
