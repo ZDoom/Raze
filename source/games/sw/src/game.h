@@ -1055,6 +1055,7 @@ struct ROTATOR
 };
 
 using ROTATORp = ROTATOR*;
+struct Collision;
 
 //
 // User Extension record
@@ -1074,6 +1075,8 @@ struct USER
         WallShade.Clear();
         memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
+
+    Collision hitCode() const;
 
     //
     // Variables that can be used by actors and Player
@@ -2231,6 +2234,11 @@ BEGIN_SW_NS
 DSWActor* PLAYERstruct::Actor()
 {
     return &swActors[PlayerSprite];
+}
+
+Collision USER::hitCode() const
+{
+    return Collision(ret);
 }
 END_SW_NS
 #endif
