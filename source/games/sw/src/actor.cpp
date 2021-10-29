@@ -895,7 +895,7 @@ int DoJump(DSWActor* actor)
     if ((u->jump_speed += jump_adj) > 0)
     {
         // Start falling
-        DoBeginFall(SpriteNum);
+        DoBeginFall(actor);
         return 0;
     }
 
@@ -912,56 +912,31 @@ int DoJump(DSWActor* actor)
         u->jump_speed = -u->jump_speed;
 
         // Change sprites state to falling
-        DoBeginFall(SpriteNum);
+        DoBeginFall(actor);
     }
 
     return 0;
 }
 
 
-int
-DoBeginFall(short SpriteNum)
+int DoBeginFall(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     SET(u->Flags, SPR_FALLING);
     RESET(u->Flags, SPR_JUMPING);
 
     u->jump_grav = ACTOR_GRAVITY;
 
-    DoFall(SpriteNum);
+    DoFall(actor);
 
     return 0;
 }
 
-#if 0
-int
-DoFall(short SpriteNum)
+int DoFall(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    // adjust jump speed by gravity
-    u->jump_speed += u->jump_grav * ACTORMOVETICS;
-
-    // adjust player height by jump speed
-    sp->z += u->jump_speed * ACTORMOVETICS;
-
-    // Stick like glue when you hit the ground
-    if (sp->z > u->loz)
-    {
-        sp->z = u->loz;
-        RESET(u->Flags, SPR_FALLING);
-    }
-
-    return 0;
-}
-#else
-int
-DoFall(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     // adjust jump speed by gravity
     u->jump_speed += u->jump_grav * ACTORMOVETICS;
@@ -978,7 +953,6 @@ DoFall(short SpriteNum)
 
     return 0;
 }
-#endif
 
 
 #include "saveable.h"

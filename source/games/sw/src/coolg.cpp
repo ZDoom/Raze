@@ -801,13 +801,13 @@ DoCoolgDeath(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_FALLING))
     {
-        DoFall(SpriteNum);
+        DoFall(actor);
     }
     else
     {
         DoFindGroundPoint(SpriteNum);
         u->floor_dist = 0;
-        DoBeginFall(SpriteNum);
+        DoBeginFall(actor);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))

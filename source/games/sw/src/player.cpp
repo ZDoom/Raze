@@ -6406,7 +6406,7 @@ void DoPlayerDeathFlip(PLAYERp pp)
             DoPlayerDeathFall(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 4);
             if (MoveSkip2 == 0)
-                DoFall(pp->PlayerSprite);
+                DoFall(pp->Actor());
         }
     }
     else

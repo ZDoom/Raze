@@ -1065,7 +1065,7 @@ DoRipperHangJF(DSWActor* actor)
         if (TEST(u->Flags, SPR_JUMPING))
             DoJump(actor);
         else
-            DoFall(SpriteNum);
+            DoFall(actor);
     }
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1133,7 +1133,7 @@ DoRipperMoveJump(DSWActor* actor)
         if (TEST(u->Flags, SPR_JUMPING))
             DoJump(actor);
         else
-            DoFall(SpriteNum);
+            DoFall(actor);
     }
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1305,7 +1305,7 @@ DoRipperMove(DSWActor* actor)
         if (TEST(u->Flags, SPR_JUMPING))
             DoJump(actor);
         else
-            DoFall(SpriteNum);
+            DoFall(actor);
     }
 
     // if on a player/enemy sprite jump quickly

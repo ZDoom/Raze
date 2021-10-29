@@ -519,14 +519,14 @@ DoHornetDeath(DSWActor* actor)
     if (TEST(u->Flags, SPR_FALLING))
     {
         u->loz = u->zclip;
-        DoFall(SpriteNum);
+        DoFall(actor);
     }
     else
     {
         RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
         u->jump_speed = 0;
         u->floor_dist = 0;
-        DoBeginFall(SpriteNum);
+        DoBeginFall(actor);
         DoFindGroundPoint(SpriteNum);
         u->zclip = u->loz;
     }
