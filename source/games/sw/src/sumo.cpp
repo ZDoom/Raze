@@ -685,7 +685,7 @@ int NullSumo(DSWActor* actor)
     //DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 
@@ -705,7 +705,7 @@ int DoSumoMove(DSWActor* actor)
     else
         (*u->ActorActionFunc)(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     if (DoActorSectorDamage(actor))
     {

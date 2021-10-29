@@ -84,7 +84,7 @@ int DoBeginJump(short SpriteNum);
 int DoJump(short SpriteNum);
 int DoBeginFall(short SpriteNum);
 int DoFall(short SpriteNum);
-void KeepActorOnFloor(short SpriteNum);
+void KeepActorOnFloor(DSWActor* actor);
 int DoActorSlide(DSWActor* actor);
 int DoActorSectorDamage(DSWActor* actor);
 int DoScaleSprite(DSWActor* actor);

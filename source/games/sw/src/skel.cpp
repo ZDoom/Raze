@@ -599,7 +599,7 @@ int NullSkel(DSWActor* actor)
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
     DoActorSectorDamage(actor);
 
     return 0;
@@ -631,7 +631,7 @@ int DoSkelMove(DSWActor* actor)
     else
         (*u->ActorActionFunc)(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 

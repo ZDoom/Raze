@@ -921,7 +921,7 @@ DoZombieMove(DSWActor* actor)
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     // take damage from environment
@@ -955,7 +955,7 @@ NullZombie(DSWActor* actor)
         DoActorSlide(actor);
 
     if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 

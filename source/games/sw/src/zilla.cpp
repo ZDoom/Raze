@@ -698,7 +698,7 @@ int NullZilla(DSWActor* actor)
 #endif
 
     //if (!TEST(u->Flags,SPR_CLIMBING))
-    //    KeepActorOnFloor(SpriteNum);
+    //    KeepActorOnFloor(actor);
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
@@ -741,7 +741,7 @@ int DoZillaMove(DSWActor* actor)
     else
         (*u->ActorActionFunc)(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     if (DoActorSectorDamage(actor))
     {
@@ -783,7 +783,7 @@ int DoZillaDeathMelt(DSWActor* actor)
         PlaySong(currentLevel->music, currentLevel->cdSongId);
     }
 
-    //KeepActorOnFloor(SpriteNum);
+    //KeepActorOnFloor(actor);
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];

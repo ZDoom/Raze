@@ -468,7 +468,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
     DoActorZrange(SpriteNum);
 
-    //KeepActorOnFloor(SpriteNum); // for swimming actors
+    //KeepActorOnFloor(actor); // for swimming actors
 
     // make sure we start in the water if thats where we are
     if (u->lo_sectp) // && SectUser[u->lo_sectp - sector])
@@ -585,7 +585,7 @@ int CooliePain(DSWActor* actor)
         DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 
@@ -604,7 +604,7 @@ int NullCoolie(DSWActor* actor)
         DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 
@@ -625,7 +625,7 @@ int DoCoolieMove(DSWActor* actor)
     else
         (*u->ActorActionFunc)(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     if (DoActorSectorDamage(actor))
     {

@@ -493,7 +493,7 @@ int NullLava(DSWActor* actor)
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
     return 0;
@@ -512,7 +512,7 @@ int DoLavaMove(DSWActor* actor)
     else
         (*u->ActorActionFunc)(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
     return 0;

@@ -1331,7 +1331,7 @@ DoRipper2Move(DSWActor* actor)
         if (DoRipper2QuickJump(actor))
             return 0;
 
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))

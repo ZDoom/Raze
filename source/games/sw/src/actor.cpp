@@ -520,11 +520,11 @@ int DoGenerateSewerDebris(DSWActor* actor)
 
 // !AIC - Tries to keep actors correctly on the floor.  More that a bit messy.
 
-void
-KeepActorOnFloor(short SpriteNum)
+void KeepActorOnFloor(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
+    int SpriteNum = actor->GetSpriteIndex();
     SECTORp sectp;
     int depth;
 

@@ -198,7 +198,7 @@ int DoToiletGirl(DSWActor* actor)
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     // take damage from environment
@@ -219,7 +219,7 @@ int NullToiletGirl(DSWActor* actor)
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if (u->FlagOwner != 1)
     {
@@ -247,7 +247,7 @@ int ToiletGirlUzi(DSWActor* actor)
     int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -447,7 +447,7 @@ int DoWashGirl(DSWActor* actor)
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     // take damage from environment
@@ -468,7 +468,7 @@ int NullWashGirl(DSWActor* actor)
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if (u->FlagOwner != 1)
     {
@@ -496,7 +496,7 @@ int WashGirlUzi(DSWActor* actor)
     int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -618,7 +618,7 @@ int DoTrashCan(DSWActor* actor)
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     sp->xvel = sp->yvel = sp->zvel = 0;
@@ -635,7 +635,7 @@ int TrashCanPain(DSWActor* actor)
         DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_TrashCanStand);
@@ -1312,7 +1312,7 @@ int DoCarGirl(DSWActor* actor)
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     // take damage from environment
@@ -1333,7 +1333,7 @@ int NullCarGirl(DSWActor* actor)
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if (u->FlagOwner != 1)
     {
@@ -1368,7 +1368,7 @@ int CarGirlUzi(DSWActor* actor)
     int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -1534,7 +1534,7 @@ int DoMechanicGirl(DSWActor* actor)
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     // take damage from environment
@@ -1555,7 +1555,7 @@ int NullMechanicGirl(DSWActor* actor)
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if (u->FlagOwner != 1)
     {
@@ -1589,7 +1589,7 @@ int MechanicGirlDrill(DSWActor* actor)
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -1761,7 +1761,7 @@ int DoSailorGirl(DSWActor* actor)
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     // take damage from environment
@@ -1783,7 +1783,7 @@ int NullSailorGirl(DSWActor* actor)
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if (u->FlagOwner != 1)
     {
@@ -1822,7 +1822,7 @@ int SailorGirlThrow(DSWActor* actor)
     int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -1988,7 +1988,7 @@ int DoPruneGirl(DSWActor* actor)
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     // take damage from environment
@@ -2009,7 +2009,7 @@ int NullPruneGirl(DSWActor* actor)
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if (u->FlagOwner != 1)
     {
@@ -2043,7 +2043,7 @@ int PruneGirlUzi(DSWActor* actor)
     int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {

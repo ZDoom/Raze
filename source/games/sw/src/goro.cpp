@@ -521,7 +521,7 @@ int NullGoro(DSWActor* actor)
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
     return 0;
@@ -553,7 +553,7 @@ int DoGoroMove(DSWActor* actor)
 
     ASSERT(User[SpriteNum].Data());
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
     return 0;
