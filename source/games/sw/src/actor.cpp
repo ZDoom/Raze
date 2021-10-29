@@ -612,10 +612,9 @@ void KeepActorOnFloor(DSWActor* actor)
 
 }
 
-int
-DoActorBeginSlide(int SpriteNum, short ang, short vel, short dec)
+int DoActorBeginSlide(DSWActor* actor, short ang, short vel, short dec)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     SET(u->Flags, SPR_SLIDING);
 

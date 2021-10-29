@@ -2639,7 +2639,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             int32_t const vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
             if (vel < 9000)
             {
-                DoActorBeginSlide(i, getangle(pp->xvect, pp->yvect), vel/8, 5);
+                DoActorBeginSlide(actor, getangle(pp->xvect, pp->yvect), vel/8, 5);
                 if (DoActorSlide(actor))
                     continue;
             }

@@ -5503,7 +5503,8 @@ ActorStdMissile(short SpriteNum, short Weapon)
 int
 ActorDamageSlide(int SpriteNum, int damage, int ang)
 {
-    USERp u = User[SpriteNum].Data();
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
     int slide_vel,slide_dec;
 
     if (TEST(u->Flags, SPR_CLIMBING))
@@ -5516,12 +5517,12 @@ ActorDamageSlide(int SpriteNum, int damage, int ang)
 
     if (damage <= 10)
     {
-        DoActorBeginSlide(SpriteNum, ang, 64, 5);
+        DoActorBeginSlide(actor, ang, 64, 5);
         return true;
     }
     else if (damage <= 20)
     {
-        DoActorBeginSlide(SpriteNum, ang, 128, 5);
+        DoActorBeginSlide(actor, ang, 128, 5);
         return true;
     }
     else
@@ -5534,7 +5535,7 @@ ActorDamageSlide(int SpriteNum, int damage, int ang)
         if (slide_vel < -1000) slide_vel = -1000;
         slide_dec = 5;
 
-        DoActorBeginSlide(SpriteNum, ang, slide_vel, slide_dec);
+        DoActorBeginSlide(actor, ang, slide_vel, slide_dec);
 
         return true;
     }
