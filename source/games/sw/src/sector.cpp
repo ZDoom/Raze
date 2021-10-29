@@ -51,7 +51,7 @@ BEGIN_SW_NS
 #define LAVAMAXDROPS 32
 #define DEFAULT_DOOR_SPEED 800
 
-int InitFireballTrap(USER* SpriteNum);
+int InitFireballTrap(DSWActor* actor);
 ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYERp);
 
@@ -1112,9 +1112,10 @@ DoExplodeSector(short match)
 }
 
 
-int DoSpawnSpot(USER* u)
+int DoSpawnSpot(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= synctics) < 0)
     {
@@ -2029,6 +2030,7 @@ int DoTrapMatch(short match)
     StatIterator it(STAT_TRAP);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         sp = &sprite[i];
         u = User[i].Data();
 
@@ -2043,7 +2045,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitFireballTrap(u);
+                InitFireballTrap(actor);
             }
         }
 
@@ -2055,7 +2057,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitBoltTrap(u);
+                InitBoltTrap(actor);
             }
         }
 
@@ -2225,56 +2227,7 @@ OperateContinuousTrigger(PLAYERp pp)
     {
     case TAG_TRIGGER_MISSILE_TRAP:
     {
-#if 1
         DoTrapMatch(sector[pp->cursectnum].hitag);
-#else
-        int i;
-        SPRITEp sp;
-        USERp u;
-
-        StatIterator it(STAT_TRAP);
-        while ((i = it.NextIndex()) >= 0)
-        {
-            sp = &sprite[i];
-            u = User[i].Data();
-
-            // if correct type and matches
-            if (sp->hitag == FIREBALL_TRAP && sp->lotag == sector[pp->cursectnum].hitag)
-            {
-                u->WaitTics -= synctics;
-
-                if (u->WaitTics <= 0)
-                {
-                    u->WaitTics = 1 * 120;
-                    InitFireballTrap(u);
-                }
-            }
-
-            // if correct type and matches
-            if (sp->hitag == BOLT_TRAP && sp->lotag == sector[pp->cursectnum].hitag)
-            {
-                u->WaitTics -= synctics;
-
-                if (u->WaitTics <= 0)
-                {
-                    u->WaitTics = 1 * 120;
-                    InitBoltTrap(u);
-                }
-            }
-
-            // if correct type and matches
-            if (sp->hitag == SPEAR_TRAP && sp->lotag == sector[pp->cursectnum].hitag)
-            {
-                u->WaitTics -= synctics;
-
-                if (u->WaitTics <= 0)
-                {
-                    u->WaitTics = 1 * 120;
-                    InitSpearTrap(i);
-                }
-            }
-        }
-#endif
 
         break;
     }

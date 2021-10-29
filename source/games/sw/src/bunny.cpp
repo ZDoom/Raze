@@ -537,7 +537,7 @@ STATEp sg_BunnyFall[] =
 //////////////////////
 
 #define BUNNY_JUMP_ATTACK_RATE 35
-int DoBunnyBeginJumpAttack(USER* SpriteNum);
+int DoBunnyBeginJumpAttack(DSWActor* actor);
 
 STATE s_BunnyJumpAttack[5][6] =
 {
@@ -850,9 +850,10 @@ PickBunnyJumpSpeed(short SpriteNum, int pix_height)
 //
 
 int
-DoBunnyBeginJumpAttack(USER* u)
+DoBunnyBeginJumpAttack(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     SPRITEp psp = User[SpriteNum]->tgt_sp;
     short tang;
@@ -885,8 +886,9 @@ DoBunnyBeginJumpAttack(USER* u)
 }
 
 int
-DoBunnyMoveJump(USERp u)
+DoBunnyMoveJump(DSWActor* actor)
 {
+    USER* u = actor->u();
     SPRITEp sp = u->s();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -900,9 +902,9 @@ DoBunnyMoveJump(USERp u)
         move_actor(u->SpriteNum, nx, ny, 0L);
 
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(u);
+            DoActorJump(actor);
         else
-            DoActorFall(u);
+            DoActorFall(actor);
     }
 
     DoActorZrange(u->SpriteNum);
@@ -912,7 +914,7 @@ DoBunnyMoveJump(USERp u)
 //        if (DoBunnyQuickJump(SpriteNum))
 //            return (0);
 
-        InitActorDecide(u);
+        InitActorDecide(actor);
     }
 
     return 0;
@@ -959,9 +961,10 @@ DoPickCloseBunny(USERp u)
 }
 
 int
-DoBunnyQuickJump(USER* u)
+DoBunnyQuickJump(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (u->spal != PALETTE_PLAYER8) return false;
@@ -1095,16 +1098,17 @@ DoBunnyQuickJump(USER* u)
 
 
 int
-NullBunny(USER* u)
+NullBunny(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(u);
+            DoActorJump(actor);
         else
-            DoActorFall(u);
+            DoActorFall(actor);
     }
 
     // stay on floor unless doing certain things
@@ -1112,28 +1116,30 @@ NullBunny(USER* u)
         KeepActorOnFloor(SpriteNum);
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 
-int DoBunnyPain(USER* u)
+int DoBunnyPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullBunny(u);
+    NullBunny(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(u);
+        InitActorDecide(actor);
     return 0;
 }
 
-int DoBunnyRipHeart(USER* u)
+int DoBunnyRipHeart(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     SPRITEp tsp = u->tgt_sp;
@@ -1146,12 +1152,13 @@ int DoBunnyRipHeart(USER* u)
     return 0;
 }
 
-int DoBunnyStandKill(USER* u)
+int DoBunnyStandKill(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
-    NullBunny(u);
+    NullBunny(actor);
 
     // Growl like the bad ass bunny you are!
     if (RandomRange(1000) > 800)
@@ -1178,6 +1185,7 @@ void BunnyHatch(short Weapon)
     for (i = 0; i < MAX_BUNNYS; i++)
     {
         New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
+        auto actorNew = &swActors[New];
         np = &sprite[New];
         memset(np,0,sizeof(SPRITE));
         np->sectnum = wp->sectnum;
@@ -1234,7 +1242,7 @@ void BunnyHatch(short Weapon)
         // if I didn't do this here they get stuck in the air sometimes
         DoActorZrange(New);
 
-        DoActorJump(nu);
+        DoActorJump(actorNew);
     }
 }
 
@@ -1247,6 +1255,7 @@ int BunnyHatch2(short Weapon)
     USERp nu;
 
     New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
+    auto actorNew = &swActors[New];
     np = &sprite[New];
     memset(np,0,sizeof(SPRITE));
     np->sectnum = wp->sectnum;
@@ -1304,15 +1313,16 @@ int BunnyHatch2(short Weapon)
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(New);
 
-    DoActorJump(nu);
+    DoActorJump(actorNew);
 
     return New;
 }
 
 int
-DoBunnyMove(USER* u)
+DoBunnyMove(DSWActor* actor)
 {
-	auto sp = u->s();
+    USER* u = actor->u();
+    auto sp = u->s();
     int SpriteNum = u->SpriteNum;
 
     // Parental lock crap
@@ -1331,30 +1341,30 @@ DoBunnyMove(USER* u)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(u);
+            DoActorJump(actor);
         else
-            DoActorFall(u);
+            DoActorFall(actor);
     }
 
     // if on a player/enemy sprite jump quickly
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        DoBunnyQuickJump(u);
+        DoBunnyQuickJump(actor);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     if (RandomRange(1000) > 985 && sp->pal != PALETTE_PLAYER1 && u->track < 0)
     {
@@ -1375,7 +1385,7 @@ DoBunnyMove(USER* u)
         default:
             sp->ang = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
             u->jump_speed = -350;
-            DoActorBeginJump(u);
+            DoActorBeginJump(actor);
             u->ActorActionFunc = DoActorMoveJump;
             break;
         }
@@ -1385,43 +1395,45 @@ DoBunnyMove(USER* u)
 }
 
 int
-BunnySpew(USER* u)
+BunnySpew(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     //InitBloodSpray(SpriteNum,true,-1);
     InitBloodSpray(SpriteNum,true,-1);
     return 0;
 }
 
 int
-DoBunnyEat(USER* u)
+DoBunnyEat(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(u);
+            DoActorJump(actor);
         else
-            DoActorFall(u);
+            DoActorFall(actor);
     }
 
     // if on a player/enemy sprite jump quickly
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        DoBunnyQuickJump(u);
+        DoBunnyQuickJump(actor);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     switch (sector[sp->sectnum].floorpicnum)
     {
@@ -1446,27 +1458,28 @@ DoBunnyEat(USER* u)
 }
 
 int
-DoBunnyScrew(USER* u)
+DoBunnyScrew(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(u);
+            DoActorJump(actor);
         else
-            DoActorFall(u);
+            DoActorFall(actor);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     if (RandomRange(1000) > 990) // Bunny sex sounds
     {
@@ -1495,9 +1508,10 @@ DoBunnyScrew(USER* u)
 }
 
 int
-DoBunnyGrowUp(USER* u)
+DoBunnyGrowUp(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (sp->pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies

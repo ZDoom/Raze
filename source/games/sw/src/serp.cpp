@@ -753,31 +753,33 @@ SetupSerp(short SpriteNum)
     return 0;
 }
 
-int NullSerp(USER* u)
+int NullSerp(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    //DoActorSectorDamage(u);
+    //DoActorSectorDamage(actor);
     return 0;
 }
 
-int DoSerpMove(USER* u)
+int DoSerpMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
     // serp ring
     if (sp->pal != 16)
@@ -804,13 +806,14 @@ int DoSerpMove(USER* u)
 
     KeepActorOnFloor(SpriteNum);
 
-    //DoActorSectorDamage(u);
+    //DoActorSectorDamage(actor);
     return 0;
 }
 
-int DoDeathSpecial(USER* u)
+int DoDeathSpecial(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     DoMatchEverything(nullptr, sp->lotag, ON);

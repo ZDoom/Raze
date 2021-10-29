@@ -39,7 +39,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 ANIMATOR InitRipperHang;
-ANIMATOR DoActorMoveJump;
 ANIMATOR DoRipperMoveJump;
 ANIMATOR DoRipperHangJF;
 ANIMATOR DoRipperQuickJump;
@@ -553,7 +552,7 @@ STATEp sg_RipperFall[] =
 //////////////////////
 
 #define RIPPER_JUMP_ATTACK_RATE 35
-int DoRipperBeginJumpAttack(USERp SpriteNum);
+int DoRipperBeginJumpAttack(DSWActor* actor);
 
 STATE s_RipperJumpAttack[5][6] =
 {
@@ -937,9 +936,10 @@ PickJumpMaxSpeed(short SpriteNum, short max_speed)
 //
 
 int
-InitRipperHang(USER* u)
+InitRipperHang(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int dist;
 
@@ -976,7 +976,7 @@ InitRipperHang(USER* u)
 
     if (!Found)
     {
-        InitActorDecide(u);
+        InitActorDecide(actor);
         return 0;
     }
 
@@ -999,9 +999,10 @@ InitRipperHang(USER* u)
 }
 
 int
-DoRipperHang(USER* u)
+DoRipperHang(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return 0;
@@ -1013,9 +1014,10 @@ DoRipperHang(USER* u)
 }
 
 int
-DoRipperMoveHang(USER* u)
+DoRipperMoveHang(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int nx, ny;
 
@@ -1053,9 +1055,10 @@ DoRipperMoveHang(USER* u)
 
 
 int
-DoRipperHangJF(USER* u)
+DoRipperHangJF(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1067,13 +1070,13 @@ DoRipperHangJF(USER* u)
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (DoRipperQuickJump(u))
+        if (DoRipperQuickJump(actor))
             return 0;
 
-        InitActorDecide(u);
+        InitActorDecide(actor);
     }
 
-    DoRipperMoveHang(u);
+    DoRipperMoveHang(actor);
 
     return 0;
 
@@ -1084,9 +1087,10 @@ DoRipperHangJF(USER* u)
 //
 
 int
-DoRipperBeginJumpAttack(USER* u)
+DoRipperBeginJumpAttack(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     SPRITEp psp = User[SpriteNum]->tgt_sp;
     short tang;
@@ -1119,9 +1123,10 @@ DoRipperBeginJumpAttack(USER* u)
 }
 
 int
-DoRipperMoveJump(USER* u)
+DoRipperMoveJump(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1133,13 +1138,13 @@ DoRipperMoveJump(USER* u)
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (DoRipperQuickJump(u))
+        if (DoRipperQuickJump(actor))
             return 0;
 
-        InitActorDecide(u);
+        InitActorDecide(actor);
     }
 
-    DoRipperMoveHang(u);
+    DoRipperMoveHang(actor);
     return 0;
 }
 
@@ -1148,9 +1153,10 @@ DoRipperMoveJump(USER* u)
 //
 
 int
-DoRipperQuickJump(USER* u)
+DoRipperQuickJump(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     // Tests to see if ripper is on top of a player/enemy and then immediatly
     // does another jump
 
@@ -1172,27 +1178,29 @@ DoRipperQuickJump(USER* u)
 
 
 int
-NullRipper(USER* u)
+NullRipper(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 
-int DoRipperPain(USER* u)
+int DoRipperPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullRipper(u);
+    NullRipper(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(u);
+        InitActorDecide(actor);
     return 0;
 }
 
@@ -1217,11 +1225,12 @@ int DoRipperRipHeart(short SpriteNum)
 
 
 //int DoRipperStandHeart(SpriteNum)
-int DoRipperStandHeart(USER* u)
+int DoRipperStandHeart(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullRipper(u);
+    NullRipper(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         NewStateGroup(SpriteNum, sg_RipperRun);
@@ -1280,9 +1289,10 @@ void RipperHatch(short Weapon)
 }
 
 int
-DoRipperMove(USER* u)
+DoRipperMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (u->scale_speed)
     {
@@ -1300,21 +1310,21 @@ DoRipperMove(USER* u)
     // if on a player/enemy sprite jump quickly
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (DoRipperQuickJump(u))
+        if (DoRipperQuickJump(actor))
             return 0;
 
         KeepActorOnFloor(SpriteNum);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     return 0;
 }
 

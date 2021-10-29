@@ -43,7 +43,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR NullAnimator,DoSuicide;
+ANIMATOR DoSuicide;
 ANIMATOR DoBloodSpray;
 int SpawnFlashBombOnActor(int16_t enemy);
 
@@ -257,8 +257,9 @@ STATE s_BloodSprayDrip[] =
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 int
-DoWallBloodDrip(USER* u)
+DoWallBloodDrip(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
@@ -366,8 +367,9 @@ SpawnFloorSplash(short SpriteNum)
 
 
 int
-DoBloodSpray(USER* u)
+DoBloodSpray(DSWActor* actor)
 {
+    USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int cz,fz;
@@ -593,8 +595,9 @@ DoBloodSpray(USER* u)
 
 
 int
-DoPhosphorus(USER* u)
+DoPhosphorus(DSWActor* actor)
 {
+    USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
@@ -817,8 +820,9 @@ DoPhosphorus(USER* u)
 }
 
 int
-DoChemBomb(USER* u)
+DoChemBomb(DSWActor* actor)
 {
+    USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
@@ -1063,8 +1067,9 @@ DoChemBomb(USER* u)
 }
 
 int
-DoCaltropsStick(USER* u)
+DoCaltropsStick(DSWActor* actor)
 {
+    USER* u = actor->u();
     int Weapon = u->SpriteNum;
 
     u->Counter = !u->Counter;
@@ -1076,8 +1081,9 @@ DoCaltropsStick(USER* u)
 }
 
 int
-DoCaltrops(USER* u)
+DoCaltrops(DSWActor* actor)
 {
+    USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
@@ -1332,8 +1338,9 @@ SpawnRadiationCloud(short SpriteNum)
 }
 
 int
-DoRadiationCloud(USER* u)
+DoRadiationCloud(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
@@ -1642,8 +1649,9 @@ PlayerInitFlashBomb(PLAYERp pp)
 }
 
 int
-InitFlashBomb(USER* u)
+InitFlashBomb(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int i;
@@ -2083,8 +2091,9 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
 }
 
 int
-BloodSprayFall(USER* u)
+BloodSprayFall(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
@@ -2174,8 +2183,9 @@ DoFlagRangeTest(short Weapon, short range)
 }
 
 int
-DoCarryFlag(USER* u)
+DoCarryFlag(DSWActor* actor)
 {
+    USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
@@ -2329,8 +2339,9 @@ DoCarryFlag(USER* u)
 }
 
 int
-DoCarryFlagNoDet(USER* u)
+DoCarryFlagNoDet(DSWActor* actor)
 {
+    USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
@@ -2420,8 +2431,9 @@ SetCarryFlag(int16_t Weapon)
 }
 
 int
-DoFlag(USER* u)
+DoFlag(DSWActor* actor)
 {
+    USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int16_t hit_sprite = -1;

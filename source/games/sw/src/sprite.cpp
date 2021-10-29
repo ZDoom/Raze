@@ -102,7 +102,7 @@ static int globhiz, globloz, globhihit, globlohit;
 short wait_active_check_offset;
 int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall);
-int DoActorDebris(short SpriteNum);
+int DoActorDebris(DSWActor* actor);
 void ActorWarpUpdatePos(short SpriteNum,short sectnum);
 void ActorWarpType(SPRITEp sp, SPRITEp sp_warp);
 int MissileZrange(short SpriteNum);
@@ -5147,18 +5147,20 @@ move_actor(short SpriteNum, int xchange, int ychange, int zchange)
 }
 
 int
-DoStayOnFloor(USER* u)
+DoStayOnFloor(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     sprite[SpriteNum].z = sector[sprite[SpriteNum].sectnum].floorz;
     //sprite[SpriteNum].z = getflorzofslope(sprite[SpriteNum].sectnum, sprite[SpriteNum].x, sprite[SpriteNum].y);
     return 0;
 }
 
 int
-DoGrating(USER* u)
+DoGrating(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int dir;
 #define GRATE_FACTOR 3
@@ -5227,23 +5229,25 @@ DoSpriteFade(short SpriteNum)
 
 
 int
-DoKey(USER* u)
+DoKey(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     sp->ang = NORM_ANGLE(sp->ang + (14 * ACTORMOVETICS));
 
     //DoSpriteFade(SpriteNum);
 
-    DoGet(u);
+    DoGet(actor);
     return 0;
 }
 
 int
-DoCoin(USER* u)
+DoCoin(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     int offset;
 
     u->WaitTics -= ACTORMOVETICS * 2;
@@ -5515,9 +5519,10 @@ struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL] =
 #define ITEMFLASHAMT  -8
 #define ITEMFLASHCLR  144
 int
-DoGet(USER* u)
+DoGet(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 	USERp pu;
     SPRITEp sp = u->SpriteP;
     PLAYERp pp;
@@ -6502,6 +6507,7 @@ AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
 int
 StateControl(int16_t SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     USERp u = User[SpriteNum].Data();
     SPRITEp sp = &sprite[SpriteNum];
     short StateTics;
@@ -6509,7 +6515,7 @@ StateControl(int16_t SpriteNum)
     if (!u->State)
     {
         ASSERT(u->ActorActionFunc);
-        (u->ActorActionFunc)(u);
+        (u->ActorActionFunc)(actor);
         return 0;
     }
 
@@ -6542,7 +6548,7 @@ StateControl(int16_t SpriteNum)
         while (TEST(u->State->Tics, SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*u->State->Animator)(u);
+            (*u->State->Animator)(actor);
 
             ASSERT(u); //put this in to see if actor was getting killed with in his QUICK_CALL state
 
@@ -6584,7 +6590,7 @@ StateControl(int16_t SpriteNum)
 
         // Call the correct animator
         if (u->State->Animator && u->State->Animator != NullAnimator)
-            (*u->State->Animator)(u);
+            (*u->State->Animator)(actor);
     }
 
     return 0;
@@ -6685,8 +6691,10 @@ SpriteControl(void)
     it.Reset(STAT_NO_STATE);
     while ((i = it.NextIndex()) >= 0)
     {
-        if (User[i].Data() && User[i]->ActorActionFunc)
-            (*User[i]->ActorActionFunc)(User[i].Data());
+        auto actor = &swActors[i];
+        auto u = actor->u();
+        if (u && u->ActorActionFunc)
+            (*u->ActorActionFunc)(actor);
     }
 
     if (MoveSkip8 == 0)
@@ -6716,6 +6724,7 @@ SpriteControl(void)
     it.Reset(STAT_VATOR);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         u = User[i].Data();
 
         if (u == 0)
@@ -6731,12 +6740,13 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(u);
+        (*User[i]->ActorActionFunc)(actor);
     }
 
     it.Reset(STAT_SPIKE);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         u = User[i].Data();
 
         if (u->Tics)
@@ -6753,12 +6763,13 @@ SpriteControl(void)
         if (i == 69 && it.PeekIndex() == -1)
             continue;
 
-        (*User[i]->ActorActionFunc)(u);
+        (*User[i]->ActorActionFunc)(actor);
     }
 
     it.Reset(STAT_ROTATOR);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         u = User[i].Data();
 
         if (u->Tics)
@@ -6772,12 +6783,13 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(u);
+        (*User[i]->ActorActionFunc)(actor);
     }
 
     it.Reset(STAT_SLIDOR);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         u = User[i].Data();
 
         if (u->Tics)
@@ -6791,7 +6803,7 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(u);
+        (*User[i]->ActorActionFunc)(actor);
     }
 
     it.Reset(STAT_SUICIDE);

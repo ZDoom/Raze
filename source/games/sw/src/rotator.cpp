@@ -433,8 +433,9 @@ int DoRotatorMove(short SpriteNum)
     return 0;
 }
 
-int DoRotator(USER* u)
+int DoRotator(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
 
     // could move this inside sprite control

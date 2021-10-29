@@ -324,8 +324,9 @@ void MoveSpritesWithSpike(short sectnum)
     }
 }
 
-int DoSpike(USER* u)
+int DoSpike(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     int *lptr;
@@ -442,8 +443,9 @@ int DoSpike(USER* u)
     return 0;
 }
 
-int DoSpikeAuto(USER* u)
+int DoSpikeAuto(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     int *lptr;

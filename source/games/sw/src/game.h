@@ -527,8 +527,8 @@ typedef struct PANEL_SPRITEstruct PANEL_SPRITE, *PANEL_SPRITEp;
 struct ANIMstruct;
 typedef struct ANIMstruct ANIM, *ANIMp;
 
-struct USER;
-typedef int ANIMATOR (USER* SpriteNum);
+class DSWActor;
+typedef int ANIMATOR (DSWActor* actor);
 typedef ANIMATOR *ANIMATORp;
 
 typedef void pANIMATOR (PANEL_SPRITEp);
@@ -567,7 +567,7 @@ struct STATEstruct
 typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
 
 extern FOOT_TYPE FootMode;
-int QueueFloorBlood(USER* hit_sprite);                // Weapon.c
+ANIMATOR QueueFloorBlood;                // Weapon.c
 int QueueFootPrint(short hit_sprite);                 // Weapon.c
 int QueueGeneric(short SpriteNum, short pic);        // Weapon.c
 int QueueLoWangs(short SpriteNum);                   // Weapon.c
@@ -2225,5 +2225,8 @@ struct GameInterface : public ::GameInterface
 
 
 END_SW_NS
+
+#include "swactor.h"
+
 #endif
 

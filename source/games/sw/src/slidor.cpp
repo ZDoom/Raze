@@ -679,8 +679,9 @@ int DoSlidorMove(short SpriteNum)
     return 0;
 }
 
-int DoSlidor(USER* u)
+int DoSlidor(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     SECTORp sectp = &sector[sp->sectnum];

@@ -149,9 +149,10 @@ SetupToiletGirl(short SpriteNum)
     return 0;
 }
 
-int DoToiletGirl(USER* u)
+int DoToiletGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -201,15 +202,16 @@ int DoToiletGirl(USER* u)
     }
 
     // take damage from environment
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullToiletGirl(USER* u)
+int NullToiletGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -239,9 +241,10 @@ int NullToiletGirl(USER* u)
     return 0;
 }
 
-int ToiletGirlUzi(USER* u)
+int ToiletGirlUzi(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -256,11 +259,12 @@ int ToiletGirlUzi(USER* u)
     return 0;
 }
 
-int ToiletGirlPain(USER* u)
+int ToiletGirlPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullToiletGirl(u);
+    NullToiletGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_ToiletGirlStand);
@@ -388,9 +392,10 @@ SetupWashGirl(short SpriteNum)
     return 0;
 }
 
-int DoWashGirl(USER* u)
+int DoWashGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -446,15 +451,16 @@ int DoWashGirl(USER* u)
     }
 
     // take damage from environment
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullWashGirl(USER* u)
+int NullWashGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -484,9 +490,10 @@ int NullWashGirl(USER* u)
     return 0;
 }
 
-int WashGirlUzi(USER* u)
+int WashGirlUzi(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -501,10 +508,11 @@ int WashGirlUzi(USER* u)
     return 0;
 }
 
-int WashGirlPain(USER* u)
+int WashGirlPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
-    NullWashGirl(u);
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+    NullWashGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_WashGirlStand);
@@ -596,16 +604,17 @@ SetupTrashCan(short SpriteNum)
     return 0;
 }
 
-int DoTrashCan(USER* u)
+int DoTrashCan(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //(*u->ActorActionFunc) (SpriteNum);
 
     // stay on floor unless doing certain things
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
@@ -617,12 +626,13 @@ int DoTrashCan(USER* u)
     return 0;
 }
 
-int TrashCanPain(USER* u)
+int TrashCanPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -704,9 +714,10 @@ SetupPachinkoLight(short SpriteNum)
     return 0;
 }
 
-int PachinkoLightOperate(USER* u)
+int PachinkoLightOperate(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
@@ -803,9 +814,10 @@ SetupPachinko1(short SpriteNum)
     return 0;
 }
 
-int PachinkoCheckWin(USER* u)
+int PachinkoCheckWin(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     u->WaitTics = 0;  // Can operate it again now
@@ -868,8 +880,9 @@ int PachinkoCheckWin(USER* u)
     return 0;
 }
 
-int Pachinko1Operate(USER* u)
+int Pachinko1Operate(DSWActor* actor)
 {
+    USER* u = actor->u();
     SPRITEp sp = u->s();
     short rnd;
 
@@ -1259,9 +1272,10 @@ SetupCarGirl(short SpriteNum)
     return 0;
 }
 
-int DoCarGirl(USER* u)
+int DoCarGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1302,15 +1316,16 @@ int DoCarGirl(USER* u)
     }
 
     // take damage from environment
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullCarGirl(USER* u)
+int NullCarGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1347,9 +1362,10 @@ int NullCarGirl(USER* u)
     return 0;
 }
 
-int CarGirlUzi(USER* u)
+int CarGirlUzi(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1364,10 +1380,11 @@ int CarGirlUzi(USER* u)
     return 0;
 }
 
-int CarGirlPain(USER* u)
+int CarGirlPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
-    NullCarGirl(u);
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+    NullCarGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_CarGirlStand);
@@ -1477,9 +1494,10 @@ SetupMechanicGirl(short SpriteNum)
     return 0;
 }
 
-int DoMechanicGirl(USER* u)
+int DoMechanicGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1520,15 +1538,16 @@ int DoMechanicGirl(USER* u)
     }
 
     // take damage from environment
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullMechanicGirl(USER* u)
+int NullMechanicGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1565,9 +1584,10 @@ int NullMechanicGirl(USER* u)
     return 0;
 }
 
-int MechanicGirlDrill(USER* u)
+int MechanicGirlDrill(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
@@ -1581,11 +1601,12 @@ int MechanicGirlDrill(USER* u)
     return 0;
 }
 
-int MechanicGirlPain(USER* u)
+int MechanicGirlPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullMechanicGirl(u);
+    NullMechanicGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_MechanicGirlStand);
@@ -1696,9 +1717,10 @@ SetupSailorGirl(short SpriteNum)
     return 0;
 }
 
-int DoSailorGirl(USER* u)
+int DoSailorGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1743,15 +1765,16 @@ int DoSailorGirl(USER* u)
     }
 
     // take damage from environment
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullSailorGirl(USER* u)
+int NullSailorGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
     static short alreadythrew = 0;
@@ -1793,9 +1816,10 @@ int NullSailorGirl(USER* u)
     return 0;
 }
 
-int SailorGirlThrow(USER* u)
+int SailorGirlThrow(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1810,10 +1834,11 @@ int SailorGirlThrow(USER* u)
     return 0;
 }
 
-int SailorGirlPain(USER* u)
+int SailorGirlPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
-    NullSailorGirl(u);
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+    NullSailorGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_SailorGirlStand);
@@ -1907,9 +1932,10 @@ SetupPruneGirl(short SpriteNum)
     return 0;
 }
 
-int DoPruneGirl(USER* u)
+int DoPruneGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -1966,15 +1992,16 @@ int DoPruneGirl(USER* u)
     }
 
     // take damage from environment
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     sp->xvel = sp->yvel = sp->zvel = 0;
 
     return 0;
 }
 
-int NullPruneGirl(USER* u)
+int NullPruneGirl(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
@@ -2010,9 +2037,10 @@ int NullPruneGirl(USER* u)
     return 0;
 }
 
-int PruneGirlUzi(USER* u)
+int PruneGirlUzi(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -2027,11 +2055,12 @@ int PruneGirlUzi(USER* u)
     return 0;
 }
 
-int PruneGirlPain(USER* u)
+int PruneGirlPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullPruneGirl(u);
+    NullPruneGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         ChangeState(SpriteNum,s_PruneGirlStand);

@@ -485,34 +485,36 @@ SetupLava(short SpriteNum)
     return 0;
 }
 
-int NullLava(USER* u)
+int NullLava(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     return 0;
 }
 
-int DoLavaMove(USER* u)
+int DoLavaMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
     return 0;
 }
 

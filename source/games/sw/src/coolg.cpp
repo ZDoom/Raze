@@ -124,7 +124,7 @@ ATTRIBUTE CoolgAttrib =
 
 #define COOLG_RUN_RATE 40
 
-ANIMATOR DoCoolgMove,NullAnimator,DoStayOnFloor, DoActorDebris, NullCoolg, DoCoolgBirth;
+ANIMATOR DoCoolgMove,DoStayOnFloor, DoActorDebris, NullCoolg, DoCoolgBirth;
 
 STATE s_CoolgRun[5][4] =
 {
@@ -585,9 +585,10 @@ NewCoolg(short SpriteNum)
 
 
 int
-DoCoolgBirth(USER* u)
+DoCoolgBirth(DSWActor* actor)
 {
-	int New = u->SpriteNum;
+    USER* u = actor->u();
+    int New = u->SpriteNum;
     ANIMATOR DoActorDecide;
 
     u->Health = HEALTH_COOLIE_GHOST;
@@ -608,18 +609,19 @@ DoCoolgBirth(USER* u)
     return 0;
 }
 
-int NullCoolg(USER* u)
+int NullCoolg(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     u->ShellNum -= ACTORMOVETICS;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     DoCoolgMatchPlayerZ(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
@@ -707,9 +709,10 @@ int DoCoolgMatchPlayerZ(short SpriteNum)
     return 0;
 }
 
-int InitCoolgCircle(USER* u)
+int InitCoolgCircle(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     u->ActorActionFunc = DoCoolgCircle;
@@ -734,14 +737,15 @@ int InitCoolgCircle(USER* u)
 
     u->WaitTics = (RandomRange(3)+1) * 120;
 
-    (*u->ActorActionFunc)(u);
+    (*u->ActorActionFunc)(actor);
 
     return 0;
 }
 
-int DoCoolgCircle(USER* u)
+int DoCoolgCircle(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int nx,ny,bound;
 
@@ -753,7 +757,7 @@ int DoCoolgCircle(USER* u)
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
-        InitActorReposition(u);
+        InitActorReposition(actor);
         return 0;
     }
 
@@ -765,14 +769,14 @@ int DoCoolgCircle(USER* u)
     {
         // bumped something
         u->sz = bound;
-        InitActorReposition(u);
+        InitActorReposition(actor);
         return 0;
     }
 
     // time out
     if ((u->WaitTics -= ACTORMOVETICS) < 0)
     {
-        InitActorReposition(u);
+        InitActorReposition(actor);
         u->WaitTics = 0;
         return 0;
     }
@@ -782,9 +786,10 @@ int DoCoolgCircle(USER* u)
 
 
 int
-DoCoolgDeath(USER* u)
+DoCoolgDeath(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int nx, ny;
 
@@ -806,7 +811,7 @@ DoCoolgDeath(USER* u)
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     // slide while falling
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -827,9 +832,10 @@ DoCoolgDeath(USER* u)
     return 0;
 }
 
-int DoCoolgMove(USER* u)
+int DoCoolgMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if ((u->ShellNum -= ACTORMOVETICS) <= 0)
@@ -892,13 +898,13 @@ int DoCoolgMove(USER* u)
     }
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
     }
 
     if (RANDOM_P2(1024) < 32 && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
@@ -906,19 +912,20 @@ int DoCoolgMove(USER* u)
 
     DoCoolgMatchPlayerZ(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
 
     return 0;
 
 }
 
-int DoCoolgPain(USER* u)
+int DoCoolgPain(DSWActor* actor)
 {
-    NullCoolg(u);
+    USER* u = actor->u();
+    NullCoolg(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(u);
+        InitActorDecide(actor);
 
     return 0;
 }

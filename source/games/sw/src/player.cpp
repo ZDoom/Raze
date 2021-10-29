@@ -197,7 +197,7 @@ extern short target_ang;
 #if 1
 #define PLAYER_NINJA_RATE 14
 
-int DoFootPrints(USERp SpriteNum);
+int DoFootPrints(DSWActor* actor);
 
 STATE s_PlayerNinjaRun[5][6] =
 {
@@ -360,7 +360,7 @@ STATEp sg_PlayerNinjaStand[] =
 #define PLAYER_NINJA_STAR_RATE 12
 
 extern STATEp sg_NinjaRun[];
-int DoPlayerSpriteReset(USERp SpriteNum);
+int DoPlayerSpriteReset(DSWActor* actor);
 
 #if 0
 STATE s_PlayerNinjaThrow[5][4] =
@@ -1077,9 +1077,10 @@ DoPlayerSpriteThrow(PLAYERp pp)
 }
 
 int
-DoPlayerSpriteReset(USER* u)
+DoPlayerSpriteReset(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     PLAYERp pp;
 
     if (!u->PlayerP)
@@ -2620,6 +2621,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     StatIterator it2(STAT_ENEMY);
     while ((i = it2.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         sp = &sprite[i];
 		auto u = User[i].Data();
 
@@ -2633,7 +2635,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             if (vel < 9000)
             {
                 DoActorBeginSlide(i, getangle(pp->xvect, pp->yvect), vel/8, 5);
-                if (DoActorSlide(u))
+                if (DoActorSlide(actor))
                     continue;
             }
 
@@ -6771,6 +6773,7 @@ PlayerStateControl(int16_t SpriteNum)
         return;
 
     // Convienience var
+    auto actor = &swActors[SpriteNum];
     u = User[SpriteNum].Data();
 
     if (u == nullptr)
@@ -6793,7 +6796,7 @@ PlayerStateControl(int16_t SpriteNum)
         while (TEST(u->State->Tics, SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*u->State->Animator)(u);
+            (*u->State->Animator)(actor);
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
@@ -6817,7 +6820,7 @@ PlayerStateControl(int16_t SpriteNum)
     // Call the correct animator
     if (TEST(u->State->Tics, SF_PLAYER_FUNC))
         if (u->State->Animator)
-            (*u->State->Animator)(u);
+            (*u->State->Animator)(actor);
 
     return;
 }
@@ -7474,8 +7477,9 @@ InitMultiPlayerInfo(void)
 
 // If player stepped in something gooey, track it all over the place.
 int
-DoFootPrints(USER* u)
+DoFootPrints(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
 
     if (u->PlayerP)

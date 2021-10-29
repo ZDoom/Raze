@@ -750,29 +750,30 @@ SetupGirlNinja(short SpriteNum)
 
 
 int
-DoGirlNinjaMove(USER* u)
+DoGirlNinjaMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     // jumping and falling
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING) && !TEST(u->Flags, SPR_CLIMBING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(u);
+            DoActorJump(actor);
         else if (TEST(u->Flags, SPR_FALLING))
-            DoActorFall(u);
+            DoActorFall(actor);
     }
 
     // sliding
     if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things
@@ -782,15 +783,16 @@ DoGirlNinjaMove(USER* u)
     }
 
     // take damage from environment
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 int
-GirlNinjaJumpActionFunc(USER* u)
+GirlNinjaJumpActionFunc(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -806,46 +808,49 @@ GirlNinjaJumpActionFunc(USER* u)
 
     if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
     {
-        InitActorDecide(u);
+        InitActorDecide(actor);
     }
 
     return 0;
 }
 
 int
-NullGirlNinja(USER* u)
+NullGirlNinja(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
 
     if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 
-int DoGirlNinjaPain(USER* u)
+int DoGirlNinjaPain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullGirlNinja(u);
+    NullGirlNinja(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(u);
+        InitActorDecide(actor);
 
     return 0;
 }
 
-int DoGirlNinjaSpecial(USER* u)
+int DoGirlNinjaSpecial(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (u->spal == PALETTE_PLAYER5)

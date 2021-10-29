@@ -676,36 +676,38 @@ SetupSumo(short SpriteNum)
     return 0;
 }
 
-int NullSumo(USER* u)
+int NullSumo(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(u);
+    //DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoSumoMove(USER* u)
+int DoSumoMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(u);
+    //DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    if (DoActorSectorDamage(u))
+    if (DoActorSectorDamage(actor))
     {
         return 0;
     }
@@ -713,28 +715,11 @@ int DoSumoMove(USER* u)
     return 0;
 }
 
-#if 0
-int InitSumoCharge(USER* u)
+
+int DoSumoRumble(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-
-    if (RANDOM_P2(1024) > 950)
-        PlaySound(DIGI_SUMOALERT, sp, v3df_follow);
-
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
-
-    InitActorMoveCloser(SpriteNum);
-
-    NewStateGroup(SpriteNum, sg_SumoCharge);
-
-    return 0;
-}
-#endif
-
-int DoSumoRumble(USER* u)
-{
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     SetSumoQuake(SpriteNum);
@@ -742,9 +727,10 @@ int DoSumoRumble(USER* u)
     return 0;
 }
 
-int InitSumoFart(USER* u)
+int InitSumoFart(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitSumoNapalm(short SpriteNum);
 
@@ -758,9 +744,10 @@ int InitSumoFart(USER* u)
     return 0;
 }
 
-int InitSumoStomp(USER* u)
+int InitSumoStomp(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitSumoStompAttack(short SpriteNum);
 
@@ -771,9 +758,10 @@ int InitSumoStomp(USER* u)
     return 0;
 }
 
-int InitSumoClap(USER* u)
+int InitSumoClap(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitMiniSumoClap(short SpriteNum);
     extern int InitSumoSkull(short SpriteNum);
@@ -785,9 +773,10 @@ int InitSumoClap(USER* u)
     return 0;
 }
 
-int DoSumoDeathMelt(USER* u)
+int DoSumoDeathMelt(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     PlaySound(DIGI_SUMOFART, sp, v3df_follow);

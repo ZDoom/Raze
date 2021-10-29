@@ -453,9 +453,10 @@ int DoVatorMove(short SpriteNum, int *lptr)
 }
 
 
-int DoVator(USER* u)
+int DoVator(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;
@@ -622,9 +623,10 @@ int DoVator(USER* u)
     return 0;
 }
 
-int DoVatorAuto(USER* u)
+int DoVatorAuto(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;

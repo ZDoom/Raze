@@ -678,13 +678,14 @@ SetupZilla(short SpriteNum)
     return 0;
 }
 
-int NullZilla(USER* u)
+int NullZilla(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(u);
+    //DoActorSlide(actor);
 
 #if 0
     if (u->State == s_ZillaDie)
@@ -705,19 +706,20 @@ int NullZilla(USER* u)
     u->hi_sp = nullptr;
     sp->z = u->loz;
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoZillaMove(USER* u)
+int DoZillaMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     short choose;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(u);
+    //DoActorSlide(actor);
 
     // Random Zilla taunts
     if (!SoundValidAndActive(sp, CHAN_AnimeMad))
@@ -737,11 +739,11 @@ int DoZillaMove(USER* u)
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    if (DoActorSectorDamage(u))
+    if (DoActorSectorDamage(actor))
     {
         return 0;
     }
@@ -749,9 +751,10 @@ int DoZillaMove(USER* u)
     return 0;
 }
 
-int DoZillaStomp(USER* u)
+int DoZillaStomp(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     PlaySound(DIGI_ZILLASTOMP, sp, v3df_follow);
@@ -761,9 +764,10 @@ int DoZillaStomp(USER* u)
 
 extern int SpawnGrenadeExp(int16_t Weapon);
 
-int DoZillaDeathMelt(USER* u)
+int DoZillaDeathMelt(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (RandomRange(1000) > 800)

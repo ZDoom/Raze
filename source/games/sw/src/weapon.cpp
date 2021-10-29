@@ -93,14 +93,13 @@ int WeaponIsAmmo = BIT(WPN_STAR) | BIT(WPN_SWORD) | BIT(WPN_MINE) | BIT(WPN_FIST
 
 short target_ang;
 
-ANIMATOR NullAnimator;
 ANIMATOR DoStar;
 ANIMATOR DoCrossBolt;
 ANIMATOR DoSuicide, DoUziSmoke;
 ANIMATOR DoShrapJumpFall;
 ANIMATOR DoFastShrapJumpFall;
 
-int SpawnSmokePuff(USER* SpriteNum);
+int SpawnSmokePuff(DSWActor* actor);
 bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z);
 bool WarpToSurface(short *sectnum, int *x, int *y, int *z);
 short ElectroFindClosestEnemy(short SpriteNum);
@@ -379,7 +378,7 @@ STATE s_TankShell[] =
     {TRACER + 0, 200, DoTankShell, &s_TankShell[0]}
 };
 
-ANIMATOR DoVehicleSmoke, SpawnVehicleSmoke;
+ANIMATOR DoVehicleSmoke;
 #define VEHICLE_SMOKE_RATE 18
 STATE s_VehicleSmoke[] =
 {
@@ -2746,16 +2745,18 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
 }
 #endif
 
-int SpawnShrapX(USER* u)
+int SpawnShrapX(DSWActor* actor)
 {
+    USER* u = actor->u();
     //For shrap that has no Weapon to send over
     SpawnShrap(u->SpriteNum, -1);
     return 0;
 }
 
-int DoLavaErupt(USER* u)
+int DoLavaErupt(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     short i,pnum;
     PLAYERp pp;
@@ -2821,10 +2822,10 @@ int DoLavaErupt(USER* u)
             switch (SP_TAG3(sp))
             {
             case 0:
-                SpawnShrapX(u);
+                SpawnShrapX(actor);
                 break;
             case 1:
-                InitVulcanBoulder(u);
+                InitVulcanBoulder(actor);
                 break;
             }
         }
@@ -3882,9 +3883,10 @@ DoShrapMove(int16_t SpriteNum)
 
 #if 1
 int
-DoVomit(USER* u)
+DoVomit(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
@@ -3930,57 +3932,14 @@ DoVomit(USER* u)
 
     return 0;
 }
-#else
-int
-DoVomit(USER* u)
-{
-	int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-
-    u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
-    sp->xrepeat = u->sx + MulScale(12, bcos(u->Counter), 14);
-    sp->yrepeat = u->sy + MulScale(12, bsin(u->Counter), 14);
-
-    if (TEST(u->Flags, SPR_JUMPING))
-    {
-        DoShrapVelocity(SpriteNum);
-    }
-    else if (TEST(u->Flags, SPR_FALLING))
-    {
-        DoShrapVelocity(SpriteNum);
-    }
-    else
-    {
-        ChangeState(SpriteNum, s_VomitSplash);
-        DoFindGroundPoint(SpriteNum);
-        MissileWaterAdjust(SpriteNum);
-        sp->z = u->loz;
-        u->WaitTics = 60;
-        u->sx = sp->xrepeat;
-        u->sy = sp->yrepeat;
-        return 0;
-    }
-
-    if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
-    {
-        short hit_sprite = NORM_SPRITE(u->ret);
-        if (TEST(sprite[hit_sprite].extra, SPRX_PLAYER_OR_ENEMY))
-        {
-            DoDamage(hit_sprite, SpriteNum);
-            //KillSprite(SpriteNum);
-            return 0;
-        }
-    }
-
-    return 0;
-}
 #endif
 
 
 int
-DoVomitSplash(USER* u)
+DoVomitSplash(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics-=MISSILEMOVETICS) < 0)
     {
@@ -3992,9 +3951,10 @@ DoVomitSplash(USER* u)
 }
 
 int
-DoFastShrapJumpFall(USER* u)
+DoFastShrapJumpFall(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
 	sp->x += u->xchange*2;
@@ -4009,9 +3969,10 @@ DoFastShrapJumpFall(USER* u)
 }
 
 int
-DoTracerShrap(USER* u)
+DoTracerShrap(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     sp->x += u->xchange;
@@ -4028,9 +3989,10 @@ DoTracerShrap(USER* u)
 //#define ShrapKillSprite(num) _Shrap_Kill_Sprite(num, __FILE__, __LINE__) //#define DoShrapVelocity(num) _Do_Shrap_Velocity(num, __FILE__, __LINE__)
 
 int
-DoShrapJumpFall(USER* u)
+DoShrapJumpFall(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -4059,9 +4021,10 @@ DoShrapJumpFall(USER* u)
 }
 
 int
-DoShrapDamage(USER* u)
+DoShrapDamage(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (TEST(u->Flags, SPR_JUMPING))
@@ -4711,9 +4674,10 @@ WeaponMoveHit(short SpriteNum)
 }
 
 int
-DoUziSmoke(USER* u)
+DoUziSmoke(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     //if (sp->picnum != nullptr)
@@ -4724,9 +4688,10 @@ DoUziSmoke(USER* u)
 }
 
 int
-DoShotgunSmoke(USER* u)
+DoShotgunSmoke(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     //if (sp->picnum != nullptr)
@@ -4737,23 +4702,25 @@ DoShotgunSmoke(USER* u)
 }
 
 int
-DoMineSpark(USER* u)
+DoMineSpark(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (sp->picnum != 0)
     {
-        DoDamageTest(u);
+        DoDamageTest(actor);
     }
 
     return 0;
 }
 
 int
-DoFireballFlames(USER* u)
+DoFireballFlames(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum],ap;
     bool jumping = false;
 
@@ -4848,9 +4815,10 @@ DoFireballFlames(USER* u)
 }
 
 int
-DoBreakFlames(USER* u)
+DoBreakFlames(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     bool jumping = false;
 
@@ -4939,9 +4907,10 @@ SetSuicide(short SpriteNum)
 }
 
 int
-DoActorScale(USER* u)
+DoActorScale(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     u->scale_speed = 70;
@@ -4958,9 +4927,10 @@ DoActorScale(USER* u)
 }
 
 int
-DoRipperGrow(USER* u)
+DoRipperGrow(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     u->scale_speed = 70;
@@ -5022,6 +4992,7 @@ void UpdateSinglePlayKills(short SpriteNum)
 int
 ActorChooseDeath(short SpriteNum, short Weapon)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     SPRITEp wp = &sprite[Weapon];
@@ -5086,12 +5057,12 @@ ActorChooseDeath(short SpriteNum, short Weapon)
     {
     case BETTY_R0:
     {
-        DoBettyBeginDeath(u);
+        DoBettyBeginDeath(actor);
         break;
     }
     case SKULL_R0:
     {
-		DoSkullBeginDeath(u);
+		DoSkullBeginDeath(actor);
         break;
     }
     case TOILETGIRL_R0:
@@ -5491,6 +5462,7 @@ ActorPain(short SpriteNum)
 int
 ActorPainPlasma(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_ELECTRO_TOLERANT))
@@ -5504,7 +5476,7 @@ ActorPainPlasma(short SpriteNum)
         else
         {
             u->Vis = PLASMA_FOUNTAIN_TIME;
-            InitActorPause(u);
+            InitActorPause(actor);
         }
     }
 
@@ -5887,6 +5859,7 @@ objects.
 int
 DoDamage(short SpriteNum, short Weapon)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     SPRITEp wp;
@@ -5905,6 +5878,7 @@ DoDamage(short SpriteNum, short Weapon)
     if (TEST(u->Flags, SPR_SUICIDE))
         return 0;
 
+    auto weapActor = &swActors[Weapon];
     wp = &sprite[Weapon];
     wu = User[Weapon].Data();
 
@@ -6247,7 +6221,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerUpdateHealth(u->PlayerP, damage);
                 if (PlayerCheckDeath(u->PlayerP, Weapon))
                 {
-                    DoBunnyRipHeart(wu);
+                    DoBunnyRipHeart(weapActor);
                 }
             }
         }
@@ -7313,7 +7287,7 @@ DoDamage(short SpriteNum, short Weapon)
             }
             else if (u->ID == RIPPER_RUN_R0)
             {
-				DoRipperGrow(u);
+				DoRipperGrow(actor);
                 break;
             }
 
@@ -7512,10 +7486,11 @@ const char *DeathString(short SpriteNum)
 #endif
 
 int
-DoDamageTest(USER* wu)
+DoDamageTest(DSWActor* actor)
 {
+    auto wu = actor->u();
 	int Weapon = wu->SpriteNum;
-    SPRITEp wp = &sprite[Weapon];
+    SPRITEp wp = &actor->s();
 
     USERp u;
     SPRITEp sp;
@@ -7758,8 +7733,9 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
 }
 
 
-int DoExpDamageTest(USER* wu)
+int DoExpDamageTest(DSWActor* actor)
 {
+    auto wu = actor->u();
     int Weapon = wu->SpriteNum;
     SPRITEp wp = &sprite[Weapon];
 
@@ -7911,8 +7887,9 @@ int DoExpDamageTest(USER* wu)
 }
 
 
-int DoMineExpMine(USER* wu)
+int DoMineExpMine(DSWActor* actor)
 {
+    auto wu = actor->u();
     int Weapon = wu->SpriteNum;
     SPRITEp wp = &sprite[Weapon];
 
@@ -7955,9 +7932,10 @@ int DoMineExpMine(USER* wu)
 }
 
 int
-DoStar(USER* u)
+DoStar(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     USERp su;
     int vel;
@@ -8182,9 +8160,10 @@ DoStar(USER* u)
 }
 
 int
-DoCrossBolt(USER* u)
+DoCrossBolt(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
 
     ASSERT(Weapon >= 0);
 
@@ -8218,9 +8197,10 @@ DoCrossBolt(USER* u)
 
 
 int
-DoPlasmaDone(USER* u)
+DoPlasmaDone(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
     sp->xrepeat += u->Counter;
@@ -8616,9 +8596,10 @@ InitPlasmaFountain(SPRITEp wp, SPRITEp sp)
 }
 
 int
-DoPlasmaFountain(USER* u)
+DoPlasmaFountain(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     SPRITEp ap;
     short bak_cstat;
@@ -8665,9 +8646,10 @@ DoPlasmaFountain(USER* u)
 }
 
 int
-DoPlasma(USER* u)
+DoPlasma(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int32_t dax, day, daz;
     int ox,oy,oz;
@@ -8744,9 +8726,10 @@ DoPlasma(USER* u)
 
 
 int
-DoCoolgFire(USER* u)
+DoCoolgFire(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -8774,9 +8757,10 @@ DoCoolgFire(USER* u)
 }
 
 int
-DoEelFire(USER* u)
+DoEelFire(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(Weapon);
@@ -8912,9 +8896,10 @@ bool SlopeBounce(short SpriteNum, bool *hit_wall)
 extern STATE s_Phosphorus[];
 
 int
-DoGrenade(USER* u)
+DoGrenade(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     short i;
 
@@ -9159,9 +9144,10 @@ DoGrenade(USER* u)
 }
 
 int
-DoVulcanBoulder(USER* u)
+DoVulcanBoulder(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
     u->Counter += 40;
@@ -9385,9 +9371,10 @@ DoMineRangeTest(short Weapon, short range)
 
 
 int
-DoMineStuck(USER* u)
+DoMineStuck(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 #define MINE_DETONATE_STATE 99
 
@@ -9567,9 +9554,10 @@ SetMineStuck(int16_t Weapon)
 }
 
 int
-DoMine(USER* u)
+DoMine(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -9730,9 +9718,10 @@ DoMine(USER* u)
 }
 
 int
-DoPuff(USER* u)
+DoPuff(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
  
     sp->x += u->xchange;
@@ -9743,9 +9732,10 @@ DoPuff(USER* u)
 }
 
 int
-DoRailPuff(USER* u)
+DoRailPuff(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     sp->xrepeat += 4;
@@ -9755,9 +9745,10 @@ DoRailPuff(USER* u)
 }
 
 int
-DoBoltThinMan(USER* u)
+DoBoltThinMan(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int32_t dax, day, daz;
 
@@ -9794,9 +9785,10 @@ DoBoltThinMan(USER* u)
 }
 
 int
-DoTracer(USER* u)
+DoTracer(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     short i;
 
@@ -9822,9 +9814,10 @@ DoTracer(USER* u)
 }
 
 int
-DoEMP(USER* u)
+DoEMP(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     short i;
 
@@ -9861,9 +9854,10 @@ DoEMP(USER* u)
 }
 
 int
-DoEMPBurst(USER* u)
+DoEMPBurst(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
     if (u->Attach >= 0)
@@ -9898,7 +9892,7 @@ DoEMPBurst(USER* u)
 
     if ((RANDOM_P2(1024<<6)>>6) < 700)
     {
-        SpawnShrapX(u);
+        SpawnShrapX(actor);
     }
 
     u->WaitTics -= (MISSILEMOVETICS * 2);
@@ -9915,9 +9909,10 @@ DoEMPBurst(USER* u)
 }
 
 int
-DoTankShell(USER* u)
+DoTankShell(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     short i;
 
     for (i = 0; i < 4; i++)
@@ -9942,9 +9937,10 @@ DoTankShell(USER* u)
 }
 
 int
-DoTracerStart(USER* u)
+DoTracerStart(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -9963,9 +9959,10 @@ DoTracerStart(USER* u)
 }
 
 int
-DoLaser(USER* u)
+DoLaser(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     SPRITEp np;
     USERp nu;
@@ -10012,9 +10009,10 @@ DoLaser(USER* u)
 }
 
 int
-DoLaserStart(USER* u)
+DoLaserStart(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -10036,9 +10034,10 @@ DoLaserStart(USER* u)
 }
 
 int
-DoRail(USER* u)
+DoRail(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     SPRITEp np;
     USERp nu;
@@ -10067,14 +10066,14 @@ DoRail(USER* u)
                         short cstat_save = sprite[hit_sprite].cstat;
 
                         RESET(sprite[hit_sprite].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);
-                        DoRail(u);
+                        DoRail(actor);
                         sprite[hit_sprite].cstat = cstat_save;
                         return true;
                     }
                     else
                     {
                         SpawnTracerExp(Weapon);
-                        SpawnShrapX(u);
+                        SpawnShrapX(actor);
                         KillSprite((short) Weapon);
                         return true;
                     }
@@ -10082,7 +10081,7 @@ DoRail(USER* u)
                 else
                 {
                     SpawnTracerExp(Weapon);
-                    SpawnShrapX(u);
+                    SpawnShrapX(actor);
                     KillSprite((short) Weapon);
                     return true;
                 }
@@ -10125,9 +10124,10 @@ DoRail(USER* u)
 }
 
 int
-DoRailStart(USER* u)
+DoRailStart(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -10140,7 +10140,7 @@ DoRailStart(USER* u)
         if (WeaponMoveHit(Weapon))
         {
             SpawnTracerExp(Weapon);
-            SpawnShrapX(u);
+            SpawnShrapX(actor);
             KillSprite((short) Weapon);
             return true;
         }
@@ -10150,9 +10150,10 @@ DoRailStart(USER* u)
 }
 
 int
-DoRocket(USER* u)
+DoRocket(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int dist,a,b,c;
     auto pos = sp->pos;
@@ -10238,9 +10239,10 @@ DoRocket(USER* u)
 }
 
 int
-DoMicroMini(USER* u)
+DoMicroMini(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     short i;
 
     for (i = 0; i < 3; i++)
@@ -10264,9 +10266,10 @@ DoMicroMini(USER* u)
 }
 
 int
-SpawnExtraMicroMini(USER* u)
+SpawnExtraMicroMini(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     SPRITEp wp;
     USERp wu;
@@ -10303,9 +10306,10 @@ SpawnExtraMicroMini(USER* u)
 }
 
 int
-DoMicro(USER* u)
+DoMicro(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     short New;
 
@@ -10357,7 +10361,7 @@ DoMicro(USER* u)
             NewStateGroup(Weapon, &sg_MicroMini[0]);
             sp->xrepeat = sp->yrepeat = 10;
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-            SpawnExtraMicroMini(u);
+            SpawnExtraMicroMini(actor);
             return true;
         }
     }
@@ -10378,9 +10382,10 @@ DoMicro(USER* u)
 }
 
 int
-DoUziBullet(USER* u)
+DoUziBullet(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int32_t dax, day, daz;
     int sx,sy;
@@ -10450,9 +10455,10 @@ DoUziBullet(USER* u)
 
 
 int
-DoBoltSeeker(USER* u)
+DoBoltSeeker(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int32_t dax, day, daz;
 
@@ -10485,21 +10491,22 @@ DoBoltSeeker(USER* u)
 }
 
 int
-DoBoltShrapnel(USER* u)
+DoBoltShrapnel(DSWActor* actor)
 {
     return 0;
 }
 
 int
-DoBoltFatMan(USER* u)
+DoBoltFatMan(DSWActor* actor)
 {
     return 0;
 }
 
 int
-DoElectro(USER* u)
+DoElectro(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int32_t dax, day, daz;
 
@@ -10554,9 +10561,10 @@ DoElectro(USER* u)
 }
 
 int
-DoLavaBoulder(USER* u)
+DoLavaBoulder(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10583,9 +10591,10 @@ DoLavaBoulder(USER* u)
 }
 
 int
-DoSpear(USER* u)
+DoSpear(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
@@ -10613,9 +10622,10 @@ DoSpear(USER* u)
     return false;
 }
 
-int SpawnCoolieExp(USER* u)
+int SpawnCoolieExp(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 	USERp eu;
     SPRITEp sp = &sprite[SpriteNum];
 
@@ -10635,6 +10645,7 @@ int SpawnCoolieExp(USER* u)
 
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
                             nx, ny, zh, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -10647,7 +10658,7 @@ int SpawnCoolieExp(USER* u)
 
     eu->Radius = DamageData[DMG_BOLT_EXP].radius;
 
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
 
     return explosion;
 }
@@ -10671,6 +10682,7 @@ SpawnBasicExp(int16_t Weapon)
 
     explosion = SpawnSprite(STAT_MISSILE, BASIC_EXP, s_BasicExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -10690,7 +10702,7 @@ SpawnBasicExp(int16_t Weapon)
     //
 
     SpawnExpZadjust(Weapon, exp, Z(15), Z(15));
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
     SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
@@ -11024,6 +11036,7 @@ SpawnBoltExp(int16_t Weapon)
 
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -11040,7 +11053,7 @@ SpawnBoltExp(int16_t Weapon)
 
     SpawnExpZadjust(Weapon, exp, Z(40), Z(40));
 
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
 
     SetExpQuake(explosion); // !JIM! made rocket launcher shake things
     SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
@@ -11051,6 +11064,7 @@ SpawnBoltExp(int16_t Weapon)
 int
 SpawnBunnyExp(int16_t Weapon)
 {
+    auto actor = &swActors[Weapon];
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon].Data();
 
@@ -11065,7 +11079,7 @@ SpawnBunnyExp(int16_t Weapon)
     InitBloodSpray(Weapon,true,-1);
     InitBloodSpray(Weapon,true,-1);
     InitBloodSpray(Weapon,true,-1);
-    DoExpDamageTest(u);
+    DoExpDamageTest(actor);
 
     return 0;
 }
@@ -11088,6 +11102,7 @@ SpawnTankShellExp(int16_t Weapon)
 
     explosion = SpawnSprite(STAT_MISSILE, TANK_SHELL_EXP, s_TankShellExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -11103,7 +11118,7 @@ SpawnTankShellExp(int16_t Weapon)
     eu->Radius = DamageData[DMG_TANK_SHELL_EXP].radius;
 
     SpawnExpZadjust(Weapon, exp, Z(40), Z(40));
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
     SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
@@ -11210,6 +11225,7 @@ SpawnNuclearExp(int16_t Weapon)
     // Do central explosion
     explosion = SpawnSprite(STAT_MISSILE, MUSHROOM_CLOUD, s_GrenadeExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -11226,7 +11242,7 @@ SpawnNuclearExp(int16_t Weapon)
 
     SpawnExpZadjust(Weapon, exp, Z(30), Z(30));
 
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
 
     // Nuclear effects
     SetNuclearQuake(explosion);
@@ -11272,6 +11288,7 @@ SpawnTracerExp(int16_t Weapon)
         explosion = SpawnSprite(STAT_MISSILE, TRACER_EXP, s_TracerExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
 
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -11289,7 +11306,7 @@ SpawnTracerExp(int16_t Weapon)
     if (u->ID == BOLT_THINMAN_R1)
     {
         eu->Radius = DamageData[DMG_BASIC_EXP].radius;
-        DoExpDamageTest(eu);
+        DoExpDamageTest(expActor);
     }
     else
         eu->Radius = DamageData[DMG_BOLT_EXP].radius;
@@ -11505,8 +11522,9 @@ SpawnGrenadeSecondaryExp(int16_t Weapon, short ang)
 }
 
 int
-SpawnGrenadeSmallExp(USER* u)
+SpawnGrenadeSmallExp(DSWActor* actor)
 {
+    USER* u = actor->u();
     short ang;
 
     ang = RANDOM_P2(2048);
@@ -11552,6 +11570,7 @@ SpawnGrenadeExp(int16_t Weapon)
 
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, sp->sectnum,
                             dx, dy, dz, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -11572,7 +11591,7 @@ SpawnGrenadeExp(int16_t Weapon)
 
     SpawnExpZadjust(Weapon, exp, Z(100), Z(30));
 
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
 
     SetExpQuake(explosion);
     SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 0);
@@ -11678,21 +11697,22 @@ SpawnMineExp(int16_t Weapon)
 
     SetExpQuake(explosion);
 
-    //DoExpDamageTest(eu);
+    //DoExpDamageTest(expActor);
 
     return explosion;
 }
 
 
-int DoMineExp(USER* u)
+int DoMineExp(DSWActor* actor)
 {
-    DoExpDamageTest(u);
+    DoExpDamageTest(actor);
     return 0;
 }
 
 int
-DoSectorExp(USER* u)
+DoSectorExp(DSWActor* actor)
 {
+    USER* u = actor->u();
     SPRITEp sp = &sprite[u->SpriteNum];
 
     sp->x += u->xchange;
@@ -11718,6 +11738,7 @@ SpawnSectorExp(int16_t Weapon)
 
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -11730,7 +11751,7 @@ SpawnSectorExp(int16_t Weapon)
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_SECTOR_EXP].radius;
 
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
     SetExpQuake(explosion);
     SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
@@ -11750,6 +11771,7 @@ SpawnLargeExp(int16_t Weapon)
 
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -11765,7 +11787,7 @@ SpawnLargeExp(int16_t Weapon)
     SpawnExpZadjust(Weapon, exp, Z(50), Z(50));
 
     // Should not cause other sectors to explode
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
     SetExpQuake(explosion);
     SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
@@ -11834,6 +11856,7 @@ SpawnLittleExp(int16_t Weapon)
     PlaySound(DIGI_HEADSHOTHIT, sp, v3df_none);
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
@@ -11844,16 +11867,17 @@ SpawnLittleExp(int16_t Weapon)
     SET(exp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_BASIC_EXP].radius;
-    DoExpDamageTest(eu);
+    DoExpDamageTest(expActor);
     SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
 }
 
 int
-DoFireball(USER* u)
+DoFireball(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
     u = User[Weapon].Data();
@@ -11865,7 +11889,7 @@ DoFireball(USER* u)
         sp->xrepeat = sp->yrepeat -= 1;
         if (sp->xrepeat <= 37)
         {
-            SpawnSmokePuff(u);
+            SpawnSmokePuff(actor);
             KillSprite(Weapon);
             return true;
         }
@@ -12059,9 +12083,10 @@ DoFindGroundPoint(int16_t SpriteNum)
 }
 
 int
-DoNapalm(USER* u)
+DoNapalm(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon], exp;
 
     short explosion;
@@ -12076,7 +12101,7 @@ DoNapalm(USER* u)
         sp->xrepeat = sp->yrepeat -= 1;
         if (sp->xrepeat <= 30)
         {
-            SpawnSmokePuff(u);
+            SpawnSmokePuff(actor);
             KillSprite(Weapon);
             return true;
         }
@@ -12176,9 +12201,10 @@ DoNapalm(USER* u)
 
 #if WORM == 1
 int
-DoBloodWorm(USER* u)
+DoBloodWorm(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     short ang;
     int xvect,yvect;
@@ -12266,148 +12292,18 @@ DoBloodWorm(USER* u)
 }
 #endif
 
-#if WORM == 2
-int
-DoBloodWorm(USER* u)
-{
-	int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon], exp;
-    int offset;
-	short ang;
-    int x,y,z,xvect,yvect;
-    int bx,by;
-    int amt;
-    short sectnum;
-
-    u = User[Weapon].Data();
-
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
-
-    // stay on ground
-    sp->z = u->loz - Z(32);
-
-    if (u->ret)
-    {
-        switch (TEST(u->ret, HIT_MASK))
-        {
-
-        case HIT_PLAX_WALL:
-            KillSprite(Weapon);
-            return true;
-
-        case HIT_SPRITE:
-        case HIT_WALL:
-        {
-            u->xchange = -u->xchange;
-            u->ychange = -u->ychange;
-            u->ret = 0;
-            sp->ang = NORM_ANGLE(sp->ang + 1024);
-            break;
-        }
-
-        case HIT_SECTOR:
-        {
-            sp->z -= Z(32);
-
-            u->xchange = -u->xchange;
-            u->ychange = -u->ychange;
-            u->ret = 0;
-            sp->ang = NORM_ANGLE(sp->ang + 1024);
-            break;
-        }
-
-        }
-    }
-
-    if (++u->Counter3 > 3)
-    {
-        SPRITEp tsp;
-        USERp tu;
-        int i;
-
-        InitBloodSpray(Weapon, false, 1);
-        InitBloodSpray(Weapon, false, 1);
-
-        // Kill any old zombies you own
-        StatIterator it(STAT_ENEMY);
-        while ((i = it.NextIndex()) >= 0)
-        {
-            tsp = &sprite[i];
-            tu = User[i].Data();
-
-            ASSERT(tu);
-
-            if (tu->ID == ZOMBIE_RUN_R0 && tsp->owner == sp->owner)
-            {
-                InitBloodSpray(i,true,105);
-                InitBloodSpray(i,true,105);
-                SetSuicide(i);
-                break;
-            }
-        }
-
-        SpawnZombie2(Weapon);
-        KillSprite(Weapon);
-        return true;
-    }
-
-    ang = NORM_ANGLE(sp->ang + 512);
-
-    xvect = bcos(ang);
-    yvect = bsin(ang);
-
-    bx = sp->x;
-    by = sp->y;
-
-    amt = RANDOM_P2(2048) - 1024;
-    sp->x += MulScale(amt,xvect, 15);
-    sp->y += MulScale(amt,yvect, 15);
-
-    sectnum = sp->sectnum;
-    updatesectorz(sp->x, sp->y, sp->z, &sectnum);
-    if (sectnum >= 0)
-    {
-        //GlobalSkipZrange = true;
-        InitBloodSpray(Weapon, false, 1);
-        //GlobalSkipZrange = false;
-    }
-
-    if (RANDOM_P2(2048) < 512)
-    {
-        sp->x = bx;
-        sp->y = by;
-
-        amt = RANDOM_P2(2048) - 1024;
-        sp->x += MulScale(amt,xvect, 15);
-        sp->y += MulScale(amt,yvect, 15);
-
-        sectnum = sp->sectnum;
-        updatesectorz(sp->x, sp->y, sp->z, &sectnum);
-        if (sectnum >= 0)
-        {
-            //GlobalSkipZrange = true;
-            InitBloodSpray(Weapon, false, 1);
-            //GlobalSkipZrange = false;
-        }
-    }
-
-    sp->x = bx;
-    sp->y = by;
-
-    return false;
-}
-#endif
 
 int
-DoMeteor(USER* u)
+DoMeteor(DSWActor* actor)
 {
     return false;
 }
 
 int
-DoSerpMeteor(USER* u)
+DoSerpMeteor(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     int ox, oy, oz;
 
@@ -12463,9 +12359,10 @@ DoSerpMeteor(USER* u)
 
 
 int
-DoMirvMissile(USER* u)
+DoMirvMissile(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
     sp->xrepeat += MISSILEMOVETICS * 2;
@@ -12494,9 +12391,10 @@ DoMirvMissile(USER* u)
 }
 
 int
-DoMirv(USER* u)
+DoMirv(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon], np;
     USERp nu;
     short New;
@@ -12601,6 +12499,7 @@ bool
 MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
 {
     SPRITEp wp = &sprite[Weapon];
+    auto actor = &swActors[Weapon];
     USERp wu = User[Weapon].Data();
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
@@ -12624,7 +12523,7 @@ MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
     wu->zchange = wp->zvel;
 
     SET(wu->Flags, SPR_SET_POS_DONT_KILL);
-    if ((*DoWeapon)(wu))
+    if ((*DoWeapon)(actor))
         retval = true;
     RESET(wu->Flags, SPR_SET_POS_DONT_KILL);
 
@@ -12644,6 +12543,7 @@ MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
 bool
 TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
 {
+    auto actor = &swActors[Weapon];
     SPRITEp wp = &sprite[Weapon];
     USERp wu = User[Weapon].Data();
     int oldvel, oldzvel;
@@ -12668,7 +12568,7 @@ TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
     wu->zchange = zvel;
 
     SET(wu->Flags, SPR_SET_POS_DONT_KILL);
-    if ((*DoWeapon)(wu))
+    if ((*DoWeapon)(actor))
         retval = true;
     RESET(wu->Flags, SPR_SET_POS_DONT_KILL);
 
@@ -12686,9 +12586,10 @@ TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
 }
 
 int
-DoRing(USER* u)
+DoRing(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     PLAYERp pp = User[sp->owner]->PlayerP;
     SPRITEp so = &sprite[sp->owner];
@@ -12705,7 +12606,7 @@ DoRing(USER* u)
         sp->xrepeat = sp->yrepeat -= 1;
         if (sp->xrepeat <= 30)
         {
-            SpawnSmokePuff(u);
+            SpawnSmokePuff(actor);
             KillSprite(Weapon);
             return true;
         }
@@ -12774,7 +12675,7 @@ DoRing(USER* u)
     }
 
     // Done last - check for damage
-    DoDamageTest(u);
+    DoDamageTest(actor);
 
     return 0;
 }
@@ -12850,9 +12751,10 @@ InitSpellRing(PLAYERp pp)
 }
 
 int
-DoSerpRing(USER* u)
+DoSerpRing(DSWActor* actor)
 {
-	int Weapon = u->SpriteNum;
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     USERp ou = User[sp->owner].Data();
     int dist,a,b,c;
@@ -12863,7 +12765,7 @@ DoSerpRing(USER* u)
     if (sp->owner == -1 || ou->RotNum < 5)
     {
         UpdateSinglePlayKills(Weapon);
-        DoSkullBeginDeath(u);
+        DoSkullBeginDeath(actor);
         // +2 does not spawn shrapnel
         u->ID = SKULL_SERP;
         return 0;
@@ -12968,15 +12870,16 @@ DoSerpRing(USER* u)
 }
 
 int
-InitLavaFlame(USER* u)
+InitLavaFlame(DSWActor* actor)
 {
     return 0;
 }
 
 int
-InitLavaThrow(USER* u)
+InitLavaThrow(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
@@ -13033,9 +12936,10 @@ InitLavaThrow(USER* u)
 }
 
 int
-InitVulcanBoulder(USER* u)
+InitVulcanBoulder(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz, nang;
@@ -13108,67 +13012,11 @@ InitVulcanBoulder(USER* u)
     return w;
 }
 
-#if 0
 int
-InitSerpRing(USER* u)
+InitSerpRing(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP, np;
-    USERp nu;
-    short ang, ang_diff, ang_start, ang_finish, missiles, NewSprite;
-    short max_missiles = 16;
-
-    u->Counter = max_missiles;
-
-    ang_diff = 2048 / max_missiles;
-
-    ang_start = NORM_ANGLE(sp->ang - DIV2(2048));
-
-    if (!SW_SHAREWARE)
-        PlaySound(DIGI_RFWIZ, sp, v3df_none);
-
-    for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
-    {
-        NewSprite = SpawnSprite(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring2, sp->sectnum, sp->x, sp->y, SPRITEp_TOS(sp)+Z(20), ang, 0);
-
-        np = &sprite[NewSprite];
-
-        np->hitag = LUMINOUS; //Always full brightness
-        np->xvel = 500;
-        SetOwner(SpriteNum, NewSprite);
-        np->shade = -40;
-        np->xrepeat = 32;
-        np->yrepeat = 32;
-        np->zvel = 0;
-
-        nu = User[NewSprite];
-
-        nu->sz = Z(20);
-        nu->Dist = 800;
-        nu->Counter = max_missiles;
-        nu->Counter2 = 0;
-        nu->ceiling_dist = Z(10);
-        nu->floor_dist = Z(10);
-        nu->spal = np->pal = 27; // Bright Green
-
-        // put it out there
-        np->x += MulScale(nu->Dist, bcos(np->ang), 14);
-        np->y += MulScale(nu->Dist, bsin(np->ang), 14);
-        np->z = SPRITEp_TOS(sp) + Z(20);
-
-        np->ang = NORM_ANGLE(np->ang + 512);
-
-        np->backuppos();
-
-        if (SpriteInUnderwaterArea(sp))
-            SET(nu->Flags, SPR_UNDERWATER);
-    }
-}
-#else
-int
-InitSerpRing(USER* u)
-{
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
     USERp nu;
     short ang, ang_diff, ang_start, missiles, New;
@@ -13239,86 +13087,6 @@ InitSerpRing(USER* u)
     }
     return 0;
 }
-#endif
-
-#if 0
-int
-InitSerpRing2(short SpriteNum)
-{
-    SPRITEp sp = User[SpriteNum]->SpriteP, np;
-    USERp u = User[SpriteNum].Data(), nu;
-    short ang, ang_diff, ang_start, ang_finish, missiles, New;
-    short max_missiles;
-    short i;
-
-    extern STATE s_SkullExplode[];
-    extern STATE s_SkullRing[5][1];
-    extern STATEp sg_SkullRing[];
-
-#define NUM_SERP_RING 2
-
-    static int zpos[NUM_SERP_RING] = {Z(25), Z(130)};
-
-    PlaySound(DIGI_SERPSUMMONHEADS, sp, v3df_none);
-
-    for (i = 0; i < NUM_SERP_RING; i++)
-    {
-        max_missiles = 12;
-
-        ang_diff = 2048 / max_missiles;
-
-        ang_start = i * (2048/NUM_SERP_RING); //NORM_ANGLE(sp->ang - DIV2(2048));
-
-        for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
-        {
-            New = SpawnSprite(STAT_MISSILE_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
-
-            np = &sprite[New];
-            nu = User[New].Data();
-
-            //np->owner = SpriteNum;
-            SetOwner(SpriteNum, New);
-            np->shade = -20;
-            np->xrepeat = 64;
-            np->yrepeat = 64;
-            np->zvel = Z(10);
-            np->yvel = 4*RINGMOVETICS;
-            np->pal = 0;
-
-            np->z = SPRITEp_TOS(sp) - Z(20);
-            nu->sz = zpos[i]; //Z(20) + (i * (SPRITEp_SIZE_Z(sp)/NUM_SERP_RING));
-
-            // ang around the serp is now slide_ang
-            nu->slide_ang = np->ang;
-            // randomize the head turning angle
-            np->ang = RANDOM_P2(2048<<5)>>5;
-
-            // control direction of spinning
-            FLIP(u->Flags, SPR_BOUNCE);
-            SET(nu->Flags, TEST(u->Flags, SPR_BOUNCE));
-
-            nu->Dist = 400;
-            nu->TargetDist = 2500;
-            nu->Counter2 = 0;
-
-            nu->StateEnd = s_SkullExplode;
-            nu->Rot = sg_SkullRing;
-
-            // defaults do change the statnum
-            EnemyDefaults(New, nullptr, nullptr);
-            RESET(np->extra, SPRX_PLAYER_OR_ENEMY);
-            change_sprite_stat(New, STAT_MISSILE_SKIP4);
-
-            np->clipdist = (128+64) >> 2;
-            SET(nu->Flags, SPR_XFLIP_TOGGLE);
-            SET(np->cstat, CSTAT_SPRITE_YCENTER);
-
-            nu->Radius = 400;
-        }
-    }
-    return 0;
-}
-#endif
 
 void
 InitSpellNapalm(PLAYERp pp)
@@ -13417,9 +13185,10 @@ InitSpellNapalm(PLAYERp pp)
 }
 
 int
-InitEnemyNapalm(USER* u)
+InitEnemyNapalm(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     short w;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
@@ -13553,9 +13322,10 @@ InitSpellMirv(PLAYERp pp)
 }
 
 int
-InitEnemyMirv(USER* u)
+InitEnemyMirv(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     short w;
@@ -15213,9 +14983,10 @@ InitRail(PLAYERp pp)
 }
 
 int
-InitZillaRail(USER* u)
+InitZillaRail(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     USERp wu;
     SPRITEp wp;
@@ -15664,9 +15435,10 @@ InitNuke(PLAYERp pp)
 }
 
 int
-InitEnemyNuke(USER* u)
+InitEnemyNuke(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     USERp wu;
     SPRITEp wp;
@@ -15886,9 +15658,10 @@ InitMicro(PLAYERp pp)
 }
 
 int
-InitRipperSlash(USER* u)
+InitRipperSlash(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     USERp hu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
@@ -15926,9 +15699,10 @@ InitRipperSlash(USER* u)
 }
 
 int
-InitBunnySlash(USER* u)
+InitBunnySlash(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
@@ -15961,9 +15735,10 @@ InitBunnySlash(USER* u)
 
 
 int
-InitSerpSlash(USER* u)
+InitSerpSlash(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
@@ -16121,9 +15896,10 @@ DoStaticFlamesDamage(short SpriteNum)
 }
 
 int
-InitCoolgBash(USER* u)
+InitCoolgBash(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
@@ -16160,9 +15936,10 @@ InitCoolgBash(USER* u)
 }
 
 int
-InitSkelSlash(USER* u)
+InitSkelSlash(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
@@ -16195,9 +15972,10 @@ InitSkelSlash(USER* u)
 }
 
 int
-InitGoroChop(USER* u)
+InitGoroChop(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
@@ -16230,21 +16008,23 @@ InitGoroChop(USER* u)
 }
 
 int
-InitHornetSting(USER* u)
+InitHornetSting(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     short HitSprite = NORM_SPRITE(u->ret);
 
     DoDamage(HitSprite, SpriteNum);
-    InitActorReposition(u);
+    InitActorReposition(actor);
 
     return 0;
 }
 
 int
-InitSerpSpell(USER* u)
+InitSerpSpell(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], np;
     USERp nu;
     int dist;
@@ -16359,9 +16139,10 @@ SpawnDemonFist(int16_t Weapon)
 }
 
 int
-InitSerpMonstSpell(USER* u)
+InitSerpMonstSpell(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], np;
     USERp nu;
     int dist;
@@ -16439,9 +16220,10 @@ InitSerpMonstSpell(USER* u)
 }
 
 int
-DoTeleRipper(USER* u)
+DoTeleRipper(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern void Ripper2Hatch(short Weapon);
 
@@ -16453,9 +16235,10 @@ DoTeleRipper(USER* u)
 
 
 int
-InitEnemyRocket(USER* u)
+InitEnemyRocket(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
@@ -16520,9 +16303,10 @@ InitEnemyRocket(USER* u)
 }
 
 int
-InitEnemyRail(USER* u)
+InitEnemyRail(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     USERp wu;
     SPRITEp wp;
@@ -16615,9 +16399,10 @@ InitEnemyRail(USER* u)
 
 
 int
-InitZillaRocket(USER* u)
+InitZillaRocket(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
@@ -16704,9 +16489,10 @@ InitZillaRocket(USER* u)
 }
 
 int
-InitEnemyStar(USER* u)
+InitEnemyStar(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
@@ -16794,9 +16580,10 @@ InitEnemyStar(USER* u)
 }
 
 int
-InitEnemyCrossbow(USER* u)
+InitEnemyCrossbow(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
@@ -16890,9 +16677,10 @@ InitEnemyCrossbow(USER* u)
 
 
 int
-InitSkelSpell(USER* u)
+InitSkelSpell(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
@@ -16940,9 +16728,10 @@ InitSkelSpell(USER* u)
 
 
 int
-InitCoolgFire(USER* u)
+InitCoolgFire(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
@@ -17005,8 +16794,9 @@ InitCoolgFire(USER* u)
     return w;
 }
 
-int DoCoolgDrip(USER* u)
+int DoCoolgDrip(DSWActor* actor)
 {
+    USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
@@ -17058,9 +16848,10 @@ InitCoolgDrip(short SpriteNum)
 }
 
 int
-GenerateDrips(USER* u)
+GenerateDrips(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz;
@@ -17107,9 +16898,10 @@ GenerateDrips(USER* u)
 }
 
 int
-InitEelFire(USER* u)
+InitEelFire(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 	USERp hu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
@@ -17142,7 +16934,7 @@ InitEelFire(USER* u)
                 DoDamage(i, SpriteNum);
             }
             else
-                InitActorReposition(u);
+                InitActorReposition(actor);
         }
     }
 
@@ -17150,9 +16942,10 @@ InitEelFire(USER* u)
 }
 
 int
-InitFireballTrap(USER* u)
+InitFireballTrap(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz;
@@ -17189,9 +16982,10 @@ InitFireballTrap(USER* u)
 }
 
 int
-InitBoltTrap(USER* u)
+InitBoltTrap(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz;
@@ -17228,60 +17022,6 @@ InitBoltTrap(USER* u)
     return w;
 }
 
-#if 0
-int
-InitEnemyCrossbow(USER* u)
-{
-	int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp wu;
-    int nx, ny, nz, dist, nang;
-    short w;
-
-    // get angle to player and also face player when attacking
-    sp->ang = nang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y));
-
-    nx = sp->x;
-    ny = sp->y;
-    nz = SPRITEp_MID(sp);
-
-    // Spawn a shot
-    wp = &sprite[w = SpawnSprite(STAT_MISSILE, CROSSBOLT, s_CrossBolt, sp->sectnum,
-                                 nx, ny, nz, u->tgt_sp->ang, 800)];
-
-    wu = User[w].Data();
-
-    //wp->owner = SpriteNum;
-    SetOwner(SpriteNum, w);
-    wp->xrepeat = 16;
-    wp->yrepeat = 26;
-    wp->shade = -25;
-    wp->zvel = 0;
-    wp->ang = nang;
-    wp->clipdist = 64L>>2;
-
-    wu->RotNum = 5;
-    NewStateGroup(w, &sg_CrossBolt);
-
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = wp->zvel;
-
-    SET(wu->Flags, SPR_XFLIP_TOGGLE);
-
-    MissileSetPos(w, DoStar, 400);
-
-    // find the distance to the target (player)
-    dist = Distance(wp->x, wp->y, u->tgt_sp->x, u->tgt_sp->y);
-
-    if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp) - wp->z)) / dist;
-
-    PlaySound(DIGI_STAR, sp, v3df_none);
-
-    return w;
-}
-#endif
 
 int
 InitSpearTrap(short SpriteNum)
@@ -17334,17 +17074,19 @@ InitSpearTrap(short SpriteNum)
 }
 
 int
-DoSuicide(USER* u)
+DoSuicide(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     KillSprite(SpriteNum);
     return 0;
 }
 
 int
-DoDefaultStat(USER* u)
+DoDefaultStat(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     change_sprite_stat(SpriteNum, STAT_DEFAULT);
     return 0;
 }
@@ -17547,6 +17289,7 @@ int
 BulletHitSprite(SPRITEp sp, short hit_sprite, int hit_x, int hit_y, int hit_z, short ID)
 {
     vec3_t hit_pos = { hit_x, hit_y, hit_z };
+    auto actor = &swActors[hit_sprite];
     SPRITEp hsp = &sprite[hit_sprite];
     USERp hu = User[hit_sprite].Data();
     SPRITEp wp;
@@ -17589,7 +17332,7 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, int hit_x, int hit_y, int hit_z, s
             wp->xrepeat = UZI_SMOKE_REPEAT;
             wp->yrepeat = UZI_SMOKE_REPEAT;
             if (RANDOM_P2(1024) > 800)
-                SpawnShrapX(hu);
+                SpawnShrapX(actor);
             break;
         default:
             wp->xrepeat = UZI_SMOKE_REPEAT/3;
@@ -19022,9 +18765,10 @@ InitTurretMgun(SECTOR_OBJECTp sop)
 
 
 int
-InitEnemyUzi(USER* u)
+InitEnemyUzi(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP,wp;
     USERp wu;
     short daang, j;
@@ -19291,9 +19035,10 @@ InitGrenade(PLAYERp pp)
 }
 
 int
-InitSpriteGrenade(USER* u)
+InitSpriteGrenade(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     USERp wu;
     SPRITEp wp;
@@ -19426,9 +19171,10 @@ InitMine(PLAYERp pp)
 }
 
 int
-InitEnemyMine(USER* u)
+InitEnemyMine(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     USERp wu;
     SPRITEp wp;
@@ -19594,9 +19340,10 @@ InitFireball(PLAYERp pp)
 }
 
 int
-InitEnemyFireball(USER* u)
+InitEnemyFireball(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP, fp = nullptr;
     SPRITEp wp;
     int nz, dist;
@@ -20209,9 +19956,10 @@ SpawnBubble(short SpriteNum)
 }
 
 int
-DoVehicleSmoke(USER* u)
+DoVehicleSmoke(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     sp->z -= sp->zvel;
@@ -20224,9 +19972,10 @@ DoVehicleSmoke(USER* u)
 }
 
 int
-DoWaterSmoke(USER* u)
+DoWaterSmoke(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     sp->z -= sp->zvel;
@@ -20235,9 +19984,10 @@ DoWaterSmoke(USER* u)
 }
 
 int
-SpawnVehicleSmoke(USER* u)
+SpawnVehicleSmoke(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum],np;
     USERp nu;
     short New;
@@ -20273,9 +20023,10 @@ SpawnVehicleSmoke(USER* u)
 }
 
 int
-SpawnSmokePuff(USER* u)
+SpawnSmokePuff(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum],np;
     USERp nu;
     short New;
@@ -20310,9 +20061,10 @@ SpawnSmokePuff(USER* u)
 
 
 int
-DoBubble(USER* u)
+DoBubble(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     sp->z -= sp->zvel;
@@ -20576,9 +20328,10 @@ STATE s_FloorBlood1[] =
     {FLOORBLOOD1, FLOORBLOOD_RATE, NullAnimator, &s_FloorBlood1[0]},
 };
 
-int QueueFloorBlood(USER* u)
+int QueueFloorBlood(DSWActor* actor)
 {
-	int hit_sprite = u->SpriteNum;
+    USER* u = actor->u();
+    int hit_sprite = u->SpriteNum;
     SPRITEp hsp = &sprite[hit_sprite];
     short SpriteNum;
     SPRITEp sp;
@@ -20903,9 +20656,10 @@ int QueueWallBlood(short hit_sprite, short ang)
 
 #define FEET_IN_BLOOD_DIST 300
 int
-DoFloorBlood(USER* u)
+DoFloorBlood(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     SPRITEp psp = User[SpriteNum]->SpriteP;
@@ -20974,9 +20728,10 @@ DoFloorBlood(USER* u)
 }
 
 int
-DoWallBlood(USER* u)
+DoWallBlood(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     // Make blood drip down the wall
@@ -21290,6 +21045,7 @@ DoShrapVelocity(int16_t SpriteNum)
 int
 ShrapKillSprite(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     short rnd_num;
@@ -21408,7 +21164,7 @@ ShrapKillSprite(short SpriteNum)
     case GORE_Head:
         if (RandomRange(1000) > 500) break;
         sp->clipdist = SPRITEp_SIZE_X(sp);
-        QueueFloorBlood(u);
+        QueueFloorBlood(actor);
         QueueGeneric(SpriteNum,GORE_Head);
         return 0;
         break;

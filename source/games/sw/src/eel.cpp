@@ -118,7 +118,7 @@ ATTRIBUTE EelAttrib =
 
 #define EEL_RUN_RATE 20
 
-ANIMATOR DoEelMove,NullAnimator,DoStayOnFloor, DoActorDebris, NullEel;
+ANIMATOR DoEelMove,DoStayOnFloor, DoActorDebris, NullEel;
 
 STATE s_EelRun[5][4] =
 {
@@ -354,7 +354,7 @@ ACTOR_ACTION_SET EelActionSet =
     nullptr
 };
 
-int DoEelMatchPlayerZ(USER* SpriteNum);
+int DoEelMatchPlayerZ(DSWActor* actor);
 
 
 void
@@ -411,55 +411,26 @@ SetupEel(short SpriteNum)
     return 0;
 }
 
-#if 0
-int
-NewEel(USER* u)
+
+int NullEel(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-    USERp nu;
-    SPRITEp np;
-    ANIMATOR DoActorDecide;
-    short New;
-
-
-    New = SpawnSprite(STAT_ENEMY, EEL_RUN_R0, &s_EelBirth, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 50);
-
-    nu = User[New].Data();
-    np = &sprite[New];
-
-    ChangeState(New, &s_EelBirth);
-    nu->StateEnd = s_EelDie;
-    nu->Rot = sg_EelRun;
-    np->pal = nu->spal = u->spal;
-
-    nu->ActorActionSet = &EelActionSet;
-
-    np->shade = sp->shade;
-
-    EelCommon(New);
-
-    return 0;
-}
-#endif
-
-int NullEel(USER* u)
-{
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
-    DoEelMatchPlayerZ(u);
+    DoEelMatchPlayerZ(actor);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoEelMatchPlayerZ(USER* u)
+int DoEelMatchPlayerZ(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     SPRITEp tsp = User[SpriteNum]->tgt_sp;
     int zdiff,zdist;
@@ -558,9 +529,10 @@ int DoEelMatchPlayerZ(USER* u)
 }
 
 int
-DoEelDeath(USER* u)
+DoEelDeath(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int nx, ny;
     if (TEST(u->Flags, SPR_FALLING))
@@ -575,7 +547,7 @@ DoEelDeath(USER* u)
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     // slide while falling
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -599,9 +571,10 @@ DoEelDeath(USER* u)
     return 0;
 }
 
-int DoEelMove(USER* u)
+int DoEelMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     ASSERT(u->Rot != nullptr);
 
@@ -609,16 +582,16 @@ int DoEelMove(USER* u)
         NewStateGroup(SpriteNum, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
-    DoEelMatchPlayerZ(u);
+    DoEelMatchPlayerZ(actor);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 

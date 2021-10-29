@@ -332,16 +332,17 @@ SetupHornet(short SpriteNum)
     return 0;
 }
 
-int NullHornet(USER* u)
+int NullHornet(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     DoHornetMatchPlayerZ(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
@@ -421,9 +422,10 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     return 0;
 }
 
-int InitHornetCircle(USER* u)
+int InitHornetCircle(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     u->ActorActionFunc = DoHornetCircle;
@@ -448,14 +450,15 @@ int InitHornetCircle(USER* u)
 
     u->WaitTics = (RandomRange(3)+1) * 60;
 
-    (*u->ActorActionFunc)(u);
+    (*u->ActorActionFunc)(actor);
 
     return 0;
 }
 
-int DoHornetCircle(USER* u)
+int DoHornetCircle(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int nx,ny,bound;
 
@@ -476,7 +479,7 @@ int DoHornetCircle(USER* u)
 
         if (!move_actor(SpriteNum, nx, ny, 0L))
         {
-            InitActorReposition(u);
+            InitActorReposition(actor);
             return 0;
         }
     }
@@ -489,14 +492,14 @@ int DoHornetCircle(USER* u)
     {
         // bumped something
         u->sz = bound;
-        InitActorReposition(u);
+        InitActorReposition(actor);
         return 0;
     }
 
     // time out
     if ((u->WaitTics -= ACTORMOVETICS) < 0)
     {
-        InitActorReposition(u);
+        InitActorReposition(actor);
         u->WaitTics = 0;
         return 0;
     }
@@ -506,9 +509,10 @@ int DoHornetCircle(USER* u)
 
 
 int
-DoHornetDeath(USER* u)
+DoHornetDeath(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int nx, ny;
 
@@ -528,7 +532,7 @@ DoHornetDeath(USER* u)
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     // slide while falling
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -550,9 +554,10 @@ DoHornetDeath(USER* u)
 }
 
 // Hornets can swarm around other hornets or whatever is tagged as swarm target
-int DoCheckSwarm(USER* u)
+int DoCheckSwarm(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     int i;
     SPRITEp sp = &sprite[SpriteNum], tsp;
     USERp tu;
@@ -597,28 +602,29 @@ int DoCheckSwarm(USER* u)
 
 }
 
-int DoHornetMove(USER* u)
+int DoHornetMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     // Check for swarming
     // lotag of 1 = Swarm around lotags of 2
     // lotag of 0 is normal
     if (sp->hitag == TAG_SWARMSPOT && sp->lotag == 1)
-        DoCheckSwarm(u);
+        DoCheckSwarm(actor);
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
     DoHornetMatchPlayerZ(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }

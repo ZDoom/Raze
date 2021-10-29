@@ -558,9 +558,10 @@ SetupCoolie(short SpriteNum)
 
 
 int NewCoolg(short);
-int SpawnCoolg(USER* u)
+int SpawnCoolg(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 	
     // Don't do a ghost every time
     if (RandomRange(1000) > 700 || Skill < MinEnemySkill - 1)
@@ -575,55 +576,58 @@ int SpawnCoolg(USER* u)
     return 0;
 }
 
-int CooliePain(USER* u)
+int CooliePain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(u);
+        InitActorDecide(actor);
 
     return 0;
 }
 
-int NullCoolie(USER* u)
+int NullCoolie(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoCoolieMove(USER* u)
+int DoCoolieMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    if (DoActorSectorDamage(u))
+    if (DoActorSectorDamage(actor))
     {
         return 0;
     }
@@ -639,9 +643,10 @@ int DoCoolieMove(USER* u)
     return 0;
 }
 
-int InitCoolieCharge(USER* u)
+int InitCoolieCharge(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (RANDOM_P2(1024) > 950)
@@ -649,7 +654,7 @@ int InitCoolieCharge(USER* u)
 
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 
-    InitActorMoveCloser(u);
+    InitActorMoveCloser(actor);
 
     NewStateGroup(SpriteNum, sg_CoolieCharge);
 
@@ -658,9 +663,10 @@ int InitCoolieCharge(USER* u)
 
 
 int
-DoCoolieWaitBirth(USER* u)
+DoCoolieWaitBirth(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if ((u->Counter -= ACTORMOVETICS) <= 0)
     {

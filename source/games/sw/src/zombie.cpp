@@ -880,9 +880,10 @@ SpawnZombie2(short Weapon)
 }
 
 int
-DoZombieMove(USER* u)
+DoZombieMove(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
@@ -900,21 +901,21 @@ DoZombieMove(USER* u)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(u);
+            DoActorJump(actor);
         else if (TEST(u->Flags, SPR_FALLING))
-            DoActorFall(u);
+            DoActorFall(actor);
     }
 
     // sliding
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     // Do track or call current action function - such as DoActorMoveCloser()
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(u);
+        (*u->ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things
@@ -924,15 +925,16 @@ DoZombieMove(USER* u)
     }
 
     // take damage from environment
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 int
-NullZombie(USER* u)
+NullZombie(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
@@ -950,25 +952,26 @@ NullZombie(USER* u)
         u->WaitTics -= ACTORMOVETICS;
 
     if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
-        DoActorSlide(u);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(u);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 
-int DoZombiePain(USER* u)
+int DoZombiePain(DSWActor* actor)
 {
-	int SpriteNum = u->SpriteNum;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullZombie(u);
+    NullZombie(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(u);
+        InitActorDecide(actor);
 
     return 0;
 }

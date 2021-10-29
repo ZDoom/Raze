@@ -97,7 +97,6 @@ char UziRecoilYadj = 0;
 
 extern short screenpeek;
 
-ANIMATOR NullAnimator;
 pANIMATOR pNullAnimator;
 int InitStar(PLAYERp);
 int ChangeWeapon(PLAYERp);
@@ -105,7 +104,7 @@ int ChangeWeapon(PLAYERp);
 ANIMATOR InitFire;
 
 int
-NullAnimator(USER*)
+NullAnimator(DSWActor*)
 {
     return 0;
 }
