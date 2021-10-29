@@ -3759,8 +3759,9 @@ AutoShrap:
             SpriteNum = SpawnSprite(STAT_SKIP4, p->id, p->state, parent->sectnum,
                                     parent->x, parent->y, hz[p->zlevel], shrap_ang, 512);
 
-            sp = &sprite[SpriteNum];
-            u = User[SpriteNum].Data();
+            auto actor = &swActors[SpriteNum];
+            sp = &actor->s();
+            u = actor->u();
 
             if (p->random_disperse)
             {
@@ -3857,7 +3858,7 @@ AutoShrap:
             u->jump_speed += RandomRange(p->max_jspeed - p->min_jspeed);
             u->jump_speed = -u->jump_speed;
 
-            DoBeginJump(SpriteNum);
+            DoBeginJump(actor);
             u->jump_grav = jump_grav;
 
             u->xchange = MOVEx(sp->xvel, sp->ang);
@@ -4044,7 +4045,7 @@ DoShrapDamage(DSWActor* actor)
             SET(u->Flags, SPR_BOUNCE);
             u->jump_speed = -300;
             sp->xvel >>= 2;
-            DoBeginJump(SpriteNum);
+            DoBeginJump(actor);
             return 0;
         }
 
@@ -4244,8 +4245,9 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
         {
             New = SpawnSprite(STAT_SKIP4, p->id, p->state, sp->sectnum,
                               hit_x, hit_y, hit_z, hit_ang, 0);
-            np = &sprite[New];
-            nu = User[New].Data();
+            auto actorNew = &swActors[New];
+            np = &actorNew->s();
+            nu = actorNew->u();
 
             switch (nu->ID)
             {
@@ -4311,7 +4313,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
 
             SET(u->Flags, SPR_BOUNCE);
 
-            DoBeginJump(New);
+            DoBeginJump(actorNew);
         }
     }
 
@@ -10767,8 +10769,9 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
     New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
-    np = &sprite[New];
-    nu = User[New].Data();
+    auto actorNew = &swActors[New];
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     np->hitag = LUMINOUS; //Always full brightness
 
@@ -10820,7 +10823,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
         DoFindGround(New);
         nu->jump_speed = 0;
-        DoBeginJump(New);
+        DoBeginJump(actorNew);
     }
 
     PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
@@ -10841,8 +10844,9 @@ SpawnBreakFlames(int16_t SpriteNum)
 
     New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
-    np = &sprite[New];
-    nu = User[New].Data();
+    auto actorNew = &swActors[New];
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     np->hitag = LUMINOUS; //Always full brightness
 
@@ -10863,7 +10867,7 @@ SpawnBreakFlames(int16_t SpriteNum)
 
     DoFindGround(New);
     nu->jump_speed = 0;
-    DoBeginJump(New);
+    DoBeginJump(actorNew);
 
     PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
     Set3DSoundOwner(New);
@@ -10913,7 +10917,7 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
 
     //DoFindGround(New);
     //nu->jump_speed = 0;
-    //DoBeginJump(New);
+    //DoBeginJump(actorNew);
 
     PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
     Set3DSoundOwner(New);
@@ -12831,7 +12835,7 @@ DoSerpRing(DSWActor* actor)
                     u->jump_speed = -800;
                     change_sprite_stat(Weapon, STAT_ENEMY);
                     NewStateGroup(Weapon, sg_SkullJump);
-                    DoBeginJump(Weapon);
+                    DoBeginJump(actor);
                     // tell owner that one is gone
                     // User[sp->owner]->Counter--;
                     return 0;

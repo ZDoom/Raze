@@ -2464,6 +2464,7 @@ DoFlag(DSWActor* actor)
 int
 InitShell(int16_t SpriteNum, int16_t ShellNum)
 {
+    auto actor = &swActors[SpriteNum];
     USERp u = User[SpriteNum].Data();
     USERp wu;
     SPRITEp sp = &sprite[SpriteNum], wp;
@@ -2571,7 +2572,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
     wu->jump_speed += RandomRange(400);
     wu->jump_speed = -wu->jump_speed;
 
-    DoBeginJump(w);
+    DoBeginJump(actor);
     wu->jump_grav = ACTOR_GRAVITY;
 
     return 0;

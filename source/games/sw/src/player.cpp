@@ -5955,7 +5955,7 @@ DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = -200;
         NewStateGroup(pp->PlayerSprite, sg_PlayerDeath);
         DoFindGround(pp->PlayerSprite);
-        DoBeginJump(pp->PlayerSprite);
+        DoBeginJump(pp->Actor());
         u->jump_speed = -300;
         break;
     }
@@ -5975,7 +5975,7 @@ DoPlayerBeginDie(PLAYERp pp)
         u->ceiling_dist = Z(10);
         u->floor_dist = Z(0);
         DoFindGround(pp->PlayerSprite);
-        DoBeginJump(pp->PlayerSprite);
+        DoBeginJump(pp->Actor());
         u->jump_speed = -400;
         break;
     case PLAYER_DEATH_CRUMBLE:

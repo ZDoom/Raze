@@ -744,6 +744,7 @@ typedef struct
 
 struct PLAYERstruct
 {
+    DSWActor* Actor();
     // variable that fit in the sprite or user structure
     union
     {
@@ -2226,5 +2227,11 @@ END_SW_NS
 
 #include "swactor.h"
 
+BEGIN_SW_NS
+DSWActor* PLAYERstruct::Actor()
+{
+    return &swActors[PlayerSprite];
+}
+END_SW_NS
 #endif
 

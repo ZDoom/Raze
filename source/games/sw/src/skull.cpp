@@ -488,7 +488,7 @@ int DoSkullWait(DSWActor* actor)
             sp->xvel = 0;
             u->jump_speed = -600;
             NewStateGroup(SpriteNum, sg_SkullJump);
-            DoBeginJump(SpriteNum);
+            DoBeginJump(actor);
         }
     }
     else
@@ -504,7 +504,7 @@ int DoSkullWait(DSWActor* actor)
             sp->xvel = 128 + (RANDOM_P2(256<<8)>>8);
             u->jump_speed = -700;
             NewStateGroup(SpriteNum, sg_SkullJump);
-            DoBeginJump(SpriteNum);
+            DoBeginJump(actor);
         }
     }
 
@@ -902,7 +902,7 @@ int DoBettyWait(DSWActor* actor)
             sp->xvel = 0;
             u->jump_speed = -600;
             NewStateGroup(SpriteNum, sg_BettyJump);
-            DoBeginJump(SpriteNum);
+            DoBeginJump(actor);
         }
     }
     else
@@ -918,7 +918,7 @@ int DoBettyWait(DSWActor* actor)
             sp->xvel = 128 + (RANDOM_P2(256<<8)>>8);
             u->jump_speed = -700;
             NewStateGroup(SpriteNum, sg_BettyJump);
-            DoBeginJump(SpriteNum);
+            DoBeginJump(actor);
         }
     }
 

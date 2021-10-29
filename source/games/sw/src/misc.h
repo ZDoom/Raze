@@ -80,7 +80,7 @@ using INTERP_FUNC = void(*)(int, int);
 void SetSlidorActive(short SpriteNum);
 void DoSlidorInterp(short, INTERP_FUNC);
 
-int DoBeginJump(short SpriteNum);
+int DoBeginJump(DSWActor* actor);
 int DoJump(short SpriteNum);
 int DoBeginFall(short SpriteNum);
 int DoFall(short SpriteNum);

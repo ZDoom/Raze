@@ -864,9 +864,9 @@ int DoActorDeathMove(DSWActor* actor)
 
 // !AIC - Jumping a falling for shrapnel and other stuff, not actors.
 
-int DoBeginJump(short SpriteNum)
+int DoBeginJump(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -874,7 +874,7 @@ int DoBeginJump(short SpriteNum)
     // set up individual actor jump gravity
     u->jump_grav = ACTOR_GRAVITY;
 
-    DoJump(SpriteNum);
+    DoJump(u->SpriteNum);
 
     return 0;
 }
