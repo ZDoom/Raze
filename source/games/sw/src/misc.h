@@ -88,6 +88,7 @@ void KeepActorOnFloor(short SpriteNum);
 int DoActorSlide(DSWActor* actor);
 int DoActorSectorDamage(DSWActor* actor);
 int DoScaleSprite(DSWActor* actor);
+int DoActorStopFall(DSWActor* actor);
 
 void InitPlayerSprite(PLAYERp pp);
 void InitAllPlayerSprites(void);

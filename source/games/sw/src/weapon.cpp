@@ -4993,33 +4993,16 @@ int
 ActorChooseDeath(short SpriteNum, short Weapon)
 {
     auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
+    auto weapActor = &swActors[Weapon];
+    SPRITEp wp = &weapActor->s();
+    USERp wu = weapActor->u();
 
-    ASSERT(u);
-
-    if (u->Health > 0)
+    if (u == nullptr || u->Health > 0)
         return false;
 
     UpdateSinglePlayKills(SpriteNum);
-
-    ASSERT(Weapon >= 0);
-
-#if 0
-    if (Weapon < 0)
-    {
-        switch (Weapon)
-        {
-        default:
-            DoActorDie(SpriteNum, Weapon);
-            UpdateSinglePlayKills(SpriteNum);
-            break;
-        }
-        return false;
-    }
-#endif
 
     if (u->Attrib)
         PlaySpriteSound(SpriteNum,attr_die,v3df_follow);
@@ -5149,15 +5132,15 @@ ActorChooseDeath(short SpriteNum, short Weapon)
             }
 
             if (u->WeaponNum == WPN_FIST)
-                DoActorDie(SpriteNum, Weapon);
+                DoActorDie(actor, weapActor, 0);
             else if (u->ID == NINJA_RUN_R0 || RandomRange(1000) < 500)
-                DoActorDie(SpriteNum, Weapon);
+                DoActorDie(actor, weapActor, 0);
             else
             {
                 // Can't gib bosses!
                 if (u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0)
                 {
-                    DoActorDie(SpriteNum, Weapon);
+                    DoActorDie(actor, weapActor, 0);
                     break;
                 }
 
@@ -5170,7 +5153,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                     SetSuicide(SpriteNum);
                 }
                 else
-                    DoActorDie(SpriteNum, Weapon);
+                    DoActorDie(actor, weapActor, 0);
 
             }
             break;
@@ -5179,7 +5162,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
             if (SpawnShrap(SpriteNum, Weapon))
                 SetSuicide(SpriteNum);
             else
-                DoActorDie(SpriteNum, Weapon);
+                DoActorDie(actor, weapActor, 0);
             break;
 #endif
         case BOLT_THINMAN_R0:
@@ -5201,7 +5184,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                 {
                     SpawnShrapX(wu);    // Do rail gun shrap
                 }
-                DoActorDie(SpriteNum, Weapon);
+                DoActorDie(actor, weapActor, 0);
 
             }
             else
@@ -5245,7 +5228,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                 // Bosses do not gib
                 if (u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0)
                 {
-                    DoActorDie(SpriteNum, Weapon);
+                    DoActorDie(actor, weapActor, 0);
                     return true;
                 }
 
@@ -5254,13 +5237,13 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                     SetSuicide(SpriteNum);
                 }
                 else
-                    DoActorDie(SpriteNum, Weapon);
+                    DoActorDie(actor, weapActor, 0);
 
             }
 
             break;
         default:
-            DoActorDie(SpriteNum, Weapon);
+            DoActorDie(actor, weapActor, 0);
             break;
         }
 

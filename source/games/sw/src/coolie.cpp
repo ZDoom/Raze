@@ -636,7 +636,7 @@ int DoCoolieMove(DSWActor* actor)
     {
         //DoActorDie(SpriteNum, -3);
         UpdateSinglePlayKills(SpriteNum);
-        DoActorDie(SpriteNum, SpriteNum);
+        DoActorDie(actor, actor, 0);
         return 0;
     }
 

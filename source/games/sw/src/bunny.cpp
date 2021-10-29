@@ -976,8 +976,9 @@ DoBunnyQuickJump(DSWActor* actor)
     if (u->lo_sp)
     {
         short hit_sprite = short(u->lo_sp - sprite);
+        auto hitActor = &swActors[hit_sprite];
         SPRITEp tsp = u->lo_sp;
-        USERp tu = User[hit_sprite].Data();
+        USERp tu = hitActor->u();
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
 
@@ -1004,7 +1005,7 @@ DoBunnyQuickJump(DSWActor* actor)
                     SetSuicide(hit_sprite);
                 }
                 else
-                    DoActorDie(hit_sprite, SpriteNum);
+                    DoActorDie(hitActor, actor, 0);
 
                 Bunny_Count--; // Bunny died
 
@@ -1171,8 +1172,9 @@ int DoBunnyStandKill(DSWActor* actor)
 
 void BunnyHatch(short Weapon)
 {
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon].Data();
+    auto actor = &swActors[Weapon];
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     short New,i;
     SPRITEp np;
@@ -1184,15 +1186,15 @@ void BunnyHatch(short Weapon)
 
     for (i = 0; i < MAX_BUNNYS; i++)
     {
-        New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
+        New = COVERinsertsprite(sp->sectnum, STAT_DEFAULT);
         auto actorNew = &swActors[New];
         np = &sprite[New];
         memset(np,0,sizeof(SPRITE));
-        np->sectnum = wp->sectnum;
+        np->sectnum = sp->sectnum;
         np->statnum = STAT_DEFAULT;
-        np->x = wp->x;
-        np->y = wp->y;
-        np->z = wp->z;
+        np->x = sp->x;
+        np->y = sp->y;
+        np->z = sp->z;
         np->owner = -1;
         np->xrepeat = 30;  // Baby size
         np->yrepeat = 24;
@@ -1200,7 +1202,7 @@ void BunnyHatch(short Weapon)
         np->pal = 0;
         SetupBunny(New);
         nu = User[New].Data();
-        np->shade = wp->shade;
+        np->shade = sp->shade;
 
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
@@ -1212,7 +1214,7 @@ void BunnyHatch(short Weapon)
             // Oops, mommy died giving birth to a boy
             if (RandomRange(1000) > 500)
             {
-                wu->Health = 0;
+                u->Health = 0;
                 Bunny_Count--; // Bunny died
 
                 // Blood fountains
@@ -1223,7 +1225,7 @@ void BunnyHatch(short Weapon)
                     SetSuicide(Weapon);
                 }
                 else
-                    DoActorDie(Weapon, New);
+                    DoActorDie(actor, actorNew, 0);
             }
         }
 

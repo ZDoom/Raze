@@ -45,7 +45,7 @@ int DoWalk(short SpriteNum);
 int DoBody(short SpriteNum);
 bool CanMoveHere(int16_t spritenum);
 bool SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b);
-int DoActorDie(short SpriteNum, short weapon);
+int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath);
 void SpriteControl(void);
 void SetEnemyInactive(short SpriteNum);
 void DoActorZrange(short SpriteNum);

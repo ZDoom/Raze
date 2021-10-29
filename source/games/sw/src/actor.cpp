@@ -55,7 +55,6 @@ extern STATE s_NinjaDieSlicedHack[];
 
 extern STATEp sg_NinjaGrabThroat[];
 
-int DoActorStopFall(DSWActor* actor);
 
 
 int DoScaleSprite(DSWActor* actor)
@@ -90,12 +89,11 @@ int DoScaleSprite(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorDie(short SpriteNum, short weapon)
+int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 {
-    auto actor  = &swActors[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = &sprite[SpriteNum];
+    auto u = actor->u();
+    auto sp = &actor->s();
+    auto SpriteNum = actor->GetSpriteIndex();
 
 
     change_sprite_stat(SpriteNum, STAT_DEAD_ACTOR);
@@ -107,10 +105,10 @@ DoActorDie(short SpriteNum, short weapon)
     SET(sp->extra, SPRX_BREAKABLE);
     SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
 
-    if (weapon < 0)
+    if (weapActor == nullptr)
     {
         // killed by one of these non-sprites
-        switch (weapon)
+        switch (meansofdeath)
         {
         case WPN_NM_LAVA:
             ChangeState(SpriteNum, u->StateEnd);
@@ -126,9 +124,12 @@ DoActorDie(short SpriteNum, short weapon)
         return 0;
     }
 
+    if (!weapActor->hasU()) return 0;
+    auto wu = weapActor->u();
+    auto wp = &weapActor->s();
 
     // killed by one of these sprites
-    switch (User[weapon]->ID)
+    switch (wu->ID)
     {
     // Coolie actually explodes himself
     // he is the Sprite AND Weapon
@@ -137,15 +138,13 @@ DoActorDie(short SpriteNum, short weapon)
         u->RotNum = 0;
         sp->xvel <<= 1;
         u->ActorActionFunc = nullptr;
-        sprite[SpriteNum].ang = NORM_ANGLE(sprite[SpriteNum].ang + 1024);
+        sp->ang = NORM_ANGLE(sp->ang + 1024);
         break;
 
     case NINJA_RUN_R0:
         if (u->ID == NINJA_RUN_R0) // Cut in half!
         {
-            SPRITEp wp = &sprite[weapon];
-
-            if (User[weapon]->WeaponNum != WPN_FIST)
+            if (wu->WeaponNum != WPN_FIST)
             {
                 if (sw_ninjahack)
                     SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
@@ -161,7 +160,6 @@ DoActorDie(short SpriteNum, short weapon)
             {
                 if (RandomRange(1000) > 500)
                 {
-                    SPRITEp wp = &sprite[weapon];
                     InitPlasmaFountain(wp, sp);
                 }
 
@@ -171,7 +169,7 @@ DoActorDie(short SpriteNum, short weapon)
                 sp->xvel = 200 + RandomRange(200);
                 u->jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(actor);
-                sprite[SpriteNum].ang = sprite[weapon].ang;
+                sp->ang = wp->ang;
             }
         }
         else
@@ -190,7 +188,7 @@ DoActorDie(short SpriteNum, short weapon)
         u->ActorActionFunc = nullptr;
         //u->ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
-            sprite[SpriteNum].ang = sprite[weapon].ang;
+            sp->ang = wp->ang;
         break;
 
     case COOLG_RUN_R0:
@@ -251,7 +249,6 @@ DoActorDie(short SpriteNum, short weapon)
         break;
 
     default:
-        ASSERT(weapon >= 0);
         switch (u->ID)
         {
         case SKULL_R0:
@@ -262,7 +259,6 @@ DoActorDie(short SpriteNum, short weapon)
         default:
             if (RandomRange(1000) > 700)
             {
-                SPRITEp wp = &sprite[weapon];
                 InitPlasmaFountain(wp, sp);
             }
 
@@ -274,7 +270,7 @@ DoActorDie(short SpriteNum, short weapon)
             sp->xvel = 300 + RandomRange(400);
             u->jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(actor);
-            sprite[SpriteNum].ang = sprite[weapon].ang;
+            sp->ang = wp->ang;
             break;
         }
         break;
@@ -351,7 +347,7 @@ DoActorSectorDamage(DSWActor* actor)
                 if (u->Health <= 0)
                 {
                     UpdateSinglePlayKills(SpriteNum);
-                    DoActorDie(SpriteNum, WPN_NM_LAVA);
+                    DoActorDie(actor, nullptr, WPN_NM_LAVA);
                     return true;
                 }
             }
@@ -366,7 +362,7 @@ DoActorSectorDamage(DSWActor* actor)
                 if (u->Health <= 0)
                 {
                     UpdateSinglePlayKills(SpriteNum);
-                    DoActorDie(SpriteNum, WPN_NM_LAVA);
+                    DoActorDie(actor, nullptr, WPN_NM_LAVA);
                     return true;
                 }
             }
@@ -386,7 +382,7 @@ DoActorSectorDamage(DSWActor* actor)
         else
         {
             ASSERT(true == false);
-            //DoActorDie(SpriteNum, WPN_NM_SECTOR_SQUISH);
+            //DoActorDie(actor, nullptr, WPN_NM_SECTOR_SQUISH);
         }
 
         return true;
