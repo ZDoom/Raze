@@ -118,42 +118,22 @@ bool ActorMoveHitReact(DSWActor* actor)
     // Should only return true if there is a reaction to what was hit that
     // would cause the calling function to abort
 
-    switch (TEST(u->ret, HIT_MASK))
+    auto coll = u->hitCode();
+    if (coll.type == kHitSprite)
     {
-    case HIT_SPRITE:
-    {
-        short HitSprite = NORM_SPRITE(u->ret);
-        USERp hu;
-        ANIMATORp action;
-
-        hu = User[HitSprite].Data();
-
-
-        // if you ran into a player - call close range functions
-        if (hu && hu->PlayerP)
+        auto hitActor = coll.actor;
+        if (hitActor->hasU() && hitActor->u()->PlayerP)
         {
+            // if you ran into a player - call close range functions
             DoActorPickClosePlayer(SpriteNum);
-            action = ChooseAction(u->Personality->TouchTarget);
+            auto action = ChooseAction(u->Personality->TouchTarget);
             if (action)
             {
                 (*action)(actor);
                 return true;
             }
         }
-        break;
     }
-
-    case HIT_WALL:
-    {
-        break;
-    }
-
-    case HIT_SECTOR:
-    {
-        break;
-    }
-    }
-
     return false;
 }
 

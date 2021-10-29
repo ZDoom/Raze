@@ -699,10 +699,6 @@ enum EHitBits
     kHitSector = 0x4000,
     kHitWall = 0x8000,
     kHitSprite = 0xC000,
-    kHitSky = 0x10000,      // SW only
-    kHitFloor = 0x18000,    // Exhumed only
-    kHitCeiling = 0x1c000,  // Exhumed only
-
 };
 
 void updateModelInterpolation();

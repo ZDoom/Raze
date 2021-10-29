@@ -137,6 +137,13 @@ public:
 };
 
 
+enum EHitBitsSW
+{
+	kHitTypeMaskSW = 0x1C000,
+	kHitSky = 0x10000,      // SW only
+};
+
+
 // Wrapper around the insane collision info mess from Build.
 struct Collision
 {
@@ -185,7 +192,7 @@ struct Collision
 	int setFromEngine(int value)
 	{
 		legacyVal = value;
-		type = value & kHitTypeMask;
+		type = value & kHitTypeMaskSW;
 		if (type == 0) { index = -1; actor = nullptr; }
 		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
 		else { index = -1; actor = &swActors[value & kHitIndexMask]; }
