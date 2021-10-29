@@ -880,7 +880,7 @@ DoBunnyBeginJumpAttack(DSWActor* actor)
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(SpriteNum);
 
-    DoJump(SpriteNum);
+    DoJump(actor);
 
     return 0;
 }

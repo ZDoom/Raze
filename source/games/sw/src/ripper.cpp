@@ -993,7 +993,7 @@ InitRipperHang(DSWActor* actor)
     // set up individual actor jump gravity
     u->jump_grav = 8;
 
-    DoJump(SpriteNum);
+    DoJump(actor);
 
     return 0;
 }
@@ -1063,7 +1063,7 @@ DoRipperHangJF(DSWActor* actor)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoJump(SpriteNum);
+            DoJump(actor);
         else
             DoFall(SpriteNum);
     }
@@ -1117,7 +1117,7 @@ DoRipperBeginJumpAttack(DSWActor* actor)
     // if I didn't do this here they get stuck in the air sometimes
     DoActorZrange(SpriteNum);
 
-    DoJump(SpriteNum);
+    DoJump(actor);
 
     return 0;
 }
@@ -1131,7 +1131,7 @@ DoRipperMoveJump(DSWActor* actor)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoJump(SpriteNum);
+            DoJump(actor);
         else
             DoFall(SpriteNum);
     }
@@ -1253,6 +1253,7 @@ void RipperHatch(short Weapon)
     for (i = 0; i < MAX_RIPPERS; i++)
     {
         New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
+        auto actorNew = &swActors[New];
         np = &sprite[New];
         memset(np,0,sizeof(SPRITE));
         np->sectnum = wp->sectnum;
@@ -1284,7 +1285,7 @@ void RipperHatch(short Weapon)
         // if I didn't do this here they get stuck in the air sometimes
         DoActorZrange(New);
 
-        DoJump(New);
+        DoJump(actorNew);
     }
 }
 
@@ -1302,7 +1303,7 @@ DoRipperMove(DSWActor* actor)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoJump(SpriteNum);
+            DoJump(actor);
         else
             DoFall(SpriteNum);
     }

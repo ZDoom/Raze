@@ -6398,7 +6398,7 @@ void DoPlayerDeathFlip(PLAYERp pp)
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 2);
             if (MoveSkip2 == 0)
-                DoJump(pp->PlayerSprite);
+                DoJump(pp->Actor());
         }
 
         if (TEST(pp->Flags,PF_FALLING))
@@ -6435,7 +6435,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
             DoPlayerDeathJump(pp);
             DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 2);
             if (MoveSkip2 == 0)
-                DoJump(pp->PlayerSprite);
+                DoJump(pp->Actor());
         }
 
         if (TEST(pp->Flags,PF_FALLING))

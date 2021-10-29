@@ -3895,8 +3895,8 @@ DoVomit(DSWActor* actor)
     sp->yrepeat = u->sy + MulScale(12, bsin(u->Counter), 14);
     if (TEST(u->Flags, SPR_JUMPING))
     {
-        DoJump(SpriteNum);
-        DoJump(SpriteNum);
+        DoJump(actor);
+        DoJump(actor);
         DoShrapMove(SpriteNum);
     }
     else if (TEST(u->Flags, SPR_FALLING))
@@ -4030,7 +4030,7 @@ DoShrapDamage(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
-        DoJump(SpriteNum);
+        DoJump(actor);
         DoShrapMove(SpriteNum);
     }
     else if (TEST(u->Flags, SPR_FALLING))
@@ -4750,7 +4750,7 @@ DoFireballFlames(DSWActor* actor)
     {
         if (TEST(u->Flags, SPR_JUMPING))
         {
-            DoJump(SpriteNum);
+            DoJump(actor);
             jumping = true;
             //u->ret = move_missile(SpriteNum, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
         }
@@ -4826,7 +4826,7 @@ DoBreakFlames(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
-        DoJump(SpriteNum);
+        DoJump(actor);
         jumping = true;
     }
     else if (TEST(u->Flags, SPR_FALLING))

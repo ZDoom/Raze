@@ -81,7 +81,7 @@ void SetSlidorActive(short SpriteNum);
 void DoSlidorInterp(short, INTERP_FUNC);
 
 int DoBeginJump(DSWActor* actor);
-int DoJump(short SpriteNum);
+int DoJump(DSWActor* actor);
 int DoBeginFall(short SpriteNum);
 int DoFall(short SpriteNum);
 void KeepActorOnFloor(DSWActor* actor);

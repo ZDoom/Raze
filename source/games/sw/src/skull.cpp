@@ -381,7 +381,7 @@ int DoSkullJump(DSWActor* actor)
 
     if (TEST(u->Flags,SPR_JUMPING))
     {
-        DoJump(SpriteNum);
+        DoJump(actor);
     }
     else if (TEST(u->Flags,SPR_FALLING))
     {
@@ -800,7 +800,7 @@ int DoBettyJump(DSWActor* actor)
 
     if (TEST(u->Flags,SPR_JUMPING))
     {
-        DoJump(SpriteNum);
+        DoJump(actor);
     }
     else if (TEST(u->Flags,SPR_FALLING))
     {

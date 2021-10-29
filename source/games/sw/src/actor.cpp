@@ -874,16 +874,16 @@ int DoBeginJump(DSWActor* actor)
     // set up individual actor jump gravity
     u->jump_grav = ACTOR_GRAVITY;
 
-    DoJump(u->SpriteNum);
+    DoJump(actor);
 
     return 0;
 }
 
-int
-DoJump(short SpriteNum)
+int DoJump(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
+    int SpriteNum = actor->GetSpriteIndex();
 
     int jump_adj;
 
