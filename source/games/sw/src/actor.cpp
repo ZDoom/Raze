@@ -630,8 +630,7 @@ int DoActorBeginSlide(DSWActor* actor, short ang, short vel, short dec)
 // !AIC - Sliding can occur in different directions from movement of the actor.
 // Has its own set of variables
 
-int
-DoActorSlide(DSWActor* actor)
+int DoActorSlide(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -658,8 +657,7 @@ DoActorSlide(DSWActor* actor)
 
 // !AIC - Actor jumping and falling
 
-int
-DoActorBeginJump(DSWActor* actor)
+int DoActorBeginJump(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -689,12 +687,11 @@ DoActorBeginJump(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorJump(DSWActor* actor)
+int DoActorJump(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     int jump_adj;
 
@@ -736,8 +733,7 @@ DoActorJump(DSWActor* actor)
 }
 
 
-int
-DoActorBeginFall(DSWActor* actor)
+int DoActorBeginFall(DSWActor* actor)
 {
     USER* u = actor->u();
     SET(u->Flags, SPR_FALLING);
@@ -767,11 +763,10 @@ DoActorBeginFall(DSWActor* actor)
 }
 
 
-int
-DoActorFall(DSWActor* actor)
+int DoActorFall(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = u->s();
+    SPRITEp sp = &actor->s();
 
     // adjust jump speed by gravity
     u->jump_speed += u->jump_grav * ACTORMOVETICS;
@@ -788,12 +783,11 @@ DoActorFall(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorStopFall(DSWActor* actor)
+int DoActorStopFall(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     sp->z = u->loz;
 
@@ -840,13 +834,12 @@ DoActorStopFall(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorDeathMove(DSWActor* actor)
+int DoActorDeathMove(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
 
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -871,8 +864,7 @@ DoActorDeathMove(DSWActor* actor)
 
 // !AIC - Jumping a falling for shrapnel and other stuff, not actors.
 
-int
-DoBeginJump(short SpriteNum)
+int DoBeginJump(short SpriteNum)
 {
     USERp u = User[SpriteNum].Data();
 
