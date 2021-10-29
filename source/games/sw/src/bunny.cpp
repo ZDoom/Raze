@@ -1335,7 +1335,7 @@ DoBunnyMove(DSWActor* actor)
 
     if (u->scale_speed)
     {
-        DoScaleSprite(SpriteNum);
+        DoScaleSprite(actor);
     }
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))

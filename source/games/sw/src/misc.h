@@ -68,7 +68,7 @@ int DoFall(short SpriteNum);
 void KeepActorOnFloor(short SpriteNum);
 int DoActorSlide(DSWActor* actor);
 int DoActorSectorDamage(DSWActor* actor);
-int DoScaleSprite(short SpriteNum);
+int DoScaleSprite(DSWActor* actor);
 
 void InitPlayerSprite(PLAYERp pp);
 void InitAllPlayerSprites(void);

@@ -58,11 +58,10 @@ extern STATEp sg_NinjaGrabThroat[];
 int DoActorStopFall(DSWActor* actor);
 
 
-int
-DoScaleSprite(short SpriteNum)
+int DoScaleSprite(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    auto u = actor->u();
+    auto sp = &actor->s();
     int scale_value;
 
     if (u->scale_speed)
