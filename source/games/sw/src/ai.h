@@ -70,8 +70,8 @@ struct ATTRIBUTEstruct
 extern ATTRIBUTE DefaultAttrib;
 
 // AI.C functions
-void DebugMoveHit(short SpriteNum);
-bool ActorMoveHitReact(short SpriteNum);
+void DebugMoveHit(DSWActor* actor);
+bool ActorMoveHitReact(DSWActor* actor);
 bool ActorFlaming(short SpriteNum);
 void DoActorSetSpeed(short SpriteNum,uint8_t speed);
 short ChooseActionNumber(short decision[]);

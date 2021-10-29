@@ -75,17 +75,14 @@ Distance(int x1, int y1, int x2, int y2)
 }
 
 
-void DebugMoveHit(short SpriteNum)
+void DebugMoveHit(DSWActor* actor)
 {
-    SPRITEp sp;
-    USERp u = User[SpriteNum].Data();
-
-    return;
-
     //if (u->ret == -1)
     //    printf("Hit a ledge\n");
     //else
     /*
+    SPRITEp sp;
+    USERp u = actor->u();
     switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_SPRITE:
@@ -113,10 +110,10 @@ void DebugMoveHit(short SpriteNum)
 }
 
 
-bool ActorMoveHitReact(short SpriteNum)
+bool ActorMoveHitReact(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
+    int SpriteNum = actor->GetSpriteIndex();
 
     // Should only return true if there is a reaction to what was hit that
     // would cause the calling function to abort
@@ -1147,9 +1144,9 @@ DoActorMoveCloser(DSWActor* actor)
     // if cannot move the sprite
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
-        DebugMoveHit(SpriteNum);
+        DebugMoveHit(actor);
 
-        if (ActorMoveHitReact(SpriteNum))
+        if (ActorMoveHitReact(actor))
             return 0;
 
         DoActorCantMoveCloser(actor);
@@ -2071,7 +2068,7 @@ DoActorReposition(DSWActor* actor)
     // still might hit something and have to handle it.
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
-        if (ActorMoveHitReact(SpriteNum))
+        if (ActorMoveHitReact(actor))
             return 0;
 
         u->Vis = 6;

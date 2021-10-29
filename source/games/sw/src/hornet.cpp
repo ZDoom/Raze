@@ -469,7 +469,7 @@ int DoHornetCircle(DSWActor* actor)
 
     if (!move_actor(SpriteNum, nx, ny, 0L))
     {
-        //ActorMoveHitReact(SpriteNum);
+        //ActorMoveHitReact(actor);
 
         // try moving in the opposite direction
         u->Counter2 = -u->Counter2;
