@@ -2180,7 +2180,7 @@ OperateTripTrigger(PLAYERp pp)
             {
                 if (Distance(sp->x, sp->y, pp->posx, pp->posy) < dist)
                 {
-                    u->tgt_sp = pp->SpriteP;
+                    u->targetActor = pp->Actor();
                     RESET(u->Flags, SPR_WAIT_FOR_TRIGGER);
                 }
             }

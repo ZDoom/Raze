@@ -1035,7 +1035,7 @@ DoRipper2MoveHang(DSWActor* actor)
             short w, nw;
 
             // Don't keep clinging and going ever higher!
-            if (abs(sp->z - u->tgt_sp->z) > (4000<<4))
+            if (abs(sp->z - u->tgt_sp()->z) > (4000<<4))
                 break;
 
             hit_wall = NORM_WALL(u->ret);
@@ -1098,7 +1098,7 @@ DoRipper2BeginJumpAttack(DSWActor* actor)
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp psp = User[SpriteNum]->tgt_sp;
+    SPRITEp psp = User[SpriteNum]->tgt_sp();
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
@@ -1223,7 +1223,7 @@ int DoRipper2RipHeart(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
-    SPRITEp tsp = u->tgt_sp;
+    SPRITEp tsp = u->tgt_sp();
 
     NewStateGroup(SpriteNum, sg_Ripper2Heart);
     u->WaitTics = 6 * 120;

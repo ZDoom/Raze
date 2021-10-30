@@ -633,7 +633,7 @@ int DoCoolgMatchPlayerZ(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
-    SPRITEp tsp = User[SpriteNum]->tgt_sp;
+    SPRITEp tsp = User[SpriteNum]->tgt_sp();
     int zdiff,zdist;
     int loz,hiz;
 

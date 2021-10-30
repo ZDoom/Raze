@@ -804,7 +804,7 @@ SpawnZombie(PLAYERp pp, short Weapon)
     SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
-    //nu->tgt_sp = pp->SpriteP; // Make it target last killed player initially
+    //nu->tgt_sp() = pp->SpriteP; // Make it target last killed player initially
 
     // make immediately active
     SET(nu->Flags, SPR_ACTIVE);
@@ -868,7 +868,7 @@ SpawnZombie2(short Weapon)
     SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     DoActorPickClosePlayer(actorNew);
-    //nu->tgt_sp = pp->SpriteP; // Make it target last killed player initially
+    //nu->tgt_sp() = pp->SpriteP; // Make it target last killed player initially
 
     // make immediately active
     SET(nu->Flags, SPR_ACTIVE);
@@ -897,7 +897,7 @@ DoZombieMove(DSWActor* actor)
         return 0;
     }
 
-    if (u->tgt_sp && User[u->tgt_sp-sprite].Data() && TEST(User[u->tgt_sp-sprite]->Flags, PF_DEAD))    // JBF: added User[] null check
+    if (u->tgt_sp() && User[u->tgt_sp()-sprite].Data() && TEST(User[u->tgt_sp()-sprite]->Flags, PF_DEAD))    // JBF: added User[] null check
         DoActorPickClosePlayer(actor);
 
     // jumping and falling
@@ -948,7 +948,7 @@ NullZombie(DSWActor* actor)
         return 0;
     }
 
-    if (u->tgt_sp && User[u->tgt_sp-sprite].Data() && TEST(User[u->tgt_sp-sprite]->Flags, PF_DEAD))
+    if (u->tgt_sp() && User[u->tgt_sp()-sprite].Data() && TEST(User[u->tgt_sp()-sprite]->Flags, PF_DEAD))
         DoActorPickClosePlayer(actor);
 
     if (u->WaitTics > 0)

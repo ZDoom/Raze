@@ -1093,7 +1093,7 @@ DoRipperBeginJumpAttack(DSWActor* actor)
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp psp = User[SpriteNum]->tgt_sp;
+    SPRITEp psp = User[SpriteNum]->tgt_sp();
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
@@ -1214,7 +1214,7 @@ int DoRipperRipHeart(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
-    SPRITEp tsp = u->tgt_sp;
+    SPRITEp tsp = u->tgt_sp();
 
     NewStateGroup(SpriteNum, sg_RipperHeart);
     u->WaitTics = 6 * 120;

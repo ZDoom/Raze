@@ -433,7 +433,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp tsp = User[SpriteNum]->tgt_sp;
+    SPRITEp tsp = User[SpriteNum]->tgt_sp();
     int zdiff,zdist;
     int loz,hiz;
     int dist,a,b,c;
@@ -480,7 +480,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
         loz -= Z(FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed)) - Z(8);
 
     // lower bound
-    if (u->lo_sp && u->tgt_sp == u->hi_sp)
+    if (u->lo_sp && u->tgt_sp() == u->hi_sp)
     {
         DISTANCE(sp->x, sp->y, u->lo_sp->x, u->lo_sp->y, dist, a, b, c);
         if (dist <= 300)
@@ -497,7 +497,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     }
 
     // upper bound
-    if (u->hi_sp && u->tgt_sp == u->hi_sp)
+    if (u->hi_sp && u->tgt_sp() == u->hi_sp)
     {
         DISTANCE(sp->x, sp->y, u->hi_sp->x, u->hi_sp->y, dist, a, b, c);
         if (dist <= 300)
@@ -579,7 +579,7 @@ int DoEelMove(DSWActor* actor)
 
     ASSERT(u->Rot != nullptr);
 
-    if (SpriteOverlap(SpriteNum, int16_t(u->tgt_sp - sprite)))
+    if (SpriteOverlap(SpriteNum, int16_t(u->tgt_sp() - sprite)))
         NewStateGroup(SpriteNum, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))

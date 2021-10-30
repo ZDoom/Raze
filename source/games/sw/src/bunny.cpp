@@ -856,7 +856,7 @@ DoBunnyBeginJumpAttack(DSWActor* actor)
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp psp = User[SpriteNum]->tgt_sp;
+    SPRITEp psp = User[SpriteNum]->tgt_sp();
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
@@ -937,8 +937,9 @@ DoPickCloseBunny(USERp u)
     StatIterator it(STAT_ENEMY);
     while ((i = it.NextIndex()) >= 0)
     {
-        tsp = &sprite[i];
-        tu = User[i].Data();
+        auto itActor = &swActors[i];
+        tsp = &itActor->s();
+        tu = itActor->u();
 
         if (sp == tsp) continue;
 
@@ -953,7 +954,8 @@ DoPickCloseBunny(USERp u)
         if (ICanSee && dist < near_dist && tu->ID == BUNNY_RUN_R0)
         {
             near_dist = dist;
-            u->tgt_sp = u->lo_sp = tsp;
+            u->targetActor = itActor;
+            u->lo_sp = tsp;
             //Bunny_Result = i;
             return i;
         }
@@ -1040,8 +1042,8 @@ DoBunnyQuickJump(DSWActor* actor)
 
                 DoActorPickClosePlayer(actor);
 
-                if (User[u->tgt_sp-sprite]->PlayerP)
-                    pp = User[u->tgt_sp-sprite]->PlayerP;
+                if (User[u->tgt_sp()-sprite]->PlayerP)
+                    pp = User[u->tgt_sp()-sprite]->PlayerP;
 
                 if (tu->spal != PALETTE_PLAYER0)
                 {
@@ -1056,7 +1058,7 @@ DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(2<<8)>>8;
-                            if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && FACING(sp, u->tgt_sp))
+                            if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && FACING(sp, u->tgt_sp()))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1072,7 +1074,7 @@ DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(3<<8)>>8;
-                            if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && FACING(sp, u->tgt_sp))
+                            if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && FACING(sp, u->tgt_sp()))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1144,7 +1146,7 @@ int DoBunnyRipHeart(DSWActor* actor)
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
-    SPRITEp tsp = u->tgt_sp;
+    SPRITEp tsp = u->tgt_sp();
 
     NewStateGroup(SpriteNum, sg_BunnyHeart);
     u->WaitTics = 6 * 120;

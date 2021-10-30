@@ -770,7 +770,7 @@ KillSprite(int16_t SpriteNum)
             while ((i = it.NextIndex()) >= 0)
             {
                 auto itActor = &swActors[i];
-                if ((unsigned)i < MAXSPRITES && User[i].Data() != nullptr && User[i]->tgt_sp == sp)
+                if ((unsigned)i < MAXSPRITES && User[i].Data() != nullptr && User[i]->tgt_sp() == sp)
                 {
                     DoActorPickClosePlayer(itActor);
                 }
@@ -802,7 +802,7 @@ KillSprite(int16_t SpriteNum)
         {
             if (u->hi_sp == sp) u->hi_sp = nullptr;
             if (u->lo_sp == sp) u->lo_sp = nullptr;
-            if (u->tgt_sp == sp) u->tgt_sp = nullptr;
+            if (u->tgt_sp() == sp) u->targetActor = nullptr;
         }
     }
 }
@@ -890,7 +890,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     u->WpnGoal = -1;                     // for weapons
     u->Attach = -1;
     u->track = -1;
-    u->tgt_sp = Player[0].SpriteP;
+    u->targetActor = Player[0].Actor();
     u->Radius = 220;
     u->Sibling = -1;
     u->flame = -1;

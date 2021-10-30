@@ -890,7 +890,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("Radius", w.Radius, def->Radius)
 			("OverlapZ", w.OverlapZ, def->OverlapZ)
 			("flame", w.flame, def->flame)
-			("tgt_sp", w.tgt_sp, def->tgt_sp)
+			("tgt_sp", w.targetActor, def->targetActor)
 			("scale_speed", w.scale_speed, def->scale_speed)
 			("scale_value", w.scale_value, def->scale_value)
 			("scale_tgt", w.scale_tgt, def->scale_tgt)

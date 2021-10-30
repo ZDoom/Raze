@@ -291,7 +291,7 @@ bool CanSeePlayer(DSWActor* actor)
     //if (FAF_Sector(sp->sectnum))
     //    return(true);
 
-    if (u->tgt_sp && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->tgt_sp->x, u->tgt_sp->y, SPRITEp_UPPER(u->tgt_sp), u->tgt_sp->sectnum))
+    if (u->tgt_sp() && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->tgt_sp()->x, u->tgt_sp()->y, SPRITEp_UPPER(u->tgt_sp()), u->tgt_sp()->sectnum))
         return true;
     else
         return false;
@@ -312,7 +312,7 @@ int CanHitPlayer(DSWActor* actor)
 
     zhs = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
 
-    auto hp = u->tgt_sp;
+    auto hp = u->tgt_sp();
 
     // get angle to target
     ang = getangle(hp->x - sp->x, hp->y - sp->y);
@@ -345,7 +345,7 @@ int CanHitPlayer(DSWActor* actor)
     if (hitinfo.sect < 0)
         return false;
 
-    if (hitinfo.sprite == u->tgt_sp - sprite)
+    if (hitinfo.sprite == u->tgt_sp() - sprite)
         return true;
 
     ////DSPRINTF(ds,"CanHit %s",ret ? "true" : "false");
@@ -375,7 +375,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         goto TARGETACTOR;
 
     // Set initial target to Player 0
-    u->tgt_sp = Player->SpriteP;
+    u->targetActor = Player->Actor();
 
     if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
     {
@@ -386,7 +386,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
             if (sp->owner == pp->PlayerSprite)
                 continue;
 
-            u->tgt_sp = pp->SpriteP;
+            u->targetActor = pp->Actor();
             break;
         }
     }
@@ -417,7 +417,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         if (dist < near_dist)
         {
             near_dist = dist;
-            u->tgt_sp = pp->SpriteP;
+            u->targetActor = pp->Actor();
         }
     }
 
@@ -448,7 +448,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum))
         {
             near_dist = dist;
-            u->tgt_sp = pp->SpriteP;
+            u->targetActor = pp->Actor();
             found = true;
         }
     }
@@ -463,6 +463,7 @@ TARGETACTOR:
         StatIterator it(STAT_ENEMY);
         while ((i = it.NextIndex()) >= 0)
         {
+            auto itActor = &swActors[i];
             if (i == SpriteNum)
                 continue;
 
@@ -474,7 +475,7 @@ TARGETACTOR:
             if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, sprite[i].x, sprite[i].y, SPRITEp_UPPER(&sprite[i]), sprite[i].sectnum))
             {
                 near_dist = dist;
-                u->tgt_sp = &sprite[i];
+                u->targetActor = itActor;
             }
         }
     }
@@ -493,7 +494,7 @@ GetPlayerSpriteNum(short SpriteNum)
     {
         pp = &Player[pnum];
 
-        if (pp->SpriteP == u->tgt_sp)
+        if (pp->SpriteP == u->tgt_sp())
         {
             return pp->PlayerSprite;
         }
@@ -595,7 +596,7 @@ DECISION GenericFlaming[] =
  every time through the loop.  This would be too slow.  It is only called when
  the actor needs to know what to do next such as running into something or being
  targeted.  It makes decisions based on the distance and viewablity of its target
- (u->tgt_sp).  When it figures out the situatation with its target it calls
+ (u->tgt_sp()).  When it figures out the situatation with its target it calls
  ChooseAction which does a random table lookup to decide what action to initialize.
  Once this action is initialized it will be called until it can't figure out what to
  do anymore and then this routine is called again.
@@ -621,7 +622,7 @@ DoActorActionDecide(short SpriteNum)
     action = InitActorDecide;
 
     // target is gone.
-    if (u->tgt_sp == nullptr)
+    if (u->targetActor == nullptr)
     {
         return action;
     }
@@ -649,8 +650,8 @@ DoActorActionDecide(short SpriteNum)
         // CODE BELOW = CRAP, DON'T USE IT OR IT MAKES ACTORS NOT ANIMATE SOMETIMES!!!!!
         // If target was actor, retarget to player it actor died
         // or just randomly give the target actor a break
-        //if ((User[u->tgt_sp-sprite] &&
-        //    User[u->tgt_sp-sprite]->Health <= 0) || RandomRange(1000) > 950)
+        //if ((User[u->tgt_sp()-sprite] &&
+        //    User[u->tgt_sp()-sprite]->Health <= 0) || RandomRange(1000) > 950)
         //    {
         //    DoActorPickClosePlayer(actor);
         //    InitActorReposition(SpriteNum);
@@ -661,7 +662,7 @@ DoActorActionDecide(short SpriteNum)
         DoActorOperate(SpriteNum);
 
         // if far enough away and cannot see the player
-        dist = Distance(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y);
+        dist = Distance(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y);
 
         if (dist > 30000 && !ICanSee)
         {
@@ -679,7 +680,7 @@ DoActorActionDecide(short SpriteNum)
 
         pu = User[GetPlayerSpriteNum(SpriteNum)].Data();
         // check for short range attack possibility
-        if ((dist < CloseRangeDist(sp, u->tgt_sp) && ICanSee) ||
+        if ((dist < CloseRangeDist(sp, u->tgt_sp()) && ICanSee) ||
             (pu && pu->WeaponNum == WPN_FIST && u->ID != RIPPER2_RUN_R0 && u->ID != RIPPER_RUN_R0))
         {
             if ((u->ID == COOLG_RUN_R0 && TEST(sp->cstat, CSTAT_SPRITE_TRANSLUCENT)) || TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
@@ -691,7 +692,7 @@ DoActorActionDecide(short SpriteNum)
         }
 
         // if player is facing me and I'm being attacked
-        if (FACING(sp, u->tgt_sp) && TEST(u->Flags, SPR_ATTACKED) && ICanSee)
+        if (FACING(sp, u->tgt_sp()) && TEST(u->Flags, SPR_ATTACKED) && ICanSee)
         {
             // if I'm a target - at least one missile comming at me
             if (TEST(u->Flags, SPR_TARGETED))
@@ -752,10 +753,10 @@ DoActorActionDecide(short SpriteNum)
             DoActorPickClosePlayer(actor);
 
         // if close by
-        dist = Distance(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y);
+        dist = Distance(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y);
         if (dist < 15000 || ICanSee)
         {
-            if ((FACING(sp, u->tgt_sp) && dist < 10000) || ICanSee)
+            if ((FACING(sp, u->tgt_sp()) && dist < 10000) || ICanSee)
             {
                 DoActorOperate(SpriteNum);
 
@@ -829,18 +830,18 @@ DoActorDecide(DSWActor* actor)
         return 0;   // Just let the actor do as it was doing before in this case
 
     // Target is gone.
-    if (u->tgt_sp == nullptr)
+    if (u->targetActor == nullptr)
         return 0;
 
     // zombie is attacking a player
-    if (actor_action == InitActorAttack && u->ID == ZOMBIE_RUN_R0 && User[u->tgt_sp-sprite]->PlayerP)
+    if (actor_action == InitActorAttack && u->ID == ZOMBIE_RUN_R0 && User[u->tgt_sp()-sprite]->PlayerP)
     {
         // Don't let zombies shoot at master
-        if (sp->owner == (u->tgt_sp - sprite))
+        if (sp->owner == (u->tgt_sp() - sprite))
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
-        if (!PlayerTakeDamage(User[u->tgt_sp-sprite]->PlayerP, SpriteNum))
+        if (!PlayerTakeDamage(User[u->tgt_sp()-sprite]->PlayerP, SpriteNum))
             return 0;
     }
 
@@ -1160,7 +1161,7 @@ DoActorMoveCloser(DSWActor* actor)
         else
         {
             // turn to face player
-            sp->ang = getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y);
+            sp->ang = getangle(u->tgt_sp()->x - sp->x, u->tgt_sp()->y - sp->y);
         }
     }
 
@@ -1219,7 +1220,7 @@ FindTrackToPlayer(USERp u)
 
     //MONO_PRINT("FindTrackToPlayer\n");
 
-    zdiff = SPRITEp_UPPER(u->tgt_sp) - (sp->z - SPRITEp_SIZE_Z(sp) + Z(8));
+    zdiff = SPRITEp_UPPER(u->tgt_sp()) - (sp->z - SPRITEp_SIZE_Z(sp) + Z(8));
 
     if (labs(zdiff) <= Z(20))
     {
@@ -1413,25 +1414,25 @@ InitActorAttack(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     // zombie is attacking a player
-    if (u->ID == ZOMBIE_RUN_R0 && User[u->tgt_sp-sprite]->PlayerP)
+    if (u->ID == ZOMBIE_RUN_R0 && User[u->tgt_sp()-sprite]->PlayerP)
     {
         // Don't let zombies shoot at master
-        if (sp->owner == (u->tgt_sp - sprite))
+        if (sp->owner == (u->tgt_sp() - sprite))
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
-        if (!PlayerTakeDamage(User[u->tgt_sp-sprite]->PlayerP, SpriteNum))
+        if (!PlayerTakeDamage(User[u->tgt_sp()-sprite]->PlayerP, SpriteNum))
             return 0;
     }
 
-    if (TEST(sprite[u->tgt_sp-sprite].cstat, CSTAT_SPRITE_TRANSLUCENT))
+    if (TEST(sprite[u->tgt_sp()-sprite].cstat, CSTAT_SPRITE_TRANSLUCENT))
     {
         InitActorRunAway(actor);
         return 0;
     }
 
-    if (User[u->tgt_sp-sprite].Data() &&
-        User[u->tgt_sp-sprite]->Health <= 0)
+    if (User[u->tgt_sp()-sprite].Data() &&
+        User[u->tgt_sp()-sprite]->Health <= 0)
     {
         DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
@@ -1446,9 +1447,9 @@ InitActorAttack(DSWActor* actor)
 
     // if the guy you are after is dead, look for another and
     // reposition
-    if (User[u->tgt_sp-sprite].Data() &&
-        User[u->tgt_sp-sprite]->PlayerP &&
-        TEST(User[u->tgt_sp-sprite]->PlayerP->Flags, PF_DEAD))
+    if (User[u->tgt_sp()-sprite].Data() &&
+        User[u->tgt_sp()-sprite]->PlayerP &&
+        TEST(User[u->tgt_sp()-sprite]->PlayerP->Flags, PF_DEAD))
     {
         DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
@@ -1461,10 +1462,10 @@ InitActorAttack(DSWActor* actor)
     //NewStateGroup(SpriteNum, u->ActorActionSet->Stand);
 
     // face player when attacking
-    sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y));
+    sp->ang = NORM_ANGLE(getangle(u->tgt_sp()->x - sp->x, u->tgt_sp()->y - sp->y));
 
     // If it's your own kind, lay off!
-    if (u->ID == User[u->tgt_sp - sprite]->ID && !User[u->tgt_sp - sprite]->PlayerP)
+    if (u->ID == User[u->tgt_sp() - sprite]->ID && !User[u->tgt_sp() - sprite]->PlayerP)
     {
         InitActorRunAway(actor);
         return 0;
@@ -1523,10 +1524,10 @@ DoActorAttack(DSWActor* actor)
 
     DoActorNoise(ChooseAction(u->Personality->Broadcast),actor);
 
-    DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
+    DISTANCE(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y, dist, a, b, c);
 
     pu = User[GetPlayerSpriteNum(SpriteNum)].Data();
-    if ((u->ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(sp, u->tgt_sp)) ||
+    if ((u->ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(sp, u->tgt_sp())) ||
         (pu && pu->WeaponNum == WPN_FIST))      // JBF: added null check
     {
         rand_num = ChooseActionNumber(u->ActorActionSet->CloseAttackPercent);
@@ -1658,7 +1659,7 @@ InitActorDuck(DSWActor* actor)
     u->ActorActionFunc = DoActorDuck;
     NewStateGroup(SpriteNum, u->ActorActionSet->Duck);
 
-    dist = Distance(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y);
+    dist = Distance(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y);
 
     if (dist > 8000)
     {
@@ -1823,7 +1824,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
         DistToMove = DIV4(DistToMove) + DIV8(DistToMove);
 
     // Find angle to from the player
-    oang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y));
+    oang = NORM_ANGLE(getangle(u->tgt_sp()->x - sp->x, u->tgt_sp()->y - sp->y));
 
     // choose a random angle array
     switch (dir)
@@ -1973,7 +1974,7 @@ InitActorReposition(DSWActor* actor)
     u->Dist = 0;
 
     rnum = RANDOM_P2(8<<8)>>8;
-    dist = Distance(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y);
+    dist = Distance(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y);
 
     if (dist < PlayerDist[rnum] || TEST(u->Flags, SPR_RUN_AWAY))
     {

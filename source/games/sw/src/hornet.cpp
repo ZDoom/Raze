@@ -352,7 +352,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
-    SPRITEp tsp = User[SpriteNum]->tgt_sp;
+    SPRITEp tsp = User[SpriteNum]->tgt_sp();
     int zdiff,zdist;
     int loz,hiz;
     
@@ -567,14 +567,14 @@ int DoCheckSwarm(DSWActor* actor)
 
     if (!MoveSkip8) return 0;     // Don't over check
 
-    if (!u->tgt_sp) return 0;
+    if (!u->tgt_sp()) return 0;
 
     // Who's the closest meat!?
     DoActorPickClosePlayer(actor);
 
-    if (User[u->tgt_sp - sprite]->PlayerP)
+    if (User[u->tgt_sp() - sprite]->PlayerP)
     {
-        pp = User[u->tgt_sp - sprite]->PlayerP;
+        pp = User[u->tgt_sp() - sprite]->PlayerP;
         DISTANCE(sp->x, sp->y, pp->posx, pp->posy, pdist, a, b, c);
     }
     else
@@ -584,8 +584,9 @@ int DoCheckSwarm(DSWActor* actor)
     StatIterator it(STAT_ENEMY);
     while ((i = it.NextIndex()) >= 0)
     {
-        tsp = &sprite[i];
-        tu = User[i].Data();
+        auto itActor = &swActors[i];
+        tsp = &itActor->s();
+        tu = itActor->u();
 
         if (!tu) continue;
 
@@ -595,7 +596,7 @@ int DoCheckSwarm(DSWActor* actor)
 
         if (dist < pdist && u->ID == tu->ID) // Only flock to your own kind
         {
-            u->tgt_sp = tsp; // Set target to swarm center
+            u->targetActor = itActor; // Set target to swarm center
         }
     }
 
