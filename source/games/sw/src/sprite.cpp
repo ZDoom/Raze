@@ -774,7 +774,7 @@ void KillSprite(int16_t SpriteNum)
             while ((i = it.NextIndex()) >= 0)
             {
                 auto itActor = &swActors[i];
-                if ((unsigned)i < MAXSPRITES && User[i].Data() != nullptr && User[i]->tgt_sp() == sp)
+                if ((unsigned)i < MAXSPRITES && User[i].Data() != nullptr && User[i]->targetActor == actor)
                 {
                     DoActorPickClosePlayer(itActor);
                 }

@@ -352,7 +352,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
-    SPRITEp tsp = User[SpriteNum]->tgt_sp();
+    SPRITEp tsp = &u->targetActor->s();
     int zdiff,zdist;
     int loz,hiz;
     
@@ -567,7 +567,7 @@ int DoCheckSwarm(DSWActor* actor)
 
     if (!MoveSkip8) return 0;     // Don't over check
 
-    if (!u->tgt_sp()) return 0;
+    if (!u->targetActor) return 0;
 
     // Who's the closest meat!?
     DoActorPickClosePlayer(actor);

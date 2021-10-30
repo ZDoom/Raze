@@ -432,8 +432,8 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp tsp = User[SpriteNum]->tgt_sp();
+    SPRITEp sp = &actor->s();
+    SPRITEp tsp = &u->targetActor->s();
     int zdiff,zdist;
     int loz,hiz;
     int dist,a,b,c;
@@ -579,7 +579,7 @@ int DoEelMove(DSWActor* actor)
 
     ASSERT(u->Rot != nullptr);
 
-    if (SpriteOverlap(SpriteNum, int16_t(u->tgt_sp() - sprite)))
+    if (SpriteOverlap(SpriteNum, u->targetActor->GetSpriteIndex()))
         NewStateGroup(actor, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))

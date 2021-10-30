@@ -397,7 +397,7 @@ int DoSkullJump(DSWActor* actor)
             DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
             if (dist < 1000 &&
-                SpriteOverlapZ(SpriteNum, short(u->tgt_sp() - sprite), Z(32)))
+                SpriteOverlapZ(SpriteNum, u->targetActor->GetSpriteIndex(), Z(32)))
             {
                 UpdateSinglePlayKills(actor);
                 DoSkullBeginDeath(actor);
@@ -812,7 +812,7 @@ int DoBettyJump(DSWActor* actor)
             DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
             if (dist < 1000 &&
-                SpriteOverlapZ(SpriteNum, short(u->tgt_sp() - sprite), Z(32)))
+                SpriteOverlapZ(SpriteNum, u->targetActor->GetSpriteIndex(), Z(32)))
             {
                 UpdateSinglePlayKills(actor);
                 DoBettyBeginDeath(actor);

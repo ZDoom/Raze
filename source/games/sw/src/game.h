@@ -1179,7 +1179,6 @@ struct USER
     // target player for the enemy - can only handle one player at at time
     //PLAYERp tgt_player;
     DSWActor* targetActor;
-    SPRITEp tgt_sp();
 
     // scaling
     short scale_speed;
@@ -2251,11 +2250,6 @@ DSWActor* PLAYERstruct::Actor()
 Collision USER::hitCode() const
 {
     return Collision(ret);
-}
-
-SPRITEp USER::tgt_sp()
-{
-    return targetActor == nullptr? nullptr : &targetActor->s();
 }
 
 inline int ActorUpper(DSWActor* actor)

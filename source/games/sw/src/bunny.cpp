@@ -855,8 +855,8 @@ DoBunnyBeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp psp = User[SpriteNum]->tgt_sp();
+    SPRITEp sp = &actor->s();
+    SPRITEp psp = &u->targetActor->s();
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
@@ -1145,7 +1145,7 @@ int DoBunnyRipHeart(DSWActor* actor)
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
-    SPRITEp tsp = u->tgt_sp();
+    SPRITEp tsp = &u->targetActor->s();
 
     NewStateGroup(actor, sg_BunnyHeart);
     u->WaitTics = 6 * 120;

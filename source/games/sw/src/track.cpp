@@ -219,14 +219,14 @@ ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_
                 // to
                 if (player_dir == TOWARD_PLAYER)
                 {
-                    if (!TrackTowardPlayer(u->tgt_sp(), t, tp))
+                    if (!TrackTowardPlayer(&u->targetActor->s(), t, tp))
                     {
                         continue;
                     }
                 }
                 else if (player_dir == AWAY_FROM_PLAYER)
                 {
-                    if (TrackTowardPlayer(u->tgt_sp(), t, tp))
+                    if (TrackTowardPlayer(&u->targetActor->s(), t, tp))
                     {
                         continue;
                     }
@@ -2937,7 +2937,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
     u->WaitTics -= synctics;
 
     // check for new player if doesn't have a target or time limit expired
-    if (!u->tgt_sp() || u->WaitTics < 0)
+    if (!u->targetActor || u->WaitTics < 0)
     {
         // 4 seconds
         u->WaitTics = 4*120;

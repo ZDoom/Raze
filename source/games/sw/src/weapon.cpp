@@ -12814,9 +12814,10 @@ DoSerpRing(DSWActor* actor)
 
     if (u->Counter2 > 0)
     {
-        if (!User[ou->tgt_sp()-sprite].Data() ||
-            !User[ou->tgt_sp()-sprite]->PlayerP ||
-            !TEST(User[ou->tgt_sp()-sprite]->PlayerP->Flags, PF_DEAD))
+        auto tu = ou->targetActor->u();
+        if (!ou->targetActor->hasU() ||
+            !tu->PlayerP ||
+            !TEST(tu->PlayerP->Flags, PF_DEAD))
         {
             u->targetActor = ou->targetActor;
             DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a,b,c);
@@ -13911,9 +13912,10 @@ InitSumoStompAttack(short SpriteNum)
         StatIterator it(StatDamageList[stat]);
         while ((i = it.NextIndex()) >= 0)
         {
+            auto itActor = &swActors[i];
             tsp = &sprite[i];
 
-            if (tsp != u->tgt_sp())
+            if (itActor != u->targetActor)
                 break;
 
             if (!TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -13944,29 +13946,29 @@ InitMiniSumoClap(short SpriteNum)
     short reach;
 
 
-    if (!u->tgt_sp()) return 0;
+    if (!u->targetActor) return 0;
 
     dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     reach = 10000;
 
-    if (dist < CLOSE_RANGE_DIST_FUDGE(u->tgt_sp(), sp, 1000))
+    if (dist < CLOSE_RANGE_DIST_FUDGE(&u->targetActor->s(), sp, 1000))
     {
-        if (SpriteOverlapZ(SpriteNum, short(u->tgt_sp() - sprite), Z(20)))
+        if (SpriteOverlapZ(SpriteNum, u->targetActor->GetSpriteIndex(), Z(20)))
         {
             if (FAFcansee(u->targetActor->s().x,u->targetActor->s().y,ActorMid(u->targetActor),u->targetActor->s().sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
             {
                 PlaySound(DIGI_CGTHIGHBONE, sp, v3df_follow|v3df_dontpan);
-                DoDamage(short(u->tgt_sp() - sprite), SpriteNum);
+                DoDamage(u->targetActor->GetSpriteIndex(), SpriteNum);
             }
         }
     }
-    else if (dist < CLOSE_RANGE_DIST_FUDGE(u->tgt_sp(), sp, reach))
+    else if (dist < CLOSE_RANGE_DIST_FUDGE(&u->targetActor->s(), sp, reach))
     {
         if (FAFcansee(u->targetActor->s().x,u->targetActor->s().y,ActorMid(u->targetActor),u->targetActor->s().sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
         {
             PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
-            SpawnFireballFlames(SpriteNum, short(u->tgt_sp() - sprite));
+            SpawnFireballFlames(SpriteNum, u->targetActor->GetSpriteIndex());
         }
     }
 
@@ -14126,10 +14128,10 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
     SPRITEp hp;
     USERp hu;
 
-    if (!u->tgt_sp())
+    if (!u->targetActor)
         return -1;
 
-    hit_sprite = short(u->tgt_sp() - sprite);
+    hit_sprite = u->targetActor->GetSpriteIndex();
     hp = &sprite[hit_sprite];
     hu = User[hit_sprite].Data();
 
@@ -16911,13 +16913,14 @@ InitEelFire(DSWActor* actor)
         StatIterator it(StatDamageList[stat]);
         while ((i = it.NextIndex()) >= 0)
         {
+            auto itActor = &swActors[i];
             hp = &sprite[i];
             hu = User[i].Data();
 
             if (i == SpriteNum)
                 continue;
 
-            if (hp != u->tgt_sp())
+            if (itActor != u->targetActor)
                 continue;
 
             if ((unsigned)FindDistance3D(sp->x - hp->x, sp->y - hp->y, sp->z - hp->z) > hu->Radius + u->Radius)
@@ -19354,7 +19357,7 @@ InitEnemyFireball(DSWActor* actor)
 
     ASSERT(SpriteNum >= 0);
 
-    tsp = u->tgt_sp();
+    tsp = &u->targetActor->s();
 
     PlaySound(DIGI_FIREBALL1, sp, v3df_none);
 
