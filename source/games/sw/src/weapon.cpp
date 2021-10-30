@@ -7950,7 +7950,7 @@ DoStar(DSWActor* actor)
 
         if (sp->z > u->loz)
         {
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -8044,7 +8044,7 @@ DoStar(DSWActor* actor)
                 if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
                 {
                     SpawnSplash(Weapon);
-                    KillSprite(Weapon);
+                    KillActor(actor);
                     return true;
                     // hit water - will be taken care of in WeaponMoveHit
                     //break;
@@ -8136,7 +8136,7 @@ DoStar(DSWActor* actor)
 
         if (WeaponMoveHit(Weapon))
         {
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -8172,7 +8172,7 @@ DoCrossBolt(DSWActor* actor)
             }
             }
 
-            KillSprite(Weapon);
+            KillActor(actor);
 
             return true;
         }
@@ -8196,7 +8196,7 @@ DoPlasmaDone(DSWActor* actor)
 
     if (sp->yrepeat < 6)
     {
-        KillSprite(Weapon);
+        KillActor(actor);
         return 0;
     }
 
@@ -8594,7 +8594,7 @@ DoPlasmaFountain(DSWActor* actor)
     // if no owner then die
     if (u->Attach < 0)
     {
-        KillSprite(Weapon);
+        KillActor(actor);
         return 0;
     }
     else
@@ -8628,7 +8628,7 @@ DoPlasmaFountain(DSWActor* actor)
         //DoDamageTest(Weapon); // fountain not doing the damage an more
         sp->cstat = bak_cstat;
 
-        KillSprite(Weapon);
+        KillActor(actor);
     }
     return 0;
 }
@@ -8696,7 +8696,7 @@ DoPlasma(DSWActor* actor)
         {
             if (TEST(u->Flags, SPR_SUICIDE))
             {
-                KillSprite(Weapon);
+                KillActor(actor);
                 return true;
             }
             else
@@ -8920,7 +8920,7 @@ DoGrenade(DSWActor* actor)
         switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_PLAX_WALL:
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         case HIT_SPRITE:
         {
@@ -8957,7 +8957,7 @@ DoGrenade(DSWActor* actor)
                     }
                 }
                 SpawnGrenadeExp(Weapon);
-                KillSprite((short) Weapon);
+                KillActor(actor);
                 return true;
             }
 
@@ -9029,7 +9029,7 @@ DoGrenade(DSWActor* actor)
                                 }
                             }
                             SpawnGrenadeExp(Weapon);
-                            KillSprite((short) Weapon);
+                            KillActor(actor);
                             return true;
                         }
                     }
@@ -9073,7 +9073,7 @@ DoGrenade(DSWActor* actor)
                         }
                         //WeaponMoveHit(Weapon);
                         SpawnGrenadeExp(Weapon);
-                        KillSprite((short) Weapon);
+                        KillActor(actor);
                         return true;
                     }
                 }
@@ -9093,7 +9093,7 @@ DoGrenade(DSWActor* actor)
     if (u->bounce > 10)
     {
         SpawnGrenadeExp(Weapon);
-        KillSprite(Weapon);
+        KillActor(actor);
         return true;
     }
 
@@ -9149,7 +9149,7 @@ DoVulcanBoulder(DSWActor* actor)
     if (vel < 30)
     {
         SpawnLittleExp(Weapon);
-        KillSprite(Weapon);
+        KillActor(actor);
         return true;
     }
 
@@ -9158,7 +9158,7 @@ DoVulcanBoulder(DSWActor* actor)
         switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_PLAX_WALL:
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         case HIT_SPRITE:
         {
@@ -9181,7 +9181,7 @@ DoVulcanBoulder(DSWActor* actor)
             {
                 // hit an actor
                 SpawnLittleExp(Weapon);
-                KillSprite((short) Weapon);
+                KillActor(actor);
                 return true;
             }
 
@@ -9513,7 +9513,7 @@ DoMineStuck(DSWActor* actor)
         {
             PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             SpawnMineExp(Weapon);
-            KillSprite(Weapon);
+            KillActor(actor);
             return false;
         }
         break;
@@ -9577,7 +9577,7 @@ DoMine(DSWActor* actor)
         switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_PLAX_WALL:
-            KillSprite(Weapon);
+            KillActor(actor);
             return 0;
         case HIT_SPRITE:
         {
@@ -9638,7 +9638,7 @@ DoMine(DSWActor* actor)
                 else
                 {
                     SpawnMineExp(Weapon);
-                    KillSprite(Weapon);
+                    KillActor(actor);
                     return false;
                 }
             }
@@ -9668,7 +9668,7 @@ DoMine(DSWActor* actor)
             if (TEST(wall[hit_wall].extra, WALLFX_DONT_STICK))
             {
                 SpawnMineExp(Weapon);
-                KillSprite(Weapon);
+                KillActor(actor);
                 return false;
             }
 
@@ -9691,7 +9691,7 @@ DoMine(DSWActor* actor)
             if (TEST(sector[hit_sect].extra, SECTFX_SECTOR_OBJECT))
             {
                 SpawnMineExp(Weapon);
-                KillSprite(Weapon);
+                KillActor(actor);
                 return false;
             }
 
@@ -9763,7 +9763,7 @@ DoBoltThinMan(DSWActor* actor)
         if (WeaponMoveHit(Weapon))
         {
             SpawnBoltExp(Weapon);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -9790,7 +9790,7 @@ DoTracer(DSWActor* actor)
         {
             if (WeaponMoveHit(Weapon))
             {
-                KillSprite(Weapon);
+                KillActor(actor);
                 return true;
             }
         }
@@ -9830,7 +9830,7 @@ DoEMP(DSWActor* actor)
         {
             if (WeaponMoveHit(Weapon))
             {
-                KillSprite(Weapon);
+                KillActor(actor);
                 return true;
             }
         }
@@ -9889,7 +9889,7 @@ DoEMPBurst(DSWActor* actor)
     {
         //SpawnMineExp(Weapon);
         // Spawn a big radius burst of sparks here and check for final damage amount
-        KillSprite(Weapon);
+        KillActor(actor);
         return false;
     }
 
@@ -9915,7 +9915,7 @@ DoTankShell(DSWActor* actor)
             {
                 SpawnTankShellExp(Weapon);
                 //SetExpQuake(exp);
-                KillSprite(Weapon);
+                KillActor(actor);
                 return true;
             }
         }
@@ -9938,7 +9938,7 @@ DoTracerStart(DSWActor* actor)
     {
         if (WeaponMoveHit(Weapon))
         {
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -9970,7 +9970,7 @@ DoLaser(DSWActor* actor)
             if (WeaponMoveHit(Weapon))
             {
                 SpawnBoltExp(Weapon);
-                KillSprite((short) Weapon);
+                KillActor(actor);
                 return true;
             }
         }
@@ -10013,7 +10013,7 @@ DoLaserStart(DSWActor* actor)
         if (WeaponMoveHit(Weapon))
         {
             SpawnBoltExp(Weapon);
-            KillSprite((short) Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -10062,7 +10062,7 @@ DoRail(DSWActor* actor)
                     {
                         SpawnTracerExp(Weapon);
                         SpawnShrapX(actor);
-                        KillSprite((short) Weapon);
+                        KillActor(actor);
                         return true;
                     }
                 }
@@ -10070,7 +10070,7 @@ DoRail(DSWActor* actor)
                 {
                     SpawnTracerExp(Weapon);
                     SpawnShrapX(actor);
-                    KillSprite((short) Weapon);
+                    KillActor(actor);
                     return true;
                 }
             }
@@ -10129,7 +10129,7 @@ DoRailStart(DSWActor* actor)
         {
             SpawnTracerExp(Weapon);
             SpawnShrapX(actor);
-            KillSprite((short) Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -10186,7 +10186,7 @@ DoRocket(DSWActor* actor)
             else
                 SpawnBoltExp(Weapon);
 
-            KillSprite((short) Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -10244,7 +10244,7 @@ DoMicroMini(DSWActor* actor)
             if (WeaponMoveHit(Weapon))
             {
                 SpawnMicroExp(Weapon);
-                KillSprite((short) Weapon);
+                KillActor(actor);
                 return true;
             }
         }
@@ -10361,7 +10361,7 @@ DoMicro(DSWActor* actor)
         if (WeaponMoveHit(Weapon))
         {
             SpawnMicroExp(Weapon);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -10427,13 +10427,13 @@ DoUziBullet(DSWActor* actor)
                 SET(wp->cstat, CSTAT_SPRITE_YCENTER);
             }
 
-            KillSprite(Weapon);
+            KillActor(actor);
 
             return true;
         }
         else if (u->Dist > 8000)
         {
-            KillSprite((short) Weapon);
+            KillActor(actor);
             return 0;
         }
     }
@@ -10469,7 +10469,7 @@ DoBoltSeeker(DSWActor* actor)
         if (WeaponMoveHit(Weapon))
         {
             SpawnBoltExp(Weapon);
-            KillSprite((short) Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -10540,7 +10540,7 @@ DoElectro(DSWActor* actor)
             }
 
             //SpawnShrap(Weapon, -1);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -10570,7 +10570,7 @@ DoLavaBoulder(DSWActor* actor)
         if (WeaponMoveHit(Weapon))
         {
             SpawnShrap(actor, nullptr);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -10602,7 +10602,7 @@ DoSpear(DSWActor* actor)
         if (WeaponMoveHit(Weapon))
         {
             //SpawnShrap(Weapon, -1);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -10815,7 +10815,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
     {
         if (TestDontStickSector(np->sectnum))
         {
-            KillSprite(New);
+            KillActor(actorNew);
             return -1;
         }
 
@@ -11880,7 +11880,7 @@ DoFireball(DSWActor* actor)
         if (sp->xrepeat <= 37)
         {
             SpawnSmokePuff(actor);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -11944,7 +11944,7 @@ DoFireball(DSWActor* actor)
                     SpawnFireballExp(Weapon);
             }
 
-            KillSprite(Weapon);
+            KillActor(actor);
 
             return true;
         }
@@ -12092,7 +12092,7 @@ DoNapalm(DSWActor* actor)
         if (sp->xrepeat <= 30)
         {
             SpawnSmokePuff(actor);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -12178,7 +12178,7 @@ DoNapalm(DSWActor* actor)
     {
         if (WeaponMoveHit(Weapon))
         {
-            KillSprite((short) Weapon);
+            KillActor(actor);
 
             return true;
         }
@@ -12250,7 +12250,7 @@ DoBloodWorm(DSWActor* actor)
             }
 
             SpawnZombie2(Weapon);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -12338,7 +12338,7 @@ DoSerpMeteor(DSWActor* actor)
         {
             SpawnMeteorExp(Weapon);
 
-            KillSprite((short) Weapon);
+            KillActor(actor);
 
             return true;
         }
@@ -12371,7 +12371,7 @@ DoMirvMissile(DSWActor* actor)
         {
             SpawnMeteorExp(Weapon);
 
-            KillSprite((short) Weapon);
+            KillActor(actor);
 
             return true;
         }
@@ -12479,7 +12479,7 @@ DoMirv(DSWActor* actor)
     {
         SpawnMeteorExp(Weapon);
         //SpawnBasicExp(Weapon);
-        KillSprite((short) Weapon);
+        KillActor(actor);
         return true;
     }
 
@@ -12598,7 +12598,7 @@ DoRing(DSWActor* actor)
         if (sp->xrepeat <= 30)
         {
             SpawnSmokePuff(actor);
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -12629,7 +12629,7 @@ DoRing(DSWActor* actor)
         {
             if (!User[sp->owner]->PlayerP)
                 User[sp->owner]->Counter--;
-            KillSprite(Weapon);
+            KillActor(actor);
             return 0;
         }
     }

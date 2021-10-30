@@ -396,7 +396,7 @@ DoBloodSpray(DSWActor* actor)
         {
             sp->z = fz;
             SpawnFloorSplash(Weapon);
-            KillSprite((short) Weapon);
+            KillActor(actor);
             return true;
         }
     }
@@ -414,7 +414,7 @@ DoBloodSpray(DSWActor* actor)
         switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_PLAX_WALL:
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         case HIT_SPRITE:
         {
@@ -435,7 +435,7 @@ DoBloodSpray(DSWActor* actor)
                 u->xchange = u->ychange = 0;
                 SpawnMidSplash(Weapon);
                 QueueWallBlood(Weapon, hsp->ang);
-                KillSprite((short) Weapon);
+                KillActor(actor);
                 return true;
             }
 
@@ -468,14 +468,14 @@ DoBloodSpray(DSWActor* actor)
 
             if (wb < 0)
             {
-                KillSprite(Weapon);
+                KillActor(actor);
                 return 0;
             }
             else
             {
                 if (FAF_Sector(sprite[wb].sectnum) || FAF_ConnectArea(sprite[wb].sectnum))
                 {
-                    KillSprite(Weapon);
+                    KillActor(actor);
                     return 0;
                 }
 
@@ -535,7 +535,7 @@ DoBloodSpray(DSWActor* actor)
                 {
                     u->xchange = u->ychange = 0;
                     SpawnFloorSplash(Weapon);
-                    KillSprite((short) Weapon);
+                    KillActor(actor);
                     return true;
                 }
             }
@@ -625,7 +625,7 @@ DoPhosphorus(DSWActor* actor)
         switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_PLAX_WALL:
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         case HIT_SPRITE:
         {
@@ -657,7 +657,7 @@ DoPhosphorus(DSWActor* actor)
                     DoFlamesDamageTest(Weapon);
                 }
                 u->xchange = u->ychange = 0;
-                KillSprite((short) Weapon);
+                KillActor(actor);
                 return true;
             }
 
@@ -720,7 +720,7 @@ DoPhosphorus(DSWActor* actor)
                         {
                             u->xchange = u->ychange = 0;
                             SpawnFireballExp(Weapon);
-                            KillSprite((short) Weapon);
+                            KillActor(actor);
                             return true;
                         }
                     }
@@ -757,7 +757,7 @@ DoPhosphorus(DSWActor* actor)
                     {
                         u->xchange = u->ychange = 0;
                         SpawnFireballExp(Weapon);
-                        KillSprite((short) Weapon);
+                        KillActor(actor);
                         return true;
                     }
                 }
@@ -850,7 +850,7 @@ DoChemBomb(DSWActor* actor)
         switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_PLAX_WALL:
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         case HIT_SPRITE:
         {
@@ -882,7 +882,7 @@ DoChemBomb(DSWActor* actor)
                 u->xchange = u->ychange = 0;
                 u->WaitTics -= (MISSILEMOVETICS * 2);
                 if (u->WaitTics <= 0)
-                    KillSprite((short) Weapon);
+                    KillActor(actor);
                 return true;
             }
 
@@ -958,7 +958,7 @@ DoChemBomb(DSWActor* actor)
                             u->xchange = u->ychange = 0;
                             u->WaitTics -= (MISSILEMOVETICS * 2);
                             if (u->WaitTics <= 0)
-                                KillSprite((short) Weapon);
+                                KillActor(actor);
                             return true;
                         }
                     }
@@ -1007,7 +1007,7 @@ DoChemBomb(DSWActor* actor)
                         u->xchange = u->ychange = 0;
                         u->WaitTics -= (MISSILEMOVETICS * 2);
                         if (u->WaitTics <= 0)
-                            KillSprite((short) Weapon);
+                            KillActor(actor);
                         return true;
                     }
                 }
@@ -1108,7 +1108,7 @@ DoCaltrops(DSWActor* actor)
         switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_PLAX_WALL:
-            KillSprite(Weapon);
+            KillActor(actor);
             return true;
         case HIT_SPRITE:
         {
