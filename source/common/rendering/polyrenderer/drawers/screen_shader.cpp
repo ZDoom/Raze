@@ -473,7 +473,7 @@ static void GetLightColor(int x0, int x1, PolyTriangleThreadData* thread)
 			mulG += mulG >> 7;
 			mulB += mulB >> 7;
 
-			float fogdist = MAX(16.0f, w[x]);
+			float fogdist = max(16.0f, w[x]);
 			float fogfactor = std::exp2(uFogDensity * fogdist);
 
 			uint32_t a = (APART(fg) * mulA + 127) >> 8;
@@ -512,7 +512,7 @@ static void MainFP(int x0, int x1, PolyTriangleThreadData* thread)
 			float fogfactor = 0.0f;
 			if (constants->uFogEnabled != 0)
 			{
-				fogdist = MAX(16.0f, w[x]);
+				fogdist = max(16.0f, w[x]);
 				fogfactor = std::exp2(constants->uFogDensity * fogdist);
 			}
 			frag = vec4(uFogColor.rgb, (1.0 - fogfactor) * frag.a * 0.75 * vColor.a);*/

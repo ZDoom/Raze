@@ -40,7 +40,6 @@ source as it is released.
 #include "interpolate.h"
 
 using std::min;
-using std::max;
 // PRIMITIVE
 BEGIN_DUKE_NS
 

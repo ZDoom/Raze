@@ -151,8 +151,8 @@ int GetUIScale(F2DDrawer *drawer, int altval)
 	// block scales that result in something larger than the current screen.
 	int vmax = drawer->GetHeight() / 200;
 	int hmax = drawer->GetWidth() / 320;
-	int max = MAX(vmax, hmax);
-	return MAX(1,MIN(scaleval, max));
+	int max = std::max(vmax, hmax);
+	return std::max(1,MIN(scaleval, max));
 }
 
 // The new console font is twice as high, so the scaling calculation must factor that in.
@@ -172,8 +172,8 @@ int GetConScale(F2DDrawer* drawer, int altval)
 	// block scales that result in something larger than the current screen.
 	int vmax = drawer->GetHeight() / 400;
 	int hmax = drawer->GetWidth() / 640;
-	int max = MAX(vmax, hmax);
-	return MAX(1, MIN(scaleval, max));
+	int max = std::max(vmax, hmax);
+	return std::max(1, MIN(scaleval, max));
 }
 
 

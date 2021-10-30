@@ -514,10 +514,10 @@ void BlendColorRevSub_Src_One(int y, int x0, int x1, PolyTriangleThreadData* thr
 		uint32_t srcscale = APART(src);
 		srcscale += srcscale >> 7;
 
-		uint32_t a = MAX<int32_t>(APART(dst) - (((APART(src) * srcscale) + 127) >> 8), 0);
-		uint32_t r = MAX<int32_t>(RPART(dst) - (((RPART(src) * srcscale) + 127) >> 8), 0);
-		uint32_t g = MAX<int32_t>(GPART(dst) - (((GPART(src) * srcscale) + 127) >> 8), 0);
-		uint32_t b = MAX<int32_t>(BPART(dst) - (((BPART(src) * srcscale) + 127) >> 8), 0);
+		uint32_t a = max<int32_t>(APART(dst) - (((APART(src) * srcscale) + 127) >> 8), 0);
+		uint32_t r = max<int32_t>(RPART(dst) - (((RPART(src) * srcscale) + 127) >> 8), 0);
+		uint32_t g = max<int32_t>(GPART(dst) - (((GPART(src) * srcscale) + 127) >> 8), 0);
+		uint32_t b = max<int32_t>(BPART(dst) - (((BPART(src) * srcscale) + 127) >> 8), 0);
 
 		line[x] = MAKEARGB(a, r, g, b);
 	}

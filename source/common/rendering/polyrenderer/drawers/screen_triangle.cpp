@@ -207,7 +207,7 @@ void ScreenTriangle::Draw(const TriDrawTriangleArgs* args, PolyTriangleThreadDat
 	SortVertices(args, sortedVertices);
 
 	int clipleft = thread->clip.left;
-	int cliptop = MAX(thread->clip.top, thread->numa_start_y);
+	int cliptop = max(thread->clip.top, thread->numa_start_y);
 	int clipright = thread->clip.right;
 	int clipbottom = MIN(thread->clip.bottom, thread->numa_end_y);
 
@@ -215,7 +215,7 @@ void ScreenTriangle::Draw(const TriDrawTriangleArgs* args, PolyTriangleThreadDat
 	int midY = (int)(sortedVertices[1]->y + 0.5f);
 	int bottomY = (int)(sortedVertices[2]->y + 0.5f);
 
-	topY = MAX(topY, cliptop);
+	topY = max(topY, cliptop);
 	midY = MIN(midY, clipbottom);
 	bottomY = MIN(bottomY, clipbottom);
 

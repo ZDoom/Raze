@@ -460,7 +460,7 @@ struct bCopyAlpha
 struct bOverlay
 {	
 	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = (s*a + d*(255-a))/255; }
-	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = MAX(s,d); }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = max(s,d); }
 	static __forceinline bool ProcessAlpha0() { return false; }
 };
 
@@ -480,14 +480,14 @@ struct bAdd
 
 struct bSubtract
 {
-	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = MAX<int>((d*BLENDUNIT - s*i->alpha) >> BLENDBITS, 0); }
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = max<int>((d*BLENDUNIT - s*i->alpha) >> BLENDBITS, 0); }
 	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
 	static __forceinline bool ProcessAlpha0() { return false; }
 };
 
 struct bReverseSubtract
 {
-	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = MAX<int>((-d*BLENDUNIT + s*i->alpha) >> BLENDBITS, 0); }
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = max<int>((-d*BLENDUNIT + s*i->alpha) >> BLENDBITS, 0); }
 	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
 	static __forceinline bool ProcessAlpha0() { return false; }
 };

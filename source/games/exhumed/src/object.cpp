@@ -664,7 +664,7 @@ void MoveSectorSprites(int nSector, int z)
     int newz = sector[nSector].floorz;
     int oldz = newz - z;
     int minz = std::min(newz, oldz);
-    int maxz = std::max(newz, oldz);
+    int maxz = max(newz, oldz);
     ExhumedSectIterator it(nSector);
     while (auto pActor = it.Next())
     {

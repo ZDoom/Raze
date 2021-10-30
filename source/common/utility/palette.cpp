@@ -500,7 +500,7 @@ PalEntry averageColor(const uint32_t* data, int size, int maxout)
 	g = g / size;
 	b = b / size;
 
-	int maxv = MAX(MAX(r, g), b);
+	int maxv = max(max(r, g), b);
 
 	if (maxv && maxout)
 	{

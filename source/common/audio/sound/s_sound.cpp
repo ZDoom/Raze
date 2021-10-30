@@ -1074,8 +1074,8 @@ void SoundEngine::ChangeSoundPitch(int sourcetype, const void *source, int chann
 void SoundEngine::SetPitch(FSoundChan *chan, float pitch)
 {
 	assert(chan != nullptr);
-	GSnd->ChannelPitch(chan, std::max(0.0001f, pitch));
-	chan->Pitch = std::max(1, int(float(DEFAULT_PITCH) * pitch));
+	GSnd->ChannelPitch(chan, max(0.0001f, pitch));
+	chan->Pitch = max(1, int(float(DEFAULT_PITCH) * pitch));
 }
 
 //==========================================================================

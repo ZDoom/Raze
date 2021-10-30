@@ -932,8 +932,8 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 
 	topleft = std::min(bch1,fch1);
 	topright = std::min(bch2,fch2);
-	bottomleft = std::max(bfh1,ffh1);
-	bottomright = std::max(bfh2,ffh2);
+	bottomleft = max(bfh1,ffh1);
+	bottomright = max(bfh2,ffh2);
 	if (topleft<=bottomleft && topright<=bottomright) return;
 	type = seg->cstat & CSTAT_WALL_1WAY ? RENDERWALL_M1S : RENDERWALL_M2S;
 

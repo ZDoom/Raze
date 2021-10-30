@@ -18473,8 +18473,8 @@ VkMemoryRequirements img2MemReq;
 vkGetImageMemoryRequirements(device, img2, &img2MemReq);
 
 VkMemoryRequirements finalMemReq = {};
-finalMemReq.size = std::max(img1MemReq.size, img2MemReq.size);
-finalMemReq.alignment = std::max(img1MemReq.alignment, img2MemReq.alignment);
+finalMemReq.size = max(img1MemReq.size, img2MemReq.size);
+finalMemReq.alignment = max(img1MemReq.alignment, img2MemReq.alignment);
 finalMemReq.memoryTypeBits = img1MemReq.memoryTypeBits & img2MemReq.memoryTypeBits;
 // Validate if(finalMemReq.memoryTypeBits != 0)
 

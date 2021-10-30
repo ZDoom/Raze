@@ -85,7 +85,7 @@ public:
 
 	int skipped_by_thread(int first_line)
 	{
-		int clip_first_line = MAX(first_line, numa_start_y);
+		int clip_first_line = max(first_line, numa_start_y);
 		int core_skip = (num_cores - (clip_first_line - core) % num_cores) % num_cores;
 		return clip_first_line + core_skip - first_line;
 	}
@@ -94,7 +94,7 @@ public:
 	{
 		count = MIN(count, numa_end_y - first_line);
 		int c = (count - skipped_by_thread(first_line) + num_cores - 1) / num_cores;
-		return MAX(c, 0);
+		return max(c, 0);
 	}
 
 	struct Scanline

@@ -202,7 +202,7 @@ static void WriteDynLightArray(int x0, int x1, PolyTriangleThreadData* thread)
 			Ly *= rcp_dist;
 			Lz *= rcp_dist;
 			float dotNL = worldnormalX * Lx + worldnormalY * Ly + worldnormalZ * Lz;
-			float point_attenuation = MAX(dotNL, 0.0f) * distance_attenuation;
+			float point_attenuation = max(dotNL, 0.0f) * distance_attenuation;
 
 			uint32_t attenuation = (uint32_t)(is_attenuated ? (int32_t)point_attenuation : (int32_t)simple_attenuation);
 
@@ -327,7 +327,7 @@ static void WriteLightArray(int y, int x0, int x1, const TriDrawTriangleArgs* ar
 			uint32_t g = thread->scanline.vColorG[x];
 			uint32_t b = thread->scanline.vColorB[x];
 
-			float fogdist = MAX(16.0f, w[x]);
+			float fogdist = max(16.0f, w[x]);
 			float fogfactor = std::exp2(constants->uFogDensity * fogdist);
 
 			// brightening around the player for light mode 2:

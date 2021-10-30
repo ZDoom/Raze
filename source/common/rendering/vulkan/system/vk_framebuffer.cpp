@@ -628,7 +628,7 @@ void VulkanFrameBuffer::UpdateGpuStats()
 		if (q.endIndex <= q.startIndex)
 			continue;
 
-		int64_t timeElapsed = std::max(static_cast<int64_t>(timestamps[q.endIndex] - timestamps[q.startIndex]), (int64_t)0);
+		int64_t timeElapsed = max(static_cast<int64_t>(timestamps[q.endIndex] - timestamps[q.startIndex]), (int64_t)0);
 		double timeNS = timeElapsed * timestampPeriod;
 
 		FString out;

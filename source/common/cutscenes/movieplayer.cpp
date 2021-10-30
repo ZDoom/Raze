@@ -562,7 +562,7 @@ public:
 		}
 		flags = flags_;
 		Smacker_GetFrameSize(hSMK, nWidth, nHeight);
-		pFrame.Resize(nWidth * nHeight + std::max(nWidth, nHeight));
+		pFrame.Resize(nWidth * nHeight + max(nWidth, nHeight));
 		float frameRate = Smacker_GetFrameRate(hSMK);
 		nFrameNs = uint64_t(1'000'000'000 / frameRate);
 		nFrames = Smacker_GetNumFrames(hSMK);

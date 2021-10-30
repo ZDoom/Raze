@@ -3894,7 +3894,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
             GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
     }
     else pc[3] = 1.f;
-    GLInterface.SetShade(std::max(0, globalshade), numshades);
+    GLInterface.SetShade(max(0, globalshade), numshades);
     //------------
 
     //transform to Build coords
