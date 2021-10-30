@@ -378,6 +378,7 @@ EelCommon(short SpriteNum)
 int
 SetupEel(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -395,7 +396,7 @@ SetupEel(short SpriteNum)
 
     ChangeState(SpriteNum, s_EelRun[0]);
     u->Attrib = &EelAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_EelDie;
     u->Rot = sg_EelRun;
 

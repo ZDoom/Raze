@@ -212,6 +212,7 @@ STATEp sg_SkullExplode[] =
 int
 SetupSkull(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -229,7 +230,7 @@ SetupSkull(short SpriteNum)
 
     ChangeState(SpriteNum, s_SkullWait[0]);
     u->Attrib = &SkullAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SkullExplode;
     u->Rot = sg_SkullWait;
 
@@ -636,6 +637,7 @@ STATEp sg_BettyExplode[] =
 int
 SetupBetty(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -653,7 +655,7 @@ SetupBetty(short SpriteNum)
 
     ChangeState(SpriteNum, s_BettyWait[0]);
     u->Attrib = &BettyAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_BettyExplode;
     u->Rot = sg_BettyWait;
 

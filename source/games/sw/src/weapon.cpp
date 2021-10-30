@@ -13836,6 +13836,7 @@ InitSumoNapalm(short SpriteNum)
 int
 InitSumoSkull(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
     USERp u = User[SpriteNum].Data(), nu;
     short New;
@@ -13871,7 +13872,7 @@ InitSumoSkull(short SpriteNum)
     nu->Rot = sg_SkullWait;
 
     nu->Attrib = &SkullAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     nu->Counter = RANDOM_P2(2048);
     nu->sz = np->z;
     nu->Health = 100;

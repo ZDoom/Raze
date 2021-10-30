@@ -72,8 +72,6 @@ extern ATTRIBUTE DefaultAttrib;
 // AI.C functions
 void DebugMoveHit(DSWActor* actor);
 bool ActorMoveHitReact(DSWActor* actor);
-bool ActorFlaming(short SpriteNum);
-void DoActorSetSpeed(short SpriteNum,uint8_t speed);
 short ChooseActionNumber(short decision[]);
 int DoActorNoise(ANIMATORp Action,short SpriteNum);
 bool CanSeePlayer(short SpriteNum);
@@ -162,7 +160,7 @@ DoActorExtra5Noise,
 DoActorExtra6Noise;
 */
 
-void DoActorSetSpeed(short SpriteNum, uint8_t speed);
+void DoActorSetSpeed(DSWActor* actor, uint8_t speed);
 
 END_SW_NS
 

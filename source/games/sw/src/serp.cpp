@@ -698,6 +698,7 @@ ACTOR_ACTION_SET SerpActionSet =
 int
 SetupSerp(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -718,7 +719,7 @@ SetupSerp(short SpriteNum)
 
     ChangeState(SpriteNum, s_SerpRun[0]);
     u->Attrib = &SerpAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SerpDie;
     u->Rot = sg_SerpRun;
 

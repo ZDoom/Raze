@@ -725,13 +725,14 @@ ACTOR_ACTION_SET BunnyWhiteActionSet =
 int
 SetupBunny(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
@@ -792,7 +793,7 @@ SetupBunny(short SpriteNum)
         //sp->shade = 0; // darker
     }
 
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     SET(u->Flags, SPR_XFLIP_TOGGLE);
 
@@ -866,7 +867,7 @@ DoBunnyBeginJumpAttack(DSWActor* actor)
     else
         sp->ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
     PickJumpMaxSpeed(SpriteNum, -400); // was -800
@@ -1233,7 +1234,7 @@ void BunnyHatch(short Weapon)
 
         NewStateGroup(New, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
-        DoActorSetSpeed(New, FAST_SPEED);
+        DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(New, -600);
 
         SET(nu->Flags, SPR_JUMPING);
@@ -1291,7 +1292,7 @@ int BunnyHatch2(short Weapon)
 
     NewStateGroup(New, nu->ActorActionSet->Jump);
     nu->ActorActionFunc = DoActorMoveJump;
-    DoActorSetSpeed(New, FAST_SPEED);
+    DoActorSetSpeed(actorNew, FAST_SPEED);
     if (TEST_BOOL3(wp))
     {
         PickJumpMaxSpeed(New, -600-RandomRange(600));

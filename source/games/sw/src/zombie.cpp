@@ -751,6 +751,7 @@ ACTOR_ACTION_SET ZombieActionSet =
 int
 SetupZombie(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     ANIMATOR DoActorDecide;
@@ -765,7 +766,7 @@ SetupZombie(short SpriteNum)
     EnemyDefaults(SpriteNum, &ZombieActionSet, &ZombiePersonality);
 
     ChangeState(SpriteNum, s_ZombieRun[0]);
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
 
     u->Radius = 280;
     SET(u->Flags, SPR_XFLIP_TOGGLE);

@@ -630,6 +630,7 @@ ACTOR_ACTION_SET MiniSumoActionSet =
 int
 SetupSumo(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -650,7 +651,7 @@ SetupSumo(short SpriteNum)
 
     ChangeState(SpriteNum,s_SumoRun[0]);
     u->Attrib = &SumoAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SumoDie;
     u->Rot = sg_SumoRun;
 

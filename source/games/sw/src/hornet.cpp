@@ -290,6 +290,7 @@ int DoHornetMatchPlayerZ(short SpriteNum);
 int
 SetupHornet(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -307,7 +308,7 @@ SetupHornet(short SpriteNum)
 
     ChangeState(SpriteNum, s_HornetRun[0]);
     u->Attrib = &HornetAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_HornetDie;
     u->Rot = sg_HornetRun;
 
@@ -433,7 +434,7 @@ int InitHornetCircle(DSWActor* actor)
     NewStateGroup(SpriteNum, u->ActorActionSet->Run);
 
     // set it close
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     // set to really fast
     sp->xvel = 400;

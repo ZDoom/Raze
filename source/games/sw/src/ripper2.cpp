@@ -885,6 +885,7 @@ ACTOR_ACTION_SET Ripper2BrownActionSet =
 int
 SetupRipper2(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -902,7 +903,7 @@ SetupRipper2(short SpriteNum)
 
     ChangeState(SpriteNum, s_Ripper2Run[0]);
     u->Attrib = &Ripper2Attrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_Ripper2Die;
     u->Rot = sg_Ripper2Run;
     sp->clipdist = 512 >> 2;  // This actor is bigger, needs bigger box.
@@ -979,7 +980,7 @@ InitRipper2Hang(DSWActor* actor)
 
     NewStateGroup(SpriteNum, sg_Ripper2HangJump);
     u->StateFallOverride = sg_Ripper2HangFall;
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
     PickJumpMaxSpeed(SpriteNum, -(RandomRange(400)+100));
@@ -1115,7 +1116,7 @@ DoRipper2BeginJumpAttack(DSWActor* actor)
     //    sp->ang = NORM_ANGLE(tang);
 
 
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
     PickJumpMaxSpeed(SpriteNum, -(RandomRange(400)+100));
@@ -1288,7 +1289,7 @@ void Ripper2Hatch(short Weapon)
 
         NewStateGroup(New, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
-        DoActorSetSpeed(New, FAST_SPEED);
+        DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(New, -600);
 
         SET(nu->Flags, SPR_JUMPING);
@@ -1353,7 +1354,7 @@ int InitRipper2Charge(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     InitActorMoveCloser(actor);
 

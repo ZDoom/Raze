@@ -643,6 +643,7 @@ ACTOR_ACTION_SET ZillaActionSet =
 int
 SetupZilla(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -663,7 +664,7 @@ SetupZilla(short SpriteNum)
 
     ChangeState(SpriteNum,s_ZillaRun[0]);
     u->Attrib = &ZillaAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_ZillaDie;
     u->Rot = sg_ZillaRun;
 

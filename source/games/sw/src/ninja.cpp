@@ -1819,6 +1819,7 @@ ACTOR_ACTION_SET PlayerNinjaActionSet =
 int
 SetupNinja(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -1930,7 +1931,7 @@ SetupNinja(short SpriteNum)
     }
 
     ChangeState(SpriteNum, s_NinjaRun[0]);
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
 
     u->Radius = 280;
     SET(u->Flags, SPR_XFLIP_TOGGLE);

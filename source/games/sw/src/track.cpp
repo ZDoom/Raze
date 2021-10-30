@@ -3014,6 +3014,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
 void
 DoActorHitTrackEndPoint(USERp u)
 {
+    auto actor = &swActors[u->SpriteNum];
     SPRITEp sp = u->SpriteP;
 
     RESET(Track[u->track].flags, TF_TRACK_OCCUPIED);
@@ -3031,7 +3032,7 @@ DoActorHitTrackEndPoint(USERp u)
         else
         {
             RESET(u->Flags, SPR_RUN_AWAY);
-            DoActorSetSpeed(short(sp - sprite), NORM_SPEED);
+            DoActorSetSpeed(actor, NORM_SPEED);
             u->track = -1;
         }
     }
@@ -3047,7 +3048,7 @@ DoActorHitTrackEndPoint(USERp u)
         else
         {
             RESET(u->Flags, SPR_FIND_PLAYER);
-            DoActorSetSpeed(short(sp - sprite), NORM_SPEED);
+            DoActorSetSpeed(actor, NORM_SPEED);
             u->track = -1;
         }
     }
@@ -3760,7 +3761,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
                 RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
                 sp->z += u->sy;
 
-                DoActorSetSpeed(SpriteNum, SLOW_SPEED);
+                DoActorSetSpeed(actor, SLOW_SPEED);
                 u->ActorActionFunc = NinjaJumpActionFunc;
                 u->jump_speed = -650;
                 DoActorBeginJump(actor);

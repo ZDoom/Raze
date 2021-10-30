@@ -503,6 +503,7 @@ ACTOR_ACTION_SET SkelActionSet =
 int
 SetupSkel(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -520,7 +521,7 @@ SetupSkel(short SpriteNum)
 
     ChangeState(SpriteNum, s_SkelRun[0]);
     u->Attrib = &SkelAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SkelDie;
     u->Rot = sg_SkelRun;
 

@@ -138,10 +138,10 @@ bool ActorMoveHitReact(DSWActor* actor)
 }
 
 
-bool ActorFlaming(short SpriteNum)
+bool ActorFlaming(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     if (u->flame >= 0)
     {
@@ -151,7 +151,6 @@ bool ActorFlaming(short SpriteNum)
         size = SPRITEp_SIZE_Z(sp) - DIV4(SPRITEp_SIZE_Z(sp));
 
         //DSPRINTF(ds,"enemy size %d, flame size %d",size>>8,SPRITEp_SIZE_Z(fp)>>8);
-        MONO_PRINT(ds);
 
         if (SPRITEp_SIZE_Z(fp) > size)
             return true;
@@ -160,11 +159,10 @@ bool ActorFlaming(short SpriteNum)
     return false;
 }
 
-void
-DoActorSetSpeed(short SpriteNum, uint8_t speed)
+void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
         return;
@@ -173,7 +171,7 @@ DoActorSetSpeed(short SpriteNum, uint8_t speed)
 
     u->speed = speed;
 
-    if (ActorFlaming(SpriteNum))
+    if (ActorFlaming(actor))
         sp->xvel = u->Attrib->Speed[speed] + DIV2(u->Attrib->Speed[speed]);
     else
         sp->xvel = u->Attrib->Speed[speed];
@@ -611,8 +609,9 @@ DECISION GenericFlaming[] =
 ANIMATORp
 DoActorActionDecide(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     int dist;
     ANIMATORp action;
     USERp pu=nullptr;
@@ -639,7 +638,7 @@ DoActorActionDecide(short SpriteNum)
     }
 
     // everybody on fire acts like this
-    if (ActorFlaming(SpriteNum))
+    if (ActorFlaming(actor))
     {
         action = ChooseAction(&GenericFlaming[0]);
         //CON_Message("On Fire");
@@ -1093,7 +1092,7 @@ DoActorCantMoveCloser(DSWActor* actor)
     {
         sp->ang = getangle((Track[u->track].TrackPoint + u->point)->x - sp->x, (Track[u->track].TrackPoint + u->point)->y - sp->y);
 
-        DoActorSetSpeed(SpriteNum, MID_SPEED);
+        DoActorSetSpeed(actor, MID_SPEED);
         SET(u->Flags, SPR_FIND_PLAYER);
 
         u->ActorActionFunc = DoActorDecide;
@@ -1372,7 +1371,7 @@ InitActorRunAway(DSWActor* actor)
     if (u->track >= 0)
     {
         sp->ang = NORM_ANGLE(getangle((Track[u->track].TrackPoint + u->point)->x - sp->x, (Track[u->track].TrackPoint + u->point)->y - sp->y));
-        DoActorSetSpeed(SpriteNum, FAST_SPEED);
+        DoActorSetSpeed(actor, FAST_SPEED);
         SET(u->Flags, SPR_RUN_AWAY);
         //MONO_PRINT("Actor running away on track\n");
     }
@@ -1399,7 +1398,7 @@ InitActorRunToward(DSWActor* actor)
     NewStateGroup(SpriteNum, u->ActorActionSet->Run);
 
     InitActorReposition(actor);
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     return 0;
 }
@@ -1577,7 +1576,7 @@ InitActorEvade(DSWActor* actor)
     if (u->track >= 0)
     {
         sp->ang = NORM_ANGLE(getangle((Track[u->track].TrackPoint + u->point)->x - sp->x, (Track[u->track].TrackPoint + u->point)->y - sp->y));
-        DoActorSetSpeed(SpriteNum, FAST_SPEED);
+        DoActorSetSpeed(actor, FAST_SPEED);
         // NOT doing a RUN_AWAY
         RESET(u->Flags, SPR_RUN_AWAY);
     }
@@ -1605,7 +1604,7 @@ InitActorWanderAround(DSWActor* actor)
     if (u->track >= 0)
     {
         sp->ang = getangle((Track[u->track].TrackPoint + u->point)->x - sp->x, (Track[u->track].TrackPoint + u->point)->y - sp->y);
-        DoActorSetSpeed(SpriteNum, NORM_SPEED);
+        DoActorSetSpeed(actor, NORM_SPEED);
     }
 
     return 0;
@@ -1630,7 +1629,7 @@ InitActorFindPlayer(DSWActor* actor)
     if (u->track >= 0)
     {
         sp->ang = getangle((Track[u->track].TrackPoint + u->point)->x - sp->x, (Track[u->track].TrackPoint + u->point)->y - sp->y);
-        DoActorSetSpeed(SpriteNum, MID_SPEED);
+        DoActorSetSpeed(actor, MID_SPEED);
         SET(u->Flags, SPR_FIND_PLAYER);
 
         u->ActorActionFunc = DoActorDecide;
@@ -1791,8 +1790,9 @@ int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int 
 int
 FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     static short toward_angle_delta[4][9] =
     {
@@ -1824,7 +1824,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
     int save_dist = 500;
 
     // if on fire, run shorter distances
-    if (ActorFlaming(SpriteNum))
+    if (ActorFlaming(actor))
         DistToMove = DIV4(DistToMove) + DIV8(DistToMove);
 
     // Find angle to from the player
@@ -1992,7 +1992,7 @@ InitActorReposition(DSWActor* actor)
         }
 
         sp->ang = ang;
-        DoActorSetSpeed(SpriteNum, FAST_SPEED);
+        DoActorSetSpeed(actor, FAST_SPEED);
         RESET(u->Flags, SPR_RUN_AWAY);
     }
     else
@@ -2016,9 +2016,9 @@ InitActorReposition(DSWActor* actor)
         {
             // pick random speed to move toward the player
             if (RANDOM_P2(1024) < 512)
-                DoActorSetSpeed(SpriteNum, NORM_SPEED);
+                DoActorSetSpeed(actor, NORM_SPEED);
             else
-                DoActorSetSpeed(SpriteNum, MID_SPEED);
+                DoActorSetSpeed(actor, MID_SPEED);
         }
 
         sp->ang = ang;

@@ -715,6 +715,7 @@ ACTOR_ACTION_SET GirlNinjaActionSet =
 int
 SetupGirlNinja(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -740,7 +741,7 @@ SetupGirlNinja(short SpriteNum)
     EnemyDefaults(SpriteNum, &GirlNinjaActionSet, &GirlNinjaPersonality);
 
     ChangeState(SpriteNum, s_GirlNinjaRun[0]);
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
 
     u->Radius = 280;
     RESET(u->Flags, SPR_XFLIP_TOGGLE);

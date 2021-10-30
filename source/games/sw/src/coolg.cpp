@@ -500,6 +500,7 @@ int DoCoolgMatchPlayerZ(short SpriteNum);
 void
 CoolgCommon(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
@@ -518,6 +519,7 @@ CoolgCommon(short SpriteNum)
 int
 SetupCoolg(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -535,7 +537,7 @@ SetupCoolg(short SpriteNum)
 
     ChangeState(SpriteNum, s_CoolgRun[0]);
     u->Attrib = &CoolgAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_CoolgDie;
     u->Rot = sg_CoolgRun;
 
@@ -593,7 +595,7 @@ DoCoolgBirth(DSWActor* actor)
 
     u->Health = HEALTH_COOLIE_GHOST;
     u->Attrib = &CoolgAttrib;
-    DoActorSetSpeed(New, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
 
     ChangeState(New, s_CoolgRun[0]);
     u->StateEnd = s_CoolgDie;
@@ -720,7 +722,7 @@ int InitCoolgCircle(DSWActor* actor)
     NewStateGroup(SpriteNum, u->ActorActionSet->Run);
 
     // set it close
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     // set to really fast
     sp->xvel = 400;

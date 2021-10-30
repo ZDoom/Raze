@@ -525,6 +525,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
 int
 SetupCoolie(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -542,7 +543,7 @@ SetupCoolie(short SpriteNum)
 
     ChangeState(SpriteNum,s_CoolieRun[0]);
     u->Attrib = &CoolieAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_CoolieDie;
     u->Rot = sg_CoolieRun;
 
@@ -652,7 +653,7 @@ int InitCoolieCharge(DSWActor* actor)
     if (RANDOM_P2(1024) > 950)
         PlaySound(DIGI_COOLIESCREAM, sp, v3df_follow);
 
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     InitActorMoveCloser(actor);
 

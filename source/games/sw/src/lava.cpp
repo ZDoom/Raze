@@ -454,6 +454,7 @@ ACTOR_ACTION_SET LavaActionSet =
 int
 SetupLava(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -471,7 +472,7 @@ SetupLava(short SpriteNum)
 
     ChangeState(SpriteNum, s_LavaRun[0]);
     u->Attrib = &LavaAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_LavaDie;
     u->Rot = sg_LavaRun;
 

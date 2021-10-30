@@ -484,6 +484,7 @@ ACTOR_ACTION_SET GoroActionSet =
 int
 SetupGoro(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u;
     ANIMATOR DoActorDecide;
@@ -501,7 +502,7 @@ SetupGoro(short SpriteNum)
 
     ChangeState(SpriteNum, s_GoroRun[0]);
     u->Attrib = &GoroAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_GoroDie;
     u->Rot = sg_GoroRun;
 
