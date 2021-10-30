@@ -740,7 +740,7 @@ void WeaponLower(PLAYER *pPlayer)
             if (VanillaMode() || (pPlayer->newWeapon != 0))
                 break;
             pPlayer->weaponState = 1;
-            StartQAV(pPlayer, 11, -1, 0);
+            StartQAV(pPlayer, kQAVCANDOWN);
             break;
         }
         break;
