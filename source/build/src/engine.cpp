@@ -207,7 +207,7 @@ static int32_t engineLoadTables(void)
         int32_t i;
 
         for (i=0; i<=512; i++)
-            sintable[i] = bsinf(i);
+            sintable[i] = int(sin(i * BAngRadian) * SINTABLEUNIT);
         for (i=513; i<1024; i++)
             sintable[i] = sintable[1024-i];
         for (i=1024; i<2048; i++)

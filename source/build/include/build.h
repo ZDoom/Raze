@@ -28,7 +28,7 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #  define EXTERN extern
 #endif
 
-EXTERN int16_t sintable[2048];
+EXTERN int sintable[2048];
 
 #include "buildtiles.h"
 #include "c_cvars.h"

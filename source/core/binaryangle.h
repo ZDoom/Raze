@@ -41,7 +41,6 @@
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
 #include "serializer.h"
 #include "math/cmath.h"
-#include "templates.h"
 
 class FSerializer;
 
@@ -49,7 +48,10 @@ enum
 {
 	BAMBITS = 21,
 	BAMUNIT = 1 << BAMBITS,
-	SINSHIFT = 14
+	SINTABLEBITS = 30,
+	SINTABLEUNIT = 1 << SINTABLEBITS,
+	BUILDSINBITS = 14,
+	BUILDSINSHIFT = SINTABLEBITS - BUILDSINBITS,
 };
 
 //---------------------------------------------------------------------------
@@ -61,11 +63,11 @@ enum
 constexpr double BAngRadian = pi::pi() * (1. / 1024.);
 constexpr double BAngToDegree = 360. / 2048.;
 
-extern int16_t sintable[2048];
+extern int sintable[2048];
 
 inline constexpr double sinscale(const int shift)
 {
-	return shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift));
+	return shift >= -BUILDSINBITS ? uint64_t(1) << (BUILDSINBITS + shift) : 1. / (uint64_t(1) << abs(BUILDSINBITS + shift));
 }
 
 //---------------------------------------------------------------------------
@@ -74,9 +76,9 @@ inline constexpr double sinscale(const int shift)
 //
 //---------------------------------------------------------------------------
 
-inline int bsin(const int ang, const int shift = 0)
+inline int bsin(const int ang, int shift = 0)
 {
-	return shift < 0 ? sintable[ang & 2047] >> abs(shift) : sintable[ang & 2047] << shift;
+	return (shift -= BUILDSINSHIFT) < 0 ? sintable[ang & 2047] >> abs(shift) : sintable[ang & 2047] << shift;
 }
 inline double bsinf(const double ang, const int shift = 0)
 {
@@ -90,9 +92,9 @@ inline double bsinf(const double ang, const int shift = 0)
 //
 //---------------------------------------------------------------------------
 
-inline int bcos(const int ang, const int shift = 0)
+inline int bcos(const int ang, int shift = 0)
 {
-	return shift < 0 ? sintable[(ang + 512) & 2047] >> abs(shift) : sintable[(ang + 512) & 2047] << shift;
+	return (shift -= BUILDSINSHIFT) < 0 ? sintable[(ang + 512) & 2047] >> abs(shift) : sintable[(ang + 512) & 2047] << shift;
 }
 inline double bcosf(const double ang, const int shift = 0)
 {
