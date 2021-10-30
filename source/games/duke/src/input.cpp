@@ -755,7 +755,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		input.avel = (float)boatApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
 	}
 
-	loc.fvel = clamp(xs_CRoundToInt(p->MotoSpeed), -(MAXVELMOTO >> 3), MAXVELMOTO);
+	loc.fvel = (int16_t)clamp<int>(xs_CRoundToInt(p->MotoSpeed), -(MAXVELMOTO >> 3), MAXVELMOTO);
 	input.avel *= BAngToDegree;
 	loc.avel += input.avel;
 }

@@ -244,10 +244,10 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 		fn.Substitute(".ogg", ".voc");
 		sfx->lumpnum = S_LookupSound(fn);
 	}
-	sndinf[kPitchStart] = clamp(minpitch, INT16_MIN, INT16_MAX);
-	sndinf[kPitchEnd] = clamp(maxpitch, INT16_MIN, INT16_MAX);
+	sndinf[kPitchStart] = clamp<int>(minpitch, INT16_MIN, INT16_MAX);
+	sndinf[kPitchEnd] = clamp<int>(maxpitch, INT16_MIN, INT16_MAX);
 	sndinf[kPriority] = priority & 255;
-	sndinf[kVolAdjust] = clamp(distance, INT16_MIN, INT16_MAX);
+	sndinf[kVolAdjust] = clamp<int>(distance, INT16_MIN, INT16_MAX);
 	sndinf[kWorldTourMapping] = 0;
 	sfx->Volume = volume;
 	sfx->NearLimit = 6;

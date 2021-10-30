@@ -2456,7 +2456,7 @@ sectdone:
             double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asbuildf() * 0.25;
             if (nVertPan != 0)
             {
-                pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4, 4) : nVertPan * 2.);
+                pPlayer->horizon.addadjustment(abs(nVertPan) >= 4 ? clamp(nVertPan, -4., 4.) : nVertPan * 2.);
             }
         }
     }

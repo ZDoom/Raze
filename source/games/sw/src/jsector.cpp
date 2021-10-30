@@ -695,7 +695,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                     // 100!
                     if (SP_TAG7(sp) != 0)
                     {
-                        camhoriz = clamp(SP_TAG7(sp), gi->playerHorizMin(), gi->playerHorizMax());
+                        camhoriz = clamp<int>(SP_TAG7(sp), gi->playerHorizMin(), gi->playerHorizMax());
                     }
                     else
                         camhoriz = 0;     // Default
