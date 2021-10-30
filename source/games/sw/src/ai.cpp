@@ -484,10 +484,9 @@ TARGETACTOR:
     return 0;
 }
 
-int
-GetPlayerSpriteNum(short SpriteNum)
+DSWActor* GetPlayerSpriteNum(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     short pnum;
     PLAYERp pp;
 
@@ -497,10 +496,10 @@ GetPlayerSpriteNum(short SpriteNum)
 
         if (pp->Actor() == u->targetActor)
         {
-            return pp->PlayerSprite;
+            return pp->Actor();
         }
     }
-    return 0;
+    return nullptr;
 }
 
 int
@@ -611,7 +610,6 @@ DoActorActionDecide(short SpriteNum)
     SPRITEp sp = &actor->s();
     int dist;
     ANIMATORp action;
-    USERp pu=nullptr;
     bool ICanSee=false;
 
     // REMINDER: This function is not even called if SpriteControl doesn't let
@@ -669,10 +667,10 @@ DoActorActionDecide(short SpriteNum)
         }
 
 
-        pu = User[GetPlayerSpriteNum(SpriteNum)].Data();
+        auto pActor = GetPlayerSpriteNum(actor);
         // check for short range attack possibility
         if ((dist < CloseRangeDist(sp, u->tgt_sp()) && ICanSee) ||
-            (pu && pu->WeaponNum == WPN_FIST && u->ID != RIPPER2_RUN_R0 && u->ID != RIPPER_RUN_R0))
+            (pActor && pActor->hasU() && pActor->u()->WeaponNum == WPN_FIST && u->ID != RIPPER2_RUN_R0 && u->ID != RIPPER_RUN_R0))
         {
             if ((u->ID == COOLG_RUN_R0 && TEST(sp->cstat, CSTAT_SPRITE_TRANSLUCENT)) || TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                 action = ChooseAction(u->Personality->Evasive);
@@ -1508,7 +1506,6 @@ DoActorAttack(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-	USERp pu;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rand_num;
     int dist,a,b,c;
@@ -1517,9 +1514,9 @@ DoActorAttack(DSWActor* actor)
 
     DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
-    pu = User[GetPlayerSpriteNum(SpriteNum)].Data();
+    auto pActor = GetPlayerSpriteNum(actor);
     if ((u->ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(sp, u->tgt_sp())) ||
-        (pu && pu->WeaponNum == WPN_FIST))      // JBF: added null check
+        (pActor && pActor->hasU() && pActor->u()->WeaponNum == WPN_FIST))      // JBF: added null check
     {
         rand_num = ChooseActionNumber(u->ActorActionSet->CloseAttackPercent);
 
