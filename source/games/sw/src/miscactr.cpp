@@ -156,7 +156,7 @@ int DoToiletGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
 
     if (u->FlagOwner != 1)
@@ -215,7 +215,7 @@ int NullToiletGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
@@ -399,7 +399,7 @@ int DoWashGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
 
     if (RandomRange(1000) > 980 && u->ShellNum <= 0)
@@ -464,7 +464,7 @@ int NullWashGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
@@ -1279,7 +1279,7 @@ int DoCarGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
 
     if (u->FlagOwner == 1)
@@ -1329,7 +1329,7 @@ int NullCarGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
@@ -1501,7 +1501,7 @@ int DoMechanicGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
 
     if (u->FlagOwner == 1)
@@ -1551,7 +1551,7 @@ int NullMechanicGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
@@ -1724,7 +1724,7 @@ int DoSailorGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
 
     if (u->FlagOwner == 1)
@@ -1779,7 +1779,7 @@ int NullSailorGirl(DSWActor* actor)
     bool ICanSee = false;
     static short alreadythrew = 0;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
@@ -1939,7 +1939,7 @@ int DoPruneGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
 
     if (u->FlagOwner == 1)
@@ -2005,7 +2005,7 @@ int NullPruneGirl(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     bool ICanSee = false;
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))

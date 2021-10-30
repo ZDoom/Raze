@@ -469,7 +469,7 @@ int DoSkullWait(DSWActor* actor)
 
     DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
 
     //if (dist < u->active_range)
     //    return(0);
@@ -884,7 +884,7 @@ int DoBettyWait(DSWActor* actor)
 
     DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
 
     //if (dist < u->active_range)
     //    return(0);

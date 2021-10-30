@@ -2919,6 +2919,7 @@ void
 DoAutoTurretObject(SECTOR_OBJECTp sop)
 {
     short SpriteNum = short(sop->sp_child - sprite);
+    auto actor = &swActors[SpriteNum];
     SPRITEp shootp;
     USERp u = User[SpriteNum].Data();
     short delta_ang;
@@ -2936,7 +2937,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
     {
         // 4 seconds
         u->WaitTics = 4*120;
-        DoActorPickClosePlayer(SpriteNum);
+        DoActorPickClosePlayer(actor);
     }
 
     if (MoveSkip2 == 0)

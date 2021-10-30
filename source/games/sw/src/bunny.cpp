@@ -1038,7 +1038,7 @@ DoBunnyQuickJump(DSWActor* actor)
 
                 if (RandomRange(1000) < 995 && tu->spal != PALETTE_PLAYER0) return false;
 
-                DoActorPickClosePlayer(SpriteNum);
+                DoActorPickClosePlayer(actor);
 
                 if (User[u->tgt_sp-sprite]->PlayerP)
                     pp = User[u->tgt_sp-sprite]->PlayerP;

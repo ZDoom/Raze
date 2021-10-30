@@ -790,6 +790,7 @@ SpawnZombie(PLAYERp pp, short Weapon)
     //Zombies++;
 
     New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
+    auto actorNew = &swActors[New];
     np = &sprite[New];
     nu = User[New].Data();
     np->sectnum = pp->cursectnum;
@@ -802,7 +803,7 @@ SpawnZombie(PLAYERp pp, short Weapon)
     SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
     SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
-    DoActorPickClosePlayer(New);
+    DoActorPickClosePlayer(actorNew);
     //nu->tgt_sp = pp->SpriteP; // Make it target last killed player initially
 
     // make immediately active
@@ -853,6 +854,7 @@ SpawnZombie2(short Weapon)
 
     //Zombies++;
     New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
+    auto actorNew = &swActors[New];
     np = &sprite[New];
     nu = User[New].Data();
     nu->Counter3 = 0;
@@ -865,7 +867,7 @@ SpawnZombie2(short Weapon)
     SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
     SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
-    DoActorPickClosePlayer(New);
+    DoActorPickClosePlayer(actorNew);
     //nu->tgt_sp = pp->SpriteP; // Make it target last killed player initially
 
     // make immediately active
@@ -896,7 +898,7 @@ DoZombieMove(DSWActor* actor)
     }
 
     if (u->tgt_sp && User[u->tgt_sp-sprite].Data() && TEST(User[u->tgt_sp-sprite]->Flags, PF_DEAD))    // JBF: added User[] null check
-        DoActorPickClosePlayer(SpriteNum);
+        DoActorPickClosePlayer(actor);
 
     // jumping and falling
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -947,7 +949,7 @@ NullZombie(DSWActor* actor)
     }
 
     if (u->tgt_sp && User[u->tgt_sp-sprite].Data() && TEST(User[u->tgt_sp-sprite]->Flags, PF_DEAD))
-        DoActorPickClosePlayer(SpriteNum);
+        DoActorPickClosePlayer(actor);
 
     if (u->WaitTics > 0)
         u->WaitTics -= ACTORMOVETICS;

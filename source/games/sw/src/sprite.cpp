@@ -769,9 +769,10 @@ KillSprite(int16_t SpriteNum)
             StatIterator it(STAT_ENEMY);
             while ((i = it.NextIndex()) >= 0)
             {
+                auto itActor = &swActors[i];
                 if ((unsigned)i < MAXSPRITES && User[i].Data() != nullptr && User[i]->tgt_sp == sp)
                 {
-                    DoActorPickClosePlayer(i);
+                    DoActorPickClosePlayer(itActor);
                 }
             }
         }

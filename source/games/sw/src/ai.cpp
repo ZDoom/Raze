@@ -124,7 +124,7 @@ bool ActorMoveHitReact(DSWActor* actor)
         if (hitActor->hasU() && hitActor->u()->PlayerP)
         {
             // if you ran into a player - call close range functions
-            DoActorPickClosePlayer(SpriteNum);
+            DoActorPickClosePlayer(actor);
             auto action = ChooseAction(u->Personality->TouchTarget);
             if (action)
             {
@@ -297,8 +297,7 @@ bool CanSeePlayer(DSWActor* actor)
         return false;
 }
 
-int
-CanHitPlayer(DSWActor* actor)
+int CanHitPlayer(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
@@ -359,12 +358,11 @@ CanHitPlayer(DSWActor* actor)
   !AIC - Pick a nearby player to be the actors target
 */
 
-int
-DoActorPickClosePlayer(short SpriteNum)
+int DoActorPickClosePlayer(DSWActor* actor)
 {
-    //extern short Zombies;
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
+    int SpriteNum = actor->GetSpriteIndex();
     int dist, near_dist = MAX_ACTIVE_RANGE, a,b,c;
     short pnum;
     PLAYERp pp;
@@ -654,7 +652,7 @@ DoActorActionDecide(short SpriteNum)
         //if ((User[u->tgt_sp-sprite] &&
         //    User[u->tgt_sp-sprite]->Health <= 0) || RandomRange(1000) > 950)
         //    {
-        //    DoActorPickClosePlayer(SpriteNum);
+        //    DoActorPickClosePlayer(actor);
         //    InitActorReposition(SpriteNum);
         //    return(action);
         //    }
@@ -751,7 +749,7 @@ DoActorActionDecide(short SpriteNum)
         // try and find another player
         // pick a closeby player as the (new) target
         if (sp->hitag != TAG_SWARMSPOT)
-            DoActorPickClosePlayer(SpriteNum);
+            DoActorPickClosePlayer(actor);
 
         // if close by
         dist = Distance(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y);
@@ -1435,7 +1433,7 @@ InitActorAttack(DSWActor* actor)
     if (User[u->tgt_sp-sprite].Data() &&
         User[u->tgt_sp-sprite]->Health <= 0)
     {
-        DoActorPickClosePlayer(SpriteNum);
+        DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
         return 0;
     }
@@ -1452,7 +1450,7 @@ InitActorAttack(DSWActor* actor)
         User[u->tgt_sp-sprite]->PlayerP &&
         TEST(User[u->tgt_sp-sprite]->PlayerP->Flags, PF_DEAD))
     {
-        DoActorPickClosePlayer(SpriteNum);
+        DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
         return 0;
     }
@@ -1594,7 +1592,7 @@ InitActorWanderAround(DSWActor* actor)
     u->ActorActionFunc = DoActorDecide;
     NewStateGroup(SpriteNum, u->ActorActionSet->Run);
 
-    DoActorPickClosePlayer(SpriteNum);
+    DoActorPickClosePlayer(actor);
 
     u->track = FindWanderTrack(u);
 
