@@ -291,9 +291,9 @@ static void FuncNormal_AddColor(int x0, int x1, PolyTriangleThreadData* thread)
 		uint32_t texel = fragcolor[x];
 		fragcolor[x] = MAKEARGB(
 			APART(texel),
-			MIN(r + RPART(texel), (uint32_t)255),
-			MIN(g + GPART(texel), (uint32_t)255),
-			MIN(b + BPART(texel), (uint32_t)255));
+			min(r + RPART(texel), (uint32_t)255),
+			min(g + GPART(texel), (uint32_t)255),
+			min(b + BPART(texel), (uint32_t)255));
 	}
 }
 
@@ -309,9 +309,9 @@ static void FuncNormal_AddObjectColor(int x0, int x1, PolyTriangleThreadData* th
 		uint32_t texel = fragcolor[x];
 		fragcolor[x] = MAKEARGB(
 			APART(texel),
-			MIN((r * RPART(texel)) >> 8, (uint32_t)255),
-			MIN((g * GPART(texel)) >> 8, (uint32_t)255),
-			MIN((b * BPART(texel)) >> 8, (uint32_t)255));
+			min((r * RPART(texel)) >> 8, (uint32_t)255),
+			min((g * GPART(texel)) >> 8, (uint32_t)255),
+			min((b * BPART(texel)) >> 8, (uint32_t)255));
 	}
 }
 
@@ -331,9 +331,9 @@ static void FuncNormal_AddObjectColor2(int x0, int x1, PolyTriangleThreadData* t
 		uint32_t texel = fragcolor[x];
 		fragcolor[x] = MAKEARGB(
 			APART(texel),
-			MIN((r * RPART(texel)) >> 8, (uint32_t)255),
-			MIN((g * GPART(texel)) >> 8, (uint32_t)255),
-			MIN((b * BPART(texel)) >> 8, (uint32_t)255));
+			min((r * RPART(texel)) >> 8, (uint32_t)255),
+			min((g * GPART(texel)) >> 8, (uint32_t)255),
+			min((b * BPART(texel)) >> 8, (uint32_t)255));
 	}
 }
 
@@ -594,9 +594,9 @@ static void MainFP(int x0, int x1, PolyTriangleThreadData* thread)
 				b = (BPART(fragcolor[x]) * b + 127) >> 8;
 
 				// frag.rgb = frag.rgb + uFogColor.rgb;
-				r = MIN(r + fogR, (uint32_t)255);
-				g = MIN(g + fogG, (uint32_t)255);
-				b = MIN(b + fogB, (uint32_t)255);
+				r = min(r + fogR, (uint32_t)255);
+				g = min(g + fogG, (uint32_t)255);
+				b = min(b + fogB, (uint32_t)255);
 
 				fragcolor[x] = MAKEARGB(a, r, g, b);
 			}

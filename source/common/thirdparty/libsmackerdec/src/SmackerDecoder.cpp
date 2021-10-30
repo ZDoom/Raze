@@ -1144,7 +1144,7 @@ uint32_t SmackerDecoder::GetAudioData(uint32_t trackIndex, int16_t *audioBuffer)
 	SmackerAudioTrack *track = &audioTracks[trackIndex];
 
 	if (track->bytesReadThisFrame) {
-		memcpy(audioBuffer, track->buffer, std::min(track->bufferSize, track->bytesReadThisFrame));
+		memcpy(audioBuffer, track->buffer, min(track->bufferSize, track->bytesReadThisFrame));
 	}
 
 	return track->bytesReadThisFrame;

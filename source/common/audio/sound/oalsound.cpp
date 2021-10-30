@@ -689,7 +689,7 @@ OpenALSoundRenderer::OpenALSoundRenderer()
 		numSources = numChannels;
 	}
 
-	Sources.Resize(std::min<int>(numChannels, numSources));
+	Sources.Resize(min<int>(numChannels, numSources));
 	for(unsigned i = 0;i < Sources.Size();i++)
 	{
 		alGenSources(1, &Sources[i]);

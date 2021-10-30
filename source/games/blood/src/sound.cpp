@@ -177,7 +177,7 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, 
         if (nVolume < 0)
         {
             auto udata = soundEngine->GetUserData(snd);
-            if (udata) nVolume = std::min(Scale(udata[2], 255, 100), 255);
+            if (udata) nVolume = min(Scale(udata[2], 255, 100), 255);
             else nVolume = 255;
         }
         if (bLoop) chanflags |= CHANF_LOOP;

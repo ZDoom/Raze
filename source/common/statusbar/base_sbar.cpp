@@ -489,7 +489,7 @@ void DStatusBarCore::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 				if (boxwidth <= 0 || (boxheight > 0 && scale2 < scale1))
 					scale1 = scale2;
 			}
-			else scale1 = MIN(scale1, scale2);
+			else scale1 = min(scale1, scale2);
 
 			boxwidth = texwidth * scale1;
 			boxheight = texheight * scale1;

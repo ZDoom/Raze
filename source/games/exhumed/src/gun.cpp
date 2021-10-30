@@ -442,7 +442,7 @@ void MoveWeapons(short nPlayer)
                             PlayerList[nPlayer].field_3A = 3;
                             PlayerList[nPlayer].field_3FOUR = 0;
 
-                            PlayerList[nPlayer].nPistolClip = std::min<int>(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
+                            PlayerList[nPlayer].nPistolClip = min<int>(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
                             break;
                         }
                         else if (nWeapon == kWeaponGrenade)

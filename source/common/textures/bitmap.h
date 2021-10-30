@@ -473,7 +473,7 @@ struct bBlend
 
 struct bAdd
 {
-	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = MIN<int>((d*BLENDUNIT + s*i->alpha) >> BLENDBITS, 255); }
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = min<int>((d*BLENDUNIT + s*i->alpha) >> BLENDBITS, 255); }
 	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
 	static __forceinline bool ProcessAlpha0() { return false; }
 };

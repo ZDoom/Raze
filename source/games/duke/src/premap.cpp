@@ -242,7 +242,7 @@ void resetplayerstats(int snum)
 
     if (numplayers < 2)
     {
-        ufospawn = isRRRA()? 3 : std::min(ud.player_skill*4+1, 32);
+        ufospawn = isRRRA()? 3 : min(ud.player_skill*4+1, 32);
         ufocnt = 0;
         hulkspawn = ud.player_skill + 1;
     }
@@ -278,7 +278,7 @@ void resetweapons(int snum)
     p->curr_weapon = PISTOL_WEAPON;
     p->gotweapon[PISTOL_WEAPON] = true;
     p->gotweapon[KNEE_WEAPON] = true;
-    p->ammo_amount[PISTOL_WEAPON] = std::min<int16_t>(gs.max_ammo_amount[PISTOL_WEAPON], 48);
+    p->ammo_amount[PISTOL_WEAPON] = min<int16_t>(gs.max_ammo_amount[PISTOL_WEAPON], 48);
     p->gotweapon[HANDREMOTE_WEAPON] = true;
     p->last_weapon = -1;
 
@@ -362,7 +362,7 @@ void resetinventory(int snum)
 
     if (numplayers < 2)
     {
-        ufospawn = std::min(ud.player_skill*4+1, 32);
+        ufospawn = min(ud.player_skill*4+1, 32);
         ufocnt = 0;
         hulkspawn = ud.player_skill + 1;
     }
@@ -479,7 +479,7 @@ void resetprestat(int snum,int g)
 
     if (numplayers < 2)
     {
-        ufospawn = std::min(ud.player_skill*4+1, 32);
+        ufospawn = min(ud.player_skill*4+1, 32);
         ufocnt = 0;
         hulkspawn = ud.player_skill + 1;
     }

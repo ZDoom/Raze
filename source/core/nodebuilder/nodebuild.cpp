@@ -142,8 +142,8 @@ int FNodeBuilder::CreateNode (uint32_t set, unsigned int count, fixed_t bbox[4])
 		node.intchildren[0] = CreateNode (set1, count1, node.nb_bbox[0]);
 		node.intchildren[1] = CreateNode (set2, count2, node.nb_bbox[1]);
 		bbox[BOXTOP] = max(node.nb_bbox[0][BOXTOP], node.nb_bbox[1][BOXTOP]);
-		bbox[BOXBOTTOM] = MIN (node.nb_bbox[0][BOXBOTTOM], node.nb_bbox[1][BOXBOTTOM]);
-		bbox[BOXLEFT] = MIN (node.nb_bbox[0][BOXLEFT], node.nb_bbox[1][BOXLEFT]);
+		bbox[BOXBOTTOM] = min(node.nb_bbox[0][BOXBOTTOM], node.nb_bbox[1][BOXBOTTOM]);
+		bbox[BOXLEFT] = min(node.nb_bbox[0][BOXLEFT], node.nb_bbox[1][BOXLEFT]);
 		bbox[BOXRIGHT] = max(node.nb_bbox[0][BOXRIGHT], node.nb_bbox[1][BOXRIGHT]);
 		return (int)Nodes.Push (node);
 	}

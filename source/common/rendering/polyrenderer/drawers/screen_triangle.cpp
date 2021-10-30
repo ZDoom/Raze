@@ -209,15 +209,15 @@ void ScreenTriangle::Draw(const TriDrawTriangleArgs* args, PolyTriangleThreadDat
 	int clipleft = thread->clip.left;
 	int cliptop = max(thread->clip.top, thread->numa_start_y);
 	int clipright = thread->clip.right;
-	int clipbottom = MIN(thread->clip.bottom, thread->numa_end_y);
+	int clipbottom = min(thread->clip.bottom, thread->numa_end_y);
 
 	int topY = (int)(sortedVertices[0]->y + 0.5f);
 	int midY = (int)(sortedVertices[1]->y + 0.5f);
 	int bottomY = (int)(sortedVertices[2]->y + 0.5f);
 
 	topY = max(topY, cliptop);
-	midY = MIN(midY, clipbottom);
-	bottomY = MIN(bottomY, clipbottom);
+	midY = min(midY, clipbottom);
+	bottomY = min(bottomY, clipbottom);
 
 	if (topY >= bottomY)
 		return;

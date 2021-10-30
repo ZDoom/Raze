@@ -490,7 +490,7 @@ static void TicStabilityEnd()
 {
 	using namespace std::chrono;
 	uint64_t stabilityendtime = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
-	stabilityticduration = std::min(stabilityendtime - stabilitystarttime, (uint64_t)1'000'000);
+	stabilityticduration = min(stabilityendtime - stabilitystarttime, (uint64_t)1'000'000);
 }
 
 //==========================================================================

@@ -39,7 +39,6 @@ source as it is released.
 #include "dukeactor.h"
 #include "interpolate.h"
 
-using std::min;
 // PRIMITIVE
 BEGIN_DUKE_NS
 

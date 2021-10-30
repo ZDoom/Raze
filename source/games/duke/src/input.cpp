@@ -740,8 +740,8 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 	if (p->OnBoat || !p->moto_underwater)
 	{
-		p->vehForwardScale = std::min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dz, 1.f); 
-		p->vehReverseScale = std::min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dz, 1.f);
+		p->vehForwardScale = min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dz, 1.f); 
+		p->vehReverseScale = min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dz, 1.f);
 		p->vehBraking = buttonMap.ButtonDown(gamefunc_Run);
 	}
 

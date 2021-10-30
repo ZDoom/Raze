@@ -1524,7 +1524,7 @@ DEFINE_ACTION_FUNCTION(_Screen, GetViewWindow)
 	if (numret > 1) ret[1].SetInt(windowxy1.y);
 	if (numret > 2) ret[2].SetInt(windowxy2.x - windowxy1.x + 1);
 	if (numret > 3) ret[3].SetInt(windowxy2.y - windowxy1.y + 1);
-	return MIN(numret, 4);
+	return min(numret, 4);
 }
 
 DEFINE_ACTION_FUNCTION_NATIVE(_Raze, ShadeToLight, shadeToLight)

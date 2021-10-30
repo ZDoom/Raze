@@ -930,8 +930,8 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 			refheight = max(front->ceilingz, back->ceilingz);
 	}
 
-	topleft = std::min(bch1,fch1);
-	topright = std::min(bch2,fch2);
+	topleft = min(bch1,fch1);
+	topright = min(bch2,fch2);
 	bottomleft = max(bfh1,ffh1);
 	bottomright = max(bfh2,ffh2);
 	if (topleft<=bottomleft && topright<=bottomright) return;

@@ -803,7 +803,7 @@ static int CaptureStackTrace(int max_frames, void **out_frames)
 
 #elif defined(WIN32)
 	// JIT isn't supported here, so just do nothing.
-	return 0;//return RtlCaptureStackBackTrace(0, MIN(max_frames, 32), out_frames, nullptr);
+	return 0;//return RtlCaptureStackBackTrace(0, min(max_frames, 32), out_frames, nullptr);
 #else
 	return backtrace(out_frames, max_frames);
 #endif

@@ -407,7 +407,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 	sfx = &S_sfx[sound_id];
 
 	// Scale volume according to SNDINFO data.
-	volume = std::min(volume * sfx->Volume, 1.f);
+	volume = min(volume * sfx->Volume, 1.f);
 	if (volume <= 0)
 		return NULL;
 
@@ -847,7 +847,7 @@ bool SoundEngine::CheckSoundLimit(sfxinfo_t *sfx, const FVector3 &pos, int near_
 
 			CalcPosVel(chan, &chanorigin, NULL);
 			// scale the limit distance with the attenuation. An attenuation of 0 means the limit distance is infinite and all sounds within the level are inside the limit.
-			float attn = std::min(chan->DistanceScale, attenuation);
+			float attn = min(chan->DistanceScale, attenuation);
 			if (attn <= 0 || (chanorigin - pos).LengthSquared() <= limit_range / attn)
 			{
 				count++;

@@ -309,7 +309,7 @@ void VulkanFrameBuffer::WaitForCommands(bool finish, bool uploadOnly)
 			swapChain->QueuePresent(presentImageIndex, mRenderFinishedSemaphore.get());
 	}
 
-	int numWaitFences = MIN(mNextSubmit, (int)maxConcurrentSubmitCount);
+	int numWaitFences = min(mNextSubmit, (int)maxConcurrentSubmitCount);
 
 	if (numWaitFences > 0)
 	{
@@ -345,8 +345,8 @@ void VulkanFrameBuffer::RenderTextureView(FCanvasTexture* tex, std::function<voi
 
 	IntRect bounds;
 	bounds.left = bounds.top = 0;
-	bounds.width = std::min(tex->GetWidth(), image->Image->width);
-	bounds.height = std::min(tex->GetHeight(), image->Image->height);
+	bounds.width = min(tex->GetWidth(), image->Image->width);
+	bounds.height = min(tex->GetHeight(), image->Image->height);
 
 	renderFunc(bounds);
 

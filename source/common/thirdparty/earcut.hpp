@@ -184,8 +184,8 @@ void Earcut<N>::operator()(const Polygon& points) {
         do {
             x = p->x;
             y = p->y;
-            minX = std::min<double>(minX, x);
-            minY = std::min<double>(minY, y);
+            minX = min<double>(minX, x);
+            minY = min<double>(minY, y);
             maxX = max<double>(maxX, x);
             maxY = max<double>(maxY, y);
             p = p->next;
@@ -350,8 +350,8 @@ bool Earcut<N>::isEarHashed(Node* ear) {
     if (area(a, b, c) >= 0) return false; // reflex, can't be an ear
 
     // triangle bbox; min & max are calculated like this for speed
-    const double minTX = std::min<double>(a->x, std::min<double>(b->x, c->x));
-    const double minTY = std::min<double>(a->y, std::min<double>(b->y, c->y));
+    const double minTX = min<double>(a->x, min<double>(b->x, c->x));
+    const double minTY = min<double>(a->y, min<double>(b->y, c->y));
     const double maxTX = max<double>(a->x, max<double>(b->x, c->x));
     const double maxTY = max<double>(a->y, max<double>(b->y, c->y));
 
@@ -718,9 +718,9 @@ bool Earcut<N>::intersects(const Node* p1, const Node* q1, const Node* p2, const
 template <typename N>
 bool Earcut<N>::onSegment(const Node* p, const Node* q, const Node* r) {
     return q->x <= max<double>(p->x, r->x) &&
-        q->x >= std::min<double>(p->x, r->x) &&
+        q->x >= min<double>(p->x, r->x) &&
         q->y <= max<double>(p->y, r->y) &&
-        q->y >= std::min<double>(p->y, r->y);
+        q->y >= min<double>(p->y, r->y);
 }
 
 template <typename N>

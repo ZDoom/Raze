@@ -92,7 +92,7 @@ public:
 
 	int count_for_thread(int first_line, int count)
 	{
-		count = MIN(count, numa_end_y - first_line);
+		count = min(count, numa_end_y - first_line);
 		int c = (count - skipped_by_thread(first_line) + num_cores - 1) / num_cores;
 		return max(c, 0);
 	}
