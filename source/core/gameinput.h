@@ -15,63 +15,44 @@ struct PlayerHorizon
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def);
 
+	// Prototypes for functions in gameinput.cpp.
+	void applyinput(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
+	void calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
+
+	// Interpolation helpers.
 	void backup()
 	{
 		ohoriz = horiz;
 		ohorizoff = horizoff;
 	}
-
 	void restore()
 	{
 		horiz = ohoriz;
 		horizoff = ohorizoff;
 	}
 
-	void addadjustment(double value)
-	{
-		__addadjustment(buildfhoriz(value));
-	}
+	// Commonly used getters.
+	fixedhoriz osum() { return ohoriz + ohorizoff; }
+	fixedhoriz sum() { return horiz + horizoff; }
+	fixedhoriz interpolatedsum(double const smoothratio) { return q16horiz(interpolatedvalue(osum().asq16(), sum().asq16(), smoothratio)); }
 
-	void addadjustment(fixedhoriz value)
-	{
-		__addadjustment(value);
-	}
+	// Ticrate playsim adjustment helpers.
+	void addadjustment(double value) { __addadjustment(buildfhoriz(value));	}
+	void addadjustment(fixedhoriz value) { __addadjustment(value); }
+	void settarget(double value, bool backup = false) { __settarget(buildfhoriz(value), backup); }
+	void settarget(fixedhoriz value, bool backup = false) { __settarget(value, backup); }
+	void resetadjustment() { adjustment = 0; }
+	bool targetset() { return target.asq16(); }
 
-	void resetadjustment()
-	{
-		adjustment = 0;
-	}
+	// Input locking helpers.
+	void lockinput() { inputdisabled = true; }
+	void unlockinput() { inputdisabled = false; }
+	bool movementlocked() {	return target.asq16() || inputdisabled;	}
 
-	void settarget(double value, bool backup = false)
-	{
-		__settarget(buildfhoriz(value), backup);
-	}
+	// Draw code helpers.
+	double horizsumfrac(double const smoothratio) { return (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); }
 
-	void settarget(fixedhoriz value, bool backup = false)
-	{
-		__settarget(value, backup);
-	}
-
-	void lockinput()
-	{
-		inputdisabled = true;
-	}
-
-	void unlockinput()
-	{
-		inputdisabled = false;
-	}
-
-	bool targetset()
-	{
-		return target.asq16();
-	}
-
-	bool movementlocked()
-	{
-		return target.asq16() || inputdisabled;
-	}
-
+	// Ticrate playsim adjustment processor.
 	void processhelpers(double const scaleAdjust)
 	{
 		if (targetset())
@@ -93,29 +74,6 @@ struct PlayerHorizon
 			horiz += buildfhoriz(scaleAdjust * adjustment);
 		}
 	}
-
-	fixedhoriz osum()
-	{
-		return ohoriz + ohorizoff;
-	}
-
-	fixedhoriz sum()
-	{
-		return horiz + horizoff;
-	}
-
-	fixedhoriz interpolatedsum(double const smoothratio)
-	{
-		return q16horiz(interpolatedvalue(osum().asq16(), sum().asq16(), smoothratio));
-	}
-
-	double horizsumfrac(double const smoothratio)
-	{
-		return (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); // Used within draw code for Duke.
-	}
-
-	void applyinput(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
-	void calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
 
 private:
 	fixedhoriz target;
@@ -158,13 +116,16 @@ struct PlayerAngle
 
 	friend FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
 
+	// Prototypes for functions in gameinput.cpp.
+	void applyinput(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
+
+	// Interpolation helpers.
 	void backup()
 	{
 		oang = ang;
 		olook_ang = look_ang;
 		orotscrnang = rotscrnang;
 	}
-
 	void restore()
 	{
 		ang = oang;
@@ -172,51 +133,31 @@ struct PlayerAngle
 		rotscrnang = orotscrnang;
 	}
 
-	void addadjustment(double value)
-	{
-		__addadjustment(buildfang(value));
-	}
+	// Commonly used getters.
+	binangle osum() { return oang + olook_ang; }
+	binangle sum() { return ang + look_ang; }
+	binangle interpolatedsum(double const smoothratio) { return interpolatedangle(osum(), sum(), smoothratio); }
+	binangle interpolatedlookang(double const smoothratio) { return interpolatedangle(olook_ang, look_ang, smoothratio); }
+	binangle interpolatedrotscrn(double const smoothratio) { return interpolatedangle(orotscrnang, rotscrnang, smoothratio); }
 
-	void addadjustment(binangle value)
-	{
-		__addadjustment(value);
-	}
+	// Ticrate playsim adjustment helpers.
+	void addadjustment(double value) { __addadjustment(buildfang(value)); }
+	void addadjustment(binangle value) { __addadjustment(value); }
+	void settarget(double value, bool backup = false) { __settarget(buildfang(value), backup); }
+	void settarget(binangle value, bool backup = false) { __settarget(value, backup); }
+	void resetadjustment() { adjustment = 0; }
+	bool targetset() { return target.asbam(); }
 
-	void resetadjustment()
-	{
-		adjustment = 0;
-	}
+	// Input locking helpers.
+	void lockinput() { inputdisabled = true; }
+	void unlockinput() { inputdisabled = false; }
+	bool movementlocked() { return target.asq16() || inputdisabled; }
 
-	void settarget(double value, bool backup = false)
-	{
-		__settarget(buildfang(value), backup);
-	}
+	// Draw code helpers.
+	double look_anghalf(double const smoothratio) { return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; }
+	double looking_arc(double const smoothratio) { return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); }
 
-	void settarget(binangle value, bool backup = false)
-	{
-		__settarget(value, backup);
-	}
-
-	void lockinput()
-	{
-		inputdisabled = true;
-	}
-
-	void unlockinput()
-	{
-		inputdisabled = false;
-	}
-
-	bool targetset()
-	{
-		return target.asbam();
-	}
-
-	bool movementlocked()
-	{
-		return target.asq16() || inputdisabled;
-	}
-
+	// Ticrate playsim adjustment processor.
 	void processhelpers(double const scaleAdjust)
 	{
 		if (targetset())
@@ -238,43 +179,6 @@ struct PlayerAngle
 			ang += buildfang(scaleAdjust * adjustment);
 		}
 	}
-
-	binangle osum()
-	{
-		return oang + olook_ang;
-	}
-
-	binangle sum()
-	{
-		return ang + look_ang;
-	}
-
-	binangle interpolatedsum(double const smoothratio)
-	{
-		return interpolatedangle(osum(), sum(), smoothratio);
-	}
-
-	binangle interpolatedlookang(double const smoothratio)
-	{
-		return interpolatedangle(olook_ang, look_ang, smoothratio);
-	}
-
-	binangle interpolatedrotscrn(double const smoothratio)
-	{
-		return interpolatedangle(orotscrnang, rotscrnang, smoothratio);
-	}
-
-	double look_anghalf(double const smoothratio)
-	{
-		return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; // Used within draw code for weapon and crosshair when looking left/right.
-	}
-
-	double looking_arc(double const smoothratio)
-	{
-		return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); // Used within draw code for weapon and crosshair when looking left/right.
-	}
-
-	void applyinput(float const avel, ESyncBits* actions, double const scaleAdjust = 1);
 
 private:
 	binangle target;
