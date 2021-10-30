@@ -1033,7 +1033,7 @@ SetupSectorObject(short sectnum, short tag)
 {
     SPRITEp sp;
     SECTOR_OBJECTp sop;
-    int object_num, SpriteNum;
+    int object_num;
     short j;
     short New;
     USERp u;
@@ -1127,10 +1127,11 @@ SetupSectorObject(short sectnum, short tag)
         SET(u->Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
         // check for any ST1 sprites laying on the center sector
-        SectIterator it(sectnum);
-        while ((SpriteNum = it.NextIndex()) >= 0)
+        SWSectIterator it(sectnum);
+        while (auto actor = it.Next())
         {
-            sp = &sprite[SpriteNum];
+            SPRITEp sp = &actor->s();
+            int SpriteNum = actor->GetSpriteIndex();
 
             if (sp->statnum == STAT_ST1)
             {
@@ -1189,7 +1190,7 @@ SetupSectorObject(short sectnum, short tag)
                     if (sp->clipdist == 3)
                     {
                         USERp u;
-                        change_sprite_stat(SpriteNum, STAT_NO_STATE);
+                        change_actor_stat(actor, STAT_NO_STATE);
                         u = SpawnUser(SpriteNum, 0, nullptr);
                         u->ActorActionFunc = nullptr;
                     }
@@ -2788,18 +2789,17 @@ PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy)
 
 void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 {
-    short SpriteNum;
     SECTORp *sectp;
     SPRITEp sp;
     USERp u;
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        SectIterator it(int(*sectp - sector));
-        while ((SpriteNum = it.NextIndex()) >= 0)
+        SWSectIterator it(int(*sectp - sector));
+        while (auto actor = it.Next())
         {
-            sp = &sprite[SpriteNum];
-            u = User[SpriteNum].Data();
+            USERp u = actor->u();
+            SPRITEp sp = &actor->s();
 
             switch (sp->hitag)
             {
@@ -2812,13 +2812,13 @@ void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
                         if (sp->statnum == STAT_NO_STATE)
                             break;
 
-                        change_sprite_stat(SpriteNum, STAT_NO_STATE);
+                        change_actor_stat(actor, STAT_NO_STATE);
                         DoSoundSpotMatch(sp->lotag, 1, 0);
                         DoSpawnSpotsForDamage(sp->lotag);
                     }
                     else
                     {
-                        change_sprite_stat(SpriteNum, STAT_SPAWN_SPOT);
+                        change_actor_stat(actor, STAT_SPAWN_SPOT);
                         DoSoundSpotStopSound(sp->lotag);
                     }
 

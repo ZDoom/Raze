@@ -406,8 +406,9 @@ ACTOR_ACTION_SET CoolieActionSet =
 
 void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     unsigned int wpn;
     short wpn_cnt;
     short depth = 0;
@@ -461,7 +462,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     SET(sp->extra,SPRX_PLAYER_OR_ENEMY);
 
     sprite[SpriteNum].picnum = u->State->Pic;
-    change_sprite_stat(SpriteNum, STAT_ENEMY);
+    change_actor_stat(actor, STAT_ENEMY);
 
     u->Personality = person;
     u->ActorActionSet = action;

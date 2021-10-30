@@ -96,7 +96,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     auto SpriteNum = actor->GetSpriteIndex();
 
 
-    change_sprite_stat(SpriteNum, STAT_DEAD_ACTOR);
+    change_actor_stat(actor, STAT_DEAD_ACTOR);
     SET(u->Flags, SPR_DEAD);
     RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
     u->floor_dist = Z(40);

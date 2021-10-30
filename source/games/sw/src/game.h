@@ -1939,6 +1939,7 @@ int move_missile(int spritenum, int xchange, int ychange, int zchange, int ceild
 int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 
 void change_sprite_stat(short, short);
+void change_actor_stat(DSWActor* actor, int stat);
 void SetOwner(DSWActor*, DSWActor*);
 void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);

@@ -1948,7 +1948,7 @@ DoNinjaHariKari(DSWActor* actor)
     short cnt,i;
 
     UpdateSinglePlayKills(SpriteNum);
-    change_sprite_stat(SpriteNum, STAT_DEAD_ACTOR);
+    change_actor_stat(actor, STAT_DEAD_ACTOR);
     RESET(sprite[SpriteNum].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(u->Flags, SPR_DEAD);
     RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
@@ -1982,7 +1982,7 @@ DoNinjaGrabThroat(DSWActor* actor)
         UpdateSinglePlayKills(SpriteNum);
         RESET(u->Flags2, SPR2_DYING);
         RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
-        change_sprite_stat(SpriteNum, STAT_DEAD_ACTOR);
+        change_actor_stat(actor, STAT_DEAD_ACTOR);
         RESET(sprite[SpriteNum].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         SET(u->Flags, SPR_DEAD);
         RESET(u->Flags, SPR_FALLING | SPR_JUMPING);

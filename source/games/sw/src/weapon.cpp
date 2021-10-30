@@ -17078,7 +17078,7 @@ DoDefaultStat(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    change_sprite_stat(SpriteNum, STAT_DEFAULT);
+    change_actor_stat(actor, STAT_DEFAULT);
     return 0;
 }
 
@@ -20212,7 +20212,8 @@ bool TestDontStickSector(short hit_sect)
 
 int QueueStar(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     SPRITEp osp;
 
     if (TestDontStick(SpriteNum, -1))
@@ -20226,7 +20227,7 @@ int QueueStar(short SpriteNum)
     {
         // new star
         User[SpriteNum].Clear();
-        change_sprite_stat(SpriteNum, STAT_STAR_QUEUE);
+        change_actor_stat(actor, STAT_STAR_QUEUE);
         StarQueue[StarQueueHead] = SpriteNum;
     }
     else
@@ -20731,7 +20732,9 @@ DoWallBlood(DSWActor* actor)
 // This is the FAST queue, it doesn't call any animator functions or states
 int QueueGeneric(short SpriteNum, short pic)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp osp;
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
@@ -20759,7 +20762,7 @@ int QueueGeneric(short SpriteNum, short pic)
     if (GenericQueue[GenericQueueHead] == -1)
     {
         User[SpriteNum].Clear();
-        change_sprite_stat(SpriteNum, STAT_GENERIC_QUEUE);
+        change_actor_stat(actor, STAT_GENERIC_QUEUE);
         GenericQueue[GenericQueueHead] = SpriteNum;
     }
     else
@@ -20794,7 +20797,7 @@ int QueueGeneric(short SpriteNum, short pic)
     case 931:
     case 932:
     case GORE_Head:
-        change_sprite_stat(SpriteNum,STAT_DEFAULT); // Breakable
+        change_actor_stat(actor,STAT_DEFAULT); // Breakable
         SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
         SET(sp->extra, SPRX_BREAKABLE);
         break;

@@ -7412,7 +7412,7 @@ InitMultiPlayerInfo(void)
     SPRITEp sp;
     short pnum, start0;
     unsigned stat;
-    int SpriteNum, tag;
+    int tag;
     static short MultiStatList[] =
     {
         STAT_MULTI_START,
@@ -7420,10 +7420,10 @@ InitMultiPlayerInfo(void)
     };
 
     // this routine is called before SpriteSetup - process start positions NOW
-    StatIterator it(STAT_DEFAULT);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[SpriteNum];
+        sp = &actor->s();
 
         tag = sp->hitag;
 
@@ -7432,10 +7432,10 @@ InitMultiPlayerInfo(void)
             switch (tag)
             {
             case MULTI_PLAYER_START:
-                change_sprite_stat(SpriteNum, STAT_MULTI_START + sp->lotag);
+                change_actor_stat(actor, STAT_MULTI_START + sp->lotag);
                 break;
             case MULTI_COOPERATIVE_START:
-                change_sprite_stat(SpriteNum, STAT_CO_OP_START + sp->lotag);
+                change_actor_stat(actor, STAT_CO_OP_START + sp->lotag);
                 break;
             }
         }

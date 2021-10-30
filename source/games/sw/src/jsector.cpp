@@ -173,53 +173,52 @@ void
 JS_SpriteSetup(void)
 {
     SPRITEp sp;
-    int SpriteNum;
     USERp u;
     short i;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
         short tag;
 
-        sp = &sprite[SpriteNum];
+        sp = &actor->s();
         tag = sp->hitag;
 
         // Non static camera. Camera sprite will be drawn!
-        if (tag == MIRROR_CAM && sprite[SpriteNum].picnum != ST1)
+        if (tag == MIRROR_CAM && sp->picnum != ST1)
         {
             // Just change it to static, sprite has all the info I need
 //          u = SpawnUser(SpriteNum, sp->picnum, nullptr);
 //          RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 //          SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
-            change_sprite_stat(SpriteNum, STAT_SPAWN_SPOT);
+            change_actor_stat(actor, STAT_SPAWN_SPOT);
         }
 
-        switch (sprite[SpriteNum].picnum)
+        switch (sp->picnum)
         {
         case ST1:
             if (tag == MIRROR_CAM)
             {
                 // Just change it to static, sprite has all the info I need
                 // ST1 cameras won't move with SOBJ's!
-                change_sprite_stat(SpriteNum, STAT_ST1);
+                change_actor_stat(actor, STAT_ST1);
             }
             else if (tag == MIRROR_SPAWNSPOT)
             {
                 // Just change it to static, sprite has all the info I need
-                change_sprite_stat(SpriteNum, STAT_ST1);
+                change_actor_stat(actor, STAT_ST1);
             }
             else if (tag == AMBIENT_SOUND)
             {
-                change_sprite_stat(SpriteNum, STAT_AMBIENT);
+                change_actor_stat(actor, STAT_AMBIENT);
             }
             else if (tag == TAG_ECHO_SOUND)
             {
-                change_sprite_stat(SpriteNum, STAT_ECHO);
+                change_actor_stat(actor, STAT_ECHO);
             }
             else if (tag == TAG_DRIPGEN)
             {
-                u = SpawnUser(SpriteNum, 0, nullptr);
+                u = SpawnUser(actor, 0, nullptr);
 
                 ASSERT(u != nullptr);
                 u->RotNum = 0;
@@ -227,7 +226,7 @@ JS_SpriteSetup(void)
 
                 u->ActorActionFunc = GenerateDrips;
 
-                change_sprite_stat(SpriteNum, STAT_NO_STATE);
+                change_actor_stat(actor, STAT_NO_STATE);
                 SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
             }
             break;

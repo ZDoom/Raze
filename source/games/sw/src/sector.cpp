@@ -1129,7 +1129,7 @@ int DoSpawnSpot(DSWActor* actor)
 
     if ((u->WaitTics -= synctics) < 0)
     {
-        change_sprite_stat(SpriteNum, STAT_SPAWN_SPOT);
+        change_actor_stat(actor, STAT_SPAWN_SPOT);
         SpawnShrap(SpriteNum, -1);
 
         if (u->LastDamage == 1)
@@ -1679,6 +1679,7 @@ bool ComboSwitchTest(short combo_type, short match)
 int
 OperateSprite(short SpriteNum, short player_is_operating)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     PLAYERp pp = nullptr;
@@ -1935,9 +1936,9 @@ OperateSprite(short SpriteNum, short player_is_operating)
     {
         USERp u;
 
-        change_sprite_stat(SpriteNum, STAT_NO_STATE);
+        change_actor_stat(actor, STAT_NO_STATE);
 
-        u = SpawnUser(SpriteNum, 0, nullptr);
+        u = SpawnUser(actor, 0, nullptr);
 
         u->ActorActionFunc = DoGrating;
 

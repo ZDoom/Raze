@@ -355,7 +355,7 @@ DoSkullBeginDeath(DSWActor* actor)
     u->ID = SKULL_R0;
     u->Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusSkull;
     u->OverlapZ = Z(64);
-    change_sprite_stat(SpriteNum, STAT_DEAD_ACTOR);
+    change_actor_stat(actor, STAT_DEAD_ACTOR);
     sp->shade = -40;
 
     SpawnLittleExp(SpriteNum);
@@ -775,7 +775,7 @@ DoBettyBeginDeath(DSWActor* actor)
     u->ID = BETTY_R0;
     u->Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusBetty;
     u->OverlapZ = Z(64);
-    change_sprite_stat(SpriteNum, STAT_DEAD_ACTOR);
+    change_actor_stat(actor, STAT_DEAD_ACTOR);
     sp->shade = -40;
 
     SpawnLittleExp(SpriteNum);

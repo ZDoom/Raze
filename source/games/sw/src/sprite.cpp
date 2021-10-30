@@ -865,24 +865,31 @@ change_sprite_stat(short SpriteNum, short stat)
     }
 }
 
+void change_actor_stat(DSWActor* actor, int stat)
+{
+    change_sprite_stat(actor->GetSpriteIndex(), stat);
+}
+
 USERp
 SpawnUser(short SpriteNum, short id, STATEp state)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
+
     USERp u;
 
     ASSERT(!Prediction);
 
     User[SpriteNum].Clear();    // make sure to delete old, stale content first!
     User[SpriteNum].Alloc();
-    u = User[SpriteNum].Data();
+    u = actor->u();
 
     PRODUCTION_ASSERT(u != nullptr);
 
     // be careful State can be nullptr
     u->State = u->StateStart = state;
 
-    change_sprite_stat(SpriteNum, sp->statnum);
+    change_actor_stat(actor, sp->statnum);
 
     u->ID = id;
     u->Health = 100;
@@ -1598,11 +1605,12 @@ ActorSpawn(SPRITEp sp)
 void
 IconDefault(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     //if (sp->statnum == STAT_ITEM)
-    change_sprite_stat(SpriteNum, STAT_ITEM);
+    change_actor_stat(actor, STAT_ITEM);
 
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     u->Radius = 650;
@@ -1615,7 +1623,6 @@ void PreMapCombineFloors(void)
 #define MAX_FLOORS 32
     SPRITEp sp;
     int i, j, k;
-    int SpriteNum;
     int base_offset;
     int dx,dy;
     int dasect, startwall, endwall, nextsector;
@@ -1631,10 +1638,11 @@ void PreMapCombineFloors(void)
 
     memset(BoundList, 0, MAX_FLOORS * sizeof(BOUND_LIST));
 
-    StatIterator it(0);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(0);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[SpriteNum];
+        USERp u = actor->u();
+        SPRITEp sp = &actor->s();
 
         if (sp->picnum != ST1)
             continue;
@@ -1643,7 +1651,7 @@ void PreMapCombineFloors(void)
         {
             ASSERT(sp->lotag < MAX_FLOORS);
             BoundList[sp->lotag].offset = sp;
-            change_sprite_stat(SpriteNum, STAT_FAF);
+            change_actor_stat(actor, STAT_FAF);
         }
     }
 
@@ -1724,6 +1732,7 @@ void PreMapCombineFloors(void)
 
     // get rid of the sprites used
     it.Reset(STAT_FAF);
+    int SpriteNum;
     while ((SpriteNum = it.NextIndex()) >= 0)
     {
         KillSprite(SpriteNum);
@@ -1835,7 +1844,6 @@ void
 SpriteSetup(void)
 {
     SPRITEp sp;
-    int SpriteNum;
     USERp u;
     short i, num;
     int cz,fz;
@@ -1863,10 +1871,12 @@ SpriteSetup(void)
 
     int minEnemySkill = EnemyCheckSkill();
 
-    StatIterator it(STAT_DEFAULT);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[SpriteNum];
+        USERp u = actor->u();
+        SPRITEp sp = &actor->s();
+        int SpriteNum = actor->GetSpriteIndex();
 
 
         // not used yetv
@@ -1954,7 +1964,7 @@ SpriteSetup(void)
             if (TEST(SP_TAG8(sp), BIT(1)))
                 RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
 
-            change_sprite_stat(SpriteNum, STAT_SPRITE_HIT_MATCH);
+            change_actor_stat(actor, STAT_SPRITE_HIT_MATCH);
             continue;
         }
 
@@ -1969,7 +1979,7 @@ SpriteSetup(void)
 
             track_num = sprite[SpriteNum].picnum - TRACK_SPRITE + 0;
 
-            change_sprite_stat(SpriteNum, STAT_TRACK + track_num);
+            change_actor_stat(actor, STAT_TRACK + track_num);
 
             continue;
         }
@@ -1980,28 +1990,28 @@ SpriteSetup(void)
         switch (sprite[SpriteNum].picnum)
         {
         case ST_QUICK_JUMP:
-            change_sprite_stat(SpriteNum, STAT_QUICK_JUMP);
+            change_actor_stat(actor, STAT_QUICK_JUMP);
             break;
         case ST_QUICK_JUMP_DOWN:
-            change_sprite_stat(SpriteNum, STAT_QUICK_JUMP_DOWN);
+            change_actor_stat(actor, STAT_QUICK_JUMP_DOWN);
             break;
         case ST_QUICK_SUPER_JUMP:
-            change_sprite_stat(SpriteNum, STAT_QUICK_SUPER_JUMP);
+            change_actor_stat(actor, STAT_QUICK_SUPER_JUMP);
             break;
         case ST_QUICK_SCAN:
-            change_sprite_stat(SpriteNum, STAT_QUICK_SCAN);
+            change_actor_stat(actor, STAT_QUICK_SCAN);
             break;
         case ST_QUICK_EXIT:
-            change_sprite_stat(SpriteNum, STAT_QUICK_EXIT);
+            change_actor_stat(actor, STAT_QUICK_EXIT);
             break;
         case ST_QUICK_OPERATE:
-            change_sprite_stat(SpriteNum, STAT_QUICK_OPERATE);
+            change_actor_stat(actor, STAT_QUICK_OPERATE);
             break;
         case ST_QUICK_DUCK:
-            change_sprite_stat(SpriteNum, STAT_QUICK_DUCK);
+            change_actor_stat(actor, STAT_QUICK_DUCK);
             break;
         case ST_QUICK_DEFEND:
-            change_sprite_stat(SpriteNum, STAT_QUICK_DEFEND);
+            change_actor_stat(actor, STAT_QUICK_DEFEND);
             break;
 
         case ST1:
@@ -2025,7 +2035,7 @@ SpriteSetup(void)
             {
                 // NOTE: These will get deleted by the sector object
                 // setup code
-                change_sprite_stat(SpriteNum, STAT_ST1);
+                change_actor_stat(actor, STAT_ST1);
                 break;
             }
 
@@ -2054,19 +2064,19 @@ SpriteSetup(void)
                 }
                 else if (TEST(bit, SECTFX_NO_RIDE))
                 {
-                    change_sprite_stat(SpriteNum, STAT_NO_RIDE);
+                    change_actor_stat(actor, STAT_NO_RIDE);
                 }
                 else if (TEST(bit, SECTFX_DIVE_AREA))
                 {
                     sectu = GetSectUser(sp->sectnum);
                     sectu->number = sp->lotag;
-                    change_sprite_stat(SpriteNum, STAT_DIVE_AREA);
+                    change_actor_stat(actor, STAT_DIVE_AREA);
                 }
                 else if (TEST(bit, SECTFX_UNDERWATER))
                 {
                     sectu = GetSectUser(sp->sectnum);
                     sectu->number = sp->lotag;
-                    change_sprite_stat(SpriteNum, STAT_UNDERWATER);
+                    change_actor_stat(actor, STAT_UNDERWATER);
                 }
                 else if (TEST(bit, SECTFX_UNDERWATER2))
                 {
@@ -2074,7 +2084,7 @@ SpriteSetup(void)
                     sectu->number = sp->lotag;
                     if (sp->clipdist == 1)
                         SET(sectu->flags, SECTFU_CANT_SURFACE);
-                    change_sprite_stat(SpriteNum, STAT_UNDERWATER2);
+                    change_actor_stat(actor, STAT_UNDERWATER2);
                 }
             }
             else
@@ -2083,10 +2093,10 @@ SpriteSetup(void)
                 {
 #if 0
                 case MULTI_PLAYER_START:
-                    change_sprite_stat(SpriteNum, STAT_MULTI_START + sp->lotag);
+                    change_actor_stat(actor, STAT_MULTI_START + sp->lotag);
                     break;
                 case MULTI_COOPERATIVE_START:
-                    change_sprite_stat(SpriteNum, STAT_CO_OP_START + sp->lotag);
+                    change_actor_stat(actor, STAT_CO_OP_START + sp->lotag);
                     break;
 #endif
 
@@ -2127,7 +2137,7 @@ SpriteSetup(void)
 
                 case BREAKABLE:
                     // used for wall info
-                    change_sprite_stat(SpriteNum, STAT_BREAKABLE);
+                    change_actor_stat(actor, STAT_BREAKABLE);
                     break;
 
                 case SECT_DONT_COPY_PALETTE:
@@ -2149,7 +2159,7 @@ SpriteSetup(void)
 
                     StartInterpolation(sp->sectnum, Interp_Sect_FloorPanX);
                     StartInterpolation(sp->sectnum, Interp_Sect_FloorPanY);
-                    change_sprite_stat(SpriteNum, STAT_FLOOR_PAN);
+                    change_actor_stat(actor, STAT_FLOOR_PAN);
                     break;
                 }
 
@@ -2162,7 +2172,7 @@ SpriteSetup(void)
                         sp->xvel = sp->lotag;
                     StartInterpolation(sp->sectnum, Interp_Sect_CeilingPanX);
                     StartInterpolation(sp->sectnum, Interp_Sect_CeilingPanY);
-                    change_sprite_stat(SpriteNum, STAT_CEILING_PAN);
+                    change_actor_stat(actor, STAT_CEILING_PAN);
                     break;
                 }
 
@@ -2194,7 +2204,7 @@ SpriteSetup(void)
                     changespritesect(SpriteNum, hitinfo.sect);
                     StartInterpolation(hitinfo.wall, Interp_Wall_PanX);
                     StartInterpolation(hitinfo.wall, Interp_Wall_PanY);
-                    change_sprite_stat(SpriteNum, STAT_WALL_PAN);
+                    change_actor_stat(actor, STAT_WALL_PAN);
                     break;
                 }
 
@@ -2223,13 +2233,13 @@ SpriteSetup(void)
                 case TRIGGER_SECTOR:
                 {
                     SET(sector[sp->sectnum].extra, SECTFX_TRIGGER);
-                    change_sprite_stat(SpriteNum, STAT_TRIGGER);
+                    change_actor_stat(actor, STAT_TRIGGER);
                     break;
                 }
 
                 case DELETE_SPRITE:
                 {
-                    change_sprite_stat(SpriteNum, STAT_DELETE_SPRITE);
+                    change_actor_stat(actor, STAT_DELETE_SPRITE);
                     break;
                 }
 
@@ -2245,7 +2255,7 @@ SpriteSetup(void)
                     }
 
 
-                    change_sprite_stat(SpriteNum, STAT_SPAWN_ITEMS);
+                    change_actor_stat(actor, STAT_SPAWN_ITEMS);
                     break;
                 }
 
@@ -2270,13 +2280,13 @@ SpriteSetup(void)
                     // copy tag 7 to tag 6 and pre-shift it
                     SP_TAG6(sp) = SP_TAG7(sp);
                     SP_TAG6(sp) <<= 7;
-                    change_sprite_stat(SpriteNum, STAT_CEILING_FLOOR_PIC_OVERRIDE);
+                    change_actor_stat(actor, STAT_CEILING_FLOOR_PIC_OVERRIDE);
                     break;
                 }
 
                 case QUAKE_SPOT:
                 {
-                    change_sprite_stat(SpriteNum, STAT_QUAKE_SPOT);
+                    change_actor_stat(actor, STAT_QUAKE_SPOT);
                     //SP_TAG13(sp) = (SP_TAG6(sp)*10L) * 120L;
                     SET_SP_TAG13(sp, ((SP_TAG6(sp)*10L) * 120L));
                     break;
@@ -2284,7 +2294,7 @@ SpriteSetup(void)
 
                 case SECT_CHANGOR:
                 {
-                    change_sprite_stat(SpriteNum, STAT_CHANGOR);
+                    change_actor_stat(actor, STAT_CHANGOR);
                     break;
                 }
 
@@ -2301,7 +2311,7 @@ SpriteSetup(void)
 
                     u->ActorActionFunc = DoGenerateSewerDebris;
 
-                    change_sprite_stat(SpriteNum, STAT_NO_STATE);
+                    change_actor_stat(actor, STAT_NO_STATE);
                     break;
                 }
 #endif
@@ -2406,13 +2416,13 @@ SpriteSetup(void)
                     }
 
 
-                    change_sprite_stat(SpriteNum, STAT_VATOR);
+                    change_actor_stat(actor, STAT_VATOR);
                     break;
                 }
 
                 case SECT_ROTATOR_PIVOT:
                 {
-                    change_sprite_stat(SpriteNum, STAT_ROTATOR_PIVOT);
+                    change_actor_stat(actor, STAT_ROTATOR_PIVOT);
                     break;
                 }
 
@@ -2473,7 +2483,7 @@ SpriteSetup(void)
                         break;
                     }
 
-                    change_sprite_stat(SpriteNum, STAT_ROTATOR);
+                    change_actor_stat(actor, STAT_ROTATOR);
                     break;
                 }
 
@@ -2525,7 +2535,7 @@ SpriteSetup(void)
                         DoSlidorInstantClose(SpriteNum);
                     }
 
-                    change_sprite_stat(SpriteNum, STAT_SLIDOR);
+                    change_actor_stat(actor, STAT_SLIDOR);
                     break;
                 }
 
@@ -2612,7 +2622,7 @@ SpriteSetup(void)
                         u->oz = sp->oz = u->zclip;
                     }
 
-                    change_sprite_stat(SpriteNum, STAT_SPIKE);
+                    change_actor_stat(actor, STAT_SPIKE);
                     break;
                 }
 
@@ -2728,24 +2738,24 @@ SpriteSetup(void)
                 }
 
                 case SECT_VATOR_DEST:
-                    change_sprite_stat(SpriteNum, STAT_VATOR);
+                    change_actor_stat(actor, STAT_VATOR);
                     break;
 
                 case SO_WALL_DONT_MOVE_UPPER:
-                    change_sprite_stat(SpriteNum, STAT_WALL_DONT_MOVE_UPPER);
+                    change_actor_stat(actor, STAT_WALL_DONT_MOVE_UPPER);
                     break;
 
                 case SO_WALL_DONT_MOVE_LOWER:
-                    change_sprite_stat(SpriteNum, STAT_WALL_DONT_MOVE_LOWER);
+                    change_actor_stat(actor, STAT_WALL_DONT_MOVE_LOWER);
                     break;
 
                 case FLOOR_SLOPE_DONT_DRAW:
-                    change_sprite_stat(SpriteNum, STAT_FLOOR_SLOPE_DONT_DRAW);
+                    change_actor_stat(actor, STAT_FLOOR_SLOPE_DONT_DRAW);
                     break;
 
                 case DEMO_CAMERA:
                     sp->yvel = sp->zvel = 100; //attempt horiz control
-                    change_sprite_stat(SpriteNum, STAT_DEMO_CAMERA);
+                    change_actor_stat(actor, STAT_DEMO_CAMERA);
                     break;
 
                 case LAVA_ERUPT:
@@ -2753,7 +2763,7 @@ SpriteSetup(void)
 
                     u = SpawnUser(SpriteNum, ST1, nullptr);
 
-                    change_sprite_stat(SpriteNum, STAT_NO_STATE);
+                    change_actor_stat(actor, STAT_NO_STATE);
                     u->ActorActionFunc = DoLavaErupt;
 
                     // interval between erupts
@@ -2797,27 +2807,27 @@ SpriteSetup(void)
 
                     sectp->ceilingz = sectp->floorz;
 
-                    change_sprite_stat(SpriteNum, STAT_EXPLODING_CEIL_FLOOR);
+                    change_actor_stat(actor, STAT_EXPLODING_CEIL_FLOOR);
                     break;
                 }
 
                 case SECT_COPY_SOURCE:
-                    change_sprite_stat(SpriteNum, STAT_COPY_SOURCE);
+                    change_actor_stat(actor, STAT_COPY_SOURCE);
                     break;
 
                 case SECT_COPY_DEST:
                 {
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
-                    change_sprite_stat(SpriteNum, STAT_COPY_DEST);
+                    change_actor_stat(actor, STAT_COPY_DEST);
                     break;
                 }
 
 
                 case SECT_WALL_MOVE:
-                    change_sprite_stat(SpriteNum, STAT_WALL_MOVE);
+                    change_actor_stat(actor, STAT_WALL_MOVE);
                     break;
                 case SECT_WALL_MOVE_CANSEE:
-                    change_sprite_stat(SpriteNum, STAT_WALL_MOVE_CANSEE);
+                    change_actor_stat(actor, STAT_WALL_MOVE_CANSEE);
                     break;
 
                 case SPRI_CLIMB_MARKER:
@@ -2826,7 +2836,7 @@ SpriteSetup(void)
                     SPRITEp np;
 
                     // setup climb marker
-                    change_sprite_stat(SpriteNum, STAT_CLIMB_MARKER);
+                    change_actor_stat(actor, STAT_CLIMB_MARKER);
 
                     // make a QUICK_LADDER sprite automatically
                     ns = COVERinsertsprite(sp->sectnum, STAT_QUICK_LADDER);
@@ -2851,17 +2861,17 @@ SpriteSetup(void)
                     switch (gNet.MultiGameType)
                     {
                     case MULTI_GAME_NONE:
-                        change_sprite_stat(SpriteNum, STAT_ST1);
+                        change_actor_stat(actor, STAT_ST1);
                         break;
                     case MULTI_GAME_COMMBAT:
                         KillSprite(SpriteNum);
                         break;
                     case MULTI_GAME_COOPERATIVE:
-                        change_sprite_stat(SpriteNum, STAT_ST1);
+                        change_actor_stat(actor, STAT_ST1);
                         break;
                     }
 #else
-                    change_sprite_stat(SpriteNum, STAT_ST1);
+                    change_actor_stat(actor, STAT_ST1);
 #endif
                     break;
 
@@ -2895,18 +2905,18 @@ SpriteSetup(void)
                     // object
                     // setup code
 
-                    change_sprite_stat(SpriteNum, STAT_ST1);
+                    change_actor_stat(actor, STAT_ST1);
                     break;
                 }
 
                 case SOUND_SPOT:
                     //SP_TAG13(sp) = SP_TAG4(sp);
                     SET_SP_TAG13(sp, SP_TAG4(sp));
-                    change_sprite_stat(SpriteNum, STAT_SOUND_SPOT);
+                    change_actor_stat(actor, STAT_SOUND_SPOT);
                     break;
 
                 case STOP_SOUND_SPOT:
-                    change_sprite_stat(SpriteNum, STAT_STOP_SOUND_SPOT);
+                    change_actor_stat(actor, STAT_STOP_SOUND_SPOT);
                     break;
 
                 case SPAWN_SPOT:
@@ -2917,7 +2927,7 @@ SpriteSetup(void)
                         //SP_TAG14(sp) = 0;
                         SET_SP_TAG14(sp, 0);
 
-                    change_sprite_stat(SpriteNum, STAT_SPAWN_SPOT);
+                    change_actor_stat(actor, STAT_SPAWN_SPOT);
                     break;
 
                 case VIEW_THRU_CEILING:
@@ -2933,7 +2943,7 @@ SpriteSetup(void)
                             I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", sp->x, sp->y, sprite[i].x, sprite[i].y);
                         }
                     }
-                    change_sprite_stat(SpriteNum, STAT_FAF);
+                    change_actor_stat(actor, STAT_FAF);
                     break;
                 }
 
@@ -2944,7 +2954,7 @@ SpriteSetup(void)
                 case VIEW_LEVEL5:
                 case VIEW_LEVEL6:
                 {
-                    change_sprite_stat(SpriteNum, STAT_FAF);
+                    change_actor_stat(actor, STAT_FAF);
                     break;
                 }
 
@@ -2961,7 +2971,7 @@ SpriteSetup(void)
                 {
                     //SET(sector[sp->sectnum].ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
                     SET(sector[sp->sectnum].extra, SECTFX_Z_ADJUST);
-                    change_sprite_stat(SpriteNum, STAT_ST1);
+                    change_actor_stat(actor, STAT_ST1);
                     break;
                 }
 
@@ -2969,7 +2979,7 @@ SpriteSetup(void)
                 {
                     //SET(sector[sp->sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
                     SET(sector[sp->sectnum].extra, SECTFX_Z_ADJUST);
-                    change_sprite_stat(SpriteNum, STAT_ST1);
+                    change_actor_stat(actor, STAT_ST1);
                     break;
                 }
 
@@ -2980,7 +2990,7 @@ SpriteSetup(void)
 
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
                     SET(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR);
-                    change_sprite_stat(SpriteNum, STAT_WARP);
+                    change_actor_stat(actor, STAT_WARP);
 
                     // if just a destination teleporter
                     // don't set up flags
@@ -3011,19 +3021,19 @@ SpriteSetup(void)
                 {
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
                     SET(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR);
-                    change_sprite_stat(SpriteNum, STAT_WARP);
+                    change_actor_stat(actor, STAT_WARP);
                     break;
                 }
 
                 case WARP_COPY_SPRITE1:
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
                     SET(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR);
-                    change_sprite_stat(SpriteNum, STAT_WARP_COPY_SPRITE1);
+                    change_actor_stat(actor, STAT_WARP_COPY_SPRITE1);
                     break;
                 case WARP_COPY_SPRITE2:
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
                     SET(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR);
-                    change_sprite_stat(SpriteNum, STAT_WARP_COPY_SPRITE2);
+                    change_actor_stat(actor, STAT_WARP_COPY_SPRITE2);
                     break;
 
                 case FIREBALL_TRAP:
@@ -3032,7 +3042,7 @@ SpriteSetup(void)
                 {
                     u = SpawnUser(SpriteNum, 0, nullptr);
                     sp->owner = -1;
-                    change_sprite_stat(SpriteNum, STAT_TRAP);
+                    change_actor_stat(actor, STAT_TRAP);
                     break;
                 }
 
@@ -3181,7 +3191,7 @@ KeyMain:
 
                 RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
                 RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
-                change_sprite_stat(SpriteNum, STAT_ITEM);
+                change_actor_stat(actor, STAT_ITEM);
                 RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ONE_SIDED);
                 u->Radius = 500;
                 sp->hitag = LUMINOUS; //Set so keys over ride colored lighting
@@ -3217,7 +3227,7 @@ KeyStatueMain:
             RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
             RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
 
-            change_sprite_stat(SpriteNum, STAT_ITEM);
+            change_actor_stat(actor, STAT_ITEM);
 
             DoActorZrange(SpriteNum);
             break;
@@ -3251,7 +3261,7 @@ KeyStatueMain:
              *
              * u->sz = sp->z;
              *
-             * change_sprite_stat(SpriteNum, STAT_MISC);
+             * change_actor_stat(actor, STAT_MISC);
              */
 
             break;
@@ -3757,7 +3767,7 @@ NUKE_REPLACEMENT:
         {
             u = SpawnUser(SpriteNum, sp->picnum, nullptr);
 
-            change_sprite_stat(SpriteNum, STAT_STATIC_FIRE);
+            change_actor_stat(actor, STAT_STATIC_FIRE);
 
             u->ID = FIREBALL_FLAMES;
             u->Radius = 200;
@@ -3778,7 +3788,7 @@ NUKE_REPLACEMENT:
         {
             u = SpawnUser(SpriteNum, sp->picnum, nullptr);
 
-            change_sprite_stat(SpriteNum, STAT_DEFAULT);
+            change_actor_stat(actor, STAT_DEFAULT);
 
             RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
             SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -3880,13 +3890,14 @@ bool ItemSpotClear(SPRITEp sip, short statnum, short id)
 
 void SetupItemForJump(SPRITEp sip, short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     // setup item for jumping
     if (SP_TAG7(sip))
     {
-        change_sprite_stat(SpriteNum, STAT_SKIP4);
+        change_actor_stat(actor, STAT_SKIP4);
         u->ceiling_dist = Z(6);
         u->floor_dist = Z(0);
         u->Counter = 0;
@@ -5212,7 +5223,7 @@ DoGrating(DSWActor* actor)
 
     if (sp->hitag <= 0)
     {
-        change_sprite_stat(SpriteNum, STAT_DEFAULT);
+        change_actor_stat(actor, STAT_DEFAULT);
         User[SpriteNum].Clear();
     }
 
@@ -5583,7 +5594,7 @@ DoGet(DSWActor* actor)
         if (!DoItemFly(SpriteNum))
         {
             sp->xvel = 0;
-            change_sprite_stat(SpriteNum, STAT_ITEM);
+            change_actor_stat(actor, STAT_ITEM);
         }
     }
 
