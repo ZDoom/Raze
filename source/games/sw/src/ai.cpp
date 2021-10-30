@@ -681,7 +681,7 @@ DoActorActionDecide(short SpriteNum)
         }
 
         // if player is facing me and I'm being attacked
-        if (FACING(sp, u->tgt_sp()) && TEST(u->Flags, SPR_ATTACKED) && ICanSee)
+        if (Facing(actor, u->targetActor) && TEST(u->Flags, SPR_ATTACKED) && ICanSee)
         {
             // if I'm a target - at least one missile comming at me
             if (TEST(u->Flags, SPR_TARGETED))
@@ -745,7 +745,7 @@ DoActorActionDecide(short SpriteNum)
         dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
         if (dist < 15000 || ICanSee)
         {
-            if ((FACING(sp, u->tgt_sp()) && dist < 10000) || ICanSee)
+            if ((Facing(actor, u->targetActor) && dist < 10000) || ICanSee)
             {
                 DoActorOperate(actor);
 
@@ -821,14 +821,14 @@ int DoActorDecide(DSWActor* actor)
         return 0;
 
     // zombie is attacking a player
-    if (actor_action == InitActorAttack && u->ID == ZOMBIE_RUN_R0 && User[u->tgt_sp()-sprite]->PlayerP)
+    if (actor_action == InitActorAttack && u->ID == ZOMBIE_RUN_R0 && u->targetActor->u()->PlayerP)
     {
         // Don't let zombies shoot at master
-        if (sp->owner == (u->tgt_sp() - sprite))
+        if (sp->owner == u->targetActor->GetSpriteIndex())
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
-        if (!PlayerTakeDamage(User[u->tgt_sp()-sprite]->PlayerP, SpriteNum))
+        if (!PlayerTakeDamage(u->targetActor->u()->PlayerP, SpriteNum))
             return 0;
     }
 
@@ -1314,25 +1314,24 @@ int InitActorAttack(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     // zombie is attacking a player
-    if (u->ID == ZOMBIE_RUN_R0 && User[u->tgt_sp()-sprite]->PlayerP)
+    if (u->ID == ZOMBIE_RUN_R0 && u->targetActor->hasU() && u->targetActor->u()->PlayerP)
     {
         // Don't let zombies shoot at master
-        if (sp->owner == (u->tgt_sp() - sprite))
+        if (sp->owner == u->targetActor->GetSpriteIndex())
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
-        if (!PlayerTakeDamage(User[u->tgt_sp()-sprite]->PlayerP, SpriteNum))
+        if (!PlayerTakeDamage(u->targetActor->u()->PlayerP, SpriteNum))
             return 0;
     }
 
-    if (TEST(sprite[u->tgt_sp()-sprite].cstat, CSTAT_SPRITE_TRANSLUCENT))
+    if (TEST(u->targetActor->s().cstat, CSTAT_SPRITE_TRANSLUCENT))
     {
         InitActorRunAway(actor);
         return 0;
     }
 
-    if (User[u->tgt_sp()-sprite].Data() &&
-        User[u->tgt_sp()-sprite]->Health <= 0)
+    if (u->targetActor->hasU() && u->targetActor->u()->Health <= 0)
     {
         DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
@@ -1347,9 +1346,8 @@ int InitActorAttack(DSWActor* actor)
 
     // if the guy you are after is dead, look for another and
     // reposition
-    if (User[u->tgt_sp()-sprite].Data() &&
-        User[u->tgt_sp()-sprite]->PlayerP &&
-        TEST(User[u->tgt_sp()-sprite]->PlayerP->Flags, PF_DEAD))
+    if (u->targetActor->hasU() && u->targetActor->u()->PlayerP &&
+        TEST(u->targetActor->u()->PlayerP->Flags, PF_DEAD))
     {
         DoActorPickClosePlayer(actor);
         InitActorReposition(actor);
@@ -1365,7 +1363,7 @@ int InitActorAttack(DSWActor* actor)
     sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));
 
     // If it's your own kind, lay off!
-    if (u->ID == User[u->tgt_sp() - sprite]->ID && !User[u->tgt_sp() - sprite]->PlayerP)
+    if (u->ID == u->targetActor->u()->ID && !u->targetActor->u()->PlayerP)
     {
         InitActorRunAway(actor);
         return 0;

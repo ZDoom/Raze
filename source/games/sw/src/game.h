@@ -295,7 +295,6 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 #define KENFACING_PLAYER(pp,sp) (bcos(sp->ang)*(pp->posy-sp->y) >= bsin(sp-ang)*(pp->posx-sp->x))
 #define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < 512)
 #define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), (pp)->angle.ang.asbuild())) < 320)
-#define FACING(sp1,sp2) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512)
 
 #define FACING_PLAYER_RANGE(pp,sp,range) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < (range))
 #define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), (pp)->angle.ang.asbuild())) < (range))
@@ -2262,6 +2261,12 @@ inline int ActorMid(DSWActor* actor)
     return SPRITEp_MID(&actor->s());
 }
 
+inline int Facing(DSWActor* actor1, DSWActor* actor2)
+{
+    auto sp1 = &actor1->s();
+    auto sp2 = &actor2->s();
+    return (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512);
+}
 
 END_SW_NS
 #endif
