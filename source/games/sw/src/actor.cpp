@@ -494,7 +494,6 @@ int DoGenerateSewerDebris(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
-    short n;
 
     static STATEp Debris[] =
     {
@@ -510,9 +509,9 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         u->Tics = u->WaitTics;
 
-        n = SpawnSprite(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 200);
 
-        SetOwner(u->SpriteNum, n);
+        SetOwner(actor, spawned);
     }
 
     return 0;

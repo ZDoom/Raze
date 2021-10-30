@@ -312,7 +312,6 @@ SpawnMidSplash(short SpriteNum)
     np = &sprite[New];
     nu = User[New].Data();
 
-    //SetOwner(Weapon, New);
     np->shade = -12;
     np->xrepeat = 70-RandomRange(20);
     np->yrepeat = 70-RandomRange(20);
@@ -346,7 +345,6 @@ SpawnFloorSplash(short SpriteNum)
     np = &sprite[New];
     nu = User[New].Data();
 
-    //SetOwner(Weapon, New);
     np->shade = -12;
     np->xrepeat = 70-RandomRange(20);
     np->yrepeat = 70-RandomRange(20);

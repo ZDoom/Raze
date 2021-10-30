@@ -583,29 +583,28 @@ STATE s_IconFlag[] =
     {ICON_FLAG + 2, 32, DoGet, &s_IconFlag[0]}
 };
 
-void
-SetOwner(short owner, short child)
+void SetOwner(DSWActor* ownr, DSWActor* child)
 {
-    SPRITEp cp = &sprite[child];
+    SPRITEp cp = &child->s();
 
-    if (owner == 0)
+    if (ownr != nullptr && ownr->hasU())
     {
-        ////DSPRINTF(ds, "Set Owner possible problem - owner is 0, child %d", child);
-        //MONO_PRINT(ds);
+        SET(ownr->u()->Flags2, SPR2_CHILDREN);
     }
 
-    if (owner >= 0)
-    {
-        ASSERT(User[owner].Data());
-        SET(User[owner]->Flags2, SPR2_CHILDREN);
-    }
-    else
-    {
-        ////DSPRINTF(ds,"Owner is -1 !!!!!!!!!!!!!!!!!!!!!");
-        //MONO_PRINT(ds);
-    }
+    cp->owner = ownr? ownr->GetSpriteIndex() : -1;
+}
 
-    cp->owner = owner;
+
+void ClearOwner(DSWActor* child)
+{
+    if (child) child->s().owner = -1;
+}
+
+void SetOwner(int a, int b)
+{
+    if (a >= 0 && b >= 0) SetOwner(&swActors[a], &swActors[b]);
+    else if (b >= 0) ClearOwner(&swActors[b]);
 }
 
 void
@@ -1000,6 +999,13 @@ SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int
 
     return SpriteNum;
 }
+
+DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel)
+{
+    int s = SpawnSprite(stat, id, state, sectnum, x, y, z, ang, vel);
+    return s >= 0 ? &swActors[s] : nullptr;
+}
+
 
 void
 PicAnimOff(short picnum)

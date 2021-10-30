@@ -30,17 +30,6 @@ public:
 	spritetype& s() { return sprite[index]; }
 	USER* u() { return User[index].Data(); }
 
-	void SetOwner(DSWActor* own)
-	{
-		s().owner = own ? own->s().index : -1;
-	}
-
-	DSWActor* GetOwner()
-	{
-		if (s().owner == -1 || s().owner == MAXSPRITES - 1) return nullptr;
-		return base() + s().owner;
-	}
-
 	int GetSpriteIndex() const
 	{
 		return index;
