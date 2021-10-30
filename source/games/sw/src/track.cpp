@@ -3184,7 +3184,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         break;
 
     case TRACK_ACTOR_STAND:
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Stand);
+        NewStateGroup(actor, u->ActorActionSet->Stand);
         break;
 
     case TRACK_ACTOR_JUMP:
@@ -3343,7 +3343,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
                     else
                         u->WaitTics = tpoint->tag_high * 128;
 
-                    NewStateGroup_(SpriteNum, u->ActorActionSet->Stand);
+                    NewStateGroup(actor, u->ActorActionSet->Stand);
                 }
             }
         }
@@ -3357,7 +3357,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
                 else
                     u->WaitTics = tpoint->tag_high * 128;
 
-                NewStateGroup_(SpriteNum, u->ActorActionSet->Sit);
+                NewStateGroup(actor, u->ActorActionSet->Sit);
             }
         }
 
@@ -3370,7 +3370,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
                 else
                     u->WaitTics = tpoint->tag_high * 128;
 
-                NewStateGroup_(SpriteNum, u->ActorActionSet->Stand);
+                NewStateGroup(actor, u->ActorActionSet->Stand);
             }
         }
 
@@ -3405,20 +3405,20 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
     case TRACK_ACTOR_CRAWL:
         if (u->Rot != u->ActorActionSet->Crawl)
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Crawl);
+            NewStateGroup(actor, u->ActorActionSet->Crawl);
         else
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Rise);
+            NewStateGroup(actor, u->ActorActionSet->Rise);
         break;
 
     case TRACK_ACTOR_SWIM:
         if (u->Rot != u->ActorActionSet->Swim)
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Swim);
+            NewStateGroup(actor, u->ActorActionSet->Swim);
         else
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Rise);
+            NewStateGroup(actor, u->ActorActionSet->Rise);
         break;
 
     case TRACK_ACTOR_FLY:
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Fly);
+        NewStateGroup(actor, u->ActorActionSet->Fly);
         break;
 
     case TRACK_ACTOR_SIT:
@@ -3430,7 +3430,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             else
                 u->WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Sit);
+            NewStateGroup(actor, u->ActorActionSet->Sit);
         }
 
         break;
@@ -3439,7 +3439,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         if (u->ActorActionSet->Death2)
         {
             u->WaitTics = 4 * 120;
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Death1);
+            NewStateGroup(actor, u->ActorActionSet->Death1);
         }
         break;
 
@@ -3448,7 +3448,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         if (u->ActorActionSet->Death2)
         {
             u->WaitTics = 4 * 120;
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Death2);
+            NewStateGroup(actor, u->ActorActionSet->Death2);
         }
 
         break;
@@ -3461,7 +3461,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             sp->xvel <<= 1;
             u->jump_speed = -495;
             DoActorBeginJump(actor);
-            NewStateGroup_(SpriteNum, u->ActorActionSet->DeathJump);
+            NewStateGroup(actor, u->ActorActionSet->DeathJump);
         }
 
         break;
@@ -3475,7 +3475,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             else
                 u->WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup_(SpriteNum, u->ActorActionSet->CloseAttack[0]);
+            NewStateGroup(actor, u->ActorActionSet->CloseAttack[0]);
         }
 
         break;
@@ -3489,7 +3489,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             else
                 u->WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup_(SpriteNum, u->ActorActionSet->CloseAttack[1]);
+            NewStateGroup(actor, u->ActorActionSet->CloseAttack[1]);
         }
 
         break;
@@ -3511,7 +3511,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             else
                 u->WaitTics = tpoint->tag_high * 128;
 
-            NewStateGroup_(SpriteNum, *ap);
+            NewStateGroup(actor, *ap);
         }
 
         break;
@@ -3604,7 +3604,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             //
 
             SET(u->Flags, SPR_CLIMBING);
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Climb);
+            NewStateGroup(actor, u->ActorActionSet->Climb);
 
             sp->zvel = -Z(1);
         }
@@ -3677,7 +3677,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
         if (u->WaitTics <= 0)
         {
             RESET(u->Flags, SPR_DONT_UPDATE_ANG);
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+            NewStateGroup(actor, u->ActorActionSet->Run);
             u->WaitTics = 0;
         }
 

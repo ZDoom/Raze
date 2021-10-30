@@ -4721,6 +4721,11 @@ int NewStateGroup_(USERp user, STATEp StateGroup[])
 	return NewStateGroup_(user->SpriteNum, StateGroup);
 }
 
+int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
+{
+    return NewStateGroup_(actor->GetSpriteIndex(), StateGroup);
+}
+
 
 bool
 SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
@@ -6622,7 +6627,7 @@ StateControl(int16_t SpriteNum)
 
         if (!u->State->Pic)
         {
-            NewStateGroup_(SpriteNum, (STATEp *) u->State->NextState);
+            NewStateGroup(actor, (STATEp *) u->State->NextState);
         }
     }
 

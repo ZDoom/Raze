@@ -978,7 +978,7 @@ InitRipper2Hang(DSWActor* actor)
         return 0;
     }
 
-    NewStateGroup_(SpriteNum, sg_Ripper2HangJump);
+    NewStateGroup(actor, sg_Ripper2HangJump);
     u->StateFallOverride = sg_Ripper2HangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -1005,7 +1005,7 @@ DoRipper2Hang(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
-    NewStateGroup_(SpriteNum, sg_Ripper2JumpAttack);
+    NewStateGroup(actor, sg_Ripper2JumpAttack);
     // move to the 2nd frame - past the pause frame
     u->Tics += u->State->Tics;
 
@@ -1040,7 +1040,7 @@ DoRipper2MoveHang(DSWActor* actor)
 
             hit_wall = NORM_WALL(u->ret);
 
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Special[1]);
+            NewStateGroup(actor, u->ActorActionSet->Special[1]);
             if (RANDOM_P2(1024<<8)>>8 > 500)
                 u->WaitTics = ((RANDOM_P2(2 << 8) >> 8) * 120);
             else
@@ -1180,7 +1180,7 @@ DoRipper2QuickJump(DSWActor* actor)
 
         if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            NewStateGroup_(SpriteNum, sg_Ripper2JumpAttack);
+            NewStateGroup(actor, sg_Ripper2JumpAttack);
             // move past the first state
             u->Tics = 30;
             return true;
@@ -1220,12 +1220,13 @@ int DoRipper2Pain(DSWActor* actor)
 
 int DoRipper2RipHeart(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
     SPRITEp tsp = u->tgt_sp();
 
-    NewStateGroup_(SpriteNum, sg_Ripper2Heart);
+    NewStateGroup(actor, sg_Ripper2Heart);
     u->WaitTics = 6 * 120;
 
     // player face ripper2
@@ -1245,7 +1246,7 @@ int DoRipper2StandHeart(DSWActor* actor)
         PlaySound(DIGI_RIPPER2HEARTOUT, sp, v3df_none, CHAN_RipHeart);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup_(SpriteNum, sg_Ripper2Run);
+        NewStateGroup(actor, sg_Ripper2Run);
     return 0;
 }
 
@@ -1358,7 +1359,7 @@ int InitRipper2Charge(DSWActor* actor)
 
     InitActorMoveCloser(actor);
 
-    NewStateGroup_(SpriteNum, sg_Ripper2RunFast);
+    NewStateGroup(actor, sg_Ripper2RunFast);
 
     return 0;
 }

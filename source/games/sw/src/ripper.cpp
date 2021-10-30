@@ -981,7 +981,7 @@ InitRipperHang(DSWActor* actor)
         return 0;
     }
 
-    NewStateGroup_(SpriteNum, sg_RipperHangJump);
+    NewStateGroup(actor, sg_RipperHangJump);
     u->StateFallOverride = sg_RipperHangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -1008,7 +1008,7 @@ DoRipperHang(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
-    NewStateGroup_(SpriteNum, sg_RipperJumpAttack);
+    NewStateGroup(actor, sg_RipperJumpAttack);
     // move to the 2nd frame - past the pause frame
     u->Tics += u->State->Tics;
     return 0;
@@ -1038,7 +1038,7 @@ DoRipperMoveHang(DSWActor* actor)
 
             hit_wall = NORM_WALL(u->ret);
 
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Special[1]);
+            NewStateGroup(actor, u->ActorActionSet->Special[1]);
             u->WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
@@ -1167,7 +1167,7 @@ DoRipperQuickJump(DSWActor* actor)
 
         if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            NewStateGroup_(SpriteNum, sg_RipperJumpAttack);
+            NewStateGroup(actor, sg_RipperJumpAttack);
             // move past the first state
             u->Tics = 30;
             return true;
@@ -1211,12 +1211,13 @@ int DoRipperPain(DSWActor* actor)
 int DoRipperRipHeart(short SpriteNum)
 // CTW MODIFICATION END
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
     SPRITEp tsp = u->tgt_sp();
 
-    NewStateGroup_(SpriteNum, sg_RipperHeart);
+    NewStateGroup(actor, sg_RipperHeart);
     u->WaitTics = 6 * 120;
 
     // player face ripper
@@ -1234,7 +1235,7 @@ int DoRipperStandHeart(DSWActor* actor)
     NullRipper(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup_(SpriteNum, sg_RipperRun);
+        NewStateGroup(actor, sg_RipperRun);
     return 0;
 }
 

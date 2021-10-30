@@ -2018,9 +2018,9 @@ DoNinjaMove(DSWActor* actor)
     if (TEST(u->Flags2, SPR2_DYING))
     {
         if (sw_ninjahack)
-            NewStateGroup_(SpriteNum, sg_NinjaHariKari);
+            NewStateGroup(actor, sg_NinjaHariKari);
         else
-            NewStateGroup_(SpriteNum, sg_NinjaGrabThroat);
+            NewStateGroup(actor, sg_NinjaGrabThroat);
         return 0;
     }
 
@@ -2120,9 +2120,9 @@ int DoNinjaPain(DSWActor* actor)
     if (TEST(u->Flags2, SPR2_DYING))
     {
         if (sw_ninjahack)
-            NewStateGroup_(SpriteNum, sg_NinjaHariKari);
+            NewStateGroup(actor, sg_NinjaHariKari);
         else
-            NewStateGroup_(SpriteNum, sg_NinjaGrabThroat);
+            NewStateGroup(actor, sg_NinjaGrabThroat);
         return 0;
     }
 

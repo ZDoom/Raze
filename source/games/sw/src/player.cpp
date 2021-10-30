@@ -6818,7 +6818,7 @@ PlayerStateControl(int16_t SpriteNum)
 
         if (!u->State->Pic)
         {
-            NewStateGroup_(SpriteNum, (STATEp *) u->State->NextState);
+            NewStateGroup(actor, (STATEp *) u->State->NextState);
         }
     }
 

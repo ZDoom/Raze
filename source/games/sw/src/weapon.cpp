@@ -5259,6 +5259,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 int
 ActorHealth(short SpriteNum, short amt)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     extern int FinishAnim;
@@ -5349,9 +5350,9 @@ ActorHealth(short SpriteNum, short amt)
                     sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
                     RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
                     if (sw_ninjahack)
-                        NewStateGroup_(SpriteNum, sg_NinjaHariKari);
+                        NewStateGroup(actor, sg_NinjaHariKari);
                         else
-                    NewStateGroup_(SpriteNum, sg_NinjaGrabThroat);
+                    NewStateGroup(actor, sg_NinjaGrabThroat);
                 }
                 break;
             }
@@ -5411,6 +5412,7 @@ SopCheckKill(SECTOR_OBJECTp sop)
 int
 ActorPain(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
     //if (u->LastDamage < u->PainThreshold)  // This doesn't work well at all because of
@@ -5436,7 +5438,7 @@ ActorPain(short SpriteNum)
         {
             ActorLeaveTrack(SpriteNum);
             u->WaitTics = 60;
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Pain);
+            NewStateGroup(actor, u->ActorActionSet->Pain);
             return true;
         }
     }
@@ -5455,7 +5457,7 @@ ActorPainPlasma(short SpriteNum)
         if (u->ActorActionSet && u->ActorActionSet->Pain)
         {
             u->WaitTics = PLASMA_FOUNTAIN_TIME;
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Pain);
+            NewStateGroup(actor, u->ActorActionSet->Pain);
             return true;
         }
         else
@@ -12724,7 +12726,7 @@ InitSpellRing(PLAYERp pp)
         u->floor_dist = Z(10);
 
         //u->RotNum = 5;
-        //NewStateGroup_(SpriteNum, &sg_Ring);
+        //NewStateGroup(actor, &sg_Ring);
         //SET(u->Flags, SPR_XFLIP_TOGGLE);
 
         // put it out there

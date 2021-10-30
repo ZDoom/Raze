@@ -554,7 +554,7 @@ int DoActorOperate(DSWActor* actor)
             {
                 u->WaitTics = 2 * 120;
 
-                NewStateGroup_(SpriteNum, u->ActorActionSet->Stand);
+                NewStateGroup(actor, u->ActorActionSet->Stand);
             }
         }
 #endif
@@ -567,7 +567,7 @@ int DoActorOperate(DSWActor* actor)
         {
             u->WaitTics = 2 * 120;
 
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Sit);
+            NewStateGroup(actor, u->ActorActionSet->Sit);
         }
     }
 
@@ -577,7 +577,7 @@ int DoActorOperate(DSWActor* actor)
         {
             u->WaitTics = 2 * 120;
 
-            NewStateGroup_(SpriteNum, u->ActorActionSet->Stand);
+            NewStateGroup(actor, u->ActorActionSet->Stand);
         }
     }
     return true;
@@ -843,7 +843,7 @@ int DoActorDecide(DSWActor* actor)
     else
     {
         // Actually staying put
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Stand);
+        NewStateGroup(actor, u->ActorActionSet->Stand);
         //CON_Message("DoActorDecide: Staying put");
     }
 
@@ -971,7 +971,7 @@ int InitActorMoveCloser(DSWActor* actor)
     u->ActorActionFunc = DoActorMoveCloser;
 
     if (u->Rot != u->ActorActionSet->Run)
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+        NewStateGroup(actor, u->ActorActionSet->Run);
 
     (*u->ActorActionFunc)(actor);
 
@@ -996,7 +996,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
         SET(u->Flags, SPR_FIND_PLAYER);
 
         u->ActorActionFunc = DoActorDecide;
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+        NewStateGroup(actor, u->ActorActionSet->Run);
         //MONO_PRINT("Trying to get to the track point\n");
     }
     else
@@ -1262,7 +1262,7 @@ int InitActorRunAway(DSWActor* actor)
     //MONO_PRINT("Init Actor RunAway\n");
 
     u->ActorActionFunc = DoActorDecide;
-    NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+    NewStateGroup(actor, u->ActorActionSet->Run);
 
     u->track = FindTrackAwayFromPlayer(actor);
 
@@ -1292,7 +1292,7 @@ int InitActorRunToward(DSWActor* actor)
     //MONO_PRINT("InitActorRunToward\n");
 
     u->ActorActionFunc = DoActorDecide;
-    NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+    NewStateGroup(actor, u->ActorActionSet->Run);
 
     InitActorReposition(actor);
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -1357,7 +1357,7 @@ int InitActorAttack(DSWActor* actor)
     u->ActorActionFunc = DoActorAttack;
 
     // move into standing frame
-    //NewStateGroup_(SpriteNum, u->ActorActionSet->Stand);
+    //NewStateGroup(actor, u->ActorActionSet->Stand);
 
     // face player when attacking
     sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));
@@ -1397,7 +1397,7 @@ int InitActorAttack(DSWActor* actor)
             if (CHOOSE2(100))
             {
                 u->ActorActionFunc = DoActorDecide;
-                NewStateGroup_(SpriteNum, u->ActorActionSet->Death2);
+                NewStateGroup(actor, u->ActorActionSet->Death2);
                 return 0;
             }
         }
@@ -1428,7 +1428,7 @@ int DoActorAttack(DSWActor* actor)
     {
         rand_num = ChooseActionNumber(u->ActorActionSet->CloseAttackPercent);
 
-        NewStateGroup_(SpriteNum, u->ActorActionSet->CloseAttack[rand_num]);
+        NewStateGroup(actor, u->ActorActionSet->CloseAttack[rand_num]);
     }
     else
     {
@@ -1438,7 +1438,7 @@ int DoActorAttack(DSWActor* actor)
 
         ASSERT(rand_num < u->WeaponNum);
 
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Attack[rand_num]);
+        NewStateGroup(actor, u->ActorActionSet->Attack[rand_num]);
         u->ActorActionFunc = DoActorDecide;
     }
 
@@ -1460,7 +1460,7 @@ int InitActorEvade(DSWActor* actor)
     // you stop and take up the fight again.
 
     u->ActorActionFunc = DoActorDecide;
-    NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+    NewStateGroup(actor, u->ActorActionSet->Run);
 
     u->track = FindTrackAwayFromPlayer(actor);
 
@@ -1485,7 +1485,7 @@ int InitActorWanderAround(DSWActor* actor)
     //MONO_PRINT(ds);
 
     u->ActorActionFunc = DoActorDecide;
-    NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+    NewStateGroup(actor, u->ActorActionSet->Run);
 
     DoActorPickClosePlayer(actor);
 
@@ -1511,7 +1511,7 @@ int InitActorFindPlayer(DSWActor* actor)
     //MONO_PRINT(ds);
 
     u->ActorActionFunc = DoActorDecide;
-    NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+    NewStateGroup(actor, u->ActorActionSet->Run);
 
     u->track = FindTrackToPlayer(actor);
 
@@ -1522,7 +1522,7 @@ int InitActorFindPlayer(DSWActor* actor)
         SET(u->Flags, SPR_FIND_PLAYER);
 
         u->ActorActionFunc = DoActorDecide;
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+        NewStateGroup(actor, u->ActorActionSet->Run);
     }
     else
     {
@@ -1549,7 +1549,7 @@ int InitActorDuck(DSWActor* actor)
     }
 
     u->ActorActionFunc = DoActorDuck;
-    NewStateGroup_(SpriteNum, u->ActorActionSet->Duck);
+    NewStateGroup(actor, u->ActorActionSet->Duck);
 
     dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
 
@@ -1576,7 +1576,7 @@ int DoActorDuck(DSWActor* actor)
 
     if ((u->WaitTics -= ACTORMOVETICS) < 0)
     {
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Rise);
+        NewStateGroup(actor, u->ActorActionSet->Rise);
         u->ActorActionFunc = DoActorDecide;
         // InitActorDecide(SpriteNum);
         RESET(u->Flags, SPR_TARGETED);
@@ -1914,7 +1914,7 @@ int InitActorReposition(DSWActor* actor)
 
     u->ActorActionFunc = DoActorReposition;
     if (!TEST(u->Flags, SPR_SWIMMING))
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+        NewStateGroup(actor, u->ActorActionSet->Run);
 
     (*u->ActorActionFunc)(actor);
 
@@ -1961,7 +1961,7 @@ int InitActorPause(DSWActor* actor)
 
     // !JIM! This makes actors not animate
     //if (!TEST(u->Flags, SPR_SWIMMING))
-    //NewStateGroup_(SpriteNum, u->ActorActionSet->Stand);
+    //NewStateGroup(actor, u->ActorActionSet->Stand);
 
     (*u->ActorActionFunc)(actor);
 

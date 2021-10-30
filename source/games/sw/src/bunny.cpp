@@ -1089,7 +1089,7 @@ DoBunnyQuickJump(DSWActor* actor)
                 u->Vis = sp->ang;  // Remember angles for later
                 tu->Vis = tsp->ang;
 
-                NewStateGroup_(SpriteNum, sg_BunnyScrew);
+                NewStateGroup(actor, sg_BunnyScrew);
                 NewStateGroup_(hit_sprite, sg_BunnyScrew);
                 u->WaitTics = tu->WaitTics = SEC(10);  // Mate for this long
                 return true;
@@ -1148,7 +1148,7 @@ int DoBunnyRipHeart(DSWActor* actor)
 
     SPRITEp tsp = u->tgt_sp();
 
-    NewStateGroup_(SpriteNum, sg_BunnyHeart);
+    NewStateGroup(actor, sg_BunnyHeart);
     u->WaitTics = 6 * 120;
 
     // player face bunny
@@ -1169,7 +1169,7 @@ int DoBunnyStandKill(DSWActor* actor)
         PlaySound(DIGI_BUNNYATTACK, sp, v3df_none);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup_(SpriteNum, sg_BunnyRun);
+        NewStateGroup(actor, sg_BunnyRun);
     return 0;
 }
 

@@ -565,7 +565,7 @@ DoEelDeath(DSWActor* actor)
             SET(sp->cstat, CSTAT_SPRITE_XFLIP);
         if (RandomRange(1000) > 500)
             SET(sp->cstat, CSTAT_SPRITE_YFLIP);
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Dead);
+        NewStateGroup(actor, u->ActorActionSet->Dead);
         return 0;
     }
 
@@ -580,7 +580,7 @@ int DoEelMove(DSWActor* actor)
     ASSERT(u->Rot != nullptr);
 
     if (SpriteOverlap(SpriteNum, int16_t(u->tgt_sp() - sprite)))
-        NewStateGroup_(SpriteNum, u->ActorActionSet->CloseAttack[0]);
+        NewStateGroup(actor, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);

@@ -431,7 +431,7 @@ int InitHornetCircle(DSWActor* actor)
 
     u->ActorActionFunc = DoHornetCircle;
 
-    NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
+    NewStateGroup(actor, u->ActorActionSet->Run);
 
     // set it close
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -546,7 +546,7 @@ DoHornetDeath(DSWActor* actor)
     {
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
         RESET(sp->cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
-        NewStateGroup_(SpriteNum, u->ActorActionSet->Dead);
+        NewStateGroup(actor, u->ActorActionSet->Dead);
         DeleteNoSoundOwner(SpriteNum);
         return 0;
     }
