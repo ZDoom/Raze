@@ -229,6 +229,11 @@ inline int PIC_SIZY(int sn)
 	return tileHeight(sprite[sn].picnum); 
 }
 
+inline int PIC_SIZY(spritetype* sp)
+{
+    return tileHeight(sp->picnum);
+}
+
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
 // that uses this macro
 inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty, int& tmin)

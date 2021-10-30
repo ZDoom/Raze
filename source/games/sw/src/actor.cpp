@@ -626,7 +626,6 @@ int DoActorBeginSlide(DSWActor* actor, short ang, short vel, short dec)
 int DoActorSlide(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     int nx, ny;
 
     nx = MulScale(u->slide_vel, bcos(u->slide_ang), 14);
@@ -653,7 +652,6 @@ int DoActorSlide(DSWActor* actor)
 int DoActorBeginJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -683,7 +681,6 @@ int DoActorBeginJump(DSWActor* actor)
 int DoActorJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
 
     int jump_adj;
@@ -707,10 +704,10 @@ int DoActorJump(DSWActor* actor)
     sp->z += u->jump_speed * ACTORMOVETICS;
 
     // if player gets to close the ceiling while jumping
-    if (sp->z < u->hiz + Z(PIC_SIZY(SpriteNum)))
+    if (sp->z < u->hiz + Z(PIC_SIZY(sp)))
     {
         // put player at the ceiling
-        sp->z = u->hiz + Z(PIC_SIZY(SpriteNum));
+        sp->z = u->hiz + Z(PIC_SIZY(sp));
 
         // reverse your speed to falling
         u->jump_speed = -u->jump_speed;
@@ -779,7 +776,6 @@ int DoActorFall(DSWActor* actor)
 int DoActorStopFall(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
 
     sp->z = u->loz;
@@ -794,9 +790,6 @@ int DoActorStopFall(DSWActor* actor)
         //sp->ang = NORM_ANGLE(sp->ang + (RANDOM_P2(64<<8)>>8) - 32);
         sp->ang = NORM_ANGLE(sp->ang + 1024 + (RANDOM_P2(512<<8)>>8));
         u->jump_speed = -350;
-
-        //DSPRINTF(ds,"StopFall: sp_num %d, sp->picnum %d, lo_num %d, lo_sp->picnum %d",SpriteNum, sp->picnum, u->lo_sp - sprite, u->lo_sp->picnum);
-        MONO_PRINT(ds);
 
         DoActorBeginJump(actor);
         return 0;
@@ -876,7 +869,6 @@ int DoJump(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    int SpriteNum = actor->GetSpriteIndex();
 
     int jump_adj;
 
@@ -896,10 +888,10 @@ int DoJump(DSWActor* actor)
     sp->z += u->jump_speed * ACTORMOVETICS;
 
     // if player gets to close the ceiling while jumping
-    if (sp->z < u->hiz + Z(PIC_SIZY(SpriteNum)))
+    if (sp->z < u->hiz + Z(PIC_SIZY(sp)))
     {
         // put player at the ceiling
-        sp->z = u->hiz + Z(PIC_SIZY(SpriteNum));
+        sp->z = u->hiz + Z(PIC_SIZY(sp));
 
         // reverse your speed to falling
         u->jump_speed = -u->jump_speed;
