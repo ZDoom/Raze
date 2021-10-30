@@ -6957,11 +6957,10 @@ int pushmove_sprite(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     short sectnum, ret;
-    int daz;
 
-    daz = sp->z - u->zclip;
+    sp->z -= u->zclip;
     sectnum = sp->sectnum;
-    ret = pushmove_old(&sp->x, &sp->y, &daz, &sectnum,
+    ret = pushmove(&sp->pos, &sectnum,
                    (((int)sp->clipdist)<<2)-GETZRANGE_CLIP_ADJ, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR);
 
     if (sectnum != sp->sectnum && sectnum >= 0)
@@ -6973,7 +6972,7 @@ int pushmove_sprite(short SpriteNum)
         MONO_PRINT(ds);
     }
 
-    sp->z = daz + u->zclip;
+    sp->z += u->zclip;
     return 0;
 }
 
