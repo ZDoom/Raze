@@ -2424,7 +2424,9 @@ DoPlayerMoveBoat(PLAYERp pp)
     pp->cursectnum = pp->sop->op_main_sector; // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
-    clipmove_old(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+    vec3_t clippos = { pp->posx, pp->posy, z };
+    clipmove_old(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+    pp->pos.vec2 = clippos.vec2;
 
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
@@ -2894,9 +2896,15 @@ DoPlayerMoveVehicle(PLAYERp pp)
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
-            u->ret = clipmove_old(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+        {
+            vec3_t clippos = { pp->posx, pp->posy, z };
+            u->ret = clipmove(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+            pp->pos.vec2 = clippos.vec2;
+        }
         else
+        {
             u->ret = MultiClipMove(pp, z, floor_dist);
+        }
         pp->SpriteP->cstat = save_cstat;
 
         //SetupDriveCrush(pp, x, y);

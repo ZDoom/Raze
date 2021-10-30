@@ -6828,7 +6828,6 @@ SpriteControl(void)
 int
 move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    int daz;
     int retval=0, zh;
     short dasectnum, tempshort;
     SPRITEp spr;
@@ -6839,13 +6838,11 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
 
     ASSERT(u);
 
+    vec3_t clippos = spr->pos;
+
     // Can't modify sprite sectors
     // directly becuase of linked lists
     dasectnum = lastsectnum = spr->sectnum;
-
-    // Must do this if not using the new
-    // centered centering (of course)
-    daz = spr->z;
 
     if (TEST(spr->cstat, CSTAT_SPRITE_YCENTER))
     {
@@ -6855,16 +6852,17 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     {
         // move the center point up for moving
         zh = u->zclip;
-        daz -= zh;
+        clippos.z -= zh;
     }
 
 
 //    ASSERT(inside(spr->x,spr->y,dasectnum));
 
     clipmoveboxtracenum = 1;
-    retval = clipmove_old(&spr->x, &spr->y, &daz, &dasectnum,
+    retval = clipmove(&clippos, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) spr->clipdist) << 2), ceildist, flordist, cliptype);
+    spr->pos.vec2 = clippos.vec2;
     clipmoveboxtracenum = 3;
 
     //if (TEST(retval, HIT_MASK) == HIT_WALL)
@@ -6905,16 +6903,16 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     // Takes info from global variables
     DoActorGlobZ(spritenum);
 
-    daz = spr->z + ((zchange * numtics) >> 3);
+    clippos.z = spr->z + ((zchange * numtics) >> 3);
 
     // test for hitting ceiling or floor
-    if ((daz - zh <= globhiz) || (daz - zh > globloz))
+    if ((clippos.z - zh <= globhiz) || (clippos.z - zh > globloz))
     {
         if (retval == 0)
         {
             if (TEST(u->Flags, SPR_CLIMBING))
             {
-                spr->z = daz;
+                spr->z = clippos.z;
                 return 0;
             }
 
@@ -6923,7 +6921,7 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     }
     else
     {
-        spr->z = daz;
+        spr->z = clippos.z;
     }
 
     // extra processing for Stacks and warping
@@ -7076,7 +7074,6 @@ MissileZrange(short SpriteNum)
 int
 move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    int daz;
     int retval, zh;
     short dasectnum, tempshort;
     SPRITEp sp;
@@ -7087,13 +7084,11 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
 
     ASSERT(u);
 
-    // Can't modify sprite sectors
-    // directly becuase of linked lists
-    dasectnum = lastsectnum = sp->sectnum;
+    vec3_t clippos = sp->pos;
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
-    daz = sp->z;
+    dasectnum = lastsectnum = sp->sectnum;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YCENTER))
     {
@@ -7102,15 +7097,16 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
     else
     {
         zh = u->zclip;
-        daz -= zh;
+        clippos.z -= zh;
     }
 
 
 //    ASSERT(inside(sp->x,sp->y,dasectnum));
     clipmoveboxtracenum = 1;
-    retval = clipmove_old(&sp->x, &sp->y, &daz, &dasectnum,
+    retval = clipmove(&clippos, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) sp->clipdist) << 2), ceildist, flordist, cliptype);
+    sp->pos.vec2 = clippos.vec2;
     clipmoveboxtracenum = 3;
 
     if (dasectnum < 0)
@@ -7143,20 +7139,20 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
     // missiles don't need the water to be down
     MissileWaterAdjust(spritenum);
 
-    daz = sp->z + ((zchange * numtics) >> 3);
+    clippos.z = sp->z + ((zchange * numtics) >> 3);
 
     // NOTE: this does not tell you when you hit a floor sprite
     // this case is currently treated like it hit a sector
 
     // test for hitting ceiling or floor
-    if (daz - zh <= u->hiz + ceildist)
+    if (clippos.z - zh <= u->hiz + ceildist)
     {
         // normal code
         sp->z = u->hiz + zh + ceildist;
         if (retval == 0)
             retval = dasectnum|HIT_SECTOR;
     }
-    else if (daz - zh > u->loz - flordist)
+    else if (clippos.z - zh > u->loz - flordist)
     {
         sp->z = u->loz + zh - flordist;
         if (retval == 0)
@@ -7164,7 +7160,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
     }
     else
     {
-        sp->z = daz;
+        sp->z = clippos.z;
     }
 
     if (FAF_ConnectArea(sp->sectnum))
@@ -7231,6 +7227,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     // directly becuase of linked lists
     dasectnum = lastsectnum = sp->sectnum;
 
+    vec3_t opos = sp->pos;
     daz = sp->z;
 
     // climbing a wall
@@ -7253,8 +7250,6 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
             u->z_tgt = 0;
     }
 
-    ox = sp->x;
-    oy = sp->y;
     sp->x += xchange/2;
     sp->y += ychange/2;
 
@@ -7264,12 +7259,13 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     {
         // back up and try again
         dasectnum = lastsectnum = sp->sectnum;
-        sp->x = ox;
-        sp->y = oy;
+        opos = sp->pos;
+        opos.z = daz;
         clipmoveboxtracenum = 1;
-        retval = clipmove_old(&sp->x, &sp->y, &daz, &dasectnum,
+        retval = clipmove(&opos, &dasectnum,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                           (((int) sp->clipdist) << 2), ceildist, flordist, cliptype);
+        sp->pos.vec2 = opos.vec2;
         clipmoveboxtracenum = 3;
     }
 

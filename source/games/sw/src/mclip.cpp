@@ -41,7 +41,7 @@ BEGIN_SW_NS
 int MultiClipMove(PLAYERp pp, int z, int floor_dist)
 {
     int i;
-    int ox[MAX_CLIPBOX],oy[MAX_CLIPBOX];
+    vec3_t opos[MAX_CLIPBOX], pos[MAX_CLIPBOX];
     SECTOR_OBJECTp sop = pp->sop;
     short ang;
     short min_ndx = 0;
@@ -51,10 +51,8 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
     int ret_start;
     int ret;
     int min_ret=0;
-    int x[MAX_CLIPBOX],y[MAX_CLIPBOX];
 
     int xvect,yvect;
-    int xs,ys;
 
     for (i = 0; i < sop->clipbox_num; i++)
     {
@@ -62,13 +60,12 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
         // allowing you to move through wall
         ang = NORM_ANGLE(pp->angle.ang.asbuild() + sop->clipbox_ang[i]);
 
-        xs = pp->posx;
-        ys = pp->posy;
+        vec3_t spos = { pp->posx, pp->posy, z };
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
         clipmoveboxtracenum = 1;
-        ret_start = clipmove_old(&xs, &ys, &z, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret_start = clipmove(&spos, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
         clipmoveboxtracenum = 3;
 
         if (ret_start)
@@ -77,15 +74,15 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            ox[i] = x[i] = pp->posx + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
-            oy[i] = y[i] = pp->posy + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
+            opos[i].x = pos[i].x = pp->posx + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
+            opos[i].y = pos[i].y = pp->posy + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
 
-            // xs is where it hit
-            x[i] = xs;
-            y[i] = ys;
+            // spos.x is where it hit
+            pos[i].x = spos.x;
+            pos[i].y = spos.y;
 
             // see the dist moved
-            dist = ksqrt(SQ(x[i] - ox[i]) + SQ(y[i] - oy[i]));
+            dist = ksqrt(SQ(pos[i].x - opos[i].x) + SQ(pos[i].y - opos[i].y));
 
             // save it off
             if (dist < min_dist)
@@ -98,14 +95,14 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
         else
         {
             // save off the start position
-            ox[i] = x[i] = xs;
-            oy[i] = y[i] = ys;
+            opos[i] = pos[i] = spos;
+            pos[i].z = z;
 
             // move the box
-            ret = clipmove_old(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+            ret = clipmove(&pos[i], &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
             // save the dist moved
-            dist = ksqrt(SQ(x[i] - ox[i]) + SQ(y[i] - oy[i]));
+            dist = ksqrt(SQ(pos[i].x - opos[i].x) + SQ(pos[i].y - opos[i].y));
 
             if (ret)
             {
@@ -121,8 +118,8 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
     }
 
     // put posx and y off from offset
-    pp->posx += x[min_ndx] - ox[min_ndx];
-    pp->posy += y[min_ndx] - oy[min_ndx];
+    pp->posx += pos[min_ndx].x - opos[min_ndx].x;
+    pp->posy += pos[min_ndx].y - opos[min_ndx].y;
 
     return min_ret;
 }
@@ -141,14 +138,13 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
     {
         ang = NORM_ANGLE(new_ang + sop->clipbox_ang[i]);
 
-        x = pp->posx;
-        y = pp->posy;
+        vec3_t pos = { pp->posx, pp->posy, z };
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
 
         // move the box
-        ret = clipmove_old(&x, &y, &z, &cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret = clipmove(&pos, &cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
         ASSERT(cursectnum >= 0);
 

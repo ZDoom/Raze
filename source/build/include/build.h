@@ -627,23 +627,6 @@ static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
     return enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? (int32_t)val : val;
 }
 
-static inline int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2,3,4)));
-
-static inline int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype)
-{
-    vec3_t vector = { *x, *y, *z };
-
-    int32_t result = clipmove(&vector, sectnum, xvect, yvect, walldist, ceildist, flordist, cliptype);
-
-    *x = vector.x;
-    *y = vector.y;
-    *z = vector.z;
-
-    return result;
-}
-
 static inline int32_t pushmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t walldist,
                    int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2,3,4)));
 
