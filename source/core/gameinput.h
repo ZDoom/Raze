@@ -47,7 +47,7 @@ struct PlayerHorizon
 	// Input locking helpers.
 	void lockinput() { inputdisabled = true; }
 	void unlockinput() { inputdisabled = false; }
-	bool movementlocked() {	return target.asq16() || inputdisabled;	}
+	bool movementlocked() {	return targetset() || inputdisabled; }
 
 	// Draw code helpers.
 	double horizsumfrac(double const smoothratio) { return (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); }
@@ -151,7 +151,7 @@ struct PlayerAngle
 	// Input locking helpers.
 	void lockinput() { inputdisabled = true; }
 	void unlockinput() { inputdisabled = false; }
-	bool movementlocked() { return target.asq16() || inputdisabled; }
+	bool movementlocked() { return targetset() || inputdisabled; }
 
 	// Draw code helpers.
 	double look_anghalf(double const smoothratio) { return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; }
