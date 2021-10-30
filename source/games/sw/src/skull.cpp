@@ -359,7 +359,7 @@ DoSkullBeginDeath(DSWActor* actor)
     sp->shade = -40;
 
     SpawnLittleExp(SpriteNum);
-    SetSuicide(SpriteNum);
+    SetSuicide(actor);
 
     //u->spal = sp->pal = PALETTE_RED_LIGHTING;
 
@@ -775,7 +775,7 @@ DoBettyBeginDeath(DSWActor* actor)
     sp->shade = -40;
 
     SpawnLittleExp(SpriteNum);
-    SetSuicide(SpriteNum);
+    SetSuicide(actor);
 
     //u->spal = sp->pal = PALETTE_RED_LIGHTING;
 

@@ -778,7 +778,7 @@ KillSprite(int16_t SpriteNum)
 
         if (u->flame >= 0)
         {
-            SetSuicide(u->flame);
+            SetSuicide(&swActors[u->flame]);
         }
         User[SpriteNum].Clear();
     }
@@ -5014,7 +5014,7 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
 
     if (florhit < 0 || ceilhit < 0)
     {
-        //SetSuicide(SpriteNum);
+        //SetSuicide(actor);
         return true;
     }
 

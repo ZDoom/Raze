@@ -3565,7 +3565,7 @@ AutoShrap:
         p = StoneShrap;
         shrap_xsize = shrap_ysize = 4;
         shrap_bounce = true;
-        SetSuicide(short(parent - sprite)); // kill next iteration
+        SetSuicide(parentActor); // kill next iteration
         break;
     case BOLT_EXP:
         return false;
@@ -4431,8 +4431,9 @@ VehicleMoveHit(short SpriteNum)
 bool
 WeaponMoveHit(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
 
     if (!u->ret)
@@ -4441,7 +4442,7 @@ WeaponMoveHit(short SpriteNum)
     switch (TEST(u->ret, HIT_MASK))
     {
     case HIT_PLAX_WALL:
-        SetSuicide(SpriteNum);
+        SetSuicide(actor);
         return true;
 
     case HIT_SECTOR:
@@ -4476,7 +4477,7 @@ WeaponMoveHit(short SpriteNum)
             if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
             {
                 SpawnSplash(SpriteNum);
-                //SetSuicide(SpriteNum);
+                //SetSuicide(actor);
                 return true;
             }
 
@@ -4512,7 +4513,7 @@ WeaponMoveHit(short SpriteNum)
         {
             if (labs(sp->z - sectp->ceilingz) < SPRITEp_SIZE_Z(sp))
             {
-                SetSuicide(SpriteNum);
+                SetSuicide(actor);
                 return true;
             }
         }
@@ -4894,10 +4895,8 @@ DoBreakFlames(DSWActor* actor)
     return 0;
 }
 
-int
-SetSuicide(short SpriteNum)
+int SetSuicide(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
 
     if (u != nullptr)
@@ -5074,7 +5073,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
             PlaySound(DIGI_TOILETGIRLSCREAM, sp, v3df_none);
         }
         if (SpawnShrap(actor, weapActor))
-            SetSuicide(SpriteNum);
+            SetSuicide(actor);
         break;
     }
 
@@ -5083,7 +5082,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
         InitBloodSpray(SpriteNum,true,105);
         InitBloodSpray(SpriteNum,true,105);
         if (SpawnShrap(actor, weapActor))
-            SetSuicide(SpriteNum);
+            SetSuicide(actor);
         break;
 
     default:
@@ -5153,7 +5152,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
                 if (SpawnShrap(actor, weapActor))
                 {
-                    SetSuicide(SpriteNum);
+                    SetSuicide(actor);
                 }
                 else
                     DoActorDie(actor, weapActor, 0);
@@ -5163,7 +5162,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 #if 0
         case PLASMA_FOUNTAIN:
             if (SpawnShrap(SpriteNum, Weapon))
-                SetSuicide(SpriteNum);
+                SetSuicide(actor);
             else
                 DoActorDie(actor, weapActor, 0);
             break;
@@ -5237,7 +5236,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
                 if (SpawnShrap(actor, weapActor))
                 {
-                    SetSuicide(SpriteNum);
+                    SetSuicide(actor);
                 }
                 else
                     DoActorDie(actor, weapActor, 0);
@@ -5928,7 +5927,7 @@ DoDamage(short SpriteNum, short Weapon)
                         PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
                     }
                     SpawnShrap(actor, weapActor);
-                    SetSuicide(SpriteNum);
+                    SetSuicide(actor);
                     return 0;
                 }
             }
@@ -6331,7 +6330,7 @@ DoDamage(short SpriteNum, short Weapon)
         StarBlood(SpriteNum, Weapon);
 
         wu->ID = 0;
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case SPEAR_R0:
@@ -6364,7 +6363,7 @@ DoDamage(short SpriteNum, short Weapon)
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         wu->ID = 0;
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case LAVA_BOULDER:
@@ -6395,7 +6394,7 @@ DoDamage(short SpriteNum, short Weapon)
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         wu->ID = 0;
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case LAVA_SHARD:
@@ -6426,7 +6425,7 @@ DoDamage(short SpriteNum, short Weapon)
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         wu->ID = 0;
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case UZI_SMOKE:
@@ -6555,7 +6554,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorStdMissile(SpriteNum, Weapon);
         }
 
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case SERP_METEOR:
@@ -6582,7 +6581,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorStdMissile(SpriteNum, Weapon);
         }
 
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case BOLT_THINMAN_R0:
@@ -6611,7 +6610,7 @@ DoDamage(short SpriteNum, short Weapon)
             SpawnNuclearExp(Weapon);
         else
             SpawnBoltExp(Weapon);
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case BOLT_THINMAN_R1:
@@ -6656,7 +6655,7 @@ DoDamage(short SpriteNum, short Weapon)
 
         wu->ID = 0; // No more damage
         SpawnTracerExp(Weapon);
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case BOLT_THINMAN_R2:
@@ -6685,7 +6684,7 @@ DoDamage(short SpriteNum, short Weapon)
             SpawnNuclearExp(Weapon);
         else
             SpawnBoltExp(Weapon);
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case BOLT_THINMAN_R4:
@@ -6716,7 +6715,7 @@ DoDamage(short SpriteNum, short Weapon)
         //InitBloodSpray(Weapon,true,-1);
         //InitBloodSpray(Weapon,true,-1);
         //InitBloodSpray(Weapon,true,-1);
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case SUMO_RUN_R0:
@@ -7031,7 +7030,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case Vomit1:
@@ -7058,7 +7057,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case COOLG_FIRE:
@@ -7084,7 +7083,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
 
 //        u->ID = 0;
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     // Skull Exp
@@ -7153,7 +7152,7 @@ DoDamage(short SpriteNum, short Weapon)
         if (wp->owner >= 0) // For SerpGod Ring
             User[wp->owner]->Counter--;
         SpawnFireballFlames(Weapon, SpriteNum);
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case FIREBALL:
@@ -7186,7 +7185,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
 
         SpawnGoroFireballExp(Weapon);
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
     case FIREBALL_FLAMES:
@@ -7268,7 +7267,7 @@ DoDamage(short SpriteNum, short Weapon)
                 ActorHealth(SpriteNum, damage);
                 ActorStdMissile(SpriteNum, Weapon);
                 ActorChooseDeath(SpriteNum, Weapon);
-                SetSuicide(Weapon);
+                SetSuicide(weapActor);
                 break;
             }
             else if (u->ID == RIPPER_RUN_R0)
@@ -7282,7 +7281,7 @@ DoDamage(short SpriteNum, short Weapon)
 
         InitPlasmaFountain(wp, sp);
 
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
 
         break;
 
@@ -7312,7 +7311,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SetSuicide(Weapon);
+        SetSuicide(weapActor);
         break;
 
 #if 0
@@ -12235,6 +12234,7 @@ DoBloodWorm(DSWActor* actor)
             StatIterator it(STAT_ENEMY);
             while ((i = it.NextIndex()) >= 0)
             {
+                auto itActor = &swActors[i];
                 tsp = &sprite[i];
                 tu = User[i].Data();
 
@@ -12244,7 +12244,7 @@ DoBloodWorm(DSWActor* actor)
                 {
                     InitBloodSpray(i,true,105);
                     InitBloodSpray(i,true,105);
-                    SetSuicide(i);
+                    SetSuicide(itActor);
                     break;
                 }
             }

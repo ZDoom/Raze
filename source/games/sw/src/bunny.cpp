@@ -1005,7 +1005,7 @@ DoBunnyQuickJump(DSWActor* actor)
 
                 if (SpawnShrap(hitActor, actor))
                 {
-                    SetSuicide(hit_sprite);
+                    SetSuicide(hitActor);
                 }
                 else
                     DoActorDie(hitActor, actor, 0);
@@ -1225,7 +1225,7 @@ void BunnyHatch(short Weapon)
 
                 if (SpawnShrap(actor, actorNew))
                 {
-                    SetSuicide(Weapon);
+                    SetSuicide(actor);
                 }
                 else
                     DoActorDie(actor, actorNew, 0);
@@ -1336,7 +1336,7 @@ DoBunnyMove(DSWActor* actor)
 
     // Sometimes they just won't die!
     if (u->Health <= 0)
-        SetSuicide(SpriteNum);
+        SetSuicide(actor);
 
     if (u->scale_speed)
     {

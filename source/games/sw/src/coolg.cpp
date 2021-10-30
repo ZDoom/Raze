@@ -633,7 +633,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
         InitBloodSpray(SpriteNum, true, 105);
         InitBloodSpray(SpriteNum, true, 105);
         UpdateSinglePlayKills(actor);
-        SetSuicide(SpriteNum);
+        SetSuicide(actor);
     }
 
     // actor does a sine wave about u->sz - this is the z mid point

@@ -838,6 +838,7 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short ty
 
 int KillBreakSprite(short BreakSprite)
 {
+    auto breakActor = &swActors[BreakSprite];
     SPRITEp bp = &sprite[BreakSprite];
     USERp bu = User[BreakSprite].Data();
 
@@ -856,11 +857,11 @@ int KillBreakSprite(short BreakSprite)
             // a few things have users and are not StateControlled
             KillSprite(BreakSprite);
         else
-            SetSuicide(BreakSprite);
+            SetSuicide(breakActor);
     }
     else
     {
-        change_sprite_stat(BreakSprite, STAT_SUICIDE);
+        change_actor_stat(breakActor, STAT_SUICIDE);
     }
 
     return 0;

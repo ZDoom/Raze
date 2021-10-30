@@ -893,7 +893,7 @@ DoZombieMove(DSWActor* actor)
         InitBloodSpray(SpriteNum,true,105);
         InitBloodSpray(SpriteNum,true,105);
         InitBloodSpray(SpriteNum,true,105);
-        SetSuicide(SpriteNum);
+        SetSuicide(actor);
         return 0;
     }
 
@@ -944,7 +944,7 @@ NullZombie(DSWActor* actor)
         InitBloodSpray(SpriteNum,true,105);
         InitBloodSpray(SpriteNum,true,105);
         InitBloodSpray(SpriteNum,true,105);
-        SetSuicide(SpriteNum);
+        SetSuicide(actor);
         return 0;
     }
 

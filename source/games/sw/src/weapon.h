@@ -200,7 +200,7 @@ enum ShrapPos
     Z_BOT
 };
 
-int SetSuicide(short SpriteNum);
+int SetSuicide(DSWActor*);
 void UpdateSinglePlayKills(DSWActor* actor);
 int InitPlasmaFountain(SPRITEp wp, SPRITEp sp);
 int InitCoolgDrip(short SpriteNum);

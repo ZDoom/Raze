@@ -2647,7 +2647,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             UpdateSinglePlayKills(actor);
 
             if (SpawnShrap(actor, nullptr, -99))
-                SetSuicide(i);
+                SetSuicide(actor);
             else
                 KillSprite(i);
         }
@@ -2719,7 +2719,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
                 if (sp->statnum == STAT_ENEMY)
                 {
                     if (SpawnShrap(actor, nullptr, -99))
-                        SetSuicide(i);
+                        SetSuicide(actor);
                     else
                         KillSprite(i);
                 }
@@ -4915,7 +4915,7 @@ DoPlayerFireOutWater(PLAYERp pp)
     if (pp->WadeDepth > 20)
     {
         if (u->flame >= 0)
-            SetSuicide(u->flame);
+            SetSuicide(&swActors[u->flame]);
         u->flame = -2;
     }
 }
@@ -4929,7 +4929,7 @@ DoPlayerFireOutDeath(PLAYERp pp)
         return;
 
     if (u->flame >= 0)
-        SetSuicide(u->flame);
+        SetSuicide(&swActors[u->flame]);
 
     u->flame = -2;
 }

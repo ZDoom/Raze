@@ -2256,7 +2256,7 @@ DoCarryFlag(DSWActor* actor)
                         }
                     }
                 }
-                SetSuicide(Weapon);     // Kill the flag, you scored!
+                SetSuicide(actor);     // Kill the flag, you scored!
             }
         }
         else
@@ -2328,7 +2328,7 @@ DoCarryFlag(DSWActor* actor)
         break;
     case FLAG_DETONATE_STATE + 1:
         SpawnGrenadeExp(Weapon);
-        SetSuicide(Weapon);
+        SetSuicide(actor);
         return false;
         break;
     }
@@ -2368,7 +2368,7 @@ DoCarryFlagNoDet(DSWActor* actor)
     {
         if (u->FlagOwner >= 0)
             fu->WaitTics = 0;           // Tell it to respawn
-        SetSuicide(Weapon);
+        SetSuicide(actor);
         return false;
     }
 
@@ -2399,7 +2399,7 @@ DoCarryFlagNoDet(DSWActor* actor)
                 }
             }
         }
-        SetSuicide(Weapon);             // Kill the flag, you scored!
+        SetSuicide(actor);             // Kill the flag, you scored!
     }
 
     return false;

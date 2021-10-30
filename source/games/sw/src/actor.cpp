@@ -327,7 +327,6 @@ int DoActorSectorDamage(DSWActor* actor)
     SPRITEp sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
-    int SpriteNum = actor->GetSpriteIndex();
 
     if (u->Health <= 0)
         return false;
@@ -374,7 +373,7 @@ int DoActorSectorDamage(DSWActor* actor)
         if (SpawnShrap(actor, nullptr, WPN_NM_SECTOR_SQUISH))
         {
             UpdateSinglePlayKills(actor);
-            SetSuicide(SpriteNum);
+            SetSuicide(actor);
         }
         else
         {
