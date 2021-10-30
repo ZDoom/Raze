@@ -744,7 +744,7 @@ SetupBunny(short SpriteNum)
     Bunny_Count++;
     //if(Bunny_Count > 20)
     //    {
-    //    KillSprite(SpriteNum);
+    //    KillActor(actor);
     //    Bunny_Count--;
     //    return(0);
     //    }

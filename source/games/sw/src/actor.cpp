@@ -404,7 +404,6 @@ bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 int DoActorDebris(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
     SECTORp sectp = &sector[sp->sectnum];
     int nx, ny;
@@ -417,7 +416,7 @@ int DoActorDebris(DSWActor* actor)
     {
     case HORNET_RUN_R0:
     case BUNNY_RUN_R0:
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     case ZILLA_RUN_R0:
         getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);

@@ -537,8 +537,9 @@ int DoSlidorInstantClose(short SpriteNum)
 
 int DoSlidorMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     ROTATORp r;
     int old_pos;
     bool kill = false;
@@ -672,7 +673,7 @@ int DoSlidorMove(short SpriteNum)
     if (kill)
     {
         SetSlidorInactive(SpriteNum);
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 

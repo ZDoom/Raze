@@ -310,8 +310,9 @@ void DoRotatorStopInterp(short SpriteNum)
 
 int DoRotatorMove(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     ROTATORp r;
     short ndx,w,startwall,endwall;
     SPRITEp pivot = nullptr;
@@ -426,7 +427,7 @@ int DoRotatorMove(short SpriteNum)
     if (kill)
     {
         SetRotatorInactive(SpriteNum);
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 

@@ -619,8 +619,12 @@ SetAttach(short owner, short child)
     cu->Attach = owner;
 }
 
-void
-KillSprite(int16_t SpriteNum)
+void KillActor(DSWActor* actor)
+{
+    KillSprite(actor->GetSpriteIndex());
+}
+
+void KillSprite(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
@@ -1175,7 +1179,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1193,7 +1197,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1210,7 +1214,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1224,7 +1228,7 @@ ActorSpawn(SPRITEp sp)
     {
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1240,7 +1244,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1256,7 +1260,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1273,7 +1277,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1290,7 +1294,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1307,7 +1311,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1324,7 +1328,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1341,7 +1345,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1358,7 +1362,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1375,7 +1379,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1402,7 +1406,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1418,7 +1422,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1434,7 +1438,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1450,7 +1454,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1464,7 +1468,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1480,7 +1484,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1496,7 +1500,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1512,7 +1516,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1528,7 +1532,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1587,7 +1591,7 @@ ActorSpawn(SPRITEp sp)
 
         if (!ActorTestSpawn(sp))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return false;
         }
 
@@ -1736,10 +1740,9 @@ void PreMapCombineFloors(void)
 
     // get rid of the sprites used
     it.Reset(STAT_FAF);
-    int SpriteNum;
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
     }
     GlobalSectorList.Resize(sectliststart);
 }
@@ -1943,7 +1946,7 @@ SpriteSetup(void)
             {
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     continue;
                 }
             }
@@ -2053,18 +2056,18 @@ SpriteSetup(void)
                 {
                     sectu = GetSectUser(sp->sectnum);
                     sectu->depth_fixed = IntToFixed(sp->lotag);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                 }
                 else if (TEST(bit, SECTFX_OPERATIONAL))
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                 }
                 else if (TEST(bit, SECTFX_CURRENT))
                 {
                     sectu = GetSectUser(sp->sectnum);
                     sectu->speed = sp->lotag;
                     sectu->ang = sp->ang;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                 }
                 else if (TEST(bit, SECTFX_NO_RIDE))
                 {
@@ -2109,14 +2112,14 @@ SpriteSetup(void)
 
                     sectu->number = sp->lotag;
 
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
 
                 case SLIDE_SECTOR:
                     sectu = GetSectUser(sp->sectnum);
                     SET(sectu->flags, SECTFU_SLIDE_SECTOR);
                     sectu->speed = SP_TAG2(sp);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
 
                 case SECT_DAMAGE:
@@ -2125,7 +2128,7 @@ SpriteSetup(void)
                     if (TEST_BOOL1(sp))
                         SET(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR);
                     sectu->damage = sp->lotag;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -2135,7 +2138,7 @@ SpriteSetup(void)
                     pskybits_override = sp->lotag;
                     if (SP_TAG4(sp) > 2048)
                         parallaxyscale_override = SP_TAG4(sp);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -2149,7 +2152,7 @@ SpriteSetup(void)
                     sectu = GetSectUser(sp->sectnum);
 
                     SET(sectu->flags, SECTFU_DONT_COPY_PALETTE);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -2193,7 +2196,7 @@ SpriteSetup(void)
 
                     if (hitinfo.wall == -1)
                     {
-                        KillSprite(SpriteNum);
+                        KillActor(actor);
                         break;
                     }
 
@@ -2225,12 +2228,12 @@ SpriteSetup(void)
 
                     if (hitinfo.wall == -1)
                     {
-                        KillSprite(SpriteNum);
+                        KillActor(actor);
                         break;
                     }
 
                     SET(wall[hitinfo.wall].extra, WALLFX_DONT_STICK);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -2253,7 +2256,7 @@ SpriteSetup(void)
                     {
                         if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                         {
-                            KillSprite(SpriteNum);
+                            KillActor(actor);
                             break;
                         }
                     }
@@ -2868,7 +2871,7 @@ SpriteSetup(void)
                         change_actor_stat(actor, STAT_ST1);
                         break;
                     case MULTI_GAME_COMMBAT:
-                        KillSprite(SpriteNum);
+                        KillActor(actor);
                         break;
                     case MULTI_GAME_COOPERATIVE:
                         change_actor_stat(actor, STAT_ST1);
@@ -2967,7 +2970,7 @@ SpriteSetup(void)
                     SET(sector[sp->sectnum].extra, SECTFX_Z_ADJUST);
                     PlaxCeilGlobZadjust = SP_TAG2(sp);
                     PlaxFloorGlobZadjust = SP_TAG3(sp);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -3054,7 +3057,7 @@ SpriteSetup(void)
                 {
                     sectu = GetSectUser(sp->sectnum);
                     SET(sectu->flags, SECTFU_SO_DONT_BOB);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -3063,7 +3066,7 @@ SpriteSetup(void)
                     sectu = GetSectUser(sp->sectnum);
                     sectu->number = sp->lotag;
                     sectu->stag = SECT_LOCK_DOOR;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -3073,7 +3076,7 @@ SpriteSetup(void)
                     SET(sectu->flags, SECTFU_SO_SINK_DEST);
                     sectu->number = sp->lotag;  // acually the offset Z
                     // value
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -3081,7 +3084,7 @@ SpriteSetup(void)
                 {
                     sectu = GetSectUser(sp->sectnum);
                     SET(sectu->flags, SECTFU_SO_DONT_SINK);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -3090,7 +3093,7 @@ SpriteSetup(void)
                     sectu = GetSectUser(sp->sectnum);
                     SET(sectu->flags, SECTFU_SO_SLOPE_FLOOR_TO_POINT);
                     SET(sector[sp->sectnum].extra, SECTFX_DYNAMIC_AREA);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -3099,7 +3102,7 @@ SpriteSetup(void)
                     sectu = GetSectUser(sp->sectnum);
                     SET(sectu->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT);
                     SET(sector[sp->sectnum].extra, SECTFX_DYNAMIC_AREA);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
                 case SECT_SO_FORM_WHIRLPOOL:
@@ -3107,7 +3110,7 @@ SpriteSetup(void)
                     sectu = GetSectUser(sp->sectnum);
                     sectu->stag = SECT_SO_FORM_WHIRLPOOL;
                     sectu->height = sp->lotag;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -3130,7 +3133,7 @@ SpriteSetup(void)
                     }
                     while (wall_num != start_wall);
 
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
                 }
@@ -3178,7 +3181,7 @@ KeyMain:
 
                 if (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS)
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -3246,7 +3249,7 @@ KeyStatueMain:
             if (TEST(sprite[SpriteNum].extra, SPRX_MULTI_ITEM))
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                 }
 
             break;
@@ -3274,7 +3277,7 @@ KeyStatueMain:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3287,7 +3290,7 @@ KeyStatueMain:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3300,7 +3303,7 @@ KeyStatueMain:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3313,7 +3316,7 @@ KeyStatueMain:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3328,7 +3331,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3341,7 +3344,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3353,7 +3356,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3365,7 +3368,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3377,7 +3380,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3390,7 +3393,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3402,7 +3405,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3415,7 +3418,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3428,7 +3431,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3441,7 +3444,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3453,7 +3456,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3468,7 +3471,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3480,7 +3483,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3493,7 +3496,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3505,7 +3508,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3517,7 +3520,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3529,7 +3532,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3542,7 +3545,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3555,7 +3558,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3569,7 +3572,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3585,7 +3588,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3597,7 +3600,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3609,7 +3612,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3621,7 +3624,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3642,7 +3645,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3655,7 +3658,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3667,7 +3670,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3679,7 +3682,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3692,7 +3695,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3706,7 +3709,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3719,7 +3722,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3732,7 +3735,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3745,7 +3748,7 @@ NUKE_REPLACEMENT:
 
             if (!IconSpawn(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 break;
             }
 
@@ -3857,7 +3860,7 @@ NUKE_REPLACEMENT:
             {
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
             }
@@ -5295,7 +5298,7 @@ DoCoin(DSWActor* actor)
 
     if (u->WaitTics <= 0)
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 
@@ -5324,8 +5327,12 @@ DoCoin(DSWActor* actor)
 int
 KillGet(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data(),nu;
-    SPRITEp sp = User[SpriteNum]->SpriteP,np;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
+
+    USERp nu;
+    SPRITEp np;
 
     short New;
 
@@ -5333,14 +5340,14 @@ KillGet(short SpriteNum)
     {
     case MULTI_GAME_NONE:
     case MULTI_GAME_COOPERATIVE:
-        KillSprite(SpriteNum);
+        KillActor(actor);
         break;
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
 
         if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             break;
         }
 
@@ -5368,8 +5375,12 @@ KillGet(short SpriteNum)
 int
 KillGetAmmo(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data(),nu;
-    SPRITEp sp = User[SpriteNum]->SpriteP,np;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
+
+    USERp nu;
+    SPRITEp np;
 
     short New;
 
@@ -5377,7 +5388,7 @@ KillGetAmmo(short SpriteNum)
     {
     case MULTI_GAME_NONE:
     case MULTI_GAME_COOPERATIVE:
-        KillSprite(SpriteNum);
+        KillActor(actor);
         break;
 
     case MULTI_GAME_COMMBAT:
@@ -5385,14 +5396,14 @@ KillGetAmmo(short SpriteNum)
 
         if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             break;
         }
 
         // No Respawn mode - all ammo goes away
         if (gNet.NoRespawn)
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             break;
         }
 
@@ -5420,15 +5431,19 @@ KillGetAmmo(short SpriteNum)
 int
 KillGetWeapon(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data(),nu;
-    SPRITEp sp = User[SpriteNum]->SpriteP,np;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
+
+    USERp nu;
+    SPRITEp np;
 
     short New;
 
     switch (gNet.MultiGameType)
     {
     case MULTI_GAME_NONE:
-        KillSprite(SpriteNum);
+        KillActor(actor);
         break;
 
     case MULTI_GAME_COOPERATIVE:
@@ -5437,7 +5452,7 @@ KillGetWeapon(short SpriteNum)
         // unless told too :)
         if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             break;
         }
         break;
@@ -5447,7 +5462,7 @@ KillGetWeapon(short SpriteNum)
 
         if (TEST(u->Flags2, SPR2_NEVER_RESPAWN))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             break;
         }
 
@@ -5682,7 +5697,7 @@ KeyMain:
             if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 break;
 
-            KillSprite(SpriteNum);
+            KillActor(actor);
             break;
 
         case ICON_ARMOR:
@@ -5710,7 +5725,7 @@ KeyMain:
                 // override for respawn mode
                 if (gNet.MultiGameType == MULTI_GAME_COMMBAT && gNet.NoRespawn)
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -5745,7 +5760,7 @@ KeyMain:
                 // override for respawn mode
                 if (gNet.MultiGameType == MULTI_GAME_COMMBAT && gNet.NoRespawn)
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -5782,7 +5797,7 @@ KeyMain:
                 // override for respawn mode
                 if (gNet.MultiGameType == MULTI_GAME_COMMBAT && gNet.NoRespawn)
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -5808,7 +5823,7 @@ KeyMain:
                 // override for respawn mode
                 if (gNet.MultiGameType == MULTI_GAME_COMMBAT && gNet.NoRespawn)
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
 
@@ -6172,7 +6187,7 @@ KeyMain:
 #endif
 
         case ICON_RAIL_GUN:
-            if (SW_SHAREWARE) { KillSprite(SpriteNum); break; }
+            if (SW_SHAREWARE) { KillActor(actor); break; }
 
             if (!CanGetWeapon(pp, SpriteNum, WPN_RAIL))
                 break;
@@ -6208,7 +6223,7 @@ KeyMain:
             break;
 
         case ICON_RAIL_AMMO:
-            if (SW_SHAREWARE) { KillSprite(SpriteNum); break; }
+            if (SW_SHAREWARE) { KillActor(actor); break; }
 
             if (pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
@@ -6287,7 +6302,7 @@ KeyMain:
 #endif
 
         case ICON_GUARD_HEAD:
-            if (SW_SHAREWARE) { KillSprite(SpriteNum); break; }
+            if (SW_SHAREWARE) { KillActor(actor); break; }
 
             if (!CanGetWeapon(pp, SpriteNum, WPN_HOTHEAD))
                 break;
@@ -6318,7 +6333,7 @@ KeyMain:
             break;
 
         case ICON_FIREBALL_LG_AMMO:
-            if (SW_SHAREWARE) { KillSprite(SpriteNum); break; }
+            if (SW_SHAREWARE) { KillActor(actor); break; }
 
             if (pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
@@ -6332,7 +6347,7 @@ KeyMain:
             break;
 
         case ICON_HEART:
-            if (SW_SHAREWARE) { KillSprite(SpriteNum); break; }
+            if (SW_SHAREWARE) { KillActor(actor); break; }
 
             if (!CanGetWeapon(pp, SpriteNum, WPN_HEART))
                 break;
@@ -6365,7 +6380,7 @@ KeyMain:
             break;
 
         case ICON_HEART_LG_AMMO:
-            if (SW_SHAREWARE) { KillSprite(SpriteNum); break; }
+            if (SW_SHAREWARE) { KillActor(actor); break; }
 
             if (pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;
@@ -6436,7 +6451,7 @@ KeyMain:
             break;
 
         default:
-            KillSprite(SpriteNum);
+            KillActor(actor);
         }
     }
 

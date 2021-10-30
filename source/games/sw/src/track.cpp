@@ -302,7 +302,9 @@ NextActorTrackPoint(short SpriteNum)
 void
 TrackAddPoint(TRACKp t, TRACK_POINTp tp, short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
+
     TRACK_POINTp tpoint = (tp + t->NumPoints);
 
     //    //DSPRINTF(ds,"3 ndx = %d, numpoints = %d", t - Track, t->NumPoints);
@@ -317,7 +319,7 @@ TrackAddPoint(TRACKp t, TRACK_POINTp tp, short SpriteNum)
 
     t->NumPoints++;
 
-    KillSprite(SpriteNum);
+    KillActor(actor);
 }
 
 int
@@ -480,6 +482,7 @@ void QuickExitSetup(short stat, short type)
     StatIterator it(stat);
     while ((SpriteNum = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[SpriteNum];
 
         // find an open track
         for (ndx = 0; ndx < MAX_TRACKS; ndx++)
@@ -512,7 +515,7 @@ void QuickExitSetup(short stat, short type)
         nsp->hitag = 0;
         TrackAddPoint(t, tp, start_sprite);
 
-        KillSprite(SpriteNum);
+        KillActor(actor);
 
         // add end point
         nsp = &sprite[end_sprite];
@@ -1142,7 +1145,7 @@ SetupSectorObject(short sectnum, short tag)
                         sop->scale_x_mult = SP_TAG5(sp);
                     if (SP_TAG6(sp))
                         sop->scale_y_mult = SP_TAG6(sp);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
 
                 case SO_SCALE_POINT_INFO:
@@ -1161,7 +1164,7 @@ SetupSectorObject(short sectnum, short tag)
 
                     sop->scale_point_dist_min = -SP_TAG5(sp);
                     sop->scale_point_dist_max = SP_TAG6(sp);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
 
                 case SO_SCALE_INFO:
@@ -1183,7 +1186,7 @@ SetupSectorObject(short sectnum, short tag)
                     else if (SP_TAG3(sp) == 1)
                         sop->scale_dist = sop->scale_dist_max;
 
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
 
                 case SPAWN_SPOT:
@@ -1198,7 +1201,7 @@ SetupSectorObject(short sectnum, short tag)
 
                 case SO_AUTO_TURRET:
                     sop->Animator = DoAutoTurretObject;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
 
                 case SO_TORNADO:
@@ -1221,7 +1224,7 @@ SetupSectorObject(short sectnum, short tag)
                     sop->morph_dist_max = 1024;
                     sop->morph_rand_freq = 8;
                     sop->scale_dist_min = -768;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_FLOOR_MORPH:
                     if (SW_SHAREWARE) break;
@@ -1232,7 +1235,7 @@ SetupSectorObject(short sectnum, short tag)
                     sop->PostMoveAnimator = MorphFloor;
                     sop->morph_dist_max = 4000;
                     sop->morph_rand_freq = 8;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
 
                 case SO_AMOEBA:
@@ -1249,7 +1252,7 @@ SetupSectorObject(short sectnum, short tag)
                     sop->scale_point_dist_min = -256;
                     sop->scale_point_dist_max = 256;
                     sop->scale_point_rand_freq = 32;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_MAX_DAMAGE:
                     u->MaxHealth = SP_TAG2(sp);
@@ -1266,7 +1269,7 @@ SetupSectorObject(short sectnum, short tag)
                         SET(sop->flags, SOBJ_DIE_HARD);
                         break;
                     }
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
 
                 case SO_DRIVABLE_ATTRIB:
@@ -1295,29 +1298,29 @@ SetupSectorObject(short sectnum, short tag)
                         SET(sop->flags, SOBJ_RECT_CLIP);
                     }
 
-                    //KillSprite(SpriteNum);
+                    //KillActor(actor);
                     break;
 
                 case SO_RAM_DAMAGE:
                     sop->ram_damage = sp->lotag;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SECT_SO_CLIP_DIST:
                     sop->clipdist = sp->lotag;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SECT_SO_SPRITE_OBJ:
                     SET(sop->flags, SOBJ_SPRITE_OBJ);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SECT_SO_DONT_ROTATE:
                     SET(sop->flags, SOBJ_DONT_ROTATE);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_LIMIT_TURN:
                     sop->limit_ang_center = sp->ang;
                     sop->limit_ang_delta = sp->lotag;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_MATCH_EVENT:
                     sop->match_event = sp->lotag;
@@ -1326,20 +1329,20 @@ SetupSectorObject(short sectnum, short tag)
                 case SO_SET_SPEED:
                     sop->vel = sp->lotag * 256;
                     sop->vel_tgt = sop->vel;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_SPIN:
                     if (sop->spin_speed)
                         break;
                     sop->spin_speed = sp->lotag;
                     sop->last_ang = sop->ang;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_ANGLE:
                     sop->ang = sop->ang_moving = sp->ang;
                     sop->last_ang = sop->ang_orig = sop->ang;
                     sop->spin_ang = 0;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_SPIN_REVERSE:
 
@@ -1349,29 +1352,29 @@ SetupSectorObject(short sectnum, short tag)
                     if (sop->spin_speed >= 0)
                         sop->spin_speed = -sop->spin_speed;
 
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_BOB_START:
                     sop->bob_amt = Z(sp->lotag);
                     sop->bob_sine_ndx = 0;
                     sop->bob_speed = 4;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_TURN_SPEED:
                     sop->turn_speed = sp->lotag;
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_SYNC1:
                     SET(sop->flags, SOBJ_SYNC1);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_SYNC2:
                     SET(sop->flags, SOBJ_SYNC2);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 case SO_KILLABLE:
                     SET(sop->flags, SOBJ_KILLABLE);
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     break;
                 }
             }

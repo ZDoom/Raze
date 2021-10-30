@@ -3925,7 +3925,7 @@ DoVomit(DSWActor* actor)
         if (TEST(sprite[hit_sprite].extra, SPRX_PLAYER_OR_ENEMY))
         {
             DoDamage(hit_sprite, SpriteNum);
-            //KillSprite(SpriteNum);
+            //KillActor(actor);
             return 0;
         }
     }
@@ -3946,7 +3946,7 @@ DoVomitSplash(DSWActor* actor)
 
     if ((u->WaitTics-=MISSILEMOVETICS) < 0)
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 
@@ -3966,7 +3966,7 @@ DoFastShrapJumpFall(DSWActor* actor)
 
     u->WaitTics -= MISSILEMOVETICS;
     if (u->WaitTics <= 0)
-        KillSprite(SpriteNum);
+        KillActor(actor);
 
     return 0;
 }
@@ -3984,7 +3984,7 @@ DoTracerShrap(DSWActor* actor)
 
     u->WaitTics -= MISSILEMOVETICS;
     if (u->WaitTics <= 0)
-        KillSprite(SpriteNum);
+        KillActor(actor);
 
     return 0;
 }
@@ -4051,7 +4051,7 @@ DoShrapDamage(DSWActor* actor)
             return 0;
         }
 
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 
@@ -4062,7 +4062,7 @@ DoShrapDamage(DSWActor* actor)
         case HIT_SPRITE:
         {
             WeaponMoveHit(SpriteNum);
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return 0;
         }
         }
@@ -4767,14 +4767,14 @@ DoFireballFlames(DSWActor* actor)
             {
                 if (labs(sector[sp->sectnum].floorz - sp->z) <= Z(4))
                 {
-                    KillSprite(SpriteNum);
+                    KillActor(actor);
                     return 0;
                 }
             }
 
             if (TestDontStickSector(sp->sectnum))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 return 0;
             }
         }
@@ -4792,7 +4792,7 @@ DoFireballFlames(DSWActor* actor)
             {
                 if (u->Attach >= 0)
                     User[u->Attach]->flame = -1;
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 return 0;
             }
         }
@@ -4841,14 +4841,14 @@ DoBreakFlames(DSWActor* actor)
         {
             if (labs(sector[sp->sectnum].floorz - sp->z) <= Z(4))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 return 0;
             }
         }
 
         if (TestDontStickSector(sp->sectnum))
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return 0;
         }
     }
@@ -4865,7 +4865,7 @@ DoBreakFlames(DSWActor* actor)
             {
                 if (u->Attach >= 0)
                     User[u->Attach]->flame = -1;
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 return 0;
             }
         }
@@ -5887,7 +5887,7 @@ DoDamage(short SpriteNum, short Weapon)
     if (sp->statnum == STAT_MINE_STUCK)
     {
         SpawnMineExp(SpriteNum);
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 
@@ -13082,7 +13082,6 @@ InitSerpRing(DSWActor* actor)
 void
 InitSpellNapalm(PLAYERp pp)
 {
-    short SpriteNum;
     SPRITEp sp;
     USERp u;
     unsigned i;
@@ -13115,22 +13114,22 @@ InitSpellNapalm(PLAYERp pp)
 
     for (i = 0; i < SIZ(mp); i++)
     {
-        SpriteNum = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursectnum,
+        auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursectnum,
                                 pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), NAPALM_VELOCITY*2);
 
-        sp = &sprite[SpriteNum];
-        u = User[SpriteNum].Data();
+        sp = &actor->s();
+        u = actor->u();
 
         sp->hitag = LUMINOUS; //Always full brightness
 
         if (i==0) // Only attach sound to first projectile
         {
             PlaySound(DIGI_NAPWIZ, sp, v3df_follow);
-            Set3DSoundOwner(SpriteNum);
+            Set3DSoundOwner(u->SpriteNum);
         }
 
         //sp->owner = pp->SpriteP - sprite;
-        SetOwner(short(pp->SpriteP - sprite), SpriteNum);
+        SetOwner(pp->Actor(), actor);
         sp->shade = -40;
         sp->xrepeat = 32;
         sp->yrepeat = 32;
@@ -13150,7 +13149,7 @@ InitSpellNapalm(PLAYERp pp)
         if (mp[i].dist_over != 0)
         {
             sp->ang = NORM_ANGLE(sp->ang + mp[i].ang);
-            HelpMissileLateral(SpriteNum, mp[i].dist_over);
+            HelpMissileLateral(u->SpriteNum, mp[i].dist_over);
             sp->ang = NORM_ANGLE(sp->ang - mp[i].ang);
         }
 
@@ -13158,10 +13157,10 @@ InitSpellNapalm(PLAYERp pp)
         u->ychange = MOVEy(sp->xvel, sp->ang);
         u->zchange = sp->zvel;
 
-        if (MissileSetPos(SpriteNum, DoNapalm, mp[i].dist_out))
+        if (MissileSetPos(u->SpriteNum, DoNapalm, mp[i].dist_out))
         {
             pp->SpriteP->clipdist = oclipdist;
-            KillSprite(SpriteNum);
+            KillActor(actor);
             continue;
         }
 
@@ -14441,7 +14440,7 @@ InitHeartAttack(PLAYERp pp)
     if (MissileSetPos(SpriteNum, DoBloodWorm, mp[i].dist_out))
     {
         pp->SpriteP->clipdist = oclipdist;
-        KillSprite(SpriteNum);
+        KillActor(actor);
         continue;
     }
 #endif
@@ -17070,7 +17069,7 @@ DoSuicide(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    KillSprite(SpriteNum);
+    KillActor(actor);
     return 0;
 }
 
@@ -20080,7 +20079,7 @@ DoBubble(DSWActor* actor)
         {
             if (!SpriteWarpToSurface(sp))
             {
-                KillSprite(SpriteNum);
+                KillActor(actor);
                 return true;
             }
 
@@ -20090,7 +20089,7 @@ DoBubble(DSWActor* actor)
         }
         else
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return true;
         }
     }
@@ -20099,7 +20098,7 @@ DoBubble(DSWActor* actor)
     {
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return true;
         }
     }
@@ -20108,7 +20107,7 @@ DoBubble(DSWActor* actor)
     {
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return true;
         }
     }
@@ -20219,7 +20218,7 @@ int QueueStar(short SpriteNum)
 
     if (TestDontStick(SpriteNum, -1))
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return -1;
     }
 
@@ -20239,7 +20238,7 @@ int QueueStar(short SpriteNum)
         osp->y = sp->y;
         osp->z = sp->z;
         changespritesect(StarQueue[StarQueueHead], sp->sectnum);
-        KillSprite(SpriteNum);
+        KillActor(actor);
         SpriteNum = StarQueue[StarQueueHead];
         ASSERT(sprite[SpriteNum].statnum != MAXSTATUS);
     }
@@ -20740,19 +20739,19 @@ int QueueGeneric(short SpriteNum, short pic)
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return -1;
     }
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return -1;
     }
 
     if (TestDontStickSector(sp->sectnum))
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return -1;
     }
 
@@ -20775,7 +20774,7 @@ int QueueGeneric(short SpriteNum, short pic)
         osp->y = sp->y;
         osp->z = sp->z;
         changespritesect(GenericQueue[GenericQueueHead], sp->sectnum);
-        KillSprite(SpriteNum);
+        KillActor(actor);
         SpriteNum = GenericQueue[GenericQueueHead];
         ASSERT(sprite[SpriteNum].statnum != MAXSTATUS);
     }
@@ -20823,20 +20822,20 @@ DoShellShrap(short SpriteNum)
     // If the shell doesn't fall in the allowable range, kill it.
     if (u->ShellNum < (ShellCount-MAXSHELLS))
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 
     // Get rid of shell if they fall in non-divable liquid areas
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 
@@ -20889,7 +20888,7 @@ DoShrapVelocity(int16_t SpriteNum)
         switch (TEST(u->ret, HIT_MASK))
         {
         case HIT_PLAX_WALL:
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return true;
         case HIT_SPRITE:
         {
@@ -21023,7 +21022,7 @@ DoShrapVelocity(int16_t SpriteNum)
     // just outright kill it if its boucing around alot
     if (u->bounce > 10)
     {
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return true;
     }
 
@@ -21160,7 +21159,7 @@ ShrapKillSprite(short SpriteNum)
     }
 
     // If it wasn't in the switch statement, kill it.
-    KillSprite(SpriteNum);
+    KillActor(actor);
 
     return 0;
 }

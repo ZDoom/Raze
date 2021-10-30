@@ -526,7 +526,7 @@ int DoVator(DSWActor* actor)
         if (TEST_BOOL2(sp))
         {
             SetVatorInactive(SpriteNum);
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return 0;
         }
 

@@ -385,7 +385,7 @@ int DoSpike(DSWActor* actor)
         if (TEST_BOOL2(sp))
         {
             SetSpikeInactive(SpriteNum);
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return 0;
         }
 

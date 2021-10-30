@@ -290,7 +290,7 @@ DoWallBloodDrip(DSWActor* actor)
     {
         sp->z = u->loz;
         SpawnFloorSplash(SpriteNum);
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     }
 

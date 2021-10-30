@@ -1134,7 +1134,7 @@ int DoSpawnSpot(DSWActor* actor)
 
         if (u->LastDamage == 1)
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return 0;
         }
     }
