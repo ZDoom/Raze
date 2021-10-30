@@ -83,11 +83,6 @@ inline int Cos(int ang)
     return costable[ang & 2047];
 }
 
-inline int SinScale16(int ang)
-{
-    return FixedToInt(costable[(ang - 512) & 2047]);
-}
-
 inline int CosScale16(int ang)
 {
     return FixedToInt(costable[ang & 2047]);

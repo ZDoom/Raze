@@ -3982,7 +3982,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
                     var = HitScan(pSpr, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
                 else if (IsDudeSprite(pSpr))
-                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), (!xspriRangeIsFine(pSpr->extra)) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), bsin(pSpr->ang), (!xspriRangeIsFine(pSpr->extra)) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
                 else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) {
                     
                     var3 = (var2 & 0x0008) ? 0x10000 << 1 : -(0x10000 << 1);
@@ -3990,7 +3990,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
 
                 } else {
                     
-                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), 0, arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), bsin(pSpr->ang), 0, arg1, arg3 << 1);
 
                 }
 
@@ -5533,7 +5533,7 @@ void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
         else dz = -0x4000;
     } else {
         dx = CosScale16(pSprite->ang);
-        dy = SinScale16(pSprite->ang);
+        dy = bsin(pSprite->ang);
         dz = pXSource->data3 << 6; // add slope controlling
         if (dz > 0x10000) dz = 0x10000;
         else if (dz < -0x10000) dz = -0x10000;

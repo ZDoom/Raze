@@ -1246,7 +1246,7 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     *a3 = 0;
     spritetype *pSprite = pPlayer->pSprite;
     int x = CosScale16(pSprite->ang);
-    int y = SinScale16(pSprite->ang);
+    int y = bsin(pSprite->ang);
     int z = pPlayer->slope;
     int hit = HitScan(pSprite, pPlayer->zView, x, y, z, 0x10000040, 128);
     int hitDist = approxDist(pSprite->x-gHitInfo.hitx, pSprite->y-gHitInfo.hity)>>4;
@@ -1580,7 +1580,7 @@ void ProcessInput(PLAYER *pPlayer)
             pSprite2->ang = (pPlayer->pSprite->ang+1024)&2047;
             int nSprite = pPlayer->pSprite->index;
             int x = CosScale16(pPlayer->pSprite->ang);
-            int y = SinScale16(pPlayer->pSprite->ang);
+            int y = bsin(pPlayer->pSprite->ang);
             xvel[pSprite2->index] = xvel[nSprite] + MulScale(0x155555, x, 14);
             yvel[pSprite2->index] = yvel[nSprite] + MulScale(0x155555, y, 14);
             zvel[pSprite2->index] = zvel[nSprite];
@@ -2123,9 +2123,9 @@ void voodooTarget(PLAYER *pPlayer)
     for (int i = 0; i < 4; i++)
     {
         int ang1 = (pPlayer->voodooVar1+pPlayer->vodooVar2)&2047;
-        actFireVector(actor, 0, dz, CosScale16(ang1), SinScale16(ang1), v4, kVectorVoodoo10);
+        actFireVector(actor, 0, dz, CosScale16(ang1), bsin(ang1), v4, kVectorVoodoo10);
         int ang2 = (pPlayer->voodooVar1+2048-pPlayer->vodooVar2)&2047;
-        actFireVector(actor, 0, dz, CosScale16(ang2), SinScale16(ang2), v4, kVectorVoodoo10);
+        actFireVector(actor, 0, dz, CosScale16(ang2), bsin(ang2), v4, kVectorVoodoo10);
     }
     pPlayer->voodooTargets = ClipLow(pPlayer->voodooTargets-1, 0);
 }
