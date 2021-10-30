@@ -80,7 +80,7 @@ inline int Sin(int ang)
 
 inline int Cos(int ang)
 {
-    return costable[ang & 2047];
+    return sintable[(ang + 512) & 2047];
 }
 
 enum SurfaceType {
