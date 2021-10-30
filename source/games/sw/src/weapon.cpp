@@ -12824,7 +12824,7 @@ DoSerpRing(DSWActor* actor)
                 updatesector(sp->x,sp->y,&sectnum);
 
                 // if (valid sector and can see target)
-                if (sectnum != -1 && CanSeePlayer(Weapon))
+                if (sectnum != -1 && CanSeePlayer(actor))
                 {
                     extern STATEp sg_SkullJump[];
                     u->ID = SKULL_R0;

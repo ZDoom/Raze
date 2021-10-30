@@ -2154,7 +2154,7 @@ int CheckFire(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    if (!CanSeePlayer(SpriteNum))
+    if (!CanSeePlayer(actor))
         InitActorDuck(actor);
     return 0;
 }

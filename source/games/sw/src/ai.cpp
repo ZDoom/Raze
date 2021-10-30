@@ -280,10 +280,10 @@ int DoActorNoise(ANIMATORp Action, DSWActor* actor)
     return 0;
 }
 
-bool CanSeePlayer(short SpriteNum)
+bool CanSeePlayer(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
@@ -642,7 +642,7 @@ DoActorActionDecide(short SpriteNum)
         return action;
     }
 
-    ICanSee = CanSeePlayer(SpriteNum);  // Only need to call once
+    ICanSee = CanSeePlayer(actor);  // Only need to call once
     // But need the result multiple times
 
     // !AIC KEY - If aware of player - var is changed in SpriteControl
@@ -1153,7 +1153,7 @@ DoActorMoveCloser(DSWActor* actor)
         u->DistCheck = 0;
 
         // If player moved out of sight
-        if (!CanSeePlayer(SpriteNum))
+        if (!CanSeePlayer(actor))
         {
             // stay put and choose another option
             InitActorDecide(actor);
