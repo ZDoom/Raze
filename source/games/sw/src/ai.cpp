@@ -780,8 +780,7 @@ DoActorActionDecide(short SpriteNum)
 */
 
 
-int
-InitActorDecide(DSWActor* actor)
+int InitActorDecide(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -801,8 +800,7 @@ InitActorDecide(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorDecide(DSWActor* actor)
+int DoActorDecide(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -858,182 +856,101 @@ DoActorDecide(DSWActor* actor)
 int sw_snd_scratch = 0;
 
 
-int
-InitActorAlertNoise(DSWActor* actor)
+int InitActorAlertNoise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 1;
-    // MONO_PRINT(strcpy(ds,"Init Actor Threat Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
 
-int
-InitActorAmbientNoise(DSWActor* actor)
+int InitActorAmbientNoise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 2;
-
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorAttackNoise(DSWActor* actor)
+int InitActorAttackNoise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 3;
-
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorPainNoise(DSWActor* actor)
+int InitActorPainNoise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 4;
-
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorDieNoise(DSWActor* actor)
+int InitActorDieNoise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 5;
-
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorExtra1Noise(DSWActor* actor)
+int InitActorExtra1Noise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 6;
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorExtra2Noise(DSWActor* actor)
+int InitActorExtra2Noise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 7;
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorExtra3Noise(DSWActor* actor)
+int InitActorExtra3Noise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 8;
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorExtra4Noise(DSWActor* actor)
+int InitActorExtra4Noise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 9;
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorExtra5Noise(DSWActor* actor)
+int InitActorExtra5Noise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 10;
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
 }
 
-int
-InitActorExtra6Noise(DSWActor* actor)
+int InitActorExtra6Noise(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     sw_snd_scratch = 11;
-    // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
-
-    // make some sort of noise here
-
-    // InitActorDecide(SpriteNum);
     u->ActorActionFunc = DoActorDecide;
 
     return 0;
@@ -1044,8 +961,7 @@ InitActorExtra6Noise(DSWActor* actor)
   !AIC KEY - Routines handle moving toward the player.
 */
 
-int
-InitActorMoveCloser(DSWActor* actor)
+int InitActorMoveCloser(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1062,8 +978,7 @@ InitActorMoveCloser(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorCantMoveCloser(DSWActor* actor)
+int DoActorCantMoveCloser(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1071,7 +986,7 @@ DoActorCantMoveCloser(DSWActor* actor)
 
     //MONO_PRINT("Can't move closer\n");
 
-    u->track = FindTrackToPlayer(u);
+    u->track = FindTrackToPlayer(actor);
 
     if (u->track >= 0)
     {
@@ -1094,8 +1009,7 @@ DoActorCantMoveCloser(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorMoveCloser(DSWActor* actor)
+int DoActorMoveCloser(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1169,10 +1083,10 @@ DoActorMoveCloser(DSWActor* actor)
 */
 
 
-short
-FindTrackToPlayer(USERp u)
+short FindTrackToPlayer(DSWActor* actor)
 {
-    SPRITEp sp = u->SpriteP;
+    auto u = actor->u();
+    SPRITEp sp = &actor->s();
 
     short point, track_dir, track;
     short i, *type, size;
@@ -1254,9 +1168,9 @@ FindTrackToPlayer(USERp u)
 
 
 
-short
-FindTrackAwayFromPlayer(USERp u)
+short FindTrackAwayFromPlayer(DSWActor* actor)
 {
+    auto u = actor->u();
     short point, track_dir, track;
     unsigned int i;
 
@@ -1299,9 +1213,9 @@ FindTrackAwayFromPlayer(USERp u)
 }
 
 
-short
-FindWanderTrack(USERp u)
+short FindWanderTrack(DSWActor* actor)
 {
+    auto u = actor->u();
     short point, track_dir, track;
     unsigned int i;
 
@@ -1339,8 +1253,7 @@ FindWanderTrack(USERp u)
 }
 
 
-int
-InitActorRunAway(DSWActor* actor)
+int InitActorRunAway(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1351,7 +1264,7 @@ InitActorRunAway(DSWActor* actor)
     u->ActorActionFunc = DoActorDecide;
     NewStateGroup(SpriteNum, u->ActorActionSet->Run);
 
-    u->track = FindTrackAwayFromPlayer(u);
+    u->track = FindTrackAwayFromPlayer(actor);
 
     if (u->track >= 0)
     {
@@ -1371,8 +1284,7 @@ InitActorRunAway(DSWActor* actor)
     return 0;
 }
 
-int
-InitActorRunToward(DSWActor* actor)
+int InitActorRunToward(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1395,8 +1307,7 @@ InitActorRunToward(DSWActor* actor)
 */
 
 
-int
-InitActorAttack(DSWActor* actor)
+int InitActorAttack(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1501,8 +1412,7 @@ InitActorAttack(DSWActor* actor)
 }
 
 
-int
-DoActorAttack(DSWActor* actor)
+int DoActorAttack(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1539,8 +1449,7 @@ DoActorAttack(DSWActor* actor)
     return 0;
 }
 
-int
-InitActorEvade(DSWActor* actor)
+int InitActorEvade(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1555,7 +1464,7 @@ InitActorEvade(DSWActor* actor)
     u->ActorActionFunc = DoActorDecide;
     NewStateGroup(SpriteNum, u->ActorActionSet->Run);
 
-    u->track = FindTrackAwayFromPlayer(u);
+    u->track = FindTrackAwayFromPlayer(actor);
 
     if (u->track >= 0)
     {
@@ -1568,8 +1477,7 @@ InitActorEvade(DSWActor* actor)
     return 0;
 }
 
-int
-InitActorWanderAround(DSWActor* actor)
+int InitActorWanderAround(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1583,7 +1491,7 @@ InitActorWanderAround(DSWActor* actor)
 
     DoActorPickClosePlayer(actor);
 
-    u->track = FindWanderTrack(u);
+    u->track = FindWanderTrack(actor);
 
     if (u->track >= 0)
     {
@@ -1594,8 +1502,7 @@ InitActorWanderAround(DSWActor* actor)
     return 0;
 }
 
-int
-InitActorFindPlayer(DSWActor* actor)
+int InitActorFindPlayer(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1608,7 +1515,7 @@ InitActorFindPlayer(DSWActor* actor)
     u->ActorActionFunc = DoActorDecide;
     NewStateGroup(SpriteNum, u->ActorActionSet->Run);
 
-    u->track = FindTrackToPlayer(u);
+    u->track = FindTrackToPlayer(actor);
 
     if (u->track >= 0)
     {
@@ -1628,8 +1535,7 @@ InitActorFindPlayer(DSWActor* actor)
     return 0;
 }
 
-int
-InitActorDuck(DSWActor* actor)
+int InitActorDuck(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1665,8 +1571,7 @@ InitActorDuck(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorDuck(DSWActor* actor)
+int DoActorDuck(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1682,8 +1587,7 @@ DoActorDuck(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorMoveJump(DSWActor* actor)
+int DoActorMoveJump(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;

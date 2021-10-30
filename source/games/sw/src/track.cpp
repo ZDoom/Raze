@@ -3024,7 +3024,7 @@ DoActorHitTrackEndPoint(USERp u)
     if (TEST(u->Flags, SPR_RUN_AWAY))
     {
         // look for another track leading away from the player
-        u->track = FindTrackAwayFromPlayer(u);
+        u->track = FindTrackAwayFromPlayer(actor);
 
         if (u->track >= 0)
         {
@@ -3040,7 +3040,7 @@ DoActorHitTrackEndPoint(USERp u)
     else if (TEST(u->Flags, SPR_FIND_PLAYER))
     {
         // look for another track leading away from the player
-        u->track = FindTrackToPlayer(u);
+        u->track = FindTrackToPlayer(actor);
 
         if (u->track >= 0)
         {
