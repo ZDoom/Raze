@@ -63,6 +63,11 @@ constexpr double BAngToDegree = 360. / 2048.;
 
 extern int16_t sintable[2048];
 
+inline constexpr double sinscale(const int shift)
+{
+	return shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift));
+}
+
 //---------------------------------------------------------------------------
 //
 // Build sine inline functions.
@@ -75,7 +80,7 @@ inline int bsin(const int ang, const int shift = 0)
 }
 inline double bsinf(const double ang, const int shift = 0)
 {
-	return g_sin(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
+	return g_sin(ang * BAngRadian) * sinscale(shift);
 }
 
 
@@ -91,7 +96,7 @@ inline int bcos(const int ang, const int shift = 0)
 }
 inline double bcosf(const double ang, const int shift = 0)
 {
-	return g_cos(ang * BAngRadian) * (shift >= -SINSHIFT ? uint64_t(1) << (SINSHIFT + shift) : 1. / (uint64_t(1) << abs(SINSHIFT + shift)));
+	return g_cos(ang * BAngRadian) * sinscale(shift);
 }
 
 
