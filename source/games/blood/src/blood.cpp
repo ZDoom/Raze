@@ -435,8 +435,6 @@ void GameInterface::app_init()
 	SetTileNames();
 	C_InitConback(TexMan.CheckForTexture("BACKTILE", ETextureType::Any), true, 0.25);
 
-	Printf(PRINT_NONOTIFY, "Loading cosine table\n");
-	trigInit();
 	Printf(PRINT_NONOTIFY, "Initializing view subsystem\n");
 	viewInit();
 	Printf(PRINT_NONOTIFY, "Initializing dynamic fire\n");

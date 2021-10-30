@@ -64,12 +64,9 @@ void warpInit(void);
 int CheckLink(spritetype *pSprite);
 int CheckLink(int *x, int *y, int *z, int *nSector);
 
-extern int costable[2048];
-
 int GetOctant(int x, int y);
 void RotateVector(int *dx, int *dy, int nAngle);
 void RotatePoint(int *x, int *y, int nAngle, int ox, int oy);
-void trigInit();
 
 #include "m_fixed.h"
 
