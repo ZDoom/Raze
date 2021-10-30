@@ -74,7 +74,6 @@ void DebugMoveHit(DSWActor* actor);
 bool ActorMoveHitReact(DSWActor* actor);
 short ChooseActionNumber(short decision[]);
 bool CanSeePlayer(DSWActor* actor);
-int CanHitPlayer(short SpriteNum);
 int DoActorPickClosePlayer(short SpriteNum);
 int CloseRangeDist(SPRITEp sp1,SPRITEp sp2);
 int InitActorDecide(DSWActor* actor);

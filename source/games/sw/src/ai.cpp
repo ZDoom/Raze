@@ -298,10 +298,10 @@ bool CanSeePlayer(DSWActor* actor)
 }
 
 int
-CanHitPlayer(short SpriteNum)
+CanHitPlayer(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP, hp;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     hitdata_t hitinfo;
     int xvect,yvect,zvect;
     short ang,ret=false;
@@ -313,7 +313,7 @@ CanHitPlayer(short SpriteNum)
 
     zhs = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
 
-    hp = u->tgt_sp;
+    auto hp = u->tgt_sp;
 
     // get angle to target
     ang = getangle(hp->x - sp->x, hp->y - sp->y);
@@ -1440,7 +1440,7 @@ InitActorAttack(DSWActor* actor)
         return 0;
     }
 
-    if (!CanHitPlayer(SpriteNum))
+    if (!CanHitPlayer(actor))
     {
         InitActorReposition(actor);
         return 0;
@@ -1836,7 +1836,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
         break;
     case AWAY:
         set = RANDOM_P2(4<<8)>>8;
-        if (CanHitPlayer(SpriteNum))
+        if (CanHitPlayer(actor))
         {
             adp = &toward_angle_delta[set][0];
         }
