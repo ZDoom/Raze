@@ -2451,7 +2451,7 @@ sectdone:
             pPlayer->bPlayerPan = false;
         }
 
-        if (cl_slopetilting)
+        if (cl_slopetilting && !pPlayer->bPlayerPan && !pPlayer->bLockPan)
         {
             double nVertPan = (pPlayer->nDestVertPan - pPlayer->horizon.horiz).asbuildf() * 0.25;
             if (nVertPan != 0)
