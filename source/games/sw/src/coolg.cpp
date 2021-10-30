@@ -705,7 +705,7 @@ int InitCoolgCircle(DSWActor* actor)
 
     u->ActorActionFunc = DoCoolgCircle;
 
-    NewStateGroup(SpriteNum, u->ActorActionSet->Run);
+    NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
 
     // set it close
     DoActorSetSpeed(actor, FAST_SPEED);
@@ -812,7 +812,7 @@ int DoCoolgDeath(DSWActor* actor)
     {
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
         RESET(sp->cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
-        NewStateGroup(SpriteNum, u->ActorActionSet->Dead);
+        NewStateGroup_(SpriteNum, u->ActorActionSet->Dead);
         return 0;
     }
 

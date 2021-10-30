@@ -790,7 +790,7 @@ int DoSerpMove(DSWActor* actor)
         case 0:
             if (u->Health != u->MaxHealth)
             {
-                NewStateGroup(SpriteNum, sg_SerpSkullSpell);
+                NewStateGroup_(SpriteNum, sg_SerpSkullSpell);
                 u->Counter2++;
             }
             break;
@@ -799,7 +799,7 @@ int DoSerpMove(DSWActor* actor)
             //if (u->Health <= DIV2(u->MaxHealth))
         {
             if (u->Counter <= 0)
-                NewStateGroup(SpriteNum, sg_SerpSkullSpell);
+                NewStateGroup_(SpriteNum, sg_SerpSkullSpell);
         }
         break;
         }

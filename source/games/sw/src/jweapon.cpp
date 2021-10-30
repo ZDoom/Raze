@@ -1395,7 +1395,7 @@ PlayerInitChemBomb(PLAYERp pp)
     }
 
 //    wu->RotNum = 5;
-//    NewStateGroup(w, &sg_ChemBomb);
+//    NewStateGroup_(w, &sg_ChemBomb);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->PlayerSprite, w);
@@ -1526,7 +1526,7 @@ InitChemBomb(short SpriteNum)
     wu = User[w].Data();
 
 //    wu->RotNum = 5;
-//    NewStateGroup(w, &sg_ChemBomb);
+//    NewStateGroup_(w, &sg_ChemBomb);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
 //    SetOwner(SpriteNum, w);

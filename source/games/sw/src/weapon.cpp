@@ -5349,9 +5349,9 @@ ActorHealth(short SpriteNum, short amt)
                     sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
                     RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
                     if (sw_ninjahack)
-                        NewStateGroup(SpriteNum, sg_NinjaHariKari);
+                        NewStateGroup_(SpriteNum, sg_NinjaHariKari);
                         else
-                    NewStateGroup(SpriteNum, sg_NinjaGrabThroat);
+                    NewStateGroup_(SpriteNum, sg_NinjaGrabThroat);
                 }
                 break;
             }
@@ -5436,7 +5436,7 @@ ActorPain(short SpriteNum)
         {
             ActorLeaveTrack(SpriteNum);
             u->WaitTics = 60;
-            NewStateGroup(SpriteNum, u->ActorActionSet->Pain);
+            NewStateGroup_(SpriteNum, u->ActorActionSet->Pain);
             return true;
         }
     }
@@ -5455,7 +5455,7 @@ ActorPainPlasma(short SpriteNum)
         if (u->ActorActionSet && u->ActorActionSet->Pain)
         {
             u->WaitTics = PLASMA_FOUNTAIN_TIME;
-            NewStateGroup(SpriteNum, u->ActorActionSet->Pain);
+            NewStateGroup_(SpriteNum, u->ActorActionSet->Pain);
             return true;
         }
         else
@@ -10090,7 +10090,7 @@ DoRail(DSWActor* actor)
             np->zvel += (RandomRange(140)-RandomRange(140));
 
             nu->RotNum = 5;
-            NewStateGroup(New, sg_RailPuff);
+            NewStateGroup_(New, sg_RailPuff);
 
             np->shade = -40;
             np->xrepeat = 10;
@@ -10276,7 +10276,7 @@ SpawnExtraMicroMini(DSWActor* actor)
     wp->clipdist = sp->clipdist;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_MicroMini[0]);
+    NewStateGroup_(w, &sg_MicroMini[0]);
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = u->Radius;
     wu->ceiling_dist = u->ceiling_dist;
@@ -10346,7 +10346,7 @@ DoMicro(DSWActor* actor)
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
             setspritez(New, &np->pos);
-            NewStateGroup(Weapon, &sg_MicroMini[0]);
+            NewStateGroup_(Weapon, &sg_MicroMini[0]);
             sp->xrepeat = sp->yrepeat = 10;
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
             SpawnExtraMicroMini(actor);
@@ -12448,7 +12448,7 @@ DoMirv(DSWActor* actor)
             nu = User[New].Data();
 
             nu->RotNum = 5;
-            NewStateGroup(New, &sg_MirvMeteor[0]);
+            NewStateGroup_(New, &sg_MirvMeteor[0]);
             nu->StateEnd = s_MirvMeteorExp;
 
             //np->owner = Weapon;
@@ -12724,7 +12724,7 @@ InitSpellRing(PLAYERp pp)
         u->floor_dist = Z(10);
 
         //u->RotNum = 5;
-        //NewStateGroup(SpriteNum, &sg_Ring);
+        //NewStateGroup_(SpriteNum, &sg_Ring);
         //SET(u->Flags, SPR_XFLIP_TOGGLE);
 
         // put it out there
@@ -12835,7 +12835,7 @@ DoSerpRing(DSWActor* actor)
                     sp->xvel += (RANDOM_P2(128<<8)>>8);
                     u->jump_speed = -800;
                     change_sprite_stat(Weapon, STAT_ENEMY);
-                    NewStateGroup(Weapon, sg_SkullJump);
+                    NewStateGroup_(Weapon, sg_SkullJump);
                     DoBeginJump(actor);
                     // tell owner that one is gone
                     // User[sp->owner]->Counter--;
@@ -14927,7 +14927,7 @@ InitRail(PLAYERp pp)
     zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 17, 16);
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rail[0]);
+    NewStateGroup_(w, &sg_Rail[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = RAIL_RADIUS;
@@ -15013,7 +15013,7 @@ InitZillaRail(DSWActor* actor)
     zvel = (100 * (HORIZ_MULT+17));
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rail[0]);
+    NewStateGroup_(w, &sg_Rail[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = RAIL_RADIUS;
@@ -15129,7 +15129,7 @@ InitRocket(PLAYERp pp)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rocket[0]);
+    NewStateGroup_(w, &sg_Rocket[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 2000;
@@ -15259,7 +15259,7 @@ InitBunnyRocket(PLAYERp pp)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_BunnyRocket[0]);
+    NewStateGroup_(w, &sg_BunnyRocket[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 2000;
@@ -15374,7 +15374,7 @@ InitNuke(PLAYERp pp)
     wp->pal = wu->spal = 19;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rocket[0]);
+    NewStateGroup_(w, &sg_Rocket[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = NUKE_RADIUS;
@@ -15471,7 +15471,7 @@ InitEnemyNuke(DSWActor* actor)
     wp->pal = wu->spal = 19;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rocket[0]);
+    NewStateGroup_(w, &sg_Rocket[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = NUKE_RADIUS;
@@ -15581,7 +15581,7 @@ InitMicro(PLAYERp pp)
         wp->zvel += RandomRange(Z(8)) - Z(5);
 
         wu->RotNum = 5;
-        NewStateGroup(w, &sg_Micro[0]);
+        NewStateGroup_(w, &sg_Micro[0]);
 
         wu->WeaponNum = u->WeaponNum;
         wu->Radius = 200;
@@ -16044,7 +16044,7 @@ InitSerpSpell(DSWActor* actor)
         np->z = SPRITEp_TOS(sp);
 
         nu->RotNum = 5;
-        NewStateGroup(New, &sg_SerpMeteor[0]);
+        NewStateGroup_(New, &sg_SerpMeteor[0]);
         nu->StateEnd = s_MirvMeteorExp;
 
         //np->owner = SpriteNum;
@@ -16165,7 +16165,7 @@ InitSerpMonstSpell(DSWActor* actor)
         np->z = SPRITEp_TOS(sp);
 
         nu->RotNum = 5;
-        NewStateGroup(New, &sg_SerpMeteor[0]);
+        NewStateGroup_(New, &sg_SerpMeteor[0]);
         //nu->StateEnd = s_MirvMeteorExp;
         nu->StateEnd = s_TeleportEffect2;
 
@@ -16268,7 +16268,7 @@ InitEnemyRocket(DSWActor* actor)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rocket[0]);
+    NewStateGroup_(w, &sg_Rocket[0]);
     wu->Radius = 200;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
@@ -16357,7 +16357,7 @@ InitEnemyRail(DSWActor* actor)
     wp->zvel = 0;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rail[0]);
+    NewStateGroup_(w, &sg_Rail[0]);
 
     wu->Radius = 200;
     wu->ceiling_dist = Z(1);
@@ -16443,7 +16443,7 @@ InitZillaRocket(DSWActor* actor)
         wp->clipdist = 64L>>2;
 
         wu->RotNum = 5;
-        NewStateGroup(w, &sg_Rocket[0]);
+        NewStateGroup_(w, &sg_Rocket[0]);
         wu->Radius = 200;
         SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
@@ -16603,7 +16603,7 @@ InitEnemyCrossbow(DSWActor* actor)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_CrossBolt[0]);
+    NewStateGroup_(w, &sg_CrossBolt[0]);
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -17003,7 +17003,7 @@ InitBoltTrap(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rocket[0]);
+    NewStateGroup_(w, &sg_Rocket[0]);
     wu->Radius = 200;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
@@ -17044,7 +17044,7 @@ InitSpearTrap(short SpriteNum)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_CrossBolt[0]);
+    NewStateGroup_(w, &sg_CrossBolt[0]);
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -17947,7 +17947,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
         wp->zvel += RandomRange(Z(8)) - Z(5);
 
         wu->RotNum = 5;
-        NewStateGroup(w, &sg_Micro[0]);
+        NewStateGroup_(w, &sg_Micro[0]);
 
         wu->WeaponNum = pu->WeaponNum;
         wu->Radius = 200;
@@ -18120,7 +18120,7 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
     wp->zvel = -pp->horizon.horiz.asq16() >> 9;
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Rail[0]);
+    NewStateGroup_(w, &sg_Rail[0]);
 
     wu->Radius = 200;
     wu->ceiling_dist = Z(1);
@@ -18956,7 +18956,7 @@ InitGrenade(PLAYERp pp)
     }
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Grenade[0]);
+    NewStateGroup_(w, &sg_Grenade[0]);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->PlayerSprite, w);
@@ -19049,7 +19049,7 @@ InitSpriteGrenade(DSWActor* actor)
     wu = User[w].Data();
 
     wu->RotNum = 5;
-    NewStateGroup(w, &sg_Grenade[0]);
+    NewStateGroup_(w, &sg_Grenade[0]);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     if (u->ID == ZOMBIE_RUN_R0)
@@ -19290,7 +19290,7 @@ InitFireball(PLAYERp pp)
     zvel = -MulScale(pp->horizon.horiz.asq16(), 240, 16);
 
     //wu->RotNum = 5;
-    //NewStateGroup(w, &sg_Fireball);
+    //NewStateGroup_(w, &sg_Fireball);
     //SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     // at certain angles the clipping box was big enough to block the

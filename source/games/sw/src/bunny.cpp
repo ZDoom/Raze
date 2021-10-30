@@ -1089,8 +1089,8 @@ DoBunnyQuickJump(DSWActor* actor)
                 u->Vis = sp->ang;  // Remember angles for later
                 tu->Vis = tsp->ang;
 
-                NewStateGroup(SpriteNum, sg_BunnyScrew);
-                NewStateGroup(hit_sprite, sg_BunnyScrew);
+                NewStateGroup_(SpriteNum, sg_BunnyScrew);
+                NewStateGroup_(hit_sprite, sg_BunnyScrew);
                 u->WaitTics = tu->WaitTics = SEC(10);  // Mate for this long
                 return true;
             }
@@ -1148,7 +1148,7 @@ int DoBunnyRipHeart(DSWActor* actor)
 
     SPRITEp tsp = u->tgt_sp();
 
-    NewStateGroup(SpriteNum, sg_BunnyHeart);
+    NewStateGroup_(SpriteNum, sg_BunnyHeart);
     u->WaitTics = 6 * 120;
 
     // player face bunny
@@ -1169,7 +1169,7 @@ int DoBunnyStandKill(DSWActor* actor)
         PlaySound(DIGI_BUNNYATTACK, sp, v3df_none);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup(SpriteNum, sg_BunnyRun);
+        NewStateGroup_(SpriteNum, sg_BunnyRun);
     return 0;
 }
 
@@ -1234,7 +1234,7 @@ void BunnyHatch(short Weapon)
 
         nu->ShellNum = 0; // Not Pregnant right now
 
-        NewStateGroup(New, nu->ActorActionSet->Jump);
+        NewStateGroup_(New, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(New, -600);
@@ -1292,7 +1292,7 @@ int BunnyHatch2(short Weapon)
 
     nu->ShellNum = 0; // Not Pregnant right now
 
-    NewStateGroup(New, nu->ActorActionSet->Jump);
+    NewStateGroup_(New, nu->ActorActionSet->Jump);
     nu->ActorActionFunc = DoActorMoveJump;
     DoActorSetSpeed(actorNew, FAST_SPEED);
     if (TEST_BOOL3(wp))
@@ -1385,7 +1385,7 @@ DoBunnyMove(DSWActor* actor)
         case 3562:
         case 3563:
         case 3564:
-            NewStateGroup(SpriteNum,sg_BunnyStand);
+            NewStateGroup_(SpriteNum,sg_BunnyStand);
             break;
         default:
             sp->ang = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
@@ -1453,10 +1453,10 @@ DoBunnyEat(DSWActor* actor)
     case 3563:
     case 3564:
         if (RandomRange(1000) > 970)
-            NewStateGroup(SpriteNum,sg_BunnyRun);
+            NewStateGroup_(SpriteNum,sg_BunnyRun);
         break;
     default:
-        NewStateGroup(SpriteNum,sg_BunnyRun);
+        NewStateGroup_(SpriteNum,sg_BunnyRun);
         break;
     }
     return 0;
@@ -1494,7 +1494,7 @@ DoBunnyScrew(DSWActor* actor)
     u->WaitTics -= ACTORMOVETICS;
 
     if ((u->FlagOwner || u->spal == PALETTE_PLAYER0) && u->WaitTics > 0) // Keep Girl still
-        NewStateGroup(SpriteNum,sg_BunnyScrew);
+        NewStateGroup_(SpriteNum,sg_BunnyScrew);
 
     if (u->spal == PALETTE_PLAYER0 && u->WaitTics <= 0) // Female has baby
     {
@@ -1506,7 +1506,7 @@ DoBunnyScrew(DSWActor* actor)
     {
         RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
         u->FlagOwner = 0;
-        NewStateGroup(SpriteNum,sg_BunnyRun);
+        NewStateGroup_(SpriteNum,sg_BunnyRun);
     }
 
     return 0;

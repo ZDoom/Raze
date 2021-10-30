@@ -981,7 +981,7 @@ InitRipperHang(DSWActor* actor)
         return 0;
     }
 
-    NewStateGroup(SpriteNum, sg_RipperHangJump);
+    NewStateGroup_(SpriteNum, sg_RipperHangJump);
     u->StateFallOverride = sg_RipperHangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -1008,7 +1008,7 @@ DoRipperHang(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
-    NewStateGroup(SpriteNum, sg_RipperJumpAttack);
+    NewStateGroup_(SpriteNum, sg_RipperJumpAttack);
     // move to the 2nd frame - past the pause frame
     u->Tics += u->State->Tics;
     return 0;
@@ -1038,7 +1038,7 @@ DoRipperMoveHang(DSWActor* actor)
 
             hit_wall = NORM_WALL(u->ret);
 
-            NewStateGroup(SpriteNum, u->ActorActionSet->Special[1]);
+            NewStateGroup_(SpriteNum, u->ActorActionSet->Special[1]);
             u->WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
@@ -1167,7 +1167,7 @@ DoRipperQuickJump(DSWActor* actor)
 
         if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            NewStateGroup(SpriteNum, sg_RipperJumpAttack);
+            NewStateGroup_(SpriteNum, sg_RipperJumpAttack);
             // move past the first state
             u->Tics = 30;
             return true;
@@ -1216,7 +1216,7 @@ int DoRipperRipHeart(short SpriteNum)
 
     SPRITEp tsp = u->tgt_sp();
 
-    NewStateGroup(SpriteNum, sg_RipperHeart);
+    NewStateGroup_(SpriteNum, sg_RipperHeart);
     u->WaitTics = 6 * 120;
 
     // player face ripper
@@ -1234,7 +1234,7 @@ int DoRipperStandHeart(DSWActor* actor)
     NullRipper(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup(SpriteNum, sg_RipperRun);
+        NewStateGroup_(SpriteNum, sg_RipperRun);
     return 0;
 }
 
@@ -1273,7 +1273,7 @@ void RipperHatch(short Weapon)
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
 
-        NewStateGroup(New, nu->ActorActionSet->Jump);
+        NewStateGroup_(New, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(New, -600);

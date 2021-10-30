@@ -2018,9 +2018,9 @@ DoNinjaMove(DSWActor* actor)
     if (TEST(u->Flags2, SPR2_DYING))
     {
         if (sw_ninjahack)
-            NewStateGroup(SpriteNum, sg_NinjaHariKari);
+            NewStateGroup_(SpriteNum, sg_NinjaHariKari);
         else
-            NewStateGroup(SpriteNum, sg_NinjaGrabThroat);
+            NewStateGroup_(SpriteNum, sg_NinjaGrabThroat);
         return 0;
     }
 
@@ -2120,9 +2120,9 @@ int DoNinjaPain(DSWActor* actor)
     if (TEST(u->Flags2, SPR2_DYING))
     {
         if (sw_ninjahack)
-            NewStateGroup(SpriteNum, sg_NinjaHariKari);
+            NewStateGroup_(SpriteNum, sg_NinjaHariKari);
         else
-            NewStateGroup(SpriteNum, sg_NinjaGrabThroat);
+            NewStateGroup_(SpriteNum, sg_NinjaGrabThroat);
         return 0;
     }
 
@@ -2437,7 +2437,7 @@ InitPlayerSprite(PLAYERp pp)
     sp->pal = PALETTE_PLAYER0 + pp->pnum;
     u->spal = sp->pal;
 
-    NewStateGroup(sp_num, u->ActorActionSet->Run);
+    NewStateGroup_(sp_num, u->ActorActionSet->Run);
 
     pp->PlayerUnderSprite = -1;
     pp->UnderSpriteP = nullptr;
@@ -2489,7 +2489,7 @@ SpawnPlayerUnderSprite(PLAYERp pp)
 
     u->Rot = sg_NinjaRun;
     u->RotNum = pu->RotNum;
-    NewStateGroup(sp_num, pu->Rot);
+    NewStateGroup_(sp_num, pu->Rot);
 
     u->Radius = pu->Radius;
     u->PlayerP = pp;

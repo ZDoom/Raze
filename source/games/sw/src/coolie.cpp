@@ -505,7 +505,7 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     if (!action)
         return;
 
-    NewStateGroup(SpriteNum, u->ActorActionSet->Run);
+    NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
 
     u->ActorActionFunc = DoActorDecide;
 
@@ -658,7 +658,7 @@ int InitCoolieCharge(DSWActor* actor)
 
     InitActorMoveCloser(actor);
 
-    NewStateGroup(SpriteNum, sg_CoolieCharge);
+    NewStateGroup_(SpriteNum, sg_CoolieCharge);
 
     return 0;
 }

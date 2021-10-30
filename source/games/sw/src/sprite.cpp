@@ -4687,7 +4687,7 @@ int SpawnItemsMatch(short match)
 //void
 int
 // CTW MODIFICATION END
-NewStateGroup(short SpriteNum, STATEp StateGroup[])
+NewStateGroup_(short SpriteNum, STATEp StateGroup[])
 {
     USERp u = User[SpriteNum].Data();
 
@@ -4716,9 +4716,9 @@ NewStateGroup(short SpriteNum, STATEp StateGroup[])
     return 0;
 }
 
-int NewStateGroup(USERp user, STATEp StateGroup[])
+int NewStateGroup_(USERp user, STATEp StateGroup[])
 {
-	return NewStateGroup(user->SpriteNum, StateGroup);
+	return NewStateGroup_(user->SpriteNum, StateGroup);
 }
 
 
@@ -6622,7 +6622,7 @@ StateControl(int16_t SpriteNum)
 
         if (!u->State->Pic)
         {
-            NewStateGroup(SpriteNum, (STATEp *) u->State->NextState);
+            NewStateGroup_(SpriteNum, (STATEp *) u->State->NextState);
         }
     }
 

@@ -467,7 +467,6 @@ int DoActorDebris(DSWActor* actor)
 int DoFireFly(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
     int nx, ny;
 
@@ -519,7 +518,6 @@ void KeepActorOnFloor(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    int SpriteNum = actor->GetSpriteIndex();
     SECTORp sectp;
     int depth;
 
@@ -553,7 +551,7 @@ void KeepActorOnFloor(DSWActor* actor)
 
             if (u->Rot == u->ActorActionSet->Run)
             {
-                NewStateGroup(SpriteNum, u->ActorActionSet->Swim);
+                NewStateGroup_(u->SpriteNum, u->ActorActionSet->Swim);
             }
 
             // are swimming
@@ -565,7 +563,7 @@ void KeepActorOnFloor(DSWActor* actor)
             // only start swimming if you are running
             if (u->Rot == u->ActorActionSet->Run || u->Rot == u->ActorActionSet->Swim)
             {
-                NewStateGroup(SpriteNum, u->ActorActionSet->Swim);
+                NewStateGroup_(u->SpriteNum, u->ActorActionSet->Swim);
                 u->oz = sp->z = u->loz - Z(depth);
                 sp->backupz();
                 SET(u->Flags, SPR_SWIMMING);
@@ -669,9 +667,9 @@ int DoActorBeginJump(DSWActor* actor)
     if (u->ActorActionSet)
     {
         if (TEST(u->Flags, SPR_DEAD))
-            NewStateGroup(SpriteNum, u->ActorActionSet->DeathJump);
+            NewStateGroup_(SpriteNum, u->ActorActionSet->DeathJump);
         else
-            NewStateGroup(SpriteNum, u->ActorActionSet->Jump);
+            NewStateGroup_(SpriteNum, u->ActorActionSet->Jump);
     }
     u->StateFallOverride = nullptr;
 
@@ -741,14 +739,14 @@ int DoActorBeginFall(DSWActor* actor)
     {
         if (TEST(u->Flags, SPR_DEAD))
         {
-            NewStateGroup(u, u->ActorActionSet->DeathFall);
+            NewStateGroup_(u, u->ActorActionSet->DeathFall);
         }
         else
-            NewStateGroup(u, u->ActorActionSet->Fall);
+            NewStateGroup_(u, u->ActorActionSet->Fall);
 
         if (u->StateFallOverride)
         {
-            NewStateGroup(u, u->StateFallOverride);
+            NewStateGroup_(u, u->StateFallOverride);
         }
     }
 
@@ -809,19 +807,19 @@ int DoActorStopFall(DSWActor* actor)
     {
         if (TEST(u->Flags, SPR_DEAD))
         {
-            NewStateGroup(SpriteNum, u->ActorActionSet->Dead);
+            NewStateGroup_(SpriteNum, u->ActorActionSet->Dead);
             PlaySound(DIGI_ACTORBODYFALL1, sp, v3df_none);
         }
         else
         {
             PlaySound(DIGI_ACTORHITGROUND, sp, v3df_none);
 
-            NewStateGroup(SpriteNum, u->ActorActionSet->Run);
+            NewStateGroup_(SpriteNum, u->ActorActionSet->Run);
 
             if ((u->track >= 0) && (u->jump_speed) > 800 && (u->ActorActionSet->Sit))
             {
                 u->WaitTics = 80;
-                NewStateGroup(SpriteNum, u->ActorActionSet->Sit);
+                NewStateGroup_(SpriteNum, u->ActorActionSet->Sit);
             }
         }
     }

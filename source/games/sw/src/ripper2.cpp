@@ -978,7 +978,7 @@ InitRipper2Hang(DSWActor* actor)
         return 0;
     }
 
-    NewStateGroup(SpriteNum, sg_Ripper2HangJump);
+    NewStateGroup_(SpriteNum, sg_Ripper2HangJump);
     u->StateFallOverride = sg_Ripper2HangFall;
     DoActorSetSpeed(actor, FAST_SPEED);
 
@@ -1005,7 +1005,7 @@ DoRipper2Hang(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
-    NewStateGroup(SpriteNum, sg_Ripper2JumpAttack);
+    NewStateGroup_(SpriteNum, sg_Ripper2JumpAttack);
     // move to the 2nd frame - past the pause frame
     u->Tics += u->State->Tics;
 
@@ -1040,7 +1040,7 @@ DoRipper2MoveHang(DSWActor* actor)
 
             hit_wall = NORM_WALL(u->ret);
 
-            NewStateGroup(SpriteNum, u->ActorActionSet->Special[1]);
+            NewStateGroup_(SpriteNum, u->ActorActionSet->Special[1]);
             if (RANDOM_P2(1024<<8)>>8 > 500)
                 u->WaitTics = ((RANDOM_P2(2 << 8) >> 8) * 120);
             else
@@ -1180,7 +1180,7 @@ DoRipper2QuickJump(DSWActor* actor)
 
         if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            NewStateGroup(SpriteNum, sg_Ripper2JumpAttack);
+            NewStateGroup_(SpriteNum, sg_Ripper2JumpAttack);
             // move past the first state
             u->Tics = 30;
             return true;
@@ -1225,7 +1225,7 @@ int DoRipper2RipHeart(short SpriteNum)
 
     SPRITEp tsp = u->tgt_sp();
 
-    NewStateGroup(SpriteNum, sg_Ripper2Heart);
+    NewStateGroup_(SpriteNum, sg_Ripper2Heart);
     u->WaitTics = 6 * 120;
 
     // player face ripper2
@@ -1245,7 +1245,7 @@ int DoRipper2StandHeart(DSWActor* actor)
         PlaySound(DIGI_RIPPER2HEARTOUT, sp, v3df_none, CHAN_RipHeart);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup(SpriteNum, sg_Ripper2Run);
+        NewStateGroup_(SpriteNum, sg_Ripper2Run);
     return 0;
 }
 
@@ -1287,7 +1287,7 @@ void Ripper2Hatch(short Weapon)
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
 
-        NewStateGroup(New, nu->ActorActionSet->Jump);
+        NewStateGroup_(New, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(New, -600);
@@ -1358,7 +1358,7 @@ int InitRipper2Charge(DSWActor* actor)
 
     InitActorMoveCloser(actor);
 
-    NewStateGroup(SpriteNum, sg_Ripper2RunFast);
+    NewStateGroup_(SpriteNum, sg_Ripper2RunFast);
 
     return 0;
 }
