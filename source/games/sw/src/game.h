@@ -2247,6 +2247,22 @@ SPRITEp USER::tgt_sp()
     return targetActor == nullptr? nullptr : &targetActor->s();
 }
 
+inline int ActorUpper(DSWActor* actor)
+{
+    return SPRITEp_UPPER(&actor->s());
+}
+
+inline int ActorLower(DSWActor* actor)
+{
+    return SPRITEp_LOWER(&actor->s());
+}
+
+inline int ActorMid(DSWActor* actor)
+{
+    return SPRITEp_MID(&actor->s());
+}
+
+
 END_SW_NS
 #endif
 

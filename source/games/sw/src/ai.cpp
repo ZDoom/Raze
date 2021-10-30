@@ -291,7 +291,7 @@ bool CanSeePlayer(DSWActor* actor)
     //if (FAF_Sector(sp->sectnum))
     //    return(true);
 
-    if (u->tgt_sp() && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->targetActor->s().x, u->targetActor->s().y, SPRITEp_UPPER(u->tgt_sp()), u->targetActor->s().sectnum))
+    if (u->targetActor && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sectnum))
         return true;
     else
         return false;
@@ -312,7 +312,8 @@ int CanHitPlayer(DSWActor* actor)
 
     zhs = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
 
-    auto hp = u->tgt_sp();
+
+    auto hp = &u->targetActor->s();
 
     // get angle to target
     ang = getangle(hp->x - sp->x, hp->y - sp->y);
@@ -345,7 +346,7 @@ int CanHitPlayer(DSWActor* actor)
     if (hitinfo.sect < 0)
         return false;
 
-    if (hitinfo.sprite == u->tgt_sp() - sprite)
+    if (hitinfo.sprite == u->targetActor->GetSpriteIndex())
         return true;
 
     ////DSPRINTF(ds,"CanHit %s",ret ? "true" : "false");
@@ -494,7 +495,7 @@ GetPlayerSpriteNum(short SpriteNum)
     {
         pp = &Player[pnum];
 
-        if (pp->SpriteP == u->tgt_sp())
+        if (pp->Actor() == u->targetActor)
         {
             return pp->PlayerSprite;
         }
@@ -596,7 +597,7 @@ DECISION GenericFlaming[] =
  every time through the loop.  This would be too slow.  It is only called when
  the actor needs to know what to do next such as running into something or being
  targeted.  It makes decisions based on the distance and viewablity of its target
- (u->tgt_sp()).  When it figures out the situatation with its target it calls
+ (u->targetActor).  When it figures out the situatation with its target it calls
  ChooseAction which does a random table lookup to decide what action to initialize.
  Once this action is initialized it will be called until it can't figure out what to
  do anymore and then this routine is called again.
@@ -647,16 +648,6 @@ DoActorActionDecide(short SpriteNum)
     // !AIC KEY - If aware of player - var is changed in SpriteControl
     if (TEST(u->Flags, SPR_ACTIVE))
     {
-        // CODE BELOW = CRAP, DON'T USE IT OR IT MAKES ACTORS NOT ANIMATE SOMETIMES!!!!!
-        // If target was actor, retarget to player it actor died
-        // or just randomly give the target actor a break
-        //if ((User[u->tgt_sp()-sprite] &&
-        //    User[u->tgt_sp()-sprite]->Health <= 0) || RandomRange(1000) > 950)
-        //    {
-        //    DoActorPickClosePlayer(actor);
-        //    InitActorReposition(SpriteNum);
-        //    return(action);
-        //    }
 
         // Try to operate stuff
         DoActorOperate(SpriteNum);
@@ -1220,7 +1211,7 @@ FindTrackToPlayer(USERp u)
 
     //MONO_PRINT("FindTrackToPlayer\n");
 
-    zdiff = SPRITEp_UPPER(u->tgt_sp()) - (sp->z - SPRITEp_SIZE_Z(sp) + Z(8));
+    zdiff = ActorUpper(u->targetActor) - (sp->z - SPRITEp_SIZE_Z(sp) + Z(8));
 
     if (labs(zdiff) <= Z(20))
     {

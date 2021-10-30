@@ -12920,7 +12920,7 @@ InitLavaThrow(DSWActor* actor)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
     return w;
 }
@@ -13246,7 +13246,7 @@ InitEnemyNapalm(DSWActor* actor)
         dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
         if (dist != 0)
-            wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+            wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
         wu->xchange = MOVEx(wp->xvel, wp->ang);
         wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -13355,7 +13355,7 @@ InitEnemyMirv(DSWActor* actor)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
     return 0;
 }
 
@@ -13815,7 +13815,7 @@ InitSumoNapalm(short SpriteNum)
             dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
             if (dist != 0)
-                wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+                wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
             wu->xchange = MOVEx(wp->xvel, wp->ang);
             wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -13951,7 +13951,7 @@ InitMiniSumoClap(short SpriteNum)
     {
         if (SpriteOverlapZ(SpriteNum, short(u->tgt_sp() - sprite), Z(20)))
         {
-            if (FAFcansee(u->targetActor->s().x,u->targetActor->s().y,SPRITEp_MID(u->tgt_sp()),u->targetActor->s().sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
+            if (FAFcansee(u->targetActor->s().x,u->targetActor->s().y,ActorMid(u->targetActor),u->targetActor->s().sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
             {
                 PlaySound(DIGI_CGTHIGHBONE, sp, v3df_follow|v3df_dontpan);
                 DoDamage(short(u->tgt_sp() - sprite), SpriteNum);
@@ -13960,7 +13960,7 @@ InitMiniSumoClap(short SpriteNum)
     }
     else if (dist < CLOSE_RANGE_DIST_FUDGE(u->tgt_sp(), sp, reach))
     {
-        if (FAFcansee(u->targetActor->s().x,u->targetActor->s().y,SPRITEp_MID(u->tgt_sp()),u->targetActor->s().sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
+        if (FAFcansee(u->targetActor->s().x,u->targetActor->s().y,ActorMid(u->targetActor),u->targetActor->s().sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
         {
             PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
             SpawnFireballFlames(SpriteNum, short(u->tgt_sp() - sprite));
@@ -16072,7 +16072,7 @@ InitSerpSpell(DSWActor* actor)
         // find the distance to the target (player)
         dist = Distance(np->x, np->y, u->targetActor->s().x, u->targetActor->s().y);
         if (dist != 0)
-            np->zvel = (np->xvel * (SPRITEp_UPPER(u->tgt_sp()) - np->z)) / dist;
+            np->zvel = (np->xvel * (ActorUpper(u->targetActor) - np->z)) / dist;
 
         np->ang = NORM_ANGLE(np->ang + delta_ang[i]);
 
@@ -16192,7 +16192,7 @@ InitSerpMonstSpell(DSWActor* actor)
         // find the distance to the target (player)
         dist = Distance(np->x, np->y, u->targetActor->s().x, u->targetActor->s().y);
         if (dist != 0)
-            np->zvel = (np->xvel * (SPRITEp_UPPER(u->tgt_sp()) - np->z)) / dist;
+            np->zvel = (np->xvel * (ActorUpper(u->targetActor) - np->z)) / dist;
 
         np->ang = NORM_ANGLE(np->ang + delta_ang[i]);
 
@@ -16288,7 +16288,7 @@ InitEnemyRocket(DSWActor* actor)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
     return w;
 }
@@ -16383,7 +16383,7 @@ InitEnemyRail(DSWActor* actor)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
     return w;
 }
@@ -16473,7 +16473,7 @@ InitZillaRocket(DSWActor* actor)
         dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
         if (dist != 0)
-            wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+            wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
     }
 
     return w;
@@ -16521,7 +16521,7 @@ InitEnemyStar(DSWActor* actor)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
     //
     // Star Power Up Code
@@ -16617,7 +16617,7 @@ InitEnemyCrossbow(DSWActor* actor)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist != 0)
-        wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+        wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
     //
     // Star Power Up Code
@@ -16706,7 +16706,7 @@ InitSkelSpell(DSWActor* actor)
     dist = Distance(nx, ny, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist != 0)
-        wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - nz)) / dist;
+        wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - nz)) / dist;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -16771,7 +16771,7 @@ InitCoolgFire(DSWActor* actor)
     if (dist != 0)
         // (velocity * difference between the target and the throwing star) /
         // distance
-        wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - nz)) / dist;
+        wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - nz)) / dist;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -17058,7 +17058,7 @@ InitSpearTrap(short SpriteNum)
     //int dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     //if (dist != 0)
-    //wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp()) - wp->z)) / dist;
+    //wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
     PlaySound(DIGI_STAR, sp, v3df_none);
     return w;

@@ -2949,7 +2949,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
                 shootp = &sprite[sop->sp_num[i]];
 
                 if (!FAFcansee(shootp->x, shootp->y, shootp->z-Z(4), shootp->sectnum,
-                               u->targetActor->s().x, u->targetActor->s().y, SPRITEp_UPPER(u->tgt_sp()), u->targetActor->s().sectnum))
+                               u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sectnum))
                 {
                     return;
                 }
