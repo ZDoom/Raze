@@ -4885,7 +4885,9 @@ DoActorZrange(short SpriteNum)
 
     save_cstat = TEST(sp->cstat, CSTAT_SPRITE_BLOCK);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-    FAFgetzrange(sp->x, sp->y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
+    vec3_t pos = sp->pos;
+    pos.z -= DIV2(SPRITEp_SIZE_Z(sp));
+    FAFgetzrange(pos, sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     SET(sp->cstat, save_cstat);
 
     u->lo_sectp = u->hi_sectp = nullptr;
@@ -6893,7 +6895,9 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     // I subtracted 8 from the clipdist because actors kept going up on
     // ledges they were not supposed to go up on.  Did the same for the
     // player. Seems to work ok!
-    FAFgetzrange(spr->x, spr->y, spr->z - zh - 1, spr->sectnum,
+    vec3_t pos = spr->pos;
+    pos.z -= zh + 1;
+    FAFgetzrange(pos, spr->sectnum,
                  &globhiz, &globhihit, &globloz, &globlohit,
                  (((int) spr->clipdist) << 2) - GETZRANGE_CLIP_ADJ, cliptype);
 

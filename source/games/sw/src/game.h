@@ -1955,7 +1955,7 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 
 bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
-void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+void FAFgetzrange(vec3_t pos, int16_t sectnum,
                   int32_t* hiz, int32_t* ceilhit,
                   int32_t* loz, int32_t* florhit,
                   int32_t clipdist, int32_t clipmask);

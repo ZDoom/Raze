@@ -627,16 +627,6 @@ static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
     return enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? (int32_t)val : val;
 }
 
-static inline void getzrange_old(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
-                 int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(5,6,7,8)));
-
-static inline void getzrange_old(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
-                 int32_t *florhit, int32_t walldist, uint32_t cliptype)
-{
-    const vec3_t vector = { x, y, z };
-    getzrange(&vector, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
-}
-
 static inline int32_t setspritez_old(int16_t spritenum, int32_t x, int32_t y, int32_t z)
 {
     const vec3_t vector = { x, y, z };

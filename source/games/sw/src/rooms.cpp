@@ -501,7 +501,7 @@ void WaterAdjust(short florhit, int32_t* loz)
     }
 }
 
-void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+void FAFgetzrange(vec3_t pos, int16_t sectnum,
                   int32_t* hiz, int32_t* ceilhit,
                   int32_t* loz, int32_t* florhit,
                   int32_t clipdist, int32_t clipmask)
@@ -517,13 +517,13 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     // early out to regular routine
     if (sectnum < 0 || !FAF_ConnectArea(sectnum))
     {
-        getzrange_old(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
+        getzrange(&pos, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
         WaterAdjust(*florhit, loz);
         return;
     }
 
-    getzrange_old(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
+    getzrange(&pos, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
     SkipFAFcheck = SectorZadjust(*ceilhit, hiz, *florhit, loz);
     WaterAdjust(*florhit, loz);
 
@@ -541,10 +541,12 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             return;
         }
 
-        updatesectorz(x, y, newz, &uppersect);
+        updatesectorz(pos.x, pos.y, newz, &uppersect);
         if (uppersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
-        getzrange_old(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
+        vec3_t npos = pos;
+        npos.z = newz;
+        getzrange(&npos, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, -1, nullptr);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
@@ -563,10 +565,12 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             return;
         }
 
-        updatesectorz(x, y, newz, &lowersect);
+        updatesectorz(pos.x, pos.y, newz, &lowersect);
         if (lowersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
-        getzrange_old(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
+        vec3_t npos = pos;
+        npos.z = newz;
+        getzrange(&npos, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
         SectorZadjust(-1, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }

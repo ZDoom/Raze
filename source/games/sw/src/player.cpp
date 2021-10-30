@@ -1936,7 +1936,9 @@ DoPlayerZrange(PLAYERp pp)
     // for an entire box, NOT just a point.  -Useful for clipping
     bakcstat = pp->SpriteP->cstat;
     RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
-    FAFgetzrange(pp->posx, pp->posy, pp->posz + Z(8), pp->cursectnum, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)pp->SpriteP->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    vec3_t pos = pp->pos;
+    pos.z += Z(8);
+    FAFgetzrange(pos, pp->cursectnum, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)pp->SpriteP->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     pp->SpriteP->cstat = bakcstat;
 
 //  16384+sector (sector first touched) or
