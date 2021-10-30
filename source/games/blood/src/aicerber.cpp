@@ -60,7 +60,7 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
-	int dx = CosScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
 	///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
@@ -88,7 +88,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 	int z = height; // ???
 	TARGETTRACK tt1 = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
 	Aim aim;
-	aim.dx = CosScale16(pSprite->ang);
+	aim.dx = bcos(pSprite->ang);
 	aim.dy = bsin(pSprite->ang);
 	aim.dz = actor->dudeSlope;
 	int nClosest = 0x7fffffff;
@@ -133,7 +133,7 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 				if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
 				{
 					nClosest = nDist2;
-					aim.dx = CosScale16(nAngle);
+					aim.dx = bcos(nAngle);
 					aim.dy = bsin(nAngle);
 					aim.dz = DivScale(tz, nDist, 10);
 				}
@@ -167,7 +167,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 	TARGETTRACK tt1 = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
 	Aim aim;
 	int ax, ay, az;
-	aim.dx = ax = CosScale16(pSprite->ang);
+	aim.dx = ax = bcos(pSprite->ang);
 	aim.dy = ay = bsin(pSprite->ang);
 	aim.dz = actor->dudeSlope;
 	az = 0;
@@ -215,7 +215,7 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 				if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
 				{
 					nClosest = nDist2;
-					aim.dx = CosScale16(nAngle);
+					aim.dx = bcos(nAngle);
 					aim.dy = bsin(nAngle);
 					aim.dz = DivScale(tz, nDist, 10);
 				}

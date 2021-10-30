@@ -69,7 +69,7 @@ void SlashSeqCallback(int, DBloodActor* actor)
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
-	int dx = CosScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
 	// Correct ?
 	int dz = pSprite->z - pTarget->z;
@@ -86,7 +86,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 	uint8_t sectmap[(kMaxSectors + 7) >> 3];
 	XSPRITE* pXSprite = &actor1->x();
 	spritetype* pSprite = &actor1->s();
-	int dx = CosScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
 	int x = pSprite->x;
 	int y = pSprite->y;

@@ -80,7 +80,7 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 	}
 
 	spritetype* pTarget = &actor->GetTarget()->s();
-	int dx = CosScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);

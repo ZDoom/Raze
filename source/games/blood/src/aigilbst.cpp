@@ -64,7 +64,7 @@ void GillBiteSeqCallback(int, DBloodActor* actor)
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
-	int dx = CosScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
 	int dz = pSprite->z - pTarget->z;
 	dx += Random3(2000);

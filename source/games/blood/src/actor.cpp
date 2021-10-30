@@ -6134,7 +6134,7 @@ static void actCheckTraps()
 					y += (dy / 2) >> 12;
 				}
 				dy = bsin(pSprite->ang);
-				dx = CosScale16(pSprite->ang);
+				dx = bcos(pSprite->ang);
 				gVectorData[kVectorTchernobogBurn].maxDist = pXSprite->data1 << 9;
 				actFireVector(actor, 0, 0, dx, dy, Random2(0x8888), kVectorTchernobogBurn);
 			}

@@ -61,7 +61,7 @@ AISTATE tinycaleb139698 = { kAiStateOther, 8, -1, 120, NULL, aiMoveTurn, NULL, &
 void SeqAttackCallback(int, DBloodActor* actor)
 {
 	spritetype* pSprite = &actor->s();
-	int dx = CosScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
 	int dz = actor->dudeSlope;
 	dx += Random2(1500);

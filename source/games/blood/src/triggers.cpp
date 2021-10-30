@@ -248,7 +248,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                         y += (yvel[nTarget]*t)>>12;
                         int angBak = pSprite->ang;
                         pSprite->ang = getangle(x-pSprite->x, y-pSprite->y);
-                        int dx = CosScale16(pSprite->ang);
+                        int dx = bcos(pSprite->ang);
                         int dy = bsin(pSprite->ang);
                         int tz = pTarget->z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
                         int dz = DivScale(tz - top - 256, nDist, 10);
@@ -2258,7 +2258,7 @@ void FireballTrapSeqCallback(int, DBloodActor* actor)
     if (pSprite->cstat&32)
         actFireMissile(actor, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, kMissileFireball);
     else
-        actFireMissile(actor, 0, 0, CosScale16(pSprite->ang), bsin(pSprite->ang), 0, kMissileFireball);
+        actFireMissile(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), 0, kMissileFireball);
 }
 
 
@@ -2274,7 +2274,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
             if (pXSprite->data2 == 0)
                 evPostActor(&bloodActors[pXSprite->reference], 1, kCmdOff);
         }
-        int dx = CosScale16(pSprite->ang)+Random2(1000);
+        int dx = bcos(pSprite->ang)+Random2(1000);
         int dy = bsin(pSprite->ang)+Random2(1000);
         int dz = Random2(1000);
         actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
