@@ -900,7 +900,7 @@ DoBunnyMoveJump(DSWActor* actor)
         nx = MulScale(sp->xvel, bcos(sp->ang), 14);
         ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
-        move_actor(u->SpriteNum, nx, ny, 0L);
+        move_actor(actor, nx, ny, 0L);
 
         if (TEST(u->Flags, SPR_JUMPING))
             DoActorJump(actor);

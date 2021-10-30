@@ -2070,7 +2070,7 @@ NinjaJumpActionFunc(DSWActor* actor)
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     // if cannot move the sprite
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
         return 0;
     }

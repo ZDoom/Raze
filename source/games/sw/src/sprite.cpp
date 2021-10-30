@@ -5093,11 +5093,11 @@ DropAhead(short SpriteNum, short min_height)
 
 */
 
-int
-move_actor(short SpriteNum, int xchange, int ychange, int zchange)
+int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+    SPRITEp sp = &actor->s();
 
     int x, y, z, loz, hiz;
     SPRITEp lo_sp, hi_sp;

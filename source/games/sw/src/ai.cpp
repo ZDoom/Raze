@@ -1020,7 +1020,7 @@ int DoActorMoveCloser(DSWActor* actor)
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     // if cannot move the sprite
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
         DebugMoveHit(actor);
 
@@ -1597,7 +1597,7 @@ int DoActorMoveJump(DSWActor* actor)
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
-    move_actor(SpriteNum, nx, ny, 0L);
+    move_actor(actor, nx, ny, 0L);
 
     if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
     {
@@ -1932,7 +1932,7 @@ int DoActorReposition(DSWActor* actor)
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     // still might hit something and have to handle it.
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
         if (ActorMoveHitReact(actor))
             return 0;

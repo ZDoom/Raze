@@ -35,7 +35,7 @@ void KillActor(DSWActor* actor);
 int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel);
 DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel);
 void SpriteSetup(void);
-int move_actor(short SpriteNum, int xchange, int ychange, int zchange);
+int move_actor(DSWActor* actor, int xchange, int ychange, int zchange);
 short GetSpriteDir(short sn);
 short GetDirToPlayer(short sn);
 short PlayerInVision(short sn, short view_deg);

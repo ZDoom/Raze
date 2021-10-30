@@ -475,7 +475,7 @@ int DoFireFly(DSWActor* actor)
     ny = 4 * ACTORMOVETICS * bsin(sp->ang) >> 14;
 
     sp->clipdist = 256>>2;
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
         sp->ang = NORM_ANGLE(sp->ang + 1024);
     }
@@ -634,7 +634,7 @@ int DoActorSlide(DSWActor* actor)
     nx = MulScale(u->slide_vel, bcos(u->slide_ang), 14);
     ny = MulScale(u->slide_vel, bsin(u->slide_ang), 14);
 
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
         RESET(u->Flags, SPR_SLIDING);
         return false;
@@ -849,7 +849,7 @@ int DoActorDeathMove(DSWActor* actor)
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     sp->clipdist = (128+64)>>2;
-    move_actor(SpriteNum, nx, ny, 0);
+    move_actor(actor, nx, ny, 0);
 
     // only fall on top of floor sprite or sector
     DoFindGroundPoint(SpriteNum);
