@@ -528,7 +528,7 @@ DoHornetDeath(DSWActor* actor)
         u->jump_speed = 0;
         u->floor_dist = 0;
         DoBeginFall(actor);
-        DoFindGroundPoint(SpriteNum);
+        DoFindGroundPoint(actor);
         u->zclip = u->loz;
     }
 

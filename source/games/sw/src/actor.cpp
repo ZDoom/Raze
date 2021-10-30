@@ -712,9 +712,6 @@ int DoActorJump(DSWActor* actor)
         // reverse your speed to falling
         u->jump_speed = -u->jump_speed;
 
-        //DSPRINTF(ds,"Jump: sp_num %d, hi_num %d, hi_sect %d",SpriteNum, u->hi_sp - sprite, u->hi_sectp - sector);
-        MONO_PRINT(ds);
-
         // Change sprites state to falling
         DoActorBeginFall(actor);
     }
@@ -823,7 +820,6 @@ int DoActorStopFall(DSWActor* actor)
 int DoActorDeathMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     SPRITEp sp = &actor->s();
     int nx, ny;
@@ -843,7 +839,7 @@ int DoActorDeathMove(DSWActor* actor)
     move_actor(actor, nx, ny, 0);
 
     // only fall on top of floor sprite or sector
-    DoFindGroundPoint(SpriteNum);
+    DoFindGroundPoint(actor);
 
     return 0;
 }

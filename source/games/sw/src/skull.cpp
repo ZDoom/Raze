@@ -275,7 +275,7 @@ DoSkullMove(DSWActor* actor)
 
     u->ret = move_missile(SpriteNum, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS);
 
-    DoFindGroundPoint(SpriteNum);
+    DoFindGroundPoint(actor);
     return 0;
 }
 
@@ -696,7 +696,7 @@ DoBettyMove(DSWActor* actor)
 
     u->ret = move_missile(SpriteNum, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS);
 
-    DoFindGroundPoint(SpriteNum);
+    DoFindGroundPoint(actor);
     return 0;
 }
 

@@ -542,7 +542,7 @@ DoEelDeath(DSWActor* actor)
     }
     else
     {
-        DoFindGroundPoint(SpriteNum);
+        DoFindGroundPoint(actor);
         u->floor_dist = 0;
         DoBeginFall(actor);
     }
@@ -555,7 +555,7 @@ DoEelDeath(DSWActor* actor)
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     u->ret = move_sprite(SpriteNum, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS);
-    DoFindGroundPoint(SpriteNum);
+    DoFindGroundPoint(actor);
 
     // on the ground
     if (sp->z >= u->loz)

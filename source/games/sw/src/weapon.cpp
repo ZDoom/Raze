@@ -3910,7 +3910,7 @@ DoVomit(DSWActor* actor)
     else
     {
         ChangeState(actor, s_VomitSplash);
-        DoFindGroundPoint(SpriteNum);
+        DoFindGroundPoint(actor);
         MissileWaterAdjust(SpriteNum);
         sp->z = u->loz;
         u->WaitTics = 60;
@@ -12016,11 +12016,10 @@ DoFindGround(int16_t SpriteNum)
     return false;
 }
 
-int
-DoFindGroundPoint(int16_t SpriteNum)
+int DoFindGroundPoint(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum], hsp;
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s(), hsp;
+    USERp u = actor->u();
     int ceilhit, florhit;
     short save_cstat;
     short bak_cstat;
@@ -12054,7 +12053,7 @@ DoFindGroundPoint(int16_t SpriteNum)
             // recursive
             bak_cstat = hsp->cstat;
             RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-            DoFindGroundPoint(SpriteNum);
+            DoFindGroundPoint(actor);
             hsp->cstat = bak_cstat;
         }
 
@@ -12146,7 +12145,7 @@ DoNapalm(DSWActor* actor)
 
         explosion = SpawnSprite(STAT_MISSILE, NAP_EXP, s_NapExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
-
+        auto expActor = &swActors[explosion];
         exp = &sprite[explosion];
         eu = User[explosion].Data();
 
@@ -12163,7 +12162,7 @@ DoNapalm(DSWActor* actor)
         RESET(exp->cstat, CSTAT_SPRITE_TRANSLUCENT);
         eu->Radius = 1500;
 
-        DoFindGroundPoint(explosion);
+        DoFindGroundPoint(expActor);
         MissileWaterAdjust(explosion);
         exp->z = eu->loz;
         exp->backupz();
@@ -16814,6 +16813,7 @@ int DoCoolgDrip(DSWActor* actor)
 int
 InitCoolgDrip(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp wu;
     int nx, ny, nz;
@@ -16839,7 +16839,7 @@ InitCoolgDrip(short SpriteNum)
     wu->floor_dist = Z(4);
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
-    DoFindGroundPoint(SpriteNum);
+    DoFindGroundPoint(actor);
 
     return w;
 }
@@ -16889,7 +16889,7 @@ GenerateDrips(DSWActor* actor)
         if (TEST_BOOL1(sp))
             wu->spal = wp->pal = PALETTE_BLUE_LIGHTING;
 
-        DoFindGroundPoint(SpriteNum);
+        DoFindGroundPoint(actor);
     }
     return w;
 }

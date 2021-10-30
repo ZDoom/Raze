@@ -215,7 +215,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop);
 int InitVulcanBoulder(DSWActor* actor);
 int DoBladeDamage(short SpriteNum);
 int DoFindGround(int16_t SpriteNum);
-int DoFindGroundPoint(int16_t SpriteNum);
+int DoFindGroundPoint(DSWActor* actor);
 void SpriteQueueDelete(short SpriteNum);
 int HelpMissileLateral(int16_t Weapon,int dist);
 int AddSpriteToSectorObject(short SpriteNum,SECTOR_OBJECTp sop);
