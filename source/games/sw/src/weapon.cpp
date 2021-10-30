@@ -4948,19 +4948,19 @@ DoRipperGrow(DSWActor* actor)
     return 0;
 }
 
-void UpdateSinglePlayKills(short SpriteNum)
+void UpdateSinglePlayKills(DSWActor* actor)
 {
     // single play and coop kill count
-    if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
+    if (gNet.MultiGameType != MULTI_GAME_COMMBAT && actor->hasU())
     {
-        ASSERT(User[SpriteNum].Data());
+        auto u = actor->u();
 
-        if (TEST(User[SpriteNum]->Flags, SPR_SUICIDE))
+        if (TEST(u->Flags, SPR_SUICIDE))
         {
             return;
         }
 
-        switch (User[SpriteNum]->ID)
+        switch (u->ID)
         {
         case COOLIE_RUN_R0:
         case NINJA_RUN_R0:
@@ -5004,7 +5004,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
     if (u == nullptr || u->Health > 0)
         return false;
 
-    UpdateSinglePlayKills(SpriteNum);
+    UpdateSinglePlayKills(actor);
 
     if (u->Attrib)
         PlaySpriteSound(SpriteNum,attr_die,v3df_follow);
@@ -5034,7 +5034,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
     break;
     default:
         ActorCoughItem(SpriteNum);
-        //UpdateSinglePlayKills(SpriteNum);
+        //UpdateSinglePlayKills(actor);
         break;
     }
 
@@ -12754,7 +12754,7 @@ DoSerpRing(DSWActor* actor)
     // kill off all of his skull children
     if (sp->owner == -1 || ou->RotNum < 5)
     {
-        UpdateSinglePlayKills(Weapon);
+        UpdateSinglePlayKills(actor);
         DoSkullBeginDeath(actor);
         // +2 does not spawn shrapnel
         u->ID = SKULL_SERP;

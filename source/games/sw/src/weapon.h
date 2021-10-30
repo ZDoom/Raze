@@ -201,7 +201,7 @@ enum ShrapPos
 };
 
 int SetSuicide(short SpriteNum);
-void UpdateSinglePlayKills(short SpriteNum);
+void UpdateSinglePlayKills(DSWActor* actor);
 int InitPlasmaFountain(SPRITEp wp, SPRITEp sp);
 int InitCoolgDrip(short SpriteNum);
 int InitFireball(PLAYERp pp);

@@ -550,6 +550,7 @@ int DoVator(DSWActor* actor)
             SectIterator it(sp->sectnum);
             while ((i = it.NextIndex()) >= 0)
             {
+                auto itActor = &swActors[i];
                 bsp = &sprite[i];
                 bu = User[i].Data();
 
@@ -558,7 +559,7 @@ int DoVator(DSWActor* actor)
                     if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
                     {
                         InitBloodSpray(i, true, -1);
-                        UpdateSinglePlayKills(i);
+                        UpdateSinglePlayKills(itActor);
                         KillSprite(i);
                         continue;
                     }
@@ -602,6 +603,7 @@ int DoVator(DSWActor* actor)
             SectIterator it(sp->sectnum);
             while ((i = it.NextIndex()) >= 0)
             {
+                auto itActor = &swActors[i];
                 bsp = &sprite[i];
 
                 if (bsp->statnum == STAT_ENEMY)
@@ -609,7 +611,7 @@ int DoVator(DSWActor* actor)
                     if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
                     {
                         InitBloodSpray(i, true, -1);
-                        UpdateSinglePlayKills(i);
+                        UpdateSinglePlayKills(itActor);
                         KillSprite(i);
                         continue;
                     }

@@ -321,7 +321,7 @@ DoSkullBeginDeath(DSWActor* actor)
         break;
 
     case 3:
-        UpdateSinglePlayKills(SpriteNum);
+        UpdateSinglePlayKills(actor);
         InitFlashBomb(actor);
         break;
 
@@ -399,7 +399,7 @@ int DoSkullJump(DSWActor* actor)
             if (dist < 1000 &&
                 SpriteOverlapZ(SpriteNum, short(u->tgt_sp() - sprite), Z(32)))
             {
-                UpdateSinglePlayKills(SpriteNum);
+                UpdateSinglePlayKills(actor);
                 DoSkullBeginDeath(actor);
                 return 0;
             }
@@ -407,7 +407,7 @@ int DoSkullJump(DSWActor* actor)
             if ((sp->z > u->loz - Z(36)))
             {
                 sp->z = u->loz - Z(36);
-                UpdateSinglePlayKills(SpriteNum);
+                UpdateSinglePlayKills(actor);
                 DoSkullBeginDeath(actor);
                 return 0;
             }
@@ -417,7 +417,7 @@ int DoSkullJump(DSWActor* actor)
         {
             if (u->jump_speed > 200)
             {
-                UpdateSinglePlayKills(SpriteNum);
+                UpdateSinglePlayKills(actor);
                 DoSkullBeginDeath(actor);
             }
         }
@@ -425,7 +425,7 @@ int DoSkullJump(DSWActor* actor)
     }
     else
     {
-        UpdateSinglePlayKills(SpriteNum);
+        UpdateSinglePlayKills(actor);
         DoSkullBeginDeath(actor);
     }
 
@@ -818,7 +818,7 @@ int DoBettyJump(DSWActor* actor)
             if (dist < 1000 &&
                 SpriteOverlapZ(SpriteNum, short(u->tgt_sp() - sprite), Z(32)))
             {
-                UpdateSinglePlayKills(SpriteNum);
+                UpdateSinglePlayKills(actor);
                 DoBettyBeginDeath(actor);
                 return 0;
             }
@@ -826,7 +826,7 @@ int DoBettyJump(DSWActor* actor)
             if ((sp->z > u->loz - Z(36)))
             {
                 sp->z = u->loz - Z(36);
-                UpdateSinglePlayKills(SpriteNum);
+                UpdateSinglePlayKills(actor);
                 DoBettyBeginDeath(actor);
                 return 0;
             }
@@ -836,7 +836,7 @@ int DoBettyJump(DSWActor* actor)
         {
             if (u->jump_speed > 200)
             {
-                UpdateSinglePlayKills(SpriteNum);
+                UpdateSinglePlayKills(actor);
                 DoBettyBeginDeath(actor);
             }
         }
@@ -844,7 +844,7 @@ int DoBettyJump(DSWActor* actor)
     }
     else
     {
-        UpdateSinglePlayKills(SpriteNum);
+        UpdateSinglePlayKills(actor);
         DoBettyBeginDeath(actor);
     }
     return 0;

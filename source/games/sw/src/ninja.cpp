@@ -1946,7 +1946,7 @@ DoNinjaHariKari(DSWActor* actor)
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short cnt,i;
 
-    UpdateSinglePlayKills(SpriteNum);
+    UpdateSinglePlayKills(actor);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(u->Flags, SPR_DEAD);
@@ -1978,7 +1978,7 @@ DoNinjaGrabThroat(DSWActor* actor)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        UpdateSinglePlayKills(SpriteNum);
+        UpdateSinglePlayKills(actor);
         RESET(u->Flags2, SPR2_DYING);
         RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
         change_actor_stat(actor, STAT_DEAD_ACTOR);

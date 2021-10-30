@@ -324,10 +324,10 @@ void DoDebrisCurrent(DSWActor* actor)
 int DoActorSectorDamage(DSWActor* actor)
 {
     USER* u = actor->u();
-	int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
+    int SpriteNum = actor->GetSpriteIndex();
 
     if (u->Health <= 0)
         return false;
@@ -343,7 +343,7 @@ int DoActorSectorDamage(DSWActor* actor)
 
                 if (u->Health <= 0)
                 {
-                    UpdateSinglePlayKills(SpriteNum);
+                    UpdateSinglePlayKills(actor);
                     DoActorDie(actor, nullptr, WPN_NM_LAVA);
                     return true;
                 }
@@ -358,7 +358,7 @@ int DoActorSectorDamage(DSWActor* actor)
 
                 if (u->Health <= 0)
                 {
-                    UpdateSinglePlayKills(SpriteNum);
+                    UpdateSinglePlayKills(actor);
                     DoActorDie(actor, nullptr, WPN_NM_LAVA);
                     return true;
                 }
@@ -373,7 +373,7 @@ int DoActorSectorDamage(DSWActor* actor)
         u->Health = 0;
         if (SpawnShrap(SpriteNum, WPN_NM_SECTOR_SQUISH))
         {
-            UpdateSinglePlayKills(SpriteNum);
+            UpdateSinglePlayKills(actor);
             SetSuicide(SpriteNum);
         }
         else

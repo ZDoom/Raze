@@ -2644,7 +2644,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
                     continue;
             }
 
-            UpdateSinglePlayKills(i);
+            UpdateSinglePlayKills(actor);
 
             if (SpawnShrap(i, -99))
                 SetSuicide(i);

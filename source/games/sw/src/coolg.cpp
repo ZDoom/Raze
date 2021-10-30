@@ -632,7 +632,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     {
         InitBloodSpray(SpriteNum, true, 105);
         InitBloodSpray(SpriteNum, true, 105);
-        UpdateSinglePlayKills(SpriteNum);
+        UpdateSinglePlayKills(actor);
         SetSuicide(SpriteNum);
     }
 

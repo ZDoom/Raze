@@ -637,7 +637,7 @@ int DoCoolieMove(DSWActor* actor)
     if (Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y) < 1200)
     {
         //DoActorDie(SpriteNum, -3);
-        UpdateSinglePlayKills(SpriteNum);
+        UpdateSinglePlayKills(actor);
         DoActorDie(actor, actor, 0);
         return 0;
     }
