@@ -1590,7 +1590,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         }
 
         // recoil only when not in camera
-        thoriz = q16horiz(clamp(thoriz.asq16() + pp->recoil_horizoff, gi->playerHorizMin(), gi->playerHorizMax()));
+        thoriz = q16horiz(clamp(thoriz.asq16() + interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, smoothratio), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
     if (automapMode != am_full)// && !ScreenSavePic)

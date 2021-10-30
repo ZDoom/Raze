@@ -1720,7 +1720,7 @@ DoPlayerBeginRecoil(PLAYERp pp, short pix_amt)
     pp->recoil_amt = pix_amt;
     pp->recoil_speed = 80;
     pp->recoil_ndx = 0;
-    pp->recoil_horizoff = 0;
+    pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
 }
 
 void
@@ -1732,11 +1732,12 @@ DoPlayerRecoil(PLAYERp pp)
     if (bsin(pp->recoil_ndx) < 0)
     {
         RESET(pp->Flags, PF_RECOIL);
-        pp->recoil_horizoff = 0;
+        pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
         return;
     }
 
     // move pp->q16horiz up and down
+    pp->recoil_ohorizoff = pp->recoil_horizoff;
     pp->recoil_horizoff = pp->recoil_amt * bsin(pp->recoil_ndx, 2);
 }
 
@@ -7654,6 +7655,7 @@ DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_amt)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_speed)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_ndx)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_horizoff)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_ohorizoff)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposx)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposy)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposz)

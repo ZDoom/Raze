@@ -510,6 +510,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("recoil_speed", w.recoil_speed)
 			("recoil_ndx", w.recoil_ndx)
 			("recoil_horizoff", w.recoil_horizoff)
+			("recoil_ohorizoff", w.recoil_ohorizoff)
 			("oldposx", w.oldposx)
 			("oldposy", w.oldposy)
 			("oldposz", w.oldposz)

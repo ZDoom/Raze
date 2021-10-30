@@ -799,7 +799,7 @@ struct PLAYERstruct
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
-    fixed_t recoil_horizoff;
+    fixed_t recoil_ohorizoff, recoil_horizoff;
 
     int oldposx,oldposy,oldposz;
     int RevolveX, RevolveY;
