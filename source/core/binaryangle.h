@@ -115,12 +115,13 @@ class binangle
 	friend binangle degang(double v);
 
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval);
+
+	constexpr int32_t tosigned() const { return value > INT32_MAX ? int64_t(value) - UINT32_MAX : value; }
 	
 public:
 	binangle() = default;
 	binangle(const binangle &other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	constexpr int32_t tosigned() const { return value > INT32_MAX ? int64_t(value) - UINT32_MAX : value; }
 	constexpr short asbuild() const { return value >> BAMBITS; }
 	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
 	constexpr fixed_t asq16() const { return value >> 5; }
