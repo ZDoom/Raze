@@ -4484,13 +4484,13 @@ WeaponMoveHit(short SpriteNum)
         else
         {
             // hit a floor sprite
-            if (u->hi_sp)
+            if (u->highActor)
             {
-                if (u->hi_sp->lotag == TAG_SPRITE_HIT_MATCH)
+                if (u->highActor->s().lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(SpriteNum, -1, short(u->hi_sp - sprite)))
+                    if (MissileHitMatch(SpriteNum, -1, u->highActor->GetSpriteIndex()))
                         return true;
-                    //DoMatchEverything(nullptr, u->hi_sp->hitag, -1);
+                    //DoMatchEverything(nullptr, u->highActor->s().hitag, -1);
                     //return(true);
                 }
             }
@@ -8054,8 +8054,8 @@ DoStar(DSWActor* actor)
             if (u->lowActor)
                 if (u->lowActor->s().lotag == TAG_SPRITE_HIT_MATCH)
                     break;
-            if (u->hi_sp)
-                if (u->hi_sp->lotag == TAG_SPRITE_HIT_MATCH)
+            if (u->highActor)
+                if (u->highActor->s().lotag == TAG_SPRITE_HIT_MATCH)
                     break;
 
             ScaleSpriteVector(Weapon, 58000);

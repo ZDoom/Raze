@@ -671,7 +671,7 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     }
 
     // upper bound
-    if (u->hi_sp)
+    if (u->highActor)
         bound = hiz + u->ceiling_dist;
     else
         bound = hiz + u->ceiling_dist + COOLG_BOB_AMT;

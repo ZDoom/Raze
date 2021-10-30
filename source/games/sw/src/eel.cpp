@@ -480,7 +480,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
         loz -= Z(FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed)) - Z(8);
 
     // lower bound
-    if (u->lowActor && u->tgt_sp() == u->hi_sp)
+    if (u->lowActor && u->targetActor == u->highActor) // this doesn't look right...
     {
         DISTANCE(sp->x, sp->y, u->lowActor->s().x, u->lowActor->s().y, dist, a, b, c);
         if (dist <= 300)
@@ -497,9 +497,9 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     }
 
     // upper bound
-    if (u->hi_sp && u->tgt_sp() == u->hi_sp)
+    if (u->highActor && u->targetActor == u->highActor)
     {
-        DISTANCE(sp->x, sp->y, u->hi_sp->x, u->hi_sp->y, dist, a, b, c);
+        DISTANCE(sp->x, sp->y, u->highActor->s().x, u->highActor->s().y, dist, a, b, c);
         if (dist <= 300)
             bound = u->sz;
         else

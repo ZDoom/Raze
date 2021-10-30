@@ -775,8 +775,7 @@ struct PLAYERstruct
     int hiz,loz;
     int ceiling_dist,floor_dist;
     SECTORp hi_sectp, lo_sectp;
-    SPRITEp hi_sp;
-    DSWActor* lowActor;
+    DSWActor* lowActor, *highActor;
 
     SPRITEp last_camera_sp;
     int circle_camera_dist;
@@ -1132,8 +1131,7 @@ struct USER
     int hiz,loz;
     int zclip; // z height to move up for clipmove
     SECTORp hi_sectp, lo_sectp;
-    SPRITEp hi_sp;
-    DSWActor* lowActor;
+    DSWActor* lowActor, *highActor;
 
     int active_range;
 

@@ -1947,11 +1947,11 @@ DoPlayerZrange(PLAYERp pp)
 
     pp->lo_sectp = pp->hi_sectp = nullptr;
     pp->lowActor = nullptr;
-    pp->hi_sp = nullptr;
+    pp->highActor = nullptr;
 
     if (TEST(ceilhit, 0xc000) == 49152)
     {
-        pp->hi_sp = &sprite[ceilhit & 4095];
+        pp->highActor = &swActors[ceilhit & 4095];
     }
     else
     {
@@ -4764,10 +4764,10 @@ DoPlayerDive(PLAYERp pp)
     else
     {
         // close to a warping sector - stop diveing with a warp to surface
-        // !JIM! FRANK - I added !pp->hi_sp so that you don't warp to surface when
+        // !JIM! FRANK - I added !pp->hiActor so that you don't warp to surface when
         //     there is a sprite above you since getzrange returns a hiz < ceiling height
         //     if you are clipping into a sprite and not the ceiling.
-        if (pp->posz < pp->hiz + Z(4) && !pp->hi_sp)
+        if (pp->posz < pp->hiz + Z(4) && !pp->highActor)
         {
             DoPlayerStopDive(pp);
             return;
@@ -6081,12 +6081,9 @@ DoPlayerDeathZrange(PLAYERp pp)
     DoFindGround(pp->PlayerSprite);
 
     // update player values with results from DoFindGround
-//    pp->hiz = u->hiz;
     pp->loz = u->loz;
     pp->lowActor = u->lowActor;
-    //pp->hi_sp = u->hi_sp;
     pp->lo_sectp = u->lo_sectp;
-    //pp->hi_sectp = u->hi_sectp;
 }
 
 void DoPlayerDeathHurl(PLAYERp pp)

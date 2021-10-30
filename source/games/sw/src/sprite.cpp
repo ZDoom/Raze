@@ -804,7 +804,7 @@ void KillSprite(int16_t SpriteNum)
     {
         if (u.Data())
         {
-            if (u->hi_sp == sp) u->hi_sp = nullptr;
+            if (u->highActor == actor) u->highActor = nullptr;
             if (u->lowActor == actor) u->lowActor = nullptr;
             if (u->targetActor == actor) u->targetActor = nullptr;
         }
@@ -938,7 +938,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     u->loz = sector[sp->sectnum].floorz;
     u->hiz = sector[sp->sectnum].ceilingz;
     u->lowActor = nullptr;
-    u->hi_sp = nullptr;
+    u->highActor = nullptr;
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
 #endif
@@ -4941,13 +4941,13 @@ DoActorZrange(short SpriteNum)
     SET(sp->cstat, save_cstat);
 
     u->lo_sectp = u->hi_sectp = nullptr;
-    u->hi_sp = nullptr;
+    u->highActor = nullptr;
     u->lowActor = nullptr;
 
     switch (TEST(ceilhit, HIT_MASK))
     {
     case HIT_SPRITE:
-        u->hi_sp = &sprite[NORM_SPRITE(ceilhit)];
+        u->highActor = &swActors[NORM_SPRITE(ceilhit)];
         break;
     case HIT_SECTOR:
         u->hi_sectp = &sector[NORM_SECTOR(ceilhit)];
@@ -4983,13 +4983,13 @@ DoActorGlobZ(short SpriteNum)
     u->hiz = globhiz;
 
     u->lo_sectp = u->hi_sectp = nullptr;
-    u->hi_sp = nullptr;
+    u->highActor = nullptr;
     u->lowActor = nullptr;
 
     switch (TEST(globhihit, HIT_MASK))
     {
     case HIT_SPRITE:
-        u->hi_sp = &sprite[globhihit & 4095];
+        u->highActor = &swActors[globhihit & 4095];
         break;
     default:
         u->hi_sectp = &sector[globhihit & 4095];
@@ -5108,7 +5108,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     SPRITEp sp = &actor->s();
 
     int x, y, z, loz, hiz;
-    SPRITEp hi_sp;
+    DSWActor* highActor;
     DSWActor* lowActor;
     SECTORp lo_sectp, hi_sectp;
     short sectnum;
@@ -5130,7 +5130,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     loz = u->loz;
     hiz = u->hiz;
     lowActor = u->lowActor;
-    hi_sp = u->hi_sp;
+    highActor = u->highActor;
     lo_sectp = u->lo_sectp;
     hi_sectp = u->hi_sectp;
     sectnum = sp->sectnum;
@@ -5153,7 +5153,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             u->loz = loz;
             u->hiz = hiz;
             u->lowActor = lowActor;
-            u->hi_sp = hi_sp;
+            u->highActor = highActor;
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
             u->ret = -1;
@@ -5172,7 +5172,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             u->loz = loz;
             u->hiz = hiz;
             u->lowActor = lowActor;
-            u->hi_sp = hi_sp;
+            u->highActor = highActor;
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
             u->ret = -1;
@@ -7382,7 +7382,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 
                 getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
                 u->hi_sectp = u->lo_sectp = &sector[sp->sectnum];
-                u->hi_sp = u->lowActor = nullptr;
+                u->highActor = u->lowActor = nullptr;
                 return retval;
             }
             else
@@ -7409,7 +7409,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
     u->hi_sectp = u->lo_sectp = &sector[sp->sectnum];
-    u->hi_sp = nullptr; u->lowActor = nullptr;
+    u->highActor = nullptr; u->lowActor = nullptr;
     sp->z = u->loz - Z(8);
 
     if (labs(u->hiz - u->loz) < Z(12))

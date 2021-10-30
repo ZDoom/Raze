@@ -704,7 +704,7 @@ int NullZilla(DSWActor* actor)
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
     u->lowActor = nullptr;
-    u->hi_sp = nullptr;
+    u->highActor = nullptr;
     sp->z = u->loz;
 
     DoActorSectorDamage(actor);
@@ -789,7 +789,7 @@ int DoZillaDeathMelt(DSWActor* actor)
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
     u->lowActor = nullptr;
-    u->hi_sp = nullptr;
+    u->highActor = nullptr;
     sp->z = u->loz;
 
     BossSpriteNum[2] = -2;

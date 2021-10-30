@@ -1619,8 +1619,8 @@ int move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy, int 
 
     short sang,ss;
     int x, y, z, loz, hiz;
-    SPRITEp hi_sp;
-    DSWActor *lowActor;
+    DSWActor* highActor;
+    DSWActor* lowActor;
     SECTORp lo_sectp, hi_sectp;
 
 
@@ -1634,7 +1634,7 @@ int move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy, int 
     loz = u->loz;
     hiz = u->hiz;
     lowActor = u->lowActor;
-    hi_sp = u->hi_sp;
+    highActor = u->highActor;
     lo_sectp = u->lo_sectp;
     hi_sectp = u->hi_sectp;
     ss = sp->sectnum;
@@ -1663,7 +1663,7 @@ int move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy, int 
     u->loz = loz;
     u->hiz = hiz;
     u->lowActor = lowActor;
-    u->hi_sp = hi_sp;
+    u->highActor = highActor;
     u->lo_sectp = lo_sectp;
     u->hi_sectp = hi_sectp;
     changespritesect(u->SpriteNum, ss);

@@ -397,7 +397,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     }
 
     // upper bound
-    if (u->hi_sp)
+    if (u->highActor)
         bound = hiz + u->ceiling_dist;
     else
         bound = hiz + u->ceiling_dist + HORNET_BOB_AMT;
