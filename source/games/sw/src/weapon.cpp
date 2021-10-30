@@ -4070,12 +4070,12 @@ DoShrapDamage(DSWActor* actor)
     return 0;
 }
 
-int
-SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z)
+int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp np;
-    USERp nu, u;
+    USERp nu;
     short i,New;
 
 
@@ -4144,8 +4144,6 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
     short shrap_pal = PALETTE_DEFAULT;
     short start_ang = 0;
 
-    u = User[SpriteNum].Data();
-
     switch (u->ID)
     {
     case TRASHCAN:
@@ -4160,10 +4158,10 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
 
     // second sprite involved
     // most of the time is the weapon
-    if (Weapon >= 0)
+    if (weapActor != nullptr)
     {
-        SPRITEp wp = &sprite[Weapon];
-        USERp wu = User[Weapon].Data();
+        SPRITEp wp = &weapActor->s();
+        USERp wu = weapActor->u();
 
         switch (wu->ID)
         {
@@ -5824,6 +5822,8 @@ PlayerTakeDamage(PLAYERp pp, short Weapon)
 int
 StarBlood(short SpriteNum, short Weapon)
 {
+    auto actor = &swActors[SpriteNum];
+    auto weapActor = Weapon >= 0 ? &swActors[Weapon] : nullptr;
     USERp u = User[SpriteNum].Data();
     short blood_num = 1;
     short i;
@@ -5832,7 +5832,7 @@ StarBlood(short SpriteNum, short Weapon)
         blood_num = 4;
 
     for (i = 0; i < blood_num; i++)
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
     return 0;
 }
 
@@ -5848,6 +5848,7 @@ int
 DoDamage(short SpriteNum, short Weapon)
 {
     auto actor = &swActors[SpriteNum];
+    auto weapActor = Weapon >= 0 ? &swActors[Weapon] : nullptr;
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     SPRITEp wp;
@@ -5859,29 +5860,25 @@ DoDamage(short SpriteNum, short Weapon)
     // don't hit a dead player
     if (u->PlayerP && TEST(u->PlayerP->Flags, PF_DEAD))
     {
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
         return 0;
     }
 
-    if (TEST(u->Flags, SPR_SUICIDE))
+    if (!weapActor || !weapActor->hasU() || TEST(u->Flags, SPR_SUICIDE))
         return 0;
 
-    auto weapActor = &swActors[Weapon];
-    wp = &sprite[Weapon];
-    wu = User[Weapon].Data();
-
-    ASSERT(wu);
+    wp = &weapActor->s();
+    wu = weapActor->u();
 
     if (TEST(wu->Flags, SPR_SUICIDE))
         return 0;
 
-    ASSERT(u);
     if (u->Attrib && RANDOM_P2(1024) > 850)
         PlaySpriteSound(SpriteNum,attr_pain,v3df_follow);
 
     if (TEST(u->Flags, SPR_DEAD))
     {
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
         return 0;
     }
 
@@ -5960,7 +5957,7 @@ DoDamage(short SpriteNum, short Weapon)
                 ActorChooseDeath(SpriteNum, Weapon);
             }
 
-            SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+            SpawnBlood(actor, weapActor, 0, 0, 0, 0);
             break;
 #endif
         }
@@ -6026,7 +6023,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6058,7 +6055,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6088,7 +6085,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        //SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        //SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6118,7 +6115,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6153,7 +6150,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6187,7 +6184,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6220,7 +6217,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6248,9 +6245,9 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6293,7 +6290,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -6363,7 +6360,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         wu->ID = 0;
         SetSuicide(Weapon);
@@ -6394,7 +6391,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         wu->ID = 0;
         SetSuicide(Weapon);
@@ -6425,7 +6422,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         wu->ID = 0;
         SetSuicide(Weapon);
@@ -6480,7 +6477,7 @@ DoDamage(short SpriteNum, short Weapon)
             }
         }
 
-        //SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        //SpawnBlood(actor, weapActor, 0, 0, 0, 0);
         // reset id so no more damage is taken
         wu->ID = 0;
         break;
@@ -6512,7 +6509,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        //SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
+        //SpawnBlood(actor, weapActor, 0, 0, 0, 0);
         switch (u->ID)
         {
         case TRASHCAN:
@@ -8602,6 +8599,7 @@ DoPlasmaFountain(DSWActor* actor)
     }
     else
     {
+        auto attachActor = &swActors[u->Attach];
         ap = &sprite[u->Attach];
 
         // move with sprite
@@ -8614,7 +8612,7 @@ DoPlasmaFountain(DSWActor* actor)
 
         if (!u->Counter)
         {
-            SpawnBlood(short(ap-sprite), Weapon, 0, 0, 0, 0);
+            SpawnBlood(attachActor, actor, 0, 0, 0, 0);
             if (RandomRange(1000) > 600)
                 InitBloodSpray(short(ap-sprite), false, 105);
         }
@@ -17282,7 +17280,7 @@ int
 BulletHitSprite(SPRITEp sp, short hit_sprite, int hit_x, int hit_y, int hit_z, short ID)
 {
     vec3_t hit_pos = { hit_x, hit_y, hit_z };
-    auto actor = &swActors[hit_sprite];
+    auto hitActor = &swActors[hit_sprite];
     SPRITEp hsp = &sprite[hit_sprite];
     USERp hu = User[hit_sprite].Data();
     SPRITEp wp;
@@ -17325,7 +17323,7 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, int hit_x, int hit_y, int hit_z, s
             wp->xrepeat = UZI_SMOKE_REPEAT;
             wp->yrepeat = UZI_SMOKE_REPEAT;
             if (RANDOM_P2(1024) > 800)
-                SpawnShrapX(actor);
+                SpawnShrapX(hitActor);
             break;
         default:
             wp->xrepeat = UZI_SMOKE_REPEAT/3;
@@ -17345,15 +17343,15 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, int hit_x, int hit_y, int hit_z, s
         if ((RANDOM_P2(1024<<5)>>5) < 512+128)
         {
             if (!hu->PlayerP)
-                SpawnBlood(hit_sprite, -1, sp->ang, hit_x, hit_y, hit_z);
+                SpawnBlood(hitActor, nullptr, sp->ang, hit_x, hit_y, hit_z);
             else
-                SpawnBlood(hit_sprite, -1, sp->ang, hit_x, hit_y, hit_z+Z(20));
+                SpawnBlood(hitActor, nullptr, sp->ang, hit_x, hit_y, hit_z+Z(20));
 
             // blood comes out the other side?
             if ((RANDOM_P2(1024<<5)>>5) < 256)
             {
                 if (!hu->PlayerP)
-                    SpawnBlood(hit_sprite, -1, NORM_ANGLE(sp->ang+1024),hit_x, hit_y, hit_z);
+                    SpawnBlood(hitActor, nullptr, NORM_ANGLE(sp->ang+1024),hit_x, hit_y, hit_z);
                 if (hu->ID != TRASHCAN && hu->ID != ZILLA_RUN_R0)
                     QueueWallBlood(hit_sprite, sp->ang);  //QueueWallBlood needs bullet angle.
             }

@@ -1948,6 +1948,8 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
 void ChangeSpriteState(short SpriteNum, STATEp statep);
 void CollectPortals();
 
+int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z);
+
 #define FAF_PLACE_MIRROR_PIC 341
 #define FAF_MIRROR_PIC 2356
 #define FAF_ConnectCeiling(sectnum) (sector[(sectnum)].ceilingpicnum == FAF_MIRROR_PIC)

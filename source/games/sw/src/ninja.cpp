@@ -47,7 +47,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
 
 /*
 
@@ -1949,7 +1948,7 @@ DoNinjaHariKari(DSWActor* actor)
 
     UpdateSinglePlayKills(SpriteNum);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
-    RESET(sprite[SpriteNum].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+    RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(u->Flags, SPR_DEAD);
     RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
     u->floor_dist = Z(40);
@@ -1961,7 +1960,7 @@ DoNinjaHariKari(DSWActor* actor)
 
     PlaySound(DIGI_NINJAUZIATTACK, sp, v3df_follow);
 
-    SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
+    SpawnBlood(actor, actor, -1, -1, -1, -1);
 
     cnt = RandomRange(4)+1;
     for (i=0; i<=cnt; i++)
@@ -1993,8 +1992,7 @@ DoNinjaGrabThroat(DSWActor* actor)
         SET(sp->extra, SPRX_BREAKABLE);
         SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
 
-        //SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
-
+        
         ChangeState(actor, u->StateEnd);
         sp->xvel = 0;
         //u->jump_speed = -300;

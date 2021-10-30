@@ -45,7 +45,6 @@ DSWActor swActors[MAXSPRITES];
 
 extern int jump_grav;
 
-int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
 extern STATE s_DebrisNinja[];
 extern STATE s_DebrisRat[];
 extern STATE s_DebrisCrab[];
@@ -93,7 +92,6 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 {
     auto u = actor->u();
     auto sp = &actor->s();
-    auto SpriteNum = actor->GetSpriteIndex();
 
 
     change_actor_stat(actor, STAT_DEAD_ACTOR);
@@ -147,7 +145,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             if (wu->WeaponNum != WPN_FIST)
             {
                 if (sw_ninjahack)
-                    SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
+                    SpawnBlood(actor, actor, -1, -1, -1, -1);
                 InitPlasmaFountain(wp, sp);
                 InitPlasmaFountain(wp, sp);
                 PlaySound(DIGI_NINJAINHALF, sp, v3df_none);
