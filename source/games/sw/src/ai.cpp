@@ -461,19 +461,19 @@ TARGETACTOR:
     if (!found && TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
     {
         near_dist = MAX_ACTIVE_RANGE;
-        StatIterator it(STAT_ENEMY);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_ENEMY);
+        while (auto itActor = it.Next())
         {
-            auto itActor = &swActors[i];
-            if (i == SpriteNum)
+            if (itActor == actor || !itActor->hasU())
                 continue;
 
-            if (TEST(User[i]->Flags, SPR_SUICIDE|SPR_DEAD))
+            if (TEST(itActor->u()->Flags, SPR_SUICIDE | SPR_DEAD))
                 continue;
 
-            DISTANCE(sp->x, sp->y, sprite[i].x, sprite[i].y, dist, a, b, c);
+            auto itSp = &itActor->s();
+            DISTANCE(sp->x, sp->y, itSp->x, itSp->y, dist, a, b, c);
 
-            if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, sprite[i].x, sprite[i].y, SPRITEp_UPPER(&sprite[i]), sprite[i].sectnum))
+            if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, itSp->x, itSp->y, SPRITEp_UPPER(itSp), itSp->sectnum))
             {
                 near_dist = dist;
                 u->targetActor = itActor;

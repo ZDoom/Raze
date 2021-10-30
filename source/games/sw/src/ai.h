@@ -103,8 +103,6 @@ int InitActorFindPlayer(DSWActor* actor);
 int InitActorDuck(DSWActor* actor);
 int DoActorDuck(DSWActor* actor);
 int DoActorMoveJump(DSWActor* actor);
-int move_scan(short SpriteNum,short ang,int dist,int *stopx,int *stopy,int *stopz,short *stopsect);
-int FindNewAngle(short SpriteNum,signed char dir,int DistToMove);
 int InitActorReposition(DSWActor* actor);
 int DoActorReposition(DSWActor* actor);
 int InitActorPause(DSWActor* actor);
