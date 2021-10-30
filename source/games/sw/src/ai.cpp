@@ -55,8 +55,7 @@ short AttackOrRun = 200;
 
 #define CHOOSE2(value) (RANDOM_P2(1024) < (value))
 
-int
-Distance(int x1, int y1, int x2, int y2)
+int Distance(int x1, int y1, int x2, int y2)
 {
     int min;
 
@@ -183,8 +182,7 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
   goro.c etc.
 */
 
-ANIMATORp
-ChooseAction(DECISION decision[])
+ANIMATORp ChooseAction(DECISION decision[])
 {
     short random_value;
     short i;
@@ -207,8 +205,7 @@ ChooseAction(DECISION decision[])
   !AIC - Sometimes just want the offset of the action
 */
 
-short
-ChooseActionNumber(short decision[])
+short ChooseActionNumber(short decision[])
 {
     short random_value;
     short i;
@@ -224,10 +221,10 @@ ChooseActionNumber(short decision[])
     }
 }
 
-int
-DoActorNoise(ANIMATORp Action, short SpriteNum)
+int DoActorNoise(ANIMATORp Action, DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
+    int SpriteNum = actor->GetSpriteIndex();
 
     if (Action == InitActorAmbientNoise)
     {
@@ -769,7 +766,7 @@ DoActorActionDecide(short SpriteNum)
                 //CON_Message("Surprised");
                 if (!u->DidAlert && ICanSee)
                 {
-                    DoActorNoise(InitActorAlertNoise, SpriteNum);
+                    DoActorNoise(InitActorAlertNoise, actor);
                     u->DidAlert = true;
                 }
                 return action;
@@ -779,7 +776,7 @@ DoActorActionDecide(short SpriteNum)
             {
                 // Player has not seen actor, to be fair let him know actor
                 // are there
-                DoActorNoise(ChooseAction(u->Personality->Broadcast),SpriteNum);
+                DoActorNoise(ChooseAction(u->Personality->Broadcast),actor);
                 //CON_Message("Actor Noise");
                 return action;
             }
@@ -1133,7 +1130,7 @@ DoActorMoveCloser(DSWActor* actor)
     }
 
     // Do a noise if ok
-    DoActorNoise(ChooseAction(u->Personality->Broadcast),SpriteNum);
+    DoActorNoise(ChooseAction(u->Personality->Broadcast), actor);
 
 #if 0
     // evasion if targeted
@@ -1526,7 +1523,7 @@ DoActorAttack(DSWActor* actor)
     short rand_num;
     int dist,a,b,c;
 
-    DoActorNoise(ChooseAction(u->Personality->Broadcast),SpriteNum);
+    DoActorNoise(ChooseAction(u->Personality->Broadcast),actor);
 
     DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
 

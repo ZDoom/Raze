@@ -73,7 +73,6 @@ extern ATTRIBUTE DefaultAttrib;
 void DebugMoveHit(DSWActor* actor);
 bool ActorMoveHitReact(DSWActor* actor);
 short ChooseActionNumber(short decision[]);
-int DoActorNoise(ANIMATORp Action,short SpriteNum);
 bool CanSeePlayer(short SpriteNum);
 int CanHitPlayer(short SpriteNum);
 int DoActorPickClosePlayer(short SpriteNum);
