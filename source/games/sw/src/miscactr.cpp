@@ -157,7 +157,7 @@ int DoToiletGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,SPRITEp_MID(u->tgt_sp()),u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,SPRITEp_MID(u->tgt_sp()),u->targetActor->s().sectnum);
 
     if (u->FlagOwner != 1)
     {
@@ -216,7 +216,7 @@ int NullToiletGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,u->tgt_sp()->z,u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,u->targetActor->s().z,u->targetActor->s().sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -400,7 +400,7 @@ int DoWashGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,SPRITEp_MID(u->tgt_sp()),u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,SPRITEp_MID(u->tgt_sp()),u->targetActor->s().sectnum);
 
     if (RandomRange(1000) > 980 && u->ShellNum <= 0)
     {
@@ -465,7 +465,7 @@ int NullWashGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,u->tgt_sp()->z,u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,u->targetActor->s().z,u->targetActor->s().sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1280,7 +1280,7 @@ int DoCarGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,SPRITEp_MID(u->tgt_sp()),u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,SPRITEp_MID(u->tgt_sp()),u->targetActor->s().sectnum);
 
     if (u->FlagOwner == 1)
     {
@@ -1330,7 +1330,7 @@ int NullCarGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,u->tgt_sp()->z,u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,u->targetActor->s().z,u->targetActor->s().sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1502,7 +1502,7 @@ int DoMechanicGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,SPRITEp_MID(u->tgt_sp()),u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,SPRITEp_MID(u->tgt_sp()),u->targetActor->s().sectnum);
 
     if (u->FlagOwner == 1)
     {
@@ -1552,7 +1552,7 @@ int NullMechanicGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,u->tgt_sp()->z,u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,u->targetActor->s().z,u->targetActor->s().sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1725,7 +1725,7 @@ int DoSailorGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,SPRITEp_MID(u->tgt_sp()),u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,SPRITEp_MID(u->tgt_sp()),u->targetActor->s().sectnum);
 
     if (u->FlagOwner == 1)
     {
@@ -1780,7 +1780,7 @@ int NullSailorGirl(DSWActor* actor)
     static short alreadythrew = 0;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,u->tgt_sp()->z,u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,u->targetActor->s().z,u->targetActor->s().sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1940,7 +1940,7 @@ int DoPruneGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,SPRITEp_MID(u->tgt_sp()),u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,SPRITEp_MID(u->tgt_sp()),u->targetActor->s().sectnum);
 
     if (u->FlagOwner == 1)
     {
@@ -2006,7 +2006,7 @@ int NullPruneGirl(DSWActor* actor)
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
-    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp()->x,u->tgt_sp()->y,u->tgt_sp()->z,u->tgt_sp()->sectnum);
+    ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->targetActor->s().x,u->targetActor->s().y,u->targetActor->s().z,u->targetActor->s().sectnum);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);

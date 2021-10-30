@@ -394,7 +394,7 @@ int DoSkullJump(DSWActor* actor)
 
             int dist,a,b,c;
 
-            DISTANCE(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y, dist, a, b, c);
+            DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
             if (dist < 1000 &&
                 SpriteOverlapZ(SpriteNum, short(u->tgt_sp() - sprite), Z(32)))
@@ -467,7 +467,7 @@ int DoSkullWait(DSWActor* actor)
     SPRITEp sp = &sprite[SpriteNum];
     int a,b,c,dist;
 
-    DISTANCE(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y, dist, a, b, c);
+    DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
     DoActorPickClosePlayer(actor);
 
@@ -501,7 +501,7 @@ int DoSkullWait(DSWActor* actor)
 
         if (dist < 8000)
         {
-            sp->ang = getangle(u->tgt_sp()->x - sp->x, u->tgt_sp()->y - sp->y);
+            sp->ang = getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y);
             sp->xvel = 128 + (RANDOM_P2(256<<8)>>8);
             u->jump_speed = -700;
             NewStateGroup(SpriteNum, sg_SkullJump);
@@ -813,7 +813,7 @@ int DoBettyJump(DSWActor* actor)
         {
             int dist,a,b,c;
 
-            DISTANCE(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y, dist, a, b, c);
+            DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
             if (dist < 1000 &&
                 SpriteOverlapZ(SpriteNum, short(u->tgt_sp() - sprite), Z(32)))
@@ -882,7 +882,7 @@ int DoBettyWait(DSWActor* actor)
     SPRITEp sp = &sprite[SpriteNum];
     int a,b,c,dist;
 
-    DISTANCE(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y, dist, a, b, c);
+    DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
     DoActorPickClosePlayer(actor);
 
@@ -916,7 +916,7 @@ int DoBettyWait(DSWActor* actor)
 
         if (dist < 8000)
         {
-            sp->ang = getangle(u->tgt_sp()->x - sp->x, u->tgt_sp()->y - sp->y);
+            sp->ang = getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y);
             sp->xvel = 128 + (RANDOM_P2(256<<8)>>8);
             u->jump_speed = -700;
             NewStateGroup(SpriteNum, sg_BettyJump);

@@ -2949,7 +2949,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
                 shootp = &sprite[sop->sp_num[i]];
 
                 if (!FAFcansee(shootp->x, shootp->y, shootp->z-Z(4), shootp->sectnum,
-                               u->tgt_sp()->x, u->tgt_sp()->y, SPRITEp_UPPER(u->tgt_sp()), u->tgt_sp()->sectnum))
+                               u->targetActor->s().x, u->targetActor->s().y, SPRITEp_UPPER(u->tgt_sp()), u->targetActor->s().sectnum))
                 {
                     return;
                 }
@@ -2983,8 +2983,8 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
             }
         }
 
-        //sop->ang_tgt = getangle(sop->xmid - u->tgt_sp()->x, sop->ymid - u->tgt_sp()->y);
-        sop->ang_tgt = getangle(u->tgt_sp()->x - sop->xmid,  u->tgt_sp()->y - sop->ymid);
+        //sop->ang_tgt = getangle(sop->xmid - u->targetActor->s().x, sop->ymid - u->targetActor->s().y);
+        sop->ang_tgt = getangle(u->targetActor->s().x - sop->xmid,  u->targetActor->s().y - sop->ymid);
 
         // get delta to target angle
         delta_ang = getincangle(sop->ang, sop->ang_tgt);

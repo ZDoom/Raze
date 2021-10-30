@@ -1035,7 +1035,7 @@ DoRipper2MoveHang(DSWActor* actor)
             short w, nw;
 
             // Don't keep clinging and going ever higher!
-            if (abs(sp->z - u->tgt_sp()->z) > (4000<<4))
+            if (abs(sp->z - u->targetActor->s().z) > (4000<<4))
                 break;
 
             hit_wall = NORM_WALL(u->ret);

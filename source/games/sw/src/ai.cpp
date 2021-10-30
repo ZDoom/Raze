@@ -291,7 +291,7 @@ bool CanSeePlayer(DSWActor* actor)
     //if (FAF_Sector(sp->sectnum))
     //    return(true);
 
-    if (u->tgt_sp() && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->tgt_sp()->x, u->tgt_sp()->y, SPRITEp_UPPER(u->tgt_sp()), u->tgt_sp()->sectnum))
+    if (u->tgt_sp() && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->targetActor->s().x, u->targetActor->s().y, SPRITEp_UPPER(u->tgt_sp()), u->targetActor->s().sectnum))
         return true;
     else
         return false;
@@ -662,7 +662,7 @@ DoActorActionDecide(short SpriteNum)
         DoActorOperate(SpriteNum);
 
         // if far enough away and cannot see the player
-        dist = Distance(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y);
+        dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
 
         if (dist > 30000 && !ICanSee)
         {
@@ -753,7 +753,7 @@ DoActorActionDecide(short SpriteNum)
             DoActorPickClosePlayer(actor);
 
         // if close by
-        dist = Distance(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y);
+        dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
         if (dist < 15000 || ICanSee)
         {
             if ((FACING(sp, u->tgt_sp()) && dist < 10000) || ICanSee)
@@ -1161,7 +1161,7 @@ DoActorMoveCloser(DSWActor* actor)
         else
         {
             // turn to face player
-            sp->ang = getangle(u->tgt_sp()->x - sp->x, u->tgt_sp()->y - sp->y);
+            sp->ang = getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y);
         }
     }
 
@@ -1462,7 +1462,7 @@ InitActorAttack(DSWActor* actor)
     //NewStateGroup(SpriteNum, u->ActorActionSet->Stand);
 
     // face player when attacking
-    sp->ang = NORM_ANGLE(getangle(u->tgt_sp()->x - sp->x, u->tgt_sp()->y - sp->y));
+    sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));
 
     // If it's your own kind, lay off!
     if (u->ID == User[u->tgt_sp() - sprite]->ID && !User[u->tgt_sp() - sprite]->PlayerP)
@@ -1524,7 +1524,7 @@ DoActorAttack(DSWActor* actor)
 
     DoActorNoise(ChooseAction(u->Personality->Broadcast),actor);
 
-    DISTANCE(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y, dist, a, b, c);
+    DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
     pu = User[GetPlayerSpriteNum(SpriteNum)].Data();
     if ((u->ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(sp, u->tgt_sp())) ||
@@ -1659,7 +1659,7 @@ InitActorDuck(DSWActor* actor)
     u->ActorActionFunc = DoActorDuck;
     NewStateGroup(SpriteNum, u->ActorActionSet->Duck);
 
-    dist = Distance(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y);
+    dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist > 8000)
     {
@@ -1824,7 +1824,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
         DistToMove = DIV4(DistToMove) + DIV8(DistToMove);
 
     // Find angle to from the player
-    oang = NORM_ANGLE(getangle(u->tgt_sp()->x - sp->x, u->tgt_sp()->y - sp->y));
+    oang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));
 
     // choose a random angle array
     switch (dir)
@@ -1974,7 +1974,7 @@ InitActorReposition(DSWActor* actor)
     u->Dist = 0;
 
     rnum = RANDOM_P2(8<<8)>>8;
-    dist = Distance(sp->x, sp->y, u->tgt_sp()->x, u->tgt_sp()->y);
+    dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
 
     if (dist < PlayerDist[rnum] || TEST(u->Flags, SPR_RUN_AWAY))
     {
