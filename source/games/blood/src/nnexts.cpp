@@ -1592,7 +1592,7 @@ void debrisMove(int listIndex)
         short oldcstat = pSprite->cstat;
         pSprite->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        moveHit = gSpriteHit[nXSprite].hit = ClipMove((int*)&pSprite->x, (int*)&pSprite->y, (int*)&pSprite->z, &nSector, xvel[nSprite] >> 12,
+        moveHit = gSpriteHit[nXSprite].hit = ClipMove(&pSprite->pos, &nSector, xvel[nSprite] >> 12,
             yvel[nSprite] >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
 
         pSprite->cstat = oldcstat;

@@ -4645,7 +4645,7 @@ int MoveThing(DBloodActor* actor)
 		pSprite->cstat &= ~257;
 		if ((pSprite->owner >= 0) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		lhit = actor->hit().hit = ClipMove(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
+		lhit = actor->hit().hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakCstat;
 		assert(nSector >= 0);
@@ -4868,7 +4868,7 @@ void MoveDude(DBloodActor* actor)
 		{
 			short bakCstat = pSprite->cstat;
 			pSprite->cstat &= ~257;
-			actor->hit().hit = ClipMove(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, wd, tz, bz, CLIPMASK0);
+			actor->hit().hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12, actor->yvel() >> 12, wd, tz, bz, CLIPMASK0);
 			if (nSector == -1)
 			{
 				nSector = pSprite->sectnum;
@@ -5379,9 +5379,7 @@ int MoveMissile(DBloodActor* actor)
 	const bool isFlameSprite = (pSprite->type == kMissileFlameSpray || pSprite->type == kMissileFlameHound); // do not use accurate clipmove for flame based sprites (changes damage too much)
 	while (1)
 	{
-		int x = pSprite->x;
-		int y = pSprite->y;
-		int z = pSprite->z;
+		vec3_t pos = pSprite->pos;
 		int nSector2 = pSprite->sectnum;
 		clipmoveboxtracenum = 1;
 		const short bakSpriteCstat = pSprite->cstat;
@@ -5390,7 +5388,7 @@ int MoveMissile(DBloodActor* actor)
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
 			pSprite->cstat &= ~257; // remove self collisions for accurate clipmove
 		}
-		Collision clipmoveresult = ClipMove(&x, &y, &z, &nSector2, vx, vy, pSprite->clipdist << 2, (z - top) / 4, (bottom - z) / 4, CLIPMASK0);
+		Collision clipmoveresult = ClipMove(&pos, &nSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0);
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakSpriteCstat;
 		clipmoveboxtracenum = 3;
@@ -5412,8 +5410,8 @@ int MoveMissile(DBloodActor* actor)
 			else
 			{
 				int32_t fz, cz;
-				getzsofslope(wall[clipmoveresult.index].nextsector, x, y, &cz, &fz);
-				if (z <= cz || z >= fz) cliptype = 0;
+				getzsofslope(wall[clipmoveresult.index].nextsector, pos.x, pos.y, &cz, &fz);
+				if (pos.z <= cz || pos.z >= fz) cliptype = 0;
 				else cliptype = 4;
 			}
 		}
@@ -5440,15 +5438,15 @@ int MoveMissile(DBloodActor* actor)
 		if (cliptype >= 0 && cliptype != 3)
 		{
 			int nAngle = getangle(actor->xvel(), actor->yvel());
-			x -= MulScale(Cos(nAngle), 16, 30);
-			y -= MulScale(Sin(nAngle), 16, 30);
+			pos.x -= MulScale(Cos(nAngle), 16, 30);
+			pos.y -= MulScale(Sin(nAngle), 16, 30);
 			int nVel = approxDist(actor->xvel(), actor->yvel());
 			vz -= scale(0x100, actor->zvel(), nVel);
-			updatesector(x, y, &nSector);
+			updatesector(pos.x, pos.y, &nSector);
 			nSector2 = nSector;
 		}
 		int ceilZ, ceilHit, floorZ, floorHit;
-		GetZRangeAtXYZ(x, y, z, nSector2, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0);
+		GetZRangeAtXYZ(pos.x, pos.y, pos.z, nSector2, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist << 2, CLIPMASK0);
 		GetActorExtents(actor, &top, &bottom);
 		top += vz;
 		bottom += vz;
@@ -5464,10 +5462,9 @@ int MoveMissile(DBloodActor* actor)
 			vz += ClipLow(ceilZ - top, 0);
 			cliptype = 1;
 		}
-		pSprite->x = x;
-		pSprite->y = y;
-		pSprite->z = z + vz;
-		updatesector(x, y, &nSector);
+		pSprite->pos = pos;
+		pSprite->z += vz;
+		updatesector(pos.x, pos.y, &nSector);
 		if (nSector >= 0 && nSector != pSprite->sectnum)
 		{
 			assert(nSector >= 0 && nSector < kMaxSectors);

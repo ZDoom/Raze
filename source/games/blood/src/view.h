@@ -51,9 +51,13 @@ struct VIEW {
     int at44;
     int at48; // posture
     double spin; // spin
-    int x; // x
-    int y; // y
-    int z; // z
+    union {
+        struct
+        {
+            int32_t x, y, z;
+        };
+        vec3_t pos;
+    };
     int xvel; //xvel
     int yvel; //yvel
     int zvel; //zvel
