@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits.h>
 #include "palentry.h"
 #include "gl_buffers.h"
 #include "renderstyle.h"
