@@ -56,7 +56,7 @@ BEGIN_SW_NS
 int SetupCoolie(short);
 int SetupNinja(short);
 int SetupGoro(short);
-int SetupCoolg(short);
+int SetupCoolg(DSWActor*);
 int SetupEel(short);
 int SetupSumo(short);
 int SetupZilla(short);
@@ -930,6 +930,12 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     return u;
 }
 
+USERp
+SpawnUser(DSWActor* actor, short id, STATEp state)
+{
+    return SpawnUser(actor->GetSpriteIndex(), id, state);
+}
+
 SECT_USERp
 GetSectUser(short sectnum)
 {
@@ -1148,6 +1154,7 @@ ActorSpawn(SPRITEp sp)
 {
     bool ret = true;
     short SpriteNum = short(sp - sprite);
+    auto actor = &swActors[SpriteNum];
 
     switch (sp->picnum)
     {
@@ -1211,7 +1218,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupCoolg(SpriteNum);
+        SetupCoolg(actor);
         break;
     }
 

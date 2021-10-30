@@ -1863,6 +1863,7 @@ int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
 int NewStateGroup(USERp user, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(short SpriteNum, short id, STATEp state);
+USERp SpawnUser(DSWActor* actor, short id, STATEp state);
 
 short ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_point_num, short *track_dir);
 

@@ -558,7 +558,7 @@ SetupCoolie(short SpriteNum)
 }
 
 
-int NewCoolg(short);
+int NewCoolg(DSWActor*);
 int SpawnCoolg(DSWActor* actor)
 {
     USER* u = actor->u();
@@ -570,7 +570,7 @@ int SpawnCoolg(DSWActor* actor)
         return(0);
     }
 
-    NewCoolg(SpriteNum);
+    NewCoolg(actor);
 
     PlaySpriteSound(SpriteNum,attr_extra1,v3df_follow);
 
