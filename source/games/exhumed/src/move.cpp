@@ -576,7 +576,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         CheckSectorFloor(overridesect, pSprite->z, &dx, &dy);
     }
 
-    int colv = clipmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask);
+    int colv = clipmove(&pSprite->pos, &nSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask);
     Collision coll(colv);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
@@ -940,38 +940,39 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
 
     BlockInfo *pBlockInfo = &sBlockInfo[nBlock];
 
-    int x = sBlockInfo[nBlock].x;
+    vec3_t pos;
+
+    pos.x = sBlockInfo[nBlock].x;
     int x_b = sBlockInfo[nBlock].x;
 
-    int y = sBlockInfo[nBlock].y;
+    pos.y = sBlockInfo[nBlock].y;
     int y_b = sBlockInfo[nBlock].y;
 
     short nSectorB = nSector;
 
     int nZVal;
-    int z;
 
     int bUnderwater = nSectFlag & kSectUnderwater;
 
     if (nSectFlag & kSectUnderwater)
     {
         nZVal = sector[nSector].ceilingz;
-        z = sector[nNextSector].ceilingz + 256;
+        pos.z = sector[nNextSector].ceilingz + 256;
 
         sector[nSector].ceilingz = sector[nNextSector].ceilingz;
     }
     else
     {
         nZVal = sector[nSector].floorz;
-        z = sector[nNextSector].floorz - 256;
+        pos.z = sector[nNextSector].floorz - 256;
 
         sector[nSector].floorz = sector[nNextSector].floorz;
     }
 
-    clipmove_old((int32_t*)&x, (int32_t*)&y, (int32_t*)&z, &nSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
+    clipmove(&pos, &nSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
 
-    int yvect = y - y_b;
-    int xvect = x - x_b;
+    int yvect = pos.y - y_b;
+    int xvect = pos.x - x_b;
 
     if (nSectorB != nNextSector && nSectorB != nSector)
     {
@@ -982,15 +983,13 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
     {
         if (!bUnderwater)
         {
-            z = nZVal;
-            x = x_b;
-            y = y_b;
+            pos = { x_b, y_b, nZVal };
 
-            clipmove_old((int32_t*)&x, (int32_t*)&y, (int32_t*)&z, &nSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
+            clipmove(&pos, &nSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
 
-            int ebx = x;
+            int ebx = pos.x;
             int ecx = x_b;
-            int edx = y;
+            int edx = pos.y;
             int eax = xvect;
             int esi = y_b;
 
@@ -1044,15 +1043,15 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
             }
             else
             {
-                z = sp->z;
+                pos.z = sp->z;
 
-                if ((nSectFlag & kSectUnderwater) || z != nZVal || sp->cstat & 0x8000)
+                if ((nSectFlag & kSectUnderwater) || pos.z != nZVal || sp->cstat & 0x8000)
                 {
-                    x = sp->x;
-                    y = sp->y;
+                    pos.x = sp->x;
+                    pos.y = sp->y;
                     nSectorB = nSector;
 
-                    clipmove_old(&x, &y, &z, &nSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0);
+                    clipmove(&pos, &nSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0);
 
                     if (nSectorB >= 0 && nSectorB < kMaxSectors && nSectorB != nSector) {
                         ChangeActorSect(pActor, nSectorB);
@@ -1067,12 +1066,10 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
             auto pSprite = &pActor->s();
             if (pSprite->statnum >= 99)
             {
-                x = pSprite->x;
-                y = pSprite->y;
-                z = pSprite->z;
+                pos = pSprite->pos;
                 nSectorB = nNextSector;
 
-                clipmove_old((int32_t*)&x, (int32_t*)&y, (int32_t*)&z, &nSectorB,
+                clipmove(&pos, &nSectorB,
                     -xvect - (bcos(nAngle) * (4 * pSprite->clipdist)),
                     -yvect - (bsin(nAngle) * (4 * pSprite->clipdist)),
                     4 * pSprite->clipdist, 0, 0, CLIPMASK0);
@@ -1121,7 +1118,7 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
             if (pSprite->statnum >= 99 && nZVal == pSprite->z && !(pSprite->cstat & 0x8000))
             {
                 nSectorB = nSector;
-                clipmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSectorB, xvect, yvect, 4 * pSprite->clipdist, 5120, -5120, CLIPMASK0);
+                clipmove(&pSprite->pos, &nSectorB, xvect, yvect, 4 * pSprite->clipdist, 5120, -5120, CLIPMASK0);
             }
         }
     }
@@ -1307,20 +1304,18 @@ int GetWallNormal(short nWall)
     return (nAngle + 512) & kAngleMask;
 }
 
-void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum)
+void WheresMyMouth(int nPlayer, vec3_t* pos, short *sectnum)
 {
     auto pActor = PlayerList[nPlayer].Actor();
 	auto pSprite = &pActor->s();
 
-    *x = pSprite->x;
-    *y = pSprite->y;
+    int height = GetActorHeight(pActor) >> 1;
 
-    int height = GetActorHeight(pActor) / 2;
-
-    *z = pSprite->z - height;
     *sectnum = pSprite->sectnum;
+    *pos = pSprite->pos;
+    pos->z -= height;
 
-    clipmove_old((int32_t*)x, (int32_t*)y, (int32_t*)z, sectnum,
+    clipmove(pos, sectnum,
         bcos(pSprite->ang, 7),
         bsin(pSprite->ang, 7),
         5120, 1280, 1280, CLIPMASK1);

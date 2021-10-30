@@ -222,7 +222,7 @@ void Gravity(DExhumedActor* actor);
 DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy);
 Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
-void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum);
+void WheresMyMouth(int nPlayer, vec3_t* pos, short *sectnum);
 int GetActorHeight(DExhumedActor* nSprite);
 DExhumedActor* insertActor(int, int);
 DExhumedActor* GrabBody();
