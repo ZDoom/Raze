@@ -65,6 +65,7 @@ extern short LoWangsQueueHead;
 extern short LoWangsQueue[MAX_LOWANGS_QUEUE];
 
 void ChangeSpriteState(short SpriteNum, STATEp statep);
+void ChangeState(DSWActor* actor, STATEp statep);
 void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);
 SECTOR_OBJECTp DetectSectorObject(SECTORp);
 SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);

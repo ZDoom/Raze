@@ -113,7 +113,8 @@ STATE s_ToiletGirlUzi[16] =
 int
 SetupToiletGirl(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -131,7 +132,7 @@ SetupToiletGirl(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_ToiletGirlStand);
+    ChangeState(actor,s_ToiletGirlStand);
     u->Attrib = &ToiletGirlAttrib;
     u->StateEnd = s_ToiletGirlStand;
     u->Rot = 0;
@@ -187,7 +188,7 @@ int DoToiletGirl(DSWActor* actor)
             else
                 PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
         }
-        ChangeSpriteState(SpriteNum,s_ToiletGirlUzi);
+        ChangeState(actor,s_ToiletGirlUzi);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
@@ -233,7 +234,7 @@ int NullToiletGirl(DSWActor* actor)
             else
                 PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
         }
-        ChangeSpriteState(SpriteNum,s_ToiletGirlUzi);
+        ChangeState(actor,s_ToiletGirlUzi);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
@@ -252,7 +253,7 @@ int ToiletGirlUzi(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
         u->WaitTics = RandomRange(240)+120;
-        ChangeSpriteState(SpriteNum,s_ToiletGirlStand);
+        ChangeState(actor,s_ToiletGirlStand);
         u->FlagOwner = 0;
     }
 
@@ -267,7 +268,7 @@ int ToiletGirlPain(DSWActor* actor)
     NullToiletGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        ChangeSpriteState(SpriteNum,s_ToiletGirlStand);
+        ChangeState(actor,s_ToiletGirlStand);
 
     return 0;
 }
@@ -357,7 +358,8 @@ STATE s_WashGirlUzi[16] =
 int
 SetupWashGirl(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -374,7 +376,7 @@ SetupWashGirl(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_WashGirlStand);
+    ChangeState(actor,s_WashGirlStand);
     u->Attrib = &WashGirlAttrib;
     u->StateEnd = s_WashGirlStand;
     u->Rot = 0;
@@ -412,7 +414,7 @@ int DoWashGirl(DSWActor* actor)
                 PlaySound(DIGI_ANIMESING2, sp, v3df_dontpan, CHAN_AnimeSing);
         }
 
-        ChangeSpriteState(SpriteNum,s_WashGirlStandScrub);
+        ChangeState(actor,s_WashGirlStandScrub);
         u->ShellNum = RandomRange(2*120)+240;
     }
     else
@@ -421,7 +423,7 @@ int DoWashGirl(DSWActor* actor)
         {
             if ((u->ShellNum -= ACTORMOVETICS) < 0)
             {
-                ChangeSpriteState(SpriteNum,s_WashGirlStand);
+                ChangeState(actor,s_WashGirlStand);
                 u->ShellNum = 0;
             }
         }
@@ -439,7 +441,7 @@ int DoWashGirl(DSWActor* actor)
             else
                 PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
         }
-        ChangeSpriteState(SpriteNum,s_WashGirlUzi);
+        ChangeState(actor,s_WashGirlUzi);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
@@ -482,7 +484,7 @@ int NullWashGirl(DSWActor* actor)
             else
                 PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
         }
-        ChangeSpriteState(SpriteNum,s_WashGirlUzi);
+        ChangeState(actor,s_WashGirlUzi);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
@@ -501,7 +503,7 @@ int WashGirlUzi(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
         u->WaitTics = RandomRange(240)+120;
-        ChangeSpriteState(SpriteNum,s_WashGirlStand);
+        ChangeState(actor,s_WashGirlStand);
         u->FlagOwner = 0;
     }
 
@@ -515,7 +517,7 @@ int WashGirlPain(DSWActor* actor)
     NullWashGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        ChangeSpriteState(SpriteNum,s_WashGirlStand);
+        ChangeState(actor,s_WashGirlStand);
 
     return 0;
 }
@@ -569,7 +571,8 @@ STATE s_TrashCanPain[7] =
 int
 SetupTrashCan(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -586,7 +589,7 @@ SetupTrashCan(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_TrashCanStand);
+    ChangeState(actor,s_TrashCanStand);
     u->Attrib = &TrashCanAttrib;
     u->StateEnd = s_TrashCanStand;
     u->Rot = 0;
@@ -638,7 +641,7 @@ int TrashCanPain(DSWActor* actor)
         KeepActorOnFloor(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        ChangeSpriteState(SpriteNum,s_TrashCanStand);
+        ChangeState(actor,s_TrashCanStand);
 
     return 0;
 }
@@ -679,7 +682,8 @@ STATE s_PachinkoLightOperate[] =
 int
 SetupPachinkoLight(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -696,7 +700,7 @@ SetupPachinkoLight(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_PachinkoLightStand);
+    ChangeState(actor,s_PachinkoLightStand);
     u->Attrib = &PachinkoLightAttrib;
     u->StateEnd = s_PachinkoLightStand;
     u->Rot = 0;
@@ -723,7 +727,7 @@ int PachinkoLightOperate(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
         sp->shade = -2;
-        ChangeSpriteState(SpriteNum,s_PachinkoLightStand);
+        ChangeState(actor,s_PachinkoLightStand);
     }
     return 0;
 }
@@ -781,7 +785,8 @@ STATE s_Pachinko1Operate[] =
 int
 SetupPachinko1(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -798,7 +803,7 @@ SetupPachinko1(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_Pachinko1Stand);
+    ChangeState(actor,s_Pachinko1Stand);
     u->Attrib = &Pachinko1Attrib;
     u->StateEnd = s_Pachinko1Stand;
     u->Rot = 0;
@@ -953,7 +958,8 @@ STATE s_Pachinko2Operate[] =
 int
 SetupPachinko2(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -970,7 +976,7 @@ SetupPachinko2(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_Pachinko2Stand);
+    ChangeState(actor,s_Pachinko2Stand);
     u->Attrib = &Pachinko2Attrib;
     u->StateEnd = s_Pachinko2Stand;
     u->Rot = 0;
@@ -1037,7 +1043,8 @@ STATE s_Pachinko3Operate[] =
 int
 SetupPachinko3(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1054,7 +1061,7 @@ SetupPachinko3(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_Pachinko3Stand);
+    ChangeState(actor,s_Pachinko3Stand);
     u->Attrib = &Pachinko3Attrib;
     u->StateEnd = s_Pachinko3Stand;
     u->Rot = 0;
@@ -1122,7 +1129,8 @@ STATE s_Pachinko4Operate[] =
 int
 SetupPachinko4(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1139,7 +1147,7 @@ SetupPachinko4(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_Pachinko4Stand);
+    ChangeState(actor,s_Pachinko4Stand);
     u->Attrib = &Pachinko4Attrib;
     u->StateEnd = s_Pachinko4Stand;
     u->Rot = 0;
@@ -1235,7 +1243,8 @@ STATE s_CarGirlUzi[16] =
 int
 SetupCarGirl(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1253,7 +1262,7 @@ SetupCarGirl(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_CarGirlStand);
+    ChangeState(actor,s_CarGirlStand);
     u->Attrib = &CarGirlAttrib;
     u->StateEnd = s_CarGirlStand;
     u->Rot = 0;
@@ -1300,7 +1309,7 @@ int DoCarGirl(DSWActor* actor)
                 else
                     PlaySound(DIGI_LANI054, sp, v3df_dontpan, CHAN_AnimeMad);
             }
-            ChangeSpriteState(SpriteNum,s_CarGirlUzi);
+            ChangeState(actor,s_CarGirlUzi);
             u->WaitTics = SEC(3)+SEC(RandomRange(2<<8)>>8);
             u->FlagOwner = 0;
         }
@@ -1354,7 +1363,7 @@ int NullCarGirl(DSWActor* actor)
             else
                 PlaySound(DIGI_LANI054, sp, v3df_dontpan, CHAN_AnimeMad);
         }
-        ChangeSpriteState(SpriteNum,s_CarGirlUzi);
+        ChangeState(actor,s_CarGirlUzi);
         u->WaitTics = SEC(3)+SEC(RandomRange(2<<8)>>8);
         u->FlagOwner = 0;
     }
@@ -1373,7 +1382,7 @@ int CarGirlUzi(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
         u->WaitTics = RandomRange(240)+120;
-        ChangeSpriteState(SpriteNum,s_CarGirlStand);
+        ChangeState(actor,s_CarGirlStand);
         u->FlagOwner = 0;
     }
 
@@ -1387,7 +1396,7 @@ int CarGirlPain(DSWActor* actor)
     NullCarGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        ChangeSpriteState(SpriteNum,s_CarGirlStand);
+        ChangeState(actor,s_CarGirlStand);
 
     return 0;
 }
@@ -1458,7 +1467,8 @@ STATE s_MechanicGirlDrill[2] =
 int
 SetupMechanicGirl(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1476,7 +1486,7 @@ SetupMechanicGirl(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_MechanicGirlStand);
+    ChangeState(actor,s_MechanicGirlStand);
     u->Attrib = &MechanicGirlAttrib;
     u->StateEnd = s_MechanicGirlStand;
     u->Rot = 0;
@@ -1522,7 +1532,7 @@ int DoMechanicGirl(DSWActor* actor)
                 else
                     PlaySound(DIGI_LANI079, sp, v3df_dontpan, CHAN_AnimeMad);
             }
-            ChangeSpriteState(SpriteNum,s_MechanicGirlDrill);
+            ChangeState(actor,s_MechanicGirlDrill);
             u->WaitTics = SEC(1)+SEC(RandomRange(2<<8)>>8);
             u->FlagOwner = 0;
         }
@@ -1576,7 +1586,7 @@ int NullMechanicGirl(DSWActor* actor)
             else
                 PlaySound(DIGI_LANI079, sp, v3df_dontpan, CHAN_AnimeMad);
         }
-        ChangeSpriteState(SpriteNum,s_MechanicGirlDrill);
+        ChangeState(actor,s_MechanicGirlDrill);
         u->WaitTics = SEC(1)+SEC(RandomRange(2<<8)>>8);
         u->FlagOwner = 0;
     }
@@ -1594,7 +1604,7 @@ int MechanicGirlDrill(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
         u->WaitTics = RandomRange(240)+120;
-        ChangeSpriteState(SpriteNum,s_MechanicGirlStand);
+        ChangeState(actor,s_MechanicGirlStand);
         u->FlagOwner = 0;
     }
 
@@ -1609,7 +1619,7 @@ int MechanicGirlPain(DSWActor* actor)
     NullMechanicGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        ChangeSpriteState(SpriteNum,s_MechanicGirlStand);
+        ChangeState(actor,s_MechanicGirlStand);
 
     return 0;
 }
@@ -1680,7 +1690,8 @@ short alreadythrew;
 int
 SetupSailorGirl(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1698,7 +1709,7 @@ SetupSailorGirl(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_SailorGirlStand);
+    ChangeState(actor,s_SailorGirlStand);
     u->Attrib = &SailorGirlAttrib;
     u->StateEnd = s_SailorGirlStand;
     u->Rot = 0;
@@ -1749,7 +1760,7 @@ int DoSailorGirl(DSWActor* actor)
                 else
                     PlaySound(DIGI_LANI066, sp, v3df_dontpan, CHAN_AnimeMad);
             }
-            ChangeSpriteState(SpriteNum,s_SailorGirlThrow);
+            ChangeState(actor,s_SailorGirlThrow);
             u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
             u->FlagOwner = 0;
         }
@@ -1808,7 +1819,7 @@ int NullSailorGirl(DSWActor* actor)
             else
                 PlaySound(DIGI_LANI066, sp, v3df_dontpan, CHAN_AnimeMad);
         }
-        ChangeSpriteState(SpriteNum,s_SailorGirlThrow);
+        ChangeState(actor,s_SailorGirlThrow);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;
     }
@@ -1827,7 +1838,7 @@ int SailorGirlThrow(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
         u->WaitTics = RandomRange(240)+120;
-        ChangeSpriteState(SpriteNum,s_SailorGirlStand);
+        ChangeState(actor,s_SailorGirlStand);
         u->FlagOwner = 0;
     }
 
@@ -1841,7 +1852,7 @@ int SailorGirlPain(DSWActor* actor)
     NullSailorGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        ChangeSpriteState(SpriteNum,s_SailorGirlStand);
+        ChangeState(actor,s_SailorGirlStand);
 
     return 0;
 }
@@ -1896,7 +1907,8 @@ STATE s_PruneGirlPain[2] =
 int
 SetupPruneGirl(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
@@ -1914,7 +1926,7 @@ SetupPruneGirl(short SpriteNum)
 
     EnemyDefaults(SpriteNum, nullptr, nullptr);
 
-    ChangeSpriteState(SpriteNum,s_PruneGirlStand);
+    ChangeState(actor,s_PruneGirlStand);
     u->Attrib = &PruneGirlAttrib;
     u->StateEnd = s_PruneGirlStand;
     u->Rot = 0;
@@ -2048,7 +2060,7 @@ int PruneGirlUzi(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
         u->WaitTics = RandomRange(240)+120;
-        ChangeSpriteState(SpriteNum,s_PruneGirlStand);
+        ChangeState(actor,s_PruneGirlStand);
         u->FlagOwner = 0;
     }
 
@@ -2063,7 +2075,7 @@ int PruneGirlPain(DSWActor* actor)
     NullPruneGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        ChangeSpriteState(SpriteNum,s_PruneGirlStand);
+        ChangeState(actor,s_PruneGirlStand);
 
     return 0;
 }

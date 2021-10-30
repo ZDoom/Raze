@@ -519,7 +519,7 @@ SetupSkel(short SpriteNum)
         u->Health = HEALTH_SKEL_PRIEST;
     }
 
-    ChangeSpriteState(SpriteNum, s_SkelRun[0]);
+    ChangeState(actor, s_SkelRun[0]);
     u->Attrib = &SkelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SkelDie;

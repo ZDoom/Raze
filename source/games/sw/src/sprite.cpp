@@ -818,6 +818,10 @@ void ChangeSpriteState(short SpriteNum, STATEp statep)
     PicAnimOff(u->State->Pic);
 }
 
+void ChangeState(DSWActor* actor, STATEp statep)
+{
+    ChangeSpriteState(actor->GetSpriteIndex(), statep);
+}
 void
 change_sprite_stat(short SpriteNum, short stat)
 {
@@ -3187,7 +3191,7 @@ KeyMain:
 
                 //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
-                ChangeSpriteState(SpriteNum, s_Key[num]);
+                ChangeState(actor, s_Key[num]);
 
                 RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
                 RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
@@ -3222,7 +3226,7 @@ KeyStatueMain:
             sprite[SpriteNum].picnum = u->ID = sprite[SpriteNum].picnum;
 
             u->spal = sp->pal;
-            ChangeSpriteState(SpriteNum, s_KeyStatue[num]);
+            ChangeState(actor, s_KeyStatue[num]);
 
             RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
             RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
@@ -4644,7 +4648,8 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(sip, STAT_ITEM, s_Key[num]->Pic))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            auto actor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SpriteNum = actor->GetSpriteIndex();
             u = User[SpriteNum].Data();
 
             sp = &sprite[SpriteNum];
@@ -4658,7 +4663,7 @@ int SpawnItemsMatch(short match)
             //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
 
-            ChangeSpriteState(SpriteNum, s_Key[num]);
+            ChangeState(actor, s_Key[num]);
 
             RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
             RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
@@ -5299,7 +5304,7 @@ DoCoin(DSWActor* actor)
         if (u->StateStart != s_GreenCoin)
         {
             offset = int(u->State - u->StateStart);
-            ChangeSpriteState(SpriteNum, s_GreenCoin);
+            ChangeState(actor, s_GreenCoin);
             u->State = u->StateStart + offset;
         }
     }
@@ -5308,7 +5313,7 @@ DoCoin(DSWActor* actor)
         if (u->StateStart != s_YellowCoin)
         {
             offset = int(u->State - u->StateStart);
-            ChangeSpriteState(SpriteNum, s_YellowCoin);
+            ChangeState(actor, s_YellowCoin);
             u->State = u->StateStart + offset;
         }
     }

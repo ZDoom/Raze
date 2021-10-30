@@ -662,7 +662,7 @@ SetupZilla(short SpriteNum)
     if (Skill == 0) u->Health = 2000;
     if (Skill == 1) u->Health = 4000;
 
-    ChangeSpriteState(SpriteNum,s_ZillaRun[0]);
+    ChangeState(actor,s_ZillaRun[0]);
     u->Attrib = &ZillaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_ZillaDie;

@@ -765,7 +765,7 @@ SetupZombie(short SpriteNum)
     u->Attrib = &ZombieAttrib;
     EnemyDefaults(SpriteNum, &ZombieActionSet, &ZombiePersonality);
 
-    ChangeSpriteState(SpriteNum, s_ZombieRun[0]);
+    ChangeState(actor, s_ZombieRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);
 
     u->Radius = 280;

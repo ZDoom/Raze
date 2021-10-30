@@ -228,7 +228,7 @@ SetupSkull(short SpriteNum)
         u->Health = HEALTH_SKULL;
     }
 
-    ChangeSpriteState(SpriteNum, s_SkullWait[0]);
+    ChangeState(actor, s_SkullWait[0]);
     u->Attrib = &SkullAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SkullExplode;
@@ -349,7 +349,7 @@ DoSkullBeginDeath(DSWActor* actor)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     u->RotNum = 0;
     u->Tics = 0;
-//    ChangeSpriteState(SpriteNum, u->StateEnd);
+//    ChangeState(actor, u->StateEnd);
     //u->State = u->StateStart = u->StateEnd;
     //u->State = u->StateEnd;
     u->ID = SKULL_R0;
@@ -653,7 +653,7 @@ SetupBetty(short SpriteNum)
         u->Health = HEALTH_SKULL;
     }
 
-    ChangeSpriteState(SpriteNum, s_BettyWait[0]);
+    ChangeState(actor, s_BettyWait[0]);
     u->Attrib = &BettyAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_BettyExplode;
@@ -769,7 +769,7 @@ DoBettyBeginDeath(DSWActor* actor)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     u->RotNum = 0;
     u->Tics = 0;
-//    ChangeSpriteState(SpriteNum, u->StateEnd);
+//    ChangeState(actor, u->StateEnd);
     //u->State = u->StateStart = u->StateEnd;
     //u->State = u->StateEnd;
     u->ID = BETTY_R0;

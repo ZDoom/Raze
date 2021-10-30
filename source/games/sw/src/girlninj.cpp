@@ -740,7 +740,7 @@ SetupGirlNinja(short SpriteNum)
     sp->pal = u->spal = 26;
     EnemyDefaults(SpriteNum, &GirlNinjaActionSet, &GirlNinjaPersonality);
 
-    ChangeSpriteState(SpriteNum, s_GirlNinjaRun[0]);
+    ChangeState(actor, s_GirlNinjaRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);
 
     u->Radius = 280;

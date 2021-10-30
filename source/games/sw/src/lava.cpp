@@ -470,7 +470,7 @@ SetupLava(short SpriteNum)
         u->Health = 100;
     }
 
-    ChangeSpriteState(SpriteNum, s_LavaRun[0]);
+    ChangeState(actor, s_LavaRun[0]);
     u->Attrib = &LavaAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_LavaDie;

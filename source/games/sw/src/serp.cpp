@@ -717,7 +717,7 @@ SetupSerp(short SpriteNum)
     if (Skill == 0) u->Health = 1100;
     if (Skill == 1) u->Health = 2200;
 
-    ChangeSpriteState(SpriteNum, s_SerpRun[0]);
+    ChangeState(actor, s_SerpRun[0]);
     u->Attrib = &SerpAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SerpDie;

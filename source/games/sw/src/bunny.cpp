@@ -749,7 +749,7 @@ SetupBunny(short SpriteNum)
     //    return(0);
     //    }
 
-    ChangeSpriteState(SpriteNum, s_BunnyRun[0]);
+    ChangeState(actor, s_BunnyRun[0]);
     u->StateEnd = s_BunnyDie;
     u->Rot = sg_BunnyRun;
     //sp->xrepeat = 64;

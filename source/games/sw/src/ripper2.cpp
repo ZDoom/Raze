@@ -901,7 +901,7 @@ SetupRipper2(short SpriteNum)
         u->Health = HEALTH_RIPPER2;
     }
 
-    ChangeSpriteState(SpriteNum, s_Ripper2Run[0]);
+    ChangeState(actor, s_Ripper2Run[0]);
     u->Attrib = &Ripper2Attrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_Ripper2Die;

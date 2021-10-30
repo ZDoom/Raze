@@ -1799,7 +1799,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
-        ChangeSpriteState(SpriteNum,s_Pachinko1Operate);
+        ChangeState(actor,s_Pachinko1Operate);
 
         return true;
 
@@ -1810,7 +1810,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
-        ChangeSpriteState(SpriteNum,s_Pachinko2Operate);
+        ChangeState(actor,s_Pachinko2Operate);
 
         return true;
 
@@ -1821,7 +1821,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
-        ChangeSpriteState(SpriteNum,s_Pachinko3Operate);
+        ChangeState(actor,s_Pachinko3Operate);
 
         return true;
 
@@ -1832,7 +1832,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
-        ChangeSpriteState(SpriteNum,s_Pachinko4Operate);
+        ChangeState(actor,s_Pachinko4Operate);
 
         return true;
 

@@ -530,7 +530,7 @@ int SetupCoolg(DSWActor* actor)
     }
     u = actor->u();
 
-    ChangeSpriteState(SpriteNum, s_CoolgRun[0]);
+    ChangeState(actor, s_CoolgRun[0]);
     u->Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_CoolgDie;
@@ -560,7 +560,7 @@ int NewCoolg(DSWActor* actor)
     nu = actorNew->u();
     np = &actorNew->s();
 
-    ChangeSpriteState(actorNew->GetSpriteIndex(), &s_CoolgBirth[0]);
+    ChangeState(actorNew, &s_CoolgBirth[0]);
     nu->StateEnd = s_CoolgDie;
     nu->Rot = sg_CoolgRun;
     np->pal = nu->spal = u->spal;
@@ -582,18 +582,17 @@ int NewCoolg(DSWActor* actor)
 int DoCoolgBirth(DSWActor* actor)
 {
     USER* u = actor->u();
-    int New = u->SpriteNum;
     ANIMATOR DoActorDecide;
 
     u->Health = HEALTH_COOLIE_GHOST;
     u->Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
 
-    ChangeSpriteState(New, s_CoolgRun[0]);
+    ChangeState(actor, s_CoolgRun[0]);
     u->StateEnd = s_CoolgDie;
     u->Rot = sg_CoolgRun;
 
-    EnemyDefaults(New, &CoolgActionSet, &CoolgPersonality);
+    EnemyDefaults(actor->GetSpriteIndex(), &CoolgActionSet, &CoolgPersonality);
     // special case
     TotalKillable--;
 

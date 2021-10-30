@@ -2866,9 +2866,10 @@ STATEp UserStateSetup(short base_tile, short num_tiles)
 int
 SpawnShrap(short ParentNum, short Secondary)
 {
-    SPRITEp parent = &sprite[ParentNum];
+    auto parentActor = &swActors[ParentNum];
+    SPRITEp parent = &parentActor->s();
     SPRITEp sp;
-    USERp u, pu = User[ParentNum].Data();
+    USERp u, pu = parentActor->u();
     short SpriteNum;
     short i;
 
@@ -3529,35 +3530,35 @@ AutoShrap:
         p = WoodShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
-        ChangeSpriteState(short(parent - sprite), s_BreakBarrel);
+        ChangeState(parentActor, s_BreakBarrel);
         break;
     case BREAK_LIGHT:
         PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
-        ChangeSpriteState(short(parent - sprite), s_BreakLight);
+        ChangeState(parentActor, s_BreakLight);
         break;
     case BREAK_PEDISTAL:
         PlaySound(DIGI_BREAKSTONES,parent,v3df_dontpan|v3df_doppler);
         p = StoneShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
-        ChangeSpriteState(short(parent - sprite), s_BreakPedistal);
+        ChangeState(parentActor, s_BreakPedistal);
         break;
     case BREAK_BOTTLE1:
         PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 8;
         shrap_bounce = true;
-        ChangeSpriteState(short(parent - sprite), s_BreakBottle1);
+        ChangeState(parentActor, s_BreakBottle1);
         break;
     case BREAK_BOTTLE2:
         PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 8;
         shrap_bounce = true;
-        ChangeSpriteState(short(parent - sprite), s_BreakBottle2);
+        ChangeState(parentActor, s_BreakBottle2);
         break;
     case BREAK_MUSHROOM:
         PlaySound(DIGI_BREAKDEBRIS,parent,v3df_dontpan|v3df_doppler);
@@ -3907,7 +3908,7 @@ DoVomit(DSWActor* actor)
     }
     else
     {
-        ChangeSpriteState(SpriteNum, s_VomitSplash);
+        ChangeState(actor, s_VomitSplash);
         DoFindGroundPoint(SpriteNum);
         MissileWaterAdjust(SpriteNum);
         sp->z = u->loz;
@@ -4012,7 +4013,7 @@ DoShrapJumpFall(DSWActor* actor)
         }
 
         if (u->ID == GORE_Drip)
-            ChangeSpriteState(SpriteNum, s_GoreFloorSplash);
+            ChangeState(actor, s_GoreFloorSplash);
         else
             ShrapKillSprite(SpriteNum);
     }
@@ -4897,14 +4898,15 @@ DoBreakFlames(DSWActor* actor)
 int
 SetSuicide(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data();
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
 
     if (u != nullptr)
     {
         SET(u->Flags, SPR_SUICIDE);
         u->RotNum = 0;
     }
-    ChangeSpriteState(SpriteNum, s_Suicide);
+    ChangeState(actor, s_Suicide);
     return 0;
 }
 
@@ -16798,7 +16800,7 @@ int DoCoolgDrip(DSWActor* actor)
     {
         sp->z = u->loz - u->floor_dist;
         sp->yrepeat = sp->xrepeat = 32;
-        ChangeSpriteState(SpriteNum, s_GoreFloorSplash);
+        ChangeState(actor, s_GoreFloorSplash);
         if (u->spal == PALETTE_BLUE_LIGHTING)
             PlaySound(DIGI_DRIP, sp, v3df_none);
     }
@@ -20861,8 +20863,9 @@ SpawnShell(short SpriteNum, short ShellNum)
 int
 DoShrapVelocity(int16_t SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(sp))
     {
@@ -20955,7 +20958,7 @@ DoShrapVelocity(int16_t SpriteNum)
                         else
                         {
                             if (u->ID == GORE_Drip)
-                                ChangeSpriteState(SpriteNum, s_GoreFloorSplash);
+                                ChangeState(actor, s_GoreFloorSplash);
                             else
                                 ShrapKillSprite(SpriteNum);
                             return true;
@@ -21000,7 +21003,7 @@ DoShrapVelocity(int16_t SpriteNum)
                     else
                     {
                         if (u->ID == GORE_Drip)
-                            ChangeSpriteState(SpriteNum, s_GoreFloorSplash);
+                            ChangeState(actor, s_GoreFloorSplash);
                         else
                             ShrapKillSprite(SpriteNum);
                         return true;

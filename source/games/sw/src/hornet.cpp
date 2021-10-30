@@ -306,7 +306,7 @@ SetupHornet(short SpriteNum)
         u->Health = HEALTH_HORNET;
     }
 
-    ChangeSpriteState(SpriteNum, s_HornetRun[0]);
+    ChangeState(actor, s_HornetRun[0]);
     u->Attrib = &HornetAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_HornetDie;
