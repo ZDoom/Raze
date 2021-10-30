@@ -49,7 +49,7 @@
 #include "v_draw.h"
 #include "s_music.h"
 #include "cmdlib.h"
-#include "templates.h"
+
 
 
 

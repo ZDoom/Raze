@@ -36,7 +36,7 @@
 #include <assert.h>
 
 #include "build.h"
-#include "templates.h"
+
 #include "statusbar.h"
 #include "c_cvars.h"
 #include "c_dispatch.h"
