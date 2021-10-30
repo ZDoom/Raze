@@ -75,7 +75,7 @@ void trigInit();
 
 inline int Sin(int ang)
 {
-    return costable[(ang - 512) & 2047];
+    return sintable[ang & 2047];
 }
 
 inline int Cos(int ang)
