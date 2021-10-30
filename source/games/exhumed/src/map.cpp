@@ -88,7 +88,7 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
         {
             int nTile = pSprite->picnum;
             int ceilZ, ceilHit, floorZ, floorHit;
-            getzrange_old(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0);
+            getzrange(&pSprite->pos, pSprite->sectnum, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0);
             int nTop, nBottom;
             GetSpriteExtents(pSprite, &nTop, &nBottom);
             int nScale = (pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z;
