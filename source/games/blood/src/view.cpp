@@ -333,12 +333,12 @@ void viewUpdateDelirium(void)
 			tilt2 = MulScale(tilt2, powerScale, 16);
 			pitch = MulScale(pitch, powerScale, 16);
 		}
-		int sin2 = costable[(2*timer-512)&2047] / 2;
-		int sin3 = costable[(3*timer-512)&2047] / 2;
+		int sin2 = Sin(2*timer) >> 1;
+		int sin3 = Sin(3*timer) >> 1;
 		gScreenTilt = MulScale(sin2+sin3,tilt1, 30);
-		int sin4 = costable[(4*timer-512)&2047] / 2;
+		int sin4 = Sin(4*timer) >> 1;
 		deliriumTurn = MulScale(sin3+sin4,tilt2, 30);
-		int sin5 = costable[(5*timer-512)&2047] / 2;
+		int sin5 = Sin(5*timer) >> 1;
 		deliriumPitch = MulScale(sin4+sin5,pitch, 30);
 		return;
 	}
