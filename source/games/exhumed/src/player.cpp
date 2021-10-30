@@ -910,7 +910,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
         short var_54 = pPlayerSprite->sectnum;
 
-        pushmove_old(&pPlayerSprite->x, &pPlayerSprite->y, &pPlayerSprite->z, &var_54, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
+        pushmove(&pPlayerSprite->pos, &var_54, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
         if (var_54 != pPlayerSprite->sectnum) {
             ChangeActorSect(pPlayerActor, var_54);
         }
