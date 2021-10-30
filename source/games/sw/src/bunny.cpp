@@ -1003,7 +1003,7 @@ DoBunnyQuickJump(DSWActor* actor)
                 // Blood fountains
                 InitBloodSpray(hit_sprite,true,-1);
 
-                if (SpawnShrap(hit_sprite, SpriteNum))
+                if (SpawnShrap(hitActor, actor))
                 {
                     SetSuicide(hit_sprite);
                 }
@@ -1223,7 +1223,7 @@ void BunnyHatch(short Weapon)
                 // Blood fountains
                 InitBloodSpray(Weapon,true,-1);
 
-                if (SpawnShrap(Weapon, New))
+                if (SpawnShrap(actor, actorNew))
                 {
                     SetSuicide(Weapon);
                 }

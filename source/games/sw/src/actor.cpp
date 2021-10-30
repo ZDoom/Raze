@@ -371,7 +371,7 @@ int DoActorSectorDamage(DSWActor* actor)
     //if (u->lo_sectp && u->hi_sectp && labs(u->loz - u->hiz) < SPRITEp_SIZE_Z(sp))
     {
         u->Health = 0;
-        if (SpawnShrap(SpriteNum, WPN_NM_SECTOR_SQUISH))
+        if (SpawnShrap(actor, nullptr, WPN_NM_SECTOR_SQUISH))
         {
             UpdateSinglePlayKills(actor);
             SetSuicide(SpriteNum);

@@ -2747,9 +2747,8 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
 
 int SpawnShrapX(DSWActor* actor)
 {
-    USER* u = actor->u();
     //For shrap that has no Weapon to send over
-    SpawnShrap(u->SpriteNum, -1);
+    SpawnShrap(actor, nullptr);
     return 0;
 }
 
@@ -2864,9 +2863,10 @@ STATEp UserStateSetup(short base_tile, short num_tiles)
 #endif
 
 int
-SpawnShrap(short ParentNum, short Secondary)
+SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means)
 {
-    auto parentActor = &swActors[ParentNum];
+    int Secondary = secondaryActor ? secondaryActor->GetSpriteIndex() : means;
+    int ParentNum = parentActor->GetSpriteIndex();
     SPRITEp parent = &parentActor->s();
     SPRITEp sp;
     USERp u, pu = parentActor->u();
@@ -3872,6 +3872,7 @@ AutoShrap:
 
     return retval;
 }
+
 
 int
 DoShrapMove(int16_t SpriteNum)
@@ -5072,7 +5073,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                 pp->Bloody = true;
             PlaySound(DIGI_TOILETGIRLSCREAM, sp, v3df_none);
         }
-        if (SpawnShrap(SpriteNum, Weapon))
+        if (SpawnShrap(actor, weapActor))
             SetSuicide(SpriteNum);
         break;
     }
@@ -5081,7 +5082,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
     case ZOMBIE_RUN_R0:
         InitBloodSpray(SpriteNum,true,105);
         InitBloodSpray(SpriteNum,true,105);
-        if (SpawnShrap(SpriteNum, Weapon))
+        if (SpawnShrap(actor, weapActor))
             SetSuicide(SpriteNum);
         break;
 
@@ -5150,7 +5151,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                 // Blood fountains
                 InitBloodSpray(SpriteNum,true,-1);
 
-                if (SpawnShrap(SpriteNum, Weapon))
+                if (SpawnShrap(actor, weapActor))
                 {
                     SetSuicide(SpriteNum);
                 }
@@ -5234,7 +5235,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                     return true;
                 }
 
-                if (SpawnShrap(SpriteNum, Weapon))
+                if (SpawnShrap(actor, weapActor))
                 {
                     SetSuicide(SpriteNum);
                 }
@@ -5926,7 +5927,7 @@ DoDamage(short SpriteNum, short Weapon)
                         choosesnd=RandomRange(MAX_TAUNTAI);
                         PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
                     }
-                    SpawnShrap(SpriteNum, Weapon);
+                    SpawnShrap(actor, weapActor);
                     SetSuicide(SpriteNum);
                     return 0;
                 }
@@ -10530,12 +10531,12 @@ DoElectro(DSWActor* actor)
                 USERp hu = User[NORM_SPRITE(u->ret)].Data();
 
                 if (!TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY) || hu->ID == SKULL_R0 || hu->ID == BETTY_R0)
-                    SpawnShrap(Weapon, -1);
+                    SpawnShrap(actor, nullptr);
                 break;
             }
 
             default:
-                SpawnShrap(Weapon, -1);
+                SpawnShrap(actor, nullptr);
                 break;
             }
 
@@ -10569,7 +10570,7 @@ DoLavaBoulder(DSWActor* actor)
     {
         if (WeaponMoveHit(Weapon))
         {
-            SpawnShrap(Weapon, -1);
+            SpawnShrap(actor, nullptr);
             KillSprite(Weapon);
             return true;
         }

@@ -1916,7 +1916,7 @@ bool SoundValidAndActive(SPRITEp spr, int channel);
 
 ANIMATOR DoActorBeginJump,DoActorJump,DoActorBeginFall,DoActorFall,DoActorDeathMove;
 
-int SpawnShrap(short,short);
+int SpawnShrap(DSWActor*, DSWActor*, int = -1);
 
 void PlayerUpdateHealth(PLAYERp pp, short value);
 void PlayerUpdateAmmo(PLAYERp pp, short WeaponNum, short value);

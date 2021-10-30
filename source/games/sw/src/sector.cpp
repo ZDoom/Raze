@@ -1130,7 +1130,7 @@ int DoSpawnSpot(DSWActor* actor)
     if ((u->WaitTics -= synctics) < 0)
     {
         change_actor_stat(actor, STAT_SPAWN_SPOT);
-        SpawnShrap(SpriteNum, -1);
+        SpawnShrap(actor, nullptr);
 
         if (u->LastDamage == 1)
         {

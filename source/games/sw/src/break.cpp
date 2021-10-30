@@ -596,6 +596,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
         // need correct location for spawning shrap
         BreakSprite = COVERinsertsprite(0, STAT_DEFAULT);
         ASSERT(BreakSprite >= 0);
+        auto breakActor = &swActors[BreakSprite];
         bsp = &sprite[BreakSprite];
         bsp->cstat = 0;
         bsp->extra = 0;
@@ -606,7 +607,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
 
         // pass Break Info Globally
         GlobBreakInfo = break_info;
-        SpawnShrap(BreakSprite, -1);
+        SpawnShrap(breakActor, nullptr);
         GlobBreakInfo = nullptr;
 
         KillSprite(BreakSprite);
@@ -942,6 +943,7 @@ int UserBreakSprite(short BreakSprite)
 
 int AutoBreakSprite(short BreakSprite, short type)
 {
+    auto breakActor = &swActors[BreakSprite];
     SPRITEp bp = &sprite[BreakSprite];
     BREAK_INFOp break_info;
     extern void DoWallBreakMatch(short match);
@@ -973,7 +975,7 @@ int AutoBreakSprite(short BreakSprite, short type)
             bp->picnum = break_info->breaknum;
             // pass Break Info Globally
             GlobBreakInfo = break_info;
-            SpawnShrap(BreakSprite, -1);
+            SpawnShrap(breakActor, nullptr);
             GlobBreakInfo = nullptr;
             if (bp->picnum == 3683)
                 RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -987,7 +989,7 @@ int AutoBreakSprite(short BreakSprite, short type)
 
     // pass Break Info Globally
     GlobBreakInfo = break_info;
-    SpawnShrap(BreakSprite, -1);
+    SpawnShrap(breakActor, nullptr);
     GlobBreakInfo = nullptr;
 
     // kill it or change the pic
@@ -1034,6 +1036,7 @@ bool NullActor(USERp u)
 
 int HitBreakSprite(short BreakSprite, short type)
 {
+    auto breakActor = &swActors[BreakSprite];
     SPRITEp bp = &sprite[BreakSprite];
     USERp bu = User[BreakSprite].Data();
 
@@ -1056,7 +1059,7 @@ int HitBreakSprite(short BreakSprite, short type)
         if (bp->lotag)
             DoLightingMatch(bp->lotag, -1);
 
-        SpawnShrap(BreakSprite, -1);
+        SpawnShrap(breakActor, nullptr);
         RESET(bp->extra, SPRX_BREAKABLE);
         return false;
     }

@@ -450,11 +450,7 @@ int DoSkullBob(DSWActor* actor)
 
 int DoSkullSpawnShrap(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    int SpawnShrap(short, short);
-
-    SpawnShrap(SpriteNum, -1);
+    SpawnShrap(actor, nullptr);
 
     //PlaySpriteSound(SpriteNum,attr_extra1,v3df_none);
     return 0;
@@ -868,9 +864,7 @@ int DoBettyBob(DSWActor* actor)
 
 int DoBettySpawnShrap(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpawnShrap(short, short);
-    SpawnShrap(u->SpriteNum, -1);
+    SpawnShrap(actor, nullptr);
     //PlaySpriteSound(SpriteNum,attr_extra1,v3df_none);
     return 0;
 }

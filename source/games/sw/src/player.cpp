@@ -2646,7 +2646,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
 
             UpdateSinglePlayKills(actor);
 
-            if (SpawnShrap(i, -99))
+            if (SpawnShrap(actor, nullptr, -99))
                 SetSuicide(i);
             else
                 KillSprite(i);
@@ -2706,6 +2706,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         SectIterator it(int(*sectp - sector));
         while ((i = it.NextIndex()) >= 0)
         {
+            auto actor = &swActors[i];
             sp = &sprite[i];
             u = User[i].Data();
 
@@ -2717,7 +2718,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             {
                 if (sp->statnum == STAT_ENEMY)
                 {
-                    if (SpawnShrap(i, -99))
+                    if (SpawnShrap(actor, nullptr, -99))
                         SetSuicide(i);
                     else
                         KillSprite(i);
@@ -5985,7 +5986,7 @@ DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -300;
         u->slide_vel = 0;
-        SpawnShrap(pp->PlayerSprite,-1);
+        SpawnShrap(pp->Actor(), nullptr);
         SET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->PlayerSprite, sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
@@ -6000,7 +6001,7 @@ DoPlayerBeginDie(PLAYERp pp)
 
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -650;
-        SpawnShrap(pp->PlayerSprite,-1);
+        SpawnShrap(pp->Actor(), nullptr);
         SET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->PlayerSprite, sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
@@ -6018,7 +6019,7 @@ DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = 200;
         u->slide_vel = 800;
-        SpawnShrap(pp->PlayerSprite, -1);
+        SpawnShrap(pp->Actor(), nullptr);
         SET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->PlayerSprite, sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
@@ -6101,7 +6102,7 @@ void DoPlayerDeathHurl(PLAYERp pp)
                 NewStateGroup(pp->PlayerSprite, sg_PlayerHeadHurl);
                 if (MoveSkip4 == 0)
                 {
-                    SpawnShrap(pp->PlayerSprite, -1);
+                    SpawnShrap(pp->Actor(), nullptr);
                     if (RandomRange(1000) > 400)
                         PlayerSound(DIGI_DHVOMIT, v3df_dontpan|v3df_follow,pp);
                 }
@@ -6281,7 +6282,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
                 pp->jump_speed = -500;
                 NewStateGroup(pp->PlayerSprite, sg_PlayerHeadFly);
                 SET(pp->Flags, PF_JUMPING);
-                SpawnShrap(pp->PlayerSprite, -1);
+                SpawnShrap(pp->Actor(), nullptr);
                 return hp;
             }
         }
@@ -6298,7 +6299,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
         pp->jump_speed = -100;
         NewStateGroup(pp->PlayerSprite, sg_PlayerHeadFly);
         SET(pp->Flags, PF_JUMPING);
-        SpawnShrap(pp->PlayerSprite, -1);
+        SpawnShrap(pp->Actor(), nullptr);
         return nullptr;
     }
 
@@ -6339,7 +6340,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
-            SpawnShrap(pp->PlayerSprite, -1);
+            SpawnShrap(pp->Actor(), nullptr);
             break;
         }
         case HIT_WALL:
@@ -6356,7 +6357,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
-            SpawnShrap(pp->PlayerSprite, -1);
+            SpawnShrap(pp->Actor(), nullptr);
             break;
         }
         }
@@ -6482,7 +6483,7 @@ void DoPlayerDeathBounce(PLAYERp pp)
     u->slide_vel >>= 2;
     u->slide_ang = NORM_ANGLE((RANDOM_P2(64<<8)>>8) - 32);
     SET(pp->Flags, PF_JUMPING);
-    SpawnShrap(pp->PlayerSprite, -1);
+    SpawnShrap(pp->Actor(), nullptr);
 }
 
 
