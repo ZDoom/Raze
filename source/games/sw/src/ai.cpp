@@ -502,22 +502,22 @@ DSWActor* GetPlayerSpriteNum(DSWActor* actor)
     return nullptr;
 }
 
-int
-CloseRangeDist(SPRITEp sp1, SPRITEp sp2)
+int CloseRangeDist(DSWActor* actor1, DSWActor* actor2)
 {
-    int clip1 = sp1->clipdist;
-    int clip2 = sp2->clipdist;
+    int clip1 = actor1->s().clipdist;
+    int clip2 = actor2->s().clipdist;
 
     // add clip boxes and a fudge factor
-#define DIST_CLOSE_RANGE 400
+    const int DIST_CLOSE_RANGE = 400;
 
-    return (clip1<<2) + (clip2<<2) + DIST_CLOSE_RANGE;
+    return (clip1 << 2) + (clip2 << 2) + DIST_CLOSE_RANGE;
 }
 
-int DoActorOperate(short SpriteNum)
+int DoActorOperate(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
+    int SpriteNum = actor->GetSpriteIndex();
     short nearsector, nearwall, nearsprite;
     int nearhitdist;
     int z[2];
@@ -648,7 +648,7 @@ DoActorActionDecide(short SpriteNum)
     {
 
         // Try to operate stuff
-        DoActorOperate(SpriteNum);
+        DoActorOperate(actor);
 
         // if far enough away and cannot see the player
         dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
@@ -669,7 +669,7 @@ DoActorActionDecide(short SpriteNum)
 
         auto pActor = GetPlayerSpriteNum(actor);
         // check for short range attack possibility
-        if ((dist < CloseRangeDist(sp, u->tgt_sp()) && ICanSee) ||
+        if ((dist < CloseRangeDist(actor, u->targetActor) && ICanSee) ||
             (pActor && pActor->hasU() && pActor->u()->WeaponNum == WPN_FIST && u->ID != RIPPER2_RUN_R0 && u->ID != RIPPER_RUN_R0))
         {
             if ((u->ID == COOLG_RUN_R0 && TEST(sp->cstat, CSTAT_SPRITE_TRANSLUCENT)) || TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
@@ -747,7 +747,7 @@ DoActorActionDecide(short SpriteNum)
         {
             if ((FACING(sp, u->tgt_sp()) && dist < 10000) || ICanSee)
             {
-                DoActorOperate(SpriteNum);
+                DoActorOperate(actor);
 
                 // Don't let player completely sneek up behind you
                 action = ChooseAction(u->Personality->Surprised);
@@ -1515,7 +1515,7 @@ DoActorAttack(DSWActor* actor)
     DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a, b, c);
 
     auto pActor = GetPlayerSpriteNum(actor);
-    if ((u->ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(sp, u->tgt_sp())) ||
+    if ((u->ActorActionSet->CloseAttack[0] && dist < CloseRangeDist(actor, u->targetActor)) ||
         (pActor && pActor->hasU() && pActor->u()->WeaponNum == WPN_FIST))      // JBF: added null check
     {
         rand_num = ChooseActionNumber(u->ActorActionSet->CloseAttackPercent);
