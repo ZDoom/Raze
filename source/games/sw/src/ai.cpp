@@ -1608,10 +1608,10 @@ int DoActorMoveJump(DSWActor* actor)
 }
 
 
-int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int *stopz, short *stopsect)
+int move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy, int *stopz, short *stopsect)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     int nx,ny;
     uint32_t cliptype = CLIPMASK_ACTOR;
@@ -1643,7 +1643,7 @@ int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int 
     nx = MulScale(dist, bcos(sp->ang), 14);
     ny = MulScale(dist, bsin(sp->ang), 14);
 
-    ret = move_sprite(SpriteNum, nx, ny, 0, u->ceiling_dist, u->floor_dist, cliptype, 1);
+    ret = move_sprite(u->SpriteNum, nx, ny, 0, u->ceiling_dist, u->floor_dist, cliptype, 1);
     // move_sprite DOES do a getzrange point?
 
     // should I look down with a FAFgetzrange to see where I am?
@@ -1665,20 +1665,22 @@ int move_scan(short SpriteNum, short ang, int dist, int *stopx, int *stopy, int 
     u->hi_sp = hi_sp;
     u->lo_sectp = lo_sectp;
     u->hi_sectp = hi_sectp;
-    changespritesect(SpriteNum, ss);
+    changespritesect(u->SpriteNum, ss);
 
     return ret;
 }
 
-#define TOWARD 1
-#define AWAY -1
-
-int
-FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
+enum
 {
-    auto actor = &swActors[SpriteNum];
+    TOWARD = 1,
+    AWAY = -1
+};
+
+int FindNewAngle(DSWActor* actor, signed char dir, int DistToMove)
+{
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
+    int SpriteNum = actor->GetSpriteIndex();
 
     static short toward_angle_delta[4][9] =
     {
@@ -1735,7 +1737,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
         }
         break;
     default:
-        printf("FindNewAngle called with dir=%d!\n",dir);
+        Printf("FindNewAngle called with dir=%d!\n",dir);
         return 0;
     }
 
@@ -1758,7 +1760,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
 #endif
 
         // check to see how far we can move
-        ret = move_scan(SpriteNum, new_ang, DistToMove, &stopx, &stopy, &stopz, &stopsect);
+        ret = move_scan(actor, new_ang, DistToMove, &stopx, &stopy, &stopz, &stopsect);
 
         if (ret == 0)
         {
@@ -1813,8 +1815,7 @@ FindNewAngle(short SpriteNum, signed char dir, int DistToMove)
 
 */
 
-int
-InitActorReposition(DSWActor* actor)
+int InitActorReposition(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1869,7 +1870,7 @@ InitActorReposition(DSWActor* actor)
     if (dist < PlayerDist[rnum] || TEST(u->Flags, SPR_RUN_AWAY))
     {
         rnum = RANDOM_P2(8<<8)>>8;
-        ang = FindNewAngle(SpriteNum, AWAY, AwayDist[rnum]);
+        ang = FindNewAngle(actor, AWAY, AwayDist[rnum]);
         if (ang == -1)
         {
             u->Vis = 8;
@@ -1885,12 +1886,12 @@ InitActorReposition(DSWActor* actor)
     {
         // try to move toward player
         rnum = RANDOM_P2(8<<8)>>8;
-        ang = FindNewAngle(SpriteNum, TOWARD, TowardDist[rnum]);
+        ang = FindNewAngle(actor, TOWARD, TowardDist[rnum]);
         if (ang == -1)
         {
             // try to move away from player
             rnum = RANDOM_P2(8<<8)>>8;
-            ang = FindNewAngle(SpriteNum, AWAY, AwayDist[rnum]);
+            ang = FindNewAngle(actor, AWAY, AwayDist[rnum]);
             if (ang == -1)
             {
                 u->Vis = 8;
@@ -1920,8 +1921,7 @@ InitActorReposition(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorReposition(DSWActor* actor)
+int DoActorReposition(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1952,8 +1952,7 @@ DoActorReposition(DSWActor* actor)
 }
 
 
-int
-InitActorPause(DSWActor* actor)
+int InitActorPause(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -1969,8 +1968,7 @@ InitActorPause(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorPause(DSWActor* actor)
+int DoActorPause(DSWActor* actor)
 {
     USER* u = actor->u();
 	int SpriteNum = u->SpriteNum;
