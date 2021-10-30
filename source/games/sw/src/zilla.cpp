@@ -703,7 +703,7 @@ int NullZilla(DSWActor* actor)
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
-    u->lo_sp = nullptr;
+    u->lowActor = nullptr;
     u->hi_sp = nullptr;
     sp->z = u->loz;
 
@@ -788,7 +788,7 @@ int DoZillaDeathMelt(DSWActor* actor)
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
-    u->lo_sp = nullptr;
+    u->lowActor = nullptr;
     u->hi_sp = nullptr;
     sp->z = u->loz;
 

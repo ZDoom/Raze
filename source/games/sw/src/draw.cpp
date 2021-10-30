@@ -308,9 +308,9 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     loz = tu->loz;
-    if (tu->lo_sp)
+    if (tu->lowActor)
     {
-        if (!TEST(tu->lo_sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if (!TEST(tu->lowActor->s().cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             loz = DoShadowFindGroundPoint(tsp);
         }

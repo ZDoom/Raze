@@ -130,7 +130,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
     switch (wu->ID)
     {
     // Coolie actually explodes himself
-    // he is the Sprite AND Weapon
+    // he is the Sprite AND weapon
     case COOLIE_RUN_R0:
         ChangeState(actor, u->StateEnd);
         u->RotNum = 0;
@@ -422,7 +422,7 @@ int DoActorDebris(DSWActor* actor)
         getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
         u->lo_sectp = &sector[sp->sectnum];
         u->hi_sectp = &sector[sp->sectnum];
-        u->lo_sp = nullptr;
+        u->lowActor = nullptr;
         u->hi_sp = nullptr;
         break;
     }
@@ -782,7 +782,7 @@ int DoActorStopFall(DSWActor* actor)
 
 
     // don't stand on face or wall sprites - jump again
-    if (u->lo_sp && !TEST(u->lo_sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+    if (u->lowActor && !TEST(u->lowActor->s().cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
         //sp->ang = NORM_ANGLE(sp->ang + (RANDOM_P2(64<<8)>>8) - 32);
         sp->ang = NORM_ANGLE(sp->ang + 1024 + (RANDOM_P2(512<<8)>>8));

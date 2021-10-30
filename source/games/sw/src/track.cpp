@@ -1799,6 +1799,7 @@ PlayerPart:
     {
         sp = &sprite[sop->sp_num[i]];
         u = User[sop->sp_num[i]].Data();
+        auto actor = &swActors[u->SpriteNum];
 
         // if its a player sprite || NOT attached
         if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
@@ -1809,7 +1810,7 @@ PlayerPart:
         {
             pp = Player + pnum;
 
-            if (pp->lo_sp && pp->lo_sp == sp)
+            if (pp->lowActor && pp->lowActor == actor)
             {
                 if (PlayerMove)
                     MovePlayer(pp, sop, nx, ny);

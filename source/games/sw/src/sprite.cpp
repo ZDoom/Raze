@@ -626,8 +626,9 @@ void KillActor(DSWActor* actor)
 
 void KillSprite(int16_t SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     int i;
     unsigned stat;
     short statnum,sectnum;
@@ -804,8 +805,8 @@ void KillSprite(int16_t SpriteNum)
         if (u.Data())
         {
             if (u->hi_sp == sp) u->hi_sp = nullptr;
-            if (u->lo_sp == sp) u->lo_sp = nullptr;
-            if (u->tgt_sp() == sp) u->targetActor = nullptr;
+            if (u->lowActor == actor) u->lowActor = nullptr;
+            if (u->targetActor == actor) u->targetActor = nullptr;
         }
     }
 }
@@ -936,7 +937,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
 #else
     u->loz = sector[sp->sectnum].floorz;
     u->hiz = sector[sp->sectnum].ceilingz;
-    u->lo_sp = nullptr;
+    u->lowActor = nullptr;
     u->hi_sp = nullptr;
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
@@ -4940,7 +4941,8 @@ DoActorZrange(short SpriteNum)
     SET(sp->cstat, save_cstat);
 
     u->lo_sectp = u->hi_sectp = nullptr;
-    u->lo_sp = u->hi_sp = nullptr;
+    u->hi_sp = nullptr;
+    u->lowActor = nullptr;
 
     switch (TEST(ceilhit, HIT_MASK))
     {
@@ -4958,7 +4960,7 @@ DoActorZrange(short SpriteNum)
     switch (TEST(florhit, HIT_MASK))
     {
     case HIT_SPRITE:
-        u->lo_sp = &sprite[NORM_SPRITE(florhit)];
+        u->lowActor = &swActors[NORM_SPRITE(florhit)];
         break;
     case HIT_SECTOR:
         u->lo_sectp = &sector[NORM_SECTOR(florhit)];
@@ -4981,7 +4983,8 @@ DoActorGlobZ(short SpriteNum)
     u->hiz = globhiz;
 
     u->lo_sectp = u->hi_sectp = nullptr;
-    u->lo_sp = u->hi_sp = nullptr;
+    u->hi_sp = nullptr;
+    u->lowActor = nullptr;
 
     switch (TEST(globhihit, HIT_MASK))
     {
@@ -4996,7 +4999,7 @@ DoActorGlobZ(short SpriteNum)
     switch (TEST(globlohit, HIT_MASK))
     {
     case HIT_SPRITE:
-        u->lo_sp = &sprite[globlohit & 4095];
+        u->lowActor = &swActors[globlohit & 4095];
         break;
     default:
         u->lo_sectp = &sector[globlohit & 4095];
@@ -5105,7 +5108,8 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     SPRITEp sp = &actor->s();
 
     int x, y, z, loz, hiz;
-    SPRITEp lo_sp, hi_sp;
+    SPRITEp hi_sp;
+    DSWActor* lowActor;
     SECTORp lo_sectp, hi_sectp;
     short sectnum;
     short dist;
@@ -5125,7 +5129,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     z = sp->z;
     loz = u->loz;
     hiz = u->hiz;
-    lo_sp = u->lo_sp;
+    lowActor = u->lowActor;
     hi_sp = u->hi_sp;
     lo_sectp = u->lo_sectp;
     hi_sectp = u->hi_sectp;
@@ -5148,7 +5152,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             //sp->z = u->loz;             // place on ground in case you are in the air
             u->loz = loz;
             u->hiz = hiz;
-            u->lo_sp = lo_sp;
+            u->lowActor = lowActor;
             u->hi_sp = hi_sp;
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
@@ -5167,7 +5171,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             //sp->z = u->loz;             // place on ground in case you are in the air
             u->loz = loz;
             u->hiz = hiz;
-            u->lo_sp = lo_sp;
+            u->lowActor = lowActor;
             u->hi_sp = hi_sp;
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
@@ -7378,7 +7382,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 
                 getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
                 u->hi_sectp = u->lo_sectp = &sector[sp->sectnum];
-                u->hi_sp = u->lo_sp = nullptr;
+                u->hi_sp = u->lowActor = nullptr;
                 return retval;
             }
             else
@@ -7405,7 +7409,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
     u->hi_sectp = u->lo_sectp = &sector[sp->sectnum];
-    u->hi_sp = u->lo_sp = nullptr;
+    u->hi_sp = nullptr; u->lowActor = nullptr;
     sp->z = u->loz - Z(8);
 
     if (labs(u->hiz - u->loz) < Z(12))

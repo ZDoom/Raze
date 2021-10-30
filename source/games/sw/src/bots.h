@@ -67,7 +67,7 @@ struct NODETREEstruct
 typedef struct BOT_BRAIN
 {
     short tgt_inv;      // Inventory item it wants to use
-    short tgt_weapon;   // Weapon in wants to activate and use
+    short tgt_weapon;   // weapon in wants to activate and use
     short tgt_enemy;    // Enemy it wants to kill
     short tgt_sprite;   // Sprite it wants to pickup or operate
     short tgt_sector;   // Sector it wants to get to

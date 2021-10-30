@@ -1161,9 +1161,9 @@ DoRipperQuickJump(DSWActor* actor)
     // Tests to see if ripper is on top of a player/enemy and then immediatly
     // does another jump
 
-    if (u->lo_sp)
+    if (u->lowActor)
     {
-        SPRITEp tsp = u->lo_sp;
+        SPRITEp tsp = &u->lowActor->s();
 
         if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
         {

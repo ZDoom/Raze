@@ -1946,7 +1946,8 @@ DoPlayerZrange(PLAYERp pp)
 //  49152+spritenum (sprite first touched)
 
     pp->lo_sectp = pp->hi_sectp = nullptr;
-    pp->lo_sp = pp->hi_sp = nullptr;
+    pp->lowActor = nullptr;
+    pp->hi_sp = nullptr;
 
     if (TEST(ceilhit, 0xc000) == 49152)
     {
@@ -1959,14 +1960,14 @@ DoPlayerZrange(PLAYERp pp)
 
     if (TEST(florhit, 0xc000) == 49152)
     {
-        pp->lo_sp = &sprite[florhit & 4095];
+        pp->lowActor = &swActors[florhit & 4095];
 
         // prevent player from standing on Zombies
-        if (pp->lo_sp->statnum == STAT_ENEMY && User[pp->lo_sp - sprite]->ID == ZOMBIE_RUN_R0)
+        if (pp->lowActor->s().statnum == STAT_ENEMY && pp->lowActor->u()->ID == ZOMBIE_RUN_R0)
         {
-            pp->lo_sectp = &sector[pp->lo_sp->sectnum];
-            pp->loz = pp->lo_sp->z;
-            pp->lo_sp = nullptr;
+            pp->lo_sectp = &sector[pp->lowActor->s().sectnum];
+            pp->loz = pp->lowActor->s().z;
+            pp->lowActor = nullptr;
         }
     }
     else
@@ -6082,7 +6083,7 @@ DoPlayerDeathZrange(PLAYERp pp)
     // update player values with results from DoFindGround
 //    pp->hiz = u->hiz;
     pp->loz = u->loz;
-    pp->lo_sp = u->lo_sp;
+    pp->lowActor = u->lowActor;
     //pp->hi_sp = u->hi_sp;
     pp->lo_sectp = u->lo_sectp;
     //pp->hi_sectp = u->hi_sectp;

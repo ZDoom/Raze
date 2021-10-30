@@ -386,7 +386,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
         loz -= Z(FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed)) - Z(8);
 
     // lower bound
-    if (u->lo_sp)
+    if (u->lowActor)
         bound = loz - u->floor_dist;
     else
         bound = loz - u->floor_dist - HORNET_BOB_AMT;

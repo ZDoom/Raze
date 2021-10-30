@@ -955,7 +955,7 @@ DoPickCloseBunny(USERp u)
         {
             near_dist = dist;
             u->targetActor = itActor;
-            u->lo_sp = tsp;
+            u->lowActor = itActor;
             //Bunny_Result = i;
             return i;
         }
@@ -972,15 +972,14 @@ DoBunnyQuickJump(DSWActor* actor)
 
     if (u->spal != PALETTE_PLAYER8) return false;
 
-    if (!u->lo_sp && u->spal == PALETTE_PLAYER8 && MoveSkip4)
+    if (!u->lowActor&& u->spal == PALETTE_PLAYER8 && MoveSkip4)
         DoPickCloseBunny(u);
 
     // Random Chance of like sexes fighting
-    if (u->lo_sp)
+    if (u->lowActor)
     {
-        short hit_sprite = short(u->lo_sp - sprite);
-        auto hitActor = &swActors[hit_sprite];
-        SPRITEp tsp = u->lo_sp;
+        auto hitActor = u->lowActor;
+        SPRITEp tsp = &hitActor->s();
         USERp tu = hitActor->u();
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
@@ -1001,7 +1000,7 @@ DoBunnyQuickJump(DSWActor* actor)
                 tu->Health = 0;
 
                 // Blood fountains
-                InitBloodSpray(hit_sprite,true,-1);
+                InitBloodSpray(hitActor->GetSpriteIndex(), true,-1);
 
                 if (SpawnShrap(hitActor, actor))
                 {
@@ -1012,18 +1011,18 @@ DoBunnyQuickJump(DSWActor* actor)
 
                 Bunny_Count--; // Bunny died
 
-                u->lo_sp = nullptr;
+                u->lowActor = nullptr;
                 return true;
             }
         }
     }
 
     // Get layed!
-    if (u->lo_sp && u->spal == PALETTE_PLAYER8) // Only males check this
+    if (u->lowActor && u->spal == PALETTE_PLAYER8) // Only males check this
     {
-        short hit_sprite = short(u->lo_sp - sprite);
-        SPRITEp tsp = u->lo_sp;
-        USERp tu = User[hit_sprite].Data();
+        auto hitActor = u->lowActor;
+        SPRITEp tsp = &hitActor->s();
+        USERp tu = hitActor->u();
 
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
@@ -1090,7 +1089,7 @@ DoBunnyQuickJump(DSWActor* actor)
                 tu->Vis = tsp->ang;
 
                 NewStateGroup(actor, sg_BunnyScrew);
-                NewStateGroup_(hit_sprite, sg_BunnyScrew);
+                NewStateGroup(hitActor, sg_BunnyScrew);
                 u->WaitTics = tu->WaitTics = SEC(10);  // Mate for this long
                 return true;
             }

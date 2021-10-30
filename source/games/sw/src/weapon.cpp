@@ -4460,15 +4460,13 @@ WeaponMoveHit(short SpriteNum)
         if (sp->z > DIV2(u->hiz + u->loz))
         {
             // hit a floor sprite
-            if (u->lo_sp)
+            if (u->lowActor)
             {
 
-                if (u->lo_sp->lotag == TAG_SPRITE_HIT_MATCH)
+                if (u->lowActor->s().lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(SpriteNum, -1, short(u->lo_sp - sprite)))
+                    if (MissileHitMatch(SpriteNum, -1, u->lowActor->GetSpriteIndex()))
                         return true;
-                    //DoMatchEverything(nullptr, u->lo_sp->hitag, -1);
-                    //return(true);
                 }
 
                 return true;
@@ -8053,8 +8051,8 @@ DoStar(DSWActor* actor)
                 }
             }
 
-            if (u->lo_sp)
-                if (u->lo_sp->lotag == TAG_SPRITE_HIT_MATCH)
+            if (u->lowActor)
+                if (u->lowActor->s().lotag == TAG_SPRITE_HIT_MATCH)
                     break;
             if (u->hi_sp)
                 if (u->hi_sp->lotag == TAG_SPRITE_HIT_MATCH)
@@ -11980,12 +11978,13 @@ DoFindGround(int16_t SpriteNum)
     {
     case HIT_SPRITE:
     {
-        hsp = &sprite[NORM_SPRITE(florhit)];
+        auto florActor = &swActors[NORM_SPRITE(florhit)];
+        hsp = &florActor->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
-            u->lo_sp = hsp;
+            u->lowActor = florActor;
             u->lo_sectp = nullptr;
             return true;
         }
@@ -12004,7 +12003,7 @@ DoFindGround(int16_t SpriteNum)
     case HIT_SECTOR:
     {
         u->lo_sectp = &sector[NORM_SECTOR(florhit)];
-        u->lo_sp = nullptr;
+        u->lowActor = nullptr;
         return true;
     }
 
@@ -12038,12 +12037,13 @@ int DoFindGroundPoint(DSWActor* actor)
     {
     case HIT_SPRITE:
     {
-        hsp = &sprite[NORM_SPRITE(florhit)];
+        auto florActor = &swActors[NORM_SPRITE(florhit)];
+        hsp = &florActor->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
-            u->lo_sp = hsp;
+            u->lowActor = florActor;
             u->lo_sectp = nullptr;
             return true;
         }
@@ -12062,7 +12062,7 @@ int DoFindGroundPoint(DSWActor* actor)
     case HIT_SECTOR:
     {
         u->lo_sectp = &sector[NORM_SECTOR(florhit)];
-        u->lo_sp = nullptr;
+        u->lowActor = nullptr;
         return true;
     }
 

@@ -1139,7 +1139,6 @@ int
 DoRipper2MoveJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1169,14 +1168,13 @@ int
 DoRipper2QuickJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     // Tests to see if ripper2 is on top of a player/enemy and then immediatly
     // does another jump
 
-    if (u->lo_sp)
+    if (u->lowActor)
     {
-        SPRITEp tsp = u->lo_sp;
+        SPRITEp tsp = &u->lowActor->s();
 
         if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
