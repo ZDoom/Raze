@@ -2435,12 +2435,12 @@ sectdone:
             pPlayer->horizon.applyinput(sPlayerInput[nPlayer].pan, &sPlayerInput[nLocalPlayer].actions);
         }
 
-        if (actions & (SB_LOOK_UP | SB_LOOK_DOWN) || sPlayerInput[nPlayer].pan)
+        if (actions & (SB_AIM_UP | SB_AIM_DOWN) || sPlayerInput[nPlayer].pan)
         {
             pPlayer->nDestVertPan = pPlayer->horizon.horiz;
             pPlayer->bPlayerPan = pPlayer->bLockPan = true;
         }
-        else if (actions & (SB_AIM_UP | SB_AIM_DOWN | SB_CENTERVIEW))
+        else if (actions & (SB_LOOK_UP | SB_LOOK_DOWN | SB_CENTERVIEW))
         {
             pPlayer->nDestVertPan = pPlayer->horizon.horiz;
             pPlayer->bPlayerPan = pPlayer->bLockPan = false;
