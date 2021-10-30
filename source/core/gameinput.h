@@ -212,9 +212,45 @@ private:
 	}
 };
 
+struct PlayerPosition
+{
+	vec3_t pos, opos;
+
+	// Interpolation helpers.
+	void backupx() { opos.x = pos.x; }
+	void backupy() { opos.y = pos.y; }
+	void backupz() { opos.z = pos.z; }
+	void backuppos() { opos = pos; }
+
+	// Interpolated points.
+	int32_t interpolatedx(double const smoothratio, int const scale = 16) { return interpolatedvalue(opos.x, pos.x, smoothratio, scale); }
+	int32_t interpolatedy(double const smoothratio, int const scale = 16) { return interpolatedvalue(opos.y, pos.y, smoothratio, scale); }
+	int32_t interpolatedz(double const smoothratio, int const scale = 16) { return interpolatedvalue(opos.z, pos.z, smoothratio, scale); }
+
+	// Interpolated vectors.
+	vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
+	{
+		return
+		{
+			interpolatedx(smoothratio, scale),
+			interpolatedy(smoothratio, scale)
+		};
+	}
+	vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
+	{
+		return
+		{
+			interpolatedx(smoothratio, scale),
+			interpolatedy(smoothratio, scale),
+			interpolatedz(smoothratio, scale)
+		};
+	}
+};
+
 class FSerializer;
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerAngle& w, PlayerAngle* def);
 FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, PlayerHorizon* def);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerPosition& w, PlayerPosition* def);
 
 
 void updateTurnHeldAmt(double const scaleAdjust);
