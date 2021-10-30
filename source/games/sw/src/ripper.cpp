@@ -1274,7 +1274,7 @@ void RipperHatch(short Weapon)
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
 
-        NewStateGroup_(New, nu->ActorActionSet->Jump);
+        NewStateGroup(actorNew, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
         PickJumpMaxSpeed(New, -600);

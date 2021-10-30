@@ -10084,6 +10084,7 @@ DoRail(DSWActor* actor)
             New = SpawnSprite(STAT_MISSILE, PUFF, &s_RailPuff[0][0], sp->sectnum,
                               sp->x, sp->y, sp->z, sp->ang, 20);
 
+            auto actorNew = &swActors[New];
             np = &sprite[New];
             nu = User[New].Data();
 
@@ -10092,7 +10093,7 @@ DoRail(DSWActor* actor)
             np->zvel += (RandomRange(140)-RandomRange(140));
 
             nu->RotNum = 5;
-            NewStateGroup_(New, sg_RailPuff);
+            NewStateGroup(actorNew, sg_RailPuff);
 
             np->shade = -40;
             np->xrepeat = 10;
@@ -12446,11 +12447,12 @@ DoMirv(DSWActor* actor)
             New = SpawnSprite(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], sp->sectnum,
                               sp->x, sp->y, sp->z, NORM_ANGLE(sp->ang + angs[i]), 800);
 
+            auto actorNew = &swActors[New];
             np = &sprite[New];
             nu = User[New].Data();
 
             nu->RotNum = 5;
-            NewStateGroup_(New, &sg_MirvMeteor[0]);
+            NewStateGroup(actorNew, &sg_MirvMeteor[0]);
             nu->StateEnd = s_MirvMeteorExp;
 
             //np->owner = Weapon;
@@ -16040,13 +16042,14 @@ InitSerpSpell(DSWActor* actor)
         New = SpawnSprite(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 1500);
 
+        auto actorNew = &swActors[New];
         np = &sprite[New];
         nu = User[New].Data();
 
         np->z = SPRITEp_TOS(sp);
 
         nu->RotNum = 5;
-        NewStateGroup_(New, &sg_SerpMeteor[0]);
+        NewStateGroup(actorNew, &sg_SerpMeteor[0]);
         nu->StateEnd = s_MirvMeteorExp;
 
         //np->owner = SpriteNum;
@@ -16160,6 +16163,7 @@ InitSerpMonstSpell(DSWActor* actor)
         New = SpawnSprite(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 500);
 
+        auto actorNew = &swActors[New];
         np = &sprite[New];
         nu = User[New].Data();
 
@@ -16167,7 +16171,7 @@ InitSerpMonstSpell(DSWActor* actor)
         np->z = SPRITEp_TOS(sp);
 
         nu->RotNum = 5;
-        NewStateGroup_(New, &sg_SerpMeteor[0]);
+        NewStateGroup(actorNew, &sg_SerpMeteor[0]);
         //nu->StateEnd = s_MirvMeteorExp;
         nu->StateEnd = s_TeleportEffect2;
 
