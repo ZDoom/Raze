@@ -542,7 +542,7 @@ SetupCoolie(short SpriteNum)
         u->Health = HEALTH_COOLIE;
     }
 
-    ChangeState(SpriteNum,s_CoolieRun[0]);
+    ChangeSpriteState(SpriteNum,s_CoolieRun[0]);
     u->Attrib = &CoolieAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_CoolieDie;
@@ -672,7 +672,7 @@ DoCoolieWaitBirth(DSWActor* actor)
 
     if ((u->Counter -= ACTORMOVETICS) <= 0)
     {
-        ChangeState(SpriteNum,&s_CoolieDie[9]);
+        ChangeSpriteState(SpriteNum,&s_CoolieDie[9]);
     }
 
     return 0;

@@ -394,7 +394,7 @@ SetupEel(short SpriteNum)
         u->Health = 40;
     }
 
-    ChangeState(SpriteNum, s_EelRun[0]);
+    ChangeSpriteState(SpriteNum, s_EelRun[0]);
     u->Attrib = &EelAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_EelDie;

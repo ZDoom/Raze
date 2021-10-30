@@ -530,7 +530,7 @@ int SetupCoolg(DSWActor* actor)
     }
     u = actor->u();
 
-    ChangeState(SpriteNum, s_CoolgRun[0]);
+    ChangeSpriteState(SpriteNum, s_CoolgRun[0]);
     u->Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_CoolgDie;
@@ -560,7 +560,7 @@ int NewCoolg(DSWActor* actor)
     nu = actorNew->u();
     np = &actorNew->s();
 
-    ChangeState(actorNew->GetSpriteIndex(), &s_CoolgBirth[0]);
+    ChangeSpriteState(actorNew->GetSpriteIndex(), &s_CoolgBirth[0]);
     nu->StateEnd = s_CoolgDie;
     nu->Rot = sg_CoolgRun;
     np->pal = nu->spal = u->spal;
@@ -589,7 +589,7 @@ int DoCoolgBirth(DSWActor* actor)
     u->Attrib = &CoolgAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
 
-    ChangeState(New, s_CoolgRun[0]);
+    ChangeSpriteState(New, s_CoolgRun[0]);
     u->StateEnd = s_CoolgDie;
     u->Rot = sg_CoolgRun;
 

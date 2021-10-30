@@ -1862,14 +1862,14 @@ SetupNinja(short SpriteNum)
                 u->Attrib = &NinjaAttrib;
                 u->ActorActionSet = &NinjaActionSet;
                 u->Personality = &NinjaPersonality;
-                ChangeState(SpriteNum, s_NinjaCeiling[0]);
+                ChangeSpriteState(SpriteNum, s_NinjaCeiling[0]);
             }
             else
             {
                 u->Attrib = &NinjaAttrib;
                 u->ActorActionSet = &NinjaSniperActionSet;
                 u->Personality = &NinjaSniperPersonality;
-                ChangeState(SpriteNum, s_NinjaDuck[0]);
+                ChangeSpriteState(SpriteNum, s_NinjaDuck[0]);
             }
         }
     }
@@ -1887,14 +1887,14 @@ SetupNinja(short SpriteNum)
                 u->Attrib = &NinjaAttrib;
                 u->ActorActionSet = &NinjaActionSet;
                 u->Personality = &NinjaPersonality;
-                ChangeState(SpriteNum, s_NinjaCeiling[0]);
+                ChangeSpriteState(SpriteNum, s_NinjaCeiling[0]);
             }
             else
             {
                 u->Attrib = &NinjaAttrib;
                 u->ActorActionSet = &NinjaSniperActionSet;
                 u->Personality = &NinjaSniperPersonality;
-                ChangeState(SpriteNum, s_NinjaDuck[0]);
+                ChangeSpriteState(SpriteNum, s_NinjaDuck[0]);
             }
         }
     }
@@ -1926,11 +1926,11 @@ SetupNinja(short SpriteNum)
             u->Attrib = &NinjaAttrib;
             u->ActorActionSet = &NinjaSniperActionSet;
             u->Personality = &NinjaSniperPersonality;
-            ChangeState(SpriteNum, s_NinjaDuck[0]);
+            ChangeSpriteState(SpriteNum, s_NinjaDuck[0]);
         }
     }
 
-    ChangeState(SpriteNum, s_NinjaRun[0]);
+    ChangeSpriteState(SpriteNum, s_NinjaRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);
 
     u->Radius = 280;
@@ -1995,7 +1995,7 @@ DoNinjaGrabThroat(DSWActor* actor)
 
         //SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
 
-        ChangeState(SpriteNum, u->StateEnd);
+        ChangeSpriteState(SpriteNum, u->StateEnd);
         sp->xvel = 0;
         //u->jump_speed = -300;
         //DoActorBeginJump(actor);
@@ -2388,7 +2388,7 @@ PlayerSpriteLoadLevel(short SpriteNum)
 {
     USERp u = User[SpriteNum].Data();
 
-    ChangeState(SpriteNum, s_NinjaRun[0]);
+    ChangeSpriteState(SpriteNum, s_NinjaRun[0]);
     u->Rot = sg_NinjaRun;
     u->ActorActionSet = &PlayerNinjaActionSet;
 }
@@ -2417,7 +2417,7 @@ InitPlayerSprite(PLAYERp pp)
     u = User[sp_num].Data();
 
     // Grouping items that need to be reset after a LoadLevel
-    ChangeState(sp_num, s_NinjaRun[0]);
+    ChangeSpriteState(sp_num, s_NinjaRun[0]);
     u->Rot = sg_NinjaRun;
     u->ActorActionSet = &PlayerNinjaActionSet;
 

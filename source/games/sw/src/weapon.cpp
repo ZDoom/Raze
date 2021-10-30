@@ -3529,35 +3529,35 @@ AutoShrap:
         p = WoodShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
-        ChangeState(short(parent - sprite), s_BreakBarrel);
+        ChangeSpriteState(short(parent - sprite), s_BreakBarrel);
         break;
     case BREAK_LIGHT:
         PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
-        ChangeState(short(parent - sprite), s_BreakLight);
+        ChangeSpriteState(short(parent - sprite), s_BreakLight);
         break;
     case BREAK_PEDISTAL:
         PlaySound(DIGI_BREAKSTONES,parent,v3df_dontpan|v3df_doppler);
         p = StoneShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
-        ChangeState(short(parent - sprite), s_BreakPedistal);
+        ChangeSpriteState(short(parent - sprite), s_BreakPedistal);
         break;
     case BREAK_BOTTLE1:
         PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 8;
         shrap_bounce = true;
-        ChangeState(short(parent - sprite), s_BreakBottle1);
+        ChangeSpriteState(short(parent - sprite), s_BreakBottle1);
         break;
     case BREAK_BOTTLE2:
         PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 8;
         shrap_bounce = true;
-        ChangeState(short(parent - sprite), s_BreakBottle2);
+        ChangeSpriteState(short(parent - sprite), s_BreakBottle2);
         break;
     case BREAK_MUSHROOM:
         PlaySound(DIGI_BREAKDEBRIS,parent,v3df_dontpan|v3df_doppler);
@@ -3907,7 +3907,7 @@ DoVomit(DSWActor* actor)
     }
     else
     {
-        ChangeState(SpriteNum, s_VomitSplash);
+        ChangeSpriteState(SpriteNum, s_VomitSplash);
         DoFindGroundPoint(SpriteNum);
         MissileWaterAdjust(SpriteNum);
         sp->z = u->loz;
@@ -4012,7 +4012,7 @@ DoShrapJumpFall(DSWActor* actor)
         }
 
         if (u->ID == GORE_Drip)
-            ChangeState(SpriteNum, s_GoreFloorSplash);
+            ChangeSpriteState(SpriteNum, s_GoreFloorSplash);
         else
             ShrapKillSprite(SpriteNum);
     }
@@ -4561,7 +4561,7 @@ WeaponMoveHit(short SpriteNum)
                         if (hu->WaitTics <= 0)
                         {
                             hu->WaitTics = SEC(2);
-                            ChangeState(hit_sprite,s_TrashCanPain);
+                            ChangeSpriteState(hit_sprite,s_TrashCanPain);
                         }
                         break;
                     case PACHINKO1:
@@ -4904,7 +4904,7 @@ SetSuicide(short SpriteNum)
         SET(u->Flags, SPR_SUICIDE);
         u->RotNum = 0;
     }
-    ChangeState(SpriteNum, s_Suicide);
+    ChangeSpriteState(SpriteNum, s_Suicide);
     return 0;
 }
 
@@ -8006,7 +8006,7 @@ DoStar(DSWActor* actor)
             if (!TEST(u->Flags, SPR_BOUNCE) && RANDOM_P2(1024) < STAR_STICK_RNUM)
             {
                 u->motion_blur_num = 0;
-                ChangeState(Weapon, s_StarStuck);
+                ChangeSpriteState(Weapon, s_StarStuck);
                 sp->xrepeat -= 16;
                 sp->yrepeat -= 16;
                 RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -8702,7 +8702,7 @@ DoPlasma(DSWActor* actor)
             else
             {
                 u->Counter = 4;
-                ChangeState(Weapon, s_PlasmaDone);
+                ChangeSpriteState(Weapon, s_PlasmaDone);
             }
 
             return true;
@@ -8734,7 +8734,7 @@ DoCoolgFire(DSWActor* actor)
         if (WeaponMoveHit(Weapon))
         {
             PlaySound(DIGI_CGMAGICHIT, sp, v3df_follow);
-            ChangeState(Weapon, s_CoolgFireDone);
+            ChangeSpriteState(Weapon, s_CoolgFireDone);
             if (sp->owner >= 0 && User[sp->owner].Data() && User[sp->owner]->ID != RIPPER_RUN_R0)  // JBF: added range check
                 SpawnDemonFist(Weapon); // Just a red magic circle flash
             return true;
@@ -9537,7 +9537,7 @@ SetMineStuck(int16_t Weapon)
     SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
     u->Counter = 0;
     change_sprite_stat(Weapon, STAT_MINE_STUCK);
-    ChangeState(Weapon, s_MineStuck);
+    ChangeSpriteState(Weapon, s_MineStuck);
     return 0;
 }
 
@@ -13474,7 +13474,7 @@ InitSwordAttack(PLAYERp pp)
                         if (tu->WaitTics <= 0)
                         {
                             tu->WaitTics = SEC(2);
-                            ChangeState(hitinfo.sprite,s_TrashCanPain);
+                            ChangeSpriteState(hitinfo.sprite,s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                         PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
@@ -13665,7 +13665,7 @@ InitFistAttack(PLAYERp pp)
                         if (tu->WaitTics <= 0)
                         {
                             tu->WaitTics = SEC(2);
-                            ChangeState(hitinfo.sprite,s_TrashCanPain);
+                            ChangeSpriteState(hitinfo.sprite,s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                         PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
@@ -14744,7 +14744,7 @@ InitShotgun(PLAYERp pp)
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
-                    ChangeState(hitinfo.sprite,s_TrashCanPain);
+                    ChangeSpriteState(hitinfo.sprite,s_TrashCanPain);
                 }
             }
 
@@ -16798,7 +16798,7 @@ int DoCoolgDrip(DSWActor* actor)
     {
         sp->z = u->loz - u->floor_dist;
         sp->yrepeat = sp->xrepeat = 32;
-        ChangeState(SpriteNum, s_GoreFloorSplash);
+        ChangeSpriteState(SpriteNum, s_GoreFloorSplash);
         if (u->spal == PALETTE_BLUE_LIGHTING)
             PlaySound(DIGI_DRIP, sp, v3df_none);
     }
@@ -17594,7 +17594,7 @@ InitUzi(PLAYERp pp)
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
-                    ChangeState(hitinfo.sprite,s_TrashCanPain);
+                    ChangeSpriteState(hitinfo.sprite,s_TrashCanPain);
                 }
             }
 
@@ -20955,7 +20955,7 @@ DoShrapVelocity(int16_t SpriteNum)
                         else
                         {
                             if (u->ID == GORE_Drip)
-                                ChangeState(SpriteNum, s_GoreFloorSplash);
+                                ChangeSpriteState(SpriteNum, s_GoreFloorSplash);
                             else
                                 ShrapKillSprite(SpriteNum);
                             return true;
@@ -21000,7 +21000,7 @@ DoShrapVelocity(int16_t SpriteNum)
                     else
                     {
                         if (u->ID == GORE_Drip)
-                            ChangeState(SpriteNum, s_GoreFloorSplash);
+                            ChangeSpriteState(SpriteNum, s_GoreFloorSplash);
                         else
                             ShrapKillSprite(SpriteNum);
                         return true;

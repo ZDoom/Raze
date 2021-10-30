@@ -833,7 +833,7 @@ SetupRipper(short SpriteNum)
         u->Health = HEALTH_RIPPER/2; // Baby rippers are weaker
     }
 
-    ChangeState(SpriteNum, s_RipperRun[0]);
+    ChangeSpriteState(SpriteNum, s_RipperRun[0]);
     u->Attrib = &RipperAttrib;
     DoActorSetSpeed(actor, FAST_SPEED);
     u->StateEnd = s_RipperDie;

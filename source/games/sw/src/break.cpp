@@ -883,7 +883,6 @@ int UserBreakSprite(short BreakSprite)
         DoMatchEverything(nullptr, match, -1);
         // Kill sound if one is attached
         DeleteNoSoundOwner(BreakSprite);
-        //change_sprite_stat(BreakSprite, STAT_SUICIDE);
         KillBreakSprite(BreakSprite);
         return true;
     }
@@ -913,8 +912,6 @@ int UserBreakSprite(short BreakSprite)
             // Kill sound if one is attached
             DeleteNoSoundOwner(BreakSprite);
             KillBreakSprite(BreakSprite);
-            //KillSprite(BreakSprite);
-            //change_sprite_stat(BreakSprite, STAT_SUICIDE);
             return true;
         }
         else if (SP_TAG8(sp) == 2)
@@ -1004,8 +1001,6 @@ int AutoBreakSprite(short BreakSprite, short type)
         // Kill sound if one is attached
         DeleteNoSoundOwner(BreakSprite);
         KillBreakSprite(BreakSprite);
-        //change_sprite_stat(BreakSprite, STAT_SUICIDE);
-        //KillSprite(BreakSprite);
         return true;
     }
     else

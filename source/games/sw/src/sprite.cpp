@@ -806,7 +806,7 @@ KillSprite(int16_t SpriteNum)
     }
 }
 
-void ChangeState(short SpriteNum, STATEp statep)
+void ChangeSpriteState(short SpriteNum, STATEp statep)
 {
     USERp u = User[SpriteNum].Data();
     if (u == nullptr)
@@ -3187,7 +3187,7 @@ KeyMain:
 
                 //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
-                ChangeState(SpriteNum, s_Key[num]);
+                ChangeSpriteState(SpriteNum, s_Key[num]);
 
                 RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
                 RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
@@ -3222,7 +3222,7 @@ KeyStatueMain:
             sprite[SpriteNum].picnum = u->ID = sprite[SpriteNum].picnum;
 
             u->spal = sp->pal;
-            ChangeState(SpriteNum, s_KeyStatue[num]);
+            ChangeSpriteState(SpriteNum, s_KeyStatue[num]);
 
             RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
             RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
@@ -4658,7 +4658,7 @@ int SpawnItemsMatch(short match)
             //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
 
-            ChangeState(SpriteNum, s_Key[num]);
+            ChangeSpriteState(SpriteNum, s_Key[num]);
 
             RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
             RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
@@ -5299,7 +5299,7 @@ DoCoin(DSWActor* actor)
         if (u->StateStart != s_GreenCoin)
         {
             offset = int(u->State - u->StateStart);
-            ChangeState(SpriteNum, s_GreenCoin);
+            ChangeSpriteState(SpriteNum, s_GreenCoin);
             u->State = u->StateStart + offset;
         }
     }
@@ -5308,7 +5308,7 @@ DoCoin(DSWActor* actor)
         if (u->StateStart != s_YellowCoin)
         {
             offset = int(u->State - u->StateStart);
-            ChangeState(SpriteNum, s_YellowCoin);
+            ChangeSpriteState(SpriteNum, s_YellowCoin);
             u->State = u->StateStart + offset;
         }
     }

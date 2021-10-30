@@ -498,7 +498,7 @@ DoBloodSpray(DSWActor* actor)
                 }
 
                 RESET(sp->cstat,CSTAT_SPRITE_INVISIBLE);
-                ChangeState(Weapon, s_BloodSprayDrip);
+                ChangeSpriteState(Weapon, s_BloodSprayDrip);
             }
 
             //WallBounce(Weapon, wall_ang);
@@ -1194,7 +1194,7 @@ DoCaltrops(DSWActor* actor)
                             u->xchange = u->ychange = 0;
                             SET(sp->extra, SPRX_BREAKABLE);
                             SET(sp->cstat,CSTAT_SPRITE_BREAKABLE);
-                            ChangeState(Weapon, s_CaltropsStick);
+                            ChangeSpriteState(Weapon, s_CaltropsStick);
                             return true;
                         }
                     }
@@ -1232,7 +1232,7 @@ DoCaltrops(DSWActor* actor)
                         u->xchange = u->ychange = 0;
                         SET(sp->extra, SPRX_BREAKABLE);
                         SET(sp->cstat,CSTAT_SPRITE_BREAKABLE);
-                        ChangeState(Weapon, s_CaltropsStick);
+                        ChangeSpriteState(Weapon, s_CaltropsStick);
                         return true;
                     }
                 }
@@ -2421,9 +2421,9 @@ SetCarryFlag(int16_t Weapon)
     u->Counter = 0;
     change_sprite_stat(Weapon, STAT_ITEM);
     if (sp->hitag == 1)
-        ChangeState(Weapon, s_CarryFlagNoDet);
+        ChangeSpriteState(Weapon, s_CarryFlagNoDet);
     else
-        ChangeState(Weapon, s_CarryFlag);
+        ChangeSpriteState(Weapon, s_CarryFlag);
 
     return false;
 }

@@ -1945,7 +1945,7 @@ void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);
 void SetAttach(short, short);
 void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
-void ChangeState(short SpriteNum, STATEp statep);
+void ChangeSpriteState(short SpriteNum, STATEp statep);
 void CollectPortals();
 
 #define FAF_PLACE_MIRROR_PIC 341

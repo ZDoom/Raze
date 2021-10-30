@@ -500,7 +500,7 @@ SetupGoro(short SpriteNum)
         u->Health = HEALTH_GORO;
     }
 
-    ChangeState(SpriteNum, s_GoroRun[0]);
+    ChangeSpriteState(SpriteNum, s_GoroRun[0]);
     u->Attrib = &GoroAttrib;
     DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_GoroDie;

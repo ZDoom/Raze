@@ -64,7 +64,7 @@ extern short GenericQueue[MAX_GENERIC_QUEUE];
 extern short LoWangsQueueHead;
 extern short LoWangsQueue[MAX_LOWANGS_QUEUE];
 
-void ChangeState(short SpriteNum, STATEp statep);
+void ChangeSpriteState(short SpriteNum, STATEp statep);
 void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);
 SECTOR_OBJECTp DetectSectorObject(SECTORp);
 SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);
