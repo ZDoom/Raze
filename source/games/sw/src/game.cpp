@@ -442,21 +442,18 @@ void TerminateLevel(void)
 
         pnum = stat - STAT_PLAYER0;
 
-        StatIterator it(stat);
-        if ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(stat);
+        if (auto actor = it.Next())
         {
-            if (User[i].Data()) puser[pnum].CopyFromUser(User[i].Data());
+            if (actor->hasU()) puser[pnum].CopyFromUser(actor->u());
         }
     }
 
     // Kill User memory and delete sprites
-    for (stat = 0; stat < MAXSTATUS; stat++)
+    SWSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        StatIterator it(stat);
-        while ((i = it.NextIndex()) >= 0)
-        {
-            KillSprite(i);
-        }
+        KillActor(actor);
     }
 
     // Free SectUser memory
@@ -669,7 +666,7 @@ int RandomRange(int range)
         rand_num--;
 
     // shift values to give more precision
-    value = (rand_num << 14) / ((65535UL << 14) / range);
+    value = (rand_num << 14) / ((65535U << 14) / range);
 
     if (value >= (uint32_t)range)
         value = range - 1;
