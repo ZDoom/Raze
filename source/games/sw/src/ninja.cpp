@@ -1847,7 +1847,7 @@ SetupNinja(short SpriteNum)
     if (sp->pal == PALETTE_PLAYER5)
     {
         u->Attrib = &InvisibleNinjaAttrib;
-        EnemyDefaults(SpriteNum, &NinjaGreenActionSet, &NinjaPersonality);
+        EnemyDefaults(actor, &NinjaGreenActionSet, &NinjaPersonality);
         if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
             u->Health = RedNinjaHealth;
         SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
@@ -1875,7 +1875,7 @@ SetupNinja(short SpriteNum)
     else if (sp->pal == PALETTE_PLAYER3)
     {
         u->Attrib = &NinjaAttrib;
-        EnemyDefaults(SpriteNum, &NinjaRedActionSet, &NinjaPersonality);
+        EnemyDefaults(actor, &NinjaRedActionSet, &NinjaPersonality);
         if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
             u->Health = RedNinjaHealth;
         sp->pal = u->spal = PALETTE_PLAYER3;
@@ -1900,7 +1900,7 @@ SetupNinja(short SpriteNum)
     else if (sp->pal == PAL_XLAT_LT_TAN)
     {
         u->Attrib = &NinjaAttrib;
-        EnemyDefaults(SpriteNum, &NinjaSeekerActionSet, &NinjaPersonality);
+        EnemyDefaults(actor, &NinjaSeekerActionSet, &NinjaPersonality);
         if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
             u->Health = RedNinjaHealth;
         sp->pal = u->spal = PAL_XLAT_LT_TAN;
@@ -1909,7 +1909,7 @@ SetupNinja(short SpriteNum)
     else if (sp->pal == PAL_XLAT_LT_GREY)
     {
         u->Attrib = &NinjaAttrib;
-        EnemyDefaults(SpriteNum, &NinjaGrenadeActionSet, &NinjaPersonality);
+        EnemyDefaults(actor, &NinjaGrenadeActionSet, &NinjaPersonality);
         if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
             u->Health = RedNinjaHealth;
         sp->pal = u->spal = PAL_XLAT_LT_GREY;
@@ -1919,7 +1919,7 @@ SetupNinja(short SpriteNum)
     {
         u->Attrib = &NinjaAttrib;
         sp->pal = u->spal = PALETTE_PLAYER0;
-        EnemyDefaults(SpriteNum, &NinjaActionSet, &NinjaPersonality);
+        EnemyDefaults(actor, &NinjaActionSet, &NinjaPersonality);
         if (pic == NINJA_CRAWL_R0)
         {
             u->Attrib = &NinjaAttrib;

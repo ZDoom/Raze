@@ -759,7 +759,7 @@ int SetupBunny(DSWActor* actor)
 
     if (sp->pal == PALETTE_PLAYER1)
     {
-        EnemyDefaults(actor->GetSpriteIndex(), &BunnyWhiteActionSet, &WhiteBunnyPersonality);
+        EnemyDefaults(actor, &BunnyWhiteActionSet, &WhiteBunnyPersonality);
         u->Attrib = &WhiteBunnyAttrib;
         sp->xrepeat = 96;
         sp->yrepeat = 90;
@@ -771,7 +771,7 @@ int SetupBunny(DSWActor* actor)
     }
     else if (sp->pal == PALETTE_PLAYER8) // Male Rabbit
     {
-        EnemyDefaults(actor->GetSpriteIndex(), &BunnyActionSet, &BunnyPersonality);
+        EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
         u->Attrib = &BunnyAttrib;
         //sp->xrepeat = 76;
         //sp->yrepeat = 70;
@@ -784,7 +784,7 @@ int SetupBunny(DSWActor* actor)
     else
     {
         // Female Rabbit
-        EnemyDefaults(actor->GetSpriteIndex(), &BunnyActionSet, &BunnyPersonality);
+        EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
         u->Attrib = &BunnyAttrib;
         u->spal = sp->pal = PALETTE_PLAYER0;
         u->Flag1 = SEC(5);

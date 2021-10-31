@@ -404,9 +404,9 @@ ACTOR_ACTION_SET CoolieActionSet =
     nullptr
 };
 
-void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person)
+// later. This is used by multiple enemies.
+void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp person)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     unsigned int wpn;
@@ -461,13 +461,13 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     SET(sp->cstat,CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(sp->extra,SPRX_PLAYER_OR_ENEMY);
 
-    sprite[SpriteNum].picnum = u->State->Pic;
+    sp->picnum = u->State->Pic;
     change_actor_stat(actor, STAT_ENEMY);
 
     u->Personality = person;
     u->ActorActionSet = action;
 
-    DoActorZrange(SpriteNum);
+    DoActorZrange(actor->GetSpriteIndex());
 
     //KeepActorOnFloor(actor); // for swimming actors
 
@@ -483,10 +483,10 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
         }
         else
         {
-            SectIterator it(sectnum);
-            while ((i = it.NextIndex()) >= 0)
+            SWSectIterator it(sectnum);
+            while (auto itActor = it.Next())
             {
-                SPRITEp np = &sprite[i];
+                SPRITEp np = &itActor->s();
                 if (np->picnum == ST1 && np->hitag == SECT_SINK)
                 {
                     depth = np->lotag;
@@ -548,7 +548,7 @@ SetupCoolie(short SpriteNum)
     u->StateEnd = s_CoolieDie;
     u->Rot = sg_CoolieRun;
 
-    EnemyDefaults(SpriteNum, &CoolieActionSet, &CooliePersonality);
+    EnemyDefaults(actor, &CoolieActionSet, &CooliePersonality);
 
     sp->xrepeat = 42;
     sp->yrepeat = 42;

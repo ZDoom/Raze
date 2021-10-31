@@ -12972,7 +12972,7 @@ InitSerpRing(DSWActor* actor)
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
         New = SpawnSprite(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
-
+        auto actorNew = &swActors[New];
         np = &sprite[New];
         nu = User[New].Data();
 
@@ -13006,7 +13006,7 @@ InitSerpRing(DSWActor* actor)
         nu->Rot = sg_SkullRing;
 
         // defaults do change the statnum
-        EnemyDefaults(New, nullptr, nullptr);
+        EnemyDefaults(actorNew, nullptr, nullptr);
         change_sprite_stat(New, STAT_SKIP4);
         RESET(np->extra, SPRX_PLAYER_OR_ENEMY);
 
@@ -13790,6 +13790,7 @@ InitSumoSkull(short SpriteNum)
     PlaySound(DIGI_SERPSUMMONHEADS, sp, v3df_none);
 
     New = SpawnSprite(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
+    auto actorNew = &swActors[New];
 
     np = &sprite[New];
     nu = User[New].Data();
@@ -13818,7 +13819,7 @@ InitSumoSkull(short SpriteNum)
     nu->Health = 100;
 
     // defaults do change the statnum
-    EnemyDefaults(New, nullptr, nullptr);
+    EnemyDefaults(actorNew, nullptr, nullptr);
     //change_sprite_stat(New, STAT_SKIP4);
     SET(np->extra, SPRX_PLAYER_OR_ENEMY);
 

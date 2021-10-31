@@ -507,7 +507,7 @@ SetupGoro(short SpriteNum)
     u->Rot = sg_GoroRun;
 
 
-    EnemyDefaults(SpriteNum, &GoroActionSet, &GoroPersonality);
+    EnemyDefaults(actor, &GoroActionSet, &GoroPersonality);
     sp->clipdist = 512 >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE);
 

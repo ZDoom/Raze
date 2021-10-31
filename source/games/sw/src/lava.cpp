@@ -476,7 +476,7 @@ SetupLava(short SpriteNum)
     u->StateEnd = s_LavaDie;
     u->Rot = sg_LavaRun;
 
-    EnemyDefaults(SpriteNum, &LavaActionSet, &LavaPersonality);
+    EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
     sp->xrepeat = sp->yrepeat = 110;
     sp->clipdist = (512) >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);

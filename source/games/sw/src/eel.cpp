@@ -400,7 +400,7 @@ SetupEel(short SpriteNum)
     u->StateEnd = s_EelDie;
     u->Rot = sg_EelRun;
 
-    EnemyDefaults(SpriteNum, &EelActionSet, &EelPersonality);
+    EnemyDefaults(actor, &EelActionSet, &EelPersonality);
 
     SET(u->Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
 

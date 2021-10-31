@@ -525,7 +525,7 @@ SetupSkel(short SpriteNum)
     u->StateEnd = s_SkelDie;
     u->Rot = sg_SkelRun;
 
-    EnemyDefaults(SpriteNum, &SkelActionSet, &SkelPersonality);
+    EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
 
     // 256 is default
     //sp->clipdist = 256 >> 2;

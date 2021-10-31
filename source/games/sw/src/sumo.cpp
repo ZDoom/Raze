@@ -655,7 +655,7 @@ SetupSumo(short SpriteNum)
     u->StateEnd = s_SumoDie;
     u->Rot = sg_SumoRun;
 
-    EnemyDefaults(SpriteNum, &SumoActionSet, &SumoPersonality);
+    EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
 
     sp->clipdist = (512) >> 2;
     if (sp->pal == 16)

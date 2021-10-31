@@ -536,7 +536,7 @@ int SetupCoolg(DSWActor* actor)
     u->StateEnd = s_CoolgDie;
     u->Rot = sg_CoolgRun;
 
-    EnemyDefaults(SpriteNum, &CoolgActionSet, &CoolgPersonality);
+    EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
 
     SET(u->Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
 
@@ -592,7 +592,7 @@ int DoCoolgBirth(DSWActor* actor)
     u->StateEnd = s_CoolgDie;
     u->Rot = sg_CoolgRun;
 
-    EnemyDefaults(actor->GetSpriteIndex(), &CoolgActionSet, &CoolgPersonality);
+    EnemyDefaults(actor, &CoolgActionSet, &CoolgPersonality);
     // special case
     TotalKillable--;
 

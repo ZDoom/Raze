@@ -763,7 +763,7 @@ SetupZombie(short SpriteNum)
     sp->yrepeat = PLAYER_NINJA_YREPEAT;
 
     u->Attrib = &ZombieAttrib;
-    EnemyDefaults(SpriteNum, &ZombieActionSet, &ZombiePersonality);
+    EnemyDefaults(actor, &ZombieActionSet, &ZombiePersonality);
 
     ChangeState(actor, s_ZombieRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);

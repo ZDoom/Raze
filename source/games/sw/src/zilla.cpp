@@ -668,7 +668,7 @@ SetupZilla(short SpriteNum)
     u->StateEnd = s_ZillaDie;
     u->Rot = sg_ZillaRun;
 
-    EnemyDefaults(SpriteNum, &ZillaActionSet, &ZillaPersonality);
+    EnemyDefaults(actor, &ZillaActionSet, &ZillaPersonality);
 
     sp->clipdist = (512) >> 2;
     sp->xrepeat = 97;

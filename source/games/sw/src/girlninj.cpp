@@ -738,7 +738,7 @@ SetupGirlNinja(short SpriteNum)
 
     u->Attrib = &GirlNinjaAttrib;
     sp->pal = u->spal = 26;
-    EnemyDefaults(SpriteNum, &GirlNinjaActionSet, &GirlNinjaPersonality);
+    EnemyDefaults(actor, &GirlNinjaActionSet, &GirlNinjaPersonality);
 
     ChangeState(actor, s_GirlNinjaRun[0]);
     DoActorSetSpeed(actor, NORM_SPEED);

@@ -312,7 +312,7 @@ SetupHornet(short SpriteNum)
     u->StateEnd = s_HornetDie;
     u->Rot = sg_HornetRun;
 
-    EnemyDefaults(SpriteNum, &HornetActionSet, &HornetPersonality);
+    EnemyDefaults(actor, &HornetActionSet, &HornetPersonality);
 
     SET(u->Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
     SET(sp->cstat, CSTAT_SPRITE_YCENTER);

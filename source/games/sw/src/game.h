@@ -1966,7 +1966,7 @@ short AnimSet(int animtype, int animindex, int thegoal, int thevel);
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
-void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person);
+void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp person);
 
 void getzrangepoint(int x, int y, int z, short sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz, int32_t* florhit);
 int move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);

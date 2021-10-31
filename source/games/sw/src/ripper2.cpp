@@ -911,7 +911,7 @@ SetupRipper2(short SpriteNum)
 
     if (sp->pal == PALETTE_BROWN_RIPPER)
     {
-        EnemyDefaults(SpriteNum, &Ripper2BrownActionSet, &Ripper2Personality);
+        EnemyDefaults(actor, &Ripper2BrownActionSet, &Ripper2Personality);
         sp->xrepeat += 40;
         sp->yrepeat += 40;
 
@@ -922,7 +922,7 @@ SetupRipper2(short SpriteNum)
     }
     else
     {
-        EnemyDefaults(SpriteNum, &Ripper2ActionSet, &Ripper2Personality);
+        EnemyDefaults(actor, &Ripper2ActionSet, &Ripper2Personality);
     }
 
     SET(u->Flags, SPR_XFLIP_TOGGLE);

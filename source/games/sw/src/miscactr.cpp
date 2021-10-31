@@ -130,7 +130,7 @@ SetupToiletGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_ToiletGirlStand);
     u->Attrib = &ToiletGirlAttrib;
@@ -374,7 +374,7 @@ SetupWashGirl(short SpriteNum)
         u->Health = 60;
     }
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_WashGirlStand);
     u->Attrib = &WashGirlAttrib;
@@ -587,7 +587,7 @@ SetupTrashCan(short SpriteNum)
         u->Health = 60;
     }
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_TrashCanStand);
     u->Attrib = &TrashCanAttrib;
@@ -698,7 +698,7 @@ SetupPachinkoLight(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_PachinkoLightStand);
     u->Attrib = &PachinkoLightAttrib;
@@ -801,7 +801,7 @@ SetupPachinko1(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_Pachinko1Stand);
     u->Attrib = &Pachinko1Attrib;
@@ -974,7 +974,7 @@ SetupPachinko2(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_Pachinko2Stand);
     u->Attrib = &Pachinko2Attrib;
@@ -1059,7 +1059,7 @@ SetupPachinko3(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_Pachinko3Stand);
     u->Attrib = &Pachinko3Attrib;
@@ -1145,7 +1145,7 @@ SetupPachinko4(short SpriteNum)
         u->Health = 1;
     }
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_Pachinko4Stand);
     u->Attrib = &Pachinko4Attrib;
@@ -1260,7 +1260,7 @@ SetupCarGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_CarGirlStand);
     u->Attrib = &CarGirlAttrib;
@@ -1484,7 +1484,7 @@ SetupMechanicGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_MechanicGirlStand);
     u->Attrib = &MechanicGirlAttrib;
@@ -1707,7 +1707,7 @@ SetupSailorGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_SailorGirlStand);
     u->Attrib = &SailorGirlAttrib;
@@ -1924,7 +1924,7 @@ SetupPruneGirl(short SpriteNum)
     }
 
 
-    EnemyDefaults(SpriteNum, nullptr, nullptr);
+    EnemyDefaults(actor, nullptr, nullptr);
 
     ChangeState(actor,s_PruneGirlStand);
     u->Attrib = &PruneGirlAttrib;

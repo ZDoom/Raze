@@ -723,7 +723,7 @@ SetupSerp(short SpriteNum)
     u->StateEnd = s_SerpDie;
     u->Rot = sg_SerpRun;
 
-    EnemyDefaults(SpriteNum, &SerpActionSet, &SerpPersonality);
+    EnemyDefaults(actor, &SerpActionSet, &SerpPersonality);
 
     // Mini-Boss Serp
     if (sp->pal == 16)
