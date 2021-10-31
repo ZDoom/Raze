@@ -57,6 +57,25 @@ EXTERN_CVAR(Bool, sw_bunnyrockets)
 
 BEGIN_SW_NS
 
+// Wrapper around the insane collision info mess from Build.
+class DSWActor;
+struct Collision
+{
+    int type;
+    int index;
+    int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
+    DSWActor* actor;
+
+    Collision() = default;
+    Collision(int legacyval) { setFromEngine(legacyval); }
+
+    int setNone();
+    int setSector(int num);
+    int setWall(int num);
+    int setSprite(DSWActor* num);
+    int setFromEngine(int value);
+};
+
 typedef struct
 {
     // Net Options from Menus
@@ -1215,6 +1234,7 @@ struct USER
     uint8_t spal;  // save off default palette number
 
     int ret; //holder for move_sprite return value
+    Collision coll; // same thing broken up into useful components.
 
     // Need to get rid of these flags
     int  Flag1;
@@ -2280,6 +2300,7 @@ inline int Facing(DSWActor* actor1, DSWActor* actor2)
 inline void SetCollision(USER* u, int coll)
 {
     u->ret = coll;
+    u->coll.setFromEngine(coll);
 }
 
 END_SW_NS

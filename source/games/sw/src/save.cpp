@@ -934,6 +934,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 		if (arc.isReading())
 		{
 			w.oangdiff = 0;
+			SetCollision(&w, w.ret);
 		}
 	}
 	return arc;

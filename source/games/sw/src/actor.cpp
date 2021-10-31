@@ -293,7 +293,6 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 void DoDebrisCurrent(DSWActor* actor)
 {
     int nx, ny;
-    int ret=0;
     USERp u = actor->u();
     auto sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
@@ -303,10 +302,10 @@ void DoDebrisCurrent(DSWActor* actor)
     nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang), 14);
     ny = MulScale(DIV4(sectu->speed), bsin(sectu->ang), 14);
 
-    ret = move_sprite(actor->GetSpriteIndex(), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
+    Collision ret(move_sprite(actor->GetSpriteIndex(), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS));
 
     // attempt to move away from wall
-    if (ret)
+    if (ret.type != kHitNone)
     {
         short rang = RANDOM_P2(2048);
 
@@ -393,7 +392,7 @@ bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
     SetCollision(u, move_sprite(actor->GetSpriteIndex(), xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS));
 
-    return !u->ret;
+    return u->coll.type == kHitNone;
 }
 
 // !AIC - Supposed to allow floating of DEBRIS (dead bodies, flotsam, jetsam).  Or if water has
