@@ -4529,12 +4529,6 @@ WeaponMoveHit(short SpriteNum)
         hsp = &sprite[hit_sprite];
         hu = User[hit_sprite].Data();
 
-        if (hsp->statnum == STAT_ENEMY)
-        {
-            ////DSPRINTF(ds, "Bullet Hit Monster %d, stat %d ", hsp-sprite, (short)hsp->statnum);
-            //MONO_PRINT(ds);
-        }
-
         ASSERT(hsp->extra != -1);
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
@@ -4726,9 +4720,9 @@ DoFireballFlames(DSWActor* actor)
     bool jumping = false;
 
     // if no owner then stay where you are
-    if (u->Attach >= 0)
+    if (u->attachActor != nullptr)
     {
-        ap = &sprite[u->Attach];
+        ap = &u->attachActor->s();
 
         sp->x = ap->x;
         sp->y = ap->y;
@@ -4786,10 +4780,10 @@ DoFireballFlames(DSWActor* actor)
 
             if (((signed char)sp->xrepeat) == 0)
             {
-                if (u->Attach >= 0)
+                if (u->attachActor != nullptr)
                 {
-                    User[u->Attach]->flameActor = nullptr;
-                    User[u->Attach]->Flags2 &= ~SPR2_FLAMEDIE;
+                    u->attachActor->u()->flameActor = nullptr;
+                    u->attachActor->u()->Flags2 &= ~SPR2_FLAMEDIE;
                 }
                 KillActor(actor);
                 return 0;
@@ -4862,10 +4856,10 @@ DoBreakFlames(DSWActor* actor)
 
             if (((signed char)sp->xrepeat) == 0)
             {
-                if (u->Attach >= 0)
+                if (u->attachActor != nullptr)
                 {
-                    User[u->Attach]->flameActor = nullptr;
-                    User[u->Attach]->Flags2 &= ~SPR2_FLAMEDIE;
+                    u->attachActor->u()->flameActor = nullptr;
+                    u->attachActor->u()->Flags2 &= ~SPR2_FLAMEDIE;
                 }
                 KillActor(actor);
                 return 0;
@@ -8564,17 +8558,19 @@ InitPlasmaFountain(SPRITEp wp, SPRITEp sp)
     SPRITEp np;
     USERp nu;
     short SpriteNum;
+    auto sActor = &swActors[sp - sprite];
 
     SpriteNum = SpawnSprite(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sp->sectnum,
                             sp->x, sp->y, SPRITEp_BOS(sp), sp->ang, 0);
 
+    auto actorNew = &swActors[SpriteNum];
     np = &sprite[SpriteNum];
     nu = User[SpriteNum].Data();
 
     np->shade = -40;
     if (wp)
         SetOwner(wp->owner, SpriteNum);
-    SetAttach(short(sp - sprite), SpriteNum);
+    SetAttach(sActor, actorNew);
     np->yrepeat = 0;
     np->clipdist = 8>>2;
 
@@ -8595,15 +8591,15 @@ DoPlasmaFountain(DSWActor* actor)
     short bak_cstat;
 
     // if no owner then die
-    if (u->Attach < 0)
+    if (u->attachActor == nullptr)
     {
         KillActor(actor);
         return 0;
     }
     else
     {
-        auto attachActor = &swActors[u->Attach];
-        ap = &sprite[u->Attach];
+        auto attachActor = u->attachActor;
+        ap = &attachActor->s();
 
         // move with sprite
         setspritez(Weapon, &ap->pos);
@@ -8617,7 +8613,7 @@ DoPlasmaFountain(DSWActor* actor)
         {
             SpawnBlood(attachActor, actor, 0, 0, 0, 0);
             if (RandomRange(1000) > 600)
-                InitBloodSpray(short(ap-sprite), false, 105);
+                InitBloodSpray(attachActor->GetSpriteIndex(), false, 105);
         }
     }
 
@@ -9370,10 +9366,11 @@ DoMineStuck(DSWActor* actor)
 #define MINE_DETONATE_STATE 99
 
     // if no owner then die
-    if (u->Attach >= 0)
+    auto attachActor = u->attachActor;
+    if (attachActor != nullptr)
     {
-        SPRITEp ap = &sprite[u->Attach];
-        USERp au = User[u->Attach].Data();
+        SPRITEp ap = &attachActor->s();
+        USERp au = attachActor->u();
 
         ASSERT(au);
 
@@ -9585,6 +9582,7 @@ DoMine(DSWActor* actor)
         case HIT_SPRITE:
         {
             short hit_sprite = NORM_SPRITE(u->ret);
+            auto hitActor = &swActors[hit_sprite];
             SPRITEp hsp = &sprite[hit_sprite];
             USERp hu = User[hit_sprite].Data();
 
@@ -9602,7 +9600,7 @@ DoMine(DSWActor* actor)
                 PLAYERp pp;
 
                 // attach weapon to sprite
-                SetAttach(hit_sprite, Weapon);
+                SetAttach(hitActor, actor);
                 u->sz = sprite[hit_sprite].z - sp->z;
 
                 if (sp->owner >= 0)
@@ -9849,14 +9847,12 @@ DoEMPBurst(DSWActor* actor)
 {
     USER* u = actor->u();
     int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
-    if (u->Attach >= 0)
+    auto attachActor = u->attachActor;
+    if (attachActor != nullptr)
     {
-        SPRITEp ap = &sprite[u->Attach];
-        USERp au = User[u->Attach].Data();
-
-        ASSERT(au);
+        SPRITEp ap = &attachActor->s();
 
         setspritez_old(Weapon, ap->x, ap->y, ap->z - u->sz);
         sp->ang = NORM_ANGLE(ap->ang+1024);
@@ -10798,7 +10794,7 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
     if (enemy >= 0)
     {
-        SetAttach(enemy, actorNew->GetSpriteIndex());
+        SetAttach(&swActors[enemy], actorNew);
     }
     else
     {
@@ -17651,6 +17647,7 @@ InitEMP(PLAYERp pp)
 
     j = SpawnSprite(STAT_MISSILE, EMP, s_EMPBurst, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
 
+    auto missileActor = &swActors[j];
     wp = &sprite[j];
     wu = User[j].Data();
 
@@ -17750,7 +17747,7 @@ InitEMP(PLAYERp pp)
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
             // attach weapon to sprite
-            SetAttach(hitinfo.sprite, j);
+            SetAttach(&swActors[hitinfo.sprite], missileActor);
             wu->sz = sprite[hitinfo.sprite].z - wp->z;
             if (RandomRange(1000) > 500)
                 PlayerSound(DIGI_YOULOOKSTUPID, v3df_follow|v3df_dontpan,pp);

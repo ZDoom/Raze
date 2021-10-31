@@ -870,7 +870,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("lo_sp", w.lowActor, def->lowActor)
 			("active_range", w.active_range, def->active_range)
 			("SpriteNum", w.SpriteNum, def->SpriteNum)
-			("Attach", w.Attach, def->Attach)
+			("Attach", w.attachActor, def->attachActor)
 			("SpriteP", w.SpriteP, def->SpriteP)
 			("PlayerP", w.PlayerP, def->PlayerP)
 			("Sibling", w.Sibling, def->Sibling)

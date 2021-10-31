@@ -1127,6 +1127,7 @@ struct USER
     DSWActor* lowActor, * highActor;
     DSWActor* targetActor; // target player for the enemy - can only handle one player at at time
     DSWActor* flameActor;
+    DSWActor* attachActor;  // attach to sprite if needed - electro snake
 
     int Flags;
     int Flags2;
@@ -1159,7 +1160,6 @@ struct USER
     int active_range;
 
     short   SpriteNum;
-    short   Attach;  // attach to sprite if needed - electro snake
     SPRITEp SpriteP;
 	SPRITEp s() { return SpriteP;}
 
@@ -1970,7 +1970,7 @@ void change_actor_stat(DSWActor* actor, int stat);
 void SetOwner(DSWActor*, DSWActor*);
 void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);
-void SetAttach(short, short);
+void SetAttach(DSWActor*, DSWActor*);
 void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
 void ChangeSpriteState(short SpriteNum, STATEp statep);
 void CollectPortals();

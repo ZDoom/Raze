@@ -885,14 +885,12 @@ post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 
         if (tu)
         {
-            if (tu->ID == FIREBALL_FLAMES && tu->Attach >= 0)
+            if (tu->ID == FIREBALL_FLAMES && tu->attachActor != nullptr)
             {
-                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->Attach);
+                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->attachActor->GetSpriteIndex());
 
                 if (!atsp)
                 {
-                    //DSPRINTF(ds,"Attach not found");
-                    MONO_PRINT(ds);
                     continue;
                 }
 

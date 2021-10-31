@@ -149,6 +149,7 @@ void DoLightingMatch(short match, short state)
     StatIterator it(STAT_LIGHTING);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto u = User[i].Data();
         sp = &sprite[i];
 
         if (LIGHT_Match(sp) != match)
@@ -169,7 +170,7 @@ void DoLightingMatch(short match, short state)
             {
                 SET_BOOL1(sp);
                 sp->shade = -LIGHT_MaxBright(sp);
-                sp->pal = User[sp-sprite]->spal; // on
+                sp->pal = u->spal; // on
                 SectorLightShade(sp, sp->shade);
                 DiffuseLighting(sp);
             }
@@ -291,6 +292,7 @@ void DoLighting(void)
     StatIterator it(STAT_LIGHTING);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto u = User[i].Data();
         sp = &sprite[i];
 
         // on/off test
@@ -378,7 +380,7 @@ void DoLighting(void)
                 else
                 {
                     sp->shade -= LIGHT_ShadeInc(sp);
-                    sp->pal = User[sp-sprite]->spal; // on
+                    sp->pal = u->spal; // on
                     if (sp->shade <= -LIGHT_MaxBright(sp))
                     {
                         LIGHT_DirChange(sp);

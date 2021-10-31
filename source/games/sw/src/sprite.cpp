@@ -607,16 +607,14 @@ void SetOwner(int a, int b)
     else if (b >= 0) ClearOwner(&swActors[b]);
 }
 
-void
-SetAttach(short owner, short child)
+void SetAttach(DSWActor* ownr, DSWActor* child)
 {
-    USERp cu = User[child].Data();
-
-    ASSERT(cu);
-
-    ASSERT(User[owner].Data());
-    SET(User[owner]->Flags2, SPR2_CHILDREN);
-    cu->Attach = owner;
+    if (child && child->hasU() && ownr->hasU())
+    {
+        USERp cu = child->u();
+        SET(ownr->u()->Flags2, SPR2_CHILDREN);
+        cu->attachActor = ownr;
+    }
 }
 
 void KillActor(DSWActor* actor)
@@ -760,9 +758,9 @@ void KillSprite(int16_t SpriteNum)
                         sprite[i].owner = -1;
                     }
 
-                    if (User[i].Data() && User[i]->Attach == SpriteNum)
+                    if (User[i].Data() && User[i]->attachActor == actor)
                     {
-                        User[i]->Attach = -1;
+                        User[i]->attachActor = nullptr;
                     }
                 }
             }
@@ -903,7 +901,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     u->ID = id;
     u->Health = 100;
     u->WpnGoal = -1;                     // for weapons
-    u->Attach = -1;
+    u->attachActor = nullptr;
     u->track = -1;
     u->targetActor = Player[0].Actor();
     u->Radius = 220;
@@ -6430,6 +6428,7 @@ KeyMain:
             break;
 
         case ICON_FLAG:
+        {
             if (sp->pal == sprite[pp->PlayerSprite].pal) break; // Can't pick up your own flag!
 
             PlaySound(DIGI_ITEM, sp, v3df_dontpan);
@@ -6441,6 +6440,7 @@ KeyMain:
                 New = SpawnSprite(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sectnum,
                                   sp->x, sp->y, sp->z, 0, 0);
 
+            auto actorNew = &swActors[New];
             np = &sprite[New];
             nu = User[New].Data();
             np->shade = -20;
@@ -6449,7 +6449,7 @@ KeyMain:
             nu->Counter = 0;
             RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(np->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-            SetAttach(pp->PlayerSprite, New);
+            SetAttach(pp->Actor(), actorNew);
             nu->sz = SPRITEp_MID(&sprite[pp->PlayerSprite]);  // Set mid way up who it hit
             nu->spal = np->pal = sp->pal;   // Set the palette of the flag
 
@@ -6457,7 +6457,7 @@ KeyMain:
             nu->FlagOwner = SpriteNum;       // Tell carried flag who owns it
             KillGet(SpriteNum);  // Set up for flag respawning
             break;
-
+        }
         default:
             KillActor(actor);
         }

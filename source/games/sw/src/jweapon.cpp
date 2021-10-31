@@ -1788,7 +1788,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 
     if (u->flameActor != nullptr)
     {
-        SetAttach(actor->GetSpriteIndex(), actorNew->GetSpriteIndex());
+        SetAttach(actor, actorNew);
     }
 
     return;
@@ -2186,9 +2186,9 @@ DoCarryFlag(DSWActor* actor)
 
 
     // if no owner then die
-    if (u->Attach >= 0)
+    if (u->attachActor != nullptr)
     {
-        SPRITEp ap = &sprite[u->Attach];
+        SPRITEp ap = &u->attachActor->s();
 
         setspritez_old(Weapon, ap->x, ap->y, SPRITEp_MID(ap));
         sp->ang = NORM_ANGLE(ap->ang + 1536);
@@ -2217,8 +2217,8 @@ DoCarryFlag(DSWActor* actor)
         // not already in detonate state
         if (u->Counter2 < FLAG_DETONATE_STATE)
         {
-            SPRITEp ap = &sprite[u->Attach];
-            USERp au = User[u->Attach].Data();
+            SPRITEp ap = &u->attachActor->s();
+            USERp au = u->attachActor->u();
 
             if (!au || au->Health <= 0)
             {
@@ -2336,8 +2336,8 @@ DoCarryFlagNoDet(DSWActor* actor)
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
-    SPRITEp ap = &sprite[u->Attach];
-    USERp au = User[u->Attach].Data();
+    SPRITEp ap = &u->attachActor->s();
+    USERp au = u->attachActor->u();
     SPRITEp fp = &sprite[u->FlagOwner];
     USERp fu = User[u->FlagOwner].Data();
 
@@ -2347,9 +2347,9 @@ DoCarryFlagNoDet(DSWActor* actor)
     // won't respawn
 
     // if no owner then die
-    if (u->Attach >= 0)
+    if (u->attachActor != nullptr)
     {
-        SPRITEp ap = &sprite[u->Attach];
+        SPRITEp ap = &u->attachActor->s();
 
         setspritez_old(Weapon, ap->x, ap->y, SPRITEp_MID(ap));
         sp->ang = NORM_ANGLE(ap->ang + 1536);
@@ -2433,6 +2433,7 @@ DoFlag(DSWActor* actor)
 
     if (hit_sprite != -1)
     {
+        auto hitActor = &swActors[hit_sprite];
         SPRITEp hsp = &sprite[hit_sprite];
 
         SetCarryFlag(Weapon);
@@ -2442,7 +2443,7 @@ DoFlag(DSWActor* actor)
         {
             // attach weapon to sprite
             RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-            SetAttach(hit_sprite, Weapon);
+            SetAttach(hitActor, actor);
             u->sz = hsp->z - DIV2(SPRITEp_SIZE_Z(hsp));
             //u->sz = hsp->z - SPRITEp_MID(hsp);   // Set mid way up who it hit
         }
