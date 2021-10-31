@@ -820,11 +820,10 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short ty
 // SPRITE
 //
 
-int KillBreakSprite(short BreakSprite)
+int KillBreakSprite(DSWActor* breakActor)
 {
-    auto breakActor = &swActors[BreakSprite];
-    SPRITEp bp = &sprite[BreakSprite];
-    USERp bu = User[BreakSprite].Data();
+    SPRITEp bp = &breakActor->s();
+    USERp bu = breakActor->u();
 
     // Does not actually kill the sprite so it will be valid for the rest
     // of the loop traversal.
@@ -832,14 +831,14 @@ int KillBreakSprite(short BreakSprite)
     // IMPORTANT: Do not change the statnum if possible so that NEXTI in
     // SpriteControl loop traversals will maintain integrity.
 
-    SpriteQueueDelete(BreakSprite);
+    SpriteQueueDelete(breakActor->GetSpriteIndex());
 
     if (bu)
     {
         if (bp->statnum == STAT_DEFAULT)
             // special case allow kill of sprites on STAT_DEFAULT list
             // a few things have users and are not StateControlled
-            KillSprite(BreakSprite);
+            KillActor(breakActor);
         else
             SetSuicide(breakActor);
     }
@@ -852,12 +851,13 @@ int KillBreakSprite(short BreakSprite)
 }
 
 
-int UserBreakSprite(short BreakSprite)
+int UserBreakSprite(DSWActor* breakActor)
 {
     SPRITEp sp;
-    SPRITEp bp = &sprite[BreakSprite];
+    SPRITEp bp = &breakActor->s();
     short match = bp->lotag;
     short match_extra;
+    int BreakSprite = breakActor->GetSpriteIndex();
 
     auto actor = FindBreakSpriteMatch(match);
 
@@ -868,7 +868,7 @@ int UserBreakSprite(short BreakSprite)
         DoMatchEverything(nullptr, match, -1);
         // Kill sound if one is attached
         DeleteNoSoundOwner(BreakSprite);
-        KillBreakSprite(BreakSprite);
+        KillBreakSprite(breakActor);
         return true;
     }
 
@@ -896,7 +896,7 @@ int UserBreakSprite(short BreakSprite)
         {
             // Kill sound if one is attached
             DeleteNoSoundOwner(BreakSprite);
-            KillBreakSprite(BreakSprite);
+            KillBreakSprite(breakActor);
             return true;
         }
         else if (SP_TAG8(sp) == 2)
@@ -925,12 +925,12 @@ int UserBreakSprite(short BreakSprite)
     return false;
 }
 
-int AutoBreakSprite(short BreakSprite, short type)
+int AutoBreakSprite(DSWActor* breakActor, short type)
 {
-    auto breakActor = &swActors[BreakSprite];
-    SPRITEp bp = &sprite[BreakSprite];
+    SPRITEp bp = &breakActor->s();
     BREAK_INFOp break_info;
     extern void DoWallBreakMatch(short match);
+    int BreakSprite = breakActor->GetSpriteIndex();
 
     break_info = FindSpriteBreakInfo(bp->picnum);
 
@@ -982,7 +982,7 @@ int AutoBreakSprite(short BreakSprite, short type)
         SET(bp->cstat, CSTAT_SPRITE_INVISIBLE);
         // Kill sound if one is attached
         DeleteNoSoundOwner(BreakSprite);
-        KillBreakSprite(BreakSprite);
+        KillBreakSprite(breakActor);
         return true;
     }
     else
@@ -995,8 +995,9 @@ int AutoBreakSprite(short BreakSprite, short type)
     return false;
 }
 
-bool NullActor(USERp u)
+bool NullActor(DSWActor* actor)
 {
+    auto u = actor->u();
     // a Null Actor is defined as an actor that has no real controlling programming attached
 
     // check to see if attached to SO
@@ -1017,8 +1018,8 @@ bool NullActor(USERp u)
 int HitBreakSprite(short BreakSprite, short type)
 {
     auto breakActor = &swActors[BreakSprite];
-    SPRITEp bp = &sprite[BreakSprite];
-    USERp bu = User[BreakSprite].Data();
+    SPRITEp bp = &breakActor->s();
+    USERp bu = breakActor->u();
 
     //SPRITEp sp;
     // ignore as a breakable if true
@@ -1030,10 +1031,10 @@ int HitBreakSprite(short BreakSprite, short type)
         if (TEST_BOOL2(bp))
             return false;
 
-        return UserBreakSprite(BreakSprite);
+        return UserBreakSprite(breakActor);
     }
 
-    if (bu && !NullActor(bu))
+    if (bu && !NullActor(breakActor))
     {
         // programmed animating type - without BOOL1 set
         if (bp->lotag)
@@ -1044,7 +1045,7 @@ int HitBreakSprite(short BreakSprite, short type)
         return false;
     }
 
-    return AutoBreakSprite(BreakSprite,type);
+    return AutoBreakSprite(breakActor, type);
 }
 
 static int SectorOfWall(short theline)
@@ -1090,16 +1091,14 @@ void DoWallBreakMatch(short match)
 
 static void DoWallBreakSpriteMatch(short match)
 {
-    int i;
-
-    StatIterator it(STAT_ENEMY);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ENEMY);
+    while (auto actor = it.Next())
     {
-        SPRITEp sp = &sprite[i];
+        SPRITEp sp = &actor->s();
 
         if (sp->hitag == match)
         {
-            KillSprite(i);
+            KillActor(actor);
         }
     }
 }
