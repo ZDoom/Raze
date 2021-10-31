@@ -1586,7 +1586,7 @@ Collision move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy
     u->highActor = highActor;
     u->lo_sectp = lo_sectp;
     u->hi_sectp = hi_sectp;
-    changespritesect(u->SpriteNum, ss);
+    ChangeActorSect(actor, ss);
 
     return ret;
 }

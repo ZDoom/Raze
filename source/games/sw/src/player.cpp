@@ -1846,7 +1846,7 @@ UpdatePlayerSprite(PLAYERp pp)
     // there are multiple death functions
     if (TEST(pp->Flags, PF_DEAD))
     {
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
         sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
         UpdatePlayerUnderSprite(pp);
         return;
@@ -1855,24 +1855,24 @@ UpdatePlayerSprite(PLAYERp pp)
     if (pp->sop_control)
     {
         sp->z = sector[pp->cursectnum].floorz;
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
     {
         sp->z = pp->posz + PLAYER_CRAWL_HEIGHT;
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
 #if 0
     else if (pp->DoPlayerAction == DoPlayerSwim)
     {
         sp->z = pp->loz - Z(pp->WadeDepth) + Z(1);
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
 #endif
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
         sp->z = pp->posz + PLAYER_HEIGHT;
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
 
         if (pp->WadeDepth > Z(29))
         {
@@ -1883,7 +1883,7 @@ UpdatePlayerSprite(PLAYERp pp)
     {
         // bobbing and sprite position taken care of in DoPlayerDive
         sp->z = pp->posz + Z(10);
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
@@ -1893,7 +1893,7 @@ UpdatePlayerSprite(PLAYERp pp)
         //sp->x += MOVEx(256+64, sp->ang);
         //sp->y += MOVEy(256+64, sp->ang);
 
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
     else if (pp->DoPlayerAction == DoPlayerFly)
     {
@@ -1902,22 +1902,22 @@ UpdatePlayerSprite(PLAYERp pp)
         //sp->z = pp->posz + PLAYER_HEIGHT;
         //DoPlayerSpriteBob(pp, PLAYER_HEIGHT, PLAYER_FLY_BOB_AMT, 3);
         DoPlayerSpriteBob(pp, PLAYER_HEIGHT, Z(6), 3);
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
     else if (pp->DoPlayerAction == DoPlayerJump || pp->DoPlayerAction == DoPlayerFall || pp->DoPlayerAction == DoPlayerForceJump)
     {
         sp->z = pp->posz + PLAYER_HEIGHT;
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
     else if (pp->DoPlayerAction == DoPlayerTeleportPause)
     {
         sp->z = pp->posz + PLAYER_HEIGHT;
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
     else
     {
         sp->z = pp->loz;
-        changespritesect(pp->PlayerSprite, pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
 
     UpdatePlayerUnderSprite(pp);
@@ -3558,7 +3558,7 @@ DoPlayerClimb(PLAYERp pp)
 
     // setsprite to players location
     sp->z = pp->posz + PLAYER_HEIGHT;
-    changespritesect(pp->PlayerSprite, pp->cursectnum);
+    ChangeActorSect(pp->Actor(), pp->cursectnum);
 
     if (!SyncInput())
     {
@@ -6374,7 +6374,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     if (sectnum < 0)
     {
         pp->cursectnum = pp->lv_sectnum;
-        changespritesect(pp->PlayerSprite, pp->lv_sectnum);
+        ChangeActorSect(pp->Actor(), pp->lv_sectnum);
         pp->posx = sp->x = pp->lv_x;
         pp->posy = sp->y = pp->lv_y;
     }

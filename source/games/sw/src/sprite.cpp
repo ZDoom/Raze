@@ -2208,7 +2208,7 @@ SpriteSetup(void)
                         sp->xvel = sp->lotag;
                     sp->ang = SP_TAG6(sp);
                     // attach to the sector that contains the wall
-                    changespritesect(SpriteNum, hitinfo.sect);
+                    ChangeActorSect(actor, hitinfo.sect);
                     StartInterpolation(hitinfo.wall, Interp_Wall_PanX);
                     StartInterpolation(hitinfo.wall, Interp_Wall_PanY);
                     change_actor_stat(actor, STAT_WALL_PAN);
@@ -5156,7 +5156,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
             SetCollision(u, -1);    // caution!!
-            changespritesect(SpriteNum, sectnum);
+            ChangeActorSect(actor, sectnum);
             return false;
         }
 
@@ -5175,7 +5175,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
             SetCollision(u, -1); // caution!!
-            changespritesect(SpriteNum, sectnum);
+            ChangeActorSect(actor, sectnum);
             return false;
         }
     }
@@ -6993,6 +6993,7 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
 
 int pushmove_sprite(short SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
     int sectnum, ret;
@@ -7003,7 +7004,7 @@ int pushmove_sprite(short SpriteNum)
                    (((int)sp->clipdist)<<2)-GETZRANGE_CLIP_ADJ, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR);
 
     if (sectnum != sp->sectnum && sectnum >= 0)
-        changespritesect(SpriteNum, sectnum);
+        ChangeActorSect(actor, sectnum);
 
     if (ret < 0)
     {
@@ -7017,21 +7018,23 @@ int pushmove_sprite(short SpriteNum)
 
 void MissileWarpUpdatePos(short SpriteNum, short sectnum)
 {
+    auto actor = &swActors[SpriteNum];
     USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     sp->backuppos();
     u->oz = sp->oz;
-    changespritesect(SpriteNum, sectnum);
+    ChangeActorSect(actor, sectnum);
     MissileZrange(SpriteNum);
 }
 
 void ActorWarpUpdatePos(short SpriteNum, short sectnum)
 {
+    auto actor = &swActors[SpriteNum];
     USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     sp->backuppos();
     u->oz = sp->oz;
-    changespritesect(SpriteNum, sectnum);
+    ChangeActorSect(actor, sectnum);
     DoActorZrange(SpriteNum);
 }
 

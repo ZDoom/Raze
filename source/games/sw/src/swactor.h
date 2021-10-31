@@ -186,5 +186,9 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor*& 
 	return arc;
 }
 
+inline void ChangeActorSect(DSWActor* actor, int sect)
+{
+	changespritesect(actor->GetSpriteIndex(), sect);
+}
 
 END_SW_NS
