@@ -1197,7 +1197,7 @@ void BunnyHatch(short Weapon)
         np->x = sp->x;
         np->y = sp->y;
         np->z = sp->z;
-        np->owner = -1;
+        ClearOwner(actorNew);
         np->xrepeat = 30;  // Baby size
         np->yrepeat = 24;
         np->ang = rip_ang[i];
@@ -1267,7 +1267,7 @@ int BunnyHatch2(short Weapon)
     np->x = wp->x;
     np->y = wp->y;
     np->z = wp->z;
-    np->owner = -1;
+    ClearOwner(actorNew);
     np->xrepeat = 30;  // Baby size
     np->yrepeat = 24;
     np->ang = RANDOM_P2(2048);

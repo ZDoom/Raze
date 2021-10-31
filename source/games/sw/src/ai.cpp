@@ -305,9 +305,6 @@ int CanHitPlayer(DSWActor* actor)
     if (hitinfo.sprite == u->targetActor->GetSpriteIndex())
         return true;
 
-    ////DSPRINTF(ds,"CanHit %s",ret ? "true" : "false");
-    //MONO_PRINT(ds);
-
     return false;
 }
 

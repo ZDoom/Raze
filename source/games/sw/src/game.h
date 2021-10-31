@@ -1978,6 +1978,7 @@ void change_actor_stat(DSWActor* actor, int stat);
 void SetOwner(DSWActor*, DSWActor*);
 void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);
+DSWActor* GetOwner(DSWActor* child);
 void SetAttach(DSWActor*, DSWActor*);
 void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
 void ChangeSpriteState(short SpriteNum, STATEp statep);

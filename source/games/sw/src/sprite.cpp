@@ -596,6 +596,12 @@ void SetOwner(DSWActor* ownr, DSWActor* child)
 }
 
 
+DSWActor* GetOwner(DSWActor* child)
+{
+    if (!child || child->s().owner < 0) return nullptr;
+    return &swActors[child->s().owner];
+}
+
 void ClearOwner(DSWActor* child)
 {
     if (child) child->s().owner = -1;

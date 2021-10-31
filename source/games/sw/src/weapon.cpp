@@ -11712,7 +11712,7 @@ SpawnSectorExp(int16_t Weapon)
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    exp->owner = -1;
+    ClearOwner(expActor);
     exp->shade = -40;
     exp->xrepeat = 90; // was 40,40
     exp->yrepeat = 90;
@@ -11745,7 +11745,7 @@ SpawnLargeExp(int16_t Weapon)
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    exp->owner = -1;
+    ClearOwner(expActor);
     exp->shade = -40;
     exp->xrepeat = 90; // was 40,40
     exp->yrepeat = 90;
@@ -11788,11 +11788,12 @@ SpawnMeteorExp(int16_t Weapon)
                                 sp->x, sp->y, sp->z, sp->ang, 0);
     }
 
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    exp->owner = -1;
+    ClearOwner(expActor);
     exp->shade = -40;
     if (sp->yrepeat < 64)
     {
@@ -11830,7 +11831,7 @@ SpawnLittleExp(int16_t Weapon)
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    exp->owner = -1;
+    ClearOwner(expActor);
     exp->shade = -127;
 
     SET(exp->cstat, CSTAT_SPRITE_YCENTER);
@@ -16048,11 +16049,12 @@ SpawnDemonFist(int16_t Weapon)
     explosion = SpawnSprite(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
                             sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
+    auto expActor = &swActors[explosion];
     exp = &sprite[explosion];
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    exp->owner = -1;
+    ClearOwner(expActor);
     exp->shade = -40;
     exp->xrepeat = 32;
     exp->yrepeat = 32;

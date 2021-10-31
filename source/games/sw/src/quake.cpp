@@ -54,11 +54,8 @@ BEGIN_SW_NS
 
 short CopyQuakeSpotToOn(SPRITEp sp)
 {
-    short New;
-    SPRITEp np;
-
-    New = COVERinsertsprite(sp->sectnum, STAT_QUAKE_SPOT);
-    np = &sprite[New];
+    auto actorNew = InsertActor(sp->sectnum, STAT_QUAKE_SPOT);
+    auto np = &actorNew->s();
 
     memcpy(np, sp, sizeof(SPRITE));
 
@@ -67,13 +64,13 @@ short CopyQuakeSpotToOn(SPRITEp sp)
 
     np->cstat = 0;
     np->extra = 0;
-    np->owner = -1;
+    ClearOwner(actorNew);
 
-    change_sprite_stat(New, STAT_QUAKE_ON);
+    change_actor_stat(actorNew, STAT_QUAKE_ON);
 
     QUAKE_Duration(np) *= 120;
 
-    return New;
+    return actorNew->GetSpriteIndex();
 }
 
 
@@ -249,19 +246,15 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
 int SpawnQuake(short sectnum, int x, int y, int z,
                short tics, short amt, int radius)
 {
-    short SpriteNum;
-    SPRITEp sp;
 
-    SpriteNum = COVERinsertsprite(sectnum, STAT_QUAKE_ON);
-    sp = &sprite[SpriteNum];
-
-    ASSERT(SpriteNum >= 0);
+    auto actorNew = InsertActor(sectnum, STAT_QUAKE_ON);
+    auto sp = &actorNew->s();
 
     sp->x = x;
     sp->y = y;
     sp->z = z;
     sp->cstat = 0;
-    sp->owner = -1;
+    ClearOwner(actorNew);
     sp->extra = 0;
 
     QUAKE_Match(sp) = -1;
@@ -272,9 +265,9 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     QUAKE_PosAmt(sp) = 0;
 
     PlaySound(DIGI_ERUPTION, sp, v3df_follow|v3df_dontpan);
-    Set3DSoundOwner(SpriteNum);
+    Set3DSoundOwner(actorNew->GetSpriteIndex());
 
-    return SpriteNum;
+    return actorNew->GetSpriteIndex();
 }
 
 bool
