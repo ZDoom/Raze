@@ -2548,8 +2548,7 @@ void DoTankTreads(PLAYERp pp)
 
 }
 
-void
-SetupDriveCrush(PLAYERp pp, int *x, int *y)
+void SetupDriveCrush(PLAYERp pp, int *x, int *y)
 {
     int radius = pp->sop_control->clipdist;
 
@@ -2566,15 +2565,13 @@ SetupDriveCrush(PLAYERp pp, int *x, int *y)
     y[3] = pp->posy + radius;
 }
 
-void
-DriveCrush(PLAYERp pp, int *x, int *y)
+void DriveCrush(PLAYERp pp, int *x, int *y)
 {
     int testpointinquad(int x, int y, int *qx, int *qy);
 
     SECTOR_OBJECTp sop = pp->sop_control;
     SPRITEp sp;
     USERp u;
-    int i;
     short stat;
     SECTORp *sectp;
 
@@ -2586,15 +2583,15 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         return;
 
     // main sector
-    SectIterator it(sop->op_main_sector);
-    while ((i = it.NextIndex()) >= 0)
+    SWSectIterator it(sop->op_main_sector);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
-        u = User[i].Data();
+        sp = &actor->s();
+        u = actor->u();
 
         if (testpointinquad(sp->x, sp->y, x, y))
         {
-            if (TEST(sp->extra, SPRX_BREAKABLE) && HitBreakSprite(i,0))
+            if (TEST(sp->extra, SPRX_BREAKABLE) && HitBreakSprite(actor->GetSpriteIndex(),0))
                 continue;
 
             if (sp->statnum == STAT_MISSILE)
@@ -2618,18 +2615,17 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             if (sp->z < sop->crush_z)
                 continue;
 
-            SpriteQueueDelete(i);
-            KillSprite(i);
+            SpriteQueueDelete(actor->GetSpriteIndex());
+            KillActor(actor);
         }
     }
 
     // all enemys
-    StatIterator it2(STAT_ENEMY);
-    while ((i = it2.NextIndex()) >= 0)
+    SWStatIterator it2(STAT_ENEMY);
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[i];
-        sp = &sprite[i];
-		auto u = User[i].Data();
+        sp = &actor->s();
+		auto u = actor->u();
 
         if (testpointinquad(sp->x, sp->y, x, y))
         {
@@ -2650,36 +2646,37 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             if (SpawnShrap(actor, nullptr, -99))
                 SetSuicide(actor);
             else
-                KillSprite(i);
+                KillActor(actor);
         }
     }
 
     // all dead actors
     it2.Reset(STAT_DEAD_ACTOR);
-    while ((i = it2.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (testpointinquad(sp->x, sp->y, x, y))
         {
             if (sp->z < sop->crush_z)
                 continue;
 
-            SpriteQueueDelete(i);
-            KillSprite(i);
+            SpriteQueueDelete(actor->GetSpriteIndex());
+            KillActor(actor);
         }
     }
 
     // all players
     for (stat = 0; stat < MAX_SW_PLAYERS; stat++)
     {
-        i = StatIterator::First(STAT_PLAYER0 + stat);
+        it2.Reset(stat);
+        auto actor = it.Next();
 
-        if (i < 0)
+        if (actor == nullptr)
             continue;
 
-        sp = &sprite[i];
-        u = User[i].Data();
+        sp = &actor->s();
+        u = actor->u();
 
         if (u->PlayerP == pp)
             continue;
@@ -2704,12 +2701,11 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     // if it ends up actually in the drivable sector kill it
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        SectIterator it(int(*sectp - sector));
-        while ((i = it.NextIndex()) >= 0)
+        SWSectIterator it(int(*sectp - sector));
+        while (auto actor = it.Next())
         {
-            auto actor = &swActors[i];
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &actor->s();
+            u = actor->u();
 
             // give some extra buffer
             if (sp->z < sop->crush_z + Z(40))
@@ -2722,7 +2718,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
                     if (SpawnShrap(actor, nullptr, -99))
                         SetSuicide(actor);
                     else
-                        KillSprite(i);
+                        KillActor(actor);
                 }
             }
         }
