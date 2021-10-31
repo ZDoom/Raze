@@ -5744,15 +5744,14 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
     return false;
 }
 
-bool
-PlayerTakeDamage(PLAYERp pp, short Weapon)
+bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
 {
-    if (Weapon < 0)
+    if (weapActor == nullptr)
         return true;
 
-    USERp u = User[pp->PlayerSprite].Data();
-    SPRITEp wp = &sprite[Weapon];
-    USERp   wu = User[Weapon].Data();
+    USERp u = pp->Actor()->u();
+    SPRITEp wp = &weapActor->s();
+    USERp   wu = weapActor->u();
 
     if (gNet.MultiGameType == MULTI_GAME_NONE)
     {
@@ -5910,7 +5909,7 @@ DoDamage(short SpriteNum, short Weapon)
             else if (u->PlayerP)
             {
                 PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-                if (PlayerTakeDamage(u->PlayerP, Weapon))
+                if (PlayerTakeDamage(u->PlayerP, weapActor))
                 {
                     PlayerUpdateHealth(u->PlayerP, damage);
                     PlayerCheckDeath(u->PlayerP, Weapon);
@@ -5948,7 +5947,7 @@ DoDamage(short SpriteNum, short Weapon)
             else if (u->PlayerP)
             {
                 PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-                if (PlayerTakeDamage(u->PlayerP, Weapon))
+                if (PlayerTakeDamage(u->PlayerP, weapActor))
                 {
                     PlayerUpdateHealth(u->PlayerP, damage);
                     PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6012,7 +6011,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6046,7 +6045,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6076,7 +6075,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6106,7 +6105,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6136,7 +6135,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 if (PlayerCheckDeath(u->PlayerP, Weapon))
@@ -6170,7 +6169,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 if (PlayerCheckDeath(u->PlayerP, Weapon))
@@ -6205,7 +6204,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 if (PlayerCheckDeath(u->PlayerP, Weapon))
@@ -6236,7 +6235,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage/4, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6276,7 +6275,7 @@ DoDamage(short SpriteNum, short Weapon)
             {
                 u->BladeDamageTics = DAMAGE_BLADE_TIME;
                 PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-                if (PlayerTakeDamage(u->PlayerP, Weapon))
+                if (PlayerTakeDamage(u->PlayerP, weapActor))
                 {
                     PlayerUpdateHealth(u->PlayerP, damage);
                     PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6313,7 +6312,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (u->PlayerP->WpnKungFuMove == 3)
                 damage /= 3;
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6347,7 +6346,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6380,7 +6379,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6411,7 +6410,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6447,7 +6446,7 @@ DoDamage(short SpriteNum, short Weapon)
         {
             //PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
             PlayerDamageSlide(u->PlayerP, damage/2, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6496,7 +6495,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6545,7 +6544,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6572,7 +6571,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6597,7 +6596,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
         else if (u->PlayerP)
         {
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6631,7 +6630,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
         else if (u->PlayerP)
         {
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6671,7 +6670,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
         else if (u->PlayerP)
         {
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6701,7 +6700,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6737,7 +6736,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6768,7 +6767,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6799,7 +6798,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             //PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 if (PlayerCheckDeath(u->PlayerP, Weapon))
@@ -6836,7 +6835,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6873,7 +6872,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6909,7 +6908,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6942,7 +6941,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -6981,7 +6980,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -7020,7 +7019,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -7048,7 +7047,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -7073,7 +7072,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -7107,7 +7106,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, ANG2PLAYER(u->PlayerP, wp));
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -7138,7 +7137,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -7171,7 +7170,7 @@ DoDamage(short SpriteNum, short Weapon)
         else if (u->PlayerP)
         {
             PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -7202,7 +7201,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
         else if (u->PlayerP)
         {
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
@@ -7230,7 +7229,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
         else if (u->PlayerP)
         {
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PLAYERp pp = u->PlayerP;
 
@@ -7299,7 +7298,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
         else if (u->PlayerP)
         {
-            if (PlayerTakeDamage(u->PlayerP, Weapon))
+            if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 if (RANDOM_P2(1024<<4)>>4 < 800)
                     PlayerSound(DIGI_STEPONCALTROPS, v3df_follow|v3df_dontpan, u->PlayerP);
@@ -13683,7 +13682,7 @@ InitFistAttack(PLAYERp pp)
                 {
                     SpawnSwordSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                     PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
-                    if (PlayerTakeDamage(pp, -1))
+                    if (PlayerTakeDamage(pp, nullptr))
                     {
                         PlayerUpdateHealth(pp, -(RandomRange(2<<8)>>8));
                         PlayerCheckDeath(pp, -1);

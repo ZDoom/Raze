@@ -86,6 +86,7 @@ int ShrapKillSprite(short SpriteNum);
 bool MissileSetPos(short Weapon,ANIMATORp DoWeapon,int dist);
 int ActorPain(short SpriteNum);
 int SpawnBreakFlames(int16_t SpriteNum);
+bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor);
 const char *DeathString(short SpriteNum);
 
 //

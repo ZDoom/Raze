@@ -40,7 +40,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-bool PlayerTakeDamage(PLAYERp, short);
 ANIMATOR InitActorRunToward;
 bool FAF_Sector(short);
 bool DropAhead(DSWActor* actor, short min_height);
@@ -363,7 +362,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
             if (sp->owner == pp->PlayerSprite)
                 continue;
 
-            if (!PlayerTakeDamage(pp, SpriteNum))
+            if (!PlayerTakeDamage(pp, actor))
                 continue;
 
             // if co-op don't hurt teammate
@@ -393,7 +392,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
             if (sp->owner == pp->PlayerSprite)
                 continue;
 
-            if (!PlayerTakeDamage(pp, SpriteNum))
+            if (!PlayerTakeDamage(pp, actor))
                 continue;
 
             // if co-op don't hurt teammate
@@ -781,7 +780,7 @@ int DoActorDecide(DSWActor* actor)
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
-        if (!PlayerTakeDamage(u->targetActor->u()->PlayerP, SpriteNum))
+        if (!PlayerTakeDamage(u->targetActor->u()->PlayerP, actor))
             return 0;
     }
 
@@ -1265,7 +1264,7 @@ int InitActorAttack(DSWActor* actor)
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
-        if (!PlayerTakeDamage(u->targetActor->u()->PlayerP, SpriteNum))
+        if (!PlayerTakeDamage(u->targetActor->u()->PlayerP, actor))
             return 0;
     }
 
