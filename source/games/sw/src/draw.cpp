@@ -108,7 +108,7 @@ GetRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx
     short rotation;
 
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = User[tsp->owner].Data();
+    USERp tu = swActors[tsp->owner].u();
     short angle2;
 
     if (tu->RotNum == 0)
@@ -175,7 +175,7 @@ int
 SetActorRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
 {
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = User[tsp->owner].Data();
+    USERp tu = swActors[tsp->owner].u();
     short StateOffset, Rotation;
 
     // don't modify ANY tu vars - back them up!
@@ -210,7 +210,7 @@ int
 DoShadowFindGroundPoint(tspriteptr_t sp)
 {
     // USES TSPRITE !!!!!
-    USERp u = User[sp->owner].Data();
+    USERp u = swActors[sp->owner].u();
     SPRITEp hsp;
     int ceilhit, florhit;
     int hiz, loz = u->loz;
@@ -267,8 +267,8 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
 void
 DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
 {
-    tspriteptr_t New = &tsprite[spritesortcnt];
-    USERp tu = User[tsp->owner].Data();
+    tspriteptr_t tSpr = &tsprite[spritesortcnt];
+    USERp tu = swActors[tsp->owner].u();
     int ground_dist = 0;
     int view_dist = 0;
     int loz;
@@ -288,24 +288,24 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     }
 
     tsp->sectnum = sectnum;
-    *New = *tsp;
+    *tSpr = *tsp;
     // shadow is ALWAYS draw last - status is priority
-    New->statnum = MAXSTATUS;
-    New->sectnum = sectnum;
+    tSpr->statnum = MAXSTATUS;
+    tSpr->sectnum = sectnum;
 
     if ((tsp->yrepeat >> 2) > 4)
     {
         yrepeat = (tsp->yrepeat >> 2) - (SPRITEp_SIZE_Y(tsp) / 64) * 2;
-        xrepeat = New->xrepeat;
+        xrepeat = tSpr->xrepeat;
     }
     else
     {
-        yrepeat = New->yrepeat;
-        xrepeat = New->xrepeat;
+        yrepeat = tSpr->yrepeat;
+        xrepeat = tSpr->xrepeat;
     }
 
-    New->shade = 127;
-    SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT);
+    tSpr->shade = 127;
+    SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     loz = tu->loz;
     if (tu->lowActor)
@@ -317,7 +317,7 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     }
 
     // need to find the ground here
-    New->z = loz;
+    tSpr->z = loz;
 
     // if below or close to sprites z don't bother to draw it
     if ((viewz - loz) > -Z(8))
@@ -339,25 +339,25 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     xrepeat = min(xrepeat, short(255));
     yrepeat = min(yrepeat, short(255));
 
-    New->xrepeat = uint8_t(xrepeat);
-    New->yrepeat = uint8_t(yrepeat);
+    tSpr->xrepeat = uint8_t(xrepeat);
+    tSpr->yrepeat = uint8_t(yrepeat);
 
     if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
-        New->yrepeat = 0;
+        tSpr->yrepeat = 0;
         // cstat:    trans reverse
         // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
-        New->clipdist |= TSPR_FLAGS_MDHACK;
-        New->cstat |= 512;
+        tSpr->clipdist |= TSPR_FLAGS_MDHACK;
+        tSpr->cstat |= 512;
     }
     else if (!testnewrenderer)
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        int look = getangle(New->x - Player[screenpeek].six, New->y - Player[screenpeek].siy);
-        New->x += bcos(look, -9);
-        New->y += bsin(look, -9);
+        int look = getangle(tSpr->x - Player[screenpeek].six, tSpr->y - Player[screenpeek].siy);
+        tSpr->x += bcos(look, -9);
+        tSpr->y += bsin(look, -9);
     }
-    else New->time = 1;
+    else tSpr->time = 1;
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);
@@ -368,7 +368,7 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
 void
 DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
 {
-    USERp tu = User[tsp->owner].Data();
+    USERp tu = swActors[tsp->owner].u();
     int nx,ny,nz = 0,dx,dy,dz;
     short i, ang;
     short xrepeat, yrepeat, repeat_adj = 0;
@@ -424,20 +424,20 @@ DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const 
 
     for (i = 0; i < tu->motion_blur_num; i++)
     {
-        tspriteptr_t New = &tsprite[spritesortcnt];
-        *New = *tsp;
-        SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANSLUCENT_INVERT);
+        tspriteptr_t tSpr = &tsprite[spritesortcnt];
+        *tSpr = *tsp;
+        SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANSLUCENT_INVERT);
 
-        New->x += dx;
-        New->y += dy;
+        tSpr->x += dx;
+        tSpr->y += dy;
         dx += nx;
         dy += ny;
 
-        New->z += dz;
+        tSpr->z += dz;
         dz += nz;
 
-        New->xrepeat = uint8_t(xrepeat);
-        New->yrepeat = uint8_t(yrepeat);
+        tSpr->xrepeat = uint8_t(xrepeat);
+        tSpr->yrepeat = uint8_t(yrepeat);
 
         xrepeat -= repeat_adj;
         yrepeat -= repeat_adj;
@@ -456,24 +456,23 @@ void SetVoxelSprite(SPRITEp sp, short pic)
 void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
 {
     SPRITEp sp1, sp2, sp;
-    int sn, sn2;
     int spnum;
     int xoff,yoff,zoff;
     short match;
     short sect1, sect2;
 
     // look for the first one
-    StatIterator it(STAT_WARP_COPY_SPRITE1);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WARP_COPY_SPRITE1);
+    while (auto itActor = it.Next())
     {
-        sp1 = &sprite[sn];
+        sp1 = &itActor->s();
         match = sp1->lotag;
 
         // look for the second one
-        StatIterator it1(STAT_WARP_COPY_SPRITE2);
-        while ((sn2 = it1.NextIndex()) >= 0)
+        SWStatIterator it1(STAT_WARP_COPY_SPRITE2);
+        while (auto itActor1 = it.Next())
         {
-            sp = &sprite[sn2];
+            sp = &itActor1->s();
 
             if (sp->lotag == match)
             {
@@ -481,48 +480,50 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
                 sect1 = sp1->sectnum;
                 sect2 = sp2->sectnum;
 
-                SectIterator it(sect1);
-                while ((spnum = it.NextIndex()) >= 0)
+                SWSectIterator it2(sect1);
+                while (auto itActor2 = it.Next())
                 {
-                    if (&sprite[spnum] == sp1)
+                    auto spit = &itActor2->s();
+                    if (spit == sp1)
                         continue;
 
-                    if (sprite[spnum].picnum == ST1)
+                    if (spit->picnum == ST1)
                         continue;
 
-                    tspriteptr_t New = renderAddTSpriteFromSprite(tsprite, spritesortcnt, spnum);
-                    New->statnum = 0;
+                    tspriteptr_t newTSpr = renderAddTSpriteFromSprite(tsprite, spritesortcnt, itActor2->GetSpriteIndex());
+                    newTSpr->statnum = 0;
 
-                    xoff = sp1->x - New->x;
-                    yoff = sp1->y - New->y;
-                    zoff = sp1->z - New->z;
+                    xoff = sp1->x - newTSpr->x;
+                    yoff = sp1->y - newTSpr->y;
+                    zoff = sp1->z - newTSpr->z;
 
-                    New->x = sp2->x - xoff;
-                    New->y = sp2->y - yoff;
-                    New->z = sp2->z - zoff;
-                    New->sectnum = sp2->sectnum;
+                    newTSpr->x = sp2->x - xoff;
+                    newTSpr->y = sp2->y - yoff;
+                    newTSpr->z = sp2->z - zoff;
+                    newTSpr->sectnum = sp2->sectnum;
                 }
 
                 it.Reset(sect2);
-                while ((spnum = it.NextIndex()) >= 0)
+                while (auto itActor2 = it.Next())
                 {
-                    if (&sprite[spnum] == sp2)
+                    auto spit = &itActor2->s();
+                    if (spit == sp2)
                         continue;
 
-                    if (sprite[spnum].picnum == ST1)
+                    if (spit->picnum == ST1)
                         continue;
 
-                    tspriteptr_t New = renderAddTSpriteFromSprite(tsprite, spritesortcnt, spnum);
-                    New->statnum = 0;
+                    tspriteptr_t newTSpr = renderAddTSpriteFromSprite(tsprite, spritesortcnt, itActor2->GetSpriteIndex());
+                    newTSpr->statnum = 0;
 
-                    xoff = sp2->x - New->x;
-                    yoff = sp2->y - New->y;
-                    zoff = sp2->z - New->z;
+                    xoff = sp2->x - newTSpr->x;
+                    yoff = sp2->y - newTSpr->y;
+                    zoff = sp2->z - newTSpr->z;
 
-                    New->x = sp1->x - xoff;
-                    New->y = sp1->y - yoff;
-                    New->z = sp1->z - zoff;
-                    New->sectnum = sp1->sectnum;
+                    newTSpr->x = sp1->x - xoff;
+                    newTSpr->y = sp1->y - yoff;
+                    newTSpr->z = sp1->z - zoff;
+                    newTSpr->sectnum = sp1->sectnum;
                 }
             }
         }
@@ -573,8 +574,9 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
         SpriteNum = tsprite[tSpriteNum].owner;
+        auto tActor = &swActors[SpriteNum];
         tspriteptr_t tsp = &tsprite[tSpriteNum];
-        tu = User[SpriteNum].Data();
+        tu = tActor->u();
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
@@ -621,7 +623,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             // workaround for mines and floor decals beneath the floor
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
-                auto sp = (uspriteptr_t)&sprite[SpriteNum];
+                auto sp = &tActor->s();
                 int32_t const floorz = getflorzofslope(sp->sectnum, sp->x, sp->y);
                 if (sp->z > floorz)
                     tsp->z = floorz;
@@ -881,7 +883,7 @@ post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
         SpriteNum = tsprite[tSpriteNum].owner;
         if (SpriteNum < 0) continue;    // JBF: verify this is safe
         tspriteptr_t tsp = &tsprite[tSpriteNum];
-        tu = User[SpriteNum].Data();
+        tu = swActors[SpriteNum].u();
 
         if (tu)
         {
@@ -935,7 +937,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
     vz = q16horiz >> 8;
 
     // Player sprite of current view
-    sp = &sprite[pp->PlayerSprite];
+    sp = &pp->Actor()->s();
 
     bakcstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -979,7 +981,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
         }
         else
         {
-            SPRITEp hsp = &sprite[hitinfo.sprite];
+            SPRITEp hsp = &swActors[hitinfo.sprite].s();
             int flag_backup;
 
             // if you hit a sprite that's not a wall sprite - try again
@@ -1044,9 +1046,9 @@ void PrintSpriteInfo(PLAYERp pp)
     //if (SpriteInfo && !LocationInfo)
     {
         short hit_sprite = DoPickTarget(pp->SpriteP, 32, 2);
-
-        sp = &sprite[hit_sprite];
-        u = User[hit_sprite].Data();
+        auto actor = &swActors[hit_sprite];
+        sp = &actor->s();
+        u = actor->u();
 
         sp->hitag = 9997; // Special tag to make the actor glow red for one frame
 
@@ -1084,14 +1086,13 @@ void DrawCrosshair(PLAYERp pp)
 
     if (!(CameraTestMode))
     {
-        USERp u = User[pp->PlayerSprite].Data();
+        USERp u = pp->Actor()->u();
         ::DrawCrosshair(2326, u->Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
 void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *tang, fixedhoriz *thoriz)
 {
-    int i;
     binangle ang;
     SPRITEp sp;
     bool found_camera = false;
@@ -1101,10 +1102,10 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *
 
     if (pp == &Player[screenpeek])
     {
-        StatIterator it(STAT_DEMO_CAMERA);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_DEMO_CAMERA);
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
+            sp = &actor->s();
 
             ang = bvectangbam(*tx - sp->x, *ty - sp->y);
             ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
@@ -1210,10 +1211,10 @@ PreDraw(void)
     int i;
     PreDrawStackedWater();
 
-    StatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
+    while (auto actor = it.Next())
     {
-        RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_SLOPE);
+        RESET(sector[actor->s().sectnum].floorstat, FLOOR_STAT_SLOPE);
     }
 }
 
@@ -1221,17 +1222,17 @@ void
 PostDraw(void)
 {
     int i;
-    StatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
+    while (auto actor = it.Next())
     {
-        SET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_SLOPE);
+        SET(sector[actor->s().sectnum].floorstat, FLOOR_STAT_SLOPE);
     }
 
     it.Reset(STAT_FAF_COPY);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        User[i].Clear();
-        deletesprite(i);
+        actor->u()->Clear();
+        deletesprite(actor->GetSpriteIndex());
     }
 }
 
