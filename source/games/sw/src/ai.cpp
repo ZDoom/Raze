@@ -186,7 +186,6 @@ short ChooseActionNumber(short decision[])
 int DoActorNoise(ANIMATORp Action, DSWActor* actor)
 {
     USERp u = actor->u();
-    int SpriteNum = actor->GetSpriteIndex();
 
     if (Action == InitActorAmbientNoise)
     {
@@ -320,7 +319,6 @@ int DoActorPickClosePlayer(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    int SpriteNum = actor->GetSpriteIndex();
     int dist, near_dist = MAX_ACTIVE_RANGE, a,b,c;
     short pnum;
     PLAYERp pp;
@@ -562,7 +560,6 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    int SpriteNum = u->SpriteNum;
     int dist;
     ANIMATORp action;
     bool ICanSee=false;
@@ -757,7 +754,6 @@ int InitActorDecide(DSWActor* actor)
 int DoActorDecide(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
     ANIMATORp actor_action;
 
@@ -1092,7 +1088,7 @@ short FindTrackToPlayer(DSWActor* actor)
 
     for (i = 0; i < size; i++)
     {
-        track = ActorFindTrack(u->SpriteNum, 1, type[i], &point, &track_dir);
+        track = ActorFindTrack(actor, 1, type[i], &point, &track_dir);
 
         if (track >= 0)
         {
@@ -1137,7 +1133,7 @@ short FindTrackAwayFromPlayer(DSWActor* actor)
 
     for (i = 0; i < SIZ(RunAwayTracks); i++)
     {
-        track = ActorFindTrack(u->SpriteNum, -1, RunAwayTracks[i], &point, &track_dir);
+        track = ActorFindTrack(actor, -1, RunAwayTracks[i], &point, &track_dir);
 
         if (track >= 0)
         {
@@ -1182,7 +1178,7 @@ short FindWanderTrack(DSWActor* actor)
 
     for (i = 0; i < SIZ(WanderTracks); i++)
     {
-        track = ActorFindTrack(u->SpriteNum, -1, WanderTracks[i], &point, &track_dir);
+        track = ActorFindTrack(actor, -1, WanderTracks[i], &point, &track_dir);
 
         if (track >= 0)
         {
@@ -1253,7 +1249,6 @@ int InitActorRunToward(DSWActor* actor)
 int InitActorAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
 
     // zombie is attacking a player

@@ -118,10 +118,11 @@ point to the sprite.
 */
 
 short
-ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_point_num, short *track_dir)
+ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, short *track_point_num, short *track_dir)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
+    int SpriteNum = actor->GetSpriteIndex();
 
     int dist, near_dist = 999999, zdiff;
     int track_sect=0;
