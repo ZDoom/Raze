@@ -4915,9 +4915,10 @@ DoPlayerFireOutWater(PLAYERp pp)
 
     if (pp->WadeDepth > 20)
     {
-        if (u->flame >= 0)
-            SetSuicide(&swActors[u->flame]);
-        u->flame = -2;
+        if (u->flameActor != nullptr)
+            SetSuicide(u->flameActor);
+        u->flameActor = nullptr;
+        u->Flags2 |= SPR2_FLAMEDIE;
     }
 }
 
@@ -4929,10 +4930,11 @@ DoPlayerFireOutDeath(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (u->flame >= 0)
-        SetSuicide(&swActors[u->flame]);
+    if (u->flameActor != nullptr)
+        SetSuicide(u->flameActor);
 
-    u->flame = -2;
+    u->flameActor = nullptr;
+    u->Flags2 |= SPR2_FLAMEDIE;
 }
 
 void

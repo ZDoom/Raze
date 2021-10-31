@@ -108,14 +108,12 @@ bool ActorFlaming(DSWActor* actor)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
-    if (u->flame >= 0)
+    if (u->flameActor != nullptr)
     {
         int size;
-        SPRITEp fp = &sprite[u->flame];
+        SPRITEp fp = &u->flameActor->s();
 
         size = SPRITEp_SIZE_Z(sp) - DIV4(SPRITEp_SIZE_Z(sp));
-
-        //DSPRINTF(ds,"enemy size %d, flame size %d",size>>8,SPRITEp_SIZE_Z(fp)>>8);
 
         if (SPRITEp_SIZE_Z(fp) > size)
             return true;

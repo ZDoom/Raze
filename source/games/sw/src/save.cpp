@@ -889,7 +889,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("WpnGoal", w.WpnGoal, def->WpnGoal)
 			("Radius", w.Radius, def->Radius)
 			("OverlapZ", w.OverlapZ, def->OverlapZ)
-			("flame", w.flame, def->flame)
+			("flame", w.flameActor, def->flameActor)
 			("tgt_sp", w.targetActor, def->targetActor)
 			("scale_speed", w.scale_speed, def->scale_speed)
 			("scale_value", w.scale_value, def->scale_value)

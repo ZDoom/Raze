@@ -781,9 +781,9 @@ void KillSprite(int16_t SpriteNum)
             }
         }
 
-        if (u->flame >= 0)
+        if (u->flameActor != nullptr)
         {
-            SetSuicide(&swActors[u->flame]);
+            SetSuicide(u->flameActor);
         }
         User[SpriteNum].Clear();
     }
@@ -908,7 +908,6 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     u->targetActor = Player[0].Actor();
     u->Radius = 220;
     u->Sibling = -1;
-    u->flame = -1;
     u->SpriteP = &sprite[SpriteNum];
     u->SpriteNum = SpriteNum;
     u->WaitTics = 0;

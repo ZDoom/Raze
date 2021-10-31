@@ -1104,6 +1104,11 @@ struct USER
     SECTOR_OBJECTp sop_parent;  // denotes that this sprite is a part of the
     // sector object - contains info for the SO
 
+    // referenced actors
+    DSWActor* lowActor, * highActor;
+    DSWActor* targetActor; // target player for the enemy - can only handle one player at at time
+    DSWActor* flameActor;
+
     int Flags;
     int Flags2;
     int Tics;
@@ -1131,7 +1136,6 @@ struct USER
     int hiz,loz;
     int zclip; // z height to move up for clipmove
     SECTORp hi_sectp, lo_sectp;
-    DSWActor* lowActor, *highActor;
 
     int active_range;
 
@@ -1173,12 +1177,7 @@ struct USER
     // Only have a place for actors
     //
 
-    // For actors on fire
-    short flame;
-
-    // target player for the enemy - can only handle one player at at time
-    //PLAYERp tgt_player;
-    DSWActor* targetActor;
+    
 
     // scaling
     short scale_speed;
@@ -1343,61 +1342,64 @@ struct USERSAVE
 #define TEST_BOOL11(sp) TEST((sp)->extra, SPRX_BOOL11)
 
 // User->Flags flags
-#define SPR_MOVED               BIT(0) // Did actor move
-#define SPR_ATTACKED            BIT(1) // Is sprite being attacked?
-#define SPR_TARGETED            BIT(2) // Is sprite a target of a weapon?
-#define SPR_ACTIVE              BIT(3) // Is sprite aware of the player?
-#define SPR_ELECTRO_TOLERANT    BIT(4) // Electro spell does not slow actor
-#define SPR_JUMPING             BIT(5) // Actor is jumping
-#define SPR_FALLING             BIT(6) // Actor is falling
-#define SPR_CLIMBING            BIT(7) // Actor is falling
-#define SPR_DEAD               BIT(8) // Actor is dying
+enum
+{
+    SPR_MOVED               = BIT(0), // Did actor move
+    SPR_ATTACKED            = BIT(1), // Is sprite being attacked?
+    SPR_TARGETED            = BIT(2), // Is sprite a target of a weapon?
+    SPR_ACTIVE              = BIT(3), // Is sprite aware of the player?
+    SPR_ELECTRO_TOLERANT    = BIT(4), // Electro spell does not slow actor
+    SPR_JUMPING             = BIT(5), // Actor is jumping
+    SPR_FALLING             = BIT(6), // Actor is falling
+    SPR_CLIMBING            = BIT(7), // Actor is falling
+    SPR_DEAD               = BIT(8), // Actor is dying
+    
+    SPR_ZDIFF_MODE          = BIT(10), // For following tracks at different z heights
+    SPR_SPEED_UP            = BIT(11), // For following tracks at different speeds
+    SPR_SLOW_DOWN           = BIT(12), // For following tracks at different speeds
+    SPR_DONT_UPDATE_ANG     = BIT(13), // For tracks - don't update the angle for a while
+    
+    SPR_SO_ATTACHED         = BIT(14), // sprite is part of a sector object
+    SPR_SUICIDE             = BIT(15), // sprite is set to kill itself
+    
+    SPR_RUN_AWAY            = BIT(16), // sprite is in "Run Away" track mode.
+    SPR_FIND_PLAYER         = BIT(17), // sprite is in "Find Player" track mode.
+    
+    SPR_SWIMMING            = BIT(18), // Actor is swimming
+    SPR_WAIT_FOR_PLAYER     = BIT(19), // Track Mode - Actor is waiting for player to come close
+    SPR_WAIT_FOR_TRIGGER    = BIT(20), // Track Mode - Actor is waiting for player to trigger
+    SPR_SLIDING             = BIT(21), // Actor is sliding
+    SPR_ON_SO_SECTOR        = BIT(22), // sprite is on a sector object sector
+    
+    SPR_SHADE_DIR           = BIT(23), // sprite is on a sector object sector
+    SPR_XFLIP_TOGGLE        = BIT(24), // sprite rotation xflip bit
+    SPR_NO_SCAREDZ          = BIT(25), // not afraid of falling
+    
+    SPR_SET_POS_DONT_KILL   = BIT(26), // Don't kill sprites in MissileSetPos
+    SPR_SKIP2               = BIT(27), // 20 moves ps
+    SPR_SKIP4               = BIT(28), // 10 moves ps
+    
+    SPR_BOUNCE              = BIT(29), // For shrapnel types that can bounce once
+    SPR_UNDERWATER          = BIT(30), // For missiles etc
+    
+    SPR_SHADOW              = BIT(31), // Sprites that have shadows
 
-#define SPR_ZDIFF_MODE          BIT(10) // For following tracks at different z heights
-#define SPR_SPEED_UP            BIT(11) // For following tracks at different speeds
-#define SPR_SLOW_DOWN           BIT(12) // For following tracks at different speeds
-#define SPR_DONT_UPDATE_ANG     BIT(13) // For tracks - don't update the angle for a while
-
-#define SPR_SO_ATTACHED            BIT(14) // sprite is part of a sector object
-#define SPR_SUICIDE             BIT(15) // sprite is set to kill itself
-
-#define SPR_RUN_AWAY            BIT(16) // sprite is in "Run Away" track mode.
-#define SPR_FIND_PLAYER         BIT(17) // sprite is in "Find Player" track mode.
-
-#define SPR_SWIMMING            BIT(18) // Actor is swimming
-#define SPR_WAIT_FOR_PLAYER     BIT(19) // Track Mode - Actor is waiting for player to come close
-#define SPR_WAIT_FOR_TRIGGER    BIT(20) // Track Mode - Actor is waiting for player to trigger
-#define SPR_SLIDING             BIT(21) // Actor is sliding
-#define SPR_ON_SO_SECTOR        BIT(22) // sprite is on a sector object sector
-
-#define SPR_SHADE_DIR           BIT(23) // sprite is on a sector object sector
-#define SPR_XFLIP_TOGGLE        BIT(24) // sprite rotation xflip bit
-#define SPR_NO_SCAREDZ          BIT(25) // not afraid of falling
-
-#define SPR_SET_POS_DONT_KILL   BIT(26) // Don't kill sprites in MissileSetPos
-#define SPR_SKIP2               BIT(27) // 20 moves ps
-#define SPR_SKIP4               BIT(28) // 10 moves ps
-
-#define SPR_BOUNCE              BIT(29) // For shrapnel types that can bounce once
-#define SPR_UNDERWATER          BIT(30) // For missiles etc
-
-#define SPR_SHADOW              BIT(31) // Sprites that have shadows
-
-// User->Flags2 flags
-#define SPR2_BLUR_TAPER         (BIT(13)|BIT(14))   // taper type
-#define SPR2_BLUR_TAPER_FAST    (BIT(13))   // taper fast
-#define SPR2_BLUR_TAPER_SLOW    (BIT(14))   // taper slow
-#define SPR2_SPRITE_FAKE_BLOCK  (BIT(15))   // fake blocking bit for damage
-#define SPR2_NEVER_RESPAWN      (BIT(16))   // for item respawning
-#define SPR2_ATTACH_WALL        (BIT(17))
-#define SPR2_ATTACH_FLOOR       (BIT(18))
-#define SPR2_ATTACH_CEILING     (BIT(19))
-#define SPR2_CHILDREN           (BIT(20))   // sprite OWNS children
-#define SPR2_SO_MISSILE         (BIT(21))   // this is a missile from a SO
-#define SPR2_DYING              (BIT(22))   // Sprite is currently dying
-#define SPR2_VIS_SHADING        (BIT(23))   // Sprite shading to go along with vis adjustments
-#define SPR2_DONT_TARGET_OWNER  (BIT(24))
-
+    // User->Flags2 flags
+    SPR2_BLUR_TAPER         = BIT(13)|BIT(14),   // taper type
+    SPR2_BLUR_TAPER_FAST    = BIT(13),   // taper fast
+    SPR2_BLUR_TAPER_SLOW    = BIT(14),   // taper slow
+    SPR2_SPRITE_FAKE_BLOCK  = BIT(15),   // fake blocking bit for damage
+    SPR2_NEVER_RESPAWN      = BIT(16),   // for item respawning
+    SPR2_ATTACH_WALL        = BIT(17),
+    SPR2_ATTACH_FLOOR       = BIT(18),
+    SPR2_ATTACH_CEILING     = BIT(19),
+    SPR2_CHILDREN           = BIT(20),   // sprite OWNS children
+    SPR2_SO_MISSILE         = BIT(21),   // this is a missile from a SO
+    SPR2_DYING              = BIT(22),   // Sprite is currently dying
+    SPR2_VIS_SHADING        = BIT(23),   // Sprite shading to go along with vis adjustments
+    SPR2_DONT_TARGET_OWNER  = BIT(24),
+    SPR2_FLAMEDIE           = BIT(25),  // was previously 'flame == -2'
+};
 
 extern TPointer<USER> User[MAXSPRITES];
 

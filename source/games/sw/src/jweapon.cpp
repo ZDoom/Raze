@@ -45,7 +45,7 @@ BEGIN_SW_NS
 
 ANIMATOR DoSuicide;
 ANIMATOR DoBloodSpray;
-int SpawnFlashBombOnActor(int16_t enemy);
+void SpawnFlashBombOnActor(DSWActor* actor);
 
 ANIMATOR DoPuff, BloodSprayFall;
 extern STATE s_Puff[];
@@ -1596,6 +1596,7 @@ PlayerInitFlashBomb(PLAYERp pp)
         StatIterator it(StatDamageList[stat]);
         while ((i = it.NextIndex()) >= 0)
         {
+            auto itActor = &swActors[i];
             hp = &sprite[i];
             hu = User[i].Data();
 
@@ -1638,7 +1639,7 @@ PlayerInitFlashBomb(PLAYERp pp)
             else
             {
                 ActorPain(i);
-                SpawnFlashBombOnActor(i);
+                SpawnFlashBombOnActor(itActor);
             }
         }
     }
@@ -1667,6 +1668,7 @@ InitFlashBomb(DSWActor* actor)
         StatIterator it(StatDamageList[stat]);
         while ((i = it.NextIndex()) >= 0)
         {
+            auto itActor = &swActors[i];
             hp = &sprite[i];
             hu = User[i].Data();
 
@@ -1703,7 +1705,7 @@ InitFlashBomb(DSWActor* actor)
                 if (i != SpriteNum)
                 {
                     ActorPain(i);
-                    SpawnFlashBombOnActor(i);
+                    SpawnFlashBombOnActor(itActor);
                 }
             }
         }
@@ -1714,34 +1716,25 @@ InitFlashBomb(DSWActor* actor)
 
 
 // This is a sneaky function to make actors look blinded by flashbomb while using flaming code
-int
-SpawnFlashBombOnActor(int16_t enemy)
+void SpawnFlashBombOnActor(DSWActor* actor)
 {
-    SPRITEp ep = &sprite[enemy];
-    USERp eu = User[enemy].Data();
-    SPRITEp np;
-    USERp nu;
-    short New;
+    if (!actor->hasU()) return;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
 
     // Forget about burnable sprites
-    if (TEST(ep->extra, SPRX_BURNABLE))
-        return eu->flame;
+    if (TEST(sp->extra, SPRX_BURNABLE))
+        return;
 
-
-    if (enemy >= 0)
+    if (actor != nullptr)
     {
-        if (!eu)
+        if (u->flameActor != nullptr)
         {
-            ASSERT(true == false);
-        }
+            int sizez = (SPRITEp_SIZE_Z(sp) * 5) >> 2;
 
-        if (eu->flame >= 0)
-        {
-            int sizez = SPRITEp_SIZE_Z(ep) + DIV4(SPRITEp_SIZE_Z(ep));
-
-            np = &sprite[eu->flame];
-            nu = User[eu->flame].Data();
+            auto np = &u->flameActor->s();
+            auto nu = u->flameActor->u();
 
 
             if (nu->Counter >= SPRITEp_SIZE_Z_2_YREPEAT(np, sizez))
@@ -1765,24 +1758,24 @@ SpawnFlashBombOnActor(int16_t enemy)
             if (nu->WaitTics < 2 * 120)
                 nu->WaitTics = 2 * 120; // allow it to grow again
 
-            return eu->flame;
+            return;
         }
     }
 
-    New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, ep->sectnum,
-                      ep->x, ep->y, ep->z, ep->ang, 0);
-    np = &sprite[New];
-    nu = User[New].Data();
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
+                      sp->x, sp->y, sp->z, sp->ang, 0);
+    auto np = &actorNew->s();
+    auto nu = actor->u();
 
-    if (enemy >= 0)
-        eu->flame = New;
+    if (u->flameActor != nullptr)
+        u->flameActor = actorNew;
 
     np->xrepeat = 16;
     np->yrepeat = 16;
 
-    if (enemy >= 0)
+    if (u->flameActor != nullptr)
     {
-        nu->Counter = SPRITEp_SIZE_Z_2_YREPEAT(np, SPRITEp_SIZE_Z(ep) >> 1) * 4;
+        nu->Counter = SPRITEp_SIZE_Z_2_YREPEAT(np, SPRITEp_SIZE_Z(sp) >> 1) * 4;
     }
     else
         nu->Counter = 0;                // max flame size
@@ -1793,12 +1786,12 @@ SpawnFlashBombOnActor(int16_t enemy)
 
     nu->Radius = 200;
 
-    if (enemy >= 0)
+    if (u->flameActor != nullptr)
     {
-        SetAttach(enemy, New);
+        SetAttach(actor->GetSpriteIndex(), actorNew->GetSpriteIndex());
     }
 
-    return New;
+    return;
 }
 
 //////////////////////////////////////////////

@@ -3863,8 +3863,10 @@ SpawnOnFire(PLAYERp pp)
 void
 pOnFire(PANEL_SPRITEp psp)
 {
+    auto actor = psp->PlayerP->Actor();
+    auto u = actor->u();
     // Kill immediately - in case of death/water
-    if (User[psp->PlayerP->PlayerSprite]->flame <= -2)
+    if (u->flameActor == nullptr && u->Flags2 & SPR2_FLAMEDIE)
     {
         pKillSprite(psp);
         return;
@@ -3872,7 +3874,7 @@ pOnFire(PANEL_SPRITEp psp)
 
     psp->backupy();    
 
-    if (User[psp->PlayerP->PlayerSprite]->flame == -1)
+    if (u->flameActor == nullptr)
     {
         // take flames down and kill them
         psp->y += 1;

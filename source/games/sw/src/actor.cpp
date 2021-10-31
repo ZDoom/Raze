@@ -303,9 +303,7 @@ void DoDebrisCurrent(DSWActor* actor)
     nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang), 14);
     ny = MulScale(DIV4(sectu->speed), bsin(sectu->ang), 14);
 
-    // faster than move_sprite
-    //move_missile(sp-sprite, nx, ny, 0, Z(2), Z(0), 0, ACTORMOVETICS);
-    ret = move_sprite(int(sp-sprite), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
+    ret = move_sprite(actor->GetSpriteIndex(), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
 
     // attempt to move away from wall
     if (ret)
@@ -315,7 +313,7 @@ void DoDebrisCurrent(DSWActor* actor)
         nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang + rang), 14);
         nx = MulScale(DIV4(sectu->speed), bsin(sectu->ang + rang), 14);
 
-        move_sprite(int(sp-sprite), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
+        move_sprite(actor->GetSpriteIndex(), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
     }
 
     sp->z = u->loz;

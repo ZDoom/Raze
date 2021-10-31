@@ -4789,7 +4789,10 @@ DoFireballFlames(DSWActor* actor)
             if (((signed char)sp->xrepeat) == 0)
             {
                 if (u->Attach >= 0)
-                    User[u->Attach]->flame = -1;
+                {
+                    User[u->Attach]->flameActor = nullptr;
+                    User[u->Attach]->Flags2 &= ~SPR2_FLAMEDIE;
+                }
                 KillActor(actor);
                 return 0;
             }
@@ -4862,7 +4865,10 @@ DoBreakFlames(DSWActor* actor)
             if (((signed char)sp->xrepeat) == 0)
             {
                 if (u->Attach >= 0)
-                    User[u->Attach]->flame = -1;
+                {
+                    User[u->Attach]->flameActor = nullptr;
+                    User[u->Attach]->Flags2 &= ~SPR2_FLAMEDIE;
+                }
                 KillActor(actor);
                 return 0;
             }
@@ -10697,19 +10703,13 @@ SpawnBasicExp(int16_t Weapon)
     return explosion;
 }
 
-int
-SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
+void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    SPRITEp ep;
-    USERp eu;
-    SPRITEp np;
-    USERp nu;
-    short New;
+    SPRITEp sp = &sprite[SpriteNum], ep;
+    USERp u = User[SpriteNum].Data(), eu;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
-        return -1;
+        return;
 
     if (enemy >= 0)
     {
@@ -10718,22 +10718,22 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
         // test for already burned
         if (TEST(ep->extra, SPRX_BURNABLE) && ep->shade > 40)
-            return -1;
+            return;
 
         if (!eu)
         {
             ASSERT(true == false);
-            return -1;
+            return;
         }
 
-        if (eu->flame >= 0)
+        if (eu->flameActor != nullptr)
         {
             int sizez = SPRITEp_SIZE_Z(ep) + DIV4(SPRITEp_SIZE_Z(ep));
-            np = &sprite[eu->flame];
-            nu = User[eu->flame].Data();
+            auto np = &eu->flameActor->s();
+            auto nu = eu->flameActor->u();
 
             if (TEST(ep->extra, SPRX_BURNABLE))
-                return eu->flame;
+                return;
 
             if (nu->Counter >= SPRITEp_SIZE_Z_2_YREPEAT(np, sizez))
             {
@@ -10756,28 +10756,19 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
             if (nu->WaitTics < 2*120)
                 nu->WaitTics = 2*120;  // allow it to grow again
 
-            return eu->flame;
-        }
-        else
-        {
-            if (eu->PlayerP)
-            {
-                void SpawnOnFire(PLAYERp pp);
-                //SpawnOnFire(eu->PlayerP);  //Nobody likes the panel fire
-            }
+            return;
         }
     }
 
-    New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
-    auto actorNew = &swActors[New];
-    np = &actorNew->s();
-    nu = actorNew->u();
+    auto np = &actorNew->s();
+    auto nu = actorNew->u();
 
     np->hitag = LUMINOUS; //Always full brightness
 
     if (enemy >= 0)
-        eu->flame = New;
+        eu->flameActor = actorNew;
 
     np->xrepeat = 16;
     np->yrepeat = 16;
@@ -10799,7 +10790,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
         nu->Counter = 48; // max flame size
     }
 
-    SetOwner(sp->owner, New);
+    SetOwner(sp->owner, actorNew->GetSpriteIndex());
     np->shade = -40;
     np->pal = nu->spal = u->spal;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
@@ -10810,27 +10801,25 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
     if (enemy >= 0)
     {
-        SetAttach(enemy, New);
+        SetAttach(enemy, actorNew->GetSpriteIndex());
     }
     else
     {
         if (TestDontStickSector(np->sectnum))
         {
             KillActor(actorNew);
-            return -1;
+            return;
         }
 
         nu->floor_dist = nu->ceiling_dist = 0;
 
-        DoFindGround(New);
+        DoFindGround(actorNew->GetSpriteIndex());
         nu->jump_speed = 0;
         DoBeginJump(actorNew);
     }
 
     PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
-    Set3DSoundOwner(New);
-
-    return New;
+    Set3DSoundOwner(actorNew->GetSpriteIndex());
 }
 
 
@@ -14359,7 +14348,7 @@ InitStar(PLAYERp pp)
         nu->Radius = wu->Radius;
         nu->ceiling_dist = wu->ceiling_dist;
         nu->floor_dist = wu->floor_dist;
-        nu->Flags2 = wu->Flags2;
+        nu->Flags2 = wu->Flags2 & ~(SPR2_FLAMEDIE); // mask out any new flags here for safety.
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(np))
             SET(nu->Flags, SPR_UNDERWATER);
