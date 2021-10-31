@@ -1827,6 +1827,7 @@ PlayerInitCaltrops(PLAYERp pp)
     w = SpawnSprite(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
+    auto spawnedActor = &swActors[w];
     wp = &sprite[w];
     wu = User[w].Data();
 
@@ -1878,7 +1879,7 @@ PlayerInitCaltrops(PLAYERp pp)
 //      wu->WaitTics = CHEMTICS*5;
 //  }
 
-    SetupSpriteForBreak(wp);            // Put Caltrops in the break queue
+    SetupSpriteForBreak(spawnedActor);            // Put Caltrops in the break queue
     return 0;
 }
 
@@ -1904,6 +1905,7 @@ InitCaltrops(int16_t SpriteNum)
     w = SpawnSprite(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, sp->sectnum,
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY / 2);
 
+    auto spawnedActor = &swActors[w];
     wp = &sprite[w];
     wu = User[w].Data();
 
@@ -1929,7 +1931,7 @@ InitCaltrops(int16_t SpriteNum)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel >> 1;
 
-    SetupSpriteForBreak(wp);            // Put Caltrops in the break queue
+    SetupSpriteForBreak(spawnedActor);            // Put Caltrops in the break queue
     return 0;
 }
 

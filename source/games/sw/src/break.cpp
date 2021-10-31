@@ -493,8 +493,9 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
     return break_info;
 }
 
-BREAK_INFOp SetupSpriteForBreak(SPRITEp sp)
+BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
 {
+    auto sp = &actor->s();
     short picnum = sp->picnum;
     BREAK_INFOp break_info;
 

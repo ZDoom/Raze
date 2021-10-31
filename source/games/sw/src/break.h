@@ -49,7 +49,7 @@ BREAK_INFOp FindWallBreakInfo(short picnum);
 BREAK_INFOp FindSpriteBreakInfo(short picnum);
 void SortBreakInfo(void);
 BREAK_INFOp SetupWallForBreak(WALLp wallp);
-BREAK_INFOp SetupSpriteForBreak(SPRITEp sp);
+BREAK_INFOp SetupSpriteForBreak(DSWActor* actor);
 short FindBreakSpriteMatch(short match);
 bool HitBreakWall(WALLp wp, int, int, int, short ang, short type);
 int HitBreakSprite(short BreakSprite, short type);

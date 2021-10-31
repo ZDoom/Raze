@@ -1934,7 +1934,7 @@ SpriteSetup(void)
         else
         {
             // BREAK SETUP TABLE AUTOMATED
-            SetupSpriteForBreak(sp);
+            SetupSpriteForBreak(actor);
         }
 
         if (sp->lotag == TAG_SPRITE_HIT_MATCH)
