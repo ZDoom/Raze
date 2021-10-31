@@ -108,30 +108,28 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
 
 void CopySectorMatch(short match)
 {
-    int ed,ss;
     SPRITEp dest_sp, src_sp;
     SECTORp dsectp,ssectp;
     int kill;
     SPRITEp k;
 
-    StatIterator it(STAT_COPY_DEST);
-    while ((ed = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_COPY_DEST);
+    while (auto dActor = it.Next())
     {
-        dest_sp = &sprite[ed];
+        dest_sp = &dActor->s();
         dsectp = &sector[dest_sp->sectnum];
 
-        if (match != sprite[ed].lotag)
+        if (match != dest_sp->lotag)
             continue;
 
-        StatIterator it2(STAT_COPY_SOURCE);
-        while ((ss = it2.NextIndex()) >= 0)
+        SWStatIterator it2(STAT_COPY_SOURCE);
+        while (auto sActor = it2.Next())
         {
-            src_sp = &sprite[ss];
+            src_sp = &sActor->s();
 
             if (SP_TAG2(src_sp) == SP_TAG2(dest_sp) &&
                 SP_TAG3(src_sp) == SP_TAG3(dest_sp))
             {
-                int src_move;
                 ssectp = &sector[src_sp->sectnum];
 
                 // !!!!!AAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHH
@@ -166,9 +164,9 @@ void CopySectorMatch(short match)
                 CopySectorWalls(dest_sp->sectnum, src_sp->sectnum);
 
                 itsec.Reset(src_sp->sectnum);
-                while ((src_move = itsec.NextIndex()) >= 0)
+                while (auto itActor = itsec.Next())
                 {
-                    auto sp = &sprite[src_move];
+                    auto sp = &itActor->s();
                     // don't move ST1 Copy Tags
                     if (SP_TAG1(sp) != SECT_COPY_SOURCE)
                     {
@@ -189,7 +187,7 @@ void CopySectorMatch(short match)
                         sp->y = dy - src_yoff;
 
                         // change sector
-                        changespritesect(src_move, dest_sp->sectnum);
+                        ChangeActorSect(itActor, dest_sp->sectnum);
 
                         // check to see if it moved on to a sector object
                         if (TEST(sector[dest_sp->sectnum].extra, SECTFX_SECTOR_OBJECT))
@@ -198,7 +196,7 @@ void CopySectorMatch(short match)
 
                             // find and add sprite to SO
                             sop = DetectSectorObject(&sector[sp->sectnum]);
-                            AddSpriteToSectorObject(src_move, sop);
+                            AddSpriteToSectorObject(itActor->GetSpriteIndex(), sop);
 
                             // update sprites postions so they aren't in the
                             // wrong place for one frame
@@ -259,18 +257,18 @@ void CopySectorMatch(short match)
 
     // kill all matching dest
     it.Reset(STAT_COPY_DEST);
-    while ((ed = it.NextIndex()) >= 0)
+    while (auto dActor = it.Next())
     {
-        if (match == sprite[ed].lotag)
-            KillSprite(ed);
+        if (match == dActor->s().lotag)
+            KillActor(dActor);
     }
 
     // kill all matching sources
     it.Reset(STAT_COPY_SOURCE);
-    while ((ss = it.NextIndex()) >= 0)
+    while (auto sActor = it.Next())
     {
-        if (match == sprite[ss].lotag)
-            KillSprite(ss);
+        if (match == sActor->s().lotag)
+            KillActor(sActor);
     }
 
 }
