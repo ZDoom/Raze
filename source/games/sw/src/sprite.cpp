@@ -67,7 +67,7 @@ int SetupMechanicGirl(short);
 int SetupSailorGirl(short);
 int SetupPruneGirl(short);
 int SetupTrashCan(short);
-int SetupBunny(short);
+int SetupBunny(DSWActor*);
 int SetupRipper(short);
 int SetupRipper2(short);
 int SetupSerp(short);
@@ -1415,7 +1415,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupBunny(SpriteNum);
+        SetupBunny(actor);
         break;
     }
 
@@ -4217,13 +4217,14 @@ int ActorCoughItem(short SpriteNum)
 int SpawnItemsMatch(short match)
 {
     int SpriteNum;
-    int si;
+    DSWActor* spawnedActor = nullptr;
     SPRITEp sp,sip;
 
-    StatIterator it(STAT_SPAWN_ITEMS);
-    while ((si = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPAWN_ITEMS);
+    while (auto itActor = it.Next())
     {
-        sip = &sprite[si];
+        int si = itActor->GetSpriteIndex();
+        sip = &itActor->s();
 
         if (SP_TAG2(sip) != match)
             continue;
@@ -4231,22 +4232,22 @@ int SpawnItemsMatch(short match)
         switch (SP_TAG3(sip))
         {
         case 90:
-            SpriteNum = BunnyHatch2(si);
-            sp = &sprite[SpriteNum];
-            User[SpriteNum]->spal = sp->pal = PALETTE_PLAYER8; // Boy
+            spawnedActor = BunnyHatch2(itActor);
+            sp = &spawnedActor->s();
+            spawnedActor->u()->spal = sp->pal = PALETTE_PLAYER8; // Boy
             sp->ang = sip->ang;
             break;
         case 91:
-            SpriteNum = BunnyHatch2(si);
-            sp = &sprite[SpriteNum];
-            User[SpriteNum]->spal = sp->pal = PALETTE_PLAYER0; // Girl
+            spawnedActor = BunnyHatch2(itActor);
+            sp = &spawnedActor->s();
+            spawnedActor->u()->spal = sp->pal = PALETTE_PLAYER0; // Girl
             sp->ang = sip->ang;
             break;
         case 92:
-            SpriteNum = BunnyHatch2(si);
-            sp = &sprite[SpriteNum];
+            spawnedActor = BunnyHatch2(itActor);
+            sp = &spawnedActor->s();
             sp->ang = sip->ang;
-            break;
+             break;
 
         case 40:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_REPAIR_KIT))

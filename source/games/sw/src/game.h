@@ -2121,7 +2121,7 @@ extern bool NightVision;
 int PickJumpMaxSpeed(short SpriteNum, short max_speed); // ripper.c
 int DoRipperRipHeart(short SpriteNum);  // ripper.c
 int DoRipper2RipHeart(short SpriteNum); // ripper2.c
-int BunnyHatch2(short Weapon);  // bunny.c
+DSWActor* BunnyHatch2(DSWActor*);  // bunny.c
 
 void TerminateLevel(void);  // game.c
 void DrawMenuLevelScreen(void); // game.c
