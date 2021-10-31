@@ -16750,10 +16750,9 @@ int DoCoolgDrip(DSWActor* actor)
 }
 
 int
-InitCoolgDrip(short SpriteNum)
+InitCoolgDrip(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz;
     short w;
@@ -16769,7 +16768,7 @@ InitCoolgDrip(short SpriteNum)
     wu = User[w].Data();
 
     //wp->owner = SpriteNum;
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, &swActors[w]);
     wp->yrepeat = wp->xrepeat = 20;
     wp->shade = -5;
     wp->zvel = 0;

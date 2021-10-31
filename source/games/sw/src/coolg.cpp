@@ -619,7 +619,6 @@ int NullCoolg(DSWActor* actor)
 
 int DoCoolgMatchPlayerZ(DSWActor* actor)
 {
-    int SpriteNum = actor->GetSpriteIndex();
     SPRITEp sp = &actor->s();
     USER* u = actor->u();
     int zdiff,zdist;
@@ -630,8 +629,8 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     // If blocking bits get unset, just die
     if (!TEST(sp->cstat,CSTAT_SPRITE_BLOCK) || !TEST(sp->cstat,CSTAT_SPRITE_BLOCK_HITSCAN))
     {
-        InitBloodSpray(SpriteNum, true, 105);
-        InitBloodSpray(SpriteNum, true, 105);
+        InitBloodSpray(actor->GetSpriteIndex(), true, 105);
+        InitBloodSpray(actor->GetSpriteIndex(), true, 105);
         UpdateSinglePlayKills(actor);
         SetSuicide(actor);
     }
@@ -700,7 +699,6 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
 int InitCoolgCircle(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
 
     u->ActorActionFunc = DoCoolgCircle;
@@ -733,7 +731,6 @@ int InitCoolgCircle(DSWActor* actor)
 int DoCoolgCircle(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
     int nx,ny,bound;
 
@@ -776,7 +773,6 @@ int DoCoolgCircle(DSWActor* actor)
 int DoCoolgDeath(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
     int nx, ny;
 
@@ -804,7 +800,7 @@ int DoCoolgDeath(DSWActor* actor)
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
-    SetCollision(u, move_sprite(SpriteNum, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS));
+    SetCollision(u, move_sprite(actor->GetSpriteIndex(), nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS));
     DoFindGroundPoint(actor);
 
     // on the ground
@@ -819,10 +815,10 @@ int DoCoolgDeath(DSWActor* actor)
     return 0;
 }
 
+
 int DoCoolgMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
 
     if ((u->ShellNum -= ACTORMOVETICS) <= 0)
@@ -888,14 +884,14 @@ int DoCoolgMove(DSWActor* actor)
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor->GetSpriteIndex(), ACTORMOVETICS);
     else
     {
         (*u->ActorActionFunc)(actor);
     }
 
     if (RANDOM_P2(1024) < 32 && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
-        InitCoolgDrip(SpriteNum);
+        InitCoolgDrip(actor);
 
     DoCoolgMatchPlayerZ(actor);
 
