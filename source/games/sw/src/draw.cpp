@@ -71,7 +71,7 @@ extern short f_c;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
 
-int ConnectCopySprite(spritetype const * tsp);
+DSWActor* ConnectCopySprite(spritetype const * tsp);
 void PreDrawStackedWater(void);
 
 void SW_InitMultiPsky(void)
@@ -1236,13 +1236,12 @@ PostDraw(void)
     }
 }
 
-int CopySprite(spritetype const * tsp, short newsector)
+DSWActor* CopySprite(spritetype const * tsp, short newsector)
 {
-    short New;
     SPRITEp sp;
 
-    New = COVERinsertsprite(newsector, STAT_FAF_COPY);
-    sp = &sprite[New];
+    auto actorNew = InsertActor(newsector, STAT_FAF_COPY);
+    sp = &actorNew->s();
 
     sp->x = tsp->x;
     sp->y = tsp->y;
@@ -1262,10 +1261,10 @@ int CopySprite(spritetype const * tsp, short newsector)
 
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    return New;
+    return actorNew;
 }
 
-int ConnectCopySprite(spritetype const * tsp)
+DSWActor* ConnectCopySprite(spritetype const * tsp)
 {
     int newsector;
     int testz;
@@ -1298,45 +1297,37 @@ int ConnectCopySprite(spritetype const * tsp)
         }
     }
 
-    return -1;
+    return nullptr;
 }
 
 
 void PreDrawStackedWater(void)
 {
-    int i, si;
-    SPRITEp sp;
-    USERp u,nu;
-    short New;
-
-    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((si = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while (auto itActor = it.Next())
     {
-        SectIterator it(sprite[si].sectnum);
-        while ((i = it.NextIndex()) >= 0)
+        SWSectIterator it2(itActor->s().sectnum);
+        while (auto itActor2 = it2.Next())
         {
-            if (User[i].Data())
+            if (itActor2->hasU())
             {
-                if (sprite[i].statnum == STAT_ITEM)
+                auto sp = &itActor2->s();
+                auto u = itActor2->u();
+                if (sp->statnum == STAT_ITEM)
                     continue;
 
-                if (sprite[i].statnum <= STAT_DEFAULT || sprite[i].statnum > STAT_PLAYER0 + MAX_SW_PLAYERS)
+                if (sp->statnum <= STAT_DEFAULT || sp->statnum > STAT_PLAYER0 + MAX_SW_PLAYERS)
                     continue;
 
                 // code so that a copied sprite will not make another copy
-                if (User[i]->xchange == -989898)
+                if (u->xchange == -989898)
                     continue;
 
-                sp = &sprite[i];
-                u = User[i].Data();
-
-                New = ConnectCopySprite((spritetype const *)sp);
-                if (New >= 0)
+                auto actorNew = ConnectCopySprite((spritetype const *)sp);
+                if (actorNew != nullptr)
                 {
                     // spawn a user
-                    User[New].Alloc();
-                    nu = User[New].Data();
-                    ASSERT(nu != nullptr);
+                    auto nu = actorNew->allocUser();
 
                     nu->xchange = -989898;
 
@@ -1350,10 +1341,6 @@ void PreDrawStackedWater(void)
                     nu->Flags2 = u->Flags2;
                     nu->RotNum = u->RotNum;
                     nu->ID = u->ID;
-
-                    // set these to other sprite for players draw
-                    nu->SpriteNum = i;
-                    nu->SpriteP = sp;
 
                     nu->PlayerP = u->PlayerP;
                     nu->spal = u->spal;
@@ -1399,11 +1386,10 @@ void UpdateWallPortalState()
         }
     }
 
-    int i;
-    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[i];
+        auto sp = &actor->s();
         if (SP_TAG3(sp) == 0)
         {
             // back up ceilingpicnum and ceilingstat
@@ -1429,11 +1415,10 @@ void UpdateWallPortalState()
 
 void RestorePortalState()
 {
-    int i;
-    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[i];
+        auto sp = &actor->s();
         if (SP_TAG3(sp) == 0)
         {
             // restore ceilingpicnum and ceilingstat
@@ -1564,10 +1549,10 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         tz -= 8448;
         
-        if (!calcChaseCamPos(&tx, &ty, &tz, &sprite[pp->PlayerSprite], &tsectnum, tang, thoriz, smoothratio))
+        if (!calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsectnum, tang, thoriz, smoothratio))
         {
             tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, &sprite[pp->PlayerSprite], &tsectnum, tang, thoriz, smoothratio);
+            calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsectnum, tang, thoriz, smoothratio);
         }
     }
     else
@@ -1626,31 +1611,34 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if ((automapMode != am_off) && pp == Player+myconnectindex)
     {
-        for (j = 0; j < MAXSPRITES; j++)
+        SWSpriteIterator it;
+        while (auto actor = it.Next())
         {
+            auto sp = &actor->s();
             // Don't show sprites tagged with 257
-            if (sprite[j].lotag == 257)
+            if (sp->lotag == 257)
             {
-                if (TEST(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+                if (TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
-                    RESET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
-                    sprite[j].owner = -2;
+                    RESET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+                    sp->owner = -2;
                 }
             }
         }
         DrawOverheadMap(tx, ty, tang.asbuild(), smoothratio);
     }
 
-    for (j = 0; j < MAXSPRITES; j++)
+    SWSpriteIterator it;
+    while (auto actor = it.Next())
     {
+        auto sp = &actor->s();
         // Don't show sprites tagged with 257
-        if (sprite[j].lotag == 257 && sprite[j].owner == -2)
-            SET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+        if (sp->lotag == 257 && sp->owner == -2)
+        {
+            SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+            sp->owner = -1;
+        }
     }
-
-
-    //PrintLocationInfo(pp);
-    //PrintSpriteInfo(pp);
 
 #if SYNC_TEST
     SyncStatMessage();
@@ -1704,7 +1692,7 @@ bool GameInterface::GenerateSavePic()
 
 bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang, double const smoothratio)
 {
-    int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
+    int i, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
     int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
     int xvect, yvect;
@@ -1720,32 +1708,32 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
 
     // Draw sprites
-    k = Player[screenpeek].PlayerSprite;
+    auto peekActor = Player[screenpeek].Actor();
     for (i = 0; i < numsectors; i++)
     {
-        SectIterator it(i);
-        while ((j = it.NextIndex()) >= 0)
+        SWSectIterator it(i);
+        while (auto actor = it.Next())
         {
+            spr = &actor->s();
             for (p = connecthead; p >= 0; p = connectpoint2[p])
             {
-                if (Player[p].PlayerSprite == j)
+                if (Player[p].Actor() == actor)
                 {
-                    if (sprite[Player[p].PlayerSprite].xvel > 16)
+                    if (spr->xvel > 16)
                         pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
                     sprisplayer = true;
 
                     goto SHOWSPRITE;
                 }
             }
-            if (gFullMap || (sprite[j].cstat2 & CSTAT2_SPRITE_MAPPED))
+            if (gFullMap || (spr->cstat2 & CSTAT2_SPRITE_MAPPED))
             {
             SHOWSPRITE:
-                spr = &sprite[j];
 
                 PalEntry col = GPalette.BaseColors[56]; // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
                 if ((spr->cstat & 1) > 0)
                     col = GPalette.BaseColors[248];
-                if (j == k)
+                if (actor == peekActor)
                     col = GPalette.BaseColors[31];
 
                 sprx = spr->x;
@@ -1761,7 +1749,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                 switch (spr->cstat & 48)
                 {
                 case 0:  // Regular sprite
-                    if (Player[p].PlayerSprite == j)
+                    if (Player[p].Actor() == actor)
                     {
                         x1 = sprx - cposx;
                         y1 = spry - cposy;
@@ -1776,7 +1764,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                             int spnum = -1;
                             if (sprisplayer)
                             {
-                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite)
+                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].Actor())
                                     spnum = 1196 + pspr_ndx[myconnectindex];
                             }
                             else spnum = spr->picnum;
