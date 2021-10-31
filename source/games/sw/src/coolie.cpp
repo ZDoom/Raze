@@ -573,7 +573,7 @@ int SpawnCoolg(DSWActor* actor)
 
     NewCoolg(actor);
 
-    PlaySpriteSound(SpriteNum,attr_extra1,v3df_follow);
+    PlaySpriteSound(actor,attr_extra1,v3df_follow);
 
     return 0;
 }

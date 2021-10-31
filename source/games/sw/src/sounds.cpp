@@ -778,14 +778,10 @@ void Set3DSoundOwner(short spritenum)
 //
 //==========================================================================
 
-void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags)
+void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags)
 {
-    SPRITEp sp = &sprite[spritenum];
-    USERp u = User[spritenum].Data();
-
-    ASSERT(u);
-
-    PlaySound(u->Attrib->Sounds[attrib_ndx], sp, flags);
+    if (actor->hasU())
+        PlaySound(actor->u()->Attrib->Sounds[attrib_ndx], &actor->s(), flags);
 }
 
 //==========================================================================

@@ -191,48 +191,48 @@ int DoActorNoise(ANIMATORp Action, DSWActor* actor)
 
     if (Action == InitActorAmbientNoise)
     {
-        PlaySpriteSound(SpriteNum, attr_ambient, v3df_follow);
+        PlaySpriteSound(actor, attr_ambient, v3df_follow);
     }
     else if (Action == InitActorAlertNoise)
     {
         if (u && !u->DidAlert) // This only allowed once
-            PlaySpriteSound(SpriteNum, attr_alert, v3df_follow);
+            PlaySpriteSound(actor, attr_alert, v3df_follow);
     }
     else if (Action == InitActorAttackNoise)
     {
-        PlaySpriteSound(SpriteNum, attr_attack, v3df_follow);
+        PlaySpriteSound(actor, attr_attack, v3df_follow);
     }
     else if (Action == InitActorPainNoise)
     {
-        PlaySpriteSound(SpriteNum, attr_pain, v3df_follow);
+        PlaySpriteSound(actor, attr_pain, v3df_follow);
     }
     else if (Action == InitActorDieNoise)
     {
-        PlaySpriteSound(SpriteNum, attr_die, v3df_none);
+        PlaySpriteSound(actor, attr_die, v3df_none);
     }
     else if (Action == InitActorExtra1Noise)
     {
-        PlaySpriteSound(SpriteNum, attr_extra1, v3df_follow);
+        PlaySpriteSound(actor, attr_extra1, v3df_follow);
     }
     else if (Action == InitActorExtra2Noise)
     {
-        PlaySpriteSound(SpriteNum, attr_extra2, v3df_follow);
+        PlaySpriteSound(actor, attr_extra2, v3df_follow);
     }
     else if (Action == InitActorExtra3Noise)
     {
-        PlaySpriteSound(SpriteNum, attr_extra3, v3df_follow);
+        PlaySpriteSound(actor, attr_extra3, v3df_follow);
     }
     else if (Action == InitActorExtra4Noise)
     {
-        PlaySpriteSound(SpriteNum, attr_extra4, v3df_follow);
+        PlaySpriteSound(actor, attr_extra4, v3df_follow);
     }
     else if (Action == InitActorExtra5Noise)
     {
-        PlaySpriteSound(SpriteNum, attr_extra5, v3df_follow);
+        PlaySpriteSound(actor, attr_extra5, v3df_follow);
     }
     else if (Action == InitActorExtra6Noise)
     {
-        PlaySpriteSound(SpriteNum, attr_extra6, v3df_follow);
+        PlaySpriteSound(actor, attr_extra6, v3df_follow);
     }
 
     return 0;
@@ -1535,14 +1535,13 @@ int DoActorMoveJump(DSWActor* actor)
 }
 
 
-int move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy, int *stopz, short *stopsect)
+Collision move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy, int *stopz, short *stopsect)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
     int nx,ny;
     uint32_t cliptype = CLIPMASK_ACTOR;
-    int ret;
 
     short sang,ss;
     int x, y, z, loz, hiz;
@@ -1571,7 +1570,7 @@ int move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy, int 
     nx = MulScale(dist, bcos(sp->ang), 14);
     ny = MulScale(dist, bsin(sp->ang), 14);
 
-    ret = move_sprite(u->SpriteNum, nx, ny, 0, u->ceiling_dist, u->floor_dist, cliptype, 1);
+    Collision ret(move_sprite(u->SpriteNum, nx, ny, 0, u->ceiling_dist, u->floor_dist, cliptype, 1));
     // move_sprite DOES do a getzrange point?
 
     // should I look down with a FAFgetzrange to see where I am?
@@ -1630,7 +1629,6 @@ int FindNewAngle(DSWActor* actor, signed char dir, int DistToMove)
 
     short new_ang, oang;
     short save_ang = -1;
-    unsigned short ret;
     int set;
 
     int dist, stopx, stopy, stopz;
@@ -1687,9 +1685,9 @@ int FindNewAngle(DSWActor* actor, signed char dir, int DistToMove)
 #endif
 
         // check to see how far we can move
-        ret = move_scan(actor, new_ang, DistToMove, &stopx, &stopy, &stopz, &stopsect);
+        auto ret = move_scan(actor, new_ang, DistToMove, &stopx, &stopy, &stopz, &stopsect);
 
-        if (ret == 0)
+        if (ret.type == kHitNone)
         {
             // cleanly moved in new direction without hitting something
             u->TargetDist = Distance(sp->x, sp->y, stopx, stopy);

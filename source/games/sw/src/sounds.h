@@ -73,8 +73,10 @@ typedef struct ambientstruct AMB_INFO, *AMB_INFOp;
 
 void Terminate3DSounds(void);
 
+class DSWActor;
+
 void Set3DSoundOwner(short spritenum);
-void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags);
+void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags);
 void DeleteNoSoundOwner(short spritenum);
 void DeleteNoFollowSoundOwner(short spritenum);
 

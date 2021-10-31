@@ -452,7 +452,7 @@ int DoSkullSpawnShrap(DSWActor* actor)
 {
     SpawnShrap(actor, nullptr);
 
-    //PlaySpriteSound(SpriteNum,attr_extra1,v3df_none);
+    //PlaySpriteSound(actor,attr_extra1,v3df_none);
     return 0;
 }
 
@@ -865,7 +865,7 @@ int DoBettyBob(DSWActor* actor)
 int DoBettySpawnShrap(DSWActor* actor)
 {
     SpawnShrap(actor, nullptr);
-    //PlaySpriteSound(SpriteNum,attr_extra1,v3df_none);
+    //PlaySpriteSound(actor,attr_extra1,v3df_none);
     return 0;
 }
 

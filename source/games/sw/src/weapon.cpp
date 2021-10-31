@@ -5009,7 +5009,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
     UpdateSinglePlayKills(actor);
 
     if (u->Attrib)
-        PlaySpriteSound(SpriteNum,attr_die,v3df_follow);
+        PlaySpriteSound(actor,attr_die,v3df_follow);
 
     switch (u->ID)
     {
@@ -5311,7 +5311,7 @@ ActorHealth(short SpriteNum, short amt)
     }
 
     if (u->Attrib && RANDOM_P2(1024) > 850)
-        PlaySpriteSound(SpriteNum,attr_pain,v3df_follow|v3df_dontpan);
+        PlaySpriteSound(actor,attr_pain,v3df_follow|v3df_dontpan);
 
     // keep track of the last damage
     if (amt < 0)
@@ -5878,7 +5878,7 @@ DoDamage(short SpriteNum, short Weapon)
         return 0;
 
     if (u->Attrib && RANDOM_P2(1024) > 850)
-        PlaySpriteSound(SpriteNum,attr_pain,v3df_follow);
+        PlaySpriteSound(actor,attr_pain,v3df_follow);
 
     if (TEST(u->Flags, SPR_DEAD))
     {
