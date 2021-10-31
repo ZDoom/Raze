@@ -523,22 +523,20 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     u->WeaponNum = int8_t(wpn_cnt);
 }
 
-int
-SetupCoolie(short SpriteNum)
+int SetupCoolie(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,COOLIE_RUN_R0,s_CoolieRun[0]);
+        u = SpawnUser(actor,COOLIE_RUN_R0,s_CoolieRun[0]);
         u->Health = HEALTH_COOLIE;
     }
 
@@ -563,7 +561,6 @@ int NewCoolg(DSWActor*);
 int SpawnCoolg(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 	
     // Don't do a ghost every time
     if (RandomRange(1000) > 700 || Skill < MinEnemySkill - 1)
@@ -572,7 +569,6 @@ int SpawnCoolg(DSWActor* actor)
     }
 
     NewCoolg(actor);
-
     PlaySpriteSound(actor,attr_extra1,v3df_follow);
 
     return 0;
@@ -581,7 +577,6 @@ int SpawnCoolg(DSWActor* actor)
 int CooliePain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -600,7 +595,6 @@ int CooliePain(DSWActor* actor)
 int NullCoolie(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -616,14 +610,13 @@ int NullCoolie(DSWActor* actor)
 int DoCoolieMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor->GetSpriteIndex(), ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
@@ -648,8 +641,7 @@ int DoCoolieMove(DSWActor* actor)
 int InitCoolieCharge(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (RANDOM_P2(1024) > 950)
         PlaySound(DIGI_COOLIESCREAM, sp, v3df_follow);
@@ -668,7 +660,6 @@ int
 DoCoolieWaitBirth(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if ((u->Counter -= ACTORMOVETICS) <= 0)
     {
