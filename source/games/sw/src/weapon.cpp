@@ -10815,16 +10815,15 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
 
 int
-SpawnBreakFlames(int16_t SpriteNum)
+SpawnBreakFlames(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp np;
     USERp nu;
     short New;
 
-    New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, sp->sectnum,
-                      sp->x, sp->y, sp->z, sp->ang, 0);
+    New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
     auto actorNew = &swActors[New];
     np = &actorNew->s();
     nu = actorNew->u();

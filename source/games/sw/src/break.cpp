@@ -976,7 +976,7 @@ int AutoBreakSprite(DSWActor* breakActor, short type)
     if (TEST(break_info->flags, BF_KILL) || break_info->breaknum == -1)
     {
         if (TEST(break_info->flags, BF_FIRE_FALL))
-            SpawnBreakFlames(BreakSprite);
+            SpawnBreakFlames(breakActor);
 
         RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         SET(bp->cstat, CSTAT_SPRITE_INVISIBLE);

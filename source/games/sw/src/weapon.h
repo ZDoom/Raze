@@ -85,7 +85,7 @@ int DoShrapVelocity(int16_t SpriteNum);
 int ShrapKillSprite(short SpriteNum);
 bool MissileSetPos(short Weapon,ANIMATORp DoWeapon,int dist);
 int ActorPain(short SpriteNum);
-int SpawnBreakFlames(int16_t SpriteNum);
+int SpawnBreakFlames(DSWActor*);
 bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor);
 const char *DeathString(short SpriteNum);
 
