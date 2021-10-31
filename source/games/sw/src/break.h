@@ -50,7 +50,7 @@ BREAK_INFOp FindSpriteBreakInfo(short picnum);
 void SortBreakInfo(void);
 BREAK_INFOp SetupWallForBreak(WALLp wallp);
 BREAK_INFOp SetupSpriteForBreak(DSWActor* actor);
-short FindBreakSpriteMatch(short match);
+DSWActor* FindBreakSpriteMatch(short match);
 bool HitBreakWall(WALLp wp, int, int, int, short ang, short type);
 int HitBreakSprite(short BreakSprite, short type);
 bool CheckBreakToughness(BREAK_INFOp break_info, short ID);

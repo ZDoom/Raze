@@ -470,8 +470,11 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 // Directions
 //
 
-#define DEGREE_45 256
-#define DEGREE_90 512
+enum
+{
+    DEGREE_45 = 256,
+    DEGREE_90 = 512
+};
 
 ////
 //

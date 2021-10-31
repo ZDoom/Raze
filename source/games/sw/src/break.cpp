@@ -534,21 +534,19 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
 // ACTIVATE
 //////////////////////////////////////////////
 
-short FindBreakSpriteMatch(short match)
+DSWActor* FindBreakSpriteMatch(short match)
 {
-    int i;
-
-    StatIterator it(STAT_BREAKABLE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_BREAKABLE);
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[i];
+        auto sp = &actor->s();
         if (SP_TAG2(sp) == match && sp->picnum == ST1)
         {
-            return i;
+            return actor;
         }
     }
 
-    return -1;
+    return nullptr;
 }
 
 //
@@ -658,7 +656,6 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
 
 bool UserBreakWall(WALLp wp, short)
 {
-    short SpriteNum;
     SPRITEp sp;
     short match = wp->hitag;
     int block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
@@ -666,9 +663,9 @@ bool UserBreakWall(WALLp wp, short)
     int flags = block_flags|type_flags;
     bool ret = false;
 
-    SpriteNum = FindBreakSpriteMatch(match);
+    auto actor = FindBreakSpriteMatch(match);
 
-    if (SpriteNum < 0)
+    if (actor == nullptr)
     {
         // do it the old way and get rid of wall - assumed to be masked
         DoSpawnSpotsForKill(match);
@@ -683,7 +680,7 @@ bool UserBreakWall(WALLp wp, short)
         return true;
     }
 
-    sp = &sprite[SpriteNum];
+    sp = &actor->s();
 
     if (wp->picnum == SP_TAG5(sp))
         return true;
@@ -875,11 +872,10 @@ int UserBreakSprite(short BreakSprite)
     SPRITEp bp = &sprite[BreakSprite];
     short match = bp->lotag;
     short match_extra;
-    short SpriteNum;
 
-    SpriteNum = FindBreakSpriteMatch(match);
+    auto actor = FindBreakSpriteMatch(match);
 
-    if (SpriteNum < 0)
+    if (actor == nullptr)
     {
         // even if you didn't find a matching ST1 go ahead and kill it and match everything
         // its better than forcing everyone to have a ST1
@@ -890,7 +886,7 @@ int UserBreakSprite(short BreakSprite)
         return true;
     }
 
-    sp = &sprite[SpriteNum];
+    sp = &actor->s();
     match_extra = SP_TAG6(bp);
 
     if (bp->picnum == SP_TAG5(sp))
