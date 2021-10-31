@@ -2863,7 +2863,7 @@ STATEp UserStateSetup(short base_tile, short num_tiles)
 #endif
 
 int
-SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means)
+SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFOp breakinfo)
 {
     int Secondary = secondaryActor ? secondaryActor->GetSpriteIndex() : means;
     int ParentNum = parentActor->GetSpriteIndex();
@@ -3207,7 +3207,6 @@ SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means)
     short shrap_ang = parent->ang;
     short shrap_delta_size = 0;
     short shrap_amt = 0;
-    extern BREAK_INFOp GlobBreakInfo;
 
     if (Prediction)
         return 0;
@@ -3220,11 +3219,10 @@ SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means)
         return 0;
     }
 
-    if (GlobBreakInfo)
+    if (breakinfo)
     {
-        shrap_type = GlobBreakInfo->shrap_type;
-        shrap_amt = GlobBreakInfo->shrap_amt;
-        GlobBreakInfo = nullptr;
+        shrap_type = breakinfo->shrap_type;
+        shrap_amt = breakinfo->shrap_amt;
         goto AutoShrap;
     }
     else if (TEST(parent->extra, SPRX_BREAKABLE))

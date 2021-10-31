@@ -39,8 +39,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-BREAK_INFOp GlobBreakInfo;
-
 static int SectorOfWall(short theline);
 static void DoWallBreakSpriteMatch(short match);
 
@@ -556,9 +554,7 @@ DSWActor* FindBreakSpriteMatch(short match)
 int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short type)
 {
     BREAK_INFOp break_info;
-    short BreakSprite;
     WALLp nwp;
-    SPRITEp bsp;
 
     wallp->lotag = 0;
     if (wallp->nextwall >= 0)
@@ -593,23 +589,16 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
     {
         vec3_t hit_pos = { hit_x, hit_y, hit_z };
         // need correct location for spawning shrap
-        BreakSprite = COVERinsertsprite(0, STAT_DEFAULT);
-        ASSERT(BreakSprite >= 0);
-        auto breakActor = &swActors[BreakSprite];
-        bsp = &sprite[BreakSprite];
+        auto breakActor = InsertActor(0, STAT_DEFAULT);
+        auto bsp = &breakActor->s();
         bsp->cstat = 0;
         bsp->extra = 0;
         bsp->ang = ang;
         bsp->picnum = ST1;
         bsp->xrepeat = bsp->yrepeat = 64;
-        setspritez(BreakSprite, &hit_pos);
-
-        // pass Break Info Globally
-        GlobBreakInfo = break_info;
-        SpawnShrap(breakActor, nullptr);
-        GlobBreakInfo = nullptr;
-
-        KillSprite(BreakSprite);
+        SetActorZ(breakActor, &hit_pos);
+        SpawnShrap(breakActor, nullptr, -1, break_info);
+        KillActor(breakActor);
     }
 
     // change the wall
@@ -649,14 +638,11 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
                 DoWallBreakSpriteMatch(wallp->hitag);
         }
     }
-
-
     return true;
 }
 
 bool UserBreakWall(WALLp wp, short)
 {
-    SPRITEp sp;
     short match = wp->hitag;
     int block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
     int type_flags = CSTAT_WALL_TRANSLUCENT|CSTAT_WALL_MASKED|CSTAT_WALL_1WAY;
@@ -680,7 +666,7 @@ bool UserBreakWall(WALLp wp, short)
         return true;
     }
 
-    sp = &actor->s();
+    auto sp = &actor->s();
 
     if (wp->picnum == SP_TAG5(sp))
         return true;
@@ -972,9 +958,7 @@ int AutoBreakSprite(short BreakSprite, short type)
 
             bp->picnum = break_info->breaknum;
             // pass Break Info Globally
-            GlobBreakInfo = break_info;
-            SpawnShrap(breakActor, nullptr);
-            GlobBreakInfo = nullptr;
+            SpawnShrap(breakActor, nullptr, -1, break_info);
             if (bp->picnum == 3683)
                 RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         }
@@ -986,9 +970,7 @@ int AutoBreakSprite(short BreakSprite, short type)
     RESET(bp->cstat, CSTAT_SPRITE_BREAKABLE);
 
     // pass Break Info Globally
-    GlobBreakInfo = break_info;
-    SpawnShrap(breakActor, nullptr);
-    GlobBreakInfo = nullptr;
+    SpawnShrap(breakActor, nullptr, -1, break_info);
 
     // kill it or change the pic
     if (TEST(break_info->flags, BF_KILL) || break_info->breaknum == -1)

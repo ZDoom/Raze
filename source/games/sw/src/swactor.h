@@ -191,4 +191,9 @@ inline void ChangeActorSect(DSWActor* actor, int sect)
 	changespritesect(actor->GetSpriteIndex(), sect);
 }
 
+inline int SetActorZ(DSWActor* actor, const vec3_t* newpos)
+{
+	return setspritez(actor->GetSpriteIndex(), newpos);
+}
+
 END_SW_NS

@@ -54,6 +54,11 @@ SAVE save;
 
 bool FAF_DebugView = false;
 
+DSWActor* InsertActor(int sectnum, int stat)
+{
+    return &swActors[COVERinsertsprite(sectnum, stat)];
+}
+
 int COVERinsertsprite(short sectnum, short stat)
 {
     short spnum;
@@ -62,17 +67,17 @@ int COVERinsertsprite(short sectnum, short stat)
 
     PRODUCTION_ASSERT(spnum >= 0);
 
-    pSprite->x = sprite[spnum].y = sprite[spnum].z = 0;
+    pSprite->x = pSprite->y = pSprite->z = 0;
     pSprite->cstat = 0;
     pSprite->picnum = 0;
     pSprite->shade = 0;
     pSprite->pal = 0;
     pSprite->clipdist = 0;
-    pSprite->xrepeat = sprite[spnum].yrepeat = 0;
-    pSprite->xoffset = sprite[spnum].yoffset = 0;
+    pSprite->xrepeat = pSprite->yrepeat = 0;
+    pSprite->xoffset = pSprite->yoffset = 0;
     pSprite->ang = 0;
     pSprite->owner = -1;
-    pSprite->xvel = sprite[spnum].yvel = sprite[spnum].zvel = 0;
+    pSprite->xvel = pSprite->yvel = pSprite->zvel = 0;
     pSprite->lotag = 0;
     pSprite->hitag = 0;
     pSprite->extra = 0;

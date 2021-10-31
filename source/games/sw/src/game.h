@@ -1950,7 +1950,8 @@ bool SoundValidAndActive(SPRITEp spr, int channel);
 
 ANIMATOR DoActorBeginJump,DoActorJump,DoActorBeginFall,DoActorFall,DoActorDeathMove;
 
-int SpawnShrap(DSWActor*, DSWActor*, int = -1);
+struct BREAK_INFO;
+int SpawnShrap(DSWActor*, DSWActor*, int = -1, BREAK_INFO* breakinfo = nullptr);
 
 void PlayerUpdateHealth(PLAYERp pp, short value);
 void PlayerUpdateAmmo(PLAYERp pp, short WeaponNum, short value);
@@ -2187,6 +2188,7 @@ void SetSpikeActive(short SpriteNum);   // spike.c
 #define NTAG_SEARCH_LO_HI 3
 
 int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenum;
+DSWActor* InsertActor(int sectnum, int statnum);
 
 void AudioUpdate(void); // stupid
 

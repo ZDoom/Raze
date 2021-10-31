@@ -39,18 +39,17 @@ enum
     BF_LEAVE_BREAK = BIT(5),
 };
 
-typedef struct
+typedef struct BREAK_INFO
 {
     short picnum, breaknum, shrap_type;
     short flags, shrap_amt;
-} BREAK_INFO, *BREAK_INFOp;
+} *BREAK_INFOp;
 
 BREAK_INFOp FindWallBreakInfo(short picnum);
 BREAK_INFOp FindSpriteBreakInfo(short picnum);
 void SortBreakInfo(void);
 BREAK_INFOp SetupWallForBreak(WALLp wallp);
 BREAK_INFOp SetupSpriteForBreak(DSWActor* actor);
-DSWActor* FindBreakSpriteMatch(short match);
 bool HitBreakWall(WALLp wp, int, int, int, short ang, short type);
 int HitBreakSprite(short BreakSprite, short type);
 bool CheckBreakToughness(BREAK_INFOp break_info, short ID);
