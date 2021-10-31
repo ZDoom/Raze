@@ -220,11 +220,11 @@ int hitawall(struct player_struct* p, int* hitw)
 	short sect, hitw1;
 	DDukeActor* d;
 
-	hitscan(p->posx, p->posy, p->posz, p->cursectnum,
+	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
 		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
 	*hitw = hitw1;
 
-	return (FindDistance2D(sx - p->posx, sy - p->posy));
+	return (FindDistance2D(sx - p->pos.x, sy - p->pos.y));
 }
 
 
@@ -501,8 +501,8 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->s->picnum == TILE_FOOTPRINTS || act->s->picnum == TILE_FOOTPRINTS2 || act->s->picnum == TILE_FOOTPRINTS3 || act->s->picnum == TILE_FOOTPRINTS4)
-					if (abs(act->s->x - p->posx) < 384)
-						if (abs(act->s->y - p->posy) < 384)
+					if (abs(act->s->x - p->pos.x) < 384)
+						if (abs(act->s->y - p->pos.y) < 384)
 						{
 							j = 1;
 							break;
@@ -552,7 +552,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		if (s->pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
-			p->posz -= (16 << 8);
+			p->pos.z -= (16 << 8);
 			s->z -= (16 << 8);
 		}
 #if 0
@@ -609,8 +609,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->posz - fz) > (gs.playerheight >> 1))
-				p->posz += 348;
+			if (abs(p->pos.z - fz) > (gs.playerheight >> 1))
+				p->pos.z += 348;
 		}
 		else
 		{
@@ -618,7 +618,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			s->zvel = -348;
 		}
 
-		clipmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0);
+		clipmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0);
 		//			  p->bobcounter += 32;
 	}
 
@@ -626,12 +626,12 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
-	updatesector(p->posx, p->posy, &p->cursectnum);
+	updatesector(p->pos.x, p->pos.y, &p->cursectnum);
 
-	pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4 << 8), (20 << 8), CLIPMASK0);
+	pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && s->pal != 1)
-		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->posz) >> 7));
+		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->pos.z) >> 7));
 
 	p->on_warping_sector = 0;
 
@@ -706,7 +706,7 @@ void playerCrouch(int snum)
 	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) == 0)
 	{
-		p->posz += (2048 + 768);
+		p->pos.z += (2048 + 768);
 		p->crack_time = CRACK_TIME;
 	}
 }
@@ -765,18 +765,18 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		oposx = posx;
-		oposy = posy;
+		oposx = pos.x;
+		oposy = pos.y;
 	}
 	else
 	{
-		posx = oposx;
-		posy = oposy;
+		pos.x = oposx;
+		pos.y = oposy;
 	}
 
-	oposz = posz;
-	bobposx = posx;
-	bobposy = posy;
+	oposz = pos.z;
+	bobposx = pos.x;
+	bobposy = pos.y;
 	opyoff = pyoff;
 }
 

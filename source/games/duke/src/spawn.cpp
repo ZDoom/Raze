@@ -444,7 +444,7 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 			a = ps[snum].angle.ang.asbuild() - (krand() & 63) + 8;  //Fine tune
 
 			t[0] = krand() & 1;
-			sp->z = (3 << 8) + ps[snum].pyoff + ps[snum].posz - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0);
+			sp->z = (3 << 8) + ps[snum].pyoff + ps[snum].pos.z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0);
 			sp->zvel = -(krand() & 255);
 		}
 		else
@@ -549,7 +549,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 			sp->z -= (18 << 8);
 		}
 		else sp->z -= (13 << 8);
-		sp->ang = getangle(ps[connecthead].posx - sp->x, ps[connecthead].posy - sp->y);
+		sp->ang = getangle(ps[connecthead].pos.x - sp->x, ps[connecthead].pos.y - sp->y);
 		sp->xvel = 48 - (krand() & 31);
 		ssp(actor, CLIPMASK0);
 	}

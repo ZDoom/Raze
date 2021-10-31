@@ -176,9 +176,9 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		if (t->statnum == 99) continue;
 		if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps[s->yvel].newOwner == nullptr && h->GetOwner())
 		{
-			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posx - ps[s->yvel].oposx, 16);
-			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].posy - ps[s->yvel].oposy, 16);
-			t->z = interpolatedvalue(ps[s->yvel].oposz, ps[s->yvel].posz, smoothratio);
+			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].pos.x - ps[s->yvel].oposx, 16);
+			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].pos.y - ps[s->yvel].oposy, 16);
+			t->z = interpolatedvalue(ps[s->yvel].oposz, ps[s->yvel].pos.z, smoothratio);
 			t->z += PHEIGHT_DUKE;
 		}
 		else if (s->picnum != CRANEPOLE)
@@ -220,8 +220,8 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 
 				sqa =
 					getangle(
-						Owner->x - ps[screenpeek].posx,
-						Owner->y - ps[screenpeek].posy);
+						Owner->x - ps[screenpeek].pos.x,
+						Owner->y - ps[screenpeek].pos.y);
 				sqb =
 					getangle(
 						Owner->x - t->x,
@@ -369,7 +369,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				}
 
 				if (h->GetOwner())
-					newtspr->z = ps[p].posz - (12 << 8);
+					newtspr->z = ps[p].pos.z - (12 << 8);
 				else newtspr->z = s->z - (51 << 8);
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
@@ -590,7 +590,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 							daz = h->floorz;
 
 
-						if ((s->z - daz) < (8 << 8) && ps[screenpeek].posz < daz)
+						if ((s->z - daz) < (8 << 8) && ps[screenpeek].pos.z < daz)
 						{
 							auto shadowspr = &tsprite[spritesortcnt];
 							*shadowspr = *t;
@@ -616,7 +616,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 							else
 							{
 								// Alter the shadow's position so that it appears behind the sprite itself.
-								int look = getangle(shadowspr->x - ps[screenpeek].posx, shadowspr->y - ps[screenpeek].posy);
+								int look = getangle(shadowspr->x - ps[screenpeek].pos.x, shadowspr->y - ps[screenpeek].pos.y);
 								shadowspr->x += bcos(look, -9);
 								shadowspr->y += bsin(look, -9);
 							}

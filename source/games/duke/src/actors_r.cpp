@@ -1628,9 +1628,9 @@ void movetransports_r(void)
 								ps[p].transporter_hold = 13;
 							}
 
-							ps[p].bobposx = ps[p].oposx = ps[p].posx = Owner->s->x;
-							ps[p].bobposy = ps[p].oposy = ps[p].posy = Owner->s->y;
-							ps[p].oposz = ps[p].posz = Owner->s->z - (gs.playerheight - (4 << 8));
+							ps[p].bobposx = ps[p].oposx = ps[p].pos.x = Owner->s->x;
+							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->s->y;
+							ps[p].oposz = ps[p].pos.z = Owner->s->z - (gs.playerheight - (4 << 8));
 
 							changeactorsect(act2, Owner->s->sectnum);
 							ps[p].cursectnum = spr2->sectnum;
@@ -1643,17 +1643,17 @@ void movetransports_r(void)
 					}
 					else break;
 
-					if (onfloorz == 0 && abs(spr->z - ps[p].posz) < 6144)
+					if (onfloorz == 0 && abs(spr->z - ps[p].pos.z) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].oposx = ps[p].posx += Owner->s->x - spr->x;
-							ps[p].oposy = ps[p].posy += Owner->s->y - spr->y;
+							ps[p].oposx = ps[p].pos.x += Owner->s->x - spr->x;
+							ps[p].oposy = ps[p].pos.y += Owner->s->y - spr->y;
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].posz = Owner->s->z - 6144;
-							else ps[p].posz = Owner->s->z + 6144;
-							ps[p].oposz = ps[p].posz;
+								ps[p].pos.z = Owner->s->z - 6144;
+							else ps[p].pos.z = Owner->s->z + 6144;
+							ps[p].oposz = ps[p].pos.z;
 
 							changeactorsect(act2, Owner->s->sectnum);
 							ps[p].cursectnum = Owner->s->sectnum;
@@ -1665,23 +1665,23 @@ void movetransports_r(void)
 
 					if (isRRRA())
 					{
-						if (onfloorz && sectlotag == 160 && ps[p].posz > (sector[sect].floorz - (48 << 8)))
+						if (onfloorz && sectlotag == 160 && ps[p].pos.z > (sector[sect].floorz - (48 << 8)))
 						{
 							k = 2;
-							ps[p].oposz = ps[p].posz =
+							ps[p].oposz = ps[p].pos.z =
 								sector[Owner->s->sectnum].ceilingz + (7 << 8);
 						}
 
-						if (onfloorz && sectlotag == 161 && ps[p].posz < (sector[sect].ceilingz + (6 << 8)))
+						if (onfloorz && sectlotag == 161 && ps[p].pos.z < (sector[sect].ceilingz + (6 << 8)))
 						{
 							k = 2;
 							if (ps[p].GetActor()->s->extra <= 0) break;
-							ps[p].oposz = ps[p].posz =
+							ps[p].oposz = ps[p].pos.z =
 								sector[Owner->s->sectnum].floorz - (49 << 8);
 						}
 					}
 
-					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].posz > (sector[sect].floorz - (6 << 8))) ||
+					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].pos.z > (sector[sect].floorz - (6 << 8))) ||
 						(onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].OnMotorcycle))
 					{
 						if (ps[p].OnBoat) break;
@@ -1691,13 +1691,13 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].oposz = ps[p].posz =
+						ps[p].oposz = ps[p].pos.z =
 							sector[Owner->s->sectnum].ceilingz + (7 << 8);
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].posz < (sector[sect].ceilingz + (6 << 8)))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.z < (sector[sect].ceilingz + (6 << 8)))
 					{
 						k = 1;
 						if (ps[p].GetActor()->s->extra <= 0) break;
@@ -1707,14 +1707,14 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].oposz = ps[p].posz =
+						ps[p].oposz = ps[p].pos.z =
 							sector[Owner->s->sectnum].floorz - (7 << 8);
 					}
 
 					if (k == 1)
 					{
-						ps[p].oposx = ps[p].posx += Owner->s->x - spr->x;
-						ps[p].oposy = ps[p].posy += Owner->s->y - spr->y;
+						ps[p].oposx = ps[p].pos.x += Owner->s->x - spr->x;
+						ps[p].oposy = ps[p].pos.y += Owner->s->y - spr->y;
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -1727,8 +1727,8 @@ void movetransports_r(void)
 					}
 					else if (isRRRA() && k == 2)
 					{
-						ps[p].oposx = ps[p].posx += Owner->s->x - spr->x;
-						ps[p].oposy = ps[p].posy += Owner->s->y - spr->y;
+						ps[p].oposx = ps[p].pos.x += Owner->s->x - spr->x;
+						ps[p].oposy = ps[p].pos.y += Owner->s->y - spr->y;
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -2482,9 +2482,9 @@ void rr_specialstats()
 					if (act2->s->picnum == RRTILE297)
 					{
 						ps[p].angle.ang = buildang(act2->s->ang);
-						ps[p].bobposx = ps[p].oposx = ps[p].posx = act2->s->x;
-						ps[p].bobposy = ps[p].oposy = ps[p].posy = act2->s->y;
-						ps[p].oposz = ps[p].posz = act2->s->z - (36 << 8);
+						ps[p].bobposx = ps[p].oposx = ps[p].pos.x = act2->s->x;
+						ps[p].bobposy = ps[p].oposy = ps[p].pos.y = act2->s->y;
+						ps[p].oposz = ps[p].pos.z = act2->s->z - (36 << 8);
 						auto pact = ps[p].GetActor();
 						changeactorsect(pact, act2->s->sectnum);
 						ps[p].cursectnum = pact->s->sectnum;
@@ -2691,7 +2691,7 @@ DETONATEB:
 		}
 	}
 	else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
-		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
+		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursectnum))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (s->pal == 0)
 				{
@@ -3693,7 +3693,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (ps[pnum].newOwner != nullptr)
 			goalang = getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y);
-		else goalang = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
+		else goalang = getangle(ps[pnum].pos.x - spr->x, ps[pnum].pos.y - spr->y);
 		angdif = getincangle(spr->ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		spr->ang += angdif;
@@ -3706,7 +3706,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (ps[pnum].newOwner != nullptr)
 			goalang = getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y);
-		else goalang = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
+		else goalang = getangle(ps[pnum].pos.x - spr->x, ps[pnum].pos.y - spr->y);
 		angdif = Sgn(getincangle(spr->ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
@@ -3722,7 +3722,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		{
 			if (ps[pnum].newOwner != nullptr)
 				goalang = (getangle(ps[pnum].oposx - spr->x, ps[pnum].oposy - spr->y) + 1024) & 2047;
-			else goalang = (getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y) + 1024) & 2047;
+			else goalang = (getangle(ps[pnum].pos.x - spr->x, ps[pnum].pos.y - spr->y) + 1024) & 2047;
 			angdif = Sgn(getincangle(spr->ang, goalang)) << 5;
 			if (angdif > -32 && angdif < 0)
 			{
@@ -3788,8 +3788,8 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		int newx, newy;
 
-		newx = ps[pnum].posx + (ps[pnum].posxv / 768);
-		newy = ps[pnum].posy + (ps[pnum].posyv / 768);
+		newx = ps[pnum].pos.x + (ps[pnum].posxv / 768);
+		newy = ps[pnum].pos.y + (ps[pnum].posyv / 768);
 		goalang = getangle(newx - spr->x, newy - spr->y);
 		angdif = getincangle(spr->ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
@@ -3894,7 +3894,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel);
-				angdif = getangle(ps[pnum].posx - spr->x, ps[pnum].posy - spr->y);
+				angdif = getangle(ps[pnum].pos.x - spr->x, ps[pnum].pos.y - spr->y);
 
 				if (xvel < 512)
 				{

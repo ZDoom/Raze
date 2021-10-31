@@ -2045,9 +2045,9 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 							
-							ps[p].bobposx = ps[p].oposx = ps[p].posx = Owner->s->x;
-							ps[p].bobposy = ps[p].oposy = ps[p].posy = Owner->s->y;
-							ps[p].oposz = ps[p].posz = Owner->s->z - gs.playerheight;
+							ps[p].bobposx = ps[p].oposx = ps[p].pos.x = Owner->s->x;
+							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->s->y;
+							ps[p].oposz = ps[p].pos.z = Owner->s->z - gs.playerheight;
 							
 							changeactorsect(act2, Owner->s->sectnum);
 							ps[p].cursectnum = spr2->sectnum;
@@ -2063,17 +2063,17 @@ void movetransports_d(void)
 					}
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 					
-					if (onfloorz == 0 && abs(spr->z - ps[p].posz) < 6144)
+					if (onfloorz == 0 && abs(spr->z - ps[p].pos.z) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].oposx = ps[p].posx += Owner->s->x - spr->x;
-							ps[p].oposy = ps[p].posy += Owner->s->y - spr->y;
+							ps[p].oposx = ps[p].pos.x += Owner->s->x - spr->x;
+							ps[p].oposy = ps[p].pos.y += Owner->s->y - spr->y;
 							
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].posz = Owner->s->z - 6144;
-							else ps[p].posz = Owner->s->z + 6144;
-							ps[p].oposz = ps[p].posz;
+								ps[p].pos.z = Owner->s->z - 6144;
+							else ps[p].pos.z = Owner->s->z + 6144;
+							ps[p].oposz = ps[p].pos.z;
 							
 							auto pa = ps[p].GetActor();
 							pa->s->opos = ps[p].pos;
@@ -2086,8 +2086,8 @@ void movetransports_d(void)
 					
 					int k = 0;
 					
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].posz > (sector[sect].floorz - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].poszv > 2048))
-						//                        if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.z > (sector[sect].floorz - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].poszv > 2048))
+						//                        if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sector[sect].floorz-(6<<8)) )
 					{
 						k = 1;
 						if (screenpeek == p)
@@ -2096,7 +2096,7 @@ void movetransports_d(void)
 						}
 						if (ps[p].GetActor()->s->extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
-						ps[p].oposz = ps[p].posz =
+						ps[p].oposz = ps[p].pos.z =
 						sector[Owner->s->sectnum].ceilingz + (7 << 8);
 						
 						ps[p].posxv = 4096 - (krand() & 8192);
@@ -2104,7 +2104,7 @@ void movetransports_d(void)
 						
 					}
 					
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].posz < (sector[sect].ceilingz + (6 << 8)))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.z < (sector[sect].ceilingz + (6 << 8)))
 					{
 						k = 1;
 						//                            if( spr2->extra <= 0) break;
@@ -2114,7 +2114,7 @@ void movetransports_d(void)
 						}
 						S_PlayActorSound(DUKE_GASP, act2);
 						
-						ps[p].oposz = ps[p].posz =
+						ps[p].oposz = ps[p].pos.z =
 						sector[Owner->s->sectnum].floorz - (7 << 8);
 						
 						ps[p].jumping_toggle = 1;
@@ -2123,15 +2123,15 @@ void movetransports_d(void)
 					
 					if (k == 1)
 					{
-						ps[p].oposx = ps[p].posx += Owner->s->x - spr->x;
-						ps[p].oposy = ps[p].posy += Owner->s->y - spr->y;
+						ps[p].oposx = ps[p].pos.x += Owner->s->x - spr->x;
+						ps[p].oposy = ps[p].pos.y += Owner->s->y - spr->y;
 						
 						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
 						ps[p].cursectnum = Owner->s->sectnum;
 						
 						changeactorsect(act2, Owner->s->sectnum);
-						setsprite(ps[p].GetActor(), ps[p].posx, ps[p].posy, ps[p].posz + gs.playerheight);
+						setsprite(ps[p].GetActor(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z + gs.playerheight);
 						
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
@@ -2380,7 +2380,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else if (x < 1024 && ps[p].quick_kick == 0)
 		{
-			j = getincangle(ps[p].angle.ang.asbuild(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
+			j = getincangle(ps[p].angle.ang.asbuild(), getangle(s->x - ps[p].pos.x, s->y - ps[p].pos.y));
 			if (j > -128 && j < 128)
 				ps[p].quick_kick = 14;
 		}
@@ -2428,7 +2428,7 @@ static void greenslime(DDukeActor *actor)
 				return;
 			}
 
-		s->z = ps[p].posz + ps[p].pyoff - t[2] + (8 << 8);
+		s->z = ps[p].pos.z + ps[p].pyoff - t[2] + (8 << 8);
 
 		s->z += -ps[p].horizon.horiz.asq16() >> 12;
 
@@ -2441,12 +2441,12 @@ static void greenslime(DDukeActor *actor)
 		if (ps[p].newOwner != nullptr)
 		{
 			ps[p].newOwner = nullptr;
-			ps[p].posx = ps[p].oposx;
-			ps[p].posy = ps[p].oposy;
-			ps[p].posz = ps[p].oposz;
+			ps[p].pos.x = ps[p].oposx;
+			ps[p].pos.y = ps[p].oposy;
+			ps[p].pos.z = ps[p].oposz;
 			ps[p].angle.restore();
 
-			updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
+			updatesector(ps[p].pos.x, ps[p].pos.y, &ps[p].cursectnum);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
@@ -2482,8 +2482,8 @@ static void greenslime(DDukeActor *actor)
 		s->xrepeat = 20 + bsin(t[1], -13);
 		s->yrepeat = 15 + bsin(t[1], -13);
 
-		s->x = ps[p].posx + ps[p].angle.ang.bcos(-7);
-		s->y = ps[p].posy + ps[p].angle.ang.bsin(-7);
+		s->x = ps[p].pos.x + ps[p].angle.ang.bcos(-7);
+		s->y = ps[p].pos.y + ps[p].angle.ang.bsin(-7);
 
 		return;
 	}
@@ -2645,7 +2645,7 @@ static void greenslime(DDukeActor *actor)
 			s->xvel = 64 - bcos(t[1], -9);
 
 			s->ang += getincangle(s->ang,
-				getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 3;
+				getangle(ps[p].pos.x - s->x, ps[p].pos.y - s->y)) >> 3;
 			// TJR
 		}
 
@@ -2982,7 +2982,7 @@ DETONATEB:
 		}
 	}
 	else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
-		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
+		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursectnum))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{
 				if (ud.coop >= 1 && Owner == actor)
@@ -3542,7 +3542,7 @@ static void handle_se28(DDukeActor* actor)
 		}
 		else if (t[2] > (t[1] >> 3) && t[2] < (t[1] >> 2))
 		{
-			int j = !!cansee(s->x, s->y, s->z, s->sectnum, ps[screenpeek].posx, ps[screenpeek].posy, ps[screenpeek].posz, ps[screenpeek].cursectnum);
+			int j = !!cansee(s->x, s->y, s->z, s->sectnum, ps[screenpeek].pos.x, ps[screenpeek].pos.y, ps[screenpeek].pos.z, ps[screenpeek].cursectnum);
 
 			if (rnd(192) && (t[2] & 1))
 			{
@@ -3799,7 +3799,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if (ps[playernum].newOwner != nullptr)
 			goalang = getangle(ps[playernum].oposx - spr->x, ps[playernum].oposy - spr->y);
-		else goalang = getangle(ps[playernum].posx - spr->x, ps[playernum].posy - spr->y);
+		else goalang = getangle(ps[playernum].pos.x - spr->x, ps[playernum].pos.y - spr->y);
 		angdif = getincangle(spr->ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		spr->ang += angdif;
@@ -3812,7 +3812,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		if (ps[playernum].newOwner != nullptr)
 			goalang = getangle(ps[playernum].oposx - spr->x, ps[playernum].oposy - spr->y);
-		else goalang = getangle(ps[playernum].posx - spr->x, ps[playernum].posy - spr->y);
+		else goalang = getangle(ps[playernum].pos.x - spr->x, ps[playernum].pos.y - spr->y);
 		angdif = Sgn(getincangle(spr->ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
@@ -3833,8 +3833,8 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	{
 		int newx, newy;
 
-		newx = ps[playernum].posx + (ps[playernum].posxv / 768);
-		newy = ps[playernum].posy + (ps[playernum].posyv / 768);
+		newx = ps[playernum].pos.x + (ps[playernum].posxv / 768);
+		newy = ps[playernum].pos.y + (ps[playernum].posyv / 768);
 		goalang = getangle(newx - spr->x, newy - spr->y);
 		angdif = getincangle(spr->ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
@@ -3935,7 +3935,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel);
-				angdif = getangle(ps[playernum].posx - spr->x, ps[playernum].posy - spr->y);
+				angdif = getangle(ps[playernum].pos.x - spr->x, ps[playernum].pos.y - spr->y);
 
 				if (xvel < 512)
 				{

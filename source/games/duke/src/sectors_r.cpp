@@ -681,7 +681,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 		setnextmap(false);
 	}
 
-	vec3_t v = { sx, sy, ps[snum].posz };
+	vec3_t v = { sx, sy, ps[snum].pos.z };
 	switch (picnum)
 	{
 	default:
@@ -1416,9 +1416,9 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), j,
-			p->posx + p->angle.ang.bcos(-9),
-			p->posy + p->angle.ang.bsin(-9),
-			p->posz, -1);
+			p->pos.x + p->angle.ang.bcos(-9),
+			p->pos.y + p->angle.ang.bsin(-9),
+			p->pos.z, -1);
 		break;
 
 	}
@@ -2403,11 +2403,11 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				if (ps[p].newOwner != nullptr)
 				{
 					ps[p].newOwner = nullptr;
-					ps[p].posx = ps[p].oposx;
-					ps[p].posy = ps[p].oposy;
-					ps[p].posz = ps[p].oposz;
+					ps[p].pos.x = ps[p].oposx;
+					ps[p].pos.y = ps[p].oposy;
+					ps[p].pos.z = ps[p].oposz;
 
-					updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
+					updatesector(ps[p].pos.x, ps[p].pos.y, &ps[p].cursectnum);
 
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act = it.Next())
@@ -2553,21 +2553,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->posx, p->posy, p->posz, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 		}
 
 		if (p->newOwner != nullptr)
 			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else
 		{
-			neartag(p->posx, p->posy, p->posz, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
-				neartag(p->posx, p->posy, p->posz + (8 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (8 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
-				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
 			{
-				neartag(p->posx, p->posy, p->posz + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 				if (neartagsprite != nullptr)
 				{
 					switch (neartagsprite->s->picnum)

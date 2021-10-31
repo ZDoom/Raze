@@ -342,9 +342,9 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 			}
 
 			auto j = EGS(p->cursectnum,
-				p->posx + p->angle.ang.bcos(-6),
-				p->posy + p->angle.ang.bsin(-6),
-				p->posz, HEAVYHBOMB, -16, 9, 9,
+				p->pos.x + p->angle.ang.bcos(-6),
+				p->pos.y + p->angle.ang.bsin(-6),
+				p->pos.z, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
 
 			{
@@ -436,7 +436,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 		if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_STANDSTILL
 			&& p->kickback_pic < (aplWeaponFireDelay[p->curr_weapon][snum] + 1))
 		{
-			p->posz = p->oposz;
+			p->pos.z = p->oposz;
 			p->poszv = 0;
 		}
 		if (p->kickback_pic == aplWeaponSound2Time[p->curr_weapon][snum])

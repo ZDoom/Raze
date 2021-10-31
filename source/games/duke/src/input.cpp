@@ -284,9 +284,9 @@ void hud_input(int plnum)
 
 							auto pactor =
 								EGS(p->cursectnum,
-									p->posx,
-									p->posy,
-									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, nullptr, 10);
+									p->pos.x,
+									p->pos.y,
+									p->pos.z + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, nullptr, 10);
 							pactor->temp_data[3] = pactor->temp_data[4] = 0;
 							p->holoduke_on = pactor;
 							pactor->s->yvel = plnum;

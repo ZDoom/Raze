@@ -251,7 +251,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		int x;
 		int j = findplayer(actor, &x);
 		sz -= (4 << 8);
-		zvel = ((ps[j].posz - sz) << 8) / (ldist(ps[j].GetActor(), actor));
+		zvel = ((ps[j].pos.z - sz) << 8) / (ldist(ps[j].GetActor(), actor));
 		if (s->picnum != BOSS1)
 		{
 			zvel += 128 - (krand() & 255);
@@ -260,7 +260,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		else
 		{
 			zvel += 128 - (krand() & 255);
-			sa = getangle(ps[j].posx - sx, ps[j].posy - sy) + 64 - (krand() & 127);
+			sa = getangle(ps[j].pos.x - sx, ps[j].pos.y - sy) + 64 - (krand() & 127);
 		}
 	}
 
@@ -840,9 +840,9 @@ void shoot_r(DDukeActor* actor, int atwith)
 	{
 		p = s->yvel;
 
-		sx = ps[p].posx;
-		sy = ps[p].posy;
-		sz = ps[p].posz + ps[p].pyoff + (4 << 8);
+		sx = ps[p].pos.x;
+		sy = ps[p].pos.y;
+		sz = ps[p].pos.z + ps[p].pyoff + (4 << 8);
 		sa = ps[p].angle.ang.asbuild();
 
 		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
@@ -2101,15 +2101,15 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 		footprints(snum);
 	}
 
-	if (p->posz < (fz - (i << 8))) //falling
+	if (p->pos.z < (fz - (i << 8))) //falling
 	{
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
-			p->posz = fz - (i << 8);
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
+			p->pos.z = fz - (i << 8);
 		else
 		{
 			p->on_ground = 0;
 
-			if ((p->OnMotorcycle || p->OnBoat) && fz - (i << 8) * 2 > p->posz)
+			if ((p->OnMotorcycle || p->OnBoat) && fz - (i << 8) * 2 > p->pos.z)
 			{
 				if (p->MotoOnGround)
 				{
@@ -2139,7 +2139,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 					S_PlayActorSound(DUKE_SCREAM, pact);
 			}
 
-			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
+			if ((p->pos.z + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
 				if (sector[p->cursectnum].lotag != 1)
@@ -2199,18 +2199,18 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 		{
 			//Smooth on the ground
 
-			int k = ((fz - (i << 8)) - p->posz) >> 1;
+			int k = ((fz - (i << 8)) - p->pos.z) >> 1;
 			if (abs(k) < 256) k = 0;
-			p->posz += k;
+			p->pos.z += k;
 			p->poszv -= 768;
 			if (p->poszv < 0) p->poszv = 0;
 		}
 		else if (p->jumping_counter == 0)
 		{
-			p->posz += ((fz - (i << 7)) - p->posz) >> 1; //Smooth on the water
-			if (p->on_warping_sector == 0 && p->posz > fz - (16 << 8))
+			p->pos.z += ((fz - (i << 7)) - p->pos.z) >> 1; //Smooth on the water
+			if (p->on_warping_sector == 0 && p->pos.z > fz - (16 << 8))
 			{
-				p->posz = fz - (16 << 8);
+				p->pos.z = fz - (16 << 8);
 				p->poszv >>= 1;
 			}
 		}
@@ -2257,15 +2257,15 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 		}
 	}
 
-	p->posz += p->poszv;
+	p->pos.z += p->poszv;
 
-	if (p->posz < (cz + (4 << 8)))
+	if (p->pos.z < (cz + (4 << 8)))
 	{
 		p->jumping_counter = 0;
 		if (p->poszv < 0)
 			p->posxv = p->posyv = 0;
 		p->poszv = 128;
-		p->posz = cz + (4 << 8);
+		p->pos.z = cz + (4 << 8);
 	}
 }
 
@@ -2321,14 +2321,14 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 	if (p->poszv > 2048)
 		p->poszv >>= 1;
 
-	p->posz += p->poszv;
+	p->pos.z += p->poszv;
 
-	if (p->posz > (fz - (15 << 8)))
-		p->posz += ((fz - (15 << 8)) - p->posz) >> 1;
+	if (p->pos.z > (fz - (15 << 8)))
+		p->pos.z += ((fz - (15 << 8)) - p->pos.z) >> 1;
 
-	if (p->posz < (cz + (4 << 8)))
+	if (p->pos.z < (cz + (4 << 8)))
 	{
-		p->posz = cz + (4 << 8);
+		p->pos.z = cz + (4 << 8);
 		p->poszv = 0;
 	}
 
@@ -2339,7 +2339,7 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 		j->s->y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
 		j->s->xrepeat = 3;
 		j->s->yrepeat = 2;
-		j->s->z = p->posz + (8 << 8);
+		j->s->z = p->pos.z + (8 << 8);
 		j->s->cstat = 514;
 	}
 }
@@ -2735,9 +2735,9 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			}
 
 			auto spawned = EGS(p->cursectnum,
-				p->posx + p->angle.ang.bcos(-6),
-				p->posy + p->angle.ang.bsin(-6),
-				p->posz, HEAVYHBOMB, -16, 9, 9,
+				p->pos.x + p->angle.ang.bcos(-6),
+				p->pos.y + p->angle.ang.bsin(-6),
+				p->pos.z, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pact, 1);
 
 			if (k == 15)
@@ -3145,9 +3145,9 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			}
 
 			EGS(p->cursectnum,
-				p->posx + p->angle.ang.bcos(-6),
-				p->posy + p->angle.ang.bsin(-6),
-				p->posz, TRIPBOMBSPRITE, -16, 9, 9,
+				p->pos.x + p->angle.ang.bcos(-6),
+				p->pos.y + p->angle.ang.bsin(-6),
+				p->pos.z, TRIPBOMBSPRITE, -16, 9, 9,
 				p->angle.ang.asbuild(), k * 2, i, pact, 1);
 		}
 		p->kickback_pic++;
@@ -3372,7 +3372,7 @@ void processinput_r(int snum)
 		while (auto act2 = it.Next())
 		{
 			if (act2->s->picnum == RRTILE380)
-				if (act2->s->z - (8 << 8) < p->posz)
+				if (act2->s->z - (8 << 8) < p->pos.z)
 					psectlotag = 2;
 		}
 	}
@@ -3393,19 +3393,19 @@ void processinput_r(int snum)
 	int tempfz;
 	if (s->clipdist == 64)
 	{
-		getzrange_ex(p->posx, p->posy, p->posz, psect, &cz, chz, &fz, clz, 163L, CLIPMASK0);
-		tempfz = getflorzofslope(psect, p->posx, p->posy);
+		getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psect, &cz, chz, &fz, clz, 163L, CLIPMASK0);
+		tempfz = getflorzofslope(psect, p->pos.x, p->pos.y);
 	}
 	else
 	{
-		getzrange_ex(p->posx, p->posy, p->posz, psect, &cz, chz, &fz, clz, 4L, CLIPMASK0);
-		tempfz = getflorzofslope(psect, p->posx, p->posy);
+		getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psect, &cz, chz, &fz, clz, 4L, CLIPMASK0);
+		tempfz = getflorzofslope(psect, p->pos.x, p->pos.y);
 	}
 
 	p->truefz = tempfz;
-	p->truecz = getceilzofslope(psect, p->posx, p->posy);
+	p->truecz = getceilzofslope(psect, p->pos.x, p->pos.y);
 
-	truefdist = abs(p->posz - tempfz);
+	truefdist = abs(p->pos.z - tempfz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
 		psectlotag = 0;
 
@@ -3469,7 +3469,7 @@ void processinput_r(int snum)
 		}
 		else if (badguy(clz.actor) && clz.actor->s->xrepeat > 24 && abs(s->z - clz.actor->s->z) < (84 << 8))
 		{
-			int j = getangle(clz.actor->s->x - p->posx, clz.actor->s->y - p->posy);
+			int j = getangle(clz.actor->s->x - p->pos.x, clz.actor->s->y - p->pos.y);
 			p->posxv -= bcos(j, 4);
 			p->posyv -= bsin(j, 4);
 		}
@@ -3560,7 +3560,7 @@ void processinput_r(int snum)
 
 	p->playerweaponsway(s->xvel);
 
-	s->xvel = clamp(ksqrt((p->posx - p->bobposx) * (p->posx - p->bobposx) + (p->posy - p->bobposy) * (p->posy - p->bobposy)), 0, 512);
+	s->xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->s->xvel >> 1;
 
 	p->backuppos(ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
@@ -3775,18 +3775,18 @@ HORIZONLY:
 	Collision clip{};
 	if (ud.clipping)
 	{
-		p->posx += p->posxv >> 14;
-		p->posy += p->posyv >> 14;
-		updatesector(p->posx, p->posy, &p->cursectnum);
+		p->pos.x += p->posxv >> 14;
+		p->pos.y += p->posyv >> 14;
+		updatesector(p->pos.x, p->pos.y, &p->cursectnum);
 		changeactorsect(pact, p->cursectnum);
 	}
 	else
-		clipmove_ex(&p->posx, &p->posy,
-			&p->posz, &p->cursectnum,
+		clipmove_ex(&p->pos.x, &p->pos.y,
+			&p->pos.z, &p->cursectnum,
 			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
-		p->posz += 32 << 8;
+		p->pos.z += 32 << 8;
 
 	if (clip.type != kHitNone)
 		checkplayerhurt_r(p, clip);
@@ -3813,10 +3813,10 @@ HORIZONLY:
 				if (wall[clip.index].lotag < 44)
 				{
 					dofurniture(clip.index, p->cursectnum, snum);
-					pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 				}
 				else
-					pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 			}
 		}
 	}
@@ -3881,7 +3881,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	setsprite(pact, p->posx, p->posy, p->posz + gs.playerheight);
+	setsprite(pact, p->pos.x, p->pos.y, p->pos.z + gs.playerheight);
 
 	if (psectlotag == 800 && (!isRRRA() || !p->lotag800kill))
 	{
@@ -3916,9 +3916,9 @@ HORIZONLY:
 	if (ud.clipping == 0)
 	{
 		if (s->clipdist == 64)
-			j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			j = (pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 		else
-			j = (pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			j = (pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 	}
 	else j = 0;
 
@@ -4047,8 +4047,8 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 	{
 		if (motosprite)
 		{
-			p->posx = motosprite->s->x;
-			p->posy = motosprite->s->y;
+			p->pos.x = motosprite->s->x;
+			p->pos.y = motosprite->s->y;
 			p->angle.ang = buildang(motosprite->s->ang);
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
@@ -4124,8 +4124,8 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 	{
 		if (boat)
 		{
-			p->posx = boat->s->x;
-			p->posy = boat->s->y;
+			p->pos.x = boat->s->x;
+			p->pos.y = boat->s->y;
 			p->angle.ang = buildang(boat->s->ang);
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);

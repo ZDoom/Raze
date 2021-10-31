@@ -156,11 +156,7 @@ struct player_struct
 	// This is basically the version from JFDuke but this first block contains a few changes to make it work with other parts of Raze.
 	
 	// The sound code wants to read a vector out of this so we need to define one for the main coordinate.
-	union
-	{
-		vec3_t pos;
-		struct { int32_t posx, posy, posz; };
-	};
+	vec3_t pos;
 
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;

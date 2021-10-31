@@ -258,7 +258,7 @@ int findotherplayer(int p, int* d)
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 		if (p != j && ps[j].GetActor()->s->extra > 0)
 		{
-			x = abs(ps[j].oposx - ps[p].posx) + abs(ps[j].oposy - ps[p].posy) + (abs(ps[j].oposz - ps[p].posz) >> 4);
+			x = abs(ps[j].oposx - ps[p].pos.x) + abs(ps[j].oposy - ps[p].pos.y) + (abs(ps[j].oposz - ps[p].pos.z) >> 4);
 
 			if (x < closest)
 			{
@@ -344,10 +344,10 @@ void doanimations(void)
 		{
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursectnum == dasect)
-					if ((sector[dasect].floorz - ps[p].posz) < (64 << 8))
+					if ((sector[dasect].floorz - ps[p].pos.z) < (64 << 8))
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
-							ps[p].posz += v;
+							ps[p].pos.z += v;
 							ps[p].poszv = 0;
 						}
 

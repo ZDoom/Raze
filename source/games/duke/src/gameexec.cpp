@@ -307,15 +307,15 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSX: // oh, my... :( Writing to these has been disabled until I know how to do it without the engine shitting all over itself.
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].posx, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.x, sActor, sPlayer);
 		break;
 
 	case PLAYER_POSY:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].posy, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.y, sActor, sPlayer);
 		break;
 
 	case PLAYER_POSZ:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].posz, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.z, sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZ:
@@ -1523,12 +1523,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->s->sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->s->sectnum);
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz, ps[g_p].GetActor()->s->sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z, ps[g_p].GetActor()->s->sectnum);
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -1982,8 +1982,8 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].posz = sector[ps[g_p].GetActor()->s->sectnum].ceilingz;
-		ps[g_p].GetActor()->s->z = ps[g_p].posz;
+		ps[g_p].pos.z = sector[ps[g_p].GetActor()->s->sectnum].ceilingz;
+		ps[g_p].GetActor()->s->z = ps[g_p].pos.z;
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -2048,11 +2048,11 @@ int ParseState::parse(void)
 		if(!isRR() && ps[g_p].newOwner != nullptr)
 		{
 			ps[g_p].newOwner = nullptr;
-			ps[g_p].posx = ps[g_p].oposx;
-			ps[g_p].posy = ps[g_p].oposy;
-			ps[g_p].posz = ps[g_p].oposz;
+			ps[g_p].pos.x = ps[g_p].oposx;
+			ps[g_p].pos.y = ps[g_p].oposy;
+			ps[g_p].pos.z = ps[g_p].oposz;
 			ps[g_p].angle.restore();
-			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
+			updatesector(ps[g_p].pos.x,ps[g_p].pos.y,&ps[g_p].cursectnum);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto j = it.Next())
@@ -2224,12 +2224,12 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_sp->x = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
-			g_sp->y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
-			g_sp->z = ps[g_p].oposz = ps[g_p].posz;
+			g_sp->x = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].pos.x;
+			g_sp->y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].pos.y;
+			g_sp->z = ps[g_p].oposz = ps[g_p].pos.z;
 			g_sp->backuppos();
-			updatesector(ps[g_p].posx, ps[g_p].posy, &ps[g_p].cursectnum);
-			setsprite(ps[g_p].GetActor(), ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + gs.playerheight);
+			updatesector(ps[g_p].pos.x, ps[g_p].pos.y, &ps[g_p].cursectnum);
+			setsprite(ps[g_p].GetActor(), ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z + gs.playerheight);
 			g_sp->cstat = 257;
 
 			g_sp->shade = -12;
@@ -2403,7 +2403,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
-			else if( (l& phigher) && ps[g_p].posz < (g_sp->z-(48<<8)) )
+			else if( (l& phigher) && ps[g_p].pos.z < (g_sp->z-(48<<8)) )
 					j = 1;
 			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
@@ -2426,9 +2426,9 @@ int ParseState::parse(void)
 			else if( (l& pfacing) )
 			{
 				if (g_sp->picnum == TILE_APLAYER && ud.multimode > 1)
-					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].posx - ps[otherp].posx, ps[g_p].posy - ps[otherp].posy));
+					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].pos.x - ps[otherp].pos.x, ps[g_p].pos.y - ps[otherp].pos.y));
 				else
-					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_sp->x - ps[g_p].posx, g_sp->y - ps[g_p].posy));
+					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_sp->x - ps[g_p].pos.x, g_sp->y - ps[g_p].pos.y));
 
 				if( j > -128 && j < 128 )
 					j = 1;
@@ -2766,7 +2766,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->s->xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),ps[g_p].GetActor()->s->sectnum) )
+			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].pos.x,ps[g_p].pos.y,ps[g_p].pos.z+(16<<8),ps[g_p].GetActor()->s->sectnum) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)
