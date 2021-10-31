@@ -1015,16 +1015,10 @@ bool NullActor(DSWActor* actor)
     return false;
 }
 
-int HitBreakSprite(short BreakSprite, short type)
+int HitBreakSprite(DSWActor* breakActor, short type)
 {
-    auto breakActor = &swActors[BreakSprite];
     SPRITEp bp = &breakActor->s();
     USERp bu = breakActor->u();
-
-    //SPRITEp sp;
-    // ignore as a breakable if true
-    //if (sp->lotag == TAG_SPRITE_HIT_MATCH)
-    //    return(false);
 
     if (TEST_BOOL1(bp))
     {

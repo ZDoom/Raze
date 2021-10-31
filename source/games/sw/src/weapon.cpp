@@ -4360,7 +4360,7 @@ VehicleMoveHit(short SpriteNum)
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hit_sprite, u->ID);
+            HitBreakSprite(&swActors[hit_sprite], u->ID);
             return true;
         }
 
@@ -4531,7 +4531,7 @@ WeaponMoveHit(short SpriteNum)
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hit_sprite, u->ID);
+            HitBreakSprite(&swActors[hit_sprite], u->ID);
             return true;
         }
 
@@ -7794,11 +7794,11 @@ int DoExpDamageTest(DSWActor* actor)
     // Breakable stuff
     for (stat = 0; stat < max_stat; stat++)
     {
-        StatIterator it(StatBreakList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatBreakList[stat]);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &itActor->s();
+            u = itActor->u();
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
             if ((unsigned)dist > wu->Radius)
@@ -7813,7 +7813,7 @@ int DoExpDamageTest(DSWActor* actor)
 
             if (TEST(sp->extra, SPRX_BREAKABLE))
             {
-                HitBreakSprite(i, wu->ID);
+                HitBreakSprite(itActor, wu->ID);
                 break_count++;
                 if (break_count > 6)
                     break;
@@ -10814,8 +10814,7 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 }
 
 
-int
-SpawnBreakFlames(DSWActor* actor)
+int SpawnBreakFlames(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
@@ -13438,7 +13437,7 @@ InitSwordAttack(PLAYERp pp)
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(hitinfo.sprite,0);
+                    HitBreakSprite(&swActors[hitinfo.sprite],0);
                 }
 
                 // hit a switch?
@@ -13629,7 +13628,7 @@ InitFistAttack(PLAYERp pp)
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(hitinfo.sprite,0);
+                    HitBreakSprite(&swActors[hitinfo.sprite],0);
                 }
 
                 // hit a switch?
@@ -14523,7 +14522,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitinfo.sprite,0);
+            HitBreakSprite(&swActors[hitinfo.sprite],0);
             return 0;
         }
 
@@ -14697,7 +14696,7 @@ InitShotgun(PLAYERp pp)
 
             if (TEST(hsp->extra, SPRX_BREAKABLE))
             {
-                HitBreakSprite(hitinfo.sprite,0);
+                HitBreakSprite(&swActors[hitinfo.sprite],0);
                 continue;
             }
 
@@ -17549,7 +17548,7 @@ InitUzi(PLAYERp pp)
                 return 0;
         }
 
-        if (TEST(hsp->extra, SPRX_BREAKABLE) && HitBreakSprite(hitinfo.sprite,0))
+        if (TEST(hsp->extra, SPRX_BREAKABLE) && HitBreakSprite(&swActors[hitinfo.sprite],0))
         {
             return 0;
         }
@@ -17728,7 +17727,7 @@ InitEMP(PLAYERp pp)
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitinfo.sprite,0);
+            HitBreakSprite(&swActors[hitinfo.sprite],0);
             //return(0);
         }
 
@@ -18239,7 +18238,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitinfo.sprite,0);
+            HitBreakSprite(&swActors[hitinfo.sprite],0);
             return 0;
         }
 
@@ -18674,7 +18673,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(hitinfo.sprite,0);
+                    HitBreakSprite(&swActors[hitinfo.sprite],0);
                     continue;
                 }
 

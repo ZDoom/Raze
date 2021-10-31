@@ -2591,7 +2591,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
 
         if (testpointinquad(sp->x, sp->y, x, y))
         {
-            if (TEST(sp->extra, SPRX_BREAKABLE) && HitBreakSprite(actor->GetSpriteIndex(),0))
+            if (TEST(sp->extra, SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
                 continue;
 
             if (sp->statnum == STAT_MISSILE)
