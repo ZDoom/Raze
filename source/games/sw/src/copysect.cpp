@@ -141,23 +141,23 @@ void CopySectorMatch(short match)
 
 #if 1
                 // kill all sprites in the dest sector that need to be
-                SectIterator itsec(dest_sp->sectnum);
-                while ((kill = itsec.NextIndex()) >= 0)
+                SWSectIterator itsec(dest_sp->sectnum);
+                while (auto itActor = itsec.Next())
                 {
-                    k = &sprite[kill];
+                    k = &itActor->s();
 
                     // kill anything not invisible
                     if (!TEST(k->cstat, CSTAT_SPRITE_INVISIBLE))
                     {
-                        if (User[kill].Data())
+                        if (itActor->hasU())
                         {
                             // be safe with the killing
                             //SetSuicide(kill);
                         }
                         else
                         {
-                            SpriteQueueDelete(kill); // new function to allow killing - hopefully
-                            KillSprite(kill);
+                            SpriteQueueDelete(itActor); // new function to allow killing - hopefully
+                            KillActor(itActor);
                         }
                     }
                 }

@@ -1290,21 +1290,18 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
     }
 }
 
-void
-DoSoundSpotStopSound(short match)
+void DoSoundSpotStopSound(short match)
 {
-    int sn;
-    SPRITEp sp;
 
-    StatIterator it(STAT_SOUND_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SOUND_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        auto sp = &actor->s();
 
         // found match and is a follow type
         if (SP_TAG2(sp) == match && TEST_BOOL2(sp))
         {
-            DeleteNoSoundOwner(sn);
+            DeleteNoSoundOwner(actor);
         }
     }
 }
@@ -1514,10 +1511,10 @@ void DoDeleteSpriteMatch(short match)
 
         for (stat = 0; stat < SIZ(StatList); stat++)
         {
-            StatIterator it(StatList[stat]);
-            while ((i = it.NextIndex()) >= 0)
+            SWStatIterator it(StatList[stat]);
+            while (auto actor = it.Next())
             {
-                auto sp = &sprite[i];
+                auto sp = &actor->s();
                 if (del_x == sp->x && del_y == sp->y)
                 {
                     // special case lighting delete of Fade On/off after fades
@@ -1526,14 +1523,12 @@ void DoDeleteSpriteMatch(short match)
                         // set shade to darkest and then kill it
                         sp->shade = int8_t(SP_TAG6(sp));
                         sp->pal = 0;
-                        SectorLightShade(&sprite[i], sp->shade);
-                        DiffuseLighting(&sprite[i]);
+                        SectorLightShade(sp, sp->shade);
+                        DiffuseLighting(sp);
                     }
 
-                    ////DSPRINTF(ds,"Delete Sprite stat %d, x %d, y %d",sp->statnum, sp->x, sp->y);
-                    //MONO_PRINT(ds);
-                    SpriteQueueDelete(i);
-                    KillSprite(i);
+                    SpriteQueueDelete(actor);
+                    KillActor(actor);
                 }
             }
         }

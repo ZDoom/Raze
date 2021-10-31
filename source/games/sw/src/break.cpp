@@ -831,7 +831,7 @@ int KillBreakSprite(DSWActor* breakActor)
     // IMPORTANT: Do not change the statnum if possible so that NEXTI in
     // SpriteControl loop traversals will maintain integrity.
 
-    SpriteQueueDelete(breakActor->GetSpriteIndex());
+    SpriteQueueDelete(breakActor);
 
     if (bu)
     {
@@ -867,7 +867,7 @@ int UserBreakSprite(DSWActor* breakActor)
         // its better than forcing everyone to have a ST1
         DoMatchEverything(nullptr, match, -1);
         // Kill sound if one is attached
-        DeleteNoSoundOwner(BreakSprite);
+        DeleteNoSoundOwner(breakActor);
         KillBreakSprite(breakActor);
         return true;
     }
@@ -895,7 +895,7 @@ int UserBreakSprite(DSWActor* breakActor)
         if (SP_TAG8(sp) == 1)
         {
             // Kill sound if one is attached
-            DeleteNoSoundOwner(BreakSprite);
+            DeleteNoSoundOwner(breakActor);
             KillBreakSprite(breakActor);
             return true;
         }
@@ -981,7 +981,7 @@ int AutoBreakSprite(DSWActor* breakActor, short type)
         RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         SET(bp->cstat, CSTAT_SPRITE_INVISIBLE);
         // Kill sound if one is attached
-        DeleteNoSoundOwner(BreakSprite);
+        DeleteNoSoundOwner(breakActor);
         KillBreakSprite(breakActor);
         return true;
     }

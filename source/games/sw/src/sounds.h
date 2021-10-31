@@ -77,7 +77,7 @@ class DSWActor;
 
 void Set3DSoundOwner(short spritenum);
 void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags);
-void DeleteNoSoundOwner(short spritenum);
+void DeleteNoSoundOwner(DSWActor* actor);
 void DeleteNoFollowSoundOwner(short spritenum);
 
 inline bool CacheSound(int num, int type) { return false; }

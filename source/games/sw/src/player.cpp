@@ -2615,7 +2615,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             if (sp->z < sop->crush_z)
                 continue;
 
-            SpriteQueueDelete(actor->GetSpriteIndex());
+            SpriteQueueDelete(actor);
             KillActor(actor);
         }
     }
@@ -2661,7 +2661,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             if (sp->z < sop->crush_z)
                 continue;
 
-            SpriteQueueDelete(actor->GetSpriteIndex());
+            SpriteQueueDelete(actor);
             KillActor(actor);
         }
     }

@@ -130,15 +130,13 @@ void ProcessQuakeOn(void)
 
 void ProcessQuakeSpot(void)
 {
-    int i;
-    SPRITEp sp;
     int rand_test;
 
     // check timed quakes and random quakes
-    StatIterator it(STAT_QUAKE_SPOT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_QUAKE_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        auto sp = &actor->s();
 
         // not a timed quake
         if (!QUAKE_WaitSecs(sp))
@@ -154,8 +152,7 @@ void ProcessQuakeSpot(void)
         if ((int16_t)QUAKE_WaitTics(sp) < 0)
         {
             // reset timer - add in Duration of quake
-            //QUAKE_WaitTics(sp) = ((QUAKE_WaitSecs(sp)*10L) + QUAKE_Duration(sp)) * 120L;
-            SET_SP_TAG13(sp, (((QUAKE_WaitSecs(sp)*10L) + QUAKE_Duration(sp)) * 120L));
+            SET_SP_TAG13(sp, (((QUAKE_WaitSecs(sp)*10) + QUAKE_Duration(sp)) * 120));
 
             // spawn a quake if condition is met
             rand_test = QUAKE_RandomTest(sp);
@@ -167,8 +164,8 @@ void ProcessQuakeSpot(void)
                 // kill quake spot if needed
                 if (QUAKE_KillAfterQuake(sp))
                 {
-                    DeleteNoSoundOwner(i);
-                    KillSprite(i);
+                    DeleteNoSoundOwner(actor);
+                    KillActor(actor);
                     continue;
                 }
             }

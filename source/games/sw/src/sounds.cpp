@@ -713,10 +713,10 @@ void COVER_SetReverb(int amt)
 //
 //==========================================================================
 
-void DeleteNoSoundOwner(short spritenum)
+void DeleteNoSoundOwner(DSWActor* actor)
 {
     if (!soundEngine) return;
-    SPRITEp sp = &sprite[spritenum];
+    SPRITEp sp = &actor->s();
 
     soundEngine->EnumerateChannels([=](FSoundChan* chan)
         {

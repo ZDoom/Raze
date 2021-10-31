@@ -547,7 +547,7 @@ DoHornetDeath(DSWActor* actor)
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
         RESET(sp->cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
         NewStateGroup(actor, u->ActorActionSet->Dead);
-        DeleteNoSoundOwner(SpriteNum);
+        DeleteNoSoundOwner(actor);
         return 0;
     }
 

@@ -3396,7 +3396,7 @@ pRailRetract(PANEL_SPRITEp psp)
     {
         RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[psp->WeaponType] = nullptr;
-        DeleteNoSoundOwner(psp->PlayerP->PlayerSprite);
+        DeleteNoSoundOwner(psp->PlayerP->Actor());
         pKillSprite(psp);
     }
 }

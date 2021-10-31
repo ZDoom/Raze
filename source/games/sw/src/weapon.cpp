@@ -20064,10 +20064,10 @@ DoBubble(DSWActor* actor)
 // this needs to be called before killsprite
 // whenever killing a sprite that you aren't completely sure what it is, like
 // with the drivables, copy sectors, break sprites, etc
-void
-SpriteQueueDelete(short SpriteNum)
+void SpriteQueueDelete(DSWActor* actor)
 {
     int i;
+    int SpriteNum = actor->GetSpriteIndex();
 
     for (i = 0; i < MAX_STAR_QUEUE; i++)
         if (StarQueue[i] == SpriteNum)

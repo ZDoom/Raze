@@ -638,7 +638,7 @@ void KillSprite(int16_t SpriteNum)
 
     //////////////////////////////////////////////
     //    Check sounds list to kill attached sounds
-    DeleteNoSoundOwner(SpriteNum);
+    DeleteNoSoundOwner(actor);
     DeleteNoFollowSoundOwner(SpriteNum);
     //////////////////////////////////////////////
 
