@@ -613,7 +613,7 @@ ANIMATORp DoActorActionDecide(DSWActor* actor)
             // Enemy goes inactive - he is still allowed to roam about for about
             // 5 seconds trying to find another player before his active_range is
             // bumped down
-            SetEnemyInactive(SpriteNum);
+            RESET(u->Flags, SPR_ACTIVE);
 
             // You've lost the player - now decide what to do
             action = ChooseAction(u->Personality->LostTarget);

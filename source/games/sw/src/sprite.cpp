@@ -6466,33 +6466,6 @@ KeyMain:
     return 0;
 }
 
-
-/*
-
-  !AIC KEY - Set Active and Inactive code is here.  It was tough to make this
-  fast.  Just know that the main flag is SPR_ACTIVE.  Should not need to be
-  changed except for possibly the u->active_range settings in the future.
-
-*/
-
-void
-SetEnemyActive(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data();
-
-    SET(u->Flags, SPR_ACTIVE);
-    u->inactive_time = 0;
-}
-
-void
-SetEnemyInactive(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data();
-
-    RESET(u->Flags, SPR_ACTIVE);
-}
-
-
 // This function mostly only adjust the active_range field
 
 void
@@ -6555,7 +6528,8 @@ AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
         // some huge distance
         u->active_range = 75000;
         // sprite is AWARE
-        SetEnemyActive(SpriteNum);
+        SET(u->Flags, SPR_ACTIVE);
+        u->inactive_time = 0;
     }
 }
 
