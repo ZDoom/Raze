@@ -2866,11 +2866,11 @@ DoPlayerMoveVehicle(PLAYERp pp)
                 if (FindDistance2D(hitinfo.pos.x - hit_pos.x, hitinfo.pos.y - hit_pos.y) < 800)
                 {
                     if (hitinfo.wall >= 0)
-                        u->ret = hitinfo.wall|HIT_WALL;
+                        SetCollision(u, hitinfo.wall|HIT_WALL);
                     else if (hitinfo.sprite >= 0)
-                        u->ret = hitinfo.sprite|HIT_SPRITE;
+                        SetCollision(u, hitinfo.sprite|HIT_SPRITE);
                     else
-                        u->ret = 0;
+                        SetCollision(u, 0);
 
                     VehicleMoveHit(short(sp - sprite));
                 }
@@ -2903,12 +2903,12 @@ DoPlayerMoveVehicle(PLAYERp pp)
         if (pp->sop->clipdist)
         {
             vec3_t clippos = { pp->posx, pp->posy, z };
-            u->ret = clipmove(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+            SetCollision(u, clipmove(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER));
             pp->pos.vec2 = clippos.vec2;
         }
         else
         {
-            u->ret = MultiClipMove(pp, z, floor_dist);
+            SetCollision(u, MultiClipMove(pp, z, floor_dist));
         }
         pp->SpriteP->cstat = save_cstat;
 
@@ -6317,7 +6317,8 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     dax = MOVEx(u->slide_vel, u->slide_ang);
     day = MOVEy(u->slide_vel, u->slide_ang);
 
-    if ((u->ret = move_sprite(pp->PlayerSprite, dax, day, 0, Z(16), Z(16), 1, synctics)))
+    SetCollision(u, move_sprite(pp->PlayerSprite, dax, day, 0, Z(16), Z(16), 1, synctics));
+    if (u->ret)
     {
         switch (TEST(u->ret, HIT_MASK))
         {

@@ -3879,7 +3879,7 @@ DoShrapMove(int16_t SpriteNum)
 {
     USERp u = User[SpriteNum].Data();
 
-    u->ret = move_missile(SpriteNum, u->xchange, u->ychange, 0, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
+    SetCollision(u, move_missile(SpriteNum, u->xchange, u->ychange, 0, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
     return 0;
 }
@@ -4629,7 +4629,7 @@ WeaponMoveHit(short SpriteNum)
         if (wph->lotag == TAG_WALL_BREAK)
         {
             HitBreakWall(&wall[hitinfo.wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
-            u->ret = 0;
+            SetCollision(u, 0);
             return true;
         }
 
@@ -4751,13 +4751,11 @@ DoFireballFlames(DSWActor* actor)
         {
             DoJump(actor);
             jumping = true;
-            //u->ret = move_missile(SpriteNum, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
         }
         else if (TEST(u->Flags, SPR_FALLING))
         {
             DoFall(actor);
             jumping = true;
-            //u->ret = move_missile(SpriteNum, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
         }
         else
         {
@@ -7972,7 +7970,7 @@ DoStar(DSWActor* actor)
         }
     }
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
     //DoDamageTest(Weapon);
@@ -7998,7 +7996,7 @@ DoStar(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(&wall[hit_wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
-                u->ret = 0;
+                SetCollision(u, 0);
                 break;
             }
 
@@ -8036,7 +8034,7 @@ DoStar(DSWActor* actor)
             ScaleSpriteVector(Weapon, 36000);
             SET(u->Flags, SPR_BOUNCE);
             u->motion_blur_num = 0;
-            u->ret = 0;
+            SetCollision(u, 0);
             break;
         }
 
@@ -8094,7 +8092,7 @@ DoStar(DSWActor* actor)
 
                     SET(u->Flags, SPR_BOUNCE);
                     u->motion_blur_num = 0;
-                    u->ret = 0;
+                    SetCollision(u, 0);
 
                 }
                 else
@@ -8102,7 +8100,7 @@ DoStar(DSWActor* actor)
                     // hit a sloped sector < 45 degrees
                     SET(u->Flags, SPR_BOUNCE);
                     u->motion_blur_num = 0;
-                    u->ret = 0;
+                    SetCollision(u, 0);
                 }
 
                 // BREAK HERE - LOOOK !!!!!!!!!!!!!!!!!!!!!!!!
@@ -8111,7 +8109,7 @@ DoStar(DSWActor* actor)
 
             SET(u->Flags, SPR_BOUNCE);
             u->motion_blur_num = 0;
-            u->ret = 0;
+            SetCollision(u, 0);
             u->zchange = -u->zchange;
 
             // 32000 to 96000
@@ -8162,7 +8160,7 @@ DoCrossBolt(DSWActor* actor)
 
     DoBlurExtend(Weapon, 0, 2);
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -8660,7 +8658,7 @@ DoPlasma(DSWActor* actor)
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    u->ret = move_missile(Weapon, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (u->ret)
     {
@@ -8683,7 +8681,7 @@ DoPlasma(DSWActor* actor)
                     sp->z = oz;
 
                     RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                    u->ret = move_missile(Weapon, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
+                    SetCollision(u, move_missile(Weapon, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
                     hsp->cstat = hcstat;
                 }
             }
@@ -8726,7 +8724,7 @@ DoCoolgFire(DSWActor* actor)
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -8910,8 +8908,8 @@ DoGrenade(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -8982,7 +8980,7 @@ DoGrenade(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                u->ret = 0;
+                SetCollision(u, 0);
                 break;
             }
 
@@ -9007,7 +9005,7 @@ DoGrenade(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(Weapon, 22000); // 28000
-                    u->ret = 0;
+                    SetCollision(u, 0);
                     u->Counter = 0;
                 }
                 else
@@ -9020,7 +9018,7 @@ DoGrenade(DSWActor* actor)
                         {
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(Weapon, 40000); // 18000
-                            u->ret = 0;
+                            SetCollision(u, 0);
                             u->zchange /= 4;
                             u->Counter = 0;
                         }
@@ -9060,7 +9058,7 @@ DoGrenade(DSWActor* actor)
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
                         SET(u->Flags, SPR_BOUNCE);
-                        u->ret = 0;
+                        SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(Weapon, 40000); // 18000
@@ -9147,8 +9145,8 @@ DoVulcanBoulder(DSWActor* actor)
     u->Counter += 40;
     u->zchange += u->Counter;
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     int32_t const vel = ksqrt(SQ(u->xchange) + SQ(u->ychange));
 
@@ -9206,7 +9204,7 @@ DoVulcanBoulder(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                u->ret = 0;
+                SetCollision(u, 0);
                 break;
             }
 
@@ -9230,7 +9228,7 @@ DoVulcanBoulder(DSWActor* actor)
                 {
                     // hit a sloped sector - treated as a wall because of large slope
                     ScaleSpriteVector(Weapon, 30000);
-                    u->ret = 0;
+                    SetCollision(u, 0);
                     u->Counter = 0;
                 }
                 else
@@ -9242,7 +9240,7 @@ DoVulcanBoulder(DSWActor* actor)
                         u->xchange = MulScale(u->xchange, 30000, 16);
                         u->ychange = MulScale(u->ychange, 30000, 16);
                         u->zchange = MulScale(u->zchange, 12000, 16);
-                        u->ret = 0;
+                        SetCollision(u, 0);
                         u->Counter = 0;
 
                         // limit to a reasonable bounce value
@@ -9252,7 +9250,7 @@ DoVulcanBoulder(DSWActor* actor)
                     else
                     {
                         // hit a sloped ceiling
-                        u->ret = 0;
+                        SetCollision(u, 0);
                         u->Counter = 0;
                         ScaleSpriteVector(Weapon, 30000);
                     }
@@ -9263,7 +9261,7 @@ DoVulcanBoulder(DSWActor* actor)
                 // hit unsloped floor
                 if (sp->z > DIV2(u->hiz + u->loz))
                 {
-                    u->ret = 0;
+                    SetCollision(u, 0);
                     u->Counter = 0;
 
                     u->xchange = MulScale(u->xchange, 20000, 16);
@@ -9569,8 +9567,8 @@ DoMine(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -9659,7 +9657,7 @@ DoMine(DSWActor* actor)
             if (wall[hit_wall].lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(&wall[hit_wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
-                u->ret = 0;
+                SetCollision(u, 0);
                 break;
             }
 
@@ -9705,7 +9703,7 @@ DoMine(DSWActor* actor)
         }
         }
 
-        u->ret = 0;
+        SetCollision(u, 0);
     }
 
     return false;
@@ -9752,7 +9750,7 @@ DoBoltThinMan(DSWActor* actor)
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    u->ret = move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -9788,7 +9786,7 @@ DoTracer(DSWActor* actor)
 
     for (i = 0; i < 4; i++)
     {
-        u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(Weapon);
 
@@ -9817,7 +9815,7 @@ DoEMP(DSWActor* actor)
 
     for (i = 0; i < 4; i++)
     {
-        u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(Weapon);
 
@@ -9911,7 +9909,7 @@ DoTankShell(DSWActor* actor)
 
     for (i = 0; i < 4; i++)
     {
-        u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(Weapon);
 
@@ -9935,8 +9933,8 @@ DoTracerStart(DSWActor* actor)
 {
     USER* u = actor->u();
     int Weapon = u->SpriteNum;
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -9967,7 +9965,7 @@ DoLaser(DSWActor* actor)
 
     while (true)
     {
-        u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(Weapon);
 
@@ -10010,7 +10008,7 @@ DoLaserStart(DSWActor* actor)
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -10042,7 +10040,7 @@ DoRail(DSWActor* actor)
 
     while (true)
     {
-        u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(Weapon);
 
@@ -10126,7 +10124,7 @@ DoRailStart(DSWActor* actor)
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -10168,7 +10166,7 @@ DoRocket(DSWActor* actor)
         VectorMissileSeek(Weapon, 30, 16, 128, 768);
     }
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -10242,7 +10240,7 @@ DoMicroMini(DSWActor* actor)
 
     for (i = 0; i < 3; i++)
     {
-        u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(Weapon);
 
@@ -10310,8 +10308,8 @@ DoMicro(DSWActor* actor)
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -10396,7 +10394,7 @@ DoUziBullet(DSWActor* actor)
 
         sx = sp->x;
         sy = sp->y;
-        u->ret = move_missile(Weapon, dax, day, daz, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+        SetCollision(u, move_missile(Weapon, dax, day, daz, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
         u->Dist += Distance(sx, sy, sp->x, sp->y);
 
         MissileHitDiveArea(Weapon);
@@ -10464,7 +10462,7 @@ DoBoltSeeker(DSWActor* actor)
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    u->ret = move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -10515,7 +10513,7 @@ DoElectro(DSWActor* actor)
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    u->ret = move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -10561,8 +10559,8 @@ DoLavaBoulder(DSWActor* actor)
     USER* u = actor->u();
     int Weapon = u->SpriteNum;
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -10591,8 +10589,8 @@ DoSpear(DSWActor* actor)
     USER* u = actor->u();
     int Weapon = u->SpriteNum;
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -11137,8 +11135,8 @@ SpawnNuclearSecondaryExp(int16_t Weapon, short ang)
     eu->xchange = MOVEx(vel, ang);
     eu->ychange = MOVEy(vel, ang);
     eu->Radius = 200; // was NUKE_RADIUS
-    eu->ret = move_missile(explosion, eu->xchange, eu->ychange, 0,
-                           eu->ceiling_dist, eu->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(eu, move_missile(explosion, eu->xchange, eu->ychange, 0,
+                           eu->ceiling_dist, eu->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (FindDistance3D(exp->x - sp->x, exp->y - sp->y, exp->z - sp->z) < 1024)
     {
@@ -11485,8 +11483,8 @@ SpawnGrenadeSecondaryExp(int16_t Weapon, short ang)
     eu->xchange = MOVEx(vel, ang);
     eu->ychange = MOVEy(vel, ang);
 
-    eu->ret = move_missile(explosion, eu->xchange, eu->ychange, 0,
-                           eu->ceiling_dist, eu->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(eu, move_missile(explosion, eu->xchange, eu->ychange, 0,
+                           eu->ceiling_dist, eu->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (FindDistance3D(exp->x - sp->x, exp->y - sp->y, exp->z - sp->z) < 1024)
     {
@@ -11875,26 +11873,7 @@ DoFireball(DSWActor* actor)
         }
     }
 
-#if 0
-    ox = sp->x;
-    oy = sp->y;
-    oz = sp->z;
-    os = sp->sectnum
-#endif
-
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
-
-#if 0
-    if (u->ret)
-    {
-        u->ret = 0;
-        xv = u->xchange/2;
-        yv = u->ychange/2;
-        zv = u->zchange/2;
-
-        u->ret = move_missile(Weapon, xv, yv, zv, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS);
-    }
-#endif
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -12092,7 +12071,7 @@ DoNapalm(DSWActor* actor)
     oy = sp->y;
     oz = sp->z;
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -12116,7 +12095,7 @@ DoNapalm(DSWActor* actor)
                 sp->z = oz;
 
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+                SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
                 hsp->cstat = hcstat;
             }
         }
@@ -12195,13 +12174,13 @@ DoBloodWorm(DSWActor* actor)
 
     u = User[Weapon].Data();
 
-    u->ret = move_ground_missile(Weapon, u->xchange, u->ychange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_ground_missile(Weapon, u->xchange, u->ychange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (u->ret)
     {
         u->xchange = -u->xchange;
         u->ychange = -u->ychange;
-        u->ret = 0;
+        SetCollision(u, 0);
         sp->ang = NORM_ANGLE(sp->ang + 1024);
         return true;
     }
@@ -12297,7 +12276,7 @@ DoSerpMeteor(DSWActor* actor)
     if (sp->xrepeat > 80)
         sp->xrepeat = 80;
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (u->ret)
     {
@@ -12317,7 +12296,7 @@ DoSerpMeteor(DSWActor* actor)
                 sp->z = oz;
 
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+                SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
                 hsp->cstat = hcstat;
             }
         }
@@ -12351,7 +12330,7 @@ DoMirvMissile(DSWActor* actor)
     if (sp->xrepeat > 80)
         sp->xrepeat = 80;
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(Weapon);
@@ -12386,37 +12365,13 @@ DoMirv(DSWActor* actor)
 //    oy = sp->y;
 //    oz = sp->z;
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(Weapon);
 
-#if 0
-    if (u->ret)
-    {
-        // this sprite is supposed to go through players/enemys
-        // if hit a player/enemy back up and do it again with blocking reset
-        if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
-        {
-            SPRITEp hsp = &sprite[NORM_SPRITE(u->ret)];
-
-            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
-            {
-                short hcstat = hsp->cstat;
-
-                sp->x = ox;
-                sp->y = oy;
-                sp->z = oz;
-
-                RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
-                hsp->cstat = hcstat;
-            }
-        }
-    }
-#endif
 
     u->Counter++;
     u->Counter &= 1;
@@ -19229,8 +19184,7 @@ HelpMissileLateral(int16_t Weapon, int dist)
 
     sp->clipdist = 32L >> 2;
 
-    //u->ret = move_missile(Weapon, xchange, ychange, 0, Z(16), Z(16), CLIPMASK_MISSILE, 1);
-    u->ret = move_missile(Weapon, xchange, ychange, 0, Z(16), Z(16), 0, 1);
+    SetCollision(u, move_missile(Weapon, xchange, ychange, 0, Z(16), Z(16), 0, 1));
 
 // !JIM! Should this be fatal, it seems to fail check alot, but doesn't crash game or anything
 // when I commented it out.
@@ -19881,7 +19835,7 @@ MissileHitDiveArea(short SpriteNum)
             SpawnSplash(short(sp - sprite));
             SpriteWarpToUnderwater(sp);
             //SpawnUnderSplash(sp - sprite);
-            u->ret = 0;
+            SetCollision(u, 0);
             PlaySound(DIGI_PROJECTILEWATERHIT, sp, v3df_none);
             return true;
         }
@@ -19897,7 +19851,7 @@ MissileHitDiveArea(short SpriteNum)
                 return false;
             }
             SpawnSplash(short(sp - sprite));
-            u->ret = 0;
+            SetCollision(u, 0);
             return true;
         }
 
@@ -20876,8 +20830,8 @@ DoShrapVelocity(int16_t SpriteNum)
         u->zchange += u->Counter;
     }
 
-    u->ret = move_missile(SpriteNum, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
+    SetCollision(u, move_missile(SpriteNum, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
     MissileHitDiveArea(SpriteNum);
 
@@ -20935,7 +20889,7 @@ DoShrapVelocity(int16_t SpriteNum)
                 {
                     // hit a wall
                     ScaleSpriteVector(SpriteNum, 28000);
-                    u->ret = 0;
+                    SetCollision(u, 0);
                     u->Counter = 0;
                 }
                 else
@@ -20948,7 +20902,7 @@ DoShrapVelocity(int16_t SpriteNum)
                         {
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(SpriteNum, 18000);
-                            u->ret = 0;
+                            SetCollision(u, 0);
                             u->Counter = 0;
                         }
                         else
@@ -20982,7 +20936,7 @@ DoShrapVelocity(int16_t SpriteNum)
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
                         SET(u->Flags, SPR_BOUNCE);
-                        u->ret = 0;
+                        SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(SpriteNum, 18000);
@@ -21216,8 +21170,8 @@ DoItemFly(int16_t SpriteNum)
         u->zchange += u->Counter;
     }
 
-    u->ret = move_missile(SpriteNum, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
+    SetCollision(u, move_missile(SpriteNum, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
     MissileHitDiveArea(SpriteNum);
 

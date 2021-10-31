@@ -402,8 +402,8 @@ DoBloodSpray(DSWActor* actor)
     }
     else
     {
-        u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                              u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                              u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
     }
 
 
@@ -455,7 +455,7 @@ DoBloodSpray(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                u->ret = 0;
+                SetCollision(u, 0);
                 break;
             }
 
@@ -524,7 +524,7 @@ DoBloodSpray(DSWActor* actor)
                 {
                     SpawnFloorSplash(Weapon);
                     SET(u->Flags, SPR_BOUNCE);
-                    u->ret = 0;
+                    SetCollision(u, 0);
                     u->Counter = 0;
                     u->zchange = -u->zchange;
                     ScaleSpriteVector(Weapon, 32000);   // Was 18000
@@ -612,8 +612,8 @@ DoPhosphorus(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
     MissileHitDiveArea(Weapon);
 
@@ -676,7 +676,7 @@ DoPhosphorus(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                u->ret = 0;
+                SetCollision(u, 0);
                 break;
             }
 
@@ -699,7 +699,7 @@ DoPhosphorus(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(Weapon, 28000);
-                    u->ret = 0;
+                    SetCollision(u, 0);
                     u->Counter = 0;
                 }
                 else
@@ -713,7 +713,7 @@ DoPhosphorus(DSWActor* actor)
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(Weapon, 32000);       // was 18000
                             u->zchange /= 6;
-                            u->ret = 0;
+                            SetCollision(u, 0);
                             u->Counter = 0;
                         }
                         else
@@ -747,7 +747,7 @@ DoPhosphorus(DSWActor* actor)
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
                         SET(u->Flags, SPR_BOUNCE);
-                        u->ret = 0;
+                        SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(Weapon, 32000);   // Was 18000
@@ -837,8 +837,8 @@ DoChemBomb(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -901,7 +901,7 @@ DoChemBomb(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                u->ret = 0;
+                SetCollision(u, 0);
                 break;
             }
 
@@ -926,7 +926,7 @@ DoChemBomb(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(Weapon, 28000);
-                    u->ret = 0;
+                    SetCollision(u, 0);
                     u->Counter = 0;
                 }
                 else
@@ -942,7 +942,7 @@ DoChemBomb(DSWActor* actor)
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(Weapon, 32000);       // was 18000
                             u->zchange /= 6;
-                            u->ret = 0;
+                            SetCollision(u, 0);
                             u->Counter = 0;
                         }
                         else
@@ -987,7 +987,7 @@ DoChemBomb(DSWActor* actor)
                         if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                             PlaySound(DIGI_CHEMBOUNCE, sp, v3df_dontpan);
                         SET(u->Flags, SPR_BOUNCE);
-                        u->ret = 0;
+                        SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(Weapon, 32000);   // Was 18000
@@ -1098,8 +1098,8 @@ DoCaltrops(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(Weapon);
 
@@ -1148,7 +1148,7 @@ DoCaltrops(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                u->ret = 0;
+                SetCollision(u, 0);
                 break;
             }
 
@@ -1172,7 +1172,7 @@ DoCaltrops(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(Weapon, 1000);
-                    u->ret = 0;
+                    SetCollision(u, 0);
                     u->Counter = 0;
                 }
                 else
@@ -1186,7 +1186,7 @@ DoCaltrops(DSWActor* actor)
                             PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(Weapon, 1000);        // was 18000
-                            u->ret = 0;
+                            SetCollision(u, 0);
                             u->Counter = 0;
                         }
                         else
@@ -1222,7 +1222,7 @@ DoCaltrops(DSWActor* actor)
                     {
                         PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
                         SET(u->Flags, SPR_BOUNCE);
-                        u->ret = 0;
+                        SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(Weapon, 1000);    // Was 18000

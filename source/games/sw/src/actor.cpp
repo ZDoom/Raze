@@ -390,8 +390,8 @@ bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 {
     USERp u = actor->u();
 
-    u->ret = move_sprite(actor->GetSpriteIndex(), xchange, ychange, zchange,
-                         u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
+    SetCollision(u, move_sprite(actor->GetSpriteIndex(), xchange, ychange, zchange,
+                         u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS));
 
     return !u->ret;
 }

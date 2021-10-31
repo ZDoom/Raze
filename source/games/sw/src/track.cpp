@@ -3787,7 +3787,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
             nz = sp->zvel * locktics;
     }
 
-    u->ret = move_sprite(SpriteNum, nx, ny, nz, u->ceiling_dist, u->floor_dist, 0, locktics);
+    SetCollision(u, move_sprite(SpriteNum, nx, ny, nz, u->ceiling_dist, u->floor_dist, 0, locktics));
 
 
     if (u->ret)

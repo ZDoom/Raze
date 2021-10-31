@@ -5134,8 +5134,8 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     hi_sectp = u->hi_sectp;
     sectnum = sp->sectnum;
 
-    u->ret = move_sprite(SpriteNum, xchange, ychange, zchange,
-                         u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS);
+    SetCollision(u, move_sprite(SpriteNum, xchange, ychange, zchange,
+                         u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS));
 
     ASSERT(sp->sectnum >= 0);
 
@@ -5155,7 +5155,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             u->highActor = highActor;
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
-            u->ret = -1;
+            SetCollision(u, -1);    // caution!!
             changespritesect(SpriteNum, sectnum);
             return false;
         }
@@ -5174,7 +5174,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             u->highActor = highActor;
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
-            u->ret = -1;
+            SetCollision(u, -1); // caution!!
             changespritesect(SpriteNum, sectnum);
             return false;
         }

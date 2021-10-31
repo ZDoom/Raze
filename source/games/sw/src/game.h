@@ -2276,6 +2276,12 @@ inline int Facing(DSWActor* actor1, DSWActor* actor2)
     return (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512);
 }
 
+// temporary helper.
+inline void SetCollision(USER* u, int coll)
+{
+    u->ret = coll;
+}
+
 END_SW_NS
 #endif
 
