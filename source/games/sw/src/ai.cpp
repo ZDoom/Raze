@@ -43,7 +43,7 @@ BEGIN_SW_NS
 bool PlayerTakeDamage(PLAYERp, short);
 ANIMATOR InitActorRunToward;
 bool FAF_Sector(short);
-bool DropAhead(short SpriteNum, short min_height);
+bool DropAhead(DSWActor* actor, short min_height);
 
 ANIMATORp ChooseAction(DECISION decision[]);
 
@@ -78,7 +78,6 @@ int Distance(int x1, int y1, int x2, int y2)
 bool ActorMoveHitReact(DSWActor* actor)
 {
     USERp u = actor->u();
-    int SpriteNum = actor->GetSpriteIndex();
 
     // Should only return true if there is a reaction to what was hit that
     // would cause the calling function to abort
@@ -193,28 +192,23 @@ int DoActorNoise(ANIMATORp Action, DSWActor* actor)
     if (Action == InitActorAmbientNoise)
     {
         PlaySpriteSound(SpriteNum, attr_ambient, v3df_follow);
-//      MONO_PRINT("Ambient Sound");
     }
     else if (Action == InitActorAlertNoise)
     {
         if (u && !u->DidAlert) // This only allowed once
             PlaySpriteSound(SpriteNum, attr_alert, v3df_follow);
-//      MONO_PRINT("Alert Sound");
     }
     else if (Action == InitActorAttackNoise)
     {
         PlaySpriteSound(SpriteNum, attr_attack, v3df_follow);
-//      MONO_PRINT("Attack Sound");
     }
     else if (Action == InitActorPainNoise)
     {
         PlaySpriteSound(SpriteNum, attr_pain, v3df_follow);
-//      MONO_PRINT("Pain Sound");
     }
     else if (Action == InitActorDieNoise)
     {
         PlaySpriteSound(SpriteNum, attr_die, v3df_none);
-//      MONO_PRINT("Die Sound");
     }
     else if (Action == InitActorExtra1Noise)
     {
@@ -373,7 +367,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
                 continue;
 
             // if co-op don't hurt teammate
-            // if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && !gNet.HurtTeammate && u->spal == User[pp->PlayerSprite]->spal)
+            // if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && !gNet.HurtTeammate && u->spal == pp->Actor()->s().spal)
             //    continue;
         }
 
@@ -403,14 +397,14 @@ int DoActorPickClosePlayer(DSWActor* actor)
                 continue;
 
             // if co-op don't hurt teammate
-            //if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && !gNet.HurtTeammate && u->spal == User[pp->PlayerSprite]->spal)
+            //if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && !gNet.HurtTeammate && u->spal == pp->Actor()->s().spal)
             //    continue;
         }
 
         DISTANCE(sp->x, sp->y, pp->posx, pp->posy, dist, a, b, c);
 
-        //bool ICanSee = FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum);
-        if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum))
+        auto psp = &pp->Actor()->s();
+        if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, psp->x, psp->y, SPRITEp_UPPER(psp), psp->sectnum))
         {
             near_dist = dist;
             u->targetActor = pp->Actor();
@@ -481,7 +475,6 @@ int DoActorOperate(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
-    int SpriteNum = actor->GetSpriteIndex();
     short nearsector, nearwall, nearsprite;
     int nearhitdist;
     int z[2];
@@ -566,12 +559,11 @@ DECISION GenericFlaming[] =
  do anymore and then this routine is called again.
 */
 
-ANIMATORp
-DoActorActionDecide(short SpriteNum)
+ANIMATORp DoActorActionDecide(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
+    int SpriteNum = u->SpriteNum;
     int dist;
     ANIMATORp action;
     bool ICanSee=false;
@@ -747,7 +739,6 @@ DoActorActionDecide(short SpriteNum)
 int InitActorDecide(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     // NOTE: It is possible to overflow the stack with too many calls to this
     // routine
@@ -768,13 +759,11 @@ int DoActorDecide(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     ANIMATORp actor_action;
 
-    // DoActorTest(SpriteNum);
-
     // See what to do next
-    actor_action = DoActorActionDecide(SpriteNum);
+    actor_action = DoActorActionDecide(actor);
 
     // Fix for the GenericFlaming bug for actors that don't have attack states
     if (actor_action == InitActorAttack && u->WeaponNum == 0)
@@ -928,9 +917,6 @@ int InitActorExtra6Noise(DSWActor* actor)
 int InitActorMoveCloser(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-
-    //MONO_PRINT("Init Actor Move Closer\n");
 
     u->ActorActionFunc = DoActorMoveCloser;
 
@@ -945,10 +931,7 @@ int InitActorMoveCloser(DSWActor* actor)
 int DoActorCantMoveCloser(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    //MONO_PRINT("Can't move closer\n");
+    SPRITEp sp = &actor->s();
 
     u->track = FindTrackToPlayer(actor);
 
@@ -976,8 +959,7 @@ int DoActorCantMoveCloser(DSWActor* actor)
 int DoActorMoveCloser(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -1007,7 +989,7 @@ int DoActorMoveCloser(DSWActor* actor)
         action = ChooseAction(u->Personality->Evasive);
         if (action)
         {
-            (*action)(SpriteNum);
+            (*action)(actor);
             return 0;
         }
     }
@@ -1220,8 +1202,7 @@ short FindWanderTrack(DSWActor* actor)
 int InitActorRunAway(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     //MONO_PRINT("Init Actor RunAway\n");
 
@@ -1251,7 +1232,6 @@ int InitActorRunAway(DSWActor* actor)
 int InitActorRunToward(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     //MONO_PRINT("InitActorRunToward\n");
 
@@ -1275,7 +1255,7 @@ int InitActorAttack(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     // zombie is attacking a player
     if (u->ID == ZOMBIE_RUN_R0 && u->targetActor->hasU() && u->targetActor->u()->PlayerP)
@@ -1339,7 +1319,7 @@ int InitActorAttack(DSWActor* actor)
     {
         if (CHOOSE2(AttackOrRun))
         {
-            InitActorRunAway(SpriteNum);
+            InitActorRunAway(actor);
 
             // could do a FindHealth here
 
@@ -1377,8 +1357,7 @@ int InitActorAttack(DSWActor* actor)
 int DoActorAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     short rand_num;
     int dist,a,b,c;
 
@@ -1414,10 +1393,7 @@ int DoActorAttack(DSWActor* actor)
 int InitActorEvade(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    //MONO_PRINT("Init Actor Evade\n");
+    SPRITEp sp = &actor->s();
 
     // Evade is same thing as run away except when you get to the end of the
     // track
@@ -1442,11 +1418,7 @@ int InitActorEvade(DSWActor* actor)
 int InitActorWanderAround(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    //DSPRINTF(ds, "InitActorWanderAround\n");
-    //MONO_PRINT(ds);
+    SPRITEp sp = &actor->s();
 
     u->ActorActionFunc = DoActorDecide;
     NewStateGroup(actor, u->ActorActionSet->Run);
@@ -1467,12 +1439,7 @@ int InitActorWanderAround(DSWActor* actor)
 int InitActorFindPlayer(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-    int DoActorFindPlayer(short SpriteNum);
-
-    //DSPRINTF(ds, "InitActorFindPlayer\n");
-    //MONO_PRINT(ds);
+    SPRITEp sp = &actor->s();
 
     u->ActorActionFunc = DoActorDecide;
     NewStateGroup(actor, u->ActorActionSet->Run);
@@ -1500,8 +1467,7 @@ int InitActorFindPlayer(DSWActor* actor)
 int InitActorDuck(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     short dist;
 
 //    MONO_PRINT(strcpy(ds, "Init Actor Duck"));
@@ -1536,13 +1502,11 @@ int InitActorDuck(DSWActor* actor)
 int DoActorDuck(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= ACTORMOVETICS) < 0)
     {
         NewStateGroup(actor, u->ActorActionSet->Rise);
         u->ActorActionFunc = DoActorDecide;
-        // InitActorDecide(SpriteNum);
         RESET(u->Flags, SPR_TARGETED);
     }
 
@@ -1552,8 +1516,7 @@ int DoActorDuck(DSWActor* actor)
 int DoActorMoveJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     // Move while jumping
@@ -1645,7 +1608,6 @@ int FindNewAngle(DSWActor* actor, signed char dir, int DistToMove)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    int SpriteNum = actor->GetSpriteIndex();
 
     static short toward_angle_delta[4][9] =
     {
@@ -1715,7 +1677,7 @@ int FindNewAngle(DSWActor* actor, signed char dir, int DistToMove)
         if (!TEST(u->Flags, SPR_NO_SCAREDZ | SPR_JUMPING | SPR_FALLING | SPR_SWIMMING | SPR_DEAD))
         {
             sp->ang = new_ang;
-            if (DropAhead(SpriteNum, u->lo_step))
+            if (DropAhead(actor, u->lo_step))
             {
                 sp->ang = oang;
                 continue;
@@ -1783,8 +1745,7 @@ int FindNewAngle(DSWActor* actor, signed char dir, int DistToMove)
 int InitActorReposition(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     short ang;
     int rnum;
     int dist;
@@ -1889,8 +1850,7 @@ int InitActorReposition(DSWActor* actor)
 int DoActorReposition(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -1920,7 +1880,6 @@ int DoActorReposition(DSWActor* actor)
 int InitActorPause(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     u->ActorActionFunc = DoActorPause;
 
@@ -1936,7 +1895,6 @@ int InitActorPause(DSWActor* actor)
 int DoActorPause(DSWActor* actor)
 {
     USER* u = actor->u();
-	int SpriteNum = u->SpriteNum;
 
     // Using Vis instead of WaitTics, var name sucks, but it's the same type
     // WaitTics is used by too much other actor code and causes problems here

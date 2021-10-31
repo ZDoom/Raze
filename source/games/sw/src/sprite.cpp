@@ -5067,10 +5067,10 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
 
 // Primarily used in ai.c for now - need to get rid of
 bool
-DropAhead(short SpriteNum, short min_height)
+DropAhead(DSWActor* actor, short min_height)
 {
-
-    SPRITEp sp = &sprite[SpriteNum];
+    int SpriteNum = actor->GetSpriteIndex();
+    SPRITEp sp = &actor->s();
     int dax, day;
     int newsector;
 
