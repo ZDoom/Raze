@@ -357,11 +357,10 @@ ACTOR_ACTION_SET EelActionSet =
 int DoEelMatchPlayerZ(DSWActor* actor);
 
 
-void
-EelCommon(short SpriteNum)
+void EelCommon(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     sp->clipdist = (100) >> 2;
     u->floor_dist = Z(16);
@@ -375,22 +374,20 @@ EelCommon(short SpriteNum)
     u->Radius = 400;
 }
 
-int
-SetupEel(short SpriteNum)
+int SetupEel(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,EEL_RUN_R0,s_EelRun[0]);
+        u = SpawnUser(actor,EEL_RUN_R0,s_EelRun[0]);
         u->Health = 40;
     }
 
@@ -404,7 +401,7 @@ SetupEel(short SpriteNum)
 
     SET(u->Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
 
-    EelCommon(SpriteNum);
+    EelCommon(actor);
 
     RESET(u->Flags, SPR_SHADOW); // Turn off shadows
     u->zclip = Z(8);
@@ -416,7 +413,6 @@ SetupEel(short SpriteNum)
 int NullEel(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -431,7 +427,6 @@ int NullEel(DSWActor* actor)
 int DoEelMatchPlayerZ(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
     SPRITEp tsp = &u->targetActor->s();
     int zdiff,zdist;
@@ -469,7 +464,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
             u->sz -= 160 * ACTORMOVETICS;
     }
 
-#define EEL_BOB_AMT (Z(4))
+    const int EEL_BOB_AMT = (Z(4));
 
     // save off lo and hi z
     loz = u->loz;
@@ -529,12 +524,10 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     return 0;
 }
 
-int
-DoEelDeath(DSWActor* actor)
+int DoEelDeath(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int nx, ny;
     if (TEST(u->Flags, SPR_FALLING))
     {
@@ -554,7 +547,7 @@ DoEelDeath(DSWActor* actor)
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
-    SetCollision(u, move_sprite(SpriteNum, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS));
+    SetCollision(u, move_sprite(actor->GetSpriteIndex(), nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, ACTORMOVETICS));
     DoFindGroundPoint(actor);
 
     // on the ground
@@ -575,18 +568,17 @@ DoEelDeath(DSWActor* actor)
 int DoEelMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     ASSERT(u->Rot != nullptr);
 
-    if (SpriteOverlap(SpriteNum, u->targetActor->GetSpriteIndex()))
+    if (SpriteOverlap(actor->GetSpriteIndex(), u->targetActor->GetSpriteIndex()))
         NewStateGroup(actor, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor->GetSpriteIndex(), ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
