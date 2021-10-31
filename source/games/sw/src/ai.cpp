@@ -74,40 +74,6 @@ int Distance(int x1, int y1, int x2, int y2)
 }
 
 
-void DebugMoveHit(DSWActor* actor)
-{
-    //if (u->ret == -1)
-    //    printf("Hit a ledge\n");
-    //else
-    /*
-    SPRITEp sp;
-    USERp u = actor->u();
-    switch (TEST(u->ret, HIT_MASK))
-        {
-        case HIT_SPRITE:
-            sp = &sprite[NORM_SPRITE(u->ret)];
-            //DSPRINTF(ds, "Hit a Sprite %d, stat %d ", sp-sprite, (short)sp->statnum);
-            if (sp->statnum == STAT_MISSILE)
-                {
-                //DSPRINTF(ds, "Monster hit bullet %d, stat %d ", sp-sprite, (short)sp->statnum);
-                }
-            else
-                {
-                //DSPRINTF(ds, "Hit a Sprite %d, stat %d ", sp-sprite, (short)sp->statnum);
-                }
-            break;
-        case HIT_WALL:
-            //DSPRINTF(ds, "Hit a Wall %d    ", NORM_WALL(u->ret));
-            break;
-        case HIT_SECTOR:
-            //DSPRINTF(ds, "Hit a Sector %d  ", NORM_SECTOR(u->ret));
-            break;
-        }
-
-    MONO_PRINT(ds);
-    */
-}
-
 
 bool ActorMoveHitReact(DSWActor* actor)
 {
@@ -1022,7 +988,7 @@ int DoActorMoveCloser(DSWActor* actor)
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0L))
     {
-        DebugMoveHit(actor);
+        //DebugMoveHit(actor);
 
         if (ActorMoveHitReact(actor))
             return 0;

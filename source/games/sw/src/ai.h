@@ -70,7 +70,6 @@ struct ATTRIBUTEstruct
 extern ATTRIBUTE DefaultAttrib;
 
 // AI.C functions
-void DebugMoveHit(DSWActor* actor);
 bool ActorMoveHitReact(DSWActor* actor);
 short ChooseActionNumber(short decision[]);
 bool CanSeePlayer(DSWActor* actor);
