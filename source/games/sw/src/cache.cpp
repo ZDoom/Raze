@@ -59,11 +59,10 @@ void PreCacheRange(int start_pic, int end_pic, int pal = 0)
 
 void PreCacheOverride(void)
 {
-	int i;
-	StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-	while ((i = it.NextIndex()) >= 0)
+	SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+	while (auto actor = it.Next())
 	{
-		auto sp = &sprite[i];
+		auto sp = &actor->s();
 		int j = SP_TAG2(sp);
 		if(j >= 0 && j <= MAXTILES)
 			markTileForPrecache(j, 0);
@@ -349,13 +348,13 @@ void PreCachePachinko(int pal)
 void
 PreCacheActor(void)
 {
-	int i;
 	int pic;
 
-	for (i=0; i < MAXSPRITES; i++)
+	SWSpriteIterator it;
+	while (auto actor = it.Next())
 	{
-		auto pUsr = User[i].Data();
-		auto pSpr = &sprite[i];
+		auto pUsr = actor->u();
+		auto pSpr = &actor->s();
 		if (pSpr->statnum >= MAXSTATUS)
 			continue;
 

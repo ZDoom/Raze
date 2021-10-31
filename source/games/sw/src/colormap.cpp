@@ -229,8 +229,8 @@ void GameInterface::loadPalette(void)
     //
     // Dive palettes
     //
-#define FOG_AMT 60 // is 15 in SWP.
-#define LAVA_AMT 44 // is 11 in SWP.
+    const int FOG_AMT = 60; // is 15 in SWP.
+    const int LAVA_AMT = 44; // is 11 in SWP.
 
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;

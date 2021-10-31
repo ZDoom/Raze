@@ -23,99 +23,107 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
+#pragma once
 
+BEGIN_SW_NS
 ////
 //
 // Misc Defines
 //
 ////
 
-#define LT_GREY         (16 * 0 + 1)
-#define DK_GREY         (16 * 1)
-#define LT_BROWN        (16 * 2)
-#define DK_BROWN        (16 * 3)
-#define LT_TAN          (16 * 4)
-#define DK_TAN          (16 * 5)
-#define RUST_RED        (16 * 6)
-#define RED             (16 * 7)
-#define YELLOW          (16 * 8)
-#define BRIGHT_GREEN    (16 * 9)
-#define DK_GREEN        (16 * 10)
-#define GREEN           (16 * 11)
-#define LT_BLUE         (16 * 12)
-#define DK_BLUE         (16 * 13)
-#define PURPLE          (16 * 14)
-#define FIRE            (16 * 15)
-
+enum
+{
+	LT_GREY         = (16 * 0 + 1),
+	DK_GREY         = (16 * 1),
+	LT_BROWN        = (16 * 2),
+	DK_BROWN        = (16 * 3),
+	LT_TAN          = (16 * 4),
+	DK_TAN          = (16 * 5),
+	RUST_RED        = (16 * 6),
+	RED             = (16 * 7),
+	YELLOW          = (16 * 8),
+	BRIGHT_GREEN    = (16 * 9),
+	DK_GREEN        = (16 * 10),
+	GREEN           = (16 * 11),
+	LT_BLUE         = (16 * 12),
+	DK_BLUE         = (16 * 13),
+	PURPLE          = (16 * 14),
+	FIRE            = (16 * 15),
+};
 //
 // Palette numbers and meanings
 //
 
-#define PALETTE_DEFAULT             0
-#define PALETTE_FOG                 1
-// blue sword blade test
-#define PALETTE_MENU_HIGHLIGHT      2
-// used for the elector gore pieces
-#define PALETTE_ELECTRO_GORE        3
-// turns ninjas belt and headband red
-#define PALETTE_BASIC_NINJA         4
-// diving in lava
-#define PALETTE_DIVE_LAVA           5
-// turns ninjas belt and headband red
-#define PALETTE_RED_NINJA           6
-// used for the mother ripper - she is bigger/stronger/brown
-#define PALETTE_BROWN_RIPPER        7
-// turns ninjas belt and headband red
-#define PALETTE_GREEN_NINJA         8
-// reserved diving palette this is copied over the default palette
-// when needed - NOTE: could move this to a normal memory buffer if palette
-// slot is needed.
-#define PALETTE_DIVE                9
-#define PALETTE_SKEL_GORE           10
-// turns ALL colors to shades of GREEN/BLUE/RED
-#define PALETTE_GREEN_LIGHTING      11
-#define PALETTE_BLUE_LIGHTING       13
-#define PALETTE_RED_LIGHTING        14
+enum
+{
+	PALETTE_DEFAULT = 0,
+	PALETTE_FOG = 1,
+	// blue sword blade test
+	PALETTE_MENU_HIGHLIGHT = 2,
+	// used for the elector gore pieces
+	PALETTE_ELECTRO_GORE = 3,
+	// turns ninjas belt and headband red
+	PALETTE_BASIC_NINJA = 4,
+	// diving in lava
+	PALETTE_DIVE_LAVA = 5,
+	// turns ninjas belt and headband red
+	PALETTE_RED_NINJA = 6,
+	// used for the mother ripper - she is bigger/stronger/brown
+	PALETTE_BROWN_RIPPER = 7,
+	// turns ninjas belt and headband red
+	PALETTE_GREEN_NINJA = 8,
+	// reserved diving palette this is copied over the default palette
+	// when needed - NOTE: could move this to a normal memory buffer if palette
+	// slot is needed.
+	PALETTE_DIVE = 9,
+	PALETTE_SKEL_GORE = 10,
+	// turns ALL colors to shades of GREEN/BLUE/RED
+	PALETTE_GREEN_LIGHTING = 11,
+	PALETTE_BLUE_LIGHTING = 13,
+	PALETTE_RED_LIGHTING = 14,
 
-// for brown bubbling sludge
-#define PALETTE_SLUDGE              15
-
+	// for brown bubbling sludge
+	PALETTE_SLUDGE = 15,
+};
 
 
 
 // Player 0 uses default palette - others use these
 // turns ninja's vests (when we get them) into different color ranges
-#define PALETTE_PLAYER0             16
-#define PAL_XLAT_BROWN              16
-#define PALETTE_PLAYER1             17
-#define PAL_XLAT_LT_GREY            17
-#define PALETTE_PLAYER2             18
-#define PAL_XLAT_PURPLE             18
-#define PALETTE_PLAYER3             19
-#define PAL_XLAT_RUST_RED           19
-#define PALETTE_PLAYER4             20
-#define PAL_XLAT_YELLOW             20
-#define PALETTE_PLAYER5             21
-#define PAL_XLAT_DK_GREEN           21
-#define PALETTE_PLAYER6             22
-#define PAL_XLAT_GREEN              22
-#define PALETTE_PLAYER7             23
-#define PAL_XLAT_LT_BLUE            23
-#define PALETTE_PLAYER8             24
-#define PAL_XLAT_LT_TAN             24
-#define PALETTE_PLAYER9             25
-#define PAL_XLAT_RED                25
-#define PALETTE_PLAYER10            26
-#define PAL_XLAT_DK_GREY            26
-#define PALETTE_PLAYER11            27
-#define PAL_XLAT_BRIGHT_GREEN       27
-#define PALETTE_PLAYER12            28
-#define PAL_XLAT_DK_BLUE            28
-#define PALETTE_PLAYER13            29
-#define PAL_XLAT_FIRE               29
-#define PALETTE_PLAYER14            30
-#define PALETTE_PLAYER15            31
+enum
+{
+ PALETTE_PLAYER0           = 16,
+ PAL_XLAT_BROWN            = 16,
+ PALETTE_PLAYER1           = 17,
+ PAL_XLAT_LT_GREY          = 17,
+ PALETTE_PLAYER2           = 18,
+ PAL_XLAT_PURPLE           = 18,
+ PALETTE_PLAYER3           = 19,
+ PAL_XLAT_RUST_RED         = 19,
+ PALETTE_PLAYER4           = 20,
+ PAL_XLAT_YELLOW           = 20,
+ PALETTE_PLAYER5           = 21,
+ PAL_XLAT_DK_GREEN         = 21,
+ PALETTE_PLAYER6           = 22,
+ PAL_XLAT_GREEN            = 22,
+ PALETTE_PLAYER7           = 23,
+ PAL_XLAT_LT_BLUE          = 23,
+ PALETTE_PLAYER8           = 24,
+ PAL_XLAT_LT_TAN           = 24,
+ PALETTE_PLAYER9           = 25,
+ PAL_XLAT_RED              = 25,
+ PALETTE_PLAYER10          = 26,
+ PAL_XLAT_DK_GREY          = 26,
+ PALETTE_PLAYER11          = 27,
+ PAL_XLAT_BRIGHT_GREEN     = 27,
+ PALETTE_PLAYER12          = 28,
+ PAL_XLAT_DK_BLUE          = 28,
+ PALETTE_PLAYER13          = 29,
+ PAL_XLAT_FIRE             = 29,
+ PALETTE_PLAYER14          = 30,
+ PALETTE_PLAYER15          = 31,
+ PALETTE_ILLUMINATE        = 32, // Used to make sprites bright green in night vision
+};
 
-#define PALETTE_ILLUMINATE          32  // Used to make sprites bright green in night vision
-
-
+END_SW_NS
