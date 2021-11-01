@@ -295,8 +295,7 @@ int DoWallBloodDrip(DSWActor* actor)
     return 0;
 }
 
-void
-SpawnMidSplash(DSWActor* actor)
+void SpawnMidSplash(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
@@ -359,17 +358,15 @@ void SpawnFloorSplash(DSWActor* actor)
 }
 
 
-int
-DoBloodSpray(DSWActor* actor)
+int DoBloodSpray(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     int cz,fz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(Weapon, 50000);
+        ScaleSpriteVector(actor->GetSpriteIndex(), 50000);
 
         u->Counter += 20;  // These are STAT_SKIIP4 now, so * 2
         u->zchange += u->Counter;
@@ -397,12 +394,12 @@ DoBloodSpray(DSWActor* actor)
     }
     else
     {
-        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+        SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                               u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
     }
 
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor->GetSpriteIndex());
 
     if (u->ret)
     {
@@ -421,15 +418,15 @@ DoBloodSpray(DSWActor* actor)
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 SpawnMidSplash(actor);
-                QueueWallBlood(Weapon, hsp->ang);
-                WallBounce(Weapon, wall_ang);
-                ScaleSpriteVector(Weapon, 32000);
+                QueueWallBlood(actor->GetSpriteIndex(), hsp->ang);
+                WallBounce(actor->GetSpriteIndex(), wall_ang);
+                ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
             }
             else
             {
                 u->xchange = u->ychange = 0;
                 SpawnMidSplash(actor);
-                QueueWallBlood(Weapon, hsp->ang);
+                QueueWallBlood(actor->GetSpriteIndex(), hsp->ang);
                 KillActor(actor);
                 return true;
             }
@@ -459,7 +456,7 @@ DoBloodSpray(DSWActor* actor)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             SpawnMidSplash(actor);
-            wb = QueueWallBlood(Weapon, NORM_ANGLE(wall_ang+1024));
+            wb = QueueWallBlood(actor->GetSpriteIndex(), NORM_ANGLE(wall_ang+1024));
 
             if (wb < 0)
             {
@@ -493,7 +490,7 @@ DoBloodSpray(DSWActor* actor)
                 }
 
                 RESET(sp->cstat,CSTAT_SPRITE_INVISIBLE);
-                ChangeSpriteState(Weapon, s_BloodSprayDrip);
+                ChangeState(actor, s_BloodSprayDrip);
             }
 
             //WallBounce(Weapon, wall_ang);
@@ -538,7 +535,7 @@ DoBloodSpray(DSWActor* actor)
             // hit something above
             {
                 u->zchange = -u->zchange;
-                ScaleSpriteVector(Weapon, 32000);       // was 22000
+                ScaleSpriteVector(actor->GetSpriteIndex(), 32000);       // was 22000
             }
             break;
         }
@@ -550,17 +547,14 @@ DoBloodSpray(DSWActor* actor)
     // if you haven't bounced or your going slow do some puffs
     if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER))
     {
-        SPRITEp np;
-        USERp nu;
-        short New;
 
-        New = SpawnSprite(STAT_MISSILE, GOREDrip, s_BloodSpray, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[New];
-        nu = User[New].Data();
+        auto np = &actorNew->s();
+        auto nu = actorNew->u();
 
-        SetOwner(Weapon, New);
+        SetOwner(actor, actorNew);
         np->shade = -12;
         np->xrepeat = 40-RandomRange(30);
         np->yrepeat = 40-RandomRange(30);
@@ -577,7 +571,7 @@ DoBloodSpray(DSWActor* actor)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(New, 20000);
+        ScaleSpriteVector(actorNew->GetSpriteIndex(), 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
