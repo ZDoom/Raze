@@ -55,7 +55,7 @@ BEGIN_SW_NS
 
 int SetupCoolie(DSWActor*);
 int SetupNinja(short);
-int SetupGoro(short);
+int SetupGoro(DSWActor*);
 int SetupCoolg(DSWActor*);
 int SetupEel(DSWActor*);
 int SetupSumo(short);
@@ -73,7 +73,7 @@ int SetupRipper2(short);
 int SetupSerp(short);
 int SetupLava(short);
 int SetupSkel(short);
-int SetupHornet(short);
+int SetupHornet(DSWActor*);
 int SetupSkull(short);
 int SetupBetty(short);
 int SetupPachinkoLight(short);
@@ -1223,7 +1223,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupGoro(SpriteNum);
+        SetupGoro(actor);
         break;
     }
 
@@ -1509,7 +1509,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupHornet(SpriteNum);
+        SetupHornet(actor);
         break;
     }
 

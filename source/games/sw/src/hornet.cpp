@@ -284,25 +284,23 @@ ACTOR_ACTION_SET HornetActionSet =
     nullptr
 };
 
-int DoHornetMatchPlayerZ(short SpriteNum);
+int DoHornetMatchPlayerZ(DSWActor* actor);
 
 
-int
-SetupHornet(short SpriteNum)
+int SetupHornet(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,HORNET_RUN_R0,s_HornetRun[0]);
+        u = SpawnUser(actor,HORNET_RUN_R0,s_HornetRun[0]);
         u->Health = HEALTH_HORNET;
     }
 
@@ -328,7 +326,7 @@ SetupHornet(short SpriteNum)
 
     // Special looping buzz sound attached to each hornet spawned
     PlaySound(DIGI_HORNETBUZZ, sp, v3df_follow|v3df_init);
-    Set3DSoundOwner(SpriteNum);
+    Set3DSoundOwner(actor->GetSpriteIndex());
 
     return 0;
 }
@@ -336,22 +334,22 @@ SetupHornet(short SpriteNum)
 int NullHornet(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    DoHornetMatchPlayerZ(SpriteNum);
-
+    DoHornetMatchPlayerZ(actor);
     DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoHornetMatchPlayerZ(short SpriteNum)
+enum { HORNET_BOB_AMT = (Z(16)) };
+
+int DoHornetMatchPlayerZ(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp tsp = &u->targetActor->s();
     int zdiff,zdist;
     int loz,hiz;
@@ -374,8 +372,6 @@ int DoHornetMatchPlayerZ(short SpriteNum)
         else
             u->sz -= 256 * ACTORMOVETICS;
     }
-
-#define HORNET_BOB_AMT (Z(16))
 
     // save off lo and hi z
     loz = u->loz;
@@ -426,8 +422,7 @@ int DoHornetMatchPlayerZ(short SpriteNum)
 int InitHornetCircle(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     u->ActorActionFunc = DoHornetCircle;
 
@@ -459,8 +454,7 @@ int InitHornetCircle(DSWActor* actor)
 int DoHornetCircle(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int nx,ny,bound;
 
     sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
@@ -513,8 +507,7 @@ int
 DoHornetDeath(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     if (TEST(u->Flags, SPR_FALLING))
@@ -539,7 +532,7 @@ DoHornetDeath(DSWActor* actor)
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
-    SetCollision(u, move_sprite(SpriteNum, nx, ny, 0L, u->ceiling_dist, u->floor_dist, 1, ACTORMOVETICS));
+    SetCollision(u, move_sprite(actor->GetSpriteIndex(), nx, ny, 0L, u->ceiling_dist, u->floor_dist, 1, ACTORMOVETICS));
 
     // on the ground
     if (sp->z >= u->loz)
@@ -558,9 +551,8 @@ DoHornetDeath(DSWActor* actor)
 int DoCheckSwarm(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     int i;
-    SPRITEp sp = &sprite[SpriteNum], tsp;
+    SPRITEp sp = &actor->s(), tsp;
     USERp tu;
     int dist, pdist, a,b,c;
     PLAYERp pp;
@@ -607,8 +599,7 @@ int DoCheckSwarm(DSWActor* actor)
 int DoHornetMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     // Check for swarming
     // lotag of 1 = Swarm around lotags of 2
@@ -620,11 +611,11 @@ int DoHornetMove(DSWActor* actor)
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor->GetSpriteIndex(), ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
-    DoHornetMatchPlayerZ(SpriteNum);
+    DoHornetMatchPlayerZ(actor);
 
     DoActorSectorDamage(actor);
 

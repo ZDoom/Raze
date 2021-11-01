@@ -481,22 +481,20 @@ ACTOR_ACTION_SET GoroActionSet =
     nullptr
 };
 
-int
-SetupGoro(short SpriteNum)
+int SetupGoro(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,GORO_RUN_R0,s_GoroRun[0]);
+        u = SpawnUser(actor, GORO_RUN_R0,s_GoroRun[0]);
         u->Health = HEALTH_GORO;
     }
 
@@ -517,7 +515,6 @@ SetupGoro(short SpriteNum)
 int NullGoro(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -542,17 +539,14 @@ int DoGoroPain(DSWActor* actor)
 int DoGoroMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor->GetSpriteIndex(), ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
-
-    ASSERT(User[SpriteNum].Data());
 
     KeepActorOnFloor(actor);
 
