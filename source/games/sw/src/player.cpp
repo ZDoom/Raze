@@ -3988,7 +3988,7 @@ int GetOverlapSector(int x, int y, short *over, short *under)
 
 int GetOverlapSector2(int x, int y, short *over, short *under)
 {
-    int i, found = 0;
+    int found = 0;
     short sf[2]= {0,0};                       // sectors found
 
     unsigned stat;
@@ -4013,12 +4013,13 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
     // if nothing was found, check them all
     if (found == 0)
     {
-        StatIterator it(STAT_DIVE_AREA);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_DIVE_AREA);
+        while (auto actor = it.Next())
         {
-            if (inside(x, y, sprite[i].sectnum))
+            auto sp = &actor->s();
+            if (inside(x, y, sp->sectnum))
             {
-                sf[found] = sprite[i].sectnum;
+                sf[found] = sp->sectnum;
                 found++;
                 PRODUCTION_ASSERT(found <= 2);
             }
@@ -4027,15 +4028,16 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
         for (stat = 0; stat < SIZ(UnderStatList); stat++)
         {
             it.Reset(UnderStatList[stat]);
-            while ((i = it.NextIndex()) >= 0)
+            while (auto actor = it.Next())
             {
+                auto sp = &actor->s();
                 // ignore underwater areas with lotag of 0
-                if (sprite[i].lotag == 0)
+                if (sp->lotag == 0)
                     continue;
 
-                if (inside(x, y, sprite[i].sectnum))
+                if (inside(x, y, sp->sectnum))
                 {
-                    sf[found] = sprite[i].sectnum;
+                    sf[found] = sp->sectnum;
                     found++;
                     PRODUCTION_ASSERT(found <= 2);
                 }
@@ -4079,7 +4081,6 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
 void DoPlayerWarpToUnderwater(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    int i;
     SECT_USERp sectu = SectUser[pp->cursectnum].Data();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
@@ -4090,10 +4091,10 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
 
     // search for DIVE_AREA "over" sprite for reference point
-    StatIterator it(STAT_DIVE_AREA);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DIVE_AREA);
+    while (auto actor = it.Next())
     {
-        over_sp = &sprite[i];
+        over_sp = &actor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             SectUser[over_sp->sectnum].Data() &&
@@ -4109,9 +4110,9 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        under_sp = &sprite[i];
+        under_sp = &actor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             SectUser[under_sp->sectnum].Data() &&
@@ -4155,7 +4156,6 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 void DoPlayerWarpToSurface(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    int i;
     SECT_USERp sectu = SectUser[pp->cursectnum].Data();
     short over, under;
 
@@ -4166,10 +4166,10 @@ void DoPlayerWarpToSurface(PLAYERp pp)
         return;
 
     // search for UNDERWATER "under" sprite for reference point
-    StatIterator it(STAT_UNDERWATER);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_UNDERWATER);
+    while (auto actor = it.Next())
     {
-        under_sp = &sprite[i];
+        under_sp = &actor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             SectUser[under_sp->sectnum].Data() &&
@@ -4185,9 +4185,9 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        over_sp = &sprite[i];
+        over_sp = &actor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             SectUser[over_sp->sectnum].Data() &&
@@ -4232,7 +4232,6 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 }
 
 
-#if 1
 void DoPlayerDivePalette(PLAYERp pp)
 {
     if (pp != Player + screenpeek) return;
@@ -4251,12 +4250,11 @@ void DoPlayerDivePalette(PLAYERp pp)
         }
     }
 }
-#endif
 
 
 void DoPlayerBeginDive(PLAYERp pp)
 {
-    SPRITEp sp = &sprite[pp->PlayerSprite];
+    SPRITEp sp = &pp->Actor()->s();
     USERp u = pp->Actor()->u();
 
     if (Prediction)
@@ -4304,7 +4302,7 @@ void DoPlayerBeginDive(PLAYERp pp)
 
 void DoPlayerBeginDiveNoWarp(PLAYERp pp)
 {
-    SPRITEp sp = &sprite[pp->PlayerSprite];
+    SPRITEp sp = &pp->Actor()->s();
     USERp u = pp->Actor()->u();
 
     if (Prediction)
@@ -4376,7 +4374,7 @@ void DoPlayerStopDiveNoWarp(PLAYERp pp)
 
 void DoPlayerStopDive(PLAYERp pp)
 {
-    SPRITEp sp = &sprite[pp->PlayerSprite];
+    SPRITEp sp = &pp->Actor()->s();
 
     if (Prediction)
         return;
