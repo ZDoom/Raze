@@ -2559,6 +2559,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     short save_sectnum;
     auto actor = pp->sop->sp_child;
     SPRITEp sp = &actor->s();
+    auto psp = &pp->Actor()->s();
     USERp u = actor->u();
     int save_cstat;
     int x[4], y[4], ox[4], oy[4];
@@ -2662,13 +2663,13 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         int vel;
         int ret;
 
-        save_cstat = pp->SpriteP->cstat;
-        RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
+        save_cstat = psp->cstat;
+        RESET(psp->cstat, CSTAT_SPRITE_BLOCK);
         DoPlayerTurnVehicleRect(pp, x, y, ox, oy);
 
         ret = RectClipMove(pp, x, y);
         DriveCrush(pp, x, y);
-        pp->SpriteP->cstat = save_cstat;
+        psp->cstat = save_cstat;
 
         if (!ret)
         {
@@ -2718,8 +2719,8 @@ void DoPlayerMoveVehicle(PLAYERp pp)
             DoPlayerTurnVehicle(pp, pp->input.avel, z, floor_dist);
         }
 
-        save_cstat = pp->SpriteP->cstat;
-        RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
+        save_cstat = psp->cstat;
+        RESET(psp->cstat, CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
         {
             vec3_t clippos = { pp->posx, pp->posy, z };
@@ -2730,7 +2731,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         {
             SetCollision(u, MultiClipMove(pp, z, floor_dist));
         }
-        pp->SpriteP->cstat = save_cstat;
+        psp->cstat = save_cstat;
 
         //SetupDriveCrush(pp, x, y);
         //DriveCrush(pp, x, y);
@@ -7370,21 +7371,21 @@ DEFINE_FIELD_X(SWPlayer, PLAYERstruct, WpnReloadState)
 DEFINE_ACTION_FUNCTION(_SWPlayer, WeaponNum)
 {
     PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
-    USERp uu = User[self->PlayerSprite].Data();
+    USERp uu = self->Actor()->u();
     ACTION_RETURN_INT(uu->WeaponNum);
 }
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, Health)
 {
     PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
-    USERp uu = User[self->PlayerSprite].Data();
+    USERp uu = self->Actor()->u();
     ACTION_RETURN_INT(uu->Health);
 }
 
 DEFINE_ACTION_FUNCTION(_SWPlayer, MaxUserHealth)
 {
     PARAM_SELF_STRUCT_PROLOGUE(PLAYERstruct);
-    USERp uu = User[self->PlayerSprite].Data();
+    USERp uu = self->Actor()->u();
     ACTION_RETURN_INT(uu->MaxHealth);
 }
 

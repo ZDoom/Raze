@@ -521,7 +521,6 @@ int SetupCoolg(DSWActor* actor)
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
-    int SpriteNum = actor->GetSpriteIndex();
 
     if (!TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {

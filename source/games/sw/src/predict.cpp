@@ -65,7 +65,7 @@ InitPrediction(PLAYERp pp)
 
     // make a copy of player struct and sprite
     *ppp = *pp;
-    PredictUser = *User[pp->PlayerSprite];
+    PredictUser = *pp->Actor()->u();
 }
 
 void
@@ -90,11 +90,11 @@ DoPrediction(PLAYERp ppp)
 
     // back up things so they won't get stepped on
     bakrandomseed = randomseed;
-    spr = sprite[Player[myconnectindex].PlayerSprite];
-    sprite[Player[myconnectindex].PlayerSprite].cstat = 0;
+    spr = s prite[Player[myconnectindex].P_layerSprite];
+    s prite[Player[myconnectindex].P_layerSprite].cstat = 0;
 
-    u = User[ppp->PlayerSprite];
-    User[ppp->PlayerSprite] = &PredictUser;
+    u = U ser[ppp->P_layerSprite];
+    U ser[ppp->P_layerSprite] = &PredictUser;
 
     ppp->oposx = ppp->posx;
     ppp->oposy = ppp->posy;
@@ -110,8 +110,8 @@ DoPrediction(PLAYERp ppp)
     Prediction = false;
 
     // restore things
-    User[ppp->PlayerSprite] = u;
-    sprite[Player[myconnectindex].PlayerSprite] = spr;
+    U ser[ppp->P_layerSprite] = u;
+    s prite[Player[myconnectindex].P_layerSprite] = spr;
     randomseed = bakrandomseed;
 
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].x = ppp->posx;

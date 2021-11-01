@@ -1897,7 +1897,6 @@ int InitPhosphorus(DSWActor* actor)
     // SET(wp->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_YCENTER);
     wp->shade = -128;
 
-    //SetOwner(SpriteNum, w);
     wp->yrepeat = 64;
     wp->xrepeat = 64;
     wp->shade = -15;

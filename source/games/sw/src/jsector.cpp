@@ -177,9 +177,6 @@ JS_SpriteSetup(void)
         if (tag == MIRROR_CAM && sp->picnum != ST1)
         {
             // Just change it to static, sprite has all the info I need
-//          u = SpawnUser(SpriteNum, sp->picnum, nullptr);
-//          RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-//          SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
             change_actor_stat(actor, STAT_SPAWN_SPOT);
         }
 
@@ -279,7 +276,6 @@ void JS_InitMirrors(void)
 {
     short startwall, endwall;
     int i, j, s;
-    int SpriteNum;
     bool Found_Cam = false;
 
 
@@ -333,14 +329,14 @@ void JS_InitMirrors(void)
 
                     Found_Cam = false;
 
-                    StatIterator it(STAT_ST1);
-                    while ((ii = it.NextIndex()) >= 0)
+                    SWStatIterator it(STAT_ST1);
+                    while (auto itActor = it.Next())
                     {
-                        sp = &sprite[ii];
+                        sp = &itActor->s();
                         // if correct type and matches
                         if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
                         {
-                            mirror[mirrorcnt].camera = ii;
+                            mirror[mirrorcnt].camera = itActor->GetSpriteIndex();
                             // Set up camera variables
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
@@ -349,14 +345,14 @@ void JS_InitMirrors(void)
                     }
 
                     it.Reset(STAT_SPAWN_SPOT);
-                    while ((ii = it.NextIndex()) >= 0)
+                    while (auto itActor = it.Next())
                     {
-                        sp = &sprite[ii];
+                        sp = &itActor->s();
 
                         // if correct type and matches
                         if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
                         {
-                            mirror[mirrorcnt].camera = ii;
+                            mirror[mirrorcnt].camera = itActor->GetSpriteIndex();
                             // Set up camera variables
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
@@ -376,15 +372,15 @@ void JS_InitMirrors(void)
                     Found_Cam = false;
                     if (TEST_BOOL1(&sprite[mirror[mirrorcnt].camera]))
                     {
-                        StatIterator it(STAT_DEFAULT);
-                        while ((SpriteNum = it.NextIndex()) >= 0)
+                        SWStatIterator it(STAT_DEFAULT);
+                        while (auto itActor = it.Next())
                         {
-                            sp = &sprite[SpriteNum];
+                            sp = &itActor->s();
                             if (sp->picnum >= CAMSPRITE && sp->picnum < CAMSPRITE + 8 &&
                                 sp->hitag == wall[i].hitag)
                             {
                                 mirror[mirrorcnt].campic = sp->picnum;
-                                mirror[mirrorcnt].camsprite = SpriteNum;
+                                mirror[mirrorcnt].camsprite = itActor->GetSpriteIndex();
 
                                 // JBF: commenting out this line results in the screen in $BULLET being visible
 								tileDelete(mirror[mirrorcnt].campic);
