@@ -1816,10 +1816,9 @@ ACTOR_ACTION_SET PlayerNinjaActionSet =
 */
 
 int
-SetupNinja(short SpriteNum)
+SetupNinja(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
     short pic = sp->picnum;
@@ -1830,12 +1829,12 @@ SetupNinja(short SpriteNum)
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum, NINJA_RUN_R0, s_NinjaRun[0]);
+        u = SpawnUser(actor, NINJA_RUN_R0, s_NinjaRun[0]);
         u->Health = HEALTH_NINJA;
     }
 
@@ -1938,14 +1937,11 @@ SetupNinja(short SpriteNum)
     return 0;
 }
 
-int
-DoNinjaHariKari(DSWActor* actor)
+int DoNinjaHariKari(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-    short cnt,i;
-
+    SPRITEp sp = &actor->s();
+    
     UpdateSinglePlayKills(actor);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -1962,19 +1958,17 @@ DoNinjaHariKari(DSWActor* actor)
 
     SpawnBlood(actor, actor, -1, -1, -1, -1);
 
-    cnt = RandomRange(4)+1;
-    for (i=0; i<=cnt; i++)
+    int cnt = RandomRange(4)+1;
+    for (int i=0; i<=cnt; i++)
         InitBloodSpray(actor,true,-2);
 
     return 0;
 }
 
-int
-DoNinjaGrabThroat(DSWActor* actor)
+int DoNinjaGrabThroat(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -1982,7 +1976,7 @@ DoNinjaGrabThroat(DSWActor* actor)
         RESET(u->Flags2, SPR2_DYING);
         RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
         change_actor_stat(actor, STAT_DEAD_ACTOR);
-        RESET(sprite[SpriteNum].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         SET(u->Flags, SPR_DEAD);
         RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
         u->floor_dist = Z(40);
@@ -2009,12 +2003,10 @@ DoNinjaGrabThroat(DSWActor* actor)
 
 */
 
-int
-DoNinjaMove(DSWActor* actor)
+int DoNinjaMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-
+    
     if (TEST(u->Flags2, SPR2_DYING))
     {
         if (sw_ninjahack)
@@ -2057,12 +2049,10 @@ DoNinjaMove(DSWActor* actor)
     return 0;
 }
 
-int
-NinjaJumpActionFunc(DSWActor* actor)
+int NinjaJumpActionFunc(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     // Move while jumping
@@ -2090,11 +2080,9 @@ NinjaJumpActionFunc(DSWActor* actor)
 
 */
 
-int
-NullNinja(DSWActor* actor)
+int NullNinja(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
 
@@ -2113,7 +2101,6 @@ NullNinja(DSWActor* actor)
 int DoNinjaPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullNinja(actor);
 
@@ -2135,8 +2122,7 @@ int DoNinjaPain(DSWActor* actor)
 int DoNinjaSpecial(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
  
     if (u->spal == PALETTE_PLAYER5)
     {
@@ -2151,18 +2137,15 @@ int DoNinjaSpecial(DSWActor* actor)
 int CheckFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     if (!CanSeePlayer(actor))
         InitActorDuck(actor);
     return 0;
 }
 
-int
-DoNinjaCeiling(DSWActor* actor)
+int DoNinjaCeiling(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     DoActorSectorDamage(actor);
 
@@ -2175,8 +2158,7 @@ DoNinjaCeiling(DSWActor* actor)
 // too convienent to put it here.
 //
 
-void
-InitAllPlayerSprites(void)
+void InitAllPlayerSprites(void)
 {
     short i;
 
@@ -2187,11 +2169,10 @@ InitAllPlayerSprites(void)
 }
 
 
-void
-PlayerLevelReset(PLAYERp pp)
+void PlayerLevelReset(PLAYERp pp)
 {
-    SPRITEp sp = &sprite[pp->PlayerSprite];
-    USERp u = User[pp->PlayerSprite].Data();
+    SPRITEp sp = &pp->Actor()->s();
+    USERp u = pp->Actor()->u();
 
     if (gNet.MultiGameType == MULTI_GAME_COMMBAT)
     {
@@ -2228,11 +2209,10 @@ PlayerLevelReset(PLAYERp pp)
     DamageData[u->WeaponNum].Init(pp);
 }
 
-void
-PlayerDeathReset(PLAYERp pp)
+void PlayerDeathReset(PLAYERp pp)
 {
-    SPRITEp sp = &sprite[pp->PlayerSprite];
-    USERp u = User[pp->PlayerSprite].Data();
+    SPRITEp sp = &pp->Actor()->s();
+    USERp u = pp->Actor()->u();
 
     if (TEST(pp->Flags, PF_DIVING))
         DoPlayerStopDiveNoWarp(pp);
@@ -2296,8 +2276,7 @@ PlayerDeathReset(PLAYERp pp)
     DamageData[u->WeaponNum].Init(pp);
 }
 
-void
-PlayerPanelSetup(void)
+void PlayerPanelSetup(void)
 {
     short pnum;
     PLAYERp pp;
@@ -2320,11 +2299,10 @@ PlayerPanelSetup(void)
     }
 }
 
-void
-PlayerGameReset(PLAYERp pp)
+void PlayerGameReset(PLAYERp pp)
 {
-    SPRITEp sp = &sprite[pp->PlayerSprite];
-    USERp u = User[pp->PlayerSprite].Data();
+    SPRITEp sp = &pp->Actor()->s();
+    USERp u = pp->Actor()->u();
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
@@ -2381,19 +2359,7 @@ PlayerGameReset(PLAYERp pp)
 
 extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 
-void
-PlayerSpriteLoadLevel(short SpriteNum)
-{
-    auto actor = &swActors[SpriteNum];
-    USERp u = actor->u();
-
-    ChangeState(actor, s_NinjaRun[0]);
-    u->Rot = sg_NinjaRun;
-    u->ActorActionSet = &PlayerNinjaActionSet;
-}
-
-void
-InitPlayerSprite(PLAYERp pp)
+void InitPlayerSprite(PLAYERp pp)
 {
     short sp_num;
     SPRITE *sp;
@@ -2437,7 +2403,7 @@ InitPlayerSprite(PLAYERp pp)
     sp->pal = PALETTE_PLAYER0 + pp->pnum;
     u->spal = sp->pal;
 
-    NewStateGroup_(sp_num, u->ActorActionSet->Run);
+    NewStateGroup(pp->Actor(), u->ActorActionSet->Run);
 
     pp->PlayerUnderSprite = -1;
     pp->UnderSpriteP = nullptr;
@@ -2468,11 +2434,11 @@ InitPlayerSprite(PLAYERp pp)
     pp->DeathType = 0;
 }
 
-void
-SpawnPlayerUnderSprite(PLAYERp pp)
+void SpawnPlayerUnderSprite(PLAYERp pp)
 {
-    USERp pu = User[pp->PlayerSprite].Data(), u;
-    SPRITEp psp = &sprite[pp->PlayerSprite];
+    SPRITEp psp = &pp->Actor()->s();
+    USERp pu = pp->Actor()->u(), u;
+
     SPRITEp sp;
     int pnum = int(pp - Player), sp_num;
 

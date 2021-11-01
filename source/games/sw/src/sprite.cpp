@@ -54,7 +54,7 @@ BEGIN_SW_NS
 
 
 int SetupCoolie(DSWActor*);
-int SetupNinja(short);
+int SetupNinja(DSWActor*);
 int SetupGoro(DSWActor*);
 int SetupCoolg(DSWActor*);
 int SetupEel(DSWActor*);
@@ -1202,7 +1202,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupNinja(SpriteNum);
+        SetupNinja(actor);
 
         break;
     }
