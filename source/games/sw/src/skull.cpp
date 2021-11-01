@@ -35,7 +35,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 int InitSpriteGrenade(DSWActor* actor);
-int InitSpriteChemBomb(short SpriteNum);
+int InitSpriteChemBomb(DSWActor*);
 int InitFlashBomb(DSWActor* actor);
 int InitCaltrops(short SpriteNum);
 int InitPhosphorus(int16_t SpriteNum);
@@ -304,7 +304,7 @@ DoSkullBeginDeath(DSWActor* actor)
         for (i=0; i<num_ord; i++)
         {
             sp->ang = NORM_ANGLE(sp->ang+(i*1024));
-            InitSpriteChemBomb(SpriteNum);
+            InitSpriteChemBomb(actor);
         }
         break;
 
@@ -721,7 +721,7 @@ DoBettyBeginDeath(DSWActor* actor)
         for (i=0; i<num_ord; i++)
         {
             sp->ang = NORM_ANGLE(sp->ang+(i*1024));
-            InitSpriteChemBomb(SpriteNum);
+            InitSpriteChemBomb(actor);
         }
         break;
 

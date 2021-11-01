@@ -1315,14 +1315,12 @@ int DoRadiationCloud(DSWActor* actor)
 // Inventory Chemical Bombs
 //
 //////////////////////////////////////////////
-int
-PlayerInitChemBomb(PLAYERp pp)
+int PlayerInitChemBomb(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     short oclipdist;
 
 
@@ -1337,11 +1335,11 @@ PlayerInitChemBomb(PLAYERp pp)
 
     // Spawn a shot
     // Inserting and setting up variables
-    w = SpawnSprite(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), CHEMBOMB_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
@@ -1353,7 +1351,7 @@ PlayerInitChemBomb(PLAYERp pp)
 //    NewStateGroup_(w, &sg_ChemBomb);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
     wp->shade = -15;
@@ -1382,7 +1380,7 @@ PlayerInitChemBomb(PLAYERp pp)
 //    HelpMissileLateral(w, 800);
 //    wp->ang = NORM_ANGLE(wp->ang + 512);
 
-    MissileSetPos(w, DoChemBomb, 1000);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoChemBomb, 1000);
 
     pp->SpriteP->clipdist = uint8_t(oclipdist);
     wp->clipdist = 80L >> 2;
@@ -1401,14 +1399,12 @@ PlayerInitChemBomb(PLAYERp pp)
     return 0;
 }
 
-int
-InitSpriteChemBomb(int16_t SpriteNum)
+int InitSpriteChemBomb(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     USERp wu;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     int nx, ny, nz;
-    short w;
 
 
     PlaySound(DIGI_THROW, sp, v3df_dontpan | v3df_doppler);
@@ -1419,15 +1415,15 @@ InitSpriteChemBomb(int16_t SpriteNum)
 
     // Spawn a shot
     // Inserting and setting up variables
-    w = SpawnSprite(STAT_MISSILE, CHEMBOMB, s_ChemBomb, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, sp->sectnum,
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
     wp->shade = -15;
