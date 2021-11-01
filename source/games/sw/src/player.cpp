@@ -6038,12 +6038,12 @@ DoPlayerBeginDie(PLAYERp pp)
 void
 DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
-    if ((pp->horizon.horiz.asq16() - IntToFixed(target)) > FRACUNIT)
+    if ((pp->horizon.horiz.asbuild() - target) > 1)
     {   
         pp->horizon.addadjustment(-speed);
     }
 
-    if ((IntToFixed(target) - pp->horizon.horiz.asq16()) > FRACUNIT)
+    if ((target - pp->horizon.horiz.asbuild()) > 1)
     {
         pp->horizon.addadjustment(speed);
     }
