@@ -18760,9 +18760,9 @@ InitEnemyUzi(DSWActor* actor)
     if (RANDOM_P2(1024<<4)>>4 > 700)
     {
         if (u->ID == TOILETGIRL_R0 || u->ID == WASHGIRL_R0 || u->ID == CARGIRL_R0)
-            SpawnShell(SpriteNum,-3);
+            SpawnShell(actor,-3);
         else
-            SpawnShell(SpriteNum,-2); // Enemy Uzi shell
+            SpawnShell(actor,-2); // Enemy Uzi shell
     }
 
     if ((alternate++)>2) alternate = 0;
@@ -20785,21 +20785,6 @@ DoShellShrap(short SpriteNum)
     return 0;
 }
 #endif
-
-int
-SpawnShell(short SpriteNum, short ShellNum)
-{
-    extern int InitShell(int16_t SpriteNum, int16_t ShellNum);
-
-    //ShellCount++;
-    //SpawnShrap(SpriteNum,ShellNum);         // -2 signifies right Uzi shell
-    // -3 is left Uzi
-    // -4 is Shotgun shell
-
-    InitShell(SpriteNum, ShellNum);
-    return true;
-}
-
 
 int
 DoShrapVelocity(int16_t SpriteNum)

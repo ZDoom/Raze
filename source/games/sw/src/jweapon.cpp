@@ -1377,7 +1377,7 @@ int PlayerInitChemBomb(PLAYERp pp)
     wp->clipdist = 0;
 
 //    wp->ang = NORM_ANGLE(wp->ang - 512);
-//    HelpMissileLateral(w, 800);
+//    HelpMissileLateral(actorNew->GetSpriteIndex(), 800);
 //    wp->ang = NORM_ANGLE(wp->ang + 512);
 
     MissileSetPos(actorNew->GetSpriteIndex(), DoChemBomb, 1000);
@@ -2240,12 +2240,10 @@ int DoCarryFlag(DSWActor* actor)
     return false;
 }
 
-int
-DoCarryFlagNoDet(DSWActor* actor)
+int DoCarryFlagNoDet(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     SPRITEp ap = &u->attachActor->s();
     USERp au = u->attachActor->u();
@@ -2256,15 +2254,15 @@ DoCarryFlagNoDet(DSWActor* actor)
 
 
     if (u->flagOwnerActor != nullptr)
-        fu->WaitTics = 30 * 120;        // Keep setting respawn tics so it
-    // won't respawn
+        fu->WaitTics = 30 * 120;        // Keep setting respawn tics so it won't respawn
 
     // if no owner then die
     if (u->attachActor != nullptr)
     {
         SPRITEp ap = &u->attachActor->s();
 
-        setspritez_old(Weapon, ap->x, ap->y, SPRITEp_MID(ap));
+        vec3_t pos = { ap->x, ap->y, SPRITEp_MID(ap) };
+        SetActorZ(actor, &pos);
         sp->ang = NORM_ANGLE(ap->ang + 1536);
         sp->z = ap->z - DIV2(SPRITEp_SIZE_Z(ap));
     }
@@ -2357,22 +2355,16 @@ int DoFlag(DSWActor* actor)
 }
 
 
-int
-InitShell(int16_t SpriteNum, int16_t ShellNum)
+int SpawnShell(DSWActor* actor, int ShellNum)
 {
-    auto actor = &swActors[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     USERp wu;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     int nx, ny, nz;
-    short w;
-    short id=0,velocity=0;
-    STATEp p=nullptr;
+    short id=0,velocity=0;    STATEp p=nullptr;
     extern STATE s_UziShellShrap[];
     extern STATE s_ShotgunShellShrap[];
 
-#define UZI_SHELL 2152
-#define SHOT_SHELL 2180
 
     nx = sp->x;
     ny = sp->y;
@@ -2393,11 +2385,10 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
         break;
     }
 
-    w = SpawnSprite(STAT_SKIP4, id, p, sp->sectnum,
-                    nx, ny, nz, sp->ang, 64);
+    auto actorNew = SpawnActor(STAT_SKIP4, id, p, sp->sectnum, nx, ny, nz, sp->ang, 64);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     wp->zvel = -(velocity);
 
@@ -2414,17 +2405,17 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
         if (ShellNum == -3)
         {
             wp->ang = sp->ang;
-            HelpMissileLateral(w,2500);
+            HelpMissileLateral(actorNew->GetSpriteIndex(),2500);
             wp->ang = NORM_ANGLE(wp->ang-512);
-            HelpMissileLateral(w,1000); // Was 1500
+            HelpMissileLateral(actorNew->GetSpriteIndex(),1000); // Was 1500
             wp->ang = NORM_ANGLE(wp->ang+712);
         }
         else
         {
             wp->ang = sp->ang;
-            HelpMissileLateral(w,2500);
+            HelpMissileLateral(actorNew->GetSpriteIndex(),2500);
             wp->ang = NORM_ANGLE(wp->ang+512);
-            HelpMissileLateral(w,1500);
+            HelpMissileLateral(actorNew->GetSpriteIndex(),1500);
             wp->ang = NORM_ANGLE(wp->ang-128);
         }
         wp->ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
@@ -2437,9 +2428,9 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
     case SHOT_SHELL:
         wp->z -= Z(13);
         wp->ang = sp->ang;
-        HelpMissileLateral(w,2500);
+        HelpMissileLateral(actorNew->GetSpriteIndex(),2500);
         wp->ang = NORM_ANGLE(wp->ang+512);
-        HelpMissileLateral(w,1300);
+        HelpMissileLateral(actorNew->GetSpriteIndex(),1300);
         wp->ang = NORM_ANGLE(wp->ang-128-64);
         wp->ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
         wp->ang = NORM_ANGLE(wp->ang);
@@ -2450,7 +2441,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
         break;
     }
 
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->shade = -15;
     wu->ceiling_dist = Z(1);
     wu->floor_dist = Z(1);

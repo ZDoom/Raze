@@ -2451,14 +2451,14 @@ SpawnUziShell(PANEL_SPRITEp psp)
         // LEFT side
         pp->UziShellLeftAlt = !pp->UziShellLeftAlt;
         if (pp->UziShellLeftAlt)
-            SpawnShell(pp->PlayerSprite,-3);
+            SpawnShell(pp->Actor(),-3);
     }
     else
     {
         // RIGHT side
         pp->UziShellRightAlt = !pp->UziShellRightAlt;
         if (pp->UziShellRightAlt)
-            SpawnShell(pp->PlayerSprite,-2);
+            SpawnShell(pp->Actor(),-2);
     }
 }
 
@@ -2516,7 +2516,7 @@ void
 SpawnShotgunShell(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
-    SpawnShell(pp->PlayerSprite,-4);
+    SpawnShell(pp->Actor(),-4);
 }
 
 void

@@ -597,7 +597,7 @@ ANIMATOR QueueFloorBlood;                // Weapon.c
 int QueueFootPrint(short hit_sprite);                 // Weapon.c
 int QueueGeneric(short SpriteNum, short pic);        // Weapon.c
 int QueueLoWangs(short SpriteNum);                   // Weapon.c
-int SpawnShell(short SpriteNum, short ShellNum);     // Weapon.c
+int SpawnShell(DSWActor* actor, int ShellNum);     // JWeapon.c
 void UnlockKeyLock(short key_num, DSWActor* actor);  // JSector.c
 
 #define MAX_PAIN 5

@@ -51,6 +51,13 @@ extern FOOT_TYPE FootMode;
 extern int ShellCount;
 #define MAXSHELLS 32
 
+enum
+{
+    UZI_SHELL = 2152,
+    SHOT_SHELL = 2180
+};
+
+
 extern short StarQueueHead;
 extern short StarQueue[MAX_STAR_QUEUE];
 extern short HoleQueueHead;
