@@ -1523,8 +1523,8 @@ void DoDeleteSpriteMatch(short match)
                         // set shade to darkest and then kill it
                         sp->shade = int8_t(SP_TAG6(sp));
                         sp->pal = 0;
-                        SectorLightShade(sp, sp->shade);
-                        DiffuseLighting(sp);
+                        SectorLightShade(actor, sp->shade);
+                        DiffuseLighting(actor);
                     }
 
                     SpriteQueueDelete(actor);

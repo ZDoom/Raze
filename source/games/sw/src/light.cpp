@@ -51,8 +51,9 @@ BEGIN_SW_NS
 /* #define LIGHT_DiffuseNum(sp) (SP_TAG3((sp)))                         */
 /* #define LIGHT_DiffuseMult(sp) (SP_TAG4((sp)))                        */
 
-void SectorLightShade(SPRITEp sp, short intensity)
+void SectorLightShade(DSWActor* actor, short intensity)
 {
+    auto sp = &actor->s();
     short w, startwall, endwall;
     int8_t* wall_shade;
     short base_shade;
@@ -109,8 +110,9 @@ void SectorLightShade(SPRITEp sp, short intensity)
 }
 
 
-void DiffuseLighting(SPRITEp sp)
+void DiffuseLighting(DSWActor* actor)
 {
+    auto sp = &actor->s();
     int i;
     short count;
     short shade;
@@ -118,10 +120,10 @@ void DiffuseLighting(SPRITEp sp)
 
     // diffused lighting
     count = 0;
-    StatIterator it(STAT_LIGHTING_DIFFUSE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_LIGHTING_DIFFUSE);
+    while (auto itActor = it.Next())
     {
-        dsp = &sprite[i];
+        dsp = &itActor->s();
 
         // make sure matchs match
         if (LIGHT_Match(dsp) != LIGHT_Match(sp))
@@ -135,7 +137,7 @@ void DiffuseLighting(SPRITEp sp)
         if (!TEST_BOOL6(dsp))
             dsp->pal = sp->pal;
 
-        SectorLightShade(dsp, shade);
+        SectorLightShade(itActor, shade);
 
         count++;
     }
@@ -143,14 +145,13 @@ void DiffuseLighting(SPRITEp sp)
 
 void DoLightingMatch(short match, short state)
 {
-    int i;
     SPRITEp sp;
 
-    StatIterator it(STAT_LIGHTING);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_LIGHTING);
+    while (auto itActor = it.Next())
     {
-        auto u = User[i].Data();
-        sp = &sprite[i];
+        auto u = itActor->u();
+        sp = &itActor->s();
 
         if (LIGHT_Match(sp) != match)
             continue;
@@ -171,16 +172,16 @@ void DoLightingMatch(short match, short state)
                 SET_BOOL1(sp);
                 sp->shade = -LIGHT_MaxBright(sp);
                 sp->pal = u->spal; // on
-                SectorLightShade(sp, sp->shade);
-                DiffuseLighting(sp);
+                SectorLightShade(itActor, sp->shade);
+                DiffuseLighting(itActor);
             }
             else
             {
                 RESET_BOOL1(sp);
                 sp->shade = LIGHT_MaxDark(sp);
                 sp->pal = 0; // off
-                SectorLightShade(sp, sp->shade);
-                DiffuseLighting(sp);
+                SectorLightShade(itActor, sp->shade);
+                DiffuseLighting(itActor);
             }
             break;
 
@@ -202,8 +203,8 @@ void DoLightingMatch(short match, short state)
             {
                 RESET_BOOL1(sp);
                 sp->shade = LIGHT_MaxDark(sp);
-                SectorLightShade(sp, sp->shade);
-                DiffuseLighting(sp);
+                SectorLightShade(itActor, sp->shade);
+                DiffuseLighting(itActor);
             }
             break;
 
@@ -256,8 +257,8 @@ void DoLightingMatch(short match, short state)
                 RESET_BOOL1(sp);
                 sp->pal = 0;
                 sp->shade = LIGHT_MaxDark(sp);
-                SectorLightShade(sp, sp->shade);
-                DiffuseLighting(sp);
+                SectorLightShade(itActor, sp->shade);
+                DiffuseLighting(itActor);
                 sp->pal = spal;
             }
             break;
@@ -268,14 +269,13 @@ void DoLightingMatch(short match, short state)
 void InitLighting(void)
 {
     SPRITEp sp;
-    int i;
 
     // processed on level startup
     // puts lights in correct state
-    StatIterator it(STAT_LIGHTING);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_LIGHTING);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (!TEST_BOOL9(sp))
         {
@@ -287,13 +287,12 @@ void InitLighting(void)
 void DoLighting(void)
 {
     SPRITEp sp;
-    int i;
 
-    StatIterator it(STAT_LIGHTING);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_LIGHTING);
+    while (auto itActor = it.Next())
     {
-        auto u = User[i].Data();
-        sp = &sprite[i];
+        auto u = itActor->u();
+        sp = &itActor->s();
 
         // on/off test
         if (TEST_BOOL1(sp) == OFF)
@@ -314,8 +313,8 @@ void DoLighting(void)
                 if ((RANDOM_P2(128 << 8) >> 8) > 64)
                 {
                     sp->shade = -LIGHT_MaxBright(sp) + RandomRange(LIGHT_MaxBright(sp) + LIGHT_MaxDark(sp));
-                    SectorLightShade(sp, sp->shade);
-                    DiffuseLighting(sp);
+                    SectorLightShade(itActor, sp->shade);
+                    DiffuseLighting(itActor);
                 }
                 else
                 {
@@ -323,8 +322,8 @@ void DoLighting(void)
                     auto spal = sp->pal;
                     sp->pal = 0;
                     sp->shade = LIGHT_MaxDark(sp);
-                    SectorLightShade(sp, sp->shade);
-                    DiffuseLighting(sp);
+                    SectorLightShade(itActor, sp->shade);
+                    DiffuseLighting(itActor);
                     sp->pal = spal;
                 }
             }
@@ -352,8 +351,8 @@ void DoLighting(void)
                         LIGHT_DirChange(sp);
                 }
 
-                SectorLightShade(sp, sp->shade);
-                DiffuseLighting(sp);
+                SectorLightShade(itActor, sp->shade);
+                DiffuseLighting(itActor);
             }
 
             break;
@@ -389,8 +388,8 @@ void DoLighting(void)
                     }
                 }
 
-                SectorLightShade(sp, sp->shade);
-                DiffuseLighting(sp);
+                SectorLightShade(itActor, sp->shade);
+                DiffuseLighting(itActor);
             }
 
             break;
@@ -406,8 +405,8 @@ void DoLighting(void)
                 if ((RANDOM_P2(128 << 8) >> 8) > 64)
                 {
                     sp->shade = -LIGHT_MaxBright(sp) + RandomRange(LIGHT_MaxBright(sp) + LIGHT_MaxDark(sp));
-                    SectorLightShade(sp, sp->shade);
-                    DiffuseLighting(sp);
+                    SectorLightShade(itActor, sp->shade);
+                    DiffuseLighting(itActor);
                 }
                 else
                 {
@@ -415,8 +414,8 @@ void DoLighting(void)
                     auto spal = sp->pal;
                     sp->pal = 0;
                     sp->shade = LIGHT_MaxDark(sp);
-                    SectorLightShade(sp, sp->shade);
-                    DiffuseLighting(sp);
+                    SectorLightShade(itActor, sp->shade);
+                    DiffuseLighting(itActor);
                     sp->pal = spal;
                 }
 
@@ -424,8 +423,8 @@ void DoLighting(void)
                 {
                     // set to full brightness
                     sp->shade = -LIGHT_MaxBright(sp);
-                    SectorLightShade(sp, sp->shade);
-                    DiffuseLighting(sp);
+                    SectorLightShade(itActor, sp->shade);
+                    DiffuseLighting(itActor);
                     // turn it off until a swith happens
                     RESET_BOOL1(sp);
                 }
