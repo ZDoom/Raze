@@ -80,25 +80,14 @@ extern ParentalStruct aVoxelArray[MAXTILES];
 /////////////////////////////////////////////////////
 void SpawnWallSound(short sndnum, short i)
 {
-    short SpriteNum;
     vec3_t mid;
-    SPRITEp sp;
 
-    SpriteNum = COVERinsertsprite(0, STAT_DEFAULT);
-    if (SpriteNum < 0)
-        return;
-
-    sp = &sprite[SpriteNum];
-    sp->cstat = 0;
-    sp->extra = 0;
     // Get wall midpoint for offset in mirror view
     mid.x = (wall[i].x + wall[wall[i].point2].x) / 2;
     mid.y = (wall[i].y + wall[wall[i].point2].y) / 2;
     mid.z = (sector[wall[i].nextsector].ceilingz + sector[wall[i].nextsector].floorz) / 2;
-    setspritez(SpriteNum, &mid);
-    sp = &sprite[SpriteNum];
 
-    PlaySound(sndnum, sp, v3df_dontpan | v3df_doppler);
+    PlaySound(sndnum, &mid, v3df_dontpan | v3df_doppler);
 }
 
 short
