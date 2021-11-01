@@ -3631,12 +3631,10 @@ present time.
 
 */
 
-int
-ActorFollowTrack(short SpriteNum, short locktics)
+int ActorFollowTrack(DSWActor* actor, short locktics)
 {
-    auto actor = &swActors[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     PLAYERp pp;
 
     int move_actor(short SpriteNum, int xchange, int ychange, int zchange);
@@ -3695,11 +3693,11 @@ ActorFollowTrack(short SpriteNum, short locktics)
 
     if ((dist = Distance(sp->x, sp->y, tpoint->x, tpoint->y)) < 200) // 64
     {
-        if (!ActorTrackDecide(tpoint, SpriteNum))
+        if (!ActorTrackDecide(tpoint, actor->GetSpriteIndex()))
             return true;
 
         // get the next point
-        NextActorTrackPoint(SpriteNum);
+        NextActorTrackPoint(actor->GetSpriteIndex());
         tpoint = Track[u->track].TrackPoint + u->point;
 
         if (!(TEST(u->Flags, SPR_CLIMBING | SPR_DONT_UPDATE_ANG)))
@@ -3763,7 +3761,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
 
                 sp->ang = getangle(tpoint->x - sp->x, tpoint->y - sp->y);
 
-                ActorLeaveTrack(SpriteNum);
+                ActorLeaveTrack(actor->GetSpriteIndex());
                 RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
                 sp->z += u->sy;
 
@@ -3788,13 +3786,13 @@ ActorFollowTrack(short SpriteNum, short locktics)
             nz = sp->zvel * locktics;
     }
 
-    SetCollision(u, move_sprite(SpriteNum, nx, ny, nz, u->ceiling_dist, u->floor_dist, 0, locktics));
+    SetCollision(u, move_sprite(actor->GetSpriteIndex(), nx, ny, nz, u->ceiling_dist, u->floor_dist, 0, locktics));
 
 
     if (u->ret)
     {
         if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
-            ActorLeaveTrack(SpriteNum);
+            ActorLeaveTrack(actor->GetSpriteIndex());
     }
 
 

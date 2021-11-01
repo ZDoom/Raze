@@ -49,7 +49,7 @@ int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt);
 
 enum TriggerType { TRIGGER_TYPE_REMOTE_SO };
 
-int ActorFollowTrack(short SpriteNum, short locktics);
+int ActorFollowTrack(DSWActor*, short locktics);
 void ActorLeaveTrack(short SpriteNum);
 void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic);
 void TrackSetup(void);

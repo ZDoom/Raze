@@ -2039,7 +2039,7 @@ DoNinjaMove(DSWActor* actor)
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
         (*u->ActorActionFunc)(actor);
