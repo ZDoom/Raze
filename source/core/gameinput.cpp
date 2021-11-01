@@ -331,7 +331,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	if (*actions & SB_LOOK_LEFT)
 	{
 		// start looking left
-		look_ang += buildfang(scaleAdjust * -(4560. / GameTicRate));
+		look_ang -= buildfang(scaleAdjust * (4560. / GameTicRate));
 		rotscrnang += buildfang(scaleAdjust * (720. / GameTicRate));
 	}
 
@@ -339,7 +339,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	{
 		// start looking right
 		look_ang += buildfang(scaleAdjust * (4560. / GameTicRate));
-		rotscrnang += buildfang(scaleAdjust * -(720. / GameTicRate));
+		rotscrnang -= buildfang(scaleAdjust * (720. / GameTicRate));
 	}
 
 	if (!movementlocked())

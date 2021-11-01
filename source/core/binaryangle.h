@@ -183,24 +183,24 @@ public:
 
 	constexpr binangle &operator<<= (const uint8_t shift)
 	{
-		value <<= shift;
+		value = tosigned() << shift;
 		return *this;
 	}
 
 	constexpr binangle &operator>>= (const uint8_t shift)
 	{
-		value >>= shift;
+		value = tosigned() >> shift;
 		return *this;
 	}
 
 	constexpr binangle operator<< (const uint8_t shift) const
 	{
-		return binangle(value << shift);
+		return binangle(tosigned() << shift);
 	}
 
 	constexpr binangle operator>> (const uint8_t shift) const
 	{
-		return binangle(value >> shift);
+		return binangle(tosigned() >> shift);
 	}
 };
 
