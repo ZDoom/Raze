@@ -220,7 +220,7 @@ void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 
 void PlayerUpdateHealth(PLAYERp pp, short value)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     short x,y;
 
     if (Prediction)
@@ -327,7 +327,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
 void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     short x,y;
     short WeaponNum;
 
@@ -366,9 +366,9 @@ void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 
 void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
 
-    // Weapon Change
+    // weapon Change
     if (Prediction)
         return;
 
@@ -394,7 +394,7 @@ void PlayerUpdateKills(PLAYERp pp, short value)
             opp = Player + pnum;
 
             // for everyone on the same team
-            if (opp != pp && User[opp->PlayerSprite]->spal == User[pp->PlayerSprite]->spal)
+            if (opp != pp && opp->Actor()->u()->spal == pp->Actor()->u()->spal)
             {
                 opp->Kills += value;
                 if (opp->Kills > 999)
@@ -432,7 +432,7 @@ void PlayerUpdateArmor(PLAYERp pp, short value)
 int WeaponOperate(PLAYERp pp)
 {
     short weapon;
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
 
 
     InventoryKeys(pp);
@@ -656,13 +656,13 @@ WeaponOK(PLAYERp pp)
     static char wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
     unsigned wpn_ndx=0;
 
-    if ((unsigned)pp->PlayerSprite >= MAXSPRITES)
+    if (!pp->Actor())
         return(false);
 
-    u = User[pp->PlayerSprite].Data();
-
-    if (u == nullptr)
+    if (!pp->Actor()->hasU())
         return(false);
+
+    u = pp->Actor()->u();
 
     // sword
     if (DamageData[u->WeaponNum].max_ammo == -1)
@@ -980,7 +980,7 @@ InitWeaponSword(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_SWORD];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_SwordSwing;
@@ -1389,7 +1389,7 @@ InitWeaponStar(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     pp->CurWpn = pp->Wpn[WPN_STAR];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_ThrowStar;
@@ -2039,7 +2039,7 @@ InitWeaponUzi(PLAYERp pp)
 
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     pp->CurWpn = pp->Wpn[WPN_UZI];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = &ps_FireUzi[1];
@@ -2081,7 +2081,7 @@ InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     New->oy = New->y;
     uzi_orig->sibling = New;
 
-    // Set up the New Weapon variables
+    // Set up the New weapon variables
     SET(New->flags, PANF_WEAPON_SPRITE);
     New->ActionState = &ps_FireUzi2[1];
     New->RetractState = ps_RetractUzi2;
@@ -2108,7 +2108,7 @@ InitWeaponUziSecondaryReload(PANEL_SPRITEp uzi_orig)
 
     SET(New->flags, PANF_XFLIP);
 
-    // Set up the New Weapon variables
+    // Set up the New weapon variables
     SET(New->flags, PANF_WEAPON_SPRITE);
     New->ActionState = ps_UziEject;
     New->RetractState = ps_RetractUzi;
@@ -2303,7 +2303,7 @@ pUziAction(PANEL_SPRITEp psp)
         // Only Recoil if shooting
         pUziBobSetup(psp);
         UziRecoilYadj = DIV256(RANDOM_P2(1024));        // global hack for
-        // Weapon Bob
+        // weapon Bob
         pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP) || shooting);
         UziRecoilYadj = 0;              // reset my global hack
         if (RANDOM_P2(1024) > 990)
@@ -2690,7 +2690,7 @@ InitWeaponShotgun(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[pp->WeaponType];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_ShotgunFire;
@@ -3178,7 +3178,7 @@ InitWeaponRail(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[pp->WeaponType];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_RailFire;
@@ -3618,7 +3618,7 @@ InitWeaponHothead(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_HOTHEAD];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_HotheadAttack;
@@ -4046,7 +4046,7 @@ InitWeaponMicro(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_MICRO];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_MicroFire;
@@ -4524,7 +4524,7 @@ InitWeaponHeart(PLAYERp pp)
 
     PlaySound(DIGI_HEARTBEAT, pp, v3df_follow|v3df_dontpan|v3df_doppler);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_HEART];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_HeartAttack;
@@ -4996,7 +4996,7 @@ InitWeaponGrenade(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_GRENADE];
     psp = pp->CurWpn = pp->Wpn[WPN_GRENADE];
     SET(psp->flags, PANF_WEAPON_SPRITE);
@@ -5268,7 +5268,7 @@ InitWeaponMine(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_MINE];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_MineThrow;
@@ -5532,7 +5532,7 @@ InitChops(PLAYERp pp)
     if (Prediction)
         return;
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->Chops;
 
     SET(psp->flags, PANF_WEAPON_SPRITE);
@@ -5924,7 +5924,7 @@ InitWeaponFist(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_FIST];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_FistSwing;
@@ -6567,7 +6567,7 @@ bool DrawBeforeView = false;
 void
 pDisplaySprites(PLAYERp pp, double smoothratio)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     PANEL_SPRITEp psp=nullptr, next=nullptr;
     short shade, picnum, overlay_shade = 0;
     double x, y;
