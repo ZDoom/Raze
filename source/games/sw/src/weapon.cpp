@@ -13079,7 +13079,7 @@ InitSpellNapalm(PLAYERp pp)
         if (mp[i].dist_over != 0)
         {
             sp->ang = NORM_ANGLE(sp->ang + mp[i].ang);
-            HelpMissileLateral(u->SpriteNum, mp[i].dist_over);
+            HelpMissileLateral(actor->GetSpriteIndex(), mp[i].dist_over);
             sp->ang = NORM_ANGLE(sp->ang - mp[i].ang);
         }
 
@@ -15999,7 +15999,7 @@ InitSerpSpell(DSWActor* actor)
         sp->clipdist = 1;
 
         np->ang = NORM_ANGLE(np->ang + lat_ang[i]);
-        HelpMissileLateral(New, 4200L);
+        HelpMissileLateral(actorNew->GetSpriteIndex(), 4200);
         np->ang = NORM_ANGLE(np->ang - lat_ang[i]);
 
         // find the distance to the target (player)
@@ -16121,7 +16121,7 @@ InitSerpMonstSpell(DSWActor* actor)
         sp->clipdist = 1;
 
         np->ang = NORM_ANGLE(np->ang + lat_ang[i]);
-        HelpMissileLateral(New, 4200L);
+        HelpMissileLateral(actorNew->GetSpriteIndex(), 4200);
         np->ang = NORM_ANGLE(np->ang - lat_ang[i]);
 
         // find the distance to the target (player)

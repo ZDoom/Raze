@@ -857,7 +857,6 @@ int UserBreakSprite(DSWActor* breakActor)
     SPRITEp bp = &breakActor->s();
     short match = bp->lotag;
     short match_extra;
-    int BreakSprite = breakActor->GetSpriteIndex();
 
     auto actor = FindBreakSpriteMatch(match);
 
@@ -930,7 +929,6 @@ int AutoBreakSprite(DSWActor* breakActor, short type)
     SPRITEp bp = &breakActor->s();
     BREAK_INFOp break_info;
     extern void DoWallBreakMatch(short match);
-    int BreakSprite = breakActor->GetSpriteIndex();
 
     break_info = FindSpriteBreakInfo(bp->picnum);
 

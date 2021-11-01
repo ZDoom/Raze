@@ -866,7 +866,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(actor->GetSpriteIndex(), -400); // was -800
+    PickJumpMaxSpeed(actor, -400); // was -800
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -1213,7 +1213,7 @@ void BunnyHatch(DSWActor* actor)
         NewStateGroup(actorNew, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
-        PickJumpMaxSpeed(actorNew->GetSpriteIndex(), -600);
+        PickJumpMaxSpeed(actorNew, -600);
 
         SET(nu->Flags, SPR_JUMPING);
         RESET(nu->Flags, SPR_FALLING);
@@ -1269,7 +1269,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     DoActorSetSpeed(actorNew, FAST_SPEED);
     if (TEST_BOOL3(wp))
     {
-        PickJumpMaxSpeed(actorNew->GetSpriteIndex(), -600-RandomRange(600));
+        PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
         np->xrepeat = np->yrepeat = 64;
         np->xvel = 150 + RandomRange(1000);
         nu->Health = 1; // Easy to pop. Like shootn' skeet.
@@ -1277,7 +1277,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
         np->ang += RandomRange(128);
     }
     else
-        PickJumpMaxSpeed(actorNew->GetSpriteIndex(), -600);
+        PickJumpMaxSpeed(actorNew, -600);
 
     SET(nu->Flags, SPR_JUMPING);
     RESET(nu->Flags, SPR_FALLING);

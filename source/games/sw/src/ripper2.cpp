@@ -983,7 +983,7 @@ InitRipper2Hang(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -(RandomRange(400)+100));
+    PickJumpMaxSpeed(actor, -(RandomRange(400)+100));
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -1119,7 +1119,7 @@ DoRipper2BeginJumpAttack(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -(RandomRange(400)+100));
+    PickJumpMaxSpeed(actor, -(RandomRange(400)+100));
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -1289,7 +1289,7 @@ void Ripper2Hatch(short Weapon)
         NewStateGroup(actorNew, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
-        PickJumpMaxSpeed(New, -600);
+        PickJumpMaxSpeed(actorNew, -600);
 
         SET(nu->Flags, SPR_JUMPING);
         RESET(nu->Flags, SPR_FALLING);

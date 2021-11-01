@@ -935,16 +935,12 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     // Problem with sprites spawned really close to white sector walls
     // cant do a getzrange there
     // Just put in some valid starting values
-#if 0
-    DoActorZrange(SpriteNum);
-#else
     u->loz = sector[sp->sectnum].floorz;
     u->hiz = sector[sp->sectnum].ceilingz;
     u->lowActor = nullptr;
     u->highActor = nullptr;
     u->lo_sectp = &sector[sp->sectnum];
     u->hi_sectp = &sector[sp->sectnum];
-#endif
 
     return u;
 }

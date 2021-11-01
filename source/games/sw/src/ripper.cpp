@@ -903,11 +903,10 @@ PickJumpSpeed(short SpriteNum, int pix_height)
 }
 
 
-int
-PickJumpMaxSpeed(short SpriteNum, short max_speed)
+int PickJumpMaxSpeed(DSWActor* actor, short max_speed)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     int zh;
 
     ASSERT(max_speed < 0);
@@ -986,7 +985,7 @@ InitRipperHang(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -800);
+    PickJumpMaxSpeed(actor, -800);
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -1107,7 +1106,7 @@ DoRipperBeginJumpAttack(DSWActor* actor)
     DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -400); // was -800
+    PickJumpMaxSpeed(actor, -400); // was -800
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -1277,7 +1276,7 @@ void RipperHatch(short Weapon)
         NewStateGroup(actorNew, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
         DoActorSetSpeed(actorNew, FAST_SPEED);
-        PickJumpMaxSpeed(New, -600);
+        PickJumpMaxSpeed(actorNew, -600);
 
         SET(nu->Flags, SPR_JUMPING);
         RESET(nu->Flags, SPR_FALLING);
