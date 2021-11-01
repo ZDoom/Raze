@@ -285,7 +285,7 @@ void UseInventoryRepairKit(PLAYERp pp)
 
 void UseInventoryCloak(PLAYERp pp)
 {
-    SPRITEp sp = pp->SpriteP;
+    SPRITEp sp = &pp->Actor()->s();
 
     if (pp->InventoryActive[pp->InventoryNum])
     {
@@ -311,7 +311,7 @@ void UseInventoryCloak(PLAYERp pp)
 
 void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 {
-    SPRITEp sp = pp->SpriteP;
+    SPRITEp sp = &pp->Actor()->s();
 
     pp->InventoryActive[InventoryNum] = false;
 
