@@ -1450,15 +1450,13 @@ int InitSpriteChemBomb(DSWActor* actor)
 }
 
 
-int
-InitChemBomb(short SpriteNum)
+int InitChemBomb(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
 
 
 // Need to make it take away from inventory weapon list
@@ -1470,19 +1468,15 @@ InitChemBomb(short SpriteNum)
 
     // Spawn a shot
     // Inserting and setting up variables
-    w = SpawnSprite(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, sp->sectnum,
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-//    wu->RotNum = 5;
-//    NewStateGroup_(w, &sg_ChemBomb);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-//    SetOwner(SpriteNum, w);
-//    SetOwner(-1, w);
-    SetOwner(sp->owner, w); // !FRANK
+    SetOwner(GetOwner(actor), actorNew);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
     wp->shade = -15;
@@ -1527,14 +1521,13 @@ InitChemBomb(short SpriteNum)
 // Inventory Flash Bombs
 //
 //////////////////////////////////////////////
-int
-PlayerInitFlashBomb(PLAYERp pp)
+
+int PlayerInitFlashBomb(PLAYERp pp)
 {
-    int i;
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
-    SPRITEp sp = pp->SpriteP, hp;
+    SPRITEp sp = &pp->Actor()->s(), hp;
     USERp hu;
 
     PlaySound(DIGI_GASPOP, pp, v3df_dontpan | v3df_doppler);
@@ -1544,14 +1537,13 @@ PlayerInitFlashBomb(PLAYERp pp)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            auto itActor = &swActors[i];
-            hp = &sprite[i];
-            hu = User[i].Data();
+            hp = &itActor->s();
+            hu = itActor->u();
 
-            if (i == pp->PlayerSprite)
+            if (itActor == pp->Actor())
                 break;
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, tx, ty, tmin);
@@ -1564,7 +1556,7 @@ PlayerInitFlashBomb(PLAYERp pp)
             if (!FAFcansee(hp->x, hp->y, hp->z, hp->sectnum, sp->x, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sectnum))
                 continue;
 
-            damage = GetDamage(i, pp->PlayerSprite, DMG_FLASHBOMB);
+            damage = GetDamage(itActor->GetSpriteIndex(), pp->PlayerSprite, DMG_FLASHBOMB);
 
             if (hu->sop_parent)
             {
@@ -1589,7 +1581,7 @@ PlayerInitFlashBomb(PLAYERp pp)
             }
             else
             {
-                ActorPain(i);
+                ActorPain(itActor->GetSpriteIndex());
                 SpawnFlashBombOnActor(itActor);
             }
         }

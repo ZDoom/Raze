@@ -177,7 +177,7 @@ void WallBounce(short SpriteNum, short ang);
 #define PHOSPHORUS 1397
 
 int PlayerInitChemBomb(PLAYERp pp);
-int InitChemBomb(short SpriteNum);
+int InitChemBomb(DSWActor*);
 int PlayerInitCaltrops(PLAYERp pp);
 int InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity);
 int SpawnBunnyExp(int16_t Weapon);

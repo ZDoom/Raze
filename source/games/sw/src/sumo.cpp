@@ -737,7 +737,7 @@ int InitSumoFart(DSWActor* actor)
 
     PlaySound(DIGI_SUMOFART, sp, v3df_follow);
 
-    InitChemBomb(SpriteNum);
+    InitChemBomb(actor);
 
     SetSumoFartQuake(SpriteNum);
     InitSumoNapalm(SpriteNum);
@@ -783,7 +783,7 @@ int DoSumoDeathMelt(DSWActor* actor)
     PlaySound(DIGI_SUMOFART, sp, v3df_follow);
 
     u->ID = SUMO_RUN_R0;
-    InitChemBomb(SpriteNum);
+    InitChemBomb(actor);
     u->ID = 0;
 
     DoMatchEverything(nullptr, sp->lotag, ON);

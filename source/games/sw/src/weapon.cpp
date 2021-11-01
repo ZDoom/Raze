@@ -11137,7 +11137,7 @@ SpawnNuclearSecondaryExp(int16_t Weapon, short ang)
 
     SpawnExpZadjust(Weapon, exp, Z(50), Z(10));
 
-    InitChemBomb(explosion);
+     InitChemBomb(&swActors[explosion]);
 
     return explosion;
 }
@@ -11188,7 +11188,7 @@ SpawnNuclearExp(int16_t Weapon)
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->spal = exp->pal = PALETTE_PLAYER1;  // Set nuke puff to gray
 
-    InitChemBomb(explosion);
+    InitChemBomb(&swActors[explosion]);
 
 
     // Do central explosion
