@@ -4947,15 +4947,14 @@ void FindMainSector(SECTOR_OBJECTp sop)
 void DoPlayerOperateMatch(PLAYERp pp, bool starting)
 {
     SPRITEp sp;
-    int i;
 
     if (!pp->sop)
         return;
 
-    SectIterator it(pp->sop->mid_sector);
-    while ((i = it.NextIndex()) >= 0)
+    SWSectIterator it(pp->sop->mid_sector);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->statnum == STAT_ST1 && sp->hitag == SO_DRIVABLE_ATTRIB)
         {
@@ -5423,7 +5422,7 @@ const char *SuicideNote[MAX_SUICIDE] =
 
 char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
 {
-#define MAX_KILL_NOTES 16
+    const int MAX_KILL_NOTES = 16;
     short rnd = STD_RANDOM_RANGE(MAX_KILL_NOTES);
     const char *p1 = pp->PlayerName;
     const char *p2 = killer->PlayerName;
@@ -5535,6 +5534,7 @@ void DoPlayerBeginDie(PLAYERp pp)
     int choosesnd = 0;
 
     USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
 
     static void (*PlayerDeathFunc[MAX_PLAYER_DEATHS]) (PLAYERp) =
     {
@@ -5673,7 +5673,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         //pp->ceiling_dist = Z(0);
         //pp->floor_dist = Z(0);
 
-        RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         u->ceiling_dist = Z(10);
         u->floor_dist = Z(0);
         DoFindGround(pp->PlayerSprite);
@@ -5688,11 +5688,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = -300;
         u->slide_vel = 0;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
+        SET(sp->cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        pp->SpriteP->xrepeat = 48;
-        pp->SpriteP->yrepeat = 48;
+        sp->xrepeat = 48;
+        sp->yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,105);
         break;
@@ -5703,11 +5703,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -650;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
+        SET(sp->cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        pp->SpriteP->xrepeat = 48;
-        pp->SpriteP->yrepeat = 48;
+        sp->xrepeat = 48;
+        sp->yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,-1);
         InitBloodSpray(pp->Actor(),true,-1);
@@ -5721,11 +5721,11 @@ void DoPlayerBeginDie(PLAYERp pp)
         pp->jump_speed = 200;
         u->slide_vel = 800;
         SpawnShrap(pp->Actor(), nullptr);
-        SET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
+        SET(sp->cstat, CSTAT_SPRITE_YCENTER);
         NewStateGroup(pp->Actor(), sg_PlayerHeadFly);
         u->ID = NINJA_Head_R0;
-        pp->SpriteP->xrepeat = 48;
-        pp->SpriteP->yrepeat = 48;
+        sp->xrepeat = 48;
+        sp->yrepeat = 48;
         // Blood fountains
         InitBloodSpray(pp->Actor(),true,105);
         break;
