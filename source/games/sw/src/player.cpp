@@ -1495,31 +1495,6 @@ void DoPlayerTurn(PLAYERp pp, float const avel, double const scaleAdjust)
     UpdatePlayerSpriteAngle(pp);
 }
 
-#if 0
-void DoPlayerTurnBoat(PLAYERp pp, float avel)
-{
-    SECTOR_OBJECTp sop = pp->sop;
-
-    if (sop->drive_angspeed)
-    {
-        float drive_oavel = pp->drive_avel;
-        pp->drive_avel = (MulScaleF(avel, sop->drive_angspeed) + (drive_oavel * (sop->drive_angslide - 1)), 16) / sop->drive_angslide;
-
-        avel = pp->drive_avel;
-    }
-    else
-    {
-        avel *= synctics * 0.65625;
-    }
-
-    if (avel != 0)
-    {
-        pp->angle.ang += degang(avel);
-        sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
-    }
-}
-#endif
-
 void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
 {
     SECTOR_OBJECTp sop = pp->sop;
@@ -1542,7 +1517,7 @@ void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
         if (MultiClipTurn(pp, NORM_ANGLE(sum.asbuild()), z, floor_dist))
         {
             pp->angle.ang = sum;
-            sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
+            pp->Actor()->s().ang = pp->angle.ang.asbuild();
         }
     }
 }
@@ -1570,7 +1545,7 @@ void DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
         if (RectClipTurn(pp, NORM_ANGLE(sum.asbuild()), x, y, ox, oy))
         {
             pp->angle.ang = sum;
-            sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
+            pp->Actor()->s().ang = pp->angle.ang.asbuild();
         }
     }
 }
@@ -1610,7 +1585,7 @@ void DoPlayerTurnTurret(PLAYERp pp, float avel)
         }
 
         pp->angle.ang = new_ang;
-        sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
+        pp->Actor()->s().ang = pp->angle.ang.asbuild();
     }
 
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->sop->xmid, pp->sop->ymid);
@@ -1806,7 +1781,7 @@ void UpdatePlayerSprite(PLAYERp pp)
     if (TEST(pp->Flags, PF_DEAD))
     {
         ChangeActorSect(pp->Actor(), pp->cursectnum);
-        sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
+        sp->ang = pp->angle.ang.asbuild();
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -1881,9 +1856,9 @@ void UpdatePlayerSprite(PLAYERp pp)
 
     UpdatePlayerUnderSprite(pp);
 
-    sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
+    sp->ang = pp->angle.ang.asbuild();
 }
-
+ 
 void DoPlayerZrange(PLAYERp pp)
 {
     int ceilhit, florhit;
@@ -1893,12 +1868,16 @@ void DoPlayerZrange(PLAYERp pp)
     // Don't let you fall if you're just slightly over a cliff
     // This function returns the highest and lowest z's
     // for an entire box, NOT just a point.  -Useful for clipping
-    bakcstat = pp->SpriteP->cstat;
-    RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
+    auto sp = &pp->Actor()->s();
+    bakcstat = sp->cstat;
+    RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = pp->pos;
     pos.z += Z(8);
-    FAFgetzrange(pos, pp->cursectnum, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)pp->SpriteP->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
-    pp->SpriteP->cstat = bakcstat;
+    FAFgetzrange(pos, pp->cursectnum, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)sp->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    sp->cstat = bakcstat;
+
+    Collision ceilColl(ceilhit);
+    Collision floorColl(florhit);
 
 //  16384+sector (sector first touched) or
 //  49152+spritenum (sprite first touched)
@@ -1907,35 +1886,37 @@ void DoPlayerZrange(PLAYERp pp)
     pp->lowActor = nullptr;
     pp->highActor = nullptr;
 
-    if (TEST(ceilhit, 0xc000) == 49152)
+    if (ceilColl.type == kHitSprite)
     {
-        pp->highActor = &swActors[ceilhit & 4095];
+        pp->highActor = ceilColl.actor;
     }
     else
     {
-        pp->hi_sectp = &sector[ceilhit & 4095];
+        pp->hi_sectp = &sector[ceilColl.index];
     }
 
-    if (TEST(florhit, 0xc000) == 49152)
+    if (floorColl.type == kHitSprite)
     {
-        pp->lowActor = &swActors[florhit & 4095];
+        pp->lowActor = floorColl.actor;
 
         // prevent player from standing on Zombies
-        if (pp->lowActor->s().statnum == STAT_ENEMY && pp->lowActor->u()->ID == ZOMBIE_RUN_R0)
+        auto fsp = &floorColl.actor->s();
+        if (fsp->statnum == STAT_ENEMY && floorColl.actor->u()->ID == ZOMBIE_RUN_R0)
         {
-            pp->lo_sectp = &sector[pp->lowActor->s().sectnum];
-            pp->loz = pp->lowActor->s().z;
+            pp->lo_sectp = &sector[fsp->sectnum];
+            pp->loz = fsp->z;
             pp->lowActor = nullptr;
         }
     }
     else
     {
-        pp->lo_sectp = &sector[florhit & 4095];
+        pp->lo_sectp = &sector[floorColl.index];
     }
 }
 
 void DoPlayerSlide(PLAYERp pp)
 {
+    auto sp = &pp->Actor()->s();
     USERp u = pp->Actor()->u();
     int push_ret;
 
@@ -1951,7 +1932,7 @@ void DoPlayerSlide(PLAYERp pp)
     if (labs(pp->slide_xvect) < 12800 && labs(pp->slide_yvect) < 12800)
         pp->slide_xvect = pp->slide_yvect = 0;
 
-    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -1964,9 +1945,9 @@ void DoPlayerSlide(PLAYERp pp)
         }
         return;
     }
-    clipmove(&pp->pos, &pp->cursectnum, pp->slide_xvect, pp->slide_yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    clipmove(&pp->pos, &pp->cursectnum, pp->slide_xvect, pp->slide_yvect, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
