@@ -134,7 +134,7 @@ PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 
 short NormalVisibility;
 
-SPRITEp FindNearSprite(SPRITEp sp, short stat);
+DSWActor* FindNearSprite(DSWActor* sp, short stat);
 bool PlayerOnLadder(PLAYERp pp);
 void DoPlayerSlide(PLAYERp pp);
 void DoPlayerBeginSwim(PLAYERp pp);
@@ -2683,9 +2683,6 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                         MOVEx(256, pp->angle.ang.asbuild()), MOVEy(256, pp->angle.ang.asbuild()), 0,
                         &hitinfo, CLIPMASK_PLAYER);
 
-                ////DSPRINTF(ds,"hitinfo.sect %d, hitinfo.wall %d, hitinfo.pos.x %d, hitinfo.pos.y %d, hitinfo.pos.z %d",hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
-                //MONO_PRINT(ds);
-
                 if (FindDistance2D(hitinfo.pos.x - hit_pos.x, hitinfo.pos.y - hit_pos.y) < 800)
                 {
                     if (hitinfo.wall >= 0)
@@ -3111,8 +3108,6 @@ void DoPlayerFall(PLAYERp pp)
                 // this was causing the z to snap immediately
                 // changed it so it stays gradual
 
-                //pp->posz = pp->loz - PLAYER_HEIGHT + recoil_amt;
-
                 pp->posz += recoil_amt;
                 DoPlayerHeight(pp);
             }
@@ -3122,7 +3117,6 @@ void DoPlayerFall(PLAYERp pp)
             {
 
                 PlayerSound(DIGI_PLAYERPAIN2, v3df_follow|v3df_dontpan,pp);
-                // PlayerUpdateHealth(pp, -RandomRange(PLAYER_FALL_DAMAGE_AMOUNT) - 2);
 
                 if (pp->jump_speed > 1700 && pp->jump_speed < 4000)
                 {
@@ -3408,7 +3402,9 @@ void DoPlayerClimb(PLAYERp pp)
 
         if (wal >= 0)
         {
-            lsp = FindNearSprite(&pp->Actor()->s(), STAT_CLIMB_MARKER);
+            auto lActor = FindNearSprite(pp->Actor(), STAT_CLIMB_MARKER);
+            if (!lActor) return;
+            auto lsp = &lActor->s();
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
@@ -3568,11 +3564,9 @@ void DoPlayerCrawl(PLAYERp pp)
     }
 
     // If the floor is far below you, fall hard instead of adjusting height
-    //if (labs(pp->posz - pp->loz) > PLAYER_CRAWL_HEIGHT + PLAYER_FALL_HEIGHT)
     if (PlayerFallTest(pp, PLAYER_CRAWL_HEIGHT))
     {
         pp->jump_speed = Z(1);
-        //pp->posz -= PLAYER_HEIGHT - PLAYER_CRAWL_HEIGHT;
         RESET(pp->Flags, PF_CRAWLING);
         DoPlayerBeginFall(pp);
         // call PlayerFall now seems to iron out a hitch before falling
@@ -3707,24 +3701,25 @@ void DoPlayerFly(PLAYERp pp)
 }
 
 
-SPRITEp FindNearSprite(SPRITEp sp, short stat)
+DSWActor* FindNearSprite(DSWActor* actor, short stat)
 {
+    auto sp = &actor->s();
     int fs;
     int dist, near_dist = 15000;
-    SPRITEp fp, near_fp = nullptr;
+    DSWActor* near_fp = nullptr;
 
 
-    StatIterator it(stat);
-    while ((fs = it.NextIndex()) >= 0)
+    SWStatIterator it(stat);
+    while (auto actor = it.Next())
     {
-        fp = &sprite[fs];
+        auto fp = &actor->s();
 
         dist = Distance(sp->x, sp->y, fp->x, fp->y);
 
         if (dist < near_dist)
         {
             near_dist = dist;
-            near_fp = fp;
+            near_fp = actor;
         }
     }
 
@@ -3799,11 +3794,12 @@ bool PlayerOnLadder(PLAYERp pp)
     }
 
 
-    lsp = FindNearSprite(&pp->Actor()->s(), STAT_CLIMB_MARKER);
+    auto lActor = FindNearSprite(pp->Actor(), STAT_CLIMB_MARKER);
 
-    if (!lsp)
+    if (!lActor)
         return false;
 
+    lsp = &lActor->s();
     // determine where the player is supposed to be in relation to the ladder
     // move out in front of the ladder
     nx = MOVEx(100, lsp->ang);
@@ -4945,15 +4941,7 @@ void FindMainSector(SECTOR_OBJECTp sop)
         // set it to something valid
         sop->op_main_sector = 0;
 
-        //updatesector(sx, sy, &sop->op_main_sector);
-        //updatesectorz(sx, sy, sop->zmid - Z(8), &sop->op_main_sector);
-
         updatesectorz(sx, sy, sop->zmid, &sop->op_main_sector);
-
-        //updatesector(sx, sy, &sop->op_main_sector);
-
-        ////DSPRINTF(ds,"main sector %d, zmid %d",sop->op_main_sector, sop->zmid);
-        //MONO_PRINT(ds);
 
         PlaceSectorObject(sop, sx, sy);
     }
@@ -5216,8 +5204,9 @@ void PlayerRemoteReset(PLAYERp pp, short sectnum)
 {
     pp->cursectnum = pp->lastcursectnum = sectnum;
 
-    pp->posx = pp->remote_sprite->x;
-    pp->posy = pp->remote_sprite->y;
+    auto rsp = &pp->remoteActor->s();
+    pp->posx = rsp->x;
+    pp->posy = rsp->y;
     pp->posz = sector[sectnum].floorz - PLAYER_HEIGHT;
 
     pp->xvect = pp->yvect = pp->oxvect = pp->oyvect = pp->slide_xvect = pp->slide_yvect = 0;
@@ -5245,8 +5234,9 @@ void DoPlayerStopOperate(PLAYERp pp)
 
     if (pp->sop_remote)
     {
-        if (TEST_BOOL1(pp->remote_sprite))
-            pp->angle.ang = pp->angle.oang = buildang(pp->remote_sprite->ang);
+        auto rsp = &pp->remoteActor->s();
+        if (TEST_BOOL1(rsp))
+            pp->angle.ang = pp->angle.oang = buildang(rsp->ang);
         else
             pp->angle.ang = pp->angle.oang = bvectangbam(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
     }
@@ -6408,15 +6398,12 @@ void DoPlayerRun(PLAYERp pp)
                     }
                     else if (TEST(sector[pp->cursectnum].extra, SECTFX_TRIGGER))
                     {
-                        SPRITEp sp;
-
-                        sp = FindNearSprite(&pp->Actor()->s(), STAT_TRIGGER);
-                        if (sp && SP_TAG5(sp) == TRIGGER_TYPE_REMOTE_SO)
+                        auto sActor = FindNearSprite(pp->Actor(), STAT_TRIGGER);
+                        if (sActor && SP_TAG5(&sActor->s()) == TRIGGER_TYPE_REMOTE_SO)
                         {
-                            pp->remote_sprite = sp;
+                            pp->remoteActor = sActor;
                             pp->KeyPressBits &= ~SB_OPEN;
-                            ASSERT(pp->remote_sprite);
-                            DoPlayerBeginRemoteOperate(pp, &SectorObject[SP_TAG7(pp->remote_sprite)]);
+                            DoPlayerBeginRemoteOperate(pp, &SectorObject[SP_TAG7(&sActor->s())]);
                             return;
                         }
                     }

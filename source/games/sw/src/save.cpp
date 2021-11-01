@@ -444,7 +444,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("lv_x", w.lv_x)
 			("lv_y", w.lv_y)
 			("lv_z", w.lv_z)
-			("remote_sprite", w.remote_sprite)
+			("remote_sprite", w.remoteActor)
 			("remote", w.remote)
 			("sop_remote", w.sop_remote)
 			("sop", w.sop)

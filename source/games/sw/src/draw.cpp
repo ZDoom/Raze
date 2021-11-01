@@ -1542,8 +1542,9 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (pp->sop_remote)
     {
-        if (TEST_BOOL1(pp->remote_sprite))
-            tang = buildang(pp->remote_sprite->ang);
+        auto rsp = &pp->remoteActor->s();
+        if (TEST_BOOL1(rsp))
+            tang = buildang(rsp->ang);
         else
             tang = bvectangbam(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }

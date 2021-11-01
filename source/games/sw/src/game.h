@@ -778,6 +778,9 @@ struct PLAYERstruct
         vec3_t pos;
     };
     
+    DSWActor* lowActor, * highActor;
+    DSWActor* remoteActor;
+
     // interpolation
     int oposx, oposy, oposz;
 
@@ -785,7 +788,6 @@ struct PLAYERstruct
     short lv_sectnum;
     int lv_x,lv_y,lv_z;
 
-    SPRITEp remote_sprite;
     REMOTE_CONTROL remote;
     SECTOR_OBJECTp sop_remote;
     SECTOR_OBJECTp sop;  // will either be sop_remote or sop_control
@@ -797,7 +799,6 @@ struct PLAYERstruct
     int hiz,loz;
     int ceiling_dist,floor_dist;
     SECTORp hi_sectp, lo_sectp;
-    DSWActor* lowActor, *highActor;
 
     SPRITEp last_camera_sp;
     int circle_camera_dist;

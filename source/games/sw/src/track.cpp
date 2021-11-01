@@ -45,7 +45,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny);
 void DoAutoTurretObject(SECTOR_OBJECTp sop);
 void DoTornadoObject(SECTOR_OBJECTp sop);
 int PickJumpSpeed(short SpriteNum, int pix_height);
-SPRITEp FindNearSprite(SPRITEp, short);
+DSWActor* FindNearSprite(DSWActor, short);
 ANIMATOR NinjaJumpActionFunc;
 
 #define ACTOR_STD_JUMP (-384)
@@ -3543,13 +3543,14 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             //
             // Get angle and x,y pos from CLIMB_MARKER
             //
-            lsp = FindNearSprite(sp, STAT_CLIMB_MARKER);
+            auto lActor = FindNearSprite(actor, STAT_CLIMB_MARKER);
 
-            if (!lsp)
+            if (!lActor)
             {
                 ActorLeaveTrack(SpriteNum);
                 return false;
             }
+            lsp = &lActor->s();
 
             // determine where the player is supposed to be in relation to the ladder
             // move out in front of the ladder
