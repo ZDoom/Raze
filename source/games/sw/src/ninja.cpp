@@ -2437,7 +2437,7 @@ void InitPlayerSprite(PLAYERp pp)
 void SpawnPlayerUnderSprite(PLAYERp pp)
 {
     SPRITEp psp = &pp->Actor()->s();
-    USERp pu = pp->Actor()->u(), u;
+     USERp pu = pp->Actor()->u(), u;
 
     SPRITEp sp;
     int pnum = int(pp - Player), sp_num;
