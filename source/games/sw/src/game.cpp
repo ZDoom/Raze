@@ -473,8 +473,7 @@ void TerminateLevel(void)
         pp->SpriteP = nullptr;
         pp->PlayerSprite = -1;
 
-        pp->UnderSpriteP = nullptr;
-        pp->PlayerUnderSprite = -1;
+        pp->PlayerUnderActor = nullptr;
 
         memset(pp->HasKey, 0, sizeof(pp->HasKey));
 

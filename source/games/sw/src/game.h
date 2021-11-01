@@ -834,8 +834,9 @@ struct PLAYERstruct
     binangle RevolveAng;
 
     // under vars are for wading and swimming
-    short PlayerSprite, PlayerUnderSprite;
-    SPRITEp SpriteP, UnderSpriteP;
+    short PlayerSprite;
+    SPRITEp SpriteP;
+    DSWActor* PlayerUnderActor;
 
 
     short pnum; // carry along the player number

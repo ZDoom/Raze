@@ -1360,8 +1360,9 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 
 void DoPlayerWarpTeleporter(PLAYERp pp)
 {
-    USERp u = pp->Actor()->u();
-    SPRITEp sp = &pp->Actor()->s();
+    auto ppActor = pp->Actor();
+    USERp u = ppActor->u();
+    SPRITEp sp = &ppActor->s();
     short pnum;
     SPRITEp sp_warp;
 
@@ -1398,10 +1399,10 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         //DoPlayerStand(pp);
         pp->DoPlayerAction = DoPlayerTeleportPause;
 
-        NewStateGroup(pp->Actor(), pp->Actor()->u()->ActorActionSet->Stand);
+        NewStateGroup(ppActor, ppActor->u()->ActorActionSet->Stand);
 
         UpdatePlayerSprite(pp);
-        DoSpawnTeleporterEffect(pp->Actor());
+        DoSpawnTeleporterEffect(ppActor);
 
         TRAVERSE_CONNECT(pnum)
         {
@@ -1412,9 +1413,8 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
                 // if someone already standing there
                 if (npp->cursectnum == pp->cursectnum)
                 {
-                    PlayerUpdateHealth(npp, -User[npp->PlayerSprite]->Health);  // Make sure he dies!
+                    PlayerUpdateHealth(npp, -npp->Actor()->u()->Health);  // Make sure he dies!
                     // telefraged by teleporting player
-                    //PlayerCheckDeath(npp, npp->PlayerSprite);
                     PlayerCheckDeath(npp, pp->PlayerSprite);
                 }
             }
@@ -1477,13 +1477,15 @@ void DoPlayerCrawlHeight(PLAYERp pp)
 
 void UpdatePlayerSpriteAngle(PLAYERp pp)
 {
-    sprite[pp->PlayerSprite].backupang();
-    sprite[pp->PlayerSprite].ang = pp->angle.ang.asbuild();
+    auto psp = &pp->Actor()->s();
+    psp->backupang();
+    psp->ang = pp->angle.ang.asbuild();
 
-    if (!Prediction && pp->PlayerUnderSprite >= 0)
+    if (!Prediction && pp->PlayerUnderActor != nullptr)
     {
-        sprite[pp->PlayerUnderSprite].backupang();
-        sprite[pp->PlayerUnderSprite].ang = pp->angle.ang.asbuild();
+        auto usp = &pp->PlayerUnderActor->s();
+        usp->backupang();
+        usp->ang = pp->angle.ang.asbuild();
     }
 }
 
@@ -1749,32 +1751,29 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     {
 
         // if under sprite exists and not in a dive area - Kill it
-        if (pp->PlayerUnderSprite >= 0)
+        if (pp->PlayerUnderActor != nullptr)
         {
-            KillSprite(pp->PlayerUnderSprite);
-            pp->PlayerUnderSprite = -1;
-            pp->UnderSpriteP = nullptr;
+            KillActor(pp->PlayerUnderActor);
+            pp->PlayerUnderActor = nullptr;
         }
         return;
     }
     else
     {
         // if in a dive area and a under sprite does not exist - create it
-        if (pp->PlayerUnderSprite < 0)
+        if (pp->PlayerUnderActor == nullptr)
         {
             SpawnPlayerUnderSprite(pp);
         }
     }
 
-    sp = pp->UnderSpriteP;
-    u = User[pp->PlayerUnderSprite].Data();
-
-    SpriteNum = pp->PlayerUnderSprite;
+    sp = &pp->PlayerUnderActor->s();
+    u = pp->PlayerUnderActor->u();
 
     sp->x = over_sp->x;
     sp->y = over_sp->y;
     sp->z = over_sp->z;
-    changespritesect(SpriteNum, over_sp->sectnum);
+    ChangeActorSect(pp->PlayerUnderActor, over_sp->sectnum);
 
     SpriteWarpToUnderwater(sp);
 

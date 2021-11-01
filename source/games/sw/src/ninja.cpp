@@ -2405,8 +2405,7 @@ void InitPlayerSprite(PLAYERp pp)
 
     NewStateGroup(pp->Actor(), u->ActorActionSet->Run);
 
-    pp->PlayerUnderSprite = -1;
-    pp->UnderSpriteP = nullptr;
+    pp->PlayerUnderActor = nullptr;
 
     DoPlayerZrange(pp);
 
@@ -2440,22 +2439,20 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
      USERp pu = pp->Actor()->u(), u;
 
     SPRITEp sp;
-    int pnum = int(pp - Player), sp_num;
+    int pnum = int(pp - Player);
 
-    sp_num = pp->PlayerUnderSprite = SpawnSprite(STAT_PLAYER_UNDER0 + pnum,
+    pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
                                                  NINJA_RUN_R0, nullptr, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
 
-    sp = &sprite[sp_num];
-    u = User[sp_num].Data();
-
-    pp->UnderSpriteP = sp;
+    sp = &pp->PlayerUnderActor->s();
+    u = pp->PlayerUnderActor->u();
 
     SET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(sp->extra, SPRX_PLAYER_OR_ENEMY);
 
     u->Rot = sg_NinjaRun;
     u->RotNum = pu->RotNum;
-    NewStateGroup_(sp_num, pu->Rot);
+    NewStateGroup(pp->PlayerUnderActor, pu->Rot);
 
     u->Radius = pu->Radius;
     u->PlayerP = pp;
