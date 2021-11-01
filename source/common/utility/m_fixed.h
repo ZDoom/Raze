@@ -15,7 +15,7 @@ __forceinline constexpr int64_t DivScaleL(int64_t a, int64_t b, int shift) { ret
 
 #include "xs_Float.h"
 
-inline constexpr fixed_t FloatToFixed(double f)
+inline fixed_t FloatToFixed(double f)
 {
 	return xs_Fix<16>::ToFix(f);
 }
@@ -32,10 +32,10 @@ inline constexpr double FixedToFloat(fixed_t f)
 
 inline constexpr int32_t FixedToInt(fixed_t f)
 {
-	return (f + (FRACUNIT >> 1)) >> FRACBITS;
+	return (f + FRACUNIT/2) >> FRACBITS;
 }
 
-inline constexpr unsigned FloatToAngle(double f)
+inline unsigned FloatToAngle(double f)
 {
 	return xs_CRoundToInt((f)* (0x40000000 / 90.));
 }
