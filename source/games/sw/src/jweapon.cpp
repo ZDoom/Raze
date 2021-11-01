@@ -494,7 +494,7 @@ int DoBloodSpray(DSWActor* actor)
             }
 
             //WallBounce(Weapon, wall_ang);
-            //ScaleSpriteVector(Weapon, 32000);
+            //ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
             break;
         }
 
@@ -519,7 +519,7 @@ int DoBloodSpray(DSWActor* actor)
                     SetCollision(u, 0);
                     u->Counter = 0;
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(Weapon, 32000);   // Was 18000
+                    ScaleSpriteVector(actor->GetSpriteIndex(), 32000);   // Was 18000
                     u->zchange /= 6;
                 }
                 else
@@ -1050,16 +1050,14 @@ int DoCaltropsStick(DSWActor* actor)
     return 0;
 }
 
-int
-DoCaltrops(DSWActor* actor)
+int DoCaltrops(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(Weapon, 50000);
+        ScaleSpriteVector(actor->GetSpriteIndex(), 50000);
 
         u->Counter += 20;
         u->zchange += u->Counter;
@@ -1070,10 +1068,10 @@ DoCaltrops(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor->GetSpriteIndex());
 
     if (u->ret)
     {
@@ -1096,8 +1094,8 @@ DoCaltrops(DSWActor* actor)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                WallBounce(Weapon, wall_ang);
-                ScaleSpriteVector(Weapon, 10000);
+                WallBounce(actor->GetSpriteIndex(), wall_ang);
+                ScaleSpriteVector(actor->GetSpriteIndex(), 10000);
             }
             else
             {
@@ -1129,8 +1127,8 @@ DoCaltrops(DSWActor* actor)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
-            WallBounce(Weapon, wall_ang);
-            ScaleSpriteVector(Weapon, 1000);
+            WallBounce(actor->GetSpriteIndex(), wall_ang);
+            ScaleSpriteVector(actor->GetSpriteIndex(), 1000);
             break;
         }
 
@@ -1138,12 +1136,12 @@ DoCaltrops(DSWActor* actor)
         {
             bool did_hit_wall;
 
-            if (SlopeBounce(Weapon, &did_hit_wall))
+            if (SlopeBounce(actor->GetSpriteIndex(), &did_hit_wall))
             {
                 if (did_hit_wall)
                 {
                     // hit a wall
-                    ScaleSpriteVector(Weapon, 1000);
+                    ScaleSpriteVector(actor->GetSpriteIndex(), 1000);
                     SetCollision(u, 0);
                     u->Counter = 0;
                 }
@@ -1157,7 +1155,7 @@ DoCaltrops(DSWActor* actor)
                         {
                             PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
                             SET(u->Flags, SPR_BOUNCE);
-                            ScaleSpriteVector(Weapon, 1000);        // was 18000
+                            ScaleSpriteVector(actor->GetSpriteIndex(), 1000);        // was 18000
                             SetCollision(u, 0);
                             u->Counter = 0;
                         }
@@ -1166,14 +1164,14 @@ DoCaltrops(DSWActor* actor)
                             u->xchange = u->ychange = 0;
                             SET(sp->extra, SPRX_BREAKABLE);
                             SET(sp->cstat,CSTAT_SPRITE_BREAKABLE);
-                            ChangeSpriteState(Weapon, s_CaltropsStick);
+                            ChangeState(actor, s_CaltropsStick);
                             return true;
                         }
                     }
                     else
                     {
                         // hit a ceiling
-                        ScaleSpriteVector(Weapon, 1000);    // was 22000
+                        ScaleSpriteVector(actor->GetSpriteIndex(), 1000);    // was 22000
                     }
                 }
             }
@@ -1197,14 +1195,14 @@ DoCaltrops(DSWActor* actor)
                         SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
-                        ScaleSpriteVector(Weapon, 1000);    // Was 18000
+                        ScaleSpriteVector(actor->GetSpriteIndex(), 1000);    // Was 18000
                     }
                     else
                     {
                         u->xchange = u->ychange = 0;
                         SET(sp->extra, SPRX_BREAKABLE);
                         SET(sp->cstat,CSTAT_SPRITE_BREAKABLE);
-                        ChangeSpriteState(Weapon, s_CaltropsStick);
+                        ChangeState(actor, s_CaltropsStick);
                         return true;
                     }
                 }
@@ -1212,7 +1210,7 @@ DoCaltrops(DSWActor* actor)
                 // hit something above
                 {
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(Weapon, 1000);        // was 22000
+                    ScaleSpriteVector(actor->GetSpriteIndex(), 1000);        // was 22000
                 }
             }
             break;
