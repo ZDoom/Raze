@@ -51,6 +51,7 @@ struct _xs_doubleints
 	};
 
 	constexpr _xs_doubleints(real64 v) : val(v) {}
+    constexpr uint32_t getint() const { return ival[_xs_iman_]; }
 };
 
 #if 0
@@ -74,7 +75,7 @@ constexpr real64 _xs_doublemagicroundeps    = (.5f-_xs_doublemagicdelta);       
 finline constexpr int32_t xs_CRoundToInt(real64 val, real64 dmr = _xs_doublemagic)
 {
 #if _xs_DEFAULT_CONVERSION==0
-	return _xs_doubleints(val + dmr).ival[_xs_iman_];
+	return _xs_doubleints(val + dmr).getint();
 #else
     return int32_t(floor(val+.5));
 #endif
