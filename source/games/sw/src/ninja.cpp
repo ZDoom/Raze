@@ -2191,7 +2191,7 @@ void PlayerLevelReset(PLAYERp pp)
     //pp->Armor = 0;
     //PlayerUpdateArmor(pp, 0);
     pp->Kills = 0;
-    pp->Killer = -1;
+    pp->KillerActor = nullptr;;
     pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
@@ -2257,7 +2257,7 @@ void PlayerDeathReset(PLAYERp pp)
     puser[pp->pnum].Health = u->Health;
     pp->Armor = 0;
     PlayerUpdateArmor(pp, 0);
-    pp->Killer = -1;
+    pp->KillerActor = nullptr;;
     pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
@@ -2336,7 +2336,7 @@ void PlayerGameReset(PLAYERp pp)
     PlayerUpdateHealth(pp, 500);
     pp->Armor = 0;
     PlayerUpdateArmor(pp, 0);
-    pp->Killer = -1;
+    pp->KillerActor = nullptr;;
 
     if (pp == Player+screenpeek)
     {

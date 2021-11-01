@@ -707,11 +707,11 @@ void KillSprite(int16_t SpriteNum)
         {
             pp = Player + pnum;
 
-            if (pp->Killer > -1)
+            if (pp->KillerActor != nullptr)
             {
-                if (pp->Killer == SpriteNum)
+                if (pp->KillerActor == actor)
                 {
-                    pp->Killer = -1;
+                    pp->KillerActor = nullptr;;
                 }
             }
         }

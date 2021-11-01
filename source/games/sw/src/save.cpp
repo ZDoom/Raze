@@ -550,7 +550,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("DiveDamageTics", w.DiveDamageTics)
 			("DeathType", w.DeathType)
 			("Kills", w.Kills)
-			("Killer", w.Killer)
+			("Killer", w.KillerActor)
 			.Array("KilledPlayer", w.KilledPlayer, countof(w.KilledPlayer))
 			("SecretsFound", w.SecretsFound)
 			("Armor", w.Armor)

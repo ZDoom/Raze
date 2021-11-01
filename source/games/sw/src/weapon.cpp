@@ -5691,13 +5691,14 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 
         if (Weapon < 0)
         {
-            pp->Killer = -1;
+            pp->KillerActor = nullptr;;
             DoPlayerBeginDie(pp);
             return true;
         }
 
-        SPRITEp wp = &sprite[Weapon];
-        USERp   wu = User[Weapon].Data();
+        auto weapActor = &swActors[Weapon];
+        SPRITEp wp = &weapActor->s();
+        USERp   wu = weapActor->u();
 
         if (Weapon > -1 && (wu->ID == RIPPER_RUN_R0 || wu->ID == RIPPER2_RUN_R0))
             pp->DeathType = PLAYER_DEATH_RIPPER;
@@ -5713,12 +5714,12 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 
         // keep track of who killed you for death purposes
         // need to check all Killer variables when an enemy dies
-        if (pp->Killer < 0)
+        if (pp->KillerActor == nullptr)
         {
             if (wp->owner >= 0)
-                pp->Killer = wp->owner;
+                pp->KillerActor = GetOwner(weapActor);
             else if (TEST(wp->extra, SPRX_PLAYER_OR_ENEMY))
-                pp->Killer = Weapon;
+                pp->KillerActor = weapActor;
         }
 
         // start the death process

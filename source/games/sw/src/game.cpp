@@ -483,7 +483,7 @@ void TerminateLevel(void)
         memset(pp->Wpn, 0, sizeof(pp->Wpn));
         memset(pp->InventoryTics, 0, sizeof(pp->InventoryTics));
 
-        pp->Killer = -1;
+        pp->KillerActor = nullptr;;
 
         INITLIST(&pp->PanelSpriteList);
     }

@@ -5577,9 +5577,9 @@ void DoPlayerBeginDie(PLAYERp pp)
     if (numplayers > 1)
     {
         // Give kill credit to player if necessary
-        if (pp->Killer >= 0)
+        if (pp->KillerActor != nullptr)
         {
-            USERp ku = User[pp->Killer].Data();
+            USERp ku = pp->KillerActor->u();
 
             ASSERT(ku);
 
@@ -5832,9 +5832,9 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     }
 
     // follow what killed you if its available
-    if (pp->Killer > -1)
+    if (pp->KillerActor != nullptr)
     {
-        SPRITEp kp = &sprite[pp->Killer];
+        SPRITEp kp = &pp->KillerActor->s();
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
@@ -5942,20 +5942,19 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 {
     SPRITEp sp = &pp->Actor()->s(), hp;
     USERp u = pp->Actor()->u(), hu;
-    int i;
     unsigned stat;
     int dist;
     int a,b,c;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
-            hu = User[i].Data();
+            hp = &itActor->s();
+            hu = itActor->u();
 
-            if (i == pp->PlayerSprite)
+            if (itActor == pp->Actor())
                 break;
 
             // don't set off mine
@@ -5966,7 +5965,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
 
             if (unsigned(dist) < hu->Radius + 100)
             {
-                pp->Killer = i;
+                pp->KillerActor = itActor;
 
                 u->slide_ang = getangle(sp->x - hp->x, sp->y - hp->y);
                 u->slide_ang = NORM_ANGLE(u->slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
@@ -6908,7 +6907,7 @@ void InitAllPlayers(void)
         pp->oldposx = 0;
         pp->oldposy = 0;
         pp->climb_ndx = 10;
-        pp->Killer = -1;
+        pp->KillerActor = nullptr;;
         pp->Kills = 0;
         pp->bcnt = 0;
         pp->UziShellLeftAlt = 0;

@@ -780,6 +780,8 @@ struct PLAYERstruct
     
     DSWActor* lowActor, * highActor;
     DSWActor* remoteActor;
+    DSWActor* PlayerUnderActor;
+    DSWActor* KillerActor;  //who killed me
 
     // interpolation
     int oposx, oposy, oposz;
@@ -837,7 +839,6 @@ struct PLAYERstruct
     // under vars are for wading and swimming
     short PlayerSprite;
     SPRITEp SpriteP;
-    DSWActor* PlayerUnderActor;
 
 
     short pnum; // carry along the player number
@@ -905,7 +906,6 @@ struct PLAYERstruct
     // Death stuff
     uint16_t DeathType;
     short Kills;
-    short Killer;  //who killed me
     short KilledPlayer[MAX_SW_PLAYERS_REG];
     short SecretsFound;
 
