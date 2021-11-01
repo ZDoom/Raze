@@ -71,7 +71,7 @@ int SetupBunny(DSWActor*);
 int SetupRipper(short);
 int SetupRipper2(short);
 int SetupSerp(short);
-int SetupLava(short);
+int SetupLava(DSWActor* actor);
 int SetupSkel(short);
 int SetupHornet(DSWActor*);
 int SetupSkull(short);
@@ -1473,7 +1473,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupLava(SpriteNum);
+        SetupLava(actor);
         break;
     }
 

@@ -451,22 +451,20 @@ ACTOR_ACTION_SET LavaActionSet =
     nullptr
 };
 
-int
-SetupLava(short SpriteNum)
+int SetupLava(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,LAVA_RUN_R0,s_LavaRun[0]);
+        u = SpawnUser(actor, LAVA_RUN_R0, s_LavaRun[0]);
         u->Health = 100;
     }
 
@@ -489,7 +487,6 @@ SetupLava(short SpriteNum)
 int NullLava(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -503,13 +500,12 @@ int NullLava(DSWActor* actor)
 int DoLavaMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor->GetSpriteIndex(), ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
