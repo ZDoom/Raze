@@ -1130,17 +1130,17 @@ bool
 FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
-int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
+DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets)
 {
     const int PICK_DIST = 40000;
 
-    int i;
+    auto sp = &actor->s();
     short angle2, delta_ang;
     int dist, zh;
     SPRITEp ep;
     USERp eu;
     int16_t* shp;
-    USERp u = User[sp - sprite].Data();
+    USERp u = actor->u();
     int ezh, ezhl, ezhm;
     unsigned ndx;
     TARGET_SORTp ts;
@@ -1154,14 +1154,14 @@ int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
 
     for (shp = StatDamageList; shp < &StatDamageList[SIZ(StatDamageList)]; shp++)
     {
-        StatIterator it(*shp);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(*shp);
+        while (auto itActor = it.Next())
         {
-            ep = &sprite[i];
-            eu = User[i].Data();
+            ep = &itActor->s();
+            eu = itActor->u();
 
             // don't pick yourself
-            if (i == (sp - sprite))
+            if (actor == itActor)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
@@ -1232,7 +1232,7 @@ int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
             }
 
             ts = &TargetSort[ndx];
-            ts->sprite_num = i;
+            ts->sprite_num = itActor->GetSpriteIndex();
             ts->dang = delta_ang;
             ts->dist = dist;
             // gives a value between 0 and 65535
@@ -1251,7 +1251,7 @@ int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
     if (TargetSortCount > 1)
         qsort(&TargetSort, TargetSortCount, sizeof(TARGET_SORT), CompareTarget);
 
-    return TargetSort[0].sprite_num;
+    return TargetSort[0].sprite_num == -1? nullptr :  &swActors[TargetSort[0].sprite_num];
 }
 
 void DoPlayerResetMovement(PLAYERp pp)

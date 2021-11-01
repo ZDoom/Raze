@@ -8199,7 +8199,7 @@ int PickEnemyTarget(SPRITEp sp, short aware_range)
 {
     TARGET_SORTp ts;
 
-    DoPickTarget(sp, aware_range, false);
+    DoPickTarget(&swActors[sp - sprite], aware_range, false);
 
     for (ts = TargetSort; ts < &TargetSort[TargetSortCount]; ts++)
     {
@@ -8218,8 +8218,9 @@ int PickEnemyTarget(SPRITEp sp, short aware_range)
 int
 MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    auto actor = &swActors[Weapon];
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     int zh;
     short ang2tgt, delta_ang;
@@ -8233,10 +8234,12 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
     {
         if (u->WaitTics > delay_tics)
         {
-            short hit_sprite;
+            DSWActor* hitActor;
+            int hit_target;
 
             if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
             {
+                int hit_sprite;
                 if ((hit_sprite = PickEnemyTarget(sp, aware_range)) != -1)
                 {
                     USERp hu = User[hit_sprite].Data();
@@ -8246,11 +8249,11 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
                     SET(hu->Flags, SPR_ATTACKED);
                 }
             }
-            else if ((hit_sprite = DoPickTarget(sp, aware_range, false)) != -1)
+            else if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
             {
-                USERp hu = User[hit_sprite].Data();
+                USERp hu = actor->u();
 
-                u->WpnGoal = hit_sprite;
+                u->WpnGoal = hitActor->GetSpriteIndex();
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
@@ -8301,8 +8304,9 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
 int
 ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    auto actor = &swActors[Weapon];
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     int dist;
     int zh;
@@ -8317,13 +8321,13 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int1
     {
         if (u->WaitTics > delay_tics)
         {
-            short hit_sprite;
+            DSWActor* hitActor;
 
-            if ((hit_sprite = DoPickTarget(sp, aware_range, false)) != -1)
+            if ((hitActor = DoPickTarget(actor, aware_range, false)) != nullptr)
             {
-                USERp hu = User[hit_sprite].Data();
+                USERp hu = actor->u();
 
-                u->WpnGoal = hit_sprite;
+                u->WpnGoal = hitActor->GetSpriteIndex();
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
@@ -8369,8 +8373,9 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int1
 int
 VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    auto actor = &swActors[Weapon];
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     int dist;
     int zh;
@@ -8407,19 +8412,19 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
             }
             else
             {
-                if ((hit_sprite = DoPickTarget(sp, aware_range1, false)) != -1)
-                {
-                    USERp hu = User[hit_sprite].Data();
+                DSWActor* hitActor;
 
-                    u->WpnGoal = hit_sprite;
+                if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
+                {
+                    USERp hu = actor->u();
+                    u->WpnGoal = hitActor->GetSpriteIndex();
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
-                else if ((hit_sprite = DoPickTarget(sp, aware_range2, false)) != -1)
+                else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
                 {
-                    USERp hu = User[hit_sprite].Data();
-
-                    u->WpnGoal = hit_sprite;
+                    USERp hu = actor->u();
+                    u->WpnGoal = hitActor->GetSpriteIndex();
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
@@ -8462,8 +8467,9 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
 int
 VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t aware_range2)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    auto actor = &swActors[Weapon];
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     int dist;
     int zh;
@@ -8477,21 +8483,18 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
     {
         if (u->WaitTics > delay_tics)
         {
-            short hit_sprite;
-
-            if ((hit_sprite = DoPickTarget(sp, aware_range1, false)) != -1)
+            DSWActor* hitActor;
+            if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
             {
-                USERp hu = User[hit_sprite].Data();
-
-                u->WpnGoal = hit_sprite;
+                USERp hu = actor->u();
+                u->WpnGoal = hitActor->GetSpriteIndex();
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
-            else if ((hit_sprite = DoPickTarget(sp, aware_range2, false)) != -1)
+            else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
             {
-                USERp hu = User[hit_sprite].Data();
-
-                u->WpnGoal = hit_sprite;
+                USERp hu = actor->u();
+                u->WpnGoal = hitActor->GetSpriteIndex();
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
@@ -13902,13 +13905,12 @@ InitMiniSumoClap(short SpriteNum)
     return 0;
 }
 
-int
-WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
+int WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
 {
+    auto actor = &swActors[sp - sprite];
+    USERp u = actor->u();
     USERp wu = User[Missile].Data();
-    USERp u = User[sp - sprite].Data();
     SPRITEp wp = &sprite[Missile];
-    short hit_sprite = -1;
     int dist;
     int zh;
 
@@ -13929,12 +13931,13 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
         }
     }
 
-    if ((hit_sprite = DoPickTarget(sp, ang, test)) != -1)
+    DSWActor* hitActor;
+    if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
-        SPRITEp hp = &sprite[hit_sprite];
-        USERp hu = User[hit_sprite].Data();
+        SPRITEp hp = &hitActor->s();
+        USERp hu = hitActor->u();
 
-        wu->WpnGoal = hit_sprite;
+        wu->WpnGoal = hitActor->GetSpriteIndex();
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
@@ -13967,18 +13970,20 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
             wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
 #endif
         }
+        return hitActor->GetSpriteIndex();
     }
 
-    return hit_sprite;
+    return -1;
 }
 
 int
 WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
 {
+    auto actor = &swActors[sp - sprite];
+    USERp u = actor->u();
+
     USERp wu = User[Missile].Data();
-    USERp u = User[sp - sprite].Data();
     SPRITEp wp = &sprite[Missile];
-    short hit_sprite = -1;
     int dist;
     int zh;
 
@@ -13999,12 +14004,13 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
         }
     }
 
-    if ((hit_sprite = DoPickTarget(sp, ang, test)) != -1)
+    DSWActor* hitActor;
+    if ((hitActor = DoPickTarget(actor, ang, test)) != nullptr)
     {
-        SPRITEp hp = &sprite[hit_sprite];
-        USERp hu = User[hit_sprite].Data();
+        SPRITEp hp = &hitActor->s();
+        USERp hu = hitActor->u();
 
-        wu->WpnGoal = hit_sprite;
+        wu->WpnGoal = hitActor->GetSpriteIndex();
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
@@ -14037,9 +14043,10 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
             wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
 #endif
         }
+        return hitActor->GetSpriteIndex();
     }
 
-    return hit_sprite;
+    return -1;
 }
 
 
@@ -14065,7 +14072,6 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
     SET(hu->Flags, SPR_TARGETED);
     SET(hu->Flags, SPR_ATTACKED);
 
-    // Global set by DoPickTarget
     *ang = getangle(hp->x - sp->x, hp->y - sp->y);
 
     // find the distance to the target
@@ -14103,8 +14109,8 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
 int
 WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
 {
-    USERp u = User[sp - sprite].Data();
-    short hit_sprite = -1;
+    auto actor = &swActors[sp - sprite];
+    USERp u = actor->u();
     int dist;
     int zh;
     int xvect;
@@ -14118,16 +14124,15 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
         }
     }
 
-    if ((hit_sprite = DoPickTarget(sp, *ang, test)) != -1)
+    DSWActor* hitActor;
+    if ((hitActor = DoPickTarget(actor, *ang, test)) != nullptr)
     {
-        SPRITEp hp = &sprite[hit_sprite];
-        USERp hu = User[hit_sprite].Data();
+        SPRITEp hp = &hitActor->s();
+        USERp hu = hitActor->u();
 
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
-        // Global set by DoPickTarget
-        //*ang = target_ang;
         *ang = NORM_ANGLE(getangle(hp->x - sp->x, hp->y - sp->y));
 
         // find the distance to the target
@@ -14151,7 +14156,7 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
         }
     }
 
-    return hit_sprite;
+    return hitActor == nullptr? -1 : hitActor->GetSpriteIndex();
 }
 
 void
@@ -14164,8 +14169,6 @@ WeaponHitscanShootFeet(SPRITEp sp, SPRITEp hp, int *zvect)
     int z;
     short ang;
 
-    // Global set by DoPickTarget
-    //*ang = target_ang;
     ang = NORM_ANGLE(getangle(hp->x - sp->x, hp->y - sp->y));
 
     // find the distance to the target
@@ -15464,7 +15467,7 @@ InitMicro(PLAYERp pp)
 
 #define MAX_MICRO 1
 
-    DoPickTarget(pp->SpriteP, 256, false);
+    DoPickTarget(pp->Actor(), 256, false);
 
     if (TargetSortCount > MAX_MICRO)
         TargetSortCount = MAX_MICRO;
@@ -17838,7 +17841,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
 
 #define MAX_TURRET_MICRO 10
 
-    DoPickTarget(pp->SpriteP, 256, false);
+    DoPickTarget(pp->Actor(), 256, false);
 
     if (TargetSortCount > MAX_TURRET_MICRO)
         TargetSortCount = MAX_TURRET_MICRO;

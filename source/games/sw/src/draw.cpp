@@ -1044,20 +1044,19 @@ void PrintSpriteInfo(PLAYERp pp)
 
     //if (SpriteInfo && !LocationInfo)
     {
-        short hit_sprite = DoPickTarget(pp->SpriteP, 32, 2);
-        auto actor = &swActors[hit_sprite];
+        auto actor = DoPickTarget(pp->Actor(), 32, 2);
         sp = &actor->s();
         u = actor->u();
 
         sp->hitag = 9997; // Special tag to make the actor glow red for one frame
 
-        if (hit_sprite == -1)
+        if (actor == nullptr)
         {
             Printf("SPRITENUM: NONE TARGETED\n");
             return;
         }
         else
-            Printf("SPRITENUM:%d\n", hit_sprite);
+            Printf("SPRITENUM:%d\n", actor->GetIndex());
 
         if (u)
         {

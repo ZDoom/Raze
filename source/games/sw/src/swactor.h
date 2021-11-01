@@ -37,6 +37,11 @@ public:
 		return User[index].Data(); 
 	}
 
+	int GetIndex() 
+	{
+		return s().time;
+	}
+
 	int GetSpriteIndex() const
 	{
 		return index;
