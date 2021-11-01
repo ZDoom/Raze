@@ -78,7 +78,7 @@ int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int 
 int SpawnBubble(short SpriteNum);
 int SpawnFireballExp(int16_t Weapon);
 void SpawnFireballFlames(int16_t SpriteNum,int16_t enemy);
-int SpawnRadiationCloud(short SpriteNum);
+int SpawnRadiationCloud(DSWActor* actor);
 int SpawnGrenadeExp(int16_t Weapon);
 int SpawnSectorExp(int16_t Weapon);
 int DoShrapVelocity(int16_t SpriteNum);

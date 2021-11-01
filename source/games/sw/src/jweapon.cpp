@@ -931,7 +931,7 @@ int DoChemBomb(DSWActor* actor)
                                 PlaySound(DIGI_CHEMGAS, sp, v3df_dontpan | v3df_doppler);
                                 Set3DSoundOwner(actor->GetSpriteIndex());
                             }
-                            SpawnRadiationCloud(actor->GetSpriteIndex());
+                            SpawnRadiationCloud(actor);
                             u->xchange = u->ychange = 0;
                             u->WaitTics -= (MISSILEMOVETICS * 2);
                             if (u->WaitTics <= 0)
@@ -979,7 +979,7 @@ int DoChemBomb(DSWActor* actor)
                             PlaySound(DIGI_CHEMGAS, sp, v3df_dontpan | v3df_doppler);
                             Set3DSoundOwner(actor->GetSpriteIndex());
                         }
-                        SpawnRadiationCloud(actor->GetSpriteIndex());
+                        SpawnRadiationCloud(actor);
                         u->xchange = u->ychange = 0;
                         u->WaitTics -= (MISSILEMOVETICS * 2);
                         if (u->WaitTics <= 0)
@@ -1216,13 +1216,11 @@ int DoCaltrops(DSWActor* actor)
 // Deadly green gas clouds
 //
 /////////////////////////////
-int
-SpawnRadiationCloud(short SpriteNum)
-{
-    SPRITEp sp = &sprite[SpriteNum], np;
-    USERp u = User[SpriteNum].Data(), nu;
-    short New;
 
+int SpawnRadiationCloud(DSWActor* actor)
+{
+    SPRITEp sp = &actor->s(), np;
+    USERp u = actor->u(), nu;
 
     if (!MoveSkip4)
         return false;
@@ -1247,13 +1245,13 @@ SpawnRadiationCloud(short SpriteNum)
     if (TEST(u->Flags, SPR_UNDERWATER))
         return -1;
 
-    New = SpawnSprite(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, sp->sectnum,
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
-    np = &sprite[New];
-    nu = User[New].Data();
+    np = &actorNew->s();
+    nu = actorNew->u();
 
-    SetOwner(sp->owner, New);
+    SetOwner(GetOwner(actor), actorNew);
     nu->WaitTics = 1 * 120;
     np->shade = -40;
     np->xrepeat = 32;
@@ -1294,12 +1292,10 @@ SpawnRadiationCloud(short SpriteNum)
     return false;
 }
 
-int
-DoRadiationCloud(DSWActor* actor)
+int DoRadiationCloud(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     sp->z -= sp->zvel;
 
@@ -1308,7 +1304,7 @@ DoRadiationCloud(DSWActor* actor)
 
     if (u->ID)
     {
-        DoFlamesDamageTest(SpriteNum);
+        DoFlamesDamageTest(actor->GetSpriteIndex());
     }
 
     return false;
