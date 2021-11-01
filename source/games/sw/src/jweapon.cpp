@@ -581,16 +581,14 @@ int DoBloodSpray(DSWActor* actor)
 }
 
 
-int
-DoPhosphorus(DSWActor* actor)
+int DoPhosphorus(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(Weapon, 50000);
+        ScaleSpriteVector(actor->GetSpriteIndex(), 50000);
 
         u->Counter += 20*2;
         u->zchange += u->Counter;
@@ -601,13 +599,13 @@ DoPhosphorus(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor->GetSpriteIndex());
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor->GetSpriteIndex());
 
     if (u->ret)
     {
@@ -631,8 +629,8 @@ DoPhosphorus(DSWActor* actor)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                WallBounce(Weapon, wall_ang);
-                ScaleSpriteVector(Weapon, 32000);
+                WallBounce(actor->GetSpriteIndex(), wall_ang);
+                ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
             }
             else
             {
@@ -640,10 +638,10 @@ DoPhosphorus(DSWActor* actor)
                 {
                     if (!hu)
                         hu = SpawnUser(hit_sprite, hsp->picnum, nullptr);
-                    SpawnFireballExp(Weapon);
+                    SpawnFireballExp(actor->GetSpriteIndex());
                     if (hu)
-                        SpawnFireballFlames(Weapon, hit_sprite);
-                    DoFlamesDamageTest(Weapon);
+                        SpawnFireballFlames(actor->GetSpriteIndex(), hit_sprite);
+                    DoFlamesDamageTest(actor->GetSpriteIndex());
                 }
                 u->xchange = u->ychange = 0;
                 KillActor(actor);
@@ -673,8 +671,8 @@ DoPhosphorus(DSWActor* actor)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
-            WallBounce(Weapon, wall_ang);
-            ScaleSpriteVector(Weapon, 32000);
+            WallBounce(actor->GetSpriteIndex(), wall_ang);
+            ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
             break;
         }
 
@@ -682,12 +680,12 @@ DoPhosphorus(DSWActor* actor)
         {
             bool did_hit_wall;
 
-            if (SlopeBounce(Weapon, &did_hit_wall))
+            if (SlopeBounce(actor->GetSpriteIndex(), &did_hit_wall))
             {
                 if (did_hit_wall)
                 {
                     // hit a wall
-                    ScaleSpriteVector(Weapon, 28000);
+                    ScaleSpriteVector(actor->GetSpriteIndex(), 28000);
                     SetCollision(u, 0);
                     u->Counter = 0;
                 }
@@ -700,7 +698,7 @@ DoPhosphorus(DSWActor* actor)
                         if (!TEST(u->Flags, SPR_BOUNCE))
                         {
                             SET(u->Flags, SPR_BOUNCE);
-                            ScaleSpriteVector(Weapon, 32000);       // was 18000
+                            ScaleSpriteVector(actor->GetSpriteIndex(), 32000);       // was 18000
                             u->zchange /= 6;
                             SetCollision(u, 0);
                             u->Counter = 0;
@@ -708,7 +706,7 @@ DoPhosphorus(DSWActor* actor)
                         else
                         {
                             u->xchange = u->ychange = 0;
-                            SpawnFireballExp(Weapon);
+                            SpawnFireballExp(actor->GetSpriteIndex());
                             KillActor(actor);
                             return true;
                         }
@@ -716,7 +714,7 @@ DoPhosphorus(DSWActor* actor)
                     else
                     {
                         // hit a ceiling
-                        ScaleSpriteVector(Weapon, 32000);   // was 22000
+                        ScaleSpriteVector(actor->GetSpriteIndex(), 32000);   // was 22000
                     }
                 }
             }
@@ -739,13 +737,13 @@ DoPhosphorus(DSWActor* actor)
                         SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
-                        ScaleSpriteVector(Weapon, 32000);   // Was 18000
+                        ScaleSpriteVector(actor->GetSpriteIndex(), 32000);   // Was 18000
                         u->zchange /= 6;
                     }
                     else
                     {
                         u->xchange = u->ychange = 0;
-                        SpawnFireballExp(Weapon);
+                        SpawnFireballExp(actor->GetSpriteIndex());
                         KillActor(actor);
                         return true;
                     }
@@ -754,7 +752,7 @@ DoPhosphorus(DSWActor* actor)
                 // hit something above
                 {
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(Weapon, 32000);       // was 22000
+                    ScaleSpriteVector(actor->GetSpriteIndex(), 32000);       // was 22000
                 }
             }
             break;
@@ -767,18 +765,15 @@ DoPhosphorus(DSWActor* actor)
     // if you haven't bounced or your going slow do some puffs
     if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
     {
-        SPRITEp np;
-        USERp nu;
-        short New;
 
-        New = SpawnSprite(STAT_SKIP4, PUFF, s_PhosphorExp, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[New];
-        nu = User[New].Data();
+        auto np = &actorNew->s();
+        auto nu = actorNew->u();
 
         np->hitag = LUMINOUS;           // Always full brightness
-        SetOwner(Weapon, New);
+        SetOwner(actor, actorNew);
         np->shade = -40;
         np->xrepeat = 12 + RandomRange(10);
         np->yrepeat = 12 + RandomRange(10);
@@ -797,7 +792,7 @@ DoPhosphorus(DSWActor* actor)
 
         nu->spal = np->pal = PALETTE_PLAYER3;   // RED
 
-        ScaleSpriteVector(New, 20000);
+        ScaleSpriteVector(actorNew->GetSpriteIndex(), 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
