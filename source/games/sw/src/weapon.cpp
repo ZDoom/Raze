@@ -5750,7 +5750,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         // ZOMBIE special case for single play
         if (wu->ID == ZOMBIE_RUN_R0)
         {
-            // if weapons owner the player
+            // if weapons Owner the player
             if (wp->owner == pp->PlayerSprite)
                 return false;
         }
@@ -5768,7 +5768,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         if (wu->PlayerP == pp)
             return true;
 
-        // if the weapons owner is YOURSELF take damage
+        // if the weapons Owner is YOURSELF take damage
         if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP && User[wp->owner]->PlayerP == pp)
             return true;
 
@@ -5776,7 +5776,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         if (wu->PlayerP)
             return false;
 
-        // if the weapons owner is a player
+        // if the weapons Owner is a player
         if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP)
             return false;
     }
@@ -5790,7 +5790,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         if (wu->PlayerP == pp)
             return true;
 
-        // if the weapons owner is YOURSELF take damage
+        // if the weapons Owner is YOURSELF take damage
         if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP && User[wp->owner]->PlayerP == pp)
             return true;
 
@@ -5801,7 +5801,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
                 return false;
         }
 
-        // if the weapons owner is a player
+        // if the weapons Owner is a player
         if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP)
         {
             // if both on the same team then no damage
@@ -9317,10 +9317,6 @@ DoMineRangeTest(short Weapon, short range)
             sp = &sprite[i];
             u = User[i].Data();
 
-            // don't detect the owner or the owners bottom half
-            //if (wp->owner == i || (u->PlayerP && (wp->owner == u->PlayerP->PlayerSprite)))
-            //    continue;
-
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
@@ -10416,7 +10412,6 @@ DoUziBullet(DSWActor* actor)
                 wp->shade = -40;
                 wp->xrepeat = UZI_SPARK_REPEAT;
                 wp->yrepeat = UZI_SPARK_REPEAT;
-                //wp->owner = sp->owner;
                 SetOwner(sp->owner, j);
                 wp->ang = sp->ang;
                 SET(wp->cstat, CSTAT_SPRITE_YCENTER);
@@ -10830,7 +10825,7 @@ int SpawnBreakFlames(DSWActor* actor)
     np->yrepeat = 16;
     nu->Counter = 48; // max flame size
 
-    //SetOwner(sp->owner, New);
+    
     np->shade = -40;
     if (u)
         np->pal = nu->spal = u->spal;
@@ -10879,7 +10874,7 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
     np->yrepeat = 32;
     //nu->Counter = 48; // max flame size
 
-    //SetOwner(sp->owner, New);
+    
     np->shade = -40;
     np->pal = nu->spal = u->spal;
     //SET(np->cstat, CSTAT_SPRITE_YCENTER);
@@ -16444,7 +16439,7 @@ InitEnemyStar(DSWActor* actor)
 
     wu = User[w].Data();
 
-    //wp->owner = SpriteNum;
+    
     SetOwner(SpriteNum, w);
     wp->yrepeat = 16;
     wp->xrepeat = 16;
@@ -16535,7 +16530,7 @@ InitEnemyCrossbow(DSWActor* actor)
 
     wu = User[w].Data();
 
-    //wp->owner = SpriteNum;
+    
     SetOwner(SpriteNum, w);
     wp->xrepeat = 16;
     wp->yrepeat = 26;
@@ -16634,7 +16629,7 @@ InitSkelSpell(DSWActor* actor)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = SpriteNum;
+    
     SetOwner(SpriteNum, w);
     wp->xrepeat -= 20;
     wp->yrepeat -= 20;
@@ -16689,7 +16684,7 @@ InitCoolgFire(DSWActor* actor)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = SpriteNum;
+    
     SetOwner(SpriteNum, w);
     wp->hitag = LUMINOUS;
     wp->yrepeat = 18;
@@ -16765,7 +16760,7 @@ InitCoolgDrip(DSWActor* actor)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = SpriteNum;
+    
     SetOwner(actor, &swActors[w]);
     wp->yrepeat = wp->xrepeat = 20;
     wp->shade = -5;
@@ -16813,7 +16808,7 @@ GenerateDrips(DSWActor* actor)
         wp = &sprite[w];
         wu = User[w].Data();
 
-        //wp->owner = SpriteNum;
+        
         SetOwner(SpriteNum, w);
         wp->yrepeat = wp->xrepeat = 20;
         wp->shade = -10;
@@ -16897,7 +16892,7 @@ InitFireballTrap(DSWActor* actor)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = SpriteNum;
+    
     wp->hitag = LUMINOUS; //Always full brightness
     SetOwner(SpriteNum, w);
     wp->xrepeat -= 20;
@@ -16937,7 +16932,7 @@ InitBoltTrap(DSWActor* actor)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = SpriteNum;
+    
     SetOwner(SpriteNum, w);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
@@ -16977,7 +16972,7 @@ InitSpearTrap(short SpriteNum)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = SpriteNum;
+    
     SetOwner(SpriteNum, w);
     wp->xrepeat = 16;
     wp->yrepeat = 26;
@@ -19317,7 +19312,7 @@ InitEnemyFireball(DSWActor* actor)
         wp->xrepeat = 20;
         wp->yrepeat = 20;
         wp->shade = -40;
-        //wp->owner = SpriteNum;
+        
         SetOwner(SpriteNum, w);
         wp->zvel = 0;
         wp->clipdist = 16>>2;

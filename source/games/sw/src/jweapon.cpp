@@ -1372,8 +1372,9 @@ int PlayerInitChemBomb(PLAYERp pp)
     // pp->horizon.horizoff.asbuild() + pp->horizon.horiz.asbuild());
     // MONO_PRINT(ds);
 
-    oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto psp = &pp->Actor()->s();
+    oclipdist = psp->clipdist;
+    psp->clipdist = 0;
     wp->clipdist = 0;
 
 //    wp->ang = NORM_ANGLE(wp->ang - 512);
@@ -1382,7 +1383,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 
     MissileSetPos(actorNew->GetSpriteIndex(), DoChemBomb, 1000);
 
-    pp->SpriteP->clipdist = uint8_t(oclipdist);
+    psp->clipdist = uint8_t(oclipdist);
     wp->clipdist = 80L >> 2;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
@@ -1792,13 +1793,14 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     wp->zvel = -pp->horizon.horiz.asq16() >> 9;
 
-    oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto psp = &pp->Actor()->s();
+    oclipdist = psp->clipdist;
+    psp->clipdist = 0;
     wp->clipdist = 0;
 
     MissileSetPos(spawnedActor->GetSpriteIndex(), DoCaltrops, 1000);
 
-    pp->SpriteP->clipdist = uint8_t(oclipdist);
+    psp->clipdist = uint8_t(oclipdist);
     wp->clipdist = 80L >> 2;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
@@ -2096,7 +2098,7 @@ int DoCarryFlag(DSWActor* actor)
     USERp fu = fown->u();
 
 
-    // if no owner then die
+    // if no Owner then die
     if (u->attachActor != nullptr)
     {
         SPRITEp ap = &u->attachActor->s();
@@ -2256,7 +2258,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
     if (u->flagOwnerActor != nullptr)
         fu->WaitTics = 30 * 120;        // Keep setting respawn tics so it won't respawn
 
-    // if no owner then die
+    // if no Owner then die
     if (u->attachActor != nullptr)
     {
         SPRITEp ap = &u->attachActor->s();

@@ -336,7 +336,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         {
             pp = &Player[pnum];
 
-            if (sp->owner == pp->PlayerSprite)
+            if (GetOwner(actor) == pp->Actor())
                 continue;
 
             u->targetActor = pp->Actor();
@@ -354,7 +354,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         // Zombies don't target their masters!
         if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
         {
-            if (sp->owner == pp->PlayerSprite)
+            if (GetOwner(actor) == pp->Actor())
                 continue;
 
             if (!PlayerTakeDamage(pp, actor))
@@ -384,7 +384,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         // Zombies don't target their masters!
         if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
         {
-            if (sp->owner == pp->PlayerSprite)
+            if (GetOwner(actor) == pp->Actor())
                 continue;
 
             if (!PlayerTakeDamage(pp, actor))
@@ -769,7 +769,7 @@ int DoActorDecide(DSWActor* actor)
     if (actor_action == InitActorAttack && u->ID == ZOMBIE_RUN_R0 && u->targetActor->u()->PlayerP)
     {
         // Don't let zombies shoot at master
-        if (sp->owner == u->targetActor->GetSpriteIndex())
+        if (GetOwner(actor) == u->targetActor)
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
@@ -1252,7 +1252,7 @@ int InitActorAttack(DSWActor* actor)
     if (u->ID == ZOMBIE_RUN_R0 && u->targetActor->hasU() && u->targetActor->u()->PlayerP)
     {
         // Don't let zombies shoot at master
-        if (sp->owner == u->targetActor->GetSpriteIndex())
+        if (GetOwner(actor) == u->targetActor)
             return 0;
 
         // if this player cannot take damage from this zombie(weapon) return out
