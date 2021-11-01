@@ -8195,24 +8195,24 @@ DoPlasmaDone(DSWActor* actor)
     return 0;
 }
 
-int PickEnemyTarget(SPRITEp sp, short aware_range)
+DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
 {
     TARGET_SORTp ts;
 
-    DoPickTarget(&swActors[sp - sprite], aware_range, false);
+    DoPickTarget(actor, aware_range, false);
 
     for (ts = TargetSort; ts < &TargetSort[TargetSortCount]; ts++)
     {
         if (ts->actor != nullptr)
         {
-            if (ts->actor->GetSpriteIndex() == sp->owner || ts->actor->s().owner == sp->owner)
+            if (ts->actor == GetOwner(actor) || GetOwner(ts->actor) == GetOwner(actor))
                 continue;
 
-            return ts->actor->GetSpriteIndex();
+            return ts->actor;
         }
     }
 
-    return -1;
+    return nullptr;
 }
 
 int
@@ -8235,16 +8235,14 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
         if (u->WaitTics > delay_tics)
         {
             DSWActor* hitActor;
-            int hit_target;
 
             if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
             {
-                int hit_sprite;
-                if ((hit_sprite = PickEnemyTarget(sp, aware_range)) != -1)
+                if ((hitActor = PickEnemyTarget(actor, aware_range)) != nullptr)
                 {
-                    USERp hu = User[hit_sprite].Data();
+                    USERp hu = actor->u();
 
-                    u->WpnGoalActor = &swActors[hit_sprite];
+                    u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
@@ -8389,23 +8387,23 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
     {
         if (u->WaitTics > delay_tics)
         {
-            short hit_sprite;
+            DSWActor* hitActor;
 
             if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
             {
-                if ((hit_sprite = PickEnemyTarget(sp, aware_range1)) != -1)
+                if ((hitActor = PickEnemyTarget(actor, aware_range1)) != nullptr)
                 {
-                    USERp hu = User[hit_sprite].Data();
+                    USERp hu = actor->u();
 
-                    u->WpnGoalActor = &swActors[hit_sprite];
+                    u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
-                else if ((hit_sprite = PickEnemyTarget(sp, aware_range2)) != -1)
+                else if ((hitActor = PickEnemyTarget(actor, aware_range2)) != nullptr)
                 {
-                    USERp hu = User[hit_sprite].Data();
+                    USERp hu = actor->u();
 
-                    u->WpnGoalActor = &swActors[hit_sprite];
+                    u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
