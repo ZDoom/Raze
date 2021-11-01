@@ -1693,7 +1693,7 @@ struct SECTOR_OBJECTstruct
     soANIMATORp Animator;
     SPRITEp controller;
 
-    SPRITEp sp_child;  // child sprite that holds info for the sector object
+    DSWActor* sp_child;  // child sprite that holds info for the sector object
 
     union
     {

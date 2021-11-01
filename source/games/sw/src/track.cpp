@@ -729,7 +729,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     bool FoundOutsideLoop = false;
     bool SectorInBounds;
     SECTORp *sectp;
-    USERp u = User[sop->sp_child - sprite].Data();
+    USERp u = sop->sp_child->u();
 
     static unsigned char StatList[] =
     {
@@ -1123,10 +1123,10 @@ SetupSectorObject(short sectnum, short tag)
         sop->track = HIGH_TAG(sectnum);
 
         // spawn a sprite to make it easier to integrate with sprite routines
-        New = SpawnSprite(STAT_SO_SP_CHILD, 0, nullptr, sectnum,
+        auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectnum,
                           sop->xmid, sop->ymid, sop->zmid, 0, 0);
-        sop->sp_child = &sprite[New];
-        u = User[New].Data();
+        sop->sp_child = actorNew;
+        u = actorNew->u();
         u->sop_parent = sop;
         SET(u->Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
@@ -1711,8 +1711,8 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
         PlayerMove = false;
 
     // move child sprite along also
-    sop->sp_child->x = sop->xmid;
-    sop->sp_child->y = sop->ymid;
+    sop->sp_child->s().x = sop->xmid;
+    sop->sp_child->s().y = sop->ymid;
 
     //updatesector(sop->xmid, sop->ymid, &sop->sectnum);
 
@@ -2923,10 +2923,9 @@ DoTornadoObject(SECTOR_OBJECTp sop)
 void
 DoAutoTurretObject(SECTOR_OBJECTp sop)
 {
-    short SpriteNum = short(sop->sp_child - sprite);
-    auto actor = &swActors[SpriteNum];
+    auto actor = sop->sp_child;
     SPRITEp shootp;
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     short delta_ang;
     int diff;
     short i;

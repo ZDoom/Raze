@@ -2557,8 +2557,9 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     int z;
     int floor_dist;
     short save_sectnum;
-    SPRITEp sp = pp->sop->sp_child;
-    USERp u = User[sp - sprite].Data();
+    auto actor = pp->sop->sp_child;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     int save_cstat;
     int x[4], y[4], ox[4], oy[4];
     int wallcount;
@@ -5015,7 +5016,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
         if (pp->InventoryAmount[INVENTORY_REPAIR_KIT])
         {
             UseInventoryRepairKit(pp);
-            sop->max_damage = User[sop->sp_child - sprite]->MaxHealth;
+            sop->max_damage = sop->sp_child->u()->MaxHealth;
             VehicleSetSmoke(sop, nullptr);
             RESET(sop->flags, SOBJ_BROKEN);
         }
@@ -5102,7 +5103,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         if (pp->InventoryAmount[INVENTORY_REPAIR_KIT])
         {
             UseInventoryRepairKit(pp);
-            sop->max_damage = User[sop->sp_child - sprite]->MaxHealth;
+            sop->max_damage = sop->sp_child->u()->MaxHealth;
             VehicleSetSmoke(sop, nullptr);
             RESET(sop->flags, SOBJ_BROKEN);
         }

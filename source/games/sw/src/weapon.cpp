@@ -4500,7 +4500,7 @@ WeaponMoveHit(short SpriteNum)
             if ((sop = DetectSectorObject(sectp)))
             {
                 //if (sop->max_damage != -9999)
-                DoDamage(short(sop->sp_child - sprite), SpriteNum);
+                DoDamage(sop->sp_child->GetSpriteIndex(), SpriteNum);
                 return true;
             }
         }
@@ -4613,7 +4613,7 @@ WeaponMoveHit(short SpriteNum)
             if ((sop = DetectSectorObjectByWall(wph)))
             {
                 if (sop->max_damage != -999)
-                    DoDamage(short(sop->sp_child - sprite), SpriteNum);
+                    DoDamage(sop->sp_child->GetSpriteIndex(), SpriteNum);
                 return true;
             }
         }
@@ -5361,8 +5361,8 @@ ActorHealth(short SpriteNum, short amt)
 int
 SopDamage(SECTOR_OBJECTp sop, short amt)
 {
-    SPRITEp sp = sop->sp_child;
-    USERp u = User[sp - sprite].Data();
+    SPRITEp sp = &sop->sp_child->s();
+    USERp u = sop->sp_child->u();
 
     // does not have damage
     if (sop->max_damage == -9999)
