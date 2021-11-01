@@ -118,9 +118,9 @@ class binangle
 	friend constexpr binangle bamang(uint32_t v);
 	friend constexpr binangle q16ang(uint32_t v);
 	friend constexpr binangle buildang(uint32_t v);
-	friend binangle buildfang(double v);
-	friend binangle radang(double v);
-	friend binangle degang(double v);
+	friend constexpr binangle buildfang(double v);
+	friend constexpr binangle radang(double v);
+	friend constexpr binangle degang(double v);
 
 	friend FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval);
 
@@ -207,9 +207,9 @@ public:
 inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
 inline constexpr binangle q16ang(uint32_t v) { return binangle(v << 5); }
 inline constexpr binangle buildang(uint32_t v) { return binangle(v << BAMBITS); }
-inline binangle buildfang(double v) { return binangle(xs_CRoundToUInt(v * BAMUNIT)); }
-inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
-inline binangle degang(double v) { return binangle(FloatToAngle(v)); }
+inline constexpr binangle buildfang(double v) { return binangle(xs_CRoundToUInt(v * BAMUNIT)); }
+inline constexpr binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
+inline constexpr binangle degang(double v) { return binangle(FloatToAngle(v)); }
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, binangle *defval)
 {
@@ -226,7 +226,7 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, 
 inline double HorizToPitch(double horiz) { return atan2(horiz, 128) * (180. / pi::pi()); }
 inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, IntToFixed(128)) * (180. / pi::pi()); }
 inline fixed_t PitchToHoriz(double pitch) { return xs_CRoundToInt(IntToFixed(128) * tan(pitch * (pi::pi() / 180.))); }
-inline int32_t PitchToBAM(double pitch) { return xs_CRoundToInt(clamp<double>(pitch * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
+inline constexpr int32_t PitchToBAM(double pitch) { return int(clamp<double>(pitch * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
 inline constexpr double BAMToPitch(int32_t bam) { return bam * (45. / 1073741823.5); }
 
 
@@ -244,7 +244,7 @@ class fixedhoriz
 	
 	friend constexpr fixedhoriz q16horiz(fixed_t v);
 	friend constexpr fixedhoriz buildhoriz(int v);
-	friend fixedhoriz buildfhoriz(double v);
+	friend constexpr fixedhoriz buildfhoriz(double v);
 	friend fixedhoriz pitchhoriz(double v);
 	friend fixedhoriz bamhoriz(int32_t v);
 
@@ -343,7 +343,7 @@ public:
 
 inline constexpr fixedhoriz q16horiz(fixed_t v) { return fixedhoriz(v); }
 inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
-inline fixedhoriz buildfhoriz(double v) { return fixedhoriz(FloatToFixed(v)); }
+inline constexpr fixedhoriz buildfhoriz(double v) { return fixedhoriz(FloatToFixed(v)); }
 inline fixedhoriz pitchhoriz(double v) { return fixedhoriz(PitchToHoriz(v)); }
 inline fixedhoriz bamhoriz(int32_t v) { return pitchhoriz(BAMToPitch(v)); }
 
