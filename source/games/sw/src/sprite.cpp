@@ -81,7 +81,7 @@ int SetupPachinko1(short);
 int SetupPachinko2(short);
 int SetupPachinko3(short);
 int SetupPachinko4(short);
-int SetupGirlNinja(short);
+int SetupGirlNinja(DSWActor*);
 ANIMATOR DoVator, DoVatorAuto;
 ANIMATOR DoRotator;
 ANIMATOR DoSlidor;
@@ -1600,7 +1600,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupGirlNinja(SpriteNum);
+        SetupGirlNinja(actor);
 
         break;
     }

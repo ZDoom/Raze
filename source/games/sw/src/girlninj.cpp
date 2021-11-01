@@ -712,22 +712,20 @@ ACTOR_ACTION_SET GirlNinjaActionSet =
     nullptr
 };
 
-int
-SetupGirlNinja(short SpriteNum)
+int SetupGirlNinja(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
+        u = SpawnUser(actor, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
         u->Health = (Skill < MinEnemySkill - 1) ? 50 : 100;
     }
 
@@ -750,11 +748,9 @@ SetupGirlNinja(short SpriteNum)
 }
 
 
-int
-DoGirlNinjaMove(DSWActor* actor)
+int DoGirlNinjaMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     // jumping and falling
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING) && !TEST(u->Flags, SPR_CLIMBING))
@@ -771,7 +767,7 @@ DoGirlNinjaMove(DSWActor* actor)
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor->GetSpriteIndex(), ACTORMOVETICS);
     else
     {
         (*u->ActorActionFunc)(actor);
@@ -789,12 +785,10 @@ DoGirlNinjaMove(DSWActor* actor)
     return 0;
 }
 
-int
-GirlNinjaJumpActionFunc(DSWActor* actor)
+int GirlNinjaJumpActionFunc(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     // Move while jumping
@@ -815,11 +809,9 @@ GirlNinjaJumpActionFunc(DSWActor* actor)
     return 0;
 }
 
-int
-NullGirlNinja(DSWActor* actor)
+int NullGirlNinja(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
 
@@ -838,7 +830,6 @@ NullGirlNinja(DSWActor* actor)
 int DoGirlNinjaPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullGirlNinja(actor);
 
@@ -851,8 +842,7 @@ int DoGirlNinjaPain(DSWActor* actor)
 int DoGirlNinjaSpecial(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (u->spal == PALETTE_PLAYER5)
     {

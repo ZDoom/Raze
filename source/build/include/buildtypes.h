@@ -291,7 +291,9 @@ struct spritetype
 #endif
     void clear()
     {
+        int save = time;    // this may not be cleared ever!!!
         memset(this, 0, sizeof(*this));
+        time = save;
     }
 
     void backupx()
