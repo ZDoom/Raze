@@ -2009,6 +2009,7 @@ void PlayerSectorBound(PLAYERp pp, int amt)
 
 void DoPlayerMove(PLAYERp pp)
 {
+    auto sp = &pp->Actor()->s();
     USERp u = pp->Actor()->u();
     int friction;
     int save_cstat;
@@ -2076,7 +2077,7 @@ void DoPlayerMove(PLAYERp pp)
     if (labs(pp->xvect) < 12800 && labs(pp->yvect) < 12800)
         pp->xvect = pp->yvect = 0;
 
-    pp->SpriteP->xvel = FindDistance2D(pp->xvect,pp->yvect)>>14;
+    sp->xvel = FindDistance2D(pp->xvect,pp->yvect)>>14;
 
     if (TEST(pp->Flags, PF_CLIP_CHEAT))
     {
@@ -2094,7 +2095,7 @@ void DoPlayerMove(PLAYERp pp)
     }
     else
     {
-        push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2114,14 +2115,14 @@ void DoPlayerMove(PLAYERp pp)
             pp->oposy = pp->posy;
         }
 
-        save_cstat = pp->SpriteP->cstat;
-        RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
+        save_cstat = sp->cstat;
+        RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
         updatesector(pp->posx, pp->posy, &pp->cursectnum);
-        clipmove(&pp->pos, &pp->cursectnum, pp->xvect, pp->yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
-        pp->SpriteP->cstat = save_cstat;
+        clipmove(&pp->pos, &pp->cursectnum, pp->xvect, pp->yvect, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+        sp->cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2250,30 +2251,28 @@ void DoPlayerSectorUpdatePostMove(PLAYERp pp)
 
 void PlaySOsound(short sectnum, short sound_num)
 {
-    int i;
-
     // play idle sound - sound 1
-    SectIterator it(sectnum);
-    while ((i = it.NextIndex()) >= 0)
+    SWSectIterator it(sectnum);
+    while (auto actor = it.Next())
     {
-        if (sprite[i].statnum == STAT_SOUND_SPOT)
+        auto sp = &actor->s();
+        if (sp->statnum == STAT_SOUND_SPOT)
         {
-            DoSoundSpotStopSound(sprite[i].lotag);
-            DoSoundSpotMatch(sprite[i].lotag, sound_num, 0);
+            DoSoundSpotStopSound(sp->lotag);
+            DoSoundSpotMatch(sp->lotag, sound_num, 0);
         }
     }
 }
 
 void StopSOsound(short sectnum)
 {
-    int i;
-
     // play idle sound - sound 1
-    SectIterator it(sectnum);
-    while ((i = it.NextIndex()) >= 0)
+    SWSectIterator it(sectnum);
+    while (auto actor = it.Next())
     {
-        if (sprite[i].statnum == STAT_SOUND_SPOT)
-            DoSoundSpotStopSound(sprite[i].lotag);
+        auto sp = &actor->s();
+        if (sp->statnum == STAT_SOUND_SPOT)
+            DoSoundSpotStopSound(sp->lotag);
     }
 }
 
@@ -2298,10 +2297,10 @@ void DoTankTreads(PLAYERp pp)
 
     for (sectp = pp->sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        SectIterator it(int(*sectp - sector));
-        while ((i = it.NextIndex()) >= 0)
+        SWSectIterator it(int(*sectp - sector));
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
+            sp = &actor->s();
 
             // BOOL1 is set only if pans with SO
             if (!TEST_BOOL1(sp))
@@ -2330,8 +2329,6 @@ void DoTankTreads(PLAYERp pp)
             }
             else if (sp->statnum == STAT_FLOOR_PAN)
             {
-                sp = &sprite[i];
-
                 if (reverse)
                 {
                     if (!TEST_BOOL2(sp))
@@ -2353,8 +2350,6 @@ void DoTankTreads(PLAYERp pp)
             }
             else if (sp->statnum == STAT_CEILING_PAN)
             {
-                sp = &sprite[i];
-
                 if (reverse)
                 {
                     if (!TEST_BOOL2(sp))
