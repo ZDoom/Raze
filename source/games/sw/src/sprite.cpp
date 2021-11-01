@@ -5221,7 +5221,7 @@ DoGrating(DSWActor* actor)
     // reduce to 0 to 3 value
     dir = sp->ang >> 9;
 
-    if (MOD2(dir) == 0)
+    if ((dir & 1) == 0)
     {
         if (dir == 0)
             sp->x += 2 * GRATE_FACTOR;

@@ -455,8 +455,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
     u->MaxHealth = u->Health;
 
-    u->PainThreshold = DIV16(u->Health) - 1;
-    //u->PainThreshold = DIV4(u->Health) - 1;
+    u->PainThreshold = (u->Health >> 4) - 1;
 
     SET(sp->cstat,CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(sp->extra,SPRX_PLAYER_OR_ENEMY);

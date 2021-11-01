@@ -4172,7 +4172,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
                 hit_ang = sp->ang;
                 hit_x = sp->x;
                 hit_y = sp->y;
-                hit_z = SPRITEp_TOS(wp) + DIV16(SPRITEp_SIZE_Z(wp));
+                hit_z = SPRITEp_TOS(wp) + (SPRITEp_SIZE_Z(wp) >> 4);
             }
             else
             {
@@ -4729,7 +4729,7 @@ DoFireballFlames(DSWActor* actor)
 
         if (TEST(ap->extra, SPRX_BURNABLE))
         {
-            if (MOD2(u->Counter2) == 0)
+            if ((u->Counter2 & 1) == 0)
             {
                 ap->shade++;
                 if (ap->shade > 10)

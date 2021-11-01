@@ -331,8 +331,7 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
         view_dist = 0;
 
     // make shadow smaller depending on height from ground
-    ground_dist = labs(loz - SPRITEp_BOS(tsp)) >> 8;
-    ground_dist = DIV16(ground_dist);
+    ground_dist = labs(loz - SPRITEp_BOS(tsp)) >> 12;
 
     xrepeat = max(xrepeat - ground_dist - view_dist, 4);
     yrepeat = max(yrepeat - ground_dist - view_dist, 4);
