@@ -735,14 +735,14 @@ void KillSprite(int16_t SpriteNum)
 
             for (stat = 0; stat < SIZ(MissileStats); stat++)
             {
-                StatIterator it(MissileStats[stat]);
-                while ((i = it.NextIndex()) >= 0)
+                SWStatIterator it(MissileStats[stat]);
+                while (auto actor = it.Next())
                 {
-                    mu = User[i].Data();
-
-                    if (mu && mu->WpnGoal == SpriteNum)
+                    if (!actor->hasU()) continue;
+                    mu = actor->u();
+                    if (mu->WpnGoalActor == actor)
                     {
-                        mu->WpnGoal = -1;
+                        mu->WpnGoalActor = nullptr;
                     }
                 }
             }
@@ -906,7 +906,7 @@ SpawnUser(short SpriteNum, short id, STATEp state)
 
     u->ID = id;
     u->Health = 100;
-    u->WpnGoal = -1;                     // for weapons
+    u->WpnGoalActor = nullptr;
     u->attachActor = nullptr;
     u->track = -1;
     u->targetActor = Player[0].Actor();

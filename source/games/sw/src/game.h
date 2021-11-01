@@ -1132,6 +1132,7 @@ struct USER
     DSWActor* flameActor;
     DSWActor* attachActor;  // attach to sprite if needed - electro snake
     DSWActor* flagOwnerActor;
+    DSWActor* WpnGoalActor;
 
     int Flags;
     int Flags2;
@@ -1192,7 +1193,6 @@ struct USER
     short DamageTics;
     short BladeDamageTics;
 
-    short WpnGoal;
     unsigned int Radius;    // for distance checking
     int  OverlapZ;  // for z overlap variable
 
@@ -1539,23 +1539,18 @@ extern TPointer<SECT_USER> SectUser[MAXSECTORS];
 SECT_USERp SpawnSectUser(short sectnum);
 
 
-typedef struct
-{
-    unsigned int size, checksum;
-} MEM_HDR,*MEM_HDRp;
-
 # define CallocMem(size, num) M_Calloc(size, num)
 # define FreeMem(ptr) M_Free(ptr)
 
-typedef struct
+typedef struct TARGET_SORT
 {
-    short sprite_num;
+    DSWActor* actor;
     short dang;
     int dist;
     int weight;
-} TARGET_SORT, *TARGET_SORTp;
+} *TARGET_SORTp;
 
-#define MAX_TARGET_SORT 16
+enum { MAX_TARGET_SORT = 16 };
 extern TARGET_SORT TargetSort[MAX_TARGET_SORT];
 extern unsigned TargetSortCount;
 

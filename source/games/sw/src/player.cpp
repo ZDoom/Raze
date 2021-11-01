@@ -1150,7 +1150,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
     if (max_delta_ang == 0) max_delta_ang = 1;
 
     TargetSortCount = 0;
-    TargetSort[0].sprite_num = -1;
+    TargetSort[0].actor = nullptr;
 
     for (shp = StatDamageList; shp < &StatDamageList[SIZ(StatDamageList)]; shp++)
     {
@@ -1232,7 +1232,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             }
 
             ts = &TargetSort[ndx];
-            ts->sprite_num = itActor->GetSpriteIndex();
+            ts->actor = itActor;
             ts->dang = delta_ang;
             ts->dist = dist;
             // gives a value between 0 and 65535
@@ -1251,7 +1251,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
     if (TargetSortCount > 1)
         qsort(&TargetSort, TargetSortCount, sizeof(TARGET_SORT), CompareTarget);
 
-    return TargetSort[0].sprite_num == -1? nullptr :  &swActors[TargetSort[0].sprite_num];
+    return TargetSort[0].actor;
 }
 
 void DoPlayerResetMovement(PLAYERp pp)

@@ -5487,13 +5487,13 @@ ActorStdMissile(short SpriteNum, short Weapon)
     }
 
     // Reset the weapons target before dying
-    if (wu->WpnGoal >= 0)
+    auto goal = wu->WpnGoalActor;
+    if (goal != nullptr)
     {
         // attempt to see if it was killed
-        ASSERT(sprite[wu->WpnGoal].sectnum >= 0);
-        ASSERT(User[Weapon].Data());
-        // what if the target has been killed?  This will crash!
-        RESET(User[wu->WpnGoal]->Flags, SPR_TARGETED);
+        ASSERT(goal->s().sectnum >= 0);
+        if (goal->hasU())
+	        RESET(goal->u()->Flags, SPR_TARGETED);
     }
 
     return 0;
@@ -8203,12 +8203,12 @@ int PickEnemyTarget(SPRITEp sp, short aware_range)
 
     for (ts = TargetSort; ts < &TargetSort[TargetSortCount]; ts++)
     {
-        if (ts->sprite_num >= 0)
+        if (ts->actor != nullptr)
         {
-            if (ts->sprite_num == sp->owner || sprite[ts->sprite_num].owner == sp->owner)
+            if (ts->actor->GetSpriteIndex() == sp->owner || ts->actor->s().owner == sp->owner)
                 continue;
 
-            return ts->sprite_num;
+            return ts->actor->GetSpriteIndex();
         }
     }
 
@@ -8230,7 +8230,7 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
     if (u->WaitTics <= delay_tics)
         u->WaitTics += MISSILEMOVETICS;
 
-    if (u->WpnGoal == -1)
+    if (u->WpnGoalActor == nullptr)
     {
         if (u->WaitTics > delay_tics)
         {
@@ -8244,7 +8244,7 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
                 {
                     USERp hu = User[hit_sprite].Data();
 
-                    u->WpnGoal = hit_sprite;
+                    u->WpnGoalActor = &swActors[hit_sprite];
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
@@ -8253,16 +8253,16 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t d
             {
                 USERp hu = actor->u();
 
-                u->WpnGoal = hitActor->GetSpriteIndex();
+                u->WpnGoalActor = hitActor;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
         }
     }
 
-    if (u->WpnGoal >= 0)
+    if (u->WpnGoalActor != nullptr)
     {
-        hp = &sprite[User[Weapon]->WpnGoal];
+        hp = &u->WpnGoalActor->s();
 
         // move to correct angle
         ang2tgt = getangle(hp->x - sp->x, hp->y - sp->y);
@@ -8317,7 +8317,7 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int1
     if (u->WaitTics <= delay_tics)
         u->WaitTics += MISSILEMOVETICS;
 
-    if (u->WpnGoal == -1)
+    if (u->WpnGoalActor == nullptr)
     {
         if (u->WaitTics > delay_tics)
         {
@@ -8327,17 +8327,17 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int1
             {
                 USERp hu = actor->u();
 
-                u->WpnGoal = hitActor->GetSpriteIndex();
+                u->WpnGoalActor = hitActor;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
         }
     }
 
-    if (u->WpnGoal >= 0)
+    if (u->WpnGoalActor != nullptr)
     {
         int oz;
-        hp = &sprite[User[Weapon]->WpnGoal];
+        hp = &u->WpnGoalActor->s();
 
         // move to correct angle
         ang2tgt = getangle(hp->x - sp->x, hp->y - sp->y);
@@ -8385,7 +8385,7 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
     if (u->WaitTics <= delay_tics)
         u->WaitTics += MISSILEMOVETICS;
 
-    if (u->WpnGoal == -1)
+    if (u->WpnGoalActor == nullptr)
     {
         if (u->WaitTics > delay_tics)
         {
@@ -8397,7 +8397,7 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
                 {
                     USERp hu = User[hit_sprite].Data();
 
-                    u->WpnGoal = hit_sprite;
+                    u->WpnGoalActor = &swActors[hit_sprite];
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
@@ -8405,7 +8405,7 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
                 {
                     USERp hu = User[hit_sprite].Data();
 
-                    u->WpnGoal = hit_sprite;
+                    u->WpnGoalActor = &swActors[hit_sprite];
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
@@ -8417,14 +8417,14 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
                 if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
                 {
                     USERp hu = actor->u();
-                    u->WpnGoal = hitActor->GetSpriteIndex();
+                    u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
                 else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
                 {
                     USERp hu = actor->u();
-                    u->WpnGoal = hitActor->GetSpriteIndex();
+                    u->WpnGoalActor = hitActor;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
@@ -8432,10 +8432,10 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
         }
     }
 
-    if (u->WpnGoal >= 0)
+    if (u->WpnGoalActor != nullptr)
     {
         int ox,oy,oz;
-        hp = &sprite[User[Weapon]->WpnGoal];
+        hp = &u->WpnGoalActor->s();
 
         if (!hp) return 0;
 
@@ -8479,7 +8479,7 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
     if (u->WaitTics <= delay_tics)
         u->WaitTics += MISSILEMOVETICS;
 
-    if (u->WpnGoal == -1)
+    if (u->WpnGoalActor == nullptr)
     {
         if (u->WaitTics > delay_tics)
         {
@@ -8487,24 +8487,24 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
             if ((hitActor = DoPickTarget(actor, aware_range1, false)) != nullptr)
             {
                 USERp hu = actor->u();
-                u->WpnGoal = hitActor->GetSpriteIndex();
+                u->WpnGoalActor = hitActor;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
             else if ((hitActor = DoPickTarget(actor, aware_range2, false)) != nullptr)
             {
                 USERp hu = actor->u();
-                u->WpnGoal = hitActor->GetSpriteIndex();
+                u->WpnGoalActor = hitActor;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
         }
     }
 
-    if (u->WpnGoal >= 0)
+    if (u->WpnGoalActor != nullptr)
     {
         int ox,oy,oz;
-        hp = &sprite[User[Weapon]->WpnGoal];
+        hp = &u->WpnGoalActor->s();
 
         zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
 
@@ -8667,7 +8667,7 @@ DoPlasma(DSWActor* actor)
             {
                 short hcstat = hsp->cstat;
 
-                if (hu && hit_sprite != u->WpnGoal)
+                if (hu && hit_sprite != u->WpnGoalActor->GetSpriteIndex())
                 {
                     sp->x = ox;
                     sp->y = oy;
@@ -13937,7 +13937,7 @@ int WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
         SPRITEp hp = &hitActor->s();
         USERp hu = hitActor->u();
 
-        wu->WpnGoal = hitActor->GetSpriteIndex();
+        wu->WpnGoalActor = hitActor;
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
@@ -14010,7 +14010,7 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
         SPRITEp hp = &hitActor->s();
         USERp hu = hitActor->u();
 
-        wu->WpnGoal = hitActor->GetSpriteIndex();
+        wu->WpnGoalActor = hitActor;
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
@@ -15477,10 +15477,10 @@ InitMicro(PLAYERp pp)
 
     for (i = 0; i < MAX_MICRO; i++)
     {
-        if (ts < &TargetSort[TargetSortCount] && ts->sprite_num >= 0)
+        if (ts < &TargetSort[TargetSortCount] && ts->actor != nullptr)
         {
-            hp = &sprite[ts->sprite_num];
-            hu = User[ts->sprite_num].Data();
+            hp = &ts->actor->s();
+            hu = ts->actor->u();
 
             ang = getangle(hp->x - nx, hp->y - ny);
 
@@ -15566,7 +15566,7 @@ InitMicro(PLAYERp pp)
                 wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
             }
 
-            wu->WpnGoal = ts->sprite_num;
+            wu->WpnGoalActor = ts->actor;
             SET(hu->Flags, SPR_TARGETED);
             SET(hu->Flags, SPR_ATTACKED);
         }
@@ -17848,10 +17848,10 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
 
     for (i = 0; i < MAX_TURRET_MICRO; i++)
     {
-        if (ts < &TargetSort[TargetSortCount] && ts->sprite_num >= 0)
+        if (ts < &TargetSort[TargetSortCount] && ts->actor != nullptr)
         {
-            hp = &sprite[ts->sprite_num];
-            hu = User[ts->sprite_num].Data();
+            hp = &ts->actor->s();
+            hu = ts->actor->u();
 
             ang = getangle(hp->x - nx, hp->y - ny);
 
@@ -17911,7 +17911,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
                 wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
             }
 
-            wu->WpnGoal = ts->sprite_num;
+            wu->WpnGoalActor = ts->actor;
             SET(hu->Flags, SPR_TARGETED);
             SET(hu->Flags, SPR_ATTACKED);
         }

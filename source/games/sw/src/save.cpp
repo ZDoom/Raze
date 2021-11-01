@@ -886,7 +886,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("Counter3", w.Counter3, def->Counter3)
 			("DamageTics", w.DamageTics, def->DamageTics)
 			("BladeDamageTics", w.BladeDamageTics, def->BladeDamageTics)
-			("WpnGoal", w.WpnGoal, def->WpnGoal)
+			("WpnGoal", w.WpnGoalActor, def->WpnGoalActor)
 			("Radius", w.Radius, def->Radius)
 			("OverlapZ", w.OverlapZ, def->OverlapZ)
 			("flame", w.flameActor, def->flameActor)
