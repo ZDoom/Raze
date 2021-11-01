@@ -2003,15 +2003,9 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
     return 0;
 }
 
-int
-BloodSprayFall(DSWActor* actor)
+int BloodSprayFall(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-
-    sp->z += 1500;
-
+    actor->s().z += 1500;
     return 0;
 }
 
@@ -2025,16 +2019,14 @@ BloodSprayFall(DSWActor* actor)
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 // Update the scoreboard for team color that just scored.
-void
-DoFlagScore(int16_t pal)
+void DoFlagScore(int16_t pal)
 {
     SPRITEp sp;
-    int SpriteNum;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[SpriteNum];
+        sp = &actor->s();
 
         if (sp->picnum < 1900 || sp->picnum > 1999)
             continue;
@@ -2048,30 +2040,28 @@ DoFlagScore(int16_t pal)
     }
 }
 
-int
-DoFlagRangeTest(short Weapon, short range)
+DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
 {
-    SPRITEp wp = &sprite[Weapon];
+    SPRITEp wp = &actor->s();
 
     SPRITEp sp;
-    int i;
     unsigned int stat;
     int dist, tx, ty;
     int tmin;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
+            sp = &itActor->s();
 
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 
-            if (sp == wp)
+            if (actor == itActor)
                 continue;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
@@ -2087,16 +2077,14 @@ DoFlagRangeTest(short Weapon, short range)
             if (dist > range)
                 continue;
 
-            return i;                   // Return the spritenum
+            return itActor;
         }
     }
 
-    return -1;                          // -1 for no sprite index.  Not
-    // found.
+    return nullptr;
 }
 
-int
-DoCarryFlag(DSWActor* actor)
+int DoCarryFlag(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
@@ -2321,11 +2309,10 @@ DoCarryFlagNoDet(DSWActor* actor)
 }
 
 
-int
-SetCarryFlag(int16_t Weapon)
+int SetCarryFlag(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     // stuck
     SET(u->Flags, SPR_BOUNCE);
@@ -2334,31 +2321,27 @@ SetCarryFlag(int16_t Weapon)
 //    u->WaitTics = SEC(3);
     SET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     u->Counter = 0;
-    change_sprite_stat(Weapon, STAT_ITEM);
+    change_actor_stat(actor, STAT_ITEM);
     if (sp->hitag == 1)
-        ChangeSpriteState(Weapon, s_CarryFlagNoDet);
+        ChangeState(actor, s_CarryFlagNoDet);
     else
-        ChangeSpriteState(Weapon, s_CarryFlag);
+        ChangeState(actor, s_CarryFlag);
 
     return false;
 }
 
-int
-DoFlag(DSWActor* actor)
+int DoFlag(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
-    int16_t hit_sprite = -1;
+    SPRITEp sp = &actor->s();
 
-    hit_sprite = DoFlagRangeTest(Weapon, 1000);
+    auto hitActor = DoFlagRangeTest(actor, 1000);
 
-    if (hit_sprite != -1)
+    if (hitActor)
     {
-        auto hitActor = &swActors[hit_sprite];
-        SPRITEp hsp = &sprite[hit_sprite];
+        SPRITEp hsp = &hitActor->s();
 
-        SetCarryFlag(Weapon);
+        SetCarryFlag(actor);
 
         // check to see if sprite is player or enemy
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -2367,7 +2350,6 @@ DoFlag(DSWActor* actor)
             RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             SetAttach(hitActor, actor);
             u->sz = hsp->z - DIV2(SPRITEp_SIZE_Z(hsp));
-            //u->sz = hsp->z - SPRITEp_MID(hsp);   // Set mid way up who it hit
         }
     }
 
