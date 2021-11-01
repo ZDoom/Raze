@@ -1964,7 +1964,7 @@ DoNinjaHariKari(DSWActor* actor)
 
     cnt = RandomRange(4)+1;
     for (i=0; i<=cnt; i++)
-        InitBloodSpray(SpriteNum,true,-2);
+        InitBloodSpray(actor,true,-2);
 
     return 0;
 }

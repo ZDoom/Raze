@@ -43,7 +43,6 @@ BEGIN_SW_NS
 short DoVatorMatch(PLAYERp pp, short match);
 bool TestVatorMatchActive(short match);
 void InterpSectorSprites(short sectnum, bool state);
-int InitBloodSpray(short, bool, short);
 
 void ReverseVator(short SpriteNum)
 {
@@ -532,9 +531,9 @@ int DoVator(DSWActor* actor)
                 {
                     if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
                     {
-                        InitBloodSpray(i, true, -1);
+                        InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);
-                        KillSprite(i);
+                        KillActor(itActor);
                         continue;
                     }
                 }
@@ -584,9 +583,9 @@ int DoVator(DSWActor* actor)
                 {
                     if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
                     {
-                        InitBloodSpray(i, true, -1);
+                        InitBloodSpray(itActor, true, -1);
                         UpdateSinglePlayKills(itActor);
-                        KillSprite(i);
+                        KillActor(itActor);
                         continue;
                     }
                 }

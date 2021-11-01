@@ -1919,15 +1919,13 @@ int InitPhosphorus(DSWActor* actor)
     return 0;
 }
 
-int
-InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
+int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     short i, cnt, ang, vel, rnd;
 
 
@@ -1967,15 +1965,12 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
         ny = sp->y;
         nz = SPRITEp_TOS(sp)-20;
 
-        //RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-
         // Spawn a shot
-        // Inserting and setting up variables
-        w = SpawnSprite(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, sp->sectnum,
                         nx, ny, nz, ang, vel*2);
 
-        wp = &sprite[w];
-        wu = User[w].Data();
+        wp = &actorNew->s();
+        wu = actorNew->u();
 
         SET(wu->Flags, SPR_XFLIP_TOGGLE);
         if (dogib)
@@ -1984,7 +1979,7 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
             SET(wp->cstat, CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_INVISIBLE);
         wp->shade = -12;
 
-        SetOwner(SpriteNum, w);
+        SetOwner(actor, actorNew);
         wp->yrepeat = 64-RandomRange(35);
         wp->xrepeat = 64-RandomRange(35);
         wp->shade = -15;
@@ -2002,7 +1997,7 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
         wu->zchange = wp->zvel >> 1;
 
         if (!GlobalSkipZrange)
-            DoActorZrange(w);
+            DoActorZrange(actorNew->GetSpriteIndex());
     }
 
     return 0;

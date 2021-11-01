@@ -888,9 +888,9 @@ DoZombieMove(DSWActor* actor)
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
-        InitBloodSpray(SpriteNum,true,105);
-        InitBloodSpray(SpriteNum,true,105);
-        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(actor,true,105);
+        InitBloodSpray(actor,true,105);
+        InitBloodSpray(actor,true,105);
         SetSuicide(actor);
         return 0;
     }
@@ -943,9 +943,9 @@ NullZombie(DSWActor* actor)
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
-        InitBloodSpray(SpriteNum,true,105);
-        InitBloodSpray(SpriteNum,true,105);
-        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(actor,true,105);
+        InitBloodSpray(actor,true,105);
+        InitBloodSpray(actor,true,105);
         SetSuicide(actor);
         return 0;
     }

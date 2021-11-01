@@ -134,8 +134,6 @@ PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 
 short NormalVisibility;
 
-int InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity);
-
 SPRITEp FindNearSprite(SPRITEp sp, short stat);
 bool PlayerOnLadder(PLAYERp pp);
 void DoPlayerSlide(PLAYERp pp);
@@ -5992,7 +5990,7 @@ DoPlayerBeginDie(PLAYERp pp)
         pp->SpriteP->xrepeat = 48;
         pp->SpriteP->yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->PlayerSprite,true,105);
+        InitBloodSpray(pp->Actor(),true,105);
         break;
     case PLAYER_DEATH_EXPLODE:
 
@@ -6007,9 +6005,9 @@ DoPlayerBeginDie(PLAYERp pp)
         pp->SpriteP->xrepeat = 48;
         pp->SpriteP->yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->PlayerSprite,true,-1);
-        InitBloodSpray(pp->PlayerSprite,true,-1);
-        InitBloodSpray(pp->PlayerSprite,true,-1);
+        InitBloodSpray(pp->Actor(),true,-1);
+        InitBloodSpray(pp->Actor(),true,-1);
+        InitBloodSpray(pp->Actor(),true,-1);
         break;
     case PLAYER_DEATH_SQUISH:
 
@@ -6025,7 +6023,7 @@ DoPlayerBeginDie(PLAYERp pp)
         pp->SpriteP->xrepeat = 48;
         pp->SpriteP->yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->PlayerSprite,true,105);
+        InitBloodSpray(pp->Actor(),true,105);
         break;
 
     }
@@ -6161,9 +6159,9 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         else
         {
             // If he's not on the floor, then gib like a mo-fo!
-            InitBloodSpray(pp->PlayerSprite,true,-1);
-            InitBloodSpray(pp->PlayerSprite,true,-1);
-            InitBloodSpray(pp->PlayerSprite,true,-1);
+            InitBloodSpray(pp->Actor(),true,-1);
+            InitBloodSpray(pp->Actor(),true,-1);
+            InitBloodSpray(pp->Actor(),true,-1);
         }
 
         PlayerSpawnPosition(pp);

@@ -5073,8 +5073,8 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
     // These are player zombies
     case ZOMBIE_RUN_R0:
-        InitBloodSpray(SpriteNum,true,105);
-        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(actor,true,105);
+        InitBloodSpray(actor,true,105);
         if (SpawnShrap(actor, weapActor))
             SetSuicide(actor);
         break;
@@ -5142,7 +5142,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
                 // Gib out the ones you can't cut in half
                 // Blood fountains
-                InitBloodSpray(SpriteNum,true,-1);
+                InitBloodSpray(actor,true,-1);
 
                 if (SpawnShrap(actor, weapActor))
                 {
@@ -5219,7 +5219,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                     ActorCoughItem(SpriteNum);
 
                 // Blood fountains
-                InitBloodSpray(SpriteNum,true,-1);
+                InitBloodSpray(actor,true,-1);
 
                 // Bosses do not gib
                 if (u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0)
@@ -5340,7 +5340,7 @@ ActorHealth(short SpriteNum, short amt)
                     u->Health = 60;
                     PlaySound(DIGI_NINJACHOKE, sp, v3df_follow);
                     InitPlasmaFountain(nullptr, sp);
-                    InitBloodSpray(SpriteNum,false,105);
+                    InitBloodSpray(actor,false,105);
                     sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
                     RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
                     if (sw_ninjahack)
@@ -6465,7 +6465,7 @@ DoDamage(short SpriteNum, short Weapon)
                 break;
             default:
                 if (RandomRange(1000) > 900)
-                    InitBloodSpray(SpriteNum,false,105);
+                    InitBloodSpray(actor,false,105);
                 if (RandomRange(1000) > 900)
                     SpawnMidSplash(actor);
                 break;
@@ -6707,9 +6707,6 @@ DoDamage(short SpriteNum, short Weapon)
         }
 
         SpawnBunnyExp(Weapon);
-        //InitBloodSpray(Weapon,true,-1);
-        //InitBloodSpray(Weapon,true,-1);
-        //InitBloodSpray(Weapon,true,-1);
         SetSuicide(weapActor);
         break;
 
@@ -8611,7 +8608,7 @@ DoPlasmaFountain(DSWActor* actor)
         {
             SpawnBlood(attachActor, actor, 0, 0, 0, 0);
             if (RandomRange(1000) > 600)
-                InitBloodSpray(attachActor->GetSpriteIndex(), false, 105);
+                InitBloodSpray(attachActor, false, 105);
         }
     }
 
@@ -11045,9 +11042,9 @@ SpawnBunnyExp(int16_t Weapon)
     PlaySound(DIGI_BUNNYDIE3, sp, v3df_none);
 
     u->ID = BOLT_EXP; // Change id
-    InitBloodSpray(Weapon,true,-1);
-    InitBloodSpray(Weapon,true,-1);
-    InitBloodSpray(Weapon,true,-1);
+    InitBloodSpray(actor, true, -1);
+    InitBloodSpray(actor, true, -1);
+    InitBloodSpray(actor, true, -1);
     DoExpDamageTest(actor);
 
     return 0;
@@ -12188,9 +12185,9 @@ DoBloodWorm(DSWActor* actor)
             USERp tu;
             int i;
 
-            InitBloodSpray(Weapon, false, 1);
-            InitBloodSpray(Weapon, false, 1);
-            InitBloodSpray(Weapon, false, 1);
+            InitBloodSpray(actor, false, 1);
+            InitBloodSpray(actor, false, 1);
+            InitBloodSpray(actor, false, 1);
 
             // Kill any old zombies you own
             StatIterator it(STAT_ENEMY);
@@ -12204,8 +12201,8 @@ DoBloodWorm(DSWActor* actor)
 
                 if (tu->ID == ZOMBIE_RUN_R0 && tsp->owner == sp->owner)
                 {
-                    InitBloodSpray(i,true,105);
-                    InitBloodSpray(i,true,105);
+                    InitBloodSpray(itActor, true, 105);
+                    InitBloodSpray(itActor, true, 105);
                     SetSuicide(itActor);
                     break;
                 }
@@ -12234,7 +12231,7 @@ DoBloodWorm(DSWActor* actor)
     if (sectnum >= 0)
     {
         GlobalSkipZrange = true;
-        InitBloodSpray(Weapon, false, 1);
+        InitBloodSpray(actor, false, 1);
         GlobalSkipZrange = false;
     }
 

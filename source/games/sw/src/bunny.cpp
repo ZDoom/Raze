@@ -985,7 +985,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                 tu->Health = 0;
 
                 // Blood fountains
-                InitBloodSpray(hitActor->GetSpriteIndex(), true,-1);
+                InitBloodSpray(hitActor, true,-1);
 
                 if (SpawnShrap(hitActor, actor))
                 {
@@ -1197,7 +1197,7 @@ void BunnyHatch(DSWActor* actor)
                 Bunny_Count--; // Bunny died
 
                 // Blood fountains
-                InitBloodSpray(actor->GetSpriteIndex(), true, -1);
+                InitBloodSpray(actor, true, -1);
 
                 if (SpawnShrap(actor, actorNew))
                 {
@@ -1371,7 +1371,7 @@ int DoBunnyMove(DSWActor* actor)
 
 int BunnySpew(DSWActor* actor)
 {
-    InitBloodSpray(actor->GetSpriteIndex(), true, -1);
+    InitBloodSpray(actor, true, -1);
     return 0;
 }
 

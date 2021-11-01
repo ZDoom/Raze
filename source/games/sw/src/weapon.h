@@ -179,7 +179,7 @@ void WallBounce(short SpriteNum, short ang);
 int PlayerInitChemBomb(PLAYERp pp);
 int InitChemBomb(DSWActor*);
 int PlayerInitCaltrops(PLAYERp pp);
-int InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity);
+int InitBloodSpray(DSWActor* actor, bool dogib, short velocity);
 int SpawnBunnyExp(int16_t Weapon);
 int InitBunnyRocket(PLAYERp pp);
 

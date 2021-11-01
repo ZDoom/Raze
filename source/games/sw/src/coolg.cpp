@@ -629,8 +629,8 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     // If blocking bits get unset, just die
     if (!TEST(sp->cstat,CSTAT_SPRITE_BLOCK) || !TEST(sp->cstat,CSTAT_SPRITE_BLOCK_HITSCAN))
     {
-        InitBloodSpray(actor->GetSpriteIndex(), true, 105);
-        InitBloodSpray(actor->GetSpriteIndex(), true, 105);
+        InitBloodSpray(actor, true, 105);
+        InitBloodSpray(actor, true, 105);
         UpdateSinglePlayKills(actor);
         SetSuicide(actor);
     }
