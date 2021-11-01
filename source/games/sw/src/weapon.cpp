@@ -108,7 +108,7 @@ bool TestDontStickSector(short hit_sect);
 ANIMATOR SpawnShrapX;
 bool WeaponMoveHit(short SpriteNum);
 int HelpMissileLateral(int16_t Weapon, int dist);
-void SpawnMidSplash(short SpriteNum);
+void SpawnMidSplash(DSWActor* actor);
 
 int SopDamage(SECTOR_OBJECTp sop,short amt);
 int SopCheckKill(SECTOR_OBJECTp sop);
@@ -6467,7 +6467,7 @@ DoDamage(short SpriteNum, short Weapon)
                 if (RandomRange(1000) > 900)
                     InitBloodSpray(SpriteNum,false,105);
                 if (RandomRange(1000) > 900)
-                    SpawnMidSplash(SpriteNum);
+                    SpawnMidSplash(actor);
                 break;
             }
         }
@@ -6517,7 +6517,7 @@ DoDamage(short SpriteNum, short Weapon)
             break;
         default:
             if (RandomRange(1000) > 950)
-                SpawnMidSplash(SpriteNum);
+                SpawnMidSplash(actor);
             break;
         }
 
@@ -21036,7 +21036,7 @@ ShrapKillSprite(short SpriteNum)
     case GORE_Lung:
         if (RandomRange(1000) > 500) break;
         sp->clipdist = SPRITEp_SIZE_X(sp);
-        SpawnFloorSplash(SpriteNum);
+        SpawnFloorSplash(actor);
         if (RandomRange(1000) < 500)
             PlaySound(DIGI_GIBS1, sp, v3df_none);
         else
@@ -21058,7 +21058,7 @@ ShrapKillSprite(short SpriteNum)
     case GORE_Liver:
         if (RandomRange(1000) > 500) break;
         sp->clipdist = SPRITEp_SIZE_X(sp);
-        SpawnFloorSplash(SpriteNum);
+        SpawnFloorSplash(actor);
         if (RandomRange(1000) < 500)
             PlaySound(DIGI_GIBS1, sp, v3df_none);
         else
@@ -21080,7 +21080,7 @@ ShrapKillSprite(short SpriteNum)
     case GORE_SkullCap:
         if (RandomRange(1000) > 500) break;
         sp->clipdist = SPRITEp_SIZE_X(sp);
-        SpawnFloorSplash(SpriteNum);
+        SpawnFloorSplash(actor);
         if (rnd_num > 683)
         {
             QueueGeneric(SpriteNum,930);

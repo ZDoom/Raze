@@ -256,12 +256,10 @@ STATE s_BloodSprayDrip[] =
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-int
-DoWallBloodDrip(DSWActor* actor)
+int DoWallBloodDrip(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     //sp->z += (300+RandomRange(2300)) >> 1;
 
@@ -289,7 +287,7 @@ DoWallBloodDrip(DSWActor* actor)
     if (sp->z >= u->loz)
     {
         sp->z = u->loz;
-        SpawnFloorSplash(SpriteNum);
+        SpawnFloorSplash(actor);
         KillActor(actor);
         return 0;
     }
@@ -298,19 +296,18 @@ DoWallBloodDrip(DSWActor* actor)
 }
 
 void
-SpawnMidSplash(short SpriteNum)
+SpawnMidSplash(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp np;
     USERp nu;
-    short New;
 
-    New = SpawnSprite(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sectnum,
                       sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
-    np = &sprite[New];
-    nu = User[New].Data();
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     np->shade = -12;
     np->xrepeat = 70-RandomRange(20);
@@ -330,20 +327,18 @@ SpawnMidSplash(short SpriteNum)
         SET(nu->Flags, SPR_UNDERWATER);
 }
 
-void
-SpawnFloorSplash(short SpriteNum)
+void SpawnFloorSplash(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp np;
     USERp nu;
-    short New;
 
-    New = SpawnSprite(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
 
-    np = &sprite[New];
-    nu = User[New].Data();
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     np->shade = -12;
     np->xrepeat = 70-RandomRange(20);
@@ -395,7 +390,7 @@ DoBloodSpray(DSWActor* actor)
         if (sp->z >= fz)
         {
             sp->z = fz;
-            SpawnFloorSplash(Weapon);
+            SpawnFloorSplash(actor);
             KillActor(actor);
             return true;
         }
@@ -425,7 +420,7 @@ DoBloodSpray(DSWActor* actor)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                SpawnMidSplash(Weapon);
+                SpawnMidSplash(actor);
                 QueueWallBlood(Weapon, hsp->ang);
                 WallBounce(Weapon, wall_ang);
                 ScaleSpriteVector(Weapon, 32000);
@@ -433,7 +428,7 @@ DoBloodSpray(DSWActor* actor)
             else
             {
                 u->xchange = u->ychange = 0;
-                SpawnMidSplash(Weapon);
+                SpawnMidSplash(actor);
                 QueueWallBlood(Weapon, hsp->ang);
                 KillActor(actor);
                 return true;
@@ -463,7 +458,7 @@ DoBloodSpray(DSWActor* actor)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
-            SpawnMidSplash(Weapon);
+            SpawnMidSplash(actor);
             wb = QueueWallBlood(Weapon, NORM_ANGLE(wall_ang+1024));
 
             if (wb < 0)
@@ -522,7 +517,7 @@ DoBloodSpray(DSWActor* actor)
 #if 0
                 if (!TEST(u->Flags, SPR_BOUNCE))
                 {
-                    SpawnFloorSplash(Weapon);
+                    SpawnFloorSplash(actor);
                     SET(u->Flags, SPR_BOUNCE);
                     SetCollision(u, 0);
                     u->Counter = 0;
@@ -534,7 +529,7 @@ DoBloodSpray(DSWActor* actor)
 #endif
                 {
                     u->xchange = u->ychange = 0;
-                    SpawnFloorSplash(Weapon);
+                    SpawnFloorSplash(actor);
                     KillActor(actor);
                     return true;
                 }
