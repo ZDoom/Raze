@@ -3008,7 +3008,8 @@ void StackedWaterSplash(PLAYERp pp)
     {
         int sectnum = pp->cursectnum;
 
-        updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
+        auto psp = &pp->Actor()->s();
+        updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(psp), &sectnum);
 
         if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
         {
@@ -3450,7 +3451,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
 
             if (hitinfo.sect >= 0 && labs(sector[hitinfo.sect].floorz - pp->posz) < Z(50))
             {
-                if (Distance(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y) < ((((int)pp->SpriteP->clipdist)<<2) + 256))
+                if (Distance(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y) < ((((int)pp->Actor()->s().clipdist)<<2) + 256))
                     return true;
             }
         }
@@ -3898,7 +3899,7 @@ int PlayerCanDiveNoWarp(PLAYERp pp)
         {
             int sectnum = pp->cursectnum;
 
-            updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
+            updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(&pp->Actor()->s()), &sectnum);
 
             if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
             {
@@ -4363,7 +4364,7 @@ void DoPlayerStopDiveNoWarp(PLAYERp pp)
     RESET(pp->Flags, PF_DIVING|PF_DIVING_IN_LAVA);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
-    RESET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
+    RESET(pp->Actor()->s().cstat, CSTAT_SPRITE_YCENTER);
     if (pp == Player + screenpeek)
     {
         COVER_SetReverb(0);
@@ -4653,7 +4654,7 @@ void DoPlayerCurrent(PLAYERp pp)
     xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
     yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -4668,9 +4669,9 @@ void DoPlayerCurrent(PLAYERp pp)
         }
         return;
     }
-    clipmove(&pp->pos, &pp->cursectnum, xvect, yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    clipmove(&pp->pos, &pp->cursectnum, xvect, yvect, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     PlayerCheckValidMove(pp);
-    pushmove(&pp->pos, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    pushmove(&pp->pos, &pp->cursectnum, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -5870,13 +5871,14 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         PlayerSpawnPosition(pp);
 
         NewStateGroup(ppActor, u->ActorActionSet->Stand);
-        pp->SpriteP->picnum = u->State->Pic;
-        pp->SpriteP->xrepeat = pp->SpriteP->yrepeat = PLAYER_NINJA_XREPEAT;
-        RESET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
-        pp->SpriteP->x = pp->posx;
-        pp->SpriteP->y = pp->posy;
-        pp->SpriteP->z = pp->posz+PLAYER_HEIGHT;
-        pp->SpriteP->ang = pp->angle.ang.asbuild();
+        sp->picnum = u->State->Pic;
+        sp->picnum = u->State->Pic;
+        sp->xrepeat = sp->yrepeat = PLAYER_NINJA_XREPEAT;
+        RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
+        sp->x = pp->posx;
+        sp->y = pp->posy;
+        sp->z = pp->posz+PLAYER_HEIGHT;
+        sp->ang = pp->angle.ang.asbuild();
 
         DoSpawnTeleporterEffect(ppActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
@@ -5986,7 +5988,7 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
     DoPlayerZrange(pp);
 
     // sector stomper kick
-    if (labs(pp->loz - pp->hiz) < SPRITEp_SIZE_Z(pp->SpriteP) - Z(8))
+    if (labs(pp->loz - pp->hiz) < SPRITEp_SIZE_Z(sp) - Z(8))
     {
         u->slide_ang = RANDOM_P2(2048);
         u->slide_vel = 1000;
