@@ -1813,14 +1813,13 @@ int PlayerInitCaltrops(PLAYERp pp)
     return 0;
 }
 
-int InitCaltrops(int16_t SpriteNum)
+int InitCaltrops(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
 
 
     PlaySound(DIGI_THROW, sp, v3df_dontpan | v3df_doppler);
@@ -1831,16 +1830,15 @@ int InitCaltrops(int16_t SpriteNum)
 
     // Spawn a shot
     // Inserting and setting up variables
-    w = SpawnSprite(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, sp->sectnum,
+    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, sp->sectnum,
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY / 2);
 
-    auto spawnedActor = &swActors[w];
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &spawnedActor->s();
+    wu = spawnedActor->u();
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, spawnedActor);
     wp->yrepeat = 64;
     wp->xrepeat = 64;
     wp->shade = -15;
@@ -1864,15 +1862,13 @@ int InitCaltrops(int16_t SpriteNum)
     return 0;
 }
 
-int
-InitPhosphorus(int16_t SpriteNum)
+int InitPhosphorus(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     short daang;
 
 
@@ -1886,11 +1882,11 @@ InitPhosphorus(int16_t SpriteNum)
 
     // Spawn a shot
     // Inserting and setting up variables
-    w = SpawnSprite(STAT_SKIP4, FIREBALL1, s_Phosphorus, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, sp->sectnum,
                     nx, ny, nz, daang, CHEMBOMB_VELOCITY/3);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     wp->hitag = LUMINOUS;               // Always full brightness
     SET(wu->Flags, SPR_XFLIP_TOGGLE);

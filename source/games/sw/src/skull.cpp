@@ -37,7 +37,7 @@ BEGIN_SW_NS
 int InitSpriteGrenade(DSWActor* actor);
 int InitSpriteChemBomb(DSWActor*);
 int InitFlashBomb(DSWActor* actor);
-int InitCaltrops(short SpriteNum);
+int InitCaltrops(DSWActor* actor);
 int InitPhosphorus(int16_t SpriteNum);
 bool SpriteOverlapZ(int16_t, int16_t, int);
 
@@ -316,7 +316,7 @@ DoSkullBeginDeath(DSWActor* actor)
         for (i=0; i<num_ord; i++)
         {
             sp->ang = NORM_ANGLE(RandomRange(2048));
-            InitCaltrops(SpriteNum);
+            InitCaltrops(actor);
         }
         break;
 
@@ -341,7 +341,7 @@ DoSkullBeginDeath(DSWActor* actor)
         for (i=0; i<3; i++)
         {
             sp->ang = NORM_ANGLE(RandomRange(2048));
-            InitPhosphorus(SpriteNum);
+            InitPhosphorus(actor);
         }
         break;
     }
@@ -733,7 +733,7 @@ DoBettyBeginDeath(DSWActor* actor)
         for (i=0; i<num_ord; i++)
         {
             sp->ang = NORM_ANGLE(RandomRange(2048));
-            InitCaltrops(SpriteNum);
+            InitCaltrops(actor);
         }
         break;
 
@@ -756,7 +756,7 @@ DoBettyBeginDeath(DSWActor* actor)
         for (i=0; i<5; i++)
         {
             sp->ang = NORM_ANGLE(RandomRange(2048));
-            InitPhosphorus(SpriteNum);
+            InitPhosphorus(actor);
             SpawnMineExp(SpriteNum);
         }
         break;

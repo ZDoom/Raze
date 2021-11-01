@@ -3505,7 +3505,7 @@ AutoShrap:
                 size = ep->xrepeat;
                 ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
 
-                InitPhosphorus(spnum);
+                InitPhosphorus(&swActors[spnum]);
 
                 return false;
             }
@@ -8950,7 +8950,7 @@ DoGrenade(DSWActor* actor)
                     for (i=0; i<5; i++)
                     {
                         sp->ang = NORM_ANGLE(RandomRange(2048));
-                        InitPhosphorus(Weapon);
+                        InitPhosphorus(actor);
                     }
                 }
                 SpawnGrenadeExp(Weapon);
@@ -9022,7 +9022,7 @@ DoGrenade(DSWActor* actor)
                                 for (i=0; i<5; i++)
                                 {
                                     sp->ang = NORM_ANGLE(RandomRange(2048));
-                                    InitPhosphorus(Weapon);
+                                    InitPhosphorus(actor);
                                 }
                             }
                             SpawnGrenadeExp(Weapon);
@@ -9065,7 +9065,7 @@ DoGrenade(DSWActor* actor)
                             for (i=0; i<5; i++)
                             {
                                 sp->ang = NORM_ANGLE(RandomRange(2048));
-                                InitPhosphorus(Weapon);
+                                InitPhosphorus(actor);
                             }
                         }
                         //WeaponMoveHit(Weapon);

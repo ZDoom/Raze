@@ -2149,7 +2149,7 @@ void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 int PlayerInitChemBomb(PLAYERp pp); // jweapon.c
 int PlayerInitFlashBomb(PLAYERp pp);    // jweapon.c
 int PlayerInitCaltrops(PLAYERp pp); // jweapon.c
-int InitPhosphorus(int16_t SpriteNum);    // jweapon.c
+int InitPhosphorus(DSWActor*);    // jweapon.c
 void SpawnFloorSplash(DSWActor*); // jweapon.c
 
 int SaveGame(short save_num);   // save.c
