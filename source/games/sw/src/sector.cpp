@@ -1841,7 +1841,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
                 if (SectUser[i].Data() && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
                     SectUser[i]->number = 0;  // unlock all doors of this type
             }
-            UnlockKeyLock(key_num, SpriteNum);
+            UnlockKeyLock(key_num, actor);
         }
 
         return true;

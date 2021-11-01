@@ -185,19 +185,6 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
 
                 key_num = SectUser[sectnum]->number;
 
-#if 0
-                if (pp->HasKey[key_num - 1])
-                {
-                    int i;
-                    for (i=0; i<numsectors; i++)
-                    {
-                        if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
-                            SectUser[i]->number = 0;  // unlock all doors of this type
-                    }
-                    UnlockKeyLock(key_num);
-                }
-                else
-#endif
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
                     return false;
@@ -254,19 +241,6 @@ DoVatorMatch(PLAYERp pp, short match)
 
                 key_num = SectUser[sectnum]->number;
 
-#if 0
-                if (pp->HasKey[key_num - 1])
-                {
-                    int i;
-                    for (i=0; i<numsectors; i++)
-                    {
-                        if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
-                            SectUser[i]->number = 0;  // unlock all doors of this type
-                    }
-                    UnlockKeyLock(key_num);
-                }
-                else
-#endif
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
                     return -1;

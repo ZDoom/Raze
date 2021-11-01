@@ -478,7 +478,6 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 void
 JS_ProcessEchoSpot()
 {
-    int i;
     SPRITEp tp;
     int j,dist;
     PLAYERp pp = Player+screenpeek;
@@ -486,12 +485,12 @@ JS_ProcessEchoSpot()
     bool reverb_set = false;
 
     // Process echo sprites
-    StatIterator it(STAT_ECHO);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ECHO);
+    while (auto actor = it.Next())
     {
         dist = 0x7fffffff;
 
-        tp = &sprite[i];
+        tp = &actor->s();
 
         j = abs(tp->x - pp->posx);
         j += abs(tp->y - pp->posy);
@@ -940,11 +939,9 @@ JAnalyzeSprites(tspriteptr_t tspr)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-void
-UnlockKeyLock(short key_num, short hit_sprite)
+void UnlockKeyLock(short key_num, DSWActor* hitActor)
 {
-    SPRITEp sp;
-    int SpriteNum = 0, color = 0;
+    int color = 0;
 
     // Get palette by looking at key number
     switch (key_num - 1)
@@ -975,10 +972,10 @@ UnlockKeyLock(short key_num, short hit_sprite)
         break;
     }
 
-    StatIterator it(STAT_DEFAULT);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto itActor = it.Next())
     {
-        sp = &sprite[SpriteNum];
+        auto sp = &itActor->s();
 
         switch (sp->picnum)
         {
@@ -986,7 +983,7 @@ UnlockKeyLock(short key_num, short hit_sprite)
             if (sp->pal == color)
             {
                 PlaySound(DIGI_UNLOCK, sp, v3df_doppler | v3df_dontpan);
-                if (SpriteNum == hit_sprite)
+                if (itActor == hitActor)
                     sp->picnum = SKEL_UNLOCKED;
             }
             break;
@@ -1001,7 +998,7 @@ UnlockKeyLock(short key_num, short hit_sprite)
             if (sp->pal == color)
             {
                 PlaySound(DIGI_RAMUNLOCK, sp, v3df_doppler | v3df_dontpan);
-                if (SpriteNum == hit_sprite)
+                if (itActor == hitActor)
                     sp->picnum = CARD_UNLOCKED;
                 else
                     sp->picnum = CARD_UNLOCKED+1;
