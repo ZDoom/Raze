@@ -60,13 +60,13 @@ int SetupCoolg(DSWActor*);
 int SetupEel(DSWActor*);
 int SetupSumo(short);
 int SetupZilla(short);
-int SetupToiletGirl(short);
-int SetupWashGirl(short);
-int SetupCarGirl(short);
-int SetupMechanicGirl(short);
-int SetupSailorGirl(short);
-int SetupPruneGirl(short);
-int SetupTrashCan(short);
+int SetupToiletGirl(DSWActor*);
+int SetupWashGirl(DSWActor*);
+int SetupCarGirl(DSWActor*);
+int SetupMechanicGirl(DSWActor*);
+int SetupSailorGirl(DSWActor*);
+int SetupPruneGirl(DSWActor*);
+int SetupTrashCan(DSWActor*);
 int SetupBunny(DSWActor*);
 int SetupRipper(short);
 int SetupRipper2(short);
@@ -76,11 +76,11 @@ int SetupSkel(short);
 int SetupHornet(DSWActor*);
 int SetupSkull(short);
 int SetupBetty(short);
-int SetupPachinkoLight(short);
-int SetupPachinko1(short);
-int SetupPachinko2(short);
-int SetupPachinko3(short);
-int SetupPachinko4(short);
+int SetupPachinkoLight(DSWActor*);
+int SetupPachinko1(DSWActor*);
+int SetupPachinko2(DSWActor*);
+int SetupPachinko3(DSWActor*);
+int SetupPachinko4(DSWActor*);
 int SetupGirlNinja(DSWActor*);
 ANIMATOR DoVator, DoVatorAuto;
 ANIMATOR DoRotator;
@@ -1299,7 +1299,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupToiletGirl(SpriteNum);
+        SetupToiletGirl(actor);
 
         break;
     }
@@ -1316,7 +1316,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupWashGirl(SpriteNum);
+        SetupWashGirl(actor);
 
         break;
     }
@@ -1333,7 +1333,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupCarGirl(SpriteNum);
+        SetupCarGirl(actor);
 
         break;
     }
@@ -1350,7 +1350,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupMechanicGirl(SpriteNum);
+        SetupMechanicGirl(actor);
 
         break;
     }
@@ -1367,7 +1367,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupSailorGirl(SpriteNum);
+        SetupSailorGirl(actor);
 
         break;
     }
@@ -1384,7 +1384,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupPruneGirl(SpriteNum);
+        SetupPruneGirl(actor);
 
         break;
     }
@@ -1394,7 +1394,7 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheTrash();
         PicAnimOff(sp->picnum);
-        SetupTrashCan(SpriteNum);
+        SetupTrashCan(actor);
 
         break;
     }
@@ -1546,7 +1546,7 @@ ActorSpawn(SPRITEp sp)
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
-        SetupPachinkoLight(SpriteNum);
+        SetupPachinkoLight(actor);
         break;
     }
 
@@ -1555,7 +1555,7 @@ ActorSpawn(SPRITEp sp)
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
-        SetupPachinko1(SpriteNum);
+        SetupPachinko1(actor);
         break;
     }
 
@@ -1564,7 +1564,7 @@ ActorSpawn(SPRITEp sp)
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
-        SetupPachinko2(SpriteNum);
+        SetupPachinko2(actor);
         break;
     }
 
@@ -1573,7 +1573,7 @@ ActorSpawn(SPRITEp sp)
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
-        SetupPachinko3(SpriteNum);
+        SetupPachinko3(actor);
         break;
     }
 
@@ -1582,7 +1582,7 @@ ActorSpawn(SPRITEp sp)
 
         //PreCachePachinko();
         PicAnimOff(sp->picnum);
-        SetupPachinko4(SpriteNum);
+        SetupPachinko4(actor);
         break;
     }
 

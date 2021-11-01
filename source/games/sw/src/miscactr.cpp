@@ -110,22 +110,20 @@ STATE s_ToiletGirlUzi[16] =
     {TOILETGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_ToiletGirlUzi[0]},
 };
 
-int
-SetupToiletGirl(short SpriteNum)
+int  SetupToiletGirl(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,TOILETGIRL_R0,s_ToiletGirlStand);
+        u = SpawnUser(actor, TOILETGIRL_R0, s_ToiletGirlStand);
         u->Health = 60;
     }
 
@@ -153,8 +151,7 @@ SetupToiletGirl(short SpriteNum)
 int DoToiletGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -212,8 +209,7 @@ int DoToiletGirl(DSWActor* actor)
 int NullToiletGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -245,7 +241,6 @@ int NullToiletGirl(DSWActor* actor)
 int ToiletGirlUzi(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -263,7 +258,6 @@ int ToiletGirlUzi(DSWActor* actor)
 int ToiletGirlPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullToiletGirl(actor);
 
@@ -355,22 +349,20 @@ STATE s_WashGirlUzi[16] =
     {WASHGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_WashGirlUzi[0]},
 };
 
-int
-SetupWashGirl(short SpriteNum)
+int SetupWashGirl(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,WASHGIRL_R0,s_WashGirlStand);
+        u = SpawnUser(actor, WASHGIRL_R0,s_WashGirlStand);
         u->Health = 60;
     }
 
@@ -397,8 +389,7 @@ SetupWashGirl(short SpriteNum)
 int DoWashGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -462,8 +453,7 @@ int DoWashGirl(DSWActor* actor)
 int NullWashGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -495,7 +485,6 @@ int NullWashGirl(DSWActor* actor)
 int WashGirlUzi(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -569,21 +558,20 @@ STATE s_TrashCanPain[7] =
 };
 
 int
-SetupTrashCan(short SpriteNum)
+SetupTrashCan(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,TRASHCAN,s_TrashCanStand);
+        u = SpawnUser(actor, TRASHCAN,s_TrashCanStand);
         u->Health = 60;
     }
 
@@ -610,8 +598,7 @@ SetupTrashCan(short SpriteNum)
 int DoTrashCan(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     //(*u->ActorActionFunc) (SpriteNum);
 
@@ -632,7 +619,6 @@ int DoTrashCan(DSWActor* actor)
 int TrashCanPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -680,21 +666,20 @@ STATE s_PachinkoLightOperate[] =
 };
 
 int
-SetupPachinkoLight(short SpriteNum)
+SetupPachinkoLight(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,PACHINKOLIGHT_R0,s_PachinkoLightStand);
+        u = SpawnUser(actor, PACHINKOLIGHT_R0,s_PachinkoLightStand);
         u->Health = 1;
     }
 
@@ -721,8 +706,7 @@ SetupPachinkoLight(short SpriteNum)
 int PachinkoLightOperate(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -783,21 +767,20 @@ STATE s_Pachinko1Operate[] =
 };
 
 int
-SetupPachinko1(short SpriteNum)
+SetupPachinko1(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,PACHINKO1,s_Pachinko1Stand);
+        u = SpawnUser(actor, PACHINKO1,s_Pachinko1Stand);
         u->Health = 1;
     }
 
@@ -822,8 +805,7 @@ SetupPachinko1(short SpriteNum)
 int PachinkoCheckWin(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     u->WaitTics = 0;  // Can operate it again now
 
@@ -845,18 +827,18 @@ int PachinkoCheckWin(DSWActor* actor)
             DoMatchEverything(Player+myconnectindex, sp->hitag, ON);
         }
 
-        ActorCoughItem(SpriteNum); // I WON! I WON!
+        ActorCoughItem(actor->GetSpriteIndex()); // I WON! I WON!
         PlaySound(DIGI_PALARM, sp, v3df_none);
 
         // Can't win any more now!
         SET_BOOL1(sp);
 
         // Turn on the pachinko lights
-        StatIterator it(STAT_ENEMY);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_ENEMY);
+        while (auto itActor = it.Next())
         {
-            tsp = &sprite[i];
-            tu = User[i].Data();
+            tsp = &itActor->s();
+            tu = itActor->u();
 
             if (tsp->lotag == TAG_PACHINKOLIGHT)
             {
@@ -864,7 +846,7 @@ int PachinkoCheckWin(DSWActor* actor)
                 {
                     tsp->shade = -90; // Full brightness
                     tu->WaitTics = SEC(3); // Flash
-                    ChangeSpriteState(i,s_PachinkoLightOperate);
+                    ChangeState(itActor,s_PachinkoLightOperate);
                 }
             }
         }
@@ -956,21 +938,20 @@ STATE s_Pachinko2Operate[] =
 };
 
 int
-SetupPachinko2(short SpriteNum)
+SetupPachinko2(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,PACHINKO2,s_Pachinko2Stand);
+        u = SpawnUser(actor, PACHINKO2,s_Pachinko2Stand);
         u->Health = 1;
     }
 
@@ -1041,21 +1022,20 @@ STATE s_Pachinko3Operate[] =
 };
 
 int
-SetupPachinko3(short SpriteNum)
+SetupPachinko3(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,PACHINKO3,s_Pachinko3Stand);
+        u = SpawnUser(actor, PACHINKO3,s_Pachinko3Stand);
         u->Health = 1;
     }
 
@@ -1127,21 +1107,20 @@ STATE s_Pachinko4Operate[] =
 };
 
 int
-SetupPachinko4(short SpriteNum)
+SetupPachinko4(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,PACHINKO4,s_Pachinko4Stand);
+        u = SpawnUser(actor, PACHINKO4,s_Pachinko4Stand);
         u->Health = 1;
     }
 
@@ -1240,22 +1219,20 @@ STATE s_CarGirlUzi[16] =
     {CARGIRL_FIRE_R0 + 1, 0 | SF_QUICK_CALL, InitEnemyUzi, &s_CarGirlUzi[0]},
 };
 
-int
-SetupCarGirl(short SpriteNum)
+int SetupCarGirl(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,CARGIRL_R0,s_CarGirlStand);
+        u = SpawnUser(actor, CARGIRL_R0,s_CarGirlStand);
         u->Health = 60;
     }
 
@@ -1284,8 +1261,7 @@ SetupCarGirl(short SpriteNum)
 int DoCarGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1334,8 +1310,7 @@ int DoCarGirl(DSWActor* actor)
 int NullCarGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1374,7 +1349,6 @@ int NullCarGirl(DSWActor* actor)
 int CarGirlUzi(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1392,7 +1366,6 @@ int CarGirlUzi(DSWActor* actor)
 int CarGirlPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     NullCarGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
@@ -1465,21 +1438,20 @@ STATE s_MechanicGirlDrill[2] =
 
 
 int
-SetupMechanicGirl(short SpriteNum)
+SetupMechanicGirl(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,MECHANICGIRL_R0,s_MechanicGirlStand);
+        u = SpawnUser(actor, MECHANICGIRL_R0,s_MechanicGirlStand);
         u->Health = 60;
     }
 
@@ -1507,8 +1479,7 @@ SetupMechanicGirl(short SpriteNum)
 int DoMechanicGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1557,8 +1528,7 @@ int DoMechanicGirl(DSWActor* actor)
 int NullMechanicGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1597,7 +1567,7 @@ int NullMechanicGirl(DSWActor* actor)
 int MechanicGirlDrill(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
+
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
 
@@ -1614,7 +1584,6 @@ int MechanicGirlDrill(DSWActor* actor)
 int MechanicGirlPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullMechanicGirl(actor);
 
@@ -1687,22 +1656,20 @@ STATE s_SailorGirlThrow[] =
 
 short alreadythrew;
 
-int
-SetupSailorGirl(short SpriteNum)
+int SetupSailorGirl(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,SAILORGIRL_R0,s_SailorGirlStand);
+        u = SpawnUser(actor, SAILORGIRL_R0,s_SailorGirlStand);
         u->Health = 60;
     }
 
@@ -1731,8 +1698,7 @@ SetupSailorGirl(short SpriteNum)
 int DoSailorGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -1749,7 +1715,7 @@ int DoSailorGirl(DSWActor* actor)
 
                 if (choose > 750 && alreadythrew < 3)
                 {
-                    ActorCoughItem(SpriteNum);
+                    ActorCoughItem(actor->GetSpriteIndex());
                     alreadythrew++;
                     PlaySound(DIGI_LANI060, sp, v3df_dontpan, CHAN_AnimeMad);
                 }
@@ -1785,8 +1751,7 @@ int DoSailorGirl(DSWActor* actor)
 int NullSailorGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
     static short alreadythrew = 0;
 
@@ -1808,7 +1773,7 @@ int NullSailorGirl(DSWActor* actor)
 
             if (choose > 750 && alreadythrew < 3)
             {
-                ActorCoughItem(SpriteNum);
+                ActorCoughItem(actor->GetSpriteIndex());
                 alreadythrew++;
                 PlaySound(DIGI_LANI060, sp, v3df_dontpan, CHAN_AnimeMad);
             }
@@ -1830,7 +1795,6 @@ int NullSailorGirl(DSWActor* actor)
 int SailorGirlThrow(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -1848,7 +1812,6 @@ int SailorGirlThrow(DSWActor* actor)
 int SailorGirlPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     NullSailorGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
@@ -1905,21 +1868,20 @@ STATE s_PruneGirlPain[2] =
 };
 
 int
-SetupPruneGirl(short SpriteNum)
+SetupPruneGirl(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,PRUNEGIRL_R0,s_PruneGirlStand);
+        u = SpawnUser(actor, PRUNEGIRL_R0,s_PruneGirlStand);
         u->Health = 60;
     }
 
@@ -1947,8 +1909,7 @@ SetupPruneGirl(short SpriteNum)
 int DoPruneGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -2013,8 +1974,7 @@ int DoPruneGirl(DSWActor* actor)
 int NullPruneGirl(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     bool ICanSee = false;
 
     DoActorPickClosePlayer(actor);
@@ -2052,7 +2012,6 @@ int NullPruneGirl(DSWActor* actor)
 int PruneGirlUzi(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(actor);
@@ -2070,7 +2029,6 @@ int PruneGirlUzi(DSWActor* actor)
 int PruneGirlPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullPruneGirl(actor);
 
