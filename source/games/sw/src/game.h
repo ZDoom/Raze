@@ -1131,6 +1131,7 @@ struct USER
     DSWActor* targetActor; // target player for the enemy - can only handle one player at at time
     DSWActor* flameActor;
     DSWActor* attachActor;  // attach to sprite if needed - electro snake
+    DSWActor* flagOwnerActor;
 
     int Flags;
     int Flags2;
@@ -1249,7 +1250,7 @@ struct USER
     // !JIM! my extensions
     int ShellNum;          // This is shell no. 0 to whatever
     // Shell gets deleted when ShellNum < (ShellCount - MAXSHELLS)
-    short FlagOwner;        // The spritenum of the original flag
+    short FlagOwner;        // The spritenum of the original flag (abused to hell by other things)
     short Vis;              // Shading upgrade, for shooting, etc...
     bool DidAlert;          // Has actor done his alert noise before?
 

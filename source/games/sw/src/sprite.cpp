@@ -6461,7 +6461,7 @@ KeyMain:
             nu->spal = np->pal = sp->pal;   // Set the palette of the flag
 
             SetOwner(pp->PlayerSprite,New);  // Player now owns the flag
-            nu->FlagOwner = SpriteNum;       // Tell carried flag who owns it
+            nu->flagOwnerActor = actor;       // Tell carried flag who owns it
             KillGet(SpriteNum);  // Set up for flag respawning
             break;
         }

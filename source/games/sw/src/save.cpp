@@ -921,6 +921,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("bounce", w.bounce, def->bounce)
 			("ShellNum", w.ShellNum, def->ShellNum)
 			("FlagOwner", w.FlagOwner, def->FlagOwner)
+			("FlagOwnerActor", w.flagOwnerActor, def->flagOwnerActor)
 			("Vis", w.Vis, def->Vis)
 			("DidAlert", w.DidAlert, def->DidAlert)
 			("filler", w.filler, def->filler)

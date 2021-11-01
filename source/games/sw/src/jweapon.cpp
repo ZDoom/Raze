@@ -2090,8 +2090,10 @@ int DoCarryFlag(DSWActor* actor)
     SPRITEp sp = &actor->s();
 
     const int FLAG_DETONATE_STATE = 99;
-    SPRITEp fp = &sprite[u->FlagOwner];
-    USERp fu = User[u->FlagOwner].Data();
+    auto fown = u->flagOwnerActor;
+    if (!fown) return 0;
+    SPRITEp fp = &fown->s();
+    USERp fu = fown->u();
 
 
     // if no owner then die
@@ -2139,10 +2141,9 @@ int DoCarryFlag(DSWActor* actor)
             if (sector[ap->sectnum].hitag == 9000 && sector[ap->sectnum].lotag == ap->pal
                 && ap->pal != sp->pal)
             {
-                if (u->FlagOwner >= 0)
+                if (fown != nullptr)
                 {
-                    if (fp->lotag)      // Trigger everything if there is a
-                        // lotag
+                    if (fp->lotag)      // Trigger everything if there is a lotag
                         DoMatchEverything(nullptr, fp->lotag, ON);
                 }
                 if (!TEST_BOOL1(fp))
@@ -2248,11 +2249,13 @@ DoCarryFlagNoDet(DSWActor* actor)
 
     SPRITEp ap = &u->attachActor->s();
     USERp au = u->attachActor->u();
-    SPRITEp fp = &sprite[u->FlagOwner];
-    USERp fu = User[u->FlagOwner].Data();
+    auto fown = u->flagOwnerActor;
+    if (!fown) return 0;
+    SPRITEp fp = &fown->s();
+    USERp fu = fown->u();
 
 
-    if (u->FlagOwner >= 0)
+    if (u->flagOwnerActor != nullptr)
         fu->WaitTics = 30 * 120;        // Keep setting respawn tics so it
     // won't respawn
 
@@ -2269,7 +2272,7 @@ DoCarryFlagNoDet(DSWActor* actor)
 
     if (!au || au->Health <= 0)
     {
-        if (u->FlagOwner >= 0)
+        if (u->flagOwnerActor != nullptr)
             fu->WaitTics = 0;           // Tell it to respawn
         SetSuicide(actor);
         return false;
@@ -2279,12 +2282,9 @@ DoCarryFlagNoDet(DSWActor* actor)
     if (sector[ap->sectnum].hitag == 9000 && sector[ap->sectnum].lotag == ap->pal
         && ap->pal != sp->pal)
     {
-        if (u->FlagOwner >= 0)
+        if (u->flagOwnerActor != nullptr)
         {
-            //DSPRINTF(ds, "Flag has owner %d, fp->lotag = %d", u->FlagOwner, fp->lotag);
-            //MONO_PRINT(ds);
-            if (fp->lotag)              // Trigger everything if there is a
-                // lotag
+            if (fp->lotag)              // Trigger everything if there is a lotag
                 DoMatchEverything(nullptr, fp->lotag, ON);
             fu->WaitTics = 0;           // Tell it to respawn
         }
