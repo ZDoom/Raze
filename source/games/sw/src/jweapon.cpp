@@ -604,7 +604,7 @@ int DoPhosphorus(DSWActor* actor)
     MissileHitDiveArea(actor->GetSpriteIndex());
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(actor->GetSpriteIndex());
+        SpawnBubble(actor);
 
     {
         switch (u->coll.type)
@@ -822,7 +822,7 @@ int DoChemBomb(DSWActor* actor)
     MissileHitDiveArea(actor->GetSpriteIndex());
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(actor->GetSpriteIndex());
+        SpawnBubble(actor);
 
     {
         switch (u->coll.type)

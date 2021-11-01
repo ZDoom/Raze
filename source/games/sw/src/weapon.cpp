@@ -7932,7 +7932,7 @@ DoStar(DSWActor* actor)
         if (vel > 100)
         {
             if ((RANDOM_P2(1024 << 4) >> 4) < 128)
-                SpawnBubble(Weapon);
+                SpawnBubble(actor);
         }
 
         sp->z += 128 * MISSILEMOVETICS;
@@ -8682,7 +8682,7 @@ DoPlasma(DSWActor* actor)
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
     //DoDamageTest(Weapon);
 
     if (u->ret)
@@ -8719,7 +8719,7 @@ DoCoolgFire(DSWActor* actor)
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     // !JIM! //!FRANK WHY???
     //DoDamageTest(Weapon);
@@ -8746,7 +8746,7 @@ DoEelFire(DSWActor* actor)
     int Weapon = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     //DoDamageTest(Weapon);
 
@@ -8905,7 +8905,7 @@ DoGrenade(DSWActor* actor)
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     ////DSPRINTF(ds, "dist %d, u->ret %d", FindDistance3D(u->xchange, u->ychange, u->zchange), u->ret);
     //MONO_PRINT(ds);
@@ -9560,7 +9560,7 @@ DoMine(DSWActor* actor)
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     if (u->ret)
     {
@@ -9743,7 +9743,7 @@ DoBoltThinMan(DSWActor* actor)
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     //DoDamageTest(Weapon);
 
@@ -10157,7 +10157,7 @@ DoRocket(DSWActor* actor)
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     //DoDamageTest(Weapon);
 
@@ -10299,7 +10299,7 @@ DoMicro(DSWActor* actor)
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     //DoDamageTest(Weapon);
 
@@ -10385,7 +10385,7 @@ DoUziBullet(DSWActor* actor)
         MissileHitDiveArea(Weapon);
 
         if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 128)
-            SpawnBubble(Weapon);
+            SpawnBubble(actor);
 
         if (u->ret)
         {
@@ -10450,7 +10450,7 @@ DoBoltSeeker(DSWActor* actor)
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
     //DoDamageTest(Weapon);
 
     if (u->ret)
@@ -10501,7 +10501,7 @@ DoElectro(DSWActor* actor)
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
     //DoDamageTest(Weapon);
 
     if (TEST(u->Flags, SPR_SUICIDE))
@@ -10548,7 +10548,7 @@ DoLavaBoulder(DSWActor* actor)
 
     MissileHitDiveArea(Weapon);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
     //DoDamageTest(Weapon);
 
     if (TEST(u->Flags, SPR_SUICIDE))
@@ -10579,7 +10579,7 @@ DoSpear(DSWActor* actor)
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     //DoDamageTest(Weapon);
 
@@ -12059,7 +12059,7 @@ DoNapalm(DSWActor* actor)
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     if (u->ret)
     {
@@ -12316,7 +12316,7 @@ DoMirvMissile(DSWActor* actor)
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
     if (u->ret)
     {
@@ -12353,7 +12353,7 @@ DoMirv(DSWActor* actor)
     MissileHitDiveArea(Weapon);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
-        SpawnBubble(Weapon);
+        SpawnBubble(actor);
 
 
     u->Counter++;
@@ -13305,7 +13305,7 @@ InitSwordAttack(PLAYERp pp)
 
     if (TEST(pp->Flags, PF_DIVING))
     {
-        short bubble;
+        DSWActor* bubble;
         SPRITEp bp;
         int nx,ny;
         short random_amt;
@@ -13318,10 +13318,10 @@ InitSwordAttack(PLAYERp pp)
         for (i = 0; i < (int)SIZ(dangs); i++)
         {
             if (RandomRange(1000) < 500) continue; // Don't spawn bubbles every time
-            bubble = SpawnBubble(short(pp->SpriteP - sprite));
-            if (bubble >= 0)
+            bubble = SpawnBubble(pp->Actor());
+            if (bubble != nullptr)
             {
-                bp = &sprite[bubble];
+                bp = &bubble->s();
 
                 bp->ang = pp->angle.ang.asbuild();
 
@@ -13331,7 +13331,7 @@ InitSwordAttack(PLAYERp pp)
                 nx = MOVEx((1024+256)*3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
                 ny = MOVEy((1024+256)*3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
 
-                move_missile(bubble, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
+                move_missile(bubble->GetSpriteIndex(), nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
             }
         }
     }
@@ -13484,7 +13484,7 @@ InitFistAttack(PLAYERp pp)
 
     if (TEST(pp->Flags, PF_DIVING))
     {
-        short bubble;
+        DSWActor* bubble;
         SPRITEp bp;
         int nx,ny;
         short random_amt;
@@ -13496,10 +13496,10 @@ InitFistAttack(PLAYERp pp)
 
         for (i = 0; i < (int)SIZ(dangs); i++)
         {
-            bubble = SpawnBubble(short(pp->SpriteP - sprite));
-            if (bubble >= 0)
+            bubble = SpawnBubble(pp->Actor());
+            if (bubble != nullptr)
             {
-                bp = &sprite[bubble];
+                bp = &bubble->s();
 
                 bp->ang = pp->angle.ang.asbuild();
 
@@ -13509,7 +13509,7 @@ InitFistAttack(PLAYERp pp)
                 nx = MOVEx((1024+256)*3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
                 ny = MOVEy((1024+256)*3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
 
-                move_missile(bubble, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
+                move_missile(bubble->GetSpriteIndex(), nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
             }
         }
     }
@@ -16793,8 +16793,8 @@ GenerateDrips(DSWActor* actor)
 
         if (TEST_BOOL2(sp))
         {
-            w = SpawnBubble(SpriteNum);
-            return w;
+            auto ww = SpawnBubble(actor);
+            return 1;
         }
 
         nx = sp->x;
@@ -16821,7 +16821,7 @@ GenerateDrips(DSWActor* actor)
 
         DoFindGroundPoint(actor);
     }
-    return w;
+    return 1;
 }
 
 int
@@ -19847,21 +19847,17 @@ MissileHitDiveArea(short SpriteNum)
     return false;
 }
 
-int
-SpawnBubble(short SpriteNum)
+DSWActor* SpawnBubble(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum], bp;
+    SPRITEp sp = &actor->s(), bp;
     USERp bu;
-    short b;
 
     if (Prediction)
-        return -1;
+        return nullptr;
 
-    b = SpawnSprite(STAT_MISSILE, BUBBLE, s_Bubble, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
-    bp = &sprite[b];
-    bu = User[b].Data();
-
-    //PlaySound(DIGI_BUBBLES, sp, v3df_none);
+    auto bActor = SpawnActor(STAT_MISSILE, BUBBLE, s_Bubble, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
+    bp = &bActor->s();
+    bu = bActor->u();
 
     bp->xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
     bp->yrepeat = bp->xrepeat;
@@ -19877,7 +19873,7 @@ SpawnBubble(short SpriteNum)
     SET(bu->Flags, SPR_UNDERWATER);
     bp->shade = -60; // Make em brighter
 
-    return b;
+    return bActor;
 }
 
 int

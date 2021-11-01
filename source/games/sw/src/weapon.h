@@ -82,7 +82,7 @@ int QueueWallBlood(short hit_sprite, short ang);
 bool SlopeBounce(short SpriteNum, bool *hit_wall);
 bool HitscanSpriteAdjust(short SpriteNum, short hit_wall);
 int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
-int SpawnBubble(short SpriteNum);
+DSWActor* SpawnBubble(DSWActor*);
 int SpawnFireballExp(int16_t Weapon);
 void SpawnFireballFlames(int16_t SpriteNum,int16_t enemy);
 int SpawnRadiationCloud(DSWActor* actor);

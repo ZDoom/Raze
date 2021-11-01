@@ -4607,21 +4607,20 @@ void DoPlayerDive(PLAYERp pp)
     if ((!Prediction && pp->z_speed && ((RANDOM_P2(1024<<5)>>5) < 64)) ||
         (PLAYER_MOVING(pp) && (RANDOM_P2(1024<<5)>>5) < 64))
     {
-        short bubble;
         SPRITEp bp;
         int nx,ny;
 
         PlaySound(DIGI_BUBBLES, pp, v3df_none);
-        bubble = SpawnBubble(short(pp->SpriteP - sprite));
-        if (bubble >= 0)
+        auto bubble = SpawnBubble(pp->Actor());
+        if (bubble != nullptr)
         {
-            bp = &sprite[bubble];
+            bp = &bubble->s();
 
             // back it up a bit to get it out of your face
             nx = MOVEx((128+64), NORM_ANGLE(bp->ang + 1024));
             ny = MOVEy((128+64), NORM_ANGLE(bp->ang + 1024));
 
-            move_sprite(bubble, nx, ny, 0L, u->ceiling_dist, u->floor_dist, 0, synctics);
+            move_sprite(bubble->GetSpriteIndex(), nx, ny, 0L, u->ceiling_dist, u->floor_dist, 0, synctics);
         }
     }
 }
