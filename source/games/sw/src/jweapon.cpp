@@ -366,7 +366,7 @@ int DoBloodSpray(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(actor->GetSpriteIndex(), 50000);
+        ScaleSpriteVector(actor, 50000);
 
         u->Counter += 20;  // These are STAT_SKIIP4 now, so * 2
         u->zchange += u->Counter;
@@ -419,7 +419,7 @@ int DoBloodSpray(DSWActor* actor)
                 SpawnMidSplash(actor);
                 QueueWallBlood(actor->GetSpriteIndex(), hsp->ang);
                 WallBounce(actor->GetSpriteIndex(), wall_ang);
-                ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
+                ScaleSpriteVector(actor, 32000);
             }
             else
             {
@@ -493,7 +493,7 @@ int DoBloodSpray(DSWActor* actor)
             }
 
             //WallBounce(Weapon, wall_ang);
-            //ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
+            //ScaleSpriteVector(actor, 32000);
             break;
         }
 
@@ -518,7 +518,7 @@ int DoBloodSpray(DSWActor* actor)
                     SetCollision(u, 0);
                     u->Counter = 0;
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(actor->GetSpriteIndex(), 32000);   // Was 18000
+                    ScaleSpriteVector(actor, 32000);   // Was 18000
                     u->zchange /= 6;
                 }
                 else
@@ -534,7 +534,7 @@ int DoBloodSpray(DSWActor* actor)
             // hit something above
             {
                 u->zchange = -u->zchange;
-                ScaleSpriteVector(actor->GetSpriteIndex(), 32000);       // was 22000
+                ScaleSpriteVector(actor, 32000);       // was 22000
             }
             break;
         }
@@ -570,7 +570,7 @@ int DoBloodSpray(DSWActor* actor)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(actorNew->GetSpriteIndex(), 20000);
+        ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -587,7 +587,7 @@ int DoPhosphorus(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(actor->GetSpriteIndex(), 50000);
+        ScaleSpriteVector(actor, 50000);
 
         u->Counter += 20*2;
         u->zchange += u->Counter;
@@ -627,7 +627,7 @@ int DoPhosphorus(DSWActor* actor)
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(actor->GetSpriteIndex(), wall_ang);
-                ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
+                ScaleSpriteVector(actor, 32000);
             }
             else
             {
@@ -669,7 +669,7 @@ int DoPhosphorus(DSWActor* actor)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             WallBounce(actor->GetSpriteIndex(), wall_ang);
-            ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
+            ScaleSpriteVector(actor, 32000);
             break;
         }
 
@@ -682,7 +682,7 @@ int DoPhosphorus(DSWActor* actor)
                 if (did_hit_wall)
                 {
                     // hit a wall
-                    ScaleSpriteVector(actor->GetSpriteIndex(), 28000);
+                    ScaleSpriteVector(actor, 28000);
                     SetCollision(u, 0);
                     u->Counter = 0;
                 }
@@ -695,7 +695,7 @@ int DoPhosphorus(DSWActor* actor)
                         if (!TEST(u->Flags, SPR_BOUNCE))
                         {
                             SET(u->Flags, SPR_BOUNCE);
-                            ScaleSpriteVector(actor->GetSpriteIndex(), 32000);       // was 18000
+                            ScaleSpriteVector(actor, 32000);       // was 18000
                             u->zchange /= 6;
                             SetCollision(u, 0);
                             u->Counter = 0;
@@ -711,7 +711,7 @@ int DoPhosphorus(DSWActor* actor)
                     else
                     {
                         // hit a ceiling
-                        ScaleSpriteVector(actor->GetSpriteIndex(), 32000);   // was 22000
+                        ScaleSpriteVector(actor, 32000);   // was 22000
                     }
                 }
             }
@@ -734,7 +734,7 @@ int DoPhosphorus(DSWActor* actor)
                         SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
-                        ScaleSpriteVector(actor->GetSpriteIndex(), 32000);   // Was 18000
+                        ScaleSpriteVector(actor, 32000);   // Was 18000
                         u->zchange /= 6;
                     }
                     else
@@ -749,7 +749,7 @@ int DoPhosphorus(DSWActor* actor)
                 // hit something above
                 {
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(actor->GetSpriteIndex(), 32000);       // was 22000
+                    ScaleSpriteVector(actor, 32000);       // was 22000
                 }
             }
             break;
@@ -789,7 +789,7 @@ int DoPhosphorus(DSWActor* actor)
 
         nu->spal = np->pal = PALETTE_PLAYER3;   // RED
 
-        ScaleSpriteVector(actorNew->GetSpriteIndex(), 20000);
+        ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -805,7 +805,7 @@ int DoChemBomb(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(actor->GetSpriteIndex(), 50000);
+        ScaleSpriteVector(actor, 50000);
 
         u->Counter += 20;
         u->zchange += u->Counter;
@@ -845,7 +845,7 @@ int DoChemBomb(DSWActor* actor)
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(actor->GetSpriteIndex(), wall_ang);
-                ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
+                ScaleSpriteVector(actor, 32000);
             }
             else
             {
@@ -889,7 +889,7 @@ int DoChemBomb(DSWActor* actor)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             WallBounce(actor->GetSpriteIndex(), wall_ang);
-            ScaleSpriteVector(actor->GetSpriteIndex(), 32000);
+            ScaleSpriteVector(actor, 32000);
             break;
         }
 
@@ -902,7 +902,7 @@ int DoChemBomb(DSWActor* actor)
                 if (did_hit_wall)
                 {
                     // hit a wall
-                    ScaleSpriteVector(actor->GetSpriteIndex(), 28000);
+                    ScaleSpriteVector(actor, 28000);
                     SetCollision(u, 0);
                     u->Counter = 0;
                 }
@@ -917,7 +917,7 @@ int DoChemBomb(DSWActor* actor)
                             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                                 PlaySound(DIGI_CHEMBOUNCE, sp, v3df_dontpan);
                             SET(u->Flags, SPR_BOUNCE);
-                            ScaleSpriteVector(actor->GetSpriteIndex(), 32000);       // was 18000
+                            ScaleSpriteVector(actor, 32000);       // was 18000
                             u->zchange /= 6;
                             SetCollision(u, 0);
                             u->Counter = 0;
@@ -942,7 +942,7 @@ int DoChemBomb(DSWActor* actor)
                     else
                     {
                         // hit a ceiling
-                        ScaleSpriteVector(actor->GetSpriteIndex(), 32000);   // was 22000
+                        ScaleSpriteVector(actor, 32000);   // was 22000
                     }
                 }
             }
@@ -967,7 +967,7 @@ int DoChemBomb(DSWActor* actor)
                         SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
-                        ScaleSpriteVector(actor->GetSpriteIndex(), 32000);   // Was 18000
+                        ScaleSpriteVector(actor, 32000);   // Was 18000
                         u->zchange /= 6;
                     }
                     else
@@ -991,7 +991,7 @@ int DoChemBomb(DSWActor* actor)
                 // hit something above
                 {
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(actor->GetSpriteIndex(), 32000);       // was 22000
+                    ScaleSpriteVector(actor, 32000);       // was 22000
                 }
             }
             break;
@@ -1024,7 +1024,7 @@ int DoChemBomb(DSWActor* actor)
 
         nu->spal = np->pal = PALETTE_PLAYER6;
 
-        ScaleSpriteVector(actorNew->GetSpriteIndex(), 20000);
+        ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -1052,7 +1052,7 @@ int DoCaltrops(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(actor->GetSpriteIndex(), 50000);
+        ScaleSpriteVector(actor, 50000);
 
         u->Counter += 20;
         u->zchange += u->Counter;
@@ -1087,7 +1087,7 @@ int DoCaltrops(DSWActor* actor)
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(actor->GetSpriteIndex(), wall_ang);
-                ScaleSpriteVector(actor->GetSpriteIndex(), 10000);
+                ScaleSpriteVector(actor, 10000);
             }
             else
             {
@@ -1117,7 +1117,7 @@ int DoCaltrops(DSWActor* actor)
             int wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             WallBounce(actor->GetSpriteIndex(), wall_ang);
-            ScaleSpriteVector(actor->GetSpriteIndex(), 1000);
+            ScaleSpriteVector(actor, 1000);
             break;
         }
 
@@ -1130,7 +1130,7 @@ int DoCaltrops(DSWActor* actor)
                 if (did_hit_wall)
                 {
                     // hit a wall
-                    ScaleSpriteVector(actor->GetSpriteIndex(), 1000);
+                    ScaleSpriteVector(actor, 1000);
                     SetCollision(u, 0);
                     u->Counter = 0;
                 }
@@ -1144,7 +1144,7 @@ int DoCaltrops(DSWActor* actor)
                         {
                             PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
                             SET(u->Flags, SPR_BOUNCE);
-                            ScaleSpriteVector(actor->GetSpriteIndex(), 1000);        // was 18000
+                            ScaleSpriteVector(actor, 1000);        // was 18000
                             SetCollision(u, 0);
                             u->Counter = 0;
                         }
@@ -1160,7 +1160,7 @@ int DoCaltrops(DSWActor* actor)
                     else
                     {
                         // hit a ceiling
-                        ScaleSpriteVector(actor->GetSpriteIndex(), 1000);    // was 22000
+                        ScaleSpriteVector(actor, 1000);    // was 22000
                     }
                 }
             }
@@ -1184,7 +1184,7 @@ int DoCaltrops(DSWActor* actor)
                         SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
-                        ScaleSpriteVector(actor->GetSpriteIndex(), 1000);    // Was 18000
+                        ScaleSpriteVector(actor, 1000);    // Was 18000
                     }
                     else
                     {
@@ -1199,7 +1199,7 @@ int DoCaltrops(DSWActor* actor)
                 // hit something above
                 {
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(actor->GetSpriteIndex(), 1000);        // was 22000
+                    ScaleSpriteVector(actor, 1000);        // was 22000
                 }
             }
             break;

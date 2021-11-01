@@ -7925,7 +7925,7 @@ DoStar(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
         u->motion_blur_num = 0;
-        ScaleSpriteVector(Weapon, 54000);
+        ScaleSpriteVector(actor, 54000);
 
         vel = ksqrt(SQ(u->xchange) + SQ(u->ychange));
 
@@ -8019,7 +8019,7 @@ DoStar(DSWActor* actor)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             WallBounce(Weapon, wall_ang);
-            ScaleSpriteVector(Weapon, 36000);
+            ScaleSpriteVector(actor, 36000);
             SET(u->Flags, SPR_BOUNCE);
             u->motion_blur_num = 0;
             SetCollision(u, 0);
@@ -8050,7 +8050,7 @@ DoStar(DSWActor* actor)
                 if (u->highActor->s().lotag == TAG_SPRITE_HIT_MATCH)
                     break;
 
-            ScaleSpriteVector(Weapon, 58000);
+            ScaleSpriteVector(actor, 58000);
 
             vel = ksqrt(SQ(u->xchange) + SQ(u->ychange));
 
@@ -8753,9 +8753,9 @@ DoEelFire(DSWActor* actor)
 }
 
 
-void ScaleSpriteVector(short SpriteNum, int scale)
+void ScaleSpriteVector(DSWActor* actor, int scale)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     u->xchange = MulScale(u->xchange, scale, 16);
     u->ychange = MulScale(u->ychange, scale, 16);
@@ -8887,7 +8887,7 @@ DoGrenade(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(Weapon, 50000);
+        ScaleSpriteVector(actor, 50000);
 
         u->Counter += 20;
         u->zchange += u->Counter;
@@ -8938,7 +8938,7 @@ DoGrenade(DSWActor* actor)
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(Weapon, wall_ang);
-                ScaleSpriteVector(Weapon, 32000);
+                ScaleSpriteVector(actor, 32000);
             }
             else
             {
@@ -8981,7 +8981,7 @@ DoGrenade(DSWActor* actor)
 
             //sp->ang = NORM_ANGLE(sp->ang + 1);
             WallBounce(Weapon, wall_ang);
-            ScaleSpriteVector(Weapon, 22000);
+            ScaleSpriteVector(actor, 22000);
 
             break;
         }
@@ -8994,7 +8994,7 @@ DoGrenade(DSWActor* actor)
                 if (did_hit_wall)
                 {
                     // hit a wall
-                    ScaleSpriteVector(Weapon, 22000); // 28000
+                    ScaleSpriteVector(actor, 22000); // 28000
                     SetCollision(u, 0);
                     u->Counter = 0;
                 }
@@ -9007,7 +9007,7 @@ DoGrenade(DSWActor* actor)
                         if (!TEST(u->Flags, SPR_BOUNCE))
                         {
                             SET(u->Flags, SPR_BOUNCE);
-                            ScaleSpriteVector(Weapon, 40000); // 18000
+                            ScaleSpriteVector(actor, 40000); // 18000
                             SetCollision(u, 0);
                             u->zchange /= 4;
                             u->Counter = 0;
@@ -9030,7 +9030,7 @@ DoGrenade(DSWActor* actor)
                     else
                     {
                         // hit a ceiling
-                        ScaleSpriteVector(Weapon, 22000);
+                        ScaleSpriteVector(actor, 22000);
                     }
                 }
             }
@@ -9051,7 +9051,7 @@ DoGrenade(DSWActor* actor)
                         SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
-                        ScaleSpriteVector(Weapon, 40000); // 18000
+                        ScaleSpriteVector(actor, 40000); // 18000
                         u->zchange /= 4;
                         PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
                     }
@@ -9075,7 +9075,7 @@ DoGrenade(DSWActor* actor)
                 // hit something above
                 {
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(Weapon, 22000);
+                    ScaleSpriteVector(actor, 22000);
                     PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
                 }
             }
@@ -9096,15 +9096,14 @@ DoGrenade(DSWActor* actor)
     {
         SPRITEp np;
         USERp nu;
-        short New;
 
-        New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[New];
-        nu = User[New].Data();
+        np = &actorNew->s();
+        nu = actorNew->u();
 
-        SetOwner(Weapon, New);
+        SetOwner(actor, actorNew);
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
@@ -9116,7 +9115,7 @@ DoGrenade(DSWActor* actor)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(New, 22000);
+        ScaleSpriteVector(actorNew, 22000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -9169,7 +9168,7 @@ DoVulcanBoulder(DSWActor* actor)
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(Weapon, wall_ang);
-                ScaleSpriteVector(Weapon, 40000);
+                ScaleSpriteVector(actor, 40000);
             }
             else
             {
@@ -9204,7 +9203,7 @@ DoVulcanBoulder(DSWActor* actor)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             WallBounce(Weapon, wall_ang);
-            ScaleSpriteVector(Weapon, 40000);
+            ScaleSpriteVector(actor, 40000);
             break;
         }
 
@@ -9217,7 +9216,7 @@ DoVulcanBoulder(DSWActor* actor)
                 if (did_hit_wall)
                 {
                     // hit a sloped sector - treated as a wall because of large slope
-                    ScaleSpriteVector(Weapon, 30000);
+                    ScaleSpriteVector(actor, 30000);
                     SetCollision(u, 0);
                     u->Counter = 0;
                 }
@@ -9242,7 +9241,7 @@ DoVulcanBoulder(DSWActor* actor)
                         // hit a sloped ceiling
                         SetCollision(u, 0);
                         u->Counter = 0;
-                        ScaleSpriteVector(Weapon, 30000);
+                        ScaleSpriteVector(actor, 30000);
                     }
                 }
             }
@@ -9269,7 +9268,7 @@ DoVulcanBoulder(DSWActor* actor)
                 // hit unsloped ceiling
                 {
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(Weapon, 30000);
+                    ScaleSpriteVector(actor, 30000);
                 }
             }
 
@@ -9542,7 +9541,7 @@ DoMine(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
         // decrease velocity
-        ScaleSpriteVector(Weapon, 50000);
+        ScaleSpriteVector(actor, 50000);
 
         u->Counter += 20;
         u->zchange += u->Counter;
@@ -10094,7 +10093,7 @@ DoRail(DSWActor* actor)
             nu->ychange = u->ychange;
             nu->zchange = u->zchange;
 
-            ScaleSpriteVector(New, 1500);
+            ScaleSpriteVector(actorNew, 1500);
 
             if (TEST(u->Flags, SPR_UNDERWATER))
                 SET(nu->Flags, SPR_UNDERWATER);
@@ -10186,15 +10185,15 @@ DoRocket(DSWActor* actor)
     {
         SPRITEp np;
         USERp nu;
-        short New;
+        
 
-        New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
                           pos.x, pos.y, pos.z, sp->ang, 100);
 
-        np = &sprite[New];
-        nu = User[New].Data();
+        np = &actorNew->s();
+        nu = actorNew->u();
 
-        SetOwner(Weapon, New);
+        SetOwner(actor, actorNew);
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
@@ -10206,7 +10205,7 @@ DoRocket(DSWActor* actor)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(New, 20000);
+        ScaleSpriteVector(actorNew, 20000);
 
         //nu->zchange -= Z(8);
 
@@ -10290,7 +10289,6 @@ DoMicro(DSWActor* actor)
     USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
-    short New;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -10309,13 +10307,13 @@ DoMicro(DSWActor* actor)
         SPRITEp np;
         USERp nu;
 
-        New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[New];
-        nu = User[New].Data();
+        np = &actorNew->s();
+        nu = actorNew->u();
 
-        SetOwner(sp->owner, New);
+        SetOwner(GetOwner(actor), actorNew);
         np->shade = -40;
         np->xrepeat = 20;
         np->yrepeat = 20;
@@ -10328,7 +10326,7 @@ DoMicro(DSWActor* actor)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(New, 20000);
+        ScaleSpriteVector(actorNew, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -10336,7 +10334,7 @@ DoMicro(DSWActor* actor)
         // last smoke
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            setspritez(New, &np->pos);
+            SetActorZ(actorNew, &np->pos);
             NewStateGroup_(Weapon, &sg_MicroMini[0]);
             sp->xrepeat = sp->yrepeat = 10;
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
@@ -20790,7 +20788,7 @@ DoShrapVelocity(int16_t SpriteNum)
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(sp))
     {
-        ScaleSpriteVector(SpriteNum, 20000);
+        ScaleSpriteVector(actor, 20000);
 
         u->Counter += 8*4;      // These are MoveSkip4 now
         u->zchange += u->Counter;
@@ -20825,7 +20823,7 @@ DoShrapVelocity(int16_t SpriteNum)
 
             wall_ang = NORM_ANGLE(hsp->ang);
             WallBounce(SpriteNum, wall_ang);
-            ScaleSpriteVector(SpriteNum, 32000);
+            ScaleSpriteVector(actor, 32000);
 
             break;
         }
@@ -20846,7 +20844,7 @@ DoShrapVelocity(int16_t SpriteNum)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             WallBounce(SpriteNum, wall_ang);
-            ScaleSpriteVector(SpriteNum, 32000);
+            ScaleSpriteVector(actor, 32000);
             break;
         }
 
@@ -20859,7 +20857,7 @@ DoShrapVelocity(int16_t SpriteNum)
                 if (did_hit_wall)
                 {
                     // hit a wall
-                    ScaleSpriteVector(SpriteNum, 28000);
+                    ScaleSpriteVector(actor, 28000);
                     SetCollision(u, 0);
                     u->Counter = 0;
                 }
@@ -20872,7 +20870,7 @@ DoShrapVelocity(int16_t SpriteNum)
                         if (!TEST(u->Flags, SPR_BOUNCE))
                         {
                             SET(u->Flags, SPR_BOUNCE);
-                            ScaleSpriteVector(SpriteNum, 18000);
+                            ScaleSpriteVector(actor, 18000);
                             SetCollision(u, 0);
                             u->Counter = 0;
                         }
@@ -20888,7 +20886,7 @@ DoShrapVelocity(int16_t SpriteNum)
                     else
                     {
                         // hit a ceiling
-                        ScaleSpriteVector(SpriteNum, 22000);
+                        ScaleSpriteVector(actor, 22000);
                     }
                 }
             }
@@ -20910,7 +20908,7 @@ DoShrapVelocity(int16_t SpriteNum)
                         SetCollision(u, 0);
                         u->Counter = 0;
                         u->zchange = -u->zchange;
-                        ScaleSpriteVector(SpriteNum, 18000);
+                        ScaleSpriteVector(actor, 18000);
                         switch (u->ID)
                         {
                         case UZI_SHELL:
@@ -20934,7 +20932,7 @@ DoShrapVelocity(int16_t SpriteNum)
                 // hit something above
                 {
                     u->zchange = -u->zchange;
-                    ScaleSpriteVector(SpriteNum, 22000);
+                    ScaleSpriteVector(actor, 22000);
                 }
             }
             break;
@@ -21125,12 +21123,13 @@ bool CheckBreakToughness(BREAK_INFOp break_info, short ID)
 int
 DoItemFly(int16_t SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
-        ScaleSpriteVector(SpriteNum, 50000);
+        ScaleSpriteVector(actor, 50000);
 
         u->Counter += 20*2;
         u->zchange += u->Counter;
@@ -21163,7 +21162,7 @@ DoItemFly(int16_t SpriteNum)
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(SpriteNum, wall_ang);
-                ScaleSpriteVector(SpriteNum, 32000);
+                ScaleSpriteVector(actor, 32000);
             }
             else
             {
@@ -21186,7 +21185,7 @@ DoItemFly(int16_t SpriteNum)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             WallBounce(SpriteNum, wall_ang);
-            ScaleSpriteVector(SpriteNum, 32000);
+            ScaleSpriteVector(actor, 32000);
             break;
         }
 
@@ -21205,7 +21204,7 @@ DoItemFly(int16_t SpriteNum)
             // hit something above
             {
                 u->zchange = -u->zchange;
-                ScaleSpriteVector(SpriteNum, 22000);
+                ScaleSpriteVector(actor, 22000);
             }
             break;
         }

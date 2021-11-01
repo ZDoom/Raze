@@ -76,7 +76,7 @@ void ChangeState(DSWActor* actor, STATEp statep);
 void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);
 SECTOR_OBJECTp DetectSectorObject(SECTORp);
 SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);
-void ScaleSpriteVector(short SpriteNum, int scale);
+void ScaleSpriteVector(DSWActor* actor, int scale);
 int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z);
 int QueueWallBlood(short hit_sprite, short ang);
 bool SlopeBounce(short SpriteNum, bool *hit_wall);
