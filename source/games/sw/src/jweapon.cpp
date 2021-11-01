@@ -1594,8 +1594,7 @@ int
 InitFlashBomb(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int i;
     unsigned int stat;
     int dist, tx, ty, tmin;
@@ -1608,12 +1607,11 @@ InitFlashBomb(DSWActor* actor)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            auto itActor = &swActors[i];
-            hp = &sprite[i];
-            hu = User[i].Data();
+            hp = &itActor->s();
+            hu = itActor->u();
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
@@ -1625,7 +1623,7 @@ InitFlashBomb(DSWActor* actor)
             if (!FAFcansee(hp->x, hp->y, hp->z, hp->sectnum, sp->x, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sectnum))
                 continue;
 
-            damage = GetDamage(i, SpriteNum, DMG_FLASHBOMB);
+            damage = GetDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex(), DMG_FLASHBOMB);
 
             if (hu->sop_parent)
             {
@@ -1645,9 +1643,9 @@ InitFlashBomb(DSWActor* actor)
             }
             else
             {
-                if (i != SpriteNum)
+                if (itActor != actor)
                 {
-                    ActorPain(i);
+                    ActorPain(itActor->GetSpriteIndex());
                     SpawnFlashBombOnActor(itActor);
                 }
             }
@@ -1742,14 +1740,13 @@ void SpawnFlashBombOnActor(DSWActor* actor)
 // Inventory Caltrops
 //
 //////////////////////////////////////////////
-int
-PlayerInitCaltrops(PLAYERp pp)
+
+int PlayerInitCaltrops(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     short oclipdist;
 
 
@@ -1762,17 +1759,11 @@ PlayerInitCaltrops(PLAYERp pp)
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
-    // Throw out several caltrops
-//  for(short i=0;i<3;i++)
-//  {
-    // Spawn a shot
-    // Inserting and setting up variables
-    w = SpawnSprite(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursectnum,
+    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
-    auto spawnedActor = &swActors[w];
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &spawnedActor->s();
+    wu = spawnedActor->u();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
@@ -1782,7 +1773,7 @@ PlayerInitCaltrops(PLAYERp pp)
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), spawnedActor);
     wp->yrepeat = 64;
     wp->xrepeat = 64;
     wp->shade = -15;
@@ -1805,7 +1796,7 @@ PlayerInitCaltrops(PLAYERp pp)
     pp->SpriteP->clipdist = 0;
     wp->clipdist = 0;
 
-    MissileSetPos(w, DoCaltrops, 1000);
+    MissileSetPos(spawnedActor->GetSpriteIndex(), DoCaltrops, 1000);
 
     pp->SpriteP->clipdist = uint8_t(oclipdist);
     wp->clipdist = 80L >> 2;
@@ -1818,16 +1809,11 @@ PlayerInitCaltrops(PLAYERp pp)
     wu->xchange += pp->xvect >> 14;
     wu->ychange += pp->yvect >> 14;
 
-    // Caltrops stay around for this many seconds
-//      wu->WaitTics = CHEMTICS*5;
-//  }
-
     SetupSpriteForBreak(spawnedActor);            // Put Caltrops in the break queue
     return 0;
 }
 
-int
-InitCaltrops(int16_t SpriteNum)
+int InitCaltrops(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
