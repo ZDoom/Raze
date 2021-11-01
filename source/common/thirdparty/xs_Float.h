@@ -72,13 +72,17 @@ constexpr real64 _xs_doublemagicroundeps    = (.5f-_xs_doublemagicdelta);       
 //  Inline implementation
 // ====================================================================================================================
 // ====================================================================================================================
-finline constexpr int32_t xs_CRoundToInt(real64 val, real64 dmr = _xs_doublemagic)
+finline constexpr uint32_t xs_CRoundToUInt(real64 val, real64 dmr = _xs_doublemagic)
 {
 #if _xs_DEFAULT_CONVERSION==0
 	return _xs_doubleints(val + dmr).getint();
 #else
-    return int32_t(floor(val+.5));
+    return uint32_t(floor(val+.5));
 #endif
+}
+finline constexpr int32_t xs_CRoundToInt(real64 val)
+{
+    return (int32_t)xs_CRoundToUInt(val);
 }
 
 
@@ -110,38 +114,53 @@ finline constexpr int32_t xs_ToInt(real64 val, real64 dme = -_xs_doublemagicroun
 
 
 // ====================================================================================================================
-finline constexpr int32_t xs_FloorToInt(real64 val, real64 dme = _xs_doublemagicroundeps)
+finline constexpr uint32_t xs_FloorToUInt(real64 val, real64 dme = _xs_doublemagicroundeps)
 {
 #if _xs_DEFAULT_CONVERSION==0
-    return xs_CRoundToInt (val - dme);
+    return xs_CRoundToUInt (val - dme);
 #else
     return floor(val);
 #endif
 }
 
+finline constexpr int32_t xs_FloorToInt(real64 val)
+{
+    return (int32_t)xs_FloorToUInt(val);
+}
+
 
 // ====================================================================================================================
-finline constexpr int32_t xs_CeilToInt(real64 val, real64 dme = _xs_doublemagicroundeps)
+finline constexpr uint32_t xs_CeilToUInt(real64 val, real64 dme = _xs_doublemagicroundeps)
 {
 #if _xs_DEFAULT_CONVERSION==0
-    return xs_CRoundToInt (val + dme);
+    return xs_CRoundToUInt (val + dme);
 #else
     return ceil(val);
 #endif
 }
 
+finline constexpr int32_t xs_CeilToInt(real64 val)
+{
+    return (int32_t)xs_CeilToUInt(val);
+}
+
 
 // ====================================================================================================================
-finline constexpr int32_t xs_RoundToInt(real64 val)
+finline constexpr uint32_t xs_RoundToUInt(real64 val)
 {
 #if _xs_DEFAULT_CONVERSION==0
 	// Yes, it is important that two fadds be generated, so you cannot override the dmr
 	// passed to xs_CRoundToInt with _xs_doublemagic + _xs_doublemagicdelta. If you do,
 	// you'll end up with Banker's Rounding again.
-    return xs_CRoundToInt (val + _xs_doublemagicdelta);
+    return xs_CRoundToUInt (val + _xs_doublemagicdelta);
 #else
     return floor(val+.5);
 #endif
+}
+
+finline constexpr int32_t xs_RoundToInt(real64 val)
+{
+    return (int32_t)xs_RoundToUInt(val);
 }
 
 
@@ -149,7 +168,7 @@ finline constexpr int32_t xs_RoundToInt(real64 val)
 finline constexpr int32_t xs_ToFixed(int32_t n, real64 val)
 {
     #if _xs_DEFAULT_CONVERSION==0
-        return xs_CRoundToInt(val, _xs_doublemagic/(1<<n));
+        return xs_CRoundToUInt(val, _xs_doublemagic/(1<<n));
     #else
         return (long)((val)*(1<<N));
     #endif
@@ -159,32 +178,6 @@ finline constexpr int32_t xs_ToFixed(int32_t n, real64 val)
 //int32_t versions
 finline constexpr int32_t xs_CRoundToInt      (int32_t val)   {return val;}
 finline constexpr int32_t xs_ToInt            (int32_t val)   {return val;}
-
-
-// ====================================================================================================================
-// ====================================================================================================================
-//  Unsigned variants
-// ====================================================================================================================
-// ====================================================================================================================
-finline constexpr uint32_t xs_CRoundToUInt(real64 val)
-{
-	return (uint32_t)xs_CRoundToInt(val);
-}
-
-finline constexpr uint32_t xs_FloorToUInt(real64 val)
-{
-	return (uint32_t)xs_FloorToInt(val);
-}
-
-finline constexpr uint32_t xs_CeilToUInt(real64 val)
-{
-	return (uint32_t)xs_CeilToInt(val);
-}
-
-finline constexpr uint32_t xs_RoundToUInt(real64 val)
-{
-	return (uint32_t)xs_RoundToInt(val);
-}
 
 
 // ====================================================================================================================
@@ -216,7 +209,7 @@ protected:
     finline static constexpr int32_t xs_ConvertToFixed (real64 val)
     {
     #if _xs_DEFAULT_CONVERSION==0
-        return xs_CRoundToInt(val, _xs_doublemagic/(1<<N));
+        return xs_CRoundToUInt(val, _xs_doublemagic/(1<<N));
     #else
         return (long)((val)*(1<<N));
     #endif
