@@ -844,20 +844,19 @@ SectorDistanceByMid(short sect1, int sect2)
 short
 DoSpawnActorTrigger(short match)
 {
-    int i;
     short spawn_count = 0;
     SPRITEp sp;
 
-    StatIterator it(STAT_SPAWN_TRIGGER);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPAWN_TRIGGER);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == match)
         {
             if (ActorSpawn(sp))
             {
-                DoSpawnTeleporterEffectPlace(sp);
+                DoSpawnTeleporterEffectPlace(actor);
                 PlaySound(DIGI_PLAYER_TELEPORT, sp, v3df_none);
                 spawn_count++;
             }

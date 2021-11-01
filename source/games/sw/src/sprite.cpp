@@ -7056,7 +7056,6 @@ void MissileWarpType(SPRITEp sp, SPRITEp sp_warp)
         break;
     default:
         PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
-        //DoSpawnTeleporterEffectPlace(sp);
         DoSpawnItemTeleporterEffect(sp);
         break;
     }
@@ -7070,7 +7069,7 @@ void ActorWarpType(SPRITEp sp, SPRITEp sp_warp)
         break;
     default:
         PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
-        DoSpawnTeleporterEffectPlace(sp);
+        DoSpawnTeleporterEffectPlace(&swActors[sp - sprite]);
         break;
     }
 }

@@ -1267,7 +1267,6 @@ void DoPlayerResetMovement(PLAYERp pp)
 void DoPlayerTeleportPause(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-//    SPRITEp sp = &pp->Actor()->s();
 
     // set this so we don't get stuck in teleporting loop
     pp->lastcursectnum = pp->cursectnum;
@@ -1280,17 +1279,11 @@ void DoPlayerTeleportPause(PLAYERp pp)
         DoPlayerBeginRun(pp);
         return;
     }
-
-    //sp->shade -= 2;
-    //if (sp->shade <= 0)
-    //    sp->shade = 0;
-
-    //DoPlayerBob(pp);
 }
 
-void DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
+void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
 {
-    pp->angle.ang = pp->angle.oang = buildang(sp->ang);
+    pp->angle.ang = pp->angle.oang = buildang(ang);
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
@@ -1314,26 +1307,26 @@ void DoPlayerTeleportToOffset(PLAYERp pp)
     SET(pp->Flags2, PF2_TELEPORTED);
 }
 
-void DoSpawnTeleporterEffect(SPRITEp sp)
+void DoSpawnTeleporterEffect(DSWActor* actor)
 {
+    auto sp = &actor->s();
     extern STATE s_TeleportEffect[];
-    short effect;
     int nx, ny;
     SPRITEp ep;
 
-    nx = MOVEx(512L, sp->ang);
-    ny = MOVEy(512L, sp->ang);
+    nx = MOVEx(512, sp->ang);
+    ny = MOVEy(512, sp->ang);
 
     nx += sp->x;
     ny += sp->y;
 
-    effect = SpawnSprite(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
                          nx, ny, SPRITEp_TOS(sp) + Z(16),
                          sp->ang, 0);
 
-    ep = &sprite[effect];
+    ep = &effectActor->s();
 
-    setspritez(effect, &ep->pos);
+    SetActorZ(effectActor, &ep->pos);
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 42;
@@ -1341,22 +1334,21 @@ void DoSpawnTeleporterEffect(SPRITEp sp)
     RESET(ep->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     SET(ep->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    //ep->ang = NORM_ANGLE(ep->ang + 512);
 }
 
-void DoSpawnTeleporterEffectPlace(SPRITEp sp)
+void DoSpawnTeleporterEffectPlace(DSWActor* actor)
 {
+    auto sp = &actor->s();
     extern STATE s_TeleportEffect[];
-    short effect;
     SPRITEp ep;
 
-    effect = SpawnSprite(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
                          sp->x, sp->y, SPRITEp_TOS(sp) + Z(16),
                          sp->ang, 0);
 
-    ep = &sprite[effect];
+    ep = &effectActor->s();
 
-    setspritez(effect, &ep->pos);
+    SetActorZ(effectActor, &ep->pos);
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 42;
@@ -1393,7 +1385,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         UpdatePlayerSprite(pp);
         break;
     default:
-        DoPlayerTeleportToSprite(pp, sp_warp);
+        DoPlayerTeleportToSprite(pp, &sp_warp->pos, sp_warp->ang);
 
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
@@ -1409,7 +1401,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
         NewStateGroup(pp->Actor(), pp->Actor()->u()->ActorActionSet->Stand);
 
         UpdatePlayerSprite(pp);
-        DoSpawnTeleporterEffect(sp);
+        DoSpawnTeleporterEffect(pp->Actor());
 
         TRAVERSE_CONNECT(pnum)
         {
@@ -5921,7 +5913,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         pp->SpriteP->z = pp->posz+PLAYER_HEIGHT;
         pp->SpriteP->ang = pp->angle.ang.asbuild();
 
-        DoSpawnTeleporterEffect(pp->SpriteP);
+        DoSpawnTeleporterEffect(pp->Actor());
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
         DoPlayerZrange(pp);
