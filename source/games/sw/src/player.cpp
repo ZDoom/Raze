@@ -5845,8 +5845,9 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
 void DoPlayerDeathCheckKeys(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-    USERp u = pp->Actor()->u();
+    auto ppActor = pp->Actor();
+    SPRITEp sp = &ppActor->s();
+    USERp u = ppActor->u();
 
     if (pp->input.actions & SB_OPEN)
     {
@@ -5860,14 +5861,14 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         else
         {
             // If he's not on the floor, then gib like a mo-fo!
-            InitBloodSpray(pp->Actor(),true,-1);
-            InitBloodSpray(pp->Actor(),true,-1);
-            InitBloodSpray(pp->Actor(),true,-1);
+            InitBloodSpray(ppActor,true,-1);
+            InitBloodSpray(ppActor,true,-1);
+            InitBloodSpray(ppActor,true,-1);
         }
 
         PlayerSpawnPosition(pp);
 
-        NewStateGroup(pp->Actor(), u->ActorActionSet->Stand);
+        NewStateGroup(ppActor, u->ActorActionSet->Stand);
         pp->SpriteP->picnum = u->State->Pic;
         pp->SpriteP->xrepeat = pp->SpriteP->yrepeat = PLAYER_NINJA_XREPEAT;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_YCENTER);
@@ -5876,7 +5877,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         pp->SpriteP->z = pp->posz+PLAYER_HEIGHT;
         pp->SpriteP->ang = pp->angle.ang.asbuild();
 
-        DoSpawnTeleporterEffect(pp->Actor());
+        DoSpawnTeleporterEffect(ppActor);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
         DoPlayerZrange(pp);
@@ -6011,20 +6012,18 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     day = MOVEy(u->slide_vel, u->slide_ang);
 
     SetCollision(u, move_sprite(pp->PlayerSprite, dax, day, 0, Z(16), Z(16), 1, synctics));
-    if (u->ret)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang, dang;
-            short hit_sprite = -2;
             SPRITEp hsp;
 
             //PlaySound(DIGI_DHCLUNK, pp, v3df_dontpan);
 
-            hit_sprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hit_sprite];
+            auto hit_sprite = u->coll.actor;
+            hsp = &hit_sprite->s();
 
             if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 break;
@@ -6037,13 +6036,13 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             SpawnShrap(pp->Actor(), nullptr);
             break;
         }
-        case HIT_WALL:
+        case kHitWall:
         {
             short w,nw,wall_ang,dang;
 
             //PlaySound(DIGI_DHCLUNK, pp, v3df_dontpan);
 
-            w = NORM_WALL(u->ret);
+            w = u->coll.index;
 
             nw = wall[w].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)-512);
@@ -6465,19 +6464,12 @@ void DoPlayerRun(PLAYERp pp)
 }
 
 
-void PlayerStateControl(int16_t SpriteNum)
+void PlayerStateControl(DSWActor* actor)
 {
-    USERp u;
+    if (actor == nullptr || !actor->hasU()) return;
 
-    if ((unsigned)SpriteNum >= MAXSPRITES)
-        return;
-
-    // Convienience var
-    auto actor = &swActors[SpriteNum];
-    u = User[SpriteNum].Data();
-
-    if (u == nullptr)
-        return;
+    auto u = actor->u();
+    auto sp = &actor->s();
 
     u->Tics += synctics;
 
@@ -6511,11 +6503,10 @@ void PlayerStateControl(int16_t SpriteNum)
     }
 
     // Set picnum to the correct pic
-    //sprite[SpriteNum].picnum = u->State->Pic;
     if (u->RotNum > 1)
-        sprite[SpriteNum].picnum = u->Rot[0]->Pic;
+        sp->picnum = u->Rot[0]->Pic;
     else
-        sprite[SpriteNum].picnum = u->State->Pic;
+        sp->picnum = u->State->Pic;
 
     // Call the correct animator
     if (TEST(u->State->Tics, SF_PLAYER_FUNC))
@@ -6557,17 +6548,12 @@ void MoveSkipSavePos(void)
 
         for (stat = STAT_SKIP4_START; stat <= STAT_SKIP4_INTERP_END; stat++)
         {
-            StatIterator it(stat);
-            while ((i = it.NextIndex()) >= 0)
+            SWStatIterator it(stat);
+            while (auto actor = it.Next())
             {
-                if ((unsigned)i >= MAXSPRITES)
-                    continue;
-
-                sp = &sprite[i];
-                u = User[i].Data();
-
-                if (sp == nullptr || u == nullptr)
-                    continue;
+                if (!actor->hasU()) continue;
+                sp = &actor->s();
+                u = actor->u();
 
                 sp->backuppos();
                 u->oz = sp->oz;
@@ -6582,26 +6568,24 @@ void MoveSkipSavePos(void)
 
         for (stat = STAT_SKIP2_START; stat <= STAT_SKIP2_INTERP_END; stat++)
         {
-            StatIterator it(stat);
-            while ((i = it.NextIndex()) >= 0)
+            SWStatIterator it(stat);
+            while (auto actor = it.Next())
             {
-                if ((unsigned)i >= MAXSPRITES)
-                    continue;
-                sp = &sprite[i];
-                u = User[i].Data();
+                if (!actor->hasU()) continue;
+                sp = &actor->s();
+                u = actor->u();
 
-                if (sp == nullptr || u == nullptr)
-                    continue;
                 sp->backuppos();
                 u->oz = sp->oz;
             }
         }
     }
 
+    SWSpriteIterator it;
     // back up all sprite angles.
-    for (int i = 0; i < MAXSPRITES; i++)
+    while (auto actor = it.Next())
     {
-        sprite[i].backupang();
+        actor->s().backupang();
     }
 }
 
@@ -6849,7 +6833,7 @@ void domovethings(void)
 
         pSpriteControl(pp);
 
-        PlayerStateControl(pp->PlayerSprite);
+        PlayerStateControl(pp->Actor());
 
         DoPlayerSectorUpdatePostMove(pp);
         PlayerGlobal(pp);
@@ -6907,7 +6891,7 @@ void InitAllPlayers(void)
         pp->oldposx = 0;
         pp->oldposy = 0;
         pp->climb_ndx = 10;
-        pp->KillerActor = nullptr;;
+        pp->KillerActor = nullptr;
         pp->Kills = 0;
         pp->bcnt = 0;
         pp->UziShellLeftAlt = 0;
@@ -6945,18 +6929,19 @@ int SearchSpawnPosition(PLAYERp pp)
     PLAYERp opp; // other player
     SPRITEp sp;
     short pos_num;
-    short pnum,spawn_sprite;
+    short pnum;
     bool blocked;
 
     do
     {
         // get a spawn position
         pos_num = RandomRange(MAX_SW_PLAYERS);
-        spawn_sprite = StatIterator::First(STAT_MULTI_START + pos_num);
-        if (spawn_sprite <= -1)
+        SWStatIterator it(STAT_MULTI_START + pos_num);
+        auto spawn_sprite = it.Next();
+        if (spawn_sprite == nullptr)
             return 0;
 
-        sp = &sprite[spawn_sprite];
+        sp = &spawn_sprite->s();
 
         blocked = false;
 
@@ -6986,9 +6971,10 @@ void PlayerSpawnPosition(PLAYERp pp)
 {
     SPRITEp sp;
     short pnum = short(pp - Player);
-    short spawn_sprite = 0, pos_num = pnum;
+    short pos_num = pnum;
     int fz,cz;
     int i;
+    DSWActor* spawn_sprite = nullptr;
 
     // find the first unused spawn position
     // garauntees that the spawn pos 0 will be used
@@ -7008,35 +6994,44 @@ void PlayerSpawnPosition(PLAYERp pp)
     switch (gNet.MultiGameType)
     {
     case MULTI_GAME_NONE:
+    {
         // start from the beginning
-        spawn_sprite = StatIterator::First(STAT_MULTI_START + 0);
+        SWStatIterator it(STAT_MULTI_START + 0);
+        spawn_sprite = it.Next();
         break;
+    }
     case MULTI_GAME_COMMBAT:
     case MULTI_GAME_AI_BOTS:
+    {
         // start from random position after death
         if (TEST(pp->Flags, PF_DEAD))
         {
             pos_num = SearchSpawnPosition(pp);
         }
-
-        spawn_sprite = StatIterator::First(STAT_MULTI_START + pos_num);
+        SWStatIterator it(STAT_MULTI_START + pos_num);
+        spawn_sprite = it.Next();
         break;
+    }
     case MULTI_GAME_COOPERATIVE:
+    {
         // start your assigned spot
-        spawn_sprite = StatIterator::First(STAT_MULTI_START + pos_num);
+        SWStatIterator it(STAT_MULTI_START + pos_num);
+        spawn_sprite = it.Next();
         break;
+    }
     }
 
     SpawnPositionUsed[pos_num] = true;
 
-    if (spawn_sprite < 0)
+    if (spawn_sprite == nullptr)
     {
-        spawn_sprite = StatIterator::First(STAT_MULTI_START + 0);
+        SWStatIterator it(STAT_MULTI_START + 0);
+        spawn_sprite = it.Next();
     }
 
-    ASSERT(spawn_sprite >= 0);
+    ASSERT(spawn_sprite != nullptr);
 
-    sp = &sprite[spawn_sprite];
+    sp = &spawn_sprite->s();
 
 
     pp->posx = pp->oposx = sp->x;
@@ -7058,7 +7053,7 @@ void InitMultiPlayerInfo(void)
 {
     PLAYERp pp;
     SPRITEp sp;
-    short pnum, start0;
+    short pnum;
     unsigned stat;
     int tag;
     static short MultiStatList[] =
@@ -7097,14 +7092,14 @@ void InitMultiPlayerInfo(void)
         if (gNet.MultiGameType != MULTI_GAME_NONE)
         {
             // if start position is physically set then don't spawn a new one
-            if (StatIterator::First(MultiStatList[stat] + 0) >= 0)
+            SWStatIterator it(MultiStatList[stat]);
+            if (it.Next())
                 continue;
         }
 
-        start0 = SpawnSprite(MultiStatList[stat], ST1, nullptr, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
-        ASSERT(start0 >= 0);
-        User[start0].Clear();
-        sprite[start0].picnum = ST1;
+        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
+        start0->clearUser();
+        start0->s().picnum = ST1;
     }
 
     memset(SpawnPositionUsed,0,sizeof(SpawnPositionUsed));

@@ -37,6 +37,11 @@ public:
 		return User[index].Data(); 
 	}
 
+	void clearUser()
+	{
+		User[index].Clear();
+	}
+
 	int GetIndex() 
 	{
 		return s().time;
