@@ -401,18 +401,17 @@ int DoBloodSpray(DSWActor* actor)
 
     MissileHitDiveArea(actor->GetSpriteIndex());
 
-    if (u->ret)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        case kHitSky:
             KillActor(actor);
             return true;
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang;
-            short hit_sprite = NORM_SPRITE(u->ret);
-            SPRITEp hsp = &sprite[hit_sprite];
+            auto hitActor = u->coll.actor;
+            SPRITEp hsp = &hitActor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -435,13 +434,13 @@ int DoBloodSpray(DSWActor* actor)
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
             short hit_wall, nw, wall_ang;
             WALLp wph;
             short wb;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
             wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
@@ -498,7 +497,7 @@ int DoBloodSpray(DSWActor* actor)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             // hit floor
             if (sp->z > DIV2(u->hiz + u->loz))
@@ -607,24 +606,22 @@ int DoPhosphorus(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor->GetSpriteIndex());
 
-    if (u->ret)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        case kHitSky:
             KillActor(actor);
             return true;
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang;
-            short hit_sprite = -2;
             SPRITEp hsp;
             USERp hu;
 
 
-            hit_sprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hit_sprite];
-            hu = User[hit_sprite].Data();
+            auto hitActor = u->coll.actor;
+            hsp = &hitActor->s();
+            hu = hitActor->u();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -637,10 +634,10 @@ int DoPhosphorus(DSWActor* actor)
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(hit_sprite, hsp->picnum, nullptr);
+                        hu = SpawnUser(hitActor, hsp->picnum, nullptr);
                     SpawnFireballExp(actor->GetSpriteIndex());
                     if (hu)
-                        SpawnFireballFlames(actor->GetSpriteIndex(), hit_sprite);
+                        SpawnFireballFlames(actor->GetSpriteIndex(), hitActor->GetSpriteIndex());
                     DoFlamesDamageTest(actor->GetSpriteIndex());
                 }
                 u->xchange = u->ychange = 0;
@@ -652,12 +649,12 @@ int DoPhosphorus(DSWActor* actor)
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
             short hit_wall, nw, wall_ang;
             WALLp wph;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
             wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
@@ -676,7 +673,7 @@ int DoPhosphorus(DSWActor* actor)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             bool did_hit_wall;
 
@@ -827,24 +824,22 @@ int DoChemBomb(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor->GetSpriteIndex());
 
-    if (u->ret)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        case kHitSky:
             KillActor(actor);
             return true;
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang;
-            short hit_sprite;
             SPRITEp hsp;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, sp, v3df_dontpan);
 
-            hit_sprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hit_sprite];
+            auto hitActor = u->coll.actor;
+            hsp = &actor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -872,12 +867,12 @@ int DoChemBomb(DSWActor* actor)
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
             short hit_wall, nw, wall_ang;
             WALLp wph;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
             wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
@@ -898,7 +893,7 @@ int DoChemBomb(DSWActor* actor)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             bool did_hit_wall;
 
@@ -1073,23 +1068,20 @@ int DoCaltrops(DSWActor* actor)
 
     MissileHitDiveArea(actor->GetSpriteIndex());
 
-    if (u->ret)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        case kHitSky:
             KillActor(actor);
             return true;
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang;
-            short hit_sprite;
-            SPRITEp hsp;
 
             PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
 
-            hit_sprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hit_sprite];
+            auto hitActor = u->coll.actor;
+            auto hsp = &hitActor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -1107,13 +1099,10 @@ int DoCaltrops(DSWActor* actor)
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
-            short hit_wall, nw, wall_ang;
-            WALLp wph;
-
-            hit_wall = NORM_WALL(u->ret);
-            wph = &wall[hit_wall];
+            int hit_wall = u->coll.index;
+            auto wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -1124,15 +1113,15 @@ int DoCaltrops(DSWActor* actor)
 
             PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
 
-            nw = wall[hit_wall].point2;
-            wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
+            int nw = wall[hit_wall].point2;
+            int wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             WallBounce(actor->GetSpriteIndex(), wall_ang);
             ScaleSpriteVector(actor->GetSpriteIndex(), 1000);
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             bool did_hit_wall;
 
@@ -2149,10 +2138,9 @@ int
 DoCarryFlag(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
-#define FLAG_DETONATE_STATE 99
+    const int FLAG_DETONATE_STATE = 99;
     SPRITEp fp = &sprite[u->FlagOwner];
     USERp fu = User[u->FlagOwner].Data();
 
@@ -2162,7 +2150,8 @@ DoCarryFlag(DSWActor* actor)
     {
         SPRITEp ap = &u->attachActor->s();
 
-        setspritez_old(Weapon, ap->x, ap->y, SPRITEp_MID(ap));
+        vec3_t pos = { ap->x, ap->y, SPRITEp_MID(ap) };
+        SetActorZ(actor, &pos);
         sp->ang = NORM_ANGLE(ap->ang + 1536);
     }
 
@@ -2292,7 +2281,7 @@ DoCarryFlag(DSWActor* actor)
         u->Counter2++;
         break;
     case FLAG_DETONATE_STATE + 1:
-        SpawnGrenadeExp(Weapon);
+        SpawnGrenadeExp(actor->GetSpriteIndex());
         SetSuicide(actor);
         return false;
         break;
