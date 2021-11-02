@@ -2352,14 +2352,13 @@ int DoPlayerGrabStar(PLAYERp pp)
 {
     SPRITEp sp = nullptr;
     int i;
-    extern short StarQueue[MAX_STAR_QUEUE];
 
     // MUST check exact z's of each star or it will never work
     for (i = 0; i < MAX_STAR_QUEUE; i++)
     {
-        if (StarQueue[i] >= 0)
+        if (StarQueue[i] != nullptr)
         {
-            sp = &sprite[StarQueue[i]];
+            sp = &StarQueue[i]->s();
 
             if (FindDistance3D(sp->x - pp->posx, sp->y - pp->posy, sp->z - pp->posz + Z(12)) < 500)
             {
@@ -2373,8 +2372,8 @@ int DoPlayerGrabStar(PLAYERp pp)
         // Pull a star out of wall and up your ammo
         PlayerUpdateAmmo(pp, WPN_STAR, 1);
         PlaySound(DIGI_ITEM, sp, v3df_none);
-        KillSprite(StarQueue[i]);
-        StarQueue[i] = -1;
+        KillActor(StarQueue[i]);
+        StarQueue[i] = nullptr;
         if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
             return true;
         SET(pp->WpnFlags, BIT(WPN_STAR));

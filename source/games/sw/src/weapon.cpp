@@ -74,7 +74,7 @@ int ShellCount = 0;
 
 //short Zombies = 0;
 short StarQueueHead=0;
-short StarQueue[MAX_STAR_QUEUE];
+DSWActor* StarQueue[MAX_STAR_QUEUE];
 short HoleQueueHead=0;
 short HoleQueue[MAX_HOLE_QUEUE];
 short WallBloodQueueHead=0;
@@ -19993,8 +19993,8 @@ void SpriteQueueDelete(DSWActor* actor)
     int SpriteNum = actor->GetSpriteIndex();
 
     for (i = 0; i < MAX_STAR_QUEUE; i++)
-        if (StarQueue[i] == SpriteNum)
-            StarQueue[i] = -1;
+        if (StarQueue[i] == actor)
+            StarQueue[i] = nullptr;
 
     for (i = 0; i < MAX_HOLE_QUEUE; i++)
         if (HoleQueue[i] == SpriteNum)
@@ -20030,7 +20030,7 @@ void QueueReset(void)
 
 
     for (i = 0; i < MAX_STAR_QUEUE; i++)
-        StarQueue[i] = -1;
+        StarQueue[i] = nullptr;
 
     for (i = 0; i < MAX_HOLE_QUEUE; i++)
         HoleQueue[i] = -1;
@@ -20092,29 +20092,26 @@ int QueueStar(short SpriteNum)
     }
 
     // can and should kill the user portion of the star
-    if (StarQueue[StarQueueHead] == -1)
+    if (StarQueue[StarQueueHead] == nullptr)
     {
         // new star
-        User[SpriteNum].Clear();
+        actor->clearUser();
         change_actor_stat(actor, STAT_STAR_QUEUE);
-        StarQueue[StarQueueHead] = SpriteNum;
+        StarQueue[StarQueueHead] = actor;
     }
     else
     {
         // move old star to new stars place
-        osp = &sprite[StarQueue[StarQueueHead]];
-        osp->x = sp->x;
-        osp->y = sp->y;
-        osp->z = sp->z;
-        changespritesect(StarQueue[StarQueueHead], sp->sectnum);
+        osp = &StarQueue[StarQueueHead]->s();
+        osp->pos = sp->pos;
+        ChangeActorSect(StarQueue[StarQueueHead], sp->sectnum);
         KillActor(actor);
-        SpriteNum = StarQueue[StarQueueHead];
-        ASSERT(sprite[SpriteNum].statnum != MAXSTATUS);
+        actor = StarQueue[StarQueueHead];
     }
 
     StarQueueHead = (StarQueueHead+1) & (MAX_STAR_QUEUE-1);
 
-    return SpriteNum;
+    return actor->GetSpriteIndex();
 }
 
 int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)

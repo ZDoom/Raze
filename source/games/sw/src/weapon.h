@@ -59,7 +59,7 @@ enum
 
 
 extern short StarQueueHead;
-extern short StarQueue[MAX_STAR_QUEUE];
+extern DSWActor* StarQueue[MAX_STAR_QUEUE];
 extern short HoleQueueHead;
 extern short HoleQueue[MAX_HOLE_QUEUE];
 extern short WallBloodQueueHead;
