@@ -53,6 +53,7 @@ BEGIN_SW_NS
 
 void SectorLightShade(DSWActor* actor, short intensity)
 {
+	auto u = actor->hasU()? actor->u() : nullptr;
     auto sp = &actor->s();
     short w, startwall, endwall;
     int8_t* wall_shade;
@@ -79,8 +80,8 @@ void SectorLightShade(DSWActor* actor, short intensity)
     // change wall
     if (!TEST_BOOL4(sp))
     {
-        ASSERT(User[sp - sprite].Data() && User[sp - sprite]->WallShade.Data());
-        wall_shade = User[sp - sprite]->WallShade.Data();
+        ASSERT(u && u->WallShade.Data());
+        wall_shade = u->WallShade.Data();
 
         startwall = sector[sp->sectnum].wallptr;
         endwall = startwall + sector[sp->sectnum].wallnum - 1;
