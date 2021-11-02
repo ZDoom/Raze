@@ -48,7 +48,7 @@ extern int InitSumoSkull(DSWActor*);
 extern uint8_t playTrack;
 bool bosswasseen[3];
 
-short BossSpriteNum[3] = {-1,-1,-1};
+DSWActor* BossSpriteNum[3];
 
 
 ANIMATOR InitSumoCharge;
@@ -780,7 +780,7 @@ int DoSumoDeathMelt(DSWActor* actor)
         PlaySong(currentLevel->music, currentLevel->cdSongId);
     }
 
-    BossSpriteNum[1] = -2; // Sprite is gone, set it back to keep it valid!
+    BossSpriteNum[1] = nullptr; // Sprite is gone, set it back to keep it valid!
 
     return 0;
 }
@@ -807,7 +807,7 @@ void BossHealthMeter(void)
 
     // all enemys
     if (currentLevel->gameflags & (LEVEL_SW_BOSSMETER_SERPENT|LEVEL_SW_BOSSMETER_SUMO|LEVEL_SW_BOSSMETER_ZILLA) &&
-        BossSpriteNum[0] <= -1 && BossSpriteNum[1] <= -1 && BossSpriteNum[2] <= -1)
+        BossSpriteNum[0] == nullptr && BossSpriteNum[1] == nullptr && BossSpriteNum[2] == nullptr)
     {
         SWStatIterator it(STAT_ENEMY);
         while (auto itActor = it.Next())
@@ -818,26 +818,26 @@ void BossHealthMeter(void)
             if ((u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0) && sp->pal != 16)
             {
                 if (u->ID == SERP_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SERPENT))
-                    BossSpriteNum[0] = itActor->GetSpriteIndex();
+                    BossSpriteNum[0] = itActor;
                 else if (u->ID == SUMO_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SUMO))
-                    BossSpriteNum[1] = itActor->GetSpriteIndex();
+                    BossSpriteNum[1] = itActor;
                 else if (u->ID == ZILLA_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_ZILLA))
-                    BossSpriteNum[2] = itActor->GetSpriteIndex();
+                    BossSpriteNum[2] = itActor;
             }
         }
     }
 
-    if (BossSpriteNum[0] <= -1 && BossSpriteNum[1] <= -1 && BossSpriteNum[2] <= -1)
+    if (BossSpriteNum[0] == nullptr && BossSpriteNum[1] == nullptr && BossSpriteNum[2] == nullptr)
         return;
 
 
     // Only show the meter when you can see the boss
     for (int i=0; i<3; i++)
     {
-        if (BossSpriteNum[i] >= 0 && !bosswasseen[i])
+        if (BossSpriteNum[i] != nullptr && !bosswasseen[i])
         {
-            sp = &sprite[BossSpriteNum[i]];
-            u = User[BossSpriteNum[i]].Data();
+            sp = &BossSpriteNum[i]->s();
+            u = BossSpriteNum[i]->u();
 
             if (cansee(sp->x, sp->y, SPRITEp_TOS(sp), sp->sectnum, pp->posx, pp->posy, pp->posz - Z(40), pp->cursectnum))
             {
@@ -873,15 +873,15 @@ void BossHealthMeter(void)
     for (int i=0; i<3; i++)
     {
 
-        if (i == 0 && (!bosswasseen[0] || BossSpriteNum[0] < 0))
+        if (i == 0 && (!bosswasseen[0] || BossSpriteNum[0] == nullptr))
             continue;
-        if (i == 1 && (!bosswasseen[1] || BossSpriteNum[1] < 0))
+        if (i == 1 && (!bosswasseen[1] || BossSpriteNum[1] == nullptr))
             continue;
-        if (i == 2 && (!bosswasseen[2] || BossSpriteNum[2] < 0))
+        if (i == 2 && (!bosswasseen[2] || BossSpriteNum[2] == nullptr))
             continue;
 
-        sp = &sprite[BossSpriteNum[i]];
-        u = User[BossSpriteNum[i]].Data();
+        sp = &BossSpriteNum[i]->s();
+        u = BossSpriteNum[i]->u();
 
         if (u->ID == SERP_RUN_R0 && bosswasseen[0])
         {

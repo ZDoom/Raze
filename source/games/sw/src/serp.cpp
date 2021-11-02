@@ -37,8 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-extern short BossSpriteNum[3];
-
 DECISION SerpBattle[] =
 {
     {670,   InitActorMoveCloser         },
@@ -820,7 +818,7 @@ int DoDeathSpecial(DSWActor* actor)
         PlaySong(currentLevel->music, currentLevel->cdSongId);
     }
 
-    BossSpriteNum[0] = -2;
+    BossSpriteNum[0] = nullptr;
     return 0;
 }
 

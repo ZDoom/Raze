@@ -79,7 +79,6 @@ extern int GameVersion;
 //extern short Zombies;
 
 extern bool bosswasseen[3];
-extern short BossSpriteNum[3];
 
 #define ANIM_SAVE 1
 

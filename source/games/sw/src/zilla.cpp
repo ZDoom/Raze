@@ -37,8 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-extern short BossSpriteNum[3];
-
 ANIMATOR InitZillaCharge;
 
 DECISION ZillaBattle[] =
@@ -792,7 +790,7 @@ int DoZillaDeathMelt(DSWActor* actor)
     u->highActor = nullptr;
     sp->z = u->loz;
 
-    BossSpriteNum[2] = -2;
+    BossSpriteNum[2] = nullptr;
     return 0;
 }
 

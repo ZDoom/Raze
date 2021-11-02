@@ -2168,7 +2168,7 @@ extern short wait_active_check_offset;
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 extern bool left_foot;
 extern bool bosswasseen[3];
-extern short BossSpriteNum[3];
+extern DSWActor* BossSpriteNum[3];
 extern int ChopTics;
 extern short Bunny_Count;
 

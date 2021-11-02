@@ -265,7 +265,7 @@ void InitLevelGlobals(void)
 
 
     for (auto& b : bosswasseen) b = false;
-    memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
+    memset(BossSpriteNum,0,sizeof(BossSpriteNum));
 }
 
 //---------------------------------------------------------------------------
