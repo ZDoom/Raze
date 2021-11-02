@@ -71,13 +71,13 @@ inline constexpr int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TE
 void PutStringInfo(PLAYERp pp, const char* string);
 
 
-short DoSlidorMatch(PLAYERp pp, short match, bool);
+void DoSlidorMatch(PLAYERp pp, short match, bool);
 bool TestSlidorMatchActive(short match);
 void InterpSectorSprites(short sectnum, bool state);
 
 using INTERP_FUNC = void(*)(int, int);
 
-void SetSlidorActive(short SpriteNum);
+void SetSlidorActive(DSWActor*);
 void DoSlidorInterp(short, INTERP_FUNC);
 
 int DoBeginJump(DSWActor* actor);

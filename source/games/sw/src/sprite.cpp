@@ -6836,7 +6836,7 @@ SpriteControl(void)
         if (u->Tics)
         {
             if ((u->Tics -= synctics) <= 0)
-                SetSlidorActive(i);
+                SetSlidorActive(actor);
             else
                 continue;
         }

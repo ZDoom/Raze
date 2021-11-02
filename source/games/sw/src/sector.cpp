@@ -73,8 +73,8 @@ short DoVatorOperate(PLAYERp, short);
 short DoVatorMatch(PLAYERp pp, short match);
 void DoRotatorOperate(PLAYERp, short);
 void DoRotatorMatch(PLAYERp pp, short match, bool);
-short DoSlidorOperate(PLAYERp, short);
-short DoSlidorMatch(PLAYERp pp, short match, bool);
+void DoSlidorOperate(PLAYERp, short);
+void DoSlidorMatch(PLAYERp pp, short match, bool);
 
 void KillMatchingCrackSprites(short match);
 int DoTrapReset(short match);
