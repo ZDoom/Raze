@@ -50,6 +50,7 @@ enum
     soi_sprx = 0x8000000,
     soi_spry = 0x9000000,
     soi_sprz = 0xa000000,
+	soi_sprang = 0xb000000,
 };
 
 static struct so_interp
@@ -132,12 +133,12 @@ static void so_setspriteanginterpolation(so_interp *interp, int32_t spritenum)
         return;
 
     for (i = 0; i < interp->numinterpolations; i++)
-        if (interp->data[i].curelement == -1 && interp->data[i].actorofang->GetSpriteIndex() == spritenum)
+        if (interp->data[i].curelement == soi_sprang && interp->data[i].actorofang->GetSpriteIndex() == spritenum)
             return;
 
     so_interp::interp_data *data = &interp->data[interp->numinterpolations++];
 
-    data->curelement = -1;
+    data->curelement = soi_sprang;
     data->oldipos =
         data->lastipos =
         data->lastoldipos = sprite[spritenum].ang;
@@ -270,7 +271,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
             interp->tic += synctics;
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
         {
-            if (data->actorofang != nullptr)
+            if (data->curelement == soi_sprang)
             {
 				USERp u = data->actorofang->u();
                 if (u)
@@ -307,7 +308,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             continue;
 
         for (i = 0; i < interp->numinterpolations; i++)
-            interp->data[i].bakipos = (interp->data[i].actorofang != nullptr) ?
+            interp->data[i].bakipos = (interp->data[i].curelement == soi_sprang) ?
                                       interp->data[i].actorofang->s().ang :
                                       getvalue(interp->data[i].curelement, false);
 
@@ -317,7 +318,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             {
                 data->lastipos = data->bakipos;
                 data->lastoldipos = data->oldipos;
-                if (data->actorofang != nullptr)
+                if (data->curelement == soi_sprang)
                 {
                     USERp u = data->actorofang->u();
                     data->lastangdiff = u ? u->oangdiff : 0;
@@ -368,7 +369,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                     continue;
             }
 
-            if (data->actorofang != nullptr)
+            if (data->curelement == soi_sprang)
                 data->actorofang->s().ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
             else
             {
@@ -394,7 +395,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
             continue;
 
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
-            if (data->actorofang != nullptr)
+            if (data->curelement == soi_sprang)
                 data->actorofang->s().ang = data->bakipos;
             else
                 getvalue(data->curelement, true) = data->bakipos;
