@@ -462,7 +462,7 @@ int DoSkullWait(DSWActor* actor)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        PlaySound(DIGI_AHSCREAM, sp, v3df_none);
+        PlaySound(DIGI_AHSCREAM, actor, v3df_none);
         u->WaitTics = SEC(3) + RandomRange(360);
     }
 
@@ -864,7 +864,7 @@ int DoBettyWait(DSWActor* actor)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        PlaySound(DIGI_MINEBEEP, sp, v3df_none);
+        PlaySound(DIGI_MINEBEEP, actor, v3df_none);
         u->WaitTics = SEC(3);
     }
 

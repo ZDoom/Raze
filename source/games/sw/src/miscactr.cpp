@@ -168,11 +168,11 @@ int DoToiletGirl(DSWActor* actor)
             if (!SoundValidAndActive(sp, CHAN_ToiletFart))
             {
                 if (choose_snd > 750)
-                    PlaySound(DIGI_TOILETGIRLFART1, sp, v3df_dontpan, CHAN_ToiletFart);
+                    PlaySound(DIGI_TOILETGIRLFART1, actor, v3df_dontpan, CHAN_ToiletFart);
                 else if (choose_snd > 350)
-                    PlaySound(DIGI_TOILETGIRLFART2, sp, v3df_dontpan, CHAN_ToiletFart);
+                    PlaySound(DIGI_TOILETGIRLFART2, actor, v3df_dontpan, CHAN_ToiletFart);
                 else
-                    PlaySound(DIGI_TOILETGIRLFART3, sp, v3df_dontpan, CHAN_ToiletFart);
+                    PlaySound(DIGI_TOILETGIRLFART3, actor, v3df_dontpan, CHAN_ToiletFart);
             }
         }
     }
@@ -181,9 +181,9 @@ int DoToiletGirl(DSWActor* actor)
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
             if (RandomRange(1000<<8)>>8 > 500)
-                PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_ANIMEMAD1, actor, v3df_dontpan, CHAN_AnimeMad);
             else
-                PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_ANIMEMAD2, actor, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(actor,s_ToiletGirlUzi);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
@@ -226,9 +226,9 @@ int NullToiletGirl(DSWActor* actor)
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
             if (RandomRange(1000<<8)>>8 > 500)
-                PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_ANIMEMAD1, actor, v3df_dontpan, CHAN_AnimeMad);
             else
-                PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_ANIMEMAD2, actor, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(actor,s_ToiletGirlUzi);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
@@ -400,9 +400,9 @@ int DoWashGirl(DSWActor* actor)
         if (!SoundValidAndActive(sp, CHAN_AnimeSing))
         {
             if (RANDOM_P2(1024<<4)>>4 > 500)
-                PlaySound(DIGI_ANIMESING1, sp, v3df_dontpan, CHAN_AnimeSing);
+                PlaySound(DIGI_ANIMESING1, actor, v3df_dontpan, CHAN_AnimeSing);
             else
-                PlaySound(DIGI_ANIMESING2, sp, v3df_dontpan, CHAN_AnimeSing);
+                PlaySound(DIGI_ANIMESING2, actor, v3df_dontpan, CHAN_AnimeSing);
         }
 
         ChangeState(actor,s_WashGirlStandScrub);
@@ -428,9 +428,9 @@ int DoWashGirl(DSWActor* actor)
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
             if (RandomRange(1000<<8)>>8 > 500)
-                PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_ANIMEMAD1, actor, v3df_dontpan, CHAN_AnimeMad);
             else
-                PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_ANIMEMAD2, actor, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(actor,s_WashGirlUzi);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
@@ -470,9 +470,9 @@ int NullWashGirl(DSWActor* actor)
         if (!SoundValidAndActive(sp, CHAN_AnimeMad))
         {
             if (RandomRange(1000<<8)>>8 > 500)
-                PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_ANIMEMAD1, actor, v3df_dontpan, CHAN_AnimeMad);
             else
-                PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_ANIMEMAD2, actor, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(actor,s_WashGirlUzi);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
@@ -827,7 +827,7 @@ int PachinkoCheckWin(DSWActor* actor)
         }
 
         ActorCoughItem(actor->GetSpriteIndex()); // I WON! I WON!
-        PlaySound(DIGI_PALARM, sp, v3df_none);
+        PlaySound(DIGI_PALARM, actor, v3df_none);
 
         // Can't win any more now!
         SET_BOOL1(sp);
@@ -877,11 +877,11 @@ int Pachinko1Operate(DSWActor* actor)
     {
         rnd = RandomRange(1000);  // TEMP SOUNDS: Need pachinko sounds!
         if (rnd > 700)
-            PlaySound(DIGI_PROLL1, sp, v3df_none);
+            PlaySound(DIGI_PROLL1, actor, v3df_none);
         else if (rnd > 400)
-            PlaySound(DIGI_PROLL2, sp, v3df_none);
+            PlaySound(DIGI_PROLL2, actor, v3df_none);
         else
-            PlaySound(DIGI_PROLL3, sp, v3df_none);
+            PlaySound(DIGI_PROLL3, actor, v3df_none);
     }
 
     return 0;
@@ -1276,13 +1276,13 @@ int DoCarGirl(DSWActor* actor)
                 choose = RandomRange(1000);
 
                 if (choose > 750)
-                    PlaySound(DIGI_LANI049, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI049, actor, v3df_dontpan, CHAN_AnimeMad);
                 else if (choose > 500)
-                    PlaySound(DIGI_LANI051, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI051, actor, v3df_dontpan, CHAN_AnimeMad);
                 else if (choose > 250)
-                    PlaySound(DIGI_LANI052, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI052, actor, v3df_dontpan, CHAN_AnimeMad);
                 else
-                    PlaySound(DIGI_LANI054, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI054, actor, v3df_dontpan, CHAN_AnimeMad);
             }
             ChangeState(actor,s_CarGirlUzi);
             u->WaitTics = SEC(3)+SEC(RandomRange(2<<8)>>8);
@@ -1329,13 +1329,13 @@ int NullCarGirl(DSWActor* actor)
             choose = RandomRange(1000);
 
             if (choose > 750)
-                PlaySound(DIGI_LANI049, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI049, actor, v3df_dontpan, CHAN_AnimeMad);
             else if (choose > 500)
-                PlaySound(DIGI_LANI051, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI051, actor, v3df_dontpan, CHAN_AnimeMad);
             else if (choose > 250)
-                PlaySound(DIGI_LANI052, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI052, actor, v3df_dontpan, CHAN_AnimeMad);
             else
-                PlaySound(DIGI_LANI054, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI054, actor, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(actor,s_CarGirlUzi);
         u->WaitTics = SEC(3)+SEC(RandomRange(2<<8)>>8);
@@ -1494,13 +1494,13 @@ int DoMechanicGirl(DSWActor* actor)
                 choose = RandomRange(1000);
 
                 if (choose > 750)
-                    PlaySound(DIGI_LANI073, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI073, actor, v3df_dontpan, CHAN_AnimeMad);
                 else if (choose > 500)
-                    PlaySound(DIGI_LANI075, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI075, actor, v3df_dontpan, CHAN_AnimeMad);
                 else if (choose > 250)
-                    PlaySound(DIGI_LANI077, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI077, actor, v3df_dontpan, CHAN_AnimeMad);
                 else
-                    PlaySound(DIGI_LANI079, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI079, actor, v3df_dontpan, CHAN_AnimeMad);
             }
             ChangeState(actor,s_MechanicGirlDrill);
             u->WaitTics = SEC(1)+SEC(RandomRange(2<<8)>>8);
@@ -1547,13 +1547,13 @@ int NullMechanicGirl(DSWActor* actor)
             choose = RandomRange(1000);
 
             if (choose > 750)
-                PlaySound(DIGI_LANI073, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI073, actor, v3df_dontpan, CHAN_AnimeMad);
             else if (choose > 500)
-                PlaySound(DIGI_LANI075, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI075, actor, v3df_dontpan, CHAN_AnimeMad);
             else if (choose > 250)
-                PlaySound(DIGI_LANI077, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI077, actor, v3df_dontpan, CHAN_AnimeMad);
             else
-                PlaySound(DIGI_LANI079, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI079, actor, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(actor,s_MechanicGirlDrill);
         u->WaitTics = SEC(1)+SEC(RandomRange(2<<8)>>8);
@@ -1716,14 +1716,14 @@ int DoSailorGirl(DSWActor* actor)
                 {
                     ActorCoughItem(actor->GetSpriteIndex());
                     alreadythrew++;
-                    PlaySound(DIGI_LANI060, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI060, actor, v3df_dontpan, CHAN_AnimeMad);
                 }
                 else if (choose > 500)
-                    PlaySound(DIGI_LANI063, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI063, actor, v3df_dontpan, CHAN_AnimeMad);
                 else if (choose > 250)
-                    PlaySound(DIGI_LANI065, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI065, actor, v3df_dontpan, CHAN_AnimeMad);
                 else
-                    PlaySound(DIGI_LANI066, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI066, actor, v3df_dontpan, CHAN_AnimeMad);
             }
             ChangeState(actor,s_SailorGirlThrow);
             u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
@@ -1774,14 +1774,14 @@ int NullSailorGirl(DSWActor* actor)
             {
                 ActorCoughItem(actor->GetSpriteIndex());
                 alreadythrew++;
-                PlaySound(DIGI_LANI060, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI060, actor, v3df_dontpan, CHAN_AnimeMad);
             }
             else if (choose > 500)
-                PlaySound(DIGI_LANI063, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI063, actor, v3df_dontpan, CHAN_AnimeMad);
             else if (choose > 250)
-                PlaySound(DIGI_LANI065, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI065, actor, v3df_dontpan, CHAN_AnimeMad);
             else
-                PlaySound(DIGI_LANI066, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI066, actor, v3df_dontpan, CHAN_AnimeMad);
         }
         ChangeState(actor,s_SailorGirlThrow);
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
@@ -1924,13 +1924,13 @@ int DoPruneGirl(DSWActor* actor)
                 choose = STD_RANDOM_RANGE(1000);
 
                 if (choose > 750)
-                    PlaySound(DIGI_LANI089, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI089, actor, v3df_dontpan, CHAN_AnimeMad);
                 else if (choose > 500)
-                    PlaySound(DIGI_LANI091, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI091, actor, v3df_dontpan, CHAN_AnimeMad);
                 else if (choose > 250)
-                    PlaySound(DIGI_LANI093, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI093, actor, v3df_dontpan, CHAN_AnimeMad);
                 else
-                    PlaySound(DIGI_LANI095, sp, v3df_dontpan, CHAN_AnimeMad);
+                    PlaySound(DIGI_LANI095, actor, v3df_dontpan, CHAN_AnimeMad);
             }
             u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
             u->FlagOwner = 0;
@@ -1944,13 +1944,13 @@ int DoPruneGirl(DSWActor* actor)
             choose = STD_RANDOM_RANGE(1000);
 
             if (choose > 990)
-                PlaySound(DIGI_PRUNECACKLE, sp, v3df_dontpan, CHAN_CoyHandle);
+                PlaySound(DIGI_PRUNECACKLE, actor, v3df_dontpan, CHAN_CoyHandle);
             else if (choose > 985)
-                PlaySound(DIGI_PRUNECACKLE2, sp, v3df_dontpan, CHAN_CoyHandle);
+                PlaySound(DIGI_PRUNECACKLE2, actor, v3df_dontpan, CHAN_CoyHandle);
             else if (choose > 980)
-                PlaySound(DIGI_PRUNECACKLE3, sp, v3df_dontpan, CHAN_CoyHandle);
+                PlaySound(DIGI_PRUNECACKLE3, actor, v3df_dontpan, CHAN_CoyHandle);
             else if (choose > 975)
-                PlaySound(DIGI_LANI091, sp, v3df_dontpan, CHAN_CoyHandle);
+                PlaySound(DIGI_LANI091, actor, v3df_dontpan, CHAN_CoyHandle);
         }
     }
 
@@ -1993,13 +1993,13 @@ int NullPruneGirl(DSWActor* actor)
             choose = RandomRange(1000);
 
             if (choose > 750)
-                PlaySound(DIGI_LANI089, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI089, actor, v3df_dontpan, CHAN_AnimeMad);
             else if (choose > 500)
-                PlaySound(DIGI_LANI091, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI091, actor, v3df_dontpan, CHAN_AnimeMad);
             else if (choose > 250)
-                PlaySound(DIGI_LANI093, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI093, actor, v3df_dontpan, CHAN_AnimeMad);
             else
-                PlaySound(DIGI_LANI095, sp, v3df_dontpan, CHAN_AnimeMad);
+                PlaySound(DIGI_LANI095, actor, v3df_dontpan, CHAN_AnimeMad);
         }
         u->WaitTics = SEC(1)+SEC(RandomRange(3<<8)>>8);
         u->FlagOwner = 0;

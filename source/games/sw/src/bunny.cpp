@@ -980,8 +980,8 @@ int DoBunnyQuickJump(DSWActor* actor)
         {
             if (u->spal == PALETTE_PLAYER8 && tu->spal == PALETTE_PLAYER8)
             {
-                PlaySound(DIGI_BUNNYATTACK, sp, v3df_follow);
-                PlaySound(DIGI_BUNNYDIE2, tsp, v3df_follow);
+                PlaySound(DIGI_BUNNYATTACK, actor, v3df_follow);
+                PlaySound(DIGI_BUNNYDIE2, hitActor, v3df_follow);
                 tu->Health = 0;
 
                 // Blood fountains
@@ -1138,13 +1138,12 @@ int DoBunnyRipHeart(DSWActor* actor)
 int DoBunnyStandKill(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
 
     NullBunny(actor);
 
     // Growl like the bad ass bunny you are!
     if (RandomRange(1000) > 800)
-        PlaySound(DIGI_BUNNYATTACK, sp, v3df_none);
+        PlaySound(DIGI_BUNNYATTACK, actor, v3df_none);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         NewStateGroup(actor, sg_BunnyRun);
@@ -1450,7 +1449,7 @@ int DoBunnyScrew(DSWActor* actor)
 
     if (RandomRange(1000) > 990) // Bunny sex sounds
     {
-         PlaySound(DIGI_BUNNYATTACK, sp, v3df_follow);
+         PlaySound(DIGI_BUNNYATTACK, actor, v3df_follow);
     }
 
     u->WaitTics -= ACTORMOVETICS;
@@ -1499,7 +1498,7 @@ int DoBunnyGrowUp(DSWActor* actor)
         {
             if (Bunny_Count < 20)
             {
-                PlaySound(DIGI_BUNNYDIE2, sp, v3df_follow);
+                PlaySound(DIGI_BUNNYDIE2, actor, v3df_follow);
                 BunnyHatch(actor); // Baby time
             }
             u->ShellNum = 0; // Not pregnent anymore

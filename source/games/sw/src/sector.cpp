@@ -1201,7 +1201,7 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
             }
             else
             {
-                PlaySound(snd2play, sp, flags);
+                PlaySound(snd2play, actor, flags);
 
                 Set3DSoundOwner(actor->GetSpriteIndex());
             }
@@ -1680,7 +1680,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return true;
 
-        PlaySound(DIGI_PFLIP, sp, v3df_none);
+        PlaySound(DIGI_PFLIP, actor, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(actor,s_Pachinko1Operate);
 
@@ -1691,7 +1691,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return true;
 
-        PlaySound(DIGI_PFLIP, sp, v3df_none);
+        PlaySound(DIGI_PFLIP, actor, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(actor,s_Pachinko2Operate);
 
@@ -1702,7 +1702,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return true;
 
-        PlaySound(DIGI_PFLIP, sp, v3df_none);
+        PlaySound(DIGI_PFLIP, actor, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(actor,s_Pachinko3Operate);
 
@@ -1713,7 +1713,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return true;
 
-        PlaySound(DIGI_PFLIP, sp, v3df_none);
+        PlaySound(DIGI_PFLIP, actor, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
         ChangeState(actor,s_Pachinko4Operate);
 
@@ -1738,7 +1738,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
         // change the switch state
         AnimateSwitch(sp, -1);
-        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, actor, v3df_none);
 
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
         {
@@ -1751,7 +1751,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
         // change the switch state
         AnimateSwitch(sp, -1);
-        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, actor, v3df_none);
 
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
         {
@@ -1803,7 +1803,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         AnimateSwitch(sp, -1);
 
-        PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
+        PlaySound(DIGI_BIGSWITCH, actor, v3df_none);
 
 		MapRecord *map;
         if (sp->hitag)
@@ -1852,7 +1852,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         sp->hitag = 0;
         sp->lotag = 0;
 
-        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, actor, v3df_none);
         break;
     }
 
@@ -1872,7 +1872,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
         sop->ang_tgt = NORM_ANGLE(sop->ang_tgt + 512);
 
-        PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
+        PlaySound(DIGI_BIGSWITCH, actor, v3df_none);
 
         return true;
 
@@ -2371,7 +2371,7 @@ int DoPlayerGrabStar(PLAYERp pp)
     {
         // Pull a star out of wall and up your ammo
         PlayerUpdateAmmo(pp, WPN_STAR, 1);
-        PlaySound(DIGI_ITEM, sp, v3df_none);
+        PlaySound(DIGI_ITEM, StarQueue[i], v3df_none);
         KillActor(StarQueue[i]);
         StarQueue[i] = nullptr;
         if (TEST(pp->WpnFlags, BIT(WPN_STAR)))

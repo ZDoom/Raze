@@ -237,7 +237,7 @@ void StopAmbientSound(void)
 //
 //==========================================================================
 
-void InitAmbient(int num, SPRITEp sp)
+void InitAmbient(int num, DSWActor* actor)
 {
     VOC_INFOp vp;
     int pitch = 0;
@@ -265,7 +265,7 @@ void InitAmbient(int num, SPRITEp sp)
     }
 
     auto amb = new AmbientSound;
-    amb->sp = sp;
+    amb->sp = &actor->s();
     amb->ambIndex = num;
     amb->vocIndex = vnum;
     amb->ChanFlags = CHANF_TRANSIENT;
@@ -285,15 +285,13 @@ void InitAmbient(int num, SPRITEp sp)
 
 void StartAmbientSound(void)
 {
-    int i;
-    
     if (!SoundEnabled()) return;
 
-    StatIterator it(STAT_AMBIENT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_AMBIENT);
+    while (auto actor = it.Next())
     {
-        SPRITEp sp = &sprite[i];
-        InitAmbient(sp->lotag, sp);
+        SPRITEp sp = &actor->s();
+        InitAmbient(sp->lotag, actor);
     }
 }
 

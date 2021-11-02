@@ -1882,7 +1882,7 @@ short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
 int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags, int channel, EChanFlags sndflags);
-void InitAmbient(int num, SPRITEp sprite);
+void InitAmbient(int num, DSWActor* actor);
 inline void PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
     _PlaySound(num, sprite, nullptr, nullptr, flags, channel, sndflags);
@@ -2275,6 +2275,11 @@ inline void SetCollision(USER* u, int coll)
 inline bool PLAYER_MOVING(PLAYERp pp)
 {
 	return (pp->xvect | pp->yvect);
+}
+
+inline void PlaySound(int num, DSWActor* actor, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
+{
+    _PlaySound(num, &actor->s(), nullptr, nullptr, flags, channel, sndflags);
 }
 
 struct ANIMstruct

@@ -639,7 +639,7 @@ int InitCoolieCharge(DSWActor* actor)
     SPRITEp sp = &actor->s();
 
     if (RANDOM_P2(1024) > 950)
-        PlaySound(DIGI_COOLIESCREAM, sp, v3df_follow);
+        PlaySound(DIGI_COOLIESCREAM, actor, v3df_follow);
 
     DoActorSetSpeed(actor, FAST_SPEED);
 

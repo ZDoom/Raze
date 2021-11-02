@@ -228,14 +228,14 @@ JS_SpriteSetup(void)
         case 2720:
         case 3143:
         case 3157:
-            PlaySound(DIGI_FIRE1, sp, v3df_follow|v3df_dontpan|v3df_doppler);
+            PlaySound(DIGI_FIRE1, actor, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 795:
         case 880:
-            PlaySound(DIGI_WATERFLOW1, sp, v3df_follow|v3df_dontpan|v3df_doppler);
+            PlaySound(DIGI_WATERFLOW1, actor, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 460:  // Wind Chimes
-            InitAmbient(79, sp);
+            InitAmbient(79, actor);
             break;
 
         }
@@ -968,7 +968,7 @@ void UnlockKeyLock(short key_num, DSWActor* hitActor)
         case SKEL_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_UNLOCK, sp, v3df_doppler | v3df_dontpan);
+                PlaySound(DIGI_UNLOCK, itActor, v3df_doppler | v3df_dontpan);
                 if (itActor == hitActor)
                     sp->picnum = SKEL_UNLOCKED;
             }
@@ -976,14 +976,14 @@ void UnlockKeyLock(short key_num, DSWActor* hitActor)
         case RAMCARD_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_CARDUNLOCK, sp, v3df_doppler | v3df_dontpan);
+                PlaySound(DIGI_CARDUNLOCK, itActor, v3df_doppler | v3df_dontpan);
                 sp->picnum = RAMCARD_UNLOCKED;
             }
             break;
         case CARD_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_RAMUNLOCK, sp, v3df_doppler | v3df_dontpan);
+                PlaySound(DIGI_RAMUNLOCK, itActor, v3df_doppler | v3df_dontpan);
                 if (itActor == hitActor)
                     sp->picnum = CARD_UNLOCKED;
                 else

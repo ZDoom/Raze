@@ -1954,7 +1954,7 @@ int DoNinjaHariKari(DSWActor* actor)
     SET(sp->extra, SPRX_BREAKABLE);
     SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
 
-    PlaySound(DIGI_NINJAUZIATTACK, sp, v3df_follow);
+    PlaySound(DIGI_NINJAUZIATTACK, actor, v3df_follow);
 
     SpawnBlood(actor, actor, -1, -1, -1, -1);
 
@@ -1991,7 +1991,7 @@ int DoNinjaGrabThroat(DSWActor* actor)
         sp->xvel = 0;
         //u->jump_speed = -300;
         //DoActorBeginJump(actor);
-        PlaySound(DIGI_NINJASCREAM, sp, v3df_follow);
+        PlaySound(DIGI_NINJASCREAM, actor, v3df_follow);
     }
 
     return 0;

@@ -148,7 +148,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
                     SpawnBlood(actor, actor, -1, -1, -1, -1);
                 InitPlasmaFountain(wp, sp);
                 InitPlasmaFountain(wp, sp);
-                PlaySound(DIGI_NINJAINHALF, sp, v3df_none);
+                PlaySound(DIGI_NINJAINHALF, actor, v3df_none);
                 if (sw_ninjahack)
                     ChangeState(actor, &s_NinjaDieSlicedHack[5]);
                 else
@@ -795,11 +795,11 @@ int DoActorStopFall(DSWActor* actor)
         if (TEST(u->Flags, SPR_DEAD))
         {
             NewStateGroup(actor, u->ActorActionSet->Dead);
-            PlaySound(DIGI_ACTORBODYFALL1, sp, v3df_none);
+            PlaySound(DIGI_ACTORBODYFALL1, actor, v3df_none);
         }
         else
         {
-            PlaySound(DIGI_ACTORHITGROUND, sp, v3df_none);
+            PlaySound(DIGI_ACTORHITGROUND, actor, v3df_none);
 
             NewStateGroup(actor, u->ActorActionSet->Run);
 

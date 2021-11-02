@@ -1219,7 +1219,7 @@ int DoRipper2StandHeart(DSWActor* actor)
     NullRipper2(actor);
 
     if (!SoundValidAndActive(sp, CHAN_RipHeart))
-        PlaySound(DIGI_RIPPER2HEARTOUT, sp, v3df_none, CHAN_RipHeart);
+        PlaySound(DIGI_RIPPER2HEARTOUT, actor, v3df_none, CHAN_RipHeart);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         NewStateGroup(actor, sg_Ripper2Run);
@@ -1337,7 +1337,7 @@ int ChestRipper2(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    PlaySound(DIGI_RIPPER2CHEST, sp, v3df_follow);
+    PlaySound(DIGI_RIPPER2CHEST, actor, v3df_follow);
 
     return 0;
 }

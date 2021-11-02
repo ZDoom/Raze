@@ -829,7 +829,7 @@ int DoCoolgMove(DSWActor* actor)
             u->ShellNum = SEC(2);
             break;
         case 1:
-            PlaySound(DIGI_VOID3, sp, v3df_follow);
+            PlaySound(DIGI_VOID3, actor, v3df_follow);
             RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
             SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
             u->ShellNum = SEC(1) + SEC(RandomRange(2));
@@ -840,7 +840,7 @@ int DoCoolgMove(DSWActor* actor)
             u->ShellNum = SEC(2);
             break;
         case 3:
-            PlaySound(DIGI_VOID3, sp, v3df_follow);
+            PlaySound(DIGI_VOID3, actor, v3df_follow);
             RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
             u->ShellNum = SEC(2) + SEC(RandomRange(3));
