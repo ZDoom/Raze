@@ -44,7 +44,7 @@ BEGIN_SW_NS
 void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny);
 void DoAutoTurretObject(SECTOR_OBJECTp sop);
 void DoTornadoObject(SECTOR_OBJECTp sop);
-int PickJumpSpeed(short SpriteNum, int pix_height);
+int PickJumpSpeed(DSWActor*, int pix_height);
 DSWActor* FindNearSprite(DSWActor, short);
 ANIMATOR NinjaJumpActionFunc;
 
@@ -3242,7 +3242,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
                 zdiff = labs(sp->z - sector[wall[hitinfo.wall].nextsector].floorz) >> 8;
 
-                u->jump_speed = PickJumpSpeed(SpriteNum, zdiff);
+                u->jump_speed = PickJumpSpeed(actor, zdiff);
             }
 
             DoActorBeginJump(actor);

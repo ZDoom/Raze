@@ -6135,7 +6135,7 @@ DoDamage(short SpriteNum, short Weapon)
                 {
                     PlaySound(DIGI_RIPPERHEARTOUT,u->PlayerP,v3df_dontpan|v3df_doppler);
 
-                    DoRipperRipHeart(Weapon);
+                    DoRipperRipHeart(weapActor);
                 }
             }
         }

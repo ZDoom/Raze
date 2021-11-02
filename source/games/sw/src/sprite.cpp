@@ -68,7 +68,7 @@ int SetupSailorGirl(DSWActor*);
 int SetupPruneGirl(DSWActor*);
 int SetupTrashCan(DSWActor*);
 int SetupBunny(DSWActor*);
-int SetupRipper(short);
+int SetupRipper(DSWActor*);
 int SetupRipper2(short);
 int SetupSerp(short);
 int SetupLava(DSWActor* actor);
@@ -1427,7 +1427,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupRipper(SpriteNum);
+        SetupRipper(actor);
         break;
     }
 
