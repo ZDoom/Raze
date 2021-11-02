@@ -62,7 +62,7 @@ static struct so_interp
         int32_t lastipos;
         int32_t lastoldipos;
         int32_t lastangdiff;
-        int32_t spriteofang;
+        DSWActor* actorofang;
     } data[SO_MAXINTERPOLATIONS];
 
     int32_t numinterpolations;
@@ -122,7 +122,7 @@ static void so_setpointinterpolation(so_interp *interp, int element)
     data->oldipos =
         data->lastipos =
         data->lastoldipos = getvalue(element, false);
-    data->spriteofang = -1;
+    data->actorofang = nullptr;
 }
 
 static void so_setspriteanginterpolation(so_interp *interp, int32_t spritenum)
@@ -132,7 +132,7 @@ static void so_setspriteanginterpolation(so_interp *interp, int32_t spritenum)
         return;
 
     for (i = 0; i < interp->numinterpolations; i++)
-        if (interp->data[i].curelement == -1 && interp->data[i].spriteofang == spritenum)
+        if (interp->data[i].curelement == -1 && interp->data[i].actorofang->GetSpriteIndex() == spritenum)
             return;
 
     so_interp::interp_data *data = &interp->data[interp->numinterpolations++];
@@ -142,7 +142,7 @@ static void so_setspriteanginterpolation(so_interp *interp, int32_t spritenum)
         data->lastipos =
         data->lastoldipos = sprite[spritenum].ang;
     data->lastangdiff = 0;
-    data->spriteofang = spritenum;
+    data->actorofang = &swActors[spritenum];
 }
 
 // Covers points and angles altogether
@@ -154,7 +154,7 @@ static void so_stopdatainterpolation(so_interp *interp, int element)
     {
         if (interp->data[i].curelement == -1)
         {
-            if (interp->data[i].spriteofang == element) break;
+            if (interp->data[i].actorofang->GetSpriteIndex() == element) break;
         }
         else if (interp->data[i].curelement == element)
             break;
@@ -270,14 +270,14 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
             interp->tic += synctics;
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
         {
-            if (data->spriteofang >= 0)
+            if (data->actorofang != nullptr)
             {
-                USERp u = User[data->spriteofang].Data();
+				USERp u = data->actorofang->u();
                 if (u)
                     u->oangdiff = 0;
                 if (!interpolating)
                     data->lastangdiff = 0;
-                data->oldipos = sprite[data->spriteofang].ang;
+                data->oldipos = data->actorofang->s().ang;
             }
             else
                 data->oldipos = getvalue(data->curelement, false);
@@ -307,8 +307,8 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             continue;
 
         for (i = 0; i < interp->numinterpolations; i++)
-            interp->data[i].bakipos = (interp->data[i].spriteofang >= 0) ?
-                                      sprite[interp->data[i].spriteofang].ang :
+            interp->data[i].bakipos = (interp->data[i].actorofang != nullptr) ?
+                                      interp->data[i].actorofang->s().ang :
                                       getvalue(interp->data[i].curelement, false);
 
         if (interp->tic == 0) // Only if the SO has just moved
@@ -317,9 +317,9 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             {
                 data->lastipos = data->bakipos;
                 data->lastoldipos = data->oldipos;
-                if (data->spriteofang >= 0)
+                if (data->actorofang != nullptr)
                 {
-                    USERp u = User[data->spriteofang].Data();
+                    USERp u = data->actorofang->u();
                     data->lastangdiff = u ? u->oangdiff : 0;
                 }
             }
@@ -368,8 +368,8 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                     continue;
             }
 
-            if (data->spriteofang >= 0)
-                sprite[data->spriteofang].ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
+            if (data->actorofang != nullptr)
+                data->actorofang->s().ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
             else
             {
                 delta = data->lastipos - data->lastoldipos;
@@ -394,8 +394,8 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
             continue;
 
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
-            if (data->spriteofang >= 0)
-                sprite[data->spriteofang].ang = data->bakipos;
+            if (data->actorofang != nullptr)
+                data->actorofang->s().ang = data->bakipos;
             else
                 getvalue(data->curelement, true) = data->bakipos;
     }
@@ -423,7 +423,7 @@ void so_serializeinterpolations(FSerializer& arc)
                         {
                             arc("curelement", data->curelement)
                                 ("oldipos", data->oldipos)
-                                ("spriteofang", data->spriteofang)
+                                ("spriteofang", data->actorofang)
                                 .EndObject();
                             if (arc.isReading())
                             {
