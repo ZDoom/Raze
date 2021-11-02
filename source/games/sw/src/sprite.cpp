@@ -6773,7 +6773,7 @@ SpriteControl(void)
         if (u->Tics)
         {
             if ((u->Tics -= synctics) <= 0)
-                SetVatorActive(i);
+                SetVatorActive(actor);
             else
                 continue;
         }

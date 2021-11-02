@@ -37,7 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 bool TestSpikeMatchActive(short match);
-int DoVatorMove(short SpriteNum, int *lptr);
 void InterpSectorSprites(short sectnum, bool state);
 
 void ReverseSpike(DSWActor* actor)
