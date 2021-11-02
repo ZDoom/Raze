@@ -495,20 +495,6 @@ int DoActorOperate(DSWActor* actor)
                 &nearsector, &nearwall, &nearsprite,
                 &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, nullptr);
 
-        //DSPRINTF(ds,"nearsector = %d, nearwall = %d, nearsprite = %d hitdist == %ld\n",nearsector,nearwall,nearsprite,nearhitdist);
-        //MONO_PRINT(ds);
-
-#if 0  // Actors don't hit switches on a whim
-        if (nearsprite >= 0 && nearhitdist < 1024)
-        {
-            if (OperateSprite(nearsprite, false))
-            {
-                u->WaitTics = 2 * 120;
-
-                NewStateGroup(actor, u->ActorActionSet->Stand);
-            }
-        }
-#endif
 
     }
 

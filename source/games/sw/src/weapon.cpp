@@ -3469,16 +3469,10 @@ AutoShrap:
                 short spnum;
                 short size;
                 SPRITEp ep;
-//                USERp eu;
 
                 spnum = SpawnLargeExp(ParentNum);
                 ASSERT(spnum >= 0);
-                //spnum = SpawnSectorExp(ParentNum);
                 ep = &sprite[spnum];
-//                eu = User[spnum];
-
-                //eu->xchange = MOVEx(92, ep->ang);
-                //eu->ychange = MOVEy(92, ep->ang);
 
                 size = ep->xrepeat;
                 ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
@@ -3491,16 +3485,10 @@ AutoShrap:
                 short spnum;
                 short size;
                 SPRITEp ep;
-//                USERp eu;
 
-                //spnum = SpawnSectorExp(ParentNum);
                 spnum = SpawnLargeExp(ParentNum);
                 ASSERT(spnum >= 0);
                 ep = &sprite[spnum];
-//                eu = User[spnum];
-
-                //eu->xchange = MOVEx(92, ep->ang);
-                //eu->ychange = MOVEy(92, ep->ang);
 
                 size = ep->xrepeat;
                 ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
@@ -7730,7 +7718,7 @@ int DoExpDamageTest(DSWActor* actor)
 
     // crack sprites
     if (wu->ID != MUSHROOM_CLOUD)
-        WeaponExplodeSectorInRange(Weapon);
+        WeaponExplodeSectorInRange(actor);
 
     // Just like DoDamageTest() except that it doesn't care about the Owner
 

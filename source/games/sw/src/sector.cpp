@@ -954,7 +954,7 @@ short AnimateSwitch(SPRITEp sp, short tgt_value)
 
         sp->picnum -= 1;
 
-        if (tgt_value == true)
+        if (tgt_value == int(true))
         {
             AnimateSwitch(sp, tgt_value);
             return true;
@@ -1312,10 +1312,10 @@ void KillMatchingCrackSprites(short match)
     }
 }
 
-void WeaponExplodeSectorInRange(short weapon)
+void WeaponExplodeSectorInRange(DSWActor* wActor)
 {
-    SPRITEp wp = &sprite[weapon];
-    USERp wu = User[weapon].Data();
+    SPRITEp wp = &wActor->s();
+    USERp wu = wActor->u();
     SPRITEp sp;
     int dist;
     int radius;
@@ -1341,7 +1341,7 @@ void WeaponExplodeSectorInRange(short weapon)
 
 
         // pass in explosion type
-        MissileHitMatch(weapon, WPN_ROCKET, actor->GetSpriteIndex());
+        MissileHitMatch(wActor->GetSpriteIndex(), WPN_ROCKET, actor->GetSpriteIndex());
     }
 }
 
@@ -1382,28 +1382,27 @@ void DoDeleteSpriteMatch(short match)
     };
 
     int del_x = 0,del_y = 0;
-    int i;
     unsigned stat;
-    short found;
 
     while (true)
     {
-        found = -1;
+        DSWActor* found = nullptr;
 
         // search for a DELETE_SPRITE with same match tag
-        StatIterator it(STAT_DELETE_SPRITE);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_DELETE_SPRITE);
+        while (auto actor = it.Next())
         {
-            if (sprite[i].lotag == match)
+            auto sp = &actor->s();
+            if (sp->lotag == match)
             {
-                found = i;
-                del_x = sprite[i].x;
-                del_y = sprite[i].y;
+                found = actor;
+                del_x = sp->x;
+                del_y = sp->y;
                 break;
             }
         }
 
-        if (found == -1)
+        if (found == nullptr)
             return;
 
         for (stat = 0; stat < SIZ(StatList); stat++)
@@ -1431,20 +1430,19 @@ void DoDeleteSpriteMatch(short match)
         }
 
         // kill the DELETE_SPRITE
-        KillSprite(found);
+        KillActor(found);
     }
 }
 
 void DoChangorMatch(short match)
 {
-    int sn;
     SPRITEp sp;
     SECTORp sectp;
 
-    StatIterator it(STAT_CHANGOR);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CHANGOR);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        auto sp = &actor->s();
         sectp = &sector[sp->sectnum];
 
         if (SP_TAG2(sp) != match)
@@ -1484,7 +1482,7 @@ void DoChangorMatch(short match)
         // if not set then go ahead and kill it
         if (TEST_BOOL2(sp) == 0)
         {
-            KillSprite(sn);
+            KillActor(actor);
         }
     }
 }
@@ -1541,14 +1539,12 @@ void DoMatchEverything(PLAYERp pp, short match, short state)
 
 bool ComboSwitchTest(short combo_type, short match)
 {
-    int i;
-    SPRITEp sp;
     int state;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        auto sp = &actor->s();
 
         if (sp->lotag == combo_type && sp->hitag == match)
         {

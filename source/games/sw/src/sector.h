@@ -73,7 +73,7 @@ void DoSector(void);
 short AnimateSwitch(SPRITEp sp,short tgt_value);
 void ShootableSwitch(short SpriteNum);
 bool TestKillSectorObject(SECTOR_OBJECTp sop);
-void WeaponExplodeSectorInRange(short weapon);
+void WeaponExplodeSectorInRange(DSWActor*);
 
 void initlava(void);
 void movelava(char *dapic);
