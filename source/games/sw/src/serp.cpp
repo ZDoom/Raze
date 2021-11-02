@@ -695,22 +695,20 @@ ACTOR_ACTION_SET SerpActionSet =
     nullptr
 };
 
-int
-SetupSerp(short SpriteNum)
+int SetupSerp(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,SERP_RUN_R0,s_SerpRun[0]);
+        u = SpawnUser(actor,SERP_RUN_R0,s_SerpRun[0]);
         u->Health = HEALTH_SERP_GOD;
     }
 
@@ -757,7 +755,6 @@ SetupSerp(short SpriteNum)
 int NullSerp(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -771,8 +768,7 @@ int NullSerp(DSWActor* actor)
 int DoSerpMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -814,8 +810,7 @@ int DoSerpMove(DSWActor* actor)
 int DoDeathSpecial(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     DoMatchEverything(nullptr, sp->lotag, ON);
 
