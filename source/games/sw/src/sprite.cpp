@@ -6816,7 +6816,7 @@ SpriteControl(void)
         if (u->Tics)
         {
             if ((u->Tics -= synctics) <= 0)
-                SetRotatorActive(i);
+                SetRotatorActive(actor);
             else
                 continue;
         }

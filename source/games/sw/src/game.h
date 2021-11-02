@@ -2115,7 +2115,7 @@ int LoadGame(short save_num);   // save.c
 int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill);    // save,c
 void LoadGameDescr(short save_num, char *descr);    // save.c
 
-void SetRotatorActive(short SpriteNum); // rotator.c
+void SetRotatorActive(DSWActor* actor); // rotator.c
 
 bool VatorSwitch(short match, short setting); // vator.c
 void MoveSpritesWithSector(short sectnum,int z_amt,bool type);  // vator.c

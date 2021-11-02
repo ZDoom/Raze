@@ -45,9 +45,9 @@ void DoMatchEverything(PLAYERp pp, short match, short state);
 void DoRotatorSetInterp(short SpriteNum);
 void DoRotatorStopInterp(short SpriteNum);
 
-void ReverseRotator(short SpriteNum)
+void ReverseRotator(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     ROTATORp r;
 
     r = u->rotator.Data();
@@ -56,7 +56,7 @@ void ReverseRotator(short SpriteNum)
     if (u->Tics)
     {
         u->Tics = 0;
-        SetRotatorActive(SpriteNum);
+        SetRotatorActive(actor);
         return;
     }
 
@@ -73,17 +73,15 @@ void ReverseRotator(short SpriteNum)
     r->vel = -r->vel;
 }
 
-bool
-RotatorSwitch(short match, short setting)
+bool RotatorSwitch(short match, short setting)
 {
     SPRITEp sp;
-    int i;
     bool found = false;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
@@ -95,15 +93,15 @@ RotatorSwitch(short match, short setting)
     return found;
 }
 
-void SetRotatorActive(short SpriteNum)
+void SetRotatorActive(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     ROTATORp r;
 
     r = u->rotator.Data();
 
-    DoRotatorSetInterp(SpriteNum);
+    DoRotatorSetInterp(actor->GetSpriteIndex());
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -157,20 +155,18 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
     USERp fu;
     SPRITEp fsp;
     short sectnum;
-    short first_vator = -1;
-
-    int i;
+    DSWActor* firstVator = nullptr;
 
     //RotatorSwitch(match, ON);
 
-    StatIterator it(STAT_ROTATOR);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ROTATOR);
+    while (auto actor = it.Next())
     {
-        fsp = &sprite[i];
+        fsp = &actor->s();
 
         if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i].Data();
+            fu = actor->u();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -188,8 +184,8 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
                     continue;
             }
 
-            if (first_vator == -1)
-                first_vator = i;
+            if (firstVator == nullptr)
+                firstVator = actor;
 
             sectnum = fsp->sectnum;
 
@@ -207,15 +203,15 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
 
             if (TEST(fu->Flags, SPR_ACTIVE))
             {
-                ReverseRotator(i);
+                ReverseRotator(actor);
                 continue;
             }
 
-            SetRotatorActive(i);
+            SetRotatorActive(actor);
         }
     }
 
-    return first_vator;
+    return firstVator->GetSpriteIndex();
 }
 
 
