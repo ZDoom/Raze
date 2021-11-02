@@ -1380,11 +1380,11 @@ void UpdateWallPortalState()
         }
         else
         {
-            auto sp = &sprite[mirror[i].camera];
+            auto sp = &mirror[i].cameraActor->s();
             if (!TEST_BOOL1(sp))
             {
                 wal->portalflags = PORTAL_WALL_TO_SPRITE;
-                wal->portalnum = mirror[i].camera;
+                wal->portalnum = mirror[i].cameraActor->GetSpriteIndex();
             }
         }
     }

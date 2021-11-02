@@ -1073,8 +1073,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRRORTYPE& w, MIR
 	{
 		arc("mirrorwall", w.mirrorwall, def->mirrorwall)
 			("mirrorsector", w.mirrorsector, def->mirrorsector)
-			("camera", w.camera, def->camera)
-			("camsprite", w.camsprite, def->camsprite)
+			("camera", w.cameraActor, def->cameraActor)
+			("camsprite", w.camspriteActor, def->camspriteActor)
 			("campic", w.campic, def->campic)
 			("numspawnspots", w.numspawnspots, def->numspawnspots)
 			.Array("spawnspots", w.spawnspots, def->spawnspots, w.numspawnspots)

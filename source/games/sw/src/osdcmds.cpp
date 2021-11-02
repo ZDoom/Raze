@@ -89,8 +89,8 @@ static int osdcmd_mirror(CCmdFuncPtr parm)
     Printf(" ");
     Printf("mirror[%d].mirrorwall = %d", op1, mirror[op1].mirrorwall);
     Printf("mirror[%d].mirrorsector = %d", op1, mirror[op1].mirrorsector);
-    Printf("mirror[%d].camera = %d", op1, mirror[op1].camera);
-    Printf("mirror[%d].camsprite = %d", op1, mirror[op1].camsprite);
+    Printf("mirror[%d].camera = %d", op1, mirror[op1].cameraActor->GetIndex());
+    Printf("mirror[%d].camsprite = %d", op1, mirror[op1].camspriteActor->GetIndex());
     Printf("mirror[%d].campic = %d", op1, mirror[op1].campic);
     Printf("mirror[%d].iscamera = %d", op1, mirror[op1].ismagic);
     return CCMD_OK;

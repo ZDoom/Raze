@@ -294,8 +294,8 @@ void JS_InitMirrors(void)
     {
 		tileDelete(i + MIRRORLABEL);
         mirror[i].campic = -1;
-        mirror[i].camsprite = -1;
-        mirror[i].camera = -1;
+        mirror[i].camspriteActor = nullptr;
+        mirror[i].cameraActor = nullptr;
         mirror[i].ismagic = false;
     }
 
@@ -336,7 +336,7 @@ void JS_InitMirrors(void)
                         // if correct type and matches
                         if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
                         {
-                            mirror[mirrorcnt].camera = itActor->GetSpriteIndex();
+                            mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
@@ -352,7 +352,7 @@ void JS_InitMirrors(void)
                         // if correct type and matches
                         if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
                         {
-                            mirror[mirrorcnt].camera = itActor->GetSpriteIndex();
+                            mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
@@ -370,7 +370,7 @@ void JS_InitMirrors(void)
                     mirror[mirrorcnt].ismagic = true;
 
                     Found_Cam = false;
-                    if (TEST_BOOL1(&sprite[mirror[mirrorcnt].camera]))
+                    if (TEST_BOOL1(&mirror[mirrorcnt].cameraActor->s()))
                     {
                         SWStatIterator it(STAT_DEFAULT);
                         while (auto itActor = it.Next())
@@ -380,7 +380,7 @@ void JS_InitMirrors(void)
                                 sp->hitag == wall[i].hitag)
                             {
                                 mirror[mirrorcnt].campic = sp->picnum;
-                                mirror[mirrorcnt].camsprite = itActor->GetSpriteIndex();
+                                mirror[mirrorcnt].camspriteActor = itActor;
 
                                 // JBF: commenting out this line results in the screen in $BULLET being visible
 								tileDelete(mirror[mirrorcnt].campic);
@@ -394,7 +394,7 @@ void JS_InitMirrors(void)
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
                             Printf("wall[%d].hitag == %d\n", i, wall[i].hitag);
                             Printf("Map Coordinates: x = %d, y = %d\n", wall[i].x, wall[i].y);
-                            RESET_BOOL1(&sprite[mirror[mirrorcnt].camera]);
+                            RESET_BOOL1(&mirror[mirrorcnt].cameraActor->s());
                         }
                     }
 
@@ -411,16 +411,6 @@ void JS_InitMirrors(void)
 
                 // Set tics used to none
                 mirror[mirrorcnt].tics = 0;
-
-                if (mirror[mirrorcnt].ismagic)
-                {
-                    //DSPRINTF(ds, "mirror.mirrorwall %d", mirror[mirrorcnt].mirrorwall);
-                    MONO_PRINT(ds);
-                    //DSPRINTF(ds, "mirror.mirrorsector %d", mirror[mirrorcnt].mirrorsector);
-                    MONO_PRINT(ds);
-                    //DSPRINTF(ds, "mirror.camera %d", mirror[mirrorcnt].camera);
-                    MONO_PRINT(ds);
-                }
 
                 mirrorcnt++;
             }
@@ -568,7 +558,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 {
                     SPRITEp tp;
 
-                    tp = &sprite[mirror[cnt].camsprite];
+                    tp = &mirror[cnt].camspriteActor->s();
 
                     j = abs(tp->x - tx);
                     j += abs(tp->y - ty);
@@ -582,9 +572,9 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
 
-                ASSERT(mirror[cnt].camera != -1);
+                ASSERT(mirror[cnt].cameraActor != nullptr);
 
-                sp = &sprite[mirror[cnt].camera];
+                sp = &mirror[cnt].cameraActor->s();
 
                 ASSERT(sp);
 
