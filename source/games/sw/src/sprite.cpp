@@ -659,8 +659,8 @@ void KillSprite(int16_t SpriteNum)
 
         // for attached sprites that are getable make sure they don't have
         // any Anims attached
-        AnimDelete(ANIM_Userz, SpriteNum);
-        AnimDelete(ANIM_Spritez, SpriteNum);
+        AnimDelete(ANIM_Userz, 0, actor);
+        AnimDelete(ANIM_Spritez, 0, actor);
         StopInterpolation(SpriteNum, Interp_Sprite_Z);
 
         //if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))

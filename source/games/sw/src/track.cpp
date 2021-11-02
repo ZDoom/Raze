@@ -2188,7 +2188,7 @@ MoveZ(SECTOR_OBJECTp sop)
 
     if (TEST(sop->flags, SOBJ_MOVE_VERTICAL))
     {
-        i = AnimGetGoal (ANIM_SopZ, int(sop - SectorObject));
+        i = AnimGetGoal (ANIM_SopZ, int(sop - SectorObject), nullptr);
         if (i < 0)
             RESET(sop->flags, SOBJ_MOVE_VERTICAL);
     }
@@ -2203,7 +2203,7 @@ MoveZ(SECTOR_OBJECTp sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, int(*sectp - sector), sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, int(*sectp - sector), nullptr, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         RESET(sop->flags, SOBJ_ZDOWN);
@@ -2212,7 +2212,7 @@ MoveZ(SECTOR_OBJECTp sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, int(*sectp - sector), sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, int(*sectp - sector), nullptr, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         RESET(sop->flags, SOBJ_ZUP);
@@ -2247,7 +2247,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     for (i = 0; sop->sector[i] != -1; i++)
     {
-        if (ap->animtype == ANIM_Floorz && ap->index == sop->sector[i])
+        if (ap->animtype == ANIM_Floorz && ap->animindex == sop->sector[i])
         {
             dest_sector = sop->sector[i];
             break;
@@ -2275,7 +2275,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     {
         if (sectnum == dest_sector)
         {
-            ndx = AnimSet(ANIM_SUdepth, dest_sector, IntToFixed(tgt_depth), (ap->vel << 8) >> 8);
+            ndx = AnimSet(ANIM_SUdepth, dest_sector, nullptr, IntToFixed(tgt_depth), (ap->vel << 8) >> 8);
             AnimSetVelAdj(ndx, ap->vel_adj);
             found = true;
             break;
@@ -2284,17 +2284,17 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     ASSERT(found);
 
-    SectIterator it(dest_sector);
-    while ((i = it.NextIndex()) >= 0)
+    SWSectIterator it(dest_sector);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
-        u = User[i].Data();
+        sp = &actor->s();
+        u = actor->u();
 
         if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
             continue;
 
         // move sprite WAY down in water
-        ndx = AnimSet(ANIM_Userz, i, -u->sz - SPRITEp_SIZE_Z(sp) - Z(100), ap->vel>>8);
+        ndx = AnimSet(ANIM_Userz, 0, actor, -u->sz - SPRITEp_SIZE_Z(sp) - Z(100), ap->vel>>8);
         AnimSetVelAdj(ndx, ap->vel_adj);
     }
 
@@ -2551,7 +2551,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
                 if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_SINK))
                     continue;
 
-                ndx = AnimSet(ANIM_Floorz, int(*sectp-sector), sector[dest_sector].floorz, tpoint->tag_high);
+                ndx = AnimSet(ANIM_Floorz, int(*sectp-sector), nullptr, sector[dest_sector].floorz, tpoint->tag_high);
                 AnimSetCallback(ndx, CallbackSOsink, sop);
                 AnimSetVelAdj(ndx, 6);
             }
@@ -2572,7 +2572,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
                 if (sectu && sectu->stag == SECT_SO_FORM_WHIRLPOOL)
                 {
-                    AnimSet(ANIM_Floorz, int(*sectp - sector), (*sectp)->floorz + Z(sectu->height), 128);
+                    AnimSet(ANIM_Floorz, int(*sectp - sector), nullptr, (*sectp)->floorz + Z(sectu->height), 128);
                     (*sectp)->floorshade += sectu->height/6;
 
                     RESET((*sectp)->extra, SECTFX_NO_RIDE);
@@ -2597,7 +2597,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             tpoint = Track[sop->track].TrackPoint + sop->point;
 
             // set anim
-            AnimSet(ANIM_SopZ, int(sop-SectorObject), tpoint->z, zr);
+            AnimSet(ANIM_SopZ, int(sop-SectorObject), nullptr, tpoint->z, zr);
 
             // move back to current point by reversing direction
             sop->dir *= -1;
@@ -2693,14 +2693,14 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
             {
                 // only modify zmid for sprite_objects
-                AnimSet(ANIM_SopZ, int(sop - SectorObject), dz, sop->z_rate);
+                AnimSet(ANIM_SopZ, int(sop - SectorObject), nullptr, dz, sop->z_rate);
             }
             else
             {
                 // churn through sectors setting their new z values
                 for (i = 0; sop->sector[i] != -1; i++)
                 {
-                    AnimSet(ANIM_Floorz, sop->sector[i], dz - (sector[sop->mid_sector].floorz - sector[sop->sector[i]].floorz), sop->z_rate);
+                    AnimSet(ANIM_Floorz, sop->sector[i], nullptr, dz - (sector[sop->mid_sector].floorz - sector[sop->sector[i]].floorz), sop->z_rate);
                 }
             }
         }

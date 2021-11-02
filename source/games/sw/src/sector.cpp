@@ -643,36 +643,8 @@ void
 DoSpringBoard(PLAYERp pp/*, short sectnum*/)
 {
 
-#if 0
-    int sb;
-    int i;
-    i = AnimGetGoal(&sector[sectnum].floorz);
-
-    // if in motion return
-    if (i >= 0)
-        return;
-
-    AnimSet(&sector[sectnum].floorz, sector[sectnum].floorz - Z(32), 512);
-
-    for (sb = 0; sb < SIZ(SpringBoard); sb++)
-    {
-        // if empty set up an entry to close the sb later
-        if (SpringBoard[sb].Sector == -1)
-        {
-            pp->jump_speed = -sector[pp->cursectnum].hitag;
-            DoPlayerBeginForceJump(pp);
-
-            SpringBoard[sb].Sector = sectnum;
-            SpringBoard[sb].TimeOut = 1 * 120;
-
-            sector[sectnum].lotag = 0;
-        }
-    }
-#else
     pp->jump_speed = -sector[pp->cursectnum].hitag;
     DoPlayerBeginForceJump(pp);
-#endif
-
     return;
 }
 
@@ -696,7 +668,7 @@ DoSpringBoardDown(void)
 
                 destz = sector[nextsectorneighborz(sbp->Sector, sector[sbp->Sector].floorz, 1, 1)].floorz;
 
-                AnimSet(ANIM_Floorz, sbp->Sector, destz, 256);
+                AnimSet(ANIM_Floorz, sbp->Sector, nullptr, destz, 256);
 
                 sector[sbp->Sector].lotag = TAG_SPRING_BOARD;
 
@@ -2871,14 +2843,14 @@ AnimClear(void)
 }
 
 short
-AnimGetGoal(int animtype, int animindex)
+AnimGetGoal(int animtype, int animindex, DSWActor* animactor)
 {
     int i, j;
 
     j = -1;
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
+		if (animtype == Anim[i].animtype && animindex == Anim[i].animindex && animactor == Anim[i].animactor )
         {
             j = i;
             break;
@@ -2889,14 +2861,14 @@ AnimGetGoal(int animtype, int animindex)
 }
 
 void
-AnimDelete(int animtype, int animindex)
+AnimDelete(int animtype, int animindex, DSWActor* animactor)
 {
     int i, j;
 
     j = -1;
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
+		if (animtype == Anim[i].animtype && animindex == Anim[i].animindex && animactor == Anim[i].animactor )
         {
             j = i;
             break;
@@ -2919,7 +2891,7 @@ AnimDelete(int animtype, int animindex)
 
 
 short
-AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
+AnimSet(int animtype, int animindex, DSWActor* animactor, fixed_t thegoal, int thevel)
 {
     int i, j;
 
@@ -2930,7 +2902,7 @@ AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
     // look for existing animation and reset it
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
+        if (animtype == Anim[i].animtype && animindex == Anim[i].animindex && animactor == Anim[i].animactor )
         {
             j = i;
             break;
@@ -2938,7 +2910,8 @@ AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
     }
 
     Anim[j].animtype = animtype;
-    Anim[j].index = animindex;
+    Anim[j].animindex = animindex;
+	Anim[j].animactor = animactor;
     Anim[j].goal = thegoal;
     Anim[j].vel = Z(thevel);
     Anim[j].vel_adj = 0;

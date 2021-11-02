@@ -1831,38 +1831,6 @@ struct SECTOR_OBJECTstruct
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
 
-struct ANIMstruct
-{
-    int animtype, index;
-    int goal;
-    int vel;
-    short vel_adj;
-    ANIM_CALLBACKp callback;
-    SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
-
-    int& Addr()
-    {
-        switch (animtype)
-        {
-        case ANIM_Floorz:
-            return sector[index].floorz;
-        case ANIM_SopZ:
-            return SectorObject[index].zmid;
-        case ANIM_Spritez:
-            return sprite[index].z;
-        case ANIM_Userz:
-            return User[index]->sz;
-        case ANIM_SUdepth:
-            return SectUser[index]->depth_fixed;
-        default:
-            return index;
-        }
-    }
-};
-
-extern ANIM Anim[MAXANIM];
-extern short AnimCnt;
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
 // Prototypes
@@ -1941,9 +1909,9 @@ void PlayerUpdateKills(PLAYERp pp, short value);
 void RefreshInfoLine(PLAYERp pp);
 
 void DoAnim(int numtics);
-void AnimDelete(int animtype, int animindex);
-short AnimGetGoal(int animtype, int animindex);
-short AnimSet(int animtype, int animindex, int thegoal, int thevel);
+void AnimDelete(int animtype, int animindex, DSWActor*);
+short AnimGetGoal(int animtype, int animindex, DSWActor*);
+short AnimSet(int animtype, int animindex, DSWActor* animactor, int thegoal, int thevel);
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
@@ -2299,6 +2267,39 @@ inline bool PLAYER_MOVING(PLAYERp pp)
 {
 	return (pp->xvect | pp->yvect);
 }
+
+struct ANIMstruct
+{
+	int animtype, animindex;
+	int goal;
+	int vel;
+	short vel_adj;
+	DSWActor* animactor;
+	ANIM_CALLBACKp callback;
+	SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
+
+	int& Addr()
+	{
+		switch (animtype)
+		{
+		case ANIM_Floorz:
+			return sector[animindex].floorz;
+		case ANIM_SopZ:
+			return SectorObject[animindex].zmid;
+		case ANIM_Spritez:
+			return animactor->s().z;
+		case ANIM_Userz:
+			return animactor->u()->sz;
+		case ANIM_SUdepth:
+			return SectUser[animindex]->depth_fixed;
+		default:
+			return animindex;
+		}
+	}
+};
+
+extern ANIM Anim[MAXANIM];
+extern short AnimCnt;
 
 
 END_SW_NS
