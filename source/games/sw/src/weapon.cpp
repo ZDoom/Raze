@@ -11335,14 +11335,14 @@ AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
     }
 
     // find a free place on this list
-    for (sn = 0; sn < SIZ(sop->sp_num); sn++)
+    for (sn = 0; sn < SIZ(sop->so_actors); sn++)
     {
-        if (sop->sp_num[sn] == -1)
+        if (sop->so_actors[sn] == nullptr)
             break;
     }
 
-    ASSERT(sn < SIZ(sop->sp_num) - 1);
-    sop->sp_num[sn] = actor->GetSpriteIndex();
+	if (sn >= SIZ(sop->so_actors) - 1) return 0;
+    sop->so_actors[sn] = actor;
     so_setspriteinterpolation(sop, actor);
 
     SET(u->Flags, SPR_ON_SO_SECTOR|SPR_SO_ATTACHED);
@@ -11362,7 +11362,6 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
     USERp u;
     SPRITEp exp;
     USERp eu;
-    short explosion;
     unsigned sn;
     bool smallflames = false;
 
@@ -11375,13 +11374,13 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
     sp = &sprite[Weapon];
     u = User[Weapon].Data();
 
-    explosion = SpawnSprite(STAT_MISSILE, MICRO_EXP, s_BigGunFlame, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_BigGunFlame, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(Operator, explosion);
+    SetOwner(&swActors[Operator], expActor);
     exp->shade = -40;
     if (smallflames)
     {
@@ -11402,15 +11401,16 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
         SET(exp->cstat, CSTAT_SPRITE_YFLIP);
 
     // place all sprites on list
-    for (sn = 0; sn < SIZ(sop->sp_num); sn++)
-    {
-        if (sop->sp_num[sn] == -1)
-            break;
-    }
+	for (sn = 0; sn < SIZ(sop->so_actors); sn++)
+	{
+		if (sop->so_actors[sn] == nullptr)
+			break;
+	}
 
-    ASSERT(sn < SIZ(sop->sp_num) - 1);
-    sop->sp_num[sn] = explosion;
-    so_setspriteinterpolation(sop, &swActors[explosion]);
+	if (sn >= SIZ(sop->so_actors) - 1) return -1;
+
+    sop->so_actors[sn] = expActor;
+    so_setspriteinterpolation(sop, expActor);
 
     SET(eu->Flags, TEST(u->Flags, SPR_ON_SO_SECTOR|SPR_SO_ATTACHED));
 
@@ -11431,7 +11431,7 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
     eu->sy = u->sy;
     eu->sz = u->sz;
 
-    return explosion;
+    return expActor->GetSpriteIndex();
 }
 
 int
@@ -18260,12 +18260,12 @@ InitSobjGun(PLAYERp pp)
     SPRITEp sp;
     bool first = false;
 
-    for (i = 0; pp->sop->sp_num[i] != -1; i++)
+    for (i = 0; pp->sop->so_actors[i] != nullptr; i++)
     {
-        if (sprite[pp->sop->sp_num[i]].statnum == STAT_SO_SHOOT_POINT)
+		auto actor = pp->sop->so_actors[i];
+		sp = &actor->s();
+        if (sp->statnum == STAT_SO_SHOOT_POINT)
         {
-            sp = &sprite[pp->sop->sp_num[i]];
-
             // match when firing
             if (SP_TAG2(sp))
             {
@@ -18543,12 +18543,12 @@ InitTurretMgun(SECTOR_OBJECTp sop)
 
     PlaySound(DIGI_BOATFIRE, &sop->pmid, v3df_dontpan|v3df_doppler);
 
-    for (i = 0; sop->sp_num[i] != -1; i++)
+    for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
-        if (sprite[sop->sp_num[i]].statnum == STAT_SO_SHOOT_POINT)
+		auto actor = sop->so_actors[i];
+		sp = &actor->s();
+        if (sp->statnum == STAT_SO_SHOOT_POINT)
         {
-            sp = &sprite[sop->sp_num[i]];
-
             nx = sp->x;
             ny = sp->y;
             daz = nz = sp->z;
@@ -18605,7 +18605,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
 
             if (RANDOM_P2(1024) < 400)
             {
-                InitTracerAutoTurret(sop->sp_num[i], -1,
+                InitTracerAutoTurret(sop->so_actors[i]->GetSpriteIndex(), -1,
                                      xvect>>4, yvect>>4, zvect>>4);
             }
 

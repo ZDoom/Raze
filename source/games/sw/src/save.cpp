@@ -634,18 +634,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruc
 	}
 	if (arc.BeginObject(keyname))
 	{
-		int sp_cnt;
-		for (sp_cnt = 0; w.sp_num[sp_cnt] != -1 && sp_cnt < (int)countof(w.sp_num); sp_cnt++) {}
-
 		arc("num_sectors", w.num_sectors, def->num_sectors)
 			("num_walls", w.num_walls, def->num_walls)
-			("num_sp", sp_cnt)
 			("clipbox_num", w.clipbox_num, def->clipbox_num)
 			.Array("sectp", w.sectp, def->sectp, w.num_sectors)
 			.Array("sector", w.sector, def->sector, w.num_sectors)  // is this really different from sectp?
 			.Array("zorig_floor", w.zorig_floor, def->zorig_floor, w.num_sectors)
 			.Array("zorig_ceiling", w.zorig_ceiling, def->zorig_ceiling, w.num_sectors)
-			.Array("sp_num", w.sp_num, def->sp_num, countof(w.sp_num))
+			.Array("sp_num", w.so_actors, def->so_actors, countof(w.so_actors))
 			.Array("xorig", w.xorig, def->xorig, w.num_walls)
 			.Array("yorig", w.yorig, def->yorig, w.num_walls)
 			("controller", w.controller, def->controller)

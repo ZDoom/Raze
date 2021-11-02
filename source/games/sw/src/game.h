@@ -1693,6 +1693,8 @@ struct SECTOR_OBJECTstruct
         vec3_t pmid;
     };
     
+	DSWActor* so_actors[MAX_SO_SPRITE];    // hold the actors of the object
+
     int    vel,            // velocity
            vel_tgt,        // target velocity
            player_xoff,    // player x offset from the xmid
@@ -1722,7 +1724,6 @@ struct SECTOR_OBJECTstruct
            flags;
 
     short   sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
-            sp_num[MAX_SO_SPRITE],     // hold the sprite numbers of the object
             xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
             yorig[MAX_SO_POINTS],   // refreshed
             sectnum,        // current secnum of midpoint

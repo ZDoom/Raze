@@ -674,9 +674,9 @@ void KillSprite(int16_t SpriteNum)
 
             for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
             {
-                for (sn = 0; sop->sp_num[sn] != -1; sn++)
+                for (sn = 0; sop->so_actors[sn] != nullptr; sn++)
                 {
-                    if (sop->sp_num[sn] == SpriteNum)
+                    if (sop->so_actors[sn] == actor)
                     {
                         FoundSpriteNdx = sn;
                     }
@@ -686,13 +686,13 @@ void KillSprite(int16_t SpriteNum)
                 {
                     // back up sn so it points to the last valid sprite num
                     sn--;
-                    ASSERT(sop->sp_num[sn] >= 0);
+                    ASSERT(sop->so_actors[sn] != nullptr);
 
                     so_stopspriteinterpolation(sop, actor);
                     // replace the one to be deleted with the last ndx
-                    sop->sp_num[FoundSpriteNdx] = sop->sp_num[sn];
+                    sop->so_actors[FoundSpriteNdx] = sop->so_actors[sn];
                     // the last ndx is not -1
-                    sop->sp_num[sn] = -1;
+                    sop->so_actors[sn] = nullptr;
 
                     break;
                 }

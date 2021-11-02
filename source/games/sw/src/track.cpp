@@ -963,15 +963,13 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
                 // place all sprites on list
                 int sn;
-                for (sn = 0; sn < (int)SIZ(sop->sp_num); sn++)
+                for (sn = 0; sn < (int)SIZ(sop->so_actors); sn++)
                 {
-                    if (sop->sp_num[sn] == -1)
+                    if (sop->so_actors[sn] == nullptr)
                         break;
                 }
 
-                ASSERT(sn < (int)SIZ(sop->sp_num) - 1);
-
-				sop->sp_num[sn] = itActor->GetSpriteIndex();
+				sop->so_actors[sn] = itActor;
                 so_setspriteinterpolation(sop, itActor);
 
 
@@ -1005,10 +1003,10 @@ cont:
         int zmid = -9999999;
 
         // choose the lowest sprite for the zmid
-        for (i = 0; sop->sp_num[i] != -1; i++)
+        for (i = 0; sop->so_actors[i] != nullptr; i++)
         {
-            sp = &sprite[sop->sp_num[i]];
-            u = User[sop->sp_num[i]].Data();
+            sp = &sop->so_actors[i]->s();
+			u = sop->so_actors[i]->u();
 
             if (sp->z > zmid)
                 zmid = sp->z;
@@ -1018,10 +1016,10 @@ cont:
 
         sop->zmid = zmid;
 
-        for (i = 0; sop->sp_num[i] != -1; i++)
-        {
-            sp = &sprite[sop->sp_num[i]];
-            u = User[sop->sp_num[i]].Data();
+		for (i = 0; sop->so_actors[i] != nullptr; i++)
+		{
+			sp = &sop->so_actors[i]->s();
+			u = sop->so_actors[i]->u();
 
             u->sz = sop->zmid - sp->z;
         }
@@ -1056,6 +1054,7 @@ SetupSectorObject(short sectnum, short tag)
         void DoAutoTurretObject(SECTOR_OBJECTp sop);
 
         memset(sop->sectp, 0, sizeof(sop->sectp));
+        memset(sop->so_actors, 0, sizeof(sop->so_actors));
         sop->crush_z = 0;
         sop->drive_angspeed = 0;
         sop->drive_angslide = 0;
@@ -1794,11 +1793,11 @@ PlayerPart:
         }
     }
 
-    for (i = 0; sop->sp_num[i] != -1; i++)
-    {
-        sp = &sprite[sop->sp_num[i]];
-        u = User[sop->sp_num[i]].Data();
-        auto actor = &swActors[u->SpriteNum];
+	for (i = 0; sop->so_actors[i] != nullptr; i++)
+	{
+		auto actor = sop->so_actors[i];
+		sp = &actor->s();
+		u = actor->u();
 
         // if its a player sprite || NOT attached
         if (!u || u->PlayerP || !TEST(u->Flags, SPR_SO_ATTACHED))
@@ -1877,14 +1876,14 @@ PlayerPart:
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
             if (sop->xmid < MAXSO) // special case for operating SO's
-                setspritez(sop->sp_num[i], &sp->pos);
+                SetActorZ(sop->so_actors[i], &sp->pos);
         }
 
         u->oangdiff += getincangle(oldang, sp->ang);
 
         if (TEST(sp->extra, SPRX_BLADE))
         {
-            DoBladeDamage(sop->sp_num[i]);
+            DoBladeDamage(sop->so_actors[i]->GetSpriteIndex());
         }
     }
 
@@ -2026,9 +2025,9 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
     USERp u;
     int i;
 
-    for (i = 0; sop->sp_num[i] != -1; i++)
+    for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
-		auto actor = &swActors[sop->sp_num[i]];
+		auto actor = sop->so_actors[i];
         sp = &actor->s();
         u = actor->u();
 
@@ -2043,7 +2042,7 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
     }
 
     // clear the list
-    sop->sp_num[0] = -1;
+    sop->so_actors[0] = nullptr;
 }
 
 void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
@@ -2051,11 +2050,12 @@ void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
     SPRITEp sp;
     int i;
 
-    for (i = 0; sop->sp_num[i] != -1; i++)
-    {
-        sp = &sprite[sop->sp_num[i]];
+	for (i = 0; sop->so_actors[i] != nullptr; i++)
+	{
+		auto actor = sop->so_actors[i];
+		sp = &actor->s();
 
-        setspritez(sop->sp_num[i], &sp->pos);
+        SetActorZ(actor, &sp->pos);
     }
 }
 
@@ -2923,7 +2923,6 @@ void
 DoAutoTurretObject(SECTOR_OBJECTp sop)
 {
     auto actor = sop->sp_child;
-    SPRITEp shootp;
     USERp u = actor->u();
     short delta_ang;
     int diff;
@@ -2945,12 +2944,13 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
 
     if (MoveSkip2 == 0)
     {
-        for (i = 0; sop->sp_num[i] != -1; i++)
+		for (i = 0; sop->so_actors[i] != nullptr; i++)
         {
-            if (sprite[sop->sp_num[i]].statnum == STAT_SO_SHOOT_POINT)
-            {
-                shootp = &sprite[sop->sp_num[i]];
+			auto sActor = sop->so_actors[i];
+			auto shootp = &sActor->s();
 
+			if (shootp->statnum == STAT_SO_SHOOT_POINT)
+            {
                 if (!FAFcansee(shootp->x, shootp->y, shootp->z-Z(4), shootp->sectnum,
                                u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sectnum))
                 {
@@ -2970,13 +2970,13 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
 
         if (u->Counter == 0)
         {
-            shootp = nullptr;
-            for (i = 0; sop->sp_num[i] != -1; i++)
-            {
-                if (sprite[sop->sp_num[i]].statnum == STAT_SO_SHOOT_POINT)
-                {
-                    shootp = &sprite[sop->sp_num[i]];
+			for (i = 0; sop->so_actors[i] != nullptr; i++)
+			{
+				auto sActor = sop->so_actors[i];
+				auto shootp = &sActor->s();
 
+				if (shootp->statnum == STAT_SO_SHOOT_POINT)
+				{
                     if (SP_TAG5(shootp))
                         u->Counter = SP_TAG5(shootp);
                     else

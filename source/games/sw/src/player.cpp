@@ -5027,9 +5027,9 @@ void DoPlayerBeginOperate(PLAYERp pp)
     DoPlayerOperateMatch(pp, true);
 
     // look for gun before trying to using it
-    for (i = 0; sop->sp_num[i] != -1; i++)
+    for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
-        if (sprite[sop->sp_num[i]].statnum == STAT_SO_SHOOT_POINT)
+        if (sop->so_actors[i]->s().statnum == STAT_SO_SHOOT_POINT)
         {
             SET(sop->flags, SOBJ_HAS_WEAPON);
             break;
@@ -5113,9 +5113,9 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     DoPlayerOperateMatch(pp, true);
 
     // look for gun before trying to using it
-    for (i = 0; sop->sp_num[i] != -1; i++)
+    for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
-        if (sprite[sop->sp_num[i]].statnum == STAT_SO_SHOOT_POINT)
+        if (sop->so_actors[i]->s().statnum == STAT_SO_SHOOT_POINT)
         {
             SET(sop->flags, SOBJ_HAS_WEAPON);
             break;
