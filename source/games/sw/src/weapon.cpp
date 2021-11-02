@@ -6169,7 +6169,7 @@ DoDamage(short SpriteNum, short Weapon)
                 {
                     PlaySound(DIGI_RIPPERHEARTOUT,u->PlayerP,v3df_dontpan|v3df_doppler);
 
-                    DoRipper2RipHeart(Weapon);
+                    DoRipper2RipHeart(weapActor);
                 }
             }
         }
@@ -16154,10 +16154,9 @@ DoTeleRipper(DSWActor* actor)
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    extern void Ripper2Hatch(short Weapon);
 
     PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
-    Ripper2Hatch(SpriteNum);
+    Ripper2Hatch(actor);
 
     return 0;
 }
