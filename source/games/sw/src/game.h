@@ -1933,7 +1933,7 @@ DSWActor* DoPickTarget(DSWActor*, uint32_t max_delta_ang, int skip_targets);
 
 void change_sprite_stat(short, short);
 void change_actor_stat(DSWActor* actor, int stat);
-void SetOwner(DSWActor*, DSWActor*);
+void SetOwner(DSWActor*, DSWActor*, bool flag = true);
 void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);
 DSWActor* GetOwner(DSWActor* child);

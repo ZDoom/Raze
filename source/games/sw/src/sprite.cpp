@@ -583,11 +583,11 @@ STATE s_IconFlag[] =
     {ICON_FLAG + 2, 32, DoGet, &s_IconFlag[0]}
 };
 
-void SetOwner(DSWActor* ownr, DSWActor* child)
+void SetOwner(DSWActor* ownr, DSWActor* child, bool flag)
 {
     SPRITEp cp = &child->s();
 
-    if (ownr != nullptr && ownr->hasU())
+    if (flag && ownr != nullptr && ownr->hasU())
     {
         SET(ownr->u()->Flags2, SPR2_CHILDREN);
     }

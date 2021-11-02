@@ -10676,7 +10676,7 @@ SpawnBasicExp(int16_t Weapon)
 
     SpawnExpZadjust(Weapon, exp, Z(15), Z(15));
     DoExpDamageTest(expActor);
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
 }
@@ -11009,7 +11009,7 @@ SpawnBoltExp(int16_t Weapon)
     DoExpDamageTest(expActor);
 
     SetExpQuake(explosion); // !JIM! made rocket launcher shake things
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
 }
@@ -11072,7 +11072,7 @@ SpawnTankShellExp(int16_t Weapon)
 
     SpawnExpZadjust(Weapon, exp, Z(40), Z(40));
     DoExpDamageTest(expActor);
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
 }
@@ -11307,7 +11307,7 @@ SpawnMicroExp(int16_t Weapon)
     //
 
     SpawnExpZadjust(Weapon, exp, Z(20), Z(20));
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
 }
@@ -11548,7 +11548,7 @@ SpawnGrenadeExp(int16_t Weapon)
     DoExpDamageTest(expActor);
 
     SetExpQuake(explosion);
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 0);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 0);
 
 #if 0
     short ang;
@@ -11647,7 +11647,7 @@ SpawnMineExp(int16_t Weapon)
     //
 
     SpawnExpZadjust(Weapon, exp, Z(100), Z(20));
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     SetExpQuake(explosion);
 
@@ -11707,7 +11707,7 @@ SpawnSectorExp(int16_t Weapon)
 
     DoExpDamageTest(expActor);
     SetExpQuake(explosion);
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
 }
@@ -11743,7 +11743,7 @@ SpawnLargeExp(int16_t Weapon)
     // Should not cause other sectors to explode
     DoExpDamageTest(expActor);
     SetExpQuake(explosion);
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
 }
@@ -11823,7 +11823,7 @@ SpawnLittleExp(int16_t Weapon)
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_BASIC_EXP].radius;
     DoExpDamageTest(expActor);
-    SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 16);
+    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return explosion;
 }
@@ -18254,7 +18254,7 @@ InitSobjGun(PLAYERp pp)
             {
             case 32:
             case 0:
-                SpawnVis(short(sp - sprite), -1, -1, -1, -1, 8);
+                SpawnVis(actor, -1, -1, -1, -1, 8);
                 SpawnBigGunFlames(short(sp - sprite), pp->PlayerSprite, pp->sop);
                 SetGunQuake(short(sp - sprite));
                 InitTankShell(short(sp - sprite), pp);
@@ -18264,7 +18264,7 @@ InitSobjGun(PLAYERp pp)
                     pp->FirePause = SP_TAG5(sp);
                 break;
             case 1:
-                SpawnVis(short(sp - sprite), -1, -1, -1, -1, 32);
+                SpawnVis(actor, -1, -1, -1, -1, 32);
                 SpawnBigGunFlames(-short(sp - sprite), pp->PlayerSprite, pp->sop);
                 InitSobjMachineGun(short(sp - sprite), pp);
                 if (!SP_TAG5(sp))
@@ -18274,7 +18274,7 @@ InitSobjGun(PLAYERp pp)
                 break;
             case 2:
                 if (SW_SHAREWARE) break;
-                SpawnVis(short(sp - sprite), -1, -1, -1, -1, 32);
+                SpawnVis(actor, -1, -1, -1, -1, 32);
                 InitTurretLaser(short(sp - sprite), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 120;
@@ -18283,7 +18283,7 @@ InitSobjGun(PLAYERp pp)
                 break;
             case 3:
                 if (SW_SHAREWARE) break;
-                SpawnVis(short(sp - sprite), -1, -1, -1, -1, 32);
+                SpawnVis(actor, -1, -1, -1, -1, 32);
                 InitTurretRail(short(sp - sprite), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 120;
@@ -18292,7 +18292,7 @@ InitSobjGun(PLAYERp pp)
                 break;
             case 4:
                 if (SW_SHAREWARE) break;
-                SpawnVis(short(sp - sprite), -1, -1, -1, -1, 32);
+                SpawnVis(actor, -1, -1, -1, -1, 32);
                 InitTurretFireball(short(sp - sprite), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 20;
@@ -18301,7 +18301,7 @@ InitSobjGun(PLAYERp pp)
                 break;
             case 5:
                 if (SW_SHAREWARE) break;
-                SpawnVis(short(sp - sprite), -1, -1, -1, -1, 32);
+                SpawnVis(actor, -1, -1, -1, -1, 32);
                 InitTurretRocket(short(sp - sprite), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 100;
@@ -18310,7 +18310,7 @@ InitSobjGun(PLAYERp pp)
                 break;
             case 6:
                 if (SW_SHAREWARE) break;
-                SpawnVis(short(sp - sprite), -1, -1, -1, -1, 32);
+                SpawnVis(actor, -1, -1, -1, -1, 32);
                 InitTurretMicro(short(sp - sprite), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 100;
