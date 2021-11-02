@@ -243,11 +243,6 @@ int StdRandomRange(int range);
 
 #define DIST(x1, y1, x2, y2) ksqrt( SQ((x1) - (x2)) + SQ((y1) - (y2)) )
 
-inline int PIC_SIZY(int sn) 
-{ 
-	return tileHeight(sprite[sn].picnum); 
-}
-
 inline int PIC_SIZY(spritetype* sp)
 {
     return tileHeight(sp->picnum);
@@ -327,19 +322,7 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 // two vectors
 // can determin direction
 #define DOT_PRODUCT_2D(x1,y1,x2,y2) (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16))
-#define DOT_PRODUCT_3D(x1,y1,z1,x2,y2,z2) (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16) + MulScale((z1), (z2), 16))
 
-// just determine if the player is moving
-#define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)
-
-#define LOW_TAG(sectnum) ( sector[sectnum].lotag )
-#define HIGH_TAG(sectnum) ( sector[sectnum].hitag )
-
-#define LOW_TAG_SPRITE(spnum) ( sprite[(spnum)].lotag )
-#define HIGH_TAG_SPRITE(spnum) ( sprite[(spnum)].hitag )
-
-#define LOW_TAG_WALL(wallnum) ( wall[(wallnum)].lotag )
-#define HIGH_TAG_WALL(wallnum) ( wall[(wallnum)].hitag )
 
 #define SEC(value) ((value)*120)
 
@@ -2310,6 +2293,13 @@ inline void SetCollision(USER* u, int coll)
     u->ret = coll;
     u->coll.setFromEngine(coll);
 }
+
+// just determine if the player is moving
+inline bool PLAYER_MOVING(PLAYERp pp)
+{
+	return (pp->xvect | pp->yvect);
+}
+
 
 END_SW_NS
 #endif

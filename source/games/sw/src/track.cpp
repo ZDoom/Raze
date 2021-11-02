@@ -624,7 +624,7 @@ TrackSetup(void)
         StatIterator it(STAT_TRACK + ndx);
         while ((SpriteNum = it.NextIndex()) >= 0)
         {
-            if (LOW_TAG_SPRITE(SpriteNum) == TRACK_START)
+            if (sprite[SpriteNum].lotag == TRACK_START)
             {
                 ASSERT(t->NumPoints == 0);
 
@@ -1120,7 +1120,7 @@ SetupSectorObject(short sectnum, short tag)
         //sop->zmid = DIV2(sector[sectnum].floorz + sector[sectnum].ceilingz);
 
         sop->dir = 1;
-        sop->track = HIGH_TAG(sectnum);
+        sop->track = sector[sectnum].hitag;
 
         // spawn a sprite to make it easier to integrate with sprite routines
         auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectnum,
@@ -1560,7 +1560,7 @@ PlaceActorsOnTracks(void)
         sp = User[i]->SpriteP;
         u = User[i].Data();
 
-        tag = LOW_TAG_SPRITE(i);
+        tag = sp->lotag;
 
         if (tag < TAG_ACTOR_TRACK_BEGIN || tag > TAG_ACTOR_TRACK_END)
             continue;
