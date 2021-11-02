@@ -74,8 +74,8 @@ int SetupSerp(DSWActor*);
 int SetupLava(DSWActor* actor);
 int SetupSkel(DSWActor*);
 int SetupHornet(DSWActor*);
-int SetupSkull(short);
-int SetupBetty(short);
+int SetupSkull(DSWActor*);
+int SetupBetty(DSWActor*);
 int SetupPachinkoLight(DSWActor*);
 int SetupPachinko1(DSWActor*);
 int SetupPachinko2(DSWActor*);
@@ -1521,7 +1521,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupSkull(SpriteNum);
+        SetupSkull(actor);
         break;
     }
 
@@ -1537,7 +1537,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupBetty(SpriteNum);
+        SetupBetty(actor);
         break;
     }
 
