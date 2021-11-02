@@ -752,7 +752,7 @@ void KillSprite(int16_t SpriteNum)
         if (TEST(u->Flags2, SPR2_CHILDREN))
         //if (TEST(sp->extra, SPRX_CHILDREN))
         {
-            // check for children and allert them that the owner is dead
+            // check for children and alert them that the Owner is dead
             // don't bother th check if you've never had children
             for (stat = 0; stat < STAT_DONT_DRAW; stat++)
             {

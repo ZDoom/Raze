@@ -484,7 +484,7 @@ int DoVator(DSWActor* actor)
             RESET_BOOL8(sp);
             SetVatorInactive(SpriteNum);
 
-            // set owner swith back to OFF
+            // set Owner swith back to OFF
             // only if ALL vators are inactive
             if (!TestVatorMatchActive(match))
             {

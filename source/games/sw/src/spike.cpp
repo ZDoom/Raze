@@ -370,7 +370,7 @@ int DoSpike(DSWActor* actor)
 
             SetSpikeInactive(SpriteNum);
 
-            // set owner swith back to OFF
+            // set Owner swith back to OFF
             // only if ALL spikes are inactive
             if (!TestSpikeMatchActive(match))
             {

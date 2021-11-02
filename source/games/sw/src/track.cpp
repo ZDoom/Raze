@@ -723,7 +723,7 @@ void
 SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 {
     int xlow, ylow, xhigh, yhigh;
-    int sp_num, startwall, endwall;
+    int startwall, endwall;
     int i, k, j;
     SPRITEp BoundSprite;
     bool FoundOutsideLoop = false;

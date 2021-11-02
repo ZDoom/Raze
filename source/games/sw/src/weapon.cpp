@@ -4537,8 +4537,7 @@ WeaponMoveHit(short SpriteNum)
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            // make sure you didn't hit the owner of the missile
-            //if (sp->owner != -1 && hit_sprite != sp->owner)
+            // make sure you didn't hit the Owner of the missile
             if (hit_sprite != sp->owner)
             {
                 if (u->ID == STAR1)
@@ -4717,7 +4716,7 @@ DoFireballFlames(DSWActor* actor)
     SPRITEp sp = &sprite[SpriteNum],ap;
     bool jumping = false;
 
-    // if no owner then stay where you are
+    // if no Owner then stay where you are
     if (u->attachActor != nullptr)
     {
         ap = &u->attachActor->s();
@@ -5478,8 +5477,6 @@ ActorStdMissile(short SpriteNum, short Weapon)
     // Only if hes still alive
     if (wp->owner >= 0)
     {
-// Commented out line will make actors attack each other, it's been removed as feature
-//        if (User[wp->owner]->PlayerP || User[wp->owner]->SpriteP)
         if (User[wp->owner]->PlayerP && sp->owner != wp->owner)
         {
             u->targetActor = &swActors[wp->owner];
@@ -6634,7 +6631,7 @@ DoDamage(short SpriteNum, short Weapon)
         else
         {
             // this is special code to prevent the Zombie from taking out the Bosses to quick
-            // if rail gun weapon owner is not player
+            // if rail gun weapon Owner is not player
             if (wp->owner >= 0 && User[wp->owner].Data() && !User[wp->owner]->PlayerP)
             {
                 // if actor is a boss
@@ -7735,7 +7732,7 @@ int DoExpDamageTest(DSWActor* actor)
     if (wu->ID != MUSHROOM_CLOUD)
         WeaponExplodeSectorInRange(Weapon);
 
-    // Just like DoDamageTest() except that it doesn't care about the owner
+    // Just like DoDamageTest() except that it doesn't care about the Owner
 
     max_stat = SIZ(StatDamageList);
     // don't check for mines if the weapon is a mine
@@ -8587,7 +8584,7 @@ DoPlasmaFountain(DSWActor* actor)
     SPRITEp ap;
     short bak_cstat;
 
-    // if no owner then die
+    // if no Owner then die
     if (u->attachActor == nullptr)
     {
         KillActor(actor);
@@ -9357,7 +9354,7 @@ DoMineStuck(DSWActor* actor)
     SPRITEp sp = &sprite[Weapon];
 #define MINE_DETONATE_STATE 99
 
-    // if no owner then die
+    // if no Owner then die
     auto attachActor = u->attachActor;
     if (attachActor != nullptr)
     {
@@ -12103,7 +12100,6 @@ DoNapalm(DSWActor* actor)
         eu = User[explosion].Data();
 
         exp->hitag = LUMINOUS; //Always full brightness
-        //exp->owner = sp->owner;
         SetOwner(sp->owner, explosion);
         exp->shade = -40;
         exp->cstat = sp->cstat;
@@ -12383,7 +12379,6 @@ DoMirv(DSWActor* actor)
             NewStateGroup(actorNew, &sg_MirvMeteor[0]);
             nu->StateEnd = s_MirvMeteorExp;
 
-            //np->owner = Weapon;
             SetOwner(Weapon, New);
             np->shade = -40;
             np->xrepeat = 40;
@@ -12683,7 +12678,7 @@ DoSerpRing(DSWActor* actor)
     int dist,a,b,c;
     int cz,fz;
 
-    // if owner does not exist or he's dead on the floor
+    // if Owner does not exist or he's dead on the floor
     // kill off all of his skull children
     if (sp->owner == -1 || ou->RotNum < 5)
     {
@@ -12770,8 +12765,6 @@ DoSerpRing(DSWActor* actor)
                     change_sprite_stat(Weapon, STAT_ENEMY);
                     NewStateGroup_(Weapon, sg_SkullJump);
                     DoBeginJump(actor);
-                    // tell owner that one is gone
-                    // User[sp->owner]->Counter--;
                     return 0;
                 }
             }
@@ -12970,7 +12963,6 @@ InitSerpRing(DSWActor* actor)
         nu = User[New].Data();
 
         np->xvel = 500;
-        //np->owner = SpriteNum;
         SetOwner(SpriteNum, New);
         np->shade = -20;
         np->xrepeat = 64;
@@ -13061,7 +13053,6 @@ InitSpellNapalm(PLAYERp pp)
             Set3DSoundOwner(u->SpriteNum);
         }
 
-        //sp->owner = pp->SpriteP - sprite;
         SetOwner(pp->Actor(), actor);
         sp->shade = -40;
         sp->xrepeat = 32;
@@ -13216,7 +13207,6 @@ InitSpellMirv(PLAYERp pp)
     PlaySound(DIGI_MIRVWIZ, sp, v3df_follow);
     Set3DSoundOwner(SpriteNum);
 
-    //sp->owner = pp->SpriteP - sprite;
     SetOwner(short(pp->SpriteP - sprite), SpriteNum);
     sp->shade = -40;
     sp->xrepeat = 72;
@@ -14349,7 +14339,6 @@ InitHeartAttack(PLAYERp pp)
 
     sp->hitag = LUMINOUS; //Always full brightness
 
-    //sp->owner = pp->SpriteP - sprite;
     SetOwner(short(pp->SpriteP - sprite), SpriteNum);
     sp->shade = -10;
     sp->xrepeat = 52;
@@ -14424,7 +14413,6 @@ InitHeartAttack(PLAYERp pp)
 
     sp->hitag = LUMINOUS; //Always full brightness
 
-    //sp->owner = pp->SpriteP - sprite;
     SetOwner(pp->SpriteP - sprite, SpriteNum);
     sp->shade = -10;
     sp->xrepeat = 52;
@@ -15054,7 +15042,6 @@ InitRocket(PLAYERp pp)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = pp->PlayerSprite;
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 90;
     wp->xrepeat = 90;
@@ -15184,7 +15171,6 @@ InitBunnyRocket(PLAYERp pp)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = pp->PlayerSprite;
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 64;
     wp->xrepeat = 64;
@@ -15297,7 +15283,6 @@ InitNuke(PLAYERp pp)
     wp = &sprite[w];
     wu = User[w].Data();
 
-    //wp->owner = pp->PlayerSprite;
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 128;
     wp->xrepeat = 128;
@@ -15983,7 +15968,6 @@ InitSerpSpell(DSWActor* actor)
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
         nu->StateEnd = s_MirvMeteorExp;
 
-        //np->owner = SpriteNum;
         SetOwner(SpriteNum, New);
         np->shade = -40;
         PlaySound(DIGI_SERPMAGICLAUNCH, sp, v3df_none);
@@ -17053,7 +17037,6 @@ InitTracerUzi(PLAYERp pp)
     wu = User[w].Data();
 
     wp->hitag = LUMINOUS; //Always full brightness
-    //wp->owner = pp->PlayerSprite;
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = 10;
     wp->xrepeat = 10;
