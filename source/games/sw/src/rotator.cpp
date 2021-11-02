@@ -348,7 +348,7 @@ int DoRotator(DSWActor* actor)
 
             SetRotatorInactive(actor);
 
-            // set owner swith back to OFF
+            // set Owner swith back to OFF
             // only if ALL vators are inactive
             if (!TestRotatorMatchActive(match))
             {

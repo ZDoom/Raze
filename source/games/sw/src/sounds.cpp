@@ -728,7 +728,7 @@ void DeleteNoSoundOwner(DSWActor* actor)
 
 //==========================================================================
 //
-// This is called from KillSprite to kill a follow sound with no valid sprite owner
+// This is called from KillSprite to kill a follow sound with no valid sprite Owner
 // Stops any active sound with the follow bit set, even play once sounds.
 //
 //==========================================================================

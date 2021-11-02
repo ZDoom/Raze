@@ -4307,10 +4307,9 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 }
 
 
-bool
-VehicleMoveHit(short SpriteNum)
+bool VehicleMoveHit(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     SPRITEp cp;
     SECTOR_OBJECTp sop;
     SECTOR_OBJECTp hsop;
@@ -4364,7 +4363,7 @@ VehicleMoveHit(short SpriteNum)
         {
             if (hsp->statnum == STAT_MINE_STUCK)
             {
-                DoDamage(hit_sprite, SpriteNum);
+                DoDamage(hit_sprite, actor->GetSpriteIndex());
                 return true;
             }
         }

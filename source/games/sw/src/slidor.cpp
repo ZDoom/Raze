@@ -573,7 +573,7 @@ int DoSlidor(DSWActor* actor)
 
             RESET_BOOL8(sp);
 
-            // set owner swith back to OFF
+            // set Owner swith back to OFF
             // only if ALL vators are inactive
             if (!TestSlidorMatchActive(match))
             {

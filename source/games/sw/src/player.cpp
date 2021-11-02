@@ -2692,7 +2692,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                     else
                         SetCollision(u, 0);
 
-                    VehicleMoveHit(short(sp - sprite));
+                    VehicleMoveHit(actor);
                 }
 
                 if (!TEST(sop->flags, SOBJ_NO_QUAKE))
@@ -2743,7 +2743,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
             if (vel > 13000)
             {
-                VehicleMoveHit(short(sp - sprite));
+                VehicleMoveHit(actor);
                 pp->slide_xvect = -pp->xvect<<1;
                 pp->slide_yvect = -pp->yvect<<1;
                 if (!TEST(sop->flags, SOBJ_NO_QUAKE))
