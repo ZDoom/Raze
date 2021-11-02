@@ -131,13 +131,13 @@ public:
 	binangle(const binangle &other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return value >> BAMBITS; }
-	constexpr double asbuildf() const { return value * (1. / BAMUNIT); }
+	constexpr double asbuildf() const { return value * (1. / +BAMUNIT); }
 	constexpr fixed_t asq16() const { return value >> 5; }
 	constexpr uint32_t asbam() const { return value; }
 	constexpr double asrad() const { return value * (pi::pi() / 0x80000000u); }
 	constexpr double asdeg() const { return AngleToFloat(value); }
 	constexpr short signedbuild() const { return tosigned() >> BAMBITS; }
-	constexpr double signedbuildf() const { return tosigned() * (1. / BAMUNIT); }
+	constexpr double signedbuildf() const { return tosigned() * (1. / +BAMUNIT); }
 	constexpr fixed_t signedq16() const { return tosigned() >> 5; }
 	constexpr int32_t signedbam() const { return tosigned(); }
 	constexpr double signedrad() const { return tosigned() * (pi::pi() / 0x80000000u); }

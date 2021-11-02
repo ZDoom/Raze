@@ -113,9 +113,10 @@ float S_ConvertPitch(int lpitch)
 
 enum
 {
-    MAXLEVLDIST = 19000,   // The higher the number, the further away you can hear sound
     DECAY_CONST = 4000
 };
+
+const int MAXLEVLDIST = 19000;   // The higher the number, the further away you can hear sound
 
 short SoundDist(int x, int y, int z, int basedist)
 {

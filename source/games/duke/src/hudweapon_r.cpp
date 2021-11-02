@@ -71,7 +71,7 @@ void displaymasks_r(int snum, int p, double smoothratio)
 	{
 		//int pin = 0;
 		// to get the proper clock value with regards to interpolation we have add a smoothratio based offset to the value.
-		double interpclock = PlayClock + (TICSPERFRAME/65536.) * smoothratio;
+		double interpclock = PlayClock + (+TICSPERFRAME/65536.) * smoothratio;
 		int pin = RS_STRETCH;
 		hud_drawsprite((320 - (tileWidth(SCUBAMASK) >> 1) - 15), (200 - (tileHeight(SCUBAMASK) >> 1) + bsinf(interpclock, -10)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
 		hud_drawsprite((320 - tileWidth(SCUBAMASK + 4)), (200 - tileHeight(SCUBAMASK + 4)), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
