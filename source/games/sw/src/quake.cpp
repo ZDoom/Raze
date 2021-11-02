@@ -76,13 +76,10 @@ short CopyQuakeSpotToOn(SPRITEp sp)
 
 void DoQuakeMatch(short match)
 {
-    int i;
-    SPRITEp sp;
-
-    StatIterator it(STAT_QUAKE_SPOT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_QUAKE_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        auto sp = &actor->s();
 
         if (QUAKE_Match(sp) == match)
         {
@@ -96,7 +93,7 @@ void DoQuakeMatch(short match)
                 CopyQuakeSpotToOn(sp);
                 if (QUAKE_KillAfterQuake(sp))
                 {
-                    KillSprite(i);
+                    KillActor(actor);
                     continue;
                 }
             }
@@ -107,19 +104,16 @@ void DoQuakeMatch(short match)
 
 void ProcessQuakeOn(void)
 {
-    int i;
-    SPRITEp sp;
-
-    StatIterator it(STAT_QUAKE_ON);
-    while ((i = it.NextIndex()) >= 0)
-    {
-        sp = &sprite[i];
+    SWStatIterator it(STAT_QUAKE_ON);
+	while (auto actor = it.Next())
+	{
+		auto sp = &actor->s();
 
         // get rid of quake when timer runs out
         QUAKE_Duration(sp) -= synctics*4;
         if (QUAKE_Duration(sp) < 0)
         {
-            KillSprite(i);
+            KillActor(actor);
             continue;
         }
     }
@@ -190,10 +184,10 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
         return;
 
     // find the closest quake - should be a strength value
-    StatIterator it(STAT_QUAKE_ON);
-    while ((i = it.NextIndex()) >= 0)
-    {
-        sp = &sprite[i];
+    SWStatIterator it(STAT_QUAKE_ON);
+	while (auto actor = it.Next())
+	{
+		auto sp = &actor->s();
 
         dist = FindDistance3D(pp->posx - sp->x, pp->posy - sp->y, pp->posz - sp->z);
 
