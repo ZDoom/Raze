@@ -2356,7 +2356,6 @@ extern ACTOR_ACTION_SET PlayerNinjaActionSet;
 
 void InitPlayerSprite(PLAYERp pp)
 {
-    short sp_num;
     SPRITE *sp;
     USERp u;
     int pnum = int(pp - Player);
@@ -2364,20 +2363,21 @@ void InitPlayerSprite(PLAYERp pp)
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
-    sp_num = pp->PlayerSprite = SpawnSprite(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursectnum, pp->posx,
+    auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursectnum, pp->posx,
                                             pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
 
-    pp->SpriteP = sp = &sprite[sp_num];
+    pp->PlayerSprite = actor->GetSpriteIndex();
+    pp->SpriteP = sp = &actor->s();
     pp->pnum = pnum;
 
     SET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(sp->extra, SPRX_PLAYER_OR_ENEMY);
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
-    u = User[sp_num].Data();
+    u = actor->u();
 
     // Grouping items that need to be reset after a LoadLevel
-    ChangeSpriteState(sp_num, s_NinjaRun[0]);
+    ChangeState(actor, s_NinjaRun[0]);
     u->Rot = sg_NinjaRun;
     u->ActorActionSet = &PlayerNinjaActionSet;
 
