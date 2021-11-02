@@ -51,6 +51,13 @@ BEGIN_SW_NS
 #define LAVAMAXDROPS 32
 #define DEFAULT_DOOR_SPEED 800
 
+enum
+{
+    SINE_FLOOR = (1 << 0),
+    SINE_CEILING = (1 << 1),
+    SINE_SLOPED = BIT(3),
+};
+
 int InitFireballTrap(DSWActor* actor);
 ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYERp);
@@ -74,13 +81,6 @@ int DoTrapReset(short match);
 int DoTrapMatch(short match);
 
 PLAYERp GlobPlayerP;
-#if 0
-char lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2)], lavainc[LAVASIZ];
-int lavanumdrops, lavanumframes;
-int lavadropx[LAVAMAXDROPS], lavadropy[LAVAMAXDROPS];
-int lavadropsiz[LAVAMAXDROPS], lavadropsizlookup[LAVAMAXDROPS];
-int lavaradx[32][128], lavarady[32][128], lavaradcnt[32];
-#endif
 
 TPointer<SECT_USER> SectUser[MAXSECTORS];
 TPointer<USER> User[MAXSPRITES];
@@ -167,8 +167,7 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
     }
 }
 
-void
-WallSetup(void)
+void WallSetup(void)
 {
     short i = 0;
     short NextSineWall = 0;
@@ -333,8 +332,7 @@ WallSetup(void)
 }
 
 
-void
-SectorLiquidSet(short i)
+void SectorLiquidSet(short i)
 {
     SECT_USERp sectu;
 
@@ -378,8 +376,7 @@ SectorLiquidSet(short i)
     }
 }
 
-void
-SectorSetup(void)
+void SectorSetup(void)
 {
     short i = 0, tag;
     short NextSineWave = 0;
@@ -406,15 +403,9 @@ SectorSetup(void)
 
     LevelSecrets = 0;
 
-    //for (i = 0; i < MAX_SW_PLAYERS; i++)
-    //    memset((Player + i)->HasKey, 0, sizeof((Player + i)->HasKey));
-
     for (i = 0; i < numsectors; i++)
     {
         tag = sector[i].lotag;
-
-// DOH! NOT AGAIN! :(
-//ASSERT(wall[4568].lotag != 307);
 
         // ///////////////////////////////////
         //
@@ -493,9 +484,6 @@ SectorSetup(void)
             short speed_shift = 3;
             short num;
 
-#define SINE_FLOOR (1<<0)
-#define SINE_CEILING (1<<1)
-
             num = (tag - TAG_SINE_WAVE_FLOOR) / 20;
 
             // set the first on up
@@ -507,7 +495,6 @@ SectorSetup(void)
             {
             case 0:
                 SET(swf->flags, SINE_FLOOR);
-#define SINE_SLOPED BIT(3)
                 if (TEST(sector[base_sect].floorstat, FLOOR_STAT_SLOPE))
                 {
                     SET(swf->flags, SINE_SLOPED);
@@ -616,8 +603,7 @@ SectorSetup(void)
     }
 }
 
-void
-SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
+void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 {
     short startwall, endwall, j;
     int xsum = 0, ysum = 0;
@@ -639,8 +625,7 @@ SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 }
 
 
-void
-DoSpringBoard(PLAYERp pp/*, short sectnum*/)
+void DoSpringBoard(PLAYERp pp/*, short sectnum*/)
 {
 
     pp->jump_speed = -sector[pp->cursectnum].hitag;
@@ -649,8 +634,7 @@ DoSpringBoard(PLAYERp pp/*, short sectnum*/)
 }
 
 
-void
-DoSpringBoardDown(void)
+void DoSpringBoardDown(void)
 {
     unsigned sb;
     SPRING_BOARD *sbp;
@@ -681,8 +665,7 @@ DoSpringBoardDown(void)
     return;
 }
 
-short
-FindSectorByTag(int x, int y, int tag)
+short FindSectorByTag(int x, int y, int tag)
 {
     short i = 0, near_sector = -1;
     int diff, near_diff = 9999999;
@@ -711,21 +694,17 @@ FindSectorByTag(int x, int y, int tag)
 
 }
 
-short
-FindSectorByTag_Wall(short wallnum, int tag)
+short FindSectorByTag_Wall(short wallnum, int tag)
 {
     return FindSectorByTag(wall[wallnum].x, wall[wallnum].y, tag);
 }
 
-short
-FindSectorByTag_Sprite(short SpriteNum, int tag)
+short FindSectorByTag_Sprite(short SpriteNum, int tag)
 {
     return FindSectorByTag(sprite[SpriteNum].x, sprite[SpriteNum].y, tag);
 }
 
-#if 1
-short
-FindSectorMidByTag(short sectnum, int tag)
+short FindSectorMidByTag(short sectnum, int tag)
 {
     short i = 0, near_sector = -1;
     int diff, near_diff = 9999999, x, y;
@@ -757,10 +736,7 @@ FindSectorMidByTag(short sectnum, int tag)
 
 }
 
-#endif
-
-short
-FindNextSectorByTag(short sectnum, int tag)
+short FindNextSectorByTag(short sectnum, int tag)
 {
     short next_sectnum, startwall, endwall, j;
 
@@ -785,8 +761,7 @@ FindNextSectorByTag(short sectnum, int tag)
 }
 
 
-int
-SectorDistance(short sect1, int sect2)
+int SectorDistance(short sect1, int sect2)
 {
     short wallnum1, wallnum2;
 
@@ -801,8 +776,7 @@ SectorDistance(short sect1, int sect2)
 }
 
 
-int
-SectorDistanceByMid(short sect1, int sect2)
+int SectorDistanceByMid(short sect1, int sect2)
 {
     int sx1, sy1, sx2, sy2, trash;
 
@@ -813,8 +787,7 @@ SectorDistanceByMid(short sect1, int sect2)
     return Distance(sx1, sy1, sx2, sy2);
 }
 
-short
-DoSpawnActorTrigger(short match)
+short DoSpawnActorTrigger(short match)
 {
     short spawn_count = 0;
     SPRITEp sp;
@@ -838,8 +811,7 @@ DoSpawnActorTrigger(short match)
     return spawn_count;
 }
 
-int
-OperateSector(short sectnum, short player_is_operating)
+int OperateSector(short sectnum, short player_is_operating)
 {
     PLAYERp pp = GlobPlayerP;
 
@@ -892,35 +864,37 @@ OperateSector(short sectnum, short player_is_operating)
     return false;
 }
 
-int
+int 
 OperateWall(short wallnum, short player_is_operating)
 {
     return false;
 }
 
-short
-AnimateSwitch(SPRITEp sp, short tgt_value)
+enum
 {
-#define SWITCH_LEVER        581
-#define SWITCH_FUSE         558
-#define SWITCH_FLIP         561
-#define SWITCH_RED_CHAIN    563
-#define SWITCH_GREEN_CHAIN  565
-#define SWITCH_TOUCH        567
-#define SWITCH_DRAGON       569
+    SWITCH_LEVER = 581,
+    SWITCH_FUSE = 558,
+    SWITCH_FLIP = 561,
+    SWITCH_RED_CHAIN = 563,
+    SWITCH_GREEN_CHAIN = 565,
+    SWITCH_TOUCH = 567,
+    SWITCH_DRAGON = 569,
 
-#define SWITCH_LIGHT        551
-#define SWITCH_1            575
-#define SWITCH_3            579
+    SWITCH_LIGHT = 551,
+    SWITCH_1 = 575,
+    SWITCH_3 = 579,
 
-#define SWITCH_SHOOTABLE_1  577
-#define SWITCH_4            571
-#define SWITCH_5            573
-#define SWITCH_6            583
-#define EXIT_SWITCH         2470
+    SWITCH_SHOOTABLE_1 = 577,
+    SWITCH_4 = 571,
+    SWITCH_5 = 573,
+    SWITCH_6 = 583,
+    EXIT_SWITCH = 2470,
 
-#define SWITCH_SKULL        553
+    SWITCH_SKULL = 553,
+};
 
+short AnimateSwitch(SPRITEp sp, short tgt_value)
+{
     // if the value is not ON or OFF
     // then it is a straight toggle
 
@@ -994,8 +968,7 @@ AnimateSwitch(SPRITEp sp, short tgt_value)
 }
 
 
-void
-SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
+void SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
@@ -1035,8 +1008,7 @@ SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 }
 
 
-void
-DoExplodeSector(short match)
+void DoExplodeSector(short match)
 {
     short orig_ang;
     int zh;
@@ -1106,8 +1078,7 @@ int DoSpawnSpot(DSWActor* actor)
 }
 
 // spawns shrap when killing an object
-void
-DoSpawnSpotsForKill(short match)
+void DoSpawnSpotsForKill(short match)
 {
     int sn;
     SPRITEp sp;
@@ -1136,8 +1107,7 @@ DoSpawnSpotsForKill(short match)
 }
 
 // spawns shrap when damaging an object
-void
-DoSpawnSpotsForDamage(short match)
+void DoSpawnSpotsForDamage(short match)
 {
     int sn;
     SPRITEp sp;
@@ -1165,8 +1135,7 @@ DoSpawnSpotsForDamage(short match)
     }
 }
 
-void
-DoSoundSpotMatch(short match, short sound_num, short sound_type)
+void DoSoundSpotMatch(short match, short sound_num, short sound_type)
 {
     int sn;
     SPRITEp sp;
@@ -1269,8 +1238,7 @@ void DoSoundSpotStopSound(short match)
     }
 }
 
-void
-DoStopSoundSpotMatch(short match)
+void DoStopSoundSpotMatch(short match)
 {
     int sn;
     SPRITEp sp;
@@ -1303,8 +1271,7 @@ bool TestKillSectorObject(SECTOR_OBJECTp sop)
     return false;
 }
 
-short
-DoSectorObjectKillMatch(short match)
+short DoSectorObjectKillMatch(short match)
 {
     SECTOR_OBJECTp sop;
 
@@ -1321,8 +1288,7 @@ DoSectorObjectKillMatch(short match)
 }
 
 
-bool
-SearchExplodeSectorMatch(short match)
+bool SearchExplodeSectorMatch(short match)
 {
     int i;
 
@@ -1343,8 +1309,7 @@ SearchExplodeSectorMatch(short match)
     return false;
 }
 
-void
-KillMatchingCrackSprites(short match)
+void KillMatchingCrackSprites(short match)
 {
     int i;
     SPRITEp sp;
@@ -1364,8 +1329,7 @@ KillMatchingCrackSprites(short match)
     }
 }
 
-void
-WeaponExplodeSectorInRange(short weapon)
+void WeaponExplodeSectorInRange(short weapon)
 {
     int i;
     SPRITEp wp = &sprite[weapon];
@@ -1393,26 +1357,14 @@ WeaponExplodeSectorInRange(short weapon)
         if (!FAFcansee(wp->x,wp->y,wp->z,wp->sectnum,sp->x,sp->y,sp->z,sp->sectnum))
             continue;
 
-#if 0
-//        short match;
-        match = sp->hitag;
-        // this and every other crack sprite of this type is now dead
-        // don't use them
-        KillMatchingCrackSprites(match);
-        DoExplodeSector(match);
-        DoMatchEverything(nullptr, match, -1);
-#else
+
         // pass in explosion type
         MissileHitMatch(weapon, WPN_ROCKET, i);
-#endif
-
-        return;
     }
 }
 
 
-void
-ShootableSwitch(short SpriteNum)
+void ShootableSwitch(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
@@ -1501,8 +1453,7 @@ void DoDeleteSpriteMatch(short match)
     }
 }
 
-void
-DoChangorMatch(short match)
+void DoChangorMatch(short match)
 {
     int sn;
     SPRITEp sp;
@@ -1634,8 +1585,7 @@ bool ComboSwitchTest(short combo_type, short match)
 }
 
 // NOTE: switches are always wall sprites
-int
-OperateSprite(short SpriteNum, short player_is_operating)
+int OperateSprite(short SpriteNum, short player_is_operating)
 {
     auto actor = &swActors[SpriteNum];
     SPRITEp sp = &sprite[SpriteNum];
@@ -2046,8 +1996,7 @@ int DoTrapMatch(short match)
 }
 
 
-void
-OperateTripTrigger(PLAYERp pp)
+void OperateTripTrigger(PLAYERp pp)
 {
     if (Prediction)
         return;
@@ -2183,8 +2132,7 @@ OperateTripTrigger(PLAYERp pp)
     }
 }
 
-void
-OperateContinuousTrigger(PLAYERp pp)
+void OperateContinuousTrigger(PLAYERp pp)
 {
     if (Prediction)
         return;
@@ -2222,7 +2170,7 @@ short PlayerTakeSectorDamage(PLAYERp pp)
 
 // Needed in order to see if Player should grunt if he can't find a wall to operate on
 // If player is too far away, don't grunt
-#define PLAYER_SOUNDEVENT_TAG 900
+enum { PLAYER_SOUNDEVENT_TAG = 900 };
 bool NearThings(PLAYERp pp)
 {
     short neartagsect, neartagwall, neartagsprite;
@@ -2315,20 +2263,9 @@ bool NearThings(PLAYERp pp)
 
 }
 
-
-
-
-#if 0  // Move to sector.h file because .def files could not find declaration!
-typedef struct
-{
-    int dist;
-    short sectnum, wallnum, spritenum;
-} NEAR_TAG_INFO, *NEAR_TAG_INFOp;
-#endif
 short nti_cnt;
 
-void
-NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int count)
+void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int count)
 {
     short save_lotag, save_hitag;
     short neartagsector, neartagwall, neartagsprite;
@@ -2430,8 +2367,7 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
     }
 }
 
-void
-BuildNearTagList(NEAR_TAG_INFOp ntip, int size, PLAYERp pp, int z, int dist, int type, int count)
+void BuildNearTagList(NEAR_TAG_INFOp ntip, int size, PLAYERp pp, int z, int dist, int type, int count)
 {
     memset(ntip, -1, size);
     nti_cnt = 0;
@@ -2478,16 +2414,12 @@ int DoPlayerGrabStar(PLAYERp pp)
 
 
 
-void
-PlayerOperateEnv(PLAYERp pp)
+void PlayerOperateEnv(PLAYERp pp)
 {
     bool found;
 
     if (Prediction || !pp->SpriteP)
         return;
-
-    ////DSPRINTF(ds,"dist %d sectnum %d wallnum %d spritenum %d",nti[nt_ndx].dist, nti[nt_ndx].sectnum, nti[nt_ndx].wallnum, nti[nt_ndx].spritenum);
-    //MONO_PRINT(ds);
 
     //
     // Switch & door activations
@@ -2666,8 +2598,7 @@ PlayerOperateEnv(PLAYERp pp)
 
 
 
-void
-DoSineWaveFloor(void)
+void DoSineWaveFloor(void)
 {
     SINE_WAVE_FLOOR *swf;
     int newz;
@@ -2731,8 +2662,7 @@ DoSineWaveFloor(void)
 }
 
 
-void
-DoSineWaveWall(void)
+void DoSineWaveWall(void)
 {
     SINE_WALL *sw;
     int New;
@@ -2761,8 +2691,7 @@ DoSineWaveWall(void)
     }
 }
 
-void
-DoAnim(int numtics)
+void DoAnim(int numtics)
 {
     int i, animval;
 
@@ -2821,29 +2750,12 @@ DoAnim(int numtics)
     }
 }
 
-void
-AnimClear(void)
+void AnimClear(void)
 {
-#if 1
     AnimCnt = 0;
-#else
-    int i;
-
-    for (i = AnimCnt - 1; i >= 0; i--)
-    {
-        if (Anim[i].extra)
-        {
-            FreeMem(Anim[i].extra);
-            Anim[i].extra = 0;
-        }
-    }
-
-    AnimCnt = 0;
-#endif
 }
 
-short
-AnimGetGoal(int animtype, int animindex, DSWActor* animactor)
+short AnimGetGoal(int animtype, int animindex, DSWActor* animactor)
 {
     int i, j;
 
@@ -2860,8 +2772,7 @@ AnimGetGoal(int animtype, int animindex, DSWActor* animactor)
     return j;
 }
 
-void
-AnimDelete(int animtype, int animindex, DSWActor* animactor)
+void AnimDelete(int animtype, int animindex, DSWActor* animactor)
 {
     int i, j;
 
@@ -2890,8 +2801,7 @@ AnimDelete(int animtype, int animindex, DSWActor* animactor)
 }
 
 
-short
-AnimSet(int animtype, int animindex, DSWActor* animactor, fixed_t thegoal, int thevel)
+short AnimSet(int animtype, int animindex, DSWActor* animactor, fixed_t thegoal, int thevel)
 {
     int i, j;
 
@@ -2924,8 +2834,7 @@ AnimSet(int animtype, int animindex, DSWActor* animactor, fixed_t thegoal, int t
     return j;
 }
 
-short
-AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data)
+short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data)
 {
     ASSERT(anim_ndx < AnimCnt);
 
@@ -2938,8 +2847,7 @@ AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data)
     return anim_ndx;
 }
 
-short
-AnimSetVelAdj(short anim_ndx, short vel_adj)
+short AnimSetVelAdj(short anim_ndx, short vel_adj)
 {
     ASSERT(anim_ndx < AnimCnt);
 
@@ -2954,171 +2862,14 @@ AnimSetVelAdj(short anim_ndx, short vel_adj)
 
 void initlava(void)
 {
-#if 0
-    int x, y, z, r;
-    int i;
-
-//char lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2)], lavainc[LAVASIZ];
-//int lavanumdrops, lavanumframes;
-//int lavadropx[LAVAMAXDROPS], lavadropy[LAVAMAXDROPS];
-//int lavadropsiz[LAVAMAXDROPS], lavadropsizlookup[LAVAMAXDROPS];
-//int lavaradx[32][128], lavarady[32][128], lavaradcnt[32];
-
-
-    UPDATE TO NEW CODE
-
-    static int lavaradx[24][96];
-    static int lavarady[24][96];
-
-    for
-    lavaradcnt[z] = 0;
-
-    for (x = -16; x <= 16; x++)
-        for (y = -16; y <= 16; y++)
-        {
-            // r should only be between 0 and 31
-            // lavaradcnt[r] should be less 127
-            r = ksqrt(x * x + y * y);
-            lavaradx[r][lavaradcnt[r]] = x;
-            lavarady[r][lavaradcnt[r]] = y;
-            // this was causing an overwrite in ElevatorAuto structure
-            lavaradcnt[r]++;
-        }
-
-//      for(z=0;z<16;z++)
-//              lavadropsizlookup[z] = 8 / (ksqrt(z)+1);
-
-    for (z = 0; z < 16; z++)
-    {
-        lavadropsizlookup[z] = 8 / (ksqrt(16 - z) + 1);
-    }
-
-    for (z = 0; z < LAVASIZ; z++)
-    {
-        lavainc[z] = abs((((z ^ 17) >> 4) & 7) - 4) + 12;
-    }
-
-    lavanumdrops = 0;
-    lavanumframes = 0;
-#endif
 }
 
 void movelava(char *dapic)
 {
-#if 0
-//    #define COLOR_OFFSET 192
-#define COLOR_OFFSET LT_BROWN
-
-    char dat, *ptr;
-    int x, y, z, zx, dalavadropsiz, dadropsizlookup;
-    intptr_t offs, offs2;
-    int dalavax, dalavay;
-
-    z = 3;
-    if (lavanumdrops + z >= LAVAMAXDROPS)
-        z = LAVAMAXDROPS - lavanumdrops - 1;
-    while (z >= 0)
-    {
-        lavadropx[lavanumdrops] = (rand() & (LAVASIZ - 1));
-        lavadropy[lavanumdrops] = (rand() & (LAVASIZ - 1));
-        lavadropsiz[lavanumdrops] = 1;
-        lavanumdrops++;
-        z--;
-    }
-
-    z = lavanumdrops - 1;
-    while (z >= 0)
-    {
-        dadropsizlookup = lavadropsizlookup[lavadropsiz[z]] * (((z & 1) << 1) - 1);
-        dalavadropsiz = lavadropsiz[z];
-        dalavax = lavadropx[z];
-        dalavay = lavadropy[z];
-        for (zx = lavaradcnt[lavadropsiz[z]] - 1; zx >= 0; zx--)
-        {
-            offs = (((lavaradx[dalavadropsiz][zx] + dalavax) & (LAVASIZ - 1)) << LAVALOGSIZ);
-            offs += ((lavarady[dalavadropsiz][zx] + dalavay) & (LAVASIZ - 1));
-
-            dapic[offs] += dadropsizlookup;
-
-            if (dapic[offs] < COLOR_OFFSET)
-                dapic[offs] = COLOR_OFFSET;
-        }
-
-        lavadropsiz[z]++;
-        if (lavadropsiz[z] > 10)
-        {
-            lavanumdrops--;
-            lavadropx[z] = lavadropx[lavanumdrops];
-            lavadropy[z] = lavadropy[lavanumdrops];
-            lavadropsiz[z] = lavadropsiz[lavanumdrops];
-        }
-        z--;
-    }
-
-    // Back up dapic with 1 pixel extra on each boundary
-    // (to prevent anding for wrap-around)
-    offs = ((intptr_t) dapic);
-    offs2 = (LAVASIZ + 2) + 1 + ((intptr_t) lavabakpic);
-    for (x = 0; x < LAVASIZ; x++)
-    {
-        memcpy(offs2, offs, LAVASIZ);
-        offs += LAVASIZ;
-        offs2 += LAVASIZ + 2;
-    }
-    for (y = 0; y < LAVASIZ; y++)
-    {
-        lavabakpic[y + 1] = dapic[y + ((LAVASIZ - 1) << LAVALOGSIZ)];
-        lavabakpic[y + 1 + (LAVASIZ + 1) * (LAVASIZ + 2)] = dapic[y];
-    }
-    for (x = 0; x < LAVASIZ; x++)
-    {
-        lavabakpic[(x + 1) * (LAVASIZ + 2)] = dapic[(x << LAVALOGSIZ) + (LAVASIZ - 1)];
-        lavabakpic[(x + 1) * (LAVASIZ + 2) + (LAVASIZ + 1)] = dapic[x << LAVALOGSIZ];
-    }
-    lavabakpic[0] = dapic[LAVASIZ * LAVASIZ - 1];
-    lavabakpic[LAVASIZ + 1] = dapic[LAVASIZ * (LAVASIZ - 1)];
-    lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 1)] = dapic[LAVASIZ - 1];
-    lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2) - 1] = dapic[0];
-
-    for (z = (LAVASIZ + 2) * (LAVASIZ + 2) - 4; z >= 0; z -= 4)
-    {
-        lavabakpic[z + 0] &= 31;
-        lavabakpic[z + 1] &= 31;
-        lavabakpic[z + 2] &= 31;
-        lavabakpic[z + 3] &= 31;
-    }
-
-    for (x = LAVASIZ - 1; x >= 0; x--)
-    {
-        offs = (x + 1) * (LAVASIZ + 2) + 1;
-        ptr = (char *)((x << LAVALOGSIZ) + (intptr_t) dapic);
-
-        zx = ((x + lavanumframes) & (LAVASIZ - 1));
-
-        offs2 = LAVASIZ - 1;
-        for (y = offs; y < offs + LAVASIZ; y++)
-        {
-            dat = lavainc[(offs2--) & zx];
-
-            dat += lavabakpic[y - (LAVASIZ + 2) - 1];
-            dat += lavabakpic[y - (LAVASIZ + 2)];
-            dat += lavabakpic[y - (LAVASIZ + 2) + 1];
-            dat += lavabakpic[y - 1];
-            dat += lavabakpic[y + 1];
-            dat += lavabakpic[y + (LAVASIZ + 2)];
-            dat += lavabakpic[y + (LAVASIZ + 2) - 1];
-
-            *ptr++ = (dat >> 3) + COLOR_OFFSET;
-        }
-    }
-
-    lavanumframes++;
-#endif
 }
 
 
-void
-DoPanning(void)
+void DoPanning(void)
 {
     int nx, ny;
     int i;
@@ -3167,8 +2918,7 @@ DoPanning(void)
 }
 
 
-void
-DoSector(void)
+void DoSector(void)
 {
     SECTOR_OBJECTp sop;
     bool riding;
@@ -3177,7 +2927,6 @@ DoSector(void)
     int min_dist,dist,a,b,c;
     PLAYERp pp;
 
-#if 1
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
 
@@ -3248,7 +2997,6 @@ DoSector(void)
             }
         }
     }
-#endif
 
     DoPanning();
     DoLighting();
@@ -3257,38 +3005,6 @@ DoSector(void)
     DoSpringBoardDown();
 }
 
-#if 0
-int inside(int x, int y, short sectnum)
-{
-    WALLp wal;
-    int i, x1, y1, x2, y2;
-    char cnt;
-
-    if ((sectnum < 0) || (sectnum >= numsectors))
-        return -1;
-    cnt = 0;
-
-    wal = &wall[sector[sectnum].wallptr];
-    for (i = sector[sectnum].wallnum; i > 0; i--)
-    {
-        y1 = wal->y - y;
-        y2 = wall[wal->point2].y - y;
-        if ((y1 ^ y2) < 0)
-        {
-            x1 = wal->x - x;
-            x2 = wall[wal->point2].x - x;
-
-            if ((x1 ^ x2) < 0)
-                cnt ^= (x1 * y2 < x2 * y1) ^ (y1 < y2);
-            else if (x1 >= 0)
-                cnt ^= 1;
-        }
-        wal++;
-    }
-    return cnt;
-}
-}
-#endif
 
 #include "saveable.h"
 
