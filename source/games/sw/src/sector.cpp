@@ -1202,8 +1202,6 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
             else
             {
                 PlaySound(snd2play, actor, flags);
-
-                Set3DSoundOwner(actor->GetSpriteIndex());
             }
         }
     }

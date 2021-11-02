@@ -854,7 +854,6 @@ int DoChemBomb(DSWActor* actor)
                 {
                     PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                     PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
-                    Set3DSoundOwner(actor->GetSpriteIndex());
                 }
                 u->xchange = u->ychange = 0;
                 u->WaitTics -= (MISSILEMOVETICS * 2);
@@ -929,7 +928,6 @@ int DoChemBomb(DSWActor* actor)
                             {
                                 PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                                 PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
-                                Set3DSoundOwner(actor->GetSpriteIndex());
                             }
                             SpawnRadiationCloud(actor);
                             u->xchange = u->ychange = 0;
@@ -977,7 +975,6 @@ int DoChemBomb(DSWActor* actor)
                         {
                             PlaySound(DIGI_GASPOP, actor, v3df_dontpan | v3df_doppler);
                             PlaySound(DIGI_CHEMGAS, actor, v3df_dontpan | v3df_doppler);
-                            Set3DSoundOwner(actor->GetSpriteIndex());
                         }
                         SpawnRadiationCloud(actor);
                         u->xchange = u->ychange = 0;

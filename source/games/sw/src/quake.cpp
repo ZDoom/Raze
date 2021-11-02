@@ -259,7 +259,6 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     QUAKE_PosAmt(sp) = 0;
 
     PlaySound(DIGI_ERUPTION, actorNew, v3df_follow|v3df_dontpan);
-    Set3DSoundOwner(actorNew->GetSpriteIndex());
 
     return actorNew->GetSpriteIndex();
 }
@@ -307,8 +306,7 @@ SetNuclearQuake(int16_t Weapon)
     return 0;
 }
 
-int
-SetSumoQuake(DSWActor* actor)
+int SetSumoQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
@@ -316,10 +314,9 @@ SetSumoQuake(DSWActor* actor)
     return 0;
 }
 
-int
-SetSumoFartQuake(DSWActor* actor)
+int SetSumoFartQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  60, 4, 4000);
     return 0;

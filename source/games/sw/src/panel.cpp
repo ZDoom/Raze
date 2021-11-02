@@ -3192,7 +3192,6 @@ InitWeaponRail(PLAYERp pp)
 
     PlaySound(DIGI_RAIL_UP, pp, v3df_follow);
     PlaySound(DIGI_RAILREADY, pp, v3df_follow | v3df_dontpan, CHAN_ITEM); // this one needs to be on a dedicated channel to allow switching it off without too many checks.
-    Set3DSoundOwner(psp->PlayerP->PlayerSprite);
 
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }

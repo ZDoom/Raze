@@ -10788,7 +10788,6 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
     }
 
     PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
-    Set3DSoundOwner(actorNew->GetSpriteIndex());
 }
 
 
@@ -10827,7 +10826,6 @@ int SpawnBreakFlames(DSWActor* actor)
     DoBeginJump(actorNew);
 
     PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
-    Set3DSoundOwner(New);
 
     return New;
 }
@@ -10877,7 +10875,6 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
     //DoBeginJump(actorNew);
 
     PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
-    Set3DSoundOwner(New);
 
     return New;
 }
@@ -13039,7 +13036,6 @@ InitSpellNapalm(PLAYERp pp)
         if (i==0) // Only attach sound to first projectile
         {
             PlaySound(DIGI_NAPWIZ, sp, v3df_follow);
-            Set3DSoundOwner(u->SpriteNum);
         }
 
         SetOwner(pp->Actor(), actor);
@@ -13125,7 +13121,6 @@ InitEnemyNapalm(DSWActor* actor)
         if (i==0) // Only attach sound to first projectile
         {
             PlaySound(DIGI_NAPWIZ, wp, v3df_follow);
-            Set3DSoundOwner(w);
         }
 
         if (u->ID == ZOMBIE_RUN_R0)
@@ -13194,7 +13189,6 @@ InitSpellMirv(PLAYERp pp)
     u = User[SpriteNum].Data();
 
     PlaySound(DIGI_MIRVWIZ, sp, v3df_follow);
-    Set3DSoundOwner(SpriteNum);
 
     SetOwner(short(pp->SpriteP - sprite), SpriteNum);
     sp->shade = -40;
@@ -13242,7 +13236,6 @@ InitEnemyMirv(DSWActor* actor)
     wu = User[w].Data();
 
     PlaySound(DIGI_MIRVWIZ, wp, v3df_follow);
-    Set3DSoundOwner(w);
 
     SetOwner(SpriteNum, w);
     wp->shade = -40;
@@ -13695,7 +13688,6 @@ int InitSumoNapalm(DSWActor* actor)
             if (i==0) // Only attach sound to first projectile
             {
                 PlaySound(DIGI_NAPWIZ, wp, v3df_follow);
-                Set3DSoundOwner(wActor->GetSpriteIndex());
             }
 
             SetOwner(actor, wActor);

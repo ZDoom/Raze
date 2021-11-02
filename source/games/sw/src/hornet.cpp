@@ -326,7 +326,6 @@ int SetupHornet(DSWActor* actor)
 
     // Special looping buzz sound attached to each hornet spawned
     PlaySound(DIGI_HORNETBUZZ, sp, v3df_follow|v3df_init);
-    Set3DSoundOwner(actor->GetSpriteIndex());
 
     return 0;
 }
