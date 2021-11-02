@@ -64,8 +64,8 @@ bool TestSlidorMatchActive(short match);
 int PlayerCheckDeath(PLAYERp, short);
 short DoVatorOperate(PLAYERp, short);
 short DoVatorMatch(PLAYERp pp, short match);
-short DoRotatorOperate(PLAYERp, short);
-short DoRotatorMatch(PLAYERp pp, short match, bool);
+void DoRotatorOperate(PLAYERp, short);
+void DoRotatorMatch(PLAYERp pp, short match, bool);
 short DoSlidorOperate(PLAYERp, short);
 short DoSlidorMatch(PLAYERp pp, short match, bool);
 
