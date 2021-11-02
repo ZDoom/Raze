@@ -78,7 +78,7 @@ void InterpSectorSprites(short sectnum, bool state);
 using INTERP_FUNC = void(*)(int, int);
 
 void SetSlidorActive(DSWActor*);
-void DoSlidorInterp(short, INTERP_FUNC);
+void DoSlidorInterp(DSWActor*, INTERP_FUNC);
 
 int DoBeginJump(DSWActor* actor);
 int DoJump(DSWActor* actor);

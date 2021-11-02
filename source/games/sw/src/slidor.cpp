@@ -96,7 +96,7 @@ void SetSlidorActive(DSWActor* actor)
 
     r = u->rotator.Data();
 
-    DoSlidorInterp(actor->GetSpriteIndex(), StartInterpolation);
+    DoSlidorInterp(actor, StartInterpolation);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -111,12 +111,12 @@ void SetSlidorActive(DSWActor* actor)
         VatorSwitch(SP_TAG2(sp), ON);
 }
 
-void SetSlidorInactive(short SpriteNum)
+void SetSlidorInactive(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
-    DoSlidorInterp(SpriteNum, StopInterpolation);
+    DoSlidorInterp(actor, StopInterpolation);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -224,12 +224,13 @@ bool TestSlidorMatchActive(short match)
     return false;
 }
 
-void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
+void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 {
+    auto sp = &actor->s();
     short w, pw, startwall, endwall;
 
-    w = startwall = sector[sprite[SpriteNum].sectnum].wallptr;
-    endwall = startwall + sector[sprite[SpriteNum].sectnum].wallnum - 1;
+    w = startwall = sector[sp->sectnum].wallptr;
+    endwall = startwall + sector[sp->sectnum].wallnum - 1;
 
     do
     {
@@ -349,12 +350,13 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
     while (w != startwall);
 }
 
-int DoSlidorMoveWalls(short SpriteNum, int amt)
+int DoSlidorMoveWalls(DSWActor* actor, int amt)
 {
+    auto sp = &actor->s();
     short w, pw, startwall, endwall;
 
-    w = startwall = sector[sprite[SpriteNum].sectnum].wallptr;
-    endwall = startwall + sector[sprite[SpriteNum].sectnum].wallnum - 1;
+    w = startwall = sector[sp->sectnum].wallptr;
+    endwall = startwall + sector[sp->sectnum].wallnum - 1;
 
     do
     {
@@ -461,13 +463,13 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
     return 0;
 }
 
-int DoSlidorInstantClose(short SpriteNum)
+int DoSlidorInstantClose(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     short w, startwall;
     int diff;
 
-    w = startwall = sector[sprite[SpriteNum].sectnum].wallptr;
+    w = startwall = sector[sp->sectnum].wallptr;
 
     do
     {
@@ -475,22 +477,22 @@ int DoSlidorInstantClose(short SpriteNum)
         {
         case TAG_WALL_SLIDOR_LEFT:
             diff = wall[w].x - sp->x;
-            DoSlidorMoveWalls(SpriteNum, diff);
+            DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_RIGHT:
             diff = wall[w].x - sp->x;
-            DoSlidorMoveWalls(SpriteNum, -diff);
+            DoSlidorMoveWalls(actor, -diff);
             break;
 
         case TAG_WALL_SLIDOR_UP:
             diff = wall[w].y - sp->y;
-            DoSlidorMoveWalls(SpriteNum, diff);
+            DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_DOWN:
             diff = wall[w].y - sp->y;
-            DoSlidorMoveWalls(SpriteNum, -diff);
+            DoSlidorMoveWalls(actor, -diff);
             break;
         }
 
@@ -502,9 +504,8 @@ int DoSlidorInstantClose(short SpriteNum)
 }
 
 
-int DoSlidorMove(short SpriteNum)
+int DoSlidor(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     ROTATORp r;
@@ -548,7 +549,7 @@ int DoSlidorMove(short SpriteNum)
             // new tgt is CLOSED (0)
             r->tgt = 0;
             r->vel = -r->vel;
-            SetSlidorInactive(SpriteNum);
+            SetSlidorInactive(actor);
 
             if (SP_TAG6(sp) && !TEST_BOOL8(sp))
                 DoMatchEverything(nullptr, SP_TAG6(sp), -1);
@@ -568,7 +569,7 @@ int DoSlidorMove(short SpriteNum)
             r->vel = labs(r->vel);
 
             r->tgt = r->open_dest;
-            SetSlidorInactive(SpriteNum);
+            SetSlidorInactive(actor);
 
             RESET_BOOL8(sp);
 
@@ -635,30 +636,17 @@ int DoSlidorMove(short SpriteNum)
     }
 
 
-    DoSlidorMoveWalls(SpriteNum, r->pos - old_pos);
+    DoSlidorMoveWalls(actor, r->pos - old_pos);
 
     if (kill)
     {
-        SetSlidorInactive(SpriteNum);
+        SetSlidorInactive(actor);
         KillActor(actor);
         return 0;
     }
 
     return 0;
 }
-
-int DoSlidor(DSWActor* actor)
-{
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    SECTORp sectp = &sector[sp->sectnum];
-
-    DoSlidorMove(SpriteNum);
-
-    return 0;
-}
-
 
 #include "saveable.h"
 

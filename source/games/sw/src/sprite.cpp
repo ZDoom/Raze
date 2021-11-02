@@ -87,7 +87,7 @@ ANIMATOR DoRotator;
 ANIMATOR DoSlidor;
 ANIMATOR DoSpike, DoSpikeAuto;
 ANIMATOR DoLavaErupt;
-int DoSlidorInstantClose(short SpriteNum);
+int DoSlidorInstantClose(DSWActor*);
 
 void InitWeaponRocket(PLAYERp);
 void InitWeaponUzi(PLAYERp);
@@ -2539,7 +2539,7 @@ SpriteSetup(void)
 
                     if (TEST_BOOL5(sp))
                     {
-                        DoSlidorInstantClose(SpriteNum);
+                        DoSlidorInstantClose(actor);
                     }
 
                     change_actor_stat(actor, STAT_SLIDOR);
