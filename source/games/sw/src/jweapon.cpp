@@ -417,7 +417,7 @@ int DoBloodSpray(DSWActor* actor)
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 SpawnMidSplash(actor);
-                QueueWallBlood(actor->GetSpriteIndex(), hsp->ang);
+                QueueWallBlood(actor, hsp->ang);
                 WallBounce(actor->GetSpriteIndex(), wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
@@ -425,7 +425,7 @@ int DoBloodSpray(DSWActor* actor)
             {
                 u->xchange = u->ychange = 0;
                 SpawnMidSplash(actor);
-                QueueWallBlood(actor->GetSpriteIndex(), hsp->ang);
+                QueueWallBlood(actor, hsp->ang);
                 KillActor(actor);
                 return true;
             }
@@ -455,16 +455,17 @@ int DoBloodSpray(DSWActor* actor)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             SpawnMidSplash(actor);
-            wb = QueueWallBlood(actor->GetSpriteIndex(), NORM_ANGLE(wall_ang+1024));
+            auto bldActor = QueueWallBlood(actor, NORM_ANGLE(wall_ang+1024));
 
-            if (wb < 0)
+            if (bldActor== nullptr)
             {
                 KillActor(actor);
                 return 0;
             }
             else
             {
-                if (FAF_Sector(sprite[wb].sectnum) || FAF_ConnectArea(sprite[wb].sectnum))
+				auto bsp = &bldActor->s();
+                if (FAF_Sector(bsp->sectnum) || FAF_ConnectArea(bsp->sectnum))
                 {
                     KillActor(actor);
                     return 0;
@@ -472,14 +473,14 @@ int DoBloodSpray(DSWActor* actor)
 
                 sp->xvel = sp->yvel = u->xchange = u->ychange = 0;
                 sp->xrepeat = sp->yrepeat = 70 - RandomRange(25);
-                sp->x = sprite[wb].x;
-                sp->y = sprite[wb].y;
+                sp->x = bsp->x;
+                sp->y = bsp->y;
 
                 // !FRANK! bit of a hack
                 // yvel is the hit_wall
-                if (sprite[wb].yvel >= 0)
+                if (bsp->yvel >= 0)
                 {
-                    short wallnum = sprite[wb].yvel;
+                    short wallnum = bsp->yvel;
 
                     // sy & sz are the ceiling and floor of the sector you are sliding down
                     if (wall[wallnum].nextsector >= 0)

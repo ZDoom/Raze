@@ -17292,7 +17292,7 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, int hit_x, int hit_y, int hit_z, s
                 if (!hu->PlayerP)
                     SpawnBlood(hitActor, nullptr, NORM_ANGLE(sp->ang+1024),hit_x, hit_y, hit_z);
                 if (hu->ID != TRASHCAN && hu->ID != ZILLA_RUN_R0)
-                    QueueWallBlood(hit_sprite, sp->ang);  //QueueWallBlood needs bullet angle.
+                    QueueWallBlood(hitActor, sp->ang);  //QueueWallBlood needs bullet angle.
             }
         }
 
@@ -20422,9 +20422,9 @@ STATE s_WallBlood4[] =
 };
 
 
-int QueueWallBlood(short hit_sprite, short ang)
+DSWActor* QueueWallBlood(DSWActor* actor, short ang)
 {
-    SPRITEp hsp = &sprite[hit_sprite];
+    SPRITEp hsp = &actor->s();
     short w,nw,wall_ang,dang;
     short SpriteNum;
     int nx,ny;
@@ -20433,11 +20433,11 @@ int QueueWallBlood(short hit_sprite, short ang)
     short rndnum;
     int daz;
     hitdata_t hitinfo;
-    USERp u = User[hit_sprite].Data();
+    USERp u = actor->u();
 
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(hsp) || SpriteInDiveArea(hsp))
-        return -1;   // No blood underwater!
+        return nullptr;   // No blood underwater!
 
     daz = Z(RANDOM_P2(128))<<3;
     daz -= DIV2(Z(128)<<3);
@@ -20450,23 +20450,23 @@ int QueueWallBlood(short hit_sprite, short ang)
                &hitinfo, CLIPMASK_MISSILE);
 
     if (hitinfo.sect < 0)
-        return -1;
+        return nullptr;
 
 #define WALLBLOOD_DIST_MAX 2500
     if (Distance(hitinfo.pos.x, hitinfo.pos.y, hsp->x, hsp->y) > WALLBLOOD_DIST_MAX)
-        return -1;
+        return nullptr;
 
     // hit a sprite?
     if (hitinfo.sprite >= 0)
-        return -1;   // Don't try to put blood on a sprite
+        return nullptr;   // Don't try to put blood on a sprite
 
     if (hitinfo.wall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
     {
         if (TestDontStick(-1, hitinfo.wall))
-            return -1;
+            return nullptr;
     }
     else
-        return -1;
+        return nullptr;
 
 
     if (WallBloodQueue[WallBloodQueueHead] != -1)
@@ -20534,7 +20534,7 @@ int QueueWallBlood(short hit_sprite, short ang)
     if (sp->sectnum != sectnum)
         changespritesect(SpriteNum, sectnum);
 
-    return SpriteNum;
+    return &swActors[SpriteNum];
 }
 
 #define FEET_IN_BLOOD_DIST 300
