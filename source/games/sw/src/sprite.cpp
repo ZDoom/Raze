@@ -58,7 +58,7 @@ int SetupNinja(DSWActor*);
 int SetupGoro(DSWActor*);
 int SetupCoolg(DSWActor*);
 int SetupEel(DSWActor*);
-int SetupSumo(short);
+int SetupSumo(DSWActor*);
 int SetupZilla(short);
 int SetupToiletGirl(DSWActor*);
 int SetupWashGirl(DSWActor*);
@@ -1265,7 +1265,7 @@ ActorSpawn(SPRITEp sp)
         }
 
         PicAnimOff(sp->picnum);
-        SetupSumo(SpriteNum);
+        SetupSumo(actor);
 
         break;
     }

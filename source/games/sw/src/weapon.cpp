@@ -13660,12 +13660,10 @@ InitFistAttack(PLAYERp pp)
     }
 }
 
-int
-InitSumoNapalm(short SpriteNum)
+int InitSumoNapalm(DSWActor* actor)
 {
-    short w;
-    SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum].Data(), wu;
+    SPRITEp sp = &actor->s(), wp;
+    USERp u = actor->u(), wu;
     short dist;
     short i,j,ang;
 
@@ -13687,20 +13685,20 @@ InitSumoNapalm(short SpriteNum)
     {
         for (i = 0; i < (int)SIZ(mp); i++)
         {
-            w = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Napalm, sp->sectnum,
+            auto wActor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, sp->sectnum,
                             sp->x, sp->y, SPRITEp_TOS(sp), ang, NAPALM_VELOCITY);
 
-            wp = &sprite[w];
-            wu = User[w].Data();
+            wp = &wActor->s();
+            wu = wActor->u();
 
             wp->hitag = LUMINOUS; //Always full brightness
             if (i==0) // Only attach sound to first projectile
             {
                 PlaySound(DIGI_NAPWIZ, wp, v3df_follow);
-                Set3DSoundOwner(w);
+                Set3DSoundOwner(wActor->GetSpriteIndex());
             }
 
-            SetOwner(SpriteNum, w);
+            SetOwner(actor, wActor);
             wp->shade = -40;
             wp->xrepeat = 32;
             wp->yrepeat = 32;
@@ -13719,7 +13717,7 @@ InitSumoNapalm(short SpriteNum)
             if (mp[i].dist_over != 0)
             {
                 wp->ang = NORM_ANGLE(wp->ang + mp[i].ang);
-                HelpMissileLateral(w, mp[i].dist_over);
+                HelpMissileLateral(wActor->GetSpriteIndex(), mp[i].dist_over);
                 wp->ang = NORM_ANGLE(wp->ang - mp[i].ang);
             }
 
@@ -13733,7 +13731,7 @@ InitSumoNapalm(short SpriteNum)
             wu->ychange = MOVEy(wp->xvel, wp->ang);
             wu->zchange = wp->zvel;
 
-            MissileSetPos(w, DoNapalm, mp[i].dist_out);
+            MissileSetPos(wActor->GetSpriteIndex(), DoNapalm, mp[i].dist_out);
 
             sp->clipdist = oclipdist;
 
@@ -13745,13 +13743,10 @@ InitSumoNapalm(short SpriteNum)
     return 0;
 }
 
-int
-InitSumoSkull(short SpriteNum)
+int InitSumoSkull(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP, np;
-    USERp u = User[SpriteNum].Data(), nu;
-    short New;
+    SPRITEp sp = &actor->s(), np;
+    USERp u = actor->u(), nu;
 
     extern STATE s_SkullExplode[];
     extern STATE s_SkullWait[5][1];
@@ -13759,16 +13754,15 @@ InitSumoSkull(short SpriteNum)
     extern ATTRIBUTE SkullAttrib;
 
 
-    PlaySound(DIGI_SERPSUMMONHEADS, sp, v3df_none);
+    PlaySound(DIGI_SERPSUMMONHEADS, actor, v3df_none);
 
-    New = SpawnSprite(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
-    auto actorNew = &swActors[New];
+    auto actorNew = SpawnActor(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
-    np = &sprite[New];
-    nu = User[New].Data();
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     np->xvel = 500;
-    SetOwner(SpriteNum, New);
+    SetOwner(actor, actorNew);
     np->shade = -20;
     np->xrepeat = 64;
     np->yrepeat = 64;
@@ -13803,26 +13797,23 @@ InitSumoSkull(short SpriteNum)
     return 0;
 }
 
-int
-InitSumoStompAttack(short SpriteNum)
+int InitSumoStompAttack(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = &sprite[SpriteNum],tsp;
-    int i;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s(),tsp;
     unsigned stat;
     int dist;
     short reach;
 
 
-    PlaySound(DIGI_30MMEXPLODE, sp, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_30MMEXPLODE, actor, v3df_dontpan|v3df_doppler);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            auto itActor = &swActors[i];
-            tsp = &sprite[i];
+            tsp = &itActor->s();
 
             if (itActor != u->targetActor)
                 break;
@@ -13837,7 +13828,7 @@ InitSumoStompAttack(short SpriteNum)
             if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, reach))
             {
                 if (FAFcansee(tsp->x,tsp->y,SPRITEp_MID(tsp),tsp->sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
-                    DoDamage(i, SpriteNum);
+                    DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -13846,38 +13837,38 @@ InitSumoStompAttack(short SpriteNum)
     return 0;
 }
 
-int
-InitMiniSumoClap(short SpriteNum)
+int InitMiniSumoClap(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     int dist;
     short reach;
 
 
     if (!u->targetActor) return 0;
+    auto tsp = &u->targetActor->s();
 
-    dist = Distance(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y);
+    dist = Distance(sp->x, sp->y, tsp->x, tsp->y);
 
     reach = 10000;
 
-    if (dist < CLOSE_RANGE_DIST_FUDGE(&u->targetActor->s(), sp, 1000))
+    if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, 1000))
     {
-        if (SpriteOverlapZ(SpriteNum, u->targetActor->GetSpriteIndex(), Z(20)))
+        if (SpriteOverlapZ(actor->GetSpriteIndex(), u->targetActor->GetSpriteIndex(), Z(20)))
         {
-            if (FAFcansee(u->targetActor->s().x,u->targetActor->s().y,ActorMid(u->targetActor),u->targetActor->s().sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
+            if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum))
             {
-                PlaySound(DIGI_CGTHIGHBONE, sp, v3df_follow|v3df_dontpan);
-                DoDamage(u->targetActor->GetSpriteIndex(), SpriteNum);
+                PlaySound(DIGI_CGTHIGHBONE, actor, v3df_follow | v3df_dontpan);
+                DoDamage(u->targetActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
-    else if (dist < CLOSE_RANGE_DIST_FUDGE(&u->targetActor->s(), sp, reach))
+    else if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, reach))
     {
-        if (FAFcansee(u->targetActor->s().x,u->targetActor->s().y,ActorMid(u->targetActor),u->targetActor->s().sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
+        if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum))
         {
-            PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
-            SpawnFireballFlames(SpriteNum, u->targetActor->GetSpriteIndex());
+            PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
+            SpawnFireballFlames(actor->GetSpriteIndex(), u->targetActor->GetSpriteIndex());
         }
     }
 

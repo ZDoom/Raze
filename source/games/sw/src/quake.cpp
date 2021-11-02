@@ -308,16 +308,16 @@ SetNuclearQuake(int16_t Weapon)
 }
 
 int
-SetSumoQuake(int16_t SpriteNum)
+SetSumoQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  120, 4, 20000);
     return 0;
 }
 
 int
-SetSumoFartQuake(int16_t SpriteNum)
+SetSumoFartQuake(DSWActor* actor)
 {
     SPRITEp sp = &sprite[SpriteNum];
 

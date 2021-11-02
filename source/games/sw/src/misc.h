@@ -106,7 +106,7 @@ int SetExpQuake(int16_t Weapon);
 int SetGunQuake(int16_t SpriteNum);
 int SetPlayerQuake(PLAYERp mpp);
 int SetNuclearQuake(int16_t Weapon);
-int SetSumoQuake(int16_t SpriteNum);
-int SetSumoFartQuake(int16_t SpriteNum);
+int SetSumoQuake(DSWActor*);
+int SetSumoFartQuake(DSWActor*);
 
 END_SW_NS
