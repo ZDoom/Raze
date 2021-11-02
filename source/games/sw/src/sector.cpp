@@ -1885,15 +1885,14 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
 
 int DoTrapReset(short match)
 {
-    int i;
     SPRITEp sp;
     USERp u;
 
-    StatIterator it(STAT_TRAP);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_TRAP);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
-        u = User[i].Data();
+        sp = &actor->s();
+        u = actor->u();
 
         if (sp->lotag != match)
             continue;
@@ -1915,18 +1914,16 @@ int DoTrapReset(short match)
 
 int DoTrapMatch(short match)
 {
-    int i;
     SPRITEp sp;
     USERp u;
 
     // may need to be reset to fire immediately
 
-    StatIterator it(STAT_TRAP);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_TRAP);
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[i];
-        sp = &sprite[i];
-        u = User[i].Data();
+        sp = &actor->s();
+        u = actor->u();
 
         if (sp->lotag != match)
             continue;
@@ -1963,7 +1960,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitSpearTrap(i);
+                InitSpearTrap(actor->GetSpriteIndex());
             }
         }
     }
@@ -2053,11 +2050,11 @@ void OperateTripTrigger(PLAYERp pp)
 
         dist = sectp->hitag;
 
-        StatIterator it(STAT_ENEMY);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_ENEMY);
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &actor->s();
+            u = actor->u();
 
             if (TEST(u->Flags, SPR_WAIT_FOR_TRIGGER))
             {
@@ -2130,7 +2127,7 @@ void OperateContinuousTrigger(PLAYERp pp)
 short PlayerTakeSectorDamage(PLAYERp pp)
 {
     SECT_USERp sectu = SectUser[pp->cursectnum].Data();
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
 
     // the calling routine must make sure sectu exists
     if ((u->DamageTics -= synctics) < 0)
@@ -2305,9 +2302,10 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
     }
     else if (neartagsprite >= 0)
     {
+        auto sp = &sprite[neartagsprite];
         // save off values
-        save_lotag = sprite[neartagsprite].lotag;
-        save_hitag = sprite[neartagsprite].hitag;
+        save_lotag = sp->lotag;
+        save_hitag = sp->hitag;
 
         ntip->dist = neartaghitdist;
         ntip->sectnum = -1;
@@ -2320,14 +2318,14 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
             return;
 
         // remove them
-        sprite[neartagsprite].lotag = 0;
-        sprite[neartagsprite].hitag = 0;
+        sp->lotag = 0;
+        sp->hitag = 0;
 
         NearTagList(ntip, pp, z, dist, type, count);
 
         // reset off values
-        sprite[neartagsprite].lotag = save_lotag;
-        sprite[neartagsprite].hitag = save_hitag;
+        sp->lotag = save_lotag;
+        sp->hitag = save_hitag;
     }
     else
     {
@@ -2441,10 +2439,10 @@ void PlayerOperateEnv(PLAYERp pp)
                 unsigned i;
                 NEAR_TAG_INFO nti[16];
                 short nt_ndx;
+                auto psp = &pp->Actor()->s();
 
-
-                z[0] = pp->SpriteP->z - SPRITEp_SIZE_Z(pp->SpriteP) - Z(10);
-                z[1] = pp->SpriteP->z;
+                z[0] = psp->z - SPRITEp_SIZE_Z(psp) - Z(10);
+                z[1] = psp->z;
                 z[2] = DIV2(z[0] + z[1]);
 
                 for (i = 0; i < SIZ(z); i++)
@@ -2852,10 +2850,11 @@ void DoPanning(void)
     SECTORp sectp;
     WALLp wallp;
 
-    StatIterator it(STAT_FLOOR_PAN);
-    while ((i = it.NextIndex()) >= 0)
+
+    SWStatIterator it(STAT_FLOOR_PAN);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
         sectp = &sector[sp->sectnum];
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
@@ -2866,9 +2865,9 @@ void DoPanning(void)
     }
 
     it.Reset(STAT_CEILING_PAN);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
         sectp = &sector[sp->sectnum];
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
@@ -2879,9 +2878,9 @@ void DoPanning(void)
     }
 
     it.Reset(STAT_WALL_PAN);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
         wallp = &wall[sp->owner];
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
