@@ -2136,7 +2136,7 @@ void ScaleRandomPoint(SECTOR_OBJECTp sop,short k,short ang,int x,int y,int *dx,i
 void CopySectorMatch(short match);  // copysect.c
 
 int DoWallMoveMatch(short match);   // wallmove.c
-int DoWallMove(SPRITEp sp); // wallmove.c
+int DoWallMove(DSWActor* sp); // wallmove.c
 bool CanSeeWallMove(SPRITEp wp,short match);    // wallmove.c
 
 void DoSpikeOperate(short sectnum); // spike.c

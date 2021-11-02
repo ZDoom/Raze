@@ -7846,7 +7846,7 @@ int DoExpDamageTest(DSWActor* actor)
         if (SP_TAG2(found_sp) == 0)
         {
             // just do one
-            DoWallMove(found_sp);
+            DoWallMove(&swActors[found_sp - sprite]);
         }
         else
         {
