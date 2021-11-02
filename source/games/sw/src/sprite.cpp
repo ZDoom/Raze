@@ -2604,7 +2604,7 @@ SpriteSetup(void)
                             // start in the on position
                             u->zclip = sp->z;
                             u->z_tgt = u->sz;
-                            SpikeAlign(SpriteNum);
+                            SpikeAlign(actor);
                         }
 
                         // set orig z
@@ -2622,7 +2622,7 @@ SpriteSetup(void)
                             // starting in the on position
                             u->zclip = sp->z;
                             u->z_tgt = u->sz;
-                            SpikeAlign(SpriteNum);
+                            SpikeAlign(actor);
                         }
 
                         // set orig z
@@ -6793,7 +6793,7 @@ SpriteControl(void)
         if (u->Tics)
         {
             if ((u->Tics -= synctics) <= 0)
-                SetSpikeActive(i);
+                SetSpikeActive(actor);
             else
                 continue;
         }

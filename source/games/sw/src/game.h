@@ -2121,8 +2121,8 @@ bool VatorSwitch(short match, short setting); // vator.c
 void MoveSpritesWithSector(short sectnum,int z_amt,bool type);  // vator.c
 void SetVatorActive(short SpriteNum);   // vator.c
 
-short DoSpikeMatch(short match); // spike.c
-void SpikeAlign(short SpriteNum);   // spike.c
+void DoSpikeMatch(short match); // spike.c
+void SpikeAlign(DSWActor*);   // spike.c
 
 short DoSectorObjectSetScale(short match);  // morph.c
 short DoSOevent(short match,short state);   // morph.c
@@ -2139,8 +2139,8 @@ int DoWallMoveMatch(short match);   // wallmove.c
 int DoWallMove(SPRITEp sp); // wallmove.c
 bool CanSeeWallMove(SPRITEp wp,short match);    // wallmove.c
 
-short DoSpikeOperate(short sectnum); // spike.c
-void SetSpikeActive(short SpriteNum);   // spike.c
+void DoSpikeOperate(short sectnum); // spike.c
+void SetSpikeActive(DSWActor*);   // spike.c
 
 #define NTAG_SEARCH_LO 1
 #define NTAG_SEARCH_HI 2
