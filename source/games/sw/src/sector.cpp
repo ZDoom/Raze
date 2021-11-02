@@ -1346,21 +1346,21 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
 }
 
 
-void ShootableSwitch(short SpriteNum)
+void ShootableSwitch(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     switch (sp->picnum)
     {
     case SWITCH_SHOOTABLE_1:
         //RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-        OperateSprite(SpriteNum, false);
+        OperateSprite(actor, false);
         sp->picnum = SWITCH_SHOOTABLE_1 + 1;
         break;
     case SWITCH_FUSE:
     case SWITCH_FUSE + 1:
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-        OperateSprite(SpriteNum, false);
+        OperateSprite(actor, false);
         sp->picnum = SWITCH_FUSE + 2;
         break;
     }
@@ -1563,11 +1563,10 @@ bool ComboSwitchTest(short combo_type, short match)
 }
 
 // NOTE: switches are always wall sprites
-int OperateSprite(short SpriteNum, short player_is_operating)
+int OperateSprite(DSWActor* actor, short player_is_operating)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     PLAYERp pp = nullptr;
     short state;
     short key_num=0;
@@ -1598,8 +1597,6 @@ int OperateSprite(short SpriteNum, short player_is_operating)
     case MECHANICGIRL_R0:
     case SAILORGIRL_R0:
     case PRUNEGIRL_R0:
-        //if(RandomRange(1000) < 500) return(true);
-        //if(u->FlagOwner == 0)
     {
         short choose_snd;
 
@@ -2429,7 +2426,7 @@ void PlayerOperateEnv(PLAYERp pp)
             {
                 if (nti[nt_ndx].spritenum >= 0 && nti[nt_ndx].dist < 1024 + 768)
                 {
-                    if (OperateSprite(nti[nt_ndx].spritenum, true))
+                    if (OperateSprite(&swActors[nti[nt_ndx].spritenum], true))
                     {
                         pp->KeyPressBits &= ~SB_OPEN;
                         found = true;
@@ -2458,7 +2455,7 @@ void PlayerOperateEnv(PLAYERp pp)
                     {
                         if (nti[nt_ndx].spritenum >= 0 && nti[nt_ndx].dist < 1024 + 768)
                         {
-                            if (OperateSprite(nti[nt_ndx].spritenum, true))
+                            if (OperateSprite(&swActors[nti[nt_ndx].spritenum], true))
                             {
                                 pp->KeyPressBits &= ~SB_OPEN;
                                 break;

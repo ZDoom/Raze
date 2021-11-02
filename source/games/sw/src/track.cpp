@@ -3330,14 +3330,11 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         {
             neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
                     &nearsector, &nearwall, &nearsprite,
-                    &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, nullptr);
-
-//              //DSPRINTF(ds,"nearsector = %d, nearwall = %d, nearsprite = %d hitdist == %ld\n",nearsector,nearwall,nearsprite,nearhitdist);
-//              MONO_PRINT(ds);
+                    &nearhitdist, 1024, NTAG_SEARCH_LO_HI, nullptr);
 
             if (nearsprite >= 0 && nearhitdist < 1024)
             {
-                if (OperateSprite(nearsprite, false))
+                if (OperateSprite(&swActors[nearsprite], false))
                 {
                     if (!tpoint->tag_high)
                         u->WaitTics = 2 * 120;

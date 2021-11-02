@@ -4512,6 +4512,7 @@ WeaponMoveHit(short SpriteNum)
         short hit_sprite;
 
         hit_sprite = NORM_SPRITE(u->ret);
+        auto hitActor = &swActors[hit_sprite];
         hsp = &sprite[hit_sprite];
         hu = User[hit_sprite].Data();
 
@@ -4579,7 +4580,7 @@ WeaponMoveHit(short SpriteNum)
         {
             if (hsp->lotag || hsp->hitag)
             {
-                ShootableSwitch(hit_sprite);
+                ShootableSwitch(hitActor);
                 return true;
             }
         }
@@ -4640,7 +4641,7 @@ WeaponMoveHit(short SpriteNum)
             {
                 if (hsp->lotag || hsp->hitag)
                 {
-                    ShootableSwitch(hitinfo.sprite);
+                    ShootableSwitch(&swActors[hitinfo.sprite]);
                     return true;
                 }
             }
@@ -13415,7 +13416,7 @@ InitSwordAttack(PLAYERp pp)
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitinfo.sprite);
+                    ShootableSwitch(&swActors[hitinfo.sprite]);
                 }
 
             }
@@ -13606,7 +13607,7 @@ InitFistAttack(PLAYERp pp)
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitinfo.sprite);
+                    ShootableSwitch(&swActors[hitinfo.sprite]);
                 }
 
                 switch (hsp->picnum)
@@ -14503,7 +14504,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitinfo.sprite);
+            ShootableSwitch(&swActors[hitinfo.sprite]);
         }
     }
 
@@ -14677,7 +14678,7 @@ InitShotgun(PLAYERp pp)
             // hit a switch?
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
             {
-                ShootableSwitch(hitinfo.sprite);
+                ShootableSwitch(&swActors[hitinfo.sprite]);
             }
         }
 
@@ -17524,7 +17525,7 @@ InitUzi(PLAYERp pp)
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitinfo.sprite);
+            ShootableSwitch(&swActors[hitinfo.sprite]);
         }
     }
 
@@ -17702,7 +17703,7 @@ InitEMP(PLAYERp pp)
             // hit a switch?
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
             {
-                ShootableSwitch(hitinfo.sprite);
+                ShootableSwitch(&swActors[hitinfo.sprite]);
             }
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -18213,7 +18214,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitinfo.sprite);
+            ShootableSwitch(&swActors[hitinfo.sprite]);
         }
     }
 
@@ -18648,7 +18649,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitinfo.sprite);
+                    ShootableSwitch(&swActors[hitinfo.sprite]);
                 }
             }
 
