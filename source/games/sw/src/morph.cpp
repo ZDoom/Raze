@@ -136,10 +136,10 @@ DoSOevent(short match, short state)
                 }
             }
 
-            if (sop->match_event_sprite == -1)
+            if (sop->match_event_actor == nullptr)
                 continue;
 
-            me_sp = &sprite[sop->match_event_sprite];
+            me_sp = &sop->match_event_actor->s();
 
             // toggle
             if (state == -1)

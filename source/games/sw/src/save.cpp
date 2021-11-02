@@ -697,7 +697,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruc
 			("save_vel", w.save_vel, def->save_vel)
 			("save_spin_speed", w.save_spin_speed, def->save_spin_speed)
 			("match_event", w.match_event, def->match_event)
-			("match_event_sprite", w.match_event_sprite, def->match_event_sprite)
+			("match_event_sprite", w.match_event_actor, def->match_event_actor)
 			("scale_type", w.scale_type, def->scale_type)
 			("scale_active_type", w.scale_active_type, def->scale_active_type)
 			("scale_dist", w.scale_dist, def->scale_dist)

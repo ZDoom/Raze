@@ -1694,6 +1694,7 @@ struct SECTOR_OBJECTstruct
     };
     
 	DSWActor* so_actors[MAX_SO_SPRITE];    // hold the actors of the object
+	DSWActor* match_event_actor; // spritenum of the match event sprite
 
     int    vel,            // velocity
            vel_tgt,        // target velocity
@@ -1758,7 +1759,6 @@ struct SECTOR_OBJECTstruct
             save_vel,       // save velocity
             save_spin_speed, // save spin speed
             match_event,    // match number
-            match_event_sprite, // spritenum of the match event sprite
     // SO Scaling Vector Info
             scale_type,         // type of scaling - enum controled
             scale_active_type,  // activated by a switch or trigger

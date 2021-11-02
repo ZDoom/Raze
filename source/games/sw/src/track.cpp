@@ -1055,6 +1055,7 @@ SetupSectorObject(short sectnum, short tag)
 
         memset(sop->sectp, 0, sizeof(sop->sectp));
         memset(sop->so_actors, 0, sizeof(sop->so_actors));
+        sop->match_event_actor = nullptr;
         sop->crush_z = 0;
         sop->drive_angspeed = 0;
         sop->drive_angslide = 0;
@@ -1322,7 +1323,7 @@ SetupSectorObject(short sectnum, short tag)
                     break;
                 case SO_MATCH_EVENT:
                     sop->match_event = sp->lotag;
-                    sop->match_event_sprite = SpriteNum;
+                    sop->match_event_actor = actor;
                     break;
                 case SO_SET_SPEED:
                     sop->vel = sp->lotag * 256;
