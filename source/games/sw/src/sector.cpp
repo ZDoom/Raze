@@ -118,18 +118,17 @@ void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_
 
 void WallSetupDontMove(void)
 {
-    int i,j;
     SPRITEp spu, spl;
     WALLp wallp;
 
-    StatIterator it(STAT_WALL_DONT_MOVE_UPPER);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WALL_DONT_MOVE_UPPER);
+    while (auto iActor = it.Next())
     {
-        StatIterator it1(STAT_WALL_DONT_MOVE_LOWER);
-        while ((j = it1.NextIndex()) >= 0)
+        spu = &iActor->s();
+        SWStatIterator it1(STAT_WALL_DONT_MOVE_LOWER);
+        while (auto jActor = it1.Next())
         {
-            spu = &sprite[i];
-            spl = &sprite[j];
+            spl = &jActor->s();
 
             if (spu->lotag == spl->lotag)
             {
@@ -819,15 +818,14 @@ int OperateSector(short sectnum, short player_is_operating)
     if (!player_is_operating)
     {
         SPRITEp fsp;
-        int i;
 
         if (SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR)
             return false;
 
-        SectIterator it(sectnum);
-        while ((i = it.NextIndex()) >= 0)
+        SWSectIterator it(sectnum);
+        while (auto actor = it.Next())
         {
-            fsp = &sprite[i];
+            fsp = &actor->s();
 
             if (SectUser[fsp->sectnum].Data() && SectUser[fsp->sectnum]->stag == SECT_LOCK_DOOR)
                 return false;
@@ -919,19 +917,19 @@ short AnimateSwitch(SPRITEp sp, short tgt_value)
 
         // dont toggle - return the current state
         if (tgt_value == 999)
-            return OFF;
+            return false;
 
         sp->picnum += 1;
 
         // if the tgt_value should be true
         // flip it again - recursive but only once
-        if (tgt_value == OFF)
+        if (tgt_value == false)
         {
             AnimateSwitch(sp, tgt_value);
-            return OFF;
+            return false;
         }
 
-        return ON;
+        return true;
 
     // set to true
     case SWITCH_SKULL + 1:
@@ -952,26 +950,26 @@ short AnimateSwitch(SPRITEp sp, short tgt_value)
 
         // dont toggle - return the current state
         if (tgt_value == 999)
-            return ON;
+            return true;
 
         sp->picnum -= 1;
 
-        if (tgt_value == ON)
+        if (tgt_value == true)
         {
             AnimateSwitch(sp, tgt_value);
-            return ON;
+            return true;
         }
 
-        return OFF;
+        return false;
     }
-    return OFF;
+    return false;
 }
 
 
-void SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
+void SectorExp(DSWActor* actor, short sectnum, short orig_ang, int zh)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     short explosion;
     SPRITEp exp;
     USERp eu;
@@ -991,12 +989,12 @@ void SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
     sp->z = zh;
 
     // setup vars needed by SectorExp
-    changespritesect(SpriteNum, sectnum);
+    ChangeActorSect(actor, sectnum);
     //setspritez(SpriteNum, &sp->pos);
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
     // spawn explosion
-    explosion = SpawnSectorExp(SpriteNum);
+    explosion = SpawnSectorExp(actor->GetSpriteIndex());
     ASSERT(explosion >= 0);
     exp = &sprite[explosion];
     eu = User[explosion].Data();
@@ -1012,23 +1010,21 @@ void DoExplodeSector(short match)
 {
     short orig_ang;
     int zh;
-    int cf;
 
-    SPRITEp esp;
     SECTORp sectp;
 
     orig_ang = 0; //sp->ang;
 
-    StatIterator it(STAT_EXPLODING_CEIL_FLOOR);
-    while ((cf = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_EXPLODING_CEIL_FLOOR);
+    while (auto actor = it.Next())
     {
-        esp = &sprite[cf];
+        auto esp = &actor->s();
 
         if (match != esp->lotag)
             continue;
 
-        if (!User[cf].Data())
-            /*u = */SpawnUser(cf, 0, nullptr);
+        if (!actor->hasU())
+            /*u = */SpawnUser(actor, 0, nullptr);
 
         sectp = &sector[esp->sectnum];
 
@@ -1048,11 +1044,11 @@ void DoExplodeSector(short match)
 
         for (zh = sectp->ceilingz; zh < sectp->floorz; zh += Z(60))
         {
-            SectorExp(cf, esp->sectnum, orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
+            SectorExp(actor, esp->sectnum, orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
         }
 
         // don't need it any more
-        KillSprite(cf);
+        KillActor(actor);
     }
 }
 
@@ -1060,7 +1056,6 @@ void DoExplodeSector(short match)
 int DoSpawnSpot(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= synctics) < 0)
     {
@@ -1080,26 +1075,25 @@ int DoSpawnSpot(DSWActor* actor)
 // spawns shrap when killing an object
 void DoSpawnSpotsForKill(short match)
 {
-    int sn;
     SPRITEp sp;
     USERp u;
 
     if (match < 0)
         return;
 
-    StatIterator it(STAT_SPAWN_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPAWN_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        sp = &actor->s();
 
         // change the stat num and set the delay correctly to call SpawnShrap
         if (sp->hitag == SPAWN_SPOT && sp->lotag == match)
         {
-            u = User[sn].Data();
-            change_sprite_stat(sn, STAT_NO_STATE);
+            u = actor->u();
+            change_actor_stat(actor, STAT_NO_STATE);
             u->ActorActionFunc = DoSpawnSpot;
             u->WaitTics = SP_TAG5(sp) * 15;
-            setspritez(sn, &sp->pos);
+            SetActorZ(actor, &sp->pos);
             // setting for Killed
             u->LastDamage = 1;
         }
@@ -1109,24 +1103,23 @@ void DoSpawnSpotsForKill(short match)
 // spawns shrap when damaging an object
 void DoSpawnSpotsForDamage(short match)
 {
-    int sn;
     SPRITEp sp;
     USERp u;
 
     if (match < 0)
         return;
 
-    StatIterator it(STAT_SPAWN_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPAWN_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        sp = &actor->s();
 
         // change the stat num and set the delay correctly to call SpawnShrap
 
         if (sp->hitag == SPAWN_SPOT && sp->lotag == match)
         {
-            u = User[sn].Data();
-            change_sprite_stat(sn, STAT_NO_STATE);
+            u = actor->u();
+            change_actor_stat(actor, STAT_NO_STATE);
             u->ActorActionFunc = DoSpawnSpot;
             u->WaitTics = SP_TAG7(sp) * 15;
             // setting for Damaged
@@ -1137,7 +1130,6 @@ void DoSpawnSpotsForDamage(short match)
 
 void DoSoundSpotMatch(short match, short sound_num, short sound_type)
 {
-    int sn;
     SPRITEp sp;
     int flags;
     short snd2play;
@@ -1148,10 +1140,10 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
 
     ASSERT(sound_num >= 0);
 
-    StatIterator it(STAT_SOUND_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SOUND_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        sp = &actor->s();
 
         if (SP_TAG2(sp) == match && !TEST_BOOL6(sp))
         {
@@ -1201,10 +1193,6 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
             {
                 PLAYERp pp = GlobPlayerP;
 
-                ////DSPRINTF(ds,"PlayerSound %d",pp-Player);
-                //MONO_PRINT(ds);
-                //ASSERT(pp >= Player && pp <= Player+numplayers);
-
                 if (pp)
                 {
                     if (pp == Player+myconnectindex)
@@ -1215,8 +1203,7 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type)
             {
                 PlaySound(snd2play, sp, flags);
 
-                //if (TEST(flags, v3df_follow)) // Just set it anyway
-                Set3DSoundOwner(sn);
+                Set3DSoundOwner(actor->GetSpriteIndex());
             }
         }
     }
@@ -1240,13 +1227,12 @@ void DoSoundSpotStopSound(short match)
 
 void DoStopSoundSpotMatch(short match)
 {
-    int sn;
     SPRITEp sp;
 
-    StatIterator it(STAT_STOP_SOUND_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_STOP_SOUND_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        sp = &actor->s();
 
         if (SP_TAG2(sp) == match)
         {
@@ -1290,13 +1276,11 @@ short DoSectorObjectKillMatch(short match)
 
 bool SearchExplodeSectorMatch(short match)
 {
-    int i;
-
     // THIS IS ONLY CALLED FROM DoMatchEverything
-    StatIterator it(STAT_SPRITE_HIT_MATCH);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPRITE_HIT_MATCH);
+    while (auto actor = it.Next())
     {
-        SPRITEp sp = &sprite[i];
+        auto sp = &actor->s();
 
         if (sp->hitag == match)
         {
@@ -1311,37 +1295,35 @@ bool SearchExplodeSectorMatch(short match)
 
 void KillMatchingCrackSprites(short match)
 {
-    int i;
     SPRITEp sp;
 
-    StatIterator it(STAT_SPRITE_HIT_MATCH);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPRITE_HIT_MATCH);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == match)
         {
             if (TEST(SP_TAG8(sp), BIT(2)))
                 continue;
 
-            KillSprite(i);
+            KillActor(actor);
         }
     }
 }
 
 void WeaponExplodeSectorInRange(short weapon)
 {
-    int i;
     SPRITEp wp = &sprite[weapon];
     USERp wu = User[weapon].Data();
     SPRITEp sp;
     int dist;
     int radius;
 
-    StatIterator it(STAT_SPRITE_HIT_MATCH);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPRITE_HIT_MATCH);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         // test to see if explosion is close to crack sprite
         dist = FindDistance3D(wp->x - sp->x, wp->y - sp->y, wp->z - sp->z);
@@ -1359,7 +1341,7 @@ void WeaponExplodeSectorInRange(short weapon)
 
 
         // pass in explosion type
-        MissileHitMatch(weapon, WPN_ROCKET, i);
+        MissileHitMatch(weapon, WPN_ROCKET, actor->GetSpriteIndex());
     }
 }
 
@@ -1767,7 +1749,7 @@ int OperateSprite(short SpriteNum, short player_is_operating)
 
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
         {
-            DoMatchEverything(pp, sp->hitag, ON);
+            DoMatchEverything(pp, sp->hitag, true);
         }
 
         return true;
@@ -1780,7 +1762,7 @@ int OperateSprite(short SpriteNum, short player_is_operating)
 
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
         {
-            DoMatchEverything(pp, sp->hitag, ON);
+            DoMatchEverything(pp, sp->hitag, true);
         }
 
         sp->lotag = 0;
