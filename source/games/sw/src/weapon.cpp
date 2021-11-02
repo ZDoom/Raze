@@ -11323,8 +11323,9 @@ SpawnMicroExp(int16_t Weapon)
 int
 AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+	auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     unsigned sn;
 
     // make sure it has a user
@@ -11341,8 +11342,8 @@ AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
     }
 
     ASSERT(sn < SIZ(sop->sp_num) - 1);
-    sop->sp_num[sn] = SpriteNum;
-    so_setspriteinterpolation(sop, sp);
+    sop->sp_num[sn] = actor->GetSpriteIndex();
+    so_setspriteinterpolation(sop, actor);
 
     SET(u->Flags, SPR_ON_SO_SECTOR|SPR_SO_ATTACHED);
 
@@ -11409,7 +11410,7 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
 
     ASSERT(sn < SIZ(sop->sp_num) - 1);
     sop->sp_num[sn] = explosion;
-    so_setspriteinterpolation(sop, exp);
+    so_setspriteinterpolation(sop, &swActors[explosion]);
 
     SET(eu->Flags, TEST(u->Flags, SPR_ON_SO_SECTOR|SPR_SO_ATTACHED));
 

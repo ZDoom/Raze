@@ -688,7 +688,7 @@ void KillSprite(int16_t SpriteNum)
                     sn--;
                     ASSERT(sop->sp_num[sn] >= 0);
 
-                    so_stopspriteinterpolation(sop, sp);
+                    so_stopspriteinterpolation(sop, actor);
                     // replace the one to be deleted with the last ndx
                     sop->sp_num[FoundSpriteNdx] = sop->sp_num[sn];
                     // the last ndx is not -1

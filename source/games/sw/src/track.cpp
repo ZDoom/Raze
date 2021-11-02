@@ -884,13 +884,11 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
     for (i = 0; i < (int)SIZ(StatList); i++)
     {
-        StatIterator it(StatList[i]);
-        while ((sp_num = it.NextIndex()) >= 0)
+        SWStatIterator it(StatList[i]);
+        while (auto itActor = it.Next())
         {
-            SPRITEp sp = &sprite[sp_num];
+            SPRITEp sp = &itActor->s();
             USERp u;
-
-            ASSERT(sp_num != -1);
 
             if (sp->x > xlow && sp->x < xhigh && sp->y > ylow && sp->y < yhigh)
             {
@@ -901,10 +899,10 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         continue;
                 }
 
-                if (User[sp_num].Data() == nullptr)
-                    u = SpawnUser(sp_num, 0, nullptr);
+                if (!itActor->hasU())
+                    u = SpawnUser(itActor, 0, nullptr);
                 else
-                    u = User[sp_num].Data();
+                    u = itActor->u();
 
                 u->RotNum = 0;
 
@@ -934,14 +932,14 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         sop->clipbox_ang[sop->clipbox_num] = getincangle(ang2, sop->ang);
 
                         sop->clipbox_num++;
-                        KillSprite(sp_num);
+                        KillActor(itActor);
 
 
                         goto cont;
                     }
                     case SO_SHOOT_POINT:
-                        sp->owner = -1;
-                        change_sprite_stat(sp_num, STAT_SO_SHOOT_POINT);
+                        ClearOwner(itActor);
+                        change_actor_stat(itActor, STAT_SO_SHOOT_POINT);
                         RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
                         break;
                     default:
@@ -973,8 +971,8 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
                 ASSERT(sn < (int)SIZ(sop->sp_num) - 1);
 
-                sop->sp_num[sn] = sp_num;
-                so_setspriteinterpolation(sop, sp);
+				sop->sp_num[sn] = itActor->GetSpriteIndex();
+                so_setspriteinterpolation(sop, itActor);
 
 
                 if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
@@ -2030,8 +2028,9 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
 
     for (i = 0; sop->sp_num[i] != -1; i++)
     {
-        sp = &sprite[sop->sp_num[i]];
-        u = User[sop->sp_num[i]].Data();
+		auto actor = &swActors[sop->sp_num[i]];
+        sp = &actor->s();
+        u = actor->u();
 
         // not a part of the so anymore
         RESET(u->Flags, SPR_SO_ATTACHED);
@@ -2039,8 +2038,8 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
         if (sp->picnum == ST1 && sp->hitag == SPAWN_SPOT)
             continue;
 
-        so_stopspriteinterpolation(sop, sp);
-        KillSprite(sop->sp_num[i]);
+        so_stopspriteinterpolation(sop, actor);
+        KillActor(actor);
     }
 
     // clear the list
