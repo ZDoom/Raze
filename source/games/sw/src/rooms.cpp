@@ -85,16 +85,14 @@ int COVERinsertsprite(short sectnum, short stat)
     return spnum;
 }
 
-bool
-FAF_Sector(short sectnum)
+bool FAF_Sector(short sectnum)
 {
-    int SpriteNum;
     SPRITEp sp;
 
-    SectIterator it(sectnum);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWSectIterator it(sectnum);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[SpriteNum];
+        sp = &actor->s();
 
         if (sp->statnum == STAT_FAF &&
             (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6))
@@ -264,8 +262,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     }
 }
 
-bool
-FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
+bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte)
 {
     int loz, hiz;
@@ -346,8 +343,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
 }
 
 
-int
-GetZadjustment(short sectnum, short hitag)
+int GetZadjustment(short sectnum, short hitag)
 {
     int i;
     SPRITEp sp;
@@ -640,13 +636,12 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 void
 SetupMirrorTiles(void)
 {
-    int i;
     SPRITEp sp;
 
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sector[sp->sectnum].ceilingpicnum == FAF_PLACE_MIRROR_PIC)
         {
@@ -668,31 +663,23 @@ SetupMirrorTiles(void)
     }
 }
 
-short GlobStackSect[2];
-
-void
-GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
+void GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
 {
     int i;
-    short sectorlist[16];
+    int sectorlist[16];
     int sln = 0;
-    int SpriteNum;
     SPRITEp sp;
-#if 0
-    // keep a list of the last stacked sectors the view was in and
-    // check those fisrt
-    sln = 0;
-    for (i = 0; i < (int)SIZ(GlobStackSect); i++)
+
+    for (i = 0; i < numsectors; i++)// - 1; i >= 0; i--)
     {
-        // will not hurt if GlobStackSect is invalid - inside checks for this
-        if (inside(x, y, GlobStackSect[i]) == 1)
+        if (inside(x, y, (short) i) == 1)
         {
             bool found = false;
 
-            SectIterator it(GlobStackSect[i]);
-            while ((SpriteNum = it.NextIndex()) >= 0)
+            SWSectIterator it(i);
+            while (auto actor = it.Next())
             {
-                sp = &sprite[SpriteNum];
+                sp = &actor->s();
 
                 if (sp->statnum == STAT_FAF &&
                     (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
@@ -704,45 +691,9 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
 
             if (!found)
                 continue;
-
-            sectorlist[sln] = GlobStackSect[i];
+            if (sln < (int)SIZ(sectorlist))
+                sectorlist[sln] = i;
             sln++;
-        }
-    }
-#endif
-
-    // didn't find it yet so test ALL sectors
-    if (sln < 2)
-    {
-        sln = 0;
-        for (i = 0; i < numsectors; i++)// - 1; i >= 0; i--)
-        {
-            if (inside(x, y, (short) i) == 1)
-            {
-                bool found = false;
-
-                SectIterator it(i);
-                while ((SpriteNum = it.NextIndex()) >= 0)
-                {
-                    sp = &sprite[SpriteNum];
-
-                    if (sp->statnum == STAT_FAF &&
-                        (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
-                        && sp->lotag == match)
-                    {
-                        found = true;
-                    }
-                }
-
-                if (!found)
-                    continue;
-
-                if (sln < (int)SIZ(GlobStackSect))
-                    GlobStackSect[sln] = i;
-                if (sln < (int)SIZ(sectorlist))
-                    sectorlist[sln] = i;
-                sln++;
-            }
         }
     }
 
@@ -765,8 +716,6 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     // is exactly on a sector line.
     else if (sln > 2)
     {
-        //DSPRINTF(ds, "TOO MANY SECTORS FOUND: x=%d, y=%d, match=%d, num sectors %d, %d, %d, %d, %d, %d", x, y, match, sln, sectorlist[0], sectorlist[1], sectorlist[2], sectorlist[3], sectorlist[4]);
-        MONO_PRINT(ds);
         // try again moving the x,y pos around until you only get two sectors
         GetUpperLowerSector(match, x - 1, y, upper, lower);
     }
@@ -789,12 +738,10 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     }
 }
 
-bool
-FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
+bool FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
-    int i;
     SPRITEp sp = nullptr;
     int pix_diff;
     int newz;
@@ -803,10 +750,10 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
 
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == VIEW_THRU_CEILING && sp->lotag == match)
         {
@@ -817,9 +764,9 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     }
 
     it.Reset(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->lotag == match)
         {
@@ -855,9 +802,9 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
         newz = sector[sp->sectnum].floorz + ((pix_diff / 128) + 1) * Z(128);
 
         it.Reset(STAT_FAF);
-        while ((i = it.NextIndex()) >= 0)
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
+            sp = &actor->s();
 
             if (sp->lotag == match)
             {
@@ -886,12 +833,10 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     return true;
 }
 
-bool
-FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
+bool FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
-    int i;
     SPRITEp sp = nullptr;
     int newz;
     int pix_diff;
@@ -900,10 +845,10 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == VIEW_THRU_FLOOR && sp->lotag == match)
         {
@@ -915,9 +860,9 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 
 
     it.Reset(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->lotag == match)
         {
@@ -953,9 +898,9 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
         newz = sector[sp->sectnum].ceilingz - ((pix_diff / 128) + 1) * Z(128);
 
         it.Reset(STAT_FAF);
-        while ((i = it.NextIndex()) >= 0)
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
+            sp = &actor->s();
 
             if (sp->lotag == match)
             {
@@ -984,17 +929,15 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     return true;
 }
 
-short
-FindViewSectorInScene(short cursectnum, short level)
+short FindViewSectorInScene(short cursectnum, short level)
 {
-    int i;
     SPRITEp sp;
     short match;
 
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == level)
         {
