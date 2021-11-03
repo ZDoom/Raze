@@ -18264,16 +18264,15 @@ InitSobjGun(PLAYERp pp)
 int
 SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
-    short j;
     SPRITEp wp;
     USERp wu;
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &sprite[j];
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT + 12;
     wp->yrepeat = UZI_SMOKE_REPEAT + 12;
-    SetOwner(pp->PlayerSprite, j);
+    SetOwner(pp->Actor(), actorNew);
     SET(wp->cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
     wp->hitag = LUMINOUS; //Always full brightness
@@ -18282,41 +18281,39 @@ SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(j, hit_wall);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &sprite[j];
-    wu = User[j].Data();
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    wu = actorNew->u();
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT + 10;
     wp->yrepeat = UZI_SPARK_REPEAT + 10;
-    SetOwner(pp->PlayerSprite, j);
+    SetOwner(pp->Actor(), actorNew);
     wu->spal = wp->pal = PALETTE_DEFAULT;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(j, hit_wall);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
 
     if (RANDOM_P2(1024) < 100)
         PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
 
-    return j;
+    return actorNew->GetSpriteIndex();
 }
 
-int
-SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
-    USERp u = User[pp->PlayerSprite].Data();
-    short j;
+    USERp u = pp->Actor()->u();
     SPRITEp wp;
     USERp wu;
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &sprite[j];
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = wp->yrepeat = 20;
-    SetOwner(pp->PlayerSprite, j);
+    SetOwner(pp->Actor(), actorNew);
     SET(wp->cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
     wp->hitag = LUMINOUS; //Always full brightness
 
@@ -18326,14 +18323,14 @@ SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_
     wp->clipdist = 32 >> 2;
 
     if (hit_wall != -1)
-        HitscanSpriteAdjust(j, hit_wall);
+        HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &sprite[j];
-    wu = User[j].Data();
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    wu = actorNew->u();
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = wp->yrepeat = 20;
-    SetOwner(pp->PlayerSprite, j);
+    SetOwner(pp->Actor(), actorNew);
     wu->spal = wp->pal = PALETTE_DEFAULT;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     if (u->WeaponNum == WPN_FIST)
@@ -18342,21 +18339,18 @@ SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_
     wp->clipdist = 32 >> 2;
 
     if (hit_wall != -1)
-        HitscanSpriteAdjust(j, hit_wall);
+        HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
 
     return 0;
 }
 
-int
-SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+int SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
-    //USERp u = User[sp - sprite];
-    short j;
     SPRITEp wp;
     USERp wu;
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &sprite[j];
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT + 12;
     wp->yrepeat = UZI_SMOKE_REPEAT + 12;
@@ -18367,11 +18361,11 @@ SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x, int
     // This moves it back enough to see it at all angles.
 
     wp->clipdist = 32 >> 2;
-    HitscanSpriteAdjust(j, hit_wall);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &sprite[j];
-    wu = User[j].Data();
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    wu = actorNew->u();
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT + 10;
     wp->yrepeat = UZI_SPARK_REPEAT + 10;
@@ -18379,41 +18373,38 @@ SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x, int
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wp->clipdist = 32 >> 2;
-    HitscanSpriteAdjust(j, hit_wall);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
 
     if (RANDOM_P2(1024) < 100)
-        PlaySound(DIGI_RICHOCHET1, wp, v3df_none);
+        PlaySound(DIGI_RICHOCHET1, actorNew, v3df_none);
 
-    return j;
+    return actorNew->GetSpriteIndex();
 }
 
-int
-SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+int SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
-    short j;
     SPRITEp wp;
     USERp wu;
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &sprite[j];
-    wu = User[j].Data();
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    wu = actorNew->u();
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT;
     wp->yrepeat = UZI_SPARK_REPEAT;
-    SetOwner(pp->PlayerSprite, j);
+    SetOwner(pp->Actor(), actorNew);
     wu->spal = wp->pal = PALETTE_DEFAULT;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(j, hit_wall);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
 
-    j = SpawnSprite(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
-    wp = &sprite[j];
-    wp->shade = -40;
+    actorNew = SpawnActor(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
+    wp = &actorNew->s();
     wp->xrepeat = SHOTGUN_SMOKE_REPEAT;
     wp->yrepeat = SHOTGUN_SMOKE_REPEAT;
-    SetOwner(pp->PlayerSprite, j);
+    SetOwner(pp->Actor(), actorNew);
     SET(wp->cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
     wp->hitag = LUMINOUS; //Always full brightness
@@ -18422,9 +18413,9 @@ SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hi
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(j, hit_wall);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
 
-    return j;
+    return actorNew->GetSpriteIndex();
 }
 
 int InitTurretMgun(SECTOR_OBJECTp sop)
