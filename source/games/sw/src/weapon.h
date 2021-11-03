@@ -67,7 +67,7 @@ extern short WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 extern short FloorBloodQueueHead;
 extern short FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 extern short GenericQueueHead;
-extern short GenericQueue[MAX_GENERIC_QUEUE];
+extern DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
 extern short LoWangsQueueHead;
 extern DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
 
@@ -88,7 +88,7 @@ int SpawnRadiationCloud(DSWActor* actor);
 int SpawnGrenadeExp(int16_t Weapon);
 int SpawnSectorExp(int16_t Weapon);
 int DoShrapVelocity(int16_t SpriteNum);
-int ShrapKillSprite(short SpriteNum);
+int ShrapKillSprite(DSWActor*);
 bool MissileSetPos(short Weapon,ANIMATORp DoWeapon,int dist);
 int ActorPain(short SpriteNum);
 int SpawnBreakFlames(DSWActor*);

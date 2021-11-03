@@ -578,7 +578,6 @@ typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
 extern FOOT_TYPE FootMode;
 ANIMATOR QueueFloorBlood;                // Weapon.c
 int QueueFootPrint(short hit_sprite);                 // Weapon.c
-int QueueGeneric(short SpriteNum, short pic);        // Weapon.c
 void QueueLoWangs(DSWActor*);                   // Weapon.c
 int SpawnShell(DSWActor* actor, int ShellNum);     // JWeapon.c
 void UnlockKeyLock(short key_num, DSWActor* actor);  // JSector.c

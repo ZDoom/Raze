@@ -82,7 +82,7 @@ short WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 short FloorBloodQueueHead=0;
 short FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 short GenericQueueHead=0;
-short GenericQueue[MAX_GENERIC_QUEUE];
+DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
 short LoWangsQueueHead=0;
 DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
 int SpawnBreakStaticFlames(short);
@@ -3975,8 +3975,6 @@ DoTracerShrap(DSWActor* actor)
     return 0;
 }
 
-//#define ShrapKillSprite(num) _Shrap_Kill_Sprite(num, __FILE__, __LINE__) //#define DoShrapVelocity(num) _Do_Shrap_Velocity(num, __FILE__, __LINE__)
-
 int
 DoShrapJumpFall(DSWActor* actor)
 {
@@ -4002,7 +4000,7 @@ DoShrapJumpFall(DSWActor* actor)
         if (u->ID == GORE_Drip)
             ChangeState(actor, s_GoreFloorSplash);
         else
-            ShrapKillSprite(SpriteNum);
+            ShrapKillSprite(actor);
     }
 
 
@@ -19966,8 +19964,8 @@ void SpriteQueueDelete(DSWActor* actor)
             FloorBloodQueue[i] = -1;
 
     for (i = 0; i < MAX_GENERIC_QUEUE; i++)
-        if (GenericQueue[i] == SpriteNum)
-            GenericQueue[i] = -1;
+        if (GenericQueue[i] == actor)
+            GenericQueue[i] = nullptr;
 
     for (i = 0; i < MAX_LOWANGS_QUEUE; i++)
         if (LoWangsQueue[i] == actor)
@@ -19999,7 +19997,7 @@ void QueueReset(void)
         FloorBloodQueue[i] = -1;
 
     for (i = 0; i < MAX_GENERIC_QUEUE; i++)
-        GenericQueue[i] = -1;
+        GenericQueue[i] = nullptr;
 
     for (i = 0; i < MAX_LOWANGS_QUEUE; i++)
         LoWangsQueue[i] = nullptr;
@@ -20553,9 +20551,8 @@ DoWallBlood(DSWActor* actor)
 }
 
 // This is the FAST queue, it doesn't call any animator functions or states
-int QueueGeneric(short SpriteNum, short pic)
+void QueueGeneric(DSWActor* actor, short pic)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     SPRITEp osp;
@@ -20563,47 +20560,46 @@ int QueueGeneric(short SpriteNum, short pic)
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
         KillActor(actor);
-        return -1;
+        return;
     }
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
         KillActor(actor);
-        return -1;
+        return;
     }
 
     if (TestDontStickSector(sp->sectnum))
     {
         KillActor(actor);
-        return -1;
+        return;
     }
 
     auto xrepeat = sp->xrepeat;
     auto yrepeat = sp->yrepeat;
 
     // can and should kill the user portion
-    if (GenericQueue[GenericQueueHead] == -1)
+    if (GenericQueue[GenericQueueHead] == nullptr)
     {
-        User[SpriteNum].Clear();
+        actor->clearUser();
         change_actor_stat(actor, STAT_GENERIC_QUEUE);
-        GenericQueue[GenericQueueHead] = SpriteNum;
+        GenericQueue[GenericQueueHead] = actor;
     }
     else
     {
         // move old sprite to new sprite's place
-        osp = &sprite[GenericQueue[GenericQueueHead]];
+        osp = &GenericQueue[GenericQueueHead]->s();
         //setspritez(GenericQueue[GenericQueueHead], &sp->pos);
         osp->x = sp->x;
         osp->y = sp->y;
         osp->z = sp->z;
-        changespritesect(GenericQueue[GenericQueueHead], sp->sectnum);
+        ChangeActorSect(GenericQueue[GenericQueueHead], sp->sectnum);
         KillActor(actor);
-        SpriteNum = GenericQueue[GenericQueueHead];
-        ASSERT(sprite[SpriteNum].statnum != MAXSTATUS);
+        actor = GenericQueue[GenericQueueHead];
+        ASSERT(actor->s().statnum != MAXSTATUS);
     }
 
-    sp = &sprite[SpriteNum];
-    ASSERT(sp);
+    sp = &actor->s();
     sp->picnum = pic;
     sp->xrepeat = xrepeat;
     sp->yrepeat = yrepeat;
@@ -20631,8 +20627,6 @@ int QueueGeneric(short SpriteNum, short pic)
     }
 
     GenericQueueHead = (GenericQueueHead+1) & (MAX_GENERIC_QUEUE-1);
-
-    return SpriteNum;
 }
 
 #if 0
@@ -20766,7 +20760,7 @@ DoShrapVelocity(int16_t SpriteNum)
                             if (u->ID == GORE_Drip)
                                 ChangeState(actor, s_GoreFloorSplash);
                             else
-                                ShrapKillSprite(SpriteNum);
+                                ShrapKillSprite(actor);
                             return true;
                         }
                     }
@@ -20811,7 +20805,7 @@ DoShrapVelocity(int16_t SpriteNum)
                         if (u->ID == GORE_Drip)
                             ChangeState(actor, s_GoreFloorSplash);
                         else
-                            ShrapKillSprite(SpriteNum);
+                            ShrapKillSprite(actor);
                         return true;
                     }
                 }
@@ -20838,12 +20832,10 @@ DoShrapVelocity(int16_t SpriteNum)
 }
 
 
-int
-ShrapKillSprite(short SpriteNum)
+int ShrapKillSprite(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     short rnd_num;
 
     rnd_num = RandomRange(1024);
@@ -20855,27 +20847,27 @@ ShrapKillSprite(short SpriteNum)
     case UZI_SHELL:
         if (rnd_num > 854)
         {
-            QueueGeneric(SpriteNum,UZI_SHELL + 0);
+            QueueGeneric(actor,UZI_SHELL + 0);
         }
         else if (rnd_num > 684)
         {
-            QueueGeneric(SpriteNum,UZI_SHELL + 1);
+            QueueGeneric(actor,UZI_SHELL + 1);
         }
         else if (rnd_num > 514)
         {
-            QueueGeneric(SpriteNum,UZI_SHELL + 2);
+            QueueGeneric(actor,UZI_SHELL + 2);
         }
         else if (rnd_num > 344)
         {
-            QueueGeneric(SpriteNum,UZI_SHELL + 3);
+            QueueGeneric(actor,UZI_SHELL + 3);
         }
         else if (rnd_num > 174)
         {
-            QueueGeneric(SpriteNum,UZI_SHELL + 4);
+            QueueGeneric(actor,UZI_SHELL + 4);
         }
         else
         {
-            QueueGeneric(SpriteNum,UZI_SHELL + 5);
+            QueueGeneric(actor,UZI_SHELL + 5);
         }
 
         return 0;
@@ -20883,15 +20875,15 @@ ShrapKillSprite(short SpriteNum)
     case SHOT_SHELL:
         if (rnd_num > 683)
         {
-            QueueGeneric(SpriteNum,SHOT_SHELL + 1);
+            QueueGeneric(actor,SHOT_SHELL + 1);
         }
         else if (rnd_num > 342)
         {
-            QueueGeneric(SpriteNum,SHOT_SHELL + 3);
+            QueueGeneric(actor,SHOT_SHELL + 3);
         }
         else
         {
-            QueueGeneric(SpriteNum,SHOT_SHELL + 7);
+            QueueGeneric(actor,SHOT_SHELL + 7);
         }
         return 0;
         break;
@@ -20900,20 +20892,20 @@ ShrapKillSprite(short SpriteNum)
         sp->clipdist = SPRITEp_SIZE_X(sp);
         SpawnFloorSplash(actor);
         if (RandomRange(1000) < 500)
-            PlaySound(DIGI_GIBS1, sp, v3df_none);
+            PlaySound(DIGI_GIBS1, actor, v3df_none);
         else
-            PlaySound(DIGI_GIBS2, sp, v3df_none);
+            PlaySound(DIGI_GIBS2, actor, v3df_none);
         if (rnd_num > 683)
         {
-            QueueGeneric(SpriteNum,900);
+            QueueGeneric(actor,900);
         }
         else if (rnd_num > 342)
         {
-            QueueGeneric(SpriteNum,901);
+            QueueGeneric(actor,901);
         }
         else
         {
-            QueueGeneric(SpriteNum,902);
+            QueueGeneric(actor,902);
         }
         return 0;
         break;
@@ -20922,20 +20914,20 @@ ShrapKillSprite(short SpriteNum)
         sp->clipdist = SPRITEp_SIZE_X(sp);
         SpawnFloorSplash(actor);
         if (RandomRange(1000) < 500)
-            PlaySound(DIGI_GIBS1, sp, v3df_none);
+            PlaySound(DIGI_GIBS1, actor, v3df_none);
         else
-            PlaySound(DIGI_GIBS2, sp, v3df_none);
+            PlaySound(DIGI_GIBS2, actor, v3df_none);
         if (rnd_num > 683)
         {
-            QueueGeneric(SpriteNum,915);
+            QueueGeneric(actor,915);
         }
         else if (rnd_num > 342)
         {
-            QueueGeneric(SpriteNum,916);
+            QueueGeneric(actor,916);
         }
         else
         {
-            QueueGeneric(SpriteNum,917);
+            QueueGeneric(actor,917);
         }
         return 0;
         break;
@@ -20945,15 +20937,15 @@ ShrapKillSprite(short SpriteNum)
         SpawnFloorSplash(actor);
         if (rnd_num > 683)
         {
-            QueueGeneric(SpriteNum,930);
+            QueueGeneric(actor,930);
         }
         else if (rnd_num > 342)
         {
-            QueueGeneric(SpriteNum,931);
+            QueueGeneric(actor,931);
         }
         else
         {
-            QueueGeneric(SpriteNum,932);
+            QueueGeneric(actor,932);
         }
         return 0;
         break;
@@ -20961,7 +20953,7 @@ ShrapKillSprite(short SpriteNum)
         if (RandomRange(1000) > 500) break;
         sp->clipdist = SPRITEp_SIZE_X(sp);
         QueueFloorBlood(actor);
-        QueueGeneric(SpriteNum,GORE_Head);
+        QueueGeneric(actor,GORE_Head);
         return 0;
         break;
     }
