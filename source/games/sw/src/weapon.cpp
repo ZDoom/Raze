@@ -18608,14 +18608,12 @@ InitTurretMgun(SECTOR_OBJECTp sop)
 }
 
 
-int
-InitEnemyUzi(DSWActor* actor)
+int InitEnemyUzi(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP,wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
-    short daang, j;
+    short daang;
     hitdata_t hitinfo = { { -2, -2, -2 }, -2, -2, -2 };
     int daz;
     int zh;
@@ -18626,7 +18624,7 @@ InitEnemyUzi(DSWActor* actor)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    setspritez(SpriteNum, &sp->pos);
+    SetActorZ(actor, &sp->pos);
 
     if (u->ID == ZILLA_RUN_R0)
     {
@@ -18682,9 +18680,9 @@ InitEnemyUzi(DSWActor* actor)
     {
         if (sp->pal == PALETTE_PLAYER3 || sp->pal == PALETTE_PLAYER5 ||
             sp->pal == PAL_XLAT_LT_GREY || sp->pal == PAL_XLAT_LT_TAN)
-            PlaySound(DIGI_M60, sp, v3df_none);
+            PlaySound(DIGI_M60, actor, v3df_none);
         else
-            PlaySound(DIGI_NINJAUZIATTACK, sp, v3df_none);
+            PlaySound(DIGI_NINJAUZIATTACK, actor, v3df_none);
     }
 
     if (hitinfo.wall >= 0)
@@ -18715,55 +18713,54 @@ InitEnemyUzi(DSWActor* actor)
             return 0;
     }
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
-    wp = &sprite[j];
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    wu = actorNew->u();
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT;
     wp->yrepeat = UZI_SMOKE_REPEAT;
 
     if (u->ID == ZOMBIE_RUN_R0)
-        SetOwner(sp->owner, j);
+        SetOwner(GetOwner(actor), actorNew);
     else
-        SetOwner(SpriteNum, j);
+        SetOwner(actor, actorNew);
 
-    User[j]->WaitTics = 63;
-    //SET(wp->cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    wu->WaitTics = 63;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wp->clipdist = 32L >> 2;
-    //HitscanSpriteAdjust(j, hitinfo.wall);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
-    wp = &sprite[j];
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT;
     wp->yrepeat = UZI_SMOKE_REPEAT;
-    SetOwner(SpriteNum, j);
+    SetOwner(actor, actorNew);
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(j, hitinfo.wall);
-    DoHitscanDamage(j, hitinfo.sprite);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
+    DoHitscanDamage(actorNew->GetSpriteIndex(), hitinfo.sprite);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
-    wp = &sprite[j];
-    wu = User[j].Data();
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    wu = actorNew->u();
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT;
     wp->yrepeat = UZI_SPARK_REPEAT;
-    SetOwner(SpriteNum, j);
+    SetOwner(actor, actorNew);
     wu->spal = wp->pal;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(j, hitinfo.wall);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
 
     if (RANDOM_P2(1024) < 100)
     {
-        PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
+        PlaySound(DIGI_RICHOCHET1,actorNew, v3df_none);
     }
     else if (RANDOM_P2(1024) < 100)
-        PlaySound(DIGI_RICHOCHET2,wp, v3df_none);
+        PlaySound(DIGI_RICHOCHET2,actorNew, v3df_none);
 
     return 0;
 }
