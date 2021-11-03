@@ -107,7 +107,7 @@ bool FAF_Sector(short sectnum)
 void SetWallWarpHitscan(short sectnum)
 {
     short start_wall, wall_num;
-    SPRITEp sp_warp;
+    DSWActor* sp_warp;
 
     if (!WarpSectorInfo(sectnum, &sp_warp))
         return;

@@ -1364,6 +1364,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
     USERp u = ppActor->u();
     SPRITEp sp = &ppActor->s();
     short pnum;
+    DSWActor* act_warp;
     SPRITEp sp_warp;
 
 #if 0
@@ -1376,9 +1377,10 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
 #endif
 
 
-    if ((sp_warp = Warp(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum)) == nullptr)
+    if ((act_warp = Warp(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum)) == nullptr)
         return;
 
+    sp_warp = &act_warp->s();
     switch (SP_TAG3(sp_warp))
     {
     case 1:

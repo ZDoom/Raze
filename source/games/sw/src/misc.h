@@ -18,14 +18,12 @@ void InitCheats();
 void MapColors(short num,COLOR_MAP cm,short create);
 int32_t CONFIG_ReadSetup(void);
 
-bool WarpPlaneSectorInfo(short sectnum, SPRITEp* sp_ceiling, SPRITEp* sp_floor);
-SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
-SPRITEp WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum);
-bool WarpSectorInfo(short sectnum, SPRITEp* sp_warp);
-SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+bool WarpSectorInfo(short sectnum, DSWActor** sp_warp);
+DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
 
 [[deprecated]]
-SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 {
 	int sect16 = *sectnum;
 	auto p= Warp(x, y, z, &sect16);
@@ -34,7 +32,7 @@ SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 }
 
 [[deprecated]]
-SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 {
 	int sect16 = *sectnum;
 	auto p= WarpPlane(x, y, z, &sect16);

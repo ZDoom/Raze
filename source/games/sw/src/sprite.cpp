@@ -105,7 +105,7 @@ int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall);
 int DoActorDebris(DSWActor* actor);
 void ActorWarpUpdatePos(short SpriteNum,short sectnum);
-void ActorWarpType(SPRITEp sp, SPRITEp sp_warp);
+void ActorWarpType(DSWActor* sp, DSWActor* act_warp);
 int MissileZrange(short SpriteNum);
 
 #define ACTIVE_CHECK_TIME (3*120)
@@ -6869,16 +6869,15 @@ SpriteControl(void)
 int
 move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
+    auto actor = &swActors[spritenum];
     int retval=0, zh;
 	int dasectnum;
 	short tempshort;
-    SPRITEp spr;
-    USERp u = User[spritenum].Data();
+    SPRITEp spr = &actor->s();
+    USERp u = actor->u();
     short lastsectnum;
 
-    spr = &sprite[spritenum];
-
-    ASSERT(u);
+    ASSERT(actor->hasU());
 
     vec3_t clippos = spr->pos;
 
@@ -6972,11 +6971,11 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
 
     if (TEST(sector[spr->sectnum].extra, SECTFX_WARP_SECTOR))
     {
-        SPRITEp sp_warp;
+        DSWActor* sp_warp;
         if ((sp_warp = WarpPlane(&spr->x, &spr->y, &spr->z, &dasectnum)))
         {
             ActorWarpUpdatePos(spritenum, dasectnum);
-            ActorWarpType(spr, sp_warp);
+            ActorWarpType(actor, sp_warp);
         }
 
         if (spr->sectnum != lastsectnum)
@@ -6984,7 +6983,7 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
             if ((sp_warp = Warp(&spr->x, &spr->y, &spr->z, &dasectnum)))
             {
                 ActorWarpUpdatePos(spritenum, dasectnum);
-                ActorWarpType(spr, sp_warp);
+                ActorWarpType(actor, sp_warp);
             }
         }
     }
@@ -7041,8 +7040,9 @@ void ActorWarpUpdatePos(short SpriteNum, short sectnum)
     DoActorZrange(SpriteNum);
 }
 
-void MissileWarpType(SPRITEp sp, SPRITEp sp_warp)
+void MissileWarpType(DSWActor* sp, DSWActor* act_warp)
 {
+    auto sp_warp = &act_warp->s();
     switch (SP_TAG1(sp_warp))
     {
     case WARP_CEILING_PLANE:
@@ -7056,20 +7056,21 @@ void MissileWarpType(SPRITEp sp, SPRITEp sp_warp)
         break;
     default:
         PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
-        DoSpawnItemTeleporterEffect(sp);
+        DoSpawnItemTeleporterEffect(&sp->s());
         break;
     }
 }
 
-void ActorWarpType(SPRITEp sp, SPRITEp sp_warp)
+void ActorWarpType(DSWActor* sp, DSWActor* act_warp)
 {
+    auto sp_warp = &act_warp->s();
     switch (SP_TAG3(sp_warp))
     {
     case 1:
         break;
     default:
         PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
-        DoSpawnTeleporterEffectPlace(&swActors[sp - sprite]);
+        DoSpawnTeleporterEffectPlace(sp);
         break;
     }
 }
@@ -7117,15 +7118,14 @@ MissileZrange(short SpriteNum)
 int
 move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
+    DSWActor* actor = &swActors[spritenum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     int retval, zh;
     int dasectnum, tempshort;
-    SPRITEp sp;
-    USERp u = User[spritenum].Data();
     short lastsectnum;
 
-    sp = &sprite[spritenum];
-
-    ASSERT(u);
+    ASSERT(actor->hasU());
 
     vec3_t clippos = sp->pos;
 
@@ -7209,12 +7209,12 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {
-        SPRITEp sp_warp;
+        DSWActor* sp_warp;
 
         if ((sp_warp = WarpPlane(&sp->x, &sp->y, &sp->z, &dasectnum)))
         {
             MissileWarpUpdatePos(spritenum, dasectnum);
-            MissileWarpType(sp, sp_warp);
+            MissileWarpType(actor, sp_warp);
         }
 
         if (sp->sectnum != lastsectnum)
@@ -7222,7 +7222,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
             if ((sp_warp = Warp(&sp->x, &sp->y, &sp->z, &dasectnum)))
             {
                 MissileWarpUpdatePos(spritenum, dasectnum);
-                MissileWarpType(sp, sp_warp);
+                MissileWarpType(actor, sp_warp);
             }
         }
     }
@@ -7252,17 +7252,16 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
 int
 move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
+    DSWActor* actor = &swActors[spritenum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     int daz;
     int retval=0;
     int dasectnum;
-    SPRITEp sp;
-    USERp u = User[spritenum].Data();
     short lastsectnum;
     int ox,oy;
 
-    sp = &sprite[spritenum];
-
-    ASSERT(u);
+    ASSERT(actor->hasU());
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
@@ -7407,12 +7406,12 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {
-        SPRITEp sp_warp;
+        DSWActor* sp_warp;
 
         if ((sp_warp = WarpPlane(&sp->x, &sp->y, &sp->z, &dasectnum)))
         {
             MissileWarpUpdatePos(spritenum, dasectnum);
-            MissileWarpType(sp, sp_warp);
+            MissileWarpType(actor, sp_warp);
         }
 
         if (sp->sectnum != lastsectnum)
@@ -7420,7 +7419,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
             if ((sp_warp = Warp(&sp->x, &sp->y, &sp->z, &dasectnum)))
             {
                 MissileWarpUpdatePos(spritenum, dasectnum);
-                MissileWarpType(sp, sp_warp);
+                MissileWarpType(actor, sp_warp);
             }
         }
     }
