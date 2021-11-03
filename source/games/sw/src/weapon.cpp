@@ -17823,25 +17823,23 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
 }
 
 
-int
-InitTurretRocket(short SpriteNum, PLAYERp pp)
+int InitTurretRocket(DSWActor* actor, PLAYERp pp)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
-    short w;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
 
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], sp->sectnum,
                     sp->x, sp->y, sp->z, sp->ang, ROCKET_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wu = actorNew->u();
+    wp = &actorNew->s();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 40;
     wp->xrepeat = 40;
     wp->shade = -40;
@@ -17857,7 +17855,7 @@ InitTurretRocket(short SpriteNum, PLAYERp pp)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
-    WeaponAutoAim(sp, w, 64, false);
+    WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 64, false);
     // a bit of randomness
     //wp->ang += RandomRange(30) - 15;
 
@@ -17871,24 +17869,22 @@ InitTurretRocket(short SpriteNum, PLAYERp pp)
     return 0;
 }
 
-int
-InitTurretFireball(short SpriteNum, PLAYERp pp)
+int InitTurretFireball(DSWActor* actor, PLAYERp pp)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
-    short w;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    w = SpawnSprite(STAT_MISSILE, FIREBALL, s_Fireball, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, sp->sectnum,
                     sp->x, sp->y, sp->z, sp->ang, FIREBALL_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wu = actorNew->u();
+    wp = &actorNew->s();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 40;
     wp->xrepeat = 40;
     wp->shade = -40;
@@ -17904,7 +17900,7 @@ InitTurretFireball(short SpriteNum, PLAYERp pp)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
-    WeaponAutoAim(sp, w, 64, false);
+    WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 64, false);
     // a bit of randomness
     wp->ang += RandomRange(30) - 15;
     wp->ang = NORM_ANGLE(wp->ang);
@@ -18017,7 +18013,7 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
     SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     wp->clipdist = 64L>>2;
 
-    if (WeaponAutoAim(ac, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang);
     }
@@ -18213,7 +18209,7 @@ int InitSobjGun(PLAYERp pp)
             case 4:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretFireball(actor->GetSpriteIndex(), pp);
+                InitTurretFireball(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 20;
                 else
@@ -18222,7 +18218,7 @@ int InitSobjGun(PLAYERp pp)
             case 5:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretRocket(actor->GetSpriteIndex(), pp);
+                InitTurretRocket(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 100;
                 else
