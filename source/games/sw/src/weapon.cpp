@@ -15464,7 +15464,7 @@ InitMicro(PLAYERp pp)
 
         pp->SpriteP->clipdist = oclipdist;
 
-#define MICRO_ANG 400
+        const int MICRO_ANG = 400;
 
         if (hp)
         {
@@ -17713,17 +17713,15 @@ InitTankShell(short SpriteNum, PLAYERp pp)
     return 0;
 }
 
-int
-InitTurretMicro(short SpriteNum, PLAYERp pp)
+int InitTurretMicro(DSWActor* actor, PLAYERp pp)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
-    USERp pu = User[pp->PlayerSprite].Data();
+    USERp pu = pp->Actor()->u();
     USERp wu,hu;
     SPRITEp wp,hp;
     int nx, ny, nz, dist;
-    short w;
     short i,ang;
     TARGET_SORTp ts = TargetSort;
 
@@ -17733,7 +17731,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
     nx = sp->x;
     ny = sp->y;
 
-#define MAX_TURRET_MICRO 10
+    const int MAX_TURRET_MICRO = 10;
 
     DoPickTarget(pp->Actor(), 256, false);
 
@@ -17764,13 +17762,13 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
         // Spawn a shot
         // Inserting and setting up variables
 
-        w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], sp->sectnum,
                         nx, ny, nz, ang, 1200);
 
-        wp = &sprite[w];
-        wu = User[w].Data();
+        wu = actorNew->u();
+        wp = &actorNew->s();
 
-        SetOwner(pp->PlayerSprite, w);
+        SetOwner(pp->Actor(), actorNew);
         wp->yrepeat = 24;
         wp->xrepeat = 24;
         wp->shade = -15;
@@ -17781,7 +17779,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
         wp->zvel += RandomRange(Z(8)) - Z(5);
 
         wu->RotNum = 5;
-        NewStateGroup(&swActors[w], &sg_Micro[0]);
+        NewStateGroup(actorNew, &sg_Micro[0]);
 
         wu->WeaponNum = pu->WeaponNum;
         wu->Radius = 200;
@@ -17793,7 +17791,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
 
         wu->WaitTics = 10 + RandomRange(40);
 
-#define MICRO_ANG 400
+        const int MICRO_ANG = 400;
 
         if (hp)
         {
@@ -18227,7 +18225,7 @@ int InitSobjGun(PLAYERp pp)
             case 6:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretMicro(actor->GetSpriteIndex(), pp);
+                InitTurretMicro(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 100;
                 else
