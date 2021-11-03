@@ -3804,11 +3804,11 @@ bool ItemSpotClear(SPRITEp sip, short statnum, short id)
     return !found;
 }
 
-void SetupItemForJump(SPRITEp sip, short SpriteNum)
+void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
+    auto sip = &spawner->s();
 
     // setup item for jumping
     if (SP_TAG7(sip))
@@ -4121,7 +4121,6 @@ int ActorCoughItem(short SpriteNum)
 
 int SpawnItemsMatch(short match)
 {
-    int SpriteNum;
     DSWActor* spawnedActor = nullptr;
     SPRITEp sp,sip;
 
@@ -4158,176 +4157,176 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_REPAIR_KIT))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_REPAIR_KIT, s_RepairKit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_REPAIR_KIT, s_RepairKit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 41:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_STAR))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_STAR, s_IconStar, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_STAR, s_IconStar, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 42:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_LG_MINE))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_LG_MINE, s_IconLgMine, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_MINE, s_IconLgMine, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 43:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_MICRO_GUN))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_MICRO_GUN, s_IconMicroGun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_GUN, s_IconMicroGun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 44:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_MICRO_BATTERY))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_MICRO_BATTERY, s_IconMicroBattery, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_BATTERY, s_IconMicroBattery, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 45:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_GRENADE_LAUNCHER))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 46:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_LG_GRENADE))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_LG_GRENADE, s_IconLgGrenade, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_GRENADE, s_IconLgGrenade, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 47:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_RAIL_GUN))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_RAIL_GUN, s_IconRailGun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_GUN, s_IconRailGun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 48:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_RAIL_AMMO))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_RAIL_AMMO, s_IconRailAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_AMMO, s_IconRailAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 49:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_ROCKET))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_ROCKET, s_IconRocket, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_ROCKET, s_IconRocket, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 51:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_SHOTGUN))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_SHOTGUN, s_IconShotgun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_SHOTGUN, s_IconShotgun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 52:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_LG_SHOTSHELL))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_LG_SHOTSHELL, s_IconLgShotshell, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_SHOTSHELL, s_IconLgShotshell, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 53:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_GUARD_HEAD))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 54:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_FIREBALL_LG_AMMO))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 55:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_HEART))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 56:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_HEART_LG_AMMO))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 57:
@@ -4336,13 +4335,13 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_ARMOR))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_ARMOR, s_IconArmor, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            sp = &sprite[SpriteNum];
-            u = User[SpriteNum].Data();
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_ARMOR, s_IconArmor, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            sp = &spawnedActor->s();
+            u = spawnedActor->u();
             SET(u->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
 
             if (sp->pal != PALETTE_PLAYER3)
                 sp->pal = u->spal = PALETTE_PLAYER1;
@@ -4355,110 +4354,110 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_MEDKIT))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_MEDKIT, s_IconMedkit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MEDKIT, s_IconMedkit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 59:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_SM_MEDKIT))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_SM_MEDKIT, s_IconSmMedkit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_SM_MEDKIT, s_IconSmMedkit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 60:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_CHEMBOMB))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_CHEMBOMB, s_IconChemBomb, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CHEMBOMB, s_IconChemBomb, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 61:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_FLASHBOMB))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_FLASHBOMB, s_IconFlashBomb, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_FLASHBOMB, s_IconFlashBomb, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 62:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_NUKE))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_NUKE, s_IconNuke, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_NUKE, s_IconNuke, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 63:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_CALTROPS))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_CALTROPS, s_IconCaltrops, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CALTROPS, s_IconCaltrops, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 64:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_BOOSTER))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_BOOSTER, s_IconBooster, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_BOOSTER, s_IconBooster, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 65:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_HEAT_CARD))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_HEAT_CARD, s_IconHeatCard, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEAT_CARD, s_IconHeatCard, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 66:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_CLOAK))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_CLOAK, s_IconCloak, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CLOAK, s_IconCloak, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 67:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_NIGHT_VISION))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_NIGHT_VISION, s_IconNightVision, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_NIGHT_VISION, s_IconNightVision, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
 
@@ -4466,33 +4465,33 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_LG_UZI_AMMO))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_LG_UZI_AMMO, s_IconLgUziAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_UZI_AMMO, s_IconLgUziAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 69:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_GUARD_HEAD))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 70:
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_HEART))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 20:
@@ -4500,11 +4499,11 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_UZIFLOOR))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_UZIFLOOR, s_IconUziFloor, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZIFLOOR, s_IconUziFloor, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
 
@@ -4514,11 +4513,11 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(sip, STAT_ITEM, ICON_UZI))
                 break;
 
-            SpriteNum = SpawnSprite(STAT_ITEM, ICON_UZI, s_IconUzi, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SET(User[SpriteNum]->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(SpriteNum);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZI, s_IconUzi, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
+            IconDefault(spawnedActor->GetSpriteIndex());
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
             break;
 
         case 1:
@@ -4561,34 +4560,32 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(sip, STAT_ITEM, s_Key[num]->Pic))
                 break;
 
-            auto actor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
-            SpriteNum = actor->GetSpriteIndex();
-            u = User[SpriteNum].Data();
-
-            sp = &sprite[SpriteNum];
+            spawnedActor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            u = spawnedActor->u();
+            sp = &spawnedActor->s();
 
             ASSERT(u != nullptr);
-            sprite[SpriteNum].picnum = u->ID = s_Key[num]->Pic;
+            sp->picnum = u->ID = s_Key[num]->Pic;
 
 
             // need to set the palette here - suggest table lookup
-            u->spal = sprite[SpriteNum].pal = KeyPal[num];
+            u->spal = sp->pal = KeyPal[num];
             //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
 
-            ChangeState(actor, s_Key[num]);
+            ChangeState(spawnedActor, s_Key[num]);
 
             RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
             RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
 
-            SetupItemForJump(sip, SpriteNum);
+            SetupItemForJump(itActor, spawnedActor);
 
             break;
         }
         }
 
         if (!TEST_BOOL1(sip))
-            KillSprite(si);
+            KillActor(itActor);
     }
     return 0;
 }
