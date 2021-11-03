@@ -112,7 +112,7 @@ void SpawnMidSplash(DSWActor* actor);
 
 int SopDamage(SECTOR_OBJECTp sop,short amt);
 int SopCheckKill(SECTOR_OBJECTp sop);
-int QueueStar(short SpriteNum);
+int QueueStar(DSWActor*);
 int DoBlurExtend(int16_t Weapon,int16_t interval,int16_t blur_num);
 int SpawnDemonFist(short Weapon);
 int SpawnTankShellExp(int16_t Weapon);
@@ -7975,7 +7975,7 @@ DoStar(DSWActor* actor)
                 u->ceiling_dist = Z(2);
                 u->floor_dist = Z(2);
                 // treat this just like a KillSprite but don't kill
-                QueueStar(Weapon);
+                QueueStar(actor);
                 return 0;
             }
 
@@ -19997,14 +19997,14 @@ void QueueReset(void)
         LoWangsQueue[i] = nullptr;
 }
 
-bool TestDontStick(short SpriteNum, short hit_wall)
+bool TestDontStick(DSWActor* actor, short hit_wall)
 {
     WALLp wp;
 
     if (hit_wall < 0)
     {
-        ASSERT(SpriteNum>=0);
-        USERp u = User[SpriteNum].Data();
+        ASSERT(actor != nullptr);
+        USERp u = actor->u();
         hit_wall = NORM_WALL(u->ret);
     }
 
@@ -20028,13 +20028,12 @@ bool TestDontStickSector(short hit_sect)
     return false;
 }
 
-int QueueStar(short SpriteNum)
+int QueueStar(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     SPRITEp osp;
 
-    if (TestDontStick(SpriteNum, -1))
+    if (TestDontStick(actor, -1))
     {
         KillActor(actor);
         return -1;
@@ -20072,7 +20071,7 @@ void QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     int sectnum;
 
 
-    if (TestDontStick(-1,hit_wall))
+    if (TestDontStick(nullptr, hit_wall))
         return;
 
     if (HoleQueue[HoleQueueHead] == nullptr)
@@ -20380,7 +20379,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
 
     if (hitinfo.wall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
     {
-        if (TestDontStick(-1, hitinfo.wall))
+        if (TestDontStick(nullptr, hitinfo.wall))
             return nullptr;
     }
     else
