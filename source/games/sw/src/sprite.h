@@ -52,7 +52,7 @@ void SpriteControl(void);
 void DoActorZrange(DSWActor*);
 void PreMapCombineFloors(void);
 void SpriteSetupPost(void);
-int ActorCoughItem(short SpriteNum);
+int ActorCoughItem(DSWActor*);
 bool ActorSpawn(DSWActor*);
 int SpawnItemsMatch(short match);
 void PicAnimOff(short picnum);

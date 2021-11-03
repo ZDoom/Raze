@@ -1636,11 +1636,11 @@ void PreMapCombineFloors(void)
         BFSSearch search(numsectors, BoundList[i].offset->sectnum);
         for (unsigned dasect; (dasect = search.GetNext()) != BFSSearch::EOL;)
         {
-            SectIterator it(dasect);
-            while ((j = it.NextIndex()) >= 0)
+            SWSectIterator it(dasect);
+            while (auto jActor = it.Next())
             {
-                sprite[j].x += dx;
-                sprite[j].y += dy;
+                jActor->s().x += dx;
+                jActor->s().y += dy;
             }
 
             for (auto& wal : wallsofsector(dasect))
@@ -1735,8 +1735,7 @@ void TraverseSectors(short start_sect)
 #endif
 
 
-void
-SpriteSetupPost(void)
+void SpriteSetupPost(void)
 {
     SPRITEp ds;
     USERp u;
@@ -1780,8 +1779,7 @@ SpriteSetupPost(void)
 }
 
 
-void
-SpriteSetup(void)
+void SpriteSetup(void)
 {
     short num;
     int cz,fz;
@@ -3814,21 +3812,21 @@ void SetupItemForJump(DSWActor* spawner, DSWActor* actor)
     }
 }
 
-int ActorCoughItem(short SpriteNum)
+int ActorCoughItem(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    short New,choose;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
+    short choose;
     SPRITEp np;
+    DSWActor* actorNew = nullptr;
 
 
     switch (u->ID)
     {
     case SAILORGIRL_R0:
         ASSERT(sp->sectnum >= 0);
-        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(New >= 0);
-        np = &sprite[New];
+        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -3868,9 +3866,8 @@ int ActorCoughItem(short SpriteNum)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(New >= 0);
-        np = &sprite[New];
+        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -3897,9 +3894,8 @@ int ActorCoughItem(short SpriteNum)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(New >= 0);
-        np = &sprite[New];
+        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -3929,9 +3925,8 @@ int ActorCoughItem(short SpriteNum)
                 return 0;
 
             ASSERT(sp->sectnum >= 0);
-            New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-            ASSERT(New >= 0);
-            np = &sprite[New];
+            actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+            np = &actorNew->s();
             np->cstat = 0;
             np->extra = 0;
             np->x = sp->x;
@@ -3993,9 +3988,8 @@ int ActorCoughItem(short SpriteNum)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(New >= 0);
-        np = &sprite[New];
+        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -4052,9 +4046,8 @@ int ActorCoughItem(short SpriteNum)
     case PACHINKO4:
 
         ASSERT(sp->sectnum >= 0);
-        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(New >= 0);
-        np = &sprite[New];
+        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;

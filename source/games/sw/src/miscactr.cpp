@@ -826,7 +826,7 @@ int PachinkoCheckWin(DSWActor* actor)
             DoMatchEverything(Player+myconnectindex, sp->hitag, ON);
         }
 
-        ActorCoughItem(actor->GetSpriteIndex()); // I WON! I WON!
+        ActorCoughItem(actor); // I WON! I WON!
         PlaySound(DIGI_PALARM, actor, v3df_none);
 
         // Can't win any more now!
@@ -1714,7 +1714,7 @@ int DoSailorGirl(DSWActor* actor)
 
                 if (choose > 750 && alreadythrew < 3)
                 {
-                    ActorCoughItem(actor->GetSpriteIndex());
+                    ActorCoughItem(actor);
                     alreadythrew++;
                     PlaySound(DIGI_LANI060, actor, v3df_dontpan, CHAN_AnimeMad);
                 }
@@ -1772,7 +1772,7 @@ int NullSailorGirl(DSWActor* actor)
 
             if (choose > 750 && alreadythrew < 3)
             {
-                ActorCoughItem(actor->GetSpriteIndex());
+                ActorCoughItem(actor);
                 alreadythrew++;
                 PlaySound(DIGI_LANI060, actor, v3df_dontpan, CHAN_AnimeMad);
             }

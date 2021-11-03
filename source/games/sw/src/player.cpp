@@ -5575,7 +5575,7 @@ void DoPlayerBeginDie(PLAYERp pp)
 
     pp->tilt_dest = 0;
 
-    ActorCoughItem(pp->PlayerSprite);
+    ActorCoughItem(pp->Actor());
 
     if (numplayers > 1)
     {

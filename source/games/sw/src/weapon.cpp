@@ -5014,7 +5014,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
     }
     break;
     default:
-        ActorCoughItem(SpriteNum);
+        ActorCoughItem(actor);
         //UpdateSinglePlayKills(actor);
         break;
     }
@@ -5201,7 +5201,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
                 // These guys cough items only if gibbed
                 if (u->ID == GORO_RUN_R0 || u->ID == RIPPER2_RUN_R0)
-                    ActorCoughItem(SpriteNum);
+                    ActorCoughItem(actor);
 
                 // Blood fountains
                 InitBloodSpray(actor,true,-1);
