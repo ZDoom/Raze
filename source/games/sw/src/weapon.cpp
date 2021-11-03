@@ -18427,12 +18427,11 @@ SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hi
     return j;
 }
 
-int
-InitTurretMgun(SECTOR_OBJECTp sop)
+int InitTurretMgun(SECTOR_OBJECTp sop)
 {
     SPRITEp hsp;
     short daang, i, j;
-    hitdata_t hitinfo;
+    HITINFO hitinfo;
     short nsect;
     int daz;
     int nx,ny,nz;
@@ -18459,7 +18458,9 @@ InitTurretMgun(SECTOR_OBJECTp sop)
             {
                 // only auto aim for Z
                 daang = 512;
-                if ((hitinfo.sprite = WeaponAutoAimHitscan(sp, &daz, &daang, false)) != -1)
+                auto hit = WeaponAutoAimHitscan(sp, &daz, &daang, false);
+                hitinfo.hitactor = hit == -1 ? nullptr : &swActors[hit];
+                if (hitinfo.hitactor != nullptr)
                 {
                     delta = short(abs(getincangle(sp->ang, daang)));
                     if (delta > 128)
@@ -18471,7 +18472,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                     {
                         // always shoot the ground when tracking
                         // and not close
-                        WeaponHitscanShootFeet(sp, &sprite[hitinfo.sprite], &daz);
+                        WeaponHitscanShootFeet(sp, &hitinfo.hitactor->s(), &daz);
 
                         daang = sp->ang;
                         daang = NORM_ANGLE(daang + RANDOM_P2(32) - 16);
@@ -18512,7 +18513,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
             if (hitinfo.sect < 0)
                 continue;
 
-            if (hitinfo.sprite < 0 && hitinfo.wall < 0)
+            if (hitinfo.hitactor == nullptr && hitinfo.wall < 0)
             {
                 if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
                 {
@@ -18556,35 +18557,35 @@ InitTurretMgun(SECTOR_OBJECTp sop)
             }
 
             // hit a sprite?
-            if (hitinfo.sprite >= 0)
+            if (hitinfo.hitactor != nullptr)
             {
-                hsp = &sprite[hitinfo.sprite];
+                hsp = &hitinfo.hitactor->s();
 
                 if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_UZI, hitinfo.sprite))
+                    if (MissileHitMatch(-1, WPN_UZI, hitinfo.hitactor->GetSpriteIndex()))
                         continue;
                 }
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(&swActors[hitinfo.sprite],0);
+                    HitBreakSprite(hitinfo.hitactor, 0);
                     continue;
                 }
 
-                if (BulletHitSprite(sp, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+                if (BulletHitSprite(sp, hitinfo.hitactor->GetSpriteIndex(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
                     continue;
 
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(&swActors[hitinfo.sprite]);
+                    ShootableSwitch(hitinfo.hitactor);
                 }
             }
 
 
             j = SpawnTurretSparks(/*sp, */hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-            DoHitscanDamage(j, hitinfo.sprite);
+            DoHitscanDamage(j, hitinfo.hitactor->GetSpriteIndex());
         }
     }
 
