@@ -19182,8 +19182,7 @@ InitFireball(PLAYERp pp)
     return 0;
 }
 
-int
-InitEnemyFireball(DSWActor* actor)
+int InitEnemyFireball(DSWActor* actor)
 {
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
@@ -19278,8 +19277,7 @@ InitEnemyFireball(DSWActor* actor)
 // for hitscans or other uses
 ///////////////////////////////////////////////////////////////////////////////
 
-bool
-WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
+bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 {
     int i;
     SECT_USERp sectu = SectUser[*sectnum].Data();
@@ -19293,10 +19291,10 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
         return false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    StatIterator it(STAT_DIVE_AREA);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DIVE_AREA);
+    while (auto itActor = it.Next())
     {
-        over_sp = &sprite[i];
+        over_sp = &itActor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             SectUser[over_sp->sectnum].Data() &&
@@ -19312,9 +19310,9 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto itActor = it.Next())
     {
-        under_sp = &sprite[i];
+        under_sp = &itActor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             SectUser[under_sp->sectnum].Data() &&
@@ -19352,8 +19350,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
     return true;
 }
 
-bool
-WarpToSurface(short *sectnum, int *x, int *y, int *z)
+bool WarpToSurface(short *sectnum, int *x, int *y, int *z)
 {
     int i;
     SECT_USERp sectu = SectUser[*sectnum].Data();
@@ -19368,10 +19365,10 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
         return false;
 
     // search for UNDERWATER "under" sprite for reference point
-    StatIterator it(STAT_UNDERWATER);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_UNDERWATER);
+    while (auto itActor = it.Next())
     {
-        under_sp = &sprite[i];
+        under_sp = &itActor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             SectUser[under_sp->sectnum].Data() &&
@@ -19387,9 +19384,9 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto itActor = it.Next())
     {
-        over_sp = &sprite[i];
+        over_sp = &itActor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             SectUser[over_sp->sectnum].Data() &&
@@ -19419,8 +19416,6 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
     }
 
     *z = sector[over_sp->sectnum].floorz - Z(2);
-
-    //MissileWaterAdjust(sp - sprite);
 
     return true;
 }
