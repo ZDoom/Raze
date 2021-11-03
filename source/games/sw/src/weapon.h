@@ -231,7 +231,7 @@ int PlayerCheckDeath(PLAYERp pp,short Weapon);
 bool SpriteWarpToUnderwater(SPRITEp sp);
 int PlayerDamageSlide(PLAYERp pp,int damage,short ang);
 bool VehicleMoveHit(DSWActor*);
-int SpawnSplash(short SpriteNum);
+int SpawnSplash(DSWActor*);
 int SpawnMineExp(int16_t Weapon);
 int SpawnLittleExp(int16_t Weapon);
 int SpawnLargeExp(int16_t Weapon);

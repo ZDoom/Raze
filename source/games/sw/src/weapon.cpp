@@ -119,7 +119,7 @@ int SpawnTankShellExp(int16_t Weapon);
 int SpawnMicroExp(int16_t Weapon);
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
 int BulletHitSprite(SPRITEp sp,short hit_sprite,int hit_x,int hit_y,int hit_z,short ID);
-int SpawnSplashXY(int hit_x,int hit_y,int hit_z,short);
+int SpawnSplashXY(int hit_x,int hit_y,int hit_z,int);
 int SpawnBoatSparks(PLAYERp pp,short hit_sect,short hit_wall,int hit_x,int hit_y,int hit_z,short hit_ang);
 
 short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
@@ -4457,7 +4457,7 @@ WeaponMoveHit(short SpriteNum)
 
             if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
             {
-                SpawnSplash(SpriteNum);
+                SpawnSplash(actor);
                 //SetSuicide(actor);
                 return true;
             }
@@ -4473,8 +4473,6 @@ WeaponMoveHit(short SpriteNum)
                 {
                     if (MissileHitMatch(SpriteNum, -1, u->highActor->GetSpriteIndex()))
                         return true;
-                    //DoMatchEverything(nullptr, u->highActor->s().hitag, -1);
-                    //return(true);
                 }
             }
         }
@@ -8003,7 +8001,7 @@ DoStar(DSWActor* actor)
             {
                 if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
                 {
-                    SpawnSplash(Weapon);
+                    SpawnSplash(actor);
                     KillActor(actor);
                     return true;
                     // hit water - will be taken care of in WeaponMoveHit
@@ -19591,13 +19589,10 @@ SpriteWarpToSurface(SPRITEp sp)
 }
 
 
-int
-SpawnSplash(short SpriteNum)
+int SpawnSplash(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u(), wu;
     SPRITEp sp = &actor->s(), wp;
-    short w;
 
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
@@ -19611,14 +19606,14 @@ SpawnSplash(short SpriteNum)
     if (sectu && TEST(sectp->floorstat, FLOOR_STAT_PLAX))
         return 0;
 
-    PlaySound(DIGI_SPLASH1, sp, v3df_none);
+    PlaySound(DIGI_SPLASH1, actor, v3df_none);
 
     DoActorZrange(actor);
-    MissileWaterAdjust(SpriteNum);
+    MissileWaterAdjust(actor->GetSpriteIndex());
 
-    w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sp->sectnum, sp->x, sp->y, u->loz, sp->ang, 0);
-    wp = &sprite[w];
-    wu = User[w].Data();
+    auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sp->sectnum, sp->x, sp->y, u->loz, sp->ang, 0);
+    wp = &actorNew->s();
+    wu = actor->u();
 
     if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         wu->spal = wp->pal = PALETTE_RED_LIGHTING;
@@ -19630,12 +19625,10 @@ SpawnSplash(short SpriteNum)
     return 0;
 }
 
-int
-SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
+int SpawnSplashXY(int hit_x, int hit_y, int hit_z, int sectnum)
 {
     USERp wu;
     SPRITEp wp;
-    short w;
     //short sectnum=0;
 
     SECT_USERp sectu;
@@ -19653,9 +19646,9 @@ SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
     if (sectu && TEST(sectp->floorstat, FLOOR_STAT_PLAX))
         return 0;
 
-    w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sectnum, hit_x, hit_y, hit_z, 0, 0);
-    wp = &sprite[w];
-    wu = User[w].Data();
+    auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sectnum, hit_x, hit_y, hit_z, 0, 0);
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         wu->spal = wp->pal = PALETTE_RED_LIGHTING;
@@ -19697,7 +19690,7 @@ bool MissileHitDiveArea(DSWActor* actor)
                 return false;
 
             SET(u->Flags, SPR_UNDERWATER);
-            SpawnSplash(actor->GetSpriteIndex());
+            SpawnSplash(actor);
             SpriteWarpToUnderwater(sp);
             SetCollision(u, 0);
             PlaySound(DIGI_PROJECTILEWATERHIT, actor, v3df_none);
@@ -19714,7 +19707,7 @@ bool MissileHitDiveArea(DSWActor* actor)
             {
                 return false;
             }
-            SpawnSplash(actor->GetSpriteIndex());
+            SpawnSplash(actor);
             SetCollision(u, 0);
             return true;
         }

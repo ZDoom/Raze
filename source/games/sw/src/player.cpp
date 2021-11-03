@@ -4275,7 +4275,7 @@ void DoPlayerBeginDive(PLAYERp pp)
         pp->Reverb = 140;
     }
 
-    SpawnSplash(pp->PlayerSprite);
+    SpawnSplash(pp->Actor());
 
     DoPlayerWarpToUnderwater(pp);
     OperateTripTrigger(pp);
@@ -4738,7 +4738,7 @@ void DoPlayerBeginWade(PLAYERp pp)
     DoPlayerFireOutWater(pp);
 
     if (pp->jump_speed > 100)
-        SpawnSplash(pp->PlayerSprite);
+        SpawnSplash(pp->Actor());
 
     // fix it so that you won't go under water unless you hit the water at a
     // certain speed
@@ -5394,7 +5394,7 @@ void DoPlayerDeathFall(PLAYERp pp)
         //if (pp->posz > loz - PLAYER_DEATH_HEIGHT)
         {
             if (loz != pp->loz)
-                SpawnSplash(pp->PlayerSprite);
+                SpawnSplash(pp->Actor());
 
             if (RandomRange(1000) > 500)
                 PlaySound(DIGI_BODYFALL1, pp, v3df_dontpan);
