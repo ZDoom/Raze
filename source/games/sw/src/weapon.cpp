@@ -11308,20 +11308,13 @@ AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
 }
 
 int
-SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
+SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop, bool smallflames)
 {
     SPRITEp sp;
     USERp u;
     SPRITEp exp;
     USERp eu;
     unsigned sn;
-    bool smallflames = false;
-
-    if (Weapon < 0)
-    {
-        Weapon  = abs(Weapon);
-        smallflames = true;
-    }
 
     sp = &sprite[Weapon];
     u = User[Weapon].Data();
@@ -18153,8 +18146,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
     return 0;
 }
 
-int
-InitSobjGun(PLAYERp pp)
+int InitSobjGun(PLAYERp pp)
 {
     short i;
     SPRITEp sp;
@@ -18192,9 +18184,9 @@ InitSobjGun(PLAYERp pp)
             case 32:
             case 0:
                 SpawnVis(actor, -1, -1, -1, -1, 8);
-                SpawnBigGunFlames(short(sp - sprite), pp->PlayerSprite, pp->sop);
-                SetGunQuake(short(sp - sprite));
-                InitTankShell(short(sp - sprite), pp);
+                SpawnBigGunFlames(actor->GetSpriteIndex(), pp->PlayerSprite, pp->sop, false);
+                SetGunQuake(actor->GetSpriteIndex());
+                InitTankShell(actor->GetSpriteIndex(), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 80;
                 else
@@ -18202,8 +18194,8 @@ InitSobjGun(PLAYERp pp)
                 break;
             case 1:
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                SpawnBigGunFlames(-short(sp - sprite), pp->PlayerSprite, pp->sop);
-                InitSobjMachineGun(short(sp - sprite), pp);
+                SpawnBigGunFlames(actor->GetSpriteIndex(), pp->PlayerSprite, pp->sop, true);
+                InitSobjMachineGun(actor->GetSpriteIndex(), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 10;
                 else
@@ -18212,7 +18204,7 @@ InitSobjGun(PLAYERp pp)
             case 2:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretLaser(short(sp - sprite), pp);
+                InitTurretLaser(actor->GetSpriteIndex(), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 120;
                 else
@@ -18221,7 +18213,7 @@ InitSobjGun(PLAYERp pp)
             case 3:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretRail(short(sp - sprite), pp);
+                InitTurretRail(actor->GetSpriteIndex(), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 120;
                 else
@@ -18230,7 +18222,7 @@ InitSobjGun(PLAYERp pp)
             case 4:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretFireball(short(sp - sprite), pp);
+                InitTurretFireball(actor->GetSpriteIndex(), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 20;
                 else
@@ -18239,7 +18231,7 @@ InitSobjGun(PLAYERp pp)
             case 5:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretRocket(short(sp - sprite), pp);
+                InitTurretRocket(actor->GetSpriteIndex(), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 100;
                 else
@@ -18248,7 +18240,7 @@ InitSobjGun(PLAYERp pp)
             case 6:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretMicro(short(sp - sprite), pp);
+                InitTurretMicro(actor->GetSpriteIndex(), pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 100;
                 else
