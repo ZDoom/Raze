@@ -985,7 +985,6 @@ int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, in
 
     sp->xvel = vel;
     sp->zvel = 0;
-    sp->owner = -1;
     sp->lotag = 0L;
     sp->hitag = 0L;
     sp->extra = 0;
@@ -2974,7 +2973,7 @@ void SpriteSetup(void)
                 case SPEAR_TRAP:
                 {
                     u = SpawnUser(actor, 0, nullptr);
-                    sp->owner = -1;
+                    ClearOwner(actor);
                     change_actor_stat(actor, STAT_TRAP);
                     break;
                 }

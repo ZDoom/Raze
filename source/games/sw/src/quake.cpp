@@ -64,7 +64,6 @@ short CopyQuakeSpotToOn(SPRITEp sp)
 
     np->cstat = 0;
     np->extra = 0;
-    ClearOwner(actorNew);
 
     change_actor_stat(actorNew, STAT_QUAKE_ON);
 
@@ -248,7 +247,6 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     sp->y = y;
     sp->z = z;
     sp->cstat = 0;
-    ClearOwner(actorNew);
     sp->extra = 0;
 
     QUAKE_Match(sp) = -1;

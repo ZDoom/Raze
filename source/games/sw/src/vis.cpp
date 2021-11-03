@@ -176,7 +176,6 @@ void SpawnVis(DSWActor* parentActor, short sectnum, int x, int y, int z, int amt
         sp->x = x;
         sp->y = y;
         sp->z = z - Z(20);
-        ClearOwner(actorNew);
     }
 
     sp->cstat = 0;

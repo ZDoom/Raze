@@ -1240,8 +1240,6 @@ void RipperHatch(DSWActor* actor)
         np->x = wp->x;
         np->y = wp->y;
         np->z = wp->z;
-        ClearOwner(actorNew);
-        //np->xrepeat = np->yrepeat = 36;
         np->xrepeat = np->yrepeat = 64;
         np->ang = rip_ang[i];
         np->pal = 0;
