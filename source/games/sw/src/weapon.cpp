@@ -19014,19 +19014,16 @@ InitMine(PLAYERp pp)
     return 0;
 }
 
-int
-InitEnemyMine(DSWActor* actor)
+int InitEnemyMine(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
 
 
-    PlaySound(DIGI_MINETHROW, sp, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_MINETHROW, actor, v3df_dontpan|v3df_doppler);
 
     nx = sp->x;
     ny = sp->y;
@@ -19034,13 +19031,13 @@ InitEnemyMine(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    w = SpawnSprite(STAT_MISSILE, MINE, s_Mine, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, sp->sectnum,
                     nx, ny, nz, sp->ang, MINE_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
     wp->shade = -15;
@@ -19053,18 +19050,17 @@ InitEnemyMine(DSWActor* actor)
     wu->Counter = 0;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    wu->spal = wp->pal = User[SpriteNum]->spal; // Set sticky color
+    wu->spal = wp->pal = u->spal; // Set sticky color
 
     if (SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    MissileSetPos(w, DoMine, 300);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoMine, 300);
     wp->ang = NORM_ANGLE(wp->ang-512);
-    MissileSetPos(w, DoMine, 300);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoMine, 300);
     wp->ang = NORM_ANGLE(wp->ang+512);
 
     wu->zchange = -5000;
-    //CON_Message("change = %ld",wu->zchange);
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
 
@@ -19087,10 +19083,6 @@ int HelpMissileLateral(int16_t Weapon, int dist)
     sp->clipdist = 32L >> 2;
 
     SetCollision(u, move_missile(Weapon, xchange, ychange, 0, Z(16), Z(16), 0, 1));
-
-// !JIM! Should this be fatal, it seems to fail check alot, but doesn't crash game or anything
-// when I commented it out.
-//    ASSERT(!u->ret);
 
     sp->xvel = old_xvel;
     sp->clipdist = old_clipdist;
