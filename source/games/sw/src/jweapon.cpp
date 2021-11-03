@@ -676,7 +676,7 @@ int DoPhosphorus(DSWActor* actor)
         {
             bool did_hit_wall;
 
-            if (SlopeBounce(actor->GetSpriteIndex(), &did_hit_wall))
+            if (SlopeBounce(actor, &did_hit_wall))
             {
                 if (did_hit_wall)
                 {
@@ -894,7 +894,7 @@ int DoChemBomb(DSWActor* actor)
         {
             bool did_hit_wall;
 
-            if (SlopeBounce(actor->GetSpriteIndex(), &did_hit_wall))
+            if (SlopeBounce(actor, &did_hit_wall))
             {
                 if (did_hit_wall)
                 {
@@ -1120,7 +1120,7 @@ int DoCaltrops(DSWActor* actor)
         {
             bool did_hit_wall;
 
-            if (SlopeBounce(actor->GetSpriteIndex(), &did_hit_wall))
+            if (SlopeBounce(actor, &did_hit_wall))
             {
                 if (did_hit_wall)
                 {

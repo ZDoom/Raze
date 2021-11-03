@@ -3983,17 +3983,17 @@ DoShrapJumpFall(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
-        DoShrapVelocity(SpriteNum);
+        DoShrapVelocity(actor);
     }
     else if (TEST(u->Flags, SPR_FALLING))
     {
-        DoShrapVelocity(SpriteNum);
+        DoShrapVelocity(actor);
     }
     else
     {
         if (!TEST(u->Flags, SPR_BOUNCE))
         {
-            DoShrapVelocity(SpriteNum);
+            DoShrapVelocity(actor);
             return 0;
         }
 
@@ -8034,7 +8034,7 @@ DoStar(DSWActor* actor)
             else
                 u->zchange = MulScale(u->zchange, 40000, 16); // ceiling
 
-            if (SlopeBounce(Weapon, &did_hit_wall))
+            if (SlopeBounce(actor, &did_hit_wall))
             {
                 if (did_hit_wall)
                 {
@@ -8764,10 +8764,10 @@ void WallBounce(DSWActor* actor, short ang)
 }
 
 
-bool SlopeBounce(short SpriteNum, bool *hit_wall)
+bool SlopeBounce(DSWActor* actor, bool *hit_wall)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     int k,l;
     int hiz,loz;
     int slope;
@@ -8948,7 +8948,7 @@ DoGrenade(DSWActor* actor)
         case HIT_SECTOR:
         {
             bool did_hit_wall;
-            if (SlopeBounce(Weapon, &did_hit_wall))
+            if (SlopeBounce(actor, &did_hit_wall))
             {
                 if (did_hit_wall)
                 {
@@ -9170,7 +9170,7 @@ DoVulcanBoulder(DSWActor* actor)
         {
             bool did_hit_wall;
 
-            if (SlopeBounce(Weapon, &did_hit_wall))
+            if (SlopeBounce(actor, &did_hit_wall))
             {
                 if (did_hit_wall)
                 {
@@ -20660,10 +20660,8 @@ DoShellShrap(short SpriteNum)
 }
 #endif
 
-int
-DoShrapVelocity(int16_t SpriteNum)
+int DoShrapVelocity(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
@@ -20680,27 +20678,25 @@ DoShrapVelocity(int16_t SpriteNum)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(SpriteNum, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
     MissileHitDiveArea(actor);
 
-    if (u->ret)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        case kHitSky:
             KillActor(actor);
             return true;
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang;
-            short hit_sprite = -2;
             SPRITEp hsp;
 //                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
 
-            hit_sprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hit_sprite];
+            auto hit_sprite = u->coll.actor;
+            hsp = &hit_sprite->s();
 
             wall_ang = NORM_ANGLE(hsp->ang);
             WallBounce(actor, wall_ang);
@@ -20709,13 +20705,13 @@ DoShrapVelocity(int16_t SpriteNum)
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
             short hit_wall,nw,wall_ang;
             WALLp wph;
 
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
             wph = &wall[hit_wall];
 
 
@@ -20729,11 +20725,11 @@ DoShrapVelocity(int16_t SpriteNum)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             bool did_hit_wall;
 
-            if (SlopeBounce(SpriteNum, &did_hit_wall))
+            if (SlopeBounce(actor, &did_hit_wall))
             {
                 if (did_hit_wall)
                 {
