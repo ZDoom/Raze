@@ -418,7 +418,7 @@ int DoBloodSpray(DSWActor* actor)
                 wall_ang = NORM_ANGLE(hsp->ang);
                 SpawnMidSplash(actor);
                 QueueWallBlood(actor, hsp->ang);
-                WallBounce(actor->GetSpriteIndex(), wall_ang);
+                WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -493,8 +493,6 @@ int DoBloodSpray(DSWActor* actor)
                 ChangeState(actor, s_BloodSprayDrip);
             }
 
-            //WallBounce(Weapon, wall_ang);
-            //ScaleSpriteVector(actor, 32000);
             break;
         }
 
@@ -627,7 +625,7 @@ int DoPhosphorus(DSWActor* actor)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                WallBounce(actor->GetSpriteIndex(), wall_ang);
+                WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -669,7 +667,7 @@ int DoPhosphorus(DSWActor* actor)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
-            WallBounce(actor->GetSpriteIndex(), wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
             break;
         }
@@ -844,7 +842,7 @@ int DoChemBomb(DSWActor* actor)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                WallBounce(actor->GetSpriteIndex(), wall_ang);
+                WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -887,7 +885,7 @@ int DoChemBomb(DSWActor* actor)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
-            WallBounce(actor->GetSpriteIndex(), wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
             break;
         }
@@ -1083,7 +1081,7 @@ int DoCaltrops(DSWActor* actor)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                WallBounce(actor->GetSpriteIndex(), wall_ang);
+                WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 10000);
             }
             else
@@ -1113,7 +1111,7 @@ int DoCaltrops(DSWActor* actor)
             int nw = wall[hit_wall].point2;
             int wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
-            WallBounce(actor->GetSpriteIndex(), wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 1000);
             break;
         }

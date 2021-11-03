@@ -7988,7 +7988,7 @@ DoStar(DSWActor* actor)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
-            WallBounce(Weapon, wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 36000);
             SET(u->Flags, SPR_BOUNCE);
             u->motion_blur_num = 0;
@@ -8733,27 +8733,17 @@ void ScaleSpriteVector(DSWActor* actor, int scale)
     u->zchange = MulScale(u->zchange, scale, 16);
 }
 
-void WallBounce(short SpriteNum, short ang)
+void WallBounce(DSWActor* actor, short ang)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     int old_ang;
-    //short hit_wall;
-    //short nextwall;
     int k,l;
-    //short ang;
     int dax, day;
-
-    //hit_wall = NORM_WALL(u->ret);
-
-    //nextwall = wall[hit_wall].point2;
-    //ang = getangle(wall[nextwall].x - wall[hit_wall].x, wall[nextwall].y - wall[hit_wall].y)+512;
 
     u->bounce++;
 
-    //k = cos(ang) * sin(ang) * 2
     k = MulScale(bcos(ang), bsin(ang), 13);
-    //l = cos(ang * 2)
     l = bcos(ang << 1);
 
     dax = -u->xchange;
@@ -8908,7 +8898,7 @@ DoGrenade(DSWActor* actor)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                WallBounce(Weapon, wall_ang);
+                WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -8951,7 +8941,7 @@ DoGrenade(DSWActor* actor)
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             //sp->ang = NORM_ANGLE(sp->ang + 1);
-            WallBounce(Weapon, wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 22000);
 
             break;
@@ -9138,7 +9128,7 @@ DoVulcanBoulder(DSWActor* actor)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                WallBounce(Weapon, wall_ang);
+                WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 40000);
             }
             else
@@ -9173,7 +9163,7 @@ DoVulcanBoulder(DSWActor* actor)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
-            WallBounce(Weapon, wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 40000);
             break;
         }
@@ -20715,7 +20705,7 @@ DoShrapVelocity(int16_t SpriteNum)
             hsp = &sprite[hit_sprite];
 
             wall_ang = NORM_ANGLE(hsp->ang);
-            WallBounce(SpriteNum, wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
 
             break;
@@ -20736,7 +20726,7 @@ DoShrapVelocity(int16_t SpriteNum)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
-            WallBounce(SpriteNum, wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
             break;
         }
@@ -21054,7 +21044,7 @@ DoItemFly(int16_t SpriteNum)
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
-                WallBounce(SpriteNum, wall_ang);
+                WallBounce(actor, wall_ang);
                 ScaleSpriteVector(actor, 32000);
             }
             else
@@ -21077,7 +21067,7 @@ DoItemFly(int16_t SpriteNum)
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
-            WallBounce(SpriteNum, wall_ang);
+            WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
             break;
         }

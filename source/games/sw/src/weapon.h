@@ -177,7 +177,7 @@ extern short StatDamageList[STAT_DAMAGE_LIST_SIZE];
 #define MUSHROOM_CLOUD 3280
 extern STATE s_NukeMushroom[];
 
-void WallBounce(short SpriteNum, short ang);
+void WallBounce(DSWActor*, short ang);
 
 #define PUFF 1748
 #define CALTROPS 2218
