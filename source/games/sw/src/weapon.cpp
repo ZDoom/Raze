@@ -18769,14 +18769,13 @@ InitEnemyUzi(DSWActor* actor)
 }
 
 
-int
-InitGrenade(PLAYERp pp)
+int InitGrenade(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     int zvel;
     bool auto_aim = false;
 
@@ -18799,11 +18798,11 @@ InitGrenade(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), GRENADE_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
@@ -18812,10 +18811,10 @@ InitGrenade(PLAYERp pp)
     }
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Grenade[0]);
+    NewStateGroup(actorNew, &sg_Grenade[0]);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
     wp->shade = -15;
@@ -18834,29 +18833,22 @@ InitGrenade(PLAYERp pp)
 
     wp->zvel = -pp->horizon.horiz.asq16() >> 9;
 
-    ////DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d", pp->horizon.horiz.asbuild()), pp->horizon.horizoff.asbuild()), pp->horizon.horizoff.asbuild() + pp->horizon.horiz.asbuild());
-    //MONO_PRINT(ds);
-
     auto oclipdist = pp->SpriteP->clipdist;
     pp->SpriteP->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 800);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 800);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     // don't do smoke for this movement
     SET(wu->Flags, SPR_BOUNCE);
-    MissileSetPos(w, DoGrenade, 1000);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoGrenade, 1000);
     RESET(wu->Flags, SPR_BOUNCE);
 
-    pp->SpriteP->clipdist = oclipdist;
-
-//    int dist;
-    //dist = FindDistance2D(pp->xvect, pp->yvect)>>12;
-    //dist = dist - (dist/2);
+    sp->clipdist = oclipdist;
 
     zvel = wp->zvel;
-    if (WeaponAutoAim(pp->SpriteP, w, 32, false) >= 0)
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) >= 0)
     {
         auto_aim = true;
     }
