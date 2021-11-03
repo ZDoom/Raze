@@ -78,7 +78,7 @@ DSWActor* StarQueue[MAX_STAR_QUEUE];
 short HoleQueueHead=0;
 short HoleQueue[MAX_HOLE_QUEUE];
 short WallBloodQueueHead=0;
-short WallBloodQueue[MAX_WALLBLOOD_QUEUE];
+DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 short FloorBloodQueueHead=0;
 short FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 short GenericQueueHead=0;
@@ -11660,7 +11660,6 @@ SpawnSectorExp(int16_t Weapon)
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    ClearOwner(expActor);
     exp->shade = -40;
     exp->xrepeat = 90; // was 40,40
     exp->yrepeat = 90;
@@ -11693,7 +11692,6 @@ SpawnLargeExp(int16_t Weapon)
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    ClearOwner(expActor);
     exp->shade = -40;
     exp->xrepeat = 90; // was 40,40
     exp->yrepeat = 90;
@@ -11741,7 +11739,6 @@ SpawnMeteorExp(int16_t Weapon)
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    ClearOwner(expActor);
     exp->shade = -40;
     if (sp->yrepeat < 64)
     {
@@ -11779,7 +11776,6 @@ SpawnLittleExp(int16_t Weapon)
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    ClearOwner(expActor);
     exp->shade = -127;
 
     SET(exp->cstat, CSTAT_SPRITE_YCENTER);
@@ -15973,7 +15969,6 @@ SpawnDemonFist(int16_t Weapon)
     eu = User[explosion].Data();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    ClearOwner(expActor);
     exp->shade = -40;
     exp->xrepeat = 32;
     exp->yrepeat = 32;
@@ -17235,7 +17230,6 @@ int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_
 
     SpriteNum = COVERinsertsprite(hit_sect, STAT_DEFAULT);
     sp = &sprite[SpriteNum];
-    sp->owner = -1;
     sp->xrepeat = sp->yrepeat = 16;
     sp->cstat = 0;
     sp->pal = 0;
@@ -19956,8 +19950,8 @@ void SpriteQueueDelete(DSWActor* actor)
             HoleQueue[i] = -1;
 
     for (i = 0; i < MAX_WALLBLOOD_QUEUE; i++)
-        if (WallBloodQueue[i] == SpriteNum)
-            WallBloodQueue[i] = -1;
+        if (WallBloodQueue[i] == actor)
+            WallBloodQueue[i] = nullptr;
 
     for (i = 0; i < MAX_FLOORBLOOD_QUEUE; i++)
         if (FloorBloodQueue[i] == SpriteNum)
@@ -19991,7 +19985,7 @@ void QueueReset(void)
         HoleQueue[i] = -1;
 
     for (i = 0; i < MAX_WALLBLOOD_QUEUE; i++)
-        WallBloodQueue[i] = -1;
+        WallBloodQueue[i] = nullptr;
 
     for (i = 0; i < MAX_FLOORBLOOD_QUEUE; i++)
         FloorBloodQueue[i] = -1;
@@ -20089,7 +20083,6 @@ int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     HoleQueueHead = (HoleQueueHead+1) & (MAX_HOLE_QUEUE-1);
 
     sp = &sprite[SpriteNum];
-    sp->owner = -1;
     sp->xrepeat = sp->yrepeat = 16;
     sp->cstat = 0;
     sp->pal = 0;
@@ -20170,7 +20163,6 @@ int QueueFloorBlood(DSWActor* actor)
     FloorBloodQueueHead = (FloorBloodQueueHead+1) & (MAX_FLOORBLOOD_QUEUE-1);
 
     sp = &sprite[SpriteNum];
-    sp->owner = -1;
     // Stupid hack to fix the blood under the skull to not show through
     // x,y repeat of floor blood MUST be smaller than the sprite above it or clipping probs.
     if (u->ID == GORE_Head)
@@ -20281,7 +20273,6 @@ int QueueFootPrint(short hit_sprite)
     sp = &sprite[SpriteNum];
     nu = User[SpriteNum].Data();
     sp->hitag = 0;
-    sp->owner = -1;
     sp->xrepeat = 48;
     sp->yrepeat = 54;
     sp->cstat = 0;
@@ -20349,7 +20340,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
 {
     SPRITEp hsp = &actor->s();
     short w,nw,wall_ang,dang;
-    short SpriteNum;
+    DSWActor* spawnedActor;
     int nx,ny;
     SPRITEp sp;
     int sectnum;
@@ -20392,36 +20383,35 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
         return nullptr;
 
 
-    if (WallBloodQueue[WallBloodQueueHead] != -1)
-        KillSprite(WallBloodQueue[WallBloodQueueHead]);
+    if (WallBloodQueue[WallBloodQueueHead] != nullptr)
+        KillActor(WallBloodQueue[WallBloodQueueHead]);
 
     // Randomly choose a wall blood sprite
     rndnum = RandomRange(1024);
     if (rndnum > 768)
     {
-        WallBloodQueue[WallBloodQueueHead] = SpriteNum =
-                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD1, s_WallBlood1, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
+        WallBloodQueue[WallBloodQueueHead] = spawnedActor =
+                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD1, s_WallBlood1, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
     }
     else if (rndnum > 512)
     {
-        WallBloodQueue[WallBloodQueueHead] = SpriteNum =
-                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD2, s_WallBlood2, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
+        WallBloodQueue[WallBloodQueueHead] = spawnedActor =
+                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD2, s_WallBlood2, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
     }
     else if (rndnum > 128)
     {
-        WallBloodQueue[WallBloodQueueHead] = SpriteNum =
-                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD3, s_WallBlood3, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
+        WallBloodQueue[WallBloodQueueHead] = spawnedActor =
+                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD3, s_WallBlood3, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
     }
     else
     {
-        WallBloodQueue[WallBloodQueueHead] = SpriteNum =
-                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD4, s_WallBlood4, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
+        WallBloodQueue[WallBloodQueueHead] = spawnedActor =
+                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD4, s_WallBlood4, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
     }
 
     WallBloodQueueHead = (WallBloodQueueHead+1) & (MAX_WALLBLOOD_QUEUE-1);
 
-    sp = &sprite[SpriteNum];
-    sp->owner = -1;
+    sp = &spawnedActor->s();
     sp->xrepeat = 30;
     sp->yrepeat = 40;   // yrepeat will grow towards 64, it's default size
     sp->cstat = 0;
@@ -20455,9 +20445,9 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE, 1);
 
     if (sp->sectnum != sectnum)
-        changespritesect(SpriteNum, sectnum);
+        ChangeActorSect(spawnedActor, sectnum);
 
-    return &swActors[SpriteNum];
+    return spawnedActor;
 }
 
 int DoFloorBlood(DSWActor* actor)
@@ -21116,7 +21106,6 @@ void QueueLoWangs(DSWActor* actor)
     ps = sp;
     sp = &NewSprite->s();
     u = NewSprite->u();
-    ClearOwner(NewSprite);
     sp->cstat = 0;
     sp->xrepeat = ps->xrepeat;
     sp->yrepeat = ps->yrepeat;
