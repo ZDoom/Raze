@@ -53,7 +53,7 @@ void DoActorZrange(DSWActor*);
 void PreMapCombineFloors(void);
 void SpriteSetupPost(void);
 int ActorCoughItem(short SpriteNum);
-bool ActorSpawn(SPRITEp sp);
+bool ActorSpawn(DSWActor*);
 int SpawnItemsMatch(short match);
 void PicAnimOff(short picnum);
 int MissileWaterAdjust(short SpriteNum);

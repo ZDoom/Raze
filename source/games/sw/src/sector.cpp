@@ -798,7 +798,7 @@ short DoSpawnActorTrigger(short match)
 
         if (sp->hitag == match)
         {
-            if (ActorSpawn(sp))
+            if (ActorSpawn(actor))
             {
                 DoSpawnTeleporterEffectPlace(actor);
                 PlaySound(DIGI_PLAYER_TELEPORT, sp, v3df_none);

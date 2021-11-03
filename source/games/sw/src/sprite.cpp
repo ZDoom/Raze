@@ -827,14 +827,14 @@ void ChangeState(DSWActor* actor, STATEp statep)
     PicAnimOff(u->State->Pic);
 }
 
-void change_actor_stat(DSWActor* actor, int stat)
+void change_actor_stat(DSWActor* actor, int stat, bool quick)
 {
-    USERp u = actor->u();
 
     changespritestat(actor->GetSpriteIndex(), stat);
 
-    if (u)
+    if (actor->hasU() && !quick)
     {
+        USERp u = actor->u();
         RESET(u->Flags, SPR_SKIP2|SPR_SKIP4);
 
         if (stat >= STAT_SKIP4_START && stat <= STAT_SKIP4_END)
@@ -941,8 +941,7 @@ SpawnUser(DSWActor* actor, short id, STATEp state)
     return SpawnUser(actor->GetSpriteIndex(), id, state);
 }
 
-SECT_USERp
-GetSectUser(short sectnum)
+SECT_USERp GetSectUser(short sectnum)
 {
     SECT_USERp sectu;
 
@@ -958,8 +957,7 @@ GetSectUser(short sectnum)
 }
 
 
-int16_t
-SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int init_ang, int vel)
+int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int init_ang, int vel)
 {
     SPRITEp sp;
     int16_t SpriteNum;
@@ -1018,8 +1016,7 @@ DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, i
 }
 
 
-void
-PicAnimOff(short picnum)
+void PicAnimOff(short picnum)
 {
     short anim_type = TEST(picanm[picnum].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT;
 
@@ -1028,23 +1025,10 @@ PicAnimOff(short picnum)
     if (!anim_type)
         return;
 
-    /*
-    int i;
-    short num;
-    num = picanm[picnum].num;
-    ASSERT(num < 20);
-
-    for (i = 0; i < num; i++)
-    {
-    RESET(picanm[picnum + i].sf, PICANM_ANIMTYPE_MASK);
-    }
-    */
-
     RESET(picanm[picnum].sf, PICANM_ANIMTYPE_MASK);
 }
 
-bool
-IconSpawn(SPRITEp sp)
+bool IconSpawn(SPRITEp sp)
 {
     // if multi item and not a modem game
     if (TEST(sp->extra, SPRX_MULTI_ITEM))
@@ -1056,9 +1040,9 @@ IconSpawn(SPRITEp sp)
     return true;
 }
 
-bool
-ActorTestSpawn(SPRITEp sp)
+bool ActorTestSpawn(DSWActor* actor)
 {
+    auto sp = &actor->s();
     if (sp->statnum == STAT_DEFAULT && sp->lotag == TAG_SPAWN_ACTOR)
     {
         auto actorNew = InsertActor(sp->sectnum, STAT_DEFAULT);
@@ -1118,12 +1102,11 @@ ActorTestSpawn(SPRITEp sp)
 
 int EnemyCheckSkill()
 {
-    StatIterator it(STAT_DEFAULT);
+    SWStatIterator it(STAT_DEFAULT);
     int maxskill = INT_MAX;
-    int SpriteNum;
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[SpriteNum];
+        auto sp = &actor->s();
 
         switch (sp->picnum)
         {
@@ -1155,26 +1138,23 @@ int EnemyCheckSkill()
     return maxskill;
 }
 
-bool
-ActorSpawn(SPRITEp sp)
+bool ActorSpawn(DSWActor* actor)
 {
     bool ret = true;
-    short SpriteNum = short(sp - sprite);
-    auto actor = &swActors[SpriteNum];
-
-    switch (sp->picnum)
+    int picnum = actor->s().picnum;
+    switch (picnum)
     {
     case COOLIE_RUN_R0:
     {
         //PreCacheCoolie();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupCoolie(actor);
 
         break;
@@ -1186,13 +1166,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheNinja();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupNinja(actor);
 
         break;
@@ -1203,13 +1183,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheGuardian();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupGoro(actor);
         break;
     }
@@ -1217,13 +1197,13 @@ ActorSpawn(SPRITEp sp)
     case 1441:
     case COOLG_RUN_R0:
     {
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupCoolg(actor);
         break;
     }
@@ -1233,13 +1213,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheEel();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupEel(actor);
         break;
     }
@@ -1249,13 +1229,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheSumo();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupSumo(actor);
 
         break;
@@ -1266,13 +1246,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheSumo();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupZilla(actor);
 
         break;
@@ -1283,13 +1263,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheToiletGirl();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupToiletGirl(actor);
 
         break;
@@ -1300,13 +1280,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheWashGirl();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupWashGirl(actor);
 
         break;
@@ -1317,13 +1297,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheCarGirl();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupCarGirl(actor);
 
         break;
@@ -1334,13 +1314,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheMechanicGirl();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupMechanicGirl(actor);
 
         break;
@@ -1351,13 +1331,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheSailorGirl();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupSailorGirl(actor);
 
         break;
@@ -1368,13 +1348,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCachePruneGirl();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupPruneGirl(actor);
 
         break;
@@ -1384,7 +1364,7 @@ ActorSpawn(SPRITEp sp)
     {
 
         //PreCacheTrash();
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupTrashCan(actor);
 
         break;
@@ -1395,13 +1375,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheBunny();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupBunny(actor);
         break;
     }
@@ -1411,13 +1391,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheRipper();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupRipper(actor);
         break;
     }
@@ -1427,13 +1407,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheRipper2();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupRipper2(actor);
         break;
     }
@@ -1443,13 +1423,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheSerpent();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupSerp(actor);
         break;
     }
@@ -1457,13 +1437,13 @@ ActorSpawn(SPRITEp sp)
     case LAVA_RUN_R0:
     {
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupLava(actor);
         break;
     }
@@ -1473,13 +1453,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheSkel();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupSkel(actor);
         break;
     }
@@ -1489,13 +1469,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheHornet();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupHornet(actor);
         break;
     }
@@ -1505,13 +1485,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheSkull();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupSkull(actor);
         break;
     }
@@ -1521,13 +1501,13 @@ ActorSpawn(SPRITEp sp)
 
         //PreCacheBetty();
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupBetty(actor);
         break;
     }
@@ -1536,7 +1516,7 @@ ActorSpawn(SPRITEp sp)
     {
 
         //PreCachePachinko();
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupPachinkoLight(actor);
         break;
     }
@@ -1545,7 +1525,7 @@ ActorSpawn(SPRITEp sp)
     {
 
         //PreCachePachinko();
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupPachinko1(actor);
         break;
     }
@@ -1554,7 +1534,7 @@ ActorSpawn(SPRITEp sp)
     {
 
         //PreCachePachinko();
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupPachinko2(actor);
         break;
     }
@@ -1563,7 +1543,7 @@ ActorSpawn(SPRITEp sp)
     {
 
         //PreCachePachinko();
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupPachinko3(actor);
         break;
     }
@@ -1572,7 +1552,7 @@ ActorSpawn(SPRITEp sp)
     {
 
         //PreCachePachinko();
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupPachinko4(actor);
         break;
     }
@@ -1580,13 +1560,13 @@ ActorSpawn(SPRITEp sp)
     case GIRLNINJA_RUN_R0:
     {
 
-        if (!ActorTestSpawn(sp))
+        if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
             return false;
         }
 
-        PicAnimOff(sp->picnum);
+        PicAnimOff(picnum);
         SetupGirlNinja(actor);
 
         break;
@@ -1601,8 +1581,7 @@ ActorSpawn(SPRITEp sp)
 }
 
 
-void
-IconDefault(short SpriteNum)
+void IconDefault(short SpriteNum)
 {
     auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
@@ -1818,9 +1797,7 @@ SpriteSetupPost(void)
 void
 SpriteSetup(void)
 {
-    SPRITEp sp;
-    USERp u;
-    short i, num;
+    short num;
     int cz,fz;
 
     MinEnemySkill = EnemyCheckSkill();
@@ -1831,7 +1808,7 @@ SpriteSetup(void)
     // Clear Sprite Extension structure
 
     // Clear all extra bits - they are set by sprites
-    for (i = 0; i < numsectors; i++)
+    for (int i = 0; i < numsectors; i++)
     {
         SectUser[i].Clear();
         sector[i].extra = 0;
@@ -1851,8 +1828,6 @@ SpriteSetup(void)
     {
         USERp u = actor->u();
         SPRITEp sp = &actor->s();
-        int SpriteNum = actor->GetSpriteIndex();
-
 
         // not used yetv
         getzsofslope(sp->sectnum, sp->x, sp->y, &cz, &fz);
@@ -1943,26 +1918,26 @@ SpriteSetup(void)
             continue;
         }
 
-        if (sprite[SpriteNum].picnum >= TRACK_SPRITE &&
-            sprite[SpriteNum].picnum <= TRACK_SPRITE + MAX_TRACKS)
+        if (sp->picnum >= TRACK_SPRITE &&
+            sp->picnum <= TRACK_SPRITE + MAX_TRACKS)
         {
             short track_num;
 
             // skip this sprite, just for numbering walls/sectors
-            if (TEST(sprite[SpriteNum].cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 continue;
 
-            track_num = sprite[SpriteNum].picnum - TRACK_SPRITE + 0;
+            track_num = sp->picnum - TRACK_SPRITE + 0;
 
             change_actor_stat(actor, STAT_TRACK + track_num);
 
             continue;
         }
 
-        if (ActorSpawn(sp))
+        if (ActorSpawn(actor))
             continue;
 
-        switch (sprite[SpriteNum].picnum)
+        switch (sp->picnum)
         {
         case ST_QUICK_JUMP:
             change_actor_stat(actor, STAT_QUICK_JUMP);
@@ -1991,7 +1966,6 @@ SpriteSetup(void)
 
         case ST1:
         {
-            SPRITEp sp = &sprite[SpriteNum];
             SECT_USERp sectu;
             short tag;
             short bit;
@@ -2278,7 +2252,7 @@ SpriteSetup(void)
                 {
                     ANIMATOR DoGenerateSewerDebris;
 
-                    u = SpawnUser(SpriteNum, 0, nullptr);
+                    u = SpawnUser(actor, 0, nullptr);
 
                     ASSERT(u != nullptr);
                     u->RotNum = 0;
@@ -2296,7 +2270,7 @@ SpriteSetup(void)
                     SECTORp sectp = &sector[sp->sectnum];
                     SECT_USERp sectu;
                     short speed,vel,time,type,start_on,floor_vator;
-                    u = SpawnUser(SpriteNum, 0, nullptr);
+                    u = SpawnUser(actor, 0, nullptr);
 
                     // vator already set - ceiling AND floor vator
                     if (TEST(sectp->extra, SECTFX_VATOR))
@@ -2406,7 +2380,7 @@ SpriteSetup(void)
 					SECTORp sectp = &sector[sp->sectnum];
                     short time,type;
                     short wallcount,startwall,endwall,w;
-                    u = SpawnUser(SpriteNum, 0, nullptr);
+                    u = SpawnUser(actor, 0, nullptr);
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
 
@@ -2467,7 +2441,7 @@ SpriteSetup(void)
                     SECTORp sectp = &sector[sp->sectnum];
                     short time,type;
 
-                    u = SpawnUser(SpriteNum, 0, nullptr);
+                    u = SpawnUser(actor, 0, nullptr);
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
 
@@ -2518,7 +2492,7 @@ SpriteSetup(void)
                 {
                     short speed,vel,time,type,start_on,floor_vator;
                     int floorz,ceilingz,trash;
-                    u = SpawnUser(SpriteNum, 0, nullptr);
+                    u = SpawnUser(actor, 0, nullptr);
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
                     SET(sector[sp->sectnum].extra, SECTFX_DYNAMIC_AREA);
@@ -2631,7 +2605,7 @@ SpriteSetup(void)
                         }
                     }
 
-                    u = SpawnUser(SpriteNum, 0, nullptr);
+                    u = SpawnUser(actor, 0, nullptr);
                     u->WallShade.Resize(wallcount);
                     wall_shade = u->WallShade.Data();
 
@@ -2654,7 +2628,7 @@ SpriteSetup(void)
                     u->spal = sp->pal;
 
                     // DON'T USE COVER function
-                    changespritestat(SpriteNum, STAT_LIGHTING);
+                    change_actor_stat(actor, STAT_LIGHTING, true);
                     break;
                 }
 
@@ -2687,7 +2661,7 @@ SpriteSetup(void)
 
                     // !LIGHT
                     // make an wall_shade array and put it in User
-                    u = SpawnUser(SpriteNum, 0, nullptr);
+                    u = SpawnUser(actor, 0, nullptr);
                     u->WallShade.Resize(wallcount);
                     wall_shade = u->WallShade.Data();
 
@@ -2708,7 +2682,7 @@ SpriteSetup(void)
                     }
 
                     // DON'T USE COVER function
-                    changespritestat(SpriteNum, STAT_LIGHTING_DIFFUSE);
+                    change_actor_stat(actor, STAT_LIGHTING_DIFFUSE, true);
                     break;
                 }
 
@@ -2736,7 +2710,7 @@ SpriteSetup(void)
                 case LAVA_ERUPT:
                 {
 
-                    u = SpawnUser(SpriteNum, ST1, nullptr);
+                    u = SpawnUser(actor, ST1, nullptr);
 
                     change_actor_stat(actor, STAT_NO_STATE);
                     u->ActorActionFunc = DoLavaErupt;
@@ -2895,8 +2869,8 @@ SpriteSetup(void)
                     break;
 
                 case SPAWN_SPOT:
-                    if (!User[SpriteNum].Data())
-                        u = SpawnUser(SpriteNum, ST1, nullptr);
+                    if (!actor->hasU())
+                        u = SpawnUser(actor, ST1, nullptr);
 
                     if (SP_TAG14(sp) == ((64<<8)|64))
                         //SP_TAG14(sp) = 0;
@@ -2908,14 +2882,14 @@ SpriteSetup(void)
                 case VIEW_THRU_CEILING:
                 case VIEW_THRU_FLOOR:
                 {
-                    int i;
                     // make sure there is only one set per level of these
-                    StatIterator it(STAT_FAF);
-                    while ((i = it.NextIndex()) >= 0)
+                    SWStatIterator it(STAT_FAF);
+                    while (auto itActor = it.Next())
                     {
-                        if (sprite[i].hitag == sp->hitag && sprite[i].lotag == sp->lotag)
+                        auto ispr = &itActor->s();
+                        if (ispr->hitag == sp->hitag && ispr->lotag == sp->lotag)
                         {
-                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", sp->x, sp->y, sprite[i].x, sprite[i].y);
+                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", sp->x, sp->y, ispr->x, ispr->y);
                         }
                     }
                     change_actor_stat(actor, STAT_FAF);
@@ -3015,7 +2989,7 @@ SpriteSetup(void)
                 case BOLT_TRAP:
                 case SPEAR_TRAP:
                 {
-                    u = SpawnUser(SpriteNum, 0, nullptr);
+                    u = SpawnUser(actor, 0, nullptr);
                     sp->owner = -1;
                     change_actor_stat(actor, STAT_TRAP);
                     break;
@@ -3153,12 +3127,12 @@ KeyMain:
                     break;
                 }
 
-                u = SpawnUser(SpriteNum, 0, nullptr);
+                u = SpawnUser(actor, 0, nullptr);
 
                 ASSERT(u != nullptr);
-                sprite[SpriteNum].picnum = u->ID = sprite[SpriteNum].picnum;
+                sp->picnum = u->ID = sp->picnum;
 
-                u->spal = sprite[SpriteNum].pal; // Set the palette from build
+                u->spal = sp->pal; // Set the palette from build
 
                 //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
@@ -3183,7 +3157,7 @@ KeyMain:
         case 1852:
         case 2470:
 
-            if (TEST(sprite[SpriteNum].extra, SPRX_MULTI_ITEM))
+            if (TEST(sp->extra, SPRX_MULTI_ITEM))
                 if (numplayers <= 1 || gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                 {
                     KillActor(actor);
@@ -3194,7 +3168,7 @@ KeyMain:
         case FIRE_FLY0:
 
             /*
-             * u = SpawnUser(SpriteNum, FIRE_FLY0, nullptr);
+             * u = SpawnUser(actor, FIRE_FLY0, nullptr);
              *
              * u->State = u->StateStart = &s_FireFly[0]; u->RotNum = 0;
              *
@@ -3218,9 +3192,9 @@ KeyMain:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_REPAIR_KIT, s_RepairKit);
+            u = SpawnUser(actor, ICON_REPAIR_KIT, s_RepairKit);
 
-            IconDefault(SpriteNum);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_STAR:
@@ -3231,9 +3205,9 @@ KeyMain:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_STAR, s_IconStar);
+            u = SpawnUser(actor, ICON_STAR, s_IconStar);
 
-            IconDefault(SpriteNum);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_LG_MINE:
@@ -3244,8 +3218,8 @@ KeyMain:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_LG_MINE, s_IconLgMine);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_LG_MINE, s_IconLgMine);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
 
@@ -3257,9 +3231,9 @@ KeyMain:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_MICRO_GUN, s_IconMicroGun);
+            u = SpawnUser(actor, ICON_MICRO_GUN, s_IconMicroGun);
 
-            IconDefault(SpriteNum);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_MICRO_BATTERY:
@@ -3272,9 +3246,9 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_MICRO_BATTERY, s_IconMicroBattery);
+            u = SpawnUser(actor, ICON_MICRO_BATTERY, s_IconMicroBattery);
 
-            IconDefault(SpriteNum);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_UZI:
@@ -3285,8 +3259,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_UZI, s_IconUzi);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_UZI, s_IconUzi);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_UZIFLOOR:
@@ -3297,8 +3271,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_UZIFLOOR, s_IconUziFloor);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_UZIFLOOR, s_IconUziFloor);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_LG_UZI_AMMO:
@@ -3309,8 +3283,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_LG_UZI_AMMO, s_IconLgUziAmmo);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_LG_UZI_AMMO, s_IconLgUziAmmo);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_GRENADE_LAUNCHER:
@@ -3321,9 +3295,9 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher);
+            u = SpawnUser(actor, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher);
 
-            IconDefault(SpriteNum);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_LG_GRENADE:
@@ -3334,8 +3308,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_LG_GRENADE, s_IconLgGrenade);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_LG_GRENADE, s_IconLgGrenade);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_RAIL_GUN:
@@ -3346,9 +3320,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_RAIL_GUN, s_IconRailGun);
-
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_RAIL_GUN, s_IconRailGun);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_RAIL_AMMO:
@@ -3359,8 +3332,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_RAIL_AMMO, s_IconRailAmmo);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_RAIL_AMMO, s_IconRailAmmo);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
 
@@ -3372,9 +3345,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_ROCKET, s_IconRocket);
-
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_ROCKET, s_IconRocket);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_LG_ROCKET:
@@ -3385,8 +3357,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_LG_ROCKET, s_IconLgRocket);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_LG_ROCKET, s_IconLgRocket);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_SHOTGUN:
@@ -3397,11 +3369,11 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_SHOTGUN, s_IconShotgun);
+            u = SpawnUser(actor, ICON_SHOTGUN, s_IconShotgun);
 
             u->Radius = 350; // Shotgun is hard to pick up for some reason.
 
-            IconDefault(SpriteNum);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_LG_SHOTSHELL:
@@ -3412,8 +3384,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_LG_SHOTSHELL, s_IconLgShotshell);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_LG_SHOTSHELL, s_IconLgShotshell);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_AUTORIOT:
@@ -3424,8 +3396,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_AUTORIOT, s_IconAutoRiot);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_AUTORIOT, s_IconAutoRiot);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
 
@@ -3437,8 +3409,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_GUARD_HEAD, s_IconGuardHead);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_GUARD_HEAD, s_IconGuardHead);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_FIREBALL_LG_AMMO:
@@ -3449,8 +3421,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_HEART:
@@ -3461,8 +3433,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_HEART, s_IconHeart);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_HEART, s_IconHeart);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_HEART_LG_AMMO:
@@ -3473,8 +3445,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
 #if 0
@@ -3486,8 +3458,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_ELECTRO, s_IconElectro);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_ELECTRO, s_IconElectro);
+            IconDefault(actor->GetSpriteIndex());
             break;
 #endif
 
@@ -3499,8 +3471,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_SPELL, s_IconSpell);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_SPELL, s_IconSpell);
+            IconDefault(actor->GetSpriteIndex());
 
             PicAnimOff(sp->picnum);
             break;
@@ -3513,12 +3485,12 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_ARMOR, s_IconArmor);
+            u = SpawnUser(actor, ICON_ARMOR, s_IconArmor);
             if (sp->pal != PALETTE_PLAYER3)
                 sp->pal = u->spal = PALETTE_PLAYER1;
             else
                 sp->pal = u->spal = PALETTE_PLAYER3;
-            IconDefault(SpriteNum);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_MEDKIT:
@@ -3529,8 +3501,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_MEDKIT, s_IconMedkit);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_MEDKIT, s_IconMedkit);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_SM_MEDKIT:
@@ -3541,8 +3513,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_SM_MEDKIT, s_IconSmMedkit);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_SM_MEDKIT, s_IconSmMedkit);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_CHEMBOMB:
@@ -3553,8 +3525,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_CHEMBOMB, s_IconChemBomb);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_CHEMBOMB, s_IconChemBomb);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_FLASHBOMB:
@@ -3565,8 +3537,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_FLASHBOMB, s_IconFlashBomb);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_FLASHBOMB, s_IconFlashBomb);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_NUKE:
@@ -3586,8 +3558,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_NUKE, s_IconNuke);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_NUKE, s_IconNuke);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
 
@@ -3599,8 +3571,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_CALTROPS, s_IconCaltrops);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_CALTROPS, s_IconCaltrops);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_BOOSTER:
@@ -3611,8 +3583,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_BOOSTER, s_IconBooster);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_BOOSTER, s_IconBooster);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
         case ICON_HEAT_CARD:
@@ -3623,8 +3595,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_HEAT_CARD, s_IconHeatCard);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_HEAT_CARD, s_IconHeatCard);
+            IconDefault(actor->GetSpriteIndex());
             break;
 
 #if 0
@@ -3636,8 +3608,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_ENVIRON_SUIT, s_IconEnvironSuit);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_ENVIRON_SUIT, s_IconEnvironSuit);
+            IconDefault(actor->GetSpriteIndex());
             PicAnimOff(sp->picnum);
             break;
 #endif
@@ -3650,8 +3622,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_CLOAK, s_IconCloak);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_CLOAK, s_IconCloak);
+            IconDefault(actor->GetSpriteIndex());
             PicAnimOff(sp->picnum);
             break;
 
@@ -3663,8 +3635,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_FLY, s_IconFly);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_FLY, s_IconFly);
+            IconDefault(actor->GetSpriteIndex());
             PicAnimOff(sp->picnum);
             break;
 
@@ -3676,8 +3648,8 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_NIGHT_VISION, s_IconNightVision);
-            IconDefault(SpriteNum);
+            u = SpawnUser(actor, ICON_NIGHT_VISION, s_IconNightVision);
+            IconDefault(actor->GetSpriteIndex());
             PicAnimOff(sp->picnum);
             break;
 
@@ -3689,11 +3661,11 @@ NUKE_REPLACEMENT:
                 break;
             }
 
-            u = SpawnUser(SpriteNum, ICON_FLAG, s_IconFlag);
+            u = SpawnUser(actor, ICON_FLAG, s_IconFlag);
             u->spal = sp->pal;
             sector[sp->sectnum].hitag = 9000;       // Put flag's color in sect containing it
             sector[sp->sectnum].lotag = u->spal;
-            IconDefault(SpriteNum);
+            IconDefault(actor->GetSpriteIndex());
             PicAnimOff(sp->picnum);
             break;
 
@@ -3709,7 +3681,7 @@ NUKE_REPLACEMENT:
         case 3143:
         case 3157:
         {
-            u = SpawnUser(SpriteNum, sp->picnum, nullptr);
+            u = SpawnUser(actor, sp->picnum, nullptr);
 
             change_actor_stat(actor, STAT_STATIC_FIRE);
 
@@ -3730,7 +3702,7 @@ NUKE_REPLACEMENT:
         case BLADE3:
         case 5011:
         {
-            u = SpawnUser(SpriteNum, sp->picnum, nullptr);
+            u = SpawnUser(actor, sp->picnum, nullptr);
 
             change_actor_stat(actor, STAT_DEFAULT);
 
@@ -3751,7 +3723,7 @@ NUKE_REPLACEMENT:
             //if (TEST(sp->extra, SPRX_BREAKABLE))
             //    break;
 
-            u = SpawnUser(SpriteNum, sp->picnum, nullptr);
+            u = SpawnUser(actor, sp->picnum, nullptr);
 
             sp->clipdist = SPRITEp_SIZE_X(sp);
             SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);

@@ -1917,7 +1917,7 @@ int move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildi
 int move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 DSWActor* DoPickTarget(DSWActor*, uint32_t max_delta_ang, int skip_targets);
 
-void change_actor_stat(DSWActor* actor, int stat);
+void change_actor_stat(DSWActor* actor, int stat, bool quick = false);
 void SetOwner(DSWActor*, DSWActor*, bool flag = true);
 void SetOwner(int a, int b); // we still need this...
 void ClearOwner(DSWActor* ownr);
