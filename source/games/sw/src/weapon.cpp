@@ -11287,7 +11287,7 @@ AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
     // make sure it has a user
     if (!u)
     {
-        u = SpawnUser(SpriteNum, 0, nullptr);
+        u = SpawnUser(actor, 0, nullptr);
     }
 
     // find a free place on this list
@@ -11838,7 +11838,7 @@ DoFireball(DSWActor* actor)
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(short(sp - sprite), hsp->picnum, nullptr);
+                        hu = SpawnUser(&swActors[short(sp - sprite)], hsp->picnum, nullptr);
                     SpawnFireballFlames(Weapon, short(hsp - sprite));
                     hit_burn = true;
                 }

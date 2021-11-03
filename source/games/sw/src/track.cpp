@@ -1133,7 +1133,6 @@ SetupSectorObject(short sectnum, short tag)
         while (auto actor = it.Next())
         {
             SPRITEp sp = &actor->s();
-            int SpriteNum = actor->GetSpriteIndex();
 
             if (sp->statnum == STAT_ST1)
             {
@@ -1193,7 +1192,7 @@ SetupSectorObject(short sectnum, short tag)
                     {
                         USERp u;
                         change_actor_stat(actor, STAT_NO_STATE);
-                        u = SpawnUser(SpriteNum, 0, nullptr);
+                        u = SpawnUser(actor, 0, nullptr);
                         u->ActorActionFunc = nullptr;
                     }
                     break;

@@ -873,18 +873,16 @@ void change_actor_stat(DSWActor* actor, int stat, bool quick)
     }
 }
 
-USERp
-SpawnUser(short SpriteNum, short id, STATEp state)
+USERp SpawnUser(DSWActor* actor, short id, STATEp state)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
 
     USERp u;
 
     ASSERT(!Prediction);
 
-    User[SpriteNum].Clear();    // make sure to delete old, stale content first!
-    User[SpriteNum].Alloc();
+    User[actor->GetSpriteIndex()].Clear();    // make sure to delete old, stale content first!
+    User[actor->GetSpriteIndex()].Alloc();
     u = actor->u();
 
     PRODUCTION_ASSERT(u != nullptr);
@@ -902,8 +900,8 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     u->targetActor = Player[0].Actor();
     u->Radius = 220;
     u->Sibling = -1;
-    u->SpriteP = &sprite[SpriteNum];
-    u->SpriteNum = SpriteNum;
+    u->SpriteP = &actor->s();
+    u->SpriteNum = actor->GetSpriteIndex();
     u->WaitTics = 0;
     u->OverlapZ = Z(4);
     u->bounce = 0;
@@ -935,12 +933,6 @@ SpawnUser(short SpriteNum, short id, STATEp state)
     return u;
 }
 
-USERp
-SpawnUser(DSWActor* actor, short id, STATEp state)
-{
-    return SpawnUser(actor->GetSpriteIndex(), id, state);
-}
-
 SECT_USERp GetSectUser(short sectnum)
 {
     SECT_USERp sectu;
@@ -960,7 +952,6 @@ SECT_USERp GetSectUser(short sectnum)
 int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int init_ang, int vel)
 {
     SPRITEp sp;
-    int16_t SpriteNum;
     USERp u;
 
     if (sectnum < 0)
@@ -968,13 +959,9 @@ int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, in
 
     ASSERT(!Prediction);
 
-    // PRODUCTION_ASSERT(sectnum >= 0 && sectnum < MAXSECTORS);
+    auto spawnedActor = InsertActor(sectnum, stat);
 
-    SpriteNum = COVERinsertsprite(sectnum, stat);
-
-    ASSERT(SpriteNum >= 0 && SpriteNum <= MAXSPRITES);
-
-    sp = &sprite[SpriteNum];
+    sp = &spawnedActor->s();
 
     sp->pal = 0;
     sp->x = x;
@@ -982,7 +969,7 @@ int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, in
     sp->z = z;
     sp->cstat = 0;
 
-    u = SpawnUser(SpriteNum, id, state);
+    u = SpawnUser(spawnedActor, id, state);
 
     // be careful State can be nullptr
     if (u->State)
@@ -1006,7 +993,7 @@ int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, in
     sp->yoffset = 0;
     sp->clipdist = 0;
 
-    return SpriteNum;
+    return spawnedActor->GetSpriteIndex();
 }
 
 DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel)
