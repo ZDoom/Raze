@@ -7930,7 +7930,7 @@ DoStar(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
     //DoDamageTest(Weapon);
 
     if (u->ret && !TEST(u->Flags, SPR_UNDERWATER))
@@ -8120,7 +8120,7 @@ DoCrossBolt(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (u->ret)
     {
@@ -8650,7 +8650,7 @@ DoPlasma(DSWActor* actor)
     }
 
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
     //DoDamageTest(Weapon);
@@ -8687,7 +8687,7 @@ DoCoolgFire(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
@@ -8872,7 +8872,7 @@ DoGrenade(DSWActor* actor)
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -9527,7 +9527,7 @@ DoMine(DSWActor* actor)
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -9710,7 +9710,7 @@ DoBoltThinMan(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -9746,7 +9746,7 @@ DoTracer(DSWActor* actor)
     {
         SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-        MissileHitDiveArea(Weapon);
+        MissileHitDiveArea(actor);
 
         if (u->ret)
         {
@@ -9775,7 +9775,7 @@ DoEMP(DSWActor* actor)
     {
         SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-        MissileHitDiveArea(Weapon);
+        MissileHitDiveArea(actor);
 
         if (RandomRange(1000) > 500)
         {
@@ -9867,7 +9867,7 @@ DoTankShell(DSWActor* actor)
     {
         SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-        MissileHitDiveArea(Weapon);
+        MissileHitDiveArea(actor);
 
         if (u->ret)
         {
@@ -9892,7 +9892,7 @@ DoTracerStart(DSWActor* actor)
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (u->ret)
     {
@@ -9923,7 +9923,7 @@ DoLaser(DSWActor* actor)
     {
         SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-        MissileHitDiveArea(Weapon);
+        MissileHitDiveArea(actor);
 
         if (u->ret)
         {
@@ -9966,7 +9966,7 @@ DoLaserStart(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (u->ret)
     {
@@ -9998,7 +9998,7 @@ DoRail(DSWActor* actor)
     {
         SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-        MissileHitDiveArea(Weapon);
+        MissileHitDiveArea(actor);
 
         if (u->ret)
         {
@@ -10082,7 +10082,7 @@ DoRailStart(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (u->ret)
     {
@@ -10124,7 +10124,7 @@ DoRocket(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -10198,7 +10198,7 @@ DoMicroMini(DSWActor* actor)
     {
         SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-        MissileHitDiveArea(Weapon);
+        MissileHitDiveArea(actor);
 
         if (u->ret)
         {
@@ -10266,7 +10266,7 @@ DoMicro(DSWActor* actor)
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -10352,7 +10352,7 @@ DoUziBullet(DSWActor* actor)
         SetCollision(u, move_missile(Weapon, dax, day, daz, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
         u->Dist += Distance(sx, sy, sp->x, sp->y);
 
-        MissileHitDiveArea(Weapon);
+        MissileHitDiveArea(actor);
 
         if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 128)
             SpawnBubble(actor);
@@ -10418,7 +10418,7 @@ DoBoltSeeker(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
     //DoDamageTest(Weapon);
@@ -10469,7 +10469,7 @@ DoElectro(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
     //DoDamageTest(Weapon);
@@ -10516,7 +10516,7 @@ DoLavaBoulder(DSWActor* actor)
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
     //DoDamageTest(Weapon);
@@ -10546,7 +10546,7 @@ DoSpear(DSWActor* actor)
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -11826,7 +11826,7 @@ DoFireball(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (u->ret)
     {
@@ -12024,7 +12024,7 @@ DoNapalm(DSWActor* actor)
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -12135,7 +12135,7 @@ DoBloodWorm(DSWActor* actor)
         return true;
     }
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (!u->z_tgt)
     {
@@ -12309,15 +12309,10 @@ DoMirv(DSWActor* actor)
     SPRITEp sp = &sprite[Weapon], np;
     USERp nu;
     short New;
-//    int ox, oy, oz;
-
-//    ox = sp->x;
-//    oy = sp->y;
-//    oz = sp->z;
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(Weapon);
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -19687,10 +19682,10 @@ SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
 }
 
 bool
-MissileHitDiveArea(short SpriteNum)
+MissileHitDiveArea(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     // correctly set underwater bit for missiles
     // in Stacked water areas.
@@ -20700,7 +20695,7 @@ DoShrapVelocity(int16_t SpriteNum)
     SetCollision(u, move_missile(SpriteNum, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
-    MissileHitDiveArea(SpriteNum);
+    MissileHitDiveArea(actor);
 
     if (u->ret)
     {
@@ -21041,7 +21036,7 @@ DoItemFly(int16_t SpriteNum)
     SetCollision(u, move_missile(SpriteNum, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
-    MissileHitDiveArea(SpriteNum);
+    MissileHitDiveArea(actor);
 
     if (u->ret)
     {

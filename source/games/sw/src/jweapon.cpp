@@ -399,7 +399,7 @@ int DoBloodSpray(DSWActor* actor)
     }
 
 
-    MissileHitDiveArea(actor->GetSpriteIndex());
+    MissileHitDiveArea(actor);
 
     {
         switch (u->coll.type)
@@ -602,7 +602,7 @@ int DoPhosphorus(DSWActor* actor)
     SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
-    MissileHitDiveArea(actor->GetSpriteIndex());
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -820,7 +820,7 @@ int DoChemBomb(DSWActor* actor)
     SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(actor->GetSpriteIndex());
+    MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
@@ -1063,7 +1063,7 @@ int DoCaltrops(DSWActor* actor)
     SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    MissileHitDiveArea(actor->GetSpriteIndex());
+    MissileHitDiveArea(actor);
 
     {
         switch (u->coll.type)

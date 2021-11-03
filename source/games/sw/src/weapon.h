@@ -167,7 +167,7 @@ bool SpriteOverlap(short, short);
 int SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 int DoActorBeginSlide(DSWActor* actor, short ang, short vel, short dec);
 int GetOverlapSector(int x, int y, short *over, short *under);
-bool MissileHitDiveArea(short SpriteNum);
+bool MissileHitDiveArea(DSWActor*);
 
 int DoDamageTest(DSWActor*);
 
