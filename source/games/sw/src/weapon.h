@@ -228,7 +228,7 @@ int HelpMissileLateral(int16_t Weapon,int dist);
 int AddSpriteToSectorObject(short SpriteNum,SECTOR_OBJECTp sop);
 void QueueReset(void);
 int PlayerCheckDeath(PLAYERp pp,short Weapon);
-bool SpriteWarpToUnderwater(SPRITEp sp);
+bool SpriteWarpToUnderwater(DSWActor* actor);
 int PlayerDamageSlide(PLAYERp pp,int damage,short ang);
 bool VehicleMoveHit(DSWActor*);
 int SpawnSplash(DSWActor*);

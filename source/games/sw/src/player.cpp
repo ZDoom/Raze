@@ -1752,7 +1752,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     sp->z = over_sp->z;
     ChangeActorSect(pp->PlayerUnderActor, over_sp->sectnum);
 
-    SpriteWarpToUnderwater(sp);
+    SpriteWarpToUnderwater(pp->PlayerUnderActor);
 
     // find z water level of the top sector
     // diff between the bottom of the upper sprite and the water level

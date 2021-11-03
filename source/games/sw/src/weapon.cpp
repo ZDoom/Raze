@@ -19426,10 +19426,10 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
 }
 
 
-bool
-SpriteWarpToUnderwater(SPRITEp sp)
+bool SpriteWarpToUnderwater(DSWActor* actor)
 {
-    USERp u = User[sp - sprite].Data();
+    USERp u = actor->u();
+    auto sp = &actor->s();
     int i;
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
@@ -19442,10 +19442,10 @@ SpriteWarpToUnderwater(SPRITEp sp)
         return false;
 
     // search for DIVE_AREA "over" sprite for reference point
-    StatIterator it(STAT_DIVE_AREA);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DIVE_AREA);
+    while (auto itActor = it.Next())
     {
-        over_sp = &sprite[i];
+        over_sp = &itActor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             SectUser[over_sp->sectnum].Data() &&
@@ -19461,9 +19461,9 @@ SpriteWarpToUnderwater(SPRITEp sp)
 
     // search for UNDERWATER "under" sprite for reference point
     it.Reset(STAT_UNDERWATER);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto itActor = it.Next())
     {
-        under_sp = &sprite[i];
+        under_sp = &itActor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             SectUser[under_sp->sectnum].Data() &&
@@ -19489,11 +19489,11 @@ SpriteWarpToUnderwater(SPRITEp sp)
 
     if (GetOverlapSector(sp->x, sp->y, &over, &under) == 2)
     {
-        changespritesect(short(sp - sprite), under);
+        ChangeActorSect(actor, under);
     }
     else
     {
-        changespritesect(short(sp - sprite), over);
+        ChangeActorSect(actor, over);
     }
 
     //sp->z = sector[under_sp->sectnum].ceilingz + Z(6);
@@ -19504,12 +19504,10 @@ SpriteWarpToUnderwater(SPRITEp sp)
     return true;
 }
 
-bool
-SpriteWarpToSurface(SPRITEp sp)
+bool SpriteWarpToSurface(DSWActor* actor)
 {
-    auto actor = &swActors[sp - sprite];
     USERp u = actor->u();
-    int i;
+    auto sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     short over, under;
     int sx, sy;
@@ -19522,10 +19520,10 @@ SpriteWarpToSurface(SPRITEp sp)
         return false;
 
     // search for UNDERWATER "under" sprite for reference point
-    StatIterator it(STAT_UNDERWATER);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_UNDERWATER);
+    while (auto itActor = it.Next())
     {
-        under_sp = &sprite[i];
+        under_sp = &itActor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             SectUser[under_sp->sectnum].Data() &&
@@ -19545,9 +19543,9 @@ SpriteWarpToSurface(SPRITEp sp)
 
     // search for DIVE_AREA "over" sprite for reference point
     it.Reset(STAT_DIVE_AREA);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto itActor = it.Next())
     {
-        over_sp = &sprite[i];
+        over_sp = &itActor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             SectUser[over_sp->sectnum].Data() &&
@@ -19573,7 +19571,7 @@ SpriteWarpToSurface(SPRITEp sp)
 
     if (GetOverlapSector(sp->x, sp->y, &over, &under))
     {
-        changespritesect(short(sp - sprite), over);
+        ChangeActorSect(actor, over);
     }
 
     sp->z = sector[over_sp->sectnum].floorz - Z(2);
@@ -19691,7 +19689,7 @@ bool MissileHitDiveArea(DSWActor* actor)
 
             SET(u->Flags, SPR_UNDERWATER);
             SpawnSplash(actor);
-            SpriteWarpToUnderwater(sp);
+            SpriteWarpToUnderwater(actor);
             SetCollision(u, 0);
             PlaySound(DIGI_PROJECTILEWATERHIT, actor, v3df_none);
             return true;
@@ -19703,7 +19701,7 @@ bool MissileHitDiveArea(DSWActor* actor)
                 return false;
 
             RESET(u->Flags, SPR_UNDERWATER);
-            if (!SpriteWarpToSurface(sp))
+            if (!SpriteWarpToSurface(actor))
             {
                 return false;
             }
@@ -19863,7 +19861,7 @@ int DoBubble(DSWActor* actor)
     {
         if (SectorIsUnderwaterArea(int(u->hi_sectp - sector)))
         {
-            if (!SpriteWarpToSurface(sp))
+            if (!SpriteWarpToSurface(actor))
             {
                 KillActor(actor);
                 return true;
