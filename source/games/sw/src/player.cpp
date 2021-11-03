@@ -7135,7 +7135,6 @@ void InitMultiPlayerInfo(void)
 int DoFootPrints(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (u->PlayerP)
     {
@@ -7147,7 +7146,7 @@ int DoFootPrints(DSWActor* actor)
 
         if (u->PlayerP->NumFootPrints > 0)
         {
-            QueueFootPrint(SpriteNum);
+            QueueFootPrint(actor);
         }
     }
 

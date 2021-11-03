@@ -65,7 +65,7 @@ extern short HoleQueue[MAX_HOLE_QUEUE];
 extern short WallBloodQueueHead;
 extern DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 extern short FloorBloodQueueHead;
-extern short FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
+extern DSWActor* FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 extern short GenericQueueHead;
 extern DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
 extern short LoWangsQueueHead;

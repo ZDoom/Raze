@@ -80,7 +80,7 @@ short HoleQueue[MAX_HOLE_QUEUE];
 short WallBloodQueueHead=0;
 DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 short FloorBloodQueueHead=0;
-short FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
+DSWActor* FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 short GenericQueueHead=0;
 DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
 short LoWangsQueueHead=0;
@@ -19954,8 +19954,8 @@ void SpriteQueueDelete(DSWActor* actor)
             WallBloodQueue[i] = nullptr;
 
     for (i = 0; i < MAX_FLOORBLOOD_QUEUE; i++)
-        if (FloorBloodQueue[i] == SpriteNum)
-            FloorBloodQueue[i] = -1;
+        if (FloorBloodQueue[i] == actor)
+            FloorBloodQueue[i] = nullptr;
 
     for (i = 0; i < MAX_GENERIC_QUEUE; i++)
         if (GenericQueue[i] == actor)
@@ -19988,7 +19988,7 @@ void QueueReset(void)
         WallBloodQueue[i] = nullptr;
 
     for (i = 0; i < MAX_FLOORBLOOD_QUEUE; i++)
-        FloorBloodQueue[i] = -1;
+        FloorBloodQueue[i] = nullptr;
 
     for (i = 0; i < MAX_GENERIC_QUEUE; i++)
         GenericQueue[i] = nullptr;
@@ -20121,7 +20121,7 @@ int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     return SpriteNum;
 }
 
-#define FLOORBLOOD_RATE 30
+enum { FLOORBLOOD_RATE = 30 };
 ANIMATOR DoFloorBlood;
 STATE s_FloorBlood1[] =
 {
@@ -20132,11 +20132,10 @@ STATE s_FloorBlood1[] =
 int QueueFloorBlood(DSWActor* actor)
 {
     USER* u = actor->u();
-    int hit_sprite = u->SpriteNum;
-    SPRITEp hsp = &sprite[hit_sprite];
-    short SpriteNum;
+    SPRITEp hsp = &actor->s();
     SPRITEp sp;
     SECTORp sectp = &sector[hsp->sectnum];
+    DSWActor* spawnedActor = nullptr;
 
 
     if (TEST(sectp->extra, SECTFX_SINK)||TEST(sectp->extra, SECTFX_CURRENT))
@@ -20154,15 +20153,15 @@ int QueueFloorBlood(DSWActor* actor)
     if (TestDontStickSector(hsp->sectnum))
         return -1;   // Not on special sectors you don't
 
-    if (FloorBloodQueue[FloorBloodQueueHead] != -1)
-        KillSprite(FloorBloodQueue[FloorBloodQueueHead]);
+    if (FloorBloodQueue[FloorBloodQueueHead] != nullptr)
+        KillActor(FloorBloodQueue[FloorBloodQueueHead]);
 
-    FloorBloodQueue[FloorBloodQueueHead] = SpriteNum =
-                                               SpawnSprite(STAT_SKIP4, FLOORBLOOD1, s_FloorBlood1, hsp->sectnum, hsp->x, hsp->y, hsp->z, hsp->ang, 0);
+    FloorBloodQueue[FloorBloodQueueHead] = spawnedActor =
+                                               SpawnActor(STAT_SKIP4, FLOORBLOOD1, s_FloorBlood1, hsp->sectnum, hsp->x, hsp->y, hsp->z, hsp->ang, 0);
 
     FloorBloodQueueHead = (FloorBloodQueueHead+1) & (MAX_FLOORBLOOD_QUEUE-1);
 
-    sp = &sprite[SpriteNum];
+    sp = &spawnedActor->s();
     // Stupid hack to fix the blood under the skull to not show through
     // x,y repeat of floor blood MUST be smaller than the sprite above it or clipping probs.
     if (u->ID == GORE_Head)
@@ -20187,13 +20186,16 @@ int QueueFloorBlood(DSWActor* actor)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     RESET(u->Flags, SPR_SHADOW);
 
-    return SpriteNum;
+    return spawnedActor->GetSpriteIndex();
 }
 
-#define FOOTPRINT1 2490
-#define FOOTPRINT2 2491
-#define FOOTPRINT3 2492
-#define FOOTPRINT_RATE 30
+enum
+{
+    FOOTPRINT1 = 2490,
+    FOOTPRINT2 = 2491,
+    FOOTPRINT3 = 2492,
+    FOOTPRINT_RATE = 30,
+};
 ANIMATOR DoFootPrint;
 STATE s_FootPrint1[] =
 {
@@ -20208,12 +20210,12 @@ STATE s_FootPrint3[] =
     {FOOTPRINT3, FOOTPRINT_RATE, NullAnimator, &s_FootPrint3[0]},
 };
 
-int QueueFootPrint(short hit_sprite)
+int QueueFootPrint(DSWActor* actor)
 {
-    SPRITEp hsp = &sprite[hit_sprite];
-    short SpriteNum;
+    SPRITEp hsp = &actor->s();
+    DSWActor* spawnedActor;
     SPRITEp sp;
-    USERp u = User[hit_sprite].Data();
+    USERp u = actor->u();
     USERp nu;
     short rnd_num=0;
     bool Found=false;
@@ -20248,20 +20250,20 @@ int QueueFootPrint(short hit_sprite)
         return -1;   // Not on special sectors you don't
 
     // So, are we like, done checking now!?
-    if (FloorBloodQueue[FloorBloodQueueHead] != -1)
-        KillSprite(FloorBloodQueue[FloorBloodQueueHead]);
+    if (FloorBloodQueue[FloorBloodQueueHead] != nullptr)
+        KillActor(FloorBloodQueue[FloorBloodQueueHead]);
 
     rnd_num = RandomRange(1024);
 
     if (rnd_num > 683)
-        FloorBloodQueue[FloorBloodQueueHead] = SpriteNum =
-                                                   SpawnSprite(STAT_WALLBLOOD_QUEUE, FOOTPRINT1, s_FootPrint1, hsp->sectnum, hsp->x, hsp->y, hsp->z, hsp->ang, 0);
+        FloorBloodQueue[FloorBloodQueueHead] = spawnedActor =
+                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT1, s_FootPrint1, hsp->sectnum, hsp->x, hsp->y, hsp->z, hsp->ang, 0);
     else if (rnd_num > 342)
-        FloorBloodQueue[FloorBloodQueueHead] = SpriteNum =
-                                                   SpawnSprite(STAT_WALLBLOOD_QUEUE, FOOTPRINT2, s_FootPrint2, hsp->sectnum, hsp->x, hsp->y, hsp->z, hsp->ang, 0);
+        FloorBloodQueue[FloorBloodQueueHead] = spawnedActor =
+                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT2, s_FootPrint2, hsp->sectnum, hsp->x, hsp->y, hsp->z, hsp->ang, 0);
     else
-        FloorBloodQueue[FloorBloodQueueHead] = SpriteNum =
-                                                   SpawnSprite(STAT_WALLBLOOD_QUEUE, FOOTPRINT3, s_FootPrint3, hsp->sectnum, hsp->x, hsp->y, hsp->z, hsp->ang, 0);
+        FloorBloodQueue[FloorBloodQueueHead] = spawnedActor =
+                                                   SpawnActor(STAT_WALLBLOOD_QUEUE, FOOTPRINT3, s_FootPrint3, hsp->sectnum, hsp->x, hsp->y, hsp->z, hsp->ang, 0);
 
     FloorBloodQueueHead = (FloorBloodQueueHead+1) & (MAX_FLOORBLOOD_QUEUE-1);
 
@@ -20270,8 +20272,8 @@ int QueueFootPrint(short hit_sprite)
         u->PlayerP->NumFootPrints--;
 
 
-    sp = &sprite[SpriteNum];
-    nu = User[SpriteNum].Data();
+    sp = &spawnedActor->s();
+    nu = spawnedActor->u();
     sp->hitag = 0;
     sp->xrepeat = 48;
     sp->yrepeat = 54;
@@ -20305,14 +20307,17 @@ int QueueFootPrint(short hit_sprite)
     SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    return SpriteNum;
+    return 0;
 }
 
-#define WALLBLOOD1  2500
-#define WALLBLOOD2  2501
-#define WALLBLOOD3  2502
-#define WALLBLOOD4  2503
-#define WALLBLOOD_RATE 30
+enum
+{
+    WALLBLOOD1 = 2500,
+    WALLBLOOD2 = 2501,
+    WALLBLOOD3 = 2502,
+    WALLBLOOD4 = 2503,
+    WALLBLOOD_RATE = 30,
+};
 ANIMATOR DoWallBlood;
 STATE s_WallBlood1[] =
 {
