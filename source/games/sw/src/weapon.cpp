@@ -17288,14 +17288,13 @@ HitscanSpriteAdjust(short SpriteNum, short hit_wall)
     return true;
 }
 
-int
-InitUzi(PLAYERp pp)
+int InitUzi(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     SPRITEp wp, hsp;
     USERp wu;
-    short daang, j;
-    hitdata_t hitinfo;
+    short daang;
+    HITINFO hitinfo;
     int daz, nz;
     int xvect,yvect,zvect;
     short cstat = 0;
@@ -17304,7 +17303,7 @@ InitUzi(PLAYERp pp)
     static int uziclock=0;
     int clockdiff=0;
     bool FireSnd = false;
-    #define UZIFIRE_WAIT 20
+    const int UZIFIRE_WAIT = 20;
 
     void InitUziShell(PLAYERp);
 
@@ -17365,7 +17364,7 @@ InitUzi(PLAYERp pp)
     SetVisHigh();
 
     // check to see what you hit
-    if (hitinfo.sprite < 0 && hitinfo.wall < 0)
+    if (hitinfo.hitactor == nullptr && hitinfo.wall < 0)
     {
         if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
         {
@@ -17424,9 +17423,9 @@ InitUzi(PLAYERp pp)
     }
 
     // hit a sprite?
-    if (hitinfo.sprite >= 0)
+    if (hitinfo.hitactor != nullptr)
     {
-        auto hitActor = &swActors[hitinfo.sprite];
+        auto hitActor = hitinfo.hitactor;
         SPRITEp hsp = &hitActor->s();
         auto hu = hitActor->u();
 
@@ -17435,7 +17434,7 @@ InitUzi(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
 
-                PlaySound(DIGI_TRASHLID, hsp, v3df_none);
+                PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
@@ -17445,58 +17444,57 @@ InitUzi(PLAYERp pp)
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(-1, WPN_UZI, hitinfo.sprite))
+            if (MissileHitMatch(-1, WPN_UZI, hitActor->GetSpriteIndex()))
                 return 0;
         }
 
-        if (TEST(hsp->extra, SPRX_BREAKABLE) && HitBreakSprite(&swActors[hitinfo.sprite],0))
+        if (TEST(hsp->extra, SPRX_BREAKABLE) && HitBreakSprite(hitActor,0))
         {
             return 0;
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->SpriteP, hitActor->GetSpriteIndex(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(&swActors[hitinfo.sprite]);
+            ShootableSwitch(hitActor);
         }
     }
 
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
-    wp = &sprite[j];
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT;
     wp->yrepeat = UZI_SMOKE_REPEAT;
-    SetOwner(pp->PlayerSprite, j);
-    //SET(wp->cstat, cstat | CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
+    SetOwner(pp->Actor(), actorNew);
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(j, hitinfo.wall);
-    DoHitscanDamage(j, hitinfo.sprite);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
+    if (hitinfo.hitactor) DoHitscanDamage(actorNew->GetSpriteIndex(), hitinfo.hitactor->GetSpriteIndex());
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
-    wp = &sprite[j];
-    wu = User[j].Data();
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    wp = &actorNew->s();
+    wu = actorNew->u();
     wp->shade = -40;
     wp->xrepeat = UZI_SPARK_REPEAT;
     wp->yrepeat = UZI_SPARK_REPEAT;
-    SetOwner(pp->PlayerSprite, j);
+    SetOwner(pp->Actor(), actorNew);
     wu->spal = wp->pal = pal;
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(j, hitinfo.wall);
+    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
 
     if (RANDOM_P2(1024) < 100)
     {
-        PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
+        PlaySound(DIGI_RICHOCHET1,actorNew, v3df_none);
     }
     else if (RANDOM_P2(1024) < 100)
-        PlaySound(DIGI_RICHOCHET2,wp, v3df_none);
+        PlaySound(DIGI_RICHOCHET2,actorNew, v3df_none);
 
     return 0;
 }
