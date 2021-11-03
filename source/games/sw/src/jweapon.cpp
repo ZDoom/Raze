@@ -1994,7 +1994,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         wu->zchange = wp->zvel >> 1;
 
         if (!GlobalSkipZrange)
-            DoActorZrange(actorNew->GetSpriteIndex());
+            DoActorZrange(actorNew);
     }
 
     return 0;

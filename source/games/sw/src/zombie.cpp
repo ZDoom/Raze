@@ -804,7 +804,7 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     RESET(nu->Flags, SPR_FALLING);
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(actorNew->GetSpriteIndex());
+    DoActorZrange(actorNew);
 }
 
 void SpawnZombie2(DSWActor* actor)
@@ -862,7 +862,7 @@ void SpawnZombie2(DSWActor* actor)
     RESET(nu->Flags, SPR_FALLING);
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(actorNew->GetSpriteIndex());
+    DoActorZrange(actorNew);
 }
 
 int DoZombieMove(DSWActor* actor)

@@ -7907,7 +7907,7 @@ DoStar(DSWActor* actor)
 
         sp->z += 128 * MISSILEMOVETICS;
 
-        DoActorZrange(Weapon);
+        DoActorZrange(actor);
         MissileWaterAdjust(Weapon);
 
         if (sp->z > u->loz)
@@ -19528,7 +19528,8 @@ SpriteWarpToUnderwater(SPRITEp sp)
 bool
 SpriteWarpToSurface(SPRITEp sp)
 {
-    USERp u = User[sp - sprite].Data();
+    auto actor = &swActors[sp - sprite];
+    USERp u = actor->u();
     int i;
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     short over, under;
@@ -19599,7 +19600,7 @@ SpriteWarpToSurface(SPRITEp sp)
     sp->z = sector[over_sp->sectnum].floorz - Z(2);
 
     // set z range and wade depth so we know how high to set view
-    DoActorZrange(short(sp - sprite));
+    DoActorZrange(actor);
     MissileWaterAdjust(short(sp - sprite));
 
 
@@ -19612,8 +19613,9 @@ SpriteWarpToSurface(SPRITEp sp)
 int
 SpawnSplash(short SpriteNum)
 {
-    USERp u = User[SpriteNum].Data(), wu;
-    SPRITEp sp = User[SpriteNum]->SpriteP, wp;
+    auto actor = &swActors[SpriteNum];
+    USERp u = actor->u(), wu;
+    SPRITEp sp = &actor->s(), wp;
     short w;
 
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
@@ -19630,7 +19632,7 @@ SpawnSplash(short SpriteNum)
 
     PlaySound(DIGI_SPLASH1, sp, v3df_none);
 
-    DoActorZrange(SpriteNum);
+    DoActorZrange(actor);
     MissileWaterAdjust(SpriteNum);
 
     w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sp->sectnum, sp->x, sp->y, u->loz, sp->ang, 0);

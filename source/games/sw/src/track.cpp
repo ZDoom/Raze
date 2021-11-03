@@ -3584,7 +3584,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             // destination z for climbing
             u->sz = sector[wall[hit_wall].nextsector].floorz;
 
-            DoActorZrange(SpriteNum);
+            DoActorZrange(actor);
 
             //
             // Adjust for YCENTERING

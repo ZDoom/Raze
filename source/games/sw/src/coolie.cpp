@@ -466,7 +466,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     u->Personality = person;
     u->ActorActionSet = action;
 
-    DoActorZrange(actor->GetSpriteIndex());
+    DoActorZrange(actor);
 
     //KeepActorOnFloor(actor); // for swimming actors
 

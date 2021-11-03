@@ -1623,7 +1623,7 @@ IconDefault(short SpriteNum)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     u->Radius = 650;
 
-    DoActorZrange(SpriteNum);
+    DoActorZrange(actor);
 }
 
 void PreMapCombineFloors(void)
@@ -3182,42 +3182,11 @@ KeyMain:
                 u->Radius = 500;
                 sp->hitag = LUMINOUS; //Set so keys over ride colored lighting
 
-                DoActorZrange(SpriteNum);
+                DoActorZrange(actor);
             }
 
             break;
 
-
-#if 0
-        case RED_KEY_STATUE:
-            num = 0;
-            goto KeyStatueMain;
-        case BLUE_KEY_STATUE:
-            num = 1;
-            goto KeyStatueMain;
-        case GREEN_KEY_STATUE:
-            num = 2;
-            goto KeyStatueMain;
-        case YELLOW_KEY_STATUE:
-            num = 3;
-KeyStatueMain:
-
-            u = SpawnUser(SpriteNum, 0, nullptr);
-
-            ASSERT(u != nullptr);
-            sprite[SpriteNum].picnum = u->ID = sprite[SpriteNum].picnum;
-
-            u->spal = sp->pal;
-            ChangeState(actor, s_KeyStatue[num]);
-
-            RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
-            RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
-
-            change_actor_stat(actor, STAT_ITEM);
-
-            DoActorZrange(SpriteNum);
-            break;
-#endif
 
         // Used for multiplayer locks
         case 1846:
@@ -4904,11 +4873,10 @@ getzrangepoint(int x, int y, int z, short sectnum,
 }
 
 
-void
-DoActorZrange(short SpriteNum)
+void DoActorZrange(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u(), wu;
+    SPRITEp sp = &actor->s(), wp;
     int ceilhit, florhit;
     short save_cstat;
 
@@ -7016,7 +6984,7 @@ void ActorWarpUpdatePos(short SpriteNum, short sectnum)
     sp->backuppos();
     u->oz = sp->oz;
     ChangeActorSect(actor, sectnum);
-    DoActorZrange(SpriteNum);
+    DoActorZrange(actor);
 }
 
 void MissileWarpType(DSWActor* sp, DSWActor* act_warp)

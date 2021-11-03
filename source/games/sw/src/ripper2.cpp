@@ -1113,7 +1113,7 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
     u->jump_grav = 8;
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(actor->GetSpriteIndex());
+    DoActorZrange(actor);
 
     DoJump(actor);
 
@@ -1273,7 +1273,7 @@ void Ripper2Hatch(DSWActor* actor)
         nu->jump_grav = 8;
 
         // if I didn't do this here they get stuck in the air sometimes
-        DoActorZrange(actorNew->GetSpriteIndex());
+        DoActorZrange(actorNew);
 
         DoJump(actorNew);
     }

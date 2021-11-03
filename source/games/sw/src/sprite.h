@@ -49,7 +49,7 @@ bool CanMoveHere(int16_t spritenum);
 bool SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b);
 int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath);
 void SpriteControl(void);
-void DoActorZrange(short SpriteNum);
+void DoActorZrange(DSWActor*);
 void PreMapCombineFloors(void);
 void SpriteSetupPost(void);
 int ActorCoughItem(short SpriteNum);

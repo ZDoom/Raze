@@ -875,7 +875,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     u->jump_grav = 17; // was 8
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(actor->GetSpriteIndex());
+    DoActorZrange(actor);
 
     DoJump(actor);
 
@@ -903,7 +903,7 @@ int DoBunnyMoveJump(DSWActor* actor)
             DoActorFall(actor);
     }
 
-    DoActorZrange(actor->GetSpriteIndex());
+    DoActorZrange(actor);
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1220,7 +1220,7 @@ void BunnyHatch(DSWActor* actor)
         nu->jump_grav = 8;
 
         // if I didn't do this here they get stuck in the air sometimes
-        DoActorZrange(actorNew->GetSpriteIndex());
+        DoActorZrange(actorNew);
 
         DoActorJump(actorNew);
     }
@@ -1287,7 +1287,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     nu->active_range = 75000; // Set it far
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(actorNew->GetSpriteIndex());
+    DoActorZrange(actorNew);
 
     DoActorJump(actorNew);
 
