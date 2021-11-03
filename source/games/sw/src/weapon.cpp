@@ -17249,15 +17249,13 @@ int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_
     return SpriteNum;
 }
 
-bool
-HitscanSpriteAdjust(short SpriteNum, short hit_wall)
+bool HitscanSpriteAdjust(DSWActor* actor, int hit_wall)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int16_t ang;
     int xvect,yvect;
     int sectnum;
 
-#if 1
     if (hit_wall >= 0)
     {
         uint16_t const w = hit_wall;
@@ -17267,23 +17265,16 @@ HitscanSpriteAdjust(short SpriteNum, short hit_wall)
     }
     else
         ang = sp->ang;
-#endif
 
-#if 0
-    xvect = bcos(ang, -7);
-    yvect = bsin(ang, -7);
-    move_missile(SpriteNum, xvect, yvect, 0L, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, 4L);
-#else
     xvect = bcos(ang, 4);
     yvect = bsin(ang, 4);
 
     // must have this
     sectnum = sp->sectnum;
-    clipmove(&sp->pos, &sectnum, xvect, yvect, 4L, 4L<<8, 4L<<8, CLIPMASK_MISSILE, 1);
+    clipmove(&sp->pos, &sectnum, xvect, yvect, 4, 4<<8, 4L<<8, CLIPMASK_MISSILE);
 
     if (sp->sectnum != sectnum)
-        changespritesect(SpriteNum, sectnum);
-#endif
+        ChangeActorSect(actor, sectnum);
 
     return true;
 }
@@ -17473,7 +17464,7 @@ int InitUzi(PLAYERp pp)
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
+    HitscanSpriteAdjust(actorNew, hitinfo.wall);
     if (hitinfo.hitactor) DoHitscanDamage(actorNew->GetSpriteIndex(), hitinfo.hitactor->GetSpriteIndex());
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
@@ -17487,7 +17478,7 @@ int InitUzi(PLAYERp pp)
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
+    HitscanSpriteAdjust(actorNew, hitinfo.wall);
 
     if (RANDOM_P2(1024) < 100)
     {
@@ -18094,7 +18085,7 @@ SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
+    HitscanSpriteAdjust(actorNew, hit_wall);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wu = actorNew->u();
@@ -18108,7 +18099,7 @@ SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
+    HitscanSpriteAdjust(actorNew, hit_wall);
 
     if (RANDOM_P2(1024) < 100)
         PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
@@ -18136,7 +18127,7 @@ int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int 
     wp->clipdist = 32 >> 2;
 
     if (hit_wall != -1)
-        HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
+        HitscanSpriteAdjust(actorNew, hit_wall);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wu = actorNew->u();
@@ -18152,7 +18143,7 @@ int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int 
     wp->clipdist = 32 >> 2;
 
     if (hit_wall != -1)
-        HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
+        HitscanSpriteAdjust(actorNew, hit_wall);
 
     return 0;
 }
@@ -18174,7 +18165,7 @@ int SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x,
     // This moves it back enough to see it at all angles.
 
     wp->clipdist = 32 >> 2;
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
+    HitscanSpriteAdjust(actorNew, hit_wall);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wu = actorNew->u();
@@ -18186,7 +18177,7 @@ int SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x,
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wp->clipdist = 32 >> 2;
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
+    HitscanSpriteAdjust(actorNew, hit_wall);
 
     if (RANDOM_P2(1024) < 100)
         PlaySound(DIGI_RICHOCHET1, actorNew, v3df_none);
@@ -18211,7 +18202,7 @@ int SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, in
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
+    HitscanSpriteAdjust(actorNew, hit_wall);
 
     actorNew = SpawnActor(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &actorNew->s();
@@ -18226,7 +18217,7 @@ int SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, in
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hit_wall);
+    HitscanSpriteAdjust(actorNew, hit_wall);
 
     return actorNew->GetSpriteIndex();
 }
@@ -18528,7 +18519,7 @@ int InitEnemyUzi(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
+    HitscanSpriteAdjust(actorNew, hitinfo.wall);
     DoHitscanDamage(actorNew->GetSpriteIndex(), hitinfo.hitactor? hitinfo.hitactor->GetSpriteIndex() : -1);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
@@ -18542,7 +18533,7 @@ int InitEnemyUzi(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
+    HitscanSpriteAdjust(actorNew, hitinfo.wall);
 
     if (RANDOM_P2(1024) < 100)
     {
