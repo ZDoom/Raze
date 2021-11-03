@@ -1581,9 +1581,8 @@ bool ActorSpawn(DSWActor* actor)
 }
 
 
-void IconDefault(short SpriteNum)
+void IconDefault(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
@@ -3194,7 +3193,7 @@ KeyMain:
 
             u = SpawnUser(actor, ICON_REPAIR_KIT, s_RepairKit);
 
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_STAR:
@@ -3207,7 +3206,7 @@ KeyMain:
 
             u = SpawnUser(actor, ICON_STAR, s_IconStar);
 
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_LG_MINE:
@@ -3219,7 +3218,7 @@ KeyMain:
             }
 
             u = SpawnUser(actor, ICON_LG_MINE, s_IconLgMine);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
 
@@ -3233,7 +3232,7 @@ KeyMain:
 
             u = SpawnUser(actor, ICON_MICRO_GUN, s_IconMicroGun);
 
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_MICRO_BATTERY:
@@ -3248,7 +3247,7 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_MICRO_BATTERY, s_IconMicroBattery);
 
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_UZI:
@@ -3260,7 +3259,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_UZI, s_IconUzi);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_UZIFLOOR:
@@ -3272,7 +3271,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_UZIFLOOR, s_IconUziFloor);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_LG_UZI_AMMO:
@@ -3284,7 +3283,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_LG_UZI_AMMO, s_IconLgUziAmmo);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_GRENADE_LAUNCHER:
@@ -3297,7 +3296,7 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher);
 
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_LG_GRENADE:
@@ -3309,7 +3308,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_LG_GRENADE, s_IconLgGrenade);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_RAIL_GUN:
@@ -3321,7 +3320,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_RAIL_GUN, s_IconRailGun);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_RAIL_AMMO:
@@ -3333,7 +3332,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_RAIL_AMMO, s_IconRailAmmo);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
 
@@ -3346,7 +3345,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_ROCKET, s_IconRocket);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_LG_ROCKET:
@@ -3358,7 +3357,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_LG_ROCKET, s_IconLgRocket);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_SHOTGUN:
@@ -3373,7 +3372,7 @@ NUKE_REPLACEMENT:
 
             u->Radius = 350; // Shotgun is hard to pick up for some reason.
 
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_LG_SHOTSHELL:
@@ -3385,7 +3384,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_LG_SHOTSHELL, s_IconLgShotshell);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_AUTORIOT:
@@ -3397,7 +3396,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_AUTORIOT, s_IconAutoRiot);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
 
@@ -3410,7 +3409,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_GUARD_HEAD, s_IconGuardHead);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_FIREBALL_LG_AMMO:
@@ -3422,7 +3421,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_HEART:
@@ -3434,7 +3433,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_HEART, s_IconHeart);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_HEART_LG_AMMO:
@@ -3446,7 +3445,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
 #if 0
@@ -3459,7 +3458,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_ELECTRO, s_IconElectro);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 #endif
 
@@ -3472,7 +3471,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_SPELL, s_IconSpell);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
 
             PicAnimOff(sp->picnum);
             break;
@@ -3490,7 +3489,7 @@ NUKE_REPLACEMENT:
                 sp->pal = u->spal = PALETTE_PLAYER1;
             else
                 sp->pal = u->spal = PALETTE_PLAYER3;
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_MEDKIT:
@@ -3502,7 +3501,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_MEDKIT, s_IconMedkit);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_SM_MEDKIT:
@@ -3514,7 +3513,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_SM_MEDKIT, s_IconSmMedkit);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_CHEMBOMB:
@@ -3526,7 +3525,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_CHEMBOMB, s_IconChemBomb);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_FLASHBOMB:
@@ -3538,7 +3537,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_FLASHBOMB, s_IconFlashBomb);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_NUKE:
@@ -3559,7 +3558,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_NUKE, s_IconNuke);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
 
@@ -3572,7 +3571,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_CALTROPS, s_IconCaltrops);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_BOOSTER:
@@ -3584,7 +3583,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_BOOSTER, s_IconBooster);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
         case ICON_HEAT_CARD:
@@ -3596,7 +3595,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_HEAT_CARD, s_IconHeatCard);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             break;
 
 #if 0
@@ -3609,7 +3608,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_ENVIRON_SUIT, s_IconEnvironSuit);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             PicAnimOff(sp->picnum);
             break;
 #endif
@@ -3623,7 +3622,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_CLOAK, s_IconCloak);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             PicAnimOff(sp->picnum);
             break;
 
@@ -3636,7 +3635,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_FLY, s_IconFly);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             PicAnimOff(sp->picnum);
             break;
 
@@ -3649,7 +3648,7 @@ NUKE_REPLACEMENT:
             }
 
             u = SpawnUser(actor, ICON_NIGHT_VISION, s_IconNightVision);
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             PicAnimOff(sp->picnum);
             break;
 
@@ -3665,7 +3664,7 @@ NUKE_REPLACEMENT:
             u->spal = sp->pal;
             sector[sp->sectnum].hitag = 9000;       // Put flag's color in sect containing it
             sector[sp->sectnum].lotag = u->spal;
-            IconDefault(actor->GetSpriteIndex());
+            IconDefault(actor);
             PicAnimOff(sp->picnum);
             break;
 
@@ -4160,7 +4159,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_REPAIR_KIT, s_RepairKit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4171,7 +4170,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_STAR, s_IconStar, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4182,7 +4181,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_MINE, s_IconLgMine, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4193,7 +4192,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_GUN, s_IconMicroGun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4204,7 +4203,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_BATTERY, s_IconMicroBattery, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4215,7 +4214,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4226,7 +4225,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_GRENADE, s_IconLgGrenade, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4237,7 +4236,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_GUN, s_IconRailGun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4248,7 +4247,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_AMMO, s_IconRailAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4259,7 +4258,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_ROCKET, s_IconRocket, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4270,7 +4269,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_SHOTGUN, s_IconShotgun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4281,7 +4280,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_SHOTSHELL, s_IconLgShotshell, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4292,7 +4291,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4303,7 +4302,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4314,7 +4313,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4325,7 +4324,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4340,7 +4339,7 @@ int SpawnItemsMatch(short match)
             sp = &spawnedActor->s();
             u = spawnedActor->u();
             SET(u->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
 
@@ -4357,7 +4356,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_MEDKIT, s_IconMedkit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4368,7 +4367,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_SM_MEDKIT, s_IconSmMedkit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4379,7 +4378,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_CHEMBOMB, s_IconChemBomb, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4390,7 +4389,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_FLASHBOMB, s_IconFlashBomb, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4401,7 +4400,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_NUKE, s_IconNuke, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4412,7 +4411,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_CALTROPS, s_IconCaltrops, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4423,7 +4422,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_BOOSTER, s_IconBooster, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4434,7 +4433,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_HEAT_CARD, s_IconHeatCard, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4445,7 +4444,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_CLOAK, s_IconCloak, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4456,7 +4455,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_NIGHT_VISION, s_IconNightVision, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4468,7 +4467,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_UZI_AMMO, s_IconLgUziAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4479,7 +4478,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4490,7 +4489,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4502,7 +4501,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_UZIFLOOR, s_IconUziFloor, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -4516,7 +4515,7 @@ int SpawnItemsMatch(short match)
 
             spawnedActor = SpawnActor(STAT_ITEM, ICON_UZI, s_IconUzi, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
-            IconDefault(spawnedActor->GetSpriteIndex());
+            IconDefault(spawnedActor);
 
             SetupItemForJump(itActor, spawnedActor);
             break;
@@ -6556,11 +6555,10 @@ SpriteControl(void)
     int tx, ty, tmin, dist;
     short StateTics;
 
-    StatIterator it(STAT_MISC);
+    SWStatIterator it(STAT_MISC);
     while ((i = it.NextIndex()) >= 0)
     {
         StateControl(i);
-        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
     }
 
     // Items and skip2 things
@@ -6754,9 +6752,9 @@ SpriteControl(void)
     }
 
     it.Reset(STAT_SUICIDE);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        KillSprite(i);
+        KillActor(actor);
     }
 }
 
