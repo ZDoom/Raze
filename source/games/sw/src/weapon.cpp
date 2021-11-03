@@ -76,7 +76,7 @@ int ShellCount = 0;
 short StarQueueHead=0;
 DSWActor* StarQueue[MAX_STAR_QUEUE];
 short HoleQueueHead=0;
-short HoleQueue[MAX_HOLE_QUEUE];
+DSWActor* HoleQueue[MAX_HOLE_QUEUE];
 short WallBloodQueueHead=0;
 DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 short FloorBloodQueueHead=0;
@@ -19946,8 +19946,8 @@ void SpriteQueueDelete(DSWActor* actor)
             StarQueue[i] = nullptr;
 
     for (i = 0; i < MAX_HOLE_QUEUE; i++)
-        if (HoleQueue[i] == SpriteNum)
-            HoleQueue[i] = -1;
+        if (HoleQueue[i] == actor)
+            HoleQueue[i] = nullptr;
 
     for (i = 0; i < MAX_WALLBLOOD_QUEUE; i++)
         if (WallBloodQueue[i] == actor)
@@ -19982,7 +19982,7 @@ void QueueReset(void)
         StarQueue[i] = nullptr;
 
     for (i = 0; i < MAX_HOLE_QUEUE; i++)
-        HoleQueue[i] = -1;
+        HoleQueue[i] = nullptr;
 
     for (i = 0; i < MAX_WALLBLOOD_QUEUE; i++)
         WallBloodQueue[i] = nullptr;
@@ -20063,26 +20063,26 @@ int QueueStar(short SpriteNum)
     return actor->GetSpriteIndex();
 }
 
-int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
+void QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
 {
     short w,nw,wall_ang;
-    short SpriteNum;
+    DSWActor* spawnedActor;
     int nx,ny;
     SPRITEp sp;
     int sectnum;
 
 
     if (TestDontStick(-1,hit_wall))
-        return -1;
+        return;
 
-    if (HoleQueue[HoleQueueHead] == -1)
-        HoleQueue[HoleQueueHead] = SpriteNum = COVERinsertsprite(hit_sect, STAT_HOLE_QUEUE);
+    if (HoleQueue[HoleQueueHead] == nullptr)
+        HoleQueue[HoleQueueHead] = spawnedActor = InsertActor(hit_sect, STAT_HOLE_QUEUE);
     else
-        SpriteNum = HoleQueue[HoleQueueHead];
+        spawnedActor = HoleQueue[HoleQueueHead];
 
     HoleQueueHead = (HoleQueueHead+1) & (MAX_HOLE_QUEUE-1);
 
-    sp = &sprite[SpriteNum];
+    sp = &spawnedActor->s();
     sp->xrepeat = sp->yrepeat = 16;
     sp->cstat = 0;
     sp->pal = 0;
@@ -20094,7 +20094,7 @@ int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     sp->y = hit_y;
     sp->z = hit_z;
     sp->picnum = 2151;
-    changespritesect(SpriteNum, hit_sect);
+    ChangeActorSect(spawnedActor, hit_sect);
 
     ASSERT(sp->statnum != MAXSTATUS);
 
@@ -20116,9 +20116,8 @@ int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE, 1);
 
     if (sp->sectnum != sectnum)
-        changespritesect(SpriteNum, sectnum);
+        ChangeActorSect(spawnedActor, sectnum);
 
-    return SpriteNum;
 }
 
 enum { FLOORBLOOD_RATE = 30 };

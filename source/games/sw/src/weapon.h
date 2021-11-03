@@ -61,7 +61,7 @@ enum
 extern short StarQueueHead;
 extern DSWActor* StarQueue[MAX_STAR_QUEUE];
 extern short HoleQueueHead;
-extern short HoleQueue[MAX_HOLE_QUEUE];
+extern DSWActor* HoleQueue[MAX_HOLE_QUEUE];
 extern short WallBloodQueueHead;
 extern DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 extern short FloorBloodQueueHead;
@@ -76,7 +76,7 @@ void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);
 SECTOR_OBJECTp DetectSectorObject(SECTORp);
 SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);
 void ScaleSpriteVector(DSWActor* actor, int scale);
-int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z);
+void QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z);
 DSWActor* QueueWallBlood(DSWActor* hit, short ang);
 bool SlopeBounce(DSWActor*, bool *hit_wall);
 bool HitscanSpriteAdjust(short SpriteNum, short hit_wall);
