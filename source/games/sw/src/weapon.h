@@ -69,7 +69,7 @@ extern short FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 extern short GenericQueueHead;
 extern short GenericQueue[MAX_GENERIC_QUEUE];
 extern short LoWangsQueueHead;
-extern short LoWangsQueue[MAX_LOWANGS_QUEUE];
+extern DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
 
 void ChangeState(DSWActor* actor, STATEp statep);
 void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);

@@ -4600,8 +4600,7 @@ int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
 }
 
 
-bool
-SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
+bool SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
 {
     SPRITEp spa = &sprite[spritenum_a], spb = &sprite[spritenum_b];
 

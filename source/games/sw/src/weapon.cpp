@@ -84,7 +84,7 @@ short FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 short GenericQueueHead=0;
 short GenericQueue[MAX_GENERIC_QUEUE];
 short LoWangsQueueHead=0;
-short LoWangsQueue[MAX_LOWANGS_QUEUE];
+DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
 int SpawnBreakStaticFlames(short);
 
 bool GlobalSkipZrange = false;
@@ -19970,8 +19970,8 @@ void SpriteQueueDelete(DSWActor* actor)
             GenericQueue[i] = -1;
 
     for (i = 0; i < MAX_LOWANGS_QUEUE; i++)
-        if (LoWangsQueue[i] == SpriteNum)
-            LoWangsQueue[i] = -1;
+        if (LoWangsQueue[i] == actor)
+            LoWangsQueue[i] = nullptr;
 }
 
 
@@ -20002,7 +20002,7 @@ void QueueReset(void)
         GenericQueue[i] = -1;
 
     for (i = 0; i < MAX_LOWANGS_QUEUE; i++)
-        LoWangsQueue[i] = -1;
+        LoWangsQueue[i] = nullptr;
 }
 
 bool TestDontStick(short SpriteNum, short hit_wall)
@@ -21102,62 +21102,58 @@ DoItemFly(int16_t SpriteNum)
 }
 
 // This is the FAST queue, it doesn't call any animator functions or states
-int QueueLoWangs(short SpriteNum)
+void QueueLoWangs(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s(),ps;
     USERp u;
-    short NewSprite;
+    DSWActor* NewSprite;
 
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
-        return -1;
+        return;
     }
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
-        return -1;
+        return;
     }
 
     if (TestDontStickSector(sp->sectnum))
     {
-        return -1;
+        return;
     }
 
-    if (LoWangsQueue[LoWangsQueueHead] == -1)
+    if (LoWangsQueue[LoWangsQueueHead] == nullptr)
     {
         LoWangsQueue[LoWangsQueueHead] = NewSprite =
-                                             SpawnSprite(STAT_GENERIC_QUEUE, sp->picnum, s_DeadLoWang, sp->sectnum,
+                                             SpawnActor(STAT_GENERIC_QUEUE, sp->picnum, s_DeadLoWang, sp->sectnum,
                                                          sp->x, sp->y, sp->z, sp->ang, 0);
     }
     else
     {
         // move old sprite to new sprite's place
-        setspritez(LoWangsQueue[LoWangsQueueHead], &sp->pos);
+        SetActorZ(LoWangsQueue[LoWangsQueueHead], &sp->pos);
         NewSprite = LoWangsQueue[LoWangsQueueHead];
-        ASSERT(sprite[NewSprite].statnum != MAXSTATUS);
+        ASSERT(NewSprite->s().statnum != MAXSTATUS);
     }
 
     // Point passed in sprite to ps
     ps = sp;
-    sp = &sprite[NewSprite];
-    u = User[NewSprite].Data();
-    ASSERT(sp);
-    sp->owner = -1;
+    sp = &NewSprite->s();
+    u = NewSprite->u();
+    ClearOwner(NewSprite);
     sp->cstat = 0;
     sp->xrepeat = ps->xrepeat;
     sp->yrepeat = ps->yrepeat;
     sp->shade = ps->shade;
     u->spal = sp->pal = ps->pal;
-    change_actor_stat(&swActors[NewSprite],STAT_DEFAULT); // Breakable
+    change_actor_stat(NewSprite, STAT_DEFAULT); // Breakable
     SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
     SET(sp->extra, SPRX_BREAKABLE);
     SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
 
     LoWangsQueueHead = (LoWangsQueueHead+1) & (MAX_LOWANGS_QUEUE-1);
-
-    return SpriteNum;
 }
 
 

@@ -5859,7 +5859,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHT))
         {
             if (pp->DeathType == PLAYER_DEATH_FLIP || pp->DeathType == PLAYER_DEATH_RIPPER)
-                QueueLoWangs(pp->PlayerSprite);
+                QueueLoWangs(pp->Actor());
         }
         else
         {
