@@ -17502,14 +17502,13 @@ InitUzi(PLAYERp pp)
 }
 
 // Electro Magnetic Pulse gun
-int
-InitEMP(PLAYERp pp)
+int InitEMP(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     SPRITEp wp, hsp=nullptr;
     USERp wu;
-    short daang, j;
-    hitdata_t hitinfo;
+    short daang;
+    HITINFO hitinfo;
     int daz, nz;
     short cstat = 0;
 
@@ -17542,15 +17541,14 @@ InitEMP(PLAYERp pp)
                daz,              // Z vector of 3D ang
                &hitinfo, CLIPMASK_MISSILE);
 
-    j = SpawnSprite(STAT_MISSILE, EMP, s_EMPBurst, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    auto missileActor = SpawnActor(STAT_MISSILE, EMP, s_EMPBurst, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
 
-    auto missileActor = &swActors[j];
-    wp = &sprite[j];
-    wu = User[j].Data();
+    wp = &missileActor->s();
+    wu = missileActor->u();
 
     wu->WaitTics = SEC(7);
     wp->shade = -127;
-    SetOwner(pp->PlayerSprite, j);
+    SetOwner(pp->Actor(), missileActor);
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
@@ -17562,7 +17560,7 @@ InitEMP(PLAYERp pp)
     SetVisHigh();
 
     // check to see what you hit
-    if (hitinfo.sprite < 0 && hitinfo.wall < 0)
+    if (hitinfo.hitactor == nullptr && hitinfo.wall < 0)
     {
         if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
         {
@@ -17595,7 +17593,7 @@ InitEMP(PLAYERp pp)
             }
         }
 
-        HitscanSpriteAdjust(j, hitinfo.wall);
+        HitscanSpriteAdjust(missileActor->GetSpriteIndex(), hitinfo.wall);
         if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
         {
             HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
@@ -17604,36 +17602,36 @@ InitEMP(PLAYERp pp)
     }
 
     // hit a sprite?
-    if (hitinfo.sprite >= 0)
+    if (hitinfo.hitactor != nullptr)
     {
-        hsp = &sprite[hitinfo.sprite];
+        hsp = &hitinfo.hitactor->s();
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(-1, WPN_UZI, hitinfo.sprite))
+            if (MissileHitMatch(-1, WPN_UZI, hitinfo.hitactor->GetSpriteIndex()))
                 return 0;
         }
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(&swActors[hitinfo.sprite],0);
+            HitBreakSprite(hitinfo.hitactor,0);
             //return(0);
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z,0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.hitactor->GetSpriteIndex(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z,0))
             //return(0);
 
             // hit a switch?
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
             {
-                ShootableSwitch(&swActors[hitinfo.sprite]);
+                ShootableSwitch(hitinfo.hitactor);
             }
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
             // attach weapon to sprite
-            SetAttach(&swActors[hitinfo.sprite], missileActor);
-            wu->sz = sprite[hitinfo.sprite].z - wp->z;
+            SetAttach(hitinfo.hitactor, missileActor);
+            wu->sz = hitinfo.hitactor->s().z - wp->z;
             if (RandomRange(1000) > 500)
                 PlayerSound(DIGI_YOULOOKSTUPID, v3df_follow|v3df_dontpan,pp);
         }
@@ -17653,7 +17651,7 @@ InitEMP(PLAYERp pp)
             }
             else
             {
-                KillSprite(j);
+                KillActor(missileActor);
                 return false;
             }
         }
@@ -17662,25 +17660,23 @@ InitEMP(PLAYERp pp)
     return 0;
 }
 
-int
-InitTankShell(short SpriteNum, PLAYERp pp)
+int InitTankShell(DSWActor* actor, PLAYERp pp)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
-    short w;
 
     if (!SW_SHAREWARE)
         PlaySound(DIGI_CANNON, pp, v3df_dontpan|v3df_doppler);
 
-    w = SpawnSprite(STAT_MISSILE, 0, s_TankShell, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_TankShell, sp->sectnum,
                     sp->x, sp->y, sp->z, sp->ang, TANK_SHELL_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wu = actorNew->u();
+    wp = &actorNew->s();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 8;
     wp->xrepeat = 8;
     wp->shade = -40;
@@ -17697,7 +17693,7 @@ InitTankShell(short SpriteNum, PLAYERp pp)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
-    WeaponAutoAim(sp, w, 64, false);
+    WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 64, false);
     // a bit of randomness
     wp->ang += RandomRange(30) - 15;
     wp->ang = NORM_ANGLE(wp->ang);
@@ -18171,7 +18167,7 @@ int InitSobjGun(PLAYERp pp)
                 SpawnVis(actor, -1, -1, -1, -1, 8);
                 SpawnBigGunFlames(actor->GetSpriteIndex(), pp->PlayerSprite, pp->sop, false);
                 SetGunQuake(actor->GetSpriteIndex());
-                InitTankShell(actor->GetSpriteIndex(), pp);
+                InitTankShell(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 80;
                 else
