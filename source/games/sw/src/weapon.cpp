@@ -17919,15 +17919,13 @@ InitTurretFireball(short SpriteNum, PLAYERp pp)
     return 0;
 }
 
-int
-InitTurretRail(short SpriteNum, PLAYERp pp)
+int InitTurretRail(DSWActor* actor, PLAYERp pp)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -17941,20 +17939,20 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursectnum,
                     nx, ny, nz, sp->ang, 1200);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wu = actorNew->u();
+    wp = &actorNew->s();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 52;
     wp->xrepeat = 52;
     wp->shade = -15;
     wp->zvel = -pp->horizon.horiz.asq16() >> 9;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rail[0]);
+    NewStateGroup(actorNew, &sg_Rail[0]);
 
     wu->Radius = 200;
     wu->ceiling_dist = Z(1);
@@ -17965,7 +17963,7 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
 
     wp->clipdist = 64L>>2;
 
-    if (WeaponAutoAim(pp->SpriteP, w, 32, false) == -1)
+    if (WeaponAutoAim(pp->SpriteP, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang);
     }
@@ -17977,15 +17975,13 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
     return 0;
 }
 
-int
-InitTurretLaser(short SpriteNum, PLAYERp pp)
+int InitTurretLaser(DSWActor* actor, PLAYERp pp)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
@@ -17999,13 +17995,13 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursectnum,
                     nx, ny, nz, sp->ang, 300);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wu = actorNew->u();
+    wp = &actorNew->s();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 52;
     wp->xrepeat = 52;
     wp->shade = -15;
@@ -18021,7 +18017,7 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
     SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     wp->clipdist = 64L>>2;
 
-    if (WeaponAutoAim(sp, w, 32, false) == -1)
+    if (WeaponAutoAim(ac, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang);
     }
@@ -18199,7 +18195,7 @@ int InitSobjGun(PLAYERp pp)
             case 2:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretLaser(actor->GetSpriteIndex(), pp);
+                InitTurretLaser(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 120;
                 else
@@ -18208,7 +18204,7 @@ int InitSobjGun(PLAYERp pp)
             case 3:
                 if (SW_SHAREWARE) break;
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                InitTurretRail(actor->GetSpriteIndex(), pp);
+                InitTurretRail(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 120;
                 else
