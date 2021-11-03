@@ -19667,8 +19667,7 @@ SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
     return 0;
 }
 
-bool
-MissileHitDiveArea(DSWActor* actor)
+bool MissileHitDiveArea(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
@@ -19683,14 +19682,9 @@ MissileHitDiveArea(DSWActor* actor)
             RESET(u->Flags, SPR_UNDERWATER);
     }
 
-    if (!u->ret)
-        return false;
-
-    switch (TEST(u->ret, HIT_MASK))
+    if (u->coll.type == kHitSector)
     {
-    case HIT_SECTOR:
-    {
-        short hit_sect = NORM_SECTOR(u->ret);
+        short hit_sect = u->coll.index;
 
         if (SpriteInDiveArea(sp))
         {
@@ -19703,10 +19697,10 @@ MissileHitDiveArea(DSWActor* actor)
                 return false;
 
             SET(u->Flags, SPR_UNDERWATER);
-            SpawnSplash(short(sp - sprite));
+            SpawnSplash(actor->GetSpriteIndex());
             SpriteWarpToUnderwater(sp);
             SetCollision(u, 0);
-            PlaySound(DIGI_PROJECTILEWATERHIT, sp, v3df_none);
+            PlaySound(DIGI_PROJECTILEWATERHIT, actor, v3df_none);
             return true;
         }
         else if (SpriteInUnderwaterArea(sp))
@@ -19720,15 +19714,11 @@ MissileHitDiveArea(DSWActor* actor)
             {
                 return false;
             }
-            SpawnSplash(short(sp - sprite));
+            SpawnSplash(actor->GetSpriteIndex());
             SetCollision(u, 0);
             return true;
         }
-
-        break;
     }
-    }
-
     return false;
 }
 
