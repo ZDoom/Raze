@@ -19071,8 +19071,7 @@ InitEnemyMine(DSWActor* actor)
     return 0;
 }
 
-int
-HelpMissileLateral(int16_t Weapon, int dist)
+int HelpMissileLateral(int16_t Weapon, int dist)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon].Data();
@@ -19101,13 +19100,12 @@ HelpMissileLateral(int16_t Weapon, int dist)
 }
 
 
-int
-InitFireball(PLAYERp pp)
+int InitFireball(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     SPRITEp wp;
     int nx = 0, ny = 0, nz;
-    short w;
     USERp wu;
     int zvel;
 
@@ -19126,51 +19124,46 @@ InitFireball(PLAYERp pp)
 
     nz = pp->posz + pp->bob_z + Z(15);
 
-    w = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), FIREBALL_VELOCITY);
-    wp = &sprite[w];
-    wu = User[w].Data();
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), FIREBALL_VELOCITY);
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     wp->hitag = LUMINOUS; //Always full brightness
     wp->xrepeat = 40;
     wp->yrepeat = 40;
     wp->shade = -40;
     wp->clipdist = 32>>2;
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wu->Radius = 100;
 
     wu->ceiling_dist = Z(6);
     wu->floor_dist = Z(6);
-    //zvel = -MulScale(pp->horizon.horiz.asq16(), 100 + ADJUST, 16);
     zvel = -MulScale(pp->horizon.horiz.asq16(), 240, 16);
-
-    //wu->RotNum = 5;
-    //NewStateGroup(&swActors[w], &sg_Fireball);
-    //SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto oclipdist = sp->clipdist;
+    sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 2100);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 2100);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    if (TestMissileSetPos(w, DoFireball, 1200, MulScale(zvel,44000, 16)))
+    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoFireball, 1200, MulScale(zvel,44000, 16)))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
 
-    pp->SpriteP->clipdist = oclipdist;
+    sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAimZvel(pp->SpriteP, w, &zvel, 32, false) == -1)
+    if (WeaponAutoAimZvel(sp, actorNew->GetSpriteIndex(), &zvel, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 9);
     }
