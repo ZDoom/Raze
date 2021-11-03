@@ -20375,7 +20375,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     if (hitinfo.sect < 0)
         return nullptr;
 
-#define WALLBLOOD_DIST_MAX 2500
+    const int WALLBLOOD_DIST_MAX = 2500;
     if (Distance(hitinfo.pos.x, hitinfo.pos.y, hsp->x, hsp->y) > WALLBLOOD_DIST_MAX)
         return nullptr;
 
@@ -20460,15 +20460,13 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     return &swActors[SpriteNum];
 }
 
-#define FEET_IN_BLOOD_DIST 300
-int
-DoFloorBlood(DSWActor* actor)
+int DoFloorBlood(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    const int FEET_IN_BLOOD_DIST = 300;
 
-    SPRITEp psp = User[SpriteNum]->SpriteP;
+    USER* u = actor->u();
+    SPRITEp sp = &actor->s();
+
     int dist, near_dist = FEET_IN_BLOOD_DIST, a,b,c;
     short pnum;
     PLAYERp pp;
@@ -20504,10 +20502,7 @@ DoFloorBlood(DSWActor* actor)
         {
             pp = &Player[pnum];
 
-            DISTANCE(psp->x, psp->y, pp->posx, pp->posy, dist, a, b, c);
-
-//      //DSPRINTF(ds,"dist = %ld\n",dist);
-//      MONO_PRINT(ds);
+            DISTANCE(sp->x, sp->y, pp->posx, pp->posy, dist, a, b, c);
 
             if (dist < near_dist)
             {
@@ -20524,8 +20519,6 @@ DoFloorBlood(DSWActor* actor)
                     if (sp->yrepeat <= 10)  // Shrink it down and don't use it anymore
                         sp->xrepeat = sp->yrepeat = 4;
                 }
-//          //DSPRINTF(ds,"pp->NumFootPrints = %d\n",pp->NumFootPrints);
-//          MONO_PRINT(ds);
             }
         }
     }
@@ -20533,12 +20526,9 @@ DoFloorBlood(DSWActor* actor)
     return 0;
 }
 
-int
-DoWallBlood(DSWActor* actor)
+int DoWallBlood(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     // Make blood drip down the wall
     if (sp->yrepeat < 80)
