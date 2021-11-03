@@ -4570,13 +4570,9 @@ int SpawnItemsMatch(short match)
     return 0;
 }
 
-// CTW MODIFICATION
-//void
-int
-// CTW MODIFICATION END
-NewStateGroup_(short SpriteNum, STATEp StateGroup[])
+int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     //if (Prediction)
     //    return;
@@ -4599,18 +4595,8 @@ NewStateGroup_(short SpriteNum, STATEp StateGroup[])
 
     // turn anims off because people keep setting them in the
     // art file
-    RESET(picanm[sprite[SpriteNum].picnum].sf, PICANM_ANIMTYPE_MASK);
+    RESET(picanm[actor->s().picnum].sf, PICANM_ANIMTYPE_MASK);
     return 0;
-}
-
-int NewStateGroup_(USERp user, STATEp StateGroup[])
-{
-	return NewStateGroup_(user->SpriteNum, StateGroup);
-}
-
-int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
-{
-    return NewStateGroup_(actor->GetSpriteIndex(), StateGroup);
 }
 
 

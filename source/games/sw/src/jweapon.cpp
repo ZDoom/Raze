@@ -1343,7 +1343,6 @@ int PlayerInitChemBomb(PLAYERp pp)
     }
 
 //    wu->RotNum = 5;
-//    NewStateGroup_(w, &sg_ChemBomb);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     SetOwner(pp->Actor(), actorNew);

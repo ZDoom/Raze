@@ -1836,8 +1836,6 @@ ANIMATOR NullAnimator;
 
 int Distance(int x1, int y1, int x2, int y2);
 
-int NewStateGroup_(short SpriteNum, STATEp SpriteGroup[]);
-int NewStateGroup_(USERp user, STATEp SpriteGroup[]);
 int NewStateGroup(DSWActor* actor, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
 //USERp SpawnUser(short SpriteNum, short id, STATEp state);
