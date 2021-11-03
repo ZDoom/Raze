@@ -19866,12 +19866,10 @@ SpawnSmokePuff(DSWActor* actor)
 }
 
 
-int
-DoBubble(DSWActor* actor)
+int DoBubble(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     sp->z -= sp->zvel;
     sp->zvel += 32;
@@ -19893,7 +19891,7 @@ DoBubble(DSWActor* actor)
 
     if (sp->z < sector[sp->sectnum].ceilingz)
     {
-        if (SectorIsUnderwaterArea(u->hi_sectp - sector))
+        if (SectorIsUnderwaterArea(int(u->hi_sectp - sector)))
         {
             if (!SpriteWarpToSurface(sp))
             {
@@ -19938,7 +19936,7 @@ DoBubble(DSWActor* actor)
 // with the drivables, copy sectors, break sprites, etc
 void SpriteQueueDelete(DSWActor* actor)
 {
-    int i;
+    size_t i;
     int SpriteNum = actor->GetSpriteIndex();
 
     for (i = 0; i < MAX_STAR_QUEUE; i++)
@@ -19969,7 +19967,7 @@ void SpriteQueueDelete(DSWActor* actor)
 
 void QueueReset(void)
 {
-    short i;
+    size_t i;
     StarQueueHead=0;
     HoleQueueHead=0;
     WallBloodQueueHead=0;

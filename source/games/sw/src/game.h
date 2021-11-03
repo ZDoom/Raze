@@ -217,13 +217,6 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = LittleShort((short)val)
 #define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = LittleShort((short)val)
 
-// OVER and UNDER water macros
-#define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false)
-#define SpriteInUnderwaterArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
-
-#define SectorIsDiveArea(sect) (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false)
-#define SectorIsUnderwaterArea(sect) (TEST(sector[sect].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
-
 #define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
 
@@ -2204,6 +2197,27 @@ struct GameInterface : public ::GameInterface
     GameStats getStats() override;
 };
 
+
+// OVER and UNDER water macros
+inline bool SpriteInDiveArea(SPRITEp sp)
+{
+    return (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false);
+}
+
+inline bool SpriteInUnderwaterArea(SPRITEp sp)
+{
+    return (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+}
+
+inline bool SectorIsDiveArea(int sect)
+{
+    return (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false);
+}
+
+inline bool SectorIsUnderwaterArea(int sect)
+{
+    return (TEST(sector[sect].extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+}
 
 END_SW_NS
 
