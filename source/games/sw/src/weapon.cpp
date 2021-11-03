@@ -18878,19 +18878,16 @@ InitGrenade(PLAYERp pp)
     return 0;
 }
 
-int
-InitSpriteGrenade(DSWActor* actor)
+int InitSpriteGrenade(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
 
 
-    PlaySound(DIGI_30MMFIRE, sp, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_30MMFIRE, actor, v3df_dontpan|v3df_doppler);
 
     nx = sp->x;
     ny = sp->y;
@@ -18898,20 +18895,20 @@ InitSpriteGrenade(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    w = SpawnSprite(STAT_MISSILE, GRENADE, &s_Grenade[0][0], sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], sp->sectnum,
                     nx, ny, nz, sp->ang, GRENADE_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Grenade[0]);
+    NewStateGroup(actorNew, &sg_Grenade[0]);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
     if (u->ID == ZOMBIE_RUN_R0)
-        SetOwner(sp->owner, w);
+        SetOwner(GetOwner(actor), actorNew);
     else
-        SetOwner(SpriteNum, w);
+        SetOwner(actor, actorNew);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
     wp->shade = -15;
@@ -18934,12 +18931,12 @@ InitSpriteGrenade(DSWActor* actor)
     wu->zchange = wp->zvel;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 800);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 800);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     // don't do smoke for this movement
     SET(wu->Flags, SPR_BOUNCE);
-    MissileSetPos(w, DoGrenade, 400);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoGrenade, 400);
     RESET(wu->Flags, SPR_BOUNCE);
 
     return 0;
@@ -20612,7 +20609,6 @@ int DoShrapVelocity(DSWActor* actor)
         {
             short wall_ang;
             SPRITEp hsp;
-//                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
 
             auto hit_sprite = u->coll.actor;
             hsp = &hit_sprite->s();
@@ -20632,9 +20628,6 @@ int DoShrapVelocity(DSWActor* actor)
 
             hit_wall = u->coll.index;
             wph = &wall[hit_wall];
-
-
-//                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
 
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
