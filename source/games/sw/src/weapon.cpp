@@ -18945,14 +18945,12 @@ InitSpriteGrenade(DSWActor* actor)
     return 0;
 }
 
-int
-InitMine(PLAYERp pp)
+int InitMine(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     int dot;
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
@@ -18969,13 +18967,13 @@ InitMine(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, MINE, s_Mine, pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), MINE_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
     wp->shade = -15;
@@ -18988,14 +18986,12 @@ InitMine(PLAYERp pp)
     wu->Counter = 0;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-    wu->spal = wp->pal = User[pp->PlayerSprite]->spal; // Set sticky color
+    wu->spal = wp->pal = u->spal; // Set sticky color
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    //wp->zvel = -pp->horizon.horiz.asq16() >> 9;
-
-    MissileSetPos(w, DoMine, 800);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoMine, 800);
 
     wu->zchange = wp->zvel>>1;
     wu->xchange = MOVEx(wp->xvel, wp->ang);
