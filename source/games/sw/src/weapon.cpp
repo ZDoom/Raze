@@ -19185,12 +19185,10 @@ InitFireball(PLAYERp pp)
 int InitEnemyFireball(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP, fp = nullptr;
+    SPRITEp sp = &actor->s(), fp = nullptr;
     SPRITEp wp;
     int nz, dist;
     int size_z;
-    short w;
     USERp wu;
     SPRITEp tsp;
     int i, targ_z, xchange, ychange;
@@ -19200,11 +19198,9 @@ int InitEnemyFireball(DSWActor* actor)
         512, -512
     };
 
-    ASSERT(SpriteNum >= 0);
-
     tsp = &u->targetActor->s();
 
-    PlaySound(DIGI_FIREBALL1, sp, v3df_none);
+    PlaySound(DIGI_FIREBALL1, actor, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = NORM_ANGLE(getangle(tsp->x - sp->x, tsp->y - sp->y));
@@ -19218,30 +19214,29 @@ int InitEnemyFireball(DSWActor* actor)
 
     for (i = 0; i < 2; i++)
     {
-        w = SpawnSprite(STAT_MISSILE, GORO_FIREBALL, s_Fireball, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, GORO_FIREBALL, s_Fireball, sp->sectnum,
                         sp->x, sp->y, nz, sp->ang, GORO_FIREBALL_VELOCITY);
 
-        wp = &sprite[w];
-        wu = User[w].Data();
+        wp = &actorNew->s();
+        wu = actorNew->u();
 
         wp->hitag = LUMINOUS; //Always full brightness
         wp->xrepeat = 20;
         wp->yrepeat = 20;
         wp->shade = -40;
         
-        SetOwner(SpriteNum, w);
+        SetOwner(actor, actorNew);
         wp->zvel = 0;
         wp->clipdist = 16>>2;
 
         wp->ang = NORM_ANGLE(wp->ang + lat_ang[i]);
-        HelpMissileLateral(w, 500L);
+        HelpMissileLateral(actorNew->GetSpriteIndex(), 500);
         wp->ang = NORM_ANGLE(wp->ang - lat_ang[i]);
 
         wu->xchange = xchange;
         wu->ychange = ychange;
 
-        //MissileSetPos(w, DoFireball, 700);
-        MissileSetPos(w, DoFireball, 700);
+        MissileSetPos(actorNew->GetSpriteIndex(), DoFireball, 700);
 
         if (i == 0)
         {
