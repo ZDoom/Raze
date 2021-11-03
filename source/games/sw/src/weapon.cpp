@@ -45,7 +45,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-int SpawnZombie2(short);
+void SpawnZombie2(DSWActor*);
 int move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 void DoPlayerBeginDie(PLAYERp);
 void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
@@ -5657,7 +5657,6 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 {
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite].Data();
-    int SpawnZombie(PLAYERp pp, short);
 
 
     // Store off what player was struck by
@@ -12194,7 +12193,7 @@ DoBloodWorm(DSWActor* actor)
                 }
             }
 
-            SpawnZombie2(Weapon);
+            SpawnZombie2(actor);
             KillActor(actor);
             return true;
         }
