@@ -6947,10 +6947,9 @@ void ActorWarpType(DSWActor* sp, DSWActor* act_warp)
 // This moves a small projectile with FAFgetzrangepoint
 //
 
-int
-MissileWaterAdjust(short SpriteNum)
+int MissileWaterAdjust(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     if (u->lo_sectp)
     {
@@ -7046,7 +7045,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
 
     // getzrangepoint moves water down
     // missiles don't need the water to be down
-    MissileWaterAdjust(spritenum);
+    MissileWaterAdjust(actor);
 
     clippos.z = sp->z + ((zchange * numtics) >> 3);
 
@@ -7264,13 +7263,6 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
         SET(retval, HIT_PLAX_WALL);
         return retval;
     }
-
-    // getzrangepoint moves water down
-    // missiles don't need the water to be down
-    //MissileWaterAdjust(spritenum);
-
-    //if (FAF_ConnectArea(sp->sectnum))
-    //    setspritez(spritenum, &sp->pos);
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {

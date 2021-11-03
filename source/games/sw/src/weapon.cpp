@@ -3897,7 +3897,7 @@ DoVomit(DSWActor* actor)
     {
         ChangeState(actor, s_VomitSplash);
         DoFindGroundPoint(actor);
-        MissileWaterAdjust(SpriteNum);
+        MissileWaterAdjust(actor);
         sp->z = u->loz;
         u->WaitTics = 60;
         u->sx = sp->xrepeat;
@@ -7904,7 +7904,7 @@ DoStar(DSWActor* actor)
         sp->z += 128 * MISSILEMOVETICS;
 
         DoActorZrange(actor);
-        MissileWaterAdjust(Weapon);
+        MissileWaterAdjust(actor);
 
         if (sp->z > u->loz)
         {
@@ -12057,7 +12057,7 @@ DoNapalm(DSWActor* actor)
         eu->Radius = 1500;
 
         DoFindGroundPoint(expActor);
-        MissileWaterAdjust(explosion);
+        MissileWaterAdjust(expActor);
         exp->z = eu->loz;
         exp->backupz();
 
@@ -19315,7 +19315,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
 
     // set z range and wade depth so we know how high to set view
     DoActorZrange(actor);
-    MissileWaterAdjust(short(sp - sprite));
+    MissileWaterAdjust(actor);
 
 
     sp->backuppos();
@@ -19344,7 +19344,7 @@ int SpawnSplash(DSWActor* actor)
     PlaySound(DIGI_SPLASH1, actor, v3df_none);
 
     DoActorZrange(actor);
-    MissileWaterAdjust(actor->GetSpriteIndex());
+    MissileWaterAdjust(actor);
 
     auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sp->sectnum, sp->x, sp->y, u->loz, sp->ang, 0);
     wp = &actorNew->s();

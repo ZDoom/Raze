@@ -56,7 +56,7 @@ int ActorCoughItem(DSWActor*);
 bool ActorSpawn(DSWActor*);
 int SpawnItemsMatch(short match);
 void PicAnimOff(short picnum);
-int MissileWaterAdjust(short SpriteNum);
+int MissileWaterAdjust(DSWActor*);
 bool SpriteOverlapZ(int16_t spritenum_a,int16_t spritenum_b,int z_overlap);
 
 enum
