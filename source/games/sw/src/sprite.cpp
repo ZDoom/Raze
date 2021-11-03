@@ -756,17 +756,18 @@ void KillSprite(int16_t SpriteNum)
             // don't bother th check if you've never had children
             for (stat = 0; stat < STAT_DONT_DRAW; stat++)
             {
-                StatIterator it(stat);
-                while ((i = it.NextIndex()) >= 0)
+                SWStatIterator it(stat);
+                while (auto itActor = it.Next())
                 {
-                    if (sprite[i].owner == SpriteNum)
+                    if (GetOwner(itActor) == actor)
                     {
-                        sprite[i].owner = -1;
+                        ClearOwner(itActor);
                     }
 
-                    if (User[i].Data() && User[i]->attachActor == actor)
+                    
+                    if (itActor->hasU() && itActor->u()->attachActor == actor)
                     {
-                        User[i]->attachActor = nullptr;
+                        itActor->u()->attachActor = nullptr;
                     }
                 }
             }
@@ -774,11 +775,10 @@ void KillSprite(int16_t SpriteNum)
 
         if (sp->statnum == STAT_ENEMY)
         {
-            StatIterator it(STAT_ENEMY);
-            while ((i = it.NextIndex()) >= 0)
+            SWStatIterator it(STAT_ENEMY);
+            while (auto itActor = it.Next())
             {
-                auto itActor = &swActors[i];
-                if ((unsigned)i < MAXSPRITES && User[i].Data() != nullptr && User[i]->targetActor == actor)
+                if (itActor->hasU() && itActor->u()->targetActor == actor)
                 {
                     DoActorPickClosePlayer(itActor);
                 }
@@ -792,10 +792,10 @@ void KillSprite(int16_t SpriteNum)
         User[SpriteNum].Clear();
     }
 
-    FVector3 pos = GetSoundPos(&sprite[SpriteNum].pos);
-    soundEngine->RelinkSound(SOURCE_Actor, &sprite[SpriteNum], nullptr, &pos);
+    FVector3 pos = GetSoundPos(&actor->s().pos);
+    soundEngine->RelinkSound(SOURCE_Actor, &actor->s(), nullptr, &pos);
 
-    deletesprite(SpriteNum);
+    deletesprite(actor->GetSpriteIndex());
     // shred your garbage - but not statnum
     statnum = sp->statnum;
     sectnum = sp->sectnum;
