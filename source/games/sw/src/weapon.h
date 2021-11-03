@@ -240,7 +240,7 @@ int SpawnBoltExp(int16_t Weapon);
 int SpawnTracerExp(int16_t Weapon);
 int SpawnGoroFireballExp(int16_t Weapon);
 bool MissileHitMatch(short Weapon,short WeaponNum,short hit_sprite);
-int DoItemFly(int16_t SpriteNum);
+int DoItemFly(DSWActor*);
 int SpawnVehicleSmoke(DSWActor* actor);
 short PrevWall(short wall_num);
 int DoDamage(short SpriteNum,short Weapon);

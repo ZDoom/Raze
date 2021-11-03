@@ -21007,12 +21007,10 @@ bool CheckBreakToughness(BREAK_INFOp break_info, short ID)
     return true;   // It wasn't tough, go ahead and break it
 }
 
-int
-DoItemFly(int16_t SpriteNum)
+int DoItemFly(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -21027,23 +21025,21 @@ DoItemFly(int16_t SpriteNum)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(SpriteNum, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 
     MissileHitDiveArea(actor);
 
-    if (u->ret)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang;
-            short hit_sprite = -2;
+            auto hit_sprite = u->coll.actor;
             SPRITEp hsp;
 
-            hit_sprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hit_sprite];
+            hsp = &hit_sprite->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -21060,12 +21056,12 @@ DoItemFly(int16_t SpriteNum)
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
             short hit_wall,nw,wall_ang;
             WALLp wph;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
             wph = &wall[hit_wall];
 
             nw = wall[hit_wall].point2;
@@ -21076,7 +21072,7 @@ DoItemFly(int16_t SpriteNum)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             // hit floor
             if (sp->z > DIV2(u->hiz + u->loz))

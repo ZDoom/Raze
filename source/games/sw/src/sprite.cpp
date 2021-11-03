@@ -5490,7 +5490,7 @@ DoGet(DSWActor* actor)
 
     if (sp->xvel)
     {
-        if (!DoItemFly(SpriteNum))
+        if (!DoItemFly(actor))
         {
             sp->xvel = 0;
             change_actor_stat(actor, STAT_ITEM);
