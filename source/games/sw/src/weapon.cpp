@@ -19740,9 +19740,9 @@ DSWActor* SpawnBubble(DSWActor* actor)
     if (Prediction)
         return nullptr;
 
-    auto bActor = SpawnActor(STAT_MISSILE, BUBBLE, s_Bubble, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
-    bp = &bActor->s();
-    bu = bActor->u();
+    auto actorNew = SpawnActor(STAT_MISSILE, BUBBLE, s_Bubble, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
+    bp = &actorNew->s();
+    bu = actorNew->u();
 
     bp->xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
     bp->yrepeat = bp->xrepeat;
@@ -19758,15 +19758,13 @@ DSWActor* SpawnBubble(DSWActor* actor)
     SET(bu->Flags, SPR_UNDERWATER);
     bp->shade = -60; // Make em brighter
 
-    return bActor;
+    return actorNew;
 }
 
-int
-DoVehicleSmoke(DSWActor* actor)
+int DoVehicleSmoke(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     sp->z -= sp->zvel;
 
@@ -19777,35 +19775,27 @@ DoVehicleSmoke(DSWActor* actor)
     return false;
 }
 
-int
-DoWaterSmoke(DSWActor* actor)
+int DoWaterSmoke(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-
+    SPRITEp sp = &actor->s();
     sp->z -= sp->zvel;
-
     return false;
 }
 
-int
-SpawnVehicleSmoke(DSWActor* actor)
+int SpawnVehicleSmoke(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum],np;
+    SPRITEp sp = &actor->s(),np;
     USERp nu;
-    short New;
 
     if (MoveSkip2 != 0)
         return false;
 
-    New = SpawnSprite(STAT_MISSILE, PUFF, s_VehicleSmoke, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_VehicleSmoke, sp->sectnum,
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
-    np = &sprite[New];
-    nu = User[New].Data();
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     nu->WaitTics = 1*120;
     np->shade = -40;
@@ -19828,20 +19818,17 @@ SpawnVehicleSmoke(DSWActor* actor)
     return false;
 }
 
-int
-SpawnSmokePuff(DSWActor* actor)
+int SpawnSmokePuff(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum],np;
+    SPRITEp sp = &actor->s(),np;
     USERp nu;
-    short New;
 
-    New = SpawnSprite(STAT_MISSILE, PUFF, s_WaterSmoke, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_WaterSmoke, sp->sectnum,
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
-    np = &sprite[New];
-    nu = User[New].Data();
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     nu->WaitTics = 1*120;
     np->shade = -40;
@@ -19937,7 +19924,6 @@ int DoBubble(DSWActor* actor)
 void SpriteQueueDelete(DSWActor* actor)
 {
     size_t i;
-    int SpriteNum = actor->GetSpriteIndex();
 
     for (i = 0; i < MAX_STAR_QUEUE; i++)
         if (StarQueue[i] == actor)
