@@ -14030,11 +14030,10 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
     return hit_sprite;
 }
 
-int
-WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
+DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 {
-    auto actor = &swActors[sp - sprite];
     USERp u = actor->u();
+    auto sp = &actor->s();
     int dist;
     int zh;
     int xvect;
@@ -14044,7 +14043,7 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
     {
         if (!Autoaim(u->PlayerP->pnum))
         {
-            return -1;
+            return nullptr;
         }
     }
 
@@ -14080,7 +14079,7 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
         }
     }
 
-    return hitActor == nullptr? -1 : hitActor->GetSpriteIndex();
+    return hitActor;
 }
 
 void
@@ -14495,7 +14494,7 @@ InitShotgun(PLAYERp pp)
     sp = pp->SpriteP;
 
     daang = 64;
-    if (WeaponAutoAimHitscan(sp, &daz, &daang, false) != -1)
+    if (WeaponAutoAimHitscan(pp->Actor(), &daz, &daang, false) != nullptr)
     {
     }
     else
@@ -17344,7 +17343,7 @@ InitUzi(PLAYERp pp)
     nz = pp->posz + pp->bob_z;
     daz = pp->posz + pp->bob_z;
     daang = 32;
-    if (WeaponAutoAimHitscan(pp->SpriteP, &daz, &daang, false) != -1)
+    if (WeaponAutoAimHitscan(pp->Actor(), &daz, &daang, false) != nullptr)
     {
         daang += RandomRange(24) - 12;
         daang = NORM_ANGLE(daang);
@@ -17535,7 +17534,7 @@ InitEMP(PLAYERp pp)
 
     daz = nz = pp->posz + pp->bob_z;
     daang = 64;
-    if (WeaponAutoAimHitscan(pp->SpriteP, &daz, &daang, false) != -1)
+    if (WeaponAutoAimHitscan(pp->Actor(), &daz, &daang, false) != nullptr)
     {
     }
     else
@@ -18044,6 +18043,7 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
 int
 InitSobjMachineGun(short SpriteNum, PLAYERp pp)
 {
+    DSWActor* actor = &swActors[SpriteNum];
     USERp u = User[SpriteNum].Data();
     SPRITEp sp = u->SpriteP;
     short daang;
@@ -18068,7 +18068,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
         InitTracerTurret(short(sp - sprite), pp->PlayerSprite, pp->horizon.horiz.asq16());
 
     daang = 64;
-    if (WeaponAutoAimHitscan(sp, &daz, &daang, false) != -1)
+    if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
     {
         daz += RandomRange(Z(30)) - Z(15);
         //daz += 0;
@@ -18449,9 +18449,9 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             {
                 // only auto aim for Z
                 daang = 512;
-                auto hit = WeaponAutoAimHitscan(sp, &daz, &daang, false);
-                hitinfo.hitactor = hit == -1 ? nullptr : &swActors[hit];
-                if (hitinfo.hitactor != nullptr)
+                auto hit = WeaponAutoAimHitscan(actor, &daz, &daang, false);
+                hitinfo.hitactor = hit;
+                if (hit != nullptr)
                 {
                     delta = short(abs(getincangle(sp->ang, daang)));
                     if (delta > 128)
@@ -18463,7 +18463,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                     {
                         // always shoot the ground when tracking
                         // and not close
-                        WeaponHitscanShootFeet(sp, &hitinfo.hitactor->s(), &daz);
+                        WeaponHitscanShootFeet(sp, &hit->s(), &daz);
 
                         daang = sp->ang;
                         daang = NORM_ANGLE(daang + RANDOM_P2(32) - 16);
@@ -18481,7 +18481,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             else
             {
                 daang = 64;
-                if (WeaponAutoAimHitscan(sp, &daz, &daang, false) != -1)
+                if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
                 {
                     daz += RandomRange(Z(30)) - Z(15);
                 }
