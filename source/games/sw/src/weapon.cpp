@@ -18033,23 +18033,18 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
     return 0;
 }
 
-int
-InitSobjMachineGun(short SpriteNum, PLAYERp pp)
+int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
 {
-    DSWActor* actor = &swActors[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     short daang;
-    hitdata_t hitinfo;
+    HITINFO hitinfo;
     short nsect;
     int daz;
     int nx,ny,nz;
     short cstat = 0;
     short spark;
-    //static sound = 0;
 
-    //sound = (++sound)&1;
-    //if (sound == 0)
     PlaySound(DIGI_BOATFIRE, pp, v3df_dontpan|v3df_doppler);
 
     nx = sp->x;
@@ -18058,7 +18053,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
     nsect = sp->sectnum;
 
     if (RANDOM_P2(1024) < 200)
-        InitTracerTurret(short(sp - sprite), pp->PlayerSprite, pp->horizon.horiz.asq16());
+        InitTracerTurret(actor->GetSpriteIndex(), pp->PlayerSprite, pp->horizon.horiz.asq16());
 
     daang = 64;
     if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
@@ -18088,7 +18083,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
         return 0;
     }
 
-    if (hitinfo.sprite < 0 && hitinfo.wall < 0)
+    if (hitinfo.hitactor == nullptr && hitinfo.wall < 0)
     {
         if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
         {
@@ -18110,38 +18105,38 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
     }
 
     // hit a sprite?
-    if (hitinfo.sprite >= 0)
+    if (hitinfo.hitactor != nullptr)
     {
-        SPRITEp hsp = &sprite[hitinfo.sprite];
+        SPRITEp hsp = &hitinfo.hitactor->s();
 
-        if (sprite[hitinfo.sprite].lotag == TAG_SPRITE_HIT_MATCH)
+        if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
             spark = SpawnBoatSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
             SET(User[spark]->Flags2, SPR2_SO_MISSILE);
-            if (MissileHitMatch(spark, -1, hitinfo.sprite))
+            if (MissileHitMatch(spark, -1, hitinfo.hitactor->GetSpriteIndex()))
                 return 0;
             return 0;
         }
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(&swActors[hitinfo.sprite],0);
+            HitBreakSprite(hitinfo.hitactor, 0);
             return 0;
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.hitactor->GetSpriteIndex(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(&swActors[hitinfo.sprite]);
+            ShootableSwitch(hitinfo.hitactor);
         }
     }
 
     spark = SpawnBoatSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-    DoHitscanDamage(spark, hitinfo.sprite);
+    DoHitscanDamage(spark, hitinfo.hitactor->GetSpriteIndex());
 
     return 0;
 }
@@ -18195,7 +18190,7 @@ int InitSobjGun(PLAYERp pp)
             case 1:
                 SpawnVis(actor, -1, -1, -1, -1, 32);
                 SpawnBigGunFlames(actor->GetSpriteIndex(), pp->PlayerSprite, pp->sop, true);
-                InitSobjMachineGun(actor->GetSpriteIndex(), pp);
+                InitSobjMachineGun(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 10;
                 else
