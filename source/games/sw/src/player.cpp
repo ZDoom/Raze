@@ -3431,7 +3431,7 @@ void DoPlayerClimb(PLAYERp pp)
 
 int DoPlayerWadeSuperJump(PLAYERp pp)
 {
-    hitdata_t hitinfo;
+    HITINFO hitinfo;
     unsigned i;
     //short angs[3];
     static short angs[3] = {0, 0, 0};
@@ -3735,7 +3735,7 @@ bool PlayerOnLadder(PLAYERp pp)
     int dist, nx, ny;
     unsigned i;
     SPRITEp lsp;
-    hitdata_t hitinfo;
+    HITINFO hitinfo;
     int dir;
 
     int neartaghitdist;
@@ -3778,12 +3778,13 @@ bool PlayerOnLadder(PLAYERp pp)
 
         dist = DIST(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y);
 
-        if (hitinfo.sprite >= 0)
+        if (hitinfo.hitactor != nullptr)
         {
+            int cstat = hitinfo.hitactor->s().cstat;
             // if the sprite blocking you hit is not a wall sprite there is something between
             // you and the ladder
-            if (TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_BLOCK) &&
-                !TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
+            if (TEST(cstat, CSTAT_SPRITE_BLOCK) &&
+                !TEST(cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 return false;
             }

@@ -3208,7 +3208,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         if (u->ActorActionSet->Jump)
         {
             int zdiff;
-            hitdata_t hitinfo;
+            HITINFO hitinfo;
 
             sp->ang = tpoint->ang;
 
@@ -3233,7 +3233,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
                 ASSERT(hitinfo.sect >= 0);
 
-                if (hitinfo.sprite >= 0)
+                if (hitinfo.hitactor != nullptr)
                     return false;
 
                 if (hitinfo.wall < 0)

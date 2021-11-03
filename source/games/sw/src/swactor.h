@@ -194,6 +194,30 @@ inline int Collision::setFromEngine(int value)
 	return type;
 }
 
+struct HITINFO {
+	DSWActor* hitactor;
+	short sect;
+	short wall;
+	short hitsprite;
+	vec3_t pos;
+
+	void clearObj()
+	{
+		pos = {};
+		sect = wall = -1;
+		hitsprite = -1;
+		hitactor = nullptr;
+	}
+	void set(hitdata_t* hit)
+	{
+		sect = hit->sect;
+		wall = hit->wall;
+		hitsprite = hit->sprite;
+		hitactor = hit->sprite >= 0 ? &swActors[hit->sprite] : nullptr;
+		pos = hit->pos;
+	}
+};
+
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor*& w, DSWActor** def)
 {

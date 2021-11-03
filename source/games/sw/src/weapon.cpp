@@ -14526,8 +14526,6 @@ InitShotgun(PLAYERp pp)
 
         if (hitinfo.sect < 0)
         {
-            ////DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitinfo.sect");
-            //MONO_PRINT(ds);
             continue;
         }
 
@@ -17566,20 +17564,8 @@ InitEMP(PLAYERp pp)
 
     if (hitinfo.sect < 0)
     {
-        ////DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitinfo.sect");
-        //MONO_PRINT(ds);
         return 0;
     }
-
-#if 0
-    if (TEST(pp->Flags, PF_DIVING) ||
-        (hitinfo.wall < 0 && hitinfo.sprite < 0 && SectorIsDiveArea(hitinfo.sect))
-        )
-    {
-        InitUziBullet(pp);
-        return 0;
-    }
-#endif
 
     SetVisHigh();
 
@@ -18106,8 +18092,6 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
 
     if (hitinfo.sect < 0)
     {
-        //DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitinfo.sect");
-        MONO_PRINT(ds);
         return 0;
     }
 
@@ -18614,7 +18598,7 @@ int InitEnemyUzi(DSWActor* actor)
     SPRITEp sp = &actor->s(), wp;
     USERp wu;
     short daang;
-    hitdata_t hitinfo = { { -2, -2, -2 }, -2, -2, -2 };
+    HITINFO hitinfo;
     int daz;
     int zh;
     void InitUziShell(PLAYERp);
@@ -18707,9 +18691,9 @@ int InitEnemyUzi(DSWActor* actor)
         QueueHole(hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
     }
 
-    if (hitinfo.sprite >= 0)
+    if (hitinfo.hitactor != nullptr)
     {
-        if (BulletHitSprite(sp, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(sp, hitinfo.hitactor->GetSpriteIndex(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
     }
 
@@ -18740,7 +18724,7 @@ int InitEnemyUzi(DSWActor* actor)
     wp->clipdist = 8 >> 2;
 
     HitscanSpriteAdjust(actorNew->GetSpriteIndex(), hitinfo.wall);
-    DoHitscanDamage(actorNew->GetSpriteIndex(), hitinfo.sprite);
+    DoHitscanDamage(actorNew->GetSpriteIndex(), hitinfo.hitactor? hitinfo.hitactor->GetSpriteIndex() : -1);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wu = actorNew->u();
@@ -20271,7 +20255,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     int sectnum;
     short rndnum;
     int daz;
-    hitdata_t hitinfo;
+    HITINFO hitinfo;
     USERp u = actor->u();
 
 
@@ -20296,7 +20280,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
         return nullptr;
 
     // hit a sprite?
-    if (hitinfo.sprite >= 0)
+    if (hitinfo.hitactor != nullptr)
         return nullptr;   // Don't try to put blood on a sprite
 
     if (hitinfo.wall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!

@@ -257,14 +257,11 @@ int CanHitPlayer(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    hitdata_t hitinfo;
+    HITINFO hitinfo;
     int xvect,yvect,zvect;
     short ang;
     // if actor can still see the player
     int zhs, zhh;
-
-    //if (FAF_Sector(sp->sectnum))
-    //    return(true);
 
     zhs = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
 
@@ -302,7 +299,7 @@ int CanHitPlayer(DSWActor* actor)
     if (hitinfo.sect < 0)
         return false;
 
-    if (hitinfo.sprite == u->targetActor->GetSpriteIndex())
+    if (hitinfo.hitactor == u->targetActor)
         return true;
 
     return false;

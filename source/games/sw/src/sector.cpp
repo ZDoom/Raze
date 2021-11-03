@@ -2188,7 +2188,7 @@ bool NearThings(PLAYERp pp)
     }
     // This only gets called if nothing else worked, check for nearness to a wall
     {
-        hitdata_t hitinfo = { { 0, 0, 0 }, 0, 0, 0 };
+        HITINFO hitinfo;
         short dang = pp->angle.ang.asbuild();
 
         FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursectnum,    // Start position
@@ -2204,7 +2204,7 @@ bool NearThings(PLAYERp pp)
             return false;
 
         // hit a sprite?
-        if (hitinfo.sprite >= 0)
+        if (hitinfo.hitactor != nullptr)
             return false;
 
         if (neartagsect >= 0)

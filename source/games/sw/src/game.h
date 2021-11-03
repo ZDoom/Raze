@@ -1927,9 +1927,15 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
 bool PlayerFloorHit(PLAYERp pp, int zlimit);
 
+struct HITINFO;
+
 void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                 int32_t xvect, int32_t yvect, int32_t zvect,
                 hitdata_t* hitinfo, int32_t clipmask);
+
+void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+    int32_t xvect, int32_t yvect, int32_t zvect,
+    HITINFO* hitinfo, int32_t clipmask);
 
 bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
