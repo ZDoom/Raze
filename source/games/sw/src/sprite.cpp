@@ -815,28 +815,23 @@ void KillSprite(int16_t SpriteNum)
     }
 }
 
-void ChangeSpriteState(short SpriteNum, STATEp statep)
+void ChangeState(DSWActor* actor, STATEp statep)
 {
-    USERp u = User[SpriteNum].Data();
-    if (u == nullptr)
+    if (!actor->hasU())
         return;
 
+    USERp u = actor->u();
     u->Tics = 0;
     u->State = u->StateStart = statep;
     // Just in case
     PicAnimOff(u->State->Pic);
 }
 
-void ChangeState(DSWActor* actor, STATEp statep)
+void change_actor_stat(DSWActor* actor, int stat)
 {
-    ChangeSpriteState(actor->GetSpriteIndex(), statep);
-}
-void
-change_sprite_stat(short SpriteNum, short stat)
-{
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
-    changespritestat(SpriteNum, stat);
+    changespritestat(actor->GetSpriteIndex(), stat);
 
     if (u)
     {
@@ -876,11 +871,6 @@ change_sprite_stat(short SpriteNum, short stat)
         }
 
     }
-}
-
-void change_actor_stat(DSWActor* actor, int stat)
-{
-    change_sprite_stat(actor->GetSpriteIndex(), stat);
 }
 
 USERp
@@ -1071,11 +1061,12 @@ ActorTestSpawn(SPRITEp sp)
 {
     if (sp->statnum == STAT_DEFAULT && sp->lotag == TAG_SPAWN_ACTOR)
     {
-        short New;
-        New = COVERinsertsprite(sp->sectnum, STAT_DEFAULT);
-        memcpy(&sprite[New], sp, sizeof(SPRITE));
-        change_sprite_stat(New, STAT_SPAWN_TRIGGER);
-        RESET(sprite[New].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        auto actorNew = InsertActor(sp->sectnum, STAT_DEFAULT);
+        int t = actorNew->s().time;  // must be preserved!
+        actorNew->s() = *sp;
+        actorNew->s().time = t;
+        change_actor_stat(actorNew, STAT_SPAWN_TRIGGER);
+        RESET(actorNew->s().cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         return false;
     }
 
@@ -1784,20 +1775,18 @@ SpriteSetupPost(void)
 {
     SPRITEp ds;
     USERp u;
-    int SpriteNum;
-    int i;
     int cz,fz;
 
     // Post processing of some sprites after gone through the main SpriteSetup()
     // routine
 
-    StatIterator it(STAT_FLOOR_PAN);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FLOOR_PAN);
+    while (auto iActor = it.Next())
     {
-        SectIterator it(sprite[SpriteNum].sectnum);
-        while ((i = it.NextIndex()) >= 0)
+        SWSectIterator it2(iActor->s().sectnum);
+        while (auto jActor = it.Next())
         {
-            ds = &sprite[i];
+            ds = &jActor->s();
 
             if (ds->picnum == ST1)
                 continue;
@@ -1805,15 +1794,15 @@ SpriteSetupPost(void)
             if (TEST(ds->cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 continue;
 
-            if (User[i].Data())
+            if (jActor->hasU())
                 continue;
 
             getzsofslope(ds->sectnum, ds->x, ds->y, &cz, &fz);
             if (labs(ds->z - fz) > Z(4))
                 continue;
 
-            u = SpawnUser(i, 0, nullptr);
-            change_sprite_stat(i, STAT_NO_STATE);
+            u = SpawnUser(jActor, 0, nullptr);
+            change_actor_stat(jActor, STAT_NO_STATE);
             u->ceiling_dist = Z(4);
             u->floor_dist = -Z(2);
 

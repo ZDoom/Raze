@@ -1917,7 +1917,6 @@ int move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildi
 int move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 DSWActor* DoPickTarget(DSWActor*, uint32_t max_delta_ang, int skip_targets);
 
-void change_sprite_stat(short, short);
 void change_actor_stat(DSWActor* actor, int stat);
 void SetOwner(DSWActor*, DSWActor*, bool flag = true);
 void SetOwner(int a, int b); // we still need this...
@@ -1925,7 +1924,6 @@ void ClearOwner(DSWActor* ownr);
 DSWActor* GetOwner(DSWActor* child);
 void SetAttach(DSWActor*, DSWActor*);
 void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
-void ChangeSpriteState(short SpriteNum, STATEp statep);
 void CollectPortals();
 
 int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z);

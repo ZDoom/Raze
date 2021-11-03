@@ -71,7 +71,6 @@ extern short GenericQueue[MAX_GENERIC_QUEUE];
 extern short LoWangsQueueHead;
 extern short LoWangsQueue[MAX_LOWANGS_QUEUE];
 
-void ChangeSpriteState(short SpriteNum, STATEp statep);
 void ChangeState(DSWActor* actor, STATEp statep);
 void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);
 SECTOR_OBJECTp DetectSectorObject(SECTORp);
@@ -83,7 +82,7 @@ bool SlopeBounce(short SpriteNum, bool *hit_wall);
 bool HitscanSpriteAdjust(short SpriteNum, short hit_wall);
 int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 DSWActor* SpawnBubble(DSWActor*);
-int SpawnFireballExp(int16_t Weapon);
+int SpawnFireballExp(DSWActor*);
 void SpawnFireballFlames(int16_t SpriteNum,int16_t enemy);
 int SpawnRadiationCloud(DSWActor* actor);
 int SpawnGrenadeExp(int16_t Weapon);

@@ -3228,7 +3228,7 @@ SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INF
     else if (TEST(parent->extra, SPRX_BREAKABLE))
     {
         // if no user
-        if (!User[short(parent - sprite)].Data())
+        if (!parentActor->hasU())
         {
             // Jump to shrap type
             shrap_type = SP_TAG8(parent);
@@ -3237,7 +3237,7 @@ SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INF
         else
         {
             // has a user - is programmed
-            change_sprite_stat(short(parent - sprite), STAT_MISC);
+            change_actor_stat(parentActor, STAT_MISC);
             RESET(parent->extra, SPRX_BREAKABLE);
             RESET(parent->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         }
@@ -4539,7 +4539,7 @@ WeaponMoveHit(short SpriteNum)
                         if (hu->WaitTics <= 0)
                         {
                             hu->WaitTics = SEC(2);
-                            ChangeSpriteState(hit_sprite,s_TrashCanPain);
+                            ChangeState(hitActor,s_TrashCanPain);
                         }
                         break;
                     case PACHINKO1:
@@ -7967,7 +7967,7 @@ DoStar(DSWActor* actor)
             if (!TEST(u->Flags, SPR_BOUNCE) && RANDOM_P2(1024) < STAR_STICK_RNUM)
             {
                 u->motion_blur_num = 0;
-                ChangeSpriteState(Weapon, s_StarStuck);
+                ChangeState(actor, s_StarStuck);
                 sp->xrepeat -= 16;
                 sp->yrepeat -= 16;
                 RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -8667,7 +8667,7 @@ DoPlasma(DSWActor* actor)
             else
             {
                 u->Counter = 4;
-                ChangeSpriteState(Weapon, s_PlasmaDone);
+                ChangeState(actor, s_PlasmaDone);
             }
 
             return true;
@@ -8699,7 +8699,7 @@ DoCoolgFire(DSWActor* actor)
         if (WeaponMoveHit(Weapon))
         {
             PlaySound(DIGI_CGMAGICHIT, sp, v3df_follow);
-            ChangeSpriteState(Weapon, s_CoolgFireDone);
+            ChangeState(actor, s_CoolgFireDone);
             if (sp->owner >= 0 && User[sp->owner].Data() && User[sp->owner]->ID != RIPPER_RUN_R0)  // JBF: added range check
                 SpawnDemonFist(Weapon); // Just a red magic circle flash
             return true;
@@ -9476,8 +9476,9 @@ DoMineStuck(DSWActor* actor)
 int
 SetMineStuck(int16_t Weapon)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    auto actor = &swActors[Weapon];
+    USER* u = actor->u();
+    SPRITEp sp = &actor->s();
 
     // stuck
     SET(u->Flags, SPR_BOUNCE);
@@ -9487,8 +9488,8 @@ SetMineStuck(int16_t Weapon)
     //SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
     u->Counter = 0;
-    change_sprite_stat(Weapon, STAT_MINE_STUCK);
-    ChangeSpriteState(Weapon, s_MineStuck);
+    change_actor_stat(actor, STAT_MINE_STUCK);
+    ChangeState(actor, s_MineStuck);
     return 0;
 }
 
@@ -10853,11 +10854,10 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
 }
 
 
-int
-SpawnFireballExp(int16_t Weapon)
+int SpawnFireballExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -10889,7 +10889,7 @@ SpawnFireballExp(int16_t Weapon)
     // ceilings
     //
 
-    SpawnExpZadjust(Weapon, exp, Z(15), Z(15));
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(15), Z(15));
 
     if (RANDOM_P2(1024) < 150)
         SpawnFireballFlames(explosion,-1);
@@ -11577,8 +11577,9 @@ void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize
 int
 SpawnMineExp(int16_t Weapon)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    auto actor = &swActors[Weapon];
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
     short explosion;
@@ -11587,7 +11588,7 @@ SpawnMineExp(int16_t Weapon)
     if (u && TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    change_sprite_stat(Weapon, STAT_MISSILE);
+    change_actor_stat(actor, STAT_MISSILE);
 
     PlaySound(DIGI_MINEBLOW, sp, v3df_none);
 
@@ -11851,7 +11852,7 @@ DoFireball(DSWActor* actor)
                 if (u->ID == GORO_FIREBALL)
                     SpawnGoroFireballExp(Weapon);
                 else
-                    SpawnFireballExp(Weapon);
+                    SpawnFireballExp(actor);
             }
 
             KillActor(actor);
@@ -12716,8 +12717,8 @@ DoSerpRing(DSWActor* actor)
                     sp->xvel += DIV2(sp->xvel);
                     sp->xvel += (RANDOM_P2(128<<8)>>8);
                     u->jump_speed = -800;
-                    change_sprite_stat(Weapon, STAT_ENEMY);
-                    NewStateGroup_(Weapon, sg_SkullJump);
+                    change_actor_stat(actor, STAT_ENEMY);
+                    NewStateGroup(actor, sg_SkullJump);
                     DoBeginJump(actor);
                     return 0;
                 }
@@ -12946,7 +12947,7 @@ InitSerpRing(DSWActor* actor)
 
         // defaults do change the statnum
         EnemyDefaults(actorNew, nullptr, nullptr);
-        change_sprite_stat(New, STAT_SKIP4);
+        change_actor_stat(actorNew, STAT_SKIP4);
         RESET(np->extra, SPRX_PLAYER_OR_ENEMY);
 
         np->clipdist = (128+64) >> 2;
@@ -13333,8 +13334,9 @@ InitSwordAttack(PLAYERp pp)
             if (hitinfo.sprite >= 0)
             {
                 extern STATE s_TrashCanPain[];
-                SPRITEp hsp = &sprite[hitinfo.sprite];
-                tu = User[hitinfo.sprite].Data();
+                auto hitActor = &swActors[hitinfo.sprite];
+                SPRITEp hsp = &hitActor->s();
+                tu = hitActor->u();
 
                 if (tu) // JBF: added null check
                     switch (tu->ID)
@@ -13347,7 +13349,7 @@ InitSwordAttack(PLAYERp pp)
                         if (tu->WaitTics <= 0)
                         {
                             tu->WaitTics = SEC(2);
-                            ChangeSpriteState(hitinfo.sprite,s_TrashCanPain);
+                            ChangeState(hitActor,s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                         PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
@@ -13524,8 +13526,9 @@ InitFistAttack(PLAYERp pp)
             if (hitinfo.sprite >= 0)
             {
                 extern STATE s_TrashCanPain[];
-                SPRITEp hsp = &sprite[hitinfo.sprite];
-                tu = User[hitinfo.sprite].Data();
+                auto hitActor = &swActors[hitinfo.sprite];
+                SPRITEp hsp = &hitActor->s();
+                tu = hitActor->u();
 
                 if (tu)     // JBF: added null check
                     switch (tu->ID)
@@ -13538,7 +13541,7 @@ InitFistAttack(PLAYERp pp)
                         if (tu->WaitTics <= 0)
                         {
                             tu->WaitTics = SEC(2);
-                            ChangeSpriteState(hitinfo.sprite,s_TrashCanPain);
+                            ChangeState(hitActor,s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                         PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
@@ -13746,7 +13749,6 @@ int InitSumoSkull(DSWActor* actor)
 
     // defaults do change the statnum
     EnemyDefaults(actorNew, nullptr, nullptr);
-    //change_sprite_stat(New, STAT_SKIP4);
     SET(np->extra, SPRX_PLAYER_OR_ENEMY);
 
     np->clipdist = (128+64) >> 2;
@@ -14596,8 +14598,9 @@ InitShotgun(PLAYERp pp)
         // hit a sprite?
         if (hitinfo.sprite >= 0)
         {
-            SPRITEp hsp = &sprite[hitinfo.sprite];
-            USERp hu = User[hitinfo.sprite].Data();
+            auto hitActor = &swActors[hitinfo.sprite];
+            SPRITEp hsp = &hitActor->s();
+            auto hu = hitActor->u();
 
             if (hu && hu->ID == TRASHCAN)   // JBF: added null check
             {
@@ -14607,7 +14610,7 @@ InitShotgun(PLAYERp pp)
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
-                    ChangeSpriteState(hitinfo.sprite,s_TrashCanPain);
+                    ChangeState(hitActor,s_TrashCanPain);
                 }
             }
 
@@ -17443,8 +17446,9 @@ InitUzi(PLAYERp pp)
     // hit a sprite?
     if (hitinfo.sprite >= 0)
     {
-        USERp hu = User[hitinfo.sprite].Data();
-        hsp = &sprite[hitinfo.sprite];
+        auto hitActor = &swActors[hitinfo.sprite];
+        SPRITEp hsp = &hitActor->s();
+        auto hu = hitActor->u();
 
         if (hu) // JBF: added null check
             if (hu->ID == TRASHCAN)
@@ -17455,7 +17459,7 @@ InitUzi(PLAYERp pp)
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
-                    ChangeSpriteState(hitinfo.sprite,s_TrashCanPain);
+                    ChangeState(hitActor,s_TrashCanPain);
                 }
             }
 
@@ -21100,7 +21104,8 @@ DoItemFly(int16_t SpriteNum)
 // This is the FAST queue, it doesn't call any animator functions or states
 int QueueLoWangs(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum],ps;
+    auto actor = &swActors[SpriteNum];
+    SPRITEp sp = &actor->s(),ps;
     USERp u;
     short NewSprite;
 
@@ -21145,7 +21150,7 @@ int QueueLoWangs(short SpriteNum)
     sp->yrepeat = ps->yrepeat;
     sp->shade = ps->shade;
     u->spal = sp->pal = ps->pal;
-    change_sprite_stat(NewSprite,STAT_DEFAULT); // Breakable
+    change_actor_stat(&swActors[NewSprite],STAT_DEFAULT); // Breakable
     SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
     SET(sp->extra, SPRX_BREAKABLE);
     SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
