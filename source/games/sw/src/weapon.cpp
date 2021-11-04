@@ -17012,16 +17012,14 @@ InitTracerUzi(PLAYERp pp)
     return 0;
 }
 
-int
-InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
+int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
     int nx, ny, nz;
-    short w;
 
     nx = sp->x;
     ny = sp->y;
@@ -17030,15 +17028,15 @@ InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, 0, s_Tracer, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, sp->sectnum,
                     nx, ny, nz, sp->ang, TRACER_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     wp->hitag = LUMINOUS; //Always full brightness
-    if (Operator >= 0)
-        SetOwner(Operator, w);
+    if (Operator!= nullptr)
+        SetOwner(Operator, actorNew);
     wp->yrepeat = 10;
     wp->xrepeat = 10;
     wp->shade = -40;
@@ -17054,7 +17052,7 @@ InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(q16horiz, wp->xvel / 8., 16));
 
-    WeaponAutoAim(sp, w, 32, false);
+    WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false);
 
     // a bit of randomness
     wp->ang = NORM_ANGLE(wp->ang + RandomRange(30) - 15);
@@ -17069,17 +17067,14 @@ InitTracerTurret(short SpriteNum, short Operator, fixed_t q16horiz)
     return 0;
 }
 
-#if 1
-int
-InitTracerAutoTurret(short SpriteNum, short Operator, int xchange, int ychange, int zchange)
+int InitTracerAutoTurret(DSWActor* actor, int xchange, int ychange, int zchange)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
     int nx, ny, nz;
-    short w;
 
     nx = sp->x;
     ny = sp->y;
@@ -17088,15 +17083,13 @@ InitTracerAutoTurret(short SpriteNum, short Operator, int xchange, int ychange, 
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, 0, s_Tracer, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, sp->sectnum,
                     nx, ny, nz, sp->ang, TRACER_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     wp->hitag = LUMINOUS; //Always full brightness
-    if (Operator >= 0)
-        SetOwner(Operator, w);
     wp->yrepeat = 10;
     wp->xrepeat = 10;
     wp->shade = -40;
@@ -17119,7 +17112,6 @@ InitTracerAutoTurret(short SpriteNum, short Operator, int xchange, int ychange, 
 
     return 0;
 }
-#endif
 
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID)
 {
@@ -17860,7 +17852,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     nsect = sp->sectnum;
 
     if (RANDOM_P2(1024) < 200)
-        InitTracerTurret(actor->GetSpriteIndex(), pp->PlayerSprite, pp->horizon.horiz.asq16());
+        InitTracerTurret(actor, pp->Actor(), pp->horizon.horiz.asq16());
 
     daang = 64;
     if (WeaponAutoAimHitscan(actor, &daz, &daang, false) != nullptr)
@@ -18291,7 +18283,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 
             if (RANDOM_P2(1024) < 400)
             {
-                InitTracerAutoTurret(sop->so_actors[i]->GetSpriteIndex(), -1,
+                InitTracerAutoTurret(sop->so_actors[i],
                                      xvect>>4, yvect>>4, zvect>>4);
             }
 
