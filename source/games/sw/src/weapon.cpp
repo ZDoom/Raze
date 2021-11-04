@@ -13215,31 +13215,30 @@ InitEnemyMirv(DSWActor* actor)
 }
 
 
-int
-InitSwordAttack(PLAYERp pp)
+int InitSwordAttack(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data(),tu;
+    USERp u = pp->Actor()->u(), tu;
+    auto psp = &pp->Actor()->s();
     SPRITEp sp = nullptr;
-    int i;
     unsigned stat;
     int dist;
-    short reach,face;
+    short reach, face;
 
-    PlaySound(DIGI_SWORDSWOOSH, pp, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_SWORDSWOOSH, pp, v3df_dontpan | v3df_doppler);
 
     if (TEST(pp->Flags, PF_DIVING))
     {
         DSWActor* bubble;
         SPRITEp bp;
-        int nx,ny;
+        int nx, ny;
         short random_amt;
 
-        static int16_t dangs[] =
+        static const int16_t dangs[] =
         {
             -256, -128, 0, 128, 256
         };
 
-        for (i = 0; i < (int)SIZ(dangs); i++)
+        for (int i = 0; i < (int)SIZ(dangs); i++)
         {
             if (RandomRange(1000) < 500) continue; // Don't spawn bubbles every time
             bubble = SpawnBubble(pp->Actor());
@@ -13249,11 +13248,11 @@ InitSwordAttack(PLAYERp pp)
 
                 bp->ang = pp->angle.ang.asbuild();
 
-                random_amt = (RANDOM_P2(32<<8)>>8) - 16;
+                random_amt = (RANDOM_P2(32 << 8) >> 8) - 16;
 
                 // back it up a bit to get it out of your face
-                nx = MOVEx((1024+256)*3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
-                ny = MOVEy((1024+256)*3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
+                nx = MOVEx((1024 + 256) * 3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
+                ny = MOVEy((1024 + 256) * 3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
 
                 move_missile(bubble->GetSpriteIndex(), nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
             }
@@ -13262,14 +13261,15 @@ InitSwordAttack(PLAYERp pp)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
+            if (!itActor->hasU())
+                break;
 
-            //if (pp->SpriteP == sp) // UnderSprite was getting hit
-            //    break;
-            if (User[i]->PlayerP == pp)
+            sp = &itActor->s();
+
+            if (itActor->u()->PlayerP == pp)
                 break;
 
             if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -13280,12 +13280,12 @@ InitSwordAttack(PLAYERp pp)
             reach = 1000; // !JIM! was 800
             face = 200;
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, pp->SpriteP, reach) && PLAYER_FACING_RANGE(pp, sp, face))
+            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PLAYER_FACING_RANGE(pp, sp, face))
             {
-                if (SpriteOverlapZ(pp->PlayerSprite, i, Z(20)))
+                if (SpriteOverlapZ(pp->PlayerSprite, itActor->GetSpriteIndex(), Z(20)))
                 {
-                    if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,pp->SpriteP->x,pp->SpriteP->y,SPRITEp_MID(pp->SpriteP),pp->SpriteP->sectnum))
-                        DoDamage(i, pp->PlayerSprite);
+                    if (FAFcansee(sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum, psp->x, psp->y, SPRITEp_MID(psp), psp->sectnum))
+                        DoDamage(itActor->GetSpriteIndex(), pp->Actor()->GetSpriteIndex());
                 }
             }
         }
@@ -13293,7 +13293,7 @@ InitSwordAttack(PLAYERp pp)
 
     // all this is to break glass
     {
-        hitdata_t hitinfo;
+        HITINFO hitinfo;
         short daang;
         int daz;
 
@@ -13301,10 +13301,10 @@ InitSwordAttack(PLAYERp pp)
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
-                   bcos(daang),      // X vector of 3D ang
-                   bsin(daang),      // Y vector of 3D ang
-                   daz,              // Z vector of 3D ang
-                   &hitinfo, CLIPMASK_MISSILE);
+            bcos(daang),      // X vector of 3D ang
+            bsin(daang),      // Y vector of 3D ang
+            daz,              // Z vector of 3D ang
+            &hitinfo, CLIPMASK_MISSILE);
 
         if (hitinfo.sect < 0)
             return 0;
@@ -13312,14 +13312,15 @@ InitSwordAttack(PLAYERp pp)
         if (FindDistance3D(pp->posx - hitinfo.pos.x, pp->posy - hitinfo.pos.y, pp->posz - hitinfo.pos.z) < 700)
         {
 
-            if (hitinfo.sprite >= 0)
+            if (hitinfo.hitactor != nullptr)
             {
                 extern STATE s_TrashCanPain[];
-                auto hitActor = &swActors[hitinfo.sprite];
+                auto hitActor = hitinfo.hitactor;
                 SPRITEp hsp = &hitActor->s();
-                tu = hitActor->u();
 
-                if (tu) // JBF: added null check
+                if (hitActor->hasU())     // JBF: added null check
+                {
+                    tu = hitActor->u();
                     switch (tu->ID)
                     {
                     case ZILLA_RUN_R0:
@@ -13330,7 +13331,7 @@ InitSwordAttack(PLAYERp pp)
                         if (tu->WaitTics <= 0)
                         {
                             tu->WaitTics = SEC(2);
-                            ChangeState(hitActor,s_TrashCanPain);
+                            ChangeState(hitActor, s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                         PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
@@ -13345,22 +13346,23 @@ InitSwordAttack(PLAYERp pp)
                         PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
                         break;
                     }
+                }
 
-                if (sprite[hitinfo.sprite].lotag == TAG_SPRITE_HIT_MATCH)
+                if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_STAR, hitinfo.sprite))
+                    if (MissileHitMatch(-1, WPN_STAR, hitActor->GetSpriteIndex()))
                         return 0;
                 }
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(&swActors[hitinfo.sprite],0);
+                    HitBreakSprite(hitActor, 0);
                 }
 
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(&swActors[hitinfo.sprite]);
+                    ShootableSwitch(hitActor);
                 }
 
             }
@@ -13391,7 +13393,6 @@ InitSwordAttack(PLAYERp pp)
             }
         }
     }
-
     return 0;
 }
 
@@ -13400,7 +13401,6 @@ int InitFistAttack(PLAYERp pp)
     USERp u = pp->Actor()->u(),tu;
     auto psp = &pp->Actor()->s();
     SPRITEp sp = nullptr;
-    int i;
     unsigned stat;
     int dist;
     short reach,face;
@@ -13419,7 +13419,7 @@ int InitFistAttack(PLAYERp pp)
             -128,128
         };
 
-        for (i = 0; i < (int)SIZ(dangs); i++)
+        for (int i = 0; i < (int)SIZ(dangs); i++)
         {
             bubble = SpawnBubble(pp->Actor());
             if (bubble != nullptr)
