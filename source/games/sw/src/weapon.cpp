@@ -10746,7 +10746,7 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
         nu->floor_dist = nu->ceiling_dist = 0;
 
-        DoFindGround(actorNew->GetSpriteIndex());
+        DoFindGround(actorNew);
         nu->jump_speed = 0;
         DoBeginJump(actorNew);
     }
@@ -10785,7 +10785,7 @@ int SpawnBreakFlames(DSWActor* actor)
 
     nu->floor_dist = nu->ceiling_dist = 0;
 
-    DoFindGround(New);
+    DoFindGround(actorNew);
     nu->jump_speed = 0;
     DoBeginJump(actorNew);
 
@@ -10833,10 +10833,6 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
     nu->floor_dist = nu->ceiling_dist = 0;
 
     np->z = getflorzofslope(np->sectnum,np->x,np->y);
-
-    //DoFindGround(New);
-    //nu->jump_speed = 0;
-    //DoBeginJump(actorNew);
 
     PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
 
@@ -11844,12 +11840,11 @@ DoFireball(DSWActor* actor)
 
 }
 
-int
-DoFindGround(int16_t SpriteNum)
+int DoFindGround(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum], hsp;
-    USERp u = User[SpriteNum].Data();
-    int ceilhit, florhit;
+    SPRITEp sp = &actor->s(), hsp;
+    USERp u = actor->u();
+    Collision ceilhit, florhit;
     short save_cstat;
     short bak_cstat;
 
@@ -11861,13 +11856,11 @@ DoFindGround(int16_t SpriteNum)
     FAFgetzrange(sp->pos, sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     sp->cstat = save_cstat;
 
-    ASSERT(TEST(florhit, HIT_SPRITE | HIT_SECTOR));
-
-    switch (TEST(florhit, HIT_MASK))
+    switch (florhit.type)
     {
-    case HIT_SPRITE:
+    case kHitSprite:
     {
-        auto florActor = &swActors[NORM_SPRITE(florhit)];
+        auto florActor = florhit.actor;
         hsp = &florActor->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
@@ -11883,7 +11876,7 @@ DoFindGround(int16_t SpriteNum)
             // recursive
             bak_cstat = hsp->cstat;
             RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-            DoFindGround(SpriteNum);
+            DoFindGround(actor);
             hsp->cstat = bak_cstat;
         }
 
@@ -11891,7 +11884,7 @@ DoFindGround(int16_t SpriteNum)
     }
     case HIT_SECTOR:
     {
-        u->lo_sectp = &sector[NORM_SECTOR(florhit)];
+        u->lo_sectp = &sector[florhit.index];
         u->lowActor = nullptr;
         return true;
     }
@@ -11908,7 +11901,7 @@ int DoFindGroundPoint(DSWActor* actor)
 {
     SPRITEp sp = &actor->s(), hsp;
     USERp u = actor->u();
-    int ceilhit, florhit;
+    Collision ceilhit, florhit;
     short save_cstat;
     short bak_cstat;
 
@@ -11920,13 +11913,11 @@ int DoFindGroundPoint(DSWActor* actor)
     FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit);
     sp->cstat = save_cstat;
 
-    ASSERT(TEST(florhit, HIT_SPRITE | HIT_SECTOR));
-
-    switch (TEST(florhit, HIT_MASK))
+    switch (florhit.type)
     {
-    case HIT_SPRITE:
+    case kHitSprite:
     {
-        auto florActor = &swActors[NORM_SPRITE(florhit)];
+        auto florActor = florhit.actor;
         hsp = &florActor->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
@@ -11948,9 +11939,9 @@ int DoFindGroundPoint(DSWActor* actor)
 
         return false;
     }
-    case HIT_SECTOR:
+    case kHitSector:
     {
-        u->lo_sectp = &sector[NORM_SECTOR(florhit)];
+        u->lo_sectp = &sector[florhit.index];
         u->lowActor = nullptr;
         return true;
     }

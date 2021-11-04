@@ -5657,7 +5657,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         u->ID = NINJA_DEAD;
         pp->jump_speed = -200;
         NewStateGroup(pp->Actor(), sg_PlayerDeath);
-        DoFindGround(pp->PlayerSprite);
+        DoFindGround(pp->Actor());
         DoBeginJump(pp->Actor());
         u->jump_speed = -300;
         break;
@@ -5677,7 +5677,7 @@ void DoPlayerBeginDie(PLAYERp pp)
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         u->ceiling_dist = Z(10);
         u->floor_dist = Z(0);
-        DoFindGround(pp->PlayerSprite);
+        DoFindGround(pp->Actor());
         DoBeginJump(pp->Actor());
         u->jump_speed = -400;
         break;
@@ -5776,7 +5776,7 @@ void DoPlayerDeathZrange(PLAYERp pp)
     USERp u = pp->Actor()->u();
 
     // make sure we don't land on a regular sprite
-    DoFindGround(pp->PlayerSprite);
+    DoFindGround(pp->Actor());
 
     // update player values with results from DoFindGround
     pp->loz = u->loz;
