@@ -190,7 +190,7 @@ int PlayerInitChemBomb(PLAYERp pp);
 int InitChemBomb(DSWActor*);
 int PlayerInitCaltrops(PLAYERp pp);
 int InitBloodSpray(DSWActor* actor, bool dogib, short velocity);
-int SpawnBunnyExp(int16_t Weapon);
+int SpawnBunnyExp(DSWActor* actor);
 int InitBunnyRocket(PLAYERp pp);
 
 int GetDamage(short SpriteNum, short Weapon, short DamageNdx);
@@ -242,7 +242,7 @@ void SpawnMineExp(DSWActor*);
 void SpawnLittleExp(DSWActor*);
 DSWActor* SpawnLargeExp(DSWActor*);
 void SpawnNuclearExp(DSWActor* actor);
-int SpawnBoltExp(int16_t Weapon);
+void SpawnBoltExp(DSWActor* actor);
 void SpawnTracerExp(DSWActor* Weapon);
 int SpawnGoroFireballExp(int16_t Weapon);
 bool MissileHitMatch(short Weapon,short WeaponNum,short hit_sprite);

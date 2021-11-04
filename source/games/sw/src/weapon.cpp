@@ -114,7 +114,7 @@ int SopCheckKill(SECTOR_OBJECTp sop);
 int QueueStar(DSWActor*);
 int DoBlurExtend(int16_t Weapon,int16_t interval,int16_t blur_num);
 int SpawnDemonFist(DSWActor*);
-int SpawnTankShellExp(int16_t Weapon);
+void SpawnTankShellExp(DSWActor*);
 void SpawnMicroExp(DSWActor*);
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID);
@@ -6569,7 +6569,7 @@ DoDamage(short SpriteNum, short Weapon)
         if (wu->Radius == NUKE_RADIUS)
             SpawnNuclearExp(weapActor);
         else
-            SpawnBoltExp(Weapon);
+            SpawnBoltExp(weapActor);
         SetSuicide(weapActor);
         break;
 
@@ -6643,7 +6643,7 @@ DoDamage(short SpriteNum, short Weapon)
         if (wu->Radius == NUKE_RADIUS)
             SpawnNuclearExp(weapActor);
         else
-            SpawnBoltExp(Weapon);
+            SpawnBoltExp(weapActor);
         SetSuicide(weapActor);
         break;
 
@@ -6671,7 +6671,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnBunnyExp(Weapon);
+        SpawnBunnyExp(weapActor);
         SetSuicide(weapActor);
         break;
 
@@ -9678,7 +9678,7 @@ DoBoltThinMan(DSWActor* actor)
     {
         if (WeaponMoveHit(Weapon))
         {
-            SpawnBoltExp(Weapon);
+            SpawnBoltExp(actor);
             KillActor(actor);
             return true;
         }
@@ -9826,8 +9826,7 @@ DoTankShell(DSWActor* actor)
         {
             if (WeaponMoveHit(Weapon))
             {
-                SpawnTankShellExp(Weapon);
-                //SetExpQuake(exp);
+                SpawnTankShellExp(actor);
                 KillActor(actor);
                 return true;
             }
@@ -9882,7 +9881,7 @@ DoLaser(DSWActor* actor)
         {
             if (WeaponMoveHit(Weapon))
             {
-                SpawnBoltExp(Weapon);
+                SpawnBoltExp(actor);
                 KillActor(actor);
                 return true;
             }
@@ -9925,7 +9924,7 @@ DoLaserStart(DSWActor* actor)
     {
         if (WeaponMoveHit(Weapon))
         {
-            SpawnBoltExp(Weapon);
+            SpawnBoltExp(actor);
             KillActor(actor);
             return true;
         }
@@ -10093,12 +10092,12 @@ DoRocket(DSWActor* actor)
         {
             if (u->ID == BOLT_THINMAN_R4)
             {
-                SpawnBunnyExp(Weapon);
+                SpawnBunnyExp(actor);
             }
             else if (u->Radius == NUKE_RADIUS)
                 SpawnNuclearExp(actor);
             else
-                SpawnBoltExp(Weapon);
+                SpawnBoltExp(actor);
 
             KillActor(actor);
             return true;
@@ -10374,13 +10373,12 @@ DoBoltSeeker(DSWActor* actor)
     MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
-    //DoDamageTest(Weapon);
 
     if (u->ret)
     {
         if (WeaponMoveHit(Weapon))
         {
-            SpawnBoltExp(Weapon);
+            SpawnBoltExp(actor);
             KillActor(actor);
             return true;
         }
@@ -10893,30 +10891,27 @@ SpawnGoroFireballExp(int16_t Weapon)
     return explosion;
 }
 
-int
-SpawnBoltExp(int16_t Weapon)
+void SpawnBoltExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
 
     ASSERT(u);
 
     if (u && TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return;
 
-    PlaySound(DIGI_BOLTEXPLODE, sp, v3df_none);
+    PlaySound(DIGI_BOLTEXPLODE, actor, v3df_none);
 
-    explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), expActor);
     exp->shade = -40;
     exp->xrepeat = 76;
     exp->yrepeat = 76;
@@ -10926,29 +10921,25 @@ SpawnBoltExp(int16_t Weapon)
         SET(exp->cstat, CSTAT_SPRITE_XFLIP);
     eu->Radius = DamageData[DMG_BOLT_EXP].radius;
 
-    SpawnExpZadjust(Weapon, exp, Z(40), Z(40));
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(40), Z(40));
 
     DoExpDamageTest(expActor);
 
-    SetExpQuake(explosion); // !JIM! made rocket launcher shake things
+    SetExpQuake(actor->GetSpriteIndex()); // !JIM! made rocket launcher shake things
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
-
-    return explosion;
 }
 
-int
-SpawnBunnyExp(int16_t Weapon)
+int SpawnBunnyExp(DSWActor* actor)
 {
-    auto actor = &swActors[Weapon];
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     ASSERT(u);
 
     if (u && TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_BUNNYDIE3, sp, v3df_none);
+    PlaySound(DIGI_BUNNYDIE3, actor, v3df_none);
 
     u->ID = BOLT_EXP; // Change id
     InitBloodSpray(actor, true, -1);
@@ -10959,30 +10950,27 @@ SpawnBunnyExp(int16_t Weapon)
     return 0;
 }
 
-int
-SpawnTankShellExp(int16_t Weapon)
+void SpawnTankShellExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
 
     ASSERT(u);
 
     if (u && TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return;
 
-    PlaySound(DIGI_BOLTEXPLODE, sp, v3df_none);
+    PlaySound(DIGI_BOLTEXPLODE, actor, v3df_none);
 
-    explosion = SpawnSprite(STAT_MISSILE, TANK_SHELL_EXP, s_TankShellExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, TANK_SHELL_EXP, s_TankShellExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), expActor);
     exp->shade = -40;
     exp->xrepeat = 64+32;
     exp->yrepeat = 64+32;
@@ -10992,11 +10980,9 @@ SpawnTankShellExp(int16_t Weapon)
         SET(exp->cstat, CSTAT_SPRITE_XFLIP);
     eu->Radius = DamageData[DMG_TANK_SHELL_EXP].radius;
 
-    SpawnExpZadjust(Weapon, exp, Z(40), Z(40));
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(40), Z(40));
     DoExpDamageTest(expActor);
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
-
-    return explosion;
 }
 
 
