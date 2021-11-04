@@ -120,7 +120,7 @@ int SpawnMicroExp(int16_t Weapon);
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID);
 int SpawnSplashXY(int hit_x,int hit_y,int hit_z,int);
-int SpawnBoatSparks(PLAYERp pp,short hit_sect,short hit_wall,int hit_x,int hit_y,int hit_z,short hit_ang);
+DSWActor* SpawnBoatSparks(PLAYERp pp,short hit_sect,short hit_wall,int hit_x,int hit_y,int hit_z,short hit_ang);
 
 short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
 {
@@ -7501,10 +7501,10 @@ DoDamageTest(DSWActor* actor)
     return 0;
 }
 
-static int DoHitscanDamage(short Weapon, uint16_t hit_sprite)
+static void DoHitscanDamage(DSWActor* weaponActor, DSWActor* hitActor)
 {
-    if (hit_sprite >= MAXSPRITES)
-        return 0;
+    if (hitActor == nullptr)
+        return;
 
     unsigned stat;
 
@@ -7513,14 +7513,12 @@ static int DoHitscanDamage(short Weapon, uint16_t hit_sprite)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        if (sprite[hit_sprite].statnum == StatDamageList[stat])
+        if (hitActor->s().statnum == StatDamageList[stat])
         {
-            DoDamage(hit_sprite, Weapon);
+            DoDamage(hitActor->GetSpriteIndex(), weaponActor->GetSpriteIndex());
             break;
         }
     }
-
-    return 0;
 }
 
 int
@@ -14235,7 +14233,7 @@ InitStar(PLAYERp pp)
 
 void InitHeartAttack(PLAYERp pp)
 {
-    short SpriteNum;
+    auto psp = &pp->Actor()->s();
     SPRITEp sp;
     USERp u;
     short i = 0;
@@ -14246,7 +14244,7 @@ void InitHeartAttack(PLAYERp pp)
         short ang;
     } MISSILE_PLACEMENT;
 
-    static MISSILE_PLACEMENT mp[] =
+    static const MISSILE_PLACEMENT mp[] =
     {
         {0, 1100, 0},
     };
@@ -14256,15 +14254,15 @@ void InitHeartAttack(PLAYERp pp)
     if (pp->cursectnum < 0)
         return;
 
-    SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
 
-    sp = &sprite[SpriteNum];
-    u = User[SpriteNum].Data();
+    sp = &actorNew->s();
+    u = actorNew->u();
 
     sp->hitag = LUMINOUS; //Always full brightness
 
-    SetOwner(short(pp->SpriteP - sprite), SpriteNum);
+    SetOwner(pp->Actor(), actorNew);
     sp->shade = -10;
     sp->xrepeat = 52;
     sp->yrepeat = 52;
@@ -14278,16 +14276,16 @@ void InitHeartAttack(PLAYERp pp)
     u->ceiling_dist = Z(1);
     u->Dist = 200;
 
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 1;
+    auto oclipdist = psp->clipdist;
+    psp->clipdist = 1;
 
     u->xchange = MOVEx(sp->xvel, sp->ang);
     u->ychange = MOVEy(sp->xvel, sp->ang);
     u->zchange = sp->zvel;
 
-    MissileSetPos(SpriteNum, DoBloodWorm, mp[i].dist_out);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoBloodWorm, mp[i].dist_out);
 
-    pp->SpriteP->clipdist = oclipdist;
+    psp->clipdist = oclipdist;
     u->Counter = 0;
     u->Counter2 = 0;
     u->Counter3 = 0;
@@ -14369,7 +14367,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
     }
 
     auto j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang);
-    DoHitscanDamage(j->GetSpriteIndex(), hitinfo.hitactor->GetSpriteIndex());
+    DoHitscanDamage(j, hitinfo.hitactor);
 
     return 0;
 }
@@ -14540,7 +14538,7 @@ int InitShotgun(PLAYERp pp)
         }
 
         auto j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang);
-        DoHitscanDamage(j->GetSpriteIndex(), hitinfo.hitactor->GetSpriteIndex());
+        DoHitscanDamage(j, hitinfo.hitactor);
     }
 
     DoPlayerBeginRecoil(pp, SHOTGUN_RECOIL_AMT);
@@ -16861,7 +16859,7 @@ int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, i
             }
         }
 
-        DoHitscanDamage(actorNew->GetSpriteIndex(), hitActor->GetSpriteIndex());
+        DoHitscanDamage(actorNew, hitActor);
 
         return true;
     }
@@ -17118,7 +17116,7 @@ int InitUzi(PLAYERp pp)
     wp->clipdist = 8 >> 2;
 
     HitscanSpriteAdjust(actorNew, hitinfo.wall);
-    if (hitinfo.hitactor) DoHitscanDamage(actorNew->GetSpriteIndex(), hitinfo.hitactor->GetSpriteIndex());
+    DoHitscanDamage(actorNew, hitinfo.hitactor);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wp = &actorNew->s();
@@ -17513,7 +17511,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     int daz;
     int nx,ny,nz;
     short cstat = 0;
-    short spark;
+    DSWActor* spark;
 
     PlaySound(DIGI_BOATFIRE, pp, v3df_dontpan|v3df_doppler);
 
@@ -17583,8 +17581,8 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
             spark = SpawnBoatSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-            SET(User[spark]->Flags2, SPR2_SO_MISSILE);
-            if (MissileHitMatch(spark, -1, hitinfo.hitactor->GetSpriteIndex()))
+            SET(spark->u()->Flags2, SPR2_SO_MISSILE);
+            if (MissileHitMatch(spark->GetSpriteIndex(), -1, hitinfo.hitactor->GetSpriteIndex()))
                 return 0;
             return 0;
         }
@@ -17606,7 +17604,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     }
 
     spark = SpawnBoatSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-    DoHitscanDamage(spark, hitinfo.hitactor->GetSpriteIndex());
+    DoHitscanDamage(spark, hitinfo.hitactor);
 
     return 0;
 }
@@ -17718,8 +17716,7 @@ int InitSobjGun(PLAYERp pp)
     return 0;
 }
 
-int
-SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+DSWActor* SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     SPRITEp wp;
     USERp wu;
@@ -17757,7 +17754,7 @@ SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y
     if (RANDOM_P2(1024) < 100)
         PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
 
-    return actorNew->GetSpriteIndex();
+    return actorNew;
 }
 
 int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
@@ -17801,7 +17798,7 @@ int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int 
     return 0;
 }
 
-int SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+DSWActor* SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     SPRITEp wp;
     USERp wu;
@@ -17835,7 +17832,7 @@ int SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x,
     if (RANDOM_P2(1024) < 100)
         PlaySound(DIGI_RICHOCHET1, actorNew, v3df_none);
 
-    return actorNew->GetSpriteIndex();
+    return actorNew;
 }
 
 DSWActor* SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
@@ -17878,7 +17875,7 @@ DSWActor* SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit
 int InitTurretMgun(SECTOR_OBJECTp sop)
 {
     SPRITEp hsp;
-    short daang, i, j;
+    short daang, i;
     HITINFO hitinfo;
     short nsect;
     int daz;
@@ -18032,8 +18029,8 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             }
 
 
-            j = SpawnTurretSparks(/*sp, */hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-            DoHitscanDamage(j, hitinfo.hitactor->GetSpriteIndex());
+            auto j = SpawnTurretSparks(/*sp, */hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+            DoHitscanDamage(j, hitinfo.hitactor);
         }
     }
 
@@ -18173,7 +18170,7 @@ int InitEnemyUzi(DSWActor* actor)
     wp->clipdist = 8 >> 2;
 
     HitscanSpriteAdjust(actorNew, hitinfo.wall);
-    DoHitscanDamage(actorNew->GetSpriteIndex(), hitinfo.hitactor? hitinfo.hitactor->GetSpriteIndex() : -1);
+    DoHitscanDamage(actorNew, hitinfo.hitactor);
 
     actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wu = actorNew->u();
