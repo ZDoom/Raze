@@ -15494,13 +15494,11 @@ InitMicro(PLAYERp pp)
     return 0;
 }
 
-int
-InitRipperSlash(DSWActor* actor)
+int InitRipperSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
+    SPRITEp sp = &actor->s();
     USERp hu;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -15510,13 +15508,13 @@ InitRipperSlash(DSWActor* actor)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
-            hu = User[i].Data();
+            hp = &itActor->s();
+            hu = itActor->u();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 break;
 
             if ((unsigned)FindDistance3D(sp->x - hp->x, sp->y - hp->y, sp->z - hp->z) > hu->Radius + u->Radius)
@@ -15526,8 +15524,7 @@ InitRipperSlash(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-//                  PlaySound(PlayerPainVocs[RandomRange(MAX_PAIN)], sp, v3df_none);
-                DoDamage(i, SpriteNum);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -15535,12 +15532,10 @@ InitRipperSlash(DSWActor* actor)
     return 0;
 }
 
-int
-InitBunnySlash(DSWActor* actor)
+int InitBunnySlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -15550,19 +15545,19 @@ InitBunnySlash(DSWActor* actor)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
+            hp = &itActor->s();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 break;
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, a, b, c);
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-                DoDamage(i, SpriteNum);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -15571,35 +15566,32 @@ InitBunnySlash(DSWActor* actor)
 }
 
 
-int
-InitSerpSlash(DSWActor* actor)
+int InitSerpSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_SERPSWORDATTACK, sp, v3df_none);
+    PlaySound(DIGI_SERPSWORDATTACK, actor, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
+            hp = &itActor->s();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 break;
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, a, b, c);
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 800) && FACING_RANGE(hp, sp, 150))
             {
-//                PlaySound(PlayerPainVocs[RandomRange(MAX_PAIN)], sp, v3df_none);
-                DoDamage(i, SpriteNum);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -15607,8 +15599,7 @@ InitSerpSlash(DSWActor* actor)
     return 0;
 }
 
-bool
-WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
+bool WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
 {
     int x1, y1, x2, y2;
     int xoff;
@@ -15643,10 +15634,10 @@ WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
 }
 
 
-int
-DoBladeDamage(short SpriteNum)
+int DoBladeDamage(DSWActor* actor)
 {
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USER* u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -15654,12 +15645,12 @@ DoBladeDamage(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
+            hp = &itActor->s();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 break;
 
             if (!TEST(hp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -15677,7 +15668,7 @@ DoBladeDamage(short SpriteNum)
 
             if (WallSpriteInsideSprite(sp, hp))
             {
-                DoDamage(i, SpriteNum);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }

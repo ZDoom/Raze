@@ -221,7 +221,7 @@ void InitBoltTrap(DSWActor* actor);
 void InitSpearTrap(DSWActor*);
 int InitTurretMgun(SECTOR_OBJECTp sop);
 int InitVulcanBoulder(DSWActor* actor);
-int DoBladeDamage(short SpriteNum);
+int DoBladeDamage(DSWActor*);
 int DoFindGround(int16_t SpriteNum);
 int DoFindGroundPoint(DSWActor* actor);
 void SpriteQueueDelete(DSWActor* actor);

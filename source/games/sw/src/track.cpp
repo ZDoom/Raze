@@ -1883,7 +1883,7 @@ PlayerPart:
 
         if (TEST(sp->extra, SPRX_BLADE))
         {
-            DoBladeDamage(sop->so_actors[i]->GetSpriteIndex());
+            DoBladeDamage(sop->so_actors[i]);
         }
     }
 
