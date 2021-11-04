@@ -12080,11 +12080,8 @@ DoNapalm(DSWActor* actor)
     return false;
 }
 
-#define WORM 1
 
-#if WORM == 1
-int
-DoBloodWorm(DSWActor* actor)
+int DoBloodWorm(DSWActor* actor)
 {
     USER* u = actor->u();
     int Weapon = u->SpriteNum;
@@ -12174,21 +12171,17 @@ DoBloodWorm(DSWActor* actor)
 
     return false;
 }
-#endif
 
 
-int
-DoMeteor(DSWActor* actor)
+int DoMeteor(DSWActor* actor)
 {
     return false;
 }
 
-int
-DoSerpMeteor(DSWActor* actor)
+int DoSerpMeteor(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     int ox, oy, oz;
 
     ox = sp->x;
@@ -12199,16 +12192,16 @@ DoSerpMeteor(DSWActor* actor)
     if (sp->xrepeat > 80)
         sp->xrepeat = 80;
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         // this sprite is supposed to go through players/enemys
         // if hit a player/enemy back up and do it again with blocking reset
-        if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
+        if (u->coll.type == kHitSprite)
         {
-            SPRITEp hsp = &sprite[NORM_SPRITE(u->ret)];
-            USERp hu = User[NORM_SPRITE(u->ret)].Data();
+            SPRITEp hsp = &u->coll.actor->s();
+            USERp hu = u->coll.actor->u();
 
             if (hu && hu->ID >= SKULL_R0 && hu->ID <= SKULL_SERP)
             {
@@ -12219,71 +12212,55 @@ DoSerpMeteor(DSWActor* actor)
                 sp->z = oz;
 
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+                SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
                 hsp->cstat = hcstat;
             }
         }
-    }
 
-    if (u->ret)
-    {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
-            SpawnMeteorExp(Weapon);
-
+            SpawnMeteorExp(actor->GetSpriteIndex());
             KillActor(actor);
-
             return true;
         }
     }
-
     return false;
-
 }
 
 
-int
-DoMirvMissile(DSWActor* actor)
+int DoMirvMissile(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     sp->xrepeat += MISSILEMOVETICS * 2;
     if (sp->xrepeat > 80)
         sp->xrepeat = 80;
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (u->ret)
+    if (u->coll.type == kHitNone)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
-            SpawnMeteorExp(Weapon);
-
+            SpawnMeteorExp(actor->GetSpriteIndex());
             KillActor(actor);
-
             return true;
         }
     }
-
     return false;
-
 }
 
-int
-DoMirv(DSWActor* actor)
+int DoMirv(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon], np;
+    SPRITEp sp = &actor->s(), np;
     USERp nu;
-    short New;
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
 
@@ -12305,18 +12282,17 @@ DoMirv(DSWActor* actor)
 
         for (i = 0; i < 2; i++)
         {
-            New = SpawnSprite(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], sp->sectnum,
+            auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], sp->sectnum,
                               sp->x, sp->y, sp->z, NORM_ANGLE(sp->ang + angs[i]), 800);
 
-            auto actorNew = &swActors[New];
-            np = &sprite[New];
-            nu = User[New].Data();
+            np = &actorNew->s();
+            nu = actorNew->u();
 
             nu->RotNum = 5;
             NewStateGroup(actorNew, &sg_MirvMeteor[0]);
             nu->StateEnd = s_MirvMeteorExp;
 
-            SetOwner(Weapon, New);
+            SetOwner(actor, actorNew);
             np->shade = -40;
             np->xrepeat = 40;
             np->yrepeat = 40;
@@ -12341,8 +12317,7 @@ DoMirv(DSWActor* actor)
 
     if (u->ret)
     {
-        SpawnMeteorExp(Weapon);
-        //SpawnBasicExp(Weapon);
+        SpawnMeteorExp(actor->GetSpriteIndex());
         KillActor(actor);
         return true;
     }
