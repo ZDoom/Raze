@@ -213,6 +213,7 @@ int InitCoolgDrip(DSWActor*);
 int InitFireball(PLAYERp pp);
 void InitSpellRing(PLAYERp pp);
 void InitSpellNapalm(PLAYERp pp);
+int DoStaticFlamesDamage(DSWActor*);
 int InitUzi(PLAYERp pp);
 int InitSobjGun(PLAYERp pp);
 void InitFireballTrap(DSWActor* actor);

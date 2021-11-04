@@ -15678,7 +15678,6 @@ DoBladeDamage(short SpriteNum)
             if (WallSpriteInsideSprite(sp, hp))
             {
                 DoDamage(i, SpriteNum);
-//                    PlaySound(PlayerPainVocs[RandomRange(MAX_PAIN)], sp, v3df_none);
             }
         }
     }
@@ -15686,11 +15685,10 @@ DoBladeDamage(short SpriteNum)
     return 0;
 }
 
-int
-DoStaticFlamesDamage(short SpriteNum)
+int DoStaticFlamesDamage(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USER* u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -15698,12 +15696,12 @@ DoStaticFlamesDamage(short SpriteNum)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
+            hp = &itActor->s();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 break;
 
             if (!TEST(hp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -15719,12 +15717,12 @@ DoStaticFlamesDamage(short SpriteNum)
             if (dist > 2000)
                 continue;
 
-            if (SpriteOverlap(SpriteNum, i))  // If sprites are overlapping, cansee will fail!
-                DoDamage(i, SpriteNum);
+            if (SpriteOverlap(actor->GetSpriteIndex(), itActor->GetSpriteIndex()))  // If sprites are overlapping, cansee will fail!
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             else if (u->Radius > 200)
             {
                 if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,hp->x,hp->y,SPRITEp_MID(hp),hp->sectnum))
-                    DoDamage(i, SpriteNum);
+                    DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -15732,12 +15730,10 @@ DoStaticFlamesDamage(short SpriteNum)
     return 0;
 }
 
-int
-InitCoolgBash(DSWActor* actor)
+int InitCoolgBash(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -15747,12 +15743,12 @@ InitCoolgBash(DSWActor* actor)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
+            hp = &itActor->s();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 break;
 
             // don't set off mine
@@ -15763,8 +15759,7 @@ InitCoolgBash(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-//                PlaySound(PlayerPainVocs[RandomRange(MAX_PAIN)], sp, v3df_none);
-                DoDamage(i, SpriteNum);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -15772,12 +15767,10 @@ InitCoolgBash(DSWActor* actor)
     return 0;
 }
 
-int
-InitSkelSlash(DSWActor* actor)
+int InitSkelSlash(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -15787,20 +15780,19 @@ InitSkelSlash(DSWActor* actor)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
+            hp = &itActor->s();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 break;
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, a, b, c);
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-//                PlaySound(PlayerPainVocs[RandomRange(MAX_PAIN)], sp, v3df_none);
-                DoDamage(i, SpriteNum);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -15808,12 +15800,10 @@ InitSkelSlash(DSWActor* actor)
     return 0;
 }
 
-int
-InitGoroChop(DSWActor* actor)
+int InitGoroChop(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     SPRITEp hp;
     int i;
     unsigned stat;
@@ -15823,20 +15813,20 @@ InitGoroChop(DSWActor* actor)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            hp = &sprite[i];
+            hp = &itActor->s();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 break;
 
             DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, a, b, c);
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 700) && FACING_RANGE(hp, sp, 150))
             {
-                PlaySound(DIGI_GRDAXEHIT, sp, v3df_none);
-                DoDamage(i, SpriteNum);
+                PlaySound(DIGI_GRDAXEHIT, actor, v3df_none);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -15844,16 +15834,10 @@ InitGoroChop(DSWActor* actor)
     return 0;
 }
 
-int
-InitHornetSting(DSWActor* actor)
+int InitHornetSting(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    short HitSprite = NORM_SPRITE(u->ret);
-
-    DoDamage(HitSprite, SpriteNum);
+    DoDamage(actor->u()->coll.actor->GetSpriteIndex(), actor->GetSpriteIndex());
     InitActorReposition(actor);
-
     return 0;
 }
 

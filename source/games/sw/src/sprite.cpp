@@ -6609,11 +6609,9 @@ SpriteControl(void)
     if (MoveSkip8 == 0)
     {
         it.Reset(STAT_STATIC_FIRE);
-        while ((i = it.NextIndex()) >= 0)
+        while (auto itActor = it.Next())
         {
-            extern int DoStaticFlamesDamage(short SpriteNum);
-            ASSERT(User[i].Data());
-            DoStaticFlamesDamage(i);
+            DoStaticFlamesDamage(itActor);
         }
     }
 
