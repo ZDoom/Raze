@@ -114,7 +114,7 @@ int SopDamage(SECTOR_OBJECTp sop,short amt);
 int SopCheckKill(SECTOR_OBJECTp sop);
 int QueueStar(DSWActor*);
 int DoBlurExtend(int16_t Weapon,int16_t interval,int16_t blur_num);
-int SpawnDemonFist(short Weapon);
+int SpawnDemonFist(DSWActor*);
 int SpawnTankShellExp(int16_t Weapon);
 int SpawnMicroExp(int16_t Weapon);
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
@@ -8697,7 +8697,7 @@ DoCoolgFire(DSWActor* actor)
             PlaySound(DIGI_CGMAGICHIT, sp, v3df_follow);
             ChangeState(actor, s_CoolgFireDone);
             if (sp->owner >= 0 && User[sp->owner].Data() && User[sp->owner]->ID != RIPPER_RUN_R0)  // JBF: added range check
-                SpawnDemonFist(Weapon); // Just a red magic circle flash
+                SpawnDemonFist(actor); // Just a red magic circle flash
             return true;
         }
     }
@@ -13448,6 +13448,7 @@ InitFistAttack(PLAYERp pp)
         StatIterator it(StatDamageList[stat]);
         while ((i = it.NextIndex()) >= 0)
         {
+            auto itActor = &swActors[i];
             sp = &sprite[i];
 
             //if (pp->SpriteP == sp) // UnderSprite was getting hit
@@ -13479,7 +13480,7 @@ InitFistAttack(PLAYERp pp)
                         DoDamage(i, pp->PlayerSprite);
                     if (face == 190)
                     {
-                        SpawnDemonFist(i);
+                        SpawnDemonFist(itActor);
                     }
                 }
             }
@@ -15856,22 +15857,20 @@ InitHornetSting(DSWActor* actor)
     return 0;
 }
 
-int
-InitSerpSpell(DSWActor* actor)
+int InitSerpSpell(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], np;
+    SPRITEp sp = &actor->s(), np;
     USERp nu;
     int dist;
-    short New, i;
+    short i;
 
-    static short lat_ang[] =
+    static const short lat_ang[] =
     {
         512, -512
     };
 
-    static short delta_ang[] =
+    static const short delta_ang[] =
     {
         -10, 10
     };
@@ -15880,12 +15879,11 @@ InitSerpSpell(DSWActor* actor)
     {
         sp->ang = getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y);
 
-        New = SpawnSprite(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 1500);
 
-        auto actorNew = &swActors[New];
-        np = &sprite[New];
-        nu = User[New].Data();
+        np = &actorNew->s();
+        nu = actorNew->u();
 
         np->z = SPRITEp_TOS(sp);
 
@@ -15893,9 +15891,9 @@ InitSerpSpell(DSWActor* actor)
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
         nu->StateEnd = s_MirvMeteorExp;
 
-        SetOwner(SpriteNum, New);
+        SetOwner(actor, actorNew);
         np->shade = -40;
-        PlaySound(DIGI_SERPMAGICLAUNCH, sp, v3df_none);
+        PlaySound(DIGI_SERPMAGICLAUNCH, actor, v3df_none);
         nu->spal = np->pal = 27; // Bright Green
         np->xrepeat = 64;
         np->yrepeat = 64;
@@ -15925,7 +15923,7 @@ InitSerpSpell(DSWActor* actor)
         nu->ychange = MOVEy(np->xvel, np->ang);
         nu->zchange = np->zvel;
 
-        MissileSetPos(New, DoMirvMissile, 400);
+        MissileSetPos(actorNew->GetSpriteIndex(), DoMirvMissile, 400);
         sp->clipdist = oclipdist;
 
         if (TEST(u->Flags, SPR_UNDERWATER))
@@ -15935,24 +15933,21 @@ InitSerpSpell(DSWActor* actor)
     return 0;
 }
 
-int SpawnDemonFist(int16_t Weapon)
+int SpawnDemonFist(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    USER* u = actor->u();
+    SPRITEp sp = &actor->s();
     SPRITEp exp;
     USERp eu;
-    short explosion;
 
-    ASSERT(u);
     if (TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    explosion = SpawnSprite(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
                             sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->shade = -40;
@@ -15969,7 +15964,7 @@ int SpawnDemonFist(int16_t Weapon)
     if (RANDOM_P2(1024<<8)>>8 > 600)
         SET(exp->cstat, CSTAT_SPRITE_YFLIP);
 
-    return explosion;
+    return 0;
 }
 
 int InitSerpMonstSpell(DSWActor* actor)
