@@ -15359,24 +15359,20 @@ InitEnemyNuke(DSWActor* actor)
     return 0;
 }
 
-int
-InitMicro(PLAYERp pp)
+int InitMicro(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     USERp wu,hu;
     SPRITEp wp,hp;
     int nx, ny, nz, dist;
-    short w;
     short i,ang;
     TARGET_SORTp ts = TargetSort;
-
-    //DoPlayerBeginRecoil(pp, MICRO_RECOIL_AMT);
-    //PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
     nx = pp->posx;
     ny = pp->posy;
 
-#define MAX_MICRO 1
+    const int MAX_MICRO = 1;
 
     DoPickTarget(pp->Actor(), 256, false);
 
@@ -15410,13 +15406,13 @@ InitMicro(PLAYERp pp)
         // Spawn a shot
         // Inserting and setting up variables
 
-        w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursectnum,
                         nx, ny, nz, ang, 1200);
 
-        wp = &sprite[w];
-        wu = User[w].Data();
+        wp = &actorNew->s();
+        wu = actorNew->u();
 
-        SetOwner(pp->PlayerSprite, w);
+        SetOwner(pp->Actor(), actorNew);
         wp->yrepeat = 24;
         wp->xrepeat = 24;
         wp->shade = -15;
@@ -15427,7 +15423,7 @@ InitMicro(PLAYERp pp)
         wp->zvel += RandomRange(Z(8)) - Z(5);
 
         wu->RotNum = 5;
-        NewStateGroup(&swActors[w], &sg_Micro[0]);
+        NewStateGroup(actorNew, &sg_Micro[0]);
 
         wu->WeaponNum = u->WeaponNum;
         wu->Radius = 200;
@@ -15441,12 +15437,12 @@ InitMicro(PLAYERp pp)
 
         // at certain angles the clipping box was big enough to block the
         // initial positioning of the fireball.
-        auto oclipdist = pp->SpriteP->clipdist;
-        pp->SpriteP->clipdist = 0;
+        auto oclipdist = sp->clipdist;
+        sp->clipdist = 0;
 
         wp->ang = NORM_ANGLE(wp->ang + 512);
-#define MICRO_LATERAL 5000
-        HelpMissileLateral(w, 1000 + (RandomRange(MICRO_LATERAL) - DIV2(MICRO_LATERAL)));
+        const int MICRO_LATERAL = 5000;
+        HelpMissileLateral(actorNew->GetSpriteIndex(), 1000 + (RandomRange(MICRO_LATERAL) - DIV2(MICRO_LATERAL)));
         wp->ang = NORM_ANGLE(wp->ang - 512);
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -15454,16 +15450,16 @@ InitMicro(PLAYERp pp)
 
         // cancel smoke trail
         wu->Counter = 1;
-        if (MissileSetPos(w, DoMicro, 700))
+        if (MissileSetPos(actorNew->GetSpriteIndex(), DoMicro, 700))
         {
-            pp->SpriteP->clipdist = oclipdist;
-            KillSprite(w);
+            sp->clipdist = oclipdist;
+            KillActor(actorNew);
             continue;
         }
         // inable smoke trail
         wu->Counter = 0;
 
-        pp->SpriteP->clipdist = oclipdist;
+        sp->clipdist = oclipdist;
 
         const int MICRO_ANG = 400;
 
