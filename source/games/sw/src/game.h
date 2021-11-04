@@ -1661,7 +1661,7 @@ struct SECTOR_OBJECTstruct
     soANIMATORp PreMoveAnimator;
     soANIMATORp PostMoveAnimator;
     soANIMATORp Animator;
-    SPRITEp controller;
+    DSWActor* controller;
 
     DSWActor* sp_child;  // child sprite that holds info for the sector object
 

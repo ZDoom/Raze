@@ -4214,22 +4214,21 @@ bool VehicleMoveHit(DSWActor* actor)
     SECTOR_OBJECTp sop;
     SECTOR_OBJECTp hsop;
     bool TestKillSectorObject(SECTOR_OBJECTp);
-    int controller;
 
-    if (!u->ret)
+    if (u->coll.type == kHitNone)
         return false;
 
     sop = u->sop_parent;
 
     // sprite controlling sop
-    cp = sop->controller;
-    controller = int(cp - sprite);
+    auto ctrlr = sop->controller;
+    cp = &ctrlr->s();
 
-    switch (TEST(u->ret, HIT_MASK))
+    switch (u->coll.type)
     {
-    case HIT_SECTOR:
+    case kHitSector:
     {
-        short hit_sect = NORM_SECTOR(u->ret);
+        short hit_sect = u->coll.index;
         SECTORp sectp = &sector[hit_sect];
 
         if (TEST(sectp->extra, SECTFX_SECTOR_OBJECT))
@@ -4240,22 +4239,22 @@ bool VehicleMoveHit(DSWActor* actor)
         return true;
     }
 
-    case HIT_SPRITE:
+    case kHitSprite:
     {
-        short hit_sprite = NORM_SPRITE(u->ret);
-        SPRITEp hsp = &sprite[hit_sprite];
+        auto hitActor = u->coll.actor;
+        SPRITEp hsp = &hitActor->s();
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(&swActors[hit_sprite], u->ID);
+            HitBreakSprite(hitActor, u->ID);
             return true;
         }
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            if (hit_sprite != cp->owner)
+            if (hitActor != GetOwner(ctrlr))
             {
-                DoDamage(hit_sprite, controller);
+                DoDamage(hitActor->GetSpriteIndex(), ctrlr->GetSpriteIndex());
                 return true;
             }
         }
@@ -4263,7 +4262,7 @@ bool VehicleMoveHit(DSWActor* actor)
         {
             if (hsp->statnum == STAT_MINE_STUCK)
             {
-                DoDamage(hit_sprite, actor->GetSpriteIndex());
+                DoDamage(hitActor->GetSpriteIndex(), actor->GetSpriteIndex());
                 return true;
             }
         }
@@ -4271,9 +4270,9 @@ bool VehicleMoveHit(DSWActor* actor)
         return true;
     }
 
-    case HIT_WALL:
+    case kHitWall:
     {
-        short hit_wall = NORM_WALL(u->ret);
+        short hit_wall = u->coll.index;
         WALLp wph = &wall[hit_wall];
 
         if (TEST(wph->extra, WALLFX_SECTOR_OBJECT))
@@ -4281,27 +4280,11 @@ bool VehicleMoveHit(DSWActor* actor)
             // sector object collision
             if ((hsop = DetectSectorObjectByWall(wph)))
             {
-#if 1
                 SopDamage(hsop, sop->ram_damage);
                 if (hsop->max_damage <= 0)
                     SopCheckKill(hsop);
                 else
                     DoSpawnSpotsForDamage(hsop->match_event);
-#else
-                // drivable damage is DIE_HARD type
-                if (hsop->max_damage != -9999 && sop->ram_damage)
-                {
-                    hsop->max_damage -= sop->ram_damage;
-                    if (hsop->max_damage <= 0)
-                    {
-                        TestKillSectorObject(hsop);
-                    }
-                    else
-                    {
-                        DoSpawnSpotsForDamage(hsop->match_event);
-                    }
-                }
-#endif
             }
         }
 

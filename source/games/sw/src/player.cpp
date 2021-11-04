@@ -5013,7 +5013,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
     }
 
     pp->sop = pp->sop_control = sop;
-    sop->controller = &pp->Actor()->s();
+    sop->controller = pp->Actor();
 
     pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->posx = sop->xmid;
@@ -5080,7 +5080,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     short save_sectnum;
 
     pp->sop_remote = pp->sop = pp->sop_control = sop;
-    sop->controller = &pp->Actor()->s();
+    sop->controller = pp->Actor();
 
     // won't operate - broken
     if (sop->max_damage != -9999 && sop->max_damage <= 0)
