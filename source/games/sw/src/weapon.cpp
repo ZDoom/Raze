@@ -12438,21 +12438,22 @@ bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
     return retval;
 }
 
-int
-DoRing(DSWActor* actor)
+enum
+{
+    RINGMOVETICS = (MISSILEMOVETICS * 2),
+    RING_OUTER_DIST = 3200,
+    RING_INNER_DIST = 800,
+};
+
+int DoRing(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
-    PLAYERp pp = User[sp->owner]->PlayerP;
-    SPRITEp so = &sprite[sp->owner];
+    SPRITEp sp = &actor->s();
+    auto own = GetOwner(actor);
+    if (!own) return 0; // this would crash.
+    PLAYERp pp = own->u()->PlayerP;;
+    SPRITEp so = &own->s();
     int cz,fz;
-
-#define RINGMOVETICS (MISSILEMOVETICS * 2)
-#define RING_OUTER_DIST 3200
-#define RING_INNER_DIST 800
-
-    ASSERT(sp->owner != -1);
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -12466,9 +12467,9 @@ DoRing(DSWActor* actor)
     }
 
     // move the center with the player
-    sp->x = sprite[sp->owner].x;
-    sp->y = sprite[sp->owner].y;
-    if (User[sp->owner]->PlayerP)
+    sp->x = so->x;
+    sp->y = so->y;
+    if (pp)
         sp->z = pp->posz + Z(20);
     else
         sp->z = SPRITEp_MID(so) + Z(30);
@@ -12489,14 +12490,12 @@ DoRing(DSWActor* actor)
 
         if (u->Dist <= RING_INNER_DIST)
         {
-            if (!User[sp->owner]->PlayerP)
-                User[sp->owner]->Counter--;
+            if (!pp)
+                own->u()->Counter--;
             KillActor(actor);
             return 0;
         }
     }
-
-    //sp->ang = NORM_ANGLE(sp->ang - 512);
 
     // rotate the ring
     sp->ang = NORM_ANGLE(sp->ang + (4 * RINGMOVETICS) + RINGMOVETICS);
@@ -12504,13 +12503,10 @@ DoRing(DSWActor* actor)
     // put it out there
     sp->x += MulScale(u->Dist, bcos(sp->ang), 14);
     sp->y += MulScale(u->Dist, bsin(sp->ang), 14);
-    if (User[sp->owner]->PlayerP)
+    if (pp)
         sp->z += (u->Dist * (-pp->horizon.horiz.asq16() >> 9)) >> 9;
 
-    //sp->ang = NORM_ANGLE(sp->ang + 512);
-    //updatesector(sp->x, sp->y);
-
-    setsprite(Weapon, &sp->pos);
+    SetActor(actor, &sp->pos);
 
     ASSERT(sp->sectnum >= 0);
 
@@ -12535,9 +12531,9 @@ DoRing(DSWActor* actor)
 
 
 
-void
-InitSpellRing(PLAYERp pp)
+void InitSpellRing(PLAYERp pp)
 {
+    auto psp = &pp->Actor()->s();
     short ang, ang_diff, ang_start, SpriteNum, missiles;
     SPRITEp sp;
     USERp u;
@@ -12563,20 +12559,19 @@ InitSpellRing(PLAYERp pp)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursectnum, pp->posx, pp->posy, pp->posz, ang, 0);
+        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursectnum, pp->posx, pp->posy, pp->posz, ang, 0);
 
-        sp = &sprite[SpriteNum];
+        sp = &actorNew->s();
 
         sp->hitag = LUMINOUS; //Always full brightness
         sp->xvel = 500;
-        //sp->owner = pp->SpriteP - sprite;
-        SetOwner(short(pp->SpriteP - sprite), SpriteNum);
+        SetOwner(pp->Actor(), actorNew);
         sp->shade = -40;
         sp->xrepeat = 32;
         sp->yrepeat = 32;
         sp->zvel = 0;
 
-        u = User[SpriteNum].Data();
+        u = actorNew->u();
 
         u->sz = Z(20);
         u->Dist = RING_INNER_DIST;
@@ -12584,10 +12579,6 @@ InitSpellRing(PLAYERp pp)
         u->Counter2 = 0;
         u->ceiling_dist = Z(10);
         u->floor_dist = Z(10);
-
-        //u->RotNum = 5;
-        //NewStateGroup(actor, &sg_Ring);
-        //SET(u->Flags, SPR_XFLIP_TOGGLE);
 
         // put it out there
         sp->x += MulScale(u->Dist, bcos(sp->ang), 14);
@@ -12603,19 +12594,17 @@ InitSpellRing(PLAYERp pp)
     }
 }
 
-int
-DoSerpRing(DSWActor* actor)
+int DoSerpRing(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
-    USERp ou = User[sp->owner].Data();
+    SPRITEp sp = &actor->s();
     int dist,a,b,c;
     int cz,fz;
 
+    auto own = GetOwner(actor);
     // if Owner does not exist or he's dead on the floor
     // kill off all of his skull children
-    if (sp->owner == -1 || ou->RotNum < 5)
+    if (own == nullptr || own->u()->RotNum < 5)
     {
         UpdateSinglePlayKills(actor);
         DoSkullBeginDeath(actor);
@@ -12623,14 +12612,16 @@ DoSerpRing(DSWActor* actor)
         u->ID = SKULL_SERP;
         return 0;
     }
+    auto osp = &own->s();
+    auto ou = own->u();
 
     // move the center with the player
-    sp->x = sprite[sp->owner].x;
-    sp->y = sprite[sp->owner].y;
+    sp->x = osp->x;
+    sp->y = osp->y;
 
     sp->z += sp->zvel;
-    if (sp->z > sprite[sp->owner].z - u->sz)
-        sp->z = sprite[sp->owner].z - u->sz;
+    if (sp->z > osp->z - u->sz)
+        sp->z = osp->z - u->sz;
 
     // go out until its time to come back in
     if (u->Counter2 == false)
@@ -12654,7 +12645,7 @@ DoSerpRing(DSWActor* actor)
     sp->x += MulScale(u->Dist, bcos(u->slide_ang), 14);
     sp->y += MulScale(u->Dist, bsin(u->slide_ang), 14);
 
-    setsprite(Weapon, &sp->pos);
+    SetActor(actor, &sp->pos);
 
     ASSERT(sp->sectnum >= 0);
 

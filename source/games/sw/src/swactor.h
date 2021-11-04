@@ -231,4 +231,9 @@ inline int SetActorZ(DSWActor* actor, const vec3_t* newpos)
 	return setspritez(actor->GetSpriteIndex(), newpos);
 }
 
+inline int SetActor(DSWActor* actor, const vec3_t* newpos)
+{
+	return setsprite(actor->GetSpriteIndex(), newpos);
+}
+
 END_SW_NS
