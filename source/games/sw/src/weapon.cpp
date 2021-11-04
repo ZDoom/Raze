@@ -11339,25 +11339,23 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop, bool sma
     return expActor->GetSpriteIndex();
 }
 
-int
-SpawnGrenadeSecondaryExp(int16_t Weapon, short ang)
+void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
     int vel;
 
 
     ASSERT(u);
-    explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_GrenadeSmallExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeSmallExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 1024);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), expActor);
     exp->shade = -40;
     exp->xrepeat = 32;
     exp->yrepeat = 32;
@@ -11372,30 +11370,23 @@ SpawnGrenadeSecondaryExp(int16_t Weapon, short ang)
     eu->xchange = MOVEx(vel, ang);
     eu->ychange = MOVEy(vel, ang);
 
-    SetCollision(eu, move_missile(explosion, eu->xchange, eu->ychange, 0,
+    SetCollision(eu, move_missile(expActor->GetSpriteIndex(), eu->xchange, eu->ychange, 0,
                            eu->ceiling_dist, eu->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (FindDistance3D(exp->x - sp->x, exp->y - sp->y, exp->z - sp->z) < 1024)
     {
-        KillSprite(explosion);
-        return -1;
+        KillActor(expActor);
+        return;
     }
 
-    SpawnExpZadjust(Weapon, exp, Z(50), Z(10));
-
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(50), Z(10));
     exp->backuppos();
-
-    return explosion;
 }
 
-int
-SpawnGrenadeSmallExp(DSWActor* actor)
+int SpawnGrenadeSmallExp(DSWActor* actor)
 {
-    USER* u = actor->u();
-    short ang;
-
-    ang = RANDOM_P2(2048);
-    SpawnGrenadeSecondaryExp(u->SpriteNum, ang);
+    int ang = RANDOM_P2(2048);
+    SpawnGrenadeSecondaryExp(actor, ang);
     return 0;
 }
 
