@@ -331,7 +331,7 @@ int DoSkullBeginDeath(DSWActor* actor)
         }
         break;
     default:
-        SpawnMineExp(actor->GetSpriteIndex());
+        SpawnMineExp(actor);
         for (i=0; i<3; i++)
         {
             sp->ang = NORM_ANGLE(RandomRange(2048));
@@ -734,7 +734,7 @@ int DoBettyBeginDeath(DSWActor* actor)
         {
             sp->ang = NORM_ANGLE(RandomRange(2048));
             InitPhosphorus(actor);
-            SpawnMineExp(actor->GetSpriteIndex());
+            SpawnMineExp(actor);
         }
         break;
     }

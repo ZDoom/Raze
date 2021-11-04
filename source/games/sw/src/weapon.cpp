@@ -3445,13 +3445,11 @@ AutoShrap:
 
             case SHRAP_EXPLOSION:
             {
-                short spnum;
                 short size;
                 SPRITEp ep;
 
-                spnum = SpawnLargeExp(ParentNum);
-                ASSERT(spnum >= 0);
-                ep = &sprite[spnum];
+                auto spnum = SpawnLargeExp(parentActor);
+                ep = &spnum->s();
 
                 size = ep->xrepeat;
                 ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
@@ -3461,18 +3459,16 @@ AutoShrap:
 
             case SHRAP_LARGE_EXPLOSION:
             {
-                short spnum;
                 short size;
                 SPRITEp ep;
 
-                spnum = SpawnLargeExp(ParentNum);
-                ASSERT(spnum >= 0);
-                ep = &sprite[spnum];
+                auto spnum = SpawnLargeExp(parentActor);
+                ep = &spnum->s();
 
                 size = ep->xrepeat;
                 ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
 
-                InitPhosphorus(&swActors[spnum]);
+                InitPhosphorus(spnum);
 
                 return false;
             }
@@ -5848,7 +5844,7 @@ DoDamage(short SpriteNum, short Weapon)
     // special case for shooting mines
     if (sp->statnum == STAT_MINE_STUCK)
     {
-        SpawnMineExp(SpriteNum);
+        SpawnMineExp(actor);
         KillActor(actor);
         return 0;
     }
@@ -9279,7 +9275,7 @@ DoMineStuck(DSWActor* actor)
 {
     USER* u = actor->u();
     int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 #define MINE_DETONATE_STATE 99
 
     // if no Owner then die
@@ -9429,7 +9425,7 @@ DoMineStuck(DSWActor* actor)
         if (u->WaitTics < 0)
         {
             PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
-            SpawnMineExp(Weapon);
+            SpawnMineExp(actor);
             KillActor(actor);
             return false;
         }
@@ -9556,7 +9552,7 @@ DoMine(DSWActor* actor)
                 }
                 else
                 {
-                    SpawnMineExp(Weapon);
+                    SpawnMineExp(actor);
                     KillActor(actor);
                     return false;
                 }
@@ -9586,7 +9582,7 @@ DoMine(DSWActor* actor)
 
             if (TEST(wall[hit_wall].extra, WALLFX_DONT_STICK))
             {
-                SpawnMineExp(Weapon);
+                SpawnMineExp(actor);
                 KillActor(actor);
                 return false;
             }
@@ -9609,7 +9605,7 @@ DoMine(DSWActor* actor)
 
             if (TEST(sector[hit_sect].extra, SECTFX_SECTOR_OBJECT))
             {
-                SpawnMineExp(Weapon);
+                SpawnMineExp(actor);
                 KillActor(actor);
                 return false;
             }
@@ -9804,7 +9800,6 @@ DoEMPBurst(DSWActor* actor)
 
     if (u->WaitTics < 0)
     {
-        //SpawnMineExp(Weapon);
         // Spawn a big radius burst of sparks here and check for final damage amount
         KillActor(actor);
         return false;
@@ -11529,31 +11524,29 @@ void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize
 
     exp->backupz();
 }
-int
-SpawnMineExp(int16_t Weapon)
+
+void SpawnMineExp(DSWActor* actor)
 {
-    auto actor = &swActors[Weapon];
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
 
     ASSERT(u);
     if (u && TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return;
 
     change_actor_stat(actor, STAT_MISSILE);
 
-    PlaySound(DIGI_MINEBLOW, sp, v3df_none);
+    PlaySound(DIGI_MINEBLOW, actor, v3df_none);
 
-    explosion = SpawnSprite(STAT_MISSILE, MINE_EXP, s_MineExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, MINE_EXP, s_MineExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), expActor);
     exp->shade = -40;
     exp->xrepeat = 64 + 44;
     exp->yrepeat = 64 + 44;
@@ -11566,14 +11559,10 @@ SpawnMineExp(int16_t Weapon)
     // ceilings
     //
 
-    SpawnExpZadjust(Weapon, exp, Z(100), Z(20));
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(100), Z(20));
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
-    SetExpQuake(explosion);
-
-    //DoExpDamageTest(expActor);
-
-    return explosion;
+    SetExpQuake(expActor->GetSpriteIndex());
 }
 
 
@@ -11583,11 +11572,10 @@ int DoMineExp(DSWActor* actor)
     return 0;
 }
 
-int
-DoSectorExp(DSWActor* actor)
+int DoSectorExp(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &sprite[u->SpriteNum];
+    SPRITEp sp = &actor->s();
 
     sp->x += u->xchange;
     sp->y += u->ychange;
@@ -11595,26 +11583,25 @@ DoSectorExp(DSWActor* actor)
     return 0;
 }
 
-int
-SpawnSectorExp(int16_t Weapon)
+DSWActor* SpawnSectorExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
     short explosion;
 
     ASSERT(u);
     if (TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return nullptr;
 
-    PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
+    PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
 
-    explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->shade = -40;
@@ -11625,28 +11612,26 @@ SpawnSectorExp(int16_t Weapon)
     eu->Radius = DamageData[DMG_SECTOR_EXP].radius;
 
     DoExpDamageTest(expActor);
-    SetExpQuake(explosion);
+    SetExpQuake(expActor->GetSpriteIndex());
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
-    return explosion;
+    return expActor;
 }
 
 // called from SpawnShrap
-int
-SpawnLargeExp(int16_t Weapon)
+DSWActor* SpawnLargeExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     SPRITEp exp;
     USERp eu;
-    short explosion;
-
+    
     PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
 
-    explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->shade = -40;
@@ -11656,14 +11641,14 @@ SpawnLargeExp(int16_t Weapon)
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_SECTOR_EXP].radius;
 
-    SpawnExpZadjust(Weapon, exp, Z(50), Z(50));
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(50), Z(50));
 
     // Should not cause other sectors to explode
     DoExpDamageTest(expActor);
-    SetExpQuake(explosion);
+    SetExpQuake(expActor->GetSpriteIndex());
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
-    return explosion;
+    return expActor;
 }
 
 void SpawnMeteorExp(DSWActor* actor)

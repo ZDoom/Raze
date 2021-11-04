@@ -969,7 +969,6 @@ void SectorExp(DSWActor* actor, short sectnum, short orig_ang, int zh)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
-    short explosion;
     SPRITEp exp;
     USERp eu;
     int x,y,z;
@@ -993,10 +992,10 @@ void SectorExp(DSWActor* actor, short sectnum, short orig_ang, int zh)
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
     // spawn explosion
-    explosion = SpawnSectorExp(actor->GetSpriteIndex());
-    ASSERT(explosion >= 0);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    auto explosion = SpawnSectorExp(actor);
+    if (!explosion) return;
+    exp = &explosion->s();
+    eu = explosion->u();
 
     exp->xrepeat += (RANDOM_P2(32<<8)>>8) - 16;
     exp->yrepeat += (RANDOM_P2(32<<8)>>8) - 16;
