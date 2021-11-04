@@ -5699,13 +5699,15 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
     SPRITEp wp = &weapActor->s();
     USERp   wu = weapActor->u();
 
+    auto weapOwner = GetOwner(weapActor);
+
     if (gNet.MultiGameType == MULTI_GAME_NONE)
     {
         // ZOMBIE special case for single play
         if (wu->ID == ZOMBIE_RUN_R0)
         {
             // if weapons Owner the player
-            if (wp->owner == pp->PlayerSprite)
+            if (weapOwner == pp->Actor())
                 return false;
         }
 
@@ -5723,7 +5725,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return true;
 
         // if the weapons Owner is YOURSELF take damage
-        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP && User[wp->owner]->PlayerP == pp)
+        if (weapOwner && weapOwner->hasU() && weapOwner->u()->PlayerP == pp)
             return true;
 
         // if weapon IS the player no damage
@@ -5731,7 +5733,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return false;
 
         // if the weapons Owner is a player
-        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP)
+        if (weapOwner && weapOwner->hasU() && weapOwner->u()->PlayerP)
             return false;
     }
     else if (gNet.MultiGameType == MULTI_GAME_COMMBAT && gNet.TeamPlay)
@@ -5745,7 +5747,7 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
             return true;
 
         // if the weapons Owner is YOURSELF take damage
-        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP && User[wp->owner]->PlayerP == pp)
+        if (weapOwner && weapOwner->hasU() && weapOwner->u()->PlayerP == pp)
             return true;
 
         if (wu->PlayerP)
@@ -5756,10 +5758,10 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
         }
 
         // if the weapons Owner is a player
-        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->PlayerP)
+        if (weapOwner && weapOwner->hasU() && weapOwner->u()->PlayerP)
         {
             // if both on the same team then no damage
-            if (User[wp->owner]->spal == u->spal)
+            if (weapOwner->u()->spal == u->spal)
                 return false;
         }
     }
@@ -11998,7 +12000,7 @@ int DoBloodWorm(DSWActor* actor)
                 tsp = &itActor->s();
                 tu = itActor->u();
 
-                if (tu->ID == ZOMBIE_RUN_R0 && tsp->owner == sp->owner)
+                if (tu->ID == ZOMBIE_RUN_R0 && GetOwner(itActor) == GetOwner(actor))
                 {
                     InitBloodSpray(itActor, true, 105);
                     InitBloodSpray(itActor, true, 105);
