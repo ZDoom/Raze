@@ -231,7 +231,7 @@ int DoFindGround(DSWActor*);
 int DoFindGroundPoint(DSWActor* actor);
 void SpriteQueueDelete(DSWActor* actor);
 int HelpMissileLateral(DSWActor*, int dist);
-int AddSpriteToSectorObject(short SpriteNum,SECTOR_OBJECTp sop);
+void AddSpriteToSectorObject(DSWActor*,SECTOR_OBJECTp sop);
 void QueueReset(void);
 int PlayerCheckDeath(PLAYERp pp,short Weapon);
 bool SpriteWarpToUnderwater(DSWActor* actor);

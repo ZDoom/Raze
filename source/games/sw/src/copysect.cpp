@@ -196,7 +196,7 @@ void CopySectorMatch(short match)
 
                             // find and add sprite to SO
                             sop = DetectSectorObject(&sector[sp->sectnum]);
-                            AddSpriteToSectorObject(itActor->GetSpriteIndex(), sop);
+                            AddSpriteToSectorObject(itActor, sop);
 
                             // update sprites postions so they aren't in the
                             // wrong place for one frame

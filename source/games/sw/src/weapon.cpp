@@ -11232,10 +11232,8 @@ SpawnMicroExp(int16_t Weapon)
     return explosion;
 }
 
-int
-AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
+void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
 {
-	auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
     unsigned sn;
@@ -11253,7 +11251,7 @@ AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
             break;
     }
 
-	if (sn >= SIZ(sop->so_actors) - 1) return 0;
+	if (sn >= SIZ(sop->so_actors) - 1) return;
     sop->so_actors[sn] = actor;
     so_setspriteinterpolation(sop, actor);
 
@@ -11264,11 +11262,9 @@ AddSpriteToSectorObject(short SpriteNum, SECTOR_OBJECTp sop)
     u->sz = sector[sop->mid_sector].floorz - sp->z;
 
     u->sang = sp->ang;
-    return 0;
 }
 
-int
-SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop, bool smallflames)
+void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, bool smallflames)
 {
     SPRITEp sp;
     USERp u;
@@ -11276,8 +11272,8 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop, bool sma
     USERp eu;
     unsigned sn;
 
-    sp = &sprite[Weapon];
-    u = User[Weapon].Data();
+    sp = &actor->s();
+    u = actor->u();
 
     auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_BigGunFlame, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11285,7 +11281,7 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop, bool sma
     eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(&swActors[Operator], expActor);
+    SetOwner(Operator, expActor);
     exp->shade = -40;
     if (smallflames)
     {
@@ -11312,7 +11308,7 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop, bool sma
 			break;
 	}
 
-	if (sn >= SIZ(sop->so_actors) - 1) return -1;
+	if (sn >= SIZ(sop->so_actors) - 1) return;
 
     sop->so_actors[sn] = expActor;
     so_setspriteinterpolation(sop, expActor);
@@ -11335,8 +11331,6 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop, bool sma
     eu->sx = u->sx;
     eu->sy = u->sy;
     eu->sz = u->sz;
-
-    return expActor->GetSpriteIndex();
 }
 
 void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
@@ -11346,7 +11340,6 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
     SPRITEp exp;
     USERp eu;
     int vel;
-
 
     ASSERT(u);
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeSmallExp, sp->sectnum,
@@ -17450,7 +17443,7 @@ int InitSobjGun(PLAYERp pp)
             case 32:
             case 0:
                 SpawnVis(actor, -1, -1, -1, -1, 8);
-                SpawnBigGunFlames(actor->GetSpriteIndex(), pp->PlayerSprite, pp->sop, false);
+                SpawnBigGunFlames(actor, pp->Actor(), pp->sop, false);
                 SetGunQuake(actor->GetSpriteIndex());
                 InitTankShell(actor, pp);
                 if (!SP_TAG5(sp))
@@ -17460,7 +17453,7 @@ int InitSobjGun(PLAYERp pp)
                 break;
             case 1:
                 SpawnVis(actor, -1, -1, -1, -1, 32);
-                SpawnBigGunFlames(actor->GetSpriteIndex(), pp->PlayerSprite, pp->sop, true);
+                SpawnBigGunFlames(actor, pp->Actor(), pp->sop, true);
                 InitSobjMachineGun(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 10;
