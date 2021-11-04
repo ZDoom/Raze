@@ -107,7 +107,6 @@ int InitElectroJump(SPRITEp wp, SPRITEp sp);
 bool TestDontStickSector(short hit_sect);
 ANIMATOR SpawnShrapX;
 bool WeaponMoveHit(short SpriteNum);
-int HelpMissileLateral(int16_t Weapon, int dist);
 void SpawnMidSplash(DSWActor* actor);
 
 int SopDamage(SECTOR_OBJECTp sop,short amt);
@@ -13010,7 +13009,7 @@ InitSpellNapalm(PLAYERp pp)
         if (mp[i].dist_over != 0)
         {
             sp->ang = NORM_ANGLE(sp->ang + mp[i].ang);
-            HelpMissileLateral(actor->GetSpriteIndex(), mp[i].dist_over);
+            HelpMissileLateral(actor, mp[i].dist_over);
             sp->ang = NORM_ANGLE(sp->ang - mp[i].ang);
         }
 
@@ -13066,6 +13065,7 @@ InitEnemyNapalm(DSWActor* actor)
         w = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Napalm, sp->sectnum,
                         sp->x, sp->y, SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)), sp->ang, NAPALM_VELOCITY);
 
+        auto actorNew = &swActors[w];
         wp = &sprite[w];
         wu = User[w].Data();
 
@@ -13098,7 +13098,7 @@ InitEnemyNapalm(DSWActor* actor)
         if (mp[i].dist_over != 0)
         {
             wp->ang = NORM_ANGLE(wp->ang + mp[i].ang);
-            HelpMissileLateral(w, mp[i].dist_over);
+            HelpMissileLateral(actorNew, mp[i].dist_over);
             wp->ang = NORM_ANGLE(wp->ang - mp[i].ang);
         }
 
@@ -13664,7 +13664,7 @@ int InitSumoNapalm(DSWActor* actor)
             if (mp[i].dist_over != 0)
             {
                 wp->ang = NORM_ANGLE(wp->ang + mp[i].ang);
-                HelpMissileLateral(wActor->GetSpriteIndex(), mp[i].dist_over);
+                HelpMissileLateral(wActor, mp[i].dist_over);
                 wp->ang = NORM_ANGLE(wp->ang - mp[i].ang);
             }
 
@@ -14119,14 +14119,12 @@ InitStar(PLAYERp pp)
     int zvel;
 
     static short dang[] = {-12, 12};
-//    static short dang[] = {-0, 0};
     uint8_t i;
     SPRITEp np;
     USERp nu;
     short nw;
-#define STAR_REPEAT  26
-#define STAR_HORIZ_ADJ 100L
-    //#define STAR_HORIZ_ADJ 0
+    const int STAR_REPEAT = 26;
+    const int STAR_HORIZ_ADJ = 100;
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -3);
 
@@ -14597,7 +14595,7 @@ int InitLaser(PLAYERp pp)
     sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 900);
+    HelpMissileLateral(actorNew, 900);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -14706,7 +14704,7 @@ int InitRail(PLAYERp pp)
     wp->clipdist = 32L>>2;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 700);
+    HelpMissileLateral(actorNew, 700);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -14789,7 +14787,7 @@ int InitZillaRail(DSWActor* actor)
     wp->clipdist = 32L>>2;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 700);
+    HelpMissileLateral(actorNew, 700);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (SpriteInUnderwaterArea(wp))
@@ -14901,7 +14899,7 @@ int InitRocket(PLAYERp pp)
     sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 900);
+    HelpMissileLateral(actorNew, 900);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -15012,7 +15010,7 @@ int InitBunnyRocket(PLAYERp pp)
     sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 900);
+    HelpMissileLateral(actorNew, 900);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -15111,7 +15109,7 @@ int InitNuke(PLAYERp pp)
     pp->SpriteP->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 900);
+    HelpMissileLateral(actorNew, 900);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -15198,7 +15196,7 @@ int InitEnemyNuke(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 500);
+    HelpMissileLateral(actorNew, 500);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (SpriteInUnderwaterArea(wp))
@@ -15313,7 +15311,7 @@ int InitMicro(PLAYERp pp)
 
         wp->ang = NORM_ANGLE(wp->ang + 512);
         const int MICRO_LATERAL = 5000;
-        HelpMissileLateral(actorNew->GetSpriteIndex(), 1000 + (RandomRange(MICRO_LATERAL) - DIV2(MICRO_LATERAL)));
+        HelpMissileLateral(actorNew, 1000 + (RandomRange(MICRO_LATERAL) - DIV2(MICRO_LATERAL)));
         wp->ang = NORM_ANGLE(wp->ang - 512);
 
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -15751,7 +15749,7 @@ int InitSerpSpell(DSWActor* actor)
         sp->clipdist = 1;
 
         np->ang = NORM_ANGLE(np->ang + lat_ang[i]);
-        HelpMissileLateral(actorNew->GetSpriteIndex(), 4200);
+        HelpMissileLateral(actorNew, 4200);
         np->ang = NORM_ANGLE(np->ang - lat_ang[i]);
 
         // find the distance to the target (player)
@@ -15863,7 +15861,7 @@ int InitSerpMonstSpell(DSWActor* actor)
         sp->clipdist = 1;
 
         np->ang = NORM_ANGLE(np->ang + lat_ang[i]);
-        HelpMissileLateral(actorNew->GetSpriteIndex(), 4200);
+        HelpMissileLateral(actorNew, 4200);
         np->ang = NORM_ANGLE(np->ang - lat_ang[i]);
 
         // find the distance to the target (player)
@@ -16120,7 +16118,7 @@ int InitZillaRocket(DSWActor* actor)
         if (mp[i].dist_over != 0)
         {
             wp->ang = NORM_ANGLE(wp->ang + mp[i].ang);
-            HelpMissileLateral(actorNew->GetSpriteIndex(), mp[i].dist_over);
+            HelpMissileLateral(actorNew, mp[i].dist_over);
             wp->ang = NORM_ANGLE(wp->ang - mp[i].ang);
         }
 
@@ -16650,9 +16648,9 @@ int InitTracerUzi(PLAYERp pp)
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
     if (TEST(pp->Flags, PF_TWO_UZI) && pp->WpnUziType == 0)
-        HelpMissileLateral(actorNew->GetSpriteIndex(), lat_dist[RANDOM_P2(2<<8)>>8]);
+        HelpMissileLateral(actorNew, lat_dist[RANDOM_P2(2<<8)>>8]);
     else
-        HelpMissileLateral(actorNew->GetSpriteIndex(), lat_dist[0]);
+        HelpMissileLateral(actorNew, lat_dist[0]);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (MissileSetPos(actorNew->GetSpriteIndex(), DoTracerStart, 800))
@@ -18264,7 +18262,7 @@ int InitGrenade(PLAYERp pp)
     pp->SpriteP->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 800);
+    HelpMissileLateral(actorNew, 800);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     // don't do smoke for this movement
@@ -18350,7 +18348,7 @@ int InitSpriteGrenade(DSWActor* actor)
     wu->zchange = wp->zvel;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 800);
+    HelpMissileLateral(actorNew, 800);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     // don't do smoke for this movement
@@ -18479,10 +18477,10 @@ int InitEnemyMine(DSWActor* actor)
     return 0;
 }
 
-int HelpMissileLateral(int16_t Weapon, int dist)
+int HelpMissileLateral(DSWActor* actor, int dist)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     int xchange, ychange;
 
     auto old_xvel = sp->xvel;
@@ -18494,7 +18492,7 @@ int HelpMissileLateral(int16_t Weapon, int dist)
 
     sp->clipdist = 32L >> 2;
 
-    SetCollision(u, move_missile(Weapon, xchange, ychange, 0, Z(16), Z(16), 0, 1));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), xchange, ychange, 0, Z(16), Z(16), 0, 1));
 
     sp->xvel = old_xvel;
     sp->clipdist = old_clipdist;
@@ -18551,7 +18549,7 @@ int InitFireball(PLAYERp pp)
     sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(actorNew->GetSpriteIndex(), 2100);
+    HelpMissileLateral(actorNew, 2100);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -18627,7 +18625,7 @@ int InitEnemyFireball(DSWActor* actor)
         wp->clipdist = 16>>2;
 
         wp->ang = NORM_ANGLE(wp->ang + lat_ang[i]);
-        HelpMissileLateral(actorNew->GetSpriteIndex(), 500);
+        HelpMissileLateral(actorNew, 500);
         wp->ang = NORM_ANGLE(wp->ang - lat_ang[i]);
 
         wu->xchange = xchange;

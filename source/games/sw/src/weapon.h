@@ -225,7 +225,7 @@ int DoBladeDamage(DSWActor*);
 int DoFindGround(int16_t SpriteNum);
 int DoFindGroundPoint(DSWActor* actor);
 void SpriteQueueDelete(DSWActor* actor);
-int HelpMissileLateral(int16_t Weapon,int dist);
+int HelpMissileLateral(DSWActor*, int dist);
 int AddSpriteToSectorObject(short SpriteNum,SECTOR_OBJECTp sop);
 void QueueReset(void);
 int PlayerCheckDeath(PLAYERp pp,short Weapon);

@@ -1067,7 +1067,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                 sp->y = tsp->y;
                 sp->ang = tsp->ang;
                 sp->ang = NORM_ANGLE(sp->ang + 1024);
-                HelpMissileLateral(actor->GetSpriteIndex(), 2000);
+                HelpMissileLateral(actor, 2000);
                 sp->ang = tsp->ang;
                 u->Vis = sp->ang;  // Remember angles for later
                 tu->Vis = tsp->ang;

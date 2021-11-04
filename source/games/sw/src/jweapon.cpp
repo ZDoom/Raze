@@ -1372,7 +1372,7 @@ int PlayerInitChemBomb(PLAYERp pp)
     wp->clipdist = 0;
 
 //    wp->ang = NORM_ANGLE(wp->ang - 512);
-//    HelpMissileLateral(actorNew->GetSpriteIndex(), 800);
+//    HelpMissileLateral(actorNew, 800);
 //    wp->ang = NORM_ANGLE(wp->ang + 512);
 
     MissileSetPos(actorNew->GetSpriteIndex(), DoChemBomb, 1000);
@@ -2399,17 +2399,17 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         if (ShellNum == -3)
         {
             wp->ang = sp->ang;
-            HelpMissileLateral(actorNew->GetSpriteIndex(),2500);
+            HelpMissileLateral(actorNew,2500);
             wp->ang = NORM_ANGLE(wp->ang-512);
-            HelpMissileLateral(actorNew->GetSpriteIndex(),1000); // Was 1500
+            HelpMissileLateral(actorNew,1000); // Was 1500
             wp->ang = NORM_ANGLE(wp->ang+712);
         }
         else
         {
             wp->ang = sp->ang;
-            HelpMissileLateral(actorNew->GetSpriteIndex(),2500);
+            HelpMissileLateral(actorNew,2500);
             wp->ang = NORM_ANGLE(wp->ang+512);
-            HelpMissileLateral(actorNew->GetSpriteIndex(),1500);
+            HelpMissileLateral(actorNew,1500);
             wp->ang = NORM_ANGLE(wp->ang-128);
         }
         wp->ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
@@ -2422,9 +2422,9 @@ int SpawnShell(DSWActor* actor, int ShellNum)
     case SHOT_SHELL:
         wp->z -= Z(13);
         wp->ang = sp->ang;
-        HelpMissileLateral(actorNew->GetSpriteIndex(),2500);
+        HelpMissileLateral(actorNew,2500);
         wp->ang = NORM_ANGLE(wp->ang+512);
-        HelpMissileLateral(actorNew->GetSpriteIndex(),1300);
+        HelpMissileLateral(actorNew,1300);
         wp->ang = NORM_ANGLE(wp->ang-128-64);
         wp->ang += (RANDOM_P2(128<<5)>>5) - DIV2(128);
         wp->ang = NORM_ANGLE(wp->ang);
