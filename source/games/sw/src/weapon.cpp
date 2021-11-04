@@ -3399,26 +3399,6 @@ AutoShrap:
 
             case SHRAP_MARBELS:
             {
-#if 0
-                short spnum;
-                short size;
-                SPRITEp ep;
-                USERp eu;
-                int SpawnLittleExp(int16_t Weapon);
-
-                spnum = SpawnLittleExp(ParentNum);
-                ASSERT(spnum >= 0);
-                ep = &sprite[spnum];
-                eu = User[spnum];
-
-                //eu->xchange = MOVEx(92, ep->ang);
-                //eu->ychange = MOVEy(92, ep->ang);
-
-                size = ep->xrepeat/2;
-                ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
-#endif
-
-                //PlaySound(DIGI_BREAKMARBELS,parent,v3df_dontpan|v3df_doppler);
                 p = Marbels;
                 if (shrap_amt)
                 {
@@ -5170,7 +5150,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
                 // For the Nuke, do residual radiation if he gibs
                 if (wu->Radius == NUKE_RADIUS)
-                    SpawnFireballFlames(SpriteNum, -1);
+                    SpawnFireballFlames(actor->GetSpriteIndex(), -1);
 
                 // Random chance of taunting the AI's here
                 if (RandomRange(1000) > 400)
@@ -7130,7 +7110,7 @@ DoDamage(short SpriteNum, short Weapon)
 
         if (wp->owner >= 0) // For SerpGod Ring
             User[wp->owner]->Counter--;
-        SpawnFireballFlames(Weapon, SpriteNum);
+        SpawnFireballFlames(weapActor->GetSpriteIndex(), actor->GetSpriteIndex());
         SetSuicide(weapActor);
         break;
 
@@ -7189,15 +7169,11 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        //SpawnFireballFlames(Weapon, SpriteNum);
-
         break;
 
     case RADIATION_CLOUD:
 
         damage = GetDamage(SpriteNum, Weapon, DMG_RADIATION_CLOUD);
-//      //DSPRINTF(ds,"Radiation damage = %d\n",damage);
-//      MONO_PRINT(ds);
 
         if (u->sop_parent)
         {
@@ -9092,7 +9068,7 @@ DoVulcanBoulder(DSWActor* actor)
 
     if (vel < 30)
     {
-        SpawnLittleExp(Weapon);
+        SpawnLittleExp(actor);
         KillActor(actor);
         return true;
     }
@@ -9124,7 +9100,7 @@ DoVulcanBoulder(DSWActor* actor)
             else
             {
                 // hit an actor
-                SpawnLittleExp(Weapon);
+                SpawnLittleExp(actor);
                 KillActor(actor);
                 return true;
             }
@@ -11741,20 +11717,19 @@ SpawnMeteorExp(int16_t Weapon)
     return explosion;
 }
 
-int
-SpawnLittleExp(int16_t Weapon)
+void SpawnLittleExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     SPRITEp exp;
     USERp eu;
     short explosion;
 
-    PlaySound(DIGI_HEADSHOTHIT, sp, v3df_none);
-    explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_SectorExp, sp->sectnum,
+    PlaySound(DIGI_HEADSHOTHIT, actor, v3df_none);
+    auto expActor = SpawnActor(STAT_MISSILE, BOLT_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->shade = -127;
@@ -11764,20 +11739,12 @@ SpawnLittleExp(int16_t Weapon)
     eu->Radius = DamageData[DMG_BASIC_EXP].radius;
     DoExpDamageTest(expActor);
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
-
-    return explosion;
 }
 
-int
-DoFireball(DSWActor* actor)
+int DoFireball(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
-
-    u = User[Weapon].Data();
-
-    ASSERT(Weapon >= 0);
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -11790,7 +11757,7 @@ DoFireball(DSWActor* actor)
         }
     }
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
 
@@ -11798,23 +11765,23 @@ DoFireball(DSWActor* actor)
     {
         bool hit_burn = false;
 
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
-            switch (TEST(u->ret, HIT_MASK))
+            switch (u->coll.type)
             {
-            case HIT_SPRITE:
+            case kHitSprite:
             {
                 SPRITEp hsp;
                 USERp hu;
 
-                hsp = &sprite[NORM_SPRITE(u->ret)];
-                hu = User[NORM_SPRITE(u->ret)].Data();
+                hsp = &u->coll.actor->s();
+                hu = u->coll.actor->u();
 
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(&swActors[short(sp - sprite)], hsp->picnum, nullptr);
-                    SpawnFireballFlames(Weapon, short(hsp - sprite));
+                        hu = SpawnUser(actor, hsp->picnum, nullptr);
+                    SpawnFireballFlames(actor->GetSpriteIndex(), u->coll.actor->GetSpriteIndex());
                     hit_burn = true;
                 }
 
@@ -11825,19 +11792,16 @@ DoFireball(DSWActor* actor)
             if (!hit_burn)
             {
                 if (u->ID == GORO_FIREBALL)
-                    SpawnGoroFireballExp(Weapon);
+                    SpawnGoroFireballExp(actor->GetSpriteIndex());
                 else
                     SpawnFireballExp(actor);
             }
 
             KillActor(actor);
-
             return true;
         }
     }
-
     return false;
-
 }
 
 int DoFindGround(DSWActor* actor)

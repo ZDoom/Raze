@@ -239,7 +239,7 @@ int PlayerDamageSlide(PLAYERp pp,int damage,short ang);
 bool VehicleMoveHit(DSWActor*);
 int SpawnSplash(DSWActor*);
 int SpawnMineExp(int16_t Weapon);
-int SpawnLittleExp(int16_t Weapon);
+void SpawnLittleExp(DSWActor*);
 int SpawnLargeExp(int16_t Weapon);
 int SpawnNuclearExp(int16_t Weapon);
 int SpawnBoltExp(int16_t Weapon);

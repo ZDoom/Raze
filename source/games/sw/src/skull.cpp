@@ -343,21 +343,14 @@ int DoSkullBeginDeath(DSWActor* actor)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     u->RotNum = 0;
     u->Tics = 0;
-//    ChangeState(actor, u->StateEnd);
-    //u->State = u->StateStart = u->StateEnd;
-    //u->State = u->StateEnd;
     u->ID = SKULL_R0;
     u->Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusSkull;
     u->OverlapZ = Z(64);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     sp->shade = -40;
 
-    SpawnLittleExp(actor->GetSpriteIndex());
+    SpawnLittleExp(actor);
     SetSuicide(actor);
-
-    //u->spal = sp->pal = PALETTE_RED_LIGHTING;
-
-
     return 0;
 }
 
@@ -749,21 +742,14 @@ int DoBettyBeginDeath(DSWActor* actor)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     u->RotNum = 0;
     u->Tics = 0;
-//    ChangeState(actor, u->StateEnd);
-    //u->State = u->StateStart = u->StateEnd;
-    //u->State = u->StateEnd;
     u->ID = BETTY_R0;
     u->Radius = DamageData[DMG_SKULL_EXP].radius; //*DamageRadiusBetty;
     u->OverlapZ = Z(64);
     change_actor_stat(actor, STAT_DEAD_ACTOR);
     sp->shade = -40;
 
-    SpawnLittleExp(actor->GetSpriteIndex());
+    SpawnLittleExp(actor);
     SetSuicide(actor);
-
-    //u->spal = sp->pal = PALETTE_RED_LIGHTING;
-
-
     return 0;
 }
 
