@@ -6567,7 +6567,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
 
         if (wu->Radius == NUKE_RADIUS)
-            SpawnNuclearExp(Weapon);
+            SpawnNuclearExp(weapActor);
         else
             SpawnBoltExp(Weapon);
         SetSuicide(weapActor);
@@ -6641,7 +6641,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
 
         if (wu->Radius == NUKE_RADIUS)
-            SpawnNuclearExp(Weapon);
+            SpawnNuclearExp(weapActor);
         else
             SpawnBoltExp(Weapon);
         SetSuicide(weapActor);
@@ -10096,7 +10096,7 @@ DoRocket(DSWActor* actor)
                 SpawnBunnyExp(Weapon);
             }
             else if (u->Radius == NUKE_RADIUS)
-                SpawnNuclearExp(Weapon);
+                SpawnNuclearExp(actor);
             else
                 SpawnBoltExp(Weapon);
 
@@ -11000,24 +11000,22 @@ SpawnTankShellExp(int16_t Weapon)
 }
 
 
-int
-SpawnNuclearSecondaryExp(int16_t Weapon, short ang)
+void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
 
     ASSERT(u);
 
-    explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 512);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), expActor);
     exp->shade = -128;
     exp->xrepeat = 218;
     exp->yrepeat = 152;
@@ -11032,42 +11030,39 @@ SpawnNuclearSecondaryExp(int16_t Weapon, short ang)
     eu->xchange = MOVEx(vel, ang);
     eu->ychange = MOVEy(vel, ang);
     eu->Radius = 200; // was NUKE_RADIUS
-    SetCollision(eu, move_missile(explosion, eu->xchange, eu->ychange, 0,
+    SetCollision(eu, move_missile(expActor->GetSpriteIndex(), eu->xchange, eu->ychange, 0,
                            eu->ceiling_dist, eu->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (FindDistance3D(exp->x - sp->x, exp->y - sp->y, exp->z - sp->z) < 1024)
     {
-        KillSprite(explosion);
-        return -1;
+        KillActor(expActor);
+        return;
     }
 
-    SpawnExpZadjust(Weapon, exp, Z(50), Z(10));
-
-     InitChemBomb(&swActors[explosion]);
-
-    return explosion;
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(50), Z(10));
+    InitChemBomb(expActor);
 }
 
-int
-SpawnNuclearExp(int16_t Weapon)
+void SpawnNuclearExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion,ang=0;
+    short ang=0;
     PLAYERp pp = nullptr;
     short rnd_rng;
 
     ASSERT(u);
     if (u && TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return;
 
-    PlaySound(DIGI_NUCLEAREXP, sp, v3df_dontpan | v3df_doppler);
+    PlaySound(DIGI_NUCLEAREXP, actor, v3df_dontpan | v3df_doppler);
 
-    if (sp->owner)
+    auto own = GetOwner(actor);
+    if (own && own->hasU())
     {
-        pp = User[sp->owner]->PlayerP;
+        pp = own->u()->PlayerP;
         rnd_rng = RandomRange(1000);
 
         if (rnd_rng > 990)
@@ -11079,13 +11074,13 @@ SpawnNuclearExp(int16_t Weapon)
     }
 
     // Spawn big mushroom cloud
-    explosion = SpawnSprite(STAT_MISSILE, MUSHROOM_CLOUD, s_NukeMushroom, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_NukeMushroom, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(own, expActor);
     exp->shade = -128;
     exp->xrepeat = 255;
     exp->yrepeat = 255;
@@ -11094,17 +11089,16 @@ SpawnNuclearExp(int16_t Weapon)
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->spal = exp->pal = PALETTE_PLAYER1;  // Set nuke puff to gray
 
-    InitChemBomb(&swActors[explosion]);
+    InitChemBomb(expActor);
 
 
     // Do central explosion
-    explosion = SpawnSprite(STAT_MISSILE, MUSHROOM_CLOUD, s_GrenadeExp, sp->sectnum,
+    expActor = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_GrenadeExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
-    SetOwner(sp->owner, explosion);
+    SetOwner(own, expActor);
     exp->shade = -128;
     exp->xrepeat = 218;
     exp->yrepeat = 152;
@@ -11115,26 +11109,24 @@ SpawnNuclearExp(int16_t Weapon)
 
     eu->Radius = NUKE_RADIUS;
 
-    SpawnExpZadjust(Weapon, exp, Z(30), Z(30));
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(30), Z(30));
 
     DoExpDamageTest(expActor);
 
     // Nuclear effects
-    SetNuclearQuake(explosion);
+    SetNuclearQuake(actor->GetSpriteIndex());
 
     SetFadeAmt(pp, -80, 1); // Nuclear flash
 
     // Secondary blasts
     ang = RANDOM_P2(2048);
-    SpawnNuclearSecondaryExp(explosion, ang);
+    SpawnNuclearSecondaryExp(expActor, ang);
     ang = ang + 512 + RANDOM_P2(256);
-    SpawnNuclearSecondaryExp(explosion, ang);
+    SpawnNuclearSecondaryExp(expActor, ang);
     ang = ang + 512 + RANDOM_P2(256);
-    SpawnNuclearSecondaryExp(explosion, ang);
+    SpawnNuclearSecondaryExp(expActor, ang);
     ang = ang + 512 + RANDOM_P2(256);
-    SpawnNuclearSecondaryExp(explosion, ang);
-
-    return explosion;
+    SpawnNuclearSecondaryExp(expActor, ang);
 }
 
 void SpawnTracerExp(DSWActor* actor)

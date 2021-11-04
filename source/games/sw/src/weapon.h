@@ -241,7 +241,7 @@ int SpawnSplash(DSWActor*);
 void SpawnMineExp(DSWActor*);
 void SpawnLittleExp(DSWActor*);
 DSWActor* SpawnLargeExp(DSWActor*);
-int SpawnNuclearExp(int16_t Weapon);
+void SpawnNuclearExp(DSWActor* actor);
 int SpawnBoltExp(int16_t Weapon);
 void SpawnTracerExp(DSWActor* Weapon);
 int SpawnGoroFireballExp(int16_t Weapon);
