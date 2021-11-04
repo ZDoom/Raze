@@ -15167,18 +15167,15 @@ InitBunnyRocket(PLAYERp pp)
     return 0;
 }
 
-int
-InitNuke(PLAYERp pp)
+int InitNuke(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     int zvel;
 
-
-//    PlayerUpdateAmmo(pp, u->WeaponNum, -1);
     if (pp->WpnRocketNuke > 0)
         pp->WpnRocketNuke = 0;  // Bye Bye little nukie.
     else
@@ -15201,15 +15198,14 @@ InitNuke(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), 700);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 128;
     wp->xrepeat = 128;
     wp->shade = -15;
@@ -15220,7 +15216,7 @@ InitNuke(PLAYERp pp)
     wp->pal = wu->spal = 19;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rocket[0]);
+    NewStateGroup(actorNew, &sg_Rocket[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = NUKE_RADIUS;
@@ -15235,7 +15231,7 @@ InitNuke(PLAYERp pp)
     pp->SpriteP->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 900);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 900);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -15243,19 +15239,19 @@ InitNuke(PLAYERp pp)
 
     // cancel smoke trail
     wu->Counter = 1;
-    if (TestMissileSetPos(w, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRocket, 1200, zvel))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     wu->Counter = 0;
 
-    pp->SpriteP->clipdist = oclipdist;
+    sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(pp->SpriteP, w, 32, false) == -1)
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
@@ -15271,20 +15267,17 @@ InitNuke(PLAYERp pp)
     return 0;
 }
 
-int
-InitEnemyNuke(DSWActor* actor)
+int InitEnemyNuke(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     int zvel;
 
 
-    PlaySound(DIGI_RIOTFIRE, sp, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RIOTFIRE, actor, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -15293,19 +15286,17 @@ InitEnemyNuke(DSWActor* actor)
     ny = sp->y;
 
     // Spawn a shot
-    // Inserting and setting up variables
-    //nz = pp->posz + pp->bob_z + Z(12);
     nz = sp->z + Z(40);
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], sp->sectnum,
                     nx, ny, nz, sp->ang, 700);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     if (u->ID == ZOMBIE_RUN_R0)
-        SetOwner(sp->owner, w);
+        SetOwner(GetOwner(actor), actorNew);
     else
-        SetOwner(SpriteNum, w);
+        SetOwner(actor, actorNew);
 
     wp->yrepeat = 128;
     wp->xrepeat = 128;
@@ -15317,7 +15308,7 @@ InitEnemyNuke(DSWActor* actor)
     wp->pal = wu->spal = 19;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rocket[0]);
+    NewStateGroup(actorNew, &sg_Rocket[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = NUKE_RADIUS;
@@ -15327,7 +15318,7 @@ InitEnemyNuke(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 500);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 500);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (SpriteInUnderwaterArea(wp))
@@ -15335,9 +15326,9 @@ InitEnemyNuke(DSWActor* actor)
 
     // cancel smoke trail
     wu->Counter = 1;
-    if (TestMissileSetPos(w, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRocket, 1200, zvel))
     {
-        KillSprite(w);
+        KillActor(actorNew);
         return 0;
     }
 
@@ -15345,7 +15336,7 @@ InitEnemyNuke(DSWActor* actor)
     wu->Counter = 0;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(sp, w, 32, false) == -1)
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
