@@ -13819,23 +13819,13 @@ int InitMiniSumoClap(DSWActor* actor)
     return 0;
 }
 
-int WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
+int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 {
-    auto actor = &swActors[sp - sprite];
     USERp u = actor->u();
-    USERp wu = User[Missile].Data();
-    SPRITEp wp = &sprite[Missile];
+    USERp wu = mislActor->u();
+    SPRITEp wp = &mislActor->s();
     int dist;
     int zh;
-
-    //return(-1);
-
-#if 0
-    //formula for leading a player
-    dist = Distance(sp->x, sp->y, hp->x, hp->y);
-    time_to_target = dist/wp->xvel;
-    lead_dist = time_to_target*hp->vel;
-#endif
 
     if (u && u->PlayerP)
     {
@@ -13861,7 +13851,6 @@ int WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
 
         if (dist != 0)
         {
-#if 1
             int tos, diff, siz;
 
             tos = SPRITEp_TOS(hp);
@@ -13879,12 +13868,8 @@ int WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
                 zh = tos + DIV4(siz);
 
             wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
-#else
-            zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
-            wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
-#endif
         }
-        return hitActor->GetSpriteIndex();
+        return 0;
     }
 
     return -1;
@@ -14140,6 +14125,7 @@ InitStar(PLAYERp pp)
     // Inserting and setting up variables
 
     w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
+    auto actorNew = &swActors[w];
     wp = &sprite[w];
     wu = User[w].Data();
 
@@ -14158,7 +14144,6 @@ InitStar(PLAYERp pp)
     wu->Radius = 100;
     wu->Counter = 0;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
-    //SET(wu->Flags2, SPR2_BLUR_TAPER_SLOW);
 
     // zvel had to be tweaked alot for this weapon
     // MissileSetPos seemed to be pushing the sprite too far up or down when
@@ -14170,7 +14155,7 @@ InitStar(PLAYERp pp)
         return 0;
     }
 
-    if (WeaponAutoAim(pp->SpriteP, w, 32, false) != -1)
+    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) != -1)
     {
         zvel = wp->zvel;
     }
@@ -14628,7 +14613,7 @@ int InitLaser(PLAYERp pp)
 
     sp->clipdist = oclipdist;
 
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
@@ -14718,7 +14703,7 @@ int InitRail(PLAYERp pp)
     sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 4);
     }
@@ -14801,7 +14786,7 @@ int InitZillaRail(DSWActor* actor)
     sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 4);
     }
@@ -14917,7 +14902,7 @@ int InitRocket(PLAYERp pp)
     sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
@@ -15028,7 +15013,7 @@ int InitBunnyRocket(PLAYERp pp)
     sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
@@ -15127,7 +15112,7 @@ int InitNuke(PLAYERp pp)
     sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
@@ -15212,7 +15197,7 @@ int InitEnemyNuke(DSWActor* actor)
     wu->Counter = 0;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
@@ -16662,7 +16647,7 @@ int InitTracerUzi(PLAYERp pp)
 
     pp->SpriteP->clipdist = oclipdist;
 
-    WeaponAutoAim(psp, actorNew->GetSpriteIndex(), 32, false);
+    WeaponAutoAim(pp->Actor(), actorNew, 32, false);
 
     // a bit of randomness
     wp->ang = NORM_ANGLE(wp->ang + RandomRange(30) - 15);
@@ -16717,7 +16702,7 @@ int InitTracerTurret(DSWActor* actor, DSWActor* Operator, fixed_t q16horiz)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(q16horiz, wp->xvel / 8., 16));
 
-    WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false);
+    WeaponAutoAim(actor, actorNew, 32, false);
 
     // a bit of randomness
     wp->ang = NORM_ANGLE(wp->ang + RandomRange(30) - 15);
@@ -17171,7 +17156,7 @@ int InitTankShell(DSWActor* actor, PLAYERp pp)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
-    WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 64, false);
+    WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
     wp->ang += RandomRange(30) - 15;
     wp->ang = NORM_ANGLE(wp->ang);
@@ -17327,7 +17312,7 @@ int InitTurretRocket(DSWActor* actor, PLAYERp pp)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
-    WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 64, false);
+    WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
     //wp->ang += RandomRange(30) - 15;
 
@@ -17372,7 +17357,7 @@ int InitTurretFireball(DSWActor* actor, PLAYERp pp)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
-    WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 64, false);
+    WeaponAutoAim(actor, actorNew, 64, false);
     // a bit of randomness
     wp->ang += RandomRange(30) - 15;
     wp->ang = NORM_ANGLE(wp->ang);
@@ -17431,7 +17416,7 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
 
     wp->clipdist = 64L>>2;
 
-    if (WeaponAutoAim(pp->SpriteP, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang);
     }
@@ -17485,7 +17470,7 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
     SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     wp->clipdist = 64L>>2;
 
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    if (WeaponAutoAim(actor, actorNew, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang);
     }
@@ -18271,7 +18256,7 @@ int InitGrenade(PLAYERp pp)
     sp->clipdist = oclipdist;
 
     zvel = wp->zvel;
-    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) >= 0)
+    if (WeaponAutoAim(pp->Actor(), actorNew, 32, false) >= 0)
     {
         auto_aim = true;
     }
