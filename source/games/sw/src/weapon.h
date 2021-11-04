@@ -88,7 +88,7 @@ int SpawnGrenadeExp(int16_t Weapon);
 int SpawnSectorExp(int16_t Weapon);
 int DoShrapVelocity(DSWActor*);
 int ShrapKillSprite(DSWActor*);
-bool MissileSetPos(short Weapon,ANIMATORp DoWeapon,int dist);
+bool MissileSetPos(DSWActor*,ANIMATORp DoWeapon,int dist);
 int ActorPain(short SpriteNum);
 int SpawnBreakFlames(DSWActor*);
 bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor);

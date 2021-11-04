@@ -1375,7 +1375,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 //    HelpMissileLateral(actorNew, 800);
 //    wp->ang = NORM_ANGLE(wp->ang + 512);
 
-    MissileSetPos(actorNew->GetSpriteIndex(), DoChemBomb, 1000);
+    MissileSetPos(actorNew, DoChemBomb, 1000);
 
     psp->clipdist = uint8_t(oclipdist);
     wp->clipdist = 80L >> 2;
@@ -1791,7 +1791,7 @@ int PlayerInitCaltrops(PLAYERp pp)
     psp->clipdist = 0;
     wp->clipdist = 0;
 
-    MissileSetPos(spawnedActor->GetSpriteIndex(), DoCaltrops, 1000);
+    MissileSetPos(spawnedActor, DoCaltrops, 1000);
 
     psp->clipdist = uint8_t(oclipdist);
     wp->clipdist = 80L >> 2;
