@@ -13619,12 +13619,12 @@ int InitSumoNapalm(DSWActor* actor)
         short ang;
     } MISSILE_PLACEMENT;
 
-    static MISSILE_PLACEMENT mp[] =
+    static const MISSILE_PLACEMENT mp[] =
     {
         {0, 1100, 0},
     };
 
-    PlaySound(DIGI_NAPFIRE, sp, v3df_none);
+    PlaySound(DIGI_NAPFIRE, actor, v3df_none);
 
     ang = sp->ang;
     for (j=0; j<4; j++)
@@ -13640,7 +13640,7 @@ int InitSumoNapalm(DSWActor* actor)
             wp->hitag = LUMINOUS; //Always full brightness
             if (i==0) // Only attach sound to first projectile
             {
-                PlaySound(DIGI_NAPWIZ, wp, v3df_follow);
+                PlaySound(DIGI_NAPWIZ, wActor, v3df_follow);
             }
 
             SetOwner(actor, wActor);
@@ -13846,7 +13846,6 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
         SET(hu->Flags, SPR_ATTACKED);
 
         wp->ang = NORM_ANGLE(getangle(hp->x - wp->x, hp->y - wp->y));
-        //dist = FindDistance2D(wp->x, wp->y, hp->x, hp->y);
         dist = FindDistance2D(wp->x - hp->x, wp->y - hp->y);
 
         if (dist != 0)
@@ -13875,14 +13874,13 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
     return -1;
 }
 
-int
-WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
+int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short ang, bool test)
 {
-    auto actor = &swActors[sp - sprite];
+    auto sp = &actor->s();
     USERp u = actor->u();
 
-    USERp wu = User[Missile].Data();
-    SPRITEp wp = &sprite[Missile];
+    USERp wu = missileActor->u();
+    SPRITEp wp = &missileActor->s();
     int dist;
     int zh;
 
@@ -13919,7 +13917,6 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
 
         if (dist != 0)
         {
-#if 1
             int tos, diff, siz;
 
             tos = SPRITEp_TOS(hp);
@@ -13937,12 +13934,8 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
                 zh = tos + DIV4(siz);
 
             *zvel = (wp->xvel * (zh - wp->z)) / dist;
-#else
-            zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
-            wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
-#endif
         }
-        return hitActor->GetSpriteIndex();
+        return 0;
     }
 
     return -1;
@@ -18540,7 +18533,7 @@ int InitFireball(PLAYERp pp)
     sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAimZvel(sp, actorNew->GetSpriteIndex(), &zvel, 32, false) == -1)
+    if (WeaponAutoAimZvel(pp->Actor(), actorNew, &zvel, 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 9);
     }
