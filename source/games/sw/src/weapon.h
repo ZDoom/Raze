@@ -84,7 +84,7 @@ DSWActor* SpawnBubble(DSWActor*);
 int SpawnFireballExp(DSWActor*);
 void SpawnFireballFlames(int16_t SpriteNum,int16_t enemy);
 int SpawnRadiationCloud(DSWActor* actor);
-int SpawnGrenadeExp(int16_t Weapon);
+void SpawnGrenadeExp(DSWActor*);
 DSWActor* SpawnSectorExp(DSWActor*);
 int DoShrapVelocity(DSWActor*);
 int ShrapKillSprite(DSWActor*);

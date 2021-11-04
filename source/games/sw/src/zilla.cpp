@@ -745,15 +745,13 @@ int DoZillaStomp(DSWActor* actor)
     return 0;
 }
 
-extern int SpawnGrenadeExp(int16_t Weapon);
-
 int DoZillaDeathMelt(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
     if (RandomRange(1000) > 800)
-        SpawnGrenadeExp(actor->GetSpriteIndex());
+        SpawnGrenadeExp(actor);
 
     u->ID = ZILLA_RUN_R0;
     RESET(u->Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);

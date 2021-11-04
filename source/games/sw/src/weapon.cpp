@@ -8873,7 +8873,7 @@ DoGrenade(DSWActor* actor)
                         InitPhosphorus(actor);
                     }
                 }
-                SpawnGrenadeExp(Weapon);
+                SpawnGrenadeExp(actor);
                 KillActor(actor);
                 return true;
             }
@@ -8945,7 +8945,7 @@ DoGrenade(DSWActor* actor)
                                     InitPhosphorus(actor);
                                 }
                             }
-                            SpawnGrenadeExp(Weapon);
+                            SpawnGrenadeExp(actor);
                             KillActor(actor);
                             return true;
                         }
@@ -8988,8 +8988,7 @@ DoGrenade(DSWActor* actor)
                                 InitPhosphorus(actor);
                             }
                         }
-                        //WeaponMoveHit(Weapon);
-                        SpawnGrenadeExp(Weapon);
+                        SpawnGrenadeExp(actor);
                         KillActor(actor);
                         return true;
                     }
@@ -9009,7 +9008,7 @@ DoGrenade(DSWActor* actor)
 
     if (u->bounce > 10)
     {
-        SpawnGrenadeExp(Weapon);
+        SpawnGrenadeExp(actor);
         KillActor(actor);
         return true;
     }
@@ -11400,28 +11399,26 @@ SpawnGrenadeSmallExp(DSWActor* actor)
     return 0;
 }
 
-int
-SpawnGrenadeExp(int16_t Weapon)
+void SpawnGrenadeExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
     int dx,dy,dz;
 
     ASSERT(u);
     if (u && TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return;
 
-    PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
+    PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
 
     if (RandomRange(1000) > 990)
     {
-        if (sp->owner >= 0 && User[sp->owner].Data() && User[sp->owner]->PlayerP)
+        auto own = GetOwner(actor);
+        if (own != nullptr && own->hasU() && own->u()->PlayerP)
         {
-            PLAYERp pp = User[sp->owner]->PlayerP;
-            PlayerSound(DIGI_LIKEFIREWORKS, v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_LIKEFIREWORKS, v3df_follow|v3df_dontpan, own->u()->PlayerP);
         }
     }
 
@@ -11436,14 +11433,14 @@ SpawnGrenadeExp(int16_t Weapon)
         dz = SPRITEp_MID(sp) + RandomRange(1000)-RandomRange(1000);
     }
 
-    explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_GrenadeExp, sp->sectnum,
                             dx, dy, dz, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), expActor);
     exp->shade = -40;
     exp->xrepeat = 64 + 32;
     exp->yrepeat = 64 + 32;
@@ -11457,31 +11454,18 @@ SpawnGrenadeExp(int16_t Weapon)
     // ceilings
     //
 
-    SpawnExpZadjust(Weapon, exp, Z(100), Z(30));
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(100), Z(30));
 
     DoExpDamageTest(expActor);
 
-    SetExpQuake(explosion);
+    SetExpQuake(expActor->GetSpriteIndex());
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 0);
-
-#if 0
-    short ang;
-    ang = RANDOM_P2(2048);
-    SpawnGrenadeSecondaryExp(explosion, ang);
-    ang = ang + 512 + RANDOM_P2(256);
-    SpawnGrenadeSecondaryExp(explosion, ang);
-    ang = ang + 512 + RANDOM_P2(256);
-    SpawnGrenadeSecondaryExp(explosion, ang);
-    ang = ang + 512 + RANDOM_P2(256);
-    SpawnGrenadeSecondaryExp(explosion, ang);
-#endif
-
-    return explosion;
 }
 
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize)
 {
-    USERp u = User[Weapon].Data();
+    auto actor = &swActors[Weapon];
+    USERp u = actor->u();
     USERp eu = User[exp - sprite].Data();
     int tos_z, bos_z;
 

@@ -2225,7 +2225,7 @@ int DoCarryFlag(DSWActor* actor)
         u->Counter2++;
         break;
     case FLAG_DETONATE_STATE + 1:
-        SpawnGrenadeExp(actor->GetSpriteIndex());
+        SpawnGrenadeExp(actor);
         SetSuicide(actor);
         return false;
         break;
