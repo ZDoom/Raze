@@ -13120,10 +13120,8 @@ InitEnemyNapalm(DSWActor* actor)
     return 0;
 }
 
-int
-InitSpellMirv(PLAYERp pp)
+int InitSpellMirv(PLAYERp pp)
 {
-    short SpriteNum;
     SPRITEp sp;
     USERp u;
 
@@ -13132,15 +13130,15 @@ InitSpellMirv(PLAYERp pp)
     if (pp->cursectnum < 0)
         return 0;
 
-    SpriteNum = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursectnum,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), MIRV_VELOCITY);
 
-    sp = &sprite[SpriteNum];
-    u = User[SpriteNum].Data();
+    sp = &actorNew->s();
+    u = actorNew->u();
 
-    PlaySound(DIGI_MIRVWIZ, sp, v3df_follow);
+    PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
-    SetOwner(short(pp->SpriteP - sprite), SpriteNum);
+    SetOwner(pp->Actor(), actorNew);
     sp->shade = -40;
     sp->xrepeat = 72;
     sp->yrepeat = 72;
@@ -13160,34 +13158,31 @@ InitSpellMirv(PLAYERp pp)
     u->ychange = MOVEy(sp->xvel, sp->ang);
     u->zchange = sp->zvel;
 
-    MissileSetPos(SpriteNum, DoMirv, 600);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoMirv, 600);
     pp->SpriteP->clipdist = oclipdist;
 
     u->Counter = 0;
     return 0;
 }
 
-int
-InitEnemyMirv(DSWActor* actor)
+int InitEnemyMirv(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
-    short w;
     int dist;
 
-    PlaySound(DIGI_MIRVFIRE, sp, v3df_none);
+    PlaySound(DIGI_MIRVFIRE, actor, v3df_none);
 
-    w = SpawnSprite(STAT_MISSILE, MIRV_METEOR, s_Mirv, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, s_Mirv, sp->sectnum,
                     sp->x, sp->y, SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)), sp->ang, MIRV_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    PlaySound(DIGI_MIRVWIZ, wp, v3df_follow);
+    PlaySound(DIGI_MIRVWIZ, actorNew, v3df_follow);
 
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->shade = -40;
     wp->xrepeat = 72;
     wp->yrepeat = 72;
@@ -13204,7 +13199,7 @@ InitEnemyMirv(DSWActor* actor)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
 
-    MissileSetPos(w, DoMirv, 600);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoMirv, 600);
 
     // find the distance to the target (player)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
