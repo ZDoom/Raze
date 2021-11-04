@@ -4296,30 +4296,29 @@ bool VehicleMoveHit(DSWActor* actor)
 }
 
 
-bool
-WeaponMoveHit(short SpriteNum)
+bool WeaponMoveHit(short SpriteNum)
 {
     auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
 
-    if (!u->ret)
-        return false;
-
-    switch (TEST(u->ret, HIT_MASK))
+    switch (u->coll.type)
     {
-    case HIT_PLAX_WALL:
+    default:
+        break;
+
+    case kHitSky:
         SetSuicide(actor);
         return true;
 
-    case HIT_SECTOR:
+    case kHitSector:
     {
-        short hit_sect;
+        int hit_sect;
         SECTORp sectp;
         SECTOR_OBJECTp sop;
 
-        hit_sect = NORM_SECTOR(u->ret);
+        hit_sect = u->coll.index;
         sectp = &sector[hit_sect];
 
         ASSERT(sectp->extra != -1);
@@ -4343,7 +4342,6 @@ WeaponMoveHit(short SpriteNum)
             if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
             {
                 SpawnSplash(actor);
-                //SetSuicide(actor);
                 return true;
             }
 
@@ -4367,7 +4365,6 @@ WeaponMoveHit(short SpriteNum)
         {
             if ((sop = DetectSectorObject(sectp)))
             {
-                //if (sop->max_damage != -9999)
                 DoDamage(sop->sp_child->GetSpriteIndex(), SpriteNum);
                 return true;
             }
@@ -4385,29 +4382,27 @@ WeaponMoveHit(short SpriteNum)
         return true;
     }
 
-    case HIT_SPRITE:
+    case kHitSprite:
     {
         SPRITEp hsp;
         USERp hu;
-        short hit_sprite;
 
-        hit_sprite = NORM_SPRITE(u->ret);
-        auto hitActor = &swActors[hit_sprite];
-        hsp = &sprite[hit_sprite];
-        hu = User[hit_sprite].Data();
+        auto hitActor = u->coll.actor;
+        hsp = &hitActor->s();
+        hu = hitActor->u();
 
         ASSERT(hsp->extra != -1);
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(&swActors[hit_sprite], u->ID);
+            HitBreakSprite(hitActor, u->ID);
             return true;
         }
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
             // make sure you didn't hit the Owner of the missile
-            if (hit_sprite != sp->owner)
+            if (hitActor != GetOwner(actor))
             {
                 if (u->ID == STAR1)
                 {
@@ -4415,8 +4410,8 @@ WeaponMoveHit(short SpriteNum)
                     switch (hu->ID)
                     {
                     case TRASHCAN:
-                        PlaySound(DIGI_TRASHLID, sp, v3df_none);
-                        PlaySound(DIGI_STARCLINK, sp, v3df_none);
+                        PlaySound(DIGI_TRASHLID, actor, v3df_none);
+                        PlaySound(DIGI_STARCLINK, actor, v3df_none);
                         if (hu->WaitTics <= 0)
                         {
                             hu->WaitTics = SEC(2);
@@ -4430,12 +4425,12 @@ WeaponMoveHit(short SpriteNum)
                     case ZILLA_RUN_R0:
                     case 623:
                     {
-                        PlaySound(DIGI_STARCLINK, sp, v3df_none);
+                        PlaySound(DIGI_STARCLINK, actor, v3df_none);
                     }
                     break;
                     }
                 }
-                DoDamage(hit_sprite, SpriteNum);
+                DoDamage(hitActor->GetSpriteIndex(), actor->GetSpriteIndex());
                 return true;
             }
         }
@@ -4443,14 +4438,14 @@ WeaponMoveHit(short SpriteNum)
         {
             if (hsp->statnum == STAT_MINE_STUCK)
             {
-                DoDamage(hit_sprite, SpriteNum);
+                DoDamage(hitActor->GetSpriteIndex(), actor->GetSpriteIndex());
                 return true;
             }
         }
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(actor, -1, &swActors[hit_sprite]))
+            if (MissileHitMatch(actor, -1, hitActor))
                 return true;
         }
 
@@ -4466,10 +4461,10 @@ WeaponMoveHit(short SpriteNum)
         return true;
     }
 
-    case HIT_WALL:
+    case kHitWall:
     {
-        hitdata_t hitinfo = { { 0, 0, 0 }, -2, (int16_t)NORM_WALL(u->ret), -2 };
-        WALLp wph = &wall[hitinfo.wall];
+        int wal = u->coll.index;
+        WALLp wph = &wall[wal];
         SECTOR_OBJECTp sop;
 
         ASSERT(wph->extra != -1);
@@ -4479,14 +4474,14 @@ WeaponMoveHit(short SpriteNum)
             if ((sop = DetectSectorObjectByWall(wph)))
             {
                 if (sop->max_damage != -999)
-                    DoDamage(sop->sp_child->GetSpriteIndex(), SpriteNum);
+                    DoDamage(sop->sp_child->GetSpriteIndex(), actor->GetSpriteIndex());
                 return true;
             }
         }
 
         if (wph->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitinfo.wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
+            HitBreakWall(&wall[wal], sp->x, sp->y, sp->z, sp->ang, u->ID);
             SetCollision(u, 0);
             return true;
         }
@@ -4494,6 +4489,7 @@ WeaponMoveHit(short SpriteNum)
         // clipmove does not correctly return the sprite for WALL sprites
         // on walls, so look with hitscan
 
+        hitdata_t hitinfo;
         hitscan(&sp->pos, sp->sectnum,   // Start position
                 bcos(sp->ang),    // X vector of 3D ang
                 bsin(sp->ang),    // Y vector of 3D ang
@@ -4507,11 +4503,12 @@ WeaponMoveHit(short SpriteNum)
 
         if (hitinfo.sprite >= 0)
         {
-            SPRITEp hsp = &sprite[hitinfo.sprite];
+            auto hitActor = &swActors[hitinfo.sprite];
+            SPRITEp hsp = &hitActor->s();
 
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
             {
-                if (MissileHitMatch(actor, -1, &swActors[hitinfo.sprite]))
+                if (MissileHitMatch(actor, -1, hitActor))
                     return true;
             }
 
@@ -4519,7 +4516,7 @@ WeaponMoveHit(short SpriteNum)
             {
                 if (hsp->lotag || hsp->hitag)
                 {
-                    ShootableSwitch(&swActors[hitinfo.sprite]);
+                    ShootableSwitch(hitActor);
                     return true;
                 }
             }
@@ -4532,46 +4529,28 @@ WeaponMoveHit(short SpriteNum)
     return false;
 }
 
-int
-DoUziSmoke(DSWActor* actor)
+int DoUziSmoke(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-
-    //if (sp->picnum != nullptr)
-    //    DoDamageTest(SpriteNum);
+    SPRITEp sp = &actor->s();
     sp->z -= 200; // !JIM! Make them float up
-
     return 0;
 }
 
-int
-DoShotgunSmoke(DSWActor* actor)
+int DoShotgunSmoke(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-
-    //if (sp->picnum != nullptr)
-    //    DoDamageTest(SpriteNum);
+    SPRITEp sp = &actor->s();
     sp->z -= 200; // !JIM! Make them float up
-
     return 0;
 }
 
-int
-DoMineSpark(DSWActor* actor)
+int DoMineSpark(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (sp->picnum != 0)
     {
         DoDamageTest(actor);
     }
-
     return 0;
 }
 
