@@ -2764,15 +2764,12 @@ void SpriteSetup(void)
 
                 case SPRI_CLIMB_MARKER:
                 {
-                    short ns;
-                    SPRITEp np;
-
                     // setup climb marker
                     change_actor_stat(actor, STAT_CLIMB_MARKER);
 
                     // make a QUICK_LADDER sprite automatically
-                    ns = COVERinsertsprite(sp->sectnum, STAT_QUICK_LADDER);
-                    np = &sprite[ns];
+                    auto ns = InsertActor(sp->sectnum, STAT_QUICK_LADDER);
+                    auto np = &ns->s();
 
                     np->cstat = 0;
                     np->extra = 0;

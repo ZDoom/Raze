@@ -790,7 +790,6 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     np->pal = nu->spal = ownerActor->u()->spal;
     np->ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
-    //np->shade = sprite[pp->PlayerSprite].shade;
     np->shade = -10;
     SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
     SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
@@ -810,10 +809,8 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
 void SpawnZombie2(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
-    short New;
     SPRITEp np;
     USERp nu;
-    short owner;
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
@@ -848,7 +845,6 @@ void SpawnZombie2(DSWActor* actor)
     np->pal = nu->spal = ownerActor->u()->spal;
     np->ang = RANDOM_P2(2048);
     SetupZombie(actorNew);
-    //np->shade = sprite[pp->PlayerSprite].shade;
     np->shade = -10;
     SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
     SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);

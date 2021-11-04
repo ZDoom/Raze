@@ -56,11 +56,6 @@ bool FAF_DebugView = false;
 
 DSWActor* InsertActor(int sectnum, int stat)
 {
-    return &swActors[COVERinsertsprite(sectnum, stat)];
-}
-
-int COVERinsertsprite(short sectnum, short stat)
-{
     short spnum;
     spnum = insertsprite(sectnum, stat);
     auto pSprite = &sprite[spnum];
@@ -82,7 +77,7 @@ int COVERinsertsprite(short sectnum, short stat)
     pSprite->hitag = 0;
     pSprite->extra = 0;
 
-    return spnum;
+    return &swActors[spnum];
 }
 
 bool FAF_Sector(short sectnum)

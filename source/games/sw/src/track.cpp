@@ -327,13 +327,10 @@ int
 TrackClonePoint(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], np;
-    short New;
 
-    New = COVERinsertsprite(sp->sectnum, sp->statnum);
+    auto actorNew = InsertActor(sp->sectnum, sp->statnum);
 
-    ASSERT(New != -1);
-
-    np = &sprite[New];
+    np = &actorNew->s();
 
     np->cstat = np->extra = 0;
     np->x = sp->x;
@@ -343,7 +340,7 @@ TrackClonePoint(short SpriteNum)
     np->lotag = sp->lotag;
     np->hitag = sp->hitag;
 
-    return New;
+    return actorNew->GetSpriteIndex();
 }
 
 void QuickJumpSetup(short stat, short lotag, short type)
@@ -1847,7 +1844,7 @@ PlayerPart:
             if (TEST(sop->flags, SOBJ_DONT_ROTATE))
                 continue;
 
-            // IS part of a sector - sprite can do things based on the
+            // IS part of a sector, sprite can do things based on the
             // current sector it is in
             if (TEST(wall[sector[sp->sectnum].wallptr].extra, WALLFX_LOOP_DONT_SPIN))
                 continue;

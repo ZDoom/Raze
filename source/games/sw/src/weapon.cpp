@@ -12671,7 +12671,7 @@ int DoSerpRing(DSWActor* actor)
             DISTANCE(sp->x, sp->y, u->targetActor->s().x, u->targetActor->s().y, dist, a,b,c);
 
             // if ((dist ok and random ok) OR very few skulls left)
-            if ((dist < 18000 && (RANDOM_P2(2048<<5)>>5) < 16) || User[sp->owner]->Counter < 4)
+            if ((dist < 18000 && (RANDOM_P2(2048<<5)>>5) < 16) || ou->Counter < 4)
             {
                 int sectnum = sp->sectnum;
                 updatesector(sp->x,sp->y,&sectnum);
@@ -12836,7 +12836,7 @@ int InitSerpRing(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s(), np;
     USERp nu;
-    short ang, ang_diff, ang_start, missiles, New;
+    short ang, ang_diff, ang_start, missiles;
     short max_missiles;
 
     const int SERP_RING_DIST = 2800; // Was 3500
@@ -19886,10 +19886,10 @@ void QueueGeneric(DSWActor* actor, short pic)
 
 #if 0
 int
-DoShellShrap(short SpriteNum)
+DoShellShrap(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     // If the shell doesn't fall in the allowable range, kill it.
     if (u->ShellNum < (ShellCount-MAXSHELLS))

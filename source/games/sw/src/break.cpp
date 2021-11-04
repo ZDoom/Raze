@@ -938,8 +938,6 @@ int AutoBreakSprite(DSWActor* breakActor, short type)
 
     if (!break_info)
     {
-        //DSPRINTF(ds,"Break Info not found - sprite %d", bp - sprite);
-        MONO_PRINT(ds);
         return false;
     }
 

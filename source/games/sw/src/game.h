@@ -2123,7 +2123,6 @@ void SetSpikeActive(DSWActor*);   // spike.c
 #define NTAG_SEARCH_HI 2
 #define NTAG_SEARCH_LO_HI 3
 
-int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenum;
 DSWActor* InsertActor(int sectnum, int statnum);
 
 void AudioUpdate(void); // stupid
