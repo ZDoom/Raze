@@ -12395,12 +12395,10 @@ MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
     return retval;
 }
 
-bool
-TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
+bool TestMissileSetPos(DSWActor* actor, ANIMATORp DoWeapon, int dist, int zvel)
 {
-    auto actor = &swActors[Weapon];
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon].Data();
+    SPRITEp wp = &actor->s();
+    USERp wu = actor->u();
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
     bool retval = false;
@@ -14710,7 +14708,7 @@ int InitRail(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRailStart, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
         sp->clipdist = oclipdist;
         KillActor(actorNew);
@@ -14793,7 +14791,7 @@ int InitZillaRail(DSWActor* actor)
     if (SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRailStart, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRailStart, 1200, zvel))
     {
         sp->clipdist = oclipdist;
         KillActor(actorNew);
@@ -14907,7 +14905,7 @@ int InitRocket(PLAYERp pp)
 
     // cancel smoke trail
     wu->Counter = 1;
-    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
         sp->clipdist = oclipdist;
         KillActor(actorNew);
@@ -15018,7 +15016,7 @@ int InitBunnyRocket(PLAYERp pp)
 
     // cancel smoke trail
     wu->Counter = 1;
-    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
         sp->clipdist = oclipdist;
         KillActor(actorNew);
@@ -15117,7 +15115,7 @@ int InitNuke(PLAYERp pp)
 
     // cancel smoke trail
     wu->Counter = 1;
-    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
         sp->clipdist = oclipdist;
         KillActor(actorNew);
@@ -15204,7 +15202,7 @@ int InitEnemyNuke(DSWActor* actor)
 
     // cancel smoke trail
     wu->Counter = 1;
-    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew, DoRocket, 1200, zvel))
     {
         KillActor(actorNew);
         return 0;
@@ -16032,7 +16030,7 @@ int InitEnemyRail(DSWActor* actor)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
 
-    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRailStart, 600, wp->zvel))
+    if (TestMissileSetPos(actorNew, DoRailStart, 600, wp->zvel))
     {
         KillActor(actorNew);
         return 0;
@@ -18555,7 +18553,7 @@ int InitFireball(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoFireball, 1200, MulScale(zvel,44000, 16)))
+    if (TestMissileSetPos(actorNew, DoFireball, 1200, MulScale(zvel,44000, 16)))
     {
         sp->clipdist = oclipdist;
         KillActor(actorNew);
