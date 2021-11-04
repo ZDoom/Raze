@@ -2734,10 +2734,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         }
         psp->cstat = save_cstat;
 
-        //SetupDriveCrush(pp, x, y);
-        //DriveCrush(pp, x, y);
-
-        if (u->ret)
+        if (u->coll.type != kHitNone)
         {
             int vel;
 

@@ -3782,7 +3782,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
     SetCollision(u, move_sprite(actor->GetSpriteIndex(), nx, ny, nz, u->ceiling_dist, u->floor_dist, 0, locktics));
 
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
             ActorLeaveTrack(actor->GetSpriteIndex());

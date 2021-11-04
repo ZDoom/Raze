@@ -8018,7 +8018,7 @@ DoStar(DSWActor* actor)
             vel = ksqrt(SQ(u->xchange) + SQ(u->ychange));
 
             if (vel < 500)
-                break; // will be killed below - u->ret != 0
+                break; // will be killed below - hittype != 0
 
             // 32000 to 96000
             u->xchange = MulScale(u->xchange, 64000 + (RandomRange(64000) - 32000), 16);
@@ -8859,9 +8859,6 @@ DoGrenade(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
-
-    ////DSPRINTF(ds, "dist %d, u->ret %d", FindDistance3D(u->xchange, u->ychange, u->zchange), u->ret);
-    //MONO_PRINT(ds);
 
     if (u->ret)
     {
@@ -19252,7 +19249,8 @@ bool TestDontStick(DSWActor* actor, short hit_wall)
     {
         ASSERT(actor != nullptr);
         USERp u = actor->u();
-        hit_wall = NORM_WALL(u->ret);
+        if (u->coll.type != kHitWall) return true; // ain't got a wall here.
+        hit_wall = u->coll.index;
     }
 
     wp = &wall[hit_wall];

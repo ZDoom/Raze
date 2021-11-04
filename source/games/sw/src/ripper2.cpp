@@ -1019,18 +1019,16 @@ int DoRipper2MoveHang(DSWActor* actor)
     // if cannot move the sprite
     if (!move_actor(actor, nx, ny, 0L))
     {
-        switch (TEST(u->ret, HIT_MASK))
-        {
-        case HIT_WALL:
+        if (u->coll.type == kHitWall)
         {
             short hit_wall;
             short w, nw;
 
             // Don't keep clinging and going ever higher!
             if (abs(sp->z - u->targetActor->s().z) > (4000<<4))
-                break;
+                return 0;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
 
             NewStateGroup(actor, u->ActorActionSet->Special[1]);
             if (RANDOM_P2(1024<<8)>>8 > 500)
@@ -1044,7 +1042,6 @@ int DoRipper2MoveHang(DSWActor* actor)
             sp->ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y) - 512);
 
             return 0;
-        }
         }
     }
 
