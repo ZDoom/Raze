@@ -16778,31 +16778,28 @@ InitEelFire(DSWActor* actor)
     return 0;
 }
 
-int
-InitFireballTrap(DSWActor* actor)
+void InitFireballTrap(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz;
     short w;
 
-    PlaySound(DIGI_FIREBALL1, sp, v3df_none);
+    PlaySound(DIGI_FIREBALL1, actor, v3df_none);
 
     nx = sp->x;
     ny = sp->y;
     nz = sp->z - SPRITEp_SIZE_Z(sp);
 
     // Spawn a shot
-    w = SpawnSprite(STAT_MISSILE, FIREBALL, s_Fireball, sp->sectnum, nx, ny, nz,
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL, s_Fireball, sp->sectnum, nx, ny, nz,
                     sp->ang, FIREBALL_TRAP_VELOCITY);
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    
     wp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->xrepeat -= 20;
     wp->yrepeat -= 20;
     wp->shade = -40;
@@ -16814,34 +16811,29 @@ InitFireballTrap(DSWActor* actor)
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
-
-    return w;
 }
 
-int
-InitBoltTrap(DSWActor* actor)
+void InitBoltTrap(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz;
     short w;
 
-    PlaySound(DIGI_RIOTFIRE, sp, v3df_none);
+    PlaySound(DIGI_RIOTFIRE, actor, v3df_none);
 
     nx = sp->x;
     ny = sp->y;
     nz = sp->z - SPRITEp_SIZE_Z(sp);
 
     // Spawn a shot
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], sp->sectnum, nx, ny, nz,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], sp->sectnum, nx, ny, nz,
                     sp->ang, BOLT_TRAP_VELOCITY);
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->yrepeat = 32;
     wp->xrepeat = 32;
     wp->shade = -15;
@@ -16849,48 +16841,39 @@ InitBoltTrap(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rocket[0]);
+    NewStateGroup(actorNew, &sg_Rocket[0]);
     wu->Radius = 200;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
-
-    return w;
 }
 
 
-int
-InitSpearTrap(short SpriteNum)
+void InitSpearTrap(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
-    //USERp u = User[SpriteNum].Data();
     int nx, ny, nz;
-    short w;
-    //short nang;
 
     nx = sp->x;
     ny = sp->y;
     nz = SPRITEp_MID(sp);
 
     // Spawn a shot
-    w = SpawnSprite(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], sp->sectnum, nx, ny, nz, sp->ang, 750);
+    auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], sp->sectnum, nx, ny, nz, sp->ang, 750);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
-
+    wp = &actorNew->s();
+    wu = actorNew->u();
     
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->xrepeat = 16;
     wp->yrepeat = 26;
     wp->shade = -25;
-    //wp->zvel = 0;
-    //wp->ang = nang;
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_CrossBolt[0]);
+    NewStateGroup(actorNew, &sg_CrossBolt[0]);
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -16898,32 +16881,17 @@ InitSpearTrap(short SpriteNum)
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    //MissileSetPos(w, DoStar, 400);
-
-    // find the distance to the target (player)
-    //int dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
-
-    //if (dist != 0)
-    //wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
-
-    PlaySound(DIGI_STAR, sp, v3df_none);
-    return w;
+    PlaySound(DIGI_STAR, actor, v3df_none);
 }
 
-int
-DoSuicide(DSWActor* actor)
+int DoSuicide(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     KillActor(actor);
     return 0;
 }
 
-int
-DoDefaultStat(DSWActor* actor)
+int DoDefaultStat(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     change_actor_stat(actor, STAT_DEFAULT);
     return 0;
 }

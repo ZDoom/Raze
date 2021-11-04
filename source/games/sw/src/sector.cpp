@@ -58,7 +58,6 @@ enum
     SINE_SLOPED = BIT(3),
 };
 
-int InitFireballTrap(DSWActor* actor);
 ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYERp);
 
@@ -1958,7 +1957,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitSpearTrap(actor->GetSpriteIndex());
+                InitSpearTrap(actor);
             }
         }
     }
