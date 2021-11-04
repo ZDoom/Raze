@@ -14731,14 +14731,13 @@ InitLaser(PLAYERp pp)
 
 
 
-int
-InitRail(PLAYERp pp)
+int InitRail(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     int zvel;
 
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -14763,106 +14762,20 @@ InitRail(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), 1200);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 52;
     wp->xrepeat = 52;
     wp->shade = -15;
     zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT + 17, 16);
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rail[0]);
-
-    wu->WeaponNum = u->WeaponNum;
-    wu->Radius = RAIL_RADIUS;
-    wu->ceiling_dist = Z(1);
-    wu->floor_dist = Z(1);
-    SET(wp->cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
-    SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
-    // at certain angles the clipping box was big enough to block the
-    // initial positioning
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
-    wp->clipdist = 32L>>2;
-
-    wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 700);
-    wp->ang = NORM_ANGLE(wp->ang - 512);
-
-    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
-        SET(wu->Flags, SPR_UNDERWATER);
-
-    if (TestMissileSetPos(w, DoRailStart, 1200, zvel))
-    {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
-        return 0;
-    }
-
-    pp->SpriteP->clipdist = oclipdist;
-
-    wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(pp->SpriteP, w, 32, false) == -1)
-    {
-        wp->ang = NORM_ANGLE(wp->ang - 4);
-    }
-    else
-        zvel = wp->zvel;  // Let autoaiming set zvel now
-
-    wu->xchange = MOVEx(wp->xvel, wp->ang);
-    wu->ychange = MOVEy(wp->xvel, wp->ang);
-    wu->zchange = zvel;
-
-    return 0;
-}
-
-int
-InitZillaRail(DSWActor* actor)
-{
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp wu;
-    SPRITEp wp;
-    int nx, ny, nz;
-    short w;
-    int zvel;
-
-    if (SW_SHAREWARE) return false; // JBF: verify
-
-    PlaySound(DIGI_RAILFIRE, sp, v3df_dontpan|v3df_doppler);
-
-    // Make sprite shade brighter
-    u->Vis = 128;
-
-    nx = sp->x;
-    ny = sp->y;
-
-    nz = SPRITEp_TOS(sp);
-
-    // Spawn a shot
-    // Inserting and setting up variables
-
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], sp->sectnum,
-                    nx, ny, nz, sp->ang, 1200);
-
-    wp = &sprite[w];
-    wu = User[w].Data();
-
-    SetOwner(SpriteNum, w);
-    wp->yrepeat = 52;
-    wp->xrepeat = 52;
-    wp->shade = -15;
-    zvel = (100 * (HORIZ_MULT+17));
-
-    wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rail[0]);
+    NewStateGroup(actorNew, &sg_Rail[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = RAIL_RADIUS;
@@ -14878,23 +14791,23 @@ InitZillaRail(DSWActor* actor)
     wp->clipdist = 32L>>2;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 700);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 700);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
-    if (SpriteInUnderwaterArea(wp))
+    if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    if (TestMissileSetPos(w, DoRailStart, 1200, zvel))
+    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRailStart, 1200, zvel))
     {
         sp->clipdist = oclipdist;
-        KillSprite(w);
+        KillActor(actorNew);
         return 0;
     }
 
     sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(sp, w, 32, false) == -1)
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 4);
     }
@@ -14908,8 +14821,90 @@ InitZillaRail(DSWActor* actor)
     return 0;
 }
 
-int
-InitRocket(PLAYERp pp)
+int InitZillaRail(DSWActor* actor)
+{
+    USER* u = actor->u();
+    SPRITEp sp = &actor->s();
+    USERp wu;
+    SPRITEp wp;
+    int nx, ny, nz;
+    int zvel;
+
+    if (SW_SHAREWARE) return false; // JBF: verify
+
+    PlaySound(DIGI_RAILFIRE, actor, v3df_dontpan|v3df_doppler);
+
+    // Make sprite shade brighter
+    u->Vis = 128;
+
+    nx = sp->x;
+    ny = sp->y;
+
+    nz = SPRITEp_TOS(sp);
+
+    // Spawn a shot
+    // Inserting and setting up variables
+
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], sp->sectnum,
+                    nx, ny, nz, sp->ang, 1200);
+
+    wp = &actorNew->s();
+    wu = actorNew->u();
+
+    SetOwner(actor, actorNew);
+    wp->yrepeat = 52;
+    wp->xrepeat = 52;
+    wp->shade = -15;
+    zvel = (100 * (HORIZ_MULT+17));
+
+    wu->RotNum = 5;
+    NewStateGroup(actorNew, &sg_Rail[0]);
+
+    wu->WeaponNum = u->WeaponNum;
+    wu->Radius = RAIL_RADIUS;
+    wu->ceiling_dist = Z(1);
+    wu->floor_dist = Z(1);
+    SET(wp->cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
+    SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+
+    // at certain angles the clipping box was big enough to block the
+    // initial positioning
+    auto oclipdist = sp->clipdist;
+    sp->clipdist = 0;
+    wp->clipdist = 32L>>2;
+
+    wp->ang = NORM_ANGLE(wp->ang + 512);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 700);
+    wp->ang = NORM_ANGLE(wp->ang - 512);
+
+    if (SpriteInUnderwaterArea(wp))
+        SET(wu->Flags, SPR_UNDERWATER);
+
+    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRailStart, 1200, zvel))
+    {
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
+        return 0;
+    }
+
+    sp->clipdist = oclipdist;
+
+    wp->zvel = zvel >> 1;
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
+    {
+        wp->ang = NORM_ANGLE(wp->ang - 4);
+    }
+    else
+        zvel = wp->zvel;  // Let autoaiming set zvel now
+
+    wu->xchange = MOVEx(wp->xvel, wp->ang);
+    wu->ychange = MOVEy(wp->xvel, wp->ang);
+    wu->zchange = zvel;
+
+    return 0;
+}
+
+int InitRocket(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite].Data();
     USERp wu;
